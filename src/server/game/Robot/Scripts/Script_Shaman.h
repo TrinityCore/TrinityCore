@@ -13,12 +13,8 @@
 
 class Script_Shaman :public Script_Base
 {
-public:
-    Script_Shaman()
-    {
-
-    }
-    Script_Shaman(uint32 pmCharacterID);
+public:    
+    Script_Shaman(Player* pmMe);
     bool DPS(Unit* pmTarget, bool pmChase, bool pmAOE);
     bool Tank(Unit* pmTarget);
     bool Heal(Unit* pmTarget, bool pmCure);

@@ -48,7 +48,10 @@ enum SLCreatureIds
     NPC_BLACKHEART_DUMMY4               = 19303,
     NPC_BLACKHEART_DUMMY5               = 19304,
     NPC_GRANDMASTER_VORPIL              = 18732,
-    NPC_FEL_OVERSEER                    = 18796
+    NPC_FEL_OVERSEER                    = 18796,
+
+    // EJ scripts
+    SL_NPC_VOID_TRAVELER = 19226,
 };
 
 enum SLGameObjectIds

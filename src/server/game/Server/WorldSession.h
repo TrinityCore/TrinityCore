@@ -294,7 +294,10 @@ class TC_GAME_API WorldSession
     public:
         WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldSocket> sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter);
         ~WorldSession();
-                    
+
+        // EJ robot
+        bool isRobotSession;
+
         bool PlayerLoading() const { return m_playerLoading; }
         bool PlayerLogout() const { return m_playerLogout; }
         bool PlayerLogoutWithSave() const { return m_playerLogout && m_playerSave; }

@@ -2,9 +2,9 @@
 #include "Group.h"
 #include "RobotManager.h"
 
-Script_Warrior::Script_Warrior(uint32 pmCharacterID) :Script_Base()
+Script_Warrior::Script_Warrior(Player* pmMe) :Script_Base(pmMe)
 {
-    character = pmCharacterID;
+
 }
 
 bool Script_Warrior::Heal(Unit* pmTarget, bool pmCure)
@@ -22,8 +22,6 @@ bool Script_Warrior::Tank(Unit* pmTarget)
     {
         return false;
     }
-    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
-    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
     if (!me)
     {
         return false;
@@ -114,8 +112,8 @@ bool Script_Warrior::DPS_Arms(Unit* pmTarget, bool pmChase, bool pmAOE)
     {
         return false;
     }
-    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
-    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+
+
     if (!me)
     {
         return false;
@@ -151,49 +149,36 @@ bool Script_Warrior::DPS_Arms(Unit* pmTarget, bool pmChase, bool pmAOE)
     uint32 rage = me->GetPower(Powers::POWER_RAGE);
     if (rage > 300)
     {
-        Group* myGroup = me->GetGroup();
-        if (myGroup)
+        if (Group* myGroup = me->GetGroup())
         {
-            if (myGroup->isRaidGroup())
+            for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
             {
-                // todo raid aoe
-            }
-            else
-            {
-                if (sRobotManager->partyStrategyMap.find(myGroup->GetLowGUID()) != sRobotManager->partyStrategyMap.end())
+                if (Player* member = groupRef->GetSource())
                 {
-                    for (std::unordered_map<uint32, PartyMember>::iterator pmIT = sRobotManager->partyStrategyMap[myGroup->GetLowGUID()].memberMap.begin(); pmIT != sRobotManager->partyStrategyMap[myGroup->GetLowGUID()].memberMap.end(); pmIT++)
+                    if (member->groupRole == GroupRole::GroupRole_Tank)
                     {
-                        if (pmIT->second.partyRole == PartyRole::PartyRole_Tank)
+                        if (member->getAttackers().size() >= 3)
                         {
-                            ObjectGuid tankGUID = ObjectGuid(HighGuid::Player, pmIT->second.character);
-                            if (Player* tank = ObjectAccessor::FindConnectedPlayer(tankGUID))
+                            uint32 inRangeCount = 0;
+                            for (std::set<Unit*>::const_iterator i = member->getAttackers().begin(); i != member->getAttackers().end(); ++i)
                             {
-                                if (tank->getAttackers().size() >= 3)
+                                if ((*i)->GetDistance(member) < AOE_TARGETS_RANGE)
                                 {
-                                    uint32 inRangeCount = 0;
-                                    for (std::set<Unit*>::const_iterator i = tank->getAttackers().begin(); i != tank->getAttackers().end(); ++i)
+                                    inRangeCount++;
+                                    if (inRangeCount >= 3)
                                     {
-                                        if ((*i)->GetDistance(tank) < AOE_TARGETS_RANGE)
+                                        if (CastSpell((*i), "Bladestorm", MELEE_MAX_DISTANCE))
                                         {
-                                            inRangeCount++;
-                                            if (inRangeCount >= 3)
-                                            {
-                                                if (CastSpell((*i), "Bladestorm", MELEE_MAX_DISTANCE))
-                                                {
-                                                    return true;
-                                                }
-                                                if (CastSpell((*i), "Sweeping Strikes", MELEE_MAX_DISTANCE))
-                                                {
-                                                    return true;
-                                                }
-                                                break;
-                                            }
+                                            return true;
                                         }
+                                        if (CastSpell((*i), "Sweeping Strikes", MELEE_MAX_DISTANCE))
+                                        {
+                                            return true;
+                                        }
+                                        break;
                                     }
                                 }
                             }
-                            break;
                         }
                     }
                 }
@@ -247,8 +232,8 @@ bool Script_Warrior::DPS_Fury(Unit* pmTarget, bool pmChase, bool pmAOE)
     {
         return false;
     }
-    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
-    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+
+
     if (!me)
     {
         return false;
@@ -336,8 +321,8 @@ bool Script_Warrior::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE)
     {
         return false;
     }
-    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
-    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+
+
     if (!me)
     {
         return false;
@@ -429,8 +414,8 @@ bool Script_Warrior::Attack_Arms(Unit* pmTarget)
     {
         return false;
     }
-    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
-    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+
+
     if (!me)
     {
         return false;
@@ -516,8 +501,8 @@ bool Script_Warrior::Attack_Fury(Unit* pmTarget)
     {
         return false;
     }
-    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
-    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+
+
     if (!me)
     {
         return false;
@@ -599,8 +584,8 @@ bool Script_Warrior::Attack_Protection(Unit* pmTarget)
     {
         return false;
     }
-    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
-    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+
+
     if (!me)
     {
         return false;
@@ -661,8 +646,8 @@ bool Script_Warrior::Attack_Common(Unit* pmTarget)
     {
         return false;
     }
-    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
-    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+
+
     if (!me)
     {
         return false;
@@ -723,109 +708,67 @@ bool Script_Warrior::Buff(Unit* pmTarget, bool pmCure)
     {
         return false;
     }
-    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
-    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+
     if (!me)
     {
         return false;
     }
     if (me->GetGUID() == pmTarget->GetGUID())
     {
-        Group* myGroup = me->GetGroup();
-        if (myGroup)
+        switch (characterTalentTab)
         {
-            if (myGroup->isRaidGroup())
+        case 0:
+        {
+            if (CastSpell(me, "Battle Stance", MELEE_MAX_DISTANCE, true))
             {
-                // todo raid buff
+                return true;
+            }
+            break;
+        }
+        case 1:
+        {
+            if (me->GetLevel() >= 20)
+            {
+                if (CastSpell(me, "Berserker Stance", MELEE_MAX_DISTANCE, true))
+                {
+                    return true;
+                }
             }
             else
             {
-                if (sRobotManager->partyStrategyMap.find(myGroup->GetLowGUID()) != sRobotManager->partyStrategyMap.end())
+                if (CastSpell(me, "Battle Stance", MELEE_MAX_DISTANCE, true))
                 {
-                    if (sRobotManager->partyStrategyMap[myGroup->GetLowGUID()].memberMap.find(character) != sRobotManager->partyStrategyMap[myGroup->GetLowGUID()].memberMap.end())
-                    {
-                        switch (sRobotManager->partyStrategyMap[myGroup->GetLowGUID()].memberMap[character].partyRole)
-                        {
-                        case PartyRole::PartyRole_Tank:
-                        {
-                            if (me->GetLevel() >= 10)
-                            {
-                                if (CastSpell(me, "Defensive Stance", MELEE_MAX_DISTANCE, true))
-                                {
-                                    return true;
-                                }
-                            }
-                            else
-                            {
-                                if (CastSpell(me, "Battle Stance", MELEE_MAX_DISTANCE, true))
-                                {
-                                    return true;
-                                }
-                            }
-                            break;
-                        }
-                        default:
-                        {
-                            switch (characterTalentTab)
-                            {
-                            case 0:
-                            {
-                                if (CastSpell(me, "Battle Stance", MELEE_MAX_DISTANCE, true))
-                                {
-                                    return true;
-                                }
-                                break;
-                            }
-                            case 1:
-                            {
-                                if (me->GetLevel() >= 20)
-                                {
-                                    if (CastSpell(me, "Berserker Stance", MELEE_MAX_DISTANCE, true))
-                                    {
-                                        return true;
-                                    }
-                                }
-                                else
-                                {
-                                    if (CastSpell(me, "Battle Stance", MELEE_MAX_DISTANCE, true))
-                                    {
-                                        return true;
-                                    }
-                                }
-                                break;
-                            }
-                            case 2:
-                            {
-                                if (me->GetLevel() >= 10)
-                                {
-                                    if (CastSpell(me, "Defensive Stance", MELEE_MAX_DISTANCE, true))
-                                    {
-                                        return true;
-                                    }
-                                }
-                                else
-                                {
-                                    if (CastSpell(me, "Battle Stance", MELEE_MAX_DISTANCE, true))
-                                    {
-                                        return true;
-                                    }
-                                }
-                                break;
-                            }
-                            default:
-                            {
-                                if (CastSpell(me, "Battle Stance", MELEE_MAX_DISTANCE, true))
-                                {
-                                    return true;
-                                }
-                                break;
-                            }
-                            }
-                        }
-                        }
-                    }
+                    return true;
                 }
             }
+            break;
+        }
+        case 2:
+        {
+            if (me->GetLevel() >= 10)
+            {
+                if (CastSpell(me, "Defensive Stance", MELEE_MAX_DISTANCE, true))
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                if (CastSpell(me, "Battle Stance", MELEE_MAX_DISTANCE, true))
+                {
+                    return true;
+                }
+            }
+            break;
+        }
+        default:
+        {
+            if (CastSpell(me, "Battle Stance", MELEE_MAX_DISTANCE, true))
+            {
+                return true;
+            }
+            break;
+        }
         }
     }
 

@@ -17,20 +17,16 @@
 #include "CharacterCache.h"
 #include "CreatureAI.h"
 #include "InstanceScript.h"
+#include "GridNotifiers.h"
 
 RobotManager::RobotManager()
 {
     nameIndex = 0;
     // EJ debug
-    prepareCheckDelay = urand(5 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
-    //prepareCheckDelay = 10 * TimeConstants::IN_MILLISECONDS;
+    checkDelay = urand(5 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
+    //checkDelay = 10 * TimeConstants::IN_MILLISECONDS;
 
-    onlineRobotAccountMap.clear();
-    prepareStrategyMap.clear();
-    soloStrategyMap.clear();
-    partyStrategyMap.clear();
-    raidStrategyMap.clear();
-
+    reSet.clear();
     deleteRobotAccountSet.clear();
     meleeWeaponMap.clear();
     rangeWeaponMap.clear();
@@ -39,8 +35,6 @@ RobotManager::RobotManager()
     teleportCacheMap.clear();
     tamableBeastEntryMap.clear();
     spellNameEntryMap.clear();
-
-    realPrevTime = getMSTime();
 }
 
 void RobotManager::InitializeManager()
@@ -420,6 +414,23 @@ void RobotManager::InitializeManager()
         }
     }
 
+    QueryResult robotQR = CharacterDatabase.Query("SELECT robot_id, account_id, character_id, target_level FROM robot order by rand()");
+    if (robotQR)
+    {
+        do
+        {
+            Field* fields = robotQR->Fetch();
+            uint32 robot_id = fields[0].GetUInt32();
+            uint32 account_id = fields[1].GetUInt32();
+            uint32 character_id = fields[2].GetUInt32();
+            uint32 target_level = fields[3].GetUInt32();
+            RobotEntity* re = new RobotEntity(robot_id);
+            re->account_id = account_id;
+            re->character_id = character_id;
+            re->target_level = target_level;
+            reSet.insert(re);
+        } while (robotQR->NextRow());
+    }
     sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Robot system ready");
 }
 
@@ -429,25 +440,21 @@ RobotManager* RobotManager::instance()
     return &instance;
 }
 
-void RobotManager::UpdateRobotManager()
+void RobotManager::UpdateRobotManager(uint32 pmDiff)
 {
     if (sRobotConfig->Enable == 0)
     {
         return;
     }
 
-    uint32 realCurrTime = getMSTime();
-    uint32 diff = getMSTimeDiff(realPrevTime, realCurrTime);
-    realPrevTime = realCurrTime;
-
-    prepareCheckDelay -= diff;
-    if (prepareCheckDelay < 0)
-    {        
-        prepareCheckDelay = urand(5 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);        
+    checkDelay -= pmDiff;
+    if (checkDelay < 0)
+    {
+        checkDelay = urand(5 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
         std::unordered_set<uint32> onlinePlayerLevelSet;
         for (std::unordered_map<uint32, WorldSession*>::const_iterator wsIT = sWorld->GetAllSessions().begin(); wsIT != sWorld->GetAllSessions().end(); wsIT++)
         {
-            if (!IsRobot(wsIT->first))
+            if (!wsIT->second->isRobotSession)
             {
                 if (Player* eachPlayer = wsIT->second->GetPlayer())
                 {
@@ -470,119 +477,58 @@ void RobotManager::UpdateRobotManager()
             }
         }
 
-        for (std::unordered_map<uint32, Strategy_Prepare>::iterator spIT = prepareStrategyMap.begin(); spIT != prepareStrategyMap.end(); spIT++)
-        {
-            if (spIT->second.prepareState == RobotPrepareState::RobotPrepareState_Online)
-            {
-                if (onlinePlayerLevelSet.find(spIT->second.targetLevel) == onlinePlayerLevelSet.end())
-                {
-                    spIT->second.prepareState = RobotPrepareState::RobotPrepareState_Exit;
-                    spIT->second.checkDelay = urand(TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 5 * TimeConstants::MINUTE*TimeConstants::IN_MILLISECONDS);
-                }
-            }
-        }
-
         for (std::unordered_set<uint32>::iterator levelIT = onlinePlayerLevelSet.begin(); levelIT != onlinePlayerLevelSet.end(); levelIT++)
         {
-            uint32 onlineCount = 0;
-            for (std::unordered_map<uint32, Strategy_Prepare>::iterator spIT = prepareStrategyMap.begin(); spIT != prepareStrategyMap.end(); spIT++)
+            int toOnline = sRobotConfig->CountEachLevel;
+            for (std::unordered_set<RobotEntity*>::iterator reIT = reSet.begin(); reIT != reSet.end(); reIT++)
             {
-                if (spIT->second.targetLevel == *levelIT)
+                if ((*reIT)->target_level == *levelIT)
                 {
-                    if (spIT->second.prepareState == RobotPrepareState::RobotPrepareState_Online)
+                    if ((*reIT)->entityState == RobotEntityState::RobotEntityState_OffLine)
                     {
-                        onlineCount++;
+                        (*reIT)->entityState = RobotEntityState::RobotEntityState_Enter;
+                        // EJ debug 
+                        (*reIT)->checkDelay = urand(sRobotConfig->OnlineMinDelay, sRobotConfig->OnlineMaxDelay);
+                        //(*reIT)->checkDelay = 5 * TimeConstants::IN_MILLISECONDS;
+                    }
+                    toOnline--;
+                    if (toOnline <= 0)
+                    {
+                        break;
                     }
                 }
             }
-            if (sRobotConfig->CountEachLevel > onlineCount)
+            while (toOnline > 0)
             {
-                int toAdd = sRobotConfig->CountEachLevel - onlineCount;
-                for (std::unordered_map<uint32, Strategy_Prepare>::iterator spIT = prepareStrategyMap.begin(); spIT != prepareStrategyMap.end(); spIT++)
+                // add to DB
+                uint32 maxRID = 0;
+                QueryResult maxRIDQR = CharacterDatabase.Query("SELECT robot_id FROM robot order by robot_id desc limit 1");
+                if (maxRIDQR)
                 {
-                    if (spIT->second.targetLevel == *levelIT)
-                    {
-                        if (spIT->second.prepareState == RobotPrepareState::RobotPrepareState_OffLine)
-                        {
-                            spIT->second.prepareState = RobotPrepareState::RobotPrepareState_Enter;
-                            spIT->second.checkDelay = urand(sRobotConfig->OnlineMinDelay, sRobotConfig->OnlineMaxDelay);
-                            toAdd--;
-                            if (toAdd <= 0)
-                            {
-                                break;
-                            }
-                        }
-                    }
+                    Field* fields = maxRIDQR->Fetch();
+                    maxRID = fields[0].GetUInt32();
                 }
-                if (toAdd > 0)
-                {
-                    // get from DB
-                    QueryResult robotQR = CharacterDatabase.PQuery("SELECT entry, account_id, character_id FROM robot where target_level = '%d' order by rand()", *levelIT);
-                    if (robotQR)
-                    {
-                        do
-                        {
-                            Field* fields = robotQR->Fetch();
-                            uint32 entry = fields[0].GetUInt32();
-                            uint32 account_id = fields[1].GetUInt32();
-                            uint32 character_id = fields[2].GetUInt32();
-                            if (prepareStrategyMap.find(entry) == prepareStrategyMap.end())
-                            {
-                                Strategy_Prepare sp(entry);
-                                sp.account = account_id;
-                                sp.character = character_id;
-                                sp.targetLevel = *levelIT;
-                                sp.prepareState = RobotPrepareState::RobotPrepareState_Enter;
-                                // EJ debug
-                                //sp.checkDelay = 5 * TimeConstants::IN_MILLISECONDS;
-                                sp.checkDelay = urand(sRobotConfig->OnlineMinDelay, sRobotConfig->OnlineMaxDelay);
-                                prepareStrategyMap[entry] = sp;
-                                toAdd--;
-                                if (toAdd <= 0)
-                                {
-                                    break;
-                                }
-                            }
-                        } while (robotQR->NextRow());
-                    }
-                }
-                while (toAdd > 0)
-                {
-                    // add to DB
-                    std::ostringstream sqlStream;
-                    sqlStream << "INSERT INTO robot (account_id, character_id, target_level) VALUES (0, 0, " << *levelIT << ")";
-                    std::string sql = sqlStream.str();
-                    CharacterDatabase.DirectExecute(sql.c_str());
-                    toAdd--;
-                }
+                maxRID++;
+
+                std::ostringstream sqlStream;
+                sqlStream << "INSERT INTO robot (robot_id, account_id, character_id, target_level) VALUES (" << maxRID << ", 0, 0, " << *levelIT << ")";
+                std::string sql = sqlStream.str();
+                CharacterDatabase.DirectExecute(sql.c_str());
+
+                RobotEntity* re = new RobotEntity(maxRID);
+                re->account_id = 0;
+                re->character_id = 0;
+                re->target_level = *levelIT;
+                reSet.insert(re);
+
+                toOnline--;
             }
         }
     }
 
-    for (std::unordered_map<uint32, Strategy_Prepare>::iterator spIT = prepareStrategyMap.begin(); spIT != prepareStrategyMap.end(); spIT++)
+    for (std::unordered_set<RobotEntity*>::iterator reIT = reSet.begin(); reIT != reSet.end(); reIT++)
     {
-        spIT->second.Update();
-    }
-
-    for (std::unordered_map<uint32, Strategy_Solo>::iterator ssIT = soloStrategyMap.begin(); ssIT != soloStrategyMap.end(); ssIT++)
-    {
-        ssIT->second.Update();
-    }
-
-    for (std::unordered_map<uint32, Strategy_Party>::iterator spIT = partyStrategyMap.begin(); spIT != partyStrategyMap.end(); spIT++)
-    {
-        if (Group* party = sGroupMgr->GetGroupByGUID(spIT->first))
-        {
-            spIT->second.Update();
-        }
-    }
-
-    for (std::unordered_map<uint32, Strategy_Raid>::iterator srIT = raidStrategyMap.begin(); srIT != raidStrategyMap.end(); srIT++)
-    {
-        if (Group* party = sGroupMgr->GetGroupByGUID(srIT->first))
-        {
-            // todo raid strategy update
-        }
+        (*reIT)->Update(pmDiff);
     }
 }
 
@@ -795,7 +741,7 @@ uint32 RobotManager::CreateRobotCharacter(uint32 pmAccountID, uint32 pmCharacter
         newPlayer->SetPvP(true);
         newPlayer->SaveToDB(true);
         result = newPlayer->GetGUID().GetRawValue();
-        onlineRobotAccountMap[eachSession->GetAccountId()] = newPlayer->GetGUID().GetRawValue();
+        eachSession->isRobotSession = true;
         sWorld->AddSession(eachSession);
         sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Create character %d - %s for account %d", newPlayer->GetGUID().GetCounter(), currentName.c_str(), pmAccountID);
         break;
@@ -839,104 +785,72 @@ bool RobotManager::LoginRobot(uint32 pmAccountID, uint32 pmCharacterID)
     if (!loginSession)
     {
         loginSession = new WorldSession(pmAccountID, "robot", NULL, SEC_PLAYER, 2, 0, LOCALE_enUS, 0, false);
-        onlineRobotAccountMap[pmAccountID] = pmCharacterID;
         sWorld->AddSession(loginSession);
     }
-
+    loginSession->isRobotSession = true;
     loginSession->HandlePlayerLogin_Simple(pmCharacterID);
     sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Log in character %d %s (level %d)", pmCharacterID, characterName.c_str(), characterLevel);
 
     return true;
 }
 
+void RobotManager::LogoutRobot(uint32 pmCharacterID)
+{
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, pmCharacterID);
+    Player* checkP = ObjectAccessor::FindConnectedPlayer(guid);
+    if (checkP)
+    {
+        sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Log out robot %s", checkP->GetName());
+        std::ostringstream msgStream;
+        msgStream << checkP->GetName() << " logged out";
+        sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, msgStream.str().c_str());
+        if (WorldSession* checkWS = checkP->GetSession())
+        {
+            checkWS->LogoutPlayer(true);
+        }
+    }
+}
+
 void RobotManager::LogoutRobots()
 {
-    for (std::unordered_map<uint32, uint32>::iterator onlineIT = onlineRobotAccountMap.begin(); onlineIT != onlineRobotAccountMap.end(); onlineIT++)
+    for (std::unordered_set<RobotEntity*>::iterator reIT = reSet.begin(); reIT != reSet.end(); reIT++)
     {
-        ObjectGuid guid = ObjectGuid(HighGuid::Player, onlineIT->second);
-        Player* checkP = ObjectAccessor::FindConnectedPlayer(guid);
-        if (checkP)
+        if ((*reIT)->entityState == RobotEntityState::RobotEntityState_Online)
         {
-            sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Log out robot %s", checkP->GetName());
-            std::ostringstream msgStream;
-            msgStream << checkP->GetName() << " logged out";
-            sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, msgStream.str().c_str());
-            WorldSession* checkWS = checkP->GetSession();
-            if (checkWS)
-            {
-                checkWS->LogoutPlayer(true);
-            }
+            LogoutRobot((*reIT)->character_id);
         }
     }
 }
 
 void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
 {
+    if (!pmPlayer)
+    {
+        return;
+    }
     std::vector<std::string> commandVector = SplitString(pmContent, " ", true);
     std::string commandName = commandVector.at(0);
     if (commandName == "role")
     {
         std::ostringstream replyStream;
-        uint32 checkRole = 0;
-        if (Group* checkGroup = pmPlayer->GetGroup())
-        {
-            if (checkGroup->isRaidGroup())
-            {
-                // todo raid player say
-            }
-            else
-            {
-                if (sRobotManager->partyStrategyMap.find(checkGroup->GetLowGUID()) != sRobotManager->partyStrategyMap.end())
-                {
-                    if (sRobotManager->partyStrategyMap[checkGroup->GetLowGUID()].memberMap.find(pmPlayer->GetGUID().GetCounter()) != sRobotManager->partyStrategyMap[checkGroup->GetLowGUID()].memberMap.end())
-                    {
-                        checkRole = sRobotManager->partyStrategyMap[checkGroup->GetLowGUID()].memberMap[pmPlayer->GetGUID().GetCounter()].partyRole;
-                    }
-                }
-            }
-        }
         if (commandVector.size() > 1)
         {
             std::string newRole = commandVector.at(1);
             if (newRole == "dps")
             {
-                checkRole = PartyRole::PartyRole_DPS;
+                pmPlayer->groupRole = GroupRole::GroupRole_DPS;
             }
             else if (newRole == "tank")
             {
-                checkRole = PartyRole::PartyRole_Tank;
+                pmPlayer->groupRole = GroupRole::GroupRole_Tank;
             }
             else if (newRole == "healer")
             {
-                checkRole = PartyRole::PartyRole_Healer;
-            }
-            if (Group* checkGroup = pmPlayer->GetGroup())
-            {
-                if (checkGroup->isRaidGroup())
-                {
-                    //if (sRobotManager->raidStrategyMap.find(checkGroup->GetLowGUID()) != sRobotManager->raidStrategyMap.end())
-                    //{
-                    //    if (sRobotManager->raidStrategyMap[checkGroup->GetLowGUID()]->memberMap.find(pmPlayer->GetGUID().GetCounter()) != sRobotManager->raidStrategyMap[checkGroup->GetLowGUID()]->memberMap.end())
-                    //    {
-                    //        checkRole = sRobotManager->raidStrategyMap[checkGroup->GetLowGUID()]->memberMap[pmPlayer->GetGUID().GetCounter()]->partyRole;
-                    //    }
-                    //}
-                }
-                else
-                {
-                    if (sRobotManager->partyStrategyMap.find(checkGroup->GetLowGUID()) != sRobotManager->partyStrategyMap.end())
-                    {
-                        if (sRobotManager->partyStrategyMap[checkGroup->GetLowGUID()].memberMap.find(pmPlayer->GetGUID().GetCounter()) != sRobotManager->partyStrategyMap[checkGroup->GetLowGUID()].memberMap.end())
-                        {
-                            sRobotManager->partyStrategyMap[checkGroup->GetLowGUID()].memberMap[pmPlayer->GetGUID().GetCounter()].partyRole = checkRole;
-                        }
-                    }
-                }
+                pmPlayer->groupRole = GroupRole::GroupRole_Healer;
             }
         }
-
         replyStream << "Your group role is ";
-        switch (checkRole)
+        switch (pmPlayer->groupRole)
         {
         case 0:
         {
@@ -1265,12 +1179,12 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
             else
             {
                 replyStream << "No type";
-            }            
+            }
         }
         else
         {
             replyStream << "No target";
-        }        
+        }
         sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, replyStream.str().c_str(), pmPlayer);
     }
 }
@@ -1283,15 +1197,6 @@ bool RobotManager::StringEndWith(const std::string& str, const std::string& tail
 bool RobotManager::StringStartWith(const std::string& str, const std::string& head)
 {
     return str.compare(0, head.size(), head) == 0;
-}
-
-bool RobotManager::IsRobot(uint32 pmAccountID)
-{
-    if (onlineRobotAccountMap.find(pmAccountID) != onlineRobotAccountMap.end())
-    {
-        return true;
-    }
-    return false;
 }
 
 std::vector<std::string> RobotManager::SplitString(std::string srcStr, std::string delimStr, bool repeatedCharIgnored)
@@ -1327,46 +1232,40 @@ std::string RobotManager::TrimString(std::string srcStr)
     return result;
 }
 
-void RobotManager::HandlePacket(uint32 pmSessionID, WorldPacket const* pmPacket)
+void RobotManager::HandlePacket(WorldSession* pmSession, WorldPacket const* pmPacket)
 {
-    if (pmPacket)
+    if (pmSession&&pmPacket)
     {
-        ObjectGuid guid = ObjectGuid(HighGuid::Player, onlineRobotAccountMap[pmSessionID]);
-        Player* me = ObjectAccessor::FindConnectedPlayer(guid);
-        if (!me)
+        if (Player* me = pmSession->GetPlayer())
         {
-            return;
-        }
-        switch (pmPacket->GetOpcode())
-        {
-        case SMSG_SPELL_FAILURE:
-        {
-            break;
-        }
-        case SMSG_SPELL_DELAYED:
-        {
-            break;
-        }
-        case SMSG_GROUP_INVITE:
-        {
-            Group* grp = me->GetGroupInvite();
-            if (!grp)
+            switch (pmPacket->GetOpcode())
+            {
+            case SMSG_SPELL_FAILURE:
             {
                 break;
             }
-            Player* inviter = ObjectAccessor::FindPlayer(grp->GetLeaderGUID());
-            if (!inviter)
+            case SMSG_SPELL_DELAYED:
             {
                 break;
             }
-            if (soloStrategyMap.find(me->GetGUID().GetCounter()) != soloStrategyMap.end())
+            case SMSG_GROUP_INVITE:
             {
-                if (soloStrategyMap[me->GetGUID().GetCounter()].interestsDelay > 0)
+                Group* grp = me->GetGroupInvite();
+                if (!grp)
+                {
+                    break;
+                }
+                Player* inviter = ObjectAccessor::FindPlayer(grp->GetLeaderGUID());
+                if (!inviter)
+                {
+                    break;
+                }
+                if (me->raiSolo->GetActiveStrategy()->interestsDelay > 0)
                 {
                     WorldPacket p;
                     me->GetSession()->HandleGroupDeclineOpcode(p);
                     std::ostringstream timeLeftStream;
-                    timeLeftStream << "Not interested. I will reconsider in " << soloStrategyMap[me->GetGUID().GetCounter()].interestsDelay / 1000 << "seconds";
+                    timeLeftStream << "Not interested. I will reconsider in " << me->raiSolo->GetActiveStrategy()->interestsDelay / 1000 << "seconds";
                     WhisperTo(me, timeLeftStream.str(), Language::LANG_UNIVERSAL, inviter);
                 }
                 else
@@ -1384,123 +1283,111 @@ void RobotManager::HandlePacket(uint32 pmSessionID, WorldPacket const* pmPacket)
                         uint32 acceptInvite = urand(0, 3);
                         if (acceptInvite == 0)
                         {
-                            if (soloStrategyMap.find(me->GetGUID().GetCounter()) != soloStrategyMap.end())
-                            {
-                                WorldPacket p;
-                                uint32 roles_mask = 0;
-                                p << roles_mask;
-                                me->GetSession()->HandleGroupAcceptOpcode(p);
-                                std::ostringstream replyStream_Talent;
-                                replyStream_Talent << "My talent category is " << sRobotManager->characterTalentTabNameMap[me->GetClass()][soloStrategyMap[me->GetGUID().GetCounter()].sb->characterTalentTab];
-                                WhisperTo(me, replyStream_Talent.str(), Language::LANG_UNIVERSAL, inviter);
-                            }
+                            WorldPacket p;
+                            uint32 roles_mask = 0;
+                            p << roles_mask;
+                            me->GetSession()->HandleGroupAcceptOpcode(p);
+                            std::ostringstream replyStream_Talent;
+                            replyStream_Talent << "My talent category is " << sRobotManager->characterTalentTabNameMap[me->GetClass()][me->raiSolo->GetActiveStrategy()->sb->characterTalentTab];
+                            WhisperTo(me, replyStream_Talent.str(), Language::LANG_UNIVERSAL, inviter);
                             break;
                         }
                         else
                         {
-                            soloStrategyMap[me->GetGUID().GetCounter()].interestsDelay = urand(5 * TimeConstants::MINUTE*TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE*TimeConstants::IN_MILLISECONDS);
+                            me->raiSolo->GetActiveStrategy()->interestsDelay = urand(5 * TimeConstants::MINUTE*TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE*TimeConstants::IN_MILLISECONDS);
                             WorldPacket p;
                             me->GetSession()->HandleGroupDeclineOpcode(p);
                             std::ostringstream timeLeftStream;
-                            timeLeftStream << "Not interested. I will reconsider in " << soloStrategyMap[me->GetGUID().GetCounter()].interestsDelay / 1000 << "seconds";
+                            timeLeftStream << "Not interested. I will reconsider in " << me->raiSolo->GetActiveStrategy()->interestsDelay / 1000 << "seconds";
                             WhisperTo(me, timeLeftStream.str(), Language::LANG_UNIVERSAL, inviter);
                             break;
                         }
                     }
                 }
             }
-        }
-        case BUY_ERR_NOT_ENOUGHT_MONEY:
-        {
-            break;
-        }
-        case BUY_ERR_REPUTATION_REQUIRE:
-        {
-            break;
-        }
-        case SMSG_GROUP_SET_LEADER:
-        {
-            //std::string leaderName = "";
-            //pmPacket >> leaderName;
-            //Player* newLeader = ObjectAccessor::FindPlayerByName(leaderName);
-            //if (newLeader)
-            //{
-            //    if (newLeader->GetGUID() == me->GetGUID())
-            //    {
-            //        WorldPacket data(CMSG_GROUP_SET_LEADER, 8);
-            //        data << master->GetGUID().WriteAsPacked();
-            //        me->GetSession()->HandleGroupSetLeaderOpcode(data);
-            //    }
-            //    else
-            //    {
-            //        if (!newLeader->isRobot)
-            //        {
-            //            master = newLeader;
-            //        }
-            //    }
-            //}
-            break;
-        }
-        case SMSG_FORCE_RUN_SPEED_CHANGE:
-        {
-            break;
-        }
-        case SMSG_RESURRECT_REQUEST:
-        {
-            if (!me->IsAlive())
-            {
-                if (!me->GetGroup())
-                {
-                    if (soloStrategyMap.find(me->GetGUID().GetCounter()) != soloStrategyMap.end())
-                    {
-                        soloStrategyMap[me->GetGUID().GetCounter()].deathDelay = 0;
-                    }
-                }
-            }
-            if (me->IsResurrectRequested())
-            {
-                me->ResurrectUsingRequestData();
-            }
-            break;
-        }
-        case SMSG_INVENTORY_CHANGE_FAILURE:
-        {
-            break;
-        }
-        case SMSG_TRADE_STATUS:
-        {
-            break;
-        }
-        case SMSG_LOOT_RESPONSE:
-        {
-            break;
-        }
-        case SMSG_QUESTUPDATE_ADD_KILL:
-        {
-            break;
-        }
-        case SMSG_ITEM_PUSH_RESULT:
-        {
-            break;
-        }
-        case SMSG_PARTY_COMMAND_RESULT:
-        {
-            break;
-        }
-        case SMSG_DUEL_REQUESTED:
-        {
-            if (!me->duel)
+            case BUY_ERR_NOT_ENOUGHT_MONEY:
             {
                 break;
             }
-            me->DuelComplete(DuelCompleteType::DUEL_INTERRUPTED);
-            WhisperTo(me, "Not interested", Language::LANG_UNIVERSAL, me->duel->Opponent);
-            break;
-        }
-        default:
-        {
-            break;
-        }
+            case BUY_ERR_REPUTATION_REQUIRE:
+            {
+                break;
+            }
+            case SMSG_GROUP_SET_LEADER:
+            {
+                //std::string leaderName = "";
+                //pmPacket >> leaderName;
+                //Player* newLeader = ObjectAccessor::FindPlayerByName(leaderName);
+                //if (newLeader)
+                //{
+                //    if (newLeader->GetGUID() == me->GetGUID())
+                //    {
+                //        WorldPacket data(CMSG_GROUP_SET_LEADER, 8);
+                //        data << master->GetGUID().WriteAsPacked();
+                //        me->GetSession()->HandleGroupSetLeaderOpcode(data);
+                //    }
+                //    else
+                //    {
+                //        if (!newLeader->isRobot)
+                //        {
+                //            master = newLeader;
+                //        }
+                //    }
+                //}
+                break;
+            }
+            case SMSG_FORCE_RUN_SPEED_CHANGE:
+            {
+                break;
+            }
+            case SMSG_RESURRECT_REQUEST:
+            {
+                if (me->IsResurrectRequested())
+                {
+                    me->ResurrectUsingRequestData();
+                    me->raiSolo->GetActiveStrategy()->deathDelay = 0;
+                }
+                break;
+            }
+            case SMSG_INVENTORY_CHANGE_FAILURE:
+            {
+                break;
+            }
+            case SMSG_TRADE_STATUS:
+            {
+                break;
+            }
+            case SMSG_LOOT_RESPONSE:
+            {
+                break;
+            }
+            case SMSG_QUESTUPDATE_ADD_KILL:
+            {
+                break;
+            }
+            case SMSG_ITEM_PUSH_RESULT:
+            {
+                break;
+            }
+            case SMSG_PARTY_COMMAND_RESULT:
+            {
+                break;
+            }
+            case SMSG_DUEL_REQUESTED:
+            {
+                if (!me->duel)
+                {
+                    break;
+                }
+                me->DuelComplete(DuelCompleteType::DUEL_INTERRUPTED);
+                WhisperTo(me, "Not interested", Language::LANG_UNIVERSAL, me->duel->Opponent);
+                break;
+            }
+            default:
+            {
+                break;
+            }
+            }
         }
     }
 }
@@ -1510,5 +1397,1968 @@ void RobotManager::WhisperTo(Player* pmSender, std::string pmContent, Language p
     if (pmSender&&pmTarget)
     {
         pmSender->Whisper(pmContent, pmLanguage, pmTarget);
+    }
+}
+
+void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player* pmReceiver)
+{
+    if (!pmSender)
+    {
+        return;
+    }
+    if (pmReceiver)
+    {
+        if (!pmReceiver->GetSession()->isRobotSession)
+        {
+            return;
+        }
+    }
+    std::vector<std::string> commandVector = sRobotManager->SplitString(pmCMD, " ", true);
+    std::string commandName = commandVector.at(0);
+    if (commandName == "role")
+    {
+        if (pmReceiver)
+        {
+            if (commandVector.size() > 1)
+            {
+                std::string newRole = commandVector.at(1);
+                if (newRole == "dps")
+                {
+                    pmReceiver->groupRole = GroupRole::GroupRole_DPS;
+                }
+                else if (newRole == "tank")
+                {
+                    pmReceiver->groupRole = GroupRole::GroupRole_Tank;
+                }
+                else if (newRole == "healer")
+                {
+                    pmReceiver->groupRole = GroupRole::GroupRole_Healer;
+                }
+            }
+            std::ostringstream replyStream;
+            replyStream << "My group role is ";
+            switch (pmReceiver->groupRole)
+            {
+            case 0:
+            {
+                replyStream << "dps";
+                break;
+            }
+            case 1:
+            {
+                replyStream << "tank";
+                break;
+            }
+            case 2:
+            {
+                replyStream << "healer";
+                break;
+            }
+            default:
+            {
+                replyStream << "dps";
+                break;
+            }
+            }
+            WhisperTo(pmReceiver, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+        }
+        else if (Group* checkGroup = pmSender->GetGroup())
+        {
+            for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+            {
+                Player* member = groupRef->GetSource();
+                if (member)
+                {
+                    if (!member->GetSession()->isRobotSession)
+                    {
+                        continue;
+                    }
+                    if (commandVector.size() > 1)
+                    {
+                        std::string newRole = commandVector.at(1);
+                        if (newRole == "dps")
+                        {
+                            member->groupRole = GroupRole::GroupRole_DPS;
+                        }
+                        else if (newRole == "tank")
+                        {
+                            member->groupRole = GroupRole::GroupRole_Tank;
+                        }
+                        else if (newRole == "healer")
+                        {
+                            member->groupRole = GroupRole::GroupRole_Healer;
+                        }
+                    }
+                    std::ostringstream replyStream;
+                    replyStream << "My group role is ";
+                    switch (member->groupRole)
+                    {
+                    case 0:
+                    {
+                        replyStream << "dps";
+                        break;
+                    }
+                    case 1:
+                    {
+                        replyStream << "tank";
+                        break;
+                    }
+                    case 2:
+                    {
+                        replyStream << "healer";
+                        break;
+                    }
+                    default:
+                    {
+                        replyStream << "dps";
+                        break;
+                    }
+                    }
+                    WhisperTo(member, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                }
+            }
+        }
+    }
+    else if (commandName == "follow")
+    {
+        if (Group* checkGroup = pmSender->GetGroup())
+        {
+            if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
+            {
+                if (pmReceiver)
+                {
+                    std::ostringstream replyStream;
+                    if (pmReceiver->IsInSameGroupWith(pmSender))
+                    {
+                        if (commandVector.size() > 1)
+                        {
+                            std::string cmdDistanceStr = commandVector.at(1);
+                            float cmdDistance = atof(cmdDistanceStr.c_str());
+                            if (cmdDistance > FOLLOW_MIN_DISTANCE&& cmdDistance < FOLLOW_MAX_DISTANCE)
+                            {
+                                pmReceiver->raiGroup->GetActiveStrategy()->followDistance = cmdDistance;
+                            }
+                            else
+                            {
+                                replyStream << "Distance is not valid";
+                            }
+                        }
+                        if (pmReceiver->IsAlive())
+                        {
+                            pmReceiver->StopMoving();
+                            pmReceiver->GetMotionMaster()->Clear();
+                            if (pmReceiver->GetStandState() != UnitStandStateType::UNIT_STAND_STATE_STAND)
+                            {
+                                pmReceiver->SetStandState(UNIT_STAND_STATE_STAND);
+                            }
+                            if (pmReceiver->IsWalking())
+                            {
+                                pmReceiver->SetWalk(false);
+                            }
+                            pmReceiver->raiGroup->GetActiveStrategy()->restDelay = 0;
+                            pmReceiver->raiGroup->GetActiveStrategy()->staying = false;
+                            pmReceiver->raiGroup->GetActiveStrategy()->holding = false;
+                            pmReceiver->GetMotionMaster()->MoveFollow(pmSender, pmReceiver->raiGroup->GetActiveStrategy()->followDistance, ChaseAngle(0, 2 * M_PI));
+                            replyStream << "Following " << pmReceiver->raiGroup->GetActiveStrategy()->followDistance;
+                        }
+                        else
+                        {
+                            replyStream << "I am dead";
+                        }
+                    }
+                    else
+                    {
+                        replyStream << "You are not leader of my group";
+                    }
+                    WhisperTo(pmReceiver, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                }
+                else
+                {
+                    for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                    {
+                        Player* member = groupRef->GetSource();
+                        if (member)
+                        {
+                            if (!member->GetSession()->isRobotSession)
+                            {
+                                continue;
+                            }
+                            std::ostringstream replyStream;
+                            if (commandVector.size() > 1)
+                            {
+                                std::string cmdDistanceStr = commandVector.at(1);
+                                float cmdDistance = atof(cmdDistanceStr.c_str());
+                                if (cmdDistance > FOLLOW_MIN_DISTANCE&& cmdDistance < FOLLOW_MAX_DISTANCE)
+                                {
+                                    member->raiGroup->GetActiveStrategy()->followDistance = cmdDistance;
+                                }
+                                else
+                                {
+                                    replyStream << "Distance is not valid";
+                                }
+                            }
+                            if (member->IsAlive())
+                            {
+                                member->StopMoving();
+                                member->GetMotionMaster()->Clear();
+                                if (member->GetStandState() != UnitStandStateType::UNIT_STAND_STATE_STAND)
+                                {
+                                    member->SetStandState(UNIT_STAND_STATE_STAND);
+                                }
+                                if (member->IsWalking())
+                                {
+                                    member->SetWalk(false);
+                                }
+                                member->raiGroup->GetActiveStrategy()->restDelay = 0;
+                                member->raiGroup->GetActiveStrategy()->staying = false;
+                                member->raiGroup->GetActiveStrategy()->holding = false;
+                                member->GetMotionMaster()->MoveFollow(pmSender, member->raiGroup->GetActiveStrategy()->followDistance, ChaseAngle(0, 2 * M_PI));
+                                replyStream << "Following " << member->raiGroup->GetActiveStrategy()->followDistance;
+                            }
+                            else
+                            {
+                                replyStream << "I am dead";
+                            }
+                            WhisperTo(member, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else if (commandName == "stay")
+    {
+        if (Group* checkGroup = pmSender->GetGroup())
+        {
+            if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
+            {
+                if (pmReceiver)
+                {
+                    std::ostringstream replyStream;
+                    if (pmReceiver->IsAlive())
+                    {
+                        if (pmReceiver->IsInSameGroupWith(pmSender))
+                        {
+                            pmReceiver->StopMoving();
+                            pmReceiver->GetMotionMaster()->Clear();
+                            pmReceiver->raiGroup->GetActiveStrategy()->staying = true;
+                            replyStream << "Staying";
+                        }
+                        else
+                        {
+                            replyStream << "You are not leader of my group";
+                        }
+                    }
+                    else
+                    {
+                        replyStream << "I am dead";
+                    }
+                    WhisperTo(pmReceiver, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                }
+                else
+                {
+                    for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                    {
+                        Player* member = groupRef->GetSource();
+                        if (member)
+                        {
+                            if (!member->GetSession()->isRobotSession)
+                            {
+                                continue;
+                            }
+                            std::ostringstream replyStream;
+                            if (member->IsAlive())
+                            {
+                                member->StopMoving();
+                                member->GetMotionMaster()->Clear();
+                                member->raiGroup->GetActiveStrategy()->staying = true;
+                                replyStream << "Staying";
+                            }
+                            else
+                            {
+                                replyStream << "I am dead";
+                            }
+                            WhisperTo(member, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else if (commandName == "hold")
+    {
+        if (Group* checkGroup = pmSender->GetGroup())
+        {
+            if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
+            {
+                if (pmReceiver)
+                {
+                    std::ostringstream replyStream;
+                    if (pmReceiver->IsAlive())
+                    {
+                        if (pmReceiver->IsInSameGroupWith(pmSender))
+                        {
+                            pmReceiver->StopMoving();
+                            pmReceiver->GetMotionMaster()->Clear();
+                            pmReceiver->raiGroup->GetActiveStrategy()->holding = true;
+                            replyStream << "Holding";
+                        }
+                        else
+                        {
+                            replyStream << "You are not leader of my group";
+                        }
+                    }
+                    else
+                    {
+                        replyStream << "I am dead";
+                    }
+                    WhisperTo(pmReceiver, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                }
+                else
+                {
+                    for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                    {
+                        Player* member = groupRef->GetSource();
+                        if (member)
+                        {
+                            if (!member->GetSession()->isRobotSession)
+                            {
+                                continue;
+                            }
+                            std::ostringstream replyStream;
+                            if (member->IsAlive())
+                            {
+                                member->StopMoving();
+                                member->GetMotionMaster()->Clear();
+                                member->raiGroup->GetActiveStrategy()->holding = true;
+                                replyStream << "Holding";
+                            }
+                            else
+                            {
+                                replyStream << "I am dead";
+                            }
+                            WhisperTo(member, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else if (commandName == "engage")
+    {
+        if (Group* checkGroup = pmSender->GetGroup())
+        {
+            if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
+            {
+                if (pmReceiver)
+                {
+                    std::ostringstream replyStream;
+                    if (pmReceiver->IsAlive())
+                    {
+                        if (pmReceiver->IsInSameGroupWith(pmSender))
+                        {
+                            if (Unit* target = pmSender->GetSelectedUnit())
+                            {
+                                if (pmReceiver->raiGroup->GetActiveStrategy()->sb->DPS(target, !pmReceiver->raiGroup->GetActiveStrategy()->holding, false))
+                                {
+                                    replyStream << "Try to engage with " << target->GetName();
+                                }
+                                else
+                                {
+                                    replyStream << "Can not engage with " << target->GetName();
+                                }
+                            }
+                            else
+                            {
+                                replyStream << "No target";
+                            }
+                        }
+                        else
+                        {
+                            replyStream << "You are not leader of my group";
+                        }
+                    }
+                    else
+                    {
+                        replyStream << "I am dead";
+                    }
+                    WhisperTo(pmReceiver, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                }
+                else
+                {
+                    if (Unit* target = pmSender->GetSelectedUnit())
+                    {
+                        for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                        {
+                            Player* member = groupRef->GetSource();
+                            if (member)
+                            {
+                                if (!member->GetSession()->isRobotSession)
+                                {
+                                    continue;
+                                }
+                                std::ostringstream replyStream;
+                                if (member->IsAlive())
+                                {
+                                    if (member->raiGroup->GetActiveStrategy()->sb->DPS(target, !member->raiGroup->GetActiveStrategy()->holding, false))
+                                    {
+                                        replyStream << "Try to engage with " << target->GetName();
+                                    }
+                                    else
+                                    {
+                                        replyStream << "Can not engage with " << target->GetName();
+                                    }
+                                }
+                                else
+                                {
+                                    replyStream << "I am dead";
+                                }
+                                WhisperTo(member, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else if (commandName == "rest")
+    {
+        if (Group* checkGroup = pmSender->GetGroup())
+        {
+            if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
+            {
+                if (pmReceiver)
+                {
+                    std::ostringstream replyStream;
+                    if (pmReceiver->IsAlive())
+                    {
+                        if (pmReceiver->IsInSameGroupWith(pmSender))
+                        {
+                            if (pmReceiver->raiGroup->GetActiveStrategy()->sb->Rest())
+                            {
+                                pmReceiver->raiGroup->GetActiveStrategy()->restDelay = DEFAULT_REST_DELAY;
+                                replyStream << "Resting";
+                            }
+                            else
+                            {
+                                replyStream << "Can not rest";
+                            }
+                        }
+                        else
+                        {
+                            replyStream << "You are not leader of my group";
+                        }
+                    }
+                    else
+                    {
+                        replyStream << "I am dead";
+                    }
+                    WhisperTo(pmReceiver, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                }
+                else
+                {
+                    for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                    {
+                        Player* member = groupRef->GetSource();
+                        if (member)
+                        {
+                            if (!member->GetSession()->isRobotSession)
+                            {
+                                continue;
+                            }
+                            std::ostringstream replyStream;
+                            if (member->IsAlive())
+                            {
+                                if (member->raiGroup->GetActiveStrategy()->sb->Rest())
+                                {
+                                    member->raiGroup->GetActiveStrategy()->restDelay = DEFAULT_REST_DELAY;
+                                    replyStream << "Resting";
+                                }
+                                else
+                                {
+                                    replyStream << "Can not rest";
+                                }
+                            }
+                            else
+                            {
+                                replyStream << "I am dead";
+                            }
+                            WhisperTo(member, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else if (commandName == "who")
+    {
+        if (pmReceiver)
+        {
+            WhisperTo(pmReceiver, sRobotManager->characterTalentTabNameMap[pmReceiver->GetClass()][pmReceiver->raiSolo->GetActiveStrategy()->sb->characterTalentTab], Language::LANG_UNIVERSAL, pmSender);
+        }
+        else
+        {
+            if (Group* checkGroup = pmSender->GetGroup())
+            {
+                for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                {
+                    Player* member = groupRef->GetSource();
+                    if (member)
+                    {
+                        if (!member->GetSession()->isRobotSession)
+                        {
+                            continue;
+                        }
+                        WhisperTo(member, sRobotManager->characterTalentTabNameMap[member->GetClass()][member->raiSolo->GetActiveStrategy()->sb->characterTalentTab], Language::LANG_UNIVERSAL, pmSender);
+                    }
+                }
+            }
+        }
+    }
+    else if (commandName == "assemble")
+    {
+        if (Group* checkGroup = pmSender->GetGroup())
+        {
+            if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
+            {
+                if (pmReceiver)
+                {
+                    std::ostringstream replyStream;
+                    if (pmReceiver->IsInSameGroupWith(pmSender))
+                    {
+                        if (pmReceiver->raiGroup->GetActiveStrategy()->assembleDelay > 0)
+                        {
+                            replyStream << "I am on the way";
+                        }
+                        else
+                        {
+                            if (pmReceiver->IsAlive())
+                            {
+                                if (pmReceiver->GetDistance(pmSender) < ASSEMBLE_TELEPORT_MIN_RANGE)
+                                {
+                                    pmReceiver->GetMotionMaster()->Clear();
+                                    pmReceiver->StopMoving();
+                                    if (pmReceiver->GetStandState() != UnitStandStateType::UNIT_STAND_STATE_STAND)
+                                    {
+                                        pmReceiver->SetStandState(UNIT_STAND_STATE_STAND);
+                                    }
+                                    if (pmReceiver->IsWalking())
+                                    {
+                                        pmReceiver->SetWalk(false);
+                                    }
+                                    pmReceiver->raiGroup->GetActiveStrategy()->restDelay = 0;
+                                    pmReceiver->GetMotionMaster()->MovePoint(1, pmSender->GetPosition(), true, pmSender->GetOrientation());
+                                    replyStream << "We are close, I will move to you";
+                                }
+                                else
+                                {
+                                    pmReceiver->raiGroup->GetActiveStrategy()->assembleDelay = 1 * TimeConstants::MINUTE*TimeConstants::IN_MILLISECONDS;
+                                    replyStream << "I will join you in 1 minute";
+                                }
+                            }
+                            else
+                            {
+                                pmReceiver->raiGroup->GetActiveStrategy()->assembleDelay = 2 * TimeConstants::MINUTE*TimeConstants::IN_MILLISECONDS;
+                                replyStream << "I will revive and join you in 2 minutes";
+                            }
+                        }
+                    }
+                    else
+                    {
+                        replyStream << "You are not leader of my group";
+                    }
+                    WhisperTo(pmReceiver, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                }
+                else
+                {
+                    for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                    {
+                        Player* member = groupRef->GetSource();
+                        if (member)
+                        {
+                            if (!member->GetSession()->isRobotSession)
+                            {
+                                continue;
+                            }
+                            std::ostringstream replyStream;
+                            if (member->raiGroup->GetActiveStrategy()->assembleDelay > 0)
+                            {
+                                replyStream << "I am on the way";
+                            }
+                            else
+                            {
+                                if (member->IsAlive())
+                                {
+                                    if (member->GetDistance(pmSender) < ASSEMBLE_TELEPORT_MIN_RANGE)
+                                    {
+                                        member->GetMotionMaster()->Clear();
+                                        member->StopMoving();
+                                        if (member->GetStandState() != UnitStandStateType::UNIT_STAND_STATE_STAND)
+                                        {
+                                            member->SetStandState(UNIT_STAND_STATE_STAND);
+                                        }
+                                        if (member->IsWalking())
+                                        {
+                                            member->SetWalk(false);
+                                        }
+                                        member->raiGroup->GetActiveStrategy()->restDelay = 0;
+                                        member->GetMotionMaster()->MovePoint(1, pmSender->GetPosition(), true, pmSender->GetOrientation());
+                                        replyStream << "We are close, I will move to you";
+                                    }
+                                    else
+                                    {
+                                        member->raiGroup->GetActiveStrategy()->assembleDelay = 1 * TimeConstants::MINUTE*TimeConstants::IN_MILLISECONDS;
+                                        replyStream << "I will join you in 1 minute";
+                                    }
+                                }
+                                else
+                                {
+                                    member->raiGroup->GetActiveStrategy()->assembleDelay = 2 * TimeConstants::MINUTE*TimeConstants::IN_MILLISECONDS;
+                                    replyStream << "I will revive and join you in 2 minutes";
+                                }
+                            }
+                            WhisperTo(member, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else if (commandName == "tank")
+    {
+        if (Group* checkGroup = pmSender->GetGroup())
+        {
+            if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
+            {
+                if (pmReceiver)
+                {
+                    std::ostringstream replyStream;
+                    if (pmReceiver->IsAlive())
+                    {
+                        if (pmReceiver->IsInSameGroupWith(pmSender))
+                        {
+                            if (pmReceiver->groupRole == GroupRole::GroupRole_Tank)
+                            {
+                                if (Unit* target = pmSender->GetSelectedUnit())
+                                {
+                                    if (pmReceiver->raiGroup->GetActiveStrategy()->sb->Tank(target))
+                                    {
+                                        replyStream << "Try to tank " << target->GetName();
+                                    }
+                                    else
+                                    {
+                                        replyStream << "Can not tank " << target->GetName();
+                                    }
+                                }
+                                else
+                                {
+                                    replyStream << "No target";
+                                }
+                            }
+                        }
+                        else
+                        {
+                            replyStream << "You are not leader of my group";
+                        }
+                    }
+                    else
+                    {
+                        replyStream << "I am dead";
+                    }
+                    WhisperTo(pmReceiver, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                }
+                else
+                {
+                    if (Unit* target = pmSender->GetSelectedUnit())
+                    {
+                        for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                        {
+                            Player* member = groupRef->GetSource();
+                            if (member)
+                            {
+                                if (!member->GetSession()->isRobotSession)
+                                {
+                                    continue;
+                                }
+                                std::ostringstream replyStream;
+                                if (member->IsAlive())
+                                {
+                                    if (member->groupRole == GroupRole::GroupRole_Tank)
+                                    {
+                                        if (member->raiGroup->GetActiveStrategy()->sb->Tank(target))
+                                        {
+                                            replyStream << "Try to tank " << target->GetName();
+                                        }
+                                        else
+                                        {
+                                            replyStream << "Can not tank " << target->GetName();
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    replyStream << "I am dead";
+                                }
+                                WhisperTo(member, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else if (commandName == "prepare")
+    {
+        if (Group* checkGroup = pmSender->GetGroup())
+        {
+            if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
+            {
+                if (pmReceiver)
+                {
+                    std::ostringstream replyStream;
+                    if (pmReceiver->IsAlive())
+                    {
+                        if (pmReceiver->IsInSameGroupWith(pmSender))
+                        {
+                            if (pmReceiver->groupRole == GroupRole::GroupRole_Tank)
+                            {
+                                pmReceiver->raiGroup->GetActiveStrategy()->sb->Prepare();
+                                replyStream << "I am prepared";
+                            }
+                        }
+                        else
+                        {
+                            replyStream << "You are not leader of my group";
+                        }
+                    }
+                    else
+                    {
+                        replyStream << "I am dead";
+                    }
+                    WhisperTo(pmReceiver, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                }
+                else
+                {
+                    for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                    {
+                        Player* member = groupRef->GetSource();
+                        if (member)
+                        {
+                            if (!member->GetSession()->isRobotSession)
+                            {
+                                continue;
+                            }
+                            std::ostringstream replyStream;
+                            if (member->IsAlive())
+                            {
+                                if (member->groupRole == GroupRole::GroupRole_Tank)
+                                {
+                                    member->raiGroup->GetActiveStrategy()->sb->Prepare();
+                                    replyStream << "I am prepared";
+                                }
+                            }
+                            else
+                            {
+                                replyStream << "I am dead";
+                            }
+                            WhisperTo(member, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else if (commandName == "switch")
+    {
+        if (Group* checkGroup = pmSender->GetGroup())
+        {
+            if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
+            {
+                if (pmReceiver)
+                {
+                    std::ostringstream replyStream;
+                    if (pmReceiver->IsInSameGroupWith(pmSender))
+                    {
+                        if (pmSender->GetClass() == Classes::CLASS_WARLOCK || pmSender->GetClass() == Classes::CLASS_HUNTER)
+                        {
+                            if (Pet* checkPet = pmSender->GetPet())
+                            {
+                                if (commandVector.size() > 1)
+                                {
+                                    std::string autoState = commandVector.at(1);
+                                    if (commandVector.size() > 2)
+                                    {
+                                        std::ostringstream spellNameStream;
+                                        uint32 checkPos = 2;
+                                        while (checkPos < commandVector.size())
+                                        {
+                                            spellNameStream << commandVector.at(checkPos) << " ";
+                                            checkPos++;
+                                        }
+                                        std::string spellName = sRobotManager->TrimString(spellNameStream.str());
+                                        std::unordered_map<uint32, PetSpell> petSpellMap = checkPet->m_spells;
+                                        for (std::unordered_map<uint32, PetSpell>::iterator it = petSpellMap.begin(); it != petSpellMap.end(); it++)
+                                        {
+                                            if (it->second.active == ACT_DISABLED || it->second.active == ACT_ENABLED)
+                                            {
+                                                const SpellInfo* pST = sSpellMgr->GetSpellInfo(it->first);
+                                                if (pST)
+                                                {
+                                                    std::string checkNameStr = std::string(pST->SpellName[0]);
+                                                    if (checkNameStr == spellName)
+                                                    {
+                                                        std::ostringstream replyStream;
+                                                        if (autoState == "on")
+                                                        {
+                                                            checkPet->ToggleAutocast(pST, true);
+                                                            replyStream << "Switched " << spellName << " on";
+                                                        }
+                                                        else if (autoState == "off")
+                                                        {
+                                                            checkPet->ToggleAutocast(pST, false);
+                                                            replyStream << "Switched " << spellName << " off";
+                                                        }
+                                                        else
+                                                        {
+                                                            replyStream << "Wrong auto state";
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        replyStream << "Spell not found";
+                                    }
+                                    else
+                                    {
+                                        replyStream << "Spell name missing";
+                                    }
+                                }
+                                else
+                                {
+                                    replyStream << "No auto state";
+                                }
+                            }
+                            else
+                            {
+                                replyStream << "I do not have an active pet";
+                            }
+                        }
+                        else
+                        {
+                            replyStream << "I am not a hunter or a warlock";
+                        }
+                    }
+                    else
+                    {
+                        replyStream << "You are not leader of my group";
+                    }
+                    WhisperTo(pmReceiver, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                }
+                else
+                {
+                    for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                    {
+                        Player* member = groupRef->GetSource();
+                        if (member)
+                        {
+                            if (!member->GetSession()->isRobotSession)
+                            {
+                                continue;
+                            }
+                            std::ostringstream replyStream;
+                            if (member->GetClass() == Classes::CLASS_WARLOCK || member->GetClass() == Classes::CLASS_HUNTER)
+                            {
+                                if (Pet* checkPet = member->GetPet())
+                                {
+                                    if (commandVector.size() > 1)
+                                    {
+                                        std::string autoState = commandVector.at(1);
+                                        if (commandVector.size() > 2)
+                                        {
+                                            std::ostringstream spellNameStream;
+                                            uint32 checkPos = 2;
+                                            while (checkPos < commandVector.size())
+                                            {
+                                                spellNameStream << commandVector.at(checkPos) << " ";
+                                                checkPos++;
+                                            }
+                                            std::string spellName = sRobotManager->TrimString(spellNameStream.str());
+                                            std::unordered_map<uint32, PetSpell> petSpellMap = checkPet->m_spells;
+                                            for (std::unordered_map<uint32, PetSpell>::iterator it = petSpellMap.begin(); it != petSpellMap.end(); it++)
+                                            {
+                                                if (it->second.active == ACT_DISABLED || it->second.active == ACT_ENABLED)
+                                                {
+                                                    const SpellInfo* pST = sSpellMgr->GetSpellInfo(it->first);
+                                                    if (pST)
+                                                    {
+                                                        std::string checkNameStr = std::string(pST->SpellName[0]);
+                                                        if (checkNameStr == spellName)
+                                                        {
+                                                            std::ostringstream replyStream;
+                                                            if (autoState == "on")
+                                                            {
+                                                                checkPet->ToggleAutocast(pST, true);
+                                                                replyStream << "Switched " << spellName << " on";
+                                                            }
+                                                            else if (autoState == "off")
+                                                            {
+                                                                checkPet->ToggleAutocast(pST, false);
+                                                                replyStream << "Switched " << spellName << " off";
+                                                            }
+                                                            else
+                                                            {
+                                                                replyStream << "Wrong auto state";
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            replyStream << "Spell not found";
+                                        }
+                                        else
+                                        {
+                                            replyStream << "Spell name missing";
+                                        }
+                                    }
+                                    else
+                                    {
+                                        replyStream << "No auto state";
+                                    }
+                                }
+                                else
+                                {
+                                    replyStream << "I do not have an active pet";
+                                }
+                            }
+                            else
+                            {
+                                replyStream << "I am not a hunter or a warlock";
+                            }
+                            WhisperTo(member, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else if (commandName == "cast")
+    {
+        if (Group* checkGroup = pmSender->GetGroup())
+        {
+            if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
+            {
+                if (pmReceiver)
+                {
+                    std::ostringstream replyStream;
+                    if (pmReceiver->IsAlive())
+                    {
+                        if (pmReceiver->IsInSameGroupWith(pmSender))
+                        {
+                            if (commandVector.size() > 1)
+                            {
+                                std::ostringstream targetStream;
+                                uint8 arrayCount = 0;
+                                for (std::vector<std::string>::iterator it = commandVector.begin(); it != commandVector.end(); it++)
+                                {
+                                    if (arrayCount > 0)
+                                    {
+                                        targetStream << (*it) << " ";
+                                    }
+                                    arrayCount++;
+                                }
+                                std::string spellName = sRobotManager->TrimString(targetStream.str());
+                                if (Unit* senderTarget = pmSender->GetSelectedUnit())
+                                {
+                                    if (pmReceiver->raiGroup->GetActiveStrategy()->sb->CastSpell(senderTarget, spellName))
+                                    {
+                                        replyStream << "Cast spell " << spellName << " on " << senderTarget->GetName();
+                                    }
+                                    else
+                                    {
+                                        replyStream << "Can not cast spell " << spellName << " on " << senderTarget->GetName();
+                                    }
+                                }
+                                else
+                                {
+                                    replyStream << "No target";
+                                }
+                            }
+                        }
+                        else
+                        {
+                            replyStream << "You are not leader of my group";
+                        }
+                    }
+                    else
+                    {
+                        replyStream << "I am dead";
+                    }
+                    WhisperTo(pmReceiver, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                }
+                else
+                {
+                    for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                    {
+                        Player* member = groupRef->GetSource();
+                        if (member)
+                        {
+                            if (!member->GetSession()->isRobotSession)
+                            {
+                                continue;
+                            }
+                            std::ostringstream replyStream;
+                            if (member->IsAlive())
+                            {
+                                if (commandVector.size() > 1)
+                                {
+                                    std::ostringstream targetStream;
+                                    uint8 arrayCount = 0;
+                                    for (std::vector<std::string>::iterator it = commandVector.begin(); it != commandVector.end(); it++)
+                                    {
+                                        if (arrayCount > 0)
+                                        {
+                                            targetStream << (*it) << " ";
+                                        }
+                                        arrayCount++;
+                                    }
+                                    std::string spellName = sRobotManager->TrimString(targetStream.str());
+                                    if (Unit* senderTarget = pmSender->GetSelectedUnit())
+                                    {
+                                        if (member->raiGroup->GetActiveStrategy()->sb->CastSpell(senderTarget, spellName))
+                                        {
+                                            replyStream << "Cast spell " << spellName << " on " << senderTarget->GetName();
+                                        }
+                                        else
+                                        {
+                                            replyStream << "Can not cast spell " << spellName << " on " << senderTarget->GetName();
+                                        }
+                                    }
+                                    else
+                                    {
+                                        replyStream << "No target";
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                replyStream << "I am dead";
+                            }
+                            WhisperTo(member, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else if (commandName == "cancel")
+    {
+        if (Group* checkGroup = pmSender->GetGroup())
+        {
+            if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
+            {
+                if (pmReceiver)
+                {
+                    std::ostringstream replyStream;
+                    if (pmReceiver->IsAlive())
+                    {
+                        if (pmReceiver->IsInSameGroupWith(pmSender))
+                        {
+                            if (commandVector.size() > 1)
+                            {
+                                std::ostringstream targetStream;
+                                uint8 arrayCount = 0;
+                                for (std::vector<std::string>::iterator it = commandVector.begin(); it != commandVector.end(); it++)
+                                {
+                                    if (arrayCount > 0)
+                                    {
+                                        targetStream << (*it) << " ";
+                                    }
+                                    arrayCount++;
+                                }
+                                std::string spellName = sRobotManager->TrimString(targetStream.str());
+                                if (pmReceiver->raiGroup->GetActiveStrategy()->sb->CancelAura(spellName))
+                                {
+                                    replyStream << "Aura canceled " << spellName;
+                                }
+                                else
+                                {
+                                    replyStream << "Can not cancel aura " << spellName;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            replyStream << "You are not leader of my group";
+                        }
+                    }
+                    else
+                    {
+                        replyStream << "I am dead";
+                    }
+                    WhisperTo(pmReceiver, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                }
+                else
+                {
+                    for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                    {
+                        Player* member = groupRef->GetSource();
+                        if (member)
+                        {
+                            if (!member->GetSession()->isRobotSession)
+                            {
+                                continue;
+                            }
+                            std::ostringstream replyStream;
+                            if (member->IsAlive())
+                            {
+                                if (commandVector.size() > 1)
+                                {
+                                    std::ostringstream targetStream;
+                                    uint8 arrayCount = 0;
+                                    for (std::vector<std::string>::iterator it = commandVector.begin(); it != commandVector.end(); it++)
+                                    {
+                                        if (arrayCount > 0)
+                                        {
+                                            targetStream << (*it) << " ";
+                                        }
+                                        arrayCount++;
+                                    }
+                                    std::string spellName = sRobotManager->TrimString(targetStream.str());
+                                    if (member->raiGroup->GetActiveStrategy()->sb->CancelAura(spellName))
+                                    {
+                                        replyStream << "Aura canceled " << spellName;
+                                    }
+                                    else
+                                    {
+                                        replyStream << "Can not cancel aura " << spellName;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                replyStream << "I am dead";
+                            }
+                            WhisperTo(member, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else if (commandName == "use")
+    {
+        if (Group* checkGroup = pmSender->GetGroup())
+        {
+            if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
+            {
+                if (pmReceiver)
+                {
+                    std::ostringstream replyStream;
+                    if (pmReceiver->IsAlive())
+                    {
+                        if (pmReceiver->IsInSameGroupWith(pmSender))
+                        {
+                            if (commandVector.size() > 1)
+                            {
+                                std::string useType = commandVector.at(1);
+                                if (useType == "go")
+                                {
+                                    if (commandVector.size() > 2)
+                                    {
+                                        std::ostringstream goNameStream;
+                                        uint32 checkPos = 2;
+                                        while (checkPos < commandVector.size())
+                                        {
+                                            goNameStream << commandVector.at(checkPos) << " ";
+                                            checkPos++;
+                                        }
+                                        std::string goName = sRobotManager->TrimString(goNameStream.str());
+                                        bool validToUse = false;
+                                        std::list<GameObject*> nearGOList;
+                                        Trinity::GameObjectInRangeCheck check(pmReceiver->GetPositionX(), pmReceiver->GetPositionY(), pmReceiver->GetPositionZ(), MELEE_MAX_DISTANCE);
+                                        Trinity::GameObjectListSearcher<Trinity::GameObjectInRangeCheck> searcher(pmReceiver, nearGOList, check);
+                                        Cell::VisitGridObjects(pmReceiver, searcher, SIZE_OF_GRIDS);
+                                        for (std::list<GameObject*>::iterator it = nearGOList.begin(); it != nearGOList.end(); it++)
+                                        {
+                                            if ((*it)->GetName() == goName)
+                                            {
+                                                pmReceiver->SetFacingToObject((*it));
+                                                pmReceiver->StopMoving();
+                                                pmReceiver->GetMotionMaster()->Clear();
+                                                (*it)->Use(pmReceiver);
+                                                replyStream << "Use game object : " << goName;
+                                                validToUse = true;
+                                                break;
+                                            }
+                                        }
+                                        if (!validToUse)
+                                        {
+                                            replyStream << "No go with name " << goName << " nearby";
+                                        }
+                                    }
+                                    else
+                                    {
+                                        replyStream << "No go name";
+                                    }
+                                }
+                                else if (useType == "item")
+                                {
+
+                                }
+                                else
+                                {
+                                    replyStream << "Unknown type";
+                                }
+                            }
+                            else
+                            {
+                                replyStream << "Use what?";
+                            }
+                        }
+                        else
+                        {
+                            replyStream << "You are not leader of my group";
+                        }
+                    }
+                    else
+                    {
+                        replyStream << "I am dead";
+                    }
+                    WhisperTo(pmReceiver, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                }
+                else
+                {
+                    for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                    {
+                        Player* member = groupRef->GetSource();
+                        if (member)
+                        {
+                            if (!member->GetSession()->isRobotSession)
+                            {
+                                continue;
+                            }
+                            std::ostringstream replyStream;
+                            if (member->IsAlive())
+                            {
+                                if (commandVector.size() > 1)
+                                {
+                                    std::string useType = commandVector.at(1);
+                                    if (useType == "go")
+                                    {
+                                        if (commandVector.size() > 2)
+                                        {
+                                            std::ostringstream goNameStream;
+                                            uint32 checkPos = 2;
+                                            while (checkPos < commandVector.size())
+                                            {
+                                                goNameStream << commandVector.at(checkPos) << " ";
+                                                checkPos++;
+                                            }
+                                            std::string goName = sRobotManager->TrimString(goNameStream.str());
+                                            bool validToUse = false;
+                                            std::list<GameObject*> nearGOList;
+                                            Trinity::GameObjectInRangeCheck check(member->GetPositionX(), member->GetPositionY(), member->GetPositionZ(), MELEE_MAX_DISTANCE);
+                                            Trinity::GameObjectListSearcher<Trinity::GameObjectInRangeCheck> searcher(member, nearGOList, check);
+                                            Cell::VisitGridObjects(member, searcher, SIZE_OF_GRIDS);
+                                            for (std::list<GameObject*>::iterator it = nearGOList.begin(); it != nearGOList.end(); it++)
+                                            {
+                                                if ((*it)->GetName() == goName)
+                                                {
+                                                    member->SetFacingToObject((*it));
+                                                    member->StopMoving();
+                                                    member->GetMotionMaster()->Clear();
+                                                    (*it)->Use(member);
+                                                    replyStream << "Use game object : " << goName;
+                                                    validToUse = true;
+                                                    break;
+                                                }
+                                            }
+                                            if (!validToUse)
+                                            {
+                                                replyStream << "No go with name " << goName << " nearby";
+                                            }
+                                        }
+                                        else
+                                        {
+                                            replyStream << "No go name";
+                                        }
+                                    }
+                                    else if (useType == "item")
+                                    {
+
+                                    }
+                                    else
+                                    {
+                                        replyStream << "Unknown type";
+                                    }
+                                }
+                                else
+                                {
+                                    replyStream << "Use what?";
+                                }
+                            }
+                            else
+                            {
+                                replyStream << "I am dead";
+                            }
+                            WhisperTo(member, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else if (commandName == "stop")
+    {
+        if (Group* checkGroup = pmSender->GetGroup())
+        {
+            if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
+            {
+                if (pmReceiver)
+                {
+                    std::ostringstream replyStream;
+                    if (pmReceiver->IsAlive())
+                    {
+                        if (pmReceiver->IsInSameGroupWith(pmSender))
+                        {
+                            pmSender->StopMoving();
+                            pmSender->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                            pmSender->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                            pmSender->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                            pmSender->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                            replyStream << "Stopped";
+                        }
+                        else
+                        {
+                            replyStream << "You are not leader of my group";
+                        }
+                    }
+                    else
+                    {
+                        replyStream << "I am dead";
+                    }
+                    WhisperTo(pmReceiver, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                }
+                else
+                {
+                    for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                    {
+                        Player* member = groupRef->GetSource();
+                        if (member)
+                        {
+                            if (!member->GetSession()->isRobotSession)
+                            {
+                                continue;
+                            }
+                            std::ostringstream replyStream;
+                            if (member->IsAlive())
+                            {
+                                member->StopMoving();
+                                member->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                                member->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                                member->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                                member->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                                replyStream << "Stopped";
+                            }
+                            else
+                            {
+                                replyStream << "I am dead";
+                            }
+                            WhisperTo(member, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else if (commandName == "delay")
+    {
+        if (Group* checkGroup = pmSender->GetGroup())
+        {
+            if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
+            {
+                if (pmReceiver)
+                {
+                    std::ostringstream replyStream;
+                    if (pmReceiver->IsInSameGroupWith(pmSender))
+                    {
+                        if (commandVector.size() > 1)
+                        {
+                            std::string delayType = commandVector.at(1);
+                            if (commandVector.size() > 2)
+                            {
+                                int delayMS = std::stoi(commandVector.at(2));
+                                if (delayType == "dps")
+                                {
+                                    pmSender->raiGroup->GetActiveStrategy()->dpsDelay = delayMS;
+                                    replyStream << "DPS delay set to : " << delayMS;
+                                }
+                                else if (delayType == "aoe")
+                                {
+                                    pmSender->raiGroup->GetActiveStrategy()->aoeDelay = delayMS;
+                                    replyStream << "AOE delay set to : " << delayMS;
+                                }
+                                else
+                                {
+                                    replyStream << "Unknown type";
+                                }
+                            }
+                            else
+                            {
+                                if (delayType == "dps")
+                                {
+                                    replyStream << "DPS delay is : " << pmSender->raiGroup->GetActiveStrategy()->dpsDelay;
+                                }
+                                else if (delayType == "aoe")
+                                {
+                                    replyStream << "AOE delay is : " << pmSender->raiGroup->GetActiveStrategy()->aoeDelay;
+                                }
+                                else
+                                {
+                                    replyStream << "Unknown type";
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        replyStream << "You are not leader of my group";
+                    }
+                    WhisperTo(pmReceiver, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                }
+                else
+                {
+                    for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                    {
+                        Player* member = groupRef->GetSource();
+                        if (member)
+                        {
+                            if (!member->GetSession()->isRobotSession)
+                            {
+                                continue;
+                            }
+                            std::ostringstream replyStream;
+                            if (commandVector.size() > 1)
+                            {
+                                std::string delayType = commandVector.at(1);
+                                if (commandVector.size() > 2)
+                                {
+                                    int delayMS = std::stoi(commandVector.at(2));
+                                    if (delayType == "dps")
+                                    {
+                                        member->raiGroup->GetActiveStrategy()->dpsDelay = delayMS;
+                                        replyStream << "DPS delay set to : " << delayMS;
+                                    }
+                                    else if (delayType == "aoe")
+                                    {
+                                        member->raiGroup->GetActiveStrategy()->aoeDelay = delayMS;
+                                        replyStream << "AOE delay set to : " << delayMS;
+                                    }
+                                    else
+                                    {
+                                        replyStream << "Unknown type";
+                                    }
+                                }
+                                else
+                                {
+                                    if (delayType == "dps")
+                                    {
+                                        replyStream << "DPS delay is : " << member->raiGroup->GetActiveStrategy()->dpsDelay;
+                                    }
+                                    else if (delayType == "aoe")
+                                    {
+                                        replyStream << "AOE delay is : " << member->raiGroup->GetActiveStrategy()->aoeDelay;
+                                    }
+                                    else
+                                    {
+                                        replyStream << "Unknown type";
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                replyStream << "Missing type";
+                            }
+                            WhisperTo(member, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else if (commandName == "threat")
+    {
+        if (Group* checkGroup = pmSender->GetGroup())
+        {
+            if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
+            {
+                if (pmReceiver)
+                {
+                    std::ostringstream replyStream;
+                    if (pmReceiver->IsAlive())
+                    {
+                        if (pmReceiver->IsInSameGroupWith(pmSender))
+                        {
+                            replyStream << "Threat list : ";
+                            for (auto& pair : pmReceiver->GetThreatManager().GetThreatenedByMeList())
+                            {
+                                replyStream << pair.second->GetOwner()->GetName() << ", ";
+                            }
+                        }
+                        else
+                        {
+                            replyStream << "You are not leader of my group";
+                        }
+                    }
+                    else
+                    {
+                        replyStream << "I am dead";
+                    }
+                    WhisperTo(pmReceiver, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                }
+                else
+                {
+                    for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                    {
+                        Player* member = groupRef->GetSource();
+                        if (member)
+                        {
+                            if (!member->GetSession()->isRobotSession)
+                            {
+                                continue;
+                            }
+                            std::ostringstream replyStream;
+                            if (member->IsAlive())
+                            {
+                                replyStream << "Threat list : ";
+                                for (auto& pair : member->GetThreatManager().GetThreatenedByMeList())
+                                {
+                                    replyStream << pair.second->GetOwner()->GetName() << ", ";
+                                }
+                            }
+                            else
+                            {
+                                replyStream << "I am dead";
+                            }
+                            WhisperTo(member, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else if (commandName == "revive")
+    {
+        if (Group* checkGroup = pmSender->GetGroup())
+        {
+            if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
+            {
+                std::unordered_map<uint32, Player*> deadMap;
+                for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                {
+                    if (Player* member = groupRef->GetSource())
+                    {
+                        if (!member->IsAlive())
+                        {
+                            deadMap[deadMap.size()] = member;
+                        }
+                    }
+                }
+                if (deadMap.size() > 0)
+                {
+                    if (pmReceiver)
+                    {
+                        std::ostringstream replyStream;
+                        if (pmReceiver->IsAlive())
+                        {
+                            if (pmReceiver->IsInSameGroupWith(pmSender))
+                            {
+                                std::ostringstream reviveSpellName;
+                                if (pmReceiver->GetClass() == Classes::CLASS_DRUID || pmReceiver->GetClass() == Classes::CLASS_PRIEST || pmReceiver->GetClass() == Classes::CLASS_PALADIN)
+                                {
+                                    if (pmReceiver->GetClass() == Classes::CLASS_DRUID)
+                                    {
+                                        reviveSpellName << "Revive";
+                                    }
+                                    else if (pmReceiver->GetClass() == Classes::CLASS_PRIEST)
+                                    {
+                                        reviveSpellName << "Resurrection";
+                                    }
+                                    else if (pmReceiver->GetClass() == Classes::CLASS_PALADIN)
+                                    {
+                                        reviveSpellName << "Redemption";
+                                    }
+                                    if (pmReceiver->raiGroup->GetActiveStrategy()->sb->CastSpell(deadMap[0], reviveSpellName.str(), RANGED_MAX_DISTANCE))
+                                    {
+                                        replyStream << "Reviving " << deadMap[0]->GetName();
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                replyStream << "You are not leader of my group";
+                            }
+                        }
+                        else
+                        {
+                            replyStream << "I am dead";
+                        }
+                        WhisperTo(pmReceiver, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                    }
+                    else
+                    {
+                        uint32 reviveIndex = 0;
+                        for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                        {
+                            Player* member = groupRef->GetSource();
+                            if (member)
+                            {
+                                if (!member->GetSession()->isRobotSession)
+                                {
+                                    continue;
+                                }
+                                std::ostringstream replyStream;
+                                if (member->IsAlive())
+                                {
+                                    std::ostringstream reviveSpellName;
+                                    if (member->GetClass() == Classes::CLASS_DRUID || member->GetClass() == Classes::CLASS_PRIEST || member->GetClass() == Classes::CLASS_PALADIN)
+                                    {
+                                        if (member->GetClass() == Classes::CLASS_DRUID)
+                                        {
+                                            reviveSpellName << "Revive";
+                                        }
+                                        else if (member->GetClass() == Classes::CLASS_PRIEST)
+                                        {
+                                            reviveSpellName << "Resurrection";
+                                        }
+                                        else if (member->GetClass() == Classes::CLASS_PALADIN)
+                                        {
+                                            reviveSpellName << "Redemption";
+                                        }
+                                        if (deadMap.find(reviveIndex) == deadMap.end())
+                                        {
+                                            break;
+                                        }
+                                        if (member->raiGroup->GetActiveStrategy()->sb->CastSpell(deadMap[reviveIndex], reviveSpellName.str(), RANGED_MAX_DISTANCE))
+                                        {
+                                            replyStream << "Reviving " << deadMap[reviveIndex]->GetName();
+                                            reviveIndex++;
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    replyStream << "I am dead";
+                                }
+                                WhisperTo(member, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else if (commandName == "cure")
+    {
+        if (Group* checkGroup = pmSender->GetGroup())
+        {
+            if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
+            {
+                if (pmReceiver)
+                {
+                    std::ostringstream replyStream;
+                    if (pmReceiver->IsInSameGroupWith(pmSender))
+                    {
+                        if (commandVector.size() > 1)
+                        {
+                            std::string cureCMD = commandVector.at(1);
+                            if (cureCMD == "on")
+                            {
+                                pmReceiver->raiGroup->GetActiveStrategy()->cure = true;
+                            }
+                            else if (cureCMD == "off")
+                            {
+                                pmReceiver->raiGroup->GetActiveStrategy()->cure = false;
+                            }
+                            else
+                            {
+                                replyStream << "Unknown state";
+                            }
+                        }
+                        if (pmReceiver->raiGroup->GetActiveStrategy()->cure)
+                        {
+                            replyStream << "Auto cure is on";
+                        }
+                        else
+                        {
+                            replyStream << "Auto cure is off";
+                        }
+                    }
+                    else
+                    {
+                        replyStream << "You are not leader of my group";
+                    }
+                    WhisperTo(pmReceiver, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                }
+                else
+                {
+                    for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                    {
+                        Player* member = groupRef->GetSource();
+                        if (member)
+                        {
+                            if (!member->GetSession()->isRobotSession)
+                            {
+                                continue;
+                            }
+                            std::ostringstream replyStream;
+                            if (commandVector.size() > 1)
+                            {
+                                std::string cureCMD = commandVector.at(1);
+                                if (cureCMD == "on")
+                                {
+                                    member->raiGroup->GetActiveStrategy()->cure = true;
+                                }
+                                else if (cureCMD == "off")
+                                {
+                                    member->raiGroup->GetActiveStrategy()->cure = false;
+                                }
+                                else
+                                {
+                                    replyStream << "Unknown state";
+                                }
+                            }
+                            if (member->raiGroup->GetActiveStrategy()->cure)
+                            {
+                                replyStream << "Auto cure is on";
+                            }
+                            else
+                            {
+                                replyStream << "Auto cure is off";
+                            }
+                            WhisperTo(member, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else if (commandName == "emote")
+    {
+        if (Group* checkGroup = pmSender->GetGroup())
+        {
+            if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
+            {
+                if (pmReceiver)
+                {
+                    std::ostringstream replyStream;
+                    if (pmReceiver->IsAlive())
+                    {
+                        if (pmReceiver->IsInSameGroupWith(pmSender))
+                        {
+                            if (commandVector.size() > 1)
+                            {
+                                int emoteCMD = std::stoi(commandVector.at(1));
+                                pmReceiver->HandleEmoteCommand(emoteCMD);
+                            }
+                            else
+                            {
+                                pmReceiver->AttackStop();
+                                pmReceiver->CombatStop();
+                            }
+                        }
+                        else
+                        {
+                            replyStream << "You are not leader of my group";
+                        }
+                    }
+                    else
+                    {
+                        replyStream << "I am dead";
+                    }
+                    WhisperTo(pmReceiver, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                }
+                else
+                {
+                    for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                    {
+                        Player* member = groupRef->GetSource();
+                        if (member)
+                        {
+                            if (!member->GetSession()->isRobotSession)
+                            {
+                                continue;
+                            }
+                            std::ostringstream replyStream;
+                            if (member->IsAlive())
+                            {
+                                if (commandVector.size() > 1)
+                                {
+                                    int emoteCMD = std::stoi(commandVector.at(1));
+                                    member->HandleEmoteCommand(emoteCMD);
+                                }
+                                else
+                                {
+                                    member->AttackStop();
+                                    member->CombatStop();
+                                }
+                            }
+                            else
+                            {
+                                replyStream << "I am dead";
+                            }
+                            WhisperTo(member, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else if (commandName == "strategy")
+    {
+        if (Group* checkGroup = pmSender->GetGroup())
+        {
+            if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
+            {
+                if (pmReceiver)
+                {
+                    std::ostringstream replyStream;
+                    if (pmReceiver->IsInSameGroupWith(pmSender))
+                    {
+                        if (commandVector.size() > 1)
+                        {
+                            std::ostringstream targetStream;
+                            uint8 arrayCount = 0;
+                            for (std::vector<std::string>::iterator it = commandVector.begin(); it != commandVector.end(); it++)
+                            {
+                                if (arrayCount > 0)
+                                {
+                                    targetStream << (*it) << " ";
+                                }
+                                arrayCount++;
+                            }
+                            std::string strategyName = sRobotManager->TrimString(targetStream.str());
+                            if (strategyName == "default")
+                            {
+                                pmReceiver->raiGroup->activeStrategyIndex = Strategy_Group_Index::Strategy_Group_Index_Default;
+                                replyStream << "Strategy set to default";
+                            }
+                            else if (strategyName == "shadow labyrinth")
+                            {
+                                if (pmReceiver->raiGroup->strategyMap.find(Strategy_Group_Index::Strategy_Group_Index_Shadow_Labyrinth) == pmReceiver->raiGroup->strategyMap.end())
+                                {
+                                    Strategy_Group_Shadow_Labyrinth* sg = new Strategy_Group_Shadow_Labyrinth(pmReceiver);
+                                    sg->sb->InitializeValues();
+                                    pmReceiver->raiGroup->strategyMap[Strategy_Group_Index::Strategy_Group_Index_Shadow_Labyrinth] = sg;
+                                }
+                                pmReceiver->raiGroup->activeStrategyIndex = Strategy_Group_Index::Strategy_Group_Index_Shadow_Labyrinth;
+                                replyStream << "Strategy set to shadow labyrinth";
+                            }
+                            else
+                            {
+                                replyStream << "Unknown strategy";
+                            }
+                        }
+                        else
+                        {
+                            switch (pmReceiver->raiGroup->activeStrategyIndex)
+                            {
+                            case Strategy_Group_Index::Strategy_Group_Index_Default:
+                            {
+                                replyStream << "Strategy is default";
+                                break;
+                            }
+                            case Strategy_Group_Index::Strategy_Group_Index_Shadow_Labyrinth:
+                            {
+                                replyStream << "Strategy is shadow labyrinth";
+                                break;
+                            }
+                            default:
+                            {
+                                replyStream << "Strategy is unknown";
+                                break;
+                            }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        replyStream << "You are not leader of my group";
+                    }
+                    WhisperTo(pmReceiver, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                }
+                else
+                {
+                    for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                    {
+                        Player* member = groupRef->GetSource();
+                        if (member)
+                        {
+                            if (!member->GetSession()->isRobotSession)
+                            {
+                                continue;
+                            }
+                            std::ostringstream replyStream;
+                            if (commandVector.size() > 1)
+                            {
+                                std::ostringstream targetStream;
+                                uint8 arrayCount = 0;
+                                for (std::vector<std::string>::iterator it = commandVector.begin(); it != commandVector.end(); it++)
+                                {
+                                    if (arrayCount > 0)
+                                    {
+                                        targetStream << (*it) << " ";
+                                    }
+                                    arrayCount++;
+                                }
+                                std::string strategyName = sRobotManager->TrimString(targetStream.str());
+                                if (strategyName == "default")
+                                {
+                                    member->raiGroup->activeStrategyIndex = Strategy_Group_Index::Strategy_Group_Index_Default;
+                                    replyStream << "Strategy set to default";
+                                }
+                                else if (strategyName == "shadow labyrinth")
+                                {
+                                    if (member->raiGroup->strategyMap.find(Strategy_Group_Index::Strategy_Group_Index_Shadow_Labyrinth) == member->raiGroup->strategyMap.end())
+                                    {
+                                        Strategy_Group_Shadow_Labyrinth* sg = new Strategy_Group_Shadow_Labyrinth(member);
+                                        sg->sb->InitializeValues();
+                                        member->raiGroup->strategyMap[Strategy_Group_Index::Strategy_Group_Index_Shadow_Labyrinth] = sg;
+                                    }
+                                    member->raiGroup->activeStrategyIndex = Strategy_Group_Index::Strategy_Group_Index_Shadow_Labyrinth;
+                                    replyStream << "Strategy set to shadow labyrinth";
+                                }
+                                else
+                                {
+                                    replyStream << "Unknown strategy";
+                                }
+                            }
+                            else
+                            {
+                                switch (member->raiGroup->activeStrategyIndex)
+                                {
+                                case Strategy_Group_Index::Strategy_Group_Index_Default:
+                                {
+                                    replyStream << "Strategy is default";
+                                    break;
+                                }
+                                case Strategy_Group_Index::Strategy_Group_Index_Shadow_Labyrinth:
+                                {
+                                    replyStream << "Strategy is shadow labyrinth";
+                                    break;
+                                }
+                                default:
+                                {
+                                    replyStream << "Strategy is unknown";
+                                    break;
+                                }
+                                }
+                            }
+                            WhisperTo(member, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                        }
+                    }
+                }
+            }
+        }
     }
 }

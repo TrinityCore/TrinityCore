@@ -21,12 +21,8 @@
 
 class Script_Hunter :public Script_Base
 {
-public:
-    Script_Hunter()
-    {
-
-    }
-    Script_Hunter(uint32 pmCharacterID);
+public:    
+    Script_Hunter(Player* pmMe);
     bool DPS(Unit* pmTarget, bool pmChase, bool pmAOE);
     bool Tank(Unit* pmTarget);
     bool Heal(Unit* pmTarget, bool pmCure);

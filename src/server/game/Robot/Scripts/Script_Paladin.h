@@ -21,12 +21,8 @@
 
 class Script_Paladin :public Script_Base
 {
-public:
-    Script_Paladin()
-    {
-
-    }
-    Script_Paladin(uint32 pmCharacterID);
+public:    
+    Script_Paladin(Player* pmMe);
     bool DPS(Unit* pmTarget, bool pmChase, bool pmAOE);
     bool Tank(Unit* pmTarget);
     bool Heal(Unit* pmTarget, bool pmCure);

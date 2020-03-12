@@ -1,14 +1,13 @@
 #ifndef ROBOT_MANAGER_H
 #define ROBOT_MANAGER_H
 
+#define enum_to_string(x) #x
+
 #ifndef ROBOT_PASSWORD
 # define ROBOT_PASSWORD "robot"
 #endif
 
-#include "Strategy_Prepare.h"
-#include "Strategy_Solo.h"
-#include "Strategy_Party.h"
-#include "Strategy_Raid.h"
+#include "RobotEntity.h"
 #include "Player.h"
 
 #include <string>
@@ -24,10 +23,9 @@ class RobotManager
 
 public:
     void InitializeManager();
-    void UpdateRobotManager();
+    void UpdateRobotManager(uint32 pmDiff);
     bool DeleteRobots();
     bool RobotsDeleted();
-    bool IsRobot(uint32 pmAccountID);
     bool CheckRobotAccount(uint32 pmAccountID);
     uint32 CheckRobotAccount(std::string pmAccountName);
     uint32 CreateRobotAccount();
@@ -36,30 +34,26 @@ public:
     uint32 CreateRobotCharacter(uint32 pmAccountID, uint32 pmCharacterClass, uint32 pmCharacterRace);
     Player* CheckLogin(uint32 pmAccountID, uint32 pmCharacterID);
     bool LoginRobot(uint32 pmAccountID, uint32 pmCharacterID);
+    void LogoutRobot(uint32 pmCharacterID);
     void LogoutRobots();
     void HandlePlayerSay(Player* pmPlayer, std::string pmContent);
+    void HandleChatCommand(Player* pmSender, std::string pmCMD, Player* pmReceiver = NULL);
     bool StringEndWith(const std::string &str, const std::string &tail);
     bool StringStartWith(const std::string &str, const std::string &head);
     std::vector<std::string> SplitString(std::string srcStr, std::string delimStr, bool repeatedCharIgnored);
     std::string TrimString(std::string srcStr);
     static RobotManager* instance();
-    void HandlePacket(uint32 pmSessionID, WorldPacket const* pmPacket);
+    void HandlePacket(WorldSession* pmSession, WorldPacket const* pmPacket);
     void WhisperTo(Player* pmSender, std::string pmContent, Language pmLanguage, Player* pmTarget);
 
 public:
-    uint32 realPrevTime;
-
     std::unordered_map<uint32, std::unordered_map<uint32, uint32>> availableRaces;
     std::unordered_map<uint32, std::string> robotNameMap;
 
     std::unordered_map<uint8, std::unordered_map<uint8, std::string>> characterTalentTabNameMap;
     std::set<uint32> deleteRobotAccountSet;
-    int prepareCheckDelay;
-    std::unordered_map<uint32, uint32> onlineRobotAccountMap;
-    std::unordered_map<uint32, Strategy_Prepare> prepareStrategyMap;
-    std::unordered_map<uint32, Strategy_Solo> soloStrategyMap;
-    std::unordered_map<uint32, Strategy_Party> partyStrategyMap;
-    std::unordered_map<uint32, Strategy_Raid> raidStrategyMap;
+    int checkDelay;
+    std::unordered_set<RobotEntity*> reSet;
 
     uint32 nameIndex;
     std::set<uint8> armorInventorySet;

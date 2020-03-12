@@ -1030,9 +1030,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     delete holder;
 
     // EJ robot
-    if (sRobotManager->IsRobot(GetAccountId()))
-    {
-        sRobotManager->onlineRobotAccountMap[GetAccountId()] = pCurrChar->GetGUID().GetCounter();
+    if (isRobotSession)
+    {        
         if (!sCharacterCache->HasCharacterCacheEntry(pCurrChar->GetGUID()))
         {
             sCharacterCache->AddCharacterCacheEntry(pCurrChar->GetGUID(), GetAccountId(), pCurrChar->GetName(), pCurrChar->GetGender(), pCurrChar->GetRace(), pCurrChar->GetClass(), pCurrChar->GetLevel());

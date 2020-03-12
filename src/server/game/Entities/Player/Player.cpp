@@ -100,9 +100,6 @@
 #include "WorldSession.h"
 #include "WorldStatePackets.h"
 
-// EJ robot 
-#include "RobotManager.h"
-
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
 #define PLAYER_SKILL_INDEX(x)       (PLAYER_SKILL_INFO_1_1 + ((x)*3))
@@ -410,6 +407,11 @@ Player::Player(WorldSession* session): Unit(true)
     m_reputationMgr = new ReputationMgr(this);
 
     m_groupUpdateTimer.Reset(5000);
+
+    // EJ robot
+    groupRole = 0;
+    raiSolo = NULL;
+    raiGroup = NULL;
 }
 
 Player::~Player()
@@ -1092,7 +1094,7 @@ void Player::Update(uint32 p_time)
             QuestStatusData& q_status = m_QuestStatus[*iter];
             if (q_status.Timer <= p_time)
             {
-                uint32 quest_id  = *iter;
+                uint32 quest_id = *iter;
                 ++iter;                                     // current iter will be removed in FailQuest
                 FailQuest(quest_id);
             }
@@ -1347,7 +1349,7 @@ void Player::Update(uint32 p_time)
 
     Pet* pet = GetPet();
     if (pet && !pet->IsWithinDistInMap(this, GetMap()->GetVisibilityRange()) && !pet->isPossessed())
-    //if (pet && !pet->IsWithinDistInMap(this, GetMap()->GetVisibilityDistance()) && (GetCharmGUID() && (pet->GetGUID() != GetCharmGUID())))
+        //if (pet && !pet->IsWithinDistInMap(this, GetMap()->GetVisibilityDistance()) && (GetCharmGUID() && (pet->GetGUID() != GetCharmGUID())))
         RemovePet(pet, PET_SAVE_NOT_IN_SLOT, true);
 
     if (IsAlive())
@@ -1367,6 +1369,21 @@ void Player::Update(uint32 p_time)
     if (IsHasDelayedTeleport() && IsAlive())
         TeleportTo(m_teleport_dest, m_teleport_options);
 
+    // EJ robot
+    if (GetGroup())
+    {
+        if (raiGroup)
+        {
+            raiGroup->Update(p_time);
+        }
+    }
+    else
+    {
+        if (raiSolo)
+        {
+            raiSolo->Update(p_time);
+        }
+    }
 }
 
 void Player::setDeathState(DeathState s)
@@ -1405,10 +1422,6 @@ void Player::setDeathState(DeathState s)
 
         // reset all death criterias
         ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_CONDITION_NO_DEATH, 0);
-
-        // EJ clear when dead
-        GetMotionMaster()->Clear();
-        StopMoving();
     }
 
     Unit::setDeathState(s);
@@ -2546,8 +2559,7 @@ void Player::GiveXP(uint32 xp, Unit* victim, float group_rate)
     if (!IsAlive() && !GetBattlegroundId())
         return;
 
-    // EJ robot
-    if (sRobotManager->IsRobot(GetSession()->GetAccountId()))
+    if (GetSession()->isRobotSession)
     {
         return;
     }

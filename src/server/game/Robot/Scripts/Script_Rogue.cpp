@@ -8,9 +8,9 @@
 # define ROGUE_RANGE_DISTANCE 25
 #endif
 
-Script_Rogue::Script_Rogue(uint32 pmCharacterID) :Script_Base()
+Script_Rogue::Script_Rogue(Player* pmMe) :Script_Base(pmMe)
 {
-    character = pmCharacterID;
+    
 }
 
 bool Script_Rogue::Heal(Unit* pmTarget, bool pmCure)
@@ -54,8 +54,8 @@ bool Script_Rogue::DPS_Combat(Unit* pmTarget, bool pmChase, bool pmAOE)
     {
         return false;
     }
-    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
-    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    
+    
     if (!me)
     {
         return false;
@@ -142,8 +142,8 @@ bool Script_Rogue::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE)
     {
         return false;
     }
-    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
-    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    
+    
     if (!me)
     {
         return false;
@@ -227,8 +227,8 @@ bool Script_Rogue::Attack_Combat(Unit* pmTarget)
     {
         return false;
     }
-    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
-    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    
+    
     if (!me)
     {
         return false;
@@ -305,8 +305,8 @@ bool Script_Rogue::Attack_Common(Unit* pmTarget)
     {
         return false;
     }
-    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
-    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    
+    
     if (!me)
     {
         return false;

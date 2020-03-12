@@ -1,5 +1,4 @@
 #include "Strategy_Solo.h"
-#include "RobotManager.h"
 #include "Script_Warrior.h"
 #include "Script_Hunter.h"
 #include "Script_Shaman.h"
@@ -9,72 +8,60 @@
 #include "Script_Rogue.h"
 #include "Script_Mage.h"
 #include "Script_Druid.h"
-#include "MotionMaster.h"
 #include "Pet.h"
 #include "GridNotifiers.h"
-#include "Group.h"
+#include "MotionMaster.h"
+#include "RobotManager.h"
 
-Strategy_Solo::Strategy_Solo(uint32 pmAccount, uint32 pmCharacter)
+Strategy_Solo::Strategy_Solo(Player* pmMe)
 {
-    realPrevTime = getMSTime();
-
-    account = pmAccount;
-    character = pmCharacter;
-
+    me = pmMe;
     soloState = RobotSoloState::RobotSoloState_Wander;
-
-    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
-    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
-    if (!me)
-    {
-        soloState = RobotSoloState::RobotSoloState_None;
-        return;
-    }
     switch (me->GetClass())
     {
     case Classes::CLASS_WARRIOR:
     {
-        sb = new Script_Warrior(character);
+        sb = new Script_Warrior(me);
         break;
     }
     case Classes::CLASS_HUNTER:
     {
-        sb = new Script_Hunter(character);
+        sb = new Script_Hunter(me);
         break;
     }
     case Classes::CLASS_SHAMAN:
     {
-        sb = new Script_Shaman(character);
+        sb = new Script_Shaman(me);
         break;
     }
     case Classes::CLASS_PALADIN:
     {
-        sb = new Script_Paladin(character);
+        sb = new Script_Paladin(me);
         break;
     }
     case Classes::CLASS_WARLOCK:
     {
-        sb = new Script_Warlock(character);
+        sb = new Script_Warlock(me);
         break;
     }
     case Classes::CLASS_PRIEST:
     {
-        sb = new Script_Priest(character);
+        sb = new Script_Priest(me);
         break;
     }
     case Classes::CLASS_ROGUE:
     {
-        sb = new Script_Rogue(character);
+        sb = new Script_Rogue(me);
         break;
     }
     case Classes::CLASS_MAGE:
     {
-        sb = new Script_Mage(character);
+        sb = new Script_Mage(me);
         break;
     }
     case Classes::CLASS_DRUID:
     {
-        sb = new Script_Druid(character);
+        sb = new Script_Druid(me);
         break;
     }
     }
@@ -85,54 +72,20 @@ Strategy_Solo::Strategy_Solo(uint32 pmAccount, uint32 pmCharacter)
     waitDelay = 0;
     strollDelay = 0;
     confuseDelay = 0;
-    interestsDelay = 0;
-    sb->InitializeValues();
+    interestsDelay = 0;    
 }
 
-void Strategy_Solo::Update()
+void Strategy_Solo::Update(uint32 pmDiff)
 {
-    if (soloState == RobotSoloState::RobotSoloState_None)
-    {
-        return;
-    }
-    uint32 realCurrTime = getMSTime();
-    uint32 diff = getMSTimeDiff(realPrevTime, realCurrTime);
-    realPrevTime = realCurrTime;
-
-    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
-    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
-    if (!me)
-    {
-        return;
-    }
-    if (Group* checkGroup = me->GetGroup())
-    {
-        if (checkGroup->isRaidGroup())
-        {
-            if (sRobotManager->raidStrategyMap.find(checkGroup->GetLowGUID()) == sRobotManager->raidStrategyMap.end())
-            {
-                // todo raid
-            }
-        }
-        else
-        {
-            if (sRobotManager->partyStrategyMap.find(checkGroup->GetLowGUID()) == sRobotManager->partyStrategyMap.end())
-            {
-                Strategy_Party sp(checkGroup->GetLowGUID());
-                sRobotManager->partyStrategyMap[checkGroup->GetLowGUID()] = sp;
-            }
-        }
-        return;
-    }
     if (interestsDelay > 0)
     {
-        interestsDelay -= diff;
+        interestsDelay -= pmDiff;
     }
     if (!me->IsAlive())
     {
         if (deathDelay > 0)
         {
-            deathDelay -= diff;
+            deathDelay -= pmDiff;
             if (deathDelay <= 0)
             {
                 me->ResurrectPlayer(100.0f);
@@ -147,7 +100,7 @@ void Strategy_Solo::Update()
         }
         return;
     }
-    soloDelay -= diff;
+    soloDelay -= pmDiff;
     if (soloDelay < 0)
     {
         soloDelay = urand(30 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 60 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
@@ -227,7 +180,7 @@ void Strategy_Solo::Update()
     }
     case RobotSoloState::RobotSoloState_Rest:
     {
-        restDelay -= diff;
+        restDelay -= pmDiff;
         if (restDelay < 0)
         {
             soloState = RobotSoloState::RobotSoloState_Wander;
@@ -237,7 +190,7 @@ void Strategy_Solo::Update()
     }
     case RobotSoloState::RobotSoloState_Wait:
     {
-        waitDelay -= diff;
+        waitDelay -= pmDiff;
         if (waitDelay < 0)
         {
             soloState = RobotSoloState::RobotSoloState_Wander;
@@ -247,7 +200,7 @@ void Strategy_Solo::Update()
     }
     case RobotSoloState::RobotSoloState_Stroll:
     {
-        strollDelay -= diff;
+        strollDelay -= pmDiff;
         if (strollDelay < 0)
         {
             soloState = RobotSoloState::RobotSoloState_Wander;
@@ -257,7 +210,7 @@ void Strategy_Solo::Update()
     }
     case RobotSoloState::RobotSoloState_Confuse:
     {
-        confuseDelay -= diff;
+        confuseDelay -= pmDiff;
         if (confuseDelay < 0)
         {
             soloState = RobotSoloState::RobotSoloState_Wander;
@@ -274,8 +227,6 @@ void Strategy_Solo::Update()
 
 bool Strategy_Solo::Buff()
 {
-    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
-    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
     if (me)
     {
         return sb->Buff(me, true);
@@ -285,8 +236,6 @@ bool Strategy_Solo::Buff()
 
 bool Strategy_Solo::Rest()
 {
-    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
-    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
     if (!me)
     {
         return false;
@@ -312,7 +261,7 @@ bool Strategy_Solo::Rest()
             if (sb->Rest())
             {
                 soloState = RobotSoloState::RobotSoloState_Rest;
-                restDelay = REST_DELAY_DEFAULT;
+                restDelay = DEFAULT_REST_DELAY;
                 return true;
             }
         }
@@ -323,8 +272,6 @@ bool Strategy_Solo::Rest()
 
 bool Strategy_Solo::Battle()
 {
-    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
-    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
     if (!me)
     {
         return false;
@@ -431,8 +378,6 @@ bool Strategy_Solo::Battle()
 
 bool Strategy_Solo::Heal()
 {
-    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
-    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
     if (me)
     {
         return sb->Heal(me, true);
@@ -442,8 +387,6 @@ bool Strategy_Solo::Heal()
 
 bool Strategy_Solo::Wait()
 {
-    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
-    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
     if (me)
     {
         me->GetMotionMaster()->Clear();
@@ -457,8 +400,6 @@ bool Strategy_Solo::Wait()
 
 bool Strategy_Solo::Stroll()
 {
-    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
-    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
     if (me)
     {
         float destX = 0;
@@ -475,8 +416,6 @@ bool Strategy_Solo::Stroll()
 
 bool Strategy_Solo::Confuse()
 {
-    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
-    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
     if (me)
     {
         me->SetStandState(UNIT_STAND_STATE_STAND);
@@ -490,8 +429,6 @@ bool Strategy_Solo::Confuse()
 
 void Strategy_Solo::HandleChatCommand(Player* pmSender, std::string pmCMD)
 {
-    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
-    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
     if (!me)
     {
         return;

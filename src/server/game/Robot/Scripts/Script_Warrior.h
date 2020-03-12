@@ -13,12 +13,8 @@
 
 class Script_Warrior :public Script_Base
 {
-public:
-    Script_Warrior()
-    {
-
-    }
-    Script_Warrior(uint32 pmCharacterID);
+public:    
+    Script_Warrior(Player* pmMe);
     bool DPS(Unit* pmTarget, bool pmChase, bool pmAOE);
     bool Tank(Unit* pmTarget);
     bool Heal(Unit* pmTarget, bool pmCure);

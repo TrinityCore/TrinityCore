@@ -25,12 +25,8 @@
 
 class Script_Druid :public Script_Base
 {
-public:
-    Script_Druid()
-    {
-
-    }
-	Script_Druid(uint32 pmCharacterID);
+public:    
+	Script_Druid(Player* pmMe);
     bool DPS(Unit* pmTarget, bool pmChase, bool pmAOE);
     bool Tank(Unit* pmTarget);
     bool Heal(Unit* pmTarget, bool pmCure);

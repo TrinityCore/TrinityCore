@@ -13,12 +13,8 @@
 
 class Script_Warlock :public Script_Base
 {
-public:
-    Script_Warlock()
-    {
-
-    }
-    Script_Warlock(uint32 pmCharacterID);
+public:    
+    Script_Warlock(Player* pmMe);
     bool DPS(Unit* pmTarget, bool pmChase, bool pmAOE);
     bool Tank(Unit* pmTarget);
     bool Heal(Unit* pmTarget, bool pmCure);

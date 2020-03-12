@@ -5,9 +5,9 @@
 #include "RobotManager.h"
 #include "Group.h"
 
-Script_Priest::Script_Priest(uint32 pmCharacterID) :Script_Base()
+Script_Priest::Script_Priest(Player* pmMe) :Script_Base(pmMe)
 {
-    character = pmCharacterID;
+    
 }
 
 bool Script_Priest::Tank(Unit* pmTarget)
@@ -25,8 +25,8 @@ bool Script_Priest::Heal(Unit* pmTarget, bool pmCure)
     {
         return false;
     }
-    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
-    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    
+    
     if (!me)
     {
         return false;
@@ -61,7 +61,7 @@ bool Script_Priest::Heal(Unit* pmTarget, bool pmCure)
         if (tankTarget)
         {
             // when facing boss
-            if (tankTarget->GetMaxHealth() / me->GetMaxHealth() > 3)
+            if (tankTarget->GetMaxHealth() / me->GetMaxHealth() > 5.0f)
             {
                 if (CastSpell(pmTarget, "Lightwell", PRIEST_RANGE_DISTANCE))
                 {
@@ -130,8 +130,8 @@ bool Script_Priest::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE)
     {
         return false;
     }
-    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
-    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    
+    
     if (!me)
     {
         return false;
@@ -192,8 +192,8 @@ bool Script_Priest::Attack_Common(Unit* pmTarget)
     {
         return false;
     }
-    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
-    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    
+    
     if (!me)
     {
         return false;
@@ -239,8 +239,8 @@ bool Script_Priest::Buff(Unit* pmTarget, bool pmCure)
     {
         return false;
     }
-    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
-    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    
+    
     if (!me)
     {
         return false;

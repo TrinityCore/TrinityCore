@@ -632,18 +632,13 @@ void Pet::Update(uint32 diff)
 
             if (m_happinessTimer <= diff)
             {
-                // EJ robot's pet will not lose happiness
-                bool isRobot = false;
+                // EJ robot's pet will not lose happiness                
                 if (Player* ownerPlayer = GetOwner())
                 {
-                    if (WorldSession* ownerSession = ownerPlayer->GetSession())
+                    if (!ownerPlayer->GetSession()->isRobotSession)
                     {
-                        isRobot = sRobotManager->IsRobot(ownerSession->GetAccountId());
+                        LoseHappiness();
                     }
-                }
-                if (!isRobot)
-                {
-                    LoseHappiness();
                 }                
                 m_happinessTimer = 7500;
             }

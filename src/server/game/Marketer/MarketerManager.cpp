@@ -4,10 +4,8 @@
 
 MarketerManager::MarketerManager()
 {
-    realPrevTime = getMSTime();
-
-    buyerCheckDelay = 120000;
-    sellerCheckDelay = 60000;
+    buyerCheckDelay = 2 * TimeConstants::MINUTE*TimeConstants::IN_MILLISECONDS;
+    sellerCheckDelay = 3 * TimeConstants::MINUTE*TimeConstants::IN_MILLISECONDS;
 
     auctionHouseIDSet.clear();
     auctionHouseIDSet.insert(AuctionHouses::AUCTIONHOUSE_ALLIANCE);
@@ -226,35 +224,28 @@ void MarketerManager::ResetMarketer()
     sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Marketer seller reset");
 }
 
-bool MarketerManager::UpdateMarketer()
+bool MarketerManager::UpdateMarketer(uint32 pmDiff)
 {
     if (!sMarketerConfig->Enable)
     {
         return false;
     }
-
-    uint32 realCurrTime = getMSTime();
-    uint32 diff = getMSTimeDiff(realPrevTime, realCurrTime);
-
-    if (diff < MARKETER_MANAGER_UPDATE_GAP)
+    sellerCheckDelay -= pmDiff;
+    buyerCheckDelay -= pmDiff;
+    if (sellerCheckDelay < 0)
     {
-        return false;
+        UpdateSeller();
     }
-
-    UpdateSeller(diff);
-    UpdateBuyer(diff);
-    realPrevTime = realCurrTime;
+    if (buyerCheckDelay < 0)
+    {
+        UpdateBuyer();
+    }
 
     return true;
 }
 
-bool MarketerManager::UpdateSeller(uint32 pmDiff)
+bool MarketerManager::UpdateSeller()
 {
-    if (sellerCheckDelay > 0)
-    {
-        sellerCheckDelay -= pmDiff;
-        return true;
-    }
     if (selling)
     {
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
@@ -514,15 +505,9 @@ bool MarketerManager::MarketEmpty()
     return true;
 }
 
-bool MarketerManager::UpdateBuyer(uint32 pmDiff)
+bool MarketerManager::UpdateBuyer()
 {
-    if (buyerCheckDelay > 0)
-    {
-        buyerCheckDelay -= pmDiff;
-        return true;
-    }
     buyerCheckDelay = HOUR * IN_MILLISECONDS;
-
     // EJ debug 
     //buyerCheckDelay = 60000;
 

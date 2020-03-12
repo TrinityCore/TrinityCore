@@ -158,13 +158,13 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& recvData)
         }
 
         // EJ robot group recheck
-        if (sRobotManager->IsRobot(invitedPlayer->GetSession()->GetAccountId()))
+        if (invitedPlayer->GetSession()->isRobotSession)
         {
-            if (Group* checkGroup=invitedPlayer->GetGroup())
+            if (Group* checkGroup = invitedPlayer->GetGroup())
             {
                 if (Player* leader = ObjectAccessor::FindConnectedPlayer(checkGroup->GetLeaderGUID()))
                 {
-                    if (sRobotManager->IsRobot(leader->GetSession()->GetAccountId()))
+                    if (leader->GetSession()->isRobotSession)
                     {
                         invitedPlayer->RemoveFromGroup();
                     }
@@ -173,12 +173,12 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& recvData)
                 {
                     invitedPlayer->RemoveFromGroup();
                 }
-            }            
+            }
             else if (Group* groupInvite = invitedPlayer->GetGroupInvite())
             {
                 if (Player* leader = ObjectAccessor::FindConnectedPlayer(groupInvite->GetLeaderGUID()))
                 {
-                    if (sRobotManager->IsRobot(leader->GetSession()->GetAccountId()))
+                    if (leader->GetSession()->isRobotSession)
                     {
                         invitedPlayer->RemoveFromGroup();
                     }

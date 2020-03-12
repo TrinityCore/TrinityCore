@@ -1,8 +1,8 @@
 #include "Script_Shaman.h"
 
-Script_Shaman::Script_Shaman(uint32 pmCharacterID) :Script_Base()
+Script_Shaman::Script_Shaman(Player* pmMe) :Script_Base(pmMe)
 {
-    character = pmCharacterID;
+    
 }
 
 bool Script_Shaman::Tank(Unit* pmTarget)
@@ -30,8 +30,8 @@ bool Script_Shaman::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE)
     {
         return false;
     }
-    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
-    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    
+    
     if (!me)
     {
         return false;
@@ -78,8 +78,8 @@ bool Script_Shaman::Attack_Common(Unit* pmTarget)
     {
         return false;
     }
-    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
-    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    
+    
     if (!me)
     {
         return false;

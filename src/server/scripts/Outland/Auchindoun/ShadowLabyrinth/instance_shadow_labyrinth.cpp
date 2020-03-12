@@ -74,6 +74,11 @@ class instance_shadow_labyrinth : public InstanceMapScript
                                 hellmaw->AI()->DoAction(ACTION_AMBASSADOR_HELLMAW_BANISH);
                         }
                         break;
+                    case SLCreatureIds::SL_NPC_VOID_TRAVELER:
+                    {                        
+                        creature->SetSpeed(UnitMoveType::MOVE_RUN, 3.0f);
+                        break;
+                    }
                     default:
                         break;
                 }

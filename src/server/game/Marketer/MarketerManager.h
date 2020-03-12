@@ -20,9 +20,9 @@ class MarketerManager
 
 public:
     void ResetMarketer();
-    bool UpdateMarketer();
-	bool UpdateSeller(uint32 pmDiff);
-	bool UpdateBuyer(uint32 pmDiff);
+    bool UpdateMarketer(uint32 pmDiff);
+	bool UpdateSeller();
+	bool UpdateBuyer();
 	static MarketerManager* instance();
 
 private:    
@@ -39,8 +39,7 @@ private:
     bool selling;
     uint32 sellingIndex;
 	Player* pMarketer;
-    std::set<uint32> auctionHouseIDSet;
-    uint32 realPrevTime;
+    std::set<uint32> auctionHouseIDSet;    
 };
 
 #define sMarketerManager MarketerManager::instance()

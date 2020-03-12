@@ -13,12 +13,8 @@
 
 class Script_Mage :public Script_Base
 {
-public:
-    Script_Mage()
-    {
-
-    }
-    Script_Mage(uint32 pmCharacterID);
+public:    
+    Script_Mage(Player* pmMe);
     bool DPS(Unit* pmTarget, bool pmChase, bool pmAOE);
     bool Tank(Unit* pmTarget);
     bool Heal(Unit* pmTarget, bool pmCure);

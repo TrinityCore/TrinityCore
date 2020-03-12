@@ -4,9 +4,9 @@
 #include "Group.h"
 #include "RobotManager.h"
 
-Script_Warlock::Script_Warlock(uint32 pmCharacterID) :Script_Base()
+Script_Warlock::Script_Warlock(Player* pmMe) :Script_Base(pmMe)
 {
-    character = pmCharacterID;
+    
 }
 
 bool Script_Warlock::Heal(Unit* pmTarget, bool pmCure)
@@ -50,8 +50,8 @@ bool Script_Warlock::DPS_Affliction(Unit* pmTarget, bool pmChase, bool pmAOE)
     {
         return false;
     }
-    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
-    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    
+    
     if (!me)
     {
         return false;
@@ -104,8 +104,8 @@ bool Script_Warlock::DPS_Demonology(Unit* pmTarget, bool pmChase, bool pmAOE)
     {
         return false;
     }
-    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
-    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    
+    
     if (!me)
     {
         return false;
@@ -158,8 +158,8 @@ bool Script_Warlock::DPS_Destruction(Unit* pmTarget, bool pmChase, bool pmAOE)
     {
         return false;
     }
-    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
-    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    
+    
     if (!me)
     {
         return false;
@@ -196,49 +196,36 @@ bool Script_Warlock::DPS_Destruction(Unit* pmTarget, bool pmChase, bool pmAOE)
     }
     if (pmAOE)
     {
-        Group* myGroup = me->GetGroup();
-        if (myGroup)
+        if (Group* myGroup = me->GetGroup())
         {
-            if (myGroup->isRaidGroup())
+            for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
             {
-                // todo raid aoe
-            }
-            else
-            {
-                if (sRobotManager->partyStrategyMap.find(myGroup->GetLowGUID()) != sRobotManager->partyStrategyMap.end())
+                if (Player* member = groupRef->GetSource())
                 {
-                    for (std::unordered_map<uint32, PartyMember>::iterator pmIT = sRobotManager->partyStrategyMap[myGroup->GetLowGUID()].memberMap.begin(); pmIT != sRobotManager->partyStrategyMap[myGroup->GetLowGUID()].memberMap.end(); pmIT++)
+                    if (member->groupRole == GroupRole::GroupRole_Tank)
                     {
-                        if (pmIT->second.partyRole == PartyRole::PartyRole_Tank)
+                        if (member->getAttackers().size() >= 3)
                         {
-                            ObjectGuid tankGUID = ObjectGuid(HighGuid::Player, pmIT->second.character);
-                            if (Player* tank = ObjectAccessor::FindConnectedPlayer(tankGUID))
+                            uint32 inRangeCount = 0;
+                            for (std::set<Unit*>::const_iterator i = member->getAttackers().begin(); i != member->getAttackers().end(); ++i)
                             {
-                                if (tank->getAttackers().size() >= 3)
+                                if ((*i)->GetDistance(member) < AOE_TARGETS_RANGE)
                                 {
-                                    uint32 inRangeCount = 0;
-                                    for (std::set<Unit*>::const_iterator i = tank->getAttackers().begin(); i != tank->getAttackers().end(); ++i)
+                                    inRangeCount++;
+                                    if (inRangeCount >= 3)
                                     {
-                                        if ((*i)->GetDistance(tank) < AOE_TARGETS_RANGE)
+                                        if (CastSpell((*i), "Shadowfury", WARLOCK_RANGE_DISTANCE))
                                         {
-                                            inRangeCount++;
-                                            if (inRangeCount >= 3)
-                                            {
-                                                if (CastSpell((*i), "Shadowfury", WARLOCK_RANGE_DISTANCE))
-                                                {
-                                                    return true;
-                                                }
-                                                if (CastSpell((*i), "Rain of Fire", WARLOCK_RANGE_DISTANCE))
-                                                {
-                                                    return true;
-                                                }
-                                                break;
-                                            }
+                                            return true;
                                         }
+                                        if (CastSpell((*i), "Rain of Fire", WARLOCK_RANGE_DISTANCE))
+                                        {
+                                            return true;
+                                        }
+                                        break;
                                     }
                                 }
                             }
-                            break;
                         }
                     }
                 }
@@ -288,8 +275,8 @@ bool Script_Warlock::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE)
     {
         return false;
     }
-    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
-    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    
+    
     if (!me)
     {
         return false;
@@ -362,8 +349,8 @@ bool Script_Warlock::Attack_Affliction(Unit* pmTarget)
     {
         return false;
     }
-    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
-    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    
+    
     if (!me)
     {
         return false;
@@ -406,8 +393,8 @@ bool Script_Warlock::Attack_Demonology(Unit* pmTarget)
     {
         return false;
     }
-    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
-    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    
+    
     if (!me)
     {
         return false;
@@ -450,8 +437,8 @@ bool Script_Warlock::Attack_Destruction(Unit* pmTarget)
     {
         return false;
     }
-    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
-    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    
+    
     if (!me)
     {
         return false;
@@ -511,8 +498,8 @@ bool Script_Warlock::Attack_Common(Unit* pmTarget)
     {
         return false;
     }
-    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
-    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    
+    
     if (!me)
     {
         return false;
@@ -554,8 +541,8 @@ bool Script_Warlock::Buff(Unit* pmTarget, bool pmCure)
     {
         return false;
     }
-    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
-    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    
+    
     if (!me)
     {
         return false;

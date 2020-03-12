@@ -41,8 +41,8 @@
 # define ATTACK_RANGE_LIMIT 200.0f
 #endif
 
-#ifndef REST_DELAY_DEFAULT
-# define REST_DELAY_DEFAULT 20000
+#ifndef DEFAULT_REST_DELAY
+# define DEFAULT_REST_DELAY 20000
 #endif
 
 #include "Unit.h"
@@ -52,7 +52,7 @@
 class Script_Base
 {
 public:
-    Script_Base();
+    Script_Base(Player* pmMe);
     virtual bool DPS(Unit* pmTarget, bool pmChase, bool pmAOE);
     virtual bool Tank(Unit* pmTarget);
     virtual bool Heal(Unit* pmTarget, bool pmCure);
@@ -77,14 +77,11 @@ public:
     bool Rest();
     void WhisperTo(std::string pmContent, Language pmLanguage, Player* pmTarget);
     void RandomTeleport();
-    void Prepare();
-    void Logout();
+    void Prepare();    
     bool Chase(Unit* pmTarget, float pmMaxDistance = MELEE_MIN_DISTANCE, float pmMinDistance = MIN_DISTANCE_GAP);
     bool Follow(Unit* pmTarget, float pmDistance = FOLLOW_MIN_DISTANCE);
 
-    uint32 account;
-    uint32 character;
-
+    Player* me;
     std::unordered_map<std::string, uint32> spellIDMap;
     std::unordered_map<std::string, uint8> spellLevelMap;
 

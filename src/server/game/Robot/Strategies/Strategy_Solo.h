@@ -2,6 +2,7 @@
 #define ROBOT_STRATEGIES_SOLO_H
 
 #include "Script_Base.h"
+#include "Player.h"
 
 enum RobotSoloState :uint32
 {
@@ -14,16 +15,11 @@ enum RobotSoloState :uint32
     RobotSoloState_Confuse,
 };
 
-struct Strategy_Solo
+class Strategy_Solo
 {
 public:
-    Strategy_Solo()
-    {
-
-    }
-
-    Strategy_Solo(uint32 pmAccount, uint32 pmCharacter);
-	void Update();    
+    Strategy_Solo(Player* pmMe);
+    virtual void Update(uint32 pmDiff);
     bool Buff();
 	bool Rest();
 	bool Battle();
@@ -35,10 +31,7 @@ public:
     void HandleChatCommand(Player* pmSender, std::string pmCMD);
 
 public:
-    uint32 realPrevTime;
-    uint32 account;
-    uint32 character;
-
+    Player* me;
     uint32 soloState;
 	int32 deathDelay;
     int32 soloDelay;
