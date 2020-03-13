@@ -55,6 +55,9 @@ class UpdateData;
 class WorldObject;
 class WorldPacket;
 class ZoneScript;
+#ifdef ELUNA
+class ElunaEventProcessor;
+#endif
 struct FactionTemplateEntry;
 struct PositionFullTerrainStatus;
 struct QuaternionData;
@@ -282,7 +285,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
     public:
         virtual ~WorldObject();
 
-        virtual void Update(uint32 /*time_diff*/) { }
+        virtual void Update(uint32 /*time_diff*/);
 
         void _Create(ObjectGuid::LowType guidlow, HighGuid guidhigh, uint32 phaseMask);
         void AddToWorld() override;
@@ -523,6 +526,10 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         float GetMapWaterOrGroundLevel(float x, float y, float z, float* ground = nullptr) const;
         float GetMapHeight(float x, float y, float z, bool vmap = true, float distanceToSearch = 50.0f) const; // DEFAULT_HEIGHT_SEARCH in map.h
+
+#ifdef ELUNA
+        ElunaEventProcessor* elunaEvents;
+#endif
 
         std::string GetDebugInfo() const override;
 

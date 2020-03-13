@@ -99,6 +99,11 @@ class TC_DATABASE_API Field
             return data.value == nullptr;
         }
 
+        DatabaseFieldTypes GetType() const
+        {
+            return data.type;
+        }
+
         struct Metadata
         {
             char const* TableName;

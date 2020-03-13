@@ -22,6 +22,7 @@
 #include "DBCStorageIterator.h"
 #include "Errors.h"
 #include <vector>
+#include <cstring>
 
  /// Interface class for common access
 class TC_SHARED_API DBCStorageBase
@@ -67,6 +68,27 @@ class DBCStorage : public DBCStorageBase
 
         T const* LookupEntry(uint32 id) const { return (id >= _indexTableSize) ? nullptr : _indexTable.AsT[id]; }
         T const* AssertEntry(uint32 id) const { return ASSERT_NOTNULL(LookupEntry(id)); }
+
+#ifdef ELUNA
+        void SetEntry(uint32 id, T* t)
+        {
+            if (id >= _indexTableSize)
+            {
+                // Resize
+                typedef char* ptr;
+                size_t newSize = id + 1;
+                ptr* newArr = new ptr[newSize];
+                memset(newArr, 0, newSize * sizeof(ptr));
+                memcpy(newArr, _indexTable.AsChar, _indexTableSize * sizeof(ptr));
+                delete[] reinterpret_cast<char*>(_indexTable.AsT);
+                _indexTable.AsChar = newArr;
+                _indexTableSize = newSize;
+            }
+
+            delete _indexTable.AsT[id];
+            _indexTable.AsT[id] = t;
+        }
+#endif
 
         uint32 GetNumRows() const { return _indexTableSize; }
 
