@@ -4394,7 +4394,7 @@ void Spell::EffectPullTowards(SpellEffIndex effIndex)
 
     Position pos = m_caster->GetFirstCollisionPosition(m_caster->GetCombatReach(), m_caster->GetRelativeAngle(unitTarget));
 
-    // This is a blizzlike mistake: this should be 2D distance according to projectile motion formulas, but Blizzard erroneously used 3D distance
+    // This is a blizzlike mistake: this should be 2D distance according to projectile motion formulas, but Blizzard erroneously used 3D distance.
     float distXY = unitTarget->GetExactDist(pos);
     float distZ = pos.GetPositionZ() - unitTarget->GetPositionZ();
     float speedXY = m_spellInfo->Effects[effIndex].MiscValue ? m_spellInfo->Effects[effIndex].MiscValue / 10.0f : 30.0f;
