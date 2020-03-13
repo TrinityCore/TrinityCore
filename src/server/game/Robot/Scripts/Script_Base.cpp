@@ -1387,6 +1387,10 @@ bool Script_Base::SpellValid(uint32 pmSpellID)
 
 bool Script_Base::CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDistance, bool pmCheckAura, bool pmOnlyMyAura)
 {
+    if (!pmTarget)
+    {
+        return false;
+    }
     if (!me)
     {
         return false;
@@ -1415,28 +1419,19 @@ bool Script_Base::CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDis
     {
         return false;
     }
-    Unit* target = pmTarget;
-    if (!target)
-    {
-        target = me;
-    }
     const SpellInfo* pST = sSpellMgr->GetSpellInfo(spellID);
-    if (target->GetGUID() != me->GetGUID())
+    if (pmTarget->GetGUID() != me->GetGUID())
     {
-        if (me->GetDistance(target) > pmDistance)
+        if (me->GetDistance(pmTarget) > pmDistance)
         {
             return false;
         }
-    }
-    if (me->GetTarget() != target->GetGUID())
-    {
-        me->SetSelection(target->GetGUID());
-    }
+    }    
     if (!pST)
     {
         return false;
     }
-    if (target->IsImmunedToSpell(pST, me))
+    if (pmTarget->IsImmunedToSpell(pST, me))
     {
         return false;
     }
@@ -1458,7 +1453,11 @@ bool Script_Base::CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDis
     {
         me->StopMoving();
     }
-    SpellCastResult scr = me->CastSpell(target, spellID, TriggerCastFlags::TRIGGERED_NONE);
+    if (me->GetTarget() != pmTarget->GetGUID())
+    {
+        me->SetSelection(pmTarget->GetGUID());
+    }
+    SpellCastResult scr = me->CastSpell(pmTarget, spellID, TriggerCastFlags::TRIGGERED_NONE);
     if (scr == SpellCastResult::SPELL_CAST_OK)
     {
         return true;
@@ -1469,6 +1468,8 @@ bool Script_Base::CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDis
         //scrStream << enum_to_string(scr);
         //me->Say(scrStream.str(), Language::LANG_UNIVERSAL);
     }
+
+    return false;
 }
 
 bool Script_Base::HasAura(Unit* pmTarget, std::string pmSpellName, bool pmOnlyMyAura)

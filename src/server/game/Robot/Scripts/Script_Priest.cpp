@@ -25,8 +25,6 @@ bool Script_Priest::Heal(Unit* pmTarget, bool pmCure)
     {
         return false;
     }
-    
-    
     if (!me)
     {
         return false;
@@ -64,8 +62,7 @@ bool Script_Priest::Heal(Unit* pmTarget, bool pmCure)
             if (tankTarget->GetMaxHealth() / me->GetMaxHealth() > 5.0f)
             {
                 if (CastSpell(pmTarget, "Lightwell", PRIEST_RANGE_DISTANCE))
-                {
-                    me->Yell("LIGHTWELL !", Language::LANG_UNIVERSAL);
+                {                    
                     return true;
                 }
             }

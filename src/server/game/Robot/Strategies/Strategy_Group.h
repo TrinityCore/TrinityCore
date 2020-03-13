@@ -27,7 +27,7 @@ public:
     virtual bool Rest();
     virtual bool Heal();
     virtual bool Buff();
-    virtual bool Follow();
+    virtual bool Follow(bool pmForce = false);
 
 public:
     Player* me;

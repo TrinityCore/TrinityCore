@@ -2120,11 +2120,8 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                     {
                         if (pmReceiver->IsInSameGroupWith(pmSender))
                         {
-                            if (pmReceiver->groupRole == GroupRole::GroupRole_Tank)
-                            {
-                                pmReceiver->raiGroup->GetActiveStrategy()->sb->Prepare();
-                                replyStream << "I am prepared";
-                            }
+                            pmReceiver->raiGroup->GetActiveStrategy()->sb->Prepare();
+                            replyStream << "I am prepared";
                         }
                         else
                         {
@@ -2151,11 +2148,8 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                             std::ostringstream replyStream;
                             if (member->IsAlive())
                             {
-                                if (member->groupRole == GroupRole::GroupRole_Tank)
-                                {
-                                    member->raiGroup->GetActiveStrategy()->sb->Prepare();
-                                    replyStream << "I am prepared";
-                                }
+                                member->raiGroup->GetActiveStrategy()->sb->Prepare();
+                                replyStream << "I am prepared";
                             }
                             else
                             {

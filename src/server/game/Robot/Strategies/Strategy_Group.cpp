@@ -106,6 +106,7 @@ void Strategy_Group::Update(uint32 pmDiff)
                         me->ResurrectPlayer(0.2f);
                     }
                     me->TeleportTo(leaderPlayer->GetWorldLocation());
+                    me->ClearInCombat();
                     sb->WhisperTo("I have come", Language::LANG_UNIVERSAL, leaderPlayer);
                 }
             }
@@ -134,7 +135,7 @@ void Strategy_Group::Update(uint32 pmDiff)
                 {
                     return;
                 }
-                Follow();
+                Follow(true);
                 break;
             }
             case GroupRole::GroupRole_Healer:
@@ -143,7 +144,7 @@ void Strategy_Group::Update(uint32 pmDiff)
                 {
                     return;
                 }
-                Follow();
+                Follow(true);
                 break;
             }
             case GroupRole::GroupRole_Tank:
@@ -152,7 +153,7 @@ void Strategy_Group::Update(uint32 pmDiff)
                 {
                     return;
                 }
-                Follow();
+                Follow(true);
                 break;
             }
             default:
@@ -453,7 +454,7 @@ bool Strategy_Group::Buff()
     return false;
 }
 
-bool Strategy_Group::Follow()
+bool Strategy_Group::Follow(bool pmForce)
 {
     if (!me)
     {
@@ -469,20 +470,23 @@ bool Strategy_Group::Follow()
                 me->GetMotionMaster()->Clear();
                 return false;
             }
-            if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == MovementGeneratorType::FOLLOW_MOTION_TYPE)
+            if (!pmForce)
             {
-                FollowMovementGenerator* mg = (FollowMovementGenerator*)me->GetMotionMaster()->GetCurrentMovementGenerator();
-                if (mg)
+                if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == MovementGeneratorType::FOLLOW_MOTION_TYPE)
                 {
-                    if (mg->GetTarget())
+                    FollowMovementGenerator* mg = (FollowMovementGenerator*)me->GetMotionMaster()->GetCurrentMovementGenerator();
+                    if (mg)
                     {
-                        if (mg->GetTarget()->GetGUID() == myGroup->GetLeaderGUID())
+                        if (mg->GetTarget())
                         {
-                            return true;
+                            if (mg->GetTarget()->GetGUID() == myGroup->GetLeaderGUID())
+                            {
+                                return true;
+                            }
                         }
                     }
                 }
-            }
+            }            
             if (me->GetStandState() != UnitStandStateType::UNIT_STAND_STATE_STAND)
             {
                 me->SetStandState(UNIT_STAND_STATE_STAND);
