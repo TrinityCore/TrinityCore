@@ -21,13 +21,13 @@ class Strategy_Group
 public:
     Strategy_Group(Player* pmMe);
     bool GroupInCombat();
-    virtual void Update(uint32 pmDiff);    
+    virtual void Update(uint32 pmDiff);
     virtual bool DPS();
     virtual bool Tank();
     virtual bool Rest();
     virtual bool Heal();
     virtual bool Buff();
-    virtual bool Follow(bool pmForce = false);
+    virtual bool Follow();
 
 public:
     Player* me;

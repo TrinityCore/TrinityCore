@@ -83,7 +83,7 @@ Strategy_Group::Strategy_Group(Player* pmMe)
             break;
         }
         }
-    }    
+    }
 }
 
 void Strategy_Group::Update(uint32 pmDiff)
@@ -135,7 +135,6 @@ void Strategy_Group::Update(uint32 pmDiff)
                 {
                     return;
                 }
-                Follow(true);
                 break;
             }
             case GroupRole::GroupRole_Healer:
@@ -144,7 +143,6 @@ void Strategy_Group::Update(uint32 pmDiff)
                 {
                     return;
                 }
-                Follow(true);
                 break;
             }
             case GroupRole::GroupRole_Tank:
@@ -153,7 +151,6 @@ void Strategy_Group::Update(uint32 pmDiff)
                 {
                     return;
                 }
-                Follow(true);
                 break;
             }
             default:
@@ -177,7 +174,6 @@ void Strategy_Group::Update(uint32 pmDiff)
                 {
                     return;
                 }
-                Follow();
                 break;
             }
             case GroupRole::GroupRole_Healer:
@@ -194,7 +190,6 @@ void Strategy_Group::Update(uint32 pmDiff)
                 {
                     return;
                 }
-                Follow();
                 break;
             }
             case GroupRole::GroupRole_Tank:
@@ -207,7 +202,6 @@ void Strategy_Group::Update(uint32 pmDiff)
                 {
                     return;
                 }
-                Follow();
                 break;
             }
             default:
@@ -216,6 +210,7 @@ void Strategy_Group::Update(uint32 pmDiff)
             }
             }
         }
+        Follow();
     }
 }
 
@@ -454,7 +449,7 @@ bool Strategy_Group::Buff()
     return false;
 }
 
-bool Strategy_Group::Follow(bool pmForce)
+bool Strategy_Group::Follow()
 {
     if (!me)
     {
@@ -470,23 +465,6 @@ bool Strategy_Group::Follow(bool pmForce)
                 me->GetMotionMaster()->Clear();
                 return false;
             }
-            if (!pmForce)
-            {
-                if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == MovementGeneratorType::FOLLOW_MOTION_TYPE)
-                {
-                    FollowMovementGenerator* mg = (FollowMovementGenerator*)me->GetMotionMaster()->GetCurrentMovementGenerator();
-                    if (mg)
-                    {
-                        if (mg->GetTarget())
-                        {
-                            if (mg->GetTarget()->GetGUID() == myGroup->GetLeaderGUID())
-                            {
-                                return true;
-                            }
-                        }
-                    }
-                }
-            }            
             if (me->GetStandState() != UnitStandStateType::UNIT_STAND_STATE_STAND)
             {
                 me->SetStandState(UNIT_STAND_STATE_STAND);
@@ -495,9 +473,7 @@ bool Strategy_Group::Follow(bool pmForce)
             {
                 me->SetWalk(false);
             }
-            me->StopMoving();
-            me->GetMotionMaster()->Clear();
-            me->GetMotionMaster()->MoveFollow(leader, followDistance, ChaseAngle(0, 2 * M_PI));
+            me->GetMotionMaster()->MoveFollow(leader, followDistance, ChaseAngle(0, 2 * M_PI), MovementSlot::MOTION_SLOT_ACTIVE);
             return true;
         }
     }

@@ -171,6 +171,7 @@ bool RobotConfig::StartRobotSystem()
     CountEachLevel = GetIntDefault("CountEachLevel", 100);
     OnlineMinDelay = GetIntDefault("OnlineMinDelay", 60000);
     OnlineMaxDelay = GetIntDefault("OnlineMaxDelay", 300000);
+    GroupInterest = GetIntDefault("GroupInterest", 1);
 
     if (Enable == 0)
     {

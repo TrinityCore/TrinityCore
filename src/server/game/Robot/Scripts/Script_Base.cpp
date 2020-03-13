@@ -1297,27 +1297,15 @@ bool Script_Base::Chase(Unit* pmTarget, float pmMaxDistance, float pmMinDistance
     {
         return false;
     }
-    if (me->HasAuraType(SPELL_AURA_MOD_PACIFY))
-    {
-        return false;
-    }
-    if (me->HasUnitState(UnitState::UNIT_STATE_NOT_MOVE))
-    {
-        return false;
-    }
-    if (me->HasUnitState(UnitState::UNIT_STATE_ROAMING_MOVE))
-    {
-        return false;
-    }
     if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
     {
         return false;
     }
-    if (me->IsNonMeleeSpellCast(true, false, true))
+    if (me->IsNonMeleeSpellCast(false, false, true))
     {
         return false;
     }
-    if (me->GetDistance(pmTarget) > 200)
+    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
     {
         return false;
     }
@@ -1328,33 +1316,8 @@ bool Script_Base::Chase(Unit* pmTarget, float pmMaxDistance, float pmMinDistance
     if (me->IsWalking())
     {
         me->SetWalk(false);
-    }
-
-    bool chasing = false;
-    if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == MovementGeneratorType::CHASE_MOTION_TYPE)
-    {
-        ChaseMovementGenerator* mg = (ChaseMovementGenerator*)me->GetMotionMaster()->GetCurrentMovementGenerator();
-        if (mg)
-        {
-            if (mg->GetTarget())
-            {
-                if (mg->GetTarget()->GetGUID() == pmTarget->GetGUID())
-                {
-                    if (mg->GetMinRange() == pmMinDistance && mg->GetMaxRange() == pmMaxDistance)
-                    {
-                        chasing = true;
-                    }
-                }
-            }
-        }
-    }
-    if (!chasing)
-    {
-        me->StopMoving();
-        me->GetMotionMaster()->Clear();
-        me->GetMotionMaster()->MoveChase(pmTarget, ChaseRange(pmMinDistance, pmMaxDistance));
-    }
-
+    }    
+    me->GetMotionMaster()->MoveChase(pmTarget, ChaseRange(pmMinDistance, pmMaxDistance));
     return true;
 }
 
@@ -1403,10 +1366,6 @@ bool Script_Base::CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDis
     {
         return true;
     }
-    if (me->HasUnitState(UnitState::UNIT_STATE_ROAMING_MOVE))
-    {
-        return true;
-    }
     if (pmCheckAura)
     {
         if (HasAura(pmTarget, pmSpellName, pmOnlyMyAura))
@@ -1449,10 +1408,10 @@ bool Script_Base::CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDis
     {
         me->SetStandState(UNIT_STAND_STATE_STAND);
     }
-    if (pST->CalcCastTime() > 0)
-    {
-        me->StopMoving();
-    }
+    //if (pST->CalcCastTime() > 0)
+    //{
+    //    me->StopMoving();
+    //}
     if (me->GetTarget() != pmTarget->GetGUID())
     {
         me->SetSelection(pmTarget->GetGUID());

@@ -1281,6 +1281,10 @@ void RobotManager::HandlePacket(WorldSession* pmSession, WorldPacket const* pmPa
                     else
                     {
                         uint32 acceptInvite = urand(0, 3);
+                        if (sRobotConfig->GroupInterest == 0)
+                        {
+                            acceptInvite = 0;
+                        }
                         if (acceptInvite == 0)
                         {
                             WorldPacket p;

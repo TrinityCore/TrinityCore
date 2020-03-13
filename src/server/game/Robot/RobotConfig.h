@@ -44,6 +44,7 @@ public:
     uint32 OnlineMinDelay;
     uint32 OnlineMaxDelay;
     std::string AccountNamePrefix;
+    uint32 GroupInterest;
 };
 
 #define sRobotConfig RobotConfig::instance()	
