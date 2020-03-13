@@ -2870,8 +2870,8 @@ void Spell::EffectSummonPet(SpellEffIndex effIndex)
             if (OldSummon->getPetType() == SUMMON_PET)
             {
                 OldSummon->SetHealth(OldSummon->GetMaxHealth());
-                OldSummon->SetPower(OldSummon->GetPowerType(),
-                    OldSummon->GetMaxPower(OldSummon->GetPowerType()));
+                OldSummon->SetPower(OldSummon->GetPowerType(), OldSummon->GetMaxPower(OldSummon->GetPowerType()));
+                OldSummon->GetSpellHistory()->ResetAllCooldowns();
             }
 
             if (owner->GetTypeId() == TYPEID_PLAYER && OldSummon->isControlled())
