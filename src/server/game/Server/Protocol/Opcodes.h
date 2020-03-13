@@ -788,8 +788,6 @@ enum OpcodeClient : uint16
     CMSG_WORLD_PORT_RESPONSE                          = 0x35F9,
     CMSG_WRAP_ITEM                                    = 0x3994,
 
-    CMSG_AUCTION_LIST_ITEMS                           = 0xBADD,
-    CMSG_AUCTION_LIST_PENDING_SALES                   = 0xBADD,
     CMSG_BF_MGR_ENTRY_INVITE_RESPONSE                 = 0xBADD,
     CMSG_BF_MGR_QUEUE_INVITE_RESPONSE                 = 0xBADD,
     CMSG_BF_MGR_QUEUE_EXIT_REQUEST                    = 0xBADD,
@@ -1836,7 +1834,6 @@ enum OpcodeServer : uint16
 
     // Deleted opcodes, here only to allow compile
     SMSG_ARENA_TEAM_STATS                             = 0xBADD,
-    SMSG_AUCTION_LIST_PENDING_SALES_RESULT            = 0xBADD,
     SMSG_BUY_BANK_SLOT_RESULT                         = 0xBADD,
     SMSG_BF_MGR_EJECTED                               = 0xBADD,
     SMSG_BF_MGR_ENTERING                              = 0xBADD,
