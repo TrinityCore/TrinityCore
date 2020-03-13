@@ -23,8 +23,8 @@ RobotManager::RobotManager()
 {
     nameIndex = 0;
     // EJ debug
-    checkDelay = urand(5 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
-    //checkDelay = 10 * TimeConstants::IN_MILLISECONDS;
+    //checkDelay = urand(5 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
+    checkDelay = 10 * TimeConstants::IN_MILLISECONDS;
 
     reSet.clear();
     deleteRobotAccountSet.clear();
@@ -1187,6 +1187,29 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
         }
         sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, replyStream.str().c_str(), pmPlayer);
     }
+    else if (commandName == "side")
+    {
+        if (Unit* targetUnit = pmPlayer->GetSelectedUnit())
+        {
+            pmPlayer->GetMotionMaster()->Clear();
+            pmPlayer->StopMoving();
+            if (pmPlayer->GetStandState() != UnitStandStateType::UNIT_STAND_STATE_STAND)
+            {
+                pmPlayer->SetStandState(UNIT_STAND_STATE_STAND);
+            }
+            if (pmPlayer->IsWalking())
+            {
+                pmPlayer->SetWalk(false);
+            }
+            float distance = pmPlayer->GetDistance(targetUnit);
+            float destX = 0;
+            float destY = 0;
+            float destZ = 0;
+            targetUnit->GetNearPoint(pmPlayer, destX, destY, destZ, distance, M_PI / 16 + targetUnit->GetAbsoluteAngle(pmPlayer));
+            pmPlayer->GetMotionMaster()->MovePoint(1, destX, destY, destZ, true, pmPlayer->GetAbsoluteAngle(targetUnit->GetPosition()));
+            sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, "Move side", pmPlayer);
+        }
+    }
 }
 
 bool RobotManager::StringEndWith(const std::string& str, const std::string& tail)
@@ -1562,7 +1585,7 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                             pmReceiver->raiGroup->GetActiveStrategy()->restDelay = 0;
                             pmReceiver->raiGroup->GetActiveStrategy()->staying = false;
                             pmReceiver->raiGroup->GetActiveStrategy()->holding = false;
-                            pmReceiver->GetMotionMaster()->MoveFollow(pmSender, pmReceiver->raiGroup->GetActiveStrategy()->followDistance, ChaseAngle(0, 2 * M_PI));
+                            pmReceiver->GetMotionMaster()->MoveFollow(pmSender, pmReceiver->raiGroup->GetActiveStrategy()->followDistance, ChaseAngle(0, 2 * M_PI), MovementSlot::MOTION_SLOT_ACTIVE);
                             replyStream << "Following " << pmReceiver->raiGroup->GetActiveStrategy()->followDistance;
                         }
                         else
@@ -1616,7 +1639,7 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                                 member->raiGroup->GetActiveStrategy()->restDelay = 0;
                                 member->raiGroup->GetActiveStrategy()->staying = false;
                                 member->raiGroup->GetActiveStrategy()->holding = false;
-                                member->GetMotionMaster()->MoveFollow(pmSender, member->raiGroup->GetActiveStrategy()->followDistance, ChaseAngle(0, 2 * M_PI));
+                                member->GetMotionMaster()->MoveFollow(pmSender, member->raiGroup->GetActiveStrategy()->followDistance, ChaseAngle(0, 2 * M_PI), MovementSlot::MOTION_SLOT_ACTIVE);
                                 replyStream << "Following " << member->raiGroup->GetActiveStrategy()->followDistance;
                             }
                             else
@@ -1761,6 +1784,7 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                     {
                         if (pmReceiver->IsInSameGroupWith(pmSender))
                         {
+                            pmReceiver->raiGroup->GetActiveStrategy()->staying = false;
                             if (Unit* target = pmSender->GetSelectedUnit())
                             {
                                 if (pmReceiver->raiGroup->GetActiveStrategy()->sb->DPS(target, !pmReceiver->raiGroup->GetActiveStrategy()->holding, false))
@@ -1804,6 +1828,7 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                                 std::ostringstream replyStream;
                                 if (member->IsAlive())
                                 {
+                                    member->raiGroup->GetActiveStrategy()->staying = false;
                                     if (member->raiGroup->GetActiveStrategy()->sb->DPS(target, !member->raiGroup->GetActiveStrategy()->holding, false))
                                     {
                                         replyStream << "Try to engage with " << target->GetName();
@@ -2045,6 +2070,7 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                         {
                             if (pmReceiver->groupRole == GroupRole::GroupRole_Tank)
                             {
+                                pmReceiver->raiGroup->GetActiveStrategy()->staying = false;
                                 if (Unit* target = pmSender->GetSelectedUnit())
                                 {
                                     if (pmReceiver->raiGroup->GetActiveStrategy()->sb->Tank(target))
@@ -2091,6 +2117,7 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                                 {
                                     if (member->groupRole == GroupRole::GroupRole_Tank)
                                     {
+                                        pmReceiver->raiGroup->GetActiveStrategy()->staying = false;
                                         if (member->raiGroup->GetActiveStrategy()->sb->Tank(target))
                                         {
                                             replyStream << "Try to tank " << target->GetName();
@@ -3355,6 +3382,117 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                                 }
                             }
                             WhisperTo(member, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else if (commandName == "side")
+    {
+        if (Group* checkGroup = pmSender->GetGroup())
+        {
+            if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
+            {
+                if (Unit* target = pmSender->GetSelectedUnit())
+                {
+                    if (pmReceiver)
+                    {
+                        std::ostringstream replyStream;
+                        if (pmReceiver->IsInSameGroupWith(pmSender))
+                        {
+                            if (pmReceiver->IsAlive())
+                            {
+                                if (pmReceiver->raiGroup->GetActiveStrategy()->sideDelay > 0)
+                                {
+                                    replyStream << "Moving";
+                                }
+                                else
+                                {
+                                    pmReceiver->raiGroup->GetActiveStrategy()->sideDelay = 1000;
+                                    replyStream << "Move side";
+                                    pmReceiver->GetMotionMaster()->Clear();
+                                    pmReceiver->StopMoving();
+                                    float distance = pmReceiver->GetDistance(target);
+                                    float destX = 0;
+                                    float destY = 0;
+                                    float destZ = 0;
+                                    target->GetNearPoint(pmReceiver, destX, destY, destZ, distance, M_PI / 16 + target->GetAbsoluteAngle(pmReceiver));
+                                    if (pmReceiver->GetStandState() != UnitStandStateType::UNIT_STAND_STATE_STAND)
+                                    {
+                                        pmReceiver->SetStandState(UNIT_STAND_STATE_STAND);
+                                    }
+                                    if (pmReceiver->IsWalking())
+                                    {
+                                        pmReceiver->SetWalk(false);
+                                    }
+                                    pmReceiver->GetMotionMaster()->MovePoint(1, destX, destY, destZ, true, pmReceiver->GetAbsoluteAngle(target->GetPosition()));
+                                }
+                            }
+                            else
+                            {
+                                replyStream << "I am dead";
+                            }
+                        }
+                        else
+                        {
+                            replyStream << "You are not leader of my group";
+                        }
+                        WhisperTo(pmReceiver, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                    }
+                    else
+                    {
+                        for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                        {
+                            Player* member = groupRef->GetSource();
+                            if (member)
+                            {
+                                if (!member->GetSession()->isRobotSession)
+                                {
+                                    continue;
+                                }
+                                std::ostringstream replyStream;
+                                if (member->raiGroup->GetActiveStrategy()->moveAssembleDelay > 0 || member->raiGroup->GetActiveStrategy()->teleportAssembleDelay > 0)
+                                {
+                                    replyStream << "I am on the way";
+                                }
+                                else
+                                {
+                                    if (member->IsAlive())
+                                    {
+                                        if (member->raiGroup->GetActiveStrategy()->sideDelay > 0)
+                                        {
+                                            replyStream << "Moving";
+                                        }
+                                        else
+                                        {
+                                            member->raiGroup->GetActiveStrategy()->sideDelay = 1000;
+                                            replyStream << "Move side";
+                                            member->GetMotionMaster()->Clear();
+                                            member->StopMoving();
+                                            float distance = member->GetDistance(target);
+                                            float destX = 0;
+                                            float destY = 0;
+                                            float destZ = 0;
+                                            target->GetNearPoint(member, destX, destY, destZ, distance, M_PI / 16 + target->GetAbsoluteAngle(member));
+                                            if (member->GetStandState() != UnitStandStateType::UNIT_STAND_STATE_STAND)
+                                            {
+                                                member->SetStandState(UNIT_STAND_STATE_STAND);
+                                            }
+                                            if (member->IsWalking())
+                                            {
+                                                member->SetWalk(false);
+                                            }
+                                            member->GetMotionMaster()->MovePoint(1, destX, destY, destZ, true, member->GetAbsoluteAngle(target->GetPosition()));
+                                        }
+                                    }
+                                    else
+                                    {
+                                        replyStream << "I am dead";
+                                    }
+                                }
+                                WhisperTo(member, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                            }
                         }
                     }
                 }

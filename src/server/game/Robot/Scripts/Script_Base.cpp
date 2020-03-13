@@ -1160,6 +1160,7 @@ void Script_Base::Prepare()
             }
         }
     }
+    me->Say("Prepared", Language::LANG_UNIVERSAL);
 }
 
 Item* Script_Base::GetItemInInventory(uint32 pmEntry)
@@ -1308,6 +1309,19 @@ bool Script_Base::Chase(Unit* pmTarget, float pmMaxDistance, float pmMinDistance
     if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
     {
         return false;
+    }
+    if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == MovementGeneratorType::CHASE_MOTION_TYPE)
+    {
+        if (ChaseMovementGenerator* mg = (ChaseMovementGenerator*)me->GetMotionMaster()->GetCurrentMovementGenerator())
+        {
+            if (Unit* mgTarget = mg->GetTarget())
+            {
+                if (mgTarget->GetGUID() == pmTarget->GetGUID())
+                {
+                    return true;
+                }
+            }
+        }
     }
     if (me->GetStandState() != UnitStandStateType::UNIT_STAND_STATE_STAND)
     {

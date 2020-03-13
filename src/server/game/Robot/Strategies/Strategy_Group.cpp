@@ -17,6 +17,7 @@ Strategy_Group::Strategy_Group(Player* pmMe)
 {
     me = pmMe;
     combatTime = 0;
+    sideDelay = 0;
     moveAssembleDelay = 0;
     teleportAssembleDelay = 0;
     restDelay = 0;
@@ -115,6 +116,11 @@ void Strategy_Group::Update(uint32 pmDiff)
         if (moveAssembleDelay > 0)
         {
             moveAssembleDelay -= pmDiff;
+            return;
+        }
+        if (sideDelay > 0)
+        {
+            sideDelay -= pmDiff;
             return;
         }
         if (me->IsInCombat())
@@ -470,6 +476,19 @@ bool Strategy_Group::Follow()
                 me->StopMoving();
                 me->GetMotionMaster()->Clear();
                 return false;
+            }
+            if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == MovementGeneratorType::FOLLOW_MOTION_TYPE)
+            {
+                if (FollowMovementGenerator* mg = (FollowMovementGenerator*)me->GetMotionMaster()->GetCurrentMovementGenerator())
+                {
+                    if (Unit* mgTarget = mg->GetTarget())
+                    {
+                        if (mgTarget->GetGUID() == leader->GetGUID())
+                        {
+                            return true;
+                        }
+                    }
+                }
             }
             if (me->GetStandState() != UnitStandStateType::UNIT_STAND_STATE_STAND)
             {

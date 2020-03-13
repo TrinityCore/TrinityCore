@@ -143,11 +143,13 @@ void RobotEntity::Update(uint32 pmDiff)
                         if (leader->GetSession()->isRobotSession)
                         {
                             me->UninviteFromGroup();
+                            me->raiSolo->GetActiveStrategy()->sb->RandomTeleport();
                         }
                     }
                     else
                     {
                         me->UninviteFromGroup();
+                        me->raiSolo->GetActiveStrategy()->sb->RandomTeleport();
                     }
                     if (me->raiGroup)
                     {

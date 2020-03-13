@@ -32,6 +32,7 @@ public:
 public:
     Player* me;
     int32 combatTime;
+    int32 sideDelay;
     int32 moveAssembleDelay;
     int32 teleportAssembleDelay;
     int32 aoeDelay;
