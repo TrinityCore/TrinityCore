@@ -101,10 +101,7 @@ public:
         {
             Initialize();
             if (creature->IsSummon())
-            {
                 creature->SetHomePosition(HomePosition);
-                AttackPlayer();
-            }
 
             instance = creature->GetInstanceScript();
         }
@@ -129,6 +126,7 @@ public:
         void Reset() override
         {
             Initialize();
+            AttackPlayer();
         }
 
         void AttackPlayer()
