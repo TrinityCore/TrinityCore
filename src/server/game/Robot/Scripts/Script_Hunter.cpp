@@ -13,12 +13,54 @@ Script_Hunter::Script_Hunter(Player* pmMe) :Script_Base(pmMe)
 
 bool Script_Hunter::Heal(Unit* pmTarget, bool pmCure)
 {
-    return false;
+    if (!pmTarget)
+    {
+        return false;
+    }
+    else if (!pmTarget->IsAlive())
+    {
+        return false;
+    }
+    if (!me)
+    {
+        return false;
+    }
+    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
+    {
+        return false;
+    }
+    Chase(pmTarget, HUNTER_CLOSER_DISTANCE);
+    float healthPCT = pmTarget->GetHealthPct();
+
+    return true;
 }
 
 bool Script_Hunter::Tank(Unit* pmTarget)
 {
-    return false;
+    if (!pmTarget)
+    {
+        return false;
+    }
+    else if (!pmTarget->IsAlive())
+    {
+        return false;
+    }
+    if (!me)
+    {
+        return false;
+    }
+    else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
+    {
+        return false;
+    }
+    me->Attack(pmTarget, true);
+    Chase(pmTarget);
+
+    return true;
 }
 
 bool Script_Hunter::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)

@@ -1,6 +1,14 @@
 #ifndef ROBOT_STRATEGIES_SCRIPT_ROGUE_H
 #define ROBOT_STRATEGIES_SCRIPT_ROGUE_H
 
+#ifndef ROGUE_PREPARE_DISTANCE
+# define ROGUE_PREPARE_DISTANCE 10
+#endif
+
+#ifndef ROGUE_RANGE_DISTANCE
+# define ROGUE_RANGE_DISTANCE 25
+#endif
+
 #include "Script_Base.h"
 
 class Script_Rogue :public Script_Base

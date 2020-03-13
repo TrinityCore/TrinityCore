@@ -17,7 +17,8 @@ Strategy_Group::Strategy_Group(Player* pmMe)
 {
     me = pmMe;
     combatTime = 0;
-    assembleDelay = 0;
+    moveAssembleDelay = 0;
+    teleportAssembleDelay = 0;
     restDelay = 0;
     aoeDelay = DEFAULT_AOE_DELAY;
     dpsDelay = DEFAULT_DPS_DELAY;
@@ -94,10 +95,10 @@ void Strategy_Group::Update(uint32 pmDiff)
     }
     if (Group* myGroup = me->GetGroup())
     {
-        if (assembleDelay > 0)
+        if (teleportAssembleDelay > 0)
         {
-            assembleDelay -= pmDiff;
-            if (assembleDelay < 0)
+            teleportAssembleDelay -= pmDiff;
+            if (teleportAssembleDelay < 0)
             {
                 if (Player* leaderPlayer = ObjectAccessor::FindConnectedPlayer(myGroup->GetLeaderGUID()))
                 {
@@ -110,6 +111,11 @@ void Strategy_Group::Update(uint32 pmDiff)
                     sb->WhisperTo("I have come", Language::LANG_UNIVERSAL, leaderPlayer);
                 }
             }
+        }
+        if (moveAssembleDelay > 0)
+        {
+            moveAssembleDelay -= pmDiff;
+            return;
         }
         if (me->IsInCombat())
         {

@@ -896,7 +896,7 @@ bool Script_Druid::Heal(Unit* pmTarget, bool pmCure)
         }
     }
 
-    return false;
+    return true;
 }
 
 bool Script_Druid::Buff(Unit* pmTarget, bool pmCure)

@@ -11,12 +11,53 @@ Script_Warlock::Script_Warlock(Player* pmMe) :Script_Base(pmMe)
 
 bool Script_Warlock::Heal(Unit* pmTarget, bool pmCure)
 {
-    return false;
+    if (!pmTarget)
+    {
+        return false;
+    }
+    else if (!pmTarget->IsAlive())
+    {
+        return false;
+    }
+    if (!me)
+    {
+        return false;
+    }
+    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
+    {
+        return false;
+    }
+    Chase(pmTarget, WARLOCK_RANGE_DISTANCE);
+    float healthPCT = pmTarget->GetHealthPct();
+    return true;
 }
 
 bool Script_Warlock::Tank(Unit* pmTarget)
 {
-    return false;
+    if (!pmTarget)
+    {
+        return false;
+    }
+    else if (!pmTarget->IsAlive())
+    {
+        return false;
+    }
+    if (!me)
+    {
+        return false;
+    }
+    else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
+    {
+        return false;
+    }
+    me->Attack(pmTarget, true);
+    Chase(pmTarget);
+
+    return true;
 }
 
 bool Script_Warlock::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)

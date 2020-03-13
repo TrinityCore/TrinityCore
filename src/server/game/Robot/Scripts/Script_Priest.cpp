@@ -12,7 +12,30 @@ Script_Priest::Script_Priest(Player* pmMe) :Script_Base(pmMe)
 
 bool Script_Priest::Tank(Unit* pmTarget)
 {
-    return false;
+    if (!pmTarget)
+    {
+        return false;
+    }
+    else if (!pmTarget->IsAlive())
+    {
+        return false;
+    }
+    if (!me)
+    {
+        return false;
+    }
+    else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
+    {
+        return false;
+    }
+    me->Attack(pmTarget, true);
+    Chase(pmTarget);
+
+    return true;
 }
 
 bool Script_Priest::Heal(Unit* pmTarget, bool pmCure)
@@ -62,7 +85,7 @@ bool Script_Priest::Heal(Unit* pmTarget, bool pmCure)
             if (tankTarget->GetMaxHealth() / me->GetMaxHealth() > 5.0f)
             {
                 if (CastSpell(pmTarget, "Lightwell", PRIEST_RANGE_DISTANCE))
-                {                    
+                {
                     return true;
                 }
             }
@@ -109,7 +132,7 @@ bool Script_Priest::Heal(Unit* pmTarget, bool pmCure)
         }
     }
 
-    return false;
+    return true;
 }
 
 bool Script_Priest::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)

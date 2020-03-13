@@ -20,8 +20,6 @@ bool Script_Paladin::Heal(Unit* pmTarget, bool pmCure)
     {
         return false;
     }
-    
-    
     if (!me)
     {
         return false;
@@ -79,7 +77,7 @@ bool Script_Paladin::Heal(Unit* pmTarget, bool pmCure)
         }
     }
 
-    return false;
+    return true;
 }
 
 bool Script_Paladin::Tank(Unit* pmTarget)
@@ -92,8 +90,6 @@ bool Script_Paladin::Tank(Unit* pmTarget)
     {
         return false;
     }
-    
-    
     if (!me)
     {
         return false;
@@ -102,28 +98,13 @@ bool Script_Paladin::Tank(Unit* pmTarget)
     {
         return false;
     }
-    float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > ATTACK_RANGE_LIMIT)
+    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
     {
         return false;
     }
     me->Attack(pmTarget, true);
     Chase(pmTarget);
-    if (pmTarget->IsNonMeleeSpellCast(false))
-    {
-        if (CastSpell(pmTarget, "Hammer of Justice", MELEE_MAX_DISTANCE))
-        {
-            return true;
-        }
-    }
 
-    if (targetDistance < 10)
-    {
-        if (CastSpell(me, "Consecration", PALADIN_RANGE_DISTANCE))
-        {
-            return true;
-        }
-    }
     return true;
 }
 

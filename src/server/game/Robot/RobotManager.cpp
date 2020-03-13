@@ -1930,7 +1930,7 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                     std::ostringstream replyStream;
                     if (pmReceiver->IsInSameGroupWith(pmSender))
                     {
-                        if (pmReceiver->raiGroup->GetActiveStrategy()->assembleDelay > 0)
+                        if (pmReceiver->raiGroup->GetActiveStrategy()->moveAssembleDelay > 0 || pmReceiver->raiGroup->GetActiveStrategy()->teleportAssembleDelay > 0)
                         {
                             replyStream << "I am on the way";
                         }
@@ -1940,6 +1940,8 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                             {
                                 if (pmReceiver->GetDistance(pmSender) < ASSEMBLE_TELEPORT_MIN_RANGE)
                                 {
+                                    pmReceiver->raiGroup->GetActiveStrategy()->moveAssembleDelay = 5000;
+                                    replyStream << "We are close, I will move to you";
                                     pmReceiver->GetMotionMaster()->Clear();
                                     pmReceiver->StopMoving();
                                     if (pmReceiver->GetStandState() != UnitStandStateType::UNIT_STAND_STATE_STAND)
@@ -1952,17 +1954,16 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                                     }
                                     pmReceiver->raiGroup->GetActiveStrategy()->restDelay = 0;
                                     pmReceiver->GetMotionMaster()->MovePoint(1, pmSender->GetPosition(), true, pmSender->GetOrientation());
-                                    replyStream << "We are close, I will move to you";
                                 }
                                 else
                                 {
-                                    pmReceiver->raiGroup->GetActiveStrategy()->assembleDelay = 1 * TimeConstants::MINUTE*TimeConstants::IN_MILLISECONDS;
+                                    pmReceiver->raiGroup->GetActiveStrategy()->teleportAssembleDelay = 1 * TimeConstants::MINUTE*TimeConstants::IN_MILLISECONDS;
                                     replyStream << "I will join you in 1 minute";
                                 }
                             }
                             else
                             {
-                                pmReceiver->raiGroup->GetActiveStrategy()->assembleDelay = 2 * TimeConstants::MINUTE*TimeConstants::IN_MILLISECONDS;
+                                pmReceiver->raiGroup->GetActiveStrategy()->teleportAssembleDelay = 2 * TimeConstants::MINUTE*TimeConstants::IN_MILLISECONDS;
                                 replyStream << "I will revive and join you in 2 minutes";
                             }
                         }
@@ -1985,7 +1986,7 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                                 continue;
                             }
                             std::ostringstream replyStream;
-                            if (member->raiGroup->GetActiveStrategy()->assembleDelay > 0)
+                            if (member->raiGroup->GetActiveStrategy()->moveAssembleDelay > 0 || member->raiGroup->GetActiveStrategy()->teleportAssembleDelay > 0)
                             {
                                 replyStream << "I am on the way";
                             }
@@ -1995,6 +1996,8 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                                 {
                                     if (member->GetDistance(pmSender) < ASSEMBLE_TELEPORT_MIN_RANGE)
                                     {
+                                        member->raiGroup->GetActiveStrategy()->moveAssembleDelay = 5000;
+                                        replyStream << "We are close, I will move to you";
                                         member->GetMotionMaster()->Clear();
                                         member->StopMoving();
                                         if (member->GetStandState() != UnitStandStateType::UNIT_STAND_STATE_STAND)
@@ -2007,17 +2010,16 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                                         }
                                         member->raiGroup->GetActiveStrategy()->restDelay = 0;
                                         member->GetMotionMaster()->MovePoint(1, pmSender->GetPosition(), true, pmSender->GetOrientation());
-                                        replyStream << "We are close, I will move to you";
                                     }
                                     else
                                     {
-                                        member->raiGroup->GetActiveStrategy()->assembleDelay = 1 * TimeConstants::MINUTE*TimeConstants::IN_MILLISECONDS;
+                                        member->raiGroup->GetActiveStrategy()->teleportAssembleDelay = 1 * TimeConstants::MINUTE*TimeConstants::IN_MILLISECONDS;
                                         replyStream << "I will join you in 1 minute";
                                     }
                                 }
                                 else
                                 {
-                                    member->raiGroup->GetActiveStrategy()->assembleDelay = 2 * TimeConstants::MINUTE*TimeConstants::IN_MILLISECONDS;
+                                    member->raiGroup->GetActiveStrategy()->teleportAssembleDelay = 2 * TimeConstants::MINUTE*TimeConstants::IN_MILLISECONDS;
                                     replyStream << "I will revive and join you in 2 minutes";
                                 }
                             }
