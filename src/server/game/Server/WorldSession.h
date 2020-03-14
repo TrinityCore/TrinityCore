@@ -94,9 +94,8 @@ namespace WorldPackets
     {
         class AuctionHelloRequest;
         class AuctionListBidderItems;
-        class AuctionListItems;
+        class AuctionBrowseQuery;
         class AuctionListOwnerItems;
-        class AuctionListPendingSales;
         class AuctionPlaceBid;
         class AuctionRemoveItem;
         class AuctionReplicateItems;
@@ -1379,13 +1378,12 @@ class TC_GAME_API WorldSession
         void HandleUnacceptTradeOpcode(WorldPackets::Trade::UnacceptTrade& unacceptTrade);
 
         void HandleAuctionHelloOpcode(WorldPackets::AuctionHouse::AuctionHelloRequest& packet);
-        void HandleAuctionListItems(WorldPackets::AuctionHouse::AuctionListItems& packet);
+        void HandleAuctionListItems(WorldPackets::AuctionHouse::AuctionBrowseQuery& browseQuery);
         void HandleAuctionListBidderItems(WorldPackets::AuctionHouse::AuctionListBidderItems& packet);
         void HandleAuctionSellItem(WorldPackets::AuctionHouse::AuctionSellItem& packet);
         void HandleAuctionRemoveItem(WorldPackets::AuctionHouse::AuctionRemoveItem& packet);
         void HandleAuctionListOwnerItems(WorldPackets::AuctionHouse::AuctionListOwnerItems& packet);
         void HandleAuctionPlaceBid(WorldPackets::AuctionHouse::AuctionPlaceBid& packet);
-        void HandleAuctionListPendingSales(WorldPackets::AuctionHouse::AuctionListPendingSales& packet);
         void HandleReplicateItems(WorldPackets::AuctionHouse::AuctionReplicateItems& packet);
 
         // Bank

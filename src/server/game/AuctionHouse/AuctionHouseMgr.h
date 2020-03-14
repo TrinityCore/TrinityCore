@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include "DatabaseEnvFwd.h"
+#include "EnumClassFlag.h"
 #include "ItemTemplate.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
@@ -47,15 +48,20 @@ namespace WorldPackets
 
 enum AuctionError
 {
-    ERR_AUCTION_OK                  = 0,
-    ERR_AUCTION_INVENTORY           = 1,
-    ERR_AUCTION_DATABASE_ERROR      = 2,
-    ERR_AUCTION_NOT_ENOUGHT_MONEY   = 3,
-    ERR_AUCTION_ITEM_NOT_FOUND      = 4,
-    ERR_AUCTION_HIGHER_BID          = 5,
-    ERR_AUCTION_BID_INCREMENT       = 7,
-    ERR_AUCTION_BID_OWN             = 10,
-    ERR_AUCTION_RESTRICTED_ACCOUNT  = 13
+    ERR_AUCTION_OK                          = 0,
+    ERR_AUCTION_INVENTORY                   = 1,
+    ERR_AUCTION_DATABASE_ERROR              = 2,
+    ERR_AUCTION_NOT_ENOUGH_MONEY            = 3,
+    ERR_AUCTION_ITEM_NOT_FOUND              = 4,
+    ERR_AUCTION_HIGHER_BID                  = 5,
+    ERR_AUCTION_BID_INCREMENT               = 7,
+    ERR_AUCTION_BID_OWN                     = 10,
+    ERR_AUCTION_RESTRICTED_ACCOUNT_TRIAL    = 13,
+    ERR_AUCTION_HAS_RESTRICTION             = 17,
+    ERR_AUCTION_HOUSE_BUSY                  = 18,
+    ERR_AUCTION_HOUSE_UNAVAILABLE           = 19,
+    ERR_AUCTION_COMMODITY_PURCHASE_FAILED   = 21,
+    ERR_AUCTION_ITEM_HAS_QUOTE              = 23
 };
 
 enum AuctionAction
@@ -74,6 +80,42 @@ enum MailAuctionAnswers
     AUCTION_CANCELLED_TO_BIDDER = 4,
     AUCTION_CANCELED            = 5,
     AUCTION_SALE_PENDING        = 6
+};
+
+enum class AuctionHouseFilterMask : uint32
+{
+    UncollectedOnly     = 0x1,
+    UsableOnly          = 0x2,
+    UpgradesOnly        = 0x4,
+    ExactMatch          = 0x8,
+    PoorQuality         = 0x10,
+    CommonQuality       = 0x20,
+    UncommonQuality     = 0x40,
+    RareQuality         = 0x80,
+    EpicQuality         = 0x100,
+    LegendaryQuality    = 0x200,
+    ArtifactQuality     = 0x400,
+};
+
+enum class AuctionHouseSortOrder : uint8
+{
+    Price   = 0,
+    Name    = 1,
+    Level   = 2,
+    Bid     = 3,
+    Buyout  = 4
+};
+
+enum class AuctionHouseBrowseMode : uint8
+{
+    Search          = 0,
+    SpecificKeys    = 1
+};
+
+enum class AuctionHouseListType : uint8
+{
+    Commodities = 1,
+    Items       = 2
 };
 
 struct TC_GAME_API AuctionEntry
@@ -109,7 +151,7 @@ struct TC_GAME_API AuctionEntry
 
 };
 
-struct AuctionSearchFilters
+struct AuctionSearchClassFilters
 {
     enum FilterType : uint32
     {
@@ -168,10 +210,11 @@ class TC_GAME_API AuctionHouseObject
 
     void Update();
 
-    void BuildListBidderItems(WorldPackets::AuctionHouse::AuctionListBidderItemsResult& packet, Player* player, uint32& totalcount);
-    void BuildListOwnerItems(WorldPackets::AuctionHouse::AuctionListOwnerItemsResult& packet, Player* player, uint32& totalcount);
+    void BuildListBidderItems(WorldPackets::AuctionHouse::AuctionListBidderItemsResult& packet, Player* player);
+    void BuildListOwnerItems(WorldPackets::AuctionHouse::AuctionListOwnerItemsResult& packet, Player* player);
     void BuildListAuctionItems(WorldPackets::AuctionHouse::AuctionListItemsResult& packet, Player* player,
-        std::wstring const& searchedname, uint32 listfrom, uint8 levelmin, uint8 levelmax, bool usable, Optional<AuctionSearchFilters> const& filters, uint32 quality);
+        std::wstring const& searchedname, uint32 listfrom, uint8 levelmin, uint8 levelmax, EnumClassFlag<AuctionHouseFilterMask> filters,
+        Optional<AuctionSearchClassFilters> const& classFilters);
     void BuildReplicate(WorldPackets::AuctionHouse::AuctionReplicateResponse& auctionReplicateResult, Player* player,
         uint32 global, uint32 cursor, uint32 tombstone, uint32 count);
 
