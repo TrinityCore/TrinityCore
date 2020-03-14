@@ -94,6 +94,10 @@ void Strategy_Group::Update(uint32 pmDiff)
     {
         return;
     }
+    if (!me->IsAlive())
+    {
+        return;
+    }
     if (Group* myGroup = me->GetGroup())
     {
         if (teleportAssembleDelay > 0)

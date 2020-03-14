@@ -23,8 +23,8 @@ RobotManager::RobotManager()
 {
     nameIndex = 0;
     // EJ debug
-    //checkDelay = urand(5 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
-    checkDelay = 10 * TimeConstants::IN_MILLISECONDS;
+    checkDelay = urand(5 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
+    //checkDelay = 10 * TimeConstants::IN_MILLISECONDS;
 
     reSet.clear();
     deleteRobotAccountSet.clear();

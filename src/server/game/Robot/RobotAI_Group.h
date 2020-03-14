@@ -1,6 +1,10 @@
 #ifndef ROBOT_AI_GROUP_H
 #define ROBOT_AI_GROUP_H
 
+#ifndef GROUP_CHECK_DELAY
+# define GROUP_CHECK_DELAY 200
+#endif
+
 #include "Strategy_Group.h"
 #include "Player.h"
 
@@ -28,5 +32,6 @@ public:
     Player* me;
     std::unordered_map<uint32, Strategy_Group*> strategyMap;
     uint32 activeStrategyIndex;
+    int checkDelay;
 };
 #endif

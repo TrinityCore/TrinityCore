@@ -24,10 +24,12 @@ void RobotEntity::Update(uint32 pmDiff)
         {
         case RobotEntityState::RobotEntityState_None:
         {
+            checkDelay = urand(5 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
             break;
         }
         case RobotEntityState::RobotEntityState_OffLine:
         {
+            checkDelay = urand(5 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
             break;
         }
         case RobotEntityState::RobotEntityState_Enter:
@@ -133,6 +135,7 @@ void RobotEntity::Update(uint32 pmDiff)
         }
         case RobotEntityState::RobotEntityState_Online:
         {
+            checkDelay = urand(5 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
             ObjectGuid guid = ObjectGuid(HighGuid::Player, character_id);
             if (Player* me = ObjectAccessor::FindConnectedPlayer(guid))
             {
@@ -155,7 +158,6 @@ void RobotEntity::Update(uint32 pmDiff)
                     {
                         me->raiGroup->GetActiveStrategy()->sb->Prepare();
                     }
-                    break;
                 }
                 else
                 {
@@ -165,7 +167,6 @@ void RobotEntity::Update(uint32 pmDiff)
                     }
                 }
             }
-            checkDelay = urand(5 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
             break;
         }
         case RobotEntityState::RobotEntityState_Exit:
@@ -203,6 +204,7 @@ void RobotEntity::Update(uint32 pmDiff)
         }
         default:
         {
+            checkDelay = urand(5 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
             break;
         }
         }

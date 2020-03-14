@@ -1,6 +1,10 @@
 #ifndef ROBOT_AI_SOLO_H
 #define ROBOT_AI_SOLO_H
 
+#ifndef SOLO_CHECK_DELAY
+# define SOLO_CHECK_DELAY 500
+#endif
+
 #include "Strategy_Solo.h"
 #include "Player.h"
 
@@ -20,5 +24,6 @@ public:
     Player* me;
     std::unordered_map<uint32, Strategy_Solo*> strategyMap;
     uint32 activeStrategyIndex;
+    int checkDelay;
 };
 #endif
