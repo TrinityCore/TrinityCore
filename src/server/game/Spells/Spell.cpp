@@ -6632,7 +6632,12 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
                     {
                         ItemPosCountVec dest;
                         InventoryResult msg = target->ToPlayer()->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, m_spellInfo->Effects[i].ItemType, 1);
-                        if (msg != EQUIP_ERR_OK)
+                        if (target->ToPlayer()->GetFreeInventorySpace() == 0)
+                        {
+                            player->SendEquipError(EQUIP_ERR_INVENTORY_FULL, nullptr, nullptr, m_spellInfo->Effects[i].ItemType);
+                            return SPELL_FAILED_DONT_REPORT;
+                        }
+                        else if (msg != EQUIP_ERR_OK)
                         {
                             ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(m_spellInfo->Effects[i].ItemType);
                             /// @todo Needs review
