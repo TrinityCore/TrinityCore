@@ -80,7 +80,7 @@ void WorldSession::SendAuctionCommandResult(AuctionEntry* auction, uint32 action
 
 void WorldSession::SendAuctionOutBidNotification(AuctionEntry const* auction, Item const* item)
 {
-    WorldPackets::AuctionHouse::AuctionOutBidNotification packet;
+    WorldPackets::AuctionHouse::AuctionOutbidNotification packet;
     packet.BidAmount = auction->bid;
     packet.MinIncrement = auction->GetAuctionOutBid();
     packet.Info.Initialize(auction, item);
@@ -231,7 +231,7 @@ void WorldSession::HandleAuctionSellItem(WorldPackets::AuctionHouse::AuctionSell
     uint64 deposit = sAuctionMgr->GetAuctionDeposit(auctionHouseEntry, packet.RunTime, item, finalCount);
     if (!_player->HasEnoughMoney(deposit))
     {
-        SendAuctionCommandResult(NULL, AUCTION_SELL_ITEM, ERR_AUCTION_NOT_ENOUGHT_MONEY);
+        SendAuctionCommandResult(NULL, AUCTION_SELL_ITEM, ERR_AUCTION_NOT_ENOUGH_MONEY);
         return;
     }
 
@@ -271,7 +271,7 @@ void WorldSession::HandleAuctionSellItem(WorldPackets::AuctionHouse::AuctionSell
         // Add to pending auctions, or fail with insufficient funds error
         if (!sAuctionMgr->PendingAuctionAdd(_player, AH, item))
         {
-            SendAuctionCommandResult(AH, AUCTION_SELL_ITEM, ERR_AUCTION_NOT_ENOUGHT_MONEY);
+            SendAuctionCommandResult(AH, AUCTION_SELL_ITEM, ERR_AUCTION_NOT_ENOUGH_MONEY);
             return;
         }
 
@@ -328,7 +328,7 @@ void WorldSession::HandleAuctionSellItem(WorldPackets::AuctionHouse::AuctionSell
         // Add to pending auctions, or fail with insufficient funds error
         if (!sAuctionMgr->PendingAuctionAdd(_player, AH, newItem))
         {
-            SendAuctionCommandResult(AH, AUCTION_SELL_ITEM, ERR_AUCTION_NOT_ENOUGHT_MONEY);
+            SendAuctionCommandResult(AH, AUCTION_SELL_ITEM, ERR_AUCTION_NOT_ENOUGH_MONEY);
             return;
         }
 
@@ -378,7 +378,7 @@ void WorldSession::HandleAuctionSellItem(WorldPackets::AuctionHouse::AuctionSell
 // this function is called when client bids or buys out auction
 void WorldSession::HandleAuctionPlaceBid(WorldPackets::AuctionHouse::AuctionPlaceBid& packet)
 {
-    if (!packet.AuctionItemID || !packet.BidAmount)
+    if (!packet.AuctionID || !packet.BidAmount)
         return; // check for cheaters
 
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(packet.Auctioneer, UNIT_NPC_FLAG_AUCTIONEER, UNIT_NPC_FLAG_2_NONE);
@@ -394,7 +394,7 @@ void WorldSession::HandleAuctionPlaceBid(WorldPackets::AuctionHouse::AuctionPlac
 
     AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(creature->getFaction());
 
-    AuctionEntry* auction = auctionHouse->GetAuction(packet.AuctionItemID);
+    AuctionEntry* auction = auctionHouse->GetAuction(packet.AuctionID);
     Player* player = GetPlayer();
 
     if (!auction || auction->owner == player->GetGUID().GetCounter())
@@ -430,7 +430,7 @@ void WorldSession::HandleAuctionPlaceBid(WorldPackets::AuctionHouse::AuctionPlac
     if (!player->HasEnoughMoney(packet.BidAmount))
     {
         // client already test it but just in case ...
-        SendAuctionCommandResult(auction, AUCTION_PLACE_BID, ERR_AUCTION_NOT_ENOUGHT_MONEY);
+        SendAuctionCommandResult(auction, AUCTION_PLACE_BID, ERR_AUCTION_NOT_ENOUGH_MONEY);
         return;
     }
 
@@ -518,7 +518,7 @@ void WorldSession::HandleAuctionRemoveItem(WorldPackets::AuctionHouse::AuctionRe
 
     AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(creature->getFaction());
 
-    AuctionEntry* auction = auctionHouse->GetAuction(packet.AuctionItemID);
+    AuctionEntry* auction = auctionHouse->GetAuction(packet.AuctionID);
     Player* player = GetPlayer();
 
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
@@ -552,7 +552,7 @@ void WorldSession::HandleAuctionRemoveItem(WorldPackets::AuctionHouse::AuctionRe
     {
         SendAuctionCommandResult(NULL, AUCTION_CANCEL, ERR_AUCTION_DATABASE_ERROR);
         //this code isn't possible ... maybe there should be assert
-        TC_LOG_ERROR("entities.player.cheat", "CHEATER: %s tried to cancel auction (id: %u) of another player or auction is NULL", player->GetGUID().ToString().c_str(), packet.AuctionItemID);
+        TC_LOG_ERROR("entities.player.cheat", "CHEATER: %s tried to cancel auction (id: %u) of another player or auction is NULL", player->GetGUID().ToString().c_str(), packet.AuctionID);
         return;
     }
 
@@ -588,7 +588,7 @@ void WorldSession::HandleAuctionListBidderItems(WorldPackets::AuctionHouse::Auct
     WorldPackets::AuctionHouse::AuctionListBidderItemsResult result;
 
     Player* player = GetPlayer();
-    auctionHouse->BuildListBidderItems(result, player, result.TotalCount);
+    auctionHouse->BuildListBidderItems(result, player);
     result.DesiredDelay = 300;
     SendPacket(result.Write());
 }
@@ -611,18 +611,18 @@ void WorldSession::HandleAuctionListOwnerItems(WorldPackets::AuctionHouse::Aucti
 
     WorldPackets::AuctionHouse::AuctionListOwnerItemsResult result;
 
-    auctionHouse->BuildListOwnerItems(result, _player, result.TotalCount);
+    auctionHouse->BuildListOwnerItems(result, _player);
     result.DesiredDelay = 300;
     SendPacket(result.Write());
 }
 
 //this void is called when player clicks on search button
-void WorldSession::HandleAuctionListItems(WorldPackets::AuctionHouse::AuctionListItems& packet)
+void WorldSession::HandleAuctionListItems(WorldPackets::AuctionHouse::AuctionBrowseQuery& browseQuery)
 {
-    Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(packet.Auctioneer, UNIT_NPC_FLAG_AUCTIONEER, UNIT_NPC_FLAG_2_NONE);
+    Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(browseQuery.Auctioneer, UNIT_NPC_FLAG_AUCTIONEER, UNIT_NPC_FLAG_2_NONE);
     if (!creature)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleAuctionListItems - %s not found or you can't interact with him.", packet.Auctioneer.ToString().c_str());
+        TC_LOG_DEBUG("network", "WORLD: HandleAuctionListItems - %s not found or you can't interact with him.", browseQuery.Auctioneer.ToString().c_str());
         return;
     }
 
@@ -632,24 +632,24 @@ void WorldSession::HandleAuctionListItems(WorldPackets::AuctionHouse::AuctionLis
 
     AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(creature->getFaction());
 
-    TC_LOG_DEBUG("auctionHouse", "Auctionhouse search (%s), searchedname: %s, levelmin: %u, levelmax: %u, quality: %u, usable: %u",
-        packet.Auctioneer.ToString().c_str(), packet.Name.c_str(), packet.MinLevel, packet.MaxLevel , packet.Quality, packet.OnlyUsable);
+    TC_LOG_DEBUG("auctionHouse", "Auctionhouse search (%s), searchedname: %s, levelmin: %u, levelmax: %u, filters: %u",
+        browseQuery.Auctioneer.ToString().c_str(), browseQuery.Name.c_str(), browseQuery.MinLevel, browseQuery.MaxLevel , browseQuery.Filters);
 
     // converting string that we try to find to lower case
     std::wstring wsearchedname;
-    if (!Utf8toWStr(packet.Name, wsearchedname))
+    if (!Utf8toWStr(browseQuery.Name, wsearchedname))
         return;
 
     wstrToLower(wsearchedname);
 
-    Optional<AuctionSearchFilters> filters;
+    Optional<AuctionSearchClassFilters> classFilters;
 
     WorldPackets::AuctionHouse::AuctionListItemsResult result;
-    if (!packet.ClassFilters.empty())
+    if (!browseQuery.ItemClassFilters.empty())
     {
-        filters = boost::in_place();
+        classFilters = boost::in_place();
 
-        for (auto const& classFilter : packet.ClassFilters)
+        for (auto const& classFilter : browseQuery.ItemClassFilters)
         {
             if (!classFilter.SubClassFilters.empty())
             {
@@ -657,28 +657,21 @@ void WorldSession::HandleAuctionListItems(WorldPackets::AuctionHouse::AuctionLis
                 {
                     if (classFilter.ItemClass < MAX_ITEM_CLASS)
                     {
-                        filters->Classes[classFilter.ItemClass].SubclassMask |= 1 << subClassFilter.ItemSubclass;
+                        classFilters->Classes[classFilter.ItemClass].SubclassMask |= 1 << subClassFilter.ItemSubclass;
                         if (subClassFilter.ItemSubclass < MAX_ITEM_SUBCLASS_TOTAL)
-                            filters->Classes[classFilter.ItemClass].InvTypes[subClassFilter.ItemSubclass] = subClassFilter.InvTypeMask;
+                            classFilters->Classes[classFilter.ItemClass].InvTypes[subClassFilter.ItemSubclass] = subClassFilter.InvTypeMask;
                     }
                 }
             }
             else
-                filters->Classes[classFilter.ItemClass].SubclassMask = AuctionSearchFilters::FILTER_SKIP_SUBCLASS;
+                classFilters->Classes[classFilter.ItemClass].SubclassMask = AuctionSearchClassFilters::FILTER_SKIP_SUBCLASS;
         }
     }
 
-    auctionHouse->BuildListAuctionItems(result, _player, wsearchedname, packet.Offset, packet.MinLevel, packet.MaxLevel, packet.OnlyUsable, filters, packet.Quality);
+    auctionHouse->BuildListAuctionItems(result, _player, wsearchedname, browseQuery.Offset, browseQuery.MinLevel, browseQuery.MaxLevel,
+        static_cast<AuctionHouseFilterMask>(browseQuery.Filters), classFilters);
 
     result.DesiredDelay = sWorld->getIntConfig(CONFIG_AUCTION_SEARCH_DELAY);
-    result.OnlyUsable = packet.OnlyUsable;
-    SendPacket(result.Write());
-}
-
-void WorldSession::HandleAuctionListPendingSales(WorldPackets::AuctionHouse::AuctionListPendingSales& /*packet*/)
-{
-    WorldPackets::AuctionHouse::AuctionListPendingSalesResult result;
-    result.TotalNumRecords = 0;
     SendPacket(result.Write());
 }
 
