@@ -1341,9 +1341,8 @@ class spell_dk_frost_fever : public AuraScript
     void HandleDispel(DispelInfo* /*dispelInfo*/)
     {
         if (Unit* caster = GetCaster())
-            if (Unit* target = GetUnitOwner())
-                if (AuraEffect* IcyClutch = target->GetAuraEffect(SPELL_AURA_MOD_DECREASE_SPEED, SPELLFAMILY_DEATHKNIGHT, 0, 0x00040000, 0, caster->GetGUID()))
-                    target->RemoveAurasDueToSpell(IcyClutch->GetId());
+            if (AuraEffect* IcyClutch = GetUnitOwner()->GetAuraEffect(SPELL_AURA_MOD_DECREASE_SPEED, SPELLFAMILY_DEATHKNIGHT, 0, 0x00040000, 0, caster->GetGUID()))
+                GetUnitOwner()->RemoveAurasDueToSpell(IcyClutch->GetId());
     }
 
     void Register() override
