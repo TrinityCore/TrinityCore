@@ -341,7 +341,7 @@ SpellImplicitTargetInfo::StaticData  SpellImplicitTargetInfo::_data[TOTAL_SPELL_
     {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 122
     {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 123
     {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 124
-    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 125
+    {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 125 TARGET_DEST_CASTER_FLOOR
     {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 126
     {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 127
 };
@@ -431,7 +431,7 @@ bool SpellEffectInfo::IsFarDestTargetEffect() const
 
 bool SpellEffectInfo::IsUnitOwnedAuraEffect() const
 {
-    return IsAreaAuraEffect() || Effect == SPELL_EFFECT_APPLY_AURA;
+    return IsAreaAuraEffect() || Effect == SPELL_EFFECT_APPLY_AURA || Effect == SPELL_EFFECT_APPLY_AURA_2;
 }
 
 int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const* target) const
@@ -446,7 +446,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
         if (caster)
         {
             int32 level = caster->getLevel();
-            if (target && _spellInfo->IsPositiveEffect(_effIndex) && (Effect == SPELL_EFFECT_APPLY_AURA))
+            if (target && _spellInfo->IsPositiveEffect(_effIndex) && (Effect == SPELL_EFFECT_APPLY_AURA || Effect == SPELL_EFFECT_APPLY_AURA_2))
                 level = target->getLevel();
 
             if (GtSpellScalingEntry const* gtScaling = sGtSpellScalingStore.LookupEntry((_spellInfo->ScalingClass != -1 ? _spellInfo->ScalingClass - 1 : MAX_CLASSES - 1) * 100 + level - 1))
@@ -841,7 +841,7 @@ SpellEffectInfo::StaticData SpellEffectInfo::_data[TOTAL_SPELL_EFFECTS] =
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_DEST}, // 171 SPELL_EFFECT_171
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 172 SPELL_EFFECT_172
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 173 SPELL_EFFECT_UNLOCK_GUILD_VAULT_TAB
-    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 174 SPELL_EFFECT_174
+    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 174 SPELL_EFFECT_APPLY_AURA_2
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 175 SPELL_EFFECT_175
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 176 SPELL_EFFECT_176
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 177 SPELL_EFFECT_177
@@ -3156,7 +3156,7 @@ bool SpellInfo::SpellCancelsAuraEffect(SpellInfo const* auraSpellInfo, uint8 aur
 
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
-        if (Effects[i].Effect != SPELL_EFFECT_APPLY_AURA)
+        if (Effects[i].Effect != SPELL_EFFECT_APPLY_AURA && Effects[i].Effect != SPELL_EFFECT_APPLY_AURA_2)
             continue;
 
         uint32 const miscValue = static_cast<uint32>(Effects[i].MiscValue);
@@ -3275,7 +3275,7 @@ uint32 SpellInfo::GetMaxTicks() const
 
     for (uint8 x = 0; x < MAX_SPELL_EFFECTS; x++)
     {
-        if (Effects[x].Effect == SPELL_EFFECT_APPLY_AURA)
+        if (Effects[x].Effect == SPELL_EFFECT_APPLY_AURA || Effects[x].Effect == SPELL_EFFECT_APPLY_AURA_2)
             switch (Effects[x].ApplyAuraName)
             {
                 case SPELL_AURA_PERIODIC_DAMAGE:
@@ -3523,6 +3523,7 @@ SpellInfo const* SpellInfo::GetAuraRankForLevel(uint8 level) const
     {
         if (IsPositiveEffect(i) &&
             (Effects[i].Effect == SPELL_EFFECT_APPLY_AURA ||
+            Effects[i].Effect == SPELL_EFFECT_APPLY_AURA_2 ||
             Effects[i].Effect == SPELL_EFFECT_APPLY_AREA_AURA_PARTY ||
             Effects[i].Effect == SPELL_EFFECT_APPLY_AREA_AURA_RAID) &&
             !Effects[i].ScalingMultiplier)
@@ -3714,6 +3715,7 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
 
             // non-positive aura use
         case SPELL_EFFECT_APPLY_AURA:
+        case SPELL_EFFECT_APPLY_AURA_2:
         case SPELL_EFFECT_APPLY_AREA_AURA_FRIEND:
         {
             switch (Effects[effIndex].ApplyAuraName)

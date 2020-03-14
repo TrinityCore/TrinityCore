@@ -1070,7 +1070,7 @@ enum SpellEffects
     SPELL_EFFECT_171                                = 171, // Summons gamebject
     SPELL_EFFECT_RESURRECT_WITH_AURA                = 172,
     SPELL_EFFECT_UNLOCK_GUILD_VAULT_TAB             = 173, // Guild tab unlocked (guild perk)
-    SPELL_EFFECT_APPLY_AURA_ON_PET                  = 174, // NYI
+    SPELL_EFFECT_APPLY_AURA_2                       = 174,
     SPELL_EFFECT_175                                = 175, // Unused (4.3.4)
     SPELL_EFFECT_SANCTUARY_2                        = 176, // Some kind of sanctuary effect (Vanish)
     SPELL_EFFECT_177                                = 177,
@@ -1744,7 +1744,7 @@ enum Targets
     TARGET_UNK_122                     = 122,
     TARGET_UNK_123                     = 123,
     TARGET_UNK_124                     = 124,
-    TARGET_UNK_125                     = 125,
+    TARGET_DEST_CASTER_FLOOR           = 125, // 1 spell in 4.3.4
     TARGET_UNK_126                     = 126,
     TARGET_UNK_127                     = 127,
     TOTAL_SPELL_TARGETS

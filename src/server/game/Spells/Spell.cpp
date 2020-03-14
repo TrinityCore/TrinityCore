@@ -1381,6 +1381,9 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffIndex effIndex, SpellImplici
             }
             break;
         }
+        case TARGET_DEST_CASTER_FLOOR:
+            dest._position.m_positionZ = m_caster->GetFloorZ();
+            break;
         default:
         {
             float dist = m_spellInfo->Effects[effIndex].CalcRadius(m_caster);
@@ -2788,7 +2791,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
                     m_spellAura->Remove();
                     bool found = false;
                     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                        if (effectMask & (1 << i) && m_spellInfo->Effects[i].Effect != SPELL_EFFECT_APPLY_AURA)
+                        if (effectMask & (1 << i) && (m_spellInfo->Effects[i].Effect != SPELL_EFFECT_APPLY_AURA || m_spellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AURA_2))
                             found = true;
                     if (!found)
                         return SPELL_MISS_IMMUNE;
@@ -2977,7 +2980,7 @@ bool Spell::UpdateChanneledTargetList()
     uint8 channelTargetEffectMask = m_channelTargetEffectMask;
     uint8 channelAuraMask = 0;
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (m_spellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AURA)
+        if (m_spellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AURA || m_spellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AURA_2)
             channelAuraMask |= 1<<i;
 
     channelAuraMask &= channelTargetEffectMask;
@@ -3048,7 +3051,7 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
     {
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
-            if (m_spellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AURA)
+            if (m_spellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AURA || m_spellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AURA_2)
             {
                 // Change aura with ranks only if basepoints are taken from spellInfo and aura is positive
                 if (m_spellInfo->IsPositiveEffect(i))

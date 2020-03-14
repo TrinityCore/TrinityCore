@@ -2308,7 +2308,7 @@ void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint8>& targets, Unit* ca
         // non-area aura
         ConditionContainer* condList = m_spellInfo->Effects[effIndex].ImplicitTargetConditions;
         // non-area aura
-        if (GetSpellInfo()->Effects[effIndex].Effect == SPELL_EFFECT_APPLY_AURA)
+        if (GetSpellInfo()->Effects[effIndex].Effect == SPELL_EFFECT_APPLY_AURA || GetSpellInfo()->Effects[effIndex].Effect == SPELL_EFFECT_APPLY_AURA_2)
         {
             if (!condList || sConditionMgr->IsObjectMeetToConditions(GetUnitOwner(), ref, *condList))
                 units.push_back(GetUnitOwner());
