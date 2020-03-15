@@ -25,8 +25,8 @@
 #include "Player.h"
 #include <cctype>
 
-static size_t const MAX_CHANNEL_NAME_STR = 0x31;
-static size_t const MAX_CHANNEL_PASS_STR = 31;
+static size_t const MAX_CHANNEL_NAME_STR = 31;
+static size_t const MAX_CHANNEL_PASS_STR = 127;
 
 void WorldSession::HandleJoinChannel(WorldPackets::Channel::JoinChannel& packet)
 {
@@ -44,8 +44,30 @@ void WorldSession::HandleJoinChannel(WorldPackets::Channel::JoinChannel& packet)
             return;
     }
 
-    if (packet.ChannelName.empty())
+    if (packet.ChannelName.empty() || isdigit((unsigned char)packet.ChannelName[0]))
+    {
+        WorldPackets::Channel::ChannelNotify channelNotify;
+        channelNotify.Type = CHAT_INVALID_NAME_NOTICE;
+        channelNotify._Channel = packet.ChannelName;
+        SendPacket(channelNotify.Write());
         return;
+    }
+
+    if (packet.ChannelName.length() > MAX_CHANNEL_NAME_STR)
+    {
+        WorldPackets::Channel::ChannelNotify channelNotify;
+        channelNotify.Type = CHAT_INVALID_NAME_NOTICE;
+        channelNotify._Channel = packet.ChannelName;
+        SendPacket(channelNotify.Write());
+        TC_LOG_ERROR("network", "Player %s tried to create a channel with a name more than " SZFMTD " characters long - blocked", GetPlayer()->GetGUID().ToString().c_str(), MAX_CHANNEL_NAME_STR);
+        return;
+    }
+
+    if (packet.Password.length() > MAX_CHANNEL_PASS_STR)
+    {
+        TC_LOG_ERROR("network", "Player %s tried to create a channel with a password more that " SZFMTD " characters long - blocked", GetPlayer()->GetGUID().ToString().c_str(), MAX_CHANNEL_PASS_STR);
+        return;
+    }
 
     if (!ValidateHyperlinksAndMaybeKick(packet.ChannelName))
         return;
