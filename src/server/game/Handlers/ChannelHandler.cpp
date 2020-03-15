@@ -24,7 +24,6 @@
 #include "ObjectMgr.h"                                      // for normalizePlayerName
 #include "Player.h"
 #include <cctype>
-#include <utf8.h>
 
 static size_t const MAX_CHANNEL_NAME_STR = 0x31;
 static size_t const MAX_CHANNEL_PASS_STR = 31;
@@ -47,12 +46,6 @@ void WorldSession::HandleJoinChannel(WorldPackets::Channel::JoinChannel& packet)
 
     if (packet.ChannelName.empty())
         return;
-
-    if (!utf8::is_valid(packet.ChannelName.begin(), packet.ChannelName.end()))
-    {
-        TC_LOG_ERROR("network", "Player %s tried to create a channel with an invalid UTF8 sequence - blocked", GetPlayer()->GetGUID().ToString().c_str());
-        return;
-    }
 
     if (!ValidateHyperlinksAndMaybeKick(packet.ChannelName))
         return;
