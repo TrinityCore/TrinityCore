@@ -41,7 +41,7 @@ ByteBufferPositionException::ByteBufferPositionException(size_t pos, size_t size
 
 ByteBufferInvalidValueException::ByteBufferInvalidValueException(char const* type, size_t pos)
 {
-    message().assign(Trinity::StringFormat("Invalid %s value found in ByteBuffer at pos " SZFMTD));
+    message().assign(Trinity::StringFormat("Invalid %s value found in ByteBuffer at pos " SZFMTD, type, pos));
 }
 
 ByteBuffer& ByteBuffer::operator>>(float& value)
