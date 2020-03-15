@@ -1,4 +1,5 @@
 #include "Script_Base.h"
+#include "RobotConfig.h"
 #include "RobotManager.h"
 #include "MapManager.h"
 #include "Pet.h"
@@ -10,6 +11,7 @@
 #include "ChaseMovementGenerator.h"
 #include "FollowMovementGenerator.h"
 #include "SpellHistory.h"
+#include "GridNotifiers.h"
 
 Script_Base::Script_Base(Player* pmMe)
 {
@@ -377,7 +379,7 @@ void Script_Base::InitializeCharacter(uint32 pmTargetLevel)
 
     if (newCharacter)
     {
-        for (std::set<uint32>::iterator questIT = sRobotManager->spellRewardClassQuestIDSet.begin(); questIT != sRobotManager->spellRewardClassQuestIDSet.end(); questIT++)
+        for (std::unordered_set<uint32>::iterator questIT = sRobotManager->spellRewardClassQuestIDSet.begin(); questIT != sRobotManager->spellRewardClassQuestIDSet.end(); questIT++)
         {
             const Quest* eachQuest = sObjectMgr->GetQuestTemplate((*questIT));
             if (me->SatisfyQuestLevel(eachQuest, false) && me->SatisfyQuestClass(eachQuest, false) && me->SatisfyQuestRace(eachQuest, false))
@@ -1046,14 +1048,35 @@ void Script_Base::RandomTeleport()
     {
         return;
     }
-    uint8 levelRange = me->GetLevel() / 10;
-    uint32 destIndex = urand(0, sRobotManager->teleportCacheMap[levelRange].size() - 1);
-    WorldLocation destWL = sRobotManager->teleportCacheMap[levelRange][destIndex];
-    Map* targetMap = sMapMgr->FindBaseNonInstanceMap(destWL.m_mapId);
-    if (targetMap)
+    if (sRobotManager->onlinePlayerIDMap.size() > 0)
     {
-        me->TeleportTo(destWL);
-        sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Teleport robot %s (level %d)", me->GetName(), me->GetLevel());
+        uint32 playerIndex = urand(0, sRobotManager->onlinePlayerIDMap.size() - 1);
+        uint32 cid = sRobotManager->onlinePlayerIDMap[playerIndex];
+        ObjectGuid og = ObjectGuid(HighGuid::Player, cid);
+        if (Player* targetP = ObjectAccessor::FindConnectedPlayer(og))
+        {
+            if (sMapMgr->FindBaseNonInstanceMap(targetP->GetMapId()))
+            {
+                std::unordered_map<uint32, Unit*> validUnitMap;
+                std::list<Unit*> targetList;
+                Trinity::AnyUnitInObjectRangeCheck u_check(targetP, sRobotConfig->TeleportMaxRange);
+                Trinity::CreatureListSearcher<Trinity::AnyUnitInObjectRangeCheck> searcher(targetP, targetList, u_check);
+                Cell::VisitGridObjects(targetP, searcher, sRobotConfig->TeleportMaxRange);
+                for (std::list<Unit*>::const_iterator uit = targetList.begin(); uit != targetList.end(); ++uit)
+                {
+                    if (me->GetDistance(*uit) > sRobotConfig->TeleportMinRange)
+                    {
+                        validUnitMap[validUnitMap.size()] = *uit;
+                    }
+                }
+                if (validUnitMap.size() > 0)
+                {
+                    uint32 destIndex = urand(0, validUnitMap.size() - 1);
+                    me->TeleportTo(validUnitMap[destIndex]->GetWorldLocation());
+                    sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Teleport robot %s (level %d)", me->GetName(), me->GetLevel());
+                }
+            }
+        }
     }
 }
 
@@ -1330,7 +1353,7 @@ bool Script_Base::Chase(Unit* pmTarget, float pmMaxDistance, float pmMinDistance
     if (me->IsWalking())
     {
         me->SetWalk(false);
-    }    
+    }
     me->GetMotionMaster()->MoveChase(pmTarget, ChaseRange(pmMinDistance, pmMaxDistance));
     return true;
 }
@@ -1399,7 +1422,7 @@ bool Script_Base::CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDis
         {
             return false;
         }
-    }    
+    }
     if (!pST)
     {
         return false;

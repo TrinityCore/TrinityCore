@@ -12,6 +12,7 @@
 #include "GridNotifiers.h"
 #include "MotionMaster.h"
 #include "RobotManager.h"
+#include "RobotConfig.h"
 
 Strategy_Solo::Strategy_Solo(Player* pmMe)
 {
@@ -72,7 +73,7 @@ Strategy_Solo::Strategy_Solo(Player* pmMe)
     waitDelay = 0;
     strollDelay = 0;
     confuseDelay = 0;
-    interestsDelay = 0;    
+    interestsDelay = 0;
 }
 
 void Strategy_Solo::Update(uint32 pmDiff)
@@ -96,14 +97,14 @@ void Strategy_Solo::Update(uint32 pmDiff)
         }
         else
         {
-            deathDelay = urand(1 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 2 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
+            deathDelay = urand(sRobotConfig->DeathMinDelay, sRobotConfig->DeathMaxDelay);
         }
         return;
     }
     soloDelay -= pmDiff;
     if (soloDelay < 0)
     {
-        soloDelay = urand(30 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 60 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
+        soloDelay = urand(sRobotConfig->SoloMinDelay, sRobotConfig->SoloMaxDelay);
         sb->Prepare();
         sb->RandomTeleport();
         return;
@@ -275,6 +276,32 @@ bool Strategy_Solo::Battle()
     if (!me)
     {
         return false;
+    }
+    if (Unit* myTarget = me->GetSelectedUnit())
+    {
+        if (Player* targetPlayer = myTarget->ToPlayer())
+        {
+            if (sb->Attack(targetPlayer))
+            {
+                return true;
+            }
+        }
+    }
+    if (me->getAttackers().size() > 1)
+    {
+        for (Unit::AttackerSet::const_iterator attackerIT = me->getAttackers().begin(); attackerIT != me->getAttackers().end(); attackerIT++)
+        {
+            if (Unit* pTarget = *attackerIT)
+            {
+                if (Player* targetPlayer = pTarget->ToPlayer())
+                {
+                    if (sb->Attack(targetPlayer))
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
     }
     if (Unit* myTarget = me->GetSelectedUnit())
     {

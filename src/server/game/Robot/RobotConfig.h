@@ -45,6 +45,12 @@ public:
     uint32 OnlineMaxDelay;
     std::string AccountNamePrefix;
     uint32 GroupInterest;
+    float TeleportMinRange;
+    float TeleportMaxRange;
+    uint32 DeathMinDelay;
+    uint32 DeathMaxDelay;
+    uint32 SoloMinDelay;
+    uint32 SoloMaxDelay;
 };
 
 #define sRobotConfig RobotConfig::instance()	

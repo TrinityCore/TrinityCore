@@ -172,6 +172,12 @@ bool RobotConfig::StartRobotSystem()
     OnlineMinDelay = GetIntDefault("OnlineMinDelay", 60000);
     OnlineMaxDelay = GetIntDefault("OnlineMaxDelay", 300000);
     GroupInterest = GetIntDefault("GroupInterest", 1);
+    TeleportMinRange = GetFloatDefault("TeleportMinRange", 500.0f);
+    TeleportMaxRange = GetFloatDefault("TeleportMaxRange", 5000.0f);
+    DeathMinDelay = GetIntDefault("DeathMinDelay", 1800000);
+    DeathMaxDelay = GetIntDefault("DeathMaxDelay", 3600000);
+    SoloMinDelay = GetIntDefault("SoloMinDelay", 600000);
+    SoloMaxDelay = GetIntDefault("SoloMaxDelay", 1200000);
 
     if (Enable == 0)
     {

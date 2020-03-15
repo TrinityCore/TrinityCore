@@ -32,8 +32,9 @@ RobotManager::RobotManager()
     rangeWeaponMap.clear();
     armorMap.clear();
     miscMap.clear();
-    teleportCacheMap.clear();
+    onlinePlayerIDMap.clear();
     tamableBeastEntryMap.clear();
+    spellRewardClassQuestIDSet.clear();
     spellNameEntryMap.clear();
 }
 
@@ -374,23 +375,6 @@ void RobotManager::InitializeManager()
         }
     }
 
-    QueryResult normalCreatureQR = WorldDatabase.Query("SELECT CT.maxlevel, C.map, C.position_x, C.position_y, C.position_z FROM creature_template CT join creature C on CT.entry = C.id where CT.rank = 0 and (C.map <> 0 or C.map <> 1 or C.map <> 530 or C.map <> 571)");
-    if (normalCreatureQR)
-    {
-        do
-        {
-            Field* creatureField = normalCreatureQR->Fetch();
-            uint8 level = creatureField[0].GetUInt8();
-            level = level / 10;
-            int mapID = creatureField[1].GetInt32();
-            float x = creatureField[2].GetFloat();
-            float y = creatureField[3].GetFloat();
-            float z = creatureField[4].GetFloat();
-            WorldLocation eachWL = WorldLocation(mapID, x, y, z, 0);
-            teleportCacheMap[level][teleportCacheMap[level].size()] = eachWL;
-        } while (normalCreatureQR->NextRow());
-    }
-
     CreatureTemplateContainer const& ctc = sObjectMgr->GetCreatureTemplates();
     for (auto const& creatureTemplatePair : ctc)
     {
@@ -451,6 +435,7 @@ void RobotManager::UpdateRobotManager(uint32 pmDiff)
     if (checkDelay < 0)
     {
         checkDelay = urand(5 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
+        onlinePlayerIDMap.clear();
         std::unordered_set<uint32> onlinePlayerLevelSet;
         for (std::unordered_map<uint32, WorldSession*>::const_iterator wsIT = sWorld->GetAllSessions().begin(); wsIT != sWorld->GetAllSessions().end(); wsIT++)
         {
@@ -458,10 +443,15 @@ void RobotManager::UpdateRobotManager(uint32 pmDiff)
             {
                 if (Player* eachPlayer = wsIT->second->GetPlayer())
                 {
+                    if (!eachPlayer->IsInWorld())
+                    {
+                        continue;
+                    }
                     if (eachPlayer->GetLevel() < 20)
                     {
                         continue;
                     }
+                    onlinePlayerIDMap[onlinePlayerIDMap.size()] = eachPlayer->GetGUID().GetCounter();
                     if (onlinePlayerLevelSet.find(eachPlayer->GetLevel()) == onlinePlayerLevelSet.end())
                     {
                         onlinePlayerLevelSet.insert(eachPlayer->GetLevel());
@@ -522,6 +512,17 @@ void RobotManager::UpdateRobotManager(uint32 pmDiff)
                 reSet.insert(re);
 
                 toOnline--;
+            }
+        }
+
+        for (std::unordered_set<RobotEntity*>::iterator reIT = reSet.begin(); reIT != reSet.end(); reIT++)
+        {
+            if ((*reIT)->entityState == RobotEntityState::RobotEntityState_Online)
+            {
+                if (onlinePlayerLevelSet.find((*reIT)->target_level) == onlinePlayerLevelSet.end())
+                {
+                    (*reIT)->entityState = RobotEntityState::RobotEntityState_Exit;
+                }
             }
         }
     }

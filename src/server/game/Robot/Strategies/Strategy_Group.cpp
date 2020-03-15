@@ -94,10 +94,6 @@ void Strategy_Group::Update(uint32 pmDiff)
     {
         return;
     }
-    if (!me->IsAlive())
-    {
-        return;
-    }
     if (Group* myGroup = me->GetGroup())
     {
         if (teleportAssembleDelay > 0)
@@ -137,6 +133,10 @@ void Strategy_Group::Update(uint32 pmDiff)
             return;
         }
         if (staying)
+        {
+            return;
+        }
+        if (!me->IsAlive())
         {
             return;
         }
@@ -227,7 +227,7 @@ void Strategy_Group::Update(uint32 pmDiff)
             }
         }
         Follow();
-    }
+    }    
 }
 
 bool Strategy_Group::GroupInCombat()

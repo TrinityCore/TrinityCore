@@ -69,9 +69,8 @@ public:
     std::unordered_map<uint8, std::unordered_map<uint8, std::unordered_map<uint8, std::unordered_map<uint32, uint32>>>> armorMap;
     // slot | level range | index entry
     std::unordered_map<uint8, std::unordered_map<uint8, std::unordered_map<uint32, uint32>>> miscMap;
-    std::set<uint32> spellRewardClassQuestIDSet;
-    // level range | index
-    std::unordered_map<uint8, std::unordered_map<uint32, WorldLocation>> teleportCacheMap;
+    std::unordered_set<uint32> spellRewardClassQuestIDSet;
+    std::unordered_map<uint32, uint32> onlinePlayerIDMap;
 
     std::unordered_map<uint32, uint32> tamableBeastEntryMap;
     std::unordered_map<std::string, std::set<uint32>> spellNameEntryMap;
