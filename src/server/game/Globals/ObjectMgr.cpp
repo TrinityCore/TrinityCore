@@ -3101,8 +3101,8 @@ void ObjectMgr::LoadVehicleSeatAddon()
 
     uint32 count = 0;
 
-    //                                                0            1
-    QueryResult result = WorldDatabase.Query("SELECT `SeatEntry`, `SeatOrientation`, `ExitParamX`, `ExitParamY`, `ExitParamZ`, `ExitParamO`, `ExitParamValue` FROM `vehicle_seat_addon`");
+    //                                                0            1              2              3              4              5             6             7             8             9
+    QueryResult result = WorldDatabase.Query("SELECT `SeatEntry`, `SeatOffsetX`, `SeatOffsetY`, `SeatOffsetZ`, `SeatOffsetO`, `ExitParamX`, `ExitParamY`, `ExitParamZ`, `ExitParamO`, `ExitParamValue` FROM `vehicle_seat_addon`");
 
     if (!result)
     {
@@ -3115,12 +3115,15 @@ void ObjectMgr::LoadVehicleSeatAddon()
         Field* fields = result->Fetch();
 
         uint32 seatID       = fields[0].GetUInt32();
-        float orientation   = fields[1].GetFloat();
-        float exitX         = fields[2].GetFloat();
-        float exitY         = fields[3].GetFloat();
-        float exitZ         = fields[4].GetFloat();
-        float exitO         = fields[5].GetFloat();
-        uint8 exitParam     = fields[6].GetUInt8();
+        float seatX         = fields[1].GetFloat();
+        float seatY         = fields[2].GetFloat();
+        float seatZ         = fields[3].GetFloat();
+        float orientation   = fields[4].GetFloat();
+        float exitX         = fields[5].GetFloat();
+        float exitY         = fields[6].GetFloat();
+        float exitZ         = fields[7].GetFloat();
+        float exitO         = fields[8].GetFloat();
+        uint8 exitParam     = fields[9].GetUInt8();
 
         if (!sVehicleSeatStore.LookupEntry(seatID))
         {
@@ -3142,7 +3145,7 @@ void ObjectMgr::LoadVehicleSeatAddon()
             continue;
         }
 
-        _vehicleSeatAddonStore[seatID] = VehicleSeatAddon(orientation, exitX, exitY, exitZ, exitO, exitParam);
+        _vehicleSeatAddonStore[seatID] = VehicleSeatAddon(seatX, seatY, seatZ, orientation, exitX, exitY, exitZ, exitO, exitParam);
 
         ++count;
     }

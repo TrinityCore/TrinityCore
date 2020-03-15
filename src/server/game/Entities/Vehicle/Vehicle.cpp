@@ -906,10 +906,19 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
     if (veSeat->HasFlag(VEHICLE_SEAT_FLAG_PASSENGER_NOT_SELECTABLE))
         Passenger->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
-    float o = veSeatAddon ? veSeatAddon->SeatOrientationOffset : 0.f;
+    float o = 0.f;
     float x = veSeat->AttachmentOffset.X;
     float y = veSeat->AttachmentOffset.Y;
     float z = veSeat->AttachmentOffset.Z;
+
+    if (veSeatAddon)
+    {
+        // To-do: extract client m2 model bones and handle this part without db data
+        o += veSeatAddon->SeatOrientationOffset;
+        x += veSeatAddon->SeatXOffset;
+        y += veSeatAddon->SeatYOffset;
+        z += veSeatAddon->SeatZOffset;
+    }
 
     Passenger->m_movementInfo.transport.pos.Relocate(x, y, z, o);
     Passenger->m_movementInfo.transport.time = 0;

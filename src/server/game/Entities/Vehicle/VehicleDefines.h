@@ -100,10 +100,13 @@ struct PassengerInfo
 struct VehicleSeatAddon
 {
     VehicleSeatAddon() { }
-    VehicleSeatAddon(float orientatonOffset, float exitX, float exitY, float exitZ, float exitO, uint8 param) :
-        SeatOrientationOffset(orientatonOffset), ExitParameterX(exitX), ExitParameterY(exitY), ExitParameterZ(exitZ),
-        ExitParameterO(exitO), ExitParameter(VehicleExitParameters(param)) { }
+    VehicleSeatAddon(float xOffset, float yOffset, float zOffset, float orientatonOffset, float exitX, float exitY, float exitZ, float exitO, uint8 param) :
+        SeatXOffset(xOffset), SeatYOffset(yOffset), SeatZOffset(zOffset), SeatOrientationOffset(orientatonOffset),
+        ExitParameterX(exitX), ExitParameterY(exitY), ExitParameterZ(exitZ), ExitParameterO(exitO), ExitParameter(VehicleExitParameters(param)) { }
 
+    float SeatXOffset = 0.f;
+    float SeatYOffset = 0.f;
+    float SeatZOffset = 0.f;
     float SeatOrientationOffset = 0.f;
     float ExitParameterX = 0.f;
     float ExitParameterY = 0.f;
