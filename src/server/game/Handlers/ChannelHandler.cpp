@@ -25,6 +25,7 @@
 #include <cctype>
 
 static size_t const MAX_CHANNEL_PASS_STR = 31;
+static size_t const MAX_CHANNEL_NAME_STR = 31;
 
 void WorldSession::HandleJoinChannel(WorldPacket& recvPacket)
 {
@@ -53,6 +54,18 @@ void WorldSession::HandleJoinChannel(WorldPacket& recvPacket)
         WorldPacket data(SMSG_CHANNEL_NOTIFY, 1 + channelName.size());
         data << uint8(CHAT_INVALID_NAME_NOTICE) << channelName;
         SendPacket(&data);
+        return;
+    }
+
+    if (channelName.length() > MAX_CHANNEL_NAME_STR)
+    {
+        TC_LOG_ERROR("network", "Player %s tried to create a channel with a name more than " SZFMTD " characters long - blocked", GetPlayer()->GetGUID().ToString().c_str(), MAX_CHANNEL_NAME_STR);
+        return;
+    }
+
+    if (password.length() > MAX_CHANNEL_PASS_STR)
+    {
+        TC_LOG_ERROR("network", "Player %s tried to create a channel with a password more that " SZFMTD " characters long - blocked", GetPlayer()->GetGUID().ToString().c_str(), MAX_CHANNEL_PASS_STR);
         return;
     }
 
