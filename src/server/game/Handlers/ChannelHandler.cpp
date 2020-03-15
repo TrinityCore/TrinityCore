@@ -57,19 +57,13 @@ void WorldSession::HandleJoinChannel(WorldPacket& recvPacket)
         return;
     }
 
-    if (channelName.length() > MAX_CHANNEL_NAME_STR)
-    {
-        TC_LOG_ERROR("network", "Player %s tried to create a channel with a name more than " SZFMTD " characters long - blocked", GetPlayer()->GetGUID().ToString().c_str(), MAX_CHANNEL_NAME_STR);
-        return;
-    }
-
     if (password.length() > MAX_CHANNEL_PASS_STR)
     {
-        TC_LOG_ERROR("network", "Player %s tried to create a channel with a password more that " SZFMTD " characters long - blocked", GetPlayer()->GetGUID().ToString().c_str(), MAX_CHANNEL_PASS_STR);
+        TC_LOG_ERROR("network", "Player %s tried to create a channel with a password more than " SZFMTD " characters long - blocked", GetPlayer()->GetGUID().ToString().c_str(), MAX_CHANNEL_PASS_STR);
         return;
     }
 
-    if (!ValidateHyperlinksAndMaybeKick(channelName))
+    if (!DisallowHyperlinksAndMaybeKick(channelName))
         return;
 
     if (ChannelMgr* cMgr = ChannelMgr::forTeam(GetPlayer()->GetTeam()))
@@ -81,6 +75,12 @@ void WorldSession::HandleJoinChannel(WorldPacket& recvPacket)
         }
         else
         { // custom channel
+            if (channelName.length() > MAX_CHANNEL_NAME_STR)
+            {
+                TC_LOG_ERROR("network", "Player %s tried to create a channel with a name more than " SZFMTD " characters long - blocked", GetPlayer()->GetGUID().ToString().c_str(), MAX_CHANNEL_NAME_STR);
+                return;
+            }
+
             if (Channel* channel = cMgr->GetCustomChannel(channelName))
                 channel->JoinChannel(GetPlayer(), password);
             else if (Channel* channel = cMgr->CreateCustomChannel(channelName))
