@@ -2946,6 +2946,49 @@ class spell_q11896_weakness_to_lightning_46444 : public SpellScript
     }
 };
 
+// EJ fix
+class spell_q10248 : public SpellScriptLoader
+{
+public:
+    spell_q10248() : SpellScriptLoader("spell_q10248") { }
+
+    class spell_q10248_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_q10248_SpellScript);
+
+        void HandleEffect(SpellEffIndex effIndex)
+        {
+            if (effIndex == EFFECT_1)
+            {
+                //if (Creature* negatron = GetCaster()->GetMap()->GetCreatureBySpawnId(70976))
+                //if (TempSummon* negatron = GetCaster()->SummonCreature(19851, 3141.73f, 3254.34f, 106.82f, 1.88545f, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 600000))
+                if (TempSummon* negatron = GetCaster()->SummonCreature(19851, 3127.36f, 3324.01f, 110.7f, 1.88545f, TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0))
+                {
+                    if (Creature* doctor = GetCaster()->GetMap()->GetCreatureBySpawnId(70967))
+                    {
+                        doctor->Yell("Oh no!  What's that?  Quickly, defend us with the Scrap Reaver X6000!!!", Language::LANG_UNIVERSAL);
+                        negatron->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+                        negatron->SendAIReaction(AiReaction::AI_REACTION_HOSTILE);                        
+                        negatron->Yell("I AM DEATH!", Language::LANG_UNIVERSAL);
+                        negatron->GetThreatManager().AddThreat(GetCaster(), 1000.0f);
+                        //negatron->GetMotionMaster()->MovePoint(0, GetCaster()->GetPosition());
+                    }
+                }
+            }
+        }
+
+        void Register() override
+        {
+            OnEffectHit += SpellEffectFn(spell_q10248_SpellScript::HandleEffect, EFFECT_1, SPELL_EFFECT_ANY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_q10248_SpellScript();
+    }
+};
+
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
@@ -3012,10 +3055,7 @@ void AddSC_quest_spell_scripts()
     new spell_q12919_gymers_grab();
     new spell_q12919_gymers_throw();
     new spell_q13400_illidan_kill_master();
-    new spell_q14100_q14111_make_player_destroy_totems();
-    // EJ fix
-    new spell_q10929_fumping();
-    new spell_q10930_fumping();
+    new spell_q14100_q14111_make_player_destroy_totems();    
     new spell_q12414_hand_over_reins();
     new spell_q13665_q13790_bested_trigger();
     new spell_59064_59439_portals();
@@ -3023,4 +3063,8 @@ void AddSC_quest_spell_scripts()
     new spell_q11306_mixing_vrykul_blood();
     new spell_q11306_failed_mix_43376();
     new spell_q11306_failed_mix_43378();
+    // EJ fix
+    new spell_q10929_fumping();
+    new spell_q10930_fumping();
+    new spell_q10248();
 }

@@ -522,6 +522,7 @@ void RobotManager::UpdateRobotManager(uint32 pmDiff)
                 if (onlinePlayerLevelSet.find((*reIT)->target_level) == onlinePlayerLevelSet.end())
                 {
                     (*reIT)->entityState = RobotEntityState::RobotEntityState_Exit;
+                    (*reIT)->checkDelay = urand(sRobotConfig->OnlineMinDelay, sRobotConfig->OnlineMaxDelay);
                 }
             }
         }
