@@ -103,7 +103,7 @@ enum Texts
     SAY_PLAYER_KILL         = 3
 };
 
-class NPCEntryPred : public std::unary_function<Unit*, bool>
+class NPCEntryPred
 {
 public:
     NPCEntryPred(uint32 entry) : _entry(entry) { }
