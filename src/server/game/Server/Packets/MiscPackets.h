@@ -199,6 +199,19 @@ namespace WorldPackets
             int32 TransitionMilliseconds = 0;
             int32 OverrideLightID = 0;
         };
+
+        class WorldTeleport final : public ClientPacket
+        {
+        public:
+            WorldTeleport(WorldPacket&& packet) : ClientPacket(CMSG_WORLD_TELEPORT, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 Time = 0;
+            uint32 MapID = 0;
+            TaggedPosition<Position::XYZ> Pos;
+            float Facing = 0.0f;
+        };
     }
 }
 

@@ -101,10 +101,7 @@ public:
         {
             Initialize();
             if (creature->IsSummon())
-            {
                 creature->SetHomePosition(HomePosition);
-                AttackPlayer();
-            }
 
             instance = creature->GetInstanceScript();
         }
@@ -129,6 +126,7 @@ public:
         void Reset() override
         {
             Initialize();
+            AttackPlayer();
         }
 
         void AttackPlayer()
@@ -225,7 +223,9 @@ public:
 
     struct npc_morriduneAI : public EscortAI
     {
-        npc_morriduneAI(Creature* creature) : EscortAI(creature)
+        npc_morriduneAI(Creature* creature) : EscortAI(creature) { }
+
+        void Reset() override
         {
             Talk(SAY_MORRIDUNE_1);
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
