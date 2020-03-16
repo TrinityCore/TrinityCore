@@ -619,6 +619,20 @@ bool WorldSession::ValidateHyperlinksAndMaybeKick(std::string const& str)
     return false;
 }
 
+bool WorldSession::DisallowHyperlinksAndMaybeKick(std::string const& str)
+{
+    if (str.find('|') == std::string::npos)
+        return true;
+
+    TC_LOG_ERROR("network", "Player %s (GUID: %u) sent a message which illegally contained a hyperlink:\n%s", GetPlayer()->GetName().c_str(),
+                 GetPlayer()->GetGUID().GetCounter(), str.c_str());
+
+    if (sWorld->getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_KICK))
+        KickPlayer();
+
+    return false;
+}
+
 void WorldSession::SendNotification(const char *format, ...)
 {
     if (format)

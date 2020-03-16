@@ -164,6 +164,12 @@ void WorldSession::HandleGuildMOTDOpcode(WorldPacket& recvPacket)
 
     TC_LOG_DEBUG("guild", "CMSG_GUILD_MOTD [%s]: MOTD: %s", GetPlayerInfo().c_str(), motd.c_str());
 
+    if (!DisallowHyperlinksAndMaybeKick(motd))
+        return;
+
+    if (motd.size() > 128)
+        return;
+
     if (Guild* guild = GetPlayer()->GetGuild())
         guild->HandleSetMOTD(this, motd);
 }
@@ -176,6 +182,12 @@ void WorldSession::HandleGuildSetPublicNoteOpcode(WorldPacket& recvPacket)
 
     TC_LOG_DEBUG("guild", "CMSG_GUILD_SET_PUBLIC_NOTE [%s]: Target: %s, Note: %s",
          GetPlayerInfo().c_str(), playerName.c_str(), note.c_str());
+
+    if (!DisallowHyperlinksAndMaybeKick(note))
+        return;
+
+    if (note.size() > 31)
+        return;
 
     if (normalizePlayerName(playerName))
         if (Guild* guild = GetPlayer()->GetGuild())
@@ -190,6 +202,12 @@ void WorldSession::HandleGuildSetOfficerNoteOpcode(WorldPacket& recvPacket)
 
     TC_LOG_DEBUG("guild", "CMSG_GUILD_SET_OFFICER_NOTE [%s]: Target: %s, Note: %s",
          GetPlayerInfo().c_str(), playerName.c_str(), note.c_str());
+
+    if (!DisallowHyperlinksAndMaybeKick(note))
+        return;
+
+    if (note.size() > 31)
+        return;
 
     if (normalizePlayerName(playerName))
         if (Guild* guild = GetPlayer()->GetGuild())
@@ -211,6 +229,12 @@ void WorldSession::HandleGuildRankOpcode(WorldPacket& recvPacket)
     recvPacket >> money;
 
     TC_LOG_DEBUG("guild", "CMSG_GUILD_RANK [%s]: Rank: %s (%u)", GetPlayerInfo().c_str(), rankName.c_str(), rankId);
+
+    if (!DisallowHyperlinksAndMaybeKick(rankName))
+        return;
+
+    if (rankName.size() > 15)
+        return;
 
     Guild* guild = GetPlayer()->GetGuild();
     if (!guild)
@@ -242,6 +266,12 @@ void WorldSession::HandleGuildAddRankOpcode(WorldPacket& recvPacket)
 
     TC_LOG_DEBUG("guild", "CMSG_GUILD_ADD_RANK [%s]: Rank: %s", GetPlayerInfo().c_str(), rankName.c_str());
 
+    if (!DisallowHyperlinksAndMaybeKick(rankName))
+        return;
+
+    if (rankName.size() > 15)
+        return;
+
     if (Guild* guild = GetPlayer()->GetGuild())
         guild->HandleAddNewRank(this, rankName);
 }
@@ -260,6 +290,12 @@ void WorldSession::HandleGuildChangeInfoTextOpcode(WorldPacket& recvPacket)
     recvPacket >> info;
 
     TC_LOG_DEBUG("guild", "CMSG_GUILD_INFO_TEXT [%s]: %s", GetPlayerInfo().c_str(), info.c_str());
+
+    if (!DisallowHyperlinksAndMaybeKick(info))
+        return;
+
+    if (info.size() > 500)
+        return;
 
     if (Guild* guild = GetPlayer()->GetGuild())
         guild->HandleSetInfo(this, info);
@@ -492,6 +528,12 @@ void WorldSession::HandleGuildBankUpdateTab(WorldPacket& recvData)
 
     recvData >> guid >> tabId >> name >> icon;
 
+    if (!DisallowHyperlinksAndMaybeKick(name))
+        return;
+
+    if ((name.size() > 16) || (icon.size() > 128))
+        return;
+
     TC_LOG_DEBUG("guild", "CMSG_GUILD_BANK_UPDATE_TAB [%s]: [%s], TabId: %u, Name: %s, Icon: %s"
         , GetPlayerInfo().c_str(), guid.ToString().c_str(), tabId, name.c_str(), icon.c_str());
 
@@ -528,6 +570,12 @@ void WorldSession::HandleSetGuildBankTabText(WorldPacket &recvData)
     uint8 tabId;
     std::string text;
     recvData >> tabId >> text;
+
+    if (!DisallowHyperlinksAndMaybeKick(text))
+        return;
+
+    if (text.size() > 500)
+        return;
 
     TC_LOG_DEBUG("guild", "CMSG_SET_GUILD_BANK_TEXT [%s]: TabId: %u, Text: %s", GetPlayerInfo().c_str(), tabId, text.c_str());
 
