@@ -200,6 +200,16 @@ namespace WorldPackets
             int32 OverrideLightID = 0;
         };
 
+        class UITime final : public ServerPacket
+        {
+        public:
+            UITime() : ServerPacket(SMSG_WORLD_STATE_UI_TIMER_UPDATE, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Time = 0;
+        };
+
         class WorldTeleport final : public ClientPacket
         {
         public:
