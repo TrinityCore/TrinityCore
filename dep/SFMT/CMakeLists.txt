@@ -74,5 +74,7 @@ elseif (CMAKE_SYSTEM_PROCESSOR MATCHES "i686|amd64|x86_64|AMD64")
   target_compile_definitions(sfmt PUBLIC -DHAVE_SSE2)
 endif ()
 
+set_target_properties(sfmt PROPERTIES LINKER_LANGUAGE CXX)
+
 # inherit trinitycore generic build options (e.g. fPIC)
 target_link_libraries(sfmt PRIVATE trinity-dependency-interface)
