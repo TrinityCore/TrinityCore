@@ -2107,37 +2107,75 @@ void Unit::AttackerStateUpdate(Unit* victim, WeaponAttackType attType, bool extr
         // attack can be redirected to another target
         victim = GetMeleeHitRedirectTarget(victim);
 
-        CalcDamageInfo damageInfo;
-        CalculateMeleeDamage(victim, 0, &damageInfo, attType);
-        // Send log damage message to client
-        DealDamageMods(victim, damageInfo.damage, &damageInfo.absorb);
-
-        // Sparring Checks
-        if (Creature* target = victim->ToCreature())
+        AuraEffectList const& meleeAttackOverrides = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_AUTOATTACK_WITH_MELEE_SPELL);
+        AuraEffect const* meleeAttackAuraEffect = nullptr;
+        uint32 meleeAttackSpellId = 0;
+        if (attType == BASE_ATTACK)
         {
-            if (GetTypeId() == TYPEID_UNIT && !IsCharmedOwnedByPlayerOrPlayer())
+            if (!meleeAttackOverrides.empty())
             {
-                float sparringLimitPct = target->GetSparringHealthLimit();
+                meleeAttackAuraEffect = meleeAttackOverrides.front();
+                meleeAttackSpellId = meleeAttackAuraEffect->GetSpellInfo()->Effects[meleeAttackAuraEffect->GetEffIndex()].TriggerSpell;
+            }
+        }
+        else
+        {
+            auto itr = std::find_if(meleeAttackOverrides.begin(), meleeAttackOverrides.end(), [&](AuraEffect const* aurEff)
+            {
+                return aurEff->GetMiscValue() != 0;
+            });
 
-                if (sparringLimitPct != 0.0f)
-                   if (target->GetHealthPct() <= sparringLimitPct)
-                       damageInfo.HitInfo |= HITINFO_FAKE_DAMAGE;
+            if (itr != meleeAttackOverrides.end())
+            {
+                meleeAttackAuraEffect = *itr;
+                meleeAttackSpellId = meleeAttackAuraEffect->GetMiscValue();
             }
         }
 
-        SendAttackStateUpdate(&damageInfo);
+        if (!meleeAttackAuraEffect)
+        {
+            CalcDamageInfo damageInfo;
+            CalculateMeleeDamage(victim, 0, &damageInfo, attType);
+            // Send log damage message to client
+            DealDamageMods(victim, damageInfo.damage, &damageInfo.absorb);
 
-        DealMeleeDamage(&damageInfo, true);
+            // Sparring Checks
+            if (Creature* target = victim->ToCreature())
+            {
+                if (GetTypeId() == TYPEID_UNIT && !IsCharmedOwnedByPlayerOrPlayer())
+                {
+                    float sparringLimitPct = target->GetSparringHealthLimit();
 
-        DamageInfo dmgInfo(damageInfo);
-        ProcSkillsAndAuras(damageInfo.target, damageInfo.procAttacker, damageInfo.procVictim, PROC_SPELL_TYPE_NONE, PROC_SPELL_PHASE_NONE, dmgInfo.GetHitMask(), nullptr, &dmgInfo, nullptr);
+                    if (sparringLimitPct != 0.0f)
+                        if (target->GetHealthPct() <= sparringLimitPct)
+                            damageInfo.HitInfo |= HITINFO_FAKE_DAMAGE;
+                }
+            }
 
-        if (GetTypeId() == TYPEID_PLAYER)
-            TC_LOG_DEBUG("entities.unit", "AttackerStateUpdate: (Player) %u attacked %u (TypeId: %u) for %u dmg, absorbed %u, blocked %u, resisted %u.",
-                GetGUID().GetCounter(), victim->GetGUID().GetCounter(), victim->GetTypeId(), damageInfo.damage, damageInfo.absorb, damageInfo.blocked_amount, damageInfo.resist);
+            SendAttackStateUpdate(&damageInfo);
+
+            DealMeleeDamage(&damageInfo, true);
+
+            DamageInfo dmgInfo(damageInfo);
+            ProcSkillsAndAuras(damageInfo.target, damageInfo.procAttacker, damageInfo.procVictim, PROC_SPELL_TYPE_NONE, PROC_SPELL_PHASE_NONE, dmgInfo.GetHitMask(), nullptr, &dmgInfo, nullptr);
+
+            if (GetTypeId() == TYPEID_PLAYER)
+                TC_LOG_DEBUG("entities.unit", "AttackerStateUpdate: (Player) %u attacked %u (TypeId: %u) for %u dmg, absorbed %u, blocked %u, resisted %u.",
+                    GetGUID().GetCounter(), victim->GetGUID().GetCounter(), victim->GetTypeId(), damageInfo.damage, damageInfo.absorb, damageInfo.blocked_amount, damageInfo.resist);
+            else
+                TC_LOG_DEBUG("entities.unit", "AttackerStateUpdate: (NPC) %u attacked %u (TypeId: %u) for %u dmg, absorbed %u, blocked %u, resisted %u.",
+                    GetGUID().GetCounter(), victim->GetGUID().GetCounter(), victim->GetTypeId(), damageInfo.damage, damageInfo.absorb, damageInfo.blocked_amount, damageInfo.resist);
+        }
         else
-            TC_LOG_DEBUG("entities.unit", "AttackerStateUpdate: (NPC)    %u attacked %u (TypeId: %u) for %u dmg, absorbed %u, blocked %u, resisted %u.",
-                GetGUID().GetCounter(), victim->GetGUID().GetCounter(), victim->GetTypeId(), damageInfo.damage, damageInfo.absorb, damageInfo.blocked_amount, damageInfo.resist);
+        {
+            CastSpell(victim, meleeAttackSpellId, true, nullptr, meleeAttackAuraEffect);
+
+            uint32 hitInfo = HITINFO_AFFECTS_VICTIM | HITINFO_NO_ANIMATION;
+            if (attType == OFF_ATTACK)
+                hitInfo |= HITINFO_OFFHAND;
+
+            SendAttackStateUpdate(hitInfo, victim, 0, GetMeleeDamageSchoolMask(), 0, 0, 0, VICTIMSTATE_HIT, 0);
+        }
     }
 }
 
