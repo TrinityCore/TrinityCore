@@ -633,7 +633,7 @@ void WorldSession::HandleAuctionListItems(WorldPackets::AuctionHouse::AuctionBro
     AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(creature->getFaction());
 
     TC_LOG_DEBUG("auctionHouse", "Auctionhouse search (%s), searchedname: %s, levelmin: %u, levelmax: %u, filters: %u",
-        browseQuery.Auctioneer.ToString().c_str(), browseQuery.Name.c_str(), browseQuery.MinLevel, browseQuery.MaxLevel , browseQuery.Filters);
+        browseQuery.Auctioneer.ToString().c_str(), browseQuery.Name.c_str(), browseQuery.MinLevel, browseQuery.MaxLevel , AsUnderlyingType(browseQuery.Filters));
 
     // converting string that we try to find to lower case
     std::wstring wsearchedname;
