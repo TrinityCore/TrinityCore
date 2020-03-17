@@ -1046,7 +1046,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 if (!miscValue1)
                 {
                     uint32 points = 0;
-                    for (std::pair<uint32, CompletedAchievementData> const& completedAchievement : m_completedAchievements)
+                    for (std::pair<uint32 const, CompletedAchievementData> const& completedAchievement : m_completedAchievements)
                         if (AchievementEntry const* completedAchievements = sAchievementMgr->GetAchievement(completedAchievement.first))
                             points += completedAchievements->Points;
                     SetCriteriaProgress(achievementCriteria, points, PROGRESS_SET);
