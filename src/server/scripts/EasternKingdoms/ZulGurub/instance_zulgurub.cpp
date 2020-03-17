@@ -36,7 +36,8 @@ ObjectData const creatureData[] =
     { NPC_ARLOKK,             DATA_ARLOKK },
     { NPC_PRIESTESS_MARLI,    DATA_MARLI },
     { NPC_VILEBRANCH_SPEAKER, DATA_VILEBRANCH_SPEAKER },
-    { NPC_HAKKAR,             DATA_HAKKAR }
+    { NPC_HAKKAR,             DATA_HAKKAR },
+    { 0,                      0 } // END
 };
 
 ObjectData const gameobjectData[] =
