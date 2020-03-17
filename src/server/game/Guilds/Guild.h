@@ -59,6 +59,8 @@ enum GuildMisc
     GUILD_OLD_MAX_LEVEL                 = 25
 };
 
+constexpr uint64 GUILD_BANK_MONEY_LIMIT = UI64LIT(100000000000);
+
 enum GuildMemberData
 {
     GUILD_MEMBER_DATA_ZONEID,
