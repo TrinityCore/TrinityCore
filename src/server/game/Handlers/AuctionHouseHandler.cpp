@@ -669,7 +669,7 @@ void WorldSession::HandleAuctionListItems(WorldPackets::AuctionHouse::AuctionBro
     }
 
     auctionHouse->BuildListAuctionItems(result, _player, wsearchedname, browseQuery.Offset, browseQuery.MinLevel, browseQuery.MaxLevel,
-        static_cast<AuctionHouseFilterMask>(browseQuery.Filters), classFilters);
+        browseQuery.Filters, classFilters);
 
     result.DesiredDelay = sWorld->getIntConfig(CONFIG_AUCTION_SEARCH_DELAY);
     SendPacket(result.Write());
