@@ -5198,6 +5198,40 @@ void SpellMgr::LoadSpellInfoCorrections()
 
     // ENDOF THRONE OF THE FOUR WINDS SPELLS
 
+    // DRAGON SOUL SPELLS
+
+    ApplySpellFix({
+        106028, // Alexstrasza's Presence
+        109571,
+        109572,
+        109573,
+        106457, // Ysera's Presence
+        109640,
+        109641,
+        109642,
+        106027, // Nozdormu's Presence
+        109622,
+        109623,
+        109624,
+        106029, // Kalecgos' Presence
+        109606,
+        109607,
+        109608,
+        106040, // Spellweaving
+        106464  // Enter the Dream
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
+    });
+
+    // Root
+    ApplySpellFix({ 105451 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_MOD_ROOT;
+    });
+
+    // ENDOF DRAGON SOUL SPELLS
+
     // Disenchant
     ApplySpellFix({ 13262 }, [](SpellInfo* spellInfo)
     {

@@ -21,7 +21,15 @@
 
 ObjectData const creatureData[] =
 {
-    { 0, 0  } // END
+    { BOSS_MADNESS_OF_DEATHWING,            DATA_MADNESS_OF_DEATHWING               },
+    { NPC_DEATHWING_MADNESS_OF_DEATHWING,   DATA_DEATHWING_MADNESS_OF_DEATHWING     },
+    { NPC_THRALL_MADNESS_OF_DEATHWING,      DATA_THRALL_MADNESS_OF_DEATHWING        },
+    { NPC_YSERA_MADNESS_OF_DEATHWING,       DATA_YSERA_MADNESS_OF_DEATHWING         },
+    { NPC_ALEXSTRASZA_MADNESS_OF_DEATHWING, DATA_ALEXSTRASZA_MADNESS_OF_DEATHWING   },
+    { NPC_NOZDORMU_MADNESS_OF_DEATHWING,    DATA_NOZDORMU_MADNESS_OF_DEATHWING      },
+    { NPC_KALECGOS_MADNESS_OF_DEATHWING,    DATA_KALECGOS_MADNESS_OF_DEATHWING      },
+    { NPC_TAIL_TENTACLE,                    DATA_TAIL_TENTACLE_MADNESS_OF_DEATHWING },
+    { 0,                                    0                                       } // END
 };
 
 ObjectData const gameobjectData[] =
@@ -47,6 +55,29 @@ public:
             SetBossNumber(EncounterCount);
             LoadDoorData(doorData);
             LoadObjectData(creatureData, gameobjectData);
+        }
+
+        void OnCreatureCreate(Creature* creature) override
+        {
+            InstanceScript::OnCreatureCreate(creature);
+
+            switch (creature->GetEntry())
+            {
+                case NPC_YSERA_MADNESS_OF_DEATHWING:
+                case NPC_ALEXSTRASZA_MADNESS_OF_DEATHWING:
+                case NPC_NOZDORMU_MADNESS_OF_DEATHWING:
+                case NPC_KALECGOS_MADNESS_OF_DEATHWING:
+                    creature->setActive(true); // Ugly as fuck but the boss area is just too big...
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        void OnPlayerEnter(Player* player) override
+        {
+            if (GetBossState(DATA_MADNESS_OF_DEATHWING) == DONE)
+                player->CastSpell(player, SPELL_CALM_MAELSTROM_SKYBOX);
         }
     };
 
