@@ -42,7 +42,8 @@ ObjectData const creatureData[] =
 
 ObjectData const gameobjectData[] =
 {
-    { GO_GONG_OF_BETHEKK, DATA_GONG_BETHEKK }
+    { GO_GONG_OF_BETHEKK, DATA_GONG_BETHEKK },
+    { 0,                  0 } // END
 };
 
 class instance_zulgurub : public InstanceMapScript
