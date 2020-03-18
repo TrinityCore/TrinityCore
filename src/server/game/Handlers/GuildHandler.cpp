@@ -127,12 +127,6 @@ void WorldSession::HandleGuildUpdateMotdText(WorldPackets::Guild::GuildUpdateMot
 {
     TC_LOG_DEBUG("guild", "CMSG_GUILD_UPDATE_MOTD_TEXT [%s]: MOTD: %s", GetPlayerInfo().c_str(), packet.MotdText.c_str());
 
-    if (!DisallowHyperlinksAndMaybeKick(packet.MotdText))
-        return;
-
-    if (packet.MotdText.size() > 255)
-        return;
-
     if (Guild* guild = GetPlayer()->GetGuild())
         guild->HandleSetMOTD(this, packet.MotdText);
 }
@@ -141,12 +135,6 @@ void WorldSession::HandleGuildSetMemberNote(WorldPackets::Guild::GuildSetMemberN
 {
     TC_LOG_DEBUG("guild", "CMSG_GUILD_SET_NOTE [%s]: Target: %s, Note: %s, Public: %u",
         GetPlayerInfo().c_str(), packet.NoteeGUID.ToString().c_str(), packet.Note.c_str(), packet.IsPublic);
-
-    if (!DisallowHyperlinksAndMaybeKick(packet.Note))
-        return;
-
-    if (packet.Note.size() > 31)
-        return;
 
     if (Guild* guild = GetPlayer()->GetGuild())
         guild->HandleSetMemberNote(this, packet.Note, packet.NoteeGUID, packet.IsPublic);
@@ -166,12 +154,6 @@ void WorldSession::HandleGuildAddRank(WorldPackets::Guild::GuildAddRank& packet)
 {
     TC_LOG_DEBUG("guild", "CMSG_GUILD_ADD_RANK [%s]: Rank: %s", GetPlayerInfo().c_str(), packet.Name.c_str());
 
-    if (!DisallowHyperlinksAndMaybeKick(packet.Name))
-        return;
-
-    if (packet.Name.size() > 15)
-        return;
-
     if (Guild* guild = GetPlayer()->GetGuild())
         guild->HandleAddNewRank(this, packet.Name);
 }
@@ -187,12 +169,6 @@ void WorldSession::HandleGuildDeleteRank(WorldPackets::Guild::GuildDeleteRank& p
 void WorldSession::HandleGuildUpdateInfoText(WorldPackets::Guild::GuildUpdateInfoText& packet)
 {
     TC_LOG_DEBUG("guild", "CMSG_GUILD_UPDATE_INFO_TEXT [%s]: %s", GetPlayerInfo().c_str(), packet.InfoText.c_str());
-
-    if (!DisallowHyperlinksAndMaybeKick(packet.InfoText))
-        return;
-
-    if (packet.InfoText.size() > 500)
-        return;
 
     if (Guild* guild = GetPlayer()->GetGuild())
         guild->HandleSetInfo(this, packet.InfoText);
@@ -491,12 +467,6 @@ void WorldSession::HandleGuildBankUpdateTab(WorldPackets::Guild::GuildBankUpdate
     TC_LOG_DEBUG("guild", "CMSG_GUILD_BANK_UPDATE_TAB [%s]: [%s], TabId: %u, Name: %s, Icon: %s"
         , GetPlayerInfo().c_str(), packet.Banker.ToString().c_str(), packet.BankTab, packet.Name.c_str(), packet.Icon.c_str());
 
-    if (!DisallowHyperlinksAndMaybeKick(packet.Name))
-        return;
-
-    if ((packet.Name.size() > 15) || (packet.Icon.size() > 127))
-        return;
-
     if (!packet.Name.empty() && !packet.Icon.empty())
         if (GetPlayer()->GetGameObjectIfCanInteractWith(packet.Banker, GAMEOBJECT_TYPE_GUILD_BANK))
             if (Guild* guild = GetPlayer()->GetGuild())
@@ -523,12 +493,6 @@ void WorldSession::HandleGuildBankSetTabText(WorldPackets::Guild::GuildBankSetTa
 {
     TC_LOG_DEBUG("guild", "CMSG_SET_GUILD_BANK_TEXT [%s]: TabId: %u, Text: %s", GetPlayerInfo().c_str(), packet.Tab, packet.TabText.c_str());
 
-    if (!DisallowHyperlinksAndMaybeKick(packet.TabText))
-        return;
-
-    if (packet.TabText.size() > 500)
-        return;
-
     if (Guild* guild = GetPlayer()->GetGuild())
         guild->SetBankTabText(packet.Tab, packet.TabText);
 }
@@ -537,12 +501,6 @@ void WorldSession::HandleGuildSetRankPermissions(WorldPackets::Guild::GuildSetRa
 {
     Guild* guild = GetPlayer()->GetGuild();
     if (!guild)
-        return;
-
-    if (!DisallowHyperlinksAndMaybeKick(packet.RankName))
-        return;
-
-    if (packet.RankName.size() > 15)
         return;
 
     GuildBankRightsAndSlotsVec rightsAndSlots(GUILD_BANK_MAX_TABS);

@@ -2192,7 +2192,7 @@ void Guild::SendPermissions(WorldSession* session) const
 
     WorldPackets::Guild::GuildPermissionsQueryResults queryResult;
     queryResult.RankID = rankId;
-    queryResult.WithdrawGoldLimit = int32(_GetRankBankMoneyPerDay(rankId));
+    queryResult.WithdrawGoldLimit = _GetRankBankMoneyPerDay(rankId);
     queryResult.Flags = _GetRankRights(rankId);
     queryResult.NumTabs = _GetPurchasedTabsSize();
     queryResult.Tab.reserve(GUILD_BANK_MAX_TABS);
