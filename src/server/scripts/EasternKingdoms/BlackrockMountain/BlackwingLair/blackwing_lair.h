@@ -38,7 +38,10 @@ enum BWLEncounter
     DATA_NEFARIAN               = 7,
 
     // Additional Data
-    DATA_LORD_VICTOR_NEFARIUS   = 8
+    DATA_LORD_VICTOR_NEFARIUS   = 8,
+
+    // Doors
+    DATA_GO_CHROMAGGUS_DOOR     = 9
 };
 
 enum BWLCreatureIds

@@ -315,11 +315,11 @@ class go_chromaggus_lever : public GameObjectScript
                 {
                     instance->SetBossState(DATA_CHROMAGGUS, IN_PROGRESS);
 
-                    if (Creature* creature = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_CHROMAGGUS)))
+                    if (Creature* creature = instance->GetCreature(DATA_CHROMAGGUS))
                         creature->AI()->JustEngagedWith(player);
                     
-                    if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_CHROMAGGUS_DOOR))) 
-                        go->SetGoState(GO_STATE_ACTIVE);
+                    if (GameObject* go = instance->GetGameObject(DATA_GO_CHROMAGGUS_DOOR)) 
+                        instance->HandleGameObject(ObjectGuid::Empty, true, go);
                 }
 
                 me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE | GO_FLAG_IN_USE);

@@ -52,6 +52,12 @@ ObjectData const creatureData[] =
     { 0,                   0                           } // END
 };
 
+ObjectData const gameObjectData[] =
+{
+    { GO_CHROMAGGUS_DOOR,             DATA_GO_CHROMAGGUS_DOOR },
+    { 0,                              0                       } //END
+};
+
 Position const SummonPosition[8] =
 {
     {-7661.207520f, -1043.268188f, 407.199554f, 6.280452f},
@@ -78,7 +84,7 @@ public:
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
             LoadDoorData(doorData);
-            LoadObjectData(creatureData, nullptr);
+            LoadObjectData(creatureData, gameObjectData);
 
             // Razorgore
             EggCount = 0;
@@ -98,8 +104,6 @@ public:
                     if (Creature* razor = GetCreature(DATA_RAZORGORE_THE_UNTAMED))
                         razor->AI()->JustSummoned(creature);
                     break;
-                case NPC_CHROMAGGUS:
-                    ChromaggusGuid = creature->GetGUID();
                 default:
                     break;
             }
@@ -116,9 +120,6 @@ public:
                         go->SetPhaseMask(2, true);
                     else
                         EggList.push_back(go->GetGUID());                   
-                    break;
-                case GO_CHROMAGGUS_DOOR:
-                    ChromaggusDoorGuid = go->GetGUID();
                     break;
                 default:
                     break;
@@ -233,19 +234,6 @@ public:
             }
         }
 
-        ObjectGuid GetGuidData(uint32 data) const override 
-        {
-            switch (data) 
-            {
-                case NPC_CHROMAGGUS:
-                    return ChromaggusGuid;
-                case GO_CHROMAGGUS_DOOR:
-                    return ChromaggusDoorGuid;
-            }
-
-            return InstanceScript::GetGuidData(data);
-        }
-
         void OnUnitDeath(Unit* unit) override
         {
             //! HACK, needed because of buggy CreatureAI after charm
@@ -297,12 +285,6 @@ public:
         uint8 EggCount;
         uint32 EggEvent;
         GuidList EggList;
-
-        // Boss GUIDs
-        ObjectGuid ChromaggusGuid;
-        
-        // Door GUIDs
-        ObjectGuid ChromaggusDoorGuid;   
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
