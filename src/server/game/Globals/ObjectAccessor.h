@@ -19,6 +19,7 @@
 #define TRINITY_OBJECTACCESSOR_H
 
 #include "ObjectGuid.h"
+#include <shared_mutex>
 #include <unordered_map>
 
 class Corpse;
@@ -32,11 +33,6 @@ class Player;
 class Transport;
 class Unit;
 class WorldObject;
-
-namespace std
-{
-    class shared_mutex;
-}
 
 template <class T>
 class TC_GAME_API HashMapHolder

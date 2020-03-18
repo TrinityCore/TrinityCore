@@ -25,8 +25,6 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 
-#include <shared_mutex>
-
 #include <unordered_map>
 
 namespace

@@ -30,8 +30,6 @@
 #include "Transport.h"
 #include "World.h"
 
-#include <shared_mutex>
-
 template<class T>
 void HashMapHolder<T>::Insert(T* o)
 {

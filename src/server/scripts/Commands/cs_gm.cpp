@@ -33,7 +33,6 @@ EndScriptData */
 #include "Realm.h"
 #include "World.h"
 #include "WorldSession.h"
-#include <shared_mutex>
 
 class gm_commandscript : public CommandScript
 {

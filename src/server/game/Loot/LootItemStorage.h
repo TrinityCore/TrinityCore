@@ -21,17 +21,13 @@
 #include "Define.h"
 #include "DatabaseEnvFwd.h"
 
+#include <shared_mutex>
 #include <unordered_map>
 
 class Item;
 class Player;
 struct Loot;
 struct LootItem;
-
-namespace std
-{
-    class shared_mutex;
-}
 
 struct StoredLootItem
 {

@@ -34,7 +34,6 @@ EndScriptData */
 #include "RBAC.h"
 #include "World.h"
 #include "WorldSession.h"
-#include <shared_mutex>
 
 class reset_commandscript : public CommandScript
 {
