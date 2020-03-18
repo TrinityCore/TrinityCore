@@ -26,6 +26,7 @@
 
 struct AuctionEntry;
 enum class AuctionHouseSortOrder : uint8;
+enum class AuctionHouseFilterMask : uint32;
 
 namespace WorldPackets
 {
@@ -140,7 +141,7 @@ namespace WorldPackets
             uint32 Offset = 0;
             uint8 MinLevel = 1;
             uint8 MaxLevel = MAX_LEVEL;
-            uint32 Filters = 0;
+            AuctionHouseFilterMask Filters = AuctionHouseFilterMask(0);
             Array<uint8, BATTLE_PET_SPECIES_MAX_ID / 8 + 1> KnownPets;
             int8 MaxPetLevel = 0;
             Optional<Addon::AddOnInfo> TaintedBy;
@@ -206,7 +207,7 @@ namespace WorldPackets
 
             ObjectGuid Auctioneer;
             uint32 Offset = 0;
-            int8 Unk = 0;
+            int8 Unknown830 = 0;
             Optional<Addon::AddOnInfo> TaintedBy;
             Array<AuctionSortDef, 2> Sorts;
             AuctionBucketKey BucketKey;
@@ -235,7 +236,6 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid Auctioneer;
-            uint32 Offset = 0;
             Optional<Addon::AddOnInfo> TaintedBy;
             Array<AuctionBucketKey, 100> BucketKeys;
             Array<AuctionSortDef, 2> Sorts;
@@ -382,6 +382,7 @@ namespace WorldPackets
             ObjectGuid Guid;          ///< the GUID of the bidder for this auction.
             uint64 MinIncrement  = 0; ///< the sum of outbid is (1% of current bid) * 5, if the bid is too small, then this value is 1 copper.
             uint64 Money         = 0; ///< the amount of money that the player bid in copper
+            uint32 DesiredDelay  = 0;
         };
 
         class AuctionCommodityPriceUpdate final : public ServerPacket
