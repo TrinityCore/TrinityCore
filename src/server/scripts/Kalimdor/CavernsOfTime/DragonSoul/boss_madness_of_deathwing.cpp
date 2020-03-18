@@ -320,6 +320,7 @@ enum Data
     DATA_CURRENT_LIMB           = 2,
     DATA_CURRENT_PLATFORM       = 3,
     DATA_NOZDORMU_AVAILABLE     = 4,
+    DATA_ASPECT_FOR_LIMB        = 5,
 
     // Dragon Aspects
     DATA_FOCUSED_LIMB           = 0
@@ -452,7 +453,7 @@ Movement::PointsArray AlexstraszaPath =
 
 struct boss_madness_of_deathwing : public BossAI
 {
-    boss_madness_of_deathwing(Creature* creature) : BossAI(creature, DATA_MADNESS_OF_DEATHWING), _firstAssault(true)
+    boss_madness_of_deathwing(Creature* creature) : BossAI(creature, DATA_MADNESS_OF_DEATHWING), _firstAssault(true), _assaultedDragonAspect(0), _aspectForKilledTentacle(0)
     {
         me->SetReactState(REACT_PASSIVE);
         _playersAtAspects = { };
@@ -486,8 +487,11 @@ struct boss_madness_of_deathwing : public BossAI
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 
         if (Creature* health = instance->GetCreature(DATA_DEATHWING_MADNESS_OF_DEATHWING))
+        {
+            health->InterruptNonMeleeSpells(true);
             if (!health->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, health);
+        }
 
         if (Creature* thrall = instance->GetCreature(DATA_THRALL_MADNESS_OF_DEATHWING))
             thrall->DespawnOrUnsummon(0ms, 30s);
@@ -570,6 +574,8 @@ struct boss_madness_of_deathwing : public BossAI
                 return _assaultedDragonAspect;
             case DATA_NOZDORMU_AVAILABLE:
                 return uint8(!_limbData[DRAGON_ASPECT_NOZDORMU].TentacleKilled);
+            case DATA_ASPECT_FOR_LIMB:
+                return _aspectForKilledTentacle;
             default:
                 return 0;
         }
@@ -767,6 +773,7 @@ struct boss_madness_of_deathwing : public BossAI
 private:
     bool _firstAssault;
     uint8 _assaultedDragonAspect;
+    uint8 _aspectForKilledTentacle;
     LimbTentacleData _limbData;
     std::array<uint8, MAX_DRAGON_ASPECTS> _playersAtAspects;
     GuidVector _mutatedCorruptionGUIDs;
@@ -874,6 +881,10 @@ private:
 
             // Mark tentacle as defeated
             _limbData[i].TentacleKilled = true;
+            _aspectForKilledTentacle = i;
+
+            // Trigger concentration
+            limb->CastSpell(limb, SPELL_TRIGGER_CONCENTRATION);
 
             // Send disengage encounter frame packet in case it has been engaged before it got killed
             bool engaged = _limbData[i].TentacleEngaged;
@@ -1023,7 +1034,6 @@ struct npc_madness_of_deathwing_limb_tentacle : public NullCreatureAI
     void JustDied(Unit* /*killer*/) override
     {
         DoCastSelf(SPELL_AGONIZING_PAIN);
-        DoCastAOE(SPELL_TRIGGER_CONCENTRATION);
         _summons.DespawnAll();
     }
 
@@ -2120,7 +2130,7 @@ class spell_madness_of_deathwing_trigger_concentration : public SpellScript
         {
             if (Creature* deathwing = instance->GetCreature(DATA_MADNESS_OF_DEATHWING))
             {
-                uint8 aspectId = deathwing->AI()->GetData(DATA_ASSAULTED_ASPECT);
+                uint8 aspectId = deathwing->AI()->GetData(DATA_ASPECT_FOR_LIMB);
                 uint32 type = 0;
                 switch (aspectId)
                 {
