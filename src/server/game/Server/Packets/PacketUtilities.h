@@ -54,7 +54,7 @@ namespace WorldPackets
 
     namespace Strings
     {
-        struct RawBytes { static bool Validate(std::string const& value) { return true; } };
+        struct RawBytes { static bool Validate(std::string const& /*value*/) { return true; } };
         template<std::size_t MaxBytesWithoutNullTerminator>
         struct ByteSize { static bool Validate(std::string const& value) { return value.size() <= MaxBytesWithoutNullTerminator; } };
         struct Utf8 { static bool Validate(std::string const& value); };
