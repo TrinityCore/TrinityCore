@@ -45,6 +45,8 @@ enum GuildMisc
     TAB_UNDEFINED                       = 0xFF,
 };
 
+constexpr uint64 GUILD_BANK_MONEY_LIMIT = UI64LIT(0x7FFFFFFFFFFFF);
+
 enum GuildMemberData
 {
     GUILD_MEMBER_DATA_ZONEID,
