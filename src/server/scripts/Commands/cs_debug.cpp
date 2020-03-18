@@ -1539,7 +1539,7 @@ public:
             handler->PSendSysMessage("Invalid difficulty %d - specify in range [0,%d).", difficulty, MAX_RAID_DIFFICULTY);
             return false;
         }
-        if (difficulty >= 0 && !GetMapDifficultyData(mEntry->ID, Difficulty(difficulty)))
+        if (difficulty >= 0 && !sDBCManager.GetMapDifficultyData(mEntry->ID, Difficulty(difficulty)))
         {
             handler->PSendSysMessage("Difficulty %d is not valid for '%s'.", difficulty, mEntry->MapName[LOCALE_enUS]);
             return true;
@@ -1550,7 +1550,7 @@ public:
             handler->PSendSysMessage("Resetting all difficulties for '%s'.", mEntry->MapName[LOCALE_enUS]);
             for (uint8 diff = (mEntry->IsRaid() ? 0 : 1); diff < (mEntry->IsRaid() ? MAX_RAID_DIFFICULTY : MAX_DUNGEON_DIFFICULTY); ++diff)
             {
-                if (GetMapDifficultyData(mEntry->ID, Difficulty(diff)))
+                if (sDBCManager.GetMapDifficultyData(mEntry->ID, Difficulty(diff)))
                 {
                     handler->PSendSysMessage("Resetting difficulty %d for '%s'.", diff, mEntry->MapName[LOCALE_enUS]);
                     sInstanceSaveMgr->ForceGlobalReset(mEntry->ID, Difficulty(diff));

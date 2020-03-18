@@ -583,7 +583,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo
         addActionButton(action_itr->button, action_itr->action, action_itr->type);
 
     // original items
-    if (CharStartOutfitEntry const* oEntry = GetCharStartOutfitEntry(createInfo->Race, createInfo->Class, createInfo->Gender))
+    if (CharStartOutfitEntry const* oEntry = sDBCManager.GetCharStartOutfitEntry(createInfo->Race, createInfo->Class, createInfo->Gender))
     {
         for (int j = 0; j < MAX_OUTFIT_ITEMS; ++j)
         {
@@ -3017,7 +3017,7 @@ bool Player::AddTalent(uint32 spellId, uint8 spec, bool learning)
     PlayerTalentMap::iterator itr = GetTalentMap(spec)->find(spellId);
     if (itr != GetTalentMap(spec)->end())
         itr->second->state = PLAYERSPELL_UNCHANGED;
-    else if (TalentSpellPos const* talentPos = GetTalentSpellPos(spellId))
+    else if (TalentSpellPos const* talentPos = sDBCManager.GetTalentSpellPos(spellId))
     {
         if (TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentPos->talent_id))
         {
@@ -3218,7 +3218,7 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
     if (!disabled_case) // skip new spell adding if spell already known (disabled spells case)
     {
         // talent: unlearn all other talent ranks (high and low)
-        if (TalentSpellPos const* talentPos = GetTalentSpellPos(spellId))
+        if (TalentSpellPos const* talentPos = sDBCManager.GetTalentSpellPos(spellId))
         {
             if (TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentPos->talent_id))
             {
@@ -3308,7 +3308,7 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
             return false;
     }
 
-    uint32 talentCost = GetTalentSpellCost(spellId);
+    uint32 talentCost = sDBCManager.GetTalentSpellCost(spellId);
 
     // cast talents with SPELL_EFFECT_LEARN_SPELL (other dependent spells will learned later as not auto-learned)
     // note: all spells with SPELL_EFFECT_LEARN_SPELL isn't passive
@@ -3533,7 +3533,7 @@ void Player::RemoveSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     // unlearn non talent higher ranks (recursive)
     if (uint32 nextSpell = sSpellMgr->GetNextSpellInChain(spell_id))
     {
-        if (HasSpell(nextSpell) && !GetTalentSpellPos(nextSpell))
+        if (HasSpell(nextSpell) && !sDBCManager.GetTalentSpellPos(nextSpell))
             RemoveSpell(nextSpell, disabled, false);
     }
     //unlearn spells dependent from recently removed spells
@@ -3576,7 +3576,7 @@ void Player::RemoveSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
             RemovePetAura(petSpell);
 
     // free talent points
-    uint32 talentCosts = GetTalentSpellCost(spell_id);
+    uint32 talentCosts = sDBCManager.GetTalentSpellCost(spell_id);
     if (talentCosts > 0 && giveTalentPoints)
     {
         if (talentCosts < GetUsedTalentCount())
@@ -3836,10 +3836,10 @@ bool Player::ResetTalents(bool no_cost)
     }
 
     // Remove spec specific spells
-    uint32 const* talentTabs = GetTalentTabPages(getClass());
+    uint32 const* talentTabs = sDBCManager.GetTalentTabPages(getClass());
     for (uint32 i = 0; i < MAX_TALENT_TABS; ++i)
     {
-        if (std::vector<uint32> const* specSpells = GetTalentTreePrimarySpells(talentTabs[i]))
+        if (std::vector<uint32> const* specSpells = sDBCManager.GetTalentTreePrimarySpells(talentTabs[i]))
             for (size_t j = 0; j < specSpells->size(); ++j)
                 RemoveSpell(specSpells->at(j), true);
 
@@ -5576,7 +5576,7 @@ void Player::GiveXpForGather(uint32 const& skillId)
     else
         level = getLevel() + 3;
 
-    uint32 xp = Trinity::XP::BaseGain(level, areaEntry->LevelRangeMax, GetContentLevelsForMapAndZone(GetMapId(), zoneId)) * 2;
+    uint32 xp = Trinity::XP::BaseGain(level, areaEntry->LevelRangeMax, sDBCManager.GetContentLevelsForMapAndZone(GetMapId(), zoneId)) * 2;
 
     if (!xp || levelDiff >= 20)
         return;
@@ -5707,7 +5707,7 @@ void Player::UpdateSkillsForLevel()
             continue;
 
         uint32 pskill = itr->first;
-        SkillRaceClassInfoEntry const* rcEntry = GetSkillRaceClassInfo(pskill, getRace(), getClass());
+        SkillRaceClassInfoEntry const* rcEntry = sDBCManager.GetSkillRaceClassInfo(pskill, getRace(), getClass());
         if (!rcEntry)
             continue;
 
@@ -5741,7 +5741,7 @@ void Player::UpdateWeaponsSkillsToMaxSkillsForLevel()
             continue;
 
         uint32 pskill = itr->first;
-        SkillRaceClassInfoEntry const* rcEntry = GetSkillRaceClassInfo(pskill, getRace(), getClass());
+        SkillRaceClassInfoEntry const* rcEntry = sDBCManager.GetSkillRaceClassInfo(pskill, getRace(), getClass());
         if (!rcEntry)
             continue;
 
@@ -5771,7 +5771,7 @@ void Player::InitializeSkillFields()
     uint32 i = 0;
     for (SkillLineEntry const* skillLine : sSkillLineStore)
     {
-        if (GetSkillRaceClassInfo(skillLine->ID, getRace(), getClass()))
+        if (sDBCManager.GetSkillRaceClassInfo(skillLine->ID, getRace(), getClass()))
         {
             SetSkillLineId(i, skillLine->ID);
             mSkillStatus.insert(SkillStatusMap::value_type(skillLine->ID, SkillStatusData(i, SKILL_UNCHANGED)));
@@ -6498,11 +6498,11 @@ void Player::RewardOnKill(Unit* victim, float rate)
         Map const* map = GetMap();
         if (map->IsNonRaidDungeon())
         {
-            if (LFGDungeonEntry const* dungeon = GetLFGDungeon(map->GetId(), map->GetDifficulty()))
+            if (LFGDungeonEntry const* dungeon = DBCManager::GetLFGDungeon(map->GetId(), map->GetDifficulty()))
             {
                 // WotLK and Cataclysm dungeons only grant championing reputation when being in max level dungeons and fighting for a expansion related faction
                 uint8 expansion = GetExpansionForFaction(GetChampioningFaction());
-                if (dungeon->Target_level == GetMaxLevelForExpansion(dungeon->ExpansionLevel) && expansion)
+                if (dungeon->Target_level == DBCManager::GetMaxLevelForExpansion(dungeon->ExpansionLevel) && expansion)
                 {
                     if (expansion == dungeon->ExpansionLevel)
                         ChampioningFaction = GetChampioningFaction();
@@ -10406,7 +10406,7 @@ bool Player::HasItemTotemCategory(uint32 TotemCategory) const
     for (uint8 i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_ITEM_END; ++i)
     {
         item = GetUseableItemByPos(INVENTORY_SLOT_BAG_0, i);
-        if (item && IsTotemCategoryCompatibleWith(item->GetTemplate()->GetTotemCategory(), TotemCategory))
+        if (item && DBCManager::IsTotemCategoryCompatibleWith(item->GetTemplate()->GetTotemCategory(), TotemCategory))
             return true;
     }
 
@@ -10419,7 +10419,7 @@ bool Player::HasItemTotemCategory(uint32 TotemCategory) const
             for (uint32 j = 0; j < bag->GetBagSize(); ++j)
             {
                 item = GetUseableItemByPos(i, j);
-                if (item && IsTotemCategoryCompatibleWith(item->GetTemplate()->GetTotemCategory(), TotemCategory))
+                if (item && sDBCManager.IsTotemCategoryCompatibleWith(item->GetTemplate()->GetTotemCategory(), TotemCategory))
                     return true;
             }
         }
@@ -19148,7 +19148,7 @@ void Player::_LoadBoundInstances(PreparedQueryResult result)
             }
             else
             {
-                MapDifficulty const* mapDiff = GetMapDifficultyData(mapId, Difficulty(difficulty));
+                MapDifficulty const* mapDiff = sDBCManager.GetMapDifficultyData(mapId, Difficulty(difficulty));
                 if (!mapDiff)
                 {
                     TC_LOG_ERROR("entities.player", "Player::_LoadBoundInstances: player '%s' (%s) has bind to not existed difficulty %d instance for map %u (%s)",
@@ -19186,7 +19186,7 @@ void Player::_LoadBoundInstances(PreparedQueryResult result)
 InstancePlayerBind* Player::GetBoundInstance(uint32 mapid, Difficulty difficulty, bool withExpired)
 {
     // some instances only have one difficulty
-    MapDifficulty const* mapDiff = GetDownscaledMapDifficultyData(mapid, difficulty);
+    MapDifficulty const* mapDiff = sDBCManager.GetDownscaledMapDifficultyData(mapid, difficulty);
     if (!mapDiff)
         return nullptr;
 
@@ -19466,7 +19466,7 @@ bool Player::Satisfy(AccessRequirement const* ar, uint32 target_map, bool report
         bool heroicExclusive = ar->heroicExclusive;
 
         Difficulty target_difficulty = GetDifficulty(mapEntry->IsRaid());
-        MapDifficulty const* mapDiff = GetDownscaledMapDifficultyData(target_map, target_difficulty);
+        MapDifficulty const* mapDiff = sDBCManager.GetDownscaledMapDifficultyData(target_map, target_difficulty);
         if (!mapDiff)
             return false;
 
@@ -23839,7 +23839,7 @@ void Player::ResetSpells(bool myClassOnly)
 
             // skip spells with first rank learned as talent (and all talents then also)
             uint32 firstRank = spellInfo->GetFirstRankSpell()->Id;
-            if (GetTalentSpellCost(firstRank) > 0)
+            if (sDBCManager.GetTalentSpellCost(firstRank) > 0)
                 continue;
 
             // skip broken spells
@@ -23893,7 +23893,7 @@ void Player::LearnDefaultSkills()
 
 void Player::LearnDefaultSkill(uint32 skillId, uint16 rank)
 {
-    SkillRaceClassInfoEntry const* rcInfo = GetSkillRaceClassInfo(skillId, getRace(), getClass());
+    SkillRaceClassInfoEntry const* rcInfo = sDBCManager.GetSkillRaceClassInfo(skillId, getRace(), getClass());
     if (!rcInfo)
         return;
 
@@ -24458,7 +24458,7 @@ bool Player::IsSpellFitByClassAndRace(uint32 spell_id) const
             continue;
 
         // skip wrong class and race skill saved in SkillRaceClassInfo.dbc
-        if (!GetSkillRaceClassInfo(_spell_idx->second->SkillLine, getRace(), getClass()))
+        if (!sDBCManager.GetSkillRaceClassInfo(_spell_idx->second->SkillLine, getRace(), getClass()))
             continue;
 
         return true;
@@ -25890,7 +25890,7 @@ void Player::_LoadSkills(PreparedQueryResult result)
             uint16 value    = fields[1].GetUInt16();
             uint16 max      = fields[2].GetUInt16();
 
-            SkillRaceClassInfoEntry const* rcEntry = GetSkillRaceClassInfo(skill, getRace(), getClass());
+            SkillRaceClassInfoEntry const* rcEntry = sDBCManager.GetSkillRaceClassInfo(skill, getRace(), getClass());
             if (!rcEntry)
             {
                 TC_LOG_ERROR("entities.player", "Player::_LoadSkills: Player '%s' (%s, Race: %u, Class: %u) has forbidden skill %u for his race/class combination",
@@ -26254,7 +26254,7 @@ bool Player::LearnTalent(uint32 talentId, uint32 talentRank)
     if (!GetPrimaryTalentTree(GetActiveSpec()))
     {
         SetPrimaryTalentTree(GetActiveSpec(), talentInfo->TabID);
-        std::vector<uint32> const* specSpells = GetTalentTreePrimarySpells(talentInfo->TabID);
+        std::vector<uint32> const* specSpells = sDBCManager.GetTalentTreePrimarySpells(talentInfo->TabID);
         if (specSpells)
             for (size_t i = 0; i < specSpells->size(); ++i)
                 LearnSpell(specSpells->at(i), false);
@@ -26511,7 +26511,7 @@ void Player::BuildPlayerTalentsInfoData(WorldPacket* data)
             *data << uint8(talentIdCount);                  // [PH], talentIdCount
 
             // find class talent tabs (all players have 3 talent tabs)
-            uint32 const* talentTabIds = GetTalentTabPages(getClass());
+            uint32 const* talentTabIds = sDBCManager.GetTalentTabPages(getClass());
 
             for (uint8 i = 0; i < MAX_TALENT_TABS; ++i)
             {
@@ -27097,8 +27097,8 @@ void Player::ActivateSpec(uint8 spec)
     // Remove spec specific spells
     for (uint32 i = 0; i < MAX_TALENT_TABS; ++i)
     {
-        uint32 const* talentTabs = GetTalentTabPages(getClass());
-        std::vector<uint32> const* specSpells = GetTalentTreePrimarySpells(talentTabs[i]);
+        uint32 const* talentTabs = sDBCManager.GetTalentTabPages(getClass());
+        std::vector<uint32> const* specSpells = sDBCManager.GetTalentTreePrimarySpells(talentTabs[i]);
         if (specSpells)
             for (size_t i = 0; i < specSpells->size(); ++i)
                 RemoveSpell(specSpells->at(i), true);
@@ -27150,7 +27150,7 @@ void Player::ActivateSpec(uint8 spec)
         }
     }
 
-    std::vector<uint32> const* specSpells = GetTalentTreePrimarySpells(GetPrimaryTalentTree(GetActiveSpec()));
+    std::vector<uint32> const* specSpells = sDBCManager.GetTalentTreePrimarySpells(GetPrimaryTalentTree(GetActiveSpec()));
     if (specSpells)
         for (size_t i = 0; i < specSpells->size(); ++i)
             LearnSpell(specSpells->at(i), false);
@@ -28318,9 +28318,9 @@ bool Player::ValidateAppearance(uint8 race, uint8 class_, uint8 gender, uint8 ha
 {
     // Check skin color
     // For Skin type is always 0
-    if (CharSectionsEntry const* entry = GetCharSectionEntry(race, SECTION_TYPE_SKIN, gender, 0, skinColor))
+    if (CharSectionsEntry const* entry = sDBCManager.GetCharSectionEntry(race, SECTION_TYPE_SKIN, gender, 0, skinColor))
     {   // Skin Color defined as Face color, too, we check skin & face in one pass
-        if (CharSectionsEntry const* entry2 = GetCharSectionEntry(race, SECTION_TYPE_FACE, gender, faceID, skinColor))
+        if (CharSectionsEntry const* entry2 = sDBCManager.GetCharSectionEntry(race, SECTION_TYPE_FACE, gender, faceID, skinColor))
         {
             // Check DeathKnight exclusive
             if (((entry->Flags & SECTION_FLAG_DEATH_KNIGHT) || (entry2->Flags & SECTION_FLAG_DEATH_KNIGHT)) && class_ != CLASS_DEATH_KNIGHT)
@@ -28338,7 +28338,7 @@ bool Player::ValidateAppearance(uint8 race, uint8 class_, uint8 gender, uint8 ha
     bool excludeCheck = (race == RACE_TAUREN) || (race == RACE_DRAENEI) || (gender == GENDER_FEMALE && race != RACE_NIGHTELF && race != RACE_UNDEAD_PLAYER);
 
     // Check Hair
-    if (CharSectionsEntry const* entry = GetCharSectionEntry(race, SECTION_TYPE_HAIR, gender, hairID, hairColor))
+    if (CharSectionsEntry const* entry = sDBCManager.GetCharSectionEntry(race, SECTION_TYPE_HAIR, gender, hairID, hairColor))
     {
         if ((entry->Flags & SECTION_FLAG_DEATH_KNIGHT) && class_ != CLASS_DEATH_KNIGHT)
             return false;
@@ -28347,7 +28347,7 @@ bool Player::ValidateAppearance(uint8 race, uint8 class_, uint8 gender, uint8 ha
 
         if (!excludeCheck)
         {
-            if (CharSectionsEntry const* entry2 = GetCharSectionEntry(race, SECTION_TYPE_FACIAL_HAIR, gender, facialStyle, hairColor))
+            if (CharSectionsEntry const* entry2 = sDBCManager.GetCharSectionEntry(race, SECTION_TYPE_FACIAL_HAIR, gender, facialStyle, hairColor))
             {
                 if ((entry2->Flags & SECTION_FLAG_DEATH_KNIGHT) && class_ != CLASS_DEATH_KNIGHT)
                     return false;

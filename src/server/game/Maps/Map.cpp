@@ -281,7 +281,7 @@ m_unloadTimer(0), m_VisibleDistance(DEFAULT_VISIBILITY_DISTANCE),
 m_VisibilityNotifyPeriod(DEFAULT_VISIBILITY_NOTIFY_PERIOD),
 m_activeNonPlayersIter(m_activeNonPlayers.end()), _transportsUpdateIter(_transports.end()),
 i_gridExpiry(expiry),
-i_scriptLock(false), _respawnCheckTimer(0), _defaultLight(GetDefaultMapLight(id))
+i_scriptLock(false), _respawnCheckTimer(0), _defaultLight(DBCManager::GetDefaultMapLight(id))
 {
     if (_parent)
     {
@@ -2609,7 +2609,7 @@ uint32 Map::GetAreaId(PhaseShift const& phaseShift, float x, float y, float z) c
     if (hasVmapArea && G3D::fuzzyGe(z, vmapZ - GROUND_HEIGHT_TOLERANCE) && (G3D::fuzzyLt(z, gridMapHeight - GROUND_HEIGHT_TOLERANCE) || vmapZ > gridMapHeight))
     {
         // wmo found
-        if (WMOAreaTableEntry const* wmoEntry = GetWMOAreaTableEntryByTripple(rootId, adtId, groupId))
+        if (WMOAreaTableEntry const* wmoEntry = sDBCManager.GetWMOAreaTableEntryByTripple(rootId, adtId, groupId))
             areaId = wmoEntry->AreaTableID;
 
         if (!areaId)
@@ -2771,7 +2771,7 @@ void Map::GetFullTerrainStatusForPosition(PhaseShift const& phaseShift, float x,
         {
             data.areaInfo = boost::in_place(vmapData.areaInfo->adtId, vmapData.areaInfo->rootId, vmapData.areaInfo->groupId, vmapData.areaInfo->mogpFlags);
             // wmo found
-            WMOAreaTableEntry const* wmoEntry = GetWMOAreaTableEntryByTripple(vmapData.areaInfo->rootId, vmapData.areaInfo->adtId, vmapData.areaInfo->groupId);
+            WMOAreaTableEntry const* wmoEntry = sDBCManager.GetWMOAreaTableEntryByTripple(vmapData.areaInfo->rootId, vmapData.areaInfo->adtId, vmapData.areaInfo->groupId);
             data.outdoors = (vmapData.areaInfo->mogpFlags & 0x8) != 0;
             if (wmoEntry)
             {
@@ -4140,7 +4140,7 @@ void InstanceMap::SetResetSchedule(bool on)
 
 MapDifficulty const* Map::GetMapDifficulty() const
 {
-    return GetMapDifficultyData(GetId(), GetDifficulty());
+    return sDBCManager.GetMapDifficultyData(GetId(), GetDifficulty());
 }
 
 bool Map::Instanceable() const

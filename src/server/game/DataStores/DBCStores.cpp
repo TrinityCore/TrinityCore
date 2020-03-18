@@ -268,6 +268,12 @@ typedef std::list<std::string> StoreProblemList;
 
 uint32 DBCFileCount = 0;
 
+DBCManager& DBCManager::Instance()
+{
+    static DBCManager instance;
+    return instance;
+}
+
 static bool LoadDBC_assert_print(uint32 fsize, uint32 rsize, const std::string& filename)
 {
     TC_LOG_ERROR("misc", "Size of '%s' set by format string (%u) not equal size of C++ structure (%u).", filename.c_str(), fsize, rsize);
@@ -320,7 +326,7 @@ inline void LoadDBC(uint32& availableDbcLocales, StoreProblemList& errors, DBCSt
     }
 }
 
-void LoadDBCStores(const std::string& dataPath)
+void DBCManager::LoadStores(const std::string& dataPath)
 {
     uint32 oldMSTime = getMSTime();
 
@@ -800,12 +806,12 @@ void LoadDBCStores(const std::string& dataPath)
     TC_LOG_INFO("server.loading", ">> Initialized %d DBC data stores in %u ms", DBCFileCount, GetMSTimeDiffToNow(oldMSTime));
 }
 
-std::string const& GetRandomCharacterName(uint8 race, uint8 gender)
+std::string const& DBCManager::GetRandomCharacterName(uint8 race, uint8 gender)
 {
     return Trinity::Containers::SelectRandomContainerElement(sGenNameVectoArraysMap[race].stringVectorArray[gender]);
 }
 
-SimpleFactionsList const* GetFactionTeamList(uint32 faction)
+SimpleFactionsList const* DBCManager::GetFactionTeamList(uint32 faction)
 {
     FactionTeamMap::const_iterator itr = sFactionTeamMap.find(faction);
     if (itr != sFactionTeamMap.end())
@@ -814,7 +820,7 @@ SimpleFactionsList const* GetFactionTeamList(uint32 faction)
     return nullptr;
 }
 
-char const* GetPetName(uint32 petfamily, uint32 /*dbclang*/)
+char const* DBCManager::GetPetName(uint32 petfamily, uint32 /*dbclang*/)
 {
     if (!petfamily)
         return nullptr;
@@ -824,7 +830,7 @@ char const* GetPetName(uint32 petfamily, uint32 /*dbclang*/)
     return pet_family->Name ? pet_family->Name : nullptr;
 }
 
-TalentSpellPos const* GetTalentSpellPos(uint32 spellId)
+TalentSpellPos const* DBCManager::GetTalentSpellPos(uint32 spellId)
 {
     TalentSpellPosMap::const_iterator itr = sTalentSpellPosMap.find(spellId);
     if (itr == sTalentSpellPosMap.end())
@@ -833,7 +839,7 @@ TalentSpellPos const* GetTalentSpellPos(uint32 spellId)
     return &itr->second;
 }
 
-uint32 GetTalentSpellCost(uint32 spellId)
+uint32 DBCManager::GetTalentSpellCost(uint32 spellId)
 {
     if (TalentSpellPos const* pos = GetTalentSpellPos(spellId))
         return pos->rank+1;
@@ -841,7 +847,7 @@ uint32 GetTalentSpellCost(uint32 spellId)
     return 0;
 }
 
-WMOAreaTableEntry const* GetWMOAreaTableEntryByTripple(int32 rootid, int32 adtid, int32 groupid)
+WMOAreaTableEntry const* DBCManager::GetWMOAreaTableEntryByTripple(int32 rootid, int32 adtid, int32 groupid)
 {
     auto i = sWMOAreaInfoByTripple.find(WMOAreaTableKey(int16(rootid), int8(adtid), groupid));
     if (i != sWMOAreaInfoByTripple.end())
@@ -850,19 +856,19 @@ WMOAreaTableEntry const* GetWMOAreaTableEntryByTripple(int32 rootid, int32 adtid
     return nullptr;
 }
 
-char const* GetRaceName(uint8 race, uint8 /*locale*/)
+char const* DBCManager::GetRaceName(uint8 race, uint8 /*locale*/)
 {
     ChrRacesEntry const* raceEntry = sChrRacesStore.LookupEntry(race);
     return raceEntry ? raceEntry->Name : nullptr;
 }
 
-char const* GetClassName(uint8 class_, uint8 /*locale*/)
+char const* DBCManager::GetClassName(uint8 class_, uint8 /*locale*/)
 {
     ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(class_);
     return classEntry ? classEntry->Name : nullptr;
 }
 
-uint32 GetVirtualMapForMapAndZone(uint32 mapid, uint32 zoneId)
+uint32 DBCManager::GetVirtualMapForMapAndZone(uint32 mapid, uint32 zoneId)
 {
     if (mapid != 530 && mapid != 571 && mapid != 732)   // speed for most cases
         return mapid;
@@ -873,7 +879,7 @@ uint32 GetVirtualMapForMapAndZone(uint32 mapid, uint32 zoneId)
     return mapid;
 }
 
-uint32 GetMaxLevelForExpansion(uint32 expansion)
+uint32 DBCManager::GetMaxLevelForExpansion(uint32 expansion)
 {
     switch (expansion)
     {
@@ -895,7 +901,7 @@ uint32 GetMaxLevelForExpansion(uint32 expansion)
 Used only for calculate xp gain by content lvl.
 Calculation on Gilneas and group maps of LostIslands calculated as CONTENT_1_60.
 */
-ContentLevels GetContentLevelsForMapAndZone(uint32 mapid, uint32 zoneId)
+ContentLevels DBCManager::GetContentLevelsForMapAndZone(uint32 mapid, uint32 zoneId)
 {
     mapid = GetVirtualMapForMapAndZone(mapid, zoneId);
     if (mapid < 2)
@@ -919,7 +925,7 @@ ContentLevels GetContentLevelsForMapAndZone(uint32 mapid, uint32 zoneId)
     }
 }
 
-bool IsTotemCategoryCompatibleWith(uint32 itemTotemCategoryId, uint32 requiredTotemCategoryId)
+bool DBCManager::IsTotemCategoryCompatibleWith(uint32 itemTotemCategoryId, uint32 requiredTotemCategoryId)
 {
     if (requiredTotemCategoryId == 0)
         return true;
@@ -939,7 +945,7 @@ bool IsTotemCategoryCompatibleWith(uint32 itemTotemCategoryId, uint32 requiredTo
     return (itemEntry->TotemCategoryMask & reqEntry->TotemCategoryMask) == reqEntry->TotemCategoryMask;
 }
 
-void Zone2MapCoordinates(float& x, float& y, uint32 zone)
+void DBCManager::Zone2MapCoordinates(float& x, float& y, uint32 zone)
 {
     WorldMapAreaEntry const* maEntry = sWorldMapAreaStore.LookupEntry(zone);
 
@@ -952,7 +958,7 @@ void Zone2MapCoordinates(float& x, float& y, uint32 zone)
     y = y * ((maEntry->LocRight - maEntry->LocLeft) / 100) + maEntry->LocLeft;      // client y coord from top to down
 }
 
-void Map2ZoneCoordinates(float& x, float& y, uint32 zone)
+void DBCManager::Map2ZoneCoordinates(float& x, float& y, uint32 zone)
 {
     WorldMapAreaEntry const* maEntry = sWorldMapAreaStore.LookupEntry(zone);
 
@@ -965,13 +971,13 @@ void Map2ZoneCoordinates(float& x, float& y, uint32 zone)
     std::swap(x, y);                                         // client have map coords swapped
 }
 
-MapDifficulty const* GetMapDifficultyData(uint32 mapId, Difficulty difficulty)
+MapDifficulty const* DBCManager::GetMapDifficultyData(uint32 mapId, Difficulty difficulty)
 {
     MapDifficultyMap::const_iterator itr = sMapDifficultyMap.find(MAKE_PAIR32(mapId, difficulty));
     return itr != sMapDifficultyMap.end() ? &itr->second : nullptr;
 }
 
-MapDifficulty const* GetDownscaledMapDifficultyData(uint32 mapId, Difficulty &difficulty)
+MapDifficulty const* DBCManager::GetDownscaledMapDifficultyData(uint32 mapId, Difficulty &difficulty)
 {
     uint32 tmpDiff = difficulty;
     MapDifficulty const* mapDiff = GetMapDifficultyData(mapId, Difficulty(tmpDiff));
@@ -995,7 +1001,7 @@ MapDifficulty const* GetDownscaledMapDifficultyData(uint32 mapId, Difficulty &di
     return mapDiff;
 }
 
-PvPDifficultyEntry const* GetBattlegroundBracketByLevel(uint32 mapid, uint32 level)
+PvPDifficultyEntry const* DBCManager::GetBattlegroundBracketByLevel(uint32 mapid, uint32 level)
 {
     PvPDifficultyEntry const* maxEntry = nullptr;              // used for level > max listed level case
     for (uint32 i = 0; i < sPvPDifficultyStore.GetNumRows(); ++i)
@@ -1019,7 +1025,7 @@ PvPDifficultyEntry const* GetBattlegroundBracketByLevel(uint32 mapid, uint32 lev
     return maxEntry;
 }
 
-PvPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, BattlegroundBracketId id)
+PvPDifficultyEntry const* DBCManager::GetBattlegroundBracketById(uint32 mapid, BattlegroundBracketId id)
 {
     for (uint32 i = 0; i < sPvPDifficultyStore.GetNumRows(); ++i)
         if (PvPDifficultyEntry const* entry = sPvPDifficultyStore.LookupEntry(i))
@@ -1029,12 +1035,12 @@ PvPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, BattlegroundB
     return nullptr;
 }
 
-uint32 const* GetTalentTabPages(uint8 cls)
+uint32 const* DBCManager::GetTalentTabPages(uint8 cls)
 {
     return sTalentTabPages[cls];
 }
 
-std::vector<uint32> const* GetTalentTreePrimarySpells(uint32 talentTree)
+std::vector<uint32> const* DBCManager::GetTalentTreePrimarySpells(uint32 talentTree)
 {
     TalentTreePrimarySpellsMap::const_iterator itr = sTalentTreePrimarySpellsMap.find(talentTree);
     if (itr == sTalentTreePrimarySpellsMap.end())
@@ -1043,7 +1049,7 @@ std::vector<uint32> const* GetTalentTreePrimarySpells(uint32 talentTree)
     return &itr->second;
 }
 
-uint32 GetLiquidFlags(uint32 liquidType)
+uint32 DBCManager::GetLiquidFlags(uint32 liquidType)
 {
     if (LiquidTypeEntry const* liq = sLiquidTypeStore.LookupEntry(liquidType))
         return 1 << liq->SoundBank;
@@ -1051,7 +1057,7 @@ uint32 GetLiquidFlags(uint32 liquidType)
     return 0;
 }
 
-CharStartOutfitEntry const* GetCharStartOutfitEntry(uint8 race, uint8 class_, uint8 gender)
+CharStartOutfitEntry const* DBCManager::GetCharStartOutfitEntry(uint8 race, uint8 class_, uint8 gender)
 {
     std::map<uint32, CharStartOutfitEntry const*>::const_iterator itr = sCharStartOutfitMap.find(race | (class_ << 8) | (gender << 16));
     if (itr == sCharStartOutfitMap.end())
@@ -1060,7 +1066,7 @@ CharStartOutfitEntry const* GetCharStartOutfitEntry(uint8 race, uint8 class_, ui
     return itr->second;
 }
 
-CharSectionsEntry const* GetCharSectionEntry(uint8 race, CharSectionType genType, uint8 gender, uint8 type, uint8 color)
+CharSectionsEntry const* DBCManager::GetCharSectionEntry(uint8 race, CharSectionType genType, uint8 gender, uint8 type, uint8 color)
 {
     std::pair<CharSectionsMap::const_iterator, CharSectionsMap::const_iterator> eqr = sCharSectionMap.equal_range(uint32(genType) | uint32(gender << 8) | uint32(race << 16));
     for (CharSectionsMap::const_iterator itr = eqr.first; itr != eqr.second; ++itr)
@@ -1072,7 +1078,7 @@ CharSectionsEntry const* GetCharSectionEntry(uint8 race, CharSectionType genType
     return nullptr;
 }
 
-uint32 GetPowerIndexByClass(uint32 powerType, uint32 classId)
+uint32 DBCManager::GetPowerIndexByClass(uint32 powerType, uint32 classId)
 {
     return PowersByClass[classId][powerType];
 }
@@ -1230,7 +1236,7 @@ uint32 ScalingStatValuesEntry::GetDPSAndDamageMultiplier(uint32 subClass, bool i
 }
 
 /// Returns LFGDungeonEntry for a specific map and difficulty. Will return first found entry if multiple dungeons use the same map (such as Scarlet Monastery)
-LFGDungeonEntry const* GetLFGDungeon(uint32 mapId, Difficulty difficulty)
+LFGDungeonEntry const* DBCManager::GetLFGDungeon(uint32 mapId, Difficulty difficulty)
 {
     for (uint32 i = 0; i < sLFGDungeonStore.GetNumRows(); ++i)
     {
@@ -1245,7 +1251,7 @@ LFGDungeonEntry const* GetLFGDungeon(uint32 mapId, Difficulty difficulty)
     return nullptr;
 }
 
-uint32 GetDefaultMapLight(uint32 mapId)
+uint32 DBCManager::GetDefaultMapLight(uint32 mapId)
 {
     for (int32 i = sLightStore.GetNumRows(); i >= 0; --i)
     {
@@ -1260,7 +1266,7 @@ uint32 GetDefaultMapLight(uint32 mapId)
     return 0;
 }
 
-SkillRaceClassInfoEntry const* GetSkillRaceClassInfo(uint32 skill, uint8 race, uint8 class_)
+SkillRaceClassInfoEntry const* DBCManager::GetSkillRaceClassInfo(uint32 skill, uint8 race, uint8 class_)
 {
     SkillRaceClassInfoBounds bounds = SkillRaceClassInfoBySkill.equal_range(skill);
     for (SkillRaceClassInfoMap::iterator itr = bounds.first; itr != bounds.second; ++itr)
@@ -1276,7 +1282,7 @@ SkillRaceClassInfoEntry const* GetSkillRaceClassInfo(uint32 skill, uint8 race, u
     return nullptr;
 }
 
-std::vector<uint32> const* GetPhasesForGroup(uint32 group)
+std::vector<uint32> const* DBCManager::GetPhasesForGroup(uint32 group)
 {
     auto itr = sPhasesByGroup.find(group);
     if (itr != sPhasesByGroup.end())
@@ -1284,7 +1290,7 @@ std::vector<uint32> const* GetPhasesForGroup(uint32 group)
 
     return nullptr;
 }
-ResponseCodes ValidateName(std::wstring const& name, LocaleConstant locale)
+ResponseCodes DBCManager::ValidateName(std::wstring const& name, LocaleConstant locale)
 {
     if (locale >= TOTAL_LOCALES)
         return RESPONSE_FAILURE;
@@ -1301,13 +1307,13 @@ ResponseCodes ValidateName(std::wstring const& name, LocaleConstant locale)
     return CHAR_NAME_SUCCESS;
 }
 
-EmotesTextSoundEntry const* FindTextSoundEmoteFor(uint32 emote, uint32 race, uint32 gender)
+EmotesTextSoundEntry const* DBCManager::FindTextSoundEmoteFor(uint32 emote, uint32 race, uint32 gender)
 {
     auto itr = sEmotesTextSoundMap.find(EmotesTextSoundKey(emote, race, gender));
     return itr != sEmotesTextSoundMap.end() ? itr->second : nullptr;
 }
 
-uint32 GetParentSpellCategoryId(uint32 childCategory)
+uint32 DBCManager::GetParentSpellCategoryId(uint32 childCategory)
 {
     // Weekly profession reset linking
     switch (childCategory)
@@ -1324,7 +1330,7 @@ uint32 GetParentSpellCategoryId(uint32 childCategory)
     return 0;
 }
 
-bool IsInArea(uint32 objectAreaId, uint32 areaId)
+bool DBCManager::IsInArea(uint32 objectAreaId, uint32 areaId)
 {
     do
     {
@@ -1339,257 +1345,4 @@ bool IsInArea(uint32 objectAreaId, uint32 areaId)
     } while (objectAreaId);
 
     return false;
-}
-
-uint32 ItemTemplate::GetEffectiveArmor(Player const* owner) const
-{
-    if (GetQuality() > ITEM_QUALITY_ARTIFACT)
-        return 0;
-
-    uint32 level = GetBaseItemLevel();
-    if (owner)
-    {
-        uint32 maxItemLevel = owner->GetUInt32Value(UNIT_FIELD_MAXITEMLEVEL);
-        if (maxItemLevel != 0 && level > maxItemLevel)
-            level = maxItemLevel;
-    }
-
-    if (GetClass() != ITEM_CLASS_ARMOR || GetSubClass() != ITEM_SUBCLASS_ARMOR_SHIELD)
-    {
-        ItemArmorQualityEntry const* armorQuality = sItemArmorQualityStore.LookupEntry(level);
-        ItemArmorTotalEntry const* armorTotal = sItemArmorTotalStore.LookupEntry(level);
-        if (!armorQuality || !armorTotal)
-            return 0;
-
-        uint32 invType = GetInventoryType();
-        if (invType == INVTYPE_ROBE)
-            invType = INVTYPE_CHEST;
-
-        ArmorLocationEntry const* location = sArmorLocationStore.LookupEntry(invType);
-        if (!location)
-            return 0;
-
-        if (GetSubClass() < ITEM_SUBCLASS_ARMOR_CLOTH || GetSubClass() > ITEM_SUBCLASS_ARMOR_PLATE)
-            return 0;
-
-        return uint32(armorQuality->Qualitymod[GetQuality()] * armorTotal->Value[GetSubClass() - ITEM_SUBCLASS_ARMOR_CLOTH] * location->Value[GetSubClass() - ITEM_SUBCLASS_ARMOR_CLOTH] + 0.5f);
-    }
-
-    ItemArmorShieldEntry const* shield = sItemArmorShieldStore.LookupEntry(level);
-    if (!shield)
-        return 0;
-
-    return uint32(shield->Quality[GetQuality()] + 0.5f);
-}
-
-bool ItemTemplate::GetWeaponDamage(Player const* owner, float& minValue, float& maxValue, float& dps) const
-{
-    minValue = maxValue = 0.0f;
-    if (GetClass() != ITEM_CLASS_WEAPON || GetQuality() > ITEM_QUALITY_ARTIFACT)
-        return false;
-
-    uint32 level = GetBaseItemLevel();
-    if (owner)
-    {
-        uint32 maxItemLevel = owner->GetUInt32Value(UNIT_FIELD_MAXITEMLEVEL);
-        if (maxItemLevel != 0 && level > maxItemLevel)
-            level = maxItemLevel;
-    }
-
-    DBCStorage<ItemDamageEntry>* store = nullptr;
-
-    switch (GetInventoryType())
-    {
-        case INVTYPE_AMMO:
-            store = &sItemDamageAmmoStore;
-            break;
-        case INVTYPE_2HWEAPON:
-            if (GetFlags2() & ITEM_FLAG2_CASTER_WEAPON)
-                store = &sItemDamageTwoHandCasterStore;
-            else
-                store = &sItemDamageTwoHandStore;
-            break;
-        case INVTYPE_RANGED:
-        case INVTYPE_THROWN:
-        case INVTYPE_RANGEDRIGHT:
-            switch (GetSubClass())
-            {
-                case ITEM_SUBCLASS_WEAPON_WAND:
-                    store = &sItemDamageWandStore;
-                    break;
-                case ITEM_SUBCLASS_WEAPON_THROWN:
-                    store = &sItemDamageThrownStore;
-                    break;
-                case ITEM_SUBCLASS_WEAPON_BOW:
-                case ITEM_SUBCLASS_WEAPON_GUN:
-                case ITEM_SUBCLASS_WEAPON_CROSSBOW:
-                    store = &sItemDamageRangedStore;
-                    break;
-                default:
-                    return false;
-            }
-            break;
-        case INVTYPE_WEAPON:
-        case INVTYPE_WEAPONMAINHAND:
-        case INVTYPE_WEAPONOFFHAND:
-            if (GetFlags2() & ITEM_FLAG2_CASTER_WEAPON)
-                store = &sItemDamageOneHandCasterStore;
-            else
-                store = &sItemDamageOneHandStore;
-            break;
-        default:
-            return false;
-    }
-
-    if (!store)
-        return false;
-
-    ItemDamageEntry const* damageInfo = store->LookupEntry(level);
-    if (!damageInfo)
-        return false;
-
-    dps = damageInfo->Quality[GetQuality()];
-
-    float avgDamage = GetDelay() * damageInfo->Quality[GetQuality()] * 0.001f;
-    float scaled_stat = std::floor((GetStatScalingFactor() * 0.5f + 1.f) * avgDamage + 0.5f);
-    if (GetDelay() && GetArmorDamageModifier() != 0.f)
-    {
-        float invMsDelay = 1000.0f / float(GetDelay());
-
-        float v16 = (invMsDelay * ((1.f - (GetStatScalingFactor() * 0.5f)) * avgDamage)) + GetArmorDamageModifier();
-        v16 = std::max(v16, 1.f);
-
-        minValue = (1.0f / invMsDelay) * v16;
-
-        maxValue = (1.0f / invMsDelay) * (((1000.f / float(GetDelay())) * scaled_stat) + GetArmorDamageModifier());
-    }
-    else
-    {
-        maxValue = scaled_stat;
-        minValue = (1.f - (GetStatScalingFactor() * 0.5f)) * avgDamage;
-    }
-
-    return true;
-}
-
-uint32 GetItemScalingModifier(uint32 maxIlvl, ItemQualities quality, InventoryType invType)
-{
-    // Believe it or not, yes
-    uint32 suffixFactor = -1;
-    switch (invType)
-    {
-        // Items of that type don`t have points
-        case INVTYPE_NON_EQUIP:
-        case INVTYPE_BAG:
-        case INVTYPE_TABARD:
-        case INVTYPE_AMMO:
-        case INVTYPE_QUIVER:
-        case INVTYPE_RELIC:
-            break;
-        // Select point coefficient
-        case INVTYPE_HEAD:
-        case INVTYPE_BODY:
-        case INVTYPE_CHEST:
-        case INVTYPE_LEGS:
-        case INVTYPE_2HWEAPON:
-        case INVTYPE_ROBE:
-            suffixFactor = 0;
-            break;
-        case INVTYPE_SHOULDERS:
-        case INVTYPE_WAIST:
-        case INVTYPE_FEET:
-        case INVTYPE_HANDS:
-        case INVTYPE_TRINKET:
-            suffixFactor = 1;
-            break;
-        case INVTYPE_NECK:
-        case INVTYPE_WRISTS:
-        case INVTYPE_FINGER:
-        case INVTYPE_SHIELD:
-        case INVTYPE_CLOAK:
-        case INVTYPE_HOLDABLE:
-            suffixFactor = 2;
-            break;
-        case INVTYPE_WEAPON:
-        case INVTYPE_WEAPONMAINHAND:
-        case INVTYPE_WEAPONOFFHAND:
-            suffixFactor = 3;
-            break;
-        case INVTYPE_RANGED:
-        case INVTYPE_THROWN:
-        case INVTYPE_RANGEDRIGHT:
-            suffixFactor = 4;
-            break;
-    }
-
-    if (suffixFactor > 4)
-        return 0;
-
-    RandomPropertiesPointsEntry const* randPropEntry = sRandomPropertiesPointsStore.LookupEntry(maxIlvl);
-    if (!randPropEntry)
-        return 0;
-
-    switch (quality)
-    {
-        case ITEM_QUALITY_UNCOMMON:
-            return randPropEntry->UncommonPropertiesPoints[suffixFactor];
-        case ITEM_QUALITY_RARE:
-            return randPropEntry->RarePropertiesPoints[suffixFactor];
-        case ITEM_QUALITY_EPIC:
-        case ITEM_QUALITY_LEGENDARY:
-            return randPropEntry->EpicPropertiesPoints[suffixFactor];
-        default:
-            return 0;
-    }
-
-    return 0;
-}
-
-
-uint32 ItemTemplate::GetStatValue(uint32 index, Player const* owner /*= nullptr*/) const
-{
-    if (!owner)
-        return GetItemStatValue(index);
-
-    ScalingStatDistributionEntry const* ssd = GetScalingStatDistribution() ? sScalingStatDistributionStore.LookupEntry(GetScalingStatDistribution()) : nullptr;
-    // req. check at equip, but allow use for extended range if range limit max level, set proper level
-    uint32 ssdLevel = owner->getLevel();
-
-    if (ssd && ssdLevel > ssd->Maxlevel)
-        ssdLevel = ssd->Maxlevel;
-    if (ssd && ssdLevel < ssd->Minlevel)
-        ssdLevel = ssd->Minlevel;
-    if (ssdLevel < 1)
-        ssdLevel = 1;
-
-    ScalingStatValuesEntry const* ssv = ssd ? sScalingStatValuesStore.LookupEntry(ssdLevel) : nullptr;
-
-    uint32 statBaseValue = 0;
-    if (ssd && ssv)
-    {
-        if (ssd->StatID[index] < 0)
-            return 0; // What do we do ?
-
-        statBaseValue = ssv->GetStatMultiplier(GetInventoryType()) * ssd->Bonus[index] / 10000;
-    }
-    else
-    {
-        statBaseValue = GetItemStatValue(index);
-
-        uint32 itemLevel = GetBaseItemLevel();
-        uint32 maxItemLevel = owner->GetUInt32Value(UNIT_FIELD_MAXITEMLEVEL);
-        if (!maxItemLevel || maxItemLevel >= itemLevel) // TODO: This might work if >=. Check.
-            return statBaseValue;
-
-        float minScaler = GetItemScalingModifier(GetBaseItemLevel(), ItemQualities(GetQuality()), ::InventoryType(GetInventoryType()));
-        float maxScaler = GetItemScalingModifier(maxItemLevel, ItemQualities(GetQuality()), ::InventoryType(GetInventoryType()));
-
-        if (maxScaler != 0.f && minScaler != 0.f)
-        {
-            float statAllocation = GetItemStatAllocation(index) * maxScaler * 0.0001f;
-            return std::ceil(statAllocation - ((maxScaler / minScaler) * GetItemStatSocketCostMultiplier(index)));
-        }
-    }
-
-    return statBaseValue;
 }

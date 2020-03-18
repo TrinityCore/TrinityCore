@@ -34,6 +34,12 @@ DB2Storage<KeyChainEntry>           sKeyChainStore("KeyChain.db2", KeyChainfmt, 
 
 typedef std::list<std::string> DB2StoreProblemList;
 
+DB2Manager& DB2Manager::Instance()
+{
+    static DB2Manager instance;
+    return instance;
+}
+
 uint32 DB2FilesCount = 0;
 
 template<class T>

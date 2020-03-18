@@ -2162,7 +2162,7 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
     if (!reference)
         return ERR_BATTLEGROUND_JOIN_FAILED;
 
-    PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketByLevel(bgOrTemplate->GetMapId(), reference->getLevel());
+    PvPDifficultyEntry const* bracketEntry = sDBCManager.GetBattlegroundBracketByLevel(bgOrTemplate->GetMapId(), reference->getLevel());
     if (!bracketEntry)
         return ERR_BATTLEGROUND_JOIN_FAILED;
 
@@ -2183,7 +2183,7 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
         if (member->GetTeam() != team)
             return ERR_BATTLEGROUND_JOIN_TIMED_OUT;
         // not in the same battleground level braket, don't let join
-        PvPDifficultyEntry const* memberBracketEntry = GetBattlegroundBracketByLevel(bracketEntry->MapID, member->getLevel());
+        PvPDifficultyEntry const* memberBracketEntry = sDBCManager.GetBattlegroundBracketByLevel(bracketEntry->MapID, member->getLevel());
         if (memberBracketEntry != bracketEntry)
             return ERR_BATTLEGROUND_JOIN_RANGE_INDEX;
         // don't let join rated matches if the arena team id doesn't match
@@ -2439,7 +2439,7 @@ InstanceGroupBind* Group::GetBoundInstance(MapEntry const* mapEntry)
 InstanceGroupBind* Group::GetBoundInstance(Difficulty difficulty, uint32 mapId)
 {
     // some instances only have one difficulty
-    GetDownscaledMapDifficultyData(mapId, difficulty);
+    sDBCManager.GetDownscaledMapDifficultyData(mapId, difficulty);
 
     BoundInstancesMap::iterator itr = m_boundInstances[difficulty].find(mapId);
     if (itr != m_boundInstances[difficulty].end())

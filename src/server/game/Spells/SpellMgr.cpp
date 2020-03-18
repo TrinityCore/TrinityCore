@@ -1117,7 +1117,7 @@ void SpellMgr::LoadSpellLearnSpells()
             continue;
         }
 
-        if (GetTalentSpellCost(node.spell))
+        if (sDBCManager.GetTalentSpellCost(node.spell))
         {
             TC_LOG_ERROR("sql.sql", "The spell %u listed in `spell_learn_spell` attempts learning talent spell %u, skipped.", spell_id, node.spell);
             continue;
@@ -1155,7 +1155,7 @@ void SpellMgr::LoadSpellLearnSpells()
                 // talent or passive spells or skill-step spells auto-cast and not need dependent learning,
                 // pet teaching spells must not be dependent learning (cast)
                 // other required explicit dependent learning
-                dbc_node.autoLearned = entry->Effects[i].TargetA.GetTarget() == TARGET_UNIT_PET || GetTalentSpellCost(spell) > 0 || entry->IsPassive() || entry->HasEffect(SPELL_EFFECT_SKILL_STEP);
+                dbc_node.autoLearned = entry->Effects[i].TargetA.GetTarget() == TARGET_UNIT_PET || sDBCManager.GetTalentSpellCost(spell) > 0 || entry->IsPassive() || entry->HasEffect(SPELL_EFFECT_SKILL_STEP);
 
                 SpellLearnSpellMapBounds db_node_bounds = dbSpellLearnSpells.equal_range(spell);
 
@@ -5703,7 +5703,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             }
 
             // Passive talent auras cannot target pets
-            if (spellInfo->IsPassive() && GetTalentSpellCost(i))
+            if (spellInfo->IsPassive() && sDBCManager.GetTalentSpellCost(i))
                 if (spellInfo->Effects[j].TargetA.GetTarget() == TARGET_UNIT_PET)
                     spellInfo->Effects[j].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
             if (spellInfo->Effects[j].TargetA.GetSelectionCategory() == TARGET_SELECT_CATEGORY_CONE || spellInfo->Effects[j].TargetB.GetSelectionCategory() == TARGET_SELECT_CATEGORY_CONE)

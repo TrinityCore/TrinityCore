@@ -1783,7 +1783,7 @@ float Creature::GetAttackDistance(Unit const* player) const
     float maxRadius = (45.0f * sWorld->getRate(RATE_CREATURE_AGGRO));
     float minRadius = (5.0f * sWorld->getRate(RATE_CREATURE_AGGRO));
     float aggroRate = sWorld->getRate(RATE_CREATURE_AGGRO);
-    uint8 expansionMaxLevel = uint8(GetMaxLevelForExpansion(GetCreatureTemplate()->expansion));
+    uint8 expansionMaxLevel = uint8(DBCManager::GetMaxLevelForExpansion(GetCreatureTemplate()->expansion));
 
     uint32 playerLevel = player->getLevel();
     uint32 creatureLevel = getLevel();

@@ -8386,7 +8386,7 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
             GetMap()->GetEntry()->ParentMapID != mountCapability->ReqMapID)
             continue;
 
-        if (mountCapability->ReqAreaID && !IsInArea(areaId, mountCapability->ReqAreaID))
+        if (mountCapability->ReqAreaID && !DBCManager::IsInArea(areaId, mountCapability->ReqAreaID))
             continue;
 
         if (mountCapability->ReqSpellAuraID && !HasAura(mountCapability->ReqSpellAuraID))
@@ -10237,7 +10237,7 @@ uint32 Unit::GetPowerIndex(uint32 powerType) const
             classId = CLASS_ROGUE;
     }
 
-    return GetPowerIndexByClass(powerType, classId);
+    return sDBCManager.GetPowerIndexByClass(powerType, classId);
 }
 
 int32 Unit::GetCreatePowers(Powers power) const

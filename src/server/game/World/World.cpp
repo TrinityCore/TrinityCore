@@ -40,6 +40,7 @@
 #include "CreatureTextMgr.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DBCStores.h"
 #include "DisableMgr.h"
 #include "GameEventMgr.h"
 #include "GameObjectModel.h"
@@ -1600,7 +1601,7 @@ void World::SetInitialWorldSettings()
     ///- Initialize VMapManager function pointers (to untangle game/collision circular deps)
     if (VMAP::VMapManager2* vmmgr2 = dynamic_cast<VMAP::VMapManager2*>(VMAP::VMapFactory::createOrGetVMapManager()))
     {
-        vmmgr2->GetLiquidFlagsPtr = &GetLiquidFlags;
+        vmmgr2->GetLiquidFlagsPtr = &DBCManager::GetLiquidFlags;
         vmmgr2->IsVMAPDisabledForPtr = &DisableMgr::IsVMAPDisabledFor;
     }
 
@@ -1649,9 +1650,9 @@ void World::SetInitialWorldSettings()
 
     LoginDatabase.PExecute("UPDATE realmlist SET icon = %u, timezone = %u WHERE id = '%d'", server_type, realm_zone, realm.Id.Realm);      // One-time query
 
-    ///- Load the DBC files
+    ///- Load the DBC/DB2 files
     TC_LOG_INFO("server.loading", "Initialize data stores...");
-    LoadDBCStores(m_dataPath);
+    sDBCManager.LoadStores(m_dataPath);
     sDB2Manager.LoadStores(m_dataPath);
 
     TC_LOG_INFO("misc", "Loading hotfix info...");

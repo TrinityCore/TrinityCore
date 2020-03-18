@@ -351,7 +351,7 @@ void SpellHistory::StartCooldown(SpellInfo const* spellInfo, uint32 itemId, Spel
             SpellCategoryEntry const* categoryEntry = sSpellCategoryStore.AssertEntry(categoryId);
             if (categoryEntry->Flags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET)
             {
-                uint32 parentCategoryId = GetParentSpellCategoryId(categoryEntry->ID);
+                uint32 parentCategoryId = DBCManager::GetParentSpellCategoryId(categoryEntry->ID);
                 SpellCategoryEntry const* parentCategory = sSpellCategoryStore.LookupEntry(parentCategoryId);
 
                 if (parentCategory && parentCategory->UsesPerWeek)

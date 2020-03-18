@@ -19,6 +19,7 @@
 #define DEF_DRAGONSOUL_H
 
 #include "Define.h"
+#include "Creature.h"
 
 #define DataHeader "DS"
 #define DSScriptName "instance_dragon_soul"

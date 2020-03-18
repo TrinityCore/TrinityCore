@@ -771,7 +771,7 @@ public:
 
                 SpellInfo const* learnSpellInfo = sSpellMgr->GetSpellInfo(spellInfo->Effects[0].TriggerSpell);
 
-                uint32 talentCost = GetTalentSpellCost(id);
+                uint32 talentCost = sDBCManager.GetTalentSpellCost(id);
 
                 bool talent = (talentCost > 0);
                 bool passive = spellInfo->IsPassive();
@@ -843,7 +843,7 @@ public:
 
                 SpellInfo const* learnSpellInfo = sSpellMgr->GetSpellInfo(spellInfo->Effects[0].TriggerSpell);
 
-                uint32 talentCost = GetTalentSpellCost(id);
+                uint32 talentCost = sDBCManager.GetTalentSpellCost(id);
 
                 bool talent = (talentCost > 0);
                 bool passive = spellInfo->IsPassive();

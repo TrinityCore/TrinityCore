@@ -478,7 +478,7 @@ void TransportMgr::SpawnContinentTransports()
 
             if (phaseGroupId)
             {
-                if (!GetPhasesForGroup(phaseGroupId))
+                if (!sDBCManager.GetPhasesForGroup(phaseGroupId))
                 {
                     TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: %u Entry: %u) with `phaseGroup` %u does not exist, set to 0", guid, entry, phaseGroupId);
                     phaseGroupId = 0;

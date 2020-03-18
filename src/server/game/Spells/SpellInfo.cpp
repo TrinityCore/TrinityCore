@@ -1586,7 +1586,7 @@ SpellCastResult SpellInfo::CheckShapeshift(uint32 form) const
 {
     // talents that learn spells can have stance requirements that need ignore
     // (this requirement only for client-side stance show in talent description)
-    if (GetTalentSpellCost(Id) > 0 &&
+    if (sDBCManager.GetTalentSpellCost(Id) > 0 &&
         (Effects[0].Effect == SPELL_EFFECT_LEARN_SPELL || Effects[1].Effect == SPELL_EFFECT_LEARN_SPELL || Effects[2].Effect == SPELL_EFFECT_LEARN_SPELL))
         return SPELL_CAST_OK;
 
@@ -1662,7 +1662,7 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
     // continent limitation (virtual continent)
     if (HasAttribute(SPELL_ATTR4_CAST_ONLY_IN_OUTLAND))
     {
-        uint32 v_map = GetVirtualMapForMapAndZone(map_id, zone_id);
+        uint32 v_map = sDBCManager.GetVirtualMapForMapAndZone(map_id, zone_id);
         MapEntry const* mapEntry = sMapStore.LookupEntry(v_map);
 
         if (!mapEntry || mapEntry->ExpansionID < 1 || !mapEntry->IsContinent())

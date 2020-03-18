@@ -96,7 +96,7 @@ void PhasingHandler::RemovePhase(WorldObject* object, uint32 phaseId, bool updat
 
 void PhasingHandler::AddPhaseGroup(WorldObject* object, uint32 phaseGroupId, bool updateVisibility)
 {
-    std::vector<uint32> const* phasesInGroup = GetPhasesForGroup(phaseGroupId);
+    std::vector<uint32> const* phasesInGroup = sDBCManager.GetPhasesForGroup(phaseGroupId);
     if (!phasesInGroup)
         return;
 
@@ -119,7 +119,7 @@ void PhasingHandler::AddPhaseGroup(WorldObject* object, uint32 phaseGroupId, boo
 
 void PhasingHandler::RemovePhaseGroup(WorldObject* object, uint32 phaseGroupId, bool updateVisibility)
 {
-    std::vector<uint32> const* phasesInGroup = GetPhasesForGroup(phaseGroupId);
+    std::vector<uint32> const* phasesInGroup = sDBCManager.GetPhasesForGroup(phaseGroupId);
     if (!phasesInGroup)
         return;
 
@@ -263,7 +263,7 @@ void PhasingHandler::OnAreaChange(WorldObject* object)
         }
 
         for (AuraEffect const* aurEff : unit->GetAuraEffectsByType(SPELL_AURA_PHASE_GROUP))
-            if (std::vector<uint32> const* phasesInGroup = GetPhasesForGroup(uint32(aurEff->GetMiscValueB())))
+            if (std::vector<uint32> const* phasesInGroup = sDBCManager.GetPhasesForGroup(uint32(aurEff->GetMiscValueB())))
                 for (uint32 phaseId : *phasesInGroup)
                     changed = phaseShift.AddPhase(phaseId, GetPhaseFlags(phaseId), nullptr) || changed;
 
@@ -356,7 +356,7 @@ void PhasingHandler::OnConditionChange(WorldObject* object)
 
         for (AuraEffect const* aurEff : unit->GetAuraEffectsByType(SPELL_AURA_PHASE_GROUP))
         {
-            if (std::vector<uint32> const* phasesInGroup = GetPhasesForGroup(uint32(aurEff->GetMiscValueB())))
+            if (std::vector<uint32> const* phasesInGroup = sDBCManager.GetPhasesForGroup(uint32(aurEff->GetMiscValueB())))
             {
                 for (uint32 phaseId : *phasesInGroup)
                 {
@@ -442,7 +442,7 @@ void PhasingHandler::InitDbPhaseShift(PhaseShift& phaseShift, uint8 phaseUseFlag
 
     if (phaseId)
         phaseShift.AddPhase(phaseId, GetPhaseFlags(phaseId), nullptr);
-    else if (std::vector<uint32> const* phasesInGroup = GetPhasesForGroup(phaseGroupId))
+    else if (std::vector<uint32> const* phasesInGroup = sDBCManager.GetPhasesForGroup(phaseGroupId))
         for (uint32 phaseInGroup : *phasesInGroup)
             phaseShift.AddPhase(phaseInGroup, GetPhaseFlags(phaseInGroup), nullptr);
 

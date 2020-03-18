@@ -308,7 +308,7 @@ bool ReputationMgr::SetReputation(FactionEntry const* factionEntry, int32 standi
     {
         float spillOverRepOut = float(standing);
         // check for sub-factions that receive spillover
-        SimpleFactionsList const* flist = GetFactionTeamList(factionEntry->ID);
+        SimpleFactionsList const* flist = sDBCManager.GetFactionTeamList(factionEntry->ID);
         // if has no sub-factions, check for factions with same parent
         if (!flist && factionEntry->ParentFactionID && factionEntry->ParentFactionMod[1] != 0.0f)
         {
@@ -323,7 +323,7 @@ bool ReputationMgr::SetReputation(FactionEntry const* factionEntry, int32 standi
                 }
                 else    // spill to "sister" factions
                 {
-                    flist = GetFactionTeamList(factionEntry->ParentFactionID);
+                    flist = sDBCManager.GetFactionTeamList(factionEntry->ParentFactionID);
                 }
             }
         }

@@ -218,7 +218,7 @@ InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave* save,
     }
 
     // some instances only have one difficulty
-    GetDownscaledMapDifficultyData(GetId(), difficulty);
+    sDBCManager.GetDownscaledMapDifficultyData(GetId(), difficulty);
 
     TC_LOG_DEBUG("maps", "MapInstanced::CreateInstance: %s map instance %d for %d created with difficulty %s", save?"":"new ", InstanceId, GetId(), difficulty?"heroic":"normal");
 
@@ -245,7 +245,7 @@ BattlegroundMap* MapInstanced::CreateBattleground(uint32 InstanceId, Battlegroun
 
     TC_LOG_DEBUG("maps", "MapInstanced::CreateBattleground: map bg %d for %d created.", InstanceId, GetId());
 
-    PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketByLevel(bg->GetMapId(), bg->GetMinLevel());
+    PvPDifficultyEntry const* bracketEntry = sDBCManager.GetBattlegroundBracketByLevel(bg->GetMapId(), bg->GetMinLevel());
 
     uint8 spawnMode;
 

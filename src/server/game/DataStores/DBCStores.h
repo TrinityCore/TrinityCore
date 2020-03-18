@@ -33,62 +33,9 @@ enum LocaleConstant : uint8;
 #endif
 
 typedef std::list<uint32> SimpleFactionsList;
-TC_GAME_API SimpleFactionsList const* GetFactionTeamList(uint32 faction);
-
-TC_GAME_API char const* GetPetName(uint32 petfamily, uint32 dbclang);
-TC_GAME_API uint32 GetTalentSpellCost(uint32 spellId);
-TC_GAME_API TalentSpellPos const* GetTalentSpellPos(uint32 spellId);
-
-TC_GAME_API char const* GetRaceName(uint8 race, uint8 locale);
-TC_GAME_API char const* GetClassName(uint8 class_, uint8 locale);
-
-TC_GAME_API WMOAreaTableEntry const* GetWMOAreaTableEntryByTripple(int32 rootid, int32 adtid, int32 groupid);
-
-TC_GAME_API uint32 GetVirtualMapForMapAndZone(uint32 mapid, uint32 zoneId);
-
-std::string const& GetRandomCharacterName(uint8 race, uint8 gender);
-
-uint32 GetMaxLevelForExpansion(uint32 expansion);
-
-TC_GAME_API ContentLevels GetContentLevelsForMapAndZone(uint32 mapid, uint32 zoneId);
-
-TC_GAME_API bool IsTotemCategoryCompatibleWith(uint32 itemTotemCategoryId, uint32 requiredTotemCategoryId);
-
-TC_GAME_API void Zone2MapCoordinates(float &x, float &y, uint32 zone);
-TC_GAME_API void Map2ZoneCoordinates(float &x, float &y, uint32 zone);
-
 typedef std::map<uint32/*pair32(map, diff)*/, MapDifficulty> MapDifficultyMap;
-TC_GAME_API MapDifficulty const* GetMapDifficultyData(uint32 mapId, Difficulty difficulty);
-TC_GAME_API MapDifficulty const* GetDownscaledMapDifficultyData(uint32 mapId, Difficulty &difficulty);
-
-TC_GAME_API uint32 const* /*[MAX_TALENT_TABS]*/ GetTalentTabPages(uint8 cls);
-std::vector<uint32> const* GetTalentTreePrimarySpells(uint32 talentTree);
-
-TC_GAME_API uint32 GetLiquidFlags(uint32 liquidType);
-
-TC_GAME_API PvPDifficultyEntry const* GetBattlegroundBracketByLevel(uint32 mapid, uint32 level);
-TC_GAME_API PvPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, BattlegroundBracketId id);
-
-TC_GAME_API CharStartOutfitEntry const* GetCharStartOutfitEntry(uint8 race, uint8 class_, uint8 gender);
-TC_GAME_API CharSectionsEntry const* GetCharSectionEntry(uint8 race, CharSectionType genType, uint8 gender, uint8 type, uint8 color);
-
-uint32 GetPowerIndexByClass(uint32 powerType, uint32 classId);
-TC_GAME_API bool IsInArea(uint32 objectAreaId, uint32 areaId);
-TC_GAME_API LFGDungeonEntry const* GetLFGDungeon(uint32 mapId, Difficulty difficulty);
-
-uint32 GetDefaultMapLight(uint32 mapId);
-
-TC_GAME_API std::vector<uint32> const* GetPhasesForGroup(uint32 group);
-
 typedef std::unordered_multimap<uint32, SkillRaceClassInfoEntry const*> SkillRaceClassInfoMap;
 typedef std::pair<SkillRaceClassInfoMap::iterator, SkillRaceClassInfoMap::iterator> SkillRaceClassInfoBounds;
-TC_GAME_API SkillRaceClassInfoEntry const* GetSkillRaceClassInfo(uint32 skill, uint8 race, uint8 class_);
-
-TC_GAME_API ResponseCodes ValidateName(std::wstring const& name, LocaleConstant locale);
-
-TC_GAME_API EmotesTextSoundEntry const* FindTextSoundEmoteFor(uint32 emote, uint32 race, uint32 gender);
-
-TC_GAME_API uint32 GetParentSpellCategoryId(uint32 childCategory);
 
 TC_GAME_API extern DBCStorage <AchievementEntry>             sAchievementStore;
 TC_GAME_API extern DBCStorage <AnimKitEntry>                 sAnimKitStore;
@@ -261,6 +208,47 @@ TC_GAME_API extern DBCStorage <WorldMapAreaEntry>            sWorldMapAreaStore;
 TC_GAME_API extern DBCStorage <WorldMapOverlayEntry>         sWorldMapOverlayStore;
 TC_GAME_API extern DBCStorage <WorldSafeLocsEntry>           sWorldSafeLocsStore;
 
-TC_GAME_API void LoadDBCStores(const std::string& dataPath);
+class TC_GAME_API DBCManager
+{
+public:
+    static DBCManager& Instance();
+
+    void LoadStores(const std::string& dataPath);
+
+    SimpleFactionsList const* GetFactionTeamList(uint32 faction);
+    static char const* GetPetName(uint32 petfamily, uint32 dbclang);
+    uint32 GetTalentSpellCost(uint32 spellId);
+    TalentSpellPos const* GetTalentSpellPos(uint32 spellId);
+    static char const* GetRaceName(uint8 race, uint8 locale);
+    static char const* GetClassName(uint8 class_, uint8 locale);
+    WMOAreaTableEntry const* GetWMOAreaTableEntryByTripple(int32 rootid, int32 adtid, int32 groupid);
+    static uint32 GetVirtualMapForMapAndZone(uint32 mapid, uint32 zoneId);
+    std::string const& GetRandomCharacterName(uint8 race, uint8 gender);
+    static uint32 GetMaxLevelForExpansion(uint32 expansion);
+    ContentLevels GetContentLevelsForMapAndZone(uint32 mapid, uint32 zoneId);
+    static bool IsTotemCategoryCompatibleWith(uint32 itemTotemCategoryId, uint32 requiredTotemCategoryId);
+    void Zone2MapCoordinates(float &x, float &y, uint32 zone);
+    void Map2ZoneCoordinates(float &x, float &y, uint32 zone);
+    MapDifficulty const* GetMapDifficultyData(uint32 mapId, Difficulty difficulty);
+    MapDifficulty const* GetDownscaledMapDifficultyData(uint32 mapId, Difficulty &difficulty);
+    uint32 const* /*[MAX_TALENT_TABS]*/ GetTalentTabPages(uint8 cls);
+    std::vector<uint32> const* GetTalentTreePrimarySpells(uint32 talentTree);
+    static uint32 GetLiquidFlags(uint32 liquidType);
+    static uint32 GetDefaultMapLight(uint32 mapId);
+    PvPDifficultyEntry const* GetBattlegroundBracketByLevel(uint32 mapid, uint32 level);
+    PvPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, BattlegroundBracketId id);  
+    CharStartOutfitEntry const* GetCharStartOutfitEntry(uint8 race, uint8 class_, uint8 gender);
+    CharSectionsEntry const* GetCharSectionEntry(uint8 race, CharSectionType genType, uint8 gender, uint8 type, uint8 color);
+    uint32 GetPowerIndexByClass(uint32 powerType, uint32 classId);
+    static bool IsInArea(uint32 objectAreaId, uint32 areaId);
+    static LFGDungeonEntry const* GetLFGDungeon(uint32 mapId, Difficulty difficulty);
+    std::vector<uint32> const* GetPhasesForGroup(uint32 group); 
+    SkillRaceClassInfoEntry const* GetSkillRaceClassInfo(uint32 skill, uint8 race, uint8 class_);
+    ResponseCodes ValidateName(std::wstring const& name, LocaleConstant locale);
+    EmotesTextSoundEntry const* FindTextSoundEmoteFor(uint32 emote, uint32 race, uint32 gender); 
+    static uint32 GetParentSpellCategoryId(uint32 childCategory);
+};
+
+#define sDBCManager DBCManager::Instance()
 
 #endif

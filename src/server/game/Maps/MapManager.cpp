@@ -168,7 +168,7 @@ Map::EnterState MapManager::PlayerCannotEnter(uint32 mapid, Player* player, bool
 
     // Cannot enter instance if MapDifficulty data for highest available difficulty does not exist
     Difficulty targetDifficulty = player->GetDifficulty(entry->IsRaid());
-    MapDifficulty const* mapDiff = GetDownscaledMapDifficultyData(entry->ID, targetDifficulty);
+    MapDifficulty const* mapDiff = sDBCManager.GetDownscaledMapDifficultyData(entry->ID, targetDifficulty);
     if (!mapDiff)
         return Map::CANNOT_ENTER_DIFFICULTY_UNAVAILABLE;
 

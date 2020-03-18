@@ -355,7 +355,7 @@ void InstanceSaveManager::LoadResetTimes()
             Difficulty difficulty = Difficulty(fields[1].GetUInt8());
             uint64 oldresettime = fields[2].GetUInt64();
 
-            MapDifficulty const* mapDiff = GetMapDifficultyData(mapid, difficulty);
+            MapDifficulty const* mapDiff = sDBCManager.GetMapDifficultyData(mapid, difficulty);
             if (!mapDiff)
             {
                 TC_LOG_ERROR("misc", "InstanceSaveManager::LoadResetTimes: invalid mapid(%u)/difficulty(%u) pair in instance_reset!", mapid, difficulty);
@@ -443,7 +443,7 @@ void InstanceSaveManager::LoadResetTimes()
 
 time_t InstanceSaveManager::GetSubsequentResetTime(uint32 mapid, Difficulty difficulty, time_t resetTime) const
 {
-    MapDifficulty const* mapDiff = GetMapDifficultyData(mapid, difficulty);
+    MapDifficulty const* mapDiff = sDBCManager.GetMapDifficultyData(mapid, difficulty);
     if (!mapDiff || !mapDiff->resetTime)
     {
         TC_LOG_ERROR("misc", "InstanceSaveManager::GetSubsequentResetTime: not valid difficulty or no reset delay for map %u", mapid);
@@ -504,7 +504,7 @@ void InstanceSaveManager::ScheduleReset(bool add, time_t time, InstResetEvent ev
 
 void InstanceSaveManager::ForceGlobalReset(uint32 mapId, Difficulty difficulty)
 {
-    if (!GetDownscaledMapDifficultyData(mapId, difficulty))
+    if (!sDBCManager.GetDownscaledMapDifficultyData(mapId, difficulty))
         return;
     // remove currently scheduled reset times
     ScheduleReset(false, 0, InstResetEvent(1, mapId, difficulty, 0));

@@ -323,7 +323,7 @@ public:
             return false;
         }
 
-        Zone2MapCoordinates(x, y, zoneEntry->ID);
+        sDBCManager.Zone2MapCoordinates(x, y, zoneEntry->ID);
 
         if (!MapManager::IsValidMapCoord(zoneEntry->ContinentID, x, y))
         {

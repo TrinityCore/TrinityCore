@@ -1954,7 +1954,7 @@ void ObjectMgr::LoadCreatures()
     for (uint32 i = 0; i < sMapStore.GetNumRows(); ++i)
         if (sMapStore.LookupEntry(i))
             for (int k = 0; k < MAX_DIFFICULTY; ++k)
-                if (GetMapDifficultyData(i, Difficulty(k)))
+                if (sDBCManager.GetMapDifficultyData(i, Difficulty(k)))
                     spawnMasks[i] |= (1 << k);
 
     PhaseShift phaseShift;
@@ -2093,7 +2093,7 @@ void ObjectMgr::LoadCreatures()
             data.phaseUseFlags &= ~PHASE_USE_FLAGS_INVERSE;
         }
 
-        if (data.phaseGroup && !GetPhasesForGroup(data.phaseGroup))
+        if (data.phaseGroup && !sDBCManager.GetPhasesForGroup(data.phaseGroup))
         {
             TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: %u Entry: %u) with non-existing `phasegroup` (%u) set, `phasegroup` set to 0", guid, data.id, data.phaseGroup);
             data.phaseGroup = 0;
@@ -2300,7 +2300,7 @@ void ObjectMgr::LoadGameObjects()
     for (uint32 i = 0; i < sMapStore.GetNumRows(); ++i)
         if (sMapStore.LookupEntry(i))
             for (int k = 0; k < MAX_DIFFICULTY; ++k)
-                if (GetMapDifficultyData(i, Difficulty(k)))
+                if (sDBCManager.GetMapDifficultyData(i, Difficulty(k)))
                     spawnMasks[i] |= (1 << k);
 
     PhaseShift phaseShift;
@@ -2409,7 +2409,7 @@ void ObjectMgr::LoadGameObjects()
             data.phaseUseFlags &= ~PHASE_USE_FLAGS_INVERSE;
         }
 
-        if (data.phaseGroup && !GetPhasesForGroup(data.phaseGroup))
+        if (data.phaseGroup && !sDBCManager.GetPhasesForGroup(data.phaseGroup))
         {
             TC_LOG_ERROR("sql.sql", "Table `gameobject` has gameobject (GUID: %u Entry: %u) with non-existing `phasegroup` (%u) set, `phasegroup` set to 0", guid, data.id, data.phaseGroup);
             data.phaseGroup = 0;
@@ -3270,7 +3270,7 @@ void ObjectMgr::PlayerCreateInfoAddItemHelper(uint32 race_, uint32 class_, uint3
 
         for (uint32 gender = 0; gender < GENDER_NONE; ++gender)
         {
-            if (CharStartOutfitEntry const* entry = GetCharStartOutfitEntry(race_, class_, gender))
+            if (CharStartOutfitEntry const* entry = sDBCManager.GetCharStartOutfitEntry(race_, class_, gender))
             {
                 bool found = false;
                 for (uint8 x = 0; x < MAX_OUTFIT_ITEMS; ++x)
@@ -3504,7 +3504,7 @@ void ObjectMgr::LoadPlayerInfo()
                         {
                             if (classMask == 0 || ((1 << (classIndex - 1)) & classMask))
                             {
-                                if (!GetSkillRaceClassInfo(skill.SkillId, raceIndex, classIndex))
+                                if (!sDBCManager.GetSkillRaceClassInfo(skill.SkillId, raceIndex, classIndex))
                                     continue;
 
                                 if (PlayerInfo* info = _playerInfo[raceIndex][classIndex])
@@ -4528,7 +4528,7 @@ void ObjectMgr::LoadQuests()
                 qinfo->_rewardDisplaySpell = 0;                        // no spell reward will display for this quest
             }
 
-            else if (GetTalentSpellCost(qinfo->_rewardDisplaySpell))
+            else if (sDBCManager.GetTalentSpellCost(qinfo->_rewardDisplaySpell))
             {
                 TC_LOG_ERROR("sql.sql", "Quest %u has `RewardDisplaySpell` = %u but spell %u is talent, quest will not have a spell reward.",
                     qinfo->GetQuestId(), qinfo->_rewardDisplaySpell, qinfo->_rewardDisplaySpell);
@@ -4554,7 +4554,7 @@ void ObjectMgr::LoadQuests()
                 qinfo->_rewardSpell = 0;                    // no spell will be cast on player
             }
 
-            else if (GetTalentSpellCost(qinfo->_rewardSpell))
+            else if (sDBCManager.GetTalentSpellCost(qinfo->_rewardSpell))
             {
                 TC_LOG_ERROR("sql.sql", "Quest %u has `RewardDisplaySpell` = %u but spell %u is talent, quest will not have a spell reward.",
                     qinfo->GetQuestId(), qinfo->_rewardSpell, qinfo->_rewardSpell);
@@ -5662,7 +5662,7 @@ void ObjectMgr::LoadInstanceEncounters()
         {
             for (uint32 i = 0; i < MAX_DIFFICULTY; ++i)
             {
-                if (GetMapDifficultyData(dungeonEncounter->MapID, Difficulty(i)))
+                if (sDBCManager.GetMapDifficultyData(dungeonEncounter->MapID, Difficulty(i)))
                 {
                     DungeonEncounterList& encounters = _dungeonEncounterStore[MAKE_PAIR32(dungeonEncounter->MapID, i)];
                     encounters.push_back(new DungeonEncounter(dungeonEncounter, EncounterCreditType(creditType), creditEntry, lastEncounterDungeon));
@@ -7395,7 +7395,7 @@ std::string ObjectMgr::GeneratePetName(uint32 entry) const
         if (!cinfo)
             return std::string();
 
-        char const* petname = GetPetName(cinfo->family, sWorld->GetDefaultDbcLocale());
+        char const* petname = DBCManager::GetPetName(cinfo->family, sWorld->GetDefaultDbcLocale());
         if (petname)
             return std::string(petname);
         else
@@ -8164,7 +8164,7 @@ ResponseCodes ObjectMgr::CheckPlayerName(std::string const& name, LocaleConstant
         if (wname[i] == wname[i-1] && wname[i] == wname[i-2])
             return CHAR_NAME_THREE_CONSECUTIVE;
 
-    return ValidateName(wname, locale);
+    return sDBCManager.ValidateName(wname, locale);
 }
 
 bool ObjectMgr::IsValidCharterName(const std::string& name)
@@ -8202,7 +8202,7 @@ PetNameInvalidReason ObjectMgr::CheckPetName(const std::string& name, LocaleCons
     if (!isValidString(wname, strictMask, false))
         return PET_NAME_MIXED_LANGUAGES;
 
-    switch (ValidateName(wname, locale))
+    switch (sDBCManager.ValidateName(wname, locale))
     {
         case CHAR_NAME_PROFANE:
             return PET_NAME_PROFANE;
@@ -8691,7 +8691,7 @@ void ObjectMgr::LoadTrainers()
                 continue;
             }
 
-            if (GetTalentSpellCost(spell.SpellId))
+            if (sDBCManager.GetTalentSpellCost(spell.SpellId))
             {
                 TC_LOG_ERROR("sql.sql", "Table `trainer_spell` references non-existing spell (SpellId: %u) which is a talent, for TrainerId %u, ignoring", spell.SpellId, trainerId);
                 continue;
@@ -9901,7 +9901,7 @@ bool PhaseInfoStruct::IsAllowedInArea(uint32 areaId) const
 {
     return std::any_of(Areas.begin(), Areas.end(), [areaId](uint32 areaToCheck)
     {
-        return IsInArea(areaId, areaToCheck);
+        return DBCManager::IsInArea(areaId, areaToCheck);
     });
 }
 

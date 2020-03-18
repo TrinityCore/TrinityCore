@@ -15,8 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
 #include "InstanceScript.h"
+#include "Player.h"
+#include "ScriptMgr.h"
 #include "dragon_soul.h"
 
 ObjectData const creatureData[] =

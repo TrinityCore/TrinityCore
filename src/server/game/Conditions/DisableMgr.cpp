@@ -137,11 +137,11 @@ void LoadDisables()
                         break;
                     case MAP_INSTANCE:
                     case MAP_RAID:
-                        if (flags & DUNGEON_STATUSFLAG_HEROIC && !GetMapDifficultyData(entry, DUNGEON_DIFFICULTY_HEROIC))
+                        if (flags & DUNGEON_STATUSFLAG_HEROIC && !sDBCManager.GetMapDifficultyData(entry, DUNGEON_DIFFICULTY_HEROIC))
                             flags -= DUNGEON_STATUSFLAG_HEROIC;
-                        if (flags & RAID_STATUSFLAG_10MAN_HEROIC && !GetMapDifficultyData(entry, RAID_DIFFICULTY_10MAN_HEROIC))
+                        if (flags & RAID_STATUSFLAG_10MAN_HEROIC && !sDBCManager.GetMapDifficultyData(entry, RAID_DIFFICULTY_10MAN_HEROIC))
                             flags -= RAID_STATUSFLAG_10MAN_HEROIC;
-                        if (flags & RAID_STATUSFLAG_25MAN_HEROIC && !GetMapDifficultyData(entry, RAID_DIFFICULTY_25MAN_HEROIC))
+                        if (flags & RAID_STATUSFLAG_25MAN_HEROIC && !sDBCManager.GetMapDifficultyData(entry, RAID_DIFFICULTY_25MAN_HEROIC))
                             flags -= RAID_STATUSFLAG_25MAN_HEROIC;
                         if (!flags)
                             isFlagInvalid = true;
@@ -355,7 +355,7 @@ bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags
                 {
                     uint8 disabledModes = itr->second.flags;
                     Difficulty targetDifficulty = player->GetDifficulty(mapEntry->IsRaid());
-                    GetDownscaledMapDifficultyData(entry, targetDifficulty);
+                    sDBCManager.GetDownscaledMapDifficultyData(entry, targetDifficulty);
                     switch (targetDifficulty)
                     {
                         case DUNGEON_DIFFICULTY_NORMAL:

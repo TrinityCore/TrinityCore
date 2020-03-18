@@ -2232,7 +2232,7 @@ void Spell::EffectLearnSkill(SpellEffIndex effIndex)
         return;
 
     uint32 skillid = m_spellInfo->Effects[effIndex].MiscValue;
-    SkillRaceClassInfoEntry const* rcEntry = GetSkillRaceClassInfo(skillid, unitTarget->getRace(), unitTarget->getClass());
+    SkillRaceClassInfoEntry const* rcEntry = sDBCManager.GetSkillRaceClassInfo(skillid, unitTarget->getRace(), unitTarget->getClass());
     if (!rcEntry)
         return;
 

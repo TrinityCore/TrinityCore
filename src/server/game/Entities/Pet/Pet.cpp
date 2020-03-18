@@ -1371,7 +1371,7 @@ bool Pet::addSpell(uint32 spellId, ActiveStates active /*= ACT_DECIDE*/, PetSpel
         newspell.active = active;
 
     // talent: unlearn all other talent ranks (high and low)
-    if (TalentSpellPos const* talentPos = GetTalentSpellPos(spellId))
+    if (TalentSpellPos const* talentPos = sDBCManager.GetTalentSpellPos(spellId))
     {
         if (TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentPos->talent_id))
         {
@@ -1442,7 +1442,7 @@ bool Pet::addSpell(uint32 spellId, ActiveStates active /*= ACT_DECIDE*/, PetSpel
     if (newspell.active == ACT_ENABLED)
         ToggleAutocast(spellInfo, true);
 
-    uint32 talentCost = GetTalentSpellCost(spellId);
+    uint32 talentCost = sDBCManager.GetTalentSpellCost(spellId);
     if (talentCost)
     {
         int32 free_points = GetMaxTalentPointsForLevel(getLevel());
@@ -1540,7 +1540,7 @@ bool Pet::removeSpell(uint32 spell_id, bool learn_prev, bool clear_ab)
 
     RemoveAurasDueToSpell(spell_id);
 
-    uint32 talentCost = GetTalentSpellCost(spell_id);
+    uint32 talentCost = sDBCManager.GetTalentSpellCost(spell_id);
     if (talentCost > 0)
     {
         if (m_usedTalentCount > talentCost)

@@ -44,11 +44,7 @@ class TC_GAME_API DB2Manager
 public:
     typedef std::map<uint32 /*hash*/, DB2StorageBase*> StorageMap;
 
-    static DB2Manager& Instance()
-    {
-        static DB2Manager instance;
-        return instance;
-    }
+    static DB2Manager& Instance();
 
     void LoadStores(std::string const& dataPath);
     DB2StorageBase const* GetStorage(uint32 type) const;
