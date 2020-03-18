@@ -151,11 +151,11 @@ public:
             } else ArcingSmash_Timer -= diff;
 
             //Whirlwind_Timer
-                   if (Whirlwind_Timer <= diff)
-                   {
-                        DoCastVictim(SPELL_WHIRLWIND);
-                        Whirlwind_Timer = 55000;
-                   } else Whirlwind_Timer -= diff;
+            if (Whirlwind_Timer <= diff)
+            {
+                DoCastVictim(SPELL_WHIRLWIND);
+                Whirlwind_Timer = 55000;
+            } else Whirlwind_Timer -= diff;
 
             //MightyBlow_Timer
             if (MightyBlow_Timer <= diff)
