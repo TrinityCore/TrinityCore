@@ -21,6 +21,7 @@
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "Map.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 
@@ -313,11 +314,12 @@ class go_chromaggus_lever : public GameObjectScript
                 if (instance->GetBossState(DATA_CHROMAGGUS) != DONE && instance->GetBossState(DATA_CHROMAGGUS) != IN_PROGRESS)
                 {
                     instance->SetBossState(DATA_CHROMAGGUS, IN_PROGRESS);
-                    if (Creature* creature = instance->GetCreature(DATA_CHROMAGGUS))
+
+                    if (Creature* creature = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_CHROMAGGUS)))
                         creature->AI()->JustEngagedWith(player);
                     
-                    if (GameObject* gate = me->FindNearestGameObject(GO_CHROMAGGUS_DOOR, 65.0f))
-                        gate->SetGoState(GO_STATE_ACTIVE);
+                    if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_CHROMAGGUS_DOOR))) 
+                        go->SetGoState(GO_STATE_ACTIVE);
                 }
 
                 me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE | GO_FLAG_IN_USE);

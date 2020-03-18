@@ -98,6 +98,8 @@ public:
                     if (Creature* razor = GetCreature(DATA_RAZORGORE_THE_UNTAMED))
                         razor->AI()->JustSummoned(creature);
                     break;
+                case NPC_CHROMAGGUS:
+                    ChromaggusGuid = creature->GetGUID();
                 default:
                     break;
             }
@@ -107,12 +109,19 @@ public:
         {
             InstanceScript::OnGameObjectCreate(go);
 
-            if (go->GetEntry() == GO_BLACK_DRAGON_EGG)
+            switch(go->GetEntry()) 
             {
-                if (GetBossState(DATA_FIREMAW) == DONE)
-                    go->SetPhaseMask(2, true);
-                else
-                    EggList.push_back(go->GetGUID());
+                case GO_BLACK_DRAGON_EGG:
+                    if (GetBossState(DATA_FIREMAW) == DONE)
+                        go->SetPhaseMask(2, true);
+                    else
+                        EggList.push_back(go->GetGUID());                   
+                    break;
+                case GO_CHROMAGGUS_DOOR:
+                    ChromaggusDoorGuid = go->GetGUID();
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -224,6 +233,19 @@ public:
             }
         }
 
+        ObjectGuid GetGuidData(uint32 data) const override 
+        {
+            switch (data) 
+            {
+                case NPC_CHROMAGGUS:
+                    return ChromaggusGuid;
+                case GO_CHROMAGGUS_DOOR:
+                    return ChromaggusDoorGuid;
+            }
+
+            return InstanceScript::GetGuidData(data);
+        }
+
         void OnUnitDeath(Unit* unit) override
         {
             //! HACK, needed because of buggy CreatureAI after charm
@@ -275,6 +297,12 @@ public:
         uint8 EggCount;
         uint32 EggEvent;
         GuidList EggList;
+
+        // Boss GUIDs
+        ObjectGuid ChromaggusGuid;
+        
+        // Door GUIDs
+        ObjectGuid ChromaggusDoorGuid;   
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
