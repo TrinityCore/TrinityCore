@@ -17,6 +17,7 @@
 
 #include "PassiveAI.h"
 #include "Creature.h"
+#include "MovementDefines.h"
 
 PassiveAI::PassiveAI(Creature* creature) : CreatureAI(creature)
 {
@@ -79,10 +80,16 @@ void PossessedAI::KilledUnit(Unit* victim)
         victim->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
 }
 
-void CritterAI::DamageTaken(Unit* /*done_by*/, uint32&)
+void CritterAI::JustEngagedWith(Unit* /*who*/)
 {
     if (!me->HasUnitState(UNIT_STATE_FLEEING))
         me->SetControlled(true, UNIT_STATE_FLEEING);
+}
+
+void CritterAI::OnMovementGeneratorFinalized(MovementGeneratorType type)
+{
+    if (type == TIMED_FLEEING_MOTION_TYPE)
+        EnterEvadeMode(EVADE_REASON_OTHER);
 }
 
 void CritterAI::EnterEvadeMode(EvadeReason why)

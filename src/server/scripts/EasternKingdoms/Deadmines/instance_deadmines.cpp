@@ -69,7 +69,6 @@ class instance_deadmines : public InstanceMapScript
             ObjectGuid DoorLeverGUID;
             ObjectGuid DefiasPirate1GUID;
             ObjectGuid DefiasPirate2GUID;
-            ObjectGuid DefiasCompanionGUID;
             ObjectGuid MrSmiteGUID;
 
             uint32 State;
@@ -132,28 +131,24 @@ class instance_deadmines : public InstanceMapScript
                 {
                     Creature* DefiasPirate1 = pIronCladDoor->SummonCreature(657, pIronCladDoor->GetPositionX() - 2, pIronCladDoor->GetPositionY()-7, pIronCladDoor->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
                     Creature* DefiasPirate2 = pIronCladDoor->SummonCreature(657, pIronCladDoor->GetPositionX() + 3, pIronCladDoor->GetPositionY()-6, pIronCladDoor->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
-                    Creature* DefiasCompanion = pIronCladDoor->SummonCreature(3450, pIronCladDoor->GetPositionX() + 2, pIronCladDoor->GetPositionY()-6, pIronCladDoor->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
 
                     DefiasPirate1GUID = DefiasPirate1->GetGUID();
                     DefiasPirate2GUID = DefiasPirate2->GetGUID();
-                    DefiasCompanionGUID = DefiasCompanion->GetGUID();
                 }
             }
 
             void MoveCreaturesInside()
             {
-                if (!DefiasPirate1GUID || !DefiasPirate2GUID || !DefiasCompanionGUID)
+                if (!DefiasPirate1GUID || !DefiasPirate2GUID)
                     return;
 
                 Creature* pDefiasPirate1 = instance->GetCreature(DefiasPirate1GUID);
                 Creature* pDefiasPirate2 = instance->GetCreature(DefiasPirate2GUID);
-                Creature* pDefiasCompanion = instance->GetCreature(DefiasCompanionGUID);
-                if (!pDefiasPirate1 || !pDefiasPirate2 || !pDefiasCompanion)
+                if (!pDefiasPirate1 || !pDefiasPirate2)
                     return;
 
                 MoveCreatureInside(pDefiasPirate1);
                 MoveCreatureInside(pDefiasPirate2);
-                MoveCreatureInside(pDefiasCompanion);
             }
 
             void MoveCreatureInside(Creature* creature)
