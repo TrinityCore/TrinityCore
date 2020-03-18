@@ -12,6 +12,7 @@
 #include "MotionMaster.h"
 #include "FollowMovementGenerator.h"
 #include "GridNotifiers.h"
+#include "Map.h"
 
 Strategy_Group::Strategy_Group(Player* pmMe)
 {
@@ -227,7 +228,7 @@ void Strategy_Group::Update(uint32 pmDiff)
             }
         }
         Follow();
-    }    
+    }
 }
 
 bool Strategy_Group::GroupInCombat()
@@ -518,32 +519,43 @@ bool Strategy_Group_Shadow_Labyrinth::DPS()
     if (combatTime > dpsDelay)
     {
         // void traveler first
-        if (Unit* currentTarget = me->GetSelectedUnit())
+        if (!ogVT.IsEmpty())
         {
-            if (currentTarget->GetEntry() == SHADOW_LABYRINTH_NPC::SHADOW_LABYRINTH_NPC_VOID_TRAVELER)
+            if (Unit* vt = me->GetMap()->GetCreature(ogVT))
             {
-                if (sb->DPS(currentTarget, true, false))
+                if (sb->DPS(vt, true, false))
                 {
                     return true;
                 }
             }
+            ogVT.Clear();
         }
-        std::list<Unit*> attackTargets;
-        Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(me, me, DEFAULT_VISIBILITY_DISTANCE);
-        Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(me, attackTargets, u_check);
-        Cell::VisitAllObjects(me, searcher, DEFAULT_VISIBILITY_DISTANCE);
-        Unit* nearestAttackableTarget = NULL;
-        float nearestDistance = MAX_VISIBILITY_DISTANCE;
-        for (std::list<Unit*>::iterator it = attackTargets.begin(); it != attackTargets.end(); it++)
-        {
-            if ((*it)->GetEntry() == SHADOW_LABYRINTH_NPC::SHADOW_LABYRINTH_NPC_VOID_TRAVELER)
-            {
-                if (sb->DPS((*it), true, false))
-                {
-                    return true;
-                }
-            }
-        }
+        //if (Unit* currentTarget = me->GetSelectedUnit())
+        //{
+        //    if (currentTarget->GetEntry() == SHADOW_LABYRINTH_NPC::SHADOW_LABYRINTH_NPC_VOID_TRAVELER)
+        //    {
+        //        if (sb->DPS(currentTarget, true, false))
+        //        {
+        //            return true;
+        //        }
+        //    }
+        //}
+        //std::list<Unit*> attackTargets;
+        //Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(me, me, DEFAULT_VISIBILITY_DISTANCE);
+        //Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(me, attackTargets, u_check);
+        //Cell::VisitAllObjects(me, searcher, DEFAULT_VISIBILITY_DISTANCE);
+        //Unit* nearestAttackableTarget = NULL;
+        //float nearestDistance = MAX_VISIBILITY_DISTANCE;
+        //for (std::list<Unit*>::iterator it = attackTargets.begin(); it != attackTargets.end(); it++)
+        //{
+        //    if ((*it)->GetEntry() == SHADOW_LABYRINTH_NPC::SHADOW_LABYRINTH_NPC_VOID_TRAVELER)
+        //    {
+        //        if (sb->DPS((*it), true, false))
+        //        {
+        //            return true;
+        //        }
+        //    }
+        //}
         if (Group* myGroup = me->GetGroup())
         {
             bool aoe = combatTime > aoeDelay;

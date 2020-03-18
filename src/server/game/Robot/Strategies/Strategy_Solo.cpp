@@ -129,23 +129,23 @@ void Strategy_Solo::Update(uint32 pmDiff)
         {
             return;
         }
-        if (Battle())
+        if (urand(0, 1) == 0)
         {
-            return;
+            if (Confuse())
+            {
+                return;
+            }
         }
-        if (urand(0, 2) < 2)
+        if (urand(0, 1) == 0)
         {
             if (Stroll())
             {
                 return;
             }
         }
-        if (urand(0, 2) < 2)
+        if (Battle())
         {
-            if (Confuse())
-            {
-                return;
-            }
+            return;
         }
         if (Wait())
         {

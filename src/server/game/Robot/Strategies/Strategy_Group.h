@@ -56,9 +56,11 @@ class Strategy_Group_Shadow_Labyrinth :public Strategy_Group
 public:
     Strategy_Group_Shadow_Labyrinth(Player* pmMe) :Strategy_Group(pmMe)
     {
-
+        ogVT = ObjectGuid::Empty;
     }
 
     bool DPS() override;
+
+    ObjectGuid ogVT;
 };
 #endif

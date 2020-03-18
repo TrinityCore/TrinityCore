@@ -1064,7 +1064,7 @@ void Script_Base::RandomTeleport()
                 Cell::VisitGridObjects(targetP, searcher, sRobotConfig->TeleportMaxRange);
                 for (std::list<Unit*>::const_iterator uit = targetList.begin(); uit != targetList.end(); ++uit)
                 {
-                    if (me->GetDistance(*uit) > sRobotConfig->TeleportMinRange)
+                    if (targetP->GetDistance(*uit) > sRobotConfig->TeleportMinRange)
                     {
                         validUnitMap[validUnitMap.size()] = *uit;
                     }

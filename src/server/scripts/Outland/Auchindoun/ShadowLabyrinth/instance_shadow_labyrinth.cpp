@@ -22,6 +22,9 @@
 #include "InstanceScript.h"
 #include "Map.h"
 #include "shadow_labyrinth.h"
+#include "GridNotifiers.h"
+#include "RobotAI_Group.h"
+#include "Strategy_Group.h"
 
 DoorData const doorData[] =
 {
@@ -50,37 +53,71 @@ class instance_shadow_labyrinth : public InstanceMapScript
             {
                 switch (creature->GetEntry())
                 {
-                    case NPC_AMBASSADOR_HELLMAW:
-                        AmbassadorHellmawGUID = creature->GetGUID();
-                        break;
-                    case NPC_BLACKHEART:
-                        BlackheartGUID = creature->GetGUID();
-                        break;
-                    case NPC_BLACKHEART_DUMMY1:
-                    case NPC_BLACKHEART_DUMMY2:
-                    case NPC_BLACKHEART_DUMMY3:
-                    case NPC_BLACKHEART_DUMMY4:
-                    case NPC_BLACKHEART_DUMMY5:
-                        BlackheartDummyGUIDs.insert(creature->GetGUID());
-                        break;
-                    case NPC_GRANDMASTER_VORPIL:
-                        GrandmasterVorpilGUID = creature->GetGUID();
-                        break;
-                    case NPC_FEL_OVERSEER:
-                        if (creature->IsAlive())
-                        {
-                            ++FelOverseerCount;
-                            if (Creature* hellmaw = instance->GetCreature(AmbassadorHellmawGUID))
-                                hellmaw->AI()->DoAction(ACTION_AMBASSADOR_HELLMAW_BANISH);
-                        }
-                        break;
-                    case SLCreatureIds::SL_NPC_VOID_TRAVELER:
-                    {                        
-                        creature->SetSpeed(UnitMoveType::MOVE_RUN, 3.0f);
-                        break;
+                case NPC_AMBASSADOR_HELLMAW:
+                    AmbassadorHellmawGUID = creature->GetGUID();
+                    break;
+                case NPC_BLACKHEART:
+                    BlackheartGUID = creature->GetGUID();
+                    break;
+                case NPC_BLACKHEART_DUMMY1:
+                case NPC_BLACKHEART_DUMMY2:
+                case NPC_BLACKHEART_DUMMY3:
+                case NPC_BLACKHEART_DUMMY4:
+                case NPC_BLACKHEART_DUMMY5:
+                    BlackheartDummyGUIDs.insert(creature->GetGUID());
+                    break;
+                case NPC_GRANDMASTER_VORPIL:
+                    GrandmasterVorpilGUID = creature->GetGUID();
+                    break;
+                case NPC_FEL_OVERSEER:
+                    if (creature->IsAlive())
+                    {
+                        ++FelOverseerCount;
+                        if (Creature* hellmaw = instance->GetCreature(AmbassadorHellmawGUID))
+                            hellmaw->AI()->DoAction(ACTION_AMBASSADOR_HELLMAW_BANISH);
                     }
-                    default:
-                        break;
+                    break;
+                case SLCreatureIds::SL_NPC_VOID_TRAVELER:
+                {
+                    std::list<Player*> players;
+                    Trinity::AnyPlayerInObjectRangeCheck checker(creature, 100.0f);
+                    Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(creature, players, checker);
+                    Cell::VisitWorldObjects(creature, searcher, 30.0f);
+                    Player* nearestDPS = NULL;
+                    float nearestDistance = 200.0f;
+                    for (std::list<Player*>::iterator itr = players.begin(); itr != players.end(); ++itr)
+                    {
+                        if ((*itr)->groupRole == 0)
+                        {
+                            if ((*itr)->raiGroup)
+                            {
+                                if (Strategy_Group_Shadow_Labyrinth* sg = (Strategy_Group_Shadow_Labyrinth*)(*itr)->raiGroup->GetActiveStrategy())
+                                {
+                                    if (sg->ogVT.IsEmpty())
+                                    {
+                                        float eachDistance = creature->GetDistance(*itr);
+                                        if (eachDistance < nearestDistance)
+                                        {
+                                            nearestDPS = (*itr);
+                                            nearestDistance = eachDistance;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (nearestDPS)
+                    {
+                        if (Strategy_Group_Shadow_Labyrinth* sg = (Strategy_Group_Shadow_Labyrinth*)nearestDPS->raiGroup->GetActiveStrategy())
+                        {
+                            sg->ogVT = creature->GetGUID();
+                        }
+                    }
+                    creature->SetSpeed(UnitMoveType::MOVE_RUN, 3.0f);
+                    break;
+                }
+                default:
+                    break;
                 }
             }
 
@@ -140,6 +177,10 @@ class instance_shadow_labyrinth : public InstanceMapScript
                     if (!FelOverseerCount)
                         if (Creature* hellmaw = instance->GetCreature(AmbassadorHellmawGUID))
                             hellmaw->AI()->DoAction(ACTION_AMBASSADOR_HELLMAW_INTRO);
+                }
+                else if (creature->GetEntry() == SLCreatureIds::SL_NPC_VOID_TRAVELER)
+                {
+
                 }
             }
 
