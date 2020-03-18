@@ -255,7 +255,7 @@ void AuctionBrowseQuery::Read()
     _worldPacket >> Offset;
     _worldPacket >> MinLevel;
     _worldPacket >> MaxLevel;
-    _worldPacket >> Filters;
+    Filters = _worldPacket.read<AuctionHouseFilterMask, uint32>();
     KnownPets.resize(_worldPacket.read<uint32>());
     _worldPacket >> MaxPetLevel;
     for (uint8& knownPetMask : KnownPets)
@@ -331,7 +331,7 @@ void AuctionListItemsByBucketKey::Read()
 {
     _worldPacket >> Auctioneer;
     _worldPacket >> Offset;
-    _worldPacket >> Unk;
+    _worldPacket >> Unknown830;
 
     if (_worldPacket.ReadBit())
         TaintedBy.emplace();
@@ -525,6 +525,7 @@ WorldPacket const* AuctionCommandResult::Write()
     _worldPacket << Guid;
     _worldPacket << uint64(MinIncrement);
     _worldPacket << uint64(Money);
+    _worldPacket << uint32(DesiredDelay);
 
     return &_worldPacket;
 }
