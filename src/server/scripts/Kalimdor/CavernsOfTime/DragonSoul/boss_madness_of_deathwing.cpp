@@ -1591,9 +1591,9 @@ private:
     InstanceScript* _instance;
 };
 
-struct npc_mandess_of_deathwing_elementium_fragment : public ScriptedAI
+struct npc_madness_of_deathwing_elementium_fragment : public ScriptedAI
 {
-    npc_mandess_of_deathwing_elementium_fragment(Creature* creature) : ScriptedAI(creature), _instance(me->GetInstanceScript())
+    npc_madness_of_deathwing_elementium_fragment(Creature* creature) : ScriptedAI(creature), _instance(me->GetInstanceScript())
     {
         me->SetReactState(REACT_PASSIVE);
     }
@@ -1626,9 +1626,9 @@ private:
     InstanceScript* _instance;
 };
 
-struct npc_mandess_of_deathwing_elementium_terror: public ScriptedAI
+struct npc_madness_of_deathwing_elementium_terror: public ScriptedAI
 {
-    npc_mandess_of_deathwing_elementium_terror(Creature* creature) : ScriptedAI(creature), _instance(me->GetInstanceScript()) { }
+    npc_madness_of_deathwing_elementium_terror(Creature* creature) : ScriptedAI(creature), _instance(me->GetInstanceScript()) { }
 
     void JustAppeared() override
     {
@@ -2679,8 +2679,8 @@ void AddSC_boss_madness_of_deathwing()
     RegisterDragonSoulCreatureAI(npc_madness_of_deathwing_thrall);
     RegisterDragonSoulCreatureAI(npc_madness_of_deathwing_dragon_aspect);
     RegisterDragonSoulCreatureAI(npc_madness_of_deathwing_cosmetic_limb);
-    RegisterDragonSoulCreatureAI(npc_mandess_of_deathwing_elementium_fragment);
-    RegisterDragonSoulCreatureAI(npc_mandess_of_deathwing_elementium_terror);
+    RegisterDragonSoulCreatureAI(npc_madness_of_deathwing_elementium_fragment);
+    RegisterDragonSoulCreatureAI(npc_madness_of_deathwing_elementium_terror);
     RegisterSpellScript(spell_madness_of_deathwing_presence_of_the_aspects);
     RegisterSpellScript(spell_madness_of_deathwing_carrying_winds_jump);
     RegisterSpellScript(spell_madness_of_deathwing_carrying_winds_triggered);
