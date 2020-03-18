@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "blackwing_lair.h"
+#include "InstanceScript.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "Map.h"
