@@ -470,6 +470,88 @@ namespace WorldPackets
             int32 XpAwarded = 0;
             int32 CurrentCount = 0;
         };
+
+        class GuildCommandResult final : public ServerPacket
+        {
+        public:
+            GuildCommandResult() : ServerPacket(SMSG_GUILD_COMMAND_RESULT, 9) { }
+
+            WorldPacket const* Write() override;
+
+            std::string Name;
+            int32 Result = 0;
+            int32 Command = 0;
+        };
+
+        class GuildBankTextQueryResult : public ServerPacket
+        {
+        public:
+            GuildBankTextQueryResult() : ServerPacket(SMSG_GUILD_BANK_TEXT_QUERY_RESULT, 4 + 2) { }
+
+            WorldPacket const* Write() override;
+
+            int32 Tab = 0;
+            std::string Text;
+        };
+
+        class GuildNameChanged final : ServerPacket
+        {
+        public:
+            GuildNameChanged() : ServerPacket(SMSG_GUILD_NAME_CHANGED, 33) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid GuildGUID;
+            std::string GuildName;
+        };
+
+        struct GuildInfoRank
+        {
+            uint32 RankID = 0;
+            uint32 RankOrder = 0;
+            std::string RankName;
+        };
+
+        class QueryGuildInfoResponse final : ServerPacket
+        {
+        public:
+            QueryGuildInfoResponse() : ServerPacket(SMSG_QUERY_GUILD_INFO_RESPONSE) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid GuildGUID;
+            std::string GuildName;
+
+            std::array<GuildInfoRank, GUILD_RANKS_MAX_COUNT> Ranks;
+
+            uint32 RanksSize = 0;
+            uint32 EmblemStyle = 0;
+            uint32 EmblemColor = 0;
+            uint32 BorderStyle = 0;
+            uint32 BorderColor = 0;
+            uint32 BackgroundColor = 0;
+        };
+
+        struct GuildRankData
+        {
+            uint8 RankID = 0;
+            int32 RankOrder = 0;
+            uint32 Flags = 0;
+            uint32 WithdrawGoldLimit = 0;
+            std::string RankName;
+            uint32 TabFlags[GUILD_BANK_MAX_TABS];
+            uint32 TabWithdrawItemLimit[GUILD_BANK_MAX_TABS];
+        };
+
+        class GuildRanks final : public ServerPacket
+        {
+        public:
+            GuildRanks() : ServerPacket(SMSG_GUILD_RANKS, 4) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<GuildRankData> Ranks;
+        };
     }
 }
 

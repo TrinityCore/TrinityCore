@@ -555,3 +555,105 @@ WorldPacket const* WorldPackets::Guild::GuildChallengeCompleted::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Guild::GuildCommandResult::Write()
+{
+    _worldPacket << uint32(Command);
+    _worldPacket << Name;
+    _worldPacket << uint32(Result);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Guild::GuildBankTextQueryResult::Write()
+{
+    _worldPacket.WriteBits(Text.length(), 14);
+    _worldPacket.FlushBits();
+
+    _worldPacket << uint32(Tab);
+    _worldPacket.WriteString(Text);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Guild::GuildNameChanged::Write()
+{
+    _worldPacket.WriteBit(GuildGUID[5]);
+    _worldPacket.WriteBits(GuildName.length(), 8);
+    _worldPacket.WriteBit(GuildGUID[4]);
+    _worldPacket.WriteBit(GuildGUID[0]);
+    _worldPacket.WriteBit(GuildGUID[6]);
+    _worldPacket.WriteBit(GuildGUID[3]);
+    _worldPacket.WriteBit(GuildGUID[1]);
+    _worldPacket.WriteBit(GuildGUID[7]);
+    _worldPacket.WriteBit(GuildGUID[2]);
+
+    _worldPacket.WriteByteSeq(GuildGUID[3]);
+    _worldPacket.WriteByteSeq(GuildGUID[2]);
+    _worldPacket.WriteByteSeq(GuildGUID[7]);
+    _worldPacket.WriteByteSeq(GuildGUID[1]);
+    _worldPacket.WriteByteSeq(GuildGUID[0]);
+    _worldPacket.WriteByteSeq(GuildGUID[6]);
+    _worldPacket.WriteString(GuildName);
+    _worldPacket.WriteByteSeq(GuildGUID[4]);
+    _worldPacket.WriteByteSeq(GuildGUID[5]);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Guild::QueryGuildInfoResponse::Write()
+{
+    _worldPacket << GuildGUID;
+    _worldPacket << GuildName;
+
+    for (uint8 i = 0; i < GUILD_RANKS_MAX_COUNT; ++i)
+        _worldPacket << Ranks[i].RankName;
+
+    for (uint8 i = 0; i < GUILD_RANKS_MAX_COUNT; ++i)
+        _worldPacket << uint32(Ranks[i].RankOrder);
+
+    for (uint8 i = 0; i < GUILD_RANKS_MAX_COUNT; ++i)
+        _worldPacket << uint32(Ranks[i].RankID);
+
+    _worldPacket << uint32(EmblemStyle);
+    _worldPacket << uint32(EmblemColor);
+    _worldPacket << uint32(BorderStyle);
+    _worldPacket << uint32(BorderColor);
+    _worldPacket << uint32(BackgroundColor);
+
+    _worldPacket << uint32(RanksSize);
+
+    return &_worldPacket;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Guild::GuildRankData const& rankData)
+{
+    data << int32(rankData.RankID);
+
+    for (uint8 i = 0; i < GUILD_BANK_MAX_TABS; i++)
+    {
+        data << int32(rankData.TabWithdrawItemLimit[i]);
+        data << int32(rankData.TabFlags[i]);
+    }
+
+    data << int32(rankData.WithdrawGoldLimit);
+    data << int32(rankData.Flags);
+    data.WriteString(rankData.RankName);
+    data << int32(rankData.RankOrder);
+    return data;
+}
+
+WorldPacket const* WorldPackets::Guild::GuildRanks::Write()
+{
+    _worldPacket.WriteBits(Ranks.size(), 18);
+
+    for (GuildRankData const& rank : Ranks)
+        _worldPacket.WriteBits(rank.RankName.length(), 7);
+
+    _worldPacket.FlushBits();
+
+    for (GuildRankData const& rank : Ranks)
+        _worldPacket << rank;
+
+    return &_worldPacket;
+}

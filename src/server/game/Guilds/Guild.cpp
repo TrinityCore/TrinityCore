@@ -115,14 +115,14 @@ void Guild::SendCommandResult(WorldSession* session, GuildCommandType type, Guil
     // Note: SMSG_GUILD_COMMAND_RESULT and SMSG_GUILD_COMMAND_RESULT_2 do exactly the same in the client, they just have different structures.
     // There's no particular reason why we use SMSG_GUILD_COMMAND_RESULT_2, this one is processed inmediately as it is read from the client.
     // SMSG_GUILD_COMMAND_RESULT is a JAM opcode
-    WorldPacket data(SMSG_GUILD_COMMAND_RESULT_2, 8 + param.size() + 1);
-    data << uint32(type);
-    data << param;
-    data << uint32(errCode);
-    session->SendPacket(&data);
+    WorldPackets::Guild::GuildCommandResult result;
 
-    TC_LOG_DEBUG("guild", "SMSG_GUILD_COMMAND_RESULT [%s]: Type: %u, code: %u, param: %s"
-         , session->GetPlayerInfo().c_str(), type, errCode, param.c_str());
+    result.Command = type;
+    result.Name = param;
+    result.Result = errCode;
+    session->SendPacket(result.Write());
+
+    TC_LOG_DEBUG("guild", "SMSG_GUILD_COMMAND_RESULT [%s]: Type: %u, code: %u, param: %s", session->GetPlayerInfo().c_str(), type, errCode, param.c_str());
 }
 
 void Guild::SendSaveEmblemResult(WorldSession* session, GuildEmblemError errCode)
@@ -638,21 +638,20 @@ bool Guild::BankTab::SetItem(SQLTransaction& trans, uint8 slotId, Item* item)
 
 void Guild::BankTab::SendText(Guild const* guild, WorldSession* session) const
 {
-    WorldPacket data(SMSG_GUILD_BANK_QUERY_TEXT_RESULT, 1 + m_text.size() + 1);
-    data.WriteBits(m_text.length(), 14);
-    data << uint32(m_tabId);
-    data.WriteString(m_text);
+    WorldPackets::Guild::GuildBankTextQueryResult textQuery;
+    textQuery.Text = m_text;
+    textQuery.Tab = m_tabId;
 
     if (session)
     {
         TC_LOG_DEBUG("guild", "SMSG_GUILD_BANK_QUERY_TEXT_RESULT [%s]: Tabid: %u, Text: %s"
             , session->GetPlayerInfo().c_str(), m_tabId, m_text.c_str());
-        session->SendPacket(&data);
+        session->SendPacket(textQuery.Write());
     }
     else
     {
         TC_LOG_DEBUG("guild", "SMSG_GUILD_BANK_QUERY_TEXT_RESULT [Broadcast]: Tabid: %u, Text: %s", m_tabId, m_text.c_str());
-        guild->BroadcastPacket(&data);
+        guild->BroadcastPacket(textQuery.Write());
     }
 }
 
@@ -1033,15 +1032,6 @@ void EmblemInfo::LoadFromDB(Field* fields)
     m_borderStyle       = fields[5].GetUInt8();
     m_borderColor       = fields[6].GetUInt8();
     m_backgroundColor   = fields[7].GetUInt8();
-}
-
-void EmblemInfo::WritePacket(WorldPacket& data) const
-{
-    data << uint32(m_style);
-    data << uint32(m_color);
-    data << uint32(m_borderStyle);
-    data << uint32(m_borderColor);
-    data << uint32(m_backgroundColor);
 }
 
 void EmblemInfo::SaveToDB(ObjectGuid::LowType guildId) const
@@ -1616,29 +1606,10 @@ bool Guild::SetName(std::string const& name)
     stmt->setUInt32(1, GetId());
     CharacterDatabase.Execute(stmt);
 
-    ObjectGuid guid = GetGUID();
-    WorldPacket data(SMSG_GUILD_RENAMED, 24 + 8 + 1);
-    data.WriteBit(guid[5]);
-    data.WriteBits(name.length(), 8);
-    data.WriteBit(guid[4]);
-    data.WriteBit(guid[0]);
-    data.WriteBit(guid[6]);
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[1]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[2]);
-
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[6]);
-    data.WriteString(name);
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[5]);
-
-    BroadcastPacket(&data);
+    WorldPackets::Guild::GuildNameChanged guildNameChanged;
+    guildNameChanged.GuildGUID = GetGUID();
+    guildNameChanged.GuildName = name;
+    BroadcastPacket(guildNameChanged.Write());
     return true;
 }
 
@@ -1699,53 +1670,41 @@ void Guild::HandleRoster(WorldSession* session)
     session->SendPacket(roster.Write());
 }
 
-void Guild::HandleQuery(WorldSession* session)
+void Guild::SendQueryResponse(WorldSession* session)
 {
-    WorldPacket data(SMSG_GUILD_QUERY_RESPONSE, 8 * 32 + 200);      // Guess size
+    WorldPackets::Guild::QueryGuildInfoResponse response;
+    response.GuildGUID = GetGUID();
+    response.GuildName = m_name;
 
-    data << uint64(GetGUID());
-    data << m_name;
+    response.EmblemStyle = m_emblemInfo.GetStyle();
+    response.EmblemColor = m_emblemInfo.GetColor();
+    response.BorderStyle = m_emblemInfo.GetBorderStyle();
+    response.BorderColor = m_emblemInfo.GetBorderColor();
+    response.BackgroundColor = m_emblemInfo.GetBackgroundColor();
 
-    // Rank name
-    for (uint8 i = 0; i < GUILD_RANKS_MAX_COUNT; ++i)               // Always show 10 ranks
-    {
-        if (i < _GetRanksSize())
-            data << m_ranks[i].GetName();
-        else
-            data << uint8(0);                                       // Empty string
-    }
+    response.RanksSize = _GetRanksSize();
 
-    // Rank order of creation
     for (uint8 i = 0; i < GUILD_RANKS_MAX_COUNT; ++i)
     {
+        WorldPackets::Guild::GuildInfoRank info;
         if (i < _GetRanksSize())
-            data << uint32(i);
-        else
-            data << uint32(0);
+        {
+            info.RankID = m_ranks[i].GetId();
+            info.RankOrder = i;
+            info.RankName = m_ranks[i].GetName();
+        }
+        response.Ranks[i] = info;
     }
 
-    // Rank order of "importance" (sorting by rights)
-    for (uint8 i = 0; i < GUILD_RANKS_MAX_COUNT; ++i)
-    {
-        if (i < _GetRanksSize())
-            data << uint32(m_ranks[i].GetId());
-        else
-            data << uint32(0);
-    }
-
-    m_emblemInfo.WritePacket(data);
-    data << uint32(_GetRanksSize());                                // Number of ranks used
-
-    session->SendPacket(&data);
-    TC_LOG_DEBUG("guild", "SMSG_GUILD_QUERY_RESPONSE [%s]", session->GetPlayerInfo().c_str());
+    session->SendPacket(response.Write());
+    TC_LOG_DEBUG("guild", "SMSG_QUERY_GUILD_INFO_RESPONSE [%s]", session->GetPlayerInfo().c_str());
 }
 
 void Guild::SendGuildRankInfo(WorldSession* session) const
 {
-    ByteBuffer rankData(100);
-    WorldPacket data(SMSG_GUILD_RANK, 100);
+    WorldPackets::Guild::GuildRanks ranks;
 
-    data.WriteBits(_GetRanksSize(), 18);
+    ranks.Ranks.reserve(_GetRanksSize());
 
     for (uint8 i = 0; i < _GetRanksSize(); i++)
     {
@@ -1753,29 +1712,25 @@ void Guild::SendGuildRankInfo(WorldSession* session) const
         if (!rankInfo)
             continue;
 
-        data.WriteBits(rankInfo->GetName().length(), 7);
+        WorldPackets::Guild::GuildRankData rankData;
 
-        rankData << uint32(rankInfo->GetId());
+        rankData.RankID = rankInfo->GetId();
+        rankData.RankOrder = uint32(i);
+        rankData.Flags = rankInfo->GetRights();
+        rankData.WithdrawGoldLimit = (rankInfo->GetId() == GR_GUILDMASTER ? (-1) : int32(rankInfo->GetBankMoneyPerDay() / GOLD));
+        rankData.RankName = rankInfo->GetName();
 
         for (uint8 j = 0; j < GUILD_BANK_MAX_TABS; ++j)
         {
-            rankData << uint32(rankInfo->GetBankTabSlotsPerDay(j));
-            rankData << uint32(rankInfo->GetBankTabRights(j));
+            rankData.TabFlags[j] = uint32(rankInfo->GetBankTabRights(j));
+            rankData.TabWithdrawItemLimit[j] = uint32(rankInfo->GetBankTabSlotsPerDay(j));
         }
 
-        rankData << uint32(rankInfo->GetBankMoneyPerDay());
-        rankData << uint32(rankInfo->GetRights());
-
-        if (rankInfo->GetName().length())
-            rankData.WriteString(rankInfo->GetName());
-
-        rankData << uint32(i);
+        ranks.Ranks.push_back(rankData);
     }
 
-    data.FlushBits();
-    data.append(rankData);
-    session->SendPacket(&data);
-    TC_LOG_DEBUG("guild", "SMSG_GUILD_RANK [%s]", session->GetPlayerInfo().c_str());
+    session->SendPacket(ranks.Write());
+    TC_LOG_DEBUG("guild", "SMSG_GUILD_RANKS [%s]", session->GetPlayerInfo().c_str());
 }
 
 void Guild::HandleSetAchievementTracking(WorldSession* session, std::set<uint32> const& achievementIds)
@@ -1861,7 +1816,7 @@ void Guild::HandleSetEmblem(WorldSession* session, EmblemInfo const& emblemInfo)
 
         SendSaveEmblemResult(session, ERR_GUILDEMBLEM_SUCCESS); // "Guild Emblem saved."
 
-        HandleQuery(session);
+        SendQueryResponse(session);
     }
 }
 

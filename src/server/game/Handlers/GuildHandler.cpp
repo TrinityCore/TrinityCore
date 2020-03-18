@@ -41,7 +41,7 @@ void WorldSession::HandleGuildQueryOpcode(WorldPacket& recvPacket)
 
     if (Guild* guild = sGuildMgr->GetGuildByGuid(guildGuid))
         if (guild->IsMember(playerGuid))
-            guild->HandleQuery(this);
+            guild->SendQueryResponse(this);
 }
 
 void WorldSession::HandleGuildInviteOpcode(WorldPacket& recvPacket)
