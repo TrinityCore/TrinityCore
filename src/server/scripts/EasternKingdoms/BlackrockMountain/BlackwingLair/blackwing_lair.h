@@ -61,11 +61,14 @@ enum BWLCreatureIds
 enum BWLGameObjectIds
 {
     GO_BLACK_DRAGON_EGG         = 177807,
-    GO_PORTCULLIS               = 176965,
-    GO_DRAKE_RIDER_PORTCULLIS   = 175185,
-    GO_ALTERAC_VALLEY_GATE      = 180424,
-    GO_GATE                     = 185483,
-    GO_VACCUUM_EXIT_GATE        = 181125
+    GO_PORTCULLIS_RAZORGORE     = 176965,
+    GO_PORTCULLIS_VAELASTRASZ   = 179364,
+    GO_PORTCULLIS_BROODLORD     = 179365,
+    GO_PORTCULLIS_THREEDRAGONS  = 179115,
+    GO_PORTCULLIS_CHROMAGGUS    = 179117, //Door after you kill him, not the one for his room
+    GO_CHROMAGGUS_LEVER         = 179148,
+    GO_CHROMAGGUS_DOOR          = 179116,
+    GO_PORTCULLIS_NEFARIAN      = 176966
 };
 
 enum BWLEvents

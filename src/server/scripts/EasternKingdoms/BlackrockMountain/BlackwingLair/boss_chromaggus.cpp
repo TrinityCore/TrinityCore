@@ -17,6 +17,8 @@
 
 #include "ScriptMgr.h"
 #include "blackwing_lair.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
 #include "Map.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
@@ -294,7 +296,44 @@ public:
     }
 };
 
+class go_chromaggus_lever : public GameObjectScript
+{
+    public:
+        go_chromaggus_lever() : GameObjectScript("go_chromaggus_lever") { }
+
+        struct go_chromaggus_leverAI : public GameObjectAI
+        {
+            go_chromaggus_leverAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
+
+            InstanceScript* instance;
+
+            bool GossipHello(Player* player) override
+            {
+                if (instance->GetBossState(DATA_CHROMAGGUS) != DONE && instance->GetBossState(DATA_CHROMAGGUS) != IN_PROGRESS)
+                {
+                    instance->SetBossState(DATA_CHROMAGGUS, IN_PROGRESS);
+                    if (Creature* creature = instance->GetCreature(DATA_CHROMAGGUS))
+                        creature->AI()->JustEngagedWith(player);
+                    
+                    if (GameObject* gate = me->FindNearestGameObject(GO_CHROMAGGUS_DOOR, 65.0f))
+                        gate->SetGoState(GO_STATE_ACTIVE);
+                }
+
+                me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE | GO_FLAG_IN_USE);
+                me->SetGoState(GO_STATE_ACTIVE);
+
+                return true;
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return GetBlackwingLairAI<go_chromaggus_leverAI>(go);
+        }
+};
+
 void AddSC_boss_chromaggus()
 {
     new boss_chromaggus();
+    new go_chromaggus_lever();
 }

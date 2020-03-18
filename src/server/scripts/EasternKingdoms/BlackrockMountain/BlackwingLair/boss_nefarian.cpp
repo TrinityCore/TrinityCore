@@ -177,6 +177,9 @@ public:
         void Initialize()
         {
             SpawnedAdds = 0;
+            
+            if (GameObject* go = me->FindNearestGameObject(GO_PORTCULLIS_NEFARIAN, 200.0f))
+                go->SetGoState(GO_STATE_ACTIVE);
         }
 
         void Reset() override
@@ -218,6 +221,9 @@ public:
             events.ScheduleEvent(EVENT_FEAR, 10s, 20s);
             //events.ScheduleEvent(EVENT_MIND_CONTROL, 30s, 35s);
             events.ScheduleEvent(EVENT_SPAWN_ADD, 10s);
+
+            if (GameObject* go = me->FindNearestGameObject(GO_PORTCULLIS_NEFARIAN, 200.0f))
+                go->SetGoState(GO_STATE_READY);
         }
 
         void SummonedCreatureDies(Creature* summon, Unit* /*killer*/) override
@@ -440,6 +446,8 @@ public:
         {
             _JustDied();
             Talk(SAY_DEATH);
+            if (GameObject* go = me->FindNearestGameObject(GO_PORTCULLIS_NEFARIAN, 200.0f))
+                go->SetGoState(GO_STATE_ACTIVE);
         }
 
         void KilledUnit(Unit* victim) override
