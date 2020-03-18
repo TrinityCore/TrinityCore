@@ -28,7 +28,7 @@ class Player;
 struct Loot;
 struct LootItem;
 
-namespace boost
+namespace std
 {
     class shared_mutex;
 }
@@ -76,7 +76,7 @@ class LootItemStorage
 {
     public:
         static LootItemStorage* instance();
-        static boost::shared_mutex* GetLock();
+        static std::shared_mutex* GetLock();
 
         void LoadStorageFromDB();
         bool LoadStoredLoot(Item* item, Player* player);

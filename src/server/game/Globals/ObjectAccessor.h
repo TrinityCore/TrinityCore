@@ -33,7 +33,7 @@ class Transport;
 class Unit;
 class WorldObject;
 
-namespace boost
+namespace std
 {
     class shared_mutex;
 }
@@ -56,7 +56,7 @@ public:
 
     static MapType& GetContainer();
 
-    static boost::shared_mutex* GetLock();
+    static std::shared_mutex* GetLock();
 };
 
 namespace ObjectAccessor
