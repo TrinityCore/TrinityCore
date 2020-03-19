@@ -1207,7 +1207,7 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
             float destX = 0;
             float destY = 0;
             float destZ = 0;
-            targetUnit->GetNearPoint(pmPlayer, destX, destY, destZ, distance, M_PI / 16 + targetUnit->GetAbsoluteAngle(pmPlayer));
+            targetUnit->GetNearPoint(pmPlayer, destX, destY, destZ, distance, M_PI / 16 + targetUnit->GetAbsoluteAngle(pmPlayer->GetPosition()));
             pmPlayer->GetMotionMaster()->MovePoint(1, destX, destY, destZ, true, pmPlayer->GetAbsoluteAngle(targetUnit->GetPosition()));
             sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, "Move side", pmPlayer);
         }
@@ -3419,7 +3419,7 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                                     float destX = 0;
                                     float destY = 0;
                                     float destZ = 0;
-                                    target->GetNearPoint(pmReceiver, destX, destY, destZ, distance, M_PI / 16 + target->GetAbsoluteAngle(pmReceiver));
+                                    target->GetNearPoint(pmReceiver, destX, destY, destZ, distance, M_PI / 16 + target->GetAbsoluteAngle(pmReceiver->GetPosition()));
                                     if (pmReceiver->GetStandState() != UnitStandStateType::UNIT_STAND_STATE_STAND)
                                     {
                                         pmReceiver->SetStandState(UNIT_STAND_STATE_STAND);
@@ -3476,7 +3476,7 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                                             float destX = 0;
                                             float destY = 0;
                                             float destZ = 0;
-                                            target->GetNearPoint(member, destX, destY, destZ, distance, M_PI / 16 + target->GetAbsoluteAngle(member));
+                                            target->GetNearPoint(member, destX, destY, destZ, distance, M_PI / 16 + target->GetAbsoluteAngle(member->GetPosition()));
                                             if (member->GetStandState() != UnitStandStateType::UNIT_STAND_STATE_STAND)
                                             {
                                                 member->SetStandState(UNIT_STAND_STATE_STAND);

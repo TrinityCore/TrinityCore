@@ -9995,6 +9995,13 @@ void ObjectMgr::LoadCreatureClassLevelStats()
         stats.AttackPower = fields[7].GetUInt16();
         stats.RangedAttackPower = fields[8].GetUInt16();
 
+        // EJ creature stats modification
+        for (uint8 i = 0; i < MAX_EXPANSIONS; ++i)
+        {
+            stats.BaseHealth[i] = stats.BaseHealth[i] + stats.BaseHealth[i] * Level / 100;
+            stats.BaseDamage[i] = stats.BaseDamage[i] + stats.BaseDamage[i] * Level / 100;
+        }
+
         _creatureBaseStatsStore[MAKE_PAIR16(Level, Class)] = stats;
 
         ++count;
