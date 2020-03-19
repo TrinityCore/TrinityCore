@@ -57,7 +57,7 @@ struct are_all_assignable
 template <typename T1, typename T2, typename... Ts>
 struct are_all_assignable<T1, T2, Ts...>
 {
-    static constexpr bool value = advstd::is_assignable_v<T1&, T2> && are_all_assignable<T1, Ts...>::value;
+    static constexpr bool value = std::is_assignable_v<T1&, T2> && are_all_assignable<T1, Ts...>::value;
 };
 
 template <size_t index, typename T1, typename... Ts>

@@ -32,7 +32,7 @@ template <typename Encoding>
 struct GenericBaseEncoding
 {
     static constexpr std::size_t BITS_PER_CHAR = Encoding::BITS_PER_CHAR;
-    static constexpr std::size_t PAD_TO = advstd::lcm(8u, BITS_PER_CHAR);
+    static constexpr std::size_t PAD_TO = std::lcm(8u, BITS_PER_CHAR);
 
     static_assert(BITS_PER_CHAR < 8, "Encoding parameters are invalid");
 
