@@ -28,6 +28,7 @@ EndScriptData */
 #include "Language.h"
 #include "Player.h"
 #include "RBAC.h"
+#include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "WorldSession.h"
 
