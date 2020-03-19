@@ -20,7 +20,6 @@
 
 #include "CryptoHash.h"
 #include <cstring>
-#include "advstd.h" // for data/size
 
 template <typename Hash>
 class SessionKeyGenerator
@@ -30,8 +29,8 @@ class SessionKeyGenerator
         SessionKeyGenerator(C const& buf) :
             o0it(o0.begin())
         {
-            uint8 const* data = advstd::data(buf);
-            size_t const len = advstd::size(buf);
+            uint8 const* data = std::data(buf);
+            size_t const len = std::size(buf);
             size_t const halflen = (len / 2);
 
             o1 = Hash::GetDigestOf(data, halflen);

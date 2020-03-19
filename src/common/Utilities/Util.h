@@ -24,7 +24,6 @@
 #include <string>
 #include <utility>
 #include <vector>
-#include "advstd.h"
 
 enum LocaleConstant : uint8;
 
@@ -343,7 +342,7 @@ TC_COMMON_API uint32 GetPID();
 
 TC_COMMON_API std::string ByteArrayToHexStr(uint8 const* bytes, size_t length, bool reverse = false);
 template <typename Container>
-std::string ByteArrayToHexStr(Container const& c, bool reverse = false) { return ByteArrayToHexStr(advstd::data(c), advstd::size(c), reverse); }
+std::string ByteArrayToHexStr(Container const& c, bool reverse = false) { return ByteArrayToHexStr(std::data(c), std::size(c), reverse); }
 TC_COMMON_API void HexStrToByteArray(std::string const& str, uint8* out, bool reverse = false);
 template <size_t Size>
 void HexStrToByteArray(std::string const& str, std::array<uint8, Size>& buf, bool reverse = false)

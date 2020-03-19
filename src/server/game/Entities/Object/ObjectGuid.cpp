@@ -23,7 +23,6 @@
 #include "Realm.h"
 #include "Util.h"
 #include "World.h"
-#include "advstd.h"
 
 static_assert(sizeof(ObjectGuid) == sizeof(uint64) * 2, "ObjectGuid must be exactly 16 bytes");
 
@@ -104,7 +103,7 @@ namespace
             };
 
             ObjectGuid::LowType id = guid.GetCounter();
-            if (id >= advstd::size(uniqNames))
+            if (id >= std::size(uniqNames))
                 id = 3;
 
             return Trinity::StringFormat("%s-%s", typeName, uniqNames[id]);
@@ -134,7 +133,7 @@ namespace
                 "WOWGUID_UNIQUE_ACCOUNT_OBJ_INITIALIZATION"
             };
 
-            for (std::size_t id = 0; id < advstd::size(uniqNames); ++id)
+            for (std::size_t id = 0; id < std::size(uniqNames); ++id)
             {
                 if (!uniqNames[id])
                     continue;

@@ -20,7 +20,6 @@
 
 #include "Define.h"
 #include <array>
-#include "advstd.h"
 
 namespace Trinity
 {
@@ -31,7 +30,7 @@ namespace Crypto
     template <typename Container>
     void GetRandomBytes(Container& c)
     {
-        GetRandomBytes(advstd::data(c), advstd::size(c));
+        GetRandomBytes(std::data(c), std::size(c));
     }
 
     template <size_t S>
