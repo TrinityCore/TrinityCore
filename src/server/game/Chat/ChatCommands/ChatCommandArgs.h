@@ -123,6 +123,13 @@ struct TC_GAME_API ArgInfo<GameTele const*>
     static char const* TryConsume(GameTele const*&, char const*);
 };
 
+// SpellInfo const* from spell id or link
+template <>
+struct TC_GAME_API ArgInfo<SpellInfo const*>
+{
+    static char const* TryConsume(SpellInfo const*&, char const*);
+};
+
 // bool from 1/0 or on/off
 template <>
 struct TC_GAME_API ArgInfo<bool>
