@@ -18,9 +18,9 @@
 #ifndef TRINITY_HYPERLINKS_H
 #define TRINITY_HYPERLINKS_H
 
-#include "advstd.h"
 #include "ObjectGuid.h"
 #include <string>
+#include <type_traits>
 #include <utility>
 
 struct AchievementEntry;

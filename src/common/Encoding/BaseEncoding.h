@@ -18,9 +18,9 @@
 #ifndef TRINITY_BASE_ENCODING_HPP
 #define TRINITY_BASE_ENCODING_HPP
 
-#include "advstd.h"
 #include "Define.h"
 #include "Optional.h"
+#include <numeric>
 #include <string>
 #include <vector>
 

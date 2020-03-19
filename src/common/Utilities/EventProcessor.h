@@ -18,11 +18,12 @@
 #ifndef __EVENTPROCESSOR_H
 #define __EVENTPROCESSOR_H
 
+#include "advstd.h"
 #include "Define.h"
 #include "Duration.h"
 #include "Random.h"
-#include "advstd.h"
 #include <map>
+#include <type_traits>
 
 class EventProcessor;
 

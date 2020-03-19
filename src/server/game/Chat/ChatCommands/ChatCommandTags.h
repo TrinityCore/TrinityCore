@@ -18,6 +18,7 @@
 #ifndef TRINITY_CHATCOMMANDTAGS_H
 #define TRINITY_CHATCOMMANDTAGS_H
 
+#include "advstd.h"
 #include "ChatCommandHelpers.h"
 #include "Hyperlinks.h"
 #include "Optional.h"

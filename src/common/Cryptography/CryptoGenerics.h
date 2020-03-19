@@ -18,10 +18,10 @@
 #ifndef TRINITY_CRYPTO_GENERICS_HPP
 #define TRINITY_CRYPTO_GENERICS_HPP
 
-#include "advstd.h"
 #include "BigNumber.h"
 #include "Define.h"
 #include "Errors.h"
+#include <iterator>
 #include <vector>
 #include <openssl/rand.h>
 

@@ -18,9 +18,9 @@
 #ifndef TRINITY_FUZZYFIND_H
 #define TRINITY_FUZZYFIND_H
 
-#include "advstd.h"
 #include <map>
 #include <string>
+#include <type_traits>
 
 namespace Trinity
 {
