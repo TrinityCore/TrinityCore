@@ -15,18 +15,20 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AllPackets_h__
-#define AllPackets_h__
+#ifndef Tuples_h__
+#define Tuples_h__
 
-#include "ChatPackets.h"
-#include "CombatPackets.h"
-#include "GuildPackets.h"
-#include "NPCPackets.h"
-#include "MiscPackets.h"
-#include "QueryPackets.h"
-#include "QuestPackets.h"
-#include "SpellPackets.h"
-#include "TotemPackets.h"
-#include "WorldStatePackets.h"
+#include <tuple>
 
-#endif // AllPackets_h__
+namespace Trinity
+{
+    template <typename T, typename Tuple>
+    struct has_type;
+
+    template <typename T, typename... Us>
+    struct has_type<T, std::tuple<Us...>> : std::disjunction<std::is_same<T, Us>...>
+    {
+    };
+}
+
+#endif // Tuples_h__

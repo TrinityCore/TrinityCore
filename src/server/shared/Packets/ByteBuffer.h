@@ -60,7 +60,7 @@ public:
 class TC_SHARED_API ByteBufferInvalidValueException : public ByteBufferException
 {
 public:
-    ByteBufferInvalidValueException(char const* type, size_t pos);
+    ByteBufferInvalidValueException(char const* type, char const* value);
 
     ~ByteBufferInvalidValueException() noexcept = default;
 };
