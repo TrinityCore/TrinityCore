@@ -45,7 +45,7 @@ struct CommandArgsConsumerSingle
 
 struct CommandArgsVariantConsumer
 {
-    template <typename V, typename T1, typename T2, typename... Ts>
+    template <typename V, typename T1, typename... Ts>
     static char const* TryConsumeTo(V& val, char const* args)
     {
         T1 v;
@@ -54,19 +54,8 @@ struct CommandArgsVariantConsumer
             val = std::move(v);
             return next;
         }
-        else
-            return TryConsumeTo<V, T2, Ts...>(val, args);
-    }
-
-    template <typename V, typename T1>
-    static char const* TryConsumeTo(V& val, char const* args)
-    {
-        T1 v;
-        if (char const* next = CommandArgsConsumerSingle<T1>::TryConsumeTo(v, args))
-        {
-            val = std::move(v);
-            return next;
-        }
+        else if constexpr (sizeof...(Ts) > 0)
+            return TryConsumeTo<V, Ts...>(val, args);
         else
             return nullptr;
     }
