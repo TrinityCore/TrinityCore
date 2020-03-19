@@ -171,7 +171,7 @@ void WorldSession::HandleGuildRankOpcode(WorldPackets::Guild::GuildSetRankPermis
 
     GuildBankRightsAndSlotsVec rightsAndSlots(GUILD_BANK_MAX_TABS);
     for (uint8 tabId = 0; tabId < GUILD_BANK_MAX_TABS; ++tabId)
-        rightsAndSlots[tabId] = GuildBankRightsAndSlots(tabId, uint8(packet.TabFlags[tabId]), uint8(packet.TabWithdrawItemLimit[tabId]));
+        rightsAndSlots[tabId] = GuildBankRightsAndSlots(tabId, uint8(packet.TabFlags[tabId]), uint32(packet.TabWithdrawItemLimit[tabId]));
 
     TC_LOG_DEBUG("guild", "CMSG_GUILD_RANK [%s]: Rank: %s (%u)", GetPlayerInfo().c_str(), packet.RankName.c_str(), packet.RankID);
 
@@ -275,7 +275,10 @@ void WorldSession::HandleGuildBankQueryTab(WorldPackets::Guild::GuildBankQueryTa
 
     if (GetPlayer()->GetGameObjectIfCanInteractWith(packet.Banker, GAMEOBJECT_TYPE_GUILD_BANK))
         if (Guild* guild = GetPlayer()->GetGuild())
-            guild->SendBankTabData(this, packet.Tab, packet.FullUpdate);
+            guild->SendBankTabData(this, packet.Tab, true /*packet.FullUpdate*/);
+                                                          // HACK: client doesn't query entire tab content if it had received SMSG_GUILD_BANK_LIST in this session
+                                                          // but we broadcast bank updates to entire guild when *ANYONE* changes anything, incorrectly initializing clients
+                                                          // tab content with only data for that change
 }
 
 void WorldSession::HandleGuildBankDepositMoney(WorldPackets::Guild::GuildBankDepositMoney& packet)

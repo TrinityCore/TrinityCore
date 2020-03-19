@@ -1936,11 +1936,10 @@ void Guild::SendMoneyInfo(WorldSession* session) const
 
 void Guild::SendLoginInfo(WorldSession* session)
 {
-    WorldPacket data(SMSG_GUILD_EVENT, 1 + 1 + m_motd.size() + 1);
-    data << uint8(GE_MOTD);
-    data << uint8(1);
-    data << m_motd;
-    session->SendPacket(&data);
+    WorldPackets::Guild::GuildEvent motd;
+    motd.Type = GE_MOTD;
+    motd.Params[0] = m_motd.c_str();
+    session->SendPacket(motd.Write());
 
     TC_LOG_DEBUG("guild", "SMSG_GUILD_EVENT [%s] MOTD", session->GetPlayerInfo().c_str());
 
