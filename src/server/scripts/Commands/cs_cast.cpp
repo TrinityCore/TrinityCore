@@ -28,9 +28,11 @@ EndScriptData */
 #include "Language.h"
 #include "Player.h"
 #include "RBAC.h"
+#include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "WorldSession.h"
 
+using namespace Trinity::ChatCommands;
 class cast_commandscript : public CommandScript
 {
 public:
@@ -54,30 +56,27 @@ public:
         return commandTable;
     }
 
-    static bool CheckSpellExistsAndIsValid(ChatHandler* handler, uint32 spellId)
+    static bool CheckSpellExistsAndIsValid(ChatHandler* handler, SpellInfo const* spell)
     {
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
-        if (!spellInfo)
+        if (!spell)
         {
             handler->PSendSysMessage(LANG_COMMAND_NOSPELLFOUND);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        if (!SpellMgr::IsSpellValid(spellInfo, handler->GetSession()->GetPlayer()))
+        if (!SpellMgr::IsSpellValid(spell, handler->GetSession()->GetPlayer()))
         {
-            handler->PSendSysMessage(LANG_COMMAND_SPELL_BROKEN, spellId);
+            handler->PSendSysMessage(LANG_COMMAND_SPELL_BROKEN, spell->Id);
             handler->SetSentErrorMessage(true);
             return false;
         }
         return true;
     }
+    static bool CheckSpellExistsAndIsValid(ChatHandler* handler, uint32 const spellId) { return CheckSpellExistsAndIsValid(handler, sSpellMgr->GetSpellInfo(spellId)); }
 
-    static bool HandleCastCommand(ChatHandler* handler, char const* args)
+    static bool HandleCastCommand(ChatHandler* handler, SpellInfo const* spell, Optional<std::string> triggeredStr)
     {
-        if (!*args)
-            return false;
-
         Unit* target = handler->getSelectedUnit();
         if (!target)
         {
@@ -86,24 +85,20 @@ public:
             return false;
         }
 
-        // number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
-        uint32 spellId = handler->extractSpellIdFromLink((char*)args);
-        if (!spellId)
+        if (!CheckSpellExistsAndIsValid(handler, spell))
             return false;
 
-        if (!CheckSpellExistsAndIsValid(handler, spellId))
-            return false;
-
-        char* triggeredStr = strtok(nullptr, " ");
+        TriggerCastFlags triggerFlags = TRIGGERED_NONE;
         if (triggeredStr)
         {
-            int l = strlen(triggeredStr);
-            if (strncmp(triggeredStr, "triggered", l) != 0)
+            if (std::string("triggered").rfind(*triggeredStr, 0) == 0) // check if "triggered" starts with *triggeredStr (e.g. "trig", "trigger", etc.)
+                triggerFlags = TRIGGERED_FULL_DEBUG_MASK;
+            else
                 return false;
+
         }
 
-        TriggerCastFlags triggered = (triggeredStr != nullptr) ? TRIGGERED_FULL_DEBUG_MASK : TRIGGERED_NONE;
-        handler->GetSession()->GetPlayer()->CastSpell(target, spellId, triggered);
+        handler->GetSession()->GetPlayer()->CastSpell(target, spell->Id, triggerFlags);
 
         return true;
     }

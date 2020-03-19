@@ -18,7 +18,6 @@
 #ifndef TRINITY_CHATCOMMANDHELPERS_H
 #define TRINITY_CHATCOMMANDHELPERS_H
 
-#include "advstd.h"
 #include <type_traits>
 
 namespace Trinity
@@ -31,9 +30,9 @@ static constexpr char COMMAND_DELIMITER = ' ';
 /***************** HELPERS *************************\
 |* These really aren't for outside use...          *|
 \***************************************************/
-inline size_t tokenize(char const*& end)
+inline std::size_t tokenize(char const*& end)
 {
-    size_t len = 0;
+    std::size_t len = 0;
     for (; *end && *end != COMMAND_DELIMITER; ++end, ++len);
     for (; *end && *end == COMMAND_DELIMITER; ++end);
     return len;
@@ -57,10 +56,10 @@ struct are_all_assignable
 template <typename T1, typename T2, typename... Ts>
 struct are_all_assignable<T1, T2, Ts...>
 {
-    static constexpr bool value = advstd::is_assignable_v<T1&, T2> && are_all_assignable<T1, Ts...>::value;
+    static constexpr bool value = std::is_assignable_v<T1&, T2> && are_all_assignable<T1, Ts...>::value;
 };
 
-template <size_t index, typename T1, typename... Ts>
+template <std::size_t index, typename T1, typename... Ts>
 struct get_nth : get_nth<index-1, Ts...> { };
 
 template <typename T1, typename... Ts>
@@ -69,7 +68,7 @@ struct get_nth<0, T1, Ts...>
     using type = T1;
 };
 
-template <size_t index, typename... Ts>
+template <std::size_t index, typename... Ts>
 using get_nth_t = typename get_nth<index, Ts...>::type;
 
 }
