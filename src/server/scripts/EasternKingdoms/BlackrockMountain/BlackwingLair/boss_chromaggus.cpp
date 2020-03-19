@@ -307,8 +307,6 @@ class go_chromaggus_lever : public GameObjectScript
         {
             go_chromaggus_leverAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
 
-            InstanceScript* instance;
-
             bool GossipHello(Player* player) override
             {
                 if (instance->GetBossState(DATA_CHROMAGGUS) != DONE && instance->GetBossState(DATA_CHROMAGGUS) != IN_PROGRESS)
@@ -327,6 +325,9 @@ class go_chromaggus_lever : public GameObjectScript
 
                 return true;
             }
+        
+        private:
+            InstanceScript* instance;
         };
 
         GameObjectAI* GetAI(GameObject* go) const override
