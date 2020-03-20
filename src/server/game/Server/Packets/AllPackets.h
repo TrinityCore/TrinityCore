@@ -20,6 +20,7 @@
 
 #include "ChatPackets.h"
 #include "CombatPackets.h"
+#include "GuildPackets.h"
 #include "NPCPackets.h"
 #include "MiscPackets.h"
 #include "QueryPackets.h"

@@ -97,6 +97,9 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
     if (receiverName.empty())
         return;
 
+    if (!ValidateHyperlinksAndMaybeKick(subject) || !ValidateHyperlinksAndMaybeKick(body))
+        return;
+
     Player* player = _player;
 
     if (player->GetLevel() < sWorld->getIntConfig(CONFIG_MAIL_LEVEL_REQ))
