@@ -1054,10 +1054,15 @@ void Item::BuildUpdate(UpdateDataMapType& data_map)
     ClearUpdateMask(false);
 }
 
-void Item::AddToObjectUpdate()
+bool Item::AddToObjectUpdate()
 {
     if (Player* owner = GetOwner())
+    {
         owner->GetMap()->AddUpdateObject(this);
+        return true;
+    }
+
+    return false;
 }
 
 void Item::RemoveFromObjectUpdate()
