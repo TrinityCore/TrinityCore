@@ -2122,13 +2122,13 @@ void Unit::AttackerStateUpdate(Unit* victim, WeaponAttackType attType, bool extr
         {
             auto itr = std::find_if(meleeAttackOverrides.begin(), meleeAttackOverrides.end(), [&](AuraEffect const* aurEff)
             {
-                return aurEff->GetMiscValue() != 0;
+                return aurEff->GetAmount() != 0;
             });
 
             if (itr != meleeAttackOverrides.end())
             {
                 meleeAttackAuraEffect = *itr;
-                meleeAttackSpellId = meleeAttackAuraEffect->GetMiscValue();
+                meleeAttackSpellId = meleeAttackAuraEffect->GetAmount();
             }
         }
 
