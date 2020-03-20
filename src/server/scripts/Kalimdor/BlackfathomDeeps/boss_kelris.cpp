@@ -51,13 +51,13 @@ public:
         void Reset() override
         {
             _Reset();
-            DoCast(me, SPELL_BLACKFATHOM_CHANNELING, true);
+            DoCastSelf(SPELL_BLACKFATHOM_CHANNELING);
         }
 
         void JustReachedHome() override
         {
             _JustReachedHome();
-            DoCast(me, SPELL_BLACKFATHOM_CHANNELING, true);
+            DoCastSelf(SPELL_BLACKFATHOM_CHANNELING);
         }
 
         void JustEngagedWith(Unit* who) override
