@@ -305,19 +305,19 @@ class go_chromaggus_lever : public GameObjectScript
 
         struct go_chromaggus_leverAI : public GameObjectAI
         {
-            go_chromaggus_leverAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
+            go_chromaggus_leverAI(GameObject* go) : GameObjectAI(go), _instance(go->GetInstanceScript()) { }
 
             bool GossipHello(Player* player) override
             {
-                if (instance->GetBossState(DATA_CHROMAGGUS) != DONE && instance->GetBossState(DATA_CHROMAGGUS) != IN_PROGRESS)
+                if (_instance->GetBossState(DATA_CHROMAGGUS) != DONE && _instance->GetBossState(DATA_CHROMAGGUS) != IN_PROGRESS)
                 {
-                    instance->SetBossState(DATA_CHROMAGGUS, IN_PROGRESS);
+                    _instance->SetBossState(DATA_CHROMAGGUS, IN_PROGRESS);
 
-                    if (Creature* creature = instance->GetCreature(DATA_CHROMAGGUS))
+                    if (Creature* creature = _instance->GetCreature(DATA_CHROMAGGUS))
                         creature->AI()->JustEngagedWith(player);
                     
-                    if (GameObject* go = instance->GetGameObject(DATA_GO_CHROMAGGUS_DOOR)) 
-                        instance->HandleGameObject(ObjectGuid::Empty, true, go);
+                    if (GameObject* go = _instance->GetGameObject(DATA_GO_CHROMAGGUS_DOOR)) 
+                        _instance->HandleGameObject(ObjectGuid::Empty, true, go);
                 }
 
                 me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE | GO_FLAG_IN_USE);
@@ -327,7 +327,7 @@ class go_chromaggus_lever : public GameObjectScript
             }
         
         private:
-            InstanceScript* instance;
+            InstanceScript* _instance;
         };
 
         GameObjectAI* GetAI(GameObject* go) const override
