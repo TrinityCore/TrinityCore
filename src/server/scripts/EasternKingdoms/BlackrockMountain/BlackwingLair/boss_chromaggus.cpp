@@ -21,7 +21,6 @@
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "Map.h"
-#include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 
