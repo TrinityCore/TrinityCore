@@ -21,7 +21,6 @@
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "Map.h"
-#include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 
@@ -315,8 +314,8 @@ class go_chromaggus_lever : public GameObjectScript
 
                     if (Creature* creature = _instance->GetCreature(DATA_CHROMAGGUS))
                         creature->AI()->JustEngagedWith(player);
-                    
-                    if (GameObject* go = _instance->GetGameObject(DATA_GO_CHROMAGGUS_DOOR)) 
+
+                    if (GameObject* go = _instance->GetGameObject(DATA_GO_CHROMAGGUS_DOOR))
                         _instance->HandleGameObject(ObjectGuid::Empty, true, go);
                 }
 
@@ -325,7 +324,7 @@ class go_chromaggus_lever : public GameObjectScript
 
                 return true;
             }
-        
+
         private:
             InstanceScript* _instance;
         };
