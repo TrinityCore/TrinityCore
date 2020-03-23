@@ -50,6 +50,16 @@ elseif(TOOLS)
   set(CPACK_DEBIAN_PACKAGE_CONFLICTS "trinity")
 endif()
 
+if(NOT CPACK_PACKAGE_CONTACT AND NOT WITHOUT_GIT)
+  execute_process(
+    COMMAND "${GIT_EXECUTABLE}" config user.email
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+    OUTPUT_VARIABLE CPACK_PACKAGE_CONTACT
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_QUIET
+  )
+endif()
+
 execute_process(
     COMMAND dpkg --print-architecture
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
