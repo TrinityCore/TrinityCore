@@ -12,7 +12,7 @@ AnyTableReader::AnyTableReader(const std::string& name, const Any& a) : m_any(a)
         // invoked automatically.
         m_any.~Any();
         m_alreadyRead.~Set();
-        throw e;
+        throw;
     }
 }
 
@@ -25,7 +25,7 @@ AnyTableReader::AnyTableReader(const Any& a) : m_any(a) {
         // invoked automatically.
         m_any.~Any();
         m_alreadyRead.~Set();
-        throw e;
+        throw;
     }
 }
 
