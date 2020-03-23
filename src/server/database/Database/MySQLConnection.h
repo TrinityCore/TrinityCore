@@ -49,6 +49,7 @@ struct TC_DATABASE_API MySQLConnectionInfo
     std::string database;
     std::string host;
     std::string port_or_socket;
+    std::string ssl;
 };
 
 class TC_DATABASE_API MySQLConnection
