@@ -20,6 +20,9 @@ if(WITHOUT_GIT)
   set(rev_date "1970-01-01 00:00:00 +0000")
   set(rev_hash "unknown")
   set(rev_branch "Archived")
+  set(rev_version_major "1")
+  set(rev_version_minor "0")
+  set(rev_version_patch "0")
 else()
   if(GIT_EXECUTABLE)
     # Create a revision-string that we can use
@@ -48,6 +51,15 @@ else()
       OUTPUT_STRIP_TRAILING_WHITESPACE
       ERROR_QUIET
     )
+
+    # Describe current commit with tags
+    execute_process(
+      COMMAND "${GIT_EXECUTABLE}" describe --tags
+      WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+      OUTPUT_VARIABLE rev_describe
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+      ERROR_QUIET
+    )
   endif()
 
   # Last minute check - ensure that we have a proper revision
@@ -63,6 +75,24 @@ else()
   else()
     # Extract information required to build a proper versionstring
     string(REGEX REPLACE init-|[0-9]+-g "" rev_hash ${rev_info})
+  endif()
+
+  if(NOT rev_describe)
+    # No valid ways available to find/set the revision/hash, so let's force some defaults
+    message(STATUS "
+    Could not find a proper repository tag information - you may need to pull tags with git fetch -t
+    Continuing anyway - note that the package version will be set to \"1.0.0\"")
+    set(rev_version_major "1")
+    set(rev_version_minor "0")
+    set(rev_version_patch "0")
+  else()
+    # Extract information required to build a proper version string for packaging
+    string(REGEX REPLACE
+      "^[A-Z0-9]+\\.([0-9][0-9])([0-9][0-9])([0-9]).*$"
+      "\\1;\\2;\\3" rev_tag_version "${rev_describe}")
+    list(GET rev_tag_version 0 rev_version_major)
+    list(GET rev_tag_version 1 rev_version_minor)
+    list(GET rev_tag_version 2 rev_version_patch)
   endif()
 endif()
 
