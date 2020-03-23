@@ -297,9 +297,8 @@ void BinaryInput::loadIntoMemory(int64 startPosition, int64 minLength) {
 
 #   ifdef G3D_WINDOWS
         FILE* file = fopen(m_filename.c_str(), "rb");
-		if (!file) {
-			return;
-		}
+	    if (!file)
+		    return;
         debugAssert(file);
         size_t ret = fseek(file, (off_t)m_alreadyRead, SEEK_SET);
         debugAssert(ret == 0);
