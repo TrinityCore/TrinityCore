@@ -1333,6 +1333,24 @@ class spell_dk_hysteria : public AuraScript
     }
 };
 
+// 55095 - Frost Fever
+class spell_dk_frost_fever : public AuraScript
+{
+    PrepareAuraScript(spell_dk_frost_fever);
+
+    void HandleDispel(DispelInfo* /*dispelInfo*/)
+    {
+        if (Unit* caster = GetCaster())
+            if (AuraEffect* icyClutch = GetUnitOwner()->GetAuraEffect(SPELL_AURA_MOD_DECREASE_SPEED, SPELLFAMILY_DEATHKNIGHT, 0, 0x00040000, 0, caster->GetGUID()))
+                GetUnitOwner()->RemoveAurasDueToSpell(icyClutch->GetId());
+    }
+
+    void Register() override
+    {
+        AfterDispel += AuraDispelFn(spell_dk_frost_fever::HandleDispel);
+    }
+};
+
 // 51209 - Hungering Cold
 class spell_dk_hungering_cold : public SpellScriptLoader
 {
@@ -3197,6 +3215,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_glyph_of_scourge_strike();
     RegisterSpellScript(spell_dk_glyph_of_scourge_strike_script);
     RegisterAuraScript(spell_dk_hysteria);
+    RegisterAuraScript(spell_dk_frost_fever);
     new spell_dk_hungering_cold();
     new spell_dk_icebound_fortitude();
     new spell_dk_improved_blood_presence();

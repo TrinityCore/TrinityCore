@@ -21,6 +21,7 @@
 #include "MovementDefines.h"
 #include "PathGenerator.h"
 #include "RandomMovementGenerator.h"
+#include "UnitAI.h"
 #include "WaypointMovementGenerator.h"
 
 MovementGenerator::~MovementGenerator() { }
@@ -56,4 +57,10 @@ WaypointMovementFactory::WaypointMovementFactory() : MovementGeneratorCreator(WA
 MovementGenerator* WaypointMovementFactory::Create(Unit* /*object*/) const
 {
     return new WaypointMovementGenerator<Creature>();
+}
+
+void MovementGenerator::NotifyAIOnFinalize(Unit* object)
+{
+    if (UnitAI* ai = object->GetAI())
+        ai->OnMovementGeneratorFinalized(GetMovementGeneratorType());
 }

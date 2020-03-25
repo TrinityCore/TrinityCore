@@ -200,7 +200,7 @@ class TC_GAME_API Item : public Object
 
         void BuildUpdate(UpdateDataMapType&) override;
 
-        void AddToObjectUpdate() override;
+        bool AddToObjectUpdate() override;
         void RemoveFromObjectUpdate() override;
 
         uint32 GetScriptId() const { return GetTemplate()->ScriptId; }
