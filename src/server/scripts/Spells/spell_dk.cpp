@@ -54,6 +54,7 @@ enum DeathKnightSpells
     SPELL_DK_DEATH_COIL                         = 47541,
     SPELL_DK_DEATH_COIL_DAMAGE                  = 47632,
     SPELL_DK_DEATH_COIL_HEAL                    = 47633,
+    SPELL_DK_DEATH_EATER                        = 90507,
     SPELL_DK_DEATH_GRIP                         = 49560,
     SPELL_DK_DEATH_GRIP_INITIAL                 = 49576,
     SPELL_DK_DEATH_STRIKE                       = 49998,
@@ -76,6 +77,7 @@ enum DeathKnightSpells
     SPELL_DK_IMPROVED_UNHOLY_PRESENCE           = 63622,
     SPELL_DK_ITEM_SIGIL_VENGEFUL_HEART          = 64962,
     SPELL_DK_ITEM_T8_MELEE_4P_BONUS             = 64736,
+    SPELL_DK_ITEM_T11_DPS_4P_BONUS              = 90459,
     SPELL_DK_MASTER_OF_GHOULS                   = 52143,
     SPELL_DK_OBLITERATE                         = 49020,
     SPELL_DK_OBLITERATE_OFFHAND                 = 66198,
@@ -1340,18 +1342,30 @@ class spell_dk_threat_of_thassarian : public AuraScript
     }
 };
 
+// 56835 - Reaping (Passive)
 class spell_dk_reaping : public AuraScript
 {
     PrepareAuraScript(spell_dk_reaping);
+
+    bool Load() override
+    {
+        return GetCaster()->IsPlayer();
+    }
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_DK_ITEM_T11_DPS_4P_BONUS,
+                SPELL_DK_DEATH_EATER
+            });
+    }
 
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
     {
         PreventDefaultAction();
 
         Player* player = GetTarget()->ToPlayer();
-        if (!player)
-            return;
-
         uint8 runeMask = player->GetLastUsedRuneMask();
 
         for (uint8 i = 0; i < MAX_RUNES; i++)
@@ -1361,6 +1375,10 @@ class spell_dk_reaping : public AuraScript
         }
 
         GetEffect(EFFECT_0)->ResetPeriodic(true);
+
+        // T11 set bonus effect
+        if (AuraEffect const* aurEff = player->GetAuraEffect(SPELL_DK_ITEM_T11_DPS_4P_BONUS, EFFECT_0))
+            player->CastSpell(player, SPELL_DK_DEATH_EATER, true, nullptr, aurEff);
     }
 
     void Register() override
@@ -1721,6 +1739,33 @@ class spell_dk_festering_strike : public SpellScript
     }
 };
 
+// 51124 - Killing Machine
+class spell_dk_killing_machine : public SpellScript
+{
+    PrepareSpellScript(spell_dk_killing_machine);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_DK_ITEM_T11_DPS_4P_BONUS,
+                SPELL_DK_DEATH_EATER
+            });
+    }
+
+    void HandleT11Bonus(SpellEffIndex /*effIndex*/)
+    {
+        Unit* target = GetHitUnit();
+        if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_DK_ITEM_T11_DPS_4P_BONUS, EFFECT_0))
+            target->CastSpell(target, SPELL_DK_DEATH_EATER, true, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dk_killing_machine::HandleT11Bonus, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+    }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
     RegisterAuraScript(spell_dk_anti_magic_shell);
@@ -1752,6 +1797,7 @@ void AddSC_deathknight_spell_scripts()
     RegisterSpellScript(spell_dk_howling_blast);
     RegisterAuraScript(spell_dk_icebound_fortitude);
     RegisterAuraScript(spell_dk_improved_presence);
+    RegisterSpellScript(spell_dk_killing_machine);
     RegisterAuraScript(spell_dk_necrotic_strike);
     RegisterSpellScript(spell_dk_pestilence);
     RegisterAuraScript(spell_dk_presence);

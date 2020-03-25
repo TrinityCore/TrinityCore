@@ -35,7 +35,9 @@
 
 enum DruidSpells
 {
+    SPELL_DRUID_ASTRAL_ALIGNMENT            = 90164,
     SPELL_DRUID_BLOOD_IN_THE_WATER_SCRIPT   = 80863,
+    SPELL_DRUID_BLOOM                       = 90159,
     SPELL_DRUID_WRATH                       = 5176,
     SPELL_DRUID_STARFIRE                    = 2912,
     SPELL_DRUID_STARSURGE                   = 78674,
@@ -78,6 +80,7 @@ enum DruidSpells
     SPELL_DRUID_INNERVATE_TRIGGERED         = 54833,
     SPELL_DRUID_ITEM_T8_BALANCE_RELIC       = 64950,
     SPELL_DRUID_ITEM_T10_FERAL_4P_BONUS     = 70726,
+    SPELL_DRUID_ITEM_T11_BALANCE_4P_BONUS   = 90163,
     SPELL_DRUID_KING_OF_THE_JUNGLE          = 48492,
     SPELL_DRUID_LACERATE                    = 33745,
     SPELL_DRUID_LEADER_OF_THE_PACK_HEAL     = 34299,
@@ -99,6 +102,7 @@ enum DruidSpells
     SPELL_DRUID_STAMPEDE_CAT_RANK_1         = 81021,
     SPELL_DRUID_STAMPEDE_CAT_STATE          = 109881,
     SPELL_DRUID_SOLAR_BEAM_SILENCE          = 81261,
+    SPELL_DRUID_STRENGTH_OF_THE_PANTHER     = 90166,
     SPELL_DRUID_SUNFIRE                     = 93402,
     SPELL_DRUID_SUNFIRE_TALENT              = 93401,
     SPELL_DRUID_TIGER_S_FURY_ENERGIZE       = 51178,
@@ -248,6 +252,10 @@ class spell_dru_eclipse : public AuraScript
             caster->RemoveAurasDueToSpell(SPELL_DRUID_LUNAR_ECLIPSE_MARKER);
             caster->CastSpell(caster, SPELL_DRUID_SOLAR_ECLIPSE_MARKER, true);
         }
+
+        // T11 Bonus
+        if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_DRUID_ITEM_T11_BALANCE_4P_BONUS, EFFECT_0))
+            caster->CastCustomSpell(SPELL_DRUID_ASTRAL_ALIGNMENT, SPELLVALUE_AURA_STACK, 3, caster, true, nullptr, aurEff);
     }
 
     void RemoveEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1948,8 +1956,69 @@ class spell_dru_blood_in_the_water_script : public SpellScript
     }
 };
 
+// 90164 - Astral Alignment
+class spell_dru_astral_alignment : public AuraScript
+{
+    PrepareAuraScript(spell_dru_astral_alignment);
+
+    void HandleProc(AuraEffect const*  /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+    {
+        PreventDefaultAction();
+        GetAura()->ModStackAmount(-1);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_dru_astral_alignment::HandleProc, EFFECT_0, SPELL_AURA_MOD_SPELL_CRIT_CHANCE);
+    }
+};
+
+// 100977 - Harmony
+class spell_dru_harmony_triggered : public AuraScript
+{
+    PrepareAuraScript(spell_dru_harmony_triggered);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_BLOOM });
+    }
+
+    void RemoveEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_DRUID_BLOOM);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_dru_harmony_triggered::RemoveEffect, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 90165 - Item - Druid T11 Feral 4P Bonus
+class spell_dru_item_t11_feral_4p_bonus : public AuraScript
+{
+    PrepareAuraScript(spell_dru_item_t11_feral_4p_bonus);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_STRENGTH_OF_THE_PANTHER });
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+    {
+        PreventDefaultAction();
+        GetTarget()->CastSpell(GetTarget(), SPELL_DRUID_STRENGTH_OF_THE_PANTHER, true, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_dru_item_t11_feral_4p_bonus::HandleProc, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER);
+    }
+};
+
 void AddSC_druid_spell_scripts()
 {
+    RegisterAuraScript(spell_dru_astral_alignment);
     RegisterAuraScript(spell_dru_berserk);
     RegisterAuraScript(spell_dru_blood_in_the_water);
     RegisterSpellScript(spell_dru_blood_in_the_water_script);
@@ -1969,6 +2038,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_glyph_of_starfire);
     RegisterAuraScript(spell_dru_glyph_of_starfire_proc);
     RegisterAuraScript(spell_dru_harmony);
+    RegisterAuraScript(spell_dru_harmony_triggered);
     RegisterAuraScript(spell_dru_idol_lifebloom);
     RegisterAuraScript(spell_dru_innervate);
     RegisterAuraScript(spell_dru_insect_swarm);
@@ -1993,6 +2063,7 @@ void AddSC_druid_spell_scripts()
     RegisterAuraScript(spell_dru_tree_of_life);
     RegisterSpellScript(spell_dru_typhoon);
     RegisterSpellScript(spell_dru_t10_restoration_4p_bonus);
+    RegisterAuraScript(spell_dru_item_t11_feral_4p_bonus);
     RegisterSpellScript(spell_dru_wild_growth);
     RegisterSpellScript(spell_dru_wild_mushroom);
     RegisterSpellScript(spell_dru_wild_mushroom_detonate);

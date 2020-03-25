@@ -76,6 +76,7 @@ enum PaladinSpells
     SPELL_PALADIN_IMPROVED_CONCENTRACTION_AURA          = 63510,
     SPELL_PALADIN_IMPROVED_DEVOTION_AURA                = 63514,
     SPELL_PALADIN_ITEM_HEALING_TRANCE                   = 37706,
+    SPELL_PALADIN_ITEM_T11_RETRIBUTION_4P_BONUS         = 90299,
     SPELL_PALADIN_JUDGEMENT_DAMAGE                      = 54158,
     SPELL_PALADIN_JUDGEMENTS_OF_THE_BOLD                = 89906,
     SPELL_PALADIN_JUDGEMENTS_OF_THE_WISE_PASSIVE        = 31878,
@@ -1632,7 +1633,11 @@ class spell_pal_inquisition : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_PALADIN_DIVINE_PURPOSE_PROC });
+        return ValidateSpellInfo(
+            {
+                SPELL_PALADIN_DIVINE_PURPOSE_PROC,
+                SPELL_PALADIN_ITEM_T11_RETRIBUTION_4P_BONUS
+            });
     }
 
     void ChangeDuration()
@@ -1644,6 +1649,11 @@ class spell_pal_inquisition : public SpellScript
         if (Aura* aura = caster->GetAura(GetSpellInfo()->Id))
         {
             uint8 power = caster->HasAura(SPELL_PALADIN_DIVINE_PURPOSE_PROC) ? 2 : caster->GetPower(POWER_HOLY_POWER);
+
+            // T11 bonus
+            if (caster->GetAuraEffect(SPELL_PALADIN_ITEM_T11_RETRIBUTION_4P_BONUS, EFFECT_0, caster->GetGUID()))
+                power = std::min<uint8>(caster->GetPower(POWER_HOLY_POWER) + 1, caster->GetMaxPower(POWER_HOLY_POWER));
+
             int32 duration = aura->GetDuration();
             duration += duration * power;
             aura->SetDuration(duration);

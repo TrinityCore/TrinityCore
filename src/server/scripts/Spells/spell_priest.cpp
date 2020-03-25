@@ -43,6 +43,7 @@ enum PriestSpells
     SPELL_PRIEST_CHAKRA_SANCTUARY                   = 81206,
     SPELL_PRIEST_CHAKRA_SANCTUARY_LINKED            = 81207,
     SPELL_PRIEST_CHAKRA_CHASTISE                    = 81209,
+    SPELL_PRIEST_CHAKRA_FLOW                        = 89912,
     SPELL_PRIEST_CURE_DISEASE                       = 528,
     SPELL_PRIEST_DARK_ARCHANGEL_TRIGGERED           = 87153,
     SPELL_PRIEST_DARK_EVANGELISM_TRIGGERED_1        = 87117,
@@ -67,8 +68,10 @@ enum PriestSpells
     SPELL_PRIEST_GUARDIAN_SPIRIT_HEAL               = 48153,
     SPELL_PRIEST_HOLY_WORD_CHASTISE                 = 88625,
     SPELL_PRIEST_HOLY_WORD_SANCTUARY                = 88686,
+    SPELL_PRIEST_INDULGENCE_OF_THE_PENITENT         = 89913,
     SPELL_PRIEST_INNER_FOCUS                        = 89485,
     SPELL_PRIEST_ITEM_EFFICIENCY                    = 37595,
+    SPELL_PRIEST_ITEM_T11_HEALER_4P_BONUS           = 89911,
     SPELL_PRIEST_LEAP_OF_FAITH                      = 73325,
     SPELL_PRIEST_LEAP_OF_FAITH_EFFECT               = 92832,
     SPELL_PRIEST_LEAP_OF_FAITH_EFFECT_TRIGGER       = 92833,
@@ -76,9 +79,8 @@ enum PriestSpells
     SPELL_PRIEST_MANA_LEECH_PROC                    = 34650,
     SPELL_PRIEST_MIND_FLAY                          = 15407,
     SPELL_PRIEST_MIND_TRAUMA                        = 48301,
-    SPELL_PRIEST_PENANCE_R1                         = 47540,
-    SPELL_PRIEST_PENANCE_R1_DAMAGE                  = 47758,
-    SPELL_PRIEST_PENANCE_R1_HEAL                    = 47757,
+    SPELL_PRIEST_PENANCE_DAMAGE                     = 47758,
+    SPELL_PRIEST_PENANCE_HEAL                       = 47757,
     SPELL_PRIEST_REFLECTIVE_SHIELD_R1               = 33201,
     SPELL_PRIEST_REFLECTIVE_SHIELD_TRIGGERED        = 33619,
     SPELL_PRIEST_RENEW                              = 139,
@@ -602,23 +604,15 @@ class spell_pri_penance : public SpellScript
         return GetCaster()->GetTypeId() == TYPEID_PLAYER;
     }
 
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        SpellInfo const* firstRankSpellInfo = sSpellMgr->GetSpellInfo(SPELL_PRIEST_PENANCE_R1);
-        if (!firstRankSpellInfo)
-            return false;
-
-        // can't use other spell than this penance due to spell_ranks dependency
-        if (!spellInfo->IsRankOf(firstRankSpellInfo))
-            return false;
-
-        uint8 rank = spellInfo->GetRank();
-        if (!sSpellMgr->GetSpellWithRank(SPELL_PRIEST_PENANCE_R1_DAMAGE, rank, true))
-            return false;
-        if (!sSpellMgr->GetSpellWithRank(SPELL_PRIEST_PENANCE_R1_HEAL, rank, true))
-            return false;
-
-        return true;
+        return ValidateSpellInfo(
+            {
+                SPELL_PRIEST_PENANCE_DAMAGE,
+                SPELL_PRIEST_PENANCE_HEAL,
+                SPELL_PRIEST_ITEM_T11_HEALER_4P_BONUS,
+                SPELL_PRIEST_INDULGENCE_OF_THE_PENITENT
+            });
     }
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -629,12 +623,16 @@ class spell_pri_penance : public SpellScript
             if (!unitTarget->IsAlive())
                 return;
 
-            uint8 rank = GetSpellInfo()->GetRank();
-
             if (caster->IsFriendlyTo(unitTarget))
-                caster->CastSpell(unitTarget, sSpellMgr->GetSpellWithRank(SPELL_PRIEST_PENANCE_R1_HEAL, rank), TRIGGERED_DISALLOW_PROC_EVENTS);
+            {
+                caster->CastSpell(unitTarget, SPELL_PRIEST_PENANCE_HEAL, TRIGGERED_DISALLOW_PROC_EVENTS);
+
+                // T11 Bonus
+                if (caster->GetAuraEffect(SPELL_PRIEST_ITEM_T11_HEALER_4P_BONUS, EFFECT_0))
+                    caster->CastSpell(caster, SPELL_PRIEST_INDULGENCE_OF_THE_PENITENT, true);
+            }
             else
-                caster->CastSpell(unitTarget, sSpellMgr->GetSpellWithRank(SPELL_PRIEST_PENANCE_R1_DAMAGE, rank), TRIGGERED_DISALLOW_PROC_EVENTS);
+                caster->CastSpell(unitTarget, SPELL_PRIEST_PENANCE_DAMAGE, TRIGGERED_DISALLOW_PROC_EVENTS);
         }
     }
 
@@ -1160,6 +1158,7 @@ class spell_pri_chakra : public AuraScript
                 SPELL_PRIEST_CHAKRA_SANCTUARY,
                 SPELL_PRIEST_CHAKRA_SANCTUARY_LINKED,
                 SPELL_PRIEST_CHAKRA_CHASTISE,
+                SPELL_PRIEST_CHAKRA_FLOW,
                 SPELL_PRIEST_REVELATIONS,
                 SPELL_PRIEST_HOLY_WORD_CHASTISE
             });
@@ -1205,6 +1204,10 @@ class spell_pri_chakra : public AuraScript
             // Chakra: Chastise
             if (spell->SpellFamilyFlags.HasFlag(0x00000080) || spell->SpellFamilyFlags.HasFlag(0, 0x00010000))
                 caster->CastSpell(caster, SPELL_PRIEST_CHAKRA_CHASTISE, true, nullptr, aurEff);
+
+            // T11 Bonus
+            if (caster->GetAuraEffect(SPELL_PRIEST_ITEM_T11_HEALER_4P_BONUS, EFFECT_0))
+                caster->CastSpell(caster, SPELL_PRIEST_CHAKRA_FLOW);
         }
     }
 
@@ -1222,17 +1225,53 @@ class spell_pri_chakra_sanctuary : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_PRIEST_CHAKRA_SANCTUARY_LINKED });
+        return ValidateSpellInfo(
+            {
+                SPELL_PRIEST_CHAKRA_SANCTUARY_LINKED,
+                SPELL_PRIEST_CHAKRA_FLOW
+            });
     }
 
     void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        GetTarget()->RemoveAurasDueToSpell(SPELL_PRIEST_CHAKRA_SANCTUARY_LINKED);
+        Unit* target = GetTarget();
+        target->RemoveAurasDueToSpell(SPELL_PRIEST_CHAKRA_SANCTUARY_LINKED);
+        target->RemoveAurasDueToSpell(SPELL_PRIEST_CHAKRA_FLOW);
     }
 
     void Register() override
     {
         AfterEffectRemove += AuraEffectRemoveFn(spell_pri_chakra_sanctuary::HandleEffectRemove, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+    }
+};
+
+// 81208 - Chakra: Serenety
+// 81209 - Chakra: Chastise
+class spell_pri_chakra_flow_removal: public AuraScript
+{
+    PrepareAuraScript(spell_pri_chakra_flow_removal);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_PRIEST_CHAKRA_CHASTISE,
+                SPELL_PRIEST_CHAKRA_SERENITY,
+                SPELL_PRIEST_CHAKRA_FLOW
+            });
+    }
+
+    void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_PRIEST_CHAKRA_FLOW);
+    }
+
+    void Register() override
+    {
+        if (m_scriptSpellId == SPELL_PRIEST_CHAKRA_SERENITY)
+            AfterEffectRemove += AuraEffectRemoveFn(spell_pri_chakra_flow_removal::HandleEffectRemove, EFFECT_0, SPELL_AURA_ADD_FLAT_MODIFIER, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        else if (m_scriptSpellId == SPELL_PRIEST_CHAKRA_CHASTISE)
+            AfterEffectRemove += AuraEffectRemoveFn(spell_pri_chakra_flow_removal::HandleEffectRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
     }
 };
 
@@ -1788,6 +1827,7 @@ void AddSC_priest_spell_scripts()
     RegisterAuraScript(spell_pri_chakra);
     RegisterAuraScript(spell_pri_chakra_sanctuary);
     RegisterSpellScript(spell_pri_chakra_serenity_script);
+    RegisterAuraScript(spell_pri_chakra_flow_removal);
     RegisterSpellScript(spell_pri_circle_of_healing);
     RegisterSpellScript(spell_pri_dispel_magic);
     RegisterAuraScript(spell_pri_divine_aegis);
