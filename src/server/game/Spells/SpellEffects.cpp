@@ -267,25 +267,27 @@ void Spell::EffectResurrectNew(SpellEffIndex effIndex)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    if (!unitTarget || unitTarget->IsAlive())
+    if (!corpseTarget && !unitTarget)
         return;
 
-    if (unitTarget->GetTypeId() != TYPEID_PLAYER)
+    Player* player = nullptr;
+
+    if (corpseTarget)
+        player = ObjectAccessor::FindPlayer(corpseTarget->GetOwnerGUID());
+    else if (unitTarget)
+        player = unitTarget->ToPlayer();
+
+    if (!player || player->IsAlive() || !player->IsInWorld())
         return;
 
-    if (!unitTarget->IsInWorld())
-        return;
-
-    Player* target = unitTarget->ToPlayer();
-
-    if (target->IsResurrectRequested())       // already have one active request
+    if (player->IsResurrectRequested())       // already have one active request
         return;
 
     uint32 health = damage;
     uint32 mana = m_spellInfo->Effects[effIndex].MiscValue;
-    ExecuteLogEffectResurrect(effIndex, target);
-    target->SetResurrectRequestData(m_caster, health, mana, 0);
-    SendResurrectRequest(target);
+    ExecuteLogEffectResurrect(effIndex, player);
+    player->SetResurrectRequestData(m_caster, health, mana, 0);
+    SendResurrectRequest(player);
 }
 
 void Spell::EffectInstaKill(SpellEffIndex /*effIndex*/)
@@ -5627,31 +5629,34 @@ void Spell::EffectResurrectWithAura(SpellEffIndex effIndex)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    if (!unitTarget || !unitTarget->IsInWorld())
+    if (!corpseTarget && !unitTarget)
         return;
 
-    Player* target = unitTarget->ToPlayer();
-    if (!target)
+    Player* player = nullptr;
+
+    if (corpseTarget)
+        player = ObjectAccessor::FindPlayer(corpseTarget->GetOwnerGUID());
+    else if (unitTarget)
+        player = unitTarget->ToPlayer();
+
+    if (!player || player->IsAlive() || !player->IsInWorld())
         return;
 
-    if (unitTarget->IsAlive())
+    if (player->IsResurrectRequested())       // already have one active request
         return;
 
-    if (target->IsResurrectRequested())       // already have one active request
-        return;
-
-    uint32 health = target->CountPctFromMaxHealth(damage);
-    uint32 mana   = CalculatePct(target->GetMaxPower(POWER_MANA), damage);
+    uint32 health = player->CountPctFromMaxHealth(damage);
+    uint32 mana   = CalculatePct(player->GetMaxPower(POWER_MANA), damage);
     uint32 resurrectAura = 0;
     if (sSpellMgr->GetSpellInfo(GetSpellInfo()->Effects[effIndex].TriggerSpell))
         resurrectAura = GetSpellInfo()->Effects[effIndex].TriggerSpell;
 
-    if (resurrectAura && target->HasAura(resurrectAura))
+    if (resurrectAura && player->HasAura(resurrectAura))
         return;
 
-    ExecuteLogEffectResurrect(effIndex, target);
-    target->SetResurrectRequestData(m_caster, health, mana, resurrectAura);
-    SendResurrectRequest(target);
+    ExecuteLogEffectResurrect(effIndex, player);
+    player->SetResurrectRequestData(m_caster, health, mana, resurrectAura);
+    SendResurrectRequest(player);
 }
 
 void Spell::EffectCreateAreaTrigger(SpellEffIndex effIndex)
