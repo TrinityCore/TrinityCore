@@ -1796,6 +1796,12 @@ uint32 Spell::GetSearcherTypeMask(SpellTargetObjectTypes objType, ConditionConta
     {
         case TARGET_OBJECT_TYPE_UNIT:
         case TARGET_OBJECT_TYPE_UNIT_AND_DEST:
+            if (!m_spellInfo->HasAttribute(SPELL_ATTR2_CAN_TARGET_DEAD))
+            {
+                retMask &= GRID_MAP_TYPE_MASK_PLAYER | GRID_MAP_TYPE_MASK_CREATURE;
+                break;
+            }
+            // No break here
         case TARGET_OBJECT_TYPE_CORPSE:
         case TARGET_OBJECT_TYPE_CORPSE_ENEMY:
         case TARGET_OBJECT_TYPE_CORPSE_ALLY:
@@ -1808,8 +1814,7 @@ uint32 Spell::GetSearcherTypeMask(SpellTargetObjectTypes objType, ConditionConta
         default:
             break;
     }
-    if (!m_spellInfo->HasAttribute(SPELL_ATTR2_CAN_TARGET_DEAD))
-        retMask &= ~GRID_MAP_TYPE_MASK_CORPSE;
+
     if (m_spellInfo->HasAttribute(SPELL_ATTR3_ONLY_TARGET_PLAYERS))
         retMask &= GRID_MAP_TYPE_MASK_CORPSE | GRID_MAP_TYPE_MASK_PLAYER;
     if (m_spellInfo->HasAttribute(SPELL_ATTR3_ONLY_TARGET_GHOSTS))
@@ -8175,13 +8180,15 @@ bool WorldObjectSpellTargetCheck::operator()(WorldObject* target) const
             case TARGET_CHECK_ENEMY:
                 if (unitTarget->IsTotem())
                     return false;
-                if (!_caster->IsValidAttackTarget(unitTarget, _spellInfo))
+                // TODO: restore IsValidAttackTarget for corpses using corpse owner (faction, etc)
+                if (!target->IsCorpse() && !_caster->IsValidAttackTarget(unitTarget, _spellInfo))
                     return false;
                 break;
             case TARGET_CHECK_ALLY:
                 if (unitTarget->IsTotem())
                     return false;
-                if (!_caster->IsValidAssistTarget(unitTarget, _spellInfo))
+                // TODO: restore IsValidAttackTarget for corpses using corpse owner (faction, etc)
+                if (!target->IsCorpse() && !_caster->IsValidAssistTarget(unitTarget, _spellInfo))
                     return false;
                 break;
             case TARGET_CHECK_PARTY:
@@ -8189,7 +8196,8 @@ bool WorldObjectSpellTargetCheck::operator()(WorldObject* target) const
                     return false;
                 if (unitTarget->IsTotem())
                     return false;
-                if (!_caster->IsValidAssistTarget(unitTarget, _spellInfo))
+                // TODO: restore IsValidAttackTarget for corpses using corpse owner (faction, etc)
+                if (!target->IsCorpse() && !_caster->IsValidAssistTarget(unitTarget, _spellInfo))
                     return false;
                 if (!refUnit->IsInPartyWith(unitTarget))
                     return false;
@@ -8205,7 +8213,8 @@ bool WorldObjectSpellTargetCheck::operator()(WorldObject* target) const
                     return false;
                 if (unitTarget->IsTotem())
                     return false;
-                if (!_caster->IsValidAssistTarget(unitTarget, _spellInfo))
+                // TODO: restore IsValidAttackTarget for corpses using corpse owner (faction, etc)
+                if (!target->IsCorpse() && !_caster->IsValidAssistTarget(unitTarget, _spellInfo))
                     return false;
                 if (!refUnit->IsInRaidWith(unitTarget))
                     return false;

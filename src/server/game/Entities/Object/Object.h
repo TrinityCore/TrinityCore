@@ -157,31 +157,37 @@ class TC_GAME_API Object
         // FG: some hacky helpers
         void ForceValuesUpdateAtIndex(uint32);
 
+        inline bool IsPlayer() const { return GetTypeId() == TYPEID_PLAYER; }
         static Player* ToPlayer(Object* o) { if (o && o->GetTypeId() == TYPEID_PLAYER) return reinterpret_cast<Player*>(o); else return nullptr; }
         static Player const* ToPlayer(Object const* o) { if (o && o->GetTypeId() == TYPEID_PLAYER) return reinterpret_cast<Player const*>(o); else return nullptr; }
         Player* ToPlayer() { return ToPlayer(this); }
         Player const* ToPlayer() const { return ToPlayer(this); }
 
+        inline bool IsCreature() const { return GetTypeId() == TYPEID_UNIT; }
         static Creature* ToCreature(Object* o) { if (o && o->GetTypeId() == TYPEID_UNIT) return reinterpret_cast<Creature*>(o); else return nullptr; }
         static Creature const* ToCreature(Object const* o) { if (o && o->GetTypeId() == TYPEID_UNIT) return reinterpret_cast<Creature const*>(o); else return nullptr; }
         Creature* ToCreature() { return ToCreature(this); }
         Creature const* ToCreature() const { return ToCreature(this); }
 
+        inline bool IsUnit() const { return isType(TYPEMASK_UNIT); }
         static Unit* ToUnit(Object* o) { if (o && o->isType(TYPEMASK_UNIT)) return reinterpret_cast<Unit*>(o); else return nullptr; }
         static Unit const* ToUnit(Object const* o) { if (o && o->isType(TYPEMASK_UNIT)) return reinterpret_cast<Unit const*>(o); else return nullptr; }
         Unit* ToUnit() { return ToUnit(this); }
         Unit const* ToUnit() const { return ToUnit(this); }
 
+        inline bool IsGameObject() const { return GetTypeId() == TYPEID_GAMEOBJECT; }
         static GameObject* ToGameObject(Object* o) { if (o && o->GetTypeId() == TYPEID_GAMEOBJECT) return reinterpret_cast<GameObject*>(o); else return nullptr; }
         static GameObject const* ToGameObject(Object const* o) { if (o && o->GetTypeId() == TYPEID_GAMEOBJECT) return reinterpret_cast<GameObject const*>(o); else return nullptr; }
         GameObject* ToGameObject() { return ToGameObject(this); }
         GameObject const* ToGameObject() const { return ToGameObject(this); }
 
+        inline bool IsCorpse() const { return GetTypeId() == TYPEID_CORPSE; }
         static Corpse* ToCorpse(Object* o) { if (o && o->GetTypeId() == TYPEID_CORPSE) return reinterpret_cast<Corpse*>(o); else return nullptr; }
         static Corpse const* ToCorpse(Object const* o) { if (o && o->GetTypeId() == TYPEID_CORPSE) return reinterpret_cast<Corpse const*>(o); else return nullptr; }
         Corpse* ToCorpse() { return ToCorpse(this); }
         Corpse const* ToCorpse() const { return ToCorpse(this); }
 
+        inline bool IsDynObject() const { return GetTypeId() == TYPEID_DYNAMICOBJECT; }
         static DynamicObject* ToDynObject(Object* o) { if (o && o->GetTypeId() == TYPEID_DYNAMICOBJECT) return reinterpret_cast<DynamicObject*>(o); else return nullptr; }
         static DynamicObject const* ToDynObject(Object const* o) { if (o && o->GetTypeId() == TYPEID_DYNAMICOBJECT) return reinterpret_cast<DynamicObject const*>(o); else return nullptr; }
         DynamicObject* ToDynObject() { return ToDynObject(this); }

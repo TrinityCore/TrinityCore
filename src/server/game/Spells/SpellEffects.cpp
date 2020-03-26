@@ -244,25 +244,27 @@ void Spell::EffectResurrectNew(SpellEffIndex effIndex)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    if (!unitTarget || unitTarget->IsAlive())
+    if (!corpseTarget && !unitTarget)
         return;
 
-    if (unitTarget->GetTypeId() != TYPEID_PLAYER)
+    Player* player = nullptr;
+
+    if (corpseTarget)
+        player = ObjectAccessor::FindPlayer(corpseTarget->GetOwnerGUID());
+    else if (unitTarget)
+        player = unitTarget->ToPlayer();
+
+    if (!player || player->IsAlive() || !player->IsInWorld())
         return;
 
-    if (!unitTarget->IsInWorld())
-        return;
-
-    Player* target = unitTarget->ToPlayer();
-
-    if (target->IsResurrectRequested())       // already have one active request
+    if (player->IsResurrectRequested())       // already have one active request
         return;
 
     uint32 health = damage;
     uint32 mana = m_spellInfo->Effects[effIndex].MiscValue;
-    ExecuteLogEffectResurrect(effIndex, target);
-    target->SetResurrectRequestData(m_caster, health, mana, 0);
-    SendResurrectRequest(target);
+    ExecuteLogEffectResurrect(effIndex, player);
+    player->SetResurrectRequestData(m_caster, health, mana, 0);
+    SendResurrectRequest(player);
 }
 
 void Spell::EffectInstaKill(SpellEffIndex /*effIndex*/)
