@@ -694,7 +694,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    if (!unitTarget && !gameObjTarget && !itemTarget)
+    if (!unitTarget && !gameObjTarget && !itemTarget && !corpseTarget)
         return;
 
     // pet auras
@@ -1150,6 +1150,8 @@ void Spell::EffectSendEvent(SpellEffIndex effIndex)
             target = unitTarget;
         else if (gameObjTarget)
             target = gameObjTarget;
+        else if (corpseTarget)
+            target = corpseTarget;
     }
     else // if (effectHandleMode == SPELL_EFFECT_HANDLE_HIT)
     {
@@ -4000,24 +4002,29 @@ void Spell::EffectResurrect(SpellEffIndex effIndex)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+    if (!corpseTarget && !unitTarget)
         return;
 
-    if (unitTarget->IsAlive() || !unitTarget->IsInWorld())
+    Player* player = nullptr;
+
+    if (corpseTarget)
+        player = ObjectAccessor::FindPlayer(corpseTarget->GetOwnerGUID());
+    else if (unitTarget)
+        player = unitTarget->ToPlayer();
+
+    if (!player || player->IsAlive() || !player->IsInWorld())
         return;
 
-    Player* target = unitTarget->ToPlayer();
-
-    if (target->IsResurrectRequested())       // already have one active request
+    if (player->IsResurrectRequested())       // already have one active request
         return;
 
-    uint32 health = target->CountPctFromMaxHealth(damage);
-    uint32 mana   = CalculatePct(target->GetMaxPower(POWER_MANA), damage);
+    uint32 health = player->CountPctFromMaxHealth(damage);
+    uint32 mana   = CalculatePct(player->GetMaxPower(POWER_MANA), damage);
 
-    ExecuteLogEffectResurrect(effIndex, target);
+    ExecuteLogEffectResurrect(effIndex, player);
 
-    target->SetResurrectRequestData(m_caster, health, mana, 0);
-    SendResurrectRequest(target);
+    player->SetResurrectRequestData(m_caster, health, mana, 0);
+    SendResurrectRequest(player);
 }
 
 void Spell::EffectAddExtraAttacks(SpellEffIndex effIndex)
@@ -4848,7 +4855,13 @@ void Spell::EffectSkinPlayerCorpse(SpellEffIndex /*effIndex*/)
     TC_LOG_DEBUG("spells", "Effect: SkinPlayerCorpse");
 
     Player* player = m_caster->ToPlayer();
-    Player* target = unitTarget->ToPlayer();
+
+    Player* target = nullptr;
+    if (unitTarget)
+        target = unitTarget->ToPlayer();
+    else if (corpseTarget)
+        target = ObjectAccessor::FindPlayer(corpseTarget->GetOwnerGUID());
+
     if (!player || !target || target->IsAlive())
         return;
 
