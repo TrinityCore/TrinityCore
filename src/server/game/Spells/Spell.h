@@ -507,7 +507,7 @@ class TC_GAME_API Spell
         void SendResurrectRequest(Player* target);
 
         void HandleHolyPower(Player* caster);
-        void HandleEffects(Unit* pUnitTarget, Item* pItemTarget, GameObject* pGOTarget, uint32 i, SpellEffectHandleMode mode);
+        void HandleEffects(Unit* pUnitTarget, Item* pItemTarget, GameObject* pGoTarget, Corpse* pCorpseTarget, uint32 i, SpellEffectHandleMode mode);
         void HandleThreatSpells();
 
         SpellInfo const* const m_spellInfo;
@@ -615,6 +615,7 @@ class TC_GAME_API Spell
         Unit* unitTarget;
         Item* itemTarget;
         GameObject* gameObjTarget;
+        Corpse* corpseTarget;
         WorldLocation* destTarget;
         int32 damage;
         SpellMissInfo targetMissInfo;
@@ -675,11 +676,21 @@ class TC_GAME_API Spell
         };
         std::list<ItemTargetInfo> m_UniqueItemInfo;
 
+        struct CorpseTargetInfo
+        {
+            ObjectGuid targetGUID;
+            uint64 timeDelay;
+            uint8  effectMask;
+            bool   processed;
+        };
+        std::list<CorpseTargetInfo> m_UniqueCorpseTargetInfo;
+
         SpellDestination m_destTargets[MAX_SPELL_EFFECTS];
 
         void AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid = true, bool implicit = true, Position const* losPosition = nullptr);
         void AddGOTarget(GameObject* target, uint32 effectMask);
         void AddItemTarget(Item* item, uint32 effectMask);
+        void AddCorpseTarget(Corpse* target, uint32 effectMask);
         void AddDestTarget(SpellDestination const& dest, uint32 effIndex);
 
         void DoAllEffectOnTarget(TargetInfo* target);
@@ -687,6 +698,7 @@ class TC_GAME_API Spell
         void DoTriggersOnSpellHit(Unit* unit, uint8 effMask);
         void DoAllEffectOnTarget(GOTargetInfo* target);
         void DoAllEffectOnTarget(ItemTargetInfo* target);
+        void DoAllEffectOnTarget(CorpseTargetInfo* target);
         bool UpdateChanneledTargetList();
         bool IsValidDeadOrAliveTarget(Unit const* target) const;
         void HandleLaunchPhase();
