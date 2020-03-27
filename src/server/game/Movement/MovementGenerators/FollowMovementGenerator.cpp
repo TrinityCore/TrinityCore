@@ -110,7 +110,7 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
                 else if (distance > (velocity / 2))
                 {
                     // We are beyond our destination, throttle movement to fall back
-                    float distMod = 1.f - std::min<float>((distance - velocity / 2) * 0.1f, 0.5f);
+                    float distMod = 1.f - std::min<float>((distance - (velocity / 2)) * 0.1f, 0.5f);
                     velocity *= distMod;
                 }
             }
