@@ -21,6 +21,7 @@
 #include "AbstractFollower.h"
 #include "MovementGenerator.h"
 #include "Optional.h"
+#include "Timer.h"
 
 class PathGenerator;
 class Unit;

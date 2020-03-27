@@ -21,6 +21,7 @@
 #include "MoveSplineInit.h"
 #include "PathGenerator.h"
 #include "Pet.h"
+#include "TemporarySummon.h"
 #include "Unit.h"
 #include "Util.h"
 

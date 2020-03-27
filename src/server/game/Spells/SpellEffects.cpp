@@ -39,6 +39,7 @@
 #include "Log.h"
 #include "LootMgr.h"
 #include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "OutdoorPvPMgr.h"
