@@ -2848,6 +2848,21 @@ struct ItemModifiedAppearanceLoadInfo
     }
 };
 
+struct ItemNameDescriptionLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_STRING, "Description" },
+            { true, FT_INT, "Color" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ItemNameDescriptionMeta::Instance(), HOTFIX_SEL_ITEM_NAME_DESCRIPTION);
+        return &loadInfo;
+    }
+};
+
 struct ItemPriceBaseLoadInfo
 {
     static DB2LoadInfo const* Instance()
