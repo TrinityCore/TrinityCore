@@ -70,23 +70,8 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
         // Follow target is moving, launch our follow movement
         if (!target->movespline->Finalized() || target->isMoving())
         {
-            // Select angle
-            float tAngle = 0.f;
-            float const curAngle = target->GetRelativeAngle(owner);
-            if (_angle.IsAngleOkay(curAngle))
-                tAngle = curAngle;
-            else
-            {
-                float const diffUpper = Position::NormalizeOrientation(curAngle - _angle.UpperBound());
-                float const diffLower = Position::NormalizeOrientation(_angle.LowerBound() - curAngle);
-                if (diffUpper < diffLower)
-                    tAngle = _angle.UpperBound();
-                else
-                    tAngle = _angle.LowerBound();
-            }
-
             Position dest = target->GetPosition();
-            target->MovePositionToFirstCollision(dest, _range + target->GetBoundaryRadius() + owner->GetBoundaryRadius(), tAngle);
+            target->MovePositionToFirstCollision(dest, _range + target->GetBoundaryRadius() + owner->GetBoundaryRadius(), _angle.RelativeAngle);
 
             // Determine our velocity
             float velocity = 0.f;
