@@ -17,6 +17,7 @@
 
 #include "CinematicMgr.h"
 #include "Containers.h"
+#include "DB2Structure.h"
 #include "M2Stores.h"
 #include "Map.h"
 #include "MotionMaster.h"
