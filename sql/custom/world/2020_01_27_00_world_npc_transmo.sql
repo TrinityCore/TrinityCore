@@ -24,7 +24,7 @@ INSERT INTO `creature`
 `position_z`,
 `orientation`,
 `spawntimesecs`,
-`spawndist`,
+`wander_distance`,
 `currentwaypoint`,
 `curhealth`,
 `curmana`,
