@@ -152,12 +152,6 @@ class boss_forgemaster_throngus : public CreatureScript
                 _DespawnAtEvade();
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage) override
-            {
-                if (Aura* glancingBlowsAura = attacker->GetAura(SPELL_GLANCING_BLOWS))
-                    damage += CalculatePct(damage, glancingBlowsAura->GetSpellInfo()->Effects[EFFECT_0].BasePoints);
-            }
-
             void DoAction(int32 action) override
             {
                 switch (action)
@@ -480,13 +474,18 @@ class spell_throngus_personal_phalanx : public SpellScriptLoader
                 if (Creature * throngus = target->ToCreature())
                     if (throngus->IsAIEnabled)
                         throngus->AI()->DoAction(ACTION_START_PHALLANX);
+
+                target->ModifyAuraState(AURA_STATE_UNKNOWN22, true);
             }
 
             void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Creature* throngus = GetTarget()->ToCreature())
+                Unit* target = GetTarget();
+                if (Creature* throngus = target->ToCreature())
                     if (throngus->IsAIEnabled)
                         throngus->AI()->DoAction(ACTION_END_PHALLANX);
+
+                target->ModifyAuraState(AURA_STATE_UNKNOWN22, false);
             }
 
             void Register() override
