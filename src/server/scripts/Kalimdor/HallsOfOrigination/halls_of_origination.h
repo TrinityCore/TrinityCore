@@ -101,6 +101,7 @@ enum HOOCreatures
     NPC_DUSTBONE_HORROR             = 40450, // Summoned by spell: 75521 Summon Dustbone Horror
     NPC_QUICKSAND                   = 40503, // Summoned by spell: 75550 (server-side, not in dbc)
     NPC_HOO_CAMEL                   = 39443,
+    NPC_TUMULTOUS_EARTHSTORM        = 40406,
 
     /*Anraphet*/
     NPC_FIRE_WARDEN                 = 39800,

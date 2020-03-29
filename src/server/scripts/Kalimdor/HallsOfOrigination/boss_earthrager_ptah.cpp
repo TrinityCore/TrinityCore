@@ -72,8 +72,7 @@ enum Spells
     SPELL_SUMMON_QUICKSAND          = 75550,  // Server-side spell + hidden client-side flag!
 
     // Tumultuous Earthstorm
-    SPELL_CONSUME                   = 89633,
-    SPELL_CONSUME_DAMAGE            = 75369
+    SPELL_CONSUME                   = 89633
 };
 
 enum Phases
@@ -87,490 +86,315 @@ enum Sounds
     SOUND_PTAH_EARTHQUAKE           = 18908
 };
 
-enum Data
+struct boss_earthrager_ptah : public BossAI
 {
-    DATA_LAST_CONSUME_TARGET = 0
-};
+    boss_earthrager_ptah(Creature* creature) : BossAI(creature, DATA_EARTHRAGER_PTAH), _hasDispersed(false), _summonCount(0), _summonsDeadCount(0) { }
 
-// 39428 Earthrager Ptah
-class boss_earthrager_ptah : public CreatureScript
-{
-    public:
-        boss_earthrager_ptah() : CreatureScript("boss_earthrager_ptah") { }
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
+        Talk(SAY_AGGRO);
+        _JustEngagedWith();
+        events.SetPhase(PHASE_FIGHT);
+        events.ScheduleEvent(EVENT_RAGING_SMASH, 7s, 0, PHASE_FIGHT); // Seconds(12)
+        events.ScheduleEvent(EVENT_FLAME_BOLT, 8s, 0, PHASE_FIGHT);
+        events.ScheduleEvent(EVENT_EARTH_SPIKE, 15s, 0, PHASE_FIGHT); // Seconds(21)
+    }
 
-        struct boss_earthrager_ptahAI : public BossAI
+    void KilledUnit(Unit* victim) override
+    {
+        if (victim->GetTypeId() == TYPEID_PLAYER)
+            Talk(SAY_PLAYER_KILL);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        Talk(SAY_DEATH);
+        _JustDied();
+    }
+
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        summons.DespawnAll();
+        me->GetMap()->SetZoneWeather(AREA_TOMB_OF_THE_EARTHRAGER, WEATHER_STATE_FOG, 0.0f);
+        _EnterEvadeMode();
+        _DespawnAtEvade();
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    {
+        // About to die? One-hit cases...
+        if (int64(me->GetHealth()) - int64(damage) <= 0)
+            return;
+
+        // Earthquake phase happens at 50% health remaining.
+        if (me->HealthBelowPctDamaged(50, damage) && !_hasDispersed)
+            EnterDispersePhase();
+    }
+
+    void DoAction(int32 action) override
+    {
+        if (action != ACTION_PTAH_ADD_DIED)
+            return;
+
+        _summonsDeadCount++;
+        if (_summonsDeadCount == _summonCount)
+            ExitDispersePhase();
+    }
+
+    void JustSummoned(Creature* summon) override
+    {
+        switch (summon->GetEntry())
         {
-            boss_earthrager_ptahAI(Creature* creature) : BossAI(creature, DATA_EARTHRAGER_PTAH)
-            { 
-                Initialize();
-            }
-
-            void Initialize()
-            {
-                _hasDispersed = false;
-                _summonCount = 0;
-                _summonsDeadCount = 0;
-            }
-
-            void Reset() override
-            {
-                Initialize();
-                _Reset();
-            }
-
-            void JustEngagedWith(Unit* /*who*/) override
-            {
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
-                Talk(SAY_AGGRO);
-                _JustEngagedWith();
-                events.SetPhase(PHASE_FIGHT);
-                events.ScheduleEvent(EVENT_RAGING_SMASH, Seconds(7), 0, PHASE_FIGHT); // Seconds(12)
-                events.ScheduleEvent(EVENT_FLAME_BOLT, Seconds(8), 0, PHASE_FIGHT);
-                events.ScheduleEvent(EVENT_EARTH_SPIKE, Seconds(15), 0, PHASE_FIGHT); // Seconds(21)
-            }
-
-            void KilledUnit(Unit* victim) override
-            {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
-                    Talk(SAY_PLAYER_KILL);
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                Talk(SAY_DEATH);
-                _JustDied();
-            }
-
-            void EnterEvadeMode(EvadeReason /*why*/) override
-            {
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                summons.DespawnAll();
-                me->GetMap()->SetZoneWeather(AREA_TOMB_OF_THE_EARTHRAGER, WEATHER_STATE_FOG, 0.0f);
-                _EnterEvadeMode();
-                _DespawnAtEvade();
-            }
-
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
-            {
-                // About to die? One-hit cases...
-                if (int64(me->GetHealth()) - int64(damage) <= 0)
-                    return;
-
-                // Earthquake phase happens at 50% health remaining.
-                if (me->HealthBelowPctDamaged(50, damage) && !_hasDispersed)
-                    EnterDispersePhase();
-            }
-
-            void DoAction(int32 action) override
-            {
-                if (action != ACTION_PTAH_ADD_DIED)
-                    return;
-
-                _summonsDeadCount++;
-                if (_summonsDeadCount == _summonCount)
-                    ExitDispersePhase();
-            }
-
-            void JustSummoned(Creature* summon) override
-            {
-                switch (summon->GetEntry())
+            case NPC_DUSTBONE_HORROR:
+            case NPC_JEWELED_SCARAB:
+                summon->SetReactState(REACT_PASSIVE);
+                if (summon->IsAIEnabled)
+                    summon->AI()->DoZoneInCombat();
+                _addGUIDs.push_back(summon->GetGUID());
+                _summonCount++;
+                break;
+            case NPC_TUMULTOUS_EARTHSTORM:
+                summon->m_Events.AddEventAtOffset([summon]()
                 {
-                    case NPC_DUSTBONE_HORROR:
-                    case NPC_JEWELED_SCARAB:
-                        summon->SetReactState(REACT_PASSIVE);
-                        summon->SetInCombatWithZone();
-                        _addGUIDs.push_back(summon->GetGUID());
-                        _summonCount++;
-                        break;
-                    default:
-                        break;
-                }
-                summons.Summon(summon);
-            }
+                    summon->CastSpell(summon, SPELL_CONSUME);
+                    summon->GetMotionMaster()->MoveRandom(30.f);
+                }, 3s + 600ms);
+                break;
+            default:
+                break;
+        }
+        summons.Summon(summon);
+    }
 
-            void UpdateAI(uint32 diff) override
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim() || !CheckInRoom())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
             {
-                if (!UpdateVictim() || !CheckInRoom())
-                    return;
+                case EVENT_RAGING_SMASH:
+                    DoCastVictim(SPELL_RAGING_SMASH);
+                    events.Repeat(19s);
+                    break;
+                case EVENT_FLAME_BOLT:
+                    DoCast(me, SPELL_FLAME_BOLT);
+                    events.Repeat(21s);
+                    break;
+                case EVENT_EARTH_SPIKE:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                        DoCast(target, SPELL_EARTH_SPIKE_WARN);
+                    events.Repeat(15s);
+                    break;
+                case EVENT_PTAH_EXPLODE:
+                    instance->SendEncounterUnit(ENCOUNTER_FRAME_UPDATE_PRIORITY, me, 0);
+                    Talk(SAY_SPECIAL);
+                    DoCast(me, SPELL_PTAH_EXPLOSION);
 
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
+                    for (ObjectGuid guid : _addGUIDs)
                     {
-                        case EVENT_RAGING_SMASH:
-                            DoCastVictim(SPELL_RAGING_SMASH);
-                            events.Repeat(Seconds(19));
-                            break;
-                        case EVENT_FLAME_BOLT:
-                            DoCast(me, SPELL_FLAME_BOLT);
-                            events.Repeat(Seconds(21));
-                            break;
-                        case EVENT_EARTH_SPIKE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                                DoCast(target, SPELL_EARTH_SPIKE_WARN);
-                            events.Repeat(Seconds(15));
-                            break;
-                        case EVENT_PTAH_EXPLODE:
-                            instance->SendEncounterUnit(ENCOUNTER_FRAME_UPDATE_PRIORITY, me, 0);
-                            Talk(SAY_SPECIAL);
-                            DoCast(me, SPELL_PTAH_EXPLOSION);
-
-                            for (ObjectGuid guid : _addGUIDs)
-                            {
-                                if (Creature* add = ObjectAccessor::GetCreature(*me, guid))
-                                {
-                                    add->SetReactState(REACT_AGGRESSIVE);
-                                    if (add->IsAIEnabled)
-                                        add->AI()->DoZoneInCombat();
-                                }
-                            }
-
-                            if (IsHeroic())
-                                events.ScheduleEvent(EVENT_TUMULTUOUS_SAND_STORM, Seconds(2) + Milliseconds(500), 0, PHASE_EARTHSTORM);
-                            break;
-                        case EVENT_QUICKSAND:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                                DoCast(target, SPELL_SUMMON_QUICKSAND, true);
-                            events.Repeat(Seconds(21)); //Seconds(10)
-                            break;
-                        case EVENT_TUMULTUOUS_SAND_STORM:
-                            DoCastSelf(SPELL_TUMULTUOUS_EARTHSTORM, true);
-                            break;
-                        default:
-                            break;
+                        if (Creature* add = ObjectAccessor::GetCreature(*me, guid))
+                        {
+                            add->SetReactState(REACT_AGGRESSIVE);
+                            if (add->IsAIEnabled)
+                                add->AI()->DoZoneInCombat();
+                        }
                     }
-                }
 
-                DoMeleeAttackIfReady();
+                    if (IsHeroic())
+                        events.ScheduleEvent(EVENT_TUMULTUOUS_SAND_STORM, 2s + 500ms, 0, PHASE_EARTHSTORM);
+                    break;
+                case EVENT_QUICKSAND:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                        DoCast(target, SPELL_SUMMON_QUICKSAND, true);
+                    events.Repeat(21s); //Seconds(10)
+                    break;
+                case EVENT_TUMULTUOUS_SAND_STORM:
+                    DoCastSelf(SPELL_TUMULTUOUS_EARTHSTORM, true);
+                    break;
+                default:
+                    break;
             }
-
-            void EnterDispersePhase()
-            {
-                _hasDispersed = true;
-
-                me->SetReactState(REACT_PASSIVE);
-                me->CastStop();
-                me->AttackStop();
-                me->GetMap()->SetZoneWeather(AREA_TOMB_OF_THE_EARTHRAGER, WEATHER_STATE_LIGHT_SANDSTORM, 1.0f);
-                DoCast(me, SPELL_SANDSTORM);
-                instance->SetData(DATA_SUMMON_SANDSTORM_ADDS, IN_PROGRESS);
-
-                events.SetPhase(PHASE_EARTHSTORM);
-                events.ScheduleEvent(EVENT_PTAH_EXPLODE, Seconds(6), 0, PHASE_EARTHSTORM);
-                events.ScheduleEvent(EVENT_QUICKSAND, Seconds(10), 0, PHASE_EARTHSTORM);
-            }
-        
-            void ExitDispersePhase()
-            {
-                me->RemoveAurasDueToSpell(SPELL_PTAH_EXPLOSION);
-                me->GetMap()->SetZoneWeather(AREA_TOMB_OF_THE_EARTHRAGER, WEATHER_STATE_FOG, 0.0f);
-                me->SetReactState(REACT_AGGRESSIVE);
-
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_UPDATE_PRIORITY, me, 2);
-                events.SetPhase(PHASE_FIGHT);
-                events.ScheduleEvent(EVENT_RAGING_SMASH, Seconds(7), 0, PHASE_FIGHT); // Seconds(12)
-                events.ScheduleEvent(EVENT_FLAME_BOLT, Seconds(8), 0, PHASE_FIGHT);
-                events.ScheduleEvent(EVENT_EARTH_SPIKE, Seconds(15), 0, PHASE_FIGHT); // Seconds(21)
-            }
-
-            bool _hasDispersed;
-            uint8 _summonCount;
-            uint8 _summonsDeadCount;
-            GuidVector _addGUIDs;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetHallsOfOriginationAI<boss_earthrager_ptahAI>(creature);
         }
+
+        DoMeleeAttackIfReady();
+    }
+
+    void EnterDispersePhase()
+    {
+        _hasDispersed = true;
+
+        me->SetReactState(REACT_PASSIVE);
+        me->CastStop();
+        me->AttackStop();
+        me->GetMap()->SetZoneWeather(AREA_TOMB_OF_THE_EARTHRAGER, WEATHER_STATE_LIGHT_SANDSTORM, 1.0f);
+        DoCast(me, SPELL_SANDSTORM);
+        instance->SetData(DATA_SUMMON_SANDSTORM_ADDS, IN_PROGRESS);
+
+        events.SetPhase(PHASE_EARTHSTORM);
+        events.ScheduleEvent(EVENT_PTAH_EXPLODE, 6s, 0, PHASE_EARTHSTORM);
+        events.ScheduleEvent(EVENT_QUICKSAND, 10s, 0, PHASE_EARTHSTORM);
+    }
+
+    void ExitDispersePhase()
+    {
+        me->RemoveAurasDueToSpell(SPELL_PTAH_EXPLOSION);
+        me->GetMap()->SetZoneWeather(AREA_TOMB_OF_THE_EARTHRAGER, WEATHER_STATE_FOG, 0.0f);
+        me->SetReactState(REACT_AGGRESSIVE);
+
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_UPDATE_PRIORITY, me, 2);
+        events.SetPhase(PHASE_FIGHT);
+        events.ScheduleEvent(EVENT_RAGING_SMASH, 7s, 0, PHASE_FIGHT); // Seconds(12)
+        events.ScheduleEvent(EVENT_FLAME_BOLT, 8s, 0, PHASE_FIGHT);
+        events.ScheduleEvent(EVENT_EARTH_SPIKE, 15s, 0, PHASE_FIGHT); // Seconds(21)
+    }
+
+    bool _hasDispersed;
+    uint8 _summonCount;
+    uint8 _summonsDeadCount;
+    GuidVector _addGUIDs;
 };
 
-class npc_ptah_beetle_stalker : public CreatureScript
+struct npc_ptah_beetle_stalker : public ScriptedAI
 {
-    public:
-        npc_ptah_beetle_stalker() : CreatureScript("npc_ptah_beetle_stalker") { }
+    npc_ptah_beetle_stalker(Creature* creature) : ScriptedAI(creature) { }
 
-        struct npc_ptah_beetle_stalkerAI : public ScriptedAI
+    void SpellHit(Unit* /*caster*/, const SpellInfo* spellInfo) override
+    {
+        if (spellInfo->Id == SPELL_BEETLE_BURROW)
+            _events.ScheduleEvent(EVENT_SUMMON_JEWELED_SCARAB, Seconds(5), Seconds(6));
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
         {
-            npc_ptah_beetle_stalkerAI(Creature* creature) : ScriptedAI(creature) { }
-
-            void SpellHit(Unit* /*caster*/, const SpellInfo* spellInfo) override
+            switch (eventId)
             {
-                if (spellInfo->Id == SPELL_BEETLE_BURROW)
-                    _events.ScheduleEvent(EVENT_SUMMON_JEWELED_SCARAB, Seconds(5), Seconds(6));
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                _events.Update(diff);
-
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch (eventId)
+                case EVENT_SUMMON_JEWELED_SCARAB:
+                    if (me->HasAura(SPELL_BEETLE_BURROW))
                     {
-                        case EVENT_SUMMON_JEWELED_SCARAB:
-                            if (me->HasAura(SPELL_BEETLE_BURROW))
-                            {
-                                DoCastAOE(SPELL_SUMMON_JEWELED_SCARAB);
-                                me->RemoveAurasDueToSpell(SPELL_BEETLE_BURROW);
-                            }
-                            break;
-                        default:
-                            break;
+                        DoCastAOE(SPELL_SUMMON_JEWELED_SCARAB);
+                        me->RemoveAurasDueToSpell(SPELL_BEETLE_BURROW);
                     }
-                }        
+                    break;
+                default:
+                    break;
             }
-        private:
-            EventMap _events;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetHallsOfOriginationAI<npc_ptah_beetle_stalkerAI>(creature);
         }
+    }
+private:
+    EventMap _events;
 };
 
-class npc_ptah_tumultuous_earthstorm : public CreatureScript
+class spell_earthrager_ptah_flame_bolt : public SpellScript
 {
-    public:
-        npc_ptah_tumultuous_earthstorm() : CreatureScript("npc_ptah_tumultuous_earthstorm") { }
+    PrepareSpellScript(spell_earthrager_ptah_flame_bolt);
 
-        struct npc_ptah_tumultuous_earthstormAI : public PassiveAI
-        {
-            npc_ptah_tumultuous_earthstormAI(Creature* creature) : PassiveAI(creature)
-            {
-                Initialize();
-            }
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.empty())
+            return;
 
-            void Initialize()
-            {
-                _guid = ObjectGuid::Empty;
-            }
+        uint8 size = GetCaster()->GetMap()->IsHeroic() ? 3 : 2;
 
-            void IsSummonedBy(Unit* /*summoner*/) override
-            {
-                _events.ScheduleEvent(EVENT_START_MOVEMENT, Seconds(3) + Milliseconds(600));
-            }
+        if (targets.size() > size)
+            Trinity::Containers::RandomResize(targets, size);
+    }
 
-            void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) override
-            {
-                if (!passenger && apply)
-                    return;
-
-                _guid = passenger->GetGUID();
-            }
-
-            ObjectGuid GetGUID(int32 type) const override
-            {
-                return (type == DATA_LAST_CONSUME_TARGET ? _guid : ObjectGuid::Empty);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                _events.Update(diff);
-
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_START_MOVEMENT:
-                            DoCastSelf(SPELL_CONSUME, true);
-                            me->GetMotionMaster()->MoveRandom(30.0f);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-                
-            }
-        private:
-            EventMap _events;
-            ObjectGuid _guid;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetHallsOfOriginationAI<npc_ptah_tumultuous_earthstormAI>(creature);
-        }
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_earthrager_ptah_flame_bolt::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+    }
 };
 
-class spell_earthrager_ptah_flame_bolt : public SpellScriptLoader
+class spell_earthrager_ptah_sandstorm : public SpellScript
 {
-    public:
-        spell_earthrager_ptah_flame_bolt() : SpellScriptLoader("spell_earthrager_ptah_flame_bolt") { }
+    PrepareSpellScript(spell_earthrager_ptah_sandstorm);
 
-        class spell_earthrager_ptah_flame_bolt_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_earthrager_ptah_flame_bolt_SpellScript);
+    void PlaySoundID(SpellEffIndex /*effIndex*/)
+    {
+        if (Player* player = GetHitUnit()->ToPlayer())
+            GetCaster()->PlayDirectSound(SOUND_PTAH_EARTHQUAKE, player);
+    }
 
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                Trinity::Containers::RandomResize(targets, GetCaster()->GetMap()->IsHeroic() ? 3 : 2);
-            }
-
-            void Register() override
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_earthrager_ptah_flame_bolt_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_earthrager_ptah_flame_bolt_SpellScript();
-        }
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_earthrager_ptah_sandstorm::PlaySoundID, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+    }
 };
 
-class spell_earthrager_ptah_sandstorm : public SpellScriptLoader
+class spell_earthrager_ptah_explosion : public AuraScript
 {
-    public:
-        spell_earthrager_ptah_sandstorm() : SpellScriptLoader("spell_earthrager_ptah_sandstorm") { }
+    PrepareAuraScript(spell_earthrager_ptah_explosion);
 
-        class spell_earthrager_ptah_sandstorm_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_earthrager_ptah_sandstorm_SpellScript);
+    void SetFlags(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        target->SetFlag(UNIT_FIELD_FLAGS, uint32(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_UNK_29 | UNIT_FLAG_UNK_31));
+        target->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
+    }
 
-            void PlaySound(SpellEffIndex /*effIndex*/)
-            {
-                if (Player* player = GetHitUnit()->ToPlayer())
-                    GetCaster()->PlayDirectSound(SOUND_PTAH_EARTHQUAKE, player);
-            }
+    void RemoveFlags(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
 
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_earthrager_ptah_sandstorm_SpellScript::PlaySound, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
-            }
-        };
+        Unit* target = GetTarget();
+        target->RemoveFlag(UNIT_FIELD_FLAGS, uint32(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_UNK_29 | UNIT_FLAG_UNK_31));
+        target->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
+    }
 
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_earthrager_ptah_sandstorm_SpellScript();
-        }
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_earthrager_ptah_explosion::SetFlags, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_earthrager_ptah_explosion::RemoveFlags, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
 };
 
-class spell_earthrager_ptah_explosion : public SpellScriptLoader
+class spell_earthrager_ptah_consume : public SpellScript
 {
-    public:
-        spell_earthrager_ptah_explosion() : SpellScriptLoader("spell_earthrager_ptah_explosion") { }
+    PrepareSpellScript(spell_earthrager_ptah_consume);
 
-        class spell_earthrager_ptah_explosion_AuraScript : public AuraScript
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.empty())
+            return;
+
+        targets.remove_if([](WorldObject* target)->bool
         {
-            PrepareAuraScript(spell_earthrager_ptah_explosion_AuraScript);
+            Unit* unit = target->ToUnit();
+            return (!unit || unit->GetVehicle() || !unit->movespline->Finalized());
+        });
+    }
 
-            void SetFlags(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (Unit* ptah = GetCaster())
-                {
-                    ptah->SetFlag(UNIT_FIELD_FLAGS, uint32(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_UNK_29 | UNIT_FLAG_UNK_31));
-                    ptah->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
-                }
-            }
+    void FilterKnockbackTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.empty())
+            return;
 
-            void RemoveFlags(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (Unit* ptah = GetCaster())
-                {
-                    ptah->RemoveFlag(UNIT_FIELD_FLAGS, uint32(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_UNK_29 | UNIT_FLAG_UNK_31));
-                    ptah->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
-                }
-            }
-
-            void Register() override
-            {
-                OnEffectApply += AuraEffectApplyFn(spell_earthrager_ptah_explosion_AuraScript::SetFlags, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-                OnEffectRemove += AuraEffectRemoveFn(spell_earthrager_ptah_explosion_AuraScript::RemoveFlags, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
+        Unit* caster = GetCaster();
+        targets.remove_if([caster](WorldObject* target)->bool
         {
-            return new spell_earthrager_ptah_explosion_AuraScript();
-        }
-};
+            Unit* unit = target->ToUnit();
+            return (!unit || !unit->GetVehicleCreatureBase() || unit->GetVehicleCreatureBase() != caster);
+        });
+    }
 
-class ConsumeEntryCheck
-{
-    public:
-        ConsumeEntryCheck() { }
-
-        bool operator()(WorldObject* object)
-        {
-            if (Unit* target = object->ToUnit())
-                return target->movespline->isParabolic() || target->HasAura(SPELL_CONSUME_DAMAGE);
-
-            return false;
-        }
-};
-
-class ConsumeKnockbackCheck
-{
-    public:
-        ConsumeKnockbackCheck(Unit* caster) : _caster(caster) { }
-
-        bool operator()(WorldObject* object)
-        {
-            Unit* target = object->ToUnit();
-            if (!target)
-                return true;
-
-            Creature* caster = _caster->ToCreature();
-            if (!caster)
-                return true;
-
-            if (caster->IsAIEnabled && target->GetTypeId() == TYPEID_PLAYER)
-            {
-                ObjectGuid guid = caster->AI()->GetGUID(DATA_LAST_CONSUME_TARGET);
-                return target->GetGUID() != guid;
-            }
-
-            return false;
-        }
-    private:
-        Unit * _caster;
-
-};
-
-class spell_earthrager_ptah_consume: public SpellScriptLoader
-{
-    public:
-        spell_earthrager_ptah_consume() : SpellScriptLoader("spell_earthrager_ptah_consume") { }
-
-        class spell_earthrager_ptah_consume_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_earthrager_ptah_consume_SpellScript);
-
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                if (targets.empty())
-                    return;
-
-                targets.remove_if(ConsumeEntryCheck());
-            }
-
-            void FilterTargetsKnockback(std::list<WorldObject*>& targets)
-            {
-                if (targets.empty())
-                    return;
-
-                targets.remove_if(ConsumeKnockbackCheck(GetCaster()));
-            }
-
-            void Register() override
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_earthrager_ptah_consume_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_earthrager_ptah_consume_SpellScript::FilterTargetsKnockback, EFFECT_1, TARGET_UNIT_SRC_AREA_ENTRY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_earthrager_ptah_consume_SpellScript();
-        }
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_earthrager_ptah_consume::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+    }
 };
 
 class achievement_straw_broke_camels_back : public AchievementCriteriaScript
@@ -589,12 +413,11 @@ class achievement_straw_broke_camels_back : public AchievementCriteriaScript
 
 void AddSC_boss_earthrager_ptah()
 {
-    new boss_earthrager_ptah();
-    new npc_ptah_beetle_stalker();
-    new npc_ptah_tumultuous_earthstorm();
-    new spell_earthrager_ptah_flame_bolt();
-    new spell_earthrager_ptah_sandstorm();
-    new spell_earthrager_ptah_explosion();
-    new spell_earthrager_ptah_consume();
+    RegisterHallsOfOriginationCreatureAI(boss_earthrager_ptah);
+    RegisterHallsOfOriginationCreatureAI(npc_ptah_beetle_stalker);
+    RegisterSpellScript(spell_earthrager_ptah_flame_bolt);
+    RegisterSpellScript(spell_earthrager_ptah_sandstorm);
+    RegisterAuraScript(spell_earthrager_ptah_explosion);
+    RegisterSpellScript(spell_earthrager_ptah_consume);
     new achievement_straw_broke_camels_back();
 }
