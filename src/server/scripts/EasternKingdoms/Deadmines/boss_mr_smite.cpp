@@ -99,6 +99,7 @@ public:
             SetEquipmentSlots(false, EQUIP_SWORD, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
             me->SetStandState(UNIT_STAND_STATE_STAND);
             me->SetReactState(REACT_AGGRESSIVE);
+            me->SetNoCallAssistance(true);
         }
 
         void JustEngagedWith(Unit* /*who*/) override
