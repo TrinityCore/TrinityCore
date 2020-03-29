@@ -95,3 +95,37 @@ WorldPacket const* WorldPackets::Movement::MoveSetCollisionHeight::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Movement::MoveKnockBack::Write()
+{
+    _worldPacket.WriteBit(MoverGUID[0]);
+    _worldPacket.WriteBit(MoverGUID[3]);
+    _worldPacket.WriteBit(MoverGUID[6]);
+    _worldPacket.WriteBit(MoverGUID[7]);
+    _worldPacket.WriteBit(MoverGUID[2]);
+    _worldPacket.WriteBit(MoverGUID[5]);
+    _worldPacket.WriteBit(MoverGUID[1]);
+    _worldPacket.WriteBit(MoverGUID[4]);
+
+    _worldPacket.WriteByteSeq(MoverGUID[1]);
+
+    _worldPacket << float(Direction.Pos.GetPositionY());
+    _worldPacket << int32(SequenceIndex);
+
+    _worldPacket.WriteByteSeq(MoverGUID[6]);
+    _worldPacket.WriteByteSeq(MoverGUID[7]);
+
+    _worldPacket << float(Speeds.HorzSpeed);
+
+    _worldPacket.WriteByteSeq(MoverGUID[4]);
+    _worldPacket.WriteByteSeq(MoverGUID[5]);
+    _worldPacket.WriteByteSeq(MoverGUID[3]);
+
+    _worldPacket << float(Speeds.VertSpeed);
+    _worldPacket << float(Direction.Pos.GetPositionX());
+
+    _worldPacket.WriteByteSeq(MoverGUID[2]);
+    _worldPacket.WriteByteSeq(MoverGUID[0]);
+
+    return &_worldPacket;
+}

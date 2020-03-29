@@ -88,6 +88,25 @@ namespace WorldPackets
             float Height = 1.0f;
             UpdateCollisionHeightReason Reason = UPDATE_COLLISION_HEIGHT_MOUNT;
         };
+
+        struct MoveKnockBackSpeeds
+        {
+            float HorzSpeed = 0.0f;
+            float VertSpeed = 0.0f;
+        };
+
+        class MoveKnockBack final : public ServerPacket
+        {
+        public:
+            MoveKnockBack() : ServerPacket(SMSG_MOVE_KNOCK_BACK, 1 + 8 + 4 + 4 + 4 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid MoverGUID;
+            TaggedPosition<Position::XY> Direction;
+            MoveKnockBackSpeeds Speeds;
+            uint32 SequenceIndex = 0;
+        };
     }
 }
 
