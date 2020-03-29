@@ -731,7 +731,7 @@ class spell_vp_howling_gale_knockback : public AuraScript
 {
     PrepareAuraScript(spell_vp_howling_gale_knockback);
 
-    void AfterApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         GetTarget()->ModifyAuraState(AURA_STATE_UNKNOWN22, true);
     }
