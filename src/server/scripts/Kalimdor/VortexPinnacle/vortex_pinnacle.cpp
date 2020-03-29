@@ -726,6 +726,28 @@ class spell_vp_howling_gale : public AuraScript
     }
 };
 
+// 85159, 85085 - Howling Gale
+class spell_vp_howling_gale_knockback : public AuraScript
+{
+    PrepareAuraScript(spell_vp_howling_gale_knockback);
+
+    void AfterApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->ModifyAuraState(AURA_STATE_UNKNOWN22, true);
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->ModifyAuraState(AURA_STATE_UNKNOWN22, false);
+    }
+
+    void Register() override
+    {
+        OnEffectApply += AuraEffectApplyFn(spell_vp_howling_gale_knockback::AfterApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_vp_howling_gale_knockback::AfterRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 // 84978, 84989, 85395, 85396, 85017 - Slipstream
 class spell_slipstream : public SpellScript
 {
@@ -917,6 +939,7 @@ void AddSC_vortex_pinnacle()
     RegisterAuraScript(spell_lurk_ressurect);
     RegisterSpellScript(spell_lurk_search_victim);
     RegisterAuraScript(spell_vp_howling_gale);
+    RegisterAuraScript(spell_vp_howling_gale_knockback);
     RegisterSpellScript(spell_slipstream);
     RegisterSpellScript(spell_grounding_field);
     RegisterSpellScript(spell_skyfall);
