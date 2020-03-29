@@ -2987,7 +2987,7 @@ void Spell::EffectSummonObjectWild(SpellEffIndex effIndex)
     Map* map = target->GetMap();
 
     if (!pGameObj->Create(map->GenerateLowGuid<HighGuid::GameObject>(), gameobject_id, map,
-        m_caster->GetPhaseMask(), Position(x, y, z, target->GetOrientation()), rot, 255, GO_STATE_READY))
+        Position(x, y, z, target->GetOrientation()), rot, 255, GO_STATE_READY))
     {
         delete pGameObj;
         return;
@@ -3584,7 +3584,7 @@ void Spell::EffectDuel(SpellEffIndex effIndex)
     }
 
     //CREATE DUEL FLAG OBJECT
-    GameObject* pGameObj = new GameObject;
+    GameObject* pGameObj = new GameObject();
 
     uint32 gameobject_id = m_spellInfo->Effects[effIndex].MiscValue;
 
@@ -3597,7 +3597,7 @@ void Spell::EffectDuel(SpellEffIndex effIndex)
     };
 
     Map* map = m_caster->GetMap();
-    if (!pGameObj->Create(map->GenerateLowGuid<HighGuid::GameObject>(), gameobject_id, map, 0, pos, QuaternionData(), 0, GO_STATE_READY))
+    if (!pGameObj->Create(map->GenerateLowGuid<HighGuid::GameObject>(), gameobject_id, map, pos, QuaternionData(), 0, GO_STATE_READY))
     {
         delete pGameObj;
         return;
@@ -4055,7 +4055,7 @@ void Spell::EffectSummonObject(SpellEffIndex effIndex)
         m_caster->GetClosePoint(x, y, z, DEFAULT_WORLD_OBJECT_SIZE);
 
     Map* map = m_caster->GetMap();
-    if (!go->Create(map->GenerateLowGuid<HighGuid::GameObject>(), go_id, map, 0, Position(x, y, z, m_caster->GetOrientation()), QuaternionData(), 255, GO_STATE_READY))
+    if (!go->Create(map->GenerateLowGuid<HighGuid::GameObject>(), go_id, map, Position(x, y, z, m_caster->GetOrientation()), QuaternionData(), 255, GO_STATE_READY))
     {
         delete go;
         return;
@@ -4802,7 +4802,7 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
     if (goinfo->type == GAMEOBJECT_TYPE_TRANSPORT)
     {
         pGameObj = new Transport();
-        if (!pGameObj->Create(cMap->GenerateLowGuid<HighGuid::Transport>(), name_id, cMap, 0, Position(fx, fy, fz, m_caster->GetOrientation()), rot, 255, GO_STATE_READY))
+        if (!pGameObj->Create(cMap->GenerateLowGuid<HighGuid::Transport>(), name_id, cMap, Position(fx, fy, fz, m_caster->GetOrientation()), rot, 255, GO_STATE_READY))
         {
             delete pGameObj;
             return;
@@ -4811,7 +4811,7 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
     else
     {
         pGameObj = new GameObject();
-        if (!pGameObj->Create(cMap->GenerateLowGuid<HighGuid::GameObject>(), name_id, cMap, 0, Position(fx, fy, fz, m_caster->GetOrientation()), rot, 255, GO_STATE_READY))
+        if (!pGameObj->Create(cMap->GenerateLowGuid<HighGuid::GameObject>(), name_id, cMap, Position(fx, fy, fz, m_caster->GetOrientation()), rot, 255, GO_STATE_READY))
         {
             delete pGameObj;
             return;

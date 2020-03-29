@@ -83,7 +83,7 @@ bool Corpse::Create(ObjectGuid::LowType guidlow, Player* owner)
         return false;
     }
 
-    WorldObject::_Create(guidlow, HighGuid::Corpse, owner->GetPhaseMask());
+    WorldObject::_Create(guidlow, HighGuid::Corpse);
 
     SetObjectScale(1.0f);
     SetGuidValue(CORPSE_FIELD_OWNER, owner->GetGUID());

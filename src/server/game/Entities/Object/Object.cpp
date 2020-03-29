@@ -1185,7 +1185,7 @@ void MovementInfo::OutDebug()
 WorldObject::WorldObject(bool isWorldObject) : WorldLocation(), LastUsedScriptID(0),
 m_name(""), m_isActive(false), m_isFarVisible(false), m_isWorldObject(isWorldObject), m_zoneScript(nullptr),
 m_transport(nullptr), m_zoneId(0), m_areaId(0), m_staticFloorZ(VMAP_INVALID_HEIGHT), m_outdoors(true), m_currMap(nullptr),
-m_InstanceId(0), m_phaseMask(PHASEMASK_NORMAL), _dbPhase(0), m_notifyflags(0), m_executed_notifies(0),
+m_InstanceId(0), _dbPhase(0), m_notifyflags(0), m_executed_notifies(0),
 m_aiAnimKitId(0), m_movementAnimKitId(0), m_meleeAnimKitId(0)
 {
     m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_ALIVE | GHOST_VISIBILITY_GHOST);
@@ -1270,10 +1270,9 @@ void WorldObject::CleanupsBeforeDelete(bool /*finalCleanup*/)
         transport->RemovePassenger(this);
 }
 
-void WorldObject::_Create(ObjectGuid::LowType guidlow, HighGuid guidhigh, uint32 phaseMask)
+void WorldObject::_Create(ObjectGuid::LowType guidlow, HighGuid guidhigh)
 {
     Object::_Create(guidlow, 0, guidhigh);
-    m_phaseMask = phaseMask;
 }
 
 void WorldObject::UpdatePositionData()
@@ -2105,7 +2104,7 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
             break;
     }
 
-    if (!summon->Create(GenerateLowGuid<HighGuid::Unit>(), this, 0, entry, pos, nullptr, vehId, true))
+    if (!summon->Create(GenerateLowGuid<HighGuid::Unit>(), this, entry, pos, nullptr, vehId, true))
     {
         delete summon;
         return nullptr;
@@ -2223,7 +2222,7 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, Position const& pos, Qua
     if (goinfo->type == GAMEOBJECT_TYPE_TRANSPORT)
     {
         go = new Transport();
-        if (!go->Create(map->GenerateLowGuid<HighGuid::Transport>(), entry, map, GetPhaseMask(), pos, rot, 255, GO_STATE_READY))
+        if (!go->Create(map->GenerateLowGuid<HighGuid::Transport>(), entry, map, pos, rot, 255, GO_STATE_READY))
         {
             delete go;
             return nullptr;
@@ -2232,7 +2231,7 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, Position const& pos, Qua
     else
     {
         go = new GameObject();
-        if (!go->Create(map->GenerateLowGuid<HighGuid::GameObject>(), entry, map, GetPhaseMask(), pos, rot, 255, GO_STATE_READY))
+        if (!go->Create(map->GenerateLowGuid<HighGuid::GameObject>(), entry, map, pos, rot, 255, GO_STATE_READY))
         {
             delete go;
             return nullptr;
@@ -2599,14 +2598,6 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
                 pos.m_positionZ = gridHeight + unit->GetHoverOffset();
         }
     }
-}
-
-void WorldObject::SetPhaseMask(uint32 newPhaseMask, bool update)
-{
-    m_phaseMask = newPhaseMask;
-
-    if (update && IsInWorld())
-        UpdateObjectVisibility();
 }
 
 void WorldObject::PlayDistanceSound(uint32 sound_id, Player* target /*= nullptr*/)

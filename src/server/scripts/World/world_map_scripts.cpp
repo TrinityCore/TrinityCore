@@ -70,7 +70,7 @@ class world_map_deeprun_tram: public WorldMapScript
                 {
                     GameObject* transport = new Transport();
 
-                    if (!transport->Create(map->GenerateLowGuid<HighGuid::Transport>(), GO_SUBWAY + i, map, 0, SubwaysPos[i], worldRotation, 255, GO_STATE_READY))
+                    if (!transport->Create(map->GenerateLowGuid<HighGuid::Transport>(), GO_SUBWAY + i, map, SubwaysPos[i], worldRotation, 255, GO_STATE_READY))
                     {
                         delete transport;
                         continue;

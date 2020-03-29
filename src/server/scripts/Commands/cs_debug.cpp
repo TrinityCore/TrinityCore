@@ -975,7 +975,7 @@ public:
         Creature* v = new Creature();
 
         Map* map = handler->GetSession()->GetPlayer()->GetMap();
-        if (!v->Create(map->GenerateLowGuid<HighGuid::Vehicle>(), map, handler->GetSession()->GetPlayer()->GetPhaseMask(), entry, { x, y, z, o }, nullptr, id))
+        if (!v->Create(map->GenerateLowGuid<HighGuid::Vehicle>(), map, entry, { x, y, z, o }, nullptr, id))
         {
             delete v;
             return false;

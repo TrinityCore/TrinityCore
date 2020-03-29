@@ -175,10 +175,10 @@ bool OutdoorPvPSI::HandleDropFlag(Player* player, uint32 spellId)
                     if (player->GetDistance(atEntry->Pos.X, atEntry->Pos.Y, atEntry->Pos.Z) > 5.0f + atEntry->Radius)
                     {
                         // he dropped it further, summon mound
-                        GameObject* go = new GameObject;
+                        GameObject* go = new GameObject();
                         Map* map = player->GetMap();
 
-                        if (!go->Create(map->GenerateLowGuid<HighGuid::GameObject>(), SI_SILITHYST_MOUND, map, player->GetPhaseMask(), *player, QuaternionData(), 255, GO_STATE_READY))
+                        if (!go->Create(map->GenerateLowGuid<HighGuid::GameObject>(), SI_SILITHYST_MOUND, map, *player, QuaternionData(), 255, GO_STATE_READY))
                         {
                             delete go;
                             return true;
@@ -208,7 +208,7 @@ bool OutdoorPvPSI::HandleDropFlag(Player* player, uint32 spellId)
                         GameObject* go = new GameObject;
                         Map* map = player->GetMap();
 
-                        if (!go->Create(map->GenerateLowGuid<HighGuid::GameObject>(), SI_SILITHYST_MOUND, map, player->GetPhaseMask(), *player, QuaternionData(), 255, GO_STATE_READY))
+                        if (!go->Create(map->GenerateLowGuid<HighGuid::GameObject>(), SI_SILITHYST_MOUND, map, *player, QuaternionData(), 255, GO_STATE_READY))
                         {
                             delete go;
                             return true;

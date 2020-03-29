@@ -849,7 +849,7 @@ private:
         {
 
             TempSummon* summon = new TempSummon(nullptr, me, false);
-            if (!summon->Create(map->GenerateLowGuid<HighGuid::Unit>(), map, 0, itr->entry, itr->pos, nullptr, 0, true))
+            if (!summon->Create(map->GenerateLowGuid<HighGuid::Unit>(), map, itr->entry, itr->pos, nullptr, 0, true))
             {
                 delete summon;
                 continue;

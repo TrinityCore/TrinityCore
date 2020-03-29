@@ -284,7 +284,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         virtual void Update (uint32 /*time_diff*/) { }
 
-        void _Create(ObjectGuid::LowType guidlow, HighGuid guidhigh, uint32 phaseMask);
+        void _Create(ObjectGuid::LowType guidlow, HighGuid guidhigh);
         void AddToWorld() override;
         void RemoveFromWorld() override;
 
@@ -307,7 +307,6 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         uint32 GetInstanceId() const { return m_InstanceId; }
 
-        virtual void SetPhaseMask(uint32 newPhaseMask, bool update);
         bool IsInPhase(WorldObject const* obj) const
         {
             return GetPhaseShift().CanSee(obj->GetPhaseShift());
@@ -317,7 +316,6 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         PhaseShift const& GetPhaseShift() const { return _phaseShift; }
         PhaseShift& GetSuppressedPhaseShift() { return _suppressedPhaseShift; }
         PhaseShift const& GetSuppressedPhaseShift() const { return _suppressedPhaseShift; }
-        uint32 GetPhaseMask() const { return m_phaseMask; }
         int32 GetDBPhase() { return _dbPhase; }
 
         // if negative it is used as PhaseGroupId
@@ -523,7 +521,6 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         //uint32 m_mapId;                                 // object at map with map_id
         uint32 m_InstanceId;                              // in map copy with instance id
-        uint32 m_phaseMask;                               // in area phase state
         PhaseShift _phaseShift;
         PhaseShift _suppressedPhaseShift;                 // contains phases for current area but not applied due to conditions
         int32 _dbPhase;

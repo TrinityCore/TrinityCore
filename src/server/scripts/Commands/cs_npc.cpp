@@ -354,26 +354,25 @@ public:
             CreatureData& data = sObjectMgr->NewOrExistCreatureData(guid);
             data.spawnId = guid;
             data.id = id;
-            data.phaseMask = chr->GetPhaseMask();
             data.spawnPoint.Relocate(chr->GetTransOffsetX(), chr->GetTransOffsetY(), chr->GetTransOffsetZ(), chr->GetTransOffsetO());
 
             if (Creature* creature = trans->CreateNPCPassenger(guid, &data))
             {
-                creature->SaveToDB(trans->GetGOInfo()->moTransport.mapID, 1 << map->GetSpawnMode(), chr->GetPhaseMask());
+                creature->SaveToDB(trans->GetGOInfo()->moTransport.mapID, 1 << map->GetSpawnMode());
                 sObjectMgr->AddCreatureToGrid(guid, &data);
             }
             return true;
         }
 
         Creature* creature = new Creature();
-        if (!creature->Create(map->GenerateLowGuid<HighGuid::Unit>(), map, chr->GetPhaseMask(), id, *chr))
+        if (!creature->Create(map->GenerateLowGuid<HighGuid::Unit>(), map, id, *chr))
         {
             delete creature;
             return false;
         }
 
         PhasingHandler::InheritPhaseShift(creature, chr);
-        creature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMask());
+        creature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()));
 
         ObjectGuid::LowType db_guid = creature->GetSpawnId();
 

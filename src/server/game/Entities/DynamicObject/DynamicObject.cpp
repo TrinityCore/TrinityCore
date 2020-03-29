@@ -93,7 +93,7 @@ bool DynamicObject::CreateDynamicObject(ObjectGuid::LowType guidlow, Unit* caste
         return false;
     }
 
-    WorldObject::_Create(guidlow, HighGuid::DynamicObject, caster->GetPhaseMask());
+    WorldObject::_Create(guidlow, HighGuid::DynamicObject);
     PhasingHandler::InheritPhaseShift(this, caster);
 
     SetEntry(spell->Id);

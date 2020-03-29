@@ -32,7 +32,7 @@ class TC_GAME_API Transport : public GameObject, public TransportBase
         Transport();
         ~Transport();
 
-        bool Create(ObjectGuid::LowType guidlow, uint32 entry, Map* map, uint32 /*phaseMask*/, Position const& pos, QuaternionData const& rotation, uint32 animprogress, GOState go_state, uint32 artKit = 0, bool dynamic = false, ObjectGuid::LowType spawnid = 0) override;
+        bool Create(ObjectGuid::LowType guidlow, uint32 entry, Map* map, Position const& pos, QuaternionData const& rotation, uint32 animprogress, GOState go_state, uint32 artKit = 0, bool dynamic = false, ObjectGuid::LowType spawnid = 0) override;
         bool CreateTransport(ObjectGuid::LowType guidlow, uint32 entry, uint32 mapid, Position const& pos, uint32 animprogress);
 
         void CleanupsBeforeDelete(bool finalCleanup = true) override;

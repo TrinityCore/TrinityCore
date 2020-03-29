@@ -154,11 +154,10 @@ namespace Trinity
     {
         Unit* i_source;
         WorldPacket* i_message;
-        uint32 i_phaseMask;
         float i_distSq;
 
         MessageDistDelivererToHostile(Unit* src, WorldPacket* msg, float dist)
-            : i_source(src), i_message(msg), i_phaseMask(src->GetPhaseMask()), i_distSq(dist * dist)
+            : i_source(src), i_message(msg), i_distSq(dist * dist)
         {
         }
 

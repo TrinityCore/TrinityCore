@@ -155,7 +155,7 @@ void Transport::RemovePassenger(WorldObject* passenger)
     }
 }
 
-bool Transport::Create(ObjectGuid::LowType guidlow, uint32 entry, Map* map, uint32 /*phaseMask*/, Position const& pos, QuaternionData const& rotation, uint32 animprogress, GOState /*go_state*/, uint32 artKit /*= 0*/, bool dynamic, ObjectGuid::LowType spawnid)
+bool Transport::Create(ObjectGuid::LowType guidlow, uint32 entry, Map* map, Position const& pos, QuaternionData const& rotation, uint32 animprogress, GOState /*go_state*/, uint32 artKit /*= 0*/, bool dynamic, ObjectGuid::LowType spawnid)
 {
     ASSERT(map);
     SetMap(map);
@@ -922,7 +922,7 @@ TempSummon* MapTransport::SummonPassenger(uint32 entry, Position const& pos, Tem
     pos.GetPosition(x, y, z, o);
     CalculatePassengerPosition(x, y, z, &o);
 
-    if (!summon->Create(map->GenerateLowGuid<HighGuid::Unit>(), map, 0, entry, { x, y, z, o }, nullptr, vehId))
+    if (!summon->Create(map->GenerateLowGuid<HighGuid::Unit>(), map, entry, { x, y, z, o }, nullptr, vehId))
     {
         delete summon;
         return nullptr;

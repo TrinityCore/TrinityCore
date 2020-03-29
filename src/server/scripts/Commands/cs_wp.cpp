@@ -678,7 +678,7 @@ public:
 
             // re-create
             Creature* wpCreature = new Creature();
-            if (!wpCreature->Create(map->GenerateLowGuid<HighGuid::Unit>(), map, chr->GetPhaseMask(), VISUAL_WAYPOINT, *chr))
+            if (!wpCreature->Create(map->GenerateLowGuid<HighGuid::Unit>(), map, VISUAL_WAYPOINT, *chr))
             {
                 handler->PSendSysMessage(LANG_WAYPOINT_VP_NOTCREATED, VISUAL_WAYPOINT);
                 delete wpCreature;
@@ -687,7 +687,7 @@ public:
 
             PhasingHandler::InheritPhaseShift(wpCreature, chr);
 
-            wpCreature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMask());
+            wpCreature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()));
             // To call _LoadGoods(); _LoadQuests(); CreateTrainerSpells();
             if (!wpCreature->LoadFromDB(wpCreature->GetSpawnId(), map, true, true))
             {
@@ -878,7 +878,7 @@ public:
                 float o = chr->GetOrientation();
 
                 Creature* wpCreature = new Creature();
-                if (!wpCreature->Create(map->GenerateLowGuid<HighGuid::Unit>(), map, chr->GetPhaseMask(), id, { x, y, z, o }))
+                if (!wpCreature->Create(map->GenerateLowGuid<HighGuid::Unit>(), map, id, { x, y, z, o }))
                 {
                     handler->PSendSysMessage(LANG_WAYPOINT_VP_NOTCREATED, id);
                     delete wpCreature;
@@ -894,7 +894,7 @@ public:
                 stmt->setUInt32(2, point);
                 WorldDatabase.Execute(stmt);
 
-                wpCreature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMask());
+                wpCreature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()));
                 // To call _LoadGoods(); _LoadQuests(); CreateTrainerSpells();
                 if (!wpCreature->LoadFromDB(wpCreature->GetSpawnId(), map, true, true))
                 {
@@ -942,7 +942,7 @@ public:
             Map* map = chr->GetMap();
 
             Creature* creature = new Creature();
-            if (!creature->Create(map->GenerateLowGuid<HighGuid::Unit>(), map, chr->GetPhaseMask(), id, { x, y, z, o }))
+            if (!creature->Create(map->GenerateLowGuid<HighGuid::Unit>(), map, id, { x, y, z, o }))
             {
                 handler->PSendSysMessage(LANG_WAYPOINT_VP_NOTCREATED, id);
                 delete creature;
@@ -951,7 +951,7 @@ public:
 
             PhasingHandler::InheritPhaseShift(creature, chr);
 
-            creature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMask());
+            creature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()));
             if (!creature->LoadFromDB(creature->GetSpawnId(), map, true, true))
             {
                 handler->PSendSysMessage(LANG_WAYPOINT_VP_NOTCREATED, id);
@@ -993,7 +993,7 @@ public:
             Map* map = chr->GetMap();
 
             Creature* creature = new Creature();
-            if (!creature->Create(map->GenerateLowGuid<HighGuid::Unit>(), map, chr->GetPhaseMask(), id, { x, y, z, o }))
+            if (!creature->Create(map->GenerateLowGuid<HighGuid::Unit>(), map, id, { x, y, z, o }))
             {
                 handler->PSendSysMessage(LANG_WAYPOINT_NOTCREATED, id);
                 delete creature;
@@ -1002,7 +1002,7 @@ public:
 
             PhasingHandler::InheritPhaseShift(creature, chr);
 
-            creature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMask());
+            creature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()));
             if (!creature->LoadFromDB(creature->GetSpawnId(), map, true, true))
             {
                 handler->PSendSysMessage(LANG_WAYPOINT_NOTCREATED, id);

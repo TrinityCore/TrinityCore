@@ -167,7 +167,7 @@ public:
             guidLow = map->GenerateLowGuid<HighGuid::GameObject>();
         }
 
-        if (!object->Create(guidLow, objectInfo->entry, map, 0, *player, QuaternionData(), 255, GO_STATE_READY))
+        if (!object->Create(guidLow, objectInfo->entry, map, *player, QuaternionData(), 255, GO_STATE_READY))
         {
             delete object;
             return false;
@@ -182,7 +182,7 @@ public:
         }
 
         // fill the gameobject data and save to the db
-        object->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), player->GetPhaseMask());
+        object->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()));
         guidLow = object->GetSpawnId();
 
         // delete the old object and do a clean load from DB with a fresh new GameObject instance.

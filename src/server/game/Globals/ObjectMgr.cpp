@@ -1935,10 +1935,10 @@ void ObjectMgr::LoadCreatures()
 
     //                                               0              1   2    3           4           5           6            7        8             9              10
     QueryResult result = WorldDatabase.Query("SELECT creature.guid, id, map, position_x, position_y, position_z, orientation, modelid, equipment_id, spawntimesecs, spawndist, "
-    //   11               12         13       14            15         16         17          18          19                20                   21                     22
-        "currentwaypoint, curhealth, curmana, MovementType, spawnMask, phaseMask, eventEntry, pool_entry, creature.npcflag, creature.unit_flags, creature.dynamicflags, creature.phaseUseFlags, "
-    //   23                24                   25                       26
-        "creature.phaseid, creature.phasegroup, creature.terrainSwapMap, creature.ScriptName "
+    //   11               12         13       14            15         16          17          18                19                    20                    21
+        "currentwaypoint, curhealth, curmana, MovementType, spawnMask, eventEntry, pool_entry, creature.npcflag, creature.unit_flags, creature.dynamicflags, creature.phaseUseFlags, "
+    //   22                23                   24                       25
+        "creature.PhaseId, creature.PhaseGroup, creature.terrainSwapMap, creature.ScriptName "
         "FROM creature "
         "LEFT OUTER JOIN game_event_creature ON creature.guid = game_event_creature.guid "
         "LEFT OUTER JOIN pool_creature ON creature.guid = pool_creature.guid");
@@ -1988,17 +1988,16 @@ void ObjectMgr::LoadCreatures()
         data.curmana        = fields[13].GetUInt32();
         data.movementType   = fields[14].GetUInt8();
         data.spawnMask      = fields[15].GetUInt8();
-        data.phaseMask      = fields[16].GetUInt32();
-        int16 gameEvent     = fields[17].GetInt8();
-        uint32 PoolId       = fields[18].GetUInt32();
-        data.npcflag        = fields[19].GetUInt32();
-        data.unit_flags     = fields[20].GetUInt32();
-        data.dynamicflags   = fields[21].GetUInt32();
-        data.phaseUseFlags  = fields[22].GetUInt8();
-        data.phaseId        = fields[23].GetUInt32();
-        data.phaseGroup     = fields[24].GetUInt32();
-        data.terrainSwapMap = fields[25].GetInt32();
-        data.scriptId = GetScriptId(fields[26].GetString());
+        int16 gameEvent     = fields[16].GetInt8();
+        uint32 PoolId       = fields[17].GetUInt32();
+        data.npcflag        = fields[18].GetUInt32();
+        data.unit_flags     = fields[19].GetUInt32();
+        data.dynamicflags   = fields[20].GetUInt32();
+        data.phaseUseFlags  = fields[21].GetUInt8();
+        data.phaseId        = fields[22].GetUInt32();
+        data.phaseGroup     = fields[23].GetUInt32();
+        data.terrainSwapMap = fields[24].GetInt32();
+        data.scriptId = GetScriptId(fields[25].GetString());
         data.spawnGroupData = &_spawnGroupDataStore[0];
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(data.spawnPoint.GetMapId());
@@ -2072,12 +2071,6 @@ void ObjectMgr::LoadCreatures()
                 TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: %u Entry: %u) with `MovementType`=0 (idle) have `spawndist`<>0, set to 0.", guid, data.id);
                 data.spawndist = 0.0f;
             }
-        }
-
-        if (data.phaseMask == 0)
-        {
-            TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: %u Entry: %u) with `phaseMask`=0 (not visible for anyone), set to 1.", guid, data.id);
-            data.phaseMask = 1;
         }
 
         if (data.phaseUseFlags & ~PHASE_USE_FLAGS_ALL)
@@ -2195,7 +2188,6 @@ ObjectGuid::LowType ObjectMgr::AddGameObjectData(uint32 entry, uint32 mapId, Pos
     data.animprogress   = 100;
     data.spawnMask      = 1;
     data.goState        = GO_STATE_READY;
-    data.phaseMask      = PHASEMASK_NORMAL;
     data.artKit         = goinfo->type == GAMEOBJECT_TYPE_CAPTURE_POINT ? 21 : 0;
     data.dbData         = false;
     data.spawnGroupData = GetLegacySpawnGroup();
@@ -2252,7 +2244,6 @@ ObjectGuid::LowType ObjectMgr::AddCreatureData(uint32 entry, uint32 mapId, Posit
     data.curmana = stats->GenerateMana(cInfo);
     data.movementType = cInfo->MovementType;
     data.spawnMask = 1;
-    data.phaseMask = PHASEMASK_NORMAL;
     data.dbData = false;
     data.npcflag = cInfo->npcflag;
     data.unit_flags = cInfo->unit_flags;
@@ -2282,10 +2273,10 @@ void ObjectMgr::LoadGameObjects()
 
     //                                               0                1   2    3           4           5           6
     QueryResult result = WorldDatabase.Query("SELECT gameobject.guid, id, map, position_x, position_y, position_z, orientation, "
-    //   7          8          9          10         11             12            13     14         15         16          17
-        "rotation0, rotation1, rotation2, rotation3, spawntimesecs, animprogress, state, spawnMask, phaseMask, eventEntry, pool_entry, "
-    //   18             19       20          21              22
-        "phaseUseFlags, phaseid, phasegroup, terrainSwapMap, ScriptName "
+    //   7          8          9          10         11             12            13     14         15         16
+        "rotation0, rotation1, rotation2, rotation3, spawntimesecs, animprogress, state, spawnMask, eventEntry, pool_entry, "
+    //   17             18       19          20              21
+        "phaseUseFlags, PhaseId, PhaseGroup, terrainSwapMap, ScriptName "
         "FROM gameobject LEFT OUTER JOIN game_event_gameobject ON gameobject.guid = game_event_gameobject.guid "
         "LEFT OUTER JOIN pool_gameobject ON gameobject.guid = pool_gameobject.guid");
 
@@ -2389,12 +2380,11 @@ void ObjectMgr::LoadGameObjects()
         else
             data.spawnGroupData = &_spawnGroupDataStore[1]; // force compatibility group for transport spawns
 
-        data.phaseMask      = fields[15].GetUInt32();
-        int16 gameEvent     = fields[16].GetInt8();
-        uint32 PoolId       = fields[17].GetUInt32();
-        data.phaseUseFlags = fields[18].GetUInt8();
-        data.phaseId = fields[19].GetUInt32();
-        data.phaseGroup = fields[20].GetUInt32();
+        int16 gameEvent     = fields[15].GetInt8();
+        uint32 PoolId       = fields[16].GetUInt32();
+        data.phaseUseFlags = fields[17].GetUInt8();
+        data.phaseId = fields[18].GetUInt32();
+        data.phaseGroup = fields[19].GetUInt32();
 
         if (data.phaseUseFlags & ~PHASE_USE_FLAGS_ALL)
         {
@@ -2421,7 +2411,7 @@ void ObjectMgr::LoadGameObjects()
             data.phaseGroup = 0;
         }
 
-        data.terrainSwapMap = fields[21].GetInt32();
+        data.terrainSwapMap = fields[20].GetInt32();
         if (data.terrainSwapMap != -1)
         {
             MapEntry const* terrainSwapEntry = sMapStore.LookupEntry(data.terrainSwapMap);
@@ -2467,12 +2457,6 @@ void ObjectMgr::LoadGameObjects()
         {
             TC_LOG_ERROR("sql.sql", "Table `gameobject` has gameobject (GUID: %u Entry: %u) with invalid coordinates, skip", guid, data.id);
             continue;
-        }
-
-        if (data.phaseMask == 0)
-        {
-            TC_LOG_ERROR("sql.sql", "Table `gameobject` has gameobject (GUID: %u Entry: %u) with `phaseMask`=0 (not visible for anyone), set to 1.", guid, data.id);
-            data.phaseMask = 1;
         }
 
         if (sWorld->getBoolConfig(CONFIG_CALCULATE_GAMEOBJECT_ZONE_AREA_DATA))

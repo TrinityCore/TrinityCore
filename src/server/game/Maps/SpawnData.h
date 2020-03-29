@@ -63,7 +63,6 @@ struct SpawnData
     uint32 spawnId = 0;
     uint32 id = 0; // entry in respective _template table
     WorldLocation spawnPoint;
-    uint32 phaseMask = 0;
     int32 spawntimesecs = 0;
     uint8 spawnMask = 0;
     SpawnGroupTemplateData const* spawnGroupData = nullptr;
