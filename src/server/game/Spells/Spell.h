@@ -352,6 +352,7 @@ class TC_GAME_API Spell
         void EffectSummonCritter(SpellEffIndex effIndex);
         void EffectKnockBack(SpellEffIndex effIndex);
         void EffectPullTowards(SpellEffIndex effIndex);
+        void EffectPullTowardsDest(SpellEffIndex effIndex);
         void EffectDispelMechanic(SpellEffIndex effIndex);
         void EffectResurrectPet(SpellEffIndex effIndex);
         void EffectDestroyAllTotems(SpellEffIndex effIndex);

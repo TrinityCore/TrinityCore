@@ -189,11 +189,8 @@ public:
         return GetAngle(pos.m_positionX, pos.m_positionY);
     }
     float GetAngle(float x, float y) const;
-    float GetRelativeAngle(Position const* pos) const
-    {
-        return GetAngle(pos) - m_orientation;
-    }
-
+    float GetRelativeAngle(Position const* pos) const { return GetAngle(pos) - m_orientation; }
+    float GetRelativeAngle(Position const& pos) const { return GetAngle(pos) - m_orientation; }
     float GetRelativeAngle(float x, float y) const { return GetAngle(x, y) - m_orientation; }
     void GetSinCos(float x, float y, float &vsin, float &vcos) const;
 
