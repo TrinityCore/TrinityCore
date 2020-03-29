@@ -4036,7 +4036,7 @@ void Spell::EffectPullTowardsDest()
     float distXY = unitTarget->GetExactDist(pos);
     float distZ = pos->GetPositionZ() - unitTarget->GetPositionZ();
 
-    float speedXY = effectInfo->MiscValue / 10.0f;
+    float speedXY = effectInfo->MiscValue ? effectInfo->MiscValue / 10.0f : 30.0f;
     float speedZ = (2 * speedXY * speedXY * distZ + Movement::gravity * distXY * distXY) / (2 * speedXY * distXY);
 
     unitTarget->JumpTo(speedXY, speedZ, true, *pos);
