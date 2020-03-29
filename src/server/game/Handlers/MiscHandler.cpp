@@ -38,6 +38,7 @@
 #include "Language.h"
 #include "Log.h"
 #include "MapManager.h"
+#include "MiscPackets.h"
 #include "Object.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -1042,36 +1043,22 @@ void WorldSession::HandleInspectHonorStatsOpcode(WorldPacket& recvData)
     SendPacket(&data);
 }
 
-void WorldSession::HandleWorldTeleportOpcode(WorldPacket& recvData)
+void WorldSession::HandleWorldTeleportOpcode(WorldPackets::Misc::WorldTeleport& worldTeleport)
 {
-    uint32 time;
-    uint32 mapid;
-    float PositionX;
-    float PositionY;
-    float PositionZ;
-    float Orientation;
-
-    recvData >> time;                                      // time in m.sec.
-    recvData >> mapid;
-    recvData >> PositionX;
-    recvData >> PositionY;
-    recvData >> PositionZ;
-    recvData >> Orientation;                               // o (3.141593 = 180 degrees)
-
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_WORLD_TELEPORT");
-
-    if (GetPlayer()->IsInFlight())
+    if (_player->IsInFlight())
     {
-        TC_LOG_DEBUG("network", "Player '%s' (GUID: %u) in flight, ignore worldport command.",
-            GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID().GetCounter());
+        TC_LOG_DEBUG("network", "Player '%s' (%s) in flight, ignore worldport command.",
+            _player->GetName().c_str(), _player->GetGUID().ToString().c_str());
         return;
     }
 
-    TC_LOG_DEBUG("network", "CMSG_WORLD_TELEPORT: Player = %s, Time = %u, map = %u, x = %f, y = %f, z = %f, o = %f",
-        GetPlayer()->GetName().c_str(), time, mapid, PositionX, PositionY, PositionZ, Orientation);
+    WorldLocation loc(worldTeleport.MapID, worldTeleport.Pos);
+    loc.SetOrientation(worldTeleport.Facing);
+    TC_LOG_DEBUG("network", "CMSG_WORLD_TELEPORT: Player = %s, time = %u, map = %u, pos = %s",
+        _player->GetName().c_str(), worldTeleport.Time, worldTeleport.MapID, loc.ToString().c_str());
 
     if (HasPermission(rbac::RBAC_PERM_OPCODE_WORLD_TELEPORT))
-        GetPlayer()->TeleportTo(mapid, PositionX, PositionY, PositionZ, Orientation);
+        _player->TeleportTo(loc);
     else
         SendNotification(LANG_YOU_NOT_HAVE_PERMISSION);
 }

@@ -25,6 +25,7 @@
 #include <G3D/Vector3.h>
 
 class Unit;
+class WorldObject;
 
 // 74*4.0f=296y number_of_points*interval = max_path_len
 // this is way more than actual evade range
@@ -53,7 +54,7 @@ enum PathType
 class TC_GAME_API PathGenerator
 {
     public:
-        explicit PathGenerator(Unit const* owner);
+        explicit PathGenerator(WorldObject const* owner);
         ~PathGenerator();
 
         // Calculate the path from owner to given destination
@@ -94,7 +95,7 @@ class TC_GAME_API PathGenerator
         G3D::Vector3 _endPosition;          // {x, y, z} of the destination
         G3D::Vector3 _actualEndPosition;    // {x, y, z} of the closest possible point to given destination
 
-        Unit const* const _sourceUnit;          // the unit that is moving
+        WorldObject const* const _source;       // the object that is moving
         dtNavMesh const* _navMesh;              // the nav mesh
         dtNavMeshQuery const* _navMeshQuery;    // the nav mesh query used to find the path
 

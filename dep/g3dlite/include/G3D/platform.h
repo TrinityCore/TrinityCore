@@ -273,7 +273,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw) {\
 #           define __stdcall __attribute__((stdcall))
 #       endif
 
-#   elif defined(__x86_64__)
+#   elif defined(__x86_64__) || defined(__arm) || defined(__aarch64__)
 
 #       ifndef __cdecl
 #           define __cdecl

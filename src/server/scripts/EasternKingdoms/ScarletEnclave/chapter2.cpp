@@ -15,214 +15,315 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ScriptedGossip.h"
 #include "ScriptMgr.h"
-#include "CreatureTextMgr.h"
 #include "GameObject.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedEscortAI.h"
-#include "SpellInfo.h"
 #include "SpellScript.h"
 
-/*######
-## npc_koltira_deathweaver
-######*/
-
-enum Koltira
+enum BloodyBreakoutTexts
 {
-    SAY_BREAKOUT1                   = 0,
-    SAY_BREAKOUT2                   = 1,
-    SAY_BREAKOUT3                   = 2,
-    SAY_BREAKOUT4                   = 3,
-    SAY_BREAKOUT5                   = 4,
-    SAY_BREAKOUT6                   = 5,
-    SAY_BREAKOUT7                   = 6,
-    SAY_BREAKOUT8                   = 7,
-    SAY_BREAKOUT9                   = 8,
-    SAY_BREAKOUT10                  = 9,
+    SAY_KOLTIRA_0 = 0,
+    SAY_KOLTIRA_1 = 1,
+    SAY_KOLTIRA_2 = 2,
+    SAY_KOLTIRA_3 = 3,
+    SAY_KOLTIRA_4 = 4,
+    SAY_KOLTIRA_5 = 5,
+    SAY_KOLTIRA_6 = 6,
+    SAY_KOLTIRA_7 = 7,
+    SAY_KOLTIRA_8 = 8,
+    SAY_KOLTIRA_9 = 9,
+    SAY_KOLTIRA_10 = 10,
 
-    SPELL_KOLTIRA_TRANSFORM         = 52899,
-    SPELL_ANTI_MAGIC_ZONE           = 52894,
+    SAY_VALROTH_0 = 0,
+    SAY_VALROTH_1 = 1,
+    SAY_VALROTH_2 = 2,
+    SAY_VALROTH_3 = 3,
 
-    QUEST_BREAKOUT                  = 12727,
-
-    NPC_CRIMSON_ACOLYTE             = 29007,
-    NPC_HIGH_INQUISITOR_VALROTH     = 29001,
-
-    //not sure about this id
-    //NPC_DEATH_KNIGHT_MOUNT        = 29201,
-    MODEL_DEATH_KNIGHT_MOUNT        = 25278
+    TEXT_ID_EVENT = 13425
 };
 
-class npc_koltira_deathweaver : public CreatureScript
+enum BloodyBreakoutEvents
 {
-public:
-    npc_koltira_deathweaver() : CreatureScript("npc_koltira_deathweaver") { }
+    EVENT_INTRO_0           = 1,
+    EVENT_INTRO_1           = 2,
+    EVENT_INTRO_2           = 3,
+    EVENT_INTRO_3           = 4,
+    EVENT_INTRO_4           = 5,
+    EVENT_INTRO_5           = 6,
+    EVENT_INTRO_6           = 7,
 
-    struct npc_koltira_deathweaverAI : public EscortAI
+    EVENT_SPAWN_WAVE_1      = 8,
+    EVENT_SPAWN_WAVE_2      = 9,
+    EVENT_SPAWN_WAVE_3      = 10,
+    EVENT_SPAWN_VALROTH     = 11,
+
+    EVENT_KOLTIRA_ADVICE    = 12,
+    EVENT_OUTRO_1           = 13,
+    EVENT_OUTRO_2           = 14,
+    EVENT_OUTRO_3           = 15,
+    EVENT_OUTRO_4           = 16,
+
+    EVENT_CHECK_PLAYER      = 17
+};
+
+enum BloodyBreakout
+{
+    POINT_ID_1                  = 1,
+    POINT_ID_2                  = 2,
+    POINT_ID_6                  = 6,
+    POINT_ID_10                 = 10,
+
+    SUMMON_ACOLYTES_0           = 0,
+    SUMMON_ACOLYTES_1           = 1,
+    SUMMON_ACOLYTES_2           = 2,
+    SUMMON_VALROTH              = 3,
+
+    QUEST_BLOODY_BREAKOUT       = 12727,
+
+    NPC_FAKE_VALROTH            = 29011,
+    NPC_VALROTH                 = 29001,
+    NPC_ACOLYTE                 = 29007,
+    NPC_KOLTIRA                 = 28912,
+    NPC_KOLTIRA_MOUNT           = 25445,
+
+    SPELL_KOLTIRA_TRANSFORM     = 52899,
+    SPELL_ANTI_MAGIC_ZONE       = 52894,
+    SPELL_HERO_AGGRO            = 53627
+};
+
+Position const koltiraPos[3] =
+{
+    { 1653.36f, -6038.34f, 127.584f },
+    { 1653.765f, -6035.075f, 127.5844f },
+    { 1651.89f, -6037.101f, 127.5844f }
+};
+
+struct npc_koltira_deathweaver : public ScriptedAI
+{
+    npc_koltira_deathweaver(Creature* creature) : ScriptedAI(creature), _summons(me)
     {
-        npc_koltira_deathweaverAI(Creature* creature) : EscortAI(creature)
+    }
+
+    bool GossipHello(Player* player) override
+    {
+        ObjectGuid const guid = me->GetGUID();
+        _playerGUID = player->GetGUID();
+
+        if (me->IsQuestGiver())
+            player->PrepareQuestMenu(guid);
+
+        // override default gossip
+        if (_eventGossip)
         {
-            Initialize();
-            me->SetReactState(REACT_DEFENSIVE);
+            SendGossipMenuFor(player, TEXT_ID_EVENT, guid);
+            return true;
         }
 
-        void Initialize()
-        {
-            wave = 0;
-            waveTimer = 3000;
-            valrothGUID.Clear();
-        }
+        return false;
+    }
 
-        void Reset() override
+    void QuestAccept(Player* /* player */, Quest const* quest) override
+    {
+        if (quest->GetQuestId() == QUEST_BLOODY_BREAKOUT)
         {
-            if (!HasEscortState(STATE_ESCORT_ESCORTING))
+            _events.ScheduleEvent(EVENT_INTRO_0, 500ms);
+            _events.ScheduleEvent(EVENT_CHECK_PLAYER, 5s);
+        }
+    }
+
+    void Reset() override
+    {
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+        me->SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_STAND_STATE, UNIT_STAND_STATE_DEAD);
+        me->RemoveAllAuras();
+
+        _events.Reset();
+        _summons.DespawnAll();
+        _playerGUID.Clear();
+        _eventGossip = false;
+    }
+
+    void FakeValrothTalk(uint32 id)
+    {
+        if (Creature* fakeValroth = me->FindNearestCreature(NPC_FAKE_VALROTH, INSPECT_DISTANCE * 2))
+            fakeValroth->AI()->Talk(id);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
             {
-                Initialize();
-                me->LoadEquipment(0, true);
-                me->RemoveAurasDueToSpell(SPELL_ANTI_MAGIC_ZONE);
-                me->RemoveAurasDueToSpell(SPELL_KOLTIRA_TRANSFORM);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            }
-        }
+                case EVENT_INTRO_0:
+                    me->SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_STAND_STATE, UNIT_STAND_STATE_SIT);
+                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    Talk(SAY_KOLTIRA_0);
 
-        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
-        {
-            switch (waypointId)
-            {
-                case 0:
-                    Talk(SAY_BREAKOUT1);
+                    _events.ScheduleEvent(EVENT_INTRO_1, 5s);
                     break;
-                case 1:
-                    me->SetStandState(UNIT_STAND_STATE_KNEEL);
-                    break;
-                case 2:
-                    me->SetStandState(UNIT_STAND_STATE_STAND);
-                    DoCast(me, SPELL_KOLTIRA_TRANSFORM);
-                    me->LoadEquipment();
-                    break;
-                case 3:
-                    SetEscortPaused(true);
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                    me->SetStandState(UNIT_STAND_STATE_KNEEL);
-                    Talk(SAY_BREAKOUT2);
-                    DoCast(me, SPELL_ANTI_MAGIC_ZONE);
-                    break;
-                case 4:
-                    SetRun(true);
-                    break;
-                case 9:
-                    me->Mount(MODEL_DEATH_KNIGHT_MOUNT);
-                    break;
-                case 10:
-                    me->Dismount();
-                    break;
-            }
-        }
+                case EVENT_INTRO_1:
+                    me->SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_STAND_STATE, UNIT_STAND_STATE_STAND);
+                    Talk(SAY_KOLTIRA_1);
 
-        void JustSummoned(Creature* summoned) override
-        {
-            if (Player* player = GetPlayerForEscort())
-                summoned->AI()->AttackStart(player);
+                    _events.ScheduleEvent(EVENT_INTRO_2, 2s);
+                    break;
+                case EVENT_INTRO_2:
+                    me->GetMotionMaster()->MoveJump(koltiraPos[0], 25.0f, 15.0f);
 
-            if (summoned->GetEntry() == NPC_HIGH_INQUISITOR_VALROTH)
-                valrothGUID = summoned->GetGUID();
+                    _events.ScheduleEvent(EVENT_INTRO_3, 2s);
+                    break;
 
-            summoned->SetImmuneToPC(false);
-        }
+                case EVENT_INTRO_3:
+                    me->SetWalk(true);
+                    me->GetMotionMaster()->MovePoint(POINT_ID_1, koltiraPos[1]);
 
-        void SummonAcolyte(uint32 uiAmount)
-        {
-            for (uint32 i = 0; i < uiAmount; ++i)
-                me->SummonCreature(NPC_CRIMSON_ACOLYTE, 1642.329f, -6045.818f, 127.583f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
-        }
+                    break;
+                case EVENT_INTRO_4:
+                    DoCastSelf(SPELL_KOLTIRA_TRANSFORM);
+                    me->LoadEquipment(POINT_ID_1);
+                    me->SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_STAND_STATE, UNIT_STAND_STATE_STAND);
+                    me->GetMotionMaster()->MovePoint(POINT_ID_2, koltiraPos[2], true, 3.839724f);
 
-        void UpdateAI(uint32 uiDiff) override
-        {
-            EscortAI::UpdateAI(uiDiff);
+                    break;
+                case EVENT_INTRO_5:
+                    Talk(SAY_KOLTIRA_2);
+                    DoCastSelf(SPELL_ANTI_MAGIC_ZONE);
 
-            if (HasEscortState(STATE_ESCORT_PAUSED))
-            {
-                if (waveTimer <= uiDiff)
-                {
-                    switch (wave)
+                    _events.ScheduleEvent(EVENT_INTRO_6, 4s);
+                    break;
+                case EVENT_INTRO_6:
+                    Talk(SAY_KOLTIRA_3);
+                    me->SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_STAND_STATE, UNIT_STAND_STATE_KNEEL);
+                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    _eventGossip = true;
+
+                    break;
+                case EVENT_SPAWN_WAVE_1:
+                    me->SummonCreatureGroup(SUMMON_ACOLYTES_0);
+
+                    _events.ScheduleEvent(EVENT_SPAWN_WAVE_2, 29s);
+                    break;
+                case EVENT_SPAWN_WAVE_2:
+                    Talk(SAY_KOLTIRA_4);
+                    FakeValrothTalk(SAY_VALROTH_1);
+                    me->SummonCreatureGroup(SUMMON_ACOLYTES_1);
+
+                    _events.ScheduleEvent(EVENT_SPAWN_WAVE_3, 21s);
+                    break;
+                case EVENT_SPAWN_WAVE_3:
+                    Talk(SAY_KOLTIRA_5);
+                    FakeValrothTalk(SAY_VALROTH_2);
+                    me->SummonCreatureGroup(SUMMON_ACOLYTES_2);
+
+                    _events.ScheduleEvent(EVENT_SPAWN_VALROTH, 24s);
+                    break;
+                case EVENT_SPAWN_VALROTH:
+                    Talk(SAY_KOLTIRA_6);
+                    FakeValrothTalk(SAY_VALROTH_3);
+                    me->SummonCreatureGroup(SUMMON_VALROTH);
+
+                    _events.ScheduleEvent(EVENT_KOLTIRA_ADVICE, 8s, 16s);
+                    break;
+                case EVENT_KOLTIRA_ADVICE:
+                    if (_summons.HasEntry(NPC_VALROTH))
+                        Talk(SAY_KOLTIRA_7);
+
+                    break;
+                case EVENT_OUTRO_1:
+                    me->RemoveAurasDueToSpell(SPELL_ANTI_MAGIC_ZONE);
+                    me->SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_STAND_STATE, UNIT_STAND_STATE_STAND);
+                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    Talk(SAY_KOLTIRA_8);
+
+                    _events.ScheduleEvent(EVENT_OUTRO_2, 7s);
+                    _events.CancelEvent(EVENT_CHECK_PLAYER);
+                    break;
+                case EVENT_OUTRO_2:
+                    Talk(SAY_KOLTIRA_9);
+
+                    _events.ScheduleEvent(EVENT_OUTRO_3, 4s);
+                    break;
+                case EVENT_OUTRO_3:
+                    Talk(SAY_KOLTIRA_10);
+
+                    _events.ScheduleEvent(EVENT_OUTRO_4, 3s);
+                    break;
+                case EVENT_OUTRO_4:
+                    me->SetWalk(false);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+                    DoCastSelf(SPELL_HERO_AGGRO);
+                    me->GetMotionMaster()->MovePath(NPC_KOLTIRA, false);
+
+                    break;
+                case EVENT_CHECK_PLAYER:
+                    if (!_playerGUID)
+                        return;
+
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
                     {
-                        case 0:
-                            Talk(SAY_BREAKOUT3);
-                            SummonAcolyte(3);
-                            waveTimer = 20000;
-                            break;
-                        case 1:
-                            Talk(SAY_BREAKOUT4);
-                            SummonAcolyte(3);
-                            waveTimer = 20000;
-                            break;
-                        case 2:
-                            Talk(SAY_BREAKOUT5);
-                            SummonAcolyte(4);
-                            waveTimer = 20000;
-                            break;
-                        case 3:
-                            Talk(SAY_BREAKOUT6);
-                            me->SummonCreature(NPC_HIGH_INQUISITOR_VALROTH, 1642.329f, -6045.818f, 127.583f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
-                            waveTimer = 1000;
-                            break;
-                        case 4:
+                        if (!player->IsAlive() || !player->IsWithinDist(me, INTERACTION_DISTANCE * 6))
                         {
-                            Creature* temp = ObjectAccessor::GetCreature(*me, valrothGUID);
-
-                            if (!temp || !temp->IsAlive())
-                            {
-                                Talk(SAY_BREAKOUT8);
-                                waveTimer = 5000;
-                            }
-                            else
-                            {
-                                waveTimer = 2500;
-                                return;
-                            }
-                            break;
+                            _summons.DespawnAll();
+                            me->DespawnOrUnsummon(1s);
+                            player->FailQuest(QUEST_BLOODY_BREAKOUT);
                         }
-                        case 5:
-                            Talk(SAY_BREAKOUT9);
-                            me->RemoveAurasDueToSpell(SPELL_ANTI_MAGIC_ZONE);
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                            waveTimer = 2500;
-                            break;
-                        case 6:
-                            Talk(SAY_BREAKOUT10);
-                            SetEscortPaused(false);
-                            break;
                     }
 
-                    ++wave;
-                }
-                else
-                    waveTimer -= uiDiff;
+                    _events.ScheduleEvent(EVENT_CHECK_PLAYER, 5s);
+                    break;
             }
         }
-
-        void QuestAccept(Player* player, Quest const* quest) override
-        {
-            if (quest->GetQuestId() == QUEST_BREAKOUT)
-            {
-                me->SetStandState(UNIT_STAND_STATE_STAND);
-                Start(false, false, player->GetGUID());
-            }
-        }
-
-    private:
-        uint8 wave;
-        uint32 waveTimer;
-        ObjectGuid valrothGUID;
-
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_koltira_deathweaverAI(creature);
     }
+
+    void MovementInform(uint32 type, uint32 pointId) override
+    {
+        if (type == POINT_MOTION_TYPE)
+        {
+            if (pointId == POINT_ID_1)
+            {
+                me->SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_STAND_STATE, UNIT_STAND_STATE_KNEEL);
+                FakeValrothTalk(SAY_VALROTH_0);
+
+                _events.ScheduleEvent(EVENT_SPAWN_WAVE_1, 1s);
+                _events.ScheduleEvent(EVENT_INTRO_4, 3s);
+            }
+            else if (pointId == POINT_ID_2)
+                _events.ScheduleEvent(EVENT_INTRO_5, 1s);
+        }
+        else
+        {
+            if (pointId == POINT_ID_6)
+                me->Mount(NPC_KOLTIRA_MOUNT);
+        }
+    }
+
+    void JustSummoned(Creature* summon) override
+    {
+        _summons.Summon(summon);
+    }
+
+    void SummonedCreatureDespawn(Creature* summon) override
+    {
+        if (summon->GetEntry() == NPC_VALROTH)
+            _events.ScheduleEvent(EVENT_OUTRO_1, 1s);
+
+        _summons.Despawn(summon);
+    }
+
+private:
+    EventMap _events;
+    SummonList _summons;
+    ObjectGuid _playerGUID;
+
+    bool _eventGossip;
 };
 
 //Scarlet courier
@@ -316,101 +417,6 @@ public:
                 return;
 
             DoMeleeAttackIfReady();
-        }
-    };
-
-};
-
-//Koltira & Valroth- Breakout
-
-enum valroth
-{
-  //SAY_VALROTH1                      = 0, Unused
-    SAY_VALROTH_AGGRO                 = 1,
-    SAY_VALROTH_RAND                  = 2,
-    SAY_VALROTH_DEATH                 = 3,
-    SPELL_RENEW                       = 38210,
-    SPELL_INQUISITOR_PENANCE          = 52922,
-    SPELL_VALROTH_SMITE               = 52926,
-    SPELL_SUMMON_VALROTH_REMAINS      = 52929
-};
-
-class npc_high_inquisitor_valroth : public CreatureScript
-{
-public:
-    npc_high_inquisitor_valroth() : CreatureScript("npc_high_inquisitor_valroth") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_high_inquisitor_valrothAI(creature);
-    }
-
-    struct npc_high_inquisitor_valrothAI : public ScriptedAI
-    {
-        npc_high_inquisitor_valrothAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-        }
-
-        void Initialize()
-        {
-            uiRenew_timer = 1000;
-            uiInquisitor_Penance_timer = 2000;
-            uiValroth_Smite_timer = 1000;
-        }
-
-        uint32 uiRenew_timer;
-        uint32 uiInquisitor_Penance_timer;
-        uint32 uiValroth_Smite_timer;
-
-        void Reset() override
-        {
-            Initialize();
-        }
-
-        void JustEngagedWith(Unit* who) override
-        {
-            Talk(SAY_VALROTH_AGGRO);
-            DoCast(who, SPELL_VALROTH_SMITE);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (uiRenew_timer <= diff)
-            {
-                Shout();
-                DoCast(me, SPELL_RENEW);
-                uiRenew_timer = urand(1000, 6000);
-            } else uiRenew_timer -= diff;
-
-            if (uiInquisitor_Penance_timer <= diff)
-            {
-                Shout();
-                DoCastVictim(SPELL_INQUISITOR_PENANCE);
-                uiInquisitor_Penance_timer = urand(2000, 7000);
-            } else uiInquisitor_Penance_timer -= diff;
-
-            if (uiValroth_Smite_timer <= diff)
-            {
-                Shout();
-                DoCastVictim(SPELL_VALROTH_SMITE);
-                uiValroth_Smite_timer = urand(1000, 6000);
-            } else uiValroth_Smite_timer -= diff;
-
-            DoMeleeAttackIfReady();
-        }
-
-        void Shout()
-        {
-            if (rand32() % 100 < 15)
-                Talk(SAY_VALROTH_RAND);
-        }
-
-        void JustDied(Unit* killer) override
-        {
-            Talk(SAY_VALROTH_DEATH);
-            if (killer)
-                killer->CastSpell(me, SPELL_SUMMON_VALROTH_REMAINS, true);
         }
     };
 
@@ -621,9 +627,8 @@ class spell_death_knight_devour_humanoid : public SpellScript
 
 void AddSC_the_scarlet_enclave_c2()
 {
+    RegisterCreatureAI(npc_koltira_deathweaver);
     new npc_scarlet_courier();
-    new npc_koltira_deathweaver();
-    new npc_high_inquisitor_valroth();
     new npc_a_special_surprise();
     RegisterSpellScript(spell_death_knight_devour_humanoid);
 }

@@ -21,6 +21,7 @@
 #include "Common.h"
 #include "Log.h"
 #include "Util.h"
+#include <utf8.h>
 #include <sstream>
 #include <ctime>
 
@@ -52,11 +53,16 @@ ByteBufferSourceException::ByteBufferSourceException(size_t pos, size_t size,
     message().assign(ss.str());
 }
 
+ByteBufferInvalidValueException::ByteBufferInvalidValueException(char const* type, size_t pos)
+{
+    message().assign(Trinity::StringFormat("Invalid %s value found in ByteBuffer at pos " SZFMTD, type, pos));
+}
+
 ByteBuffer& ByteBuffer::operator>>(float& value)
 {
     value = read<float>();
     if (!std::isfinite(value))
-        throw ByteBufferException();
+        throw ByteBufferInvalidValueException("float", _rpos - sizeof(float));
     return *this;
 }
 
@@ -64,8 +70,23 @@ ByteBuffer& ByteBuffer::operator>>(double& value)
 {
     value = read<double>();
     if (!std::isfinite(value))
-        throw ByteBufferException();
+        throw ByteBufferInvalidValueException("double", _rpos - sizeof(double));
     return *this;
+}
+
+std::string ByteBuffer::ReadCString(bool requireValidUtf8 /*= true*/)
+{
+    std::string value;
+    while (rpos() < size())                         // prevent crash at wrong string format in packet
+    {
+        char c = read<char>();
+        if (c == 0)
+            break;
+        value += c;
+    }
+    if (requireValidUtf8 && !utf8::is_valid(value.begin(), value.end()))
+        throw ByteBufferInvalidValueException("string", _rpos - value.length() - 1);
+    return value;
 }
 
 uint32 ByteBuffer::ReadPackedTime()

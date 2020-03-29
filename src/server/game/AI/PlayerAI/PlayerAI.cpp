@@ -1161,10 +1161,9 @@ void SimpleCharmedPlayerAI::UpdateAI(uint32 diff)
     // kill self if charm aura has infinite duration
     if (charmer->IsInEvadeMode())
     {
-        Player::AuraEffectList const& auras = me->GetAuraEffectsByType(SPELL_AURA_MOD_CHARM);
-        for (Player::AuraEffectList::const_iterator iter = auras.begin(); iter != auras.end(); ++iter)
+        for (AuraEffect* aura : me->GetAuraEffectsByType(SPELL_AURA_MOD_CHARM))
         {
-            if ((*iter)->GetCasterGUID() == charmer->GetGUID() && (*iter)->GetBase()->IsPermanent())
+            if (aura->GetCasterGUID() == charmer->GetGUID() && aura->GetBase()->IsPermanent())
             {
                 me->KillSelf();
                 return;

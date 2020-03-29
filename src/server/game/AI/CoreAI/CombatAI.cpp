@@ -54,9 +54,9 @@ void AggressorAI::UpdateAI(uint32 /*diff*/)
 
 void CombatAI::InitializeAI()
 {
-    for (uint32 i = 0; i < MAX_CREATURE_SPELLS; ++i)
-        if (me->m_spells[i] && sSpellMgr->GetSpellInfo(me->m_spells[i]))
-            Spells.push_back(me->m_spells[i]);
+    for (uint32 spell : me->m_spells)
+        if (spell && sSpellMgr->GetSpellInfo(spell))
+            Spells.push_back(spell);
 
     CreatureAI::InitializeAI();
 }
@@ -68,19 +68,19 @@ void CombatAI::Reset()
 
 void CombatAI::JustDied(Unit* killer)
 {
-    for (SpellVector::iterator i = Spells.begin(); i != Spells.end(); ++i)
-        if (AISpellInfo[*i].condition == AICOND_DIE)
-            me->CastSpell(killer, *i, true);
+    for (uint32 spell : Spells)
+        if (AISpellInfo[spell].condition == AICOND_DIE)
+            me->CastSpell(killer, spell, true);
 }
 
 void CombatAI::JustEngagedWith(Unit* who)
 {
-    for (SpellVector::iterator i = Spells.begin(); i != Spells.end(); ++i)
+    for (uint32 spell : Spells)
     {
-        if (AISpellInfo[*i].condition == AICOND_AGGRO)
-            me->CastSpell(who, *i, false);
-        else if (AISpellInfo[*i].condition == AICOND_COMBAT)
-            Events.ScheduleEvent(*i, AISpellInfo[*i].cooldown + rand32() % AISpellInfo[*i].cooldown);
+        if (AISpellInfo[spell].condition == AICOND_AGGRO)
+            me->CastSpell(who, spell, false);
+        else if (AISpellInfo[spell].condition == AICOND_COMBAT)
+            Events.ScheduleEvent(spell, AISpellInfo[spell].cooldown + rand32() % AISpellInfo[spell].cooldown);
     }
 }
 
@@ -118,9 +118,9 @@ void CasterAI::InitializeAI()
 
     _attackDistance = 30.0f;
 
-    for (SpellVector::iterator itr = Spells.begin(); itr != Spells.end(); ++itr)
-        if (AISpellInfo[*itr].condition == AICOND_COMBAT && _attackDistance > GetAISpellInfo(*itr)->maxRange)
-            _attackDistance = GetAISpellInfo(*itr)->maxRange;
+    for (uint32 spell : Spells)
+        if (AISpellInfo[spell].condition == AICOND_COMBAT && _attackDistance > GetAISpellInfo(spell)->maxRange)
+            _attackDistance = GetAISpellInfo(spell)->maxRange;
 
     if (_attackDistance == 30.0f)
         _attackDistance = MELEE_RANGE;
@@ -315,8 +315,8 @@ void VehicleAI::CheckConditions(uint32 diff)
     {
         if (Vehicle* vehicleKit = me->GetVehicleKit())
         {
-            for (SeatMap::iterator itr = vehicleKit->Seats.begin(); itr != vehicleKit->Seats.end(); ++itr)
-                if (Unit* passenger = ObjectAccessor::GetUnit(*me, itr->second.Passenger.Guid))
+            for (std::pair<int8 const, VehicleSeat>& Seat : vehicleKit->Seats)
+                if (Unit* passenger = ObjectAccessor::GetUnit(*me, Seat.second.Passenger.Guid))
                 {
                     if (Player* player = passenger->ToPlayer())
                     {

@@ -947,11 +947,14 @@ public:
 };
 
 // correct way: 52312 52314 52555 ...
-enum Creatures_SG
+enum TheGiftThatKeepsOnGiving
 {
-    NPC_GHOULS = 28845,
-    NPC_GHOSTS = 28846,
+    SAY_LINE_0  = 0,
+
+    NPC_GHOULS  = 28845,
+    NPC_GHOSTS  = 28846,
 };
+
 class npc_dkc1_gothik : public CreatureScript
 {
 public:
@@ -996,84 +999,77 @@ public:
 
 };
 
-class npc_scarlet_ghoul : public CreatureScript
+struct npc_scarlet_ghoul : public ScriptedAI
 {
-public:
-    npc_scarlet_ghoul() : CreatureScript("npc_scarlet_ghoul") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
+    npc_scarlet_ghoul(Creature* creature) : ScriptedAI(creature)
     {
-        return new npc_scarlet_ghoulAI(creature);
+        me->SetReactState(REACT_DEFENSIVE);
     }
 
-    struct npc_scarlet_ghoulAI : public ScriptedAI
+    void JustAppeared() override
     {
-        npc_scarlet_ghoulAI(Creature* creature) : ScriptedAI(creature)
-        {
-            // Ghouls should display their Birth Animation
-            // Crawling out of the ground
-            //DoCast(me, 35177, true);
-            //me->MonsterSay("Mommy?", LANG_UNIVERSAL, 0);
-            me->SetReactState(REACT_DEFENSIVE);
-        }
+        CreatureAI::JustAppeared();
 
-        void FindMinions(Unit* owner)
-        {
-            std::list<Creature*> MinionList;
-            owner->GetAllMinionsByEntry(MinionList, NPC_GHOULS);
+        if (urand(0, 1))
+            if (Unit* owner = me->GetOwner())
+                Talk(SAY_LINE_0, owner);
+    }
 
-            if (!MinionList.empty())
+    void FindMinions(Unit* owner)
+    {
+        std::list<Creature*> MinionList;
+        owner->GetAllMinionsByEntry(MinionList, NPC_GHOULS);
+
+        if (!MinionList.empty())
+        {
+            for (Creature* creature : MinionList)
             {
-                for (std::list<Creature*>::const_iterator itr = MinionList.begin(); itr != MinionList.end(); ++itr)
+                if (creature->GetOwner()->GetGUID() == me->GetOwner()->GetGUID())
                 {
-                    if ((*itr)->GetOwner()->GetGUID() == me->GetOwner()->GetGUID())
+                    if (creature->IsInCombat() && creature->getAttackerForHelper())
                     {
-                        if ((*itr)->IsInCombat() && (*itr)->getAttackerForHelper())
-                        {
-                            AttackStart((*itr)->getAttackerForHelper());
-                        }
+                        AttackStart(creature->getAttackerForHelper());
                     }
                 }
             }
         }
+    }
 
-        void UpdateAI(uint32 /*diff*/) override
+    void UpdateAI(uint32 /*diff*/) override
+    {
+        if (!me->IsInCombat())
         {
-            if (!me->IsInCombat())
+            if (Unit* owner = me->GetOwner())
             {
-                if (Unit* owner = me->GetOwner())
+                Player* plrOwner = owner->ToPlayer();
+                if (plrOwner && plrOwner->IsInCombat())
                 {
-                    Player* plrOwner = owner->ToPlayer();
-                    if (plrOwner && plrOwner->IsInCombat())
-                    {
-                        if (plrOwner->getAttackerForHelper() && plrOwner->getAttackerForHelper()->GetEntry() == NPC_GHOSTS)
-                            AttackStart(plrOwner->getAttackerForHelper());
-                        else
-                            FindMinions(owner);
-                    }
-                }
-            }
-
-            if (!UpdateVictim() || !me->GetVictim())
-                return;
-
-            //ScriptedAI::UpdateAI(diff);
-            //Check if we have a current target
-            if (me->EnsureVictim()->GetEntry() == NPC_GHOSTS)
-            {
-                if (me->isAttackReady())
-                {
-                    //If we are within range melee the target
-                    if (me->IsWithinMeleeRange(me->GetVictim()))
-                    {
-                        me->AttackerStateUpdate(me->GetVictim());
-                        me->resetAttackTimer();
-                    }
+                    if (plrOwner->getAttackerForHelper() && plrOwner->getAttackerForHelper()->GetEntry() == NPC_GHOSTS)
+                        AttackStart(plrOwner->getAttackerForHelper());
+                    else
+                        FindMinions(owner);
                 }
             }
         }
-    };
 
+        if (!UpdateVictim() || !me->GetVictim())
+            return;
+
+        //ScriptedAI::UpdateAI(diff);
+        //Check if we have a current target
+        if (me->EnsureVictim()->GetEntry() == NPC_GHOSTS)
+        {
+            if (me->isAttackReady())
+            {
+                //If we are within range melee the target
+                if (me->IsWithinMeleeRange(me->GetVictim()))
+                {
+                    me->AttackerStateUpdate(me->GetVictim());
+                    me->resetAttackTimer();
+                }
+            }
+        }
+    }
 };
 
 enum GiftOfTheHarvester
@@ -1110,231 +1106,6 @@ class spell_gift_of_the_harvester : public SpellScript
     }
 };
 
-/*####
-## npc_scarlet_miner_cart
-####*/
-
-enum ScarletMinerCart
-{
-    SPELL_CART_CHECK        = 54173,
-    SPELL_SUMMON_CART       = 52463,
-    SPELL_SUMMON_MINER      = 52464,
-    SPELL_CART_DRAG         = 52465,
-
-    NPC_MINER               = 28841
-};
-
-class npc_scarlet_miner_cart : public CreatureScript
-{
-    public:
-        npc_scarlet_miner_cart() : CreatureScript("npc_scarlet_miner_cart") { }
-
-        struct npc_scarlet_miner_cartAI : public PassiveAI
-        {
-            npc_scarlet_miner_cartAI(Creature* creature) : PassiveAI(creature)
-            {
-                me->SetDisplayId(me->GetCreatureTemplate()->Modelid1); // Modelid2 is a horse.
-            }
-
-            void JustSummoned(Creature* summon) override
-            {
-                if (summon->GetEntry() == NPC_MINER)
-                {
-                    _minerGUID = summon->GetGUID();
-                    summon->AI()->SetGUID(_playerGUID);
-                }
-            }
-
-            void SummonedCreatureDespawn(Creature* summon) override
-            {
-                if (summon->GetEntry() == NPC_MINER)
-                    _minerGUID.Clear();
-            }
-
-            void DoAction(int32 /*param*/) override
-            {
-                if (Creature* miner = ObjectAccessor::GetCreature(*me, _minerGUID))
-                {
-                    me->SetWalk(false);
-
-                    // Not 100% correct, but movement is smooth. Sometimes miner walks faster
-                    // than normal, this speed is fast enough to keep up at those times.
-                    me->SetSpeedRate(MOVE_RUN, 1.25f);
-
-                    me->GetMotionMaster()->MoveFollow(miner, 1.0f, 0);
-                }
-            }
-
-            void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) override
-            {
-                if (apply)
-                {
-                    _playerGUID = who->GetGUID();
-                    me->CastSpell(nullptr, SPELL_SUMMON_MINER, true);
-                }
-                else
-                {
-                    _playerGUID.Clear();
-                    if (Creature* miner = ObjectAccessor::GetCreature(*me, _minerGUID))
-                        miner->DespawnOrUnsummon();
-                }
-            }
-
-        private:
-            ObjectGuid _minerGUID;
-            ObjectGuid _playerGUID;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_scarlet_miner_cartAI(creature);
-        }
-};
-
-/*####
-## npc_scarlet_miner
-####*/
-
-enum Says_SM
-{
-    SAY_SCARLET_MINER_0         = 0,
-    SAY_SCARLET_MINER_1         = 1
-};
-
-class npc_scarlet_miner : public CreatureScript
-{
-    public:
-        npc_scarlet_miner() : CreatureScript("npc_scarlet_miner") { }
-
-        struct npc_scarlet_minerAI : public EscortAI
-        {
-            npc_scarlet_minerAI(Creature* creature) : EscortAI(creature)
-            {
-                Initialize();
-                me->SetReactState(REACT_PASSIVE);
-            }
-
-            void Initialize()
-            {
-                carGUID.Clear();
-                IntroTimer = 0;
-                IntroPhase = 0;
-            }
-
-            uint32 IntroTimer;
-            uint32 IntroPhase;
-            ObjectGuid carGUID;
-
-            void Reset() override
-            {
-                Initialize();
-            }
-
-            void IsSummonedBy(WorldObject* summoner) override
-            {
-                carGUID = summoner->GetGUID();
-            }
-
-            void InitWaypoint()
-            {
-                AddWaypoint(1, 2389.03f,     -5902.74f,     109.014f, 0.f, 5000);
-                AddWaypoint(2, 2341.812012f, -5900.484863f, 102.619743f);
-                AddWaypoint(3, 2306.561279f, -5901.738281f, 91.792419f);
-                AddWaypoint(4, 2300.098389f, -5912.618652f, 86.014885f);
-                AddWaypoint(5, 2294.142090f, -5927.274414f, 75.316849f);
-                AddWaypoint(6, 2286.984375f, -5944.955566f, 63.714966f);
-                AddWaypoint(7, 2280.001709f, -5961.186035f, 54.228283f);
-                AddWaypoint(8, 2259.389648f, -5974.197754f, 42.359348f);
-                AddWaypoint(9, 2242.882812f, -5984.642578f, 32.827850f);
-                AddWaypoint(10, 2217.265625f, -6028.959473f, 7.675705f);
-                AddWaypoint(11, 2202.595947f, -6061.325684f, 5.882018f);
-                AddWaypoint(12, 2188.974609f, -6080.866699f, 3.370027f);
-
-                if (urand(0, 1))
-                {
-                    AddWaypoint(13, 2176.483887f, -6110.407227f, 1.855181f);
-                    AddWaypoint(14, 2172.516602f, -6146.752441f, 1.074235f);
-                    AddWaypoint(15, 2138.918457f, -6158.920898f, 1.342926f);
-                    AddWaypoint(16, 2129.866699f, -6174.107910f, 4.380779f);
-                    AddWaypoint(17, 2117.709473f, -6193.830078f, 13.3542f, 0.f, 10000);
-                }
-                else
-                {
-                    AddWaypoint(13, 2184.190186f, -6166.447266f, 0.968877f);
-                    AddWaypoint(14, 2234.265625f, -6163.741211f, 0.916021f);
-                    AddWaypoint(15, 2268.071777f, -6158.750977f, 1.822252f);
-                    AddWaypoint(16, 2270.028320f, -6176.505859f, 6.340538f);
-                    AddWaypoint(17, 2271.739014f, -6195.401855f, 13.3542f, 0.f, 10000);
-                }
-            }
-
-            void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
-            {
-                InitWaypoint();
-                Start(false, false, guid);
-                SetDespawnAtFar(false);
-            }
-
-            void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
-            {
-                switch (waypointId)
-                {
-                    case 1:
-                        if (Unit* car = ObjectAccessor::GetCreature(*me, carGUID))
-                            me->SetFacingToObject(car);
-                        Talk(SAY_SCARLET_MINER_0);
-                        SetRun(true);
-                        IntroTimer = 4000;
-                        IntroPhase = 1;
-                        break;
-                    case 17:
-                        if (Unit* car = ObjectAccessor::GetCreature(*me, carGUID))
-                        {
-                            me->SetFacingToObject(car);
-                            car->RemoveAura(SPELL_CART_DRAG);
-                        }
-                        Talk(SAY_SCARLET_MINER_1);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (IntroPhase)
-                {
-                    if (IntroTimer <= diff)
-                    {
-                        if (IntroPhase == 1)
-                        {
-                            if (Creature* car = ObjectAccessor::GetCreature(*me, carGUID))
-                                DoCast(car, SPELL_CART_DRAG);
-                            IntroTimer = 800;
-                            IntroPhase = 2;
-                        }
-                        else
-                        {
-                            if (Creature* car = ObjectAccessor::GetCreature(*me, carGUID))
-                                car->AI()->DoAction(0);
-                            IntroPhase = 0;
-                        }
-                    }
-                    else
-                        IntroTimer -= diff;
-                }
-                EscortAI::UpdateAI(diff);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_scarlet_minerAI(creature);
-        }
-};
-
-// npc 28912 quest 17217 boss 29001 mob 29007 go 191092
-
 void AddSC_the_scarlet_enclave_c1()
 {
     new npc_unworthy_initiate();
@@ -1349,8 +1120,6 @@ void AddSC_the_scarlet_enclave_c1()
     RegisterSpellScript(spell_deliver_stolen_horse);
     new npc_ros_dark_rider();
     new npc_dkc1_gothik();
-    new npc_scarlet_ghoul();
+    RegisterCreatureAI(npc_scarlet_ghoul);
     RegisterSpellScript(spell_gift_of_the_harvester);
-    new npc_scarlet_miner();
-    new npc_scarlet_miner_cart();
 }

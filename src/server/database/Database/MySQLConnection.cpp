@@ -198,13 +198,12 @@ bool MySQLConnection::Execute(PreparedStatement* stmt)
     if (!m_Mysql)
         return false;
 
-    uint32 index = stmt->m_index;
+    uint32 index = stmt->GetIndex();
 
     MySQLPreparedStatement* m_mStmt = GetPreparedStatement(index);
     ASSERT(m_mStmt);            // Can only be null if preparation failed, server side error or bad query
-    m_mStmt->m_stmt = stmt;     // Cross reference them for debug output
 
-    stmt->BindParameters(m_mStmt);
+    m_mStmt->BindParameters(stmt);
 
     MYSQL_STMT* msql_STMT = m_mStmt->GetSTMT();
     MYSQL_BIND* msql_BIND = m_mStmt->GetBind();
@@ -241,18 +240,18 @@ bool MySQLConnection::Execute(PreparedStatement* stmt)
     return true;
 }
 
-bool MySQLConnection::_Query(PreparedStatement* stmt, MySQLResult** pResult, uint64* pRowCount, uint32* pFieldCount)
+bool MySQLConnection::_Query(PreparedStatement* stmt, MySQLPreparedStatement** mysqlStmt, MySQLResult** pResult, uint64* pRowCount, uint32* pFieldCount)
 {
     if (!m_Mysql)
         return false;
 
-    uint32 index = stmt->m_index;
+    uint32 index = stmt->GetIndex();
 
     MySQLPreparedStatement* m_mStmt = GetPreparedStatement(index);
     ASSERT(m_mStmt);            // Can only be null if preparation failed, server side error or bad query
-    m_mStmt->m_stmt = stmt;     // Cross reference them for debug output
 
-    stmt->BindParameters(m_mStmt);
+    m_mStmt->BindParameters(stmt);
+    *mysqlStmt = m_mStmt;
 
     MYSQL_STMT* msql_STMT = m_mStmt->GetSTMT();
     MYSQL_BIND* msql_BIND = m_mStmt->GetBind();
@@ -265,7 +264,7 @@ bool MySQLConnection::_Query(PreparedStatement* stmt, MySQLResult** pResult, uin
         TC_LOG_ERROR("sql.sql", "SQL(p): %s\n [ERROR]: [%u] %s", m_mStmt->getQueryString().c_str(), lErrno, mysql_stmt_error(msql_STMT));
 
         if (_HandleMySQLErrno(lErrno))  // If it returns true, an error was handled successfully (i.e. reconnection)
-            return _Query(stmt, pResult, pRowCount, pFieldCount);       // Try again
+            return _Query(stmt, mysqlStmt, pResult, pRowCount, pFieldCount);       // Try again
 
         m_mStmt->ClearParameters();
         return false;
@@ -278,7 +277,7 @@ bool MySQLConnection::_Query(PreparedStatement* stmt, MySQLResult** pResult, uin
             m_mStmt->getQueryString().c_str(), lErrno, mysql_stmt_error(msql_STMT));
 
         if (_HandleMySQLErrno(lErrno))  // If it returns true, an error was handled successfully (i.e. reconnection)
-            return _Query(stmt, pResult, pRowCount, pFieldCount);      // Try again
+            return _Query(stmt, mysqlStmt, pResult, pRowCount, pFieldCount);      // Try again
 
         m_mStmt->ClearParameters();
         return false;
@@ -494,18 +493,19 @@ void MySQLConnection::PrepareStatement(uint32 index, std::string const& sql, Con
 
 PreparedResultSet* MySQLConnection::Query(PreparedStatement* stmt)
 {
-    MySQLResult* result = NULL;
+    MySQLPreparedStatement* mysqlStmt = nullptr;
+    MySQLResult* result = nullptr;
     uint64 rowCount = 0;
     uint32 fieldCount = 0;
 
-    if (!_Query(stmt, &result, &rowCount, &fieldCount))
+    if (!_Query(stmt, &mysqlStmt, &result, &rowCount, &fieldCount))
         return nullptr;
 
     if (mysql_more_results(m_Mysql))
     {
         mysql_next_result(m_Mysql);
     }
-    return new PreparedResultSet(stmt->m_stmt->GetSTMT(), result, rowCount, fieldCount);
+    return new PreparedResultSet(mysqlStmt->GetSTMT(), result, rowCount, fieldCount);
 }
 
 bool MySQLConnection::_HandleMySQLErrno(uint32 errNo, uint8 attempts /*= 5*/)

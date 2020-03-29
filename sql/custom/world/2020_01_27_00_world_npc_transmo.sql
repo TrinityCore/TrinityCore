@@ -9,7 +9,7 @@ INSERT INTO `creature_template` (`entry`, `modelid1`, `modelid2`, `name`, `subna
 INSERT INTO `creature_template_locale` (`entry`, `locale`, `Name`, `Title`, `VerifiedBuild`) VALUES
 (@Entry, 'frFR', 'Tisse-dimensions Izmir', 'Transmogrifieur', 18019);
 
-INSERT INTO `world`.`creature`
+INSERT INTO `creature`
 (
 `id`,
 `map`,
@@ -24,7 +24,7 @@ INSERT INTO `world`.`creature`
 `position_z`,
 `orientation`,
 `spawntimesecs`,
-`spawndist`,
+`wander_distance`,
 `currentwaypoint`,
 `curhealth`,
 `curmana`,

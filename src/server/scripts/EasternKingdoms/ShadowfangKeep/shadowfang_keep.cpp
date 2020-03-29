@@ -56,11 +56,6 @@ enum Spells
     SPELL_DARK_OFFERING     = 7154
 };
 
-enum Creatures
-{
-    NPC_ASH                 = 3850
-};
-
 class npc_shadowfang_prisoner : public CreatureScript
 {
 public:
