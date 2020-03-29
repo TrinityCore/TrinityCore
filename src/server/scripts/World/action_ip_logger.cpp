@@ -104,22 +104,22 @@ class AccountActionIpLogger : public AccountScript
             switch (aType)
             {
             case ACCOUNT_LOGIN:
-                systemNote = "Logged on Successful AccountLogin";
+                systemNote = "Logged into WoW";
                 break;
             case ACCOUNT_FAIL_LOGIN:
-                systemNote = "Logged on Failed AccountLogin";
+                systemNote = "Login to WoW Failed";
                 break;
             case ACCOUNT_CHANGE_PW:
-                systemNote = "Logged on Successful Account Password Change";
+                systemNote = "Password Reset Completed";
                 break;
             case ACCOUNT_CHANGE_PW_FAIL:
-                systemNote = "Logged on Failed Account Password Change";
+                systemNote = "Password Reset Failed";
                 break;
             case ACCOUNT_CHANGE_EMAIL:
-                systemNote = "Logged on Successful Account Email Change";
+                systemNote = "Email Change Completed";
                 break;
             case ACCOUNT_CHANGE_EMAIL_FAIL:
-                systemNote = "Logged on Failed Account Email Change";
+                systemNote = "Email Change Failed";
                 break;
             /*case ACCOUNT_LOGOUT:
                 systemNote = "Logged on AccountLogout"; //Can not be logged
@@ -209,19 +209,19 @@ class CharacterActionIpLogger : public PlayerScript
             switch (aType)
             {
             case CHARACTER_CREATE:
-                systemNote = "Logged on CharacterCreate";
+                systemNote = "Character Created";
                 break;
             case CHARACTER_LOGIN:
-                systemNote = "Logged on CharacterLogin";
+                systemNote = "Logged onto Character";
                 break;
             case CHARACTER_LOGOUT:
-                systemNote = "Logged on CharacterLogout";
+                systemNote = "Logged out of Character";
                 break;
             case CHARACTER_DELETE:
-                systemNote = "Logged on CharacterDelete";
+                systemNote = "Character Deleted";
                 break;
             case CHARACTER_FAILED_DELETE:
-                systemNote = "Logged on Failed CharacterDelete";
+                systemNote = "Character Deletion Failed";
                 break;
                 // Neither should happen. Ever. Period. If it does, call Mythbusters.
             case UNKNOWN_ACTION:
@@ -278,10 +278,10 @@ public:
         switch (aType)
         {
         case CHARACTER_DELETE:
-            systemNote = "Logged on CharacterDelete";
+            systemNote = "Character Deleted";
             break;
         case CHARACTER_FAILED_DELETE:
-            systemNote = "Logged on Failed CharacterDelete";
+            systemNote = "Character Deletion Failed";
             break;
             // Neither should happen. Ever. Period. If it does, call to whatever god you have for mercy and guidance.
         case UNKNOWN_ACTION:
