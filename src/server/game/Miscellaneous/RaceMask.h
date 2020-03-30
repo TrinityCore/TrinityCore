@@ -77,32 +77,28 @@ struct RaceMask
 
     constexpr bool HasRace(uint8 raceId) const
     {
-        if (raceId >= MAX_RACES || raceBits[raceId] < 0 || raceBits[raceId] >= 64)
-            return false;
-
-        return (RawValue & (T(1) << raceBits[raceId])) != 0;
+        return (RawValue & GetMaskForRace(raceId)) != 0;
     }
 
     static constexpr T GetMaskForRace(uint8 raceId)
     {
-        return raceId < MAX_RACES ? (T(1) << raceBits[raceId]) : T(0);
+        constexpr int32 raceBits[MAX_RACES] =
+        {
+            0, 0, 1, 2, 3, 4, 5, 6, 7, 8,
+            9, 10, -1, -1, -1, -1, -1, -1, -1, -1,
+            -1, -1, 21, -1, 23, 24, 25, 26, 27, 28,
+            29, 30, 31, -1, 11, 12, 13, 14
+        };
+        return raceId < MAX_RACES && raceBits[raceId] >= 0 && raceBits[raceId] < 64 ? (T(1) << raceBits[raceId]) : T(0);
     }
 
     constexpr operator bool() const { return RawValue != T(0); }
     constexpr bool operator!() const { return !operator bool(); }
-
-private:
-    static constexpr int32 raceBits[MAX_RACES] =
-    {
-        0, 0, 1, 2, 3, 4, 5, 6, 7, 8,
-        9, 10, -1, -1, -1, -1, -1, -1, -1, -1,
-        -1, -1, 21, -1, 23, 24, 25, 26, 27, 28,
-        29, 30, 31, -1, 11, 12, 13, 14
-    };
 };
 }
 
-constexpr uint64 RACEMASK_ALL_PLAYABLE =
+constexpr uint64 RACEMASK_ALL_PLAYABLE = std::integral_constant<uint64,
+    // force compile time evaluation via integral_constant
      Trinity::RaceMask<uint64>::GetMaskForRace(RACE_HUMAN)               |
      Trinity::RaceMask<uint64>::GetMaskForRace(RACE_ORC)                 |
      Trinity::RaceMask<uint64>::GetMaskForRace(RACE_DWARF)               |
@@ -127,11 +123,11 @@ constexpr uint64 RACEMASK_ALL_PLAYABLE =
      Trinity::RaceMask<uint64>::GetMaskForRace(RACE_DARK_IRON_DWARF)     |
      Trinity::RaceMask<uint64>::GetMaskForRace(RACE_VULPERA)             |
      Trinity::RaceMask<uint64>::GetMaskForRace(RACE_MAGHAR_ORC)          |
-     Trinity::RaceMask<uint64>::GetMaskForRace(RACE_MECHAGNOME);
+     Trinity::RaceMask<uint64>::GetMaskForRace(RACE_MECHAGNOME)>::value;
 
-constexpr uint64 RACEMASK_NEUTRAL = Trinity::RaceMask<uint64>::GetMaskForRace(RACE_PANDAREN_NEUTRAL);
+constexpr uint64 RACEMASK_NEUTRAL = std::integral_constant<uint64, Trinity::RaceMask<uint64>::GetMaskForRace(RACE_PANDAREN_NEUTRAL)>::value;
 
-constexpr uint64 RACEMASK_ALLIANCE =
+constexpr uint64 RACEMASK_ALLIANCE = std::integral_constant<uint64,
      Trinity::RaceMask<uint64>::GetMaskForRace(RACE_HUMAN)               |
      Trinity::RaceMask<uint64>::GetMaskForRace(RACE_DWARF)               |
      Trinity::RaceMask<uint64>::GetMaskForRace(RACE_NIGHTELF)            |
@@ -143,8 +139,8 @@ constexpr uint64 RACEMASK_ALLIANCE =
      Trinity::RaceMask<uint64>::GetMaskForRace(RACE_LIGHTFORGED_DRAENEI) |
      Trinity::RaceMask<uint64>::GetMaskForRace(RACE_KUL_TIRAN)           |
      Trinity::RaceMask<uint64>::GetMaskForRace(RACE_DARK_IRON_DWARF)     |
-     Trinity::RaceMask<uint64>::GetMaskForRace(RACE_MECHAGNOME);
+     Trinity::RaceMask<uint64>::GetMaskForRace(RACE_MECHAGNOME)>::value;
 
-constexpr uint64 RACEMASK_HORDE = RACEMASK_ALL_PLAYABLE & ~(RACEMASK_NEUTRAL | RACEMASK_ALLIANCE);
+constexpr uint64 RACEMASK_HORDE = std::integral_constant<uint64, RACEMASK_ALL_PLAYABLE & ~(RACEMASK_NEUTRAL | RACEMASK_ALLIANCE)>::value;
 
 #endif // RaceMask_h__

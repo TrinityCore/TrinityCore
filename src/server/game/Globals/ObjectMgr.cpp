@@ -3510,13 +3510,13 @@ void ObjectMgr::LoadPlayerInfo()
             do
             {
                 Field* fields       = result->Fetch();
-                uint64 raceMask     = fields[0].GetUInt64();
+                Trinity::RaceMask<uint64> raceMask = { fields[0].GetUInt64() };
                 uint32 classMask    = fields[1].GetUInt32();
                 uint32 spellId      = fields[2].GetUInt32();
 
-                if (raceMask != 0 && !(raceMask & RACEMASK_ALL_PLAYABLE))
+                if (raceMask && !(raceMask.RawValue & RACEMASK_ALL_PLAYABLE))
                 {
-                    TC_LOG_ERROR("sql.sql", "Wrong race mask " UI64FMTD " in `playercreateinfo_cast_spell` table, ignoring.", raceMask);
+                    TC_LOG_ERROR("sql.sql", "Wrong race mask " UI64FMTD " in `playercreateinfo_cast_spell` table, ignoring.", raceMask.RawValue);
                     continue;
                 }
 
@@ -3528,7 +3528,7 @@ void ObjectMgr::LoadPlayerInfo()
 
                 for (uint32 raceIndex = RACE_HUMAN; raceIndex < MAX_RACES; ++raceIndex)
                 {
-                    if (raceMask == 0 || ((UI64LIT(1) << (raceIndex - 1)) & raceMask))
+                    if (!raceMask || raceMask.HasRace(raceIndex))
                     {
                         for (uint32 classIndex = CLASS_WARRIOR; classIndex < MAX_CLASSES; ++classIndex)
                         {
