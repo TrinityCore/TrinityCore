@@ -196,6 +196,17 @@ namespace WorldPackets
             uint32 Count = 0;
             std::vector<ResyncRune> Runes;
         };
+
+        class LearnedSpell final : public ServerPacket
+        {
+        public:
+            LearnedSpell() : ServerPacket(SMSG_LEARNED_SPELL, 6) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 SpellID;
+            bool SuppressMessaging = false;
+        };
     }
 }
 

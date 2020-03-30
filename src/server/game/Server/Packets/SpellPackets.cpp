@@ -191,3 +191,11 @@ WorldPacket const* WorldPackets::Spells::ResyncRunes::Write()
     }
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Spells::LearnedSpell::Write()
+{
+    _worldPacket << uint32(SpellID);
+    _worldPacket << uint16(SuppressMessaging);
+
+    return &_worldPacket;
+}
