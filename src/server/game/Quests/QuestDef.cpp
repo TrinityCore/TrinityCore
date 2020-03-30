@@ -123,7 +123,7 @@ Quest::Quest(Field* questRecord)
     SoundTurnIn = questRecord[105].GetUInt32();
     AreaGroupID = questRecord[106].GetUInt32();
     LimitTime = questRecord[107].GetUInt32();
-    AllowableRaces = questRecord[108].GetUInt64();
+    AllowableRaces.RawValue = questRecord[108].GetUInt64();
     TreasurePickerID = questRecord[109].GetInt32();
     Expansion = questRecord[110].GetInt32();
     ManagedWorldStateID = questRecord[111].GetInt32();

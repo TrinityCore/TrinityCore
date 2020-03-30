@@ -3423,7 +3423,7 @@ void ObjectMgr::LoadPlayerInfo()
         for (SkillRaceClassInfoEntry const* rcInfo : sSkillRaceClassInfoStore)
             if (rcInfo->Availability == 1)
                 for (uint32 raceIndex = RACE_HUMAN; raceIndex < MAX_RACES; ++raceIndex)
-                    if (rcInfo->RaceMask == -1 || ((UI64LIT(1) << (raceIndex - 1)) & rcInfo->RaceMask))
+                    if (rcInfo->RaceMask.HasRace(raceIndex))
                         for (uint32 classIndex = CLASS_WARRIOR; classIndex < MAX_CLASSES; ++classIndex)
                             if (rcInfo->ClassMask == -1 || ((1 << (classIndex - 1)) & rcInfo->ClassMask))
                                 if (PlayerInfo* info = _playerInfo[raceIndex][classIndex])
@@ -3450,13 +3450,13 @@ void ObjectMgr::LoadPlayerInfo()
             do
             {
                 Field* fields = result->Fetch();
-                uint64 raceMask = fields[0].GetUInt64();
+                Trinity::RaceMask<uint64> raceMask = { fields[0].GetUInt64() };
                 uint32 classMask = fields[1].GetUInt32();
                 uint32 spellId = fields[2].GetUInt32();
 
-                if (raceMask != 0 && !(raceMask & RACEMASK_ALL_PLAYABLE))
+                if (raceMask && !(raceMask.RawValue & RACEMASK_ALL_PLAYABLE))
                 {
-                    TC_LOG_ERROR("sql.sql", "Wrong race mask " UI64FMTD " in `playercreateinfo_spell_custom` table, ignoring.", raceMask);
+                    TC_LOG_ERROR("sql.sql", "Wrong race mask " UI64FMTD " in `playercreateinfo_spell_custom` table, ignoring.", raceMask.RawValue);
                     continue;
                 }
 
@@ -3468,7 +3468,7 @@ void ObjectMgr::LoadPlayerInfo()
 
                 for (uint32 raceIndex = RACE_HUMAN; raceIndex < MAX_RACES; ++raceIndex)
                 {
-                    if (raceMask == 0 || ((UI64LIT(1) << (raceIndex - 1)) & raceMask))
+                    if (!raceMask || raceMask.HasRace(raceIndex))
                     {
                         for (uint32 classIndex = CLASS_WARRIOR; classIndex < MAX_CLASSES; ++classIndex)
                         {
@@ -4205,12 +4205,12 @@ void ObjectMgr::LoadQuests()
             }
         }
         // AllowableRaces, can be -1/RACEMASK_ALL_PLAYABLE to allow any race
-        if (qinfo->AllowableRaces != uint64(-1))
+        if (qinfo->AllowableRaces.RawValue != uint64(-1))
         {
-            if (qinfo->AllowableRaces > 0 && !(qinfo->AllowableRaces & RACEMASK_ALL_PLAYABLE))
+            if (qinfo->AllowableRaces && !(qinfo->AllowableRaces.RawValue & RACEMASK_ALL_PLAYABLE))
             {
-                TC_LOG_ERROR("sql.sql", "Quest %u does not contain any playable races in `AllowableRaces` (" UI64FMTD "), value set to 0 (all races).", qinfo->GetQuestId(), qinfo->AllowableRaces);
-                qinfo->AllowableRaces = uint64(-1);
+                TC_LOG_ERROR("sql.sql", "Quest %u does not contain any playable races in `AllowableRaces` (" UI64FMTD "), value set to -1 (all races).", qinfo->GetQuestId(), qinfo->AllowableRaces.RawValue);
+                qinfo->AllowableRaces.RawValue = uint64(-1);
             }
         }
         // RequiredSkillId, can be 0
@@ -8378,7 +8378,6 @@ int32 ObjectMgr::GetBaseReputationOf(FactionEntry const* factionEntry, uint8 rac
     if (!factionEntry)
         return 0;
 
-    uint64 raceMask = UI64LIT(1) << (race - 1);
     uint32 classMask = 1 << (playerClass - 1);
 
     for (int i = 0; i < 4; i++)
@@ -8386,7 +8385,7 @@ int32 ObjectMgr::GetBaseReputationOf(FactionEntry const* factionEntry, uint8 rac
         if ((!factionEntry->ReputationClassMask[i] ||
             factionEntry->ReputationClassMask[i] & classMask) &&
             (!factionEntry->ReputationRaceMask[i] ||
-            factionEntry->ReputationRaceMask[i] & raceMask))
+            factionEntry->ReputationRaceMask[i].HasRace(race)))
             return factionEntry->ReputationBase[i];
     }
 
@@ -8624,7 +8623,7 @@ void ObjectMgr::LoadMailLevelRewards()
             continue;
         }
 
-        _mailLevelRewardStore[level].push_back(MailLevelReward(raceMask, mailTemplateId, senderEntry));
+        _mailLevelRewardStore[level].emplace_back(raceMask, mailTemplateId, senderEntry);
 
         ++count;
     }
