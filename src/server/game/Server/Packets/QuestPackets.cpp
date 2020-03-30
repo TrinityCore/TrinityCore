@@ -140,7 +140,7 @@ WorldPacket const* WorldPackets::Quest::QueryQuestInfoResponse::Write()
         _worldPacket << int32(Info.TimeAllowed);
 
         _worldPacket << uint32(Info.Objectives.size());
-        _worldPacket << uint64(Info.AllowableRaces);
+        _worldPacket << uint64(Info.AllowableRaces.RawValue);
         _worldPacket << int32(Info.QuestRewardID);
         _worldPacket << int32(Info.Expansion);
 

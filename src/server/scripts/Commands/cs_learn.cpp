@@ -432,7 +432,7 @@ public:
                 continue;
 
             // skip racial skills
-            if (skillLine->RaceMask != 0)
+            if (skillLine->RaceMask)
                 continue;
 
             // skip wrong class skills

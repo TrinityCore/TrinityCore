@@ -2481,7 +2481,7 @@ void Player::GiveLevel(uint8 level)
     if (Pet* pet = GetPet())
         pet->SynchronizeLevelWithOwner();
 
-    if (MailLevelReward const* mailReward = sObjectMgr->GetMailLevelReward(level, getRaceMask()))
+    if (MailLevelReward const* mailReward = sObjectMgr->GetMailLevelReward(level, getRace()))
     {
         /// @todo Poor design of mail system
         CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
@@ -11680,7 +11680,7 @@ InventoryResult Player::CanUseItem(ItemTemplate const* proto) const
     if ((proto->GetFlags2() & ITEM_FLAG2_FACTION_ALLIANCE) && GetTeam() != ALLIANCE)
         return EQUIP_ERR_CANT_EQUIP_EVER;
 
-    if ((proto->GetAllowableClass() & getClassMask()) == 0 || (proto->GetAllowableRace() & getRaceMask()) == 0)
+    if ((proto->GetAllowableClass() & getClassMask()) == 0 || !proto->GetAllowableRace().HasRace(getRace()))
         return EQUIP_ERR_CANT_EQUIP_EVER;
 
     if (proto->GetRequiredSkill() != 0)
@@ -11731,7 +11731,7 @@ InventoryResult Player::CanRollForItemInLFG(ItemTemplate const* proto, WorldObje
         return EQUIP_ERR_ITEM_NOT_FOUND;
 
    // Used by group, function GroupLoot, to know if a prototype can be used by a player
-    if ((proto->GetAllowableClass() & getClassMask()) == 0 || (proto->GetAllowableRace() & getRaceMask()) == 0)
+    if ((proto->GetAllowableClass() & getClassMask()) == 0 || !proto->GetAllowableRace().HasRace(getRace()))
         return EQUIP_ERR_CANT_EQUIP_EVER;
 
     if (proto->GetRequiredSpell() != 0 && !HasSpell(proto->GetRequiredSpell()))
@@ -15854,10 +15854,7 @@ bool Player::SatisfyQuestClass(Quest const* qInfo, bool msg) const
 
 bool Player::SatisfyQuestRace(Quest const* qInfo, bool msg) const
 {
-    uint64 reqraces = qInfo->GetAllowableRaces();
-    if (reqraces == uint64(-1))
-        return true;
-    if ((reqraces & getRaceMask()) == 0)
+    if (!qInfo->GetAllowableRaces().HasRace(getRace()))
     {
         if (msg)
         {
@@ -24188,7 +24185,7 @@ void Player::LearnQuestRewardedSpells()
 
 void Player::LearnSkillRewardedSpells(uint32 skillId, uint32 skillValue)
 {
-    uint64 raceMask  = getRaceMask();
+    uint8 race  = getRace();
     uint32 classMask = getClassMask();
     for (uint32 j = 0; j < sSkillLineAbilityStore.GetNumRows(); ++j)
     {
@@ -24208,7 +24205,7 @@ void Player::LearnSkillRewardedSpells(uint32 skillId, uint32 skillValue)
             continue;
 
         // Check race if set
-        if (ability->RaceMask && !(ability->RaceMask & raceMask))
+        if (ability->RaceMask && !ability->RaceMask.HasRace(race))
             continue;
 
         // Check class if set
@@ -24542,7 +24539,7 @@ Player* Player::GetTrader() const
 
 bool Player::IsSpellFitByClassAndRace(uint32 spell_id) const
 {
-    uint32 racemask  = getRaceMask();
+    uint8 race  = getRace();
     uint32 classmask = getClassMask();
 
     SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spell_id);
@@ -24552,7 +24549,7 @@ bool Player::IsSpellFitByClassAndRace(uint32 spell_id) const
     for (SkillLineAbilityMap::const_iterator _spell_idx = bounds.first; _spell_idx != bounds.second; ++_spell_idx)
     {
         // skip wrong race skills
-        if (_spell_idx->second->RaceMask && (_spell_idx->second->RaceMask & racemask) == 0)
+        if (_spell_idx->second->RaceMask && !_spell_idx->second->RaceMask.HasRace(race))
             continue;
 
         // skip wrong class skills

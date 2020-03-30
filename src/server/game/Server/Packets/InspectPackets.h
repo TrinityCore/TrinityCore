@@ -21,6 +21,7 @@
 #include "DBCEnums.h"
 #include "ItemPacketsCommon.h"
 #include "ObjectGuid.h"
+#include "RaceMask.h"
 #include "SharedDefines.h"
 
 class Item;
