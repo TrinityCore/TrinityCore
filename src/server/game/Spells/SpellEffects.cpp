@@ -4422,7 +4422,7 @@ void Spell::EffectPullTowardsDest(SpellEffIndex effIndex)
     float distXY = unitTarget->GetExactDist(pos);
     float distZ = pos->GetPositionZ() - unitTarget->GetPositionZ();
 
-    float speedXY = m_spellInfo->Effects[effIndex].MiscValue / 10.0f;
+    float speedXY = m_spellInfo->Effects[effIndex].MiscValue ? m_spellInfo->Effects[effIndex].MiscValue / 10.0f : 30.0f;
     float speedZ = (2 * speedXY * speedXY * distZ + Movement::gravity * distXY * distXY) / (2 * speedXY * distXY);
 
     unitTarget->JumpTo(speedXY, speedZ, true, *pos);

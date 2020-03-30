@@ -205,11 +205,6 @@ void CreatureAI::JustAppeared()
     }
 }
 
-void CreatureAI::JustReachedHome()
-{
-    Reset();
-}
-
 void CreatureAI::JustEnteredCombat(Unit* who)
 {
     if (!IsEngaged() && !me->CanHaveThreatList())
@@ -239,6 +234,7 @@ void CreatureAI::EnterEvadeMode(EvadeReason why)
         }
     }
 
+    Reset();
 }
 
 bool CreatureAI::UpdateVictim()
@@ -280,7 +276,6 @@ void CreatureAI::EngagementStart(Unit* who)
     }
     _isEngaged = true;
 
-    me->InterruptNonMeleeSpells(false);
     me->AtEngage(who);
 }
 
