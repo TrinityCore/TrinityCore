@@ -5129,6 +5129,32 @@ class spell_gen_flurry_of_claws : public AuraScript
     }
 };
 
+enum Sunflower
+{
+    SPELL_SINGING_SUNFLOWER_DND = 93972
+};
+
+// 93971 - Sunflower (DND)
+class spell_gen_sunflower_dnd : public AuraScript
+{
+    PrepareAuraScript(spell_gen_sunflower_dnd);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SINGING_SUNFLOWER_DND });
+    }
+
+    void HandlePeriodic(AuraEffect const* /*aurEff*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_SINGING_SUNFLOWER_DND);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_sunflower_dnd::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -5249,4 +5275,5 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_reverse_cast_ride_vehicle);
     RegisterSpellScript(spell_gen_launch_quest);
     RegisterSpellScript(spell_gen_charmed_unit_spell_cooldown);
+    RegisterAuraScript(spell_gen_sunflower_dnd);
 }
