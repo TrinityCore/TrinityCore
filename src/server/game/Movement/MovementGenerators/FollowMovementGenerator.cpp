@@ -72,19 +72,48 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
         if (!target->movespline->Finalized() || target->isMoving())
         {
             Position dest = target->GetPosition();
+            float destOrientation = target->GetOrientation();
+            float offset = 0.f;
+
+            // Strafe handling for player sidewards movement
+            if (target->IsPlayer())
+            {
+                if (target->HasUnitMovementFlag(MOVEMENTFLAG_STRAFE_LEFT))
+                    offset += float(M_PI / 2);
+
+                if (target->HasUnitMovementFlag(MOVEMENTFLAG_STRAFE_RIGHT))
+                    offset -= float(M_PI / 2);
+
+                if (target->HasUnitMovementFlag(MOVEMENTFLAG_BACKWARD))
+                    offset += float(M_PI);
+
+                // Player moves forward while strafing, cut strafe offset in half
+                if (offset != 0.f && target->HasUnitMovementFlag(MOVEMENTFLAG_FORWARD))
+                    offset *= 0.5f;
+
+                destOrientation += offset;
+            }
+
             target->MovePositionToFirstCollision(dest, _range + target->GetBoundaryRadius() + owner->GetBoundaryRadius(), _angle.RelativeAngle);
+            dest.SetOrientation(destOrientation);
 
             // Determine our velocity
             float velocity = 0.f;
             if (_useTargetSpeed)
+            {
                 velocity = target->IsWalking() ? target->GetSpeed(MOVE_WALK) : target->GetSpeed(MOVE_RUN);
+
+                // Backwards player movement speed
+                if (target->IsPlayer() && target->HasUnitMovementFlag(MOVEMENTFLAG_BACKWARD))
+                    velocity = target->GetSpeed(MOVE_RUN_BACK);
+            }
             else
                 velocity = owner->IsWalking() ? owner->GetSpeed(MOVE_WALK) : owner->GetSpeed(MOVE_RUN);
 
             // Follow target based speed allignment
+            float distance = owner->GetExactDist2d(dest);
             if (_useTargetSpeed)
             {
-                float distance = owner->GetExactDist2d(dest);
 
                 // Determine catchup speed rate
                 if (!dest.HasInArc(float(M_PI), owner)) // follower is behind follow destination
@@ -102,7 +131,7 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
             }
 
             // Move our destination ahead (according to sniffs, it's roundabout velocity * 2)
-            target->MovePositionToFirstCollision(dest, velocity * 2, 0.f);
+            target->MovePositionToFirstCollision(dest, (velocity * 2) - distance, offset);
 
             Movement::MoveSplineInit init(owner);
             init.MoveTo(dest.GetPositionX(), dest.GetPositionY(), dest.GetPositionZ());
