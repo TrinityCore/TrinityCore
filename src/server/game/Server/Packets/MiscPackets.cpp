@@ -130,3 +130,10 @@ WorldPacket const* WorldPackets::Misc::PhaseShiftChange::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Misc::UITime::Write()
+{
+    _worldPacket << uint32(Time);
+
+    return &_worldPacket;
+}

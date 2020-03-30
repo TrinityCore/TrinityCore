@@ -1541,9 +1541,9 @@ void WorldSession::HandleWorldStateUITimerUpdate(WorldPacket& /*recvData*/)
     // empty opcode
     TC_LOG_DEBUG("network", "WORLD: CMSG_WORLD_STATE_UI_TIMER_UPDATE");
 
-    WorldPacket data(SMSG_WORLD_STATE_UI_TIMER_UPDATE, 4);
-    data << uint32(GameTime::GetGameTime());
-    SendPacket(&data);
+    WorldPackets::Misc::UITime response;
+    response.Time = GameTime::GetGameTime();
+    SendPacket(response.Write());
 }
 
 void WorldSession::HandleReadyForAccountDataTimes(WorldPacket& /*recvData*/)
