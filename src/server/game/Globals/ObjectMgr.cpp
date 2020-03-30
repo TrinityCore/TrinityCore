@@ -2427,7 +2427,7 @@ void ObjectMgr::LoadGameObjects()
             }
         }
 
-        data.scriptId = GetScriptId(fields[22].GetString());
+        data.scriptId = GetScriptId(fields[21].GetString());
 
         if (data.rotation.x < -1.0f || data.rotation.x > 1.0f)
         {
