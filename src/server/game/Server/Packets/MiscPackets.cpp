@@ -115,6 +115,13 @@ WorldPacket const* WorldPackets::Misc::OverrideLight::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Misc::UITime::Write()
+{
+    _worldPacket << uint32(Time);
+
+    return &_worldPacket;
+}
+
 void WorldPackets::Misc::WorldTeleport::Read()
 {
     _worldPacket >> Time;
