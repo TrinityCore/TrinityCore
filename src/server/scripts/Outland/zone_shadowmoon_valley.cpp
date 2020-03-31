@@ -1590,6 +1590,30 @@ public:
     };
 };
 
+// EJ fix 
+class npc_totem_of_spirits : public CreatureScript
+{
+public:
+    npc_totem_of_spirits() : CreatureScript("npc_totem_of_spirits") { }
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_totem_of_spiritsAI(creature);
+    }
+
+    struct npc_totem_of_spiritsAI : public ScriptedAI
+    {
+        npc_totem_of_spiritsAI(Creature* creature) : ScriptedAI(creature) { }
+
+        void JustAppeared() override
+        {
+            me->AddUnitState(UnitState::UNIT_STATE_NOT_MOVE);
+            me->SetSpeed(UnitMoveType::MOVE_RUN, 0.0f);
+            me->SetSpeed(UnitMoveType::MOVE_WALK, 0.0f);
+        }
+    };
+};
+
 enum ZuluhedChains
 {
     NPC_KARYNAKU    = 22112,
@@ -1693,6 +1717,8 @@ void AddSC_shadowmoon_valley()
     new npc_illidari_spawn();
     new npc_torloth_the_magnificent();
     new npc_enraged_spirit();
+    // EJ fix
+    new npc_totem_of_spirits();
     new spell_unlocking_zuluheds_chains();
     new npc_shadowmoon_tuber_node();
 }

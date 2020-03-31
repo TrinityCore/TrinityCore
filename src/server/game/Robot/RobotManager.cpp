@@ -197,39 +197,12 @@ void RobotManager::InitializeManager()
             rlSet.insert(eachLootItemEntry);
         } while (rlQR->NextRow());
     }
-    // equips from quest
-    std::unordered_map<uint32, int32> qrMap;
-    qrMap.clear();
-    std::unordered_map<uint32, Quest> allQuestMapForEquips = sObjectMgr->GetQuestTemplates();
-    for (std::unordered_map<uint32, Quest>::iterator it = allQuestMapForEquips.begin(); it != allQuestMapForEquips.end(); it++)
-    {
-        if (it->second.GetQuestLevel() < 10)
-        {
-            continue;
-        }
-        for (int ciCount = 0; ciCount < 6; ciCount++)
-        {
-            if (it->second.RewardChoiceItemId[ciCount] > 0)
-            {
-                qrMap[it->second.RewardChoiceItemId[ciCount]] = it->second.GetQuestLevel();
-            }
-        }
-    }
-
     uint8 levelRange = 0;
     ItemTemplateContainer const& its = sObjectMgr->GetItemTemplateStore();
     for (auto const& itemTemplatePair : its)
     {
         levelRange = 0;
-        if (rlSet.find(itemTemplatePair.first) != rlSet.end())
-        {
-
-        }
-        else if (qrMap.find(itemTemplatePair.first) != qrMap.end())
-        {
-            levelRange = qrMap[itemTemplatePair.first] / 10;
-        }
-        else
+        if (rlSet.find(itemTemplatePair.first) == rlSet.end())
         {
             continue;
         }
@@ -238,14 +211,18 @@ void RobotManager::InitializeManager()
         {
             continue;
         }
-        if (proto->Quality < 1)
+        if (proto->Quality < 2)
         {
             continue;
         }
-        if (proto->RandomSuffix > 0)
+        if (proto->RequiredLevel < 10)
         {
             continue;
         }
+        //if (proto->RandomSuffix > 0)
+        //{
+        //    continue;
+        //}
         if (levelRange == 0)
         {
             levelRange = proto->RequiredLevel / 10;
