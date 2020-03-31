@@ -1526,10 +1526,10 @@ AllowTwoSide.Interaction.Guild = 0
 #
 #    AllowTwoSide.Interaction.Auction
 #        Description: Allow auctions between factions.
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
 
-AllowTwoSide.Interaction.Auction = 0
+AllowTwoSide.Interaction.Auction = 1
 
 #
 #    AllowTwoSide.Trade

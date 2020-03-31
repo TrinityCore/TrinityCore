@@ -2564,7 +2564,7 @@ SkillRaceClassInfoEntry const* DB2Manager::GetSkillRaceClassInfo(uint32 skill, u
     auto bounds = _skillRaceClassInfoBySkill.equal_range(skill);
     for (auto itr = bounds.first; itr != bounds.second; ++itr)
     {
-        if (itr->second->RaceMask && !(itr->second->RaceMask & (UI64LIT(1) << (race - 1))))
+        if (itr->second->RaceMask && !(itr->second->RaceMask.HasRace(race)))
             continue;
         if (itr->second->ClassMask && !(itr->second->ClassMask & (1 << (class_ - 1))))
             continue;
