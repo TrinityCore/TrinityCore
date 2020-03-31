@@ -162,6 +162,8 @@ void MoveSpline::Initialize(MoveSplineInitArgs const& args)
     vertical_acceleration = 0.f;
     effect_start_time = 0;
 
+    velocity = args.velocity;
+
     // Check if its a stop spline
     if (args.flags.done)
     {
@@ -185,15 +187,15 @@ void MoveSpline::Initialize(MoveSplineInitArgs const& args)
 }
 
 MoveSpline::MoveSpline() : m_Id(0), time_passed(0),
-    vertical_acceleration(0.f), initialOrientation(0.f), effect_start_time(0), point_Idx(0), point_Idx_offset(0),
+    vertical_acceleration(0.f), initialOrientation(0.f), effect_start_time(0), point_Idx(0), point_Idx_offset(0), velocity(0.f),
     onTransport(false)
 {
     splineflags.done = true;
 }
 
 MoveSplineInitArgs::MoveSplineInitArgs(size_t path_capacity /*= 16*/) : path_Idx_offset(0), velocity(0.f),
-parabolic_amplitude(0.f), time_perc(0.f), splineId(0), initialOrientation(0.f),
-HasVelocity(false), TransformForTransport(true)
+    parabolic_amplitude(0.f), time_perc(0.f), splineId(0), initialOrientation(0.f), walk(false),
+    HasVelocity(false), TransformForTransport(true)
 {
     path.reserve(path_capacity);
 }
