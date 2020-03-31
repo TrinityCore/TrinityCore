@@ -34,6 +34,7 @@
 #include "PhasingHandler.h"
 #include "Player.h"
 #include "Pet.h"
+#include "RaceMask.h"
 #include "Realm.h"
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
@@ -205,7 +206,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         case CONDITION_RACE:
         {
             if (Unit* unit = object->ToUnit())
-                condMeets = (unit->getRaceMask() & ConditionValue1) != 0;
+                condMeets = Trinity::RaceMask<uint32>{ ConditionValue1 }.HasRace(unit->getRace());
             break;
         }
         case CONDITION_GENDER:
@@ -2019,7 +2020,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         }
         case CONDITION_RACE:
         {
-            if (cond->ConditionValue1 & ~RACEMASK_ALL_PLAYABLE)
+            if (uint32(cond->ConditionValue1 & ~RACEMASK_ALL_PLAYABLE)) // uint32 works thanks to weird index remapping in racemask
             {
                 TC_LOG_ERROR("sql.sql", "%s has non existing racemask (" UI64FMTD "), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1 & ~RACEMASK_ALL_PLAYABLE);
                 return false;
@@ -2546,7 +2547,7 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
     if (condition->MaxLevel && player->getLevel() > condition->MaxLevel)
         return false;
 
-    if (condition->RaceMask && !(player->getRaceMask() & condition->RaceMask))
+    if (condition->RaceMask && !condition->RaceMask.HasRace(player->getRace()))
         return false;
 
     if (condition->ClassMask && !(player->getClassMask() & condition->ClassMask))

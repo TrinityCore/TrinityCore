@@ -138,7 +138,7 @@ namespace WorldPackets
             float POIx                      = 0.0f;
             float POIy                      = 0.0f;
             int32 POIPriority               = 0;
-            uint64 AllowableRaces           = UI64LIT(0xFFFFFFFFFFFFFFFF);
+            Trinity::RaceMask<uint64> AllowableRaces = { UI64LIT(0xFFFFFFFFFFFFFFFF) };
             std::string LogTitle;
             std::string LogDescription;
             std::string QuestDescription;
