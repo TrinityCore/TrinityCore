@@ -173,7 +173,6 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* creature, bool rel
 
     ASSERT(_currentNode < _path->nodes.size(), "WaypointMovementGenerator::StartMove: tried to reference a node id (%u) which is not included in path (%u)", _currentNode, _path->id);
     WaypointNode const &waypoint = _path->nodes[_currentNode];
-    Position formationDest(waypoint.x, waypoint.y, waypoint.z, (waypoint.orientation && waypoint.delay) ? waypoint.orientation : 0.0f);
 
     _isArrivalDone = false;
     _recalculateSpeed = false;
@@ -184,15 +183,7 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* creature, bool rel
 
     //! If creature is on transport, we assume waypoints set in DB are already transport offsets
     if (transportPath)
-    {
         init.DisableTransportPathTransformations();
-        if (TransportBase* trans = creature->GetDirectTransport())
-        {
-            float orientation = formationDest.GetOrientation();
-            trans->CalculatePassengerPosition(formationDest.m_positionX, formationDest.m_positionY, formationDest.m_positionZ, &orientation);
-            formationDest.SetOrientation(orientation);
-        }
-    }
 
     //! Do not use formationDest here, MoveTo requires transport offsets due to DisableTransportPathTransformations() call
     //! but formationDest contains global coordinates
@@ -223,7 +214,7 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* creature, bool rel
     init.Launch();
 
     // inform formation
-    creature->SignalFormationMovement(formationDest, waypoint.id, waypoint.moveType, (waypoint.orientation && waypoint.delay) ? true : false);
+    creature->SignalFormationMovement();
 
     return;
 }

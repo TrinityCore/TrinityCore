@@ -297,7 +297,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         CreatureGroup* GetFormation() { return m_formation; }
         void SetFormation(CreatureGroup* formation) { m_formation = formation; }
         bool IsFormationLeader() const;
-        void SignalFormationMovement(Position const& destination, uint32 id = 0, uint32 moveType = 0, bool orientation = false);
+        void SignalFormationMovement();
         bool IsFormationLeaderMoveAllowed() const;
 
         Unit* SelectVictim();

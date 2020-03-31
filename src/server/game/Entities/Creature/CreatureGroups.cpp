@@ -22,6 +22,7 @@
 #include "Log.h"
 #include "Map.h"
 #include "MotionMaster.h"
+#include "MovementGenerator.h"
 #include "ObjectMgr.h"
 
 #include <cmath>
@@ -226,16 +227,10 @@ void CreatureGroup::FormationReset(bool dismiss)
     m_Formed = !dismiss;
 }
 
-void CreatureGroup::LeaderMoveTo(Position destination, uint32 id /*= 0*/, uint32 moveType /*= 0*/, bool orientation /*= false*/)
+void CreatureGroup::LeaderStartedMoving()
 {
-    //! To do: This should probably get its own movement generator or use WaypointMovementGenerator.
-    //! If the leader's path is known, member's path can be plotted as well using formation offsets.
     if (!m_leader)
         return;
-
-    float x = destination.GetPositionX(), y = destination.GetPositionY(), z = destination.GetPositionZ();
-
-    float pathangle = std::atan2(m_leader->GetPositionY() - y, m_leader->GetPositionX() - x);
 
     for (CreatureGroupMemberType::iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
     {
@@ -243,27 +238,12 @@ void CreatureGroup::LeaderMoveTo(Position destination, uint32 id /*= 0*/, uint32
         if (member == m_leader || !member->IsAlive() || member->GetVictim() || !(itr->second->groupAI & FLAG_IDLE_IN_FORMATION))
             continue;
 
-        if (itr->second->point_1)
-            if (m_leader->GetCurrentWaypointInfo().first == itr->second->point_1 || m_leader->GetCurrentWaypointInfo().first == itr->second->point_2)
-                itr->second->follow_angle = float(M_PI) * 2 - itr->second->follow_angle;
-
-        float angle = itr->second->follow_angle;
+        float angle = itr->second->follow_angle + float(M_PI);
         float dist = itr->second->follow_dist;
 
-        float dx = x + std::cos(angle + pathangle) * dist;
-        float dy = y + std::sin(angle + pathangle) * dist;
-        float dz = z;
-
-        Trinity::NormalizeMapCoord(dx);
-        Trinity::NormalizeMapCoord(dy);
-
-        if (!member->IsFlying())
-            member->UpdateGroundPositionZ(dx, dy, dz);
-
-        Position point(dx, dy, dz, destination.GetOrientation());
-
-        member->GetMotionMaster()->MoveFormation(id, point, moveType, !member->IsWithinDist(m_leader, dist + MAX_DESYNC), orientation);
-        member->SetHomePosition(dx, dy, dz, pathangle);
+        MovementGenerator const* moveGen = member->GetMotionMaster()->GetMotionSlot(MOTION_SLOT_IDLE);
+        if (!moveGen || moveGen->GetMovementGeneratorType() != FORMATION_MOTION_TYPE)
+            member->GetMotionMaster()->MoveFormation(m_leader, dist, angle, itr->second->point_1, itr->second->point_2);
     }
 }
 

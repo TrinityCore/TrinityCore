@@ -44,6 +44,10 @@ uint32 SplineChainMovementGenerator::SendPathSpline(Unit* me, float velocity, Mo
     else
         init.SetWalk(_walk);
 
+    // inform formation
+    if (me->IsCreature())
+        me->ToCreature()->SignalFormationMovement();
+
     return init.Launch();
 }
 
