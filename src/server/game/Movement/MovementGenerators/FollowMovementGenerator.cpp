@@ -101,11 +101,20 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
             float velocity = 0.f;
             if (_useTargetSpeed)
             {
-                velocity = target->IsWalking() ? target->GetSpeed(MOVE_WALK) : target->GetSpeed(MOVE_RUN);
-
-                // Backwards player movement speed
-                if (target->IsPlayer() && target->HasUnitMovementFlag(MOVEMENTFLAG_BACKWARD))
-                    velocity = target->GetSpeed(MOVE_RUN_BACK);
+                if (target->IsPlayer())
+                {
+                    velocity = target->IsWalking() ? target->GetSpeed(MOVE_WALK) : target->GetSpeed(MOVE_RUN);
+                    // Backwards player movement speed
+                    if (target->IsPlayer() && target->HasUnitMovementFlag(MOVEMENTFLAG_BACKWARD))
+                        velocity = target->GetSpeed(MOVE_RUN_BACK);
+                }
+                else
+                {
+                    if (!target->movespline->Finalized())
+                        velocity = target->movespline->Velocity();
+                    else
+                        velocity = target->GetSpeed(MOVE_RUN);
+                }
             }
             else
                 velocity = owner->IsWalking() ? owner->GetSpeed(MOVE_WALK) : owner->GetSpeed(MOVE_RUN);
