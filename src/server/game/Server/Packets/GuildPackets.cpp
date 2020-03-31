@@ -144,9 +144,9 @@ WorldPacket const* WorldPackets::Guild::GuildEvent::Write()
 
 WorldPacket const* WorldPackets::Guild::GuildEventLogQueryResults::Write()
 {
-    _worldPacket.reserve(4 + Entry.size() * 38);
+    _worldPacket.reserve(1 + Entry.size() * sizeof(GuildEventEntry));
 
-    _worldPacket << uint32(Entry.size());
+    _worldPacket << uint8(Entry.size());
 
     for (GuildEventEntry const& entry : Entry)
     {
