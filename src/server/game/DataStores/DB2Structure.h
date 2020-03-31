@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include "DBCEnums.h"
+#include "RaceMask.h"
 #include "Util.h"
 
 #pragma pack(push, 1)
@@ -1063,7 +1064,7 @@ struct DurabilityQualityEntry
 struct EmotesEntry
 {
     uint32 ID;
-    int64 RaceMask;
+    Trinity::RaceMask<int64> RaceMask;
     char const* EmoteSlashCommand;
     int32 AnimID;
     uint32 EmoteFlags;
@@ -1123,7 +1124,7 @@ struct ExpectedStatModEntry
 
 struct FactionEntry
 {
-    int64 ReputationRaceMask[4];
+    Trinity::RaceMask<int64> ReputationRaceMask[4];
     LocalizedString* Name;
     LocalizedString* Description;
     uint32 ID;
@@ -1771,7 +1772,7 @@ struct ItemPriceBaseEntry
 
 struct ItemSearchNameEntry
 {
-    int64 AllowableRace;
+    Trinity::RaceMask<int64> AllowableRace;
     LocalizedString* Display;
     uint32 ID;
     uint8 OverallQualityID;
@@ -1811,7 +1812,7 @@ struct ItemSetSpellEntry
 struct ItemSparseEntry
 {
     uint32 ID;
-    int64 AllowableRace;
+    Trinity::RaceMask<int64> AllowableRace;
     LocalizedString* Description;
     LocalizedString* Display3;
     LocalizedString* Display2;
@@ -2215,7 +2216,7 @@ struct PhaseXPhaseGroupEntry
 
 struct PlayerConditionEntry
 {
-    int64 RaceMask;
+    Trinity::RaceMask<int64> RaceMask;
     LocalizedString* FailureDescription;
     uint32 ID;
     uint16 MinLevel;
@@ -2547,7 +2548,7 @@ struct SkillLineEntry
 
 struct SkillLineAbilityEntry
 {
-    int64 RaceMask;
+    Trinity::RaceMask<int64> RaceMask;
     uint32 ID;
     int16 SkillLine;
     int32 Spell;
@@ -2567,7 +2568,7 @@ struct SkillLineAbilityEntry
 struct SkillRaceClassInfoEntry
 {
     uint32 ID;
-    int64 RaceMask;
+    Trinity::RaceMask<int64> RaceMask;
     int16 SkillID;
     int32 ClassMask;
     uint16 Flags;

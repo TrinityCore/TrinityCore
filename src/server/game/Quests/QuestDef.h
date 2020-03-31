@@ -21,6 +21,7 @@
 #include "Common.h"
 #include "DBCEnums.h"
 #include "DatabaseEnvFwd.h"
+#include "RaceMask.h"
 #include "SharedDefines.h"
 #include "WorldPacket.h"
 #include <vector>
@@ -375,7 +376,7 @@ class TC_GAME_API Quest
         int32  GetQuestMaxScalingLevel() const { return MaxScalingLevel; }
         uint32 GetQuestInfoID() const { return QuestInfoID; }
         uint32 GetAllowableClasses() const { return AllowableClasses; }
-        uint64 GetAllowableRaces() const { return AllowableRaces; }
+        Trinity::RaceMask<uint64> GetAllowableRaces() const { return AllowableRaces; }
         uint32 GetRequiredSkill() const { return RequiredSkillId; }
         uint32 GetRequiredSkillValue() const { return RequiredSkillPoints; }
         uint32 GetRequiredMinRepFaction() const { return RequiredMinRepFaction; }
@@ -541,7 +542,7 @@ class TC_GAME_API Quest
         uint32 SoundTurnIn;
         uint32 AreaGroupID;
         uint32 LimitTime;
-        uint64 AllowableRaces;
+        Trinity::RaceMask<uint64> AllowableRaces;
         int32 TreasurePickerID;
         int32 Expansion;
         int32 ManagedWorldStateID;

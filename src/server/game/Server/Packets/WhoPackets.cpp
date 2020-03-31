@@ -55,7 +55,7 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Who::WhoRequest& request)
 {
     data >> request.MinLevel;
     data >> request.MaxLevel;
-    data >> request.RaceFilter;
+    data >> request.RaceFilter.RawValue;
     data >> request.ClassFilter;
 
     uint32 nameLength = data.ReadBits(6);

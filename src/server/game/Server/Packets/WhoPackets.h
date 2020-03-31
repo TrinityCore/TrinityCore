@@ -21,6 +21,7 @@
 #include "Packet.h"
 #include "ObjectGuid.h"
 #include "QueryPackets.h"
+#include "RaceMask.h"
 
 namespace WorldPackets
 {
@@ -66,7 +67,7 @@ namespace WorldPackets
             std::string VirtualRealmName;
             std::string Guild;
             std::string GuildVirtualRealmName;
-            int64 RaceFilter = SI64LIT(0);
+            Trinity::RaceMask<int64> RaceFilter = { SI64LIT(0) };
             int32 ClassFilter = -1;
             std::vector<WhoWord> Words;
             bool ShowEnemies = false;
