@@ -518,7 +518,14 @@ class spell_warl_drain_soul : public SpellScriptLoader
             {
                 // Drain Soul's proc tries to happen each time the warlock lands a killing blow on a unit while channeling.
                 // Make sure that dying unit is afflicted by the caster's Drain Soul debuff in order to avoid a false positive.
-                return eventInfo.GetProcTarget()->GetAuraApplicationOfRankedSpell(SPELL_WARLOCK_DRAIN_SOUL, GetCaster()->GetGUID()) != 0;
+
+                Unit * caster = GetCaster();
+                Unit * victim = eventInfo.GetProcTarget();
+
+                if (caster && victim)
+                    return victim->GetAuraApplicationOfRankedSpell(SPELL_WARLOCK_DRAIN_SOUL, caster->GetGUID()) != 0;
+
+                return false;
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
