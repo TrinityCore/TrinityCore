@@ -147,6 +147,16 @@ namespace WorldPackets
     {
         class QueryQuestInfo;
     }
+    namespace Spells
+    {
+        class CancelCast;
+        class CancelAura;
+        class PetCancelAura;
+        class CancelGrowthAura;
+        class CancelMountAura;
+        class CancelAutoRepeatSpell;
+        class CancelChannelling;
+    }
     namespace Totem
     {
         class TotemDestroyed;
@@ -773,7 +783,6 @@ class TC_GAME_API WorldSession
         void HandleItemTextQuery(WorldPacket& recvData);
         void HandleMailCreateTextItem(WorldPacket& recvData);
         void HandleQueryNextMailTime(WorldPacket& recvData);
-        void HandleCancelChanneling(WorldPacket& recvData);
 
         void HandleSplitItemOpcode(WorldPacket& recvPacket);
         void HandleSwapInvItemOpcode(WorldPacket& recvPacket);
@@ -801,10 +810,12 @@ class TC_GAME_API WorldSession
         void HandleOpenItemOpcode(WorldPacket& recvPacket);
         void HandleOpenWrappedItemCallback(uint16 pos, ObjectGuid itemGuid, PreparedQueryResult result);
         void HandleCastSpellOpcode(WorldPacket& recvPacket);
-        void HandleCancelCastOpcode(WorldPacket& recvPacket);
-        void HandleCancelAuraOpcode(WorldPacket& recvPacket);
-        void HandleCancelGrowthAuraOpcode(WorldPacket& recvPacket);
-        void HandleCancelAutoRepeatSpellOpcode(WorldPacket& recvPacket);
+        void HandleCancelCastOpcode(WorldPackets::Spells::CancelCast& cancelCast);
+        void HandleCancelAuraOpcode(WorldPackets::Spells::CancelAura& cancelAura);
+        void HandleCancelGrowthAuraOpcode(WorldPackets::Spells::CancelGrowthAura& cancelGrowthAura);
+        void HandleCancelMountAuraOpcode(WorldPackets::Spells::CancelMountAura& cancelMountAura);
+        void HandleCancelAutoRepeatSpellOpcode(WorldPackets::Spells::CancelAutoRepeatSpell& cancelAutoRepeatSpell);
+        void HandleCancelChanneling(WorldPackets::Spells::CancelChannelling& cancelChanneling);
 
         void HandleLearnTalentOpcode(WorldPacket& recvPacket);
         void HandleLearnPreviewTalents(WorldPacket& recvPacket);
@@ -880,7 +891,7 @@ class TC_GAME_API WorldSession
         void HandlePetSetAction(WorldPacket& recvData);
         void HandlePetAbandon(WorldPacket& recvData);
         void HandlePetRename(WorldPacket& recvData);
-        void HandlePetCancelAuraOpcode(WorldPacket& recvPacket);
+        void HandlePetCancelAuraOpcode(WorldPackets::Spells::PetCancelAura& packet);
         void HandlePetSpellAutocastOpcode(WorldPacket& recvPacket);
         void HandlePetCastSpellOpcode(WorldPacket& recvPacket);
         void HandlePetLearnTalent(WorldPacket& recvPacket);
@@ -970,7 +981,6 @@ class TC_GAME_API WorldSession
 
         void HandleAreaSpiritHealerQueryOpcode(WorldPacket& recvData);
         void HandleAreaSpiritHealerQueueOpcode(WorldPacket& recvData);
-        void HandleCancelMountAuraOpcode(WorldPacket& recvData);
         void HandleSelfResOpcode(WorldPacket& recvData);
         void HandleComplainOpcode(WorldPacket& recvData);
         void HandleRequestPetInfoOpcode(WorldPacket& recvData);
