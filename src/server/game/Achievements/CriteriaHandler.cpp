@@ -118,7 +118,7 @@ bool CriteriaData::IsValid(Criteria const* criteria)
                     criteria->ID, criteria->Entry->Type, DataType, ClassRace.Class);
                 return false;
             }
-            if (ClassRace.Race && ((UI64LIT(1) << (ClassRace.Race-1)) & RACEMASK_ALL_PLAYABLE) == 0)
+            if (!Trinity::RaceMask<uint64>{ RACEMASK_ALL_PLAYABLE }.HasRace(ClassRace.Race))
             {
                 TC_LOG_ERROR("sql.sql", "Table `criteria_data` (Entry: %u Type: %u) for data type CRITERIA_DATA_TYPE_T_PLAYER_CLASS_RACE (%u) contains a non-existing race in value2 (%u), ignored.",
                     criteria->ID, criteria->Entry->Type, DataType, ClassRace.Race);
