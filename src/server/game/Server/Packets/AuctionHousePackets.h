@@ -118,7 +118,7 @@ namespace WorldPackets
             Optional<ObjectGuid> Bidder;
             Optional<uint64> BidAmount;
             std::vector<Item::ItemGemData> Gems;
-            Optional<AuctionBucketKey> AuctionBucketKey;
+            Optional<WorldPackets::AuctionHouse::AuctionBucketKey> AuctionBucketKey;
         };
 
         struct AuctionBidderNotification
