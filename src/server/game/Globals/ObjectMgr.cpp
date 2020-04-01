@@ -664,60 +664,9 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     // EJ mod
     if (sJokerConfig->Enable)
     {
-        float levelMod = 0.0f;
-        if (creatureTemplate.maxlevel >= 50)
+        if (creatureTemplate.rank != 3)
         {
-            levelMod = 2.0f;
-        }
-        else if (creatureTemplate.maxlevel >= 40)
-        {
-            levelMod = 1.5f;
-        }
-        else if (creatureTemplate.maxlevel >= 30)
-        {
-            levelMod = 1.0f;
-        }
-        else if (creatureTemplate.maxlevel >= 20)
-        {
-            levelMod = 0.5f;
-        }
-        if (creatureTemplate.rank == 1 || creatureTemplate.rank == 2 || creatureTemplate.rank == 4)
-        {
-            if (ieSet.find(creatureTemplate.Entry) != ieSet.end())
-            {
-                creatureTemplate.ModDamage = sJokerConfig->InstanceEncounterDamageMod + levelMod;
-            }
-            else if (creatureTemplate.rank == 1)
-            {
-                if (sObjectMgr->ueSet.find(creatureTemplate.Entry) != sObjectMgr->ueSet.end())
-                {
-                    if (creatureTemplate.ModDamage < sJokerConfig->UniqueEliteDamageMod + levelMod)
-                    {
-                        creatureTemplate.ModDamage = sJokerConfig->UniqueEliteDamageMod + levelMod;
-                    }
-                }
-                else
-                {
-                    if (creatureTemplate.ModDamage < sJokerConfig->EliteDamageMod + levelMod)
-                    {
-                        creatureTemplate.ModDamage = sJokerConfig->EliteDamageMod + levelMod;
-                    }
-                }
-            }
-            else if (creatureTemplate.rank == 2)
-            {
-                if (creatureTemplate.ModDamage < sJokerConfig->RareEliteDamageMod + levelMod)
-                {
-                    creatureTemplate.ModDamage = sJokerConfig->RareEliteDamageMod + levelMod;
-                }
-            }
-            else if (creatureTemplate.rank == 4)
-            {
-                if (creatureTemplate.ModDamage < sJokerConfig->RareDamageMod + levelMod)
-                {
-                    creatureTemplate.ModDamage = sJokerConfig->RareDamageMod + levelMod;
-                }
-            }
+            creatureTemplate.ModDamage = 1.0f;
         }
     }
 }
@@ -2208,6 +2157,12 @@ void ObjectMgr::LoadCreatures()
 
         ObjectGuid::LowType guid = fields[0].GetUInt32();
         uint32 entry        = fields[1].GetUInt32();
+
+        // EJ some creatures will not be loaded 
+        if (entry == 35093 || entry == 35099 || entry == 35100 || entry == 35101)
+        {
+            continue;
+        }
 
         CreatureTemplate const* cInfo = GetCreatureTemplate(entry);
         if (!cInfo)

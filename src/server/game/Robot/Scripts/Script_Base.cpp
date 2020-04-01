@@ -12,6 +12,7 @@
 #include "FollowMovementGenerator.h"
 #include "SpellHistory.h"
 #include "GridNotifiers.h"
+#include "SpellPackets.h"
 
 Script_Base::Script_Base(Player* pmMe)
 {
@@ -1571,9 +1572,51 @@ void Script_Base::CancelAura(uint32 pmSpellID)
     {
         return;
     }
-    WorldPacket data(CMSG_CANCEL_AURA, 4);
-    data << pmSpellID;
-    me->GetSession()->HandleCancelAuraOpcode(data);
+
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(pmSpellID);
+    if (!spellInfo)
+        return;
+
+    // not allow remove spells with attr SPELL_ATTR0_CANT_CANCEL
+    if (spellInfo->HasAttribute(SPELL_ATTR0_CANT_CANCEL))
+        return;
+
+    // channeled spell case (it currently cast then)
+    if (spellInfo->IsChanneled())
+    {
+        if (Spell* curSpell = me->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
+            if (curSpell->m_spellInfo->Id == pmSpellID)
+                me->InterruptSpell(CURRENT_CHANNELED_SPELL);
+        return;
+    }
+
+    // non channeled case:
+    // don't allow remove non positive spells
+    // don't allow cancelling passive auras (some of them are visible)
+    if (!spellInfo->IsPositive() || spellInfo->IsPassive())
+        return;
+
+    // maybe should only remove one buff when there are multiple?
+    me->RemoveOwnedAura(pmSpellID, ObjectGuid::Empty, 0, AURA_REMOVE_BY_CANCEL);
+
+    // If spell being removed is a resource tracker, see if player was tracking both (herbs / minerals) and remove the other
+    if (sWorld->getBoolConfig(CONFIG_ALLOW_TRACK_BOTH_RESOURCES) && spellInfo->HasAura(SPELL_AURA_TRACK_RESOURCES))
+    {
+        Unit::AuraEffectList const& auraEffects = me->GetAuraEffectsByType(SPELL_AURA_TRACK_RESOURCES);
+        if (!auraEffects.empty())
+        {
+            // Build list of spell IDs to cancel. Trying to cancel the aura while iterating
+            //  over AuraEffectList caused "incompatible iterator" errors on second pass
+            std::list<uint32> spellIDs;
+
+            for (Unit::AuraEffectList::const_iterator auraEffect = auraEffects.begin(); auraEffect != auraEffects.end(); ++auraEffect)
+                spellIDs.push_back((*auraEffect)->GetId());
+
+            // Remove all auras related to resource tracking (only Herbs and Minerals in 3.3.5a)
+            for (std::list<uint32>::iterator it = spellIDs.begin(); it != spellIDs.end(); ++it)
+                me->RemoveOwnedAura(*it, ObjectGuid::Empty, 0, AURA_REMOVE_BY_CANCEL);
+        }
+    }
 }
 
 void Script_Base::WhisperTo(std::string pmContent, Language pmLanguage, Player* pmTarget)

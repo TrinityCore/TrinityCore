@@ -186,10 +186,14 @@ class instance_deadmines : public InstanceMapScript
                 switch (creature->GetEntry())
                 {
                     case NPC_MR_SMITE:
+                    {
                         MrSmiteGUID = creature->GetGUID();
                         break;
+                    }
                     default:
+                    {
                         break;
+                    }
                 }
             }
 
@@ -202,6 +206,21 @@ class instance_deadmines : public InstanceMapScript
                     case GO_DEFIAS_CANNON:  DefiasCannonGUID = go->GetGUID();  break;
                     case GO_DOOR_LEVER:     DoorLeverGUID = go->GetGUID();     break;
                     case GO_MR_SMITE_CHEST: uiSmiteChestGUID = go->GetGUID();  break;
+                }
+            }
+
+            void OnUnitJustEngage(Unit* pmMe, Unit* pmTarget) override
+            {
+                if (pmMe->GetEntry() == DMCreaturesIds::NPC_RHAHKZOR)
+                {
+                    if (Creature* c1 = instance->GetCreatureBySpawnId(DMCreaturesSpawnIds::NPC_DEFIAS_WATCHMAN_1))
+                    {
+                        c1->AI()->AttackStart(pmTarget);
+                    }
+                    if (Creature* c2 = instance->GetCreatureBySpawnId(DMCreaturesSpawnIds::NPC_DEFIAS_WATCHMAN_2))
+                    {
+                        c2->AI()->AttackStart(pmTarget);
+                    }
                 }
             }
 

@@ -1456,57 +1456,68 @@ void Creature::UpdateLevelDependantStats()
     {
         if (cInfo->rank == 1 || cInfo->rank == 2 || cInfo->rank == 4)
         {
-            float levelMod = 0.0f;
-            if (GetLevel() >= 50)
-            {
-                levelMod = 2.0f;
-            }
-            else if (GetLevel() >= 40)
-            {
-                levelMod = 1.5f;
-            }
-            else if (GetLevel() >= 30)
-            {
-                levelMod = 1.0f;
-            }
-            else if (GetLevel() >= 20)
-            {
-                levelMod = 0.5f;
-            }
             float checkAP = stats->AttackPower;
-            if (checkAP < stats->RangedAttackPower)
-            {
-                checkAP = stats->RangedAttackPower;
-            }
+            float jokerMod = 1.0f;
             if (sObjectMgr->ieSet.find(cInfo->Entry) != sObjectMgr->ieSet.end())
             {
-                checkAP = checkAP * (sJokerConfig->InstanceEncounterAPMod + levelMod);
+                jokerMod = sJokerConfig->InstanceEncounterAPMod;
             }
             else if (cInfo->rank == 1)
             {
                 if (sObjectMgr->ueSet.find(cInfo->Entry) != sObjectMgr->ueSet.end())
                 {
-                    checkAP = checkAP * (sJokerConfig->UniqueEliteAPMod + levelMod);
+                    jokerMod = sJokerConfig->UniqueEliteAPMod;
                 }
                 else
                 {
-                    checkAP = checkAP * (sJokerConfig->EliteAPMod + levelMod);
+                    jokerMod = sJokerConfig->EliteAPMod;
                 }
             }
             else if (cInfo->rank == 2)
             {
-                checkAP = checkAP * (sJokerConfig->RareEliteAPMod + levelMod);
+                jokerMod = sJokerConfig->RareEliteAPMod;
             }
             else if (cInfo->rank == 4)
             {
-                checkAP = checkAP * (sJokerConfig->RareAPMod + levelMod);
+                jokerMod = sJokerConfig->RareAPMod;
             }
-            if (cInfo->unit_class == UnitClass::UNIT_CLASS_PALADIN)
+            switch (cInfo->unit_class)
             {
-                checkAP = checkAP * 0.8f;
+            case UnitClass::UNIT_CLASS_WARRIOR:
+            {
+                jokerMod = jokerMod * 1.0f;
+                break;
             }
+            case UnitClass::UNIT_CLASS_PALADIN:
+            {
+                jokerMod = jokerMod * 0.8f;
+                break;
+            }
+            case UnitClass::UNIT_CLASS_ROGUE:
+            {
+                jokerMod = jokerMod * 1.0f;
+                break;
+            }
+            case UnitClass::UNIT_CLASS_MAGE:
+            {
+                jokerMod = jokerMod * 0.5f;
+                break;
+            }
+            default:
+            {
+                break;
+            }
+            }
+            checkAP = checkAP * jokerMod;
+            float levelMod = 1.0f;
+            levelMod = levelMod + ((float)GetLevel() / 100.0f);
+            checkAP = checkAP * levelMod;
             SetStatFlatModifier(UNIT_MOD_ATTACK_POWER, BASE_VALUE, checkAP);
-            SetStatFlatModifier(UNIT_MOD_ATTACK_POWER_RANGED, BASE_VALUE, checkAP);
+            checkAP = checkAP / 4;
+            if (checkAP > stats->RangedAttackPower)
+            {
+                SetStatFlatModifier(UNIT_MOD_ATTACK_POWER_RANGED, BASE_VALUE, checkAP);
+            }
         }
     }
 

@@ -40,12 +40,6 @@ public :
 
     uint32 Enable;
 
-    float InstanceEncounterDamageMod;
-    float EliteDamageMod;
-    float UniqueEliteDamageMod;
-    float RareDamageMod;
-    float RareEliteDamageMod;
-
     float InstanceEncounterAPMod;
     float EliteAPMod;
     float UniqueEliteAPMod;

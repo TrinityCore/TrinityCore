@@ -34,6 +34,9 @@
 #include "Vehicle.h"
 #include "World.h"
 
+// EJ creature ai
+#include "GridNotifiers.h"
+
 AISpellInfoType* UnitAI::AISpellInfo;
 AISpellInfoType* GetAISpellInfo(uint32 i) { return &UnitAI::AISpellInfo[i]; }
 
@@ -199,6 +202,28 @@ void CreatureAI::JustAppeared()
                 {
                     summon->GetMotionMaster()->Clear();
                     summon->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, summon->GetFollowAngle());
+                }
+            }
+        }
+    }
+
+    // EJ check hostile player and engage
+    std::list<Player*> players;
+    Trinity::AnyPlayerInObjectRangeCheck checker(me, VISIBILITY_DISTANCE_TINY);
+    Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, players, checker);
+    Cell::VisitWorldObjects(me, searcher, VISIBILITY_DISTANCE_TINY);
+    bool allDead = true;
+    for (std::list<Player*>::iterator itr = players.begin(); itr != players.end(); ++itr)
+    {
+        Player* eachP = *itr;
+        if (me->CanSeeOrDetect(eachP))
+        {
+            if (me->HasReactState(REACT_AGGRESSIVE) && me->CanStartAttack(eachP, false))
+            {
+                if (me->GetDistance(eachP) < me->GetAttackDistance(eachP))
+                {
+                    me->EngageWithTarget(eachP);
+                    break;
                 }
             }
         }

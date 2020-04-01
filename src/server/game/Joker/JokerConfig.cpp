@@ -165,12 +165,6 @@ bool JokerConfig::StartJokerSystem()
     LoadInitial(configFile.generic_string(), std::vector<std::string>(), configError);
     Enable = GetIntDefault("Enable", 0);
 
-    InstanceEncounterDamageMod = GetFloatDefault("InstanceEncounterDamageMod", 1);
-    EliteDamageMod = GetFloatDefault("EliteDamageMod", 1);
-    UniqueEliteDamageMod = GetFloatDefault("UniqueEliteDamageMod", 1);
-    RareDamageMod = GetFloatDefault("RareDamageMod", 1);
-    RareEliteDamageMod = GetFloatDefault("RareEliteDamageMod", 1);
-
     InstanceEncounterAPMod = GetFloatDefault("InstanceEncounterAPMod", 1);
     EliteAPMod = GetFloatDefault("EliteAPMod", 1);
     UniqueEliteAPMod = GetFloatDefault("UniqueEliteAPMod", 1);

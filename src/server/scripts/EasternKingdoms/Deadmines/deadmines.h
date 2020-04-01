@@ -59,7 +59,15 @@ enum DMGameObjects
 enum DMCreaturesIds
 {
     NPC_MR_SMITE   = 646,
-    NPC_BLACKGUARD = 636
+    NPC_BLACKGUARD = 636,
+    // EJ scripts 
+    NPC_RHAHKZOR = 644
+};
+
+enum DMCreaturesSpawnIds
+{
+    NPC_DEFIAS_WATCHMAN_1 = 79165,
+    NPC_DEFIAS_WATCHMAN_2 = 79167,
 };
 
 enum DMInstanceTexts

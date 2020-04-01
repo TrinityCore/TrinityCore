@@ -21,6 +21,9 @@
 #include "CreatureAI.h"
 #include "Player.h"
 
+// EJ scripts
+#include "ZoneScript.h"
+
 /*static*/ bool CombatManager::CanBeginCombat(Unit const* a, Unit const* b)
 {
     // Checks combat validity before initial reference creation.
@@ -305,6 +308,12 @@ void CombatManager::EndAllPvPCombat()
 {
     if (UnitAI* ai = me->GetAI())
         ai->JustEnteredCombat(other);
+
+    // EJ scripts notify zone creature enter combat
+    if (ZoneScript* zs = me->GetZoneScript())
+    {
+        zs->OnUnitJustEngage(me, other);
+    }
 }
 
 void CombatManager::PutReference(ObjectGuid const& guid, CombatReference* ref)

@@ -41,6 +41,7 @@ class TC_GAME_API ZoneScript
 
         // EJ zone script will handle creature just died 
         virtual void OnCreatureDied(Creature*) { }
+        virtual void OnUnitJustEngage(Unit*, Unit*) { }
 
         virtual void OnGameObjectCreate(GameObject* ) { }
         virtual void OnGameObjectRemove(GameObject* ) { }

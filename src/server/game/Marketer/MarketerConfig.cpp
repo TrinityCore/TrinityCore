@@ -165,6 +165,8 @@ bool MarketerConfig::StartMarketerSystem()
     LoadInitial(configFile.generic_string(), std::vector<std::string>(), configError);
     Enable = GetIntDefault("Enable", 0);
     Reset = GetIntDefault("Reset", 0);
+    MaxItemLevel = GetIntDefault("MaxItemLevel", 80);
+    MaxRequireLevel = GetIntDefault("MaxRequireLevel", 60);
 
     if (Enable == 0)
     {

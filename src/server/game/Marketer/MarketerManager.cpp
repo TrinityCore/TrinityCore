@@ -34,6 +34,14 @@ MarketerManager::MarketerManager()
         {
             continue;
         }
+        if (proto->ItemLevel > sMarketerConfig->MaxItemLevel)
+        {
+            continue;
+        }
+        if (proto->RequiredLevel > sMarketerConfig->MaxRequireLevel)
+        {
+            continue;
+        }
         if (proto->ItemLevel < 1)
         {
             continue;
@@ -266,6 +274,7 @@ bool MarketerManager::UpdateSeller()
 
                 bool sellThis = false;
                 uint32 stackCount = 1;
+                uint32 baseMultiple = urand(10, 20);
                 switch (proto->Class)
                 {
                 case ItemClass::ITEM_CLASS_CONSUMABLE:
@@ -321,6 +330,7 @@ bool MarketerManager::UpdateSeller()
                 {
                     sellThis = true;
                     stackCount = proto->Stackable;
+                    baseMultiple = urand(20, 30);
                     break;
                 }
                 case ItemClass::ITEM_CLASS_GENERIC:
@@ -331,6 +341,7 @@ bool MarketerManager::UpdateSeller()
                 {
                     sellThis = true;
                     stackCount = 1;
+                    baseMultiple = urand(20, 30);
                     break;
                 }
                 case ItemClass::ITEM_CLASS_MONEY:
@@ -409,10 +420,10 @@ bool MarketerManager::UpdateSeller()
                         {
                             qualityMuliplier = proto->Quality - 1;
                         }
-                        finalPrice = proto->SellPrice * stackCount * urand(10, 20);
+                        finalPrice = proto->SellPrice * stackCount * baseMultiple;
                         if (finalPrice == 0)
                         {
-                            finalPrice = proto->BuyPrice * stackCount * urand(2, 4);
+                            finalPrice = proto->BuyPrice * stackCount * baseMultiple / 4;
                         }
                         if (finalPrice == 0)
                         {
@@ -555,7 +566,7 @@ bool MarketerManager::UpdateBuyer()
                 continue;
             }
             uint8 buyThis = 1;
-
+            uint32 baseMultiple = 10;
             if (!destIT)
             {
                 continue;
@@ -621,6 +632,7 @@ bool MarketerManager::UpdateBuyer()
             case ItemClass::ITEM_CLASS_TRADE_GOODS:
             {
                 buyThis = 0;
+                baseMultiple = 20;
                 break;
             }
             case ItemClass::ITEM_CLASS_GENERIC:
@@ -629,7 +641,8 @@ bool MarketerManager::UpdateBuyer()
             }
             case ItemClass::ITEM_CLASS_RECIPE:
             {
-                buyThis = urand(0, 3);
+                buyThis = 0;
+                baseMultiple = 20;
                 break;
             }
             case ItemClass::ITEM_CLASS_MONEY:
@@ -663,7 +676,7 @@ bool MarketerManager::UpdateBuyer()
             }
             case ItemClass::ITEM_CLASS_GLYPH:
             {
-                buyThis = urand(0, 5);
+                buyThis = 0;
             }
             default:
             {
@@ -675,7 +688,7 @@ bool MarketerManager::UpdateBuyer()
                 continue;
             }
             uint32 basePrice = 0;
-            uint32 priceMultiple = 0;
+            uint32 maxAcceptPrice = 0;
             uint8 qualityMuliplier = 1;
             if (destIT->Quality > 3)
             {
@@ -691,13 +704,13 @@ bool MarketerManager::UpdateBuyer()
                 finalPrice = destIT->BuyPrice * checkItem->GetCount();
 
             }
-            finalPrice = finalPrice * qualityMuliplier;
-            priceMultiple = aeIT->second->buyout / finalPrice;
-            if (priceMultiple > 10)
+            finalPrice = finalPrice * qualityMuliplier*baseMultiple;
+            uint32 buyRate = aeIT->second->buyout * 10 / finalPrice;
+            if (aeIT->second->buyout > finalPrice)
             {
-                priceMultiple = priceMultiple * priceMultiple;
+                buyRate = buyRate * buyRate;
             }
-            if (urand(0, priceMultiple) == 0)
+            if (urand(0, buyRate) == 0)
             {
                 toBuyAuctionIDSet.insert(aeIT->first);
             }
