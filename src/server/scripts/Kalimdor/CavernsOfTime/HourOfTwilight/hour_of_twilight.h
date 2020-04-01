@@ -18,6 +18,7 @@
 #ifndef DEF_HOUROFTWILIGHT_H
 #define DEF_HOUROFTWILIGHT_H
 
+#include "CreatureAIImpl.h"
 #include "Define.h"
 
 #define DataHeader "HOT"

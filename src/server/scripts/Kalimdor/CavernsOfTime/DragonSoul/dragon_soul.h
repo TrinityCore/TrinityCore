@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include "Creature.h"
+#include "CreatureAIImpl.h"
 
 #define DataHeader "DS"
 #define DSScriptName "instance_dragon_soul"

@@ -18,6 +18,7 @@
 #ifndef DEF_ENDTIME_H
 #define DEF_ENDTIME_H
 
+#include "CreatureAIImpl.h"
 #include "Define.h"
 
 #define DataHeader "ET"

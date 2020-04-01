@@ -18,6 +18,7 @@
 #ifndef DEF_WELLOFETERNITY_H
 #define DEF_WELLOFETERNITY_H
 
+#include "CreatureAIImpl.h"
 #include "Define.h"
 
 #define DataHeader "WOE"
