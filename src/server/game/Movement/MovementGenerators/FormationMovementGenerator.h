@@ -21,6 +21,7 @@
 #include "AbstractFollower.h"
 #include "MovementGenerator.h"
 #include "Position.h"
+#include "Timer.h"
 
 class Creature;
 
