@@ -1454,9 +1454,14 @@ void Creature::UpdateLevelDependantStats()
     // EJ mod ap
     if (sJokerConfig->Enable)
     {
+        float checkAP = stats->AttackPower;
+        if (checkAP < 30)
+        {
+            checkAP = 30;
+        }
+        checkAP = checkAP * 1.2f;
         if (cInfo->rank == 1 || cInfo->rank == 2 || cInfo->rank == 4)
         {
-            float checkAP = stats->AttackPower;
             float jokerMod = 1.0f;
             if (sObjectMgr->ieSet.find(cInfo->Entry) != sObjectMgr->ieSet.end())
             {
@@ -1509,15 +1514,14 @@ void Creature::UpdateLevelDependantStats()
             }
             }
             checkAP = checkAP * jokerMod;
-            float levelMod = 1.0f;
-            levelMod = levelMod + ((float)GetLevel() / 100.0f);
-            checkAP = checkAP * levelMod;
-            SetStatFlatModifier(UNIT_MOD_ATTACK_POWER, BASE_VALUE, checkAP);
-            checkAP = checkAP / 4;
-            if (checkAP > stats->RangedAttackPower)
-            {
-                SetStatFlatModifier(UNIT_MOD_ATTACK_POWER_RANGED, BASE_VALUE, checkAP);
-            }
+        }
+        float levelMod = 1.0f;
+        levelMod = levelMod + ((float)GetLevel() / 100.0f);
+        checkAP = checkAP * levelMod;
+        SetStatFlatModifier(UNIT_MOD_ATTACK_POWER, BASE_VALUE, checkAP);
+        if (checkAP > stats->RangedAttackPower)
+        {
+            SetStatFlatModifier(UNIT_MOD_ATTACK_POWER_RANGED, BASE_VALUE, checkAP);
         }
     }
 

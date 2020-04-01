@@ -8304,6 +8304,11 @@ void ObjectMgr::LoadQuestPOI()
         uint32 unk3               = fields[6].GetUInt32();
         uint32 unk4               = fields[7].GetUInt32();
 
+        // EJ only end points
+        if (objIndex != -1)
+        {
+            continue;
+        }
         QuestPOIBlobData POI;
         POI.BlobIndex = id;
         POI.ObjectiveIndex = objIndex;

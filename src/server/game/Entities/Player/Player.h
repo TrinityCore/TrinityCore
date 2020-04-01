@@ -896,6 +896,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         RobotAI_Group* raiGroup;
         // 0 dps, 1 tank, 2 healer
         uint32 groupRole;
+        // EJ auto fish
+        bool fishing;
 
         void CleanupsBeforeDelete(bool finalCleanup = true) override;
 

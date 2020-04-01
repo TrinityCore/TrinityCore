@@ -413,6 +413,8 @@ Player::Player(WorldSession* session): Unit(true)
     groupRole = 0;
     raiSolo = NULL;
     raiGroup = NULL;
+    // EJ auto fish
+    fishing = false;
 }
 
 Player::~Player()
@@ -1384,6 +1386,13 @@ void Player::Update(uint32 p_time)
         {
             raiSolo->Update(p_time);
         }
+    }
+
+    // EJ auto fish
+    if (fishing)
+    {
+        CastSpell(this, 7620, TriggerCastFlags::TRIGGERED_NONE);
+        fishing = false;
     }
 }
 
