@@ -55,13 +55,13 @@ struct PreparedStatementData
 };
 
 //- Upper-level class that is used in code
-class TC_DATABASE_API PreparedStatement
+class TC_DATABASE_API PreparedStatementBase
 {
     friend class PreparedStatementTask;
 
     public:
-        PreparedStatement(uint32 index, uint8 capacity);
-        ~PreparedStatement();
+        explicit PreparedStatementBase(uint32 index, uint8 capacity);
+        virtual ~PreparedStatementBase();
 
         void setNull(const uint8 index);
         void setBool(const uint8 index, const bool value);
@@ -87,22 +87,35 @@ class TC_DATABASE_API PreparedStatement
         //- Buffer of parameters, not tied to MySQL in any way yet
         std::vector<PreparedStatementData> statement_data;
 
-        PreparedStatement(PreparedStatement const& right) = delete;
-        PreparedStatement& operator=(PreparedStatement const& right) = delete;
+        PreparedStatementBase(PreparedStatementBase const& right) = delete;
+        PreparedStatementBase& operator=(PreparedStatementBase const& right) = delete;
+};
+
+template<typename T>
+class PreparedStatement : public PreparedStatementBase
+{
+public:
+    explicit PreparedStatement(uint32 index, uint8 capacity) : PreparedStatementBase(index, capacity)
+    {
+    }
+
+private:
+    PreparedStatement(PreparedStatement const& right) = delete;
+    PreparedStatement& operator=(PreparedStatement const& right) = delete;
 };
 
 //- Lower-level class, enqueuable operation
 class TC_DATABASE_API PreparedStatementTask : public SQLOperation
 {
     public:
-        PreparedStatementTask(PreparedStatement* stmt, bool async = false);
+        PreparedStatementTask(PreparedStatementBase* stmt, bool async = false);
         ~PreparedStatementTask();
 
         bool Execute() override;
         PreparedQueryResultFuture GetFuture() { return m_result->get_future(); }
 
     protected:
-        PreparedStatement* m_stmt;
+        PreparedStatementBase* m_stmt;
         bool m_has_result;
         PreparedQueryResultPromise* m_result;
 };
