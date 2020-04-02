@@ -2,7 +2,7 @@ version: 2
 jobs:
   pch_and_sql:
     docker:
-      - image: trinitycore/circle-ci:3.3.5-buildpacks-disco
+      - image: trinitycore/circle-ci:master-buildpacks-disco
       - image: circleci/mysql:5.7
         environment:
           MYSQL_ALLOW_EMPTY_PASSWORD: yes
@@ -27,11 +27,13 @@ jobs:
             dockerize -wait tcp://127.0.0.1:3306 -timeout 120s
             mysql -h 127.0.0.1 -uroot < sql/create/create_mysql.sql
             mysql -h 127.0.0.1 -uroot auth < sql/base/auth_database.sql
-            ./contrib/check_updates.sh auth 3.3.5 auth 127.0.0.1
+            ./contrib/check_updates.sh auth master auth 127.0.0.1
             mysql -h 127.0.0.1 -uroot characters < sql/base/characters_database.sql
-            ./contrib/check_updates.sh characters 3.3.5 characters 127.0.0.1
+            ./contrib/check_updates.sh characters master characters 127.0.0.1
             mysql -h 127.0.0.1 -uroot world < sql/base/dev/world_database.sql
-            cat sql/updates/world/3.3.5/*.sql | mysql -h 127.0.0.1 -uroot world
+            mysql -h 127.0.0.1 -uroot hotfixes < sql/base/dev/hotfixes_database.sql
+            cat sql/updates/world/master/*.sql | mysql -h 127.0.0.1 -uroot world
+            cat sql/updates/hotfixes/master/*.sql | mysql -h 127.0.0.1 -uroot hotfixes
             mysql -h 127.0.0.1 -uroot < sql/create/drop_mysql.sql
       - run:
           name: Build
@@ -39,11 +41,11 @@ jobs:
             cd bin
             make -j 4 -k && make install
             cd check_install/bin
-            ./authserver --version
+            ./bnetserver --version
             ./worldserver --version
   nopch:
     docker:
-      - image: trinitycore/circle-ci:3.3.5-buildpacks-disco
+      - image: trinitycore/circle-ci:master-buildpacks-disco
     steps:
       - run:
           name: Requirements
@@ -56,9 +58,9 @@ jobs:
             /scripts/checkout.sh
       - restore_cache:
           keys:
-            - nopch-{{ .Branch }}-{{ .Revision }}
-            - nopch-{{ .Branch }}
-            - nopch
+            - master-nopch-{{ .Branch }}-{{ .Revision }}
+            - master-nopch-{{ .Branch }}
+            - master-nopch
       - run:
           name: Setup
           command: |
@@ -82,10 +84,10 @@ jobs:
             make -j 4 -k && make install
             ccache -s
             cd check_install/bin
-            ./authserver --version
+            ./bnetserver --version
             ./worldserver --version
       - save_cache:
-          key: nopch-{{ .Branch }}-{{ .Revision }}
+          key: master-nopch-{{ .Branch }}-{{ .Revision }}
           paths:
             - /home/circleci/.ccache
 workflows:
