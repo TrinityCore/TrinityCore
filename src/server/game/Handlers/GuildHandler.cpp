@@ -260,8 +260,8 @@ void WorldSession::HandleGuildBankerActivate(WorldPackets::Guild::GuildBankActiv
         return;
 
 #ifndef DISABLE_DRESSNPCS_CORESOUNDS
-    if (guid.IsAnyTypeCreature())
-        if (Creature* creature = _player->GetMap()->GetCreature(guid))
+    if (packet.Banker.IsAnyTypeCreature())
+        if (Creature* creature = _player->GetMap()->GetCreature(packet.Banker))
             creature->SendMirrorSound(_player, 0);
 #endif
     Guild* const guild = GetPlayer()->GetGuild();
