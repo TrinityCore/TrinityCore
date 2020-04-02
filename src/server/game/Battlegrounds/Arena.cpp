@@ -27,7 +27,7 @@
 #include "WorldStatePackets.h"
 #include "WorldSession.h"
 
-Arena::Arena()
+Arena::Arena(BattlegroundTemplate const* battlegroundTemplate) : Battleground(battlegroundTemplate)
 {
     StartDelayTimes[BG_STARTING_EVENT_FIRST]  = BG_START_DELAY_1M;
     StartDelayTimes[BG_STARTING_EVENT_SECOND] = BG_START_DELAY_30S;

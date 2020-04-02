@@ -38,7 +38,7 @@ uint32 BG_EY_HonorScoreTicks[BG_HONOR_MODE_NUM] =
     160  // holiday
 };
 
-BattlegroundEY::BattlegroundEY()
+BattlegroundEY::BattlegroundEY(BattlegroundTemplate const* battlegroundTemplate) : Battleground(battlegroundTemplate)
 {
     m_BuffChange = true;
     BgObjects.resize(BG_EY_OBJECT_MAX);
