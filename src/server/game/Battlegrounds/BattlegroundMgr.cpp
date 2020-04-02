@@ -52,6 +52,26 @@ bool BattlegroundTemplate::IsArena() const
     return BattlemasterEntry->InstanceType == MAP_ARENA;
 }
 
+uint16 BattlegroundTemplate::GetMinPlayersPerTeam() const
+{
+    return BattlemasterEntry->MinPlayers;
+}
+
+uint16 BattlegroundTemplate::GetMaxPlayersPerTeam() const
+{
+    return BattlemasterEntry->MaxPlayers;
+}
+
+uint8 BattlegroundTemplate::GetMinLevel() const
+{
+    return BattlemasterEntry->MinLevel;
+}
+
+uint8 BattlegroundTemplate::GetMaxLevel() const
+{
+    return BattlemasterEntry->MaxLevel;
+}
+
 /*********************************************************/
 /***            BATTLEGROUND MANAGER                   ***/
 /*********************************************************/
@@ -365,32 +385,9 @@ Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId original
     bg->Reset();                     // reset the new bg (set status to status_wait_queue from status_none)
     bg->SetStatus(STATUS_WAIT_JOIN); // start the joining of the bg
     bg->SetArenaType(arenaType);
-    bg->SetTypeID(originalBgTypeId);
     bg->SetRandomTypeID(bgTypeId);
     bg->SetRated(isRated);
     bg->SetRandom(isRandom);
-    bg->SetQueueId(uint64(bgTypeId) | UI64LIT(0x1F10000000000000));
-
-    // Set up correct min/max player counts for scoreboards
-    if (bg->isArena())
-    {
-        uint32 maxPlayersPerTeam = 0;
-        switch (arenaType)
-        {
-            case ARENA_TYPE_2v2:
-                maxPlayersPerTeam = 2;
-                break;
-            case ARENA_TYPE_3v3:
-                maxPlayersPerTeam = 3;
-                break;
-            case ARENA_TYPE_5v5:
-                maxPlayersPerTeam = 5;
-                break;
-        }
-
-        bg->SetMaxPlayersPerTeam(maxPlayersPerTeam);
-        bg->SetMaxPlayers(maxPlayersPerTeam * 2);
-    }
 
     return bg;
 }
@@ -405,74 +402,60 @@ bool BattlegroundMgr::CreateBattleground(BattlegroundTemplate const* bgTemplate)
         switch (bgTemplate->Id)
         {
             case BATTLEGROUND_AV:
-                bg = new BattlegroundAV;
+                bg = new BattlegroundAV(bgTemplate);
                 break;
             case BATTLEGROUND_WS:
-                bg = new BattlegroundWS;
+                bg = new BattlegroundWS(bgTemplate);
                 break;
             case BATTLEGROUND_AB:
-                bg = new BattlegroundAB;
+                bg = new BattlegroundAB(bgTemplate);
                 break;
             case BATTLEGROUND_NA:
-                bg = new BattlegroundNA;
+                bg = new BattlegroundNA(bgTemplate);
                 break;
             case BATTLEGROUND_BE:
-                bg = new BattlegroundBE;
+                bg = new BattlegroundBE(bgTemplate);
                 break;
             case BATTLEGROUND_EY:
-                bg = new BattlegroundEY;
+                bg = new BattlegroundEY(bgTemplate);
                 break;
             case BATTLEGROUND_RL:
-                bg = new BattlegroundRL;
+                bg = new BattlegroundRL(bgTemplate);
                 break;
             case BATTLEGROUND_SA:
-                bg = new BattlegroundSA;
+                bg = new BattlegroundSA(bgTemplate);
                 break;
             case BATTLEGROUND_DS:
-                bg = new BattlegroundDS;
+                bg = new BattlegroundDS(bgTemplate);
                 break;
             case BATTLEGROUND_RV:
-                bg = new BattlegroundRV;
+                bg = new BattlegroundRV(bgTemplate);
                 break;
             case BATTLEGROUND_IC:
-                bg = new BattlegroundIC;
+                bg = new BattlegroundIC(bgTemplate);
                 break;
             case BATTLEGROUND_AA:
-                bg = new Battleground;
+                bg = new Battleground(bgTemplate);
                 break;
             case BATTLEGROUND_RB:
-                bg = new Battleground;
+                bg = new Battleground(bgTemplate);
                 bg->SetRandom(true);
                 break;
             case BATTLEGROUND_TP:
-                bg = new BattlegroundTP;
+                bg = new BattlegroundTP(bgTemplate);
                 break;
             case BATTLEGROUND_BFG:
-                bg = new BattlegroundBFG;
+                bg = new BattlegroundBFG(bgTemplate);
                 break;
             default:
                 return false;
         }
 
-        bg->SetTypeID(bgTemplate->Id);
         bg->SetInstanceID(0);
         AddBattleground(bg);
     }
 
-    bg->SetMapId(bgTemplate->BattlemasterEntry->MapID[0]);
-    bg->SetName(bgTemplate->BattlemasterEntry->Name->Str[sWorld->GetDefaultDbcLocale()]);
     bg->SetInstanceID(0);
-    bg->SetArenaorBGType(bgTemplate->IsArena());
-    bg->SetMinPlayersPerTeam(bgTemplate->MinPlayersPerTeam);
-    bg->SetMaxPlayersPerTeam(bgTemplate->MaxPlayersPerTeam);
-    bg->SetMinPlayers(bgTemplate->MinPlayersPerTeam * 2);
-    bg->SetMaxPlayers(bgTemplate->MaxPlayersPerTeam * 2);
-    bg->SetTeamStartPosition(TEAM_ALLIANCE, bgTemplate->StartLocation[TEAM_ALLIANCE]);
-    bg->SetTeamStartPosition(TEAM_HORDE, bgTemplate->StartLocation[TEAM_HORDE]);
-    bg->SetStartMaxDist(bgTemplate->MaxStartDistSq);
-    bg->SetLevelRange(bgTemplate->MinLevel, bgTemplate->MaxLevel);
-    bg->SetScriptId(bgTemplate->ScriptId);
-    bg->SetQueueId(uint64(bgTemplate->Id) | UI64LIT(0x1F10000000000000));
 
     AddBattleground(bg);
 
@@ -483,11 +466,8 @@ void BattlegroundMgr::LoadBattlegroundTemplates()
 {
     uint32 oldMSTime = getMSTime();
 
-    _battlegroundMapTemplates.clear();
-    _battlegroundTemplates.clear();
-
-    //                                               0   1                  2                  3       4       5                 6              7             8       9
-    QueryResult result = WorldDatabase.Query("SELECT ID, MinPlayersPerTeam, MaxPlayersPerTeam, MinLvl, MaxLvl, AllianceStartLoc, HordeStartLoc, StartMaxDist, Weight, ScriptName FROM battleground_template");
+    //                                               0   1                 2              3             4       5
+    QueryResult result = WorldDatabase.Query("SELECT ID, AllianceStartLoc, HordeStartLoc, StartMaxDist, Weight, ScriptName FROM battleground_template");
     if (!result)
     {
         TC_LOG_ERROR("server.loading", ">> Loaded 0 battlegrounds. DB table `battleground_template` is empty.");
@@ -513,61 +493,47 @@ void BattlegroundMgr::LoadBattlegroundTemplates()
             continue;
         }
 
-        BattlegroundTemplate bgTemplate;
+        BattlegroundTemplate& bgTemplate = _battlegroundTemplates[bgTypeId];
         bgTemplate.Id                = bgTypeId;
-        bgTemplate.MinPlayersPerTeam = fields[1].GetUInt16();
-        bgTemplate.MaxPlayersPerTeam = fields[2].GetUInt16();
-        bgTemplate.MinLevel          = fields[3].GetUInt8();
-        bgTemplate.MaxLevel          = fields[4].GetUInt8();
-        float dist                   = fields[7].GetFloat();
+        float dist                   = fields[3].GetFloat();
         bgTemplate.MaxStartDistSq    = dist * dist;
-        bgTemplate.Weight            = fields[8].GetUInt8();
-        bgTemplate.ScriptId          = sObjectMgr->GetScriptId(fields[9].GetString());
+        bgTemplate.Weight            = fields[4].GetUInt8();
+        bgTemplate.ScriptId          = sObjectMgr->GetScriptId(fields[5].GetString());
         bgTemplate.BattlemasterEntry = bl;
-
-        if (bgTemplate.MaxPlayersPerTeam == 0 || bgTemplate.MinPlayersPerTeam > bgTemplate.MaxPlayersPerTeam)
-        {
-            TC_LOG_ERROR("sql.sql", "Table `battleground_template` for id %u contains bad values for MinPlayersPerTeam (%u) and MaxPlayersPerTeam(%u).",
-                bgTemplate.Id, bgTemplate.MinPlayersPerTeam, bgTemplate.MaxPlayersPerTeam);
-            continue;
-        }
-
-        if (bgTemplate.MinLevel == 0 || bgTemplate.MaxLevel == 0 || bgTemplate.MinLevel > bgTemplate.MaxLevel)
-        {
-            TC_LOG_ERROR("sql.sql", "Table `battleground_template` for id %u contains bad values for MinLevel (%u) and MaxLevel (%u).",
-                bgTemplate.Id, bgTemplate.MinLevel, bgTemplate.MaxLevel);
-            continue;
-        }
 
         if (bgTemplate.Id != BATTLEGROUND_AA && bgTemplate.Id != BATTLEGROUND_RB)
         {
-            uint32 startId = fields[5].GetUInt32();
+            uint32 startId = fields[1].GetUInt32();
             if (WorldSafeLocsEntry const* start = sObjectMgr->GetWorldSafeLoc(startId))
-            {
-                bgTemplate.StartLocation[TEAM_ALLIANCE].Relocate(start->Loc);
-            }
+                bgTemplate.StartLocation[TEAM_ALLIANCE] = start;
+            else if (bgTemplate.StartLocation[TEAM_ALLIANCE]) // reload case
+                TC_LOG_ERROR("sql.sql", "Table `battleground_template` for id %u contains a non-existing WorldSafeLocs.dbc id %u in field `AllianceStartLoc`. Ignoring.", bgTemplate.Id, startId);
             else
             {
                 TC_LOG_ERROR("sql.sql", "Table `battleground_template` for id %u contains a non-existing WorldSafeLocs.dbc id %u in field `AllianceStartLoc`. BG not created.", bgTemplate.Id, startId);
+                _battlegroundTemplates.erase(bgTypeId);
                 continue;
             }
 
-            startId = fields[6].GetUInt32();
+            startId = fields[2].GetUInt32();
             if (WorldSafeLocsEntry const* start = sObjectMgr->GetWorldSafeLoc(startId))
-            {
-                bgTemplate.StartLocation[TEAM_HORDE].Relocate(start->Loc);
-            }
+                bgTemplate.StartLocation[TEAM_HORDE] = start;
+            else if (bgTemplate.StartLocation[TEAM_HORDE]) // reload case
+                TC_LOG_ERROR("sql.sql", "Table `battleground_template` for id %u contains a non-existing WorldSafeLocs.dbc id %u in field `HordeStartLoc`. Ignoring.", bgTemplate.Id, startId);
             else
             {
                 TC_LOG_ERROR("sql.sql", "Table `battleground_template` for id %u contains a non-existing WorldSafeLocs.dbc id %u in field `HordeStartLoc`. BG not created.", bgTemplate.Id, startId);
+                _battlegroundTemplates.erase(bgTypeId);
                 continue;
             }
         }
 
         if (!CreateBattleground(&bgTemplate))
+        {
+            TC_LOG_ERROR("bg.battleground", "Could not create battleground template class (%u)!", bgTemplate.Id);
+            _battlegroundTemplates.erase(bgTypeId);
             continue;
-
-        _battlegroundTemplates[bgTypeId] = bgTemplate;
+        }
 
         if (bgTemplate.BattlemasterEntry->MapID[1] == -1) // in this case we have only one mapId
             _battlegroundMapTemplates[bgTemplate.BattlemasterEntry->MapID[0]] = &_battlegroundTemplates[bgTypeId];
@@ -588,8 +554,8 @@ void BattlegroundMgr::SendBattlegroundList(Player* player, ObjectGuid const& gui
     WorldPackets::Battleground::BattlefieldList battlefieldList;
     battlefieldList.BattlemasterGuid = guid;
     battlefieldList.BattlemasterListID = bgTypeId;
-    battlefieldList.MinLevel = bgTemplate->MinLevel;
-    battlefieldList.MaxLevel = bgTemplate->MaxLevel;
+    battlefieldList.MinLevel = bgTemplate->GetMinLevel();
+    battlefieldList.MaxLevel = bgTemplate->GetMaxLevel();
     battlefieldList.PvpAnywhere = guid.IsEmpty();
     battlefieldList.HasRandomWinToday = player->GetRandomWinner();
     player->SendDirectMessage(battlefieldList.Write());
@@ -602,9 +568,9 @@ void BattlegroundMgr::SendToBattleground(Player* player, uint32 instanceId, Batt
         uint32 mapid = bg->GetMapId();
         uint32 team = player->GetBGTeam();
 
-        Position const* pos = bg->GetTeamStartPosition(Battleground::GetTeamIndexByTeamId(team));
-        TC_LOG_DEBUG("bg.battleground", "BattlegroundMgr::SendToBattleground: Sending %s to map %u, %s (bgType %u)", player->GetName().c_str(), mapid, pos->ToString().c_str(), bgTypeId);
-        player->TeleportTo(mapid, pos->GetPositionX(), pos->GetPositionY(), pos->GetPositionZ(), pos->GetOrientation());
+        WorldSafeLocsEntry const* pos = bg->GetTeamStartPosition(Battleground::GetTeamIndexByTeamId(team));
+        TC_LOG_DEBUG("bg.battleground", "BattlegroundMgr::SendToBattleground: Sending %s to map %u, %s (bgType %u)", player->GetName().c_str(), mapid, pos->Loc.ToString().c_str(), bgTypeId);
+        player->TeleportTo(pos->Loc);
     }
     else
         TC_LOG_ERROR("bg.battleground", "BattlegroundMgr::SendToBattleground: Instance %u (bgType %u) not found while trying to teleport player %s", instanceId, bgTypeId, player->GetName().c_str());

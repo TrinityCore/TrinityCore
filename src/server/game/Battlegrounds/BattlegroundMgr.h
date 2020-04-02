@@ -47,17 +47,17 @@ struct BattlegroundData
 struct BattlegroundTemplate
 {
     BattlegroundTypeId Id;
-    uint16 MinPlayersPerTeam;
-    uint16 MaxPlayersPerTeam;
-    uint8 MinLevel;
-    uint8 MaxLevel;
-    Position StartLocation[BG_TEAMS_COUNT];
+    WorldSafeLocsEntry const* StartLocation[BG_TEAMS_COUNT] = { };
     float MaxStartDistSq;
     uint8 Weight;
     uint32 ScriptId;
     BattlemasterListEntry const* BattlemasterEntry;
 
     bool IsArena() const;
+    uint16 GetMinPlayersPerTeam() const;
+    uint16 GetMaxPlayersPerTeam() const;
+    uint8 GetMinLevel() const;
+    uint8 GetMaxLevel() const;
 };
 
 namespace WorldPackets

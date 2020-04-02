@@ -30,7 +30,7 @@
 #include "UpdateData.h"
 #include "WorldStatePackets.h"
 
-BattlegroundSA::BattlegroundSA()
+BattlegroundSA::BattlegroundSA(BattlegroundTemplate const* battlegroundTemplate) : Battleground(battlegroundTemplate)
 {
     StartMessageIds[BG_STARTING_EVENT_FOURTH] = 0; // handle by Kanrethad
 

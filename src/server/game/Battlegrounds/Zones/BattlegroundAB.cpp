@@ -30,7 +30,7 @@
 #include "WorldSession.h"
 #include "WorldStatePackets.h"
 
-BattlegroundAB::BattlegroundAB()
+BattlegroundAB::BattlegroundAB(BattlegroundTemplate const* battlegroundTemplate) : Battleground(battlegroundTemplate)
 {
     m_IsInformedNearVictory = false;
     m_BuffChange = true;
