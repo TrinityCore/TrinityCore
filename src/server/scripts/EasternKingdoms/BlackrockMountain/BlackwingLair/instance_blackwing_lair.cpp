@@ -27,14 +27,15 @@
 
 DoorData const doorData[] =
 {
-    { GO_PORTCULLIS,             DATA_RAZORGORE_THE_UNTAMED,  DOOR_TYPE_PASSAGE },
-    { GO_DRAKE_RIDER_PORTCULLIS, DATA_VAELASTRAZ_THE_CORRUPT, DOOR_TYPE_PASSAGE },
-    { GO_ALTERAC_VALLEY_GATE,    DATA_BROODLORD_LASHLAYER,    DOOR_TYPE_PASSAGE },
-    { GO_GATE,                   DATA_FIREMAW,                DOOR_TYPE_PASSAGE },
-    { GO_GATE,                   DATA_EBONROC,                DOOR_TYPE_PASSAGE },
-    { GO_GATE,                   DATA_FLAMEGOR,               DOOR_TYPE_PASSAGE },
-    { GO_VACCUUM_EXIT_GATE,      DATA_CHROMAGGUS,             DOOR_TYPE_PASSAGE },
-    { 0,                         0,                           DOOR_TYPE_ROOM } // END
+    { GO_PORTCULLIS_RAZORGORE,    DATA_RAZORGORE_THE_UNTAMED,  DOOR_TYPE_PASSAGE },
+    { GO_PORTCULLIS_VAELASTRASZ,  DATA_VAELASTRAZ_THE_CORRUPT, DOOR_TYPE_PASSAGE },
+    { GO_PORTCULLIS_BROODLORD,    DATA_BROODLORD_LASHLAYER,    DOOR_TYPE_PASSAGE },
+    { GO_PORTCULLIS_THREEDRAGONS, DATA_FIREMAW,                DOOR_TYPE_PASSAGE },
+    { GO_PORTCULLIS_THREEDRAGONS, DATA_EBONROC,                DOOR_TYPE_PASSAGE },
+    { GO_PORTCULLIS_THREEDRAGONS, DATA_FLAMEGOR,               DOOR_TYPE_PASSAGE },
+    { GO_PORTCULLIS_CHROMAGGUS,   DATA_CHROMAGGUS,             DOOR_TYPE_PASSAGE },
+    { GO_PORTCULLIS_NEFARIAN,     DATA_NEFARIAN,               DOOR_TYPE_ROOM },
+    { 0,                         0,                            DOOR_TYPE_ROOM } // END
 };
 
 ObjectData const creatureData[] =
@@ -49,6 +50,12 @@ ObjectData const creatureData[] =
     { NPC_NEFARIAN,        DATA_NEFARIAN               },
     { NPC_VICTOR_NEFARIUS, DATA_LORD_VICTOR_NEFARIUS   },
     { 0,                   0                           } // END
+};
+
+ObjectData const gameObjectData[] =
+{
+    { GO_CHROMAGGUS_DOOR,             DATA_GO_CHROMAGGUS_DOOR },
+    { 0,                              0                       } //END
 };
 
 Position const SummonPosition[8] =
@@ -77,7 +84,7 @@ public:
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
             LoadDoorData(doorData);
-            LoadObjectData(creatureData, nullptr);
+            LoadObjectData(creatureData, gameObjectData);
 
             // Razorgore
             EggCount = 0;
@@ -106,12 +113,16 @@ public:
         {
             InstanceScript::OnGameObjectCreate(go);
 
-            if (go->GetEntry() == GO_BLACK_DRAGON_EGG)
+            switch(go->GetEntry()) 
             {
-                if (GetBossState(DATA_FIREMAW) == DONE)
-                    go->SetPhaseMask(2, true);
-                else
-                    EggList.push_back(go->GetGUID());
+                case GO_BLACK_DRAGON_EGG:
+                    if (GetBossState(DATA_FIREMAW) == DONE)
+                        go->SetPhaseMask(2, true);
+                    else
+                        EggList.push_back(go->GetGUID());                   
+                    break;
+                default:
+                    break;
             }
         }
 
