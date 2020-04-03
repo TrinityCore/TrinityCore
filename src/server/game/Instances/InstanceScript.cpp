@@ -812,7 +812,7 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 credi
 
         if (itr.second <= entry->Maxlevel)
             if (Player* player = playersByGuild[itr.first])
-                guild->CompleteChallenge(instance->IsDungeon() ? GUILD_CHALLENGE_TYPE_DUNGEON : GUILD_CHALLENGE_TYPE_RAID, player);
+                guild->CompleteChallenge(instance->IsNonRaidDungeon() ? GUILD_CHALLENGE_TYPE_DUNGEON : GUILD_CHALLENGE_TYPE_RAID, player);
     }
 }
 
