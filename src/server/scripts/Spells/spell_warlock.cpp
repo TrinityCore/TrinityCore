@@ -35,7 +35,7 @@
 
 enum WarlockSpells
 {
-    SPELL_WARLOCK_DRAIN_SOUL                        = 1120,
+    SPELL_WARLOCK_DRAIN_SOUL_R1                     = 1120,
     SPELL_WARLOCK_CREATE_SOULSHARD                  = 43836,
     SPELL_WARLOCK_CURSE_OF_DOOM_EFFECT              = 18662,
     SPELL_WARLOCK_DEMONIC_CIRCLE_SUMMON             = 48018,
@@ -523,7 +523,7 @@ class spell_warl_drain_soul : public SpellScriptLoader
                 Unit* victim = eventInfo.GetProcTarget();
 
                 if (caster && victim)
-                    return victim->GetAuraApplicationOfRankedSpell(SPELL_WARLOCK_DRAIN_SOUL, caster->GetGUID()) != 0;
+                    return victim->GetAuraApplicationOfRankedSpell(SPELL_WARLOCK_DRAIN_SOUL_R1, caster->GetGUID()) != 0;
 
                 return false;
             }
@@ -563,12 +563,8 @@ class spell_warl_drain_soul : public SpellScriptLoader
 
             void Register() override
             {
-
-                // DoT Tick
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_drain_soul_AuraScript::HandleTick, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
-
-                // Proc
                 DoCheckProc += AuraCheckProcFn(spell_warl_drain_soul_AuraScript::CheckProc);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_drain_soul_AuraScript::HandleTick, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
                 OnEffectProc += AuraEffectProcFn(spell_warl_drain_soul_AuraScript::HandleProc, EFFECT_2, SPELL_AURA_PROC_TRIGGER_SPELL);
             }
 
