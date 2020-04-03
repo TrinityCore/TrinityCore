@@ -28,6 +28,7 @@
 #include "PhaseShift.h"
 #include "Player.h"
 #include "SpellAuraEffects.h"
+#include <sstream>
 
 namespace
 {
