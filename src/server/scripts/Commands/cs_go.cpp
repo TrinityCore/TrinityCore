@@ -35,6 +35,7 @@ EndScriptData */
 #include "SupportMgr.h"
 #include "Transport.h"
 #include "WorldSession.h"
+#include <sstream>
 
 class go_commandscript : public CommandScript
 {
