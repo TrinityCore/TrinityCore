@@ -784,7 +784,7 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 credi
 
                 // Determine the highest player level of the guild group
                 auto it = minlevelByGuild.find(guildId);
-                if (it == minlevelByGuild.end)
+                if (it == minlevelByGuild.end())
                     minlevelByGuild[guildId] = playerLevel;
                 else if (it->second < playerLevel)
                     it->second = playerLevel;
