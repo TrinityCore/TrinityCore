@@ -25,6 +25,7 @@
 #include "GameObject.h"
 #include "Group.h"
 #include "Guild.h"
+#include "GuildMgr.h"
 #include "LFGMgr.h"
 #include "Log.h"
 #include "Map.h"
@@ -736,70 +737,82 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 credi
         return;
 
     uint32 dungeonId = 0;
-    uint32 encounterId = 0;
 
-    for (DungeonEncounterList::const_iterator itr = encounters->begin(); itr != encounters->end(); ++itr)
+    for (DungeonEncounter const* encounter : *encounters)
     {
-        DungeonEncounter const* encounter = *itr;
-        if (encounter->creditType == type && encounter->creditEntry == creditEntry)
-        {
-            completedEncounters |= 1 << encounter->dbcEntry->Bit;
-            encounterId = encounter->dbcEntry->ID;
-            if (encounter->lastEncounterDungeon)
-            {
-                if (instance->GetDifficulty() != sLFGDungeonStore.LookupEntry(encounter->lastEncounterDungeon)->DifficultyID)
-                    dungeonId = sLFGMgr->GetDungeonIdForDifficulty(encounter->lastEncounterDungeon, instance->GetDifficulty());
-                else
-                    dungeonId = encounter->lastEncounterDungeon;
+        if (encounter->creditType != type || encounter->creditEntry != creditEntry)
+            continue;
 
-                TC_LOG_DEBUG("lfg", "UpdateEncounterState: Instance %s (instanceId %u) completed encounter %s. Credit Dungeon: %u", instance->GetMapName(), instance->GetInstanceId(), encounter->dbcEntry->Name, dungeonId);
-                break;
-            }
+        completedEncounters |= 1 << encounter->dbcEntry->Bit;
+
+        // Encounter is marked as final encounter of the dungeon
+        if (encounter->lastEncounterDungeon)
+        {
+            dungeonId = encounter->lastEncounterDungeon;
+
+            if (instance->GetDifficulty() != sLFGDungeonStore.LookupEntry(encounter->lastEncounterDungeon)->DifficultyID)
+                dungeonId = sLFGMgr->GetDungeonIdForDifficulty(encounter->lastEncounterDungeon, instance->GetDifficulty());
+
+            TC_LOG_DEBUG("lfg", "UpdateEncounterState: Instance %s (instanceId %u) completed encounter %s. Credit Dungeon: %u", instance->GetMapName(), instance->GetInstanceId(), encounter->dbcEntry->Name, dungeonId);
+            break;
         }
     }
 
     bool LFGRewarded = false;
-    std::vector<uint32> guildList;
-    Map::PlayerList const& players = instance->GetPlayers();
-    for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
+    std::unordered_map<ObjectGuid::LowType /*guildId*/, uint8 /*minPlayerLevel*/> minlevelByGuild;
+    std::unordered_map<ObjectGuid::LowType /*guildId*/, Player* /*lastPlayerOfGuild*/> playersByGuild;
+
+    for (MapReference const& itr : instance->GetPlayers())
     {
-        if (Player* player = i->GetSource())
-            if (Group* grp = player->GetGroup())
+        Player* player = itr.GetSource();
+        if (!player || player->IsGameMaster())
+            continue;
+
+        Group* group = player->GetGroup();
+        if (!group)
+            continue;
+
+        // Guild Challenge handling
+        if (Guild* guild = player->GetGuild())
+        {
+            if (group->IsGuildGroupFor(player))
             {
-                bool guildAlreadyUpdate = false;
-                for (std::vector<uint32>::const_iterator guildItr = guildList.begin(); guildItr != guildList.end(); guildItr++)
-                    if (*guildItr == player->GetGuildId())
-                        guildAlreadyUpdate = true;
+                ObjectGuid::LowType guildId = guild->GetId();
+                playersByGuild[guildId] = player;
 
-                if (!guildAlreadyUpdate)
-                {
-                    if (Guild* guild = player->GetGuild())
-                    {
-                        if (grp->IsGuildGroupFor(player))
-                        {
-                            if (LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(dungeonId))
-                            {
-                                if (grp->MemberLevelIsInRange(dungeon->MinLevel, dungeon->Maxlevel))
-                                {
-                                    if (dungeonId)
-                                        guild->CompleteChallenge(instance->IsNonRaidDungeon() ? GUILD_CHALLENGE_TYPE_DUNGEON : GUILD_CHALLENGE_TYPE_RAID, player);
-                                    else if (instance->IsRaid())
-                                        guild->CompleteChallenge(GUILD_CHALLENGE_TYPE_RAID, player);
-                                }
-                            }
+                uint8 playerLevel = player->getLevel();
 
-                            guild->AddGuildNews(GUILD_NEWS_DUNGEON_ENCOUNTER, player->GetGUID(), 0, encounterId);
-                            guildList.push_back(player->GetGuildId());
-                        }
-                    }
-                }
-
-                if (grp->isLFGGroup() && !LFGRewarded && dungeonId)
-                {
-                    sLFGMgr->FinishDungeon(grp->GetGUID(), dungeonId, instance);
-                    LFGRewarded = true;
-                }
+                // Determine the highest player level of the guild group
+                auto it = minlevelByGuild.find(guildId);
+                if (it == minlevelByGuild.end)
+                    minlevelByGuild[guildId] = playerLevel;
+                else if (it->second < playerLevel)
+                    it->second = playerLevel;
             }
+        }
+
+        // Dungeon Reward handling
+        if (group->isLFGGroup() && !LFGRewarded && dungeonId)
+        {
+            sLFGMgr->FinishDungeon(group->GetGUID(), dungeonId, instance);
+            LFGRewarded = true;
+        }
+    }
+
+    // Reward eligible guild challenges
+    LFGDungeonEntry const* entry = sLFGDungeonStore.LookupEntry(dungeonId);
+    if (!entry)
+        return;
+
+    for (auto itr : minlevelByGuild)
+    {
+        Guild* guild = sGuildMgr->GetGuildById(itr.first);
+        if (!guild)
+            continue;
+
+        if (itr.second <= entry->Maxlevel)
+            if (Player* player = playersByGuild[itr.first])
+                guild->CompleteChallenge(instance->IsDungeon() ? GUILD_CHALLENGE_TYPE_DUNGEON : GUILD_CHALLENGE_TYPE_RAID, player);
     }
 }
 
