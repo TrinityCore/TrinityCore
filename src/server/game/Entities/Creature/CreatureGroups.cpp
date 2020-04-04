@@ -50,7 +50,7 @@ void FormationMgr::AddCreatureToGroup(ObjectGuid::LowType leaderSpawnId, Creatur
     if (itr != map->CreatureGroupHolder.end())
     {
         //Add member to an existing group
-        TC_LOG_DEBUG("entities.unit", "Group found: " UI64FMTD ", inserting: %s, Group InstanceID %u", leaderSpawnId, creature->GetGUID().ToString().c_str(), creature->GetInstanceId());
+        TC_LOG_DEBUG("entities.unit", "Group found: " UI64FMTD ", inserting creature %s, Group InstanceID %u", leaderSpawnId, creature->GetGUID().ToString().c_str(), creature->GetInstanceId());
 
         // With dynamic spawn the creature may have just respawned
         // we need to find previous instance of creature and delete it from the formation, as it'll be invalidated
@@ -199,12 +199,12 @@ CreatureGroup::~CreatureGroup()
 
 void CreatureGroup::AddMember(Creature* member)
 {
-    TC_LOG_DEBUG("entities.unit", "CreatureGroup::AddMember: Adding %s.", member->GetGUID().ToString().c_str());
+    TC_LOG_DEBUG("entities.unit", "CreatureGroup::AddMember: Adding unit %s.", member->GetGUID().ToString().c_str());
 
     //Check if it is a leader
     if (member->GetSpawnId() == _leaderSpawnId)
     {
-        TC_LOG_DEBUG("entities.unit", "%s is formation leader. Adding group.", member->GetGUID().ToString().c_str());
+        TC_LOG_DEBUG("entities.unit", "Unit %s is formation leader. Adding group.", member->GetGUID().ToString().c_str());
         _leader = member;
     }
 

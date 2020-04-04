@@ -476,7 +476,7 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
         if (!_polyLength || dtStatusFailed(dtResult))
         {
             // only happens if we passed bad data to findPath(), or navmesh is messed up
-            TC_LOG_ERROR("maps.mmaps", "%s's Path Build failed: 0 length path", _source->GetGUID().ToString().c_str());
+            TC_LOG_ERROR("maps.mmaps", "%s Path Build failed: 0 length path", _source->GetGUID().ToString().c_str());
             BuildShortcut();
             _type = PATHFIND_NOPATH;
             return;

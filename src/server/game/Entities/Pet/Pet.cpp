@@ -1136,7 +1136,7 @@ void Pet::_SaveSpells(CharacterDatabaseTransaction& trans)
 
 void Pet::_LoadAuras(uint32 timediff)
 {
-    TC_LOG_DEBUG("entities.pet", "Loading auras for %s", GetGUID().ToString().c_str());
+    TC_LOG_DEBUG("entities.pet", "Loading auras for pet %s", GetGUID().ToString().c_str());
 
     /*
                     0      1           2            3       4           5
