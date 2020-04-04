@@ -78,6 +78,11 @@ class RBACData;
 
 namespace WorldPackets
 {
+    namespace Character
+    {
+        class ShowingCloak;
+        class ShowingHelm;
+    }
     namespace Chat
     {
         class EmoteClient;
@@ -582,8 +587,8 @@ class TC_GAME_API WorldSession
         void HandleMountSpecialAnimOpcode(WorldPacket& recvdata);
 
         // character view
-        void HandleShowingHelmOpcode(WorldPacket& recvData);
-        void HandleShowingCloakOpcode(WorldPacket& recvData);
+        void HandleShowingHelmOpcode(WorldPackets::Character::ShowingHelm& packet);
+        void HandleShowingCloakOpcode(WorldPackets::Character::ShowingCloak& packet);
 
         // repair
         void HandleRepairItemOpcode(WorldPacket& recvPacket);
