@@ -9516,10 +9516,8 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
         // Wintergrasp
         case 4197:
             if (bf && bf->GetTypeId() == BATTLEFIELD_WG)
-            {
                 bf->FillInitialWorldStates(data);
-                break;
-            }
+            break;
         // Halls of Refection
         case 4820:
             if (instance && mapid == 668)
@@ -9530,7 +9528,6 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
                 data << uint32(4882) << uint32(0);              // 10 WORLD_STATE_HOR_WAVE_COUNT
             }
             break;
-            [[fallthrough]];
         default:
             data << uint32(0x914) << uint32(0x0);           // 7
             data << uint32(0x913) << uint32(0x0);           // 8
