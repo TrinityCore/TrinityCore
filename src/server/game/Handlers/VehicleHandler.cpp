@@ -181,7 +181,7 @@ void WorldSession::HandleEjectPassenger(WorldPacket &data)
         if (seat->IsEjectable())
             unit->ExitVehicle();
         else
-            TC_LOG_ERROR("network", "Player %u attempted to eject %s from non-ejectable seat.", GetPlayer()->GetGUID().GetCounter(), guid.ToString().c_str());
+            TC_LOG_ERROR("network", "Player %s attempted to eject %s from non-ejectable seat.", GetPlayer()->GetGUID().ToString().c_str(), guid.ToString().c_str());
     }
     else
         TC_LOG_ERROR("network", "HandleEjectPassenger: %s tried to eject invalid %s ", GetPlayer()->GetGUID().ToString().c_str(), guid.ToString().c_str());
