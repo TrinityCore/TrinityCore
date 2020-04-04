@@ -215,3 +215,14 @@ WorldPacket const* WorldPackets::Character::CharacterLoginFailed::Write()
     _worldPacket << uint8(Code);
     return &_worldPacket;
 }
+
+void WorldPackets::Character::ShowingCloak::Read()
+{
+    _worldPacket >> ShowCloak;
+}
+
+void WorldPackets::Character::ShowingHelm::Read()
+{
+    _worldPacket >> ShowHelm;
+}
+
