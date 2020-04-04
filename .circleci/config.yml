@@ -58,9 +58,9 @@ jobs:
             /scripts/checkout.sh
       - restore_cache:
           keys:
-            - nopch-{{ .Branch }}-{{ .Revision }}
-            - nopch-{{ .Branch }}
-            - nopch
+            - 4.3.4-nopch-{{ .Branch }}-{{ .Revision }}
+            - 4.3.4-nopch-{{ .Branch }}
+            - 4.3.4-nopch
       - run:
           name: Setup
           command: |
@@ -87,7 +87,7 @@ jobs:
             ./bnetserver --version
             ./worldserver --version
       - save_cache:
-          key: nopch-{{ .Branch }}-{{ .Revision }}
+          key: 4.3.4-nopch-{{ .Branch }}-{{ .Revision }}
           paths:
             - /home/circleci/.ccache
 workflows:
