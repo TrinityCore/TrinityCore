@@ -18,11 +18,14 @@
 #include "FormationMovementGenerator.h"
 #include "Creature.h"
 #include "CreatureAI.h"
+#include "CreatureGroups.h"
+#include "G3DPosition.hpp"
 #include "MovementDefines.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
 
-FormationMovementGenerator::FormationMovementGenerator(uint32 id, Position destination, uint32 moveType, bool run, bool orientation) : _movementId(id), _destination(destination), _moveType(moveType), _run(run), _orientation(orientation)
+FormationMovementGenerator::FormationMovementGenerator(Unit* leader, float range, float angle, uint32 point1, uint32 point2) : AbstractFollower(ASSERT_NOTNULL(leader)),
+    _range(range), _angle(angle), _point1(point1), _point2(point2), _lastLeaderSplineID(0), _hasPredictedDestination(false)
 {
     Mode = MOTION_MODE_DEFAULT;
     Priority = MOTION_PRIORITY_NORMAL;
@@ -47,33 +50,7 @@ void FormationMovementGenerator::DoInitialize(Creature* owner)
         return;
     }
 
-    owner->AddUnitState(UNIT_STATE_ROAMING_MOVE);
-
-    Movement::MoveSplineInit init(owner);
-    init.MoveTo(_destination.GetPositionX(), _destination.GetPositionY(), _destination.GetPositionZ());
-    if (_orientation)
-        init.SetFacing(_destination.GetOrientation());
-
-    switch (_moveType)
-    {
-        case 2: // WAYPOINT_MOVE_TYPE_LAND
-            init.SetAnimation(Movement::ToGround);
-            break;
-        case 3: // WAYPOINT_MOVE_TYPE_TAKEOFF
-            init.SetAnimation(Movement::ToFly);
-            break;
-        case 1: // WAYPOINT_MOVE_TYPE_RUN
-            init.SetWalk(false);
-            break;
-        case 0: // WAYPOINT_MOVE_TYPE_WALK
-            init.SetWalk(true);
-            break;
-    }
-
-    if (_run)
-        init.SetWalk(false);
-
-    init.Launch();
+    _nextMoveTimer.Reset(0);
 }
 
 void FormationMovementGenerator::DoReset(Creature* owner)
@@ -83,57 +60,152 @@ void FormationMovementGenerator::DoReset(Creature* owner)
     DoInitialize(owner);
 }
 
-bool FormationMovementGenerator::DoUpdate(Creature* owner, uint32 /*diff*/)
+bool FormationMovementGenerator::DoUpdate(Creature* owner, uint32 diff)
 {
-    if (!owner)
+    Unit* target = GetTarget();
+
+    if (!owner || !target)
         return false;
 
+    // Owner cannot move. Reset all fields and wait for next action
     if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || owner->IsMovementPreventedByCasting())
     {
         AddFlag(MOVEMENTGENERATOR_FLAG_INTERRUPTED);
+        owner->ClearUnitState(UNIT_STATE_ROAMING_MOVE);
         owner->StopMoving();
         return true;
     }
 
-    if ((HasFlag(MOVEMENTGENERATOR_FLAG_INTERRUPTED) && owner->movespline->Finalized()) || (HasFlag(MOVEMENTGENERATOR_FLAG_SPEED_UPDATE_PENDING) && !owner->movespline->Finalized()))
+    // Leader has stopped moving, so do we as well
+    if (target->movespline->Finalized() && target->movespline->GetId() == _lastLeaderSplineID && _hasPredictedDestination)
     {
-        RemoveFlag(MOVEMENTGENERATOR_FLAG_INTERRUPTED | MOVEMENTGENERATOR_FLAG_SPEED_UPDATE_PENDING);
+        owner->ClearUnitState(UNIT_STATE_ROAMING_MOVE);
+        owner->StopMoving();
+        _nextMoveTimer.Reset(0);
+        _hasPredictedDestination = false;
+        return true;
+    }
 
-        owner->AddUnitState(UNIT_STATE_ROAMING_MOVE);
+    // Update home position
+    owner->SetHomePosition(owner->GetPosition());
+    if (HasFlag(MOVEMENTGENERATOR_FLAG_INTERRUPTED))
+        RemoveFlag(MOVEMENTGENERATOR_FLAG_INTERRUPTED);
 
-        Movement::MoveSplineInit init(owner);
-        init.MoveTo(_destination.GetPositionX(), _destination.GetPositionY(), _destination.GetPositionZ());
-        if (_orientation)
-            init.SetFacing(_destination.GetOrientation());
+    // Leader has stopped moving, so do we as well
+    if (owner->HasUnitState(UNIT_STATE_ROAMING_MOVE) && _hasPredictedDestination && target->movespline->Finalized() && target->movespline->GetId() == _lastLeaderSplineID)
+    {
+        owner->StopMoving();
+        _nextMoveTimer.Reset(0);
+        _hasPredictedDestination = false;
+        return true;
+    }
 
-        switch (_moveType)
+    // Formation leader has launched a new spline, launch a new one for our member as well
+    // This action does not reset the regular movement launch cycle interval
+    if (!target->movespline->Finalized() && target->movespline->GetId() != _lastLeaderSplineID)
+    {
+        // Update formation angle
+        if (_point1 && target->GetTypeId() == TYPEID_UNIT)
         {
-            case 2: // WAYPOINT_MOVE_TYPE_LAND
-                init.SetAnimation(Movement::ToGround);
-                break;
-            case 3: // WAYPOINT_MOVE_TYPE_TAKEOFF
-                init.SetAnimation(Movement::ToFly);
-                break;
-            case 1: // WAYPOINT_MOVE_TYPE_RUN
-                init.SetWalk(false);
-                break;
-            case 0: // WAYPOINT_MOVE_TYPE_WALK
-                init.SetWalk(true);
-                break;
+            if (CreatureGroup* formation = target->ToCreature()->GetFormation())
+            {
+                if (Creature* leader = formation->GetLeader())
+                {
+                    uint8 currentWaypoint = leader->GetCurrentWaypointInfo().first;
+                    if (currentWaypoint == _point1 || currentWaypoint == _point2)
+                        _angle = float(M_PI) * 2 - _angle;
+                }
+            }
         }
 
-        if (_run)
-            init.SetWalk(false);
-        init.Launch();
+        LaunchMovement(owner, target);
+        _lastLeaderSplineID = target->movespline->GetId();
+        return true;
     }
 
-    if (owner->movespline->Finalized())
+    _nextMoveTimer.Update(diff);
+    if (_nextMoveTimer.Passed())
     {
-        RemoveFlag(MOVEMENTGENERATOR_FLAG_TRANSITORY);
-        AddFlag(MOVEMENTGENERATOR_FLAG_INFORM_ENABLED);
-        return false;
+        _nextMoveTimer.Reset(FORMATION_MOVEMENT_INTERVAL);
+
+        // Our leader has a different position than on our last check, launch movement.
+        if (_lastLeaderPosition != target->GetPosition())
+        {
+            LaunchMovement(owner, target);
+            return true;
+        }
     }
+
+    // We have reached our destination before launching a new movement. Alling facing with leader
+    if (owner->HasUnitState(UNIT_STATE_ROAMING_MOVE) && owner->movespline->Finalized())
+    {
+        owner->ClearUnitState(UNIT_STATE_ROAMING_MOVE);
+        owner->SetFacingTo(target->GetOrientation());
+        MovementInform(owner);
+    }
+
     return true;
+}
+
+void FormationMovementGenerator::LaunchMovement(Creature* owner, Unit* target)
+{
+    float relativeAngle = 0.f;
+
+    // Determine our relative angle to our current spline destination point
+    if (!target->movespline->Finalized())
+        relativeAngle = target->GetRelativeAngle(Vector3ToPosition(target->movespline->CurrentDestination()));
+
+    // Destination calculation
+    /*
+        According to sniff data, formation members have a periodic move interal of 1,2s.
+        Each of these splines has a exact duration of 1650ms +- 1ms when no pathfinding is involved.
+        To get a representative result like that we have to predict our formation leader's path
+        and apply our formation shape based on that destination.
+    */
+    Position dest = target->GetPosition();
+    float velocity = 0.f;
+
+    // Formation leader is moving. Predict our destination
+    if (!target->movespline->Finalized())
+    {
+        // Pick up leader's spline velocity
+        velocity = target->movespline->Velocity();
+
+        // Calculate travel distance to get a 1650ms result
+        float travelDist = velocity * 1.65f;
+
+        // Move destination ahead...
+        target->MovePositionToFirstCollision(dest, travelDist, relativeAngle);
+        // ... and apply formation shape
+        target->MovePositionToFirstCollision(dest, _range, _angle + relativeAngle);
+
+        float distance = owner->GetExactDist(dest);
+
+        // Calculate catchup speed mod (Limit to a maximum of 50% of our original velocity
+        float velocityMod = std::min<float>(distance / travelDist, 1.5f);
+
+        // Now we will always stay synch with our leader
+        velocity *= velocityMod;
+        _hasPredictedDestination = true;
+    }
+    else
+    {
+        // Formation leader is not moving. Just apply the base formation shape on his position.
+        target->MovePositionToFirstCollision(dest, _range, _angle + relativeAngle);
+        _hasPredictedDestination = false;
+    }
+
+    // Leader is not moving, so just pick up his default walk speed
+    if (velocity == 0.f)
+        velocity = target->GetSpeed(MOVE_WALK);
+
+    Movement::MoveSplineInit init(owner);
+    init.MoveTo(PositionToVector3(dest));
+    init.SetVelocity(velocity);
+    init.Launch();
+
+    _lastLeaderPosition = target->GetPosition();
+    owner->AddUnitState(UNIT_STATE_ROAMING_MOVE);
 }
 
 void FormationMovementGenerator::DoDeactivate(Creature* owner)
@@ -155,5 +227,5 @@ void FormationMovementGenerator::DoFinalize(Creature* owner, bool active, bool m
 void FormationMovementGenerator::MovementInform(Creature* owner)
 {
     if (owner->AI())
-        owner->AI()->MovementInform(FORMATION_MOTION_TYPE, _movementId);
+        owner->AI()->MovementInform(FORMATION_MOTION_TYPE, 0);
 }

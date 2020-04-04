@@ -193,6 +193,8 @@ void MoveSpline::Initialize(MoveSplineInitArgs const& args)
     anim_tier = args.animTier;
     splineIsFacingOnly = args.path.size() == 2 && args.facing.type != MONSTER_MOVE_NORMAL && ((args.path[1] - args.path[0]).length() < 0.1f);
 
+    velocity = args.velocity;
+
     // Check if its a stop spline
     if (args.flags.done)
     {
@@ -223,7 +225,7 @@ void MoveSpline::Initialize(MoveSplineInitArgs const& args)
 }
 
 MoveSpline::MoveSpline() : m_Id(0), time_passed(0),
-    vertical_acceleration(0.f), initialOrientation(0.f), effect_start_time(0), point_Idx(0), point_Idx_offset(0),
+    vertical_acceleration(0.f), initialOrientation(0.f), effect_start_time(0), point_Idx(0), point_Idx_offset(0), velocity(0.f),
     onTransport(false), splineIsFacingOnly(false)
 {
     splineflags.done = true;

@@ -81,7 +81,7 @@ void PointMovementGenerator<T>::DoInitialize(T* owner)
 
     // Call for creature group update
     if (Creature* creature = owner->ToCreature())
-        creature->SignalFormationMovement(_destination, _movementId);
+        creature->SignalFormationMovement();
 }
 
 template<class T>
@@ -129,7 +129,7 @@ bool PointMovementGenerator<T>::DoUpdate(T* owner, uint32 /*diff*/)
 
         // Call for creature group update
         if (Creature* creature = owner->ToCreature())
-            creature->SignalFormationMovement(_destination, _movementId);
+            creature->SignalFormationMovement();
     }
 
     if (owner->movespline->Finalized())
