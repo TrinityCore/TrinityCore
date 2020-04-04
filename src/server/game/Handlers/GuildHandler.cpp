@@ -727,7 +727,7 @@ void WorldSession::HandleGuildSetAchievementTracking(WorldPacket& recvPacket)
         guild->HandleSetAchievementTracking(this, achievementIds);
 }
 
-void WorldSession::HandleGuildSwitchRank(WorldPacket& /*recvPacket*/)
+void WorldSession::HandleGuildSwitchRank(WorldPacket& recvPacket)
 {
     /*
 
@@ -739,6 +739,8 @@ void WorldSession::HandleGuildSwitchRank(WorldPacket& /*recvPacket*/)
     recvPacket >> rank;
     direction = recvPacket.ReadBit();
     */
+
+    recvPacket.rfinish();
 
     Guild* guild = GetPlayer()->GetGuild();
 
