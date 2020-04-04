@@ -324,8 +324,11 @@ struct boss_maloriak : public BossAI
         switch (spell->Id)
         {
             case SPELL_ARCANE_STORM:
-                me->MakeInterruptable(false);
-                me->m_Events.KillAllEvents(true);
+                if (reason == SPELL_FINISHED_FINISHED || reason == SPELL_FINISHED_CANCELED)
+                {
+                    me->MakeInterruptable(false);
+                    me->m_Events.KillAllEvents(true);
+                }
                 break;
             case SPELL_RELEASE_ABERRATIONS:
                 me->MakeInterruptable(false);
