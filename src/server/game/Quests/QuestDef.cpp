@@ -579,8 +579,5 @@ void Quest::AddQuestLevelToTitle(std::string& title, int32 level)
 {
     // Adds the quest level to the front of the quest title
     // example: [13] Westfall Stew
-
-    std::stringstream questTitlePretty;
-    questTitlePretty << "[" << level << "] " << title;
-    title = questTitlePretty.str();
+    title = Trinity::StringFormat("[%d] %s", level, title);
 }
