@@ -4,12 +4,20 @@ set -e
 echo "Codestyle check script:"
 echo
 
-regexChecks=("TC_LOG_.+GetCounter")
-
-for check in ${regexChecks[@]}; do
+singleLineRegexChecks=("TC_LOG_.+GetCounter")
+for check in ${singleLineRegexChecks[@]}; do
     echo "  Checking RegEx: '${check}'"
     
-    if grep -E -r ${check} src; then
+    if grep -P -r -I -n ${check} src; then
+        exit 1
+    fi
+done
+
+multiLineRegexChecks=("TC_LOG_[^;]+GetCounter")
+for check in ${multiLineRegexChecks[@]}; do
+    echo "  Checking RegEx: '${check}'"
+    
+    if grep -Pzo -r -I ${check} src; then
         exit 1
     fi
 done
