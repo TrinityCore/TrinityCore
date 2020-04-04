@@ -23,6 +23,7 @@
 #include "Log.h"
 #include "Map.h"
 #include "MotionMaster.h"
+#include "MovementGenerator.h"
 #include "ObjectMgr.h"
 
 #define MAX_DESYNC 5.0f
@@ -275,15 +276,10 @@ void CreatureGroup::FormationReset(bool dismiss)
     _formed = !dismiss;
 }
 
-void CreatureGroup::LeaderMoveTo(Position const& destination, uint32 id /*= 0*/, uint32 moveType /*= 0*/, bool orientation /*= false*/)
+void CreatureGroup::LeaderStartedMoving()
 {
-    //! To do: This should probably get its own movement generator or use WaypointMovementGenerator.
-    //! If the leader's path is known, member's path can be plotted as well using formation offsets.
     if (!_leader)
         return;
-
-    Position pos(destination);
-    float pathangle = std::atan2(_leader->GetPositionY() - pos.GetPositionY(), _leader->GetPositionX() - pos.GetPositionX());
 
     for (auto const& pair : _members)
     {
@@ -291,35 +287,12 @@ void CreatureGroup::LeaderMoveTo(Position const& destination, uint32 id /*= 0*/,
         if (member == _leader || !member->IsAlive() || member->IsEngaged() || !(pair.second->GroupAI & FLAG_IDLE_IN_FORMATION))
             continue;
 
-        if (pair.second->LeaderWaypointIDs[0])
-        {
-            for (uint8 i = 0; i < 2; ++i)
-            {
-                if (_leader->GetCurrentWaypointInfo().first == pair.second->LeaderWaypointIDs[i])
-                {
-                    pair.second->FollowAngle = float(M_PI) * 2.f - pair.second->FollowAngle;
-                    break;
-                }
-            }
-        }
-
-        float angle = pair.second->FollowAngle;
+        float angle = pair.second->FollowAngle + float(M_PI); // for some reason, someone thought it was a great idea to invert relativ angles...
         float dist = pair.second->FollowDist;
 
-        float dx = pos.GetPositionX() + std::cos(angle + pathangle) * dist;
-        float dy = pos.GetPositionY() + std::sin(angle + pathangle) * dist;
-        float dz = pos.GetPositionZ();
-
-        Trinity::NormalizeMapCoord(dx);
-        Trinity::NormalizeMapCoord(dy);
-
-        if (!member->IsFlying())
-            member->UpdateGroundPositionZ(dx, dy, dz);
-
-        member->SetHomePosition(dx, dy, dz, pathangle);
-
-        Position point(dx, dy, dz, destination.GetOrientation());
-        member->GetMotionMaster()->MoveFormation(id, point, moveType, !member->IsWithinDist(_leader, dist + MAX_DESYNC), orientation);
+        MovementGenerator const* moveGen = member->GetMotionMaster()->GetMovementGenerator([](MovementGenerator const* movement)->bool { return movement->GetMovementGeneratorType() == FORMATION_MOTION_TYPE; }, MOTION_SLOT_DEFAULT);
+        if (!moveGen)
+            member->GetMotionMaster()->MoveFormation(_leader, dist, angle, pair.second->LeaderWaypointIDs[0], pair.second->LeaderWaypointIDs[1]);
     }
 }
 

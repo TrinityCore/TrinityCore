@@ -2207,17 +2207,10 @@ class spell_the_lich_king_necrotic_plague_jump : public SpellScriptLoader
                     _hadAura = true;
             }
 
-            void AddMissingStack()
-            {
-                if (GetHitAura() && !_hadAura && GetSpellValue()->EffectBasePoints[EFFECT_1] != AURA_REMOVE_BY_ENEMY_SPELL)
-                    GetHitAura()->ModStackAmount(1);
-            }
-
             void Register() override
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_the_lich_king_necrotic_plague_SpellScript::SelectTarget, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
                 BeforeHit += BeforeSpellHitFn(spell_the_lich_king_necrotic_plague_SpellScript::CheckAura);
-                OnHit += SpellHitFn(spell_the_lich_king_necrotic_plague_SpellScript::AddMissingStack);
             }
 
             bool _hadAura;
@@ -2254,7 +2247,7 @@ class spell_the_lich_king_necrotic_plague_jump : public SpellScriptLoader
                 }
 
                 CastSpellExtraArgs args(GetCasterGUID());
-                args.AddSpellMod(SPELLVALUE_AURA_STACK, GetStackAmount());
+                args.AddSpellMod(SPELLVALUE_AURA_STACK, GetStackAmount() + 1);
                 GetTarget()->CastSpell(nullptr, SPELL_NECROTIC_PLAGUE_JUMP, args);
                 if (Unit* caster = GetCaster())
                     caster->CastSpell(caster, SPELL_PLAGUE_SIPHON, true);
