@@ -53,6 +53,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include <G3D/g3dmath.h>
+#include <sstream>
 
 bool VendorItem::IsGoldRequired(ItemTemplate const* pProto) const
 {
@@ -1313,7 +1314,20 @@ void Creature::SaveToDB(uint32 mapid, std::vector<Difficulty> const& spawnDiffic
     stmt->setUInt64(index++, m_spawnId);
     stmt->setUInt32(index++, GetEntry());
     stmt->setUInt16(index++, uint16(mapid));
-    stmt->setString(index++, StringJoin(data.spawnDifficulties, ","));
+    stmt->setString(index++, [&data]() -> std::string
+    {
+        if (data.spawnDifficulties.empty())
+            return "";
+
+        std::ostringstream os;
+        auto itr = data.spawnDifficulties.begin();
+        os << int32(*itr++);
+
+        for (; itr != data.spawnDifficulties.end(); ++itr)
+            os << ',' << int32(*itr);
+
+        return os.str();
+    }());
     stmt->setUInt32(index++, data.phaseId);
     stmt->setUInt32(index++, data.phaseGroup);
     stmt->setUInt32(index++, displayId);

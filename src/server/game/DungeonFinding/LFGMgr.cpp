@@ -38,6 +38,7 @@
 #include "SocialMgr.h"
 #include "World.h"
 #include "WorldSession.h"
+#include <sstream>
 
 namespace lfg
 {

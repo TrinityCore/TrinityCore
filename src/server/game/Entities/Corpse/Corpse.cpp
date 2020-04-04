@@ -27,6 +27,7 @@
 #include "Player.h"
 #include "UpdateData.h"
 #include "World.h"
+#include <sstream>
 
 Corpse::Corpse(CorpseType type) : WorldObject(type != CORPSE_BONES), m_type(type)
 {

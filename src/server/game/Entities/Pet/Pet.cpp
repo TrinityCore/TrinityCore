@@ -36,6 +36,7 @@
 #include "Util.h"
 #include "World.h"
 #include "WorldSession.h"
+#include <sstream>
 
 #define PET_XP_FACTOR 0.05f
 
