@@ -97,7 +97,7 @@ void LoadFromDB()
 
 void SaveAddon(std::string const& name, uint32 publicKeyCrc)
 {
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ADDON);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ADDON);
 
     stmt->setString(0, name);
     stmt->setUInt32(1, publicKeyCrc);

@@ -2,7 +2,7 @@ version: 2
 jobs:
   pch_and_sql:
     docker:
-      - image: trinitycore/circle-ci:3.3.5-buildpacks-cosmic
+      - image: trinitycore/circle-ci:3.3.5-buildpacks-disco
       - image: circleci/mysql:5.7
         environment:
           MYSQL_ALLOW_EMPTY_PASSWORD: yes
@@ -43,13 +43,11 @@ jobs:
             ./worldserver --version
   nopch:
     docker:
-      - image: trinitycore/circle-ci:3.3.5-buildpacks-cosmic
+      - image: trinitycore/circle-ci:3.3.5-buildpacks-disco
     steps:
       - run:
           name: Requirements
           command: |
-            sudo apt-get update
-            sudo apt-get install -y ccache
             sudo mkdir -p /root/.ccache
             sudo chown -Rv circleci:circleci /root
       - run:
@@ -64,13 +62,14 @@ jobs:
       - run:
           name: Setup
           command: |
-            ccache -s
-            git config user.email "circleci@build.bot" && git config user.name "Circl CI"
+            export CCACHE_MAXSIZE="1G"
             export CC="ccache clang"
             export CXX="ccache clang++"
             export CCACHE_CPP2=yes
             export USE_CCACHE=1
             export PATH=/usr/lib/ccache:$PATH
+            ccache -s
+            git config user.email "circleci@build.bot" && git config user.name "Circle CI"
             $CXX --version
             mkdir bin
             cd bin

@@ -29,7 +29,7 @@ std::mutex TransactionTask::_deadlockLock;
 #define DEADLOCK_MAX_RETRY_TIME_MS 60000
 
 //- Append a raw ad-hoc query to the transaction
-void Transaction::Append(char const* sql)
+void TransactionBase::Append(char const* sql)
 {
     SQLElementData data;
     data.type = SQL_ELEMENT_RAW;
@@ -38,7 +38,7 @@ void Transaction::Append(char const* sql)
 }
 
 //- Append a prepared statement to the transaction
-void Transaction::Append(PreparedStatement* stmt)
+void TransactionBase::AppendPreparedStatement(PreparedStatementBase* stmt)
 {
     SQLElementData data;
     data.type = SQL_ELEMENT_PREPARED;
@@ -46,7 +46,7 @@ void Transaction::Append(PreparedStatement* stmt)
     m_queries.push_back(data);
 }
 
-void Transaction::Cleanup()
+void TransactionBase::Cleanup()
 {
     // This might be called by explicit calls to Cleanup or by the auto-destructor
     if (_cleanedUp)

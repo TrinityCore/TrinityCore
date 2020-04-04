@@ -38,11 +38,11 @@ namespace ChatCommands
 |*                                                                                      *|
 \****************************************************************************************/
 template <typename T, typename = void>
-struct ArgInfo { static_assert(!advstd::is_same_v<T,T>, "Invalid command parameter type - see ChatCommandArgs.h for possible types"); };
+struct ArgInfo { static_assert(!std::is_same_v<T,T>, "Invalid command parameter type - see ChatCommandArgs.h for possible types"); };
 
 // catch-all for signed integral types
 template <typename T>
-struct ArgInfo<T, std::enable_if_t<advstd::is_integral_v<T> && advstd::is_signed_v<T>>>
+struct ArgInfo<T, std::enable_if_t<std::is_integral_v<T> && std::is_signed_v<T>>>
 {
     static char const* TryConsume(T& val, char const* args)
     {
@@ -56,7 +56,7 @@ struct ArgInfo<T, std::enable_if_t<advstd::is_integral_v<T> && advstd::is_signed
 
 // catch-all for unsigned integral types
 template <typename T>
-struct ArgInfo<T, std::enable_if_t<advstd::is_integral_v<T> && advstd::is_unsigned_v<T>>>
+struct ArgInfo<T, std::enable_if_t<std::is_integral_v<T> && std::is_unsigned_v<T>>>
 {
     static char const* TryConsume(T& val, char const* args)
     {
@@ -70,7 +70,7 @@ struct ArgInfo<T, std::enable_if_t<advstd::is_integral_v<T> && advstd::is_unsign
 
 // catch-all for floating point types
 template <typename T>
-struct ArgInfo<T, std::enable_if_t<advstd::is_floating_point_v<T>>>
+struct ArgInfo<T, std::enable_if_t<std::is_floating_point_v<T>>>
 {
     static char const* TryConsume(T& val, char const* args)
     {
@@ -101,7 +101,7 @@ struct ArgInfo<std::string, void>
 
 // a container tag
 template <typename T>
-struct ArgInfo<T, std::enable_if_t<advstd::is_base_of_v<ContainerTag, T>>>
+struct ArgInfo<T, std::enable_if_t<std::is_base_of_v<ContainerTag, T>>>
 {
     static char const* TryConsume(T& tag, char const* args)
     {
@@ -121,6 +121,13 @@ template <>
 struct TC_GAME_API ArgInfo<GameTele const*>
 {
     static char const* TryConsume(GameTele const*&, char const*);
+};
+
+// SpellInfo const* from spell id or link
+template <>
+struct TC_GAME_API ArgInfo<SpellInfo const*>
+{
+    static char const* TryConsume(SpellInfo const*&, char const*);
 };
 
 // bool from 1/0 or on/off

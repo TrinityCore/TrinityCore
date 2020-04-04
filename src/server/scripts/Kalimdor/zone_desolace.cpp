@@ -24,9 +24,6 @@ EndScriptData */
 
 /* ContentData
 npc_aged_dying_ancient_kodo
-go_iruxos
-npc_dalinda_malem
-go_demon_portal
 EndContentData */
 
 #include "ScriptMgr.h"
@@ -130,43 +127,7 @@ public:
 
 };
 
-/*######
-## go_iruxos
-## Hand of Iruxos
-######*/
-
-enum Iruxos
-{
-    QUEST_HAND_IRUXOS   = 5381,
-    NPC_DEMON_SPIRIT    = 11876
-};
-
-class go_iruxos : public GameObjectScript
-{
-    public:
-        go_iruxos() : GameObjectScript("go_iruxos") { }
-
-        struct go_iruxosAI : public GameObjectAI
-        {
-            go_iruxosAI(GameObject* go) : GameObjectAI(go) { }
-
-            bool GossipHello(Player* player) override
-            {
-                if (player->GetQuestStatus(QUEST_HAND_IRUXOS) == QUEST_STATUS_INCOMPLETE && !me->FindNearestCreature(NPC_DEMON_SPIRIT, 25.0f, true))
-                    player->SummonCreature(NPC_DEMON_SPIRIT, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
-
-                return true;
-            }
-        };
-
-        GameObjectAI* GetAI(GameObject* go) const override
-        {
-            return new go_iruxosAI(go);
-        }
-};
-
 void AddSC_desolace()
 {
     new npc_aged_dying_ancient_kodo();
-    new go_iruxos();
 }

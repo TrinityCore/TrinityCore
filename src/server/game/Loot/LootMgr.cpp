@@ -916,7 +916,7 @@ void LoadLootTemplates_Item()
     // remove real entries and check existence loot
     ItemTemplateContainer const& its = sObjectMgr->GetItemTemplateStore();
     for (auto const& itemTemplatePair : its)
-        if (lootIdSet.count(itemTemplatePair.first) > 0 && (itemTemplatePair.second.Flags & ITEM_FLAG_HAS_LOOT))
+        if (lootIdSet.count(itemTemplatePair.first) > 0 && itemTemplatePair.second.HasFlag(ITEM_FLAG_HAS_LOOT))
             lootIdSet.erase(itemTemplatePair.first);
 
     // output error for any still listed (not referenced from appropriate table) ids
@@ -941,7 +941,7 @@ void LoadLootTemplates_Milling()
     ItemTemplateContainer const& its = sObjectMgr->GetItemTemplateStore();
     for (auto const& itemTemplatePair : its)
     {
-        if (!(itemTemplatePair.second.Flags & ITEM_FLAG_IS_MILLABLE))
+        if (!itemTemplatePair.second.HasFlag(ITEM_FLAG_IS_MILLABLE))
             continue;
 
         if (lootIdSet.count(itemTemplatePair.first) > 0)
@@ -1004,7 +1004,7 @@ void LoadLootTemplates_Prospecting()
     ItemTemplateContainer const& its = sObjectMgr->GetItemTemplateStore();
     for (auto const& itemTemplatePair : its)
     {
-        if (!(itemTemplatePair.second.Flags & ITEM_FLAG_IS_PROSPECTABLE))
+        if (!itemTemplatePair.second.HasFlag(ITEM_FLAG_IS_PROSPECTABLE))
             continue;
 
         if (lootIdSet.count(itemTemplatePair.first) > 0)

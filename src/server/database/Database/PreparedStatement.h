@@ -22,66 +22,46 @@
 #include "SQLOperation.h"
 #include <future>
 #include <vector>
-
-#ifdef __APPLE__
-#undef TYPE_BOOL
-#endif
-
-//- Union for data buffer (upper-level bind -> queue -> lower-level bind)
-union PreparedStatementDataUnion
-{
-    bool boolean;
-    uint8 ui8;
-    int8 i8;
-    uint16 ui16;
-    int16 i16;
-    uint32 ui32;
-    int32 i32;
-    uint64 ui64;
-    int64 i64;
-    float f;
-    double d;
-};
-
-//- This enum helps us differ data held in above union
-enum PreparedStatementValueType
-{
-    TYPE_BOOL,
-    TYPE_UI8,
-    TYPE_UI16,
-    TYPE_UI32,
-    TYPE_UI64,
-    TYPE_I8,
-    TYPE_I16,
-    TYPE_I32,
-    TYPE_I64,
-    TYPE_FLOAT,
-    TYPE_DOUBLE,
-    TYPE_STRING,
-    TYPE_BINARY,
-    TYPE_NULL
-};
+#include <variant>
 
 struct PreparedStatementData
 {
-    PreparedStatementDataUnion data;
-    PreparedStatementValueType type;
-    std::vector<uint8> binary;
+    std::variant<
+        bool,
+        uint8,
+        uint16,
+        uint32,
+        uint64,
+        int8,
+        int16,
+        int32,
+        int64,
+        float,
+        double,
+        std::string,
+        std::vector<uint8>,
+        std::nullptr_t
+    > data;
+
+    template<typename T>
+    static std::string ToString(T value);
+
+    static std::string ToString(bool value);
+    static std::string ToString(uint8 value);
+    static std::string ToString(int8 value);
+    static std::string ToString(std::string const& value);
+    static std::string ToString(std::vector<uint8> const& value);
+    static std::string ToString(std::nullptr_t);
 };
 
-//- Forward declare
-class MySQLPreparedStatement;
-
 //- Upper-level class that is used in code
-class TC_DATABASE_API PreparedStatement
+class TC_DATABASE_API PreparedStatementBase
 {
     friend class PreparedStatementTask;
-    friend class MySQLPreparedStatement;
-    friend class MySQLConnection;
 
     public:
-        PreparedStatement(uint32 index, uint8 capacity);
-        ~PreparedStatement();
+        explicit PreparedStatementBase(uint32 index, uint8 capacity);
+        virtual ~PreparedStatementBase();
 
         void setNull(const uint8 index);
         void setBool(const uint8 index, const bool value);
@@ -99,33 +79,43 @@ class TC_DATABASE_API PreparedStatement
         void setBinary(const uint8 index, const std::vector<uint8>& value);
 
         uint32 GetIndex() const { return m_index; }
+        std::vector<PreparedStatementData> const& GetParameters() const { return statement_data; }
 
     protected:
-        void BindParameters(MySQLPreparedStatement* stmt);
-
-    protected:
-        MySQLPreparedStatement* m_stmt;
         uint32 m_index;
 
         //- Buffer of parameters, not tied to MySQL in any way yet
         std::vector<PreparedStatementData> statement_data;
 
-        PreparedStatement(PreparedStatement const& right) = delete;
-        PreparedStatement& operator=(PreparedStatement const& right) = delete;
+        PreparedStatementBase(PreparedStatementBase const& right) = delete;
+        PreparedStatementBase& operator=(PreparedStatementBase const& right) = delete;
+};
+
+template<typename T>
+class PreparedStatement : public PreparedStatementBase
+{
+public:
+    explicit PreparedStatement(uint32 index, uint8 capacity) : PreparedStatementBase(index, capacity)
+    {
+    }
+
+private:
+    PreparedStatement(PreparedStatement const& right) = delete;
+    PreparedStatement& operator=(PreparedStatement const& right) = delete;
 };
 
 //- Lower-level class, enqueuable operation
 class TC_DATABASE_API PreparedStatementTask : public SQLOperation
 {
     public:
-        PreparedStatementTask(PreparedStatement* stmt, bool async = false);
+        PreparedStatementTask(PreparedStatementBase* stmt, bool async = false);
         ~PreparedStatementTask();
 
         bool Execute() override;
         PreparedQueryResultFuture GetFuture() { return m_result->get_future(); }
 
     protected:
-        PreparedStatement* m_stmt;
+        PreparedStatementBase* m_stmt;
         bool m_has_result;
         PreparedQueryResultPromise* m_result;
 };

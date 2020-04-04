@@ -19,6 +19,7 @@
 #include "AchievementMgr.h"
 #include "ChatCommand.h"
 #include "ObjectMgr.h"
+#include "SpellMgr.h"
 
 using namespace Trinity::ChatCommands;
 
@@ -47,6 +48,20 @@ char const* Trinity::ChatCommands::ArgInfo<GameTele const*>::TryConsume(GameTele
     Variant<Hyperlink<tele>, std::string> val;
     if ((args = CommandArgsConsumerSingle<decltype(val)>::TryConsumeTo(val, args)))
         data = boost::apply_visitor(GameTeleVisitor(), val);
+    return args;
+}
+
+struct SpellInfoVisitor
+{
+    using value_type = SpellInfo const*;
+    value_type operator()(Hyperlink<spell> spell) const { return *spell; }
+    value_type operator()(uint32 spellId) const { return sSpellMgr->GetSpellInfo(spellId); }
+};
+char const* Trinity::ChatCommands::ArgInfo<SpellInfo const*>::TryConsume(SpellInfo const*& data, char const* args)
+{
+    Variant<Hyperlink<spell>, uint32> val;
+    if ((args = CommandArgsConsumerSingle<decltype(val)>::TryConsumeTo(val, args)))
+        data = boost::apply_visitor(SpellInfoVisitor(), val);
     return args;
 }
 
