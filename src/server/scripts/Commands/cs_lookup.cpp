@@ -36,6 +36,7 @@ EndScriptData */
 #include "SpellMgr.h"
 #include "World.h"
 #include "WorldSession.h"
+#include <sstream>
 
 class lookup_commandscript : public CommandScript
 {

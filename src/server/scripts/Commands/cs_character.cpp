@@ -36,6 +36,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "World.h"
 #include "WorldSession.h"
+#include <sstream>
 
 class character_commandscript : public CommandScript
 {
