@@ -4,7 +4,7 @@ set -e
 echo "Codestyle check script:"
 echo
 
-regexChecks=()
+regexChecks=("TC_LOG_.+GetCounter")
 
 for check in ${regexChecks[@]}; do
     echo "  Checking RegEx: '${check}'"
