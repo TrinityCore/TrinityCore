@@ -86,6 +86,7 @@ namespace WorldPackets
     {
         class AttackSwing;
         class AttackStop;
+        class SetSheathed;
     }
     namespace Guild
     {
@@ -804,7 +805,7 @@ class TC_GAME_API WorldSession
 
         void HandleAttackSwingOpcode(WorldPackets::Combat::AttackSwing& packet);
         void HandleAttackStopOpcode(WorldPackets::Combat::AttackStop& packet);
-        void HandleSetSheathedOpcode(WorldPacket& recvPacket);
+        void HandleSetSheathedOpcode(WorldPackets::Combat::SetSheathed& packet);
 
         void HandleUseItemOpcode(WorldPacket& recvPacket);
         void HandleOpenItemOpcode(WorldPacket& recvPacket);
