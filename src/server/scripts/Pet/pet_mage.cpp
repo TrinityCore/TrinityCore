@@ -57,15 +57,7 @@ enum Events
 
 struct npc_pet_mage_mirror_image : ScriptedAI
 {
-    npc_pet_mage_mirror_image(Creature* creature) : ScriptedAI(creature)
-    {
-        Initialize();
-    }
-
-    void Initialize()
-    {
-        _angle = 0.0f;
-    }
+    npc_pet_mage_mirror_image(Creature* creature) : ScriptedAI(creature), _angle(0.f) { }
 
     void AttackStart(Unit* who) override
     {
@@ -75,7 +67,7 @@ struct npc_pet_mage_mirror_image : ScriptedAI
     void EnterEvadeMode(EvadeReason /*why*/) override
     {
         if (Unit* summoner = me->ToTempSummon()->GetSummoner())
-            me->GetMotionMaster()->MoveFollow(summoner, PET_FOLLOW_DIST, _angle);
+            me->GetMotionMaster()->MoveFollow(summoner, PET_FOLLOW_DIST, _angle, true, MOTION_SLOT_IDLE);
     }
 
     void IsSummonedBy(Unit* summoner) override
@@ -87,7 +79,7 @@ struct npc_pet_mage_mirror_image : ScriptedAI
         DoCast(summoner, SPELL_COPY_WEAPON);
 
         _angle = summoner->GetAngle(me);
-        me->GetMotionMaster()->MoveFollow(summoner, PET_FOLLOW_DIST, _angle);
+        me->GetMotionMaster()->MoveFollow(summoner, PET_FOLLOW_DIST, _angle, true, MOTION_SLOT_IDLE);
     }
 
     void SpellHitTarget(Unit* target, SpellInfo const* spell) override
