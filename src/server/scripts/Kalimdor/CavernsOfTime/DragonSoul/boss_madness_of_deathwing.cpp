@@ -561,7 +561,7 @@ struct boss_madness_of_deathwing : public BossAI
 
     void SetData(uint32 type, uint32 data) override
     {
-        if (type >= DATA_PLAYERS_ON_PLATFORM && type < DATA_PLAYERS_ON_PLATFORM + MAX_DRAGON_ASPECTS)
+        if (type < DATA_PLAYERS_ON_PLATFORM + MAX_DRAGON_ASPECTS)
         {
             uint8 dragonAspect = std::max<uint8>(0, type - DATA_PLAYERS_ON_PLATFORM);
             _playersAtAspects[dragonAspect] = data;

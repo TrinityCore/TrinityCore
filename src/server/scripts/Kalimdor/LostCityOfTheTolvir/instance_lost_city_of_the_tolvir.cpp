@@ -167,6 +167,7 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
                     case DATA_HIGH_PROPHET_BARIM:
                         if (state == FAIL)
                             repenteanceGUIDs.clear();
+                        [[fallthrough]];
                     case DATA_GENERAL_HUSAM:
                     case DATA_LOCKMAW_AND_AUGH:
                         if (state == DONE && IsSiamatEnabled())

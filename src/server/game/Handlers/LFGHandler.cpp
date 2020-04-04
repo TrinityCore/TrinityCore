@@ -445,7 +445,6 @@ void WorldSession::SendLfgJoinResult(lfg::LfgJoinResultData const& joinData)
         WorldPackets::LFG::LFGJoinBlackList& blackList = lfgJoinResult.BlackList.back();
         blackList.Guid = it->first;
 
-        ObjectGuid playerGuid = it->first;
         for (lfg::LfgLockMap::const_iterator itr = it->second.begin(); itr != it->second.end(); ++itr)
         {
             TC_LOG_TRACE("lfg", "SendLfgJoinResult:: %s DungeonID: %u Lock status: %u Required itemLevel: %u Current itemLevel: %f",

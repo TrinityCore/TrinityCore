@@ -209,6 +209,7 @@ class instance_halls_of_origination : public InstanceMapScript
                     case NPC_ALPHA_BEAM:
                         if (Creature* anraphet = GetCreature(DATA_ANRAPHET))
                             anraphet->AI()->JustSummoned(creature);
+                        break;
                     case NPC_CAVE_IN_STALKER:
                         _anhuurEncounterGUIDs.insert(creature->GetGUID());
                         if (creature->GetPositionZ() <= 70.0f)

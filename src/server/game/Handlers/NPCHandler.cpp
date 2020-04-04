@@ -418,7 +418,7 @@ void WorldSession::HandleSetPetSlot(WorldPacket& recvData)
         return;
     }
 
-    if (new_slot > PET_SLOT_LAST_STABLE_SLOT || new_slot < PET_SLOT_FIRST_ACTIVE_SLOT)
+    if (new_slot > PET_SLOT_LAST_STABLE_SLOT)
     {
         SendStableResult(STABLE_ERR_STABLE);
         return;

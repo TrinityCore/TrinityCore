@@ -1877,7 +1877,7 @@ uint32 Spell::GetSearcherTypeMask(SpellTargetObjectTypes objType, ConditionConta
                 retMask &= GRID_MAP_TYPE_MASK_PLAYER | GRID_MAP_TYPE_MASK_CREATURE;
                 break;
             }
-            // No break here
+            [[fallthrough]];
         case TARGET_OBJECT_TYPE_CORPSE:
         case TARGET_OBJECT_TYPE_CORPSE_ENEMY:
         case TARGET_OBJECT_TYPE_CORPSE_ALLY:
@@ -3496,7 +3496,7 @@ void Spell::_cast(bool skipCheck)
             if (aura_effmask)
             {
                 bool const triggered = m_triggeredByAuraSpell != nullptr;
-                if (DiminishingGroup diminishGroup = m_spellInfo->GetDiminishingReturnsGroupForSpell(triggered))
+                if (m_spellInfo->GetDiminishingReturnsGroupForSpell(triggered))
                 {
                     DiminishingReturnsType type = m_spellInfo->GetDiminishingReturnsGroupType(triggered);
                     if (type == DRTYPE_ALL || (type == DRTYPE_PLAYER && target->IsAffectedByDiminishingReturns()))

@@ -301,7 +301,7 @@ struct boss_jindo_the_godbreaker : public BossAI
                 summon->CastSpell(summon, SPELL_HAKKARS_CHAINS);
                 summon->SetReactState(REACT_PASSIVE);
                 summon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                // no break here
+                [[fallthrough]];
             case NPC_JINDO_THE_GODBREAKER:
             case NPC_SPIRIT_OF_HAKKAR:
             case NPC_GURUBASHI_SPIRIT:

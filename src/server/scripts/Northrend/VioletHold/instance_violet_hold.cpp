@@ -736,7 +736,7 @@ class instance_violet_hold : public InstanceMapScript
                                 guard->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
                             }
                         }
-                        // no break
+                        [[fallthrough]];
                     default:
                         if (boss->isDead())
                         {

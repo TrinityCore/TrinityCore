@@ -2527,7 +2527,7 @@ void Spell::EffectTameCreature(SpellEffIndex /*effIndex*/)
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
     {
         pet->SavePetToDB(PET_SAVE_NEW_PET);
-        if (uint8 slot = pet->GetSlot() <= PET_SLOT_LAST_ACTIVE_SLOT)
+        if (pet->GetSlot() <= PET_SLOT_LAST_ACTIVE_SLOT)
         {
             m_caster->ToPlayer()->GetSession()->SendPetAdded(pet->GetSlot(), pet->GetCharmInfo()->GetPetNumber(), creatureTarget->GetEntry(), creatureTarget->getLevel(), pet->GetName());
             m_caster->ToPlayer()->PetSpellInitialize();
@@ -3727,7 +3727,7 @@ void Spell::EffectActivateObject(SpellEffIndex effIndex)
             break;
         case GameObjectActions::OpenAndUnlock:
             gameObjTarget->UseDoorOrButton(0, false, m_caster);
-            // no break
+            [[fallthrough]];
         case GameObjectActions::Unlock:
         case GameObjectActions::Lock:
             gameObjTarget->ApplyModFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED, action == GameObjectActions::Lock);

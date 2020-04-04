@@ -518,12 +518,10 @@ public:
             {
                 case EVENT_MISS_BIRD:
                 {
-                    Creature* crunchy = shooter->FindNearestCreature(NPC_CRUNCHY, 30);
-                    Creature* bird = shooter->FindNearestCreature(NPC_THICKBIRD, 30);
+                    Creature* crunchy = shooter->FindNearestCreature(NPC_CRUNCHY, 30.f);
+                    Creature* bird = shooter->FindNearestCreature(NPC_THICKBIRD, 30.f);
 
-                    if (!bird || !crunchy)
-                        ; // fall to EVENT_MISS
-                    else
+                    if (bird && crunchy)
                     {
                         shooter->CastSpell(bird, SPELL_MISS_BIRD_APPLE);
                         bird->CastSpell(bird, SPELL_BIRD_FALL);
@@ -537,6 +535,7 @@ public:
 
                         break;
                     }
+                    [[fallthrough]];
                 }
                 case EVENT_MISS:
                 {

@@ -67,13 +67,13 @@ struct npc_tott_ozumat_vehicle_big : public ScriptedAI
             switch (eventId)
             {
                 case EVENT_CHANGE_TO_SHOCK_SEAT:
-                    if (Vehicle* vehicle = me->GetVehicleKit())
+                    if (me->GetVehicleKit())
                         if (Creature* ozumat = _instance->GetCreature(DATA_OZUMAT_PASSENGER))
                             ozumat->EnterVehicle(me, SEAT_DEFENSE_SYSTEM);
                     _events.ScheduleEvent(EVENT_CHANGE_TO_ESCAPE_SEAT, 29s);
                     break;
                 case EVENT_CHANGE_TO_ESCAPE_SEAT:
-                    if (Vehicle* vehicle = me->GetVehicleKit())
+                    if (me->GetVehicleKit())
                     {
                         if (Creature* ozumat = _instance->GetCreature(DATA_OZUMAT_PASSENGER))
                         {

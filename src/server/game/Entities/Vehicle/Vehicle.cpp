@@ -84,7 +84,7 @@ void Vehicle::Install()
             _me->setPowerType(POWER_ENERGY);
     }
 
-    if (Creature* creature = _me->ToCreature())
+    if (_me->IsCreature())
     {
         switch (_vehicleInfo->PowerDisplayID[0])
         {

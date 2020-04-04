@@ -72,11 +72,12 @@ void WorldSession::SendTradeStatus(TradeStatusInfo const& info)
         case TRADE_STATUS_NOT_ON_TAPLIST:
             data << uint8(info.Slot);                       // Trade slot; -1 here clears CGTradeInfo::m_tradeMoney
             break;
-        case TRADE_STATUS_CURRENCY: // Not implemented
-        case TRADE_STATUS_CURRENCY_NOT_TRADABLE: // Not implemented
+        case TRADE_STATUS_CURRENCY:                         // Not implemented
+        case TRADE_STATUS_CURRENCY_NOT_TRADABLE:            // Not implemented
             // Blizzard never implemented these, you can only trade currency with the field9 & 1 in CurrencyTypes.DBC, and only two test currencies have that flag
-            data << uint32(0); // Trading Currency Id
-            data << uint32(0); // Trading Currency Amount
+            data << uint32(0);                              // Trading Currency Id
+            data << uint32(0);                              // Trading Currency Amount
+            break;
         default:
             data.FlushBits();
             break;
