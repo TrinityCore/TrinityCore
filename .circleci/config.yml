@@ -14,6 +14,11 @@ jobs:
           command: |
             /scripts/checkout.sh
       - run:
+          name: Codestyle checks
+          command: |
+            chmod +x contrib/check_codestyle.sh
+            ./contrib/check_codestyle.sh
+      - run:
           name: Setup
           command: |
             mkdir bin
