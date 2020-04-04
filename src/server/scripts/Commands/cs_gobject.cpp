@@ -39,6 +39,7 @@ EndScriptData */
 #include "PoolMgr.h"
 #include "RBAC.h"
 #include "WorldSession.h"
+#include <sstream>
 
 class gobject_commandscript : public CommandScript
 {
