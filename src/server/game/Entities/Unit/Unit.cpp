@@ -6901,7 +6901,7 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
     }
 
     // Add SPELL_AURA_MOD_DAMAGE_FROM_MANA percent bonus
-    if (getPowerType() == POWER_MANA)
+    if (GetPower(POWER_MANA))
     {
         int32 masteryBonus = owner->GetTotalAuraModifier(SPELL_AURA_MOD_DAMAGE_FROM_MANA);
         float manaPct = 100.f * GetPower(POWER_MANA) / GetMaxPower(POWER_MANA);
