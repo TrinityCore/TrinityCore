@@ -47,6 +47,7 @@ EndScriptData */
 #include "WorldSession.h"
 #include <fstream>
 #include <limits>
+#include <sstream>
 
 class debug_commandscript : public CommandScript
 {

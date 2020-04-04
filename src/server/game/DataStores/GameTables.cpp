@@ -22,6 +22,7 @@
 #include "Util.h"
 #include <boost/filesystem/path.hpp>
 #include <fstream>
+#include <sstream>
 
 GameTable<GtArmorMitigationByLvlEntry>          sArmorMitigationByLvlGameTable;
 GameTable<GtArtifactKnowledgeMultiplierEntry>   sArtifactKnowledgeMultiplierGameTable;
