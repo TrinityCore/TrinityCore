@@ -694,7 +694,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket& recvData)
         Guild::SendCommandResult(this, GUILD_COMMAND_CREATE, ERR_GUILD_COMMAND_SUCCESS, name);
 
         {
-            SQLTransaction trans = CharacterDatabase.BeginTransaction();
+            CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
             // Add members from signatures
             for (Signature const& signature : signatures)

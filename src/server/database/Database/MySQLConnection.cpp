@@ -193,7 +193,7 @@ bool MySQLConnection::Execute(char const* sql)
     return true;
 }
 
-bool MySQLConnection::Execute(PreparedStatement* stmt)
+bool MySQLConnection::Execute(PreparedStatementBase* stmt)
 {
     if (!m_Mysql)
         return false;
@@ -240,7 +240,7 @@ bool MySQLConnection::Execute(PreparedStatement* stmt)
     return true;
 }
 
-bool MySQLConnection::_Query(PreparedStatement* stmt, MySQLPreparedStatement** mysqlStmt, MySQLResult** pResult, uint64* pRowCount, uint32* pFieldCount)
+bool MySQLConnection::_Query(PreparedStatementBase* stmt, MySQLPreparedStatement** mysqlStmt, MySQLResult** pResult, uint64* pRowCount, uint32* pFieldCount)
 {
     if (!m_Mysql)
         return false;
@@ -366,7 +366,7 @@ void MySQLConnection::CommitTransaction()
     Execute("COMMIT");
 }
 
-int MySQLConnection::ExecuteTransaction(SQLTransaction& transaction)
+int MySQLConnection::ExecuteTransaction(std::shared_ptr<TransactionBase> transaction)
 {
     std::vector<SQLElementData> const& queries = transaction->m_queries;
     if (queries.empty())
@@ -381,7 +381,7 @@ int MySQLConnection::ExecuteTransaction(SQLTransaction& transaction)
         {
             case SQL_ELEMENT_PREPARED:
             {
-                PreparedStatement* stmt = data.element.stmt;
+                PreparedStatementBase* stmt = data.element.stmt;
                 ASSERT(stmt);
                 if (!Execute(stmt))
                 {
@@ -491,7 +491,7 @@ void MySQLConnection::PrepareStatement(uint32 index, std::string const& sql, Con
     }
 }
 
-PreparedResultSet* MySQLConnection::Query(PreparedStatement* stmt)
+PreparedResultSet* MySQLConnection::Query(PreparedStatementBase* stmt)
 {
     MySQLPreparedStatement* mysqlStmt = nullptr;
     MySQLResult* result = nullptr;
