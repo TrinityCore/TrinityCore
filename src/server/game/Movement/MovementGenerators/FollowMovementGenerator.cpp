@@ -116,12 +116,10 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
                         velocity = target->GetSpeed(MOVE_RUN);
                 }
             }
-            else
-                velocity = owner->IsWalking() ? owner->GetSpeed(MOVE_WALK) : owner->GetSpeed(MOVE_RUN);
 
             // Follow target based speed allignment
             float distance = owner->GetExactDist2d(dest);
-            if (_useTargetSpeed)
+            if (_useTargetSpeed && velocity > 0.f)
             {
 
                 // Determine catchup speed rate
@@ -144,7 +142,8 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
 
             Movement::MoveSplineInit init(owner);
             init.MoveTo(dest.GetPositionX(), dest.GetPositionY(), dest.GetPositionZ());
-            init.SetVelocity(velocity);
+            if (velocity > 0.f)
+                init.SetVelocity(velocity);
             init.Launch();
 
             _hasStopped = false;
