@@ -648,10 +648,10 @@ void WorldSession::HandlePetRename(WorldPacket& recvData)
         }
     }
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     if (isdeclined)
     {
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_PET_DECLINEDNAME);
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_PET_DECLINEDNAME);
         stmt->setUInt32(0, pet->GetCharmInfo()->GetPetNumber());
         trans->Append(stmt);
 
@@ -665,7 +665,7 @@ void WorldSession::HandlePetRename(WorldPacket& recvData)
         trans->Append(stmt);
     }
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_NAME);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_NAME);
     stmt->setString(0, name);
     stmt->setUInt32(1, _player->GetGUID().GetCounter());
     stmt->setUInt32(2, pet->GetCharmInfo()->GetPetNumber());
@@ -904,5 +904,21 @@ void WorldSession::HandleLearnPreviewTalentsPet(WorldPacket& recvData)
 
 void WorldSession::HandleRequestPetInfoOpcode(WorldPacket& /*recvPacket*/)
 {
-    GetPlayer()->PetSpellInitialize();
+    // Handle the packet CMSG_REQUEST_PET_INFO - sent when player does ingame /reload command
+
+    // Packet sent when player has a pet
+    if (_player->GetPet())
+        _player->PetSpellInitialize();
+    else if (Unit* charm = _player->GetCharmed())
+    {
+        // Packet sent when player has a possessed unit
+        if (charm->HasUnitState(UNIT_STATE_POSSESSED))
+            _player->PossessSpellInitialize();
+        // Packet sent when player controlling a vehicle
+        else if (charm->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED) && charm->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_POSSESSED))
+            _player->VehicleSpellInitialize();
+        // Packet sent when player has a charmed unit
+        else
+            _player->CharmSpellInitialize();
+    }
 }
