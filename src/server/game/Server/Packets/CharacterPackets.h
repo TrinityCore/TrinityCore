@@ -15,19 +15,35 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AllPackets_h__
-#define AllPackets_h__
+#ifndef CharacterPackets_h__
+#define CharacterPackets_h__
 
-#include "CharacterPackets.h"
-#include "ChatPackets.h"
-#include "CombatPackets.h"
-#include "GuildPackets.h"
-#include "NPCPackets.h"
-#include "MiscPackets.h"
-#include "QueryPackets.h"
-#include "QuestPackets.h"
-#include "SpellPackets.h"
-#include "TotemPackets.h"
-#include "WorldStatePackets.h"
+#include "Packet.h"
 
-#endif // AllPackets_h__
+namespace WorldPackets
+{
+    namespace Character
+    {
+        class ShowingCloak final : public ClientPacket
+        {
+        public:
+            ShowingCloak(WorldPacket&& packet) : ClientPacket(CMSG_SHOWING_CLOAK, std::move(packet)) { }
+
+            void Read() override;
+
+            bool ShowCloak = false;
+        };
+
+        class ShowingHelm final : public ClientPacket
+        {
+        public:
+            ShowingHelm(WorldPacket&& packet) : ClientPacket(CMSG_SHOWING_HELM, std::move(packet)) { }
+
+            void Read() override;
+
+            bool ShowHelm = false;
+        };
+    }
+}
+
+#endif // CharacterPackets_h__
