@@ -1791,7 +1791,7 @@ public:
                             _soundId = BELLTOLLHORDE;  // undead bell sound
                             break;
                         default:
-                            _soundId = BELLTOLLTRIBAL; // orc drum sound 
+                            _soundId = BELLTOLLTRIBAL; // orc drum sound
                             break;
                     }
                     break;
@@ -1810,7 +1810,7 @@ public:
                             _soundId = BELLTOLLNIGHTELF;   // nightelf bell sound
                             break;
                         default:
-                            _soundId = BELLTOLLALLIANCE;   // human bell sound 
+                            _soundId = BELLTOLLALLIANCE;   // human bell sound
                     }
                     break;
                 }

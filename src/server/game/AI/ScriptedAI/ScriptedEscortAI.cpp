@@ -81,7 +81,7 @@ void EscortAI::InitializeAI()
 
     if (me->GetFaction() != me->GetCreatureTemplate()->faction)
         me->RestoreFaction();
-    
+
     Reset();
 }
 
@@ -95,7 +95,7 @@ void EscortAI::EnterEvadeMode(EvadeReason /*why*/)
     me->RemoveAllAuras();
     me->CombatStop(true);
     me->SetLootRecipient(nullptr);
-    
+
     EngagementOver();
 
     if (HasEscortState(STATE_ESCORT_ESCORTING))
