@@ -305,9 +305,9 @@ void ArenaTeam::SetCaptain(ObjectGuid guid)
         newCaptain->SetArenaTeamInfoField(GetSlot(), ARENA_TEAM_MEMBER, 0);
         if (oldCaptain)
         {
-            TC_LOG_DEBUG("bg.arena", "Player: %s [GUID: %u] promoted player: %s [GUID: %u] to leader of arena team [Id: %u, Name: %s] [Type: %u].",
-                oldCaptain->GetName().c_str(), oldCaptain->GetGUID().GetCounter(), newCaptain->GetName().c_str(),
-                newCaptain->GetGUID().GetCounter(), GetId(), GetName().c_str(), GetType());
+            TC_LOG_DEBUG("bg.arena", "Player: %s %s promoted player: %s %s to leader of arena team [Id: %u, Name: %s] [Type: %u].",
+                oldCaptain->GetName().c_str(), oldCaptain->GetGUID().ToString().c_str(), newCaptain->GetName().c_str(),
+                newCaptain->GetGUID().ToString().c_str(), GetId(), GetName().c_str(), GetType());
         }
     }
 }

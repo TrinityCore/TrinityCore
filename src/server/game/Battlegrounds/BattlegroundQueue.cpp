@@ -479,8 +479,8 @@ bool BattlegroundQueue::InviteGroupToBG(GroupQueueInfo* ginfo, Battleground* bg,
 
             uint32 queueSlot = player->GetBattlegroundQueueIndex(bgQueueTypeId);
 
-            TC_LOG_DEBUG("bg.battleground", "Battleground: invited player %s (%u) to BG instance %u queueindex %u bgtype %u",
-                 player->GetName().c_str(), player->GetGUID().GetCounter(), bg->GetInstanceID(), queueSlot, bg->GetTypeID());
+            TC_LOG_DEBUG("bg.battleground", "Battleground: invited player %s %s to BG instance %u queueindex %u bgtype %u",
+                 player->GetName().c_str(), player->GetGUID().ToString().c_str(), bg->GetInstanceID(), queueSlot, bg->GetTypeID());
 
             // send status packet
             sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, bg, queueSlot, STATUS_WAIT_JOIN, INVITE_ACCEPT_WAIT_TIME, 0, ginfo->ArenaType, 0);

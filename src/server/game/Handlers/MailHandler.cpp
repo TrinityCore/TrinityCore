@@ -114,17 +114,17 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
 
     if (!receiverGuid)
     {
-        TC_LOG_INFO("network", "Player %u is sending mail to %s (GUID: non-existing!) with subject %s "
+        TC_LOG_INFO("network", "Player %s is sending mail to %s (GUID: non-existing!) with subject %s "
             "and body %s includes %u items, %u copper and %u COD copper with unk1 = %u, unk2 = %u",
-            player->GetGUID().GetCounter(), receiverName.c_str(), subject.c_str(), body.c_str(),
+            player->GetGUID().ToString().c_str(), receiverName.c_str(), subject.c_str(), body.c_str(),
             items_count, money, COD, stationery, package);
         player->SendMailResult(0, MAIL_SEND, MAIL_ERR_RECIPIENT_NOT_FOUND);
         return;
     }
 
-    TC_LOG_INFO("network", "Player %u is sending mail to %s (%s) with subject %s and body %s "
+    TC_LOG_INFO("network", "Player %s is sending mail to %s (%s) with subject %s and body %s "
         "including %u items, %u copper and %u COD copper with unk1 = %u, unk2 = %u",
-        player->GetGUID().GetCounter(), receiverName.c_str(), receiverGuid.ToString().c_str(), subject.c_str(),
+        player->GetGUID().ToString().c_str(), receiverName.c_str(), receiverGuid.ToString().c_str(), subject.c_str(),
         body.c_str(), items_count, money, COD, stationery, package);
 
     if (player->GetGUID() == receiverGuid)

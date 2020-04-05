@@ -2069,11 +2069,11 @@ void Unit::AttackerStateUpdate(Unit* victim, WeaponAttackType attType, bool extr
         Unit::ProcSkillsAndAuras(damageInfo.Attacker, damageInfo.Target, damageInfo.ProcAttacker, damageInfo.ProcVictim, PROC_SPELL_TYPE_NONE, PROC_SPELL_PHASE_NONE, dmgInfo.GetHitMask(), nullptr, &dmgInfo, nullptr);
 
         if (GetTypeId() == TYPEID_PLAYER)
-            TC_LOG_DEBUG("entities.unit", "AttackerStateUpdate: (Player) %u attacked %u (TypeId: %u) for %u dmg, absorbed %u, blocked %u, resisted %u.",
-                GetGUID().GetCounter(), victim->GetGUID().GetCounter(), victim->GetTypeId(), dmgInfo.GetDamage(), dmgInfo.GetAbsorb(), dmgInfo.GetBlock(), dmgInfo.GetResist());
+            TC_LOG_DEBUG("entities.unit", "AttackerStateUpdate: (Player) %s attacked %s for %u dmg, absorbed %u, blocked %u, resisted %u.",
+                GetGUID().ToString().c_str(), victim->GetGUID().ToString().c_str(), dmgInfo.GetDamage(), dmgInfo.GetAbsorb(), dmgInfo.GetBlock(), dmgInfo.GetResist());
         else
-            TC_LOG_DEBUG("entities.unit", "AttackerStateUpdate: (NPC)    %u attacked %u (TypeId: %u) for %u dmg, absorbed %u, blocked %u, resisted %u.",
-                GetGUID().GetCounter(), victim->GetGUID().GetCounter(), victim->GetTypeId(), dmgInfo.GetDamage(), dmgInfo.GetAbsorb(), dmgInfo.GetBlock(), dmgInfo.GetResist());
+            TC_LOG_DEBUG("entities.unit", "AttackerStateUpdate: (NPC)    %s attacked %s for %u dmg, absorbed %u, blocked %u, resisted %u.",
+                GetGUID().ToString().c_str(), victim->GetGUID().ToString().c_str(), dmgInfo.GetDamage(), dmgInfo.GetAbsorb(), dmgInfo.GetBlock(), dmgInfo.GetResist());
     }
 }
 

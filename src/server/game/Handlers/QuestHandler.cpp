@@ -290,8 +290,8 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
         if ((!_player->CanSeeStartQuest(quest) &&  _player->GetQuestStatus(questId) == QUEST_STATUS_NONE) ||
             (_player->GetQuestStatus(questId) != QUEST_STATUS_COMPLETE && !quest->IsAutoComplete()))
         {
-            TC_LOG_ERROR("entities.player.cheat", "Error in QUEST_STATUS_COMPLETE: player %s (guid %u) tried to complete quest %u, but is not allowed to do so (possible packet-hacking or high latency)",
-                           _player->GetName().c_str(), _player->GetGUID().GetCounter(), questId);
+            TC_LOG_ERROR("entities.player.cheat", "Error in QUEST_STATUS_COMPLETE: player %s %s tried to complete quest %u, but is not allowed to do so (possible packet-hacking or high latency)",
+                           _player->GetName().c_str(), _player->GetGUID().ToString().c_str(), questId);
             return;
         }
         if (_player->CanRewardQuest(quest, true)) // First, check if player is allowed to turn the quest in (all objectives completed). If not, we send players to the offer reward screen
@@ -511,8 +511,8 @@ void WorldSession::HandleQuestgiverCompleteQuest(WorldPacket& recvData)
 
     if (!_player->CanSeeStartQuest(quest) && _player->GetQuestStatus(questId) == QUEST_STATUS_NONE)
     {
-        TC_LOG_ERROR("entities.player.cheat", "Possible hacking attempt: Player %s [guid: %u] tried to complete quest [entry: %u] without being in possession of the quest!",
-                      _player->GetName().c_str(), _player->GetGUID().GetCounter(), questId);
+        TC_LOG_ERROR("entities.player.cheat", "Possible hacking attempt: Player %s %s tried to complete quest [entry: %u] without being in possession of the quest!",
+                      _player->GetName().c_str(), _player->GetGUID().ToString().c_str(), questId);
         return;
     }
 

@@ -1509,8 +1509,8 @@ void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement)
     if (achievement->Flags & ACHIEVEMENT_FLAG_COUNTER || HasAchieved(achievement->ID))
         return;
 
-    TC_LOG_INFO("achievement", "AchievementMgr::CompletedAchievement(%u). Player: %s (%u)",
-        achievement->ID, m_player->GetName().c_str(), m_player->GetGUID().GetCounter());
+    TC_LOG_INFO("achievement", "AchievementMgr::CompletedAchievement(%u). Player: %s %s",
+        achievement->ID, m_player->GetName().c_str(), m_player->GetGUID().ToString().c_str());
 
     SendAchievementEarned(achievement);
     CompletedAchievementData& ca = m_completedAchievements[achievement->ID];

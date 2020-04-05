@@ -203,8 +203,8 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& recvData)
                                                             // send status packet (in queue)
         sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, bg, queueSlot, STATUS_WAIT_QUEUE, avgTime, 0, ginfo->ArenaType, 0);
         SendPacket(&data);
-        TC_LOG_DEBUG("bg.battleground", "Battleground: player joined queue for bg queue type %u bg type %u: GUID %u, NAME %s",
-                       bgQueueTypeId, bgTypeId, _player->GetGUID().GetCounter(), _player->GetName().c_str());
+        TC_LOG_DEBUG("bg.battleground", "Battleground: player joined queue for bg queue type %u bg type %u: GUID %s, NAME %s",
+                       bgQueueTypeId, bgTypeId, _player->GetGUID().ToString().c_str(), _player->GetName().c_str());
     }
     else
     {
@@ -251,8 +251,8 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& recvData)
             member->SendDirectMessage(&data);
             sBattlegroundMgr->BuildGroupJoinedBattlegroundPacket(&data, err);
             member->SendDirectMessage(&data);
-            TC_LOG_DEBUG("bg.battleground", "Battleground: player joined queue for bg queue type %u bg type %u: GUID %u, NAME %s",
-                bgQueueTypeId, bgTypeId, member->GetGUID().GetCounter(), member->GetName().c_str());
+            TC_LOG_DEBUG("bg.battleground", "Battleground: player joined queue for bg queue type %u bg type %u: GUID %s, NAME %s",
+                bgQueueTypeId, bgTypeId, member->GetGUID().ToString().c_str(), member->GetName().c_str());
         }
         TC_LOG_DEBUG("bg.battleground", "Battleground: group end");
     }
@@ -439,8 +439,8 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
         //if player don't match battleground max level, then do not allow him to enter! (this might happen when player leveled up during his waiting in queue
         if (_player->GetLevel() > bg->GetMaxLevel())
         {
-            TC_LOG_ERROR("network", "Player %s (%u) has level (%u) higher than maxlevel (%u) of battleground (%u)! Do not port him to battleground!",
-                _player->GetName().c_str(), _player->GetGUID().GetCounter(), _player->GetLevel(), bg->GetMaxLevel(), bg->GetTypeID());
+            TC_LOG_ERROR("network", "Player %s %s has level (%u) higher than maxlevel (%u) of battleground (%u)! Do not port him to battleground!",
+                _player->GetName().c_str(), _player->GetGUID().ToString().c_str(), _player->GetLevel(), bg->GetMaxLevel(), bg->GetTypeID());
             action = 0;
         }
     }

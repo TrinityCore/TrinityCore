@@ -2833,8 +2833,8 @@ bool Map::CheckGridIntegrity(Creature* c, bool moved) const
     Cell xy_cell(c->GetPositionX(), c->GetPositionY());
     if (xy_cell != cur_cell)
     {
-        TC_LOG_DEBUG("maps", "Creature (GUID: %u) X: %f Y: %f (%s) is in grid[%u, %u]cell[%u, %u] instead of grid[%u, %u]cell[%u, %u]",
-            c->GetGUID().GetCounter(),
+        TC_LOG_DEBUG("maps", "Creature %s X: %f Y: %f (%s) is in grid[%u, %u]cell[%u, %u] instead of grid[%u, %u]cell[%u, %u]",
+            c->GetGUID().ToString().c_str(),
             c->GetPositionX(), c->GetPositionY(), (moved ? "final" : "original"),
             cur_cell.GridX(), cur_cell.GridY(), cur_cell.CellX(), cur_cell.CellY(),
             xy_cell.GridX(),  xy_cell.GridY(),  xy_cell.CellX(),  xy_cell.CellY());
@@ -3612,8 +3612,8 @@ void Map::AddToActive(Creature* c)
         else
         {
             GridCoord p2 = Trinity::ComputeGridCoord(c->GetPositionX(), c->GetPositionY());
-            TC_LOG_ERROR("maps", "Active creature (GUID: %u Entry: %u) added to grid[%u, %u] but spawn grid[%u, %u] was not loaded.",
-                c->GetGUID().GetCounter(), c->GetEntry(), p.x_coord, p.y_coord, p2.x_coord, p2.y_coord);
+            TC_LOG_ERROR("maps", "Active creature%s added to grid[%u, %u] but spawn grid[%u, %u] was not loaded.",
+                c->GetGUID().ToString().c_str(), p.x_coord, p.y_coord, p2.x_coord, p2.y_coord);
         }
     }
 }
@@ -3643,8 +3643,8 @@ void Map::RemoveFromActive(Creature* c)
         else
         {
             GridCoord p2 = Trinity::ComputeGridCoord(c->GetPositionX(), c->GetPositionY());
-            TC_LOG_ERROR("maps", "Active creature (GUID: %u Entry: %u) removed from grid[%u, %u] but spawn grid[%u, %u] was not loaded.",
-                c->GetGUID().GetCounter(), c->GetEntry(), p.x_coord, p.y_coord, p2.x_coord, p2.y_coord);
+            TC_LOG_ERROR("maps", "Active creature %s removed from grid[%u, %u] but spawn grid[%u, %u] was not loaded.",
+                c->GetGUID().ToString().c_str(), p.x_coord, p.y_coord, p2.x_coord, p2.y_coord);
         }
     }
 }

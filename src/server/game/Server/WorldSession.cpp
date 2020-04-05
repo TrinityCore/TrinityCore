@@ -586,8 +586,8 @@ void WorldSession::LogoutPlayer(bool save)
         // e.g if he got disconnected during a transfer to another map
         // calls to GetMap in this case may cause crashes
         _player->CleanupsBeforeDelete();
-        TC_LOG_INFO("entities.player.character", "Account: %d (IP: %s) Logout Character:[%s] (GUID: %u) Level: %d",
-            GetAccountId(), GetRemoteAddress().c_str(), _player->GetName().c_str(), _player->GetGUID().GetCounter(), _player->GetLevel());
+        TC_LOG_INFO("entities.player.character", "Account: %d (IP: %s) Logout Character:[%s] %s Level: %d",
+            GetAccountId(), GetRemoteAddress().c_str(), _player->GetName().c_str(), _player->GetGUID().ToString().c_str(), _player->GetLevel());
         if (Map* _map = _player->FindMap())
             _map->RemovePlayerFromMap(_player, true);
 
@@ -626,8 +626,8 @@ bool WorldSession::ValidateHyperlinksAndMaybeKick(std::string const& str)
     if (Trinity::Hyperlinks::CheckAllLinks(str))
         return true;
 
-    TC_LOG_ERROR("network", "Player %s (GUID: %u) sent a message with an invalid link:\n%s", GetPlayer()->GetName().c_str(),
-        GetPlayer()->GetGUID().GetCounter(), str.c_str());
+    TC_LOG_ERROR("network", "Player %s%s sent a message with an invalid link:\n%s", GetPlayer()->GetName().c_str(),
+        GetPlayer()->GetGUID().ToString().c_str(), str.c_str());
 
     if (sWorld->getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_KICK))
         KickPlayer();
@@ -640,8 +640,8 @@ bool WorldSession::DisallowHyperlinksAndMaybeKick(std::string const& str)
     if (str.find('|') == std::string::npos)
         return true;
 
-    TC_LOG_ERROR("network", "Player %s (GUID: %u) sent a message which illegally contained a hyperlink:\n%s", GetPlayer()->GetName().c_str(),
-                 GetPlayer()->GetGUID().GetCounter(), str.c_str());
+    TC_LOG_ERROR("network", "Player %s %s sent a message which illegally contained a hyperlink:\n%s", GetPlayer()->GetName().c_str(),
+                 GetPlayer()->GetGUID().ToString().c_str(), str.c_str());
 
     if (sWorld->getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_KICK))
         KickPlayer();
@@ -906,8 +906,8 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
         if (check) \
         { \
             TC_LOG_DEBUG("entities.unit", "WorldSession::ReadMovementInfo: Violation of MovementFlags found (%s). " \
-                "MovementFlags: %u, MovementFlags2: %u for player GUID: %u. Mask %u will be removed.", \
-                STRINGIZE(check), mi->GetMovementFlags(), mi->GetExtraMovementFlags(), GetPlayer()->GetGUID().GetCounter(), maskToRemove); \
+                "MovementFlags: %u, MovementFlags2: %u for player %s. Mask %u will be removed.", \
+                STRINGIZE(check), mi->GetMovementFlags(), mi->GetExtraMovementFlags(), GetPlayer()->GetGUID().ToString().c_str(), maskToRemove); \
             mi->RemoveMovementFlag((maskToRemove)); \
         } \
     }

@@ -14191,8 +14191,8 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
                     Trainer::Trainer const* trainer = sObjectMgr->GetTrainer(creature->GetEntry());
                     if (!trainer || !trainer->IsTrainerValidForPlayer(this))
                     {
-                        TC_LOG_ERROR("sql.sql", "GOSSIP_OPTION_TRAINER:: Player %s (GUID: %u) requested wrong gossip menu: %u at Creature: %s (Entry: %u)",
-                            GetName().c_str(), GetGUID().GetCounter(), menu->GetGossipMenu().GetMenuId(), creature->GetName().c_str(), creature->GetEntry());
+                        TC_LOG_ERROR("sql.sql", "GOSSIP_OPTION_TRAINER:: Player %s %s requested wrong gossip menu: %u at Creature: %s (Entry: %u)",
+                            GetName().c_str(), GetGUID().ToString().c_str(), menu->GetGossipMenu().GetMenuId(), creature->GetName().c_str(), creature->GetEntry());
                         canTalk = false;
                     }
                 }
@@ -18217,23 +18217,23 @@ Item* Player::_LoadItem(CharacterDatabaseTransaction& trans, uint32 zoneId, uint
             // Do not allow to have item limited to another map/zone in alive state
             if (IsAlive() && item->IsLimitedToAnotherMapOrZone(GetMapId(), zoneId))
             {
-                TC_LOG_DEBUG("entities.player.loading", "Player::_LoadInventory: player (GUID: %u, name: '%s', map: %u) has item (GUID: %u, entry: %u) limited to another map (%u). Deleting item.",
-                    GetGUID().GetCounter(), GetName().c_str(), GetMapId(), item->GetGUID().GetCounter(), item->GetEntry(), zoneId);
+                TC_LOG_DEBUG("entities.player.loading", "Player::_LoadInventory: player (%s, name: '%s', map: %u) has item (%s) limited to another map (%u). Deleting item.",
+                    GetGUID().ToString().c_str(), GetName().c_str(), GetMapId(), item->GetGUID().ToString().c_str(), zoneId);
                 remove = true;
             }
             // "Conjured items disappear if you are logged out for more than 15 minutes"
             else if (timeDiff > 15 * MINUTE && proto->HasFlag(ITEM_FLAG_CONJURED))
             {
-                TC_LOG_DEBUG("entities.player.loading", "Player::_LoadInventory: player (GUID: %u, name: '%s', diff: %u) has conjured item (GUID: %u, entry: %u) with expired lifetime (15 minutes). Deleting item.",
-                    GetGUID().GetCounter(), GetName().c_str(), timeDiff, item->GetGUID().GetCounter(), item->GetEntry());
+                TC_LOG_DEBUG("entities.player.loading", "Player::_LoadInventory: player (%s, name: '%s', diff: %u) has conjured item (%s) with expired lifetime (15 minutes). Deleting item.",
+                    GetGUID().ToString().c_str(), GetName().c_str(), timeDiff, item->GetGUID().ToString().c_str());
                 remove = true;
             }
             else if (item->IsRefundable())
             {
                 if (item->GetPlayedTime() > (2 * HOUR))
                 {
-                    TC_LOG_DEBUG("entities.player.loading", "Player::_LoadInventory: player (GUID: %u, name: '%s') has item (GUID: %u, entry: %u) with expired refund time (%u). Deleting refund data and removing refundable flag.",
-                        GetGUID().GetCounter(), GetName().c_str(), item->GetGUID().GetCounter(), item->GetEntry(), item->GetPlayedTime());
+                    TC_LOG_DEBUG("entities.player.loading", "Player::_LoadInventory: player (%s, name: '%s') has item (%s) with expired refund time (%u). Deleting refund data and removing refundable flag.",
+                        GetGUID().ToString().c_str(), GetName().c_str(), item->GetGUID().ToString().c_str(), item->GetPlayedTime());
 
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_REFUND_INSTANCE);
                     stmt->setUInt32(0, item->GetGUID().GetCounter());
@@ -18255,8 +18255,8 @@ Item* Player::_LoadItem(CharacterDatabaseTransaction& trans, uint32 zoneId, uint
                     }
                     else
                     {
-                        TC_LOG_DEBUG("entities.player.loading", "Player::_LoadInventory: player (GUID: %u, name: '%s') has item (GUID: %u, entry: %u) with refundable flags, but without data in item_refund_instance. Removing flag.",
-                            GetGUID().GetCounter(), GetName().c_str(), item->GetGUID().GetCounter(), item->GetEntry());
+                        TC_LOG_DEBUG("entities.player.loading", "Player::_LoadInventory: player (%s, name: '%s') has item (%s) with refundable flags, but without data in item_refund_instance. Removing flag.",
+                            GetGUID().ToString().c_str(), GetName().c_str(), item->GetGUID().ToString().c_str());
                         item->RemoveFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_REFUNDABLE);
                     }
                 }
@@ -18283,8 +18283,8 @@ Item* Player::_LoadItem(CharacterDatabaseTransaction& trans, uint32 zoneId, uint
                 }
                 else
                 {
-                    TC_LOG_DEBUG("entities.player.loading", "Player::_LoadInventory: player (GUID: %u, name: '%s') has item (GUID: %u, entry: %u) with ITEM_FLAG_BOP_TRADEABLE flag, but without data in item_soulbound_trade_data. Removing flag.",
-                        GetGUID().GetCounter(), GetName().c_str(), item->GetGUID().GetCounter(), item->GetEntry());
+                    TC_LOG_DEBUG("entities.player.loading", "Player::_LoadInventory: player (%s, name: '%s') has item (%s) with ITEM_FLAG_BOP_TRADEABLE flag, but without data in item_soulbound_trade_data. Removing flag.",
+                        GetGUID().ToString().c_str(), GetName().c_str(), item->GetGUID().ToString().c_str());
                     item->RemoveFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_BOP_TRADEABLE);
                 }
             }
@@ -18305,8 +18305,8 @@ Item* Player::_LoadItem(CharacterDatabaseTransaction& trans, uint32 zoneId, uint
         }
         else
         {
-            TC_LOG_ERROR("entities.player", "Player::_LoadInventory: player (GUID: %u, name: '%s') has a broken item (GUID: %u, entry: %u) in inventory. Deleting item.",
-                GetGUID().GetCounter(), GetName().c_str(), itemGuid, itemEntry);
+            TC_LOG_ERROR("entities.player", "Player::_LoadInventory: player (%s, name: '%s') has a broken item (GUID: %u, entry: %u) in inventory. Deleting item.",
+                GetGUID().ToString().c_str(), GetName().c_str(), itemGuid, itemEntry);
             remove = true;
         }
         // Remove item from inventory if necessary
@@ -18320,8 +18320,8 @@ Item* Player::_LoadItem(CharacterDatabaseTransaction& trans, uint32 zoneId, uint
     }
     else
     {
-        TC_LOG_ERROR("entities.player", "Player::_LoadInventory: player (GUID: %u, name: '%s') has an unknown item (entry: %u) in inventory. Deleting item.",
-            GetGUID().GetCounter(), GetName().c_str(), itemEntry);
+        TC_LOG_ERROR("entities.player", "Player::_LoadInventory: player (%s, name: '%s') has an unknown item (entry: %u) in inventory. Deleting item.",
+            GetGUID().ToString().c_str(), GetName().c_str(), itemEntry);
         Item::DeleteFromInventoryDB(trans, itemGuid);
         Item::DeleteFromDB(trans, itemGuid);
     }

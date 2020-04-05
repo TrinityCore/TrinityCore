@@ -982,8 +982,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         SendNotification(LANG_GM_ON);
 
     std::string IP_str = GetRemoteAddress();
-    TC_LOG_INFO("entities.player.character", "Account: %d (IP: %s) Login Character:[%s] (GUID: %u) Level: %d",
-        GetAccountId(), IP_str.c_str(), pCurrChar->GetName().c_str(), pCurrChar->GetGUID().GetCounter(), pCurrChar->GetLevel());
+    TC_LOG_INFO("entities.player.character", "Account: %d (IP: %s) Login Character:[%s] %s Level: %d",
+        GetAccountId(), IP_str.c_str(), pCurrChar->GetName().c_str(), pCurrChar->GetGUID().ToString().c_str(), pCurrChar->GetLevel());
 
     if (!pCurrChar->IsStandState() && !pCurrChar->HasUnitState(UNIT_STATE_STUNNED))
         pCurrChar->SetStandState(UNIT_STAND_STATE_STAND);

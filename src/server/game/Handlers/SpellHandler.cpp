@@ -211,8 +211,8 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
     if (!proto->HasFlag(ITEM_FLAG_HAS_LOOT) && !item->IsWrapped())
     {
         player->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW, item, nullptr);
-        TC_LOG_ERROR("entities.player.cheat", "Possible hacking attempt: Player %s [guid: %u] tried to open item [guid: %u, entry: %u] which is not openable!",
-            player->GetName().c_str(), player->GetGUID().GetCounter(), item->GetGUID().GetCounter(), proto->ItemId);
+        TC_LOG_ERROR("entities.player.cheat", "Possible hacking attempt: Player %s %s tried to open item [%s, entry: %u] which is not openable!",
+            player->GetName().c_str(), player->GetGUID().ToString().c_str(), item->GetGUID().ToString().c_str(), proto->ItemId);
         return;
     }
 

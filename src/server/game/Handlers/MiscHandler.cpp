@@ -73,8 +73,8 @@ void WorldSession::HandleRepopRequestOpcode(WorldPacket& recvData)
     // release spirit after he's killed but before he is updated
     if (GetPlayer()->getDeathState() == JUST_DIED)
     {
-        TC_LOG_DEBUG("network", "HandleRepopRequestOpcode: got request after player %s(%d) was killed and before he was updated",
-            GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID().GetCounter());
+        TC_LOG_DEBUG("network", "HandleRepopRequestOpcode: got request after player %s %s was killed and before he was updated",
+            GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID().ToString().c_str());
         GetPlayer()->KillPlayer();
     }
 
@@ -625,23 +625,23 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
     Player* player = GetPlayer();
     if (player->IsInFlight())
     {
-        TC_LOG_DEBUG("network", "HandleAreaTriggerOpcode: Player '%s' (GUID: %u) in flight, ignore Area Trigger ID:%u",
-            player->GetName().c_str(), player->GetGUID().GetCounter(), triggerId);
+        TC_LOG_DEBUG("network", "HandleAreaTriggerOpcode: Player '%s' %s in flight, ignore Area Trigger ID:%u",
+            player->GetName().c_str(), player->GetGUID().ToString().c_str(), triggerId);
         return;
     }
 
     AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(triggerId);
     if (!atEntry)
     {
-        TC_LOG_DEBUG("network", "HandleAreaTriggerOpcode: Player '%s' (GUID: %u) send unknown (by DBC) Area Trigger ID:%u",
-            player->GetName().c_str(), player->GetGUID().GetCounter(), triggerId);
+        TC_LOG_DEBUG("network", "HandleAreaTriggerOpcode: Player '%s' %s send unknown (by DBC) Area Trigger ID:%u",
+            player->GetName().c_str(), player->GetGUID().ToString().c_str(), triggerId);
         return;
     }
 
     if (!player->IsInAreaTriggerRadius(atEntry))
     {
-        TC_LOG_DEBUG("network", "HandleAreaTriggerOpcode: Player '%s' (GUID: %u) too far, ignore Area Trigger ID: %u",
-            player->GetName().c_str(), player->GetGUID().GetCounter(), triggerId);
+        TC_LOG_DEBUG("network", "HandleAreaTriggerOpcode: Player '%s' %s too far, ignore Area Trigger ID: %u",
+            player->GetName().c_str(), player->GetGUID().ToString().c_str(), triggerId);
         return;
     }
 
@@ -1261,8 +1261,8 @@ void WorldSession::HandleSetDungeonDifficultyOpcode(WorldPacket& recvData)
     Map* map = _player->FindMap();
     if (map && map->IsDungeon())
     {
-        TC_LOG_DEBUG("network", "WorldSession::HandleSetDungeonDifficultyOpcode: player (Name: %s, GUID: %u) tried to reset the instance while player is inside!",
-            _player->GetName().c_str(), _player->GetGUID().GetCounter());
+        TC_LOG_DEBUG("network", "WorldSession::HandleSetDungeonDifficultyOpcode: player (Name: %s, %s) tried to reset the instance while player is inside!",
+            _player->GetName().c_str(), _player->GetGUID().ToString().c_str());
         return;
     }
 
@@ -1282,8 +1282,8 @@ void WorldSession::HandleSetDungeonDifficultyOpcode(WorldPacket& recvData)
 
                 if (groupGuy->GetMap()->IsNonRaidDungeon())
                 {
-                    TC_LOG_DEBUG("network", "WorldSession::HandleSetDungeonDifficultyOpcode: player %d tried to reset the instance while group member (Name: %s, GUID: %u) is inside!",
-                        _player->GetGUID().GetCounter(), groupGuy->GetName().c_str(), groupGuy->GetGUID().GetCounter());
+                    TC_LOG_DEBUG("network", "WorldSession::HandleSetDungeonDifficultyOpcode: player %s tried to reset the instance while group member (Name: %s, %s) is inside!",
+                        _player->GetGUID().ToString().c_str(), groupGuy->GetName().c_str(), groupGuy->GetGUID().ToString().c_str());
                     return;
                 }
             }
@@ -1505,8 +1505,8 @@ void WorldSession::HandleInstanceLockResponse(WorldPacket& recvPacket)
 
     if (!_player->HasPendingBind())
     {
-        TC_LOG_INFO("network", "InstanceLockResponse: Player %s (guid %u) tried to bind himself/teleport to graveyard without a pending bind!",
-            _player->GetName().c_str(), _player->GetGUID().GetCounter());
+        TC_LOG_INFO("network", "InstanceLockResponse: Player %s %s tried to bind himself/teleport to graveyard without a pending bind!",
+            _player->GetName().c_str(), _player->GetGUID().ToString().c_str());
         return;
     }
 
