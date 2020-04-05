@@ -4,7 +4,11 @@ set -e
 echo "Codestyle check script:"
 echo
 
-singleLineRegexChecks=("TC_LOG_.+GetCounter" "[[:blank:]]$")
+singleLineRegexChecks=(
+    "TC_LOG_.+GetCounter"
+    "[[:blank:]]$"
+    "\t"
+)
 for check in ${singleLineRegexChecks[@]}; do
     echo "  Checking RegEx: '${check}'"
     
@@ -13,7 +17,9 @@ for check in ${singleLineRegexChecks[@]}; do
     fi
 done
 
-multiLineRegexChecks=("TC_LOG_[^;]+GetCounter")
+multiLineRegexChecks=(
+    "TC_LOG_[^;]+GetCounter"
+)
 for check in ${multiLineRegexChecks[@]}; do
     echo "  Checking RegEx: '${check}'"
     
