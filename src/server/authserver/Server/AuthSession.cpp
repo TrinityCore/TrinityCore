@@ -663,7 +663,7 @@ bool AuthSession::HandleLogonProof()
             LoginDatabasePreparedStatement* logstmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_FALP_IP_LOGGING);
             logstmt->setUInt32(0, _accountInfo.Id);
             logstmt->setString(1, GetRemoteIpAddress().to_string());
-            logstmt->setString(2, "Logged on failed AccountLogin due wrong password");
+            logstmt->setString(2, "Login to WoW Failed - Incorrect Password");
 
             LoginDatabase.Execute(logstmt);
         }
