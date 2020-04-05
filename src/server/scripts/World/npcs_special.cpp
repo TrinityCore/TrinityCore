@@ -133,6 +133,10 @@ public:
             if (!guard)
                 return;
 
+            // Keep the list of targets for later on when the guards will be alive
+            if (!guard->IsAlive())
+                return;
+
             for (ObjectGuid guid : _toAttack)
             {
                 Unit* target = ObjectAccessor::GetUnit(*me, guid);
