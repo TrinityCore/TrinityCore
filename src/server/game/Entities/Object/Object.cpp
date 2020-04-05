@@ -32,6 +32,7 @@
 #include "Item.h"
 #include "Log.h"
 #include "MapManager.h"
+#include "MiscPackets.h"
 #include "MovementPacketBuilder.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -2602,24 +2603,26 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
 
 void WorldObject::PlayDistanceSound(uint32 sound_id, Player* target /*= nullptr*/)
 {
-    WorldPacket data(SMSG_PLAY_OBJECT_SOUND, 4 + 8);
-    data << uint32(sound_id);
-    data << uint64(GetGUID());
+    WorldPackets::Misc::PlayObjectSound packet;
+    packet.SoundKitID = sound_id;
+    packet.SourceObjectGUID = GetGUID();
+    packet.TargetObjectGUID = target ? target->GetGUID() : GetGUID();
+
     if (target)
-        target->SendDirectMessage(&data);
+        target->SendDirectMessage(packet.Write());
     else
-        SendMessageToSet(&data, true);
+        SendMessageToSet(packet.Write(), true);
 }
 
 void WorldObject::PlayDirectSound(uint32 sound_id, Player* target /*= nullptr*/)
 {
-    WorldPacket data(SMSG_PLAY_SOUND, 4 + 8);
-    data << uint32(sound_id);
-    data << uint64(GetGUID());
+    WorldPackets::Misc::PlaySound packet;
+    packet.SourceObjectGUID = GetGUID();
+    packet.SoundKitID = sound_id;
     if (target)
-        target->SendDirectMessage(&data);
+        target->SendDirectMessage(packet.Write());
     else
-        SendMessageToSet(&data, true);
+        SendMessageToSet(packet.Write(), true);
 }
 
 void WorldObject::PlayDirectMusic(uint32 music_id, Player* target /*= nullptr*/)
