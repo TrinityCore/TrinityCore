@@ -3910,7 +3910,7 @@ void AuraEffect::HandleModCastingSpeed(AuraApplication const* aurApp, uint8 mode
 
     if (spellGroupVal)
         target->ApplyCastTimePercentMod(float(spellGroupVal), !apply);
-    
+
     target->ApplyCastTimePercentMod((float)GetAmount(), apply);
 }
 

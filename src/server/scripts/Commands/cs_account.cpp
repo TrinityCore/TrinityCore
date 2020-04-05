@@ -840,7 +840,7 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
-        
+
         Optional<std::vector<uint8>> decoded = Trinity::Encoding::Base32::Decode(secret);
         if (!decoded)
         {

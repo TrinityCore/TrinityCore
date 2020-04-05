@@ -363,7 +363,7 @@ void ObjectMgr::LoadCreatureTemplates()
     // 5. Select "Number to Insert", Initial number 1, Increase by 1
     // 6. Run this regex
     //  a.find    "\/\/[ ]+
-    //  b.replace "\r\n\t\t\/\/ 
+    //  b.replace "\r\n\t\t\/\/ (not that there is a space at the end of the regex, it's needed)
 
     QueryResult result = WorldDatabase.Query(
         //  0

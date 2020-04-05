@@ -1994,7 +1994,7 @@ enum BurstAtTheSeams
 {
     AREA_THE_BROKEN_FRONT                       =  4507,
     AREA_MORD_RETHAR_THE_DEATH_GATE             =  4508,
-                                                
+
     NPC_DRAKKARI_CHIEFTAINK                     = 29099,
     NPC_ICY_GHOUL                               = 31142,
     NPC_VICIOUS_GEIST                           = 31147,

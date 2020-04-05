@@ -137,7 +137,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& recvData)
             GetPlayer()->SendDirectMessage(&data);
             return;
         }
-        
+
         // check RBAC permissions
         if (!_player->CanJoinToBattleground(bg))
         {
@@ -680,7 +680,7 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket& recvData)
             _player->SendDirectMessage(&data);
             return;
         }
-        
+
         if (!_player->CanJoinToBattleground(bg))
         {
             WorldPacket data;
