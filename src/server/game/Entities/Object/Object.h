@@ -55,6 +55,7 @@ class WorldPacket;
 class ZoneScript;
 struct PositionFullTerrainStatus;
 struct QuaternionData;
+enum ZLiquidStatus : uint32;
 
 typedef std::unordered_map<Player*, UpdateData> UpdateDataMapType;
 
@@ -325,6 +326,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         uint32 GetAreaId() const { return m_areaId; }
         void GetZoneAndAreaId(uint32& zoneid, uint32& areaid) const { zoneid = m_zoneId, areaid = m_areaId; }
         bool IsOutdoors() const { return m_outdoors; }
+        ZLiquidStatus GetLiquidStatus() const { return m_liquidStatus; }
 
         InstanceScript* GetInstanceScript() const;
 
@@ -504,6 +506,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         uint32 m_areaId;
         float m_staticFloorZ;
         bool m_outdoors;
+        ZLiquidStatus m_liquidStatus;
 
         //these functions are used mostly for Relocate() and Corpse/Player specific stuff...
         //use them ONLY in LoadFromDB()/Create() funcs and nowhere else!
