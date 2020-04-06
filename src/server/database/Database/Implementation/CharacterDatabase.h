@@ -261,7 +261,7 @@ enum CharacterDatabaseStatements : uint32
     CHAR_DEL_CORPSE,
     CHAR_DEL_CORPSES_FROM_MAP,
     CHAR_SEL_CORPSE_LOCATION,
-    
+
     CHAR_SEL_RESPAWNS,
     CHAR_REP_RESPAWN,
     CHAR_DEL_RESPAWN,

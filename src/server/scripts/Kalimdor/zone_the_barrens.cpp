@@ -184,9 +184,9 @@ public:
             me->RemoveAllAuras();
             me->CombatStop(true);
             me->StopMoving();
-            
+
             EngagementOver();
-            
+
             me->GetMotionMaster()->MoveIdle();
             me->SetFaction(FACTION_FRIENDLY);
             me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);

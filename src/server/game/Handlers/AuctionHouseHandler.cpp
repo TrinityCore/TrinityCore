@@ -155,7 +155,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
 
     if (bid > MAX_MONEY_AMOUNT || buyout > MAX_MONEY_AMOUNT)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleAuctionSellItem - Player %s (GUID %u) attempted to sell item with higher price than max gold amount.", _player->GetName().c_str(), _player->GetGUID().GetCounter());
+        TC_LOG_DEBUG("network", "WORLD: HandleAuctionSellItem - Player %s %s attempted to sell item with higher price than max gold amount.", _player->GetName().c_str(), _player->GetGUID().ToString().c_str());
         SendAuctionCommandResult(0, AUCTION_SELL_ITEM, ERR_AUCTION_DATABASE_ERROR);
         return;
     }
@@ -312,8 +312,8 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
         AH->etime = etime;
         AH->auctionHouseEntry = auctionHouseEntry;
 
-        TC_LOG_INFO("network", "CMSG_AUCTION_SELL_ITEM: Player %s (guid %d) is selling item %s entry %u (guid %d) with count %u with initial bid %u with buyout %u and with time %u (in sec) in auctionhouse %u",
-            _player->GetName().c_str(), _player->GetGUID().GetCounter(), item->GetTemplate()->Name1.c_str(), item->GetEntry(), item->GetGUID().GetCounter(), item->GetCount(), bid, buyout, auctionTime, AH->GetHouseId());
+        TC_LOG_INFO("network", "CMSG_AUCTION_SELL_ITEM: Player %s %s is selling item %s entry %u %s with count %u with initial bid %u with buyout %u and with time %u (in sec) in auctionhouse %u",
+            _player->GetName().c_str(), _player->GetGUID().ToString().c_str(), item->GetTemplate()->Name1.c_str(), item->GetEntry(), item->GetGUID().ToString().c_str(), item->GetCount(), bid, buyout, auctionTime, AH->GetHouseId());
 
         // Add to pending auctions, or fail with insufficient funds error
         if (!sAuctionMgr->PendingAuctionAdd(_player, AH))
@@ -369,8 +369,8 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
         AH->etime = etime;
         AH->auctionHouseEntry = auctionHouseEntry;
 
-        TC_LOG_INFO("network", "CMSG_AUCTION_SELL_ITEM: Player %s (guid %d) is selling item %s entry %u (guid %d) with count %u with initial bid %u with buyout %u and with time %u (in sec) in auctionhouse %u",
-            _player->GetName().c_str(), _player->GetGUID().GetCounter(), newItem->GetTemplate()->Name1.c_str(), newItem->GetEntry(), newItem->GetGUID().GetCounter(), newItem->GetCount(), bid, buyout, auctionTime, AH->GetHouseId());
+        TC_LOG_INFO("network", "CMSG_AUCTION_SELL_ITEM: Player %s %s is selling item %s entry %u %s with count %u with initial bid %u with buyout %u and with time %u (in sec) in auctionhouse %u",
+            _player->GetName().c_str(), _player->GetGUID().ToString().c_str(), newItem->GetTemplate()->Name1.c_str(), newItem->GetEntry(), newItem->GetGUID().ToString().c_str(), newItem->GetCount(), bid, buyout, auctionTime, AH->GetHouseId());
 
         // Add to pending auctions, or fail with insufficient funds error
         if (!sAuctionMgr->PendingAuctionAdd(_player, AH))
@@ -617,7 +617,7 @@ void WorldSession::HandleAuctionRemoveItem(WorldPacket& recvData)
     {
         SendAuctionCommandResult(0, AUCTION_CANCEL, ERR_AUCTION_DATABASE_ERROR);
         //this code isn't possible ... maybe there should be assert
-        TC_LOG_ERROR("entities.player.cheat", "CHEATER : %u, he tried to cancel auction (id: %u) of another player, or auction is NULL", player->GetGUID().GetCounter(), auctionId);
+        TC_LOG_ERROR("entities.player.cheat", "CHEATER : %s tried to cancel auction (id: %u) of another player, or auction is NULL", player->GetGUID().ToString().c_str(), auctionId);
         return;
     }
 

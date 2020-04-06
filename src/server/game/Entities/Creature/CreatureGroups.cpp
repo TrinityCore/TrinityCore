@@ -50,7 +50,7 @@ void FormationMgr::AddCreatureToGroup(ObjectGuid::LowType leaderSpawnId, Creatur
     if (itr != map->CreatureGroupHolder.end())
     {
         //Add member to an existing group
-        TC_LOG_DEBUG("entities.unit", "Group found: %u, inserting creature GUID: %u, Group InstanceID %u", leaderSpawnId, creature->GetGUID().GetCounter(), creature->GetInstanceId());
+        TC_LOG_DEBUG("entities.unit", "Group found: %u, inserting creature %s, Group InstanceID %u", leaderSpawnId, creature->GetGUID().ToString().c_str(), creature->GetInstanceId());
 
         // With dynamic spawn the creature may have just respawned
         // we need to find previous instance of creature and delete it from the formation, as it'll be invalidated
@@ -199,12 +199,12 @@ CreatureGroup::~CreatureGroup()
 
 void CreatureGroup::AddMember(Creature* member)
 {
-    TC_LOG_DEBUG("entities.unit", "CreatureGroup::AddMember: Adding unit GUID: %u.", member->GetGUID().GetCounter());
+    TC_LOG_DEBUG("entities.unit", "CreatureGroup::AddMember: Adding unit %s.", member->GetGUID().ToString().c_str());
 
     //Check if it is a leader
     if (member->GetSpawnId() == _leaderSpawnId)
     {
-        TC_LOG_DEBUG("entities.unit", "Unit GUID: %u is formation leader. Adding group.", member->GetGUID().GetCounter());
+        TC_LOG_DEBUG("entities.unit", "Unit %s is formation leader. Adding group.", member->GetGUID().ToString().c_str());
         _leader = member;
     }
 
@@ -269,7 +269,7 @@ void CreatureGroup::FormationReset(bool dismiss)
                 pair.first->GetMotionMaster()->Initialize();
             else
                 pair.first->GetMotionMaster()->MoveIdle();
-            TC_LOG_DEBUG("entities.unit", "CreatureGroup::FormationReset: Set %s movement for member GUID: %u", dismiss ? "default" : "idle", pair.first->GetGUID().GetCounter());
+            TC_LOG_DEBUG("entities.unit", "CreatureGroup::FormationReset: Set %s movement for member %s", dismiss ? "default" : "idle", pair.first->GetGUID().ToString().c_str());
         }
     }
 

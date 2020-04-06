@@ -88,9 +88,9 @@ public:
                     me->CombatStop();
                     me->SetFaction(FACTION_FRIENDLY);
                     me->SetSpeedRate(MOVE_RUN, 0.6f);
-                    
+
                     EngagementOver();
-                    
+
                     me->GetMotionMaster()->MoveFollow(caster, PET_FOLLOW_DIST, me->GetFollowAngle());
                     me->setActive(true);
                     me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);

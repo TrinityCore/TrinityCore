@@ -1359,7 +1359,7 @@ void AchievementMgr::SetCriteriaProgress(AchievementCriteriaEntry const* entry, 
     if (entry->StartTimer && timedIter == m_timedAchievements.end())
         return;
 
-    TC_LOG_DEBUG("achievement", "AchievementMgr::SetCriteriaProgress(%u, %u) for (GUID:%u)", entry->ID, changeValue, m_player->GetGUID().GetCounter());
+    TC_LOG_DEBUG("achievement", "AchievementMgr::SetCriteriaProgress(%u, %u) for %s", entry->ID, changeValue, m_player->GetGUID().ToString().c_str());
 
     CriteriaProgress* progress = GetCriteriaProgress(entry);
     if (!progress)
@@ -1509,8 +1509,8 @@ void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement)
     if (achievement->Flags & ACHIEVEMENT_FLAG_COUNTER || HasAchieved(achievement->ID))
         return;
 
-    TC_LOG_INFO("achievement", "AchievementMgr::CompletedAchievement(%u). Player: %s (%u)",
-        achievement->ID, m_player->GetName().c_str(), m_player->GetGUID().GetCounter());
+    TC_LOG_INFO("achievement", "AchievementMgr::CompletedAchievement(%u). Player: %s %s",
+        achievement->ID, m_player->GetName().c_str(), m_player->GetGUID().ToString().c_str());
 
     SendAchievementEarned(achievement);
     CompletedAchievementData& ca = m_completedAchievements[achievement->ID];

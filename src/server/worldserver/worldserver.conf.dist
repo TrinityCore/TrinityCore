@@ -1123,7 +1123,7 @@ MinQuestScaledXPRatio = 0
 
 #
 #    MinCreatureScaledXPRatio
-#        Description: Min ratio of experience that a creature kill can grant when player level scaling is factored.  This 
+#        Description: Min ratio of experience that a creature kill can grant when player level scaling is factored.  This
 #                     will also allow spell procs to trigger, such as Drain Soul, if > 0 and exp is grantable.
 #        Example:     50 (No less than 50% experience granted from a lower leveled creature kill)
 #                     100 (Creature kills always grant full experience upon kill)
@@ -1292,7 +1292,7 @@ BirthdayTime = 1222964635
 
 #
 #   CacheDataQueries
-#        Description: Server caches data queries at startup. 
+#        Description: Server caches data queries at startup.
 #                     Can be disabled if not enough memory is available.
 #        Default:     1 - (Enabled)
 #                     0 - (Disabled)
