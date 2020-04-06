@@ -30,6 +30,6 @@ void WorldPackets::Character::ShowingHelm::Read()
 WorldPacket const* WorldPackets::Character::LoginVerifyWorld::Write()
 {
     _worldPacket << int32(MapID);
-    _worldPacket << Pos.PositionXYZOStream();
+    _worldPacket << Pos;
     return &_worldPacket;
 }

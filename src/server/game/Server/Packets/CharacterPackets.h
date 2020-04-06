@@ -53,7 +53,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             int32 MapID = -1;
-            Position Pos;
+            TaggedPosition<Position::XYZO> Pos;
         };
     }
 }
