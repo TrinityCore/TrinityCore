@@ -9,12 +9,8 @@
 # define AURA_THE_ART_OF_WAR_2 59578
 #endif
 
-#ifndef PALADIN_CLOSER_DISTANCE
-# define PALADIN_CLOSER_DISTANCE 25
-#endif
-
 #ifndef PALADIN_RANGE_DISTANCE
-# define PALADIN_RANGE_DISTANCE 30
+# define PALADIN_RANGE_DISTANCE 25
 #endif
 
 #include "Script_Base.h"

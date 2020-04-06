@@ -119,20 +119,6 @@ void Strategy_Group::Update(uint32 pmDiff)
             moveAssembleDelay -= pmDiff;
             return;
         }
-        if (sideDelay > 0)
-        {
-            sideDelay -= pmDiff;
-            return;
-        }
-        if (me->IsInCombat())
-        {
-            restDelay = 0;
-        }
-        if (restDelay > 0)
-        {
-            restDelay -= pmDiff;
-            return;
-        }
         if (staying)
         {
             return;
@@ -141,8 +127,14 @@ void Strategy_Group::Update(uint32 pmDiff)
         {
             return;
         }
+        if (sideDelay > 0)
+        {
+            sideDelay -= pmDiff;
+            return;
+        }
         if (GroupInCombat())
         {
+            restDelay = 0;
             combatTime += pmDiff;
             switch (me->groupRole)
             {
@@ -178,6 +170,11 @@ void Strategy_Group::Update(uint32 pmDiff)
         }
         else
         {
+            if (restDelay > 0)
+            {
+                restDelay -= pmDiff;
+                return;
+            }
             combatTime = 0;
             switch (me->groupRole)
             {

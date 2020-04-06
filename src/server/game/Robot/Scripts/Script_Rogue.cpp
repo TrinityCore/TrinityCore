@@ -7,26 +7,7 @@ Script_Rogue::Script_Rogue(Player* pmMe) :Script_Base(pmMe)
 
 bool Script_Rogue::Heal(Unit* pmTarget, bool pmCure)
 {
-    if (!pmTarget)
-    {
-        return false;
-    }
-    else if (!pmTarget->IsAlive())
-    {
-        return false;
-    }
-    if (!me)
-    {
-        return false;
-    }
-    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
-    {
-        return false;
-    }
-    Chase(pmTarget, ROGUE_RANGE_DISTANCE);
-    float healthPCT = pmTarget->GetHealthPct();
-
-    return true;
+    return false;
 }
 
 bool Script_Rogue::Tank(Unit* pmTarget)

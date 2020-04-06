@@ -736,6 +736,9 @@ class TC_GAME_API Unit : public WorldObject
 public:
     Unit* attackChargeTarget;
 
+    // EJ joker mod
+    float jokerSpellDamageMod;
+
     public:
         typedef std::set<Unit*> AttackerSet;
         typedef std::set<Unit*> ControlList;

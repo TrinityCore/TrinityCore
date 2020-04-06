@@ -9,25 +9,7 @@ Script_Warrior::Script_Warrior(Player* pmMe) :Script_Base(pmMe)
 
 bool Script_Warrior::Heal(Unit* pmTarget, bool pmCure)
 {
-    if (!pmTarget)
-    {
-        return false;
-    }
-    else if (!pmTarget->IsAlive())
-    {
-        return false;
-    }
-    if (!me)
-    {
-        return false;
-    }
-    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
-    {
-        return false;
-    }
-    Chase(pmTarget, WARRIOR_RANGE_DISTANCE);
-    float healthPCT = pmTarget->GetHealthPct();
-    return true;
+    return false;
 }
 
 bool Script_Warrior::Tank(Unit* pmTarget)

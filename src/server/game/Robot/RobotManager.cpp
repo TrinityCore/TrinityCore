@@ -1267,7 +1267,7 @@ void RobotManager::HandlePacket(WorldSession* pmSession, WorldPacket const* pmPa
                     WorldPacket p;
                     me->GetSession()->HandleGroupDeclineOpcode(p);
                     std::ostringstream timeLeftStream;
-                    timeLeftStream << "Not interested. I will reconsider in " << me->raiSolo->GetActiveStrategy()->interestsDelay / 1000 << "seconds";
+                    timeLeftStream << "Not interested. I will reconsider in " << me->raiSolo->GetActiveStrategy()->interestsDelay / 1000 << " seconds";
                     WhisperTo(me, timeLeftStream.str(), Language::LANG_UNIVERSAL, inviter);
                 }
                 else
@@ -1304,7 +1304,7 @@ void RobotManager::HandlePacket(WorldSession* pmSession, WorldPacket const* pmPa
                             WorldPacket p;
                             me->GetSession()->HandleGroupDeclineOpcode(p);
                             std::ostringstream timeLeftStream;
-                            timeLeftStream << "Not interested. I will reconsider in " << me->raiSolo->GetActiveStrategy()->interestsDelay / 1000 << "seconds";
+                            timeLeftStream << "Not interested. I will reconsider in " << me->raiSolo->GetActiveStrategy()->interestsDelay / 1000 << " seconds";
                             WhisperTo(me, timeLeftStream.str(), Language::LANG_UNIVERSAL, inviter);
                             break;
                         }
@@ -1564,7 +1564,7 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                             pmReceiver->raiGroup->GetActiveStrategy()->restDelay = 0;
                             pmReceiver->raiGroup->GetActiveStrategy()->staying = false;
                             pmReceiver->raiGroup->GetActiveStrategy()->holding = false;
-                            pmReceiver->GetMotionMaster()->MoveFollow(pmSender, pmReceiver->raiGroup->GetActiveStrategy()->followDistance, ChaseAngle(0, 2 * M_PI), MovementSlot::MOTION_SLOT_ACTIVE);
+                            pmReceiver->GetMotionMaster()->MoveChase(pmSender, ChaseRange(0.0f, pmReceiver->raiGroup->GetActiveStrategy()->followDistance));
                             replyStream << "Following " << pmReceiver->raiGroup->GetActiveStrategy()->followDistance;
                         }
                         else
@@ -1618,7 +1618,7 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                                 member->raiGroup->GetActiveStrategy()->restDelay = 0;
                                 member->raiGroup->GetActiveStrategy()->staying = false;
                                 member->raiGroup->GetActiveStrategy()->holding = false;
-                                member->GetMotionMaster()->MoveFollow(pmSender, member->raiGroup->GetActiveStrategy()->followDistance, ChaseAngle(0, 2 * M_PI), MovementSlot::MOTION_SLOT_ACTIVE);
+                                member->GetMotionMaster()->MoveChase(pmSender, ChaseRange(0.0f, member->raiGroup->GetActiveStrategy()->followDistance));
                                 replyStream << "Following " << member->raiGroup->GetActiveStrategy()->followDistance;
                             }
                             else
@@ -1647,6 +1647,9 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                         {
                             pmReceiver->StopMoving();
                             pmReceiver->GetMotionMaster()->Clear();
+                            pmReceiver->AttackStop();
+                            pmReceiver->InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
+                            pmReceiver->raiGroup->GetActiveStrategy()->sb->PetStop();
                             pmReceiver->raiGroup->GetActiveStrategy()->staying = true;
                             replyStream << "Staying";
                         }
@@ -1677,6 +1680,9 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                             {
                                 member->StopMoving();
                                 member->GetMotionMaster()->Clear();
+                                member->AttackStop();
+                                member->InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
+                                member->raiGroup->GetActiveStrategy()->sb->PetStop();
                                 member->raiGroup->GetActiveStrategy()->staying = true;
                                 replyStream << "Staying";
                             }

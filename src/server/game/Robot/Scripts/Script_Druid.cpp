@@ -73,7 +73,7 @@ bool Script_Druid::DPS_Balance(Unit* pmTarget, bool pmChase, bool pmAOE)
     }
     if (pmChase)
     {
-        Chase(pmTarget, DRUID_CLOSER_DISTANCE);
+        Chase(pmTarget, DRUID_RANGE_DISTANCE);
     }
     else
     {
@@ -498,7 +498,7 @@ bool Script_Druid::Attack_Balance(Unit* pmTarget)
             return true;
         }
     }
-    Chase(pmTarget, DRUID_CLOSER_DISTANCE);
+    Chase(pmTarget, DRUID_RANGE_DISTANCE);
     if (pmTarget->GetTarget().IsEmpty())
     {
         if (CastSpell(pmTarget, "Starfire", DRUID_RANGE_DISTANCE))
@@ -808,7 +808,7 @@ bool Script_Druid::Heal(Unit* pmTarget, bool pmCure)
     {
         return false;
     }
-    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
+    if (me->GetDistance(pmTarget) > DRUID_RANGE_DISTANCE)
     {
         return false;
     }
@@ -819,7 +819,6 @@ bool Script_Druid::Heal(Unit* pmTarget, bool pmCure)
             return true;
         }
     }
-    Chase(pmTarget, DRUID_RANGE_DISTANCE);
     float healthPCT = pmTarget->GetHealthPct();
     if (healthPCT < 60.0f)
     {
@@ -896,7 +895,7 @@ bool Script_Druid::Heal(Unit* pmTarget, bool pmCure)
         }
     }
 
-    return true;
+    return false;
 }
 
 bool Script_Druid::Buff(Unit* pmTarget, bool pmCure)

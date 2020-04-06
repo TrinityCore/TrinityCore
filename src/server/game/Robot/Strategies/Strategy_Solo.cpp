@@ -74,6 +74,7 @@ Strategy_Solo::Strategy_Solo(Player* pmMe)
     strollDelay = 0;
     confuseDelay = 0;
     interestsDelay = 0;
+    engageDelay = 0;
 }
 
 void Strategy_Solo::Update(uint32 pmDiff)
@@ -109,10 +110,6 @@ void Strategy_Solo::Update(uint32 pmDiff)
         sb->RandomTeleport();
         return;
     }
-    if (me->IsInCombat())
-    {
-        soloState = RobotSoloState::RobotSoloState_Battle;
-    }
     switch (soloState)
     {
     case RobotSoloState::RobotSoloState_None:
@@ -121,6 +118,13 @@ void Strategy_Solo::Update(uint32 pmDiff)
     }
     case RobotSoloState::RobotSoloState_Wander:
     {
+        if (me->IsInCombat())
+        {
+            me->StopMoving();
+            me->GetMotionMaster()->Clear();
+            soloState = RobotSoloState::RobotSoloState_Battle;
+            return;
+        }
         if (Rest())
         {
             return;
@@ -145,6 +149,7 @@ void Strategy_Solo::Update(uint32 pmDiff)
         }
         if (Battle())
         {
+            engageDelay = 10 * TimeConstants::IN_MILLISECONDS;
             return;
         }
         if (Wait())
@@ -157,6 +162,7 @@ void Strategy_Solo::Update(uint32 pmDiff)
     {
         if (me->IsInCombat())
         {
+            engageDelay = 0;
             if (me->GetHealthPct() < 40.0f)
             {
                 if (Heal())
@@ -175,15 +181,33 @@ void Strategy_Solo::Update(uint32 pmDiff)
         }
         else
         {
-            soloState = RobotSoloState::RobotSoloState_Wander;
+            if (engageDelay > 0)
+            {
+                engageDelay -= pmDiff;
+            }
+            if (engageDelay <= 0)
+            {
+                engageDelay = 0;
+                soloState = RobotSoloState::RobotSoloState_Wander;
+            }
         }
         break;
     }
     case RobotSoloState::RobotSoloState_Rest:
     {
+        if (me->IsInCombat())
+        {
+            restDelay = 0;
+            me->StopMoving();
+            me->GetMotionMaster()->Clear();
+            soloState = RobotSoloState::RobotSoloState_Battle;
+            return;
+        }
         restDelay -= pmDiff;
         if (restDelay < 0)
         {
+            me->StopMoving();
+            me->GetMotionMaster()->Clear();
             soloState = RobotSoloState::RobotSoloState_Wander;
             return;
         }
@@ -191,9 +215,19 @@ void Strategy_Solo::Update(uint32 pmDiff)
     }
     case RobotSoloState::RobotSoloState_Wait:
     {
+        if (me->IsInCombat())
+        {
+            waitDelay = 0;
+            me->StopMoving();
+            me->GetMotionMaster()->Clear();
+            soloState = RobotSoloState::RobotSoloState_Battle;
+            return;
+        }
         waitDelay -= pmDiff;
         if (waitDelay < 0)
         {
+            me->StopMoving();
+            me->GetMotionMaster()->Clear();
             soloState = RobotSoloState::RobotSoloState_Wander;
             return;
         }
@@ -201,9 +235,19 @@ void Strategy_Solo::Update(uint32 pmDiff)
     }
     case RobotSoloState::RobotSoloState_Stroll:
     {
+        if (me->IsInCombat())
+        {
+            strollDelay = 0;
+            me->StopMoving();
+            me->GetMotionMaster()->Clear();
+            soloState = RobotSoloState::RobotSoloState_Battle;
+            return;
+        }
         strollDelay -= pmDiff;
         if (strollDelay < 0)
         {
+            me->StopMoving();
+            me->GetMotionMaster()->Clear();
             soloState = RobotSoloState::RobotSoloState_Wander;
             return;
         }
@@ -211,9 +255,19 @@ void Strategy_Solo::Update(uint32 pmDiff)
     }
     case RobotSoloState::RobotSoloState_Confuse:
     {
+        if (me->IsInCombat())
+        {
+            confuseDelay = 0;
+            me->StopMoving();
+            me->GetMotionMaster()->Clear();
+            soloState = RobotSoloState::RobotSoloState_Battle;
+            return;
+        }
         confuseDelay -= pmDiff;
         if (confuseDelay < 0)
         {
+            me->StopMoving();
+            me->GetMotionMaster()->Clear();
             soloState = RobotSoloState::RobotSoloState_Wander;
             return;
         }
@@ -287,18 +341,15 @@ bool Strategy_Solo::Battle()
             }
         }
     }
-    if (me->getAttackers().size() > 1)
+    for (Unit::AttackerSet::const_iterator attackerIT = me->getAttackers().begin(); attackerIT != me->getAttackers().end(); attackerIT++)
     {
-        for (Unit::AttackerSet::const_iterator attackerIT = me->getAttackers().begin(); attackerIT != me->getAttackers().end(); attackerIT++)
+        if (Unit* pTarget = *attackerIT)
         {
-            if (Unit* pTarget = *attackerIT)
+            if (Player* targetPlayer = pTarget->ToPlayer())
             {
-                if (Player* targetPlayer = pTarget->ToPlayer())
+                if (sb->Attack(targetPlayer))
                 {
-                    if (sb->Attack(targetPlayer))
-                    {
-                        return true;
-                    }
+                    return true;
                 }
             }
         }

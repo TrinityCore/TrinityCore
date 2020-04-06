@@ -24,23 +24,33 @@ MarketerManager::MarketerManager()
         } while (vendorItemQR->NextRow());
     }
 
+    std::unordered_set<uint32> expansionItemsSet;
+    QueryResult eiQR = WorldDatabase.PQuery("SELECT object_id FROM joker_expansion where object_type = 0 and expansion <= %d", sMarketerConfig->MaxExpansion);
+    if (eiQR)
+    {
+        do
+        {
+            Field* fields = eiQR->Fetch();
+            uint32 eachItemEntry = fields[0].GetUInt32();
+            expansionItemsSet.insert(eachItemEntry);
+        } while (eiQR->NextRow());
+    }
+
     sellingItemIDMap.clear();
     ItemTemplateContainer const& its = sObjectMgr->GetItemTemplateStore();
     for (auto const& itemTemplatePair : its)
     {
         const ItemTemplate* proto = &itemTemplatePair.second;
-
         if (!proto)
         {
             continue;
         }
-        if (proto->ItemLevel > sMarketerConfig->MaxItemLevel)
+        if (proto->Class != ItemClass::ITEM_CLASS_GLYPH)
         {
-            continue;
-        }
-        if (proto->RequiredLevel > sMarketerConfig->MaxRequireLevel)
-        {
-            continue;
+            if (expansionItemsSet.find(itemTemplatePair.first) == expansionItemsSet.end())
+            {
+                continue;
+            }
         }
         if (proto->ItemLevel < 1)
         {

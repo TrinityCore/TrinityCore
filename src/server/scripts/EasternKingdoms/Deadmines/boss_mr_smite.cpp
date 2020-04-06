@@ -187,7 +187,7 @@ public:
                                 SetEquipmentSlots(false, EQUIP_AXE, EQUIP_AXE, EQUIP_NO_CHANGE);
                                 // EJ scripts add damage when change equip
                                 float attackPowerMod = me->GetFlatModifierValue(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE);
-                                attackPowerMod += 500.0f;
+                                attackPowerMod += 200.0f;
                                 me->SetStatFlatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, attackPowerMod);
                                 //me->UpdateAttackPowerAndDamage();
                             }
@@ -196,7 +196,7 @@ public:
                                 SetEquipmentSlots(false, EQUIP_MACE, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
                                 // EJ scripts add damage when change equip
                                 float attackPowerMod = me->GetFlatModifierValue(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE);
-                                attackPowerMod += 500.0f;
+                                attackPowerMod += 200.0f;
                                 me->SetStatFlatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, attackPowerMod);
                                 //me->UpdateAttackPowerAndDamage();
                             }

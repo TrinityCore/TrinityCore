@@ -59,6 +59,9 @@ public:
     virtual bool Attack(Unit* pmTarget);
     virtual bool Buff(Unit* pmTarget, bool pmCure);
 
+    void PetAttack(Unit* pmTarget);
+    void PetStop();
+
     void InitializeCharacter(uint32 pmTargetLevel);
     void InitializeValues();
     void InitialEquipment(uint32 pmWeaponType, bool pmDual, uint32 pmArmorType, bool pmHasRange, uint32 pmRangeType, bool pmHasShield);

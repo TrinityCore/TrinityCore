@@ -122,7 +122,9 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
     // EJ melee range is too far
     //float const hitboxSum = owner->GetCombatReach() + target->GetCombatReach();
     float const hitboxSum = owner->GetCombatReach() + CONTACT_DISTANCE;
-    float const minRange = _range ? _range->MinRange + hitboxSum : CONTACT_DISTANCE;
+    // EJ min range could be zero
+    //float const minRange = _range ? _range->MinRange + hitboxSum : CONTACT_DISTANCE;
+    float const minRange = _range ? _range->MinRange  : CONTACT_DISTANCE;
     float const minTarget = (_range ? _range->MinTolerance : 0.0f) + hitboxSum;
     float const maxRange = _range ? _range->MaxRange + hitboxSum : owner->GetMeleeRange(target); // melee range already includes hitboxes
     float const maxTarget = _range ? _range->MaxTolerance + hitboxSum : CONTACT_DISTANCE + hitboxSum;

@@ -45,6 +45,11 @@ public :
     float UniqueEliteAPMod;
     float RareAPMod;
     float RareEliteAPMod;
+    float InstanceEncounterSpellMod;
+    float EliteSpellMod;
+    float UniqueEliteSpellMod;
+    float RareSpellMod;
+    float RareEliteSpellMod;
 
 };
 

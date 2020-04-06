@@ -5615,14 +5615,15 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
 
                 // chance for fail at lockpicking attempt
                 // second check prevent fail at rechecks
-                if (skillId != SKILL_NONE && (!m_selfContainer || ((*m_selfContainer) != this)))
-                {
-                    bool canFailAtMax = skillId == SKILL_LOCKPICKING;
+                // EJ fail chance check in progress
+                //if (skillId != SKILL_NONE && (!m_selfContainer || ((*m_selfContainer) != this)))
+                //{
+                //    bool canFailAtMax = skillId == SKILL_LOCKPICKING;
 
-                    // chance for failure in orange lockpick
-                    if ((canFailAtMax || skillValue < sWorld->GetConfigMaxSkillValue()) && reqSkillValue > irand(skillValue - 25, skillValue + 37))
-                        return SPELL_FAILED_TRY_AGAIN;
-                }
+                //    // chance for failure in orange lockpick
+                //    if ((canFailAtMax || skillValue < sWorld->GetConfigMaxSkillValue()) && reqSkillValue > irand(skillValue - 25, skillValue + 37))
+                //        return SPELL_FAILED_TRY_AGAIN;
+                //}
                 break;
             }
             case SPELL_EFFECT_RESURRECT_PET:

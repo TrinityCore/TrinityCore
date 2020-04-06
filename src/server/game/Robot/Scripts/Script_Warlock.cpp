@@ -6,30 +6,12 @@
 
 Script_Warlock::Script_Warlock(Player* pmMe) :Script_Base(pmMe)
 {
-    
+
 }
 
 bool Script_Warlock::Heal(Unit* pmTarget, bool pmCure)
 {
-    if (!pmTarget)
-    {
-        return false;
-    }
-    else if (!pmTarget->IsAlive())
-    {
-        return false;
-    }
-    if (!me)
-    {
-        return false;
-    }
-    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
-    {
-        return false;
-    }
-    Chase(pmTarget, WARLOCK_RANGE_DISTANCE);
-    float healthPCT = pmTarget->GetHealthPct();
-    return true;
+    return false;
 }
 
 bool Script_Warlock::Tank(Unit* pmTarget)
@@ -62,23 +44,37 @@ bool Script_Warlock::Tank(Unit* pmTarget)
 
 bool Script_Warlock::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)
 {
+    bool meResult = false;
     switch (characterTalentTab)
     {
     case 0:
     {
-        return DPS_Affliction(pmTarget, pmChase, pmAOE);
+        meResult = DPS_Affliction(pmTarget, pmChase, pmAOE);
     }
     case 1:
     {
-        return DPS_Demonology(pmTarget, pmChase, pmAOE);
+        meResult = DPS_Demonology(pmTarget, pmChase, pmAOE);
     }
     case 2:
     {
-        return DPS_Destruction(pmTarget, pmChase, pmAOE);
+        meResult = DPS_Destruction(pmTarget, pmChase, pmAOE);
     }
     default:
-        return DPS_Common(pmTarget, pmChase, pmAOE);
+    {
+        meResult = DPS_Common(pmTarget, pmChase, pmAOE);
+
     }
+    }
+    if (meResult)
+    {
+        PetAttack(pmTarget);
+    }
+    else
+    {
+        PetStop();
+    }
+
+    return meResult;
 }
 
 bool Script_Warlock::DPS_Affliction(Unit* pmTarget, bool pmChase, bool pmAOE)
@@ -91,8 +87,8 @@ bool Script_Warlock::DPS_Affliction(Unit* pmTarget, bool pmChase, bool pmAOE)
     {
         return false;
     }
-    
-    
+
+
     if (!me)
     {
         return false;
@@ -105,10 +101,10 @@ bool Script_Warlock::DPS_Affliction(Unit* pmTarget, bool pmChase, bool pmAOE)
     {
         return false;
     }
-    PetAttack(me->GetPet(), pmTarget);
+
     if (pmChase)
     {
-        Chase(pmTarget, WARLOCK_CLOSER_DISTANCE);
+        Chase(pmTarget, WARLOCK_RANGE_DISTANCE);
     }
     else
     {
@@ -145,8 +141,8 @@ bool Script_Warlock::DPS_Demonology(Unit* pmTarget, bool pmChase, bool pmAOE)
     {
         return false;
     }
-    
-    
+
+
     if (!me)
     {
         return false;
@@ -159,10 +155,10 @@ bool Script_Warlock::DPS_Demonology(Unit* pmTarget, bool pmChase, bool pmAOE)
     {
         return false;
     }
-    PetAttack(me->GetPet(), pmTarget);
+
     if (pmChase)
     {
-        Chase(pmTarget, WARLOCK_CLOSER_DISTANCE);
+        Chase(pmTarget, WARLOCK_RANGE_DISTANCE);
     }
     else
     {
@@ -199,8 +195,8 @@ bool Script_Warlock::DPS_Destruction(Unit* pmTarget, bool pmChase, bool pmAOE)
     {
         return false;
     }
-    
-    
+
+
     if (!me)
     {
         return false;
@@ -213,10 +209,10 @@ bool Script_Warlock::DPS_Destruction(Unit* pmTarget, bool pmChase, bool pmAOE)
     {
         return false;
     }
-    PetAttack(me->GetPet(), pmTarget);
+
     if (pmChase)
     {
-        Chase(pmTarget, WARLOCK_CLOSER_DISTANCE);
+        Chase(pmTarget, WARLOCK_RANGE_DISTANCE);
     }
     else
     {
@@ -316,8 +312,8 @@ bool Script_Warlock::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE)
     {
         return false;
     }
-    
-    
+
+
     if (!me)
     {
         return false;
@@ -332,7 +328,7 @@ bool Script_Warlock::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE)
     }
     if (pmChase)
     {
-        Chase(pmTarget, WARLOCK_CLOSER_DISTANCE);
+        Chase(pmTarget, WARLOCK_RANGE_DISTANCE);
     }
     else
     {
@@ -361,23 +357,37 @@ bool Script_Warlock::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE)
 
 bool Script_Warlock::Attack(Unit* pmTarget)
 {
+    bool meResult = false;
     switch (characterTalentTab)
     {
     case 0:
     {
-        return Attack_Affliction(pmTarget);
+        meResult = Attack_Affliction(pmTarget);
     }
     case 1:
     {
-        return Attack_Demonology(pmTarget);
+        meResult = Attack_Demonology(pmTarget);
     }
     case 2:
     {
-        return Attack_Destruction(pmTarget);
+        meResult = Attack_Destruction(pmTarget);
     }
     default:
-        return Attack_Common(pmTarget);
+    {
+        meResult = Attack_Common(pmTarget);
+
     }
+    }
+    if (meResult)
+    {
+        PetAttack(pmTarget);
+    }
+    else
+    {
+        PetStop();
+    }
+
+    return meResult;
 }
 
 bool Script_Warlock::Attack_Affliction(Unit* pmTarget)
@@ -390,8 +400,8 @@ bool Script_Warlock::Attack_Affliction(Unit* pmTarget)
     {
         return false;
     }
-    
-    
+
+
     if (!me)
     {
         return false;
@@ -404,8 +414,8 @@ bool Script_Warlock::Attack_Affliction(Unit* pmTarget)
     {
         return false;
     }
-    PetAttack(me->GetPet(), pmTarget);
-    Chase(pmTarget, WARLOCK_CLOSER_DISTANCE);
+
+    Chase(pmTarget, WARLOCK_RANGE_DISTANCE);
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
     {
         if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
@@ -434,8 +444,8 @@ bool Script_Warlock::Attack_Demonology(Unit* pmTarget)
     {
         return false;
     }
-    
-    
+
+
     if (!me)
     {
         return false;
@@ -448,8 +458,8 @@ bool Script_Warlock::Attack_Demonology(Unit* pmTarget)
     {
         return false;
     }
-    PetAttack(me->GetPet(), pmTarget);
-    Chase(pmTarget, WARLOCK_CLOSER_DISTANCE);
+
+    Chase(pmTarget, WARLOCK_RANGE_DISTANCE);
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
     {
         if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
@@ -478,8 +488,8 @@ bool Script_Warlock::Attack_Destruction(Unit* pmTarget)
     {
         return false;
     }
-    
-    
+
+
     if (!me)
     {
         return false;
@@ -492,8 +502,8 @@ bool Script_Warlock::Attack_Destruction(Unit* pmTarget)
     {
         return false;
     }
-    PetAttack(me->GetPet(), pmTarget);
-    Chase(pmTarget, WARLOCK_CLOSER_DISTANCE);
+
+    Chase(pmTarget, WARLOCK_RANGE_DISTANCE);
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
     {
         if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
@@ -539,8 +549,8 @@ bool Script_Warlock::Attack_Common(Unit* pmTarget)
     {
         return false;
     }
-    
-    
+
+
     if (!me)
     {
         return false;
@@ -553,7 +563,7 @@ bool Script_Warlock::Attack_Common(Unit* pmTarget)
     {
         return false;
     }
-    Chase(pmTarget, WARLOCK_CLOSER_DISTANCE);
+    Chase(pmTarget, WARLOCK_RANGE_DISTANCE);
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
     {
         if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
@@ -582,8 +592,8 @@ bool Script_Warlock::Buff(Unit* pmTarget, bool pmCure)
     {
         return false;
     }
-    
-    
+
+
     if (!me)
     {
         return false;
@@ -616,27 +626,4 @@ bool Script_Warlock::Buff(Unit* pmTarget, bool pmCure)
     }
 
     return false;
-}
-
-void Script_Warlock::PetAttack(Pet* pmMyPet, Unit* pmTarget)
-{
-    if (pmMyPet)
-    {
-        if (CharmInfo* pci = pmMyPet->GetCharmInfo())
-        {
-            if (!pci->IsCommandAttack())
-            {
-                pci->SetIsCommandAttack(true);
-                CreatureAI* AI = pmMyPet->ToCreature()->AI();
-                if (PetAI* petAI = dynamic_cast<PetAI*>(AI))
-                {
-                    petAI->_AttackStart(pmTarget);
-                }
-                else
-                {
-                    AI->AttackStart(pmTarget);
-                }
-            }
-        }
-    }
 }

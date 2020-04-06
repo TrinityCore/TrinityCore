@@ -1,12 +1,8 @@
 #ifndef ROBOT_STRATEGIES_SCRIPT_WARLOCK_H
 #define ROBOT_STRATEGIES_SCRIPT_WARLOCK_H
 
-#ifndef WARLOCK_CLOSER_DISTANCE
-# define WARLOCK_CLOSER_DISTANCE 25
-#endif
-
 #ifndef WARLOCK_RANGE_DISTANCE
-# define WARLOCK_RANGE_DISTANCE 30
+# define WARLOCK_RANGE_DISTANCE 25
 #endif
 
 #include "Script_Base.h"
@@ -20,8 +16,6 @@ public:
     bool Heal(Unit* pmTarget, bool pmCure);
     bool Attack(Unit* pmTarget);
     bool Buff(Unit* pmTarget, bool pmCure);
-
-    void PetAttack(Pet* pmMyPet, Unit* pmTarget);
 
 	bool DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE);
     bool DPS_Affliction(Unit* pmTarget, bool pmChase, bool pmAOE);

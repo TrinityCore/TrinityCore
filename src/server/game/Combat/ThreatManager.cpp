@@ -597,6 +597,9 @@ void ThreatManager::ProcessAIUpdates()
 
 /*static*/ float ThreatManager::CalculateModifiedThreat(float threat, Unit const* victim, SpellInfo const* spell)
 {
+    // EJ threat reduce
+    float originalThreat = threat;
+
     // modifiers by spell
     if (spell)
     {
@@ -613,41 +616,49 @@ void ThreatManager::ProcessAIUpdates()
     SpellSchoolMask const mask = spell ? spell->GetSchoolMask() : SPELL_SCHOOL_MASK_NORMAL;
     switch (mask)
     {
-        case SPELL_SCHOOL_MASK_NORMAL:
-            threat *= victimMgr._singleSchoolModifiers[SPELL_SCHOOL_NORMAL];
-            break;
-        case SPELL_SCHOOL_MASK_HOLY:
-            threat *= victimMgr._singleSchoolModifiers[SPELL_SCHOOL_HOLY];
-            break;
-        case SPELL_SCHOOL_MASK_FIRE:
-            threat *= victimMgr._singleSchoolModifiers[SPELL_SCHOOL_FIRE];
-            break;
-        case SPELL_SCHOOL_MASK_NATURE:
-            threat *= victimMgr._singleSchoolModifiers[SPELL_SCHOOL_NATURE];
-            break;
-        case SPELL_SCHOOL_MASK_FROST:
-            threat *= victimMgr._singleSchoolModifiers[SPELL_SCHOOL_FROST];
-            break;
-        case SPELL_SCHOOL_MASK_SHADOW:
-            threat *= victimMgr._singleSchoolModifiers[SPELL_SCHOOL_SHADOW];
-            break;
-        case SPELL_SCHOOL_MASK_ARCANE:
-            threat *= victimMgr._singleSchoolModifiers[SPELL_SCHOOL_ARCANE];
-            break;
-        default:
+    case SPELL_SCHOOL_MASK_NORMAL:
+        threat *= victimMgr._singleSchoolModifiers[SPELL_SCHOOL_NORMAL];
+        break;
+    case SPELL_SCHOOL_MASK_HOLY:
+        threat *= victimMgr._singleSchoolModifiers[SPELL_SCHOOL_HOLY];
+        break;
+    case SPELL_SCHOOL_MASK_FIRE:
+        threat *= victimMgr._singleSchoolModifiers[SPELL_SCHOOL_FIRE];
+        break;
+    case SPELL_SCHOOL_MASK_NATURE:
+        threat *= victimMgr._singleSchoolModifiers[SPELL_SCHOOL_NATURE];
+        break;
+    case SPELL_SCHOOL_MASK_FROST:
+        threat *= victimMgr._singleSchoolModifiers[SPELL_SCHOOL_FROST];
+        break;
+    case SPELL_SCHOOL_MASK_SHADOW:
+        threat *= victimMgr._singleSchoolModifiers[SPELL_SCHOOL_SHADOW];
+        break;
+    case SPELL_SCHOOL_MASK_ARCANE:
+        threat *= victimMgr._singleSchoolModifiers[SPELL_SCHOOL_ARCANE];
+        break;
+    default:
+    {
+        auto it = victimMgr._multiSchoolModifiers.find(mask);
+        if (it != victimMgr._multiSchoolModifiers.end())
         {
-            auto it = victimMgr._multiSchoolModifiers.find(mask);
-            if (it != victimMgr._multiSchoolModifiers.end())
-            {
-                threat *= it->second;
-                break;
-            }
-            float mod = victim->GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_THREAT, mask);
-            victimMgr._multiSchoolModifiers[mask] = mod;
-            threat *= mod;
+            threat *= it->second;
             break;
         }
+        float mod = victim->GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_THREAT, mask);
+        victimMgr._multiSchoolModifiers[mask] = mod;
+        threat *= mod;
+        break;
     }
+    }
+
+    // EJ threat will be 1/4 wlk values
+    threat = threat / 4.0f;
+    if (threat < originalThreat)
+    {
+        threat = originalThreat;
+    }
+
     return threat;
 }
 

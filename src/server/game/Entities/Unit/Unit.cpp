@@ -388,6 +388,9 @@ Unit::Unit(bool isWorldObject) :
 
     // EJ attack charge 
     attackChargeTarget = NULL;
+
+    //EJ joker
+    jokerSpellDamageMod = 1.0f;
 }
 
 ////////////////////////////////////////////////////////////
@@ -601,8 +604,7 @@ bool Unit::IsWithinMeleeRangeAt(Position const& pos, Unit const* obj) const
 float Unit::GetMeleeRange(Unit const* target) const
 {
     // EJ less melee range 
-    //float range = GetCombatReach() + target->GetCombatReach() + 4.0f / 3.0f;
-    float range = GetCombatReach() + target->GetCombatReach();
+    float range = GetCombatReach() + target->GetCombatReach() + 4.0f / 3.0f;
     return std::max(range, NOMINAL_MELEE_RANGE);
 }
 
@@ -6575,6 +6577,7 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
             {
                 if (CreatureTemplate const* ct = checkC->GetCreatureTemplate())
                 {
+                    DoneTotalMod *= jokerSpellDamageMod;
                     if (ct->rank != 3)
                     {
                         float levelMod = 1.0f;

@@ -40,8 +40,7 @@ public :
 
     uint32 Enable;
     uint32 Reset;
-    uint32 MaxItemLevel;
-    uint32 MaxRequireLevel;
+    uint32 MaxExpansion;
 };
 
 #define sMarketerConfig MarketerConfig::instance()

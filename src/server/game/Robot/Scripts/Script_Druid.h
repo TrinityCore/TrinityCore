@@ -13,12 +13,8 @@
 # define DRUID_PREPARE_DISTANCE 10
 #endif
 
-#ifndef DRUID_CLOSER_DISTANCE
-# define DRUID_CLOSER_DISTANCE 25
-#endif
-
 #ifndef DRUID_RANGE_DISTANCE
-# define DRUID_RANGE_DISTANCE 30
+# define DRUID_RANGE_DISTANCE 25
 #endif
 
 #include "Script_Base.h"

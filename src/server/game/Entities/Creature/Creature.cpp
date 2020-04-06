@@ -268,6 +268,9 @@ Creature::Creature(bool isWorldObject): Unit(isWorldObject), MapObject(), m_grou
 
     ResetLootMode(); // restore default loot mode
     m_isTempWorldObject = false;
+
+    // EJ joker
+    jokerSpellDamageMod = 1.0f;
 }
 
 void Creature::AddToWorld()
@@ -1405,37 +1408,7 @@ void Creature::UpdateLevelDependantStats()
     uint32 rank = IsPet() ? 0 : cInfo->rank;
     CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(GetLevel(), cInfo->unit_class);
 
-    // health
-    float healthmod = _GetHealthMod(rank);
-
-    uint32 basehp = stats->GenerateHealth(cInfo);
-    uint32 health = uint32(basehp * healthmod);
-
-    SetCreateHealth(health);
-    SetMaxHealth(health);
-    SetHealth(health);
-    ResetPlayerDamageReq();
-
-    // mana
-    uint32 mana = stats->GenerateMana(cInfo);
-    SetCreateMana(mana);
-
-    switch (GetClass())
-    {
-    case UNIT_CLASS_PALADIN:
-    case UNIT_CLASS_MAGE:
-        SetMaxPower(POWER_MANA, mana);
-        SetFullPower(POWER_MANA);
-        break;
-    default: // We don't set max power here, 0 makes power bar hidden
-        break;
-    }
-
-    SetStatFlatModifier(UNIT_MOD_HEALTH, BASE_VALUE, (float)health);
-
-    // damage
     float basedamage = stats->GenerateBaseDamage(cInfo);
-
     float weaponBaseMinDamage = basedamage;
     float weaponBaseMaxDamage = basedamage * 1.5f;
 
@@ -1451,61 +1424,78 @@ void Creature::UpdateLevelDependantStats()
     SetStatFlatModifier(UNIT_MOD_ATTACK_POWER, BASE_VALUE, stats->AttackPower);
     SetStatFlatModifier(UNIT_MOD_ATTACK_POWER_RANGED, BASE_VALUE, stats->RangedAttackPower);
 
-    // EJ mod ap
+    float armor = (float)stats->GenerateArmor(cInfo); /// @todo Why is this treated as uint32 when it's a float?
+    SetStatFlatModifier(UNIT_MOD_ARMOR, BASE_VALUE, armor);
+
+    float healthmod = _GetHealthMod(rank);
+    uint32 basehp = stats->GenerateHealth(cInfo);
+    uint32 mana = stats->GenerateMana(cInfo);
+
+    // EJ mod 
     if (sJokerConfig->Enable)
     {
-        float checkAP = stats->AttackPower;
-        if (checkAP < 30)
+        if (cInfo->rank != 3)
         {
-            checkAP = 30;
-        }
-        checkAP = checkAP * 1.2f;
-        if (cInfo->rank == 1 || cInfo->rank == 2 || cInfo->rank == 4)
-        {
-            float jokerMod = 1.0f;
+            float checkAP = stats->AttackPower;
+            if (checkAP < 30)
+            {
+                checkAP = 30;
+            }
+            checkAP = checkAP + checkAP * 20 / 100;
+            checkAP = checkAP + checkAP * GetLevel() / 100;
+
+            basehp = basehp + basehp * GetLevel() / 100;
+            mana = mana + mana * GetLevel() / 100;
+
+            float jokerAPMod = 1.0f;
             if (sObjectMgr->ieSet.find(cInfo->Entry) != sObjectMgr->ieSet.end())
             {
-                jokerMod = sJokerConfig->InstanceEncounterAPMod;
+                jokerAPMod = sJokerConfig->InstanceEncounterAPMod;
+                jokerSpellDamageMod = sJokerConfig->InstanceEncounterSpellMod;
             }
             else if (cInfo->rank == 1)
             {
                 if (sObjectMgr->ueSet.find(cInfo->Entry) != sObjectMgr->ueSet.end())
                 {
-                    jokerMod = sJokerConfig->UniqueEliteAPMod;
+                    jokerAPMod = sJokerConfig->UniqueEliteAPMod;
+                    jokerSpellDamageMod = sJokerConfig->UniqueEliteSpellMod;
                 }
                 else
                 {
-                    jokerMod = sJokerConfig->EliteAPMod;
+                    jokerAPMod = sJokerConfig->EliteAPMod;
+                    jokerSpellDamageMod = sJokerConfig->EliteSpellMod;
                 }
             }
             else if (cInfo->rank == 2)
             {
-                jokerMod = sJokerConfig->RareEliteAPMod;
+                jokerAPMod = sJokerConfig->RareEliteAPMod;
+                jokerSpellDamageMod = sJokerConfig->RareEliteSpellMod;
             }
             else if (cInfo->rank == 4)
             {
-                jokerMod = sJokerConfig->RareAPMod;
+                jokerAPMod = sJokerConfig->RareAPMod;
+                jokerSpellDamageMod = sJokerConfig->RareSpellMod;
             }
             switch (cInfo->unit_class)
             {
             case UnitClass::UNIT_CLASS_WARRIOR:
             {
-                jokerMod = jokerMod * 1.0f;
+                jokerAPMod = jokerAPMod * 1.0f;
                 break;
             }
             case UnitClass::UNIT_CLASS_PALADIN:
             {
-                jokerMod = jokerMod * 0.8f;
+                jokerAPMod = jokerAPMod * 0.8f;
                 break;
             }
             case UnitClass::UNIT_CLASS_ROGUE:
             {
-                jokerMod = jokerMod * 1.0f;
+                jokerAPMod = jokerAPMod * 1.0f;
                 break;
             }
             case UnitClass::UNIT_CLASS_MAGE:
             {
-                jokerMod = jokerMod * 0.5f;
+                jokerAPMod = jokerAPMod * 0.5f;
                 break;
             }
             default:
@@ -1513,20 +1503,33 @@ void Creature::UpdateLevelDependantStats()
                 break;
             }
             }
-            checkAP = checkAP * jokerMod;
-        }
-        float levelMod = 1.0f;
-        levelMod = levelMod + ((float)GetLevel() / 100.0f);
-        checkAP = checkAP * levelMod;
-        SetStatFlatModifier(UNIT_MOD_ATTACK_POWER, BASE_VALUE, checkAP);
-        if (checkAP > stats->RangedAttackPower)
-        {
-            SetStatFlatModifier(UNIT_MOD_ATTACK_POWER_RANGED, BASE_VALUE, checkAP);
+            checkAP = checkAP * jokerAPMod;
+
+            SetStatFlatModifier(UNIT_MOD_ATTACK_POWER, BASE_VALUE, checkAP);
+            if (checkAP > stats->RangedAttackPower)
+            {
+                SetStatFlatModifier(UNIT_MOD_ATTACK_POWER_RANGED, BASE_VALUE, checkAP);
+            }
         }
     }
 
-    float armor = (float)stats->GenerateArmor(cInfo); /// @todo Why is this treated as uint32 when it's a float?
-    SetStatFlatModifier(UNIT_MOD_ARMOR, BASE_VALUE, armor);
+    uint32 health = uint32(basehp * healthmod);
+    SetCreateHealth(health);
+    SetMaxHealth(health);
+    SetHealth(health);
+    ResetPlayerDamageReq();
+    SetCreateMana(mana);
+    switch (GetClass())
+    {
+    case UNIT_CLASS_PALADIN:
+    case UNIT_CLASS_MAGE:
+        SetMaxPower(POWER_MANA, mana);
+        SetFullPower(POWER_MANA);
+        break;
+    default: // We don't set max power here, 0 makes power bar hidden
+        break;
+    }
+    SetStatFlatModifier(UNIT_MOD_HEALTH, BASE_VALUE, (float)health);
 }
 
 float Creature::_GetHealthMod(int32 Rank)

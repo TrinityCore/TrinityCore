@@ -5,16 +5,12 @@
 #define TAME_SPELL_ID 13481
 #endif
 
-#ifndef HUNTER_CLOSER_DISTANCE
-# define HUNTER_CLOSER_DISTANCE 25
-#endif
-
 #ifndef HUNTER_MIN_RANGE_DISTANCE
-# define HUNTER_MIN_RANGE_DISTANCE 6
+# define HUNTER_MIN_RANGE_DISTANCE 8
 #endif
 
 #ifndef HUNTER_RANGE_DISTANCE
-# define HUNTER_RANGE_DISTANCE 30
+# define HUNTER_RANGE_DISTANCE 25
 #endif
 
 #include "Script_Base.h"
@@ -28,8 +24,6 @@ public:
     bool Heal(Unit* pmTarget, bool pmCure);
     bool Attack(Unit* pmTarget);
     bool Buff(Unit* pmTarget, bool pmCure);
-
-    void PetAttack(Pet* pmMyPet, Unit* pmTarget);
 
     bool DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE);
     bool DPS_BeastMastery(Unit* pmTarget, bool pmChase, bool pmAOE);

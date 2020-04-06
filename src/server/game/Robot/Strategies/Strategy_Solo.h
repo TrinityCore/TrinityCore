@@ -40,6 +40,7 @@ public:
 	int32 strollDelay;
 	int32 confuseDelay;
 	int32 interestsDelay;
+    int32 engageDelay;
 
     Script_Base* sb;
 };

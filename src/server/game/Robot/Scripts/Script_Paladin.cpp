@@ -24,11 +24,10 @@ bool Script_Paladin::Heal(Unit* pmTarget, bool pmCure)
     {
         return false;
     }
-    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
+    if (me->GetDistance(pmTarget) > PALADIN_RANGE_DISTANCE)
     {
         return false;
     }
-    Chase(pmTarget, PALADIN_RANGE_DISTANCE);
     float healthPCT = pmTarget->GetHealthPct();
     if (healthPCT < 20.0f)
     {
@@ -77,7 +76,7 @@ bool Script_Paladin::Heal(Unit* pmTarget, bool pmCure)
         }
     }
 
-    return true;
+    return false;
 }
 
 bool Script_Paladin::Tank(Unit* pmTarget)
