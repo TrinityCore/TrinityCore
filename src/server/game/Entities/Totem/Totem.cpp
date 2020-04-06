@@ -71,8 +71,8 @@ void Totem::InitStats(uint32 duration)
         if (uint32 totemDisplayId = sObjectMgr->GetModelForTotem(SummonSlot(slot), Races(owner->GetRace())))
             SetDisplayId(totemDisplayId);
         else
-            TC_LOG_DEBUG("misc", "Totem with entry %u, owned by player guidlow %u (%u %s %s) in slot %u, created by spell %u, does not have a specialized model. Set to default.",
-                         GetEntry(), owner->GetGUID().GetCounter(), owner->GetLevel(), EnumUtils::ToTitle(Races(owner->GetRace())), EnumUtils::ToTitle(Classes(owner->GetClass())), slot, GetUInt32Value(UNIT_CREATED_BY_SPELL));
+            TC_LOG_DEBUG("misc", "Totem with entry %u, owned by player %s (%u %s %s) in slot %u, created by spell %u, does not have a specialized model. Set to default.",
+                         GetEntry(), owner->GetGUID().ToString().c_str(), owner->GetLevel(), EnumUtils::ToTitle(Races(owner->GetRace())), EnumUtils::ToTitle(Classes(owner->GetClass())), slot, GetUInt32Value(UNIT_CREATED_BY_SPELL));
     }
 
     Minion::InitStats(duration);

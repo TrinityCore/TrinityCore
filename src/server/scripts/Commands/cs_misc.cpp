@@ -1264,7 +1264,7 @@ public:
         if (count < 0)
         {
             uint32 destroyedItemCount = playerTarget->DestroyItemCount(itemId, -count, true, false);
-            
+
             if (destroyedItemCount > 0)
             {
                 // output the amount of items successfully destroyed

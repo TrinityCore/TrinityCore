@@ -19,6 +19,7 @@
 #define CharacterPackets_h__
 
 #include "Packet.h"
+#include "Position.h"
 
 namespace WorldPackets
 {
@@ -42,6 +43,17 @@ namespace WorldPackets
             void Read() override;
 
             bool ShowHelm = false;
+        };
+
+        class LoginVerifyWorld final : public ServerPacket
+        {
+        public:
+            LoginVerifyWorld() : ServerPacket(SMSG_LOGIN_VERIFY_WORLD, 4 + 4 * 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 MapID = -1;
+            TaggedPosition<Position::XYZO> Pos;
         };
     }
 }

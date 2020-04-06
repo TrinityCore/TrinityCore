@@ -1129,8 +1129,8 @@ bool Guild::Create(Player* pLeader, std::string const& name)
     m_createdDate = GameTime::GetGameTime();
     _CreateLogHolders();
 
-    TC_LOG_DEBUG("guild", "GUILD: creating guild [%s] for leader %s (%u)",
-        name.c_str(), pLeader->GetName().c_str(), m_leaderGuid.GetCounter());
+    TC_LOG_DEBUG("guild", "GUILD: creating guild [%s] for leader %s %s",
+        name.c_str(), pLeader->GetName().c_str(), m_leaderGuid.ToString().c_str());
 
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
@@ -2747,14 +2747,6 @@ void Guild::_MoveItems(MoveItemData* pSrc, MoveItemData* pDest, uint32 splitedAm
     // 2. Check source item
     if (!pSrc->CheckItem(splitedAmount))
         return; // Source item or splited amount is invalid
-    /*
-    if (pItemSrc->GetCount() == 0)
-    {
-        TC_LOG_FATAL("guild", "Guild::SwapItems: Player %s(GUIDLow: %u) tried to move item %u from tab %u slot %u to tab %u slot %u, but item %u has a stack of zero!",
-            player->GetName(), player->GetGUID().GetCounter(), pItemSrc->GetEntry(), tabId, slotId, destTabId, destSlotId, pItemSrc->GetEntry());
-        //return; // Commented out for now, uncomment when it's verified that this causes a crash!!
-    }
-    // */
 
     // 3. Check destination rights
     if (!pDest->HasStoreRights(pSrc))
