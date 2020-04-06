@@ -19,7 +19,7 @@ mechanics and functionality.
 It is completely open source; community involvement is highly encouraged.
 
 If you wish to contribute ideas or code please visit our site linked below or
-make pull requests to our [Gitlab repository](https://gitlab.com/trinitycore/TrinityCore_434/).
+make pull requests to our [Github repository](https://github.com/The-Cataclysm-Preservation-Project/TrinityCore).
 
 For further information on the TrinityCore project, please visit our project
 website at [TrinityCore.org](https://www.trinitycore.org).
@@ -30,10 +30,10 @@ website at [TrinityCore.org](https://www.trinitycore.org).
 + Processor with SSE2 support
 + Boost ≥ 1.58 (Linux) 1.63 (Windows)
 + MySQL ≥ 5.1.0
-+ CMake ≥ 3.2.0 (Linux) 3.3.2 (Windows)
++ CMake ≥ 3.8.0 (Linux) 3.8.0 (Windows)
 + OpenSSL = 1.0.x
-+ GCC ≥ 6.3.0 (Linux only) (clang 3.5 heavy recommended)
-+ MS Visual Studio ≥ 15 (2017) (Windows only)
++ GCC ≥ 7.1.0 (Linux only) (clang 3.5 heavy recommended)
++ MS Visual Studio ≥ 16.4 (2019) (Windows only)
 + zlib ≥ 1.2.7
 + ZeroMQ:
 + apt-get install libzmq-dev (Linux only)
@@ -45,16 +45,12 @@ website at [TrinityCore.org](https://www.trinitycore.org).
 Detailed installation guides are available in the [wiki](https://www.trinitycore.info/display/tc/Installation+Guide) for
 Windows, Linux and Mac OSX.  
 You can get database from  
-https://github.com/TrinityCoreLegacy/TrinityCore/releases  
-https://t.me/tdbreleases
-
-Notifications:
-https://t.me/trinitycorelegacy 
+https://github.com/The-Cataclysm-Preservation-Project/TrinityCore/releases
 
 
 ## Reporting issues
 
-Issues can be reported via the [Gitlab issue tracker](https://gitlab.com/trinitycore/TrinityCore_434/issues).
+Issues can be reported via the [Github issue tracker](https://github.com/The-Cataclysm-Preservation-Project/TrinityCore/issues).
 
 Please take the time to review existing issues before submitting your own to
 prevent duplicates.
