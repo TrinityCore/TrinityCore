@@ -437,6 +437,8 @@ Item::Item()
     m_paidMoney = 0;
     m_paidExtendedCost = 0;
 
+    m_randomBonusListId = 0;
+
     memset(&_bonusData, 0, sizeof(_bonusData));
 }
 
