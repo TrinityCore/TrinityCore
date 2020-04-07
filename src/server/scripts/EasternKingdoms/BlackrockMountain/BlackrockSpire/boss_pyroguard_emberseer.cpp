@@ -127,7 +127,7 @@ public:
         {
             if (spell->Id == SPELL_ENCAGE_EMBERSEER)
             {
-                if (!me->GetAuraCount(SPELL_ENCAGED_EMBERSEER)) 
+                if (!me->GetAuraCount(SPELL_ENCAGED_EMBERSEER))
                 {
                     me->CastSpell(me, SPELL_ENCAGED_EMBERSEER);
                     Reset();
@@ -194,7 +194,7 @@ public:
                             GetCreatureListWithEntryInGrid(creatureList, me, NPC_BLACKHAND_INCARCERATOR, 35.0f);
                             for (std::list<Creature*>::iterator itr = creatureList.begin(); itr != creatureList.end(); ++itr)
                             {
-                                if (Creature* creature = *itr) 
+                                if (Creature* creature = *itr)
                                 {
                                     creature->SetImmuneToAll(false);
                                     creature->InterruptSpell(CURRENT_CHANNELED_SPELL);
@@ -327,7 +327,7 @@ public:
             _events.ScheduleEvent(EVENT_ENCAGE, 10s, 20s);
         }
 
-        void JustReachedHome() override 
+        void JustReachedHome() override
         {
             DoCast(SPELL_ENCAGE_EMBERSEER);
 

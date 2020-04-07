@@ -125,7 +125,7 @@ public:
                     creature->AI()->Talk(SAY_FINKLE_GANG);
                     break;
                 case NPC_BLACKHAND_INCARCERATOR:
-                    _incarceratorList.push_back(creature->GetGUID()); 
+                    _incarceratorList.push_back(creature->GetGUID());
                     break;
              }
          }
