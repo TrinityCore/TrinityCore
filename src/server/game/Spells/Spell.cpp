@@ -4240,6 +4240,25 @@ void Spell::SendPetCastResult(SpellCastResult result)
     player->SendDirectMessage(&data);
 }
 
+
+void Spell::SendMountResult(MountResult result)
+{
+    if (result == MOUNT_RESULT_OK)
+        return;
+
+    if (!m_caster->IsPlayer())
+        return;
+
+    if (m_caster->ToPlayer()->IsLoading())  // don't send mount results at loading time
+        return;
+
+    Player* caster = m_caster->ToPlayer();
+
+    WorldPackets::Spells::MountResult packet;
+    packet.Result = result;
+    caster->SendDirectMessage(packet.Write());
+}
+
 void Spell::SendSpellStart()
 {
     if (!IsNeedSendToClient())
@@ -6120,7 +6139,10 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                     return SPELL_FAILED_NO_MOUNTS_ALLOWED;
 
                 if (m_caster->IsInDisallowedMountForm())
-                    return SPELL_FAILED_NOT_SHAPESHIFT;
+                {
+                    SendMountResult(MOUNT_RESULT_SHAPESHIFTED); // mount result gets sent before the cast result
+                    return SPELL_FAILED_DONT_REPORT;
+                }
 
                 break;
             }

@@ -975,7 +975,7 @@ enum OpcodeServer
     SMSG_MONSTER_MOVE                                 = 0x6E17,
     SMSG_MONSTER_MOVE_TRANSPORT                       = 0x2004,
     SMSG_MOTD                                         = 0x0A35,
-    SMSG_MOUNTRESULT                                  = 0x2225,
+    SMSG_MOUNT_RESULT                                 = 0x2225,
     SMSG_MOUNTSPECIAL_ANIM                            = 0x0217,
     SMSG_MOVE_COLLISION_DISABLE                       = 0x31B0,
     SMSG_MOVE_COLLISION_ENABLE                        = 0x11A7,
@@ -1396,7 +1396,7 @@ inline bool IsInstanceOnlyOpcode(uint32 opcode)
         case SMSG_ITEM_PUSH_RESULT:
         case SMSG_QUEST_GIVER_STATUS:
         case SMSG_QUERY_TIME_RESPONSE:
-        case SMSG_MOUNTRESULT:
+        case SMSG_MOUNT_RESULT:
         case SMSG_DUEL_COMPLETE:
         case SMSG_LOOT_MONEY_NOTIFY:
         case SMSG_LOOT_CLEAR_MONEY:
