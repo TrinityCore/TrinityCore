@@ -2999,40 +2999,36 @@ bool Unit::isInAccessiblePlaceFor(Creature const* c) const
 
 bool Unit::IsInWater() const
 {
-    return GetMap()->IsInWater(GetPhaseShift(), GetPositionX(), GetPositionY(), GetPositionZ());
+    return GetLiquidStatus() & (LIQUID_MAP_IN_WATER | LIQUID_MAP_UNDER_WATER);
 }
 
 bool Unit::IsUnderWater() const
 {
-    return GetMap()->IsUnderWater(GetPhaseShift(), GetPositionX(), GetPositionY(), GetPositionZ());
+    return GetLiquidStatus() & LIQUID_MAP_UNDER_WATER;
 }
 
 void Unit::ProcessPositionDataChanged(PositionFullTerrainStatus const& data)
 {
+    ZLiquidStatus oldLiquidStatus = GetLiquidStatus();
     WorldObject::ProcessPositionDataChanged(data);
-    ProcessTerrainStatusUpdate(data.liquidStatus, data.liquidInfo);
+    ProcessTerrainStatusUpdate(oldLiquidStatus, data.liquidInfo);
 }
 
-void Unit::SetInWater(bool inWater)
-{
-    // remove appropriate auras if we are swimming/not swimming respectively
-    if (inWater)
-        RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::UnderWater);
-    else
-        RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::AboveWater);
-}
-
-void Unit::ProcessTerrainStatusUpdate(ZLiquidStatus status, Optional<LiquidData> const& liquidData)
+void Unit::ProcessTerrainStatusUpdate(ZLiquidStatus oldLiquidStatus, Optional<LiquidData> const& newLiquidData)
 {
     if (!IsControlledByPlayer())
         return;
 
-    SetInWater(status & MAP_LIQUID_STATUS_SWIMMING);
+    // remove appropriate auras if we are swimming/not swimming respectively
+    if (IsInWater())
+        RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::UnderWater);
+    else
+        RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::AboveWater);
 
     // liquid aura handling
     LiquidTypeEntry const* curLiquid = nullptr;
-    if ((status & MAP_LIQUID_STATUS_SWIMMING) && liquidData)
-        curLiquid = sLiquidTypeStore.LookupEntry(liquidData->entry);
+    if (IsInWater() && newLiquidData)
+        curLiquid = sLiquidTypeStore.LookupEntry(newLiquidData->entry);
     if (curLiquid != _lastLiquid)
     {
         if (_lastLiquid && _lastLiquid->SpellID)
@@ -3044,10 +3040,11 @@ void Unit::ProcessTerrainStatusUpdate(ZLiquidStatus status, Optional<LiquidData>
 
         if (curLiquid && curLiquid->SpellID && (!player || !player->IsGameMaster()))
             CastSpell(this, curLiquid->SpellID, true);
-
-        // mount capability depends on liquid state change
-        UpdateMountCapability();
     }
+
+    // mount capability depends on liquid state change
+    if (oldLiquidStatus != GetLiquidStatus())
+        UpdateMountCapability();
 }
 
 void Unit::DeMorph()
