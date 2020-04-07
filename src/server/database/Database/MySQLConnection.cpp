@@ -34,7 +34,7 @@ MySQLConnectionInfo::MySQLConnectionInfo(std::string const& infoString)
 {
     Tokenizer tokens(infoString, ';');
 
-    if (tokens.size() != 5)
+    if (tokens.size() != 5 && tokens.size() != 6)
         return;
 
     uint8 i = 0;
@@ -44,6 +44,9 @@ MySQLConnectionInfo::MySQLConnectionInfo(std::string const& infoString)
     user.assign(tokens[i++]);
     password.assign(tokens[i++]);
     database.assign(tokens[i++]);
+
+    if (tokens.size() == 6)
+        ssl.assign(tokens[i++]);
 }
 
 MySQLConnection::MySQLConnection(MySQLConnectionInfo& connInfo) :
@@ -128,6 +131,16 @@ uint32 MySQLConnection::Open()
         unix_socket = nullptr;
     }
     #endif
+
+    if (m_connectionInfo.ssl != "")
+    {
+        my_bool opt_use_ssl = false;
+        if (m_connectionInfo.ssl == "ssl")
+        {
+            opt_use_ssl = true;
+        }
+        mysql_options(mysqlInit, MYSQL_OPT_SSL_ENFORCE, (char const*)&opt_use_ssl);
+    }
 
     m_Mysql = reinterpret_cast<MySQLHandle*>(mysql_real_connect(mysqlInit, m_connectionInfo.host.c_str(), m_connectionInfo.user.c_str(),
         m_connectionInfo.password.c_str(), m_connectionInfo.database.c_str(), port, unix_socket, 0));
