@@ -131,8 +131,7 @@ public:
                 {
                     me->CastSpell(me, SPELL_ENCAGED_EMBERSEER);
                     Reset();
-                }
-                   
+                }       
             }
 
             if (spell->Id == SPELL_EMBERSEER_GROWING_TRIGGER)
