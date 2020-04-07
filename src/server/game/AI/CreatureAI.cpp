@@ -208,13 +208,13 @@ static bool ShouldFollowOnSpawn(SummonPropertiesEntry const* properties)
             if (properties->Flags & SUMMON_PROP_FLAG_UNK14)
                 return false;
 
-            switch (properties->Title)
+            switch (SummonTitle(properties->Title))
             {
-                case SUMMON_TYPE_PET:
-                case SUMMON_TYPE_GUARDIAN:
-                case SUMMON_TYPE_GUARDIAN2:
-                case SUMMON_TYPE_MINION:
-                case SUMMON_TYPE_MINIPET:
+                case SummonTitle::Pet:
+                case SummonTitle::Guardian:
+                case SummonTitle::Runeblade:
+                case SummonTitle::Minion:
+                case SummonTitle::Companion:
                     return true;
                 default:
                     return false;

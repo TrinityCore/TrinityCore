@@ -2386,7 +2386,7 @@ struct SummonPropertiesEntry
     uint32  ID;                                             // 0
     uint32  Control;                                        // 1, 0 - can't be controlled?, 1 - something guardian?, 2 - pet?, 3 - something controllable?, 4 - taxi/mount?
     uint32  Faction;                                        // 2, 14 rows > 0
-    uint32  Title;                                          // 3, see enum
+    int32   Title;                                          // 3, see enum
     int32   Slot;                                           // 4, 0-6
     uint32  Flags;                                          // 5
 };

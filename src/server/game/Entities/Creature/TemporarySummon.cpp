@@ -199,17 +199,18 @@ void TempSummon::InitStats(uint32 duration)
             if (!m_Properties->Faction)
                 SetFaction(owner->GetFaction());
 
-            switch (m_Properties->Title)
+            switch (SummonTitle(m_Properties->Title))
             {
-                case SUMMON_TYPE_PET:
-                case SUMMON_TYPE_GUARDIAN:
-                case SUMMON_TYPE_GUARDIAN2:
-                case SUMMON_TYPE_MINION:
-                case SUMMON_TYPE_VEHICLE:
-                case SUMMON_TYPE_VEHICLE2:
-                case SUMMON_TYPE_LIGHTWELL:
-                case SUMMON_TYPE_TOTEM:
-                case SUMMON_TYPE_MINIPET:
+
+                case SummonTitle::Pet:
+                case SummonTitle::Guardian:
+                case SummonTitle::Runeblade:
+                case SummonTitle::Minion:
+                case SummonTitle::Vehicle:
+                case SummonTitle::Mount:
+                case SummonTitle::Lightwell:
+                case SummonTitle::Totem:
+                case SummonTitle::Companion:
                     break;
                 default:
                     SetOwnerGUID(owner->GetGUID());
@@ -303,7 +304,7 @@ Minion::Minion(SummonPropertiesEntry const* properties, Unit* owner, bool isWorl
     m_unitTypeMask |= UNIT_MASK_MINION;
     m_followAngle = PET_FOLLOW_ANGLE;
 
-    if (properties && properties->Title == SUMMON_TYPE_MINIPET)
+    if (properties && SummonTitle(properties->Title) == SummonTitle::Companion)
         m_followAngle = COMPANION_FOLLOW_ANGLE;
 
     /// @todo: Find correct way
@@ -356,7 +357,7 @@ Guardian::Guardian(SummonPropertiesEntry const* properties, Unit* owner, bool is
 {
     memset(m_statFromOwner, 0, sizeof(float)*MAX_STATS);
     m_unitTypeMask |= UNIT_MASK_GUARDIAN;
-    if (properties && properties->Title == SUMMON_TYPE_PET)
+    if (properties && SummonTitle(properties->Title) == SummonTitle::Pet)
     {
         m_unitTypeMask |= UNIT_MASK_CONTROLABLE_GUARDIAN;
         InitCharmInfo();

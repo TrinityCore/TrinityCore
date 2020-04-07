@@ -593,7 +593,8 @@ enum SummonPropFlags
     SUMMON_PROP_FLAG_UNK18           = 0x00020000,
     SUMMON_PROP_FLAG_UNK19           = 0x00040000,
     SUMMON_PROP_FLAG_UNK20           = 0x00080000,
-    SUMMON_PROP_FLAG_TOTEM           = 0x00100000           // Totems
+    SUMMON_PROP_FLAG_TOTEM           = 0x00100000,           // Totems
+    SUMMON_PROP_FLAG_COMPANION       = 0x00200000
 };
 
 enum VehicleSeatFlags
