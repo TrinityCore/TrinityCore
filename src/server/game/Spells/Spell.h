@@ -444,7 +444,7 @@ class TC_GAME_API Spell
         void TakeReagents();
         void TakeCastItem();
 
-        SpellCastResult CheckCast(bool strict, uint32* param1 = nullptr, uint32* param2 = nullptr);
+        SpellCastResult CheckCast(bool strict, uint32* param1 = nullptr, uint32* param2 = nullptr, MountResult* mountResult = nullptr);
         SpellCastResult CheckPetCast(Unit* target);
 
         // handlers
