@@ -185,3 +185,42 @@ WorldPacket const* WorldPackets::Misc::OverrideLight::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Misc::DurabilityDamageDeath::Write()
+{
+    _worldPacket << int32(Percent);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::PlayOneShotAnimKit::Write()
+{
+    _worldPacket << Unit.WriteAsPacked();
+    _worldPacket << uint16(AnimKitID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::SetAIAnimKit::Write()
+{
+    _worldPacket << Unit.WriteAsPacked();
+    _worldPacket << uint16(AnimKitID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::SetMeleeAnimKit::Write()
+{
+    _worldPacket << Unit.WriteAsPacked();
+    _worldPacket << uint16(AnimKitID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::SetMovementAnimKit::Write()
+{
+    _worldPacket << Unit.WriteAsPacked();
+    _worldPacket << uint16(AnimKitID);
+
+    return &_worldPacket;
+}

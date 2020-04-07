@@ -2821,10 +2821,10 @@ void WorldObject::SetAIAnimKitId(uint16 animKitId)
 
     m_aiAnimKitId = animKitId;
 
-    WorldPacket data(SMSG_SET_AI_ANIM_KIT, 8 + 2);
-    data << GetPackGUID();
-    data << uint16(animKitId);
-    SendMessageToSet(&data, true);
+    WorldPackets::Misc::SetAIAnimKit packet;
+    packet.Unit = GetGUID();
+    packet.AnimKitID = animKitId;
+    SendMessageToSet(packet.Write(), true);
 }
 
 void WorldObject::SetMovementAnimKitId(uint16 animKitId)
@@ -2837,10 +2837,10 @@ void WorldObject::SetMovementAnimKitId(uint16 animKitId)
 
     m_movementAnimKitId = animKitId;
 
-    WorldPacket data(SMSG_SET_MOVEMENT_ANIM_KIT, 8 + 2);
-    data << GetPackGUID();
-    data << uint16(animKitId);
-    SendMessageToSet(&data, true);
+    WorldPackets::Misc::SetMovementAnimKit packet;
+    packet.Unit = GetGUID();
+    packet.AnimKitID = animKitId;
+    SendMessageToSet(packet.Write(), true);
 }
 
 void WorldObject::SetMeleeAnimKitId(uint16 animKitId)
@@ -2853,8 +2853,8 @@ void WorldObject::SetMeleeAnimKitId(uint16 animKitId)
 
     m_meleeAnimKitId = animKitId;
 
-    WorldPacket data(SMSG_SET_MELEE_ANIM_KIT, 8 + 2);
-    data << GetPackGUID();
-    data << uint16(animKitId);
-    SendMessageToSet(&data, true);
+    WorldPackets::Misc::SetMeleeAnimKit packet;
+    packet.Unit = GetGUID();
+    packet.AnimKitID = animKitId;
+    SendMessageToSet(packet.Write(), true);
 }

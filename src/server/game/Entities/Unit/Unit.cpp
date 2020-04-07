@@ -39,6 +39,7 @@
 #include "Item.h"
 #include "Log.h"
 #include "LootMgr.h"
+#include "MiscPackets.h"
 #include "MotionMaster.h"
 #include "MovementGenerator.h"
 #include "MovementPackets.h"
@@ -11604,17 +11605,17 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
 
 void Unit::SendDurabilityLoss(Player* receiver, uint32 percent)
 {
-    WorldPacket data(SMSG_DURABILITY_DAMAGE_DEATH, 4);
-    data << uint32(percent);
-    receiver->SendDirectMessage(&data);
+    WorldPackets::Misc::DurabilityDamageDeath packet;
+    packet.Percent = percent;
+    receiver->SendDirectMessage(packet.Write());
 }
 
 void Unit::PlayOneShotAnimKitId(uint16 animKitId)
 {
-    WorldPacket data(SMSG_PLAY_ONE_SHOT_ANIM_KIT, 7+2);
-    data << GetPackGUID();
-    data << uint16(animKitId);
-    SendMessageToSet(&data, true);
+    WorldPackets::Misc::PlayOneShotAnimKit packet;
+    packet.Unit = GetGUID();
+    packet.AnimKitID = animKitId;
+    SendMessageToSet(packet.Write(), true);
 }
 
 void Unit::Kill(Unit* victim, bool durabilityLoss)
