@@ -177,6 +177,18 @@ namespace WorldPackets
             ObjectGuid TargetObjectGUID;
             uint32 SoundKitID = 0;
         };
+
+        class PlayMusic final : public ServerPacket
+        {
+        public:
+            PlayMusic() : ServerPacket(SMSG_PLAY_MUSIC, 4 + 8) { }
+            PlayMusic(uint32 soundKitID, ObjectGuid sourceObjectGuid) : ServerPacket(SMSG_PLAY_MUSIC, 4), SoundKitID(soundKitID), SourceObjectGUID(sourceObjectGuid) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 SoundKitID = 0;
+            ObjectGuid SourceObjectGUID;
+        };
     }
 }
 

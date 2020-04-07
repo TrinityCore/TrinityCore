@@ -154,3 +154,11 @@ WorldPacket const* WorldPackets::Misc::PlayObjectSound::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Misc::PlayMusic::Write()
+{
+    _worldPacket << uint32(SoundKitID);
+    _worldPacket << SourceObjectGUID;
+
+    return &_worldPacket;
+}
