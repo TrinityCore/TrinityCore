@@ -4294,19 +4294,19 @@ enum UpdateCollisionHeightReason : uint8
     UPDATE_COLLISION_HEIGHT_SCALE = 1
 };
 
-enum MountResult : uint8
+enum class MountResult : uint32
 {
-    MOUNT_RESULT_INVALID_MOUNTEE    = 0,
-    MOUNT_RESULT_TOO_FAR_AWAY       = 1,
-    MOUNT_RESULT_ALREADY_MOUNTED    = 2,
-    MOUNT_RESULT_NOT_MOUNTABLE      = 3,
-    MOUNT_RESULT_NOT_YOUR_PET       = 4,
-    MOUNT_RESULT_OTHER              = 5,
-    MOUNT_RESULT_LOOTING            = 6,
-    MOUNT_RESULT_RACE_CANT_MOUNT    = 7,
-    MOUNT_RESULT_SHAPESHIFTED       = 8,
-    MOUNT_RESULT_FORCE_DISMOUNT     = 9,
-    MOUNT_RESULT_OK                 = 10 // never sent
+    InvalidMountee = 0,
+    TooFarAway     = 1,
+    AlreadyMounted = 2,
+    NotMountable   = 3,
+    NotYourPet     = 4,
+    Other          = 5,
+    Looting        = 6,
+    RaceCantMount  = 7,
+    Shapeshifted   = 8,
+    ForcedDismount = 9,
+    Ok             = 10 // never sent
 };
 
 #define MAX_CREATURE_SPELL_DATA_SLOT 4

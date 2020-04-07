@@ -4243,7 +4243,7 @@ void Spell::SendPetCastResult(SpellCastResult result)
 
 void Spell::SendMountResult(MountResult result)
 {
-    if (result == MOUNT_RESULT_OK)
+    if (result == MountResult::Ok)
         return;
 
     if (!m_caster->IsPlayer())
@@ -4254,7 +4254,7 @@ void Spell::SendMountResult(MountResult result)
         return;
 
     WorldPackets::Spells::MountResult packet;
-    packet.Result = result;
+    packet.Result = AsUnderlyingType(result);
     caster->SendDirectMessage(packet.Write());
 }
 
@@ -6139,7 +6139,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
 
                 if (m_caster->IsInDisallowedMountForm())
                 {
-                    SendMountResult(MOUNT_RESULT_SHAPESHIFTED); // mount result gets sent before the cast result
+                    SendMountResult(MountResult::Shapeshifted); // mount result gets sent before the cast result
                     return SPELL_FAILED_DONT_REPORT;
                 }
 
