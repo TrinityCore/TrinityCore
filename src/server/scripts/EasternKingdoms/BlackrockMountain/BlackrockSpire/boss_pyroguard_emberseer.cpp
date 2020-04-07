@@ -131,7 +131,7 @@ public:
                 {
                     me->CastSpell(me, SPELL_ENCAGED_EMBERSEER);
                     Reset();
-                }       
+                }
             }
 
             if (spell->Id == SPELL_EMBERSEER_GROWING_TRIGGER)
@@ -199,7 +199,7 @@ public:
                                     creature->SetImmuneToAll(false);
                                     creature->InterruptSpell(CURRENT_CHANNELED_SPELL);
                                     DoZoneInCombat(creature);
-                                }                             
+                                }
                             }
                             me->RemoveAura(SPELL_ENCAGED_EMBERSEER);
                             events.ScheduleEvent(EVENT_PRE_FIGHT_2, 32000);
@@ -305,12 +305,9 @@ public:
 
     struct npc_blackhand_incarceratorAI : public ScriptedAI
     {
-        npc_blackhand_incarceratorAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) 
-        {
-            Initialize();
-        }
+        npc_blackhand_incarceratorAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void Initialize()
+        void JustAppeared() override
         {
             DoCast(SPELL_ENCAGE_EMBERSEER);
         }
