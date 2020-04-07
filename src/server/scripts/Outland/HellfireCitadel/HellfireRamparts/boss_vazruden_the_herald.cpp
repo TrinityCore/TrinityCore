@@ -132,6 +132,7 @@ class boss_nazan : public CreatureScript
 
                 if (flight) // phase 1 - the flight
                 {
+                    Creature* Vazruden = ObjectAccessor::GetCreature(*me, VazrudenGUID);
                     if (Fly_Timer < diff || !(Vazruden && Vazruden->IsAlive() && Vazruden->HealthAbovePct(20)))
                     {
                         flight = false;
