@@ -351,8 +351,8 @@ class boss_vazruden_the_herald : public CreatureScript
                     if (Creature* Nazan = me->SummonCreature(NPC_NAZAN, VazrudenMiddle[0], VazrudenMiddle[1], VazrudenMiddle[2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 6000000))
                     {
                         NazanGUID = Nazan->GetGUID();
-                        Unit* player = Nazan->SelectNearestPlayer(60.00f);
-                        Nazan->AI()->AttackStart(player);
+                        if (Unit* player = Nazan->SelectNearestPlayer(60.00f))
+                            Nazan->AI()->AttackStart(player);
                     }
                     summoned = true;
                     me->SetVisible(false);
