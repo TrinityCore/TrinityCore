@@ -3947,6 +3947,24 @@ void Spell::SendCastResult(Player* caster, SpellInfo const* spellInfo, uint32 sp
     caster->GetSession()->SendPacket(packet.Write());
 }
 
+void Spell::SendMountResult(MountResult result)
+{
+    if (result == MountResult::Ok)
+        return;
+
+    if (!m_caster->IsPlayer())
+        return;
+
+    if (m_caster->ToPlayer()->IsLoading())  // don't send mount results at loading time
+        return;
+
+    Player* caster = m_caster->ToPlayer();
+
+    WorldPackets::Spells::MountResult packet;
+    packet.Result = AsUnderlyingType(result);
+    caster->SendDirectMessage(packet.Write());
+}
+
 void Spell::SendSpellStart()
 {
     if (!IsNeedSendToClient())
@@ -5707,7 +5725,10 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                     return SPELL_FAILED_NO_MOUNTS_ALLOWED;
 
                 if (m_caster->IsInDisallowedMountForm())
-                    return SPELL_FAILED_NOT_SHAPESHIFT;
+                {
+                    SendMountResult(MountResult::Shapeshifted); // mount result gets sent before the cast result
+                    return SPELL_FAILED_DONT_REPORT;
+                }
 
                 break;
             }

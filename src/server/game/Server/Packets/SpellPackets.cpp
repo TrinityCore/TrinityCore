@@ -960,3 +960,10 @@ WorldPacket const* WorldPackets::Spells::CustomLoadScreen::Write()
     _worldPacket << uint32(LoadingScreenID);
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Spells::MountResult::Write()
+{
+    _worldPacket << int32(Result);
+
+    return &_worldPacket;
+}
