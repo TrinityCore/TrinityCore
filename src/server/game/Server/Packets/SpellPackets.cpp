@@ -20,6 +20,28 @@
 #include "Spell.h"
 #include "SpellInfo.h"
 
+void WorldPackets::Spells::CancelCast::Read()
+{
+    _worldPacket >> CastID;
+    _worldPacket >> SpellID;
+}
+
+void WorldPackets::Spells::CancelAura::Read()
+{
+    _worldPacket >> SpellID;
+}
+
+void WorldPackets::Spells::PetCancelAura::Read()
+{
+    _worldPacket >> PetGUID;
+    _worldPacket >> SpellID;
+}
+
+void WorldPackets::Spells::CancelChannelling::Read()
+{
+    _worldPacket >> ChannelSpell;
+}
+
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellMissStatus const& spellMissStatus)
 {
     data << uint64(spellMissStatus.TargetGUID);

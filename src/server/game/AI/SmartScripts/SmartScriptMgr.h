@@ -1158,6 +1158,7 @@ struct SmartAction
         struct
         {
             uint32 zoneId;
+            uint32 areaLightId;
             uint32 overrideLightId;
             uint32 transitionMilliseconds;
         } overrideLight;

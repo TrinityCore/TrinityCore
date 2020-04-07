@@ -419,7 +419,7 @@ void PetAI::DoAttack(Unit* target, bool chase)
 
             if (me->HasUnitState(UNIT_STATE_FOLLOW))
                 me->GetMotionMaster()->Remove(FOLLOW_MOTION_TYPE);
-            
+
             // Pets with ranged attacks should not care about the chase angle at all.
             float chaseDistance = me->GetPetChaseDistance();
             float angle = chaseDistance == 0.f ? float(M_PI) : 0.f;

@@ -14,6 +14,11 @@ jobs:
           command: |
             /scripts/checkout.sh
       - run:
+          name: Codestyle checks
+          command: |
+            chmod +x contrib/check_codestyle.sh
+            ./contrib/check_codestyle.sh
+      - run:
           name: Setup
           command: |
             mkdir bin
@@ -56,9 +61,9 @@ jobs:
             /scripts/checkout.sh
       - restore_cache:
           keys:
-            - nopch-{{ .Branch }}-{{ .Revision }}
-            - nopch-{{ .Branch }}
-            - nopch
+            - 3.3.5-nopch-{{ .Branch }}-{{ .Revision }}
+            - 3.3.5-nopch-{{ .Branch }}
+            - 3.3.5-nopch
       - run:
           name: Setup
           command: |
@@ -85,7 +90,7 @@ jobs:
             ./authserver --version
             ./worldserver --version
       - save_cache:
-          key: nopch-{{ .Branch }}-{{ .Revision }}
+          key: 3.3.5-nopch-{{ .Branch }}-{{ .Revision }}
           paths:
             - /home/circleci/.ccache
 workflows:
