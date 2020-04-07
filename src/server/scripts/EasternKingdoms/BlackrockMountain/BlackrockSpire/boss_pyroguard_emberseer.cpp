@@ -363,7 +363,6 @@ public:
 
         private:
             EventMap _events;
-            InstanceScript* _instance;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
