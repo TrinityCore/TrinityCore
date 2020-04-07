@@ -22,6 +22,8 @@
 #include "ObjectGuid.h"
 #include "Optional.h"
 
+enum WeatherState : uint32;
+
 namespace WorldPackets
 {
     namespace Misc
@@ -188,6 +190,31 @@ namespace WorldPackets
 
             uint32 SoundKitID = 0;
             ObjectGuid SourceObjectGUID;
+        };
+
+        class TC_GAME_API Weather final : public ServerPacket
+        {
+        public:
+            Weather();
+            Weather(WeatherState weatherID, float intensity = 0.0f, bool abrupt = false);
+
+            WorldPacket const* Write() override;
+
+            bool Abrupt = false;
+            float Intensity = 0.0f;
+            WeatherState WeatherID = WeatherState(0);
+        };
+
+        class OverrideLight final : public ServerPacket
+        {
+        public:
+            OverrideLight() : ServerPacket(SMSG_OVERRIDE_LIGHT, 4 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 AreaLightID = 0;
+            int32 TransitionMilliseconds = 0;
+            int32 OverrideLightID = 0;
         };
     }
 }

@@ -26,6 +26,7 @@
 #include "Item.h"
 #include "Log.h"
 #include "LootMgr.h"
+#include "MiscPackets.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -6313,12 +6314,7 @@ void AuraEffect::HandleAuraForceWeather(AuraApplication const* aurApp, uint8 mod
         return;
 
     if (apply)
-    {
-        WorldPacket data(SMSG_WEATHER, (4 + 4 + 1));
-
-        data << uint32(GetMiscValue()) << 1.0f << uint8(0);
-        target->SendDirectMessage(&data);
-    }
+        target->SendDirectMessage(WorldPackets::Misc::Weather(WeatherState(GetMiscValue()), 1.0f).Write());
     else
         target->GetMap()->SendZoneWeather(target->GetZoneId(), target);
 }

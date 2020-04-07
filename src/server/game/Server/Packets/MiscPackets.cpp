@@ -162,3 +162,26 @@ WorldPacket const* WorldPackets::Misc::PlayMusic::Write()
 
     return &_worldPacket;
 }
+
+WorldPackets::Misc::Weather::Weather() : ServerPacket(SMSG_WEATHER, 4 + 4 + 1) { }
+
+WorldPackets::Misc::Weather::Weather(WeatherState weatherID, float intensity /*= 0.0f*/, bool abrupt /*= false*/)
+    : ServerPacket(SMSG_WEATHER, 4 + 4 + 1), Abrupt(abrupt), Intensity(intensity), WeatherID(weatherID) { }
+
+WorldPacket const* WorldPackets::Misc::Weather::Write()
+{
+    _worldPacket << uint32(WeatherID);
+    _worldPacket << float(Intensity);
+    _worldPacket << uint8(Abrupt);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::OverrideLight::Write()
+{
+    _worldPacket << uint32(AreaLightID);
+    _worldPacket << uint32(OverrideLightID);
+    _worldPacket << uint32(TransitionMilliseconds);
+
+    return &_worldPacket;
+}
