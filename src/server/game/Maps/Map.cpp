@@ -4726,7 +4726,7 @@ void Map::SetZoneMusic(uint32 zoneId, uint32 musicId)
         for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
             if (Player* player = itr->GetSource())
                 if (player->GetZoneId() == zoneId && !player->HasAuraType(SPELL_AURA_FORCE_WEATHER))
-                    player->SendDirectMessage(WorldPackets::Misc::PlayMusic(musicId, player->GetGUID()).Write);
+                    player->SendDirectMessage(WorldPackets::Misc::PlayMusic(musicId, player->GetGUID()).Write());
     }
 }
 
