@@ -4249,10 +4249,9 @@ void Spell::SendMountResult(MountResult result)
     if (!m_caster->IsPlayer())
         return;
 
-    if (m_caster->ToPlayer()->IsLoading())  // don't send mount results at loading time
-        return;
-
     Player* caster = m_caster->ToPlayer();
+    if (caster->IsLoading())  // don't send mount results at loading time
+        return;
 
     WorldPackets::Spells::MountResult packet;
     packet.Result = result;
