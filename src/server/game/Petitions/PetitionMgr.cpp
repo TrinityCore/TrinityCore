@@ -98,7 +98,7 @@ void PetitionMgr::AddPetition(ObjectGuid petitionGuid, ObjectGuid ownerGuid, std
     if (isLoading)
         return;
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PETITION);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PETITION);
     stmt->setUInt32(0, ownerGuid.GetCounter());
     stmt->setUInt32(1, petitionGuid.GetCounter());
     stmt->setString(2, name);
@@ -111,9 +111,9 @@ void PetitionMgr::RemovePetition(ObjectGuid petitionGuid)
     _petitionStore.erase(petitionGuid);
 
     // Delete From DB
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PETITION_BY_GUID);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PETITION_BY_GUID);
     stmt->setUInt32(0, petitionGuid.GetCounter());
     trans->Append(stmt);
 
@@ -162,8 +162,8 @@ void PetitionMgr::RemovePetitionsByOwnerAndType(ObjectGuid ownerGuid, CharterTyp
             ++itr;
     }
 
-    PreparedStatement* stmt;
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabasePreparedStatement* stmt;
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     if (type == CHARTER_TYPE_ANY)
     {
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PETITION_BY_OWNER);
@@ -197,7 +197,7 @@ void PetitionMgr::RemoveSignaturesBySignerAndType(ObjectGuid signerGuid, Charter
             petitionPair.second.RemoveSignatureBySigner(signerGuid);
     }
 
-    PreparedStatement* stmt;
+    CharacterDatabasePreparedStatement* stmt;
     if (type == CHARTER_TYPE_ANY)
     {
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ALL_PETITION_SIGNATURES);
@@ -228,7 +228,7 @@ void Petition::AddSignature(uint32 accountId, ObjectGuid playerGuid, bool isLoad
     if (isLoading)
         return;
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PETITION_SIGNATURE);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PETITION_SIGNATURE);
 
     stmt->setUInt32(0, OwnerGuid.GetCounter());
     stmt->setUInt32(1, PetitionGuid.GetCounter());
@@ -242,7 +242,7 @@ void Petition::UpdateName(std::string const& newName)
 {
     PetitionName = newName;
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PETITION_NAME);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PETITION_NAME);
     stmt->setString(0, newName);
     stmt->setUInt32(1, PetitionGuid.GetCounter());
     CharacterDatabase.Execute(stmt);

@@ -19,6 +19,7 @@ add_library(trinity-feature-interface INTERFACE)
 
 target_compile_features(trinity-feature-interface
   INTERFACE
+    cxx_std_17
     cxx_alias_templates
     cxx_auto_type
     cxx_constexpr

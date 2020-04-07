@@ -40,24 +40,10 @@ enum Yells
     SAY_ARCHMAGE            = 0
 };
 
-enum Creatures
-{
-    NPC_ASH                 = 3850,
-    NPC_ADA                 = 3849,
-    NPC_ARCHMAGE_ARUGAL     = 4275,
-    NPC_ARUGAL_VOIDWALKER   = 4627
-};
-
-enum GameObjects
-{
-    GO_COURTYARD_DOOR       = 18895, //door to open when talking to NPC's
-    GO_SORCERER_DOOR        = 18972, //door to open when Fenrus the Devourer
-    GO_ARUGAL_DOOR          = 18971  //door to open when Wolf Master Nandos
-};
-
 enum Spells
 {
-    SPELL_ASHCROMBE_TELEPORT    = 15742
+    SPELL_ASHCROMBE_TELEPORT    = 15742,
+    SPELL_SUMMON_VALENTINE_ADD  = 68610
 };
 
 const Position SpawnLocation[] =
@@ -68,6 +54,7 @@ const Position SpawnLocation[] =
     {-140.794f, 2178.037f, 128.448f, 4.090f},
     {-138.640f, 2170.159f, 136.577f, 2.737f}
 };
+
 class instance_shadowfang_keep : public InstanceMapScript
 {
 public:
@@ -107,9 +94,20 @@ public:
         {
             switch (creature->GetEntry())
             {
-                case NPC_ASH: uiAshGUID = creature->GetGUID(); break;
-                case NPC_ADA: uiAdaGUID = creature->GetGUID(); break;
-                case NPC_ARCHMAGE_ARUGAL: uiArchmageArugalGUID = creature->GetGUID(); break;
+                case NPC_ASH:
+                    uiAshGUID = creature->GetGUID();
+                    break;
+                case NPC_ADA:
+                    uiAdaGUID = creature->GetGUID();
+                    break;
+                case NPC_ARCHMAGE_ARUGAL:
+                    uiArchmageArugalGUID = creature->GetGUID();
+                    break;
+                case NPC_DND_CRAZED_APOTHECARY_GENERATOR:
+                    _crazedApothecaryGeneratorGUIDs.push_back(creature->GetGUID());
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -178,6 +176,15 @@ public:
                     if (data == DONE)
                         DoUseDoorOrButton(DoorArugalGUID);
                     m_auiEncounter[3] = data;
+                    break;
+                case DATA_SPAWN_VALENTINE_ADDS:
+                    for (ObjectGuid guid : _crazedApothecaryGeneratorGUIDs)
+                    {
+                        if (Creature* generator = instance->GetCreature(guid))
+                            generator->CastSpell(nullptr, SPELL_SUMMON_VALENTINE_ADD);
+                    }
+                    break;
+                default:
                     break;
             }
 
@@ -279,6 +286,9 @@ public:
                 } else uiTimer -= uiDiff;
             }
         }
+
+    private:
+        GuidVector _crazedApothecaryGeneratorGUIDs;
     };
 
 };

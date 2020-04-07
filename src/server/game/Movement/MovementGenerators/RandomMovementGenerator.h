@@ -50,6 +50,7 @@ class RandomMovementGenerator : public MovementGeneratorMedium<T, RandomMovement
         TimeTracker _timer;
         Position _reference;
         float _wanderDistance;
+        uint8 _wanderSteps;
 };
 
 #endif

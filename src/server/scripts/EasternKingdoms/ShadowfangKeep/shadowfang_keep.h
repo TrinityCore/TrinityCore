@@ -30,7 +30,24 @@ enum SKDataTypes
     TYPE_FENRUS                 = 3,
     TYPE_NANDOS                 = 4,
     BOSS_ARUGAL                 = 5,
-    DATA_APOTHECARY_HUMMEL      = 6
+    DATA_APOTHECARY_HUMMEL      = 6,
+    DATA_SPAWN_VALENTINE_ADDS   = 7
+};
+
+enum SKCreatures
+{
+    NPC_ASH                             = 3850,
+    NPC_ADA                             = 3849,
+    NPC_ARCHMAGE_ARUGAL                 = 4275,
+    NPC_ARUGAL_VOIDWALKER               = 4627,
+    NPC_DND_CRAZED_APOTHECARY_GENERATOR = 36212
+};
+
+enum SKGameObjects
+{
+    GO_COURTYARD_DOOR   = 18895, //door to open when talking to NPC's
+    GO_SORCERER_DOOR    = 18972, //door to open when Fenrus the Devourer
+    GO_ARUGAL_DOOR      = 18971  //door to open when Wolf Master Nandos
 };
 
 template <class AI, class T>

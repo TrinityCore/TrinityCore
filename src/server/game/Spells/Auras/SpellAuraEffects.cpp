@@ -2380,10 +2380,7 @@ void AuraEffect::HandleAuraModPacify(AuraApplication const* aurApp, uint8 mode, 
     Unit* target = aurApp->GetTarget();
 
     if (apply)
-    {
         target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);
-        target->AttackStop();
-    }
     else
     {
         // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
@@ -3952,7 +3949,7 @@ void AuraEffect::HandleModCastingSpeed(AuraApplication const* aurApp, uint8 mode
 
     if (spellGroupVal)
         target->ApplyCastTimePercentMod(float(spellGroupVal), !apply);
-    
+
     target->ApplyCastTimePercentMod((float)GetAmount(), apply);
 }
 

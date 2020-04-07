@@ -152,7 +152,7 @@ class TC_GAME_API MotionMaster
 
         void MoveIdle();
         void MoveTargetedHome();
-        void MoveRandom(float spawndist = 0.0f);
+        void MoveRandom(float wanderDistance = 0.0f);
         void MoveFollow(Unit* target, float dist, ChaseAngle angle, MovementSlot slot = MOTION_SLOT_ACTIVE);
         void MoveChase(Unit* target, Optional<ChaseRange> dist = {}, Optional<ChaseAngle> angle = {});
         void MoveChase(Unit* target, float dist, float angle) { MoveChase(target, ChaseRange(dist), ChaseAngle(angle)); }
@@ -190,7 +190,7 @@ class TC_GAME_API MotionMaster
         void MovePath(uint32 pathId, bool repeatable);
         void MovePath(WaypointPath& path, bool repeatable);
         void MoveRotate(uint32 id, uint32 time, RotateDirection direction);
-        void MoveFormation(uint32 id, Position destination, uint32 moveType, bool forceRun = false, bool forceOrientation = false);
+        void MoveFormation(Unit* leader, float range, float angle, uint32 point1, uint32 point2);
 
         void LaunchMoveSpline(Movement::MoveSplineInit&& init, uint32 id = 0, MovementGeneratorPriority priority = MOTION_PRIORITY_NORMAL, MovementGeneratorType type = EFFECT_MOTION_TYPE);
     private:

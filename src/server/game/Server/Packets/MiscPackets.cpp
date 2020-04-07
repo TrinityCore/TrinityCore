@@ -17,6 +17,59 @@
 
 #include "MiscPackets.h"
 
+WorldPacket const* WorldPackets::Misc::BindPointUpdate::Write()
+{
+    _worldPacket << BindPosition;
+    _worldPacket << uint32(BindMapID);
+    _worldPacket << uint32(BindAreaID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::PlayerBound::Write()
+{
+    _worldPacket << BinderID;
+    _worldPacket << uint32(AreaID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::BinderConfirm::Write()
+{
+    _worldPacket << Unit;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::InvalidatePlayer::Write()
+{
+    _worldPacket << Guid;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::LoginSetTimeSpeed::Write()
+{
+    _worldPacket.AppendPackedTime(GameTime);
+    _worldPacket << float(NewSpeed);
+    _worldPacket << uint32(GameTimeHolidayOffset);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::TriggerMovie::Write()
+{
+    _worldPacket << uint32(MovieID);
+
+    return &_worldPacket;
+}
+WorldPacket const* WorldPackets::Misc::TriggerCinematic::Write()
+{
+    _worldPacket << uint32(CinematicID);
+
+    return &_worldPacket;
+}
+
 WorldPackets::Misc::Weather::Weather() : ServerPacket(SMSG_WEATHER, 4 + 4 + 1) { }
 
 WorldPackets::Misc::Weather::Weather(WeatherState weatherID, float intensity /*= 0.0f*/, bool abrupt /*= false*/)
@@ -62,3 +115,17 @@ WorldPacket const* WorldPackets::Misc::OverrideLight::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Misc::UITime::Write()
+{
+    _worldPacket << uint32(Time);
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Misc::WorldTeleport::Read()
+{
+    _worldPacket >> Time;
+    _worldPacket >> MapID;
+    _worldPacket >> Pos;
+    _worldPacket >> Facing;
+}

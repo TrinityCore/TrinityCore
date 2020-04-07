@@ -41,42 +41,6 @@ EndContentData */
 #include "TemporarySummon.h"
 
 /*######
-## npc_beaten_corpse
-######*/
-
-enum BeatenCorpse
-{
-    GOSSIP_OPTION_ID_BEATEN_CORPSE  = 0,
-    GOSSIP_MENU_OPTION_INSPECT_BODY = 2871
-};
-
-class npc_beaten_corpse : public CreatureScript
-{
-    public:
-        npc_beaten_corpse() : CreatureScript("npc_beaten_corpse") { }
-
-        struct npc_beaten_corpseAI : public ScriptedAI
-        {
-            npc_beaten_corpseAI(Creature* creature) : ScriptedAI(creature) { }
-
-            bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
-            {
-                if (menuId == GOSSIP_MENU_OPTION_INSPECT_BODY && gossipListId == GOSSIP_OPTION_ID_BEATEN_CORPSE)
-                {
-                    CloseGossipMenuFor(player);
-                    player->TalkedToCreature(me->GetEntry(), me->GetGUID());
-                }
-                return false;
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_beaten_corpseAI(creature);
-        }
-};
-
-/*######
 # npc_gilthares
 ######*/
 
@@ -220,9 +184,9 @@ public:
             me->RemoveAllAuras();
             me->CombatStop(true);
             me->StopMoving();
-            
+
             EngagementOver();
-            
+
             me->GetMotionMaster()->MoveIdle();
             me->SetFaction(FACTION_FRIENDLY);
             me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
@@ -655,7 +619,6 @@ public:
 
 void AddSC_the_barrens()
 {
-    new npc_beaten_corpse();
     new npc_gilthares();
     new npc_taskmaster_fizzule();
     new npc_twiggy_flathead();

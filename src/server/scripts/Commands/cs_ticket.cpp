@@ -123,7 +123,7 @@ public:
         }
 
         // Assign ticket
-        SQLTransaction trans = SQLTransaction(nullptr);
+        CharacterDatabaseTransaction trans = CharacterDatabaseTransaction(nullptr);
         ticket->SetAssignedTo(targetGuid, AccountMgr::IsAdminAccount(AccountMgr::GetSecurity(accountId, realm.Id.Realm)));
         ticket->SaveToDB(trans);
         sTicketMgr->UpdateLastChange();
@@ -199,7 +199,7 @@ public:
             return true;
         }
 
-        SQLTransaction trans = SQLTransaction(nullptr);
+        CharacterDatabaseTransaction trans = CharacterDatabaseTransaction(nullptr);
         ticket->SetComment(comment);
         ticket->SaveToDB(trans);
         sTicketMgr->UpdateLastChange();
@@ -257,7 +257,7 @@ public:
 
         Player* gm = handler->GetSession() ? handler->GetSession()->GetPlayer() : nullptr;
 
-        SQLTransaction trans = SQLTransaction(nullptr);
+        CharacterDatabaseTransaction trans = CharacterDatabaseTransaction(nullptr);
         ticket->SetResolvedBy(gm ? gm->GetGUID() : ObjectGuid(uint64(0)));
         ticket->SetCompleted();
         ticket->SaveToDB(trans);
@@ -410,7 +410,7 @@ public:
         }
 
         std::string assignedTo = ticket->GetAssignedToName(); // copy assignedto name because we need it after the ticket has been unnassigned
-        SQLTransaction trans = SQLTransaction(nullptr);
+        CharacterDatabaseTransaction trans = CharacterDatabaseTransaction(nullptr);
         ticket->SetUnassigned();
         ticket->SaveToDB(trans);
         sTicketMgr->UpdateLastChange();
@@ -435,7 +435,7 @@ public:
             return true;
         }
 
-        SQLTransaction trans = SQLTransaction(nullptr);
+        CharacterDatabaseTransaction trans = CharacterDatabaseTransaction(nullptr);
         ticket->SetViewed();
         ticket->SaveToDB(trans);
 
@@ -474,7 +474,7 @@ public:
             return true;
         }
 
-        SQLTransaction trans = SQLTransaction(nullptr);
+        CharacterDatabaseTransaction trans = CharacterDatabaseTransaction(nullptr);
         ticket->SetViewed();
         ticket->SaveToDB(trans);
 
@@ -510,7 +510,7 @@ public:
             return true;
         }
 
-        SQLTransaction trans = SQLTransaction(nullptr);
+        CharacterDatabaseTransaction trans = CharacterDatabaseTransaction(nullptr);
         ticket->AppendResponse(response);
         if (newLine)
             ticket->AppendResponse("\n");

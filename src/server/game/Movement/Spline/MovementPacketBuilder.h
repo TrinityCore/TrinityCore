@@ -37,6 +37,7 @@ namespace Movement
         static void WriteMonsterMove(MoveSpline const& mov, ByteBuffer& data);
         static void WriteStopMovement(G3D::Vector3 const& loc, uint32 splineId, ByteBuffer& data);
         static void WriteCreate(MoveSpline const& mov, ByteBuffer& data);
+        static void WriteSplineSync(MoveSpline const& mov, ByteBuffer& data);
     };
 }
 #endif // TRINITYSERVER_PACKET_BUILDER_H

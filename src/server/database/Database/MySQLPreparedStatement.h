@@ -25,7 +25,7 @@
 #include <vector>
 
 class MySQLConnection;
-class PreparedStatement;
+class PreparedStatementBase;
 
 //- Class of which the instances are unique per MySQLConnection
 //- access to these class objects is only done when a prepared statement task
@@ -33,32 +33,27 @@ class PreparedStatement;
 class TC_DATABASE_API MySQLPreparedStatement
 {
     friend class MySQLConnection;
-    friend class PreparedStatement;
+    friend class PreparedStatementBase;
 
     public:
         MySQLPreparedStatement(MySQLStmt* stmt, std::string queryString);
         ~MySQLPreparedStatement();
 
-        void setNull(const uint8 index);
-        void setBool(const uint8 index, const bool value);
-        void setUInt8(const uint8 index, const uint8 value);
-        void setUInt16(const uint8 index, const uint16 value);
-        void setUInt32(const uint8 index, const uint32 value);
-        void setUInt64(const uint8 index, const uint64 value);
-        void setInt8(const uint8 index, const int8 value);
-        void setInt16(const uint8 index, const int16 value);
-        void setInt32(const uint8 index, const int32 value);
-        void setInt64(const uint8 index, const int64 value);
-        void setFloat(const uint8 index, const float value);
-        void setDouble(const uint8 index, const double value);
-        void setBinary(const uint8 index, const std::vector<uint8>& value, bool isString);
+        void BindParameters(PreparedStatementBase* stmt);
 
         uint32 GetParameterCount() const { return m_paramCount; }
 
     protected:
+        void SetParameter(uint8 index, std::nullptr_t);
+        void SetParameter(uint8 index, bool value);
+        template<typename T>
+        void SetParameter(uint8 index, T value);
+        void SetParameter(uint8 index, std::string const& value);
+        void SetParameter(uint8 index, std::vector<uint8> const& value);
+
         MySQLStmt* GetSTMT() { return m_Mstmt; }
         MySQLBind* GetBind() { return m_bind; }
-        PreparedStatement* m_stmt;
+        PreparedStatementBase* m_stmt;
         void ClearParameters();
         void AssertValidIndex(uint8 index);
         std::string getQueryString() const;

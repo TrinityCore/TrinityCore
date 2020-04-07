@@ -132,6 +132,10 @@ public:
             if (!guard)
                 return;
 
+            // Keep the list of targets for later on when the guards will be alive
+            if (!guard->IsAlive())
+                return;
+
             for (ObjectGuid guid : _toAttack)
             {
                 Unit* target = ObjectAccessor::GetUnit(*me, guid);
@@ -180,7 +184,7 @@ public:
             AirForceSpawn const& _spawn;
             ObjectGuid _myGuard;
             std::unordered_set<ObjectGuid> _toAttack;
-            
+
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -2880,40 +2884,6 @@ public:
     }
 };
 
-enum TravelerTundraMammothNPCs
-{
-    NPC_HAKMUD_OF_ARGUS  = 32638,
-    NPC_GNIMO            = 32639,
-    NPC_DRIX_BLACKWRENCH = 32641,
-    NPC_MOJODISHU        = 32642
-};
-
-class npc_traveler_tundra_mammoth_exit_pos : public UnitScript
-{
-public:
-    npc_traveler_tundra_mammoth_exit_pos() : UnitScript("npc_traveler_tundra_mammoth_exit_pos") { }
-
-    void ModifyVehiclePassengerExitPos(Unit* passenger, Vehicle* /*vehicle*/, Position& pos)
-    {
-        if (passenger->GetTypeId() == TYPEID_UNIT)
-        {
-            switch (passenger->GetEntry())
-            {
-                // Right side
-                case NPC_DRIX_BLACKWRENCH:
-                case NPC_GNIMO:
-                    pos.RelocateOffset({ -2.0f, -2.0f, 0.0f, 0.0f });
-                    break;
-                // Left side
-                case NPC_MOJODISHU:
-                case NPC_HAKMUD_OF_ARGUS:
-                    pos.RelocateOffset({ -2.0f, 2.0f, 0.0f, 0.0f });
-                    break;
-            }
-        }
-    }
-};
-
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
@@ -2941,5 +2911,4 @@ void AddSC_npcs_special()
     new npc_train_wrecker();
     new npc_argent_squire_gruntling();
     new npc_bountiful_table();
-    new npc_traveler_tundra_mammoth_exit_pos();
 }

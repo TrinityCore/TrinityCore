@@ -24,6 +24,7 @@
 #include "Creature.h"
 #include "GameTime.h"
 #include "GridNotifiersImpl.h"
+#include "G3DPosition.hpp"
 #include "Item.h"
 #include "Log.h"
 #include "Map.h"
@@ -33,6 +34,7 @@
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"
+#include "PathGenerator.h"
 #include "Player.h"
 #include "ReputationMgr.h"
 #include "SpellAuraEffects.h"
@@ -496,10 +498,7 @@ void Object::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* targe
 void Object::AddToObjectUpdateIfNeeded()
 {
     if (m_inWorld && !m_objectUpdated)
-    {
-        AddToObjectUpdate();
-        m_objectUpdated = true;
-    }
+        m_objectUpdated = AddToObjectUpdate();
 }
 
 void Object::ClearUpdateMask(bool remove)
@@ -1823,7 +1822,7 @@ void WorldObject::AddObjectToRemoveList()
     Map* map = FindMap();
     if (!map)
     {
-        TC_LOG_ERROR("misc", "Object (TypeId: %u Entry: %u GUID: %u) at attempt add to move list not have valid map (Id: %u).", GetTypeId(), GetEntry(), GetGUID().GetCounter(), GetMapId());
+        TC_LOG_ERROR("misc", "Object %s at attempt add to move list not have valid map (Id: %u).", GetGUID().ToString().c_str(), GetMapId());
         return;
     }
 
@@ -3208,8 +3207,8 @@ void WorldObject::MovePosition(Position &pos, float dist, float angle)
     // Prevent invalid coordinates here, position is unchanged
     if (!Trinity::IsValidMapCoord(destx, desty, pos.m_positionZ))
     {
-        TC_LOG_FATAL("misc", "WorldObject::MovePosition: Object (TypeId: %u Entry: %u GUID: %u) has invalid coordinates X: %f and Y: %f were passed!",
-            GetTypeId(), GetEntry(), GetGUID().GetCounter(), destx, desty);
+        TC_LOG_FATAL("misc", "WorldObject::MovePosition: Object %s has invalid coordinates X: %f and Y: %f were passed!",
+            GetGUID().ToString().c_str(), destx, desty);
         return;
     }
 
@@ -3258,6 +3257,14 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
         TC_LOG_FATAL("misc", "WorldObject::MovePositionToFirstCollision invalid coordinates X: %f and Y: %f were passed!", destx, desty);
         return;
     }
+
+    // Use a detour raycast to get our first collision point
+    PathGenerator path(this);
+    path.CalculatePath(destx, desty, destz, false, true);
+    G3D::Vector3 result = path.GetPath().back();
+    destx = result.x;
+    desty = result.y;
+    destz = result.z;
 
     float halfHeight = GetCollisionHeight() * 0.5f;
     UpdateAllowedPositionZ(destx, desty, destz);
@@ -3484,9 +3491,10 @@ void WorldObject::BuildUpdate(UpdateDataMapType& data_map)
     ClearUpdateMask(false);
 }
 
-void WorldObject::AddToObjectUpdate()
+bool WorldObject::AddToObjectUpdate()
 {
     GetMap()->AddUpdateObject(this);
+    return true;
 }
 
 void WorldObject::RemoveFromObjectUpdate()

@@ -355,7 +355,7 @@ bool Trinity::Hyperlinks::CheckAllLinks(std::string const& str)
                 return false;
         }
     }
-    
+
     // Step 2: Parse all link sequences
     // They look like this: |c<color>|H<linktag>:<linkdata>|h[<linktext>]|h|r
     // - <color> is 8 hex characters AARRGGBB

@@ -22,7 +22,8 @@
 enum Spells
 {
     SPELL_CURSE_OF_BLOOD        = 24673,
-    SPELL_ILLUSION              = 17773
+    SPELL_ILLUSION              = 17773,
+    SPELL_DROP_JOURNAL          = 26096
 };
 
 enum Events
@@ -67,6 +68,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             Summons.DespawnAll();
+            DoCastSelf(SPELL_DROP_JOURNAL, true);
         }
 
         void UpdateAI(uint32 diff) override
