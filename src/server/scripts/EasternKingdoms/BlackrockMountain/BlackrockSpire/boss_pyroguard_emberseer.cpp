@@ -81,7 +81,7 @@ public:
         boss_pyroguard_emberseerAI(Creature* creature) : BossAI(creature, DATA_PYROGAURD_EMBERSEER) { }
 
         void Reset() override
-        {      
+        {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->SetImmuneToPC(true);
             events.Reset();
