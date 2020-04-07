@@ -50,7 +50,11 @@ public :
     float UniqueEliteSpellMod;
     float RareSpellMod;
     float RareEliteSpellMod;
-
+    float InstanceEncounterHPMod;
+    float EliteHPMod;
+    float UniqueEliteHPMod;
+    float RareHPMod;
+    float RareEliteHPMod;
 };
 
 #define sJokerConfig JokerConfig::instance()

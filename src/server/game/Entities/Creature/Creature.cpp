@@ -1431,6 +1431,8 @@ void Creature::UpdateLevelDependantStats()
     uint32 basehp = stats->GenerateHealth(cInfo);
     uint32 mana = stats->GenerateMana(cInfo);
 
+    uint32 health = uint32(basehp * healthmod);
+
     // EJ mod 
     if (sJokerConfig->Enable)
     {
@@ -1444,14 +1446,16 @@ void Creature::UpdateLevelDependantStats()
             checkAP = checkAP + checkAP * 20 / 100;
             checkAP = checkAP + checkAP * GetLevel() / 100;
 
-            basehp = basehp + basehp * GetLevel() / 100;
+            health = health + health * GetLevel() / 100;
             mana = mana + mana * GetLevel() / 100;
 
             float jokerAPMod = 1.0f;
+            float jokerHPMod = 1.0f;
             if (sObjectMgr->ieSet.find(cInfo->Entry) != sObjectMgr->ieSet.end())
             {
                 jokerAPMod = sJokerConfig->InstanceEncounterAPMod;
                 jokerSpellDamageMod = sJokerConfig->InstanceEncounterSpellMod;
+                jokerHPMod = sJokerConfig->InstanceEncounterHPMod;
             }
             else if (cInfo->rank == 1)
             {
@@ -1459,23 +1463,28 @@ void Creature::UpdateLevelDependantStats()
                 {
                     jokerAPMod = sJokerConfig->UniqueEliteAPMod;
                     jokerSpellDamageMod = sJokerConfig->UniqueEliteSpellMod;
+                    jokerHPMod = sJokerConfig->UniqueEliteHPMod;
                 }
                 else
                 {
                     jokerAPMod = sJokerConfig->EliteAPMod;
                     jokerSpellDamageMod = sJokerConfig->EliteSpellMod;
+                    jokerHPMod = sJokerConfig->EliteHPMod;
                 }
             }
             else if (cInfo->rank == 2)
             {
                 jokerAPMod = sJokerConfig->RareEliteAPMod;
                 jokerSpellDamageMod = sJokerConfig->RareEliteSpellMod;
+                jokerHPMod = sJokerConfig->RareEliteHPMod;
             }
             else if (cInfo->rank == 4)
             {
                 jokerAPMod = sJokerConfig->RareAPMod;
                 jokerSpellDamageMod = sJokerConfig->RareSpellMod;
+                jokerHPMod = sJokerConfig->RareHPMod;
             }
+            health = health * jokerHPMod;
             switch (cInfo->unit_class)
             {
             case UnitClass::UNIT_CLASS_WARRIOR:
@@ -1513,7 +1522,6 @@ void Creature::UpdateLevelDependantStats()
         }
     }
 
-    uint32 health = uint32(basehp * healthmod);
     SetCreateHealth(health);
     SetMaxHealth(health);
     SetHealth(health);

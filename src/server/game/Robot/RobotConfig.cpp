@@ -169,6 +169,7 @@ bool RobotConfig::StartRobotSystem()
     AccountNamePrefix = GetStringDefault("AccountNamePrefix", "ROBOT");
     OnlineLevel = GetIntDefault("OnlineLevel", 0);
     CountEachLevel = GetIntDefault("CountEachLevel", 100);
+    OnlineRobotLevelGap = GetIntDefault("OnlineRobotLevelGap", 3);
     OnlineMinDelay = GetIntDefault("OnlineMinDelay", 60000);
     OnlineMaxDelay = GetIntDefault("OnlineMaxDelay", 300000);
     GroupInterest = GetIntDefault("GroupInterest", 1);

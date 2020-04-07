@@ -429,9 +429,14 @@ void RobotManager::UpdateRobotManager(uint32 pmDiff)
                         continue;
                     }
                     onlinePlayerIDMap[onlinePlayerIDMap.size()] = eachPlayer->GetGUID().GetCounter();
-                    if (onlinePlayerLevelSet.find(eachPlayer->GetLevel()) == onlinePlayerLevelSet.end())
+                    uint32 checkTargetLevel = eachPlayer->GetLevel();
+                    while (checkTargetLevel >= 20 && checkTargetLevel >= eachPlayer->GetLevel() - sRobotConfig->OnlineRobotLevelGap)
                     {
-                        onlinePlayerLevelSet.insert(eachPlayer->GetLevel());
+                        if (onlinePlayerLevelSet.find(checkTargetLevel) == onlinePlayerLevelSet.end())
+                        {
+                            onlinePlayerLevelSet.insert(checkTargetLevel);
+                        }
+                        checkTargetLevel--;
                     }
                 }
             }
@@ -794,10 +799,9 @@ void RobotManager::LogoutRobots()
 {
     for (std::unordered_set<RobotEntity*>::iterator reIT = reSet.begin(); reIT != reSet.end(); reIT++)
     {
-        if ((*reIT)->entityState == RobotEntityState::RobotEntityState_Online)
-        {
-            LogoutRobot((*reIT)->character_id);
-        }
+        RobotEntity* eachRE = *reIT;
+        LogoutRobot(eachRE->character_id);
+        eachRE->entityState = RobotEntityState::RobotEntityState_CheckLogoff;
     }
 }
 

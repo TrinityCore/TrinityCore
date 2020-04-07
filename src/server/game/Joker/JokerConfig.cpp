@@ -177,6 +177,12 @@ bool JokerConfig::StartJokerSystem()
     RareSpellMod = GetFloatDefault("RareSpellMod", 1);
     RareEliteSpellMod = GetFloatDefault("RareEliteSpellMod", 1);
 
+    InstanceEncounterHPMod = GetFloatDefault("InstanceEncounterHPMod", 1);
+    EliteHPMod = GetFloatDefault("EliteHPMod", 1);
+    UniqueEliteHPMod = GetFloatDefault("UniqueEliteHPMod", 1);
+    RareHPMod = GetFloatDefault("RareHPMod", 1);
+    RareEliteHPMod = GetFloatDefault("RareEliteHPMod", 1);
+
     if (Enable == 0)
     {
         return false;
