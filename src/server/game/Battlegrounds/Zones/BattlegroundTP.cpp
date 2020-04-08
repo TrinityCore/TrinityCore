@@ -25,6 +25,7 @@
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "WorldPacket.h"
+#include "WorldStatePackets.h"
 
  // these variables aren't used outside of this file, so declare them only here
 enum BG_TP_Rewards
@@ -345,14 +346,14 @@ void BattlegroundTP::Reset()
     _flagsTimer[TEAM_HORDE]          = 0;
 }
 
-void BattlegroundTP::FillInitialWorldStates(WorldPacket& data)
+void BattlegroundTP::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& data)
 { 
     /// Show how many flags had been captured
-    data << uint32(BG_TP_FLAG_CAPTURES_ALLIANCE) << uint32(GetTeamScore(TEAM_ALLIANCE));
-    data << uint32(BG_TP_FLAG_CAPTURES_HORDE) << uint32(GetTeamScore(TEAM_HORDE));
+    data.Worldstates.emplace_back(uint32(BG_TP_FLAG_CAPTURES_ALLIANCE), uint32(GetTeamScore(TEAM_ALLIANCE)));
+    data.Worldstates.emplace_back(uint32(BG_TP_FLAG_CAPTURES_HORDE), uint32(GetTeamScore(TEAM_HORDE)));
     
     /// Show MAX number of flags (x/3)
-    data << uint32(BG_TP_FLAG_CAPTURES_MAX) << uint32(BG_TP_MAX_TEAM_SCORE);
+    data.Worldstates.emplace_back(uint32(BG_TP_FLAG_CAPTURES_MAX), uint32(BG_TP_MAX_TEAM_SCORE));
 
     /// Next Stuff showed only if BG is in progress
     if (GetStatus() == STATUS_IN_PROGRESS)
@@ -363,34 +364,34 @@ void BattlegroundTP::FillInitialWorldStates(WorldPacket& data)
             switch(_flagState[team])
             {
                 case BG_TP_FLAG_STATE_ON_GROUND:
-                    data << uint32(BG_TP_FLAG_UNK_ALLIANCE + team) << uint32(-1);
-                    data << uint32(BG_TP_FLAG_STATE_HORDE + team) << uint32(3); ///< Show if team's flag is carried
+                    data.Worldstates.emplace_back(uint32(BG_TP_FLAG_UNK_ALLIANCE + team), uint32(-1));
+                    data.Worldstates.emplace_back(uint32(BG_TP_FLAG_STATE_HORDE + team), uint32(3)); ///< Show if team's flag is carried
                     break;
                 case BG_TP_FLAG_STATE_ON_PLAYER:
-                    data << uint32(BG_TP_FLAG_UNK_ALLIANCE + team) << uint32(1);
-                    data << uint32(BG_TP_FLAG_STATE_HORDE + team) << uint32(2); ///< Show if team's flag is carried
+                    data.Worldstates.emplace_back(uint32(BG_TP_FLAG_UNK_ALLIANCE + team), uint32(1));
+                    data.Worldstates.emplace_back(uint32(BG_TP_FLAG_STATE_HORDE + team), uint32(2)); ///< Show if team's flag is carried
                     break;
                 default: ///< In Base
-                    data << uint32(BG_TP_FLAG_UNK_ALLIANCE + team) << uint32(0);
-                    data << uint32(BG_TP_FLAG_STATE_HORDE + team) << uint32(1); ///< Show if team's flag is carried
+                    data.Worldstates.emplace_back(uint32(BG_TP_FLAG_UNK_ALLIANCE + team), uint32(0));
+                    data.Worldstates.emplace_back(uint32(BG_TP_FLAG_STATE_HORDE + team), uint32(1)); ///< Show if team's flag is carried
                     break;
             }
         }
 
         /// Show Timer
-        data << uint32(BG_TP_STATE_TIMER_ACTIVE) << uint32(1);
-        data << uint32(BG_TP_STATE_TIMER) << uint32(25 - _minutesElapsed);
+        data.Worldstates.emplace_back(uint32(BG_TP_STATE_TIMER_ACTIVE), uint32(1));
+        data.Worldstates.emplace_back(uint32(BG_TP_STATE_TIMER), uint32(25 - _minutesElapsed));
     }
     else
     {
         /// No timer for begining
-        data << uint32(BG_TP_STATE_TIMER_ACTIVE) << uint32(0);
+        data.Worldstates.emplace_back(uint32(BG_TP_STATE_TIMER_ACTIVE), uint32(0));
 
         /// Just show the maxscore and actual score (0)
-        data << uint32(BG_TP_FLAG_UNK_ALLIANCE) << uint32(0);
-        data << uint32(BG_TP_FLAG_UNK_HORDE) << uint32(0);
-        data << uint32(BG_TP_FLAG_STATE_HORDE) << uint32(1);
-        data << uint32(BG_TP_FLAG_STATE_ALLIANCE) << uint32(1);
+        data.Worldstates.emplace_back(uint32(BG_TP_FLAG_UNK_ALLIANCE), uint32(0));
+        data.Worldstates.emplace_back(uint32(BG_TP_FLAG_UNK_HORDE), uint32(0));
+        data.Worldstates.emplace_back(uint32(BG_TP_FLAG_STATE_HORDE), uint32(1));
+        data.Worldstates.emplace_back(uint32(BG_TP_FLAG_STATE_ALLIANCE), uint32(1));
     }
 }
 

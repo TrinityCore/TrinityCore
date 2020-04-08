@@ -23,6 +23,7 @@
 #include "OutdoorPvPMgr.h"
 #include "Player.h"
 #include "WorldPacket.h"
+#include "WorldStatePackets.h"
 
 uint32 const OutdoorPvPHPBuffZonesNum = 6;
                                                          //  HP, citadel, ramparts, blood furnace, shattered halls, mag's lair
@@ -157,12 +158,12 @@ void OutdoorPvPHP::SendRemoveWorldStates(Player* player)
     }
 }
 
-void OutdoorPvPHP::FillInitialWorldStates(WorldPacket &data)
+void OutdoorPvPHP::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& data)
 {
-    data << uint32(HP_UI_TOWER_DISPLAY_A) << uint32(1);
-    data << uint32(HP_UI_TOWER_DISPLAY_H) << uint32(1);
-    data << uint32(HP_UI_TOWER_COUNT_A) << uint32(m_AllianceTowersControlled);
-    data << uint32(HP_UI_TOWER_COUNT_H) << uint32(m_HordeTowersControlled);
+    data.Worldstates.emplace_back(HP_UI_TOWER_DISPLAY_A, 1);
+    data.Worldstates.emplace_back(HP_UI_TOWER_DISPLAY_H, 1);
+    data.Worldstates.emplace_back(HP_UI_TOWER_COUNT_A, m_AllianceTowersControlled);
+    data.Worldstates.emplace_back(HP_UI_TOWER_COUNT_H, m_HordeTowersControlled);
 
     for (OPvPCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
         itr->second->FillInitialWorldStates(data);
@@ -271,29 +272,29 @@ void OPvPCapturePointHP::ChangeState()
         SendObjectiveComplete(HP_CREDITMARKER[m_TowerType], ObjectGuid::Empty);
 }
 
-void OPvPCapturePointHP::FillInitialWorldStates(WorldPacket &data)
+void OPvPCapturePointHP::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& data)
 {
     switch (m_State)
     {
         case OBJECTIVESTATE_ALLIANCE:
         case OBJECTIVESTATE_ALLIANCE_HORDE_CHALLENGE:
-            data << uint32(HP_MAP_N[m_TowerType]) << uint32(0);
-            data << uint32(HP_MAP_A[m_TowerType]) << uint32(1);
-            data << uint32(HP_MAP_H[m_TowerType]) << uint32(0);
+            data.Worldstates.emplace_back(HP_MAP_N[m_TowerType], 0);
+            data.Worldstates.emplace_back(HP_MAP_A[m_TowerType], 1);
+            data.Worldstates.emplace_back(HP_MAP_H[m_TowerType], 0);
             break;
         case OBJECTIVESTATE_HORDE:
         case OBJECTIVESTATE_HORDE_ALLIANCE_CHALLENGE:
-            data << uint32(HP_MAP_N[m_TowerType]) << uint32(0);
-            data << uint32(HP_MAP_A[m_TowerType]) << uint32(0);
-            data << uint32(HP_MAP_H[m_TowerType]) << uint32(1);
+            data.Worldstates.emplace_back(HP_MAP_N[m_TowerType], 0);
+            data.Worldstates.emplace_back(HP_MAP_A[m_TowerType], 0);
+            data.Worldstates.emplace_back(HP_MAP_H[m_TowerType], 1);
             break;
         case OBJECTIVESTATE_NEUTRAL:
         case OBJECTIVESTATE_NEUTRAL_ALLIANCE_CHALLENGE:
         case OBJECTIVESTATE_NEUTRAL_HORDE_CHALLENGE:
         default:
-            data << uint32(HP_MAP_N[m_TowerType]) << uint32(1);
-            data << uint32(HP_MAP_A[m_TowerType]) << uint32(0);
-            data << uint32(HP_MAP_H[m_TowerType]) << uint32(0);
+            data.Worldstates.emplace_back(HP_MAP_N[m_TowerType], 1);
+            data.Worldstates.emplace_back(HP_MAP_A[m_TowerType], 0);
+            data.Worldstates.emplace_back(HP_MAP_H[m_TowerType], 0);
             break;
     }
 }

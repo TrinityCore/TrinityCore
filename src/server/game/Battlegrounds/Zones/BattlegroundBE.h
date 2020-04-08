@@ -20,6 +20,14 @@
 
 #include "Arena.h"
 
+namespace WorldPackets
+{
+    namespace WorldState
+    {
+        class InitWorldStates;
+    }
+}
+
 enum BattlegroundBEObjectTypes
 {
     BG_BE_OBJECT_DOOR_1         = 0,
@@ -52,6 +60,6 @@ class BattlegroundBE : public Arena
 
         void HandleAreaTrigger(Player* Source, uint32 Trigger) override;
         bool SetupBattleground() override;
-        void FillInitialWorldStates(WorldPacket &d) override;
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& data) override;
 };
 #endif

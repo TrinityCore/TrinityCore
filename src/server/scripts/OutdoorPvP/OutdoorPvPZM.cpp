@@ -24,6 +24,7 @@
 #include "Creature.h"
 #include "ObjectAccessor.h"
 #include "WorldPacket.h"
+#include "WorldStatePackets.h"
 #include "GossipDef.h"
 
 uint8 const OutdoorPvPZMBuffZonesNum = 5;
@@ -91,14 +92,14 @@ OPvPCapturePointZM_Beacon::OPvPCapturePointZM_Beacon(OutdoorPvP* pvp, ZM_BeaconT
     SetCapturePointData(ZMCapturePoints[type].entry, ZMCapturePoints[type].map, ZMCapturePoints[type].pos, ZMCapturePoints[type].rot);
 }
 
-void OPvPCapturePointZM_Beacon::FillInitialWorldStates(WorldPacket &data)
+void OPvPCapturePointZM_Beacon::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& data)
 {
-    data << uint32(ZMBeaconInfo[m_TowerType].ui_tower_n) << uint32((m_TowerState & ZM_TOWERSTATE_N) != 0);
-    data << uint32(ZMBeaconInfo[m_TowerType].map_tower_n) << uint32((m_TowerState & ZM_TOWERSTATE_N) != 0);
-    data << uint32(ZMBeaconInfo[m_TowerType].ui_tower_a) << uint32((m_TowerState & ZM_TOWERSTATE_A) != 0);
-    data << uint32(ZMBeaconInfo[m_TowerType].map_tower_a) << uint32((m_TowerState & ZM_TOWERSTATE_A) != 0);
-    data << uint32(ZMBeaconInfo[m_TowerType].ui_tower_h) << uint32((m_TowerState & ZM_TOWERSTATE_H) != 0);
-    data << uint32(ZMBeaconInfo[m_TowerType].map_tower_h) << uint32((m_TowerState & ZM_TOWERSTATE_H) != 0);
+    data.Worldstates.emplace_back(uint32(ZMBeaconInfo[m_TowerType].ui_tower_n), ((m_TowerState & ZM_TOWERSTATE_N) != 0));
+    data.Worldstates.emplace_back(uint32(ZMBeaconInfo[m_TowerType].map_tower_n), ((m_TowerState & ZM_TOWERSTATE_N) != 0));
+    data.Worldstates.emplace_back(uint32(ZMBeaconInfo[m_TowerType].ui_tower_a), ((m_TowerState & ZM_TOWERSTATE_A) != 0));
+    data.Worldstates.emplace_back(uint32(ZMBeaconInfo[m_TowerType].map_tower_a), ((m_TowerState & ZM_TOWERSTATE_A) != 0));
+    data.Worldstates.emplace_back(uint32(ZMBeaconInfo[m_TowerType].ui_tower_h), ((m_TowerState & ZM_TOWERSTATE_H) != 0));
+    data.Worldstates.emplace_back(uint32(ZMBeaconInfo[m_TowerType].map_tower_h), ((m_TowerState & ZM_TOWERSTATE_H) != 0));
 }
 
 void OPvPCapturePointZM_Beacon::UpdateTowerState()
@@ -300,16 +301,16 @@ void OPvPCapturePointZM_Graveyard::UpdateTowerState()
     m_PvP->SendUpdateWorldState(ZM_MAP_HORDE_FLAG_NOT_READY, uint32(m_BothControllingFaction != HORDE));
 }
 
-void OPvPCapturePointZM_Graveyard::FillInitialWorldStates(WorldPacket &data)
+void OPvPCapturePointZM_Graveyard::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& data)
 {
-    data << ZM_MAP_GRAVEYARD_N << uint32((m_GraveyardState & ZM_GRAVEYARD_N) != 0);
-    data << ZM_MAP_GRAVEYARD_H << uint32((m_GraveyardState & ZM_GRAVEYARD_H) != 0);
-    data << ZM_MAP_GRAVEYARD_A << uint32((m_GraveyardState & ZM_GRAVEYARD_A) != 0);
+    data.Worldstates.emplace_back(ZM_MAP_GRAVEYARD_N, uint32((m_GraveyardState & ZM_GRAVEYARD_N) != 0));
+    data.Worldstates.emplace_back(ZM_MAP_GRAVEYARD_H, uint32((m_GraveyardState & ZM_GRAVEYARD_H) != 0));
+    data.Worldstates.emplace_back(ZM_MAP_GRAVEYARD_A, uint32((m_GraveyardState & ZM_GRAVEYARD_A) != 0));
 
-    data << ZM_MAP_ALLIANCE_FLAG_READY  << uint32(m_BothControllingFaction == ALLIANCE);
-    data << ZM_MAP_ALLIANCE_FLAG_NOT_READY  << uint32(m_BothControllingFaction != ALLIANCE);
-    data << ZM_MAP_HORDE_FLAG_READY  << uint32(m_BothControllingFaction == HORDE);
-    data << ZM_MAP_HORDE_FLAG_NOT_READY  << uint32(m_BothControllingFaction != HORDE);
+    data.Worldstates.emplace_back(ZM_MAP_ALLIANCE_FLAG_READY,  uint32(m_BothControllingFaction == ALLIANCE));
+    data.Worldstates.emplace_back(ZM_MAP_ALLIANCE_FLAG_NOT_READY, uint32(m_BothControllingFaction != ALLIANCE));
+    data.Worldstates.emplace_back(ZM_MAP_HORDE_FLAG_READY, uint32(m_BothControllingFaction == HORDE));
+    data.Worldstates.emplace_back(ZM_MAP_HORDE_FLAG_NOT_READY, uint32(m_BothControllingFaction != HORDE));
 }
 
 void OPvPCapturePointZM_Graveyard::SetBeaconState(uint32 controlling_faction)
@@ -435,9 +436,9 @@ void OutdoorPvPZM::SetHordeTowersControlled(uint32 count)
     m_HordeTowersControlled = count;
 }
 
-void OutdoorPvPZM::FillInitialWorldStates(WorldPacket &data)
+void OutdoorPvPZM::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& data)
 {
-    data << ZM_WORLDSTATE_UNK_1 << uint32(1);
+    data.Worldstates.emplace_back(ZM_WORLDSTATE_UNK_1, uint32(1));
 
     for (OPvPCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
         itr->second->FillInitialWorldStates(data);

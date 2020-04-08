@@ -28,6 +28,7 @@
 #include "Transport.h"
 #include "UpdateData.h"
 #include "WorldPacket.h"
+#include "WorldStatePackets.h"
 
 void BattlegroundSAScore::BuildObjectivesBlock(WorldPacket& data, ByteBuffer& content)
 {
@@ -446,44 +447,44 @@ void BattlegroundSA::StartingEventCloseDoors() { }
 
 void BattlegroundSA::StartingEventOpenDoors() { }
 
-void BattlegroundSA::FillInitialWorldStates(WorldPacket& data)
+void BattlegroundSA::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& data)
 {
     bool allyAttacks = Attackers == TEAM_ALLIANCE;
     bool hordeAttacks = Attackers == TEAM_HORDE;
 
-    data << uint32(BG_SA_ANCIENT_GATEWS) << uint32(GateStatus[BG_SA_ANCIENT_GATE]);
-    data << uint32(BG_SA_YELLOW_GATEWS) << uint32(GateStatus[BG_SA_YELLOW_GATE]);
-    data << uint32(BG_SA_GREEN_GATEWS) << uint32(GateStatus[BG_SA_GREEN_GATE]);
-    data << uint32(BG_SA_BLUE_GATEWS) << uint32(GateStatus[BG_SA_BLUE_GATE]);
-    data << uint32(BG_SA_RED_GATEWS) << uint32(GateStatus[BG_SA_RED_GATE]);
-    data << uint32(BG_SA_PURPLE_GATEWS) << uint32(GateStatus[BG_SA_PURPLE_GATE]);
+    data.Worldstates.emplace_back(uint32(BG_SA_ANCIENT_GATEWS), uint32(GateStatus[BG_SA_ANCIENT_GATE]));
+    data.Worldstates.emplace_back(uint32(BG_SA_YELLOW_GATEWS), uint32(GateStatus[BG_SA_YELLOW_GATE]));
+    data.Worldstates.emplace_back(uint32(BG_SA_GREEN_GATEWS), uint32(GateStatus[BG_SA_GREEN_GATE]));
+    data.Worldstates.emplace_back(uint32(BG_SA_BLUE_GATEWS), uint32(GateStatus[BG_SA_BLUE_GATE]));
+    data.Worldstates.emplace_back(uint32(BG_SA_RED_GATEWS), uint32(GateStatus[BG_SA_RED_GATE]));
+    data.Worldstates.emplace_back(uint32(BG_SA_PURPLE_GATEWS), uint32(GateStatus[BG_SA_PURPLE_GATE]));
 
-    data << uint32(BG_SA_BONUS_TIMER) << uint32(0);
+    data.Worldstates.emplace_back(uint32(BG_SA_BONUS_TIMER), uint32(0));
 
-    data << uint32(BG_SA_HORDE_ATTACKS) << uint32(hordeAttacks);
-    data << uint32(BG_SA_ALLY_ATTACKS) << uint32(allyAttacks);
+    data.Worldstates.emplace_back(uint32(BG_SA_HORDE_ATTACKS), uint32(hordeAttacks));
+    data.Worldstates.emplace_back(uint32(BG_SA_ALLY_ATTACKS), uint32(allyAttacks));
 
     // Time will be sent on first update...
-    data << uint32(BG_SA_ENABLE_TIMER) << uint32(TimerEnabled);
-    data << uint32(BG_SA_TIMER_MINS) << uint32(0);
-    data << uint32(BG_SA_TIMER_SEC_TENS) << uint32(0);
-    data << uint32(BG_SA_TIMER_SEC_DECS) << uint32(0);
+    data.Worldstates.emplace_back(uint32(BG_SA_ENABLE_TIMER), uint32(TimerEnabled));
+    data.Worldstates.emplace_back(uint32(BG_SA_TIMER_MINS), uint32(0));
+    data.Worldstates.emplace_back(uint32(BG_SA_TIMER_SEC_TENS), uint32(0));
+    data.Worldstates.emplace_back(uint32(BG_SA_TIMER_SEC_DECS), uint32(0));
 
-    data << uint32(BG_SA_RIGHT_GY_HORDE) << uint32(GraveyardStatus[BG_SA_RIGHT_CAPTURABLE_GY] == TEAM_HORDE);
-    data << uint32(BG_SA_LEFT_GY_HORDE) << uint32(GraveyardStatus[BG_SA_LEFT_CAPTURABLE_GY] == TEAM_HORDE);
-    data << uint32(BG_SA_CENTER_GY_HORDE) << uint32(GraveyardStatus[BG_SA_CENTRAL_CAPTURABLE_GY] == TEAM_HORDE);
+    data.Worldstates.emplace_back(uint32(BG_SA_RIGHT_GY_HORDE), uint32(GraveyardStatus[BG_SA_RIGHT_CAPTURABLE_GY] == TEAM_HORDE));
+    data.Worldstates.emplace_back(uint32(BG_SA_LEFT_GY_HORDE), uint32(GraveyardStatus[BG_SA_LEFT_CAPTURABLE_GY] == TEAM_HORDE));
+    data.Worldstates.emplace_back(uint32(BG_SA_CENTER_GY_HORDE), uint32(GraveyardStatus[BG_SA_CENTRAL_CAPTURABLE_GY] == TEAM_HORDE));
 
-    data << uint32(BG_SA_RIGHT_GY_ALLIANCE) << uint32(GraveyardStatus[BG_SA_RIGHT_CAPTURABLE_GY] == TEAM_ALLIANCE);
-    data << uint32(BG_SA_LEFT_GY_ALLIANCE) << uint32(GraveyardStatus[BG_SA_LEFT_CAPTURABLE_GY] == TEAM_ALLIANCE);
-    data << uint32(BG_SA_CENTER_GY_ALLIANCE) << uint32(GraveyardStatus[BG_SA_CENTRAL_CAPTURABLE_GY] == TEAM_ALLIANCE);
+    data.Worldstates.emplace_back(uint32(BG_SA_RIGHT_GY_ALLIANCE), uint32(GraveyardStatus[BG_SA_RIGHT_CAPTURABLE_GY] == TEAM_ALLIANCE));
+    data.Worldstates.emplace_back(uint32(BG_SA_LEFT_GY_ALLIANCE), uint32(GraveyardStatus[BG_SA_LEFT_CAPTURABLE_GY] == TEAM_ALLIANCE));
+    data.Worldstates.emplace_back(uint32(BG_SA_CENTER_GY_ALLIANCE), uint32(GraveyardStatus[BG_SA_CENTRAL_CAPTURABLE_GY] == TEAM_ALLIANCE));
 
-    data << uint32(BG_SA_HORDE_DEFENCE_TOKEN) << uint32(allyAttacks);
-    data << uint32(BG_SA_ALLIANCE_DEFENCE_TOKEN) << uint32(hordeAttacks);
+    data.Worldstates.emplace_back(uint32(BG_SA_HORDE_DEFENCE_TOKEN), uint32(allyAttacks));
+    data.Worldstates.emplace_back(uint32(BG_SA_ALLIANCE_DEFENCE_TOKEN), uint32(hordeAttacks));
 
-    data << uint32(BG_SA_LEFT_ATT_TOKEN_HRD) << uint32(hordeAttacks);
-    data << uint32(BG_SA_RIGHT_ATT_TOKEN_HRD) << uint32(hordeAttacks);
-    data << uint32(BG_SA_RIGHT_ATT_TOKEN_ALL) <<  uint32(allyAttacks);
-    data << uint32(BG_SA_LEFT_ATT_TOKEN_ALL) <<  uint32(allyAttacks);
+    data.Worldstates.emplace_back(uint32(BG_SA_LEFT_ATT_TOKEN_HRD), uint32(hordeAttacks));
+    data.Worldstates.emplace_back(uint32(BG_SA_RIGHT_ATT_TOKEN_HRD), uint32(hordeAttacks));
+    data.Worldstates.emplace_back(uint32(BG_SA_RIGHT_ATT_TOKEN_ALL), uint32(allyAttacks));
+    data.Worldstates.emplace_back(uint32(BG_SA_LEFT_ATT_TOKEN_ALL), uint32(allyAttacks));
 }
 
 void BattlegroundSA::AddPlayer(Player* player)

@@ -43,6 +43,14 @@ enum AchievementCriteriaTypes : uint8;
 enum AchievementCriteriaTimedTypes : uint8;
 enum EncounterCreditType : uint8;
 
+namespace WorldPackets
+{
+    namespace WorldState
+    {
+        class InitWorldStates;
+    }
+}
+
 enum EncounterFrameType
 {
     ENCOUNTER_FRAME_SET_COMBAT_RES_LIMIT    = 0,
@@ -251,7 +259,7 @@ class TC_GAME_API InstanceScript : public ZoneScript
 
         void SendEncounterUnit(uint32 type, Unit* unit = nullptr, uint8 param1 = 0, uint8 param2 = 0);
 
-        virtual void FillInitialWorldStates(WorldPacket& /*data*/) { }
+        virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*data*/) { }
 
         // ReCheck PhaseTemplate related conditions
         void UpdatePhasing();

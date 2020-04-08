@@ -24,6 +24,7 @@
 #include "EventMap.h"
 #include "CreatureAI.h"
 #include "TemporarySummon.h"
+#include "WorldStatePackets.h"
 #include "blackwing_descent.h"
 
 ObjectData const creatureData[] =
@@ -349,9 +350,9 @@ class instance_blackwing_descent : public InstanceMapScript
                 }
             }
 
-            void FillInitialWorldStates(WorldPacket& data) override
+            void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& data) override
             {
-                data << uint32(WS_KEEPING_IT_IN_THE_FAMILY) << uint32(_nefarianAchievementEligible);
+                data.Worldstates.emplace_back(uint32(WS_KEEPING_IT_IN_THE_FAMILY), uint32(_nefarianAchievementEligible));
             }
 
             uint32 GetData(uint32 type) const override

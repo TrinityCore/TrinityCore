@@ -30,6 +30,7 @@
 #include "ScriptMgr.h"
 #include "SpellInfo.h"
 #include "TemporarySummon.h"
+#include "WorldStatePackets.h"
 #include <array>
 #include <unordered_map>
 #include <unordered_set>
@@ -278,10 +279,10 @@ class instance_culling_of_stratholme : public InstanceMapScript
                 _plagueCrates.reserve(NUM_PLAGUE_CRATES);
             }
 
-            void FillInitialWorldStates(WorldPacket& data) override
+            void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& data) override
             {
                 for (WorldStateMap::const_iterator itr = _sentWorldStates.begin(); itr != _sentWorldStates.end(); ++itr)
-                    data << uint32(itr->first) << uint32(itr->second);
+                    data.Worldstates.emplace_back(uint32(itr->first), uint32(itr->second));
             }
 
             void WriteSaveDataMore(std::ostringstream& data) override

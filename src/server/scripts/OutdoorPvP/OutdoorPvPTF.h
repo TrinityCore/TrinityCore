@@ -20,6 +20,14 @@
 
 #include "OutdoorPvP.h"
 
+namespace WorldPackets
+{
+    namespace WorldState
+    {
+        class InitWorldStates;
+    }
+}
+
 enum DefenseMessages
 {
     TEXT_BONE_WASTES_TAKEN_ALLIANCE     = 16120, // (NYI) '|cffffff00The Alliance has taken control of The Bone Wastes!|r'
@@ -70,7 +78,7 @@ class OPvPCapturePointTF : public OPvPCapturePoint
 
         void ChangeState() override;
 
-        void FillInitialWorldStates(WorldPacket & data) override;
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*data*/) override;
 
         void UpdateTowerState();
 
@@ -92,7 +100,7 @@ class OutdoorPvPTF : public OutdoorPvP
 
         bool Update(uint32 diff) override;
 
-        void FillInitialWorldStates(WorldPacket &data) override;
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*data*/) override;
 
         void SendRemoveWorldStates(Player* player) override;
 

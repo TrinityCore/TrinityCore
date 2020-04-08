@@ -28,5 +28,6 @@
 #include "QuestPackets.h"
 #include "QueryPackets.h"
 #include "SystemPackets.h"
+#include "WorldStatePackets.h"
 
 #endif // AllPackets_h__

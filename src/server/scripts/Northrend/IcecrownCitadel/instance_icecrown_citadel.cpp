@@ -28,7 +28,6 @@
 #include "TemporarySummon.h"
 #include "Transport.h"
 #include "TransportMgr.h"
-#include "WorldPacket.h"
 
 enum EventIds
 {

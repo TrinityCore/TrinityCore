@@ -21,6 +21,14 @@
 #include "Arena.h"
 #include "EventMap.h"
 
+namespace WorldPackets
+{
+    namespace WorldState
+    {
+        class InitWorldStates;
+    }
+}
+
 enum BattlegroundDSObjectTypes
 {
     BG_DS_OBJECT_DOOR_1         = 0,
@@ -99,7 +107,7 @@ class BattlegroundDS : public Arena
 
         void HandleAreaTrigger(Player* Source, uint32 Trigger) override;
         bool SetupBattleground() override;
-        void FillInitialWorldStates(WorldPacket &d) override;
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& data) override;
 
     private:
         void PostUpdateImpl(uint32 diff) override;

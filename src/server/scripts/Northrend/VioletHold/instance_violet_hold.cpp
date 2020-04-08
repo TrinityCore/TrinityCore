@@ -25,6 +25,7 @@
 #include "TemporarySummon.h"
 #include "violet_hold.h"
 #include "WorldPacket.h"
+#include "WorldStatePackets.h"
 
 /*
  * TODO:
@@ -290,11 +291,11 @@ class instance_violet_hold : public InstanceMapScript
                 }
             }
 
-            void FillInitialWorldStates(WorldPacket& data) override
+            void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& data) override
             {
-                data << uint32(WORLD_STATE_VH_SHOW) << uint32(EventState == IN_PROGRESS ? 1 : 0);
-                data << uint32(WORLD_STATE_VH_PRISON_STATE) << uint32(DoorIntegrity);
-                data << uint32(WORLD_STATE_VH_WAVE_COUNT) << uint32(WaveCount);
+                data.Worldstates.emplace_back(uint32(WORLD_STATE_VH_SHOW), uint32(EventState == IN_PROGRESS ? 1 : 0));
+                data.Worldstates.emplace_back(uint32(WORLD_STATE_VH_PRISON_STATE), uint32(DoorIntegrity));
+                data.Worldstates.emplace_back(uint32(WORLD_STATE_VH_WAVE_COUNT), uint32(WaveCount));
             }
 
             bool CheckRequiredBosses(uint32 bossId, Player const* player = nullptr) const override

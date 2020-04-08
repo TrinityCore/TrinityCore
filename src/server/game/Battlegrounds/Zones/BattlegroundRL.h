@@ -19,6 +19,14 @@
 
 #include "Arena.h"
 
+namespace WorldPackets
+{
+    namespace WorldState
+    {
+        class InitWorldStates;
+    }
+}
+
 enum BattlegroundRLObjectTypes
 {
     BG_RL_OBJECT_DOOR_1         = 0,
@@ -42,7 +50,7 @@ class BattlegroundRL : public Arena
         BattlegroundRL();
 
         /* inherited from BattlegroundClass */
-        void FillInitialWorldStates(WorldPacket &d) override;
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& d) override;
         void StartingEventCloseDoors() override;
         void StartingEventOpenDoors() override;
 

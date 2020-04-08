@@ -21,6 +21,7 @@
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "WorldPacket.h"
+#include "WorldStatePackets.h"
 
 BattlegroundRV::BattlegroundRV()
 {
@@ -100,9 +101,9 @@ void BattlegroundRV::HandleAreaTrigger(Player* player, uint32 trigger)
     }
 }
 
-void BattlegroundRV::FillInitialWorldStates(WorldPacket& data)
+void BattlegroundRV::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& data)
 {
-    data << uint32(BG_RV_WORLD_STATE) << uint32(1);
+    data.Worldstates.emplace_back(uint32(BG_RV_WORLD_STATE), uint32(1));
     Arena::FillInitialWorldStates(data);
 }
 

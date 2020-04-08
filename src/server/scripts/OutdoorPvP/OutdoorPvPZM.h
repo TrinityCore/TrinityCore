@@ -20,6 +20,14 @@
 
 #include "OutdoorPvP.h"
 
+namespace WorldPackets
+{
+    namespace WorldState
+    {
+        class InitWorldStates;
+    }
+}
+
 enum DefenseMessages
 {
     TEXT_WEST_BEACON_TAKEN_ALLIANCE         = 15541, // '|cffffff00The Alliance has taken control of the West Beacon!|r'
@@ -105,7 +113,7 @@ class OPvPCapturePointZM_Beacon : public OPvPCapturePoint
 
         void ChangeState() override;
 
-        void FillInitialWorldStates(WorldPacket & data) override;
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& data) override;
 
         void UpdateTowerState();
 
@@ -130,7 +138,7 @@ class OPvPCapturePointZM_Graveyard : public OPvPCapturePoint
 
         void ChangeState() override { }
 
-        void FillInitialWorldStates(WorldPacket & data) override;
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& data) override;
 
         void UpdateTowerState();
 
@@ -167,7 +175,7 @@ class OutdoorPvPZM : public OutdoorPvP
 
         bool Update(uint32 diff) override;
 
-        void FillInitialWorldStates(WorldPacket &data) override;
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& data) override;
 
         void SendRemoveWorldStates(Player* player) override;
 

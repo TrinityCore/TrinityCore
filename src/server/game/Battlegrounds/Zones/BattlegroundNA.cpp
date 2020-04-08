@@ -19,6 +19,7 @@
 #include "Log.h"
 #include "Player.h"
 #include "WorldPacket.h"
+#include "WorldStatePackets.h"
 
 BattlegroundNA::BattlegroundNA()
 {
@@ -56,9 +57,9 @@ void BattlegroundNA::HandleAreaTrigger(Player* player, uint32 trigger)
     }
 }
 
-void BattlegroundNA::FillInitialWorldStates(WorldPacket& data)
+void BattlegroundNA::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& data)
 {
-    data << uint32(0xa11) << uint32(1);     // 9 show
+    data.Worldstates.emplace_back(uint32(0xa11), uint32(1));     // 9 show
     Arena::FillInitialWorldStates(data);
 }
 

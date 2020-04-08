@@ -19,6 +19,14 @@
 
 #include "Arena.h"
 
+namespace WorldPackets
+{
+    namespace WorldState
+    {
+        class InitWorldStates;
+    }
+}
+
 enum BattlegroundRVObjectTypes
 {
     BG_RV_OBJECT_BUFF_1,
@@ -96,7 +104,7 @@ class BattlegroundRV : public Arena
 
         /* inherited from BattlegroundClass */
         void StartingEventOpenDoors() override;
-        void FillInitialWorldStates(WorldPacket &d) override;
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& d) override;
 
         void HandleAreaTrigger(Player* Source, uint32 Trigger) override;
         bool SetupBattleground() override;

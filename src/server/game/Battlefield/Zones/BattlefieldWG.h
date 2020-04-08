@@ -30,6 +30,15 @@ struct StaticWintergraspTowerInfo;
 struct StaticWintergraspWorkshopInfo;
 struct WintergraspObjectPositionData;
 
+namespace WorldPackets
+{
+    namespace WorldState
+    {
+        class InitWorldStates;
+    }
+}
+
+
 typedef std::vector<BfWGGameObjectBuilding*> GameObjectBuildingVect;
 typedef std::vector<WintergraspWorkshop*> WorkshopVect;
 
@@ -365,7 +374,7 @@ class TC_GAME_API BattlefieldWG : public Battlefield
 
         void SendInitWorldStatesTo(Player* player);
         void SendInitWorldStatesToAll() override;
-        void FillInitialWorldStates(WorldPacket& data) override;
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*data*/) override;
 
         void HandleKill(Player* killer, Unit* victim) override;
         void OnUnitDeath(Unit* unit) override;
@@ -583,7 +592,7 @@ public:
 
     void UpdateTurretAttack(bool disable);
 
-    void FillInitialWorldStates(WorldPacket& data);
+    void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& data);
 
     void Save();
 };
@@ -610,7 +619,7 @@ public:
 
     void UpdateGraveyardAndWorkshop();
 
-    void FillInitialWorldStates(WorldPacket& data);
+    void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*data*/);
 
     void Save();
 };

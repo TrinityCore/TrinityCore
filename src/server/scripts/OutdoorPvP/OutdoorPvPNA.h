@@ -20,6 +20,14 @@
 
 #include "OutdoorPvP.h"
 
+namespace WorldPackets
+{
+    namespace WorldState
+    {
+        class InitWorldStates;
+    }
+}
+
 enum DefenseMessages
 {
     TEXT_ALL_GUARDS_DEFEATED                = 15017, // (NYI) '|cffffff00All the guards have been defeated!|r'
@@ -159,7 +167,7 @@ class OPvPCapturePointNA : public OPvPCapturePoint
 
         void ChangeState() override;
 
-        void FillInitialWorldStates(WorldPacket & data) override;
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*data*/) override;
 
         bool HandleCustomSpell(Player* player, uint32 spellId, GameObject* go) override;
 
@@ -212,7 +220,7 @@ class OutdoorPvPNA : public OutdoorPvP
 
         bool Update(uint32 diff) override;
 
-        void FillInitialWorldStates(WorldPacket &data) override;
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*data*/) override;
 
         void SendRemoveWorldStates(Player* player) override;
 

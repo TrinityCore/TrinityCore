@@ -21,6 +21,7 @@
 #include "Map.h"
 #include "ScriptedCreature.h"
 #include "MotionMaster.h"
+#include "WorldStatePackets.h"
 #include "zulaman.h"
 
 ObjectData const creatureData[] =
@@ -70,10 +71,10 @@ public:
             _speedRunState = NOT_STARTED;
         }
 
-        void FillInitialWorldStates(WorldPacket& packet) override
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override
         {
-            packet << uint32(WORLD_STATE_ZULAMAN_TIMER_ENABLED) << uint32(_speedRunState ? 1 : 0);
-            packet << uint32(WORLD_STATE_ZULAMAN_TIMER) << uint32(_remainingSpeedRunTime);
+            packet.Worldstates.emplace_back(uint32(WORLD_STATE_ZULAMAN_TIMER_ENABLED), uint32(_speedRunState ? 1 : 0));
+            packet.Worldstates.emplace_back(uint32(WORLD_STATE_ZULAMAN_TIMER), uint32(_remainingSpeedRunTime));
         }
 
         void OnCreatureCreate(Creature* creature) override

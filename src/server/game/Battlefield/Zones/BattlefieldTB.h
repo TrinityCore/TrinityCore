@@ -23,6 +23,14 @@
 class BattlefieldTB;
 class TolBaradCapturePoint;
 
+namespace WorldPackets
+{
+    namespace WorldState
+    {
+        class InitWorldStates;
+    }
+}
+
 enum TolBaradInfo
 {
     BATTLEFIELD_TB_MAPID = 732, // Tol Barad
@@ -452,7 +460,7 @@ class TC_GAME_API BattlefieldTB : public Battlefield
 
         void SendInitWorldStatesTo(Player* player);
         void SendInitWorldStatesToAll() override;
-        void FillInitialWorldStates(WorldPacket& data) override;
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*data*/) override;
         void UpdateWorldStates();
 
         void HandleKill(Player* killer, Unit* victim) override;

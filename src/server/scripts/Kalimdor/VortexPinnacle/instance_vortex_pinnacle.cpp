@@ -23,6 +23,7 @@
 #include "Map.h"
 #include "MotionMaster.h"
 #include "TemporarySummon.h"
+#include "WorldStatePackets.h"
 #include "vortex_pinnacle.h"
 
 #define MAX_ENCOUNTER 3
@@ -229,9 +230,9 @@ class instance_vortex_pinnacle : public InstanceMapScript
                 }
             }
 
-            void FillInitialWorldStates(WorldPacket& data) override
+            void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& data) override
             {
-                data << uint32(WS_GOLDEN_ORBS_COLLECTED) << uint32(_collectedGoldenOrbs);
+                data.Worldstates.emplace_back(uint32(WS_GOLDEN_ORBS_COLLECTED), uint32(_collectedGoldenOrbs));
             }
 
             void WriteSaveDataMore(std::ostringstream& data) override

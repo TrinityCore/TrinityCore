@@ -28,6 +28,7 @@
 #include "ReputationMgr.h"
 #include "World.h"
 #include "WorldPacket.h"
+#include "WorldStatePackets.h"
 
 uint32 const SI_MAX_RESOURCES = 200;
 
@@ -50,11 +51,11 @@ OutdoorPvPSI::OutdoorPvPSI()
     m_LastController = 0;
 }
 
-void OutdoorPvPSI::FillInitialWorldStates(WorldPacket &data)
+void OutdoorPvPSI::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& data)
 {
-    data << SI_GATHERED_A << m_Gathered_A;
-    data << SI_GATHERED_H << m_Gathered_H;
-    data << SI_SILITHYST_MAX << SI_MAX_RESOURCES;
+    data.Worldstates.emplace_back(SI_GATHERED_A, m_Gathered_A);
+    data.Worldstates.emplace_back(SI_GATHERED_H, m_Gathered_H);
+    data.Worldstates.emplace_back(SI_SILITHYST_MAX, SI_MAX_RESOURCES);
 }
 
 void OutdoorPvPSI::SendRemoveWorldStates(Player* player)

@@ -22,6 +22,14 @@
 #include "BattlegroundScore.h"
 #include "Object.h"
 
+namespace WorldPackets
+{
+    namespace WorldState
+    {
+        class InitWorldStates;
+    }
+}
+
 const uint32 BG_IC_Factions[2] =
 {
     1732, // Alliance
@@ -964,7 +972,7 @@ class BattlegroundIC : public Battleground
         WorldSafeLocsEntry const* GetClosestGraveyard(Player* player) override;
 
         /* Scorekeeping */
-        void FillInitialWorldStates(WorldPacket& data) override;
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& data) override;
 
         void HandlePlayerResurrect(Player* player) override;
 
