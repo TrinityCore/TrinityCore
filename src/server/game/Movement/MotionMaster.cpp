@@ -1112,7 +1112,8 @@ void MotionMaster::Remove(MotionMasterContainer::iterator iterator, bool active,
 
 void MotionMaster::Pop(bool active, bool movementInform)
 {
-    Remove(_generators.begin(), active, movementInform);
+    if (!_generators.empty())
+        Remove(_generators.begin(), active, movementInform);
 }
 
 void MotionMaster::DirectInitialize()
