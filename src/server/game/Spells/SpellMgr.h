@@ -36,6 +36,7 @@ class SpellInfo;
 class Player;
 class Unit;
 class ProcEventInfo;
+struct BattlePetSpeciesEntry;
 struct SkillLineAbilityEntry;
 struct SpellAuraOptionsEntry;
 struct SpellAuraRestrictionsEntry;
@@ -701,6 +702,8 @@ class TC_GAME_API SpellMgr
 
         uint32 GetModelForTotem(uint32 spellId, uint8 race) const;
 
+        BattlePetSpeciesEntry const* GetBattlePetSpecies(uint32 spellId) const;
+
     private:
         SpellInfo* _GetSpellInfo(uint32 spellId) { return spellId < GetSpellInfoStoreSize() ?  mSpellInfoMap[spellId] : NULL; }
 
@@ -764,6 +767,7 @@ class TC_GAME_API SpellMgr
         PetDefaultSpellsMap        mPetDefaultSpellsMap;           // only spells not listed in related mPetLevelupSpellMap entry
         SpellInfoMap               mSpellInfoMap;
         SpellTotemModelMap         mSpellTotemModel;
+        std::unordered_map<uint32, BattlePetSpeciesEntry const*> mBattlePets;
 };
 
 #define sSpellMgr SpellMgr::instance()
