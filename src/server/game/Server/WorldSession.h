@@ -141,6 +141,12 @@ namespace WorldPackets
         class OpeningCinematic;
         class WorldTeleport;
     }
+
+    namespace Pet
+    {
+        class DismissCritter;
+    }
+
     namespace Query
     {
         class QueryCreature;
@@ -905,7 +911,7 @@ class TC_GAME_API WorldSession
         void HandleSetActionBarToggles(WorldPacket& recvData);
 
         void HandleTotemDestroyed(WorldPackets::Totem::TotemDestroyed& totemDestroyed);
-        void HandleDismissCritter(WorldPacket& recvData);
+        void HandleDismissCritter(WorldPackets::Pet::DismissCritter& dismissCritter);
 
         //Battleground
         void HandleBattlemasterHelloOpcode(WorldPacket& recvData);
