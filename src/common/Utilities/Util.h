@@ -519,4 +519,16 @@ constexpr typename std::underlying_type<E>::type AsUnderlyingType(E enumValue)
     return static_cast<typename std::underlying_type<E>::type>(enumValue);
 }
 
+template <typename T>
+T* FirstNotNull(T* t1, T* t2)
+{
+    if (t1)
+        return t1;
+
+    if (t2)
+        return t2;
+
+    return nullptr;
+}
+
 #endif
