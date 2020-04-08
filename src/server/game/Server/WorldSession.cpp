@@ -1358,6 +1358,14 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_RANDOM_ROLL:                          // not profiled
         case CMSG_TIME_SYNC_RESPONSE:                   // not profiled
         case CMSG_MOVE_FORCE_RUN_SPEED_CHANGE_ACK:      // not profiled
+        case CMSG_MOVE_FORCE_SWIM_SPEED_CHANGE_ACK:     // not profiled
+        case CMSG_MOVE_FORCE_SWIM_BACK_SPEED_CHANGE_ACK:// not profiled
+        case CMSG_MOVE_FORCE_RUN_BACK_SPEED_CHANGE_ACK: // not profiled
+        case CMSG_MOVE_FORCE_FLIGHT_SPEED_CHANGE_ACK:   // not profiled
+        case CMSG_MOVE_FORCE_FLIGHT_BACK_SPEED_CHANGE_ACK:// not profiled
+        case CMSG_MOVE_FORCE_WALK_SPEED_CHANGE_ACK:     // not profiled
+        case CMSG_MOVE_FORCE_TURN_RATE_CHANGE_ACK:      // not profiled
+        case CMSG_MOVE_FORCE_PITCH_RATE_CHANGE_ACK:     // not profiled
         {
             // "0" is a magic number meaning there's no limit for the opcode.
             // All the opcodes above must cause little CPU usage and no sync/async database queries at all
