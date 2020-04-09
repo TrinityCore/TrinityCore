@@ -3960,6 +3960,7 @@ Logger.mmaps=3,Server
 #Logger.movement.motionmaster=3,Console Server
 #Logger.movement.splinechain=3,Console Server
 #Logger.network=3,Console Server
+#Logger.network.kick=3,Console Server
 #Logger.network.opcode=3,Console Server
 #Logger.network.soap=3,Console Server
 #Logger.outdoorpvp=3,Console Server
