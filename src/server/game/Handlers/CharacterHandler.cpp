@@ -747,10 +747,14 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     LoadAccountData(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ACCOUNT_DATA), PER_CHARACTER_CACHE_MASK);
     SendAccountDataTimes(PER_CHARACTER_CACHE_MASK);
 
-    WorldPacket data(SMSG_FEATURE_SYSTEM_STATUS, 2);        // added in 2.2.0
-    data << uint8(2);                                       // unknown value
-    data << uint8(0);                                       // enable(1)/disable(0) voice chat interface in client
-    SendPacket(&data);
+    /// Send FeatureSystemStatus
+    {
+        WorldPackets::System::FeatureSystemStatus features;
+        features.ComplaintStatus = 2;
+        features.VoiceEnabled = false;
+
+        SendPacket(features.Write());
+    }
 
     // Send MOTD
     {
