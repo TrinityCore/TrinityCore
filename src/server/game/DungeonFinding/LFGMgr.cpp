@@ -626,7 +626,7 @@ void LFGMgr::LeaveLfg(ObjectGuid guid, bool disconnected)
                 // This is required in case a LFG group vote-kicks a player in a dungeon, queues, then leaves the queue (maybe to queue later again)
                 if (Group* group = sGroupMgr->GetGroupByGUID(gguid.GetCounter()))
                     if (group->isLFGGroup() && GetDungeon(gguid) && (oldState == LFG_STATE_DUNGEON || oldState == LFG_STATE_FINISHED_DUNGEON))
-                        newState = oldState;                
+                        newState = oldState;
 
                 LFGQueue& queue = GetQueue(gguid);
                 queue.RemoveFromQueue(gguid);

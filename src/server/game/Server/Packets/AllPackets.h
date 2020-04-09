@@ -18,11 +18,13 @@
 #ifndef AllPackets_h__
 #define AllPackets_h__
 
+#include "CharacterPackets.h"
 #include "ChatPackets.h"
 #include "CombatPackets.h"
 #include "GuildPackets.h"
 #include "NPCPackets.h"
 #include "MiscPackets.h"
+#include "PetPackets.h"
 #include "QueryPackets.h"
 #include "QuestPackets.h"
 #include "SpellPackets.h"

@@ -36,7 +36,7 @@ namespace WorldPackets
 
             ObjectGuid Victim;
         };
-        
+
         class AttackSwingNotInRange final : public ServerPacket
         {
         public:
