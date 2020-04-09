@@ -19,6 +19,7 @@
 #define SystemPackets_h__
 
 #include "Packet.h"
+#include "SharedDefines.h"
 
 namespace WorldPackets
 {
@@ -31,7 +32,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint8 ComplaintStatus = 0;
+            uint8 ComplaintStatus = COMPLAINT_ENABLED_WITH_AUTO_IGNORE;
             bool VoiceEnabled = false;
         };
     }

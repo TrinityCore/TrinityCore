@@ -747,14 +747,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     LoadAccountData(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ACCOUNT_DATA), PER_CHARACTER_CACHE_MASK);
     SendAccountDataTimes(PER_CHARACTER_CACHE_MASK);
 
-    /// Send FeatureSystemStatus
-    {
-        WorldPackets::System::FeatureSystemStatus features;
-        features.ComplaintStatus = 2;
-        features.VoiceEnabled = false;
-
-        SendPacket(features.Write());
-    }
+    SendFeatureSystemStatus();
 
     // Send MOTD
     {
@@ -790,7 +783,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         }
     }
 
-    data.Initialize(SMSG_LEARNED_DANCE_MOVES, 4+4);
+    WorldPacket data(SMSG_LEARNED_DANCE_MOVES, 4+4);
     data << uint32(0);
     data << uint32(0);
     SendPacket(&data);
@@ -1006,6 +999,14 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     TC_METRIC_EVENT("player_events", "Login", pCurrChar->GetName());
 
     delete holder;
+}
+
+void WorldSession::SendFeatureSystemStatus()
+{
+    WorldPackets::System::FeatureSystemStatus features;
+    features.ComplaintStatus = COMPLAINT_ENABLED_WITH_AUTO_IGNORE;
+    features.VoiceEnabled = false;
+    SendPacket(features.Write());
 }
 
 void WorldSession::HandleSetFactionAtWar(WorldPacket& recvData)
