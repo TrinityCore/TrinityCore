@@ -48,6 +48,7 @@
 #include "ScriptMgr.h"
 #include "ServerMotd.h"
 #include "SocialMgr.h"
+#include "SystemPackets.h"
 #include "QueryHolder.h"
 #include "World.h"
 
