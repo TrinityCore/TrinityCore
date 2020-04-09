@@ -222,12 +222,11 @@ public:
                             Map::PlayerList const& players = me->GetMap()->GetPlayers();
                             for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                                 if (Player* player = itr->GetSource()->ToPlayer())
-                                    if (player->HasAura(SPELL_EMBERSEER_OBJECT_VISUAL)) 
+                                    if (player->HasAura(SPELL_EMBERSEER_OBJECT_VISUAL))
                                     {
                                         _hasAura = true;
                                         break;
                                     }
-                                        
 
                             if (_hasAura)
                             {
