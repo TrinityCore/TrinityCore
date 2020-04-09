@@ -5186,7 +5186,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
     {
         // Check explicit target for m_originalCaster - todo: get rid of such workarounds
         WorldObject* caster = m_caster;
-        if (m_originalCaster)
+        if (m_originalCaster && !caster->ToGameObject())
             caster = m_originalCaster;
 
         SpellCastResult castResult = m_spellInfo->CheckExplicitTarget(caster, m_targets.GetObjectTarget(), m_targets.GetItemTarget());

@@ -903,7 +903,7 @@ namespace Trinity
                 if (!u->isTargetableForAttack(false))
                     return false;
 
-                if (!i_obj->IsWithinDistInMap(u, i_range) || !i_funit->IsValidAttackTarget(u))
+                if (!i_obj->IsWithinDistInMap(u, i_range) || !i_obj->IsValidAttackTarget(u))
                     return false;
 
                 i_range = i_obj->GetDistance(*u);
