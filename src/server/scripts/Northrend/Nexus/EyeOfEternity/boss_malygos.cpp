@@ -385,6 +385,9 @@ public:
             SetPhase(PHASE_NOT_STARTED, true);
             me->SetReactState(REACT_PASSIVE);
             instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+            
+            GameObject* iris = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_FOCUSING_IRIS_GUID));
+            iris->SetPhaseMask(1, true); //1 = visible
         }
 
         uint32 GetData(uint32 data) const override
@@ -765,7 +768,7 @@ public:
                         if (GameObject* iris = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_FOCUSING_IRIS_GUID)))
                         {
                             me->SetFacingToObject(iris);
-                            iris->Delete(); // this is not the best way.
+                            iris->SetPhaseMask(2, true); //2 = Not visible
                         }
                         me->SetReactState(REACT_AGGRESSIVE);
                         SetPhase(PHASE_ONE, true);
