@@ -562,7 +562,11 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
                 GtNPCManaCostScalerEntry const* spellScaler = sGtNPCManaCostScalerStore.LookupEntry(_spellInfo->SpellLevel - 1);
                 GtNPCManaCostScalerEntry const* casterScaler = sGtNPCManaCostScalerStore.LookupEntry(caster->getLevel() - 1);
                 if (spellScaler && casterScaler)
+                {
                     value *= casterScaler->ratio / spellScaler->ratio;
+                    if (caster->getLevel() > 80)
+                        value *= (caster->getLevel() - 80) * 4.4f; // this value has been reversed by calculating default scalings against sniffed spell damage log packets
+                }
             }
         }
     }
