@@ -11135,7 +11135,7 @@ InventoryResult Player::CanStoreItems(Item** items, int count, uint32* itemLimit
                     for (uint32 j = 0; j < bag->GetBagSize(); j++)
                     {
                         item2 = GetItemByPos(t, j);
-                        if (item2 && item2->CanBeMergedPartlyWith(pProto) == EQUIP_ERR_OK && bagCounts[t-INVENTORY_SLOT_BAG_START][j] + item->GetCount() <= pProto->GetMaxStackSize())
+                        if (item2 && item2->CanBeMergedPartlyWith(pProto) == EQUIP_ERR_OK && bagCounts[t-INVENTORY_SLOT_BAG_START][j] < pProto->GetMaxStackSize())
                         {
                             // add count to stack so that later items in the list do not double-book
                             bagCounts[t-INVENTORY_SLOT_BAG_START][j] += remaining_count;
