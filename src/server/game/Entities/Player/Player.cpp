@@ -11040,8 +11040,10 @@ InventoryResult Player::CanStoreItems(Item** items, int count, uint32* itemLimit
         if (!item)
             continue;
 
+        uint32_t remaining_count = item->GetCount();
+
         TC_LOG_DEBUG("entities.player.items", "Player::CanStoreItems: Player '%s' (%s), Index: %i ItemID: %u, Count: %u",
-            GetName().c_str(), GetGUID().ToString().c_str(), k + 1, item->GetEntry(), item->GetCount());
+            GetName().c_str(), GetGUID().ToString().c_str(), k + 1, item->GetEntry(), remaining_count);
         ItemTemplate const* pProto = item->GetTemplate();
 
         // strange item
@@ -11071,12 +11073,16 @@ InventoryResult Player::CanStoreItems(Item** items, int count, uint32* itemLimit
             for (uint8 t = KEYRING_SLOT_START; t < KEYRING_SLOT_END; ++t)
             {
                 item2 = GetItemByPos(INVENTORY_SLOT_BAG_0, t);
-                if (item2 && item2->CanBeMergedPartlyWith(pProto) == EQUIP_ERR_OK && keyringCounts[t-KEYRING_SLOT_START] + item->GetCount() <= pProto->GetMaxStackSize())
+                if (item2 && item2->CanBeMergedPartlyWith(pProto) == EQUIP_ERR_OK)
                 {
-                    keyringCounts[t-KEYRING_SLOT_START] += item->GetCount();
-                    b_found = true;
-                    // stop checking keyring
-                    break;
+                    keyringCounts[t-KEYRING_SLOT_START] += remaining_count;
+                    remaining_count = keyringCounts[t-KEYRING_SLOT_START] - pProto->GetMaxStackSize();
+
+                    b_found = remaining_count <= 0;
+
+                    // stop checking keyring?
+                    if (b_found)
+                        break;
                 }
             }
 
@@ -11086,12 +11092,15 @@ InventoryResult Player::CanStoreItems(Item** items, int count, uint32* itemLimit
             for (int t = CURRENCYTOKEN_SLOT_START; t < CURRENCYTOKEN_SLOT_END; ++t)
             {
                 item2 = GetItemByPos(INVENTORY_SLOT_BAG_0, t);
-                if (item2 && item2->CanBeMergedPartlyWith(pProto) == EQUIP_ERR_OK && currencyCounts[t-CURRENCYTOKEN_SLOT_START] + item->GetCount() <= pProto->GetMaxStackSize())
+                if (item2 && item2->CanBeMergedPartlyWith(pProto) == EQUIP_ERR_OK)
                 {
-                    currencyCounts[t-CURRENCYTOKEN_SLOT_START] += item->GetCount();
-                    b_found = true;
-                    // stop checking currency 'bag'
-                    break;
+                    currencyCounts[t-CURRENCYTOKEN_SLOT_START] += remaining_count;
+                    remaining_count = currencyCounts[t-CURRENCYTOKEN_SLOT_START] - pProto->GetMaxStackSize();
+
+                    b_found = remaining_count <= 0;
+                    // stop checking currency 'bag'?
+                    if (b_found)
+                        break;
                 }
             }
 
@@ -11101,12 +11110,15 @@ InventoryResult Player::CanStoreItems(Item** items, int count, uint32* itemLimit
             for (int t = INVENTORY_SLOT_ITEM_START; t < INVENTORY_SLOT_ITEM_END; ++t)
             {
                 item2 = GetItemByPos(INVENTORY_SLOT_BAG_0, t);
-                if (item2 && item2->CanBeMergedPartlyWith(pProto) == EQUIP_ERR_OK && inventoryCounts[t-INVENTORY_SLOT_ITEM_START] + item->GetCount() <= pProto->GetMaxStackSize())
+                if (item2 && item2->CanBeMergedPartlyWith(pProto) == EQUIP_ERR_OK)
                 {
-                    inventoryCounts[t-INVENTORY_SLOT_ITEM_START] += item->GetCount();
-                    b_found = true;
-                    // stop checking stock backpack
-                    break;
+                    inventoryCounts[t-INVENTORY_SLOT_ITEM_START] += remaining_count;
+                    remaining_count = inventoryCounts[t-INVENTORY_SLOT_ITEM_START] - pProto->GetMaxStackSize();
+
+                    b_found = remaining_count <= 0;
+                    // stop checking stock backpack?
+                    if (b_found)
+                        break;
                 }
             }
 
@@ -11126,14 +11138,17 @@ InventoryResult Player::CanStoreItems(Item** items, int count, uint32* itemLimit
                         if (item2 && item2->CanBeMergedPartlyWith(pProto) == EQUIP_ERR_OK && bagCounts[t-INVENTORY_SLOT_BAG_START][j] + item->GetCount() <= pProto->GetMaxStackSize())
                         {
                             // add count to stack so that later items in the list do not double-book
-                            bagCounts[t-INVENTORY_SLOT_BAG_START][j] += item->GetCount();
-                            b_found = true;
-                            // stop checking equippable bag
-                            break;
+                            bagCounts[t-INVENTORY_SLOT_BAG_START][j] += remaining_count;
+                            remaining_count = bagCounts[t-INVENTORY_SLOT_BAG_START][j] - pProto->GetMaxStackSize();
+
+                            b_found = remaining_count <= 0;
+                            // stop checking equippable bag?
+                            if (b_found)
+                                break;
                         }
                     }
 
-                    // found a home for the item?
+                    // found a home for all pieces of the stack being processed? if so, stop checking other bags
                     if (b_found)
                         break;
                 }
