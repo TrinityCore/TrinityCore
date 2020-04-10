@@ -11147,10 +11147,6 @@ InventoryResult Player::CanStoreItems(Item** items, int count, uint32* itemLimit
                                 break;
                         }
                     }
-
-                    // found a home for all pieces of the stack being processed? if so, stop checking other bags
-                    if (b_found)
-                        break;
                 }
             }
 
