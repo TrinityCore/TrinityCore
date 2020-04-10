@@ -1372,8 +1372,6 @@ void Spell::EffectHealthLeech(SpellEffIndex effIndex)
 
 void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype)
 {
-    TC_LOG_ERROR("spells", "DoCreateItem: %u", itemtype);
-
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
