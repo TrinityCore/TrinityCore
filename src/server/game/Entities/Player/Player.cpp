@@ -11169,7 +11169,7 @@ InventoryResult Player::CanStoreItems(Item** items, int count, uint32* itemLimit
                 {
                     if (keyringCounts[t-KEYRING_SLOT_START] == 0)
                     {
-                        keyringCounts[t-KEYRING_SLOT_START] = 1;
+                        keyringCounts[t-KEYRING_SLOT_START] = remaining_count;
                         b_found = true;
                         break;
                     }
@@ -11185,7 +11185,7 @@ InventoryResult Player::CanStoreItems(Item** items, int count, uint32* itemLimit
                 {
                     if (currencyCounts[t-CURRENCYTOKEN_SLOT_START] == 0)
                     {
-                        currencyCounts[t-CURRENCYTOKEN_SLOT_START] = 1;
+                        currencyCounts[t-CURRENCYTOKEN_SLOT_START] = remaining_count;
                         b_found = true;
                         break;
                     }
