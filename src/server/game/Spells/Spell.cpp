@@ -6864,14 +6864,18 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
                 Unit* target = m_targets.GetUnitTarget() ? m_targets.GetUnitTarget() : m_caster;
                 if (target && target->GetTypeId() == TYPEID_PLAYER && !IsTriggered() && m_spellInfo->Effects[i].ItemType)
                 {
-                    ItemPosCountVec dest;
+                    ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(m_spellInfo->Effects[i].ItemType);
+                    if (!itemTemplate)
+                        return SPELL_FAILED_ITEM_NOT_FOUND;
 
-                    InventoryResult msg = target->ToPlayer()->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, m_spellInfo->Effects[i].ItemType, m_spellInfo->Effects[i].CalcValue());
+                    uint32 createCount = std::clamp<uint32>(m_spellInfo->Effects[i].CalcValue(), 1u, itemTemplate->GetMaxStackSize());
+
+                    ItemPosCountVec dest;
+                    InventoryResult msg = target->ToPlayer()->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, m_spellInfo->Effects[i].ItemType, createCount);
                     if (msg != EQUIP_ERR_OK)
                     {
-                        ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(m_spellInfo->Effects[i].ItemType);
                         /// @todo Needs review
-                        if (pProto && !(pProto->GetItemLimitCategory()))
+                        if (itemTemplate->GetItemLimitCategory())
                         {
                             player->SendEquipError(msg, nullptr, nullptr, m_spellInfo->Effects[i].ItemType);
                             return SPELL_FAILED_DONT_REPORT;
