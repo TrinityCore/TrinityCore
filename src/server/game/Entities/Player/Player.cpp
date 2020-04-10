@@ -10985,7 +10985,7 @@ InventoryResult Player::CanStoreItems(Item** items, int count, uint32* itemLimit
 {
     Item* item2;
 
-    // fill space table
+    // fill space tables, creating a mock-up of the player's inventory
     uint32 inventoryCounts[INVENTORY_SLOT_ITEM_END - INVENTORY_SLOT_ITEM_START];
     uint32 bagCounts[INVENTORY_SLOT_BAG_END - INVENTORY_SLOT_BAG_START][MAX_BAG_SIZE];
     uint32 keyringCounts[KEYRING_SLOT_END - KEYRING_SLOT_START];
@@ -11073,7 +11073,7 @@ InventoryResult Player::CanStoreItems(Item** items, int count, uint32* itemLimit
             for (uint8 t = KEYRING_SLOT_START; t < KEYRING_SLOT_END; ++t)
             {
                 item2 = GetItemByPos(INVENTORY_SLOT_BAG_0, t);
-                if (item2 && item2->CanBeMergedPartlyWith(pProto) == EQUIP_ERR_OK)
+                if (item2 && item2->CanBeMergedPartlyWith(pProto) == EQUIP_ERR_OK && keyringCounts[t-KEYRING_SLOT_START] < pProto->GetMaxStackSize())
                 {
                     keyringCounts[t-KEYRING_SLOT_START] += remaining_count;
                     remaining_count = keyringCounts[t-KEYRING_SLOT_START] - pProto->GetMaxStackSize();
@@ -11092,7 +11092,7 @@ InventoryResult Player::CanStoreItems(Item** items, int count, uint32* itemLimit
             for (int t = CURRENCYTOKEN_SLOT_START; t < CURRENCYTOKEN_SLOT_END; ++t)
             {
                 item2 = GetItemByPos(INVENTORY_SLOT_BAG_0, t);
-                if (item2 && item2->CanBeMergedPartlyWith(pProto) == EQUIP_ERR_OK)
+                if (item2 && item2->CanBeMergedPartlyWith(pProto) == EQUIP_ERR_OK && currencyCounts[t-CURRENCYTOKEN_SLOT_START] < pProto->GetMaxStackSize())
                 {
                     currencyCounts[t-CURRENCYTOKEN_SLOT_START] += remaining_count;
                     remaining_count = currencyCounts[t-CURRENCYTOKEN_SLOT_START] - pProto->GetMaxStackSize();
@@ -11110,7 +11110,7 @@ InventoryResult Player::CanStoreItems(Item** items, int count, uint32* itemLimit
             for (int t = INVENTORY_SLOT_ITEM_START; t < INVENTORY_SLOT_ITEM_END; ++t)
             {
                 item2 = GetItemByPos(INVENTORY_SLOT_BAG_0, t);
-                if (item2 && item2->CanBeMergedPartlyWith(pProto) == EQUIP_ERR_OK)
+                if (item2 && item2->CanBeMergedPartlyWith(pProto) == EQUIP_ERR_OK && inventoryCounts[t-INVENTORY_SLOT_ITEM_START] < pProto->GetMaxStackSize())
                 {
                     inventoryCounts[t-INVENTORY_SLOT_ITEM_START] += remaining_count;
                     remaining_count = inventoryCounts[t-INVENTORY_SLOT_ITEM_START] - pProto->GetMaxStackSize();
