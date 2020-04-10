@@ -10986,6 +10986,8 @@ InventoryResult Player::CanStoreItems(Item** items, int count, uint32* itemLimit
     Item* item2;
 
     // fill space tables, creating a mock-up of the player's inventory
+
+    // counts
     uint32 inventoryCounts[INVENTORY_SLOT_ITEM_END - INVENTORY_SLOT_ITEM_START];
     uint32 bagCounts[INVENTORY_SLOT_BAG_END - INVENTORY_SLOT_BAG_START][MAX_BAG_SIZE];
     uint32 keyringCounts[KEYRING_SLOT_END - KEYRING_SLOT_START];
@@ -10996,12 +10998,27 @@ InventoryResult Player::CanStoreItems(Item** items, int count, uint32* itemLimit
     memset(keyringCounts, 0, sizeof(uint32) * (KEYRING_SLOT_END - KEYRING_SLOT_START));
     memset(currencyCounts, 0, sizeof(uint32) * (CURRENCYTOKEN_SLOT_END - CURRENCYTOKEN_SLOT_START));
 
+    // Item pointers
+    Item* inventoryPointers[INVENTORY_SLOT_ITEM_END - INVENTORY_SLOT_ITEM_START];
+    Item* bagPointers[INVENTORY_SLOT_BAG_END - INVENTORY_SLOT_BAG_START][MAX_BAG_SIZE];
+    Item* keyringPointers[KEYRING_SLOT_END - KEYRING_SLOT_START];
+    Item* currencyPointers[CURRENCYTOKEN_SLOT_END - CURRENCYTOKEN_SLOT_START];
+
+    memset(inventoryPointers, 0, sizeof(Item*) * (INVENTORY_SLOT_ITEM_END - INVENTORY_SLOT_ITEM_START));
+    memset(bagPointers, 0, sizeof(Item*) * (INVENTORY_SLOT_BAG_END - INVENTORY_SLOT_BAG_START) * MAX_BAG_SIZE);
+    memset(keyringPointers, 0, sizeof(Item*) * (KEYRING_SLOT_END - KEYRING_SLOT_START));
+    memset(currencyPointers, 0, sizeof(Item*) * (CURRENCYTOKEN_SLOT_END - CURRENCYTOKEN_SLOT_START));
+
+    // filling inventory
     for (uint8 i = INVENTORY_SLOT_ITEM_START; i < INVENTORY_SLOT_ITEM_END; i++)
     {
         // build items in stock backpack
         item2 = GetItemByPos(INVENTORY_SLOT_BAG_0, i);
         if (item2 && !item2->IsInTrade())
+        {
             inventoryCounts[i - INVENTORY_SLOT_ITEM_START] = item2->GetCount();
+            inventoryPointers[i - INVENTORY_SLOT_ITEM_START] = item2;
+        }
     }
 
     for (uint8 i = KEYRING_SLOT_START; i < KEYRING_SLOT_END; i++)
@@ -11009,7 +11026,10 @@ InventoryResult Player::CanStoreItems(Item** items, int count, uint32* itemLimit
         // build items in key ring 'bag'
         item2 = GetItemByPos(INVENTORY_SLOT_BAG_0, i);
         if (item2 && !item2->IsInTrade())
+        {
             keyringCounts[i - KEYRING_SLOT_START] = item2->GetCount();
+            keyringPointers[i - KEYRING_SLOT_START] = item2;
+        }
     }
 
     for (uint8 i = CURRENCYTOKEN_SLOT_START; i < CURRENCYTOKEN_SLOT_END; i++)
@@ -11017,7 +11037,10 @@ InventoryResult Player::CanStoreItems(Item** items, int count, uint32* itemLimit
         // build items in currency 'bag'
         item2 = GetItemByPos(INVENTORY_SLOT_BAG_0, i);
         if (item2 && !item2->IsInTrade())
+        {
             currencyCounts[i - CURRENCYTOKEN_SLOT_START] = item2->GetCount();
+            currencyPointers[i - CURRENCYTOKEN_SLOT_START] = item2;
+        }
     }
 
     for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; i++)
@@ -11027,7 +11050,10 @@ InventoryResult Player::CanStoreItems(Item** items, int count, uint32* itemLimit
                 // build item counts in equippable bags
                 item2 = GetItemByPos(i, j);
                 if (item2 && !item2->IsInTrade())
+                {
                     bagCounts[i - INVENTORY_SLOT_BAG_START][j] = item2->GetCount();
+                    bagPointers[i - INVENTORY_SLOT_BAG_START][j] = item2;
+                }
             }
 
     // check free space for all items that we wish to add
@@ -11072,7 +11098,7 @@ InventoryResult Player::CanStoreItems(Item** items, int count, uint32* itemLimit
 
             for (uint8 t = KEYRING_SLOT_START; t < KEYRING_SLOT_END; ++t)
             {
-                item2 = GetItemByPos(INVENTORY_SLOT_BAG_0, t);
+                item2 = keyringPointers[t-KEYRING_SLOT_START];
                 if (item2 && item2->CanBeMergedPartlyWith(pProto) == EQUIP_ERR_OK && keyringCounts[t-KEYRING_SLOT_START] < pProto->GetMaxStackSize())
                 {
                     keyringCounts[t-KEYRING_SLOT_START] += remaining_count;
@@ -11091,7 +11117,7 @@ InventoryResult Player::CanStoreItems(Item** items, int count, uint32* itemLimit
 
             for (int t = CURRENCYTOKEN_SLOT_START; t < CURRENCYTOKEN_SLOT_END; ++t)
             {
-                item2 = GetItemByPos(INVENTORY_SLOT_BAG_0, t);
+                item2 = currencyPointers[t-CURRENCYTOKEN_SLOT_START];
                 if (item2 && item2->CanBeMergedPartlyWith(pProto) == EQUIP_ERR_OK && currencyCounts[t-CURRENCYTOKEN_SLOT_START] < pProto->GetMaxStackSize())
                 {
                     currencyCounts[t-CURRENCYTOKEN_SLOT_START] += remaining_count;
@@ -11109,7 +11135,7 @@ InventoryResult Player::CanStoreItems(Item** items, int count, uint32* itemLimit
 
             for (int t = INVENTORY_SLOT_ITEM_START; t < INVENTORY_SLOT_ITEM_END; ++t)
             {
-                item2 = GetItemByPos(INVENTORY_SLOT_BAG_0, t);
+                item2 = inventoryPointers[t-INVENTORY_SLOT_ITEM_START];
                 if (item2 && item2->CanBeMergedPartlyWith(pProto) == EQUIP_ERR_OK && inventoryCounts[t-INVENTORY_SLOT_ITEM_START] < pProto->GetMaxStackSize())
                 {
                     inventoryCounts[t-INVENTORY_SLOT_ITEM_START] += remaining_count;
@@ -11134,7 +11160,7 @@ InventoryResult Player::CanStoreItems(Item** items, int count, uint32* itemLimit
 
                     for (uint32 j = 0; j < bag->GetBagSize(); j++)
                     {
-                        item2 = GetItemByPos(t, j);
+                        item2 = bagPointers[t-INVENTORY_SLOT_BAG_START][j];
                         if (item2 && item2->CanBeMergedPartlyWith(pProto) == EQUIP_ERR_OK && bagCounts[t-INVENTORY_SLOT_BAG_START][j] < pProto->GetMaxStackSize())
                         {
                             // add count to stack so that later items in the list do not double-book
@@ -11166,6 +11192,8 @@ InventoryResult Player::CanStoreItems(Item** items, int count, uint32* itemLimit
                     if (keyringCounts[t-KEYRING_SLOT_START] == 0)
                     {
                         keyringCounts[t-KEYRING_SLOT_START] = remaining_count;
+                        keyringPointers[t-KEYRING_SLOT_START] = item;
+
                         b_found = true;
                         break;
                     }
@@ -11182,6 +11210,8 @@ InventoryResult Player::CanStoreItems(Item** items, int count, uint32* itemLimit
                     if (currencyCounts[t-CURRENCYTOKEN_SLOT_START] == 0)
                     {
                         currencyCounts[t-CURRENCYTOKEN_SLOT_START] = remaining_count;
+                        currencyPointers [t-CURRENCYTOKEN_SLOT_START] = item;
+
                         b_found = true;
                         break;
                     }
@@ -11206,6 +11236,8 @@ InventoryResult Player::CanStoreItems(Item** items, int count, uint32* itemLimit
                             if (bagCounts[t-INVENTORY_SLOT_BAG_START][j] == 0)
                             {
                                 bagCounts[t-INVENTORY_SLOT_BAG_START][j] = remaining_count;
+                                bagPointers[t-INVENTORY_SLOT_BAG_START][j] = item;
+
                                 b_found = true;
                                 break;
                             }
@@ -11225,6 +11257,8 @@ InventoryResult Player::CanStoreItems(Item** items, int count, uint32* itemLimit
             if (inventoryCounts[t-INVENTORY_SLOT_ITEM_START] == 0)
             {
                 inventoryCounts[t-INVENTORY_SLOT_ITEM_START] = remaining_count;
+                inventoryPointers[t-INVENTORY_SLOT_ITEM_START] = item;
+
                 b_found = true;
                 break;
             }
@@ -11249,6 +11283,8 @@ InventoryResult Player::CanStoreItems(Item** items, int count, uint32* itemLimit
                     if (bagCounts[t-INVENTORY_SLOT_BAG_START][j] == 0)
                     {
                         bagCounts[t-INVENTORY_SLOT_BAG_START][j] = remaining_count;
+                        bagPointers[t-INVENTORY_SLOT_BAG_START][j] = item;
+
                         b_found = true;
                         break;
                     }
