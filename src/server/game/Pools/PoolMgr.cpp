@@ -133,7 +133,7 @@ bool PoolGroup<T>::CheckPool() const
 // If no guid is passed, the pool is just removed (event end case)
 // If guid is filled, cache will be used and no removal will occur, it just fill the cache
 template<class T>
-void PoolGroup<T>::DespawnObject(ActivePoolData& spawns, ObjectGuid::LowType guid)
+void PoolGroup<T>::DespawnObject(ActivePoolData& spawns, ObjectGuid::LowType guid, bool alwaysDeleteRespawnTime)
 {
     for (size_t i=0; i < EqualChanced.size(); ++i)
     {
@@ -142,10 +142,12 @@ void PoolGroup<T>::DespawnObject(ActivePoolData& spawns, ObjectGuid::LowType gui
         {
             if (!guid || EqualChanced[i].guid == guid)
             {
-                Despawn1Object(EqualChanced[i].guid);
+                Despawn1Object(EqualChanced[i].guid, alwaysDeleteRespawnTime);
                 spawns.RemoveObject<T>(EqualChanced[i].guid, poolId);
             }
         }
+        else if (alwaysDeleteRespawnTime)
+            RemoveRespawnTimeFromDB(EqualChanced[i].guid);
     }
 
     for (size_t i = 0; i < ExplicitlyChanced.size(); ++i)
@@ -155,16 +157,18 @@ void PoolGroup<T>::DespawnObject(ActivePoolData& spawns, ObjectGuid::LowType gui
         {
             if (!guid || ExplicitlyChanced[i].guid == guid)
             {
-                Despawn1Object(ExplicitlyChanced[i].guid);
+                Despawn1Object(ExplicitlyChanced[i].guid, alwaysDeleteRespawnTime);
                 spawns.RemoveObject<T>(ExplicitlyChanced[i].guid, poolId);
             }
         }
+        else if (alwaysDeleteRespawnTime)
+            RemoveRespawnTimeFromDB(ExplicitlyChanced[i].guid);
     }
 }
 
 // Method that is actualy doing the removal job on one creature
 template<>
-void PoolGroup<Creature>::Despawn1Object(ObjectGuid::LowType guid)
+void PoolGroup<Creature>::Despawn1Object(ObjectGuid::LowType guid, bool alwaysDeleteRespawnTime)
 {
     if (CreatureData const* data = sObjectMgr->GetCreatureData(guid))
     {
@@ -183,13 +187,16 @@ void PoolGroup<Creature>::Despawn1Object(ObjectGuid::LowType guid)
                     creature->SaveRespawnTime();
                 creature->AddObjectToRemoveList();
             }
+
+            if (alwaysDeleteRespawnTime)
+                map->RemoveRespawnTime(SpawnObjectType::SPAWN_TYPE_CREATURE, guid, nullptr, true);
         }
     }
 }
 
 // Same on one gameobject
 template<>
-void PoolGroup<GameObject>::Despawn1Object(ObjectGuid::LowType guid)
+void PoolGroup<GameObject>::Despawn1Object(ObjectGuid::LowType guid, bool alwaysDeleteRespawnTime)
 {
     if (GameObjectData const* data = sObjectMgr->GetGameObjectData(guid))
     {
@@ -209,15 +216,18 @@ void PoolGroup<GameObject>::Despawn1Object(ObjectGuid::LowType guid)
                     go->SaveRespawnTime();
                 go->AddObjectToRemoveList();
             }
+
+            if (alwaysDeleteRespawnTime)
+                map->RemoveRespawnTime(SpawnObjectType::SPAWN_TYPE_GAMEOBJECT, guid, nullptr, true);
         }
     }
 }
 
 // Same on one pool
 template<>
-void PoolGroup<Pool>::Despawn1Object(uint32 child_pool_id)
+void PoolGroup<Pool>::Despawn1Object(uint32 child_pool_id, bool alwaysDeleteRespawnTime)
 {
-    sPoolMgr->DespawnPool(child_pool_id);
+    sPoolMgr->DespawnPool(child_pool_id, alwaysDeleteRespawnTime);
 }
 
 // Method for a pool only to remove any found record causing a circular dependency loop
@@ -384,6 +394,35 @@ void PoolGroup<GameObject>::ReSpawn1Object(PoolObject* /*obj*/)
 // Nothing to do for a child Pool
 template <>
 void PoolGroup<Pool>::ReSpawn1Object(PoolObject* /*obj*/) { }
+
+template <>
+void PoolGroup<Creature>::RemoveRespawnTimeFromDB(ObjectGuid::LowType guid)
+{
+    if (CreatureData const* data = sObjectMgr->GetCreatureData(guid))
+    {
+        Map* map = sMapMgr->CreateBaseMap(data->mapId);
+        if (!map->Instanceable())
+        {
+            map->RemoveRespawnTime(SPAWN_TYPE_CREATURE, guid, nullptr, true);
+        }
+    }
+}
+
+template <>
+void PoolGroup<GameObject>::RemoveRespawnTimeFromDB(ObjectGuid::LowType guid)
+{
+    if (GameObjectData const* data = sObjectMgr->GetGameObjectData(guid))
+    {
+        Map* map = sMapMgr->CreateBaseMap(data->mapId);
+        if (!map->Instanceable())
+        {
+            map->RemoveRespawnTime(SPAWN_TYPE_GAMEOBJECT, guid, nullptr, true);
+        }
+    }
+}
+
+template <>
+void PoolGroup<Pool>::RemoveRespawnTimeFromDB(ObjectGuid::LowType /*guid*/) { }
 
 ////////////////////////////////////////////////////////////
 // Methods of class PoolMgr
@@ -736,22 +775,22 @@ void PoolMgr::SpawnPool(uint32 pool_id)
 }
 
 // Call to despawn a pool, all gameobjects/creatures in this pool are removed
-void PoolMgr::DespawnPool(uint32 pool_id)
+void PoolMgr::DespawnPool(uint32 pool_id, bool alwaysDeleteRespawnTime)
 {
     {
         auto it = mPoolCreatureGroups.find(pool_id);
         if (it != mPoolCreatureGroups.end() && !it->second.isEmpty())
-            it->second.DespawnObject(mSpawnedData);
+            it->second.DespawnObject(mSpawnedData, 0, alwaysDeleteRespawnTime);
     }
     {
         auto it = mPoolGameobjectGroups.find(pool_id);
         if (it != mPoolGameobjectGroups.end() && !it->second.isEmpty())
-            it->second.DespawnObject(mSpawnedData);
+            it->second.DespawnObject(mSpawnedData, 0, alwaysDeleteRespawnTime);
     }
     {
         auto it = mPoolPoolGroups.find(pool_id);
         if (it != mPoolPoolGroups.end() && !it->second.isEmpty())
-            it->second.DespawnObject(mSpawnedData);
+            it->second.DespawnObject(mSpawnedData, 0, alwaysDeleteRespawnTime);
     }
 }
 
