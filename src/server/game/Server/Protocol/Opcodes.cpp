@@ -608,7 +608,7 @@ void OpcodeTable::Initialize()
     /*0x1DD*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_PONG,                      STATUS_NEVER);
     /*0x1DE*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_CLEAR_COOLDOWN,            STATUS_NEVER);
     /*0x1DF*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_GAMEOBJECT_PAGETEXT,       STATUS_NEVER);
-    /*0x1E0*/ DEFINE_HANDLER(CMSG_SETSHEATHED,                             STATUS_LOGGEDIN, PROCESS_INPLACE,      &WorldSession::HandleSetSheathedOpcode         );
+    /*0x1E0*/ DEFINE_HANDLER(CMSG_SET_SHEATHED,                            STATUS_LOGGEDIN, PROCESS_INPLACE,      &WorldSession::HandleSetSheathedOpcode         );
     /*0x1E1*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_COOLDOWN_CHEAT,            STATUS_NEVER);
     /*0x1E2*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_SPELL_DELAYED,             STATUS_NEVER);
     /*0x1E3*/ DEFINE_HANDLER(CMSG_QUEST_POI_QUERY,                         STATUS_LOGGEDIN, PROCESS_INPLACE,      &WorldSession::HandleQuestPOIQuery             );

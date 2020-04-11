@@ -66,18 +66,15 @@ void WorldSession::HandleAttackStopOpcode(WorldPackets::Combat::AttackStop& /*pa
     GetPlayer()->AttackStop();
 }
 
-void WorldSession::HandleSetSheathedOpcode(WorldPacket& recvData)
+void WorldSession::HandleSetSheathedOpcode(WorldPackets::Combat::SetSheathed& packet)
 {
-    uint32 sheathed;
-    recvData >> sheathed;
-
-    if (sheathed >= MAX_SHEATH_STATE)
+    if (packet.CurrentSheathState >= MAX_SHEATH_STATE)
     {
-        TC_LOG_ERROR("network", "Unknown sheath state %u ??", sheathed);
+        TC_LOG_ERROR("network", "Unknown sheath state %u ??", packet.CurrentSheathState);
         return;
     }
 
-    GetPlayer()->SetSheath(SheathState(sheathed));
+    _player->SetSheath(SheathState(packet.CurrentSheathState));
 }
 
 void WorldSession::SendAttackStop(Unit const* enemy)
