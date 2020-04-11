@@ -49,3 +49,14 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
     }
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::System::MOTD::Write()
+{
+    ASSERT(Text);
+    _worldPacket << int32(Text->size());
+
+    for (std::string const& line : *Text)
+        _worldPacket << line;
+
+    return &_worldPacket;
+}

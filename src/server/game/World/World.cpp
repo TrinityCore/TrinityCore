@@ -90,6 +90,7 @@
 #include "WorldSocket.h"
 
 #include <boost/asio/ip/address.hpp>
+#include <boost/algorithm/string.hpp>
 
 TC_GAME_API std::atomic<bool> World::m_stopEvent(false);
 TC_GAME_API uint8 World::m_ExitCode = SHUTDOWN_EXIT_CODE;
@@ -205,16 +206,18 @@ void World::SetClosed(bool val)
     sScriptMgr->OnOpenStateChange(!val);
 }
 
-void World::SetMotd(const std::string& motd)
+void World::SetMotd(std::string motd)
 {
-    m_motd = motd;
+    /// we are using a string copy here to allow modifications in script hooks
+    sScriptMgr->OnMotdChange(motd);
 
-    sScriptMgr->OnMotdChange(m_motd);
+    _motd.clear();
+    boost::split(_motd, motd, boost::is_any_of("@"));
 }
 
-char const* World::GetMotd() const
+std::vector<std::string> const& World::GetMotd() const
 {
-    return m_motd.c_str();
+    return _motd;
 }
 
 void World::TriggerGuidWarning()

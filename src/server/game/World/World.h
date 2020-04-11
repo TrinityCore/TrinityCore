@@ -658,9 +658,9 @@ class TC_GAME_API World
         void SetAllowMovement(bool allow) { m_allowMovement = allow; }
 
         /// Set a new Message of the Day
-        void SetMotd(std::string const& motd);
+        void SetMotd(std::string motd);
         /// Get the current Message of the Day
-        char const* GetMotd() const;
+        std::vector<std::string> const& GetMotd() const;
 
         /// Set the string for new characters (first login)
         void SetNewCharString(std::string const& str) { m_newCharString = str; }
@@ -863,7 +863,7 @@ class TC_GAME_API World
         LocaleConstant m_defaultDbcLocale;                     // from config for one from loaded DBC locales
         uint32 m_availableDbcLocaleMask;                       // by loaded DBC
         bool m_allowMovement;
-        std::string m_motd;
+        std::vector<std::string> _motd;
         std::string m_dataPath;
 
         // for max speed access

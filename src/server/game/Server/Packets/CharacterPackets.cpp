@@ -226,3 +226,9 @@ void WorldPackets::Character::ShowingHelm::Read()
     _worldPacket >> ShowHelm;
 }
 
+WorldPacket const* WorldPackets::Character::LoginVerifyWorld::Write()
+{
+    _worldPacket << int32(MapID);
+    _worldPacket << Pos;
+    return &_worldPacket;
+}

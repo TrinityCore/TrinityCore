@@ -60,6 +60,16 @@ namespace WorldPackets
             bool ItemRestorationButtonEnabled = false;
             bool TravelPassEnabled = false;
         };
+
+        class MOTD final : public ServerPacket
+        {
+        public:
+            MOTD() : ServerPacket(SMSG_MOTD) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<std::string> const* Text = nullptr;
+        };
     }
 }
 
