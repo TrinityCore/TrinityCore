@@ -3136,15 +3136,20 @@ void Map::DeleteRespawnInfo(RespawnInfo* info, CharacterDatabaseTransaction dbTr
     _respawnTimes.erase(info->handle);
 
     // database
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_RESPAWN);
-    stmt->setUInt16(0, info->type);
-    stmt->setUInt32(1, info->spawnId);
-    stmt->setUInt16(2, GetId());
-    stmt->setUInt32(3, GetInstanceId());
-    CharacterDatabase.ExecuteOrAppend(dbTrans, stmt);
+    DeleteRespawnInfoFromDB(info->type, info->spawnId, dbTrans);
 
     // then cleanup the object
     delete info;
+}
+
+void Map::DeleteRespawnInfoFromDB(SpawnObjectType type, ObjectGuid::LowType spawnId, CharacterDatabaseTransaction dbTrans)
+{
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_RESPAWN);
+    stmt->setUInt16(0, type);
+    stmt->setUInt32(1, spawnId);
+    stmt->setUInt16(2, GetId());
+    stmt->setUInt32(3, GetInstanceId());
+    CharacterDatabase.ExecuteOrAppend(dbTrans, stmt);
 }
 
 void Map::DoRespawn(SpawnObjectType type, ObjectGuid::LowType spawnId, uint32 gridId)
