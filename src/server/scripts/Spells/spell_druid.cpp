@@ -1045,7 +1045,7 @@ class spell_dru_flight_form : public SpellScript
     }
 };
 
-// 40120 - Swift Flight Form (Passive)
+// 40120 - Swift Flight Form (Shapeshift)
 class spell_dru_swift_flight_form : public AuraScript
 {
     PrepareAuraScript(spell_dru_swift_flight_form);
