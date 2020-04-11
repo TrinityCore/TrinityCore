@@ -167,7 +167,7 @@ public:
                                 go->SummonCreature(NPC_BARBED_CRUSTACEAN, SpawnsLocation[2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
                                 go->SummonCreature(NPC_BARBED_CRUSTACEAN, SpawnsLocation[5], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
                                 go->SummonCreature(NPC_BARBED_CRUSTACEAN, SpawnsLocation[7], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
-							}
+                            }
                             break;
                     }
                     break;

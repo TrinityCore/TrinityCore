@@ -113,13 +113,13 @@ public:
         {
             InstanceScript::OnGameObjectCreate(go);
 
-            switch(go->GetEntry()) 
+            switch(go->GetEntry())
             {
                 case GO_BLACK_DRAGON_EGG:
                     if (GetBossState(DATA_FIREMAW) == DONE)
                         go->SetPhaseMask(2, true);
                     else
-                        EggList.push_back(go->GetGUID());                   
+                        EggList.push_back(go->GetGUID());
                     break;
                 default:
                     break;

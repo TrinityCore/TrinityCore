@@ -1080,7 +1080,7 @@ public:
         bool isTargetableForAttack(bool checkFakeDeath = true) const;
 
         virtual bool IsInWater() const;
-        virtual bool IsUnderWater() const;
+        bool IsUnderWater() const;
         bool isInAccessiblePlaceFor(Creature const* c) const;
 
         void SendHealSpellLog(HealInfo& healInfo, bool critical = false);

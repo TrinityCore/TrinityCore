@@ -142,7 +142,7 @@ namespace WorldPackets
 
             ObjectGuid SourceObjectGUID;
             uint32 SoundKitID = 0;
-            
+
         };
 
         class TC_GAME_API PlaySound final : public ServerPacket

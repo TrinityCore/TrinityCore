@@ -535,9 +535,9 @@ void AchievementMgr::ResetAchievementCriteria(AchievementCriteriaCondition condi
 
 void AchievementMgr::DeleteFromDB(ObjectGuid guid)
 {
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT);
     stmt->setUInt32(0, guid.GetCounter());
     trans->Append(stmt);
 
@@ -548,7 +548,7 @@ void AchievementMgr::DeleteFromDB(ObjectGuid guid)
     CharacterDatabase.CommitTransaction(trans);
 }
 
-void AchievementMgr::SaveToDB(SQLTransaction& trans)
+void AchievementMgr::SaveToDB(CharacterDatabaseTransaction& trans)
 {
     if (!m_completedAchievements.empty())
     {
@@ -557,7 +557,7 @@ void AchievementMgr::SaveToDB(SQLTransaction& trans)
             if (!completedAchievement.second.changed)
                 continue;
 
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT_BY_ACHIEVEMENT);
+            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT_BY_ACHIEVEMENT);
             stmt->setUInt16(0, completedAchievement.first);
             stmt->setUInt32(1, GetPlayer()->GetGUID().GetCounter());
             trans->Append(stmt);
@@ -579,7 +579,7 @@ void AchievementMgr::SaveToDB(SQLTransaction& trans)
             if (!criteriaProgres.second.changed)
                 continue;
 
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT_PROGRESS_BY_CRITERIA);
+            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT_PROGRESS_BY_CRITERIA);
             stmt->setUInt32(0, GetPlayer()->GetGUID().GetCounter());
             stmt->setUInt16(1, criteriaProgres.first);
             trans->Append(stmt);
@@ -641,7 +641,7 @@ void AchievementMgr::LoadFromDB(PreparedQueryResult achievementResult, PreparedQ
                 // Removing non-existing criteria data for all characters
                 TC_LOG_ERROR("achievement", "Non-existing achievement criteria %u data has been removed from the table `character_achievement_progress`.", id);
 
-                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_ACHIEV_PROGRESS_CRITERIA);
+                CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_ACHIEV_PROGRESS_CRITERIA);
 
                 stmt->setUInt16(0, uint16(id));
 
@@ -1359,7 +1359,7 @@ void AchievementMgr::SetCriteriaProgress(AchievementCriteriaEntry const* entry, 
     if (entry->StartTimer && timedIter == m_timedAchievements.end())
         return;
 
-    TC_LOG_DEBUG("achievement", "AchievementMgr::SetCriteriaProgress(%u, %u) for (GUID:%u)", entry->ID, changeValue, m_player->GetGUID().GetCounter());
+    TC_LOG_DEBUG("achievement", "AchievementMgr::SetCriteriaProgress(%u, %u) for %s", entry->ID, changeValue, m_player->GetGUID().ToString().c_str());
 
     CriteriaProgress* progress = GetCriteriaProgress(entry);
     if (!progress)
@@ -1509,8 +1509,8 @@ void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement)
     if (achievement->Flags & ACHIEVEMENT_FLAG_COUNTER || HasAchieved(achievement->ID))
         return;
 
-    TC_LOG_INFO("achievement", "AchievementMgr::CompletedAchievement(%u). Player: %s (%u)",
-        achievement->ID, m_player->GetName().c_str(), m_player->GetGUID().GetCounter());
+    TC_LOG_INFO("achievement", "AchievementMgr::CompletedAchievement(%u). Player: %s %s",
+        achievement->ID, m_player->GetName().c_str(), m_player->GetGUID().ToString().c_str());
 
     SendAchievementEarned(achievement);
     CompletedAchievementData& ca = m_completedAchievements[achievement->ID];
@@ -1563,7 +1563,7 @@ void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement)
             draft = MailDraft(subject, text);
         }
 
-        SQLTransaction trans = CharacterDatabase.BeginTransaction();
+        CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
         Item* item = reward->ItemId ? Item::CreateItem(reward->ItemId, 1, GetPlayer()) : nullptr;
         if (item)
@@ -2573,7 +2573,7 @@ void AchievementGlobalMgr::LoadCompletedAchievements()
             // Remove non-existing achievements from all characters
             TC_LOG_ERROR("achievement", "Non-existing achievement %u data has been removed from the table `character_achievement`.", achievementId);
 
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_ACHIEVMENT);
+            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_ACHIEVMENT);
             stmt->setUInt16(0, uint16(achievementId));
             CharacterDatabase.Execute(stmt);
 
@@ -2722,8 +2722,10 @@ void AchievementGlobalMgr::LoadRewardLocales()
 
         uint32 id               = fields[0].GetUInt32();
         std::string localeName  = fields[1].GetString();
-        std::string subject     = fields[2].GetString();
-        std::string body        = fields[3].GetString();
+
+        LocaleConstant locale = GetLocaleByName(localeName);
+        if (locale == LOCALE_enUS)
+            continue;
 
         if (m_achievementRewards.find(id) == m_achievementRewards.end())
         {
@@ -2732,12 +2734,8 @@ void AchievementGlobalMgr::LoadRewardLocales()
         }
 
         AchievementRewardLocale& data = m_achievementRewardLocales[id];
-        LocaleConstant locale         = GetLocaleByName(localeName);
-        if (locale == LOCALE_enUS)
-            continue;
-
-        ObjectMgr::AddLocaleString(subject, locale, data.Subject);
-        ObjectMgr::AddLocaleString(body, locale, data.Text);
+        ObjectMgr::AddLocaleString(fields[2].GetString(), locale, data.Subject);
+        ObjectMgr::AddLocaleString(fields[3].GetString(), locale, data.Text);
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u achievement reward locale strings in %u ms.", uint32(m_achievementRewardLocales.size()), GetMSTimeDiffToNow(oldMSTime));

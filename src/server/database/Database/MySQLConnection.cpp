@@ -34,7 +34,7 @@ MySQLConnectionInfo::MySQLConnectionInfo(std::string const& infoString)
 {
     Tokenizer tokens(infoString, ';');
 
-    if (tokens.size() != 5)
+    if (tokens.size() != 5 && tokens.size() != 6)
         return;
 
     uint8 i = 0;
@@ -44,6 +44,9 @@ MySQLConnectionInfo::MySQLConnectionInfo(std::string const& infoString)
     user.assign(tokens[i++]);
     password.assign(tokens[i++]);
     database.assign(tokens[i++]);
+
+    if (tokens.size() == 6)
+        ssl.assign(tokens[i++]);
 }
 
 MySQLConnection::MySQLConnection(MySQLConnectionInfo& connInfo) :
@@ -129,6 +132,25 @@ uint32 MySQLConnection::Open()
     }
     #endif
 
+    if (m_connectionInfo.ssl != "")
+    {
+#if !defined(MARIADB_VERSION_ID) && MYSQL_VERSION_ID >= 80000
+        mysql_ssl_mode opt_use_ssl = SSL_MODE_DISABLED;
+        if (m_connectionInfo.ssl == "ssl")
+        {
+            opt_use_ssl = SSL_MODE_REQUIRED;
+        }
+        mysql_options(mysqlInit, MYSQL_OPT_SSL_MODE, (char const*)&opt_use_ssl);
+#else
+        MySQLBool opt_use_ssl = MySQLBool(0);
+        if (m_connectionInfo.ssl == "ssl")
+        {
+            opt_use_ssl = MySQLBool(1);
+        }
+        mysql_options(mysqlInit, MYSQL_OPT_SSL_ENFORCE, (char const*)&opt_use_ssl);
+#endif
+    }
+
     m_Mysql = reinterpret_cast<MySQLHandle*>(mysql_real_connect(mysqlInit, m_connectionInfo.host.c_str(), m_connectionInfo.user.c_str(),
         m_connectionInfo.password.c_str(), m_connectionInfo.database.c_str(), port, unix_socket, 0));
 
@@ -193,7 +215,7 @@ bool MySQLConnection::Execute(char const* sql)
     return true;
 }
 
-bool MySQLConnection::Execute(PreparedStatement* stmt)
+bool MySQLConnection::Execute(PreparedStatementBase* stmt)
 {
     if (!m_Mysql)
         return false;
@@ -240,7 +262,7 @@ bool MySQLConnection::Execute(PreparedStatement* stmt)
     return true;
 }
 
-bool MySQLConnection::_Query(PreparedStatement* stmt, MySQLPreparedStatement** mysqlStmt, MySQLResult** pResult, uint64* pRowCount, uint32* pFieldCount)
+bool MySQLConnection::_Query(PreparedStatementBase* stmt, MySQLPreparedStatement** mysqlStmt, MySQLResult** pResult, uint64* pRowCount, uint32* pFieldCount)
 {
     if (!m_Mysql)
         return false;
@@ -366,7 +388,7 @@ void MySQLConnection::CommitTransaction()
     Execute("COMMIT");
 }
 
-int MySQLConnection::ExecuteTransaction(SQLTransaction& transaction)
+int MySQLConnection::ExecuteTransaction(std::shared_ptr<TransactionBase> transaction)
 {
     std::vector<SQLElementData> const& queries = transaction->m_queries;
     if (queries.empty())
@@ -381,7 +403,7 @@ int MySQLConnection::ExecuteTransaction(SQLTransaction& transaction)
         {
             case SQL_ELEMENT_PREPARED:
             {
-                PreparedStatement* stmt = data.element.stmt;
+                PreparedStatementBase* stmt = data.element.stmt;
                 ASSERT(stmt);
                 if (!Execute(stmt))
                 {
@@ -491,7 +513,7 @@ void MySQLConnection::PrepareStatement(uint32 index, std::string const& sql, Con
     }
 }
 
-PreparedResultSet* MySQLConnection::Query(PreparedStatement* stmt)
+PreparedResultSet* MySQLConnection::Query(PreparedStatementBase* stmt)
 {
     MySQLPreparedStatement* mysqlStmt = nullptr;
     MySQLResult* result = nullptr;
