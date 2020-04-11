@@ -6007,6 +6007,13 @@ enum CharacterUndeleteResult
     CHARACTER_UNDELETE_RESULT_ERROR_UNKNOWN                    = 5
 };
 
+enum ComplaintStatus : uint8
+{
+    COMPLAINT_DISABLED                      = 0,
+    COMPLAINT_ENABLED_WITHOUT_AUTO_IGNORE   = 1,
+    COMPLAINT_ENABLED_WITH_AUTO_IGNORE      = 2
+};
+
 /// Ban function modes
 enum BanMode
 {
