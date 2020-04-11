@@ -87,6 +87,14 @@ namespace WorldPackets
             int32 GameTimeHolidayOffset = 0;
         };
 
+        class DurabilityDamageDeath final : public ServerPacket
+        {
+        public:
+            DurabilityDamageDeath() : ServerPacket(SMSG_DURABILITY_DAMAGE_DEATH, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
+
         class TriggerCinematic final : public ServerPacket
         {
         public:
