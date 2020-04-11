@@ -15,21 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AllPackets_h__
-#define AllPackets_h__
-
-#include "CharacterPackets.h"
-#include "ChatPackets.h"
-#include "CombatPackets.h"
-#include "GuildPackets.h"
-#include "NPCPackets.h"
-#include "MiscPackets.h"
-#include "PetPackets.h"
-#include "QueryPackets.h"
-#include "QuestPackets.h"
-#include "SpellPackets.h"
 #include "SystemPackets.h"
-#include "TotemPackets.h"
-#include "WorldStatePackets.h"
 
-#endif // AllPackets_h__
+WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
+{
+    _worldPacket << uint8(ComplaintStatus);
+    _worldPacket << uint8(VoiceEnabled);
+
+    return &_worldPacket;
+}
