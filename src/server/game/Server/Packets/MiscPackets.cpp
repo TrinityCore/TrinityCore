@@ -143,4 +143,3 @@ void WorldPackets::Misc::WorldTeleport::Read()
     _worldPacket >> Pos;
     _worldPacket >> Facing;
 }
-
