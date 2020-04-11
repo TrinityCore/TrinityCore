@@ -1045,6 +1045,34 @@ class spell_dru_flight_form : public SpellScript
     }
 };
 
+// 40120 - Swift Flight Form (Passive)
+class spell_dru_swift_flight_form : public AuraScript
+{
+    PrepareAuraScript(spell_dru_swift_flight_form);
+
+    bool Load() override
+    {
+        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+    }
+
+    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    {
+        if (Player* caster = GetCaster()->ToPlayer())
+        {
+            // the following values are sniffed but it is not clear how these values are actually being calculated since shapeshift auras usually don't do that.
+            if (caster->GetSkillValue(SKILL_RIDING) >= 375)
+                amount = 240;
+            else
+                amount = 239;
+        }
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_swift_flight_form::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT);
+    }
+};
+
 // 5217 - Tiger's Fury
 class spell_dru_tiger_s_fury : public SpellScript
 {
@@ -2058,6 +2086,7 @@ void AddSC_druid_spell_scripts()
     RegisterAuraScript(spell_dru_solar_beam);
     RegisterSpellAndAuraScriptPair(spell_dru_survival_instincts, spell_dru_survival_instincts_AuraScript);
     RegisterAuraScript(spell_dru_swift_flight_passive);
+    RegisterAuraScript(spell_dru_swift_flight_form);
     RegisterSpellScript(spell_dru_flight_form);
     RegisterSpellScript(spell_dru_tiger_s_fury);
     RegisterAuraScript(spell_dru_tree_of_life);
