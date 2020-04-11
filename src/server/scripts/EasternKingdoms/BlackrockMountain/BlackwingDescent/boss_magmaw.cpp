@@ -421,7 +421,7 @@ struct boss_magmaw : public BossAI
                 case EVENT_MAGMA_PROJECTILE:
                     if (_magmaProjectileCount < 4)
                     {
-                        if (me->GetVictim() && me->IsWithinMeleeRange(me->GetVictim()))
+                        if (me->GetVictim() && me->GetVictim()->IsWithinMeleeRange(me))
                             DoCastAOE(SPELL_MAGMA_SPIT_TARGETING);
                         else
                             DoCastAOE(SPELL_MAGMA_SPIT_MOLTEN_TANTRUM);
