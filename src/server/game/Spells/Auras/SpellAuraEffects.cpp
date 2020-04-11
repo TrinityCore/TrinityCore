@@ -478,6 +478,15 @@ void AuraEffect::GetApplicationList(Container& applicationContainer) const
     }
 }
 
+void AuraEffect::SetAmount(int32 amount)
+{
+    m_amount = amount;
+    m_canBeRecalculated = false;
+
+    if (GetSpellInfo()->HasAttribute(SPELL_ATTR8_AURA_SEND_AMOUNT))
+        GetBase()->SetNeedClientUpdateForTargets();
+}
+
 int32 AuraEffect::CalculateAmount(Unit* caster)
 {
     // default amount calculation
