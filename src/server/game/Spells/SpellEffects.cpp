@@ -3278,8 +3278,8 @@ void Spell::EffectThreat(SpellEffIndex /*effIndex*/)
 
     if (!unitTarget->CanHaveThreatList())
         return;
-
-    unitTarget->GetThreatManager().AddThreat(unitCaster, float(damage), m_spellInfo, true);
+    
+    unitTarget->GetThreatManager().AddThreat(unitCaster, float(damage), m_spellInfo, true);    
 }
 
 void Spell::EffectHealMaxHealth(SpellEffIndex /*effIndex*/)

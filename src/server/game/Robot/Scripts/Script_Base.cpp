@@ -170,7 +170,7 @@ void Script_Base::InitializeCharacter(uint32 pmTargetLevel)
         }
         else if (me->GetClass() == Classes::CLASS_WARRIOR)
         {
-            specialty = 0;
+            specialty = 2;
         }
         else if (me->GetClass() == Classes::CLASS_SHAMAN)
         {
@@ -190,7 +190,7 @@ void Script_Base::InitializeCharacter(uint32 pmTargetLevel)
         }
         else if (me->GetClass() == Classes::CLASS_DRUID)
         {
-            specialty = 0;
+            specialty = 2;
         }
         else if (me->GetClass() == Classes::CLASS_HUNTER)
         {
@@ -914,6 +914,9 @@ bool Script_Base::ApplyGlyph(uint32 pmGlyphSpellID, uint32 pmSlot)
 
 void Script_Base::RandomTeleport()
 {
+    // EJ debug
+    return;
+
     if (!me)
     {
         return;

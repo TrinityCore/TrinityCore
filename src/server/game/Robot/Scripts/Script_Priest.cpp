@@ -98,9 +98,12 @@ bool Script_Priest::Heal(Unit* pmTarget, bool pmCure)
     {
         if (!HasAura(pmTarget, "Weakened Soul"))
         {
-            if (CastSpell(pmTarget, "Power Word: Shield", PRIEST_RANGE_DISTANCE))
+            if (pmTarget->IsInCombat())
             {
-                return true;
+                if (CastSpell(pmTarget, "Power Word: Shield", PRIEST_RANGE_DISTANCE))
+                {
+                    return true;
+                }
             }
         }
         if (CastSpell(pmTarget, "Renew", PRIEST_RANGE_DISTANCE, true))

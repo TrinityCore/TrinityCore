@@ -39,6 +39,7 @@ public :
     bool StartJokerSystem();
 
     uint32 Enable;
+    float ThreatMod;
 
     float InstanceEncounterAPMod;
     float EliteAPMod;

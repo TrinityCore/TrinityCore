@@ -597,9 +597,6 @@ void ThreatManager::ProcessAIUpdates()
 
 /*static*/ float ThreatManager::CalculateModifiedThreat(float threat, Unit const* victim, SpellInfo const* spell)
 {
-    // EJ threat reduce
-    float originalThreat = threat;
-
     // modifiers by spell
     if (spell)
     {
@@ -650,13 +647,6 @@ void ThreatManager::ProcessAIUpdates()
         threat *= mod;
         break;
     }
-    }
-
-    // EJ threat will be 1/4 wlk values
-    threat = threat / 4.0f;
-    if (threat < originalThreat)
-    {
-        threat = originalThreat;
     }
 
     return threat;

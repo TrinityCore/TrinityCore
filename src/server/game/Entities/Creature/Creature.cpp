@@ -1436,19 +1436,20 @@ void Creature::UpdateLevelDependantStats()
     // EJ mod 
     if (sJokerConfig->Enable)
     {
-        if (cInfo->rank != 3)
+        float checkAP = stats->AttackPower;
+        if (checkAP < 30)
         {
-            float checkAP = stats->AttackPower;
-            if (checkAP < 30)
-            {
-                checkAP = 30;
-            }
-            checkAP = checkAP + checkAP * 20 / 100;
+            checkAP = 30;
+        }
+        checkAP = checkAP + checkAP * 20 / 100;
+        if (cInfo->rank == 0)
+        {
             checkAP = checkAP + checkAP * GetLevel() / 100;
-
             health = health + health * GetLevel() / 100;
             mana = mana + mana * GetLevel() / 100;
-
+        }
+        else if (cInfo->rank != 3)
+        {
             float jokerAPMod = 1.0f;
             float jokerHPMod = 1.0f;
             if (sObjectMgr->ieSet.find(cInfo->Entry) != sObjectMgr->ieSet.end())

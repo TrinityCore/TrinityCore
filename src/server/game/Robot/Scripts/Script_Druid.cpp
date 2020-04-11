@@ -914,19 +914,13 @@ bool Script_Druid::Buff(Unit* pmTarget, bool pmCure)
     }
     if (me->GetDistance(pmTarget) < DRUID_RANGE_DISTANCE)
     {
-        if (Group* myGroup = me->GetGroup())
+        if (Player* targetPlayer = pmTarget->ToPlayer())
         {
-            for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+            if (targetPlayer->groupRole == GroupRole::GroupRole_Tank)
             {
-                if (Player* member = groupRef->GetSource())
+                if (CastSpell(targetPlayer, "Thorns", DRUID_RANGE_DISTANCE, true))
                 {
-                    if (member->groupRole == GroupRole::GroupRole_Tank)
-                    {
-                        if (CastSpell(pmTarget, "Thorns", DRUID_RANGE_DISTANCE, true))
-                        {
-                            return true;
-                        }
-                    }
+                    return true;
                 }
             }
         }

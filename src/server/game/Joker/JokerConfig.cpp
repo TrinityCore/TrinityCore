@@ -165,6 +165,8 @@ bool JokerConfig::StartJokerSystem()
     LoadInitial(configFile.generic_string(), std::vector<std::string>(), configError);
     Enable = GetIntDefault("Enable", 0);
 
+    ThreatMod = GetFloatDefault("ThreatMod", 1);
+
     InstanceEncounterAPMod = GetFloatDefault("InstanceEncounterAPMod", 1);
     EliteAPMod = GetFloatDefault("EliteAPMod", 1);
     UniqueEliteAPMod = GetFloatDefault("UniqueEliteAPMod", 1);

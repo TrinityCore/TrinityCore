@@ -133,6 +133,11 @@ void Strategy_Solo::Update(uint32 pmDiff)
         {
             return;
         }
+        if (PVP())
+        {
+            engageDelay = 20 * TimeConstants::IN_MILLISECONDS;
+            return;
+        }
         if (urand(0, 1) == 0)
         {
             if (Confuse())
@@ -449,6 +454,30 @@ bool Strategy_Solo::Battle()
     if (sb->Attack(nearestAttackableTarget))
     {
         return true;
+    }
+
+    return false;
+}
+
+bool Strategy_Solo::PVP()
+{
+    if (!me)
+    {
+        return false;
+    }
+    std::list<Player*> attackTargets;
+    Trinity::AnyPlayerInObjectRangeCheck u_check(me, DEFAULT_VISIBILITY_DISTANCE);
+    Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, attackTargets, u_check);
+    Cell::VisitWorldObjects(me, searcher, DEFAULT_VISIBILITY_DISTANCE);
+    for (std::list<Player*>::iterator it = attackTargets.begin(); it != attackTargets.end(); it++)
+    {
+        if (Player* eachPlayer = *it)
+        {
+            if (sb->Attack(eachPlayer))
+            {
+                return true;
+            }
+        }
     }
 
     return false;

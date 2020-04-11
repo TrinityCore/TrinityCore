@@ -11,6 +11,7 @@
 #include "Group.h"
 #include "MotionMaster.h"
 #include "FollowMovementGenerator.h"
+#include "ChaseMovementGenerator.h"
 #include "GridNotifiers.h"
 #include "Map.h"
 
@@ -94,6 +95,20 @@ void Strategy_Group::Update(uint32 pmDiff)
     if (!me)
     {
         return;
+    }
+    if (Group* myGroup = me->GetGroup())
+    {
+        if (Player* leaderPlayer = ObjectAccessor::FindConnectedPlayer(myGroup->GetLeaderGUID()))
+        {
+            if (WorldSession* leaderWS = leaderPlayer->GetSession())
+            {
+                if (leaderWS->isRobotSession)
+                {
+                    me->RemoveFromGroup();
+                    return;
+                }
+            }
+        }
     }
     if (Group* myGroup = me->GetGroup())
     {
@@ -469,6 +484,10 @@ bool Strategy_Group::Follow()
     {
         return false;
     }
+    if (holding)
+    {
+        return false;
+    }
     if (Group* myGroup = me->GetGroup())
     {
         if (Player* leader = ObjectAccessor::FindConnectedPlayer(myGroup->GetLeaderGUID()))
@@ -479,29 +498,7 @@ bool Strategy_Group::Follow()
                 me->GetMotionMaster()->Clear();
                 return false;
             }
-            if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == MovementGeneratorType::FOLLOW_MOTION_TYPE)
-            {
-                if (FollowMovementGenerator* mg = (FollowMovementGenerator*)me->GetMotionMaster()->GetCurrentMovementGenerator())
-                {
-                    if (Unit* mgTarget = mg->GetTarget())
-                    {
-                        if (mgTarget->GetGUID() == leader->GetGUID())
-                        {
-                            return true;
-                        }
-                    }
-                }
-            }
-            if (me->GetStandState() != UnitStandStateType::UNIT_STAND_STATE_STAND)
-            {
-                me->SetStandState(UNIT_STAND_STATE_STAND);
-            }
-            if (me->IsWalking())
-            {
-                me->SetWalk(false);
-            }
-            me->GetMotionMaster()->MoveFollow(leader, followDistance, ChaseAngle(0, 2 * M_PI), MovementSlot::MOTION_SLOT_ACTIVE);
-            return true;
+            return sb->Follow(leader, followDistance);
         }
     }
     return false;

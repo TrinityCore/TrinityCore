@@ -51,9 +51,19 @@ public:
         {
             switch (creature->GetEntry())
             {
-                case NPC_BLASTMASTER_EMI_SHORTFUSE:
-                    uiBlastmasterEmiShortfuseGUID = creature->GetGUID();
-                    break;
+            case NPC_BLASTMASTER_EMI_SHORTFUSE:
+            {
+                uiBlastmasterEmiShortfuseGUID = creature->GetGUID();
+                break;
+            }
+            case GNOCreatureIds::NPC_WALKING_BOMB:
+            {
+                if (Player* targetP = creature->SelectNearestPlayer(100.0f))
+                {
+                    creature->AI()->AttackStart(targetP);
+                }
+                break;
+            }
             }
         }
 

@@ -22,6 +22,7 @@ public:
     virtual void Update(uint32 pmDiff);
     bool Buff();
 	bool Rest();
+    bool PVP();
 	bool Battle();
 	bool Heal();
 	bool Wait();

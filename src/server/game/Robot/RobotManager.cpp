@@ -639,7 +639,7 @@ uint32 RobotManager::CreateRobotCharacter(uint32 pmAccountID)
     while (true)
     {
         targetClass = urand(Classes::CLASS_WARRIOR, Classes::CLASS_DRUID);
-        if (targetClass != 6 && targetClass != 10 && targetClass != Classes::CLASS_WARRIOR && targetClass != Classes::CLASS_ROGUE && targetClass != Classes::CLASS_SHAMAN)
+        if (targetClass != 6 && targetClass != 10 && targetClass != Classes::CLASS_SHAMAN&& targetClass != Classes::CLASS_WARRIOR&& targetClass != Classes::CLASS_MAGE)
         {
             break;
         }
@@ -928,7 +928,17 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
         Unit* targetUnit = pmPlayer->GetSelectedUnit();
         if (targetUnit)
         {
-            pmPlayer->GetMotionMaster()->MoveChase(targetUnit, ChaseRange(4.0f, 8.0f));
+            float minDistance = 5.0f;
+            float maxDistance = 10.0f;
+            if (commandVector.size() > 1)
+            {
+                minDistance = std::atof(commandVector.at(1).c_str());
+                if (commandVector.size() > 2)
+                {
+                    maxDistance = std::atof(commandVector.at(2).c_str());
+                }
+            }
+            pmPlayer->GetMotionMaster()->MoveChase(targetUnit, ChaseRange(minDistance, maxDistance));
             replyStream << "Chasing";
         }
         else

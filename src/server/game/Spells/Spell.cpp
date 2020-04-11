@@ -61,6 +61,9 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 
+// EJ joker threat
+#include "JokerConfig.h"
+
 extern SpellEffectHandlerFn SpellEffectHandlers[TOTAL_SPELL_EFFECTS];
 
 SpellDestination::SpellDestination()
@@ -4963,9 +4966,18 @@ void Spell::HandleThreatSpells()
     if (SpellThreatEntry const* threatEntry = sSpellMgr->GetSpellThreatEntry(m_spellInfo->Id))
     {
         if (threatEntry->apPctMod != 0.0f)
+        {
             threat += threatEntry->apPctMod * unitCaster->GetTotalAttackPowerValue(BASE_ATTACK);
+        }
 
-        threat += threatEntry->flatMod;
+        // EJ threat
+        //threat += threatEntry->flatMod;
+        float jokerFlatMod = threatEntry->flatMod;
+        if (sJokerConfig->Enable)
+        {
+            jokerFlatMod = jokerFlatMod * sJokerConfig->ThreatMod;
+        }
+        threat += jokerFlatMod;
     }
     else if (!m_spellInfo->HasAttribute(SPELL_ATTR0_CU_NO_INITIAL_THREAT))
         threat += m_spellInfo->SpellLevel;

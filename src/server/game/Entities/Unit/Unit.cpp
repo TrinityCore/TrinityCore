@@ -6577,12 +6577,15 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
             {
                 if (CreatureTemplate const* ct = checkC->GetCreatureTemplate())
                 {
-                    DoneTotalMod *= jokerSpellDamageMod;
-                    if (ct->rank != 3)
+                    if (ct->rank == 0)
                     {
                         float levelMod = 1.0f;
                         levelMod = levelMod + ((float)GetLevel() / 100.0f);
                         DoneTotalMod *= levelMod;
+                    }
+                    else if (ct->rank != 3)
+                    {
+                        DoneTotalMod *= jokerSpellDamageMod;
                     }
                 }
             }
