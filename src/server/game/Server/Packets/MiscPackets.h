@@ -64,6 +64,46 @@ namespace WorldPackets
             ObjectGuid Unit;
         };
 
+        class StartMirrorTimer final : public ServerPacket
+        {
+        public:
+            StartMirrorTimer() : ServerPacket(SMSG_START_MIRROR_TIMER, 21) { }
+            StartMirrorTimer(uint32 timer, uint32 value, uint32 maxValue, int32 scale, bool paused, uint32 spellID) :
+                ServerPacket(SMSG_START_MIRROR_TIMER, 21), Timer(timer), Value(value), MaxValue(maxValue), Scale(scale), Paused(paused), SpellID(spellID) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Timer = 0;
+            uint32 Value = 0;
+            uint32 MaxValue = 0;
+            int32 Scale = 0;
+            bool Paused = false;
+            uint32 SpellID = 0;
+        };
+
+        class PauseMirrorTimer final : public ServerPacket
+        {
+        public:
+            PauseMirrorTimer() : ServerPacket(SMSG_PAUSE_MIRROR_TIMER, 5) { }
+            PauseMirrorTimer(uint32 timer, bool paused) : ServerPacket(SMSG_PAUSE_MIRROR_TIMER, 5), Timer(timer), Paused(paused) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Timer = 0;
+            bool Paused = true;
+        };
+
+        class StopMirrorTimer final : public ServerPacket
+        {
+        public:
+            StopMirrorTimer() : ServerPacket(SMSG_STOP_MIRROR_TIMER, 4) { }
+            StopMirrorTimer(uint32 timer) : ServerPacket(SMSG_STOP_MIRROR_TIMER, 4), Timer(timer) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Timer = 0;
+        };
+
         class InvalidatePlayer final : public ServerPacket
         {
         public:
