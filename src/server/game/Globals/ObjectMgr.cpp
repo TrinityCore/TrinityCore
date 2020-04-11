@@ -8435,6 +8435,7 @@ void ObjectMgr::LoadCreatureOutfits()
         {/*RACE_DARK_IRON_DWARF*/       34, RACE_DWARF},
         {/*RACE_VULPERA*/               35, RACE_GNOME},
         {/*RACE_MAGHAR_ORC*/            36, RACE_ORC},
+        {/*RACE_MECHAGNOME*/            37, RACE_GNOME},
     };
 
     for (auto const & r : newRaceToOldRace)
