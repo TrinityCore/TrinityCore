@@ -145,6 +145,7 @@ namespace WorldPackets
     namespace Pet
     {
         class DismissCritter;
+        class RequestPetInfo;
     }
 
     namespace Query
@@ -994,7 +995,7 @@ class TC_GAME_API WorldSession
         void HandleAreaSpiritHealerQueueOpcode(WorldPacket& recvData);
         void HandleSelfResOpcode(WorldPacket& recvData);
         void HandleComplainOpcode(WorldPacket& recvData);
-        void HandleRequestPetInfoOpcode(WorldPacket& recvData);
+        void HandleRequestPetInfo(WorldPackets::Pet::RequestPetInfo& packet);
 
         // Socket gem
         void HandleSocketOpcode(WorldPacket& recvData);
