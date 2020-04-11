@@ -2598,7 +2598,7 @@ void Player::GiveLevel(uint8 level)
     packet.HealthDelta = int32(classInfo.basehealth) - int32(GetCreateHealth());
 
     /// @todo find some better solution
-    // for (int i = 0; i < MAX_POWERS; ++i) 
+    // for (int i = 0; i < MAX_POWERS; ++i)
     packet.PowerDelta[0] = int32(classInfo.basemana) - int32(GetCreateMana());
     packet.PowerDelta[1] = 0;
     packet.PowerDelta[2] = 0;
