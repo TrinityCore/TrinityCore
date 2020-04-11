@@ -225,9 +225,9 @@ void PoolGroup<GameObject>::Despawn1Object(ObjectGuid::LowType guid, bool always
 
 // Same on one pool
 template<>
-void PoolGroup<Pool>::Despawn1Object(uint32 child_pool_id, bool /*alwaysDeleteRespawnTime*/)
+void PoolGroup<Pool>::Despawn1Object(uint32 child_pool_id, bool alwaysDeleteRespawnTime)
 {
-    sPoolMgr->DespawnPool(child_pool_id);
+    sPoolMgr->DespawnPool(child_pool_id, alwaysDeleteRespawnTime);
 }
 
 // Method for a pool only to remove any found record causing a circular dependency loop
@@ -775,22 +775,22 @@ void PoolMgr::SpawnPool(uint32 pool_id)
 }
 
 // Call to despawn a pool, all gameobjects/creatures in this pool are removed
-void PoolMgr::DespawnPool(uint32 pool_id)
+void PoolMgr::DespawnPool(uint32 pool_id, bool alwaysDeleteRespawnTime)
 {
     {
         auto it = mPoolCreatureGroups.find(pool_id);
         if (it != mPoolCreatureGroups.end() && !it->second.isEmpty())
-            it->second.DespawnObject(mSpawnedData, 0, true);
+            it->second.DespawnObject(mSpawnedData, 0, alwaysDeleteRespawnTime);
     }
     {
         auto it = mPoolGameobjectGroups.find(pool_id);
         if (it != mPoolGameobjectGroups.end() && !it->second.isEmpty())
-            it->second.DespawnObject(mSpawnedData, 0, true);
+            it->second.DespawnObject(mSpawnedData, 0, alwaysDeleteRespawnTime);
     }
     {
         auto it = mPoolPoolGroups.find(pool_id);
         if (it != mPoolPoolGroups.end() && !it->second.isEmpty())
-            it->second.DespawnObject(mSpawnedData);
+            it->second.DespawnObject(mSpawnedData, 0, alwaysDeleteRespawnTime);
     }
 }
 
