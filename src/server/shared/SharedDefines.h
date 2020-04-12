@@ -3457,6 +3457,13 @@ enum ResponseCodes
     CHAR_NAME_DECLENSION_DOESNT_MATCH_BASE_NAME            = 103
 };
 
+enum ComplaintStatus : uint8
+{
+    COMPLAINT_DISABLED                      = 0,
+    COMPLAINT_ENABLED_WITHOUT_AUTO_IGNORE   = 1,
+    COMPLAINT_ENABLED_WITH_AUTO_IGNORE      = 2
+};
+
 /// Ban function modes
 enum BanMode
 {
