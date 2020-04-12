@@ -1691,8 +1691,14 @@ bool WorldObject::CanDetectStealthOf(WorldObject const* obj, bool checkAlert) co
     if (distance < combatReach)
         return true;
 
-    if (!HasInArc(float(M_PI), obj))
+    // Only check back for units, it does not make sense for gameobjects
+    if (unit && !HasInArc(float(M_PI), obj))
         return false;
+
+    // Traps should detect stealth always
+    if (GameObject const* go = ToGameObject())
+        if (go->GetGoType() == GAMEOBJECT_TYPE_TRAP)
+            return true;
 
     GameObject const* go = obj->ToGameObject();
     for (uint32 i = 0; i < TOTAL_STEALTH_TYPES; ++i)
@@ -2625,8 +2631,8 @@ ReputationRank WorldObject::GetReactionTo(WorldObject const* target) const
                 return *repRank;
     }
 
-    Unit const* unit = ToUnit();
-    Unit const* targetUnit = target->ToUnit();
+    Unit const* unit = Coalesce<const Unit>(ToUnit(), selfPlayerOwner);
+    Unit const* targetUnit = Coalesce<const Unit>(target->ToUnit(), targetPlayerOwner);
     if (unit && unit->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED))
     {
         if (targetUnit && targetUnit->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED))
@@ -2878,7 +2884,7 @@ bool WorldObject::IsValidAttackTarget(WorldObject const* target, SpellInfo const
     }
 
     // CvC case - can attack each other only when one of them is hostile
-    if (ToUnit() && !HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED) && target->ToUnit() && !target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED))
+    if (unit && !HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED) && target->ToUnit() && !target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED))
         return IsHostileTo(target) || target->IsHostileTo(this);
 
     // PvP, PvC, CvP case
@@ -2886,7 +2892,7 @@ bool WorldObject::IsValidAttackTarget(WorldObject const* target, SpellInfo const
     if (IsFriendlyTo(target) || target->IsFriendlyTo(this))
         return false;
 
-    Player const* playerAffectingAttacker = ToUnit() && HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED) ? GetAffectingPlayer() : nullptr;
+    Player const* playerAffectingAttacker = unit && HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED) ? GetAffectingPlayer() : ToGameObject() ? GetAffectingPlayer() : nullptr;
     Player const* playerAffectingTarget = target->ToUnit() && target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED) ? target->GetAffectingPlayer() : nullptr;
 
     // Not all neutral creatures can be attacked (even some unfriendly faction does not react aggresive to you, like Sporaggar)
@@ -2894,7 +2900,7 @@ bool WorldObject::IsValidAttackTarget(WorldObject const* target, SpellInfo const
     {
         Player const* player = playerAffectingAttacker ? playerAffectingAttacker : playerAffectingTarget;
 
-        if (Unit const* creature = playerAffectingAttacker ? target->ToUnit() : ToUnit())
+        if (Unit const* creature = playerAffectingAttacker ? target->ToUnit() : unit)
         {
             if (creature->IsContestedGuard() && player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_CONTESTED_PVP))
                 return true;
@@ -2927,14 +2933,14 @@ bool WorldObject::IsValidAttackTarget(WorldObject const* target, SpellInfo const
     // additional checks - only PvP case
     if (playerAffectingAttacker && playerAffectingTarget)
     {
-        if (unitTarget->IsPvP())
+        if (playerAffectingTarget->IsPvP())
             return true;
 
-        if (unit->IsFFAPvP() && unitTarget->IsFFAPvP())
+        if (playerAffectingAttacker->IsFFAPvP() && playerAffectingTarget->IsFFAPvP())
             return true;
 
-        return unit->HasByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PVP_FLAG, UNIT_BYTE2_FLAG_UNK1) ||
-            unitTarget->HasByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PVP_FLAG, UNIT_BYTE2_FLAG_UNK1);
+        return playerAffectingAttacker->HasByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PVP_FLAG, UNIT_BYTE2_FLAG_UNK1) ||
+            playerAffectingTarget->HasByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PVP_FLAG, UNIT_BYTE2_FLAG_UNK1);
     }
 
     return true;
