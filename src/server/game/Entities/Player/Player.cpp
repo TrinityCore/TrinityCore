@@ -11994,9 +11994,9 @@ Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool updat
             // save data
             std::ostringstream ss;
             GuidSet::const_iterator itr = allowedLooters.begin();
-            ss << *itr;
+            ss << itr->GetCounter();
             for (++itr; itr != allowedLooters.end(); ++itr)
-                ss << ' ' << *itr;
+                ss << ' ' << itr->GetCounter();
 
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEM_BOP_TRADE);
             stmt->setUInt64(0, item->GetGUID().GetCounter());
