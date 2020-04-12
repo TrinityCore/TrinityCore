@@ -116,7 +116,7 @@ class TC_GAME_API PoolMgr
         bool CheckPool(uint32 pool_id) const;
 
         void SpawnPool(uint32 pool_id);
-        void DespawnPool(uint32 pool_id);
+        void DespawnPool(uint32 pool_id, bool alwaysDeleteRespawnTime = false);
 
         template<typename T>
         void UpdatePool(uint32 pool_id, uint32 db_guid_or_pool_id);

@@ -34,6 +34,15 @@ namespace WorldPackets
 
             ObjectGuid CritterGUID;
         };
+
+        class RequestPetInfo final : public ClientPacket
+        {
+        public:
+            RequestPetInfo(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_PET_INFO, std::move(packet)) { }
+
+            void Read() override { }
+        };
     }
 }
+
 #endif // PetPackets_h__
