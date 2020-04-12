@@ -219,7 +219,7 @@ MAKE_GUID_TRAIT(HighGuid::ClubFinder, ObjectGuidSequenceSource::Global, ObjectGu
 class ByteBuffer;
 class ObjectGuid;
 
-class ObjectGuidFactory
+class TC_GAME_API ObjectGuidFactory
 {
 public:
     static ObjectGuid CreateNull();
