@@ -534,7 +534,7 @@ enum Opcodes : uint16
     CMSG_GM_SET_SECURITY_GROUP                      = 0x1F9,
     CMSG_GM_NUKE                                    = 0x1FA,
     MSG_RANDOM_ROLL                                 = 0x1FB,
-    SMSG_ENVIRONMENTALDAMAGELOG                     = 0x1FC,
+    SMSG_ENVIRONMENTAL_DAMAGE_LOG                   = 0x1FC,
     CMSG_CHANGEPLAYER_DIFFICULTY                    = 0x1FD,
     SMSG_RWHOIS                                     = 0x1FE,
     SMSG_LFG_PLAYER_REWARD                          = 0x1FF, // uint32, uint8, uint32, uint32, uint32, uint32, uint32, uint8, for (uint8) {uint32, uint32, uint32}
