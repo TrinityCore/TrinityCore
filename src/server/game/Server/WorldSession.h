@@ -558,7 +558,7 @@ class TC_GAME_API WorldSession
         void HandleCharCreateOpcode(WorldPacket& recvPacket);
 
         // EJ robot 
-        void HandlePlayerLogin_Simple(uint32 pmCharacterID);
+        void HandlePlayerLogin_Simple(ObjectGuid pmCharacterGUID);
 
         void HandlePlayerLoginOpcode(WorldPacket& recvPacket);
         void HandleCharEnum(PreparedQueryResult result);

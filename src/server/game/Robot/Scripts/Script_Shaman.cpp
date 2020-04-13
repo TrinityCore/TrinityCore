@@ -40,6 +40,17 @@ bool Script_Shaman::Heal(Unit* pmTarget, bool pmCure)
 
 bool Script_Shaman::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)
 {
+    if (!me)
+    {
+        return false;
+    }
+    if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
+    {
+        if (UseManaPotion())
+        {
+            return true;
+        }
+    }
     return DPS_Common(pmTarget, pmChase, pmAOE);
 }
 
@@ -88,6 +99,17 @@ bool Script_Shaman::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE)
 
 bool Script_Shaman::Attack(Unit* pmTarget)
 {
+    if (!me)
+    {
+        return false;
+    }
+    if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
+    {
+        if (UseManaPotion())
+        {
+            return true;
+        }
+    }
     return Attack_Common(pmTarget);
 }
 

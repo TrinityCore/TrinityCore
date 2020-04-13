@@ -688,17 +688,16 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket& recvData)
 }
 
 // EJ robot 
-void WorldSession::HandlePlayerLogin_Simple(uint32 pmCharacterID)
+void WorldSession::HandlePlayerLogin_Simple(ObjectGuid pmCharacterGUID)
 {
     if (PlayerLoading() || GetPlayer() != nullptr)
     {
         TC_LOG_ERROR("network", "Player tries to login again, AccountId = %d", GetAccountId());
-        KickPlayer();
+        KickPlayer("WorldSession::HandlePlayerLoginOpcode Another client logging in");
         return;
     }
-    m_playerLoading = true;
-    ObjectGuid guid = ObjectGuid(HighGuid::Player, pmCharacterID);
-    LoginQueryHolder *holder = new LoginQueryHolder(GetAccountId(), guid);
+    m_playerLoading = true;    
+    LoginQueryHolder* holder = new LoginQueryHolder(GetAccountId(), pmCharacterGUID);
     if (!holder->Initialize())
     {
         delete holder;                                      // delete all unprocessed queries

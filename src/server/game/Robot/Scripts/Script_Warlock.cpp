@@ -45,6 +45,17 @@ bool Script_Warlock::Tank(Unit* pmTarget)
 bool Script_Warlock::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)
 {
     bool meResult = false;
+    if (!me)
+    {
+        return false;
+    }
+    if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
+    {
+        if (UseManaPotion())
+        {
+            return true;
+        }
+    }
     switch (characterTalentTab)
     {
     case 0:
@@ -358,6 +369,17 @@ bool Script_Warlock::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE)
 bool Script_Warlock::Attack(Unit* pmTarget)
 {
     bool meResult = false;
+    if (!me)
+    {
+        return false;
+    }
+    if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
+    {
+        if (UseManaPotion())
+        {
+            return true;
+        }
+    }
     switch (characterTalentTab)
     {
     case 0:

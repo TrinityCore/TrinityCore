@@ -165,7 +165,7 @@ bool MarketerConfig::StartMarketerSystem()
     LoadInitial(configFile.generic_string(), std::vector<std::string>(), configError);
     Enable = GetIntDefault("Enable", 0);
     Reset = GetIntDefault("Reset", 0);
-    MaxExpansion = GetIntDefault("MaxExpansion", 0);
+    Expansion = GetIntDefault("Expansion", 0);
 
     if (Enable == 0)
     {

@@ -25,7 +25,7 @@ MarketerManager::MarketerManager()
     }
 
     std::unordered_set<uint32> expansionItemsSet;
-    QueryResult eiQR = WorldDatabase.PQuery("SELECT object_id FROM joker_expansion where object_type = 0 and expansion <= %d", sMarketerConfig->MaxExpansion);
+    QueryResult eiQR = WorldDatabase.PQuery("SELECT object_id FROM joker_expansion where object_type = 0 and expansion = %d", sMarketerConfig->Expansion);
     if (eiQR)
     {
         do
@@ -202,7 +202,7 @@ void MarketerManager::ResetMarketer()
     }
     sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Ready to reset marketer seller");
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
     for (std::set<uint32>::iterator ahIDIT = auctionHouseIDSet.begin(); ahIDIT != auctionHouseIDSet.end(); ahIDIT++)
     {
@@ -266,7 +266,7 @@ bool MarketerManager::UpdateSeller()
 {
     if (selling)
     {
-        SQLTransaction trans = CharacterDatabase.BeginTransaction();
+        CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
         int checkTotalSellCount = 0;
         int maxSellCount = 100;
@@ -534,7 +534,7 @@ bool MarketerManager::UpdateBuyer()
 
     sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Ready to update marketer buyer");
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
     std::set<uint32> toBuyAuctionIDSet;
     for (std::set<uint32>::iterator ahIDIT = auctionHouseIDSet.begin(); ahIDIT != auctionHouseIDSet.end(); ahIDIT++)

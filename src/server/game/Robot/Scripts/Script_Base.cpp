@@ -811,7 +811,7 @@ bool Script_Base::EquipNewItem(uint32 pmEntry)
             {
                 pItem->SetItemRandomProperties(randomPropertyId);
             }
-            //SQLTransaction trans = CharacterDatabase.BeginTransaction();
+            //CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
             //pItem->SaveToDB(trans);
             //CharacterDatabase.CommitTransaction(trans);
             InventoryResult equipResult = me->CanEquipItem(NULL_SLOT, eDest, pItem, false);
@@ -914,14 +914,15 @@ bool Script_Base::ApplyGlyph(uint32 pmGlyphSpellID, uint32 pmSlot)
 
 void Script_Base::RandomTeleport()
 {
-    // EJ debug
-    return;
-
     if (!me)
     {
         return;
     }
     if (me->IsBeingTeleported())
+    {
+        return;
+    }
+    if (!me->IsAlive())
     {
         return;
     }
@@ -932,24 +933,25 @@ void Script_Base::RandomTeleport()
         ObjectGuid og = ObjectGuid(HighGuid::Player, cid);
         if (Player* targetP = ObjectAccessor::FindConnectedPlayer(og))
         {
-            if (sMapMgr->FindBaseNonInstanceMap(targetP->GetMapId()))
+            if (targetP->IsBeingTeleported())
             {
-                std::unordered_map<uint32, Unit*> validUnitMap;
-                std::list<Unit*> targetList;
-                Trinity::AnyUnitInObjectRangeCheck u_check(targetP, sRobotConfig->TeleportMaxRange);
-                Trinity::CreatureListSearcher<Trinity::AnyUnitInObjectRangeCheck> searcher(targetP, targetList, u_check);
-                Cell::VisitGridObjects(targetP, searcher, sRobotConfig->TeleportMaxRange);
-                for (std::list<Unit*>::const_iterator uit = targetList.begin(); uit != targetList.end(); ++uit)
+                return;
+            }
+            if (Map* checkMap = targetP->GetMap())
+            {
+                if (!checkMap->Instanceable())
                 {
-                    if (targetP->GetDistance(*uit) > sRobotConfig->TeleportMinRange)
-                    {
-                        validUnitMap[validUnitMap.size()] = *uit;
-                    }
-                }
-                if (validUnitMap.size() > 0)
-                {
-                    uint32 destIndex = urand(0, validUnitMap.size() - 1);
-                    me->TeleportTo(validUnitMap[destIndex]->GetWorldLocation());
+                    float destX = 0.0f;
+                    float destY = 0.0f;
+                    float destZ = 0.0f;
+                    float distance = frand(sRobotConfig->TeleportMinRange, sRobotConfig->TeleportMaxRange);
+                    float angle = frand(0, 2 * M_PI);
+                    targetP->GetNearPoint(targetP, destX, destY, destZ, distance, angle);
+
+                    me->StopMoving();
+                    me->GetMotionMaster()->Clear();
+
+                    me->TeleportTo(targetP->GetMapId(), destX, destY, destZ, 0.0f);
                     sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Teleport robot %s (level %d)", me->GetName(), me->GetLevel());
                 }
             }
@@ -1117,15 +1119,38 @@ bool Script_Base::UseItem(Item* pmItem, Unit* pmTarget)
     {
         return false;
     }
-    SpellCastTargets targets;
-    targets.Update(pmTarget);
-    me->CastItemUseSpell(pmItem, targets, 0, 0);
 
-    std::ostringstream useRemarksStream;
-    useRemarksStream << "Prepare to use item " << pmItem->GetTemplate()->Name1;
+    if (const ItemTemplate* proto = pmItem->GetTemplate())
+    {
+        // item spells cast at use
+        for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
+        {
+            _Spell const& spellData = proto->Spells[i];
+            if (spellData.SpellId <= 0)
+            {
+                continue;
+            }
+            if (spellData.SpellTrigger != ITEM_SPELLTRIGGER_ON_USE)
+            {
+                continue;
+            }
+            if (me->GetSpellHistory()->HasCooldown(spellData.SpellId))
+            {
+                continue;
+            }
+            SpellCastTargets targets;
+            targets.Update(pmTarget);
+            me->CastItemUseSpell(pmItem, targets, 0, 0);
 
-    me->Say(useRemarksStream.str(), Language::LANG_UNIVERSAL);
-    return true;
+            std::ostringstream useRemarksStream;
+            useRemarksStream << "Prepare to use item " << pmItem->GetTemplate()->Name1;
+
+            me->Say(useRemarksStream.str(), Language::LANG_UNIVERSAL);
+            return true;
+        }        
+    }
+
+    return false;
 }
 
 bool Script_Base::Follow(Unit* pmTarget, float pmDistance)
@@ -1667,4 +1692,65 @@ void Script_Base::PetStop()
             }
         }
     }
+}
+
+bool Script_Base::UseManaPotion()
+{
+    bool result = false;
+
+    if (!me)
+    {
+        return false;
+    }
+    if (me->IsInCombat())
+    {
+        return false;
+    }
+    uint32 itemEntry = 0;
+    if (me->GetLevel() >= 70)
+    {
+        itemEntry = 33448;
+    }
+    else if (me->GetLevel() >= 65)
+    {
+        itemEntry = 40067;
+    }
+    else if (me->GetLevel() >= 55)
+    {
+        itemEntry = 22832;
+    }
+    else if (me->GetLevel() >= 49)
+    {
+        itemEntry = 13444;
+    }
+    else if (me->GetLevel() >= 41)
+    {
+        itemEntry = 13443;
+    }
+    else if (me->GetLevel() >= 31)
+    {
+        itemEntry = 6149;
+    }
+    else if (me->GetLevel() >= 22)
+    {
+        itemEntry = 3827;
+    }
+    else if (me->GetLevel() >= 14)
+    {
+        itemEntry = 3385;
+    }
+    if (!me->HasItemCount(itemEntry, 1))
+    {
+        me->StoreNewItemInBestSlots(itemEntry, 20);
+    }
+    Item* pItem = GetItemInInventory(itemEntry);
+    if (pItem && !pItem->IsInTrade())
+    {
+        if (UseItem(pItem, me))
+        {
+            result = true;
+        }
+    }
+
+    return result;
 }

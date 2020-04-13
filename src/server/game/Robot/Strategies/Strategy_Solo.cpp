@@ -68,7 +68,7 @@ Strategy_Solo::Strategy_Solo(Player* pmMe)
     }
 
     deathDelay = 0;
-    soloDelay = urand(30 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 60 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
+    soloDelay = urand(sRobotConfig->SoloMinDelay, sRobotConfig->SoloMaxDelay);
     restDelay = 0;
     waitDelay = 0;
     strollDelay = 0;
@@ -90,7 +90,11 @@ void Strategy_Solo::Update(uint32 pmDiff)
             deathDelay -= pmDiff;
             if (deathDelay <= 0)
             {
-                me->ResurrectPlayer(100.0f);
+                if (!me->IsAlive())
+                {
+                    me->ResurrectPlayer(1.0f);                    
+                }
+                deathDelay = 0;
                 sb->Prepare();
                 sb->RandomTeleport();
                 return;
@@ -106,6 +110,11 @@ void Strategy_Solo::Update(uint32 pmDiff)
     if (soloDelay < 0)
     {
         soloDelay = urand(sRobotConfig->SoloMinDelay, sRobotConfig->SoloMaxDelay);
+        if (!me->IsAlive())
+        {
+            me->ResurrectPlayer(1.0f);
+            deathDelay = 0;
+        }
         sb->Prepare();
         sb->RandomTeleport();
         return;
@@ -525,7 +534,8 @@ bool Strategy_Solo::Confuse()
 {
     if (me)
     {
-        me->SetStandState(UNIT_STAND_STATE_STAND);
+        me->StopMoving();
+        me->GetMotionMaster()->Clear();
         me->GetMotionMaster()->MoveConfused();
         confuseDelay = 5 * TimeConstants::IN_MILLISECONDS;
         soloState = RobotSoloState::RobotSoloState_Confuse;

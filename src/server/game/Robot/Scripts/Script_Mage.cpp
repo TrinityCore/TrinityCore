@@ -102,6 +102,10 @@ bool Script_Mage::DPS_Arcane(Unit* pmTarget, bool pmChase, bool pmAOE)
         {
             return true;
         }
+        if (UseManaPotion())
+        {
+            return true;
+        }
         if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
         {
             if (CastSpell(pmTarget, "Shoot", MAGE_RANGE_DISTANCE))
@@ -160,6 +164,10 @@ bool Script_Mage::DPS_Fire(Unit* pmTarget, bool pmChase, bool pmAOE)
         {
             return true;
         }
+        if (UseManaPotion())
+        {
+            return true;
+        }
         if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
         {
             if (CastSpell(pmTarget, "Shoot", MAGE_RANGE_DISTANCE))
@@ -214,6 +222,10 @@ bool Script_Mage::DPS_Frost(Unit* pmTarget, bool pmChase, bool pmAOE)
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
     {
         if (CastSpell(me, "Evocation", MAGE_RANGE_DISTANCE))
+        {
+            return true;
+        }
+        if (UseManaPotion())
         {
             return true;
         }
@@ -305,6 +317,10 @@ bool Script_Mage::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE)
     }
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
     {
+        if (UseManaPotion())
+        {
+            return true;
+        }
         if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
         {
             if (CastSpell(pmTarget, "Shoot", MAGE_RANGE_DISTANCE))
@@ -375,6 +391,10 @@ bool Script_Mage::Attack_Arcane(Unit* pmTarget)
         {
             return true;
         }
+        if (UseManaPotion())
+        {
+            return true;
+        }
         if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
         {
             if (CastSpell(pmTarget, "Shoot", MAGE_RANGE_DISTANCE))
@@ -421,6 +441,10 @@ bool Script_Mage::Attack_Fire(Unit* pmTarget)
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
     {
         if (CastSpell(me, "Evocation", MAGE_RANGE_DISTANCE))
+        {
+            return true;
+        }
+        if (UseManaPotion())
         {
             return true;
         }
@@ -473,6 +497,10 @@ bool Script_Mage::Attack_Frost(Unit* pmTarget)
         {
             return true;
         }
+        if (UseManaPotion())
+        {
+            return true;
+        }
         if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
         {
             if (CastSpell(pmTarget, "Shoot", MAGE_RANGE_DISTANCE))
@@ -517,6 +545,10 @@ bool Script_Mage::Attack_Common(Unit* pmTarget)
     Chase(pmTarget, MAGE_RANGE_DISTANCE);
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
     {
+        if (UseManaPotion())
+        {
+            return true;
+        }
         if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
         {
             if (CastSpell(pmTarget, "Shoot", MAGE_RANGE_DISTANCE))

@@ -70,6 +70,10 @@ bool Script_Druid::DPS_Balance(Unit* pmTarget, bool pmChase, bool pmAOE)
         {
             return true;
         }
+        if (UseManaPotion())
+        {
+            return true;
+        }
     }
     if (pmChase)
     {
@@ -483,14 +487,7 @@ bool Script_Druid::Attack_Balance(Unit* pmTarget)
     if (targetDistance > ATTACK_RANGE_LIMIT)
     {
         return false;
-    }
-    if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 20)
-    {
-        if (CastSpell(me, "Innervate"))
-        {
-            return true;
-        }
-    }
+    }    
     if (me->GetShapeshiftForm() == ShapeshiftForm::FORM_NONE)
     {
         if (CastSpell(me, "Moonkin Form"))
@@ -815,6 +812,10 @@ bool Script_Druid::Heal(Unit* pmTarget, bool pmCure)
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 20)
     {
         if (CastSpell(me, "Innervate"))
+        {
+            return true;
+        }
+        if (UseManaPotion())
         {
             return true;
         }

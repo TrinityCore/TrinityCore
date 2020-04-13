@@ -747,24 +747,12 @@ Player* RobotManager::CheckLogin(uint32 pmAccountID, uint32 pmCharacterID)
 
 bool RobotManager::LoginRobot(uint32 pmAccountID, uint32 pmCharacterID)
 {
-    Player* currentPlayer = ObjectAccessor::FindPlayerByLowGUID(pmCharacterID);
-    if (currentPlayer)
+    ObjectGuid playerGuid = ObjectGuid(HighGuid::Player, pmCharacterID);
+    if (Player* currentPlayer = ObjectAccessor::FindConnectedPlayer(playerGuid))
     {
-        if (currentPlayer->IsInWorld())
-        {
-            sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Robot %d %s is already in world", pmCharacterID, currentPlayer->GetName());
-            return false;
-        }
-    }
-    QueryResult characterQR = CharacterDatabase.PQuery("SELECT name, level FROM characters where guid = '%d'", pmCharacterID);
-    if (!characterQR)
-    {
-        sLog->outMessage("lfm", LogLevel::LOG_LEVEL_ERROR, "Found zero robot characters for account %d while processing logging in", pmAccountID);
+        sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Robot %d %s is already in world", pmCharacterID, currentPlayer->GetName());
         return false;
     }
-    Field* characterFields = characterQR->Fetch();
-    std::string characterName = characterFields[0].GetString();
-    uint8 characterLevel = characterFields[1].GetUInt8();
     WorldSession* loginSession = sWorld->FindSession(pmAccountID);
     if (!loginSession)
     {
@@ -772,8 +760,8 @@ bool RobotManager::LoginRobot(uint32 pmAccountID, uint32 pmCharacterID)
         sWorld->AddSession(loginSession);
     }
     loginSession->isRobotSession = true;
-    loginSession->HandlePlayerLogin_Simple(pmCharacterID);
-    sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Log in character %d %s (level %d)", pmCharacterID, characterName.c_str(), characterLevel);
+    loginSession->HandlePlayerLogin_Simple(playerGuid);
+    sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Log in character %d %d", pmAccountID, pmCharacterID);
 
     return true;
 }

@@ -69,6 +69,7 @@ public:
     bool EquipNewItem(uint32 pmEntry, uint8 pmEquipSlot);
     Item* GetItemInInventory(uint32 pmEntry);
     bool UseItem(Item* pmItem, Unit* pmTarget);
+    bool UseManaPotion();
     bool ApplyGlyph(uint32 pmGlyphItemEntry, uint32 pmSlot);
     uint32 FindSpellID(std::string pmSpellName);
     bool SpellValid(uint32 pmSpellID);

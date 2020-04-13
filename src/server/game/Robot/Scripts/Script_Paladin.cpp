@@ -28,6 +28,13 @@ bool Script_Paladin::Heal(Unit* pmTarget, bool pmCure)
     {
         return false;
     }
+    if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
+    {
+        if (UseManaPotion())
+        {
+            return true;
+        }
+    }
     float healthPCT = pmTarget->GetHealthPct();
     if (healthPCT < 20.0f)
     {
@@ -101,6 +108,13 @@ bool Script_Paladin::Tank(Unit* pmTarget)
     {
         return false;
     }
+    if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
+    {
+        if (UseManaPotion())
+        {
+            return true;
+        }
+    }
     me->Attack(pmTarget, true);
     Chase(pmTarget);
 
@@ -109,6 +123,17 @@ bool Script_Paladin::Tank(Unit* pmTarget)
 
 bool Script_Paladin::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)
 {
+    if (!me)
+    {
+        return false;
+    }
+    if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
+    {
+        if (UseManaPotion())
+        {
+            return true;
+        }
+    }
     switch (characterTalentTab)
     {
     case 0:
@@ -281,6 +306,17 @@ bool Script_Paladin::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE)
 
 bool Script_Paladin::Attack(Unit* pmTarget)
 {
+    if (!me)
+    {
+        return false;
+    }
+    if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
+    {
+        if (UseManaPotion())
+        {
+            return true;
+        }
+    }
     switch (characterTalentTab)
     {
     case 0:

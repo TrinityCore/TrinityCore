@@ -46,6 +46,17 @@ bool Script_Hunter::Tank(Unit* pmTarget)
 bool Script_Hunter::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)
 {
     bool meResult = false;
+    if (!me)
+    {
+        return false;
+    }
+    if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 20)
+    {
+        if (UseManaPotion())
+        {
+            return true;
+        }
+    }
     switch (characterTalentTab)
     {
     case 0:
