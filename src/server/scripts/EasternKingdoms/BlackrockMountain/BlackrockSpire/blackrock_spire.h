@@ -65,6 +65,7 @@ enum BRSDataTypes
     DATA_HALL_RUNE_6                = 21,
     DATA_HALL_RUNE_7                = 22,
     DATA_SCARSHIELD_INFILTRATOR     = 23,
+    DATA_BLACKHAND_INCARCERATOR     = 24
 };
 
 enum BRSCreaturesIds

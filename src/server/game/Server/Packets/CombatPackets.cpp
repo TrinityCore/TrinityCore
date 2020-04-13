@@ -57,3 +57,7 @@ WorldPacket const* WorldPackets::Combat::CancelAutoRepeat::Write()
     return &_worldPacket;
 }
 
+void WorldPackets::Combat::SetSheathed::Read()
+{
+    _worldPacket >> CurrentSheathState;
+}

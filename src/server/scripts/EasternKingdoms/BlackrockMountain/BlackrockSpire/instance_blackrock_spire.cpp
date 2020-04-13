@@ -30,6 +30,8 @@ uint32 const DragonspireMobs[3] = { NPC_BLACKHAND_DREADWEAVER, NPC_BLACKHAND_SUM
 
 DoorData const doorData[] =
 {
+    { GO_DOORS,                 DATA_PYROGAURD_EMBERSEER,   DOOR_TYPE_ROOM },
+    { GO_EMBERSEER_OUT,         DATA_PYROGAURD_EMBERSEER,   DOOR_TYPE_PASSAGE },
     { GO_DRAKKISATH_DOOR_1,     DATA_GENERAL_DRAKKISATH,    DOOR_TYPE_PASSAGE },
     { GO_DRAKKISATH_DOOR_2,     DATA_GENERAL_DRAKKISATH,    DOOR_TYPE_PASSAGE },
     { 0,                        0,                          DOOR_TYPE_ROOM }
@@ -131,6 +133,9 @@ public:
             case NPC_FINKLE_EINHORN:
                 creature->AI()->Talk(SAY_FINKLE_GANG);
                 break;
+                case NPC_BLACKHAND_INCARCERATOR:
+                    _incarceratorList.push_back(creature->GetGUID());
+                    break;
             }
         }
 
@@ -353,10 +358,12 @@ public:
                     }
                 }
                 break;
-            }
-            case STADIUM_COMBAT:
-            {
-                stadiumCombatStatus = data;
+                }
+                case DATA_BLACKHAND_INCARCERATOR:
+                {
+                    for (GuidList::const_iterator itr = _incarceratorList.begin(); itr != _incarceratorList.end(); ++itr)
+                        if (Creature* creature = instance->GetCreature(*itr))
+                            creature->Respawn();
                 break;
             }
             default:
@@ -784,7 +791,7 @@ public:
         ObjectGuid runecreaturelist[7][5];
         ObjectGuid go_portcullis_active;
         ObjectGuid go_portcullis_tobossrooms;
-
+            GuidList _incarceratorList;
         ObjectGuid OGGODoodadDarkIronBrazier01;
         ObjectGuid OGGODoodadDarkIronBrazier02;
         ObjectGuid OGGODoodadDarkIronBrazier03;

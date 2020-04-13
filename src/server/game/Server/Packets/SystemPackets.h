@@ -15,21 +15,27 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AllPackets_h__
-#define AllPackets_h__
+#ifndef SystemPackets_h__
+#define SystemPackets_h__
 
-#include "CharacterPackets.h"
-#include "ChatPackets.h"
-#include "CombatPackets.h"
-#include "GuildPackets.h"
-#include "NPCPackets.h"
-#include "MiscPackets.h"
-#include "PetPackets.h"
-#include "QueryPackets.h"
-#include "QuestPackets.h"
-#include "SpellPackets.h"
-#include "SystemPackets.h"
-#include "TotemPackets.h"
-#include "WorldStatePackets.h"
+#include "Packet.h"
+#include "SharedDefines.h"
 
-#endif // AllPackets_h__
+namespace WorldPackets
+{
+    namespace System
+    {
+        class FeatureSystemStatus final : public ServerPacket
+        {
+        public:
+            FeatureSystemStatus() : ServerPacket(SMSG_FEATURE_SYSTEM_STATUS, 2) { }
+
+            WorldPacket const* Write() override;
+
+            uint8 ComplaintStatus = COMPLAINT_ENABLED_WITH_AUTO_IGNORE;
+            bool VoiceEnabled = false;
+        };
+    }
+}
+
+#endif // SystemPackets_h__

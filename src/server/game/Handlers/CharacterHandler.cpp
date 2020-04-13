@@ -48,6 +48,7 @@
 #include "ScriptMgr.h"
 #include "ServerMotd.h"
 #include "SocialMgr.h"
+#include "SystemPackets.h"
 #include "QueryHolder.h"
 #include "World.h"
 
@@ -770,10 +771,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     LoadAccountData(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ACCOUNT_DATA), PER_CHARACTER_CACHE_MASK);
     SendAccountDataTimes(PER_CHARACTER_CACHE_MASK);
 
-    WorldPacket data(SMSG_FEATURE_SYSTEM_STATUS, 2);        // added in 2.2.0
-    data << uint8(2);                                       // unknown value
-    data << uint8(0);                                       // enable(1)/disable(0) voice chat interface in client
-    SendPacket(&data);
+    SendFeatureSystemStatus();
 
     // Send MOTD
     {
@@ -809,7 +807,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         }
     }
 
-    data.Initialize(SMSG_LEARNED_DANCE_MOVES, 4 + 4);
+    WorldPacket data(SMSG_LEARNED_DANCE_MOVES, 4+4);
     data << uint32(0);
     data << uint32(0);
     SendPacket(&data);
@@ -1038,6 +1036,14 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         loginBroadCastStream << pCurrChar->GetName() << " logged in";
         sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, loginBroadCastStream.str().c_str());
     }
+}
+
+void WorldSession::SendFeatureSystemStatus()
+{
+    WorldPackets::System::FeatureSystemStatus features;
+    features.ComplaintStatus = COMPLAINT_ENABLED_WITH_AUTO_IGNORE;
+    features.VoiceEnabled = false;
+    SendPacket(features.Write());
 }
 
 void WorldSession::HandleSetFactionAtWar(WorldPacket& recvData)
