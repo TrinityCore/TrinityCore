@@ -5186,7 +5186,9 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
     {
         // Check explicit target for m_originalCaster - todo: get rid of such workarounds
         WorldObject* caster = m_caster;
-        if (m_originalCaster)
+        // in case of gameobjects like traps, we need the gameobject itself to check target validity
+        // otherwise, if originalCaster is far away and cannot detect the target, the trap would not hit the target
+        if (m_originalCaster && !caster->ToGameObject())
             caster = m_originalCaster;
 
         SpellCastResult castResult = m_spellInfo->CheckExplicitTarget(caster, m_targets.GetObjectTarget(), m_targets.GetItemTarget());
