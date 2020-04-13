@@ -198,7 +198,7 @@ void ArcherAI::AttackStart(Unit* who)
     if (me->IsWithinCombatRange(who, m_minRange))
     {
         if (me->Attack(who, true) && !who->IsFlying())
-            me->GetMotionMaster()->MoveChase(who);
+            me->GetMotionMaster()->MoveChase(who, 0.f);
     }
     else
     {

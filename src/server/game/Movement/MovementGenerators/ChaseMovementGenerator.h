@@ -21,6 +21,7 @@
 #include "AbstractFollower.h"
 #include "MovementGenerator.h"
 #include "Optional.h"
+#include "Timer.h"
 
 class PathGenerator;
 class Unit;
@@ -30,7 +31,7 @@ class ChaseMovementGenerator : public MovementGenerator, public AbstractFollower
     public:
         MovementGeneratorType GetMovementGeneratorType() const override { return CHASE_MOTION_TYPE; }
 
-        ChaseMovementGenerator(Unit* target, Optional<ChaseRange> range = {}, Optional<ChaseAngle> angle = {});
+        ChaseMovementGenerator(Unit* target, float range, Optional<ChaseAngle> angle = {});
         ~ChaseMovementGenerator();
 
         void Initialize(Unit* owner) override;
@@ -41,16 +42,17 @@ class ChaseMovementGenerator : public MovementGenerator, public AbstractFollower
         void UnitSpeedChanged() override { _lastTargetPosition.reset(); }
 
     private:
-        static constexpr uint32 RANGE_CHECK_INTERVAL = 100; // time (ms) until we attempt to recalculate
+        void LaunchMovement(Unit* owner, Unit* target, float chaseRange, bool backward = false);
 
-        Optional<ChaseRange> const _range;
-        Optional<ChaseAngle> const _angle;
+        static constexpr uint32 CHASE_MOVEMENT_INTERVAL = 400; // sniffed value (1 batch update cyclice)
+        static constexpr uint32 REPOSITION_MOVEMENT_INTERVAL = 1200; // (3 batch update cycles) TODO: verify
 
-        std::unique_ptr<PathGenerator> _path;
+        TimeTrackerSmall _nextMovementTimer;
+        TimeTrackerSmall _nextRepositioningTimer;
+
         Optional<Position> _lastTargetPosition;
-        uint32 _rangeCheckTimer = RANGE_CHECK_INTERVAL;
-        bool _movingTowards = true;
-        bool _mutualChase = true;
+        float const _range;
+        Optional<ChaseAngle> const _angle;
 };
 
 #endif
