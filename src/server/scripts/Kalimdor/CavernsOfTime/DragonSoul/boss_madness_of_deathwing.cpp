@@ -488,11 +488,11 @@ struct boss_madness_of_deathwing : public BossAI
         DespawnLimbs();
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 
-        if (Creature* health = instance->GetCreature(DATA_DEATHWING_MADNESS_OF_DEATHWING))
+        if (Creature* deathwing = GetPhaseTwoDeathwing())
         {
-            health->InterruptNonMeleeSpells(true);
-            if (!health->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, health);
+            deathwing->InterruptNonMeleeSpells(true);
+            if (!deathwing->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, deathwing);
         }
 
         if (Creature* thrall = instance->GetCreature(DATA_THRALL_MADNESS_OF_DEATHWING))
@@ -502,10 +502,6 @@ struct boss_madness_of_deathwing : public BossAI
             if (Creature* corruption = ObjectAccessor::GetCreature(*me, guid))
                 if (corruption->IsAIEnabled)
                     corruption->AI()->EnterEvadeMode();
-
-        if (events.IsInPhase(PHASE_TWO))
-            if (Creature* deathwing = GetPhaseTwoDeathwing())
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, deathwing);
 
         for (uint8 i = 0; i < MAX_DRAGON_ASPECTS; i++)
             if (Creature* aspect = GetDragonAspect(i))
@@ -1019,7 +1015,7 @@ private:
                     PhasingHandler::AddPhaseGroup(fragment, PHASE_GROUP_ENCOUNTER_1, false);
         }
 
-        instance->SetBossState(DATA_DEATHWING_MADNESS_OF_DEATHWING, DONE);
+        instance->SetBossState(DATA_MADNESS_OF_DEATHWING, DONE);
     }
 };
 
