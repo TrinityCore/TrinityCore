@@ -1398,7 +1398,7 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_CORPSE_MAP_POSITION_QUERY:            //   0               1
         case CMSG_MOVE_TIME_SKIPPED:                    //   0               1
         case MSG_QUERY_NEXT_MAIL_TIME:                  //   0               1
-        case CMSG_SETSHEATHED:                          //   0               1
+        case CMSG_SET_SHEATHED:                         //   0               1
         case MSG_RAID_TARGET_UPDATE:                    //   0               1
         case CMSG_PLAYER_LOGOUT:                        //   0               1
         case CMSG_LOGOUT_REQUEST:                       //   0               1
