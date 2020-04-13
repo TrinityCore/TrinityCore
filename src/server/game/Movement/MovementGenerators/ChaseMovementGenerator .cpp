@@ -98,22 +98,39 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
         return true;
     }
 
-    bool  const mutualChase     = IsMutualChase(owner, target);
-    //float const hitboxSum       = owner->GetCombatReach() + target->GetCombatReach();
-    float const chaseRange = owner->GetCombatReach() + target->GetCombatReach();
-    float const rangeTolerance  = _range > 0.f ? _range : chaseRange;
-    Optional<ChaseAngle> chaseAngle = mutualChase ? Optional<ChaseAngle>() : _angle;
-
     // We are done moving. Trigger movement inform hook and clear chase move state
     if (owner->HasUnitState(UNIT_STATE_CHASE_MOVE) && owner->movespline->Finalized())
     {
         if (Creature* cOwner = owner->ToCreature())
             cOwner->SetCannotReachTarget(false);
 
-        owner->ClearUnitState(UNIT_STATE_CHASE_MOVE);
         owner->SetInFront(target);
+        owner->ClearUnitState(UNIT_STATE_CHASE_MOVE);
         DoMovementInform(owner, target);
+        return true;
     }
+
+    // Owner cannot reach target (example: target is in water and owner cannot swim)
+    Creature* creature = owner->ToCreature();
+    if (owner->HasUnitState(UNIT_STATE_CHASE_MOVE) && creature)
+    {
+        if (!target->isInAccessiblePlaceFor(creature))
+        {
+            creature->SetCannotReachTarget(true);
+            creature->StopMoving();
+            return true;
+        }
+    }
+    else if (creature && !target->isInAccessiblePlaceFor(creature))
+    {
+        creature->SetCannotReachTarget(true);
+        return true;
+    }
+
+    bool  const mutualChase         = IsMutualChase(owner, target);
+    float const chaseRange          = owner->GetCombatReach() + target->GetCombatReach();
+    float const rangeTolerance      = _range > 0.f ? _range : chaseRange;
+    Optional<ChaseAngle> chaseAngle = mutualChase ? Optional<ChaseAngle>() : _angle;
 
     // Update Movement
     _nextMovementTimer.Update(diff);
@@ -129,7 +146,7 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
             // Owner is too close to its target. Step back.
             if (owner->GetExactDist2d(target) < owner->GetBoundaryRadius())
             {
-                LaunchMovement(owner, target, chaseRange, true);
+                LaunchMovement(owner, target, chaseRange, true, mutualChase);
                 return true;
             }
         }
@@ -145,39 +162,20 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
             // Create new snapshot of our target's position
             _lastTargetPosition = target->GetPosition();
 
-            Creature* creature = owner->ToCreature();
-            // Owner cannot reach target (example: target is in water and owner cannot swim)
-            if (owner->HasUnitState(UNIT_STATE_CHASE_MOVE) && creature)
+            if (PositionOkay(owner, target, rangeTolerance, chaseAngle))
             {
-                if (!target->isInAccessiblePlaceFor(creature))
+                if (owner->HasUnitState(UNIT_STATE_CHASE_MOVE) && !target->isMoving() && !mutualChase)
                 {
-                    creature->SetCannotReachTarget(true);
-                    creature->StopMoving();
-                    return true;
-                }
-            }
-            else if (creature && !target->isInAccessiblePlaceFor(creature))
-            {
-                creature->SetCannotReachTarget(true);
-                return true;
-            }
-
-            bool isMoving = target->HasUnitMovementFlag(MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT | MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_BACKWARD) || !target->movespline->Finalized();
-            if (PositionOkay(owner, target, rangeTolerance, chaseAngle) && !isMoving)
-            {
-                if (owner->HasUnitState(UNIT_STATE_CHASE_MOVE))
-                {
-                    // Just stopping our movement, movementinform and cleanups will be executed in the code above on the next update tick
+                    // Our current position is fine. Stop movement.
                     owner->StopMoving();
                     return true;
                 }
             }
             else if (owner->GetExactDist2d(target) > rangeTolerance + 0.1f) // 0.1f here to avoid edge cases when the owner has stepped back before
-                LaunchMovement(owner, target, chaseRange);
+                LaunchMovement(owner, target, chaseRange, mutualChase);
         }
     }
 
-    // and then, finally, we're done for the tick
     return true;
 }
 
@@ -188,15 +186,14 @@ void ChaseMovementGenerator::Finalize(Unit* owner)
         cOwner->SetCannotReachTarget(false);
 }
 
-void ChaseMovementGenerator::LaunchMovement(Unit* owner, Unit* target, float chaseRange, bool backward /*= false*/)
+void ChaseMovementGenerator::LaunchMovement(Unit* owner, Unit* target, float chaseRange, bool backward /*= false*/, bool mutualChase /*= false*/)
 {
     // Owner may launch a new spline
     Position dest = target->GetVehicle() ? target->GetVehicle()->GetBase()->GetPosition() : target->GetPosition();
 
-    // Player chase target is currently moving
-    bool predictDestination = target->HasUnitMovementFlag(MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT | MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_BACKWARD);
-
-    if (!backward && predictDestination)
+    // Predict chase destination to keep up with chase target
+    bool predictDestination = !backward && !mutualChase && target->isMoving();
+    if (predictDestination)
     {
         UnitMoveType moveType = MOVE_RUN;
         if (target->CanFly())
@@ -211,10 +208,10 @@ void ChaseMovementGenerator::LaunchMovement(Unit* owner, Unit* target, float cha
 
         float additionalRange = target->GetSpeed(moveType) * 0.5f;
 
-        target->MovePositionToFirstCollision(dest, additionalRange, _angle ? _angle->RelativeAngle : target->GetRelativeAngle(owner) + float(M_PI));
+        target->MovePositionToFirstCollision(dest, additionalRange, _angle ? target->NormalizeOrientation(target->GetOrientation() - _angle->RelativeAngle + float(M_PI)) : target->GetRelativeAngle(owner) + float(M_PI));
     }
     else
-        target->MovePositionToFirstCollision(dest, chaseRange, _angle ? _angle->RelativeAngle : target->GetRelativeAngle(owner));
+        target->MovePositionToFirstCollision(dest, chaseRange, _angle ? target->NormalizeOrientation(target->GetOrientation() - _angle->RelativeAngle) : target->GetRelativeAngle(owner));
 
     owner->UpdateAllowedPositionZ(dest.GetPositionX(), dest.GetPositionY(), dest.m_positionZ);
 

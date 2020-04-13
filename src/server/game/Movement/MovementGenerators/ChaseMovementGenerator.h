@@ -42,7 +42,7 @@ class ChaseMovementGenerator : public MovementGenerator, public AbstractFollower
         void UnitSpeedChanged() override { _lastTargetPosition.reset(); }
 
     private:
-        void LaunchMovement(Unit* owner, Unit* target, float chaseRange, bool backward = false);
+        void LaunchMovement(Unit* owner, Unit* target, float chaseRange, bool backward = false, bool mutualChase = false);
 
         static constexpr uint32 CHASE_MOVEMENT_INTERVAL = 400; // sniffed value (1 batch update cyclice)
         static constexpr uint32 REPOSITION_MOVEMENT_INTERVAL = 1200; // (3 batch update cycles) TODO: verify
