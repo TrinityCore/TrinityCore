@@ -41,6 +41,33 @@ WorldPacket const* WorldPackets::Misc::BinderConfirm::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Misc::StartMirrorTimer::Write()
+{
+    _worldPacket << uint32(Timer);
+    _worldPacket << uint32(Value);
+    _worldPacket << uint32(MaxValue);
+    _worldPacket << int32(Scale);
+    _worldPacket << uint8(Paused);
+    _worldPacket << uint32(SpellID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::PauseMirrorTimer::Write()
+{
+    _worldPacket << uint32(Timer);
+    _worldPacket << uint8(Paused);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::StopMirrorTimer::Write()
+{
+    _worldPacket << uint32(Timer);
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Misc::InvalidatePlayer::Write()
 {
     _worldPacket << Guid;
