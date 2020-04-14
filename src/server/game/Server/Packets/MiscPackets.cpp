@@ -41,6 +41,33 @@ WorldPacket const* WorldPackets::Misc::BinderConfirm::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Misc::StartMirrorTimer::Write()
+{
+    _worldPacket << uint32(Timer);
+    _worldPacket << uint32(Value);
+    _worldPacket << uint32(MaxValue);
+    _worldPacket << int32(Scale);
+    _worldPacket << uint8(Paused);
+    _worldPacket << uint32(SpellID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::PauseMirrorTimer::Write()
+{
+    _worldPacket << uint32(Timer);
+    _worldPacket << uint8(Paused);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::StopMirrorTimer::Write()
+{
+    _worldPacket << uint32(Timer);
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Misc::InvalidatePlayer::Write()
 {
     _worldPacket << Guid;
@@ -80,6 +107,20 @@ WorldPacket const* WorldPackets::Misc::Weather::Write()
     _worldPacket << uint32(WeatherID);
     _worldPacket << float(Intensity);
     _worldPacket << uint8(Abrupt);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::LevelUpInfo::Write()
+{
+    _worldPacket << uint32(Level);
+    _worldPacket << uint32(HealthDelta);
+
+    for (uint32 power : PowerDelta)
+        _worldPacket << power;
+
+    for (uint32 stat : StatDelta)
+        _worldPacket << stat;
 
     return &_worldPacket;
 }

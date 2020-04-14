@@ -1696,6 +1696,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void RemoveGhoul();
 
+        void SendDurabilityLoss();
         void DurabilityLossAll(double percent, bool inventory);
         void DurabilityLoss(Item* item, double percent);
         void DurabilityPointsLossAll(int32 points, bool inventory);

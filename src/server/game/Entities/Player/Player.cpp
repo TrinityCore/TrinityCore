@@ -34,6 +34,7 @@
 #include "CharacterDatabaseCleaner.h"
 #include "Chat.h"
 #include "CinematicMgr.h"
+#include "CombatLogPackets.h"
 #include "CombatPackets.h"
 #include "Common.h"
 #include "ConditionMgr.h"
@@ -724,22 +725,14 @@ void Player::SendMirrorTimer(MirrorTimerType Type, uint32 MaxValue, uint32 Curre
             StopMirrorTimer(Type);
         return;
     }
-    WorldPacket data(SMSG_START_MIRROR_TIMER, (21));
-    data << (uint32)Type;
-    data << CurrentValue;
-    data << MaxValue;
-    data << Regen;
-    data << (uint8)0;
-    data << (uint32)0;                                      // spell id
-    SendDirectMessage(&data);
+
+    SendDirectMessage(WorldPackets::Misc::StartMirrorTimer(Type, CurrentValue, MaxValue, Regen, 0, 0).Write());
 }
 
 void Player::StopMirrorTimer(MirrorTimerType Type)
 {
     m_MirrorTimer[Type] = DISABLED_MIRROR_TIMER;
-    WorldPacket data(SMSG_STOP_MIRROR_TIMER, 4);
-    data << (uint32)Type;
-    SendDirectMessage(&data);
+    SendDirectMessage(WorldPackets::Misc::StopMirrorTimer(Type).Write());
 }
 
 bool Player::IsImmuneToEnvironmentalDamage() const
@@ -774,13 +767,13 @@ uint32 Player::EnvironmentalDamage(EnviromentalDamage type, uint32 damage)
 
     Unit::DealDamageMods(this, damage, &absorb);
 
-    WorldPacket data(SMSG_ENVIRONMENTALDAMAGELOG, (21));
-    data << uint64(GetGUID());
-    data << uint8(type != DAMAGE_FALL_TO_VOID ? type : DAMAGE_FALL);
-    data << uint32(damage);
-    data << uint32(absorb);
-    data << uint32(resist);
-    SendMessageToSet(&data, true);
+    WorldPackets::CombatLog::EnvironmentalDamageLog packet;
+    packet.Victim = GetGUID();
+    packet.Type = type != DAMAGE_FALL_TO_VOID ? type : DAMAGE_FALL;
+    packet.Amount = damage;
+    packet.Absorbed = absorb;
+    packet.Resisted = resist;
+    SendMessageToSet(packet.Write(), true);
 
     uint32 final_damage = Unit::DealDamage(this, this, damage, nullptr, SELF_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
 
@@ -788,12 +781,11 @@ uint32 Player::EnvironmentalDamage(EnviromentalDamage type, uint32 damage)
     {
         if (type == DAMAGE_FALL)                               // DealDamage does not apply item durability loss from self-induced damage.
         {
-            TC_LOG_DEBUG("entities.player", "Player::EnvironmentalDamage: Player '%s' (%s) fall to death, losing 10%% durability",
-                GetName().c_str(), GetGUID().ToString().c_str());
-            DurabilityLossAll(0.10f, false);
+            TC_LOG_DEBUG("entities.player", "Player::EnvironmentalDamage: Player '%s' (%s) fall to death, losing %f durability",
+                GetName().c_str(), GetGUID().ToString().c_str(), sWorld->getRate(RATE_DURABILITY_LOSS_ON_DEATH));
+            DurabilityLossAll(sWorld->getRate(RATE_DURABILITY_LOSS_ON_DEATH), false);
             // durability lost message
-            WorldPacket data2(SMSG_DURABILITY_DAMAGE_DEATH, 0);
-            SendDirectMessage(&data2);
+            SendDurabilityLoss();
         }
 
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_DEATHS_FROM, 1, type);
@@ -2593,23 +2585,23 @@ void Player::GiveLevel(uint8 level)
     PlayerClassLevelInfo classInfo;
     sObjectMgr->GetPlayerClassLevelInfo(GetClass(), level, &classInfo);
 
-    // send levelup info to client
-    WorldPacket data(SMSG_LEVELUP_INFO, (4+4+MAX_POWERS*4+MAX_STATS*4));
-    data << uint32(level);
-    data << uint32(int32(classInfo.basehealth) - int32(GetCreateHealth()));
-    // for (int i = 0; i < MAX_POWERS; ++i)                  // Powers loop (0-6)
-    data << uint32(int32(classInfo.basemana)   - int32(GetCreateMana()));
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(0);
-    // end for
-    for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i)          // Stats loop (0-4)
-        data << uint32(int32(info.stats[i]) - GetCreateStat(Stats(i)));
+    WorldPackets::Misc::LevelUpInfo packet;
+    packet.Level = level;
+    packet.HealthDelta = int32(classInfo.basehealth) - int32(GetCreateHealth());
 
-    SendDirectMessage(&data);
+    /// @todo find some better solution
+    // for (int i = 0; i < MAX_POWERS; ++i)
+    packet.PowerDelta[0] = int32(classInfo.basemana) - int32(GetCreateMana());
+    packet.PowerDelta[1] = 0;
+    packet.PowerDelta[2] = 0;
+    packet.PowerDelta[3] = 0;
+    packet.PowerDelta[4] = 0;
+    packet.PowerDelta[5] = 0;
+
+    for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i)
+        packet.StatDelta[i] = int32(info.stats[i]) - GetCreateStat(Stats(i));
+
+    SendDirectMessage(packet.Write());
 
     SetUInt32Value(PLAYER_NEXT_LEVEL_XP, sObjectMgr->GetXPForLevel(level));
 
@@ -4767,6 +4759,11 @@ void Player::SpawnCorpseBones(bool triggerSave /*= true*/)
 Corpse* Player::GetCorpse() const
 {
     return GetMap()->GetCorpseByPlayer(GetGUID());
+}
+
+void Player::SendDurabilityLoss()
+{
+    SendDirectMessage(WorldPackets::Misc::DurabilityDamageDeath().Write());
 }
 
 void Player::DurabilityLossAll(double percent, bool inventory)

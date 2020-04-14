@@ -2453,6 +2453,7 @@ DurabilityLoss.InPvP = 0
 #
 #    DurabilityLoss.OnDeath
 #        Description: Durability loss percentage on death.
+#        Note:        On 3.3.5 client always shows log message "Your items have lost 10% durability"
 #        Default:     10
 
 DurabilityLoss.OnDeath = 10
