@@ -101,6 +101,10 @@
 #include "WorldSession.h"
 #include "WorldStatePackets.h"
 
+ // EJ joker
+#include "JokerConfig.h"
+#include "JokerManager.h"
+
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
 #define PLAYER_SKILL_INDEX(x)       (PLAYER_SKILL_INFO_1_1 + ((x)*3))
@@ -2671,6 +2675,28 @@ void Player::GiveXP(uint32 xp, Unit* victim, float group_rate)
     if (GetSession()->isRobotSession)
     {
         return;
+    }
+
+    // EJ joker
+    if (victim)
+    {
+        if (sJokerConfig->Enable)
+        {
+            if (GetLevel() >= 70)
+            {
+                if (sJokerManager->expansionCreatureMap[2].find(victim->GetEntry()) == sJokerManager->expansionCreatureMap[2].end())
+                {
+                    return;
+                }
+            }
+            else if (GetLevel() >= 60)
+            {
+                if (sJokerManager->expansionCreatureMap[2].find(victim->GetEntry()) == sJokerManager->expansionCreatureMap[2].end() && sJokerManager->expansionCreatureMap[1].find(victim->GetEntry()) == sJokerManager->expansionCreatureMap[1].end())
+                {
+                    return;
+                }
+            }
+        }
     }
 
     if (HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN))
@@ -15311,7 +15337,9 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     XP *= GetTotalAuraMultiplier(SPELL_AURA_MOD_XP_QUEST_PCT);
 
     if (GetLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+    {        
         GiveXP(XP, nullptr);
+    }
 
     // Give player extra money if GetRewOrReqMoney > 0 and get ReqMoney if negative
     if (int32 moneyRew = quest->GetRewOrReqMoney(this))

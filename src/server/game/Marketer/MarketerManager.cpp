@@ -25,7 +25,7 @@ MarketerManager::MarketerManager()
     }
 
     std::unordered_set<uint32> expansionItemsSet;
-    QueryResult eiQR = WorldDatabase.PQuery("SELECT object_id FROM joker_expansion where object_type = 0 and expansion = %d", sMarketerConfig->Expansion);
+    QueryResult eiQR = WorldDatabase.PQuery("SELECT item_entry FROM joker_item_expansion where expansion <= %d", sMarketerConfig->MaxExpansion);
     if (eiQR)
     {
         do

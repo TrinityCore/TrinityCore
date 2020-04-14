@@ -27,6 +27,33 @@ JokerManager::JokerManager()
             accompanyTimeMap[pet_guid] = accompany_time;
         } while (jhpQR->NextRow());
     }
+
+    expansionCreatureMap.clear();
+    QueryResult jcQR = WorldDatabase.Query("SELECT creature_entry, creature_faction, expansion FROM joker_creature_expansion");
+    if (jcQR)
+    {
+        do
+        {
+            Field* fields = jcQR->Fetch();
+            uint32 eachEntry = fields[0].GetUInt32();
+            uint32 eachFaction = fields[1].GetUInt32();
+            uint32 eachExpansion = fields[2].GetUInt32();
+            expansionCreatureMap[eachExpansion][eachEntry] = eachFaction;
+        } while (jcQR->NextRow());
+    }
+
+    expansionQuestMap.clear();
+    QueryResult jqQR = WorldDatabase.Query("SELECT quest_id, expansion FROM joker_quest_expansion");
+    if (jqQR)
+    {
+        do
+        {
+            Field* fields = jqQR->Fetch();
+            uint32 eachID = fields[0].GetUInt32();
+            uint32 eachExpansion = fields[1].GetUInt32();
+            expansionQuestMap[eachExpansion].insert(eachID);
+        } while (jqQR->NextRow());
+    }
 }
 
 void JokerManager::UpdateJoker(uint32 pmDiff)

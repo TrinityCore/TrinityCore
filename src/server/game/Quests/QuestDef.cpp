@@ -26,6 +26,10 @@
 #include "QuestPools.h"
 #include "World.h"
 
+ // EJ joker
+#include "JokerConfig.h"
+#include "JokerManager.h"
+
 Quest::Quest(Field* questRecord)
 {
     _id = questRecord[0].GetUInt32();
@@ -219,6 +223,25 @@ uint32 Quest::GetXPReward(Player const* player) const
         {
             uint32 minScaledXP = RoundXPValue(xpentry->Exp[_rewardXPDifficulty]) * sWorld->getIntConfig(CONFIG_MIN_QUEST_SCALED_XP_RATIO) / 100;
             xp = std::max(minScaledXP, xp);
+        }
+
+        // EJ joker 
+        if (sJokerConfig->Enable)
+        {
+            if (player->GetLevel() >= 70)
+            {
+                if (sJokerManager->expansionQuestMap[2].find(GetQuestId()) == sJokerManager->expansionQuestMap[2].end())
+                {
+                    xp = 0;
+                }
+            }
+            else if (player->GetLevel() >= 60)
+            {
+                if (sJokerManager->expansionQuestMap[2].find(GetQuestId()) == sJokerManager->expansionQuestMap[2].end() && sJokerManager->expansionQuestMap[1].find(GetQuestId()) == sJokerManager->expansionQuestMap[1].end())
+                {
+                    xp = 0;
+                }
+            }
         }
 
         return xp;

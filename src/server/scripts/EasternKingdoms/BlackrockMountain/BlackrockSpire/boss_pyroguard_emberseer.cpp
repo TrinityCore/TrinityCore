@@ -184,10 +184,6 @@ public:
                         case EVENT_RESPAWN:
                         {
                             instance->SetData(DATA_BLACKHAND_INCARCERATOR, 1);
-                            GetCreatureListWithEntryInGrid(creatureList, me, NPC_BLACKHAND_INCARCERATOR, 50.0f);
-                                    // EJ script fix 
-                                    //creature->AI()->SetData(1, 1);
-                                    creature->AI()->SetData(1, 2);                                    
                             instance->SetBossState(DATA_PYROGAURD_EMBERSEER, NOT_STARTED);
                             break;
                         }

@@ -57,6 +57,7 @@
 
 // EJ joker
 #include "JokerConfig.h"
+#include "JokerManager.h"
 
 ScriptMapMap sSpellScripts;
 ScriptMapMap sEventScripts;
@@ -662,6 +663,18 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
         if (creatureTemplate.rank != 3)
         {
             creatureTemplate.ModDamage = 1.0f;
+        }
+
+        if (creatureTemplate.minlevel > 1 && creatureTemplate.maxlevel < 10)
+        {
+            if (sJokerManager->expansionCreatureMap[0].find(creatureTemplate.Entry) != sJokerManager->expansionCreatureMap[0].end())
+            {
+                creatureTemplate.faction = sJokerManager->expansionCreatureMap[0][creatureTemplate.Entry];
+            }
+            else if (sJokerManager->expansionCreatureMap[1].find(creatureTemplate.Entry) != sJokerManager->expansionCreatureMap[1].end())
+            {
+                creatureTemplate.faction = sJokerManager->expansionCreatureMap[1][creatureTemplate.Entry];
+            }
         }
     }
 }

@@ -1143,7 +1143,7 @@ bool Script_Base::UseItem(Item* pmItem, Unit* pmTarget)
             me->CastItemUseSpell(pmItem, targets, 0, 0);
 
             std::ostringstream useRemarksStream;
-            useRemarksStream << "Prepare to use item " << pmItem->GetTemplate()->Name1;
+            useRemarksStream << "Use item " << pmItem->GetTemplate()->Name1;
 
             me->Say(useRemarksStream.str(), Language::LANG_UNIVERSAL);
             return true;
