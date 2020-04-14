@@ -730,24 +730,26 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
                 return;
             }
 
-            Player newChar(this);
-            newChar.GetMotionMaster()->Initialize();
-            if (!newChar.Create(sObjectMgr->GetGenerator<HighGuid::Player>().Generate(), createInfo.get()))
+            std::shared_ptr<Player> newChar(new Player(this), [](Player* ptr)
+            {
+                ptr->CleanupsBeforeDelete();
+                delete ptr;
+            });
+            newChar->GetMotionMaster()->Initialize();
+            if (!newChar->Create(sObjectMgr->GetGenerator<HighGuid::Player>().Generate(), createInfo.get()))
             {
                 // Player not create (race/class/etc problem?)
-                newChar.CleanupsBeforeDelete();
-
                 SendCharCreate(CHAR_CREATE_ERROR);
                 return;
             }
 
             if ((haveSameRace && skipCinematics == 1) || skipCinematics == 2)
-                newChar.setCinematic(1);                          // not show intro
+                newChar->setCinematic(1);                         // not show intro
 
-            newChar.SetAtLoginFlag(AT_LOGIN_FIRST);               // First login
+            newChar->SetAtLoginFlag(AT_LOGIN_FIRST);              // First login
 
                                                                   // Player created, save it now
-            newChar.SaveToDB(true);
+            newChar->SaveToDB(true);
             createInfo->CharCount += 1;
 
             LoginDatabaseTransaction trans = LoginDatabase.BeginTransaction();
@@ -763,15 +765,19 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
             stmt->setUInt32(2, realm.Id.Realm);
             trans->Append(stmt);
 
-            LoginDatabase.CommitTransaction(trans);
+            AddTransactionCallback(LoginDatabase.AsyncCommitTransaction(trans)).AfterComplete([this, newChar = std::move(newChar)](bool success)
+            {
+                if (success)
+                {
+                    TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Create Character: %s %s", GetAccountId(), GetRemoteAddress().c_str(), newChar->GetName().c_str(), newChar->GetGUID().ToString().c_str());
+                    sScriptMgr->OnPlayerCreate(newChar.get());
+                    sCharacterCache->AddCharacterCacheEntry(newChar->GetGUID(), GetAccountId(), newChar->GetName(), newChar->m_playerData->NativeSex, newChar->getRace(), newChar->getClass(), newChar->getLevel(), false);
 
-            SendCharCreate(CHAR_CREATE_SUCCESS, newChar.GetGUID());
-
-            TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Create Character: %s %s", GetAccountId(), GetRemoteAddress().c_str(), createInfo->Name.c_str(), newChar.GetGUID().ToString().c_str());
-            sScriptMgr->OnPlayerCreate(&newChar);
-            sCharacterCache->AddCharacterCacheEntry(newChar.GetGUID(), GetAccountId(), newChar.GetName(), newChar.m_playerData->NativeSex, newChar.getRace(), newChar.getClass(), newChar.getLevel(), false);
-
-            newChar.CleanupsBeforeDelete();
+                    SendCharCreate(CHAR_CREATE_SUCCESS, newChar->GetGUID());
+                }
+                else
+                    SendCharCreate(CHAR_CREATE_ERROR);
+            });
         };
 
         if (allowTwoSideAccounts && !skipCinematics && createInfo->Class != CLASS_DEMON_HUNTER)
