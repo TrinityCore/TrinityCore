@@ -22,6 +22,7 @@
 #include "Group.h"
 #include "GroupMgr.h"
 #include "Log.h"
+#include "MiscPackets.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Pet.h"
@@ -516,11 +517,11 @@ void WorldSession::HandleMinimapPingOpcode(WorldPacket& recvData)
     GetPlayer()->GetGroup()->BroadcastPacket(&data, true, -1, GetPlayer()->GetGUID());
 }
 
-void WorldSession::HandleRandomRollOpcode(WorldPacket& recvData)
+void WorldSession::HandleRandomRollOpcode(WorldPackets::Misc::RandomRollClient& packet)
 {
     uint32 minimum, maximum;
-    recvData >> minimum;
-    recvData >> maximum;
+    minimum = packet.Min;
+    maximum = packet.Max;
 
     /** error handling **/
     if (minimum > maximum || maximum > 10000)                // < 32768 for urand call
