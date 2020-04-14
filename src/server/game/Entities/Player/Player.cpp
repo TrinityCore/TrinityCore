@@ -692,11 +692,11 @@ uint32 Player::EnvironmentalDamage(EnviromentalDamage type, uint32 damage)
     {
         if (type == DAMAGE_FALL)                               // DealDamage does not apply item durability loss from self-induced damage.
         {
-            TC_LOG_DEBUG("entities.player", "Player::EnvironmentalDamage: Player '%s' (%s) fall to death, loosing 10%% durability",
-                GetName().c_str(), GetGUID().ToString().c_str());
-            DurabilityLossAll(0.10f, false);
+            TC_LOG_DEBUG("entities.player", "Player::EnvironmentalDamage: Player '%s' (%s) fall to death, losing %f%% durability",
+                GetName().c_str(), GetGUID().ToString().c_str(), sWorld->getRate(RATE_DURABILITY_LOSS_ON_DEATH));
+            DurabilityLossAll(sWorld->getRate(RATE_DURABILITY_LOSS_ON_DEATH), false);
             // durability lost message
-            SendDurabilityLoss(this, 10);
+            SendDurabilityLoss(this, uint32(sWorld->getRate(RATE_DURABILITY_LOSS_ON_DEATH) * 100.0f));
         }
 
         UpdateCriteria(CriteriaType::DieFromEnviromentalDamage, 1, type);
