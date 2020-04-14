@@ -193,7 +193,7 @@ void WorldSession::HandleOpenItemOpcode(WorldPackets::Spells::OpenItem& packet)
     {
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_GIFT_BY_ITEM);
         stmt->setUInt64(0, item->GetGUID().GetCounter());
-        _queryProcessor.AddQuery(CharacterDatabase.AsyncQuery(stmt)
+        _queryProcessor.AddCallback(CharacterDatabase.AsyncQuery(stmt)
             .WithPreparedCallback(std::bind(&WorldSession::HandleOpenWrappedItemCallback, this, item->GetPos(), item->GetGUID(), std::placeholders::_1)));
     }
     else

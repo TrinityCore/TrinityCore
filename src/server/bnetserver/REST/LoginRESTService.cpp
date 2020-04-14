@@ -47,7 +47,7 @@ public:
     bool InvokeIfReady()
     {
         ASSERT(_callback);
-        return _callback->InvokeIfReady() == QueryCallback::Completed;
+        return _callback->InvokeIfReady();
     }
 
     soap* GetClient() { return &_client; }
