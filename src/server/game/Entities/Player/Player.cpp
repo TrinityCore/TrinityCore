@@ -27260,7 +27260,7 @@ void Player::ActivateTalentGroup(ChrSpecializationEntry const* spec)
         stmt->setUInt8(1, GetActiveTalentGroup());
 
         WorldSession* mySess = GetSession();
-        mySess->GetQueryProcessor().AddQuery(CharacterDatabase.AsyncQuery(stmt)
+        mySess->GetQueryProcessor().AddCallback(CharacterDatabase.AsyncQuery(stmt)
             .WithPreparedCallback([mySess](PreparedQueryResult result)
         {
             // safe callback, we can't pass this pointer directly
