@@ -687,6 +687,7 @@ public:
 
             playerGUID.Clear();
             me->RemoveUnitFlag(UNIT_FLAG_PACIFIED);
+            me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
         }
 
         bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
@@ -698,6 +699,7 @@ public:
                     CloseGossipMenuFor(player);
                     me->AI()->Talk(SAY_BARADA_1);
                     me->AI()->DoAction(ACTION_START_EVENT);
+                    me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                     break;
                 default:
                     break;
