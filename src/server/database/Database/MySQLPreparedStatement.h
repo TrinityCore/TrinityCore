@@ -25,7 +25,7 @@
 #include <vector>
 
 class MySQLConnection;
-class PreparedStatement;
+class PreparedStatementBase;
 
 //- Class of which the instances are unique per MySQLConnection
 //- access to these class objects is only done when a prepared statement task
@@ -58,7 +58,7 @@ class TC_DATABASE_API MySQLPreparedStatement
     protected:
         MySQLStmt* GetSTMT() { return m_Mstmt; }
         MySQLBind* GetBind() { return m_bind; }
-        PreparedStatement* m_stmt;
+        PreparedStatementBase* m_stmt;
         void ClearParameters();
         void AssertValidIndex(uint8 index);
         std::string getQueryString() const;

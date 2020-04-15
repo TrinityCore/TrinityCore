@@ -60,7 +60,7 @@ void LootItemStorage::LoadStorageFromDB()
     uint32 count = 0;
 
     SQLTransaction trans = SQLTransaction(nullptr);
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ITEMCONTAINER_ITEMS);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ITEMCONTAINER_ITEMS);
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
     if (result)
     {
@@ -209,7 +209,7 @@ void LootItemStorage::RemoveStoredLootForContainer(uint32 containerId)
     }
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_ITEMS);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_ITEMS);
     stmt->setUInt32(0, containerId);
     trans->Append(stmt);
 
@@ -256,7 +256,7 @@ void LootItemStorage::AddNewStoredLoot(Loot* loot, Player* player)
     if (loot->gold)
         container.AddMoney(loot->gold, trans);
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_ITEMS);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_ITEMS);
     stmt->setUInt32(0, loot->containerID);
     trans->Append(stmt);
 
@@ -293,7 +293,7 @@ void StoredLootContainer::AddLootItem(LootItem const& lootItem, SQLTransaction& 
     if (!trans)
         return;
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEMCONTAINER_ITEMS);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEMCONTAINER_ITEMS);
 
     // container_id, item_id, item_count, follow_rules, ffa, blocked, counted, under_threshold, needs_quest, rnd_prop, rnd_suffix
     stmt->setUInt32(0, _containerId);
@@ -316,7 +316,7 @@ void StoredLootContainer::AddMoney(uint32 money, SQLTransaction& trans)
     if (!trans)
         return;
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_MONEY);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_MONEY);
     stmt->setUInt32(0, _containerId);
     trans->Append(stmt);
 
@@ -330,7 +330,7 @@ void StoredLootContainer::RemoveMoney()
 {
     _money = 0;
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_MONEY);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_MONEY);
     stmt->setUInt32(0, _containerId);
     CharacterDatabase.Execute(stmt);
 }
@@ -348,7 +348,7 @@ void StoredLootContainer::RemoveItem(uint32 itemId, uint32 count)
     }
 
     // Deletes a single item associated with an openable item from the DB
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_ITEM);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_ITEM);
     stmt->setUInt32(0, _containerId);
     stmt->setUInt32(1, itemId);
     stmt->setUInt32(2, count);

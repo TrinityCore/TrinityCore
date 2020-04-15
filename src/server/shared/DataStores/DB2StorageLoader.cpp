@@ -565,7 +565,7 @@ char* DB2DatabaseLoader::Load(const char* format, int32 preparedStatement, uint3
 
 void DB2DatabaseLoader::LoadStrings(const char* format, int32 preparedStatement, uint32 locale, char**& indexTable, std::list<char*>& stringPool)
 {
-    PreparedStatement* stmt = HotfixDatabase.GetPreparedStatement(HotfixDatabaseStatements(preparedStatement));
+    HotfixDatabasePreparedStatement* stmt = HotfixDatabase.GetPreparedStatement(HotfixDatabaseStatements(preparedStatement));
     stmt->setString(0, localeNames[locale]);
     PreparedQueryResult result = HotfixDatabase.Query(stmt);
     if (!result)

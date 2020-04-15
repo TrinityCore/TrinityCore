@@ -116,7 +116,7 @@ void Battlenet::Session::_SetVSFields(std::string const& pstr)
     x.SetBinary(sha.GetDigest(), sha.GetLength());
     v = g.ModExp(x, N);
 
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_VS_FIELDS);
+    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_VS_FIELDS);
     stmt->setString(0, v.AsHexStr());
     stmt->setString(1, s.AsHexStr());
     stmt->setString(2, _accountInfo->Login);
@@ -196,7 +196,7 @@ void Battlenet::Session::HandleLogonRequest(Authentication::LogonRequest const& 
     _os = logonRequest.Platform;
 
     Utf8ToUpperOnlyLatin(login);
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_ACCOUNT_INFO);
+    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_ACCOUNT_INFO);
     stmt->setString(0, login);
 
     _queryProcessor.AddQuery(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&Battlenet::Session::HandleLogonRequestCallback, this, std::placeholders::_1)));
@@ -334,7 +334,7 @@ void Battlenet::Session::HandleResumeRequest(Authentication::ResumeRequest const
         _build = baseComponent->Build;
 
     Utf8ToUpperOnlyLatin(login);
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_RECONNECT_INFO);
+    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_RECONNECT_INFO);
     stmt->setString(0, login);
     stmt->setString(1, resumeRequest.GameAccountName);
 
@@ -421,7 +421,7 @@ void Battlenet::Session::HandleEnableEncryption(Connection::EnableEncryption& en
 
 void Battlenet::Session::HandleLogoutRequest(Connection::LogoutRequest const& /*logoutRequest*/)
 {
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_SESSION_KEY);
+    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_SESSION_KEY);
     stmt->setString(0, "");
     stmt->setBool(1, false);
     stmt->setUInt32(2, _accountInfo->Id);
@@ -434,7 +434,7 @@ void Battlenet::Session::HandleConnectionClosing(Connection::ConnectionClosing c
 
 void Battlenet::Session::HandleListSubscribeRequest(WoWRealm::ListSubscribeRequest const& /*listSubscribeRequest*/)
 {
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_CHARACTER_COUNTS);
+    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_CHARACTER_COUNTS);
     stmt->setUInt32(0, _gameAccountInfo->Id);
 
     _queryProcessor.AddQuery(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&Battlenet::Session::HandleListSubscribeRequestCallback, this, std::placeholders::_1)));
@@ -498,7 +498,7 @@ void Battlenet::Session::HandleJoinRequestV2(WoWRealm::JoinRequestV2 const& join
 
     memcpy(sessionKey + hmac.GetLength(), hmac2.GetDigest(), hmac2.GetLength());
 
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGONPROOF);
+    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGONPROOF);
     stmt->setString(0, ByteArrayToHexStr(sessionKey, 40, true).c_str());
     stmt->setString(1, GetRemoteIpAddress().to_string());
     stmt->setUInt32(2, GetLocaleByName(_locale));
@@ -606,7 +606,7 @@ void Battlenet::Session::Start()
     std::string ip_address = GetRemoteIpAddress().to_string();
     TC_LOG_TRACE("session", "Accepted connection from %s", ip_address.c_str());
 
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP_INFO);
+    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP_INFO);
     stmt->setString(0, ip_address);
 
     _queryProcessor.AddQuery(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&Battlenet::Session::CheckIpCallback, this, std::placeholders::_1)));
@@ -801,7 +801,7 @@ bool Battlenet::Session::HandlePasswordModule(BitStream* dataStream, ServerPacke
 
     if (memcmp(M1.AsByteArray().get(), clientM1.AsByteArray().get(), 32))
     {
-        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_FAILED_LOGINS);
+        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_FAILED_LOGINS);
         stmt->setString(0, _accountInfo->Login);
         LoginDatabase.Execute(stmt);
 
@@ -971,7 +971,7 @@ bool Battlenet::Session::HandleRiskFingerprintModule(BitStream* dataStream, Serv
 
         SQLTransaction trans = LoginDatabase.BeginTransaction();
 
-        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_LAST_LOGIN_INFO);
+        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_LAST_LOGIN_INFO);
         stmt->setString(0, GetRemoteIpAddress().to_string());
         stmt->setUInt8(1, GetLocaleByName(_locale));
         stmt->setString(2, _os);
@@ -1040,7 +1040,7 @@ bool Battlenet::Session::HandleResumeModule(BitStream* dataStream, ServerPacket*
 
     if (memcmp(proof.GetDigest(), clientProof.get(), serverPart.GetLength()))
     {
-        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_FAILED_LOGINS);
+        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_FAILED_LOGINS);
         stmt->setString(0, _accountInfo->Login);
         LoginDatabase.Execute(stmt);
 
@@ -1051,7 +1051,7 @@ bool Battlenet::Session::HandleResumeModule(BitStream* dataStream, ServerPacket*
         return false;
     }
 
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_SESSION_KEY);
+    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_SESSION_KEY);
     stmt->setString(0, K.AsHexStr());
     stmt->setBool(1, true);
     stmt->setUInt32(2, _accountInfo->Id);

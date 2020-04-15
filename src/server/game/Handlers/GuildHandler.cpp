@@ -881,7 +881,7 @@ void WorldSession::HandleGuildRenameRequest(WorldPacket& recvPacket)
 
     if(pGuild)
     {
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GUILD_NAME);
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GUILD_NAME);
 
         stmt->setUInt32(1, pGuild->GetId());
         stmt->setString(0, newName);

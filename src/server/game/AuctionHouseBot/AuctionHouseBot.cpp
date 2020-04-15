@@ -67,7 +67,7 @@ bool AuctionBotConfig::Initialize()
         {
             // find account guids associated with ahbot account
             uint32 count = 0;
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARS_BY_ACCOUNT_ID);
+            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARS_BY_ACCOUNT_ID);
             stmt->setUInt32(0, ahBotAccId);
             if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
             {

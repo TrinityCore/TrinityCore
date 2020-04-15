@@ -37,7 +37,7 @@ AccountOpResult Battlenet::AccountMgr::CreateBattlenetAccount(std::string email,
     if (GetId(email))
         return AccountOpResult::AOR_NAME_ALREADY_EXIST;
 
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_BNET_ACCOUNT);
+    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_BNET_ACCOUNT);
     stmt->setString(0, email);
     stmt->setString(1, CalculateShaPassHash(email, password));
     LoginDatabase.DirectExecute(stmt);
@@ -65,7 +65,7 @@ AccountOpResult Battlenet::AccountMgr::ChangePassword(uint32 accountId, std::str
     if (utf8length(newPassword) > MAX_PASS_STR)
         return AccountOpResult::AOR_PASS_TOO_LONG;
 
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_PASSWORD);
+    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_PASSWORD);
     stmt->setString(0, CalculateShaPassHash(username, newPassword));
     stmt->setUInt32(1, accountId);
     LoginDatabase.Execute(stmt);
@@ -83,7 +83,7 @@ bool Battlenet::AccountMgr::CheckPassword(uint32 accountId, std::string password
     Utf8ToUpperOnlyLatin(username);
     Utf8ToUpperOnlyLatin(password);
 
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_CHECK_PASSWORD);
+    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_CHECK_PASSWORD);
     stmt->setUInt32(0, accountId);
     stmt->setString(1, CalculateShaPassHash(username, password));
 
@@ -103,7 +103,7 @@ AccountOpResult Battlenet::AccountMgr::LinkWithGameAccount(std::string const& em
     if (GetIdByGameAccount(gameAccountId))
         return AccountOpResult::AOR_ACCOUNT_BAD_LINK;
 
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_GAME_ACCOUNT_LINK);
+    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_GAME_ACCOUNT_LINK);
     stmt->setUInt32(0, bnetAccountId);
     stmt->setUInt8(1, GetMaxIndex(bnetAccountId) + 1);
     stmt->setUInt32(2, gameAccountId);
@@ -120,7 +120,7 @@ AccountOpResult Battlenet::AccountMgr::UnlinkGameAccount(std::string const& game
     if (!GetIdByGameAccount(gameAccountId))
         return AccountOpResult::AOR_ACCOUNT_BAD_LINK;
 
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_GAME_ACCOUNT_LINK);
+    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_GAME_ACCOUNT_LINK);
     stmt->setNull(0);
     stmt->setNull(1);
     stmt->setUInt32(2, gameAccountId);
@@ -130,7 +130,7 @@ AccountOpResult Battlenet::AccountMgr::UnlinkGameAccount(std::string const& game
 
 uint32 Battlenet::AccountMgr::GetId(std::string const& username)
 {
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_ACCOUNT_ID_BY_EMAIL);
+    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_ACCOUNT_ID_BY_EMAIL);
     stmt->setString(0, username);
     if (PreparedQueryResult result = LoginDatabase.Query(stmt))
         return (*result)[0].GetUInt32();
@@ -140,7 +140,7 @@ uint32 Battlenet::AccountMgr::GetId(std::string const& username)
 
 bool Battlenet::AccountMgr::GetName(uint32 accountId, std::string& name)
 {
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_ACCOUNT_EMAIL_BY_ID);
+    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_ACCOUNT_EMAIL_BY_ID);
     stmt->setUInt32(0, accountId);
     if (PreparedQueryResult result = LoginDatabase.Query(stmt))
     {
@@ -153,7 +153,7 @@ bool Battlenet::AccountMgr::GetName(uint32 accountId, std::string& name)
 
 uint32 Battlenet::AccountMgr::GetIdByGameAccount(uint32 gameAccountId)
 {
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_ACCOUNT_ID_BY_GAME_ACCOUNT);
+    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_ACCOUNT_ID_BY_GAME_ACCOUNT);
     stmt->setUInt32(0, gameAccountId);
     if (PreparedQueryResult result = LoginDatabase.Query(stmt))
         return (*result)[0].GetUInt32();
@@ -163,7 +163,7 @@ uint32 Battlenet::AccountMgr::GetIdByGameAccount(uint32 gameAccountId)
 
 uint8 Battlenet::AccountMgr::GetMaxIndex(uint32 accountId)
 {
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_MAX_ACCOUNT_INDEX);
+    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_MAX_ACCOUNT_INDEX);
     stmt->setUInt32(0, accountId);
     PreparedQueryResult result = LoginDatabase.Query(stmt);
     if (result)
