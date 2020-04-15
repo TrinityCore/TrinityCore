@@ -11090,7 +11090,7 @@ InventoryResult Player::CanStoreItems(Item** items, int count, uint32* itemLimit
 
                     b_found = remaining_count == 0;
 
-                    // stop checking keyring?
+                    // if no pieces of the stack remain, then stop checking keyring
                     if (b_found)
                         break;
                 }
@@ -11108,7 +11108,7 @@ InventoryResult Player::CanStoreItems(Item** items, int count, uint32* itemLimit
                     remaining_count = currencyCounts[t-CURRENCYTOKEN_SLOT_START] < pProto->GetMaxStackSize() ? 0 : currencyCounts[t-CURRENCYTOKEN_SLOT_START] - pProto->GetMaxStackSize();
 
                     b_found = remaining_count == 0;
-                    // stop checking currency 'bag'?
+                    // if no pieces of the stack remain, then stop checking currency 'bag'
                     if (b_found)
                         break;
                 }
@@ -11126,7 +11126,7 @@ InventoryResult Player::CanStoreItems(Item** items, int count, uint32* itemLimit
                     remaining_count = inventoryCounts[t-INVENTORY_SLOT_ITEM_START] < pProto->GetMaxStackSize() ? 0 : inventoryCounts[t-INVENTORY_SLOT_ITEM_START] - pProto->GetMaxStackSize();
 
                     b_found = remaining_count == 0;
-                    // stop checking stock backpack?
+                    // if no pieces of the stack remain, then stop checking stock bag
                     if (b_found)
                         break;
                 }
@@ -11152,7 +11152,8 @@ InventoryResult Player::CanStoreItems(Item** items, int count, uint32* itemLimit
                             remaining_count = bagCounts[t-INVENTORY_SLOT_BAG_START][j] < pProto->GetMaxStackSize() ? 0 : bagCounts[t-INVENTORY_SLOT_BAG_START][j] - pProto->GetMaxStackSize();
 
                             b_found = remaining_count == 0;
-                            // stop checking equippable bag?
+
+                            // if no pieces of the stack remain, then stop checking equippable bags
                             if (b_found)
                                 break;
                         }
