@@ -618,8 +618,9 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
 
             newChar->SetAtLoginFlag(AT_LOGIN_FIRST);               // First login
 
-                                                                  // Player created, save it now
-            newChar->SaveToDB(true);
+            CharacterDatabaseTransaction characterTransaction = CharacterDatabase.BeginTransaction();
+                                                                   // Player created, save it now
+            newChar->SaveToDB(characterTransaction, true);
             createInfo->CharCount += 1;
 
             LoginDatabaseTransaction trans = LoginDatabase.BeginTransaction();
@@ -637,7 +638,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
 
             LoginDatabase.CommitTransaction(trans);
 
-            AddTransactionCallback(LoginDatabase.AsyncCommitTransaction(trans)).AfterComplete([this, newChar = std::move(newChar)](bool success)
+            AddTransactionCallback(CharacterDatabase.AsyncCommitTransaction(characterTransaction)).AfterComplete([this, newChar = std::move(newChar)](bool success)
             {
                 if (success)
                 {
