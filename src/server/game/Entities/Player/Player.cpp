@@ -19319,6 +19319,17 @@ bool Player::_LoadHomeBind(PreparedQueryResult result)
 
 void Player::SaveToDB(bool create /*=false*/)
 {
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
+    LoginDatabaseTransaction loginTransaction = LoginDatabase.BeginTransaction();
+
+    SaveToDB(loginTransaction, trans, create);
+
+    CharacterDatabase.CommitTransaction(trans);
+    LoginDatabase.CommitTransaction(loginTransaction);
+}
+
+void Player::SaveToDB(LoginDatabaseTransaction loginTransaction, CharacterDatabaseTransaction trans, bool create /* = false */)
+{
     // delay auto save at any saves (manual, in code, or autosave)
     m_nextSave = sWorld->getIntConfig(CONFIG_INTERVAL_SAVE);
 
@@ -19338,7 +19349,6 @@ void Player::SaveToDB(bool create /*=false*/)
     if (!create)
         sScriptMgr->OnPlayerSave(this);
 
-    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     CharacterDatabasePreparedStatement* stmt = nullptr;
     uint8 index = 0;
 
@@ -19629,8 +19639,6 @@ void Player::SaveToDB(bool create /*=false*/)
     // save stats can be out of transaction
     if (m_session->isLogingOut() || !sWorld->getBoolConfig(CONFIG_STATS_SAVE_ONLY_ON_LOGOUT))
         _SaveStats(trans);
-
-    CharacterDatabase.CommitTransaction(trans);
 
     // save pet (hunter pet level and experience and all type pets health/mana).
     if (Pet* pet = GetPet())
