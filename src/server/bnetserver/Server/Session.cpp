@@ -199,7 +199,7 @@ void Battlenet::Session::HandleLogonRequest(Authentication::LogonRequest const& 
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_ACCOUNT_INFO);
     stmt->setString(0, login);
 
-    _queryProcessor.AddQuery(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&Battlenet::Session::HandleLogonRequestCallback, this, std::placeholders::_1)));
+    _queryProcessor.AddCallback(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&Battlenet::Session::HandleLogonRequestCallback, this, std::placeholders::_1)));
 }
 
 void Battlenet::Session::HandleLogonRequestCallback(PreparedQueryResult result)
@@ -338,7 +338,7 @@ void Battlenet::Session::HandleResumeRequest(Authentication::ResumeRequest const
     stmt->setString(0, login);
     stmt->setString(1, resumeRequest.GameAccountName);
 
-    _queryProcessor.AddQuery(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&Battlenet::Session::HandleResumeRequestCallback, this, std::placeholders::_1)));
+    _queryProcessor.AddCallback(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&Battlenet::Session::HandleResumeRequestCallback, this, std::placeholders::_1)));
 }
 
 void Battlenet::Session::HandleResumeRequestCallback(PreparedQueryResult result)
@@ -437,7 +437,7 @@ void Battlenet::Session::HandleListSubscribeRequest(WoWRealm::ListSubscribeReque
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_CHARACTER_COUNTS);
     stmt->setUInt32(0, _gameAccountInfo->Id);
 
-    _queryProcessor.AddQuery(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&Battlenet::Session::HandleListSubscribeRequestCallback, this, std::placeholders::_1)));
+    _queryProcessor.AddCallback(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&Battlenet::Session::HandleListSubscribeRequestCallback, this, std::placeholders::_1)));
 }
 
 void Battlenet::Session::HandleListSubscribeRequestCallback(PreparedQueryResult result)
@@ -609,7 +609,7 @@ void Battlenet::Session::Start()
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP_INFO);
     stmt->setString(0, ip_address);
 
-    _queryProcessor.AddQuery(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&Battlenet::Session::CheckIpCallback, this, std::placeholders::_1)));
+    _queryProcessor.AddCallback(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&Battlenet::Session::CheckIpCallback, this, std::placeholders::_1)));
 }
 
 void Battlenet::Session::CheckIpCallback(PreparedQueryResult result)
@@ -671,7 +671,7 @@ bool Battlenet::Session::Update()
     if (!BattlenetSocket::Update())
         return false;
 
-    _queryProcessor.ProcessReadyQueries();
+    _queryProcessor.ProcessReadyCallbacks();
 
     return true;
 }

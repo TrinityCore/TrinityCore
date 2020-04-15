@@ -18,12 +18,12 @@
 #ifndef Session_h__
 #define Session_h__
 
+#include "AsyncCallbackProcessor.h"
 #include "Packets.h"
 #include "BattlenetPacketCrypt.h"
 #include "Socket.h"
 #include "BigNumber.h"
 #include "QueryResult.h"
-#include "QueryCallbackProcessor.h"
 #include "MPSCQueue.h"
 #include <memory>
 #include <boost/asio/ip/tcp.hpp>

@@ -18,8 +18,9 @@
 #ifndef __WORLDSOCKET_H__
 #define __WORLDSOCKET_H__
 
-#include "BigNumber.h"
 #include "Common.h"
+#include "AsyncCallbackProcessor.h"
+#include "BigNumber.h"
 #include "WorldPacketCrypt.h"
 #include "ServerPktHeader.h"
 #include "Socket.h"
