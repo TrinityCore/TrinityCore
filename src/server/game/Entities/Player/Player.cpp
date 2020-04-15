@@ -10982,26 +10982,16 @@ InventoryResult Player::CanStoreItems(Item** items, int count, uint32* itemLimit
     // fill space tables, creating a mock-up of the player's inventory
 
     // counts
-    uint32 inventoryCounts[INVENTORY_SLOT_ITEM_END - INVENTORY_SLOT_ITEM_START];
-    uint32 bagCounts[INVENTORY_SLOT_BAG_END - INVENTORY_SLOT_BAG_START][MAX_BAG_SIZE];
-    uint32 keyringCounts[KEYRING_SLOT_END - KEYRING_SLOT_START];
-    uint32 currencyCounts[CURRENCYTOKEN_SLOT_END - CURRENCYTOKEN_SLOT_START];
-
-    memset(inventoryCounts, 0, sizeof(uint32) * (INVENTORY_SLOT_ITEM_END - INVENTORY_SLOT_ITEM_START));
-    memset(bagCounts, 0, sizeof(uint32) * (INVENTORY_SLOT_BAG_END - INVENTORY_SLOT_BAG_START) * MAX_BAG_SIZE);
-    memset(keyringCounts, 0, sizeof(uint32) * (KEYRING_SLOT_END - KEYRING_SLOT_START));
-    memset(currencyCounts, 0, sizeof(uint32) * (CURRENCYTOKEN_SLOT_END - CURRENCYTOKEN_SLOT_START));
+    uint32 inventoryCounts[INVENTORY_SLOT_ITEM_END - INVENTORY_SLOT_ITEM_START] = {};
+    uint32 bagCounts[INVENTORY_SLOT_BAG_END - INVENTORY_SLOT_BAG_START][MAX_BAG_SIZE] = {};
+    uint32 keyringCounts[KEYRING_SLOT_END - KEYRING_SLOT_START] = {};
+    uint32 currencyCounts[CURRENCYTOKEN_SLOT_END - CURRENCYTOKEN_SLOT_START] = {};
 
     // Item pointers
-    Item* inventoryPointers[INVENTORY_SLOT_ITEM_END - INVENTORY_SLOT_ITEM_START];
-    Item* bagPointers[INVENTORY_SLOT_BAG_END - INVENTORY_SLOT_BAG_START][MAX_BAG_SIZE];
-    Item* keyringPointers[KEYRING_SLOT_END - KEYRING_SLOT_START];
-    Item* currencyPointers[CURRENCYTOKEN_SLOT_END - CURRENCYTOKEN_SLOT_START];
-
-    memset(inventoryPointers, 0, sizeof(Item*) * (INVENTORY_SLOT_ITEM_END - INVENTORY_SLOT_ITEM_START));
-    memset(bagPointers, 0, sizeof(Item*) * (INVENTORY_SLOT_BAG_END - INVENTORY_SLOT_BAG_START) * MAX_BAG_SIZE);
-    memset(keyringPointers, 0, sizeof(Item*) * (KEYRING_SLOT_END - KEYRING_SLOT_START));
-    memset(currencyPointers, 0, sizeof(Item*) * (CURRENCYTOKEN_SLOT_END - CURRENCYTOKEN_SLOT_START));
+    Item* inventoryPointers[INVENTORY_SLOT_ITEM_END - INVENTORY_SLOT_ITEM_START] = {};
+    Item* bagPointers[INVENTORY_SLOT_BAG_END - INVENTORY_SLOT_BAG_START][MAX_BAG_SIZE] = {};
+    Item* keyringPointers[KEYRING_SLOT_END - KEYRING_SLOT_START] = {};
+    Item* currencyPointers[CURRENCYTOKEN_SLOT_END - CURRENCYTOKEN_SLOT_START] = {};
 
     // filling inventory
     for (uint8 i = INVENTORY_SLOT_ITEM_START; i < INVENTORY_SLOT_ITEM_END; i++)
