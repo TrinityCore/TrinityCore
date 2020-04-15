@@ -55,8 +55,8 @@ class StoredLootContainer
 
         explicit StoredLootContainer(uint32 containerId) : _containerId(containerId), _money(0) { }
 
-        void AddLootItem(LootItem const& lootItem, SQLTransaction& trans);
-        void AddMoney(uint32 money, SQLTransaction& trans);
+        void AddLootItem(LootItem const& lootItem, CharacterDatabaseTransaction& trans);
+        void AddMoney(uint32 money, CharacterDatabaseTransaction& trans);
 
         void RemoveMoney();
         void RemoveItem(uint32 itemId, uint32 count);

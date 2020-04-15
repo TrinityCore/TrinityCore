@@ -233,13 +233,13 @@ QueryResultHolderFuture DatabaseWorkerPool<T>::DelayQueryHolder(SQLQueryHolder* 
 }
 
 template <class T>
-SQLTransaction DatabaseWorkerPool<T>::BeginTransaction()
+SQLTransaction<T> DatabaseWorkerPool<T>::BeginTransaction()
 {
-    return std::make_shared<Transaction>();
+    return std::make_shared<Transaction<T>>();
 }
 
 template <class T>
-void DatabaseWorkerPool<T>::CommitTransaction(SQLTransaction transaction)
+void DatabaseWorkerPool<T>::CommitTransaction(SQLTransaction<T> transaction)
 {
 #ifdef TRINITY_DEBUG
     //! Only analyze transaction weaknesses in Debug mode.
@@ -262,7 +262,7 @@ void DatabaseWorkerPool<T>::CommitTransaction(SQLTransaction transaction)
 }
 
 template <class T>
-void DatabaseWorkerPool<T>::DirectCommitTransaction(SQLTransaction& transaction)
+void DatabaseWorkerPool<T>::DirectCommitTransaction(SQLTransaction<T>& transaction)
 {
     T* connection = GetFreeConnection();
     int errorCode = connection->ExecuteTransaction(transaction);
@@ -448,7 +448,7 @@ void DatabaseWorkerPool<T>::DirectExecute(PreparedStatement<T>* stmt)
 }
 
 template <class T>
-void DatabaseWorkerPool<T>::ExecuteOrAppend(SQLTransaction& trans, char const* sql)
+void DatabaseWorkerPool<T>::ExecuteOrAppend(SQLTransaction<T>& trans, char const* sql)
 {
     if (!trans)
         Execute(sql);
@@ -457,7 +457,7 @@ void DatabaseWorkerPool<T>::ExecuteOrAppend(SQLTransaction& trans, char const* s
 }
 
 template <class T>
-void DatabaseWorkerPool<T>::ExecuteOrAppend(SQLTransaction& trans, PreparedStatement<T>* stmt)
+void DatabaseWorkerPool<T>::ExecuteOrAppend(SQLTransaction<T>& trans, PreparedStatement<T>* stmt)
 {
     if (!trans)
         Execute(stmt);

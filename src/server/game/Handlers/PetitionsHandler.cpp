@@ -226,7 +226,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket& recvData)
 
     TC_LOG_DEBUG("network", "Invalid petition GUIDs: %s", ssInvalidPetitionGUIDs.str().c_str());
     CharacterDatabase.EscapeString(name);
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     trans->PAppend("DELETE FROM petition WHERE petitionguid IN (%s)",  ssInvalidPetitionGUIDs.str().c_str());
     trans->PAppend("DELETE FROM petition_sign WHERE petitionguid IN (%s)", ssInvalidPetitionGUIDs.str().c_str());
 
@@ -851,7 +851,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket& recvData)
         Guild::SendCommandResult(this, GUILD_COMMAND_CREATE, ERR_GUILD_COMMAND_SUCCESS, name);
 
         {
-            SQLTransaction trans = CharacterDatabase.BeginTransaction();
+            CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
             // Add members from signatures
             for (uint8 i = 0; i < signatures; ++i)
@@ -894,7 +894,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket& recvData)
         }
     }
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PETITION_BY_GUID);
     stmt->setUInt32(0, petitionGuid.GetCounter());

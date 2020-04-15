@@ -263,7 +263,7 @@ class TC_GAME_API AchievementMgr
         void Reset();
         static void DeleteFromDB(ObjectGuid lowguid);
         void LoadFromDB(PreparedQueryResult achievementResult, PreparedQueryResult criteriaResult);
-        void SaveToDB(SQLTransaction& trans);
+        void SaveToDB(CharacterDatabaseTransaction& trans);
         void ResetAchievementCriteria(AchievementCriteriaTypes type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, bool evenIfCriteriaComplete = false);
         void UpdateAchievementCriteria(AchievementCriteriaTypes type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, uint64 miscValue3 = 0, Unit const* unit = nullptr, Player* referencePlayer = nullptr, GameObject* go = nullptr);
         void CompletedAchievement(AchievementEntry const* entry, Player* referencePlayer);

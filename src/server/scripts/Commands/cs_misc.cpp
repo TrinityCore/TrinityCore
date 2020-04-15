@@ -605,7 +605,7 @@ public:
             handler->PSendSysMessage(LANG_SUMMONING, nameLink.c_str(), handler->GetTrinityString(LANG_OFFLINE));
 
             // in point where GM stay
-            SQLTransaction dummy;
+            CharacterDatabaseTransaction dummy;
             Player::SavePositionInDB(WorldLocation(_player->GetMapId(),
                 _player->GetPositionX(),
                 _player->GetPositionY(),
@@ -665,7 +665,7 @@ public:
         }
         else
         {
-            SQLTransaction trans(nullptr);
+            CharacterDatabaseTransaction trans(nullptr);
             Player::OfflineResurrect(targetGuid, trans);
         }
 

@@ -66,7 +66,7 @@ public:
     void LoadFromDB(PreparedQueryResult cooldownsResult);
 
     template<class OwnerType>
-    void SaveToDB(SQLTransaction& trans);
+    void SaveToDB(CharacterDatabaseTransaction& trans);
 
     void Update();
 

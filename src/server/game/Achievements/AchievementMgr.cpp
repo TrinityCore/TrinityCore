@@ -521,7 +521,7 @@ void AchievementMgr<T>::DeleteFromDB(ObjectGuid /*guid*/)
 template<>
 void AchievementMgr<Player>::DeleteFromDB(ObjectGuid guid)
 {
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT);
     stmt->setUInt32(0, guid.GetCounter());
@@ -537,7 +537,7 @@ void AchievementMgr<Player>::DeleteFromDB(ObjectGuid guid)
 template<>
 void AchievementMgr<Guild>::DeleteFromDB(ObjectGuid guid)
 {
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ALL_GUILD_ACHIEVEMENTS);
     stmt->setUInt32(0, guid.GetCounter());
@@ -551,12 +551,12 @@ void AchievementMgr<Guild>::DeleteFromDB(ObjectGuid guid)
 }
 
 template<class T>
-void AchievementMgr<T>::SaveToDB(SQLTransaction& /*trans*/)
+void AchievementMgr<T>::SaveToDB(CharacterDatabaseTransaction& /*trans*/)
 {
 }
 
 template<>
-void AchievementMgr<Player>::SaveToDB(SQLTransaction& trans)
+void AchievementMgr<Player>::SaveToDB(CharacterDatabaseTransaction& trans)
 {
     if (!m_completedAchievements.empty())
     {
@@ -608,7 +608,7 @@ void AchievementMgr<Player>::SaveToDB(SQLTransaction& trans)
 }
 
 template<>
-void AchievementMgr<Guild>::SaveToDB(SQLTransaction& trans)
+void AchievementMgr<Guild>::SaveToDB(CharacterDatabaseTransaction& trans)
 {
     CharacterDatabasePreparedStatement* stmt;
     std::ostringstream guidstr;
@@ -2022,7 +2022,7 @@ void AchievementMgr<Player>::CompletedAchievement(AchievementEntry const* achiev
             draft = MailDraft(subject, text);
         }
 
-        SQLTransaction trans = CharacterDatabase.BeginTransaction();
+        CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
         Item* item = reward->ItemID ? Item::CreateItem(reward->ItemID, 1, GetOwner()) : nullptr;
         if (item)

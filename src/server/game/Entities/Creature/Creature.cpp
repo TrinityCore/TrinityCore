@@ -1254,7 +1254,7 @@ void Creature::SaveToDB(uint32 mapid, uint8 spawnMask)
     data.phaseGroup = GetDBPhase() < 0 ? -GetDBPhase() : data.phaseGroup;
 
     // update in DB
-    SQLTransaction trans = WorldDatabase.BeginTransaction();
+    WorldDatabaseTransaction trans = WorldDatabase.BeginTransaction();
 
     WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_CREATURE);
     stmt->setUInt32(0, m_spawnId);
@@ -1650,7 +1650,7 @@ bool Creature::hasInvolvedQuest(uint32 quest_id) const
     if (!data)
         return false;
 
-    SQLTransaction trans = WorldDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
     sMapMgr->DoForAllMapsWithMapId(data->spawnPoint.GetMapId(),
         [spawnId, trans](Map* map) -> void
@@ -1668,29 +1668,31 @@ bool Creature::hasInvolvedQuest(uint32 quest_id) const
     // delete data from memory ...
     sObjectMgr->DeleteCreatureData(spawnId);
 
+    WorldDatabaseTransaction trans2 = WorldDatabase.BeginTransaction();
+
     // ... and the database
     WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_CREATURE);
     stmt->setUInt32(0, spawnId);
-    trans->Append(stmt);
+    trans2->Append(stmt);
 
     stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_SPAWNGROUP_MEMBER);
     stmt->setUInt8(0, uint8(SPAWN_TYPE_CREATURE));
     stmt->setUInt32(1, spawnId);
-    trans->Append(stmt);
+    trans2->Append(stmt);
 
     stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_CREATURE_ADDON);
     stmt->setUInt32(0, spawnId);
-    trans->Append(stmt);
+    trans2->Append(stmt);
 
     stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_GAME_EVENT_CREATURE);
     stmt->setUInt32(0, spawnId);
-    trans->Append(stmt);
+    trans2->Append(stmt);
 
     stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_GAME_EVENT_MODEL_EQUIP);
     stmt->setUInt32(0, spawnId);
-    trans->Append(stmt);
+    trans2->Append(stmt);
 
-    WorldDatabase.CommitTransaction(trans);
+    WorldDatabase.CommitTransaction(trans2);
 
     return true;
 }

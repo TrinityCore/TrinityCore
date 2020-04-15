@@ -621,7 +621,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
             newChar.SaveToDB(true);
             createInfo->CharCount += 1;
 
-            SQLTransaction trans = LoginDatabase.BeginTransaction();
+            LoginDatabaseTransaction trans = LoginDatabase.BeginTransaction();
 
             LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_REALM_CHARACTERS_BY_REALM);
             stmt->setUInt32(0, GetAccountId());
@@ -1308,7 +1308,7 @@ void WorldSession::HandleCharRenameCallback(std::shared_ptr<CharacterRenameInfo>
 
     atLoginFlags &= ~AT_LOGIN_RENAME;
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
     // Update name and at_login flag in the db
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_NAME_AT_LOGIN);
@@ -1390,7 +1390,7 @@ void WorldSession::HandleSetPlayerDeclinedNames(WorldPacket& recvData)
     for (int i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
         CharacterDatabase.EscapeString(declinedname.name[i]);
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_DECLINED_NAME);
     stmt->setUInt32(0, guid.GetCounter());
@@ -1599,7 +1599,7 @@ void WorldSession::HandleCharCustomizeCallback(std::shared_ptr<CharacterCustomiz
     }
 
     CharacterDatabasePreparedStatement* stmt = nullptr;
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
     ObjectGuid::LowType lowGuid = customizeInfo->Guid.GetCounter();
 
@@ -1892,7 +1892,7 @@ void WorldSession::HandleCharFactionOrRaceChangeCallback(std::shared_ptr<Charact
 
     CharacterDatabasePreparedStatement* stmt = nullptr;
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
     // resurrect the character in case he's dead
     Player::OfflineResurrect(factionChangeInfo->Guid, trans);
@@ -2409,7 +2409,7 @@ void WorldSession::HandleReorderCharacters(WorldPacket& recvData)
         guids[i][2] = recvData.ReadBit();
     }
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     for (uint8 i = 0; i < charactersCount; ++i)
     {
         recvData.ReadByteSeq(guids[i][6]);

@@ -2575,7 +2575,7 @@ void Player::GiveLevel(uint8 level)
     if (MailLevelReward const* mailReward = sObjectMgr->GetMailLevelReward(level, getRaceMask()))
     {
         /// @todo Poor design of mail system
-        SQLTransaction trans = CharacterDatabase.BeginTransaction();
+        CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
         MailDraft(mailReward->mailTemplateId).SendMailTo(trans, this, MailSender(MAIL_CREATURE, mailReward->senderEntry));
         CharacterDatabase.CommitTransaction(trans);
     }
@@ -3848,7 +3848,7 @@ bool Player::ResetTalents(bool no_cost)
     SetPrimaryTalentTree(GetActiveSpec(), 0);
     SetFreeTalentPoints(talentPointsForLevel);
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     _SaveTalents(trans);
     _SaveSpells(trans);
     CharacterDatabase.CommitTransaction(trans);
@@ -3990,7 +3990,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
             charDelete_method = CHAR_DELETE_REMOVE;
     }
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     if (ObjectGuid::LowType guildId = sCharacterCache->GetCharacterGuildIdByGuid(playerguid))
         if (Guild* guild = sGuildMgr->GetGuildById(guildId))
             guild->DeleteMember(trans, playerguid, false, false, true);
@@ -4563,7 +4563,7 @@ void Player::KillPlayer()
     UpdateObjectVisibility();
 }
 
-void Player::OfflineResurrect(ObjectGuid const& guid, SQLTransaction& trans)
+void Player::OfflineResurrect(ObjectGuid const& guid, CharacterDatabaseTransaction& trans)
 {
     Corpse::DeleteFromDB(guid, trans);
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
@@ -6864,7 +6864,7 @@ void Player::_LoadCurrency(PreparedQueryResult result)
     } while (result->NextRow());
 }
 
-void Player::_SaveCurrency(SQLTransaction& trans)
+void Player::_SaveCurrency(CharacterDatabaseTransaction& trans)
 {
     CharacterDatabasePreparedStatement* stmt = nullptr;
     for (PlayerCurrenciesMap::iterator itr = _currencyStorage.begin(); itr != _currencyStorage.end(); ++itr)
@@ -15204,7 +15204,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     if (uint32 mail_template_id = quest->GetRewMailTemplateId())
     {
         /// @todo Poor design of mail system
-        SQLTransaction trans = CharacterDatabase.BeginTransaction();
+        CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
         if (uint32 questMailSender = quest->GetRewMailSenderEntry())
             MailDraft(mail_template_id).SendMailTo(trans, this, questMailSender, MAIL_CHECK_MASK_HAS_BODY, quest->GetRewMailDelaySecs());
         else
@@ -18221,7 +18221,7 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
         std::map<ObjectGuid::LowType, Bag*> bagMap;                  // fast guid lookup for bags
         std::map<ObjectGuid::LowType, Item*> invalidBagMap;          // fast guid lookup for bags
         std::list<Item*> problematicItems;
-        SQLTransaction trans = CharacterDatabase.BeginTransaction();
+        CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
         // Prevent items from being added to the queue while loading
         m_itemUpdateQueueBlocked = true;
@@ -18384,7 +18384,7 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
     while (result->NextRow());
 }
 
-Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, Field* fields)
+Item* Player::_LoadItem(CharacterDatabaseTransaction& trans, uint32 zoneId, uint32 timeDiff, Field* fields)
 {
     Item* item = nullptr;
     ObjectGuid::LowType itemGuid  = fields[13].GetUInt32();
@@ -18559,7 +18559,7 @@ void Player::_LoadMailedItems(Mail* mail)
 
             item->FSetState(ITEM_REMOVED);
 
-            SQLTransaction temp = SQLTransaction(nullptr);
+            CharacterDatabaseTransaction temp = CharacterDatabaseTransaction(nullptr);
             item->SaveToDB(temp);                               // it also deletes item object !
             continue;
         }
@@ -19645,7 +19645,7 @@ void Player::SaveToDB(bool create /*=false*/)
     if (!create)
         sScriptMgr->OnPlayerSave(this);
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     CharacterDatabasePreparedStatement* stmt = nullptr;
     uint8 index = 0;
 
@@ -19980,14 +19980,14 @@ void Player::SaveToDB(bool create /*=false*/)
 }
 
 // fast save function for item/money cheating preventing - save only inventory and money state
-void Player::SaveInventoryAndGoldToDB(SQLTransaction& trans)
+void Player::SaveInventoryAndGoldToDB(CharacterDatabaseTransaction& trans)
 {
     _SaveInventory(trans);
     _SaveCurrency(trans);
     SaveGoldToDB(trans);
 }
 
-void Player::SaveGoldToDB(SQLTransaction& trans) const
+void Player::SaveGoldToDB(CharacterDatabaseTransaction& trans) const
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_MONEY);
     stmt->setUInt64(0, GetMoney());
@@ -19995,7 +19995,7 @@ void Player::SaveGoldToDB(SQLTransaction& trans) const
     trans->Append(stmt);
 }
 
-void Player::_SaveActions(SQLTransaction& trans)
+void Player::_SaveActions(CharacterDatabaseTransaction& trans)
 {
     CharacterDatabasePreparedStatement* stmt;
 
@@ -20043,7 +20043,7 @@ void Player::_SaveActions(SQLTransaction& trans)
     }
 }
 
-void Player::_SaveAuras(SQLTransaction& trans)
+void Player::_SaveAuras(CharacterDatabaseTransaction& trans)
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_AURA);
     stmt->setUInt32(0, GetGUID().GetCounter());
@@ -20098,7 +20098,7 @@ void Player::_SaveAuras(SQLTransaction& trans)
     }
 }
 
-void Player::_SaveInventory(SQLTransaction& trans)
+void Player::_SaveInventory(CharacterDatabaseTransaction& trans)
 {
     CharacterDatabasePreparedStatement* stmt;
     // force items in buyback slots to new state
@@ -20239,7 +20239,7 @@ void Player::_SaveInventory(SQLTransaction& trans)
     m_itemUpdateQueue.clear();
 }
 
-void Player::_SaveVoidStorage(SQLTransaction& trans)
+void Player::_SaveVoidStorage(CharacterDatabaseTransaction& trans)
 {
     CharacterDatabasePreparedStatement* stmt = nullptr;
     uint32 lowGuid = GetGUID().GetCounter();
@@ -20271,7 +20271,7 @@ void Player::_SaveVoidStorage(SQLTransaction& trans)
 }
 
 
-void Player::_SaveCUFProfiles(SQLTransaction& trans)
+void Player::_SaveCUFProfiles(CharacterDatabaseTransaction& trans)
 {
     CharacterDatabasePreparedStatement* stmt = nullptr;
     uint32 lowGuid = GetGUID().GetCounter();
@@ -20310,7 +20310,7 @@ void Player::_SaveCUFProfiles(SQLTransaction& trans)
 }
 
 
-void Player::_SaveMail(SQLTransaction& trans)
+void Player::_SaveMail(CharacterDatabaseTransaction& trans)
 {
     if (!m_mailsLoaded)
         return;
@@ -20383,7 +20383,7 @@ void Player::_SaveMail(SQLTransaction& trans)
     m_mailsUpdated = false;
 }
 
-void Player::_SaveQuestStatus(SQLTransaction& trans)
+void Player::_SaveQuestStatus(CharacterDatabaseTransaction& trans)
 {
     bool isTransaction = bool(trans);
     if (!isTransaction)
@@ -20457,7 +20457,7 @@ void Player::_SaveQuestStatus(SQLTransaction& trans)
         CharacterDatabase.CommitTransaction(trans);
 }
 
-void Player::_SaveDailyQuestStatus(SQLTransaction& trans)
+void Player::_SaveDailyQuestStatus(CharacterDatabaseTransaction& trans)
 {
     if (!m_DailyQuestChanged)
         return;
@@ -20484,7 +20484,7 @@ void Player::_SaveDailyQuestStatus(SQLTransaction& trans)
     }
 }
 
-void Player::_SaveWeeklyQuestStatus(SQLTransaction& trans)
+void Player::_SaveWeeklyQuestStatus(CharacterDatabaseTransaction& trans)
 {
     if (!m_WeeklyQuestChanged || m_weeklyquests.empty())
         return;
@@ -20507,7 +20507,7 @@ void Player::_SaveWeeklyQuestStatus(SQLTransaction& trans)
     m_WeeklyQuestChanged = false;
 }
 
-void Player::_SaveSeasonalQuestStatus(SQLTransaction& trans)
+void Player::_SaveSeasonalQuestStatus(CharacterDatabaseTransaction& trans)
 {
     if (!m_SeasonalQuestChanged)
         return;
@@ -20539,7 +20539,7 @@ void Player::_SaveSeasonalQuestStatus(SQLTransaction& trans)
     }
 }
 
-void Player::_SaveMonthlyQuestStatus(SQLTransaction& trans)
+void Player::_SaveMonthlyQuestStatus(CharacterDatabaseTransaction& trans)
 {
     if (!m_MonthlyQuestChanged || m_monthlyquests.empty())
         return;
@@ -20562,7 +20562,7 @@ void Player::_SaveMonthlyQuestStatus(SQLTransaction& trans)
     m_MonthlyQuestChanged = false;
 }
 
-void Player::_SaveLFGRewardStatus(SQLTransaction& trans)
+void Player::_SaveLFGRewardStatus(CharacterDatabaseTransaction& trans)
 {
     if (!m_LFGRewardStatusChanged || m_lfgrewardstatus.empty())
         return;
@@ -20589,7 +20589,7 @@ void Player::_SaveLFGRewardStatus(SQLTransaction& trans)
     m_LFGRewardStatusChanged = false;
 }
 
-void Player::_SaveSkills(SQLTransaction& trans)
+void Player::_SaveSkills(CharacterDatabaseTransaction& trans)
 {
     CharacterDatabasePreparedStatement* stmt;
     // we don't need transactions here.
@@ -20640,7 +20640,7 @@ void Player::_SaveSkills(SQLTransaction& trans)
     }
 }
 
-void Player::_SaveSpells(SQLTransaction& trans)
+void Player::_SaveSpells(CharacterDatabaseTransaction& trans)
 {
     CharacterDatabasePreparedStatement* stmt;
 
@@ -20681,7 +20681,7 @@ void Player::_SaveSpells(SQLTransaction& trans)
 
 // save player stats -- only for external usage
 // real stats will be recalculated on player login
-void Player::_SaveStats(SQLTransaction& trans) const
+void Player::_SaveStats(CharacterDatabaseTransaction& trans) const
 {
     // check if stat saving is enabled and if char level is high enough
     if (!sWorld->getIntConfig(CONFIG_MIN_LEVEL_STAT_SAVE) || getLevel() < sWorld->getIntConfig(CONFIG_MIN_LEVEL_STAT_SAVE))
@@ -20790,7 +20790,7 @@ void Player::SendAttackSwingNotInRange() const
     SendDirectMessage(&data);
 }
 
-void Player::SavePositionInDB(WorldLocation const& loc, uint16 zoneId, ObjectGuid guid, SQLTransaction& trans)
+void Player::SavePositionInDB(WorldLocation const& loc, uint16 zoneId, ObjectGuid guid, CharacterDatabaseTransaction& trans)
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_POSITION);
 
@@ -20816,7 +20816,7 @@ void Player::SetUInt32ValueInArray(Tokenizer& Tokenizer, uint16 index, uint32 va
     Tokenizer[index] = buf;
 }
 
-void Player::Customize(CharacterCustomizeInfo const* customizeInfo, SQLTransaction& trans)
+void Player::Customize(CharacterCustomizeInfo const* customizeInfo, CharacterDatabaseTransaction& trans)
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GENDER_AND_APPEARANCE);
 
@@ -21784,7 +21784,7 @@ void Player::RemovePetitionsAndSigns(ObjectGuid guid, uint32 type)
         }
     }
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     if (type == 10)
     {
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PETITION_BY_OWNER);
@@ -24633,7 +24633,7 @@ void Player::AutoUnequipOffhandIfNeed(bool force /*= false*/)
     else
     {
         MoveItemFromInventory(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND, true);
-        SQLTransaction trans = CharacterDatabase.BeginTransaction();
+        CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
         offItem->DeleteFromInventoryDB(trans);                   // deletes item from character's inventory
         offItem->SaveToDB(trans);                                // recursive and not have transaction guard into self, item not in inventory and can be save standalone
 
@@ -26735,7 +26735,7 @@ void Player::SetEquipmentSet(EquipmentSetInfo::EquipmentSetData const& eqSet)
     eqSlot.State = (oldState == EQUIPMENT_SET_NEW ? EQUIPMENT_SET_NEW : EQUIPMENT_SET_CHANGED);
 }
 
-void Player::_SaveEquipmentSets(SQLTransaction& trans)
+void Player::_SaveEquipmentSets(CharacterDatabaseTransaction& trans)
 {
     for (EquipmentSetContainer::iterator itr = _equipmentSets.begin(); itr != _equipmentSets.end();)
     {
@@ -26785,7 +26785,7 @@ void Player::_SaveEquipmentSets(SQLTransaction& trans)
     }
 }
 
-void Player::_SaveBGData(SQLTransaction& trans)
+void Player::_SaveBGData(CharacterDatabaseTransaction& trans)
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_BGDATA);
     stmt->setUInt32(0, GetGUID().GetCounter());
@@ -26875,7 +26875,7 @@ void Player::_LoadGlyphs(PreparedQueryResult result)
     while (result->NextRow());
 }
 
-void Player::_SaveGlyphs(SQLTransaction& trans) const
+void Player::_SaveGlyphs(CharacterDatabaseTransaction& trans) const
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_GLYPHS);
     stmt->setUInt32(0, GetGUID().GetCounter());
@@ -26909,7 +26909,7 @@ void Player::_LoadTalents(PreparedQueryResult result)
     }
 }
 
-void Player::_SaveTalents(SQLTransaction& trans)
+void Player::_SaveTalents(CharacterDatabaseTransaction& trans)
 {
     CharacterDatabasePreparedStatement* stmt;
 
@@ -26958,7 +26958,7 @@ void Player::UpdateSpecCount(uint8 count)
     if (GetActiveSpec() >= count)
         ActivateSpec(0);
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     CharacterDatabasePreparedStatement* stmt;
 
     // Copy spec data
@@ -27006,7 +27006,7 @@ void Player::ActivateSpec(uint8 spec)
     if (IsNonMeleeSpellCast(false))
         InterruptNonMeleeSpells(false);
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     _SaveActions(trans);
     CharacterDatabase.CommitTransaction(trans);
 
@@ -27449,7 +27449,7 @@ void Player::RefundItem(Item* item)
     uint32 moneyRefund = item->GetPaidMoney();  // item-> will be invalidated in DestroyItem
 
     // Save all relevant data to DB to prevent desynchronisation exploits
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
     // Delete any references to the refund data
     item->SetNotRefundable(this, true, &trans);
@@ -27500,7 +27500,7 @@ void Player::SendItemRetrievalMail(uint32 itemEntry, uint32 count)
 {
     MailSender sender(MAIL_CREATURE, 34337 /* The Postmaster */);
     MailDraft draft("Recovered Item", "We recovered a lost item in the twisting nether and noted that it was yours.$B$BPlease find said object enclosed."); // This is the text used in Cataclysm, it probably wasn't changed.
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
     if (Item* item = Item::CreateItem(itemEntry, count, nullptr))
     {
@@ -27682,7 +27682,7 @@ void Player::_LoadInstanceTimeRestrictions(PreparedQueryResult result)
     } while (result->NextRow());
 }
 
-void Player::_SaveInstanceTimeRestrictions(SQLTransaction& trans)
+void Player::_SaveInstanceTimeRestrictions(CharacterDatabaseTransaction& trans)
 {
     if (_instanceResetTimes.empty())
         return;

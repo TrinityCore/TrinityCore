@@ -899,7 +899,7 @@ void GameObject::SaveToDB(uint32 mapid, uint8 spawnMask)
     data.phaseGroup = GetDBPhase() < 0 ? -GetDBPhase() : data.phaseGroup;
 
     // Update in DB
-    SQLTransaction trans = WorldDatabase.BeginTransaction();
+    WorldDatabaseTransaction trans = WorldDatabase.BeginTransaction();
 
     uint8 index = 0;
 
@@ -1006,7 +1006,7 @@ bool GameObject::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap
     if (!data)
         return false;
 
-    SQLTransaction trans = WorldDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
     sMapMgr->DoForAllMapsWithMapId(data->spawnPoint.GetMapId(),
         [spawnId, trans](Map* map) -> void
@@ -1021,22 +1021,24 @@ bool GameObject::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap
         }
     );
 
+    WorldDatabaseTransaction trans2 = WorldDatabase.BeginTransaction();
+
     // delete data from memory
     sObjectMgr->DeleteGameObjectData(spawnId);
     WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_GAMEOBJECT);
     stmt->setUInt32(0, spawnId);
-    trans->Append(stmt);
+    trans2->Append(stmt);
 
     stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_SPAWNGROUP_MEMBER);
     stmt->setUInt8(0, uint8(SPAWN_TYPE_GAMEOBJECT));
     stmt->setUInt32(1, spawnId);
-    trans->Append(stmt);
+    trans2->Append(stmt);
 
     stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_EVENT_GAMEOBJECT);
     stmt->setUInt32(0, spawnId);
-    trans->Append(stmt);
+    trans2->Append(stmt);
 
-    WorldDatabase.CommitTransaction(trans);
+    WorldDatabase.CommitTransaction(trans2);
 
     return true;
 }

@@ -969,7 +969,7 @@ bool Battlenet::Session::HandleRiskFingerprintModule(BitStream* dataStream, Serv
         logonResponse->GameAccountFlags = GAMEACCOUNT_FLAG_PROPASS;
         logonResponse->FailedLogins = _accountInfo->FailedLogins;
 
-        SQLTransaction trans = LoginDatabase.BeginTransaction();
+        LoginDatabaseTransaction trans = LoginDatabase.BeginTransaction();
 
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_LAST_LOGIN_INFO);
         stmt->setString(0, GetRemoteIpAddress().to_string());

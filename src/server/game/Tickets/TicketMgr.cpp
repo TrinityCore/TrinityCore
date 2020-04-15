@@ -88,7 +88,7 @@ bool GmTicket::LoadFromDB(Field* fields)
     return true;
 }
 
-void GmTicket::SaveToDB(SQLTransaction& trans) const
+void GmTicket::SaveToDB(CharacterDatabaseTransaction& trans) const
 {
     //  0    1       2         3          4          5        6     7     8     9           10           11          12        13        14        15         16        17         18          19
     // id, type, playerGuid, name, description, createTime, mapId, posX, posY, posZ, lastModifiedTime, closedBy, assignedTo, comment, response, completed, escalated, viewed, needMoreHelp, resolvedBy
@@ -378,7 +378,7 @@ void TicketMgr::AddTicket(GmTicket* ticket)
     _ticketList[ticket->GetId()] = ticket;
     if (!ticket->IsClosed())
         ++_openTicketCount;
-    SQLTransaction trans = SQLTransaction(nullptr);
+    CharacterDatabaseTransaction trans = CharacterDatabaseTransaction(nullptr);
     ticket->SaveToDB(trans);
 }
 
@@ -386,7 +386,7 @@ void TicketMgr::CloseTicket(uint32 ticketId, ObjectGuid source)
 {
     if (GmTicket* ticket = GetTicket(ticketId))
     {
-        SQLTransaction trans = SQLTransaction(nullptr);
+        CharacterDatabaseTransaction trans = CharacterDatabaseTransaction(nullptr);
         ticket->SetClosedBy(source);
         if (source)
             --_openTicketCount;
@@ -398,7 +398,7 @@ void TicketMgr::ResolveAndCloseTicket(uint32 ticketId, ObjectGuid source)
 {
     if (GmTicket* ticket = GetTicket(ticketId))
     {
-        SQLTransaction trans = SQLTransaction(nullptr);
+        CharacterDatabaseTransaction trans = CharacterDatabaseTransaction(nullptr);
         ticket->SetClosedBy(source);
         ticket->SetResolvedBy(source);
         if (source)

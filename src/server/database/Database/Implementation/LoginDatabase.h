@@ -149,6 +149,4 @@ public:
     void DoPrepareStatements() override;
 };
 
-using LoginDatabasePreparedStatement = PreparedStatement<LoginDatabaseConnection>;
-
 #endif

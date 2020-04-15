@@ -59,7 +59,7 @@ void LootItemStorage::LoadStorageFromDB()
     _lootItemStore.clear();
     uint32 count = 0;
 
-    SQLTransaction trans = SQLTransaction(nullptr);
+    CharacterDatabaseTransaction trans = CharacterDatabaseTransaction(nullptr);
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ITEMCONTAINER_ITEMS);
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
     if (result)
@@ -208,7 +208,7 @@ void LootItemStorage::RemoveStoredLootForContainer(uint32 containerId)
         _lootItemStore.erase(containerId);
     }
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_ITEMS);
     stmt->setUInt32(0, containerId);
     trans->Append(stmt);
@@ -252,7 +252,7 @@ void LootItemStorage::AddNewStoredLoot(Loot* loot, Player* player)
 
     StoredLootContainer container(loot->containerID);
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     if (loot->gold)
         container.AddMoney(loot->gold, trans);
 
@@ -287,7 +287,7 @@ void LootItemStorage::AddNewStoredLoot(Loot* loot, Player* player)
     }
 }
 
-void StoredLootContainer::AddLootItem(LootItem const& lootItem, SQLTransaction& trans)
+void StoredLootContainer::AddLootItem(LootItem const& lootItem, CharacterDatabaseTransaction& trans)
 {
     _lootItems.emplace(std::piecewise_construct, std::forward_as_tuple(lootItem.itemid), std::forward_as_tuple(lootItem));
     if (!trans)
@@ -310,7 +310,7 @@ void StoredLootContainer::AddLootItem(LootItem const& lootItem, SQLTransaction& 
     trans->Append(stmt);
 }
 
-void StoredLootContainer::AddMoney(uint32 money, SQLTransaction& trans)
+void StoredLootContainer::AddMoney(uint32 money, CharacterDatabaseTransaction& trans)
 {
     _money = money;
     if (!trans)

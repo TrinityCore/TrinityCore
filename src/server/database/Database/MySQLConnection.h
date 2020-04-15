@@ -76,7 +76,7 @@ class TC_DATABASE_API MySQLConnection
         void BeginTransaction();
         void RollbackTransaction();
         void CommitTransaction();
-        int ExecuteTransaction(SQLTransaction& transaction);
+        int ExecuteTransaction(std::shared_ptr<TransactionBase> transaction);
         size_t EscapeString(char* to, const char* from, size_t length);
         void Ping();
 

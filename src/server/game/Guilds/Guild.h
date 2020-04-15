@@ -375,7 +375,7 @@ private:
 
         bool LoadFromDB(Field* fields);
         void LoadProfessionDataFromDB(ObjectGuid guid);
-        void SaveToDB(SQLTransaction& trans) const;
+        void SaveToDB(CharacterDatabaseTransaction& trans) const;
 
         ObjectGuid GetGUID() const { return m_guid; }
         std::string const& GetName() const { return m_name; }
@@ -402,14 +402,14 @@ private:
         void SetTrackedCriteriaIds(std::set<uint32> criteriaIds) { m_trackedCriteriaIds.swap(criteriaIds); }
         bool IsTrackingCriteriaId(uint32 criteriaId) const { return m_trackedCriteriaIds.find(criteriaId) != m_trackedCriteriaIds.end();  }
 
-        void ChangeRank(SQLTransaction& trans, uint8 newRank);
+        void ChangeRank(CharacterDatabaseTransaction& trans, uint8 newRank);
 
         void UpdateLogoutTime();
         inline bool IsRank(uint8 rankId) const { return m_rankId == rankId; }
         inline bool IsRankNotLower(uint8 rankId) const { return m_rankId <= rankId; }
         inline bool IsSamePlayer(ObjectGuid guid) const { return m_guid == guid; }
 
-        void UpdateBankWithdrawValue(SQLTransaction& trans, uint8 tabId, uint32 amount);
+        void UpdateBankWithdrawValue(CharacterDatabaseTransaction& trans, uint8 tabId, uint32 amount);
         int32 GetBankWithdrawValue(uint8 tabId) const;
         void ResetValues(bool weekly = false);
         void ResetWeekActivityAndReputation();
@@ -456,7 +456,7 @@ private:
         uint32 GetGUID() const { return m_guid; }
         uint64 GetTimestamp() const { return m_timestamp; }
 
-        virtual void SaveToDB(SQLTransaction& trans) const = 0;
+        virtual void SaveToDB(CharacterDatabaseTransaction& trans) const = 0;
         virtual void WritePacket(WorldPacket& data, ByteBuffer& content) const = 0;
 
     protected:
@@ -477,7 +477,7 @@ private:
 
         ~EventLogEntry() { }
 
-        void SaveToDB(SQLTransaction& trans) const override;
+        void SaveToDB(CharacterDatabaseTransaction& trans) const override;
         void WritePacket(WorldPacket& data, ByteBuffer& content) const override;
 
     private:
@@ -515,7 +515,7 @@ private:
 
         ~BankEventLogEntry() { }
 
-        void SaveToDB(SQLTransaction& trans) const override;
+        void SaveToDB(CharacterDatabaseTransaction& trans) const override;
         void WritePacket(WorldPacket& data, ByteBuffer& content) const override;
 
     private:
@@ -551,7 +551,7 @@ private:
                m_flags &= ~1;
         }
 
-        void SaveToDB(SQLTransaction& trans) const;
+        void SaveToDB(CharacterDatabaseTransaction& trans) const;
         void WritePacket(WorldPacket& data, ByteBuffer& content) const;
 
     private:
@@ -576,7 +576,7 @@ private:
         // Adds event from DB to collection
         void LoadEvent(LogEntry* entry);
         // Adds new event to collection and saves it to DB
-        void AddEvent(SQLTransaction& trans, LogEntry* entry);
+        void AddEvent(CharacterDatabaseTransaction& trans, LogEntry* entry);
         // Writes information about all events to packet
         void WritePacket(WorldPacket& data) const;
         uint32 GetNextGUID();
@@ -599,7 +599,7 @@ private:
             m_bankMoneyPerDay(rankId != GR_GUILDMASTER ? money : GUILD_WITHDRAW_MONEY_UNLIMITED) { }
 
         void LoadFromDB(Field* fields);
-        void SaveToDB(SQLTransaction& trans) const;
+        void SaveToDB(CharacterDatabaseTransaction& trans) const;
 
         uint8 GetId() const { return m_rankId; }
 
@@ -624,7 +624,7 @@ private:
         }
 
         void SetBankTabSlotsAndRights(GuildBankRightsAndSlots rightsAndSlots, bool saveToDB);
-        void CreateMissingTabsIfNeeded(uint8 ranks, SQLTransaction& trans, bool logOnCreate = false);
+        void CreateMissingTabsIfNeeded(uint8 ranks, CharacterDatabaseTransaction& trans, bool logOnCreate = false);
 
     private:
         ObjectGuid::LowType m_guildId;
@@ -642,7 +642,7 @@ private:
 
         void LoadFromDB(Field* fields);
         bool LoadItemFromDB(Field* fields);
-        void Delete(SQLTransaction& trans, bool removeItemsFromDB = false);
+        void Delete(CharacterDatabaseTransaction& trans, bool removeItemsFromDB = false);
 
         void WriteInfoPacket(WorldPacket& data) const;
 
@@ -655,7 +655,7 @@ private:
         std::string const& GetText() const { return m_text; }
 
         inline Item* GetItem(uint8 slotId) const { return slotId < GUILD_BANK_MAX_SLOTS ?  m_items[slotId] : nullptr; }
-        bool SetItem(SQLTransaction& trans, uint8 slotId, Item* item);
+        bool SetItem(CharacterDatabaseTransaction& trans, uint8 slotId, Item* item);
 
     private:
         ObjectGuid::LowType m_guildId;
@@ -688,11 +688,11 @@ private:
         // Clones stored item
         bool CloneItem(uint32 count);
         // Remove item from container (if splited update items fields)
-        virtual void RemoveItem(SQLTransaction& trans, MoveItemData* pOther, uint32 splitedAmount = 0) = 0;
+        virtual void RemoveItem(CharacterDatabaseTransaction& trans, MoveItemData* pOther, uint32 splitedAmount = 0) = 0;
         // Saves item to container
-        virtual Item* StoreItem(SQLTransaction& trans, Item* pItem) = 0;
+        virtual Item* StoreItem(CharacterDatabaseTransaction& trans, Item* pItem) = 0;
         // Log bank event
-        virtual void LogBankEvent(SQLTransaction& trans, MoveItemData* pFrom, uint32 count) const = 0;
+        virtual void LogBankEvent(CharacterDatabaseTransaction& trans, MoveItemData* pFrom, uint32 count) const = 0;
         // Log GM action
         virtual void LogAction(MoveItemData* pFrom) const;
         // Copy slots id from position vector
@@ -722,9 +722,9 @@ private:
 
         bool IsBank() const override { return false; }
         bool InitItem() override;
-        void RemoveItem(SQLTransaction& trans, MoveItemData* pOther, uint32 splitedAmount = 0) override;
-        Item* StoreItem(SQLTransaction& trans, Item* pItem) override;
-        void LogBankEvent(SQLTransaction& trans, MoveItemData* pFrom, uint32 count) const override;
+        void RemoveItem(CharacterDatabaseTransaction& trans, MoveItemData* pOther, uint32 splitedAmount = 0) override;
+        Item* StoreItem(CharacterDatabaseTransaction& trans, Item* pItem) override;
+        void LogBankEvent(CharacterDatabaseTransaction& trans, MoveItemData* pFrom, uint32 count) const override;
     protected:
         InventoryResult CanStore(Item* pItem, bool swap) override;
     };
@@ -739,16 +739,16 @@ private:
         bool InitItem() override;
         bool HasStoreRights(MoveItemData* pOther) const override;
         bool HasWithdrawRights(MoveItemData* pOther) const override;
-        void RemoveItem(SQLTransaction& trans, MoveItemData* pOther, uint32 splitedAmount) override;
-        Item* StoreItem(SQLTransaction& trans, Item* pItem) override;
-        void LogBankEvent(SQLTransaction& trans, MoveItemData* pFrom, uint32 count) const override;
+        void RemoveItem(CharacterDatabaseTransaction& trans, MoveItemData* pOther, uint32 splitedAmount) override;
+        Item* StoreItem(CharacterDatabaseTransaction& trans, Item* pItem) override;
+        void LogBankEvent(CharacterDatabaseTransaction& trans, MoveItemData* pFrom, uint32 count) const override;
         void LogAction(MoveItemData* pFrom) const override;
 
     protected:
         InventoryResult CanStore(Item* pItem, bool swap) override;
 
     private:
-        Item* _StoreItem(SQLTransaction& trans, BankTab* pTab, Item* pItem, ItemPosCount& pos, bool clone) const;
+        Item* _StoreItem(CharacterDatabaseTransaction& trans, BankTab* pTab, Item* pItem, ItemPosCount& pos, bool clone) const;
         bool _ReserveSpace(uint8 slotId, Item* pItem, Item* pItemDest, uint32& count);
         void CanStoreItemInTab(Item* pItem, uint8 skipSlotId, bool merge, uint32& count);
     };
@@ -858,9 +858,9 @@ public:
 
     // Members
     // Adds member to guild. If rankId == GUILD_RANK_NONE, lowest rank is assigned.
-    bool AddMember(SQLTransaction& trans, ObjectGuid guid, uint8 rankId = GUILD_RANK_NONE);
-    void DeleteMember(SQLTransaction& trans, ObjectGuid guid, bool isDisbanding = false, bool isKicked = false, bool canDeleteGuild = false);
-    bool ChangeMemberRank(SQLTransaction& trans, ObjectGuid guid, uint8 newRank);
+    bool AddMember(CharacterDatabaseTransaction& trans, ObjectGuid guid, uint8 rankId = GUILD_RANK_NONE);
+    void DeleteMember(CharacterDatabaseTransaction& trans, ObjectGuid guid, bool isDisbanding = false, bool isKicked = false, bool canDeleteGuild = false);
+    bool ChangeMemberRank(CharacterDatabaseTransaction& trans, ObjectGuid guid, uint8 newRank);
     bool IsMember(ObjectGuid guid) const;
     uint32 GetMembersCount() { return m_members.size(); }
 
@@ -968,21 +968,21 @@ private:
         return nullptr;
     }
 
-    void _DeleteMemberFromDB(SQLTransaction& trans, ObjectGuid::LowType lowguid) const;
+    void _DeleteMemberFromDB(CharacterDatabaseTransaction& trans, ObjectGuid::LowType lowguid) const;
 
     // Creates log holders (either when loading or when creating guild)
     void _CreateLogHolders();
     // Tries to create new bank tab
     void _CreateNewBankTab();
     // Creates default guild ranks with names in given locale
-    void _CreateDefaultGuildRanks(SQLTransaction& trans, LocaleConstant loc);
+    void _CreateDefaultGuildRanks(CharacterDatabaseTransaction& trans, LocaleConstant loc);
     // Creates new rank
-    bool _CreateRank(SQLTransaction& trans, std::string const& name, uint32 rights);
+    bool _CreateRank(CharacterDatabaseTransaction& trans, std::string const& name, uint32 rights);
     // Update account number when member added/removed from guild
     void _UpdateAccountsNumber();
     bool _IsLeader(Player* player) const;
-    void _DeleteBankItems(SQLTransaction& trans, bool removeItemsFromDB = false);
-    bool _ModifyBankMoney(SQLTransaction& trans, uint64 amount, bool add);
+    void _DeleteBankItems(CharacterDatabaseTransaction& trans, bool removeItemsFromDB = false);
+    bool _ModifyBankMoney(CharacterDatabaseTransaction& trans, uint64 amount, bool add);
     void _SetLeaderGUID(Member* pLeader);
 
     void _SetRankBankMoneyPerDay(uint8 rankId, uint32 moneyPerDay);
@@ -995,14 +995,14 @@ private:
 
     int32 _GetMemberRemainingSlots(Member const* member, uint8 tabId) const;
     int32 _GetMemberRemainingMoney(Member const* member) const;
-    void _UpdateMemberWithdrawSlots(SQLTransaction& trans, ObjectGuid guid, uint8 tabId);
+    void _UpdateMemberWithdrawSlots(CharacterDatabaseTransaction& trans, ObjectGuid guid, uint8 tabId);
     bool _MemberHasTabRights(ObjectGuid guid, uint8 tabId, uint32 rights) const;
 
     void _LogEvent(GuildEventLogTypes eventType, ObjectGuid::LowType playerGuid1, ObjectGuid::LowType playerGuid2 = 0, uint8 newRank = 0);
-    void _LogBankEvent(SQLTransaction& trans, GuildBankEventLogTypes eventType, uint8 tabId, ObjectGuid::LowType playerGuid, uint32 itemOrMoney, uint16 itemStackCount = 0, uint8 destTabId = 0);
+    void _LogBankEvent(CharacterDatabaseTransaction& trans, GuildBankEventLogTypes eventType, uint8 tabId, ObjectGuid::LowType playerGuid, uint32 itemOrMoney, uint16 itemStackCount = 0, uint8 destTabId = 0);
 
     Item* _GetItem(uint8 tabId, uint8 slotId) const;
-    void _RemoveItem(SQLTransaction& trans, uint8 tabId, uint8 slotId);
+    void _RemoveItem(CharacterDatabaseTransaction& trans, uint8 tabId, uint8 slotId);
     void _MoveItems(MoveItemData* pSrc, MoveItemData* pDest, uint32 splitedAmount);
     bool _DoItemsMove(MoveItemData* pSrc, MoveItemData* pDest, bool sendError, uint32 splitedAmount = 0);
 

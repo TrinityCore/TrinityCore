@@ -663,7 +663,7 @@ void WorldSession::HandlePetRename(WorldPacket& recvData)
         }
     }
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     if (isdeclined)
     {
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_PET_DECLINEDNAME);
@@ -896,7 +896,7 @@ void WorldSession::UpdatePetSlot(uint32 petNumberA, uint8 oldPetSlot, uint8 newP
     PlayerPetData* playerPetDataA = _player->GetPlayerPetDataById(petNumberA);
     PlayerPetData* playerPetDataB = _player->GetPlayerPetDataBySlot(newPetSlot);
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
     // If Slot is already in use
     if (playerPetDataB)
