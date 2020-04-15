@@ -150,10 +150,10 @@ struct boss_auriaya : public BossAI
         me->GetCreatureListWithEntryInGrid(catList, NPC_SANCTUM_SENTRY, 500.0f);
         for (std::list<Creature*>::const_iterator itr = catList.begin(); itr != catList.end(); ++itr)
         {
-            if (isResetting)
-                (*itr)->Respawn();
-            else
+            if (!isResetting)
                 (*itr)->DespawnOrUnsummon();
+            else if (!(*itr)->IsAlive())
+                (*itr)->Respawn(true);
         }
     }
 
@@ -211,11 +211,10 @@ struct boss_auriaya : public BossAI
         HandleCats(false);
     }
 
-    void EnterEvadeMode(EvadeReason /*why*/) override
+    void EnterEvadeMode(EvadeReason why) override
     {
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-        summons.DespawnAll();
-        _DespawnAtEvade(Seconds(5));
+        BossAI::EnterEvadeMode(why);
     }
 
     void UpdateAI(uint32 diff) override
