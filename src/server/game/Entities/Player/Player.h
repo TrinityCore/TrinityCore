@@ -1468,6 +1468,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         /*********************************************************/
 
         void SaveToDB(bool create = false);
+        void SaveToDB(LoginDatabaseTransaction loginTransaction, CharacterDatabaseTransaction trans, bool create = false);
         void SaveInventoryAndGoldToDB(CharacterDatabaseTransaction& trans);                    // fast save function for item/money cheating preventing
         void SaveGoldToDB(CharacterDatabaseTransaction& trans) const;
 

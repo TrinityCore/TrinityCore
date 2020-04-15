@@ -748,11 +748,12 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
 
             newChar->SetAtLoginFlag(AT_LOGIN_FIRST);              // First login
 
-                                                                  // Player created, save it now
-            newChar->SaveToDB(true);
-            createInfo->CharCount += 1;
-
+            CharacterDatabaseTransaction characterTransaction = CharacterDatabase.BeginTransaction();
             LoginDatabaseTransaction trans = LoginDatabase.BeginTransaction();
+
+                                                                  // Player created, save it now
+            newChar->SaveToDB(trans, characterTransaction, true);
+            createInfo->CharCount += 1;
 
             LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_REALM_CHARACTERS_BY_REALM);
             stmt->setUInt32(0, GetAccountId());
@@ -765,7 +766,9 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
             stmt->setUInt32(2, realm.Id.Realm);
             trans->Append(stmt);
 
-            AddTransactionCallback(LoginDatabase.AsyncCommitTransaction(trans)).AfterComplete([this, newChar = std::move(newChar)](bool success)
+            LoginDatabase.CommitTransaction(trans);
+
+            AddTransactionCallback(CharacterDatabase.AsyncCommitTransaction(characterTransaction)).AfterComplete([this, newChar = std::move(newChar)](bool success)
             {
                 if (success)
                 {
