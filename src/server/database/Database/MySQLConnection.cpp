@@ -240,7 +240,7 @@ bool MySQLConnection::Execute(PreparedStatement* stmt)
     return true;
 }
 
-bool MySQLConnection::_Query(PreparedStatement* stmt, MySQLResult**pResult, uint64* pRowCount, uint32* pFieldCount)
+bool MySQLConnection::_Query(PreparedStatement* stmt, MySQLResult** pResult, uint64* pRowCount, uint32* pFieldCount)
 {
     if (!m_Mysql)
         return false;
@@ -310,7 +310,7 @@ ResultSet* MySQLConnection::Query(char const* sql)
     return new ResultSet(result, fields, rowCount, fieldCount);
 }
 
-bool MySQLConnection::_Query(const char *sql, MySQLResult**pResult, MySQLField**pFields, uint64* pRowCount, uint32* pFieldCount)
+bool MySQLConnection::_Query(const char* sql, MySQLResult** pResult, MySQLField** pFields, uint64* pRowCount, uint32* pFieldCount)
 {
     if (!m_Mysql)
         return false;
@@ -446,7 +446,6 @@ uint32 MySQLConnection::GetServerVersion() const
 {
     return mysql_get_server_version(m_Mysql);
 }
-
 
 MySQLPreparedStatement* MySQLConnection::GetPreparedStatement(uint32 index)
 {
