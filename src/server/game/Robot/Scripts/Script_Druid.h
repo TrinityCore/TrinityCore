@@ -17,25 +17,35 @@
 # define DRUID_RANGE_DISTANCE 25
 #endif
 
+#ifndef DRUID_CHARGE_DISTANCE
+# define DRUID_CHARGE_DISTANCE 9
+#endif
+
 #include "Script_Base.h"
 
 class Script_Druid :public Script_Base
 {
 public:    
 	Script_Druid(Player* pmMe);
+    void Update(uint32 pmDiff);
     bool DPS(Unit* pmTarget, bool pmChase, bool pmAOE);
-    bool Tank(Unit* pmTarget);
+    bool Tank(Unit* pmTarget, bool pmChase);
+    bool Taunt(Unit* pmTarget);
     bool Heal(Unit* pmTarget, bool pmCure);
     bool Attack(Unit* pmTarget);
     bool Buff(Unit* pmTarget, bool pmCure);
 
     bool DPS_Balance(Unit* pmTarget, bool pmChase, bool pmAOE);
 	bool DPS_Feral(Unit* pmTarget, bool pmChase, bool pmAOE);
-    bool DPS_Plain(Unit* pmTarget, bool pmChase, bool pmAOE);
+    bool DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE);
+    bool Tank_Feral(Unit* pmTarget, bool pmChase);
 	bool Attack_Balance(Unit* pmTarget);
 	bool Attack_Feral(Unit* pmTarget);
 	bool Attack_Feral_Cat(Unit* pmTarget);
 	bool Attack_Feral_Bear(Unit* pmTarget);
-	bool Attack_Restoration(Unit* pmTarget);
+	bool Attack_Common(Unit* pmTarget);
+    bool Heal_Restoration(Unit* pmTarget, bool pmCure);
+
+    int demoralizingRoarDelay;
 };
 #endif

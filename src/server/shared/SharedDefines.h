@@ -134,7 +134,7 @@ enum Classes
     CLASS_SHAMAN        = 7, // TITLE Shaman
     CLASS_MAGE          = 8, // TITLE Mage
     CLASS_WARLOCK       = 9, // TITLE Warlock
-    //CLASS_UNK           = 10,
+    CLASS_UNK           = 10,
     CLASS_DRUID         = 11 // TITLE Druid
 };
 

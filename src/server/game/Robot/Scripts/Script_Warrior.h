@@ -2,7 +2,7 @@
 #define ROBOT_STRATEGIES_SCRIPT_WARRIOR_H
 
 #ifndef WARRIOR_CHARGE_DISTANCE
-# define WARRIOR_CHARGE_DISTANCE 10
+# define WARRIOR_CHARGE_DISTANCE 9
 #endif
 
 #ifndef WARRIOR_RANGE_DISTANCE
@@ -16,7 +16,7 @@ class Script_Warrior :public Script_Base
 public:    
     Script_Warrior(Player* pmMe);
     bool DPS(Unit* pmTarget, bool pmChase, bool pmAOE);
-    bool Tank(Unit* pmTarget);
+    bool Tank(Unit* pmTarget, bool pmChase);
     bool Heal(Unit* pmTarget, bool pmCure);
     bool Attack(Unit* pmTarget);
     bool Buff(Unit* pmTarget, bool pmCure);

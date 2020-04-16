@@ -6,28 +6,72 @@
 
 Script_Druid::Script_Druid(Player* pmMe) :Script_Base(pmMe)
 {
+    demoralizingRoarDelay = 20 * TimeConstants::IN_MILLISECONDS;    
+}
 
+void Script_Druid::Update(uint32 pmDiff)
+{
+    if (!me)
+    {
+        return;
+    }
+    if (me->IsInCombat())
+    {
+        if (demoralizingRoarDelay > 0)
+        {
+            demoralizingRoarDelay -= pmDiff;
+        }
+    }
+    else
+    {
+        demoralizingRoarDelay = 0;
+    }
+    Script_Base::Update(pmDiff);
 }
 
 bool Script_Druid::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)
 {
+    if (!me)
+    {
+        return false;
+    }
     switch (characterTalentTab)
     {
     case 0:
     {
+        if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 30)
+        {
+            UseManaPotion();
+        }
         return DPS_Balance(pmTarget, pmChase, pmAOE);
     }
     case 1:
     {
+        if (me->GetHealthPct() < 20.0f)
+        {
+            UseHealingPotion();
+        }
+        if (me->GetHealthPct() < 10.0f)
+        {
+            CastSpell(me, "Survival Instincts");
+        }
         return DPS_Feral(pmTarget, pmChase, pmAOE);
     }
     case 2:
     {
-        return DPS_Plain(pmTarget, pmChase, pmAOE);
+        if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 30)
+        {
+            UseManaPotion();
+        }
+        return DPS_Common(pmTarget, pmChase, pmAOE);
     }
     default:
     {
-        return DPS_Plain(pmTarget, pmChase, pmAOE);
+        if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 30)
+        {
+            UseManaPotion();
+        }
+        return DPS_Common(pmTarget, pmChase, pmAOE);
     }
     }
     return false;
@@ -67,10 +111,6 @@ bool Script_Druid::DPS_Balance(Unit* pmTarget, bool pmChase, bool pmAOE)
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 20)
     {
         if (CastSpell(me, "Innervate", DRUID_RANGE_DISTANCE))
-        {
-            return true;
-        }
-        if (UseManaPotion())
         {
             return true;
         }
@@ -310,12 +350,206 @@ bool Script_Druid::DPS_Feral(Unit* pmTarget, bool pmChase, bool pmAOE)
     return true;
 }
 
-bool Script_Druid::DPS_Plain(Unit* pmTarget, bool pmChase, bool pmAOE)
+bool Script_Druid::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE)
 {
+    return DPS_Balance(pmTarget, pmChase, pmAOE);
+}
+
+bool Script_Druid::Tank(Unit* pmTarget, bool pmChase)
+{
+    if (!me)
+    {
+        return false;
+    }
+    if (me->GetHealthPct() < 20.0f)
+    {
+        UseHealingPotion();
+    }
+    if (me->GetHealthPct() < 10.0f)
+    {
+        CastSpell(me, "Survival Instincts");
+    }
+    switch (characterTalentTab)
+    {
+    case 0:
+    {
+        return Tank_Feral(pmTarget, pmChase);
+    }
+    case 1:
+    {
+        return Tank_Feral(pmTarget, pmChase);
+    }
+    case 2:
+    {
+        return Tank_Feral(pmTarget, pmChase);
+    }
+    default:
+    {
+        return Tank_Feral(pmTarget, pmChase);
+    }
+    }
+
+    return false;
+}
+
+bool Script_Druid::Tank_Feral(Unit* pmTarget, bool pmChase)
+{
+    if (!pmTarget)
+    {
+        return false;
+    }
+    else if (!pmTarget->IsAlive())
+    {
+        return false;
+    }
+    if (!me)
+    {
+        return false;
+    }
+    else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    float targetDistance = me->GetDistance(pmTarget);
+    if (targetDistance > ATTACK_RANGE_LIMIT)
+    {
+        return false;
+    }
+    me->Attack(pmTarget, true);
+    if (pmChase)
+    {
+        Chase(pmTarget);
+        if (targetDistance > DRUID_CHARGE_DISTANCE && targetDistance < DRUID_RANGE_DISTANCE)
+        {
+            if (CastSpell(pmTarget, "Feral Charge - Bear", DRUID_RANGE_DISTANCE))
+            {
+                return true;
+            }
+        }
+    }
+    else
+    {
+        if (!me->isInFront(pmTarget))
+        {
+            me->SetFacingToObject(pmTarget);
+        }
+    }
+    switch (me->GetShapeshiftForm())
+    {
+    case ShapeshiftForm::FORM_NONE:
+    {
+        if (CastSpell(me, "Dire Bear Form"))
+        {
+            return true;
+        }
+        if (CastSpell(me, "Bear Form"))
+        {
+            return true;
+        }
+        break;
+    }
+    case ShapeshiftForm::FORM_BEAR:
+    {
+        break;
+    }
+    case ShapeshiftForm::FORM_DIREBEAR:
+    {
+        break;
+    }
+    default:
+    {
+        ClearShapeshift();
+        return true;
+    }
+    }
+    if (me->GetHealthPct() < 80)
+    {
+        CastSpell(me, "Barkskin");
+    }
+    CastSpell(me, "Enrage");
+    uint32 rage = me->GetPower(Powers::POWER_RAGE);
+    if (rage > 500)
+    {
+        if (me->GetHealthPct() < 60.0f)
+        {
+            if (CastSpell(me, "Frenzied Regeneration"))
+            {
+                return true;
+            }
+        }
+    }
+    if (CastSpell(pmTarget, "Faerie Fire (Feral)", MELEE_MAX_DISTANCE))
+    {
+        return true;
+    }
+    if (rage > 100)
+    {
+        if (demoralizingRoarDelay <= 0)
+        {
+            if (CastSpell(pmTarget, "Demoralizing Roar", MELEE_MAX_DISTANCE, true))
+            {
+                demoralizingRoarDelay = 20 * TimeConstants::IN_MILLISECONDS;
+                return true;
+            }
+        }
+        if (pmTarget->IsNonMeleeSpellCast(false))
+        {
+            if (CastSpell(pmTarget, "Bash", MELEE_MAX_DISTANCE))
+            {
+                return true;
+            }
+        }
+    }
+
+    uint16 validAttackerCount = 0;
+    if (me->getAttackers().size() > 1)
+    {
+        for (std::set<Unit*>::const_iterator i = me->getAttackers().begin(); i != me->getAttackers().end(); ++i)
+        {
+            if ((*i)->GetDistance(me) < AOE_TARGETS_RANGE)
+            {
+                validAttackerCount++;
+            }
+        }
+    }
+    if (validAttackerCount > 3)
+    {
+        if (rage > 150)
+        {
+            if (CastSpell(pmTarget, "Challenging Roar", MELEE_MAX_DISTANCE))
+            {
+                return true;
+            }
+        }
+    }
+    if (rage > 200)
+    {
+        if (CastSpell(pmTarget, "Mangle (Bear)", MELEE_MAX_DISTANCE))
+        {
+            return true;
+        }
+    }
+    if (validAttackerCount > 1)
+    {
+        if (rage > 150)
+        {
+            if (CastSpell(pmTarget, "Swipe (Bear)", MELEE_MAX_DISTANCE))
+            {
+                return true;
+            }
+        }
+    }
+    if (rage > 300)
+    {
+        if (CastSpell(pmTarget, "Maul", MELEE_MAX_DISTANCE))
+        {
+            return true;
+        }
+    }
     return true;
 }
 
-bool Script_Druid::Tank(Unit* pmTarget)
+bool Script_Druid::Taunt(Unit* pmTarget)
 {
     if (!pmTarget)
     {
@@ -353,112 +587,68 @@ bool Script_Druid::Tank(Unit* pmTarget)
         }
         break;
     }
+    case ShapeshiftForm::FORM_BEAR:
+    {
+        break;
+    }
+    case ShapeshiftForm::FORM_DIREBEAR:
+    {
+        break;
+    }
     default:
     {
         ClearShapeshift();
         return true;
     }
     }
-    me->Attack(pmTarget, true);
-    Chase(pmTarget);
-    if (me->GetHealthPct() < 80)
-    {
-        CastSpell(me, "Barkskin");
-    }
-    CastSpell(me, "Enrage");
-    CastSpell(pmTarget, "Growl");
-    uint32 rage = me->GetPower(Powers::POWER_RAGE);
-    if (rage > 500)
-    {
-        if (me->GetHealthPct() < 60.0f)
-        {
-            if (CastSpell(me, "Frenzied Regeneration"))
-            {
-                return true;
-            }
-        }
-    }
-    if (CastSpell(pmTarget, "Faerie Fire (Feral)", DRUID_RANGE_DISTANCE, true))
-    {
-        return true;
-    }
-    if (rage > 150)
-    {
-        CastSpell(pmTarget, "Mangle (Bear)");
-    }
-    else if (rage > 100)
-    {
-        if (CastSpell(pmTarget, "Demoralizing Roar", MELEE_MAX_DISTANCE, true))
-        {
-            return true;
-        }
-        if (pmTarget->IsNonMeleeSpellCast(false))
-        {
-            if (CastSpell(pmTarget, "Bash", MELEE_MAX_DISTANCE))
-            {
-                return true;
-            }
-        }
-    }
-    uint16 validAttackerCount = 0;
-    for (Unit::AttackerSet::const_iterator itr = me->getAttackers().begin(); itr != me->getAttackers().end(); ++itr)
-    {
-        float distance = me->GetDistance((*itr));
-        if (distance <= 5)
-        {
-            validAttackerCount++;
-        }
-    }
-    if (validAttackerCount > 1)
-    {
-        if (validAttackerCount > 2)
-        {
-            if (rage > 150)
-            {
-                if (me->GetDistance(pmTarget) < DRUID_PREPARE_DISTANCE)
-                {
-                    if (CastSpell(pmTarget, "Challenging Roar"))
-                    {
-                        return true;
-                    }
-                }
-                if (CastSpell(pmTarget, "Swipe", MELEE_MAX_DISTANCE))
-                {
-                    return true;
-                }
-            }
-        }
-    }
-    else
-    {
-        if (CastSpell(pmTarget, "Maul", MELEE_MAX_DISTANCE))
-        {
-            return true;
-        }
-    }
 
+    CastSpell(pmTarget, "Growl");
     return true;
 }
 
 bool Script_Druid::Attack(Unit* pmTarget)
 {
+    if (!me)
+    {
+        return false;
+    }
     switch (characterTalentTab)
     {
     case 0:
     {
+        if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 30)
+        {
+            UseManaPotion();
+        }
         return Attack_Balance(pmTarget);
     }
     case 1:
     {
+        if (me->GetHealthPct() < 20.0f)
+        {
+            UseHealingPotion();
+        }
+        if (me->GetHealthPct() < 10.0f)
+        {
+            CastSpell(me, "Survival Instincts");
+        }
         return Attack_Feral(pmTarget);
     }
     case 2:
     {
-        return Attack_Restoration(pmTarget);
+        if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 30)
+        {
+            UseManaPotion();
+        }
+        return Attack_Common(pmTarget);
     }
     default:
     {
-        return Attack_Balance(pmTarget);
+        if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 30)
+        {
+            UseManaPotion();
+        }
+        return Attack_Common(pmTarget);
     }
     }
 
@@ -487,7 +677,7 @@ bool Script_Druid::Attack_Balance(Unit* pmTarget)
     if (targetDistance > ATTACK_RANGE_LIMIT)
     {
         return false;
-    }    
+    }
     if (me->GetShapeshiftForm() == ShapeshiftForm::FORM_NONE)
     {
         if (CastSpell(me, "Moonkin Form"))
@@ -737,7 +927,7 @@ bool Script_Druid::Attack_Feral_Bear(Unit* pmTarget)
             }
         }
     }
-    if (CastSpell(pmTarget, "Faerie Fire (Feral)", DRUID_RANGE_DISTANCE, true))
+    if (CastSpell(pmTarget, "Faerie Fire (Feral)", MELEE_MAX_DISTANCE))
     {
         return true;
     }
@@ -764,12 +954,11 @@ bool Script_Druid::Attack_Feral_Bear(Unit* pmTarget)
             validAttackerCount++;
         }
     }
-
-    if (rage > 200)
+    if (rage > 150)
     {
         if (validAttackerCount > 1)
         {
-            if (CastSpell(pmTarget, "Swipe", MELEE_MAX_DISTANCE))
+            if (CastSpell(pmTarget, "Swipe (Bear)", MELEE_MAX_DISTANCE))
             {
                 return true;
             }
@@ -782,16 +971,47 @@ bool Script_Druid::Attack_Feral_Bear(Unit* pmTarget)
             }
         }
     }
-
     return true;
 }
 
-bool Script_Druid::Attack_Restoration(Unit* pmTarget)
+bool Script_Druid::Attack_Common(Unit* pmTarget)
 {
     return Attack_Balance(pmTarget);
 }
 
 bool Script_Druid::Heal(Unit* pmTarget, bool pmCure)
+{
+    if (!me)
+    {
+        return false;
+    }
+    if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 30)
+    {
+        UseManaPotion();
+    }
+    switch (characterTalentTab)
+    {
+    case 0:
+    {
+        return Heal_Restoration(pmTarget, pmCure);
+    }
+    case 1:
+    {
+        return Heal_Restoration(pmTarget, pmCure);
+    }
+    case 2:
+    {
+        return Heal_Restoration(pmTarget, pmCure);
+    }
+    default:
+    {
+        return Heal_Restoration(pmTarget, pmCure);
+    }
+    }
+    return false;
+}
+
+bool Script_Druid::Heal_Restoration(Unit* pmTarget, bool pmCure)
 {
     if (!pmTarget)
     {
@@ -812,10 +1032,6 @@ bool Script_Druid::Heal(Unit* pmTarget, bool pmCure)
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 20)
     {
         if (CastSpell(me, "Innervate"))
-        {
-            return true;
-        }
-        if (UseManaPotion())
         {
             return true;
         }
@@ -919,15 +1135,23 @@ bool Script_Druid::Buff(Unit* pmTarget, bool pmCure)
         {
             if (targetPlayer->groupRole == GroupRole::GroupRole_Tank)
             {
-                if (CastSpell(targetPlayer, "Thorns", DRUID_RANGE_DISTANCE, true))
+                if (!HasAura(targetPlayer, "Thorns"))
                 {
-                    return true;
+                    ClearShapeshift();
+                    if (CastSpell(targetPlayer, "Thorns", DRUID_RANGE_DISTANCE, true))
+                    {
+                        return true;
+                    }
                 }
             }
         }
-        if (CastSpell(pmTarget, "Mark of the Wild", DRUID_RANGE_DISTANCE, true))
+        if (!HasAura(pmTarget, "Mark of the Wild"))
         {
-            return true;
+            ClearShapeshift();
+            if (CastSpell(pmTarget, "Mark of the Wild", DRUID_RANGE_DISTANCE, true))
+            {
+                return true;
+            }
         }
     }
 

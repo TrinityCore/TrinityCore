@@ -25,6 +25,7 @@ Strategy_Group::Strategy_Group(Player* pmMe)
     restDelay = 0;
     aoeDelay = DEFAULT_AOE_DELAY;
     dpsDelay = DEFAULT_DPS_DELAY;
+    engageDelay = 0;
     staying = false;
     holding = false;
     cure = true;
@@ -79,6 +80,7 @@ Strategy_Group::Strategy_Group(Player* pmMe)
         case Classes::CLASS_DRUID:
         {
             sb = new  Script_Druid(me);
+            followDistance = MELEE_MIN_DISTANCE;
             break;
         }
         default:
@@ -96,6 +98,7 @@ void Strategy_Group::Update(uint32 pmDiff)
     {
         return;
     }
+    sb->Update(pmDiff);
     if (Group* myGroup = me->GetGroup())
     {
         if (Player* leaderPlayer = ObjectAccessor::FindConnectedPlayer(myGroup->GetLeaderGUID()))
@@ -109,9 +112,6 @@ void Strategy_Group::Update(uint32 pmDiff)
                 }
             }
         }
-    }
-    if (Group* myGroup = me->GetGroup())
-    {
         if (teleportAssembleDelay > 0)
         {
             teleportAssembleDelay -= pmDiff;
@@ -147,10 +147,54 @@ void Strategy_Group::Update(uint32 pmDiff)
             sideDelay -= pmDiff;
             return;
         }
-        if (GroupInCombat())
+        bool groupInCombat = GroupInCombat();
+        if (groupInCombat)
         {
             restDelay = 0;
             combatTime += pmDiff;
+        }
+        else
+        {
+            combatTime = 0;
+        }
+        if (engageDelay > 0)
+        {
+            engageDelay -= pmDiff;
+            switch (me->groupRole)
+            {
+            case GroupRole::GroupRole_DPS:
+            {
+                if (DPS())
+                {
+                    return;
+                }
+                break;
+            }
+            case GroupRole::GroupRole_Healer:
+            {
+                if (Heal())
+                {
+                    return;
+                }
+                break;
+            }
+            case GroupRole::GroupRole_Tank:
+            {
+                if (Tank())
+                {
+                    return;
+                }
+                break;
+            }
+            default:
+            {
+                break;
+            }
+            }
+            return;
+        }
+        if (groupInCombat)
+        {
             switch (me->groupRole)
             {
             case GroupRole::GroupRole_DPS:
@@ -190,7 +234,6 @@ void Strategy_Group::Update(uint32 pmDiff)
                 restDelay -= pmDiff;
                 return;
             }
-            combatTime = 0;
             switch (me->groupRole)
             {
             case GroupRole::GroupRole_DPS:
@@ -324,60 +367,53 @@ bool Strategy_Group::Tank()
     {
         return false;
     }
-    if (Unit* myVictim = me->GetVictim())
-    {
-        if (Unit* victimVictim = myVictim->GetVictim())
-        {
-            if (victimVictim->GetGUID() != me->GetGUID())
-            {
-                if (sb->Tank(myVictim))
-                {
-                    return true;
-                }
-            }
-        }
-    }
+
+    Unit* closestVictim = NULL;
+    float closestDistance = ATTACK_RANGE_LIMIT;
     if (Group* myGroup = me->GetGroup())
     {
-        Unit* closestVictim = NULL;
-        float closestDistance = ATTACK_RANGE_LIMIT;
         for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
         {
             if (Player* member = groupRef->GetSource())
             {
                 for (Unit::AttackerSet::const_iterator attackerIT = member->getAttackers().begin(); attackerIT != member->getAttackers().end(); ++attackerIT)
                 {
-                    // tank can only cover 30.0f range
-                    if (me->GetDistance((*attackerIT)) < RANGED_MAX_DISTANCE)
+                    if (Unit* eachAttacker = *attackerIT)
                     {
-                        if (Unit* attackerVictim = (*attackerIT)->GetVictim())
+                        // tank can only cover 30.0f range
+                        if (me->GetDistance(eachAttacker) < RANGED_MAX_DISTANCE)
                         {
-                            if (attackerVictim->GetGUID() != me->GetGUID())
+                            if (!eachAttacker->GetTarget().IsEmpty())
                             {
-                                if (sb->Tank((*attackerIT)))
+                                if (eachAttacker->GetTarget() != me->GetGUID())
                                 {
-                                    return true;
+                                    sb->Taunt(eachAttacker);
+                                    if (sb->Tank(eachAttacker, !holding))
+                                    {
+                                        return true;
+                                    }
                                 }
                             }
+                            float eachAttackerDistance = me->GetDistance(eachAttacker);
+                            if (eachAttackerDistance < closestDistance)
+                            {
+                                closestVictim = eachAttacker;
+                                closestDistance = eachAttackerDistance;
+                            }
                         }
-                    }
-                    float eachAttackerDistance = me->GetDistance((*attackerIT));
-                    if (eachAttackerDistance < closestDistance)
-                    {
-                        closestVictim = *attackerIT;
-                        closestDistance = eachAttackerDistance;
                     }
                 }
             }
         }
-        if (sb->Tank(me->GetSelectedUnit()))
-        {
-            return true;
-        }
-        else if (sb->Tank(closestVictim))
-        {
-            return true;
-        }
+    }
+
+    if (sb->Tank(me->GetSelectedUnit(), !holding))
+    {
+        return true;
+    }
+    else if (sb->Tank(closestVictim, !holding))
+    {
+        return true;
     }
 
     return false;
@@ -421,9 +457,6 @@ bool Strategy_Group::Heal()
     }
     if (Group* myGroup = me->GetGroup())
     {
-        bool aoe = combatTime > aoeDelay;
-        Unit* closestVictim = NULL;
-        float closestDistance = ATTACK_RANGE_LIMIT;
         for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
         {
             if (Player* member = groupRef->GetSource())
@@ -490,14 +523,24 @@ bool Strategy_Group::Follow()
     }
     if (Group* myGroup = me->GetGroup())
     {
+        if (me->groupRole != GroupRole::GroupRole_Tank)
+        {
+            for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+            {
+                if (Player* member = groupRef->GetSource())
+                {
+                    if (member->groupRole == GroupRole::GroupRole_Tank)
+                    {
+                        if (sb->Follow(member, followDistance))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
         if (Player* leader = ObjectAccessor::FindConnectedPlayer(myGroup->GetLeaderGUID()))
         {
-            if (me->GetDistance(leader) > ATTACK_RANGE_LIMIT)
-            {
-                me->StopMoving();
-                me->GetMotionMaster()->Clear();
-                return false;
-            }
             return sb->Follow(leader, followDistance);
         }
     }

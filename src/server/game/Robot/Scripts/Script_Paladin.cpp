@@ -7,10 +7,41 @@
 
 Script_Paladin::Script_Paladin(Player* pmMe) :Script_Base(pmMe)
 {
-    
+
 }
 
 bool Script_Paladin::Heal(Unit* pmTarget, bool pmCure)
+{
+    if (!me)
+    {
+        return false;
+    }
+    if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 30)
+    {
+        UseManaPotion();
+    }
+    switch (characterTalentTab)
+    {
+    case 0:
+    {
+        return Heal_Holy(pmTarget, pmCure);
+    }
+    case 1:
+    {
+        return Heal_Holy(pmTarget, pmCure);
+    }
+    case 2:
+    {
+        return Heal_Holy(pmTarget, pmCure);
+    }
+    default:
+        return Heal_Holy(pmTarget, pmCure);
+    }
+
+    return false;
+}
+
+bool Script_Paladin::Heal_Holy(Unit* pmTarget, bool pmCure)
 {
     if (!pmTarget)
     {
@@ -27,13 +58,6 @@ bool Script_Paladin::Heal(Unit* pmTarget, bool pmCure)
     if (me->GetDistance(pmTarget) > PALADIN_RANGE_DISTANCE)
     {
         return false;
-    }
-    if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
-    {
-        if (UseManaPotion())
-        {
-            return true;
-        }
     }
     float healthPCT = pmTarget->GetHealthPct();
     if (healthPCT < 20.0f)
@@ -86,39 +110,9 @@ bool Script_Paladin::Heal(Unit* pmTarget, bool pmCure)
     return false;
 }
 
-bool Script_Paladin::Tank(Unit* pmTarget)
+bool Script_Paladin::Tank(Unit* pmTarget, bool pmChase)
 {
-    if (!pmTarget)
-    {
-        return false;
-    }
-    else if (!pmTarget->IsAlive())
-    {
-        return false;
-    }
-    if (!me)
-    {
-        return false;
-    }
-    else if (!me->IsValidAttackTarget(pmTarget))
-    {
-        return false;
-    }
-    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
-    {
-        return false;
-    }
-    if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
-    {
-        if (UseManaPotion())
-        {
-            return true;
-        }
-    }
-    me->Attack(pmTarget, true);
-    Chase(pmTarget);
-
-    return true;
+    return false;
 }
 
 bool Script_Paladin::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)
@@ -127,12 +121,13 @@ bool Script_Paladin::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)
     {
         return false;
     }
-    if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
+    if (me->GetHealthPct() < 20.0f)
     {
-        if (UseManaPotion())
-        {
-            return true;
-        }
+        UseHealingPotion();
+    }
+    if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 30)
+    {
+        UseManaPotion();
     }
     switch (characterTalentTab)
     {
@@ -163,8 +158,6 @@ bool Script_Paladin::DPS_Retribution(Unit* pmTarget, bool pmChase, bool pmAOE)
     {
         return false;
     }
-    
-    
     if (!me)
     {
         return false;
@@ -222,7 +215,7 @@ bool Script_Paladin::DPS_Retribution(Unit* pmTarget, bool pmChase, bool pmAOE)
                     }
                 }
             }
-        }        
+        }
     }
     if (pmTarget->GetHealthPct() < 20.0f)
     {
@@ -266,8 +259,6 @@ bool Script_Paladin::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE)
     {
         return false;
     }
-    
-    
     if (!me)
     {
         return false;
@@ -293,12 +284,23 @@ bool Script_Paladin::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE)
             me->SetFacingToObject(pmTarget);
         }
     }
+    if (pmTarget->GetHealthPct() < 20.0f)
+    {
+        if (CastSpell(pmTarget, "Hammer of Wrath", MELEE_MAX_DISTANCE))
+        {
+            return true;
+        }
+    }
     if (pmTarget->IsNonMeleeSpellCast(false))
     {
         if (CastSpell(pmTarget, "Hammer of Justice", MELEE_MAX_DISTANCE))
         {
             return true;
         }
+    }
+    if (CastSpell(pmTarget, "Judgement of Light", MELEE_MAX_DISTANCE))
+    {
+        return true;
     }
 
     return true;
@@ -310,12 +312,13 @@ bool Script_Paladin::Attack(Unit* pmTarget)
     {
         return false;
     }
-    if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
+    if (me->GetHealthPct() < 20.0f)
     {
-        if (UseManaPotion())
-        {
-            return true;
-        }
+        UseHealingPotion();
+    }
+    if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 30)
+    {
+        UseManaPotion();
     }
     switch (characterTalentTab)
     {
@@ -346,8 +349,8 @@ bool Script_Paladin::Attack_Retribution(Unit* pmTarget)
     {
         return false;
     }
-    
-    
+
+
     if (!me)
     {
         return false;
@@ -405,8 +408,8 @@ bool Script_Paladin::Attack_Common(Unit* pmTarget)
     {
         return false;
     }
-    
-    
+
+
     if (!me)
     {
         return false;
@@ -454,8 +457,8 @@ bool Script_Paladin::Buff(Unit* pmTarget, bool pmCure)
     {
         return false;
     }
-    
-    
+
+
     if (!me)
     {
         return false;

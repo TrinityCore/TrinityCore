@@ -2,7 +2,7 @@
 
 Script_Rogue::Script_Rogue(Player* pmMe) :Script_Base(pmMe)
 {
-    
+
 }
 
 bool Script_Rogue::Heal(Unit* pmTarget, bool pmCure)
@@ -10,36 +10,21 @@ bool Script_Rogue::Heal(Unit* pmTarget, bool pmCure)
     return false;
 }
 
-bool Script_Rogue::Tank(Unit* pmTarget)
+bool Script_Rogue::Tank(Unit* pmTarget, bool pmChase)
 {
-    if (!pmTarget)
-    {
-        return false;
-    }
-    else if (!pmTarget->IsAlive())
-    {
-        return false;
-    }
-    if (!me)
-    {
-        return false;
-    }
-    else if (!me->IsValidAttackTarget(pmTarget))
-    {
-        return false;
-    }
-    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
-    {
-        return false;
-    }
-    me->Attack(pmTarget, true);
-    Chase(pmTarget);
-
-    return true;
+    return false;
 }
 
 bool Script_Rogue::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)
 {
+    if (!me)
+    {
+        return false;
+    }
+    if (me->GetHealthPct() < 20.0f)
+    {
+        UseHealingPotion();
+    }
     switch (characterTalentTab)
     {
     case 0:
@@ -69,8 +54,8 @@ bool Script_Rogue::DPS_Combat(Unit* pmTarget, bool pmChase, bool pmAOE)
     {
         return false;
     }
-    
-    
+
+
     if (!me)
     {
         return false;
@@ -149,70 +134,19 @@ bool Script_Rogue::DPS_Combat(Unit* pmTarget, bool pmChase, bool pmAOE)
 
 bool Script_Rogue::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE)
 {
-    if (!pmTarget)
-    {
-        return false;
-    }
-    else if (!pmTarget->IsAlive())
-    {
-        return false;
-    }
-    
-    
-    if (!me)
-    {
-        return false;
-    }
-    else if (!me->IsValidAttackTarget(pmTarget))
-    {
-        return false;
-    }
-    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
-    {
-        return false;
-    }
-    me->Attack(pmTarget, true);
-    if (pmChase)
-    {
-        Chase(pmTarget);
-    }
-    else
-    {
-        if (!me->isInFront(pmTarget))
-        {
-            me->SetFacingToObject(pmTarget);
-        }
-    }
-    uint32 energy = me->GetPower(Powers::POWER_ENERGY);
-    if (energy > 25)
-    {
-        if (pmTarget->IsNonMeleeSpellCast(false))
-        {
-            if (CastSpell(pmTarget, "Kick", MELEE_MAX_DISTANCE))
-            {
-                return true;
-            }
-        }
-    }
-    if (energy > 50)
-    {
-        uint8 comboPoints = me->GetComboPoints();
-        if (urand(1, 5) <= comboPoints)
-        {
-            CastSpell(pmTarget, "Eviscerate", MELEE_MAX_DISTANCE);
-            return true;
-        }
-        if (CastSpell(pmTarget, "Sinister Strike", MELEE_MAX_DISTANCE))
-        {
-            return true;
-        }
-    }
-
-    return true;
+    return DPS_Combat(pmTarget, pmChase, pmAOE);
 }
 
 bool Script_Rogue::Attack(Unit* pmTarget)
 {
+    if (!me)
+    {
+        return false;
+    }
+    if (me->GetHealthPct() < 20.0f)
+    {
+        UseHealingPotion();
+    }
     switch (characterTalentTab)
     {
     case 0:
@@ -242,8 +176,8 @@ bool Script_Rogue::Attack_Combat(Unit* pmTarget)
     {
         return false;
     }
-    
-    
+
+
     if (!me)
     {
         return false;
@@ -270,7 +204,7 @@ bool Script_Rogue::Attack_Combat(Unit* pmTarget)
         }
     }
     // when facing boss 
-    if (pmTarget->GetMaxHealth() / me->GetMaxHealth() > 3)
+    if (pmTarget->GetMaxHealth() / me->GetMaxHealth() > 5.0f)
     {
         if (CastSpell(pmTarget, "Adrenaline Rush", MELEE_MAX_DISTANCE))
         {
@@ -312,56 +246,7 @@ bool Script_Rogue::Attack_Combat(Unit* pmTarget)
 
 bool Script_Rogue::Attack_Common(Unit* pmTarget)
 {
-    if (!pmTarget)
-    {
-        return false;
-    }
-    else if (!pmTarget->IsAlive())
-    {
-        return false;
-    }
-    
-    
-    if (!me)
-    {
-        return false;
-    }
-    else if (!me->IsValidAttackTarget(pmTarget))
-    {
-        return false;
-    }
-    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
-    {
-        return false;
-    }
-    me->Attack(pmTarget, true);
-    Chase(pmTarget);
-    uint32 energy = me->GetPower(Powers::POWER_ENERGY);
-    if (energy > 25)
-    {
-        if (pmTarget->IsNonMeleeSpellCast(false))
-        {
-            if (CastSpell(pmTarget, "Kick", MELEE_MAX_DISTANCE))
-            {
-                return true;
-            }
-        }
-    }
-    if (energy > 45)
-    {
-        uint8 comboPoints = me->GetComboPoints();
-        if (urand(1, 5) <= comboPoints)
-        {
-            CastSpell(pmTarget, "Eviscerate", MELEE_MAX_DISTANCE);
-            return true;
-        }
-        if (CastSpell(pmTarget, "Sinister Strike", MELEE_MAX_DISTANCE))
-        {
-            return true;
-        }
-    }
-
-    return true;
+    return Attack_Combat(pmTarget);
 }
 
 bool Script_Rogue::Buff(Unit* pmTarget, bool pmCure)

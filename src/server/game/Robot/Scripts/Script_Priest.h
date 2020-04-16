@@ -12,12 +12,13 @@ class Script_Priest :public Script_Base
 public:    
     Script_Priest(Player* pmMe);
     bool DPS(Unit* pmTarget, bool pmChase, bool pmAOE);
-    bool Tank(Unit* pmTarget);
+    bool Tank(Unit* pmTarget, bool pmChase);
     bool Heal(Unit* pmTarget, bool pmCure);
     bool Attack(Unit* pmTarget);
     bool Buff(Unit* pmTarget, bool pmCure);
 
 	bool DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE);
 	bool Attack_Common(Unit* pmTarget);
+    bool Heal_Holy(Unit* pmTarget, bool pmCure);
 };
 #endif

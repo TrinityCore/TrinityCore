@@ -12,77 +12,21 @@ bool Script_Warrior::Heal(Unit* pmTarget, bool pmCure)
     return false;
 }
 
-bool Script_Warrior::Tank(Unit* pmTarget)
+bool Script_Warrior::Tank(Unit* pmTarget, bool pmChase)
 {
-    if (!pmTarget)
-    {
-        return false;
-    }
-    else if (!pmTarget->IsAlive())
-    {
-        return false;
-    }
-    if (!me)
-    {
-        return false;
-    }
-    else if (!me->IsValidAttackTarget(pmTarget))
-    {
-        return false;
-    }
-    float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > ATTACK_RANGE_LIMIT)
-    {
-        return false;
-    }
-    else if (targetDistance > WARRIOR_CHARGE_DISTANCE&& targetDistance < WARRIOR_RANGE_DISTANCE)
-    {
-        if (CastSpell(pmTarget, "Charge", WARRIOR_RANGE_DISTANCE))
-        {
-            return true;
-        }
-    }
-    me->Attack(pmTarget, true);
-    Chase(pmTarget);
-    uint32 rage = me->GetPower(Powers::POWER_RAGE);
-    if (rage > 100)
-    {
-        if (CastSpell(me, "Battle Shout", MELEE_MAX_DISTANCE, true))
-        {
-            return true;
-        }
-        if (CastSpell(pmTarget, "Demoralizing Shout", MELEE_MAX_DISTANCE, true))
-        {
-            return true;
-        }
-    }
-    if (rage > 500)
-    {
-        if (CastSpell(pmTarget, "Heroic Strike", MELEE_MAX_DISTANCE))
-        {
-            return true;
-        }
-    }
-    if (rage > 150)
-    {
-        if (CastSpell(pmTarget, "Thunder Clap", MELEE_MAX_DISTANCE))
-        {
-            return true;
-        }
-    }
-    if (rage > 200)
-    {
-        if (CastSpell(pmTarget, "Sunder Armor", MELEE_MAX_DISTANCE))
-        {
-            return true;
-        }
-    }
-
-    return true;
+    return false;
 }
 
 bool Script_Warrior::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)
 {
+    if (!me)
+    {
+        return false;
+    }
+    if (me->GetHealthPct() < 20.0f)
+    {
+        UseHealingPotion();
+    }
     switch (characterTalentTab)
     {
     case 0:
@@ -313,78 +257,19 @@ bool Script_Warrior::DPS_Fury(Unit* pmTarget, bool pmChase, bool pmAOE)
 
 bool Script_Warrior::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE)
 {
-    if (!pmTarget)
-    {
-        return false;
-    }
-    else if (!pmTarget->IsAlive())
-    {
-        return false;
-    }
-
-
-    if (!me)
-    {
-        return false;
-    }
-    else if (!me->IsValidAttackTarget(pmTarget))
-    {
-        return false;
-    }
-    float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > ATTACK_RANGE_LIMIT)
-    {
-        return false;
-    }
-    else if (targetDistance < WARRIOR_CHARGE_DISTANCE)
-    {
-        if (CastSpell(me, "Bloodrage", MELEE_MAX_DISTANCE))
-        {
-            return true;
-        }
-    }
-    me->Attack(pmTarget, true);
-    if (pmChase)
-    {
-        Chase(pmTarget);
-    }
-    else
-    {
-        if (!me->isInFront(pmTarget))
-        {
-            me->SetFacingToObject(pmTarget);
-        }
-    }
-    uint32 rage = me->GetPower(Powers::POWER_RAGE);
-    if (rage > 100)
-    {
-        if (CastSpell(me, "Battle Shout", MELEE_MAX_DISTANCE, true))
-        {
-            return true;
-        }
-        //if (CastSpell(pmTarget, "Demoralizing Shout", MELEE_MAX_DISTANCE, true))
-        //{
-        //	return true;
-        //}
-        if (CastSpell(pmTarget, "Rend", MELEE_MAX_DISTANCE, true, true))
-        {
-            return true;
-        }
-        if (CastSpell(pmTarget, "Hamstring", MELEE_MAX_DISTANCE, true))
-        {
-            return true;
-        }
-    }
-    if (rage > 200)
-    {
-        CastSpell(pmTarget, "Heroic Strike", MELEE_MAX_DISTANCE);
-    }
-
-    return true;
+    return DPS_Arms(pmTarget, pmChase, pmAOE);
 }
 
 bool Script_Warrior::Attack(Unit* pmTarget)
 {
+    if (!me)
+    {
+        return false;
+    }
+    if (me->GetHealthPct() < 20.0f)
+    {
+        UseHealingPotion();
+    }
     switch (characterTalentTab)
     {
     case 0:
@@ -429,7 +314,7 @@ bool Script_Warrior::Attack_Arms(Unit* pmTarget)
     {
         return false;
     }
-    else if (targetDistance > WARRIOR_CHARGE_DISTANCE&& targetDistance < WARRIOR_RANGE_DISTANCE)
+    else if (targetDistance > WARRIOR_CHARGE_DISTANCE && targetDistance < WARRIOR_RANGE_DISTANCE)
     {
         if (CastSpell(pmTarget, "Charge", WARRIOR_RANGE_DISTANCE))
         {
@@ -638,64 +523,7 @@ bool Script_Warrior::Attack_Protection(Unit* pmTarget)
 
 bool Script_Warrior::Attack_Common(Unit* pmTarget)
 {
-    if (!pmTarget)
-    {
-        return false;
-    }
-    else if (!pmTarget->IsAlive())
-    {
-        return false;
-    }
-
-
-    if (!me)
-    {
-        return false;
-    }
-    else if (!me->IsValidAttackTarget(pmTarget))
-    {
-        return false;
-    }
-    float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > ATTACK_RANGE_LIMIT)
-    {
-        return false;
-    }
-    else if (targetDistance > WARRIOR_CHARGE_DISTANCE&& targetDistance < WARRIOR_RANGE_DISTANCE)
-    {
-        if (CastSpell(pmTarget, "Charge", WARRIOR_RANGE_DISTANCE))
-        {
-            return true;
-        }
-    }
-    me->Attack(pmTarget, true);
-    Chase(pmTarget);
-    uint32 rage = me->GetPower(Powers::POWER_RAGE);
-    if (rage > 100)
-    {
-        if (CastSpell(me, "Battle Shout", MELEE_MAX_DISTANCE, true))
-        {
-            return true;
-        }
-        //if (CastSpell(pmTarget, "Demoralizing Shout", MELEE_MAX_DISTANCE, true))
-        //{
-        //	return true;
-        //}
-        if (CastSpell(pmTarget, "Rend", MELEE_MAX_DISTANCE, true, true))
-        {
-            return true;
-        }
-        if (CastSpell(pmTarget, "Hamstring", MELEE_MAX_DISTANCE, true))
-        {
-            return true;
-        }
-    }
-    if (rage > 200)
-    {
-        CastSpell(pmTarget, "Heroic Strike", MELEE_MAX_DISTANCE);
-    }
-
-    return true;
+    return Attack_Arms(pmTarget);
 }
 
 bool Script_Warrior::Buff(Unit* pmTarget, bool pmCure)

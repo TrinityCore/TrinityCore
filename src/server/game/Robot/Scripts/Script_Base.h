@@ -53,8 +53,10 @@ class Script_Base
 {
 public:
     Script_Base(Player* pmMe);
+    virtual void Update(uint32 pmDiff);
     virtual bool DPS(Unit* pmTarget, bool pmChase, bool pmAOE);
-    virtual bool Tank(Unit* pmTarget);
+    virtual bool Tank(Unit* pmTarget, bool pmChase);
+    virtual bool Taunt(Unit* pmTarget);
     virtual bool Heal(Unit* pmTarget, bool pmCure);
     virtual bool Attack(Unit* pmTarget);
     virtual bool Buff(Unit* pmTarget, bool pmCure);
@@ -69,6 +71,7 @@ public:
     bool EquipNewItem(uint32 pmEntry, uint8 pmEquipSlot);
     Item* GetItemInInventory(uint32 pmEntry);
     bool UseItem(Item* pmItem, Unit* pmTarget);
+    bool UseHealingPotion();
     bool UseManaPotion();
     bool ApplyGlyph(uint32 pmGlyphItemEntry, uint32 pmSlot);
     uint32 FindSpellID(std::string pmSpellName);
@@ -92,5 +95,8 @@ public:
     uint8 characterTalentTab;
     // 0 dps, 1 tank, 2 healer
     uint32 characterType;
+
+    float chaseDistanceMin;
+    float chaseDistanceMax;
 };
 #endif

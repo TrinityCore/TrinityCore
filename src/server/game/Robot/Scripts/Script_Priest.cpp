@@ -10,35 +10,43 @@ Script_Priest::Script_Priest(Player* pmMe) :Script_Base(pmMe)
 
 }
 
-bool Script_Priest::Tank(Unit* pmTarget)
+bool Script_Priest::Tank(Unit* pmTarget, bool pmChase)
 {
-    if (!pmTarget)
-    {
-        return false;
-    }
-    else if (!pmTarget->IsAlive())
-    {
-        return false;
-    }
+    return false;
+}
+
+bool Script_Priest::Heal(Unit* pmTarget, bool pmCure)
+{
     if (!me)
     {
         return false;
     }
-    else if (!me->IsValidAttackTarget(pmTarget))
+    if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 30)
     {
-        return false;
+        UseManaPotion();
     }
-    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
+    switch (characterTalentTab)
     {
-        return false;
+    case 0:
+    {
+        return Heal_Holy(pmTarget, pmCure);
     }
-    me->Attack(pmTarget, true);
-    Chase(pmTarget);
+    case 1:
+    {
+        return Heal_Holy(pmTarget, pmCure);
+    }
+    case 2:
+    {
+        return Heal_Holy(pmTarget, pmCure);
+    }
+    default:
+        return Heal_Holy(pmTarget, pmCure);
+    }
 
-    return true;
+    return false;
 }
 
-bool Script_Priest::Heal(Unit* pmTarget, bool pmCure)
+bool Script_Priest::Heal_Holy(Unit* pmTarget, bool pmCure)
 {
     if (!pmTarget)
     {
@@ -55,13 +63,6 @@ bool Script_Priest::Heal(Unit* pmTarget, bool pmCure)
     if (me->GetDistance(pmTarget) > PRIEST_RANGE_DISTANCE)
     {
         return false;
-    }
-    if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
-    {
-        if (UseManaPotion())
-        {
-            return true;
-        }
     }
     float healthPCT = pmTarget->GetHealthPct();
     if (healthPCT < 30.0f)
@@ -150,14 +151,29 @@ bool Script_Priest::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)
     {
         return false;
     }
-    if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
+    if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 30)
     {
-        if (UseManaPotion())
-        {
-            return true;
-        }
+        UseManaPotion();
     }
-    return DPS_Common(pmTarget, pmChase, pmAOE);
+    switch (characterTalentTab)
+    {
+    case 0:
+    {
+        return DPS_Common(pmTarget, pmChase, pmAOE);
+    }
+    case 1:
+    {
+        return DPS_Common(pmTarget, pmChase, pmAOE);
+    }
+    case 2:
+    {
+        return DPS_Common(pmTarget, pmChase, pmAOE);
+    }
+    default:
+        return DPS_Common(pmTarget, pmChase, pmAOE);
+    }
+
+    return false;
 }
 
 bool Script_Priest::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE)
@@ -223,14 +239,27 @@ bool Script_Priest::Attack(Unit* pmTarget)
     {
         return false;
     }
-    if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
+    if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 30)
     {
-        if (UseManaPotion())
-        {
-            return true;
-        }
+        UseManaPotion();
     }
-    return Attack_Common(pmTarget);
+    switch (characterTalentTab)
+    {
+    case 0:
+    {
+        return Attack_Common(pmTarget);
+    }
+    case 1:
+    {
+        return Attack_Common(pmTarget);
+    }
+    case 2:
+    {
+        return Attack_Common(pmTarget);
+    }
+    default:
+        return Attack_Common(pmTarget);
+    }
 }
 
 bool Script_Priest::Attack_Common(Unit* pmTarget)

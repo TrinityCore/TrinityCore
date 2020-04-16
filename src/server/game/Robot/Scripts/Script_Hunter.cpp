@@ -15,32 +15,9 @@ bool Script_Hunter::Heal(Unit* pmTarget, bool pmCure)
     return false;
 }
 
-bool Script_Hunter::Tank(Unit* pmTarget)
+bool Script_Hunter::Tank(Unit* pmTarget, bool pmChase)
 {
-    if (!pmTarget)
-    {
-        return false;
-    }
-    else if (!pmTarget->IsAlive())
-    {
-        return false;
-    }
-    if (!me)
-    {
-        return false;
-    }
-    else if (!me->IsValidAttackTarget(pmTarget))
-    {
-        return false;
-    }
-    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
-    {
-        return false;
-    }
-    me->Attack(pmTarget, true);
-    Chase(pmTarget);
-
-    return true;
+    return false;
 }
 
 bool Script_Hunter::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)
@@ -50,12 +27,9 @@ bool Script_Hunter::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)
     {
         return false;
     }
-    if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 20)
+    if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 30)
     {
-        if (UseManaPotion())
-        {
-            return true;
-        }
+        UseManaPotion();
     }
     switch (characterTalentTab)
     {
@@ -374,81 +348,20 @@ bool Script_Hunter::DPS_Survival(Unit* pmTarget, bool pmChase, bool pmAOE)
 
 bool Script_Hunter::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE)
 {
-    if (!pmTarget)
-    {
-        return false;
-    }
-    else if (!pmTarget->IsAlive())
-    {
-        return false;
-    }
-    if (!me)
-    {
-        return false;
-    }
-    else if (!me->IsValidAttackTarget(pmTarget))
-    {
-        return false;
-    }
-    float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > ATTACK_RANGE_LIMIT)
-    {
-        return false;
-    }
-    me->Attack(pmTarget, true);
-    if (pmChase)
-    {
-        Chase(pmTarget, HUNTER_RANGE_DISTANCE, HUNTER_MIN_RANGE_DISTANCE);
-    }
-    else
-    {
-        if (!me->isInFront(pmTarget))
-        {
-            me->SetFacingToObject(pmTarget);
-        }
-    }
-    if (CastSpell(pmTarget, "Hunter's Mark", 100, true))
-    {
-        return true;
-    }
-    if (targetDistance > HUNTER_MIN_RANGE_DISTANCE)
-    {
-        if (CastSpell(me, "Aspect of the Hawk", 20, true, true))
-        {
-            return true;
-        }
-        if (Spell* autoShotSpell = me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
-        {
-            if (autoShotSpell->m_targets.GetUnitTargetGUID() != pmTarget->GetGUID())
-            {
-                me->InterruptSpell(CURRENT_AUTOREPEAT_SPELL, false);
-                CastSpell(pmTarget, "Auto Shot", HUNTER_RANGE_DISTANCE);
-            }
-        }
-        else
-        {
-            CastSpell(pmTarget, "Auto Shot", HUNTER_RANGE_DISTANCE);
-        }
-        if (CastSpell(pmTarget, "Concussive Shot", HUNTER_RANGE_DISTANCE))
-        {
-            return true;
-        }
-        if (CastSpell(pmTarget, "Arcane Shot", HUNTER_RANGE_DISTANCE))
-        {
-            return true;
-        }
-        if (CastSpell(pmTarget, "Serpent Sting", HUNTER_RANGE_DISTANCE, true, true))
-        {
-            return true;
-        }
-    }
-
-    return true;
+    return DPS_Marksmanship(pmTarget, pmChase, pmAOE);
 }
 
 bool Script_Hunter::Attack(Unit* pmTarget)
 {
     bool meResult = false;
+    if (!me)
+    {
+        return false;
+    }
+    if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 30)
+    {
+        UseManaPotion();
+    }
     switch (characterTalentTab)
     {
     case 0:
@@ -720,81 +633,7 @@ bool Script_Hunter::Attack_Survival(Unit* pmTarget)
 
 bool Script_Hunter::Attack_Common(Unit* pmTarget)
 {
-    if (!pmTarget)
-    {
-        return false;
-    }
-    else if (!pmTarget->IsAlive())
-    {
-        return false;
-    }
-    if (!me)
-    {
-        return false;
-    }
-    else if (!me->IsValidAttackTarget(pmTarget))
-    {
-        return false;
-    }
-    float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > ATTACK_RANGE_LIMIT)
-    {
-        return false;
-    }
-    me->Attack(pmTarget, true);
-    Chase(pmTarget, HUNTER_RANGE_DISTANCE);
-    if (CastSpell(pmTarget, "Hunter's Mark", 100, true))
-    {
-        return true;
-    }
-    if (targetDistance < HUNTER_MIN_RANGE_DISTANCE)
-    {
-        if (CastSpell(me, "Aspect of the Monkey", 20, true, true))
-        {
-            return true;
-        }
-        if (CastSpell(pmTarget, "Raptor Strike", MELEE_MAX_DISTANCE))
-        {
-            return true;
-        }
-        if (CastSpell(pmTarget, "Mongoose Bite", MELEE_MAX_DISTANCE))
-        {
-            return true;
-        }
-    }
-    else
-    {
-        if (CastSpell(me, "Aspect of the Hawk", 20, true, true))
-        {
-            return true;
-        }
-        if (Spell* autoShotSpell = me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
-        {
-            if (autoShotSpell->m_targets.GetUnitTargetGUID() != pmTarget->GetGUID())
-            {
-                me->InterruptSpell(CURRENT_AUTOREPEAT_SPELL, false);
-                CastSpell(pmTarget, "Auto Shot", HUNTER_RANGE_DISTANCE);
-            }
-        }
-        else
-        {
-            CastSpell(pmTarget, "Auto Shot", HUNTER_RANGE_DISTANCE);
-        }
-        if (CastSpell(pmTarget, "Concussive Shot", HUNTER_RANGE_DISTANCE))
-        {
-            return true;
-        }
-        if (CastSpell(pmTarget, "Arcane Shot", HUNTER_RANGE_DISTANCE))
-        {
-            return true;
-        }
-        if (CastSpell(pmTarget, "Serpent Sting", HUNTER_RANGE_DISTANCE, true, true))
-        {
-            return true;
-        }
-    }
-
-    return true;
+    return Attack_Marksmanship(pmTarget);
 }
 
 bool Script_Hunter::Buff(Unit* pmTarget, bool pmCure)

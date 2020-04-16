@@ -14,32 +14,9 @@ bool Script_Warlock::Heal(Unit* pmTarget, bool pmCure)
     return false;
 }
 
-bool Script_Warlock::Tank(Unit* pmTarget)
+bool Script_Warlock::Tank(Unit* pmTarget, bool pmChase)
 {
-    if (!pmTarget)
-    {
-        return false;
-    }
-    else if (!pmTarget->IsAlive())
-    {
-        return false;
-    }
-    if (!me)
-    {
-        return false;
-    }
-    else if (!me->IsValidAttackTarget(pmTarget))
-    {
-        return false;
-    }
-    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
-    {
-        return false;
-    }
-    me->Attack(pmTarget, true);
-    Chase(pmTarget);
-
-    return true;
+    return false;
 }
 
 bool Script_Warlock::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)
@@ -49,11 +26,18 @@ bool Script_Warlock::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)
     {
         return false;
     }
-    if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
+    if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 30)
     {
-        if (UseManaPotion())
+        UseManaPotion();
+    }
+    if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 20)
+    {
+        if (me->GetHealthPct() > 30)
         {
-            return true;
+            if (CastSpell(me, "Life Tap"))
+            {
+                return true;
+            }
         }
     }
     switch (characterTalentTab)
@@ -281,7 +265,7 @@ bool Script_Warlock::DPS_Destruction(Unit* pmTarget, bool pmChase, bool pmAOE)
         }
     }
     // when facing boss 
-    if (pmTarget->GetMaxHealth() / me->GetMaxHealth() > 3.0f)
+    if (pmTarget->GetMaxHealth() / me->GetMaxHealth() > 5.0f)
     {
         if (CastSpell(pmTarget, "Curse of the Elements", WARLOCK_RANGE_DISTANCE, true))
         {
@@ -323,8 +307,6 @@ bool Script_Warlock::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE)
     {
         return false;
     }
-
-
     if (!me)
     {
         return false;
@@ -373,11 +355,18 @@ bool Script_Warlock::Attack(Unit* pmTarget)
     {
         return false;
     }
-    if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
+    if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 30)
     {
-        if (UseManaPotion())
+        UseManaPotion();
+    }
+    if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 20)
+    {
+        if (me->GetHealthPct() > 30)
         {
-            return true;
+            if (CastSpell(me, "Life Tap"))
+            {
+                return true;
+            }
         }
     }
     switch (characterTalentTab)

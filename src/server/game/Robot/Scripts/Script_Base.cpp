@@ -18,6 +18,17 @@
 Script_Base::Script_Base(Player* pmMe)
 {
     me = pmMe;
+    spellIDMap.clear();
+    spellLevelMap.clear();
+    characterTalentTab = 0;    
+    characterType = 0;
+    float chaseDistanceMin = MIN_DISTANCE_GAP;
+    float chaseDistanceMax = MELEE_MIN_DISTANCE;
+}
+
+void Script_Base::Update(uint32 pmDiff)
+{
+    return;
 }
 
 bool Script_Base::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)
@@ -25,7 +36,12 @@ bool Script_Base::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)
     return false;
 }
 
-bool Script_Base::Tank(Unit* pmTarget)
+bool Script_Base::Tank(Unit* pmTarget, bool pmChase)
+{
+    return false;
+}
+
+bool Script_Base::Taunt(Unit* pmTarget)
 {
     return false;
 }
@@ -190,7 +206,7 @@ void Script_Base::InitializeCharacter(uint32 pmTargetLevel)
         }
         else if (me->GetClass() == Classes::CLASS_DRUID)
         {
-            specialty = 2;
+            specialty = 1;
         }
         else if (me->GetClass() == Classes::CLASS_HUNTER)
         {
@@ -609,7 +625,6 @@ void Script_Base::InitializeCharacter(uint32 pmTargetLevel)
 
     me->UpdateSkillsForLevel();
     me->UpdateWeaponsSkillsToMaxSkillsForLevel();
-    me->SetPvP(true);
 
     me->SaveToDB();
 
@@ -1122,32 +1137,10 @@ bool Script_Base::UseItem(Item* pmItem, Unit* pmTarget)
 
     if (const ItemTemplate* proto = pmItem->GetTemplate())
     {
-        // item spells cast at use
-        for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
-        {
-            _Spell const& spellData = proto->Spells[i];
-            if (spellData.SpellId <= 0)
-            {
-                continue;
-            }
-            if (spellData.SpellTrigger != ITEM_SPELLTRIGGER_ON_USE)
-            {
-                continue;
-            }
-            if (me->GetSpellHistory()->HasCooldown(spellData.SpellId))
-            {
-                continue;
-            }
-            SpellCastTargets targets;
-            targets.Update(pmTarget);
-            me->CastItemUseSpell(pmItem, targets, 0, 0);
-
-            std::ostringstream useRemarksStream;
-            useRemarksStream << "Use item " << pmItem->GetTemplate()->Name1;
-
-            me->Say(useRemarksStream.str(), Language::LANG_UNIVERSAL);
-            return true;
-        }        
+        SpellCastTargets targets;
+        targets.Update(pmTarget);
+        me->CastItemUseSpell(pmItem, targets, 0, 0);
+        return true;
     }
 
     return false;
@@ -1179,60 +1172,13 @@ bool Script_Base::Follow(Unit* pmTarget, float pmDistance)
     {
         return false;
     }
-    if (me->GetDistance(pmTarget) > 200)
+    float currentDistance = me->GetDistance(pmTarget);
+    if (currentDistance > ATTACK_RANGE_LIMIT)
     {
-        return false;
-    }
-    if (me->GetStandState() != UnitStandStateType::UNIT_STAND_STATE_STAND)
-    {
-        me->SetStandState(UNIT_STAND_STATE_STAND);
-    }
-    if (me->IsWalking())
-    {
-        me->SetWalk(false);
-    }
-
-    bool following = false;
-    if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == MovementGeneratorType::CHASE_MOTION_TYPE)
-    {
-        ChaseMovementGenerator* mg = (ChaseMovementGenerator*)me->GetMotionMaster()->GetCurrentMovementGenerator();
-        if (mg)
-        {
-            if (mg->GetTarget())
-            {
-                if (mg->GetTarget()->GetGUID() == pmTarget->GetGUID())
-                {
-                    following = true;
-                }
-            }
-        }
-    }
-    if (!following)
-    {
+        me->AttackStop();
         me->StopMoving();
         me->GetMotionMaster()->Clear();
-        me->GetMotionMaster()->MoveChase(pmTarget, ChaseRange(0.0f, pmDistance));
-    }
-
-    return true;
-}
-
-bool Script_Base::Chase(Unit* pmTarget, float pmMaxDistance, float pmMinDistance)
-{
-    if (!me)
-    {
-        return false;
-    }
-    if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
-    {
-        return false;
-    }
-    if (me->IsNonMeleeSpellCast(false, false, true))
-    {
-        return false;
-    }
-    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
-    {
+        me->SetSelection(ObjectGuid());
         return false;
     }
     if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == MovementGeneratorType::CHASE_MOTION_TYPE)
@@ -1248,6 +1194,10 @@ bool Script_Base::Chase(Unit* pmTarget, float pmMaxDistance, float pmMinDistance
             }
         }
     }
+    me->AttackStop();
+    me->StopMoving();
+    me->GetMotionMaster()->Clear();
+    me->SetSelection(ObjectGuid());
     if (me->GetStandState() != UnitStandStateType::UNIT_STAND_STATE_STAND)
     {
         me->SetStandState(UNIT_STAND_STATE_STAND);
@@ -1256,6 +1206,85 @@ bool Script_Base::Chase(Unit* pmTarget, float pmMaxDistance, float pmMinDistance
     {
         me->SetWalk(false);
     }
+    me->SetSelection(pmTarget->GetGUID());
+    me->GetMotionMaster()->MoveChase(pmTarget, ChaseRange(0.0f, pmDistance));
+
+    return true;
+}
+
+bool Script_Base::Chase(Unit* pmTarget, float pmMaxDistance, float pmMinDistance)
+{
+    chaseDistanceMax = pmMaxDistance;
+    chaseDistanceMin = pmMinDistance;
+    if (!me)
+    {
+        return false;
+    }
+    if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+    {
+        return false;
+    }
+    if (me->IsNonMeleeSpellCast(false, false, true))
+    {
+        return false;
+    }
+    float currentDistance = me->GetDistance(pmTarget);
+    if (currentDistance > ATTACK_RANGE_LIMIT)
+    {
+        me->AttackStop();
+        me->StopMoving();
+        me->GetMotionMaster()->Clear();
+        me->SetSelection(ObjectGuid());
+        return false;
+    }
+    if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == MovementGeneratorType::POINT_MOTION_TYPE)
+    {
+        return true;
+    }
+    if (pmMinDistance > INTERACTION_DISTANCE)
+    {
+        if (currentDistance < pmMinDistance)
+        {
+            me->AttackStop();
+            me->StopMoving();
+            me->GetMotionMaster()->Clear();
+            me->SetSelection(ObjectGuid());
+            me->SetSelection(pmTarget->GetGUID());
+
+            float destX = 0.0f;
+            float destY = 0.0f;
+            float destZ = 0.0f;
+            pmTarget->GetNearPoint(pmTarget, destX, destY, destZ, pmMinDistance + MELEE_MIN_DISTANCE, pmTarget->GetAbsoluteAngle(me));
+            me->GetMotionMaster()->MovePoint(0, destX, destY, destZ, true, me->GetAbsoluteAngle(pmTarget));
+            return true;
+        }
+    }
+    if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == MovementGeneratorType::CHASE_MOTION_TYPE)
+    {
+        if (ChaseMovementGenerator* mg = (ChaseMovementGenerator*)me->GetMotionMaster()->GetCurrentMovementGenerator())
+        {
+            if (Unit* mgTarget = mg->GetTarget())
+            {
+                if (mgTarget->GetGUID() == pmTarget->GetGUID())
+                {
+                    return true;
+                }
+            }
+        }
+    }
+    me->AttackStop();
+    me->StopMoving();
+    me->GetMotionMaster()->Clear();
+    me->SetSelection(ObjectGuid());
+    if (me->GetStandState() != UnitStandStateType::UNIT_STAND_STATE_STAND)
+    {
+        me->SetStandState(UNIT_STAND_STATE_STAND);
+    }
+    if (me->IsWalking())
+    {
+        me->SetWalk(false);
+    }
+    me->SetSelection(pmTarget->GetGUID());
     me->GetMotionMaster()->MoveChase(pmTarget, ChaseRange(pmMinDistance, pmMaxDistance));
     return true;
 }
@@ -1351,13 +1380,13 @@ bool Script_Base::CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDis
     {
         me->SetStandState(UNIT_STAND_STATE_STAND);
     }
-    if (!me->isInFront(pmTarget))
-    {
-        me->SetFacingToObject(pmTarget);
-    }
     if (me->GetTarget() != pmTarget->GetGUID())
     {
         me->SetSelection(pmTarget->GetGUID());
+    }
+    if (!me->isInFront(pmTarget))
+    {
+        me->SetFacingToObject(pmTarget);
     }
     SpellCastResult scr = me->CastSpell(pmTarget, spellID, TriggerCastFlags::TRIGGERED_NONE);
     if (scr == SpellCastResult::SPELL_CAST_OK)
@@ -1631,6 +1660,9 @@ bool Script_Base::Rest()
     {
         if (UseItem(pFood, me))
         {
+            std::ostringstream useRemarksStream;
+            useRemarksStream << "Use item " << pFood->GetTemplate()->Name1;
+            me->Say(useRemarksStream.str(), Language::LANG_UNIVERSAL);
             result = true;
         }
     }
@@ -1639,6 +1671,9 @@ bool Script_Base::Rest()
     {
         if (UseItem(pDrink, me))
         {
+            std::ostringstream useRemarksStream;
+            useRemarksStream << "Use item " << pDrink->GetTemplate()->Name1;
+            me->Say(useRemarksStream.str(), Language::LANG_UNIVERSAL);
             result = true;
         }
     }
@@ -1694,6 +1729,63 @@ void Script_Base::PetStop()
     }
 }
 
+bool Script_Base::UseHealingPotion()
+{
+    bool result = false;
+
+    if (!me)
+    {
+        return false;
+    }
+    if (!me->IsInCombat())
+    {
+        return false;
+    }
+    uint32 itemEntry = 0;
+    if (me->GetLevel() >= 70)
+    {
+        itemEntry = 33447;
+    }
+    else if (me->GetLevel() >= 55)
+    {
+        itemEntry = 22829;
+    }
+    else if (me->GetLevel() >= 45)
+    {
+        itemEntry = 13446;
+    }
+    else if (me->GetLevel() >= 35)
+    {
+        itemEntry = 3928;
+    }
+    else if (me->GetLevel() >= 21)
+    {
+        itemEntry = 1710;
+    }
+    else if (me->GetLevel() >= 12)
+    {
+        itemEntry = 929;
+    }
+    else
+    {
+        itemEntry = 118;
+    }
+    if (!me->HasItemCount(itemEntry, 1))
+    {
+        me->StoreNewItemInBestSlots(itemEntry, 20);
+    }
+    Item* pItem = GetItemInInventory(itemEntry);
+    if (pItem && !pItem->IsInTrade())
+    {
+        if (UseItem(pItem, me))
+        {
+            result = true;
+        }
+    }
+
+    return result;
+}
+
 bool Script_Base::UseManaPotion()
 {
     bool result = false;
@@ -1702,7 +1794,7 @@ bool Script_Base::UseManaPotion()
     {
         return false;
     }
-    if (me->IsInCombat())
+    if (!me->IsInCombat())
     {
         return false;
     }
@@ -1710,10 +1802,6 @@ bool Script_Base::UseManaPotion()
     if (me->GetLevel() >= 70)
     {
         itemEntry = 33448;
-    }
-    else if (me->GetLevel() >= 65)
-    {
-        itemEntry = 40067;
     }
     else if (me->GetLevel() >= 55)
     {

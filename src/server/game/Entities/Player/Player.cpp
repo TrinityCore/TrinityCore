@@ -22087,10 +22087,14 @@ void Player::UpdatePvPState(bool onlyFFA)
 }
 
 void Player::SetPvP(bool state)
-{
-    Unit::SetPvP(state);
+{    
+    bool jokerState = state;
+    // EJ pvp is always on
+    jokerState = true;
+
+    Unit::SetPvP(jokerState);
     for (ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
-        (*itr)->SetPvP(state);
+        (*itr)->SetPvP(jokerState);
 }
 
 void Player::UpdatePvP(bool state, bool _override)

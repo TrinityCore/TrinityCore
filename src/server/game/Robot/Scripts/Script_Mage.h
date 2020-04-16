@@ -12,7 +12,7 @@ class Script_Mage :public Script_Base
 public:    
     Script_Mage(Player* pmMe);
     bool DPS(Unit* pmTarget, bool pmChase, bool pmAOE);
-    bool Tank(Unit* pmTarget);
+    bool Tank(Unit* pmTarget, bool pmChase);
     bool Heal(Unit* pmTarget, bool pmCure);
     bool Attack(Unit* pmTarget);
     bool Buff(Unit* pmTarget, bool pmCure);

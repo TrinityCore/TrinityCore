@@ -20,7 +20,7 @@ class Script_Paladin :public Script_Base
 public:    
     Script_Paladin(Player* pmMe);
     bool DPS(Unit* pmTarget, bool pmChase, bool pmAOE);
-    bool Tank(Unit* pmTarget);
+    bool Tank(Unit* pmTarget, bool pmChase);
     bool Heal(Unit* pmTarget, bool pmCure);
     bool Attack(Unit* pmTarget);
     bool Buff(Unit* pmTarget, bool pmCure);
@@ -30,5 +30,7 @@ public:
 
     bool Attack_Retribution(Unit* pmTarget);
     bool Attack_Common(Unit* pmTarget);
+
+    bool Heal_Holy(Unit* pmTarget, bool pmCure);
 };
 #endif
