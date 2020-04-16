@@ -184,7 +184,7 @@ namespace WorldPackets
         {
         public:
             PlayMusic() : ServerPacket(SMSG_PLAY_MUSIC, 4 + 8) { }
-            PlayMusic(uint32 soundKitID, ObjectGuid sourceObjectGuid) : ServerPacket(SMSG_PLAY_MUSIC, 4), SoundKitID(soundKitID), SourceObjectGUID(sourceObjectGuid) { }
+            PlayMusic(uint32 soundKitID, ObjectGuid sourceObjectGuid) : ServerPacket(SMSG_PLAY_MUSIC, 4 + 8), SoundKitID(soundKitID), SourceObjectGUID(sourceObjectGuid) { }
 
             WorldPacket const* Write() override;
 
