@@ -141,7 +141,7 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
     {
         _nextRepositioningTimer.Reset(REPOSITION_MOVEMENT_INTERVAL);
 
-        if (!owner->HasUnitState(UNIT_STATE_CHASE_MOVE) && owner->IsCreature())
+        if (!owner->HasUnitState(UNIT_STATE_CHASE_MOVE) && owner->IsCreature() && !target->isMoving())
         {
             // Owner is too close to its target. Step back.
             if (owner->GetExactDist2d(target) < owner->GetBoundaryRadius())
