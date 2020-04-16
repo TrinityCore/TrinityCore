@@ -639,9 +639,9 @@ void AuraEffect::CalculatePeriodic(Unit* caster, bool resetPeriodicTimer /*= tru
         case SPELL_AURA_POWER_BURN:
         case SPELL_AURA_PERIODIC_DUMMY:
         case SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE:
-            // If no periodic timer is set, fall back to a 5 seconds interval to match client function
+            // If no periodic timer is set, fall back to a 1 second interval to match client function
             if (!m_effectPeriodicTimer)
-                m_effectPeriodicTimer = 5 * IN_MILLISECONDS;
+                m_effectPeriodicTimer = 1 * IN_MILLISECONDS;
 
             m_isPeriodic = true;
             break;
