@@ -735,7 +735,7 @@ void Spell::CalculateJumpSpeeds(uint8 i, float dist, float & speedXY, float & sp
     if (Creature* creature = m_caster->ToCreature())
         runSpeed *= creature->GetCreatureTemplate()->speed_run;
 
-    float multiplier = m_spellInfo->Effects[i].ValueMultiplier;
+    float multiplier = m_spellInfo->Effects[i].Amplitude;
     if (multiplier <= 0.0f)
         multiplier = 1.0f;
 
