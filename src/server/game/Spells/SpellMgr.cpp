@@ -2896,7 +2896,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         84717  // Frostfire Orb
     }, [](SpellInfo* spellInfo)
     {
-        spellInfo->Effects[EFFECT_0].Amplitude = 1000;
+        spellInfo->Effects[EFFECT_0].AuraPeriod = 1000;
     });
 
     ApplySpellFix({
@@ -3150,7 +3150,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Crafty's Ultra-Advanced Proto-Typical Shortening Blaster
     ApplySpellFix({ 51912 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->Effects[EFFECT_0].Amplitude = 3000;
+        spellInfo->Effects[EFFECT_0].AuraPeriod = 3000;
     });
 
     // Master Shapeshifter: missing stance data for forms other than bear - bear version has correct data
@@ -4266,8 +4266,8 @@ void SpellMgr::LoadSpellInfoCorrections()
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2 seconds
-        spellInfo->Effects[EFFECT_0].Amplitude = 2000;
-        spellInfo->Effects[EFFECT_0].Amplitude = 2000;
+        spellInfo->Effects[EFFECT_0].AuraPeriod = 2000;
+        spellInfo->Effects[EFFECT_0].AuraPeriod = 2000;
     });
 
     // Slipstream
@@ -5417,7 +5417,7 @@ void SpellMgr::LoadSpellInfoCorrections()
 
         spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_APPLY_AURA;
         spellInfo->Effects[EFFECT_1].ApplyAuraName = SPELL_AURA_PERIODIC_TRIGGER_SPELL;
-        spellInfo->Effects[EFFECT_1].Amplitude = 2000;
+        spellInfo->Effects[EFFECT_1].AuraPeriod = 2000;
     });
 
     // Sonar Pulse
@@ -5522,13 +5522,13 @@ void SpellMgr::LoadSpellInfoCorrections()
         94126,
     }, [](SpellInfo* spellInfo)
     {
-        spellInfo->Effects[EFFECT_1].Amplitude = 1500;
+        spellInfo->Effects[EFFECT_1].AuraPeriod = 1500;
     });
 
     // Electrical Charge
     ApplySpellFix({ 78949 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->Effects[EFFECT_0].Amplitude = 3000;
+        spellInfo->Effects[EFFECT_0].AuraPeriod = 3000;
     });
 
     // Lightning Discharge

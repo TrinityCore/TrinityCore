@@ -354,12 +354,12 @@ SpellEffectInfo::SpellEffectInfo(SpellEntry const* /*spellEntry*/, SpellInfo con
     _effIndex = _effect ? _effect->EffectIndex : effIndex;
     Effect = _effect ? _effect->Effect : 0;
     ApplyAuraName = _effect ? _effect->EffectAura : 0;
-    Amplitude = _effect ? _effect->EffectAuraPeriod : 0;
+    AuraPeriod = _effect ? _effect->EffectAuraPeriod : 0;
     DieSides = _effect ? _effect->EffectDieSides : 0;
     RealPointsPerLevel = _effect ? _effect->EffectRealPointsPerLevel : 0.0f;
     BasePoints = _effect ? _effect->EffectBasePoints : 0;
     PointsPerComboPoint = _effect ? _effect->EffectPointsPerResource : 0.0f;
-    ValueMultiplier = _effect ? _effect->EffectAmplitude : 0.0f;
+    Amplitude = _effect ? _effect->EffectAmplitude : 0.0f;
     DamageMultiplier = _effect ? _effect->EffectChainAmplitude : 0.0f;
     BonusMultiplier = _effect ? _effect->EffectBonusCoefficient : 0.0f;
     MiscValue = _effect ? _effect->EffectMiscValue : 0;
@@ -584,7 +584,7 @@ int32 SpellEffectInfo::CalcBaseValue(int32 value) const
 
 float SpellEffectInfo::CalcValueMultiplier(Unit* caster, Spell* spell) const
 {
-    float multiplier = ValueMultiplier;
+    float multiplier = Amplitude;
     if (Player* modOwner = (caster ? caster->GetSpellModOwner() : nullptr))
         modOwner->ApplySpellMod(_spellInfo->Id, SPELLMOD_VALUE_MULTIPLIER, multiplier, spell);
     return multiplier;
@@ -3303,8 +3303,8 @@ uint32 SpellInfo::GetMaxTicks() const
                 case SPELL_AURA_PERIODIC_TRIGGER_SPELL:
                 case SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE:
                 case SPELL_AURA_PERIODIC_HEALTH_FUNNEL:
-                    if (Effects[x].Amplitude != 0)
-                        return DotDuration / Effects[x].Amplitude;
+                    if (Effects[x].AuraPeriod != 0)
+                        return DotDuration / Effects[x].AuraPeriod;
                     break;
             }
     }

@@ -237,12 +237,12 @@ class TC_GAME_API SpellEffectInfo
 public:
     uint32    Effect;
     uint32    ApplyAuraName;
-    uint32    Amplitude;
+    uint32    AuraPeriod;
     int32     DieSides;
     float     RealPointsPerLevel;
     int32     BasePoints;
     float     PointsPerComboPoint;
-    float     ValueMultiplier;
+    float     Amplitude;
     float     DamageMultiplier;
     float     BonusMultiplier;
     int32     MiscValue;
@@ -262,11 +262,11 @@ public:
     float     DeltaScalingMultiplier;
     float     ComboScalingMultiplier;
 
-    SpellEffectInfo() : _spellInfo(nullptr), _effIndex(0), Effect(0), ApplyAuraName(0), Amplitude(0), DieSides(0),
-                        RealPointsPerLevel(0), BasePoints(0), PointsPerComboPoint(0), ValueMultiplier(0), DamageMultiplier(0),
-                        BonusMultiplier(0), MiscValue(0), MiscValueB(0), Mechanic(MECHANIC_NONE), RadiusEntry(nullptr), MaxRadiusEntry(nullptr),
-                        ChainTarget(0), ItemType(0), TriggerSpell(0), ImplicitTargetConditions(nullptr), ScalingMultiplier(0), DeltaScalingMultiplier(0),
-                        ComboScalingMultiplier(0) { }
+    SpellEffectInfo() : _spellInfo(nullptr), _effIndex(0), Effect(0), ApplyAuraName(0), AuraPeriod(0), DieSides(0),
+                        RealPointsPerLevel(0.f), BasePoints(0), PointsPerComboPoint(0), Amplitude(0.f), DamageMultiplier(0.f),
+                        BonusMultiplier(0.f), MiscValue(0), MiscValueB(0), Mechanic(MECHANIC_NONE), RadiusEntry(nullptr), MaxRadiusEntry(nullptr),
+                        ChainTarget(0), ItemType(0), TriggerSpell(0), ImplicitTargetConditions(nullptr), ScalingMultiplier(0.f), DeltaScalingMultiplier(0.f),
+                        ComboScalingMultiplier(0.f) { }
 
     SpellEffectInfo(SpellEntry const* spellEntry, SpellInfo const* spellInfo, uint8 effIndex, SpellEffectEntry const* effect);
 

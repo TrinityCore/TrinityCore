@@ -2888,16 +2888,16 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
                             {
                                 if (AuraEffect const* eff = m_spellAura->GetEffect(i))
                                 {
-                                    if (int32 amplitude = eff->GetAmplitude())  // amplitude is hastened by UNIT_MOD_CAST_SPEED
+                                    if (int32 periodic = eff->GetPeriodic())  // amplitude is hastened by UNIT_MOD_CAST_SPEED
                                     {
-                                        float preciseTicks = (float)origDuration / float(amplitude);
-                                        int32 ticks = origDuration / amplitude;
+                                        float preciseTicks = (float)origDuration / float(periodic);
+                                        int32 ticks = origDuration / periodic;
 
                                         // additional ticks are being added by rounding up
                                         if (preciseTicks - ticks >= 0.5f)
                                             ticks = int32(std::ceil(preciseTicks));
 
-                                        duration = std::max(ticks * amplitude, duration);
+                                        duration = std::max(ticks * periodic, duration);
                                     }
                                 }
                             }

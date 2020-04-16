@@ -49,7 +49,7 @@ class TC_GAME_API AuraEffect
         uint32 GetId() const { return m_spellInfo->Id; }
         uint32 GetEffIndex() const { return m_effIndex; }
         int32 GetBaseAmount() const { return m_baseAmount; }
-        int32 GetAmplitude() const { return m_amplitude; }
+        int32 GetPeriodic() const { return m_effectPeriodicTimer; }
 
         int32 GetMiscValueB() const { return m_spellInfo->Effects[m_effIndex].MiscValueB; }
         int32 GetMiscValue() const { return m_spellInfo->Effects[m_effIndex].MiscValue; }
@@ -81,8 +81,8 @@ class TC_GAME_API AuraEffect
         void UpdatePeriodic(Unit* caster);
 
         uint32 GetTickNumber() const { return m_tickNumber; }
-        int32 GetTotalTicks() const { return m_amplitude ? (GetBase()->GetMaxDuration() / m_amplitude) : 1;}
-        void ResetPeriodic(bool resetPeriodicTimer = false) { if (resetPeriodicTimer) m_periodicTimer = m_amplitude; m_tickNumber = 0;}
+        int32 GetTotalTicks() const { return m_effectPeriodicTimer ? (GetBase()->GetMaxDuration() / m_effectPeriodicTimer) : 1;}
+        void ResetPeriodic(bool resetPeriodicTimer = false) { if (resetPeriodicTimer) m_periodicTimer = m_effectPeriodicTimer; m_tickNumber = 0;}
 
         bool IsPeriodic() const { return m_isPeriodic; }
         void SetPeriodic(bool isPeriodic) { m_isPeriodic = isPeriodic; }
@@ -112,7 +112,7 @@ class TC_GAME_API AuraEffect
         SpellModifier* m_spellmod;
 
         int32 m_periodicTimer;
-        int32 m_amplitude;
+        int32 m_effectPeriodicTimer;
         uint32 m_tickNumber;
 
         uint8 const m_effIndex;
