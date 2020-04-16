@@ -1,7 +1,7 @@
 # Set build-directive (used in core to tell which buildtype we used)
 target_compile_definitions(trinity-compile-option-interface
   INTERFACE
-    -D_BUILD_DIRECTIVE="${CMAKE_BUILD_TYPE}")
+    -D_BUILD_DIRECTIVE="$<CONFIG>")
 
 if(WITH_WARNINGS)
   target_compile_options(trinity-warning-interface

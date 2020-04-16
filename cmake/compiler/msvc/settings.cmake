@@ -59,7 +59,7 @@ else()
   # while all make-like generators do (nmake, ninja)
   target_compile_definitions(trinity-compile-option-interface
     INTERFACE
-      -D_BUILD_DIRECTIVE="${CMAKE_BUILD_TYPE}")
+      -D_BUILD_DIRECTIVE="$<CONFIG>")
 endif()
 
 # multithreaded compiling on VS
