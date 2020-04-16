@@ -4892,6 +4892,198 @@ private:
     uint32 _auraId;
 };
 
+enum ApparatusOfKhazgoroth
+{
+    SPELL_TITANIC_POWER                     = 96923,
+    SPELL_BLESSING_OF_THE_SHAPER_HASTE      = 96927,
+    SPELL_BLESSING_OF_THE_SHAPER_CRIT       = 96928,
+    SPELL_BLESSING_OF_THE_SHAPER_MASTERY    = 96929
+};
+
+// 96934 - Blessing of Khaz'goroth
+// 97127 - Blessing of Khaz'goroth
+class spell_item_blessing_of_khazgoroth : public SpellScript
+{
+    PrepareSpellScript(spell_item_blessing_of_khazgoroth);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_TITANIC_POWER,
+                SPELL_BLESSING_OF_THE_SHAPER_HASTE,
+                SPELL_BLESSING_OF_THE_SHAPER_CRIT,
+                SPELL_BLESSING_OF_THE_SHAPER_MASTERY
+            });
+    }
+
+    void HandleDummyEffect(SpellEffIndex /*effIndex*/)
+    {
+        Player* player = GetHitPlayer();
+        if (!player)
+            return;
+
+        uint8 stacks = 0;
+        Aura* aura = player->GetAura(SPELL_TITANIC_POWER, player->GetGUID());
+        if (!aura)
+            return;
+
+        stacks = aura->GetStackAmount();
+
+        int32 basePoints = GetEffectValue() * stacks;
+        if (!basePoints)
+            return;
+
+        uint32 spellId = 0;
+        float haste = player->GetRatingBonusValue(CR_HASTE_MELEE);
+        float crit  = player->GetRatingBonusValue(CR_CRIT_MELEE);
+        float mastery = player->GetRatingBonusValue(CR_MASTERY);
+
+        if (haste >= crit && haste >= mastery)
+            spellId = SPELL_BLESSING_OF_THE_SHAPER_HASTE;
+        else if (crit >= haste && crit >= mastery)
+            spellId = SPELL_BLESSING_OF_THE_SHAPER_CRIT;
+        else if (mastery >= haste && mastery >= crit)
+            spellId = SPELL_BLESSING_OF_THE_SHAPER_MASTERY;
+
+        if (spellId && basePoints)
+        {
+            player->CastCustomSpell(spellId, SPELLVALUE_BASE_POINT0, basePoints, player, true);
+            aura->Remove();
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_item_blessing_of_khazgoroth::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+enum ScalesOfLife
+{
+    SPELL_WEIGHT_OF_A_FEATHER   = 96881
+};
+
+// 96879 - Weight of a Feather
+// 97117 - Weight of a Feather
+class spell_item_weight_of_a_feather : public AuraScript
+{
+    PrepareAuraScript(spell_item_weight_of_a_feather);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WEIGHT_OF_A_FEATHER });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        HealInfo* heal = eventInfo.GetHealInfo();
+        return heal && heal->GetHeal() > heal->GetEffectiveHeal();
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+
+        Unit* target = GetTarget();
+        int32 heal = eventInfo.GetHealInfo()->GetHeal() - eventInfo.GetHealInfo()->GetEffectiveHeal();
+
+        // Store overheal
+        int32 basePoints = heal;
+        if (AuraEffect const* effect = target->GetAuraEffect(SPELL_WEIGHT_OF_A_FEATHER, EFFECT_0, target->GetGUID()))
+            basePoints += effect->GetAmount();
+
+        basePoints = std::min<int32>(basePoints, aurEff->GetAmount());
+        target->CastCustomSpell(SPELL_WEIGHT_OF_A_FEATHER, SPELLVALUE_BASE_POINT0, basePoints, target, true, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_item_weight_of_a_feather::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_item_weight_of_a_feather::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 96880 - Tipping of the Scales
+class spell_item_tipping_of_the_scales : public SpellScript
+{
+    PrepareSpellScript(spell_item_tipping_of_the_scales);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WEIGHT_OF_A_FEATHER });
+    }
+
+    SpellCastResult CheckCast()
+    {
+        if (AuraEffect const* effect = GetCaster()->GetAuraEffect(SPELL_WEIGHT_OF_A_FEATHER, EFFECT_0, GetCaster()->GetGUID()))
+            return SPELL_CAST_OK;
+
+        return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+    }
+
+    void HandleHealValue(SpellEffIndex /*effIndex*/)
+    {
+        if (AuraEffect const* effect = GetCaster()->GetAuraEffect(SPELL_WEIGHT_OF_A_FEATHER, EFFECT_0, GetCaster()->GetGUID()))
+        {
+            SetEffectValue(effect->GetAmount());
+            effect->GetBase()->Remove();
+        }
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_item_tipping_of_the_scales::CheckCast);
+        OnEffectLaunchTarget += SpellEffectFn(spell_item_tipping_of_the_scales::HandleHealValue, EFFECT_0, SPELL_EFFECT_HEAL);
+    }
+};
+
+enum JarOfAncientRemedies
+{
+    SPELL_INNER_EYE_N                   = 91320,
+    SPELL_INNER_EYE_HC                  = 92329,
+    SPELL_ITEM_PROC_STACKING_SPIRIT_N   = 91321,
+    SPELL_ITEM_PROC_STACKING_SPIRIT_HC  = 92330
+
+};
+
+// 91322 Blind Spot
+// 92331 Blind Spot
+class spell_item_blind_spot : public SpellScript
+{
+    PrepareSpellScript(spell_item_blind_spot);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_INNER_EYE_N,
+                SPELL_INNER_EYE_HC,
+                SPELL_ITEM_PROC_STACKING_SPIRIT_N,
+                SPELL_ITEM_PROC_STACKING_SPIRIT_HC
+            });
+    }
+
+    void HandleHitEffect(SpellEffIndex /*effIndex*/)
+    {
+        Unit* target = GetHitUnit();
+        target->RemoveAurasDueToSpell(SPELL_INNER_EYE_N, target->GetGUID());
+        target->RemoveAurasDueToSpell(SPELL_INNER_EYE_HC, target->GetGUID());
+
+        uint32 spellId = target->HasAura(SPELL_ITEM_PROC_STACKING_SPIRIT_N, target->GetGUID()) ? SPELL_ITEM_PROC_STACKING_SPIRIT_N : SPELL_ITEM_PROC_STACKING_SPIRIT_HC;
+        if (AuraEffect const* effect = target->GetAuraEffect(spellId, EFFECT_0, target->GetGUID()))
+        {
+            std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
+            effect->GetBase()->AddProcCooldown(now + 30s);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_item_blind_spot::HandleHitEffect, EFFECT_0, SPELL_EFFECT_ENERGIZE);
+    }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -5016,5 +5208,8 @@ void AddSC_item_spell_scripts()
     RegisterAuraScript(spell_item_crescendo_of_suffering);
     new spell_item_consume_charges("spell_item_forged_fury", SPELL_RAW_FURY);
     RegisterSpellAndAuraScriptPair(spell_item_hearts_judgement, spell_item_hearts_judgement_AuraScript);
-
+    RegisterSpellScript(spell_item_blessing_of_khazgoroth);
+    RegisterAuraScript(spell_item_weight_of_a_feather);
+    RegisterSpellScript(spell_item_tipping_of_the_scales);
+    RegisterSpellScript(spell_item_blind_spot);
 }
