@@ -5225,6 +5225,8 @@ void AddSC_generic_spell_scripts()
     new spell_gen_proc_below_pct_damaged("spell_item_petrified_twilight_scale_heroic");
     new spell_gen_proc_below_pct_damaged("spell_item_proc_armor");
     new spell_gen_proc_below_pct_damaged("spell_item_proc_mastery_below_35");
+    new spell_gen_proc_below_pct_damaged("spell_item_proc_dodge_below_35");
+    new spell_gen_proc_below_pct_damaged("spell_item_loom_of_fate");
     new spell_gen_proc_charge_drop_only();
     new spell_gen_parachute();
     new spell_gen_pet_summoned();

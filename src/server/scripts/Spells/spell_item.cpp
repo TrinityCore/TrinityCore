@@ -5084,6 +5084,59 @@ class spell_item_blind_spot : public SpellScript
     }
 };
 
+enum VariablePulseLightningCapacitor
+{
+    SPELL_LIGHTNING_BOLT    = 96891,
+    SPELL_ELECTRICAL_CHARGE = 96890
+};
+
+// 96887 - Variable Pulse Lightning Capacitor
+// 97119 - Variable Pulse Lightning Capacitor
+class spell_item_variable_pulse_lightning_capacitor : public AuraScript
+{
+    PrepareAuraScript(spell_item_variable_pulse_lightning_capacitor);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_LIGHTNING_BOLT,
+                SPELL_ELECTRICAL_CHARGE
+            });
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+
+        Player* target = GetTarget()->ToPlayer();
+        if (!target)
+            return;
+        ObjectGuid itemGUID = aurEff->GetBase()->GetCastItemGUID();
+        if (!itemGUID)
+            return;
+
+        AuraEffect const* chargeEffect = target->GetAuraEffect(SPELL_ELECTRICAL_CHARGE, EFFECT_0);
+        if (Item* castItem = target->GetItemByGuid(itemGUID))
+        {
+            if (!chargeEffect || roll_chance_i(60))
+                target->CastSpell(target, SPELL_ELECTRICAL_CHARGE, true, castItem, aurEff);
+            else
+            {
+                int32 bp = GetSpellInfo()->Effects[EFFECT_0].CalcValue(target);
+                bp *= chargeEffect->GetBase()->GetStackAmount();
+                chargeEffect->GetBase()->Remove();
+                target->CastCustomSpell(SPELL_LIGHTNING_BOLT, SPELLVALUE_BASE_POINT0, bp, eventInfo.GetProcTarget(), true, castItem, aurEff);
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_item_variable_pulse_lightning_capacitor::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -5212,4 +5265,5 @@ void AddSC_item_spell_scripts()
     RegisterAuraScript(spell_item_weight_of_a_feather);
     RegisterSpellScript(spell_item_tipping_of_the_scales);
     RegisterSpellScript(spell_item_blind_spot);
+    RegisterAuraScript(spell_item_variable_pulse_lightning_capacitor);
 }
