@@ -744,15 +744,16 @@ void MotionMaster::MoveKnockbackFrom(Position const& origin, float speedXY, floa
     if (speedXY < 0.01f)
         return;
 
-    float x, y, z;
+    Position dest = _owner->GetPosition();
     float moveTimeHalf = speedZ / Movement::gravity;
     float dist = 2 * moveTimeHalf * speedXY;
     float max_height = -Movement::computeFallElevation(moveTimeHalf, false, -speedZ);
 
-    _owner->GetNearPoint(_owner, x, y, z, dist, _owner->GetAbsoluteAngle(origin) + float(M_PI));
+    // Use a mmap raycast to get a valid destination.
+    _owner->MovePositionToFirstCollision(dest, dist, _owner->GetRelativeAngle(origin) + float(M_PI));
 
     Movement::MoveSplineInit init(_owner);
-    init.MoveTo(x, y, z);
+    init.MoveTo(dest.GetPositionX(), dest.GetPositionY(), dest.GetPositionZ(), false);
     init.SetParabolic(max_height, 0);
     init.SetOrientationFixed(true);
     init.SetVelocity(speedXY);
