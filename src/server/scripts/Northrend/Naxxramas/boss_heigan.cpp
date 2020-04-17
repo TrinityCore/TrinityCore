@@ -29,8 +29,7 @@ enum Spells
     SPELL_DECREPIT_FEVER    = 29998, // 25-man: 55011
     SPELL_SPELL_DISRUPTION  = 29310,
     SPELL_PLAGUE_CLOUD      = 29350,
-    SPELL_TELEPORT_SELF     = 30211,
-    SPELL_ERUPTION          = 29371
+    SPELL_TELEPORT_SELF     = 30211
 };
 
 enum Yells
@@ -193,7 +192,9 @@ public:
                                     if (GameObject* tile = ObjectAccessor::GetGameObject(*me, tileGUID))
                                     {
                                         tile->SendCustomAnim(0);
-                                        tile->CastSpell(nullptr, SPELL_ERUPTION);
+                                        CastSpellExtraArgs args;
+                                        args.OriginalCaster = me->GetGUID();
+                                        tile->CastSpell(tile, tile->GetGOInfo()->trap.spell, args);
                                     }
 
                         if (_safeSection == 0)
