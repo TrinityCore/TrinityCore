@@ -581,8 +581,8 @@ void WorldSession::HandleGetMailList(WorldPackets::Mail::MailGetList& packet)
         if (m->state == MAIL_STATE_DELETED || curTime < m->deliver_time)
             continue;
 
-        // max. 50 mails can be sent
-        if (response.Mails.size() < 50)
+        // max. 100 mails can be sent
+        if (response.Mails.size() < 100)
             response.Mails.emplace_back(m, player);
 
         ++response.TotalNumRecords;
