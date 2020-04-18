@@ -301,7 +301,7 @@ void BattlegroundSA::StartShips()
     for (uint8 i = BG_SA_BOAT_ONE; i <= BG_SA_BOAT_TWO; ++i)
         if (GameObject* obj = GetBGObject(i))
             if (Transport* transport = obj->ToTransport())
-                transport->SetTransportState(GO_STATE_TRANSPORT_ACTIVE);
+                transport->SetTransportState(GO_STATE_TRANSPORT_STOPPED, 1);
 
     for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
     {
