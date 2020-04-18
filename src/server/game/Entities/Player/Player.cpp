@@ -26869,15 +26869,15 @@ uint32 Player::DoRandomRoll(uint32 minimum, uint32 maximum)
 
     uint32 roll = urand(minimum, maximum);
 
-    WorldPacket data(MSG_RANDOM_ROLL, 4 + 4 + 4 + 8);
-    data << uint32(minimum);
-    data << uint32(maximum);
-    data << uint32(roll);
-    data << GetGUID();
+    WorldPackets::Misc::RandomRoll randomRoll;
+    randomRoll.Min = minimum;
+    randomRoll.Max = maximum;
+    randomRoll.Result = roll;
+    randomRoll.Roller = GetGUID();
     if (Group* group = GetGroup())
-        group->BroadcastPacket(&data, false);
+        group->BroadcastPacket(randomRoll.Write(), false);
     else
-        SendDirectMessage(&data);
+        SendDirectMessage(randomRoll.Write());
 
     return roll;
 }

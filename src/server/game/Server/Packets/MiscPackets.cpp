@@ -156,6 +156,22 @@ WorldPacket const* WorldPackets::Misc::OverrideLight::Write()
     return &_worldPacket;
 }
 
+void WorldPackets::Misc::RandomRollClient::Read()
+{
+    _worldPacket >> Min;
+    _worldPacket >> Max;
+}
+
+WorldPacket const* WorldPackets::Misc::RandomRoll::Write()
+{
+    _worldPacket << uint32(Min);
+    _worldPacket << uint32(Max);
+    _worldPacket << uint32(Result);
+    _worldPacket << Roller;
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Misc::UITime::Write()
 {
     _worldPacket << uint32(Time);
