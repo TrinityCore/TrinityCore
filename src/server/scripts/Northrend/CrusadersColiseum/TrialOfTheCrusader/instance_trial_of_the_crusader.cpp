@@ -184,6 +184,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                         {
                             if (Creature* fordring = GetCreature(DATA_FORDRING))
                                 fordring->AI()->DoAction(ACTION_JARAXXUS_WIPE);
+                            MistressOfPainCount = 0;
                         }
                         else if (state == DONE)
                         {
@@ -408,6 +409,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                                 SetBossState(DATA_NORTHREND_BEASTS, FAIL);
                                 if (Creature* tirion = GetCreature(DATA_FORDRING))
                                     tirion->AI()->DoAction(ACTION_NORTHREND_BEASTS_WIPE);
+                                SnoboldCount = 0;
                                 break;
                             default:
                                 break;

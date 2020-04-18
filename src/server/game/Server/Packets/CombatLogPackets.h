@@ -15,22 +15,30 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AllPackets_h__
-#define AllPackets_h__
+#ifndef CombatLogPackets_h__
+#define CombatLogPackets_h__
 
-#include "CharacterPackets.h"
-#include "ChatPackets.h"
-#include "CombatLogPackets.h"
-#include "CombatPackets.h"
-#include "GuildPackets.h"
-#include "NPCPackets.h"
-#include "MiscPackets.h"
-#include "PetPackets.h"
-#include "QueryPackets.h"
-#include "QuestPackets.h"
-#include "SpellPackets.h"
-#include "SystemPackets.h"
-#include "TotemPackets.h"
-#include "WorldStatePackets.h"
+#include "Packet.h"
+#include "Player.h"
 
-#endif // AllPackets_h__
+namespace WorldPackets
+{
+    namespace CombatLog
+    {
+        class EnvironmentalDamageLog final : public ServerPacket
+        {
+        public:
+            EnvironmentalDamageLog() : ServerPacket(SMSG_ENVIRONMENTAL_DAMAGE_LOG, 21) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Victim;
+            EnviromentalDamage Type = DAMAGE_EXHAUSTED;
+            uint32 Amount = 0;
+            uint32 Resisted = 0;
+            uint32 Absorbed = 0;
+        };
+    }
+}
+
+#endif // CombatLogPackets_h__
