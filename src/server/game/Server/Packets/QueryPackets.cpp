@@ -15,6 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "CharacterCache.h"
+#include "Player.h"
 #include "QueryPackets.h"
 
 void WorldPackets::Query::DBQueryBulk::Read()
@@ -74,4 +76,32 @@ WorldPacket const* WorldPackets::Query::HotfixNotifyBlob::Write()
     }
 
     return &_worldPacket;
+}
+
+bool WorldPackets::Query::PlayerGuidLookupData::Initialize(ObjectGuid const& guid, Player const* player /*= nullptr*/)
+{
+    CharacterCacheEntry const* characterInfo = sCharacterCache->GetCharacterCacheByGuid(guid);
+    if (!characterInfo)
+        return false;
+
+    if (player)
+    {
+        ASSERT(player->GetGUID() == guid);
+
+        Name = player->GetName();
+        Race = player->getRace();
+        Sex = player->getGender();
+        ClassID = player->getClass();
+        Level = player->getLevel();
+    }
+    else
+    {
+        Name = characterInfo->Name;
+        Race = characterInfo->Race;
+        Sex = characterInfo->Sex;
+        ClassID = characterInfo->Class;
+        Level = characterInfo->Level;
+    }
+
+    return true;
 }

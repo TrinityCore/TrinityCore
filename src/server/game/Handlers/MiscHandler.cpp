@@ -48,10 +48,12 @@
 #include "Opcodes.h"
 #include "OutdoorPvP.h"
 #include "Player.h"
+#include "QueryPackets.h"
 #include "ScriptMgr.h"
 #include "Spell.h"
 #include "SpellInfo.h"
 #include "WhoListStorage.h"
+#include "WhoPackets.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include <zlib.h>
@@ -178,89 +180,62 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
     }
 }
 
-void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
+void WorldSession::HandleWhoOpcode(WorldPackets::Who::WhoRequestPkt& whoRequest)
 {
-    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_WHO Message");
+    WorldPackets::Who::WhoRequest& request = whoRequest.Request;
 
-    uint32 matchCount = 0;
-
-    uint32 levelMin, levelMax, racemask, classmask, zonesCount, strCount;
-    uint32 zoneids[10];                                     // 10 is client limit
-    std::string packetPlayerName, packetGuildName;
-
-    recvData >> levelMin;                                   // maximal player level, default 0
-    recvData >> levelMax;                                   // minimal player level, default 100 (MAX_LEVEL)
-    recvData >> packetPlayerName;                           // player name, case sensitive...
-
-    recvData >> packetGuildName;                                // guild name, case sensitive...
-
-    recvData >> racemask;                                   // race mask
-    recvData >> classmask;                                  // class mask
-    recvData >> zonesCount;                                 // zones count, client limit = 10 (2.0.10)
-
-    if (zonesCount > 10)
-        return;                                             // can't be received from real client or broken packet
-
-    for (uint32 i = 0; i < zonesCount; ++i)
-    {
-        uint32 temp;
-        recvData >> temp;                                   // zone id, 0 if zone is unknown...
-        zoneids[i] = temp;
-        TC_LOG_DEBUG("network", "Zone %u: %u", i, zoneids[i]);
-    }
-
-    recvData >> strCount;                                   // user entered strings count, client limit=4 (checked on 2.0.10)
-
-    if (strCount > 4)
-        return;                                             // can't be received from real client or broken packet
-
-    TC_LOG_DEBUG("network", "Minlvl %u, maxlvl %u, name %s, guild %s, racemask %u, classmask %u, zones %u, strings %u", levelMin, levelMax, packetPlayerName.c_str(), packetGuildName.c_str(), racemask, classmask, zonesCount, strCount);
-
-    std::wstring str[4];                                    // 4 is client limit
-    for (uint32 i = 0; i < strCount; ++i)
-    {
-        std::string temp;
-        recvData >> temp;                                   // user entered string, it used as universal search pattern(guild+player name)?
-
-        if (!Utf8toWStr(temp, str[i]))
-            continue;
-
-        wstrToLower(str[i]);
-
-        TC_LOG_DEBUG("network", "String %u: %s", i, temp.c_str());
-    }
-
-    std::wstring wpacketPlayerName;
-    std::wstring wpacketGuildName;
-    if (!(Utf8toWStr(packetPlayerName, wpacketPlayerName) && Utf8toWStr(packetGuildName, wpacketGuildName)))
+    // zones count, client limit = 10 (2.0.10)
+    // can't be received from real client or broken packet
+    if (whoRequest.Request.Areas.size() > 10)
         return;
 
-    wstrToLower(wpacketPlayerName);
-    wstrToLower(wpacketGuildName);
+    // user entered strings count, client limit=4 (checked on 2.0.10)
+    // can't be received from real client or broken packet
+    if (request.Words.size() > 4)
+        return;
+
+    std::vector<std::wstring> wWords;
+    wWords.resize(request.Words.size());
+    for (size_t i = 0; i < request.Words.size(); ++i)
+    {
+        TC_LOG_DEBUG("network", "WorldSession::HandleWhoOpcode: Word: %s", request.Words[i].Word.c_str());
+
+        // user entered string, it used as universal search pattern(guild+player name)?
+        if (!Utf8toWStr(request.Words[i].Word, wWords[i]))
+            continue;
+
+        wstrToLower(wWords[i]);
+    }
+
+    std::wstring wPlayerName;
+    std::wstring wGuildName;
+
+    if (!(Utf8toWStr(request.Name, wPlayerName) && Utf8toWStr(request.Guild, wGuildName)))
+        return;
+
+    wstrToLower(wPlayerName);
+    wstrToLower(wGuildName);
 
     // client send in case not set max level value 100 but Trinity supports 255 max level,
     // update it to show GMs with characters after 100 level
-    if (levelMax >= MAX_LEVEL)
-        levelMax = STRONG_MAX_LEVEL;
+    if (whoRequest.Request.MaxLevel >= MAX_LEVEL)
+        whoRequest.Request.MaxLevel = STRONG_MAX_LEVEL;
 
     uint32 team = _player->GetTeam();
 
-    uint32 gmLevelInWhoList  = sWorld->getIntConfig(CONFIG_GM_LEVEL_IN_WHO_LIST);
-    uint32 displayCount = 0;
+    uint32 gmLevelInWhoList = sWorld->getIntConfig(CONFIG_GM_LEVEL_IN_WHO_LIST);
 
-    WorldPacket data(SMSG_WHO, 500);                       // guess size
-    data << uint32(matchCount);                           // placeholder, count of players matching criteria
-    data << uint32(displayCount);                         // placeholder, count of players displayed
+    WorldPackets::Who::WhoResponsePkt response;
 
     WhoListInfoVector const& whoList = sWhoListStorageMgr->GetWhoList();
     for (WhoListPlayerInfo const& target : whoList)
     {
-        // player can see member of other team only if CONFIG_ALLOW_TWO_SIDE_WHO_LIST
+        // player can see member of other team only if has RBAC_PERM_TWO_SIDE_WHO_LIST
         if (target.GetTeam() != team && !HasPermission(rbac::RBAC_PERM_TWO_SIDE_WHO_LIST))
             continue;
 
-        // player can see MODERATOR, GAME MASTER, ADMINISTRATOR only if CONFIG_GM_IN_WHO_LIST
-        if (!HasPermission(rbac::RBAC_PERM_WHO_SEE_ALL_SEC_LEVELS) && target.GetSecurity() > AccountTypes(gmLevelInWhoList))
+        // player can see MODERATOR, GAME MASTER, ADMINISTRATOR only if has RBAC_PERM_WHO_SEE_ALL_SEC_LEVELS
+        if (target.GetSecurity() > AccountTypes(gmLevelInWhoList) && !HasPermission(rbac::RBAC_PERM_WHO_SEE_ALL_SEC_LEVELS))
             continue;
 
         // check if target is globally visible for player
@@ -270,87 +245,75 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
 
         // check if target's level is in level range
         uint8 lvl = target.GetLevel();
-        if (lvl < levelMin || lvl > levelMax)
+        if (lvl < request.MinLevel || lvl > request.MaxLevel)
             continue;
 
         // check if class matches classmask
-        uint8 class_ = target.GetClass();
-        if (!(classmask & (1 << class_)))
+        if (request.ClassFilter >= 0 && !(request.ClassFilter & (1 << target.GetClass())))
             continue;
 
         // check if race matches racemask
-        uint32 race = target.GetRace();
-        if (!(racemask & (1 << race)))
+        if (request.RaceFilter >= 0 && (request.RaceFilter & (1 << target.GetRace())))
             continue;
 
-        uint32 playerZoneId = target.GetZoneId();
-        uint8 gender = target.GetGender();
-
-        bool showZones = true;
-        for (uint32 i = 0; i < zonesCount; ++i)
+        if (!whoRequest.Request.Areas.empty())
         {
-            if (zoneids[i] == playerZoneId)
-            {
-                showZones = true;
-                break;
-            }
-
-            showZones = false;
+            if (std::find(whoRequest.Request.Areas.begin(), whoRequest.Request.Areas.end(), target.GetZoneId()) == whoRequest.Request.Areas.end())
+                continue;
         }
-        if (!showZones)
+
+        std::wstring const& wTargetName = target.GetWidePlayerName();
+        if (!(wPlayerName.empty() || wTargetName.find(wPlayerName) != std::wstring::npos))
             continue;
 
-        std::wstring const& wideplayername = target.GetWidePlayerName();
-        if (!(wpacketPlayerName.empty() || wideplayername.find(wpacketPlayerName) != std::wstring::npos))
+        std::wstring const& wTargetGuildName = target.GetWideGuildName();
+
+        if (!wGuildName.empty() && wTargetGuildName.find(wGuildName) == std::wstring::npos)
             continue;
 
-        std::wstring const& wideguildname = target.GetWideGuildName();
-        if (!(wpacketGuildName.empty() || wideguildname.find(wpacketGuildName) != std::wstring::npos))
-            continue;
-
-        std::string aname;
-        if (AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(playerZoneId))
-            aname = areaEntry->AreaName[GetSessionDbcLocale()];
-
-        bool s_show = true;
-        for (uint32 i = 0; i < strCount; ++i)
+        if (!wWords.empty())
         {
-            if (!str[i].empty())
+            std::string aName;
+            if (AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(target.GetZoneId()))
+                aName = areaEntry->AreaName[GetSessionDbcLocale()];
+
+            bool show = false;
+            for (size_t i = 0; i < wWords.size(); ++i)
             {
-                if (wideguildname.find(str[i]) != std::wstring::npos ||
-                    wideplayername.find(str[i]) != std::wstring::npos ||
-                    Utf8FitTo(aname, str[i]))
+                if (!wWords[i].empty())
                 {
-                    s_show = true;
-                    break;
+                    if (wTargetName.find(wWords[i]) != std::wstring::npos ||
+                        wTargetGuildName.find(wWords[i]) != std::wstring::npos ||
+                        Utf8FitTo(aName, wWords[i]))
+                    {
+                        show = true;
+                        break;
+                    }
                 }
-                s_show = false;
             }
+
+            if (!show)
+                continue;
         }
-        if (!s_show)
+
+        WorldPackets::Who::WhoEntry whoEntry;
+        if (!whoEntry.PlayerData.Initialize(target.GetGuid(), nullptr))
             continue;
 
-        // 49 is maximum player count sent to client - can be overridden
+        if (!target.GetGuildName().empty())
+            whoEntry.GuildName = target.GetGuildName();
+
+        whoEntry.AreaID = target.GetZoneId();
+
+        response.Response.Entries.push_back(whoEntry);
+
+        // 50 is maximum player count sent to client - can be overridden
         // through config, but is unstable
-        if ((matchCount++) >= sWorld->getIntConfig(CONFIG_MAX_WHO))
-            continue;
-
-        data << target.GetPlayerName();                   // player name
-        data << target.GetGuildName();                    // guild name
-        data << uint32(lvl);                              // player level
-        data << uint32(class_);                           // player class
-        data << uint32(race);                             // player race
-        data << uint8(gender);                            // player gender
-        data << uint32(playerZoneId);                     // player zone id
-
-        ++displayCount;
+        if (response.Response.Entries.size() >= sWorld->getIntConfig(CONFIG_MAX_WHO))
+            break;
     }
 
-    data.put(0, displayCount);                            // insert right count, count displayed
-    data.put(4, matchCount);                              // insert right count, count of matches
-
-    SendPacket(&data);
-    TC_LOG_DEBUG("network", "WORLD: Send SMSG_WHO Message");
+    SendPacket(response.Write());
 }
 
 void WorldSession::HandleLogoutRequestOpcode(WorldPacket& /*recvData*/)

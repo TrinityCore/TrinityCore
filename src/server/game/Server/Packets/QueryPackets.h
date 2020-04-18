@@ -21,6 +21,9 @@
 #include "Packet.h"
 #include "DB2Stores.h"
 #include "ObjectGuid.h"
+#include "SharedDefines.h"
+
+class Player;
 
 namespace WorldPackets
 {
@@ -64,6 +67,17 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             HotfixData const* Hotfixes = nullptr;
+        };
+
+        struct PlayerGuidLookupData
+        {
+            bool Initialize(ObjectGuid const& guid, Player const* player = nullptr);
+
+            std::string Name;
+            uint8 Race = RACE_NONE;
+            uint8 Sex = GENDER_NONE;
+            uint8 ClassID = CLASS_NONE;
+            uint8 Level = 0;
         };
     }
 }
