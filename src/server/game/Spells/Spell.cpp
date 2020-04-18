@@ -6509,7 +6509,7 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
                     return SPELL_FAILED_ITEM_NOT_FOUND;
 
                 // required level has to be checked also! Exploit fix
-                if (targetItem->GetTemplate()->GetBaseItemLevel() < m_spellInfo->BaseLevel || (targetItem->GetTemplate()->GetBaseRequiredLevel() && (uint32)targetItem->GetTemplate()->GetBaseRequiredLevel() < m_spellInfo->BaseLevel))
+                if (targetItem->GetItemLevel(targetItem->GetOwner()) < int32(m_spellInfo->BaseLevel) || (targetItem->GetRequiredLevel() && (uint32)targetItem->GetRequiredLevel() < m_spellInfo->BaseLevel))
                     return SPELL_FAILED_LOWLEVEL;
 
                 bool isItemUsable = false;
