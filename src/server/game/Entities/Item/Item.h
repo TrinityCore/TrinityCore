@@ -92,6 +92,7 @@ struct BonusData
     int32 RelicType;
     int32 RequiredLevelOverride;
     int32 AzeriteTierUnlockSetId;
+    uint32 Suffix;
     bool CanDisenchant;
     bool CanScrap;
     bool HasFixedLevel;
@@ -104,6 +105,7 @@ struct BonusData
 private:
     struct
     {
+        int32 SuffixPriority;
         int32 AppearanceModPriority;
         int32 ScalingStatDistributionPriority;
         int32 AzeriteTierUnlockSetPriority;
@@ -177,6 +179,8 @@ class TC_GAME_API Item : public Object
         Item();
 
         virtual bool Create(ObjectGuid::LowType guidlow, uint32 itemId, ItemContext context, Player const* owner);
+
+        std::string GetNameForLocaleIdx(LocaleConstant locale) const override;
 
         ItemTemplate const* GetTemplate() const;
         BonusData const* GetBonus() const { return &_bonusData; }

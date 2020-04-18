@@ -177,7 +177,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         uint32 GetScriptId() const;
 
         // override WorldObject function for proper name localization
-        std::string const& GetNameForLocaleIdx(LocaleConstant locale_idx) const override;
+        std::string GetNameForLocaleIdx(LocaleConstant locale) const override;
 
         void setDeathState(DeathState s) override;                   // override virtual Unit::setDeathState
 

@@ -160,6 +160,8 @@ class TC_GAME_API Object
 
         virtual void ClearUpdateMask(bool remove);
 
+        virtual std::string GetNameForLocaleIdx(LocaleConstant locale) const = 0;
+
         virtual bool hasQuest(uint32 /* quest_id */) const { return false; }
         virtual bool hasInvolvedQuest(uint32 /* quest_id */) const { return false; }
         virtual void BuildUpdate(UpdateDataMapType&) { }
@@ -420,9 +422,9 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         InstanceScript* GetInstanceScript();
 
         std::string const& GetName() const { return m_name; }
-        void SetName(std::string const& newname) { m_name=newname; }
+        void SetName(std::string newname) { m_name = std::move(newname); }
 
-        virtual std::string const& GetNameForLocaleIdx(LocaleConstant /*locale_idx*/) const { return m_name; }
+        std::string GetNameForLocaleIdx(LocaleConstant /*locale*/) const override { return m_name; }
 
         float GetDistance(WorldObject const* obj) const;
         float GetDistance(Position const &pos) const;

@@ -2189,15 +2189,12 @@ uint32 GameObject::GetScriptId() const
 }
 
 // overwrite WorldObject function for proper name localization
-std::string const & GameObject::GetNameForLocaleIdx(LocaleConstant loc_idx) const
+std::string GameObject::GetNameForLocaleIdx(LocaleConstant locale) const
 {
-    if (loc_idx != DEFAULT_LOCALE)
-    {
-        uint8 uloc_idx = uint8(loc_idx);
+    if (locale != DEFAULT_LOCALE)
         if (GameObjectLocale const* cl = sObjectMgr->GetGameObjectLocale(GetEntry()))
-            if (cl->Name.size() > uloc_idx && !cl->Name[uloc_idx].empty())
-                return cl->Name[uloc_idx];
-    }
+            if (cl->Name.size() > locale && !cl->Name[locale].empty())
+                return cl->Name[locale];
 
     return GetName();
 }
