@@ -3984,6 +3984,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(4); // 2 minutes
     });
 
+    // Dark Conclave Ritualist Channel
+    ApplySpellFix({ 38469 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(6);  // 100yd
+    });
+
     //
     // VIOLET HOLD SPELLS
     //
@@ -4114,8 +4120,8 @@ void SpellMgr::LoadSpellInfoCorrections()
         });
     });
 
-    // Cosmic Smash (Algalon the Observer) & Dark Conclave Ritualist Channel
-    ApplySpellFix({ 62311, 64596, 38469 }, [](SpellInfo* spellInfo)
+    // Cosmic Smash (Algalon the Observer)
+    ApplySpellFix({ 62311, 64596 }, [](SpellInfo* spellInfo)
     {
         spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(6);  // 100yd
     });
