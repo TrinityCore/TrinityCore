@@ -26,6 +26,7 @@ EndScriptData */
 #include "hellfire_ramparts.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
 #include "TemporarySummon.h"
@@ -349,7 +350,11 @@ class boss_vazruden_the_herald : public CreatureScript
                     if (Creature* Vazruden = me->SummonCreature(NPC_VAZRUDEN, VazrudenMiddle[0], VazrudenMiddle[1], VazrudenMiddle[2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 6000000))
                         VazrudenGUID = Vazruden->GetGUID();
                     if (Creature* Nazan = me->SummonCreature(NPC_NAZAN, VazrudenMiddle[0], VazrudenMiddle[1], VazrudenMiddle[2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 6000000))
+                    {
                         NazanGUID = Nazan->GetGUID();
+                        if (Player* player = Nazan->SelectNearestPlayer(60.0f))
+                            Nazan->AI()->AttackStart(player);
+                    }
                     summoned = true;
                     me->SetVisible(false);
                     me->AddUnitState(UNIT_STATE_ROOT);
@@ -435,6 +440,10 @@ class boss_vazruden_the_herald : public CreatureScript
                                 EnterEvadeMode();
                                 return;
                             }
+                        }
+                        if (!(Nazan && Nazan->IsAlive()) && !(Vazruden && Vazruden->IsAlive()))
+                        {
+                            me->DisappearAndDie();
                         }
                         check = 2000;
                     }
