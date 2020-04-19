@@ -14055,7 +14055,7 @@ void Unit::RewardRage(uint32 baseRage, bool attacker)
     else
     {
         // Calculate rage from health and damage taken (formular taken from SimulationCraft)
-        addRage = baseRage * 18.92 / GetMaxHealth();
+        addRage = std::floor(0.5f + (baseRage * 18.92 / GetMaxHealth()));
 
         // Berserker Rage 
         if (HasAura(18499))
