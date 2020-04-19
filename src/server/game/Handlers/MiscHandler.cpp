@@ -442,15 +442,21 @@ void WorldSession::HandleLogoutCancelOpcode(WorldPacket& /*recvData*/)
     }
 }
 
-void WorldSession::HandleTogglePvP(WorldPacket& recvData)
+void WorldSession::HandleTogglePvP(WorldPackets::Misc::TogglePvP& togglePvP)
 {
     // this opcode can be used in two ways: Either set explicit new status or toggle old status
-    if (recvData.size() == 1)
+    if (togglePvP.HasPvPStatus())
     {
-        bool newPvPStatus;
-        recvData >> newPvPStatus;
-        GetPlayer()->ApplyModFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP, newPvPStatus);
-        GetPlayer()->ApplyModFlag(PLAYER_FLAGS, PLAYER_FLAGS_PVP_TIMER, !newPvPStatus);
+        if (togglePvP.Enable)
+        {
+            GetPlayer()->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP);
+            GetPlayer()->RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_PVP_TIMER);
+        }
+        else
+        {
+            GetPlayer()->RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP);
+            GetPlayer()->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_PVP_TIMER);
+        }
     }
     else
     {
@@ -468,9 +474,6 @@ void WorldSession::HandleTogglePvP(WorldPacket& recvData)
         if (!GetPlayer()->pvpInfo.IsHostile && GetPlayer()->IsPvP())
             GetPlayer()->pvpInfo.EndTimer = GameTime::GetGameTime() + 300;     // start toggle-off
     }
-
-    //if (OutdoorPvP* pvp = _player->GetOutdoorPvP())
-    //    pvp->HandlePlayerActivityChanged(_player);
 }
 
 void WorldSession::HandleZoneUpdateOpcode(WorldPacket& recvData)

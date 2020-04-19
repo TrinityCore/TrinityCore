@@ -285,6 +285,18 @@ namespace WorldPackets
             ObjectGuid Roller;
         };
 
+        class TogglePvP final : public ClientPacket
+        {
+        public:
+            TogglePvP(WorldPacket&& packet) : ClientPacket(CMSG_TOGGLE_PVP, std::move(packet)) { }
+
+            void Read() override;
+
+            bool HasPvPStatus() const { return GetSize() == 1; }
+
+            bool Enable = false;
+        };
+
         class UITime final : public ServerPacket
         {
         public:
