@@ -641,7 +641,7 @@ void Creature::Regenerate(Powers power)
 
     // Apply modifiers (if any).
     AddPct(addvalue, GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, power));
-    addvalue += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, power) * (IsHunterPet() ? PetFocusRegenInterval : CREATURE_REGEN_INTERVAL) / (5 * IN_MILLISECONDS);
+    addvalue += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, power) * (IsHunterPet() ? PetFocusRegenInterval : REGENERATION_INTERVAL) / (5 * IN_MILLISECONDS);
     ModifyPower(power, int32(addvalue));
 }
 

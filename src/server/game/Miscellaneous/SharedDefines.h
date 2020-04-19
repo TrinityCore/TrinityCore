@@ -245,6 +245,7 @@ enum Powers
 };
 
 #define MAX_POWERS_PER_CLASS            5
+#define REGENERATION_INTERVAL           2 * IN_MILLISECONDS
 
 enum SpellSchools
 {

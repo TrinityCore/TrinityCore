@@ -322,7 +322,7 @@ Unit::Unit(bool isWorldObject) :
     IsAIEnabled(false), NeedChangeAI(false), LastCharmerGUID(),
     m_ControlledByPlayer(false), movespline(new Movement::MoveSpline()),
     i_AI(nullptr), i_disabledAI(nullptr), m_AutoRepeatFirstCast(false), m_procDeep(0),
-    m_removedAurasCount(0), i_motionMaster(new MotionMaster(this)), m_regenTimer(0), m_ThreatManager(this),
+    m_removedAurasCount(0), i_motionMaster(new MotionMaster(this)), m_ThreatManager(this),
     m_vehicle(nullptr), m_vehicleKit(nullptr), m_unitTypeMask(UNIT_MASK_NONE), m_Diminishing(),
     m_HostileRefManager(this), _lastDamagedTime(0), m_spellHistory(new SpellHistory(this))
 {
@@ -408,6 +408,8 @@ Unit::Unit(bool isWorldObject) :
     m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_ALIVE);
 
     _lastLiquid = nullptr;
+
+    _powerBarId = 0;
 
     _oldFactionId = 0;
     _isWalkingBeforeCharm = false;
@@ -860,7 +862,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     // Rage from Damage made (only from direct weapon damage)
     if (cleanDamage && damagetype == DIRECT_DAMAGE && this != victim && getPowerType() == POWER_RAGE)
     {
-        uint32 rage = uint32(GetAttackTime(cleanDamage->attackType) / 1000 * 8.125f);
+        uint32 rage = uint32(GetAttackTime(cleanDamage->attackType) / 1000 * 6.5f);
 
         // Sentinel
         if (victim->GetVictim() && victim->GetVictim() != this)
@@ -6651,9 +6653,6 @@ void Unit::EnergizeBySpell(Unit* victim, uint32 spellId, int32 damage, Powers po
     // needs to be called after sending spell log
     victim->ModifyPower(powerType, damage);
 
-    if (powerType == POWER_HOLY_POWER && GetTypeId() == TYPEID_PLAYER)
-        ToPlayer()->ResetHolyPowerRegenerationTimer();
-
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     victim->getHostileRefManager().threatAssist(this, float(damage) * 0.5f, spellInfo);
 }
@@ -8900,6 +8899,61 @@ int32 Unit::ModifyPowerPct(Powers power, float pct, bool apply)
     ApplyPercentModFloatVar(amount, pct, apply);
 
     return ModifyPower(power, (int32)amount - GetMaxPower(power));
+}
+
+inline float GetBasePowerRegen(uint32 powerBarId, Powers powerType, bool isInCombat)
+{
+    if (powerType != POWER_ALTERNATE_POWER)
+    {
+        switch (powerType)
+        {
+            case POWER_RAGE:        return isInCombat ? 0.f : -12.5f;
+            case POWER_FOCUS:       return 5.f;
+            case POWER_RUNIC_POWER: return isInCombat ? 0.f : -12.5f;
+            case POWER_ENERGY:      return 10.f;
+            case POWER_HOLY_POWER:  return isInCombat ? 0.f : -0.1f;
+            default:
+                return 0.f;
+        }
+    }
+    else
+    {
+        UnitPowerBarEntry const* powerBar = sUnitPowerBarStore.LookupEntry(powerBarId);
+        if (!powerBar)
+            return 0.f;
+
+        return isInCombat ? powerBar->RegenerationCombat : powerBar->RegenerationPeace;
+    }
+
+    return 0.f;
+}
+
+// Based on client function
+float Unit::GetPowerRegen(Powers powerType, bool isInCombat) const
+{
+    uint32 powerSlot = MAX_POWERS;
+    float totalRegeneration = 0.f;
+    double result = GetBasePowerRegen(_powerBarId, powerType, isInCombat); // base power regen
+    float combatRegeneration = result;
+
+    powerSlot = GetPowerIndex(powerType);
+    if (powerSlot != MAX_POWERS)
+    {
+        uint32 powerRegenIndex = isInCombat ? UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER : UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER;
+        totalRegeneration = GetFloatValue(powerRegenIndex + powerSlot) + combatRegeneration;
+        result = totalRegeneration;
+    }
+    else
+        totalRegeneration = result;
+
+    if (IsPlayer() && (powerType == POWER_ENERGY || powerType == POWER_FOCUS))
+    {
+        float hasteRegen = GetFloatValue(PLAYER_FIELD_MOD_HASTE_REGEN);
+        if (hasteRegen != 0.f)
+            result = totalRegeneration / hasteRegen;
+    }
+
+    return result;
 }
 
 uint32 Unit::GetAttackTime(WeaponAttackType att) const
@@ -11303,7 +11357,7 @@ void Unit::ApplyHasteRegenMod(WeaponAttackType att, float val, bool apply)
     }
 
     if (getClass() == CLASS_DEATH_KNIGHT)
-        ToPlayer()->UpdateRuneRegeneration();
+        ToPlayer()->UpdatePowerRegeneration(POWER_RUNE);
 }
 
 void Unit::ApplyCastTimePercentMod(float val, bool apply)
@@ -13995,21 +14049,20 @@ void Unit::RewardRage(uint32 baseRage, bool attacker)
     if (attacker)
     {
         addRage = baseRage;
-        // talent who gave more rage on attack
+        // Additional rage from attacks (e.g. Anger Management)
         AddPct(addRage, GetTotalAuraModifier(SPELL_AURA_MOD_RAGE_FROM_DAMAGE_DEALT));
     }
     else
     {
-        // Calculate rage from health and damage taken
-        //! ToDo: Check formula
-        addRage = floor(0.5f + (25.7f * baseRage / GetMaxHealth()));
-        // Berserker Rage effect
+        // Calculate rage from health and damage taken (formular taken from SimulationCraft)
+        addRage = baseRage * 18.92 / GetMaxHealth();
+
+        // Berserker Rage 
         if (HasAura(18499))
             addRage *= 2.0f;
     }
 
     addRage *= sWorld->getRate(RATE_POWER_RAGE_INCOME);
-
     ModifyPower(POWER_RAGE, uint32(addRage * 10));
 }
 

@@ -122,7 +122,6 @@ struct TC_GAME_API CreatureMovementData
     std::string ToString() const;
 };
 
-static uint32 const CREATURE_REGEN_INTERVAL = 2 * IN_MILLISECONDS;
 static uint32 const CREATURE_NOPATH_EVADE_TIME = 5 * IN_MILLISECONDS;
 
 static uint8 const MAX_KILL_CREDIT = 2;

@@ -1515,11 +1515,11 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetBindPoint(ObjectGuid guid) const;
         void SendTalentWipeConfirm(ObjectGuid guid) const;
         void ResetPetTalents();
-        void RegenerateAll();
-        void Regenerate(Powers power);
+        void RegenerateAll(uint32 diff);
+        void Regenerate(Powers power, uint32 diff);
         void RegenerateHealth();
-        void setRegenTimerCount(uint32 time) {m_regenTimerCount = time;}
-        void setWeaponChangeTimer(uint32 time) {m_weaponChangeTimer = time;}
+        void SetRegenerationTimer(uint32 time) { _regenerationTimer = time;}
+        void setWeaponChangeTimer(uint32 time) { m_weaponChangeTimer = time;}
 
         uint64 GetMoney() const { return GetUInt64Value(PLAYER_FIELD_COINAGE); }
         bool ModifyMoney(int64 amount, bool sendError = true);
@@ -1837,7 +1837,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void UpdateExpertise(WeaponAttackType attType);
         void ApplyManaRegenBonus(int32 amount, bool apply);
         void ApplyHealthRegenBonus(int32 amount, bool apply);
-        void UpdateManaRegen();
+        void UpdatePowerRegeneration(Powers powerType);
         uint32 GetRuneTimer(uint8 index) const { return m_runeGraceCooldown[index]; }
         void SetRuneTimer(uint8 index, uint32 timer) { m_runeGraceCooldown[index] = timer; }
         uint32 GetLastRuneGraceTimer(uint8 index) const { return m_lastRuneGraceTimers[index]; }
@@ -2320,7 +2320,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void ResyncRunes(uint8 count);
         void AddRunePower(uint8 mask);
         void InitRunes();
-        void UpdateRuneRegeneration();
 
         void SendRespondInspectAchievements(Player* player) const;
         uint32 GetAchievementPoints() const;
@@ -2395,13 +2394,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 GetTransportSpawnID() const { return _transportSpawnID; }
         void SetTransportSpawnID(uint32 spawnId) { _transportSpawnID = spawnId; }
 
-        void ResetHolyPowerRegenerationTimer() { m_holyPowerRegenTimerCount = 0; }
     protected:
         // Gamemaster whisper whitelist
         GuidList WhisperList;
-        uint32 m_regenTimerCount;
-        uint32 m_holyPowerRegenTimerCount;
-        uint32 m_focusRegenTimerCount;
+        uint32 _regenerationTimer;
         uint32 m_foodEmoteTimerCount;
         float m_powerFraction[MAX_POWERS_PER_CLASS];
         uint32 m_contestedPvPTimer;

@@ -318,6 +318,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         static float _GetDamageMod(int32 Rank);
 
+        uint32 m_regenTimer;
         float m_SightDistance, m_CombatDistance;
 
         bool m_isTempWorldObject; //true when possessed

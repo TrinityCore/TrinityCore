@@ -2178,7 +2178,7 @@ void AuraEffect::HandleAuraTransform(AuraApplication const* aurApp, uint8 mode, 
             // for players, start regeneration after 1s (in polymorph fast regeneration case)
             // only if caster is Player (after patch 2.4.2)
             if (GetCasterGUID().IsPlayer())
-                target->ToPlayer()->setRegenTimerCount(1*IN_MILLISECONDS);
+                target->ToPlayer()->SetRegenerationTimer(1 * IN_MILLISECONDS);
 
             //dismount polymorphed target (after patch 2.4.2)
             if (target->IsMounted())
@@ -3638,22 +3638,17 @@ void AuraEffect::HandleAuraModExpertise(AuraApplication const* aurApp, uint8 mod
 /********************************/
 /***      HEAL & ENERGIZE     ***/
 /********************************/
-void AuraEffect::HandleModPowerRegen(AuraApplication const* aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleModPowerRegen(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
 {
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
         return;
 
-    Unit* target = aurApp->GetTarget();
-
-    if (target->GetTypeId() != TYPEID_PLAYER)
+    Player* target = aurApp->GetTarget()->ToPlayer();
+    if (!target)
         return;
 
-    // Update manaregen value
-    if (GetMiscValue() == POWER_MANA)
-        target->ToPlayer()->UpdateManaRegen();
-    else if (GetMiscValue() == POWER_RUNE)
-        target->ApplyPercentModFloatValue(PLAYER_RUNE_REGEN_1 + GetMiscValueB(), float(GetAmount()), apply);
-    // other powers are not immediate effects - implemented in Player::Regenerate, Creature::Regenerate
+    // Update power regen values
+    target->UpdatePowerRegeneration(Powers(GetMiscValue()));
 }
 
 void AuraEffect::HandleModPowerRegenPCT(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -3678,7 +3673,7 @@ void AuraEffect::HandleModManaRegen(AuraApplication const* aurApp, uint8 mode, b
         return;
 
     //Note: an increase in regen does NOT cause threat.
-    target->ToPlayer()->UpdateManaRegen();
+    target->ToPlayer()->UpdatePowerRegeneration(POWER_MANA);
 }
 
 void AuraEffect::HandleAuraModIncreaseHealth(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -6338,13 +6333,18 @@ void AuraEffect::HandleEnableAltPower(AuraApplication const* aurApp, uint8 mode,
     if (!powerEntry)
         return;
 
+    Unit* target = aurApp->GetTarget();
     if (apply)
     {
-        aurApp->GetTarget()->SetMaxPower(POWER_ALTERNATE_POWER, powerEntry->MaxPower);
-        aurApp->GetTarget()->SetPower(POWER_ALTERNATE_POWER, powerEntry->StartPower);
+        target->SetMaxPower(POWER_ALTERNATE_POWER, powerEntry->MaxPower);
+        target->SetPower(POWER_ALTERNATE_POWER, powerEntry->StartPower);
+        target->SetPowerBarID(altPowerId);
     }
     else
-        aurApp->GetTarget()->SetMaxPower(POWER_ALTERNATE_POWER, 0);
+    {
+        target->SetMaxPower(POWER_ALTERNATE_POWER, 0);
+        target->SetPowerBarID(0);
+    }
 }
 
 void AuraEffect::HandleModSpellCategoryCooldown(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const

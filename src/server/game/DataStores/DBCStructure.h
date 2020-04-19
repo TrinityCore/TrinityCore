@@ -2476,8 +2476,8 @@ struct UnitPowerBarEntry
     uint32  MaxPower;                                       // 3
     uint32  StartPower;                                     // 4
     //uint32  CenterPower;                                  // 5
-    //float   RegenerationPeace;                            // 6
-    //float   RegenerationCombat;                           // 7
+    float   RegenerationPeace;                              // 6
+    float   RegenerationCombat;                             // 7
     //uint32  BarType;                                      // 8
     //uint32  FileDataID[6];                                // 9 - 14
     //uint32  Color[6];                                     // 15 - 20

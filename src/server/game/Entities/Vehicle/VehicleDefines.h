@@ -24,7 +24,7 @@
 
 struct VehicleSeatEntry;
 
-enum PowerType
+enum PowerType : uint32
 {
     POWER_STEAM                                  = 61,
     POWER_PYRITE                                 = 41,

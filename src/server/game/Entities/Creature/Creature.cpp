@@ -205,7 +205,7 @@ m_AlreadySearchedAssistance(false), m_regenHealth(true), m_cannotReachTarget(fal
 m_originalEntry(0), m_homePosition(), m_transportHomePosition(), m_creatureInfo(nullptr), m_creatureData(nullptr), _waypointPathId(0), _currentWaypointNodeInfo(0, 0),
 m_formation(nullptr), m_triggerJustAppeared(true), m_respawnCompatibilityMode(false)
 {
-    m_regenTimer = CREATURE_REGEN_INTERVAL;
+    m_regenTimer = REGENERATION_INTERVAL;
     m_valuesCount = UNIT_END;
 
     for (uint8 i = 0; i < MAX_CREATURE_SPELLS; ++i)
@@ -788,7 +788,7 @@ void Creature::Update(uint32 diff)
                     else
                         RegenerateMana();
                 }
-                m_regenTimer = CREATURE_REGEN_INTERVAL;
+                m_regenTimer = REGENERATION_INTERVAL;
             }
 
             // Update serverside orientation of channeled spells that are suposed to track the channel target
@@ -839,7 +839,7 @@ void Creature::RegenerateMana()
         if ((*i)->GetMiscValue() == POWER_MANA)
             AddPct(addvalue, (*i)->GetAmount());
 
-    addvalue += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) * CREATURE_REGEN_INTERVAL / (5 * IN_MILLISECONDS);
+    addvalue += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) * REGENERATION_INTERVAL / (5 * IN_MILLISECONDS);
 
     ModifyPower(POWER_MANA, addvalue);
 }
@@ -876,7 +876,7 @@ void Creature::RegenerateHealth()
     for (AuraEffectList::const_iterator i = ModPowerRegenPCTAuras.begin(); i != ModPowerRegenPCTAuras.end(); ++i)
         AddPct(addvalue, (*i)->GetAmount());
 
-    addvalue += GetTotalAuraModifier(SPELL_AURA_MOD_REGEN) * CREATURE_REGEN_INTERVAL  / (5 * IN_MILLISECONDS);
+    addvalue += GetTotalAuraModifier(SPELL_AURA_MOD_REGEN) * REGENERATION_INTERVAL / (5 * IN_MILLISECONDS);
 
     ModifyHealth(addvalue);
 }

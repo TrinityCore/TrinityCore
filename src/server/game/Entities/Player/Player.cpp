@@ -159,10 +159,7 @@ Player::Player(WorldSession* session): Unit(true)
 
     m_comboPoints = 0;
 
-    m_regenTimer = 0;
-    m_regenTimerCount = 0;
-    m_holyPowerRegenTimerCount = 0;
-    m_focusRegenTimerCount = 0;
+    _regenerationTimer = 0;
     m_foodEmoteTimerCount = 0;
     m_weaponChangeTimer = 0;
 
@@ -1223,10 +1220,7 @@ void Player::Update(uint32 p_time)
     }
 
     if (IsAlive())
-    {
-        m_regenTimer += p_time;
-        RegenerateAll();
-    }
+        RegenerateAll(p_time);
 
     if (m_deathState == JUST_DIED)
         KillPlayer();
@@ -1838,24 +1832,18 @@ bool Player::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index, Un
     return Unit::IsImmunedToSpellEffect(spellInfo, index, caster);
 }
 
-void Player::RegenerateAll()
+void Player::RegenerateAll(uint32 diff)
 {
-    //if (m_regenTimer <= 500)
-    //    return;
+    _regenerationTimer += diff;
+    m_foodEmoteTimerCount += diff;
 
-    m_regenTimerCount += m_regenTimer;
-
-    if (getClass() == CLASS_PALADIN)
-        m_holyPowerRegenTimerCount += m_regenTimer;
-
-    if (getClass() == CLASS_HUNTER)
-        m_focusRegenTimerCount += m_regenTimer;
-
-    m_foodEmoteTimerCount += m_regenTimer;
-
-    Regenerate(POWER_ENERGY);
-    Regenerate(POWER_MANA);
-    Regenerate(POWER_FOCUS);
+    Regenerate(POWER_ENERGY, diff);
+    Regenerate(POWER_MANA, diff);
+    Regenerate(POWER_FOCUS, diff);
+    Regenerate(POWER_HOLY_POWER, diff);
+    Regenerate(POWER_RUNIC_POWER, diff);
+    Regenerate(POWER_RAGE, diff);
+    Regenerate(POWER_ALTERNATE_POWER, diff);
 
     // Runes act as cooldowns, and they don't need to send any data
     if (getClass() == CLASS_DEATH_KNIGHT)
@@ -1874,11 +1862,11 @@ void Player::RegenerateAll()
             }
 
             if (cd)
-                SetRuneCooldown(runeToRegen, (cd > (m_regenTimer * cdmod)) ? cd - (m_regenTimer * cdmod) : 0);
+                SetRuneCooldown(runeToRegen, (cd > (diff * cdmod)) ? cd - (diff * cdmod) : 0);
         }
     }
 
-    if (m_regenTimerCount >= 2000)
+    if (_regenerationTimer >= REGENERATION_INTERVAL)
     {
         // Not in combat or they have regeneration
         if (!IsInCombat() || IsPolymorphed() || m_baseHealthRegen ||
@@ -1888,20 +1876,8 @@ void Player::RegenerateAll()
             RegenerateHealth();
         }
 
-        Regenerate(POWER_RAGE);
-        if (getClass() == CLASS_DEATH_KNIGHT)
-            Regenerate(POWER_RUNIC_POWER);
-
-        m_regenTimerCount -= 2000;
+        _regenerationTimer -= REGENERATION_INTERVAL;
     }
-
-    if (m_holyPowerRegenTimerCount >= 10000 && getClass() == CLASS_PALADIN)
-    {
-        Regenerate(POWER_HOLY_POWER);
-        m_holyPowerRegenTimerCount -= 10000;
-    }
-
-    m_regenTimer = 0;
 
     // Handles the emotes for drinking and eating.
     // According to sniffs there is a background timer going on that repeats independed from the time window where the aura applies.
@@ -1935,7 +1911,7 @@ void Player::RegenerateAll()
     }
 }
 
-void Player::Regenerate(Powers power)
+void Player::Regenerate(Powers power, uint32 diff)
 {
     uint32 maxValue = GetMaxPower(power);
     if (!maxValue)
@@ -1943,8 +1919,8 @@ void Player::Regenerate(Powers power)
 
     uint32 curValue = GetPower(power);
 
-    /// @todo possible use of miscvalueb instead of amount
-    if (HasAuraTypeWithValue(SPELL_AURA_PREVENT_REGENERATE_POWER, power))
+    // Block power regeneration
+    if (HasAuraTypeWithValue(SPELL_AURA_PREVENT_REGENERATE_POWER, power) || HasAuraType(SPELL_AURA_INTERRUPT_REGEN))
         return;
 
     // Skip regeneration for power type we cannot have
@@ -1952,88 +1928,36 @@ void Player::Regenerate(Powers power)
     if (powerIndex == MAX_POWERS)
         return;
 
-    float addvalue = 0.0f;
+    float addValue = GetPowerRegen(power, IsInCombat()) * (0.001f * diff);
 
-    // Powers now benefit from haste.
-    float meleeHaste = GetFloatValue(PLAYER_FIELD_MOD_HASTE);
-    float spellHaste = GetFloatValue(UNIT_MOD_CAST_SPEED);
-
+    // Apply config values
     switch (power)
     {
         case POWER_MANA:
-        {
-            float ManaIncreaseRate = sWorld->getRate(RATE_POWER_MANA);
-
-            if (IsInCombat()) // Trinity Updates Mana in intervals of 2s, which is correct
-                addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER) *  ManaIncreaseRate * ((0.001f * m_regenTimer) + CalculatePct(0.001f, spellHaste));
-            else
-                addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER) *  ManaIncreaseRate * ((0.001f * m_regenTimer) + CalculatePct(0.001f, spellHaste));
+            addValue *= sWorld->getRate(RATE_POWER_MANA);
             break;
-        }
-        case POWER_RAGE:                                                // Regenerate rage
-        {
-            if (!IsInCombat() && !HasAuraType(SPELL_AURA_INTERRUPT_REGEN))
-            {
-                float RageDecreaseRate = sWorld->getRate(RATE_POWER_RAGE_LOSS);
-                addvalue += -25 * RageDecreaseRate / meleeHaste;                // 2.5 rage by tick (= 2 seconds => 1.25 rage/sec)
-            }
+        case POWER_RAGE:
+            addValue *= sWorld->getRate(RATE_POWER_RAGE_LOSS);
             break;
-        }
-        case POWER_FOCUS:
-        {
-            float haste = (1.0f / GetFloatValue(PLAYER_FIELD_MOD_HASTE_REGEN) - 1.0f) * 100.0f;
-            addvalue += (5.0f + CalculatePct(5.0f, haste)) * (m_regenTimer / 1000.0f);
-            addvalue *= GetTotalAuraMultiplier(SPELL_AURA_HASTE_SPELLS);
-            break;
-        }
-        case POWER_ENERGY:                                              // Regenerate energy (rogue)
-        {
-            float haste = (1.0f / GetFloatValue(PLAYER_FIELD_MOD_HASTE_REGEN) - 1.0f) * 100.0f;
-            addvalue += (10.0f + CalculatePct(10.0f, haste)) * (m_regenTimer / 1000.0f);
-            break;
-        }
         case POWER_RUNIC_POWER:
-        {
-            if (!IsInCombat() && !HasAuraType(SPELL_AURA_INTERRUPT_REGEN))
-            {
-                float RunicPowerDecreaseRate = sWorld->getRate(RATE_POWER_RUNICPOWER_LOSS);
-                addvalue += -30 * RunicPowerDecreaseRate;         // 3 RunicPower by tick
-            }
+            addValue*= sWorld->getRate(RATE_POWER_RUNICPOWER_LOSS);
             break;
-        }
-        case POWER_HOLY_POWER:                                          // Regenerate holy power
-        {
-            if (!IsInCombat())
-                addvalue += -1.0f;      // remove 1 each 10 sec
+        case POWER_FOCUS:
+            addValue *= sWorld->getRate(RATE_POWER_FOCUS);
             break;
-        }
-        case POWER_RUNE:
+        case POWER_ENERGY:
+            addValue *= sWorld->getRate(RATE_POWER_ENERGY);
             break;
-        case POWER_HEALTH:
-            return;
         default:
             break;
     }
 
-    // Mana regen calculated in Player::UpdateManaRegen()
-    if (power != POWER_MANA && power != POWER_FOCUS && power != POWER_ENERGY)
-    {
-        AuraEffectList const& ModPowerRegenPCTAuras = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
-        for (AuraEffectList::const_iterator i = ModPowerRegenPCTAuras.begin(); i != ModPowerRegenPCTAuras.end(); ++i)
-            if (Powers((*i)->GetMiscValue()) == power)
-                AddPct(addvalue, (*i)->GetAmount());
-
-        // Butchery requires combat for this effect
-        if (power != POWER_RUNIC_POWER || IsInCombat())
-            addvalue += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, power) * ((power != POWER_ENERGY) ? m_regenTimerCount : m_regenTimer) / (5 * IN_MILLISECONDS);
-    }
-
-    if (addvalue < 0.0f)
+    if (addValue < 0.0f)
     {
         if (curValue == 0)
             return;
     }
-    else if (addvalue > 0.0f)
+    else if (addValue > 0.0f)
     {
         if (curValue == maxValue)
             return;
@@ -2041,15 +1965,15 @@ void Player::Regenerate(Powers power)
     else
         return;
 
-    addvalue += m_powerFraction[powerIndex];
-    uint32 integerValue = uint32(std::fabs(addvalue));
+    addValue += m_powerFraction[powerIndex];
+    uint32 integerValue = uint32(std::fabs(addValue));
 
-    if (addvalue < 0.0f)
+    if (addValue < 0.0f)
     {
         if (curValue > integerValue)
         {
             curValue -= integerValue;
-            m_powerFraction[powerIndex] = addvalue + integerValue;
+            m_powerFraction[powerIndex] = addValue + integerValue;
         }
         else
         {
@@ -2067,10 +1991,10 @@ void Player::Regenerate(Powers power)
             m_powerFraction[powerIndex] = 0;
         }
         else
-            m_powerFraction[powerIndex] = addvalue - integerValue;
+            m_powerFraction[powerIndex] = addValue - integerValue;
     }
 
-    if (m_regenTimerCount >= 2000)
+    if (_regenerationTimer >= REGENERATION_INTERVAL)
         SetPower(power, curValue);
     else
         UpdateUInt32Value(UNIT_FIELD_POWER1 + powerIndex, curValue);
@@ -25680,18 +25604,6 @@ void Player::InitRunes()
 
     for (uint8 i = 0; i < NUM_RUNE_TYPES; ++i)
         SetFloatValue(PLAYER_RUNE_REGEN_1 + i, 0.1f);                  // set a base regen timer equal to 10 sec
-}
-
-void Player::UpdateRuneRegeneration()
-{
-    // Formular: base cooldown / (1 - haste)
-    float regeneration = 0.1f;
-    float haste = GetFloatValue(PLAYER_FIELD_MOD_HASTE_REGEN);
-    if (haste)
-        regeneration /= haste;
-
-    for (uint8 i = 0; i < NUM_RUNE_TYPES; i++)
-        SetFloatValue(PLAYER_RUNE_REGEN_1 + i, regeneration);
 }
 
 bool Player::IsBaseRuneSlotsOnCooldown(RuneType runeType) const
