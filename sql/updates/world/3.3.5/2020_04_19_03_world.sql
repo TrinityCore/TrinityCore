@@ -2,7 +2,7 @@
 UPDATE `creature` SET `wander_distance` = 0, `movementType` = 2 WHERE `guid` = 126445;
 DELETE FROM `creature_addon` WHERE `guid` = 126445;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`, `visibilityDistanceType`, `auras`) VALUES
-(126445, 1264450, 0, 0, 4097, 0, 0, 0, '');
+(126445, 1264450, 0, 0, 4097, 0, 0, '');
 
 DELETE FROM `waypoint_data` WHERE `id` = 1264450;
 INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES
