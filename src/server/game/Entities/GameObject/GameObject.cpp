@@ -243,7 +243,7 @@ void GameObject::RemoveFromWorld()
 
         // If linked trap exists, despawn it
         if (GameObject* linkedTrap = GetLinkedTrap())
-        linkedTrap->DespawnOrUnsummon();
+            linkedTrap->DespawnOrUnsummon();
 
         WorldObject::RemoveFromWorld();
 
