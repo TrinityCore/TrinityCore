@@ -20,6 +20,7 @@
 #include "ArenaTeam.h"
 #include "ArenaTeamMgr.h"
 #include "ArtifactPackets.h"
+#include "AuctionHousePackets.h"
 #include "AuthenticationPackets.h"
 #include "Battleground.h"
 #include "BattlegroundPackets.h"
@@ -1084,6 +1085,33 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
     // Place character in world (and load zone) before some object loading
     pCurrChar->LoadCorpse(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_CORPSE_LOCATION));
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_FAVORITE_AUCTIONS);
+    stmt->setUInt64(0, pCurrChar->GetGUID().GetCounter());
+    GetQueryProcessor().AddCallback(CharacterDatabase.AsyncQuery(stmt)).WithPreparedCallback([this](PreparedQueryResult favoriteAuctionResult)
+    {
+        WorldPackets::AuctionHouse::AuctionFavoriteItems favoriteItems;
+        if (favoriteAuctionResult)
+        {
+            favoriteItems.Items.reserve(favoriteAuctionResult->GetRowCount());
+
+            do
+            {
+                Field* fields = favoriteAuctionResult->Fetch();
+
+                favoriteItems.Items.emplace_back();
+                WorldPackets::AuctionHouse::AuctionFavoriteInfo& item = favoriteItems.Items.back();
+                item.Order = fields[0].GetUInt32();
+                item.ItemID = fields[1].GetUInt32();
+                item.ItemLevel = fields[2].GetUInt32();
+                item.BattlePetSpeciesID = fields[3].GetUInt32();
+                item.SuffixItemNameDescriptionID = fields[4].GetUInt32();
+
+            } while (favoriteAuctionResult->NextRow());
+
+        }
+        SendPacket(favoriteItems.Write());
+    });
 
     // setting Ghost+speed if dead
     if (pCurrChar->m_deathState != ALIVE)

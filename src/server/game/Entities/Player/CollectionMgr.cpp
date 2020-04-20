@@ -851,6 +851,19 @@ std::unordered_set<ObjectGuid> CollectionMgr::GetItemsProvidingTemporaryAppearan
     return std::unordered_set<ObjectGuid>();
 }
 
+std::unordered_set<uint32> CollectionMgr::GetAppearanceIds() const
+{
+    std::unordered_set<uint32> appearances;
+    std::size_t id = _appearances->find_first();
+    while (id != boost::dynamic_bitset<uint32>::npos)
+    {
+        appearances.insert(sItemModifiedAppearanceStore.AssertEntry(id)->ItemAppearanceID);
+        id = _appearances->find_next(id);
+    }
+
+    return appearances;
+}
+
 void CollectionMgr::SetAppearanceIsFavorite(uint32 itemModifiedAppearanceId, bool apply)
 {
     auto itr = _favoriteAppearances.find(itemModifiedAppearanceId);

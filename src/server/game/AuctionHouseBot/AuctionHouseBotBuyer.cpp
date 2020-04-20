@@ -100,38 +100,40 @@ uint32 AuctionBotBuyer::GetItemInformation(BuyerConfiguration& config)
     time_t now = time(nullptr);
     uint32 count = 0;
 
-    AuctionHouseObject* house = sAuctionMgr->GetAuctionsMap(config.GetHouseType());
-    for (AuctionHouseObject::AuctionEntryMap::const_iterator itr = house->GetAuctionsBegin(); itr != house->GetAuctionsEnd(); ++itr)
+    AuctionHouseObject* house = sAuctionMgr->GetAuctionsById(sAuctionBotConfig->GetAuctionHouseId(config.GetHouseType()));
+    for (auto itr = house->GetAuctionsBegin(); itr != house->GetAuctionsEnd(); ++itr)
     {
-        AuctionEntry* entry = itr->second;
+        AuctionPosting* entry = &itr->second;
 
-        if (!entry->owner || sAuctionBotConfig->IsBotChar(entry->owner))
+        if (entry->IsCommodity())
+            continue; // skip commodities, there can be thousands of items in a single auction. TODO: partial buys?
+
+        if (entry->Owner.IsEmpty() || sAuctionBotConfig->IsBotChar(entry->Owner))
             continue; // Skip auctions owned by AHBot
 
-        Item* item = sAuctionMgr->GetAItem(entry->itemGUIDLow);
-        if (!item)
-            continue;
-
-        BuyerItemInfo& itemInfo = config.SameItemInfo[item->GetEntry()];
+        BuyerItemInfo& itemInfo = config.SameItemInfo[entry->Bucket->Key.ItemId];
 
         // Update item entry's count and total bid prices
         // This can be used later to determine the prices and chances to bid
-        uint32 itemBidPrice = entry->startbid / item->GetCount();
-        itemInfo.TotalBidPrice = itemInfo.TotalBidPrice + itemBidPrice;
-        itemInfo.BidItemCount++;
+        if (entry->MinBid)
+        {
+            uint32 itemBidPrice = entry->MinBid;
+            itemInfo.TotalBidPrice = itemInfo.TotalBidPrice + itemBidPrice;
+            itemInfo.BidItemCount++;
 
-        // Set minimum bid price
-        if (!itemInfo.MinBidPrice)
-            itemInfo.MinBidPrice = itemBidPrice;
-        else
-            itemBidPrice = std::min(itemInfo.MinBidPrice, itemBidPrice);
+            // Set minimum bid price
+            if (!itemInfo.MinBidPrice)
+                itemInfo.MinBidPrice = itemBidPrice;
+            else
+                itemInfo.MinBidPrice = std::min(itemInfo.MinBidPrice, itemBidPrice);
+        }
 
         // Set minimum buyout price if item has buyout
-        if (entry->buyout)
+        if (entry->BuyoutOrUnitPrice)
         {
             // Update item entry's count and total buyout prices
             // This can be used later to determine the prices and chances to buyout
-            uint32 itemBuyPrice = entry->buyout / item->GetCount();
+            uint32 itemBuyPrice = entry->BuyoutOrUnitPrice;
             itemInfo.TotalBuyPrice = itemInfo.TotalBuyPrice + itemBuyPrice;
             itemInfo.BuyItemCount++;
 
@@ -144,7 +146,7 @@ uint32 AuctionBotBuyer::GetItemInformation(BuyerConfiguration& config)
         // Add/update EligibleItems if:
         // * no bid
         // * bid from player
-        if (!entry->bid || entry->bidder)
+        if (!entry->BidAmount || !entry->Bidder.IsEmpty())
         {
             config.EligibleItems[entry->Id].LastExist = now;
             config.EligibleItems[entry->Id].AuctionId = entry->Id;
@@ -158,13 +160,19 @@ uint32 AuctionBotBuyer::GetItemInformation(BuyerConfiguration& config)
 }
 
 // ahInfo can be NULL
-bool AuctionBotBuyer::RollBuyChance(const BuyerItemInfo* ahInfo, const Item* item, const AuctionEntry* auction, uint32 /*bidPrice*/)
+bool AuctionBotBuyer::RollBuyChance(BuyerItemInfo const* ahInfo, AuctionPosting const* auction)
 {
-    if (!auction->buyout)
+    if (!auction->BuyoutOrUnitPrice)
         return false;
 
-    float itemBuyPrice = float(auction->buyout / item->GetCount());
-    float itemPrice = float(item->GetTemplate()->GetSellPrice() ? item->GetTemplate()->GetSellPrice() : GetVendorPrice(item->GetTemplate()->GetQuality()));
+    Item const* item = auction->Items[0];
+    float itemBuyPrice = float(auction->BuyoutOrUnitPrice);
+    float itemPrice;
+    if (uint32 itemSellPrice = item->GetSellPrice(item->GetTemplate(), item->GetQuality(), item->GetItemLevel(item->GetTemplate(), *item->GetBonus(), 0, 0, 0, 0, 0, false, 0)))
+        itemPrice = float(itemSellPrice);
+    else
+        itemPrice = float(GetVendorPrice(item->GetQuality()));
+
     // The AH cut needs to be added to the price, but we dont want a 100% chance to buy if the price is exactly AH default
     itemPrice *= 1.4f;
 
@@ -173,7 +181,7 @@ bool AuctionBotBuyer::RollBuyChance(const BuyerItemInfo* ahInfo, const Item* ite
     float chance = std::min(100.f, std::pow(100.f, 1.f + (1.f - itemBuyPrice / itemPrice) / sAuctionBotConfig->GetConfig(CONFIG_AHBOT_BUYER_CHANCE_FACTOR)));
 
     // If a player has bidded on item, have fifth of normal chance
-    if (auction->bidder)
+    if (!auction->Bidder.IsEmpty())
         chance = chance / 5.f;
 
     if (ahInfo)
@@ -197,10 +205,19 @@ bool AuctionBotBuyer::RollBuyChance(const BuyerItemInfo* ahInfo, const Item* ite
 }
 
 // ahInfo can be NULL
-bool AuctionBotBuyer::RollBidChance(const BuyerItemInfo* ahInfo, const Item* item, const AuctionEntry* auction, uint32 bidPrice)
+bool AuctionBotBuyer::RollBidChance(BuyerItemInfo const* ahInfo, AuctionPosting const* auction, uint32 bidPrice)
 {
-    float itemBidPrice = float(bidPrice / item->GetCount());
-    float itemPrice = float(item->GetTemplate()->GetSellPrice() ? item->GetTemplate()->GetSellPrice() : GetVendorPrice(item->GetTemplate()->GetQuality()));
+    if (!auction->MinBid)
+        return false;
+
+    Item const* item = auction->Items[0];
+    float itemBidPrice = float(bidPrice);
+    float itemPrice;
+    if (uint32 itemSellPrice = item->GetSellPrice(item->GetTemplate(), item->GetQuality(), item->GetItemLevel(item->GetTemplate(), *item->GetBonus(), 0, 0, 0, 0, 0, false, 0)))
+        itemPrice = float(itemSellPrice);
+    else
+        itemPrice = float(GetVendorPrice(item->GetQuality()));
+
     // The AH cut needs to be added to the price, but we dont want a 100% chance to buy if the price is exactly AH default
     itemPrice *= 1.4f;
 
@@ -220,7 +237,7 @@ bool AuctionBotBuyer::RollBidChance(const BuyerItemInfo* ahInfo, const Item* ite
     }
 
     // If a player has bidded on item, have fifth of normal chance
-    if (auction->bidder && !sAuctionBotConfig->IsBotChar(auction->bidder))
+    if (!auction->Bidder.IsEmpty() && !sAuctionBotConfig->IsBotChar(auction->Bidder))
         chance = chance / 5.f;
 
     // Add config weigh in for quality
@@ -254,7 +271,7 @@ void AuctionBotBuyer::PrepareListOfEntry(BuyerConfiguration& config)
 void AuctionBotBuyer::BuyAndBidItems(BuyerConfiguration& config)
 {
     time_t now = time(nullptr);
-    AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(config.GetHouseType());
+    AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsById(sAuctionBotConfig->GetAuctionHouseId(config.GetHouseType()));
     CheckEntryMap& items = config.EligibleItems;
 
     // Max amount of items to buy or bid
@@ -270,7 +287,7 @@ void AuctionBotBuyer::BuyAndBidItems(BuyerConfiguration& config)
     CheckEntryMap::iterator itr = items.begin();
     while (cycles && itr != items.end())
     {
-        AuctionEntry* auction = auctionHouse->GetAuction(itr->second.AuctionId);
+        AuctionPosting* auction = auctionHouse->GetAuction(itr->second.AuctionId);
         if (!auction)
         {
             TC_LOG_DEBUG("ahbot", "AHBot: Entry %u doesn't exists, perhaps bought already?", itr->second.AuctionId);
@@ -287,48 +304,40 @@ void AuctionBotBuyer::BuyAndBidItems(BuyerConfiguration& config)
             continue;
         }
 
-        Item* item = sAuctionMgr->GetAItem(auction->itemGUIDLow);
-        if (!item)
-        {
-            // auction item not accessible, possible auction in payment pending mode
-            items.erase(itr++);
-            continue;
-        }
-
         // price to bid if bidding
-        uint32 bidPrice;
-        if (auction->bid >= auction->startbid)
+        uint64 bidPrice;
+        if (auction->BidAmount)
         {
             // get bid price to outbid previous bidder
-            bidPrice = auction->bid + auction->GetAuctionOutBid();
+            bidPrice = auction->BidAmount + auction->CalculateMinIncrement();
         }
         else
         {
             // no previous bidders - use starting bid
-            bidPrice = auction->startbid;
+            bidPrice = auction->MinBid;
         }
 
         const BuyerItemInfo* ahInfo = nullptr;
-        BuyerItemInfoMap::const_iterator sameItemItr = config.SameItemInfo.find(item->GetEntry());
+        BuyerItemInfoMap::const_iterator sameItemItr = config.SameItemInfo.find(auction->Bucket->Key.ItemId);
         if (sameItemItr != config.SameItemInfo.end())
             ahInfo = &sameItemItr->second;
 
         TC_LOG_DEBUG("ahbot", "AHBot: Rolling for AHentry %u:", auction->Id);
 
         // Roll buy and bid chances
-        bool successBuy = RollBuyChance(ahInfo, item, auction, bidPrice);
-        bool successBid = RollBidChance(ahInfo, item, auction, bidPrice);
+        bool successBuy = RollBuyChance(ahInfo, auction);
+        bool successBid = RollBidChance(ahInfo, auction, bidPrice);
 
         // If roll bidding succesfully and bid price is above buyout -> buyout
         // If roll for buying was successful but not for bid, buyout directly
         // If roll bidding was also successful, buy the entry with 20% chance
         // - Better bid than buy since the item is bought by bot if no player bids after
         // Otherwise bid if roll for bid was successful
-        if ((auction->buyout && successBid && bidPrice >= auction->buyout) ||
+        if ((auction->BuyoutOrUnitPrice && successBid && bidPrice >= auction->BuyoutOrUnitPrice) ||
             (successBuy && (!successBid || urand(1, 5) == 1)))
             BuyEntry(auction, auctionHouse); // buyout
         else if (successBid)
-            PlaceBidToEntry(auction, bidPrice); // bid
+            PlaceBidToEntry(auction, auctionHouse, bidPrice); // bid
 
         itr->second.LastChecked = now;
         --cycles;
@@ -386,55 +395,54 @@ uint32 AuctionBotBuyer::GetChanceMultiplier(uint32 quality)
 }
 
 // Buys the auction and does necessary actions to complete the buyout
-void AuctionBotBuyer::BuyEntry(AuctionEntry* auction, AuctionHouseObject* auctionHouse)
+void AuctionBotBuyer::BuyEntry(AuctionPosting* auction, AuctionHouseObject* auctionHouse)
 {
-    TC_LOG_DEBUG("ahbot", "AHBot: Entry %u bought at %.2fg", auction->Id, float(auction->buyout) / GOLD);
+    TC_LOG_DEBUG("ahbot", "AHBot: Entry %u bought at %.2fg", auction->Id, float(auction->BuyoutOrUnitPrice) / GOLD);
 
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
+    ObjectGuid newBidder = sAuctionBotConfig->GetRandCharExclude(auction->Owner);
+
     // Send mail to previous bidder if any
-    if (auction->bidder && !sAuctionBotConfig->IsBotChar(auction->bidder))
-        sAuctionMgr->SendAuctionOutbiddedMail(auction, auction->buyout, NULL, trans);
+    if (!auction->Bidder.IsEmpty() && !sAuctionBotConfig->IsBotChar(auction->Bidder))
+        auctionHouse->SendAuctionOutbid(auction, newBidder, auction->BuyoutOrUnitPrice, trans);
 
     // Set bot as bidder and set new bid amount
-    auction->bidder = sAuctionBotConfig->GetRandCharExclude(auction->owner);
-    auction->bid = auction->buyout;
+    auction->Bidder = newBidder;
+    auction->BidAmount = auction->BuyoutOrUnitPrice;
 
     // Mails must be under transaction control too to prevent data loss
-    sAuctionMgr->SendAuctionSalePendingMail(auction, trans);
-    sAuctionMgr->SendAuctionSuccessfulMail(auction, trans);
-    sAuctionMgr->SendAuctionWonMail(auction, trans);
+    auctionHouse->SendAuctionWon(auction, nullptr, trans);
+    auctionHouse->SendAuctionSold(auction, nullptr, trans);
 
-    // Delete auction from DB
-    auction->DeleteFromDB(trans);
-
-    // Remove auction item and auction from memory
-    sAuctionMgr->RemoveAItem(auction->itemGUIDLow);
-    auctionHouse->RemoveAuction(auction);
+    // Remove auction
+    auctionHouse->RemoveAuction(trans, auction);
 
     // Run SQLs
     CharacterDatabase.CommitTransaction(trans);
 }
 
 // Bids on the auction and does the necessary actions for bidding
-void AuctionBotBuyer::PlaceBidToEntry(AuctionEntry* auction, uint32 bidPrice)
+void AuctionBotBuyer::PlaceBidToEntry(AuctionPosting* auction, AuctionHouseObject* auctionHouse, uint32 bidPrice)
 {
     TC_LOG_DEBUG("ahbot", "AHBot: Bid placed to entry %u, %.2fg", auction->Id, float(bidPrice) / GOLD);
 
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
+    ObjectGuid newBidder = sAuctionBotConfig->GetRandCharExclude(auction->Owner);
+
     // Send mail to previous bidder if any
-    if (auction->bidder && !sAuctionBotConfig->IsBotChar(auction->bidder))
-        sAuctionMgr->SendAuctionOutbiddedMail(auction, bidPrice, NULL, trans);
+    if (!auction->Bidder.IsEmpty() && !sAuctionBotConfig->IsBotChar(auction->Bidder))
+        auctionHouse->SendAuctionOutbid(auction, newBidder, bidPrice, trans);
 
     // Set bot as bidder and set new bid amount
-    auction->bidder = sAuctionBotConfig->GetRandCharExclude(auction->owner);
-    auction->bid = bidPrice;
+    auction->Bidder = newBidder;
+    auction->BidAmount = bidPrice;
 
     // Update auction to DB
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_AUCTION_BID);
-    stmt->setUInt64(0, auction->bidder);
-    stmt->setUInt32(1, auction->bid);
+    stmt->setUInt64(0, auction->Bidder.GetCounter());
+    stmt->setUInt32(1, auction->BidAmount);
     stmt->setUInt32(2, auction->Id);
     trans->Append(stmt);
 

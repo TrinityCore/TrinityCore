@@ -132,6 +132,8 @@ public:
     // returns pair<hasAppearance, isTemporary>
     std::pair<bool, bool> HasItemAppearance(uint32 itemModifiedAppearanceId) const;
     std::unordered_set<ObjectGuid> GetItemsProvidingTemporaryAppearance(uint32 itemModifiedAppearanceId) const;
+    // returns ItemAppearance::ID, not ItemModifiedAppearance::ID
+    std::unordered_set<uint32> GetAppearanceIds() const;
 
     enum class FavoriteAppearanceState
     {

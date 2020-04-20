@@ -26,6 +26,8 @@
 #include "Log.h"
 #include "World.h"
 
+constexpr uint32 AuctionHouseIds[MAX_AUCTION_HOUSE_TYPE] = { 1, 2, 6 };
+
 AuctionBotConfig* AuctionBotConfig::instance()
 {
     static AuctionBotConfig instance;
@@ -67,7 +69,7 @@ bool AuctionBotConfig::Initialize()
         {
             do
             {
-                _AHBotCharacters.push_back((*result)[0].GetUInt64());
+                _AHBotCharacters.push_back(ObjectGuid::Create<HighGuid::Player>((*result)[0].GetUInt64()));
             } while (result->NextRow());
 
             TC_LOG_DEBUG("ahbot", "AuctionHouseBot found " UI64FMTD " characters", result->GetRowCount());
@@ -291,6 +293,11 @@ void AuctionBotConfig::GetConfigFromFile()
     SetConfig(CONFIG_AHBOT_BIDPRICE_MAX, "AuctionHouseBot.BidPrice.Max", 0.9f);
 }
 
+uint32 AuctionBotConfig::GetAuctionHouseId(AuctionHouseType houseType) const
+{
+    return AuctionHouseIds[houseType];
+}
+
 char const* AuctionBotConfig::GetHouseTypeName(AuctionHouseType houseType)
 {
     static char const* names[MAX_AUCTION_HOUSE_TYPE] = { "Neutral", "Alliance", "Horde" };
@@ -298,35 +305,35 @@ char const* AuctionBotConfig::GetHouseTypeName(AuctionHouseType houseType)
 }
 
 // Picks a random character from the list of AHBot chars
-ObjectGuid::LowType AuctionBotConfig::GetRandChar() const
+ObjectGuid AuctionBotConfig::GetRandChar() const
 {
     if (_AHBotCharacters.empty())
-        return ObjectGuid::LowType(0);
+        return ObjectGuid::Empty;
 
     return Trinity::Containers::SelectRandomContainerElement(_AHBotCharacters);
 }
 
 // Picks a random AHBot character, but excludes a specific one. This is used
 // to have another character than the auction owner place bids
-ObjectGuid::LowType AuctionBotConfig::GetRandCharExclude(ObjectGuid::LowType exclude) const
+ObjectGuid AuctionBotConfig::GetRandCharExclude(ObjectGuid exclude) const
 {
     if (_AHBotCharacters.empty())
-        return ObjectGuid::LowType(0);
+        return ObjectGuid::Empty;
 
-    std::vector<uint32> filteredCharacters;
+    std::vector<ObjectGuid> filteredCharacters;
     filteredCharacters.reserve(_AHBotCharacters.size() - 1);
 
-    for (uint32 charId : _AHBotCharacters)
+    for (ObjectGuid charId : _AHBotCharacters)
         if (charId != exclude)
             filteredCharacters.push_back(charId);
 
     if (filteredCharacters.empty())
-        return ObjectGuid::LowType(0);
+        return ObjectGuid::Empty;
 
     return Trinity::Containers::SelectRandomContainerElement(filteredCharacters);
 }
 
-bool AuctionBotConfig::IsBotChar(ObjectGuid::LowType characterID) const
+bool AuctionBotConfig::IsBotChar(ObjectGuid characterID) const
 {
     return !characterID || std::find(_AHBotCharacters.begin(), _AHBotCharacters.end(), characterID) != _AHBotCharacters.end();
 }
@@ -460,19 +467,19 @@ void AuctionHouseBot::PrepareStatusInfos(AuctionHouseBotStatusInfo& statusInfo)
         for (int j = 0; j < MAX_AUCTION_QUALITY; ++j)
             statusInfo[i].QualityInfo[j] = 0;
 
-        AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(AuctionHouseType(i));
-        for (AuctionHouseObject::AuctionEntryMap::const_iterator itr = auctionHouse->GetAuctionsBegin(); itr != auctionHouse->GetAuctionsEnd(); ++itr)
+        AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsById(AuctionHouseIds[i]);
+        for (auto itr = auctionHouse->GetAuctionsBegin(); itr != auctionHouse->GetAuctionsEnd(); ++itr)
         {
-            AuctionEntry* auctionEntry = itr->second;
-            if (Item* item = sAuctionMgr->GetAItem(auctionEntry->itemGUIDLow))
+            AuctionPosting const& auction = itr->second;
+            for (Item* item : auction.Items)
             {
                 ItemTemplate const* prototype = item->GetTemplate();
-                if (!auctionEntry->owner || sAuctionBotConfig->IsBotChar(auctionEntry->owner)) // Add only ahbot items
+                if (auction.Owner.IsEmpty() || sAuctionBotConfig->IsBotChar(auction.Owner)) // Add only ahbot items
                 {
                     if (prototype->GetQuality() < MAX_AUCTION_QUALITY)
                         ++statusInfo[i].QualityInfo[prototype->GetQuality()];
 
-                    ++statusInfo[i].ItemsCount;
+                    statusInfo[i].ItemsCount += item->GetCount();
                 }
             }
         }
@@ -483,11 +490,11 @@ void AuctionHouseBot::Rebuild(bool all)
 {
     for (uint32 i = 0; i < MAX_AUCTION_HOUSE_TYPE; ++i)
     {
-        AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(AuctionHouseType(i));
-        for (AuctionHouseObject::AuctionEntryMap::const_iterator itr = auctionHouse->GetAuctionsBegin(); itr != auctionHouse->GetAuctionsEnd(); ++itr)
-            if (!itr->second->owner || sAuctionBotConfig->IsBotChar(itr->second->owner)) // ahbot auction
-                if (all || itr->second->bid == 0)           // expire now auction if no bid or forced
-                    itr->second->expire_time = GameTime::GetGameTime();
+        AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsById(AuctionHouseIds[i]);
+        for (auto itr = auctionHouse->GetAuctionsBegin(); itr != auctionHouse->GetAuctionsEnd(); ++itr)
+            if (itr->second.Owner.IsEmpty() || sAuctionBotConfig->IsBotChar(itr->second.Owner)) // ahbot auction
+                if (all || itr->second.BidAmount == 0)           // expire now auction if no bid or forced
+                    itr->second.EndTime = GameTime::GetGameTimeSystemPoint();
     }
 }
 

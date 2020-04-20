@@ -19,6 +19,7 @@
 #include "AuctionHouseMgr.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "GameTime.h"
 #include "Item.h"
 #include "Log.h"
 #include "ObjectMgr.h"
@@ -596,20 +597,14 @@ void AuctionBotSeller::LoadSellerValues(SellerConfiguration& config)
 // Fill ItemInfos object with real content of AH.
 uint32 AuctionBotSeller::SetStat(SellerConfiguration& config)
 {
-    AllItemsArray itemsSaved(MAX_AUCTION_QUALITY, std::vector<uint32>(MAX_ITEM_CLASS));
+    AllItemsArray itemsSaved;
 
-    AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(config.GetHouseType());
-    for (AuctionHouseObject::AuctionEntryMap::const_iterator itr = auctionHouse->GetAuctionsBegin(); itr != auctionHouse->GetAuctionsEnd(); ++itr)
+    AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsById(sAuctionBotConfig->GetAuctionHouseId(config.GetHouseType()));
+    for (auto itr = auctionHouse->GetAuctionsBegin(); itr != auctionHouse->GetAuctionsEnd(); ++itr)
     {
-        AuctionEntry* auctionEntry = itr->second;
-        Item* item = sAuctionMgr->GetAItem(auctionEntry->itemGUIDLow);
-        if (item)
-        {
-            ItemTemplate const* prototype = item->GetTemplate();
-            if (prototype)
-                if (!auctionEntry->owner || sAuctionBotConfig->IsBotChar(auctionEntry->owner)) // Add only ahbot items
-                    ++itemsSaved[prototype->GetQuality()][prototype->GetClass()];
-        }
+        AuctionPosting const* auctionEntry = &itr->second;
+        if (auctionEntry->Owner.IsEmpty() || sAuctionBotConfig->IsBotChar(auctionEntry->Owner)) // Add only ahbot items
+            ++itemsSaved[auctionEntry->Items[0]->GetQuality()][auctionEntry->Bucket->ItemClass];
     }
 
     uint32 count = 0;
@@ -664,7 +659,7 @@ bool AuctionBotSeller::GetItemsToSell(SellerConfiguration& config, ItemsToSellAr
 }
 
 // Set items price. All important value are passed by address.
-void AuctionBotSeller::SetPricesOfItem(ItemTemplate const* itemProto, SellerConfiguration& config, uint32& buyp, uint32& bidp, uint32 stackCount)
+void AuctionBotSeller::SetPricesOfItem(ItemTemplate const* itemProto, SellerConfiguration& config, uint32& buyout, uint32& bid, uint32 stackCount)
 {
     uint32 classRatio = config.GetPriceRatioPerClass(ItemClass(itemProto->GetClass()));
     uint32 qualityRatio = config.GetPriceRatioPerQuality(AuctionQuality(itemProto->GetQuality()));
@@ -696,14 +691,14 @@ void AuctionBotSeller::SetPricesOfItem(ItemTemplate const* itemProto, SellerConf
     float basePriceFloat = (buyPrice * stackCount * priceRatio) / (itemProto->GetClass() == 6 ? 200.0f : static_cast<float>(itemProto->GetBuyCount())) / 100.0f;
     float range = basePriceFloat * 0.04f;
 
-    buyp = static_cast<uint32>(frand(basePriceFloat - range, basePriceFloat + range) + 0.5f);
-    if (buyp == 0)
-        buyp = 1;
+    buyout = (static_cast<uint32>(frand(basePriceFloat - range, basePriceFloat + range) + 0.5f) / SILVER) * SILVER;
+    if (buyout == 0)
+        buyout = SILVER;
 
     float bidPercentage = frand(sAuctionBotConfig->GetConfig(CONFIG_AHBOT_BIDPRICE_MIN), sAuctionBotConfig->GetConfig(CONFIG_AHBOT_BIDPRICE_MAX));
-    bidp = static_cast<uint32>(bidPercentage * buyp);
-    if (bidp == 0)
-        bidp = 1;
+    bid = (static_cast<uint32>(bidPercentage * buyout) / SILVER) * SILVER;
+    if (bid == 0)
+        bid = SILVER;
 }
 
 // Determines the stack size to use for the item
@@ -901,24 +896,10 @@ void AuctionBotSeller::AddNewAuctions(SellerConfiguration& config)
     else
         items = sAuctionBotConfig->GetItemPerCycleNormal();
 
-    uint32 houseid = 0;
-    uint64 auctioneer = 0;
-    switch (config.GetHouseType())
-    {
-        case AUCTION_HOUSE_ALLIANCE:
-            houseid = 1; auctioneer = 79707; break;
-        case AUCTION_HOUSE_HORDE:
-            houseid = 6; auctioneer = 4656; break;
-        default:
-            houseid = 7; auctioneer = 23442; break;
-    }
-
-    AuctionHouseEntry const* ahEntry = sAuctionHouseStore.LookupEntry(houseid);
-
-    AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(config.GetHouseType());
+    AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsById(sAuctionBotConfig->GetAuctionHouseId(config.GetHouseType()));
 
     ItemsToSellArray itemsToSell;
-    AllItemsArray allItems(MAX_AUCTION_QUALITY, std::vector<uint32>(MAX_ITEM_CLASS));
+    AllItemsArray allItems;
     // Main loop
     // getRandomArray will give what categories of items should be added (return true if there is at least 1 items missed)
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
@@ -983,27 +964,18 @@ void AuctionBotSeller::AddNewAuctions(SellerConfiguration& config)
                 break;
         }
 
-        AuctionEntry* auctionEntry = new AuctionEntry();
-        auctionEntry->Id = sObjectMgr->GenerateAuctionID();
-        auctionEntry->owner = sAuctionBotConfig->GetRandChar();
-        auctionEntry->itemGUIDLow = item->GetGUID().GetCounter();
-        auctionEntry->itemEntry = item->GetEntry();
-        auctionEntry->startbid = bidPrice;
-        auctionEntry->buyout = buyoutPrice;
-        auctionEntry->auctioneer = auctioneer;
-        auctionEntry->bidder = UI64LIT(0);
-        auctionEntry->bid = 0;
-        auctionEntry->deposit = sAuctionMgr->GetAuctionDeposit(ahEntry, etime, item, stackCount);
-        auctionEntry->houseId = houseid;
-        auctionEntry->auctionHouseEntry = ahEntry;
-        auctionEntry->expire_time = time(NULL) + urand(config.GetMinTime(), config.GetMaxTime()) * HOUR;
+        AuctionPosting auction;
+        auction.Id = sObjectMgr->GenerateAuctionID();
+        auction.Items.push_back(item);
+        auction.Owner = sAuctionBotConfig->GetRandChar();
+        if (!auction.IsCommodity())
+            auction.MinBid = bidPrice;
 
-        item->SaveToDB(trans);
-        sAuctionMgr->AddAItem(item);
-        auctionHouse->AddAuction(auctionEntry);
-        auctionEntry->SaveToDB(trans);
+        auction.BuyoutOrUnitPrice = buyoutPrice;
+        auction.StartTime = GameTime::GetGameTimeSystemPoint();
+        auction.EndTime = auction.StartTime + Hours(urand(config.GetMinTime(), config.GetMaxTime()));
 
-        auctionHouse->AddAuction(auctionEntry);
+        auctionHouse->AddAuction(trans, std::move(auction));
 
         ++count;
     }
