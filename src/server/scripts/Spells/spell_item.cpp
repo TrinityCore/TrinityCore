@@ -5086,8 +5086,9 @@ class spell_item_blind_spot : public SpellScript
 
 enum VariablePulseLightningCapacitor
 {
-    SPELL_LIGHTNING_BOLT    = 96891,
-    SPELL_ELECTRICAL_CHARGE = 96890
+    SPELL_LIGHTNING_BOLT                            = 96891,
+    SPELL_ELECTRICAL_CHARGE                         = 96890,
+    SPELL_VARIABLE_PULSE_LIGHTNING_CAPACITOR_NORMAL = 96887
 };
 
 // 96887 - Variable Pulse Lightning Capacitor
@@ -5101,7 +5102,8 @@ class spell_item_variable_pulse_lightning_capacitor : public AuraScript
         return ValidateSpellInfo(
             {
                 SPELL_LIGHTNING_BOLT,
-                SPELL_ELECTRICAL_CHARGE
+                SPELL_ELECTRICAL_CHARGE,
+                SPELL_VARIABLE_PULSE_LIGHTNING_CAPACITOR_NORMAL
             });
     }
 
@@ -5123,7 +5125,12 @@ class spell_item_variable_pulse_lightning_capacitor : public AuraScript
                 target->CastSpell(target, SPELL_ELECTRICAL_CHARGE, true, castItem, aurEff);
             else
             {
-                int32 bp = GetSpellInfo()->Effects[EFFECT_0].CalcValue(target);
+                int32 bp = 0;
+                if (GetSpellInfo()->Id == SPELL_VARIABLE_PULSE_LIGHTNING_CAPACITOR_NORMAL)
+                    bp = sSpellMgr->AssertSpellInfo(SPELL_LIGHTNING_BOLT)->Effects[EFFECT_0].CalcValue();
+                else
+                    bp = GetSpellInfo()->Effects[EFFECT_0].CalcValue();
+
                 bp *= chargeEffect->GetBase()->GetStackAmount();
                 chargeEffect->GetBase()->Remove();
                 target->CastCustomSpell(SPELL_LIGHTNING_BOLT, SPELLVALUE_BASE_POINT0, bp, eventInfo.GetProcTarget(), true, castItem, aurEff);
