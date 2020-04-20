@@ -62,7 +62,6 @@ namespace WorldPackets
             ObjectGuid AttackerGUID;
             ObjectGuid VictimGUID;
             int32 Damage = 0;
-            int32 OriginalDamage = 0;
             int32 OverDamage = -1; // (damage - health) or -1 if unit is still alive
             Optional<SubDamage> SubDmg;
             uint8 VictimState = 0;

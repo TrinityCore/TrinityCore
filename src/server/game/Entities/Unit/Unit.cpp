@@ -5354,7 +5354,6 @@ void Unit::SendAttackStateUpdate(CalcDamageInfo* damageInfo)
     packet.AttackerGUID = damageInfo->attacker->GetGUID();
     packet.VictimGUID = damageInfo->target->GetGUID();
     packet.Damage = damageInfo->damage;
-    packet.OriginalDamage = damageInfo->cleanDamage;
     int32 overkill = damageInfo->damage - damageInfo->target->GetHealth();
     packet.OverDamage = (overkill < 0 ? -1 : overkill);
 
