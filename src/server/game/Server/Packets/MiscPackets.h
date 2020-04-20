@@ -271,10 +271,10 @@ namespace WorldPackets
             uint16 AnimKitID = 0;
         };
 
-        class UnitHealthFrquent final : public ServerPacket
+        class UnitHealthFrequent final : public ServerPacket
         {
         public:
-            UnitHealthFrquent() : ServerPacket(SMSG_UNIT_HEALTH_FREQUENT, 12) { }
+            UnitHealthFrequent() : ServerPacket(SMSG_UNIT_HEALTH_FREQUENT, 12) { }
 
             WorldPacket const* Write() override;
 
