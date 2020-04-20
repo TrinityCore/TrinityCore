@@ -270,6 +270,17 @@ namespace WorldPackets
             ObjectGuid Unit;
             uint16 AnimKitID = 0;
         };
+
+        class UnitHealthFrquent final : public ServerPacket
+        {
+        public:
+            UnitHealthFrquent() : ServerPacket(SMSG_UNIT_HEALTH_FREQUENT, 12) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid UnitGUID;
+            int32 Health = 0;
+        };
     }
 }
 

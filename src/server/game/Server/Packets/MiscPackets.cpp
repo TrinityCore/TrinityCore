@@ -224,3 +224,12 @@ WorldPacket const* WorldPackets::Misc::SetMovementAnimKit::Write()
 
     return &_worldPacket;
 }
+
+
+WorldPacket const* WorldPackets::Misc::UnitHealthFrquent::Write()
+{
+    _worldPacket << UnitGUID.WriteAsPacked();
+    _worldPacket << int32(Health);
+
+    return &_worldPacket;
+}
