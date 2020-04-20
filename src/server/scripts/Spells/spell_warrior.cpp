@@ -169,7 +169,7 @@ class spell_warr_charge : public SpellScript
         if (!caster)
             return;
 
-        caster->CastCustomSpell(SPELL_WARRIOR_CHARGE_ENERGIZE, SPELLVALUE_BASE_POINT1, GetEffectValue(), caster, true);
+        caster->CastCustomSpell(SPELL_WARRIOR_CHARGE_ENERGIZE, SPELLVALUE_BASE_POINT0, GetEffectValue(), caster, true);
 
         // Juggernaut crit bonus
         if (caster->HasAura(SPELL_WARRIOR_JUGGERNAUT_CRIT_BONUS_TALENT))
