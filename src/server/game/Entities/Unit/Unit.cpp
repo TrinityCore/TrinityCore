@@ -25,6 +25,7 @@
 #include "CharacterCache.h"
 #include "Chat.h"
 #include "ChatTextBuilder.h"
+#include "CombatPackets.h"
 #include "Common.h"
 #include "ConditionMgr.h"
 #include "CreatureAI.h"
@@ -13987,19 +13988,18 @@ void Unit::SendThreatListUpdate()
 {
     if (!getThreatManager().isThreatListEmpty())
     {
-        uint32 count = getThreatManager().getThreatList().size();
-
-        TC_LOG_DEBUG("entities.unit", "WORLD: Send SMSG_THREAT_UPDATE Message");
-        WorldPacket data(SMSG_THREAT_UPDATE, 8 + count * 8);
-        data << GetPackGUID();
-        data << uint32(count);
+        WorldPackets::Combat::ThreatUpdate packet;
+        packet.UnitGUID = GetGUID();
         ThreatContainer::StorageType const& tlist = getThreatManager().getThreatList();
+        packet.ThreatList.reserve(tlist.size());
         for (ThreatContainer::StorageType::const_iterator itr = tlist.begin(); itr != tlist.end(); ++itr)
         {
-            data << (*itr)->getUnitGuid().WriteAsPacked();
-            data << uint32((*itr)->getThreat() * 100);
+            WorldPackets::Combat::ThreatInfo info;
+            info.UnitGUID = (*itr)->getUnitGuid();
+            info.Threat = uint32((*itr)->getThreat());
+            packet.ThreatList.push_back(info);
         }
-        SendMessageToSet(&data, false);
+        SendMessageToSet(packet.Write(), false);
     }
 }
 
@@ -14007,38 +14007,35 @@ void Unit::SendChangeCurrentVictimOpcode(HostileReference* pHostileReference)
 {
     if (!getThreatManager().isThreatListEmpty())
     {
-        uint32 count = getThreatManager().getThreatList().size();
-
-        TC_LOG_DEBUG("entities.unit", "WORLD: Send SMSG_HIGHEST_THREAT_UPDATE Message");
-        WorldPacket data(SMSG_HIGHEST_THREAT_UPDATE, 8 + 8 + count * 8);
-        data << GetPackGUID();
-        data << pHostileReference->getUnitGuid().WriteAsPacked();
-        data << uint32(count);
+        WorldPackets::Combat::HighestThreatUpdate packet;
+        packet.UnitGUID = GetGUID();
+        packet.HighestThreatGUID = pHostileReference->getUnitGuid();
         ThreatContainer::StorageType const& tlist = getThreatManager().getThreatList();
+        packet.ThreatList.reserve(tlist.size());
         for (ThreatContainer::StorageType::const_iterator itr = tlist.begin(); itr != tlist.end(); ++itr)
         {
-            data << (*itr)->getUnitGuid().WriteAsPacked();
-            data << uint32((*itr)->getThreat() * 100);
+            WorldPackets::Combat::ThreatInfo info;
+            info.UnitGUID = (*itr)->getUnitGuid();
+            info.Threat = uint32((*itr)->getThreat());
+            packet.ThreatList.push_back(info);
         }
-        SendMessageToSet(&data, false);
+        SendMessageToSet(packet.Write(), false);
     }
 }
 
 void Unit::SendClearThreatListOpcode()
 {
-    TC_LOG_DEBUG("entities.unit", "WORLD: Send SMSG_THREAT_CLEAR Message");
-    WorldPacket data(SMSG_THREAT_CLEAR, 8);
-    data << GetPackGUID();
-    SendMessageToSet(&data, false);
+    WorldPackets::Combat::ThreatClear packet;
+    packet.UnitGUID = GetGUID();
+    SendMessageToSet(packet.Write(), false);
 }
 
 void Unit::SendRemoveFromThreatListOpcode(HostileReference* pHostileReference)
 {
-    TC_LOG_DEBUG("entities.unit", "WORLD: Send SMSG_THREAT_REMOVE Message");
-    WorldPacket data(SMSG_THREAT_REMOVE, 8 + 8);
-    data << GetPackGUID();
-    data << pHostileReference->getUnitGuid().WriteAsPacked();
-    SendMessageToSet(&data, false);
+    WorldPackets::Combat::ThreatRemove packet;
+    packet.UnitGUID = GetGUID();
+    packet.AboutGUID = pHostileReference->getUnitGuid();
+    SendMessageToSet(packet.Write(), false);
 }
 
 // baseRage means damage taken when attacker = false
