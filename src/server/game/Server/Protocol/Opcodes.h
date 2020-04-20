@@ -605,7 +605,7 @@ enum OpcodeServer
     SMSG_ARENA_TEAM_QUERY_RESPONSE                    = 0x6336,
     SMSG_ARENA_TEAM_ROSTER                            = 0x2717,
     SMSG_ARENA_TEAM_STATS                             = 0x4425,
-    SMSG_ATTACKERSTATEUPDATE                          = 0x0B25,
+    SMSG_ATTACKER_STATE_UPDATE                        = 0x0B25,
     SMSG_ATTACKSTART                                  = 0x2D15,
     SMSG_ATTACKSTOP                                   = 0x0934,
     SMSG_ATTACKSWING_BADFACING                        = 0x6C07,

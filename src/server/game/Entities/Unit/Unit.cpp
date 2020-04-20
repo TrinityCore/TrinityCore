@@ -25,6 +25,7 @@
 #include "CharacterCache.h"
 #include "Chat.h"
 #include "ChatTextBuilder.h"
+#include "CombatLogPackets.h"
 #include "CombatPackets.h"
 #include "Common.h"
 #include "ConditionMgr.h"
@@ -5348,71 +5349,26 @@ void Unit::SendSpellDamageImmune(Unit* target, uint32 spellId)
 
 void Unit::SendAttackStateUpdate(CalcDamageInfo* damageInfo)
 {
-    TC_LOG_DEBUG("entities.unit", "WORLD: Sending SMSG_ATTACKERSTATEUPDATE");
+    WorldPackets::CombatLog::AttackerStateUpdate packet;
+    packet.HitInfo = damageInfo->HitInfo;
+    packet.AttackerGUID = damageInfo->attacker->GetGUID();
+    packet.VictimGUID = damageInfo->target->GetGUID();
+    packet.Damage = damageInfo->damage;
+    packet.OriginalDamage = damageInfo->cleanDamage;
+    int32 overkill = damageInfo->damage - damageInfo->target->GetHealth();
+    packet.OverDamage = (overkill < 0 ? -1 : overkill);
 
-    uint32 const count = 1;
-    size_t const maxsize = 4+5+5+4+4+1+4+4+4+4+4+1+4+4+4+4+4*12;
-    WorldPacket data(SMSG_ATTACKERSTATEUPDATE, maxsize);    // we guess size
-    data << uint32(damageInfo->HitInfo);
-    data << damageInfo->attacker->GetPackGUID();
-    data << damageInfo->target->GetPackGUID();
-    data << uint32(damageInfo->damage);                     // Full damage
-    if (damageInfo->damage > damageInfo->target->GetHealth())
-        data << int32(damageInfo->damage - damageInfo->target->GetHealth());
-    else
-        data << int32(-1);                                  // Overkill
-    data << uint8(count);                                   // Sub damage count
+    packet.SubDmg = boost::in_place();
+    packet.SubDmg->SchoolMask = damageInfo->damageSchoolMask;   // School of sub damage
+    packet.SubDmg->FDamage = damageInfo->damage;                // sub damage
+    packet.SubDmg->Damage = damageInfo->damage;                 // Sub Damage
+    packet.SubDmg->Absorbed = damageInfo->absorb;
+    packet.SubDmg->Resisted = damageInfo->resist;
 
-    for (uint32 i = 0; i < count; ++i)
-    {
-        data << uint32(damageInfo->damageSchoolMask);       // School of sub damage
-        data << float(damageInfo->damage);                  // sub damage
-        data << uint32(damageInfo->damage);                 // Sub Damage
-    }
+    packet.VictimState = damageInfo->TargetState;
+    packet.BlockAmount = damageInfo->blocked_amount;
 
-    if (damageInfo->HitInfo & (HITINFO_FULL_ABSORB | HITINFO_PARTIAL_ABSORB))
-    {
-        for (uint32 i = 0; i < count; ++i)
-            data << uint32(damageInfo->absorb);             // Absorb
-    }
-
-    if (damageInfo->HitInfo & (HITINFO_FULL_RESIST | HITINFO_PARTIAL_RESIST))
-    {
-        for (uint32 i = 0; i < count; ++i)
-            data << uint32(damageInfo->resist);             // Resist
-    }
-
-    data << uint8(damageInfo->TargetState);
-    data << uint32(0);  // Unknown attackerstate
-    data << uint32(0);  // Melee spellid
-
-    if (damageInfo->HitInfo & HITINFO_BLOCK)
-        data << uint32(damageInfo->blocked_amount);
-
-    if (damageInfo->HitInfo & HITINFO_RAGE_GAIN)
-        data << uint32(0);
-
-    //! Probably used for debugging purposes, as it is not known to appear on retail servers
-    if (damageInfo->HitInfo & HITINFO_UNK1)
-    {
-        data << uint32(0);
-        data << float(0);
-        data << float(0);
-        data << float(0);
-        data << float(0);
-        data << float(0);
-        data << float(0);
-        data << float(0);
-        data << float(0);
-        for (uint8 i = 0; i < 2; ++i)
-        {
-            data << float(0);
-            data << float(0);
-        }
-        data << uint32(0);
-    }
-
-    SendMessageToSet(&data, true);
+    SendMessageToSet(packet.Write(), true);
 }
 
 void Unit::SendAttackStateUpdate(uint32 HitInfo, Unit* target, uint8 /*SwingType*/, SpellSchoolMask damageSchoolMask, uint32 Damage, uint32 AbsorbDamage, uint32 Resist, VictimState TargetState, uint32 BlockedAmount)

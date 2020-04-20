@@ -20,6 +20,7 @@
 
 #include "AuthenticationPackets.h"
 #include "CharacterPackets.h"
+#include "CombatLogPackets.h"
 #include "CombatPackets.h"
 #include "GuildPackets.h"
 #include "LFGPackets.h"
