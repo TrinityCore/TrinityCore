@@ -384,7 +384,7 @@ void Pet::SavePetToDB(PetSaveMode mode)
         return;
 
     // not save not player pets
-    if (!GetOwnerGUID().IsPlayer())
+    if (!GetOwnerOrCreatorGUID().IsPlayer())
         return;
 
     uint32 curhealth = GetHealth();
@@ -423,7 +423,7 @@ void Pet::SavePetToDB(PetSaveMode mode)
     // whole pet is saved to DB
     if (mode >= PET_SAVE_CURRENT_STATE)
     {
-        ObjectGuid::LowType ownerLowGUID = GetOwnerGUID().GetCounter();
+        ObjectGuid::LowType ownerLowGUID = GetOwnerOrCreatorGUID().GetCounter();
         std::string name = m_name;
         CharacterDatabase.EscapeString(name);
         trans = CharacterDatabase.BeginTransaction();
@@ -925,16 +925,22 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                 }
                 case ENTRY_EARTH_ELEMENTAL:
                 {
-                    SetCreateHealth(100 + 120 * petlevel);
-                    SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel - (petlevel / 4)));
-                    SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel + (petlevel / 4)));
+                    if (Unit* owner = m_owner->GetOwner())
+                        SetCreateHealth(owner->CountPctFromMaxHealth(75));
+
+                    SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel * 4 - petlevel));
+                    SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel * 4 + petlevel));
                     break;
                 }
                 case ENTRY_FIRE_ELEMENTAL:
                 {
-                    SetCreateHealth(m_owner->CountPctFromMaxHealth(75));
+                    if (Unit* owner = m_owner->GetOwner())
+                    {
+                        SetCreateHealth(owner->CountPctFromMaxHealth(75));
+                        SetBonusDamage(int32(owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_FIRE) * 0.5f));
+                    }
+
                     SetCreateMana(28 + 10 * petlevel);
-                    SetBonusDamage(int32(GetOwner()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_FIRE) * 0.5f));
                     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel * 4 - petlevel));
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel * 4 + petlevel));
                     break;

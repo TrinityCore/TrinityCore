@@ -2047,7 +2047,7 @@ void Creature::LoadTemplateImmunities()
         ApplySpellImmune(placeholderSpellId, IMMUNITY_SCHOOL, 1 << i, false);
 
     // don't inherit immunities for hunter pets
-    if (GetOwnerGUID().IsPlayer() && IsHunterPet())
+    if (GetOwnerOrCreatorGUID().IsPlayer() && IsHunterPet())
         return;
 
     if (uint32 mask = GetCreatureTemplate()->MechanicImmuneMask)

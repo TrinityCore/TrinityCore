@@ -739,7 +739,7 @@ uint32 Object::GetUpdateFieldData(Player const* target, uint32*& flags) const
         {
             Player* plr = ToUnit()->GetCharmerOrOwnerPlayerOrPlayerItself();
             flags = UnitUpdateFieldFlags;
-            if (ToUnit()->GetOwnerGUID() == target->GetGUID())
+            if (ToUnit()->GetOwnerOrCreatorGUID() == target->GetGUID())
                 visibleFlag |= UF_FLAG_OWNER;
 
             if (HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_SPECIALINFO))
@@ -2036,7 +2036,7 @@ void WorldObject::AddObjectToRemoveList()
     map->AddObjectToRemoveList(this);
 }
 
-TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropertiesEntry const* properties /*= NULL*/, uint32 duration /*= 0*/, Unit* summoner /*= NULL*/, uint32 spellId /*= 0*/, uint32 vehId /*= 0*/, bool visibleBySummonerOnly /*= false*/)
+TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropertiesEntry const* properties /*= nullptr*/, uint32 duration /*= 0*/, Unit* summoner /*= nullptr*/, uint32 spellId /*= 0*/, uint32 vehId /*= 0*/, bool visibleBySummonerOnly /*= false*/, uint32 health /*= 0*/)
 {
     uint32 mask = UNIT_MASK_SUMMON;
     if (properties)
@@ -2077,7 +2077,7 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
                     default:
                         if (properties->Flags & 512) // Mirror Image, Summon Gargoyle
                             mask = UNIT_MASK_GUARDIAN;
-                    break;
+                        break;
                 }
                 break;
             }
@@ -2106,12 +2106,14 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
             break;
     }
 
+    // Create creature entity
     if (!summon->Create(GenerateLowGuid<HighGuid::Unit>(), this, entry, pos, nullptr, vehId, true))
     {
         delete summon;
         return nullptr;
     }
 
+    // Add summon to transport if summoner is on a transport as well
     if (summon->GetTransGUID().IsEmpty() && summoner)
     {
         if (Transport* transport = summoner->GetTransport())
@@ -2129,10 +2131,26 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
     if (summoner)
         PhasingHandler::InheritPhaseShift(summon, summoner);
 
+    // Initialize tempsummon fields
     summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, spellId);
     summon->SetHomePosition(pos);
     summon->InitStats(duration);
     summon->SetVisibleBySummonerOnly(visibleBySummonerOnly);
+
+    // Handle health argument (totem health via base points)
+    if (health)
+    {
+        summon->SetMaxHealth(health);
+        summon->SetHealth(health);
+    }
+
+    // Initialize guardian stats
+    if (summon->HasUnitTypeMask(UNIT_MASK_GUARDIAN) && summoner)
+    {
+        ((Guardian*)summon)->UpdateAllStats();
+        summon->SetPower(POWER_MANA, summon->GetMaxPower(POWER_MANA));
+        summon->SetFullHealth();
+    }
 
     AddToMap(summon->ToCreature());
     summon->InitSummon();

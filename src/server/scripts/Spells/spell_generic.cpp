@@ -5248,16 +5248,11 @@ class spell_gen_guild_battle_standard_buff : public SpellScript
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
-        TempSummon* summon = GetCaster()->ToTempSummon();
-        Unit* summoner = summon->GetSummoner();
-        if (Player* player = summoner->ToPlayer())
+        ObjectGuid guildGuid = GetCaster()->GetGuidValue(OBJECT_FIELD_DATA);
+        targets.remove_if([guildGuid](WorldObject* target)->bool
         {
-            uint32 guildId = player->GetGuildId();
-            targets.remove_if([guildId](WorldObject* target)->bool
-            {
-                return !target->IsPlayer() || target->ToPlayer()->GetGuildId() != guildId;
-            });
-        }
+            return !target->IsPlayer() || target->ToPlayer()->GetGuidValue(OBJECT_FIELD_DATA) != guildGuid;
+        });
     }
 
     void Register() override

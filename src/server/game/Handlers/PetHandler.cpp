@@ -254,7 +254,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
                 case COMMAND_ABANDON:                       // abandon (hunter pet) or dismiss (summoned pet)
                     if (pet->GetCharmerGUID() == GetPlayer()->GetGUID())
                         _player->StopCastingCharm();
-                    else if (pet->GetOwnerGUID() == GetPlayer()->GetGUID())
+                    else if (pet->GetOwnerOrCreatorGUID() == GetPlayer()->GetGUID())
                     {
                         ASSERT(pet->GetTypeId() == TYPEID_UNIT);
                         if (pet->IsPet())
@@ -622,7 +622,7 @@ void WorldSession::HandlePetRename(WorldPacket& recvData)
                                                             // check it!
     if (!pet || !pet->IsPet() || !((Pet*)pet)->IsHunterPet() ||
         !pet->HasByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PET_FLAGS, UNIT_CAN_BE_RENAMED) ||
-        pet->GetOwnerGUID() != _player->GetGUID() || !pet->GetCharmInfo())
+        pet->GetOwnerOrCreatorGUID() != _player->GetGUID() || !pet->GetCharmInfo())
         return;
 
     PetNameInvalidReason res = ObjectMgr::CheckPetName(name, GetSessionDbcLocale());

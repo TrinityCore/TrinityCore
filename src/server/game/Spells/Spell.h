@@ -749,7 +749,6 @@ class TC_GAME_API Spell
         HitTriggerSpellList m_hitTriggerSpells;
 
         // effect helpers
-        void SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* properties, uint32 numSummons, bool visibleBySummonerOnly = false);
         void CalculateJumpSpeeds(uint8 i, float dist, float & speedxy, float & speedz);
 
         void UpdateSpellCastDataTargets(WorldPackets::Spells::SpellHitInfo& data);

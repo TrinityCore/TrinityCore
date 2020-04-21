@@ -1672,7 +1672,7 @@ class spell_madness_of_deathwing_presence_of_the_aspects : public SpellScript
 
             if (target->IsCreature())
                 if (TempSummon* summon = target->ToUnit()->ToTempSummon())
-                    return !summon->GetOwnerGUID().IsPlayer();
+                    return !summon->GetOwnerOrCreatorGUID().IsPlayer();
 
             return true;
         });

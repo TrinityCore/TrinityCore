@@ -597,7 +597,7 @@ bool PetAI::CanAttack(Unit* target)
 
 void PetAI::ReceiveEmote(Player* player, uint32 emote)
 {
-    if (me->GetOwnerGUID() && me->GetOwnerGUID() == player->GetGUID())
+    if (me->GetOwnerOrCreatorGUID() && me->GetOwnerOrCreatorGUID() == player->GetGUID())
         switch (emote)
         {
             case TEXT_EMOTE_COWER:

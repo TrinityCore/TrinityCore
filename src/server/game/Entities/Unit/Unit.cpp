@@ -904,7 +904,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     if (victim->GetTypeId() == TYPEID_PLAYER && victim->ToPlayer()->duel && damage >= (health-1))
     {
         // prevent kill only if killed in duel and killed by opponent or opponent controlled creature
-        if (victim->ToPlayer()->duel->opponent == this || victim->ToPlayer()->duel->opponent->GetGUID() == GetOwnerGUID())
+        if (victim->ToPlayer()->duel->opponent == this || victim->ToPlayer()->duel->opponent->GetGUID() == GetOwnerOrCreatorGUID())
             damage = health - 1;
 
         duel_hasEnded = true;
@@ -5965,8 +5965,9 @@ void Unit::SetOwnerGUID(ObjectGuid owner)
 
 Unit* Unit::GetOwner() const
 {
-    if (ObjectGuid ownerGUID = GetOwnerGUID())
-        return ObjectAccessor::GetUnit(*this, ownerGUID);
+    // Fall back to creator guid of owner guid is not available
+    if (ObjectGuid guid = GetOwnerOrCreatorGUID())
+        return ObjectAccessor::GetUnit(*this, guid);
 
     return nullptr;
 }
@@ -6108,11 +6109,7 @@ void Unit::SetMinion(Minion* minion, bool apply)
         }
 
         if (minion->HasUnitTypeMask(UNIT_MASK_CONTROLABLE_GUARDIAN))
-        {
-            if (AddGuidValue(UNIT_FIELD_SUMMON, minion->GetGUID()))
-            {
-            }
-        }
+            AddGuidValue(UNIT_FIELD_SUMMON, minion->GetGUID());
 
         if (minion->m_Properties && SummonTitle(minion->m_Properties->Title) == SummonTitle::Companion)
             SetCritterGUID(minion->GetGUID());
@@ -6306,7 +6303,7 @@ void Unit::SetCharm(Unit* charm, bool apply)
 
         if (charm->GetTypeId() == TYPEID_PLAYER
             || !charm->ToCreature()->HasUnitTypeMask(UNIT_MASK_MINION)
-            || charm->GetOwnerGUID() != GetGUID())
+            || charm->GetOwnerOrCreatorGUID() != GetGUID())
         {
             m_Controlled.erase(charm);
         }
@@ -6438,7 +6435,7 @@ void Unit::RemoveAllControlled()
         m_Controlled.erase(m_Controlled.begin());
         if (target->GetCharmerGUID() == GetGUID())
             target->RemoveCharmAuras();
-        else if (target->GetOwnerGUID() == GetGUID() && target->IsSummon())
+        else if (target->GetOwnerOrCreatorGUID() == GetGUID() && target->IsSummon())
             target->ToTempSummon()->UnSummon();
         else
             TC_LOG_ERROR("entities.unit", "Unit %u is trying to release unit %u which is neither charmed nor owned by it", GetEntry(), target->GetEntry());
@@ -7060,7 +7057,7 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
 {
     //! Mobs can't crit with spells. Player Totems can
     //! Fire Elemental (from totem) can too - but this part is a hack and needs more research
-    if (GetGUID().IsCreatureOrVehicle() && !(IsTotem() && GetOwnerGUID().IsPlayer()) && GetEntry() != 15438)
+    if (GetGUID().IsCreatureOrVehicle() && !(IsTotem() && GetOwnerOrCreatorGUID().IsPlayer()) && GetEntry() != 15438)
         return 0.0f;
 
     // not critting spell
@@ -9079,7 +9076,7 @@ void Unit::UpdateSpeed(UnitMoveType mtype)
     if (float minSpeedMod = (float)GetMaxPositiveAuraModifier(SPELL_AURA_MOD_MINIMUM_SPEED))
     {
         float baseMinSpeed = 1.0f;
-        if (!GetOwnerGUID().IsPlayer() && !IsHunterPet() && GetTypeId() == TYPEID_UNIT)
+        if (!GetOwnerOrCreatorGUID().IsPlayer() && !IsHunterPet() && GetTypeId() == TYPEID_UNIT)
             baseMinSpeed = ToCreature()->GetCreatureTemplate()->speed_run;
 
         float min_speed = CalculatePct(baseMinSpeed, minSpeedMod);
@@ -9228,7 +9225,7 @@ bool Unit::CanHaveThreatList(bool skipAliveCheck) const
     //    return false;
 
     // summons can not have a threat list, unless they are controlled by a creature
-    if (HasUnitTypeMask(UNIT_MASK_MINION | UNIT_MASK_GUARDIAN | UNIT_MASK_CONTROLABLE_GUARDIAN) && ((Pet*)this)->GetOwnerGUID().IsPlayer())
+    if (HasUnitTypeMask(UNIT_MASK_MINION | UNIT_MASK_GUARDIAN | UNIT_MASK_CONTROLABLE_GUARDIAN) && ((Pet*)this)->GetOwnerOrCreatorGUID().IsPlayer())
         return false;
 
     return true;
@@ -10051,7 +10048,7 @@ float Unit::GetWeaponDamageRange(WeaponAttackType attType, WeaponDamageRange typ
 bool Unit::CanFreeMove() const
 {
     return !HasUnitState(UNIT_STATE_CONFUSED | UNIT_STATE_FLEEING | UNIT_STATE_IN_FLIGHT |
-        UNIT_STATE_ROOT | UNIT_STATE_STUNNED | UNIT_STATE_DISTRACTED) && GetOwnerGUID().IsEmpty();
+        UNIT_STATE_ROOT | UNIT_STATE_STUNNED | UNIT_STATE_DISTRACTED) && GetOwnerOrCreatorGUID().IsEmpty();
 }
 
 void Unit::SetLevel(uint8 lvl)
@@ -10964,7 +10961,7 @@ SpellSchoolMask Unit::GetMeleeDamageSchoolMask() const
 
 ObjectGuid Unit::GetCharmerOrOwnerGUID() const
 {
-    return GetCharmerGUID() ? GetCharmerGUID() : GetOwnerGUID();
+    return GetCharmerGUID() ? GetCharmerGUID() : GetOwnerOrCreatorGUID();
 }
 
 ObjectGuid Unit::GetCharmerOrOwnerOrOwnGUID() const
@@ -11650,7 +11647,7 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
         player = creature->GetLootRecipient();
 
     // Exploit fix
-    if (creature && creature->IsPet() && creature->GetOwnerGUID().IsPlayer())
+    if (creature && creature->IsPet() && creature->GetOwnerOrCreatorGUID().IsPlayer())
         isRewardAllowed = false;
 
     // Reward player, his pets, and group/raid members
@@ -13307,7 +13304,7 @@ bool Unit::HandleSpellClick(Unit* clicker, int8 seatId)
 
         Unit* caster = (itr->second.castFlags & NPC_CLICK_CAST_CASTER_CLICKER) ? clicker : this;
         Unit* target = (itr->second.castFlags & NPC_CLICK_CAST_TARGET_CLICKER) ? clicker : this;
-        ObjectGuid origCasterGUID = (itr->second.castFlags & NPC_CLICK_CAST_ORIG_CASTER_OWNER) ? GetOwnerGUID() : clicker->GetGUID();
+        ObjectGuid origCasterGUID = (itr->second.castFlags & NPC_CLICK_CAST_ORIG_CASTER_OWNER) ? GetOwnerOrCreatorGUID() : clicker->GetGUID();
 
         SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(itr->second.spellId);
         // if (!spellEntry) should be checked at npc_spellclick load
@@ -14056,7 +14053,7 @@ void Unit::OutDebugInfo() const
 {
     TC_LOG_ERROR("entities.unit", "Unit::OutDebugInfo");
     TC_LOG_DEBUG("entities.unit", "%s name %s", GetGUID().ToString().c_str(), GetName().c_str());
-    TC_LOG_DEBUG("entities.unit", "Owner %s, Minion %s, Charmer %s, Charmed %s", GetOwnerGUID().ToString().c_str(), GetMinionGUID().ToString().c_str(), GetCharmerGUID().ToString().c_str(), GetCharmGUID().ToString().c_str());
+    TC_LOG_DEBUG("entities.unit", "Owner %s, Minion %s, Charmer %s, Charmed %s", GetOwnerOrCreatorGUID().ToString().c_str(), GetMinionGUID().ToString().c_str(), GetCharmerGUID().ToString().c_str(), GetCharmGUID().ToString().c_str());
     TC_LOG_DEBUG("entities.unit", "In world %u, unit type mask %u", (uint32)(IsInWorld() ? 1 : 0), m_unitTypeMask);
     if (IsInWorld())
         TC_LOG_DEBUG("entities.unit", "Mapid %u", GetMapId());
@@ -14492,7 +14489,7 @@ void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target)
     updateMask.SetCount(valCount);
 
     Player* plr = GetCharmerOrOwnerPlayerOrPlayerItself();
-    if (GetOwnerGUID() == target->GetGUID())
+    if (GetOwnerOrCreatorGUID() == target->GetGUID())
         visibleFlag |= UF_FLAG_OWNER;
 
     if (HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_SPECIALINFO))

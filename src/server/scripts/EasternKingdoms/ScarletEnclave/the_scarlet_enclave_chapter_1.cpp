@@ -549,7 +549,7 @@ public:
         {
             if (m_bIsDuelInProgress && pDoneBy->IsControlledByPlayer())
             {
-                if (pDoneBy->GetGUID() != m_uiDuelerGUID && pDoneBy->GetOwnerGUID() != m_uiDuelerGUID) // other players cannot help
+                if (pDoneBy->GetGUID() != m_uiDuelerGUID && pDoneBy->GetOwnerOrCreatorGUID() != m_uiDuelerGUID) // other players cannot help
                     uiDamage = 0;
                 else if (uiDamage >= me->GetHealth())
                 {

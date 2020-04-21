@@ -21018,7 +21018,7 @@ void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
         m_temporaryUnsummonedPetNumber = 0;
     }
 
-    if (!pet || pet->GetOwnerGUID() != GetGUID())
+    if (!pet || pet->GetOwnerOrCreatorGUID() != GetGUID())
         return;
 
     pet->CombatStop();

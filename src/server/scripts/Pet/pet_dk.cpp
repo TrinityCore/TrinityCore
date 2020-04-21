@@ -48,7 +48,7 @@ class npc_pet_dk_ebon_gargoyle : public CreatureScript
             void InitializeAI() override
             {
                 CasterAI::InitializeAI();
-                ObjectGuid ownerGuid = me->GetOwnerGUID();
+                ObjectGuid ownerGuid = me->GetOwnerOrCreatorGUID();
                 if (!ownerGuid)
                     return;
 

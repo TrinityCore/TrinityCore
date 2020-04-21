@@ -420,7 +420,7 @@ class spell_dk_death_pact : public SpellScript
             for (Unit::ControlList::const_iterator itr = player->m_Controlled.begin(); itr != player->m_Controlled.end(); ++itr)
                 if (Creature* undeadPet = (*itr)->ToCreature())
                     if (undeadPet->IsAlive() &&
-                        undeadPet->GetOwnerGUID() == player->GetGUID() &&
+                        undeadPet->GetOwnerOrCreatorGUID() == player->GetGUID() &&
                         undeadPet->GetCreatureType() == CREATURE_TYPE_UNDEAD &&
                         undeadPet->IsWithinDist(player, 100.0f, false))
                         return SPELL_CAST_OK;
@@ -435,7 +435,7 @@ class spell_dk_death_pact : public SpellScript
         {
             if (Unit* unit = (*itr)->ToUnit())
             {
-                if (unit->GetOwnerGUID() == GetCaster()->GetGUID() && unit->GetCreatureType() == CREATURE_TYPE_UNDEAD)
+                if (unit->GetOwnerOrCreatorGUID() == GetCaster()->GetGUID() && unit->GetCreatureType() == CREATURE_TYPE_UNDEAD)
                 {
                     target = unit;
                     break;
