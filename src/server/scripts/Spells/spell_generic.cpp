@@ -5155,6 +5155,117 @@ class spell_gen_sunflower_dnd : public AuraScript
     }
 };
 
+enum GuildBattleStandard
+{
+    // Spells
+    SPELL_GUILD_BATTLE_STANDARD_ALLIANCE    = 90216,
+    SPELL_GUILD_BATTLE_STANDARD_HORDE       = 90708,
+
+    // Creatures
+    NPC_GUILD_BATTLE_STANDARD_ALLIANCE_1    = 48115,
+    NPC_GUILD_BATTLE_STANDARD_ALLIANCE_2    = 48633,
+    NPC_GUILD_BATTLE_STANDARD_ALLIANCE_3    = 48634,
+    NPC_GUILD_BATTLE_STANDARD_HORDE_1       = 48636,
+    NPC_GUILD_BATTLE_STANDARD_HORDE_2       = 48637,
+    NPC_GUILD_BATTLE_STANDARD_HORDE_3       = 48638
+};
+
+// 89481 - Guild Battle Standard
+class spell_gen_guild_battle_standard : public AuraScript
+{
+    PrepareAuraScript(spell_gen_guild_battle_standard);
+
+    bool Load() override
+    {
+        return GetCaster()->IsCreature();
+    }
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_GUILD_BATTLE_STANDARD_ALLIANCE,
+                SPELL_GUILD_BATTLE_STANDARD_HORDE
+            });
+    }
+
+    void HandlePeriodic(AuraEffect const* aurEff)
+    {
+        int32 bp = 0;
+        uint32 spellId = 0;
+
+        Unit* target = GetTarget();
+        switch (target->GetEntry())
+        {
+            case NPC_GUILD_BATTLE_STANDARD_ALLIANCE_1:
+                bp = 5;
+                spellId = SPELL_GUILD_BATTLE_STANDARD_ALLIANCE;
+                break;
+            case NPC_GUILD_BATTLE_STANDARD_ALLIANCE_2:
+                bp = 10;
+                spellId = SPELL_GUILD_BATTLE_STANDARD_ALLIANCE;
+                break;
+            case NPC_GUILD_BATTLE_STANDARD_ALLIANCE_3:
+                bp = 15;
+                spellId = SPELL_GUILD_BATTLE_STANDARD_ALLIANCE;
+                break;
+            case NPC_GUILD_BATTLE_STANDARD_HORDE_1:
+                bp = 5;
+                spellId = SPELL_GUILD_BATTLE_STANDARD_HORDE;
+                break;
+            case NPC_GUILD_BATTLE_STANDARD_HORDE_2:
+                bp = 10;
+                spellId = SPELL_GUILD_BATTLE_STANDARD_HORDE;
+                break;
+            case NPC_GUILD_BATTLE_STANDARD_HORDE_3:
+                bp = 15;
+                spellId = SPELL_GUILD_BATTLE_STANDARD_HORDE;
+                break;
+            default:
+                break;
+        }
+
+        if (spellId)
+            target->CastCustomSpell(target, spellId, &bp, &bp, &bp, true, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_guild_battle_standard::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
+// 90216 - Guild Battle Standard
+// 90708 - Guild Battle Standard
+class spell_gen_guild_battle_standard_buff : public SpellScript
+{
+    PrepareSpellScript(spell_gen_guild_battle_standard_buff);
+
+    bool Load() override
+    {
+        return GetCaster()->IsSummon();
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        TempSummon* summon = GetCaster()->ToTempSummon();
+        Unit* summoner = summon->GetSummoner();
+        if (Player* player = summoner->ToPlayer())
+        {
+            uint32 guildId = player->GetGuildId();
+            targets.remove_if([guildId](WorldObject* target)->bool
+            {
+                return !target->IsPlayer() || target->ToPlayer()->GetGuildId() != guildId;
+            });
+        }
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_gen_guild_battle_standard_buff::FilterTargets, EFFECT_ALL, TARGET_UNIT_SRC_AREA_ALLY);
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -5278,4 +5389,6 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_launch_quest);
     RegisterSpellScript(spell_gen_charmed_unit_spell_cooldown);
     RegisterAuraScript(spell_gen_sunflower_dnd);
+    RegisterAuraScript(spell_gen_guild_battle_standard);
+    RegisterSpellScript(spell_gen_guild_battle_standard_buff);
 }
