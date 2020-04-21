@@ -6117,11 +6117,6 @@ void Unit::SetMinion(Minion* minion, bool apply)
         // PvP, FFAPvP
         minion->SetByteValue(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PVP_FLAG, GetByteValue(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PVP_FLAG));
 
-        // FIXME: hack, speed must be set only at follow
-        if (GetTypeId() == TYPEID_PLAYER && minion->IsPet())
-            for (uint8 i = 0; i < MAX_MOVE_TYPE; ++i)
-                minion->SetSpeedRate(UnitMoveType(i), m_speed_rate[i]);
-
         // Ghoul pets have energy instead of mana (is anywhere better place for this code?)
         if (minion->IsPetGhoul())
             minion->setPowerType(POWER_ENERGY);
@@ -6150,20 +6145,6 @@ void Unit::SetMinion(Minion* minion, bool apply)
         {
             if (GetPetGUID() == minion->GetGUID())
                 SetPetGUID(ObjectGuid::Empty);
-        }
-        else if (minion->IsTotem())
-        {
-            // All summoned by totem minions must disappear when it is removed.
-            if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(minion->ToTotem()->GetSpell()))
-            {
-                for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                {
-                    if (spell->Effects[i].Effect != SPELL_EFFECT_SUMMON)
-                        continue;
-
-                    RemoveAllMinionsByEntry(spell->Effects[i].MiscValue);
-                }
-            }
         }
 
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(minion->GetUInt32Value(UNIT_CREATED_BY_SPELL));
