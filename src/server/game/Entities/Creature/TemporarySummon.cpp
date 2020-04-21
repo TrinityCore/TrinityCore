@@ -267,9 +267,6 @@ void TempSummon::UnSummon(uint32 msTime)
     {
         if (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsAIEnabled)
             owner->ToCreature()->AI()->SummonedCreatureDespawn(this);
-
-        if (owner->IsTotem())
-            owner->m_Controlled.erase(this);
     }
 
     AddObjectToRemoveList();
@@ -323,6 +320,15 @@ void Minion::InitStats(uint32 duration)
     // Only controlable guardians and companions get a owner guid
     if (HasUnitTypeMask(UNIT_MASK_CONTROLABLE_GUARDIAN) || (m_Properties && m_Properties->Title == AsUnderlyingType(SummonTitle::Companion)))
         GetOwner()->SetMinion(this, true);
+    else if (!HasUnitTypeMask(UNIT_MASK_PET | UNIT_MASK_HUNTER_PET))
+    {
+        GetOwner()->m_Controlled.insert(this);
+
+        // Store the totem elementals in players controlled list as well to trigger aggro mechanics
+        if (GetOwner()->IsTotem())
+            if (Unit* totemOwner = GetOwner()->GetOwner())
+                totemOwner->m_Controlled.insert(this);
+    }
 }
 
 void Minion::RemoveFromWorld()
@@ -332,6 +338,14 @@ void Minion::RemoveFromWorld()
 
     if (HasUnitTypeMask(UNIT_MASK_CONTROLABLE_GUARDIAN) || (m_Properties && m_Properties->Title == AsUnderlyingType(SummonTitle::Companion)))
         GetOwner()->SetMinion(this, false);
+    else if (!HasUnitTypeMask(UNIT_MASK_PET | UNIT_MASK_HUNTER_PET))
+    {
+        GetOwner()->m_Controlled.erase(this);
+
+        if (GetOwner()->IsTotem())
+            if (Unit* totemOwner = GetOwner()->GetOwner())
+                totemOwner->m_Controlled.erase(this);
+    }
 
     TempSummon::RemoveFromWorld();
 }
