@@ -4396,9 +4396,20 @@ void Spell::EffectPullTowards(SpellEffIndex effIndex)
 
     // This is a blizzlike mistake: this should be 2D distance according to projectile motion formulas, but Blizzard erroneously used 3D distance.
     float distXY = unitTarget->GetExactDist(pos);
+
+    // Avoid division by 0
+    if (distXY < 0.001)
+        return;
+
     float distZ = pos.GetPositionZ() - unitTarget->GetPositionZ();
     float speedXY = m_spellInfo->Effects[effIndex].MiscValue ? m_spellInfo->Effects[effIndex].MiscValue / 10.0f : 30.0f;
     float speedZ = (2 * speedXY * speedXY * distZ + Movement::gravity * distXY * distXY) / (2 * speedXY * distXY);
+
+    if (!std::isfinite(speedZ))
+    {
+        TC_LOG_ERROR("spells", "Spell %u with SPELL_EFFECT_PULL_TOWARDS called with invalid speedZ. %s", m_spellInfo->Id, GetDebugInfo().c_str());
+        return;
+    }
 
     unitTarget->JumpTo(speedXY, speedZ, true, pos);
 }
@@ -4420,10 +4431,21 @@ void Spell::EffectPullTowardsDest(SpellEffIndex effIndex)
     Position const* pos = m_targets.GetDstPos();
     // This is a blizzlike mistake: this should be 2D distance according to projectile motion formulas, but Blizzard erroneously used 3D distance
     float distXY = unitTarget->GetExactDist(pos);
+
+    // Avoid division by 0
+    if (distXY < 0.001)
+        return;
+
     float distZ = pos->GetPositionZ() - unitTarget->GetPositionZ();
 
     float speedXY = m_spellInfo->Effects[effIndex].MiscValue ? m_spellInfo->Effects[effIndex].MiscValue / 10.0f : 30.0f;
     float speedZ = (2 * speedXY * speedXY * distZ + Movement::gravity * distXY * distXY) / (2 * speedXY * distXY);
+
+    if (!std::isfinite(speedZ))
+    {
+        TC_LOG_ERROR("spells", "Spell %u with SPELL_EFFECT_PULL_TOWARDS_DEST called with invalid speedZ. %s", m_spellInfo->Id, GetDebugInfo().c_str());
+        return;
+    }
 
     unitTarget->JumpTo(speedXY, speedZ, true, *pos);
 }
