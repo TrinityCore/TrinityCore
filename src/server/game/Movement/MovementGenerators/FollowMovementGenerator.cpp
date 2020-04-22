@@ -201,7 +201,13 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
         }
 
         Position dest = target->GetPosition();
-        target->MovePositionToFirstCollision(dest, _range + target->GetBoundaryRadius() + owner->GetBoundaryRadius(), tAngle);
+        if (!owner->HasUnitState(UNIT_STATE_IGNORE_PATHFINDING))
+            target->MovePositionToFirstCollision(dest, _range + target->GetBoundaryRadius() + owner->GetBoundaryRadius(), tAngle);
+        else
+        {
+            dest.m_positionX += std::cos(Position::NormalizeOrientation(target->GetOrientation() + tAngle)) * (_range + target->GetBoundaryRadius() + owner->GetBoundaryRadius());
+            dest.m_positionY += std::sin(Position::NormalizeOrientation(target->GetOrientation() + tAngle)) * (_range + target->GetBoundaryRadius() + owner->GetBoundaryRadius());
+        }
 
         Movement::MoveSplineInit init(owner);
         init.MoveTo(dest.GetPositionX(), dest.GetPositionY(), dest.GetPositionZ());
