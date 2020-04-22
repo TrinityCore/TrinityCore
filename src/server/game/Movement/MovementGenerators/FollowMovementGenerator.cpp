@@ -30,6 +30,35 @@ FollowMovementGenerator::FollowMovementGenerator(Unit* target, float range, Chas
 
 FollowMovementGenerator::~FollowMovementGenerator() { }
 
+inline UnitMoveType SelectSpeedType(uint32 moveFlags)
+{
+    if (moveFlags & MOVEMENTFLAG_FLYING)
+    {
+        if (moveFlags & MOVEMENTFLAG_BACKWARD /*&& speed_obj.flight >= speed_obj.flight_back*/)
+            return MOVE_FLIGHT_BACK;
+        else
+            return MOVE_FLIGHT;
+    }
+    else if (moveFlags & MOVEMENTFLAG_SWIMMING)
+    {
+        if (moveFlags & MOVEMENTFLAG_BACKWARD /*&& speed_obj.swim >= speed_obj.swim_back*/)
+            return MOVE_SWIM_BACK;
+        else
+            return MOVE_SWIM;
+    }
+    else if (moveFlags & MOVEMENTFLAG_WALKING)
+    {
+        //if (speed_obj.run > speed_obj.walk)
+        return MOVE_WALK;
+    }
+    else if (moveFlags & MOVEMENTFLAG_BACKWARD /*&& speed_obj.run >= speed_obj.run_back*/)
+        return MOVE_RUN_BACK;
+
+    // Flying creatures use MOVEMENTFLAG_CAN_FLY or MOVEMENTFLAG_DISABLE_GRAVITY
+    // Run speed is their default flight speed.
+    return MOVE_RUN;
+}
+
 static void DoMovementInform(Unit* owner, Unit* target)
 {
     if (owner->GetTypeId() != TYPEID_UNIT)
@@ -72,7 +101,7 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
         if (!target->movespline->Finalized() || target->isMoving())
         {
             Position dest = target->GetPosition();
-            float destOrientation = target->GetOrientation();
+
             float offset = 0.f;
 
             // Strafe handling for player sidewards movement
@@ -90,24 +119,20 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
                 // Player moves forward while strafing, cut strafe offset in half
                 if (offset != 0.f && target->HasUnitMovementFlag(MOVEMENTFLAG_FORWARD))
                     offset *= 0.5f;
-
-                destOrientation += offset;
             }
 
-            target->MovePositionToFirstCollision(dest, _range + target->GetBoundaryRadius() + owner->GetBoundaryRadius(), _angle.RelativeAngle);
-            dest.SetOrientation(destOrientation);
+            float angle = !target->HasUnitMovementFlag(MOVEMENTFLAG_BACKWARD) ? _angle.RelativeAngle : -_angle.RelativeAngle;
+
+            // Let's start with a cheap base destination calculation
+            dest.m_positionX += std::cos(Position::NormalizeOrientation(target->GetOrientation() + offset + angle)) * (_range + target->GetBoundaryRadius() + owner->GetBoundaryRadius());
+            dest.m_positionY += std::sin(Position::NormalizeOrientation(target->GetOrientation() + offset + angle)) * (_range + target->GetBoundaryRadius() + owner->GetBoundaryRadius());
 
             // Determine our velocity
             float velocity = 0.f;
             if (_useTargetSpeed)
             {
                 if (target->IsPlayer())
-                {
-                    velocity = target->IsWalking() ? target->GetSpeed(MOVE_WALK) : target->GetSpeed(MOVE_RUN);
-                    // Backwards player movement speed
-                    if (target->IsPlayer() && target->HasUnitMovementFlag(MOVEMENTFLAG_BACKWARD))
-                        velocity = target->GetSpeed(MOVE_RUN_BACK);
-                }
+                    velocity = target->GetSpeed(SelectSpeedType(target->m_movementInfo.GetMovementFlags()));
                 else
                 {
                     if (!target->movespline->Finalized())
@@ -115,30 +140,31 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
                     else
                         velocity = target->GetSpeed(MOVE_RUN);
                 }
-            }
 
-            // Follow target based speed allignment
-            float distance = owner->GetExactDist2d(dest);
-            if (_useTargetSpeed && velocity > 0.f)
-            {
 
-                // Determine catchup speed rate
-                if (!dest.HasInArc(float(M_PI), owner)) // follower is behind follow destination
+                // Catchup / throttle speed modifier calculation
+                if (velocity > 0.f)
                 {
-                    // Limit catchup speed to a total of 1.5 times of the follow target's velocity
-                    float distMod = 1.f + std::min<float>(distance * 0.1f, 0.5f);
-                    velocity *= distMod;
-                }
-                else if (distance > (velocity / 2))
-                {
-                    // We are beyond our destination, throttle movement to fall back
-                    float distMod = 1.f - std::min<float>((distance - (velocity / 2)), 0.5f);
+                    float distance = owner->GetExactDist2d(dest);
+                    float distMod = 1.f;
+                    if (!dest.HasInArc(float(M_PI), owner)) // Follower is in falling back, catch up
+                        distMod += std::min<float>(distance * 0.1f, 0.5f);
+                    else if (distance > (velocity / 2))  // Follower is beyond destination, fall back
+                        distMod -= std::min<float>((distance - (velocity / 2)), 0.5f);
+
                     velocity *= distMod;
                 }
             }
 
-            // Move our destination ahead (according to sniffs, it's roundabout velocity * 2)
-            target->MovePositionToFirstCollision(dest, (velocity * 2) - distance, offset);
+            // Predicting our follow destination (roundabout velocity * 2 according to sniff data)
+            dest.m_positionX += std::cos(Position::NormalizeOrientation(target->GetOrientation() + offset)) * (velocity * 2);
+            dest.m_positionY += std::sin(Position::NormalizeOrientation(target->GetOrientation() + offset)) * (velocity * 2);
+
+            // Now we calculate out actual destination data
+            float relativeAngle = target->GetRelativeAngle(dest);
+            float distance = target->GetExactDist2d(dest);
+            dest = target->GetPosition();
+            target->MovePositionToFirstCollision(dest, distance, relativeAngle);
 
             Movement::MoveSplineInit init(owner);
             init.MoveTo(dest.GetPositionX(), dest.GetPositionY(), dest.GetPositionZ());
