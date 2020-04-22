@@ -4484,7 +4484,7 @@ void Spell::EffectPullTowards(SpellEffIndex effIndex)
 
     if (!std::isfinite(speedZ))
     {
-        TC_LOG_ERROR("spells", "Spell %u with SPELL_EFFECT_PULL_TOWARDS called with invalid speedZ. %s", m_spellInfo->Id, GetDebugInfo().c_str());
+        TC_LOG_ERROR("spells", "Spell %u with SPELL_EFFECT_PULL_TOWARDS called with invalid speedZ.", m_spellInfo->Id);
         return;
     }
 
@@ -4520,7 +4520,7 @@ void Spell::EffectPullTowardsDest(SpellEffIndex effIndex)
 
     if (!std::isfinite(speedZ))
     {
-        TC_LOG_ERROR("spells", "Spell %u with SPELL_EFFECT_PULL_TOWARDS_DEST called with invalid speedZ. %s", m_spellInfo->Id, GetDebugInfo().c_str());
+        TC_LOG_ERROR("spells", "Spell %u with SPELL_EFFECT_PULL_TOWARDS_DEST called with invalid speedZ", m_spellInfo->Id);
         return;
     }
 
