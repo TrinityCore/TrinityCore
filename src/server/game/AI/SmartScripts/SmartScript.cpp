@@ -191,7 +191,6 @@ void SmartScript::OnReset()
     }
     ProcessEventsFor(SMART_EVENT_RESET);
     mLastInvoker.Clear();
-    mCounterList.clear();
 }
 
 void SmartScript::ResetBaseObject()
@@ -4106,6 +4105,7 @@ void SmartScript::OnInitialize(WorldObject* obj, AreaTriggerEntry const* at, Sce
     ProcessEventsFor(SMART_EVENT_AI_INIT);
     InstallEvents();
     ProcessEventsFor(SMART_EVENT_JUST_CREATED);
+    mCounterList.clear();
 }
 
 void SmartScript::OnMoveInLineOfSight(Unit* who)
