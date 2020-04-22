@@ -161,10 +161,13 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
             dest.m_positionY += std::sin(Position::NormalizeOrientation(target->GetOrientation() + offset)) * (velocity * 2);
 
             // Now we calculate out actual destination data
-            float relativeAngle = target->GetRelativeAngle(dest);
-            float distance = target->GetExactDist2d(dest);
-            dest = target->GetPosition();
-            target->MovePositionToFirstCollision(dest, distance, relativeAngle);
+            if (!owner->HasUnitState(UNIT_STATE_IGNORE_PATHFINDING))
+            {
+                float relativeAngle = target->GetRelativeAngle(dest);
+                float distance = target->GetExactDist2d(dest);
+                dest = target->GetPosition();
+                target->MovePositionToFirstCollision(dest, distance, relativeAngle);
+            }
 
             Movement::MoveSplineInit init(owner);
             init.MoveTo(dest.GetPositionX(), dest.GetPositionY(), dest.GetPositionZ());

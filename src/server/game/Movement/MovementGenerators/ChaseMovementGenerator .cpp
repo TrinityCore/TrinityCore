@@ -208,14 +208,16 @@ void ChaseMovementGenerator::LaunchMovement(Unit* owner, Unit* target, float cha
 
         float additionalRange = target->GetSpeed(moveType) * 0.5f;
 
-        target->MovePositionToFirstCollision(dest, additionalRange, _angle ? target->NormalizeOrientation(target->GetOrientation() - _angle->RelativeAngle + float(M_PI)) : target->GetRelativeAngle(owner) + float(M_PI));
+        if (!owner->HasUnitState(UNIT_STATE_IGNORE_PATHFINDING))
+            target->MovePositionToFirstCollision(dest, additionalRange, _angle ? target->NormalizeOrientation(target->GetOrientation() - _angle->RelativeAngle + float(M_PI)) : target->GetRelativeAngle(owner) + float(M_PI));
     }
-    else
+    else if (!owner->HasUnitState(UNIT_STATE_IGNORE_PATHFINDING))
         target->MovePositionToFirstCollision(dest, chaseRange, _angle ? target->NormalizeOrientation(target->GetOrientation() - _angle->RelativeAngle) : target->GetRelativeAngle(owner));
 
     owner->UpdateAllowedPositionZ(dest.GetPositionX(), dest.GetPositionY(), dest.m_positionZ);
 
     Creature* creature = owner->ToCreature();
+    Movement::MoveSplineInit init(owner);
 
     PathGenerator path(owner);
     bool success = path.CalculatePath(dest.GetPositionX(), dest.GetPositionY(), dest.GetPositionZ(), owner->CanFly());
@@ -228,7 +230,6 @@ void ChaseMovementGenerator::LaunchMovement(Unit* owner, Unit* target, float cha
         return;
     }
 
-    Movement::MoveSplineInit init(owner);
     init.MovebyPath(path.GetPath());
     init.SetWalk(false);
     if (backward)
