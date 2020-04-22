@@ -172,7 +172,7 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
                 }
             }
             else if (owner->GetExactDist2d(target) > rangeTolerance + 0.1f) // 0.1f here to avoid edge cases when the owner has stepped back before
-                LaunchMovement(owner, target, chaseRange, mutualChase);
+                LaunchMovement(owner, target, chaseRange, false, mutualChase);
         }
     }
 
