@@ -78,6 +78,33 @@ void Vehicle::Install()
 {
     _me->UpdateDisplayPower();
 
+    if (_me->IsCreature())
+    {
+        switch (_vehicleInfo->PowerDisplayID[0])
+        {
+            case POWER_STEAM:
+            case POWER_HEAT:
+            case POWER_BLOOD:
+            case POWER_OOZE:
+            case POWER_WRATH:
+            case POWER_ARCANE_ENERGY:
+            case POWER_LIFE_ENERGY:
+            case POWER_SUN_ENERGY:
+            case POWER_SWING_VELOCITY:
+            case POWER_SHADOWFLAME_ENERGY:
+            case POWER_ELECTRICAL_ENERGY:
+            case POWER_ARCANE_ENERGY_2:
+            case POWER_FUEL:
+            case POWER_SUN_POWER:
+            case POWER_TWILIGHT_ENERGY:
+            case POWER_PYRITE:
+                _me->SetFullPower(POWER_ENERGY);
+                break;
+            default:
+                break;
+        }
+    }
+
     _status = STATUS_INSTALLED;
     if (GetBase()->GetTypeId() == TYPEID_UNIT)
         sScriptMgr->OnInstall(this);
