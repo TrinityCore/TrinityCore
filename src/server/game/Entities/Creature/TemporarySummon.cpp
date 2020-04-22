@@ -329,6 +329,13 @@ void Minion::InitStats(uint32 duration)
             if (Unit* totemOwner = GetOwner()->GetOwner())
                 totemOwner->m_Controlled.insert(this);
     }
+
+    if (m_Properties && m_Properties->Title == AsUnderlyingType(SummonTitle::Companion))
+    {
+        SelectLevel();       // some summoned creaters have different from 1 DB data for level/hp
+        SetUInt32Value(UNIT_NPC_FLAGS, GetCreatureTemplate()->npcflag);
+        SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+    }
 }
 
 void Minion::RemoveFromWorld()
