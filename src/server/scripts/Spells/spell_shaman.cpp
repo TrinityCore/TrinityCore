@@ -654,52 +654,36 @@ class spell_sha_glyph_of_healing_wave : public SpellScriptLoader
 
 // 52041 - Healing Stream Totem
 /// Updated 4.3.4
-class spell_sha_healing_stream_totem : public SpellScriptLoader
+class spell_sha_healing_stream_totem : public SpellScript
 {
-    public:
-        spell_sha_healing_stream_totem() : SpellScriptLoader("spell_sha_healing_stream_totem") { }
+    PrepareSpellScript(spell_sha_healing_stream_totem);
 
-        class spell_sha_healing_stream_totem_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_sha_healing_stream_totem_SpellScript);
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_TOTEM_HEALING_STREAM_HEAL });
+    }
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_SHAMAN_TOTEM_HEALING_STREAM_HEAL });
-            }
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        SpellInfo const* triggeringSpell = GetTriggeringSpell();
+        if (!caster || !triggeringSpell)
+            return;
 
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                int32 damage = GetEffectValue();
-                SpellInfo const* triggeringSpell = GetTriggeringSpell();
-                if (Unit* target = GetHitUnit())
-                    if (Unit* caster = GetCaster())
-                    {
-                        if (Unit* owner = caster->GetOwner())
-                        {
-                            if (triggeringSpell)
-                                damage = int32(owner->SpellHealingBonusDone(target, triggeringSpell, damage, HEAL, EFFECT_0));
+        Unit* target = GetHitUnit();
 
-                            // Soothing Rains
-                            if (AuraEffect* dummy = owner->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_SHAMAN, SHAMAN_ICON_ID_SOOTHING_RAIN, EFFECT_0))
-                                AddPct(damage, dummy->GetAmount());
+        int32 bp = triggeringSpell->Effects[EFFECT_0].CalcValue(caster);
+        bp = caster->SpellHealingBonusDone(target, triggeringSpell, bp, HEAL, EFFECT_0);
+        if (AuraEffect* dummy = caster->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_SHAMAN, SHAMAN_ICON_ID_SOOTHING_RAIN, EFFECT_0))
+            AddPct(bp, dummy->GetAmount());
 
-                            damage = int32(target->SpellHealingBonusTaken(owner, triggeringSpell, damage, HEAL));
-                        }
-                        caster->CastCustomSpell(target, SPELL_SHAMAN_TOTEM_HEALING_STREAM_HEAL, &damage, 0, 0, true, 0, 0, GetOriginalCaster()->GetGUID());
-                    }
-            }
+        caster->CastCustomSpell(SPELL_SHAMAN_TOTEM_HEALING_STREAM_HEAL, SPELLVALUE_BASE_POINT0, bp, GetHitUnit(), true, nullptr, nullptr, caster->GetCreatorGUID());
+    }
 
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_sha_healing_stream_totem_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_sha_healing_stream_totem_SpellScript();
-        }
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_sha_healing_stream_totem::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
 };
 
 // 32182 - Heroism
@@ -2149,7 +2133,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_glyph_of_healing_wave();
     new spell_sha_healing_rain();
     RegisterSpellScript(spell_sha_healing_rain_triggered);
-    new spell_sha_healing_stream_totem();
+    RegisterSpellScript(spell_sha_healing_stream_totem);
     new spell_sha_heroism();
     new spell_sha_item_lightning_shield();
     new spell_sha_item_lightning_shield_trigger();
