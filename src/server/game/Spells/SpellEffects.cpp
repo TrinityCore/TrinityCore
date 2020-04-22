@@ -1870,10 +1870,8 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
     {
         if (TempSummon* summon = m_caster->GetMap()->SummonCreature(entry, *destTarget, properties, duration, m_originalCaster, m_spellInfo->Id, 0, personalSpawn, health))
         {
-            ExecuteLogEffectSummonObject(effIndex, summon);
-
             // Summoned vehicles shall be mounted right away if possible
-            if (summon->IsVehicle())
+            if (properties->Control == SUMMON_CATEGORY_VEHICLE && summon->IsVehicle())
             {
                 // The spell that this effect will trigger. It has SPELL_AURA_CONTROL_VEHICLE
                 uint32 spellId = VEHICLE_SPELL_RIDE_HARDCODED;
@@ -1891,6 +1889,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                 else
                     m_originalCaster->CastSpell(summon, spellId, true);
             }
+            ExecuteLogEffectSummonObject(effIndex, summon);
         }
     }
     else
