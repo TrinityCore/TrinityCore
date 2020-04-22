@@ -3760,7 +3760,7 @@ void SmartScript::OnInitialize(WorldObject* obj, AreaTriggerEntry const* at)
     ProcessEventsFor(SMART_EVENT_AI_INIT);
     InstallEvents();
     ProcessEventsFor(SMART_EVENT_JUST_CREATED);
-	mCounterList.clear();
+    mCounterList.clear();
 }
 
 void SmartScript::OnMoveInLineOfSight(Unit* who)
