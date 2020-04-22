@@ -32,6 +32,7 @@
 enum Spells
 {
     // Omnotron
+    SPELL_COUNCIL_ENERGY_DRAIN                  = 78725,
     SPELL_CONTROLLER_RECHARGE                   = 78696,
     SPELL_RECHARGING_ELECTRON                   = 78697,
     SPELL_RECHARGING_MAGMATRON                  = 78698,
@@ -216,7 +217,6 @@ enum FailedAchievementCriteriaMask
     FAILED_CRITERIA_ARCANE_ANNIHILATOR  = 0x4,
     FAILED_CRITERIA_FLAMETHROWER        = 0x8
 };
-
 
 struct GolemInfo
 {

@@ -124,7 +124,7 @@ class boss_foe_reaper_5000 : public CreatureScript
         {
             boss_foe_reaper_5000AI(Creature* creature) : BossAI(creature, DATA_FOE_REAPER_5000)
             {
-                me->setPowerType(POWER_ENERGY);
+                me->SetPowerType(POWER_ENERGY);
                 me->SetMaxPower(POWER_ENERGY, 100);
                 Initialize();
             }

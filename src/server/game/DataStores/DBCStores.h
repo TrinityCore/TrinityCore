@@ -239,7 +239,7 @@ public:
     PvPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, BattlegroundBracketId id);  
     CharStartOutfitEntry const* GetCharStartOutfitEntry(uint8 race, uint8 class_, uint8 gender);
     CharSectionsEntry const* GetCharSectionEntry(uint8 race, CharSectionType genType, uint8 gender, uint8 type, uint8 color);
-    uint32 GetPowerIndexByClass(uint32 powerType, uint32 classId);
+    uint32 GetPowerIndexByClass(Powers power, uint32 classId);
     static bool IsInArea(uint32 objectAreaId, uint32 areaId);
     static LFGDungeonEntry const* GetLFGDungeon(uint32 mapId, Difficulty difficulty);
     std::vector<uint32> const* GetPhasesForGroup(uint32 group); 

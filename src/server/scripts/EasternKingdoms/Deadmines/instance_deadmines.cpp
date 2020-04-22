@@ -269,7 +269,7 @@ class instance_deadmines : public InstanceMapScript
                         _ripsnarlNightareGuidSet.insert(creature->GetGUID());
                         break;
                     case NPC_DEFIAS_SHADOWGUARD:
-                        creature->setPowerType(POWER_ENERGY);
+                        creature->SetPowerType(POWER_ENERGY);
                         creature->SetMaxPower(POWER_ENERGY, 100);
                         creature->SetPower(POWER_ENERGY, 100);
                         break;

@@ -46,6 +46,7 @@ enum PetEntries
 
     // Death Knight Pet/Minions
     ENTRY_GHOUL                     = 26125,
+    ENTRY_RISEN_ALLY                = 30230,
     ENTRY_BLOODWORM                 = 28017,
     ENTRY_RUNIC_WEAPON              = 27893,
     ENTRY_GARGOYLE                  = 27829,
@@ -108,6 +109,7 @@ class TC_GAME_API Minion : public TempSummon
         float GetFollowAngle() const override { return m_followAngle; }
         void SetFollowAngle(float angle) { m_followAngle = angle; }
         bool IsPetGhoul() const { return GetEntry() == ENTRY_GHOUL; } // Ghoul may be guardian or pet
+        bool IsRisenAlly() const { return GetEntry() == ENTRY_RISEN_ALLY; }
         bool IsSpiritWolf() const { return GetEntry() == ENTRY_SPIRIT_WOLF; } // Spirit wolf from feral spirits
         bool IsGuardianPet() const;
         bool IsWarlockMinion() const;

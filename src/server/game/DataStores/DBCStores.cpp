@@ -1078,9 +1078,9 @@ CharSectionsEntry const* DBCManager::GetCharSectionEntry(uint8 race, CharSection
     return nullptr;
 }
 
-uint32 DBCManager::GetPowerIndexByClass(uint32 powerType, uint32 classId)
+uint32 DBCManager::GetPowerIndexByClass(Powers power, uint32 classId)
 {
-    return PowersByClass[classId][powerType];
+    return PowersByClass[classId][power];
 }
 
 uint32 ScalingStatValuesEntry::GetStatMultiplier(uint32 inventoryType) const

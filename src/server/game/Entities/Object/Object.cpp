@@ -2144,14 +2144,6 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
         summon->SetHealth(health);
     }
 
-    // Initialize guardian stats
-    if (summon->HasUnitTypeMask(UNIT_MASK_GUARDIAN) && summoner)
-    {
-        ((Guardian*)summon)->UpdateAllStats();
-        summon->SetPower(POWER_MANA, summon->GetMaxPower(POWER_MANA));
-        summon->SetFullHealth();
-    }
-
     AddToMap(summon->ToCreature());
     summon->InitSummon();
 

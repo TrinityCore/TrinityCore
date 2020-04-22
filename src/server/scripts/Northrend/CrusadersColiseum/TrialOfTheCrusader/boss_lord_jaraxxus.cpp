@@ -536,7 +536,7 @@ class MistressKissTargetSelector
         bool operator()(WorldObject* unit) const
         {
             if (unit->GetTypeId() == TYPEID_PLAYER)
-                if (unit->ToPlayer()->getPowerType() == POWER_MANA)
+                if (unit->ToPlayer()->GetPowerType() == POWER_MANA)
                     return false;
 
             return true;

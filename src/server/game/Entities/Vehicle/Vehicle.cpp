@@ -76,57 +76,7 @@ Vehicle::~Vehicle()
 
 void Vehicle::Install()
 {
-    if (_me->GetTypeId() == TYPEID_UNIT)
-    {
-        if (PowerDisplayEntry const* powerDisplay = sPowerDisplayStore.LookupEntry(_vehicleInfo->PowerDisplayID[0]))
-            _me->setPowerType(Powers(powerDisplay->ActualType));
-        else if (_me->getClass() == CLASS_ROGUE)
-            _me->setPowerType(POWER_ENERGY);
-    }
-
-    if (_me->IsCreature())
-    {
-        switch (_vehicleInfo->PowerDisplayID[0])
-        {
-            case POWER_STEAM:
-            case POWER_HEAT:
-            case POWER_BLOOD:
-            case POWER_OOZE:
-            case POWER_WRATH:
-            case POWER_ARCANE_ENERGY:
-            case POWER_LIFE_ENERGY:
-            case POWER_SUN_ENERGY:
-            case POWER_SWING_VELOCITY:
-            case POWER_SHADOWFLAME_ENERGY:
-            case POWER_ELECTRICAL_ENERGY:
-            case POWER_ARCANE_ENERGY_2:
-            case POWER_FUEL:
-            case POWER_SUN_POWER:
-            case POWER_TWILIGHT_ENERGY:
-                 _me->SetMaxPower(POWER_ENERGY, 100);
-                 _me->SetPower(POWER_ENERGY, 100);
-                break;
-            case POWER_BLUE_POWER:
-            case POWER_PURPLE_POWER:
-            case POWER_GREEN_POWER:
-            case POWER_ORANGE_POWER:
-                _me->SetMaxPower(POWER_ENERGY, 100);
-                _me->SetPower(POWER_ENERGY, 0);
-                break;
-            case POWER_PYRITE:
-                _me->SetMaxPower(POWER_ENERGY, 50);
-                _me->SetPower(POWER_ENERGY, 50);
-                break;
-            case POWER_WIND_POWER_1:
-            case POWER_WIND_POWER_2:
-            case POWER_WIND_POWER_3:
-                _me->SetMaxPower(POWER_MANA, 90);
-                _me->SetPower(POWER_MANA, 0);
-                break;
-            default:
-                break;
-        }
-    }
+    _me->UpdateDisplayPower();
 
     _status = STATUS_INSTALLED;
     if (GetBase()->GetTypeId() == TYPEID_UNIT)
