@@ -361,5 +361,6 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
 
         GameObjectAI* m_AI;
         bool m_respawnCompatibilityMode;
+        bool _triggerJustAppeared;
 };
 #endif

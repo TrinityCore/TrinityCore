@@ -58,7 +58,7 @@ QuaternionData QuaternionData::fromEulerAnglesZYX(float Z, float Y, float X)
 }
 
 GameObject::GameObject() : WorldObject(false), MapObject(),
-    m_model(nullptr), m_goValue(), m_AI(nullptr), m_respawnCompatibilityMode(false)
+    m_model(nullptr), m_goValue(), m_AI(nullptr), m_respawnCompatibilityMode(false), _triggerJustAppeared(true)
 {
     m_objectType |= TYPEMASK_GAMEOBJECT;
     m_objectTypeId = TYPEID_GAMEOBJECT;
@@ -363,6 +363,12 @@ void GameObject::Update(uint32 diff)
         AI()->UpdateAI(diff);
     else if (!AIM_Initialize())
         TC_LOG_ERROR("misc", "Could not initialize GameObjectAI");
+
+    if (AI() && _triggerJustAppeared)
+    {
+        _triggerJustAppeared = false;
+        AI()->JustAppeared();
+    }
 
     if (m_despawnDelay)
     {
@@ -1202,6 +1208,9 @@ void GameObject::Respawn()
         m_respawnTime = GameTime::GetGameTime();
         GetMap()->Respawn(SPAWN_TYPE_GAMEOBJECT, m_spawnId);
     }
+
+    if (m_respawnCompatibilityMode)
+        _triggerJustAppeared = true;
 }
 
 bool GameObject::ActivateToQuest(Player* target) const

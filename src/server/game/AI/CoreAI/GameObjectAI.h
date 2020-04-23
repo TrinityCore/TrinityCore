@@ -40,6 +40,8 @@ class TC_GAME_API GameObjectAI
 
         virtual void Reset() { }
 
+        virtual void JustAppeared() { }
+
         // Pass parameters between AI
         virtual void DoAction(int32 /*param = 0 */) { }
         virtual void SetGUID(ObjectGuid const& /*guid*/, int32 /*id = 0 */) { }
