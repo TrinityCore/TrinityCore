@@ -5360,6 +5360,8 @@ enum FlaskOfBattle
     SPELL_FLASK_OF_TITANIC_STRENGTH = 79472,
     SPELL_FLASK_OF_THE_WINDS        = 79471,
     SPELL_FLASK_OF_DRACONIC_MIND    = 79470,
+    SPELL_CHUG_A_LUG_R1             = 83945,
+    SPELL_CHUG_A_LUG_R2             = 83961
 };
 
 // 92679 - Flask of Battle
@@ -5379,7 +5381,9 @@ class spell_gen_flask_of_battle : public SpellScript
                 SPELL_FLASK_OF_STEELSKIN,
                 SPELL_FLASK_OF_TITANIC_STRENGTH,
                 SPELL_FLASK_OF_THE_WINDS,
-                SPELL_FLASK_OF_DRACONIC_MIND
+                SPELL_FLASK_OF_DRACONIC_MIND,
+                SPELL_CHUG_A_LUG_R1,
+                SPELL_CHUG_A_LUG_R2
             });
     }
 
@@ -5436,7 +5440,23 @@ class spell_gen_flask_of_battle : public SpellScript
         }
 
         if (spellId)
-            player->CastSpell(player, spellId);
+        {
+            uint32 chugALugSpellId = 0;
+            if (player->HasSpell(SPELL_CHUG_A_LUG_R2))
+                chugALugSpellId = SPELL_CHUG_A_LUG_R2;
+            else if (player->HasSpell(SPELL_CHUG_A_LUG_R1))
+                chugALugSpellId = SPELL_CHUG_A_LUG_R1;
+
+            if (chugALugSpellId)
+            {
+                int32 durationBonus = sSpellMgr->AssertSpellInfo(chugALugSpellId)->Effects[EFFECT_0].CalcValue();
+                int32 duration = sSpellMgr->AssertSpellInfo(spellId)->GetMaxDuration();
+                AddPct(duration, durationBonus);
+                player->CastCustomSpell(spellId, SPELLVALUE_AURA_DURATION, duration, player);
+            }
+            else
+                player->CastSpell(player, spellId);
+        }
     }
 
     void Register() override
