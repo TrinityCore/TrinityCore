@@ -35,6 +35,7 @@
 #include <boost/accumulators/statistics/variance.hpp>
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics.hpp>
+#include "Spell.h"
 
 void WorldSession::HandleMoveWorldportAckOpcode(WorldPacket & /*recvData*/)
 {
@@ -409,6 +410,12 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
 
     if (plrMover)                                            // nothing is charmed, or player charmed
     {
+        //We only really care if it's moving, other updates don't really matter for interruptions.
+        if (movementInfo.HasMovementFlag(MovementFlags::MOVEMENTFLAG_MASK_MOVING) && plrMover->HasUnitState(UnitState::UNIT_STATE_CASTING))
+            for (uint32 i = CURRENT_MELEE_SPELL; i < CURRENT_MAX_SPELL; ++i)
+                if (Spell* spell = plrMover->GetCurrentSpell(CurrentSpellTypes(i)))
+                    spell->AddMovementFlags(static_cast<MovementFlags>(movementInfo.flags));
+
         if (plrMover->IsSitState() && (movementInfo.flags & (MOVEMENTFLAG_MASK_MOVING | MOVEMENTFLAG_MASK_TURNING)))
             plrMover->SetStandState(UNIT_STAND_STATE_STAND);
 
