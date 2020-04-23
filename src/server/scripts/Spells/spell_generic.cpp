@@ -5263,7 +5263,8 @@ class spell_gen_guild_battle_standard_buff : public SpellScript
 
 enum MobileBanking
 {
-    SPELL_GUILD_CHEST = 88306
+    SPELL_GUILD_CHEST_HORDE     = 88306,
+    SPELL_GUILD_CHEST_ALLIANCE  = 88304
 };
 
 class spell_gen_mobile_banking : public SpellScript
@@ -5277,7 +5278,11 @@ class spell_gen_mobile_banking : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_GUILD_CHEST });
+        return ValidateSpellInfo(
+            {
+                SPELL_GUILD_CHEST_HORDE,
+                SPELL_GUILD_CHEST_ALLIANCE
+            });
     }
 
     SpellCastResult CheckRequirement()
@@ -5291,7 +5296,8 @@ class spell_gen_mobile_banking : public SpellScript
 
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_GUILD_CHEST);
+        Unit* target = GetHitUnit();
+        target->CastSpell(target, target->ToPlayer()->GetTeamId() == TEAM_HORDE ? SPELL_GUILD_CHEST_HORDE : SPELL_GUILD_CHEST_ALLIANCE);
     }
 
     void Register() override
