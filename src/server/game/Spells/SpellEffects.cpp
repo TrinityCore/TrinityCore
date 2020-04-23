@@ -287,6 +287,11 @@ void Spell::EffectResurrectNew(SpellEffIndex effIndex)
 
     uint32 health = damage;
     uint32 mana = m_spellInfo->Effects[effIndex].MiscValue;
+
+    // SPELL_AURA_MOD_RESURRECTED_HEALTH_BY_GUILD_MEMBER bonus
+    if (m_caster->IsPlayer() && m_caster->ToPlayer()->GetGuildId() == player->GetGuildId() && !m_caster->IsInCombat())
+        AddPct(health, m_caster->GetTotalAuraModifier(SPELL_AURA_MOD_RESURRECTED_HEALTH_BY_GUILD_MEMBER));
+
     ExecuteLogEffectResurrect(effIndex, player);
     player->SetResurrectRequestData(m_caster, health, mana, 0);
     SendResurrectRequest(player);
@@ -4068,6 +4073,10 @@ void Spell::EffectResurrect(SpellEffIndex effIndex)
     uint32 health = player->CountPctFromMaxHealth(damage);
     uint32 mana   = CalculatePct(player->GetMaxPower(POWER_MANA), damage);
 
+    // SPELL_AURA_MOD_RESURRECTED_HEALTH_BY_GUILD_MEMBER bonus
+    if (m_caster->IsPlayer() && m_caster->ToPlayer()->GetGuildId() == player->GetGuildId() && !m_caster->IsInCombat())
+        AddPct(health, m_caster->GetTotalAuraModifier(SPELL_AURA_MOD_RESURRECTED_HEALTH_BY_GUILD_MEMBER));
+
     ExecuteLogEffectResurrect(effIndex, player);
 
     player->SetResurrectRequestData(m_caster, health, mana, 0);
@@ -5546,6 +5555,10 @@ void Spell::EffectResurrectWithAura(SpellEffIndex effIndex)
 
     if (resurrectAura && player->HasAura(resurrectAura))
         return;
+
+    // SPELL_AURA_MOD_RESURRECTED_HEALTH_BY_GUILD_MEMBER bonus
+    if (m_caster->IsPlayer() && m_caster->ToPlayer()->GetGuildId() == player->GetGuildId() && !m_caster->IsInCombat())
+        AddPct(health, m_caster->GetTotalAuraModifier(SPELL_AURA_MOD_RESURRECTED_HEALTH_BY_GUILD_MEMBER));
 
     ExecuteLogEffectResurrect(effIndex, player);
     player->SetResurrectRequestData(m_caster, health, mana, resurrectAura);

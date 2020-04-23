@@ -5445,6 +5445,47 @@ class spell_gen_flask_of_battle : public SpellScript
     }
 };
 
+enum TheQuickAndTheDead
+{
+    SPELL_THE_QUICK_AND_THE_DEAD_PERK = 83950,
+    SPELL_THE_QUICK_AND_THE_DEAD_BUFF = 84559
+};
+
+// 8326 - Ghost
+class spell_gen_ghost : public AuraScript
+{
+    PrepareAuraScript(spell_gen_ghost);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_THE_QUICK_AND_THE_DEAD_PERK,
+                SPELL_THE_QUICK_AND_THE_DEAD_BUFF
+            });
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        if (target->HasAura(SPELL_THE_QUICK_AND_THE_DEAD_PERK))
+            target->CastSpell(target, SPELL_THE_QUICK_AND_THE_DEAD_BUFF);
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        if (target->HasAura(SPELL_THE_QUICK_AND_THE_DEAD_BUFF))
+            target->RemoveAurasDueToSpell(SPELL_THE_QUICK_AND_THE_DEAD_BUFF);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectRemoveFn(spell_gen_ghost::AfterApply, EFFECT_0, SPELL_AURA_GHOST, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_gen_ghost::AfterRemove, EFFECT_0, SPELL_AURA_GHOST, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -5573,4 +5614,5 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_mobile_banking);
     RegisterSpellScript(spell_gen_cauldron_of_battle);
     RegisterSpellScript(spell_gen_flask_of_battle);
+    RegisterAuraScript(spell_gen_ghost);
 }
