@@ -4811,8 +4811,17 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
         case GAMEOBJECT_TYPE_DUEL_ARBITER: // 52991
             m_caster->AddGameObject(pGameObj);
             break;
-        case GAMEOBJECT_TYPE_FISHINGHOLE:
-        case GAMEOBJECT_TYPE_CHEST:
+        case GAMEOBJECT_TYPE_SPELLCASTER:
+        case GAMEOBJECT_TYPE_GUILD_BANK:
+            if (m_caster->IsPlayer())
+            {
+                if (ObjectGuid guildGUID = m_caster->GetGuidValue(OBJECT_FIELD_DATA))
+                {
+                    pGameObj->SetGuidValue(OBJECT_FIELD_DATA, m_caster->GetGuidValue(OBJECT_FIELD_DATA));
+                    pGameObj->SetUInt16Value(OBJECT_FIELD_TYPE, 1, 1); // Has guild data
+                }
+            }
+            break;
         default:
             break;
     }
