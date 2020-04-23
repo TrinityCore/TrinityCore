@@ -1172,7 +1172,7 @@ struct SmartAction
 
         struct
         {
-            uint32 ToHomePosition;
+            uint32 ToRespawnPosition;
             uint32 WalkMode;
         } evade;
 
