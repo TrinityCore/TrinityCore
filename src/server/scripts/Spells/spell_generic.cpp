@@ -5261,6 +5261,46 @@ class spell_gen_guild_battle_standard_buff : public SpellScript
     }
 };
 
+enum MobileBanking
+{
+    SPELL_GUILD_CHEST = 88306
+};
+
+class spell_gen_mobile_banking : public SpellScript
+{
+    PrepareSpellScript(spell_gen_mobile_banking);
+
+    bool Load() override
+    {
+        return GetCaster()->IsPlayer();
+    }
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_GUILD_CHEST });
+    }
+
+    SpellCastResult CheckRequirement()
+    {
+        // The player must have a guild reputation rank of friendly or higher to use the mobile banking ability
+        if (GetCaster()->ToPlayer()->GetReputationRank(FACTION_GUILD) < REP_FRIENDLY)
+            return SPELL_FAILED_REPUTATION;
+
+        return SPELL_CAST_OK;
+    }
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_GUILD_CHEST);
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_gen_mobile_banking::CheckRequirement);
+        OnEffectHitTarget += SpellEffectFn(spell_gen_mobile_banking::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -5386,4 +5426,5 @@ void AddSC_generic_spell_scripts()
     RegisterAuraScript(spell_gen_sunflower_dnd);
     RegisterAuraScript(spell_gen_guild_battle_standard);
     RegisterSpellScript(spell_gen_guild_battle_standard_buff);
+    RegisterSpellScript(spell_gen_mobile_banking);
 }

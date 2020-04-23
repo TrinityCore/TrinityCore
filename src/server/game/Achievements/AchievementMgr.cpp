@@ -3013,7 +3013,7 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(AchievementCriteriaEntry
                 break;
             }
             case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_GUILD_REPUTATION: // 62
-                if (referencePlayer->GetReputation(PLAYER_GUILD_REPUTATION) < reqValue)
+                if (referencePlayer->GetReputation(FACTION_GUILD) < reqValue)
                     return false;
                 break;
             case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_PROJECT_RARITY: // 65

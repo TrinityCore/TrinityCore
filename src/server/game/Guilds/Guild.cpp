@@ -693,7 +693,7 @@ void Guild::Member::SetStats(Player* player)
     _gender     = player->GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER);
     m_accountId = player->GetSession()->GetAccountId();
     m_achievementPoints = player->GetAchievementPoints();
-    m_totalReputation = player->GetReputation(PLAYER_GUILD_REPUTATION);
+    m_totalReputation = player->GetReputation(FACTION_GUILD);
 }
 
 void Guild::Member::SetStats(std::string const& name, uint8 level, uint8 _class, uint32 zoneId, uint32 accountId, uint32 achievementPoints, uint32 reputation)
@@ -941,10 +941,10 @@ void Guild::Member::AddReputation(uint32 rep, Player *player)
 {
     rep = std::min(rep, sWorld->getIntConfig(CONFIG_GUILD_WEEKLY_REP_CAP) - m_weekReputation);
 
-    player->GetReputationMgr().ModifyReputation(sFactionStore.LookupEntry(PLAYER_GUILD_REPUTATION), rep);
+    player->GetReputationMgr().ModifyReputation(sFactionStore.LookupEntry(FACTION_GUILD), rep);
 
     m_weekReputation += rep;
-    m_totalReputation = player->GetReputation(PLAYER_GUILD_REPUTATION);
+    m_totalReputation = player->GetReputation(FACTION_GUILD);
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GUILD_MEMBER_WEEK_REPUTATION);
     stmt->setUInt32(0, m_weekReputation);
@@ -2979,8 +2979,8 @@ bool Guild::AddMember(CharacterDatabaseTransaction& trans, ObjectGuid guid, uint
 
     if (player)
     {
-        if (!keepGuildReputation || !player->GetReputation(PLAYER_GUILD_REPUTATION))
-            player->SetReputation(PLAYER_GUILD_REPUTATION, 0);
+        if (!keepGuildReputation || !player->GetReputation(FACTION_GUILD))
+            player->SetReputation(FACTION_GUILD, 0);
 
         m_members[lowguid] = member;
         player->SetInGuild(m_id);
@@ -3025,9 +3025,9 @@ bool Guild::AddMember(CharacterDatabaseTransaction& trans, ObjectGuid guid, uint
         if (!keepGuildReputation)
         {
             stmt2 = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_REP_FACTION_CHANGE);
-            stmt2->setUInt16(0, uint16(PLAYER_GUILD_REPUTATION));
+            stmt2->setUInt16(0, uint16(FACTION_GUILD));
             stmt2->setInt32(1, 0);
-            stmt2->setUInt16(2, uint16(PLAYER_GUILD_REPUTATION));
+            stmt2->setUInt16(2, uint16(FACTION_GUILD));
             stmt2->setUInt32(3, lowguid);
             CharacterDatabase.Execute(stmt2);
         }
