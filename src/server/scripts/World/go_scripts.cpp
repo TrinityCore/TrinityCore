@@ -1914,6 +1914,34 @@ struct go_generic_firework : public GameObjectAI
     }
 };
 
+enum CauldronOfBattle
+{
+    SPELL_HAPPY_HOUR = 83963
+};
+
+struct go_cauldron_of_battle : public GameObjectAI
+{
+    go_cauldron_of_battle(GameObject* go) : GameObjectAI(go) { }
+
+    void JustAppeared() override
+    {
+        Unit* owner = me->GetOwner();
+        if (!owner)
+            return;
+
+        if (!owner->GetAuraEffect(SPELL_HAPPY_HOUR, EFFECT_0))
+        {
+            /*
+                Happy Hour increases the amount of charges by 50% but we have to invert the logic
+                because the gameobject data uses the increased charge amount as base value. Just Blizzard things.
+            */
+            uint32 charges = me->GetGOInfo()->GetCharges();
+            charges -= CalculatePct(charges, 34);
+            me->SetCharges(charges);
+        }
+    }
+};
+
 void AddSC_go_scripts()
 {
     new go_cat_figurine();
@@ -1956,4 +1984,5 @@ void AddSC_go_scripts()
     new go_pirate_day_music();
     new go_bells();
     RegisterGameObjectAI(go_generic_firework);
+    RegisterGameObjectAI(go_cauldron_of_battle);
 }

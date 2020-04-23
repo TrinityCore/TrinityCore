@@ -5267,6 +5267,7 @@ enum MobileBanking
     SPELL_GUILD_CHEST_ALLIANCE  = 88304
 };
 
+// 83958 - Mobile Banking
 class spell_gen_mobile_banking : public SpellScript
 {
     PrepareSpellScript(spell_gen_mobile_banking);
@@ -5304,6 +5305,143 @@ class spell_gen_mobile_banking : public SpellScript
     {
         OnCheckCast += SpellCheckCastFn(spell_gen_mobile_banking::CheckRequirement);
         OnEffectHitTarget += SpellEffectFn(spell_gen_mobile_banking::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 92649 - Cauldron of Battle
+// 92712 - Big Cauldron of Battle
+class spell_gen_cauldron_of_battle : public SpellScript
+{
+    PrepareSpellScript(spell_gen_cauldron_of_battle);
+
+    bool Load() override
+    {
+        return GetCaster()->IsPlayer();
+    }
+
+    void HandleDummyEffect(SpellEffIndex effIndex)
+    {
+        Player* target = GetHitPlayer();
+        if (!target)
+            return;
+
+        bool handleEffect = false;
+
+        // EFFECT_0 = Alliance Cauldron, EFFECT_1 = Horde Cauldron
+        if ((effIndex == EFFECT_0 && target->GetTeamId() == TEAM_ALLIANCE) ||
+            (effIndex == EFFECT_1 && target->GetTeamId() == TEAM_HORDE))
+            handleEffect = true;
+
+        if (handleEffect)
+        {
+            Position dest = target->GetPosition();
+            uint32 spellId = GetEffectValue();
+
+            if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(spellId))
+            {
+                float radius = spell->Effects[EFFECT_0].CalcRadius(target) - target->GetCombatReach();
+                target->GetNearPoint(target, dest.m_positionX, dest.m_positionY, dest.m_positionZ, radius, target->GetOrientation());
+                target->CastSpell(dest.GetPositionX(), dest.GetPositionY(), dest.GetPositionZ(), spellId);
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gen_cauldron_of_battle::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget += SpellEffectFn(spell_gen_cauldron_of_battle::HandleDummyEffect, EFFECT_1, SPELL_EFFECT_DUMMY);
+    }
+};
+
+enum FlaskOfBattle
+{
+    // According to WoWHead comments the Flask of Flowing Waters effect is not being used for healers
+    SPELL_FLASK_OF_STEELSKIN        = 79469,
+    SPELL_FLASK_OF_TITANIC_STRENGTH = 79472,
+    SPELL_FLASK_OF_THE_WINDS        = 79471,
+    SPELL_FLASK_OF_DRACONIC_MIND    = 79470,
+};
+
+// 92679 - Flask of Battle
+class spell_gen_flask_of_battle : public SpellScript
+{
+    PrepareSpellScript(spell_gen_flask_of_battle);
+
+    bool Load() override
+    {
+        return GetCaster()->IsPlayer();
+    }
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_FLASK_OF_STEELSKIN,
+                SPELL_FLASK_OF_TITANIC_STRENGTH,
+                SPELL_FLASK_OF_THE_WINDS,
+                SPELL_FLASK_OF_DRACONIC_MIND
+            });
+    }
+
+    void HandleBuffEffect(SpellEffIndex /*effIndex*/)
+    {
+        Player* player = GetHitPlayer();
+        if (!player)
+            return;
+
+        uint32 spellId = 0;
+
+        uint32 primaryTalentTree = player->GetPrimaryTalentTree(player->GetActiveSpec());
+        switch (player->getClass())
+        {
+            case CLASS_WARLOCK:
+            case CLASS_MAGE:
+            case CLASS_PRIEST:
+                spellId = SPELL_FLASK_OF_DRACONIC_MIND;
+                break;
+            case CLASS_ROGUE:
+            case CLASS_HUNTER:
+                spellId = SPELL_FLASK_OF_THE_WINDS;
+                break;
+            case CLASS_DRUID:
+                if (primaryTalentTree == TALENT_TREE_DRUID_FERAL_COMBAT)
+                {
+                    if (player->GetShapeshiftForm() == FORM_BEAR)
+                        spellId = SPELL_FLASK_OF_STEELSKIN;
+                    else
+                        spellId = SPELL_FLASK_OF_THE_WINDS;
+                }
+                else
+                    spellId = SPELL_FLASK_OF_DRACONIC_MIND;
+                break;
+            case CLASS_SHAMAN:
+                spellId = primaryTalentTree == TALENT_TREE_SHAMAN_ENHANCEMENT ? SPELL_FLASK_OF_THE_WINDS : SPELL_FLASK_OF_DRACONIC_MIND;
+                break;
+            case CLASS_WARRIOR:
+                spellId = primaryTalentTree == TALENT_TREE_WARRIOR_PROTECTION ? SPELL_FLASK_OF_STEELSKIN : SPELL_FLASK_OF_TITANIC_STRENGTH;
+                break;
+            case CLASS_DEATH_KNIGHT:
+                spellId = primaryTalentTree == TALENT_TREE_DEATH_KNIGHT_BLOOD ? SPELL_FLASK_OF_STEELSKIN : SPELL_FLASK_OF_TITANIC_STRENGTH;
+                break;
+            case CLASS_PALADIN:
+                if (primaryTalentTree == TALENT_TREE_PALADIN_HOLY)
+                    spellId = SPELL_FLASK_OF_DRACONIC_MIND;
+                else if (primaryTalentTree == TALENT_TREE_PALADIN_PROTECTION)
+                    spellId = SPELL_FLASK_OF_STEELSKIN;
+                else
+                    spellId = SPELL_FLASK_OF_TITANIC_STRENGTH;
+                break;
+            default:
+                break;
+        }
+
+        if (spellId)
+            player->CastSpell(player, spellId);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gen_flask_of_battle::HandleBuffEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -5433,4 +5571,6 @@ void AddSC_generic_spell_scripts()
     RegisterAuraScript(spell_gen_guild_battle_standard);
     RegisterSpellScript(spell_gen_guild_battle_standard_buff);
     RegisterSpellScript(spell_gen_mobile_banking);
+    RegisterSpellScript(spell_gen_cauldron_of_battle);
+    RegisterSpellScript(spell_gen_flask_of_battle);
 }
