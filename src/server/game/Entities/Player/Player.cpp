@@ -3677,13 +3677,56 @@ void Player::BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag fla
 
     UF::UnitData::Mask mask;
     m_unitData->AppendAllowedFieldsMaskForFlag(mask, flags);
-    m_unitData->WriteUpdate(*data, mask, flags, this, target);
+    m_unitData->WriteUpdate(*data, mask, true, this, target);
 
     UF::PlayerData::Mask mask2;
     m_playerData->AppendAllowedFieldsMaskForFlag(mask2, flags);
-    m_playerData->WriteUpdate(*data, mask2, flags, this, target);
+    m_playerData->WriteUpdate(*data, mask2, true, this, target);
 
     data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
+}
+
+void Player::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
+    UF::UnitData::Mask const& requestedUnitMask, UF::PlayerData::Mask const& requestedPlayerMask,
+    UF::ActivePlayerData::Mask const& requestedActivePlayerMask, Player const* target) const
+{
+    UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
+    UpdateMask<NUM_CLIENT_OBJECT_TYPES> valuesMask;
+    if (requestedObjectMask.IsAnySet())
+        valuesMask.Set(TYPEID_OBJECT);
+
+    UF::UnitData::Mask unitMask = requestedUnitMask;
+    m_unitData->FilterDisallowedFieldsMaskForFlag(unitMask, flags);
+    if (unitMask.IsAnySet())
+        valuesMask.Set(TYPEID_UNIT);
+
+    UF::PlayerData::Mask playerMask = requestedPlayerMask;
+    if (playerMask.IsAnySet())
+        valuesMask.Set(TYPEID_PLAYER);
+
+    if (target == this && requestedActivePlayerMask.IsAnySet())
+        valuesMask.Set(TYPEID_ACTIVE_PLAYER);
+
+    ByteBuffer buffer = PrepareValuesUpdateBuffer();
+    std::size_t sizePos = buffer.wpos();
+    buffer << uint32(0);
+    buffer << uint32(valuesMask.GetBlock(0));
+
+    if (valuesMask[TYPEID_OBJECT])
+        m_objectData->WriteUpdate(buffer, requestedObjectMask, true, this, target);
+
+    if (valuesMask[TYPEID_UNIT])
+        m_unitData->WriteUpdate(buffer, unitMask, true, this, target);
+
+    if (valuesMask[TYPEID_PLAYER])
+        m_playerData->WriteUpdate(buffer, playerMask, true, this, target);
+
+    if (valuesMask[TYPEID_ACTIVE_PLAYER])
+        m_activePlayerData->WriteUpdate(buffer, requestedActivePlayerMask, true, this, target);
+
+    buffer.put<uint32>(sizePos, buffer.wpos() - sizePos - 4);
+
+    data->AddUpdateBlock(buffer);
 }
 
 void Player::DestroyForPlayer(Player* target) const
@@ -24803,7 +24846,25 @@ void Player::UpdateForQuestWorldObjects()
         if (itr->IsGameObject())
         {
             if (GameObject* obj = ObjectAccessor::GetGameObject(*this, *itr))
-                obj->BuildValuesUpdateBlockForPlayer(&udata, this);
+            {
+                switch (obj->GetGoType())
+                {
+                    case GAMEOBJECT_TYPE_QUESTGIVER:
+                    case GAMEOBJECT_TYPE_CHEST:
+                    case GAMEOBJECT_TYPE_GOOBER:
+                    case GAMEOBJECT_TYPE_GENERIC:
+                        if (sObjectMgr->IsGameObjectForQuests(obj->GetEntry()))
+                        {
+                            UF::ObjectData::Base objMask;
+                            UF::GameObjectData::Base goMask;
+                            objMask.MarkChanged(&UF::ObjectData::DynamicFlags);
+                            obj->BuildValuesUpdateForPlayerWithMask(&udata, objMask.GetChangesMask(), goMask.GetChangesMask(), this);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
         else if (itr->IsCreatureOrVehicle())
         {
@@ -24829,7 +24890,10 @@ void Player::UpdateForQuestWorldObjects()
 
                     if (buildUpdateBlock)
                     {
-                        obj->BuildValuesUpdateBlockForPlayer(&udata, this);
+                        UF::ObjectData::Base objMask;
+                        UF::UnitData::Base unitMask;
+                        unitMask.MarkChanged(&UF::UnitData::NpcFlags, 0); // NpcFlags[0] has UNIT_NPC_FLAG_SPELLCLICK
+                        obj->BuildValuesUpdateForPlayerWithMask(&udata, objMask.GetChangesMask(), unitMask.GetChangesMask(), this);
                         break;
                     }
                 }

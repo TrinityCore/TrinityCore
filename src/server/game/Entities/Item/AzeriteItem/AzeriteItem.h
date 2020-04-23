@@ -73,10 +73,15 @@ public:
     void CreateSelectedAzeriteEssences(uint32 specializationId);
     void SetSelectedAzeriteEssence(uint8 slot, uint32 azeriteEssenceId);
 
+protected:
     void BuildValuesCreate(ByteBuffer* data, Player const* target) const override;
     void BuildValuesUpdate(ByteBuffer* data, Player const* target) const override;
-    void BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
     void ClearUpdateMask(bool remove) override;
+
+public:
+    void BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
+    void BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask, UF::ItemData::Mask const& requestedItemMask,
+        UF::AzeriteItemData::Mask const& requestedAzeriteItemMask, Player const* target) const;
 
     UF::UpdateField<UF::AzeriteItemData, 0, TYPEID_AZERITE_ITEM> m_azeriteItemData;
 

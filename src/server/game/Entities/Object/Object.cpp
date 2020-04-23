@@ -237,10 +237,7 @@ void Object::SendUpdateToPlayer(Player* player)
 
 void Object::BuildValuesUpdateBlockForPlayer(UpdateData* data, Player const* target) const
 {
-    ByteBuffer buf(500);
-
-    buf << uint8(UPDATETYPE_VALUES);
-    buf << GetGUID();
+    ByteBuffer buf = PrepareValuesUpdateBuffer();
 
     BuildValuesUpdate(&buf, target);
 
@@ -249,10 +246,7 @@ void Object::BuildValuesUpdateBlockForPlayer(UpdateData* data, Player const* tar
 
 void Object::BuildValuesUpdateBlockForPlayerWithFlag(UpdateData* data, UF::UpdateFieldFlag flags, Player const* target) const
 {
-    ByteBuffer buf(500);
-
-    buf << uint8(UPDATETYPE_VALUES);
-    buf << GetGUID();
+    ByteBuffer buf = PrepareValuesUpdateBuffer();
 
     BuildValuesUpdateWithFlag(&buf, flags, target);
 
@@ -267,6 +261,14 @@ void Object::BuildDestroyUpdateBlock(UpdateData* data) const
 void Object::BuildOutOfRangeUpdateBlock(UpdateData* data) const
 {
     data->AddOutOfRangeGUID(GetGUID());
+}
+
+ByteBuffer Object::PrepareValuesUpdateBuffer() const
+{
+    ByteBuffer buffer(500);
+    buffer << uint8(UPDATETYPE_VALUES);
+    buffer << GetGUID();
+    return buffer;
 }
 
 void Object::DestroyForPlayer(Player* target) const

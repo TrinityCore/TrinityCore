@@ -155,6 +155,7 @@ class TC_GAME_API Object
         void BuildValuesUpdateBlockForPlayerWithFlag(UpdateData* data, UF::UpdateFieldFlag flags, Player const* target) const;
         void BuildDestroyUpdateBlock(UpdateData* data) const;
         void BuildOutOfRangeUpdateBlock(UpdateData* data) const;
+        ByteBuffer PrepareValuesUpdateBuffer() const;
 
         virtual void DestroyForPlayer(Player* target) const;
 
@@ -311,8 +312,11 @@ class TC_GAME_API Object
         virtual UF::UpdateFieldFlag GetUpdateFieldFlagsFor(Player const* target) const;
         virtual void BuildValuesCreate(ByteBuffer* data, Player const* target) const = 0;
         virtual void BuildValuesUpdate(ByteBuffer* data, Player const* target) const = 0;
+
+    public:
         virtual void BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const;
 
+    protected:
         uint16 m_objectType;
 
         TypeID m_objectTypeId;

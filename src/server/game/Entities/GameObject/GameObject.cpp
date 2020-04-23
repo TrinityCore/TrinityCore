@@ -2609,6 +2609,32 @@ void GameObject::BuildValuesUpdate(ByteBuffer* data, Player const* target) const
     data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
 }
 
+void GameObject::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
+    UF::GameObjectData::Mask const& requestedGameObjectMask, Player const* target) const
+{
+    UpdateMask<NUM_CLIENT_OBJECT_TYPES> valuesMask;
+    if (requestedObjectMask.IsAnySet())
+        valuesMask.Set(TYPEID_OBJECT);
+
+    if (requestedGameObjectMask.IsAnySet())
+        valuesMask.Set(TYPEID_GAMEOBJECT);
+
+    ByteBuffer buffer = PrepareValuesUpdateBuffer();
+    std::size_t sizePos = buffer.wpos();
+    buffer << uint32(0);
+    buffer << uint32(valuesMask.GetBlock(0));
+
+    if (valuesMask[TYPEID_OBJECT])
+        m_objectData->WriteUpdate(buffer, requestedObjectMask, true, this, target);
+
+    if (valuesMask[TYPEID_GAMEOBJECT])
+        m_gameObjectData->WriteUpdate(buffer, requestedGameObjectMask, true, this, target);
+
+    buffer.put<uint32>(sizePos, buffer.wpos() - sizePos - 4);
+
+    data->AddUpdateBlock(buffer);
+}
+
 void GameObject::ClearUpdateMask(bool remove)
 {
     m_values.ClearChangesMask(&GameObject::m_gameObjectData);
