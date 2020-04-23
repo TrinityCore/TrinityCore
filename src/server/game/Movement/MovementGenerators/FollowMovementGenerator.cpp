@@ -146,13 +146,17 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
                 if (velocity > 0.f)
                 {
                     float distance = owner->GetExactDist2d(dest);
-                    float distMod = 1.f;
-                    if (!dest.HasInArc(float(M_PI), owner)) // Follower is in falling back, catch up
-                        distMod += std::min<float>(distance * 0.1f, 0.5f);
-                    else if (distance > (velocity / 2))  // Follower is beyond destination, fall back
-                        distMod -= std::min<float>((distance - (velocity / 2)), 0.5f);
+                    if (distance > 1.f)
+                    {
 
-                    velocity *= distMod;
+                        float distMod = 1.f;
+                        if (!dest.HasInArc(float(M_PI), owner)) // Follower is in falling back, catch up
+                            distMod += std::min<float>(distance * 0.1f, 0.5f);
+                        else if (distance > (velocity / 2))  // Follower is beyond destination, fall back
+                            distMod -= std::min<float>((distance - (velocity / 2)), 0.5f);
+
+                        velocity *= distMod;
+                    }
                 }
             }
 
