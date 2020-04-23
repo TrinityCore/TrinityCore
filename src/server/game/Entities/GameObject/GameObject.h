@@ -201,6 +201,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
 
         void AddUniqueUse(Player* player);
         void AddUse() { ++m_usetimes; }
+        void SetCharges(uint32 charges) { _charges = charges; }
 
         uint32 GetUseCount() const { return m_usetimes; }
         uint32 GetUniqueUseCount() const { return m_unique_users.size(); }
@@ -324,6 +325,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         ObjectGuid m_ritualOwnerGUID;                       // used for GAMEOBJECT_TYPE_SUMMONING_RITUAL where GO is not summoned (no owner)
         GuidSet m_unique_users;
         uint32 m_usetimes;
+        uint32 _charges;
 
         typedef std::map<uint32, ObjectGuid> ChairSlotAndUser;
         ChairSlotAndUser ChairListSlots;

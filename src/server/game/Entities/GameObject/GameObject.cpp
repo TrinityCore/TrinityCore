@@ -74,6 +74,7 @@ GameObject::GameObject() : WorldObject(false), MapObject(),
     m_lootState = GO_NOT_READY;
     m_spawnedByDefault = true;
     m_usetimes = 0;
+    _charges = 0;
     m_spellId = 0;
     m_cooldownTime = 0;
     m_prevGoState = GO_STATE_ACTIVE;
@@ -282,6 +283,7 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, P
     m_prevGoState = go_state;
     SetGoState(go_state);
     SetGoArtKit(artKit);
+    SetCharges(goinfo->GetCharges());
 
     switch (goinfo->type)
     {
@@ -574,9 +576,9 @@ void GameObject::Update(uint32 diff)
                         SetLootState(GO_ACTIVATED, target);
 
                 }
-                else if (uint32 max_charges = goInfo->GetCharges())
+                else if (_charges)
                 {
-                    if (m_usetimes >= max_charges)
+                    if (m_usetimes >= _charges)
                     {
                         m_usetimes = 0;
                         SetLootState(GO_JUST_DEACTIVATED);      // can be despawned or destroyed
