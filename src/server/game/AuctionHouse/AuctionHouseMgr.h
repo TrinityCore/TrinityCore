@@ -380,7 +380,7 @@ class TC_GAME_API AuctionHouseMgr
 
         uint32 GenerateReplicationId();
 
-        AuctionThrottleResult CheckThrottle(Player* player, AuctionCommand command = AuctionCommand::SellItem);
+        AuctionThrottleResult CheckThrottle(Player* player, bool addonTainted, AuctionCommand command = AuctionCommand::SellItem);
 
     private:
 

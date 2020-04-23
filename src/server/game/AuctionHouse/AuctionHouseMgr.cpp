@@ -811,7 +811,7 @@ uint32 AuctionHouseMgr::GenerateReplicationId()
     return ++_replicateIdGenerator;
 }
 
-AuctionThrottleResult AuctionHouseMgr::CheckThrottle(Player* player, AuctionCommand command)
+AuctionThrottleResult AuctionHouseMgr::CheckThrottle(Player* player, bool addonTainted, AuctionCommand command /*= AuctionCommand::SellItem*/)
 {
     std::chrono::steady_clock::time_point now = GameTime::GetGameTimeSteadyPoint();
     auto itr = _playerThrottleObjects.emplace(std::piecewise_construct, std::forward_as_tuple(player->GetGUID()), std::forward_as_tuple());
@@ -830,7 +830,7 @@ AuctionThrottleResult AuctionHouseMgr::CheckThrottle(Player* player, AuctionComm
     if (!--itr.first->second.QueriesRemaining)
         return { std::chrono::duration_cast<Milliseconds>(itr.first->second.PeriodEnd - now), false };
     else
-        return { Milliseconds(sWorld->getIntConfig(CONFIG_AUCTION_SEARCH_DELAY)), false };
+        return { Milliseconds(sWorld->getIntConfig(addonTainted ? CONFIG_AUCTION_TAINTED_SEARCH_DELAY : CONFIG_AUCTION_SEARCH_DELAY)), false };
 }
 
 AuctionHouseEntry const* AuctionHouseMgr::GetAuctionHouseEntry(uint32 factionTemplateId, uint32* houseId)
@@ -1503,7 +1503,7 @@ void AuctionHouseObject::BuildReplicate(WorldPackets::AuctionHouse::AuctionRepli
     else
     {
         throttleItr = _replicateThrottleMap.emplace(player->GetGUID(), PlayerReplicateThrottleData{}).first;
-        throttleItr->second.NextAllowedReplication = curTime + Seconds(sWorld->getIntConfig(CONFIG_AUCTION_GETALL_DELAY));
+        throttleItr->second.NextAllowedReplication = curTime + Seconds(sWorld->getIntConfig(CONFIG_AUCTION_REPLICATE_DELAY));
         throttleItr->second.Global = sAuctionMgr->GenerateReplicationId();
     }
 

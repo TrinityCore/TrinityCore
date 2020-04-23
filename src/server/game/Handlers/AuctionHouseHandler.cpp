@@ -37,7 +37,7 @@
 
 void WorldSession::HandleAuctionBrowseQuery(WorldPackets::AuctionHouse::AuctionBrowseQuery& browseQuery)
 {
-    AuctionThrottleResult throttle = sAuctionMgr->CheckThrottle(_player);
+    AuctionThrottleResult throttle = sAuctionMgr->CheckThrottle(_player, browseQuery.TaintedBy.is_initialized());
     if (throttle.Throttled)
         return;
 
@@ -99,7 +99,7 @@ void WorldSession::HandleAuctionBrowseQuery(WorldPackets::AuctionHouse::AuctionB
 
 void WorldSession::HandleAuctionCancelCommoditiesPurchase(WorldPackets::AuctionHouse::AuctionCancelCommoditiesPurchase& cancelCommoditiesPurchase)
 {
-    AuctionThrottleResult throttle = sAuctionMgr->CheckThrottle(_player, AuctionCommand::PlaceBid);
+    AuctionThrottleResult throttle = sAuctionMgr->CheckThrottle(_player, cancelCommoditiesPurchase.TaintedBy.is_initialized(), AuctionCommand::PlaceBid);
     if (throttle.Throttled)
         return;
 
@@ -121,7 +121,7 @@ void WorldSession::HandleAuctionCancelCommoditiesPurchase(WorldPackets::AuctionH
 
 void WorldSession::HandleAuctionConfirmCommoditiesPurchase(WorldPackets::AuctionHouse::AuctionConfirmCommoditiesPurchase& confirmCommoditiesPurchase)
 {
-    AuctionThrottleResult throttle = sAuctionMgr->CheckThrottle(_player, AuctionCommand::PlaceBid);
+    AuctionThrottleResult throttle = sAuctionMgr->CheckThrottle(_player, confirmCommoditiesPurchase.TaintedBy.is_initialized(), AuctionCommand::PlaceBid);
     if (throttle.Throttled)
         return;
 
@@ -175,7 +175,7 @@ void WorldSession::HandleAuctionHelloOpcode(WorldPackets::AuctionHouse::AuctionH
 
 void WorldSession::HandleAuctionListBidderItems(WorldPackets::AuctionHouse::AuctionListBidderItems& listBidderItems)
 {
-    AuctionThrottleResult throttle = sAuctionMgr->CheckThrottle(_player);
+    AuctionThrottleResult throttle = sAuctionMgr->CheckThrottle(_player, listBidderItems.TaintedBy.is_initialized());
     if (throttle.Throttled)
         return;
 
@@ -202,7 +202,7 @@ void WorldSession::HandleAuctionListBidderItems(WorldPackets::AuctionHouse::Auct
 
 void WorldSession::HandleAuctionListBucketsByBucketKeys(WorldPackets::AuctionHouse::AuctionListBucketsByBucketKeys& listBucketsByBucketKeys)
 {
-    AuctionThrottleResult throttle = sAuctionMgr->CheckThrottle(_player);
+    AuctionThrottleResult throttle = sAuctionMgr->CheckThrottle(_player, listBucketsByBucketKeys.TaintedBy.is_initialized());
     if (throttle.Throttled)
         return;
 
@@ -233,7 +233,7 @@ void WorldSession::HandleAuctionListBucketsByBucketKeys(WorldPackets::AuctionHou
 
 void WorldSession::HandleAuctionListItemsByBucketKey(WorldPackets::AuctionHouse::AuctionListItemsByBucketKey& listItemsByBucketKey)
 {
-    AuctionThrottleResult throttle = sAuctionMgr->CheckThrottle(_player);
+    AuctionThrottleResult throttle = sAuctionMgr->CheckThrottle(_player, listItemsByBucketKey.TaintedBy.is_initialized());
     if (throttle.Throttled)
         return;
 
@@ -264,7 +264,7 @@ void WorldSession::HandleAuctionListItemsByBucketKey(WorldPackets::AuctionHouse:
 
 void WorldSession::HandleAuctionListItemsByItemID(WorldPackets::AuctionHouse::AuctionListItemsByItemID& listItemsByItemID)
 {
-    AuctionThrottleResult throttle = sAuctionMgr->CheckThrottle(_player);
+    AuctionThrottleResult throttle = sAuctionMgr->CheckThrottle(_player, listItemsByItemID.TaintedBy.is_initialized());
     if (throttle.Throttled)
         return;
 
@@ -296,7 +296,7 @@ void WorldSession::HandleAuctionListItemsByItemID(WorldPackets::AuctionHouse::Au
 //this void sends player info about his auctions
 void WorldSession::HandleAuctionListOwnerItems(WorldPackets::AuctionHouse::AuctionListOwnerItems& listOwnerItems)
 {
-    AuctionThrottleResult throttle = sAuctionMgr->CheckThrottle(_player);
+    AuctionThrottleResult throttle = sAuctionMgr->CheckThrottle(_player, listOwnerItems.TaintedBy.is_initialized());
     if (throttle.Throttled)
         return;
 
@@ -323,7 +323,7 @@ void WorldSession::HandleAuctionListOwnerItems(WorldPackets::AuctionHouse::Aucti
 // this function is called when client bids or buys out auction
 void WorldSession::HandleAuctionPlaceBid(WorldPackets::AuctionHouse::AuctionPlaceBid& placeBid)
 {
-    AuctionThrottleResult throttle = sAuctionMgr->CheckThrottle(_player, AuctionCommand::PlaceBid);
+    AuctionThrottleResult throttle = sAuctionMgr->CheckThrottle(_player, placeBid.TaintedBy.is_initialized(), AuctionCommand::PlaceBid);
     if (throttle.Throttled)
         return;
 
@@ -452,7 +452,7 @@ void WorldSession::HandleAuctionPlaceBid(WorldPackets::AuctionHouse::AuctionPlac
 
 void WorldSession::HandleAuctionRemoveItem(WorldPackets::AuctionHouse::AuctionRemoveItem& removeItem)
 {
-    AuctionThrottleResult throttle = sAuctionMgr->CheckThrottle(_player, AuctionCommand::Cancel);
+    AuctionThrottleResult throttle = sAuctionMgr->CheckThrottle(_player, removeItem.TaintedBy.is_initialized(), AuctionCommand::Cancel);
     if (throttle.Throttled)
         return;
 
@@ -543,7 +543,7 @@ void WorldSession::HandleAuctionReplicateItems(WorldPackets::AuctionHouse::Aucti
 
 void WorldSession::HandleAuctionSellCommodity(WorldPackets::AuctionHouse::AuctionSellCommodity& sellCommodity)
 {
-    AuctionThrottleResult throttle = sAuctionMgr->CheckThrottle(_player, AuctionCommand::SellItem);
+    AuctionThrottleResult throttle = sAuctionMgr->CheckThrottle(_player, sellCommodity.TaintedBy.is_initialized(), AuctionCommand::SellItem);
     if (throttle.Throttled)
         return;
 
@@ -755,7 +755,7 @@ void WorldSession::HandleAuctionSellCommodity(WorldPackets::AuctionHouse::Auctio
 
 void WorldSession::HandleAuctionSellItem(WorldPackets::AuctionHouse::AuctionSellItem& sellItem)
 {
-    AuctionThrottleResult throttle = sAuctionMgr->CheckThrottle(_player, AuctionCommand::SellItem);
+    AuctionThrottleResult throttle = sAuctionMgr->CheckThrottle(_player, sellItem.TaintedBy.is_initialized(), AuctionCommand::SellItem);
     if (throttle.Throttled)
         return;
 
@@ -903,7 +903,7 @@ void WorldSession::HandleAuctionSellItem(WorldPackets::AuctionHouse::AuctionSell
 
 void WorldSession::HandleAuctionSetFavoriteItem(WorldPackets::AuctionHouse::AuctionSetFavoriteItem& setFavoriteItem)
 {
-    AuctionThrottleResult throttle = sAuctionMgr->CheckThrottle(_player);
+    AuctionThrottleResult throttle = sAuctionMgr->CheckThrottle(_player, false);
     if (throttle.Throttled)
         return;
 
@@ -931,7 +931,7 @@ void WorldSession::HandleAuctionSetFavoriteItem(WorldPackets::AuctionHouse::Auct
 
 void WorldSession::HandleAuctionStartCommoditiesPurchase(WorldPackets::AuctionHouse::AuctionStartCommoditiesPurchase& startCommoditiesPurchase)
 {
-    AuctionThrottleResult throttle = sAuctionMgr->CheckThrottle(_player, AuctionCommand::PlaceBid);
+    AuctionThrottleResult throttle = sAuctionMgr->CheckThrottle(_player, startCommoditiesPurchase.TaintedBy.is_initialized(), AuctionCommand::PlaceBid);
     if (throttle.Throttled)
         return;
 
