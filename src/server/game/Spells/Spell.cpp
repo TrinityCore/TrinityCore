@@ -520,6 +520,7 @@ SpellValue::SpellValue(SpellInfo const* proto)
     MaxAffectedTargets = proto->MaxAffectedTargets;
     RadiusMod = 1.0f;
     AuraStackAmount = 1;
+    AuraDuration = 0;
 }
 
 class TC_GAME_API SpellEvent : public BasicEvent
@@ -2857,6 +2858,8 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
                 }
 
                 int32 duration = m_spellAura->GetMaxDuration();
+                if (m_spellValue->AuraDuration && m_spellValue->AuraDuration != duration)
+                    duration = m_spellValue->AuraDuration;
 
                 // unit is immune to aura if it was diminished to 0 duration
                 if (!positive && !unit->ApplyDiminishingToDuration(aurSpellInfo, triggered, duration, m_originalCaster, diminishLevel))
@@ -7801,6 +7804,11 @@ void Spell::SetSpellValue(SpellValueMod mod, int32 value)
             break;
         case SPELLVALUE_AURA_STACK:
             m_spellValue->AuraStackAmount = uint8(value);
+            break;
+        case SPELLVALUE_AURA_DURATION:
+            m_spellValue->AuraDuration = int32(value);
+            break;
+        default:
             break;
     }
 }
