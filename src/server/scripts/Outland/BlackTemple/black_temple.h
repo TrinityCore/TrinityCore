@@ -55,7 +55,8 @@ enum BTDataTypes
     DATA_ESSENCE_OF_ANGER           = 22,
     DATA_ILLIDAN_MUSIC_CONTROLLER   = 23,
     DATA_TERON_GOREFIEND_INTRO      = 24,
-    DATA_AKAMA_ILLIDAN_INTRO        = 25
+    DATA_AKAMA_ILLIDAN_INTRO        = 25,
+    DATA_RELIQUARY_COMBAT_TRIGGER   = 26
 };
 
 enum TriggerEmotes
@@ -108,7 +109,8 @@ enum BTCreatureIds
     NPC_DEMON_FIRE                  = 23069,
     NPC_PARASITIC_SHADOWFIEND       = 23498,
     NPC_BLAZE                       = 23259,
-    NPC_FLAME_CRASH                 = 23336
+    NPC_FLAME_CRASH                 = 23336,
+    NPC_RELIQUARY_COMBAT_TRIGGER    = 23417
 };
 
 enum BTGameObjectIds
