@@ -52,7 +52,6 @@ enum MovementGeneratorType : uint8
     RANDOM_MOTION_TYPE              = 1,                  // RandomMovementGenerator.h
     WAYPOINT_MOTION_TYPE            = 2,                  // WaypointMovementGenerator.h
     MAX_DB_MOTION_TYPE              = 3,                  // Below motion types can't be set in DB.
-    ANIMAL_RANDOM_MOTION_TYPE       = MAX_DB_MOTION_TYPE, // AnimalRandomMovementGenerator.h
     CONFUSED_MOTION_TYPE            = 4,                  // ConfusedMovementGenerator.h
     CHASE_MOTION_TYPE               = 5,                  // TargetedMovementGenerator.h
     HOME_MOTION_TYPE                = 6,                  // HomeMovementGenerator.h
@@ -60,14 +59,13 @@ enum MovementGeneratorType : uint8
     POINT_MOTION_TYPE               = 8,                  // PointMovementGenerator.h
     FLEEING_MOTION_TYPE             = 9,                  // FleeingMovementGenerator.h
     DISTRACT_MOTION_TYPE            = 10,                 // IdleMovementGenerator.h
-    ASSISTANCE_MOTION_TYPE          = 11,                 // PointMovementGenerator.h (first part of flee for assistance)
-    ASSISTANCE_DISTRACT_MOTION_TYPE = 12,                 // IdleMovementGenerator.h (second part of flee for assistance)
-    TIMED_FLEEING_MOTION_TYPE       = 13,                 // FleeingMovementGenerator.h (alt.second part of flee for assistance)
+    ASSISTANCE_MOTION_TYPE          = 11,                 // PointMovementGenerator.h
+    ASSISTANCE_DISTRACT_MOTION_TYPE = 12,                 // IdleMovementGenerator.h
+    TIMED_FLEEING_MOTION_TYPE       = 13,                 // FleeingMovementGenerator.h
     FOLLOW_MOTION_TYPE              = 14,
     ROTATE_MOTION_TYPE              = 15,
     EFFECT_MOTION_TYPE              = 16,
-    NULL_MOTION_TYPE                = 17,
-    SPLINE_CHAIN_MOTION_TYPE        = 18,                 // SplineChainMovementGenerator.h
+    SPLINE_CHAIN_MOTION_TYPE        = 17,                 // SplineChainMovementGenerator.h
     MAX_MOTION_TYPE                                       // limit
 };
 
@@ -100,11 +98,8 @@ struct JumpArrivalCastArgs
 
 class TC_GAME_API MotionMaster
 {
-    private:
-        typedef std::vector<MovementGenerator*> ExpireList;
-
     public:
-        explicit MotionMaster(Unit* unit) : _expireList(nullptr), _top(-1), _owner(unit), _cleanFlag(MMCF_NONE)
+        explicit MotionMaster(Unit* unit) : _owner(unit), _top(-1), _cleanFlag(MMCF_NONE)
         {
             for (uint8 i = 0; i < MAX_MOTION_SLOT; ++i)
             {
@@ -182,6 +177,8 @@ class TC_GAME_API MotionMaster
         void MoveRotate(uint32 time, RotateDirection direction);
 
     private:
+        typedef std::vector<MovementGenerator*> MovementList;
+
         void pop();
 
         bool NeedInitTop() const;
@@ -197,11 +194,11 @@ class TC_GAME_API MotionMaster
         void DelayedDelete(MovementGenerator* curr);
         void ClearExpireList();
 
-        ExpireList* _expireList;
         MovementGenerator* _slot[MAX_MOTION_SLOT];
-        int _top;
-        Unit* _owner;
         bool _initialize[MAX_MOTION_SLOT];
+        MovementList _expireList;
+        Unit* _owner;
+        int _top;
         uint8 _cleanFlag;
 };
 

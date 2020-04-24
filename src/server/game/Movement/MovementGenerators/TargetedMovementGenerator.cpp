@@ -65,7 +65,7 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
             float size;
 
             // Pets need special handling.
-            // We need to subtract GetObjectSize() because it gets added back further down the chain
+            // We need to subtract GetCombatReach() because it gets added back further down the chain
             //  and that makes pets too far away. Subtracting it allows pets to properly
             //  be (GetCombatReach() + i_offset) away.
             // Only applies when i_target is pet's owner otherwise pets and mobs end up
@@ -73,12 +73,12 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
             if (owner->IsPet() && i_target->GetTypeId() == TYPEID_PLAYER)
             {
                 dist = 1.0f; //i_target->GetCombatReach();
-                size = 1.0f; //i_target->GetCombatReach() - i_target->GetObjectSize();
+                size = 1.0f; //i_target->GetCombatReach() - i_target->GetCombatReach();
             }
             else
             {
                 dist = i_offset + 1.0f;
-                size = owner->GetObjectSize();
+                size = owner->GetCombatReach();
             }
 
             if (i_target->IsWithinDistInMap(owner, dist))

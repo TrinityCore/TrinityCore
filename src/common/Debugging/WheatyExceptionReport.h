@@ -14,7 +14,8 @@
 
 #define WER_MAX_ARRAY_ELEMENTS_COUNT 10
 #define WER_MAX_NESTING_LEVEL 4
-#define WER_LARGE_BUFFER_SIZE 1024 * 128
+#define WER_SMALL_BUFFER_SIZE 1024
+#define WER_LARGE_BUFFER_SIZE WER_SMALL_BUFFER_SIZE * 16
 
 enum BasicType                                              // Stolen from CVCONST.H in the DIA 2.0 SDK
 {
@@ -173,18 +174,18 @@ class WheatyExceptionReport
 
         static BOOL CALLBACK EnumerateSymbolsCallback(PSYMBOL_INFO, ULONG, PVOID);
 
-        static bool FormatSymbolValue(PSYMBOL_INFO, STACKFRAME64 *, char * pszBuffer, unsigned cbBuffer);
+        static bool FormatSymbolValue(PSYMBOL_INFO, STACKFRAME64 *);
 
-        static char * DumpTypeIndex(char *, DWORD64, DWORD, DWORD_PTR, bool &, const char*, char*, bool, bool);
+        static void DumpTypeIndex(DWORD64, DWORD, DWORD_PTR, bool &, const char*, char*, bool, bool);
 
         static void FormatOutputValue(char * pszCurrBuffer, BasicType basicType, DWORD64 length, PVOID pAddress, size_t bufferSize, size_t countOverride = 0);
 
         static BasicType GetBasicType(DWORD typeIndex, DWORD64 modBase);
         static DWORD_PTR DereferenceUnsafePointer(DWORD_PTR address);
 
-        static int __cdecl _tprintf(const TCHAR * format, ...);
-        static int __cdecl stackprintf(const TCHAR * format, va_list argptr);
-        static int __cdecl heapprintf(const TCHAR * format, va_list argptr);
+        static int __cdecl Log(const TCHAR * format, ...);
+        static int __cdecl StackLog(const TCHAR * format, va_list argptr);
+        static int __cdecl HeapLog(const TCHAR * format, va_list argptr);
 
         static bool StoreSymbol(DWORD type , DWORD_PTR offset);
         static void ClearSymbols();
@@ -205,9 +206,9 @@ class WheatyExceptionReport
         typedef NTSTATUS(NTAPI* pRtlGetVersion)(PRTL_OSVERSIONINFOW lpVersionInformation);
         static pRtlGetVersion RtlGetVersion;
 
-        static char* PushSymbolDetail(char* pszCurrBuffer);
-        static char* PopSymbolDetail(char* pszCurrBuffer);
-        static char* PrintSymbolDetail(char* pszCurrBuffer);
+        static void PushSymbolDetail();
+        static void PopSymbolDetail();
+        static void PrintSymbolDetail();
 
 };
 

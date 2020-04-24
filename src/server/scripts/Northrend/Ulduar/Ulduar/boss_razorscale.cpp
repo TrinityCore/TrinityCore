@@ -189,16 +189,22 @@ class boss_razorscale_controller : public CreatureScript
     public:
         boss_razorscale_controller() : CreatureScript("boss_razorscale_controller") { }
 
-        struct boss_razorscale_controllerAI : public BossAI
+        struct boss_razorscale_controllerAI : public ScriptedAI
         {
-            boss_razorscale_controllerAI(Creature* creature) : BossAI(creature, DATA_RAZORSCALE_CONTROL)
+            boss_razorscale_controllerAI(Creature* creature) : ScriptedAI(creature), summons(me)
             {
+                instance = creature->GetInstanceScript();
                 me->SetDisplayFromModel(1);
             }
 
+            InstanceScript* instance;
+            EventMap events;
+            SummonList summons;
+
             void Reset() override
             {
-                _Reset();
+                events.Reset();
+                summons.DespawnAll();
                 me->SetReactState(REACT_PASSIVE);
             }
 
@@ -207,14 +213,14 @@ class boss_razorscale_controller : public CreatureScript
                 switch (spell->Id)
                 {
                     case SPELL_FLAMED:
-                        if (GameObject* Harpoon1 = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_RAZOR_HARPOON_1)))
-                            Harpoon1->RemoveFromWorld();
-                        if (GameObject* Harpoon2 = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_RAZOR_HARPOON_2)))
-                            Harpoon2->RemoveFromWorld();
-                        if (GameObject* Harpoon3 = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_RAZOR_HARPOON_3)))
-                            Harpoon3->RemoveFromWorld();
-                        if (GameObject* Harpoon4 = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_RAZOR_HARPOON_4)))
-                            Harpoon4->RemoveFromWorld();
+                        if (GameObject* harpoon = instance->GetGameObject(GO_RAZOR_HARPOON_1))
+                            harpoon->RemoveFromWorld();
+                        if (GameObject* harpoon = instance->GetGameObject(GO_RAZOR_HARPOON_2))
+                            harpoon->RemoveFromWorld();
+                        if (GameObject* harpoon = instance->GetGameObject(GO_RAZOR_HARPOON_3))
+                            harpoon->RemoveFromWorld();
+                        if (GameObject* harpoon = instance->GetGameObject(GO_RAZOR_HARPOON_4))
+                            harpoon->RemoveFromWorld();
                         DoAction(ACTION_HARPOON_BUILD);
                         DoAction(ACTION_PLACE_BROKEN_HARPOON);
                         break;
@@ -229,7 +235,8 @@ class boss_razorscale_controller : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                _JustDied();
+                events.Reset();
+                summons.DespawnAll();
             }
 
             void DoAction(int32 action) override
@@ -261,39 +268,39 @@ class boss_razorscale_controller : public CreatureScript
                     {
                         case EVENT_BUILD_HARPOON_1:
                             Talk(EMOTE_HARPOON);
-                            if (GameObject* Harpoon = me->SummonGameObject(GO_RAZOR_HARPOON_1, PosHarpoon[0].GetPositionX(), PosHarpoon[0].GetPositionY(), PosHarpoon[0].GetPositionZ(), 4.790f, QuaternionData::fromEulerAnglesZYX(4.790f, 0.0f, 0.0f), uint32(me->GetRespawnTime())))
+                            if (GameObject* harpoon = me->SummonGameObject(GO_RAZOR_HARPOON_1, PosHarpoon[0].GetPositionX(), PosHarpoon[0].GetPositionY(), PosHarpoon[0].GetPositionZ(), 4.790f, QuaternionData::fromEulerAnglesZYX(4.790f, 0.0f, 0.0f), uint32(me->GetRespawnTime())))
                             {
-                                if (GameObject* BrokenHarpoon = Harpoon->FindNearestGameObject(GO_RAZOR_BROKEN_HARPOON, 5.0f)) //only nearest broken harpoon
-                                    BrokenHarpoon->RemoveFromWorld();
+                                if (GameObject* brokenHarpoon = harpoon->FindNearestGameObject(GO_RAZOR_BROKEN_HARPOON, 5.0f)) //only nearest broken harpoon
+                                    brokenHarpoon->RemoveFromWorld();
                                 events.ScheduleEvent(EVENT_BUILD_HARPOON_2, 20000);
                                 events.CancelEvent(EVENT_BUILD_HARPOON_1);
                             }
                             return;
                         case EVENT_BUILD_HARPOON_2:
                             Talk(EMOTE_HARPOON);
-                            if (GameObject* Harpoon = me->SummonGameObject(GO_RAZOR_HARPOON_2, PosHarpoon[1].GetPositionX(), PosHarpoon[1].GetPositionY(), PosHarpoon[1].GetPositionZ(), 4.659f, QuaternionData::fromEulerAnglesZYX(4.659f, 0.0f, 0.0f), uint32(me->GetRespawnTime())))
+                            if (GameObject* harpoon = me->SummonGameObject(GO_RAZOR_HARPOON_2, PosHarpoon[1].GetPositionX(), PosHarpoon[1].GetPositionY(), PosHarpoon[1].GetPositionZ(), 4.659f, QuaternionData::fromEulerAnglesZYX(4.659f, 0.0f, 0.0f), uint32(me->GetRespawnTime())))
                             {
-                                if (GameObject* BrokenHarpoon = Harpoon->FindNearestGameObject(GO_RAZOR_BROKEN_HARPOON, 5.0f))
-                                    BrokenHarpoon->RemoveFromWorld();
+                                if (GameObject* brokenHarpoon = harpoon->FindNearestGameObject(GO_RAZOR_BROKEN_HARPOON, 5.0f))
+                                    brokenHarpoon->RemoveFromWorld();
                                 events.CancelEvent(EVENT_BUILD_HARPOON_2);
                             }
                             return;
                         case EVENT_BUILD_HARPOON_3:
                             Talk(EMOTE_HARPOON);
-                            if (GameObject* Harpoon = me->SummonGameObject(GO_RAZOR_HARPOON_3, PosHarpoon[2].GetPositionX(), PosHarpoon[2].GetPositionY(), PosHarpoon[2].GetPositionZ(), 5.382f, QuaternionData::fromEulerAnglesZYX(5.382f, 0.0f, 0.0f), uint32(me->GetRespawnTime())))
+                            if (GameObject* harpoon = me->SummonGameObject(GO_RAZOR_HARPOON_3, PosHarpoon[2].GetPositionX(), PosHarpoon[2].GetPositionY(), PosHarpoon[2].GetPositionZ(), 5.382f, QuaternionData::fromEulerAnglesZYX(5.382f, 0.0f, 0.0f), uint32(me->GetRespawnTime())))
                             {
-                                if (GameObject* BrokenHarpoon = Harpoon->FindNearestGameObject(GO_RAZOR_BROKEN_HARPOON, 5.0f))
-                                    BrokenHarpoon->RemoveFromWorld();
+                                if (GameObject* brokenHarpoon = harpoon->FindNearestGameObject(GO_RAZOR_BROKEN_HARPOON, 5.0f))
+                                    brokenHarpoon->RemoveFromWorld();
                                 events.ScheduleEvent(EVENT_BUILD_HARPOON_4, 20000);
                                 events.CancelEvent(EVENT_BUILD_HARPOON_3);
                             }
                             return;
                         case EVENT_BUILD_HARPOON_4:
                             Talk(EMOTE_HARPOON);
-                            if (GameObject* Harpoon = me->SummonGameObject(GO_RAZOR_HARPOON_4, PosHarpoon[3].GetPositionX(), PosHarpoon[3].GetPositionY(), PosHarpoon[3].GetPositionZ(), 4.266f, QuaternionData::fromEulerAnglesZYX(4.266f, 0.0f, 0.0f), uint32(me->GetRespawnTime())))
+                            if (GameObject* harpoon = me->SummonGameObject(GO_RAZOR_HARPOON_4, PosHarpoon[3].GetPositionX(), PosHarpoon[3].GetPositionY(), PosHarpoon[3].GetPositionZ(), 4.266f, QuaternionData::fromEulerAnglesZYX(4.266f, 0.0f, 0.0f), uint32(me->GetRespawnTime())))
                             {
-                                if (GameObject* BrokenHarpoon = Harpoon->FindNearestGameObject(GO_RAZOR_BROKEN_HARPOON, 5.0f))
-                                    BrokenHarpoon->RemoveFromWorld();
+                                if (GameObject* brokenHarpoon = harpoon->FindNearestGameObject(GO_RAZOR_BROKEN_HARPOON, 5.0f))
+                                    brokenHarpoon->RemoveFromWorld();
                                 events.CancelEvent(EVENT_BUILD_HARPOON_4);
                             }
                             return;
@@ -315,9 +322,9 @@ class go_razorscale_harpoon : public GameObjectScript
 
         bool OnGossipHello(Player* /*player*/, GameObject* go) override
         {
-            InstanceScript* instance = go->GetInstanceScript();
-            if (ObjectAccessor::GetCreature(*go, instance->GetGuidData(BOSS_RAZORSCALE)))
-                go->AddFlag(GO_FLAG_NOT_SELECTABLE);
+            if (InstanceScript* instance = go->GetInstanceScript())
+                if (instance->GetCreature(BOSS_RAZORSCALE))
+                    go->AddFlag(GO_FLAG_NOT_SELECTABLE);
             return false;
         }
 };
@@ -361,14 +368,14 @@ class boss_razorscale : public CreatureScript
                 me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                 me->SetReactState(REACT_PASSIVE);
                 Initialize();
-                if (Creature* commander = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_EXPEDITION_COMMANDER)))
+                if (Creature* commander = instance->GetCreature(DATA_EXPEDITION_COMMANDER))
                     commander->AI()->DoAction(ACTION_COMMANDER_RESET);
             }
 
             void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
-                if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RAZORSCALE_CONTROL)))
+                if (Creature* controller = instance->GetCreature(DATA_RAZORSCALE_CONTROL))
                     controller->AI()->DoAction(ACTION_HARPOON_BUILD);
                 me->SetSpeedRate(MOVE_FLIGHT, 3.0f);
                 me->SetReactState(REACT_PASSIVE);
@@ -383,7 +390,7 @@ class boss_razorscale : public CreatureScript
             void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
-                if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RAZORSCALE_CONTROL)))
+                if (Creature* controller = instance->GetCreature(DATA_RAZORSCALE_CONTROL))
                     controller->AI()->Reset();
             }
 
@@ -459,7 +466,7 @@ class boss_razorscale : public CreatureScript
                                 me->SetCanFly(false);
                                 me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                                 me->AddUnitFlag(UnitFlags(UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED));
-                                if (Creature* commander = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_EXPEDITION_COMMANDER)))
+                                if (Creature* commander = instance->GetCreature(DATA_EXPEDITION_COMMANDER))
                                     commander->AI()->DoAction(ACTION_GROUND_PHASE);
                                 events.ScheduleEvent(EVENT_BREATH, 30000, 0, PHASE_GROUND);
                                 events.ScheduleEvent(EVENT_BUFFET, 33000, 0, PHASE_GROUND);
@@ -475,7 +482,7 @@ class boss_razorscale : public CreatureScript
                                 return;
                             case EVENT_BUFFET:
                                 DoCastAOE(SPELL_WINGBUFFET);
-                                if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RAZORSCALE_CONTROL)))
+                                if (Creature* controller = instance->GetCreature(DATA_RAZORSCALE_CONTROL))
                                     controller->CastSpell(controller, SPELL_FLAMED, true);
                                 events.CancelEvent(EVENT_BUFFET);
                                 return;
@@ -717,10 +724,10 @@ class npc_expedition_commander : public CreatureScript
                             Phase = 5;
                             break;
                         case 5:
-                            if (Creature* Razorscale = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_RAZORSCALE)))
+                            if (Creature* razorscale = instance->GetCreature(BOSS_RAZORSCALE))
                             {
-                                Razorscale->AI()->DoAction(ACTION_EVENT_START);
-                                me->SetInCombatWith(Razorscale);
+                                razorscale->AI()->DoAction(ACTION_EVENT_START);
+                                me->SetInCombatWith(razorscale);
                             }
                             if (Creature* firstEngineer = ObjectAccessor::GetCreature(*me, Engineer[0]))
                                 firstEngineer->AI()->Talk(SAY_AGGRO_1);

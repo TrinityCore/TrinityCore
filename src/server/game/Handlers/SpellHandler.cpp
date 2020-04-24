@@ -228,6 +228,7 @@ void WorldSession::HandleOpenWrappedItemCallback(uint16 pos, ObjectGuid itemGuid
     item->SetGiftCreator(ObjectGuid::Empty);
     item->SetEntry(entry);
     item->SetItemFlags(ItemFieldFlags(flags));
+    item->SetMaxDurability(item->GetTemplate()->MaxDurability);
     item->SetState(ITEM_CHANGED, GetPlayer());
 
     GetPlayer()->SaveInventoryAndGoldToDB(trans);
