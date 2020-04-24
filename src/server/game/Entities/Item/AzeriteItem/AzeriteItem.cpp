@@ -212,9 +212,9 @@ void AzeriteItem::DeleteFromDB(CharacterDatabaseTransaction& trans)
 
 uint32 AzeriteItem::GetCurrentKnowledgeLevel()
 {
-    // count weeks from 26.06.2019
+    // count weeks from 14.01.2020
     boost::gregorian::date now = boost::posix_time::from_time_t(GameTime::GetGameTime()).date();
-    boost::gregorian::week_iterator itr(boost::gregorian::date(2019, boost::date_time::Jun, 26));
+    boost::gregorian::week_iterator itr(boost::gregorian::date(2020, boost::date_time::Jan, 14));
     uint32 knowledge = 0;
     while (*itr < now && knowledge < MAX_AZERITE_ITEM_KNOWLEDGE_LEVEL)
     {
