@@ -1855,18 +1855,37 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
         modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_DURATION, duration);
 
     // determine how many units should be summoned
-    uint32 numSummons = std::max(1, damage);
+    uint32 numSummons = 0;
 
-    // Totem basepoints are the health amount, not the summon number
-    if (properties->Flags & SUMMON_PROP_FLAG_TOTEM)
-        numSummons = 1;
-
-    // Spells with SPELL_ATTR8_UNK21 have either a insane summon number in their basepoints or just 0.
-    // We assume that this attribute is setting the summon count to 1 if SPELL_ATTR8_UNK13 is not given
-    // SPELL_ATTR8_UNK13 seems to be indicating that we may summon multiple units at once outside of this rule
-    // To-do: give these attributes a name for their meaning
-    if ((m_spellInfo->HasAttribute(SPELL_ATTR8_UNK21) && !m_spellInfo->HasAttribute(SPELL_ATTR8_UNK13)) || m_spellInfo->HasAttribute(SPELL_ATTR10_UNK6))
-        numSummons = 1;
+    // some spells need to summon many units, for those spells number of summons is stored in effect value
+    // however so far noone found a generic check to find all of those (there's no related data in summonproperties.dbc
+    // and in spell attributes, possibly we need to add a table for those)
+    // so here's a list of MiscValueB values, which is currently most generic check
+    switch (properties->ID)
+    {
+        case 64:
+        case 61:
+        case 1101:
+        case 66:
+        case 648:
+        case 2301:
+        case 1061:
+        case 1261:
+        case 629:
+        case 181:
+        case 715:
+        case 1562:
+        case 833:
+        case 1161:
+        case 713:
+        case 3097:
+        case 2929:
+            numSummons = (damage > 0) ? damage : 1;
+            break;
+        default:
+            numSummons = 1;
+            break;
+    }
 
     // Some totems are being summoned with a certain amount of health
     uint32 health = (properties->Flags & SUMMON_PROP_FLAG_TOTEM) != 0 && damage ? damage : 0;
