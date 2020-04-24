@@ -774,9 +774,9 @@ class npc_ignacious : public CreatureScript
                     Talk(SAY_ABILITY);
             }
 
-            void OnSpellCastFinished(SpellInfo const* spell, SpellFinishReason /*reason*/) override
+            void OnSpellCastFinished(SpellInfo const* spell, SpellFinishReason reason) override
             {
-                if (spell->Id == SPELL_RISING_FLAMES)
+                if (spell->Id == SPELL_RISING_FLAMES && (reason == SPELL_FINISHED_CANCELED || reason == SPELL_FINISHED_FINISHED))
                     me->MakeInterruptable(false);
             }
 
