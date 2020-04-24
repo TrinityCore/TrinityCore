@@ -522,7 +522,7 @@ class TC_GAME_API SpellEvent : public BasicEvent
 Spell::Spell(WorldObject* caster, SpellInfo const* info, TriggerCastFlags triggerFlags, ObjectGuid originalCasterGUID) :
 m_spellInfo(sSpellMgr->GetSpellForDifficultyFromSpell(info, caster)),
 m_caster((info->HasAttribute(SPELL_ATTR6_CAST_BY_CHARMER) && caster->GetCharmerOrOwner()) ? caster->GetCharmerOrOwner() : caster)
-, m_spellValue(new SpellValue(m_spellInfo)), _spellEvent(nullptr), m_trackedCasterAggregatedMovementFlags(MovementFlags::MOVEMENTFLAG_NONE)
+, m_spellValue(new SpellValue(m_spellInfo)), _spellEvent(nullptr)
 {
     m_customError = SPELL_CUSTOM_ERROR_NONE;
     m_selfContainer = nullptr;
@@ -3708,7 +3708,7 @@ void Spell::update(uint32 difftime)
 
     // check if the player caster has moved before the spell finished
     if (m_caster->GetTypeId() == TYPEID_PLAYER && m_timer != 0 &&
-        (m_caster->ToPlayer()->isMoving() || GetAggregatedUnitMovementFlags() & MovementFlags::MOVEMENTFLAG_MASK_MOVING) && m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_MOVEMENT &&
+        m_caster->ToPlayer()->isMoving() && m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_MOVEMENT &&
         (m_spellInfo->Effects[EFFECT_0].Effect != SPELL_EFFECT_STUCK || !m_caster->ToPlayer()->HasUnitMovementFlag(MOVEMENTFLAG_FALLING_FAR)))
     {
         // don't cancel for melee, autorepeat, triggered and instant spells

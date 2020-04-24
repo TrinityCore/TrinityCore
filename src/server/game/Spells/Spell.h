@@ -63,7 +63,6 @@ enum SpellTargetObjectTypes : uint8;
 enum SpellValueMod : uint8;
 enum TriggerCastFlags : uint32;
 enum WeaponAttackType : uint8;
-enum MovementFlags : uint32;
 
 #define SPELL_CHANNEL_UPDATE_INTERVAL (1 * IN_MILLISECONDS)
 #define MAX_SPELL_RANGE_TOLERANCE 3.0f
@@ -563,18 +562,6 @@ class TC_GAME_API Spell
 
         std::string GetDebugInfo() const;
 
-        //HelloKitty: I added these to address the issue of being able to move while casting. If we don't track the total movement flags being set new move packets can overwrite movement
-        //Before Spell::Update happens.
-        MovementFlags GetAggregatedUnitMovementFlags() const
-        {
-            return m_trackedCasterAggregatedMovementFlags;
-        }
-
-        void AddMovementFlags(MovementFlags flags)
-        {
-            m_trackedCasterAggregatedMovementFlags = static_cast<MovementFlags>(m_trackedCasterAggregatedMovementFlags | flags);
-        }
-
     protected:
         bool HasGlobalCooldown() const;
         void TriggerGlobalCooldown();
@@ -800,8 +787,6 @@ class TC_GAME_API Spell
         std::unique_ptr<PathGenerator> m_preGeneratedPath;
 
         ByteBuffer* m_effectExecuteData[MAX_SPELL_EFFECTS];
-
-        MovementFlags m_trackedCasterAggregatedMovementFlags;
 
         Spell(Spell const& right) = delete;
         Spell& operator=(Spell const& right) = delete;
