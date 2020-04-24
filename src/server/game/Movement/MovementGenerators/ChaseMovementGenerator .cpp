@@ -144,7 +144,7 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
         if (!owner->HasUnitState(UNIT_STATE_CHASE_MOVE) && owner->IsCreature() && !target->isMoving())
         {
             // Owner is too close to its target. Step back.
-            if (owner->GetExactDist2d(target) < owner->GetBoundaryRadius())
+            if (owner->GetBoundaryRadius() <= 5.f && owner->GetExactDist2d(target) < owner->GetBoundaryRadius())
             {
                 LaunchMovement(owner, target, chaseRange, true, mutualChase);
                 return true;
@@ -209,10 +209,14 @@ void ChaseMovementGenerator::LaunchMovement(Unit* owner, Unit* target, float cha
         float additionalRange = target->GetSpeed(moveType) * 0.5f;
 
         if (!owner->HasUnitState(UNIT_STATE_IGNORE_PATHFINDING))
-            target->MovePositionToFirstCollision(dest, additionalRange, _angle ? target->NormalizeOrientation(target->GetOrientation() - _angle->RelativeAngle + float(M_PI)) : target->GetRelativeAngle(owner) + float(M_PI));
+            target->MovePositionToFirstCollision(dest, additionalRange, _angle ? Position::NormalizeOrientation(target->GetOrientation() - _angle->RelativeAngle + float(M_PI)) : target->GetRelativeAngle(owner) + float(M_PI));
+        else
+            target->GetNearPoint(owner, dest.m_positionX, dest.m_positionY, dest.m_positionZ, additionalRange - target->GetCombatReach() - owner->GetCombatReach(), Position::NormalizeOrientation(target->GetOrientation() + float(M_PI) + (_angle ? _angle->RelativeAngle : 0.f)));
     }
     else if (!owner->HasUnitState(UNIT_STATE_IGNORE_PATHFINDING))
         target->MovePositionToFirstCollision(dest, chaseRange, _angle ? target->NormalizeOrientation(target->GetOrientation() - _angle->RelativeAngle) : target->GetRelativeAngle(owner));
+    else
+        target->GetNearPoint(owner, dest.m_positionX, dest.m_positionY, dest.m_positionZ, chaseRange - target->GetCombatReach() - owner->GetCombatReach(), Position::NormalizeOrientation(target->GetOrientation() + (_angle ? _angle->RelativeAngle : 0.f)));
 
     owner->UpdateAllowedPositionZ(dest.GetPositionX(), dest.GetPositionY(), dest.m_positionZ);
 
