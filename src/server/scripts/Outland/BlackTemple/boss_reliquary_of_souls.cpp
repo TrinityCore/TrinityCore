@@ -695,7 +695,7 @@ struct npc_reliquary_combat_trigger : public ScriptedAI
             me->KillSelf();
     }
 
-    void UpdateAI(uint32 diff) override
+    void UpdateAI(uint32 /*diff*/) override
     {
         if (!UpdateVictim())
             return;
