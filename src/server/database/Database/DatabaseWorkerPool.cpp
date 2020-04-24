@@ -272,7 +272,7 @@ TransactionCallback DatabaseWorkerPool<T>::AsyncCommitTransaction(SQLTransaction
     {
         case 0:
             TC_LOG_DEBUG("sql.driver", "Transaction contains 0 queries. Not executing.");
-            return;
+            break;
         case 1:
             TC_LOG_DEBUG("sql.driver", "Warning: Transaction only holds 1 query, consider removing Transaction context in code.");
             break;
