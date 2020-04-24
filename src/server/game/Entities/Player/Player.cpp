@@ -26895,3 +26895,10 @@ std::string Player::GetDebugInfo() const
     sstr << Unit::GetDebugInfo();
     return sstr.str();
 }
+
+void Player::InterruptSpellsByMovement()
+{
+    for (uint32 i = CURRENT_FIRST_NON_MELEE_SPELL; i < CURRENT_MAX_SPELL; i++)
+        if (m_currentSpells[i] && m_currentSpells[i]->IsInterruptedByMovement())
+            InterruptSpell(static_cast<CurrentSpellTypes>(i), false);
+}

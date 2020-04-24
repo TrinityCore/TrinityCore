@@ -409,6 +409,8 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
 
     if (plrMover)                                            // nothing is charmed, or player charmed
     {
+        plrMover->InterruptSpellsByMovement();
+
         if (plrMover->IsSitState() && (movementInfo.flags & (MOVEMENTFLAG_MASK_MOVING | MOVEMENTFLAG_MASK_TURNING)))
             plrMover->SetStandState(UNIT_STAND_STATE_STAND);
 

@@ -562,6 +562,8 @@ class TC_GAME_API Spell
 
         std::string GetDebugInfo() const;
 
+        bool IsInterruptedByMovement() const;
+
     protected:
         bool HasGlobalCooldown() const;
         void TriggerGlobalCooldown();
