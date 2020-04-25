@@ -15,8 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "GridNotifiers.h"
 #include "AreaTriggerAI.h"
+#include "CreatureAI.h"
+#include "CreatureAIImpl.h"
+#include "GridNotifiers.h"
 #include "InstanceScript.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
