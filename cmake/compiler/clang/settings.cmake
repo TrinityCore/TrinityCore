@@ -12,8 +12,13 @@ if(WITH_WARNINGS)
       -Winit-self
       -Wfatal-errors
       -Wno-mismatched-tags
-      -Woverloaded-virtual
-      -Wno-deprecated-copy) # warning in g3d
+      -Woverloaded-virtual)
+ 
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 10)
+    target_compile_options(trinity-warning-interface
+      INTERFACE
+        -Wno-deprecated-copy) # warning in g3d
+  endif()
 
   message(STATUS "Clang: All warnings enabled")
 endif()
