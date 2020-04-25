@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "antorus_the_burning_throne.h"
 #include "Creature.h"
+#include "CreatureAI.h
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
