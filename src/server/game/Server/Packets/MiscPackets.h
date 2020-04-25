@@ -64,6 +64,46 @@ namespace WorldPackets
             ObjectGuid Unit;
         };
 
+        class StartMirrorTimer final : public ServerPacket
+        {
+        public:
+            StartMirrorTimer() : ServerPacket(SMSG_START_MIRROR_TIMER, 21) { }
+            StartMirrorTimer(uint32 timer, uint32 value, uint32 maxValue, int32 scale, bool paused, uint32 spellID) :
+                ServerPacket(SMSG_START_MIRROR_TIMER, 21), Timer(timer), Value(value), MaxValue(maxValue), Scale(scale), Paused(paused), SpellID(spellID) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Timer = 0;
+            uint32 Value = 0;
+            uint32 MaxValue = 0;
+            int32 Scale = 0;
+            bool Paused = false;
+            uint32 SpellID = 0;
+        };
+
+        class PauseMirrorTimer final : public ServerPacket
+        {
+        public:
+            PauseMirrorTimer() : ServerPacket(SMSG_PAUSE_MIRROR_TIMER, 5) { }
+            PauseMirrorTimer(uint32 timer, bool paused) : ServerPacket(SMSG_PAUSE_MIRROR_TIMER, 5), Timer(timer), Paused(paused) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Timer = 0;
+            bool Paused = true;
+        };
+
+        class StopMirrorTimer final : public ServerPacket
+        {
+        public:
+            StopMirrorTimer() : ServerPacket(SMSG_STOP_MIRROR_TIMER, 4) { }
+            StopMirrorTimer(uint32 timer) : ServerPacket(SMSG_STOP_MIRROR_TIMER, 4), Timer(timer) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Timer = 0;
+        };
+
         class InvalidatePlayer final : public ServerPacket
         {
         public:
@@ -85,6 +125,14 @@ namespace WorldPackets
             float NewSpeed = 0.0f;
             uint32 GameTime = 0;
             int32 GameTimeHolidayOffset = 0;
+        };
+
+        class DurabilityDamageDeath final : public ServerPacket
+        {
+        public:
+            DurabilityDamageDeath() : ServerPacket(SMSG_DURABILITY_DAMAGE_DEATH, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
         };
 
         class TriggerCinematic final : public ServerPacket
@@ -120,6 +168,19 @@ namespace WorldPackets
             WeatherState WeatherID = WeatherState(0);
         };
 
+        class LevelUpInfo final : public ServerPacket
+        {
+        public:
+            LevelUpInfo() : ServerPacket(SMSG_LEVELUP_INFO, 56) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Level = 0;
+            uint32 HealthDelta = 0;
+            std::array<uint32, MAX_POWERS> PowerDelta = { };
+            std::array<uint32, MAX_STATS> StatDelta = { };
+        };
+
         class TC_GAME_API PlayMusic final : public ServerPacket
         {
         public:
@@ -142,7 +203,7 @@ namespace WorldPackets
 
             ObjectGuid SourceObjectGUID;
             uint32 SoundKitID = 0;
-            
+
         };
 
         class TC_GAME_API PlaySound final : public ServerPacket
@@ -188,6 +249,18 @@ namespace WorldPackets
             void Read() override { }
         };
 
+        class CrossedInebriationThreshold final : public ServerPacket
+        {
+        public:
+            CrossedInebriationThreshold() : ServerPacket(SMSG_CROSSED_INEBRIATION_THRESHOLD, 8 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
+            uint32 Threshold = 0;
+            uint32 ItemID = 0;
+        };
+
         class OverrideLight final : public ServerPacket
         {
         public:
@@ -198,6 +271,30 @@ namespace WorldPackets
             int32 AreaLightID = 0;
             int32 TransitionMilliseconds = 0;
             int32 OverrideLightID = 0;
+        };
+
+        class RandomRollClient final : public ClientPacket
+        {
+        public:
+            RandomRollClient(WorldPacket&& packet) : ClientPacket(MSG_RANDOM_ROLL, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 Min = 0;
+            uint32 Max = 0;
+        };
+
+        class RandomRoll final : public ServerPacket
+        {
+        public:
+            RandomRoll() : ServerPacket(MSG_RANDOM_ROLL, 4 + 4 + 4 + 8) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Min = 0;
+            uint32 Max = 0;
+            uint32 Result = 0;
+            ObjectGuid Roller;
         };
 
         class UITime final : public ServerPacket
