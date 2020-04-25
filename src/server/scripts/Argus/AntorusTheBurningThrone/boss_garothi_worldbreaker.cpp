@@ -20,6 +20,7 @@
 #include "CreatureAIImpl.h"
 #include "GridNotifiers.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "ObjectAccessor.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -212,7 +213,6 @@ struct boss_garothi_worldbreaker : public BossAI
         _lastCanonEntry = NPC_DECIMATOR;
         _castEradication = false;
         _surgingFelDummyGuids.clear();
-
     }
 
     void Reset() override
