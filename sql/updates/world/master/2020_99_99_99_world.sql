@@ -1,10 +1,10 @@
 -- Spawns
-SET @CGUID := 7000000;
+SET @CGUID := 450000;
 DELETE FROM `creature` WHERE `guid`= @CGUID+0;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES
 (@CGUID+0, 122450, 1712, 8638, 9280, "14,15,16,17", 169, 0, 0, 0, -3292.458, 9822.647, -63.49804, 4.729585, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26365); -- Garothi Worldbreaker
 
-SET @OGUID := 7000000;
+SET @OGUID := 300000;
 DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+2;
 INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
 (@OGUID+0, 278488, 1712, 8638, 8638, '14,15,16,17', 169, 0, -3330.073, 9823.818, -66.76595, 4.92183, 0.02519464, 0.01764011, -0.6292171, 0.7766207, 7200, 255, 1, 30706), -- Rock (Area: -Unknown- - Difficulty: 15)
