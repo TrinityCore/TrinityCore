@@ -147,7 +147,7 @@ uint32 MySQLConnection::Open()
         {
             opt_use_ssl = MySQLBool(1);
         }
-        mysql_options(mysqlInit, MYSQL_OPT_SSL_ENFORCE, (char const*)&opt_use_ssl);
+        mysql_options(mysqlInit, MYSQL_OPT_SSL_MODE, (char const*)&opt_use_ssl);
 #endif
     }
 

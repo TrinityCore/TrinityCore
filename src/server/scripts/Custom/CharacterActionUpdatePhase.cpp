@@ -11,7 +11,7 @@ public:
     {
         ObjectGuid::LowType lowGuid = player->GetGUID().GetCounter();
 
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_PHASE);
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_PHASE);
         stmt->setUInt32(0, lowGuid);
         stmt->setUInt32(1, player->GetPhaseMask());
         CharacterDatabase.Execute(stmt);
@@ -21,7 +21,7 @@ public:
     {
         ObjectGuid::LowType lowGuid = guid.GetCounter();
 
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_PHASE);
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_PHASE);
         stmt->setUInt32(0, lowGuid);
         CharacterDatabase.Execute(stmt);
     }
@@ -30,7 +30,7 @@ public:
     {
         ObjectGuid::LowType lowGuid = player->GetGUID().GetCounter();
 
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PHASE);
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PHASE);
         stmt->setUInt32(0, lowGuid);
 
         PreparedQueryResult result = CharacterDatabase.Query(stmt);
@@ -48,7 +48,7 @@ public:
     {
         ObjectGuid::LowType lowGuid = player->GetGUID().GetCounter();
 
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PHASE);
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PHASE);
         stmt->setUInt32(0, player->GetPhaseMask());
         stmt->setUInt32(1, lowGuid);
         CharacterDatabase.Execute(stmt);
