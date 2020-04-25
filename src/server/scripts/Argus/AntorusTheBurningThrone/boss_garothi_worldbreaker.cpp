@@ -20,6 +20,7 @@
 #include "CreatureAIImpl.h"
 #include "GridNotifiers.h"
 #include "InstanceScript.h"
+#include "ObjectAccessor.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellAuras.h"
