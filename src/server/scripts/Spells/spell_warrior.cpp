@@ -38,6 +38,8 @@ enum WarriorSpells
     SPELL_WARRIOR_BLADESTORM_PERIODIC_WHIRLWIND     = 50622,
     SPELL_WARRIOR_BLOODTHIRST                       = 23885,
     SPELL_WARRIOR_BLOODTHIRST_DAMAGE                = 23881,
+    SPELL_WARRIOR_BLOODSURGE                        = 46916,
+    SPELL_WARRIOR_BLOODSURGE_R1                     = 46913,
     SPELL_WARRIOR_CHARGE_ENERGIZE                   = 34846,
     SPELL_WARRIOR_CHARGE_STUN                       = 7922,
     SPELL_WARRIOR_COLOSSUS_SMASH                    = 86346,
@@ -501,7 +503,9 @@ class spell_warr_slam : public SpellScript
         return ValidateSpellInfo(
             {
                 SPELL_WARRIOR_SLAM_MAIN_HAND,
-                SPELL_WARRIOR_SLAM_OFF_HAND
+                SPELL_WARRIOR_SLAM_OFF_HAND,
+                SPELL_WARRIOR_BLOODSURGE,
+                SPELL_WARRIOR_BLOODSURGE_R1
             });
     }
 
@@ -512,16 +516,58 @@ class spell_warr_slam : public SpellScript
             return;
 
         Unit* target = GetHitUnit();
-        caster->CastCustomSpell(SPELL_WARRIOR_SLAM_MAIN_HAND, SPELLVALUE_BASE_POINT0, GetEffectValue(), target, true);
+        caster->CastSpell(target, SPELL_WARRIOR_SLAM_MAIN_HAND, true);
 
         if (caster->GetAuraEffect(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, SPELLFAMILY_WARRIOR, WARRIOR_ICON_ID_SINGLE_MINDED_FURY, EFFECT_0))
-            caster->CastCustomSpell(SPELL_WARRIOR_SLAM_OFF_HAND, SPELLVALUE_BASE_POINT0, GetEffectValue(), target, true);
+            caster->CastSpell(target, SPELL_WARRIOR_SLAM_OFF_HAND, true);
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_warr_slam::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectLaunchTarget += SpellEffectFn(spell_warr_slam::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
+};
+
+class spell_warr_slam_triggered : public SpellScript
+{
+    PrepareSpellScript(spell_warr_slam_triggered);
+
+    bool Load() override
+    {
+        _bloodsurgeBonusActive = GetCaster()->HasAura(SPELL_WARRIOR_BLOODSURGE, GetCaster()->GetGUID());
+        return true;
+    }
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_WARRIOR_BLOODSURGE,
+                SPELL_WARRIOR_BLOODSURGE_R1
+            });
+    }
+
+    void HandleBonusDamage(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        int32 basePoints = GetEffectValue();
+        if (_bloodsurgeBonusActive)
+            if (Aura const* aura = caster->GetAuraOfRankedSpell(SPELL_WARRIOR_BLOODSURGE_R1))
+                if (AuraEffect const* effect = aura->GetEffect(EFFECT_0))
+                    AddPct(basePoints, effect->GetAmount());
+
+        SetEffectValue(basePoints);
+    }
+
+    void Register() override
+    {
+        OnEffectLaunchTarget += SpellEffectFn(spell_warr_slam_triggered::HandleBonusDamage, EFFECT_1, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
+    }
+private:
+    bool _bloodsurgeBonusActive = false;
 };
 
 class spell_warr_second_wind_proc : public AuraScript
@@ -1027,6 +1073,7 @@ void AddSC_warrior_spell_scripts()
     RegisterAuraScript(spell_warr_shield_specialization);
     RegisterSpellScript(spell_warr_shockwave);
     RegisterSpellScript(spell_warr_slam);
+    RegisterSpellScript(spell_warr_slam_triggered);
     RegisterAuraScript(spell_warr_strikes_of_opportunity);
     RegisterAuraScript(spell_warr_sudden_death);
     RegisterAuraScript(spell_warr_sweeping_strikes);
