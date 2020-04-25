@@ -412,15 +412,6 @@ public:
         return !this->operator ==(right);
     }
 
-    inline flag128 & operator =(const flag128 &right)
-    {
-        part[0] = right.part[0];
-        part[1] = right.part[1];
-        part[2] = right.part[2];
-        part[3] = right.part[3];
-        return *this;
-    }
-
     inline flag128 operator &(const flag128 &right) const
     {
         return flag128(part[0] & right.part[0], part[1] & right.part[1],

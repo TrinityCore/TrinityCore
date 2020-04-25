@@ -82,7 +82,6 @@ bool LoginRESTService::Start(Trinity::Asio::IoContext* ioContext)
         _port = 8081;
     }
 
-    boost::system::error_code ec;
     boost::asio::ip::tcp::resolver resolver(*ioContext);
 
     std::string configuredAddress = sConfigMgr->GetStringDefault("LoginREST.ExternalAddress", "127.0.0.1");
