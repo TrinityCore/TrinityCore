@@ -76,6 +76,7 @@ ObjectData const creatureData[] =
     { NPC_BLOOD_ELF_COUNCIL_VOICE,      DATA_BLOOD_ELF_COUNCIL_VOICE    },
     { NPC_BLACK_TEMPLE_TRIGGER,         DATA_BLACK_TEMPLE_TRIGGER       },
     { NPC_MAIEV_SHADOWSONG,             DATA_MAIEV                      },
+    { NPC_RELIQUARY_COMBAT_TRIGGER,     DATA_RELIQUARY_COMBAT_TRIGGER   },
     { 0,                                0                               } // END
 };
 
