@@ -62,7 +62,8 @@ DELETE FROM `spell_script_names` WHERE `ScriptName` IN
 'spell_garothi_annihilation_selector',
 'spell_garothi_annihilation_triggered',
 'spell_garothi_eradication',
-'spell_garothi_surging_fel');
+'spell_garothi_surging_fel',
+'spell_garothi_cannon_chooser');
 
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (244152, 'spell_garothi_apocalypse_drive'),
@@ -78,7 +79,8 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (247572, 'spell_garothi_annihilation_selector'),
 (244761, 'spell_garothi_annihilation_triggered'),
 (244969, 'spell_garothi_eradication'),
-(246655, 'spell_garothi_surging_fel');
+(246655, 'spell_garothi_surging_fel'),
+(245124, 'spell_garothi_cannon_chooser');
 
 -- Addons
 DELETE FROM `creature_template_addon` WHERE `entry` IN (122450, 122778, 122773);
@@ -117,12 +119,11 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 -- Conditions
 DELETE FROM `conditions` WHERE `SourceEntry` IN (247572, 244761, 245237, 246012) AND `SourceTypeOrReferenceId`= 13;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`,  `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ScriptName`, `Comment`) VALUES
-(13, 1, 247572, 0, 0, 31, 0, 5, 122818, 0, 0, 0, '', 'Annihilation - Target Annihilation'),
-(13, 2, 244761, 0, 0, 31, 0, 5, 122818, 0, 0, 0, '', 'Annihilation - Target Annihilation'),
-(13, 2, 245237, 0, 1, 31, 0, 5, 122773, 0, 0, 0, '', 'Empowered - Target Annihilator'),
-(13, 2, 245237, 0, 2, 31, 0, 5, 122778, 0, 0, 0, '', 'Empowered - Target Decimator'),
-(13, 1, 246012, 0, 0, 31, 0, 5, 122773, 0, 0, 0, '', 'Restore Health - Target Annihilator'),
-(13, 1, 246012, 0, 1, 31, 0, 5, 122778, 0, 0, 0, '', 'Restore Health - Target Decimator');
+(13, 1, 247572, 0, 0, 51, 0, 5, 122818, 0, 0, 0, '', 'Annihilation - Target Annihilation'),
+(13, 2, 245237, 0, 1, 51, 0, 5, 122773, 0, 0, 0, '', 'Empowered - Target Annihilator'),
+(13, 2, 245237, 0, 2, 51, 0, 5, 122778, 0, 0, 0, '', 'Empowered - Target Decimator'),
+(13, 1, 246012, 0, 0, 51, 0, 5, 122773, 0, 0, 0, '', 'Restore Health - Target Annihilator'),
+(13, 1, 246012, 0, 1, 51, 0, 5, 122778, 0, 0, 0, '', 'Restore Health - Target Decimator');
 
 -- Summon Groups
 DELETE FROM `creature_summon_groups` WHERE `summonerId`= 122450 AND `summonerType`= 0;
@@ -174,3 +175,9 @@ INSERT INTO `areatrigger_template_polygon_vertices` (`AreaTriggerId`, `Idx`, `Ve
 DELETE FROM `spell_proc` WHERE `SpellId`= 244106;
 INSERT INTO `spell_proc` (`SpellId`, `SpellFamilyName`, `SpellFamilyMask0`, `SpellFamilyMask1`, `SpellFamilyMask2`, `ProcFlags`, `SpellTypeMask`, `SpellPhaseMask`, `HitMask`, `AttributesMask`) VALUES
 (244106, 0, 0, 0, 0x00000008, 0, 0, 0, 0, 0);
+
+-- Custom Attributes
+DELETE FROM `spell_custom_attr` WHERE `entry` IN (244761, 244410);
+INSERT INTO `spell_custom_attr` (`entry`, `attributes`) VALUES
+(244761, 0x8),
+(244410, 0x1000);

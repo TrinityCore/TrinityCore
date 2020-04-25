@@ -3602,12 +3602,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_2))->Effect = 0;
     });
 
-    // Annihilation
-    ApplySpellFix({ 244761 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->AttributesCu |= SPELL_ATTR0_CU_SHARE_DAMAGE;
-    });
-
     // ENDOF ANTORUS THE BURNING THRONE SPELLS
 
     // Summon Master Li Fei
