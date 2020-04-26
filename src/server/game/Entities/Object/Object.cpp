@@ -3132,19 +3132,18 @@ void WorldObject::GetNearPoint2D(WorldObject const* searcher, float& x, float& y
     Trinity::NormalizeMapCoord(y);
 }
 
-void WorldObject::GetNearPoint(WorldObject const* searcher, float& x, float& y, float& z, float distance2d, float absAngle, float controlZ) const
+void WorldObject::GetNearPoint(WorldObject const* searcher, float& x, float& y, float& z, float distance2d, float absAngle) const
 {
     GetNearPoint2D(searcher, x, y, distance2d, absAngle);
-    z = GetPositionZ() + 2.0f;
-    if (!controlZ)
-        (searcher ? searcher : this)->UpdateAllowedPositionZ(x, y, z);
+    z = GetPositionZ();
+    (searcher ? searcher : this)->UpdateAllowedPositionZ(x, y, z);
 
     // if detection disabled, return first point
     if (!sWorld->getBoolConfig(CONFIG_DETECT_POS_COLLISION))
         return;
 
     // return if the point is already in LoS
-    if (!controlZ && IsWithinLOS(x, y, z))
+    if (IsWithinLOS(x, y, z))
         return;
 
     // remember first point
@@ -3158,9 +3157,6 @@ void WorldObject::GetNearPoint(WorldObject const* searcher, float& x, float& y, 
         GetNearPoint2D(searcher, x, y, distance2d, absAngle + angle);
         z = GetPositionZ();
         (searcher ? searcher : this)->UpdateAllowedPositionZ(x, y, z);
-        if (controlZ && fabsf(GetPositionZ() - z) > controlZ)
-            continue;
-
         if (IsWithinLOS(x, y, z))
             return;
     }
@@ -3171,10 +3167,44 @@ void WorldObject::GetNearPoint(WorldObject const* searcher, float& x, float& y, 
     z = first_z;
 }
 
-void WorldObject::GetClosePoint(float& x, float& y, float& z, float size, float distance2d /*= 0*/, float relAngle /*= 0*/, float controlZ /*= 0*/) const
+void WorldObject::GetClosePoint(float& x, float& y, float& z, float size, float distance2d /*= 0*/, float relAngle /*= 0*/) const
 {
     // angle calculated from current orientation
-    GetNearPoint(nullptr, x, y, z, distance2d + size, GetOrientation() + relAngle, controlZ);
+    GetNearPoint(this ? this : nullptr, x, y, z, distance2d + size, GetOrientation() + relAngle);
+}
+
+void WorldObject::GetTheClosestPoint(float& x, float& y, float& z, float rangecheck, float startedZ, float controlZ) const
+{
+    // X and Y without any started coords
+    float resultX, resultY, resultZ = 0.f;
+    if (this)
+    {
+        resultX = GetPositionX();
+        resultY = GetPositionY();
+        resultZ = GetMapHeight(resultX, resultY, startedZ + 2.0f, true);
+    }
+
+    // loop in a circle to look for a point in LoS using small steps
+    for (float angle = float(M_PI) / 8; angle < float(M_PI) * 2; angle += float(M_PI) / 8)
+    {
+        GetNearPoint2D(this ? this : nullptr, x, y, rangecheck, angle);
+        z = GetMapHeight(x, y, startedZ + 2.0f, true, controlZ);
+
+        if (!IsWithinLOS(x, y, z))
+            continue;
+
+        if (fabs(z - startedZ) > controlZ)
+            continue;
+
+        resultX = x;
+        resultY = y;
+        resultZ = z;
+    }
+
+    // return founded the last solution
+    x = resultX;
+    y = resultY;
+    z = resultZ;
 }
 
 Position WorldObject::GetNearPosition(float dist, float angle)

@@ -132,7 +132,7 @@ bool Player::CheckOnFlyHack()
                     return true;
 
                 float cx, cy, cz;
-                GetClosePoint(cx, cy, cz, DEFAULT_PLAYER_BOUNDING_RADIUS, 6.0f, 0, 6.8f); // first check
+                GetTheClosestPoint(cx, cy, cz, 0.5, pz, 6.8f); // first check
                 if (pz - cz > 6.8f)
                 {
                     // check dynamic collision for transport (TODO navmesh for transport map)

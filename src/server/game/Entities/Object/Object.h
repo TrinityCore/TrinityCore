@@ -290,8 +290,9 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         void RemoveFromWorld() override;
 
         void GetNearPoint2D(WorldObject const* searcher, float& x, float& y, float distance, float absAngle) const;
-        void GetNearPoint(WorldObject const* searcher, float& x, float& y, float& z, float distance2d, float absAngle, float controlZ = 0) const;
-        void GetClosePoint(float& x, float& y, float& z, float size, float distance2d = 0, float relAngle = 0, float controlZ = 0) const;
+        void GetNearPoint(WorldObject const* searcher, float& x, float& y, float& z, float distance2d, float absAngle) const;
+        void GetClosePoint(float& x, float& y, float& z, float size, float distance2d = 0, float relAngle = 0) const;
+        void GetTheClosestPoint(float& x, float& y, float& z, float rangecheck, float startedZ, float controlZ = 0) const;
         void MovePosition(Position &pos, float dist, float angle);
         Position GetNearPosition(float dist, float angle);
         void MovePositionToFirstCollision(Position &pos, float dist, float angle);
