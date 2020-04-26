@@ -805,7 +805,7 @@ void MotionMaster::MoveJump(float x, float y, float z, float o, float speedXY, f
             _owner->GetGUID().GetCounter(), x, y, z, speedXY, max_height);
         _owner->ToPlayer()->SetUnderACKmount();
         _owner->ToPlayer()->SetSkipOnePacketForASH(true);
-        Add(new JumpMovementGenerator<Player>(id, x, y, z, o, speedXY, max_height, hasOrientation));        
+        Add(new JumpMovementGenerator<Player>(id, x, y, z, o, speedXY, max_height, hasOrientation));
     }
     else
     {

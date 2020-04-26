@@ -89,7 +89,7 @@ bool Player::CheckOnFlyHack()
     if (HasUnitState(UNIT_STATE_IGNORE_ANTISPEEDHACK))
         return true;
 
-    if (GetAreaId() == 4859) // Area: 4859 (Frozen Throne) 
+    if (GetAreaId() == 4859) // Area: 4859 (Frozen Throne)
         return true;
 
     if (GetPlayerMovingMe())
