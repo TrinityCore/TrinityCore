@@ -2737,6 +2737,24 @@ void SpellInfo::_LoadSpellDiminishInfo()
         switch (SpellFamilyName)
         {
             case SPELLFAMILY_GENERIC:
+                // Frost Tomb
+                if (Id == 48400)
+                    return DIMINISHING_NONE;
+                // Gnaw
+                else if (Id == 47481)
+                    return DIMINISHING_STUN;
+                // ToC Icehowl Arctic Breath
+                else if (Id == 66689)
+                    return DIMINISHING_NONE;
+                // Black Plague
+                else if (Id == 64155)
+                    return DIMINISHING_NONE;
+                // Screams of the Dead (King Ymiron)
+                else if (Id == 51750)
+                    return DIMINISHING_NONE;
+                // Crystallize (Keristrasza heroic)
+                else if (Id == 48179)
+                    return DIMINISHING_NONE;
                 break;
             case SPELLFAMILY_MAGE:
             {
