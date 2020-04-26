@@ -739,7 +739,7 @@ uint32 Object::GetUpdateFieldData(Player const* target, uint32*& flags) const
         {
             Player* plr = ToUnit()->GetCharmerOrOwnerPlayerOrPlayerItself();
             flags = UnitUpdateFieldFlags;
-            if (ToUnit()->GetOwnerOrCreatorGUID() == target->GetGUID())
+            if (ToUnit()->GetOwnerGUID() == target->GetGUID())
                 visibleFlag |= UF_FLAG_OWNER;
 
             if (HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_SPECIALINFO))
