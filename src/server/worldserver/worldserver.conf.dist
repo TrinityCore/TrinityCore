@@ -4104,7 +4104,6 @@ AntiCheats.DoubleJump.Enabled = 1
 
 #    AntiCheats.FakeJumper.Enabled
 #        Description: Enable AntiCheat.FakeJumper : when player sent a move opcode (with new Z higher) when has flag falling (client can't sent any new packets when falling)
-#		      It's normal for Gagarin hacks and with Air Mode + "space" click = "falling" mode (player can't change orientation of flying, but it move up)
 #        Default:     1 - (Enabled)
 #                     0 - (Disabled)
 
@@ -4112,7 +4111,6 @@ AntiCheats.FakeJumper.Enabled = 1
 
 #    AntiCheats.FakeFlyingmode.Enabled
 #        Description: Enable AntiCheat.FakeFlyingmode : when player sent a move opcode with added fly flag but on server this flag doesn't restricted for player.
-#		      It's normal for Hitchhiker's Hack with Air Mode
 #        Default:     1 - (Enabled)
 #                     0 - (Disabled)
 
