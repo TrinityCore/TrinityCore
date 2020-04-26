@@ -248,6 +248,10 @@ void GameObject::RemoveFromWorld()
             if (GetMap()->ContainsGameObjectModel(*m_model))
                 GetMap()->RemoveGameObjectModel(*m_model);
 
+        // If linked trap exists, despawn it
+        if (GameObject* linkedTrap = GetLinkedTrap())
+            linkedTrap->DespawnOrUnsummon();
+
         WorldObject::RemoveFromWorld();
 
         if (m_spawnId)
@@ -848,10 +852,6 @@ void GameObject::DespawnOrUnsummon(Milliseconds const& delay, Seconds const& for
 
 void GameObject::Delete()
 {
-    // If nearby linked trap exists, despawn it
-    if (GameObject* linkedTrap = GetLinkedTrap())
-        linkedTrap->DespawnOrUnsummon();
-
     SetLootState(GO_NOT_READY);
     RemoveFromOwner();
 
