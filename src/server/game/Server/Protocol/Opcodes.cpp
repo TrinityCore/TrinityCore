@@ -608,7 +608,7 @@ void OpcodeTable::Initialize()
     /*0x1DD*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_PONG,                      STATUS_NEVER);
     /*0x1DE*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_CLEAR_COOLDOWN,            STATUS_NEVER);
     /*0x1DF*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_GAMEOBJECT_PAGETEXT,       STATUS_NEVER);
-    /*0x1E0*/ DEFINE_HANDLER(CMSG_SETSHEATHED,                             STATUS_LOGGEDIN, PROCESS_INPLACE,      &WorldSession::HandleSetSheathedOpcode         );
+    /*0x1E0*/ DEFINE_HANDLER(CMSG_SET_SHEATHED,                            STATUS_LOGGEDIN, PROCESS_INPLACE,      &WorldSession::HandleSetSheathedOpcode         );
     /*0x1E1*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_COOLDOWN_CHEAT,            STATUS_NEVER);
     /*0x1E2*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_SPELL_DELAYED,             STATUS_NEVER);
     /*0x1E3*/ DEFINE_HANDLER(CMSG_QUEST_POI_QUERY,                         STATUS_LOGGEDIN, PROCESS_INPLACE,      &WorldSession::HandleQuestPOIQuery             );
@@ -636,7 +636,7 @@ void OpcodeTable::Initialize()
     /*0x1F9*/ DEFINE_HANDLER(CMSG_GM_SET_SECURITY_GROUP,                   STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     /*0x1FA*/ DEFINE_HANDLER(CMSG_GM_NUKE,                                 STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     /*0x1FB*/ DEFINE_HANDLER(MSG_RANDOM_ROLL,                              STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleRandomRollOpcode          );
-    /*0x1FC*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_ENVIRONMENTALDAMAGELOG,    STATUS_NEVER);
+    /*0x1FC*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_ENVIRONMENTAL_DAMAGE_LOG,  STATUS_NEVER);
     /*0x1FD*/ DEFINE_HANDLER(CMSG_CHANGEPLAYER_DIFFICULTY,                 STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     /*0x1FE*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_RWHOIS,                    STATUS_NEVER);
     /*0x1FF*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_LFG_PLAYER_REWARD,         STATUS_NEVER);
@@ -761,7 +761,7 @@ void OpcodeTable::Initialize()
     /*0x276*/ DEFINE_HANDLER(MSG_QUEST_PUSH_RESULT,                        STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleQuestPushResult           );
     /*0x277*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_PLAY_MUSIC,                STATUS_NEVER);
     /*0x278*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_PLAY_OBJECT_SOUND,         STATUS_NEVER);
-    /*0x279*/ DEFINE_HANDLER(CMSG_REQUEST_PET_INFO,                        STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleRequestPetInfoOpcode      );
+    /*0x279*/ DEFINE_HANDLER(CMSG_REQUEST_PET_INFO,                        STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleRequestPetInfo);
     /*0x27A*/ DEFINE_HANDLER(CMSG_FAR_SIGHT,                               STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleFarSightOpcode            );
     /*0x27B*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_SPELLDISPELLOG,            STATUS_NEVER);
     /*0x27C*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_DAMAGE_CALC_LOG,           STATUS_NEVER);

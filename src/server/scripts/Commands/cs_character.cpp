@@ -380,7 +380,7 @@ public:
                 target->SetName(newName);
 
                 if (WorldSession* session = target->GetSession())
-                    session->KickPlayer();
+                    session->KickPlayer("HandleCharacterRenameCommand GM Command renaming character");
             }
             else
             {
@@ -865,7 +865,7 @@ public:
         {
             characterGuid = player->GetGUID();
             accountId = player->GetSession()->GetAccountId();
-            player->GetSession()->KickPlayer();
+            player->GetSession()->KickPlayer("HandleCharacterEraseCommand GM Command deleting character");
         }
         else
         {
