@@ -1253,7 +1253,7 @@ void Player::Update(uint32 p_time)
         if (p_time >= m_flyhackTimer)
         {
             if (!CheckOnFlyHack() && sWorld->getBoolConfig(CONFIG_AFH_KICK_ENABLED))
-                GetSession()->KickPlayer();
+                GetSession()->KickPlayer("AFH kicked by flyhackTimer");
 
             m_flyhackTimer = sWorld->getIntConfig(CONFIG_ANTICHEAT_FLYHACK_TIMER);
         }

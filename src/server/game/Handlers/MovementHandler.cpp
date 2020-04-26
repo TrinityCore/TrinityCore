@@ -300,7 +300,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
             AccountMgr::RecordAntiCheatLog(plrMover->GetSession()->GetAccountId(), plrMover->GetName().c_str(), plrMover->GetDescriptionACForLogs(9), plrMover->GetPositionACForLogs(), int32(realm.Id.Realm));
             if (sWorld->getBoolConfig(CONFIG_ANTICHEAT_NOFALLINGDMG_KICK_ENABLED))
             {
-                plrMover->GetSession()->KickPlayer();
+                plrMover->GetSession()->KickPlayer("Kicked by anticheat::NoFallingDamage");
                 recvData.rfinish();                     // prevent warnings spam
                 return;
             }
@@ -462,7 +462,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
                 AccountMgr::RecordAntiCheatLog(plrMover->GetSession()->GetAccountId(), plrMover->GetName().c_str(), plrMover->GetDescriptionACForLogs(6), plrMover->GetPositionACForLogs(), int32(realm.Id.Realm));
                 if (sWorld->getBoolConfig(CONFIG_ANTICHEAT_DOUBLEJUMP_ENABLED))
                 {
-                    plrMover->GetSession()->KickPlayer();
+                    plrMover->GetSession()->KickPlayer("Kicked by anticheat::DOUBLE_JUMP");
                     return;
                 }
             }
@@ -481,7 +481,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
                 AccountMgr::RecordAntiCheatLog(plrMover->GetSession()->GetAccountId(), plrMover->GetName().c_str(), plrMover->GetDescriptionACForLogs(7), plrMover->GetPositionACForLogs(), int32(realm.Id.Realm));
                 if (sWorld->getBoolConfig(CONFIG_FAKEJUMPER_KICK_ENABLED))
                 {
-                    plrMover->GetSession()->KickPlayer();
+                    plrMover->GetSession()->KickPlayer("Kicked by anticheat::Fake_Jumper");
                     return;
                 }
             }
@@ -494,7 +494,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
             AccountMgr::RecordAntiCheatLog(plrMover->GetSession()->GetAccountId(), plrMover->GetName().c_str(), plrMover->GetDescriptionACForLogs(8), plrMover->GetPositionACForLogs(), int32(realm.Id.Realm));
             if (sWorld->getBoolConfig(CONFIG_FAKEFLYINGMODE_KICK_ENABLED))
             {
-                plrMover->GetSession()->KickPlayer();
+                plrMover->GetSession()->KickPlayer("Kicked by anticheat::Fake_flying mode");
                 return;
             }
         }
@@ -503,7 +503,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
     /* start SpeedHack Detection */
     if (plrMover && !plrMover->CheckMovementInfo(movementInfo, jumpopcode) && sWorld->getBoolConfig(CONFIG_ASH_KICK_ENABLED))
     {
-        plrMover->GetSession()->KickPlayer();
+        plrMover->GetSession()->KickPlayer("Kicked by anticheat::ASH");
         return;
     }
 
