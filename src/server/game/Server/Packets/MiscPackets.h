@@ -21,6 +21,7 @@
 #include "Packet.h"
 #include "Position.h"
 #include "ObjectGuid.h"
+#include "Optional.h"
 #include "Weather.h"
 
 enum WeatherState : uint32;
@@ -295,6 +296,18 @@ namespace WorldPackets
             uint32 Max = 0;
             uint32 Result = 0;
             ObjectGuid Roller;
+        };
+
+        class TogglePvP final : public ClientPacket
+        {
+        public:
+            TogglePvP(WorldPacket&& packet) : ClientPacket(CMSG_TOGGLE_PVP, std::move(packet)) { }
+
+            void Read() override;
+
+            bool HasPvPStatus() const { return GetSize() == 1; }
+
+            Optional<bool> Enable;
         };
 
         class UITime final : public ServerPacket
