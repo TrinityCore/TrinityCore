@@ -814,6 +814,31 @@ namespace Trinity
             NearestGameObjectEntryInObjectRangeCheck(NearestGameObjectEntryInObjectRangeCheck const&) = delete;
     };
 
+    // Success at unit in range, range update for next check (this can be use with GameobjectLastSearcher to find nearest unspawned GO)
+    class NearestUnspawnedGameObjectEntryInObjectRangeCheck
+    {
+    public:
+        NearestUnspawnedGameObjectEntryInObjectRangeCheck(WorldObject const& obj, uint32 entry, float range) : i_obj(obj), i_entry(entry), i_range(range) { }
+
+        bool operator()(GameObject* go)
+        {
+            if (!go->isSpawned() && go->GetEntry() == i_entry && go->GetGUID() != i_obj.GetGUID() && i_obj.IsWithinDistInMap(go, i_range))
+            {
+                i_range = i_obj.GetDistance(go);        // use found GO range as new range limit for next check
+                return true;
+            }
+            return false;
+        }
+
+    private:
+        WorldObject const& i_obj;
+        uint32 i_entry;
+        float  i_range;
+
+        // prevent clone this object
+        NearestUnspawnedGameObjectEntryInObjectRangeCheck(NearestUnspawnedGameObjectEntryInObjectRangeCheck const&) = delete;
+    };
+
     // Success at unit in range, range update for next check (this can be use with GameobjectLastSearcher to find nearest GO with a certain type)
     class NearestGameObjectTypeInObjectRangeCheck
     {

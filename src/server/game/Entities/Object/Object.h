@@ -578,6 +578,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         Creature*   FindNearestCreature(uint32 entry, float range, bool alive = true) const;
         GameObject* FindNearestGameObject(uint32 entry, float range) const;
+        GameObject* FindNearestUnspawnedGameObject(uint32 entry, float range) const;
         GameObject* FindNearestGameObjectOfType(GameobjectTypes type, float range) const;
         Player* SelectNearestPlayer(float distance) const;
 
