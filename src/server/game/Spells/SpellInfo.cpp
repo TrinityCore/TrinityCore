@@ -2270,6 +2270,9 @@ void SpellInfo::_LoadSpellDiminishInfo()
                 // Screams of the Dead (King Ymiron)
                 else if (Id == 51750)
                     return DIMINISHING_NONE;
+                // Crystallize (Keristrasza heroic)
+                else if (Id == 48179)
+                    return DIMINISHING_NONE;
                 break;
             }
             // Event spells
