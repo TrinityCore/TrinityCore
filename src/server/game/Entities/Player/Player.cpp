@@ -3621,7 +3621,7 @@ void Player::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
 
 UF::UpdateFieldFlag Player::GetUpdateFieldFlagsFor(Player const* target) const
 {
-    EnumClassFlag<UF::UpdateFieldFlag> flags = Unit::GetUpdateFieldFlagsFor(target);
+    UF::UpdateFieldFlag flags = Unit::GetUpdateFieldFlagsFor(target);
     if (IsInSameRaidWith(target))
         flags |= UF::UpdateFieldFlag::PartyMember;
 

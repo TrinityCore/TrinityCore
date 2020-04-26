@@ -1147,7 +1147,7 @@ void AuctionHouseObject::Update()
 }
 
 void AuctionHouseObject::BuildListBuckets(WorldPackets::AuctionHouse::AuctionListBucketsResult& listBucketsResult, Player* player,
-    std::wstring const& name, uint8 minLevel, uint8 maxLevel, EnumClassFlag<AuctionHouseFilterMask> filters, Optional<AuctionSearchClassFilters> const& classFilters,
+    std::wstring const& name, uint8 minLevel, uint8 maxLevel, EnumFlag_t<AuctionHouseFilterMask> filters, Optional<AuctionSearchClassFilters> const& classFilters,
     uint8 const* knownPetBits, std::size_t knownPetBitsCount, uint8 maxKnownPetLevel, uint32 offset, WorldPackets::AuctionHouse::AuctionSortDef const* sorts, std::size_t sortCount)
 {
     std::unordered_set<uint32> knownAppearanceIds;

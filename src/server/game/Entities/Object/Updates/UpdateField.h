@@ -819,4 +819,6 @@ namespace UF
     };
 }
 
+namespace EnumFlag { template<> struct IsFlag<UF::UpdateFieldFlag> : std::true_type { }; }
+
 #endif // UpdateField_h__

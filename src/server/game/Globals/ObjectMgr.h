@@ -1338,8 +1338,7 @@ class TC_GAME_API ObjectMgr
         template<HighGuid type>
         inline ObjectGuidGeneratorBase& GetGenerator()
         {
-            static_assert(ObjectGuidTraits<type>::SequenceSource.HasFlag(ObjectGuidSequenceSource::Global)
-                || ObjectGuidTraits<type>::SequenceSource.HasFlag(ObjectGuidSequenceSource::Realm),
+            static_assert(ObjectGuidTraits<type>::SequenceSource.HasFlag(ObjectGuidSequenceSource::Global | ObjectGuidSequenceSource::Realm),
                 "Only global guid can be generated in ObjectMgr context");
             return GetGuidSequenceGenerator<type>();
         }

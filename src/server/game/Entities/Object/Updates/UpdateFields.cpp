@@ -30,14 +30,14 @@
 
 namespace UF
 {
-void ObjectData::WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Object const* owner, Player const* receiver) const
+void ObjectData::WriteCreate(ByteBuffer& data, EnumFlag_t<UpdateFieldFlag> fieldVisibilityFlags, Object const* owner, Player const* receiver) const
 {
     data << int32(EntryID);
     data << uint32(ViewerDependentValue<DynamicFlagsTag>::GetValue(DynamicFlags, owner, receiver));
     data << float(Scale);
 }
 
-void ObjectData::WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Object const* owner, Player const* receiver) const
+void ObjectData::WriteUpdate(ByteBuffer& data, EnumFlag_t<UpdateFieldFlag> fieldVisibilityFlags, Object const* owner, Player const* receiver) const
 {
     WriteUpdate(data, _changesMask, false, owner, receiver);
 }
@@ -185,7 +185,7 @@ void SocketedGem::ClearChangesMask()
     _changesMask.ResetAll();
 }
 
-void ItemData::WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Item const* owner, Player const* receiver) const
+void ItemData::WriteCreate(ByteBuffer& data, EnumFlag_t<UpdateFieldFlag> fieldVisibilityFlags, Item const* owner, Player const* receiver) const
 {
     data << uint32(BonusListIDs->size());
     for (std::size_t i = 0; i < BonusListIDs->size(); ++i)
@@ -247,20 +247,20 @@ void ItemData::WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fiel
     }
 }
 
-void ItemData::WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Item const* owner, Player const* receiver) const
+void ItemData::WriteUpdate(ByteBuffer& data, EnumFlag_t<UpdateFieldFlag> fieldVisibilityFlags, Item const* owner, Player const* receiver) const
 {
     UpdateMask<40> allowedMaskForTarget({ 0xFC0149FFu, 0x000000FFu });
     AppendAllowedFieldsMaskForFlag(allowedMaskForTarget, fieldVisibilityFlags);
     WriteUpdate(data, _changesMask & allowedMaskForTarget, false, owner, receiver);
 }
 
-void ItemData::AppendAllowedFieldsMaskForFlag(UpdateMask<40>& allowedMaskForTarget, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags) const
+void ItemData::AppendAllowedFieldsMaskForFlag(UpdateMask<40>& allowedMaskForTarget, EnumFlag_t<UpdateFieldFlag> fieldVisibilityFlags) const
 {
     if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag::Owner))
         allowedMaskForTarget |= { 0x03FEB600u, 0x00000000u };
 }
 
-void ItemData::FilterDisallowedFieldsMaskForFlag(UpdateMask<40>& changesMask, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags) const
+void ItemData::FilterDisallowedFieldsMaskForFlag(UpdateMask<40>& changesMask, EnumFlag_t<UpdateFieldFlag> fieldVisibilityFlags) const
 {
     if (!fieldVisibilityFlags.HasFlag(UpdateFieldFlag::Owner))
         changesMask &= { 0xFC0149FFu, 0xFFFFFFFFu };
@@ -451,7 +451,7 @@ void ItemData::ClearChangesMask()
     _changesMask.ResetAll();
 }
 
-void ContainerData::WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Bag const* owner, Player const* receiver) const
+void ContainerData::WriteCreate(ByteBuffer& data, EnumFlag_t<UpdateFieldFlag> fieldVisibilityFlags, Bag const* owner, Player const* receiver) const
 {
     for (std::size_t i = 0; i < 36; ++i)
     {
@@ -460,7 +460,7 @@ void ContainerData::WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag>
     data << uint32(NumSlots);
 }
 
-void ContainerData::WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Bag const* owner, Player const* receiver) const
+void ContainerData::WriteUpdate(ByteBuffer& data, EnumFlag_t<UpdateFieldFlag> fieldVisibilityFlags, Bag const* owner, Player const* receiver) const
 {
     WriteUpdate(data, _changesMask, false, owner, receiver);
 }
@@ -499,7 +499,7 @@ void ContainerData::ClearChangesMask()
     _changesMask.ResetAll();
 }
 
-void AzeriteEmpoweredItemData::WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, AzeriteEmpoweredItem const* owner, Player const* receiver) const
+void AzeriteEmpoweredItemData::WriteCreate(ByteBuffer& data, EnumFlag_t<UpdateFieldFlag> fieldVisibilityFlags, AzeriteEmpoweredItem const* owner, Player const* receiver) const
 {
     for (std::size_t i = 0; i < 5; ++i)
     {
@@ -507,7 +507,7 @@ void AzeriteEmpoweredItemData::WriteCreate(ByteBuffer& data, EnumClassFlag<Updat
     }
 }
 
-void AzeriteEmpoweredItemData::WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, AzeriteEmpoweredItem const* owner, Player const* receiver) const
+void AzeriteEmpoweredItemData::WriteUpdate(ByteBuffer& data, EnumFlag_t<UpdateFieldFlag> fieldVisibilityFlags, AzeriteEmpoweredItem const* owner, Player const* receiver) const
 {
     WriteUpdate(data, _changesMask, false, owner, receiver);
 }
@@ -603,7 +603,7 @@ void SelectedAzeriteEssences::ClearChangesMask()
     _changesMask.ResetAll();
 }
 
-void AzeriteItemData::WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, AzeriteItem const* owner, Player const* receiver) const
+void AzeriteItemData::WriteCreate(ByteBuffer& data, EnumFlag_t<UpdateFieldFlag> fieldVisibilityFlags, AzeriteItem const* owner, Player const* receiver) const
 {
     if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag::Owner))
     {
@@ -630,20 +630,20 @@ void AzeriteItemData::WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFla
     }
 }
 
-void AzeriteItemData::WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, AzeriteItem const* owner, Player const* receiver) const
+void AzeriteItemData::WriteUpdate(ByteBuffer& data, EnumFlag_t<UpdateFieldFlag> fieldVisibilityFlags, AzeriteItem const* owner, Player const* receiver) const
 {
     UpdateMask<9> allowedMaskForTarget({ 0x0000000Fu });
     AppendAllowedFieldsMaskForFlag(allowedMaskForTarget, fieldVisibilityFlags);
     WriteUpdate(data, _changesMask & allowedMaskForTarget, false, owner, receiver);
 }
 
-void AzeriteItemData::AppendAllowedFieldsMaskForFlag(UpdateMask<9>& allowedMaskForTarget, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags) const
+void AzeriteItemData::AppendAllowedFieldsMaskForFlag(UpdateMask<9>& allowedMaskForTarget, EnumFlag_t<UpdateFieldFlag> fieldVisibilityFlags) const
 {
     if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag::Owner))
         allowedMaskForTarget |= { 0x000001F0u };
 }
 
-void AzeriteItemData::FilterDisallowedFieldsMaskForFlag(UpdateMask<9>& changesMask, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags) const
+void AzeriteItemData::FilterDisallowedFieldsMaskForFlag(UpdateMask<9>& changesMask, EnumFlag_t<UpdateFieldFlag> fieldVisibilityFlags) const
 {
     if (!fieldVisibilityFlags.HasFlag(UpdateFieldFlag::Owner))
         changesMask &= { 0xFFFFFE0Fu };
@@ -811,7 +811,7 @@ void PassiveSpellHistory::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, 
     data << int32(AuraSpellID);
 }
 
-void UnitData::WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Unit const* owner, Player const* receiver) const
+void UnitData::WriteCreate(ByteBuffer& data, EnumFlag_t<UpdateFieldFlag> fieldVisibilityFlags, Unit const* owner, Player const* receiver) const
 {
     data << int32(ViewerDependentValue<DisplayIDTag>::GetValue(DisplayID, owner, receiver));
     for (std::size_t i = 0; i < 2; ++i)
@@ -855,7 +855,7 @@ void UnitData::WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fiel
         data << int32(Power[i]);
         data << int32(MaxPower[i]);
     }
-    if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag::Owner) || fieldVisibilityFlags.HasFlag(UpdateFieldFlag::UnitAll))
+    if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag::Owner | UpdateFieldFlag::UnitAll))
     {
         for (std::size_t i = 0; i < 6; ++i)
         {
@@ -897,7 +897,7 @@ void UnitData::WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fiel
     data << float(NativeXDisplayScale);
     data << int32(MountDisplayID);
     data << int32(CosmeticMountDisplayID);
-    if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag::Owner) || fieldVisibilityFlags.HasFlag(UpdateFieldFlag::Empath))
+    if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag::Owner | UpdateFieldFlag::Empath))
     {
         data << float(MinDamage);
         data << float(MaxDamage);
@@ -929,7 +929,7 @@ void UnitData::WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fiel
             data << int32(StatNegBuff[i]);
         }
     }
-    if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag::Owner) || fieldVisibilityFlags.HasFlag(UpdateFieldFlag::Empath))
+    if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag::Owner | UpdateFieldFlag::Empath))
     {
         for (std::size_t i = 0; i < 7; ++i)
         {
@@ -1007,14 +1007,14 @@ void UnitData::WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fiel
     }
 }
 
-void UnitData::WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Unit const* owner, Player const* receiver) const
+void UnitData::WriteUpdate(ByteBuffer& data, EnumFlag_t<UpdateFieldFlag> fieldVisibilityFlags, Unit const* owner, Player const* receiver) const
 {
     UpdateMask<192> allowedMaskForTarget({ 0xFFFFEFFFu, 0xFC3FBFFFu, 0x0001EFFFu, 0xFFBFFFF9u, 0x003F8007u, 0x00000000u });
     AppendAllowedFieldsMaskForFlag(allowedMaskForTarget, fieldVisibilityFlags);
     WriteUpdate(data, _changesMask & allowedMaskForTarget, false, owner, receiver);
 }
 
-void UnitData::AppendAllowedFieldsMaskForFlag(UpdateMask<192>& allowedMaskForTarget, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags) const
+void UnitData::AppendAllowedFieldsMaskForFlag(UpdateMask<192>& allowedMaskForTarget, EnumFlag_t<UpdateFieldFlag> fieldVisibilityFlags) const
 {
     if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag::Owner))
         allowedMaskForTarget |= { 0x00001000u, 0x03C04000u, 0xFFFE1000u, 0x00400006u, 0xFFC07FF8u, 0xFFFFFFFFu };
@@ -1024,7 +1024,7 @@ void UnitData::AppendAllowedFieldsMaskForFlag(UpdateMask<192>& allowedMaskForTar
         allowedMaskForTarget |= { 0x00000000u, 0x03C00000u, 0x00000000u, 0x00000000u, 0x00000000u, 0x000007F8u };
 }
 
-void UnitData::FilterDisallowedFieldsMaskForFlag(UpdateMask<192>& changesMask, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags) const
+void UnitData::FilterDisallowedFieldsMaskForFlag(UpdateMask<192>& changesMask, EnumFlag_t<UpdateFieldFlag> fieldVisibilityFlags) const
 {
     if (!fieldVisibilityFlags.HasFlag(UpdateFieldFlag::Owner))
         changesMask &= { 0xFFFFEFFFu, 0xFC3FBFFFu, 0x0001EFFFu, 0xFFBFFFF9u, 0x003F8007u, 0x00000000u };
@@ -1907,7 +1907,7 @@ void ArenaCooldown::ClearChangesMask()
     _changesMask.ResetAll();
 }
 
-void PlayerData::WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Player const* owner, Player const* receiver) const
+void PlayerData::WriteCreate(ByteBuffer& data, EnumFlag_t<UpdateFieldFlag> fieldVisibilityFlags, Player const* owner, Player const* receiver) const
 {
     data << DuelArbiter;
     data << WowAccount;
@@ -1980,20 +1980,20 @@ void PlayerData::WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fi
     data.FlushBits();
 }
 
-void PlayerData::WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Player const* owner, Player const* receiver) const
+void PlayerData::WriteUpdate(ByteBuffer& data, EnumFlag_t<UpdateFieldFlag> fieldVisibilityFlags, Player const* owner, Player const* receiver) const
 {
     UpdateMask<192> allowedMaskForTarget({ 0xFFFFFFF5u, 0x000001FFu, 0x00000000u, 0x00000000u, 0x00000000u, 0xFFFFFF80u });
     AppendAllowedFieldsMaskForFlag(allowedMaskForTarget, fieldVisibilityFlags);
     WriteUpdate(data, _changesMask & allowedMaskForTarget, false, owner, receiver);
 }
 
-void PlayerData::AppendAllowedFieldsMaskForFlag(UpdateMask<192>& allowedMaskForTarget, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags) const
+void PlayerData::AppendAllowedFieldsMaskForFlag(UpdateMask<192>& allowedMaskForTarget, EnumFlag_t<UpdateFieldFlag> fieldVisibilityFlags) const
 {
     if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag::PartyMember))
         allowedMaskForTarget |= { 0x0000000Au, 0xFFFFFE00u, 0xFFFFFFFFu, 0xFFFFFFFFu, 0xFFFFFFFFu, 0x0000007Fu };
 }
 
-void PlayerData::FilterDisallowedFieldsMaskForFlag(UpdateMask<192>& changesMask, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags) const
+void PlayerData::FilterDisallowedFieldsMaskForFlag(UpdateMask<192>& changesMask, EnumFlag_t<UpdateFieldFlag> fieldVisibilityFlags) const
 {
     if (!fieldVisibilityFlags.HasFlag(UpdateFieldFlag::PartyMember))
         changesMask &= { 0xFFFFFFF5u, 0x000001FFu, 0x00000000u, 0x00000000u, 0x00000000u, 0xFFFFFF80u };
@@ -2604,7 +2604,7 @@ void QuestSession::ClearChangesMask()
     _changesMask.ResetAll();
 }
 
-void ActivePlayerData::WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Player const* owner, Player const* receiver) const
+void ActivePlayerData::WriteCreate(ByteBuffer& data, EnumFlag_t<UpdateFieldFlag> fieldVisibilityFlags, Player const* owner, Player const* receiver) const
 {
     for (std::size_t i = 0; i < 199; ++i)
     {
@@ -2847,7 +2847,7 @@ void ActivePlayerData::WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFl
     data.FlushBits();
 }
 
-void ActivePlayerData::WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Player const* owner, Player const* receiver) const
+void ActivePlayerData::WriteUpdate(ByteBuffer& data, EnumFlag_t<UpdateFieldFlag> fieldVisibilityFlags, Player const* owner, Player const* receiver) const
 {
     WriteUpdate(data, _changesMask, false, owner, receiver);
 }
@@ -3812,7 +3812,7 @@ void ActivePlayerData::ClearChangesMask()
     _changesMask.ResetAll();
 }
 
-void GameObjectData::WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, GameObject const* owner, Player const* receiver) const
+void GameObjectData::WriteCreate(ByteBuffer& data, EnumFlag_t<UpdateFieldFlag> fieldVisibilityFlags, GameObject const* owner, Player const* receiver) const
 {
     data << int32(DisplayID);
     data << uint32(SpellVisualID);
@@ -3846,7 +3846,7 @@ void GameObjectData::WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag
     }
 }
 
-void GameObjectData::WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, GameObject const* owner, Player const* receiver) const
+void GameObjectData::WriteUpdate(ByteBuffer& data, EnumFlag_t<UpdateFieldFlag> fieldVisibilityFlags, GameObject const* owner, Player const* receiver) const
 {
     WriteUpdate(data, _changesMask, false, owner, receiver);
 }
@@ -3988,7 +3988,7 @@ void GameObjectData::ClearChangesMask()
     _changesMask.ResetAll();
 }
 
-void DynamicObjectData::WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, DynamicObject const* owner, Player const* receiver) const
+void DynamicObjectData::WriteCreate(ByteBuffer& data, EnumFlag_t<UpdateFieldFlag> fieldVisibilityFlags, DynamicObject const* owner, Player const* receiver) const
 {
     data << Caster;
     data << int32(SpellXSpellVisualID);
@@ -3998,7 +3998,7 @@ void DynamicObjectData::WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldF
     data << uint8(Type);
 }
 
-void DynamicObjectData::WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, DynamicObject const* owner, Player const* receiver) const
+void DynamicObjectData::WriteUpdate(ByteBuffer& data, EnumFlag_t<UpdateFieldFlag> fieldVisibilityFlags, DynamicObject const* owner, Player const* receiver) const
 {
     WriteUpdate(data, _changesMask, false, owner, receiver);
 }
@@ -4048,7 +4048,7 @@ void DynamicObjectData::ClearChangesMask()
     _changesMask.ResetAll();
 }
 
-void CorpseData::WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Corpse const* owner, Player const* receiver) const
+void CorpseData::WriteCreate(ByteBuffer& data, EnumFlag_t<UpdateFieldFlag> fieldVisibilityFlags, Corpse const* owner, Player const* receiver) const
 {
     data << uint32(DynamicFlags);
     data << Owner;
@@ -4075,7 +4075,7 @@ void CorpseData::WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fi
     }
 }
 
-void CorpseData::WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Corpse const* owner, Player const* receiver) const
+void CorpseData::WriteUpdate(ByteBuffer& data, EnumFlag_t<UpdateFieldFlag> fieldVisibilityFlags, Corpse const* owner, Player const* receiver) const
 {
     WriteUpdate(data, _changesMask, false, owner, receiver);
 }
@@ -4256,7 +4256,7 @@ void ScaleCurve::ClearChangesMask()
     _changesMask.ResetAll();
 }
 
-void AreaTriggerData::WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, AreaTrigger const* owner, Player const* receiver) const
+void AreaTriggerData::WriteCreate(ByteBuffer& data, EnumFlag_t<UpdateFieldFlag> fieldVisibilityFlags, AreaTrigger const* owner, Player const* receiver) const
 {
     OverrideScaleCurve->WriteCreate(data, owner, receiver);
     data << Caster;
@@ -4273,7 +4273,7 @@ void AreaTriggerData::WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFla
     ExtraScaleCurve->WriteCreate(data, owner, receiver);
 }
 
-void AreaTriggerData::WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, AreaTrigger const* owner, Player const* receiver) const
+void AreaTriggerData::WriteUpdate(ByteBuffer& data, EnumFlag_t<UpdateFieldFlag> fieldVisibilityFlags, AreaTrigger const* owner, Player const* receiver) const
 {
     WriteUpdate(data, _changesMask, false, owner, receiver);
 }
@@ -4358,7 +4358,7 @@ void AreaTriggerData::ClearChangesMask()
     _changesMask.ResetAll();
 }
 
-void SceneObjectData::WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Object const* owner, Player const* receiver) const
+void SceneObjectData::WriteCreate(ByteBuffer& data, EnumFlag_t<UpdateFieldFlag> fieldVisibilityFlags, Object const* owner, Player const* receiver) const
 {
     data << int32(ScriptPackageID);
     data << uint32(RndSeedVal);
@@ -4366,7 +4366,7 @@ void SceneObjectData::WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFla
     data << uint32(SceneType);
 }
 
-void SceneObjectData::WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Object const* owner, Player const* receiver) const
+void SceneObjectData::WriteUpdate(ByteBuffer& data, EnumFlag_t<UpdateFieldFlag> fieldVisibilityFlags, Object const* owner, Player const* receiver) const
 {
     WriteUpdate(data, _changesMask, false, owner, receiver);
 }
@@ -4444,7 +4444,7 @@ void ConversationActor::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Co
     data.FlushBits();
 }
 
-void ConversationData::WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Conversation const* owner, Player const* receiver) const
+void ConversationData::WriteCreate(ByteBuffer& data, EnumFlag_t<UpdateFieldFlag> fieldVisibilityFlags, Conversation const* owner, Player const* receiver) const
 {
     data << uint32(Lines->size());
     data << int32(LastLineEndTime);
@@ -4460,7 +4460,7 @@ void ConversationData::WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFl
     }
 }
 
-void ConversationData::WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Conversation const* owner, Player const* receiver) const
+void ConversationData::WriteUpdate(ByteBuffer& data, EnumFlag_t<UpdateFieldFlag> fieldVisibilityFlags, Conversation const* owner, Player const* receiver) const
 {
     WriteUpdate(data, _changesMask, false, owner, receiver);
 }

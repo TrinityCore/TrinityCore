@@ -202,7 +202,7 @@ void PhasingHandler::OnMapChange(WorldObject* object)
     object->GetPhaseShift().UiMapPhaseIds.clear();
     object->GetSuppressedPhaseShift().VisibleMapIds.clear();
 
-    for (auto visibleMapPair : sObjectMgr->GetTerrainSwaps())
+    for (auto const& visibleMapPair : sObjectMgr->GetTerrainSwaps())
     {
         for (TerrainSwapInfo const* visibleMapInfo : visibleMapPair.second)
         {
@@ -438,9 +438,9 @@ void PhasingHandler::InitDbPhaseShift(PhaseShift& phaseShift, uint8 phaseUseFlag
     phaseShift.ClearPhases();
     phaseShift.IsDbPhaseShift = true;
 
-    EnumClassFlag<PhaseShiftFlags> flags = PhaseShiftFlags::None;
+    EnumFlag_t<PhaseShiftFlags> flags = PhaseShiftFlags::None;
     if (phaseUseFlags & PHASE_USE_FLAGS_ALWAYS_VISIBLE)
-        flags = flags | PhaseShiftFlags::AlwaysVisible | PhaseShiftFlags::Unphased;
+        flags |= PhaseShiftFlags::AlwaysVisible | PhaseShiftFlags::Unphased;
     if (phaseUseFlags & PHASE_USE_FLAGS_INVERSE)
         flags |= PhaseShiftFlags::Inverse;
 
@@ -506,7 +506,7 @@ void PhasingHandler::SetAlwaysVisible(PhaseShift& phaseShift, bool apply)
     if (apply)
         phaseShift.Flags |= PhaseShiftFlags::AlwaysVisible;
     else
-        phaseShift.Flags &= ~EnumClassFlag<PhaseShiftFlags>(PhaseShiftFlags::AlwaysVisible);
+        phaseShift.Flags &= ~PhaseShiftFlags::AlwaysVisible;
 }
 
 void PhasingHandler::SetInversed(PhaseShift& phaseShift, bool apply)
@@ -514,7 +514,7 @@ void PhasingHandler::SetInversed(PhaseShift& phaseShift, bool apply)
     if (apply)
         phaseShift.Flags |= PhaseShiftFlags::Inverse;
     else
-        phaseShift.Flags &= ~EnumClassFlag<PhaseShiftFlags>(PhaseShiftFlags::Inverse);
+        phaseShift.Flags &= PhaseShiftFlags::Inverse;
 
     phaseShift.UpdateUnphasedFlag();
 }

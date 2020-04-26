@@ -14229,7 +14229,7 @@ bool Unit::IsSplineEnabled() const
 
 UF::UpdateFieldFlag Unit::GetUpdateFieldFlagsFor(Player const* target) const
 {
-    EnumClassFlag<UF::UpdateFieldFlag> flags = UF::UpdateFieldFlag::None;
+    UF::UpdateFieldFlag flags = UF::UpdateFieldFlag::None;
     if (target == this || GetOwnerGUID() == target->GetGUID())
         flags |= UF::UpdateFieldFlag::Owner;
 

@@ -21,7 +21,7 @@
 #include "Define.h"
 #include "DatabaseEnvFwd.h"
 #include "Duration.h"
-#include "EnumClassFlag.h"
+#include "EnumFlag.h"
 #include "ItemTemplate.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
@@ -110,6 +110,8 @@ enum class AuctionHouseFilterMask : uint32
     LegendaryQuality    = 0x200,
     ArtifactQuality     = 0x400,
 };
+
+namespace EnumFlag { template<> struct IsFlag<AuctionHouseFilterMask> : std::true_type { }; }
 
 enum class AuctionHouseSortOrder : uint8
 {
@@ -204,7 +206,7 @@ struct AuctionsBucketData
     uint8 ItemClass = 0;
     uint8 ItemSubClass = 0;
     uint8 InventoryType = 0;
-    EnumClassFlag<AuctionHouseFilterMask> QualityMask = AuctionHouseFilterMask::None;
+    AuctionHouseFilterMask QualityMask = AuctionHouseFilterMask::None;
     std::array<uint32, MAX_ITEM_QUALITY> QualityCounts = { };
     uint64 MinPrice = 0; // for sort
     std::array<std::pair<uint32, uint32>, 4> ItemModifiedAppearanceId = { }; // for uncollected search
@@ -293,7 +295,7 @@ public:
     void Update();
 
     void BuildListBuckets(WorldPackets::AuctionHouse::AuctionListBucketsResult& listBucketsResult, Player* player,
-        std::wstring const& name, uint8 minLevel, uint8 maxLevel, EnumClassFlag<AuctionHouseFilterMask> filters, Optional<AuctionSearchClassFilters> const& classFilters,
+        std::wstring const& name, uint8 minLevel, uint8 maxLevel, EnumFlag_t<AuctionHouseFilterMask> filters, Optional<AuctionSearchClassFilters> const& classFilters,
         uint8 const* knownPetBits, std::size_t knownPetBitsCount, uint8 maxKnownPetLevel,
         uint32 offset, WorldPackets::AuctionHouse::AuctionSortDef const* sorts, std::size_t sortCount);
     void BuildListBuckets(WorldPackets::AuctionHouse::AuctionListBucketsResult& listBucketsResult, Player* player,
