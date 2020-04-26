@@ -14490,7 +14490,7 @@ void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target)
     updateMask.SetCount(valCount);
 
     Player* plr = GetCharmerOrOwnerPlayerOrPlayerItself();
-    if (GetOwnerOrCreatorGUID() == target->GetGUID())
+    if (GetOwnerGUID() == target->GetGUID())
         visibleFlag |= UF_FLAG_OWNER;
 
     if (HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_SPECIALINFO))
