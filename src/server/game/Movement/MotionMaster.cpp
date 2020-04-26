@@ -810,7 +810,7 @@ void MotionMaster::MoveJump(float x, float y, float z, float o, float speedXY, f
     else
     {
         TC_LOG_DEBUG("misc", "Creature (Entry: %u GUID: %u) MoveJump at point (X: %f Y: %f Z: %f) and speedXY = %f, max_height = %f",
-            _owner->GetEntry(), _owner->GetGUID().GetCounter(), x, y, z, speedXY, max_height);
+            _owner->GetEntry(), _owner->GetGUID().ToString().c_str(), x, y, z, speedXY, max_height);
         Add(new JumpMovementGenerator<Creature>(id, x, y, z, o, speedXY, max_height, hasOrientation));
     }
 }
