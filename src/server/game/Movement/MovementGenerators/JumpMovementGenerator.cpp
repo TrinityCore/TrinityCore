@@ -61,7 +61,7 @@ void JumpMovementGenerator<T>::DoInitialize(T* owner)
     init.SetVelocity(_speedXY);
     if (_hasOrientation)
         init.SetFacing(_o);
-    
+
     owner->SetIsJumping(true);
     init.Launch();
 

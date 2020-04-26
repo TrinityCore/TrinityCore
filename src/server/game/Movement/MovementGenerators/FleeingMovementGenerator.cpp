@@ -68,7 +68,7 @@ void FleeingMovementGenerator<T>::DoInitialize(T* owner)
         Position startdest;
         owner->GetPosition(startdest.m_positionX, startdest.m_positionY, startdest.m_positionZ);
         owner->GetNearPoint(owner, startdest.m_positionX, startdest.m_positionY, startdest.m_positionZ, 1.0f, owner->GetOrientation() * float(M_PI));
-    
+
         float distance = owner->GetExactDist2d(startdest.m_positionX, startdest.m_positionY);
         owner->MovePositionToFirstCollision(startdest, distance, owner->GetOrientation() * float(M_PI));
 
@@ -82,7 +82,7 @@ void FleeingMovementGenerator<T>::DoInitialize(T* owner)
             _speed = _checkspeed;
 
         init.SetVelocity(_speed);
-        
+
         int32 traveltime = init.Launch();
         owner->AddUnitState(UNIT_STATE_FLEEING_MOVE);
         _timer.Reset(traveltime);
@@ -241,7 +241,7 @@ void FleeingMovementGenerator<T>::SetTargetLocation(T* owner)
     int32 traveltime = init.Launch();
     owner->AddUnitState(UNIT_STATE_FLEEING_MOVE);
     _timer.Reset(traveltime);
-    
+
     // update position
     owner->UpdateSplinePosition();
 }
