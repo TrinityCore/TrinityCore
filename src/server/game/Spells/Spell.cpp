@@ -3244,21 +3244,21 @@ void Spell::_cast(bool skipCheck)
 
     CallScriptBeforeCastHandlers();
 
-    auto cleanupSpell = [this, modOwner](SpellCastResult res, uint32* p1 = nullptr, uint32* p2 = nullptr)
-    {
-        SendCastResult(res, p1, p2);
-        SendInterrupted(0);
-
-        if (modOwner)
-            modOwner->SetSpellModTakingSpell(this, false);
-
-        finish(false);
-        SetExecutedCurrently(false);
-    };
-
     // skip check if done already (for instant cast spells for example)
     if (!skipCheck)
     {
+        auto cleanupSpell = [this, modOwner](SpellCastResult res, uint32* p1 = nullptr, uint32* p2 = nullptr)
+        {
+            SendCastResult(res, p1, p2);
+            SendInterrupted(0);
+
+            if (modOwner)
+                modOwner->SetSpellModTakingSpell(this, false);
+
+            finish(false);
+            SetExecutedCurrently(false);
+        };
+
         uint32 param1 = 0, param2 = 0;
         SpellCastResult castResult = CheckCast(false, &param1, &param2);
         if (castResult != SPELL_CAST_OK)
@@ -3313,40 +3313,6 @@ void Spell::_cast(bool skipCheck)
                     }
                 }
             }
-        }
-    }
-
-    // check if target already has the same type, but more powerful aura
-    if (modOwner)
-    {
-        for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        {
-            if (!GetSpellInfo()->Effects[i].IsAura())
-                continue;
-
-                Unit::AuraEffectList const& auras = modOwner->GetAuraEffectsByType(SPELL_AURA_MOD_STAT);
-                for (Unit::AuraEffectList::const_iterator auraIt = auras.begin(); auraIt != auras.end(); ++auraIt)
-                {
-                    // check if both spells are in same SpellGroups
-                    if (sSpellMgr->CheckSpellGroupStackRules(GetSpellInfo(), (*auraIt)->GetSpellInfo()) == SPELL_GROUP_STACK_RULE_EXCLUSIVE_HIGHEST)
-                    {
-                        // compare new aura vs existing aura
-                        if (abs(GetSpellInfo()->Effects[i].BasePoints) < abs((*auraIt)->GetSpellInfo()->Effects[i].BasePoints))
-                        {
-                            cleanupSpell(SPELL_FAILED_AURA_BOUNCED);
-                            return;
-                        }
-                        else if (abs(GetSpellInfo()->Effects[i].BasePoints) == abs((*auraIt)->GetSpellInfo()->Effects[i].BasePoints))
-                        {
-                            // in case when baseboints match and to avoid false positive, example, spell 8097 vs 8116
-                            if (abs(GetSpellInfo()->Effects[i].MiscValue) == abs((*auraIt)->GetSpellInfo()->Effects[i].MiscValue))
-                            {
-                                cleanupSpell(SPELL_FAILED_AURA_BOUNCED);
-                                return;
-                            }
-                        }
-                    }
-                }
         }
     }
 
@@ -5426,6 +5392,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
         }
     }
 
+    uint8 approximateAuraEffectMask = 0;
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
         // for effects of spells that have only one target
@@ -5844,6 +5811,9 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
             default:
                 break;
         }
+
+        if (m_spellInfo->Effects[i].IsAura())
+            approximateAuraEffectMask |= 1 << i;
     }
 
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
@@ -5968,6 +5938,12 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
             default:
                 break;
         }
+
+        // check if target already has the same type, but more powerful aura
+        if (!m_spellInfo->IsTargetingArea())
+            if (Unit* target = m_targets.GetUnitTarget())
+                if (!target->IsHighestExclusiveAuraEffect(m_spellInfo, AuraType(m_spellInfo->Effects[i].ApplyAuraName), m_spellInfo->Effects[i].CalcValue(), approximateAuraEffectMask, false))
+                    return SPELL_FAILED_AURA_BOUNCED;
     }
 
     // check trade slot case (last, for allow catch any another cast problems)
