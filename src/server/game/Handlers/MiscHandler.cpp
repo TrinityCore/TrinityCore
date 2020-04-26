@@ -445,18 +445,10 @@ void WorldSession::HandleLogoutCancelOpcode(WorldPacket& /*recvData*/)
 void WorldSession::HandleTogglePvP(WorldPackets::Misc::TogglePvP& togglePvP)
 {
     // this opcode can be used in two ways: Either set explicit new status or toggle old status
-    if (togglePvP.HasPvPStatus())
+    if (togglePvP.Enable)
     {
-        if (togglePvP.Enable)
-        {
-            GetPlayer()->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP);
-            GetPlayer()->RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_PVP_TIMER);
-        }
-        else
-        {
-            GetPlayer()->RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP);
-            GetPlayer()->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_PVP_TIMER);
-        }
+        GetPlayer()->ApplyModFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP, *togglePvP.Enable);
+        GetPlayer()->ApplyModFlag(PLAYER_FLAGS, PLAYER_FLAGS_PVP_TIMER, !*togglePvP.Enable);
     }
     else
     {

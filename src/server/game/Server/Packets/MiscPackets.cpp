@@ -182,7 +182,7 @@ WorldPacket const* WorldPackets::Misc::UITime::Write()
 void WorldPackets::Misc::TogglePvP::Read()
 {
     if (HasPvPStatus())
-        _worldPacket >> Enable;
+        _worldPacket >> *Enable;
 }
 
 void WorldPackets::Misc::WorldTeleport::Read()

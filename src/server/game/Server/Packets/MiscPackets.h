@@ -294,7 +294,7 @@ namespace WorldPackets
 
             bool HasPvPStatus() const { return GetSize() == 1; }
 
-            bool Enable = false;
+            Optional<bool> Enable;
         };
 
         class UITime final : public ServerPacket
