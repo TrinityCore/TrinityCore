@@ -3408,21 +3408,21 @@ void Spell::_cast(bool skipCheck)
 
     CallScriptBeforeCastHandlers();
 
-    auto cleanupSpell = [this, modOwner](SpellCastResult res, int32* p1 = nullptr, int32* p2 = nullptr)
-    {
-        SendCastResult(res, p1, p2);
-        SendInterrupted(0);
-
-        if (modOwner)
-            modOwner->SetSpellModTakingSpell(this, false);
-
-        finish(false);
-        SetExecutedCurrently(false);
-    };
-
     // skip check if done already (for instant cast spells for example)
     if (!skipCheck)
     {
+        auto cleanupSpell = [this, modOwner](SpellCastResult res, int32* p1 = nullptr, int32* p2 = nullptr)
+        {
+            SendCastResult(res, p1, p2);
+            SendInterrupted(0);
+
+            if (modOwner)
+                modOwner->SetSpellModTakingSpell(this, false);
+
+            finish(false);
+            SetExecutedCurrently(false);
+        };
+
         int32 param1 = 0, param2 = 0;
         SpellCastResult castResult = CheckCast(false, &param1, &param2);
         if (castResult != SPELL_CAST_OK)
@@ -3476,40 +3476,6 @@ void Spell::_cast(bool skipCheck)
                     }
                 }
             }
-        }
-    }
-
-    // check if target already has the same type, but more powerful aura
-    if (modOwner)
-    {
-        for (SpellEffectInfo const& spellEffectInfo : GetSpellInfo()->GetEffects())
-        {
-            if (!spellEffectInfo.IsAura())
-                continue;
-
-                Unit::AuraEffectList const& auras = modOwner->GetAuraEffectsByType(SPELL_AURA_MOD_STAT);
-                for (Unit::AuraEffectList::const_iterator auraIt = auras.begin(); auraIt != auras.end(); ++auraIt)
-                {
-                    // check if both spells are in same SpellGroups
-                    if (sSpellMgr->CheckSpellGroupStackRules(GetSpellInfo(), (*auraIt)->GetSpellInfo()) == SPELL_GROUP_STACK_RULE_EXCLUSIVE_HIGHEST)
-                    {
-                        // compare new aura vs existing aura
-                        if (abs(spellEffectInfo.CalcBaseValue(m_caster, nullptr, m_castItemEntry, m_castItemLevel)) < abs((*auraIt)->GetSpellEffectInfo().CalcBaseValue(m_caster, nullptr, m_castItemEntry, m_castItemLevel)))
-                        {
-                            cleanupSpell(SPELL_FAILED_AURA_BOUNCED);
-                            return;
-                        }
-                        else if (abs(spellEffectInfo.BasePoints) == abs((*auraIt)->GetSpellEffectInfo().BasePoints))
-                        {
-                            // in case when baseboints match and to avoid false positive, example, spell 8097 vs 8116
-                            if (abs(spellEffectInfo.MiscValue) == abs((*auraIt)->GetSpellEffectInfo().MiscValue))
-                            {
-                                cleanupSpell(SPELL_FAILED_AURA_BOUNCED);
-                                return;
-                            }
-                        }
-                    }
-                }
         }
     }
 
@@ -5607,6 +5573,7 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
     if (castResult != SPELL_CAST_OK)
         return castResult;
 
+    uint32 approximateAuraEffectMask = 0;
     for (SpellEffectInfo const& spellEffectInfo : m_spellInfo->GetEffects())
     {
         // for effects of spells that have only one target
@@ -6164,6 +6131,9 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
             default:
                 break;
         }
+
+        if (spellEffectInfo.IsAura())
+            approximateAuraEffectMask |= 1 << spellEffectInfo.EffectIndex;
     }
 
     for (SpellEffectInfo const& spellEffectInfo : m_spellInfo->GetEffects())
@@ -6283,6 +6253,12 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
             default:
                 break;
         }
+
+        // check if target already has the same type, but more powerful aura
+        if (!m_spellInfo->IsTargetingArea())
+            if (Unit* target = m_targets.GetUnitTarget())
+                if (!target->IsHighestExclusiveAuraEffect(m_spellInfo, spellEffectInfo.ApplyAuraName, spellEffectInfo.CalcBaseValue(m_caster, nullptr, m_castItemEntry, m_castItemLevel), approximateAuraEffectMask, false))
+                    return SPELL_FAILED_AURA_BOUNCED;
     }
 
     // check trade slot case (last, for allow catch any another cast problems)

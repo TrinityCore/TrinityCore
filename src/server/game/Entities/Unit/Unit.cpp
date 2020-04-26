@@ -13050,39 +13050,47 @@ bool Unit::IsHighestExclusiveAura(Aura const* aura, bool removeOtherAuraApplicat
     {
         if (!aurEff)
             continue;
-        AuraType const auraType = aurEff->GetSpellEffectInfo().ApplyAuraName;
-        AuraEffectList const& auras = GetAuraEffectsByType(auraType);
-        for (Unit::AuraEffectList::const_iterator itr = auras.begin(); itr != auras.end();)
+
+        if (!IsHighestExclusiveAuraEffect(aura->GetSpellInfo(), aurEff->GetAuraType(), aurEff->GetAmount(), aura->GetEffectMask(), removeOtherAuraApplications))
+            return false;
+    }
+
+    return true;
+}
+
+bool Unit::IsHighestExclusiveAuraEffect(SpellInfo const* spellInfo, AuraType auraType, int32 effectAmount, uint32 auraEffectMask, bool removeOtherAuraApplications /*= false*/)
+{
+    AuraEffectList const& auras = GetAuraEffectsByType(auraType);
+    for (Unit::AuraEffectList::const_iterator itr = auras.begin(); itr != auras.end();)
+    {
+        AuraEffect const* existingAurEff = (*itr);
+        ++itr;
+
+        if (sSpellMgr->CheckSpellGroupStackRules(spellInfo, existingAurEff->GetSpellInfo()) == SPELL_GROUP_STACK_RULE_EXCLUSIVE_HIGHEST)
         {
-            AuraEffect const* existingAurEff = (*itr);
-            ++itr;
+            int64 diff = int64(abs(effectAmount)) - int64(abs(existingAurEff->GetAmount()));
+            if (!diff)
+                for (int32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                    diff += int64((auraEffectMask & (1 << i)) >> i) - int64((existingAurEff->GetBase()->GetEffectMask() & (1 << i)) >> i);
 
-            if (sSpellMgr->CheckSpellGroupStackRules(aura->GetSpellInfo(), existingAurEff->GetSpellInfo())
-                == SPELL_GROUP_STACK_RULE_EXCLUSIVE_HIGHEST)
+            if (diff > 0)
             {
-                int32 diff = abs(aurEff->GetAmount()) - abs(existingAurEff->GetAmount());
-                if (!diff)
-                    diff = int32(aura->GetEffectMask()) - int32(existingAurEff->GetBase()->GetEffectMask());
-
-                if (diff > 0)
+                Aura const* base = existingAurEff->GetBase();
+                // no removing of area auras from the original owner, as that completely cancels them
+                if (removeOtherAuraApplications && (!base->IsArea() || base->GetOwner() != this))
                 {
-                    Aura const* base = existingAurEff->GetBase();
-                    // no removing of area auras from the original owner, as that completely cancels them
-                    if (removeOtherAuraApplications && (!base->IsArea() || base->GetOwner() != this))
+                    if (AuraApplication* aurApp = existingAurEff->GetBase()->GetApplicationOfTarget(GetGUID()))
                     {
-                        if (AuraApplication* aurApp = existingAurEff->GetBase()->GetApplicationOfTarget(GetGUID()))
-                        {
-                            bool hasMoreThanOneEffect = base->HasMoreThanOneEffectForType(auraType);
-                            uint32 removedAuras = m_removedAurasCount;
-                            RemoveAura(aurApp);
-                            if (hasMoreThanOneEffect || m_removedAurasCount > removedAuras + 1)
-                                itr = auras.begin();
-                        }
+                        bool hasMoreThanOneEffect = base->HasMoreThanOneEffectForType(auraType);
+                        uint32 removedAuras = m_removedAurasCount;
+                        RemoveAura(aurApp);
+                        if (hasMoreThanOneEffect || m_removedAurasCount > removedAuras + 1)
+                            itr = auras.begin();
                     }
                 }
-                else if (diff < 0)
-                    return false;
             }
+            else if (diff < 0)
+                return false;
         }
     }
 
