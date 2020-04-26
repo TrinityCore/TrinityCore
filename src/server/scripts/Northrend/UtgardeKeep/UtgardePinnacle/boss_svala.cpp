@@ -117,7 +117,8 @@ enum Events
     //SACRIFICING
     EVENT_SPAWN_RITUAL_CHANNELERS,
     EVENT_RITUAL_STRIKE,
-    EVENT_RITUAL_DISARM
+    EVENT_RITUAL_DISARM,
+    EVENT_FINISH_RITUAL
 };
 
 enum Misc
@@ -244,7 +245,7 @@ class boss_svala : public CreatureScript
 
                 events.Update(diff);
 
-                if (!_sacrificed && HealthBelowPct(50))
+                if (events.IsInPhase(NORMAL) && !_sacrificed && HealthBelowPct(50))
                 {
                     _sacrificed = true;
                     events.SetPhase(SACRIFICING);
@@ -303,6 +304,7 @@ class boss_svala : public CreatureScript
                             }
                             me->RemoveAllAuras();
                             me->UpdateEntry(NPC_SVALA_SORROWGRAVE);
+                            me->SetFullHealth();
                             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                             events.ScheduleEvent(EVENT_INTRO_SVALA_TALK_1, 6s, 0, INTRO);
                             break;
@@ -344,6 +346,7 @@ class boss_svala : public CreatureScript
                             _arthasGUID.Clear();
                             events.SetPhase(NORMAL);
                             _introCompleted = true;
+                            AttackStart(me->SelectNearestPlayer(100.0f));
                             events.ScheduleEvent(EVENT_SINISTER_STRIKE, 7s, 0, NORMAL);
                             events.ScheduleEvent(EVENT_CALL_FLAMES, 10s, 20s, 0, NORMAL);
                             break;
@@ -364,6 +367,11 @@ class boss_svala : public CreatureScript
                                 DoCast(sacrificeTarget, SPELL_RITUAL_PREPARATION);
                                 SetCombatMovement(false);
                                 DoCast(me, SPELL_RITUAL_OF_THE_SWORD);
+                                me->SetControlled(true,UNIT_STATE_ROOT);
+                                me->SetDisableGravity(true);
+                                me->SetCanFly(true);
+                                me->SetHover(true);
+                                me->SetByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                             }
                             events.ScheduleEvent(EVENT_SPAWN_RITUAL_CHANNELERS, 1s, 0, SACRIFICING);
                             break;
@@ -372,6 +380,7 @@ class boss_svala : public CreatureScript
                             DoCast(me, SPELL_RITUAL_CHANNELER_2, true);
                             DoCast(me, SPELL_RITUAL_CHANNELER_3, true);
                             events.ScheduleEvent(EVENT_RITUAL_STRIKE, 2s, 0, SACRIFICING);
+                            events.ScheduleEvent(EVENT_FINISH_RITUAL, 25s, 0, SACRIFICING);
                             break;
                         case EVENT_RITUAL_STRIKE:
                             me->StopMoving();
@@ -382,6 +391,18 @@ class boss_svala : public CreatureScript
                             break;
                         case EVENT_RITUAL_DISARM:
                             DoCast(me, SPELL_RITUAL_DISARM);
+                            break;
+                        case EVENT_FINISH_RITUAL:
+                            events.SetPhase(NORMAL);
+                            me->SetControlled(false, UNIT_STATE_ROOT);
+                            me->SetDisableGravity(false);
+                            me->SetCanFly(false);
+                            summons.DespawnAll();
+                            me->RemoveByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                            me->GetMotionMaster()->MoveFall();
+                            DoZoneInCombat();
+                            me->SetReactState(REACT_AGGRESSIVE);
+                            AttackStart(me->SelectNearestPlayer(100.0f));
                             break;
                         default:
                             break;
