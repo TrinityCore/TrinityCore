@@ -155,7 +155,7 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
                     allowShortcut = true;
             }
 
-            bool transport = owner->GetTransport();
+            bool transport = owner->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
             bool success = _path->CalculatePath(x, y, z, allowShortcut);
             if (!transport)
             {
@@ -171,7 +171,7 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
                         return true;
                     }
 
-                    owner->StopMoving();
+                    return true;
                 }
             }
             else

@@ -77,9 +77,6 @@ void ChargeMovementGenerator<T>::DoInitialize(T* owner)
         init.SetFacing(*_finalOrient);
 
     owner->SetIsCharging(true);
-    // Call for creature group update
-    if (Creature* creature = owner->ToCreature())
-        creature->SignalFormationMovement(Position(_x, _y, _z), _movementId);
 }
 
 template<class T>
@@ -182,9 +179,6 @@ void ChargePathMovementGenerator<T>::DoInitialize(T* owner)
     init.Launch();
 
     owner->SetIsCharging(true);
-    // Call for creature group update
-    if (Creature* creature = owner->ToCreature())
-        creature->SignalFormationMovement(Position(_x, _y, _z), _movementId);
 }
 
 template<class T>
