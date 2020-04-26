@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "Player.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
