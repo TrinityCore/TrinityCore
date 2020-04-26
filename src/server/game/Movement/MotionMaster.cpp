@@ -754,7 +754,7 @@ void MotionMaster::MoveKnockbackFrom(float srcX, float srcY, float speedXY, floa
     _owner->UpdateAllowedPositionZ(x, y, z);
     z += 0.5f;
 
-    TC_LOG_DEBUG("misc", "Creature (Entry: %u GUID: %u) (X: %f Y: %f Z: %f) MoveKnockbackFrom at point (X: %f Y: %f Z: %f) and speedXY = %f, max_height = %f",
+    TC_LOG_DEBUG("misc", "Creature (Entry: %u GUID: %s) (X: %f Y: %f Z: %f) MoveKnockbackFrom at point (X: %f Y: %f Z: %f) and speedXY = %f, max_height = %f",
         _owner->GetEntry(), _owner->GetGUID().ToString().c_str(), _owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ(), x, y, z, speedXY, max_height);
     Add(new JumpMovementGenerator<Creature>(EVENT_JUMP, x, y, z, 0.0f, speedXY, max_height + _owner->GetCollisionHeight(), false, true));
 }
@@ -801,7 +801,7 @@ void MotionMaster::MoveJump(float x, float y, float z, float o, float speedXY, f
 
     if (_owner->GetTypeId() == TYPEID_PLAYER)
     {
-        TC_LOG_DEBUG("misc", "Player (GUID: %u) MoveJump at point (X: %f Y: %f Z: %f) and speedXY = %f, max_height = %f",
+        TC_LOG_DEBUG("misc", "Player (GUID: %s) MoveJump at point (X: %f Y: %f Z: %f) and speedXY = %f, max_height = %f",
             _owner->GetGUID().ToString().c_str(), x, y, z, speedXY, max_height);
         _owner->ToPlayer()->SetUnderACKmount();
         _owner->ToPlayer()->SetSkipOnePacketForASH(true);
@@ -809,7 +809,7 @@ void MotionMaster::MoveJump(float x, float y, float z, float o, float speedXY, f
     }
     else
     {
-        TC_LOG_DEBUG("misc", "Creature (Entry: %u GUID: %u) MoveJump at point (X: %f Y: %f Z: %f) and speedXY = %f, max_height = %f",
+        TC_LOG_DEBUG("misc", "Creature (Entry: %u GUID: %s) MoveJump at point (X: %f Y: %f Z: %f) and speedXY = %f, max_height = %f",
             _owner->GetEntry(), _owner->GetGUID().ToString().c_str(), x, y, z, speedXY, max_height);
         Add(new JumpMovementGenerator<Creature>(id, x, y, z, o, speedXY, max_height, hasOrientation));
     }
