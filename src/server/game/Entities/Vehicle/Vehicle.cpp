@@ -76,8 +76,6 @@ Vehicle::~Vehicle()
 
 void Vehicle::Install()
 {
-    _me->UpdateDisplayPower();
-
     if (_me->IsCreature())
     {
         switch (_vehicleInfo->PowerDisplayID[0])
