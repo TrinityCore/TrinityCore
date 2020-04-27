@@ -20,80 +20,85 @@
 
 #include <type_traits>
 
-namespace EnumFlag
+template<typename T>
+constexpr bool IsEnumFlag(T) { return false; }
+
+#define DEFINE_ENUM_FLAG(enumType) constexpr bool IsEnumFlag(enumType) { return true; }
+
+namespace EnumTraits
 {
     template<typename T>
-    struct IsFlag : std::false_type { };
+    using IsFlag = std::integral_constant<bool, IsEnumFlag(T{})>;
 }
 
-template<typename T, std::enable_if_t<EnumFlag::IsFlag<T>::value, std::nullptr_t> = nullptr>
+template<typename T, std::enable_if_t<EnumTraits::IsFlag<T>::value, std::nullptr_t> = nullptr>
 inline constexpr T operator&(T left, T right)
 {
     return static_cast<T>(static_cast<std::underlying_type_t<T>>(left) & static_cast<std::underlying_type_t<T>>(right));
 }
 
-template<typename T, std::enable_if_t<EnumFlag::IsFlag<T>::value, std::nullptr_t> = nullptr>
+template<typename T, std::enable_if_t<EnumTraits::IsFlag<T>::value, std::nullptr_t> = nullptr>
 inline constexpr T& operator&=(T& left, T right)
 {
     return left = left & right;
 }
 
-template<typename T, std::enable_if_t<EnumFlag::IsFlag<T>::value, std::nullptr_t> = nullptr>
+template<typename T, std::enable_if_t<EnumTraits::IsFlag<T>::value, std::nullptr_t> = nullptr>
 inline constexpr T operator|(T left, T right)
 {
     return static_cast<T>(static_cast<std::underlying_type_t<T>>(left) | static_cast<std::underlying_type_t<T>>(right));
 }
 
-template<typename T, std::enable_if_t<EnumFlag::IsFlag<T>::value, std::nullptr_t> = nullptr>
+template<typename T, std::enable_if_t<EnumTraits::IsFlag<T>::value, std::nullptr_t> = nullptr>
 inline constexpr T& operator|=(T& left, T right)
 {
     return left = left | right;
 }
 
-template<typename T, std::enable_if_t<EnumFlag::IsFlag<T>::value, std::nullptr_t> = nullptr>
+template<typename T, std::enable_if_t<EnumTraits::IsFlag<T>::value, std::nullptr_t> = nullptr>
 inline constexpr T operator~(T value)
 {
     return static_cast<T>(~static_cast<std::underlying_type_t<T>>(value));
 }
 
 template<typename T>
-class EnumFlag_t
+class EnumFlag
 {
-    static_assert(EnumFlag::IsFlag<T>::value, "EnumFlag_t must be used only with enums that are specify EnumFlag::IsFlag");
+    static_assert(EnumTraits::IsFlag<T>::value, "EnumFlag must be used only with enums that are specify EnumFlag::IsFlag");
 
 public:
-    /*implicit*/ constexpr EnumFlag_t(T value) : _value(value)
+    /*implicit*/ constexpr EnumFlag(T value) : _value(value)
     {
     }
 
-    constexpr EnumFlag_t& operator&=(EnumFlag_t right)
+    constexpr EnumFlag& operator&=(EnumFlag right)
     {
         _value &= right._value;
         return *this;
     }
 
-    constexpr friend EnumFlag_t operator&(EnumFlag_t left, EnumFlag_t right)
+    constexpr friend EnumFlag operator&(EnumFlag left, EnumFlag right)
     {
         return left &= right;
     }
 
-    constexpr EnumFlag_t& operator|=(EnumFlag_t right)
+    constexpr EnumFlag& operator|=(EnumFlag right)
     {
         _value |= right._value;
         return *this;
     }
 
-    constexpr friend EnumFlag_t operator|(EnumFlag_t left, EnumFlag_t right)
+    constexpr friend EnumFlag operator|(EnumFlag left, EnumFlag right)
     {
         return left |= right;
     }
 
-    constexpr EnumFlag_t operator~() const
+    constexpr EnumFlag operator~() const
     {
         return static_cast<T>(~static_cast<std::underlying_type_t<T>>(_value));
     }
 
-    constexpr void RemoveFlag(EnumFlag_t flag)
+    constexpr void RemoveFlag(EnumFlag flag)
     {
         _value &= ~flag._value;
     }

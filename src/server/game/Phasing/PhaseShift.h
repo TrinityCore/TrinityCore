@@ -48,11 +48,8 @@ enum class PhaseFlags : uint16
     Personal    = 0x2
 };
 
-namespace EnumFlag
-{
-    template<> struct IsFlag<PhaseShiftFlags> : std::true_type { };
-    template<> struct IsFlag<PhaseFlags> : std::true_type { };
-}
+DEFINE_ENUM_FLAG(PhaseShiftFlags);
+DEFINE_ENUM_FLAG(PhaseFlags);
 
 class TC_GAME_API PhaseShift
 {
@@ -63,7 +60,7 @@ public:
             : Id(id), Flags(flags), References(0), AreaConditions(conditions) { }
 
         uint16 Id;
-        EnumFlag_t<PhaseFlags> Flags;
+        EnumFlag<PhaseFlags> Flags;
         int32 References;
         std::vector<Condition*> const* AreaConditions;
         bool operator<(PhaseRef const& right) const { return Id < right.Id; }
@@ -113,7 +110,7 @@ public:
 protected:
     friend class PhasingHandler;
 
-    EnumFlag_t<PhaseShiftFlags> Flags;
+    EnumFlag<PhaseShiftFlags> Flags;
     ObjectGuid PersonalGuid;
     PhaseContainer Phases;
     VisibleMapIdContainer VisibleMapIds;

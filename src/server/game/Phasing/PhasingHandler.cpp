@@ -438,7 +438,7 @@ void PhasingHandler::InitDbPhaseShift(PhaseShift& phaseShift, uint8 phaseUseFlag
     phaseShift.ClearPhases();
     phaseShift.IsDbPhaseShift = true;
 
-    EnumFlag_t<PhaseShiftFlags> flags = PhaseShiftFlags::None;
+    EnumFlag<PhaseShiftFlags> flags = PhaseShiftFlags::None;
     if (phaseUseFlags & PHASE_USE_FLAGS_ALWAYS_VISIBLE)
         flags |= PhaseShiftFlags::AlwaysVisible | PhaseShiftFlags::Unphased;
     if (phaseUseFlags & PHASE_USE_FLAGS_INVERSE)

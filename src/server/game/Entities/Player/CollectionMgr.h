@@ -62,9 +62,9 @@ enum class ToyFlags : uint32
     HasFanfare  = 0x02
 };
 
-namespace EnumFlag { template<> struct IsFlag<ToyFlags> : std::true_type { }; }
+DEFINE_ENUM_FLAG(ToyFlags);
 
-typedef std::map<uint32, EnumFlag_t<ToyFlags>> ToyBoxContainer;
+typedef std::map<uint32, EnumFlag<ToyFlags>> ToyBoxContainer;
 typedef std::map<uint32, HeirloomData> HeirloomContainer;
 
 enum MountStatusFlags : uint8

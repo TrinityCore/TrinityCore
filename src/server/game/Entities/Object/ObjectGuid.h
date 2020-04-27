@@ -131,7 +131,7 @@ enum class ObjectGuidSequenceSource
     Map     = 0x4
 };
 
-namespace EnumFlag { template<> struct IsFlag<ObjectGuidSequenceSource> : std::true_type { }; }
+DEFINE_ENUM_FLAG(ObjectGuidSequenceSource);
 
 enum class ObjectGuidFormatType
 {
@@ -156,14 +156,14 @@ enum class ObjectGuidFormatType
 template<HighGuid high>
 struct ObjectGuidTraits
 {
-    static constexpr EnumFlag_t<ObjectGuidSequenceSource> SequenceSource = ObjectGuidSequenceSource::None;
+    static constexpr EnumFlag<ObjectGuidSequenceSource> SequenceSource = ObjectGuidSequenceSource::None;
     using Format = std::integral_constant<ObjectGuidFormatType, ObjectGuidFormatType::Null>;
 };
 
 #define MAKE_GUID_TRAIT(high, sequence, format) \
     template<> struct ObjectGuidTraits<high> \
     { \
-        static constexpr EnumFlag_t<ObjectGuidSequenceSource> SequenceSource = sequence; \
+        static constexpr EnumFlag<ObjectGuidSequenceSource> SequenceSource = sequence; \
         using Format = std::integral_constant<ObjectGuidFormatType, format>; \
     }
 
