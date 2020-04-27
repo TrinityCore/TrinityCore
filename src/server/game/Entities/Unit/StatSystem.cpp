@@ -924,7 +924,7 @@ void Creature::UpdatePowerRegeneration(Powers powerType)
             // Regeneration for controlled units
             if (GetCharmerGUID() || GetOwnerGUID())
             {
-                float spiritRegen = (GetStat(STAT_SPIRIT) / 5.f + 17.f) * sWorld->getRate(RATE_POWER_MANA);
+                float spiritRegen = (GetStat(STAT_SPIRIT) / 5.f + 17.f);
                 SetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, spiritRegen + powerRegenMod);
                 SetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER, powerRegenMod);
             }
