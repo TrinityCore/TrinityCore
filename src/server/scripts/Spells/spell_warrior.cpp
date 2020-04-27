@@ -746,7 +746,7 @@ class spell_warr_victory_rush : public SpellScript
         SetEffectValue(CalculatePct(GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK), GetSpellInfo()->Effects[EFFECT_0].CalcValue()));
     }
 
-    void HandleImpendingVictoryHeal(SpellEffIndex /*effIndex*/)
+    void HandleImpendingVictoryHeal(SpellEffIndex effIndex)
     {
         if (Unit* caster = GetCaster())
         {
@@ -761,6 +761,8 @@ class spell_warr_victory_rush : public SpellScript
 
                 SetEffectValue(damage);
             }
+            else
+                SetEffectValue(GetSpellInfo()->Effects[effIndex].CalcValue());
 
             caster->RemoveAurasDueToSpell(SPELL_WARRIOR_VICTORIOUS);
             caster->RemoveAurasDueToSpell(SPELL_WARRIOR_VICTORIOUS_IMPENDING_VICTORY);

@@ -5674,12 +5674,6 @@ void SpellMgr::LoadSpellInfoCorrections()
        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(2); // 5 yards (combat range)
     });
 
-    // Victory Rush
-    ApplySpellFix({ 34428 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->AttributesEx2 |= SPELL_ATTR2_CANT_CRIT;
-    });
-
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
     {
         SpellInfo* spellInfo = mSpellInfoMap[i];
