@@ -1057,7 +1057,7 @@ class TC_GAME_API Unit : public WorldObject
         void ClearUnitState(uint32 f) { m_state &= ~f; }
         bool CanFreeMove() const;
 
-        virtual void UpdatePowerRegeneration(Powers powerType) { }
+        virtual void UpdatePowerRegeneration(Powers /*powerType*/) { }
 
         uint32 HasUnitTypeMask(uint32 mask) const { return mask & m_unitTypeMask; }
         void AddUnitTypeMask(uint32 mask) { m_unitTypeMask |= mask; }
@@ -1123,6 +1123,8 @@ class TC_GAME_API Unit : public WorldObject
         int32 ModifyPower(Powers power, int32 val);
         int32 ModifyPowerPct(Powers power, float pct, bool apply = true);
         float GetPowerRegen(Powers powerType, bool isInCombat) const;
+
+        virtual void RegenerateHealth() { }
 
         uint32 GetAttackTime(WeaponAttackType att) const;
         void SetAttackTime(WeaponAttackType att, uint32 val) { SetFloatValue(UNIT_FIELD_BASEATTACKTIME+att, val*m_modAttackSpeedPct[att]); }
@@ -2006,6 +2008,7 @@ class TC_GAME_API Unit : public WorldObject
         uint32 _powerBarId;
         float _powerFraction[MAX_POWERS_PER_CLASS];
         int32 _regenerationTimer;
+        int32 _healthRegenerationTimer;
 
         bool IsAlwaysVisibleFor(WorldObject const* seer) const override;
         bool IsAlwaysDetectableFor(WorldObject const* seer) const override;

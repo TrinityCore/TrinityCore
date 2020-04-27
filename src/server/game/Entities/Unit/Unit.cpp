@@ -416,7 +416,8 @@ Unit::Unit(bool isWorldObject) :
     for (uint8 i = 0; i < MAX_POWERS_PER_CLASS; ++i)
         _powerFraction[i] = 0;
 
-    _regenerationTimer = 0;
+    _regenerationTimer = GetRegenerationInterval();
+    _healthRegenerationTimer = UNIT_HEALTH_REGENERATION_INTERVAL;
 
     _oldFactionId = 0;
     _isWalkingBeforeCharm = false;
@@ -554,6 +555,14 @@ void Unit::Update(uint32 p_time)
         _regenerationTimer -= (GetRegenerationInterval() - p_time);
     else
         _regenerationTimer += p_time;
+
+    // Update Health Regeneration
+    _healthRegenerationTimer -= p_time;
+    if (_healthRegenerationTimer <= 0)
+    {
+        RegenerateHealth();
+        _healthRegenerationTimer += UNIT_HEALTH_REGENERATION_INTERVAL;
+    }
 }
 
 bool Unit::haveOffhandWeapon() const

@@ -1515,7 +1515,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SendTalentWipeConfirm(ObjectGuid guid) const;
         void ResetPetTalents();
         void RegenerateAll(uint32 diff);
-        void RegenerateHealth();
+        void RegenerateHealth() override;
         void SetRegenerationTimer(uint32 time) { _regenerationTimer = time;}
         void setWeaponChangeTimer(uint32 time) { m_weaponChangeTimer = time;}
 

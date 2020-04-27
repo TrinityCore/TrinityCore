@@ -212,7 +212,6 @@ m_formation(nullptr), m_triggerJustAppeared(true), m_respawnCompatibilityMode(fa
 
     DisableReputationGain = false;
 
-    _healthRegenerationTimer = UNIT_HEALTH_REGENERATION_INTERVAL;
     m_SightDistance = sWorld->getFloatConfig(CONFIG_SIGHT_MONSTER);
     m_CombatDistance = 0;//MELEE_RANGE;
 
@@ -773,19 +772,6 @@ void Creature::Update(uint32 diff)
             if (!IsAlive())
                 break;
 
-            _healthRegenerationTimer -= diff;
-            if (_healthRegenerationTimer <= 0)
-            {
-                bool isInCombat = IsInCombat() && (!GetVictim() ||                             // if IsInCombat() is true and this has no victim
-                    !EnsureVictim()->GetCharmerOrOwnerPlayerOrPlayerItself() ||                // or the victim/owner/charmer is not a player
-                    !EnsureVictim()->GetCharmerOrOwnerPlayerOrPlayerItself()->IsGameMaster()); // or the victim/owner/charmer is not a GameMaster
-
-                if (!IsInEvadeMode() && (!isInCombat || IsPolymorphed() || CanNotReachTarget())) // regenerate health if not in combat or if polymorphed
-                    RegenerateHealth();
-
-                _healthRegenerationTimer += UNIT_HEALTH_REGENERATION_INTERVAL;
-            }
-
             if (HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER))
                 Regenerate(GetPowerType(), diff);
 
@@ -813,6 +799,13 @@ void Creature::Update(uint32 diff)
 void Creature::RegenerateHealth()
 {
     if (!isRegeneratingHealth())
+        return;
+
+    bool isInCombat = IsInCombat() && (!GetVictim() ||                             // if IsInCombat() is true and this has no victim
+        !EnsureVictim()->GetCharmerOrOwnerPlayerOrPlayerItself() ||                // or the victim/owner/charmer is not a player
+        !EnsureVictim()->GetCharmerOrOwnerPlayerOrPlayerItself()->IsGameMaster()); // or the victim/owner/charmer is not a GameMaster
+
+    if (IsInEvadeMode() || (isInCombat && !IsPolymorphed() && !CanNotReachTarget())) // regenerate health if not in combat or if polymorphed
         return;
 
     uint32 curValue = GetHealth();

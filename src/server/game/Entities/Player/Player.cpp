@@ -1883,6 +1883,10 @@ void Player::RegenerateAll(uint32 diff)
 
 void Player::RegenerateHealth()
 {
+    // Do not regenerate health when in combat, when not polymorphed or when any regeneration aura allows it
+    if (IsInCombat() && !IsPolymorphed() && !m_baseHealthRegen && !HasAuraType(SPELL_AURA_MOD_REGEN_DURING_COMBAT) && !HasAuraType(SPELL_AURA_MOD_HEALTH_REGEN_IN_COMBAT))
+        return;
+
     uint32 curValue = GetHealth();
     uint32 maxValue = GetMaxHealth();
 
