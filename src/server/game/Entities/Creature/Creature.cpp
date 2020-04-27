@@ -1694,7 +1694,8 @@ bool Creature::CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, Creatu
     }
 
     if (vehId)
-        CreateVehicleKit(vehId, entry, true);
+        if (CreateVehicleKit(vehId, entry, true))
+            UpdateDisplayPower();
 
     return true;
 }
