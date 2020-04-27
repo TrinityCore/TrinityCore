@@ -4623,13 +4623,7 @@ void Player::ResurrectPlayer(float restore_percent, bool applySickness)
     //for each level they are above 10.
     //Characters level 20 and up suffer from ten minutes of sickness.
     int32 startLevel = sWorld->getIntConfig(CONFIG_DEATH_SICKNESS_LEVEL);
-    const ChrRacesEntry* raceEntry = sChrRacesStore.LookupEntry(GetRace());
-
-    if (!raceEntry)
-    {
-        TC_LOG_ERROR("entities.player", "Player::ResurrectPlayer: Error loading race entry for player '%s' (%s)", GetName().c_str(), GetGUID().ToString().c_str());
-        return;
-    }
+    ChrRacesEntry const* raceEntry = sChrRacesStore.AssertEntry(GetRace());
 
     if (int32(GetLevel()) >= startLevel)
     {
@@ -18033,8 +18027,7 @@ void Player::_LoadAuras(PreparedQueryResult result, uint32 timediff)
                 continue;
             }
 
-            const ChrRacesEntry* raceEntry = sChrRacesStore.LookupEntry(GetRace());
-            ASSERT_NOTNULL(raceEntry);
+            const ChrRacesEntry* raceEntry = sChrRacesStore.AssertEntry(GetRace());
 
             // negative effects should continue counting down after logout
             if (remaintime != -1 && ((!spellInfo->IsPositive() && spellInfo->Id != raceEntry->ResSicknessSpellID) || spellInfo->HasAttribute(SPELL_ATTR4_FADES_WHILE_LOGGED_OUT))) // Resurrection sickness should not fade while logged out
