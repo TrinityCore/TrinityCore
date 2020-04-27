@@ -307,7 +307,8 @@ class boss_svala : public CreatureScript
                             me->UpdateEntry(NPC_SVALA_SORROWGRAVE);
                             me->SetFullHealth();
                             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                            events.ScheduleEvent(EVENT_INTRO_SVALA_TALK_1, 6s, 0, INTRO);
+                            me->SetByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                            events.ScheduleEvent(EVENT_INTRO_SVALA_TALK_1, 2s, 0, INTRO);
                             break;
                         case EVENT_INTRO_SVALA_TALK_1:
                             Talk(SAY_SVALA_INTRO_1);
@@ -347,7 +348,8 @@ class boss_svala : public CreatureScript
                             _arthasGUID.Clear();
                             events.SetPhase(NORMAL);
                             _introCompleted = true;
-                            AttackStart(me->SelectNearestPlayer(100.0f));
+                            if (Unit* target = me->SelectNearestPlayer(100.0f))
+                                AttackStart(target);
                             events.ScheduleEvent(EVENT_SINISTER_STRIKE, 7s, 0, NORMAL);
                             events.ScheduleEvent(EVENT_CALL_FLAMES, 10s, 20s, 0, NORMAL);
                             break;
@@ -371,8 +373,6 @@ class boss_svala : public CreatureScript
                                 me->SetControlled(true,UNIT_STATE_ROOT);
                                 me->SetDisableGravity(true);
                                 me->SetCanFly(true);
-                                me->SetHover(true);
-                                me->SetByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                             }
                             events.ScheduleEvent(EVENT_SPAWN_RITUAL_CHANNELERS, 1s, 0, SACRIFICING);
                             break;
@@ -399,11 +399,11 @@ class boss_svala : public CreatureScript
                             me->SetDisableGravity(false);
                             me->SetCanFly(false);
                             summons.DespawnAll();
-                            me->RemoveByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                             me->GetMotionMaster()->MoveFall();
                             DoZoneInCombat();
                             me->SetReactState(REACT_AGGRESSIVE);
-                            AttackStart(me->SelectNearestPlayer(100.0f));
+                            if (Unit* target = me->SelectNearestPlayer(100.0f))
+                                AttackStart(target);
                             break;
                         default:
                             break;
