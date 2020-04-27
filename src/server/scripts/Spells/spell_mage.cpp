@@ -1358,7 +1358,6 @@ class spell_mage_missile_barrage_proc : public AuraScript
         return true;
     }
 
-
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Unit* caster = GetTarget();
