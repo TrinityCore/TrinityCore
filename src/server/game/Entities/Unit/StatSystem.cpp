@@ -762,7 +762,7 @@ void Player::UpdatePowerRegeneration(Powers powerType)
     if (powerIndex == MAX_POWERS && powerType != POWER_RUNE)
         return;
 
-    float powerRegenMod = GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, powerType);
+    float powerRegenMod = GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, powerType) / 5.f;
     float powerRegenModPct = GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, powerType);
 
     switch (powerType)
@@ -778,20 +778,20 @@ void Player::UpdatePowerRegeneration(Powers powerType)
             if (GetStat(STAT_INTELLECT) > 0.0f)
                 spirit_regen *= std::sqrt(GetStat(STAT_INTELLECT));
 
-            // CombatRegen = 5% of Base Mana
-            float base_regen = GetCreateMana() * 0.01f + powerRegenMod / 5.0f;
+            // CombatRegen = 5% of Base Mana per five seconds
+            float base_regen = CalculatePct(GetCreateMana(), 1) + powerRegenMod;
 
             // Set regen rate in cast state apply only on spirit based regen
             int32 modManaRegenInterrupt = GetTotalAuraModifier(SPELL_AURA_MOD_MANA_REGEN_INTERRUPT);
 
             SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER + powerIndex, base_regen + CalculatePct(spirit_regen, modManaRegenInterrupt));
-            SetStatFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER + powerIndex, 0.001f + spirit_regen + base_regen);
+            SetStatFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER + powerIndex, spirit_regen + base_regen);
             break;
         }
         case POWER_RUNIC_POWER:
         case POWER_RAGE:
             // Butchery and Anger Management
-            SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER + powerIndex, powerRegenMod / 5.0f);
+            SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER + powerIndex, powerRegenMod);
             break;
         case POWER_RUNE:
         {
@@ -911,6 +911,36 @@ void Creature::UpdateMaxPower(Powers power)
     value *= GetModifierValue(unitMod, TOTAL_PCT);
 
     SetMaxPower(power, uint32(std::lroundf(value)));
+}
+
+void Creature::UpdatePowerRegeneration(Powers powerType)
+{
+    float powerRegenMod = GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, powerType) / 5.f;
+    float powerRegenModPct = GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, powerType);
+
+    switch (powerType)
+    {
+        case POWER_MANA:
+            // Regeneration for controlled units
+            if (GetCharmerGUID() || GetOwnerGUID())
+            {
+                float spiritRegen = (GetStat(STAT_SPIRIT) / 5.f + 17.f) * sWorld->getRate(RATE_POWER_MANA);
+                SetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, spiritRegen + powerRegenMod);
+                SetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER, powerRegenMod);
+            }
+            else // Default creature regeneration value.
+                SetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, 8.714059f + powerRegenMod); // Most common value in sniffs. Todo: research
+            break;
+        case POWER_ENERGY:
+        {
+            float regenerationRate = CalculatePct<float>(10, powerRegenModPct) + powerRegenMod;
+            SetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, regenerationRate);
+            SetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER, regenerationRate);
+            break;
+        }
+        default:
+            break;
+    }
 }
 
 void Creature::UpdateAttackPowerAndDamage(bool ranged)

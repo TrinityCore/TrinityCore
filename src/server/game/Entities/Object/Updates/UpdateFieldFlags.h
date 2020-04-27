@@ -31,7 +31,7 @@ enum UpdatefieldFlags
     UF_FLAG_ITEM_OWNER   = 0x010,
     UF_FLAG_SPECIAL_INFO = 0x020,
     UF_FLAG_PARTY_MEMBER = 0x040,
-    UF_FLAG_UNUSED2      = 0x080,
+    UF_FLAG_UNIT_ALL     = 0x080,
     UF_FLAG_DYNAMIC      = 0x100
 };
 

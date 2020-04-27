@@ -413,6 +413,11 @@ Unit::Unit(bool isWorldObject) :
 
     _powerBarId = 0;
 
+    for (uint8 i = 0; i < MAX_POWERS_PER_CLASS; ++i)
+        _powerFraction[i] = 0;
+
+    _regenerationTimer = 0;
+
     _oldFactionId = 0;
     _isWalkingBeforeCharm = false;
 }
@@ -543,6 +548,12 @@ void Unit::Update(uint32 p_time)
             if (ObjectGuid guid = GetChannelObjectGuid())
                 if (WorldObject* target = ObjectAccessor::GetWorldObject(*this, guid))
                     SetOrientation(GetAngle(target));
+
+    // Update Power regeneration interval
+    if (_regenerationTimer >= int32(GetRegenerationInterval()))
+        _regenerationTimer -= (GetRegenerationInterval() - p_time);
+    else
+        _regenerationTimer += p_time;
 }
 
 bool Unit::haveOffhandWeapon() const
@@ -10265,6 +10276,96 @@ int32 Unit::GetCreatePowers(Powers power) const
     return 0;
 }
 
+void Unit::Regenerate(Powers powerType, uint32 diff)
+{
+    uint32 maxValue = GetMaxPower(powerType);
+    if (!maxValue)
+        return;
+
+    uint32 curValue = GetPower(powerType);
+
+    // Block power regeneration
+    if (HasAuraTypeWithValue(SPELL_AURA_PREVENT_REGENERATE_POWER, powerType) || HasAuraType(SPELL_AURA_INTERRUPT_REGEN))
+        return;
+
+    // Skip regeneration for power type we cannot have
+    uint32 powerIndex = GetPowerIndex(powerType);
+    if (powerIndex == MAX_POWERS)
+        return;
+
+    float addValue = GetPowerRegen(powerType, IsInCombat()) * (diff / float(IN_MILLISECONDS));
+
+    // Apply config values
+    switch (powerType)
+    {
+        case POWER_MANA:
+            addValue *= sWorld->getRate(RATE_POWER_MANA);
+            break;
+        case POWER_RAGE:
+            addValue *= sWorld->getRate(RATE_POWER_RAGE_LOSS);
+            break;
+        case POWER_RUNIC_POWER:
+            addValue*= sWorld->getRate(RATE_POWER_RUNICPOWER_LOSS);
+            break;
+        case POWER_FOCUS:
+            addValue *= sWorld->getRate(RATE_POWER_FOCUS);
+            break;
+        case POWER_ENERGY:
+            addValue *= sWorld->getRate(RATE_POWER_ENERGY);
+            break;
+        default:
+            break;
+    }
+
+    if (addValue < 0.0f)
+    {
+        if (curValue == 0)
+            return;
+    }
+    else if (addValue > 0.0f)
+    {
+        if (curValue == maxValue)
+            return;
+    }
+    else
+        return;
+
+    addValue += _powerFraction[powerIndex];
+    uint32 integerValue = uint32(std::fabs(addValue));
+
+    if (addValue < 0.0f)
+    {
+        if (curValue > integerValue)
+        {
+            curValue -= integerValue;
+            _powerFraction[powerIndex] = addValue + integerValue;
+        }
+        else
+        {
+            curValue = 0;
+            _powerFraction[powerIndex] = 0;
+        }
+    }
+    else
+    {
+        curValue += integerValue;
+
+        if (curValue > maxValue)
+        {
+            curValue = maxValue;
+            _powerFraction[powerIndex] = 0;
+        }
+        else
+            _powerFraction[powerIndex] = addValue - integerValue;
+    }
+
+    // Players update their powers in 2 seconds intervals, creatures in 1 second ones
+    if (_regenerationTimer >= int32(GetRegenerationInterval()))
+        SetPower(powerType, curValue);
+    else
+        UpdateUInt32Value(UNIT_FIELD_POWER1 + powerIndex, curValue);
+}
+
 void Unit::RemoveFromWorld()
 {
     // cleanup
@@ -14499,6 +14600,9 @@ void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target)
 
     if (plr && plr->IsInSameRaidWith(target))
         visibleFlag |= UF_FLAG_PARTY_MEMBER;
+
+    if (IsCreature())
+        visibleFlag |= UF_FLAG_UNIT_ALL;
 
     Creature const* creature = ToCreature();
     for (uint16 index = 0; index < valCount; ++index)

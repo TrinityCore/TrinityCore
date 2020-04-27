@@ -21,8 +21,6 @@
 #include "PetDefines.h"
 #include "TemporarySummon.h"
 
-static constexpr uint32 const PetFocusRegenInterval = 1 * IN_MILLISECONDS;
-
 enum StableResultCode
 {
     STABLE_ERR_MONEY        = 0x01,                         // "you don't have enough money"
@@ -174,7 +172,6 @@ class TC_GAME_API Pet : public Guardian
         int32   m_duration;                                 // time until unsummon (used mostly for summoned guardians and not used for controlled pets)
         uint64  m_auraRaidUpdateMask;
         bool    m_loading;
-        int32   m_petFocusRegenTimer;
 
         DeclinedName* m_declinedname;
         uint32 m_petSlot;

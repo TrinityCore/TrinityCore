@@ -146,6 +146,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         uint32 GetPowerIndex(Powers power) const override;
         void UpdateAttackPowerAndDamage(bool ranged = false) override;
         void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& minDamage, float& maxDamage) override;
+        void UpdatePowerRegeneration(Powers powerType) override;
 
         void SetCanDualWield(bool value) override;
         int8 GetOriginalEquipmentId() const { return m_originalEquipmentId; }
@@ -319,8 +320,9 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         static float _GetDamageMod(int32 Rank);
 
-        uint32 m_regenTimer;
-        float m_SightDistance, m_CombatDistance;
+        int32 _healthRegenerationTimer;
+        float m_SightDistance;
+        float m_CombatDistance;
 
         bool m_isTempWorldObject; //true when possessed
 
@@ -369,9 +371,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         uint32 m_combatPulseDelay;                          // (secs) how often the creature puts the entire zone in combat (only works in dungeons)
 
         ReactStates m_reactState;                           // for AI, not charmInfo
-        void RegenerateMana();
         void RegenerateHealth();
-        void Regenerate(Powers power);
         MovementGeneratorType m_defaultMovementType;
         ObjectGuid::LowType m_spawnId;                               ///< For new or temporary creatures is 0 for saved it is lowguid
         uint8 m_equipmentId;

@@ -3644,12 +3644,8 @@ void AuraEffect::HandleModPowerRegen(AuraApplication const* aurApp, uint8 mode, 
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
         return;
 
-    Player* target = aurApp->GetTarget()->ToPlayer();
-    if (!target)
-        return;
-
     // Update power regen values
-    target->UpdatePowerRegeneration(Powers(GetMiscValue()));
+    aurApp->GetTarget()->UpdatePowerRegeneration(Powers(GetMiscValue()));
 }
 
 void AuraEffect::HandleModPowerRegenPCT(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -3658,7 +3654,6 @@ void AuraEffect::HandleModPowerRegenPCT(AuraApplication const* aurApp, uint8 mod
 
     if (target->GetTypeId() == TYPEID_PLAYER)
         target->ApplyPercentModFloatValue(PLAYER_FIELD_MOD_HASTE_REGEN, GetAmount(), !apply);
-
 
     HandleModPowerRegen(aurApp, mode, apply);
 }

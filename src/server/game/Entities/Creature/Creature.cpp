@@ -205,7 +205,6 @@ m_AlreadySearchedAssistance(false), m_regenHealth(true), m_cannotReachTarget(fal
 m_originalEntry(0), m_homePosition(), m_transportHomePosition(), m_creatureInfo(nullptr), m_creatureData(nullptr), _waypointPathId(0), _currentWaypointNodeInfo(0, 0),
 m_formation(nullptr), m_triggerJustAppeared(true), m_respawnCompatibilityMode(false)
 {
-    m_regenTimer = REGENERATION_INTERVAL;
     m_valuesCount = UNIT_END;
 
     for (uint8 i = 0; i < MAX_CREATURE_SPELLS; ++i)
@@ -213,6 +212,7 @@ m_formation(nullptr), m_triggerJustAppeared(true), m_respawnCompatibilityMode(fa
 
     DisableReputationGain = false;
 
+    _healthRegenerationTimer = UNIT_HEALTH_REGENERATION_INTERVAL;
     m_SightDistance = sWorld->getFloatConfig(CONFIG_SIGHT_MONSTER);
     m_CombatDistance = 0;//MELEE_RANGE;
 
@@ -248,6 +248,8 @@ void Creature::AddToWorld()
 
         if (GetZoneScript())
             GetZoneScript()->OnCreatureCreate(this);
+
+        UpdatePowerRegeneration(GetPowerType());
     }
 }
 
@@ -771,32 +773,21 @@ void Creature::Update(uint32 diff)
             if (!IsAlive())
                 break;
 
-            if (m_regenTimer > 0)
+            _healthRegenerationTimer -= diff;
+            if (_healthRegenerationTimer <= 0)
             {
-                if (diff >= m_regenTimer)
-                    m_regenTimer = 0;
-                else
-                    m_regenTimer -= diff;
-            }
+                bool isInCombat = IsInCombat() && (!GetVictim() ||                             // if IsInCombat() is true and this has no victim
+                    !EnsureVictim()->GetCharmerOrOwnerPlayerOrPlayerItself() ||                // or the victim/owner/charmer is not a player
+                    !EnsureVictim()->GetCharmerOrOwnerPlayerOrPlayerItself()->IsGameMaster()); // or the victim/owner/charmer is not a GameMaster
 
-            if (m_regenTimer == 0)
-            {
-                bool bInCombat = IsInCombat() && (!GetVictim() ||                                        // if IsInCombat() is true and this has no victim
-                                                  !EnsureVictim()->GetCharmerOrOwnerPlayerOrPlayerItself() ||                // or the victim/owner/charmer is not a player
-                                                  !EnsureVictim()->GetCharmerOrOwnerPlayerOrPlayerItself()->IsGameMaster()); // or the victim/owner/charmer is not a GameMaster
-
-                if (!IsInEvadeMode() && (!bInCombat || IsPolymorphed() || CanNotReachTarget())) // regenerate health if not in combat or if polymorphed
+                if (!IsInEvadeMode() && (!isInCombat || IsPolymorphed() || CanNotReachTarget())) // regenerate health if not in combat or if polymorphed
                     RegenerateHealth();
 
-                if (HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER))
-                {
-                    if (GetPowerType() == POWER_ENERGY)
-                        Regenerate(POWER_ENERGY);
-                    else
-                        RegenerateMana();
-                }
-                m_regenTimer = REGENERATION_INTERVAL;
+                _healthRegenerationTimer += UNIT_HEALTH_REGENERATION_INTERVAL;
             }
+
+            if (HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER))
+                Regenerate(GetPowerType(), diff);
 
             // Update serverside orientation of channeled spells that are suposed to track the channel target
             if (Spell const* spell = m_currentSpells[CURRENT_CHANNELED_SPELL])
@@ -817,38 +808,6 @@ void Creature::Update(uint32 diff)
         default:
             break;
     }
-}
-
-void Creature::RegenerateMana()
-{
-    uint32 curValue = GetPower(POWER_MANA);
-    uint32 maxValue = GetMaxPower(POWER_MANA);
-
-    if (curValue >= maxValue)
-        return;
-
-    uint32 addvalue = 0;
-
-    // Combat and any controlled creature
-    if (IsInCombat() || GetCharmerOrOwnerGUID())
-    {
-        float ManaIncreaseRate = sWorld->getRate(RATE_POWER_MANA);
-        float Spirit = GetStat(STAT_SPIRIT);
-
-        addvalue = uint32((Spirit / 5.0f + 17.0f) * ManaIncreaseRate);
-    }
-    else
-        addvalue = maxValue / 3;
-
-    // Apply modifiers (if any).
-    AuraEffectList const& ModPowerRegenPCTAuras = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
-    for (AuraEffectList::const_iterator i = ModPowerRegenPCTAuras.begin(); i != ModPowerRegenPCTAuras.end(); ++i)
-        if ((*i)->GetMiscValue() == POWER_MANA)
-            AddPct(addvalue, (*i)->GetAmount());
-
-    addvalue += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) * REGENERATION_INTERVAL / (5 * IN_MILLISECONDS);
-
-    ModifyPower(POWER_MANA, addvalue);
 }
 
 void Creature::RegenerateHealth()
@@ -876,14 +835,14 @@ void Creature::RegenerateHealth()
             addvalue = uint32(Spirit * 0.80 * HealthIncreaseRate);
     }
     else
-        addvalue = maxValue/3;
+        addvalue = maxValue / 3;
 
     // Apply modifiers (if any).
     AuraEffectList const& ModPowerRegenPCTAuras = GetAuraEffectsByType(SPELL_AURA_MOD_HEALTH_REGEN_PERCENT);
     for (AuraEffectList::const_iterator i = ModPowerRegenPCTAuras.begin(); i != ModPowerRegenPCTAuras.end(); ++i)
         AddPct(addvalue, (*i)->GetAmount());
 
-    addvalue += GetTotalAuraModifier(SPELL_AURA_MOD_REGEN) * REGENERATION_INTERVAL / (5 * IN_MILLISECONDS);
+    addvalue += GetTotalAuraModifier(SPELL_AURA_MOD_REGEN) * UNIT_HEALTH_REGENERATION_INTERVAL / (5 * IN_MILLISECONDS);
 
     ModifyHealth(addvalue);
 }

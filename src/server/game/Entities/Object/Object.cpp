@@ -748,6 +748,9 @@ uint32 Object::GetUpdateFieldData(Player const* target, uint32*& flags) const
 
             if (plr && plr->IsInSameRaidWith(target))
                 visibleFlag |= UF_FLAG_PARTY_MEMBER;
+
+            if (IsCreature())
+                visibleFlag |= UF_FLAG_UNIT_ALL;
             break;
         }
         case TYPEID_GAMEOBJECT:

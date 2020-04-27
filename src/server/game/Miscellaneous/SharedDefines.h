@@ -245,8 +245,10 @@ enum Powers
     POWER_HEALTH                        = 0xFFFFFFFE    // (-2 as signed value)
 };
 
-#define MAX_POWERS_PER_CLASS            5
-#define REGENERATION_INTERVAL           2 * IN_MILLISECONDS
+#define MAX_POWERS_PER_CLASS                5
+#define PLAYER_REGENERATION_INTERVAL        2 * IN_MILLISECONDS
+#define UNIT_REGENERATION_INTERVAL          1 * IN_MILLISECONDS
+#define UNIT_HEALTH_REGENERATION_INTERVAL   2 * IN_MILLISECONDS
 
 enum SpellSchools
 {

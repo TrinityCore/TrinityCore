@@ -1057,6 +1057,8 @@ class TC_GAME_API Unit : public WorldObject
         void ClearUnitState(uint32 f) { m_state &= ~f; }
         bool CanFreeMove() const;
 
+        virtual void UpdatePowerRegeneration(Powers powerType) { }
+
         uint32 HasUnitTypeMask(uint32 mask) const { return mask & m_unitTypeMask; }
         void AddUnitTypeMask(uint32 mask) { m_unitTypeMask |= mask; }
         bool IsSummon() const   { return (m_unitTypeMask & UNIT_MASK_SUMMON) != 0; }
@@ -1113,6 +1115,8 @@ class TC_GAME_API Unit : public WorldObject
         void SetPower(Powers power, int32 val);
         void SetMaxPower(Powers power, int32 val);
         void SetPowerBarID(uint32 id) { _powerBarId = id; }
+        void Regenerate(Powers powerType, uint32 diff);
+
         inline void SetFullPower(Powers power) { SetPower(power, GetMaxPower(power)); }
 
         // returns the change in power
@@ -1927,6 +1931,7 @@ class TC_GAME_API Unit : public WorldObject
         virtual void Whisper(uint32 textId, Player* target, bool isBossWhisper = false);
 
         float GetCollisionHeight() const override;
+
     protected:
         explicit Unit (bool isWorldObject);
 
@@ -1999,6 +2004,8 @@ class TC_GAME_API Unit : public WorldObject
         uint32 m_unitTypeMask;
         LiquidTypeEntry const* _lastLiquid;
         uint32 _powerBarId;
+        float _powerFraction[MAX_POWERS_PER_CLASS];
+        int32 _regenerationTimer;
 
         bool IsAlwaysVisibleFor(WorldObject const* seer) const override;
         bool IsAlwaysDetectableFor(WorldObject const* seer) const override;
@@ -2009,6 +2016,7 @@ class TC_GAME_API Unit : public WorldObject
         virtual void ProcessTerrainStatusUpdate(ZLiquidStatus status, Optional<LiquidData> const& liquidData);
 
         void InterruptMovementBasedAuras();
+
     private:
 
         void UpdateSplineMovement(uint32 t_diff);
@@ -2019,6 +2027,8 @@ class TC_GAME_API Unit : public WorldObject
         uint32 GetCombatRatingDamageReduction(CombatRating cr, float rate, float cap, uint32 damage) const;
 
         void ProcSkillsAndReactives(bool isVictim, Unit* procTarget, uint32 typeMask, uint32 hitMask, WeaponAttackType attType);
+
+        uint32 GetRegenerationInterval() const { return IsPlayer() ? PLAYER_REGENERATION_INTERVAL : UNIT_REGENERATION_INTERVAL; }
 
     protected:
         void SetFeared(bool apply);

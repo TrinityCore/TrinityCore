@@ -1515,7 +1515,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SendTalentWipeConfirm(ObjectGuid guid) const;
         void ResetPetTalents();
         void RegenerateAll(uint32 diff);
-        void Regenerate(Powers power, uint32 diff);
         void RegenerateHealth();
         void SetRegenerationTimer(uint32 time) { _regenerationTimer = time;}
         void setWeaponChangeTimer(uint32 time) { m_weaponChangeTimer = time;}
@@ -1837,7 +1836,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void UpdateExpertise(WeaponAttackType attType);
         void ApplyManaRegenBonus(int32 amount, bool apply);
         void ApplyHealthRegenBonus(int32 amount, bool apply);
-        void UpdatePowerRegeneration(Powers powerType);
+        void UpdatePowerRegeneration(Powers powerType) override;
         uint32 GetRuneTimer(uint8 index) const { return m_runeGraceCooldown[index]; }
         void SetRuneTimer(uint8 index, uint32 timer) { m_runeGraceCooldown[index] = timer; }
         uint32 GetLastRuneGraceTimer(uint8 index) const { return m_lastRuneGraceTimers[index]; }
@@ -2397,9 +2396,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
     protected:
         // Gamemaster whisper whitelist
         GuidList WhisperList;
-        uint32 _regenerationTimer;
         uint32 m_foodEmoteTimerCount;
-        float m_powerFraction[MAX_POWERS_PER_CLASS];
         uint32 m_contestedPvPTimer;
 
         /*********************************************************/

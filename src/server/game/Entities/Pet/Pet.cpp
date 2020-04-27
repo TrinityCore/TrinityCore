@@ -54,7 +54,6 @@ Pet::Pet(Player* owner, PetType type) :
     }
 
     m_name = "Pet";
-    m_petFocusRegenTimer = PetFocusRegenInterval;
 }
 
 Pet::~Pet()
@@ -594,54 +593,12 @@ void Pet::Update(uint32 diff)
                 }
             }
 
-            // Regenerate Focus
-            m_petFocusRegenTimer -= diff;
-            if (m_petFocusRegenTimer <= 0)
-            {
-                if (GetPowerType() == POWER_FOCUS)
-                    Regenerate(POWER_FOCUS);
-
-                m_petFocusRegenTimer += PetFocusRegenInterval;
-            }
-
             break;
         }
         default:
             break;
     }
     Creature::Update(diff);
-}
-
-void Creature::Regenerate(Powers power)
-{
-    uint32 curValue = GetPower(power);
-    uint32 maxValue = GetMaxPower(power);
-
-    if (curValue >= maxValue)
-        return;
-
-    float addvalue = 0.0f;
-
-    switch (power)
-    {
-        case POWER_FOCUS:
-            addvalue = 5 * sWorld->getRate(RATE_POWER_FOCUS);
-            break;
-        case POWER_ENERGY:
-            addvalue = 20;
-            // For Death Knight Ghouls
-            if (GetEntry() == 26125)
-                if (Unit* owner = GetOwner())
-                    AddPct(addvalue, (1.0f / owner->ToPlayer()->GetFloatValue(PLAYER_FIELD_MOD_HASTE_REGEN) - 1.0f) * 100.0f);
-            break;
-        default:
-            return;
-    }
-
-    // Apply modifiers (if any).
-    AddPct(addvalue, GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, power));
-    addvalue += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, power) * (IsHunterPet() ? PetFocusRegenInterval : REGENERATION_INTERVAL) / (5 * IN_MILLISECONDS);
-    ModifyPower(power, int32(addvalue));
 }
 
 void Pet::Remove(PetSaveMode mode, bool returnreagent)

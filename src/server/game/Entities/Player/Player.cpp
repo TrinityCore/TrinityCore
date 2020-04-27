@@ -159,7 +159,6 @@ Player::Player(WorldSession* session): Unit(true)
 
     m_comboPoints = 0;
 
-    _regenerationTimer = 0;
     m_foodEmoteTimerCount = 0;
     m_weaponChangeTimer = 0;
 
@@ -338,9 +337,6 @@ Player::Player(WorldSession* session): Unit(true)
     sWorld->IncreasePlayerCount();
 
     m_ChampioningFaction = 0;
-
-    for (uint8 i = 0; i < MAX_POWERS_PER_CLASS; ++i)
-        m_powerFraction[i] = 0;
 
     isDebugAreaTriggers = false;
 
@@ -1822,7 +1818,6 @@ bool Player::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index, Un
 
 void Player::RegenerateAll(uint32 diff)
 {
-    _regenerationTimer += diff;
     m_foodEmoteTimerCount += diff;
 
     Regenerate(POWER_ENERGY, diff);
@@ -1852,19 +1847,6 @@ void Player::RegenerateAll(uint32 diff)
             if (cd)
                 SetRuneCooldown(runeToRegen, (cd > (diff * cdmod)) ? cd - (diff * cdmod) : 0);
         }
-    }
-
-    if (_regenerationTimer >= REGENERATION_INTERVAL)
-    {
-        // Not in combat or they have regeneration
-        if (!IsInCombat() || IsPolymorphed() || m_baseHealthRegen ||
-            HasAuraType(SPELL_AURA_MOD_REGEN_DURING_COMBAT) ||
-            HasAuraType(SPELL_AURA_MOD_HEALTH_REGEN_IN_COMBAT))
-        {
-            RegenerateHealth();
-        }
-
-        _regenerationTimer -= REGENERATION_INTERVAL;
     }
 
     // Handles the emotes for drinking and eating.
@@ -1897,95 +1879,6 @@ void Player::RegenerateAll(uint32 diff)
         }
         m_foodEmoteTimerCount -= 5000;
     }
-}
-
-void Player::Regenerate(Powers power, uint32 diff)
-{
-    uint32 maxValue = GetMaxPower(power);
-    if (!maxValue)
-        return;
-
-    uint32 curValue = GetPower(power);
-
-    // Block power regeneration
-    if (HasAuraTypeWithValue(SPELL_AURA_PREVENT_REGENERATE_POWER, power) || HasAuraType(SPELL_AURA_INTERRUPT_REGEN))
-        return;
-
-    // Skip regeneration for power type we cannot have
-    uint32 powerIndex = GetPowerIndex(power);
-    if (powerIndex == MAX_POWERS)
-        return;
-
-    float addValue = GetPowerRegen(power, IsInCombat()) * (0.001f * diff);
-
-    // Apply config values
-    switch (power)
-    {
-        case POWER_MANA:
-            addValue *= sWorld->getRate(RATE_POWER_MANA);
-            break;
-        case POWER_RAGE:
-            addValue *= sWorld->getRate(RATE_POWER_RAGE_LOSS);
-            break;
-        case POWER_RUNIC_POWER:
-            addValue*= sWorld->getRate(RATE_POWER_RUNICPOWER_LOSS);
-            break;
-        case POWER_FOCUS:
-            addValue *= sWorld->getRate(RATE_POWER_FOCUS);
-            break;
-        case POWER_ENERGY:
-            addValue *= sWorld->getRate(RATE_POWER_ENERGY);
-            break;
-        default:
-            break;
-    }
-
-    if (addValue < 0.0f)
-    {
-        if (curValue == 0)
-            return;
-    }
-    else if (addValue > 0.0f)
-    {
-        if (curValue == maxValue)
-            return;
-    }
-    else
-        return;
-
-    addValue += m_powerFraction[powerIndex];
-    uint32 integerValue = uint32(std::fabs(addValue));
-
-    if (addValue < 0.0f)
-    {
-        if (curValue > integerValue)
-        {
-            curValue -= integerValue;
-            m_powerFraction[powerIndex] = addValue + integerValue;
-        }
-        else
-        {
-            curValue = 0;
-            m_powerFraction[powerIndex] = 0;
-        }
-    }
-    else
-    {
-        curValue += integerValue;
-
-        if (curValue > maxValue)
-        {
-            curValue = maxValue;
-            m_powerFraction[powerIndex] = 0;
-        }
-        else
-            m_powerFraction[powerIndex] = addValue - integerValue;
-    }
-
-    if (_regenerationTimer >= REGENERATION_INTERVAL)
-        SetPower(power, curValue);
-    else
-        UpdateUInt32Value(UNIT_FIELD_POWER1 + powerIndex, curValue);
 }
 
 void Player::RegenerateHealth()
