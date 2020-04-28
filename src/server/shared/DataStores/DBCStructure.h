@@ -493,6 +493,11 @@ struct CreatureFamilyEntry
                                                             // 27       m_iconFile
 };
 
+enum CreatureModelDataFlags
+{
+    CREATURE_MODEL_DATA_FLAGS_CAN_MOUNT = 0x00000080
+};
+
 struct CreatureModelDataEntry
 {
     uint32 Id;
@@ -513,6 +518,8 @@ struct CreatureModelDataEntry
     float CollisionHeight;
     float MountHeight;                                       // Used in calculation of unit collision data when mounted
     //float Unks[11]
+
+    inline bool HasFlag(CreatureModelDataFlags flag) const { return !!(Flags & flag); }
 };
 
 struct CreatureSpellDataEntry
