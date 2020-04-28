@@ -194,7 +194,7 @@ void TempSummon::InitStats(uint32 duration)
             owner->m_SummonSlot[slot] = GetGUID();
         }
 
-        if (m_Properties->Control == SUMMON_CATEGORY_ALLY || m_Properties->Control == SUMMON_CATEGORY_PET)
+        if (m_Properties->Control == SUMMON_CATEGORY_ALLY || m_Properties->Control == SUMMON_CATEGORY_PET || m_Properties->Control == SUMMON_CATEGORY_VEHICLE)
         {
             if (!m_Properties->Faction)
                 SetFaction(owner->GetFaction());
