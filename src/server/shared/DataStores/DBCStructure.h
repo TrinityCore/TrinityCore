@@ -392,6 +392,13 @@ struct ChrClassesEntry
     uint32  expansion;                                       // 59 (0 - original race, 1 - tbc addon, ...)
 };
 
+enum ChrRacesAllianceType
+{
+    CHRRACES_ALLIANCE_TYPE_ALLIANCE = 0,
+    CHRRACES_ALLIANCE_TYPE_HORDE = 1,
+    CHRRACES_ALLIANCE_TYPE_NOT_PLAYABLE = 2,
+};
+
 struct ChrRacesEntry
 {
     uint32      RaceID;                                     // 0
@@ -406,7 +413,7 @@ struct ChrRacesEntry
     uint32      ResSicknessSpellID;                         // 9 Blizzlike DBC always 15007.
                                                             // 10-11 unused
     uint32      CinematicSequence;                          // 12 id from CinematicSequences.dbc
-    //uint32    unk_322;                                    // 13 faction (0 alliance, 1 horde, 2 not available?)
+    uint32      Alliance;                                   // 13 faction (0 alliance, 1 horde, 2 not available?)
     char*       name[16];                                   // 14-29 used for DBC language detection/selection
                                                             // 30 string flags, unused
     //char*       nameFemale[16];                           // 31-46, if different from base (male) case
