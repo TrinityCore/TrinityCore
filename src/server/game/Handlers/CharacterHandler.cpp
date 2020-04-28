@@ -341,7 +341,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
 
     if (!HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_RACEMASK))
     {
-        if (raceEntry->Alliance == ChrRacesAllianceType::CHRRACES_ALLIANCE_TYPE_NOT_PLAYABLE)
+        if (raceEntry->Alliance == ChrRacesAllianceType::CHRRACES_ALLIANCE_TYPE_NOT_PLAYABLE || raceEntry->HasFlag(ChrRacesFlags::CHRRACES_FLAGS_NOT_PLAYABLE))
         {
             TC_LOG_ERROR("network", "Race (%u) was not playable but requested while creating new char for account (ID: %u): wrong DBC files or cheater?", createInfo->Race, GetAccountId());
             SendCharCreate(CHAR_CREATE_DISABLED);
