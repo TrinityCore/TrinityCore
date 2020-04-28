@@ -3245,12 +3245,8 @@ void Creature::ClearTextRepeatGroup(uint8 textGroup)
 
 bool Creature::CanGiveExperience() const
 {
-    CreatureTypeEntry const* creatureType = sCreatureTypeStore.AssertEntry(GetCreatureType());
-
-    if (creatureType->HasFlag(CreatureTypeEntryFlags::CREATURE_TYPE_ENTRY_FLAGS_NO_EXPERIENCE))
-        return false;
-
-    return !IsPet()
+    return !IsCritter()
+        && !IsPet()
         && !IsTotem()
         && !(GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_XP_AT_KILL);
 }

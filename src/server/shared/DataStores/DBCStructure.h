@@ -531,7 +531,7 @@ struct CreatureSpellDataEntry
 
 enum CreatureTypeEntryFlags
 {
-    CREATURE_TYPE_ENTRY_FLAGS_NO_EXPERIENCE = 0x01
+    CREATURE_TYPE_ENTRY_FLAGS_IGNORED_TAB_TARGETING = 0x01 // Means do not include in tab targeting.
 };
 
 struct CreatureTypeEntry
@@ -539,7 +539,7 @@ struct CreatureTypeEntry
     uint32    ID;                                           // 0        m_ID
     //char*   Name[16];                                     // 1-16     name
                                                             // 17       string flags
-    uint32    Flags;                                        // 18 no exp? critters, non-combat pets, gas cloud. (called Flags in struct)
+    uint32    Flags;                                        // 18 Critters, non-combat pets, gas cloud. (called Flags in struct)
 
     inline bool HasFlag(CreatureTypeEntryFlags flag) const { return !!(Flags & flag); }
 };
