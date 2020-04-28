@@ -529,12 +529,19 @@ struct CreatureSpellDataEntry
     //uint32    availability[MAX_CREATURE_SPELL_DATA_SLOT]; // 4-7      m_availability[4]
 };
 
+enum CreatureTypeEntryFlags
+{
+    CREATURE_TYPE_ENTRY_FLAGS_NO_EXPERIENCE = 0x01
+};
+
 struct CreatureTypeEntry
 {
     uint32    ID;                                           // 0        m_ID
     //char*   Name[16];                                     // 1-16     name
                                                             // 17       string flags
-    //uint32    no_expirience;                              // 18 no exp? critters, non-combat pets, gas cloud.
+    uint32    Flags;                                        // 18 no exp? critters, non-combat pets, gas cloud. (called Flags in struct)
+
+    inline bool HasFlag(CreatureTypeEntryFlags flag) const { return !!(Flags & flag); }
 };
 
 /* not used
