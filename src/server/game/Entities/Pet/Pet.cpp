@@ -1964,7 +1964,6 @@ float Pet::GetNativeObjectScale() const
     CreatureFamilyEntry const* creatureFamily = sCreatureFamilyStore.LookupEntry(GetCreatureTemplate()->family);
     CreatureDisplayInfoEntry const* displayInfo = sCreatureDisplayInfoStore.LookupEntry(GetNativeDisplayId());
 
-
     if (creatureFamily && displayInfo && creatureFamily->MinScale > 0.0f && getPetType() == HUNTER_PET)
     {
         if (CreatureModelDataEntry const* modelData = sCreatureModelDataStore.LookupEntry(displayInfo->ModelID))
