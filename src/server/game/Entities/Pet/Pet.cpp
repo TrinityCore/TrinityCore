@@ -1962,17 +1962,34 @@ Player* Pet::GetOwner() const
 float Pet::GetNativeObjectScale() const
 {
     CreatureFamilyEntry const* creatureFamily = sCreatureFamilyStore.LookupEntry(GetCreatureTemplate()->family);
-    if (creatureFamily && creatureFamily->MinScale > 0.0f && getPetType() == HUNTER_PET)
-    {
-        float scale;
-        if (getLevel() >= creatureFamily->MaxScaleLevel)
-            scale = creatureFamily->MaxScale;
-        else if (getLevel() <= creatureFamily->MinScaleLevel)
-            scale = creatureFamily->MinScale;
-        else
-            scale = creatureFamily->MinScale + float(getLevel() - creatureFamily->MinScaleLevel) / creatureFamily->MaxScaleLevel * (creatureFamily->MaxScale - creatureFamily->MinScale);
+    CreatureDisplayInfoEntry const* displayInfo = sCreatureDisplayInfoStore.LookupEntry(GetNativeDisplayId());
 
-        return scale;
+
+    if (creatureFamily && displayInfo && creatureFamily->MinScale > 0.0f && getPetType() == HUNTER_PET)
+    {
+        if (CreatureModelDataEntry const* modelData = sCreatureModelDataStore.LookupEntry(displayInfo->ModelID))
+        {
+            float scale = displayInfo->CreatureModelScale * modelData->ModelScale;
+            if (scale <= 0.f)
+                scale = 1.f;
+
+            float minScaleLevel = creatureFamily->MinScaleLevel;
+            uint8 level = getLevel();
+
+            float minLevelScaleMod = level >= minScaleLevel ? (level / minScaleLevel) : 0.f;
+            float maxScaleMod = creatureFamily->MaxScaleLevel - minScaleLevel;
+
+            if (minLevelScaleMod > maxScaleMod)
+                minLevelScaleMod = maxScaleMod;
+
+            float scaleMod = creatureFamily->MaxScaleLevel != minScaleLevel ? scaleMod = minLevelScaleMod / maxScaleMod : 0.f;
+
+            scale = (creatureFamily->MaxScale - creatureFamily->MinScale) * scaleMod + creatureFamily->MinScale;
+            if (modelData->TamedPetBaseScale > 0.f)
+                scale *= modelData->TamedPetBaseScale;
+
+            return scale;
+        }
     }
 
     return Guardian::GetNativeObjectScale();

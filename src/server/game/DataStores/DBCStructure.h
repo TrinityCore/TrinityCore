@@ -980,7 +980,7 @@ struct CreatureModelDataEntry
     // float MissileCollisionRaise                          // 27
     // float OverrideLootEffectScale                        // 28
     // float OverrideNameScale                              // 29
-    // float TamedPetBaseScale                              // 30
+    float TamedPetBaseScale;                                // 30
 };
 
 struct CreatureSpellDataEntry
