@@ -8849,7 +8849,10 @@ uint32 Unit::GetCreatureType() const
         if (ssEntry && ssEntry->creatureType > 0)
             return ssEntry->creatureType;
         else
-            return CREATURE_TYPE_HUMANOID;
+        {
+            ChrRacesEntry const* raceEntry = sChrRacesStore.AssertEntry(GetRace());
+            return raceEntry->CreatureType;
+        }
     }
     else
         return ToCreature()->GetCreatureTemplate()->type;

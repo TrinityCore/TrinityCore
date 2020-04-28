@@ -416,7 +416,7 @@ struct ChrRacesEntry
     uint32      model_f;                                    // 5
                                                             // 6 unused
     uint32      TeamID;                                     // 7 (7-Alliance 1-Horde)
-                                                            // 8 unused
+    uint32      CreatureType;                               // 8 Blizzlike Always 7 (humanoid).
     uint32      ResSicknessSpellID;                         // 9 Blizzlike DBC always 15007.
                                                             // 10-11 unused
     uint32      CinematicSequence;                          // 12 id from CinematicSequences.dbc
