@@ -232,3 +232,12 @@ WorldPacket const* WorldPackets::Misc::UnitHealthFrequent::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Misc::StartTimer::Write()
+{
+    _worldPacket << uint32(Type);
+    _worldPacket << uint32(TimeLeft);
+    _worldPacket << uint32(TotalTime);
+
+    return &_worldPacket;
+}
