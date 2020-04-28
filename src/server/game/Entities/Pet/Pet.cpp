@@ -1975,13 +1975,13 @@ float Pet::GetNativeObjectScale() const
             float minScaleLevel = creatureFamily->MinScaleLevel;
             uint8 level = getLevel();
 
-            float minLevelScaleMod = level >= minScaleLevel ? (level / minScaleLevel) : 0.f;
+            float minLevelScaleMod = level >= minScaleLevel ? level - minScaleLevel : 0.f;
             float maxScaleMod = creatureFamily->MaxScaleLevel - minScaleLevel;
 
             if (minLevelScaleMod > maxScaleMod)
                 minLevelScaleMod = maxScaleMod;
 
-            float scaleMod = creatureFamily->MaxScaleLevel != minScaleLevel ? scaleMod = minLevelScaleMod / maxScaleMod : 0.f;
+            float scaleMod = creatureFamily->MaxScaleLevel != minScaleLevel ? minLevelScaleMod / maxScaleMod : 0.f;
 
             scale = (creatureFamily->MaxScale - creatureFamily->MinScale) * scaleMod + creatureFamily->MinScale;
             if (modelData->TamedPetBaseScale > 0.f)
