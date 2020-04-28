@@ -152,23 +152,23 @@ public:
 
     static bool HandleDevCommand(ChatHandler* handler, Optional<std::string> enable)
     {
-        Player* _player = handler->GetSession()->GetPlayer();
+        Player* player = handler->GetSession()->GetPlayer();
 
         if (!enable)
         {
-            handler->GetSession()->SendNotification(_player->IsDeveloper() ? LANG_DEV_ON : LANG_DEV_OFF);
+            handler->GetSession()->SendNotification(player->IsDeveloper() ? LANG_DEV_ON : LANG_DEV_OFF);
             return true;
         }
 
         if (*enable == "on")
         {
-            _player->SetDeveloper(true);
+            player->SetDeveloper(true);
             handler->GetSession()->SendNotification(LANG_DEV_ON);
             return true;
         }
         else if (*enable == "off")
         {
-            _player->SetDeveloper(false);
+            player->SetDeveloper(false);
             handler->GetSession()->SendNotification(LANG_DEV_OFF);
             return true;
         }
