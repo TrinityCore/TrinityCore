@@ -6195,7 +6195,8 @@ void Unit::SetMinion(Minion* minion, bool apply)
             return;
         }
 
-        m_Controlled.erase(minion);
+        if (m_Controlled.find(minion) != m_Controlled.end())
+            m_Controlled.erase(minion);
 
         if (minion->m_Properties && SummonTitle(minion->m_Properties->Title) == SummonTitle::Companion)
             if (GetCritterGUID() == minion->GetGUID())

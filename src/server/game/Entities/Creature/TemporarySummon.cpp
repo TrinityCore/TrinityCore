@@ -343,15 +343,21 @@ void Minion::RemoveFromWorld()
     if (!IsInWorld())
         return;
 
+    Unit* owner = GetOwner();
+
     if (HasUnitTypeMask(UNIT_MASK_CONTROLABLE_GUARDIAN) || (m_Properties && m_Properties->Title == AsUnderlyingType(SummonTitle::Companion)))
-        GetOwner()->SetMinion(this, false);
+        owner->SetMinion(this, false);
     else if (!HasUnitTypeMask(UNIT_MASK_PET | UNIT_MASK_HUNTER_PET))
     {
-        GetOwner()->m_Controlled.erase(this);
+        if (owner->m_Controlled.find(this) != owner->m_Controlled.end())
+            owner->m_Controlled.erase(this);
+        else
+            TC_LOG_FATAL("entities.unit", "Minion::RemoveFromWorld: Owner %s tried to remove a non-existing controlled unit %s from controlled unit set.", owner->GetGUID().ToString().c_str(), GetGUID().ToString().c_str());
 
-        if (GetOwner()->IsTotem())
-            if (Unit* totemOwner = GetOwner()->GetOwner())
-                totemOwner->m_Controlled.erase(this);
+        if (owner->IsTotem())
+            if (Unit* totemOwner = owner->GetOwner())
+                if (totemOwner->m_Controlled.find(this) != totemOwner->m_Controlled.end())
+                    totemOwner->m_Controlled.erase(this);
     }
 
     TempSummon::RemoveFromWorld();
