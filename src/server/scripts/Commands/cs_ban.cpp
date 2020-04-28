@@ -118,9 +118,9 @@ public:
                 if (atoi(durationStr) > 0)
                 {
                     if (sWorld->getBoolConfig(CONFIG_SHOW_BAN_IN_WORLD))
-                        sWorld->SendWorldText(LANG_BAN_CHARACTER_YOUBANNEDMESSAGE_WORLD, author.c_str(), name.c_str(), secsToTimeString(TimeStringToSecs(durationStr), true).c_str(), reasonStr);
+                        sWorld->SendWorldText(LANG_BAN_CHARACTER_YOUBANNEDMESSAGE_WORLD, author.c_str(), name.c_str(), secsToTimeString(TimeStringToSecs(durationStr), TimeFormat::ShortText).c_str(), reasonStr);
                     else
-                        handler->PSendSysMessage(LANG_BAN_YOUBANNED, name.c_str(), secsToTimeString(TimeStringToSecs(durationStr), true).c_str(), reasonStr);
+                        handler->PSendSysMessage(LANG_BAN_YOUBANNED, name.c_str(), secsToTimeString(TimeStringToSecs(durationStr), TimeFormat::ShortText).c_str(), reasonStr);
                 }
                 else
                 {
@@ -205,9 +205,9 @@ public:
                 if (atoi(durationStr) > 0)
                 {
                     if (sWorld->getBoolConfig(CONFIG_SHOW_BAN_IN_WORLD))
-                        sWorld->SendWorldText(LANG_BAN_ACCOUNT_YOUBANNEDMESSAGE_WORLD, author.c_str(), nameOrIP.c_str(), secsToTimeString(TimeStringToSecs(durationStr), true).c_str(), reasonStr);
+                        sWorld->SendWorldText(LANG_BAN_ACCOUNT_YOUBANNEDMESSAGE_WORLD, author.c_str(), nameOrIP.c_str(), secsToTimeString(TimeStringToSecs(durationStr), TimeFormat::ShortText).c_str(), reasonStr);
                     else
-                        handler->PSendSysMessage(LANG_BAN_YOUBANNED, nameOrIP.c_str(), secsToTimeString(TimeStringToSecs(durationStr), true).c_str(), reasonStr);
+                        handler->PSendSysMessage(LANG_BAN_YOUBANNED, nameOrIP.c_str(), secsToTimeString(TimeStringToSecs(durationStr), TimeFormat::ShortText).c_str(), reasonStr);
                 }
                 else
                 {
@@ -288,7 +288,7 @@ public:
             if (fields[2].GetBool() && (fields[1].GetUInt64() == uint64(0) || unbanDate >= GameTime::GetGameTime()))
                 active = true;
             bool permanent = (fields[1].GetUInt64() == uint64(0));
-            std::string banTime = permanent ? handler->GetTrinityString(LANG_BANINFO_INFINITE) : secsToTimeString(fields[1].GetUInt64(), true);
+            std::string banTime = permanent ? handler->GetTrinityString(LANG_BANINFO_INFINITE) : secsToTimeString(fields[1].GetUInt64(), TimeFormat::ShortText);
             handler->PSendSysMessage(LANG_BANINFO_HISTORYENTRY,
                 fields[0].GetCString(), banTime.c_str(), active ? handler->GetTrinityString(LANG_YES) : handler->GetTrinityString(LANG_NO), fields[4].GetCString(), fields[5].GetCString());
         }
@@ -346,7 +346,7 @@ public:
             if (fields[2].GetUInt8() && (!fields[1].GetUInt32() || unbanDate >= GameTime::GetGameTime()))
                 active = true;
             bool permanent = (fields[1].GetUInt32() == uint32(0));
-            std::string banTime = permanent ? handler->GetTrinityString(LANG_BANINFO_INFINITE) : secsToTimeString(fields[1].GetUInt32(), true);
+            std::string banTime = permanent ? handler->GetTrinityString(LANG_BANINFO_INFINITE) : secsToTimeString(fields[1].GetUInt32(), TimeFormat::ShortText);
             handler->PSendSysMessage(LANG_BANINFO_HISTORYENTRY,
                 TimeToTimestampStr(fields[0].GetUInt32()).c_str(), banTime.c_str(), active ? handler->GetTrinityString(LANG_YES) : handler->GetTrinityString(LANG_NO), fields[4].GetCString(), fields[5].GetCString());
         }
@@ -381,7 +381,7 @@ public:
         bool permanent = !fields[6].GetUInt64();
         handler->PSendSysMessage(LANG_BANINFO_IPENTRY,
             fields[0].GetCString(), fields[1].GetCString(), permanent ? handler->GetTrinityString(LANG_BANINFO_NEVER) : fields[2].GetCString(),
-            permanent ? handler->GetTrinityString(LANG_BANINFO_INFINITE) : secsToTimeString(fields[3].GetUInt64(), true).c_str(), fields[4].GetCString(), fields[5].GetCString());
+            permanent ? handler->GetTrinityString(LANG_BANINFO_INFINITE) : secsToTimeString(fields[3].GetUInt64(), TimeFormat::ShortText).c_str(), fields[4].GetCString(), fields[5].GetCString());
 
 
         return true;

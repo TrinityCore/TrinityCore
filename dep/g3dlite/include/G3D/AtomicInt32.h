@@ -76,12 +76,16 @@ public:
 
 #       elif defined(G3D_LINUX) || defined(G3D_FREEBSD)
 
-            int32 old;
-            asm volatile ("lock; xaddl %0,%1"
-                  : "=r"(old), "=m"(m_value) /* outputs */
-                  : "0"(x), "m"(m_value)   /* inputs */
-                  : "memory", "cc");
-            return old;
+#           if defined(__aarch64__)
+                return __sync_fetch_and_add(&m_value, x);
+#           else
+                int32 old;
+                asm volatile ("lock; xaddl %0,%1"
+                    : "=r"(old), "=m"(m_value) /* outputs */
+                    : "0"(x), "m"(m_value)   /* inputs */
+                    : "memory", "cc");
+                return old;
+#           endif
             
 #       elif defined(G3D_OSX)
 
@@ -115,14 +119,18 @@ public:
             // Note: returns the newly decremented value
             return InterlockedDecrement(&m_value);
 #       elif defined(G3D_LINUX)  || defined(G3D_FREEBSD)
-            unsigned char nz;
+#           if defined(__aarch64__)
+                return __sync_sub_and_fetch(&m_value, 1);
+#           else
+                unsigned char nz;
 
-            asm volatile ("lock; decl %1;\n\t"
-                          "setnz %%al"
-                          : "=a" (nz)
-                          : "m" (m_value)
-                          : "memory", "cc");
-            return nz;
+                asm volatile ("lock; decl %1;\n\t"
+                            "setnz %%al"
+                            : "=a" (nz)
+                            : "m" (m_value)
+                            : "memory", "cc");
+                return nz;
+#           endif
 #       elif defined(G3D_OSX)
             // Note: returns the newly decremented value
             return OSAtomicDecrement32(&m_value);
@@ -143,17 +151,21 @@ public:
 #       if defined(G3D_WINDOWS)
             return InterlockedCompareExchange(&m_value, exchange, comperand);
 #       elif defined(G3D_LINUX) || defined(G3D_FREEBSD) || defined(G3D_OSX)
-            // Based on Apache Portable Runtime
-            // http://koders.com/c/fid3B6631EE94542CDBAA03E822CA780CBA1B024822.aspx
-            int32 ret;
-            asm volatile ("lock; cmpxchgl %1, %2"
-                          : "=a" (ret)
-                          : "r" (exchange), "m" (m_value), "0"(comperand)
-                          : "memory", "cc");
-            return ret;
+#           if defined(__aarch64__)
+                return __sync_val_compare_and_swap(&m_value, comperand, exchange);
+#           else
+                // Based on Apache Portable Runtime
+                // http://koders.com/c/fid3B6631EE94542CDBAA03E822CA780CBA1B024822.aspx
+                int32 ret;
+                asm volatile ("lock; cmpxchgl %1, %2"
+                            : "=a" (ret)
+                            : "r" (exchange), "m" (m_value), "0"(comperand)
+                            : "memory", "cc");
+                return ret;
 
-            // Note that OSAtomicCompareAndSwap32 does not return a useful value for us
-            // so it can't satisfy the cmpxchgl contract.
+                // Note that OSAtomicCompareAndSwap32 does not return a useful value for us
+                // so it can't satisfy the cmpxchgl contract.
+#           endif
 #       endif
     }
 

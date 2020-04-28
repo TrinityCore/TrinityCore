@@ -1026,7 +1026,13 @@ namespace MMAP
         {
             // Blade's Edge Arena
             case 562:
+                // This allows to walk on the ropes to the pillars
                 config.walkableRadius = 0;
+                break;
+            // Blackfathom Deeps
+            case 48:
+                // Reduce the chance to have underground levels
+                config.ch *= 2;
                 break;
             default:
                 break;

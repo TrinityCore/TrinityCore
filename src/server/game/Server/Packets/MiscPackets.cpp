@@ -115,3 +115,10 @@ WorldPacket const* WorldPackets::Misc::OverrideLight::Write()
     return &_worldPacket;
 }
 
+void WorldPackets::Misc::WorldTeleport::Read()
+{
+    _worldPacket >> Time;
+    _worldPacket >> MapID;
+    _worldPacket >> Pos;
+    _worldPacket >> Facing;
+}

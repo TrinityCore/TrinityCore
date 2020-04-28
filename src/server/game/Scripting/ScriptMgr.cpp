@@ -780,7 +780,7 @@ public:
                 if (stored_script.second->GetName() == script->GetName())
                 {
                     // If the script is already assigned -> delete it!
-                    TC_LOG_ERROR("scripts", "Script '%s' already assigned with the same script name, "
+                    ABORT_MSG("Script '%s' already assigned with the same script name, "
                         "so the script can't work.", script->GetName().c_str());
 
                     // Error that should be fixed ASAP.
