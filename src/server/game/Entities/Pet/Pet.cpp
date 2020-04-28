@@ -1962,15 +1962,15 @@ Player* Pet::GetOwner() const
 float Pet::GetNativeObjectScale() const
 {
     CreatureFamilyEntry const* creatureFamily = sCreatureFamilyStore.LookupEntry(GetCreatureTemplate()->family);
-    if (creatureFamily && creatureFamily->minScale > 0.0f && getPetType() == HUNTER_PET)
+    if (creatureFamily && creatureFamily->MinScale > 0.0f && getPetType() == HUNTER_PET)
     {
         float scale;
-        if (GetLevel() >= creatureFamily->maxScaleLevel)
-            scale = creatureFamily->maxScale;
-        else if (GetLevel() <= creatureFamily->minScaleLevel)
-            scale = creatureFamily->minScale;
+        if (getLevel() >= creatureFamily->MaxScaleLevel)
+            scale = creatureFamily->MaxScale;
+        else if (getLevel() <= creatureFamily->MinScaleLevel)
+            scale = creatureFamily->MinScale;
         else
-            scale = creatureFamily->minScale + float(GetLevel() - creatureFamily->minScaleLevel) / creatureFamily->maxScaleLevel * (creatureFamily->maxScale - creatureFamily->minScale);
+            scale = creatureFamily->MinScale + float(getLevel() - creatureFamily->MinScaleLevel) / creatureFamily->MaxScaleLevel * (creatureFamily->MaxScale - creatureFamily->MinScale);
 
         return scale;
     }
