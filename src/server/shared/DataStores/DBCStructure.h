@@ -399,6 +399,12 @@ enum ChrRacesAllianceType
     CHRRACES_ALLIANCE_TYPE_NOT_PLAYABLE = 2,
 };
 
+enum ChrRacesFlags
+{
+    CHRRACES_FLAGS_BARE_FEET = 0x02,
+    CHRRACES_FLAGS_CAN_MOUNT = 0x04
+};
+
 struct ChrRacesEntry
 {
     uint32      RaceID;                                     // 0
@@ -422,6 +428,8 @@ struct ChrRacesEntry
                                                             // 64 string flags, unused
                                                             // 65-67 unused
     uint32      expansion;                                  // 68 (0 - original race, 1 - tbc addon, ...)
+
+    inline bool HasFlag(ChrRacesFlags flag) const { return !!(Flags & flag); }
 };
 
 struct CinematicCameraEntry

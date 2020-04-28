@@ -8903,7 +8903,7 @@ bool Unit::IsInDisallowedMountForm() const
     ChrRacesEntry const* race = sChrRacesStore.LookupEntry(displayExtra->Race);
 
     if (model && !(model->Flags & 0x80))
-        if (race && !(race->Flags & 0x4))
+        if (race && !(race->HasFlag(ChrRacesFlags::CHRRACES_FLAGS_CAN_MOUNT)))
             return true;
 
     return false;
