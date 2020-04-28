@@ -806,19 +806,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
     SetBaseAttackTime(RANGED_ATTACK, BASE_ATTACK_TIME);
 
     //scale
-    CreatureFamilyEntry const* cFamily = sCreatureFamilyStore.LookupEntry(cinfo->family);
-    if (cFamily && cFamily->MinScale > 0.0f && petType == HUNTER_PET)
-    {
-        float scale;
-        if (GetLevel() >= cFamily->MaxScaleLevel)
-            scale = cFamily->MaxScale;
-        else if (GetLevel() <= cFamily->MinScaleLevel)
-            scale = cFamily->MinScale;
-        else
-            scale = cFamily->MinScale + float(GetLevel() - cFamily->MinScaleLevel) / cFamily->MaxScaleLevel * (cFamily->MaxScale - cFamily->MinScale);
-
-        SetObjectScale(scale);
-    }
+    SetObjectScale(GetNativeObjectScale());
 
     // Resistance
     // Hunters pet should not inherit resistances from creature_template, they have separate auras for that
@@ -1763,6 +1751,25 @@ void Pet::SynchronizeLevelWithOwner()
 Player* Pet::GetOwner() const
 {
     return Minion::GetOwner()->ToPlayer();
+}
+
+float Pet::GetNativeObjectScale() const
+{
+    CreatureFamilyEntry const* creatureFamily = sCreatureFamilyStore.LookupEntry(GetCreatureTemplate()->family);
+    if (creatureFamily && creatureFamily->MinScale > 0.0f && getPetType() == HUNTER_PET)
+    {
+        float scale;
+        if (GetLevel() >= creatureFamily->MaxScaleLevel)
+            scale = creatureFamily->MaxScale;
+        else if (GetLevel() <= creatureFamily->MinScaleLevel)
+            scale = creatureFamily->MinScale;
+        else
+            scale = creatureFamily->MinScale + float(GetLevel() - creatureFamily->MinScaleLevel) / creatureFamily->MaxScaleLevel * (creatureFamily->MaxScale - creatureFamily->MinScale);
+
+        return scale;
+    }
+
+    return Guardian::GetNativeObjectScale();
 }
 
 void Pet::SetDisplayId(uint32 modelId, float displayScale /*= 1.f*/)
