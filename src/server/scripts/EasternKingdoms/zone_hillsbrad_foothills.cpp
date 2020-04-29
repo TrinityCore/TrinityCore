@@ -293,7 +293,6 @@ struct npc_brazie_the_bonatist_vehicle : public VehicleAI
         {
             PhasingHandler::AddPhase(passenger, PHASE_ID_QUEST, true);
             passenger->CastSpell(passenger, SPELL_PROGRESS_BAR, true);
-            me->SetPower(POWER_ENERGY, 0);
             SetupSpawns();
         }
         else

@@ -1068,6 +1068,7 @@ class TC_GAME_API Unit : public WorldObject
         bool IsHunterPet() const{ return (m_unitTypeMask & UNIT_MASK_HUNTER_PET) != 0; }
         bool IsTotem() const    { return (m_unitTypeMask & UNIT_MASK_TOTEM) != 0; }
         bool IsVehicle() const  { return (m_unitTypeMask & UNIT_MASK_VEHICLE) != 0; }
+        bool IsControlableGuardian() const  { return (m_unitTypeMask & UNIT_MASK_CONTROLABLE_GUARDIAN) != 0; }
 
         uint8 getLevel() const { return uint8(GetUInt32Value(UNIT_FIELD_LEVEL)); }
         uint8 getLevelForTarget(WorldObject const* /*target*/) const override { return getLevel(); }

@@ -239,6 +239,8 @@ void Creature::AddToWorld()
 
         TC_LOG_DEBUG("entities.unit", "Adding creature %u with entry %u and DBGUID %u to world in map %u", GetGUID().GetCounter(), GetEntry(), m_spawnId, GetMap()->GetId());
 
+        UpdatePowerRegeneration(GetPowerType());
+
         Unit::AddToWorld();
         SearchFormation();
         AIM_Initialize();
@@ -247,8 +249,6 @@ void Creature::AddToWorld()
 
         if (GetZoneScript())
             GetZoneScript()->OnCreatureCreate(this);
-
-        UpdatePowerRegeneration(GetPowerType());
     }
 }
 

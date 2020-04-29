@@ -93,7 +93,6 @@ void Vehicle::Install()
             case POWER_ELECTRICAL_ENERGY:
             case POWER_ARCANE_ENERGY_2:
             case POWER_FUEL:
-            case POWER_SUN_POWER:
             case POWER_TWILIGHT_ENERGY:
             case POWER_PYRITE:
                 _me->SetFullPower(POWER_ENERGY);

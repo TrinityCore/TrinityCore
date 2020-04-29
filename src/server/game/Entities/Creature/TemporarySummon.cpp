@@ -194,7 +194,7 @@ void TempSummon::InitStats(uint32 duration)
             owner->m_SummonSlot[slot] = GetGUID();
         }
 
-        if (m_Properties->Control == SUMMON_CATEGORY_ALLY || m_Properties->Control == SUMMON_CATEGORY_PET || m_Properties->Control == SUMMON_CATEGORY_VEHICLE)
+        if (m_Properties->Control != SUMMON_CATEGORY_WILD)
         {
             if (!m_Properties->Faction)
                 SetFaction(owner->GetFaction());
@@ -317,10 +317,10 @@ void Minion::InitStats(uint32 duration)
     TempSummon::InitStats(duration);
     SetReactState(REACT_PASSIVE);
 
-    // Only controlable guardians and companions get a owner guid
-    if (HasUnitTypeMask(UNIT_MASK_CONTROLABLE_GUARDIAN) || (m_Properties && m_Properties->Title == AsUnderlyingType(SummonTitle::Companion)))
+    // Controlable guardians and minions shall receive a summoner guid
+    if ((IsMinion() || IsControlableGuardian()) && !IsTotem() && !IsVehicle())
         GetOwner()->SetMinion(this, true);
-    else if (!HasUnitTypeMask(UNIT_MASK_PET | UNIT_MASK_HUNTER_PET))
+    else if (!IsPet() && !IsHunterPet())
     {
         GetOwner()->m_Controlled.insert(this);
 
@@ -345,9 +345,9 @@ void Minion::RemoveFromWorld()
 
     Unit* owner = GetOwner();
 
-    if (HasUnitTypeMask(UNIT_MASK_CONTROLABLE_GUARDIAN) || (m_Properties && m_Properties->Title == AsUnderlyingType(SummonTitle::Companion)))
+    if ((IsMinion() || IsControlableGuardian()) && !IsTotem() && !IsVehicle())
         owner->SetMinion(this, false);
-    else if (!HasUnitTypeMask(UNIT_MASK_PET | UNIT_MASK_HUNTER_PET))
+    else if (!IsPet() && !IsHunterPet())
     {
         if (owner->m_Controlled.find(this) != owner->m_Controlled.end())
             owner->m_Controlled.erase(this);

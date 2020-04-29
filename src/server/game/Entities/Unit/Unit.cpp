@@ -6226,7 +6226,7 @@ void Unit::SetMinion(Minion* minion, bool apply)
                         continue;
 
                     //ASSERT((*itr)->GetOwnerGUID() == GetGUID());
-                    if (controlled->GetOwnerGUID() != GetGUID())
+                    if (controlled->GetOwnerOrCreatorGUID() != GetGUID())
                     {
                         OutDebugInfo();
                         controlled->OutDebugInfo();
