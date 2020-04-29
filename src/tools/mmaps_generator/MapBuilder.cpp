@@ -1084,21 +1084,21 @@ namespace MMAP
         sprintf(fileName, "mmaps/%04u%02i%02i.mmtile", mapID, tileY, tileX);
         FILE* file = fopen(fileName, "rb");
         if (!file)
-            return false;
+            return true;
 
         MmapTileHeader header;
         int count = fread(&header, sizeof(MmapTileHeader), 1, file);
         fclose(file);
         if (count != 1)
-            return false;
+            return true;
 
         if (header.mmapMagic != MMAP_MAGIC || header.dtVersion != uint32(DT_NAVMESH_VERSION))
-            return false;
+            return true;
 
         if (header.mmapVersion != MMAP_VERSION)
-            return false;
+            return true;
 
-        return true;
+        return false;
     }
 
     /**************************************************************************/
