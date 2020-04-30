@@ -382,6 +382,7 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
                 dtVlerp(hitPos, startPoint, endPoint, hit);
                 _pathPoints[1] = G3D::Vector3(hitPos[2], hitPos[0], hitPos[1]);
 
+                NormalizePath();
                 _type = PATHFIND_INCOMPLETE;
                 return;
             }
@@ -453,6 +454,7 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
                 dtVlerp(hitPos, startPoint, endPoint, hit);
                 _pathPoints[1] = G3D::Vector3(hitPos[2], hitPos[0], hitPos[1]);
 
+                NormalizePath();
                 _type = PATHFIND_INCOMPLETE;
                 return;
             }
