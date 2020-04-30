@@ -3278,64 +3278,33 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
     desty = result.y;
     destz = result.z;
 
-    float halfHeight = GetCollisionHeight() * 0.5f;
     UpdateAllowedPositionZ(destx, desty, destz);
-    bool col = VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(GetMapId(),
-        pos.m_positionX, pos.m_positionY, pos.m_positionZ + halfHeight,
-        destx, desty, destz + halfHeight,
-        destx, desty, destz, -0.5f);
 
-    destz -= halfHeight;
-
-    // collision occured
-    if (col)
-    {
-        // move back a bit
-        destx -= CONTACT_DISTANCE * std::cos(angle);
-        desty -= CONTACT_DISTANCE * std::sin(angle);
-        dist = std::sqrt((pos.m_positionX - destx)*(pos.m_positionX - destx) + (pos.m_positionY - desty)*(pos.m_positionY - desty));
-    }
 
     // check dynamic collision
-    col = GetMap()->getObjectHitPos(GetPhaseMask(),
+    float halfHeight = GetCollisionHeight() * 0.5f;
+    bool col = GetMap()->getObjectHitPos(GetPhaseMask(),
         pos.m_positionX, pos.m_positionY, pos.m_positionZ + halfHeight,
         destx, desty, destz + halfHeight,
         destx, desty, destz, -0.5f);
 
     destz -= halfHeight;
 
-    // Collided with a gameobject
+    // Collided with a gameobject, move back to collision point
     if (col)
     {
         destx -= CONTACT_DISTANCE * std::cos(angle);
         desty -= CONTACT_DISTANCE * std::sin(angle);
-        dist = std::sqrt((pos.m_positionX - destx)*(pos.m_positionX - destx) + (pos.m_positionY - desty)*(pos.m_positionY - desty));
-    }
-
-    float step = dist / 10.0f;
-
-    for (uint8 j = 0; j < 10; ++j)
-    {
-        // do not allow too big z changes
-        if (std::fabs(pos.m_positionZ - destz) > 6.0f)
-        {
-            destx -= step * std::cos(angle);
-            desty -= step * std::sin(angle);
-            UpdateAllowedPositionZ(destx, desty, destz);
-        }
-        // we have correct destz now
-        else
-        {
-            pos.Relocate(destx, desty, destz);
-            break;
-        }
+        dist = std::sqrt((pos.m_positionX - destx)*(pos.m_positionX - destx) + (pos.m_positionY - desty) * (pos.m_positionY - desty));
     }
 
     float groundZ = VMAP_INVALID_HEIGHT_VALUE;
     Trinity::NormalizeMapCoord(pos.m_positionX);
     Trinity::NormalizeMapCoord(pos.m_positionY);
-    UpdateAllowedPositionZ(destx, desty, pos.m_positionZ, &groundZ);
+    UpdateAllowedPositionZ(destx, desty, destz, &groundZ);
+
     pos.SetOrientation(GetOrientation());
+    pos.Relocate(destx, desty, destz);
 
     // position has no ground under it (or is too far away)
     if (groundZ <= INVALID_HEIGHT)

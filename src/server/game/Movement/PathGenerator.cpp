@@ -513,7 +513,9 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
         G3D::Vector3 prevVec = startVec;
         float len = diffVec.length();
         diffVec *= SMOOTH_PATH_STEP_SIZE / len;
-        while (len > SMOOTH_PATH_STEP_SIZE)
+
+        // If the path is short PATHFIND_SHORT will be set as type
+        while (len > SMOOTH_PATH_STEP_SIZE && pointCount < MAX_POINT_PATH_LENGTH)
         {
             len -= SMOOTH_PATH_STEP_SIZE;
             prevVec += diffVec;
@@ -523,8 +525,12 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
             ++pointCount;
         }
 
-        memcpy(&pathPoints[VERTEX_SIZE * pointCount], endPoint, sizeof(float)* 3); // last point
-        ++pointCount;
+        // If the path is short PATHFIND_SHORT will be set as type
+        if (pointCount < MAX_POINT_PATH_LENGTH)
+        {
+            memcpy(&pathPoints[VERTEX_SIZE * pointCount], endPoint, sizeof(float) * 3); // last point
+            ++pointCount;
+        }
     }
     else if (_useStraightPath)
     {
@@ -568,7 +574,7 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
         _type = PathType(_type | PATHFIND_NOPATH);
         return;
     }
-    else if (pointCount == _pointPathLimit)
+    else if (pointCount >= _pointPathLimit)
     {
         TC_LOG_DEBUG("maps.mmaps", "++ PathGenerator::BuildPointPath FAILED! path sized %d returned, lower than limit set to %d", pointCount, _pointPathLimit);
         BuildShortcut();

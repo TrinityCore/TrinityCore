@@ -2730,7 +2730,7 @@ bool GameObject::IsAtInteractDistance(Position const& pos, float radius) const
 
 bool GameObject::IsWithinDistInMap(Player const* player) const
 {
-    return IsInMap(this) && InSamePhase(this) && IsAtInteractDistance(player);
+    return IsInMap(player) && InSamePhase(player) && IsAtInteractDistance(player);
 }
 
 SpellInfo const* GameObject::GetSpellForLock(Player const* player) const

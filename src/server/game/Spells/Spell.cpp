@@ -4091,6 +4091,23 @@ void Spell::SendPetCastResult(SpellCastResult result)
     player->SendDirectMessage(&data);
 }
 
+void Spell::SendMountResult(MountResult result)
+{
+    if (result == MountResult::Ok)
+        return;
+
+    if (m_caster->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    Player* caster = m_caster->ToPlayer();
+    if (caster->IsLoading())  // don't send mount results at loading time
+        return;
+
+    WorldPackets::Spells::MountResult packet;
+    packet.Result = AsUnderlyingType(result);
+    caster->SendDirectMessage(packet.Write());
+}
+
 void Spell::SendSpellStart()
 {
     if (!IsNeedSendToClient())
@@ -5893,7 +5910,10 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                     return SPELL_FAILED_NO_MOUNTS_ALLOWED;
 
                 if (unitCaster->IsInDisallowedMountForm())
-                    return SPELL_FAILED_NOT_SHAPESHIFT;
+                {
+                    SendMountResult(MountResult::Shapeshifted); // mount result gets sent before the cast result
+                    return SPELL_FAILED_DONT_REPORT;
+                }
                 break;
             }
             case SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS:
