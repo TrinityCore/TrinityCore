@@ -303,7 +303,6 @@ class item_generic_limit_chance_above_60 : public ItemScript
 void AddSC_item_scripts()
 {
     new item_only_for_flight();
-    new item_nether_wraith_beacon();
     new item_gor_dreks_ointment();
     new item_mysterious_egg();
     new item_disgusting_jar();
