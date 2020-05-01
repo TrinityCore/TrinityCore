@@ -1510,9 +1510,9 @@ bool Pet::unlearnSpell(uint32 spell_id, bool learn_prev, bool clear_ab)
     {
         if (!m_loading)
         {
-            WorldPacket data(SMSG_PET_REMOVED_SPELL, 4);
-            data << uint32(spell_id);
-            GetOwner()->SendDirectMessage(&data);
+            WorldPackets::Pet::PetUnlearnedSpell packet;
+            packet.SpellID = spell_id;
+            GetOwner()->SendDirectMessage(packet.Write());
         }
         return true;
     }

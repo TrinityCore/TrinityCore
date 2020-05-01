@@ -70,7 +70,17 @@ namespace WorldPackets
         class PetLearnedSpell final : public ServerPacket
         {
         public:
-            PetLearnedSpells() : ServerPacket(SMSG_PET_LEARNED_SPELL, 4) { }
+            PetLearnedSpell() : ServerPacket(SMSG_PET_LEARNED_SPELL, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 SpellID;
+        };
+
+        class PetUnlearnedSpell final : public ServerPacket
+        {
+        public:
+            PetUnlearnedSpell() : ServerPacket(SMSG_PET_UNLEARNED_SPELL, 4) { }
 
             WorldPacket const* Write() override;
 
