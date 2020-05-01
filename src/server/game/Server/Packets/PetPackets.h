@@ -49,7 +49,7 @@ namespace WorldPackets
         {
         public:
             PetStopAttack(WorldPacket&& packet) : ClientPacket(CMSG_PET_STOP_ATTACK, std::move(packet)) { }
-        
+
             void Read() override;
 
             ObjectGuid PetGUID;
@@ -59,7 +59,7 @@ namespace WorldPackets
         {
         public:
             PetSpellAutocast(WorldPacket&& packet) : ClientPacket(CMSG_PET_SPELL_AUTOCAST, std::move(packet)) { }
-        
+
             void Read() override;
 
             ObjectGuid PetGUID;
