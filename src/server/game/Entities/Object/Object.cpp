@@ -3273,16 +3273,37 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
     // Use a detour raycast to get our first collision point
     PathGenerator path(this);
     path.CalculatePath(destx, desty, destz, false, true);
+
+    // We have a invalid path result. Skip further processing.
+    if (path.GetPathType() & ~(PATHFIND_NORMAL | PATHFIND_SHORTCUT | PATHFIND_INCOMPLETE | PATHFIND_FARFROMPOLY_END))
+        return;
+
     G3D::Vector3 result = path.GetPath().back();
     destx = result.x;
     desty = result.y;
     destz = result.z;
 
-    UpdateAllowedPositionZ(destx, desty, destz);
+    // Object is using a shortcut. Check static LOS
+    float halfHeight = GetCollisionHeight() * 0.5f;
+    if (path.GetPathType() & PATHFIND_SHORTCUT)
+    {
+        bool col = VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(GetMapId(),
+            pos.m_positionX, pos.m_positionY, pos.m_positionZ + halfHeight,
+            destx, desty, destz + halfHeight,
+            destx, desty, destz, -0.5f);
 
+        destz -= halfHeight;
+
+        // Collided with static LOS object, move back to collision point
+        if (col)
+        {
+            destx -= CONTACT_DISTANCE * std::cos(angle);
+            desty -= CONTACT_DISTANCE * std::sin(angle);
+            dist = std::sqrt((pos.m_positionX - destx) * (pos.m_positionX - destx) + (pos.m_positionY - desty) * (pos.m_positionY - desty));
+        }
+    }
 
     // check dynamic collision
-    float halfHeight = GetCollisionHeight() * 0.5f;
     bool col = GetMap()->getObjectHitPos(GetPhaseMask(),
         pos.m_positionX, pos.m_positionY, pos.m_positionZ + halfHeight,
         destx, desty, destz + halfHeight,
