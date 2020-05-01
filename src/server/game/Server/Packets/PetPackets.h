@@ -67,6 +67,16 @@ namespace WorldPackets
             bool AutocastEnabled;
         };
 
+        class PetLearnedSpell final : public ServerPacket
+        {
+        public:
+            PetLearnedSpells() : ServerPacket(SMSG_PET_LEARNED_SPELL, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 SpellID;
+        };
+
         class RequestPetInfo final : public ClientPacket
         {
         public:
