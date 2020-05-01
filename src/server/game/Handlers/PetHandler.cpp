@@ -727,8 +727,8 @@ void WorldSession::HandlePetSpellAutocastOpcode(WorldPackets::Pet::PetSpellAutoc
             return;
         }
 
-        if (petControlled->IsPet())
-            petControlled->ToPet()->ToggleAutocast(spellInfo, packet.AutocastEnabled);
+        if (Pet* summon = petControlled->ToPet())
+            summon->ToggleAutocast(spellInfo, packet.AutocastEnabled);
         else
             charmInfo->ToggleCreatureAutocast(spellInfo, packet.AutocastEnabled);
 

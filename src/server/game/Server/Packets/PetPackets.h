@@ -63,8 +63,8 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid PetGUID;
-            uint32 SpellID;
-            bool AutocastEnabled;
+            uint32 SpellID = 0;
+            bool AutocastEnabled = false;
         };
 
         class PetLearnedSpell final : public ServerPacket
@@ -74,7 +74,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint32 SpellID;
+            uint32 SpellID = 0;
         };
 
         class PetUnlearnedSpell final : public ServerPacket
@@ -84,7 +84,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint32 SpellID;
+            uint32 SpellID = 0;
         };
 
         class RequestPetInfo final : public ClientPacket
