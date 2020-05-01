@@ -21,6 +21,7 @@
 #include "Packet.h"
 #include "Position.h"
 #include "ObjectGuid.h"
+#include "Optional.h"
 #include "Weather.h"
 
 enum WeatherState : uint32;
@@ -249,6 +250,18 @@ namespace WorldPackets
             void Read() override { }
         };
 
+        class CrossedInebriationThreshold final : public ServerPacket
+        {
+        public:
+            CrossedInebriationThreshold() : ServerPacket(SMSG_CROSSED_INEBRIATION_THRESHOLD, 8 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
+            uint32 Threshold = 0;
+            uint32 ItemID = 0;
+        };
+
         class OverrideLight final : public ServerPacket
         {
         public:
@@ -259,6 +272,42 @@ namespace WorldPackets
             int32 AreaLightID = 0;
             int32 TransitionMilliseconds = 0;
             int32 OverrideLightID = 0;
+        };
+
+        class RandomRollClient final : public ClientPacket
+        {
+        public:
+            RandomRollClient(WorldPacket&& packet) : ClientPacket(MSG_RANDOM_ROLL, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 Min = 0;
+            uint32 Max = 0;
+        };
+
+        class RandomRoll final : public ServerPacket
+        {
+        public:
+            RandomRoll() : ServerPacket(MSG_RANDOM_ROLL, 4 + 4 + 4 + 8) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Min = 0;
+            uint32 Max = 0;
+            uint32 Result = 0;
+            ObjectGuid Roller;
+        };
+
+        class TogglePvP final : public ClientPacket
+        {
+        public:
+            TogglePvP(WorldPacket&& packet) : ClientPacket(CMSG_TOGGLE_PVP, std::move(packet)) { }
+
+            void Read() override;
+
+            bool HasPvPStatus() const { return GetSize() == 1; }
+
+            Optional<bool> Enable;
         };
 
         class UITime final : public ServerPacket

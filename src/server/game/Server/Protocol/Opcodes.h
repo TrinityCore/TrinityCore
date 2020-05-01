@@ -392,7 +392,7 @@ enum Opcodes : uint16
     SMSG_DUEL_WINNER                                = 0x16B,
     CMSG_DUEL_ACCEPTED                              = 0x16C,
     CMSG_DUEL_CANCELLED                             = 0x16D,
-    SMSG_MOUNTRESULT                                = 0x16E,
+    SMSG_MOUNT_RESULT                               = 0x16E,
     SMSG_DISMOUNTRESULT                             = 0x16F,
     SMSG_REMOVED_FROM_PVP_QUEUE                     = 0x170,
     CMSG_MOUNTSPECIAL_ANIM                          = 0x171,

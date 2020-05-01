@@ -147,6 +147,15 @@ WorldPacket const* WorldPackets::Misc::PlaySound::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Misc::CrossedInebriationThreshold::Write()
+{
+    _worldPacket << Guid;
+    _worldPacket << uint32(Threshold);
+    _worldPacket << uint32(ItemID);
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Misc::OverrideLight::Write()
 {
     _worldPacket << int32(AreaLightID);
@@ -156,11 +165,33 @@ WorldPacket const* WorldPackets::Misc::OverrideLight::Write()
     return &_worldPacket;
 }
 
+void WorldPackets::Misc::RandomRollClient::Read()
+{
+    _worldPacket >> Min;
+    _worldPacket >> Max;
+}
+
+WorldPacket const* WorldPackets::Misc::RandomRoll::Write()
+{
+    _worldPacket << uint32(Min);
+    _worldPacket << uint32(Max);
+    _worldPacket << uint32(Result);
+    _worldPacket << Roller;
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Misc::UITime::Write()
 {
     _worldPacket << uint32(Time);
 
     return &_worldPacket;
+}
+
+void WorldPackets::Misc::TogglePvP::Read()
+{
+    if (HasPvPStatus())
+        Enable = _worldPacket.read<uint8>() != 0;
 }
 
 void WorldPackets::Misc::WorldTeleport::Read()
