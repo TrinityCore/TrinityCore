@@ -24,7 +24,7 @@ void WorldPackets::Pet::DismissCritter::Read()
 
 void WorldPackets::Pet::PetAbandon::Read()
 {
-    _worldPacket >> Pet;
+    _worldPacket >> PetGUID;
 }
 
 void WorldPackets::Pet::PetStopAttack::Read()

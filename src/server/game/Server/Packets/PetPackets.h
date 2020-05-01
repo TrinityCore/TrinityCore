@@ -42,7 +42,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            ObjectGuid Pet;
+            ObjectGuid PetGUID;
         };
 
         class PetStopAttack final : public ClientPacket

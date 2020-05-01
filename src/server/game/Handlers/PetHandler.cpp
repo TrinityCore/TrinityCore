@@ -673,7 +673,7 @@ void WorldSession::HandlePetAbandon(WorldPackets::Pet::PetAbandon& packet)
         return;
 
     // pet/charmed
-    Creature* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, packet.Pet);
+    Creature* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, packet.PetGUID);
     if (pet && pet->ToPet() && pet->ToPet()->getPetType() == HUNTER_PET)
     {
         if (pet->GetGUID() == _player->GetPetGUID())
