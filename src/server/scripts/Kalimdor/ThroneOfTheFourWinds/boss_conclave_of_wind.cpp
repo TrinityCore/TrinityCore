@@ -227,6 +227,11 @@ struct boss_anshal : public BossAI
         _isGatheringStrength = false;
     }
 
+    void JustAppeared() override
+    {
+        DoCastSelf(SPELL_POWER_DRAIN);
+    }
+
     void AttackStart(Unit* who) override
     {
         if (ConclaveHandler::IsTargetOnPlatform(me->GetHomePosition(), who))
@@ -470,6 +475,11 @@ struct boss_nezir : public BossAI
         _isGatheringStrength = false;
     }
 
+    void JustAppeared() override
+    {
+        DoCastSelf(SPELL_POWER_DRAIN);
+    }
+
     void AttackStart(Unit* who) override
     {
         if (ConclaveHandler::IsTargetOnPlatform(me->GetHomePosition(), who))
@@ -697,6 +707,11 @@ struct boss_rohash : public BossAI
     void Initialize()
     {
         _isGatheringStrength = false;
+    }
+
+    void JustAppeared() override
+    {
+        DoCastSelf(SPELL_POWER_DRAIN);
     }
 
     void AttackStart(Unit* who) override
