@@ -40,14 +40,16 @@ class WorldObject;
 
 enum PathType
 {
-    PATHFIND_BLANK          = 0x00,   // path not built yet
-    PATHFIND_NORMAL         = 0x01,   // normal path
-    PATHFIND_SHORTCUT       = 0x02,   // travel through obstacles, terrain, air, etc (old behavior)
-    PATHFIND_INCOMPLETE     = 0x04,   // we have partial path to follow - getting closer to target
-    PATHFIND_NOPATH         = 0x08,   // no valid path at all or error in generating one
-    PATHFIND_NOT_USING_PATH = 0x10,   // used when we are either flying/swiming or on map w/o mmaps
-    PATHFIND_SHORT          = 0x20,   // path is longer or equal to its limited path length
-    PATHFIND_FARFROMPOLY    = 0x40,   // start of end positions are far from the mmap poligon
+    PATHFIND_BLANK             = 0x00,   // path not built yet
+    PATHFIND_NORMAL            = 0x01,   // normal path
+    PATHFIND_SHORTCUT          = 0x02,   // travel through obstacles, terrain, air, etc (old behavior)
+    PATHFIND_INCOMPLETE        = 0x04,   // we have partial path to follow - getting closer to target
+    PATHFIND_NOPATH            = 0x08,   // no valid path at all or error in generating one
+    PATHFIND_NOT_USING_PATH    = 0x10,   // used when we are either flying/swiming or on map w/o mmaps
+    PATHFIND_SHORT             = 0x20,   // path is longer or equal to its limited path length
+    PATHFIND_FARFROMPOLY_START = 0x40,   // start position is far from the mmap poligon
+    PATHFIND_FARFROMPOLY_END   = 0x80,   // end positions is far from the mmap poligon
+    PATHFIND_FARFROMPOLY       = PATHFIND_FARFROMPOLY_START | PATHFIND_FARFROMPOLY_END, // start or end positions are far from the mmap poligon
 };
 
 class TC_GAME_API PathGenerator
