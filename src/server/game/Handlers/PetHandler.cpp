@@ -695,7 +695,7 @@ void WorldSession::HandlePetSpellAutocastOpcode(WorldPackets::Pet::PetSpellAutoc
         return;
     }
 
-    if (pet != _player->GetGuardianPet() && pet != _player->GetCharm())
+    if (pet != _player->GetGuardianPet() && pet != _player->GetCharmed())
     {
         TC_LOG_ERROR("entities.pet", "WorldSession::HandlePetSpellAutocastOpcode: %s isn't pet of player %s (%s).",
             packet.PetGUID.ToString().c_str(), GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID().ToString().c_str());
@@ -723,7 +723,7 @@ void WorldSession::HandlePetSpellAutocastOpcode(WorldPackets::Pet::PetSpellAutoc
         CharmInfo* charmInfo = petControlled->GetCharmInfo();
         if (!charmInfo)
         {
-            TC_LOG_ERROR("entities.pet", "WorldSession::HandlePetSpellAutocastOpcod: object %s is considered pet-like but doesn't have a charminfo!", petControlled->GetGUID().ToString().c_str());
+            TC_LOG_ERROR("entities.pet", "WorldSession::HandlePetSpellAutocastOpcode: object %s is considered pet-like but doesn't have a charminfo!", petControlled->GetGUID().ToString().c_str());
             return;
         }
 
