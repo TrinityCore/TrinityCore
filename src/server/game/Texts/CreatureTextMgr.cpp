@@ -115,8 +115,9 @@ void CreatureTextMgr::LoadCreatureTexts()
         temp.emote           = Emote(fields[7].GetUInt32());
         temp.duration        = fields[8].GetUInt32();
         temp.sound           = fields[9].GetUInt32();
-        temp.BroadcastTextId = fields[10].GetUInt32();
-        temp.TextRange       = CreatureTextRange(fields[11].GetUInt8());
+        temp.soundType       = CreatureTextSoundType(fields[10].GetUInt32());
+        temp.BroadcastTextId = fields[11].GetUInt32();
+        temp.TextRange       = CreatureTextRange(fields[12].GetUInt8());
 
         if (temp.sound)
         {
@@ -161,6 +162,12 @@ void CreatureTextMgr::LoadCreatureTexts()
         {
             TC_LOG_ERROR("sql.sql", "CreatureTextMgr: Entry %u, Group %u, Id %u in table `creature_text` has incorrect TextRange %u.", temp.creatureId, temp.groupId, temp.id, temp.TextRange);
             temp.TextRange = TEXT_RANGE_NORMAL;
+        }
+
+        if (temp.soundType > CreatureTextSoundType::Music)
+        {
+            TC_LOG_ERROR("sql.sql", "CreatureTextMgr: Entry %u, Group %u, Id %u in table `creature_text` has incorrect SoundType %u.", temp.creatureId, temp.groupId, temp.id, AsUnderlyingType(temp.TextRange));
+            temp.soundType = CreatureTextSoundType::DirectSound;
         }
 
         // add the text into our entry's group
@@ -247,7 +254,9 @@ uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, WorldObject 
 
     ChatMsg finalType = (msgType == CHAT_MSG_ADDON) ? iter->type : msgType;
     Language finalLang = (language == LANG_ADDON) ? iter->lang : language;
+    CreatureTextSoundType soundType = iter->soundType;
     uint32 finalSound = iter->sound;
+
     if (sound)
         finalSound = sound;
     else if (BroadcastText const* bct = sObjectMgr->GetBroadcastText(iter->BroadcastTextId))
@@ -258,7 +267,7 @@ uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, WorldObject 
         range = iter->TextRange;
 
     if (finalSound)
-        SendSound(source, finalSound, finalType, whisperTarget, range, team, gmOnly);
+        SendSound(source, finalSound, soundType, finalType, whisperTarget, range, team, gmOnly);
 
     Unit* finalSource = source;
     if (srcPlr)
@@ -301,12 +310,25 @@ float CreatureTextMgr::GetRangeForChatType(ChatMsg msgType) const
     return dist;
 }
 
-void CreatureTextMgr::SendSound(Creature* source, uint32 sound, ChatMsg msgType, WorldObject const* whisperTarget, CreatureTextRange range, Team team, bool gmOnly)
+void CreatureTextMgr::SendSound(Creature* source, uint32 sound, CreatureTextSoundType soundType, ChatMsg msgType, WorldObject const* whisperTarget, CreatureTextRange range, Team team, bool gmOnly)
 {
     if (!sound || !source)
         return;
 
-    SendNonChatPacket(source, WorldPackets::Misc::PlaySound(source->GetGUID(), sound).Write(), msgType, whisperTarget, range, team, gmOnly);
+    switch (soundType)
+    {
+        case CreatureTextSoundType::DirectSound:
+            SendNonChatPacket(source, WorldPackets::Misc::PlaySound(source->GetGUID(), sound).Write(), msgType, whisperTarget, range, team, gmOnly);
+            break;
+        case CreatureTextSoundType::ObjectSound:
+            SendNonChatPacket(source, WorldPackets::Misc::PlayObjectSound(source->GetGUID(), whisperTarget ? whisperTarget->GetGUID() : source->GetGUID(), sound).Write(), msgType, whisperTarget, range, team, gmOnly);
+            break;
+        case CreatureTextSoundType::Music:
+            SendNonChatPacket(source, WorldPackets::Misc::PlayMusic(sound, source->GetGUID()).Write(), msgType, whisperTarget, range, team, gmOnly);
+            break;
+        default:
+            break;
+    }
 }
 
 void CreatureTextMgr::SendNonChatPacket(WorldObject* source, WorldPacket const* data, ChatMsg msgType, WorldObject const* whisperTarget, CreatureTextRange range, Team team, bool gmOnly) const

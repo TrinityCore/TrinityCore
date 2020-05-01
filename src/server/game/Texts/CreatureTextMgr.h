@@ -39,6 +39,13 @@ enum CreatureTextRange
     TEXT_RANGE_WORLD    = 4
 };
 
+enum class CreatureTextSoundType : uint32
+{
+    DirectSound = 0,
+    ObjectSound = 1,
+    Music       = 2
+};
+
 struct CreatureTextEntry
 {
     uint32 creatureId;
@@ -51,6 +58,7 @@ struct CreatureTextEntry
     Emote emote;
     uint32 duration;
     uint32 sound;
+    CreatureTextSoundType soundType;
     uint32 BroadcastTextId;
     CreatureTextRange TextRange;
 };
@@ -93,7 +101,7 @@ class TC_GAME_API CreatureTextMgr
         void LoadCreatureTextLocales();
         CreatureTextMap const& GetTextMap() const { return mTextMap; }
 
-        void SendSound(Creature* source, uint32 sound, ChatMsg msgType, WorldObject const* whisperTarget, CreatureTextRange range, Team team, bool gmOnly);
+        void SendSound(Creature* source, uint32 sound, CreatureTextSoundType soundType, ChatMsg msgType, WorldObject const* whisperTarget, CreatureTextRange range, Team team, bool gmOnly);
         void SendEmote(Unit* source, uint32 emote);
 
         //if sent, returns the 'duration' of the text else 0 if error
