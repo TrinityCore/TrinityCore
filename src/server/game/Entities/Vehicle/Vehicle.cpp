@@ -97,6 +97,11 @@ void Vehicle::Install()
             case POWER_PYRITE:
                 _me->SetFullPower(POWER_ENERGY);
                 break;
+            case POWER_WIND_POWER_1:
+            case POWER_WIND_POWER_2:
+            case POWER_WIND_POWER_3:
+                _me->SetMaxPower(POWER_MANA, 90);
+                break;
             default:
                 break;
         }
