@@ -150,6 +150,7 @@ namespace WorldPackets
         class DismissCritter;
         class PetAbandon;
         class PetStopAttack;
+        class PetSpellAutocast;
         class RequestPetInfo;
     }
 
@@ -911,7 +912,7 @@ class TC_GAME_API WorldSession
         void HandlePetAbandon(WorldPackets::Pet::PetAbandon& packet);
         void HandlePetRename(WorldPacket& recvData);
         void HandlePetCancelAuraOpcode(WorldPackets::Spells::PetCancelAura& packet);
-        void HandlePetSpellAutocastOpcode(WorldPacket& recvPacket);
+        void HandlePetSpellAutocastOpcode(WorldPackets::Pet::PetSpellAutocast& packet);
         void HandlePetCastSpellOpcode(WorldPacket& recvPacket);
         void HandlePetLearnTalent(WorldPacket& recvPacket);
         void HandleLearnPreviewTalentsPet(WorldPacket& recvPacket);
