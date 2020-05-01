@@ -45,6 +45,16 @@ namespace WorldPackets
             ObjectGuid Pet;
         };
 
+        class PetStopAttack final : public ClientPacket
+        {
+        public:
+            PetStopAttack(WorldPacket&& packet) : ClientPacket(CMSG_PET_STOP_ATTACK, std::move(packet)) { }
+        
+            void Read() override;
+
+            ObjectGuid PetGUID;
+        };
+
         class RequestPetInfo final : public ClientPacket
         {
         public:

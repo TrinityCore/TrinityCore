@@ -149,6 +149,7 @@ namespace WorldPackets
     {
         class DismissCritter;
         class PetAbandon;
+        class PetStopAttack;
         class RequestPetInfo;
     }
 
@@ -903,7 +904,7 @@ class TC_GAME_API WorldSession
 
         //Pet
         void HandlePetAction(WorldPacket& recvData);
-        void HandlePetStopAttack(WorldPacket& recvData);
+        void HandlePetStopAttack(WorldPackets::Pet::PetStopAttack& packet);
         void HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spellid, uint16 flag, ObjectGuid guid2);
         void HandlePetNameQuery(WorldPacket& recvData);
         void HandlePetSetAction(WorldPacket& recvData);

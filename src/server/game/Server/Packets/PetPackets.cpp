@@ -26,3 +26,8 @@ void WorldPackets::Pet::PetAbandon::Read()
 {
     _worldPacket >> Pet;
 }
+
+void WorldPackets::Pet::PetStopAttack::Read()
+{
+    _worldPacket >> PetGUID;
+}

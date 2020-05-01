@@ -110,25 +110,20 @@ void WorldSession::HandlePetAction(WorldPacket& recvData)
     }
 }
 
-void WorldSession::HandlePetStopAttack(WorldPacket &recvData)
+void WorldSession::HandlePetStopAttack(WorldPackets::Pet::PetStopAttack& packet)
 {
-    ObjectGuid guid;
-    recvData >> guid;
-
-    TC_LOG_DEBUG("network.opcode", "WORLD: Received CMSG_PET_STOP_ATTACK for %s", guid.ToString().c_str());
-
-    Unit* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, guid);
+    Unit* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, packet.PetGUID);
 
     if (!pet)
     {
-        TC_LOG_ERROR("entities.pet", "HandlePetStopAttack: %s does not exist", guid.ToString().c_str());
+        TC_LOG_ERROR("entities.pet", "HandlePetStopAttack: %s does not exist", packet.PetGUID.ToString().c_str());
         return;
     }
 
     if (pet != GetPlayer()->GetPet() && pet != GetPlayer()->GetCharmed())
     {
         TC_LOG_ERROR("entities.pet", "HandlePetStopAttack: %s isn't a pet or charmed creature of player %s",
-            guid.ToString().c_str(), GetPlayer()->GetName().c_str());
+            packet.PetGUID.ToString().c_str(), GetPlayer()->GetName().c_str());
         return;
     }
 
