@@ -89,13 +89,7 @@ void Strategy_Solo::Update(uint32 pmDiff)
         {
             deathDelay -= pmDiff;
             if (deathDelay <= 0)
-            {
-                if (!me->IsAlive())
-                {
-                    me->ResurrectPlayer(1.0f);                    
-                }
-                deathDelay = 0;
-                sb->Prepare();
+            {                                
                 sb->RandomTeleport();
                 return;
             }
@@ -108,14 +102,7 @@ void Strategy_Solo::Update(uint32 pmDiff)
     }
     soloDelay -= pmDiff;
     if (soloDelay < 0)
-    {
-        soloDelay = urand(sRobotConfig->SoloMinDelay, sRobotConfig->SoloMaxDelay);
-        if (!me->IsAlive())
-        {
-            me->ResurrectPlayer(1.0f);
-            deathDelay = 0;
-        }
-        sb->Prepare();
+    {        
         sb->RandomTeleport();
         return;
     }
@@ -505,6 +492,8 @@ bool Strategy_Solo::Wait()
 {
     if (me)
     {
+        me->SetSelection(ObjectGuid());
+        me->AttackStop();
         me->GetMotionMaster()->Clear();
         me->StopMoving();
         waitDelay = 5 * TimeConstants::IN_MILLISECONDS;
@@ -532,6 +521,9 @@ bool Strategy_Solo::Stroll()
 
 bool Strategy_Solo::Confuse()
 {
+    // EJ confuse issue use wait instead
+    return Wait();
+
     if (me)
     {
         me->StopMoving();
@@ -561,4 +553,16 @@ void Strategy_Solo::HandleChatCommand(Player* pmSender, std::string pmCMD)
         sb->Prepare();
         sb->WhisperTo("I am prepared", Language::LANG_UNIVERSAL, pmSender);
     }
+}
+
+void Strategy_Solo::Reset()
+{
+    deathDelay = 0;
+    confuseDelay = 0;
+    engageDelay = 0;
+    restDelay = 0;
+    soloDelay = urand(sRobotConfig->SoloMinDelay, sRobotConfig->SoloMaxDelay);
+    waitDelay = 0;
+    strollDelay = 0;
+    soloState = RobotSoloState::RobotSoloState_Wander;
 }

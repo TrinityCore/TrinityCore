@@ -124,12 +124,7 @@ void RobotEntity::Update(uint32 pmDiff)
                 RobotAI_Group* raiGroup = new RobotAI_Group(me);
                 me->raiGroup = raiGroup;
                 me->raiGroup->GetActiveStrategy()->sb->InitializeValues();
-                me->groupRole = me->raiGroup->GetActiveStrategy()->sb->characterType;
-                if (!me->IsAlive())
-                {
-                    me->ResurrectPlayer(1.0f);
-                }
-                me->raiSolo->GetActiveStrategy()->sb->Prepare();
+                me->groupRole = me->raiGroup->GetActiveStrategy()->sb->characterType;                                
                 me->raiSolo->GetActiveStrategy()->sb->RandomTeleport();
                 entityState = RobotEntityState::RobotEntityState_Online;
             }
@@ -151,23 +146,13 @@ void RobotEntity::Update(uint32 pmDiff)
                     {
                         if (leader->GetSession()->isRobotSession)
                         {
-                            me->RemoveFromGroup();
-                            if (!me->IsAlive())
-                            {
-                                me->ResurrectPlayer(1.0f);
-                            }
-                            me->raiSolo->GetActiveStrategy()->sb->Prepare();
+                            me->RemoveFromGroup();                            
                             me->raiSolo->GetActiveStrategy()->sb->RandomTeleport();
                         }
                     }
                     else
                     {
-                        me->RemoveFromGroup();
-                        if (!me->IsAlive())
-                        {
-                            me->ResurrectPlayer(1.0f);
-                        }
-                        me->raiSolo->GetActiveStrategy()->sb->Prepare();
+                        me->RemoveFromGroup();                        
                         me->raiSolo->GetActiveStrategy()->sb->RandomTeleport();
                     }
                     if (me->raiGroup)

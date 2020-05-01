@@ -20,6 +20,7 @@ class Strategy_Solo
 public:
     Strategy_Solo(Player* pmMe);
     virtual void Update(uint32 pmDiff);
+    void Reset();
     bool Buff();
 	bool Rest();
     bool PVP();

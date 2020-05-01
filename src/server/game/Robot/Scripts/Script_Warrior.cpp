@@ -78,10 +78,12 @@ bool Script_Warrior::DPS_Arms(Unit* pmTarget, bool pmChase, bool pmAOE)
             return true;
         }
     }
-    me->Attack(pmTarget, true);
     if (pmChase)
     {
-        Chase(pmTarget);
+        if (!Chase(pmTarget))
+        {
+            return false;
+        }
     }
     else
     {
@@ -90,6 +92,7 @@ bool Script_Warrior::DPS_Arms(Unit* pmTarget, bool pmChase, bool pmAOE)
             me->SetFacingToObject(pmTarget);
         }
     }
+    me->Attack(pmTarget, true);
     uint32 rage = me->GetPower(Powers::POWER_RAGE);
     if (rage > 300)
     {
@@ -202,10 +205,12 @@ bool Script_Warrior::DPS_Fury(Unit* pmTarget, bool pmChase, bool pmAOE)
             return true;
         }
     }
-    me->Attack(pmTarget, true);
     if (pmChase)
     {
-        Chase(pmTarget);
+        if (!Chase(pmTarget))
+        {
+            return false;
+        }
     }
     else
     {
@@ -214,6 +219,7 @@ bool Script_Warrior::DPS_Fury(Unit* pmTarget, bool pmChase, bool pmAOE)
             me->SetFacingToObject(pmTarget);
         }
     }
+    me->Attack(pmTarget, true);
     uint32 rage = me->GetPower(Powers::POWER_RAGE);
     if (rage > 100)
     {
@@ -328,8 +334,11 @@ bool Script_Warrior::Attack_Arms(Unit* pmTarget)
             return true;
         }
     }
+    if (!Chase(pmTarget))
+    {
+        return false;
+    }
     me->Attack(pmTarget, true);
-    Chase(pmTarget);
     uint32 rage = me->GetPower(Powers::POWER_RAGE);
     if (rage > 100)
     {
@@ -419,8 +428,11 @@ bool Script_Warrior::Attack_Fury(Unit* pmTarget)
             return true;
         }
     }
+    if (!Chase(pmTarget))
+    {
+        return false;
+    }
     me->Attack(pmTarget, true);
-    Chase(pmTarget);
     uint32 rage = me->GetPower(Powers::POWER_RAGE);
     if (rage > 100)
     {
@@ -491,8 +503,11 @@ bool Script_Warrior::Attack_Protection(Unit* pmTarget)
             return true;
         }
     }
+    if (!Chase(pmTarget))
+    {
+        return false;
+    }
     me->Attack(pmTarget, true);
-    Chase(pmTarget);
     uint32 rage = me->GetPower(Powers::POWER_RAGE);
     if (rage > 100)
     {

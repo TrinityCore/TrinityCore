@@ -10,7 +10,7 @@
 #endif
 
 #ifndef DEFAULT_AOE_DELAY
-# define DEFAULT_AOE_DELAY 5000
+# define DEFAULT_AOE_DELAY 7000
 #endif
 
 #include "Script_Base.h"
@@ -32,8 +32,7 @@ public:
 public:
     Player* me;
     int combatTime;
-    int sideDelay;
-    int moveAssembleDelay;
+    int moveDelay;
     int teleportAssembleDelay;
     int aoeDelay;
     int dpsDelay;

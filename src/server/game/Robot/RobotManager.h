@@ -45,6 +45,7 @@ public:
     static RobotManager* instance();
     void HandlePacket(WorldSession* pmSession, WorldPacket const* pmPacket);
     void WhisperTo(Player* pmSender, std::string pmContent, Language pmLanguage, Player* pmTarget);
+    bool UnitTargetReachable(Player* pmCheckPlayer, Unit* pmTarget);
 
 public:
     std::unordered_map<uint32, std::unordered_map<uint32, uint32>> availableRaces;

@@ -20,7 +20,7 @@ Script_Base::Script_Base(Player* pmMe)
     me = pmMe;
     spellIDMap.clear();
     spellLevelMap.clear();
-    characterTalentTab = 0;    
+    characterTalentTab = 0;
     characterType = 0;
     float chaseDistanceMin = MIN_DISTANCE_GAP;
     float chaseDistanceMax = MELEE_MIN_DISTANCE;
@@ -937,10 +937,21 @@ void Script_Base::RandomTeleport()
     {
         return;
     }
-    if (!me->IsAlive())
+    if (me->raiSolo)
     {
-        return;
+        if (Strategy_Solo* ss = me->raiSolo->GetActiveStrategy())
+        {
+            ss->Reset();
+        }
     }
+    bool validLocation = false;
+    int destMapID = 0;
+    float destX = 0.0f;
+    float destY = 0.0f;
+    float destZ = 0.0f;
+    float distance = frand(sRobotConfig->TeleportMinRange, sRobotConfig->TeleportMaxRange);
+    float angle = frand(0, 2 * M_PI);
+
     if (sRobotManager->onlinePlayerIDMap.size() > 0)
     {
         uint32 playerIndex = urand(0, sRobotManager->onlinePlayerIDMap.size() - 1);
@@ -948,35 +959,61 @@ void Script_Base::RandomTeleport()
         ObjectGuid og = ObjectGuid(HighGuid::Player, cid);
         if (Player* targetP = ObjectAccessor::FindConnectedPlayer(og))
         {
-            if (targetP->IsBeingTeleported())
+            if (!targetP->IsBeingTeleported())
             {
-                return;
-            }
-            if (Map* checkMap = targetP->GetMap())
-            {
-                if (!checkMap->Instanceable())
+                if (Map* checkMap = targetP->GetMap())
                 {
-                    float destX = 0.0f;
-                    float destY = 0.0f;
-                    float destZ = 0.0f;
-                    float distance = frand(sRobotConfig->TeleportMinRange, sRobotConfig->TeleportMaxRange);
-                    float angle = frand(0, 2 * M_PI);
-                    targetP->GetNearPoint(targetP, destX, destY, destZ, distance, angle);
-
-                    me->StopMoving();
-                    me->GetMotionMaster()->Clear();
-
-                    me->TeleportTo(targetP->GetMapId(), destX, destY, destZ, 0.0f);
-                    sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Teleport robot %s (level %d)", me->GetName(), me->GetLevel());
+                    if (!checkMap->Instanceable())
+                    {
+                        targetP->GetNearPoint(targetP, destX, destY, destZ, distance, angle);
+                        destMapID = targetP->GetMapId();
+                        validLocation = true;
+                    }
                 }
             }
         }
+    }
+
+    if (!validLocation)
+    {
+        if (Corpse* myC = me->GetCorpse())
+        {
+            myC->GetNearPoint(myC, destX, destY, destZ, distance, angle);
+            destMapID = myC->GetMapId();
+            validLocation = true;
+        }
+    }
+
+    if (!validLocation)
+    {
+        me->GetNearPoint(me, destX, destY, destZ, distance, angle);
+        destMapID = me->GetMapId();
+        validLocation = true;
+    }
+
+    if (validLocation)
+    {
+        if (!me->IsAlive())
+        {
+            me->ResurrectPlayer(1.0f);
+            me->SpawnCorpseBones();
+        }
+        me->ClearInCombat();
+        me->StopMoving();
+        me->GetMotionMaster()->Clear();
+        Prepare();
+        me->TeleportTo(destMapID, destX, destY, destZ, 0.0f);
+        sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Teleport robot %s (level %d)", me->GetName(), me->GetLevel());
     }
 }
 
 void Script_Base::Prepare()
 {
     if (!me)
+    {
+        return;
+    }
+    if (!me->IsAlive())
     {
         return;
     }
@@ -1032,7 +1069,7 @@ void Script_Base::Prepare()
     Pet* checkPet = me->GetPet();
     if (checkPet)
     {
-        checkPet->SetReactState(REACT_DEFENSIVE);
+        checkPet->SetReactState(REACT_DEFENSIVE);        
         if (checkPet->getPetType() == PetType::HUNTER_PET)
         {
             checkPet->SetPower(POWER_HAPPINESS, HAPPINESS_LEVEL_SIZE * 3);
@@ -1173,14 +1210,6 @@ bool Script_Base::Follow(Unit* pmTarget, float pmDistance)
         return false;
     }
     float currentDistance = me->GetDistance(pmTarget);
-    if (currentDistance > ATTACK_RANGE_LIMIT)
-    {
-        me->AttackStop();
-        me->StopMoving();
-        me->GetMotionMaster()->Clear();
-        me->SetSelection(ObjectGuid());
-        return false;
-    }
     if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == MovementGeneratorType::CHASE_MOTION_TYPE)
     {
         if (ChaseMovementGenerator* mg = (ChaseMovementGenerator*)me->GetMotionMaster()->GetCurrentMovementGenerator())
@@ -1189,10 +1218,26 @@ bool Script_Base::Follow(Unit* pmTarget, float pmDistance)
             {
                 if (mgTarget->GetGUID() == pmTarget->GetGUID())
                 {
+                    if (currentDistance > ATTACK_RANGE_LIMIT)
+                    {
+                        me->AttackStop();
+                        me->StopMoving();
+                        me->GetMotionMaster()->Clear();
+                        me->SetSelection(ObjectGuid());
+                        return false;
+                    }
+                    if (me->GetTarget() != pmTarget->GetGUID())
+                    {
+                        me->SetSelection(pmTarget->GetGUID());
+                    }
                     return true;
                 }
             }
         }
+    }
+    if (currentDistance > ATTACK_RANGE_LIMIT)
+    {
+        return false;
     }
     me->AttackStop();
     me->StopMoving();
@@ -1228,35 +1273,29 @@ bool Script_Base::Chase(Unit* pmTarget, float pmMaxDistance, float pmMinDistance
     {
         return false;
     }
-    float currentDistance = me->GetDistance(pmTarget);
-    if (currentDistance > ATTACK_RANGE_LIMIT)
-    {
-        me->AttackStop();
-        me->StopMoving();
-        me->GetMotionMaster()->Clear();
-        me->SetSelection(ObjectGuid());
-        return false;
-    }
     if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == MovementGeneratorType::POINT_MOTION_TYPE)
     {
         return true;
     }
+    float currentDistance = me->GetDistance(pmTarget);
     if (pmMinDistance > INTERACTION_DISTANCE)
     {
         if (currentDistance < pmMinDistance)
         {
-            me->AttackStop();
-            me->StopMoving();
-            me->GetMotionMaster()->Clear();
-            me->SetSelection(ObjectGuid());
-            me->SetSelection(pmTarget->GetGUID());
+            if (pmTarget->GetTarget() != me->GetGUID())
+            {
+                me->AttackStop();
+                me->StopMoving();
+                me->GetMotionMaster()->Clear();
+                me->SetSelection(ObjectGuid());
 
-            float destX = 0.0f;
-            float destY = 0.0f;
-            float destZ = 0.0f;
-            pmTarget->GetNearPoint(pmTarget, destX, destY, destZ, pmMinDistance + MELEE_MIN_DISTANCE, pmTarget->GetAbsoluteAngle(me));
-            me->GetMotionMaster()->MovePoint(0, destX, destY, destZ, true, me->GetAbsoluteAngle(pmTarget));
-            return true;
+                float destX = 0.0f;
+                float destY = 0.0f;
+                float destZ = 0.0f;
+                pmTarget->GetNearPoint(pmTarget, destX, destY, destZ, pmMinDistance + MELEE_MIN_DISTANCE, pmTarget->GetAbsoluteAngle(me));
+                me->GetMotionMaster()->MovePoint(0, destX, destY, destZ, true, me->GetAbsoluteAngle(pmTarget));
+                return true;
+            }
         }
     }
     if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == MovementGeneratorType::CHASE_MOTION_TYPE)
@@ -1267,11 +1306,40 @@ bool Script_Base::Chase(Unit* pmTarget, float pmMaxDistance, float pmMinDistance
             {
                 if (mgTarget->GetGUID() == pmTarget->GetGUID())
                 {
+                    if (currentDistance > ATTACK_RANGE_LIMIT)
+                    {
+                        me->AttackStop();
+                        me->StopMoving();
+                        me->GetMotionMaster()->Clear();
+                        me->SetSelection(ObjectGuid());
+                        return false;
+                    }
+                    //else if(!sRobotManager->UnitTargetReachable(me,pmTarget))
+                    //{
+                    //    me->ClearInCombat();
+                    //    me->AttackStop();
+                    //    me->StopMoving();
+                    //    me->GetMotionMaster()->Clear();
+                    //    me->SetSelection(ObjectGuid());
+                    //    return false;
+                    //}
+                    if (me->GetTarget() != pmTarget->GetGUID())
+                    {
+                        me->SetSelection(pmTarget->GetGUID());
+                    }
                     return true;
                 }
             }
         }
     }
+    if (currentDistance > ATTACK_RANGE_LIMIT)
+    {
+        return false;
+    }
+    //else if (!sRobotManager->UnitTargetReachable(me, pmTarget))
+    //{
+    //    return false;
+    //}
     me->AttackStop();
     me->StopMoving();
     me->GetMotionMaster()->Clear();
@@ -1585,7 +1653,7 @@ bool Script_Base::Rest()
     }
     else if (me->GetLevel() >= 55)
     {
-        foodEntry = 21023;
+        foodEntry = 27857;
     }
     else if (me->GetLevel() >= 45)
     {
@@ -1709,6 +1777,8 @@ void Script_Base::PetAttack(Unit* pmTarget)
 
 void Script_Base::PetStop()
 {
+    // EJ debug
+    return;
     if (me)
     {
         if (Pet* myPet = me->GetPet())

@@ -170,11 +170,13 @@ bool Script_Paladin::DPS_Retribution(Unit* pmTarget, bool pmChase, bool pmAOE)
     if (targetDistance > ATTACK_RANGE_LIMIT)
     {
         return false;
-    }
-    me->Attack(pmTarget, true);
+    }    
     if (pmChase)
     {
-        Chase(pmTarget);
+        if (!Chase(pmTarget))
+        {
+            return false;
+        }
     }
     else
     {
@@ -183,6 +185,7 @@ bool Script_Paladin::DPS_Retribution(Unit* pmTarget, bool pmChase, bool pmAOE)
             me->SetFacingToObject(pmTarget);
         }
     }
+    me->Attack(pmTarget, true);
     if (pmAOE)
     {
         if (Group* myGroup = me->GetGroup())
@@ -271,11 +274,13 @@ bool Script_Paladin::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE)
     if (targetDistance > ATTACK_RANGE_LIMIT)
     {
         return false;
-    }
-    me->Attack(pmTarget, true);
+    }    
     if (pmChase)
     {
-        Chase(pmTarget);
+        if (!Chase(pmTarget))
+        {
+            return false;
+        }
     }
     else
     {
@@ -284,6 +289,7 @@ bool Script_Paladin::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE)
             me->SetFacingToObject(pmTarget);
         }
     }
+    me->Attack(pmTarget, true);
     if (pmTarget->GetHealthPct() < 20.0f)
     {
         if (CastSpell(pmTarget, "Hammer of Wrath", MELEE_MAX_DISTANCE))
@@ -362,9 +368,12 @@ bool Script_Paladin::Attack_Retribution(Unit* pmTarget)
     if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
     {
         return false;
+    }    
+    if (!Chase(pmTarget))
+    {
+        return false;
     }
     me->Attack(pmTarget, true);
-    Chase(pmTarget);
     if (pmTarget->GetHealthPct() < 20.0f)
     {
         if (CastSpell(pmTarget, "Hammer of Wrath", MELEE_MAX_DISTANCE))
@@ -422,9 +431,12 @@ bool Script_Paladin::Attack_Common(Unit* pmTarget)
     if (targetDistance > ATTACK_RANGE_LIMIT)
     {
         return false;
+    }    
+    if (!Chase(pmTarget))
+    {
+        return false;
     }
     me->Attack(pmTarget, true);
-    Chase(pmTarget);
     if (pmTarget->GetHealthPct() < 20.0f)
     {
         if (CastSpell(pmTarget, "Hammer of Wrath", MELEE_MAX_DISTANCE))

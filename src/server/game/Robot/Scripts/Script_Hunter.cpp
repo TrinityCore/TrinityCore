@@ -85,11 +85,13 @@ bool Script_Hunter::DPS_BeastMastery(Unit* pmTarget, bool pmChase, bool pmAOE)
     if (targetDistance > ATTACK_RANGE_LIMIT)
     {
         return false;
-    }
-    me->Attack(pmTarget, true);
+    }    
     if (pmChase)
     {
-        Chase(pmTarget, HUNTER_RANGE_DISTANCE, HUNTER_MIN_RANGE_DISTANCE);
+        if (!Chase(pmTarget, HUNTER_RANGE_DISTANCE, HUNTER_MIN_RANGE_DISTANCE))
+        {
+            return false;
+        }
     }
     else
     {
@@ -98,6 +100,7 @@ bool Script_Hunter::DPS_BeastMastery(Unit* pmTarget, bool pmChase, bool pmAOE)
             me->SetFacingToObject(pmTarget);
         }
     }
+    me->Attack(pmTarget, true);
     if (CastSpell(pmTarget, "Hunter's Mark", 100.0f, true))
     {
         return true;
@@ -162,7 +165,10 @@ bool Script_Hunter::DPS_Marksmanship(Unit* pmTarget, bool pmChase, bool pmAOE)
     }
     if (pmChase)
     {
-        Chase(pmTarget, HUNTER_RANGE_DISTANCE, HUNTER_MIN_RANGE_DISTANCE);
+        if (!Chase(pmTarget, HUNTER_RANGE_DISTANCE, HUNTER_MIN_RANGE_DISTANCE))
+        {
+            return false;
+        }
     }
     else
     {
@@ -171,6 +177,7 @@ bool Script_Hunter::DPS_Marksmanship(Unit* pmTarget, bool pmChase, bool pmAOE)
             me->SetFacingToObject(pmTarget);
         }
     }
+    me->Attack(pmTarget, true);
     if (pmAOE)
     {
         if (Group* myGroup = me->GetGroup())
@@ -294,11 +301,13 @@ bool Script_Hunter::DPS_Survival(Unit* pmTarget, bool pmChase, bool pmAOE)
     if (targetDistance > ATTACK_RANGE_LIMIT)
     {
         return false;
-    }
-    me->Attack(pmTarget, true);
+    }    
     if (pmChase)
     {
-        Chase(pmTarget, HUNTER_RANGE_DISTANCE, HUNTER_MIN_RANGE_DISTANCE);
+        if (!Chase(pmTarget, HUNTER_RANGE_DISTANCE, HUNTER_MIN_RANGE_DISTANCE))
+        {
+            return false;
+        }
     }
     else
     {
@@ -307,6 +316,7 @@ bool Script_Hunter::DPS_Survival(Unit* pmTarget, bool pmChase, bool pmAOE)
             me->SetFacingToObject(pmTarget);
         }
     }
+    me->Attack(pmTarget, true);
     if (CastSpell(pmTarget, "Hunter's Mark", 100, true))
     {
         return true;
@@ -416,9 +426,12 @@ bool Script_Hunter::Attack_BeastMastery(Unit* pmTarget)
     if (targetDistance > ATTACK_RANGE_LIMIT)
     {
         return false;
+    }    
+    if (!Chase(pmTarget, HUNTER_RANGE_DISTANCE))
+    {
+        return false;
     }
     me->Attack(pmTarget, true);
-    Chase(pmTarget, HUNTER_RANGE_DISTANCE);
     if (CastSpell(pmTarget, "Hunter's Mark", 100, true))
     {
         return true;
@@ -495,13 +508,16 @@ bool Script_Hunter::Attack_Marksmanship(Unit* pmTarget)
     if (targetDistance > ATTACK_RANGE_LIMIT)
     {
         return false;
+    }    
+    if (!Chase(pmTarget, HUNTER_RANGE_DISTANCE))
+    {
+        return false;
     }
     me->Attack(pmTarget, true);
-    Chase(pmTarget, HUNTER_RANGE_DISTANCE);
     if (CastSpell(pmTarget, "Hunter's Mark", 100, true))
     {
         return true;
-    }
+    }    
     if (targetDistance < HUNTER_MIN_RANGE_DISTANCE)
     {
         if (CastSpell(me, "Aspect of the Monkey", 20, true, true))
@@ -574,13 +590,16 @@ bool Script_Hunter::Attack_Survival(Unit* pmTarget)
     if (targetDistance > ATTACK_RANGE_LIMIT)
     {
         return false;
+    }    
+    if (!Chase(pmTarget, HUNTER_RANGE_DISTANCE))
+    {
+        return false;
     }
     me->Attack(pmTarget, true);
-    Chase(pmTarget, HUNTER_RANGE_DISTANCE);
     if (CastSpell(pmTarget, "Hunter's Mark", 100, true))
     {
         return true;
-    }
+    }    
     if (targetDistance < HUNTER_MIN_RANGE_DISTANCE)
     {
         if (CastSpell(me, "Aspect of the Monkey", 20, true, true))

@@ -87,7 +87,9 @@ struct TC_GAME_API ChaseRange
 
 struct TC_GAME_API ChaseAngle
 {
-    ChaseAngle(float angle, float _tolerance = M_PI_4);
+    // EJ default chase angle set pi/8
+    //ChaseAngle(float angle, float _tolerance = M_PI_4);
+    ChaseAngle(float angle, float _tolerance = M_PI / 8);
 
     float RelativeAngle; // we want to be at this angle relative to the target (0 = front, M_PI = back)
     float Tolerance;     // but we'll tolerate anything within +- this much

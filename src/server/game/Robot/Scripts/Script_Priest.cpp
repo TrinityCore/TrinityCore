@@ -202,7 +202,10 @@ bool Script_Priest::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE)
     }
     if (pmChase)
     {
-        Chase(pmTarget, PRIEST_RANGE_DISTANCE);
+        if (!Chase(pmTarget, PRIEST_RANGE_DISTANCE))
+        {
+            return false;
+        }
     }
     else
     {
@@ -286,7 +289,10 @@ bool Script_Priest::Attack_Common(Unit* pmTarget)
     {
         return false;
     }
-    Chase(pmTarget, PRIEST_RANGE_DISTANCE);
+    if (!Chase(pmTarget, PRIEST_RANGE_DISTANCE))
+    {
+        return false;
+    }
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
     {
         if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))

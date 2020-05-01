@@ -167,23 +167,30 @@ bool JokerConfig::StartJokerSystem()
 
     ThreatMod = GetFloatDefault("ThreatMod", 1);
 
-    InstanceEncounterAPMod = GetFloatDefault("InstanceEncounterAPMod", 1);
-    EliteAPMod = GetFloatDefault("EliteAPMod", 1);
-    UniqueEliteAPMod = GetFloatDefault("UniqueEliteAPMod", 1);
-    RareAPMod = GetFloatDefault("RareAPMod", 1);
-    RareEliteAPMod = GetFloatDefault("RareEliteAPMod", 1);
+    NormalAttackMod = GetFloatDefault("NormalAttackMod", 1);
+    InstanceEncounterAttackMod = GetFloatDefault("InstanceEncounterAttackMod", 1);
+    EliteAttackMod = GetFloatDefault("EliteAttackMod", 1);
+    UniqueEliteAttackMod = GetFloatDefault("UniqueEliteAttackMod", 1);
+    RareAttackMod = GetFloatDefault("RareAttackMod", 1);
+    RareEliteAttackMod = GetFloatDefault("RareEliteAttackMod", 1);
 
+    NormalSpellMod = GetFloatDefault("NormalSpellMod", 1);
     InstanceEncounterSpellMod = GetFloatDefault("InstanceEncounterSpellMod", 1);
     EliteSpellMod = GetFloatDefault("EliteSpellMod", 1);
     UniqueEliteSpellMod = GetFloatDefault("UniqueEliteSpellMod", 1);
     RareSpellMod = GetFloatDefault("RareSpellMod", 1);
     RareEliteSpellMod = GetFloatDefault("RareEliteSpellMod", 1);
 
+    NormalHPMod = GetFloatDefault("NormalHPMod", 1);
     InstanceEncounterHPMod = GetFloatDefault("InstanceEncounterHPMod", 1);
     EliteHPMod = GetFloatDefault("EliteHPMod", 1);
     UniqueEliteHPMod = GetFloatDefault("UniqueEliteHPMod", 1);
     RareHPMod = GetFloatDefault("RareHPMod", 1);
     RareEliteHPMod = GetFloatDefault("RareEliteHPMod", 1);
+
+    LevelAttackMod = GetFloatDefault("LevelAttackMod", 1);
+    LevelSpellMod = GetFloatDefault("LevelSpellMod", 0.5);
+    LevelHPMod = GetFloatDefault("LevelHPMod", 1);
 
     if (Enable == 0)
     {

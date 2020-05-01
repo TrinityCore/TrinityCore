@@ -18,6 +18,7 @@
 #include "CreatureAI.h"
 #include "InstanceScript.h"
 #include "GridNotifiers.h"
+#include "PathGenerator.h"
 
 RobotManager::RobotManager()
 {
@@ -785,7 +786,9 @@ void RobotManager::LogoutRobot(uint32 pmCharacterID)
         if (!checkP->IsAlive())
         {
             checkP->ResurrectPlayer(1.0f);
+            checkP->SpawnCorpseBones();
         }
+        checkP->ClearInCombat();
         sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Log out robot %s", checkP->GetName());
         std::ostringstream msgStream;
         msgStream << checkP->GetName() << " logged out";
@@ -882,6 +885,7 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                             {
                                 validTarget = true;
                                 replyStream << "Joining " << member->GetName();
+                                pmPlayer->SetPhaseMask(member->GetPhaseMask(), true);
                                 pmPlayer->TeleportTo(member->GetWorldLocation());
                             }
                         }
@@ -1200,7 +1204,7 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
             float destX = 0;
             float destY = 0;
             float destZ = 0;
-            targetUnit->GetNearPoint(pmPlayer, destX, destY, destZ, distance, M_PI / 16 + targetUnit->GetAbsoluteAngle(pmPlayer->GetPosition()));
+            targetUnit->GetNearPoint(pmPlayer, destX, destY, destZ, distance, M_PI / 4 + targetUnit->GetAbsoluteAngle(pmPlayer->GetPosition()));
             pmPlayer->GetMotionMaster()->MovePoint(1, destX, destY, destZ, true, pmPlayer->GetAbsoluteAngle(targetUnit->GetPosition()));
             sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, "Move side", pmPlayer);
         }
@@ -1947,106 +1951,80 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
         {
             if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
             {
-                if (pmReceiver)
+                std::string memberType = "all";
+                if (commandVector.size() > 1)
                 {
-                    std::ostringstream replyStream;
-                    if (pmReceiver->IsInSameGroupWith(pmSender))
+                    memberType = commandVector.at(1);
+                }
+                for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                {
+                    Player* member = groupRef->GetSource();
+                    if (member)
                     {
-                        if (pmReceiver->raiGroup->GetActiveStrategy()->moveAssembleDelay > 0 || pmReceiver->raiGroup->GetActiveStrategy()->teleportAssembleDelay > 0)
+                        if (!member->GetSession()->isRobotSession)
+                        {
+                            continue;
+                        }
+                        if (pmReceiver)
+                        {
+                            if (pmReceiver->GetGUID() != member->GetGUID())
+                            {
+                                continue;
+                            }
+                        }
+                        if (memberType == "melee")
+                        {
+                            if (member->GetClass() != Classes::CLASS_DRUID && member->GetClass() != Classes::CLASS_PALADIN && member->GetClass() != Classes::CLASS_ROGUE && member->GetClass() != Classes::CLASS_WARRIOR)
+                            {
+                                continue;
+                            }
+                        }
+                        else if (memberType == "range")
+                        {
+                            if (member->GetClass() != Classes::CLASS_HUNTER && member->GetClass() != Classes::CLASS_MAGE && member->GetClass() != Classes::CLASS_PRIEST && member->GetClass() != Classes::CLASS_SHAMAN && member->GetClass() != Classes::CLASS_WARLOCK)
+                            {
+                                continue;
+                            }
+                        }
+                        std::ostringstream replyStream;
+                        if (member->raiGroup->GetActiveStrategy()->moveDelay > 0 || member->raiGroup->GetActiveStrategy()->teleportAssembleDelay > 0)
                         {
                             replyStream << "I am on the way";
                         }
                         else
                         {
-                            if (pmReceiver->IsAlive())
+                            if (member->IsAlive())
                             {
-                                if (pmReceiver->GetDistance(pmSender) < ASSEMBLE_TELEPORT_MIN_RANGE)
+                                if (member->GetDistance(pmSender) < ASSEMBLE_TELEPORT_MIN_RANGE)
                                 {
-                                    pmReceiver->raiGroup->GetActiveStrategy()->moveAssembleDelay = 5000;
+                                    member->raiGroup->GetActiveStrategy()->moveDelay = 5000;
                                     replyStream << "We are close, I will move to you";
-                                    pmReceiver->GetMotionMaster()->Clear();
-                                    pmReceiver->StopMoving();
-                                    if (pmReceiver->GetStandState() != UnitStandStateType::UNIT_STAND_STATE_STAND)
+                                    member->GetMotionMaster()->Clear();
+                                    member->StopMoving();
+                                    if (member->GetStandState() != UnitStandStateType::UNIT_STAND_STATE_STAND)
                                     {
-                                        pmReceiver->SetStandState(UNIT_STAND_STATE_STAND);
+                                        member->SetStandState(UNIT_STAND_STATE_STAND);
                                     }
-                                    if (pmReceiver->IsWalking())
+                                    if (member->IsWalking())
                                     {
-                                        pmReceiver->SetWalk(false);
+                                        member->SetWalk(false);
                                     }
-                                    pmReceiver->raiGroup->GetActiveStrategy()->restDelay = 0;
-                                    pmReceiver->GetMotionMaster()->MovePoint(1, pmSender->GetPosition(), true, pmSender->GetOrientation());
+                                    member->raiGroup->GetActiveStrategy()->restDelay = 0;
+                                    member->GetMotionMaster()->MovePoint(1, pmSender->GetPosition(), true, pmSender->GetOrientation());
                                 }
                                 else
                                 {
-                                    pmReceiver->raiGroup->GetActiveStrategy()->teleportAssembleDelay = 1 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS;
+                                    member->raiGroup->GetActiveStrategy()->teleportAssembleDelay = 1 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS;
                                     replyStream << "I will join you in 1 minute";
                                 }
                             }
                             else
                             {
-                                pmReceiver->raiGroup->GetActiveStrategy()->teleportAssembleDelay = 2 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS;
+                                member->raiGroup->GetActiveStrategy()->teleportAssembleDelay = 2 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS;
                                 replyStream << "I will revive and join you in 2 minutes";
                             }
                         }
-                    }
-                    else
-                    {
-                        replyStream << "You are not leader of my group";
-                    }
-                    WhisperTo(pmReceiver, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
-                }
-                else
-                {
-                    for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-                    {
-                        Player* member = groupRef->GetSource();
-                        if (member)
-                        {
-                            if (!member->GetSession()->isRobotSession)
-                            {
-                                continue;
-                            }
-                            std::ostringstream replyStream;
-                            if (member->raiGroup->GetActiveStrategy()->moveAssembleDelay > 0 || member->raiGroup->GetActiveStrategy()->teleportAssembleDelay > 0)
-                            {
-                                replyStream << "I am on the way";
-                            }
-                            else
-                            {
-                                if (member->IsAlive())
-                                {
-                                    if (member->GetDistance(pmSender) < ASSEMBLE_TELEPORT_MIN_RANGE)
-                                    {
-                                        member->raiGroup->GetActiveStrategy()->moveAssembleDelay = 5000;
-                                        replyStream << "We are close, I will move to you";
-                                        member->GetMotionMaster()->Clear();
-                                        member->StopMoving();
-                                        if (member->GetStandState() != UnitStandStateType::UNIT_STAND_STATE_STAND)
-                                        {
-                                            member->SetStandState(UNIT_STAND_STATE_STAND);
-                                        }
-                                        if (member->IsWalking())
-                                        {
-                                            member->SetWalk(false);
-                                        }
-                                        member->raiGroup->GetActiveStrategy()->restDelay = 0;
-                                        member->GetMotionMaster()->MovePoint(1, pmSender->GetPosition(), true, pmSender->GetOrientation());
-                                    }
-                                    else
-                                    {
-                                        member->raiGroup->GetActiveStrategy()->teleportAssembleDelay = 1 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS;
-                                        replyStream << "I will join you in 1 minute";
-                                    }
-                                }
-                                else
-                                {
-                                    member->raiGroup->GetActiveStrategy()->teleportAssembleDelay = 2 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS;
-                                    replyStream << "I will revive and join you in 2 minutes";
-                                }
-                            }
-                            WhisperTo(member, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
-                        }
+                        WhisperTo(member, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
                     }
                 }
             }
@@ -3377,107 +3355,254 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
             {
                 if (Unit* target = pmSender->GetSelectedUnit())
                 {
-                    if (pmReceiver)
+                    std::string memberType = "all";
+                    if (commandVector.size() > 1)
                     {
-                        std::ostringstream replyStream;
-                        if (pmReceiver->IsInSameGroupWith(pmSender))
-                        {
-                            if (pmReceiver->IsAlive())
-                            {
-                                if (pmReceiver->raiGroup->GetActiveStrategy()->sideDelay > 0)
-                                {
-                                    replyStream << "Moving";
-                                }
-                                else
-                                {
-                                    pmReceiver->raiGroup->GetActiveStrategy()->sideDelay = 1000;
-                                    replyStream << "Move side";
-                                    pmReceiver->GetMotionMaster()->Clear();
-                                    pmReceiver->StopMoving();
-                                    float distance = pmReceiver->GetDistance(target);
-                                    float destX = 0;
-                                    float destY = 0;
-                                    float destZ = 0;
-                                    target->GetNearPoint(pmReceiver, destX, destY, destZ, distance, M_PI / 16 + target->GetAbsoluteAngle(pmReceiver->GetPosition()));
-                                    if (pmReceiver->GetStandState() != UnitStandStateType::UNIT_STAND_STATE_STAND)
-                                    {
-                                        pmReceiver->SetStandState(UNIT_STAND_STATE_STAND);
-                                    }
-                                    if (pmReceiver->IsWalking())
-                                    {
-                                        pmReceiver->SetWalk(false);
-                                    }
-                                    pmReceiver->GetMotionMaster()->MovePoint(1, destX, destY, destZ, true, pmReceiver->GetAbsoluteAngle(target->GetPosition()));
-                                }
-                            }
-                            else
-                            {
-                                replyStream << "I am dead";
-                            }
-                        }
-                        else
-                        {
-                            replyStream << "You are not leader of my group";
-                        }
-                        WhisperTo(pmReceiver, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                        memberType = commandVector.at(1);
                     }
-                    else
+                    for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
                     {
-                        for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                        Player* member = groupRef->GetSource();
+                        if (member)
                         {
-                            Player* member = groupRef->GetSource();
-                            if (member)
+                            if (!member->GetSession()->isRobotSession)
                             {
-                                if (!member->GetSession()->isRobotSession)
+                                continue;
+                            }
+                            if (pmReceiver)
+                            {
+                                if (pmReceiver->GetGUID() != member->GetGUID())
                                 {
                                     continue;
                                 }
-                                std::ostringstream replyStream;
-                                if (member->raiGroup->GetActiveStrategy()->moveAssembleDelay > 0 || member->raiGroup->GetActiveStrategy()->teleportAssembleDelay > 0)
+                            }
+                            if (memberType == "melee")
+                            {
+                                if (member->GetClass() != Classes::CLASS_DRUID && member->GetClass() != Classes::CLASS_PALADIN && member->GetClass() != Classes::CLASS_ROGUE && member->GetClass() != Classes::CLASS_WARRIOR)
                                 {
-                                    replyStream << "I am on the way";
+                                    continue;
+                                }
+                            }
+                            else if (memberType == "range")
+                            {
+                                if (member->GetClass() != Classes::CLASS_HUNTER && member->GetClass() != Classes::CLASS_MAGE && member->GetClass() != Classes::CLASS_PRIEST && member->GetClass() != Classes::CLASS_SHAMAN && member->GetClass() != Classes::CLASS_WARLOCK)
+                                {
+                                    continue;
+                                }
+                            }
+                            std::ostringstream replyStream;
+                            if (member->raiGroup->GetActiveStrategy()->moveDelay > 0 || member->raiGroup->GetActiveStrategy()->teleportAssembleDelay > 0)
+                            {
+                                replyStream << "I am on the way";
+                            }
+                            else
+                            {
+                                if (member->IsAlive())
+                                {
+                                    member->raiGroup->GetActiveStrategy()->moveDelay = 1000;
+                                    replyStream << "Move side";
+                                    member->GetMotionMaster()->Clear();
+                                    member->StopMoving();
+                                    float distance = member->GetDistance(target);
+                                    float destX = 0;
+                                    float destY = 0;
+                                    float destZ = 0;
+                                    target->GetNearPoint(member, destX, destY, destZ, distance, M_PI / 4 + target->GetAbsoluteAngle(member->GetPosition()));
+                                    if (member->GetStandState() != UnitStandStateType::UNIT_STAND_STATE_STAND)
+                                    {
+                                        member->SetStandState(UNIT_STAND_STATE_STAND);
+                                    }
+                                    if (member->IsWalking())
+                                    {
+                                        member->SetWalk(false);
+                                    }
+                                    member->GetMotionMaster()->MovePoint(1, destX, destY, destZ, true, member->GetAbsoluteAngle(target->GetPosition()));
                                 }
                                 else
                                 {
-                                    if (member->IsAlive())
-                                    {
-                                        if (member->raiGroup->GetActiveStrategy()->sideDelay > 0)
-                                        {
-                                            replyStream << "Moving";
-                                        }
-                                        else
-                                        {
-                                            member->raiGroup->GetActiveStrategy()->sideDelay = 1000;
-                                            replyStream << "Move side";
-                                            member->GetMotionMaster()->Clear();
-                                            member->StopMoving();
-                                            float distance = member->GetDistance(target);
-                                            float destX = 0;
-                                            float destY = 0;
-                                            float destZ = 0;
-                                            target->GetNearPoint(member, destX, destY, destZ, distance, M_PI / 16 + target->GetAbsoluteAngle(member->GetPosition()));
-                                            if (member->GetStandState() != UnitStandStateType::UNIT_STAND_STATE_STAND)
-                                            {
-                                                member->SetStandState(UNIT_STAND_STATE_STAND);
-                                            }
-                                            if (member->IsWalking())
-                                            {
-                                                member->SetWalk(false);
-                                            }
-                                            member->GetMotionMaster()->MovePoint(1, destX, destY, destZ, true, member->GetAbsoluteAngle(target->GetPosition()));
-                                        }
-                                    }
-                                    else
-                                    {
-                                        replyStream << "I am dead";
-                                    }
+                                    replyStream << "I am dead";
                                 }
-                                WhisperTo(member, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
                             }
+                            WhisperTo(member, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
                         }
                     }
                 }
             }
         }
     }
+    else if (commandName == "forward")
+    {
+        if (Group* checkGroup = pmSender->GetGroup())
+        {
+            if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
+            {
+                std::string memberType = "all";
+                if (commandVector.size() > 1)
+                {
+                    memberType = commandVector.at(1);
+                }
+                for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                {
+                    Player* member = groupRef->GetSource();
+                    if (member)
+                    {
+                        if (!member->GetSession()->isRobotSession)
+                        {
+                            continue;
+                        }
+                        if (pmReceiver)
+                        {
+                            if (pmReceiver->GetGUID() != member->GetGUID())
+                            {
+                                continue;
+                            }
+                        }
+                        if (memberType == "melee")
+                        {
+                            if (member->GetClass() != Classes::CLASS_DRUID && member->GetClass() != Classes::CLASS_PALADIN && member->GetClass() != Classes::CLASS_ROGUE && member->GetClass() != Classes::CLASS_WARRIOR)
+                            {
+                                continue;
+                            }
+                        }
+                        else if (memberType == "range")
+                        {
+                            if (member->GetClass() != Classes::CLASS_HUNTER && member->GetClass() != Classes::CLASS_MAGE && member->GetClass() != Classes::CLASS_PRIEST && member->GetClass() != Classes::CLASS_SHAMAN && member->GetClass() != Classes::CLASS_WARLOCK)
+                            {
+                                continue;
+                            }
+                        }
+                        std::ostringstream replyStream;
+                        if (member->raiGroup->GetActiveStrategy()->moveDelay > 0 || member->raiGroup->GetActiveStrategy()->teleportAssembleDelay > 0)
+                        {
+                            replyStream << "I am on the way";
+                        }
+                        else
+                        {
+                            if (member->IsAlive())
+                            {
+                                member->raiGroup->GetActiveStrategy()->moveDelay = 1000;
+                                replyStream << "Move forward";
+                                member->GetMotionMaster()->Clear();
+                                member->StopMoving();
+                                float distance = 10.0f;
+                                float destX = 0;
+                                float destY = 0;
+                                float destZ = 0;
+                                member->GetNearPoint(member, destX, destY, destZ, distance, pmSender->GetOrientation());
+                                if (member->GetStandState() != UnitStandStateType::UNIT_STAND_STATE_STAND)
+                                {
+                                    member->SetStandState(UNIT_STAND_STATE_STAND);
+                                }
+                                if (member->IsWalking())
+                                {
+                                    member->SetWalk(false);
+                                }
+                                member->GetMotionMaster()->MovePoint(1, destX, destY, destZ, true, member->GetOrientation());
+                            }
+                            else
+                            {
+                                replyStream << "I am dead";
+                            }
+                        }
+                        WhisperTo(member, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                    }
+                }
+            }
+        }
+    }
+    else if (commandName == "back")
+    {
+    if (Group* checkGroup = pmSender->GetGroup())
+    {
+        if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
+        {
+            std::string memberType = "all";
+            if (commandVector.size() > 1)
+            {
+                memberType = commandVector.at(1);
+            }
+            for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+            {
+                Player* member = groupRef->GetSource();
+                if (member)
+                {
+                    if (!member->GetSession()->isRobotSession)
+                    {
+                        continue;
+                    }
+                    if (pmReceiver)
+                    {
+                        if (pmReceiver->GetGUID() != member->GetGUID())
+                        {
+                            continue;
+                        }
+                    }
+                    if (memberType == "melee")
+                    {
+                        if (member->GetClass() != Classes::CLASS_DRUID && member->GetClass() != Classes::CLASS_PALADIN && member->GetClass() != Classes::CLASS_ROGUE && member->GetClass() != Classes::CLASS_WARRIOR)
+                        {
+                            continue;
+                        }
+                    }
+                    else if (memberType == "range")
+                    {
+                        if (member->GetClass() != Classes::CLASS_HUNTER && member->GetClass() != Classes::CLASS_MAGE && member->GetClass() != Classes::CLASS_PRIEST && member->GetClass() != Classes::CLASS_SHAMAN && member->GetClass() != Classes::CLASS_WARLOCK)
+                        {
+                            continue;
+                        }
+                    }
+                    std::ostringstream replyStream;
+                    if (member->raiGroup->GetActiveStrategy()->moveDelay > 0 || member->raiGroup->GetActiveStrategy()->teleportAssembleDelay > 0)
+                    {
+                        replyStream << "I am on the way";
+                    }
+                    else
+                    {
+                        if (member->IsAlive())
+                        {
+                            member->raiGroup->GetActiveStrategy()->moveDelay = 1000;
+                            replyStream << "Move back";
+                            member->GetMotionMaster()->Clear();
+                            member->StopMoving();
+                            float distance = 10.0f;
+                            float destX = 0;
+                            float destY = 0;
+                            float destZ = 0;
+                            member->GetNearPoint(member, destX, destY, destZ, distance, pmSender->GetOrientation() + M_PI);
+                            if (member->GetStandState() != UnitStandStateType::UNIT_STAND_STATE_STAND)
+                            {
+                                member->SetStandState(UNIT_STAND_STATE_STAND);
+                            }
+                            if (member->IsWalking())
+                            {
+                                member->SetWalk(false);
+                            }
+                            member->GetMotionMaster()->MovePoint(1, destX, destY, destZ, true, member->GetOrientation());
+                        }
+                        else
+                        {
+                            replyStream << "I am dead";
+                        }
+                    }
+                    WhisperTo(member, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                }
+            }
+        }
+    }
+    }
+}
+
+bool RobotManager::UnitTargetReachable(Player* pmCheckPlayer, Unit* pmTarget)
+{
+    PathGenerator path(pmCheckPlayer);
+    bool pathResult = path.CalculatePath(pmTarget->GetPositionX(), pmTarget->GetPositionY(), pmTarget->GetPositionZ());
+    if (!pathResult)
+    {
+        return false;
+    }
+    else if (path.GetPathType() & PATHFIND_NOPATH)
+    {
+        return false;
+    }
+    return true;
 }

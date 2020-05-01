@@ -71,7 +71,10 @@ bool Script_Shaman::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE)
     }
     if (pmChase)
     {
-        Chase(pmTarget, SHAMAN_RANGE_DISTANCE);
+        if (!Chase(pmTarget, SHAMAN_RANGE_DISTANCE))
+        {
+            return false;
+        }
     }
     else
     {
@@ -139,7 +142,10 @@ bool Script_Shaman::Attack_Common(Unit* pmTarget)
     {
         return false;
     }
-    Chase(pmTarget, SHAMAN_RANGE_DISTANCE);
+    if (!Chase(pmTarget, SHAMAN_RANGE_DISTANCE))
+    {
+        return false;
+    }
     if (CastSpell(pmTarget, "Lightning Bolt", SHAMAN_RANGE_DISTANCE))
     {
         return true;

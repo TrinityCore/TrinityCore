@@ -67,11 +67,13 @@ bool Script_Rogue::DPS_Combat(Unit* pmTarget, bool pmChase, bool pmAOE)
     if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
     {
         return false;
-    }
-    me->Attack(pmTarget, true);
+    }    
     if (pmChase)
     {
-        Chase(pmTarget);
+        if (!Chase(pmTarget))
+        {
+            return false;
+        }
     }
     else
     {
@@ -80,6 +82,7 @@ bool Script_Rogue::DPS_Combat(Unit* pmTarget, bool pmChase, bool pmAOE)
             me->SetFacingToObject(pmTarget);
         }
     }
+    me->Attack(pmTarget, true);
     uint32 energy = me->GetPower(Powers::POWER_ENERGY);
     if (energy > 25)
     {
@@ -189,9 +192,12 @@ bool Script_Rogue::Attack_Combat(Unit* pmTarget)
     if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
     {
         return false;
+    }    
+    if (!Chase(pmTarget))
+    {
+        return false;
     }
     me->Attack(pmTarget, true);
-    Chase(pmTarget);
     uint32 energy = me->GetPower(Powers::POWER_ENERGY);
     if (energy > 25)
     {

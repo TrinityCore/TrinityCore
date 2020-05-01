@@ -22068,6 +22068,10 @@ void Player::UpdatePvPState(bool onlyFFA)
             (*itr)->RemoveByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PVP_FLAG, UNIT_BYTE2_FLAG_FFA_PVP);
     }
 
+    // EJ pvp is always on
+    SetPvP(true);
+    return;
+
     if (onlyFFA)
         return;
 
@@ -22085,13 +22089,13 @@ void Player::UpdatePvPState(bool onlyFFA)
 
 void Player::SetPvP(bool state)
 {    
-    bool jokerState = state;
+    bool pvp = state;
     // EJ pvp is always on
-    jokerState = true;
+    pvp = true;
 
-    Unit::SetPvP(jokerState);
+    Unit::SetPvP(pvp);
     for (ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
-        (*itr)->SetPvP(jokerState);
+        (*itr)->SetPvP(pvp);
 }
 
 void Player::UpdatePvP(bool state, bool _override)

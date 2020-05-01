@@ -390,7 +390,9 @@ Unit::Unit(bool isWorldObject) :
     attackChargeTarget = NULL;
 
     //EJ joker
-    jokerSpellDamageMod = 1.0f;
+    jokerSpellMod = 1.0f;
+    jokerAttackMod = 1.0f;
+    jokerHPMod = 1.0f;
 }
 
 ////////////////////////////////////////////////////////////
@@ -6571,25 +6573,7 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
     // EJ joker mod
     if (sJokerConfig->Enable)
     {
-        if (GetTypeId() == TypeID::TYPEID_UNIT)
-        {
-            if (const Creature* checkC = ToCreature())
-            {
-                if (CreatureTemplate const* ct = checkC->GetCreatureTemplate())
-                {
-                    if (ct->rank == 0)
-                    {
-                        float levelMod = 1.0f;
-                        levelMod = levelMod + ((float)GetLevel() / 100.0f);
-                        DoneTotalMod *= levelMod;
-                    }
-                    else if (ct->rank != 3)
-                    {
-                        DoneTotalMod *= jokerSpellDamageMod;
-                    }
-                }
-            }
-        }
+        DoneTotalMod *= jokerSpellMod;
     }
 
     float maxModDamagePercentSchool = 0.0f;

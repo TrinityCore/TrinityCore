@@ -41,21 +41,30 @@ public :
     uint32 Enable;
     float ThreatMod;
 
-    float InstanceEncounterAPMod;
-    float EliteAPMod;
-    float UniqueEliteAPMod;
-    float RareAPMod;
-    float RareEliteAPMod;
+    float NormalAttackMod;
+    float InstanceEncounterAttackMod;
+    float EliteAttackMod;
+    float UniqueEliteAttackMod;
+    float RareAttackMod;
+    float RareEliteAttackMod;
+
+    float NormalSpellMod;
     float InstanceEncounterSpellMod;
     float EliteSpellMod;
     float UniqueEliteSpellMod;
     float RareSpellMod;
     float RareEliteSpellMod;
+
+    float NormalHPMod;
     float InstanceEncounterHPMod;
     float EliteHPMod;
     float UniqueEliteHPMod;
     float RareHPMod;
     float RareEliteHPMod;
+
+    float LevelAttackMod;
+    float LevelSpellMod;
+    float LevelHPMod;
 };
 
 #define sJokerConfig JokerConfig::instance()

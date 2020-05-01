@@ -18,9 +18,8 @@
 Strategy_Group::Strategy_Group(Player* pmMe)
 {
     me = pmMe;
-    combatTime = 0;
-    sideDelay = 0;
-    moveAssembleDelay = 0;
+    combatTime = 0;    
+    moveDelay = 0;
     teleportAssembleDelay = 0;
     restDelay = 0;
     aoeDelay = DEFAULT_AOE_DELAY;
@@ -122,16 +121,18 @@ void Strategy_Group::Update(uint32 pmDiff)
                     if (!me->IsAlive())
                     {
                         me->ResurrectPlayer(0.2f);
+                        me->SpawnCorpseBones();
                     }
-                    me->TeleportTo(leaderPlayer->GetWorldLocation());
                     me->ClearInCombat();
+                    me->SetPhaseMask(leaderPlayer->GetPhaseMask(), true);
+                    me->TeleportTo(leaderPlayer->GetWorldLocation());                    
                     sb->WhisperTo("I have come", Language::LANG_UNIVERSAL, leaderPlayer);
                 }
             }
         }
-        if (moveAssembleDelay > 0)
+        if (moveDelay > 0)
         {
-            moveAssembleDelay -= pmDiff;
+            moveDelay -= pmDiff;
             return;
         }
         if (staying)
@@ -140,11 +141,6 @@ void Strategy_Group::Update(uint32 pmDiff)
         }
         if (!me->IsAlive())
         {
-            return;
-        }
-        if (sideDelay > 0)
-        {
-            sideDelay -= pmDiff;
             return;
         }
         bool groupInCombat = GroupInCombat();

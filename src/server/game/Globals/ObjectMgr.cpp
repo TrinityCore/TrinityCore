@@ -660,11 +660,6 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     // EJ mod
     if (sJokerConfig->Enable)
     {
-        if (creatureTemplate.rank != 3)
-        {
-            creatureTemplate.ModDamage = 1.0f;
-        }
-
         if (creatureTemplate.minlevel > 1 && creatureTemplate.maxlevel < 10)
         {
             if (sJokerManager->expansionCreatureMap[0].find(creatureTemplate.Entry) != sJokerManager->expansionCreatureMap[0].end())
@@ -676,6 +671,13 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
                 creatureTemplate.faction = sJokerManager->expansionCreatureMap[1][creatureTemplate.Entry];
             }
         }
+    }
+
+    // EJ creature fix
+    if (creatureTemplate.Entry == 4444 || creatureTemplate.Entry == 4787 || creatureTemplate.Entry == 4510)
+    {
+        creatureTemplate.unit_flags |= UnitFlags::UNIT_FLAG_IMMUNE_TO_NPC;
+        creatureTemplate.unit_flags |= UnitFlags::UNIT_FLAG_IMMUNE_TO_PC;
     }
 }
 
@@ -2199,6 +2201,13 @@ void ObjectMgr::LoadCreatures()
             if (data.spawntimesecs < TimeConstants::HOUR * 100)
             {
                 data.spawntimesecs = TimeConstants::HOUR * 100;
+            }
+        }
+        else
+        {
+            if (data.spawntimesecs < 15 * TimeConstants::MINUTE)
+            {
+                data.spawntimesecs = urand(15 * TimeConstants::MINUTE, 30 * TimeConstants::MINUTE);
             }
         }
 
@@ -4326,6 +4335,16 @@ void ObjectMgr::LoadPlayerInfo()
             PlayerClassLevelInfo& levelInfo = info->levelInfo[current_level - 1];
             levelInfo.basehealth = fields[2].GetUInt16();
             levelInfo.basemana   = fields[3].GetUInt16();
+
+            // EJ joker player mod
+            if (sJokerConfig->Enable)
+            {
+                float levelMod = current_level * 100.0f;
+                levelMod = levelMod / 10000.0f;
+                levelMod = levelMod + 1;
+                levelInfo.basehealth = levelInfo.basehealth * levelMod;
+                levelInfo.basemana = levelInfo.basemana * levelMod;
+            }
 
             ++count;
         }
@@ -9957,6 +9976,24 @@ void ObjectMgr::LoadCreatureClassLevelStats()
 
         stats.AttackPower = fields[7].GetUInt16();
         stats.RangedAttackPower = fields[8].GetUInt16();
+
+        // EJ joker stats mod            
+        if (sJokerConfig->Enable)
+        {
+            float checkMeleeAP = stats.AttackPower;
+            if (checkMeleeAP < 40)
+            {
+                checkMeleeAP = 40;
+            }
+            checkMeleeAP = checkMeleeAP * 1.3f;
+            float checkRangeAP = checkMeleeAP / 2;
+            if (checkRangeAP < stats.RangedAttackPower)
+            {
+                checkRangeAP = stats.RangedAttackPower;
+            }
+            stats.AttackPower = checkMeleeAP;
+            stats.RangedAttackPower = checkRangeAP;
+        }
 
         _creatureBaseStatsStore[MAKE_PAIR16(Level, Class)] = stats;
 

@@ -99,7 +99,10 @@ bool Script_Warlock::DPS_Affliction(Unit* pmTarget, bool pmChase, bool pmAOE)
 
     if (pmChase)
     {
-        Chase(pmTarget, WARLOCK_RANGE_DISTANCE);
+        if (!Chase(pmTarget, WARLOCK_RANGE_DISTANCE))
+        {
+            return false;
+        }
     }
     else
     {
@@ -153,7 +156,10 @@ bool Script_Warlock::DPS_Demonology(Unit* pmTarget, bool pmChase, bool pmAOE)
 
     if (pmChase)
     {
-        Chase(pmTarget, WARLOCK_RANGE_DISTANCE);
+        if (!Chase(pmTarget, WARLOCK_RANGE_DISTANCE))
+        {
+            return false;
+        }
     }
     else
     {
@@ -207,7 +213,10 @@ bool Script_Warlock::DPS_Destruction(Unit* pmTarget, bool pmChase, bool pmAOE)
 
     if (pmChase)
     {
-        Chase(pmTarget, WARLOCK_RANGE_DISTANCE);
+        if (!Chase(pmTarget, WARLOCK_RANGE_DISTANCE))
+        {
+            return false;
+        }
     }
     else
     {
@@ -321,7 +330,10 @@ bool Script_Warlock::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE)
     }
     if (pmChase)
     {
-        Chase(pmTarget, WARLOCK_RANGE_DISTANCE);
+        if (!Chase(pmTarget, WARLOCK_RANGE_DISTANCE))
+        {
+            return false;
+        }
     }
     else
     {
@@ -426,7 +438,10 @@ bool Script_Warlock::Attack_Affliction(Unit* pmTarget)
         return false;
     }
 
-    Chase(pmTarget, WARLOCK_RANGE_DISTANCE);
+    if (!Chase(pmTarget, WARLOCK_RANGE_DISTANCE))
+    {
+        return false;
+    }
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
     {
         if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
@@ -470,7 +485,10 @@ bool Script_Warlock::Attack_Demonology(Unit* pmTarget)
         return false;
     }
 
-    Chase(pmTarget, WARLOCK_RANGE_DISTANCE);
+    if (!Chase(pmTarget, WARLOCK_RANGE_DISTANCE))
+    {
+        return false;
+    }
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
     {
         if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
@@ -514,7 +532,10 @@ bool Script_Warlock::Attack_Destruction(Unit* pmTarget)
         return false;
     }
 
-    Chase(pmTarget, WARLOCK_RANGE_DISTANCE);
+    if (!Chase(pmTarget, WARLOCK_RANGE_DISTANCE))
+    {
+        return false;
+    }
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
     {
         if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
@@ -574,7 +595,10 @@ bool Script_Warlock::Attack_Common(Unit* pmTarget)
     {
         return false;
     }
-    Chase(pmTarget, WARLOCK_RANGE_DISTANCE);
+    if (!Chase(pmTarget, WARLOCK_RANGE_DISTANCE))
+    {
+        return false;
+    }
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
     {
         if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))

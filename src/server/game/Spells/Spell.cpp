@@ -5416,8 +5416,23 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
         {
             case SPELL_EFFECT_LEARN_SPELL:
             {
+                // EJ learn spell will be invalid only if target is not player
+                //if (m_caster->GetTypeId() != TYPEID_PLAYER)
+                //    return SPELL_FAILED_BAD_TARGETS;
                 if (m_caster->GetTypeId() != TYPEID_PLAYER)
-                    return SPELL_FAILED_BAD_TARGETS;
+                {
+                    if (Unit* checkU = m_targets.GetUnitTarget())
+                    {
+                        if (checkU->GetTypeId() != TypeID::TYPEID_PLAYER)
+                        {
+                            return SPELL_FAILED_BAD_TARGETS;
+                        }
+                    }
+                    else
+                    {
+                        return SPELL_FAILED_BAD_TARGETS;
+                    }
+                }                      
 
                 if (m_spellInfo->Effects[i].TargetA.GetTarget() != TARGET_UNIT_PET)
                     break;

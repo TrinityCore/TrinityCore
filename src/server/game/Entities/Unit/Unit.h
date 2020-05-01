@@ -737,7 +737,9 @@ public:
     Unit* attackChargeTarget;
 
     // EJ joker mod
-    float jokerSpellDamageMod;
+    float jokerAttackMod;
+    float jokerSpellMod;
+    float jokerHPMod;
 
     public:
         typedef std::set<Unit*> AttackerSet;

@@ -72,7 +72,10 @@ bool Script_Mage::DPS_Arcane(Unit* pmTarget, bool pmChase, bool pmAOE)
     }
     if (pmChase)
     {
-        Chase(pmTarget, MAGE_RANGE_DISTANCE);
+        if (!Chase(pmTarget, MAGE_RANGE_DISTANCE))
+        {
+            return false;
+        }
     }
     else
     {
@@ -131,7 +134,10 @@ bool Script_Mage::DPS_Fire(Unit* pmTarget, bool pmChase, bool pmAOE)
     }
     if (pmChase)
     {
-        Chase(pmTarget, MAGE_RANGE_DISTANCE);
+        if (!Chase(pmTarget, MAGE_RANGE_DISTANCE))
+        {
+            return false;
+        }
     }
     else
     {
@@ -148,7 +154,7 @@ bool Script_Mage::DPS_Fire(Unit* pmTarget, bool pmChase, bool pmAOE)
         }
     }
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
-    {        
+    {
         if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
         {
             if (CastSpell(pmTarget, "Shoot", MAGE_RANGE_DISTANCE))
@@ -191,7 +197,10 @@ bool Script_Mage::DPS_Frost(Unit* pmTarget, bool pmChase, bool pmAOE)
     }
     if (pmChase)
     {
-        Chase(pmTarget, MAGE_RANGE_DISTANCE);
+        if (!Chase(pmTarget, MAGE_RANGE_DISTANCE))
+        {
+            return false;
+        }
     }
     else
     {
@@ -319,7 +328,10 @@ bool Script_Mage::Attack_Arcane(Unit* pmTarget)
         return false;
     }
 
-    Chase(pmTarget, MAGE_RANGE_DISTANCE);
+    if (!Chase(pmTarget, MAGE_RANGE_DISTANCE))
+    {
+        return false;
+    }
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 20)
     {
         if (CastSpell(me, "Evocation", MAGE_RANGE_DISTANCE))
@@ -328,7 +340,7 @@ bool Script_Mage::Attack_Arcane(Unit* pmTarget)
         }
     }
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
-    {     
+    {
         if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
         {
             if (CastSpell(pmTarget, "Shoot", MAGE_RANGE_DISTANCE))
@@ -371,7 +383,10 @@ bool Script_Mage::Attack_Fire(Unit* pmTarget)
         return false;
     }
 
-    Chase(pmTarget, MAGE_RANGE_DISTANCE);
+    if (!Chase(pmTarget, MAGE_RANGE_DISTANCE))
+    {
+        return false;
+    }
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 20)
     {
         if (CastSpell(me, "Evocation", MAGE_RANGE_DISTANCE))
@@ -423,7 +438,10 @@ bool Script_Mage::Attack_Frost(Unit* pmTarget)
         return false;
     }
 
-    Chase(pmTarget, MAGE_RANGE_DISTANCE);
+    if (!Chase(pmTarget, MAGE_RANGE_DISTANCE))
+    {
+        return false;
+    }
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 20)
     {
         if (CastSpell(me, "Evocation", MAGE_RANGE_DISTANCE))

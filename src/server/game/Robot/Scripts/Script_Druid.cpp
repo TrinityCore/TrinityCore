@@ -117,7 +117,10 @@ bool Script_Druid::DPS_Balance(Unit* pmTarget, bool pmChase, bool pmAOE)
     }
     if (pmChase)
     {
-        Chase(pmTarget, DRUID_RANGE_DISTANCE);
+        if (!Chase(pmTarget, DRUID_RANGE_DISTANCE))
+        {
+            return false;
+        }
     }
     else
     {
@@ -273,11 +276,13 @@ bool Script_Druid::DPS_Feral(Unit* pmTarget, bool pmChase, bool pmAOE)
         break;
     }
     case ShapeshiftForm::FORM_CAT:
-    {
-        me->Attack(pmTarget, true);
+    {        
         if (pmChase)
         {
-            Chase(pmTarget);
+            if (!Chase(pmTarget))
+            {
+                return false;
+            }
             CastSpell(me, "Dash");
         }
         else
@@ -287,6 +292,7 @@ bool Script_Druid::DPS_Feral(Unit* pmTarget, bool pmChase, bool pmAOE)
                 me->SetFacingToObject(pmTarget);
             }
         }
+        me->Attack(pmTarget, true);
         uint32 energy = me->GetPower(Powers::POWER_ENERGY);
         if (CastSpell(pmTarget, "Faerie Fire (Feral)", DRUID_RANGE_DISTANCE, true))
         {
@@ -414,11 +420,13 @@ bool Script_Druid::Tank_Feral(Unit* pmTarget, bool pmChase)
     if (targetDistance > ATTACK_RANGE_LIMIT)
     {
         return false;
-    }
-    me->Attack(pmTarget, true);
+    }    
     if (pmChase)
     {
-        Chase(pmTarget);
+        if (!Chase(pmTarget))
+        {
+            return false;
+        }
         if (targetDistance > DRUID_CHARGE_DISTANCE && targetDistance < DRUID_RANGE_DISTANCE)
         {
             if (CastSpell(pmTarget, "Feral Charge - Bear", DRUID_RANGE_DISTANCE))
@@ -434,6 +442,7 @@ bool Script_Druid::Tank_Feral(Unit* pmTarget, bool pmChase)
             me->SetFacingToObject(pmTarget);
         }
     }
+    me->Attack(pmTarget, true);
     switch (me->GetShapeshiftForm())
     {
     case ShapeshiftForm::FORM_NONE:
@@ -685,7 +694,10 @@ bool Script_Druid::Attack_Balance(Unit* pmTarget)
             return true;
         }
     }
-    Chase(pmTarget, DRUID_RANGE_DISTANCE);
+    if (!Chase(pmTarget, DRUID_RANGE_DISTANCE))
+    {
+        return false;
+    }
     if (pmTarget->GetTarget().IsEmpty())
     {
         if (CastSpell(pmTarget, "Starfire", DRUID_RANGE_DISTANCE))
@@ -816,9 +828,12 @@ bool Script_Druid::Attack_Feral_Cat(Unit* pmTarget)
         break;
     }
     case ShapeshiftForm::FORM_CAT:
-    {
+    {        
+        if (!Chase(pmTarget))
+        {
+            return false;
+        }
         me->Attack(pmTarget, true);
-        Chase(pmTarget);
         CastSpell(me, "Dash");
         uint32 energy = me->GetPower(Powers::POWER_ENERGY);
         if (CastSpell(pmTarget, "Faerie Fire (Feral)", DRUID_RANGE_DISTANCE, true))
@@ -905,9 +920,12 @@ bool Script_Druid::Attack_Feral_Bear(Unit* pmTarget)
     if (targetDistance > ATTACK_RANGE_LIMIT)
     {
         return false;
+    }    
+    if (!Chase(pmTarget))
+    {
+        return false;
     }
     me->Attack(pmTarget, true);
-    Chase(pmTarget);
     CastSpell(me, "Enrage");
     uint32 rage = me->GetPower(Powers::POWER_RAGE);
     if (rage > 50)
