@@ -1459,6 +1459,8 @@ class TC_GAME_API Unit : public WorldObject
         void AddInterruptMask(uint32 mask) { m_interruptMask |= mask; }
         void UpdateInterruptMask();
 
+        virtual float GetNativeObjectScale() const { return 1.0f; }
+        virtual void RecalculateObjectScale();
         uint32 GetDisplayId() const { return GetUInt32Value(UNIT_FIELD_DISPLAYID); }
         virtual void SetDisplayId(uint32 modelId);
         uint32 GetNativeDisplayId() const { return GetUInt32Value(UNIT_FIELD_NATIVEDISPLAYID); }
@@ -1668,6 +1670,7 @@ class TC_GAME_API Unit : public WorldObject
 
         int32 GetHighestExclusiveSameEffectSpellGroupValue(AuraEffect const* aurEff, AuraType auraType, bool checkMiscValue = false, int32 miscValue = 0) const;
         bool IsHighestExclusiveAura(Aura const* aura, bool removeOtherAuraApplications = false);
+        bool IsHighestExclusiveAuraEffect(SpellInfo const* spellInfo, AuraType auraType, int32 effectAmount, uint8 auraEffectMask, bool removeOtherAuraApplications = false);
 
         virtual void Talk(std::string const& text, ChatMsg msgType, Language language, float textRange, WorldObject const* target);
         virtual void Say(std::string const& text, Language language, WorldObject const* target = nullptr);
