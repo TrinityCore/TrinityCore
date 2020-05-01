@@ -121,7 +121,7 @@ class npc_totfw_fall_catcher : public CreatureScript
         {
             npc_totfw_fall_catcherAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void IsSummonedBy(Unit* summoner) override
+            void IsSummonedBy(Unit* /*summoner*/) override
             {
                 _events.ScheduleEvent(EVENT_EJECT_ALL_PASSENGERS, Seconds(10) + Milliseconds(400));
             }
