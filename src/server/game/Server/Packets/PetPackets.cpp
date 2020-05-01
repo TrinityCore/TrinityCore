@@ -21,3 +21,8 @@ void WorldPackets::Pet::DismissCritter::Read()
 {
     _worldPacket >> CritterGUID;
 }
+
+void WorldPackets::Pet::PetAbandon::Read()
+{
+    _worldPacket >> Pet;
+}
