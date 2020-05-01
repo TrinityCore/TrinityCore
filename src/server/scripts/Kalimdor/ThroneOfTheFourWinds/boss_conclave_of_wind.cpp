@@ -411,11 +411,15 @@ struct boss_anshal : public BossAI
                             _ravenousCreeperGUIDs.erase(guid);
                     }
 
-                    if (ObjectGuid creeperGuid = Trinity::Containers::SelectRandomContainerElement(_ravenousCreeperGUIDs))
-                        if (Creature* creeper = ObjectAccessor::GetCreature(*me, creeperGuid))
-                            target = creeper;
+                    if (!_ravenousCreeperGUIDs.empty())
+                    {
+                        if (ObjectGuid creeperGuid = Trinity::Containers::SelectRandomContainerElement(_ravenousCreeperGUIDs))
+                            if (Creature* creeper = ObjectAccessor::GetCreature(*me, creeperGuid))
+                                target = creeper;
 
-                    DoCast(target, SPELL_SOOTHING_BREEZE);
+                        DoCast(target, SPELL_SOOTHING_BREEZE);
+                    }
+
                     events.Repeat(31s, 33s);
                     break;
                 }
