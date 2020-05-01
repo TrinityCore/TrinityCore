@@ -108,7 +108,7 @@ void WorldSession::HandlePetitionBuy(WorldPackets::Petition::PetitionBuy& packet
     {
         // clear from petition store
         sPetitionMgr->RemovePetition(petition->petitionGuid);
-        TC_LOG_DEBUG("network", "Invalid petition GUID: %u", petition->petitionGuid.GetCounter());
+        TC_LOG_DEBUG("network", "Invalid petition GUID: %s", petition->petitionGuid.ToString().c_str());
     }
 
     // fill petition store
@@ -120,7 +120,7 @@ void WorldSession::HandlePetitionShowSignatures(WorldPackets::Petition::Petition
     Petition const* petition = sPetitionMgr->GetPetition(packet.Item);
     if (!petition)
     {
-        TC_LOG_DEBUG("entities.player.items", "Petition %s is not found for player %u %s", packet.Item.ToString().c_str(), GetPlayer()->GetGUID().GetCounter(), GetPlayer()->GetName().c_str());
+        TC_LOG_DEBUG("entities.player.items", "Petition %s is not found for %s %s", packet.Item.ToString().c_str(), GetPlayer()->GetGUID().ToString().c_str(), GetPlayer()->GetName().c_str());
         return;
     }
 
