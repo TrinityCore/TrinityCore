@@ -3301,7 +3301,7 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
     }
 
     // check dynamic collision
-    bool col = GetMap()->getObjectHitPos(GetPhaseMask(),
+    col = GetMap()->getObjectHitPos(GetPhaseMask(),
         pos.m_positionX, pos.m_positionY, pos.m_positionZ + halfHeight,
         destx, desty, destz + halfHeight,
         destx, desty, destz, -0.5f);
