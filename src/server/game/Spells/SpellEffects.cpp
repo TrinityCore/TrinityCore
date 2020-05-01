@@ -4970,6 +4970,9 @@ void Spell::EffectSkinPlayerCorpse(SpellEffIndex /*effIndex*/)
 
     TC_LOG_DEBUG("spells", "Effect: SkinPlayerCorpse");
 
+    if (!unitTarget)
+        return;
+
     Player* player = m_caster->ToPlayer();
     Player* target = unitTarget->ToPlayer();
     if (!player || !target || target->IsAlive())
