@@ -857,15 +857,6 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 if (!IsTextValid(e, e.event.textOver.textGroupID))
                     return false;
                 break;
-            case SMART_EVENT_DUMMY_EFFECT:
-            {
-                if (!IsSpellValid(e, e.event.dummy.spell))
-                    return false;
-
-                if (e.event.dummy.effIndex > EFFECT_2)
-                    return false;
-                break;
-            }
             case SMART_EVENT_IS_BEHIND_TARGET:
             {
                 if (!IsMinMaxValid(e, e.event.behindTarget.cooldownMin, e.event.behindTarget.cooldownMax))

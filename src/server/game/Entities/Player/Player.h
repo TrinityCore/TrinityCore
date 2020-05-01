@@ -78,6 +78,7 @@ class Item;
 class LootStore;
 class OutdoorPvP;
 class Pet;
+class PetAura;
 class PlayerAI;
 class PlayerAchievementMgr;
 class PlayerMenu;
@@ -1097,6 +1098,11 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         Pet* SummonPet(uint32 entry, float x, float y, float z, float ang, PetType petType, uint32 despwtime);
         void RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent = false);
 
+        // pet auras
+        std::unordered_set<PetAura const*> m_petAuras;
+        void AddPetAura(PetAura const* petSpell);
+        void RemovePetAura(PetAura const* petSpell);
+
         /// Handles said message in regular chat based on declared language and in config pre-defined Range.
         void Say(std::string const& text, Language language, WorldObject const* = nullptr) override;
         void Say(uint32 textId, WorldObject const* target = nullptr) override;
@@ -1352,8 +1358,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool SatisfyQuestConditions(Quest const* qInfo, bool msg);
         bool SatisfyQuestTimed(Quest const* qInfo, bool msg) const;
         bool SatisfyQuestExclusiveGroup(Quest const* qInfo, bool msg) const;
-        bool SatisfyQuestNextChain(Quest const* qInfo, bool msg) const;
-        bool SatisfyQuestPrevChain(Quest const* qInfo, bool msg);
         bool SatisfyQuestDay(Quest const* qInfo, bool msg) const;
         bool SatisfyQuestWeek(Quest const* qInfo, bool msg) const;
         bool SatisfyQuestMonth(Quest const* qInfo, bool msg) const;
@@ -1419,7 +1423,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SendQuestTimerFailed(uint32 questID) const;
         void SendCanTakeQuestResponse(QuestFailedReason reason, bool sendErrorMessage = true, std::string reasonText = "") const;
         void SendQuestConfirmAccept(Quest const* quest, Player* receiver) const;
-        void SendPushToPartyResponse(Player* player, QuestPushReason reason) const;
+        void SendPushToPartyResponse(Player const* player, QuestPushReason reason) const;
         void SendQuestUpdateAddCredit(Quest const* quest, ObjectGuid guid, QuestObjective const& obj, uint16 count) const;
         void SendQuestUpdateAddCreditSimple(QuestObjective const& obj) const;
         void SendQuestUpdateAddPlayer(Quest const* quest, uint16 newCount) const;
@@ -1556,7 +1560,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool HasActiveSpell(uint32 spell) const;            // show in spellbook
         SpellInfo const* GetCastSpellInfo(SpellInfo const* spellInfo) const override;
         bool IsSpellFitByClassAndRace(uint32 spell_id) const;
-        bool IsNeedCastPassiveSpellAtLearn(SpellInfo const* spellInfo) const;
+        bool HandlePassiveSpellLearn(SpellInfo const* spellInfo);
         bool IsCurrentSpecMasterySpell(SpellInfo const* spellInfo) const;
 
         void SendProficiency(ItemClass itemClass, uint32 itemSubclassMask) const;

@@ -481,9 +481,9 @@ DROP TABLE IF EXISTS `character_arena_stats`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `character_arena_stats` (
-  `guid` bigint(20) NOT NULL,
-  `slot` tinyint(3) NOT NULL,
-  `matchMakerRating` smallint(5) NOT NULL,
+  `guid` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `slot` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `matchMakerRating` smallint(5) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`slot`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -738,8 +738,8 @@ DROP TABLE IF EXISTS `character_equipmentsets`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `character_equipmentsets` (
-  `guid` bigint(20) NOT NULL DEFAULT '0',
-  `setguid` bigint(20) NOT NULL AUTO_INCREMENT,
+  `guid` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `setguid` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `setindex` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `name` varchar(31) NOT NULL,
   `iconname` varchar(100) NOT NULL,
@@ -1895,7 +1895,7 @@ DROP TABLE IF EXISTS `creature_respawn`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `creature_respawn` (
   `guid` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
-  `respawnTime` int(10) unsigned NOT NULL DEFAULT '0',
+  `respawnTime` bigint(20) unsigned NOT NULL DEFAULT '0',
   `mapId` smallint(10) unsigned NOT NULL DEFAULT '0',
   `instanceId` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Instance Identifier',
   PRIMARY KEY (`guid`,`instanceId`),
@@ -1969,7 +1969,7 @@ DROP TABLE IF EXISTS `gameobject_respawn`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `gameobject_respawn` (
   `guid` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
-  `respawnTime` int(10) unsigned NOT NULL DEFAULT '0',
+  `respawnTime` bigint(20) unsigned NOT NULL DEFAULT '0',
   `mapId` smallint(10) unsigned NOT NULL DEFAULT '0',
   `instanceId` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Instance Identifier',
   PRIMARY KEY (`guid`,`instanceId`),
@@ -2616,7 +2616,7 @@ DROP TABLE IF EXISTS `instance`;
 CREATE TABLE `instance` (
   `id` int(10) unsigned NOT NULL DEFAULT '0',
   `map` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `resettime` int(10) unsigned NOT NULL DEFAULT '0',
+  `resettime` bigint(20) unsigned NOT NULL DEFAULT '0',
   `difficulty` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `completedEncounters` int(10) unsigned NOT NULL DEFAULT '0',
   `data` tinytext NOT NULL,
@@ -2647,7 +2647,7 @@ DROP TABLE IF EXISTS `instance_reset`;
 CREATE TABLE `instance_reset` (
   `mapid` smallint(5) unsigned NOT NULL DEFAULT '0',
   `difficulty` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `resettime` int(10) unsigned NOT NULL DEFAULT '0',
+  `resettime` bigint(20) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`mapid`,`difficulty`),
   KEY `difficulty` (`difficulty`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -3180,8 +3180,8 @@ DROP TABLE IF EXISTS `item_loot_money`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `item_loot_money` (
-  `container_id` bigint(20) NOT NULL DEFAULT '0' COMMENT 'guid of container (item_instance.guid)',
-  `money` int(10) NOT NULL DEFAULT '0' COMMENT 'money loot (in copper)',
+  `container_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'guid of container (item_instance.guid)',
+  `money` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'money loot (in copper)',
   PRIMARY KEY (`container_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3771,7 +3771,11 @@ INSERT INTO `updates` VALUES
 ('2019_12_05_00_characters.sql','EA381C9634A5646A3168F15DF4E06A708A622762','RELEASED','2019-12-05 20:56:58',0),
 ('2020_02_17_00_characters.sql','E1519A81D35F19B48B3C75A83A270CB4BA0B84F2','RELEASED','2020-02-17 21:55:17',0),
 ('2020_04_20_00_characters.sql','977B5E0C894E0A7E80B2A9626F17CA636A69BD22','RELEASED','2020-04-20 19:08:18',0),
-('2020_04_24_00_characters.sql','85E2E0395A9457A53D73A9E0A7BB39B7E4C429BF','RELEASED','2020-04-24 22:04:59',0);
+('2020_04_24_00_characters.sql','85E2E0395A9457A53D73A9E0A7BB39B7E4C429BF','RELEASED','2020-04-24 22:04:59',0),
+('2020_04_25_00_characters_2017_04_03_00_characters.sql','00FA3EFADAF807AC96619A3FE47216E21C3FCB19','RELEASED','2020-04-25 00:00:00',0),
+('2020_04_26_00_characters_2017_04_12_00_characters.sql','86AA94DA9B1EA283101100886C10F648C0CE6494','RELEASED','2020-04-26 00:00:00',0),
+('2020_04_26_01_characters_2017_04_12_01_characters.sql','5A8A1215E3A2356722F52CD7A64BBE03D21FBEA3','RELEASED','2020-04-26 00:00:00',0);
+
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 

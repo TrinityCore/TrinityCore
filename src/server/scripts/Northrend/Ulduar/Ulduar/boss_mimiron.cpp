@@ -637,7 +637,7 @@ class boss_mimiron : public CreatureScript
                         case EVENT_OUTTRO_1:
                             me->RemoveAurasDueToSpell(SPELL_SLEEP_VISUAL_1);
                             DoCast(me, SPELL_SLEEP_VISUAL_2);
-                            me->setFaction(35);
+                            me->SetFaction(35);
                             events.ScheduleEvent(EVENT_OUTTRO_2, 3000);
                             break;
                         case EVENT_OUTTRO_2:
@@ -1304,7 +1304,6 @@ class npc_mimiron_assault_bot : public CreatureScript
                     {
                         case EVENT_MAGNETIC_FIELD:
                             DoCastVictim(SPELL_MAGNETIC_FIELD);
-                            me->ClearUnitState(UNIT_STATE_CASTING);
                             events.RescheduleEvent(EVENT_MAGNETIC_FIELD, 30000);
                             break;
                         default:

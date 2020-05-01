@@ -201,7 +201,7 @@ public:
         npc_engineer_spark_overgrindAI(Creature* creature) : ScriptedAI(creature)
         {
             Initialize();
-            NormFaction = creature->getFaction();
+            NormFaction = creature->GetFaction();
             NpcFlags = NPCFlags(creature->m_unitData->NpcFlags[0]);
         }
 
@@ -220,7 +220,7 @@ public:
         {
             Initialize();
 
-            me->setFaction(NormFaction);
+            me->SetFaction(NormFaction);
             me->SetNpcFlags(NpcFlags);
         }
 
@@ -232,7 +232,7 @@ public:
         void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
         {
             CloseGossipMenuFor(player);
-            me->setFaction(FACTION_HOSTILE);
+            me->SetFaction(FACTION_HOSTILE);
             me->Attack(player, true);
         }
 
@@ -403,7 +403,7 @@ public:
                     case EVENT_ACCEPT_QUEST:
                         if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
                             Talk(SAY_START, player);
-                        me->setFaction(FACTION_QUEST);
+                        me->SetFaction(FACTION_QUEST);
                         _events.ScheduleEvent(EVENT_START_ESCORT, Seconds(1));
                         break;
                     case EVENT_START_ESCORT:
@@ -532,8 +532,8 @@ public:
                     return 1000;
                 case 2:
                     Talk(GEEZLE_SAY_1, Spark);
-                    Spark->SetInFront(me);
-                    me->SetInFront(Spark);
+                    Spark->SetFacingToObject(me);
+                    me->SetFacingToObject(Spark);
                     return 5000;
                 case 3:
                     Spark->AI()->Talk(SPARK_SAY_2);

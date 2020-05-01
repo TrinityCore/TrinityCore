@@ -35,6 +35,8 @@ void IdleMovementGenerator::Reset(Unit* owner)
         owner->StopMoving();
 }
 
+//----------------------------------------------------//
+
 void RotateMovementGenerator::Initialize(Unit* owner)
 {
     if (!owner->IsStopped())
@@ -50,26 +52,28 @@ void RotateMovementGenerator::Initialize(Unit* owner)
 bool RotateMovementGenerator::Update(Unit* owner, uint32 diff)
 {
     float angle = owner->GetOrientation();
-    angle += (float(diff) * static_cast<float>(M_PI * 2) / m_maxDuration) * (m_direction == ROTATE_DIRECTION_LEFT ? 1.0f : -1.0f);
+    angle += (float(diff) * static_cast<float>(M_PI * 2) / _maxDuration) * (_direction == ROTATE_DIRECTION_LEFT ? 1.0f : -1.0f);
     angle = G3D::wrap(angle, 0.0f, float(G3D::twoPi()));
 
     owner->SetOrientation(angle);   // UpdateSplinePosition does not set orientation with UNIT_STATE_ROTATING
     owner->SetFacingTo(angle);      // Send spline movement to clients
 
-    if (m_duration > diff)
-        m_duration -= diff;
+    if (_duration > diff)
+        _duration -= diff;
     else
         return false;
 
     return true;
 }
 
-void RotateMovementGenerator::Finalize(Unit* unit)
+void RotateMovementGenerator::Finalize(Unit* owner)
 {
-    unit->ClearUnitState(UNIT_STATE_ROTATING);
-    if (unit->GetTypeId() == TYPEID_UNIT)
-      unit->ToCreature()->AI()->MovementInform(ROTATE_MOTION_TYPE, 0);
+    owner->ClearUnitState(UNIT_STATE_ROTATING);
+    if (owner->GetTypeId() == TYPEID_UNIT)
+        owner->ToCreature()->AI()->MovementInform(ROTATE_MOTION_TYPE, 0);
 }
+
+//----------------------------------------------------//
 
 void DistractMovementGenerator::Initialize(Unit* owner)
 {
@@ -92,17 +96,19 @@ void DistractMovementGenerator::Finalize(Unit* owner)
     }
 }
 
-bool DistractMovementGenerator::Update(Unit* /*owner*/, uint32 time_diff)
+bool DistractMovementGenerator::Update(Unit* /*owner*/, uint32 diff)
 {
-    if (time_diff > m_timer)
+    if (diff > _timer)
         return false;
 
-    m_timer -= time_diff;
+    _timer -= diff;
     return true;
 }
 
-void AssistanceDistractMovementGenerator::Finalize(Unit* unit)
+//----------------------------------------------------//
+
+void AssistanceDistractMovementGenerator::Finalize(Unit* owner)
 {
-    unit->ClearUnitState(UNIT_STATE_DISTRACTED);
-    unit->ToCreature()->SetReactState(REACT_AGGRESSIVE);
+    owner->ClearUnitState(UNIT_STATE_DISTRACTED);
+    owner->ToCreature()->SetReactState(REACT_AGGRESSIVE);
 }

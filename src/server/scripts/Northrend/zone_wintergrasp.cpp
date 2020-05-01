@@ -345,8 +345,8 @@ class go_wg_vehicle_teleporter : public GameObjectScript
 
             bool IsFriendly(Unit* passenger)
             {
-                return ((go->GetFaction() == WintergraspFaction[TEAM_HORDE] && passenger->getFaction() == HORDE) ||
-                        (go->GetFaction() == WintergraspFaction[TEAM_ALLIANCE] && passenger->getFaction() == ALLIANCE));
+                return ((go->GetFaction() == WintergraspFaction[TEAM_HORDE] && passenger->GetFaction() == HORDE) ||
+                        (go->GetFaction() == WintergraspFaction[TEAM_ALLIANCE] && passenger->GetFaction() == ALLIANCE));
             }
 
             Creature* GetValidVehicle(Creature* cVeh)

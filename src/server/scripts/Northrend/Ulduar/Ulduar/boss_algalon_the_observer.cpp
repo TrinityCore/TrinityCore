@@ -444,7 +444,7 @@ class boss_algalon_the_observer : public CreatureScript
                     me->SetDisableGravity(false);
                 else if (pointId == POINT_ALGALON_OUTRO)
                 {
-                    me->SetFacingTo(1.605703f, true);
+                    me->SetFacingTo(1.605703f);
                     events.ScheduleEvent(EVENT_OUTRO_3, 1200);
                     events.ScheduleEvent(EVENT_OUTRO_4, 2400);
                     events.ScheduleEvent(EVENT_OUTRO_5, 8500);
@@ -538,7 +538,7 @@ class boss_algalon_the_observer : public CreatureScript
                     damage = 0;
                     me->SetReactState(REACT_PASSIVE);
                     me->AttackStop();
-                    me->setFaction(35);
+                    me->SetFaction(35);
                     me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                     DoCast(me, SPELL_SELF_STUN);
                     events.Reset();

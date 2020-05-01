@@ -609,7 +609,7 @@ void BattlefieldTB::OnCreatureCreate(Creature* creature)
                 HideNpc(creature);
             break;
         case NPC_ABANDONED_SIEGE_ENGINE:
-            creature->setFaction(TBFactions[GetDefenderTeam()]);
+            creature->SetFaction(TBFactions[GetDefenderTeam()]);
             creature->CastSpell(creature, SPELL_THICK_LAYER_OF_RUST, true);
             break;
         case NPC_SIEGE_ENGINE_TURRET:

@@ -179,21 +179,21 @@ void AuctionBotConfig::GetConfigFromFile()
     SetConfig(CONFIG_AHBOT_ITEM_ORANGE_AMOUNT, "AuctionHouseBot.Items.Amount.Orange", 0);
     SetConfig(CONFIG_AHBOT_ITEM_YELLOW_AMOUNT, "AuctionHouseBot.Items.Amount.Yellow", 0);
 
-    SetConfigMax(CONFIG_AHBOT_CLASS_CONSUMABLE_AMOUNT, "AuctionHouseBot.Class.Consumable", 6, 10);
-    SetConfigMax(CONFIG_AHBOT_CLASS_CONTAINER_AMOUNT, "AuctionHouseBot.Class.Container", 4, 10);
-    SetConfigMax(CONFIG_AHBOT_CLASS_WEAPON_AMOUNT, "AuctionHouseBot.Class.Weapon", 8, 10);
-    SetConfigMax(CONFIG_AHBOT_CLASS_GEM_AMOUNT, "AuctionHouseBot.Class.Gem", 3, 10);
-    SetConfigMax(CONFIG_AHBOT_CLASS_ARMOR_AMOUNT, "AuctionHouseBot.Class.Armor", 8, 10);
-    SetConfigMax(CONFIG_AHBOT_CLASS_REAGENT_AMOUNT, "AuctionHouseBot.Class.Reagent", 1, 10);
-    SetConfigMax(CONFIG_AHBOT_CLASS_PROJECTILE_AMOUNT, "AuctionHouseBot.Class.Projectile", 2, 10);
-    SetConfigMax(CONFIG_AHBOT_CLASS_TRADEGOOD_AMOUNT, "AuctionHouseBot.Class.TradeGood", 10, 10);
-    SetConfigMax(CONFIG_AHBOT_CLASS_GENERIC_AMOUNT, "AuctionHouseBot.Class.Generic", 1, 10);
-    SetConfigMax(CONFIG_AHBOT_CLASS_RECIPE_AMOUNT, "AuctionHouseBot.Class.Recipe", 6, 10);
-    SetConfigMax(CONFIG_AHBOT_CLASS_QUIVER_AMOUNT, "AuctionHouseBot.Class.Quiver", 1, 10);
-    SetConfigMax(CONFIG_AHBOT_CLASS_QUEST_AMOUNT, "AuctionHouseBot.Class.Quest", 1, 10);
-    SetConfigMax(CONFIG_AHBOT_CLASS_KEY_AMOUNT, "AuctionHouseBot.Class.Key", 1, 10);
-    SetConfigMax(CONFIG_AHBOT_CLASS_MISC_AMOUNT, "AuctionHouseBot.Class.Misc", 5, 10);
-    SetConfigMax(CONFIG_AHBOT_CLASS_GLYPH_AMOUNT, "AuctionHouseBot.Class.Glyph", 3, 10);
+    SetConfigMax(CONFIG_AHBOT_CLASS_CONSUMABLE_PRIORITY, "AuctionHouseBot.Class.Consumable", 6, 10);
+    SetConfigMax(CONFIG_AHBOT_CLASS_CONTAINER_PRIORITY, "AuctionHouseBot.Class.Container", 4, 10);
+    SetConfigMax(CONFIG_AHBOT_CLASS_WEAPON_PRIORITY, "AuctionHouseBot.Class.Weapon", 8, 10);
+    SetConfigMax(CONFIG_AHBOT_CLASS_GEM_PRIORITY, "AuctionHouseBot.Class.Gem", 3, 10);
+    SetConfigMax(CONFIG_AHBOT_CLASS_ARMOR_PRIORITY, "AuctionHouseBot.Class.Armor", 8, 10);
+    SetConfigMax(CONFIG_AHBOT_CLASS_REAGENT_PRIORITY, "AuctionHouseBot.Class.Reagent", 1, 10);
+    SetConfigMax(CONFIG_AHBOT_CLASS_PROJECTILE_PRIORITY, "AuctionHouseBot.Class.Projectile", 2, 10);
+    SetConfigMax(CONFIG_AHBOT_CLASS_TRADEGOOD_PRIORITY, "AuctionHouseBot.Class.TradeGood", 10, 10);
+    SetConfigMax(CONFIG_AHBOT_CLASS_GENERIC_PRIORITY, "AuctionHouseBot.Class.Generic", 1, 10);
+    SetConfigMax(CONFIG_AHBOT_CLASS_RECIPE_PRIORITY, "AuctionHouseBot.Class.Recipe", 6, 10);
+    SetConfigMax(CONFIG_AHBOT_CLASS_QUIVER_PRIORITY, "AuctionHouseBot.Class.Quiver", 1, 10);
+    SetConfigMax(CONFIG_AHBOT_CLASS_QUEST_PRIORITY, "AuctionHouseBot.Class.Quest", 1, 10);
+    SetConfigMax(CONFIG_AHBOT_CLASS_KEY_PRIORITY, "AuctionHouseBot.Class.Key", 1, 10);
+    SetConfigMax(CONFIG_AHBOT_CLASS_MISC_PRIORITY, "AuctionHouseBot.Class.Misc", 5, 10);
+    SetConfigMax(CONFIG_AHBOT_CLASS_GLYPH_PRIORITY, "AuctionHouseBot.Class.Glyph", 3, 10);
 
     SetConfig(CONFIG_AHBOT_ALLIANCE_PRICE_RATIO, "AuctionHouseBot.Alliance.Price.Ratio", 100);
     SetConfig(CONFIG_AHBOT_HORDE_PRICE_RATIO, "AuctionHouseBot.Horde.Price.Ratio", 100);
@@ -348,6 +348,19 @@ uint32 AuctionBotConfig::GetConfigItemAmountRatio(AuctionHouseType houseType) co
             return GetConfig(CONFIG_AHBOT_HORDE_ITEM_AMOUNT_RATIO);
         default:
             return GetConfig(CONFIG_AHBOT_NEUTRAL_ITEM_AMOUNT_RATIO);
+    }
+}
+
+uint32 AuctionBotConfig::GetConfigPriceRatio(AuctionHouseType houseType) const
+{
+    switch (houseType)
+    {
+        case AUCTION_HOUSE_ALLIANCE:
+            return GetConfig(CONFIG_AHBOT_ALLIANCE_PRICE_RATIO);
+        case AUCTION_HOUSE_HORDE:
+            return GetConfig(CONFIG_AHBOT_HORDE_PRICE_RATIO);
+        default:
+            return GetConfig(CONFIG_AHBOT_NEUTRAL_PRICE_RATIO);
     }
 }
 

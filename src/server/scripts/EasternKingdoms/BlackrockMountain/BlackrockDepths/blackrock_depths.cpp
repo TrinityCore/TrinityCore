@@ -600,7 +600,7 @@ public:
                     //spell by trap has effect61, this indicate the bar go hostile
 
                     if (Unit* tmp = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_PHALANX)))
-                        tmp->setFaction(14);
+                        tmp->SetFaction(14);
 
                     //for later, this event(s) has alot more to it.
                     //optionally, DONE can trigger bar to go hostile.

@@ -147,7 +147,7 @@ public:
             FactionTemplateEntry const* ft2 = receiver->GetFactionTemplateEntry();
             if (ft1 && ft2 && !ft1->IsFriendlyTo(ft2))
                 // pretend that all other HOSTILE players have own faction, to allow follow, heal, rezz (trade wont work)
-                factionTemplate = receiver->getFaction();
+                factionTemplate = receiver->GetFaction();
         }
 
         return factionTemplate;

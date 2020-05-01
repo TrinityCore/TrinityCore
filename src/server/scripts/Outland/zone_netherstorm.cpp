@@ -498,7 +498,7 @@ public:
     {
         if (quest->GetQuestId() == Q_ALMABTRIEB)
         {
-            creature->setFaction(113);
+            creature->SetFaction(113);
             creature->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             ENSURE_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
         }
@@ -664,7 +664,7 @@ public:
         {
             if (npc_maxx_a_million_escortAI* pEscortAI = CAST_AI(npc_maxx_a_million_escort::npc_maxx_a_million_escortAI, creature->AI()))
             {
-                creature->setFaction(113);
+                creature->SetFaction(113);
                 pEscortAI->Start(false, false, player->GetGUID());
             }
         }

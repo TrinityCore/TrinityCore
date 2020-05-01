@@ -97,7 +97,7 @@ public:
 
             creature->AI()->Talk(SAY_MAKE_PREPARATIONS);
 
-            creature->setFaction(250);
+            creature->SetFaction(250);
             creature->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
 
             ENSURE_AI(npc_escortAI, (creature->AI()))->Start(false, false, player->GetGUID());

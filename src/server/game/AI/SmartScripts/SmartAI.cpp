@@ -580,7 +580,7 @@ void SmartAI::JustRespawned()
     mDespawnState = 0;
     mEscortState = SMART_ESCORT_NONE;
     me->SetVisible(true);
-    if (me->getFaction() != me->GetCreatureTemplate()->faction)
+    if (me->GetFaction() != me->GetCreatureTemplate()->faction)
         me->RestoreFaction();
     mJustReset = true;
     JustReachedHome();
@@ -828,12 +828,6 @@ void SmartAI::sQuestAccept(Player* player, Quest const* quest)
 void SmartAI::sQuestReward(Player* player, Quest const* quest, uint32 opt)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_REWARD_QUEST, player, quest->GetQuestId(), opt);
-}
-
-bool SmartAI::sOnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex)
-{
-    GetScript()->ProcessEventsFor(SMART_EVENT_DUMMY_EFFECT, caster, spellId, (uint32)effIndex);
-    return true;
 }
 
 void SmartAI::SetCombatMove(bool on)

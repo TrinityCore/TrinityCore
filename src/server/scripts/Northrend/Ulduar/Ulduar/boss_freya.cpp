@@ -226,7 +226,7 @@ class npc_iron_roots : public CreatureScript
                 SetCombatMovement(false);
 
                 me->ApplySpellImmune(0, IMMUNITY_ID, 49560, true); // Death Grip
-                me->setFaction(14);
+                me->SetFaction(14);
                 me->SetReactState(REACT_PASSIVE);
             }
 
@@ -610,7 +610,7 @@ class boss_freya : public CreatureScript
                 _JustDied();
                 me->RemoveAllAuras();
                 me->AttackStop();
-                me->setFaction(35);
+                me->SetFaction(35);
                 me->DeleteThreatList();
                 me->CombatStop(true);
                 me->DespawnOrUnsummon(7500);

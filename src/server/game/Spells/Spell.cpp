@@ -2626,11 +2626,24 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask)
                 }
 
                 // Now Reduce spell duration using data received at spell hit
+                // check whatever effects we're going to apply, diminishing returns only apply to negative aura effects
+                bool positive = true;
+                if (m_originalCaster == unit || !m_originalCaster->IsFriendlyTo(unit))
+                {
+                    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                    {
+                        if ((effectMask & (1 << i)) && !m_spellInfo->IsPositiveEffect(i))
+                        {
+                            positive = false;
+                            break;
+                        }
+                    }
+                }
+
                 int32 duration = m_spellAura->GetMaxDuration();
-                float diminishMod = unit->ApplyDiminishingToDuration(m_spellInfo, duration, m_originalCaster, diminishLevel);
 
                 // unit is immune to aura if it was diminished to 0 duration
-                if (diminishMod == 0.0f)
+                if (!positive && !unit->ApplyDiminishingToDuration(m_spellInfo, duration, m_originalCaster, diminishLevel))
                 {
                     m_spellAura->Remove();
                     bool found = false;
@@ -2642,11 +2655,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask)
                 }
                 else
                 {
-                    ((UnitAura*)m_spellAura)->SetDiminishGroup(diminishGroup);
-
-                    bool positive = m_spellAura->GetSpellInfo()->IsPositive();
-                    if (AuraApplication* aurApp = m_spellAura->GetApplicationOfTarget(m_originalCaster->GetGUID()))
-                        positive = aurApp->IsPositive();
+                    static_cast<UnitAura*>(m_spellAura)->SetDiminishGroup(diminishGroup);
 
                     duration = m_originalCaster->ModSpellDuration(m_spellInfo, unit, duration, positive, effectMask);
 
@@ -2944,15 +2953,6 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
     else
         m_casttime = m_spellInfo->CalcCastTime(m_caster->getLevel(), this);
 
-    if (m_caster->GetTypeId() == TYPEID_UNIT && !m_caster->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED)) // _UNIT actually means creature. for some reason.
-        if (!(m_spellInfo->IsNextMeleeSwingSpell() || IsAutoRepeat() || (_triggeredCastFlags & TRIGGERED_IGNORE_SET_FACING)))
-        {
-            if (m_targets.GetObjectTarget() && m_caster != m_targets.GetObjectTarget())
-                m_caster->ToCreature()->FocusTarget(this, m_targets.GetObjectTarget());
-            else if (m_spellInfo->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST))
-                m_caster->ToCreature()->FocusTarget(this, nullptr);
-        }
-
     // don't allow channeled spells / spells with cast time to be cast while moving
     // exception are only channeled spells that have no casttime and SPELL_ATTR5_CAN_CHANNEL_WHEN_MOVING
     // (even if they are interrupted on moving, spells with almost immediate effect get to have their effect processed before movement interrupter kicks in)
@@ -2966,6 +2966,18 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
             SendCastResult(SPELL_FAILED_MOVING);
             finish(false);
             return;
+        }
+    }
+
+    // focus if not controlled creature
+    if (m_caster->GetTypeId() == TYPEID_UNIT && !m_caster->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED))
+    {
+        if (!(m_spellInfo->IsNextMeleeSwingSpell() || IsAutoRepeat() || (_triggeredCastFlags & TRIGGERED_IGNORE_SET_FACING)))
+        {
+            if (m_targets.GetObjectTarget() && m_caster != m_targets.GetObjectTarget())
+                m_caster->ToCreature()->FocusTarget(this, m_targets.GetObjectTarget());
+            else if (m_spellInfo->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST))
+                m_caster->ToCreature()->FocusTarget(this, nullptr);
         }
     }
 
@@ -3116,11 +3128,12 @@ void Spell::_cast(bool skipCheck)
             m_caster->SetInFront(m_targets.GetObjectTarget());
 
     // Should this be done for original caster?
-    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+    Player* modOwner = m_caster->GetSpellModOwner();
+    if (modOwner)
     {
         // Set spell which will drop charges for triggered cast spells
         // if not successfully cast, will be remove in finish(false)
-        m_caster->ToPlayer()->SetSpellModTakingSpell(this, true);
+        modOwner->SetSpellModTakingSpell(this, true);
     }
 
     CallScriptBeforeCastHandlers();
@@ -3135,8 +3148,8 @@ void Spell::_cast(bool skipCheck)
             SendCastResult(castResult, &param1, &param2);
             SendInterrupted(0);
 
-            if (m_caster->GetTypeId() == TYPEID_PLAYER)
-                m_caster->ToPlayer()->SetSpellModTakingSpell(this, false);
+            if (modOwner)
+                modOwner->SetSpellModTakingSpell(this, false);
 
             finish(false);
             SetExecutedCurrently(false);
@@ -3147,9 +3160,9 @@ void Spell::_cast(bool skipCheck)
         // if trade not complete then remember it in trade data
         if (m_targets.GetTargetMask() & TARGET_FLAG_TRADE_ITEM)
         {
-            if (m_caster->GetTypeId() == TYPEID_PLAYER)
+            if (modOwner)
             {
-                if (TradeData* my_trade = m_caster->ToPlayer()->GetTradeData())
+                if (TradeData* my_trade = modOwner->GetTradeData())
                 {
                     if (!my_trade->IsInAcceptProcess())
                     {
@@ -3158,7 +3171,7 @@ void Spell::_cast(bool skipCheck)
                         SendCastResult(SPELL_FAILED_DONT_REPORT);
                         SendInterrupted(0);
 
-                        m_caster->ToPlayer()->SetSpellModTakingSpell(this, false);
+                        modOwner->SetSpellModTakingSpell(this, false);
 
                         finish(false);
                         SetExecutedCurrently(false);
@@ -3275,12 +3288,12 @@ void Spell::_cast(bool skipCheck)
                 m_caster->CastSpell(m_targets.GetUnitTarget() ? m_targets.GetUnitTarget() : m_caster, *i, true);
     }
 
-    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+    if (modOwner)
     {
-        m_caster->ToPlayer()->SetSpellModTakingSpell(this, false);
+        modOwner->SetSpellModTakingSpell(this, false);
 
         //Clear spell cooldowns after every spell is cast if .cheat cooldown is enabled.
-        if (m_caster->ToPlayer()->GetCommandStatus(CHEAT_COOLDOWN))
+        if (modOwner->GetCommandStatus(CHEAT_COOLDOWN))
         {
             m_caster->GetSpellHistory()->ResetCooldown(m_spellInfo->Id, true);
             m_caster->GetSpellHistory()->RestoreCharge(m_spellInfo->ChargeCategoryId);
@@ -3288,9 +3301,6 @@ void Spell::_cast(bool skipCheck)
     }
 
     SetExecutedCurrently(false);
-
-    if (Creature* creatureCaster = m_caster->ToCreature())
-        creatureCaster->ReleaseFocus(this);
 
     if (!m_originalCaster)
         return;
@@ -3411,8 +3421,9 @@ uint64 Spell::handle_delayed(uint64 t_offset)
     if (single_missile && !t_offset)
         return m_delayMoment;
 
-    if (m_caster->GetTypeId() == TYPEID_PLAYER)
-        m_caster->ToPlayer()->SetSpellModTakingSpell(this, true);
+    Player* modOwner = m_caster->GetSpellModOwner();
+    if (modOwner)
+        modOwner->SetSpellModTakingSpell(this, true);
 
     PrepareTargetProcessing();
 
@@ -3451,8 +3462,8 @@ uint64 Spell::handle_delayed(uint64 t_offset)
 
     FinishTargetProcessing();
 
-    if (m_caster->GetTypeId() == TYPEID_PLAYER)
-        m_caster->ToPlayer()->SetSpellModTakingSpell(this, false);
+    if (modOwner)
+        modOwner->SetSpellModTakingSpell(this, false);
 
     // All targets passed - need finish phase
     if (next_time == 0)
@@ -4449,7 +4460,15 @@ void Spell::SendChannelStart(uint32 duration)
 
     m_timer = duration;
     for (TargetInfo const& target : m_UniqueTargetInfo)
+    {
         m_caster->AddChannelObject(target.targetGUID);
+
+        if (m_UniqueTargetInfo.size() == 1 && m_UniqueGOTargetInfo.empty())
+            if(target.targetGUID != m_caster->GetGUID())
+                if (Creature* creatureCaster = m_caster->ToCreature())
+                    if (!creatureCaster->IsFocusing(this))
+                        creatureCaster->FocusTarget(this, ObjectAccessor::GetWorldObject(*creatureCaster, target.targetGUID));
+    }
 
     for (GOTargetInfo const& target : m_UniqueGOTargetInfo)
         m_caster->AddChannelObject(target.targetGUID);

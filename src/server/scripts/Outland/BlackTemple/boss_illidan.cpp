@@ -524,6 +524,7 @@ public:
                     events.ScheduleEvent(EVENT_SHADOW_BLAST, Seconds(1), group);
                     events.ScheduleEvent(EVENT_FLAME_BURST, Seconds(6), group);
                     events.ScheduleEvent(EVENT_SHADOW_DEMON, Seconds(18), Seconds(30), group);
+                    break;
                 case GROUP_PHASE_4:
                     ScheduleEvents(GROUP_PHASE_3, group);
                     events.ScheduleEvent(EVENT_FRENZY, Seconds(40), group);
@@ -864,7 +865,7 @@ public:
                         events.ScheduleEvent(EVENT_FLY_TO_RANDOM_PILLAR, Seconds(2), GROUP_PHASE_ALL);
                         break;
                     case EVENT_CHANGE_ORIENTATION:
-                        me->SetFacingTo(_orientation, true);
+                        me->SetFacingTo(_orientation);
                         break;
                     case EVENT_FLY:
                         ChangeOrientation(3.137039f);
@@ -881,7 +882,7 @@ public:
                     case EVENT_FACE_MIDDLE:
                     {
                         float angle = me->GetAngle(IllidanMiddlePoint);
-                        me->SetFacingTo(angle, true);
+                        me->SetFacingTo(angle);
                         break;
                     }
                     case EVENT_EYE_BLAST:
@@ -1298,7 +1299,7 @@ public:
                         me->SetEmoteState(EMOTE_STATE_READY1H);
                         break;
                     case EVENT_CHANGE_ORIENTATION:
-                        me->SetFacingTo(_orientation, true);
+                        me->SetFacingTo(_orientation);
                         break;
                     case EVENT_HEALING_POTION:
                         if (me->HealthBelowPct(20))
@@ -2305,7 +2306,6 @@ class spell_illidan_find_target : public SpellScriptLoader
                 if (Creature* caster = GetCaster()->ToCreature())
                 {
                     caster->CastSpell(target, SPELL_PARALYZE, true);
-                    caster->ClearUnitState(UNIT_STATE_CASTING);
                     caster->AI()->SetGUID(target->GetGUID(), 0);
                 }
             }

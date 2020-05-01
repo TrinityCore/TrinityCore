@@ -224,7 +224,8 @@ enum QuestSpecialFlags
     QUEST_SPECIAL_FLAGS_SPEAKTO              = 0x100,   // Internal flag computed only
     QUEST_SPECIAL_FLAGS_KILL                 = 0x200,   // Internal flag computed only
     QUEST_SPECIAL_FLAGS_TIMED                = 0x400,   // Internal flag computed only
-    QUEST_SPECIAL_FLAGS_PLAYER_KILL          = 0x800    // Internal flag computed only
+    QUEST_SPECIAL_FLAGS_PLAYER_KILL          = 0x800,   // Internal flag computed only
+    QUEST_SPECIAL_FLAGS_COMPLETED_AT_START   = 0x1000   // Internal flag computed only
 };
 
 enum QuestObjectiveType
@@ -497,7 +498,6 @@ class TC_GAME_API Quest
         void BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player* player) const;
 
         std::vector<uint32> DependentPreviousQuests;
-        std::vector<uint32> PrevChainQuests;
         WorldPacket QueryData[TOTAL_LOCALES];
 
     private:

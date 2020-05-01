@@ -186,7 +186,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     PhasingHandler::InheritPhaseShift(this, owner);
 
     setPetType(petType);
-    setFaction(owner->getFaction());
+    SetFaction(owner->GetFaction());
     SetCreatedBySpell(summonSpellId);
 
     if (IsCritter())
@@ -1676,7 +1676,7 @@ void Pet::CastPetAuras(bool current)
     if (!IsPermanentPetFor(owner))
         return;
 
-    for (PetAuraSet::const_iterator itr = owner->m_petAuras.begin(); itr != owner->m_petAuras.end();)
+    for (auto itr = owner->m_petAuras.begin(); itr != owner->m_petAuras.end();)
     {
         PetAura const* pa = *itr;
         ++itr;
@@ -1708,7 +1708,7 @@ bool Pet::IsPetAura(Aura const* aura)
     Player* owner = GetOwner();
 
     // if the owner has that pet aura, return true
-    for (PetAuraSet::const_iterator itr = owner->m_petAuras.begin(); itr != owner->m_petAuras.end(); ++itr)
+    for (auto itr = owner->m_petAuras.begin(); itr != owner->m_petAuras.end(); ++itr)
     {
         if ((*itr)->GetAura(GetEntry()) == aura->GetId())
             return true;

@@ -70,8 +70,8 @@ public:
         void LockRageclaw(Creature* rageclaw)
         {
             // pointer check not needed
-            me->SetInFront(rageclaw);
-            rageclaw->SetInFront(me);
+            me->SetFacingToObject(rageclaw);
+            rageclaw->SetFacingToObject(me);
 
             DoCast(rageclaw, SPELL_LEFT_CHAIN, true);
             DoCast(rageclaw, SPELL_RIGHT_CHAIN, true);
@@ -138,7 +138,7 @@ public:
 
         void Reset() override
         {
-            me->setFaction(35);
+            me->SetFaction(35);
             DoCast(me, SPELL_KNEEL, true); // Little Hack for kneel - Thanks Illy :P
         }
 
@@ -151,7 +151,7 @@ public:
                 me->RemoveAurasDueToSpell(SPELL_LEFT_CHAIN);
                 me->RemoveAurasDueToSpell(SPELL_RIGHT_CHAIN);
                 me->RemoveAurasDueToSpell(SPELL_KNEEL);
-                me->setFaction(me->GetCreatureTemplate()->faction);
+                me->SetFaction(me->GetCreatureTemplate()->faction);
                 DoCast(me, SPELL_UNSHACKLED, true);
                 Talk(SAY_RAGECLAW);
                 me->GetMotionMaster()->MoveRandom(10);

@@ -379,7 +379,7 @@ public:
         void Reset() override
         {
             if (!Tapped)
-                me->setFaction(FACTION_DEFAULT);
+                me->SetFaction(FACTION_DEFAULT);
 
             FlyTimer = 10000;
             me->SetDisableGravity(false);
@@ -395,7 +395,7 @@ public:
                 Tapped = true;
                 PlayerGUID = caster->GetGUID();
 
-                me->setFaction(FACTION_FRIENDLY);
+                me->SetFaction(FACTION_FRIENDLY);
                 DoCast(caster, SPELL_FORCE_OF_NELTHARAKU, true);
 
                 Unit* Dragonmaw = me->FindNearestCreature(NPC_DRAGONMAW_SUBJUGATOR, 50);
@@ -602,7 +602,7 @@ public:
         if (quest->GetQuestId() == QUEST_ESCAPE_COILSCAR)
         {
             creature->AI()->Talk(SAY_WIL_START, player);
-            creature->setFaction(FACTION_EARTHEN);
+            creature->SetFaction(FACTION_EARTHEN);
 
             if (npc_earthmender_wildaAI* pEscortAI = CAST_AI(npc_earthmender_wilda::npc_earthmender_wildaAI, creature->AI()))
                 pEscortAI->Start(false, false, player->GetGUID(), quest);
@@ -1479,7 +1479,7 @@ public:
                  totemOspirits = me->FindNearestCreature(ENTRY_TOTEM_OF_SPIRITS, RADIUS_TOTEM_OF_SPIRITS);
                  if (totemOspirits)
                  {
-                     Summoned->setFaction(FACTION_ENRAGED_SOUL_FRIENDLY);
+                     Summoned->SetFaction(FACTION_ENRAGED_SOUL_FRIENDLY);
                      Summoned->GetMotionMaster()->MovePoint(0, totemOspirits->GetPositionX(), totemOspirits->GetPositionY(), Summoned->GetPositionZ());
 
                      if (Unit* owner = totemOspirits->GetOwner())

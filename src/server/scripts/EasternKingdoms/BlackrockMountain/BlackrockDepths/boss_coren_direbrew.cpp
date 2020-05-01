@@ -143,7 +143,7 @@ public:
         {
             _Reset();
             me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
-            me->setFaction(COREN_DIREBREW_FACTION_FRIEND);
+            me->SetFaction(COREN_DIREBREW_FACTION_FRIEND);
             events.SetPhase(PHASE_ALL);
 
             for (uint8 i = 0; i < MAX_ANTAGONISTS; ++i)
@@ -166,7 +166,7 @@ public:
             {
                 events.SetPhase(PHASE_ONE);
                 me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
-                me->setFaction(COREN_DIREBREW_FACTION_HOSTILE);
+                me->SetFaction(COREN_DIREBREW_FACTION_HOSTILE);
                 me->SetInCombatWithZone();
 
                 EntryCheckPredicate pred(NPC_ANTAGONIST);
@@ -357,7 +357,7 @@ public:
 
         void Reset() override
         {
-            me->setFaction(COREN_DIREBREW_FACTION_HOSTILE);
+            me->SetFaction(COREN_DIREBREW_FACTION_HOSTILE);
             DoCastAOE(SPELL_MOLE_MACHINE_EMERGE, true);
             me->SetInCombatWithZone();
         }
@@ -399,7 +399,7 @@ public:
                     break;
                 case ACTION_ANTAGONIST_HOSTILE:
                     me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
-                    me->setFaction(COREN_DIREBREW_FACTION_HOSTILE);
+                    me->SetFaction(COREN_DIREBREW_FACTION_HOSTILE);
                     me->SetInCombatWithZone();
                     break;
                 default:

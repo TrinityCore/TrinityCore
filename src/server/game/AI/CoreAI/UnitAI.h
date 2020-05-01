@@ -265,6 +265,8 @@ class TC_GAME_API UnitAI
         void DoCastVictim(uint32 spellId, bool triggered = false);
         void DoCastAOE(uint32 spellId, bool triggered = false);
 
+        virtual bool ShouldSparWith(Unit const* /*target*/) const { return false; }
+
         void DoMeleeAttackIfReady();
         bool DoSpellAttackIfReady(uint32 spellId);
 
@@ -277,7 +279,6 @@ class TC_GAME_API UnitAI
         virtual void sQuestAccept(Player* /*player*/, Quest const* /*quest*/) { }
         virtual void sQuestSelect(Player* /*player*/, Quest const* /*quest*/) { }
         virtual void sQuestReward(Player* /*player*/, Quest const* /*quest*/, uint32 /*opt*/) { }
-        virtual bool sOnDummyEffect(Unit* /*caster*/, uint32 /*spellId*/, SpellEffIndex /*effIndex*/) { return false; }
         virtual void sOnGameEvent(bool /*start*/, uint16 /*eventId*/) { }
 
     private:

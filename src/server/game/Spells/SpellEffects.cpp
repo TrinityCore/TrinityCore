@@ -607,24 +607,18 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
     }
 
     // pet auras
-    if (PetAura const* petSpell = sSpellMgr->GetPetAura(m_spellInfo->Id, effIndex))
+    if (m_caster->GetTypeId() == TYPEID_PLAYER)
     {
-        m_caster->AddPetAura(petSpell);
-        return;
+        if (PetAura const* petSpell = sSpellMgr->GetPetAura(m_spellInfo->Id, effIndex))
+        {
+            m_caster->ToPlayer()->AddPetAura(petSpell);
+            return;
+        }
     }
 
     // normal DB scripted effect
     TC_LOG_DEBUG("spells", "Spell ScriptStart spellid %u in EffectDummy(%u)", m_spellInfo->Id, effIndex);
     m_caster->GetMap()->ScriptsStart(sSpellScripts, uint32(m_spellInfo->Id | (effIndex << 24)), m_caster, unitTarget);
-
-    // Script based implementation. Must be used only for not good for implementation in core spell effects
-    // So called only for not proccessed cases
-    if (gameObjTarget)
-        sScriptMgr->OnDummyEffect(m_caster, m_spellInfo->Id, effIndex, gameObjTarget);
-    else if (unitTarget && unitTarget->GetTypeId() == TYPEID_UNIT)
-        sScriptMgr->OnDummyEffect(m_caster, m_spellInfo->Id, effIndex, unitTarget->ToCreature());
-    else if (itemTarget)
-        sScriptMgr->OnDummyEffect(m_caster, m_spellInfo->Id, effIndex, itemTarget);
 }
 
 void Spell::EffectTriggerSpell(SpellEffIndex /*effIndex*/)
@@ -2031,7 +2025,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                         if (properties->Control == SUMMON_CATEGORY_ALLY)
                         {
                             summon->SetOwnerGUID(m_originalCaster->GetGUID());
-                            summon->setFaction(m_originalCaster->getFaction());
+                            summon->SetFaction(m_originalCaster->GetFaction());
                             summon->SetCreatedBySpell(m_spellInfo->Id);
                         }
 
@@ -2072,9 +2066,9 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
 
             uint32 faction = properties->Faction;
             if (!faction)
-                faction = m_originalCaster->getFaction();
+                faction = m_originalCaster->GetFaction();
 
-            summon->setFaction(faction);
+            summon->SetFaction(faction);
             break;
     }
 
@@ -2232,11 +2226,11 @@ void Spell::EffectDistract(SpellEffIndex /*effIndex*/)
     if (unitTarget->HasUnitState(UNIT_STATE_CONFUSED | UNIT_STATE_STUNNED | UNIT_STATE_FLEEING))
         return;
 
-    unitTarget->SetFacingTo(unitTarget->GetAngle(destTarget));
-    unitTarget->ClearUnitState(UNIT_STATE_MOVING);
-
     if (unitTarget->GetTypeId() == TYPEID_UNIT)
         unitTarget->GetMotionMaster()->MoveDistract(damage * IN_MILLISECONDS);
+
+    unitTarget->StopMoving();
+    unitTarget->SetFacingTo(unitTarget->GetAngle(destTarget));
 }
 
 void Spell::EffectPickPocket(SpellEffIndex /*effIndex*/)
@@ -3604,7 +3598,7 @@ void Spell::EffectDuel(SpellEffIndex effIndex)
 
     PhasingHandler::InheritPhaseShift(go, m_caster);
 
-    go->SetFaction(m_caster->getFaction());
+    go->SetFaction(m_caster->GetFaction());
     go->SetLevel(m_caster->getLevel()+1);
     int32 duration = m_spellInfo->CalcDuration(m_caster);
     go->SetRespawnTime(duration > 0 ? duration/IN_MILLISECONDS : 0);
@@ -4688,7 +4682,7 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
     {
         case GAMEOBJECT_TYPE_FISHINGNODE:
         {
-            go->SetFaction(m_caster->getFaction());
+            go->SetFaction(m_caster->GetFaction());
             ObjectGuid bobberGuid = go->GetGUID();
             // client requires fishing bobber guid in channel object slot 0 to be usable
             m_caster->SetChannelObject(0, bobberGuid);
@@ -5206,7 +5200,7 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* 
             ((Guardian*)summon)->InitStatsForLevel(level);
 
         if (properties && properties->Control == SUMMON_CATEGORY_ALLY)
-            summon->setFaction(caster->getFaction());
+            summon->SetFaction(caster->GetFaction());
 
         if (summon->HasUnitTypeMask(UNIT_MASK_MINION) && m_targets.HasDst())
             ((Minion*)summon)->SetFollowAngle(m_caster->GetAngle(summon));

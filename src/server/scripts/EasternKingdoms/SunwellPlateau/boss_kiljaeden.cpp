@@ -610,7 +610,7 @@ public:
             else
                 summoned->SetLevel(me->getLevel());
 
-            summoned->setFaction(me->getFaction());
+            summoned->SetFaction(me->GetFaction());
             summons.Summon(summoned);
         }
 
@@ -936,7 +936,7 @@ public:
 
         void JustSummoned(Creature* summoned) override
         {
-            summoned->setFaction(me->getFaction());
+            summoned->SetFaction(me->GetFaction());
             summoned->SetLevel(me->getLevel());
         }
 
@@ -1036,7 +1036,7 @@ public:
 
         void JustSummoned(Creature* summoned) override
         {
-            summoned->setFaction(me->getFaction());
+            summoned->SetFaction(me->GetFaction());
             summoned->SetLevel(me->getLevel());
         }
 

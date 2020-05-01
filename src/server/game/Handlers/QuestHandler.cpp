@@ -350,46 +350,41 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPackets::Quest::Quest
             {
                 //For AutoSubmition was added plr case there as it almost same exclute AI script cases.
                 Creature* creatureQGiver = object->ToCreature();
-                if (!creatureQGiver || !sScriptMgr->OnQuestReward(_player, creatureQGiver, quest, packet.ItemChoiceID))
+                // Send next quest
+                if (Quest const* nextQuest = _player->GetNextQuest(packet.QuestGiverGUID, quest))
                 {
-                    // Send next quest
-                    if (Quest const* nextQuest = _player->GetNextQuest(packet.QuestGiverGUID, quest))
+                    // Only send the quest to the player if the conditions are met
+                    if (_player->CanTakeQuest(nextQuest, false))
                     {
-                        // Only send the quest to the player if the conditions are met
-                        if (_player->CanTakeQuest(nextQuest, false))
-                        {
-                            if (nextQuest->IsAutoAccept() && _player->CanAddQuest(nextQuest, true))
-                                _player->AddQuestAndCheckCompletion(nextQuest, object);
+                        if (nextQuest->IsAutoAccept() && _player->CanAddQuest(nextQuest, true))
+                            _player->AddQuestAndCheckCompletion(nextQuest, object);
 
-                            _player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, packet.QuestGiverGUID, true, false);
-                        }
+                        _player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, packet.QuestGiverGUID, true, false);
                     }
-
-                    if (creatureQGiver)
-                        creatureQGiver->GetAI()->sQuestReward(_player, quest, packet.ItemChoiceID);
                 }
+
+                if (creatureQGiver && !sScriptMgr->OnQuestReward(_player, creatureQGiver, quest, packet.ItemChoiceID))
+                    creatureQGiver->GetAI()->sQuestReward(_player, quest, packet.ItemChoiceID);
                 break;
             }
             case TYPEID_GAMEOBJECT:
             {
                 GameObject* questGiver = object->ToGameObject();
-                if (!sScriptMgr->OnQuestReward(_player, questGiver, quest, packet.ItemChoiceID))
+                // Send next quest
+                if (Quest const* nextQuest = _player->GetNextQuest(packet.QuestGiverGUID, quest))
                 {
-                    // Send next quest
-                    if (Quest const* nextQuest = _player->GetNextQuest(packet.QuestGiverGUID, quest))
+                    // Only send the quest to the player if the conditions are met
+                    if (_player->CanTakeQuest(nextQuest, false))
                     {
-                        // Only send the quest to the player if the conditions are met
-                        if (_player->CanTakeQuest(nextQuest, false))
-                        {
-                            if (nextQuest->IsAutoAccept() && _player->CanAddQuest(nextQuest, true))
-                                _player->AddQuestAndCheckCompletion(nextQuest, object);
+                        if (nextQuest->IsAutoAccept() && _player->CanAddQuest(nextQuest, true))
+                            _player->AddQuestAndCheckCompletion(nextQuest, object);
 
-                            _player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, packet.QuestGiverGUID, true, false);
-                        }
+                        _player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, packet.QuestGiverGUID, true, false);
                     }
-
-                    questGiver->AI()->QuestReward(_player, quest, packet.ItemChoiceID);
                 }
+
+                if (!sScriptMgr->OnQuestReward(_player, questGiver, quest, packet.ItemChoiceID))
+                    questGiver->AI()->QuestReward(_player, quest, packet.ItemChoiceID);
                 break;
             }
             default:
@@ -590,7 +585,10 @@ void WorldSession::HandlePushQuestToParty(WorldPackets::Quest::PushQuestToParty&
 
     Group* group = sender->GetGroup();
     if (!group)
+    {
+        sender->SendPushToPartyResponse(sender, QUEST_PUSH_NOT_IN_PARTY);
         return;
+    }
 
     for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
     {
@@ -608,6 +606,12 @@ void WorldSession::HandlePushQuestToParty(WorldPackets::Quest::PushQuestToParty&
         if (receiver->GetQuestStatus(packet.QuestID) == QUEST_STATUS_COMPLETE)
         {
             sender->SendPushToPartyResponse(receiver, QUEST_PUSH_ALREADY_DONE);
+            continue;
+        }
+
+        if (!receiver->SatisfyQuestDay(quest, false))
+        {
+            sender->SendPushToPartyResponse(receiver, QUEST_PUSH_DIFFERENT_SERVER_DAILY);
             continue;
         }
 

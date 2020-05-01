@@ -144,7 +144,7 @@ class boss_mandokir : public CreatureScript
                     {
                         if (Creature* chainedSpirit = ObjectAccessor::GetCreature(*me, *itr))
                             if (chainedSpirit->GetEntry() == NPC_CHAINED_SPIRIT && chainedSpirit->AI())
-                                chainedSpirit->setFaction(FACTION_NONE);
+                                chainedSpirit->SetFaction(FACTION_NONE);
                     }
                 }
 

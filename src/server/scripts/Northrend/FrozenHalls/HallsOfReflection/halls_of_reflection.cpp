@@ -1342,7 +1342,8 @@ class npc_the_lich_king_escape_hor : public CreatureScript
                 if (!me->HasReactState(REACT_PASSIVE))
                 {
                     if (Unit* victim = me->SelectVictim())
-                        AttackStart(victim);
+                        if (!me->IsFocusing(nullptr, true) && victim != me->GetVictim())
+                            AttackStart(victim);
                     return me->GetVictim() != nullptr;
                 }
                 else if (me->getThreatManager().getThreatList().size() < 2 && me->HasAura(SPELL_REMORSELESS_WINTER))

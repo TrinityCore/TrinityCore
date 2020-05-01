@@ -200,7 +200,6 @@ class Item;
 class Minion;
 class MotionMaster;
 class Pet;
-class PetAura;
 class Spell;
 class SpellCastTargets;
 class SpellEffectInfo;
@@ -948,7 +947,7 @@ class TC_GAME_API Unit : public WorldObject
 
         DiminishingLevels GetDiminishing(DiminishingGroup group);
         void IncrDiminishing(SpellInfo const* auraSpellInfo);
-        float ApplyDiminishingToDuration(SpellInfo const* auraSpellInfo, int32& duration, Unit* caster, DiminishingLevels previousLevel);
+        bool ApplyDiminishingToDuration(SpellInfo const* auraSpellInfo, int32& duration, Unit* caster, DiminishingLevels previousLevel) const;
         void ApplyDiminishingAura(DiminishingGroup group, bool apply);
         void ClearDiminishings();
 
@@ -1042,7 +1041,7 @@ class TC_GAME_API Unit : public WorldObject
         int32 GetResistance(SpellSchoolMask mask) const;
         void SetResistance(SpellSchools school, int32 val) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Resistances, school), val); }
         void SetBonusResistanceMod(SpellSchools school, int32 val) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::BonusResistanceMods, school), val); }
-        float GetEffectiveResistChance(Unit const* owner, SpellSchoolMask schoolMask, Unit const* victim, SpellInfo const* spellInfo = nullptr);
+        float CalculateAverageResistReduction(SpellSchoolMask schoolMask, Unit const* victim, SpellInfo const* spellInfo = nullptr) const;
 
         uint64 GetHealth()    const { return m_unitData->Health; }
         uint64 GetMaxHealth() const { return m_unitData->MaxHealth; }
@@ -1119,8 +1118,8 @@ class TC_GAME_API Unit : public WorldObject
         void SetSheath(SheathState sheathed) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::SheatheState), sheathed); }
 
         // faction template id
-        uint32 getFaction() const { return m_unitData->FactionTemplate; }
-        void setFaction(uint32 faction) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::FactionTemplate), faction); }
+        uint32 GetFaction() const { return m_unitData->FactionTemplate; }
+        void SetFaction(uint32 faction) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::FactionTemplate), faction); }
         FactionTemplateEntry const* GetFactionTemplateEntry() const;
 
         ReputationRank GetReactionTo(Unit const* target) const;
@@ -1383,8 +1382,8 @@ class TC_GAME_API Unit : public WorldObject
         void UpdateMovementForcesModMagnitude();
 
         void SetInFront(WorldObject const* target);
-        void SetFacingTo(float ori, bool force = false);
-        void SetFacingToObject(WorldObject const* object, bool force = false);
+        void SetFacingTo(float const ori, bool force = true);
+        void SetFacingToObject(WorldObject const* object, bool force = true);
 
         void SendChangeCurrentVictimOpcode(HostileReference* pHostileReference);
         void SendClearThreatListOpcode();
@@ -1659,8 +1658,8 @@ class TC_GAME_API Unit : public WorldObject
         virtual SpellInfo const* GetCastSpellInfo(SpellInfo const* spellInfo) const;
         uint32 GetCastSpellXSpellVisualId(SpellInfo const* spellInfo) const;
 
-        // Check if our current channel spell has attribute SPELL_ATTR5_CAN_CHANNEL_WHEN_MOVING
-        bool IsMovementPreventedByCasting() const;
+        virtual bool IsFocusing(Spell const* /*focusSpell*/ = nullptr, bool /*withDelay*/ = false) { return false; }
+        virtual bool IsMovementPreventedByCasting() const;
 
         SpellHistory* GetSpellHistory() { return _spellHistory; }
         SpellHistory const* GetSpellHistory() const { return _spellHistory; }
@@ -1915,7 +1914,7 @@ class TC_GAME_API Unit : public WorldObject
         void SendPetAIReaction(ObjectGuid guid);
         ///----------End of Pet responses methods----------
 
-        void propagateSpeedChange();
+        void PropagateSpeedChange();
 
         // reactive attacks
         void ClearAllReactives();
@@ -1928,12 +1927,6 @@ class TC_GAME_API Unit : public WorldObject
         // proc trigger system
         bool CanProc() const { return !m_procDeep; }
         void SetCantProc(bool apply);
-
-        // pet auras
-        typedef std::set<PetAura const*> PetAuraSet;
-        PetAuraSet m_petAuras;
-        void AddPetAura(PetAura const* petSpell);
-        void RemovePetAura(PetAura const* petSpell);
 
         uint32 GetModelForForm(ShapeshiftForm form, uint32 spellId) const;
 
@@ -1996,6 +1989,9 @@ class TC_GAME_API Unit : public WorldObject
 
         ObjectGuid GetTarget() const { return m_unitData->Target; }
         virtual void SetTarget(ObjectGuid const& /*guid*/) = 0;
+
+        void SetInstantCast(bool set) { _instantCast = set; }
+        bool CanInstantCast() const { return _instantCast; }
 
         // Movement info
         Movement::MoveSpline * movespline;
@@ -2149,6 +2145,7 @@ class TC_GAME_API Unit : public WorldObject
 
         bool m_cleanupDone; // lock made to not add stuff after cleanup before delete
         bool m_duringRemoveFromWorld; // lock made to not add stuff after begining removing from world
+        bool _instantCast;
 
         uint32 _oldFactionId;           ///< faction before charm
         bool _isWalkingBeforeCharm;     ///< Are we walking before we were charmed?
