@@ -36,7 +36,6 @@ enum Spells
     SPELL_JET_STREAM_TRIGGERED      = 84610,
     SPELL_CATCH_FALL                = 85268,
 
-    SPELL_CATCH_FALL_RIDE_VEHICLE   = 85282,
     SPELL_EJECT_ALL_PASSENGERS      = 68576,
     SPELL_CATCH_FALL_REMOVAL        = 85274,
 
@@ -120,19 +119,10 @@ class npc_totfw_fall_catcher : public CreatureScript
 
         struct npc_totfw_fall_catcherAI : public ScriptedAI
         {
-            npc_totfw_fall_catcherAI(Creature* creature) : ScriptedAI(creature)
-            {
-                Initialize();
-            }
-
-            void Initialize()
-            {
-                _guid = ObjectGuid::Empty;
-            }
+            npc_totfw_fall_catcherAI(Creature* creature) : ScriptedAI(creature) { }
 
             void IsSummonedBy(Unit* summoner) override
             {
-                summoner->CastSpell(me, SPELL_CATCH_FALL_RIDE_VEHICLE, true);
                 _events.ScheduleEvent(EVENT_EJECT_ALL_PASSENGERS, Seconds(10) + Milliseconds(400));
             }
 
