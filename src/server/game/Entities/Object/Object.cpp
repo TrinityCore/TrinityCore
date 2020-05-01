@@ -3283,24 +3283,21 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
     desty = result.y;
     destz = result.z;
 
-    // Object is using a shortcut. Check static LOS
+    // check static LOS
     float halfHeight = GetCollisionHeight() * 0.5f;
-    if (path.GetPathType() & PATHFIND_SHORTCUT)
+    bool col = VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(GetMapId(),
+        pos.m_positionX, pos.m_positionY, pos.m_positionZ + halfHeight,
+        destx, desty, destz + halfHeight,
+        destx, desty, destz, -0.5f);
+
+    destz -= halfHeight;
+
+    // Collided with static LOS object, move back to collision point
+    if (col)
     {
-        bool col = VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(GetMapId(),
-            pos.m_positionX, pos.m_positionY, pos.m_positionZ + halfHeight,
-            destx, desty, destz + halfHeight,
-            destx, desty, destz, -0.5f);
-
-        destz -= halfHeight;
-
-        // Collided with static LOS object, move back to collision point
-        if (col)
-        {
-            destx -= CONTACT_DISTANCE * std::cos(angle);
-            desty -= CONTACT_DISTANCE * std::sin(angle);
-            dist = std::sqrt((pos.m_positionX - destx) * (pos.m_positionX - destx) + (pos.m_positionY - desty) * (pos.m_positionY - desty));
-        }
+        destx -= CONTACT_DISTANCE * std::cos(angle);
+        desty -= CONTACT_DISTANCE * std::sin(angle);
+        dist = std::sqrt((pos.m_positionX - destx) * (pos.m_positionX - destx) + (pos.m_positionY - desty) * (pos.m_positionY - desty));
     }
 
     // check dynamic collision
