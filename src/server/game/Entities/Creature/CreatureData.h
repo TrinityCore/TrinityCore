@@ -409,6 +409,8 @@ struct TC_GAME_API CreatureTemplate
     CreatureModel const* GetModelWithDisplayId(uint32 displayId) const;
     CreatureModel const* GetFirstInvisibleModel() const;
     CreatureModel const* GetFirstVisibleModel() const;
+    std::pair<int16, int16> GetMinMaxLevel() const;
+    int32 GetHealthScalingExpansion() const;
     CreatureLevelScaling const* GetLevelScaling(Difficulty difficulty) const;
 
     // helpers

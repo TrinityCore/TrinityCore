@@ -842,7 +842,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
         CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(petlevel, cinfo->unit_class);
         CreatureLevelScaling const* scaling = cinfo->GetLevelScaling(GetMap()->GetDifficultyID());
 
-        SetCreateHealth(sDB2Manager.EvaluateExpectedStat(ExpectedStatType::CreatureHealth, petlevel, cinfo->HealthScalingExpansion, scaling->ContentTuningID, Classes(cinfo->unit_class)) * cinfo->ModHealth * cinfo->ModHealthExtra);
+        SetCreateHealth(sDB2Manager.EvaluateExpectedStat(ExpectedStatType::CreatureHealth, petlevel, cinfo->GetHealthScalingExpansion(), scaling->ContentTuningID, Classes(cinfo->unit_class)) * cinfo->ModHealth * cinfo->ModHealthExtra);
         SetCreateMana(stats->BaseMana);
 
         SetCreateStat(STAT_STRENGTH, 22);
