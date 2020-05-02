@@ -65,6 +65,17 @@ class go_gauntlet_gate : public GameObjectScript
 
                 if (Group* group = player->GetGroup())
                 {
+                    if (Map* instanceST = me->GetMap())
+                    {
+                        if (Creature* checkC = instanceST->GetCreatureBySpawnId(STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_BARON_RIVENDARE))
+                        {
+                            if (checkC->IsAlive())
+                            {
+                                checkC->AI()->Talk(STRATHOLME_LINE_BARON_RIVENDARE::LINE_BARON_RIVENDARE_2);
+                            }
+                        }
+                    }
+
                     for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
                     {
                         Player* pGroupie = itr->GetSource();

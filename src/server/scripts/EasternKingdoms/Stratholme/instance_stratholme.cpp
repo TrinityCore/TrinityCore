@@ -110,8 +110,6 @@ public:
 
             barthilasLine0 = false;
             barthilasLine0CheckDelay = 1000;
-            rivendareLine2 = false;
-            rivendareLine2CheckDelay = 1000;
         }
 
         uint32 EncounterState[MAX_ENCOUNTER];
@@ -160,9 +158,7 @@ public:
         bool crystalDestroyed2;
         bool slauterOpened;
         bool barthilasLine0;
-        int barthilasLine0CheckDelay;
-        bool rivendareLine2;
-        int rivendareLine2CheckDelay;
+        int barthilasLine0CheckDelay;        
 
         void OnUnitDeath(Unit* who) override
         {
@@ -573,7 +569,12 @@ public:
                 case FAIL:
                     DoRemoveAurasDueToSpellOnPlayers(SPELL_BARON_ULTIMATUM);
                     if (Creature* ysida = instance->GetCreature(ysidaGUID))
+                    {                        
                         ysida->CastSpell(ysida, SPELL_PERM_FEIGN_DEATH, true);
+                        // EJ fix ysida can not talk when dead
+                        ysida->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                        ysida->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                    }
                     EncounterState[0] = data;
                     break;
                 case DONE:
@@ -833,32 +834,6 @@ public:
                 }
             }
 
-            if (!rivendareLine2)
-            {
-                rivendareLine2CheckDelay -= diff;
-                if (rivendareLine2CheckDelay < 0)
-                {
-                    rivendareLine2CheckDelay = 1000;
-                    if (GameObject* goSlaugtherDoor = instance->GetGameObject(portSlaugtherGUID))
-                    {
-                        if (goSlaugtherDoor->GetGoState() == GOState::GO_STATE_ACTIVE)
-                        {
-                            if (goSlaugtherDoor->SelectNearestPlayer(10.0f))
-                            {
-                                if (Creature* checkC = instance->GetCreature(baronGUID))
-                                {
-                                    if (checkC->IsAlive())
-                                    {
-                                        checkC->AI()->Talk(STRATHOLME_LINE_BARON_RIVENDARE::LINE_BARON_RIVENDARE_2);
-                                    }
-                                    rivendareLine2 = true;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
             if (!guardsmanLine0)
             {
                 guardsmanActionDelay0 -= diff;
@@ -871,71 +846,8 @@ public:
                         {
                             if (Player* checkP = checkGuardsman->SelectNearestPlayer(100.0f))
                             {
-                                if (checkGuardsman->GetThreatManager().IsThreatListEmpty())
-                                {
-                                    if (Creature* victim = instance->GetCreatureBySpawnId(STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_SKELETON_0_0))
-                                    {
-                                        if (checkP->GetFaction() == PLAYER_FACTION::PLAYER_FACTION_1)
-                                        {
-                                            victim->SetFaction(PLAYER_FACTION::PLAYER_FACTION_2);
-                                        }
-                                        else
-                                        {
-                                            victim->SetFaction(PLAYER_FACTION::PLAYER_FACTION_1);
-                                        }
-                                        checkGuardsman->GetThreatManager().AddThreat(victim, 100);
-                                        victim->GetThreatManager().AddThreat(checkGuardsman, 100);
-                                        checkGuardsman->AI()->AttackStart(victim);
-                                        victim->AI()->AttackStart(checkGuardsman);
-                                    }
-                                    if (Creature* victim = instance->GetCreatureBySpawnId(STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_SKELETON_0_1))
-                                    {
-                                        if (checkP->GetFaction() == PLAYER_FACTION::PLAYER_FACTION_1)
-                                        {
-                                            victim->SetFaction(PLAYER_FACTION::PLAYER_FACTION_2);
-                                        }
-                                        else
-                                        {
-                                            victim->SetFaction(PLAYER_FACTION::PLAYER_FACTION_1);
-                                        }
-                                        checkGuardsman->GetThreatManager().AddThreat(victim, 100);
-                                        victim->GetThreatManager().AddThreat(checkGuardsman, 100);
-                                        checkGuardsman->AI()->AttackStart(victim);
-                                        victim->AI()->AttackStart(checkGuardsman);
-                                    }
-                                    if (Creature* victim = instance->GetCreatureBySpawnId(STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_SKELETON_0_2))
-                                    {
-                                        if (checkP->GetFaction() == PLAYER_FACTION::PLAYER_FACTION_1)
-                                        {
-                                            victim->SetFaction(PLAYER_FACTION::PLAYER_FACTION_2);
-                                        }
-                                        else
-                                        {
-                                            victim->SetFaction(PLAYER_FACTION::PLAYER_FACTION_1);
-                                        }
-                                        checkGuardsman->GetThreatManager().AddThreat(victim, 100);
-                                        victim->GetThreatManager().AddThreat(checkGuardsman, 100);
-                                        checkGuardsman->AI()->AttackStart(victim);
-                                        victim->AI()->AttackStart(checkGuardsman);
-                                    }
-                                    if (Creature* victim = instance->GetCreatureBySpawnId(STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_SKELETON_0_3))
-                                    {
-                                        if (checkP->GetFaction() == PLAYER_FACTION::PLAYER_FACTION_1)
-                                        {
-                                            victim->SetFaction(PLAYER_FACTION::PLAYER_FACTION_2);
-                                        }
-                                        else
-                                        {
-                                            victim->SetFaction(PLAYER_FACTION::PLAYER_FACTION_1);
-                                        }
-                                        checkGuardsman->GetThreatManager().AddThreat(victim, 100);
-                                        victim->GetThreatManager().AddThreat(checkGuardsman, 100);
-                                        checkGuardsman->AI()->AttackStart(victim);
-                                        victim->AI()->AttackStart(checkGuardsman);
-                                    }
-                                    checkGuardsman->AI()->Talk(STRATHOLME_LINE_CRIMSON_GUARDSMAN::LINE_CRIMSON_GUARDSMAN_0);
-                                    guardsmanLine0 = true;
-                                }
+                                checkGuardsman->AI()->Talk(STRATHOLME_LINE_CRIMSON_GUARDSMAN::LINE_CRIMSON_GUARDSMAN_0);
+                                guardsmanLine0 = true;
                             }
                         }
                     }
@@ -954,71 +866,8 @@ public:
                         {
                             if (Player* checkP = checkGuardsman->SelectNearestPlayer(100.0f))
                             {
-                                if (checkGuardsman->GetThreatManager().IsThreatListEmpty())
-                                {
-                                    if (Creature* victim = instance->GetCreatureBySpawnId(STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_SKELETON_1_0))
-                                    {
-                                        if (checkP->GetFaction() == PLAYER_FACTION::PLAYER_FACTION_1)
-                                        {
-                                            victim->SetFaction(PLAYER_FACTION::PLAYER_FACTION_2);
-                                        }
-                                        else
-                                        {
-                                            victim->SetFaction(PLAYER_FACTION::PLAYER_FACTION_1);
-                                        }
-                                        checkGuardsman->GetThreatManager().AddThreat(victim, 100);
-                                        victim->GetThreatManager().AddThreat(checkGuardsman, 100);
-                                        checkGuardsman->AI()->AttackStart(victim);
-                                        victim->AI()->AttackStart(checkGuardsman);
-                                    }
-                                    if (Creature* victim = instance->GetCreatureBySpawnId(STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_SKELETON_1_1))
-                                    {
-                                        if (checkP->GetFaction() == PLAYER_FACTION::PLAYER_FACTION_1)
-                                        {
-                                            victim->SetFaction(PLAYER_FACTION::PLAYER_FACTION_2);
-                                        }
-                                        else
-                                        {
-                                            victim->SetFaction(PLAYER_FACTION::PLAYER_FACTION_1);
-                                        }
-                                        checkGuardsman->GetThreatManager().AddThreat(victim, 100);
-                                        victim->GetThreatManager().AddThreat(checkGuardsman, 100);
-                                        checkGuardsman->AI()->AttackStart(victim);
-                                        victim->AI()->AttackStart(checkGuardsman);
-                                    }
-                                    if (Creature* victim = instance->GetCreatureBySpawnId(STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_SKELETON_1_2))
-                                    {
-                                        if (checkP->GetFaction() == PLAYER_FACTION::PLAYER_FACTION_1)
-                                        {
-                                            victim->SetFaction(PLAYER_FACTION::PLAYER_FACTION_2);
-                                        }
-                                        else
-                                        {
-                                            victim->SetFaction(PLAYER_FACTION::PLAYER_FACTION_1);
-                                        }
-                                        checkGuardsman->GetThreatManager().AddThreat(victim, 100);
-                                        victim->GetThreatManager().AddThreat(checkGuardsman, 100);
-                                        checkGuardsman->AI()->AttackStart(victim);
-                                        victim->AI()->AttackStart(checkGuardsman);
-                                    }
-                                    if (Creature* victim = instance->GetCreatureBySpawnId(STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_SKELETON_1_3))
-                                    {
-                                        if (checkP->GetFaction() == PLAYER_FACTION::PLAYER_FACTION_1)
-                                        {
-                                            victim->SetFaction(PLAYER_FACTION::PLAYER_FACTION_2);
-                                        }
-                                        else
-                                        {
-                                            victim->SetFaction(PLAYER_FACTION::PLAYER_FACTION_1);
-                                        }
-                                        checkGuardsman->GetThreatManager().AddThreat(victim, 100);
-                                        victim->GetThreatManager().AddThreat(checkGuardsman, 100);
-                                        checkGuardsman->AI()->AttackStart(victim);
-                                        victim->AI()->AttackStart(checkGuardsman);
-                                    }
-                                    checkGuardsman->AI()->Talk(STRATHOLME_LINE_CRIMSON_GUARDSMAN::LINE_CRIMSON_GUARDSMAN_1);
-                                    guardsmanLine1 = true;
-                                }
+                                checkGuardsman->AI()->Talk(STRATHOLME_LINE_CRIMSON_GUARDSMAN::LINE_CRIMSON_GUARDSMAN_1);
+                                guardsmanLine1 = true;
                             }
                         }
                     }
@@ -1268,14 +1117,7 @@ public:
                             {
                                 //me->SetFaction(checkP->GetFaction());
                                 Talk(STRATHOLME_LINE_AURIUS::LINE_AURIUS_0);
-                                if (checkP->GetFaction() == PLAYER_FACTION::PLAYER_FACTION_1)
-                                {
-                                    me->SetFaction(PLAYER_FACTION::PLAYER_FACTION_1);
-                                }
-                                else
-                                {
-                                    me->SetFaction(PLAYER_FACTION::PLAYER_FACTION_2);
-                                }
+                                me->SetFaction(checkP->GetFaction());
                                 me->GetThreatManager().AddThreat(pBaron, 100);
                                 pBaron->GetThreatManager().AddThreat(me, 100);
                                 AttackStart(pBaron);

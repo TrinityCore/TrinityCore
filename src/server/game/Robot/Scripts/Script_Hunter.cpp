@@ -242,7 +242,7 @@ bool Script_Hunter::DPS_Marksmanship(Unit* pmTarget, bool pmChase, bool pmAOE)
             }
         }
         // when facing boss 
-        if (pmTarget->GetMaxHealth() / me->GetMaxHealth() > 5.0f)
+        if (pmTarget->GetMaxHealth() / me->GetMaxHealth() > 10.0f)
         {
             if (CastSpell(me, "Rapid Fire", HUNTER_RANGE_DISTANCE))
             {

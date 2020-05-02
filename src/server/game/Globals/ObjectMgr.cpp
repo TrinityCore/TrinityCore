@@ -9986,7 +9986,7 @@ void ObjectMgr::LoadCreatureClassLevelStats()
                 checkMeleeAP = 40;
             }
             checkMeleeAP = checkMeleeAP * 1.3f;
-            float checkRangeAP = checkMeleeAP / 2;
+            float checkRangeAP = checkMeleeAP / 4;
             if (checkRangeAP < stats.RangedAttackPower)
             {
                 checkRangeAP = stats.RangedAttackPower;

@@ -170,7 +170,7 @@ bool Script_Druid::DPS_Balance(Unit* pmTarget, bool pmChase, bool pmAOE)
     }
 
     // when facing boss 
-    if (pmTarget->GetMaxHealth() / me->GetMaxHealth() > 5.0f)
+    if (pmTarget->GetMaxHealth() / me->GetMaxHealth() > 10.0f)
     {
         if (CastSpell(pmTarget, "Moonfire", DRUID_RANGE_DISTANCE, true, true))
         {

@@ -274,7 +274,7 @@ bool Script_Warlock::DPS_Destruction(Unit* pmTarget, bool pmChase, bool pmAOE)
         }
     }
     // when facing boss 
-    if (pmTarget->GetMaxHealth() / me->GetMaxHealth() > 5.0f)
+    if (pmTarget->GetMaxHealth() / me->GetMaxHealth() > 10.0f)
     {
         if (CastSpell(pmTarget, "Curse of the Elements", WARLOCK_RANGE_DISTANCE, true))
         {

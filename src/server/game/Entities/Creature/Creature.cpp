@@ -1486,13 +1486,6 @@ void Creature::UpdateLevelDependantStats()
                 jokerSpellMod = sJokerConfig->RareSpellMod;
                 jokerHPMod = sJokerConfig->RareHPMod;
             }
-            if (jokerAttackMod < GetCreatureTemplate()->ModDamage)
-            {
-                jokerAttackMod = GetCreatureTemplate()->ModDamage;
-            }            
-            jokerHPMod = jokerHPMod * levelHPMod;
-            jokerAttackMod = jokerAttackMod * levelAttackMod;
-            jokerSpellMod = jokerSpellMod * levelSpellMod;
             uint32 creatureClass = GetClass();
             if (creatureClass == UnitClass::UNIT_CLASS_WARRIOR)
             {
@@ -1514,6 +1507,13 @@ void Creature::UpdateLevelDependantStats()
             {
                 jokerAttackMod = 1.0f;
             }
+            if (jokerAttackMod < GetCreatureTemplate()->ModDamage)
+            {
+                jokerAttackMod = GetCreatureTemplate()->ModDamage;
+            }            
+            jokerHPMod = jokerHPMod * levelHPMod;
+            jokerAttackMod = jokerAttackMod * levelAttackMod;
+            jokerSpellMod = jokerSpellMod * levelSpellMod;
             health = health * jokerHPMod;
         }
     }

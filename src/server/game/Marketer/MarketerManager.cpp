@@ -163,7 +163,7 @@ MarketerManager::MarketerManager()
         }
         case ItemClass::ITEM_CLASS_MISC:
         {
-            if (proto->Quality > 1)
+            if (proto->Quality > 0)
             {
                 sellThis = true;
             }
@@ -289,8 +289,8 @@ bool MarketerManager::UpdateSeller()
                 {
                 case ItemClass::ITEM_CLASS_CONSUMABLE:
                 {
-                    //sellThis = true;
-                    //stackCount = proto->Stackable;
+                    sellThis = true;
+                    stackCount = proto->Stackable;
                     break;
                 }
                 case ItemClass::ITEM_CLASS_CONTAINER:
@@ -369,8 +369,12 @@ bool MarketerManager::UpdateSeller()
                 }
                 case ItemClass::ITEM_CLASS_QUEST:
                 {
-                    sellThis = true;
+                    sellThis = true;                    
                     stackCount = 1;
+                    if (proto->Stackable > 20)
+                    {
+                        stackCount = proto->Stackable;
+                    }
                     break;
                 }
                 case ItemClass::ITEM_CLASS_KEY:
@@ -386,7 +390,7 @@ bool MarketerManager::UpdateSeller()
                     if (proto->Quality > 0)
                     {
                         sellThis = true;
-                        stackCount = 1;
+                        stackCount = proto->Stackable;
                     }
                     break;
                 }
