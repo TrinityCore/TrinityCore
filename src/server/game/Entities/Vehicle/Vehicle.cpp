@@ -543,7 +543,7 @@ Vehicle* Vehicle::RemovePassenger(Unit* unit)
 
     // Enable gravity for passenger when he did not have it active before entering the vehicle
     if (seat->second.SeatInfo->HasFlag(VEHICLE_SEAT_FLAG_DISABLE_GRAVITY) || GetBase()->CanFly())
-        unit->SetDisableGravity(false);
+        unit->SetDisableGravity(false, !unit->HasUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY));
 
     // Remove UNIT_FLAG_NOT_SELECTABLE if passenger did not have it before entering vehicle
     if (seat->second.SeatInfo->HasFlag(VEHICLE_SEAT_FLAG_PASSENGER_NOT_SELECTABLE) && !seat->second.Passenger.IsUnselectable)
