@@ -23,6 +23,7 @@
 #include "ObjectGuid.h"
 #include "Optional.h"
 #include "Weather.h"
+#include <array>
 
 enum WeatherState : uint32;
 
