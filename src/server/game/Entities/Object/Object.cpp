@@ -3285,7 +3285,9 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
 
     // check static LOS
     float halfHeight = GetCollisionHeight() * 0.5f;
-    bool col = VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(GetMapId(),
+    bool col;
+    /*
+    col = VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(GetMapId(),
         pos.m_positionX, pos.m_positionY, pos.m_positionZ + halfHeight,
         destx, desty, destz + halfHeight,
         destx, desty, destz, -0.5f);
@@ -3299,6 +3301,7 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
         desty -= CONTACT_DISTANCE * std::sin(angle);
         dist = std::sqrt((pos.m_positionX - destx) * (pos.m_positionX - destx) + (pos.m_positionY - desty) * (pos.m_positionY - desty));
     }
+    */
 
     // check dynamic collision
     col = GetMap()->getObjectHitPos(GetPhaseMask(),
