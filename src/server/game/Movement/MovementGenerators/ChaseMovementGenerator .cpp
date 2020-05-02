@@ -61,6 +61,17 @@ static bool PositionOkay(Unit* owner, Unit* target, float distance, Optional<Cha
     return true;
 }
 
+inline float GetChaseRange(Unit const* owner, Unit const* target)
+{
+    float hitboxSum = owner->GetCombatReach() + target->GetCombatReach();
+
+    float hoverDelta = owner->GetHoverOffset() - target->GetHoverOffset();
+    if (hoverDelta != 0.0f)
+        return std::sqrt(std::max(hitboxSum * hitboxSum - hoverDelta * hoverDelta, 0.0f));
+
+    return hitboxSum;
+}
+
 ChaseMovementGenerator::ChaseMovementGenerator(Unit* target, float range, Optional<ChaseAngle> angle) : AbstractFollower(ASSERT_NOTNULL(target)), _range(range), _angle(angle) { }
 ChaseMovementGenerator::~ChaseMovementGenerator() = default;
 
@@ -128,7 +139,7 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
     }
 
     bool  const mutualChase         = IsMutualChase(owner, target);
-    float const chaseRange          = owner->GetCombatReach() + target->GetCombatReach();
+    float const chaseRange          = GetChaseRange(owner, target);
     float const rangeTolerance      = _range > 0.f ? _range : chaseRange;
     Optional<ChaseAngle> chaseAngle = mutualChase ? Optional<ChaseAngle>() : _angle;
 
