@@ -4714,6 +4714,22 @@ void SpellMgr::LoadSpellInfoCorrections()
     {
         spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_4_YARDS);
     });
+
+    // Spore Cloud
+    ApplySpellFix({ 75701 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNELED_1;
+    });
+
+    // Noxious Spores
+    ApplySpellFix({
+        75702,
+        89889
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].RadiusEntry = nullptr;
+    });
+
     // END OF HALLS OF ORIGINATION SPELLS
 
     //

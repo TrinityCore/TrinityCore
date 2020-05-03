@@ -123,6 +123,12 @@ enum HOOCreatures
     NPC_FLUX_ANIMATOR               = 40033,
     NPC_STAR_SHARD                  = 40106,
 
+    /*Ammunae*/
+    NPC_SEEDLING_POD_VISUAL         = 40592,
+    NPC_BLOODPETAL_BLOSSOM          = 40620,
+    NPC_BLOODPETAL_BLOSSOM_VISUAL   = 40622,
+    NPC_BLOODPETAL_SPROUT           = 40630,
+
     /*Setesh*/
     NPC_SETESH_CHAOS_SEED           = 41126,
     NPC_SETESH_CHAOS_BLAST          = 41041,

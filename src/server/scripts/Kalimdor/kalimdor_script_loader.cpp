@@ -110,7 +110,7 @@ void AddSC_halls_of_origination();
 void AddSC_boss_temple_guardian_anhuur();
 void AddSC_boss_earthrager_ptah();
 void AddSC_boss_anraphet();
-//void AddSC_boss_ammunae();
+void AddSC_boss_ammunae();
 //void AddSC_boss_isiset();
 //void AddSC_boss_setesh();
 void AddSC_boss_rajh();
@@ -242,7 +242,7 @@ void AddKalimdorScripts()
     AddSC_boss_temple_guardian_anhuur();
     AddSC_boss_earthrager_ptah();
     AddSC_boss_anraphet();
-    //AddSC_boss_ammunae();
+    AddSC_boss_ammunae();
     //AddSC_boss_isiset();
     //AddSC_boss_setesh();
     AddSC_boss_rajh();

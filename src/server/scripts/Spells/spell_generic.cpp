@@ -5506,6 +5506,21 @@ class spell_gen_ghost : public AuraScript
     }
 };
 
+class spell_gen_zero_energy_zero_regen : public AuraScript
+{
+    PrepareAuraScript(spell_gen_zero_energy_zero_regen);
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->SetPower(POWER_ENERGY, 0);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectRemoveFn(spell_gen_zero_energy_zero_regen::AfterApply, EFFECT_0, SPELL_AURA_MOD_POWER_REGEN_PERCENT, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -5635,4 +5650,5 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_cauldron_of_battle);
     RegisterSpellScript(spell_gen_flask_of_battle);
     RegisterAuraScript(spell_gen_ghost);
+    RegisterAuraScript(spell_gen_zero_energy_zero_regen);
 }
