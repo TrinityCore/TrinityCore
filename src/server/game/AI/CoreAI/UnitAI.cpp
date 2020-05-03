@@ -20,6 +20,7 @@
 #include "CreatureAIImpl.h"
 #include "MotionMaster.h"
 #include "Player.h"
+#include "QuestDef.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
 #include "SpellAuras.h"
@@ -239,6 +240,11 @@ void UnitAI::FillAISpellInfo()
         AIInfo->realCooldown = spellInfo->RecoveryTime + spellInfo->StartRecoveryTime;
         AIInfo->maxRange = spellInfo->GetMaxRange(false) * 3 / 4;
     }
+}
+
+uint32 UnitAI::GetDialogStatus(Player* /*player*/)
+{
+    return DIALOG_STATUS_SCRIPTED_NO_STATUS;
 }
 
 ThreatManager& UnitAI::GetThreatManager()

@@ -19,10 +19,11 @@
 #define TRINITY_GAMEOBJECTAI_H
 
 #include "Define.h"
-#include "QuestDef.h"
 #include <list>
 
 class GameObject;
+class Player;
+class Quest;
 class SpellInfo;
 class Unit;
 
@@ -63,7 +64,7 @@ class TC_GAME_API GameObjectAI
         virtual void QuestReward(Player* /*player*/, Quest const* /*quest*/, uint32 /*opt*/) { }
 
         // Called when the dialog status between a player and the gameobject is requested.
-        virtual uint32 GetDialogStatus(Player* /*player*/) { return DIALOG_STATUS_SCRIPTED_NO_STATUS; }
+        virtual uint32 GetDialogStatus(Player* player);
 
         virtual void Destroyed(Player* /*player*/, uint32 /*eventId*/) { }
         virtual void Damaged(Player* /*player*/, uint32 /*eventId*/) { }

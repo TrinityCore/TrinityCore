@@ -22,7 +22,6 @@
 #include "EventMap.h"
 #include "ObjectGuid.h"
 #include "ThreatManager.h"
-#include "QuestDef.h"
 
 #define CAST_AI(a, b)   (dynamic_cast<a*>(b))
 #define ENSURE_AI(a,b)  (EnsureAI<a>(b))
@@ -293,8 +292,7 @@ class TC_GAME_API UnitAI
         virtual void OnGameEvent(bool /*start*/, uint16 /*eventId*/) { }
 
         // Called when the dialog status between a player and the creature is requested.
-        virtual uint32 GetDialogStatus(Player* /*player*/) { return DIALOG_STATUS_SCRIPTED_NO_STATUS; }
-
+        virtual uint32 GetDialogStatus(Player* player);
 
     private:
         UnitAI(UnitAI const& right) = delete;

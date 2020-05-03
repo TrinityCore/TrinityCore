@@ -18,6 +18,8 @@
 #ifndef DEF_SUNKEN_TEMPLE_H
 #define DEF_SUNKEN_TEMPLE_H
 
+#include "CreatureAIImpl.h"
+
 #define STScriptName "instance_sunken_temple"
 #define DataHeader "ST"
 
