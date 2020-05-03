@@ -140,5 +140,6 @@ char constexpr WMOAreaTableEntryfmt[] = "niiixxxxxiixxxxxxxxxxxxxxxxx";
 char constexpr WorldMapAreaEntryfmt[] = "xinxffffixx";
 char constexpr WorldMapOverlayEntryfmt[] = "nxiiiixxxxxxxxxxx";
 char constexpr WorldSafeLocsEntryfmt[] = "nifffxxxxxxxxxxxxxxxxx";
+char constexpr ServerMessagesEntryfmt[] = "nsxxxxxxxxxxxxxxxx";
 
 #endif

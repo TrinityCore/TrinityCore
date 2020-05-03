@@ -206,6 +206,7 @@ TC_GAME_API extern DBCStorage <WMOAreaTableEntry>            sWMOAreaTableStore;
 //TC_GAME_API extern DBCStorage <WorldMapAreaEntry>           sWorldMapAreaStore; -- use Zone2MapCoordinates and Map2ZoneCoordinates
 TC_GAME_API extern DBCStorage <WorldMapOverlayEntry>         sWorldMapOverlayStore;
 TC_GAME_API extern DBCStorage <WorldSafeLocsEntry>           sWorldSafeLocsStore;
+TC_GAME_API extern DBCStorage <ServerMessagesEntry>          sServerMessagesStore;
 
 TC_GAME_API void LoadDBCStores(const std::string& dataPath);
 

@@ -207,6 +207,7 @@ DBCStorage <WMOAreaTableEntry> sWMOAreaTableStore(WMOAreaTableEntryfmt);
 DBCStorage <WorldMapAreaEntry> sWorldMapAreaStore(WorldMapAreaEntryfmt);
 DBCStorage <WorldMapOverlayEntry> sWorldMapOverlayStore(WorldMapOverlayEntryfmt);
 DBCStorage <WorldSafeLocsEntry> sWorldSafeLocsStore(WorldSafeLocsEntryfmt);
+DBCStorage <ServerMessagesEntry> sServerMessagesStore(ServerMessagesEntryfmt);
 
 typedef std::list<std::string> StoreProblemList;
 
@@ -389,6 +390,7 @@ void LoadDBCStores(const std::string& dataPath)
     LOAD_DBC(sWorldMapAreaStore,                  "WorldMapArea.dbc");
     LOAD_DBC(sWorldMapOverlayStore,               "WorldMapOverlay.dbc");
     LOAD_DBC(sWorldSafeLocsStore,                 "WorldSafeLocs.dbc");
+    LOAD_DBC(sServerMessagesStore,                "ServerMessages.dbc");
 
 #undef LOAD_DBC
 

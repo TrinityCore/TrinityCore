@@ -3000,8 +3000,12 @@ void World::SendServerMessage(ServerMessageType type, const char *text, Player* 
 {
     WorldPacket data(SMSG_SERVER_MESSAGE, 50);              // guess size
     data << uint32(type);
-    if (type <= SERVER_MSG_STRING)
+
+    if (sServerMessagesStore.AssertEntry(type)->IsFormattableMessage())
+    {
+        ASSERT_NOTNULL(text);
         data << text;
+    }
 
     if (player)
         player->SendDirectMessage(&data);
