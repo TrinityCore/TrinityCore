@@ -233,10 +233,7 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
             BuildShortcut();
             _type = PathType(PATHFIND_NORMAL | PATHFIND_NOT_USING_PATH);
 
-            if (startFarFromPoly)
-                _type = PathType(_type | PATHFIND_FARFROMPOLY_START);
-            if (endFarFromPoly)
-                _type = PathType(_type | PATHFIND_FARFROMPOLY_END);
+            AddFarFromPolyFlags(startFarFromPoly, endFarFromPoly);
 
             return;
         }
@@ -252,10 +249,7 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
 
             _type = PathType(PATHFIND_INCOMPLETE);
 
-            if (startFarFromPoly)
-                _type = PathType(_type | PATHFIND_FARFROMPOLY_START);
-            if (endFarFromPoly)
-                _type = PathType(_type | PATHFIND_FARFROMPOLY_END);
+            AddFarFromPolyFlags(startFarFromPoly, endFarFromPoly);
         }
     }
 
@@ -273,10 +267,7 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
         {
             _type = PathType(PATHFIND_INCOMPLETE);
 
-            if (startFarFromPoly)
-                _type = PathType(_type | PATHFIND_FARFROMPOLY_START);
-            if (endFarFromPoly)
-                _type = PathType(_type | PATHFIND_FARFROMPOLY_END);
+            AddFarFromPolyFlags(startFarFromPoly, endFarFromPoly);
         }
         else
          _type = PATHFIND_NORMAL;
@@ -512,10 +503,7 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
     else
         _type = PATHFIND_INCOMPLETE;
 
-    if (startFarFromPoly)
-        _type = PathType(_type | PATHFIND_FARFROMPOLY_START);
-    if (endFarFromPoly)
-        _type = PathType(_type | PATHFIND_FARFROMPOLY_END);
+    AddFarFromPolyFlags(startFarFromPoly, endFarFromPoly);
 
     // generate the point-path out of our up-to-date poly-path
     BuildPointPath(startPoint, endPoint);
@@ -1038,4 +1026,12 @@ void PathGenerator::ShortenPathUntilDist(G3D::Vector3 const& target, float dist)
 bool PathGenerator::IsInvalidDestinationZ(Unit const* target) const
 {
     return (target->GetPositionZ() - GetActualEndPosition().z) > 5.0f;
+}
+
+void PathGenerator::AddFarFromPolyFlags(bool startFarFromPoly, bool endFarFromPoly)
+{
+    if (startFarFromPoly)
+        _type = PathType(_type | PATHFIND_FARFROMPOLY_START);
+    if (endFarFromPoly)
+        _type = PathType(_type | PATHFIND_FARFROMPOLY_END);
 }
