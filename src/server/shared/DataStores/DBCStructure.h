@@ -24,6 +24,7 @@
 #include "Util.h"
 #include <set>
 #include <map>
+#include <string.h>
 
 // Structures using to access raw DBC data and required packing to portability
 #pragma pack(push, 1)
