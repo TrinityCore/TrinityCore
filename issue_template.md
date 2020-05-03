@@ -1,6 +1,7 @@
 <!--- (**********************************)
       (** Fill in the following fields **)
       (**********************************)
+      (you can delete all rows before description and after operating system when creating issue)
       For SQL fixes:
       don't modify WDB fields without supply one sniff of those fields (censure guids, character names, anything blizzard can use to identify source)
       don't use pull requests for sql only fixes, unless it's to fix one existing unable to apply file.

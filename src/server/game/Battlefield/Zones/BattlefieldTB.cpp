@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+* This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -609,7 +609,7 @@ void BattlefieldTB::OnCreatureCreate(Creature* creature)
                 HideNpc(creature);
             break;
         case NPC_ABANDONED_SIEGE_ENGINE:
-            creature->setFaction(TBFactions[GetDefenderTeam()]);
+            creature->SetFaction(TBFactions[GetDefenderTeam()]);
             creature->CastSpell(creature, SPELL_THICK_LAYER_OF_RUST, true);
             break;
         case NPC_SIEGE_ENGINE_TURRET:

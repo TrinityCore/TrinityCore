@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -31,6 +30,7 @@ npc_spectral_ghostly_citizen
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "GameObjectAI.h"
 #include "GameObject.h"
 #include "Group.h"
 #include "InstanceScript.h"
@@ -47,41 +47,48 @@ EndContentData */
 
 class go_gauntlet_gate : public GameObjectScript
 {
-public:
-    go_gauntlet_gate() : GameObjectScript("go_gauntlet_gate") { }
+    public:
+        go_gauntlet_gate() : GameObjectScript("go_gauntlet_gate") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
-    {
-        InstanceScript* instance = go->GetInstanceScript();
-
-        if (!instance)
-            return false;
-
-        if (instance->GetData(TYPE_BARON_RUN) != NOT_STARTED)
-            return false;
-
-        if (Group* group = player->GetGroup())
+        struct go_gauntlet_gateAI : public GameObjectAI
         {
-            for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
-            {
-                Player* pGroupie = itr->GetSource();
-                if (!pGroupie || !pGroupie->IsInMap(player))
-                    continue;
+            go_gauntlet_gateAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
 
-                if (pGroupie->GetQuestStatus(QUEST_DEAD_MAN_PLEA) == QUEST_STATUS_INCOMPLETE &&
-                    !pGroupie->HasAura(SPELL_BARON_ULTIMATUM) &&
-                    pGroupie->GetMap() == go->GetMap())
-                    pGroupie->CastSpell(pGroupie, SPELL_BARON_ULTIMATUM, true);
-            }
-        } else if (player->GetQuestStatus(QUEST_DEAD_MAN_PLEA) == QUEST_STATUS_INCOMPLETE &&
+            InstanceScript* instance;
+
+            bool GossipHello(Player* player, bool /*reportUse*/) override
+            {
+                if (instance->GetData(TYPE_BARON_RUN) != NOT_STARTED)
+                    return false;
+
+                if (Group* group = player->GetGroup())
+                {
+                    for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
+                    {
+                        Player* pGroupie = itr->GetSource();
+                        if (!pGroupie || !pGroupie->IsInMap(player))
+                            continue;
+
+                        if (pGroupie->GetQuestStatus(QUEST_DEAD_MAN_PLEA) == QUEST_STATUS_INCOMPLETE &&
+                            !pGroupie->HasAura(SPELL_BARON_ULTIMATUM) &&
+                            pGroupie->GetMap() == me->GetMap())
+                            pGroupie->CastSpell(pGroupie, SPELL_BARON_ULTIMATUM, true);
+                    }
+                }
+                else if (player->GetQuestStatus(QUEST_DEAD_MAN_PLEA) == QUEST_STATUS_INCOMPLETE &&
                     !player->HasAura(SPELL_BARON_ULTIMATUM) &&
-                    player->GetMap() == go->GetMap())
+                    player->GetMap() == me->GetMap())
                     player->CastSpell(player, SPELL_BARON_ULTIMATUM, true);
 
-        instance->SetData(TYPE_BARON_RUN, IN_PROGRESS);
-        return false;
-    }
+                instance->SetData(TYPE_BARON_RUN, IN_PROGRESS);
+                return false;
+            }
+        };
 
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return GetStratholmeAI<go_gauntlet_gateAI>(go);
+        }
 };
 
 /*######

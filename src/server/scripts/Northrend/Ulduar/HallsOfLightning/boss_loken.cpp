@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -162,7 +161,7 @@ public:
                         break;
                     case EVENT_RESUME_PULSING_SHOCKWAVE:
                         DoCast(me, SPELL_PULSING_SHOCKWAVE_AURA, true);
-                        me->ClearUnitState(UNIT_STATE_CASTING); // This flag breaks movement.
+                        me->ClearUnitState(UNIT_STATE_CASTING); // Workaround to allow DoMeleeAttackIfReady work
                         DoCast(me, SPELL_PULSING_SHOCKWAVE, true);
                         break;
                     case EVENT_INTRO_DIALOGUE:

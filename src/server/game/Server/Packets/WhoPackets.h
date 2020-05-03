@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,6 +21,7 @@
 #include "Packet.h"
 #include "ObjectGuid.h"
 #include "QueryPackets.h"
+#include "RaceMask.h"
 
 namespace WorldPackets
 {
@@ -66,7 +67,7 @@ namespace WorldPackets
             std::string VirtualRealmName;
             std::string Guild;
             std::string GuildVirtualRealmName;
-            int64 RaceFilter = SI64LIT(0);
+            Trinity::RaceMask<int64> RaceFilter = { SI64LIT(0) };
             int32 ClassFilter = -1;
             std::vector<WhoWord> Words;
             bool ShowEnemies = false;

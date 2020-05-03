@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,7 @@
  */
 
 #include "WorldSession.h"
+#include "AzeriteEmpoweredItem.h"
 #include "AzeriteItem.h"
 #include "AzeritePackets.h"
 #include "DB2Stores.h"
@@ -27,7 +28,7 @@ void WorldSession::HandleAzeriteEssenceUnlockMilestone(WorldPackets::Azerite::Az
     if (!AzeriteItem::FindHeartForge(_player))
         return;
 
-    Item* item = _player->GetItemByEntry(ITEM_ID_HEART_OF_AZEROTH);
+    Item* item = _player->GetItemByEntry(ITEM_ID_HEART_OF_AZEROTH, ITEM_SEARCH_EVERYWHERE);
     if (!item)
         return;
 
@@ -58,8 +59,8 @@ void WorldSession::HandleAzeriteEssenceActivateEssence(WorldPackets::Azerite::Az
 {
     WorldPackets::Azerite::AzeriteEssenceSelectionResult activateEssenceResult;
     activateEssenceResult.AzeriteEssenceID = azeriteEssenceActivateEssence.AzeriteEssenceID;
-    Item* item = _player->GetItemByEntry(ITEM_ID_HEART_OF_AZEROTH);
-    if (!item || !item->IsEquipped())
+    Item* item = _player->GetItemByEntry(ITEM_ID_HEART_OF_AZEROTH, ITEM_SEARCH_IN_EQUIPMENT);
+    if (!item)
     {
         activateEssenceResult.Reason = AzeriteEssenceActivateResult::NotEquipped;
         activateEssenceResult.Slot = azeriteEssenceActivateEssence.Slot;
@@ -84,7 +85,7 @@ void WorldSession::HandleAzeriteEssenceActivateEssence(WorldPackets::Azerite::Az
 
     UF::SelectedAzeriteEssences const* selectedEssences = azeriteItem->GetSelectedAzeriteEssences();
     // essence is already in that slot, nothing to do
-    if (selectedEssences->AzeriteEssenceID[azeriteEssenceActivateEssence.Slot] == uint32(azeriteEssenceActivateEssence.AzeriteEssenceID))
+    if (selectedEssences && selectedEssences->AzeriteEssenceID[azeriteEssenceActivateEssence.Slot] == uint32(azeriteEssenceActivateEssence.AzeriteEssenceID))
         return;
 
     uint32 rank = azeriteItem->GetEssenceRank(azeriteEssenceActivateEssence.AzeriteEssenceID);
@@ -120,45 +121,115 @@ void WorldSession::HandleAzeriteEssenceActivateEssence(WorldPackets::Azerite::Az
         return;
     }
 
-    // need to remove selected essence from another slot if selected
-    int32 removeEssenceFromSlot = -1;
-    for (int32 slot = 0; slot < MAX_AZERITE_ESSENCE_SLOT; ++slot)
-        if (azeriteEssenceActivateEssence.Slot != uint8(slot) && selectedEssences->AzeriteEssenceID[slot] == uint32(azeriteEssenceActivateEssence.AzeriteEssenceID))
-            removeEssenceFromSlot = slot;
-
-    // check cooldown of major essence slot
-    if (selectedEssences->AzeriteEssenceID[0] && (azeriteEssenceActivateEssence.Slot == 0 || removeEssenceFromSlot == 0))
+    if (selectedEssences)
     {
-        for (uint32 essenceRank = 1; essenceRank <= rank; ++essenceRank)
+        // need to remove selected essence from another slot if selected
+        int32 removeEssenceFromSlot = -1;
+        for (int32 slot = 0; slot < MAX_AZERITE_ESSENCE_SLOT; ++slot)
+            if (azeriteEssenceActivateEssence.Slot != uint8(slot) && selectedEssences->AzeriteEssenceID[slot] == uint32(azeriteEssenceActivateEssence.AzeriteEssenceID))
+                removeEssenceFromSlot = slot;
+
+        // check cooldown of major essence slot
+        if (selectedEssences->AzeriteEssenceID[0] && (azeriteEssenceActivateEssence.Slot == 0 || removeEssenceFromSlot == 0))
         {
-            AzeriteEssencePowerEntry const* azeriteEssencePower = ASSERT_NOTNULL(sDB2Manager.GetAzeriteEssencePower(selectedEssences->AzeriteEssenceID[0], essenceRank));
-            if (_player->GetSpellHistory()->HasCooldown(azeriteEssencePower->MajorPowerDescription))
+            for (uint32 essenceRank = 1; essenceRank <= rank; ++essenceRank)
             {
-                activateEssenceResult.Reason = AzeriteEssenceActivateResult::CantRemoveEssence;
-                activateEssenceResult.Arg = azeriteEssencePower->MajorPowerDescription;
-                activateEssenceResult.Slot = azeriteEssenceActivateEssence.Slot;
-                SendPacket(activateEssenceResult.Write());
-                return;
+                AzeriteEssencePowerEntry const* azeriteEssencePower = ASSERT_NOTNULL(sDB2Manager.GetAzeriteEssencePower(selectedEssences->AzeriteEssenceID[0], essenceRank));
+                if (_player->GetSpellHistory()->HasCooldown(azeriteEssencePower->MajorPowerDescription))
+                {
+                    activateEssenceResult.Reason = AzeriteEssenceActivateResult::CantRemoveEssence;
+                    activateEssenceResult.Arg = azeriteEssencePower->MajorPowerDescription;
+                    activateEssenceResult.Slot = azeriteEssenceActivateEssence.Slot;
+                    SendPacket(activateEssenceResult.Write());
+                    return;
+                }
             }
         }
-    }
 
-    if (removeEssenceFromSlot != -1)
-    {
-        _player->ApplyAzeriteEssence(azeriteItem, selectedEssences->AzeriteEssenceID[removeEssenceFromSlot], MAX_AZERITE_ESSENCE_RANK,
-            AzeriteItemMilestoneType(sDB2Manager.GetAzeriteItemMilestonePower(removeEssenceFromSlot)->Type) == AzeriteItemMilestoneType::MajorEssence, false);
-        azeriteItem->SetSelectedAzeriteEssence(removeEssenceFromSlot, 0);
-    }
+        if (removeEssenceFromSlot != -1)
+        {
+            _player->ApplyAzeriteEssence(azeriteItem, selectedEssences->AzeriteEssenceID[removeEssenceFromSlot], MAX_AZERITE_ESSENCE_RANK,
+                AzeriteItemMilestoneType(sDB2Manager.GetAzeriteItemMilestonePower(removeEssenceFromSlot)->Type) == AzeriteItemMilestoneType::MajorEssence, false);
+            azeriteItem->SetSelectedAzeriteEssence(removeEssenceFromSlot, 0);
+        }
 
-    if (selectedEssences->AzeriteEssenceID[azeriteEssenceActivateEssence.Slot])
-    {
-        _player->ApplyAzeriteEssence(azeriteItem, selectedEssences->AzeriteEssenceID[azeriteEssenceActivateEssence.Slot], MAX_AZERITE_ESSENCE_RANK,
-            AzeriteItemMilestoneType(sDB2Manager.GetAzeriteItemMilestonePower(azeriteEssenceActivateEssence.Slot)->Type) == AzeriteItemMilestoneType::MajorEssence, false);
+        if (selectedEssences->AzeriteEssenceID[azeriteEssenceActivateEssence.Slot])
+        {
+            _player->ApplyAzeriteEssence(azeriteItem, selectedEssences->AzeriteEssenceID[azeriteEssenceActivateEssence.Slot], MAX_AZERITE_ESSENCE_RANK,
+                AzeriteItemMilestoneType(sDB2Manager.GetAzeriteItemMilestonePower(azeriteEssenceActivateEssence.Slot)->Type) == AzeriteItemMilestoneType::MajorEssence, false);
+        }
     }
+    else
+        azeriteItem->CreateSelectedAzeriteEssences(_player->GetPrimarySpecialization());
+
+    azeriteItem->SetSelectedAzeriteEssence(azeriteEssenceActivateEssence.Slot, azeriteEssenceActivateEssence.AzeriteEssenceID);
 
     _player->ApplyAzeriteEssence(azeriteItem, azeriteEssenceActivateEssence.AzeriteEssenceID, rank,
         AzeriteItemMilestoneType(sDB2Manager.GetAzeriteItemMilestonePower(azeriteEssenceActivateEssence.Slot)->Type) == AzeriteItemMilestoneType::MajorEssence, true);
 
-    azeriteItem->SetSelectedAzeriteEssence(azeriteEssenceActivateEssence.Slot, azeriteEssenceActivateEssence.AzeriteEssenceID);
     azeriteItem->SetState(ITEM_CHANGED, _player);
+}
+
+void WorldSession::HandleAzeriteEmpoweredItemViewed(WorldPackets::Azerite::AzeriteEmpoweredItemViewed& azeriteEmpoweredItemViewed)
+{
+    Item* item = _player->GetItemByGuid(azeriteEmpoweredItemViewed.ItemGUID);
+    if (!item || !item->IsAzeriteEmpoweredItem())
+        return;
+
+    item->AddItemFlag(ITEM_FIELD_FLAG_AZERITE_EMPOWERED_ITEM_VIEWED);
+    item->SetState(ITEM_CHANGED, _player);
+}
+
+void WorldSession::HandleAzeriteEmpoweredItemSelectPower(WorldPackets::Azerite::AzeriteEmpoweredItemSelectPower& azeriteEmpoweredItemSelectPower)
+{
+    Item* item = _player->GetItemByPos(azeriteEmpoweredItemSelectPower.ContainerSlot, azeriteEmpoweredItemSelectPower.Slot);
+    if (!item)
+        return;
+
+    AzeritePowerEntry const* azeritePower = sAzeritePowerStore.LookupEntry(azeriteEmpoweredItemSelectPower.AzeritePowerID);
+    if (!azeritePower)
+        return;
+
+    AzeriteEmpoweredItem* azeriteEmpoweredItem = item->ToAzeriteEmpoweredItem();
+    if (!azeriteEmpoweredItem)
+        return;
+
+    // Validate tier
+    int32 actualTier = azeriteEmpoweredItem->GetTierForAzeritePower(Classes(_player->getClass()), azeriteEmpoweredItemSelectPower.AzeritePowerID);
+    if (azeriteEmpoweredItemSelectPower.Tier > MAX_AZERITE_EMPOWERED_TIER || azeriteEmpoweredItemSelectPower.Tier != actualTier)
+        return;
+
+    uint32 azeriteLevel = 0;
+    Item const* heartOfAzeroth = _player->GetItemByEntry(ITEM_ID_HEART_OF_AZEROTH, ITEM_SEARCH_EVERYWHERE);
+    if (!heartOfAzeroth)
+        return;
+
+    if (AzeriteItem const* azeriteItem = heartOfAzeroth->ToAzeriteItem())
+        azeriteLevel = azeriteItem->GetEffectiveLevel();
+
+    // Check required heart of azeroth level
+    if (azeriteLevel < azeriteEmpoweredItem->GetRequiredAzeriteLevelForTier(uint32(actualTier)))
+        return;
+
+    // tiers are ordered backwards, you first select the highest one
+    for (int32 i = actualTier + 1; i < azeriteEmpoweredItem->GetMaxAzeritePowerTier(); ++i)
+        if (!azeriteEmpoweredItem->GetSelectedAzeritePower(i))
+            return;
+
+    bool activateAzeritePower = azeriteEmpoweredItem->IsEquipped() && heartOfAzeroth->IsEquipped();
+    if (azeritePower->ItemBonusListID && activateAzeritePower)
+        _player->_ApplyItemMods(azeriteEmpoweredItem, azeriteEmpoweredItem->GetSlot(), false);
+
+    azeriteEmpoweredItem->SetSelectedAzeritePower(actualTier, azeriteEmpoweredItemSelectPower.AzeritePowerID);
+
+    if (activateAzeritePower)
+    {
+        // apply all item mods when azerite power grants a bonus, item level changes and that affects stats and auras that scale with item level
+        if (azeritePower->ItemBonusListID)
+            _player->_ApplyItemMods(azeriteEmpoweredItem, azeriteEmpoweredItem->GetSlot(), true);
+        else
+            _player->ApplyAzeritePower(azeriteEmpoweredItem, azeritePower, true);
+    }
+
+    azeriteEmpoweredItem->SetState(ITEM_CHANGED, _player);
 }

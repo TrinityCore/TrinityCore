@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -25,7 +25,7 @@
 
 uint32 const EncounterCount = 1;
 
-enum DataTypes
+enum MLDataTypes
 {
     DATA_MAGTHERIDON          = 0,
     DATA_WORLD_TRIGGER        = 1,
@@ -42,13 +42,13 @@ enum DataTypes
     DATA_CALL_WARDERS         = 12
 };
 
-enum Actions
+enum MLActions
 {
     ACTION_ENABLE             = 1,
     ACTION_DISABLE            = 2
 };
 
-enum CreatureIds
+enum MLCreatureIds
 {
     NPC_MAGTHERIDON          = 17257,
     NPC_ABYSSAL              = 17454,
@@ -61,7 +61,7 @@ enum CreatureIds
     NPC_HELLFIRE_WARDER      = 18829
 };
 
-enum GameObjectIds
+enum MLGameObjectIds
 {
     GO_MAGTHERIDON_DOOR      = 183847,
     GO_MANTICRON_CUBE        = 181713,

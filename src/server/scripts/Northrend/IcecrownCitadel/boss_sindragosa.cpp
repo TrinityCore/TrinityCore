@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -735,7 +735,7 @@ class npc_spinestalker : public CreatureScript
                 me->SetDisableGravity(false);
                 me->SetAnimTier(UNIT_BYTE1_FLAG_NONE, false);
                 me->SetHomePosition(SpinestalkerLandPos);
-                me->SetFacingTo(SpinestalkerLandPos.GetOrientation(), true);
+                me->SetFacingTo(SpinestalkerLandPos.GetOrientation());
                 me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                 me->SetReactState(REACT_AGGRESSIVE);
             }
@@ -872,7 +872,7 @@ class npc_rimefang : public CreatureScript
                 me->SetDisableGravity(false);
                 me->SetAnimTier(UNIT_BYTE1_FLAG_NONE, false);
                 me->SetHomePosition(RimefangLandPos);
-                me->SetFacingTo(RimefangLandPos.GetOrientation(), true);
+                me->SetFacingTo(RimefangLandPos.GetOrientation());
                 me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
                 me->SetReactState(REACT_AGGRESSIVE);
             }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,7 +21,6 @@
 #include "Define.h"
 #include <string>
 
-#define DEFAULT_COMBAT_REACH        1.5f
 #define MIN_MELEE_REACH             2.0f
 #define NOMINAL_MELEE_RANGE         5.0f
 #define MELEE_RANGE                 (NOMINAL_MELEE_RANGE - MIN_MELEE_REACH * 2) //center to center for players
@@ -364,7 +363,7 @@ enum MovementFlags2 : uint32
     MOVEMENTFLAG2_DOUBLE_JUMP                               = 0x00020000,
     // these flags cannot be sent (18 bits in packet)
     MOVEMENTFLAG2_UNK18                                     = 0x00040000,
-    MOVEMENTFLAG2_UNK19                                     = 0x00080000,
+    MOVEMENTFLAG2_AWAITING_LOAD                             = 0x00080000,
     MOVEMENTFLAG2_INTERPOLATED_MOVEMENT                     = 0x00100000,
     MOVEMENTFLAG2_INTERPOLATED_TURNING                      = 0x00200000,
     MOVEMENTFLAG2_INTERPOLATED_PITCHING                     = 0x00400000

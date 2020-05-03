@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -47,6 +47,7 @@ EndScriptData */
 #include "WorldSession.h"
 #include <fstream>
 #include <limits>
+#include <sstream>
 
 class debug_commandscript : public CommandScript
 {
@@ -917,7 +918,7 @@ public:
         uint32 entry = atoul(e);
 
         float x, y, z, o = handler->GetSession()->GetPlayer()->GetOrientation();
-        handler->GetSession()->GetPlayer()->GetClosePoint(x, y, z, handler->GetSession()->GetPlayer()->GetObjectSize());
+        handler->GetSession()->GetPlayer()->GetClosePoint(x, y, z, handler->GetSession()->GetPlayer()->GetCombatReach());
 
         if (!i)
             return handler->GetSession()->GetPlayer()->SummonCreature(entry, x, y, z, o) != nullptr;
@@ -1219,15 +1220,17 @@ public:
         if (!mEntry || !mEntry->IsRaid())
             return false;
         int32 difficulty = difficulty_str ? atoi(difficulty_str) : -1;
-        if (difficulty >= MAX_DIFFICULTY || difficulty < -1)
+        if (!sDifficultyStore.HasRecord(difficulty) || difficulty < -1)
             return false;
 
         if (difficulty == -1)
-            for (uint8 diff = 0; diff < MAX_DIFFICULTY; ++diff)
+        {
+            for (DifficultyEntry const* difficulty : sDifficultyStore)
             {
-                if (sDB2Manager.GetMapDifficultyData(map, Difficulty(diff)))
-                    sInstanceSaveMgr->ForceGlobalReset(map, Difficulty(diff));
+                if (sDB2Manager.GetMapDifficultyData(map, Difficulty(difficulty->ID)))
+                    sInstanceSaveMgr->ForceGlobalReset(map, Difficulty(difficulty->ID));
             }
+        }
         else
             sInstanceSaveMgr->ForceGlobalReset(map, Difficulty(difficulty));
         return true;

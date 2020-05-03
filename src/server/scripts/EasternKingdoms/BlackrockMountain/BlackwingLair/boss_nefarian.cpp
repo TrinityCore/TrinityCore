@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -191,7 +190,7 @@ public:
 
                 me->SetVisible(true);
                 me->SetNpcFlags(UNIT_NPC_FLAG_GOSSIP);
-                me->setFaction(35);
+                me->SetFaction(35);
                 me->SetStandState(UNIT_STAND_STATE_SIT_HIGH_CHAIR);
                 me->RemoveAura(SPELL_NEFARIANS_BARRIER);
             }
@@ -208,7 +207,7 @@ public:
 
             Talk(SAY_GAMESBEGIN_2);
 
-            me->setFaction(103);
+            me->SetFaction(103);
             me->SetNpcFlags(UNIT_NPC_FLAG_NONE);
             DoCast(me, SPELL_NEFARIANS_BARRIER);
             me->SetStandState(UNIT_STAND_STATE_STAND);
@@ -343,7 +342,7 @@ public:
                                     CreatureID = Entry[urand(0, 4)];
                                 if (Creature* dragon = me->SummonCreature(CreatureID, DrakeSpawnLoc[i]))
                                 {
-                                    dragon->setFaction(103);
+                                    dragon->SetFaction(103);
                                     dragon->AI()->AttackStart(me->GetVictim());
                                 }
 
@@ -374,7 +373,7 @@ public:
             }
         }
 
-        void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+        bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
         {
             if (menuId == GOSSIP_ID && gossipListId == GOSSIP_OPTION_ID)
             {
@@ -382,6 +381,7 @@ public:
                 Talk(SAY_GAMESBEGIN_1);
                 BeginEvent(player);
             }
+            return false;
         }
 
         private:

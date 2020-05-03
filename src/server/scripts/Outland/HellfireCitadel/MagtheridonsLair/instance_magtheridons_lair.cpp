@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -55,7 +55,7 @@ ObjectData const gameObjectData[] =
     { 0,                            0                           } //END
 };
 
-static DataTypes const collapseObjectDatas[] =
+static MLDataTypes const collapseObjectDatas[] =
 {
     DATA_MAGTHERIDON_COLUMN_0,
     DATA_MAGTHERIDON_COLUMN_1,
@@ -116,7 +116,7 @@ class instance_magtheridons_lair : public InstanceMapScript
                             HandleGameObject(ObjectGuid::Empty, value == ACTION_ENABLE ? true : false, hall);
                         break;
                     case DATA_COLLAPSE_2:
-                        for (DataTypes data : collapseObjectDatas)
+                        for (MLDataTypes data : collapseObjectDatas)
                             if (GameObject* go = GetGameObject(data))
                                 HandleGameObject(ObjectGuid::Empty, value == ACTION_ENABLE ? true : false, go);
                         break;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -147,7 +147,7 @@ public:
             FactionTemplateEntry const* ft2 = receiver->GetFactionTemplateEntry();
             if (ft1 && ft2 && !ft1->IsFriendlyTo(ft2))
                 // pretend that all other HOSTILE players have own faction, to allow follow, heal, rezz (trade wont work)
-                factionTemplate = receiver->getFaction();
+                factionTemplate = receiver->GetFaction();
         }
 
         return factionTemplate;

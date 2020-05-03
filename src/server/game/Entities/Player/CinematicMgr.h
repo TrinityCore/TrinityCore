@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -25,6 +25,7 @@
 #define CINEMATIC_UPDATEDIFF 500
 
 class Player;
+struct CinematicSequencesEntry;
 struct FlyByCamera;
 
 class TC_GAME_API CinematicMgr
@@ -34,10 +35,13 @@ public:
     explicit CinematicMgr(Player* playerref);
     ~CinematicMgr();
     // Cinematic camera data and remote sight functions
-    uint32 GetActiveCinematicCamera() const { return m_activeCinematicCameraId; }
-    void SetActiveCinematicCamera(uint32 cinematicCameraId = 0) { m_activeCinematicCameraId = cinematicCameraId; }
     bool IsOnCinematic() const { return (m_cinematicCamera != nullptr); }
-    void BeginCinematic();
+    void BeginCinematic(CinematicSequencesEntry const* cinematic)
+    {
+        m_activeCinematic = cinematic;
+        m_activeCinematicCameraIndex = -1;
+    }
+    void NextCinematicCamera();
     void EndCinematic();
     void UpdateCinematicLocation(uint32 diff);
 
@@ -48,7 +52,8 @@ private:
 protected:
     uint32      m_cinematicDiff;
     uint32      m_lastCinematicCheck;
-    uint32      m_activeCinematicCameraId;
+    CinematicSequencesEntry const* m_activeCinematic;
+     int32      m_activeCinematicCameraIndex;
     uint32      m_cinematicLength;
     std::vector<FlyByCamera> const* m_cinematicCamera;
     Position    m_remoteSightPosition;

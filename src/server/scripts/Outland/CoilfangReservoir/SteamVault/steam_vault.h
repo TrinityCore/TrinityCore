@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -51,10 +51,10 @@ enum SVGameObjectIds
     GO_ACCESS_PANEL_MEK             = 184126
 };
 
-template<typename AI>
-inline AI* GetSteamVaultAI(Creature* creature)
+template<class AI, class T>
+inline AI* GetSteamVaultAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, SteamVaultScriptName);
+    return GetInstanceAI<AI>(obj, SteamVaultScriptName);
 }
 
 #endif

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -124,17 +124,18 @@ public:
             }
         }
 
-        void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
         {
             if (gossipListId == 0)
             {
                 Start(true, false, player->GetGUID());
 
-                me->setFaction(player->getFaction());
+                me->SetFaction(player->GetFaction());
                 SetData(1, 0);
 
                 player->PlayerTalkClass->SendCloseGossip();
             }
+            return false;
         }
 
         void NextStep(uint32 uiTimerStep, bool bNextStep = true, uint8 uiPhaseStep = 0)
@@ -225,8 +226,8 @@ public:
         {
             //just in case
             if (GetPlayerForEscort())
-                if (me->getFaction() != GetPlayerForEscort()->getFaction())
-                    me->setFaction(GetPlayerForEscort()->getFaction());
+                if (me->GetFaction() != GetPlayerForEscort()->GetFaction())
+                    me->SetFaction(GetPlayerForEscort()->GetFaction());
 
             switch (waypointId)
             {

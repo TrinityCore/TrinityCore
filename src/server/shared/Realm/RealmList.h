@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,6 +20,7 @@
 
 #include "Define.h"
 #include "Realm.h"
+#include <array>
 #include <map>
 #include <vector>
 #include <unordered_set>
@@ -31,7 +31,9 @@ struct RealmBuildInfo
     uint32 MajorVersion;
     uint32 MinorVersion;
     uint32 BugfixVersion;
-    uint32 HotfixVersion;
+    std::array<char, 4> HotfixVersion;
+    std::array<uint8, 16> Win64AuthSeed;
+    std::array<uint8, 16> Mac64AuthSeed;
 };
 
 namespace boost
@@ -102,11 +104,13 @@ public:
 private:
     RealmList();
 
+    void LoadBuildInfo();
     void UpdateRealms(boost::system::error_code const& error);
     void UpdateRealm(Realm& realm, Battlenet::RealmHandle const& id, uint32 build, std::string const& name,
         boost::asio::ip::address&& address, boost::asio::ip::address&& localAddr, boost::asio::ip::address&& localSubmask,
         uint16 port, uint8 icon, RealmFlags flag, uint8 timezone, AccountTypes allowedSecurityLevel, float population);
 
+    std::vector<RealmBuildInfo> _builds;
     std::unique_ptr<boost::shared_mutex> _realmsMutex;
     RealmMap _realms;
     std::unordered_set<std::string> _subRegions;

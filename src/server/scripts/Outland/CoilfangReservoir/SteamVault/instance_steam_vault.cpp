@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "Creature.h"
 #include "GameObject.h"
+#include "GameObjectAI.h"
 #include "InstanceScript.h"
 #include "Log.h"
 #include "steam_vault.h"
@@ -27,22 +28,29 @@ class go_main_chambers_access_panel : public GameObjectScript
     public:
         go_main_chambers_access_panel() : GameObjectScript("go_main_chambers_access_panel") { }
 
-        bool OnGossipHello(Player* /*player*/, GameObject* go) override
+        struct go_main_chambers_access_panelAI : public GameObjectAI
         {
-            InstanceScript* instance = go->GetInstanceScript();
-            if (!instance)
-                return false;
+            go_main_chambers_access_panelAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
 
-            if (go->GetEntry() == GO_ACCESS_PANEL_HYDRO && (instance->GetBossState(DATA_HYDROMANCER_THESPIA) == DONE || instance->GetBossState(DATA_HYDROMANCER_THESPIA) == SPECIAL))
-                instance->SetBossState(DATA_HYDROMANCER_THESPIA, SPECIAL);
+            InstanceScript* instance;
 
-            if (go->GetEntry() == GO_ACCESS_PANEL_MEK && (instance->GetBossState(DATA_MEKGINEER_STEAMRIGGER) == DONE || instance->GetBossState(DATA_MEKGINEER_STEAMRIGGER) == SPECIAL))
-                instance->SetBossState(DATA_MEKGINEER_STEAMRIGGER, SPECIAL);
+            bool GossipHello(Player* /*player*/, bool /*reportUse*/) override
+            {
+                if (me->GetEntry() == GO_ACCESS_PANEL_HYDRO && (instance->GetBossState(DATA_HYDROMANCER_THESPIA) == DONE || instance->GetBossState(DATA_HYDROMANCER_THESPIA) == SPECIAL))
+                    instance->SetBossState(DATA_HYDROMANCER_THESPIA, SPECIAL);
 
-            go->AddFlag(GO_FLAG_NOT_SELECTABLE);
-            go->SetGoState(GO_STATE_ACTIVE);
+                if (me->GetEntry() == GO_ACCESS_PANEL_MEK && (instance->GetBossState(DATA_MEKGINEER_STEAMRIGGER) == DONE || instance->GetBossState(DATA_MEKGINEER_STEAMRIGGER) == SPECIAL))
+                    instance->SetBossState(DATA_MEKGINEER_STEAMRIGGER, SPECIAL);
 
-            return true;
+                me->AddFlag(GO_FLAG_NOT_SELECTABLE);
+                me->SetGoState(GO_STATE_ACTIVE);
+                return true;
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return GetSteamVaultAI<go_main_chambers_access_panelAI>(go);
         }
 };
 

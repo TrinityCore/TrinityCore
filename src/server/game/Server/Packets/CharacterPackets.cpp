@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -170,11 +170,20 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Character::EnumCharacters
     data << uint32(charInfo.Unknown703);
     data << uint32(charInfo.LastLoginVersion);
     data << uint32(charInfo.Flags4);
+    data << uint32(charInfo.Unknown830.size());
     data.WriteBits(charInfo.Name.length(), 6);
     data.WriteBit(charInfo.FirstLogin);
     data.WriteBit(charInfo.BoostInProgress);
     data.WriteBits(charInfo.unkWod61x, 5);
+
+    for (std::string const& str : charInfo.Unknown830)
+        data.WriteBits(str.length() + 1, 6);
+
     data.FlushBits();
+
+    for (std::string const& str : charInfo.Unknown830)
+        if (!str.empty())
+            data << str;
 
     data.WriteString(charInfo.Name);
 

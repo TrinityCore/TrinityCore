@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -121,6 +121,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Garrison::GarrisonMission
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Garrison::GarrisonTalent const& talent)
 {
     data << int32(talent.GarrTalentID);
+    data << int32(talent.Rank);
     data << int32(talent.ResearchStartTime);
     data << int32(talent.Flags);
 
@@ -156,18 +157,18 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Garrison::GarrisonInfo co
         data << *mission;
 
     for (std::vector<WorldPackets::Garrison::GarrisonMissionReward> const& missionReward : garrison.MissionRewards)
-    {
         data << uint32(missionReward.size());
+
+    for (std::vector<WorldPackets::Garrison::GarrisonMissionReward> const& missionReward : garrison.MissionRewards)
         for (WorldPackets::Garrison::GarrisonMissionReward const& missionRewardItem : missionReward)
             data << missionRewardItem;
-    }
 
     for (std::vector<WorldPackets::Garrison::GarrisonMissionReward> const& missionReward : garrison.MissionOvermaxRewards)
-    {
         data << uint32(missionReward.size());
+
+    for (std::vector<WorldPackets::Garrison::GarrisonMissionReward> const& missionReward : garrison.MissionOvermaxRewards)
         for (WorldPackets::Garrison::GarrisonMissionReward const& missionRewardItem : missionReward)
             data << missionRewardItem;
-    }
 
     for (WorldPackets::Garrison::GarrisonMissionBonusAbility const* areaBonus : garrison.MissionAreaBonuses)
         data << *areaBonus;

@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -34,6 +33,7 @@ EndContentData */
 #include "InstanceScript.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
+#include "GameObjectAI.h"
 #include "uldaman.h"
 
 /*######
@@ -118,16 +118,26 @@ class npc_jadespine_basilisk : public CreatureScript
 
 class go_keystone_chamber : public GameObjectScript
 {
-public:
-    go_keystone_chamber() : GameObjectScript("go_keystone_chamber") { }
+    public:
+        go_keystone_chamber() : GameObjectScript("go_keystone_chamber") { }
 
-    bool OnGossipHello(Player* /*player*/, GameObject* go) override
-    {
-        if (InstanceScript* instance = go->GetInstanceScript())
-            instance->SetData(DATA_IRONAYA_SEAL, IN_PROGRESS); //door animation and save state.
+        struct go_keystone_chamberAI : public GameObjectAI
+        {
+            go_keystone_chamberAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
 
-        return false;
-    }
+            InstanceScript* instance;
+
+            bool GossipHello(Player* /*player*/, bool /*reportUse*/) override
+            {
+                instance->SetData(DATA_IRONAYA_SEAL, IN_PROGRESS); //door animation and save state.
+                return false;
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return GetUldamanAI<go_keystone_chamberAI>(go);
+        }
 };
 
 /*######

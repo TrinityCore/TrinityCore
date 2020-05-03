@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -143,7 +142,7 @@ bool ArenaTeam::AddMember(ObjectGuid playerGuid)
 
     // Remove all player signatures from other petitions
     // This will prevent player from joining too many arena teams and corrupt arena team data integrity
-    //Player::RemovePetitionsAndSigns(playerGuid, GetType()); /// @todo arena teams removed in 5.4
+    //Player::RemovePetitionsAndSigns(playerGuid, static_cast<CharterTypes>(GetType())); /// @todo arena teams removed in 5.4
 
     // Feed data to the struct
     ArenaTeamMember newMember;

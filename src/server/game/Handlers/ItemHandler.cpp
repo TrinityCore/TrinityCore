@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -29,6 +28,7 @@
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "Player.h"
+#include "SpellMgr.h"
 #include "WorldSession.h"
 
 void WorldSession::HandleSplitItemOpcode(WorldPackets::Item::SplitItem& splitItem)
@@ -1194,14 +1194,12 @@ void WorldSession::HandleUseCritterItem(WorldPackets::Item::UseCritterItem& useC
         return;
 
     int32 spellToLearn = item->GetTemplate()->Effects[1]->SpellID;
-    for (BattlePetSpeciesEntry const* entry : sBattlePetSpeciesStore)
+
+
+    if (BattlePetSpeciesEntry const* entry = sSpellMgr->GetBattlePetSpecies(uint32(spellToLearn)))
     {
-        if (entry->SummonSpellID == spellToLearn)
-        {
-            GetBattlePetMgr()->AddPet(entry->ID, entry->CreatureID, BattlePetMgr::RollPetBreed(entry->ID), BattlePetMgr::GetDefaultPetQuality(entry->ID));
-            _player->UpdateCriteria(CRITERIA_TYPE_OWN_BATTLE_PET_COUNT);
-            break;
-        }
+        GetBattlePetMgr()->AddPet(entry->ID, entry->CreatureID, BattlePetMgr::RollPetBreed(entry->ID), BattlePetMgr::GetDefaultPetQuality(entry->ID));
+        _player->UpdateCriteria(CRITERIA_TYPE_OWN_BATTLE_PET_COUNT);
     }
 
     _player->DestroyItem(item->GetBagSlot(), item->GetSlot(), true);

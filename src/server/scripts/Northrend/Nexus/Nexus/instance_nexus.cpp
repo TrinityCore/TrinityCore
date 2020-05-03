@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -62,31 +61,31 @@ class instance_nexus : public InstanceMapScript
                     // Alliance npcs are spawned by default, if you are alliance, you will fight against horde npcs.
                     case NPC_ALLIANCE_BERSERKER:
                         if (ServerAllowsTwoSideGroups())
-                            creature->setFaction(FACTION_HOSTILE_FOR_ALL);
+                            creature->SetFaction(FACTION_HOSTILE_FOR_ALL);
                         if (_teamInInstance == ALLIANCE)
                             creature->UpdateEntry(NPC_HORDE_BERSERKER);
                         break;
                     case NPC_ALLIANCE_RANGER:
                         if (ServerAllowsTwoSideGroups())
-                            creature->setFaction(FACTION_HOSTILE_FOR_ALL);
+                            creature->SetFaction(FACTION_HOSTILE_FOR_ALL);
                         if (_teamInInstance == ALLIANCE)
                             creature->UpdateEntry(NPC_HORDE_RANGER);
                         break;
                     case NPC_ALLIANCE_CLERIC:
                         if (ServerAllowsTwoSideGroups())
-                            creature->setFaction(FACTION_HOSTILE_FOR_ALL);
+                            creature->SetFaction(FACTION_HOSTILE_FOR_ALL);
                         if (_teamInInstance == ALLIANCE)
                             creature->UpdateEntry(NPC_HORDE_CLERIC);
                         break;
                     case NPC_ALLIANCE_COMMANDER:
                         if (ServerAllowsTwoSideGroups())
-                            creature->setFaction(FACTION_HOSTILE_FOR_ALL);
+                            creature->SetFaction(FACTION_HOSTILE_FOR_ALL);
                         if (_teamInInstance == ALLIANCE)
                             creature->UpdateEntry(NPC_HORDE_COMMANDER);
                         break;
                     case NPC_COMMANDER_STOUTBEARD:
                         if (ServerAllowsTwoSideGroups())
-                            creature->setFaction(FACTION_HOSTILE_FOR_ALL);
+                            creature->SetFaction(FACTION_HOSTILE_FOR_ALL);
                         if (_teamInInstance == ALLIANCE)
                             creature->UpdateEntry(NPC_COMMANDER_KOLURG);
                         break;

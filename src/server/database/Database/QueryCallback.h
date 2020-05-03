@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -44,14 +44,8 @@ public:
     // Moves std::future from next to this object
     void SetNextQuery(QueryCallback&& next);
 
-    enum Status
-    {
-        NotReady,
-        NextStep,
-        Completed
-    };
-
-    Status InvokeIfReady();
+    // returns true when completed
+    bool InvokeIfReady();
 
 private:
     QueryCallback(QueryCallback const& right) = delete;

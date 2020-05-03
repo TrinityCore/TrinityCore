@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -82,6 +82,7 @@ struct TC_COMMON_API DB2FileLoadInfo
 
     uint32 GetStringFieldCount(bool localizedOnly) const;
     std::pair<int32/*fieldIndex*/, int32/*arrayIndex*/> GetFieldIndexByName(char const* fieldName) const;
+    int32 GetFieldIndexByMetaIndex(uint32 metaIndex) const;
 
     DB2FieldMeta const* Fields;
     std::size_t FieldCount;

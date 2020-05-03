@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -65,7 +65,6 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
     _worldPacket.WriteBit(WillKickFromWorld);
     _worldPacket.WriteBit(KioskModeEnabled);
     _worldPacket.WriteBit(CompetitiveModeEnabled);
-    _worldPacket.WriteBit(RaceClassExpansionLevels.is_initialized());
     _worldPacket.WriteBit(TokenBalanceEnabled);
     _worldPacket.WriteBit(WarModeFeatureEnabled);
     _worldPacket.WriteBit(ClubsEnabled);
@@ -75,7 +74,7 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
     _worldPacket.WriteBit(VoiceChatDisabledByParentalControl);
     _worldPacket.WriteBit(VoiceChatMutedByParentalControl);
     _worldPacket.WriteBit(QuestSessionEnabled);
-    _worldPacket.WriteBit(Unused825);
+    _worldPacket.WriteBit(IsMuted);
     _worldPacket.WriteBit(ClubFinderEnabled);
 
     _worldPacket.FlushBits();
@@ -113,15 +112,8 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
         _worldPacket << int32(SessionAlert->DisplayTime);
     }
 
-    if (RaceClassExpansionLevels)
     {
-        _worldPacket << uint32(RaceClassExpansionLevels->size());
-        if (!RaceClassExpansionLevels->empty())
-            _worldPacket.append(RaceClassExpansionLevels->data(), RaceClassExpansionLevels->size());
-    }
-
-    {
-        _worldPacket.WriteBit(VoiceChatManagerSettings.Enabled);
+        _worldPacket.WriteBit(VoiceChatManagerSettings.IsSquelched);
         _worldPacket << VoiceChatManagerSettings.BnetAccountGuid;
         _worldPacket << VoiceChatManagerSettings.GuildGuid;
     }

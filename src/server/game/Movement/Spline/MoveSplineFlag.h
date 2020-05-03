@@ -1,5 +1,4 @@
 /*
- * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -76,7 +75,6 @@ namespace Movement
 
         MoveSplineFlag() { raw() = 0; }
         MoveSplineFlag(uint32 f) { raw() = f; }
-        MoveSplineFlag(const MoveSplineFlag& f) { raw() = f.raw(); }
 
         // Constant interface
 

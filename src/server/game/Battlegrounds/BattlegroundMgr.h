@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -48,17 +47,17 @@ struct BattlegroundData
 struct BattlegroundTemplate
 {
     BattlegroundTypeId Id;
-    uint16 MinPlayersPerTeam;
-    uint16 MaxPlayersPerTeam;
-    uint8 MinLevel;
-    uint8 MaxLevel;
-    Position StartLocation[BG_TEAMS_COUNT];
+    WorldSafeLocsEntry const* StartLocation[BG_TEAMS_COUNT] = { };
     float MaxStartDistSq;
     uint8 Weight;
     uint32 ScriptId;
     BattlemasterListEntry const* BattlemasterEntry;
 
     bool IsArena() const;
+    uint16 GetMinPlayersPerTeam() const;
+    uint16 GetMaxPlayersPerTeam() const;
+    uint8 GetMinLevel() const;
+    uint8 GetMaxLevel() const;
 };
 
 namespace WorldPackets

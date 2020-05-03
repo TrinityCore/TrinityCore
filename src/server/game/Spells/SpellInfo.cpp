@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -73,6 +73,35 @@ SpellImplicitTargetInfo::SpellImplicitTargetInfo(uint32 target)
 bool SpellImplicitTargetInfo::IsArea() const
 {
     return GetSelectionCategory() == TARGET_SELECT_CATEGORY_AREA || GetSelectionCategory() == TARGET_SELECT_CATEGORY_CONE;
+}
+
+bool SpellImplicitTargetInfo::IsProximityBasedAoe() const
+{
+    switch (_target)
+    {
+    case TARGET_UNIT_SRC_AREA_ENTRY:
+    case TARGET_UNIT_SRC_AREA_ENEMY:
+    case TARGET_UNIT_CASTER_AREA_PARTY:
+    case TARGET_UNIT_SRC_AREA_ALLY:
+    case TARGET_UNIT_SRC_AREA_PARTY:
+    case TARGET_UNIT_LASTTARGET_AREA_PARTY:
+    case TARGET_GAMEOBJECT_SRC_AREA:
+    case TARGET_UNIT_CASTER_AREA_RAID:
+    case TARGET_CORPSE_SRC_AREA_ENEMY:
+        return true;
+
+    case TARGET_UNIT_DEST_AREA_ENTRY:
+    case TARGET_UNIT_DEST_AREA_ENEMY:
+    case TARGET_UNIT_DEST_AREA_ALLY:
+    case TARGET_UNIT_DEST_AREA_PARTY:
+    case TARGET_GAMEOBJECT_DEST_AREA:
+    case TARGET_UNIT_TARGET_AREA_RAID_CLASS:
+        return false;
+
+    default:
+        TC_LOG_WARN("spells", "SpellImplicitTargetInfo::IsProximityBasedAoe called a non-aoe spell");
+        return false;
+    }
 }
 
 SpellTargetSelectionCategories SpellImplicitTargetInfo::GetSelectionCategory() const
@@ -457,11 +486,11 @@ bool SpellEffectInfo::IsUnitOwnedAuraEffect() const
     return IsAreaAuraEffect() || Effect == SPELL_EFFECT_APPLY_AURA;
 }
 
-int32 SpellEffectInfo::CalcValue(Unit const* caster /*= nullptr*/, int32 const* bp /*= nullptr*/, Unit const* target /*= nullptr*/, float* variance /*= nullptr*/, int32 itemLevel /*= -1*/) const
+int32 SpellEffectInfo::CalcValue(Unit const* caster /*= nullptr*/, int32 const* bp /*= nullptr*/, Unit const* target /*= nullptr*/, float* variance /*= nullptr*/, uint32 castItemId /*= 0*/, int32 itemLevel /*= -1*/) const
 {
     float basePointsPerLevel = RealPointsPerLevel;
     // TODO: this needs to be a float, not rounded
-    int32 basePoints = CalcBaseValue(caster, target, itemLevel);
+    int32 basePoints = CalcBaseValue(caster, target, castItemId, itemLevel);
     float value = bp ? *bp : basePoints;
     float comboDamage = PointsPerResource;
 
@@ -481,14 +510,16 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster /*= nullptr*/, int32 const* 
         if (Scaling.ResourceCoefficient)
             comboDamage = Scaling.ResourceCoefficient * value;
     }
-    else
+    else if (GetScalingExpectedStat() == ExpectedStatType::None)
     {
-        if (GetScalingExpectedStat() == ExpectedStatType::None)
+        if (caster && basePointsPerLevel != 0.0f)
         {
-            int32 level = caster ? int32(caster->getLevel()) : 0;
+            int32 level = int32(caster->getLevel());
             if (level > int32(_spellInfo->MaxLevel) && _spellInfo->MaxLevel > 0)
                 level = int32(_spellInfo->MaxLevel);
-            level -= int32(_spellInfo->BaseLevel);
+
+            // if base level is greater than spell level, reduce by base level (eg. pilgrims foods)
+            level -= int32(std::max(_spellInfo->BaseLevel, _spellInfo->SpellLevel));
             if (level < 0)
                 level = 0;
             value += level * basePointsPerLevel;
@@ -509,7 +540,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster /*= nullptr*/, int32 const* 
     return int32(round(value));
 }
 
-int32 SpellEffectInfo::CalcBaseValue(Unit const* caster, Unit const* target, int32 itemLevel) const
+int32 SpellEffectInfo::CalcBaseValue(Unit const* caster, Unit const* target, uint32 itemId, int32 itemLevel) const
 {
     if (Scaling.Coefficient != 0.0f)
     {
@@ -555,10 +586,21 @@ int32 SpellEffectInfo::CalcBaseValue(Unit const* caster, Unit const* target, int
                 value = GetSpellScalingColumnForClass(sSpellScalingGameTable.GetRow(level), _spellInfo->Scaling.Class);
 
             if (_spellInfo->Scaling.Class == -7)
-            {
-                // todo: get inventorytype here
                 if (GtCombatRatingsMultByILvl const* ratingMult = sCombatRatingsMultByILvlGameTable.GetRow(effectiveItemLevel))
-                    value *= ratingMult->ArmorMultiplier;
+                    if (ItemSparseEntry const* itemSparse = sItemSparseStore.LookupEntry(itemId))
+                        value *= GetIlvlStatMultiplier(ratingMult, InventoryType(itemSparse->InventoryType));
+
+            if (IsAura(SPELL_AURA_MOD_RATING))
+            {
+                if (GtCombatRatingsMultByILvl const* ratingMult = sCombatRatingsMultByILvlGameTable.GetRow(effectiveItemLevel))
+                    if (ItemSparseEntry const* itemSparse = sItemSparseStore.LookupEntry(itemId))
+                        value *= GetIlvlStatMultiplier(ratingMult, InventoryType(itemSparse->InventoryType));
+            }
+            else if (IsAura(SPELL_AURA_MOD_STAT) && MiscValue == STAT_STAMINA)
+            {
+                if (GtStaminaMultByILvl const* staminaMult = sStaminaMultByILvlGameTable.GetRow(effectiveItemLevel))
+                    if (ItemSparseEntry const* itemSparse = sItemSparseStore.LookupEntry(itemId))
+                        value *= GetIlvlStatMultiplier(staminaMult, InventoryType(itemSparse->InventoryType));
             }
         }
 
@@ -712,6 +754,7 @@ ExpectedStatType SpellEffectInfo::GetScalingExpectedStat() const
         case SPELL_EFFECT_APPLY_AREA_AURA_OWNER:
         case SPELL_EFFECT_APPLY_AURA_ON_PET:
         case SPELL_EFFECT_202:
+        case SPELL_EFFECT_APPLY_AREA_AURA_PARTY_NONRANDOM:
             switch (ApplyAuraName)
             {
                 case SPELL_AURA_PERIODIC_DAMAGE:
@@ -1632,7 +1675,7 @@ bool SpellInfo::IsChanneled() const
 
 bool SpellInfo::IsMoveAllowedChannel() const
 {
-    return IsChanneled() && HasAttribute(SPELL_ATTR5_CAN_CHANNEL_WHEN_MOVING);
+    return IsChanneled() && (HasAttribute(SPELL_ATTR5_CAN_CHANNEL_WHEN_MOVING) || (!(ChannelInterruptFlags[0] & (AURA_INTERRUPT_FLAG_MOVE | AURA_INTERRUPT_FLAG_TURNING))));
 }
 
 bool SpellInfo::NeedsComboPoints() const
@@ -3341,11 +3384,14 @@ void SpellInfo::_LoadImmunityInfo()
             {
                 switch (Id)
                 {
+                    case 42292: // PvP trinket
+                    case 59752: // Every Man for Himself
+                        mechanicImmunityMask |= IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK;
+                        immuneInfo.AuraTypeImmune.insert(SPELL_AURA_USE_NORMAL_MOVEMENT_SPEED);
+                        break;
                     case 34471: // The Beast Within
                     case 19574: // Bestial Wrath
-                    case 42292: // PvP trinket
                     case 46227: // Medallion of Immunity
-                    case 59752: // Every Man for Himself
                     case 53490: // Bullheaded
                     case 65547: // PvP Trinket
                     case 134946: // Supremacy of the Alliance
@@ -4466,6 +4512,7 @@ bool SpellInfo::_IsPositiveEffect(uint32 effIndex, bool deep) const
                 case SPELL_AURA_MOD_STALKED:
                 case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
                 case SPELL_AURA_PREVENT_RESURRECTION:
+                case SPELL_AURA_EMPATHY:
                     return false;
                 case SPELL_AURA_PERIODIC_DAMAGE:            // used in positive spells also.
                     // part of negative spell if cast at self (prevent cancel)

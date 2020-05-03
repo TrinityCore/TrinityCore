@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -44,6 +43,7 @@ class UpdateData
         {
         }
 
+        void AddDestroyObject(ObjectGuid guid);
         void AddOutOfRangeGUID(GuidSet& guids);
         void AddOutOfRangeGUID(ObjectGuid guid);
         void AddUpdateBlock(const ByteBuffer &block);
@@ -56,6 +56,7 @@ class UpdateData
     protected:
         uint32 m_map;
         uint32 m_blockCount;
+        GuidSet m_destroyGUIDs;
         GuidSet m_outOfRangeGUIDs;
         ByteBuffer m_data;
 

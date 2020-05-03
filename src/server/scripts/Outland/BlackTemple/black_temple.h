@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -141,10 +141,10 @@ enum BlackTempleMisc
     ACTION_OPEN_DOOR                = 4
 };
 
-template<typename AI>
-inline AI* GetBlackTempleAI(Creature* creature)
+template<class AI, class T>
+inline AI* GetBlackTempleAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, BTScriptName);
+    return GetInstanceAI<AI>(obj, BTScriptName);
 }
 
 #endif // BLACK_TEMPLE_H_

@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,6 +21,7 @@
 #include "AchievementMgr.h"
 #include "DatabaseEnvFwd.h"
 #include "ObjectGuid.h"
+#include "RaceMask.h"
 #include "SharedDefines.h"
 #include <unordered_map>
 
@@ -161,27 +161,6 @@ enum GuildCommandError
     ERR_GUILD_REP_TOO_LOW               = 39
 };
 
-enum PetitionTurns
-{
-    PETITION_TURN_OK                    = 0,
-    PETITION_TURN_ALREADY_IN_GUILD      = 2,
-    PETITION_TURN_NEED_MORE_SIGNATURES  = 4,
-    PETITION_TURN_GUILD_PERMISSIONS     = 11,
-    PETITION_TURN_GUILD_NAME_INVALID    = 12
-};
-
-enum PetitionSigns
-{
-    PETITION_SIGN_OK                    = 0,
-    PETITION_SIGN_ALREADY_SIGNED        = 1,
-    PETITION_SIGN_ALREADY_IN_GUILD      = 2,
-    PETITION_SIGN_CANT_SIGN_OWN         = 3,
-    PETITION_SIGN_NOT_SERVER            = 4,
-    PETITION_SIGN_FULL                  = 5,
-    PETITION_SIGN_ALREADY_SIGNED_OTHER  = 6,
-    PETITION_SIGN_RESTRICTED_ACCOUNT    = 7
-};
-
 enum GuildBankRights
 {
     GUILD_BANK_RIGHT_VIEW_TAB           = 0x01,
@@ -252,7 +231,7 @@ struct GuildReward
 {
     uint32 ItemID;
     uint8 MinGuildRep;
-    uint64 RaceMask;
+    Trinity::RaceMask<uint64> RaceMask;
     uint64 Cost;
     std::vector<uint32> AchievementsRequired;
 };

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -89,7 +89,7 @@ void PhaseShift::Clear()
 
 void PhaseShift::ClearPhases()
 {
-    Flags &= EnumClassFlag<PhaseShiftFlags>(PhaseShiftFlags::AlwaysVisible) | PhaseShiftFlags::Inverse;
+    Flags &= PhaseShiftFlags::AlwaysVisible | PhaseShiftFlags::Inverse;
     Phases.clear();
     NonCosmeticReferences = 0;
     CosmeticReferences = 0;
@@ -161,7 +161,7 @@ void PhaseShift::ModifyPhasesReferences(PhaseContainer::iterator itr, int32 refe
         if (CosmeticReferences)
             Flags |= PhaseShiftFlags::NoCosmetic;
         else
-            Flags &= ~EnumClassFlag<PhaseShiftFlags>(PhaseShiftFlags::NoCosmetic);
+            Flags &= ~PhaseShiftFlags::NoCosmetic;
 
         UpdateUnphasedFlag();
     }
@@ -169,8 +169,8 @@ void PhaseShift::ModifyPhasesReferences(PhaseContainer::iterator itr, int32 refe
 
 void PhaseShift::UpdateUnphasedFlag()
 {
-    EnumClassFlag<PhaseShiftFlags> unphasedFlag = !Flags.HasFlag(PhaseShiftFlags::Inverse) ? PhaseShiftFlags::Unphased : PhaseShiftFlags::InverseUnphased;
-    Flags &= ~EnumClassFlag<PhaseShiftFlags>(!Flags.HasFlag(PhaseShiftFlags::Inverse) ? PhaseShiftFlags::InverseUnphased : PhaseShiftFlags::Unphased);
+    EnumFlag<PhaseShiftFlags> unphasedFlag = !Flags.HasFlag(PhaseShiftFlags::Inverse) ? PhaseShiftFlags::Unphased : PhaseShiftFlags::InverseUnphased;
+    Flags &= ~(!Flags.HasFlag(PhaseShiftFlags::Inverse) ? PhaseShiftFlags::InverseUnphased : PhaseShiftFlags::Unphased);
     if (NonCosmeticReferences && !DefaultReferences)
         Flags &= ~unphasedFlag;
     else

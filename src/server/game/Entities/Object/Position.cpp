@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -146,6 +146,12 @@ bool Position::IsWithinBox(const Position& center, float xradius, float yradius,
         return false;
 
     return true;
+}
+
+bool Position::IsWithinDoubleVerticalCylinder(Position const* center, float radius, float height) const
+{
+    float verticalDelta = GetPositionZ() - center->GetPositionZ();
+    return IsInDist2d(center, radius) && std::abs(verticalDelta) <= height;
 }
 
 bool Position::HasInArc(float arc, const Position* obj, float border) const

@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,6 +23,7 @@
 #include "Define.h"
 #include "Duration.h"
 #include "IteratorPair.h"
+#include "RaceMask.h"
 #include "SharedDefines.h"
 #include "Util.h"
 
@@ -31,11 +31,13 @@
 #include <set>
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
 
 class SpellInfo;
 class Player;
 class Unit;
 class ProcEventInfo;
+struct BattlePetSpeciesEntry;
 struct SkillLineAbilityEntry;
 struct SpellAuraOptionsEntry;
 struct SpellAuraRestrictionsEntry;
@@ -308,14 +310,26 @@ enum SpellGroup
     SPELL_GROUP_CORE_RANGE_MAX   = 5
 };
 
+namespace std
+{
+    template<>
+    struct hash<SpellGroup>
+    {
+        size_t operator()(SpellGroup const& group) const
+        {
+            return hash<uint32>()(uint32(group));
+        }
+    };
+}
+
 #define SPELL_GROUP_DB_RANGE_MIN 1000
 
 //                  spell_id, group_id
-typedef std::multimap<uint32, SpellGroup > SpellSpellGroupMap;
+typedef std::unordered_multimap<uint32, SpellGroup> SpellSpellGroupMap;
 typedef std::pair<SpellSpellGroupMap::const_iterator, SpellSpellGroupMap::const_iterator> SpellSpellGroupMapBounds;
 
 //                      group_id, spell_id
-typedef std::multimap<SpellGroup, int32> SpellGroupSpellMap;
+typedef std::unordered_multimap<SpellGroup, int32> SpellGroupSpellMap;
 typedef std::pair<SpellGroupSpellMap::const_iterator, SpellGroupSpellMap::const_iterator> SpellGroupSpellMapBounds;
 
 enum SpellGroupStackRule
@@ -328,7 +342,9 @@ enum SpellGroupStackRule
     SPELL_GROUP_STACK_RULE_MAX
 };
 
-typedef std::map<SpellGroup, SpellGroupStackRule> SpellGroupStackMap;
+typedef std::unordered_map<SpellGroup, SpellGroupStackRule> SpellGroupStackMap;
+
+typedef std::unordered_map<SpellGroup, std::unordered_set<uint32 /*auraName*/>> SameEffectStackMap;
 
 struct SpellThreatEntry
 {
@@ -475,7 +491,7 @@ struct TC_GAME_API SpellArea
     uint32 questStart;                                      // quest start (quest must be active or rewarded for spell apply)
     uint32 questEnd;                                        // quest end (quest must not be rewarded for spell apply)
     int32  auraSpell;                                       // spell aura must be applied for spell apply)if possitive) and it must not be applied in other case
-    uint64 raceMask;                                        // can be applied only to races
+    Trinity::RaceMask<uint64> raceMask;                     // can be applied only to races
     Gender gender;                                          // can be applied only to gender
     uint32 questStartStatus;                                // QuestStatus that quest_start must have in order to keep the spell
     uint32 questEndStatus;                                  // QuestStatus that the quest_end must have in order to keep the spell (if the quest_end's status is different than this, the spell will be dropped)
@@ -654,7 +670,7 @@ class TC_GAME_API SpellMgr
         void GetSetOfSpellsInSpellGroup(SpellGroup group_id, std::set<uint32>& foundSpells, std::set<SpellGroup>& usedGroups) const;
 
         // Spell Group Stack Rules table
-        bool AddSameEffectStackRuleSpellGroups(SpellInfo const* spellInfo, int32 amount, std::map<SpellGroup, int32>& groups) const;
+        bool AddSameEffectStackRuleSpellGroups(SpellInfo const* spellInfo, uint32 auraType, int32 amount, std::map<SpellGroup, int32>& groups) const;
         SpellGroupStackRule CheckSpellGroupStackRules(SpellInfo const* spellInfo1, SpellInfo const* spellInfo2) const;
         SpellGroupStackRule GetSpellGroupStackRule(SpellGroup groupid) const;
 
@@ -700,6 +716,8 @@ class TC_GAME_API SpellMgr
         void LoadPetFamilySpellsStore();
 
         uint32 GetModelForTotem(uint32 spellId, uint8 race) const;
+
+        BattlePetSpeciesEntry const* GetBattlePetSpecies(uint32 spellId) const;
 
     private:
         SpellInfo* _GetSpellInfo(uint32 spellId) { return spellId < GetSpellInfoStoreSize() ?  mSpellInfoMap[spellId] : NULL; }
@@ -747,6 +765,7 @@ class TC_GAME_API SpellMgr
         SpellSpellGroupMap         mSpellSpellGroup;
         SpellGroupSpellMap         mSpellGroupSpell;
         SpellGroupStackMap         mSpellGroupStack;
+        SameEffectStackMap         mSpellSameEffectStack;
         SpellProcMap               mSpellProcMap;
         SpellThreatMap             mSpellThreatMap;
         SpellPetAuraMap            mSpellPetAuraMap;
@@ -764,6 +783,7 @@ class TC_GAME_API SpellMgr
         PetDefaultSpellsMap        mPetDefaultSpellsMap;           // only spells not listed in related mPetLevelupSpellMap entry
         SpellInfoMap               mSpellInfoMap;
         SpellTotemModelMap         mSpellTotemModel;
+        std::unordered_map<uint32, BattlePetSpeciesEntry const*> mBattlePets;
 };
 
 #define sSpellMgr SpellMgr::instance()

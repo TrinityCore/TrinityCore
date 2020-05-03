@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -118,7 +118,7 @@ bool CriteriaData::IsValid(Criteria const* criteria)
                     criteria->ID, criteria->Entry->Type, DataType, ClassRace.Class);
                 return false;
             }
-            if (ClassRace.Race && ((UI64LIT(1) << (ClassRace.Race-1)) & RACEMASK_ALL_PLAYABLE) == 0)
+            if (!Trinity::RaceMask<uint64>{ RACEMASK_ALL_PLAYABLE }.HasRace(ClassRace.Race))
             {
                 TC_LOG_ERROR("sql.sql", "Table `criteria_data` (Entry: %u Type: %u) for data type CRITERIA_DATA_TYPE_T_PLAYER_CLASS_RACE (%u) contains a non-existing race in value2 (%u), ignored.",
                     criteria->ID, criteria->Entry->Type, DataType, ClassRace.Race);
@@ -292,7 +292,7 @@ bool CriteriaData::IsValid(Criteria const* criteria)
     }
 }
 
-bool CriteriaData::Meets(uint32 criteriaId, Player const* source, Unit const* target, uint32 miscValue1 /*= 0*/) const
+bool CriteriaData::Meets(uint32 criteriaId, Player const* source, Unit const* target, uint32 miscValue1 /*= 0*/, uint32 miscValue2 /*= 0*/) const
 {
     switch (DataType)
     {
@@ -381,10 +381,13 @@ bool CriteriaData::Meets(uint32 criteriaId, Player const* source, Unit const* ta
         }
         case CRITERIA_DATA_TYPE_S_EQUIPPED_ITEM:
         {
-            ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(miscValue1);
-            if (!pProto)
+            Criteria const* entry = ASSERT_NOTNULL(sCriteriaMgr->GetCriteria(criteriaId));
+
+            uint32 itemId = (entry->Entry->Type == CRITERIA_TYPE_EQUIP_EPIC_ITEM ? miscValue2 : miscValue1);
+            ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
+            if (!itemTemplate)
                 return false;
-            return pProto->GetBaseItemLevel() >= EquippedItem.ItemLevel && pProto->GetQuality() >= EquippedItem.Quality;
+            return itemTemplate->GetBaseItemLevel() >= EquippedItem.ItemLevel && itemTemplate->GetQuality() >= EquippedItem.Quality;
         }
         case CRITERIA_DATA_TYPE_MAP_ID:
             return source->GetMapId() == Map.Id;
@@ -408,10 +411,10 @@ bool CriteriaData::Meets(uint32 criteriaId, Player const* source, Unit const* ta
     return false;
 }
 
-bool CriteriaDataSet::Meets(Player const* source, Unit const* target, uint32 miscValue /*= 0*/) const
+bool CriteriaDataSet::Meets(Player const* source, Unit const* target, uint32 miscValue1 /*= 0*/, uint32 miscValue2 /*= 0*/) const
 {
     for (CriteriaData const& data : _storage)
-        if (!data.Meets(_criteriaId, source, target, miscValue))
+        if (!data.Meets(_criteriaId, source, target, miscValue1, miscValue2))
             return false;
 
     return true;
@@ -457,7 +460,7 @@ void CriteriaHandler::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0
     TC_LOG_DEBUG("criteria", "CriteriaHandler::UpdateCriteria(%s, %u, " UI64FMTD ", " UI64FMTD ", " UI64FMTD ") %s",
         CriteriaMgr::GetCriteriaTypeString(type), type, miscValue1, miscValue2, miscValue3, GetOwnerInfo().c_str());
 
-    CriteriaList const& criteriaList = GetCriteriaByType(type);
+    CriteriaList const& criteriaList = GetCriteriaByType(type, uint32(miscValue1));
     for (Criteria const* criteria : criteriaList)
     {
         CriteriaTreeList const* trees = sCriteriaMgr->GetCriteriaTreesByCriteria(criteria->ID);
@@ -466,12 +469,13 @@ void CriteriaHandler::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0
 
         // requirements not found in the dbc
         if (CriteriaDataSet const* data = sCriteriaMgr->GetCriteriaDataSet(criteria))
-            if (!data->Meets(referencePlayer, unit, uint32(miscValue1)))
+            if (!data->Meets(referencePlayer, unit, uint32(miscValue1), uint32(miscValue2)))
                 continue;
 
         switch (type)
         {
             // std. case: increment at 1
+            case CRITERIA_TYPE_WIN_BG:
             case CRITERIA_TYPE_NUMBER_OF_TALENT_RESETS:
             case CRITERIA_TYPE_LOSE_DUEL:
             case CRITERIA_TYPE_CREATE_AUCTION:
@@ -485,6 +489,7 @@ void CriteriaHandler::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0
             case CRITERIA_TYPE_RECEIVE_EPIC_ITEM:
             case CRITERIA_TYPE_DEATH:
             case CRITERIA_TYPE_COMPLETE_DAILY_QUEST:
+            case CRITERIA_TYPE_COMPLETE_BATTLEGROUND:
             case CRITERIA_TYPE_DEATH_AT_MAP:
             case CRITERIA_TYPE_DEATH_IN_DUNGEON:
             case CRITERIA_TYPE_KILLED_BY_CREATURE:
@@ -531,8 +536,6 @@ void CriteriaHandler::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0
             case CRITERIA_TYPE_TOTAL_DAMAGE_RECEIVED:
             case CRITERIA_TYPE_TOTAL_HEALING_RECEIVED:
             case CRITERIA_TYPE_USE_LFD_TO_GROUP_WITH_PLAYERS:
-            case CRITERIA_TYPE_WIN_BG:
-            case CRITERIA_TYPE_COMPLETE_BATTLEGROUND:
             case CRITERIA_TYPE_DAMAGE_DONE:
             case CRITERIA_TYPE_HEALING_DONE:
             case CRITERIA_TYPE_HEART_OF_AZEROTH_ARTIFACT_POWER_EARNED:
@@ -1492,8 +1495,8 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
                 return false;
             break;
         case CRITERIA_TYPE_EQUIP_EPIC_ITEM:
-            // miscValue1 = itemid miscValue2 = itemSlot
-            if (!miscValue1 || miscValue2 != uint32(criteria->Entry->Asset.ItemSlot))
+            // miscValue1 = itemSlot miscValue2 = itemid
+            if (!miscValue2 || miscValue1 != uint32(criteria->Entry->Asset.ItemSlot))
                 return false;
             break;
         case CRITERIA_TYPE_ROLL_NEED_ON_LOOT:
@@ -2610,7 +2613,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         }
         case CRITERIA_ADDITIONAL_CONDITION_AZERITE_ITEM_LEVEL: // 235
         {
-            Item const* heartOfAzeroth = referencePlayer->GetItemByEntry(ITEM_ID_HEART_OF_AZEROTH);
+            Item const* heartOfAzeroth = referencePlayer->GetItemByEntry(ITEM_ID_HEART_OF_AZEROTH, ITEM_SEARCH_EVERYWHERE);
             if (!heartOfAzeroth || heartOfAzeroth->ToAzeriteItem()->GetLevel() < reqValue)
                 return false;
             break;
@@ -2659,7 +2662,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             break;
         case CRITERIA_ADDITIONAL_CONDITION_UNLOCKED_AZERITE_ESSENCE_RANK_LOWER: // 259
         {
-            if (Item const* heartOfAzeroth = referencePlayer->GetItemByEntry(ITEM_ID_HEART_OF_AZEROTH))
+            if (Item const* heartOfAzeroth = referencePlayer->GetItemByEntry(ITEM_ID_HEART_OF_AZEROTH, ITEM_SEARCH_EVERYWHERE))
                 if (AzeriteItem const* azeriteItem = heartOfAzeroth->ToAzeriteItem())
                     for (UF::UnlockedAzeriteEssence const& essence : azeriteItem->m_azeriteItemData->UnlockedEssences)
                         if (essence.AzeriteEssenceID == reqValue && essence.Rank < secondaryAsset)
@@ -2668,7 +2671,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         }
         case CRITERIA_ADDITIONAL_CONDITION_UNLOCKED_AZERITE_ESSENCE_RANK_EQUAL: // 260
         {
-            if (Item const* heartOfAzeroth = referencePlayer->GetItemByEntry(ITEM_ID_HEART_OF_AZEROTH))
+            if (Item const* heartOfAzeroth = referencePlayer->GetItemByEntry(ITEM_ID_HEART_OF_AZEROTH, ITEM_SEARCH_EVERYWHERE))
                 if (AzeriteItem const* azeriteItem = heartOfAzeroth->ToAzeriteItem())
                     for (UF::UnlockedAzeriteEssence const& essence : azeriteItem->m_azeriteItemData->UnlockedEssences)
                         if (essence.AzeriteEssenceID == reqValue && essence.Rank == secondaryAsset)
@@ -2677,7 +2680,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         }
         case CRITERIA_ADDITIONAL_CONDITION_UNLOCKED_AZERITE_ESSENCE_RANK_GREATER: // 261
         {
-            if (Item const* heartOfAzeroth = referencePlayer->GetItemByEntry(ITEM_ID_HEART_OF_AZEROTH))
+            if (Item const* heartOfAzeroth = referencePlayer->GetItemByEntry(ITEM_ID_HEART_OF_AZEROTH, ITEM_SEARCH_EVERYWHERE))
                 if (AzeriteItem const* azeriteItem = heartOfAzeroth->ToAzeriteItem())
                     for (UF::UnlockedAzeriteEssence const& essence : azeriteItem->m_azeriteItemData->UnlockedEssences)
                         if (essence.AzeriteEssenceID == reqValue && essence.Rank > secondaryAsset)
@@ -2700,7 +2703,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                 return false;
             break;
         case CRITERIA_ADDITIONAL_CONDITION_SELECTED_AZERITE_ESSENCE_RANK_LOWER: // 266
-            if (Item const* heartOfAzeroth = referencePlayer->GetItemByEntry(ITEM_ID_HEART_OF_AZEROTH))
+            if (Item const* heartOfAzeroth = referencePlayer->GetItemByEntry(ITEM_ID_HEART_OF_AZEROTH, ITEM_SEARCH_EVERYWHERE))
                 if (AzeriteItem const* azeriteItem = heartOfAzeroth->ToAzeriteItem())
                     if (UF::SelectedAzeriteEssences const* selectedEssences = azeriteItem->GetSelectedAzeriteEssences())
                         for (UF::UnlockedAzeriteEssence const& essence : azeriteItem->m_azeriteItemData->UnlockedEssences)
@@ -2708,7 +2711,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                                 return true;
             return false;
         case CRITERIA_ADDITIONAL_CONDITION_SELECTED_AZERITE_ESSENCE_RANK_GREATER: // 267
-            if (Item const* heartOfAzeroth = referencePlayer->GetItemByEntry(ITEM_ID_HEART_OF_AZEROTH))
+            if (Item const* heartOfAzeroth = referencePlayer->GetItemByEntry(ITEM_ID_HEART_OF_AZEROTH, ITEM_SEARCH_EVERYWHERE))
                 if (AzeriteItem const* azeriteItem = heartOfAzeroth->ToAzeriteItem())
                     if (UF::SelectedAzeriteEssences const* selectedEssences = azeriteItem->GetSelectedAzeriteEssences())
                         for (UF::UnlockedAzeriteEssence const& essence : azeriteItem->m_azeriteItemData->UnlockedEssences)
@@ -3111,6 +3114,63 @@ CriteriaMgr* CriteriaMgr::Instance()
     return &instance;
 }
 
+namespace
+{
+inline bool IsCriteriaTypeStoredByAsset(CriteriaTypes type)
+{
+    switch (type)
+    {
+        case CRITERIA_TYPE_KILL_CREATURE:
+        case CRITERIA_TYPE_WIN_BG:
+        case CRITERIA_TYPE_REACH_SKILL_LEVEL:
+        case CRITERIA_TYPE_COMPLETE_ACHIEVEMENT:
+        case CRITERIA_TYPE_COMPLETE_QUESTS_IN_ZONE:
+        case CRITERIA_TYPE_COMPLETE_BATTLEGROUND:
+        case CRITERIA_TYPE_KILLED_BY_CREATURE:
+        case CRITERIA_TYPE_COMPLETE_QUEST:
+        case CRITERIA_TYPE_BE_SPELL_TARGET:
+        case CRITERIA_TYPE_CAST_SPELL:
+        case CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE:
+        case CRITERIA_TYPE_HONORABLE_KILL_AT_AREA:
+        case CRITERIA_TYPE_LEARN_SPELL:
+        case CRITERIA_TYPE_OWN_ITEM:
+        case CRITERIA_TYPE_LEARN_SKILL_LEVEL:
+        case CRITERIA_TYPE_USE_ITEM:
+        case CRITERIA_TYPE_LOOT_ITEM:
+        case CRITERIA_TYPE_EXPLORE_AREA:
+        case CRITERIA_TYPE_GAIN_REPUTATION:
+        case CRITERIA_TYPE_EQUIP_EPIC_ITEM:
+        case CRITERIA_TYPE_HK_CLASS:
+        case CRITERIA_TYPE_HK_RACE:
+        case CRITERIA_TYPE_DO_EMOTE:
+        case CRITERIA_TYPE_EQUIP_ITEM:
+        case CRITERIA_TYPE_USE_GAMEOBJECT:
+        case CRITERIA_TYPE_BE_SPELL_TARGET2:
+        case CRITERIA_TYPE_FISH_IN_GAMEOBJECT:
+        case CRITERIA_TYPE_LEARN_SKILLLINE_SPELLS:
+        case CRITERIA_TYPE_LOOT_TYPE:
+        case CRITERIA_TYPE_CAST_SPELL2:
+        case CRITERIA_TYPE_LEARN_SKILL_LINE:
+            return true;
+        default:
+            break;
+    }
+    return false;
+}
+}
+
+CriteriaList const& CriteriaMgr::GetPlayerCriteriaByType(CriteriaTypes type, uint32 asset) const
+{
+    if (asset && IsCriteriaTypeStoredByAsset(type))
+    {
+        auto itr = _criteriasByAsset[type].find(asset);
+        if (itr != _criteriasByAsset[type].end())
+            return itr->second;
+    }
+
+    return _criteriasByType[type];
+}
+
 //==========================================================
 CriteriaMgr::~CriteriaMgr()
 {
@@ -3270,6 +3330,10 @@ void CriteriaMgr::LoadCriteriaList()
     {
         ASSERT(criteriaEntry->Type < CRITERIA_TYPE_TOTAL, "CRITERIA_TYPE_TOTAL must be greater than or equal to %u but is currently equal to %u",
             criteriaEntry->Type + 1, CRITERIA_TYPE_TOTAL);
+        ASSERT(criteriaEntry->StartEvent < CRITERIA_TIMED_TYPE_MAX, "CRITERIA_TYPE_TOTAL must be greater than or equal to %u but is currently equal to %u",
+            criteriaEntry->StartEvent + 1, CRITERIA_TIMED_TYPE_MAX);
+        ASSERT(criteriaEntry->FailEvent < CRITERIA_CONDITION_MAX, "CRITERIA_CONDITION_MAX must be greater than or equal to %u but is currently equal to %u",
+            criteriaEntry->FailEvent + 1, CRITERIA_CONDITION_MAX);
 
         auto treeItr = _criteriaTreeByCriteria.find(criteriaEntry->ID);
         if (treeItr == _criteriaTreeByCriteria.end())
@@ -3305,6 +3369,30 @@ void CriteriaMgr::LoadCriteriaList()
         {
             ++criterias;
             _criteriasByType[criteriaEntry->Type].push_back(criteria);
+            if (IsCriteriaTypeStoredByAsset(CriteriaTypes(criteriaEntry->Type)))
+            {
+                if (criteriaEntry->Type != CRITERIA_TYPE_EXPLORE_AREA)
+                    _criteriasByAsset[criteriaEntry->Type][criteriaEntry->Asset.ID].push_back(criteria);
+                else
+                {
+                    WorldMapOverlayEntry const* worldOverlayEntry = sWorldMapOverlayStore.LookupEntry(criteriaEntry->Asset.WorldMapOverlayID);
+                    if (!worldOverlayEntry)
+                        break;
+
+                    for (uint8 j = 0; j < MAX_WORLD_MAP_OVERLAY_AREA_IDX; ++j)
+                    {
+                        if (worldOverlayEntry->AreaID[j])
+                        {
+                            bool valid = true;
+                            for (uint8 i = 0; i < j; ++i)
+                                if (worldOverlayEntry->AreaID[j] == worldOverlayEntry->AreaID[i])
+                                    valid = false;
+                            if (valid)
+                                _criteriasByAsset[criteriaEntry->Type][worldOverlayEntry->AreaID[j]].push_back(criteria);
+                        }
+                    }
+                }
+            }
         }
 
         if (criteria->FlagsCu & CRITERIA_FLAG_CU_GUILD)
@@ -3327,6 +3415,9 @@ void CriteriaMgr::LoadCriteriaList()
 
         if (criteriaEntry->StartTimer)
             _criteriasByTimedType[criteriaEntry->StartEvent].push_back(criteria);
+
+        if (criteriaEntry->FailEvent)
+            _criteriasByFailEvent[criteriaEntry->FailEvent][criteriaEntry->FailAsset].push_back(criteria);
     }
 
     for (auto& p : _criteriaTrees)

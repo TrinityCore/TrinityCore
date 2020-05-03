@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,7 +19,7 @@
 #define PhaseShift_h__
 
 #include "Define.h"
-#include "EnumClassFlag.h"
+#include "EnumFlag.h"
 #include "ObjectGuid.h"
 #include <boost/container/flat_set.hpp>
 #include <map>
@@ -48,6 +48,9 @@ enum class PhaseFlags : uint16
     Personal    = 0x2
 };
 
+DEFINE_ENUM_FLAG(PhaseShiftFlags);
+DEFINE_ENUM_FLAG(PhaseFlags);
+
 class TC_GAME_API PhaseShift
 {
 public:
@@ -57,7 +60,7 @@ public:
             : Id(id), Flags(flags), References(0), AreaConditions(conditions) { }
 
         uint16 Id;
-        EnumClassFlag<PhaseFlags> Flags;
+        EnumFlag<PhaseFlags> Flags;
         int32 References;
         std::vector<Condition*> const* AreaConditions;
         bool operator<(PhaseRef const& right) const { return Id < right.Id; }
@@ -107,7 +110,7 @@ public:
 protected:
     friend class PhasingHandler;
 
-    EnumClassFlag<PhaseShiftFlags> Flags;
+    EnumFlag<PhaseShiftFlags> Flags;
     ObjectGuid PersonalGuid;
     PhaseContainer Phases;
     VisibleMapIdContainer VisibleMapIds;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -146,7 +146,7 @@ class boss_king_dred : public CreatureScript
 
                             float x, y, z;
 
-                            me->GetClosePoint(x, y, z, me->GetObjectSize() / 3, 10.0f);
+                            me->GetClosePoint(x, y, z, me->GetCombatReach() / 3, 10.0f);
                             me->SummonCreature(RAND(NPC_DRAKKARI_GUTRIPPER, NPC_DRAKKARI_SCYTHECLAW), x, y, z, 0, TEMPSUMMON_DEAD_DESPAWN, 1000);
                             events.ScheduleEvent(EVENT_RAPTOR_CALL, urand(20000, 25000));
                             break;

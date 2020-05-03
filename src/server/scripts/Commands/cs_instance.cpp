@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,6 +24,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "Chat.h"
+#include "DB2Stores.h"
 #include "Group.h"
 #include "InstanceSaveMgr.h"
 #include "InstanceScript.h"
@@ -79,9 +80,9 @@ public:
             player = handler->GetSession()->GetPlayer();
 
         uint32 counter = 0;
-        for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
+        for (DifficultyEntry const* difficulty : sDifficultyStore)
         {
-            auto binds = player->GetBoundInstances(Difficulty(i));
+            auto binds = player->GetBoundInstances(Difficulty(difficulty->ID));
             if (binds != player->m_boundInstances.end())
             {
                 for (auto itr = binds->second.begin(); itr != binds->second.end(); ++itr)
@@ -98,9 +99,9 @@ public:
         counter = 0;
         if (Group* group = player->GetGroup())
         {
-            for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
+            for (DifficultyEntry const* difficulty : sDifficultyStore)
             {
-                auto binds = group->GetBoundInstances(Difficulty(i));
+                auto binds = group->GetBoundInstances(Difficulty(difficulty->ID));
                 if (binds != group->GetBoundInstanceEnd())
                 {
                     for (auto itr = binds->second.begin(); itr != binds->second.end(); ++itr)
@@ -142,9 +143,9 @@ public:
                 return false;
         }
 
-        for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
+        for (DifficultyEntry const* difficulty : sDifficultyStore)
         {
-            auto binds = player->GetBoundInstances(Difficulty(i));
+            auto binds = player->GetBoundInstances(Difficulty(difficulty->ID));
             if (binds != player->m_boundInstances.end())
             {
                 for (auto itr = binds->second.begin(); itr != binds->second.end();)

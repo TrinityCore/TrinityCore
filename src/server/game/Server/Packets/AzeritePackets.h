@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -88,6 +88,49 @@ namespace WorldPackets
             int32 Arg = 0;
             int32 AzeriteEssenceID = 0;
             Optional<uint8> Slot;
+        };
+
+        class AzeriteEmpoweredItemViewed final : public ClientPacket
+        {
+        public:
+            AzeriteEmpoweredItemViewed(WorldPacket&& packet) : ClientPacket(CMSG_AZERITE_EMPOWERED_ITEM_VIEWED, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid ItemGUID;
+        };
+
+        class AzeriteEmpoweredItemSelectPower final : public ClientPacket
+        {
+        public:
+            AzeriteEmpoweredItemSelectPower(WorldPacket&& packet) : ClientPacket(CMSG_AZERITE_EMPOWERED_ITEM_SELECT_POWER, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 Tier = 0;
+            int32 AzeritePowerID = 0;
+            uint8 ContainerSlot = 0;
+            uint8 Slot = 0;
+        };
+
+        class TC_GAME_API AzeriteEmpoweredItemEquippedStatusChanged final : public ServerPacket
+        {
+        public:
+            AzeriteEmpoweredItemEquippedStatusChanged() : ServerPacket(SMSG_AZERITE_EMPOWERED_ITEM_EQUIPPED_STATUS_CHANGED, 1) { }
+
+            WorldPacket const* Write() override;
+
+            bool IsHeartEquipped = false;
+        };
+
+        class AzeriteEmpoweredItemRespecOpen final : public ServerPacket
+        {
+        public:
+            AzeriteEmpoweredItemRespecOpen(ObjectGuid npcGuid) : ServerPacket(SMSG_AZERITE_EMPOWERED_ITEM_RESPEC_OPEN, 1), NpcGUID(npcGuid) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid NpcGUID;
         };
     }
 }

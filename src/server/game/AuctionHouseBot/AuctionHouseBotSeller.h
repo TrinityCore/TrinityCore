@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,6 +21,7 @@
 #include "Define.h"
 #include "ItemTemplate.h"
 #include "AuctionHouseBot.h"
+#include <array>
 
 struct ItemToSell
 {
@@ -29,38 +30,30 @@ struct ItemToSell
 };
 
 typedef std::vector<ItemToSell> ItemsToSellArray;
-typedef std::vector<std::vector<uint32>> AllItemsArray;
-
-struct SellerItemClassInfo
-{
-    SellerItemClassInfo(): AmountOfItems(0), MissItems(0), Quantity(0), PriceRatio(0), RandomStackRatio(100) {}
-
-    uint32 AmountOfItems;
-    uint32 MissItems;
-    uint32 Quantity;
-    uint32 PriceRatio;
-    uint32 RandomStackRatio;
-};
+typedef std::array<std::array<uint32, MAX_ITEM_CLASS>, MAX_ITEM_QUALITY> AllItemsArray;
 
 struct SellerItemInfo
 {
-    SellerItemInfo(): AmountOfItems(0), MissItems(0), PriceRatio(0) {}
+    uint32 AmountOfItems = 0;
+    uint32 MissItems = 0;
+};
 
-    uint32 AmountOfItems;
-    uint32 MissItems;
-    uint32 PriceRatio;
+struct SellerItemClassSharedInfo
+{
+    uint32 PriceRatio = 0;
+    uint32 RandomStackRatio = 100;
+};
 
-    SellerItemClassInfo ItemClassInfos[MAX_ITEM_CLASS];
+struct SellerItemQualitySharedInfo
+{
+    uint32 AmountOfItems = 0;
+    uint32 PriceRatio = 0;
 };
 
 class SellerConfiguration
 {
 public:
-    SellerConfiguration(): LastMissedItem(0), _houseType(AUCTION_HOUSE_NEUTRAL), _minTime(1), _maxTime(72)
-    {
-    }
-
-    ~SellerConfiguration() {}
+    SellerConfiguration() : LastMissedItem(0), _houseType(AUCTION_HOUSE_NEUTRAL), _minTime(1), _maxTime(72), _itemInfo(), _itemSharedQualityInfo(), _itemSharedClassInfo() { }
 
     void Initialize(AuctionHouseType houseType)
     {
@@ -82,35 +75,43 @@ public:
 
     void SetMaxTime(uint32 value) { _maxTime = value; }
     uint32 GetMaxTime() const { return _maxTime; }
+
     // Data access classified by item class and item quality
-    void SetItemsAmountPerClass(AuctionQuality quality, ItemClass itemclass, uint32 amount) { _ItemInfo[quality].ItemClassInfos[itemclass].AmountOfItems = amount * _ItemInfo[quality].ItemClassInfos[itemclass].Quantity; }
-    uint32 GetItemsAmountPerClass(AuctionQuality quality, ItemClass itemclass) const { return _ItemInfo[quality].ItemClassInfos[itemclass].AmountOfItems; }
-    void SetItemsQuantityPerClass(AuctionQuality quality, ItemClass itemclass, uint32 qty) { _ItemInfo[quality].ItemClassInfos[itemclass].Quantity = qty; }
-    uint32 GetItemsQuantityPerClass(AuctionQuality quality, ItemClass itemclass) const { return _ItemInfo[quality].ItemClassInfos[itemclass].Quantity; }
-    void SetMissedItemsPerClass(AuctionQuality quality, ItemClass itemclass, uint32 found)
+    void SetItemsAmountPerClass(AuctionQuality quality, ItemClass itemClass, uint32 amount) { _itemInfo[quality][itemClass].AmountOfItems = amount; }
+    uint32 GetItemsAmountPerClass(AuctionQuality quality, ItemClass itemClass) const { return _itemInfo[quality][itemClass].AmountOfItems; }
+
+    void SetMissedItemsPerClass(AuctionQuality quality, ItemClass itemClass, uint32 found)
     {
-        if (_ItemInfo[quality].ItemClassInfos[itemclass].AmountOfItems > found)
-            _ItemInfo[quality].ItemClassInfos[itemclass].MissItems = _ItemInfo[quality].ItemClassInfos[itemclass].AmountOfItems - found;
+        if (_itemInfo[quality][itemClass].AmountOfItems > found)
+            _itemInfo[quality][itemClass].MissItems = _itemInfo[quality][itemClass].AmountOfItems - found;
         else
-            _ItemInfo[quality].ItemClassInfos[itemclass].MissItems = 0;
+            _itemInfo[quality][itemClass].MissItems = 0;
     }
-    uint32 GetMissedItemsPerClass(AuctionQuality quality, ItemClass itemclass) const { return _ItemInfo[quality].ItemClassInfos[itemclass].MissItems; }
+    uint32 GetMissedItemsPerClass(AuctionQuality quality, ItemClass itemClass) const { return _itemInfo[quality][itemClass].MissItems; }
 
     // Data for every quality of item
-    void SetItemsAmountPerQuality(AuctionQuality quality, uint32 cnt) { _ItemInfo[quality].AmountOfItems = cnt; }
-    uint32 GetItemsAmountPerQuality(AuctionQuality quality) const { return _ItemInfo[quality].AmountOfItems; }
-    void SetPriceRatioPerQuality(AuctionQuality quality, uint32 value) { _ItemInfo[quality].PriceRatio = value; }
-    uint32 GetPriceRatioPerQuality(AuctionQuality quality) const { return _ItemInfo[quality].PriceRatio; }
-    void SetPriceRatioPerClass(ItemClass item, uint32 value) { _ItemInfo[0].ItemClassInfos[item].PriceRatio = value; }
-    uint32 GetPriceRatioPerClass(ItemClass item) const { return _ItemInfo[0].ItemClassInfos[item].PriceRatio; }
-    void SetRandomStackRatioPerClass(ItemClass item, uint32 value) { _ItemInfo[0].ItemClassInfos[item].RandomStackRatio = value; }
-    uint32 GetRandomStackRatioPerClass(ItemClass item) const { return _ItemInfo[0].ItemClassInfos[item].RandomStackRatio; }
+    void SetItemsAmountPerQuality(AuctionQuality quality, uint32 cnt) { _itemSharedQualityInfo[quality].AmountOfItems = cnt; }
+    uint32 GetItemsAmountPerQuality(AuctionQuality quality) const { return _itemSharedQualityInfo[quality].AmountOfItems; }
+
+    void SetPriceRatioPerQuality(AuctionQuality quality, uint32 value) { _itemSharedQualityInfo[quality].PriceRatio = value; }
+    uint32 GetPriceRatioPerQuality(AuctionQuality quality) const { return _itemSharedQualityInfo[quality].PriceRatio; }
+
+    // data for every class of item
+    void SetPriceRatioPerClass(ItemClass itemClass, uint32 value) { _itemSharedClassInfo[itemClass].PriceRatio = value; }
+    uint32 GetPriceRatioPerClass(ItemClass itemClass) const { return _itemSharedClassInfo[itemClass].PriceRatio; }
+
+    void SetRandomStackRatioPerClass(ItemClass itemClass, uint32 value) { _itemSharedClassInfo[itemClass].RandomStackRatio = value; }
+    uint32 GetRandomStackRatioPerClass(ItemClass itemClass) const { return _itemSharedClassInfo[itemClass].RandomStackRatio; }
 
 private:
     AuctionHouseType _houseType;
     uint32 _minTime;
     uint32 _maxTime;
-    SellerItemInfo _ItemInfo[MAX_AUCTION_QUALITY];
+
+    SellerItemInfo _itemInfo[MAX_AUCTION_QUALITY][MAX_ITEM_CLASS];
+
+    SellerItemQualitySharedInfo _itemSharedQualityInfo[MAX_ITEM_QUALITY];
+    SellerItemClassSharedInfo _itemSharedClassInfo[MAX_ITEM_CLASS];
 };
 
 // This class handle all Selling method
@@ -141,7 +142,7 @@ private:
     void LoadSellerValues(SellerConfiguration& config);
     uint32 SetStat(SellerConfiguration& config);
     bool GetItemsToSell(SellerConfiguration& config, ItemsToSellArray& itemsToSellArray, AllItemsArray const& addedItem);
-    void SetPricesOfItem(ItemTemplate const* itemProto, SellerConfiguration& config, uint32& buyp, uint32& bidp, uint32 stackcnt);
+    void SetPricesOfItem(ItemTemplate const* itemProto, SellerConfiguration& config, uint32& buyout, uint32& bid, uint32 stackcnt);
     uint32 GetStackSizeForItem(ItemTemplate const* itemProto, SellerConfiguration& config) const;
     void LoadItemsQuantity(SellerConfiguration& config);
     static uint32 GetBuyModifier(ItemTemplate const* prototype);

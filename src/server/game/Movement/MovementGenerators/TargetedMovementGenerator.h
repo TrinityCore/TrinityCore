@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,95 +21,94 @@
 #include "MovementGenerator.h"
 #include "FollowerReference.h"
 #include "Timer.h"
-#include "Unit.h"
-#include "PathGenerator.h"
 
 class TargetedMovementGeneratorBase
 {
     public:
-        TargetedMovementGeneratorBase(Unit* target) { i_target.link(target, this); }
+        TargetedMovementGeneratorBase(Unit* target)
+        {
+            _target.link(target, this);
+        }
+
+        bool IsTargetValid() const { return _target.isValid(); }
+        Unit* GetTarget() const { return _target.getTarget(); }
         void stopFollowing() { }
-    protected:
-        FollowerReference i_target;
+
+    private:
+        FollowerReference _target;
 };
 
 template<class T, typename D>
-class TargetedMovementGeneratorMedium : public MovementGeneratorMedium< T, D >, public TargetedMovementGeneratorBase
+class TargetedMovementGenerator : public MovementGeneratorMedium< T, D >, public TargetedMovementGeneratorBase
 {
-    protected:
-        TargetedMovementGeneratorMedium(Unit* target, float offset, float angle) :
-            TargetedMovementGeneratorBase(target), i_path(NULL),
-            i_recheckDistance(0), i_offset(offset), i_angle(angle),
-            i_recalculateTravel(false), i_targetReached(false)
-        {
-        }
-        ~TargetedMovementGeneratorMedium() { delete i_path; }
-
     public:
+        explicit TargetedMovementGenerator(Unit* target, float offset, float angle) : TargetedMovementGeneratorBase(target), _path(nullptr), _timer(0), _offset(offset), _angle(angle), _recalculateTravel(false), _speedChanged(false), _targetReached(false), _interrupt(false) { }
+        ~TargetedMovementGenerator();
+
         bool DoUpdate(T*, uint32);
-        Unit* GetTarget() const { return i_target.getTarget(); }
 
-        void unitSpeedChanged() override { i_recalculateTravel = true; }
-        bool IsReachable() const { return (i_path) ? (i_path->GetPathType() & PATHFIND_NORMAL) : true; }
-    protected:
-        void _setTargetLocation(T* owner, bool updateDestination);
+        void UnitSpeedChanged() override { _speedChanged = true; }
 
-        PathGenerator* i_path;
-        TimeTrackerSmall i_recheckDistance;
-        float i_offset;
-        float i_angle;
-        bool i_recalculateTravel : 1;
-        bool i_targetReached : 1;
+        virtual void ClearUnitStateMove(T*) { }
+        virtual void AddUnitStateMove(T*) { }
+        virtual bool HasLostTarget(T*) const { return false; }
+        virtual void ReachTarget(T*) { }
+        virtual bool EnableWalking() const { return false; }
+        virtual void MovementInform(T*) { }
+
+        bool IsReachable() const;
+        void SetTargetLocation(T* owner, bool updateDestination);
+
+    private:
+        PathGenerator* _path;
+        TimeTrackerSmall _timer;
+        float _offset;
+        float _angle;
+        bool _recalculateTravel;
+        bool _speedChanged;
+        bool _targetReached;
+        bool _interrupt;
 };
 
 template<class T>
-class ChaseMovementGenerator : public TargetedMovementGeneratorMedium<T, ChaseMovementGenerator<T> >
+class ChaseMovementGenerator : public TargetedMovementGenerator<T, ChaseMovementGenerator<T> >
 {
     public:
-        ChaseMovementGenerator(Unit* target)
-            : TargetedMovementGeneratorMedium<T, ChaseMovementGenerator<T> >(target) { }
-        ChaseMovementGenerator(Unit* target, float offset, float angle)
-            : TargetedMovementGeneratorMedium<T, ChaseMovementGenerator<T> >(target, offset, angle) { }
-        ~ChaseMovementGenerator() { }
+        explicit ChaseMovementGenerator(Unit* target, float offset, float angle) : TargetedMovementGenerator<T, ChaseMovementGenerator<T> >(target, offset, angle) { }
 
         MovementGeneratorType GetMovementGeneratorType() const override { return CHASE_MOTION_TYPE; }
 
         void DoInitialize(T*);
         void DoFinalize(T*);
         void DoReset(T*);
-        void MovementInform(T*);
 
-        static void _clearUnitStateMove(T* u) { u->ClearUnitState(UNIT_STATE_CHASE_MOVE); }
-        static void _addUnitStateMove(T* u)  { u->AddUnitState(UNIT_STATE_CHASE_MOVE); }
-        bool EnableWalking() const { return false;}
-        bool _lostTarget(T* u) const { return u->GetVictim() != this->GetTarget(); }
-        void _reachTarget(T*);
+        void ClearUnitStateMove(T*) override;
+        void AddUnitStateMove(T*) override;
+        bool HasLostTarget(T*) const override;
+        void ReachTarget(T*) override;
+        void MovementInform(T*) override;
 };
 
 template<class T>
-class FollowMovementGenerator : public TargetedMovementGeneratorMedium<T, FollowMovementGenerator<T> >
+class FollowMovementGenerator : public TargetedMovementGenerator<T, FollowMovementGenerator<T> >
 {
     public:
-        FollowMovementGenerator(Unit* target)
-            : TargetedMovementGeneratorMedium<T, FollowMovementGenerator<T> >(target){ }
-        FollowMovementGenerator(Unit* target, float offset, float angle)
-            : TargetedMovementGeneratorMedium<T, FollowMovementGenerator<T> >(target, offset, angle) { }
-        ~FollowMovementGenerator() { }
+        explicit FollowMovementGenerator(Unit* target, float offset, float angle) : TargetedMovementGenerator<T, FollowMovementGenerator<T> >(target, offset, angle) { }
 
         MovementGeneratorType GetMovementGeneratorType() const override { return FOLLOW_MOTION_TYPE; }
 
         void DoInitialize(T*);
         void DoFinalize(T*);
         void DoReset(T*);
-        void MovementInform(T*);
 
-        static void _clearUnitStateMove(T* u) { u->ClearUnitState(UNIT_STATE_FOLLOW_MOVE); }
-        static void _addUnitStateMove(T* u)  { u->AddUnitState(UNIT_STATE_FOLLOW_MOVE); }
-        bool EnableWalking() const;
-        bool _lostTarget(T*) const { return false; }
-        void _reachTarget(T*) { }
+        void ClearUnitStateMove(T*) override;
+        void AddUnitStateMove(T*) override;
+        bool HasLostTarget(T*) const override { return false; }
+        void ReachTarget(T*) override;
+        bool EnableWalking() const override;
+        void MovementInform(T*) override;
     private:
-        void _updateSpeed(T* owner);
+        void UpdateSpeed(T* owner);
 };
 
 #endif

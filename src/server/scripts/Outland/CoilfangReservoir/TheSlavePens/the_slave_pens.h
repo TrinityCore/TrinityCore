@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -68,10 +68,10 @@ enum SPGameObjectIds
     GO_ICE_STONE                         = 187882
 };
 
-template<typename AI>
-inline AI* GetSlavePensAI(Creature* creature)
+template<class AI, class T>
+inline AI* GetSlavePensAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, SPScriptName);
+    return GetInstanceAI<AI>(obj, SPScriptName);
 }
 
 #endif // SLAVE_PENS_H

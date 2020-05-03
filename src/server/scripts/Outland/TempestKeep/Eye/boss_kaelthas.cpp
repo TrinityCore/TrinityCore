@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -598,7 +597,7 @@ class boss_kaelthas : public CreatureScript
                         events.ScheduleEvent(EVENT_TRANSITION_1, 1000);
                         break;
                     case POINT_TRANSITION_CENTER_ASCENDING:
-                        me->SetFacingTo(float(M_PI), true);
+                        me->SetFacingTo(float(M_PI));
                         Talk(SAY_PHASE5_NUTS);
                         me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                         me->SetDisableGravity(true);
@@ -1279,7 +1278,7 @@ class npc_kael_flamestrike : public CreatureScript
                 Initialize();
 
                 me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
-                me->setFaction(14);
+                me->SetFaction(14);
             }
 
             void MoveInLineOfSight(Unit* /*who*/) override { }

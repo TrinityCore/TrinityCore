@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -428,23 +427,24 @@ class TC_SHARED_API ByteBuffer
             _rpos += skip;
         }
 
-        template <typename T>
+        template <typename T, typename Underlying = T>
         T read()
         {
             ResetBitPos();
-            T r = read<T>(_rpos);
-            _rpos += sizeof(T);
+            T r = read<T, Underlying>(_rpos);
+            _rpos += sizeof(Underlying);
             return r;
         }
 
-        template <typename T>
+        template <typename T, typename Underlying = T>
         T read(size_t pos) const
         {
-            if (pos + sizeof(T) > size())
-                throw ByteBufferPositionException(pos, sizeof(T), size());
-            T val = *((T const*)&_storage[pos]);
+            if (pos + sizeof(Underlying) > size())
+                throw ByteBufferPositionException(pos, sizeof(Underlying), size());
+            Underlying val;
+            std::memcpy(&val, &_storage[pos], sizeof(Underlying));
             EndianConvert(val);
-            return val;
+            return static_cast<T>(val);
         }
 
         template<class T>

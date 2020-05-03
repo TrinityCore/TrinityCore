@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -63,8 +62,8 @@ MailSender::MailSender(CalendarEvent* sender)
 {
 }
 
-MailSender::MailSender(AuctionEntry* sender)
-    : m_messageType(MAIL_AUCTION), m_senderId(uint64(sender->GetHouseId())), m_stationery(MAIL_STATIONERY_AUCTION) { }
+MailSender::MailSender(AuctionHouseObject const* sender)
+    : m_messageType(MAIL_AUCTION), m_senderId(uint64(sender->GetAuctionHouseId())), m_stationery(MAIL_STATIONERY_AUCTION) { }
 
 MailSender::MailSender(BlackMarketEntry* sender)
     : m_messageType(MAIL_BLACKMARKET), m_senderId(sender->GetTemplate()->SellerNPC), m_stationery(MAIL_STATIONERY_AUCTION) { }
@@ -88,6 +87,11 @@ MailReceiver::MailReceiver(Player* receiver) : m_receiver(receiver), m_receiver_
 MailReceiver::MailReceiver(Player* receiver, ObjectGuid::LowType receiver_lowguid) : m_receiver(receiver), m_receiver_lowguid(receiver_lowguid)
 {
     ASSERT(!receiver || receiver->GetGUID().GetCounter() == receiver_lowguid);
+}
+
+MailReceiver::MailReceiver(Player* receiver, ObjectGuid receiverGuid) : m_receiver(receiver), m_receiver_lowguid(receiverGuid.GetCounter())
+{
+    ASSERT(!receiver || receiver->GetGUID() == receiverGuid);
 }
 
 MailDraft& MailDraft::AddItem(Item* item)
@@ -129,11 +133,7 @@ void MailDraft::deleteIncludedItems(CharacterDatabaseTransaction& trans, bool in
         Item* item = mailItemIter->second;
 
         if (inDB)
-        {
-            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
-            stmt->setUInt64(0, item->GetGUID().GetCounter());
-            trans->Append(stmt);
-        }
+            item->DeleteFromDB(trans);
 
         delete item;
     }
@@ -187,7 +187,7 @@ void MailDraft::SendReturnToSender(uint32 sender_acc, ObjectGuid::LowType sender
 void MailDraft::SendMailTo(CharacterDatabaseTransaction& trans, MailReceiver const& receiver, MailSender const& sender, MailCheckMask checked, uint32 deliver_delay)
 {
     Player* pReceiver = receiver.GetPlayer();               // can be NULL
-    Player* pSender = ObjectAccessor::FindPlayer(ObjectGuid::Create<HighGuid::Player>(sender.GetSenderId()));
+    Player* pSender = sender.GetMailMessageType() == MAIL_NORMAL ? ObjectAccessor::FindPlayer(ObjectGuid::Create<HighGuid::Player>(sender.GetSenderId())) : nullptr;
 
     if (pReceiver)
         prepareItems(pReceiver, trans);                            // generate mail template items
