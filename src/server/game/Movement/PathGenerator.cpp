@@ -466,26 +466,34 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
             if (hit != FLT_MAX)
             {
                 float hitPos[3];
+
+                // Walk back a bit from the hit point to make sure it's in the mesh (sometimes the point is actually outside of the polygons due to float precision issues)
+                hit *= 0.99f;
                 dtVlerp(hitPos, startPoint, endPoint, hit);
 
-                if (!dtStatusFailed(_navMeshQuery->getPolyHeight(_pathPolyRefs[_polyLength - 1], hitPos, &hitPos[1])))
+                if (dtStatusFailed(_navMeshQuery->getPolyHeight(_pathPolyRefs[_polyLength - 1], hitPos, &hitPos[1])))
                 {
-                    Clear();
-                    _polyLength = 2;
-                    _pathPoints.resize(2);
-                    _pathPoints[0] = GetStartPosition();
-                    _pathPoints[1] = G3D::Vector3(hitPos[2], hitPos[0], hitPos[1]);
+                    // Walk back a bit more
+                    hit *= 0.99f;
+                    dtVlerp(hitPos, startPoint, endPoint, hit);
 
-                    NormalizePath();
-                    _type = PATHFIND_INCOMPLETE;
-                    return;
+                    if (dtStatusFailed(_navMeshQuery->getPolyHeight(_pathPolyRefs[_polyLength - 1], hitPos, &hitPos[1])))
+                    {
+                        BuildShortcut();
+                        _type = PATHFIND_NOPATH;
+                        return;
+                    }
                 }
-                else
-                {
-                    BuildShortcut();
-                    _type = PATHFIND_NOPATH;
-                    return;
-                }
+
+                Clear();
+                _polyLength = 2;
+                _pathPoints.resize(2);
+                _pathPoints[0] = GetStartPosition();
+                _pathPoints[1] = G3D::Vector3(hitPos[2], hitPos[0], hitPos[1]);
+
+                NormalizePath();
+                _type = PATHFIND_INCOMPLETE;
+                return;               
             }
             else if (dtStatusFailed(_navMeshQuery->getPolyHeight(_pathPolyRefs[_polyLength - 1], endPoint, &endPoint[1])))
             {
