@@ -1904,7 +1904,7 @@ struct ServerMessagesEntry
     uint32 ID;                                              // 0
     char* Text;                                             // 1 Message, it's localized.
 
-    inline bool IsFormattableMessage() const { return std::strstr(Text, "%s") != nullptr; }
+    inline bool IsFormattableMessage() const { return strstr(Text, "%s") != nullptr; }
 };
 
 #pragma pack(pop)
