@@ -104,6 +104,14 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
         }
     }
 
+    if (owner->HasUnitState(UNIT_STATE_FOLLOW_MOVE) && owner->movespline->Finalized())
+    {
+        RemoveFlag(MOVEMENTGENERATOR_FLAG_INFORM_ENABLED);
+        _path = nullptr;
+        owner->ClearUnitState(UNIT_STATE_FOLLOW_MOVE);
+        DoMovementInform(owner, target);
+    }
+
     if (!_lastTargetPosition || _lastTargetPosition->GetExactDistSq(target->GetPosition()) > 0.0f)
     {
         _lastTargetPosition = target->GetPosition();
