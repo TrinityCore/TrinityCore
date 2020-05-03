@@ -455,24 +455,44 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
                             (int*)&_polyLength,
                             MAX_PATH_LENGTH);
 
+            if (!_polyLength || dtStatusFailed(dtResult))
+            {
+                BuildShortcut();
+                _type = PATHFIND_NOPATH;
+                return;
+            }
+
             // raycast() sets hit to FLT_MAX if there is a ray between start and end
             if (hit != FLT_MAX)
             {
-                // the ray hit something, return no path instead of the incomplete one
-                Clear();
-                _polyLength = 2;
-                _pathPoints.resize(2);
-                _pathPoints[0] = GetStartPosition();
                 float hitPos[3];
                 dtVlerp(hitPos, startPoint, endPoint, hit);
-                _pathPoints[1] = G3D::Vector3(hitPos[2], hitPos[0], hitPos[1]);
 
-                NormalizePath();
-                _type = PATHFIND_INCOMPLETE;
+                if (!dtStatusFailed(_navMeshQuery->getPolyHeight(_pathPolyRefs[_polyLength - 1], hitPos, &hitPos[1])))
+                {
+                    Clear();
+                    _polyLength = 2;
+                    _pathPoints.resize(2);
+                    _pathPoints[0] = GetStartPosition();
+                    _pathPoints[1] = G3D::Vector3(hitPos[2], hitPos[0], hitPos[1]);
+
+                    NormalizePath();
+                    _type = PATHFIND_INCOMPLETE;
+                    return;
+                }
+                else
+                {
+                    BuildShortcut();
+                    _type = PATHFIND_NOPATH;
+                    return;
+                }
+            }
+            else if (dtStatusFailed(_navMeshQuery->getPolyHeight(_pathPolyRefs[_polyLength - 1], endPoint, &endPoint[1])))
+            {
+                BuildShortcut();
+                _type = PATHFIND_NOPATH;
                 return;
             }
-            else
-                _navMeshQuery->getPolyHeight(_pathPolyRefs[_polyLength - 1], endPoint, &endPoint[1]);
         }
         else
         {
