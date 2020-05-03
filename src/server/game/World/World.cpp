@@ -2998,13 +2998,26 @@ uint32 World::ShutdownCancel()
 /// Send a server message to the user(s)
 void World::SendServerMessage(ServerMessageType type, const char *text, Player* player)
 {
+    ServerMessagesEntry const* messageEntry = sServerMessagesStore.LookupEntry(type);
+
+    if (!messageEntry)
+    {
+        TC_LOG_ERROR("misc", "ServerMessages.dbc entry %u missing. Failed to send SMSG_SERVER_MESSAGE in World::SendServerMessage.", static_cast<uint32>(type));
+        return;
+    }
+
     WorldPacket data(SMSG_SERVER_MESSAGE, 50);              // guess size
     data << uint32(type);
 
-    if (sServerMessagesStore.AssertEntry(type)->IsFormattableMessage())
+    if (messageEntry->IsFormattableMessage())
     {
-        ASSERT_NOTNULL(text);
-        data << text;
+        if (text)
+            data << text;
+        else
+        {
+            TC_LOG_WARN("misc", "ServerMessages.dbc entry %u is formattable but no input was provided. Empty string used.", static_cast<uint32>(type));
+            data << std::string();
+        }
     }
 
     if (player)
