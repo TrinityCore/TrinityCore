@@ -393,6 +393,7 @@ Unit::Unit(bool isWorldObject) :
     jokerSpellMod = 1.0f;
     jokerAttackMod = 1.0f;
     jokerHPMod = 1.0f;
+    jokerMPMod = 1.0f;
 }
 
 ////////////////////////////////////////////////////////////

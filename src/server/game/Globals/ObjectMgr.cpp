@@ -4334,16 +4334,26 @@ void ObjectMgr::LoadPlayerInfo()
 
             PlayerClassLevelInfo& levelInfo = info->levelInfo[current_level - 1];
             levelInfo.basehealth = fields[2].GetUInt16();
-            levelInfo.basemana   = fields[3].GetUInt16();
+            levelInfo.basemana = fields[3].GetUInt16();
 
             // EJ joker player mod
             if (sJokerConfig->Enable)
             {
-                float levelMod = current_level * 100.0f;
-                levelMod = levelMod / 10000.0f;
-                levelMod = levelMod + 1;
-                levelInfo.basehealth = levelInfo.basehealth * levelMod;
-                levelInfo.basemana = levelInfo.basemana * levelMod;
+                float levelModPower = (float)current_level;
+                if (levelModPower > sJokerConfig->MaxModLevel)
+                {
+                    levelModPower = sJokerConfig->MaxModLevel;
+                }
+                levelModPower = levelModPower * levelModPower;
+                levelModPower = levelModPower / 10000.0f;                
+                float hpMod = levelModPower * sJokerConfig->PlayerHPMod_Level;
+                hpMod = hpMod + 1.0f;
+                hpMod = hpMod * sJokerConfig->PlayerHPMod_Total;
+                float mpMod = levelModPower * sJokerConfig->PlayerMPMod_Level;
+                mpMod = mpMod + 1.0f;
+                mpMod = mpMod * sJokerConfig->PlayerMPMod_Total;
+                levelInfo.basehealth = levelInfo.basehealth * hpMod;
+                levelInfo.basemana = levelInfo.basemana * mpMod;
             }
 
             ++count;

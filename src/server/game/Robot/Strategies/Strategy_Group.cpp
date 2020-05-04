@@ -14,6 +14,7 @@
 #include "ChaseMovementGenerator.h"
 #include "GridNotifiers.h"
 #include "Map.h"
+#include "RobotManager.h"
 
 Strategy_Group::Strategy_Group(Player* pmMe)
 {
@@ -63,6 +64,7 @@ Strategy_Group::Strategy_Group(Player* pmMe)
         case Classes::CLASS_PRIEST:
         {
             sb = new  Script_Priest(me);
+            followDistance = MID_RANGE;
             break;
         }
         case Classes::CLASS_ROGUE:
@@ -191,6 +193,10 @@ void Strategy_Group::Update(uint32 pmDiff)
         }
         if (groupInCombat)
         {
+            //if (Lightwell())
+            //{
+            //    return;
+            //}
             switch (me->groupRole)
             {
             case GroupRole::GroupRole_DPS:
@@ -357,6 +363,46 @@ bool Strategy_Group::DPS()
     return false;
 }
 
+bool Strategy_Group::Lightwell()
+{
+    if (!me)
+    {
+        return false;
+    }
+    if (me->GetHealthPct() < 80.0f)
+    {
+        for (std::unordered_set<uint32>::iterator lightwellIT = sRobotManager->lightwellRenewSpellIDSet.begin(); lightwellIT != sRobotManager->lightwellRenewSpellIDSet.end(); lightwellIT++)
+        {
+            uint32 eachLightwellID = *lightwellIT;
+            if (me->HasAura(eachLightwellID))
+            {
+                return false;
+            }
+        }
+
+        std::list<Unit*> meleeRangeUnits;
+        Trinity::AnyFriendlyUnitInObjectRangeCheck u_check(me, me, NOMINAL_MELEE_RANGE);
+        Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(me, meleeRangeUnits, u_check);
+        Cell::VisitAllObjects(me, searcher, NOMINAL_MELEE_RANGE);
+        for (std::list<Unit*>::iterator it = meleeRangeUnits.begin(); it != meleeRangeUnits.end(); it++)
+        {
+            if (Unit* eachU = *it)
+            {
+                if (sRobotManager->lightwellUnitEntrySet.find(eachU->GetEntry()) != sRobotManager->lightwellUnitEntrySet.end())
+                {
+                    if (Creature* lightwellC = eachU->ToCreature())
+                    {
+                        lightwellC->HandleSpellClick(me);
+                        return true;
+                    }                    
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
 bool Strategy_Group::Tank()
 {
     if (!me)
@@ -453,6 +499,24 @@ bool Strategy_Group::Heal()
     }
     if (Group* myGroup = me->GetGroup())
     {
+        int lowMemberCount = 0;
+        for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+        {
+            if (Player* member = groupRef->GetSource())
+            {
+                if (member->GetHealthPct() < 60.0f)
+                {
+                    lowMemberCount++;
+                }
+            }
+        }
+        if (lowMemberCount > 1)
+        {
+            if (sb->GroupHeal())
+            {
+                return true;
+            }
+        }
         for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
         {
             if (Player* member = groupRef->GetSource())

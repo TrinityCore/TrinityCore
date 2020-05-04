@@ -110,13 +110,13 @@ enum DIRE_MAUL_WAYPOINT
 enum DIRE_MAUL_LINE_OLD_IRONBARK
 {
     LINE_OLD_IRONBARK_0 = 0,
+    LINE_OLD_IRONBARK_1 = 1,
 };
 
 enum DIRE_MAUL_LINE_IRONBARK_THE_REDEEMED
 {
     LINE_IRONBARK_THE_REDEEMED_0 = 0,
-    LINE_IRONBARK_THE_REDEEMED_1 = 1,
-    LINE_IRONBARK_THE_REDEEMED_2 = 2,
+    LINE_IRONBARK_THE_REDEEMED_1 = 1,    
 };
 
 enum DIRE_MAUL_LINE_WANDERING_EYE_OF_KILROGG
@@ -167,10 +167,8 @@ enum DIRE_MAUL_EVENT_IRONBARK_THE_REDEEMED
     EVENT_MOVE_WAY = 2,
     EVENT_OPEN_DOOR_EMOTE = 3,
     EVENT_DOOR_OPEN = 4,
-    EVENT_TALK_1 = 5,
-    EVENT_FAKE_DEATH = 6,
-    EVENT_TALK_2 = 7,
-    EVENT_DESPAWN = 8,
+    EVENT_TALK_1 = 5,    
+    EVENT_DESPAWN = 6,
 };
 
 class instance_dire_maul : public InstanceMapScript
@@ -195,6 +193,9 @@ public:
 
             allCrystalInitialized = false;
             playerFaction = 0;
+
+            ironbarkWeakLined = false;
+            ironbarkWeakLineCheckDelay = 3000;
         }
 
         ObjectGuid OGBossZevrimThornhoof;
@@ -213,6 +214,9 @@ public:
         bool allCrystalInitialized;
         int playerFaction;
 
+        bool ironbarkWeakLined;
+        int ironbarkWeakLineCheckDelay;
+
         void OnCreatureCreate(Creature* creature) override
         {
             switch (creature->GetEntry())
@@ -221,6 +225,7 @@ public:
             {
                 OGOldIronbark = creature->GetGUID();
                 creature->RemoveFlag(EUnitFields::UNIT_NPC_FLAGS, NPCFlags::UNIT_NPC_FLAG_GOSSIP);
+                creature->SetStandState(UnitStandStateType::UNIT_STAND_STATE_DEAD);
                 break;
             }
             case DIRE_MAUL_NPC::NPC_ZEVRIM_THORNHOOF:
@@ -422,6 +427,7 @@ public:
                 {
                     checkC->AI()->Talk(DIRE_MAUL_LINE_OLD_IRONBARK::LINE_OLD_IRONBARK_0);
                     checkC->UpdateEntry(DIRE_MAUL_NPC::NPC_IRONBARK_THE_REDEEMED);
+                    checkC->SetStandState(UnitStandStateType::UNIT_STAND_STATE_STAND);
                     checkC->SetFlag(EUnitFields::UNIT_NPC_FLAGS, NPCFlags::UNIT_NPC_FLAG_GOSSIP);
                 }
             }
@@ -482,31 +488,53 @@ public:
                     allCrystalInitialized = true;
                 }
             }
-            if (GetBossState(DIRE_MAUL_BOSS::BOSS_ZEVRIM_THORNHOOF) == EncounterState::NOT_STARTED)
+            if (GetBossState(DIRE_MAUL_BOSS::BOSS_ZEVRIM_THORNHOOF) != EncounterState::DONE)
             {
-                if (Creature* checkBoss = instance->GetCreature(OGBossZevrimThornhoof))
+                if (!ironbarkWeakLined)
                 {
-                    if (checkBoss->IsInCombat())
+                    if (ironbarkWeakLineCheckDelay > 0)
                     {
-                        SetBossState(DIRE_MAUL_BOSS::BOSS_ZEVRIM_THORNHOOF, EncounterState::IN_PROGRESS);
+                        ironbarkWeakLineCheckDelay -= diff;
+                    }
+                    else
+                    {
+                        ironbarkWeakLineCheckDelay = 3000;
+                        if (Creature* checkIB = instance->GetCreature(OGOldIronbark))
+                        {
+                            if (checkIB->SelectNearestPlayer(10.0f))
+                            {
+                                checkIB->AI()->Talk(DIRE_MAUL_LINE_OLD_IRONBARK::LINE_OLD_IRONBARK_1);
+                                ironbarkWeakLined = true;
+                            }                            
+                        }
                     }
                 }
-            }
-            else if (GetBossState(DIRE_MAUL_BOSS::BOSS_ZEVRIM_THORNHOOF) == EncounterState::IN_PROGRESS)
-            {
-                if (Creature* checkBoss = instance->GetCreature(OGBossZevrimThornhoof))
+                if (GetBossState(DIRE_MAUL_BOSS::BOSS_ZEVRIM_THORNHOOF) == EncounterState::NOT_STARTED)
                 {
-                    if (!checkBoss->IsAlive())
+                    if (Creature* checkBoss = instance->GetCreature(OGBossZevrimThornhoof))
                     {
-                        SetData(DIRE_MAUL_DATA::DATA_OLD_IRONBARK_REDEEM, 0);
-                        SetBossState(DIRE_MAUL_BOSS::BOSS_ZEVRIM_THORNHOOF, EncounterState::DONE);
-                    }
-                    else if (!checkBoss->IsInCombat())
-                    {
-                        SetBossState(DIRE_MAUL_BOSS::BOSS_ZEVRIM_THORNHOOF, EncounterState::NOT_STARTED);
+                        if (checkBoss->IsInCombat())
+                        {
+                            SetBossState(DIRE_MAUL_BOSS::BOSS_ZEVRIM_THORNHOOF, EncounterState::IN_PROGRESS);
+                        }
                     }
                 }
-            }
+                else if (GetBossState(DIRE_MAUL_BOSS::BOSS_ZEVRIM_THORNHOOF) == EncounterState::IN_PROGRESS)
+                {
+                    if (Creature* checkBoss = instance->GetCreature(OGBossZevrimThornhoof))
+                    {
+                        if (!checkBoss->IsAlive())
+                        {
+                            SetData(DIRE_MAUL_DATA::DATA_OLD_IRONBARK_REDEEM, 0);
+                            SetBossState(DIRE_MAUL_BOSS::BOSS_ZEVRIM_THORNHOOF, EncounterState::DONE);
+                        }
+                        else if (!checkBoss->IsInCombat())
+                        {
+                            SetBossState(DIRE_MAUL_BOSS::BOSS_ZEVRIM_THORNHOOF, EncounterState::NOT_STARTED);
+                        }
+                    }
+                }
+            }            
 
             if (GetBossState(DIRE_MAUL_BOSS::BOSS_TENDRIS_WARPWOOD) == EncounterState::NOT_STARTED)
             {
@@ -634,10 +662,8 @@ public:
                     events.ScheduleEvent(DIRE_MAUL_EVENT_IRONBARK_THE_REDEEMED::EVENT_OPEN_DOOR_EMOTE, 2000);
                     events.ScheduleEvent(DIRE_MAUL_EVENT_IRONBARK_THE_REDEEMED::EVENT_OPEN_DOOR_EMOTE, 5000);
                     events.ScheduleEvent(DIRE_MAUL_EVENT_IRONBARK_THE_REDEEMED::EVENT_DOOR_OPEN, 7000);
-                    events.ScheduleEvent(DIRE_MAUL_EVENT_IRONBARK_THE_REDEEMED::EVENT_TALK_1, 10000);
-                    events.ScheduleEvent(DIRE_MAUL_EVENT_IRONBARK_THE_REDEEMED::EVENT_FAKE_DEATH, 15000);
-                    events.ScheduleEvent(DIRE_MAUL_EVENT_IRONBARK_THE_REDEEMED::EVENT_TALK_2, 25000);
-                    events.ScheduleEvent(DIRE_MAUL_EVENT_IRONBARK_THE_REDEEMED::EVENT_DESPAWN, 35000);
+                    events.ScheduleEvent(DIRE_MAUL_EVENT_IRONBARK_THE_REDEEMED::EVENT_TALK_1, 10000);                    
+                    events.ScheduleEvent(DIRE_MAUL_EVENT_IRONBARK_THE_REDEEMED::EVENT_DESPAWN, 30000);
                     break;
                 }
                 default:
@@ -691,16 +717,6 @@ public:
             case DIRE_MAUL_EVENT_IRONBARK_THE_REDEEMED::EVENT_TALK_1:
             {
                 me->AI()->Talk(DIRE_MAUL_LINE_IRONBARK_THE_REDEEMED::LINE_IRONBARK_THE_REDEEMED_1);
-                break;
-            }
-            case DIRE_MAUL_EVENT_IRONBARK_THE_REDEEMED::EVENT_FAKE_DEATH:
-            {
-                me->SetStandState(UnitStandStateType::UNIT_STAND_STATE_DEAD);
-                break;
-            }
-            case DIRE_MAUL_EVENT_IRONBARK_THE_REDEEMED::EVENT_TALK_2:
-            {
-                me->AI()->Talk(DIRE_MAUL_LINE_IRONBARK_THE_REDEEMED::LINE_IRONBARK_THE_REDEEMED_2);
                 break;
             }
             case DIRE_MAUL_EVENT_IRONBARK_THE_REDEEMED::EVENT_DESPAWN:

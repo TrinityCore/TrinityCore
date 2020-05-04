@@ -1111,10 +1111,6 @@ void Creature::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, 
     float weaponMinDamage = GetWeaponDamageRange(attType, MINDAMAGE);
     float weaponMaxDamage = GetWeaponDamageRange(attType, MAXDAMAGE);
 
-    // EJ joker mod
-    weaponMinDamage = weaponMinDamage * jokerAttackMod;
-    weaponMaxDamage = weaponMaxDamage * jokerAttackMod;
-
     if (!CanUseAttackType(attType)) // disarm case
     {
         weaponMinDamage = 0.0f;
@@ -1126,10 +1122,11 @@ void Creature::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, 
     float baseValue = GetFlatModifierValue(unitMod, BASE_VALUE) + (attackPower / 14.0f) * variance;
     float basePct = GetPctModifierValue(unitMod, BASE_PCT) * attackSpeedMulti;
     float totalValue = GetFlatModifierValue(unitMod, TOTAL_VALUE);
-    float totalPct = addTotalPct ? GetPctModifierValue(unitMod, TOTAL_PCT) : 1.0f;
-    // EJ database mod damage is 1.0f 
-    float dmgMultiplier = 1.0f;
-    //float dmgMultiplier    = GetCreatureTemplate()->ModDamage; // = ModDamage * _GetDamageMod(rank);    
+    float totalPct = addTotalPct ? GetPctModifierValue(unitMod, TOTAL_PCT) : 1.0f;    
+    float dmgMultiplier = GetCreatureTemplate()->ModDamage;
+
+    // EJ joker mod
+    dmgMultiplier = jokerAttackMod;
 
     minDamage = ((weaponMinDamage + baseValue) * dmgMultiplier * basePct + totalValue) * totalPct;
     maxDamage = ((weaponMaxDamage + baseValue) * dmgMultiplier * basePct + totalValue) * totalPct;

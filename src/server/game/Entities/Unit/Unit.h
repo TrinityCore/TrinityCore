@@ -742,6 +742,7 @@ public:
     float jokerAttackMod;
     float jokerSpellMod;
     float jokerHPMod;
+    float jokerMPMod;
 
     public:
         typedef std::set<Unit*> AttackerSet;

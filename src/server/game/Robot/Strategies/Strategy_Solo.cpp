@@ -412,38 +412,38 @@ bool Strategy_Solo::Battle()
     float nearestDistance = MAX_VISIBILITY_DISTANCE;
     for (std::list<Unit*>::iterator it = attackTargets.begin(); it != attackTargets.end(); it++)
     {
-        if ((*it)->IsPet())
+        if (Unit* eachU = *it)
         {
-            if (Pet* pet = (*it)->ToPet())
+            if (eachU->IsPet())
             {
-                if (pet->GetCharmerOrOwner())
+                if (Pet* pet = eachU->ToPet())
                 {
-                    continue;
+                    if (pet->GetCharmerOrOwner())
+                    {
+                        continue;
+                    }
                 }
             }
-        }
-        if (!me->IsValidAttackTarget((*it)))
-        {
-            continue;
-        }
-        if (!me->IsWithinLOSInMap((*it)))
-        {
-            continue;
-        }
-        if ((*it)->GetTypeId() == TypeID::TYPEID_PLAYER)
-        {
-            if (sb->Attack((*it)))
+            if (!me->IsValidAttackTarget(eachU))
             {
-                return true;
+                continue;
             }
-        }
-        if (Creature* targetCreature = (Creature*)(*it))
-        {
-            float checkDistance = me->GetDistance((*it));
+            if (!me->IsWithinLOSInMap(eachU))
+            {
+                continue;
+            }
+            if (eachU->GetTypeId() == TypeID::TYPEID_PLAYER)
+            {
+                if (sb->Attack(eachU))
+                {
+                    return true;
+                }
+            }
+            float checkDistance = me->GetDistance(eachU);
             if (checkDistance < nearestDistance)
             {
                 nearestDistance = checkDistance;
-                nearestAttackableTarget = (*it);
+                nearestAttackableTarget = eachU;
             }
         }
     }

@@ -34,37 +34,77 @@ private:
     template<class T>
     T GetValueDefault(std::string const& name, T def) const;
 
-public :
+public:
 
     bool StartJokerSystem();
 
     uint32 Enable;
     float ThreatMod;
 
-    float NormalAttackMod;
-    float InstanceEncounterAttackMod;
-    float EliteAttackMod;
-    float UniqueEliteAttackMod;
-    float RareAttackMod;
-    float RareEliteAttackMod;
+    float NormalAttackMod_Total;
+    float InstanceEncounterAttackMod_Total;
+    float UniqueEliteAttackMod_Total;
+    float EliteAttackMod_Total;
+    float RareEliteAttackMod_Total;
+    float RareAttackMod_Total;
 
-    float NormalSpellMod;
-    float InstanceEncounterSpellMod;
-    float EliteSpellMod;
-    float UniqueEliteSpellMod;
-    float RareSpellMod;
-    float RareEliteSpellMod;
+    float NormalSpellMod_Total;
+    float InstanceEncounterSpellMod_Total;
+    float UniqueEliteSpellMod_Total;
+    float EliteSpellMod_Total;
+    float RareEliteSpellMod_Total;
+    float RareSpellMod_Total;
 
-    float NormalHPMod;
-    float InstanceEncounterHPMod;
-    float EliteHPMod;
-    float UniqueEliteHPMod;
-    float RareHPMod;
-    float RareEliteHPMod;
+    float NormalHPMod_Total;
+    float InstanceEncounterHPMod_Total;
+    float UniqueEliteHPMod_Total;
+    float EliteHPMod_Total;
+    float RareEliteHPMod_Total;
+    float RareHPMod_Total;
 
-    float LevelAttackMod;
-    float LevelSpellMod;
-    float LevelHPMod;
+    float NormalMPMod_Total;
+    float InstanceEncounterMPMod_Total;
+    float UniqueEliteMPMod_Total;
+    float EliteMPMod_Total;
+    float RareEliteMPMod_Total;
+    float RareMPMod_Total;
+
+    float PlayerHPMod_Total;
+    float PlayerMPMod_Total;
+
+    float NormalAttackMod_Level;
+    float InstanceEncounterAttackMod_Level;
+    float UniqueEliteAttackMod_Level;
+    float EliteAttackMod_Level;
+    float RareEliteAttackMod_Level;
+    float RareAttackMod_Level;
+
+    float NormalSpellMod_Level;
+    float InstanceEncounterSpellMod_Level;
+    float UniqueEliteSpellMod_Level;
+    float EliteSpellMod_Level;
+    float RareEliteSpellMod_Level;
+    float RareSpellMod_Level;
+
+    float NormalHPMod_Level;
+    float InstanceEncounterHPMod_Level;
+    float UniqueEliteHPMod_Level;
+    float EliteHPMod_Level;
+    float RareEliteHPMod_Level;
+    float RareHPMod_Level;
+
+
+    float NormalMPMod_Level;
+    float InstanceEncounterMPMod_Level;
+    float UniqueEliteMPMod_Level;
+    float EliteMPMod_Level;
+    float RareEliteMPMod_Level;
+    float RareMPMod_Level;
+
+    float PlayerHPMod_Level;
+    float PlayerMPMod_Level;
+
+    float MaxModLevel;
 };
 
 #define sJokerConfig JokerConfig::instance()

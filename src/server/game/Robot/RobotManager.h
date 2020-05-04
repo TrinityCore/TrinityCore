@@ -75,6 +75,8 @@ public:
 
     std::unordered_map<uint32, uint32> tamableBeastEntryMap;
     std::unordered_map<std::string, std::set<uint32>> spellNameEntryMap;
+    std::unordered_set<uint32> lightwellRenewSpellIDSet;
+    std::unordered_set<uint32> lightwellUnitEntrySet;
 };
 
 #define sRobotManager RobotManager::instance()

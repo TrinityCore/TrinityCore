@@ -2,7 +2,11 @@
 #define ROBOT_STRATEGIES_SCRIPT_BASE_H
 
 #ifndef AOE_TARGETS_RANGE
-# define AOE_TARGETS_RANGE 5
+# define AOE_TARGETS_RANGE 5.0f
+#endif
+
+#ifndef MID_RANGE
+# define MID_RANGE 8.0f
 #endif
 
 #ifndef MIN_DISTANCE_GAP
@@ -14,7 +18,7 @@
 #endif
 
 #ifndef FOLLOW_NORMAL_DISTANCE
-# define FOLLOW_NORMAL_DISTANCE 20.0f
+# define FOLLOW_NORMAL_DISTANCE 15.0f
 #endif
 
 #ifndef FOLLOW_MAX_DISTANCE
@@ -27,10 +31,6 @@
 
 #ifndef MELEE_MAX_DISTANCE
 # define MELEE_MAX_DISTANCE 3.0f
-#endif
-
-#ifndef RANGED_MIN_DISTANCE
-# define RANGED_MIN_DISTANCE 15.0f
 #endif
 
 #ifndef RANGED_MAX_DISTANCE
@@ -58,6 +58,7 @@ public:
     virtual bool Tank(Unit* pmTarget, bool pmChase);
     virtual bool Taunt(Unit* pmTarget);
     virtual bool Heal(Unit* pmTarget, bool pmCure);
+    virtual bool GroupHeal();
     virtual bool Attack(Unit* pmTarget);
     virtual bool Buff(Unit* pmTarget, bool pmCure);
 

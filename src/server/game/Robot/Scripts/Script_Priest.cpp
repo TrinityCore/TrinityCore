@@ -85,18 +85,6 @@ bool Script_Priest::Heal_Holy(Unit* pmTarget, bool pmCure)
     }
     if (healthPCT < 80.0f)
     {
-        Unit* tankTarget = pmTarget->GetVictim();
-        if (tankTarget)
-        {
-            // when facing boss
-            if (tankTarget->GetMaxHealth() / me->GetMaxHealth() > 5.0f)
-            {
-                if (CastSpell(pmTarget, "Lightwell", PRIEST_RANGE_DISTANCE))
-                {
-                    return true;
-                }
-            }
-        }
         if (CastSpell(pmTarget, "Flash Heal", PRIEST_RANGE_DISTANCE))
         {
             return true;
@@ -139,6 +127,70 @@ bool Script_Priest::Heal_Holy(Unit* pmTarget, bool pmCure)
                     }
                 }
             }
+        }
+    }
+
+    return false;
+}
+
+bool Script_Priest::GroupHeal()
+{
+    if (!me)
+    {
+        return false;
+    }
+    if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 30)
+    {
+        UseManaPotion();
+    }
+    switch (characterTalentTab)
+    {
+    case 0:
+    {
+        return GroupHeal_Holy();
+    }
+    case 1:
+    {
+        return GroupHeal_Holy();
+    }
+    case 2:
+    {
+        return GroupHeal_Holy();
+    }
+    default:
+        return GroupHeal_Holy();
+    }
+
+    return false;
+}
+
+bool Script_Priest::GroupHeal_Holy()
+{
+    if (!me)
+    {
+        return false;
+    }
+    if (Group* myGroup = me->GetGroup())
+    {        
+        for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+        {
+            if (Player* member = groupRef->GetSource())
+            {
+                if (member->GetHealthPct() < 60.0f)
+                {
+                    if (me->GetDistance(member) > MID_RANGE)
+                    {
+                        if (CastSpell(me, "Prayer of Healing", PRIEST_RANGE_DISTANCE))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        if (CastSpell(me, "Holy Nova", PRIEST_RANGE_DISTANCE))
+        {
+            return true;
         }
     }
 

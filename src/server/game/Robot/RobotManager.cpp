@@ -37,6 +37,8 @@ RobotManager::RobotManager()
     tamableBeastEntryMap.clear();
     spellRewardClassQuestIDSet.clear();
     spellNameEntryMap.clear();
+    lightwellRenewSpellIDSet.clear();
+    lightwellUnitEntrySet.clear();
 }
 
 void RobotManager::InitializeManager()
@@ -393,6 +395,21 @@ void RobotManager::InitializeManager()
             reSet.insert(re);
         } while (robotQR->NextRow());
     }
+
+    lightwellRenewSpellIDSet.insert(7001);
+    lightwellRenewSpellIDSet.insert(27873);
+    lightwellRenewSpellIDSet.insert(27874);
+    lightwellRenewSpellIDSet.insert(28276);
+    lightwellRenewSpellIDSet.insert(48084);
+    lightwellRenewSpellIDSet.insert(48085);
+
+    lightwellUnitEntrySet.insert(31897);
+    lightwellUnitEntrySet.insert(31896);
+    lightwellUnitEntrySet.insert(31895);
+    lightwellUnitEntrySet.insert(31894);
+    lightwellUnitEntrySet.insert(31893);
+    lightwellUnitEntrySet.insert(31883);
+
     sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Robot system ready");
 }
 
@@ -1208,6 +1225,47 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
             pmPlayer->GetMotionMaster()->MovePoint(1, destX, destY, destZ, true, pmPlayer->GetAbsoluteAngle(targetUnit->GetPosition()));
             sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, "Move side", pmPlayer);
         }
+    }
+    else if (commandName == "lightwell")
+    {
+        std::ostringstream replyStream;
+        bool canUse = true;
+        for (std::unordered_set<uint32>::iterator lightwellIT = sRobotManager->lightwellRenewSpellIDSet.begin(); lightwellIT != sRobotManager->lightwellRenewSpellIDSet.end(); lightwellIT++)
+        {
+            uint32 eachLightwellID = *lightwellIT;
+            if (pmPlayer->HasAura(eachLightwellID))
+            {
+                replyStream << "Already used";
+                canUse = false;
+                break;
+            }
+        }
+        if (canUse)
+        {
+            std::list<Unit*> meleeRangeUnits;
+            Trinity::AnyFriendlyUnitInObjectRangeCheck u_check(pmPlayer, pmPlayer, NOMINAL_MELEE_RANGE);
+            Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(pmPlayer, meleeRangeUnits, u_check);
+            Cell::VisitAllObjects(pmPlayer, searcher, NOMINAL_MELEE_RANGE);
+            bool hasLightwell = false;
+            for (std::list<Unit*>::iterator it = meleeRangeUnits.begin(); it != meleeRangeUnits.end(); it++)
+            {
+                if (Unit* eachU = *it)
+                {
+                    if (sRobotManager->lightwellUnitEntrySet.find(eachU->GetEntry()) != sRobotManager->lightwellUnitEntrySet.end())
+                    {
+                        hasLightwell = true;
+                        eachU->HandleSpellClick(pmPlayer);
+                        replyStream << "Using lightwell";
+                        break;
+                    }
+                }
+            }
+            if (!hasLightwell)
+            {
+                replyStream << "No lightwell in range";
+            }
+        }
+        sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, replyStream.str().c_str(), pmPlayer);
     }
 }
 
@@ -3512,83 +3570,158 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
     }
     else if (commandName == "back")
     {
-    if (Group* checkGroup = pmSender->GetGroup())
-    {
-        if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
+        if (Group* checkGroup = pmSender->GetGroup())
         {
-            std::string memberType = "all";
-            if (commandVector.size() > 1)
+            if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
             {
-                memberType = commandVector.at(1);
-            }
-            for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-            {
-                Player* member = groupRef->GetSource();
-                if (member)
+                std::string memberType = "all";
+                if (commandVector.size() > 1)
                 {
-                    if (!member->GetSession()->isRobotSession)
+                    memberType = commandVector.at(1);
+                }
+                for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                {
+                    Player* member = groupRef->GetSource();
+                    if (member)
                     {
-                        continue;
-                    }
-                    if (pmReceiver)
-                    {
-                        if (pmReceiver->GetGUID() != member->GetGUID())
+                        if (!member->GetSession()->isRobotSession)
                         {
                             continue;
                         }
-                    }
-                    if (memberType == "melee")
-                    {
-                        if (member->GetClass() != Classes::CLASS_DRUID && member->GetClass() != Classes::CLASS_PALADIN && member->GetClass() != Classes::CLASS_ROGUE && member->GetClass() != Classes::CLASS_WARRIOR)
+                        if (pmReceiver)
                         {
-                            continue;
-                        }
-                    }
-                    else if (memberType == "range")
-                    {
-                        if (member->GetClass() != Classes::CLASS_HUNTER && member->GetClass() != Classes::CLASS_MAGE && member->GetClass() != Classes::CLASS_PRIEST && member->GetClass() != Classes::CLASS_SHAMAN && member->GetClass() != Classes::CLASS_WARLOCK)
-                        {
-                            continue;
-                        }
-                    }
-                    std::ostringstream replyStream;
-                    if (member->raiGroup->GetActiveStrategy()->moveDelay > 0 || member->raiGroup->GetActiveStrategy()->teleportAssembleDelay > 0)
-                    {
-                        replyStream << "I am on the way";
-                    }
-                    else
-                    {
-                        if (member->IsAlive())
-                        {
-                            member->raiGroup->GetActiveStrategy()->moveDelay = 1000;
-                            replyStream << "Move back";
-                            member->GetMotionMaster()->Clear();
-                            member->StopMoving();
-                            float distance = 10.0f;
-                            float destX = 0;
-                            float destY = 0;
-                            float destZ = 0;
-                            member->GetNearPoint(member, destX, destY, destZ, distance, pmSender->GetOrientation() + M_PI);
-                            if (member->GetStandState() != UnitStandStateType::UNIT_STAND_STATE_STAND)
+                            if (pmReceiver->GetGUID() != member->GetGUID())
                             {
-                                member->SetStandState(UNIT_STAND_STATE_STAND);
+                                continue;
                             }
-                            if (member->IsWalking())
+                        }
+                        if (memberType == "melee")
+                        {
+                            if (member->GetClass() != Classes::CLASS_DRUID && member->GetClass() != Classes::CLASS_PALADIN && member->GetClass() != Classes::CLASS_ROGUE && member->GetClass() != Classes::CLASS_WARRIOR)
                             {
-                                member->SetWalk(false);
+                                continue;
                             }
-                            member->GetMotionMaster()->MovePoint(1, destX, destY, destZ, true, member->GetOrientation());
+                        }
+                        else if (memberType == "range")
+                        {
+                            if (member->GetClass() != Classes::CLASS_HUNTER && member->GetClass() != Classes::CLASS_MAGE && member->GetClass() != Classes::CLASS_PRIEST && member->GetClass() != Classes::CLASS_SHAMAN && member->GetClass() != Classes::CLASS_WARLOCK)
+                            {
+                                continue;
+                            }
+                        }
+                        std::ostringstream replyStream;
+                        if (member->raiGroup->GetActiveStrategy()->moveDelay > 0 || member->raiGroup->GetActiveStrategy()->teleportAssembleDelay > 0)
+                        {
+                            replyStream << "I am on the way";
                         }
                         else
                         {
-                            replyStream << "I am dead";
+                            if (member->IsAlive())
+                            {
+                                member->raiGroup->GetActiveStrategy()->moveDelay = 1000;
+                                replyStream << "Move back";
+                                member->GetMotionMaster()->Clear();
+                                member->StopMoving();
+                                float distance = 10.0f;
+                                float destX = 0;
+                                float destY = 0;
+                                float destZ = 0;
+                                member->GetNearPoint(member, destX, destY, destZ, distance, pmSender->GetOrientation() + M_PI);
+                                if (member->GetStandState() != UnitStandStateType::UNIT_STAND_STATE_STAND)
+                                {
+                                    member->SetStandState(UNIT_STAND_STATE_STAND);
+                                }
+                                if (member->IsWalking())
+                                {
+                                    member->SetWalk(false);
+                                }
+                                member->GetMotionMaster()->MovePoint(1, destX, destY, destZ, true, member->GetOrientation());
+                            }
+                            else
+                            {
+                                replyStream << "I am dead";
+                            }
                         }
+                        WhisperTo(member, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
                     }
-                    WhisperTo(member, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
                 }
             }
         }
     }
+    else if (commandName == "lightwell")
+    {
+        if (Group* checkGroup = pmSender->GetGroup())
+        {            
+            if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
+            {
+                for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                {
+                    Player* member = groupRef->GetSource();
+                    if (member)
+                    {
+                        if (!member->GetSession()->isRobotSession)
+                        {
+                            continue;
+                        }
+                        if (pmReceiver)
+                        {
+                            if (pmReceiver->GetGUID() != member->GetGUID())
+                            {
+                                continue;
+                            }
+                        }
+                        if (member->GetClass() == Classes::CLASS_PRIEST)
+                        {
+                            if (member->raiGroup)
+                            {
+                                if (member->raiGroup->GetActiveStrategy()->sb->CastSpell(member, "Lightwell", NOMINAL_MELEE_RANGE))
+                                {
+                                    continue;
+                                }
+                            }
+                        }
+                        std::ostringstream replyStream;
+                        bool canUse = true;
+                        for (std::unordered_set<uint32>::iterator lightwellIT = sRobotManager->lightwellRenewSpellIDSet.begin(); lightwellIT != sRobotManager->lightwellRenewSpellIDSet.end(); lightwellIT++)
+                        {
+                            uint32 eachLightwellID = *lightwellIT;
+                            if (member->HasAura(eachLightwellID))
+                            {
+                                replyStream << "Already used";
+                                canUse = false;
+                                break;
+                            }
+                        }
+                        if (canUse)
+                        {
+                            std::list<Unit*> meleeRangeUnits;
+                            Trinity::AnyFriendlyUnitInObjectRangeCheck u_check(member, member, NOMINAL_MELEE_RANGE);
+                            Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(member, meleeRangeUnits, u_check);
+                            Cell::VisitAllObjects(member, searcher, NOMINAL_MELEE_RANGE);
+                            bool hasLightwell = false;
+                            for (std::list<Unit*>::iterator it = meleeRangeUnits.begin(); it != meleeRangeUnits.end(); it++)
+                            {
+                                if (Unit* eachU = *it)
+                                {
+                                    if (sRobotManager->lightwellUnitEntrySet.find(eachU->GetEntry()) != sRobotManager->lightwellUnitEntrySet.end())
+                                    {
+                                        hasLightwell = true;
+                                        eachU->HandleSpellClick(member);
+                                        replyStream << "Using lightwell";
+                                        break;
+                                    }
+                                }
+                            }
+                            if (!hasLightwell)
+                            {
+                                replyStream << "No lightwell in range";
+                            }
+                        }
+                        WhisperTo(member, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                    }
+                }
+            }
+        }
     }
 }
 

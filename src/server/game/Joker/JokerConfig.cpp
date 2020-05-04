@@ -165,32 +165,71 @@ bool JokerConfig::StartJokerSystem()
     LoadInitial(configFile.generic_string(), std::vector<std::string>(), configError);
     Enable = GetIntDefault("Enable", 0);
 
-    ThreatMod = GetFloatDefault("ThreatMod", 1);
+    ThreatMod = GetFloatDefault("ThreatMod", 1.0f);
 
-    NormalAttackMod = GetFloatDefault("NormalAttackMod", 1);
-    InstanceEncounterAttackMod = GetFloatDefault("InstanceEncounterAttackMod", 1);
-    EliteAttackMod = GetFloatDefault("EliteAttackMod", 1);
-    UniqueEliteAttackMod = GetFloatDefault("UniqueEliteAttackMod", 1);
-    RareAttackMod = GetFloatDefault("RareAttackMod", 1);
-    RareEliteAttackMod = GetFloatDefault("RareEliteAttackMod", 1);
+    NormalAttackMod_Total = GetFloatDefault("NormalAttackMod_Total", 1.0f);
+    InstanceEncounterAttackMod_Total = GetFloatDefault("InstanceEncounterAttackMod_Total", 1.0f);
+    EliteAttackMod_Total = GetFloatDefault("EliteAttackMod_Total", 1.0f);
+    UniqueEliteAttackMod_Total = GetFloatDefault("UniqueEliteAttackMod_Total", 1.0f);
+    RareAttackMod_Total = GetFloatDefault("RareAttackMod_Total", 1.0f);
+    RareEliteAttackMod_Total = GetFloatDefault("RareEliteAttackMod_Total", 1.0f);
 
-    NormalSpellMod = GetFloatDefault("NormalSpellMod", 1);
-    InstanceEncounterSpellMod = GetFloatDefault("InstanceEncounterSpellMod", 1);
-    EliteSpellMod = GetFloatDefault("EliteSpellMod", 1);
-    UniqueEliteSpellMod = GetFloatDefault("UniqueEliteSpellMod", 1);
-    RareSpellMod = GetFloatDefault("RareSpellMod", 1);
-    RareEliteSpellMod = GetFloatDefault("RareEliteSpellMod", 1);
+    NormalSpellMod_Total = GetFloatDefault("NormalSpellMod_Total", 1.0f);
+    InstanceEncounterSpellMod_Total = GetFloatDefault("InstanceEncounterSpellMod_Total", 1.0f);
+    EliteSpellMod_Total = GetFloatDefault("EliteSpellMod_Total", 1.0f);
+    UniqueEliteSpellMod_Total = GetFloatDefault("UniqueEliteSpellMod_Total", 1.0f);
+    RareSpellMod_Total = GetFloatDefault("RareSpellMod_Total", 1.0f);
+    RareEliteSpellMod_Total = GetFloatDefault("RareEliteSpellMod_Total", 1.0f);
 
-    NormalHPMod = GetFloatDefault("NormalHPMod", 1);
-    InstanceEncounterHPMod = GetFloatDefault("InstanceEncounterHPMod", 1);
-    EliteHPMod = GetFloatDefault("EliteHPMod", 1);
-    UniqueEliteHPMod = GetFloatDefault("UniqueEliteHPMod", 1);
-    RareHPMod = GetFloatDefault("RareHPMod", 1);
-    RareEliteHPMod = GetFloatDefault("RareEliteHPMod", 1);
+    NormalHPMod_Total = GetFloatDefault("NormalHPMod_Total", 1.0f);
+    InstanceEncounterHPMod_Total = GetFloatDefault("InstanceEncounterHPMod_Total", 1.0f);
+    EliteHPMod_Total = GetFloatDefault("EliteHPMod_Total", 1.0f);
+    UniqueEliteHPMod_Total = GetFloatDefault("UniqueEliteHPMod_Total", 1.0f);
+    RareHPMod_Total = GetFloatDefault("RareHPMod_Total", 1.0f);
+    RareEliteHPMod_Total = GetFloatDefault("RareEliteHPMod_Total", 1.0f);
 
-    LevelAttackMod = GetFloatDefault("LevelAttackMod", 1);
-    LevelSpellMod = GetFloatDefault("LevelSpellMod", 0.5);
-    LevelHPMod = GetFloatDefault("LevelHPMod", 1);
+    NormalMPMod_Total = GetFloatDefault("NormalMPMod_Total", 1.0f);
+    InstanceEncounterMPMod_Total = GetFloatDefault("InstanceEncounterMPMod_Total", 1.0f);
+    EliteMPMod_Total = GetFloatDefault("EliteMPMod_Total", 1.0f);
+    UniqueEliteMPMod_Total = GetFloatDefault("UniqueEliteMPMod_Total", 1.0f);
+    RareMPMod_Total = GetFloatDefault("RareMPMod_Total", 1.0f);
+    RareEliteMPMod_Total = GetFloatDefault("RareEliteMPMod_Total", 1.0f);
+
+    PlayerHPMod_Total = GetFloatDefault("PlayerHPMod_Total", 1.0f);
+    PlayerMPMod_Total = GetFloatDefault("PlayerMPMod_Total", 1.0f);
+
+    NormalAttackMod_Level = GetFloatDefault("NormalAttackMod_Level", 1.0f);
+    InstanceEncounterAttackMod_Level = GetFloatDefault("InstanceEncounterAttackMod_Level", 1.0f);
+    EliteAttackMod_Level = GetFloatDefault("EliteAttackMod_Level", 1.0f);
+    UniqueEliteAttackMod_Level = GetFloatDefault("UniqueEliteAttackMod_Level", 1.0f);
+    RareAttackMod_Level = GetFloatDefault("RareAttackMod_Level", 1.0f);
+    RareEliteAttackMod_Level = GetFloatDefault("RareEliteAttackMod_Level", 1.0f);
+
+    NormalSpellMod_Level = GetFloatDefault("NormalSpellMod_Level", 1.0f);
+    InstanceEncounterSpellMod_Level = GetFloatDefault("InstanceEncounterSpellMod_Level", 1.0f);
+    EliteSpellMod_Level = GetFloatDefault("EliteSpellMod_Level", 1.0f);
+    UniqueEliteSpellMod_Level = GetFloatDefault("UniqueEliteSpellMod_Level", 1.0f);
+    RareSpellMod_Level = GetFloatDefault("RareSpellMod_Level", 1.0f);
+    RareEliteSpellMod_Level = GetFloatDefault("RareEliteSpellMod_Level", 1.0f);
+
+    NormalHPMod_Level = GetFloatDefault("NormalHPMod_Level", 1.0f);
+    InstanceEncounterHPMod_Level = GetFloatDefault("InstanceEncounterHPMod_Level", 1.0f);
+    EliteHPMod_Level = GetFloatDefault("EliteHPMod_Level", 1.0f);
+    UniqueEliteHPMod_Level = GetFloatDefault("UniqueEliteHPMod_Level", 1.0f);
+    RareHPMod_Level = GetFloatDefault("RareHPMod_Level", 1.0f);
+    RareEliteHPMod_Level = GetFloatDefault("RareEliteHPMod_Level", 1.0f);
+
+    NormalMPMod_Level = GetFloatDefault("NormalMPMod_Level", 1.0f);
+    InstanceEncounterMPMod_Level = GetFloatDefault("InstanceEncounterMPMod_Level", 1.0f);
+    EliteMPMod_Level = GetFloatDefault("EliteMPMod_Level", 1.0f);
+    UniqueEliteMPMod_Level = GetFloatDefault("UniqueEliteMPMod_Level", 1.0f);
+    RareMPMod_Level = GetFloatDefault("RareMPMod_Level", 1.0f);
+    RareEliteMPMod_Level = GetFloatDefault("RareEliteMPMod_Level", 1.0f);
+
+    PlayerHPMod_Level = GetFloatDefault("PlayerHPMod_Level", 1.0f);
+    PlayerMPMod_Level = GetFloatDefault("PlayerMPMod_Level", 1.0f);
+
+    MaxModLevel = GetIntDefault("MaxModLevel", 1);
 
     if (Enable == 0)
     {

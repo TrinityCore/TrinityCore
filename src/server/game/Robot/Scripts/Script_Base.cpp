@@ -51,6 +51,11 @@ bool Script_Base::Heal(Unit* pmTarget, bool pmCure)
     return false;
 }
 
+bool Script_Base::GroupHeal()
+{
+    return false;
+}
+
 bool Script_Base::Attack(Unit* pmTarget)
 {
     return false;

@@ -22,6 +22,7 @@ public:
     Strategy_Group(Player* pmMe);
     bool GroupInCombat();
     virtual void Update(uint32 pmDiff);
+    bool Lightwell();
     virtual bool DPS();
     virtual bool Tank();
     virtual bool Rest();
