@@ -62,6 +62,7 @@ enum PriestSpells
     SPELL_PRIEST_GLYPH_OF_DISPEL_MAGIC              = 55677,
     SPELL_PRIEST_GLYPH_OF_DISPEL_MAGIC_HEAL         = 56131,
     SPELL_PRIEST_GLYPH_OF_LIGHTWELL                 = 55673,
+    SPELL_PRIEST_GLYPH_OF_POWER_WORD_SHIELD         = 55672,
     SPELL_PRIEST_GLYPH_OF_POWER_WORD_SHIELD_HEAL    = 56160,
     SPELL_PRIEST_GLYPH_OF_PRAYER_OF_HEALING_HEAL    = 56161,
     SPELL_PRIEST_GLYPH_OF_SHADOW                    = 107906,
@@ -693,6 +694,7 @@ class spell_pri_power_word_shield : public AuraScript
             {
                 SPELL_PRIEST_REFLECTIVE_SHIELD_TRIGGERED,
                 SPELL_PRIEST_REFLECTIVE_SHIELD_R1,
+                SPELL_PRIEST_GLYPH_OF_POWER_WORD_SHIELD,
                 SPELL_PRIEST_GLYPH_OF_POWER_WORD_SHIELD_HEAL
             });
     }
@@ -731,7 +733,7 @@ class spell_pri_power_word_shield : public AuraScript
             // Glyph of Power Word: Shield
             if (Unit* target = GetUnitOwner())
             {
-                if (AuraEffect const* glyphEff = caster->GetDummyAuraEffect(SPELLFAMILY_PRIEST, PRIEST_ICON_ID_GLYPH_OF_POWER_WORD_SHIELD, EFFECT_0))
+                if (AuraEffect const* glyphEff = caster->GetAuraEffect(SPELL_PRIEST_GLYPH_OF_POWER_WORD_SHIELD, EFFECT_0))
                 {
                     int32 bp = CalculatePct(amount, glyphEff->GetAmount());
                     caster->CastCustomSpell(target, SPELL_PRIEST_GLYPH_OF_POWER_WORD_SHIELD_HEAL, &bp, nullptr, nullptr, true, nullptr, aurEff);
