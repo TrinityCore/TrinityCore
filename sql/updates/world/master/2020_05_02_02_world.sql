@@ -1,5 +1,8 @@
 TRUNCATE `player_levelstats`;
-ALTER TABLE `player_levelstats` DROP COLUMN `race`;
+ALTER TABLE `player_levelstats` 
+DROP COLUMN `race`,
+DROP PRIMARY KEY,
+ADD PRIMARY KEY (`class`, `level`) USING BTREE;
 RENAME TABLE `player_levelstats` TO `player_classlevelstats`;
 
 INSERT INTO `player_classlevelstats` (`class`, `level`, `str`, `agi`, `sta`, `inte`) VALUES 
