@@ -88,6 +88,7 @@ enum ShamanSpells
     SPELL_SHAMAN_TOTEM_HEALING_STREAM_HEAL      = 52042,
     SPELL_SHAMAN_TIDAL_WAVES                    = 53390,
     SPELL_SHAMAN_TOTEMIC_MASTERY                = 38437,
+    SPELL_SHAMAN_THUNDERSTORM_SLOW              = 100955,
     SPELL_SHAMAN_UNLEASH_LIFE                   = 73685,
     SPELL_SHAMAN_UNLEASH_WIND                   = 73681,
     SPELL_SHAMAN_UNLEASH_FROST                  = 73682,
@@ -1208,32 +1209,35 @@ class spell_sha_telluric_currents : public SpellScriptLoader
 };
 
 // 51490 - Thunderstorm
-class spell_sha_thunderstorm : public SpellScriptLoader
+class spell_sha_thunderstorm : public SpellScript
 {
-    public:
-        spell_sha_thunderstorm() : SpellScriptLoader("spell_sha_thunderstorm") { }
+    PrepareSpellScript(spell_sha_thunderstorm);
 
-        class spell_sha_thunderstorm_SpellScript : public SpellScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_THUNDERSTORM_SLOW });
+    }
+
+    void HandleKnockBack(SpellEffIndex effIndex)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        // Glyph of Thunderstorm
+        if (caster->HasAura(SPELL_SHAMAN_GLYPH_OF_THUNDERSTORM))
         {
-            PrepareSpellScript(spell_sha_thunderstorm_SpellScript);
-
-            void HandleKnockBack(SpellEffIndex effIndex)
-            {
-                // Glyph of Thunderstorm
-                if (GetCaster()->HasAura(SPELL_SHAMAN_GLYPH_OF_THUNDERSTORM))
-                    PreventHitDefaultEffect(effIndex);
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_sha_thunderstorm_SpellScript::HandleKnockBack, EFFECT_2, SPELL_EFFECT_KNOCK_BACK);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_sha_thunderstorm_SpellScript();
+            PreventHitDefaultEffect(effIndex);
+            return;
         }
+
+        caster->CastSpell(GetHitUnit(), SPELL_SHAMAN_THUNDERSTORM_SLOW);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_sha_thunderstorm::HandleKnockBack, EFFECT_2, SPELL_EFFECT_KNOCK_BACK);
+    }
 };
 
 // 51562 - Tidal Waves
@@ -2151,7 +2155,7 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellScript(spell_sha_searing_bolt);
     RegisterAuraScript(spell_sha_static_shock);
     new spell_sha_telluric_currents();
-    new spell_sha_thunderstorm();
+    RegisterSpellScript(spell_sha_thunderstorm);
     new spell_sha_tidal_waves();
     new spell_sha_totemic_mastery();
     RegisterSpellScript(spell_sha_unleash_elements);
