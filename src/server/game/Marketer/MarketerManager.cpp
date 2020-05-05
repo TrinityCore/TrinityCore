@@ -351,7 +351,7 @@ bool MarketerManager::UpdateSeller()
                 {
                     sellThis = true;
                     stackCount = 1;
-                    baseMultiple = urand(20, 30);
+                    baseMultiple = urand(10, 20);
                     break;
                 }
                 case ItemClass::ITEM_CLASS_MONEY:
@@ -656,7 +656,7 @@ bool MarketerManager::UpdateBuyer()
             case ItemClass::ITEM_CLASS_RECIPE:
             {
                 buyThis = 0;
-                baseMultiple = 20;
+                baseMultiple = 10;
                 break;
             }
             case ItemClass::ITEM_CLASS_MONEY:

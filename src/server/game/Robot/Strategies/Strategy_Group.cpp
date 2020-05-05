@@ -19,7 +19,7 @@
 Strategy_Group::Strategy_Group(Player* pmMe)
 {
     me = pmMe;
-    combatTime = 0;    
+    combatTime = 0;
     moveDelay = 0;
     teleportAssembleDelay = 0;
     restDelay = 0;
@@ -127,7 +127,7 @@ void Strategy_Group::Update(uint32 pmDiff)
                     }
                     me->ClearInCombat();
                     me->SetPhaseMask(leaderPlayer->GetPhaseMask(), true);
-                    me->TeleportTo(leaderPlayer->GetWorldLocation());                    
+                    me->TeleportTo(leaderPlayer->GetWorldLocation());
                     sb->WhisperTo("I have come", Language::LANG_UNIVERSAL, leaderPlayer);
                 }
             }
@@ -394,7 +394,7 @@ bool Strategy_Group::Lightwell()
                     {
                         lightwellC->HandleSpellClick(me);
                         return true;
-                    }                    
+                    }
                 }
             }
         }
@@ -410,6 +410,23 @@ bool Strategy_Group::Tank()
         return false;
     }
 
+    if (Unit* myTarget = me->GetSelectedUnit())
+    {
+        if (me->IsValidAttackTarget(myTarget))
+        {
+            if (myTarget->GetTarget() != me->GetGUID())
+            {
+                if (me->GetDistance(myTarget) < RANGED_MAX_DISTANCE)
+                {
+                    sb->Taunt(myTarget);
+                    if (sb->Tank(myTarget, !holding))
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+    }
     Unit* closestVictim = NULL;
     float closestDistance = ATTACK_RANGE_LIMIT;
     if (Group* myGroup = me->GetGroup())
@@ -449,11 +466,17 @@ bool Strategy_Group::Tank()
         }
     }
 
-    if (sb->Tank(me->GetSelectedUnit(), !holding))
+    if (Unit* myTarget = me->GetSelectedUnit())
     {
-        return true;
+        if (me->IsValidAttackTarget(myTarget))
+        {
+            if (sb->Tank(myTarget, !holding))
+            {
+                return true;
+            }
+        }
     }
-    else if (sb->Tank(closestVictim, !holding))
+    if (sb->Tank(closestVictim, !holding))
     {
         return true;
     }
