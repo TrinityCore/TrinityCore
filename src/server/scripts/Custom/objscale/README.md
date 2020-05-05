@@ -1,4 +1,4 @@
-# Objscale [![Build Status](https://travis-ci.org/Rochet2/TrinityCore.svg?branch=objscale_7.x)](https://travis-ci.org/Rochet2/TrinityCore)
+# Objscale [![Build Status](https://travis-ci.org/Rochet2/TrinityCore.svg?branch=objscale_master)](https://travis-ci.org/Rochet2/TrinityCore)
 
 #### About
 Objscale allows scaling individual spawns of creatures and gameobjects.
@@ -8,14 +8,14 @@ Source: http://rochet2.github.io/Objscale.html
 #### Installation
 
 Available as:
-- Direct merge: https://github.com/Rochet2/TrinityCore/tree/objscale_7.x
-- Diff: https://github.com/Rochet2/TrinityCore/compare/TrinityCore:master...objscale_7.x.diff
-- Diff in github view: https://github.com/Rochet2/TrinityCore/compare/TrinityCore:master...objscale_7.x
+- Direct merge: https://github.com/Rochet2/TrinityCore/tree/objscale_master
+- Diff: https://github.com/Rochet2/TrinityCore/compare/TrinityCore:master...objscale_master.diff
+- Diff in github view: https://github.com/Rochet2/TrinityCore/compare/TrinityCore:master...objscale_master
 
 Using direct merge:
 - open git bash to source location
 - do `git remote add rochet2 https://github.com/Rochet2/TrinityCore.git`
-- do `git pull rochet2 objscale_7.x`
+- do `git pull rochet2 objscale_master`
 - use cmake and compile
 
 Using diff:
