@@ -29,7 +29,7 @@
 ////////////////// PathGenerator //////////////////
 PathGenerator::PathGenerator(WorldObject const* owner) :
     _polyLength(0), _type(PATHFIND_BLANK), _useStraightPath(false),
-    _forceDestination(false), _pointPathLimit(MAX_POINT_PATH_LENGTH), _straightLine(false),
+    _forceDestination(false), _pointPathLimit(MAX_POINT_PATH_LENGTH), _useRaycast(false),
     _endPosition(G3D::Vector3::zero()), _source(owner), _navMesh(nullptr),
     _navMeshQuery(nullptr)
 {
@@ -53,7 +53,7 @@ PathGenerator::~PathGenerator()
     TC_LOG_DEBUG("maps.mmaps", "++ PathGenerator::~PathGenerator() for %s", _source->GetGUID().ToString().c_str());
 }
 
-bool PathGenerator::CalculatePath(float destX, float destY, float destZ, bool forceDest, bool straightLine)
+bool PathGenerator::CalculatePath(float destX, float destY, float destZ, bool forceDest)
 {
     float x, y, z;
     _source->GetPosition(x, y, z);
@@ -70,7 +70,6 @@ bool PathGenerator::CalculatePath(float destX, float destY, float destZ, bool fo
     SetStartPosition(start);
 
     _forceDestination = forceDest;
-    _straightLine = straightLine;
 
     TC_LOG_DEBUG("maps.mmaps", "++ PathGenerator::CalculatePath() for %s", _source->GetGUID().ToString().c_str());
 
@@ -366,7 +365,7 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
         uint32 suffixPolyLength = 0;
 
         dtStatus dtResult;
-        if (_straightLine)
+        if (_useRaycast)
         {
             float hit = 0;
             float hitNormal[3];
@@ -438,7 +437,7 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
         Clear();
 
         dtStatus dtResult;
-        if (_straightLine)
+        if (_useRaycast)
         {
             float hit = 0;
             float hitNormal[3];
@@ -542,10 +541,10 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
     float pathPoints[MAX_POINT_PATH_LENGTH*VERTEX_SIZE];
     uint32 pointCount = 0;
     dtStatus dtResult = DT_FAILURE;
-    if (_straightLine)
+    if (_useRaycast)
     {
         // _straightLine uses raycast and it currently doesn't support building a point path, only a 2-point path with start and hitpoint/end is returned
-        TC_LOG_ERROR("maps.mmaps", "PathGenerator::BuildPointPath() called with _straightLine for unit %s", _source->GetGUID().ToString().c_str());
+        TC_LOG_ERROR("maps.mmaps", "PathGenerator::BuildPointPath() called with _useRaycast for unit %s", _source->GetGUID().ToString().c_str());
         BuildShortcut();
         _type = PATHFIND_NOPATH;
         return;
