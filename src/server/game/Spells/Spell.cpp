@@ -2903,7 +2903,7 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
     LoadScripts();
 
     // Fill cost data (do not use power for item casts)
-    if (m_CastItem)
+    if (!m_CastItem)
         m_powerCost = m_spellInfo->CalcPowerCost(m_caster, m_spellSchoolMask, this);
 
     // Set combo point requirement
