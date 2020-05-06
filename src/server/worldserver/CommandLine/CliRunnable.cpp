@@ -28,7 +28,9 @@
 #include "Log.h"
 #include "Util.h"
 
-#if TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+#include <Windows.h>
+#else
 #include <readline/readline.h>
 #include <readline/history.h>
 #include "Chat.h"
@@ -91,7 +93,9 @@ void utf8print(void* /*arg*/, char const* str)
     if (!Utf8toWStr(str, strlen(str), wtemp_buf, wtemp_len))
         return;
 
-    wprintf(L"%s", wtemp_buf);
+    char temp_buf[6000];
+    CharToOemBuffW(&wtemp_buf[0], &temp_buf[0], wtemp_len+1);
+    printf(temp_buf);
 #else
 {
     printf("%s", str);
