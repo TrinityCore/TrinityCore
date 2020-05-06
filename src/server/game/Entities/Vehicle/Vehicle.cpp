@@ -626,6 +626,15 @@ bool Vehicle::IsVehicleInUse() const
     return false;
 }
 
+bool Vehicle::IsControllableVehicle() const
+{
+    for (SeatMap::const_iterator itr = Seats.begin(); itr != Seats.end(); ++itr)
+        if (itr->second.SeatInfo->HasFlag(VEHICLE_SEAT_FLAG_CAN_CONTROL))
+            return true;
+
+    return false;
+}
+
 /**
  * @fn void Vehicle::InitMovementInfoForBase()
  *
