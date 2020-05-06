@@ -105,7 +105,10 @@ InstanceSave* InstanceSaveManager::AddInstanceSave(uint32 mapId, uint32 instance
             resetTime = GetResetTimeFor(mapId, difficulty);
         else
         {
-            resetTime = GameTime::GetGameTime() + 2 * HOUR;
+            // EJ instance auto reset time will be more than a day
+            //resetTime = GameTime::GetGameTime() + 2 * HOUR;            
+            resetTime = GameTime::GetGameTime() + 24 * HOUR;
+
             // normally this will be removed soon after in InstanceMap::Add, prevent error
             ScheduleReset(true, resetTime, InstResetEvent(0, mapId, difficulty, instanceId));
         }

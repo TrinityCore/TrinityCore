@@ -19,6 +19,13 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 
+// EJ scripts
+enum Spawn_ID
+{
+    Spawn_ID_Vectus = 48805,
+    Spawn_ID_Marduk_Blackpool = 48806
+};
+
 enum Emotes
 {
     EMOTE_FRENZY                 = 0
@@ -50,11 +57,20 @@ public:
 
         void Reset() override
         {
+            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             events.Reset();
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
+            if (Map* checkMap = me->GetMap())
+            {
+                if (Creature* checkC = checkMap->GetCreatureBySpawnId(Spawn_ID::Spawn_ID_Marduk_Blackpool))
+                {
+                    checkC->AI()->AttackStart(who);
+                }
+            }
+            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             events.ScheduleEvent(EVENT_FIRE_SHIELD, 2s);
             events.ScheduleEvent(EVENT_BLAST_WAVE, 14s);
         }
@@ -120,4 +136,121 @@ public:
 void AddSC_boss_vectus()
 {
     new boss_vectus();
+}
+
+enum Marduk_Blackpool_Lines
+{
+    Marduk_Blackpool_Lines_0 = 0
+};
+
+enum Marduk_Blackpool_Spells
+{
+    Marduk_Blackpool_Spells_0 = 17695,
+    Marduk_Blackpool_Spells_1 = 17228,
+    Marduk_Blackpool_Spells_2 = 15284,
+    Marduk_Blackpool_Spells_3 = 12040
+};
+
+enum Marduk_Blackpool_Events
+{
+    Marduk_Blackpool_Events_0 = 1,
+    Marduk_Blackpool_Events_1,
+    Marduk_Blackpool_Events_2
+};
+
+class boss_marduk_blackpool : public CreatureScript
+{
+public:
+    boss_marduk_blackpool() : CreatureScript("boss_marduk_blackpool") { }
+
+    struct boss_marduk_blackpoolAI : public ScriptedAI
+    {
+        boss_marduk_blackpoolAI(Creature* creature) : ScriptedAI(creature) { }
+
+        void Reset() override
+        {
+            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            events.Reset();  
+        }
+
+        void JustEngagedWith(Unit* who) override
+        {
+            if (Map* checkMap = me->GetMap())
+            {
+                if (Creature* checkC = checkMap->GetCreatureBySpawnId(Spawn_ID::Spawn_ID_Vectus))
+                {
+                    checkC->AI()->AttackStart(who);
+                }
+            }
+            DoCast(me, Marduk_Blackpool_Spells_0);
+            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            Talk(0);
+            events.ScheduleEvent(Marduk_Blackpool_Events_0, 8000, 13000);
+            events.ScheduleEvent(Marduk_Blackpool_Events_1, 5000, 8000);
+            events.ScheduleEvent(Marduk_Blackpool_Events_2, 13000, 15000);
+        }
+
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        {
+          
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (!UpdateVictim())
+            {
+                return;
+            }
+            events.Update(diff);
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+            {
+                return;
+            }
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                case Marduk_Blackpool_Events_0:
+                {
+                    DoCastVictim(Marduk_Blackpool_Spells_1);
+                    events.Repeat(12000, 15000);                    
+                    break;
+                }
+                case Marduk_Blackpool_Events_1:
+                {
+                    DoCastVictim(Marduk_Blackpool_Spells_2);
+                    events.Repeat(8000, 12000);                    
+                    break;
+                }
+                case Marduk_Blackpool_Events_2:
+                {
+                    DoCast(me, Marduk_Blackpool_Spells_3);
+                    events.Repeat(30000, 35000);
+                    break;
+                }
+                default:
+                {
+                    break;
+                }
+                }
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+            }
+
+            DoMeleeAttackIfReady();
+        }
+
+    private:
+        EventMap events;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetScholomanceAI<boss_marduk_blackpoolAI>(creature);
+    }
+};
+
+void AddSC_boss_marduk_blackpool()
+{
+    new boss_marduk_blackpool();
 }

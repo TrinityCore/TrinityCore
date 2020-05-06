@@ -118,6 +118,10 @@ void AddSC_boss_lorekeeperpolkelt();
 void AddSC_boss_rasfrost();
 void AddSC_boss_theravenian();
 void AddSC_boss_vectus();
+
+// EJ
+void AddSC_boss_marduk_blackpool();
+
 void AddSC_boss_kirtonos_the_herald();
 void AddSC_instance_scholomance();
 void AddSC_shadowfang_keep();                //Shadowfang keep
@@ -296,6 +300,10 @@ void AddEasternKingdomsScripts()
     AddSC_boss_rasfrost();
     AddSC_boss_theravenian();
     AddSC_boss_vectus();
+
+    // EJ Marduk Blackpool
+    AddSC_boss_marduk_blackpool();
+
     AddSC_boss_kirtonos_the_herald();
     AddSC_instance_scholomance();
     AddSC_shadowfang_keep();                //Shadowfang keep

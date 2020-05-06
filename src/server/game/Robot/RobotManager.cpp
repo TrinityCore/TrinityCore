@@ -901,8 +901,7 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                             if (member->GetGUID() == targetGUID)
                             {
                                 validTarget = true;
-                                replyStream << "Joining " << member->GetName();
-                                pmPlayer->SetPhaseMask(member->GetPhaseMask(), true);
+                                replyStream << "Joining " << member->GetName();                                
                                 pmPlayer->TeleportTo(member->GetWorldLocation());
                             }
                         }

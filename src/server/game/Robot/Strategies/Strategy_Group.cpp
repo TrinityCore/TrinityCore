@@ -126,7 +126,6 @@ void Strategy_Group::Update(uint32 pmDiff)
                         me->SpawnCorpseBones();
                     }
                     me->ClearInCombat();
-                    me->SetPhaseMask(leaderPlayer->GetPhaseMask(), true);
                     me->TeleportTo(leaderPlayer->GetWorldLocation());
                     sb->WhisperTo("I have come", Language::LANG_UNIVERSAL, leaderPlayer);
                 }
@@ -527,9 +526,15 @@ bool Strategy_Group::Heal()
         {
             if (Player* member = groupRef->GetSource())
             {
-                if (member->GetHealthPct() < 60.0f)
+                if (member->IsAlive())
                 {
-                    lowMemberCount++;
+                    if (member->GetHealthPct() < 60.0f)
+                    {
+                        if (me->GetDistance(member) < RANGED_MAX_DISTANCE)
+                        {
+                            lowMemberCount++;
+                        }
+                    }
                 }
             }
         }

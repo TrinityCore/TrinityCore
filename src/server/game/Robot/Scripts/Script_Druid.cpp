@@ -479,17 +479,13 @@ bool Script_Druid::Tank_Feral(Unit* pmTarget, bool pmChase)
     uint32 rage = me->GetPower(Powers::POWER_RAGE);
     if (rage > 500)
     {
-        if (me->GetHealthPct() < 60.0f)
+        if (me->GetHealthPct() < 50.0f)
         {
             if (CastSpell(me, "Frenzied Regeneration"))
             {
                 return true;
             }
         }
-    }
-    if (CastSpell(pmTarget, "Faerie Fire (Feral)", MELEE_MAX_DISTANCE))
-    {
-        return true;
     }
     if (rage > 100)
     {
@@ -531,13 +527,6 @@ bool Script_Druid::Tank_Feral(Unit* pmTarget, bool pmChase)
             }
         }
     }
-    if (rage > 200)
-    {
-        if (CastSpell(pmTarget, "Mangle (Bear)", MELEE_MAX_DISTANCE))
-        {
-            return true;
-        }
-    }
     if (validAttackerCount > 1)
     {
         if (rage > 150)
@@ -546,6 +535,17 @@ bool Script_Druid::Tank_Feral(Unit* pmTarget, bool pmChase)
             {
                 return true;
             }
+        }
+    }
+    if (CastSpell(pmTarget, "Faerie Fire (Feral)", MELEE_MAX_DISTANCE))
+    {
+        return true;
+    }
+    if (rage > 200)
+    {
+        if (CastSpell(pmTarget, "Mangle (Bear)", MELEE_MAX_DISTANCE))
+        {
+            return true;
         }
     }
     if (rage > 300)
