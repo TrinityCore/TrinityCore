@@ -7197,7 +7197,7 @@ bool Spell::CheckEffectTarget(Unit const* target, uint32 eff, Position const* lo
         case SPELL_AURA_MOD_CHARM:
         case SPELL_AURA_MOD_POSSESS_PET:
         case SPELL_AURA_AOE_CHARM:
-            if (target->GetTypeId() == TYPEID_UNIT && target->IsVehicle())
+            if (target->GetVehicleKit() && target->GetVehicleKit()->IsControllableVehicle())
                 return false;
             if (target->IsMounted())
                 return false;

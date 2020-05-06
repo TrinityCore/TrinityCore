@@ -11366,7 +11366,7 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
         charmer->RemoveAurasByType(SPELL_AURA_MOUNTED);
 
     ASSERT(type != CHARM_TYPE_POSSESS || charmer->GetTypeId() == TYPEID_PLAYER);
-    ASSERT((type == CHARM_TYPE_VEHICLE) == IsVehicle());
+    ASSERT((type == CHARM_TYPE_VEHICLE) == (GetVehicleKit() && GetVehicleKit()->IsControllableVehicle()));
 
     TC_LOG_DEBUG("entities.unit", "SetCharmedBy: charmer %s, charmed %s, type %u.", charmer->GetGUID().ToString().c_str(), GetGUID().ToString().c_str(), uint32(type));
 
