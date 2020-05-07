@@ -405,7 +405,7 @@ int main(int argc, char ** argv)
     Trinity::Banner::Show("VMAP data extractor", [](char const* text) { printf("%s\n", text); }, nullptr);
 
     bool success = true;
-    const char *versionString = "V4.06 2018_02";
+    const char *versionString = "V8.30 2020_05";
 
     // Use command line arguments, when some
     if (!processArgv(argc, argv, versionString))
