@@ -1,6 +1,14 @@
-TRUNCATE `player_levelstats`;
-ALTER TABLE `player_levelstats` DROP COLUMN `race`;
-RENAME TABLE `player_levelstats` TO `player_classlevelstats`;
+DROP TABLE IF EXISTS `player_levelstats`;
+DROP TABLE IF EXISTS `player_classlevelstats`;
+CREATE TABLE `player_classlevelstats`  (
+  `class` tinyint(3) unsigned NOT NULL,
+  `level` tinyint(3) unsigned NOT NULL,
+  `str` smallint(5) unsigned NOT NULL COMMENT 'strength',
+  `agi` smallint(5) unsigned NOT NULL COMMENT 'agility',
+  `sta` smallint(5) unsigned NOT NULL COMMENT 'stamina',
+  `inte` smallint(5) unsigned NOT NULL COMMENT 'intellect',
+  PRIMARY KEY (`class`,`level`)
+) ENGINE=MyISAM CHARSET=utf8 COMMENT = 'Stores levels stats.';
 
 INSERT INTO `player_classlevelstats` (`class`, `level`, `str`, `agi`, `sta`, `inte`) VALUES 
 (1, 1, 17, 10, 11, 8),
