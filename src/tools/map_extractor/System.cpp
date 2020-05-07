@@ -1425,7 +1425,7 @@ uint32 GetInstalledLocalesMask()
     try
     {
         boost::filesystem::path const storage_dir(boost::filesystem::canonical(input_path) / "Data");
-        CASC::StorageHandle storage = CASC::OpenStorage(storage_dir, 0, CONF_Product);
+        CASC::StorageHandle storage = CASC::OpenStorage(storage_dir, CASC_LOCALE_ALL_WOW, CONF_Product);
         if (!storage)
             return false;
 

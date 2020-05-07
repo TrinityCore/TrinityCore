@@ -72,7 +72,7 @@ enum ModelTypes : uint32
 bool GetHeaderMagic(std::string const& fileName, uint32* magic)
 {
     *magic = 0;
-    CASC::FileHandle file = CASC::OpenFile(CascStorage, fileName.c_str(), CASC_LOCALE_ALL);
+    CASC::FileHandle file = CASC::OpenFile(CascStorage, fileName.c_str(), CASC_LOCALE_ALL_WOW);
     if (!file)
         return false;
 

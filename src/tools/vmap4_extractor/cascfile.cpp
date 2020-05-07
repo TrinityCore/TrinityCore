@@ -25,7 +25,7 @@ CASCFile::CASCFile(CASC::StorageHandle const& casc, const char* filename, bool w
     pointer(0),
     size(0)
 {
-    CASC::FileHandle file = CASC::OpenFile(casc, filename, CASC_LOCALE_ALL, false);
+    CASC::FileHandle file = CASC::OpenFile(casc, filename, CASC_LOCALE_ALL_WOW, false);
     if (!file)
     {
         if (warnNoExist || GetLastError() != ERROR_FILE_NOT_FOUND)
@@ -43,7 +43,7 @@ CASCFile::CASCFile(CASC::StorageHandle const& casc, uint32 fileDataId, std::stri
     pointer(0),
     size(0)
 {
-    CASC::FileHandle file = CASC::OpenFile(casc, fileDataId, CASC_LOCALE_ALL, false);
+    CASC::FileHandle file = CASC::OpenFile(casc, fileDataId, CASC_LOCALE_ALL_WOW, false);
     if (!file)
     {
         if (warnNoExist || GetLastError() != ERROR_FILE_NOT_FOUND)

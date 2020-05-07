@@ -24,7 +24,7 @@ u_map_fcc MverMagic = { { 'R','E','V','M' } };
 
 ChunkedFile::ChunkedFile()
 {
-    data = 0;
+    data = nullptr;
     data_size = 0;
 }
 
@@ -36,7 +36,7 @@ ChunkedFile::~ChunkedFile()
 bool ChunkedFile::loadFile(CASC::StorageHandle const& mpq, std::string const& fileName, bool log)
 {
     free();
-    CASC::FileHandle file = CASC::OpenFile(mpq, fileName.c_str(), CASC_LOCALE_ALL, log);
+    CASC::FileHandle file = CASC::OpenFile(mpq, fileName.c_str(), CASC_LOCALE_ALL_WOW, log);
     if (!file)
         return false;
 
@@ -63,7 +63,7 @@ bool ChunkedFile::loadFile(CASC::StorageHandle const& mpq, std::string const& fi
 bool ChunkedFile::loadFile(CASC::StorageHandle const& mpq, uint32 fileDataId, std::string const& description, bool log)
 {
     free();
-    CASC::FileHandle file = CASC::OpenFile(mpq, fileDataId, CASC_LOCALE_ALL, log);
+    CASC::FileHandle file = CASC::OpenFile(mpq, fileDataId, CASC_LOCALE_ALL_WOW, log);
     if (!file)
         return false;
 
@@ -104,13 +104,13 @@ bool ChunkedFile::prepareLoadedData()
 
 void ChunkedFile::free()
 {
-    for (auto chunk : chunks)
+    for (auto& chunk : chunks)
         delete chunk.second;
 
     chunks.clear();
 
     delete[] data;
-    data = 0;
+    data = nullptr;
     data_size = 0;
 }
 
@@ -171,12 +171,12 @@ FileChunk* ChunkedFile::GetChunk(std::string const& name)
     if (std::distance(range.first, range.second) == 1)
         return range.first->second;
 
-    return NULL;
+    return nullptr;
 }
 
 FileChunk::~FileChunk()
 {
-    for (auto subchunk : subchunks)
+    for (auto& subchunk : subchunks)
         delete subchunk.second;
 
     subchunks.clear();
@@ -215,5 +215,5 @@ FileChunk* FileChunk::GetSubChunk(std::string const& name)
     if (std::distance(range.first, range.second) == 1)
         return range.first->second;
 
-    return NULL;
+    return nullptr;
 }
