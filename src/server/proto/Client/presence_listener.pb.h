@@ -249,16 +249,10 @@ class TC_PROTO_API PresenceListener : public ServiceBase
   static google::protobuf::ServiceDescriptor const* descriptor();
 
   // client methods --------------------------------------------------
+  void OnSubscribe(::bgs::protocol::presence::v1::SubscribeNotification const* request, bool client = false, bool server = false);
+  void OnStateChanged(::bgs::protocol::presence::v1::StateChangedNotification const* request, bool client = false, bool server = false);
 
-  void OnSubscribe(::bgs::protocol::presence::v1::SubscribeNotification const* request);
-  void OnStateChanged(::bgs::protocol::presence::v1::StateChangedNotification const* request);
-  // server methods --------------------------------------------------
-
-  void CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) override final;
-
- protected:
-  virtual uint32 HandleOnSubscribe(::bgs::protocol::presence::v1::SubscribeNotification const* request);
-  virtual uint32 HandleOnStateChanged(::bgs::protocol::presence::v1::StateChangedNotification const* request);
+  void CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) final;
 
  private:
   uint32 service_hash_;
