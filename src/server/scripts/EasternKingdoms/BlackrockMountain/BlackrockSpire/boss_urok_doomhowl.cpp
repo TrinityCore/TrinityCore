@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "blackrock_spire.h"
 #include "ScriptedCreature.h"
+#include "GridNotifiersImpl.h"
 
 enum Spells
 {
@@ -51,6 +52,29 @@ public:
         void Reset() override
         {
             _Reset();
+        }
+
+        // EJ scripts
+        void JustAppeared() override
+        {
+            DoCastSelf(64195);
+            std::list<Player*> players;
+            Trinity::AnyPlayerInObjectRangeCheck checker(me, VISIBILITY_DISTANCE_SMALL);
+            Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, players, checker);
+            Cell::VisitWorldObjects(me, searcher, VISIBILITY_DISTANCE_SMALL);
+            bool allDead = true;
+            for (std::list<Player*>::iterator itr = players.begin(); itr != players.end(); ++itr)
+            {
+                Player* eachP = *itr;
+                if (me->CanSeeOrDetect(eachP))
+                {
+                    if (me->GetDistance(eachP) < me->GetAttackDistance(eachP))
+                    {
+                        me->EngageWithTarget(eachP);
+                        break;
+                    }
+                }
+            }
         }
 
         void JustEngagedWith(Unit* who) override

@@ -121,6 +121,7 @@ void AddSC_boss_vectus();
 
 // EJ
 void AddSC_boss_marduk_blackpool();
+void AddSC_npc_scholomance_student();
 
 void AddSC_boss_kirtonos_the_herald();
 void AddSC_instance_scholomance();
@@ -303,6 +304,7 @@ void AddEasternKingdomsScripts()
 
     // EJ Marduk Blackpool
     AddSC_boss_marduk_blackpool();
+    AddSC_npc_scholomance_student();
 
     AddSC_boss_kirtonos_the_herald();
     AddSC_instance_scholomance();

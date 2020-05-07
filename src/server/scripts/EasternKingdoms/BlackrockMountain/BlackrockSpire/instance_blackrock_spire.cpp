@@ -67,8 +67,7 @@ public:
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
             LoadDoorData(doorData);
-            stadiumCombatStatus = StadiumCombatStatus::SCS_FREE;
-            upperDoorOpened = false;
+            stadiumCombatStatus = StadiumCombatStatus::SCS_FREE;            
             upperDoorCheckDelay = 1000;
         }
 
@@ -89,8 +88,52 @@ public:
                 MotherSmolderweb = creature->GetGUID();
                 break;
             case NPC_UROK_DOOMHOWL:
-                UrokDoomhowl = creature->GetGUID();
+            {                
+                UrokDoomhowl = creature->GetGUID();                
                 break;
+            }
+            case BRSCreaturesIds::NPC_Urok_Enforcer:
+            {
+                std::list<Player*> players;
+                Trinity::AnyPlayerInObjectRangeCheck checker(creature, VISIBILITY_DISTANCE_SMALL);
+                Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(creature, players, checker);
+                Cell::VisitWorldObjects(creature, searcher, VISIBILITY_DISTANCE_SMALL);
+                bool allDead = true;
+                for (std::list<Player*>::iterator itr = players.begin(); itr != players.end(); ++itr)
+                {
+                    Player* eachP = *itr;
+                    if (creature->CanSeeOrDetect(eachP))
+                    {
+                        if (creature->GetDistance(eachP) < creature->GetAttackDistance(eachP))
+                        {
+                            creature->EngageWithTarget(eachP);
+                            break;
+                        }
+                    }
+                }
+                break;
+            }
+            case BRSCreaturesIds::NPC_Urok_Ogre_Magus:
+            {
+                std::list<Player*> players;
+                Trinity::AnyPlayerInObjectRangeCheck checker(creature, VISIBILITY_DISTANCE_SMALL);
+                Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(creature, players, checker);
+                Cell::VisitWorldObjects(creature, searcher, VISIBILITY_DISTANCE_SMALL);
+                bool allDead = true;
+                for (std::list<Player*>::iterator itr = players.begin(); itr != players.end(); ++itr)
+                {
+                    Player* eachP = *itr;
+                    if (creature->CanSeeOrDetect(eachP))
+                    {
+                        if (creature->GetDistance(eachP) < creature->GetAttackDistance(eachP))
+                        {
+                            creature->EngageWithTarget(eachP);
+                            break;
+                        }
+                    }
+                }
+                break;
+            }
             case NPC_QUARTERMASTER_ZIGRIS:
                 QuartermasterZigris = creature->GetGUID();
                 break;
@@ -453,29 +496,45 @@ public:
 
         void Update(uint32 diff) override
         {
-            if (!upperDoorOpened)
+            if (GameObject* checkDD = instance->GetGameObject(OGGODragonspineDoor))
             {
-                upperDoorCheckDelay -= diff;
-                if (upperDoorCheckDelay < 0)
+                if (checkDD->GetGoState() != GOState::GO_STATE_ACTIVE)
                 {
-                    upperDoorCheckDelay = 500;
-                    if (GameObject* checkGO = instance->GetGameObject(OGGODragonspineDoor))
+                    upperDoorCheckDelay -= diff;
+                    if (upperDoorCheckDelay < 0)
                     {
-                        std::list<Player*> players;
-                        Trinity::AnyPlayerInObjectRangeCheck checker(checkGO, 30.0f);
-                        Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(checkGO, players, checker);
-                        Cell::VisitWorldObjects(checkGO, searcher, 30.0f);
-                        for (std::list<Player*>::iterator itr = players.begin(); itr != players.end(); ++itr)
+                        upperDoorCheckDelay = 1000;
+                        Position checkP;
+                        checkP.m_positionX = 99.0;
+                        checkP.m_positionY = -319.0f;
+                        checkP.m_positionZ = 65.5f;
+                        bool openDoor = false;
+                        for (MapReference const& ref : instance->GetPlayers())
                         {
-                            if ((*itr)->HasItemCount(BRSAdditionalData::ITEM_SEAL_OF_ASCENSION, 1))
+                            if (Player* player = ref.GetSource())
                             {
-                                Events.ScheduleEvent(EventIds::EVENT_UPPER_DOOR_OPEN_STEP_1, 100);
-                                Events.ScheduleEvent(EventIds::EVENT_UPPER_DOOR_OPEN_STEP_2, 1000);
-                                Events.ScheduleEvent(EventIds::EVENT_UPPER_DOOR_OPEN_STEP_3, 2000);
-                                Events.ScheduleEvent(EventIds::EVENT_UPPER_DOOR_OPEN_STEP_4, 3000);
-                                upperDoorOpened = true;
-                                break;
+                                if (player->HasItemCount(BRSAdditionalData::ITEM_SEAL_OF_ASCENSION, 1))
+                                {
+                                    if (player->GetDistance(checkP) < 2.0f)
+                                    {
+                                        openDoor = true;
+                                        break;
+                                    }
+                                    if (player->GetDistance(checkDD) < 5.0f)
+                                    {
+                                        openDoor = true;
+                                        break;
+                                    }
+                                }                                                                
                             }
+                        }
+                        if (openDoor)
+                        {
+                            upperDoorCheckDelay = 50000;
+                            Events.ScheduleEvent(EventIds::EVENT_UPPER_DOOR_OPEN_STEP_1, 100);
+                            Events.ScheduleEvent(EventIds::EVENT_UPPER_DOOR_OPEN_STEP_2, 1000);
+                            Events.ScheduleEvent(EventIds::EVENT_UPPER_DOOR_OPEN_STEP_3, 2000);
+                            Events.ScheduleEvent(EventIds::EVENT_UPPER_DOOR_OPEN_STEP_4, 3000);
                         }
                     }
                 }
@@ -803,8 +862,7 @@ public:
 
     private:
         uint32 stadiumCombatStatus;
-        int upperDoorCheckDelay;
-        bool upperDoorOpened;
+        int upperDoorCheckDelay;        
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override

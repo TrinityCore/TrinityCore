@@ -18,12 +18,18 @@
 #include "scholomance.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "GridNotifiers.h"
 
 // EJ scripts
 enum Spawn_ID
 {
     Spawn_ID_Vectus = 48805,
     Spawn_ID_Marduk_Blackpool = 48806
+};
+
+enum Creature_Entry
+{
+    Creature_Entry_Scholomance_Student = 10475,
 };
 
 enum Emotes
@@ -68,6 +74,18 @@ public:
                 if (Creature* checkC = checkMap->GetCreatureBySpawnId(Spawn_ID::Spawn_ID_Marduk_Blackpool))
                 {
                     checkC->AI()->AttackStart(who);
+                }
+            }
+            std::list<Creature*> templist;
+            Trinity::AllCreaturesOfEntryInRange check(me, Creature_Entry::Creature_Entry_Scholomance_Student, VISIBILITY_DISTANCE_NORMAL);
+            Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(me, templist, check);
+            Cell::VisitGridObjects(me, searcher, VISIBILITY_DISTANCE_NORMAL);
+            for (std::list<Creature*>::const_iterator cIT = templist.begin(); cIT != templist.end(); ++cIT)
+            {
+                if (Creature* eachC = *cIT)
+                {
+                    eachC->AI()->SetData(0, 0);
+                    eachC->AI()->AttackStart(who);
                 }
             }
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
@@ -253,4 +271,102 @@ public:
 void AddSC_boss_marduk_blackpool()
 {
     new boss_marduk_blackpool();
+}
+
+class npc_scholomance_student : public CreatureScript
+{
+public:
+    npc_scholomance_student() : CreatureScript("npc_scholomance_student") { }
+
+    struct npc_scholomance_studentAI : public ScriptedAI
+    {
+        npc_scholomance_studentAI(Creature* creature) : ScriptedAI(creature)
+        {
+            callAssists = 1;
+        }
+
+        void Reset() override
+        {
+            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            events.Reset();
+            callAssists = 1;
+        }
+
+        void JustEngagedWith(Unit* who) override
+        {
+            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            if (callAssists == 1)
+            {
+                std::list<Creature*> templist;
+                Trinity::AllCreaturesOfEntryInRange check(me, Creature_Entry::Creature_Entry_Scholomance_Student, INTERACTION_DISTANCE);
+                Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(me, templist, check);
+                Cell::VisitGridObjects(me, searcher, INTERACTION_DISTANCE);
+                for (std::list<Creature*>::const_iterator cIT = templist.begin(); cIT != templist.end(); ++cIT)
+                {
+                    if (Creature* eachC = *cIT)
+                    {
+                        eachC->AI()->SetData(0, 0);
+                        eachC->AI()->AttackStart(who);
+                    }
+                }
+            }
+        }
+
+        void SetData(uint32 type, uint32 data) override
+        {
+            if (type == 0)
+            {
+                callAssists = data;
+            }
+        }
+
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        {
+            if (me->HealthBelowPctDamaged(25, damage))
+            {
+                DoCast(me, SPELL_FRENZY);
+            }
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (!UpdateVictim())
+            {
+                return;
+            }
+            events.Update(diff);
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+            {
+                return;
+            }
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {                
+                default:
+                {
+                    break;
+                }
+                }
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+            }
+
+            DoMeleeAttackIfReady();
+        }
+
+    private:
+        EventMap events;
+        uint32 callAssists;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetScholomanceAI<npc_scholomance_studentAI>(creature);
+    }
+};
+
+void AddSC_npc_scholomance_student()
+{
+    new npc_scholomance_student();
 }

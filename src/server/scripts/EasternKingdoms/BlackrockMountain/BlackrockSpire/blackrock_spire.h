@@ -90,7 +90,11 @@ enum BRSCreaturesIds
     NPC_BLACKHAND_INCARCERATOR      = 10316,
     NPC_LORD_VICTOR_NEFARIUS        = 10162,
     NPC_SCARSHIELD_INFILTRATOR      = 10299,
-    NPC_FINKLE_EINHORN              = 10776
+    NPC_FINKLE_EINHORN              = 10776,
+
+    // EJ scripts
+    NPC_Urok_Enforcer = 10601,
+    NPC_Urok_Ogre_Magus = 10602
 };
 
 enum BRSAdditionalData

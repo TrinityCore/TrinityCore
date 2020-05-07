@@ -892,7 +892,6 @@ public:
             return true;
         }
     };
-
 };
 
 class go_sunken_temple_eternal_flame : public GameObjectScript

@@ -2205,6 +2205,10 @@ void ObjectMgr::LoadCreatures()
         }
         else
         {
+            if (data.spawntimesecs > TimeConstants::HOUR)
+            {
+                data.spawntimesecs = urand(10 * TimeConstants::HOUR, 20 * TimeConstants::HOUR);
+            }
             if (data.spawntimesecs < 15 * TimeConstants::MINUTE)
             {
                 data.spawntimesecs = urand(15 * TimeConstants::MINUTE, 30 * TimeConstants::MINUTE);

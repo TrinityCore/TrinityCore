@@ -26,6 +26,7 @@
 #include "MotionMaster.h"
 #include "MapReference.h"
 #include "Player.h"
+#include "GridNotifiers.h"
 
 #define TIMER_TOMBOFTHESEVEN    15000
 #define MAX_ENCOUNTER           6
@@ -450,7 +451,313 @@ public:
     };
 };
 
+class npc_hurley_blackbreath : public CreatureScript
+{
+public:
+    npc_hurley_blackbreath() : CreatureScript("npc_hurley_blackbreath")
+    {
+
+    }
+
+    struct npc_hurley_blackbreathAI : public ScriptedAI
+    {
+        npc_hurley_blackbreathAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Reset();
+        }
+
+        void Reset() override
+        {
+            cronyReady = 0;
+            allSet = false;
+        }
+
+        void JustAppeared() override
+        {
+            me->SetImmuneToAll(true);
+            me->SetVisible(false);
+        }
+
+        void SetData(uint32 type, uint32 data) override
+        {
+            if (type == 1)
+            {
+                if (data == 1)
+                {
+                    me->SetVisible(true);
+                    Talk(0);
+                    me->SetWalk(true);
+                    me->GetMotionMaster()->MovePoint(1, 898.57, -141.831, -49.755);
+
+                    std::list<Creature*> templist;
+                    Trinity::AllCreaturesOfEntryInRange check(me, 9541, VISIBILITY_DISTANCE_TINY);
+                    Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(me, templist, check);
+                    Cell::VisitGridObjects(me, searcher, VISIBILITY_DISTANCE_TINY);
+                    for (std::list<Creature*>::const_iterator cIT = templist.begin(); cIT != templist.end(); ++cIT)
+                    {
+                        if (Creature* eachC = *cIT)
+                        {
+                            eachC->AI()->SetData(1, 1);
+                        }
+                    }
+                }
+            }
+            else if (type == 2)
+            {
+                cronyReady++;
+            }
+        }
+
+        void MovementInform(uint32 type, uint32 id) override
+        {
+            if (type == POINT_MOTION_TYPE)
+            {
+                switch (id)
+                {
+                case 1:
+                {
+                    cronyReady++;
+                    break;
+                }
+                default:
+                {
+                    break;
+                }
+                }
+            }
+        }
+
+        void JustEngagedWith(Unit* who) override
+        {
+            events.ScheduleEvent(1, 5000, 8000);
+            events.ScheduleEvent(2, 8000,12000);
+            events.ScheduleEvent(3, 12000, 15000);
+            events.ScheduleEvent(4, 2000, 3000);
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (!allSet)
+            {
+                if (cronyReady < 4)
+                {
+                    return;
+                }
+
+                std::list<Creature*> templist;
+                Trinity::AllCreaturesOfEntryInRange check(me, 9541, VISIBILITY_DISTANCE_TINY);
+                Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(me, templist, check);
+                Cell::VisitGridObjects(me, searcher, VISIBILITY_DISTANCE_TINY);
+                for (std::list<Creature*>::const_iterator cIT = templist.begin(); cIT != templist.end(); ++cIT)
+                {
+                    if (Creature* eachC = *cIT)
+                    {
+                        eachC->AI()->SetData(2, 1);
+                    }
+                }
+                me->SetImmuneToAll(false);
+                allSet = true;
+                Talk(1);
+            }
+
+            if (!UpdateVictim())
+                return;
+
+            events.Update(diff);
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;            
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                case 1:
+                {
+                    DoCastVictim(9573);
+                    events.Repeat(20000, 25000);
+                    break;
+                }
+                case 2:
+                {
+                    DoCastVictim(16856);
+                    events.Repeat(15000, 20000);
+                    break;
+                }
+                case 3:
+                {
+                    DoCastVictim(26211);
+                    events.Repeat(10000, 15000);
+                    break;
+                }
+                case 4:
+                {
+                    if (me->GetHealthPct() < 30.0f)
+                    {
+                        DoCastSelf(14872);
+                        events.Repeat(2000, 5000);
+                    }
+                    break;
+                }
+                default:
+                {
+                    break;
+                }
+                }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+            }
+
+            DoMeleeAttackIfReady();
+        }
+
+    private:
+        EventMap events;
+        uint32 cronyReady;
+        bool allSet;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_hurley_blackbreathAI(creature);
+    }
+};
+
+class npc_blackbreath_crony : public CreatureScript
+{
+public:
+    npc_blackbreath_crony() : CreatureScript("npc_blackbreath_crony") { }
+
+    struct npc_blackbreath_cronyAI : public ScriptedAI
+    {
+        npc_blackbreath_cronyAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Reset();
+        }
+
+        void Reset() override
+        {
+
+        }
+
+        void JustEngagedWith(Unit* who) override
+        {
+            events.ScheduleEvent(1, 2000, 5000);
+            events.ScheduleEvent(2, 5000, 8000);
+        }
+
+        void JustAppeared() override
+        {
+            me->SetImmuneToAll(true);
+            me->SetVisible(false);
+        }
+
+        void SetData(uint32 type, uint32 data) override
+        {
+            if (type == 1)
+            {
+                if (data == 1)
+                {
+                    me->SetVisible(true);
+                    me->SetWalk(true);
+                    float destX = frand(895.0f, 905.0f);
+                    float destY = frand(-145.0f, -135.0f);
+                    float destZ = -49.0f;
+                    me->GetMotionMaster()->MovePoint(1, destX, destY, destZ);
+                }
+            }
+            else if (type == 2)
+            {
+                me->SetImmuneToAll(false);
+            }
+        }
+
+        void MovementInform(uint32 type, uint32 id) override
+        {
+            if (type == POINT_MOTION_TYPE)
+            {
+                switch (id)
+                {
+                case 1:
+                {
+                    std::list<Creature*> templist;
+                    Trinity::AllCreaturesOfEntryInRange check(me, 9537, VISIBILITY_DISTANCE_TINY);
+                    Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(me, templist, check);
+                    Cell::VisitGridObjects(me, searcher, VISIBILITY_DISTANCE_TINY);
+                    for (std::list<Creature*>::const_iterator cIT = templist.begin(); cIT != templist.end(); ++cIT)
+                    {
+                        if (Creature* eachC = *cIT)
+                        {
+                            eachC->AI()->SetData(2, 0);
+                            break;
+                        }
+                    }
+                    break;
+                }
+                default:
+                {
+                    break;
+                }
+                }
+            }
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (!UpdateVictim())
+                return;
+
+            events.Update(diff);
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                case 1:
+                {
+                    DoCastVictim(15581);
+                    events.Repeat(5000, 10000);
+                    break;
+                }
+                case 2:
+                {
+                    DoCastVictim(15583);
+                    events.Repeat(10000, 15000);
+                    break;
+                }
+                default:
+                {
+                    break;
+                }
+                }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+            }
+
+            DoMeleeAttackIfReady();
+        }
+
+    private:
+        EventMap events;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_blackbreath_cronyAI(creature);
+    }
+};
+
 void AddSC_instance_blackrock_depths()
 {
     new instance_blackrock_depths();
+
+    // EJ scripts
+    new npc_hurley_blackbreath();
+    new npc_blackbreath_crony();
 }
+
