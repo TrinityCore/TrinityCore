@@ -1582,6 +1582,8 @@ class spell_mage_offensive_state_dnd : public AuraScript
         // Don't proc Arcane Missiles from triggered Missiles
         if (eventInfo.GetSpellInfo()->Id == SPELL_MAGE_ARCANE_MISSILES_DAMAGE)
             return false;
+
+        return true;
     }
 
     void Register() override
