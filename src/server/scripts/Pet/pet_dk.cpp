@@ -233,15 +233,8 @@ enum ArmyOfTheDead
 
 struct npc_pet_dk_army_of_the_dead_ghoul : public AggressorAI
 {
-    npc_pet_dk_army_of_the_dead_ghoul(Creature* creature) : AggressorAI(creature)
-    {
-        Initialize();
-    }
+    npc_pet_dk_army_of_the_dead_ghoul(Creature* creature) : AggressorAI(creature), _readyToAttack(false) { }
 
-    void Initialize()
-    {
-        _readyToAttack = false;
-    }
 
     void JustAppeared() override
     {
@@ -259,10 +252,6 @@ struct npc_pet_dk_army_of_the_dead_ghoul : public AggressorAI
             return false;
 
         if (!_readyToAttack)
-            return false;
-
-        Unit* owner = me->GetOwner();
-        if (owner && !target->IsInCombatWith(owner))
             return false;
 
         return AggressorAI::CanAIAttack(target);
