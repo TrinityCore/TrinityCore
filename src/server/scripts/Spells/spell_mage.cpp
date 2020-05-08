@@ -1503,51 +1503,40 @@ class spell_mage_water_elemental_freeze : public SpellScriptLoader
 };
 
 // 79683 Arcane Missiles!
-class spell_mage_arcane_missiles_trigger : public SpellScriptLoader
+class spell_mage_arcane_missiles_trigger : public AuraScript
 {
-public:
-    spell_mage_arcane_missiles_trigger() : SpellScriptLoader("spell_mage_arcane_missiles_trigger") { }
+    PrepareAuraScript(spell_mage_arcane_missiles_trigger);
 
-    class spell_mage_arcane_missiles_trigger_AuraScript : public AuraScript
+    bool Load() override
     {
-        PrepareAuraScript(spell_mage_arcane_missiles_trigger_AuraScript);
+        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+    }
 
-        bool Load() override
-        {
-            return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-        }
-
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            return ValidateSpellInfo({ SPELL_MAGE_ARCANE_MISSILES_AURASTATE });
-        }
-
-        void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
-        {
-            PreventDefaultAction();
-        }
-
-        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            GetCaster()->CastSpell(GetCaster(), SPELL_MAGE_ARCANE_MISSILES_AURASTATE, true);
-        }
-
-        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            GetCaster()->RemoveAura(SPELL_MAGE_ARCANE_MISSILES_AURASTATE);
-        }
-
-        void Register() override
-        {
-            OnEffectProc += AuraEffectProcFn(spell_mage_arcane_missiles_trigger_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
-            AfterEffectApply += AuraEffectApplyFn(spell_mage_arcane_missiles_trigger_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            AfterEffectRemove += AuraEffectRemoveFn(spell_mage_arcane_missiles_trigger_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return new spell_mage_arcane_missiles_trigger_AuraScript();
+        return ValidateSpellInfo({ SPELL_MAGE_ARCANE_MISSILES_AURASTATE });
+    }
+
+    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+    {
+        PreventDefaultAction();
+    }
+
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_MAGE_ARCANE_MISSILES_AURASTATE, true);
+    }
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetCaster()->RemoveAura(SPELL_MAGE_ARCANE_MISSILES_AURASTATE);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_mage_arcane_missiles_trigger::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+        AfterEffectApply += AuraEffectApplyFn(spell_mage_arcane_missiles_trigger::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_mage_arcane_missiles_trigger::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -1567,7 +1556,6 @@ class spell_mage_offensive_state_dnd : public AuraScript
             {
                 SPELL_MAGE_ARCANE_MISSILES,
                 SPELL_MAGE_ARCANE_MISSILES_DAMAGE,
-                SPELL_MAGE_ARCANE_BLAST,
                 SPELL_MAGE_HOT_STREAK,
                 SPELL_MAGE_BRAIN_FREEZE_R1
             });
@@ -1576,7 +1564,7 @@ class spell_mage_offensive_state_dnd : public AuraScript
     bool CheckProc(ProcEventInfo& eventInfo)
     {
         Player* player = GetTarget()->ToPlayer();
-        if (!player)
+        if (!player || !eventInfo.GetSpellInfo())
             return false;
 
         // Don't proc when caster does not know Arcane Missiles
@@ -1594,8 +1582,6 @@ class spell_mage_offensive_state_dnd : public AuraScript
         // Don't proc Arcane Missiles from triggered Missiles
         if (eventInfo.GetSpellInfo()->Id == SPELL_MAGE_ARCANE_MISSILES_DAMAGE)
             return false;
-
-        return roll_chance_i(40);
     }
 
     void Register() override
@@ -2306,6 +2292,7 @@ class spell_mage_frostfire_bolt : public SpellScript
 
 void AddSC_mage_spell_scripts()
 {
+    RegisterAuraScript(spell_mage_arcane_missiles_trigger);
     RegisterAuraScript(spell_mage_arcane_potency);
     new spell_mage_blast_wave();
     new spell_mage_blazing_speed();
@@ -2350,5 +2337,4 @@ void AddSC_mage_spell_scripts()
     new spell_mage_ring_of_frost_freeze();
     new spell_mage_time_warp();
     new spell_mage_water_elemental_freeze();
-    new spell_mage_arcane_missiles_trigger();
 }
