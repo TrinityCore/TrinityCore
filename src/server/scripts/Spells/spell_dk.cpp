@@ -1050,7 +1050,7 @@ class spell_dk_death_grip_initial : public SpellScript
         // Patch 3.3.3 (2010-03-23): Minimum range has been changed to 8 yards in PvP.
         Unit* target = GetExplTargetUnit();
         if (target && target->GetTypeId() == TYPEID_PLAYER)
-            if (caster->GetDistance(target) < 8.f)
+            if (caster->GetExactDist(target) < 8.f)
                 return SPELL_FAILED_TOO_CLOSE;
 
         return SPELL_CAST_OK;
