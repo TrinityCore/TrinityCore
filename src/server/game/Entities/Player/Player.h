@@ -2356,6 +2356,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         /*! These methods send different packets to the client in apply and unapply case.
             These methods are only sent to the current unit.
         */
+
+        void ValidateMovementInfo(MovementInfo* mi);
+
         void SendMovementSetCanTransitionBetweenSwimAndFly(bool apply);
         void SendMovementSetCollisionHeight(float height, UpdateCollisionHeightReason reason);
 

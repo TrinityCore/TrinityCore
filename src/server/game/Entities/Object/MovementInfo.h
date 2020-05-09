@@ -95,15 +95,21 @@ struct MovementInfo
     uint32 GetFallTime() const { return jump.fallTime; }
     void SetFallTime(uint32 time) { jump.fallTime = time; }
 
-    void ResetTransport()
-    {
-        transport.Reset();
-    }
-
-    void ResetJump()
-    {
-        jump.Reset();
-    }
+    void ResetTransport();
+    void ResetJump();
+    bool HasFallDirection() const;
+    bool HasFallData() const;
+    bool HasMovementFlags() const;
+    bool HasExtraMovementFlags() const;
+    bool HasSpline() const;
+    bool HasHeightChangeFailed() const;
+    bool HasTime() const;
+    bool HasOrientation() const;
+    bool HasSplineElevation() const;
+    bool HasPitch() const;
+    bool HasTransportData() const;
+    bool HasTransportVehicleId() const;
+    bool HasTransportTime2() const;
 
     void OutDebug();
 };

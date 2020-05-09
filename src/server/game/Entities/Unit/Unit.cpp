@@ -13823,7 +13823,7 @@ void Unit::WriteMovementInfo(WorldPacket& data, Movement::ExtraMovementStatusEle
             break;
         case MSETimestamp:
             if (hasTimestamp)
-                data << getMSTime();
+                data << mi.time;
             break;
         case MSEPositionX:
             data << GetPositionX();

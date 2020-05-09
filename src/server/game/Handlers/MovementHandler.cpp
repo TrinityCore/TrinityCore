@@ -682,16 +682,14 @@ void WorldSession::HandleSummonResponseOpcode(WorldPacket& recvData)
     _player->SummonIfPossible(agree);
 }
 
-void WorldSession::HandleSetCollisionHeightAck(WorldPacket& recvPacket)
+void WorldSession::HandleSetCollisionHeightAck(WorldPackets::Movement::MoveSetCollisionHeightAck& packet)
 {
-    TC_LOG_DEBUG("network", "CMSG_MOVE_SET_COLLISION_HEIGHT_ACK");
+    _player->ValidateMovementInfo(&packet.Data.Status);
 
-    static MovementStatusElements const heightElement = MSEExtraFloat;
-    Movement::ExtraMovementStatusElement extra(&heightElement);
-    MovementInfo movementInfo;
-    GetPlayer()->ReadMovementInfo(recvPacket, &movementInfo, &extra);
-
-    Movement::PacketSender(_player, NULL_OPCODE, NULL_OPCODE, SMSG_MOVE_UPDATE_COLLISION_HEIGHT, &extra).Send();
+    WorldPackets::Movement::MoveUpdateCollisionHeight updateCollisionHeight;
+    updateCollisionHeight.Height = packet.Height;
+    updateCollisionHeight.Status = &_player->m_movementInfo;
+    _player->SendMessageToSet(updateCollisionHeight.Write(), false);
 }
 
 void WorldSession::HandleMoveTimeSkippedOpcode(WorldPacket& recvData)
