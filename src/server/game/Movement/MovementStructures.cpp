@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "MovementPackets.h"
 #include "MovementStructures.h"
 #include "Log.h"
 #include "Player.h"
@@ -5571,6 +5572,14 @@ void Movement::PacketSender::Send() const
 
     if (_broadcast != NULL_OPCODE)
     {
+        if (_broadcast == SMSG_MOVE_UPDATE)
+        {
+            WorldPackets::Movement::MoveUpdate moveUpdate;
+            moveUpdate.Status = &_unit->m_movementInfo;
+            _unit->SendMessageToSet(moveUpdate.Write(), !isPlayerMovement);
+            return;
+        }
+
         ///! Need to reset current extra element index before writing another packet
         if (_extraElements)
             _extraElements->ResetIndex();
