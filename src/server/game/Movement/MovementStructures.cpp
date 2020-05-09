@@ -19,78 +19,6 @@
 #include "Log.h"
 #include "Player.h"
 
-MovementStatusElements const MoveUpdate[] =
-{
-    MSEHasFallData,
-    MSEHasGuidByte3,
-    MSEHasGuidByte6,
-    MSEHasMovementFlags2,
-    MSEHasSpline,
-    MSEHasTimestamp,
-    MSEHasGuidByte0,
-    MSEHasGuidByte1,
-    MSEMovementFlags2,
-    MSEHasGuidByte7,
-    MSEHasMovementFlags,
-    MSEHasOrientation,
-    MSEHasGuidByte2,
-    MSEHasSplineElevation,
-    MSEZeroBit,
-    MSEHasGuidByte4,
-    MSEHasFallDirection,
-    MSEHasGuidByte5,
-    MSEHasTransportData,
-    MSEMovementFlags,
-    MSEHasTransportGuidByte3,
-    MSEHasVehicleId,
-    MSEHasTransportGuidByte6,
-    MSEHasTransportGuidByte1,
-    MSEHasTransportGuidByte7,
-    MSEHasTransportGuidByte0,
-    MSEHasTransportGuidByte4,
-    MSEHasTransportTime2,
-    MSEHasTransportGuidByte5,
-    MSEHasTransportGuidByte2,
-    MSEHasPitch,
-    MSEGuidByte5,
-    MSEFallHorizontalSpeed,
-    MSEFallSinAngle,
-    MSEFallCosAngle,
-    MSEFallVerticalSpeed,
-    MSEFallTime,
-    MSESplineElevation,
-    MSEGuidByte7,
-    MSEPositionY,
-    MSEGuidByte3,
-    MSETransportVehicleId,
-    MSETransportGuidByte6,
-    MSETransportSeat,
-    MSETransportGuidByte5,
-    MSETransportPositionX,
-    MSETransportGuidByte1,
-    MSETransportOrientation,
-    MSETransportGuidByte2,
-    MSETransportTime2,
-    MSETransportGuidByte0,
-    MSETransportPositionZ,
-    MSETransportGuidByte7,
-    MSETransportGuidByte4,
-    MSETransportGuidByte3,
-    MSETransportPositionY,
-    MSETransportTime,
-    MSEGuidByte4,
-    MSEPositionX,
-    MSEGuidByte6,
-    MSEPositionZ,
-    MSETimestamp,
-    MSEGuidByte2,
-    MSEPitch,
-    MSEGuidByte0,
-    MSEOrientation,
-    MSEGuidByte1,
-    MSEEnd,
-};
-
 MovementStatusElements const MovementFallLand[] =
 {
     MSEPositionX,
@@ -5701,8 +5629,6 @@ MovementStatusElements const* GetMovementStatusElementsSequence(uint32 opcode)
             return MovementStopSwim;
         case MSG_MOVE_STOP_TURN:
             return MovementStopTurn;
-        case SMSG_MOVE_UPDATE:
-            return MoveUpdate;
         case CMSG_MOVE_CHNG_TRANSPORT:
             return MoveChngTransport;
         case CMSG_MOVE_SPLINE_DONE:

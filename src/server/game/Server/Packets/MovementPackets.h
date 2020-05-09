@@ -26,6 +26,16 @@ namespace WorldPackets
 {
     namespace Movement
     {
+        class TC_GAME_API MoveUpdate final : public ServerPacket
+        {
+        public:
+            MoveUpdate() : ServerPacket(SMSG_MOVE_UPDATE) { }
+
+            WorldPacket const* Write() override;
+
+            MovementInfo* Status = nullptr;
+        };
+
         class TransferPending final : public ServerPacket
         {
             struct ShipTransferPending
