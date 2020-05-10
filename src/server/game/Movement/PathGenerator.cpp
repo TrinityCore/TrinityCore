@@ -456,14 +456,12 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
                 _type = PATHFIND_INCOMPLETE;
                 return;
             }
-            else if (dtStatusFailed(_navMeshQuery->getPolyHeight(_pathPolyRefs[_polyLength - 1], endPoint, &endPoint[1])))
-            {
-                BuildShortcut();
-                _type = PATHFIND_NOPATH;
-                return;
-            }
             else
             {
+                // clamp to poly boundary if we fail to get the height
+                if (dtStatusFailed(_navMeshQuery->getPolyHeight(_pathPolyRefs[_polyLength - 1], endPoint, &endPoint[1])))
+                    _navMeshQuery->closestPointOnPolyBoundary(_pathPolyRefs[_polyLength - 1], endPoint, endPoint);
+
                 _pathPoints.resize(2);
                 _pathPoints[0] = GetStartPosition();
                 _pathPoints[1] = G3D::Vector3(endPoint[2], endPoint[0], endPoint[1]);
