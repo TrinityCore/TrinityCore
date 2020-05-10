@@ -1947,7 +1947,8 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                              e.GetTargetType() == SMART_TARGET_GAMEOBJECT_GUID || e.GetTargetType() == SMART_TARGET_GAMEOBJECT_DISTANCE ||
                              e.GetTargetType() == SMART_TARGET_CLOSEST_CREATURE || e.GetTargetType() == SMART_TARGET_CLOSEST_GAMEOBJECT ||
                              e.GetTargetType() == SMART_TARGET_OWNER_OR_SUMMONER || e.GetTargetType() == SMART_TARGET_ACTION_INVOKER ||
-                             e.GetTargetType() == SMART_TARGET_CLOSEST_ENEMY || e.GetTargetType() == SMART_TARGET_CLOSEST_FRIENDLY)
+                             e.GetTargetType() == SMART_TARGET_CLOSEST_ENEMY || e.GetTargetType() == SMART_TARGET_CLOSEST_FRIENDLY ||
+                             e.GetTargetType() == SMART_TARGET_CLOSEST_UNSPAWNED_GAMEOBJECT)
                     {
                         target->ToCreature()->SetHomePosition(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation());
                     }
@@ -2646,7 +2647,7 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
                 if (go && go->GetGUID() == unit->GetGUID())
                     continue;
 
-                if ((!e.target.goRange.entry && unit->ToGameObject()->GetEntry() == e.target.goRange.entry) && baseObject->IsInRange(unit, float(e.target.goRange.minDist), float(e.target.goRange.maxDist)))
+                if ((!e.target.goRange.entry || unit->ToGameObject()->GetEntry() == e.target.goRange.entry) && baseObject->IsInRange(unit, float(e.target.goRange.minDist), float(e.target.goRange.maxDist)))
                     targets.push_back(unit);
             }
 
@@ -2813,6 +2814,12 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
                     if (!e.target.vehicle.seatMask || (e.target.vehicle.seatMask & (1 << seat.first)))
                         if (Unit* u = ObjectAccessor::GetUnit(*me, seat.second.Passenger.Guid))
                             targets.push_back(u);
+            break;
+        }
+        case SMART_TARGET_CLOSEST_UNSPAWNED_GAMEOBJECT:
+        {
+            if (GameObject* target = baseObject->FindNearestUnspawnedGameObject(e.target.closest.entry, float(e.target.closest.dist ? e.target.closest.dist : 100)))
+                targets.push_back(target);
             break;
         }
         case SMART_TARGET_POSITION:

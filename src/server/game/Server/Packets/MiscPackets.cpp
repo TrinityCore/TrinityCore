@@ -188,6 +188,12 @@ WorldPacket const* WorldPackets::Misc::UITime::Write()
     return &_worldPacket;
 }
 
+void WorldPackets::Misc::TogglePvP::Read()
+{
+    if (HasPvPStatus())
+        Enable = _worldPacket.read<uint8>() != 0;
+}
+
 void WorldPackets::Misc::WorldTeleport::Read()
 {
     _worldPacket >> Time;

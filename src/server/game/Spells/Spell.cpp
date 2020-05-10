@@ -3454,6 +3454,11 @@ void Spell::_cast(bool skipCheck)
         hitMask |= PROC_HIT_NORMAL;
 
     Unit::ProcSkillsAndAuras(m_originalCaster, nullptr, procAttacker, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_CAST, hitMask, this, nullptr, nullptr);
+
+    // Call CreatureAI hook OnSuccessfulSpellCast
+    if (Creature* caster = m_originalCaster->ToCreature())
+        if (caster->IsAIEnabled())
+            caster->AI()->OnSuccessfulSpellCast(GetSpellInfo());
 }
 
 template <class Container>
@@ -5387,6 +5392,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
         }
     }
 
+    uint8 approximateAuraEffectMask = 0;
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
         // for effects of spells that have only one target
@@ -5805,6 +5811,9 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
             default:
                 break;
         }
+
+        if (m_spellInfo->Effects[i].IsAura())
+            approximateAuraEffectMask |= 1 << i;
     }
 
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
@@ -5929,6 +5938,12 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
             default:
                 break;
         }
+
+        // check if target already has the same type, but more powerful aura
+        if (!m_spellInfo->IsTargetingArea())
+            if (Unit* target = m_targets.GetUnitTarget())
+                if (!target->IsHighestExclusiveAuraEffect(m_spellInfo, AuraType(m_spellInfo->Effects[i].ApplyAuraName), m_spellInfo->Effects[i].CalcValue(), approximateAuraEffectMask, false))
+                    return SPELL_FAILED_AURA_BOUNCED;
     }
 
     // check trade slot case (last, for allow catch any another cast problems)

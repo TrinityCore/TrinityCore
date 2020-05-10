@@ -3061,6 +3061,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         {
             spellInfo->Effects[EFFECT_1].TriggerSpell = 46737;
         });
+
+        // Lich Pet
+        ApplySpellFix({ 70050 }, [](SpellInfo* spellInfo)
+        {
+            spellInfo->Effects[EFFECT_0].TriggerSpell = 70049;
+        });
     }
 
     // Allows those to crit
@@ -3355,7 +3361,8 @@ void SpellMgr::LoadSpellInfoCorrections()
         58552, // Return to Orgrimmar
         58533, // Return to Stormwind
         21855, // Challenge Flag
-        51122  // Fierce Lightning Stike
+        51122, // Fierce Lightning Stike
+        71848  // Toxic Wasteling Find Target
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->MaxAffectedTargets = 1;
