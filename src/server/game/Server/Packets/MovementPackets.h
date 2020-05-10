@@ -32,30 +32,6 @@ namespace WorldPackets
             int32 AckIndex = 0;
         };
 
-        class TC_GAME_API MoveUpdate final : public ServerPacket
-        {
-        public:
-            MoveUpdate() : ServerPacket(SMSG_MOVE_UPDATE) { }
-
-            WorldPacket const* Write() override;
-
-            MovementInfo* Status = nullptr;
-        };
-
-        class MoveSetCollisionHeightAck final : public ClientPacket
-        {
-        public:
-            MoveSetCollisionHeightAck(WorldPacket&& packet) : ClientPacket(CMSG_MOVE_SET_COLLISION_HEIGHT_ACK, std::move(packet)) { }
-
-            void Read() override;
-
-            MovementAck Data;
-            UpdateCollisionHeightReason Reason = UPDATE_COLLISION_HEIGHT_MOUNT;
-            float Height = 1.0f;
-        };
-
-
-
         class TransferPending final : public ServerPacket
         {
             struct ShipTransferPending
@@ -117,17 +93,6 @@ namespace WorldPackets
             uint32 SequenceIndex = 0;
             float Height = 1.0f;
             UpdateCollisionHeightReason Reason = UPDATE_COLLISION_HEIGHT_MOUNT;
-        };
-
-        class MoveUpdateCollisionHeight final : public ServerPacket
-        {
-        public:
-            MoveUpdateCollisionHeight() : ServerPacket(SMSG_MOVE_UPDATE_COLLISION_HEIGHT) { }
-
-            WorldPacket const* Write() override;
-
-            MovementInfo* Status = nullptr;
-            float Height = 1.0f;
         };
 
         struct MoveKnockBackSpeeds

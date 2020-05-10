@@ -143,7 +143,6 @@ namespace WorldPackets
 
     namespace Movement
     {
-        class MoveSetCollisionHeightAck;
         class SuspendTokenResponse;
     }
 
@@ -652,7 +651,7 @@ class TC_GAME_API WorldSession
         void HandleGravityAckMessage(WorldPacket & recvData);
         void HandleMoveTeleportAck(WorldPacket& recvPacket);
         void HandleForceSpeedChangeAck(WorldPacket& recvData);
-        void HandleSetCollisionHeightAck(WorldPackets::Movement::MoveSetCollisionHeightAck& packet);
+        void HandleSetCollisionHeightAck(WorldPacket& recvData);
 
         void HandlePingOpcode(WorldPacket& recvPacket);
         void HandleRepopRequestOpcode(WorldPacket& recvPacket);
@@ -721,6 +720,7 @@ class TC_GAME_API WorldSession
         void HandleSuspendTokenResponse(WorldPackets::Movement::SuspendTokenResponse& suspendTokenResponse);
 
         void HandleMovementOpcodes(WorldPacket& recvPacket);
+        void HandleMovementOpcode(uint16 opcode, MovementInfo& movementInfo);
         void HandleSetActiveMoverOpcode(WorldPacket& recvData);
         void HandleMoveNotActiveMover(WorldPacket& recvData);
         void HandleDismissControlledVehicle(WorldPacket& recvData);

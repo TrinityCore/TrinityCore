@@ -303,8 +303,16 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recvPacket)
 
 void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
 {
+    /* extract packet */
+    MovementInfo movementInfo;
+    GetPlayer()->ReadMovementInfo(recvPacket, &movementInfo);
     uint16 opcode = recvPacket.GetOpcode();
 
+    HandleMovementOpcode(opcode, movementInfo);
+}
+
+void WorldSession::HandleMovementOpcode(uint16 opcode, MovementInfo& movementInfo)
+{
     Unit* mover = _player->m_unitMovedByMe;
 
     // there must always be a mover
@@ -315,14 +323,9 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
 
     // ignore, waiting processing in WorldSession::HandleMoveWorldportAckOpcode and WorldSession::HandleMoveTeleportAck
     if (plrMover && plrMover->IsBeingTeleported())
-    {
-        recvPacket.rfinish();                     // prevent warnings spam
         return;
-    }
 
-    /* extract packet */
-    MovementInfo movementInfo;
-    GetPlayer()->ReadMovementInfo(recvPacket, &movementInfo);
+    GetPlayer()->ValidateMovementInfo(&movementInfo);
 
     // prevent tampered movement data
     if (movementInfo.guid != mover->GetGUID())
@@ -340,33 +343,21 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
     if (plrMover && (plrMover->GetUInt32Value(UNIT_NPC_EMOTESTATE) != 0))
         plrMover->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
 
-    if (plrMover && opcode == MSG_MOVE_JUMP)
-        plrMover->ProcSkillsAndAuras(nullptr, PROC_FLAG_JUMP, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);
-
     /* handle special cases */
-    if (movementInfo.transport.guid)
+    if (!movementInfo.transport.guid.IsEmpty())
     {
         // We were teleported, skip packets that were broadcast before teleport
         if (movementInfo.pos.GetExactDist2d(mover) > SIZE_OF_GRIDS)
-        {
-            recvPacket.rfinish();                 // prevent warnings spam
             return;
-        }
 
         // transports size limited
         // (also received at zeppelin leave by some reason with t_* as absolute in continent coordinates, can be safely skipped)
         if (fabs(movementInfo.transport.pos.GetPositionX()) > 75.0f || fabs(movementInfo.transport.pos.GetPositionY()) > 75.0f || fabs(movementInfo.transport.pos.GetPositionZ()) > 75.0f)
-        {
-            recvPacket.rfinish();                 // prevent warnings spam
             return;
-        }
 
         if (!Trinity::IsValidMapCoord(movementInfo.pos.GetPositionX() + movementInfo.transport.pos.GetPositionX(), movementInfo.pos.GetPositionY() + movementInfo.transport.pos.GetPositionY(),
             movementInfo.pos.GetPositionZ() + movementInfo.transport.pos.GetPositionZ(), movementInfo.pos.GetOrientation() + movementInfo.transport.pos.GetOrientation()))
-        {
-            recvPacket.rfinish();                 // prevent warnings spam
             return;
-        }
 
         // if we boarded a transport, add us to it
         if (plrMover)
@@ -440,9 +431,9 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
 
     mover->UpdatePosition(movementInfo.pos);
 
-    WorldPackets::Movement::MoveUpdate moveUpdate;
-    moveUpdate.Status = &mover->m_movementInfo;
-    mover->SendMessageToSet(moveUpdate.Write(), _player);
+    WorldPacket data(SMSG_MOVE_UPDATE);
+    mover->WriteMovementInfo(data);
+    mover->SendMessageToSet(&data, _player);
 
     if (plrMover)                                            // nothing is charmed, or player charmed
     {
@@ -469,6 +460,12 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
                         plrMover->KillPlayer();
                 }
             }
+        }
+
+        if (opcode == MSG_MOVE_JUMP)
+        {
+            plrMover->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_JUMP, 605); // Mind Control
+            plrMover->ProcSkillsAndAuras(nullptr, PROC_FLAG_JUMP, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);
         }
     }
 }
@@ -682,14 +679,14 @@ void WorldSession::HandleSummonResponseOpcode(WorldPacket& recvData)
     _player->SummonIfPossible(agree);
 }
 
-void WorldSession::HandleSetCollisionHeightAck(WorldPackets::Movement::MoveSetCollisionHeightAck& packet)
+void WorldSession::HandleSetCollisionHeightAck(WorldPacket& recvData)
 {
-    _player->ValidateMovementInfo(&packet.Data.Status);
+    MovementInfo movementInfo;
+    static MovementStatusElements const heightElement = MSEExtraFloat;
+    Movement::ExtraMovementStatusElement extras(&heightElement);
+    GetPlayer()->ReadMovementInfo(recvData, &movementInfo, &extras);
 
-    WorldPackets::Movement::MoveUpdateCollisionHeight updateCollisionHeight;
-    updateCollisionHeight.Height = packet.Height;
-    updateCollisionHeight.Status = &_player->m_movementInfo;
-    _player->SendMessageToSet(updateCollisionHeight.Write(), false);
+    Movement::PacketSender(_player, NULL_OPCODE, NULL_OPCODE, SMSG_MOVE_UPDATE_COLLISION_HEIGHT, &extras).Send();
 }
 
 void WorldSession::HandleMoveTimeSkippedOpcode(WorldPacket& recvData)

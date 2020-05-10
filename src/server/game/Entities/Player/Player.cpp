@@ -27974,6 +27974,9 @@ void Player::ReadMovementInfo(WorldPacket& data, MovementInfo* mi, Movement::Ext
             case MSEHasSpline:
                 data.ReadBit();
                 break;
+            case MSEHasHeightChangeFailed:
+                data.ReadBit();
+                break;
             case MSEMovementFlags:
                 if (hasMovementFlags)
                     mi->flags = data.ReadBits(30);
