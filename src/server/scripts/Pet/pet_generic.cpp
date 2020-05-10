@@ -150,8 +150,34 @@ struct npc_pet_gen_soul_trader : public ScriptedAI
     }
 };
 
+enum LichPet
+{
+    SPELL_LICH_ONSUMMON     = 69735,
+    SPELL_LICH_REMOVE_AURA  = 69736
+};
+
+struct npc_pet_lich : public ScriptedAI
+{
+    npc_pet_lich(Creature* creature) : ScriptedAI(creature) { }
+
+    void LeavingWorld() override
+    {
+        if (Unit* owner = me->GetOwner())
+            DoCast(owner, SPELL_LICH_REMOVE_AURA);
+    }
+
+    void JustAppeared() override
+    {
+        if (Unit* owner = me->GetOwner())
+            DoCast(owner, SPELL_LICH_ONSUMMON);
+
+        CreatureAI::JustAppeared();
+    }
+};
+
 void AddSC_generic_pet_scripts()
 {
     new npc_pet_gen_pandaren_monk();
     RegisterCreatureAI(npc_pet_gen_soul_trader);
+    RegisterCreatureAI(npc_pet_lich);
 }
