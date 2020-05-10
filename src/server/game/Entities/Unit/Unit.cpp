@@ -8895,7 +8895,7 @@ bool Unit::IsInDisallowedMountForm() const
     CreatureModelDataEntry const* model = sCreatureModelDataStore.LookupEntry(display->ModelId);
     ChrRacesEntry const* race = sChrRacesStore.LookupEntry(displayExtra->Race);
 
-    if (model && !(model->Flags & 0x80))
+    if (model && !(model->HasFlag(CREATURE_MODEL_DATA_FLAGS_CAN_MOUNT)))
         if (race && !(race->Flags & 0x4))
             return true;
 
