@@ -35,6 +35,58 @@ namespace WorldPackets
             ObjectGuid CritterGUID;
         };
 
+        class PetAbandon final : public ClientPacket
+        {
+        public:
+            PetAbandon(WorldPacket&& packet) : ClientPacket(CMSG_PET_ABANDON, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid PetGUID;
+        };
+
+        class PetStopAttack final : public ClientPacket
+        {
+        public:
+            PetStopAttack(WorldPacket&& packet) : ClientPacket(CMSG_PET_STOP_ATTACK, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid PetGUID;
+        };
+
+        class PetSpellAutocast final : public ClientPacket
+        {
+        public:
+            PetSpellAutocast(WorldPacket&& packet) : ClientPacket(CMSG_PET_SPELL_AUTOCAST, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid PetGUID;
+            uint32 SpellID = 0;
+            bool AutocastEnabled = false;
+        };
+
+        class PetLearnedSpell final : public ServerPacket
+        {
+        public:
+            PetLearnedSpell() : ServerPacket(SMSG_PET_LEARNED_SPELL, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 SpellID = 0;
+        };
+
+        class PetUnlearnedSpell final : public ServerPacket
+        {
+        public:
+            PetUnlearnedSpell() : ServerPacket(SMSG_PET_UNLEARNED_SPELL, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 SpellID = 0;
+        };
+
         class RequestPetInfo final : public ClientPacket
         {
         public:
