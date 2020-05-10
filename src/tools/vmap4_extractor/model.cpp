@@ -27,7 +27,7 @@
 #include <cstdio>
 #include <limits>
 
-extern CASC::StorageHandle CascStorage;
+extern std::shared_ptr<CASC::Storage> CascStorage;
 
 Model::Model(std::string &filename) : filename(filename), vertices(0), indices(0)
 {

@@ -36,7 +36,7 @@
 #include <cstdlib>
 #include <cstring>
 
-CASC::StorageHandle CascStorage;
+std::shared_ptr<CASC::Storage> CascStorage;
 
 struct MapEntry
 {
@@ -1158,9 +1158,9 @@ void ExtractMaps(uint32 build)
     printf("\n");
 }
 
-bool ExtractFile(CASC::FileHandle const& fileInArchive, std::string const& filename)
+bool ExtractFile(CASC::File* fileInArchive, std::string const& filename)
 {
-    int64 fileSize = CASC::GetFileSize(fileInArchive);
+    int64 fileSize = fileInArchive->GetSize();
     if (fileSize == -1)
     {
         printf("Can't read file size of '%s'\n", filename.c_str());
@@ -1180,7 +1180,7 @@ bool ExtractFile(CASC::FileHandle const& fileInArchive, std::string const& filen
     do
     {
         readBytes = 0;
-        if (!CASC::ReadFile(fileInArchive, buffer, std::min<uint32>(fileSize, sizeof(buffer)), &readBytes))
+        if (!fileInArchive->ReadFile(buffer, std::min<uint32>(fileSize, sizeof(buffer)), &readBytes))
         {
             printf("Can't read file '%s'\n", filename.c_str());
             fclose(output);
@@ -1242,7 +1242,7 @@ bool ExtractDB2File(uint32 fileDataId, char const* cascFileName, int locale, boo
     for (uint32 i = 0; i < header.SectionCount; ++i)
     {
         DB2SectionHeader sectionHeader = db2.GetSectionHeader(i);
-        if (sectionHeader.TactId && CASC::HasTactKey(CascStorage, sectionHeader.TactId))
+        if (sectionHeader.TactId && CascStorage->HasTactKey(sectionHeader.TactId))
             sectionHeader.TactId = 0;
 
         posAfterHeaders += fwrite(&sectionHeader, 1, sizeof(sectionHeader), output);
@@ -1256,7 +1256,7 @@ bool ExtractDB2File(uint32 fileDataId, char const* cascFileName, int locale, boo
     do
     {
         readBytes = 0;
-        if (!CASC::ReadFile(source.GetHandle(), buffer, std::min<uint32>(fileSize, readBatchSize), &readBytes))
+        if (!source.GetNativeHandle()->ReadFile(buffer, std::min<uint32>(fileSize, readBatchSize), &readBytes))
         {
             printf("Can't read file '%s'\n", outputFileName.c_str());
             fclose(output);
@@ -1329,12 +1329,13 @@ void ExtractCameraFiles()
     uint32 count = 0;
     for (uint32 cameraFileDataId : CameraFileDataIds)
     {
-        if (CASC::FileHandle dbcFile = CASC::OpenFile(CascStorage, cameraFileDataId, CASC_LOCALE_NONE))
+        std::unique_ptr<CASC::File> cameraFile(CascStorage->OpenFile(cameraFileDataId, CASC_LOCALE_NONE));
+        if (cameraFile)
         {
             boost::filesystem::path filePath = outputPath / Trinity::StringFormat("FILE%08X.xxx", cameraFileDataId);
 
             if (!boost::filesystem::exists(filePath))
-                if (ExtractFile(dbcFile, filePath.string()))
+                if (ExtractFile(cameraFile.get(), filePath.string()))
                     ++count;
         }
         else
@@ -1384,12 +1385,13 @@ void ExtractGameTables()
     uint32 count = 0;
     for (DB2FileInfo const& gt : GameTables)
     {
-        if (CASC::FileHandle dbcFile = CASC::OpenFile(CascStorage, gt.FileDataId, CASC_LOCALE_NONE))
+        std::unique_ptr<CASC::File> dbcFile(CascStorage->OpenFile(gt.FileDataId, CASC_LOCALE_NONE));
+        if (dbcFile)
         {
             boost::filesystem::path filePath = outputPath / gt.Name;
 
             if (!boost::filesystem::exists(filePath))
-                if (ExtractFile(dbcFile, filePath.string()))
+                if (ExtractFile(dbcFile.get(), filePath.string()))
                     ++count;
         }
         else
@@ -1404,7 +1406,7 @@ bool OpenCascStorage(int locale)
     try
     {
         boost::filesystem::path const storage_dir(boost::filesystem::canonical(input_path) / "Data");
-        CascStorage = CASC::OpenStorage(storage_dir, WowLocaleToCascLocaleFlags[locale], CONF_Product);
+        CascStorage.reset(CASC::Storage::Open(storage_dir, WowLocaleToCascLocaleFlags[locale], CONF_Product));
         if (!CascStorage)
         {
             printf("error opening casc storage '%s' locale %s\n", storage_dir.string().c_str(), localeNames[locale]);
@@ -1425,11 +1427,11 @@ uint32 GetInstalledLocalesMask()
     try
     {
         boost::filesystem::path const storage_dir(boost::filesystem::canonical(input_path) / "Data");
-        CASC::StorageHandle storage = CASC::OpenStorage(storage_dir, CASC_LOCALE_ALL_WOW, CONF_Product);
+        std::unique_ptr<CASC::Storage> storage(CASC::Storage::Open(storage_dir, CASC_LOCALE_ALL_WOW, CONF_Product));
         if (!storage)
             return false;
 
-        return CASC::GetInstalledLocalesMask(storage);
+        return storage->GetInstalledLocalesMask();
     }
     catch (boost::filesystem::filesystem_error const& error)
     {
@@ -1480,7 +1482,6 @@ int main(int argc, char * arg[])
     if (!RetardCheck())
         return 1;
 
-
     uint32 installedLocalesMask = GetInstalledLocalesMask();
     int32 firstInstalledLocale = -1;
     uint32 build = 0;
@@ -1502,7 +1503,7 @@ int main(int argc, char * arg[])
         if ((CONF_extract & EXTRACT_DBC) == 0)
         {
             firstInstalledLocale = i;
-            build = CASC::GetBuildNumber(CascStorage);
+            build = CascStorage->GetBuildNumber();
             if (!build)
             {
                 CascStorage.reset();
@@ -1514,7 +1515,7 @@ int main(int argc, char * arg[])
         }
 
         //Extract DBC files
-        uint32 tempBuild = CASC::GetBuildNumber(CascStorage);
+        uint32 tempBuild = CascStorage->GetBuildNumber();
         if (!tempBuild)
         {
             CascStorage.reset();

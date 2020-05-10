@@ -60,7 +60,7 @@ bool ExtractSingleModel(std::string& fname)
     return mdl.ConvertToVMAPModel(output.c_str());
 }
 
-extern CASC::StorageHandle CascStorage;
+extern std::shared_ptr<CASC::Storage> CascStorage;
 
 enum ModelTypes : uint32
 {
@@ -72,12 +72,12 @@ enum ModelTypes : uint32
 bool GetHeaderMagic(std::string const& fileName, uint32* magic)
 {
     *magic = 0;
-    CASC::FileHandle file = CASC::OpenFile(CascStorage, fileName.c_str(), CASC_LOCALE_ALL_WOW);
+    std::unique_ptr<CASC::File> file(CascStorage->OpenFile(fileName.c_str(), CASC_LOCALE_ALL_WOW));
     if (!file)
         return false;
 
     uint32 bytesRead = 0;
-    if (!CASC::ReadFile(file, magic, 4, &bytesRead) || bytesRead != 4)
+    if (!file->ReadFile(magic, 4, &bytesRead) || bytesRead != 4)
         return false;
 
     return true;
