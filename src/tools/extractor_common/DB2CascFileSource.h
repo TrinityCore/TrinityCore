@@ -32,8 +32,10 @@ struct DB2CascFileSource : public DB2FileSource
     int64 GetFileSize() const override;
     CASC::File* GetNativeHandle() const;
     char const* GetFileName() const override;
+    DB2EncryptedSectionHandling HandleEncryptedSection(DB2SectionHeader const& sectionHeader) const override;
 
 private:
+    std::weak_ptr<CASC::Storage const> _storageHandle;
     std::unique_ptr<CASC::File> _fileHandle;
     std::string _fileName;
 };
