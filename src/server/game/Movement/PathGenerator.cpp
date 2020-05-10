@@ -444,19 +444,9 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
                 hit *= 0.99f;
                 dtVlerp(hitPos, startPoint, endPoint, hit);
 
+                // if it fails again, clamp to poly boundary
                 if (dtStatusFailed(_navMeshQuery->getPolyHeight(_pathPolyRefs[_polyLength - 1], hitPos, &hitPos[1])))
-                {
-                    // Walk back a bit more
-                    hit *= 0.99f;
-                    dtVlerp(hitPos, startPoint, endPoint, hit);
-
-                    if (dtStatusFailed(_navMeshQuery->getPolyHeight(_pathPolyRefs[_polyLength - 1], hitPos, &hitPos[1])))
-                    {
-                        BuildShortcut();
-                        _type = PATHFIND_NOPATH;
-                        return;
-                    }
-                }
+                    _navMeshQuery->closestPointOnPolyBoundary(_pathPolyRefs[_polyLength - 1], hitPos, hitPos);
 
                 _pathPoints.resize(2);
                 _pathPoints[0] = GetStartPosition();
