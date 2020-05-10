@@ -21,3 +21,32 @@ void WorldPackets::Pet::DismissCritter::Read()
 {
     _worldPacket >> CritterGUID;
 }
+
+void WorldPackets::Pet::PetAbandon::Read()
+{
+    _worldPacket >> PetGUID;
+}
+
+void WorldPackets::Pet::PetStopAttack::Read()
+{
+    _worldPacket >> PetGUID;
+}
+
+void WorldPackets::Pet::PetSpellAutocast::Read()
+{
+    _worldPacket >> PetGUID;
+    _worldPacket >> SpellID;
+    _worldPacket >> AutocastEnabled;
+}
+
+WorldPacket const* WorldPackets::Pet::PetLearnedSpell::Write()
+{
+    _worldPacket << uint32(SpellID);
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Pet::PetUnlearnedSpell::Write()
+{
+    _worldPacket << uint32(SpellID);
+    return &_worldPacket;
+}

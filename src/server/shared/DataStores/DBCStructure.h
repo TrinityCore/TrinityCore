@@ -493,6 +493,11 @@ struct CreatureFamilyEntry
                                                             // 27       m_iconFile
 };
 
+enum CreatureModelDataFlags
+{
+    CREATURE_MODEL_DATA_FLAGS_CAN_MOUNT = 0x00000080
+};
+
 struct CreatureModelDataEntry
 {
     uint32 Id;
@@ -513,6 +518,8 @@ struct CreatureModelDataEntry
     float CollisionHeight;
     float MountHeight;                                       // Used in calculation of unit collision data when mounted
     //float Unks[11]
+
+    inline bool HasFlag(CreatureModelDataFlags flag) const { return !!(Flags & flag); }
 };
 
 struct CreatureSpellDataEntry
@@ -522,12 +529,17 @@ struct CreatureSpellDataEntry
     //uint32    availability[MAX_CREATURE_SPELL_DATA_SLOT]; // 4-7      m_availability[4]
 };
 
+enum CreatureTypeEntryFlags
+{
+    CREATURE_TYPE_ENTRY_FLAGS_IGNORED_TAB_TARGETING = 0x01 // Means do not include in tab targeting.
+};
+
 struct CreatureTypeEntry
 {
     uint32    ID;                                           // 0        m_ID
     //char*   Name[16];                                     // 1-16     name
                                                             // 17       string flags
-    //uint32    no_expirience;                              // 18 no exp? critters, non-combat pets, gas cloud.
+    //uint32  Flags;                                        // 18 Critters, non-combat pets, gas cloud. (called Flags in struct)
 };
 
 /* not used

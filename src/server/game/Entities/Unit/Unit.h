@@ -1798,12 +1798,16 @@ public:
 
         void ProcSkillsAndReactives(bool isVictim, Unit* procTarget, uint32 typeMask, uint32 hitMask, WeaponAttackType attType);
 
+    protected:
+
         void SetFeared(bool apply);
         void SetConfused(bool apply);
         void SetStunned(bool apply);
         void SetRooted(bool apply);
 
         uint32 m_rootTimes;
+
+    private:
 
         uint32 m_state;                                     // Even derived shouldn't modify
         uint32 m_lastManaUse;                               // msecs
