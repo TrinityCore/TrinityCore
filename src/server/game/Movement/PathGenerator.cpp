@@ -432,6 +432,7 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
             {
                 BuildShortcut();
                 _type = PATHFIND_NOPATH;
+                AddFarFromPolyFlags(startFarFromPoly, endFarFromPoly);
                 return;
             }
 
@@ -454,6 +455,7 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
 
                 NormalizePath();
                 _type = PATHFIND_INCOMPLETE;
+                AddFarFromPolyFlags(startFarFromPoly, false);
                 return;
             }
             else
@@ -468,6 +470,7 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
 
                 NormalizePath();
                 _type = PATHFIND_NORMAL;
+                AddFarFromPolyFlags(startFarFromPoly, endFarFromPoly);
                 return;
             }
         }
