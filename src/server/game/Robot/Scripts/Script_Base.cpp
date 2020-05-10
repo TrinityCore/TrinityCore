@@ -1228,12 +1228,12 @@ bool Script_Base::Follow(Unit* pmTarget, float pmDistance)
                         me->AttackStop();
                         me->StopMoving();
                         me->GetMotionMaster()->Clear();
-                        me->SetSelection(ObjectGuid());
+                        ClearTarget();
                         return false;
                     }
                     if (me->GetTarget() != pmTarget->GetGUID())
                     {
-                        me->SetSelection(pmTarget->GetGUID());
+                        ChooseTarget(pmTarget);                        
                     }
                     return true;
                 }
@@ -1247,7 +1247,7 @@ bool Script_Base::Follow(Unit* pmTarget, float pmDistance)
     me->AttackStop();
     me->StopMoving();
     me->GetMotionMaster()->Clear();
-    me->SetSelection(ObjectGuid());
+    ClearTarget();
     if (me->GetStandState() != UnitStandStateType::UNIT_STAND_STATE_STAND)
     {
         me->SetStandState(UNIT_STAND_STATE_STAND);
@@ -1256,7 +1256,7 @@ bool Script_Base::Follow(Unit* pmTarget, float pmDistance)
     {
         me->SetWalk(false);
     }
-    me->SetSelection(pmTarget->GetGUID());
+    ChooseTarget(pmTarget);
     me->GetMotionMaster()->MoveChase(pmTarget, ChaseRange(0.0f, pmDistance));
 
     return true;
@@ -1292,7 +1292,7 @@ bool Script_Base::Chase(Unit* pmTarget, float pmMaxDistance, float pmMinDistance
                 me->AttackStop();
                 me->StopMoving();
                 me->GetMotionMaster()->Clear();
-                me->SetSelection(ObjectGuid());
+                ClearTarget();
 
                 float destX = 0.0f;
                 float destY = 0.0f;
@@ -1316,7 +1316,7 @@ bool Script_Base::Chase(Unit* pmTarget, float pmMaxDistance, float pmMinDistance
                         me->AttackStop();
                         me->StopMoving();
                         me->GetMotionMaster()->Clear();
-                        me->SetSelection(ObjectGuid());
+                        ClearTarget();
                         return false;
                     }
                     //else if(!sRobotManager->UnitTargetReachable(me,pmTarget))
@@ -1330,7 +1330,7 @@ bool Script_Base::Chase(Unit* pmTarget, float pmMaxDistance, float pmMinDistance
                     //}
                     if (me->GetTarget() != pmTarget->GetGUID())
                     {
-                        me->SetSelection(pmTarget->GetGUID());
+                        ChooseTarget(pmTarget);
                     }
                     return true;
                 }
@@ -1348,7 +1348,7 @@ bool Script_Base::Chase(Unit* pmTarget, float pmMaxDistance, float pmMinDistance
     me->AttackStop();
     me->StopMoving();
     me->GetMotionMaster()->Clear();
-    me->SetSelection(ObjectGuid());
+    ClearTarget();
     if (me->GetStandState() != UnitStandStateType::UNIT_STAND_STATE_STAND)
     {
         me->SetStandState(UNIT_STAND_STATE_STAND);
@@ -1357,7 +1357,7 @@ bool Script_Base::Chase(Unit* pmTarget, float pmMaxDistance, float pmMinDistance
     {
         me->SetWalk(false);
     }
-    me->SetSelection(pmTarget->GetGUID());
+    ChooseTarget(pmTarget);
     me->GetMotionMaster()->MoveChase(pmTarget, ChaseRange(pmMinDistance, pmMaxDistance));
     return true;
 }
@@ -1455,7 +1455,7 @@ bool Script_Base::CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDis
     }
     if (me->GetTarget() != pmTarget->GetGUID())
     {
-        me->SetSelection(pmTarget->GetGUID());
+        ChooseTarget(pmTarget);
     }
     if (!me->isInFront(pmTarget))
     {
@@ -1726,7 +1726,7 @@ bool Script_Base::Rest()
     me->CombatStop(true);
     me->GetMotionMaster()->Clear();
     me->StopMoving();
-    me->SetSelection(ObjectGuid());
+    ClearTarget();
 
     Item* pFood = GetItemInInventory(foodEntry);
     if (pFood && !pFood->IsInTrade())
@@ -1916,4 +1916,25 @@ bool Script_Base::UseManaPotion()
     }
 
     return result;
+}
+
+void Script_Base::ChooseTarget(Unit* pmTarget)
+{
+    if (pmTarget)
+    {
+        if (me)
+        {
+            me->SetSelection(pmTarget->GetGUID());
+            me->SetTarget(pmTarget->GetGUID());
+        }
+    }    
+}
+
+void Script_Base::ClearTarget()
+{
+    if (me)
+    {
+        me->SetSelection(ObjectGuid::Empty);
+        me->SetTarget(ObjectGuid::Empty);
+    }
 }

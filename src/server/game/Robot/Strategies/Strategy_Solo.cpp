@@ -492,7 +492,7 @@ bool Strategy_Solo::Wait()
 {
     if (me)
     {
-        me->SetSelection(ObjectGuid());
+        sb->ClearTarget();
         me->AttackStop();
         me->GetMotionMaster()->Clear();
         me->StopMoving();

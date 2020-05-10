@@ -267,6 +267,12 @@ public:
                 OGBossMagistrateBarthilas = creature->GetGUID();
                 break;
             }
+            case 10411:
+            {
+                // EJ eye of nax will not spawn
+                creature->DespawnOrUnsummon(0, 24h * 7);
+                break;
+            }
             default:
             {
                 break;
@@ -582,32 +588,35 @@ public:
 
                     if (Creature* ysida = instance->GetCreature(ysidaGUID))
                     {
-                        if (GameObject* cage = instance->GetGameObject(ysidaCageGUID))
-                            cage->UseDoorOrButton();
-
-                        float x, y, z;
-                        //! This spell handles the Dead man's plea quest completion
-                        ysida->CastSpell(nullptr, SPELL_YSIDA_SAVED, true);
-                        ysida->SetWalk(true);
-                        ysida->AI()->Talk(SAY_YSIDA_SAVED);
-                        ysida->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-                        ysida->GetClosePoint(x, y, z, ysida->GetObjectScale() / 3, 4.0f);
-                        ysida->GetMotionMaster()->MovePoint(1, x, y, z);
-
-                        Map::PlayerList const& players = instance->GetPlayers();
-
-                        for (auto const& i : players)
+                        if (ysida->IsAlive())
                         {
-                            if (Player* player = i.GetSource())
-                            {
-                                if (player->IsGameMaster())
-                                    continue;
+                            if (GameObject* cage = instance->GetGameObject(ysidaCageGUID))
+                                cage->UseDoorOrButton();
 
-                                //! im not quite sure what this one is supposed to do
-                                //! this is server-side spell
-                                player->CastSpell(ysida, SPELL_YSIDA_CREDIT_EFFECT, true);
+                            float x, y, z;
+                            //! This spell handles the Dead man's plea quest completion
+                            ysida->CastSpell(nullptr, SPELL_YSIDA_SAVED, true);
+                            ysida->SetWalk(true);
+                            ysida->AI()->Talk(SAY_YSIDA_SAVED);
+                            ysida->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                            ysida->GetClosePoint(x, y, z, ysida->GetObjectScale() / 3, 4.0f);
+                            ysida->GetMotionMaster()->MovePoint(1, x, y, z);
+
+                            Map::PlayerList const& players = instance->GetPlayers();
+
+                            for (auto const& i : players)
+                            {
+                                if (Player* player = i.GetSource())
+                                {
+                                    if (player->IsGameMaster())
+                                        continue;
+
+                                    //! im not quite sure what this one is supposed to do
+                                    //! this is server-side spell
+                                    player->CastSpell(ysida, SPELL_YSIDA_CREDIT_EFFECT, true);
+                                }
                             }
-                        }
+                        }                        
                     }
                     events.CancelEvent(EVENT_BARON_RUN);
                     break;
@@ -700,8 +709,10 @@ public:
                     if (GetData(TYPE_BARON_RUN) == IN_PROGRESS)
                         DoRemoveAurasDueToSpellOnPlayers(SPELL_BARON_ULTIMATUM);
 
-                    SetData(TYPE_BARON_RUN, DONE);
-
+                    if (GetData(TYPE_BARON_RUN) != FAIL)
+                    {
+                        SetData(TYPE_BARON_RUN, DONE);
+                    }
                     if (Creature* aurius = instance->GetCreature(OGAurius))
                     {
                         aurius->AI()->SetData(AURIUS_DATA_TYPE::DATA_TYPE_VICTORY, 0);

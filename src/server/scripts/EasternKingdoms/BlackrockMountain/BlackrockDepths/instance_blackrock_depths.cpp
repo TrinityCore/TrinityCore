@@ -595,6 +595,10 @@ public:
                     if (me->GetHealthPct() < 30.0f)
                     {
                         DoCastSelf(14872);
+                        events.Repeat(20000, 25000);
+                    }
+                    else
+                    {
                         events.Repeat(2000, 5000);
                     }
                     break;

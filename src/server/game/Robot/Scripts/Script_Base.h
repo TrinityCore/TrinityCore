@@ -88,6 +88,8 @@ public:
     void Prepare();    
     bool Chase(Unit* pmTarget, float pmMaxDistance = MELEE_MIN_DISTANCE, float pmMinDistance = MIN_DISTANCE_GAP);
     bool Follow(Unit* pmTarget, float pmDistance = FOLLOW_MIN_DISTANCE);
+    void ChooseTarget(Unit* pmTarget);
+    void ClearTarget();
 
     Player* me;
     std::unordered_map<std::string, uint32> spellIDMap;

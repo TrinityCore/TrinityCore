@@ -901,7 +901,7 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                             if (member->GetGUID() == targetGUID)
                             {
                                 validTarget = true;
-                                replyStream << "Joining " << member->GetName();                                
+                                replyStream << "Joining " << member->GetName();
                                 pmPlayer->TeleportTo(member->GetWorldLocation());
                             }
                         }
@@ -1647,7 +1647,7 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                             member->AttackStop();
                             member->StopMoving();
                             member->GetMotionMaster()->Clear();
-                            member->SetSelection(ObjectGuid());
+                            member->raiGroup->GetActiveStrategy()->sb->ClearTarget();
                             if (member->GetStandState() != UnitStandStateType::UNIT_STAND_STATE_STAND)
                             {
                                 member->SetStandState(UNIT_STAND_STATE_STAND);
@@ -1659,7 +1659,7 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                             member->raiGroup->GetActiveStrategy()->restDelay = 0;
                             member->raiGroup->GetActiveStrategy()->staying = false;
                             member->raiGroup->GetActiveStrategy()->holding = false;
-                            member->SetSelection(pmSender->GetGUID());
+                            member->raiGroup->GetActiveStrategy()->sb->ChooseTarget(pmSender);
                             member->GetMotionMaster()->MoveChase(pmSender, ChaseRange(0.0f, member->raiGroup->GetActiveStrategy()->followDistance));
                             replyStream << "Following " << member->raiGroup->GetActiveStrategy()->followDistance;
                         }
@@ -1833,13 +1833,13 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                                             member->AttackStop();
                                             member->StopMoving();
                                             member->GetMotionMaster()->Clear();
-                                            member->SetSelection(ObjectGuid());
+                                            member->raiGroup->GetActiveStrategy()->sb->ClearTarget();
                                             member->raiGroup->GetActiveStrategy()->staying = false;
                                             if (member->groupRole == GroupRole::GroupRole_Tank)
                                             {
                                                 if (member->raiGroup->GetActiveStrategy()->sb->Tank(target, !member->raiGroup->GetActiveStrategy()->holding))
                                                 {
-                                                    member->SetSelection(target->GetGUID());
+                                                    member->raiGroup->GetActiveStrategy()->sb->ChooseTarget(target);
                                                     member->GetMotionMaster()->MoveChase(target, ChaseRange(member->raiGroup->GetActiveStrategy()->sb->chaseDistanceMin, member->raiGroup->GetActiveStrategy()->sb->chaseDistanceMax));
                                                     int engageDelay = 5000;
                                                     if (commandVector.size() > 1)
@@ -1859,7 +1859,7 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                                             {
                                                 if (member->raiGroup->GetActiveStrategy()->sb->DPS(target, !member->raiGroup->GetActiveStrategy()->holding, false))
                                                 {
-                                                    member->SetSelection(target->GetGUID());
+                                                    member->raiGroup->GetActiveStrategy()->sb->ChooseTarget(target);
                                                     member->GetMotionMaster()->MoveChase(target, ChaseRange(member->raiGroup->GetActiveStrategy()->sb->chaseDistanceMin, member->raiGroup->GetActiveStrategy()->sb->chaseDistanceMax));
                                                     int engageDelay = 5000;
                                                     if (commandVector.size() > 1)
@@ -2124,12 +2124,12 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                                                 member->AttackStop();
                                                 member->StopMoving();
                                                 member->GetMotionMaster()->Clear();
-                                                member->SetSelection(ObjectGuid());
+                                                member->raiGroup->GetActiveStrategy()->sb->ClearTarget();
                                                 member->raiGroup->GetActiveStrategy()->staying = false;
                                                 std::ostringstream replyStream;
                                                 if (member->raiGroup->GetActiveStrategy()->sb->Tank(target, !member->raiGroup->GetActiveStrategy()->holding))
                                                 {
-                                                    member->SetSelection(target->GetGUID());
+                                                    member->raiGroup->GetActiveStrategy()->sb->ChooseTarget(target);
                                                     member->GetMotionMaster()->MoveChase(target, ChaseRange(member->raiGroup->GetActiveStrategy()->sb->chaseDistanceMin, member->raiGroup->GetActiveStrategy()->sb->chaseDistanceMax));
                                                     int engageDelay = 5000;
                                                     if (commandVector.size() > 1)
@@ -3650,7 +3650,7 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
     else if (commandName == "lightwell")
     {
         if (Group* checkGroup = pmSender->GetGroup())
-        {            
+        {
             if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
             {
                 for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
