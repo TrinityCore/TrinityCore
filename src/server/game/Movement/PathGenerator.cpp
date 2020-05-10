@@ -168,6 +168,8 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
     dtPolyRef startPoly = GetPolyByLocation(startPoint, &distToStartPoly);
     dtPolyRef endPoly = GetPolyByLocation(endPoint, &distToEndPoly);
 
+    _type = PathType(PATHFIND_NORMAL);
+
     // we have a hole in our mesh
     // make shortcut path and mark it as NOPATH ( with flying and swimming exception )
     // its up to caller how he will use this info
@@ -469,8 +471,14 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
                 _pathPoints[1] = G3D::Vector3(endPoint[2], endPoint[0], endPoint[1]);
 
                 NormalizePath();
-                _type = PATHFIND_NORMAL;
-                AddFarFromPolyFlags(startFarFromPoly, endFarFromPoly);
+                if (startFarFromPoly || endFarFromPoly)
+                {
+                    _type = PathType(PATHFIND_INCOMPLETE);
+
+                    AddFarFromPolyFlags(startFarFromPoly, endFarFromPoly);
+                }
+                else
+                    _type = PATHFIND_NORMAL;
                 return;
             }
         }
