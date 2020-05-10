@@ -2012,6 +2012,44 @@ class spell_pal_lights_beacon : public AuraScript
     }
 };
 
+// 1022 - Hand of Protection
+class spell_pal_hand_of_protection : public SpellScript
+{
+    PrepareSpellScript(spell_pal_hand_of_protection);
+
+    void HandleForbearance(SpellEffIndex /*effIndex*/)
+    {
+        // Serverside spell, so it's not sent in spell cast packets which gives us freedom of choice here
+        GetHitUnit()->AddAura(SPELL_PALADIN_IMMUNE_SHIELD_MARKER, GetHitUnit());
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(GetHitUnit(), SPELL_PALADIN_FORBEARANCE, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pal_hand_of_protection::HandleForbearance, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+    }
+};
+
+// 642 -  Divine Shield
+class spell_pal_divine_shield : public SpellScript
+{
+    PrepareSpellScript(spell_pal_divine_shield);
+
+    void HandleForbearance(SpellEffIndex /*effIndex*/)
+    {
+        // Serverside spell, so it's not sent in spell cast packets which gives us freedom of choice here
+        GetHitUnit()->AddAura(SPELL_PALADIN_IMMUNE_SHIELD_MARKER, GetHitUnit());
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(GetHitUnit(), SPELL_PALADIN_FORBEARANCE, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pal_divine_shield::HandleForbearance, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+    }
+};
+
 void AddSC_paladin_spell_scripts()
 {
     RegisterAuraScript(spell_pal_ardent_defender);
@@ -2026,6 +2064,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_consecration();
     RegisterAuraScript(spell_pal_divine_purpose);
     new spell_pal_divine_sacrifice();
+    RegisterSpellScript(spell_pal_divine_shield);
     RegisterSpellScript(spell_pal_divine_storm);
     RegisterSpellScript(spell_pal_divine_storm_dummy);
     RegisterSpellAndAuraScriptPair(spell_pal_exorcism, spell_pal_exorcism_AuraScript);
@@ -2036,6 +2075,7 @@ void AddSC_paladin_spell_scripts()
     RegisterSpellScript(spell_pal_guardian_of_ancient_kings);
     new spell_pal_hand_of_light();
     RegisterSpellAndAuraScriptPair(spell_pal_holy_radiance, spell_pal_holy_radiance_AuraScript);
+    RegisterSpellScript(spell_pal_hand_of_protection);
     new spell_pal_hand_of_sacrifice();
     new spell_pal_holy_shock();
     RegisterAuraScript(spell_pal_illuminated_healing);

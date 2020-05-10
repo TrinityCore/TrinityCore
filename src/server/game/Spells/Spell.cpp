@@ -625,7 +625,6 @@ m_caster((info->HasAttribute(SPELL_ATTR6_CAST_BY_CHARMER) && caster->GetCharmerO
     focusObject = nullptr;
     m_cast_count = 0;
     m_glyphIndex = 0;
-    m_preCastSpell = 0;
     m_triggeredByAuraSpell  = nullptr;
     m_spellAura = nullptr;
 
@@ -2916,29 +2915,6 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
 
 void Spell::DoTriggersOnSpellHit(Unit* unit, uint8 effMask)
 {
-    // Apply additional spell effects to target
-    /// @todo move this code to scripts
-    if (m_preCastSpell)
-    {
-        // Paladin immunity shields
-        if (m_preCastSpell == 61988)
-        {
-            // Cast Forbearance
-            m_caster->CastSpell(unit, 25771, true);
-            // Cast Avenging Wrath Marker
-            unit->CastSpell(unit, 61987, true);
-        }
-
-        // Avenging Wrath
-        if (m_preCastSpell == 61987)
-            // Cast the serverside immunity shield marker
-            m_caster->CastSpell(unit, 61988, true);
-
-        if (sSpellMgr->GetSpellInfo(m_preCastSpell))
-            // Blizz seems to just apply aura without bothering to cast
-            m_caster->AddAura(m_preCastSpell, unit);
-    }
-
     // handle SPELL_AURA_ADD_TARGET_TRIGGER auras
     // this is executed after spell proc spells on target hit
     // spells are triggered for each hit spell target
@@ -8098,29 +8074,6 @@ bool Spell::CanExecuteTriggersOnHit(uint8 effMask, SpellInfo const* triggeredByA
 
 void Spell::PrepareTriggersExecutedOnHit()
 {
-    /// @todo move this to scripts
-    if (m_spellInfo->SpellFamilyName)
-    {
-        SpellInfo const* excludeCasterSpellInfo = sSpellMgr->GetSpellInfo(m_spellInfo->ExcludeCasterAuraSpell);
-        if (excludeCasterSpellInfo && !excludeCasterSpellInfo->IsPositive())
-            m_preCastSpell = m_spellInfo->ExcludeCasterAuraSpell;
-        SpellInfo const* excludeTargetSpellInfo = sSpellMgr->GetSpellInfo(m_spellInfo->ExcludeTargetAuraSpell);
-        if (excludeTargetSpellInfo && !excludeTargetSpellInfo->IsPositive())
-            m_preCastSpell = m_spellInfo->ExcludeTargetAuraSpell;
-    }
-
-    /// @todo move this to scripts
-    switch (m_spellInfo->SpellFamilyName)
-    {
-        case SPELLFAMILY_MAGE:
-        {
-             // Permafrost
-             if (m_spellInfo->SpellFamilyFlags[1] & 0x00001000 ||  m_spellInfo->SpellFamilyFlags[0] & 0x00100220)
-                 m_preCastSpell = 68391;
-             break;
-        }
-    }
-
     // handle SPELL_AURA_ADD_TARGET_TRIGGER auras:
     // save auras which were present on spell caster on cast, to prevent triggered auras from affecting caster
     // and to correctly calculate proc chance when combopoints are present

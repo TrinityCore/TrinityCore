@@ -86,7 +86,8 @@ enum MageSpells
     SPELL_MAGE_MIRROR_IMAGE_TRIGGERED_FIRE       = 88092,
     SPELL_MAGE_MIRROR_IMAGE_TRIGGERED_ARCANE     = 88091,
     SPELL_MAGE_MIRROR_IMAGE_TRIGGERED_FROST      = 58832,
-    SPELL_MAGE_PERMAFROST                        = 91394,
+    SPELL_MAGE_PERMAFROST_REDUCE_HEAL            = 68391,
+    SPELL_MAGE_PERMAFROST_HEAL                   = 91394,
     SPELL_MAGE_PYROBLAST                         = 11366,
     SPELL_MAGE_PYROMANIAC_TRIGGERED              = 83582,
     SPELL_MAGE_SCORCH                            = 2948,
@@ -1068,44 +1069,39 @@ class spell_mage_nether_vortex : public AuraScript
 };
 
 // -11175 - Permafrost
-class spell_mage_permafrost : public SpellScriptLoader
+class spell_mage_permafrost : public AuraScript
 {
-    public:
-        spell_mage_permafrost() : SpellScriptLoader("spell_mage_permafrost") { }
+    PrepareAuraScript(spell_mage_permafrost);
 
-        class spell_mage_permafrost_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_mage_permafrost_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
             {
-                return ValidateSpellInfo({ SPELL_MAGE_PERMAFROST });
-            }
+                SPELL_MAGE_PERMAFROST_HEAL,
+                SPELL_MAGE_PERMAFROST_REDUCE_HEAL
+            });
+    }
 
-            bool DoCheck(ProcEventInfo& eventInfo)
-            {
-                return GetTarget()->GetGuardianPet() && eventInfo.GetDamageInfo()->GetDamage();
-            }
+    bool DoCheck(ProcEventInfo& eventInfo)
+    {
+        return GetTarget()->GetGuardianPet() && eventInfo.GetDamageInfo()->GetDamage() && eventInfo.GetProcTarget();
+    }
 
-            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
-            {
-                PreventDefaultAction();
+    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
 
-                int32 heal = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount()));
-                GetTarget()->CastCustomSpell(SPELL_MAGE_PERMAFROST, SPELLVALUE_BASE_POINT0, heal, (Unit*)nullptr, true, nullptr, aurEff);
-            }
+        Unit* target = GetTarget();
+        int32 heal = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount()));
+        target->CastCustomSpell(SPELL_MAGE_PERMAFROST_HEAL, SPELLVALUE_BASE_POINT0, heal, (Unit*)nullptr, true, nullptr, aurEff);
+        target->CastSpell(eventInfo.GetProcTarget(), SPELL_MAGE_PERMAFROST_REDUCE_HEAL, true, nullptr, aurEff);
+    }
 
-            void Register() override
-            {
-                DoCheckProc += AuraCheckProcFn(spell_mage_permafrost_AuraScript::DoCheck);
-                OnEffectProc += AuraEffectProcFn(spell_mage_permafrost_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_mage_permafrost_AuraScript();
-        }
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_mage_permafrost::DoCheck);
+        OnEffectProc += AuraEffectProcFn(spell_mage_permafrost::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
 };
 
 // 118 - Polymorph
@@ -2330,7 +2326,7 @@ void AddSC_mage_spell_scripts()
     RegisterSpellAndAuraScriptPair(spell_mage_mirror_image, spell_mage_mirror_image_AurasScript);
     RegisterAuraScript(spell_mage_nether_vortex);
     RegisterAuraScript(spell_mage_offensive_state_dnd);
-    new spell_mage_permafrost();
+    RegisterAuraScript(spell_mage_permafrost);
     new spell_mage_polymorph();
     new spell_mage_polymorph_cast_visual();
     RegisterAuraScript(spell_mage_pyromaniac);
