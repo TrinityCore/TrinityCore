@@ -267,16 +267,10 @@ class TC_PROTO_API ChallengeListener : public ServiceBase
   static google::protobuf::ServiceDescriptor const* descriptor();
 
   // client methods --------------------------------------------------
+  void OnExternalChallenge(::bgs::protocol::challenge::v1::ChallengeExternalRequest const* request, bool client = false, bool server = false);
+  void OnExternalChallengeResult(::bgs::protocol::challenge::v1::ChallengeExternalResult const* request, bool client = false, bool server = false);
 
-  void OnExternalChallenge(::bgs::protocol::challenge::v1::ChallengeExternalRequest const* request);
-  void OnExternalChallengeResult(::bgs::protocol::challenge::v1::ChallengeExternalResult const* request);
-  // server methods --------------------------------------------------
-
-  void CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) override final;
-
- protected:
-  virtual uint32 HandleOnExternalChallenge(::bgs::protocol::challenge::v1::ChallengeExternalRequest const* request);
-  virtual uint32 HandleOnExternalChallengeResult(::bgs::protocol::challenge::v1::ChallengeExternalResult const* request);
+  void CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) final;
 
  private:
   uint32 service_hash_;
