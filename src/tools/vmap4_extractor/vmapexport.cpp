@@ -43,24 +43,20 @@
     #define mkdir _mkdir
 #endif
 
-//------------------------------------------------------------------------------
-// Defines
-
-#define MPQ_BLOCK_SIZE 0x1000
-
 //-----------------------------------------------------------------------------
 
 std::shared_ptr<CASC::Storage> CascStorage;
 
 struct MapEntry
 {
+    uint32 Id = 0;
     int32 WdtFileDataId = 0;
     int16 ParentMapID = 0;
     std::string Name;
     std::string Directory;
 };
 
-std::map<uint32, MapEntry> map_ids;
+std::vector<MapEntry> map_ids; // partitioned by parent maps first
 std::unordered_set<uint32> maps_that_are_parents;
 boost::filesystem::path input_path;
 bool preciseVectorData = false;
@@ -253,12 +249,16 @@ void ParsMapFiles()
         auto itr = wdts.find(mapId);
         if (itr == wdts.end())
         {
-            uint32 fileDataId = map_ids[mapId].WdtFileDataId;
+            auto mapEntryItr = std::find_if(map_ids.begin(), map_ids.end(), [mapId](MapEntry const& mapEntry) { return mapEntry.Id == mapId; });
+            if (mapEntryItr == map_ids.end())
+                return nullptr;
+
+            uint32 fileDataId = mapEntryItr->WdtFileDataId;
             if (!fileDataId)
                 return nullptr;
 
-            std::string description = Trinity::StringFormat("WDT for map %u - %s (FileDataID %u)", mapId, map_ids[mapId].Name.c_str(), fileDataId);
-            std::string directory = map_ids[mapId].Directory;
+            std::string description = Trinity::StringFormat("WDT for map %u - %s (FileDataID %u)", mapId, mapEntryItr->Name.c_str(), fileDataId);
+            std::string directory = mapEntryItr->Directory;
             itr = wdts.emplace(std::piecewise_construct, std::forward_as_tuple(mapId), std::forward_as_tuple(fileDataId, description, std::move(directory), maps_that_are_parents.count(mapId) > 0)).first;
             if (!itr->second.init(mapId))
             {
@@ -272,10 +272,10 @@ void ParsMapFiles()
 
     for (auto itr = map_ids.begin(); itr != map_ids.end(); ++itr)
     {
-        if (WDTFile* WDT = getWDT(itr->first))
+        if (WDTFile* WDT = getWDT(itr->Id))
         {
-            WDTFile* parentWDT = itr->second.ParentMapID >= 0 ? getWDT(itr->second.ParentMapID) : nullptr;
-            printf("Processing Map %u\n[", itr->first);
+            WDTFile* parentWDT = itr->ParentMapID >= 0 ? getWDT(itr->ParentMapID) : nullptr;
+            printf("Processing Map %u\n[", itr->Id);
             for (int32 x = 0; x < 64; ++x)
             {
                 for (int32 y = 0; y < 64; ++y)
@@ -283,14 +283,14 @@ void ParsMapFiles()
                     bool success = false;
                     if (ADTFile* ADT = WDT->GetMap(x, y))
                     {
-                        success = ADT->init(itr->first, itr->first);
+                        success = ADT->init(itr->Id, itr->Id);
                         WDT->FreeADT(ADT);
                     }
                     if (!success && parentWDT)
                     {
                         if (ADTFile* ADT = parentWDT->GetMap(x, y))
                         {
-                            ADT->init(itr->first, itr->second.ParentMapID);
+                            ADT->init(itr->Id, itr->ParentMapID);
                             parentWDT->FreeADT(ADT);
                         }
                     }
@@ -487,34 +487,47 @@ int main(int argc, char ** argv)
             exit(1);
         }
 
+        map_ids.reserve(db2.GetRecordCount());
+        std::unordered_map<uint32, std::size_t> idToIndex;
         for (uint32 x = 0; x < db2.GetRecordCount(); ++x)
         {
             DB2Record record = db2.GetRecord(x);
             if (!record)
                 continue;
 
-            MapEntry& m = map_ids[record.GetId()];
-            m.WdtFileDataId = record.GetInt32("WdtFileDataID");
-            m.ParentMapID = int16(record.GetUInt16("ParentMapID"));
-            m.Name = record.GetString("MapName");
-            m.Directory = record.GetString("Directory");
-            if (m.ParentMapID >= 0)
-                maps_that_are_parents.insert(m.ParentMapID);
+            MapEntry map;
+            map.Id = record.GetId();
+            map.WdtFileDataId = record.GetInt32("WdtFileDataID");
+            map.ParentMapID = int16(record.GetUInt16("ParentMapID"));
+            map.Name = record.GetString("MapName");
+            map.Directory = record.GetString("Directory");
+            if (map.ParentMapID >= 0)
+                maps_that_are_parents.insert(map.ParentMapID);
+
+            idToIndex[map.Id] = map_ids.size();
+            map_ids.push_back(map);
         }
 
         for (uint32 x = 0; x < db2.GetRecordCopyCount(); ++x)
         {
             DB2RecordCopy copy = db2.GetRecordCopy(x);
-            auto itr = map_ids.find(copy.SourceRowId);
-            if (itr != map_ids.end())
+            auto itr = idToIndex.find(copy.SourceRowId);
+            if (itr != idToIndex.end())
             {
-                MapEntry& id = map_ids[copy.NewRowId];
-                id.WdtFileDataId = itr->second.WdtFileDataId;
-                id.ParentMapID = itr->second.ParentMapID;
-                id.Name = itr->second.Name;
-                id.Directory = itr->second.Directory;
+                MapEntry map;
+                map.Id = copy.NewRowId;
+                map.WdtFileDataId = map_ids[itr->second].WdtFileDataId;
+                map.ParentMapID = map_ids[itr->second].ParentMapID;
+                map.Name = map_ids[itr->second].Name;
+                map.Directory = map_ids[itr->second].Directory;
+                map_ids.push_back(map);
             }
         }
+
+        map_ids.erase(std::remove_if(map_ids.begin(), map_ids.end(), [](MapEntry const& map) { return !map.WdtFileDataId; }), map_ids.end());
+
+        // force parent maps to be extracted first
+        std::stable_partition(map_ids.begin(), map_ids.end(), [](MapEntry const& map) { return maps_that_are_parents.count(map.Id) > 0; });
 
         printf("Done! (" SZFMTD " maps loaded)\n", map_ids.size());
         ParsMapFiles();

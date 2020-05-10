@@ -238,19 +238,21 @@ void ReadMapDBC()
         exit(1);
     }
 
-    map_ids.resize(db2.GetRecordCount());
-    std::unordered_map<uint32, uint32> idToIndex;
+    map_ids.reserve(db2.GetRecordCount());
+    std::unordered_map<uint32, std::size_t> idToIndex;
     for (uint32 x = 0; x < db2.GetRecordCount(); ++x)
     {
         DB2Record record = db2.GetRecord(x);
         if (!record)
             continue;
 
-        map_ids[x].Id = record.GetId();
-        map_ids[x].WdtFileDataId = record.GetInt32("WdtFileDataID");
-        map_ids[x].Name = record.GetString("MapName");
-        map_ids[x].Directory = record.GetString("Directory");
-        idToIndex[map_ids[x].Id] = x;
+        MapEntry map;
+        map.Id = record.GetId();
+        map.WdtFileDataId = record.GetInt32("WdtFileDataID");
+        map.Name = record.GetString("MapName");
+        map.Directory = record.GetString("Directory");
+        idToIndex[map.Id] = map_ids.size();
+        map_ids.push_back(map);
     }
 
     for (uint32 x = 0; x < db2.GetRecordCopyCount(); ++x)
@@ -259,14 +261,16 @@ void ReadMapDBC()
         auto itr = idToIndex.find(copy.SourceRowId);
         if (itr != idToIndex.end())
         {
-            MapEntry id;
-            id.Id = copy.NewRowId;
-            id.WdtFileDataId = map_ids[itr->second].WdtFileDataId;
-            id.Name = map_ids[itr->second].Name;
-            id.Directory = map_ids[itr->second].Directory;
-            map_ids.push_back(id);
+            MapEntry map;
+            map.Id = copy.NewRowId;
+            map.WdtFileDataId = map_ids[itr->second].WdtFileDataId;
+            map.Name = map_ids[itr->second].Name;
+            map.Directory = map_ids[itr->second].Directory;
+            map_ids.push_back(map);
         }
     }
+
+    map_ids.erase(std::remove_if(map_ids.begin(), map_ids.end(), [](MapEntry const& map) { return !map.WdtFileDataId; }), map_ids.end());
 
     printf("Done! (" SZFMTD " maps loaded)\n", map_ids.size());
 }
