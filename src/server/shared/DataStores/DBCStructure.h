@@ -539,9 +539,7 @@ struct CreatureTypeEntry
     uint32    ID;                                           // 0        m_ID
     //char*   Name[16];                                     // 1-16     name
                                                             // 17       string flags
-    uint32    Flags;                                        // 18 Critters, non-combat pets, gas cloud. (called Flags in struct)
-
-    inline bool HasFlag(CreatureTypeEntryFlags flag) const { return !!(Flags & flag); }
+    //uint32  Flags;                                        // 18 Critters, non-combat pets, gas cloud. (called Flags in struct)
 };
 
 /* not used
