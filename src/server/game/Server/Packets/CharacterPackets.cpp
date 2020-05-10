@@ -33,3 +33,10 @@ WorldPacket const* WorldPackets::Character::LoginVerifyWorld::Write()
     _worldPacket << Pos;
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Character::LogoutResponse::Write()
+{
+    _worldPacket << uint32(LogoutResult);
+    _worldPacket << uint8(Instant);
+    return &_worldPacket;
+}
