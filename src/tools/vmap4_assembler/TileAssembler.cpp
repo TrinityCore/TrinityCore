@@ -37,12 +37,6 @@ template<> struct BoundsTrait<VMAP::ModelSpawn*>
 
 namespace VMAP
 {
-    bool readChunk(FILE* rf, char *dest, const char *compare, uint32 len)
-    {
-        if (fread(dest, sizeof(char), len, rf) != len) return false;
-        return memcmp(dest, compare, len) == 0;
-    }
-
     Vector3 ModelPosition::transform(const Vector3& pIn) const
     {
         Vector3 out = pIn * iScale;

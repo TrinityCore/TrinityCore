@@ -185,7 +185,7 @@ public:
     virtual uint32 GetRecordCopyCount() const = 0;
     virtual uint32 GetMaxId() const = 0;
     virtual DB2FileLoadInfo const* GetLoadInfo() const = 0;
-    virtual DB2SectionHeader const& GetSection(uint32 section) const = 0;
+    virtual DB2SectionHeader& GetSection(uint32 section) const = 0;
     virtual bool IsSignedField(uint32 field) const = 0;
 
 private:
@@ -225,7 +225,7 @@ public:
     uint32 GetRecordCopyCount() const override;
     uint32 GetMaxId() const override;
     DB2FileLoadInfo const* GetLoadInfo() const override;
-    DB2SectionHeader const& GetSection(uint32 section) const override;
+    DB2SectionHeader& GetSection(uint32 section) const override;
     bool IsSignedField(uint32 field) const override;
 
 private:
@@ -284,7 +284,7 @@ public:
     uint32 GetRecordCopyCount() const override;
     uint32 GetMaxId() const override;
     DB2FileLoadInfo const* GetLoadInfo() const override;
-    DB2SectionHeader const& GetSection(uint32 section) const override;
+    DB2SectionHeader& GetSection(uint32 section) const override;
     bool IsSignedField(uint32 field) const override;
 
 private:
@@ -961,7 +961,7 @@ DB2FileLoadInfo const* DB2FileLoaderRegularImpl::GetLoadInfo() const
     return _loadInfo;
 }
 
-DB2SectionHeader const& DB2FileLoaderRegularImpl::GetSection(uint32 section) const
+DB2SectionHeader& DB2FileLoaderRegularImpl::GetSection(uint32 section) const
 {
     return _sections[section];
 }
@@ -1605,7 +1605,7 @@ DB2FileLoadInfo const* DB2FileLoaderSparseImpl::GetLoadInfo() const
     return _loadInfo;
 }
 
-DB2SectionHeader const& DB2FileLoaderSparseImpl::GetSection(uint32 section) const
+DB2SectionHeader& DB2FileLoaderSparseImpl::GetSection(uint32 section) const
 {
     return _sections[section];
 }
@@ -1906,13 +1906,22 @@ bool DB2FileLoader::Load(DB2FileSource* source, DB2FileLoadInfo const* loadInfo)
 
     for (uint32 i = 0; i < _header.SectionCount; ++i)
     {
-        DB2SectionHeader const& section = _impl->GetSection(i);
+        DB2SectionHeader& section = _impl->GetSection(i);
 
         if (section.TactId)
         {
-            _impl->SkipEncryptedSection(i);
-            idTable.resize(idTable.size() + section.IdTableSize / sizeof(uint32));
-            continue;
+            switch (source->HandleEncryptedSection(section))
+            {
+                case DB2EncryptedSectionHandling::Skip:
+                    _impl->SkipEncryptedSection(i);
+                    idTable.resize(idTable.size() + section.IdTableSize / sizeof(uint32));
+                    continue;
+                case DB2EncryptedSectionHandling::Process:
+                    section.TactId = 0;
+                    break;
+                default:
+                    break;
+            }
         }
 
         if (!source->SetPosition(section.FileOffset))
