@@ -783,6 +783,7 @@ CharacterCreating.Disabled = 0
 #                     33554432 - (Disabled, Pandaren Horde)
 #                     67108864 - (Disabled, Nightborne)
 #                     134217728 - (Disabled, Highmountain Tauren)
+#                     268435456 - (Disabled, Void Elf)
 #                     536870912 - (Disabled, Lightforged Draenei)
 #                     1073741824 - (Disabled, Zandalari Troll)
 #                     2147483648 - (Disabled, Kul Tiran)
