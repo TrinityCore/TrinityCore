@@ -773,10 +773,19 @@ CharacterCreating.Disabled = 0
 #                     256  - (Disabled, Goblin)
 #                     512  - (Disabled, Blood Elf)
 #                     1024 - (Disabled, Draenei)
+#                     2048 - (Disabled, Dark Iron Dwarf)
+#                     4096 - (Disabled, Vulpera)
+#                     8192 - (Disabled, Maghar Orc)
+#                     16384 - (Disabled, Mechagnome)
 #                     2097152 - (Disabled, Worgen)
 #                     8388608 - (Disabled, Pandaren Neutral)
 #                     16777216 - (Disabled, Pandaren Alliance)
 #                     33554432 - (Disabled, Pandaren Horde)
+#                     67108864 - (Disabled, Nightborne)
+#                     134217728 - (Disabled, Highmountain Tauren)
+#                     536870912 - (Disabled, Lightforged Draenei)
+#                     1073741824 - (Disabled, Zandalari Troll)
+#                     2147483648 - (Disabled, Kul Tiran)
 
 CharacterCreating.Disabled.RaceMask = 0
 
@@ -796,6 +805,7 @@ CharacterCreating.Disabled.RaceMask = 0
 #                     256  - (Disabled, Warlock)
 #                     512  - (Disabled, Monk)
 #                     1024 - (Disabled, Druid)
+#                     2048 - (Disabled, Demon Hunter)
 
 CharacterCreating.Disabled.ClassMask = 0
 
