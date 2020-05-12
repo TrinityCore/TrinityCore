@@ -1642,7 +1642,26 @@ bool AuctionHouseObject::BuyCommodity(CharacterDatabaseTransaction trans, Player
     Optional<ObjectGuid> uniqueSeller;
 
     // prepare items
-    std::vector<Item*> items;
+    struct MailedItemsBatch
+    {
+        std::array<Item*, MAX_MAIL_ITEMS> Items = { };
+        uint64 TotalPrice = 0;
+        uint32 Quantity = 0;
+
+        std::size_t ItemsCount = 0;
+
+        bool IsFull() const { return ItemsCount >= Items.size(); }
+        void AddItem(Item* item, uint64 unitPrice)
+        {
+            Items[ItemsCount++] = item;
+            Quantity += item->GetCount();
+            TotalPrice += unitPrice * item->GetCount();
+        }
+    };
+
+    std::vector<MailedItemsBatch> items;
+    items.emplace_back();
+
     remainingQuantity = quantity;
     std::vector<std::size_t> removedItemsFromAuction;
 
@@ -1658,7 +1677,14 @@ bool AuctionHouseObject::BuyCommodity(CharacterDatabaseTransaction trans, Player
         std::size_t removedItems = 0;
         for (Item* auctionItem : auction->Items)
         {
-            if (auctionItem->GetCount() >= remainingQuantity)
+            MailedItemsBatch* itemsBatch = &items.back();
+            if (itemsBatch->IsFull())
+            {
+                items.emplace_back();
+                itemsBatch = &items.back();
+            }
+
+            if (auctionItem->GetCount() > remainingQuantity)
             {
                 Item* clonedItem = auctionItem->CloneItem(remainingQuantity, player);
                 if (!clonedItem)
@@ -1670,14 +1696,14 @@ bool AuctionHouseObject::BuyCommodity(CharacterDatabaseTransaction trans, Player
                 auctionItem->SetCount(auctionItem->GetCount() - remainingQuantity);
                 auctionItem->FSetState(ITEM_CHANGED);
                 auctionItem->SaveToDB(trans);
-                items.push_back(clonedItem);
+                itemsBatch->AddItem(clonedItem, auction->BuyoutOrUnitPrice);
                 boughtFromAuction += remainingQuantity;
                 remainingQuantity = 0;
                 auctionItr = bucketItr->second.Auctions.end();
                 break;
             }
 
-            items.push_back(auctionItem);
+            itemsBatch->AddItem(auctionItem, auction->BuyoutOrUnitPrice);
             boughtFromAuction += auctionItem->GetCount();
             remainingQuantity -= auctionItem->GetCount();
             ++removedItems;
@@ -1693,13 +1719,13 @@ bool AuctionHouseObject::BuyCommodity(CharacterDatabaseTransaction trans, Player
                 ownerName = sObjectMgr->GetTrinityStringForDBCLocale(LANG_UNKNOWN);
 
             sLog->outCommand(bidderAccId, "GM %s (Account: %u) bought commodity in auction: %s (Entry: %u Count: %u) and pay money: " UI64FMTD ". Original owner %s (Account: %u)",
-                player->GetName().c_str(), bidderAccId, items[0]->GetNameForLocaleIdx(sWorld->GetDefaultDbcLocale()).c_str(),
-                items[0]->GetEntry(), boughtFromAuction, auction->BuyoutOrUnitPrice * boughtFromAuction, ownerName.c_str(),
+                player->GetName().c_str(), bidderAccId, items[0].Items[0]->GetNameForLocaleIdx(sWorld->GetDefaultDbcLocale()).c_str(),
+                items[0].Items[0]->GetEntry(), boughtFromAuction, auction->BuyoutOrUnitPrice * boughtFromAuction, ownerName.c_str(),
                 sCharacterCache->GetCharacterAccountIdByGuid(auction->Owner));
         }
 
         uint64 auctionHouseCut = CalcualteAuctionHouseCut(auction->BuyoutOrUnitPrice * boughtFromAuction);
-        uint64 depositPart = AuctionHouseMgr::GetCommodityAuctionDeposit(items[0]->GetTemplate(), std::chrono::duration_cast<Minutes>(auction->EndTime - auction->StartTime),
+        uint64 depositPart = AuctionHouseMgr::GetCommodityAuctionDeposit(items[0].Items[0]->GetTemplate(), std::chrono::duration_cast<Minutes>(auction->EndTime - auction->StartTime),
             boughtFromAuction);
         uint64 profit = auction->BuyoutOrUnitPrice * boughtFromAuction + depositPart - auctionHouseCut;
 
@@ -1716,24 +1742,27 @@ bool AuctionHouseObject::BuyCommodity(CharacterDatabaseTransaction trans, Player
             .SendMailTo(trans, MailReceiver(ObjectAccessor::FindConnectedPlayer(auction->Owner), auction->Owner), this, MAIL_CHECK_MASK_COPIED, sWorld->getIntConfig(CONFIG_MAIL_DELIVERY_DELAY));
     }
 
-    MailDraft mail(AuctionHouseMgr::BuildCommodityAuctionMailSubject(AuctionMailType::Won, itemId, quantity),
-        AuctionHouseMgr::BuildAuctionWonMailBody(*uniqueSeller, totalPrice, quantity));
-
-    for (Item* item : items)
+    for (MailedItemsBatch const& batch : items)
     {
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_AUCTION_ITEMS_BY_ITEM);
-        stmt->setUInt64(0, item->GetGUID().GetCounter());
-        trans->Append(stmt);
+        MailDraft mail(AuctionHouseMgr::BuildCommodityAuctionMailSubject(AuctionMailType::Won, itemId, batch.Quantity),
+            AuctionHouseMgr::BuildAuctionWonMailBody(*uniqueSeller, batch.TotalPrice, batch.Quantity));
 
-        item->SetOwnerGUID(player->GetGUID());
-        item->SaveToDB(trans);
-        mail.AddItem(item);
+        for (std::size_t i = 0; i < batch.ItemsCount; ++i)
+        {
+            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_AUCTION_ITEMS_BY_ITEM);
+            stmt->setUInt64(0, batch.Items[i]->GetGUID().GetCounter());
+            trans->Append(stmt);
+
+            batch.Items[i]->SetOwnerGUID(player->GetGUID());
+            batch.Items[i]->SaveToDB(trans);
+            mail.AddItem(batch.Items[i]);
+        }
+
+        mail.SendMailTo(trans, player, this, MAIL_CHECK_MASK_COPIED);
     }
 
-    mail.SendMailTo(trans, player, this, MAIL_CHECK_MASK_COPIED);
-
     WorldPackets::AuctionHouse::AuctionWonNotification packet;
-    packet.Info.Initialize(auctions[0], items[0]);
+    packet.Info.Initialize(auctions[0], items[0].Items[0]);
     player->SendDirectMessage(packet.Write());
 
     for (std::size_t i = 0; i < auctions.size(); ++i)
@@ -1891,12 +1920,17 @@ void AuctionHouseObject::SendAuctionExpired(AuctionPosting const* auction, Chara
         if (owner)
             owner->GetSession()->SendAuctionClosedNotification(auction, 0.0f, false);
 
-        MailDraft mail(AuctionHouseMgr::BuildItemAuctionMailSubject(AuctionMailType::Expired, auction), "");
 
-        for (Item* item : auction->Items)
-            mail.AddItem(item);
+        auto itemItr = auction->Items.begin();
+        while (itemItr != auction->Items.end())
+        {
+            MailDraft mail(AuctionHouseMgr::BuildItemAuctionMailSubject(AuctionMailType::Expired, auction), "");
 
-        mail.SendMailTo(trans, MailReceiver(owner, auction->Owner), this, MAIL_CHECK_MASK_COPIED, 0);
+            for (std::size_t i = 0; i < MAX_MAIL_ITEMS && itemItr != auction->Items.end(); ++i, ++itemItr)
+                mail.AddItem(*itemItr);
+
+            mail.SendMailTo(trans, MailReceiver(owner, auction->Owner), this, MAIL_CHECK_MASK_COPIED, 0);
+        }
     }
     else
     {
@@ -1908,12 +1942,16 @@ void AuctionHouseObject::SendAuctionExpired(AuctionPosting const* auction, Chara
 
 void AuctionHouseObject::SendAuctionRemoved(AuctionPosting const* auction, Player* owner, CharacterDatabaseTransaction trans)
 {
-    MailDraft draft(AuctionHouseMgr::BuildItemAuctionMailSubject(AuctionMailType::Cancelled, auction), "");
+    auto itemItr = auction->Items.begin();
+    while (itemItr != auction->Items.end())
+    {
+        MailDraft draft(AuctionHouseMgr::BuildItemAuctionMailSubject(AuctionMailType::Cancelled, auction), "");
 
-    for (Item* item : auction->Items)
-        draft.AddItem(item);
+        for (std::size_t i = 0; i < MAX_MAIL_ITEMS && itemItr != auction->Items.end(); ++i, ++itemItr)
+            draft.AddItem(*itemItr);
 
-    draft.SendMailTo(trans, owner, this, MAIL_CHECK_MASK_COPIED);
+        draft.SendMailTo(trans, owner, this, MAIL_CHECK_MASK_COPIED);
+    }
 }
 
 //this function sends mail, when auction is cancelled to old bidder
