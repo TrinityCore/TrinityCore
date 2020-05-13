@@ -28,8 +28,8 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Who::WhoRequest& request)
 {
     data >> request.MinLevel;
     data >> request.MaxLevel;
-    data >> request.Guild;
     data >> request.Name;
+    data >> request.Guild;
     data >> request.RaceFilter;
     data >> request.ClassFilter;
 
