@@ -188,6 +188,7 @@ enum Spells
 #define REMORSELESS_WINTER_2 RAID_MODE<uint32>(72259, 74273, 74274, 74275)
 #define SUMMON_VALKYR        RAID_MODE<uint32>(69037, 74361, 69037, 74361)
 #define HARVEST_SOUL         RAID_MODE<uint32>(68980, 74325, 74296, 74297)
+#define ENRAGE               RAID_MODE<uint32>(72143, 72146, 72147, 72148)
 
 enum Events
 {
@@ -1342,8 +1343,10 @@ class npc_shambling_horror_icc : public CreatureScript
                             _events.ScheduleEvent(EVENT_SHOCKWAVE, 20s, 25s);
                             break;
                         case EVENT_ENRAGE:
-                            DoCast(me, SPELL_ENRAGE);
-                            _events.ScheduleEvent(EVENT_ENRAGE, 20s, 25s);
+                            if (SPELL_CAST_OK != DoCast(me, SPELL_ENRAGE))
+                                _events.ScheduleEvent(EVENT_ENRAGE, 1s);
+                            else
+                                _events.ScheduleEvent(EVENT_ENRAGE, 20s, 25s);
                             break;
                         default:
                             break;
@@ -1351,6 +1354,15 @@ class npc_shambling_horror_icc : public CreatureScript
                 }
 
                 DoMeleeAttackIfReady();
+            }
+
+            void OnSpellCastInterrupt(SpellInfo const* spell) override
+            {
+                ScriptedAI::OnSpellCastInterrupt(spell);
+
+                // When enrage is interrupted, reschedule the event
+                if (spell->Id == ENRAGE)
+                    _events.RescheduleEvent(EVENT_ENRAGE, 1s);
             }
 
         private:
