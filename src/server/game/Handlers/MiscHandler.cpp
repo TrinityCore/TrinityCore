@@ -21,6 +21,7 @@
 #include "BattlefieldMgr.h"
 #include "Battleground.h"
 #include "BattlegroundMgr.h"
+#include "CharacterPackets.h"
 #include "Chat.h"
 #include "CinematicMgr.h"
 #include "Common.h"
@@ -352,10 +353,8 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
     TC_LOG_DEBUG("network", "WORLD: Send SMSG_WHO Message");
 }
 
-void WorldSession::HandleLogoutRequestOpcode(WorldPacket& /*recvData*/)
+void WorldSession::HandleLogoutRequestOpcode(WorldPackets::Character::LogoutRequest& /*logoutRequest*/)
 {
-    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_LOGOUT_REQUEST Message, security - %u", GetSecurity());
-
     if (ObjectGuid lguid = GetPlayer()->GetLootGUID())
         DoLootRelease(lguid);
 
@@ -373,18 +372,18 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPacket& /*recvData*/)
     else if (GetPlayer()->duel || GetPlayer()->HasAura(9454)) // is dueling or frozen by GM via freeze command
         reason = 2;                                         // FIXME - Need the correct value
 
-    WorldPacket data(SMSG_LOGOUT_RESPONSE, 1+4);
-    data << uint32(reason);
-    data << uint8(instantLogout);
-    SendPacket(&data);
+    WorldPackets::Character::LogoutResponse logoutResponse;
+    logoutResponse.LogoutResult = reason;
+    logoutResponse.Instant = instantLogout;
+    SendPacket(logoutResponse.Write());
 
     if (reason)
     {
-        LogoutRequest(0);
+        SetLogoutStartTime(0);
         return;
     }
 
-    //instant logout in taverns/cities or on taxi or for admins, gm's, mod's if its enabled in worldserver.conf
+    // instant logout in taverns/cities or on taxi or for admins, gm's, mod's if its enabled in worldserver.conf
     if (instantLogout)
     {
         LogoutPlayer(true);
@@ -396,43 +395,32 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPacket& /*recvData*/)
     {
         if (GetPlayer()->GetStandState() == UNIT_STAND_STATE_STAND)
             GetPlayer()->SetStandState(UNIT_STAND_STATE_SIT);
-
-        data.Initialize(SMSG_FORCE_MOVE_ROOT, (8+4));    // guess size
-        data << GetPlayer()->GetPackGUID();
-        data << (uint32)2;
-        SendPacket(&data);
+        GetPlayer()->SetRooted(true);
         GetPlayer()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
     }
 
-    LogoutRequest(GameTime::GetGameTime());
+    SetLogoutStartTime(GameTime::GetGameTime());
 }
 
-void WorldSession::HandlePlayerLogoutOpcode(WorldPacket& /*recvData*/)
+void WorldSession::HandlePlayerLogoutOpcode(WorldPackets::Character::PlayerLogout& /*playerLogout*/)
 {
-    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_PLAYER_LOGOUT Message");
 }
 
-void WorldSession::HandleLogoutCancelOpcode(WorldPacket& /*recvData*/)
+void WorldSession::HandleLogoutCancelOpcode(WorldPackets::Character::LogoutCancel& /*logoutCancel*/)
 {
-    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_LOGOUT_CANCEL Message");
-
     // Player have already logged out serverside, too late to cancel
     if (!GetPlayer())
         return;
 
-    LogoutRequest(0);
+    SetLogoutStartTime(0);
 
-    WorldPacket data(SMSG_LOGOUT_CANCEL_ACK, 0);
-    SendPacket(&data);
+    SendPacket(WorldPackets::Character::LogoutCancelAck().Write());
 
     // not remove flags if can't free move - its not set in Logout request code.
     if (GetPlayer()->CanFreeMove())
     {
         //!we can move again
-        data.Initialize(SMSG_FORCE_MOVE_UNROOT, 8);       // guess size
-        data << GetPlayer()->GetPackGUID();
-        data << uint32(0);
-        SendPacket(&data);
+        GetPlayer()->SetRooted(false);
 
         //! Stand Up
         GetPlayer()->SetStandState(UNIT_STAND_STATE_STAND);

@@ -1204,7 +1204,7 @@ enum Opcodes : uint16
     CMSG_FLOOD_GRACE_CHEAT                          = 0x497,
     SMSG_SERVER_FIRST_ACHIEVEMENT                   = 0x498,
     SMSG_PET_LEARNED_SPELL                          = 0x499,
-    SMSG_PET_REMOVED_SPELL                          = 0x49A,
+    SMSG_PET_UNLEARNED_SPELL                        = 0x49A,
     CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE         = 0x49B,
     CMSG_HEARTH_AND_RESURRECT                       = 0x49C,
     SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA       = 0x49D,
