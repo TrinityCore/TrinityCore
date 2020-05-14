@@ -684,9 +684,30 @@ class spell_pri_phantasm : public AuraScript
 };
 
 // 17 - Power Word: Shield
-class spell_pri_power_word_shield : public AuraScript
+class spell_pri_power_word_shield : public SpellScript
 {
-    PrepareAuraScript(spell_pri_power_word_shield);
+    PrepareSpellScript(spell_pri_power_word_shield);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_WEAKENED_SOUL });
+    }
+
+    void HandleWeakenedSoul(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(GetHitUnit(), SPELL_PRIEST_WEAKENED_SOUL, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_power_word_shield::HandleWeakenedSoul, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+    }
+};
+
+class spell_pri_power_word_shield_AuraScript : public AuraScript
+{
+    PrepareAuraScript(spell_pri_power_word_shield_AuraScript);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -757,8 +778,8 @@ class spell_pri_power_word_shield : public AuraScript
 
     void Register() override
     {
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_power_word_shield::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-        AfterEffectAbsorb += AuraEffectAbsorbFn(spell_pri_power_word_shield::ReflectDamage, EFFECT_0);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_power_word_shield_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+        AfterEffectAbsorb += AuraEffectAbsorbFn(spell_pri_power_word_shield_AuraScript::ReflectDamage, EFFECT_0);
     }
 };
 
@@ -1856,7 +1877,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_penance);
     RegisterAuraScript(spell_pri_phantasm);
     RegisterAuraScript(spell_power_word_barrier);
-    RegisterAuraScript(spell_pri_power_word_shield);
+    RegisterSpellAndAuraScriptPair(spell_pri_power_word_shield, spell_pri_power_word_shield_AuraScript);
     RegisterSpellScript(spell_pri_prayer_of_mending_heal);
     RegisterAuraScript(spell_pri_shadow_orb);
     RegisterAuraScript(spell_pri_shadow_orbs);
