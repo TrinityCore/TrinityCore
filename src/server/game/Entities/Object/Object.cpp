@@ -3272,10 +3272,11 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
 
     // Use a detour raycast to get our first collision point
     PathGenerator path(this);
-    path.CalculatePath(destx, desty, destz, false, true);
+    path.SetUseRaycast(true);
+    path.CalculatePath(destx, desty, destz, false);
 
     // We have a invalid path result. Skip further processing.
-    if (path.GetPathType() & ~(PATHFIND_NORMAL | PATHFIND_SHORTCUT | PATHFIND_INCOMPLETE | PATHFIND_FARFROMPOLY_END))
+    if (path.GetPathType() & ~(PATHFIND_NORMAL | PATHFIND_SHORTCUT | PATHFIND_INCOMPLETE | PATHFIND_FARFROMPOLY_END | PATHFIND_NOT_USING_PATH))
         return;
 
     G3D::Vector3 result = path.GetPath().back();
@@ -3285,7 +3286,9 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
 
     // check static LOS
     float halfHeight = GetCollisionHeight() * 0.5f;
-    bool col = VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(GetMapId(),
+    bool col;
+    /*
+    col = VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(GetMapId(),
         pos.m_positionX, pos.m_positionY, pos.m_positionZ + halfHeight,
         destx, desty, destz + halfHeight,
         destx, desty, destz, -0.5f);
@@ -3299,6 +3302,7 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
         desty -= CONTACT_DISTANCE * std::sin(angle);
         dist = std::sqrt((pos.m_positionX - destx) * (pos.m_positionX - destx) + (pos.m_positionY - desty) * (pos.m_positionY - desty));
     }
+    */
 
     // check dynamic collision
     col = GetMap()->getObjectHitPos(GetPhaseMask(),
