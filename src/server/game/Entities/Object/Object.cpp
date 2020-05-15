@@ -2517,7 +2517,8 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
 
     // Use a detour raycast to get our first collision point
     PathGenerator path(this);
-    path.CalculatePath(destx, desty, destz, false, true);
+    path.SetUseRaycast(true);
+    path.CalculatePath(destx, desty, destz, false);
 
     // We have a invalid path result. Skip further processing.
     if (path.GetPathType() & ~(PATHFIND_NORMAL | PATHFIND_SHORTCUT | PATHFIND_INCOMPLETE | PATHFIND_FARFROMPOLY_END | PATHFIND_NOT_USING_PATH))
@@ -2530,7 +2531,8 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
 
     // Object is using a shortcut. Check static LOS
     float halfHeight = GetCollisionHeight() * 0.5f;
-
+    bool col;
+    /*
     uint32 terrainMapId = PhasingHandler::GetTerrainMapId(GetPhaseShift(), GetMap(), pos.m_positionX, pos.m_positionY);
     bool col = VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(terrainMapId,
         pos.m_positionX, pos.m_positionY, pos.m_positionZ + halfHeight,
@@ -2546,6 +2548,7 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
         desty -= CONTACT_DISTANCE * std::sin(angle);
         dist = std::sqrt((pos.m_positionX - destx) * (pos.m_positionX - destx) + (pos.m_positionY - desty) * (pos.m_positionY - desty));
     }
+    */
 
     // check dynamic collision
     col = GetMap()->getObjectHitPos(GetPhaseShift(),
