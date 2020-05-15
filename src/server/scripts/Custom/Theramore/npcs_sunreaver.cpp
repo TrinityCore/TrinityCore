@@ -3,6 +3,8 @@
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
 #include "World.h"
+#include "Custom/AI/CustomAI.h"
+
 #include <iostream>
 
 enum Misc
@@ -39,34 +41,14 @@ enum Spells
     SPELL_SCORCH                = 100055,
     SPELL_METEOR                = 100054,
     SPELL_DRAGON_BREATH         = 37289,
-    SPELL_POSTCOMBUSTION        = 59183,
+    SPELL_POSTCOMBUSTION        = 100082,
     SPELL_DUMMY_METEOR          = 100056 
 };
 
-enum Casting
+enum Phases
 {
-    // Assassin
-    CASTING_SINISTER_STRIKE = 1,
-    CASTING_KIDNEY_SHOT = 2,
-
-    // Duelist
-    CASTING_MIGHTY_KICK = 1,
-
-    // Pyromancer
-    CASTING_FIREBALL = 1,
-    CASTING_FIREBLAST = 2,
-    CASTING_PYROBLAST = 3,
-
-    // Forsthand
-    CASTING_FROSTBOLT = 1,
-    CASTING_ICE_LANCE = 2,
-    CASTING_FROST_CONE = 3,
-
-    // Brasael
-    CASTING_SCORCH = 1,
-    CASTING_METEOR = 2,
-    CASTING_DRAGON_BREATH = 3,
-    CASTING_POSTCOMBUSTION = 4
+    PHASE_NORMAL = 1,
+    PHASE_POSTCOMBUSTION
 };
 
 void KillCredit(Unit* killer)
@@ -84,56 +66,36 @@ class npc_sunreaver_assassin : public CreatureScript
     public:
     npc_sunreaver_assassin() : CreatureScript("npc_sunreaver_assassin") {}
 
-    struct npc_sunreaver_assassinAI : public ScriptedAI
+    struct npc_sunreaver_assassinAI : public CustomAI
     {
-        npc_sunreaver_assassinAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_sunreaver_assassinAI(Creature* creature) : CustomAI(creature, MELEE) {}
 
         void JustEngagedWith(Unit* /*who*/) override
         {
-            events.ScheduleEvent(CASTING_SINISTER_STRIKE, 5s);
-            events.ScheduleEvent(CASTING_KIDNEY_SHOT, 10s);
+            scheduler
+                .Schedule(5s, [this](TaskContext sinisterStrike)
+                {
+                    DoCast(SPELL_SINISTER_STRIKE);
+                    sinisterStrike.Repeat(14s, 28s);
+                })
+                .Schedule(10s, [this](TaskContext kidneyShot)
+                {
+                    if (Unit* target = DoSelectCastingUnit(SPELL_KIDNEY_SHOT, 35.f))
+                    {
+                        DoCast(target, SPELL_KIDNEY_SHOT);
+                        kidneyShot.Repeat(25s, 40s);
+                    }
+                    else
+                    {
+                        kidneyShot.Repeat(1s);
+                    }
+                });
         }
 
         void JustDied(Unit* killer) override
         {
             KillCredit(killer);
         }
-
-        void Reset() override
-        {
-            events.Reset();
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            // Combat
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case CASTING_SINISTER_STRIKE:
-                        DoCast(SPELL_SINISTER_STRIKE);
-                        events.RescheduleEvent(CASTING_SINISTER_STRIKE, 14s, 28s);
-                        break;
-
-                    case CASTING_KIDNEY_SHOT:
-                        if (Unit * target = SelectTarget(SELECT_TARGET_MINTHREAT, 0))
-                            DoCast(target, SPELL_KIDNEY_SHOT);
-                        events.RescheduleEvent(CASTING_KIDNEY_SHOT, 32s, 60s);
-                        break;
-                }
-            }
-
-            DoMeleeAttackIfReady();
-        }
-
-        private:
-        EventMap events;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -147,49 +109,23 @@ class npc_sunreaver_duelist : public CreatureScript
     public:
     npc_sunreaver_duelist() : CreatureScript("npc_sunreaver_duelist") {}
 
-    struct npc_sunreaver_duelistAI : public ScriptedAI
+    struct npc_sunreaver_duelistAI : public CustomAI
     {
-        npc_sunreaver_duelistAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_sunreaver_duelistAI(Creature* creature) : CustomAI(creature, MELEE) {}
 
         void JustEngagedWith(Unit* /*who*/) override
         {
-            events.ScheduleEvent(CASTING_MIGHTY_KICK, 5s);
+            scheduler.Schedule(5s, [this](TaskContext mightyKick)
+            {
+                DoCast(SPELL_MIGHTY_KICK);
+                mightyKick.Repeat(14s, 28s);
+            });
         }
 
         void JustDied(Unit* killer) override
         {
             KillCredit(killer);
         }
-
-        void Reset() override
-        {
-            events.Reset();
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            // Combat
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case CASTING_MIGHTY_KICK:
-                        DoCast(SPELL_MIGHTY_KICK);
-                        events.RescheduleEvent(CASTING_MIGHTY_KICK, 14s, 28s);
-                        break;
-                }
-            }
-
-            DoMeleeAttackIfReady();
-        }
-
-        private:
-        EventMap events;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -203,15 +139,29 @@ class npc_sunreaver_pyromancer : public CreatureScript
     public:
     npc_sunreaver_pyromancer() : CreatureScript("npc_sunreaver_pyromancer") {}
 
-    struct npc_sunreaver_pyromancerAI : public ScriptedAI
+    struct npc_sunreaver_pyromancerAI : public CustomAI
     {
-        npc_sunreaver_pyromancerAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_sunreaver_pyromancerAI(Creature* creature) : CustomAI(creature) {}
 
         void JustEngagedWith(Unit* /*who*/) override
         {
-            events.ScheduleEvent(CASTING_FIREBALL, 5s);
-            events.ScheduleEvent(CASTING_FIREBLAST, 14s);
-            events.ScheduleEvent(CASTING_PYROBLAST, 20s);
+            scheduler
+                .Schedule(5s, [this](TaskContext fireball)
+                {
+                    DoCast(SPELL_FIREBALL);
+                    fireball.Repeat(5s, 8s);
+                })
+                .Schedule(14s, [this](TaskContext fireblast)
+                {
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, SPELL_FIREBLAST);
+                    fireblast.Repeat(14s, 28s);
+                })
+                .Schedule(20s, [this](TaskContext pyroblast)
+                {
+                    DoCast(SPELL_PYROBLAST);
+                    pyroblast.Repeat(18s, 30s);
+                });
         }
 
         void JustDied(Unit* killer) override
@@ -219,14 +169,9 @@ class npc_sunreaver_pyromancer : public CreatureScript
             KillCredit(killer);
         }
 
-        void Reset() override
-        {
-            events.Reset();
-        }
-
         void UpdateAI(uint32 diff) override
         {
-            // Combat
+            // aura refresh
             if (!UpdateVictim())
             {
                 if (!me->HasAura(SPELL_FIRE_ARMOR))
@@ -234,41 +179,8 @@ class npc_sunreaver_pyromancer : public CreatureScript
                 return;
             }
 
-            events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case CASTING_FIREBALL:
-                        DoCast(SPELL_FIREBALL);
-                        events.RescheduleEvent(CASTING_FIREBALL, 5s, 8s);
-                        break;
-
-                    case CASTING_FIREBLAST:
-                        if (Unit * target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            DoCast(target, SPELL_FIREBLAST);
-                        events.RescheduleEvent(CASTING_FIREBLAST, 14s, 28s);
-                        break;
-
-                    case CASTING_PYROBLAST:
-                        DoCast(SPELL_PYROBLAST);
-                        events.RescheduleEvent(CASTING_PYROBLAST, 18s, 30s);
-                        break;
-                }
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-            }
-
-            DoMeleeAttackIfReady();
+            CustomAI::UpdateAI(diff);
         }
-
-        private:
-        EventMap events;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -282,25 +194,34 @@ class npc_sunreaver_frosthand : public CreatureScript
     public:
     npc_sunreaver_frosthand() : CreatureScript("npc_sunreaver_frosthand") {}
 
-    struct npc_sunreaver_frosthandAI : public ScriptedAI
+    struct npc_sunreaver_frosthandAI : public CustomAI
     {
-        npc_sunreaver_frosthandAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_sunreaver_frosthandAI(Creature* creature) : CustomAI(creature) {}
 
         void JustEngagedWith(Unit* /*who*/) override
         {
-            events.ScheduleEvent(CASTING_FROSTBOLT, 5s);
-            events.ScheduleEvent(CASTING_ICE_LANCE, 14s);
-            events.ScheduleEvent(CASTING_FROST_CONE, 20s);
+            scheduler
+                .Schedule(5s, [this](TaskContext frostbotl)
+                {
+                    DoCast(SPELL_FROSTBOLT);
+                    frostbotl.Repeat(5s, 8s);
+                })
+                .Schedule(14s, [this](TaskContext iceLance)
+                {
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, SPELL_ICE_LANCE);
+                    iceLance.Repeat(14s, 28s);
+                })
+                .Schedule(20s, [this](TaskContext frostCone)
+                {
+                    DoCast(SPELL_FROST_CONE);
+                    frostCone.Repeat(18s, 30s);
+                });
         }
 
         void JustDied(Unit* killer) override
         {
             KillCredit(killer);
-        }
-
-        void Reset() override
-        {
-            events.Reset();
         }
 
         void UpdateAI(uint32 diff) override
@@ -313,41 +234,8 @@ class npc_sunreaver_frosthand : public CreatureScript
                 return;
             }
 
-            events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case CASTING_FROSTBOLT:
-                        DoCast(SPELL_FROSTBOLT);
-                        events.RescheduleEvent(CASTING_FROSTBOLT, 5s, 8s);
-                        break;
-
-                    case CASTING_ICE_LANCE:
-                        if (Unit * target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            DoCast(target, SPELL_ICE_LANCE);
-                        events.RescheduleEvent(CASTING_ICE_LANCE, 14s, 28s);
-                        break;
-
-                    case CASTING_FROST_CONE:
-                        DoCast(SPELL_FROST_CONE);
-                        events.RescheduleEvent(CASTING_FROST_CONE, 18s, 30s);
-                        break;
-                }
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-            }
-
-            DoMeleeAttackIfReady();
+            CustomAI::UpdateAI(diff);
         }
-
-        private:
-        EventMap events;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -361,16 +249,18 @@ class npc_magister_brasael : public CreatureScript
     public:
     npc_magister_brasael() : CreatureScript("npc_magister_brasael") {}
 
-    struct npc_magister_brasaelAI : public ScriptedAI
+    struct npc_magister_brasaelAI : public CustomAI
     {
-        npc_magister_brasaelAI(Creature* creature) : ScriptedAI(creature), phase(1), meteors(0) { }
+        npc_magister_brasaelAI(Creature* creature) : CustomAI(creature),
+            phase(PHASE_NORMAL), meteors(0), combustionUsed(false)
+        {
+
+        }
 
         void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(SAY_BRASAEL_AGGRO);
-
-            events.ScheduleEvent(CASTING_SCORCH, 5ms);
-            events.ScheduleEvent(CASTING_DRAGON_BREATH, 14s);
+            SetCombatToNormal();
         }
 
         void DamageTaken(Unit* attacker, uint32& /*damage*/) override
@@ -378,13 +268,30 @@ class npc_magister_brasael : public CreatureScript
             if (attacker->GetTypeId() != TYPEID_PLAYER)
                 return;
 
-            if (phase != 2 && HealthBelowPct(80))
+            if (!combustionUsed && HealthBelowPct(80))
             {
-                phase = 2;
+                phase = PHASE_POSTCOMBUSTION;
 
-                events.CancelEvent(CASTING_SCORCH);
-                events.CancelEvent(CASTING_DRAGON_BREATH);
-                events.ScheduleEvent(CASTING_POSTCOMBUSTION, 1s);
+                scheduler.Schedule(1s, PHASE_POSTCOMBUSTION, [this](TaskContext postcombustion)
+                {
+                    if (me->GetVictim()->GetTypeId() == TYPEID_PLAYER)
+                    {
+                        scheduler.CancelGroup(PHASE_NORMAL);
+
+                        combustionUsed = true;
+
+                        DoCastSelf(SPELL_POSTCOMBUSTION);
+
+                        me->SetControlled(true, UNIT_STATE_ROOT);
+                        me->NearTeleportTo(5966.76f, 613.82f, 650.62f, 2.77f);
+                        me->PlayDistanceSound(3226, me->GetVictim()->ToPlayer());
+                    }
+                    else
+                    {
+                        phase = PHASE_NORMAL;
+                        scheduler.CancelGroup(PHASE_POSTCOMBUSTION);
+                    }
+                });
             }
         }
 
@@ -396,7 +303,27 @@ class npc_magister_brasael : public CreatureScript
         void SpellHit(Unit* /*caster*/, SpellInfo const* spellInfo) override
         {
             if (spellInfo->Id == SPELL_POSTCOMBUSTION)
-                events.ScheduleEvent(CASTING_METEOR, 1s);
+            {
+                scheduler.Schedule(1s, PHASE_POSTCOMBUSTION, [this](TaskContext meteor)
+                {
+                    if (meteors > 2)
+                    {
+                        me->SetControlled(false, UNIT_STATE_ROOT);
+                        SetCombatToNormal();
+                        return;
+                    }
+
+                    meteors++;
+
+                    const Position spellDestination = SelectTarget(SELECT_TARGET_RANDOM, 0)->GetPosition();
+                    if (Creature* fx = DoSummon(NPC_INVISIBLE_STALKER, spellDestination, 7000, TEMPSUMMON_TIMED_DESPAWN))
+                        fx->CastSpell(fx, SPELL_DUMMY_METEOR);
+
+                    me->CastSpell(spellDestination, SPELL_METEOR);
+
+                    meteor.Repeat(2830ms);
+                });
+            }
         }
 
         void JustDied(Unit* killer) override
@@ -406,9 +333,8 @@ class npc_magister_brasael : public CreatureScript
 
         void Reset() override
         {
-            events.Reset();
-
-            phase = 1;
+            phase = PHASE_NORMAL;
+            combustionUsed = false;
             meteors = 0;
         }
 
@@ -422,72 +348,30 @@ class npc_magister_brasael : public CreatureScript
                 return;
             }
 
-            events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case CASTING_SCORCH:
-                        DoCast(SPELL_SCORCH);
-                        events.RescheduleEvent(CASTING_SCORCH, 5s, 8s);
-                        break;
-
-                    case CASTING_DRAGON_BREATH:
-                        DoCast(SPELL_DRAGON_BREATH);
-                        events.RescheduleEvent(CASTING_DRAGON_BREATH, 14s, 28s);
-                        break;
-
-                    case CASTING_POSTCOMBUSTION:
-                    {
-                        if (me->GetVictim()->GetTypeId() != TYPEID_PLAYER)
-                        {
-                            events.ScheduleEvent(CASTING_SCORCH, 5ms);
-                            events.ScheduleEvent(CASTING_DRAGON_BREATH, 14s);
-                            break;
-                        }
-
-                        DoCastSelf(SPELL_POSTCOMBUSTION);
-                        me->SetControlled(true, UNIT_STATE_ROOT);
-                    }
-                        break;
-
-                    case CASTING_METEOR:
-                    {
-                        if (meteors > 1)
-                        {
-                            me->SetControlled(false, UNIT_STATE_ROOT);
-                            events.ScheduleEvent(CASTING_SCORCH, 5ms);
-                            events.ScheduleEvent(CASTING_DRAGON_BREATH, 14s);
-                            break;
-                        }
-
-                        meteors++;
-                        
-                        const Position spellDestination = SelectTarget(SELECT_TARGET_RANDOM, 0)->GetPosition();
-                        if (Creature * fx = DoSummon(NPC_INVISIBLE_STALKER, spellDestination, 7000, TEMPSUMMON_TIMED_DESPAWN))
-                            fx->CastSpell(fx, SPELL_DUMMY_METEOR);
-                        me->CastSpell(spellDestination, SPELL_METEOR);
-
-                        events.RescheduleEvent(CASTING_METEOR, 6s);
-                        break;
-                    }
-                }
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-            }
-
-            DoMeleeAttackIfReady();
+            CustomAI::UpdateAI(diff);
         }
 
         private:
-        EventMap events;
-        uint8 phase;
+        Phases phase;
         uint8 meteors;
+        bool combustionUsed;
+
+        void SetCombatToNormal()
+        {
+            phase = PHASE_NORMAL;
+
+            scheduler
+                .Schedule(5ms, PHASE_NORMAL, [this](TaskContext scorch)
+                {
+                    DoCast(SPELL_SCORCH);
+                    scorch.Repeat(5s, 8s);
+                })
+                .Schedule(14s, PHASE_NORMAL, [this](TaskContext dragonBreath)
+                {
+                    DoCast(SPELL_DRAGON_BREATH);
+                    dragonBreath.Repeat(14s, 28s);
+                });
+        }
     };
 
     CreatureAI* GetAI(Creature* creature) const override

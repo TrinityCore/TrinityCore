@@ -160,6 +160,8 @@ class npc_jaina_theramore : public CreatureScript
 
         void Initialize()
         {
+            SetCombatMovement(false);
+
             playerShaker = false;
             firesCount = 0;
             npcCount = 0;
@@ -398,8 +400,6 @@ class npc_jaina_theramore : public CreatureScript
                     }
                     blizzard.Repeat(6s, 15s);
                 });
-
-            DoStartNoMovement(who);
         }
 
         void JustDied(Unit* /*killer*/) override

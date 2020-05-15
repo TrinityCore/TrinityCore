@@ -7,13 +7,19 @@
 #include "DBCEnums.h"
 #include "TaskScheduler.h"
 
+enum AI_Type
+{
+    MELEE,
+    DISTANCE
+};
+
 class TC_GAME_API CustomAI : public ScriptedAI
 {
     public:
-        CustomAI(Creature* creature);
+        CustomAI(Creature* creature, AI_Type type = DISTANCE);
         virtual ~CustomAI() { };
 
-        virtual void Initialize() { };
+        virtual void Initialize();
 
         void JustSummoned(Creature* /*summon*/) override;
         void SummonedCreatureDespawn(Creature* /*summon*/) override;
@@ -29,6 +35,7 @@ class TC_GAME_API CustomAI : public ScriptedAI
     protected:
         TaskScheduler scheduler;
         SummonList summons;
+        AI_Type type;
 };
 
 #endif // CUSTOM_CUSTOMAI_H

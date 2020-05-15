@@ -46,7 +46,7 @@ class npc_hag : public CreatureScript
                 .Schedule(1s, [this](TaskContext fireball)
                 {
                     DoCastVictim(SPELL_FIREBALL);
-                    fireball.Repeat(2s);
+                    fireball.Repeat(1800ms);
                 })
                 .Schedule(5s, [this](TaskContext ice_lance)
                 {

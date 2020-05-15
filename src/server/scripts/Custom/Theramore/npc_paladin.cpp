@@ -26,7 +26,7 @@ class npc_paladin : public CreatureScript
 
     struct npc_paladinAI : public CustomAI
     {
-        npc_paladinAI(Creature* creature) : CustomAI(creature), healOnCooldown(false)
+        npc_paladinAI(Creature* creature) : CustomAI(creature, MELEE), healOnCooldown(false)
         {
             scheduler.SetValidator([this]
             {

@@ -29,6 +29,7 @@ enum Spells
     SPELL_ARCANE_EXPLOSION      = 100011,
     SPELL_EVOCATION             = 100014,
     SPELL_PRISMATIC_BARRIER     = 100069,
+    SPELL_ARCANE_POWER          = 100081,
 
     SPELL_COUNTERSPELL          = 15122
 };
@@ -148,6 +149,10 @@ class npc_archmage_arcanes : public CreatureScript
                         arcane_projectile.Repeat(28s, 40s);
                     });
             }
+            else
+            {
+                DoCast(SPELL_ARCANE_POWER);
+            }
 
             scheduler
                 .Schedule(5ms, [this](TaskContext arcane_blast)
@@ -209,6 +214,7 @@ class npc_archmage_arcanes : public CreatureScript
                         if (aura->GetStackAmount() >= 4)
                         {
                             me->InterruptNonMeleeSpells(true);
+                            me->RemoveAura(aura);
                             DoCastVictim(SPELL_ARCANE_BARRAGE);
                         }
                     }

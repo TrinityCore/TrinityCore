@@ -41,7 +41,7 @@ class npc_priest : public CreatureScript
 
     struct npc_priestAI : public CustomAI
     {
-        npc_priestAI(Creature* creature) : CustomAI(creature)
+        npc_priestAI(Creature* creature) : CustomAI(creature), hasUseDamageReduction(false)
         {
             SetCombatMovement(false);
         }
@@ -128,7 +128,7 @@ class npc_priest : public CreatureScript
 
         void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
         {
-            if (!hasUseDamageReduction && !me->HasAura(SPELL_PAIN_SUPPRESSION) && HealthBelowPct(10))
+            if (!hasUseDamageReduction && !me->HasAura(SPELL_PAIN_SUPPRESSION) && HealthBelowPct(20))
             {
                 DoCast(SPELL_PAIN_SUPPRESSION);
 

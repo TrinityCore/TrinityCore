@@ -1,8 +1,20 @@
 #include "CustomAI.h"
 
-CustomAI::CustomAI(Creature* creature) : ScriptedAI(creature), summons(creature)
+CustomAI::CustomAI(Creature* creature, AI_Type type) : ScriptedAI(creature),
+    type(type), summons(creature)
 {
     Initialize();
+}
+
+void CustomAI::Initialize()
+{
+    if (type == DISTANCE)
+    {
+        scheduler.SetValidator([this]
+        {
+            return !me->HasUnitState(UNIT_STATE_CASTING);
+        });
+    }
 }
 
 void CustomAI::JustSummoned(Creature* summon)

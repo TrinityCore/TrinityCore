@@ -208,9 +208,24 @@ class theramore_waves_invoker : public CreatureScript
                             gate->UseDoorOrButton();
                         }
 
+                        //double angle = 18;
+                        //for (int i = 0; i < 20; ++i)
+                        //{
+                        //    Position pos = GetPositionAround(jaina, angle, jaina->GetObjectScale() * 3.f);
+                        //    if (Creature* shield = DoSummon(NPC_INVISIBLE_STALKER, pos, 5000, TEMPSUMMON_TIMED_DESPAWN))
+                        //    {
+                        //        shield->AddAura(70573, shield);
+                        //        shield->SetObjectScale(0.3f);
+                        //    }
+                        //    angle += 18;
+                        //}
+
                         amara->RemoveAllAuras();
+                        amara->CastSpell(amara, 54899);
+                        playerForQuest->CastSpell(playerForQuest, 54899);
                         thalen->SetWalk(false);
                         thalen->RemoveAllAuras();
+                        thalen->CastSpell(thalen, 32404);
                         thalen->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_LAUGH);
                         events.ScheduleEvent(EVENT_BATTLE_3, 3s);
                         break;
@@ -219,6 +234,7 @@ class theramore_waves_invoker : public CreatureScript
                     case EVENT_BATTLE_3:
                         jaina->AI()->Talk(JAINA_SAY_03);
                         jaina->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
+                        amara->GetMotionMaster()->MoveTargetedHome();
                         thalen->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
                         thalen->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         thalen->SetReactState(REACT_PASSIVE);
@@ -271,7 +287,7 @@ class theramore_waves_invoker : public CreatureScript
                         events.ScheduleEvent(WAVE_01, 5s);
                         break;
 
-                        // Event - Invoker
+                    // Event - Invoker
                     case WAVE_01:
                     case WAVE_02:
                     case WAVE_03:
@@ -344,6 +360,16 @@ class theramore_waves_invoker : public CreatureScript
         ObjectGuid horderMembers[NUMBER_OF_WAVES];
         uint32 waves;
         uint32 wavesInvoker;
+
+        Position GetPositionAround(Unit* target, double angle, float radius)
+        {
+            double ang = angle * (M_PI / 180);
+            Position pos;
+            pos.m_positionX = target->GetPositionX() + radius * sin(ang);
+            pos.m_positionY = target->GetPositionY() + radius * cos(ang);
+            pos.m_positionZ = target->GetPositionZ();
+            return pos;
+        }
 
         void HordeMembersInvoker(uint32 waveId, ObjectGuid* hordes)
         {
