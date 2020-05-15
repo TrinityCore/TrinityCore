@@ -171,7 +171,7 @@ void AuctionPosting::BuildAuctionItem(WorldPackets::AuctionHouse::AuctionItem* a
 
     // all (not optional<>)
     auctionItem->Count = int32(GetTotalItemCount());
-    auctionItem->Flags = 0;
+    auctionItem->Flags = Items[0]->m_itemData->DynamicFlags;
     auctionItem->AuctionID = Id;
     auctionItem->Owner = Owner;
 
