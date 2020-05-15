@@ -4165,8 +4165,8 @@ void Unit::RemoveAllAuras()
                     sstr << auraPair.second->GetDebugInfo() << "\n";
             }
 
-            TC_LOG_ERROR("entities.unit", sstr.str().c_str());
-            ABORT_MSG(sstr.str().c_str());
+            TC_LOG_ERROR("entities.unit", "%s", sstr.str().c_str());
+            ABORT_MSG("%s", sstr.str().c_str());
 
             break;
         }
