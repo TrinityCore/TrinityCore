@@ -729,7 +729,11 @@ class npc_putricide_oozeAI : public ScriptedAI
         void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
         {
             if (!_newTargetSelectTimer && spell->Id == _hitTargetSpellId)
+            {
                 _newTargetSelectTimer = 1000;
+                // go passive until next target selection
+                me->SetReactState(REACT_PASSIVE);
+            }
         }
 
         void Reset() override
@@ -932,6 +936,8 @@ class spell_putricide_ooze_channel : public SpellScriptLoader
                 GetCaster()->GetThreatManager().ResetAllThreat();
                 GetCaster()->ToCreature()->AI()->AttackStart(GetHitUnit());
                 GetCaster()->GetThreatManager().AddThreat(GetHitUnit(), 500000000.0f, nullptr, true, true);    // value seen in sniff
+                GetCaster()->GetThreatManager().FixateTarget(GetHitUnit());
+                GetCaster()->ToCreature()->SetReactState(REACT_AGGRESSIVE);
             }
 
             void Register() override
