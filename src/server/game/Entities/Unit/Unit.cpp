@@ -4147,15 +4147,14 @@ void Unit::RemoveAllAuras()
             std::stringstream sstr;
             sstr << "Unit::RemoveAllAuras() iterated " << maxIteration << " times already but there are still "
                 << m_appliedAuras.size() << " m_appliedAuras and " << m_ownedAuras.size() << " m_ownedAuras. Details:" << "\n";
+            sstr << GetDebugInfo() << "\n";
 
             if (!m_appliedAuras.empty())
             {
                 sstr << "m_appliedAuras:" << "\n";
 
                 for (std::pair<uint32 const, AuraApplication*>& auraAppPair : m_appliedAuras)
-                {
                     sstr << auraAppPair.second->GetDebugInfo() << "\n";
-                }
             }
 
             if (!m_ownedAuras.empty())
@@ -4163,9 +4162,7 @@ void Unit::RemoveAllAuras()
                 sstr << "m_ownedAuras:" << "\n";
 
                 for (std::pair<uint32 const, Aura*>& auraPair : m_ownedAuras)
-                {
                     sstr << auraPair.second->GetDebugInfo() << "\n";
-                }
             }
 
             TC_LOG_ERROR("entities.unit", sstr.str().c_str());
