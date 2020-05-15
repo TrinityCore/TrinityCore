@@ -85,9 +85,9 @@ public:
         if (para && strcmp(para, "true") == 0)
             useStraightPath = true;
 
-        bool useStraightLine = false;
-        if (para && strcmp(para, "line") == 0)
-            useStraightLine = true;
+        bool useRaycast = false;
+        if (para && (strcmp(para, "line") == 0 || strcmp(para, "ray") == 0 || strcmp(para, "raycast") == 0))
+            useRaycast = true;
 
         // unit locations
         float x, y, z;
@@ -96,11 +96,12 @@ public:
         // path
         PathGenerator path(target);
         path.SetUseStraightPath(useStraightPath);
-        bool result = path.CalculatePath(x, y, z, false, useStraightLine);
+        path.SetUseRaycast(useRaycast);
+        bool result = path.CalculatePath(x, y, z, false);
 
         Movement::PointsArray const& pointPath = path.GetPath();
         handler->PSendSysMessage("%s's path to %s:", target->GetName().c_str(), player->GetName().c_str());
-        handler->PSendSysMessage("Building: %s", useStraightPath ? "StraightPath" : useStraightLine ? "Raycast" : "SmoothPath");
+        handler->PSendSysMessage("Building: %s", useStraightPath ? "StraightPath" : useRaycast ? "Raycast" : "SmoothPath");
         handler->PSendSysMessage("Result: %s - Length: %zu - Type: %u", (result ? "true" : "false"), pointPath.size(), path.GetPathType());
 
         G3D::Vector3 const& start = path.GetStartPosition();
