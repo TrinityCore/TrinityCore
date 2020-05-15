@@ -664,6 +664,13 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
 
     if (!HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_RACEMASK))
     {
+        if (raceEntry->GetFlags().HasFlag(ChrRacesFlag::NPCOnly))
+        {
+            TC_LOG_ERROR("network", "Race (%u) was not playable but requested while creating new char for account (ID: %u): wrong DBC files or cheater?", charCreate.CreateInfo->Race, GetAccountId());
+            SendCharCreate(CHAR_CREATE_DISABLED);
+            return;
+        }
+
         Trinity::RaceMask<uint64> raceMaskDisabled{ sWorld->GetUInt64Config(CONFIG_CHARACTER_CREATING_DISABLED_RACEMASK) };
         if (raceMaskDisabled.HasRace(charCreate.CreateInfo->Race))
         {
