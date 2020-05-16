@@ -2521,9 +2521,12 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
     path.CalculatePath(destx, desty, destz, false);
 
     // We have a invalid path result. Skip further processing.
-    if (path.GetPathType() & ~(PATHFIND_NORMAL | PATHFIND_SHORTCUT | PATHFIND_INCOMPLETE | PATHFIND_FARFROMPOLY | PATHFIND_NOT_USING_PATH))
-        if (!(path.GetPathType() & PATHFIND_FARFROMPOLY) || ((path.GetPathType() & PATHFIND_FARFROMPOLY) && !(path.GetPathType() & PATHFIND_NOT_USING_PATH)))
+    if (!(path.GetPathType() & PATHFIND_NOT_USING_PATH))
+    {
+        // Then check if we have any other flag that makes the result invalid
+        if (path.GetPathType() & ~(PATHFIND_NORMAL | PATHFIND_SHORTCUT | PATHFIND_INCOMPLETE | PATHFIND_FARFROMPOLY_END | PATHFIND_NOT_USING_PATH))
             return;
+    }
 
     G3D::Vector3 result = path.GetPath().back();
     destx = result.x;
