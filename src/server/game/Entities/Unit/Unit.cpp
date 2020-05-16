@@ -14377,7 +14377,7 @@ bool Unit::SetDisableGravity(bool disable, bool packetOnly /*= false*/)
 {
     if (!packetOnly)
     {
-        if (disable == IsLevitating())
+        if (disable == IsGravityDisabled())
             return false;
 
         if (disable)
@@ -14454,7 +14454,7 @@ bool Unit::SetCanFly(bool enable, bool packetOnly)
         }
         else
         {
-            if (IsFlying() && !IsLevitating())
+            if (IsFlying() && !IsGravityDisabled())
                 SetFall(true);
             RemoveUnitMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_MASK_MOVING_FLY);
 

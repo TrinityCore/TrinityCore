@@ -2737,7 +2737,7 @@ void AuraEffect::HandleAuraAllowFlight(AuraApplication const* aurApp, uint8 mode
 
     target->SetCanFly(apply);
 
-    if (!apply && target->GetTypeId() == TYPEID_UNIT && !target->IsLevitating())
+    if (!apply && target->GetTypeId() == TYPEID_UNIT && !target->IsGravityDisabled())
         target->GetMotionMaster()->MoveFall();
 }
 
@@ -3097,7 +3097,7 @@ void AuraEffect::HandleAuraModIncreaseFlightSpeed(AuraApplication const* aurApp,
         {
             target->SetCanFly(apply);
 
-            if (!apply && target->GetTypeId() == TYPEID_UNIT && !target->IsLevitating())
+            if (!apply && target->GetTypeId() == TYPEID_UNIT && !target->IsGravityDisabled())
                 target->GetMotionMaster()->MoveFall();
         }
 

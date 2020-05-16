@@ -1344,7 +1344,7 @@ class TC_GAME_API Unit : public WorldObject
         void SendSetPlayHoverAnim(bool enable);
         void SendMovementSetSplineAnim(Movement::AnimType anim);
 
-        bool IsLevitating() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY); }
+        bool IsGravityDisabled() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY); }
         bool IsWalking() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_WALKING); }
         bool IsHovering() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_HOVER); }
         bool SetWalk(bool enable);
