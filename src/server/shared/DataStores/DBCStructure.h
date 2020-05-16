@@ -392,6 +392,20 @@ struct ChrClassesEntry
     uint32  expansion;                                       // 59 (0 - original race, 1 - tbc addon, ...)
 };
 
+enum ChrRacesAllianceType
+{
+    CHRRACES_ALLIANCE_TYPE_ALLIANCE     = 0,
+    CHRRACES_ALLIANCE_TYPE_HORDE        = 1,
+    CHRRACES_ALLIANCE_TYPE_NOT_PLAYABLE = 2,
+};
+
+enum ChrRacesFlags
+{
+    CHRRACES_FLAGS_NOT_PLAYABLE = 0x01,
+    CHRRACES_FLAGS_BARE_FEET    = 0x02,
+    CHRRACES_FLAGS_CAN_MOUNT    = 0x04
+};
+
 struct ChrRacesEntry
 {
     uint32      RaceID;                                     // 0
@@ -402,11 +416,11 @@ struct ChrRacesEntry
     uint32      model_f;                                    // 5
                                                             // 6 unused
     uint32      TeamID;                                     // 7 (7-Alliance 1-Horde)
-                                                            // 8 unused
+    uint32      CreatureType;                               // 8 Blizzlike Always 7 (humanoid).
     uint32      ResSicknessSpellID;                         // 9 Blizzlike DBC always 15007.
                                                             // 10-11 unused
     uint32      CinematicSequence;                          // 12 id from CinematicSequences.dbc
-    //uint32    unk_322;                                    // 13 faction (0 alliance, 1 horde, 2 not available?)
+    uint32      Alliance;                                   // 13 faction (0 alliance, 1 horde, 2 not available?)
     char*       name[16];                                   // 14-29 used for DBC language detection/selection
                                                             // 30 string flags, unused
     //char*       nameFemale[16];                           // 31-46, if different from base (male) case
@@ -415,6 +429,8 @@ struct ChrRacesEntry
                                                             // 64 string flags, unused
                                                             // 65-67 unused
     uint32      expansion;                                  // 68 (0 - original race, 1 - tbc addon, ...)
+
+    inline bool HasFlag(ChrRacesFlags flag) const { return !!(Flags & flag); }
 };
 
 struct CinematicCameraEntry
