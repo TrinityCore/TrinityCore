@@ -291,6 +291,14 @@ void AuraApplication::ClientUpdate(bool remove)
     _target->SendMessageToSet(update.Write(), true);
 }
 
+std::string AuraApplication::GetDebugInfo() const
+{
+    std::stringstream sstr;
+    sstr << "Base: " << (GetBase() ? GetBase()->GetDebugInfo() : "NULL")
+        << "\nTarget: " << (GetTarget() ? GetTarget()->GetDebugInfo() : "NULL");
+    return sstr.str();
+}
+
 uint32 Aura::BuildEffectMaskForOwner(SpellInfo const* spellProto, uint32 availableEffectMask, WorldObject* owner)
 {
     ASSERT_NODEBUGINFO(spellProto);
