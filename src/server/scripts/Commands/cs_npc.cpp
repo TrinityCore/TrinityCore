@@ -213,9 +213,10 @@ public:
 
         if (Transport* trans = chr->GetTransport())
         {
-            ObjectGuid::LowType guid = map->GenerateLowGuid<HighGuid::Unit>();
+            ObjectGuid::LowType guid = sObjectMgr->GenerateCreatureSpawnId();
             CreatureData& data = sObjectMgr->NewOrExistCreatureData(guid);
             data.spawnId = guid;
+            data.spawnGroupData = sObjectMgr->GetDefaultSpawnGroup();
             data.id = id;
             data.phaseMask = chr->GetPhaseMaskForSpawn();
             data.spawnPoint.Relocate(chr->GetTransOffsetX(), chr->GetTransOffsetY(), chr->GetTransOffsetZ(), chr->GetTransOffsetO());
