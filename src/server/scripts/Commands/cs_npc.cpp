@@ -217,9 +217,10 @@ public:
 
         if (Transport* trans = chr->GetTransport())
         {
-            ObjectGuid::LowType guid = map->GenerateLowGuid<HighGuid::Creature>();
+            ObjectGuid::LowType guid = sObjectMgr->GenerateCreatureSpawnId();
             CreatureData& data = sObjectMgr->NewOrExistCreatureData(guid);
             data.spawnId = guid;
+            data.spawnGroupData = sObjectMgr->GetDefaultSpawnGroup();
             data.id = id;
             data.spawnPoint.Relocate(chr->GetTransOffsetX(), chr->GetTransOffsetY(), chr->GetTransOffsetZ(), chr->GetTransOffsetO());
             if (Creature* creature = trans->CreateNPCPassenger(guid, &data))
