@@ -94,8 +94,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         CreatureMovementData const& GetMovementTemplate() const;
         bool CanWalk() const { return GetMovementTemplate().IsGroundAllowed(); }
         bool CanSwim() const override { return GetMovementTemplate().IsSwimAllowed() || IsPet(); }
-        bool CanFly()  const override { return GetMovementTemplate().IsFlightAllowed() || IsFlying() || IsGravityDisabled(); };
-        bool CanHover() const { return GetMovementTemplate().Ground == CreatureGroundMovementType::Hover || IsHovering(); };
+        bool CanFly()  const override { return GetMovementTemplate().IsFlightAllowed() || IsFlying(); }
+        bool CanHover() const { return GetMovementTemplate().Ground == CreatureGroundMovementType::Hover || IsHovering(); }
 
         bool IsDungeonBoss() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_DUNGEON_BOSS) != 0; }
         bool IsAffectedByDiminishingReturns() const override { return Unit::IsAffectedByDiminishingReturns() || (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_ALL_DIMINISH) != 0; }
