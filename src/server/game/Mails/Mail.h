@@ -31,7 +31,8 @@ class Object;
 class Player;
 
 #define MAIL_BODY_ITEM_TEMPLATE 8383                        // - plain letter, A Dusty Unsent Letter: 889
-#define MAX_MAIL_ITEMS 12
+#define MAX_CLIENT_MAIL_ITEMS 12                            // max number of items a player is allowed to attach
+#define MAX_MAIL_ITEMS 16
 
 enum MailMessageType
 {
