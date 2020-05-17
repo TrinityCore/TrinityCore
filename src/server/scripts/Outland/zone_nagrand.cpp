@@ -547,50 +547,6 @@ public:
     }
 };
 
-/*######
-## go_warmaul_prison
-######*/
-
-enum FindingTheSurvivorsData
-{
-    QUEST_FINDING_THE_SURVIVORS                     = 9948,
-    NPC_MAGHAR_PRISONER                             = 18428,
-
-    SAY_FREE                                        = 0,
-};
-
-class go_warmaul_prison : public GameObjectScript
-{
-    public:
-        go_warmaul_prison() : GameObjectScript("go_warmaul_prison") { }
-
-        struct go_warmaul_prisonAI : public GameObjectAI
-        {
-            go_warmaul_prisonAI(GameObject* go) : GameObjectAI(go) { }
-
-            bool GossipHello(Player* player) override
-            {
-                me->UseDoorOrButton();
-                if (player->GetQuestStatus(QUEST_FINDING_THE_SURVIVORS) != QUEST_STATUS_INCOMPLETE)
-                    return false;
-
-                if (Creature* prisoner = me->FindNearestCreature(NPC_MAGHAR_PRISONER, 5.0f))
-                {
-                    player->KilledMonsterCredit(NPC_MAGHAR_PRISONER);
-
-                    prisoner->AI()->Talk(SAY_FREE, player);
-                    prisoner->DespawnOrUnsummon(6000);
-                }
-                return true;
-            }
-        };
-
-        GameObjectAI* GetAI(GameObject* go) const override
-        {
-            return new go_warmaul_prisonAI(go);
-        }
-};
-
 enum PlantBannerQuests
 {
     SPELL_PLANT_WARMAUL_OGRE_BANNER  = 32307,
@@ -883,7 +839,6 @@ void AddSC_nagrand()
     new npc_corki();
     new go_corkis_prison();
     new npc_kurenai_captive();
-    new go_warmaul_prison();
     new npc_nagrand_banner();
     new condition_nagrand_banner();
 }
