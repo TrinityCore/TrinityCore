@@ -3275,9 +3275,10 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
     path.SetUseRaycast(true);
     path.CalculatePath(destx, desty, destz, false);
 
-    // We have a invalid path result. Skip further processing.
-    if (path.GetPathType() & ~(PATHFIND_NORMAL | PATHFIND_SHORTCUT | PATHFIND_INCOMPLETE | PATHFIND_FARFROMPOLY_END | PATHFIND_NOT_USING_PATH))
-        return;
+    // Check for valid path types before we proceed
+    if (!(path.GetPathType() & PATHFIND_NOT_USING_PATH))
+        if (path.GetPathType() & ~(PATHFIND_NORMAL | PATHFIND_SHORTCUT | PATHFIND_INCOMPLETE | PATHFIND_FARFROMPOLY_END))
+            return;
 
     G3D::Vector3 result = path.GetPath().back();
     destx = result.x;
@@ -3286,23 +3287,26 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
 
     // check static LOS
     float halfHeight = GetCollisionHeight() * 0.5f;
-    bool col;
-    /*
-    col = VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(GetMapId(),
-        pos.m_positionX, pos.m_positionY, pos.m_positionZ + halfHeight,
-        destx, desty, destz + halfHeight,
-        destx, desty, destz, -0.5f);
+    bool col = false;
 
-    destz -= halfHeight;
-
-    // Collided with static LOS object, move back to collision point
-    if (col)
+    // Unit is flying, check for potential collision via vmaps
+    if (path.GetPathType() & PATHFIND_NOT_USING_PATH)
     {
-        destx -= CONTACT_DISTANCE * std::cos(angle);
-        desty -= CONTACT_DISTANCE * std::sin(angle);
-        dist = std::sqrt((pos.m_positionX - destx) * (pos.m_positionX - destx) + (pos.m_positionY - desty) * (pos.m_positionY - desty));
+        col = VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(GetMapId(),
+            pos.m_positionX, pos.m_positionY, pos.m_positionZ + halfHeight,
+            destx, desty, destz + halfHeight,
+            destx, desty, destz, -0.5f);
+
+        destz -= halfHeight;
+
+        // Collided with static LOS object, move back to collision point
+        if (col)
+        {
+            destx -= CONTACT_DISTANCE * std::cos(angle);
+            desty -= CONTACT_DISTANCE * std::sin(angle);
+            dist = std::sqrt((pos.m_positionX - destx) * (pos.m_positionX - destx) + (pos.m_positionY - desty) * (pos.m_positionY - desty));
+        }
     }
-    */
 
     // check dynamic collision
     col = GetMap()->getObjectHitPos(GetPhaseMask(),
