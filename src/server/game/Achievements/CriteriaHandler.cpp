@@ -23,6 +23,7 @@
 #include "Battleground.h"
 #include "BattlePetMgr.h"
 #include "CollectionMgr.h"
+#include "Containers.h"
 #include "Creature.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
@@ -1991,6 +1992,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                 return false;
             break;
         case CRITERIA_ADDITIONAL_CONDITION_HAS_ACHIEVEMENT: // 86
+        case CRITERIA_ADDITIONAL_CONDITION_HAS_ACHIEVEMENT_ON_CHARACTER: // 87
             if (!referencePlayer->HasAchieved(reqValue))
                 return false;
             break;
@@ -3208,14 +3210,8 @@ void CriteriaMgr::LoadCriteriaModifiersTree()
 
     // Build tree
     for (auto itr = _criteriaModifiers.begin(); itr != _criteriaModifiers.end(); ++itr)
-    {
-        if (!itr->second->Entry->Parent)
-            continue;
-
-        auto parent = _criteriaModifiers.find(itr->second->Entry->Parent);
-        if (parent != _criteriaModifiers.end())
-            parent->second->Children.push_back(itr->second);
-    }
+        if (ModifierTreeNode* parentNode = Trinity::Containers::MapGetValuePtr(_criteriaModifiers, itr->second->Entry->Parent))
+            parentNode->Children.push_back(itr->second);
 
     TC_LOG_INFO("server.loading", ">> Loaded %u criteria modifiers in %u ms", uint32(_criteriaModifiers.size()), GetMSTimeDiffToNow(oldMSTime));
 }
@@ -3246,12 +3242,6 @@ T GetEntry(std::unordered_map<uint32, T> const& map, CriteriaTreeEntry const* tr
 void CriteriaMgr::LoadCriteriaList()
 {
     uint32 oldMSTime = getMSTime();
-
-    if (sCriteriaTreeStore.GetNumRows() == 0)
-    {
-        TC_LOG_ERROR("server.loading", ">> Loaded 0 criteria.");
-        return;
-    }
 
     std::unordered_map<uint32 /*criteriaTreeID*/, AchievementEntry const*> achievementCriteriaTreeIds;
     for (AchievementEntry const* achievement : sAchievementStore)
@@ -3299,25 +3289,10 @@ void CriteriaMgr::LoadCriteriaList()
     // Build tree
     for (auto itr = _criteriaTrees.begin(); itr != _criteriaTrees.end(); ++itr)
     {
-        if (!itr->second->Entry->Parent)
-            continue;
+        if (CriteriaTree* parent = Trinity::Containers::MapGetValuePtr(_criteriaTrees, itr->second->Entry->Parent))
+            parent->Children.push_back(itr->second);
 
-        auto parent = _criteriaTrees.find(itr->second->Entry->Parent);
-        if (parent != _criteriaTrees.end())
-        {
-            parent->second->Children.push_back(itr->second);
-            while (parent != _criteriaTrees.end())
-            {
-                auto cur = parent;
-                parent = _criteriaTrees.find(parent->second->Entry->Parent);
-                if (parent == _criteriaTrees.end())
-                {
-                    if (sCriteriaStore.LookupEntry(itr->second->Entry->CriteriaID))
-                        _criteriaTreeByCriteria[itr->second->Entry->CriteriaID].push_back(cur->second);
-                }
-            }
-        }
-        else if (sCriteriaStore.LookupEntry(itr->second->Entry->CriteriaID))
+        if (sCriteriaStore.HasRecord(itr->second->Entry->CriteriaID))
             _criteriaTreeByCriteria[itr->second->Entry->CriteriaID].push_back(itr->second);
     }
 
@@ -3342,14 +3317,14 @@ void CriteriaMgr::LoadCriteriaList()
         Criteria* criteria = new Criteria();
         criteria->ID = criteriaEntry->ID;
         criteria->Entry = criteriaEntry;
-        auto mod = _criteriaModifiers.find(criteriaEntry->ModifierTreeId);
-        if (mod != _criteriaModifiers.end())
-            criteria->Modifier = mod->second;
+        criteria->Modifier = Trinity::Containers::MapGetValuePtr(_criteriaModifiers, criteriaEntry->ModifierTreeId);
 
         _criteria[criteria->ID] = criteria;
 
         for (CriteriaTree const* tree : treeItr->second)
         {
+            const_cast<CriteriaTree*>(tree)->Criteria = criteria;
+
             if (AchievementEntry const* achievement = tree->Achievement)
             {
                 if (achievement->Flags & ACHIEVEMENT_FLAG_GUILD)
@@ -3419,9 +3394,6 @@ void CriteriaMgr::LoadCriteriaList()
         if (criteriaEntry->FailEvent)
             _criteriasByFailEvent[criteriaEntry->FailEvent][criteriaEntry->FailAsset].push_back(criteria);
     }
-
-    for (auto& p : _criteriaTrees)
-        const_cast<CriteriaTree*>(p.second)->Criteria = GetCriteria(p.second->Entry->CriteriaID);
 
     TC_LOG_INFO("server.loading", ">> Loaded %u criteria, %u guild criteria, %u scenario criteria and %u quest objective criteria in %u ms.", criterias, guildCriterias, scenarioCriterias, questObjectiveCriterias, GetMSTimeDiffToNow(oldMSTime));
 }

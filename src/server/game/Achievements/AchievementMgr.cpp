@@ -285,6 +285,7 @@ void PlayerAchievementMgr::LoadFromDB(PreparedQueryResult achievementResult, Pre
             CriteriaProgress& progress = _criteriaProgress[id];
             progress.Counter = counter;
             progress.Date = date;
+            progress.PlayerGUID = _owner->GetGUID();
             progress.Changed = false;
         } while (criteriaResult->NextRow());
     }
@@ -376,6 +377,8 @@ void PlayerAchievementMgr::ResetCriteria(CriteriaCondition condition, int32 fail
 void PlayerAchievementMgr::SendAllData(Player const* /*receiver*/) const
 {
     VisibleAchievementCheck filterInvisible;
+    WorldPackets::Achievement::AllAccountCriteria allAccountCriteria;
+
     WorldPackets::Achievement::AllAchievementData achievementData;
     achievementData.Data.Earned.reserve(_completedAchievements.size());
     achievementData.Data.Progress.reserve(_criteriaProgress.size());
@@ -399,6 +402,8 @@ void PlayerAchievementMgr::SendAllData(Player const* /*receiver*/) const
 
     for (auto itr = _criteriaProgress.begin(); itr != _criteriaProgress.end(); ++itr)
     {
+        Criteria const* criteria = sCriteriaMgr->GetCriteria(itr->first);
+
         WorldPackets::Achievement::CriteriaProgress progress;
         progress.Id = itr->first;
         progress.Quantity = itr->second.Counter;
@@ -408,7 +413,23 @@ void PlayerAchievementMgr::SendAllData(Player const* /*receiver*/) const
         progress.TimeFromStart = 0;
         progress.TimeFromCreate = 0;
         achievementData.Data.Progress.push_back(progress);
+
+        if (criteria->FlagsCu & CRITERIA_FLAG_CU_ACCOUNT)
+        {
+            WorldPackets::Achievement::CriteriaProgress progress;
+            progress.Id = itr->first;
+            progress.Quantity = itr->second.Counter;
+            progress.Player = _owner->GetSession()->GetBattlenetAccountGUID();
+            progress.Flags = 0;
+            progress.Date = itr->second.Date;
+            progress.TimeFromStart = 0;
+            progress.TimeFromCreate = 0;
+            allAccountCriteria.Progress.push_back(progress);
+        }
     }
+
+    if (!allAccountCriteria.Progress.empty())
+        SendPacket(allAccountCriteria.Write());
 
     SendPacket(achievementData.Write());
 }
@@ -556,20 +577,40 @@ bool PlayerAchievementMgr::ModifierTreeSatisfied(uint32 modifierTreeId) const
 
 void PlayerAchievementMgr::SendCriteriaUpdate(Criteria const* criteria, CriteriaProgress const* progress, uint32 timeElapsed, bool timedCompleted) const
 {
-    WorldPackets::Achievement::CriteriaUpdate criteriaUpdate;
+    if (criteria->FlagsCu & CRITERIA_FLAG_CU_ACCOUNT)
+    {
+        WorldPackets::Achievement::AccountCriteriaUpdate criteriaUpdate;
 
-    criteriaUpdate.CriteriaID = criteria->ID;
-    criteriaUpdate.Quantity = progress->Counter;
-    criteriaUpdate.PlayerGUID = _owner->GetGUID();
-    criteriaUpdate.Flags = 0;
-    if (criteria->Entry->StartTimer)
-        criteriaUpdate.Flags = timedCompleted ? 1 : 0; // 1 is for keeping the counter at 0 in client
+        criteriaUpdate.Progress.Id = criteria->ID;
+        criteriaUpdate.Progress.Quantity = progress->Counter;
+        criteriaUpdate.Progress.Player = _owner->GetSession()->GetBattlenetAccountGUID();
+        criteriaUpdate.Progress.Flags = 0;
+        if (criteria->Entry->StartTimer)
+            criteriaUpdate.Progress.Flags = timedCompleted ? 1 : 0; // 1 is for keeping the counter at 0 in client
 
-    criteriaUpdate.CurrentTime = progress->Date;
-    criteriaUpdate.ElapsedTime = timeElapsed;
-    criteriaUpdate.CreationTime = 0;
+        criteriaUpdate.Progress.Date = progress->Date;
+        criteriaUpdate.Progress.TimeFromStart = timeElapsed;
+        criteriaUpdate.Progress.TimeFromCreate = 0;
 
-    SendPacket(criteriaUpdate.Write());
+        SendPacket(criteriaUpdate.Write());
+    }
+    else
+    {
+        WorldPackets::Achievement::CriteriaUpdate criteriaUpdate;
+
+        criteriaUpdate.CriteriaID = criteria->ID;
+        criteriaUpdate.Quantity = progress->Counter;
+        criteriaUpdate.PlayerGUID = _owner->GetGUID();
+        criteriaUpdate.Flags = 0;
+        if (criteria->Entry->StartTimer)
+            criteriaUpdate.Flags = timedCompleted ? 1 : 0; // 1 is for keeping the counter at 0 in client
+
+        criteriaUpdate.CurrentTime = progress->Date;
+        criteriaUpdate.ElapsedTime = timeElapsed;
+        criteriaUpdate.CreationTime = 0;
+
+        SendPacket(criteriaUpdate.Write());
+    }
 }
 
 void PlayerAchievementMgr::SendCriteriaProgressRemoved(uint32 criteriaId)
