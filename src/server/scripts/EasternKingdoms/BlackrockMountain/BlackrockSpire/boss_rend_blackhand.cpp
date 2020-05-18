@@ -149,19 +149,22 @@ public:
     {
         boss_rend_blackhandAI(Creature* creature) : BossAI(creature, DATA_WARCHIEF_REND_BLACKHAND)
         {
-            gythEvent = false;
+            waveEvent = false;
             victorGUID.Clear();
             portcullisGUID.Clear();
             addsEntrySet.clear();
             addsEntrySet.insert(Adds::NPC_BLACKHAND_DRAGON_HANDLER);
             addsEntrySet.insert(Adds::NPC_CHROMATIC_DRAGONSPAWN);
             addsEntrySet.insert(Adds::NPC_CHROMATIC_WHELP);
+            addsDestination.m_positionX = 140.0f;
+            addsDestination.m_positionY = -420.0f;
+            addsDestination.m_positionZ = 110.5f;
         }
 
         void Reset() override
         {
             _Reset();
-            gythEvent = false;
+            waveEvent = false;
             victorGUID.Clear();
             portcullisGUID.Clear();
         }
@@ -169,9 +172,10 @@ public:
         void JustEngagedWith(Unit* who) override
         {
             BossAI::JustEngagedWith(who);
-            events.ScheduleEvent(EVENT_WHIRLWIND, 13s, 15s);
-            events.ScheduleEvent(EVENT_CLEAVE, 15s, 17s);
-            events.ScheduleEvent(EVENT_MORTAL_STRIKE, 17s, 19s);
+            events.ScheduleEvent(EVENT_CLEAVE, 5000, 10000);
+            events.ScheduleEvent(EVENT_WHIRLWIND, 10000, 15000);            
+            events.ScheduleEvent(EVENT_MORTAL_STRIKE, 15000, 20000);
+            waveEvent = false;
         }
 
         void IsSummonedBy(WorldObject* /*summoner*/) override
@@ -191,18 +195,21 @@ public:
         {
             if (type == AREATRIGGER && data == AREATRIGGER_BLACKROCK_STADIUM)
             {
-                if (!gythEvent)
+                if (!waveEvent)
                 {
-                    gythEvent = true;
-
+                    waveEvent = true;
                     if (Creature* victor = me->FindNearestCreature(NPC_LORD_VICTOR_NEFARIUS, 5.0f, true))
+                    {
                         victorGUID = victor->GetGUID();
-
+                    }
                     if (GameObject* portcullis = me->FindNearestGameObject(GO_DR_PORTCULLIS, 50.0f))
+                    {
                         portcullisGUID = portcullis->GetGUID();
-
+                    }                    
                     events.ScheduleEvent(EVENT_TURN_TO_PLAYER, 0);
                     events.ScheduleEvent(EVENT_START_1, 1000);
+                    // EJ debug direct to rend event
+                    //events.ScheduleEvent(EVENT_WAVES_COMPLETE_TEXT_3, 1000);
                 }
             }
         }
@@ -227,7 +234,7 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            if (gythEvent)
+            if (waveEvent)
             {
                 events.Update(diff);
 
@@ -251,7 +258,7 @@ public:
                                 victor->AI()->Talk(SAY_NEFARIUS_1);
                             events.ScheduleEvent(EVENT_WAVE_1, 2000);
                             events.ScheduleEvent(EVENT_TURN_TO_REND, 4s);
-                            events.ScheduleEvent(EVENT_WAVES_TEXT_1, 20000);
+                            events.ScheduleEvent(EVENT_WAVES_TEXT_1, 30000);
                             break;
                         case EVENT_TURN_TO_REND:
                             if (Creature* victor = ObjectAccessor::GetCreature(*me, victorGUID))
@@ -290,7 +297,7 @@ public:
                             events.ScheduleEvent(EVENT_TURN_TO_FACING_1, 4000);
                             events.ScheduleEvent(EVENT_WAVES_EMOTE_1, 5000);
                             events.ScheduleEvent(EVENT_WAVE_2, 2000);
-                            events.ScheduleEvent(EVENT_WAVES_TEXT_2, 20000);
+                            events.ScheduleEvent(EVENT_WAVES_TEXT_2, 30000);
                             break;
                         case EVENT_WAVES_TEXT_2:
                             events.ScheduleEvent(EVENT_TURN_TO_PLAYER, 0);
@@ -298,7 +305,7 @@ public:
                                 victor->AI()->Talk(SAY_NEFARIUS_3);
                             events.ScheduleEvent(EVENT_TURN_TO_FACING_1, 4000);
                             events.ScheduleEvent(EVENT_WAVE_3, 2000);
-                            events.ScheduleEvent(EVENT_WAVES_TEXT_3, 20000);
+                            events.ScheduleEvent(EVENT_WAVES_TEXT_3, 30000);
                             break;
                         case EVENT_WAVES_TEXT_3:
                             events.ScheduleEvent(EVENT_TURN_TO_PLAYER, 0);
@@ -306,14 +313,14 @@ public:
                                 victor->AI()->Talk(SAY_NEFARIUS_4);
                             events.ScheduleEvent(EVENT_TURN_TO_FACING_1, 4000);
                             events.ScheduleEvent(EVENT_WAVE_4, 2000);
-                            events.ScheduleEvent(EVENT_WAVES_TEXT_4, 20000);
+                            events.ScheduleEvent(EVENT_WAVES_TEXT_4, 30000);
                             break;
                         case EVENT_WAVES_TEXT_4:
                             Talk(SAY_BLACKHAND_1);
                             events.ScheduleEvent(EVENT_WAVES_EMOTE_2, 4000);
                             events.ScheduleEvent(EVENT_TURN_TO_FACING_3, 8000);
                             events.ScheduleEvent(EVENT_WAVE_5, 2000);
-                            events.ScheduleEvent(EVENT_WAVES_TEXT_5, 20000);
+                            events.ScheduleEvent(EVENT_WAVES_TEXT_5, 30000);
                             break;
                         case EVENT_WAVES_TEXT_5:
                             events.ScheduleEvent(EVENT_TURN_TO_PLAYER, 0);
@@ -338,7 +345,7 @@ public:
                         case EVENT_WAVES_COMPLETE_TEXT_3:
                             Talk(SAY_BLACKHAND_2);
                             events.ScheduleEvent(EVENT_WAVES_EMOTE_2, 1000);                            
-                            events.ScheduleEvent(EVENT_PATH_REND, 3000);
+                            events.ScheduleEvent(EVENT_PATH_REND, 4000);
                             events.ScheduleEvent(EVENT_WAVES_COMPLETE_TEXT_4, 6000);
                             break;
                         case EVENT_WAVES_COMPLETE_TEXT_4:
@@ -347,7 +354,7 @@ public:
                             {
                                 victor->AI()->Talk(SAY_NEFARIUS_8);
                             }
-                            events.ScheduleEvent(EVENT_PATH_NEFARIUS, 4000);
+                            //events.ScheduleEvent(EVENT_PATH_NEFARIUS, 4000);
                             break;
                         }
                         case EVENT_PATH_NEFARIUS:
@@ -365,34 +372,14 @@ public:
                             break;
                         case EVENT_TELEPORT_2:
                             me->NearTeleportTo(216.485f, -434.93f, 110.888f, -0.01225555f);
-                            me->SummonCreature(NPC_GYTH, 211.762f, -397.5885f, 111.1817f, 4.747295f);
+                            me->SummonCreature(NPC_GYTH, 211.762f, -397.5885f, 111.1817f, 4.747295f, TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
                             break;
                         case EVENT_WAVE_1:
                         {
                             if (GameObject* portcullis = ObjectAccessor::GetGameObject(*me, portcullisGUID))
-                                portcullis->UseDoorOrButton();
-                            // move wave
-                            // EJ scripts
-                            for (std::unordered_set<int32>::iterator addsIT = addsEntrySet.begin(); addsIT != addsEntrySet.end(); addsIT++)
                             {
-                                std::list<Creature*> creature1List;
-                                GetCreatureListWithEntryInGrid(creature1List, me, *addsIT, 100.0f);
-                                for (std::list<Creature*>::iterator itr = creature1List.begin(); itr != creature1List.end(); ++itr)
-                                {
-                                    if (Creature* creature = *itr)
-                                    {
-                                        if (creature->IsAlive())
-                                        {
-                                            creature->AI()->AttackStart(creature->SelectNearestPlayer(200.0f));
-                                        }
-                                    }
-                                }
-                            }
-                            instance->SetData(STADIUM_COMBAT, StadiumCombatStatus::SCS_GOING);
-                            break;
-                        }
-                        case EVENT_WAVE_2:
-                        {
+                                portcullis->UseDoorOrButton();
+                            }                            
                             // EJ scripts
                             if (Creature* victor = ObjectAccessor::GetCreature(*me, victorGUID))
                             {
@@ -404,19 +391,72 @@ public:
                                     }
                                     if (Creature* summonedWaveCreature = victor->SummonCreature(Wave2[creatureCount].entry, Wave2[creatureCount].x_pos, Wave2[creatureCount].y_pos, Wave2[creatureCount].z_pos, Wave2[creatureCount].o_pos, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 180000))
                                     {
-                                        summonedWaveCreature->AI()->AttackStart(summonedWaveCreature->SelectNearestPlayer(200.0f));
+                                        float destX = frand(addsDestination.m_positionX - 10.0f, addsDestination.m_positionX + 10.0f);
+                                        float destY = frand(addsDestination.m_positionY - 10.0f, addsDestination.m_positionY + 10.0f);
+                                        float destZ = addsDestination.m_positionZ;
+
+                                        summonedWaveCreature->SetWalk(true);
+                                        summonedWaveCreature->GetMotionMaster()->MovePoint(0, destX, destY, destZ);
                                     }
                                 }
                             }
-                            // spawn wave
+                            //for (std::unordered_set<int32>::iterator addsIT = addsEntrySet.begin(); addsIT != addsEntrySet.end(); addsIT++)
+                            //{
+                            //    std::list<Creature*> creature1List;
+                            //    GetCreatureListWithEntryInGrid(creature1List, me, *addsIT, 100.0f);
+                            //    for (std::list<Creature*>::iterator itr = creature1List.begin(); itr != creature1List.end(); ++itr)
+                            //    {
+                            //        if (Creature* creature = *itr)
+                            //        {
+                            //            if (creature->IsAlive())
+                            //            {
+                            //                float destX = frand(addsDestination.m_positionX - 10.0f, addsDestination.m_positionX + 10.0f);
+                            //                float destY = frand(addsDestination.m_positionY - 10.0f, addsDestination.m_positionY + 10.0f);
+                            //                float destZ = addsDestination.m_positionZ;
+
+                            //                creature->SetWalk(true);
+                            //                creature->GetMotionMaster()->MovePoint(0, destX, destY, destZ);
+                            //            }
+                            //        }
+                            //    }
+                            //}
+                            break;
+                        }
+                        case EVENT_WAVE_2:
+                        {
+                            // EJ scripts
                             if (GameObject* portcullis = ObjectAccessor::GetGameObject(*me, portcullisGUID))
+                            {
                                 portcullis->UseDoorOrButton();
-                            // move wave
+                            }
+                            if (Creature* victor = ObjectAccessor::GetCreature(*me, victorGUID))
+                            {
+                                for (int creatureCount = 0; creatureCount < 5; creatureCount++)
+                                {
+                                    if (Wave2[creatureCount].entry == 0)
+                                    {
+                                        break;
+                                    }
+                                    if (Creature* summonedWaveCreature = victor->SummonCreature(Wave2[creatureCount].entry, Wave2[creatureCount].x_pos, Wave2[creatureCount].y_pos, Wave2[creatureCount].z_pos, Wave2[creatureCount].o_pos, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 180000))
+                                    {
+                                        float destX = frand(addsDestination.m_positionX - 10.0f, addsDestination.m_positionX + 10.0f);
+                                        float destY = frand(addsDestination.m_positionY - 10.0f, addsDestination.m_positionY + 10.0f);
+                                        float destZ = addsDestination.m_positionZ;
+
+                                        summonedWaveCreature->SetWalk(true);
+                                        summonedWaveCreature->GetMotionMaster()->MovePoint(0, destX, destY, destZ);
+                                    }
+                                }
+                            }                            
                             break;
                         }
                         case EVENT_WAVE_3:
                         {
                             // EJ scripts
+                            if (GameObject* portcullis = ObjectAccessor::GetGameObject(*me, portcullisGUID))
+                            {
+                                portcullis->UseDoorOrButton();
+                            }
                             if (Creature* victor = ObjectAccessor::GetCreature(*me, victorGUID))
                             {
                                 for (int creatureCount = 0; creatureCount < 5; creatureCount++)
@@ -427,19 +467,24 @@ public:
                                     }
                                     if (Creature* summonedWaveCreature = victor->SummonCreature(Wave3[creatureCount].entry, Wave3[creatureCount].x_pos, Wave3[creatureCount].y_pos, Wave3[creatureCount].z_pos, Wave3[creatureCount].o_pos, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 180000))
                                     {
-                                        summonedWaveCreature->AI()->AttackStart(summonedWaveCreature->SelectNearestPlayer(200.0f));
+                                        float destX = frand(addsDestination.m_positionX - 10.0f, addsDestination.m_positionX + 10.0f);
+                                        float destY = frand(addsDestination.m_positionY - 10.0f, addsDestination.m_positionY + 10.0f);
+                                        float destZ = addsDestination.m_positionZ;
+
+                                        summonedWaveCreature->SetWalk(true);
+                                        summonedWaveCreature->GetMotionMaster()->MovePoint(0, destX, destY, destZ);
                                     }
                                 }
-                            }
-                            // spawn wave
-                            if (GameObject* portcullis = ObjectAccessor::GetGameObject(*me, portcullisGUID))
-                                portcullis->UseDoorOrButton();
-                            // move wave
+                            }                                                        
                             break;
                         }
                         case EVENT_WAVE_4:
                         {
                             // EJ scripts
+                            if (GameObject* portcullis = ObjectAccessor::GetGameObject(*me, portcullisGUID))
+                            {
+                                portcullis->UseDoorOrButton();
+                            }
                             if (Creature* victor = ObjectAccessor::GetCreature(*me, victorGUID))
                             {
                                 for (int creatureCount = 0; creatureCount < 5; creatureCount++)
@@ -450,19 +495,24 @@ public:
                                     }
                                     if (Creature* summonedWaveCreature = victor->SummonCreature(Wave4[creatureCount].entry, Wave4[creatureCount].x_pos, Wave4[creatureCount].y_pos, Wave4[creatureCount].z_pos, Wave4[creatureCount].o_pos, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 180000))
                                     {
-                                        summonedWaveCreature->AI()->AttackStart(summonedWaveCreature->SelectNearestPlayer(200.0f));
+                                        float destX = frand(addsDestination.m_positionX - 10.0f, addsDestination.m_positionX + 10.0f);
+                                        float destY = frand(addsDestination.m_positionY - 10.0f, addsDestination.m_positionY + 10.0f);
+                                        float destZ = addsDestination.m_positionZ;
+
+                                        summonedWaveCreature->SetWalk(true);
+                                        summonedWaveCreature->GetMotionMaster()->MovePoint(0, destX, destY, destZ);
                                     }
                                 }
-                            }
-                            // spawn wave
-                            if (GameObject* portcullis = ObjectAccessor::GetGameObject(*me, portcullisGUID))
-                                portcullis->UseDoorOrButton();
-                            // move wave
+                            }                            
                             break;
                         }
                         case EVENT_WAVE_5:
                         {
                             // EJ scripts
+                            if (GameObject* portcullis = ObjectAccessor::GetGameObject(*me, portcullisGUID))
+                            {
+                                portcullis->UseDoorOrButton();
+                            }
                             if (Creature* victor = ObjectAccessor::GetCreature(*me, victorGUID))
                             {
                                 for (int creatureCount = 0; creatureCount < 5; creatureCount++)
@@ -473,19 +523,24 @@ public:
                                     }
                                     if (Creature* summonedWaveCreature = victor->SummonCreature(Wave5[creatureCount].entry, Wave5[creatureCount].x_pos, Wave5[creatureCount].y_pos, Wave5[creatureCount].z_pos, Wave5[creatureCount].o_pos, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 180000))
                                     {
-                                        summonedWaveCreature->AI()->AttackStart(summonedWaveCreature->SelectNearestPlayer(200.0f));
+                                        float destX = frand(addsDestination.m_positionX - 10.0f, addsDestination.m_positionX + 10.0f);
+                                        float destY = frand(addsDestination.m_positionY - 10.0f, addsDestination.m_positionY + 10.0f);
+                                        float destZ = addsDestination.m_positionZ;
+
+                                        summonedWaveCreature->SetWalk(true);
+                                        summonedWaveCreature->GetMotionMaster()->MovePoint(0, destX, destY, destZ);
                                     }
                                 }
-                            }
-                            // spawn wave
-                            if (GameObject* portcullis = ObjectAccessor::GetGameObject(*me, portcullisGUID))
-                                portcullis->UseDoorOrButton();
-                            // move wave
+                            }                            
                             break;
                         }
                         case EVENT_WAVE_6:
                         {
                             // EJ scripts
+                            if (GameObject* portcullis = ObjectAccessor::GetGameObject(*me, portcullisGUID))
+                            {
+                                portcullis->UseDoorOrButton();
+                            }
                             if (Creature* victor = ObjectAccessor::GetCreature(*me, victorGUID))
                             {
                                 for (int creatureCount = 0; creatureCount < 5; creatureCount++)
@@ -496,14 +551,15 @@ public:
                                     }
                                     if (Creature* summonedWaveCreature = victor->SummonCreature(Wave6[creatureCount].entry, Wave6[creatureCount].x_pos, Wave6[creatureCount].y_pos, Wave6[creatureCount].z_pos, Wave6[creatureCount].o_pos, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 180000))
                                     {
-                                        summonedWaveCreature->AI()->AttackStart(summonedWaveCreature->SelectNearestPlayer(200.0f));
+                                        float destX = frand(addsDestination.m_positionX - 10.0f, addsDestination.m_positionX + 10.0f);
+                                        float destY = frand(addsDestination.m_positionY - 10.0f, addsDestination.m_positionY + 10.0f);
+                                        float destZ = addsDestination.m_positionZ;
+
+                                        summonedWaveCreature->SetWalk(true);
+                                        summonedWaveCreature->GetMotionMaster()->MovePoint(0, destX, destY, destZ);
                                     }
                                 }
-                            }
-                            // spawn wave
-                            if (GameObject* portcullis = ObjectAccessor::GetGameObject(*me, portcullisGUID))
-                                portcullis->UseDoorOrButton();
-                            // move wave
+                            }                            
                             break;
                         }
                         default:
@@ -524,18 +580,24 @@ public:
             {
                 switch (eventId)
                 {
-                    case EVENT_WHIRLWIND:
-                        DoCast(SPELL_WHIRLWIND);
-                        events.ScheduleEvent(EVENT_WHIRLWIND, 13s, 18s);
-                        break;
                     case EVENT_CLEAVE:
+                    {
                         DoCastVictim(SPELL_CLEAVE);
-                        events.ScheduleEvent(EVENT_CLEAVE, 10s, 14s);
+                        events.Repeat(5000, 10000);
                         break;
+                    }
+                    case EVENT_WHIRLWIND:
+                    {
+                        DoCast(SPELL_WHIRLWIND);
+                        events.Repeat(15000, 20000);
+                        break;
+                    }
                     case EVENT_MORTAL_STRIKE:
+                    {
                         DoCastVictim(SPELL_MORTAL_STRIKE);
-                        events.ScheduleEvent(EVENT_MORTAL_STRIKE, 14s, 16s);
+                        events.Repeat(25000, 30000);
                         break;
+                    }
                 }
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
@@ -545,11 +607,12 @@ public:
         }
 
         private:
-            bool   gythEvent;
+            bool   waveEvent;
             ObjectGuid victorGUID;
             ObjectGuid portcullisGUID;
             // EJ scripts 
             std::unordered_set<int32> addsEntrySet;
+            Position addsDestination;
     };
 
     CreatureAI* GetAI(Creature* creature) const override

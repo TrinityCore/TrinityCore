@@ -172,6 +172,7 @@ bool JokerConfig::StartJokerSystem()
     EliteAttackMod_Total = GetFloatDefault("EliteAttackMod_Total", 1.0f);
     UniqueEliteAttackMod_Total = GetFloatDefault("UniqueEliteAttackMod_Total", 1.0f);
     RareAttackMod_Total = GetFloatDefault("RareAttackMod_Total", 1.0f);
+    WorldBossAttackMod_Total = GetFloatDefault("WorldBossAttackMod_Total", 1.0f);
     RareEliteAttackMod_Total = GetFloatDefault("RareEliteAttackMod_Total", 1.0f);
 
     NormalSpellMod_Total = GetFloatDefault("NormalSpellMod_Total", 1.0f);
@@ -179,6 +180,7 @@ bool JokerConfig::StartJokerSystem()
     EliteSpellMod_Total = GetFloatDefault("EliteSpellMod_Total", 1.0f);
     UniqueEliteSpellMod_Total = GetFloatDefault("UniqueEliteSpellMod_Total", 1.0f);
     RareSpellMod_Total = GetFloatDefault("RareSpellMod_Total", 1.0f);
+    WorldBossSpellMod_Total = GetFloatDefault("WorldBossSpellMod_Total", 1.0f);
     RareEliteSpellMod_Total = GetFloatDefault("RareEliteSpellMod_Total", 1.0f);
 
     NormalHPMod_Total = GetFloatDefault("NormalHPMod_Total", 1.0f);
@@ -186,6 +188,7 @@ bool JokerConfig::StartJokerSystem()
     EliteHPMod_Total = GetFloatDefault("EliteHPMod_Total", 1.0f);
     UniqueEliteHPMod_Total = GetFloatDefault("UniqueEliteHPMod_Total", 1.0f);
     RareHPMod_Total = GetFloatDefault("RareHPMod_Total", 1.0f);
+    WorldBossHPMod_Total = GetFloatDefault("WorldBossHPMod_Total", 1.0f);
     RareEliteHPMod_Total = GetFloatDefault("RareEliteHPMod_Total", 1.0f);
 
     NormalMPMod_Total = GetFloatDefault("NormalMPMod_Total", 1.0f);
@@ -193,6 +196,7 @@ bool JokerConfig::StartJokerSystem()
     EliteMPMod_Total = GetFloatDefault("EliteMPMod_Total", 1.0f);
     UniqueEliteMPMod_Total = GetFloatDefault("UniqueEliteMPMod_Total", 1.0f);
     RareMPMod_Total = GetFloatDefault("RareMPMod_Total", 1.0f);
+    WorldBossMPMod_Total = GetFloatDefault("WorldBossMPMod_Total", 1.0f);
     RareEliteMPMod_Total = GetFloatDefault("RareEliteMPMod_Total", 1.0f);
 
     PlayerHPMod_Total = GetFloatDefault("PlayerHPMod_Total", 1.0f);
@@ -203,6 +207,7 @@ bool JokerConfig::StartJokerSystem()
     EliteAttackMod_Level = GetFloatDefault("EliteAttackMod_Level", 1.0f);
     UniqueEliteAttackMod_Level = GetFloatDefault("UniqueEliteAttackMod_Level", 1.0f);
     RareAttackMod_Level = GetFloatDefault("RareAttackMod_Level", 1.0f);
+    WorldBossAttackMod_Level = GetFloatDefault("WorldBossAttackMod_Level", 1.0f);
     RareEliteAttackMod_Level = GetFloatDefault("RareEliteAttackMod_Level", 1.0f);
 
     NormalSpellMod_Level = GetFloatDefault("NormalSpellMod_Level", 1.0f);
@@ -210,6 +215,7 @@ bool JokerConfig::StartJokerSystem()
     EliteSpellMod_Level = GetFloatDefault("EliteSpellMod_Level", 1.0f);
     UniqueEliteSpellMod_Level = GetFloatDefault("UniqueEliteSpellMod_Level", 1.0f);
     RareSpellMod_Level = GetFloatDefault("RareSpellMod_Level", 1.0f);
+    WorldBossSpellMod_Level = GetFloatDefault("WorldBossSpellMod_Level", 1.0f);
     RareEliteSpellMod_Level = GetFloatDefault("RareEliteSpellMod_Level", 1.0f);
 
     NormalHPMod_Level = GetFloatDefault("NormalHPMod_Level", 1.0f);
@@ -217,6 +223,7 @@ bool JokerConfig::StartJokerSystem()
     EliteHPMod_Level = GetFloatDefault("EliteHPMod_Level", 1.0f);
     UniqueEliteHPMod_Level = GetFloatDefault("UniqueEliteHPMod_Level", 1.0f);
     RareHPMod_Level = GetFloatDefault("RareHPMod_Level", 1.0f);
+    WorldBossHPMod_Level = GetFloatDefault("WorldBossHPMod_Level", 1.0f);
     RareEliteHPMod_Level = GetFloatDefault("RareEliteHPMod_Level", 1.0f);
 
     NormalMPMod_Level = GetFloatDefault("NormalMPMod_Level", 1.0f);
@@ -224,12 +231,24 @@ bool JokerConfig::StartJokerSystem()
     EliteMPMod_Level = GetFloatDefault("EliteMPMod_Level", 1.0f);
     UniqueEliteMPMod_Level = GetFloatDefault("UniqueEliteMPMod_Level", 1.0f);
     RareMPMod_Level = GetFloatDefault("RareMPMod_Level", 1.0f);
+    WorldBossMPMod_Level = GetFloatDefault("WorldBossMPMod_Level", 1.0f);
     RareEliteMPMod_Level = GetFloatDefault("RareEliteMPMod_Level", 1.0f);
 
     PlayerHPMod_Level = GetFloatDefault("PlayerHPMod_Level", 1.0f);
     PlayerMPMod_Level = GetFloatDefault("PlayerMPMod_Level", 1.0f);
 
     MaxModLevel = GetIntDefault("MaxModLevel", 1);
+
+    MaxTrainerSpellLevel = GetIntDefault("MaxTrainerSpellLevel", 80);
+
+    LootCountEachGroup_Normal = GetIntDefault("LootCountEachGroup_Normal", 1);
+    LootCountEachGroup_InstanceEncounter = GetIntDefault("LootCountEachGroup_InstanceEncounter", 1);    
+    LootCountEachGroup_UniqueElite = GetIntDefault("LootCountEachGroup_UniqueElite", 1);
+    LootCountEachGroup_Elite = GetIntDefault("LootCountEachGroup_Elite", 1);
+    LootCountEachGroup_RareElite = GetIntDefault("LootCountEachGroup_RareElite", 1);
+    LootCountEachGroup_WorldBoss = GetIntDefault("LootCountEachGroup_WorldBoss", 1);
+    LootCountEachGroup_Rare = GetIntDefault("LootCountEachGroup_Rare", 1);
+
 
     if (Enable == 0)
     {

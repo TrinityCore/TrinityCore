@@ -19,6 +19,8 @@
 #include "blackrock_spire.h"
 #include "ScriptedCreature.h"
 
+#include "GridNotifiers.h"
+
 enum Spells
 {
     SPELL_SNAPKICK                  = 15618,
@@ -125,4 +127,112 @@ public:
 void AddSC_boss_warmastervoone()
 {
     new boss_warmaster_voone();
+}
+
+class boss_mor_grayhoof : public CreatureScript
+{
+public:
+    boss_mor_grayhoof() : CreatureScript("boss_mor_grayhoof") { }
+
+    struct boss_mor_grayhoofAI : public CreatureAI
+    {
+        boss_mor_grayhoofAI(Creature* creature) : CreatureAI(creature) { }
+
+        void JustEngagedWith(Unit* who) override
+        {
+            events.ScheduleEvent(1, 2000, 4000);
+            events.ScheduleEvent(2, 10000,15000);
+            events.ScheduleEvent(3, 5000,8000);
+            events.ScheduleEvent(4, 8000, 10000);
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (!UpdateVictim())
+                return;
+
+            events.Update(diff);
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                case 1:
+                {
+                    std::list<Player*> players;
+                    Trinity::AnyPlayerInObjectRangeCheck checker(me, 25.0f);
+                    Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, players, checker);
+                    Cell::VisitWorldObjects(me, searcher, 25.0f);                    
+                    for (std::list<Player*>::iterator itr = players.begin(); itr != players.end(); ++itr)
+                    {
+                        if (Player* eachPlayer=*itr)
+                        {
+                            if (eachPlayer->IsAlive())
+                            {
+                                if (!eachPlayer->HasAura(27737))
+                                {
+                                    DoCast(eachPlayer, 27737);
+                                }
+                            }
+                        }
+                    }
+                    events.Repeat(4000, 6000);
+                    break;
+                }
+                case 2:
+                {
+                    DoCastVictim(27530);
+                    events.Repeat(20000, 30000);
+                    break;
+                }
+                case 3:
+                {
+                    if (me->GetHealthPct() < 80.0f)
+                    {
+                        DoCastSelf(27532);
+                        events.Repeat(12000, 15000);
+                    }
+                    else
+                    {
+                        events.Repeat(2000, 4000);
+                    }                    
+                    break;
+                }
+                case 4:
+                {
+                    if (me->GetHealthPct() < 50.0f)
+                    {
+                        DoCastSelf(27527);
+                        events.Repeat(15000, 20000);
+                    }
+                    else
+                    {
+                        events.Repeat(2000, 4000);
+                    }                    
+                    break;
+                }
+                }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+            }
+            DoMeleeAttackIfReady();
+        }
+
+    private:
+        EventMap events;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetBlackrockSpireAI<boss_mor_grayhoofAI>(creature);
+    }
+};
+
+void AddSC_boss_mor_grayhoof()
+{
+    new boss_mor_grayhoof();
 }

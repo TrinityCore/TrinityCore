@@ -29,6 +29,7 @@ public:
     uint32 account_id;
     uint32 character_id;
     uint32 target_level;
+    uint32 robot_type;
     int checkDelay;
     uint32 entityState;
 };

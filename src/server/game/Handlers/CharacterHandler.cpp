@@ -1025,6 +1025,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     delete holder;
 
     // EJ robot
+    pCurrChar->rai = new RobotAI(pCurrChar);
     if (isRobotSession)
     {        
         if (!sCharacterCache->HasCharacterCacheEntry(pCurrChar->GetGUID()))
@@ -1036,6 +1037,12 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         loginBroadCastStream << pCurrChar->GetName() << " logged in";
         sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, loginBroadCastStream.str().c_str());
     }
+    else
+    {
+        pCurrChar->rai->strategyMap[Strategy_Index::Strategy_Index_Group]->sb->InitializeValues();
+        pCurrChar->rai->strategyMap[Strategy_Index::Strategy_Index_Group]->sb->Reset();
+        pCurrChar->groupRole = pCurrChar->rai->strategyMap[Strategy_Index::Strategy_Index_Group]->sb->characterType;
+    }    
 }
 
 void WorldSession::SendFeatureSystemStatus()

@@ -1,7 +1,6 @@
 #include "RobotEntity.h"
 #include "RobotManager.h"
-#include "RobotAI_Solo.h"
-#include "RobotAI_Group.h"
+#include "RobotAI.h"
 #include "Group.h"
 
 RobotEntity::RobotEntity(uint32 pmRobotID)
@@ -10,6 +9,7 @@ RobotEntity::RobotEntity(uint32 pmRobotID)
     account_id = 0;
     character_id = 0;
     target_level = 0;
+    robot_type = 0;
     checkDelay = 5 * TimeConstants::IN_MILLISECONDS;
     entityState = RobotEntityState::RobotEntityState_OffLine;
 }
@@ -89,7 +89,29 @@ void RobotEntity::Update(uint32 pmDiff)
         }
         case RobotEntityState::RobotEntityState_CreateCharacter:
         {
-            character_id = sRobotManager->CreateRobotCharacter(account_id);
+            if (robot_type == RobotType::RobotType_World)
+            {
+                character_id = sRobotManager->CreateRobotCharacter(account_id);
+            }
+            else if (robot_type == RobotType::RobotType_Raid)
+            {
+                uint32  targetClass = Classes::CLASS_DRUID;
+                while (true)
+                {
+                    targetClass = urand(Classes::CLASS_WARRIOR, Classes::CLASS_DRUID);
+                    if (targetClass == Classes::CLASS_WARRIOR || targetClass == Classes::CLASS_ROGUE || targetClass == Classes::CLASS_DEATH_KNIGHT || targetClass == Classes::CLASS_SHAMAN || targetClass == Classes::CLASS_MAGE || targetClass == Classes::CLASS_UNK)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                uint32 raceIndex = urand(0, sRobotManager->availableRaces[targetClass].size() - 1);
+                uint32 targetRace = sRobotManager->availableRaces[targetClass][raceIndex];
+                character_id = sRobotManager->CreateRobotCharacter(account_id, targetClass, targetRace);
+            }
             if (character_id > 0)
             {
                 std::ostringstream sqlStream;
@@ -118,15 +140,22 @@ void RobotEntity::Update(uint32 pmDiff)
             {
                 account_id = account_id;
                 character_id = character_id;
-                RobotAI_Solo* raiSolo = new RobotAI_Solo(me);
-                me->raiSolo = raiSolo;
-                me->raiSolo->GetActiveStrategy()->sb->InitializeCharacter(target_level);
-                RobotAI_Group* raiGroup = new RobotAI_Group(me);
-                me->raiGroup = raiGroup;
-                me->raiGroup->GetActiveStrategy()->sb->InitializeValues();
-                me->groupRole = me->raiGroup->GetActiveStrategy()->sb->characterType;                                
-                me->raiSolo->GetActiveStrategy()->sb->RandomTeleport();
-                entityState = RobotEntityState::RobotEntityState_Online;
+                me->rai->robotType = robot_type;
+                if (me->rai->GetActiveStrategy()->sb->InitializeCharacter(target_level))
+                {
+                    entityState = RobotEntityState::RobotEntityState_DoLogoff;
+                }
+                else
+                {
+                    entityState = RobotEntityState::RobotEntityState_Online;
+                }
+                checkDelay = 10 * TimeConstants::IN_MILLISECONDS;
+                for (std::unordered_map<uint32, RobotStrategy*>::iterator rsIT = me->rai->strategyMap.begin(); rsIT != me->rai->strategyMap.end(); rsIT++)
+                {
+                    rsIT->second->sb->InitializeValues();
+                    rsIT->second->sb->Reset();
+                }
+                me->groupRole = me->rai->strategyMap[Strategy_Index::Strategy_Index_Group]->sb->characterType;
             }
             else
             {
@@ -140,33 +169,7 @@ void RobotEntity::Update(uint32 pmDiff)
             ObjectGuid guid = ObjectGuid(HighGuid::Player, character_id);
             if (Player* me = ObjectAccessor::FindConnectedPlayer(guid))
             {
-                if (Group* myGroup = me->GetGroup())
-                {
-                    if (Player* leader = ObjectAccessor::FindConnectedPlayer(myGroup->GetLeaderGUID()))
-                    {
-                        if (leader->GetSession()->isRobotSession)
-                        {
-                            me->RemoveFromGroup();                            
-                            me->raiSolo->GetActiveStrategy()->sb->RandomTeleport();
-                        }
-                    }
-                    else
-                    {
-                        me->RemoveFromGroup();                        
-                        me->raiSolo->GetActiveStrategy()->sb->RandomTeleport();
-                    }
-                    if (me->raiGroup)
-                    {
-                        me->raiGroup->GetActiveStrategy()->sb->Prepare();
-                    }
-                }
-                else
-                {
-                    if (me->raiSolo)
-                    {
-                        me->raiSolo->GetActiveStrategy()->sb->Prepare();
-                    }
-                }
+                me->rai->GetActiveStrategy()->sb->Prepare();
             }
             break;
         }

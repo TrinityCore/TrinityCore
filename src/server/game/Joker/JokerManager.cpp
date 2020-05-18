@@ -5,6 +5,7 @@ JokerManager::JokerManager()
     updateDelay = JOKER_MANAGER_SAVE_GAP;
     accompanyTimeMap.clear();
     petLoyaltyLevelMap.clear();
+    classicBookSpellSet.clear();
 
     if (!sJokerConfig->Enable)
     {
@@ -54,6 +55,53 @@ JokerManager::JokerManager()
             expansionQuestMap[eachExpansion].insert(eachID);
         } while (jqQR->NextRow());
     }
+
+    classicBookSpellSet.insert(25286);
+    classicBookSpellSet.insert(25288);
+    classicBookSpellSet.insert(25289);
+    classicBookSpellSet.insert(25290);
+    classicBookSpellSet.insert(25291);
+    classicBookSpellSet.insert(25292);
+    classicBookSpellSet.insert(25290);
+    classicBookSpellSet.insert(25291);
+    classicBookSpellSet.insert(25292);
+    classicBookSpellSet.insert(25290);
+    classicBookSpellSet.insert(25291);
+    classicBookSpellSet.insert(25292);
+    classicBookSpellSet.insert(19801);
+    classicBookSpellSet.insert(25294);
+    classicBookSpellSet.insert(25295);
+    classicBookSpellSet.insert(25296);
+    classicBookSpellSet.insert(25300);
+    classicBookSpellSet.insert(25302);
+    classicBookSpellSet.insert(31016);
+    classicBookSpellSet.insert(21564);
+    classicBookSpellSet.insert(25314);
+    classicBookSpellSet.insert(25315);
+    classicBookSpellSet.insert(25316);
+    classicBookSpellSet.insert(25392);
+    classicBookSpellSet.insert(27683);
+    classicBookSpellSet.insert(39374);
+    classicBookSpellSet.insert(25357);
+    classicBookSpellSet.insert(25361);
+    classicBookSpellSet.insert(29228);
+    classicBookSpellSet.insert(23028);
+    classicBookSpellSet.insert(25304);
+    classicBookSpellSet.insert(25306);
+    classicBookSpellSet.insert(25345);
+    classicBookSpellSet.insert(27090);
+    classicBookSpellSet.insert(27127);
+    classicBookSpellSet.insert(28609);
+    classicBookSpellSet.insert(28612);
+    classicBookSpellSet.insert(33717);
+    classicBookSpellSet.insert(21849);
+    classicBookSpellSet.insert(21850);
+    classicBookSpellSet.insert(25297);
+    classicBookSpellSet.insert(25298);
+    classicBookSpellSet.insert(25299);
+    classicBookSpellSet.insert(26991);
+    classicBookSpellSet.insert(31018);
+    classicBookSpellSet.insert(31709);
 }
 
 void JokerManager::UpdateJoker(uint32 pmDiff)

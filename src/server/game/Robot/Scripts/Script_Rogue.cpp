@@ -10,12 +10,12 @@ bool Script_Rogue::Heal(Unit* pmTarget, bool pmCure)
     return false;
 }
 
-bool Script_Rogue::Tank(Unit* pmTarget, bool pmChase)
+bool Script_Rogue::Tank(Unit* pmTarget, bool pmChase, bool pmSingle)
 {
     return false;
 }
 
-bool Script_Rogue::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)
+bool Script_Rogue::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank)
 {
     if (!me)
     {
@@ -29,22 +29,22 @@ bool Script_Rogue::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)
     {
     case 0:
     {
-        return DPS_Common(pmTarget, pmChase, pmAOE);
+        return DPS_Common(pmTarget, pmChase, pmAOE, pmTank);
     }
     case 1:
     {
-        return DPS_Combat(pmTarget, pmChase, pmAOE);
+        return DPS_Combat(pmTarget, pmChase, pmAOE, pmTank);
     }
     case 2:
     {
-        return DPS_Common(pmTarget, pmChase, pmAOE);
+        return DPS_Common(pmTarget, pmChase, pmAOE, pmTank);
     }
     default:
-        return DPS_Common(pmTarget, pmChase, pmAOE);
+        return DPS_Common(pmTarget, pmChase, pmAOE, pmTank);
     }
 }
 
-bool Script_Rogue::DPS_Combat(Unit* pmTarget, bool pmChase, bool pmAOE)
+bool Script_Rogue::DPS_Combat(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank)
 {
     if (!pmTarget)
     {
@@ -54,13 +54,11 @@ bool Script_Rogue::DPS_Combat(Unit* pmTarget, bool pmChase, bool pmAOE)
     {
         return false;
     }
-
-
     if (!me)
     {
         return false;
     }
-    else if (!me->IsValidAttackTarget(pmTarget))
+    if (!me->IsValidAttackTarget(pmTarget))
     {
         return false;
     }
@@ -135,9 +133,9 @@ bool Script_Rogue::DPS_Combat(Unit* pmTarget, bool pmChase, bool pmAOE)
     return true;
 }
 
-bool Script_Rogue::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE)
+bool Script_Rogue::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank)
 {
-    return DPS_Combat(pmTarget, pmChase, pmAOE);
+    return DPS_Combat(pmTarget, pmChase, pmAOE, pmTank);
 }
 
 bool Script_Rogue::Attack(Unit* pmTarget)

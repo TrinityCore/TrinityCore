@@ -172,12 +172,19 @@ bool RobotConfig::StartRobotSystem()
     OnlineMinDelay = GetIntDefault("OnlineMinDelay", 60000);
     OnlineMaxDelay = GetIntDefault("OnlineMaxDelay", 300000);
     GroupInterest = GetIntDefault("GroupInterest", 1);
-    TeleportMinRange = GetFloatDefault("TeleportMinRange", 500.0f);
-    TeleportMaxRange = GetFloatDefault("TeleportMaxRange", 5000.0f);
+    TeleportMinRange = GetFloatDefault("TeleportMinRange", 300.0f);
+    TeleportMaxRange = GetFloatDefault("TeleportMaxRange", 1000.0f);
     DeathMinDelay = GetIntDefault("DeathMinDelay", 1800000);
     DeathMaxDelay = GetIntDefault("DeathMaxDelay", 3600000);
     SoloMinDelay = GetIntDefault("SoloMinDelay", 600000);
     SoloMaxDelay = GetIntDefault("SoloMaxDelay", 1200000);
+    AssembleTeleportMinRange = GetFloatDefault("AssembleTeleportMinRange", 100.0f);
+    DPSDelay = GetIntDefault("DPSDelay", 500);
+    AOEDelay = GetIntDefault("AOEDelay", 7000);
+
+    RaidRobotCount_60 = GetIntDefault("RaidRobotCount_60", 100);
+    RaidRobotCount_70 = GetIntDefault("RaidRobotCount_70", 100);
+    RaidRobotCount_80 = GetIntDefault("RaidRobotCount_80", 100);
 
     if (Enable == 0)
     {

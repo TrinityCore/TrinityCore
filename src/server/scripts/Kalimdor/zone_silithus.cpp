@@ -1237,6 +1237,30 @@ class go_wind_stone : public GameObjectScript
                     }
                     summons->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     summons->EngageWithTarget(player);
+
+                    uint32 gossipId = me->GetGOInfo()->GetGossipMenuId();
+                    switch (gossipId)
+                    {
+                    case GOSSIP_ID_LESSER_WS:
+                    {
+                        me->DespawnOrUnsummon(500ms, 60s);
+                        break;
+                    }
+                    case GOSSIP_ID_WIND_STONE:
+                    {
+                        me->DespawnOrUnsummon(500ms, 600s);
+                        break;
+                    }
+                    case GOSSIP_ID_GREATER_WS:
+                    {
+                        me->DespawnOrUnsummon(500ms, 1200s);
+                        break;
+                    }
+                    default:
+                    {
+                        break;
+                    }
+                    }                    
                 }
 
             public:

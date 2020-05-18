@@ -25,18 +25,13 @@ uint32 const EncounterCount         = 23;
 #define BRSScriptName "instance_blackrock_spire"
 #define DataHeader    "BRS"
 
-// EJ blackrock scrpits 
-#ifndef STADIUM_COMBAT
-#define STADIUM_COMBAT 1000
-#endif
-
-#ifndef SPAWNID_WARCHIEF_REND_BLACKHAND
-#define SPAWNID_WARCHIEF_REND_BLACKHAND 137968
-#endif
-
-#ifndef SPAWNID_LORD_VICTOR_NEFARIUS
-#define SPAWNID_LORD_VICTOR_NEFARIUS 137967
-#endif
+// EJ blackrock scrpits
+enum BRSSPawnID:uint32
+{
+    BRSSPawnID_CREATURE_WARCHIEF_REND_BLACKHAND= 137968,
+    BRSSPawnID_CREATURE_LORD_VICTOR_NEFARIUS = 137967,
+    BRSSPawnID_GO_STADIUM_ADDS_GATE = 87843,
+};
 
 enum BRSDataTypes
 {
@@ -99,14 +94,17 @@ enum BRSCreaturesIds
 
 enum BRSAdditionalData
 {
-    SPELL_SUMMON_ROOKERY_WHELP      = 15745,
-    EVENT_UROK_DOOMHOWL             = 4845,
-    EVENT_PYROGUARD_EMBERSEER       = 4884,
-    AREATRIGGER                     = 1,
-    AREATRIGGER_DRAGONSPIRE_HALL    = 2046,
-    AREATRIGGER_BLACKROCK_STADIUM   = 2026,
-    SAY_FINKLE_GANG                 = 0,
+    SPELL_SUMMON_ROOKERY_WHELP = 15745,
+    EVENT_UROK_DOOMHOWL = 4845,
+    EVENT_PYROGUARD_EMBERSEER = 4884,
+    AREATRIGGER = 1,
+    AREATRIGGER_DRAGONSPIRE_HALL = 2046,
+    AREATRIGGER_BLACKROCK_STADIUM = 2026,
+    SAY_FINKLE_GANG = 0,
     ITEM_SEAL_OF_ASCENSION = 12344,
+
+    // EJ scripts
+    STADIUM_COMBAT = 1000
 };
 
 enum BRSGameObjectsIds
@@ -174,12 +172,14 @@ enum StadiumSays
     SAY_NEFARIUS_11 = 11,
 };
 
-enum StadiumCombatStatus
+enum StadiumCombatStatus :uint32
 {
     SCS_FREE = 0,
-    SCS_GOING = 1,
-    SCS_FAILED = 2,
-    SCS_VICTORY = 3
+    SCS_GOING,
+    SCS_FAILED,
+    SCS_VICTORY,
+    SCS_DONE,
+    SCS_RESET,
 };
 
 template <class AI, class T>

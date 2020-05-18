@@ -28,7 +28,10 @@
 #include "World.h"
 #include "WorldStatePackets.h"
 
-uint32 const SI_MAX_RESOURCES = 200;
+// EJ max resources set to 5
+//uint32 const SI_MAX_RESOURCES = 200;
+uint32 const SI_MAX_RESOURCES = 5;
+
 uint32 const SI_AREATRIGGER_H = 4168;
 uint32 const SI_AREATRIGGER_A = 4162;
 uint32 const SI_TURNIN_QUEST_CM_A = 17090;

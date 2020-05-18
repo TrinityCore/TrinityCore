@@ -4,8 +4,8 @@
 
 MarketerManager::MarketerManager()
 {
-    buyerCheckDelay = 2 * TimeConstants::MINUTE*TimeConstants::IN_MILLISECONDS;
-    sellerCheckDelay = 3 * TimeConstants::MINUTE*TimeConstants::IN_MILLISECONDS;
+    buyerCheckDelay = 2 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS;
+    sellerCheckDelay = 3 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS;
 
     auctionHouseIDSet.clear();
     auctionHouseIDSet.insert(AuctionHouses::AUCTIONHOUSE_ALLIANCE);
@@ -284,7 +284,7 @@ bool MarketerManager::UpdateSeller()
 
                 bool sellThis = false;
                 uint32 stackCount = 1;
-                uint32 baseMultiple = urand(10, 20);
+                uint32 baseMultiple = urand(5, 10);
                 switch (proto->Class)
                 {
                 case ItemClass::ITEM_CLASS_CONSUMABLE:
@@ -295,7 +295,7 @@ bool MarketerManager::UpdateSeller()
                 }
                 case ItemClass::ITEM_CLASS_CONTAINER:
                 {
-                    if (proto->Quality >= 2)
+                    if (proto->Quality > 1)
                     {
                         sellThis = true;
                         stackCount = proto->Stackable;
@@ -304,7 +304,7 @@ bool MarketerManager::UpdateSeller()
                 }
                 case ItemClass::ITEM_CLASS_WEAPON:
                 {
-                    if (proto->Quality > 2)
+                    if (proto->Quality > 1)
                     {
                         sellThis = true;
                         stackCount = 1;
@@ -319,7 +319,7 @@ bool MarketerManager::UpdateSeller()
                 }
                 case ItemClass::ITEM_CLASS_ARMOR:
                 {
-                    if (proto->Quality > 2)
+                    if (proto->Quality > 1)
                     {
                         sellThis = true;
                         stackCount = 1;
@@ -340,7 +340,7 @@ bool MarketerManager::UpdateSeller()
                 {
                     sellThis = true;
                     stackCount = proto->Stackable;
-                    baseMultiple = urand(20, 30);
+                    baseMultiple = urand(10, 15);
                     break;
                 }
                 case ItemClass::ITEM_CLASS_GENERIC:
@@ -351,7 +351,6 @@ bool MarketerManager::UpdateSeller()
                 {
                     sellThis = true;
                     stackCount = 1;
-                    baseMultiple = urand(10, 20);
                     break;
                 }
                 case ItemClass::ITEM_CLASS_MONEY:
@@ -360,7 +359,7 @@ bool MarketerManager::UpdateSeller()
                 }
                 case ItemClass::ITEM_CLASS_QUIVER:
                 {
-                    if (proto->Quality >= 2)
+                    if (proto->Quality > 1)
                     {
                         sellThis = true;
                         stackCount = 1;
@@ -369,7 +368,7 @@ bool MarketerManager::UpdateSeller()
                 }
                 case ItemClass::ITEM_CLASS_QUEST:
                 {
-                    sellThis = true;                    
+                    sellThis = true;
                     stackCount = 1;
                     if (proto->Stackable > 20)
                     {
@@ -430,9 +429,9 @@ bool MarketerManager::UpdateSeller()
                         }
                         uint32 finalPrice = 0;
                         uint8 qualityMuliplier = 1;
-                        if (proto->Quality > 2)
+                        if (proto->Quality > 3)
                         {
-                            qualityMuliplier = proto->Quality - 1;
+                            qualityMuliplier = 2;
                         }
                         finalPrice = proto->SellPrice * stackCount * baseMultiple;
                         if (finalPrice == 0)
@@ -461,7 +460,7 @@ bool MarketerManager::UpdateSeller()
                             auctionEntry->deposit = dep;
                             auctionEntry->auctionHouseEntry = ahEntry;
                             //auctionEntry->depositTime = time(NULL);
-                            auctionEntry->expire_time = GameTime::GetGameTime() + 48 * HOUR;
+                            auctionEntry->expire_time = GameTime::GetGameTime() + 12 * HOUR;
                             item->SaveToDB(trans);
                             sAuctionMgr->AddAItem(item);
                             aho->AddAuction(auctionEntry);
@@ -580,7 +579,7 @@ bool MarketerManager::UpdateBuyer()
                 continue;
             }
             uint8 buyThis = 1;
-            uint32 baseMultiple = 10;
+            uint32 baseMultiple = 5;
             if (!destIT)
             {
                 continue;
@@ -646,7 +645,7 @@ bool MarketerManager::UpdateBuyer()
             case ItemClass::ITEM_CLASS_TRADE_GOODS:
             {
                 buyThis = 0;
-                baseMultiple = 20;
+                baseMultiple = 10;
                 break;
             }
             case ItemClass::ITEM_CLASS_GENERIC:
@@ -656,7 +655,6 @@ bool MarketerManager::UpdateBuyer()
             case ItemClass::ITEM_CLASS_RECIPE:
             {
                 buyThis = 0;
-                baseMultiple = 10;
                 break;
             }
             case ItemClass::ITEM_CLASS_MONEY:
@@ -718,7 +716,7 @@ bool MarketerManager::UpdateBuyer()
                 finalPrice = destIT->BuyPrice * checkItem->GetCount();
 
             }
-            finalPrice = finalPrice * qualityMuliplier*baseMultiple;
+            finalPrice = finalPrice * qualityMuliplier * baseMultiple;
             uint32 buyRate = aeIT->second->buyout * 10 / finalPrice;
             if (aeIT->second->buyout > finalPrice)
             {

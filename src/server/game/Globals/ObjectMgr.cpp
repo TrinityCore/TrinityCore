@@ -4349,13 +4349,16 @@ void ObjectMgr::LoadPlayerInfo()
                     levelModPower = sJokerConfig->MaxModLevel;
                 }
                 levelModPower = levelModPower * levelModPower;
-                levelModPower = levelModPower / 10000.0f;                
-                float hpMod = levelModPower * sJokerConfig->PlayerHPMod_Level;
-                hpMod = hpMod + 1.0f;
-                hpMod = hpMod * sJokerConfig->PlayerHPMod_Total;
-                float mpMod = levelModPower * sJokerConfig->PlayerMPMod_Level;
-                mpMod = mpMod + 1.0f;
-                mpMod = mpMod * sJokerConfig->PlayerMPMod_Total;
+                levelModPower = levelModPower / 10000.0f;
+
+                float hpMod_total = sJokerConfig->PlayerHPMod_Total;
+                float hpMod_level = sJokerConfig->PlayerHPMod_Level * levelModPower;
+                float mpMod_total = sJokerConfig->PlayerMPMod_Total;
+                float mpMod_level = sJokerConfig->PlayerMPMod_Level * levelModPower;
+
+                float hpMod = hpMod_total + hpMod_level;
+                float mpMod = mpMod_total + mpMod_level;
+
                 levelInfo.basehealth = levelInfo.basehealth * hpMod;
                 levelInfo.basemana = levelInfo.basemana * mpMod;
             }

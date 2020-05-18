@@ -14,12 +14,12 @@ bool Script_Warlock::Heal(Unit* pmTarget, bool pmCure)
     return false;
 }
 
-bool Script_Warlock::Tank(Unit* pmTarget, bool pmChase)
+bool Script_Warlock::Tank(Unit* pmTarget, bool pmChase, bool pmSingle)
 {
     return false;
 }
 
-bool Script_Warlock::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)
+bool Script_Warlock::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank)
 {
     bool meResult = false;
     if (!me)
@@ -32,7 +32,7 @@ bool Script_Warlock::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)
     }
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 20)
     {
-        if (me->GetHealthPct() > 30)
+        if (me->GetHealthPct() > 50)
         {
             if (CastSpell(me, "Life Tap"))
             {
@@ -44,19 +44,19 @@ bool Script_Warlock::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)
     {
     case 0:
     {
-        meResult = DPS_Affliction(pmTarget, pmChase, pmAOE);
+        meResult = DPS_Affliction(pmTarget, pmChase, pmAOE, pmTank);
     }
     case 1:
     {
-        meResult = DPS_Demonology(pmTarget, pmChase, pmAOE);
+        meResult = DPS_Demonology(pmTarget, pmChase, pmAOE, pmTank);
     }
     case 2:
     {
-        meResult = DPS_Destruction(pmTarget, pmChase, pmAOE);
+        meResult = DPS_Destruction(pmTarget, pmChase, pmAOE, pmTank);
     }
     default:
     {
-        meResult = DPS_Common(pmTarget, pmChase, pmAOE);
+        meResult = DPS_Common(pmTarget, pmChase, pmAOE, pmTank);
 
     }
     }
@@ -72,7 +72,7 @@ bool Script_Warlock::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)
     return meResult;
 }
 
-bool Script_Warlock::DPS_Affliction(Unit* pmTarget, bool pmChase, bool pmAOE)
+bool Script_Warlock::DPS_Affliction(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank)
 {
     if (!pmTarget)
     {
@@ -129,7 +129,7 @@ bool Script_Warlock::DPS_Affliction(Unit* pmTarget, bool pmChase, bool pmAOE)
     return true;
 }
 
-bool Script_Warlock::DPS_Demonology(Unit* pmTarget, bool pmChase, bool pmAOE)
+bool Script_Warlock::DPS_Demonology(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank)
 {
     if (!pmTarget)
     {
@@ -186,7 +186,7 @@ bool Script_Warlock::DPS_Demonology(Unit* pmTarget, bool pmChase, bool pmAOE)
     return true;
 }
 
-bool Script_Warlock::DPS_Destruction(Unit* pmTarget, bool pmChase, bool pmAOE)
+bool Script_Warlock::DPS_Destruction(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank)
 {
     if (!pmTarget)
     {
@@ -237,35 +237,29 @@ bool Script_Warlock::DPS_Destruction(Unit* pmTarget, bool pmChase, bool pmAOE)
     }
     if (pmAOE)
     {
-        if (Group* myGroup = me->GetGroup())
+        if (pmTank)
         {
-            for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+            if (pmTank->getAttackers().size() >= 3)
             {
-                if (Player* member = groupRef->GetSource())
+                uint32 inRangeCount = 0;
+                for (std::set<Unit*>::const_iterator i = pmTank->getAttackers().begin(); i != pmTank->getAttackers().end(); ++i)
                 {
-                    if (member->groupRole == GroupRole::GroupRole_Tank)
+                    if (Unit* eachAttacker = *i)
                     {
-                        if (member->getAttackers().size() >= 3)
+                        if (eachAttacker->GetDistance(pmTank) < AOE_TARGETS_RANGE)
                         {
-                            uint32 inRangeCount = 0;
-                            for (std::set<Unit*>::const_iterator i = member->getAttackers().begin(); i != member->getAttackers().end(); ++i)
+                            inRangeCount++;
+                            if (inRangeCount >= 3)
                             {
-                                if ((*i)->GetDistance(member) < AOE_TARGETS_RANGE)
+                                if (CastSpell(eachAttacker, "Shadowfury", WARLOCK_RANGE_DISTANCE, true))
                                 {
-                                    inRangeCount++;
-                                    if (inRangeCount >= 3)
-                                    {
-                                        if (CastSpell((*i), "Shadowfury", WARLOCK_RANGE_DISTANCE))
-                                        {
-                                            return true;
-                                        }
-                                        if (CastSpell((*i), "Rain of Fire", WARLOCK_RANGE_DISTANCE))
-                                        {
-                                            return true;
-                                        }
-                                        break;
-                                    }
+                                    return true;
                                 }
+                                if (CastSpell(eachAttacker, "Rain of Fire", WARLOCK_RANGE_DISTANCE))
+                                {
+                                    return true;
+                                }
+                                break;
                             }
                         }
                     }
@@ -306,7 +300,7 @@ bool Script_Warlock::DPS_Destruction(Unit* pmTarget, bool pmChase, bool pmAOE)
     return true;
 }
 
-bool Script_Warlock::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE)
+bool Script_Warlock::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank)
 {
     if (!pmTarget)
     {
@@ -373,7 +367,7 @@ bool Script_Warlock::Attack(Unit* pmTarget)
     }
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 20)
     {
-        if (me->GetHealthPct() > 30)
+        if (me->GetHealthPct() > 50)
         {
             if (CastSpell(me, "Life Tap"))
             {
@@ -627,8 +621,6 @@ bool Script_Warlock::Buff(Unit* pmTarget, bool pmCure)
     {
         return false;
     }
-
-
     if (!me)
     {
         return false;

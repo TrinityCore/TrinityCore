@@ -51,6 +51,13 @@ public:
     uint32 DeathMaxDelay;
     uint32 SoloMinDelay;
     uint32 SoloMaxDelay;
+    float AssembleTeleportMinRange;
+    uint32 DPSDelay;
+    uint32 AOEDelay;
+
+    uint32 RaidRobotCount_60;
+    uint32 RaidRobotCount_70;
+    uint32 RaidRobotCount_80;
 };
 
 #define sRobotConfig RobotConfig::instance()	

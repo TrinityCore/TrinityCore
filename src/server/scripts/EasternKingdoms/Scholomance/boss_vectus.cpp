@@ -91,16 +91,7 @@ public:
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             events.ScheduleEvent(EVENT_FIRE_SHIELD, 2s);
             events.ScheduleEvent(EVENT_BLAST_WAVE, 14s);
-        }
-
-        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
-        {
-            if (me->HealthBelowPctDamaged(25, damage))
-            {
-                DoCast(me, SPELL_FRENZY);
-                Talk(EMOTE_FRENZY);
-                events.ScheduleEvent(EVENT_FRENZY, 24s);
-            }
+            events.ScheduleEvent(EVENT_FRENZY, 20000, 30000);
         }
 
         void UpdateAI(uint32 diff) override
@@ -126,10 +117,19 @@ public:
                         events.ScheduleEvent(EVENT_BLAST_WAVE, 12s);
                         break;
                     case EVENT_FRENZY:
-                        DoCast(me, SPELL_FRENZY);
-                        Talk(EMOTE_FRENZY);
-                        events.ScheduleEvent(EVENT_FRENZY, 24s);
+                    {
+                        if (me->GetHealthPct() < 25.0f)
+                        {
+                            DoCast(me, SPELL_FRENZY);
+                            Talk(EMOTE_FRENZY);
+                            events.Repeat(25000, 30000);
+                        }
+                        else
+                        {
+                            events.Repeat(3000, 5000);
+                        }
                         break;
+                    }
                     default:
                         break;
                 }

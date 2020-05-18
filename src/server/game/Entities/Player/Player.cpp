@@ -416,8 +416,7 @@ Player::Player(WorldSession* session) : Unit(true)
 
     // EJ robot
     groupRole = 0;
-    raiSolo = NULL;
-    raiGroup = NULL;
+    rai = NULL;
     // EJ auto fish
     fishing = false;
     // EJ gather fail
@@ -1372,20 +1371,10 @@ void Player::Update(uint32 p_time)
     if (IsHasDelayedTeleport() && IsAlive())
         TeleportTo(m_teleport_dest, m_teleport_options);
 
-    // EJ robot
-    if (GetGroup())
+    // EJ robot    
+    if (rai)
     {
-        if (raiGroup)
-        {
-            raiGroup->Update(p_time);
-        }
-    }
-    else
-    {
-        if (raiSolo)
-        {
-            raiSolo->Update(p_time);
-        }
+        rai->Update(p_time);
     }
 
     // EJ auto fish

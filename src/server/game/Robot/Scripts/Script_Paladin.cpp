@@ -10,6 +10,34 @@ Script_Paladin::Script_Paladin(Player* pmMe) :Script_Base(pmMe)
 
 }
 
+void Script_Paladin::Reset()
+{
+    blessingType = PaladinBlessingType::PaladinBlessingType_Kings;
+    switch (characterTalentTab)
+    {
+    case 0:
+    {
+        auraType = PaladinAuraType::PaladinAuraType_Concentration;
+        break;
+    }
+    case 1:
+    {
+        auraType = PaladinAuraType::PaladinAuraType_Devotion;
+        break;
+    }
+    case 2:
+    {
+        auraType = PaladinAuraType::PaladinAuraType_Retribution;
+        break;
+    }
+    default:
+    {
+        auraType = PaladinAuraType::PaladinAuraType_Devotion;
+        break;
+    }
+    }
+}
+
 bool Script_Paladin::Heal(Unit* pmTarget, bool pmCure)
 {
     if (!me)
@@ -110,12 +138,12 @@ bool Script_Paladin::Heal_Holy(Unit* pmTarget, bool pmCure)
     return false;
 }
 
-bool Script_Paladin::Tank(Unit* pmTarget, bool pmChase)
+bool Script_Paladin::Tank(Unit* pmTarget, bool pmChase, bool pmSingle)
 {
     return false;
 }
 
-bool Script_Paladin::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)
+bool Script_Paladin::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank)
 {
     if (!me)
     {
@@ -133,22 +161,22 @@ bool Script_Paladin::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)
     {
     case 0:
     {
-        return DPS_Common(pmTarget, pmChase, pmAOE);
+        return DPS_Common(pmTarget, pmChase, pmAOE, pmTank);
     }
     case 1:
     {
-        return DPS_Common(pmTarget, pmChase, pmAOE);
+        return DPS_Common(pmTarget, pmChase, pmAOE, pmTank);
     }
     case 2:
     {
-        return DPS_Retribution(pmTarget, pmChase, pmAOE);
+        return DPS_Retribution(pmTarget, pmChase, pmAOE, pmTank);
     }
     default:
-        return DPS_Common(pmTarget, pmChase, pmAOE);
+        return DPS_Common(pmTarget, pmChase, pmAOE, pmTank);
     }
 }
 
-bool Script_Paladin::DPS_Retribution(Unit* pmTarget, bool pmChase, bool pmAOE)
+bool Script_Paladin::DPS_Retribution(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank)
 {
     if (!pmTarget)
     {
@@ -170,7 +198,7 @@ bool Script_Paladin::DPS_Retribution(Unit* pmTarget, bool pmChase, bool pmAOE)
     if (targetDistance > ATTACK_RANGE_LIMIT)
     {
         return false;
-    }    
+    }
     if (pmChase)
     {
         if (!Chase(pmTarget))
@@ -188,31 +216,25 @@ bool Script_Paladin::DPS_Retribution(Unit* pmTarget, bool pmChase, bool pmAOE)
     me->Attack(pmTarget, true);
     if (pmAOE)
     {
-        if (Group* myGroup = me->GetGroup())
+        if (pmTank)
         {
-            for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+            if (pmTank->getAttackers().size() >= 3)
             {
-                if (Player* member = groupRef->GetSource())
+                uint32 inRangeCount = 0;
+                for (std::set<Unit*>::const_iterator i = pmTank->getAttackers().begin(); i != pmTank->getAttackers().end(); ++i)
                 {
-                    if (member->groupRole == GroupRole::GroupRole_Tank)
+                    if (Unit* eachAttacker = *i)
                     {
-                        if (member->getAttackers().size() >= 3)
+                        if (pmTank->GetDistance(eachAttacker) < AOE_TARGETS_RANGE)
                         {
-                            uint32 inRangeCount = 0;
-                            for (std::set<Unit*>::const_iterator i = member->getAttackers().begin(); i != member->getAttackers().end(); ++i)
+                            inRangeCount++;
+                            if (inRangeCount >= 3)
                             {
-                                if ((*i)->GetDistance(member) < AOE_TARGETS_RANGE)
+                                if (CastSpell(eachAttacker, "Consecration", MELEE_MAX_DISTANCE))
                                 {
-                                    inRangeCount++;
-                                    if (inRangeCount >= 3)
-                                    {
-                                        if (CastSpell((*i), "Consecration", MELEE_MAX_DISTANCE))
-                                        {
-                                            return true;
-                                        }
-                                        break;
-                                    }
+                                    return true;
                                 }
+                                break;
                             }
                         }
                     }
@@ -252,7 +274,7 @@ bool Script_Paladin::DPS_Retribution(Unit* pmTarget, bool pmChase, bool pmAOE)
     return true;
 }
 
-bool Script_Paladin::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE)
+bool Script_Paladin::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank)
 {
     if (!pmTarget)
     {
@@ -274,7 +296,7 @@ bool Script_Paladin::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE)
     if (targetDistance > ATTACK_RANGE_LIMIT)
     {
         return false;
-    }    
+    }
     if (pmChase)
     {
         if (!Chase(pmTarget))
@@ -368,7 +390,7 @@ bool Script_Paladin::Attack_Retribution(Unit* pmTarget)
     if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
     {
         return false;
-    }    
+    }
     if (!Chase(pmTarget))
     {
         return false;
@@ -431,7 +453,7 @@ bool Script_Paladin::Attack_Common(Unit* pmTarget)
     if (targetDistance > ATTACK_RANGE_LIMIT)
     {
         return false;
-    }    
+    }
     if (!Chase(pmTarget))
     {
         return false;
@@ -469,90 +491,127 @@ bool Script_Paladin::Buff(Unit* pmTarget, bool pmCure)
     {
         return false;
     }
-
-
     if (!me)
     {
         return false;
     }
     if (me->GetGUID() == pmTarget->GetGUID())
     {
-        switch (characterTalentTab)
+        if (FindSpellID("Seal of Command"))
         {
-        case 0:
+            if (CastSpell(me, "Seal of Command", PALADIN_RANGE_DISTANCE, true))
+            {
+                return true;
+            }
+        }
+        else
         {
             if (CastSpell(me, "Seal of Righteousness", PALADIN_RANGE_DISTANCE, true))
             {
                 return true;
             }
-            if (CastSpell(me, "Blessing of Kings", PALADIN_RANGE_DISTANCE, true))
-            {
-                return true;
-            }
-            if (CastSpell(me, "Concentration Aura", PALADIN_RANGE_DISTANCE, true))
-            {
-                return true;
-            }
-            break;
         }
-        case 1:
+    }
+    switch (auraType)
+    {
+    case PaladinAuraType::PaladinAuraType_Concentration:
+    {
+        if (CastSpell(me, "Concentration Aura", PALADIN_RANGE_DISTANCE, true))
         {
-            if (CastSpell(me, "Seal of Righteousness", PALADIN_RANGE_DISTANCE, true))
-            {
-                return true;
-            }
-            if (CastSpell(me, "Blessing of Kings", PALADIN_RANGE_DISTANCE, true))
-            {
-                return true;
-            }
-            if (CastSpell(me, "Devotion Aura", PALADIN_RANGE_DISTANCE, true))
-            {
-                return true;
-            }
-            break;
+            return true;
         }
-        case 2:
+        break;
+    }
+    case PaladinAuraType::PaladinAuraType_Devotion:
+    {
+        if (CastSpell(me, "Devotion Aura", PALADIN_RANGE_DISTANCE, true))
         {
-            if (FindSpellID("Seal of Command"))
+            return true;
+        }
+        break;
+    }
+    case PaladinAuraType::PaladinAuraType_Retribution:
+    {
+        if (CastSpell(me, "Retribution Aura", PALADIN_RANGE_DISTANCE, true))
+        {
+            return true;
+        }
+        break;
+    }
+    default:
+    {
+        break;
+    }
+    }
+    switch (blessingType)
+    {
+    case PaladinBlessingType::PaladinBlessingType_Kings:
+    {
+        if (!HasAura(pmTarget, "Blessing of Kings") && !HasAura(pmTarget, "Greater Blessing of Kings"))
+        {
+            if (FindSpellID("Greater Blessing of Kings"))
             {
-                if (CastSpell(me, "Seal of Command", PALADIN_RANGE_DISTANCE, true))
+                if (CastSpell(pmTarget, "Greater Blessing of Kings", PALADIN_RANGE_DISTANCE, true))
                 {
                     return true;
                 }
             }
             else
             {
-                if (CastSpell(me, "Seal of Righteousness", PALADIN_RANGE_DISTANCE, true))
+                if (CastSpell(pmTarget, "Blessing of Kings", PALADIN_RANGE_DISTANCE, true))
                 {
                     return true;
                 }
             }
-            if (CastSpell(me, "Blessing of Might", PALADIN_RANGE_DISTANCE, true))
-            {
-                return true;
-            }
-            if (CastSpell(me, "Retribution Aura", PALADIN_RANGE_DISTANCE, true))
-            {
-                return true;
-            }
-            break;
         }
-        default:
-        {
-            if (CastSpell(me, "Devotion Aura", PALADIN_RANGE_DISTANCE, true))
-            {
-                return true;
-            }
-            break;
-        }
-        }
+        break;
     }
-    else if (me->GetDistance(pmTarget) < PALADIN_RANGE_DISTANCE)
+    case PaladinBlessingType::PaladinBlessingType_Might:
     {
-        if (CastSpell(pmTarget, "Blessing of Kings", PALADIN_RANGE_DISTANCE, true))
+        if (!HasAura(pmTarget, "Blessing of Might") && !HasAura(pmTarget, "Greater Blessing of Might"))
         {
-            return true;
+            if (FindSpellID("Greater Blessing of Might"))
+            {
+                if (CastSpell(pmTarget, "Greater Blessing of Might", PALADIN_RANGE_DISTANCE, true))
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                if (CastSpell(pmTarget, "Blessing of Might", PALADIN_RANGE_DISTANCE, true))
+                {
+                    return true;
+                }
+            }
         }
+        break;
+    }
+    case PaladinBlessingType::PaladinBlessingType_Wisdom:
+    {
+        if (!HasAura(pmTarget, "Blessing of Wisdom") && !HasAura(pmTarget, "Greater Blessing of Wisdom"))
+        {
+            if (FindSpellID("Greater Blessing of Wisdom"))
+            {
+                if (CastSpell(pmTarget, "Greater Blessing of Wisdom", PALADIN_RANGE_DISTANCE, true))
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                if (CastSpell(pmTarget, "Blessing of Wisdom", PALADIN_RANGE_DISTANCE, true))
+                {
+                    return true;
+                }
+            }
+        }
+        break;
+    }
+    default:
+    {
+        break;
+    }
     }
     if (pmCure)
     {

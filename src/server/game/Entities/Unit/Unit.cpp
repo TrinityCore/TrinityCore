@@ -10901,7 +10901,47 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
             loot->clear();
 
             if (uint32 lootid = creature->GetCreatureTemplate()->lootid)
-                loot->FillLoot(lootid, LootTemplates_Creature, looter, false, false, creature->GetLootMode());
+            {
+                uint32 countEachGroup = 1;
+                if (sJokerConfig->Enable)
+                {
+                    if (const CreatureTemplate* cInfo = creature->GetCreatureTemplate())
+                    {
+                        if (cInfo->rank == CreatureEliteType::CREATURE_ELITE_NORMAL)
+                        {
+                            countEachGroup = sJokerConfig->LootCountEachGroup_Normal;
+                        }
+                        else if (cInfo->rank == CreatureEliteType::CREATURE_ELITE_ELITE)
+                        {
+                            if (sObjectMgr->ieSet.find(cInfo->Entry) != sObjectMgr->ieSet.end())
+                            {
+                                countEachGroup = sJokerConfig->LootCountEachGroup_InstanceEncounter;
+                            }
+                            else if (sObjectMgr->ueSet.find(cInfo->Entry) != sObjectMgr->ueSet.end())
+                            {
+                                countEachGroup = sJokerConfig->LootCountEachGroup_UniqueElite;
+                            }
+                            else
+                            {
+                                countEachGroup = sJokerConfig->LootCountEachGroup_Elite;
+                            }
+                        }
+                        else if (cInfo->rank == CreatureEliteType::CREATURE_ELITE_RAREELITE)
+                        {
+                            countEachGroup = sJokerConfig->LootCountEachGroup_RareElite;
+                        }
+                        else if (cInfo->rank == CreatureEliteType::CREATURE_ELITE_WORLDBOSS)
+                        {
+                            countEachGroup = sJokerConfig->LootCountEachGroup_WorldBoss;
+                        }
+                        else if (cInfo->rank == CreatureEliteType::CREATURE_ELITE_RARE)
+                        {
+                            countEachGroup = sJokerConfig->LootCountEachGroup_Rare;
+                        }
+                    }
+                }
+                loot->FillLoot(lootid, LootTemplates_Creature, looter, false, false, creature->GetLootMode(), countEachGroup);
+            }
 
             if (creature->GetLootMode() > 0)
                 loot->generateMoneyLoot(creature->GetCreatureTemplate()->mingold, creature->GetCreatureTemplate()->maxgold);

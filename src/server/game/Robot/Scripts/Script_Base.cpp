@@ -1,6 +1,5 @@
 #include "Script_Base.h"
 #include "RobotConfig.h"
-#include "RobotManager.h"
 #include "MapManager.h"
 #include "Pet.h"
 #include "PetAI.h"
@@ -22,8 +21,14 @@ Script_Base::Script_Base(Player* pmMe)
     spellLevelMap.clear();
     characterTalentTab = 0;
     characterType = 0;
+
     float chaseDistanceMin = MIN_DISTANCE_GAP;
     float chaseDistanceMax = MELEE_MIN_DISTANCE;
+}
+
+void Script_Base::Reset()
+{
+
 }
 
 void Script_Base::Update(uint32 pmDiff)
@@ -31,14 +36,58 @@ void Script_Base::Update(uint32 pmDiff)
     return;
 }
 
-bool Script_Base::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)
+bool Script_Base::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank)
 {
     return false;
 }
 
-bool Script_Base::Tank(Unit* pmTarget, bool pmChase)
+bool Script_Base::Tank(Unit* pmTarget, bool pmChase, bool pmSingle)
 {
     return false;
+}
+
+bool Script_Base::SubTank(Unit* pmTarget, bool pmChase)
+{
+    if (!pmTarget)
+    {
+        return false;
+    }
+    else if (!pmTarget->IsAlive())
+    {
+        return false;
+    }
+    if (!me)
+    {
+        return false;
+    }
+    if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
+    {
+        return false;
+    }
+    if (pmChase)
+    {
+        if (!Chase(pmTarget))
+        {
+            return false;
+        }
+    }
+    else
+    {
+        if (!me->isInFront(pmTarget))
+        {
+            me->SetFacingToObject(pmTarget);
+        }
+    }
+    if (me->GetHealthPct() < 20.0f)
+    {
+        UseHealingPotion();
+    }
+    me->Attack(pmTarget, true);
+    return true;
 }
 
 bool Script_Base::Taunt(Unit* pmTarget)
@@ -158,11 +207,11 @@ void Script_Base::InitializeValues()
     }
 }
 
-void Script_Base::InitializeCharacter(uint32 pmTargetLevel)
+bool Script_Base::InitializeCharacter(uint32 pmTargetLevel)
 {
     if (!me)
     {
-        return;
+        return false;
     }
     bool newCharacter = false;
     if (me->GetLevel() != pmTargetLevel)
@@ -636,6 +685,8 @@ void Script_Base::InitializeCharacter(uint32 pmTargetLevel)
     std::ostringstream msgStream;
     msgStream << me->GetName() << " initialized";
     sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, msgStream.str().c_str());
+
+    return newCharacter;
 }
 
 void Script_Base::InitialEquipment(uint32 pmWeaponType, bool pmDual, uint32 pmArmorType, bool pmHasRange, uint32 pmRangeType, bool pmHasShield)
@@ -942,12 +993,9 @@ void Script_Base::RandomTeleport()
     {
         return;
     }
-    if (me->raiSolo)
+    if (RobotStrategy_Solo* rs = (RobotStrategy_Solo*)me->rai->strategyMap[Strategy_Index::Strategy_Index_Solo])
     {
-        if (Strategy_Solo* ss = me->raiSolo->GetActiveStrategy())
-        {
-            ss->Reset();
-        }
+        rs->Reset();
     }
     bool validLocation = false;
     int destMapID = 0;
@@ -956,6 +1004,34 @@ void Script_Base::RandomTeleport()
     float destZ = 0.0f;
     float distance = frand(sRobotConfig->TeleportMinRange, sRobotConfig->TeleportMaxRange);
     float angle = frand(0, 2 * M_PI);
+
+    if (me->rai->robotType == RobotType::RobotType_Raid)
+    {
+        // raid robot will only wonder in main city
+        uint32 spawnID = 0;
+        if (me->GetRace() == Races::RACE_BLOODELF || me->GetRace() == Races::RACE_ORC || me->GetRace() == Races::RACE_TAUREN || me->GetRace() == Races::RACE_TROLL || me->GetRace() == Races::RACE_UNDEAD_PLAYER)
+        {
+            spawnID = urand(0, sRobotManager->orgrimmar_gruntSpawnIDMap.size() - 1);
+            spawnID = sRobotManager->orgrimmar_gruntSpawnIDMap[spawnID];
+        }
+        else
+        {
+            spawnID = urand(0, sRobotManager->ironforge_guardSpawnIDMap.size() - 1);
+            spawnID = sRobotManager->ironforge_guardSpawnIDMap[spawnID];
+        }
+        if (spawnID > 0)
+        {
+            for (auto const& pair : sObjectMgr->GetAllCreatureData())
+            {
+                if (pair.second.spawnId == spawnID)
+                {
+                    me->TeleportTo(pair.second.mapId, pair.second.spawnPoint.m_positionX, pair.second.spawnPoint.m_positionY, pair.second.spawnPoint.m_positionZ, 0.0f);
+                    break;
+                }
+            }
+        }
+        return;
+    }
 
     if (sRobotManager->onlinePlayerIDMap.size() > 0)
     {
@@ -1902,6 +1978,10 @@ bool Script_Base::UseManaPotion()
     {
         itemEntry = 3385;
     }
+    else
+    {
+        itemEntry = 2455;
+    }
     if (!me->HasItemCount(itemEntry, 1))
     {
         me->StoreNewItemInBestSlots(itemEntry, 20);
@@ -1925,7 +2005,7 @@ void Script_Base::ChooseTarget(Unit* pmTarget)
         if (me)
         {
             me->SetSelection(pmTarget->GetGUID());
-            me->SetTarget(pmTarget->GetGUID());
+            me->SetTarget(pmTarget->GetGUID());            
         }
     }    
 }

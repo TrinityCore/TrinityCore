@@ -10,7 +10,7 @@ Script_Priest::Script_Priest(Player* pmMe) :Script_Base(pmMe)
 
 }
 
-bool Script_Priest::Tank(Unit* pmTarget, bool pmChase)
+bool Script_Priest::Tank(Unit* pmTarget, bool pmChase, bool pmSingle)
 {
     return false;
 }
@@ -170,15 +170,19 @@ bool Script_Priest::GroupHeal_Holy()
     {
         return false;
     }
+    if (CastSpell(me, "Circle of Healing", PRIEST_RANGE_DISTANCE))
+    {
+        return true;
+    }
     if (Group* myGroup = me->GetGroup())
-    {        
+    {
         for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
         {
             if (Player* member = groupRef->GetSource())
             {
                 if (member->GetHealthPct() < 60.0f)
                 {
-                    if (me->GetDistance(member) > MID_RANGE)
+                    if (me->GetDistance(member) > MID_RANGE && me->GetDistance(member) < PRIEST_RANGE_DISTANCE)
                     {
                         if (CastSpell(me, "Prayer of Healing", PRIEST_RANGE_DISTANCE))
                         {
@@ -197,7 +201,7 @@ bool Script_Priest::GroupHeal_Holy()
     return false;
 }
 
-bool Script_Priest::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)
+bool Script_Priest::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank)
 {
     if (!me)
     {
@@ -211,24 +215,24 @@ bool Script_Priest::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)
     {
     case 0:
     {
-        return DPS_Common(pmTarget, pmChase, pmAOE);
+        return DPS_Common(pmTarget, pmChase, pmAOE, pmTank);
     }
     case 1:
     {
-        return DPS_Common(pmTarget, pmChase, pmAOE);
+        return DPS_Common(pmTarget, pmChase, pmAOE, pmTank);
     }
     case 2:
     {
-        return DPS_Common(pmTarget, pmChase, pmAOE);
+        return DPS_Common(pmTarget, pmChase, pmAOE, pmTank);
     }
     default:
-        return DPS_Common(pmTarget, pmChase, pmAOE);
+        return DPS_Common(pmTarget, pmChase, pmAOE, pmTank);
     }
 
     return false;
 }
 
-bool Script_Priest::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE)
+bool Script_Priest::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank)
 {
     if (!pmTarget)
     {
@@ -385,11 +389,23 @@ bool Script_Priest::Buff(Unit* pmTarget, bool pmCure)
     }
     if (me->GetDistance(pmTarget) < PRIEST_RANGE_DISTANCE)
     {
-        if (CastSpell(pmTarget, "Power Word: Fortitude", PRIEST_RANGE_DISTANCE, true))
+        if (!HasAura(pmTarget, "Power Word: Fortitude") && !HasAura(pmTarget, "Prayer of Fortitude"))
         {
-            return true;
+            if (FindSpellID("Prayer of Fortitude"))
+            {
+                if (CastSpell(pmTarget, "Prayer of Fortitude", PRIEST_RANGE_DISTANCE, true))
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                if (CastSpell(pmTarget, "Power Word: Fortitude", PRIEST_RANGE_DISTANCE, true))
+                {
+                    return true;
+                }
+            }
         }
-
         if (pmCure)
         {
             for (uint32 type = SPELL_AURA_NONE; type < TOTAL_AURAS; ++type)

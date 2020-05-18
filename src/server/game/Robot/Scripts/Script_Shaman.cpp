@@ -5,7 +5,7 @@ Script_Shaman::Script_Shaman(Player* pmMe) :Script_Base(pmMe)
 
 }
 
-bool Script_Shaman::Tank(Unit* pmTarget, bool pmChase)
+bool Script_Shaman::Tank(Unit* pmTarget, bool pmChase, bool pmSingle)
 {
     return false;
 }
@@ -15,7 +15,7 @@ bool Script_Shaman::Heal(Unit* pmTarget, bool pmCure)
     return false;
 }
 
-bool Script_Shaman::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)
+bool Script_Shaman::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank)
 {
     if (!me)
     {
@@ -29,24 +29,24 @@ bool Script_Shaman::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)
     {
     case 0:
     {
-        return DPS_Common(pmTarget, pmChase, pmAOE);
+        return DPS_Common(pmTarget, pmChase, pmAOE, pmTank);
     }
     case 1:
     {
-        return DPS_Common(pmTarget, pmChase, pmAOE);
+        return DPS_Common(pmTarget, pmChase, pmAOE, pmTank);
     }
     case 2:
     {
-        return DPS_Common(pmTarget, pmChase, pmAOE);
+        return DPS_Common(pmTarget, pmChase, pmAOE, pmTank);
     }
     default:
-        return DPS_Common(pmTarget, pmChase, pmAOE);
+        return DPS_Common(pmTarget, pmChase, pmAOE, pmTank);
     }
 
     return false;
 }
 
-bool Script_Shaman::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE)
+bool Script_Shaman::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank)
 {
     if (!pmTarget)
     {

@@ -39,6 +39,10 @@ void AddSC_boss_overlordwyrmthalak();
 void AddSC_boss_shadowvosh();
 void AddSC_boss_thebeast();
 void AddSC_boss_warmastervoone();
+
+// EJ scripts
+void AddSC_boss_mor_grayhoof();
+
 void AddSC_boss_quatermasterzigris();
 void AddSC_boss_pyroguard_emberseer();
 void AddSC_boss_gyth();
@@ -222,6 +226,10 @@ void AddEasternKingdomsScripts()
     AddSC_boss_shadowvosh();
     AddSC_boss_thebeast();
     AddSC_boss_warmastervoone();
+
+    // EJ scripts
+    AddSC_boss_mor_grayhoof();
+
     AddSC_boss_quatermasterzigris();
     AddSC_boss_pyroguard_emberseer();
     AddSC_boss_gyth();

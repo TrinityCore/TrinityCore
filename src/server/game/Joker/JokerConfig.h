@@ -46,6 +46,7 @@ public:
     float UniqueEliteAttackMod_Total;
     float EliteAttackMod_Total;
     float RareEliteAttackMod_Total;
+    float WorldBossAttackMod_Total;
     float RareAttackMod_Total;
 
     float NormalSpellMod_Total;
@@ -53,6 +54,7 @@ public:
     float UniqueEliteSpellMod_Total;
     float EliteSpellMod_Total;
     float RareEliteSpellMod_Total;
+    float WorldBossSpellMod_Total;
     float RareSpellMod_Total;
 
     float NormalHPMod_Total;
@@ -60,6 +62,7 @@ public:
     float UniqueEliteHPMod_Total;
     float EliteHPMod_Total;
     float RareEliteHPMod_Total;
+    float WorldBossHPMod_Total;
     float RareHPMod_Total;
 
     float NormalMPMod_Total;
@@ -67,6 +70,7 @@ public:
     float UniqueEliteMPMod_Total;
     float EliteMPMod_Total;
     float RareEliteMPMod_Total;
+    float WorldBossMPMod_Total;
     float RareMPMod_Total;
 
     float PlayerHPMod_Total;
@@ -77,6 +81,7 @@ public:
     float UniqueEliteAttackMod_Level;
     float EliteAttackMod_Level;
     float RareEliteAttackMod_Level;
+    float WorldBossAttackMod_Level;
     float RareAttackMod_Level;
 
     float NormalSpellMod_Level;
@@ -84,6 +89,7 @@ public:
     float UniqueEliteSpellMod_Level;
     float EliteSpellMod_Level;
     float RareEliteSpellMod_Level;
+    float WorldBossSpellMod_Level;
     float RareSpellMod_Level;
 
     float NormalHPMod_Level;
@@ -91,6 +97,7 @@ public:
     float UniqueEliteHPMod_Level;
     float EliteHPMod_Level;
     float RareEliteHPMod_Level;
+    float WorldBossHPMod_Level;
     float RareHPMod_Level;
 
 
@@ -99,12 +106,23 @@ public:
     float UniqueEliteMPMod_Level;
     float EliteMPMod_Level;
     float RareEliteMPMod_Level;
+    float WorldBossMPMod_Level;
     float RareMPMod_Level;
 
     float PlayerHPMod_Level;
     float PlayerMPMod_Level;
 
-    float MaxModLevel;
+    uint32 MaxModLevel;
+
+    uint32 MaxTrainerSpellLevel;
+
+    uint32 LootCountEachGroup_Normal;
+    uint32 LootCountEachGroup_InstanceEncounter;    
+    uint32 LootCountEachGroup_UniqueElite;
+    uint32 LootCountEachGroup_Elite;
+    uint32 LootCountEachGroup_RareElite;
+    uint32 LootCountEachGroup_WorldBoss;
+    uint32 LootCountEachGroup_Rare;
 };
 
 #define sJokerConfig JokerConfig::instance()

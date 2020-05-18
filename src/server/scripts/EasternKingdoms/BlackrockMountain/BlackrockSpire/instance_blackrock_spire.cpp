@@ -37,7 +37,7 @@ DoorData const doorData[] =
     { 0,                        0,                          DOOR_TYPE_ROOM }
 };
 
-enum EventIds
+enum EventIds :uint32
 {
     EVENT_DARGONSPIRE_ROOM_STORE = 1,
     EVENT_DARGONSPIRE_ROOM_CHECK = 2,
@@ -48,11 +48,19 @@ enum EventIds
     EVENT_UROK_DOOMHOWL_SPAWNS_5 = 7,
     EVENT_UROK_DOOMHOWL_SPAWN_IN = 8,
     // EJ blackrock scripts
-    EVENT_STADIUM_RESET = 9,
-    EVENT_UPPER_DOOR_OPEN_STEP_1 = 10,
-    EVENT_UPPER_DOOR_OPEN_STEP_2 = 11,
-    EVENT_UPPER_DOOR_OPEN_STEP_3 = 12,
-    EVENT_UPPER_DOOR_OPEN_STEP_4 = 13,
+    EVENT_STADIUM_RESET,
+    EVENT_STADIUM_READY,
+    EVENT_UPPER_DOOR_OPEN_STEP_1,
+    EVENT_UPPER_DOOR_OPEN_STEP_2,
+    EVENT_UPPER_DOOR_OPEN_STEP_3,
+    EVENT_UPPER_DOOR_OPEN_STEP_4,
+    EVENT_STADIUM_QUIT_LINE,
+    EVENT_STADIUM_QUIT_MOVE,
+    EVENT_STADIUM_CLOSE_DOOR,
+    EVENT_STADIUM_OPEN_DOOR,
+    EVENT_TOBOSS_OPEN_DOOR,
+    EVENT_STADIUM_FAIL_LINE,
+    EVENT_STADIUM_FAIL_MOVE,
 };
 
 class instance_blackrock_spire : public InstanceMapScript
@@ -69,6 +77,8 @@ public:
             LoadDoorData(doorData);
             stadiumCombatStatus = StadiumCombatStatus::SCS_FREE;            
             upperDoorCheckDelay = 1000;
+            rendDead = false;
+            gythDead = false;
         }
 
         void OnCreatureCreate(Creature* creature) override
@@ -280,7 +290,7 @@ public:
                 break;
             case GO_PORTCULLIS_ACTIVE:
                 go_portcullis_active = go->GetGUID();
-                if (GetBossState(DATA_GYTH) == DONE)
+                //if (GetBossState(DATA_GYTH) == DONE)
                     HandleGameObject(ObjectGuid::Empty, true, go);
                 break;
             case GO_PORTCULLIS_TOBOSSROOMS:
@@ -387,6 +397,19 @@ public:
             }
         }
 
+        uint32 GetData(uint32 DataId) const override
+        {
+            switch (DataId)
+            {
+            case BRSAdditionalData::STADIUM_COMBAT:
+            {
+                return stadiumCombatStatus;
+            }
+            }
+
+            return 0;
+        }
+
         void SetData(uint32 type, uint32 data) override
         {
             switch (type)
@@ -401,12 +424,21 @@ public:
                     }
                 }
                 break;
-                }
-                case DATA_BLACKHAND_INCARCERATOR:
+            }
+            case DATA_BLACKHAND_INCARCERATOR:
+            {
+                for (GuidList::const_iterator itr = _incarceratorList.begin(); itr != _incarceratorList.end(); ++itr)
+                    if (Creature* creature = instance->GetCreature(*itr))
+                        creature->Respawn();
+                break;
+            }
+            case BRSAdditionalData::STADIUM_COMBAT:
+            {
+                stadiumCombatStatus = data;
+                if (stadiumCombatStatus == StadiumCombatStatus::SCS_GOING)
                 {
-                    for (GuidList::const_iterator itr = _incarceratorList.begin(); itr != _incarceratorList.end(); ++itr)
-                        if (Creature* creature = instance->GetCreature(*itr))
-                            creature->Respawn();
+                    Events.ScheduleEvent(EventIds::EVENT_STADIUM_CLOSE_DOOR, 5000);
+                }
                 break;
             }
             default:
@@ -494,6 +526,26 @@ public:
             return ObjectGuid::Empty;
         }
 
+        void OnUnitDeath(Unit* unit) override
+        {
+            //! HACK, needed because of buggy CreatureAI after charm
+            if (unit->GetEntry() == BRSCreaturesIds::NPC_WARCHIEF_REND_BLACKHAND)
+            {
+                rendDead = true;
+            }
+            if (unit->GetEntry() == BRSCreaturesIds::NPC_GYTH)
+            {
+                gythDead = true;
+            }
+            if (stadiumCombatStatus == StadiumCombatStatus::SCS_GOING)
+            {
+                if (rendDead && gythDead)
+                {
+                    stadiumCombatStatus = StadiumCombatStatus::SCS_VICTORY;
+                }
+            }            
+        }
+
         void Update(uint32 diff) override
         {
             if (GameObject* checkDD = instance->GetGameObject(OGGODragonspineDoor))
@@ -525,7 +577,7 @@ public:
                                         openDoor = true;
                                         break;
                                     }
-                                }                                                                
+                                }
                             }
                         }
                         if (openDoor)
@@ -557,6 +609,12 @@ public:
                     break;
                 case EventIds::EVENT_STADIUM_RESET:
                 {
+                    rendDead = false;
+                    gythDead = false;
+                    if (GameObject* addsGate = instance->GetGameObjectBySpawnId(BRSSPawnID::BRSSPawnID_GO_STADIUM_ADDS_GATE))
+                    {
+                        addsGate->SetGoState(GOState::GO_STATE_READY);
+                    }
                     if (Creature* victor = instance->GetCreature(LordVictorNefarius))
                     {
                         victor->AI()->Reset();
@@ -568,7 +626,7 @@ public:
                         if (TempSummon* summon = rend->ToTempSummon())
                         {
                             summon->UnSummon(100);
-                            RespawnInfo* riRend = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, SPAWNID_WARCHIEF_REND_BLACKHAND);
+                            RespawnInfo* riRend = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, BRSSPawnID::BRSSPawnID_CREATURE_WARCHIEF_REND_BLACKHAND);
                             riRend->respawnTime = 2000;
                             instance->Respawn(riRend);
                         }
@@ -579,7 +637,7 @@ public:
                     }
                     else
                     {
-                        RespawnInfo* riRend = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, SPAWNID_WARCHIEF_REND_BLACKHAND);
+                        RespawnInfo* riRend = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, BRSSPawnID::BRSSPawnID_CREATURE_WARCHIEF_REND_BLACKHAND);
                         riRend->respawnTime = 2000;
                         instance->Respawn(riRend);
                     }
@@ -587,6 +645,64 @@ public:
                     {
                         gyth->AI()->Reset();
                         gyth->DespawnOrUnsummon();
+                    }
+                    Events.ScheduleEvent(EventIds::EVENT_STADIUM_READY, 5000);
+                    break;
+                }
+                case EventIds::EVENT_STADIUM_READY:
+                {
+                    stadiumCombatStatus = StadiumCombatStatus::SCS_FREE;
+                    break;
+                }
+                case EventIds::EVENT_STADIUM_CLOSE_DOOR:
+                {
+                    if (GameObject* stadiumDoor = instance->GetGameObject(go_portcullis_active))
+                    {
+                        stadiumDoor->SetGoState(GOState::GO_STATE_READY);
+                    }
+                    break;
+                }
+                case EventIds::EVENT_STADIUM_OPEN_DOOR:
+                {
+                    if (GameObject* stadiumDoor = instance->GetGameObject(go_portcullis_active))
+                    {
+                        stadiumDoor->SetGoState(GOState::GO_STATE_ACTIVE);
+                    }
+                    break;
+                }
+                case EventIds::EVENT_TOBOSS_OPEN_DOOR:
+                {
+                    if (GameObject* tobossDoor = instance->GetGameObject(go_portcullis_tobossrooms))
+                    {
+                        tobossDoor->SetGoState(GOState::GO_STATE_ACTIVE);
+                    }
+                    break;
+                }
+                case EventIds::EVENT_STADIUM_FAIL_LINE:
+                {
+                    if (Creature* victor = instance->GetCreature(LordVictorNefarius))
+                    {
+                        victor->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH);
+                        victor->AI()->Talk(SAY_NEFARIUS_11);
+                    }
+                    break;
+                }
+                case EventIds::EVENT_STADIUM_QUIT_LINE:
+                {
+                    if (Creature* victor = instance->GetCreature(LordVictorNefarius))
+                    {
+                        victor->HandleEmoteCommand(EMOTE_ONESHOT_POINT);
+                        victor->AI()->Talk(SAY_NEFARIUS_10);
+                    }
+                    break;
+                }
+                case EventIds::EVENT_STADIUM_QUIT_MOVE:
+                {
+                    if (Creature* victor = instance->GetCreature(LordVictorNefarius))
+                    {
+                        victor->SetWalk(true);
+                        victor->GetMotionMaster()->MovePoint(0, 165.74f, -466.46f, 116.80f);
+                        victor->DespawnOrUnsummon(10000, 24h * 7);
                     }
                     break;
                 }
@@ -656,70 +772,43 @@ public:
                     bool allDead = true;
                     for (std::list<Player*>::iterator itr = players.begin(); itr != players.end(); ++itr)
                     {
-                        if ((*itr)->IsAlive())
+                        if (Player* eachPlayer = *itr)
                         {
-                            allDead = false;
-                            break;
+                            if (eachPlayer->IsAlive())
+                            {
+                                allDead = false;
+                                break;
+                            }
                         }
                     }
                     if (allDead)
                     {
                         stadiumCombatStatus = StadiumCombatStatus::SCS_FAILED;
                     }
-                    else
-                    {
-                        bool bothDead = true;
-                        if (Creature* rend = instance->GetCreature(WarchiefRendBlackhand))
-                        {
-                            if (rend->IsAlive())
-                            {
-                                bothDead = false;
-                            }
-                        }
-                        if (Creature* gyth = instance->GetCreature(Gyth))
-                        {
-                            if (gyth->IsAlive())
-                            {
-                                bothDead = false;
-                            }
-                        }
-                        if (bothDead)
-                        {
-                            stadiumCombatStatus = StadiumCombatStatus::SCS_VICTORY;
-                        }
-                    }
                 }
                 break;
             }
             case StadiumCombatStatus::SCS_FAILED:
-            {
-                if (Creature* victor = instance->GetCreature(LordVictorNefarius))
-                {
-                    victor->AI()->Talk(SAY_NEFARIUS_11);
-                    Events.ScheduleEvent(EVENT_STADIUM_RESET, 5s);
-                }
-                stadiumCombatStatus = StadiumCombatStatus::SCS_FREE;
+            {                
+                Events.ScheduleEvent(EventIds::EVENT_STADIUM_FAIL_LINE, 3000);
+                Events.ScheduleEvent(EVENT_STADIUM_RESET, 10000);
+                Events.ScheduleEvent(EventIds::EVENT_STADIUM_OPEN_DOOR, 15000);
+                stadiumCombatStatus = StadiumCombatStatus::SCS_RESET;
                 break;
             }
             case StadiumCombatStatus::SCS_VICTORY:
             {
-                if (Creature* victor = instance->GetCreature(LordVictorNefarius))
-                {
-                    victor->AI()->Talk(SAY_NEFARIUS_10);
-                    victor->DespawnOrUnsummon(5000, 24h * 7);
-                    victor->GetMotionMaster()->MovePoint(0, 165.74f, -466.46f, 116.80f);
-                    if (GameObject* stadiumDoor = instance->GetGameObject(go_portcullis_active))
-                    {
-                        stadiumDoor->SetGoState(GO_STATE_ACTIVE);
-                    }
-                    if (GameObject* stadiumDoor = instance->GetGameObject(go_portcullis_tobossrooms))
-                    {
-                        stadiumDoor->SetGoState(GO_STATE_ACTIVE);
-                    }
-                }
                 SetBossState(DATA_WARCHIEF_REND_BLACKHAND, EncounterState::DONE);
-                SetBossState(DATA_GYTH, EncounterState::DONE);
-                stadiumCombatStatus = StadiumCombatStatus::SCS_FREE;
+                SetBossState(DATA_GYTH, EncounterState::DONE);                
+                Events.ScheduleEvent(EventIds::EVENT_STADIUM_QUIT_LINE, 3000);
+                Events.ScheduleEvent(EventIds::EVENT_STADIUM_QUIT_MOVE, 10000);
+                Events.ScheduleEvent(EventIds::EVENT_STADIUM_OPEN_DOOR, 15000);
+                Events.ScheduleEvent(EventIds::EVENT_TOBOSS_OPEN_DOOR, 17000);
+                stadiumCombatStatus = StadiumCombatStatus::SCS_DONE;
+                break;
+            }
+            case StadiumCombatStatus::SCS_RESET:
+            {
                 break;
             }
             default:
@@ -862,7 +951,9 @@ public:
 
     private:
         uint32 stadiumCombatStatus;
-        int upperDoorCheckDelay;        
+        int upperDoorCheckDelay;
+        bool rendDead;
+        bool gythDead;
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
@@ -908,14 +999,17 @@ public:
     {
         if (player && player->IsAlive())
         {
-            InstanceScript* instance = player->GetInstanceScript();
-            if (!instance)
-                return false;
-
-            if (Creature* rend = player->FindNearestCreature(NPC_WARCHIEF_REND_BLACKHAND, 50.0f))
+            if (InstanceScript* is = player->GetInstanceScript())
             {
-                rend->AI()->SetData(AREATRIGGER, AREATRIGGER_BLACKROCK_STADIUM);
-                return true;
+                if (Creature* rend = player->FindNearestCreature(NPC_WARCHIEF_REND_BLACKHAND, 50.0f))
+                {
+                    if (is->GetData(BRSAdditionalData::STADIUM_COMBAT) == StadiumCombatStatus::SCS_FREE)
+                    {
+                        is->SetData(BRSAdditionalData::STADIUM_COMBAT, StadiumCombatStatus::SCS_GOING);
+                        rend->AI()->SetData(AREATRIGGER, AREATRIGGER_BLACKROCK_STADIUM);
+                        return true;
+                    }
+                }
             }
         }
 

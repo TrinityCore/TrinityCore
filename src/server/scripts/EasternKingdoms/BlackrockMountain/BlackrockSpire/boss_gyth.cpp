@@ -52,7 +52,10 @@ enum Events
 class boss_gyth : public CreatureScript
 {
 public:
-    boss_gyth() : CreatureScript("boss_gyth") { }
+    boss_gyth() : CreatureScript("boss_gyth")
+    {
+
+    }
 
     struct boss_gythAI : public BossAI
     {
@@ -82,10 +85,10 @@ public:
         {
             BossAI::JustEngagedWith(who);
 
-            events.ScheduleEvent(EVENT_CORROSIVE_ACID, 8s, 16s);
-            events.ScheduleEvent(EVENT_FREEZE, 8s, 16s);
-            events.ScheduleEvent(EVENT_FLAME_BREATH, 8s, 16s);
-            events.ScheduleEvent(EVENT_KNOCK_AWAY, 12s, 18s);
+            events.ScheduleEvent(EVENT_CORROSIVE_ACID, 5000, 10000);            
+            events.ScheduleEvent(EVENT_FLAME_BREATH, 10000, 15000);
+            events.ScheduleEvent(EVENT_KNOCK_AWAY, 15000, 20000);
+            events.ScheduleEvent(EVENT_FREEZE, 20000, 25000);
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -109,9 +112,12 @@ public:
         {
             if (!SummonedRend && HealthBelowPct(50))
             {
-                DoCast(me, SPELL_SUMMON_REND);
-                me->RemoveAura(SPELL_REND_MOUNTS);
-                SummonedRend = true;
+                SpellCastResult scr = DoCast(me, SPELL_SUMMON_REND);
+                if (scr == SpellCastResult::SPELL_CAST_OK)
+                {
+                    me->RemoveAura(SPELL_REND_MOUNTS);
+                    SummonedRend = true;                    
+                }
             }
 
             if (!UpdateVictim())
@@ -125,7 +131,9 @@ public:
                         case EVENT_SUMMONED_1:
                             me->AddAura(SPELL_REND_MOUNTS, me);
                             if (GameObject* portcullis = me->FindNearestGameObject(GO_DR_PORTCULLIS, 40.0f))
-                                portcullis->UseDoorOrButton();
+                            {
+                                portcullis->SetGoState(GOState::GO_STATE_ACTIVE);                                
+                            }                                
                             //if (Creature* victor = me->FindNearestCreature(NPC_LORD_VICTOR_NEFARIUS, 75.0f, true))
                             //    victor->AI()->SetData(1, 1);
                             events.ScheduleEvent(EVENT_SUMMONED_2, 2s);
@@ -150,23 +158,33 @@ public:
                 switch (eventId)
                 {
                     case EVENT_CORROSIVE_ACID:
-                        DoCast(me, SPELL_CORROSIVE_ACID);
-                        events.ScheduleEvent(EVENT_CORROSIVE_ACID, 10s, 16s);
+                    {
+                        DoCast(SPELL_CORROSIVE_ACID);
+                        events.Repeat(5000, 10000);
                         break;
-                    case EVENT_FREEZE:
-                        DoCast(me, SPELL_FREEZE);
-                        events.ScheduleEvent(EVENT_FREEZE, 10s, 16s);
-                        break;
+                    }
                     case EVENT_FLAME_BREATH:
-                        DoCast(me, SPELL_FLAMEBREATH);
-                        events.ScheduleEvent(EVENT_FLAME_BREATH, 10s, 16s);
+                    {
+                        DoCast(SPELL_FLAMEBREATH);
+                        events.Repeat(10000, 15000);
                         break;
+                    }
                     case EVENT_KNOCK_AWAY:
+                    {
                         DoCastVictim(SPELL_KNOCK_AWAY);
-                        events.ScheduleEvent(EVENT_KNOCK_AWAY, 14s, 20s);
+                        events.Repeat(15000, 20000);
                         break;
+                    }
+                    case EVENT_FREEZE:
+                    {
+                        DoCast(SPELL_FREEZE);
+                        events.Repeat(20000, 25000);
+                        break;
+                    }
                     default:
+                    {
                         break;
+                    }
                 }
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))

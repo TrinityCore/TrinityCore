@@ -6,7 +6,88 @@
 
 Script_Druid::Script_Druid(Player* pmMe) :Script_Base(pmMe)
 {
-    demoralizingRoarDelay = 20 * TimeConstants::IN_MILLISECONDS;    
+    demoralizingRoarDelay = 20 * TimeConstants::IN_MILLISECONDS;
+}
+
+bool Script_Druid::SubTank(Unit* pmTarget, bool pmChase)
+{
+    if (!pmTarget)
+    {
+        return false;
+    }
+    else if (!pmTarget->IsAlive())
+    {
+        return false;
+    }
+    if (!me)
+    {
+        return false;
+    }
+    if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
+    {
+        return false;
+    }
+    if (pmChase)
+    {
+        if (!Chase(pmTarget))
+        {
+            return false;
+        }
+    }
+    else
+    {
+        if (!me->isInFront(pmTarget))
+        {
+            me->SetFacingToObject(pmTarget);
+        }
+    }
+    if (me->GetHealthPct() < 20.0f)
+    {
+        UseHealingPotion();
+    }
+    switch (me->GetShapeshiftForm())
+    {
+    case ShapeshiftForm::FORM_NONE:
+    {
+        if (CastSpell(me, "Dire Bear Form"))
+        {
+            return true;
+        }
+        if (CastSpell(me, "Bear Form"))
+        {
+            return true;
+        }
+        break;
+    }
+    case ShapeshiftForm::FORM_BEAR:
+    {
+        break;
+    }
+    case ShapeshiftForm::FORM_DIREBEAR:
+    {
+        break;
+    }
+    default:
+    {
+        ClearShapeshift();
+        return true;
+    }
+    }
+    if (me->GetHealthPct() < 20.0f)
+    {
+        UseHealingPotion();
+    }
+    if (me->GetHealthPct() < 10.0f)
+    {
+        CastSpell(me, "Survival Instincts");
+    }
+    me->Attack(pmTarget, true);
+
+    return true;
 }
 
 void Script_Druid::Update(uint32 pmDiff)
@@ -29,7 +110,7 @@ void Script_Druid::Update(uint32 pmDiff)
     Script_Base::Update(pmDiff);
 }
 
-bool Script_Druid::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)
+bool Script_Druid::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank)
 {
     if (!me)
     {
@@ -43,7 +124,7 @@ bool Script_Druid::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)
         {
             UseManaPotion();
         }
-        return DPS_Balance(pmTarget, pmChase, pmAOE);
+        return DPS_Balance(pmTarget, pmChase, pmAOE, pmTank);
     }
     case 1:
     {
@@ -55,7 +136,7 @@ bool Script_Druid::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)
         {
             CastSpell(me, "Survival Instincts");
         }
-        return DPS_Feral(pmTarget, pmChase, pmAOE);
+        return DPS_Feral(pmTarget, pmChase, pmAOE, pmTank);
     }
     case 2:
     {
@@ -63,7 +144,7 @@ bool Script_Druid::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)
         {
             UseManaPotion();
         }
-        return DPS_Common(pmTarget, pmChase, pmAOE);
+        return DPS_Common(pmTarget, pmChase, pmAOE, pmTank);
     }
     default:
     {
@@ -71,13 +152,13 @@ bool Script_Druid::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)
         {
             UseManaPotion();
         }
-        return DPS_Common(pmTarget, pmChase, pmAOE);
+        return DPS_Common(pmTarget, pmChase, pmAOE, pmTank);
     }
     }
     return false;
 }
 
-bool Script_Druid::DPS_Balance(Unit* pmTarget, bool pmChase, bool pmAOE)
+bool Script_Druid::DPS_Balance(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank)
 {
     if (!me)
     {
@@ -132,35 +213,29 @@ bool Script_Druid::DPS_Balance(Unit* pmTarget, bool pmChase, bool pmAOE)
 
     if (pmAOE)
     {
-        if (Group* myGroup = me->GetGroup())
+        if (pmTank)
         {
-            for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+            if (pmTank->getAttackers().size() >= 3)
             {
-                if (Player* member = groupRef->GetSource())
+                uint32 inRangeCount = 0;
+                for (std::set<Unit*>::const_iterator i = pmTank->getAttackers().begin(); i != pmTank->getAttackers().end(); ++i)
                 {
-                    if (member->groupRole == GroupRole::GroupRole_Tank)
+                    if (Unit* eachAttacker = *i)
                     {
-                        if (member->getAttackers().size() >= 3)
+                        if (pmTank->GetDistance(eachAttacker) < AOE_TARGETS_RANGE)
                         {
-                            uint32 inRangeCount = 0;
-                            for (std::set<Unit*>::const_iterator i = member->getAttackers().begin(); i != member->getAttackers().end(); ++i)
+                            inRangeCount++;
+                            if (inRangeCount >= 3)
                             {
-                                if ((*i)->GetDistance(member) < AOE_TARGETS_RANGE)
+                                if (CastSpell(eachAttacker, "Starfall", DRUID_RANGE_DISTANCE))
                                 {
-                                    inRangeCount++;
-                                    if (inRangeCount >= 3)
-                                    {
-                                        if (CastSpell((*i), "Starfall", DRUID_RANGE_DISTANCE))
-                                        {
-                                            return true;
-                                        }
-                                        if (CastSpell((*i), "Hurricane", DRUID_RANGE_DISTANCE))
-                                        {
-                                            return true;
-                                        }
-                                        break;
-                                    }
+                                    return true;
                                 }
+                                if (CastSpell(eachAttacker, "Hurricane", DRUID_RANGE_DISTANCE))
+                                {
+                                    return true;
+                                }
+                                break;
                             }
                         }
                     }
@@ -244,7 +319,7 @@ bool Script_Druid::DPS_Balance(Unit* pmTarget, bool pmChase, bool pmAOE)
     return true;
 }
 
-bool Script_Druid::DPS_Feral(Unit* pmTarget, bool pmChase, bool pmAOE)
+bool Script_Druid::DPS_Feral(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank)
 {
     if (!pmTarget)
     {
@@ -276,7 +351,7 @@ bool Script_Druid::DPS_Feral(Unit* pmTarget, bool pmChase, bool pmAOE)
         break;
     }
     case ShapeshiftForm::FORM_CAT:
-    {        
+    {
         if (pmChase)
         {
             if (!Chase(pmTarget))
@@ -356,12 +431,12 @@ bool Script_Druid::DPS_Feral(Unit* pmTarget, bool pmChase, bool pmAOE)
     return true;
 }
 
-bool Script_Druid::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE)
+bool Script_Druid::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank)
 {
-    return DPS_Balance(pmTarget, pmChase, pmAOE);
+    return DPS_Balance(pmTarget, pmChase, pmAOE, pmTank);
 }
 
-bool Script_Druid::Tank(Unit* pmTarget, bool pmChase)
+bool Script_Druid::Tank(Unit* pmTarget, bool pmChase, bool pmSingle)
 {
     if (!me)
     {
@@ -379,26 +454,26 @@ bool Script_Druid::Tank(Unit* pmTarget, bool pmChase)
     {
     case 0:
     {
-        return Tank_Feral(pmTarget, pmChase);
+        return Tank_Feral(pmTarget, pmChase, pmSingle);
     }
     case 1:
     {
-        return Tank_Feral(pmTarget, pmChase);
+        return Tank_Feral(pmTarget, pmChase, pmSingle);
     }
     case 2:
     {
-        return Tank_Feral(pmTarget, pmChase);
+        return Tank_Feral(pmTarget, pmChase, pmSingle);
     }
     default:
     {
-        return Tank_Feral(pmTarget, pmChase);
+        return Tank_Feral(pmTarget, pmChase, pmSingle);
     }
     }
 
     return false;
 }
 
-bool Script_Druid::Tank_Feral(Unit* pmTarget, bool pmChase)
+bool Script_Druid::Tank_Feral(Unit* pmTarget, bool pmChase, bool pmSingle)
 {
     if (!pmTarget)
     {
@@ -420,7 +495,7 @@ bool Script_Druid::Tank_Feral(Unit* pmTarget, bool pmChase)
     if (targetDistance > ATTACK_RANGE_LIMIT)
     {
         return false;
-    }    
+    }
     if (pmChase)
     {
         if (!Chase(pmTarget))
@@ -491,10 +566,13 @@ bool Script_Druid::Tank_Feral(Unit* pmTarget, bool pmChase)
     {
         if (demoralizingRoarDelay <= 0)
         {
-            if (CastSpell(pmTarget, "Demoralizing Roar", MELEE_MAX_DISTANCE, true))
+            if (!pmSingle)
             {
-                demoralizingRoarDelay = 20 * TimeConstants::IN_MILLISECONDS;
-                return true;
+                if (CastSpell(pmTarget, "Demoralizing Roar", MELEE_MAX_DISTANCE, true))
+                {
+                    demoralizingRoarDelay = 20 * TimeConstants::IN_MILLISECONDS;
+                    return true;
+                }
             }
         }
         if (pmTarget->IsNonMeleeSpellCast(false))
@@ -506,34 +584,49 @@ bool Script_Druid::Tank_Feral(Unit* pmTarget, bool pmChase)
         }
     }
 
-    uint16 validAttackerCount = 0;
-    if (me->getAttackers().size() > 1)
+    uint32 validAttackerCount = 0;
+    bool groupTaunt = false;
+    if (me->getAttackers().size() > 3)
     {
         for (std::set<Unit*>::const_iterator i = me->getAttackers().begin(); i != me->getAttackers().end(); ++i)
         {
-            if ((*i)->GetDistance(me) < AOE_TARGETS_RANGE)
+            if (Unit* eachAttacker = *i)
             {
-                validAttackerCount++;
+                if (me->GetDistance(eachAttacker) < AOE_TARGETS_RANGE)
+                {
+                    if (!eachAttacker->GetTarget().IsEmpty())
+                    {
+                        if (eachAttacker->GetTarget() != me->GetGUID())
+                        {
+                            groupTaunt = true;
+                        }
+                    }
+                    validAttackerCount++;
+                }
             }
         }
     }
-    if (validAttackerCount > 3)
+    
+    if (!pmSingle)
     {
-        if (rage > 150)
+        if (groupTaunt && validAttackerCount > 3)
         {
-            if (CastSpell(pmTarget, "Challenging Roar", MELEE_MAX_DISTANCE))
+            if (rage > 150)
             {
-                return true;
+                if (CastSpell(pmTarget, "Challenging Roar", MELEE_MAX_DISTANCE))
+                {
+                    return true;
+                }
             }
         }
-    }
-    if (validAttackerCount > 1)
-    {
-        if (rage > 150)
+        if (validAttackerCount > 1)
         {
-            if (CastSpell(pmTarget, "Swipe (Bear)", MELEE_MAX_DISTANCE))
+            if (rage > 150)
             {
-                return true;
+                if (CastSpell(pmTarget, "Swipe (Bear)", MELEE_MAX_DISTANCE))
+                {
+                    return true;
+                }
             }
         }
     }
@@ -828,7 +921,7 @@ bool Script_Druid::Attack_Feral_Cat(Unit* pmTarget)
         break;
     }
     case ShapeshiftForm::FORM_CAT:
-    {        
+    {
         if (!Chase(pmTarget))
         {
             return false;
@@ -920,7 +1013,7 @@ bool Script_Druid::Attack_Feral_Bear(Unit* pmTarget)
     if (targetDistance > ATTACK_RANGE_LIMIT)
     {
         return false;
-    }    
+    }
     if (!Chase(pmTarget))
     {
         return false;
@@ -1149,27 +1242,83 @@ bool Script_Druid::Buff(Unit* pmTarget, bool pmCure)
     }
     if (me->GetDistance(pmTarget) < DRUID_RANGE_DISTANCE)
     {
-        if (Player* targetPlayer = pmTarget->ToPlayer())
+        bool doThorn = false;
+        switch (pmTarget->GetClass())
         {
-            if (targetPlayer->groupRole == GroupRole::GroupRole_Tank)
+        case Classes::CLASS_WARRIOR:
+        {
+            doThorn = true;
+            break;
+        }
+        case Classes::CLASS_HUNTER:
+        {
+            break;
+        }
+        case Classes::CLASS_SHAMAN:
+        {
+            break;
+        }
+        case Classes::CLASS_PALADIN:
+        {
+            doThorn = true;
+            break;
+        }
+        case Classes::CLASS_WARLOCK:
+        {
+            break;
+        }
+        case Classes::CLASS_PRIEST:
+        {
+            break;
+        }
+        case Classes::CLASS_ROGUE:
+        {
+            doThorn = true;
+            break;
+        }
+        case Classes::CLASS_MAGE:
+        {
+            break;
+        }
+        case Classes::CLASS_DRUID:
+        {
+            doThorn = true;
+            break;
+        }
+        default:
+        {
+            break;
+        }
+        }
+        if (doThorn)
+        {
+            if (!HasAura(pmTarget, "Thorns"))
             {
-                if (!HasAura(targetPlayer, "Thorns"))
+                ClearShapeshift();
+                if (CastSpell(pmTarget, "Thorns", DRUID_RANGE_DISTANCE, true))
                 {
-                    ClearShapeshift();
-                    if (CastSpell(targetPlayer, "Thorns", DRUID_RANGE_DISTANCE, true))
-                    {
-                        return true;
-                    }
+                    return true;
                 }
             }
         }
-        if (!HasAura(pmTarget, "Mark of the Wild"))
+
+        if (!HasAura(pmTarget, "Mark of the Wild") && !HasAura(pmTarget, "Gift of the Wild"))
         {
             ClearShapeshift();
-            if (CastSpell(pmTarget, "Mark of the Wild", DRUID_RANGE_DISTANCE, true))
+            if (FindSpellID("Gift of the Wild"))
             {
-                return true;
+                if (CastSpell(pmTarget, "Gift of the Wild", DRUID_RANGE_DISTANCE, true))
+                {
+                    return true;
+                }
             }
+            else
+            {
+                if (CastSpell(pmTarget, "Mark of the Wild", DRUID_RANGE_DISTANCE, true))
+                {
+                    return true;
+                }
+            }            
         }
     }
 

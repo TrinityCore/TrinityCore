@@ -11,13 +11,13 @@ class Script_Shaman :public Script_Base
 {
 public:    
     Script_Shaman(Player* pmMe);
-    bool DPS(Unit* pmTarget, bool pmChase, bool pmAOE);
-    bool Tank(Unit* pmTarget, bool pmChase);
+    bool DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank);
+    bool Tank(Unit* pmTarget, bool pmChase, bool pmSingle = false);
     bool Heal(Unit* pmTarget, bool pmCure);
     bool Attack(Unit* pmTarget);
     bool Buff(Unit* pmTarget, bool pmCure);
 
-	bool DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE);
+	bool DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank);
 	bool Attack_Common(Unit* pmTarget);
 };
 #endif

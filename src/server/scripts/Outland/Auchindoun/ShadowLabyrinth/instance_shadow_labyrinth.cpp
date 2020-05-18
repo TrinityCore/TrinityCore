@@ -23,8 +23,6 @@
 #include "Map.h"
 #include "shadow_labyrinth.h"
 #include "GridNotifiers.h"
-#include "RobotAI_Group.h"
-#include "Strategy_Group.h"
 
 DoorData const doorData[] =
 {
@@ -79,40 +77,6 @@ class instance_shadow_labyrinth : public InstanceMapScript
                     break;
                 case SLCreatureIds::SL_NPC_VOID_TRAVELER:
                 {
-                    std::list<Player*> players;
-                    Trinity::AnyPlayerInObjectRangeCheck checker(creature, 100.0f);
-                    Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(creature, players, checker);
-                    Cell::VisitWorldObjects(creature, searcher, 30.0f);
-                    Player* nearestDPS = NULL;
-                    float nearestDistance = 200.0f;
-                    for (std::list<Player*>::iterator itr = players.begin(); itr != players.end(); ++itr)
-                    {
-                        if ((*itr)->groupRole == 0)
-                        {
-                            if ((*itr)->raiGroup)
-                            {
-                                if (Strategy_Group_Shadow_Labyrinth* sg = (Strategy_Group_Shadow_Labyrinth*)(*itr)->raiGroup->GetActiveStrategy())
-                                {
-                                    if (sg->ogVT.IsEmpty())
-                                    {
-                                        float eachDistance = creature->GetDistance(*itr);
-                                        if (eachDistance < nearestDistance)
-                                        {
-                                            nearestDPS = (*itr);
-                                            nearestDistance = eachDistance;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if (nearestDPS)
-                    {
-                        if (Strategy_Group_Shadow_Labyrinth* sg = (Strategy_Group_Shadow_Labyrinth*)nearestDPS->raiGroup->GetActiveStrategy())
-                        {
-                            sg->ogVT = creature->GetGUID();
-                        }
-                    }
                     creature->SetSpeed(UnitMoveType::MOVE_RUN, 3.0f);
                     break;
                 }

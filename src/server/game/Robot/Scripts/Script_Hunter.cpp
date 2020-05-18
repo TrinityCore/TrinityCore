@@ -15,12 +15,12 @@ bool Script_Hunter::Heal(Unit* pmTarget, bool pmCure)
     return false;
 }
 
-bool Script_Hunter::Tank(Unit* pmTarget, bool pmChase)
+bool Script_Hunter::Tank(Unit* pmTarget, bool pmChase, bool pmSingle)
 {
     return false;
 }
 
-bool Script_Hunter::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)
+bool Script_Hunter::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank)
 {
     bool meResult = false;
     if (!me)
@@ -35,19 +35,19 @@ bool Script_Hunter::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)
     {
     case 0:
     {
-        meResult = DPS_BeastMastery(pmTarget, pmChase, pmAOE);
+        meResult = DPS_BeastMastery(pmTarget, pmChase, pmAOE, pmTank);
     }
     case 1:
     {
-        meResult = DPS_Marksmanship(pmTarget, pmChase, pmAOE);
+        meResult = DPS_Marksmanship(pmTarget, pmChase, pmAOE, pmTank);
     }
     case 2:
     {
-        meResult = DPS_Survival(pmTarget, pmChase, pmAOE);
+        meResult = DPS_Survival(pmTarget, pmChase, pmAOE, pmTank);
     }
     default:
     {
-        meResult = DPS_Common(pmTarget, pmChase, pmAOE);
+        meResult = DPS_Common(pmTarget, pmChase, pmAOE, pmTank);
 
     }
     }
@@ -63,7 +63,7 @@ bool Script_Hunter::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)
     return meResult;
 }
 
-bool Script_Hunter::DPS_BeastMastery(Unit* pmTarget, bool pmChase, bool pmAOE)
+bool Script_Hunter::DPS_BeastMastery(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank)
 {
     if (!pmTarget)
     {
@@ -140,7 +140,7 @@ bool Script_Hunter::DPS_BeastMastery(Unit* pmTarget, bool pmChase, bool pmAOE)
     return true;
 }
 
-bool Script_Hunter::DPS_Marksmanship(Unit* pmTarget, bool pmChase, bool pmAOE)
+bool Script_Hunter::DPS_Marksmanship(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank)
 {
     if (!pmTarget)
     {
@@ -180,31 +180,25 @@ bool Script_Hunter::DPS_Marksmanship(Unit* pmTarget, bool pmChase, bool pmAOE)
     me->Attack(pmTarget, true);
     if (pmAOE)
     {
-        if (Group* myGroup = me->GetGroup())
+        if (pmTank)
         {
-            for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+            if (pmTank->getAttackers().size() >= 3)
             {
-                if (Player* member = groupRef->GetSource())
+                uint32 inRangeCount = 0;
+                for (std::set<Unit*>::const_iterator i = pmTank->getAttackers().begin(); i != pmTank->getAttackers().end(); ++i)
                 {
-                    if (member->groupRole == GroupRole::GroupRole_Tank)
+                    if (Unit* eachAttacker = *i)
                     {
-                        if (member->getAttackers().size() >= 3)
+                        if (pmTank->GetDistance(eachAttacker) < AOE_TARGETS_RANGE)
                         {
-                            uint32 inRangeCount = 0;
-                            for (std::set<Unit*>::const_iterator i = member->getAttackers().begin(); i != member->getAttackers().end(); ++i)
+                            inRangeCount++;
+                            if (inRangeCount >= 3)
                             {
-                                if ((*i)->GetDistance(member) < AOE_TARGETS_RANGE)
+                                if (CastSpell(eachAttacker, "Volley", HUNTER_RANGE_DISTANCE))
                                 {
-                                    inRangeCount++;
-                                    if (inRangeCount >= 3)
-                                    {
-                                        if (CastSpell((*i), "Volley", HUNTER_RANGE_DISTANCE))
-                                        {
-                                            return true;
-                                        }
-                                        break;
-                                    }
+                                    return true;
                                 }
+                                break;
                             }
                         }
                     }
@@ -279,7 +273,7 @@ bool Script_Hunter::DPS_Marksmanship(Unit* pmTarget, bool pmChase, bool pmAOE)
     return true;
 }
 
-bool Script_Hunter::DPS_Survival(Unit* pmTarget, bool pmChase, bool pmAOE)
+bool Script_Hunter::DPS_Survival(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank)
 {
     if (!pmTarget)
     {
@@ -356,9 +350,9 @@ bool Script_Hunter::DPS_Survival(Unit* pmTarget, bool pmChase, bool pmAOE)
     return true;
 }
 
-bool Script_Hunter::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE)
+bool Script_Hunter::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank)
 {
-    return DPS_Marksmanship(pmTarget, pmChase, pmAOE);
+    return DPS_Marksmanship(pmTarget, pmChase, pmAOE, pmTank);
 }
 
 bool Script_Hunter::Attack(Unit* pmTarget)

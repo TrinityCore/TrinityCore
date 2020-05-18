@@ -485,17 +485,25 @@ bool OPvPCapturePoint::IsInsideObjective(Player* player) const
 bool OutdoorPvP::HandleCustomSpell(Player* player, uint32 spellId, GameObject* go)
 {
     for (OPvPCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
+    {
         if (itr->second->HandleCustomSpell(player, spellId, go))
+        {
             return true;
+        }
+    }        
 
     return false;
 }
 
 bool OPvPCapturePoint::HandleCustomSpell(Player* player, uint32 /*spellId*/, GameObject* /*go*/)
 {
-    if (!player->IsOutdoorPvPActive())
-        return false;
-    return true;
+    // EJ temp fix for sillithy
+    return false;
+    //if (!player->IsOutdoorPvPActive())
+    //{
+    //    return false;
+    //}
+    //return true;
 }
 
 bool OutdoorPvP::HandleOpenGo(Player* player, GameObject* go)

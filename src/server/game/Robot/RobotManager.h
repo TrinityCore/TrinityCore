@@ -7,12 +7,66 @@
 # define ROBOT_PASSWORD "robot"
 #endif
 
+#ifndef AOE_TARGETS_RANGE
+# define AOE_TARGETS_RANGE 5.0f
+#endif
+
+#ifndef MID_RANGE
+# define MID_RANGE 8.0f
+#endif
+
+#ifndef MIN_DISTANCE_GAP
+# define MIN_DISTANCE_GAP 0.5f
+#endif
+
+#ifndef FOLLOW_MIN_DISTANCE
+# define FOLLOW_MIN_DISTANCE 1.0f
+#endif
+
+#ifndef FOLLOW_NORMAL_DISTANCE
+# define FOLLOW_NORMAL_DISTANCE 15.0f
+#endif
+
+#ifndef FOLLOW_MAX_DISTANCE
+# define FOLLOW_MAX_DISTANCE 30.0f
+#endif
+
+#ifndef MELEE_MIN_DISTANCE
+# define MELEE_MIN_DISTANCE 1.0f
+#endif
+
+#ifndef MELEE_MAX_DISTANCE
+# define MELEE_MAX_DISTANCE 3.0f
+#endif
+
+#ifndef RANGED_NORMAL_DISTANCE
+# define RANGED_NORMAL_DISTANCE 20.0f
+#endif
+
+#ifndef RANGED_MAX_DISTANCE
+# define RANGED_MAX_DISTANCE 30.0f
+#endif
+
+#ifndef ATTACK_RANGE_LIMIT
+# define ATTACK_RANGE_LIMIT 200.0f
+#endif
+
+#ifndef DEFAULT_REST_DELAY
+# define DEFAULT_REST_DELAY 20000
+#endif
+
 #include "RobotEntity.h"
 #include "Player.h"
 
 #include <string>
 #include <iostream>
 #include <sstream>
+
+enum RobotType :uint32
+{
+    RobotType_World = 0,
+    RobotType_Raid = 1,
+};
 
 class RobotManager
 {
@@ -46,6 +100,7 @@ public:
     void HandlePacket(WorldSession* pmSession, WorldPacket const* pmPacket);
     void WhisperTo(Player* pmSender, std::string pmContent, Language pmLanguage, Player* pmTarget);
     bool UnitTargetReachable(Player* pmCheckPlayer, Unit* pmTarget);
+    void CheckLevelRobotEntities(uint32 pmLevel, uint32 pmRobotType, uint32 pmTotalCount);
 
 public:
     std::unordered_map<uint32, std::unordered_map<uint32, uint32>> availableRaces;
@@ -54,7 +109,7 @@ public:
     std::unordered_map<uint8, std::unordered_map<uint8, std::string>> characterTalentTabNameMap;
     std::set<uint32> deleteRobotAccountSet;
     int checkDelay;
-    std::unordered_set<RobotEntity*> reSet;
+    std::unordered_map<uint32, std::unordered_set<RobotEntity*>> robotEntityMap;
 
     uint32 nameIndex;
     std::set<uint8> armorInventorySet;
@@ -77,6 +132,9 @@ public:
     std::unordered_map<std::string, std::set<uint32>> spellNameEntryMap;
     std::unordered_set<uint32> lightwellRenewSpellIDSet;
     std::unordered_set<uint32> lightwellUnitEntrySet;
+
+    std::unordered_map<uint32, uint32> orgrimmar_gruntSpawnIDMap;
+    std::unordered_map<uint32, uint32> ironforge_guardSpawnIDMap;
 };
 
 #define sRobotManager RobotManager::instance()

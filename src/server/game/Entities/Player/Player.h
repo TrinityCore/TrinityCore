@@ -34,8 +34,7 @@
 #include <unordered_set>
 
 // EJ robot
-#include "RobotAI_Solo.h"
-#include "RobotAI_Group.h"
+#include "RobotAI.h"
 
 struct AccessRequirement;
 struct AchievementEntry;
@@ -892,8 +891,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         PlayerAI* AI() const { return reinterpret_cast<PlayerAI*>(GetAI()); }
 
         // EJ robot
-        RobotAI_Solo* raiSolo;
-        RobotAI_Group* raiGroup;
+        RobotAI* rai;
         // 0 dps, 1 tank, 2 healer
         uint32 groupRole;
         // EJ auto fish

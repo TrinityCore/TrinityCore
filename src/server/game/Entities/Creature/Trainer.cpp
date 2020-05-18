@@ -22,6 +22,9 @@
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 
+// EJ joker
+#include "JokerManager.h"
+
 namespace Trainer
 {
     bool Spell::IsCastable() const
@@ -47,6 +50,19 @@ namespace Trainer
         {
             if (!player->IsSpellFitByClassAndRace(trainerSpell.SpellId))
                 continue;
+
+            // EJ book spells will be ignored
+            if (sJokerConfig->Enable)
+            {
+                if (sJokerManager->classicBookSpellSet.find(trainerSpell.SpellId) != sJokerManager->classicBookSpellSet.end())
+                {
+                    continue;
+                }
+                if (trainerSpell.ReqLevel > sJokerConfig->MaxTrainerSpellLevel)
+                {
+                    continue;
+                }
+            }
 
             SpellInfo const* trainerSpellInfo = sSpellMgr->AssertSpellInfo(trainerSpell.SpellId);
 

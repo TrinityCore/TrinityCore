@@ -12,12 +12,12 @@ bool Script_Mage::Heal(Unit* pmTarget, bool pmCure)
     return false;
 }
 
-bool Script_Mage::Tank(Unit* pmTarget, bool pmChase)
+bool Script_Mage::Tank(Unit* pmTarget, bool pmChase, bool pmSingle)
 {
     return false;
 }
 
-bool Script_Mage::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)
+bool Script_Mage::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank)
 {
     if (!me)
     {
@@ -31,22 +31,22 @@ bool Script_Mage::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)
     {
     case 0:
     {
-        return DPS_Arcane(pmTarget, pmChase, pmAOE);
+        return DPS_Arcane(pmTarget, pmChase, pmAOE, pmTank);
     }
     case 1:
     {
-        return DPS_Fire(pmTarget, pmChase, pmAOE);
+        return DPS_Fire(pmTarget, pmChase, pmAOE, pmTank);
     }
     case 2:
     {
-        return DPS_Frost(pmTarget, pmChase, pmAOE);
+        return DPS_Frost(pmTarget, pmChase, pmAOE, pmTank);
     }
     default:
-        return DPS_Common(pmTarget, pmChase, pmAOE);
+        return DPS_Common(pmTarget, pmChase, pmAOE, pmTank);
     }
 }
 
-bool Script_Mage::DPS_Arcane(Unit* pmTarget, bool pmChase, bool pmAOE)
+bool Script_Mage::DPS_Arcane(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank)
 {
     if (!pmTarget)
     {
@@ -109,7 +109,7 @@ bool Script_Mage::DPS_Arcane(Unit* pmTarget, bool pmChase, bool pmAOE)
     return true;
 }
 
-bool Script_Mage::DPS_Fire(Unit* pmTarget, bool pmChase, bool pmAOE)
+bool Script_Mage::DPS_Fire(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank)
 {
     if (!pmTarget)
     {
@@ -171,7 +171,7 @@ bool Script_Mage::DPS_Fire(Unit* pmTarget, bool pmChase, bool pmAOE)
     return true;
 }
 
-bool Script_Mage::DPS_Frost(Unit* pmTarget, bool pmChase, bool pmAOE)
+bool Script_Mage::DPS_Frost(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank)
 {
     if (!pmTarget)
     {
@@ -228,31 +228,25 @@ bool Script_Mage::DPS_Frost(Unit* pmTarget, bool pmChase, bool pmAOE)
     }
     if (pmAOE)
     {
-        if (Group* myGroup = me->GetGroup())
+        if (pmTank)
         {
-            for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+            if (pmTank->getAttackers().size() >= 3)
             {
-                if (Player* member = groupRef->GetSource())
+                uint32 inRangeCount = 0;
+                for (std::set<Unit*>::const_iterator i = pmTank->getAttackers().begin(); i != pmTank->getAttackers().end(); ++i)
                 {
-                    if (member->groupRole == GroupRole::GroupRole_Tank)
+                    if (Unit* eachAttacker = *i)
                     {
-                        if (member->getAttackers().size() >= 3)
+                        if (pmTank->GetDistance(eachAttacker) < AOE_TARGETS_RANGE)
                         {
-                            uint32 inRangeCount = 0;
-                            for (std::set<Unit*>::const_iterator i = member->getAttackers().begin(); i != member->getAttackers().end(); ++i)
+                            inRangeCount++;
+                            if (inRangeCount >= 3)
                             {
-                                if ((*i)->GetDistance(member) < AOE_TARGETS_RANGE)
+                                if (CastSpell(eachAttacker, "Blizzard", MAGE_RANGE_DISTANCE))
                                 {
-                                    inRangeCount++;
-                                    if (inRangeCount >= 3)
-                                    {
-                                        if (CastSpell((*i), "Blizzard", MAGE_RANGE_DISTANCE))
-                                        {
-                                            return true;
-                                        }
-                                        break;
-                                    }
+                                    return true;
                                 }
+                                break;
                             }
                         }
                     }
@@ -268,9 +262,9 @@ bool Script_Mage::DPS_Frost(Unit* pmTarget, bool pmChase, bool pmAOE)
     return true;
 }
 
-bool Script_Mage::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE)
+bool Script_Mage::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank)
 {
-    return DPS_Frost(pmTarget, pmChase, pmAOE);
+    return DPS_Frost(pmTarget, pmChase, pmAOE, pmTank);
 }
 
 bool Script_Mage::Attack(Unit* pmTarget)
@@ -490,9 +484,22 @@ bool Script_Mage::Buff(Unit* pmTarget, bool pmCure)
     }
     if (me->GetDistance(pmTarget) < MAGE_RANGE_DISTANCE)
     {
-        if (CastSpell(pmTarget, "Arcane Intellect", MAGE_RANGE_DISTANCE, true))
+        if (!HasAura(pmTarget, "Arcane Intellect") && !HasAura(pmTarget, "Arcane Brilliance"))
         {
-            return true;
+            if (FindSpellID("Arcane Brilliance"))
+            {
+                if (CastSpell(pmTarget, "Arcane Brilliance", MAGE_RANGE_DISTANCE, true))
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                if (CastSpell(pmTarget, "Arcane Intellect", MAGE_RANGE_DISTANCE, true))
+                {
+                    return true;
+                }
+            }            
         }
     }
 

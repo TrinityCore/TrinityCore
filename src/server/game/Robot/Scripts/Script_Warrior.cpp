@@ -12,12 +12,12 @@ bool Script_Warrior::Heal(Unit* pmTarget, bool pmCure)
     return false;
 }
 
-bool Script_Warrior::Tank(Unit* pmTarget, bool pmChase)
+bool Script_Warrior::Tank(Unit* pmTarget, bool pmChase, bool pmSingle)
 {
     return false;
 }
 
-bool Script_Warrior::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)
+bool Script_Warrior::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank)
 {
     if (!me)
     {
@@ -31,22 +31,22 @@ bool Script_Warrior::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)
     {
     case 0:
     {
-        return DPS_Arms(pmTarget, pmChase, pmAOE);
+        return DPS_Arms(pmTarget, pmChase, pmAOE, pmTank);
     }
     case 1:
     {
-        return DPS_Fury(pmTarget, pmChase, pmAOE);
+        return DPS_Fury(pmTarget, pmChase, pmAOE, pmTank);
     }
     case 2:
     {
-        return DPS_Common(pmTarget, pmChase, pmAOE);
+        return DPS_Common(pmTarget, pmChase, pmAOE, pmTank);
     }
     default:
-        return DPS_Common(pmTarget, pmChase, pmAOE);
+        return DPS_Common(pmTarget, pmChase, pmAOE, pmTank);
     }
 }
 
-bool Script_Warrior::DPS_Arms(Unit* pmTarget, bool pmChase, bool pmAOE)
+bool Script_Warrior::DPS_Arms(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank)
 {
     if (!pmTarget)
     {
@@ -96,42 +96,35 @@ bool Script_Warrior::DPS_Arms(Unit* pmTarget, bool pmChase, bool pmAOE)
     uint32 rage = me->GetPower(Powers::POWER_RAGE);
     if (rage > 300)
     {
-        if (Group* myGroup = me->GetGroup())
+        if (pmTank)
         {
-            for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+            if (pmTank->getAttackers().size() >= 3)
             {
-                if (Player* member = groupRef->GetSource())
+                uint32 inRangeCount = 0;
+                for (std::set<Unit*>::const_iterator i = pmTank->getAttackers().begin(); i != pmTank->getAttackers().end(); ++i)
                 {
-                    if (member->groupRole == GroupRole::GroupRole_Tank)
+                    if (Unit* eachAttacker = *i)
                     {
-                        if (member->getAttackers().size() >= 3)
+                        if (pmTank->GetDistance(eachAttacker) < AOE_TARGETS_RANGE)
                         {
-                            uint32 inRangeCount = 0;
-                            for (std::set<Unit*>::const_iterator i = member->getAttackers().begin(); i != member->getAttackers().end(); ++i)
+                            inRangeCount++;
+                            if (inRangeCount >= 3)
                             {
-                                if ((*i)->GetDistance(member) < AOE_TARGETS_RANGE)
+                                if (CastSpell(eachAttacker, "Bladestorm", MELEE_MAX_DISTANCE))
                                 {
-                                    inRangeCount++;
-                                    if (inRangeCount >= 3)
-                                    {
-                                        if (CastSpell((*i), "Bladestorm", MELEE_MAX_DISTANCE))
-                                        {
-                                            return true;
-                                        }
-                                        if (CastSpell((*i), "Sweeping Strikes", MELEE_MAX_DISTANCE))
-                                        {
-                                            return true;
-                                        }
-                                        break;
-                                    }
+                                    return true;
                                 }
+                                if (CastSpell(eachAttacker, "Sweeping Strikes", MELEE_MAX_DISTANCE))
+                                {
+                                    return true;
+                                }
+                                break;
                             }
                         }
                     }
                 }
             }
         }
-
         CastSpell(pmTarget, "Heroic Strike", MELEE_MAX_DISTANCE);
         if (CastSpell(pmTarget, "Mortal Strike", MELEE_MAX_DISTANCE, true))
         {
@@ -169,7 +162,7 @@ bool Script_Warrior::DPS_Arms(Unit* pmTarget, bool pmChase, bool pmAOE)
     return true;
 }
 
-bool Script_Warrior::DPS_Fury(Unit* pmTarget, bool pmChase, bool pmAOE)
+bool Script_Warrior::DPS_Fury(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank)
 {
     if (!pmTarget)
     {
@@ -261,9 +254,9 @@ bool Script_Warrior::DPS_Fury(Unit* pmTarget, bool pmChase, bool pmAOE)
     return true;
 }
 
-bool Script_Warrior::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE)
+bool Script_Warrior::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank)
 {
-    return DPS_Arms(pmTarget, pmChase, pmAOE);
+    return DPS_Arms(pmTarget, pmChase, pmAOE, pmTank);
 }
 
 bool Script_Warrior::Attack(Unit* pmTarget)
