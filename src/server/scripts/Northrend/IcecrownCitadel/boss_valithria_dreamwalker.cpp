@@ -59,7 +59,6 @@ enum Spells
     SPELL_DREAM_SLIP                    = 71196,
     SPELL_ACHIEVEMENT_CHECK             = 72706,
     SPELL_CLEAR_ALL                     = 71721,
-    SPELL_AWARD_REPUTATION_BOSS_KILL    = 73843,
     SPELL_CORRUPTION_VALITHRIA          = 70904,
     SPELL_MANA_VOID_AURA                = 71085,
     SPELL_COLUMN_OF_FROST_AURA          = 70715,
@@ -337,7 +336,6 @@ class boss_valithria_dreamwalker : public CreatureScript
                     me->RemoveAurasDueToSpell(SPELL_CORRUPTION_VALITHRIA);
                     DoCastSelf(SPELL_ACHIEVEMENT_CHECK);
                     DoCastAOE(SPELL_DREAMWALKERS_RAGE);
-                    DoCastSelf(SPELL_REPUTATION_BOSS_KILL, true);
                     _events.ScheduleEvent(EVENT_DREAM_SLIP, 3500ms);
                     if (Creature* lichKing = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_VALITHRIA_LICH_KING)))
                         lichKing->AI()->EnterEvadeMode();
@@ -384,7 +382,7 @@ class boss_valithria_dreamwalker : public CreatureScript
                 if (spell->Id == SPELL_DREAM_SLIP)
                 {
                     DoCastSelf(SPELL_CLEAR_ALL);
-                    DoCastSelf(SPELL_AWARD_REPUTATION_BOSS_KILL);
+                    DoCastSelf(SPELL_REPUTATION_BOSS_KILL, true);
                     // this display id was found in sniff instead of the one on aura
                     me->SetDisplayId(11686);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
