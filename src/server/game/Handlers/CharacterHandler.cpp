@@ -1046,8 +1046,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     }
     else
     {
-        pCurrChar->rai->strategyMap[Strategy_Index::Strategy_Index_Group]->sb->InitializeValues();
-        pCurrChar->rai->strategyMap[Strategy_Index::Strategy_Index_Group]->sb->Reset();
+        pCurrChar->rai->strategyMap[Strategy_Index::Strategy_Index_Group]->sb->IdentifyCharacter();
         pCurrChar->groupRole = pCurrChar->rai->strategyMap[Strategy_Index::Strategy_Index_Group]->sb->characterType;
     }    
 }

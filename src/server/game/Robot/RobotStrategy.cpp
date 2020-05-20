@@ -612,12 +612,7 @@ void RobotStrategy_Solo::HandleChatCommand(Player* pmSender, std::string pmCMD)
     if (commandName == "who")
     {
         sb->WhisperTo(sRobotManager->characterTalentTabNameMap[me->GetClass()][sb->characterTalentTab], Language::LANG_UNIVERSAL, pmSender);
-    }
-    else if (commandName == "prepare")
-    {
-        sb->Prepare();
-        sb->WhisperTo("I am prepared", Language::LANG_UNIVERSAL, pmSender);
-    }
+    }    
 }
 
 void RobotStrategy_Solo::Reset()

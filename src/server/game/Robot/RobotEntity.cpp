@@ -135,12 +135,27 @@ void RobotEntity::Update(uint32 pmDiff)
         }
         case RobotEntityState::RobotEntityState_CheckLogin:
         {
+            checkDelay = 5 * TimeConstants::IN_MILLISECONDS;
             Player* me = sRobotManager->CheckLogin(account_id, character_id);
             if (me)
             {
                 account_id = account_id;
                 character_id = character_id;
                 me->rai->robotType = robot_type;
+                entityState = RobotEntityState::RobotEntityState_Initialize;
+            }
+            else
+            {
+                entityState = RobotEntityState::RobotEntityState_None;
+            }
+            break;
+        }
+        case RobotEntityState::RobotEntityState_Initialize:
+        {
+            checkDelay = 5 * TimeConstants::IN_MILLISECONDS;
+            ObjectGuid guid = ObjectGuid(HighGuid::Player, character_id);
+            if (Player* me = ObjectAccessor::FindConnectedPlayer(guid))
+            {
                 if (me->rai->GetActiveStrategy()->sb->InitializeCharacter(target_level))
                 {
                     entityState = RobotEntityState::RobotEntityState_DoLogoff;
@@ -149,13 +164,6 @@ void RobotEntity::Update(uint32 pmDiff)
                 {
                     entityState = RobotEntityState::RobotEntityState_Online;
                 }
-                checkDelay = 10 * TimeConstants::IN_MILLISECONDS;
-                for (std::unordered_map<uint32, RobotStrategy*>::iterator rsIT = me->rai->strategyMap.begin(); rsIT != me->rai->strategyMap.end(); rsIT++)
-                {
-                    rsIT->second->sb->InitializeValues();
-                    rsIT->second->sb->Reset();
-                }
-                me->groupRole = me->rai->strategyMap[Strategy_Index::Strategy_Index_Group]->sb->characterType;
             }
             else
             {
@@ -169,7 +177,7 @@ void RobotEntity::Update(uint32 pmDiff)
             ObjectGuid guid = ObjectGuid(HighGuid::Player, character_id);
             if (Player* me = ObjectAccessor::FindConnectedPlayer(guid))
             {
-                me->rai->GetActiveStrategy()->sb->Prepare();
+                sRobotManager->PrepareRobot(me);
             }
             break;
         }

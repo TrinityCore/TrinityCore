@@ -900,6 +900,266 @@ void RobotManager::LogoutRobots()
     }
 }
 
+bool RobotManager::PrepareRobot(Player* pmRobot)
+{
+    if (!pmRobot)
+    {
+        return false;
+    }
+
+    uint32 weaponType = 0;
+    bool dual = false;
+    bool hasShield = false;
+    bool hasRange = false;
+    uint32 rangeType = 0;
+
+    pmRobot->DurabilityRepairAll(false, 0, false);
+    if (pmRobot->GetClass() == Classes::CLASS_HUNTER)
+    {
+        uint32 ammoEntry = 0;
+        Item* weapon = pmRobot->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_RANGED);
+        if (weapon)
+        {
+            uint32 subClass = weapon->GetTemplate()->SubClass;
+            uint8 playerLevel = pmRobot->GetLevel();
+            if (subClass == ItemSubclassWeapon::ITEM_SUBCLASS_WEAPON_BOW || subClass == ItemSubclassWeapon::ITEM_SUBCLASS_WEAPON_CROSSBOW)
+            {
+                if (playerLevel >= 40)
+                {
+                    ammoEntry = 11285;
+                }
+                else if (playerLevel >= 25)
+                {
+                    ammoEntry = 3030;
+                }
+                else
+                {
+                    ammoEntry = 2515;
+                }
+            }
+            else if (subClass == ItemSubclassWeapon::ITEM_SUBCLASS_WEAPON_GUN)
+            {
+                if (playerLevel >= 40)
+                {
+                    ammoEntry = 11284;
+                }
+                else if (playerLevel >= 25)
+                {
+                    ammoEntry = 3033;
+                }
+                else
+                {
+                    ammoEntry = 2519;
+                }
+            }
+            if (ammoEntry > 0)
+            {
+                if (!pmRobot->HasItemCount(ammoEntry, 100))
+                {
+                    pmRobot->StoreNewItemInBestSlots(ammoEntry, 1000);
+                    pmRobot->SetAmmo(ammoEntry);
+                }
+            }
+        }
+    }
+    Pet* checkPet = pmRobot->GetPet();
+    if (checkPet)
+    {
+        checkPet->SetReactState(REACT_DEFENSIVE);
+        if (checkPet->getPetType() == PetType::HUNTER_PET)
+        {
+            checkPet->SetPower(POWER_HAPPINESS, HAPPINESS_LEVEL_SIZE * 3);
+        }
+        std::unordered_map<uint32, PetSpell> petSpellMap = checkPet->m_spells;
+        for (std::unordered_map<uint32, PetSpell>::iterator it = petSpellMap.begin(); it != petSpellMap.end(); it++)
+        {
+            if (it->second.active == ACT_DISABLED || it->second.active == ACT_ENABLED)
+            {
+                const SpellInfo* pST = sSpellMgr->GetSpellInfo(it->first);
+                if (pST)
+                {
+                    std::string checkNameStr = std::string(pST->SpellName[0]);
+                    if (checkNameStr == "Prowl")
+                    {
+                        checkPet->ToggleAutocast(pST, false);
+                    }
+                    else if (checkNameStr == "Phase Shift")
+                    {
+                        checkPet->ToggleAutocast(pST, false);
+                    }
+                    else if (checkNameStr == "Cower")
+                    {
+                        checkPet->ToggleAutocast(pST, false);
+                    }
+                    else if (checkNameStr == "Growl")
+                    {
+                        if (pmRobot->GetGroup())
+                        {
+                            checkPet->ToggleAutocast(pST, false);
+                        }
+                        else
+                        {
+                            checkPet->ToggleAutocast(pST, true);
+                        }
+                    }
+                    else
+                    {
+                        checkPet->ToggleAutocast(pST, true);
+                    }
+                }
+            }
+        }
+    }
+    pmRobot->Say("Ready", Language::LANG_UNIVERSAL);
+}
+
+std::unordered_set<uint32> RobotManager::GetUsableEquipSlot(const ItemTemplate* pmIT)
+{
+    std::unordered_set<uint32> resultSet;
+
+    switch (pmIT->InventoryType)
+    {
+    case INVTYPE_HEAD:
+    {
+        resultSet.insert(EQUIPMENT_SLOT_HEAD);
+        break;
+    }
+    case INVTYPE_NECK:
+    {
+        resultSet.insert(EQUIPMENT_SLOT_NECK);
+        break;
+    }
+    case INVTYPE_SHOULDERS:
+    {
+        resultSet.insert(EQUIPMENT_SLOT_SHOULDERS);
+        break;
+    }
+    case INVTYPE_BODY:
+    {
+        resultSet.insert(EQUIPMENT_SLOT_BODY);
+        break;
+    }
+    case INVTYPE_CHEST:
+    {
+        resultSet.insert(EQUIPMENT_SLOT_CHEST);
+        break;
+    }
+    case INVTYPE_ROBE:
+    {
+        resultSet.insert(EQUIPMENT_SLOT_CHEST);
+        break;
+    }
+    case INVTYPE_WAIST:
+    {
+        resultSet.insert(EQUIPMENT_SLOT_WAIST);
+        break;
+    }
+    case INVTYPE_LEGS:
+    {
+        resultSet.insert(EQUIPMENT_SLOT_LEGS);
+        break;
+    }
+    case INVTYPE_FEET:
+    {
+        resultSet.insert(EQUIPMENT_SLOT_FEET);
+        break;
+    }
+    case INVTYPE_WRISTS:
+    {
+        resultSet.insert(EQUIPMENT_SLOT_WRISTS);
+        break;
+    }
+    case INVTYPE_HANDS:
+    {
+        resultSet.insert(EQUIPMENT_SLOT_HANDS);
+        break;
+    }
+    case INVTYPE_FINGER:
+    {
+        resultSet.insert(EQUIPMENT_SLOT_FINGER1);
+        resultSet.insert(EQUIPMENT_SLOT_FINGER2);
+        break;
+    }
+    case INVTYPE_TRINKET:
+    {
+        resultSet.insert(EQUIPMENT_SLOT_TRINKET1);
+        resultSet.insert(EQUIPMENT_SLOT_TRINKET2);
+        break;
+    }
+    case INVTYPE_CLOAK:
+    {
+        resultSet.insert(EQUIPMENT_SLOT_BACK);
+        break;
+    }
+    case INVTYPE_WEAPON:
+    {
+        resultSet.insert(EQUIPMENT_SLOT_MAINHAND);
+        resultSet.insert(EQUIPMENT_SLOT_OFFHAND);
+        break;
+    }
+    case INVTYPE_SHIELD:
+    {
+        resultSet.insert(EQUIPMENT_SLOT_OFFHAND);
+        break;
+    }
+    case INVTYPE_RANGED:
+    {
+        resultSet.insert(EQUIPMENT_SLOT_RANGED);
+        break;
+    }
+    case INVTYPE_2HWEAPON:
+    {
+        resultSet.insert(EQUIPMENT_SLOT_MAINHAND);
+        break;
+    }
+    case INVTYPE_TABARD:
+    {
+        resultSet.insert(EQUIPMENT_SLOT_TABARD);
+        break;
+    }
+    case INVTYPE_WEAPONMAINHAND:
+    {
+        resultSet.insert(EQUIPMENT_SLOT_MAINHAND);
+        break;
+    }
+    case INVTYPE_WEAPONOFFHAND:
+    {
+        resultSet.insert(EQUIPMENT_SLOT_OFFHAND);
+        break;
+    }
+    case INVTYPE_HOLDABLE:
+    {
+        resultSet.insert(EQUIPMENT_SLOT_OFFHAND);
+        break;
+    }
+    case INVTYPE_THROWN:
+    {
+        resultSet.insert(EQUIPMENT_SLOT_RANGED);
+        break;
+    }
+    case INVTYPE_RANGEDRIGHT:
+    {
+        resultSet.insert(EQUIPMENT_SLOT_RANGED);
+        break;
+    }
+    case INVTYPE_BAG:
+    {
+        resultSet.insert(INVENTORY_SLOT_BAG_START);
+        break;
+    }
+    case INVTYPE_RELIC:
+    {
+        break;
+    }
+    default:
+    {
+        break;
+    }
+    }
+
+    return resultSet;
+}
+
 void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
 {
     if (!pmPlayer)

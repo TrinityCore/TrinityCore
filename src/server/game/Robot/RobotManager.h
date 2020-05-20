@@ -86,6 +86,8 @@ public:
     uint32 CheckAccountCharacter(uint32 pmAccountID);
     uint32 CreateRobotCharacter(uint32 pmAccountID);
     uint32 CreateRobotCharacter(uint32 pmAccountID, uint32 pmCharacterClass, uint32 pmCharacterRace);
+    bool PrepareRobot(Player* pmRobot);
+    std::unordered_set<uint32> GetUsableEquipSlot(const ItemTemplate* pmIT);
     Player* CheckLogin(uint32 pmAccountID, uint32 pmCharacterID);
     bool LoginRobot(uint32 pmAccountID, uint32 pmCharacterID);
     void LogoutRobot(uint32 pmCharacterID);

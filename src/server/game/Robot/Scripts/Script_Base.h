@@ -25,15 +25,16 @@ public:
     void PetStop();
 
     bool InitializeCharacter(uint32 pmTargetLevel);
-    void InitializeValues();
-    void InitialEquipment(uint32 pmWeaponType, bool pmDual, uint32 pmArmorType, bool pmHasRange, uint32 pmRangeType, bool pmHasShield);
-    bool EquipNewItem(uint32 pmEntry);
-    bool EquipNewItem(uint32 pmEntry, uint8 pmEquipSlot);
+    void IdentifyCharacter();
+    std::unordered_set<uint32> GetUsableEquipSlot(const ItemTemplate* pmIT);
+    uint32 GetUsableArmorSubClass();
+    bool ApplyGlyph( uint32 pmGlyphItemEntry, uint32 pmSlot);
+    void TryEquip(std::unordered_set<uint32> pmClassSet, std::unordered_set<uint32> pmSubClassSet, uint32 pmTargetSlot);
+    bool EquipNewItem(uint32 pmItemEntry, uint8 pmEquipSlot);
     Item* GetItemInInventory(uint32 pmEntry);
     bool UseItem(Item* pmItem, Unit* pmTarget);
     bool UseHealingPotion();
     bool UseManaPotion();
-    bool ApplyGlyph(uint32 pmGlyphItemEntry, uint32 pmSlot);
     uint32 FindSpellID(std::string pmSpellName);
     bool SpellValid(uint32 pmSpellID);
     bool CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDistance = MELEE_MAX_DISTANCE, bool pmCheckAura = false, bool pmOnlyMyAura = false);
@@ -44,7 +45,6 @@ public:
     bool Rest();
     void WhisperTo(std::string pmContent, Language pmLanguage, Player* pmTarget);
     void RandomTeleport();
-    void Prepare();    
     bool Chase(Unit* pmTarget, float pmMaxDistance = MELEE_MIN_DISTANCE, float pmMinDistance = MIN_DISTANCE_GAP);
     bool Follow(Unit* pmTarget, float pmDistance = FOLLOW_MIN_DISTANCE);
     void ChooseTarget(Unit* pmTarget);
