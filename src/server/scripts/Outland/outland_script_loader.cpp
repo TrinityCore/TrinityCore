@@ -133,7 +133,7 @@ void AddSC_netherstorm();
 void AddSC_shadowmoon_valley();
 void AddSC_shattrath_city();
 void AddSC_terokkar_forest();
-void AddSC_zangarmarsh();
+// void AddSC_zangarmarsh();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
@@ -256,5 +256,5 @@ void AddOutlandScripts()
     AddSC_shadowmoon_valley();
     AddSC_shattrath_city();
     AddSC_terokkar_forest();
-    AddSC_zangarmarsh();
+    // AddSC_zangarmarsh();
 }
