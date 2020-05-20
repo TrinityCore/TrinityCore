@@ -2026,7 +2026,7 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, Position const& pos, Qua
     return go;
 }
 
-GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float z, float ang, QuaternionData const& rot, uint32 respawnTime)
+GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float z, float ang, QuaternionData const& rot, uint32 respawnTime, GOSummonType summonType)
 {
     if (!x && !y && !z)
     {
@@ -2035,7 +2035,7 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float 
     }
 
     Position pos(x, y, z, ang);
-    return SummonGameObject(entry, pos, rot, respawnTime);
+    return SummonGameObject(entry, pos, rot, respawnTime, summonType);
 }
 
 Creature* WorldObject::SummonTrigger(float x, float y, float z, float ang, uint32 duration, CreatureAI* (*GetAI)(Creature*))
