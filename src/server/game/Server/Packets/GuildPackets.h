@@ -931,7 +931,7 @@ namespace WorldPackets
             uint32 CompletedDate = 0;
             int32 Type = 0;
             int32 Flags = 0;
-            std::array<int32, 2> Data;
+            std::array<int32, 2> Data = { };
             ObjectGuid MemberGuid;
             std::vector<ObjectGuid> MemberList;
             Optional<Item::ItemInstance> Item;

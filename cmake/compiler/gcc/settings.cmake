@@ -33,6 +33,10 @@ if( WITH_WARNINGS )
       -Wfatal-errors
       -Woverloaded-virtual)
 
+  target_compile_options(trinity-warning-interface
+    INTERFACE
+      -Wno-deprecated-copy) # warning in g3d
+
   message(STATUS "GCC: All warnings enabled")
 endif()
 

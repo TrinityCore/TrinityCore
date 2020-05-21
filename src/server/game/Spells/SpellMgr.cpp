@@ -2646,7 +2646,6 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
                     case SPELL_EFFECT_APPLY_AREA_AURA_ENEMY:
                     case SPELL_EFFECT_APPLY_AREA_AURA_PET:
                     case SPELL_EFFECT_APPLY_AREA_AURA_OWNER:
-                    {
                         if (effect->ApplyAuraName == SPELL_AURA_PERIODIC_DAMAGE ||
                             effect->ApplyAuraName == SPELL_AURA_PERIODIC_DAMAGE_PERCENT ||
                             effect->ApplyAuraName == SPELL_AURA_DUMMY ||
@@ -2654,7 +2653,7 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
                             effect->ApplyAuraName == SPELL_AURA_PERIODIC_HEALTH_FUNNEL ||
                             effect->ApplyAuraName == SPELL_AURA_PERIODIC_DUMMY)
                             break;
-                    }
+                        /* fallthrough */
                     default:
                     {
                         // No value and not interrupt cast or crowd control without SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY flag

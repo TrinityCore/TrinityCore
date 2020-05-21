@@ -86,7 +86,7 @@ class instance_blood_furnace : public InstanceMapScript
                 {
                     case GO_PRISON_DOOR_04:
                         PrisonDoor4GUID = go->GetGUID();
-                        // no break
+                        /* fallthrough */
                     case GO_PRISON_DOOR_01:
                     case GO_PRISON_DOOR_02:
                     case GO_PRISON_DOOR_03:

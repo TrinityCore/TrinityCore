@@ -2334,7 +2334,7 @@ void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit* c
                     }
                     case SPELL_EFFECT_APPLY_AREA_AURA_PET:
                         units.push_back(GetUnitOwner());
-                        // no break
+                        /* fallthrough */
                     case SPELL_EFFECT_APPLY_AREA_AURA_OWNER:
                     {
                         if (Unit* owner = GetUnitOwner()->GetCharmerOrOwner())

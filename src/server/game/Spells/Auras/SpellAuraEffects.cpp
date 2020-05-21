@@ -671,6 +671,7 @@ void AuraEffect::CalculatePeriodic(Unit* caster, bool resetPeriodicTimer /*= tru
             // 3 spells have no amplitude set
             if (!m_period)
                 m_period = 1 * IN_MILLISECONDS;
+            /* fallthrough */
         case SPELL_AURA_PERIODIC_DAMAGE:
         case SPELL_AURA_PERIODIC_HEAL:
         case SPELL_AURA_OBS_MOD_HEALTH:

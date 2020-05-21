@@ -602,8 +602,8 @@ void GameObject::Update(uint32 diff)
                     m_lootState = GO_READY;                         // for other GOis same switched without delay to GO_READY
                     break;
             }
-            // NO BREAK for switch (m_lootState)
         }
+            /* fallthrough */
         case GO_READY:
         {
             if (m_respawnTime > 0)                          // timer on

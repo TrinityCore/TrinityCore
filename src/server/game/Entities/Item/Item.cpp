@@ -2453,7 +2453,6 @@ void Item::InitArtifactPowers(uint8 artifactId, uint8 artifactTier)
             continue;
 
         ArtifactPowerData powerData;
-        memset(&powerData, 0, sizeof(powerData));
         powerData.ArtifactPowerId = artifactPower->ID;
         powerData.PurchasedRank = 0;
         powerData.CurrentRankWithBonus = (artifactPower->Flags & ARTIFACT_POWER_FLAG_FIRST) == ARTIFACT_POWER_FLAG_FIRST ? 1 : 0;
@@ -2502,11 +2501,6 @@ void Item::ApplyArtifactPowerEnchantmentBonuses(EnchantmentSlot slot, uint32 enc
                     break;
                 case ITEM_ENCHANTMENT_TYPE_ARTIFACT_POWER_BONUS_RANK_BY_ID:
                 {
-                    auto indexItr = m_artifactPowerIdToIndex.find(enchant->EffectArg[i]);
-                    uint16 index;
-                    if (indexItr != m_artifactPowerIdToIndex.end())
-                        index = indexItr->second;
-
                     if (uint16 const* artifactPowerIndex = Trinity::Containers::MapGetValuePtr(m_artifactPowerIdToIndex, enchant->EffectArg[i]))
                     {
                         uint8 newRank = m_itemData->ArtifactPowers[*artifactPowerIndex].CurrentRankWithBonus;

@@ -176,7 +176,7 @@ class instance_black_temple : public InstanceMapScript
                             for (ObjectGuid ashtongueGuid : AshtongueGUIDs)
                                 if (Creature* ashtongue = instance->GetCreature(ashtongueGuid))
                                     ashtongue->SetFaction(ASHTONGUE_FACTION_FRIEND);
-                        // no break
+                        /* fallthrough */
                     case DATA_TERON_GOREFIEND:
                     case DATA_GURTOGG_BLOODBOIL:
                     case DATA_RELIQUARY_OF_SOULS:

@@ -29,9 +29,8 @@
 
 extern std::shared_ptr<CASC::Storage> CascStorage;
 
-Model::Model(std::string &filename) : filename(filename), vertices(0), indices(0)
+Model::Model(std::string &filename) : filename(filename), header(), vertices(nullptr), indices(nullptr)
 {
-    memset(&header, 0, sizeof(header));
 }
 
 bool Model::open()
@@ -50,7 +49,7 @@ bool Model::open()
 
     uint32 m2start = 0;
     char const* ptr = f.getBuffer();
-    while (m2start + 4 < f.getSize() && *reinterpret_cast<uint32 const*>(ptr) != '02DM')
+    while (m2start + 4 < f.getSize() && memcmp(ptr, "MD20", 4) != 0)
     {
         ++m2start;
         ++ptr;
@@ -154,7 +153,7 @@ Vec3D fixCoordSystem(Vec3D const& v)
 
 void Doodad::Extract(ADT::MDDF const& doodadDef, char const* ModelInstName, uint32 mapID, uint32 originalMapId, FILE* pDirfile, std::vector<ADTOutputCache>* dirfileCache)
 {
-    char tempname[512];
+    char tempname[1036];
     sprintf(tempname, "%s/%s", szWorkDirWmo, ModelInstName);
     FILE* input = fopen(tempname, "r+b");
 
@@ -262,7 +261,7 @@ void Doodad::ExtractSet(WMODoodadData const& doodadData, ADT::MODF const& wmo, b
             }
         }
 
-        char tempname[512];
+        char tempname[1036];
         sprintf(tempname, "%s/%s", szWorkDirWmo, ModelInstName);
         FILE* input = fopen(tempname, "r+b");
         if (!input)

@@ -116,11 +116,8 @@ enum AnimKits
     ANIM_KIT_ID_CANNON_DESTROYED = 13264
 };
 
-enum TargetSize : uint8
-{
-    MIN_TARGETS_SIZE = 2,
-    MAX_TARGETS_SIZE = 6
-};
+constexpr uint8 MIN_TARGETS_SIZE = 2;
+constexpr uint8 MAX_TARGETS_SIZE = 6;
 
 enum Misc
 {
@@ -866,7 +863,7 @@ class spell_garothi_cannon_chooser : public SpellScript
         else if ((lastCannonEntry == NPC_DECIMATOR && annihilator) || (annihilator && !decimator))
         {
             uint8 count = caster->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC_RAID ? MAX_TARGETS_SIZE :
-                std::max<uint8>(MIN_TARGETS_SIZE, std::ceil(caster->GetMap()->GetPlayersCountExceptGMs() / 5));
+                std::max<uint8>(MIN_TARGETS_SIZE, std::ceil(float(caster->GetMap()->GetPlayersCountExceptGMs()) / 5));
 
             for (uint8 i = 0; i < count; i++)
             {
