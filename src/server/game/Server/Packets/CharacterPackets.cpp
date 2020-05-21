@@ -40,3 +40,17 @@ WorldPacket const* WorldPackets::Character::LogoutResponse::Write()
     _worldPacket << uint8(Instant);
     return &_worldPacket;
 }
+
+void WorldPackets::Character::PlayedTimeClient::Read()
+{
+    _worldPacket >> TriggerScriptEvent;
+}
+
+WorldPacket const* WorldPackets::Character::PlayedTime::Write()
+{
+    _worldPacket << uint32(TotalTime);
+    _worldPacket << uint32(LevelTime);
+    _worldPacket << uint8(TriggerScriptEvent);
+
+    return &_worldPacket;
+}

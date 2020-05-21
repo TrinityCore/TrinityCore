@@ -85,6 +85,7 @@ namespace WorldPackets
         class ShowingCloak;
         class ShowingHelm;
         class PlayerLogout;
+        class PlayedTimeClient;
     }
 
     namespace Chat
@@ -586,7 +587,7 @@ class TC_GAME_API WorldSession
         void SendBarberShopResult(BarberShopResult result);
 
         // played time
-        void HandlePlayedTime(WorldPacket& recvPacket);
+        void HandlePlayedTime(WorldPackets::Character::PlayedTimeClient& packet);
 
         // new
         void HandleMoveUnRootAck(WorldPacket& recvPacket);
