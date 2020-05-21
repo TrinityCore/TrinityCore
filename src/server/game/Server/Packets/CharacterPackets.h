@@ -106,6 +106,28 @@ namespace WorldPackets
 
             void Read() override { }
         };
+
+        class PlayedTimeClient final : public ClientPacket
+        {
+        public:
+            PlayedTimeClient(WorldPacket&& packet) : ClientPacket(CMSG_PLAYED_TIME, std::move(packet)) { }
+
+            void Read() override;
+
+            bool TriggerScriptEvent = false;
+        };
+
+        class PlayedTime final : public ServerPacket
+        {
+        public:
+            PlayedTime() : ServerPacket(SMSG_PLAYED_TIME, 9) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 TotalTime = 0;
+            uint32 LevelTime = 0;
+            bool TriggerScriptEvent = false;
+        };
     }
 }
 
