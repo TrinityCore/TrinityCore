@@ -27,7 +27,6 @@ go_scourge_cage
 go_jotunheim_cage
 go_table_theka
 go_soulwell
-go_dragonflayer_cage
 go_amberpine_outhouse
 go_hive_pod
 go_veil_skith_cage
@@ -786,67 +785,6 @@ class go_soulwell : public GameObjectScript
         {
             return new go_soulwellAI(go);
         }
-};
-
-/*######
-## Quest 11255: Prisoners of Wyrmskull
-## go_dragonflayer_cage
-######*/
-
-enum PrisonersOfWyrmskull
-{
-    QUEST_PRISONERS_OF_WYRMSKULL                  = 11255,
-    NPC_PRISONER_PRIEST                           = 24086,
-    NPC_PRISONER_MAGE                             = 24088,
-    NPC_PRISONER_WARRIOR                          = 24089,
-    NPC_PRISONER_PALADIN                          = 24090
-};
-
-class go_dragonflayer_cage : public GameObjectScript
-{
-public:
-    go_dragonflayer_cage() : GameObjectScript("go_dragonflayer_cage") { }
-
-    struct go_dragonflayer_cageAI : public GameObjectAI
-    {
-        go_dragonflayer_cageAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool GossipHello(Player* player) override
-        {
-            me->UseDoorOrButton();
-            if (player->GetQuestStatus(QUEST_PRISONERS_OF_WYRMSKULL) != QUEST_STATUS_INCOMPLETE)
-                return true;
-
-            Creature* pPrisoner = me->FindNearestCreature(NPC_PRISONER_PRIEST, 2.0f);
-            if (!pPrisoner)
-            {
-                pPrisoner = me->FindNearestCreature(NPC_PRISONER_MAGE, 2.0f);
-                if (!pPrisoner)
-                {
-                    pPrisoner = me->FindNearestCreature(NPC_PRISONER_WARRIOR, 2.0f);
-                    if (!pPrisoner)
-                        pPrisoner = me->FindNearestCreature(NPC_PRISONER_PALADIN, 2.0f);
-                }
-            }
-
-            if (!pPrisoner || !pPrisoner->IsAlive())
-                return true;
-
-            Quest const* qInfo = sObjectMgr->GetQuestTemplate(QUEST_PRISONERS_OF_WYRMSKULL);
-            if (qInfo)
-            {
-                /// @todo prisoner should help player for a short period of time
-                player->KilledMonsterCredit(qInfo->RequiredNpcOrGo[0]);
-                pPrisoner->DisappearAndDie();
-            }
-            return true;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_dragonflayer_cageAI(go);
-    }
 };
 
 /*######
@@ -1706,7 +1644,6 @@ void AddSC_go_scripts()
     new go_table_theka();
     new go_inconspicuous_landmark();
     new go_soulwell();
-    new go_dragonflayer_cage();
     new go_amberpine_outhouse();
     new go_hive_pod();
     new go_massive_seaforium_charge();
