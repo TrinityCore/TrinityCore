@@ -154,34 +154,6 @@ public:
     }
 };
 
-/*#####
-## go_jump_a_tron
-######*/
-
-class go_jump_a_tron : public GameObjectScript
-{
-public:
-    go_jump_a_tron() : GameObjectScript("go_jump_a_tron") { }
-
-    struct go_jump_a_tronAI : public GameObjectAI
-    {
-        go_jump_a_tronAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool GossipHello(Player* player) override
-        {
-            if (player->GetQuestStatus(10111) == QUEST_STATUS_INCOMPLETE)
-                player->CastSpell(player, 33382, true);
-
-            return true;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_jump_a_tronAI(go);
-    }
-};
-
 /*######
 ## go_ethereum_prison
 ######*/
@@ -1809,7 +1781,6 @@ void AddSC_go_scripts()
     new go_southfury_moonstone();
     new go_tablet_of_madness();
     new go_tablet_of_the_seven();
-    new go_jump_a_tron();
     new go_ethereum_prison();
     new go_ethereum_stasis();
     new go_resonite_cask();
