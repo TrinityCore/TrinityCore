@@ -21,7 +21,6 @@ go_ethereum_stasis
 go_shrine_of_the_birds
 go_southfury_moonstone
 go_resonite_cask
-go_tablet_of_madness
 go_tablet_of_the_seven
 go_tele_to_dalaran_crystal
 go_tele_to_violet_stand
@@ -91,34 +90,6 @@ public:
     GameObjectAI* GetAI(GameObject* go) const override
     {
         return new go_gilded_brazierAI(go);
-    }
-};
-
-/*######
-## go_tablet_of_madness
-######*/
-
-class go_tablet_of_madness : public GameObjectScript
-{
-public:
-    go_tablet_of_madness() : GameObjectScript("go_tablet_of_madness") { }
-
-    struct go_tablet_of_madnessAI : public GameObjectAI
-    {
-        go_tablet_of_madnessAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool GossipHello(Player* player) override
-        {
-            if (player->HasSkill(SKILL_ALCHEMY) && player->GetSkillValue(SKILL_ALCHEMY) >= 300 && !player->HasSpell(24266))
-                player->CastSpell(player, 24267, false);
-
-            return true;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_tablet_of_madnessAI(go);
     }
 };
 
@@ -1779,7 +1750,6 @@ void AddSC_go_scripts()
     new go_gilded_brazier();
     new go_shrine_of_the_birds();
     new go_southfury_moonstone();
-    new go_tablet_of_madness();
     new go_tablet_of_the_seven();
     new go_ethereum_prison();
     new go_ethereum_stasis();
