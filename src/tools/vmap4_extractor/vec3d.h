@@ -28,15 +28,9 @@ public:
 
     Vec3D(float x0 = 0.0f, float y0 = 0.0f, float z0 = 0.0f) : x(x0), y(y0), z(z0) { }
 
-    Vec3D(Vec3D const& v) : x(v.x), y(v.y), z(v.z) { }
+    Vec3D(Vec3D const& v) = default;
 
-    Vec3D& operator=(Vec3D const& v)
-    {
-        x = v.x;
-        y = v.y;
-        z = v.z;
-        return *this;
-    }
+    Vec3D& operator=(Vec3D const& v) = default;
 
     Vec3D operator+(Vec3D const& v) const
     {
@@ -151,14 +145,9 @@ public:
 
     Vec2D(float x0 = 0.0f, float y0 = 0.0f) : x(x0), y(y0) { }
 
-    Vec2D(Vec2D const& v) : x(v.x), y(v.y) { }
+    Vec2D(Vec2D const& v) = default;
 
-    Vec2D& operator=(Vec2D const& v)
-    {
-        x = v.x;
-        y = v.y;
-        return *this;
-    }
+    Vec2D& operator=(Vec2D const& v) = default;
 
     Vec2D operator+(Vec2D const& v) const
     {
