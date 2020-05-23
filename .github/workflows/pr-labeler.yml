@@ -3,7 +3,7 @@ on:
     types: [opened]
 
 jobs:
-  tag_issues:
+  pr_labeler:
     runs-on: ubuntu-latest
     name: Pull Request Labeler
     steps:

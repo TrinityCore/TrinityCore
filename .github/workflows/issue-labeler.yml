@@ -3,7 +3,7 @@ on:
     types: [opened]
 
 jobs:
-  tag_issues:
+  issue_labeler:
     runs-on: ubuntu-latest
     name: Issue Labeler
     steps:
