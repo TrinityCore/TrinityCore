@@ -37,7 +37,7 @@ namespace WorldPackets
 
         struct UnkAttackerState
         {
-            uint32 State1 = 0;
+            int32 State1 = 0;
             float State2 = 0.0f;
             float State3 = 0.0f;
             float State4 = 0.0f;
@@ -48,7 +48,8 @@ namespace WorldPackets
             float State9 = 0.0f;
             float State10 = 0.0f;
             float State11 = 0.0f;
-            uint32 State12 = 0;
+            int32 State12 = 0;
+            int32 State13 = 0;
         };
 
         class AttackerStateUpdate final : public ServerPacket

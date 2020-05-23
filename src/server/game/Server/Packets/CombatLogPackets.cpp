@@ -51,7 +51,7 @@ WorldPacket const* WorldPackets::CombatLog::AttackerStateUpdate::Write()
 
     if (HitInfo & HITINFO_UNK1)
     {
-        _worldPacket << uint32(UnkState.State1);
+        _worldPacket << int32(UnkState.State1);
         _worldPacket << float(UnkState.State2);
         _worldPacket << float(UnkState.State3);
         _worldPacket << float(UnkState.State4);
@@ -62,7 +62,8 @@ WorldPacket const* WorldPackets::CombatLog::AttackerStateUpdate::Write()
         _worldPacket << float(UnkState.State9);
         _worldPacket << float(UnkState.State10);
         _worldPacket << float(UnkState.State11);
-        _worldPacket << uint32(UnkState.State12);
+        _worldPacket << int32(UnkState.State12);
+        _worldPacket << int32(UnkState.State13);
     }
 
     return &_worldPacket;
