@@ -1136,10 +1136,10 @@ void WorldSession::HandleCharRenameOpcode(WorldPacket& recvData)
     stmt->setString(2, renameInfo->Name);
 
     _queryProcessor.AddQuery(CharacterDatabase.AsyncQuery(stmt)
-        .WithPreparedCallback(std::bind(&WorldSession::HandleCharRenameCallback, this, renameInfo, std::placeholders::_1)));
+        .WithPreparedCallback(std::bind(&WorldSession::HandleCharRenameCallBack, this, renameInfo, std::placeholders::_1)));
 }
 
-void WorldSession::HandleCharRenameCallback(std::shared_ptr<CharacterRenameInfo> renameInfo, PreparedQueryResult result)
+void WorldSession::HandleCharRenameCallBack(std::shared_ptr<CharacterRenameInfo> renameInfo, PreparedQueryResult result)
 {
     if (!result)
     {

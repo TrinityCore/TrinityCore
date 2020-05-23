@@ -1043,7 +1043,7 @@ void WorldSession::HandleWorldTeleportOpcode(WorldPackets::Misc::WorldTeleport& 
         SendNotification(LANG_YOU_NOT_HAVE_PERMISSION);
 }
 
-void WorldSession::HandleWhoisOpcode(WorldPacket& recvData)
+void WorldSession::HandleWhoIsOpcode(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "Received opcode CMSG_WHOIS");
     std::string charname;

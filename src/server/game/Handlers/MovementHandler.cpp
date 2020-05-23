@@ -654,7 +654,7 @@ void WorldSession::HandleMoveTimeSkippedOpcode(WorldPacket& recvData)
     GetPlayer()->SendMessageToSet(&data, false);
 }
 
-void WorldSession::HandleTimeSyncResp(WorldPacket& recvData)
+void WorldSession::HandleTimeSyncResponse(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "CMSG_TIME_SYNC_RESP");
 
