@@ -65,8 +65,5 @@ WorldPacket const* WorldPackets::CombatLog::AttackerStateUpdate::Write()
         _worldPacket << uint32(UnkState.State12);
     }
 
-    if (HitInfo & (HITINFO_BLOCK | HITINFO_UNK12))
-        _worldPacket << float(Unk);
-
     return &_worldPacket;
 }
