@@ -78,9 +78,9 @@ Map* MapManager::CreateBaseMap(uint32 id)
     if (!map)
     {
         MapEntry const* entry = sMapStore.AssertEntry(id);
-        if (entry->ParentMapID != -1)
+        if (entry->ParentMapID != -1 || entry->CosmeticParentMapID != -1)
         {
-            CreateBaseMap(entry->ParentMapID);
+            CreateBaseMap(entry->ParentMapID != -1 ? entry->ParentMapID : entry->CosmeticParentMapID);
 
             // must have been created by parent map
             map = FindBaseMap(id);
@@ -102,6 +102,8 @@ Map* MapManager::CreateBaseMap_i(MapEntry const* mapEntry)
         map = new MapInstanced(mapEntry->ID, i_gridCleanUpDelay);
     else
         map = new Map(mapEntry->ID, i_gridCleanUpDelay, 0, DIFFICULTY_NONE);
+
+    map->DiscoverGridMapFiles();
 
     i_maps[mapEntry->ID] = map;
 
@@ -280,16 +282,15 @@ bool MapManager::IsValidMAP(uint32 mapid, bool startUp)
 
 void MapManager::UnloadAll()
 {
-    // first unlink child maps
+    // first unload maps
     for (auto iter = i_maps.begin(); iter != i_maps.end(); ++iter)
-        iter->second->UnlinkAllChildTerrainMaps();
-
-    for (MapMapType::iterator iter = i_maps.begin(); iter != i_maps.end();)
-    {
         iter->second->UnloadAll();
+
+    // then delete them
+    for (auto iter = i_maps.begin(); iter != i_maps.end(); ++iter)
         delete iter->second;
-        i_maps.erase(iter++);
-    }
+
+    i_maps.clear();
 
     if (m_updater.activated())
         m_updater.deactivate();

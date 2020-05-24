@@ -248,7 +248,7 @@ public:
         else
             player->SaveRecallPosition();
 
-        Map const* map = sMapMgr->CreateBaseMap(mapId);
+        Map* map = sMapMgr->CreateBaseMap(mapId);
         float z = std::max(map->GetStaticHeight(PhasingHandler::GetEmptyPhaseShift(), x, y, MAX_HEIGHT), map->GetWaterLevel(PhasingHandler::GetEmptyPhaseShift(), x, y));
 
         player->TeleportTo(mapId, x, y, z, player->GetOrientation());
@@ -370,7 +370,7 @@ public:
         else
             player->SaveRecallPosition();
 
-        Map const* map = sMapMgr->CreateBaseMap(mapId);
+        Map* map = sMapMgr->CreateBaseMap(mapId);
         z = std::max(map->GetStaticHeight(PhasingHandler::GetEmptyPhaseShift(), x, y, MAX_HEIGHT), map->GetWaterLevel(PhasingHandler::GetEmptyPhaseShift(), x, y));
 
         player->TeleportTo(mapId, x, y, z, 0.0f);
@@ -506,7 +506,7 @@ public:
         AreaTableEntry const* zoneEntry = areaEntry->ParentAreaID ? sAreaTableStore.LookupEntry(areaEntry->ParentAreaID) : areaEntry;
         ASSERT(zoneEntry);
 
-        Map const* map = sMapMgr->CreateBaseMap(zoneEntry->ContinentID);
+        Map* map = sMapMgr->CreateBaseMap(zoneEntry->ContinentID);
 
         if (map->Instanceable())
         {
@@ -581,7 +581,7 @@ public:
                 handler->SetSentErrorMessage(true);
                 return false;
             }
-            Map const* map = sMapMgr->CreateBaseMap(mapId);
+            Map* map = sMapMgr->CreateBaseMap(mapId);
             z = std::max(map->GetStaticHeight(PhasingHandler::GetEmptyPhaseShift(), x, y, MAX_HEIGHT), map->GetWaterLevel(PhasingHandler::GetEmptyPhaseShift(), x, y));
         }
 

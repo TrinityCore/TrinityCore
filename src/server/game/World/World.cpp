@@ -1594,7 +1594,15 @@ void World::SetInitialWorldSettings()
     {
         mapData.emplace(std::piecewise_construct, std::forward_as_tuple(mapEntry->ID), std::forward_as_tuple());
         if (mapEntry->ParentMapID != -1)
+        {
+            ASSERT(mapEntry->CosmeticParentMapID == -1 || mapEntry->ParentMapID == mapEntry->CosmeticParentMapID,
+                "Inconsistent parent map data for map %u (ParentMapID = %hd, CosmeticParentMapID = %hd)",
+                mapEntry->ID, mapEntry->ParentMapID, mapEntry->CosmeticParentMapID);
+
             mapData[mapEntry->ParentMapID].push_back(mapEntry->ID);
+        }
+        else if (mapEntry->CosmeticParentMapID != -1)
+            mapData[mapEntry->CosmeticParentMapID].push_back(mapEntry->ID);
     }
 
     sMapMgr->InitializeParentMapData(mapData);

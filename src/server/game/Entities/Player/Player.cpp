@@ -4791,7 +4791,7 @@ void Player::RepopAtGraveyard()
     AreaTableEntry const* zone = sAreaTableStore.LookupEntry(GetAreaId());
 
     // Such zones are considered unreachable as a ghost and the player must be automatically revived
-    if ((!IsAlive() && zone && zone->Flags[0] & AREA_FLAG_NEED_FLY) || GetTransport() || GetPositionZ() < GetMap()->GetMinHeight(GetPositionX(), GetPositionY()))
+    if ((!IsAlive() && zone && zone->Flags[0] & AREA_FLAG_NEED_FLY) || GetTransport() || GetPositionZ() < GetMap()->GetMinHeight(GetPhaseShift(), GetPositionX(), GetPositionY()))
     {
         ResurrectPlayer(0.5f);
         SpawnCorpseBones();
@@ -4826,7 +4826,7 @@ void Player::RepopAtGraveyard()
             GetSession()->SendPacket(packet.Write());
         }
     }
-    else if (GetPositionZ() < GetMap()->GetMinHeight(GetPositionX(), GetPositionY()))
+    else if (GetPositionZ() < GetMap()->GetMinHeight(GetPhaseShift(), GetPositionX(), GetPositionY()))
         TeleportTo(m_homebindMapId, m_homebindX, m_homebindY, m_homebindZ, GetOrientation());
 
     RemovePlayerFlag(PLAYER_FLAGS_IS_OUT_OF_BOUNDS);
