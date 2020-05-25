@@ -17,6 +17,7 @@
 
 #include "BankPackets.h"
 #include "Item.h"
+#include "DBCStores.h"
 #include "Log.h"
 #include "NPCPackets.h"
 #include "Opcodes.h"
