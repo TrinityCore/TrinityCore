@@ -767,16 +767,16 @@ struct npc_living_constellation : public CreatureAI
 
     void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
     {
-        Unit* unitCaster = caster->ToUnit();
-        if (!unitCaster)
+        Creature* creatureCaster = caster->ToCreature();
+        if (!creatureCaster)
             return;
 
         if (spellInfo->Id != SPELL_CONSTELLATION_PHASE_EFFECT)
             return;
 
         _instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, EVENT_ID_SUPERMASSIVE_START);
-        unitCaster->CastSpell(nullptr, SPELL_BLACK_HOLE_CREDIT, TRIGGERED_FULL_MASK);
-        DoCast(unitCaster, SPELL_DESPAWN_BLACK_HOLE, TRIGGERED_FULL_MASK);
+        creatureCaster->CastSpell(nullptr, SPELL_BLACK_HOLE_CREDIT, TRIGGERED_FULL_MASK);
+        DoCast(creatureCaster, SPELL_DESPAWN_BLACK_HOLE, TRIGGERED_FULL_MASK);
         me->DespawnOrUnsummon(500ms);
     }
 
