@@ -105,13 +105,17 @@ class npc_forest_frog : public CreatureScript
                 me->UpdateEntry(cEntry);
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell) override
+            void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == SPELL_REMOVE_AMANI_CURSE && caster->GetTypeId() == TYPEID_PLAYER && me->GetEntry() == NPC_FOREST_FROG)
+                Player* playerCaster = caster->ToPlayer();
+                if (!playerCaster)
+                    return;
+
+                if (spellInfo->Id == SPELL_REMOVE_AMANI_CURSE && me->GetEntry() == NPC_FOREST_FROG)
                 {
                     //increase or decrease chance of mojo?
                     if (roll_chance_i(1))
-                        DoCast(caster, SPELL_PUSH_MOJO, true);
+                        DoCast(playerCaster, SPELL_PUSH_MOJO, true);
                     else
                         DoSpawnRandom();
                 }
@@ -294,9 +298,9 @@ class npc_harrison_jones : public CreatureScript
                return false;
             }
 
-            void SpellHit(Unit*, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == SPELL_COSMETIC_SPEAR_THROW)
+                if (spellInfo->Id == SPELL_COSMETIC_SPEAR_THROW)
                 {
                     me->RemoveAllAuras();
                     me->SetEntry(NPC_HARRISON_JONES_2);

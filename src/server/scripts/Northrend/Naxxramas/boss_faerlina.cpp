@@ -124,13 +124,17 @@ class boss_faerlina : public CreatureScript
                 Talk(SAY_DEATH);
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell) override
+            void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == SPELL_WIDOWS_EMBRACE_HELPER)
+                Unit* unitCaster = caster->ToUnit();
+                if (!unitCaster)
+                    return;
+
+                if (spellInfo->Id == SPELL_WIDOWS_EMBRACE_HELPER)
                 {
                     ++_frenzyDispels;
                     Talk(EMOTE_WIDOW_EMBRACE, caster);
-                    Unit::Kill(me, caster);
+                    Unit::Kill(me, unitCaster);
                 }
             }
 

@@ -629,16 +629,16 @@ public:
             }
         }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
         {
-            if (spell->Id == SPELL_POWER_SPARK_MALYGOS)
+            if (spellInfo->Id == SPELL_POWER_SPARK_MALYGOS)
             {
                 if (Creature* creature = caster->ToCreature())
                     creature->DespawnOrUnsummon();
 
                 Talk(SAY_BUFF_SPARK);
             }
-            else if (spell->Id == SPELL_MALYGOS_BERSERK)
+            else if (spellInfo->Id == SPELL_MALYGOS_BERSERK)
                 Talk(EMOTE_HIT_BERSERKER_TIMER);
         }
 
@@ -1023,9 +1023,9 @@ public:
             _instance = creature->GetInstanceScript();
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
-            if (spell->Id == SPELL_PORTAL_OPENED)
+            if (spellInfo->Id == SPELL_PORTAL_OPENED)
             {
                 if (Creature* malygos = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_MALYGOS)))
                 {
@@ -1474,12 +1474,12 @@ public:
             }
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
-            if (spell->Id == SPELL_ARCANE_BOMB_TRIGGER)
+            if (spellInfo->Id == SPELL_ARCANE_BOMB_TRIGGER)
             {
                 DoCastAOE(SPELL_ARCANE_BOMB_KNOCKBACK_DAMAGE, true);
-                DoCast(me, SPELL_ARCANE_OVERLOAD_1, true);
+                DoCastSelf(SPELL_ARCANE_OVERLOAD_1, true);
             }
         }
 

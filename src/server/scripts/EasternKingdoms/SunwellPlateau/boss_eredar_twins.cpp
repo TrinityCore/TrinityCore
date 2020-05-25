@@ -161,18 +161,22 @@ public:
                 me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
         }
 
-        void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+        void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
         {
-            switch (spell->Id)
+            Unit* unitTarget = target->ToUnit();
+            if (!unitTarget)
+                return;
+
+            switch (spellInfo->Id)
             {
                 case SPELL_SHADOW_BLADES:
                 case SPELL_SHADOW_NOVA:
                 case SPELL_CONFOUNDING_BLOW:
                 case SPELL_SHADOW_FURY:
-                    HandleTouchedSpells(target, SPELL_DARK_TOUCHED);
+                    HandleTouchedSpells(unitTarget, SPELL_DARK_TOUCHED);
                     break;
                 case SPELL_CONFLAGRATION:
-                    HandleTouchedSpells(target, SPELL_FLAME_TOUCHED);
+                    HandleTouchedSpells(unitTarget, SPELL_FLAME_TOUCHED);
                     break;
             }
         }
@@ -437,19 +441,23 @@ public:
                 me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
         }
 
-        void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+        void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
         {
-            switch (spell->Id)
+            Unit* unitTarget = target->ToUnit();
+            if (!unitTarget)
+                return;
+
+            switch (spellInfo->Id)
             {
                 case SPELL_BLAZE:
-                    target->CastSpell(target, SPELL_BLAZE_SUMMON, true);
+                    target->CastSpell(unitTarget, SPELL_BLAZE_SUMMON, true);
                     break;
                 case SPELL_CONFLAGRATION:
                 case SPELL_FLAME_SEAR:
-                    HandleTouchedSpells(target, SPELL_FLAME_TOUCHED);
+                    HandleTouchedSpells(unitTarget, SPELL_FLAME_TOUCHED);
                     break;
                 case SPELL_SHADOW_NOVA:
-                    HandleTouchedSpells(target, SPELL_DARK_TOUCHED);
+                    HandleTouchedSpells(unitTarget, SPELL_DARK_TOUCHED);
                     break;
             }
         }
@@ -674,19 +682,25 @@ public:
 
         void JustEngagedWith(Unit* /*who*/) override { }
 
-        void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+        void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
         {
-            switch (spell->Id)
+            Unit* unitTarget = target->ToUnit();
+            if (!unitTarget)
+                return;
+
+            switch (spellInfo->Id)
             {
                 case SPELL_SHADOW_FURY:
                 case SPELL_DARK_STRIKE:
-                    if (!target->HasAura(SPELL_DARK_FLAME))
+                    if (!unitTarget->HasAura(SPELL_DARK_FLAME))
                     {
-                        if (target->HasAura(SPELL_FLAME_TOUCHED))
+                        if (unitTarget->HasAura(SPELL_FLAME_TOUCHED))
                         {
-                            target->RemoveAurasDueToSpell(SPELL_FLAME_TOUCHED);
-                            target->CastSpell(target, SPELL_DARK_FLAME, true);
-                        } else target->CastSpell(target, SPELL_DARK_TOUCHED, true);
+                            unitTarget->RemoveAurasDueToSpell(SPELL_FLAME_TOUCHED);
+                            unitTarget->CastSpell(unitTarget, SPELL_DARK_FLAME, true);
+                        }
+                        else
+                            unitTarget->CastSpell(unitTarget, SPELL_DARK_TOUCHED, true);
                     }
                     break;
             }

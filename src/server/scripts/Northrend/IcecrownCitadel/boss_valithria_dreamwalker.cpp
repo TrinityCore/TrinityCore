@@ -377,9 +377,9 @@ class boss_valithria_dreamwalker : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == SPELL_DREAM_SLIP)
+                if (spellInfo->Id == SPELL_DREAM_SLIP)
                 {
                     DoCastSelf(SPELL_CLEAR_ALL);
                     DoCastSelf(SPELL_REPUTATION_BOSS_KILL, true);

@@ -444,10 +444,10 @@ class npc_janalai_firebomb : public CreatureScript
 
             void Reset() override { }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == SPELL_FIRE_BOMB_THROW)
-                    DoCast(me, SPELL_FIRE_BOMB_DUMMY, true);
+                if (spellInfo->Id == SPELL_FIRE_BOMB_THROW)
+                    DoCastSelf(SPELL_FIRE_BOMB_DUMMY, true);
             }
 
             void JustEngagedWith(Unit* /*who*/) override { }
@@ -670,9 +670,9 @@ class npc_janalai_egg : public CreatureScript
 
             void UpdateAI(uint32 /*diff*/) override { }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == SPELL_HATCH_EGG)
+                if (spellInfo->Id == SPELL_HATCH_EGG)
                     DoCast(SPELL_SUMMON_HATCHLING);
             }
         };
