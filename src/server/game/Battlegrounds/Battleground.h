@@ -230,6 +230,15 @@ enum BattlegroundPlayerPositionConstants
     PLAYER_POSITION_ARENA_SLOT_5        = 6
 };
 
+enum class BattlegroundQueueIdType : uint8
+{
+    Battleground    = 0,
+    Arena           = 1,
+    Wargame         = 2,
+    Cheat           = 3,
+    ArenaSkirmish   = 4
+};
+
 /*
 This class is used to:
 1. Add player to battleground

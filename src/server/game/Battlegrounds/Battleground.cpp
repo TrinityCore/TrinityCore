@@ -1868,7 +1868,11 @@ char const* Battleground::GetName() const
 
 uint64 Battleground::GetQueueId() const
 {
-    return uint64(_battlegroundTemplate->Id) | UI64LIT(0x1F10000000000000);
+    BattlegroundQueueIdType type = BattlegroundQueueIdType::Battleground;
+    if (isArena())
+        type = isRated() ? BattlegroundQueueIdType::Arena : BattlegroundQueueIdType::ArenaSkirmish;
+
+    return uint64(_battlegroundTemplate->Id) | uint64(type) << 16 | UI64LIT(0x1F10000000000000);
 }
 
 BattlegroundTypeId Battleground::GetTypeID(bool getRandom) const
