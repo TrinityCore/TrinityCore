@@ -135,14 +135,14 @@ void WorldSession::HandleAutoStoreBankItemOpcode(WorldPackets::Bank::AutoStoreBa
     }
 }
 
-void WorldSession::HandleBuyBankSlotOpcode(WorldPackets::Bank::BuyBankSlot& packet)
+void WorldSession::HandleBuyBankSlotOpcode(WorldPackets::Bank::BuyBankSlot& buyBankSlot)
 {
     WorldPackets::Bank::BuyBankSlotResult packet;
-    if (!CanUseBank(packet.Banker))
+    if (!CanUseBank(buyBankSlot.Banker))
     {
         packet.Result = ERR_BANKSLOT_NOTBANKER;
         SendPacket(packet.Write());
-        TC_LOG_DEBUG("network", "WORLD: HandleBuyBankSlotOpcode - %s not found or you can't interact with him.", packet.Banker.ToString().c_str());
+        TC_LOG_DEBUG("network", "WORLD: HandleBuyBankSlotOpcode - %s not found or you can't interact with him.", buyBankSlot.Banker.ToString().c_str());
         return;
     }
 

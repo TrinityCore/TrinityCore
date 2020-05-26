@@ -807,7 +807,7 @@ class TC_GAME_API WorldSession
         void HandleBankerActivateOpcode(WorldPackets::NPC::Hello& packet);
         void HandleAutoBankItemOpcode(WorldPackets::Bank::AutoBankItem& packet);
         void HandleAutoStoreBankItemOpcode(WorldPackets::Bank::AutoStoreBankItem& packet);
-        void HandleBuyBankSlotOpcode(WorldPackets::Bank::BuyBankSlot& packet);
+        void HandleBuyBankSlotOpcode(WorldPackets::Bank::BuyBankSlot& buyBankSlot);
 
         void HandleGetMailList(WorldPacket& recvData);
         void HandleSendMail(WorldPacket& recvData);
