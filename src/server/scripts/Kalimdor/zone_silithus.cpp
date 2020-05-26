@@ -48,6 +48,8 @@ EndContentData */
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 
+#include "World.h"
+
 /*#####
 # Quest: A Pawn on the Eternal Board
 #####*/
@@ -1248,12 +1250,12 @@ class go_wind_stone : public GameObjectScript
                     }
                     case GOSSIP_ID_WIND_STONE:
                     {
-                        me->DespawnOrUnsummon(500ms, 600s);
+                        me->DespawnOrUnsummon(500ms, 300s);
                         break;
                     }
                     case GOSSIP_ID_GREATER_WS:
                     {
-                        me->DespawnOrUnsummon(500ms, 1200s);
+                        me->DespawnOrUnsummon(500ms, 600s);
                         break;
                     }
                     default:
@@ -1452,6 +1454,127 @@ class spell_silithus_summon_cultist_periodic : public AuraScript
     }
 };
 
+// EJ scripts
+class npc_windcaller_kaldon : public CreatureScript
+{
+public:
+    npc_windcaller_kaldon() : CreatureScript("npc_windcaller_kaldon") { }
+
+    struct npc_windcaller_kaldonAI : public CreatureAI
+    {
+        npc_windcaller_kaldonAI(Creature* creature) : CreatureAI(creature) { }
+
+        void JustEngagedWith(Unit* who) override
+        {
+            events.ScheduleEvent(1, 3000, 5000);
+        }
+
+        bool GossipHello(Player* player) override
+        {
+            if (player->GetQuestStatus(8507) == QuestStatus::QUEST_STATUS_REWARDED || player->GetQuestStatus(8731) == QuestStatus::QUEST_STATUS_REWARDED)
+            {
+                player->PrepareQuestMenu(me->GetGUID());
+                AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Please give me more combat assignments", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Please give me more tactical assignments", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+                AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Please give me more logistics assignments", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+                SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
+                return true;
+            }
+            return false;
+        }
+
+        bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+        {
+            if (gossipListId == 0)
+            {
+                if (player->HasItemCount(20808, 1))
+                {
+                    sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, "You already one combat assignment.", player);
+                }
+                else
+                {
+                    player->AddItem(20808, 1);
+                }
+            }
+            else if (gossipListId == 1)
+            {
+                if (player->HasItemCount(20809, 1))
+                {
+                    sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, "You already one tactical assignment.", player);
+                }
+                else
+                {
+                    player->AddItem(20809, 1);
+                }
+            }
+            else if (gossipListId == 2)
+            {
+                uint32 itemID = 21266;
+                uint32 playerRace = player->GetRace();
+                if (playerRace == Races::RACE_HUMAN || playerRace == Races::RACE_DWARF || playerRace == Races::RACE_NIGHTELF || playerRace == Races::RACE_GNOME || playerRace == Races::RACE_DRAENEI)
+                {
+                    itemID = 21132;
+                }
+                if (player->HasItemCount(itemID, 1))
+                {
+                    sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, "You already one logistics assignment.", player);
+                }
+                else
+                {
+                    player->AddItem(itemID, 1);
+                }
+            }
+
+            player->PlayerTalkClass->SendCloseGossip();
+
+            return false;
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (!UpdateVictim())
+            {
+                return;
+            }
+            events.Update(diff);
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+            {
+                return;
+            }
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                case 1:
+                {
+                    events.Repeat(5000, 8000);
+                    break;
+                }
+                default:
+                {
+                    break;
+                }
+                }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                {
+                    return;
+                }
+            }
+            DoMeleeAttackIfReady();
+        }
+
+    private:
+        EventMap events;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_windcaller_kaldonAI(creature);
+    }
+};
+
 void AddSC_silithus()
 {
     new go_crystalline_tear();
@@ -1459,5 +1582,9 @@ void AddSC_silithus()
     new npc_anachronos_the_ancient();
     new npc_qiraj_war_spawn();
     new go_wind_stone();
+
+    // EJ scripts
+    new npc_windcaller_kaldon();
+
     RegisterAuraScript(spell_silithus_summon_cultist_periodic);
 }

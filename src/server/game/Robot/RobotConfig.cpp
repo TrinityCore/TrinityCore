@@ -166,6 +166,7 @@ bool RobotConfig::StartRobotSystem()
 
     Enable = GetIntDefault("Enable", 0);
     ResetRobots = GetIntDefault("ResetRobots", 0);
+    ResetEquipments = GetIntDefault("ResetEquipments", 0);
     AccountNamePrefix = GetStringDefault("AccountNamePrefix", "ROBOT");
     OnlineLevel = GetIntDefault("OnlineLevel", 0);
     CountEachLevel = GetIntDefault("CountEachLevel", 100);

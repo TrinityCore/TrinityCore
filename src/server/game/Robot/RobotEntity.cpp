@@ -162,8 +162,14 @@ void RobotEntity::Update(uint32 pmDiff)
                 }
                 else
                 {
+                    for (std::unordered_map<uint32, RobotStrategy*>::iterator rsIT = me->rai->strategyMap.begin(); rsIT != me->rai->strategyMap.end(); rsIT++)
+                    {
+                        rsIT->second->sb->IdentifyCharacter();
+                        rsIT->second->sb->Reset();
+                    }
                     entityState = RobotEntityState::RobotEntityState_Online;
                 }
+                me->groupRole = me->rai->GetActiveStrategy()->sb->characterType;
             }
             else
             {

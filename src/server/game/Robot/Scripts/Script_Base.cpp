@@ -13,6 +13,7 @@
 #include "SpellHistory.h"
 #include "GridNotifiers.h"
 #include "SpellPackets.h"
+#include "Group.h"
 
 Script_Base::Script_Base(Player* pmMe)
 {
@@ -21,16 +22,78 @@ Script_Base::Script_Base(Player* pmMe)
     spellLevelMap.clear();
     characterTalentTab = 0;
     characterType = 0;
+    petting = true;
 
     float chaseDistanceMin = MIN_DISTANCE_GAP;
     float chaseDistanceMax = MELEE_MIN_DISTANCE;
-
-    Reset();
 }
 
 void Script_Base::Reset()
 {
 
+}
+
+std::set<Unit*> Script_Base::GetAttackersInRange(float pmRangeLimit)
+{
+    std::set<Unit*> attackers;
+    attackers.clear();
+    if (me)
+    {
+        if (Group* myGroup = me->GetGroup())
+        {
+            std::unordered_set<ObjectGuid> CheckedAttackerOGSet;
+            CheckedAttackerOGSet.clear();
+            for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+            {
+                if (Player* member = groupRef->GetSource())
+                {
+                    if (member->IsAlive())
+                    {
+                        for (Unit::AttackerSet::const_iterator attackerIT = member->getAttackers().begin(); attackerIT != member->getAttackers().end(); ++attackerIT)
+                        {
+                            if (Unit* eachAttacker = *attackerIT)
+                            {
+                                if (CheckedAttackerOGSet.find(eachAttacker->GetGUID()) == CheckedAttackerOGSet.end())
+                                {
+                                    if (me->GetDistance(eachAttacker) < pmRangeLimit)
+                                    {
+                                        CheckedAttackerOGSet.insert(eachAttacker->GetGUID());
+                                        attackers.insert(eachAttacker);
+                                    }
+                                }
+                            }
+                        }
+                        if (Pet* memberPet = member->GetPet())
+                        {
+                            if (memberPet->IsAlive())
+                            {
+                                for (Unit::AttackerSet::const_iterator attackerIT = memberPet->getAttackers().begin(); attackerIT != memberPet->getAttackers().end(); ++attackerIT)
+                                {
+                                    if (Unit* eachAttacker = *attackerIT)
+                                    {
+                                        if (CheckedAttackerOGSet.find(eachAttacker->GetGUID()) == CheckedAttackerOGSet.end())
+                                        {
+                                            if (me->GetDistance(eachAttacker) < pmRangeLimit)
+                                            {
+                                                CheckedAttackerOGSet.insert(eachAttacker->GetGUID());
+                                                attackers.insert(eachAttacker);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            attackers = me->getAttackers();
+        }
+    }
+
+    return attackers;
 }
 
 void Script_Base::Update(uint32 pmDiff)
@@ -123,6 +186,7 @@ bool Script_Base::InitializeCharacter(uint32 pmTargetLevel)
     {
         return false;
     }
+    me->ClearInCombat();
     bool isNew = false;
     if (me->GetLevel() != pmTargetLevel)
     {
@@ -280,57 +344,105 @@ bool Script_Base::InitializeCharacter(uint32 pmTargetLevel)
                     me->LearnTalent(eachTE->TalentID, maxRank);
                 }
             }
-        }
+        }        
+    }
 
-
-        std::unordered_map<uint32, Trainer::Trainer> allTrainers = sObjectMgr->GetTrainers();
-        for (auto const& eachTrainer : allTrainers)
+    for (std::unordered_set<uint32>::iterator questIT = sRobotManager->spellRewardClassQuestIDSet.begin(); questIT != sRobotManager->spellRewardClassQuestIDSet.end(); questIT++)
+    {
+        const Quest* eachQuest = sObjectMgr->GetQuestTemplate((*questIT));
+        if (me->SatisfyQuestLevel(eachQuest, false) && me->SatisfyQuestClass(eachQuest, false) && me->SatisfyQuestRace(eachQuest, false))
         {
-            const Trainer::Trainer* tInfo = &eachTrainer.second;
-            if (!tInfo)
+            const SpellInfo* pSTCast = sSpellMgr->GetSpellInfo(eachQuest->GetRewSpellCast());
+            if (pSTCast)
             {
-                continue;
+                std::set<uint32> spellToLearnIDSet;
+                spellToLearnIDSet.clear();
+                for (size_t effectCount = 0; effectCount < MAX_SPELL_EFFECTS; effectCount++)
+                {
+                    if (pSTCast->Effects[effectCount].Effect == SpellEffects::SPELL_EFFECT_LEARN_SPELL)
+                    {
+                        spellToLearnIDSet.insert(pSTCast->Effects[effectCount].TriggerSpell);
+                    }
+                }
+                if (spellToLearnIDSet.size() == 0)
+                {
+                    spellToLearnIDSet.insert(pSTCast->Id);
+                }
+                for (std::set<uint32>::iterator toLearnIT = spellToLearnIDSet.begin(); toLearnIT != spellToLearnIDSet.end(); toLearnIT++)
+                {
+                    me->LearnSpell((*toLearnIT), false);
+                }
             }
-            if (tInfo->GetTrainerType() != Trainer::Type::Class)
+            const SpellInfo* pST = sSpellMgr->GetSpellInfo(eachQuest->GetRewSpell());
+            if (pST)
             {
-                continue;
+                std::set<uint32> spellToLearnIDSet;
+                spellToLearnIDSet.clear();
+                for (size_t effectCount = 0; effectCount < MAX_SPELL_EFFECTS; effectCount++)
+                {
+                    if (pST->Effects[effectCount].Effect == SpellEffects::SPELL_EFFECT_LEARN_SPELL)
+                    {
+                        spellToLearnIDSet.insert(pST->Effects[effectCount].TriggerSpell);
+                    }
+                }
+                if (spellToLearnIDSet.size() == 0)
+                {
+                    spellToLearnIDSet.insert(pST->Id);
+                }
+                for (std::set<uint32>::iterator toLearnIT = spellToLearnIDSet.begin(); toLearnIT != spellToLearnIDSet.end(); toLearnIT++)
+                {
+                    me->LearnSpell((*toLearnIT), false);
+                }
             }
-            if (!tInfo->IsTrainerValidForPlayer(me))
-            {
-                continue;
-            }
-            std::unordered_set<uint32> trainerSpellIDs = tInfo->GetAllSpellsID();
+        }
+    }
+    std::unordered_map<uint32, Trainer::Trainer> allTrainers = sObjectMgr->GetTrainers();
+    for (auto const& eachTrainer : allTrainers)
+    {
+        const Trainer::Trainer* tInfo = &eachTrainer.second;
+        if (!tInfo)
+        {
+            continue;
+        }
+        if (tInfo->GetTrainerType() != Trainer::Type::Class)
+        {
+            continue;
+        }
+        if (!tInfo->IsTrainerValidForPlayer(me))
+        {
+            continue;
+        }
+        std::unordered_set<uint32> trainerSpellIDs = tInfo->GetAllSpellsID();
 
-            for (std::unordered_set<uint32>::const_iterator itr = trainerSpellIDs.begin(); itr != trainerSpellIDs.end(); ++itr)
+        for (std::unordered_set<uint32>::const_iterator itr = trainerSpellIDs.begin(); itr != trainerSpellIDs.end(); ++itr)
+        {
+            uint32 eachSpellID = *itr;
+            if (!me->IsSpellFitByClassAndRace(eachSpellID))
             {
-                uint32 eachSpellID = *itr;
-                if (!me->IsSpellFitByClassAndRace(eachSpellID))
-                {
-                    continue;
-                }
-                if (!tInfo->SpellRequireLevelValid(me, eachSpellID))
-                {
-                    continue;
-                }
-                uint32 checkSpellID = eachSpellID;
-                while (true)
-                {
-                    const SpellInfo* pSpell = sSpellMgr->GetSpellInfo(checkSpellID);
-                    if (!pSpell)
-                    {
-                        break;
-                    }
-                    if (pSpell->Effects[0].Effect == SPELL_EFFECT_LEARN_SPELL)
-                    {
-                        checkSpellID = pSpell->Effects[0].TriggerSpell;
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-                me->LearnSpell(checkSpellID, false);
+                continue;
             }
+            if (!tInfo->SpellRequireLevelValid(me, eachSpellID))
+            {
+                continue;
+            }
+            uint32 checkSpellID = eachSpellID;
+            while (true)
+            {
+                const SpellInfo* pSpell = sSpellMgr->GetSpellInfo(checkSpellID);
+                if (!pSpell)
+                {
+                    break;
+                }
+                if (pSpell->Effects[0].Effect == SPELL_EFFECT_LEARN_SPELL)
+                {
+                    checkSpellID = pSpell->Effects[0].TriggerSpell;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            me->LearnSpell(checkSpellID, false);
         }
     }
 
@@ -409,11 +521,29 @@ bool Script_Base::InitializeCharacter(uint32 pmTargetLevel)
         break;
     }
     }
+
+    if (sRobotConfig->ResetEquipments)
+    {
+        for (uint8 slot = INVENTORY_SLOT_ITEM_START; slot < INVENTORY_SLOT_ITEM_END; ++slot)
+        {
+            if (Item* inventoryItem = me->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
+            {
+                me->DestroyItem(INVENTORY_SLOT_BAG_0, slot, true);
+            }
+        }
+        for (uint32 checkEquipSlot = EquipmentSlots::EQUIPMENT_SLOT_HEAD; checkEquipSlot < EquipmentSlots::EQUIPMENT_SLOT_TABARD; checkEquipSlot++)
+        {
+            if (Item* currentEquip = me->GetItemByPos(INVENTORY_SLOT_BAG_0, checkEquipSlot))
+            {
+                me->DestroyItem(INVENTORY_SLOT_BAG_0, checkEquipSlot, true);
+            }
+        }
+    }
     for (uint32 checkEquipSlot = EquipmentSlots::EQUIPMENT_SLOT_HEAD; checkEquipSlot < EquipmentSlots::EQUIPMENT_SLOT_TABARD; checkEquipSlot++)
     {
         if (checkEquipSlot == EquipmentSlots::EQUIPMENT_SLOT_HEAD || checkEquipSlot == EquipmentSlots::EQUIPMENT_SLOT_SHOULDERS || checkEquipSlot == EquipmentSlots::EQUIPMENT_SLOT_CHEST || checkEquipSlot == EquipmentSlots::EQUIPMENT_SLOT_WAIST || checkEquipSlot == EquipmentSlots::EQUIPMENT_SLOT_LEGS || checkEquipSlot == EquipmentSlots::EQUIPMENT_SLOT_FEET || checkEquipSlot == EquipmentSlots::EQUIPMENT_SLOT_WRISTS || checkEquipSlot == EquipmentSlots::EQUIPMENT_SLOT_HANDS)
         {
-            if (Item* currentEquip = me->GetItemByPos(checkEquipSlot))
+            if (Item* currentEquip = me->GetItemByPos(INVENTORY_SLOT_BAG_0, checkEquipSlot))
             {
                 if (const ItemTemplate* checkIT = currentEquip->GetTemplate())
                 {
@@ -641,6 +771,10 @@ bool Script_Base::InitializeCharacter(uint32 pmTargetLevel)
         }
     }
 
+    std::ostringstream msgStream;
+    msgStream << me->GetName() << " initialized";
+    sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, msgStream.str().c_str());
+
     return isNew;
 }
 
@@ -736,10 +870,6 @@ void Script_Base::IdentifyCharacter()
             }
         }
     }
-
-    std::ostringstream msgStream;
-    msgStream << me->GetName() << " initialized";
-    sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, msgStream.str().c_str());
 }
 
 bool Script_Base::ApplyGlyph(uint32 pmGlyphSpellID, uint32 pmSlot)
@@ -811,6 +941,20 @@ uint32 Script_Base::GetUsableArmorSubClass()
         }
         break;
     }
+    case Classes::CLASS_PALADIN:
+    {
+        if (me->GetLevel() < 40)
+        {
+            // use mail armor
+            resultArmorSubClass = ItemSubclassArmor::ITEM_SUBCLASS_ARMOR_MAIL;
+        }
+        else
+        {
+            // use plate armor
+            resultArmorSubClass = ItemSubclassArmor::ITEM_SUBCLASS_ARMOR_PLATE;
+        }
+        break;
+    }
     case Classes::CLASS_HUNTER:
     {
         if (me->GetLevel() < 40)
@@ -821,6 +965,21 @@ uint32 Script_Base::GetUsableArmorSubClass()
         {
             resultArmorSubClass = ItemSubclassArmor::ITEM_SUBCLASS_ARMOR_MAIL;
         }
+        break;
+    }
+    case Classes::CLASS_ROGUE:
+    {
+        resultArmorSubClass = ItemSubclassArmor::ITEM_SUBCLASS_ARMOR_LEATHER;
+        break;
+    }
+    case Classes::CLASS_PRIEST:
+    {
+        resultArmorSubClass = ItemSubclassArmor::ITEM_SUBCLASS_ARMOR_CLOTH;
+        break;
+    }
+    case Classes::CLASS_DEATH_KNIGHT:
+    {
+        resultArmorSubClass = ItemSubclassArmor::ITEM_SUBCLASS_ARMOR_PLATE;
         break;
     }
     case Classes::CLASS_SHAMAN:
@@ -835,18 +994,19 @@ uint32 Script_Base::GetUsableArmorSubClass()
         }
         break;
     }
-    case Classes::CLASS_PALADIN:
+    case Classes::CLASS_MAGE:
     {
-        if (me->GetLevel() < 40)
-        {
-            // use mail armor
-            resultArmorSubClass = ItemSubclassArmor::ITEM_SUBCLASS_ARMOR_MAIL;
-        }
-        else
-        {
-            // use plate armor
-            resultArmorSubClass = ItemSubclassArmor::ITEM_SUBCLASS_ARMOR_PLATE;
-        }
+        resultArmorSubClass = ItemSubclassArmor::ITEM_SUBCLASS_ARMOR_CLOTH;
+        break;
+    }
+    case Classes::CLASS_WARLOCK:
+    {
+        resultArmorSubClass = ItemSubclassArmor::ITEM_SUBCLASS_ARMOR_CLOTH;
+        break;
+    }
+    case Classes::CLASS_DRUID:
+    {
+        resultArmorSubClass = ItemSubclassArmor::ITEM_SUBCLASS_ARMOR_LEATHER;
         break;
     }
     default:
@@ -972,6 +1132,14 @@ void Script_Base::RandomTeleport()
     {
         return;
     }
+    if (!me->IsAlive())
+    {
+        me->ResurrectPlayer(1.0f);
+        me->SpawnCorpseBones();
+    }
+    me->ClearInCombat();
+    me->StopMoving();
+    me->GetMotionMaster()->Clear();
     if (RobotStrategy_Solo* rs = (RobotStrategy_Solo*)me->rai->strategyMap[Strategy_Index::Strategy_Index_Solo])
     {
         rs->Reset();
@@ -1053,14 +1221,6 @@ void Script_Base::RandomTeleport()
 
     if (validLocation)
     {
-        if (!me->IsAlive())
-        {
-            me->ResurrectPlayer(1.0f);
-            me->SpawnCorpseBones();
-        }
-        me->ClearInCombat();
-        me->StopMoving();
-        me->GetMotionMaster()->Clear();
         me->TeleportTo(destMapID, destX, destY, destZ, 0.0f);
         sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Teleport robot %s (level %d)", me->GetName(), me->GetLevel());
     }
@@ -1333,7 +1493,7 @@ bool Script_Base::SpellValid(uint32 pmSpellID)
     return true;
 }
 
-bool Script_Base::CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDistance, bool pmCheckAura, bool pmOnlyMyAura)
+bool Script_Base::CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDistance, bool pmCheckAura, bool pmOnlyMyAura, bool pmClearShapeShift)
 {
     if (!pmTarget)
     {
@@ -1405,6 +1565,10 @@ bool Script_Base::CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDis
     {
         me->SetFacingToObject(pmTarget);
     }
+    if (pmClearShapeShift)
+    {
+        ClearShapeshift();
+    }
     SpellCastResult scr = me->CastSpell(pmTarget, spellID, TriggerCastFlags::TRIGGERED_NONE);
     if (scr == SpellCastResult::SPELL_CAST_OK)
     {
@@ -1434,16 +1598,17 @@ bool Script_Base::HasAura(Unit* pmTarget, std::string pmSpellName, bool pmOnlyMy
     std::set<uint32> spellIDSet = sRobotManager->spellNameEntryMap[pmSpellName];
     for (std::set<uint32>::iterator it = spellIDSet.begin(); it != spellIDSet.end(); it++)
     {
+        uint32 spellID = *it;
         if (pmOnlyMyAura)
         {
-            if (target->HasAura((*it), me->GetGUID()))
+            if (target->HasAura(spellID, me->GetGUID()))
             {
                 return true;
             }
         }
         else
         {
-            if (target->HasAura(*it))
+            if (target->HasAura(spellID))
             {
                 return true;
             }

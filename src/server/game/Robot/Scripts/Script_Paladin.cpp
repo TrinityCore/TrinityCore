@@ -7,7 +7,8 @@
 
 Script_Paladin::Script_Paladin(Player* pmMe) :Script_Base(pmMe)
 {
-
+    blessingType = PaladinBlessingType::PaladinBlessingType_Kings;
+    auraType = PaladinAuraType::PaladinAuraType_Retribution;
 }
 
 void Script_Paladin::Reset()

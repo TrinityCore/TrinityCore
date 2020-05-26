@@ -39,6 +39,7 @@ public:
     bool StartRobotSystem();
     uint32 Enable;
     uint32 ResetRobots;
+    uint32 ResetEquipments;
     uint32 OnlineLevel;
     uint32 CountEachLevel;    
     uint32 OnlineMinDelay;

@@ -586,27 +586,21 @@ bool Script_Druid::Tank_Feral(Unit* pmTarget, bool pmChase, bool pmSingle)
 
     uint32 validAttackerCount = 0;
     bool groupTaunt = false;
-    if (me->getAttackers().size() > 3)
+    std::set<Unit*> groupAttackers = GetAttackersInRange(AOE_TARGETS_RANGE);
+    for (std::set<Unit*>::iterator gaIT = groupAttackers.begin(); gaIT != groupAttackers.end(); gaIT++)
     {
-        for (std::set<Unit*>::const_iterator i = me->getAttackers().begin(); i != me->getAttackers().end(); ++i)
+        if (Unit* eachAttacker = *gaIT)
         {
-            if (Unit* eachAttacker = *i)
+            if (!eachAttacker->GetTarget().IsEmpty())
             {
-                if (me->GetDistance(eachAttacker) < AOE_TARGETS_RANGE)
+                if (eachAttacker->GetTarget() != me->GetGUID())
                 {
-                    if (!eachAttacker->GetTarget().IsEmpty())
-                    {
-                        if (eachAttacker->GetTarget() != me->GetGUID())
-                        {
-                            groupTaunt = true;
-                        }
-                    }
-                    validAttackerCount++;
+                    groupTaunt = true;
                 }
             }
+            validAttackerCount++;
         }
-    }
-    
+    }    
     if (!pmSingle)
     {
         if (groupTaunt && validAttackerCount > 3)

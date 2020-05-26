@@ -26,7 +26,6 @@ public:
 
     bool InitializeCharacter(uint32 pmTargetLevel);
     void IdentifyCharacter();
-    std::unordered_set<uint32> GetUsableEquipSlot(const ItemTemplate* pmIT);
     uint32 GetUsableArmorSubClass();
     bool ApplyGlyph( uint32 pmGlyphItemEntry, uint32 pmSlot);
     void TryEquip(std::unordered_set<uint32> pmClassSet, std::unordered_set<uint32> pmSubClassSet, uint32 pmTargetSlot);
@@ -37,7 +36,7 @@ public:
     bool UseManaPotion();
     uint32 FindSpellID(std::string pmSpellName);
     bool SpellValid(uint32 pmSpellID);
-    bool CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDistance = MELEE_MAX_DISTANCE, bool pmCheckAura = false, bool pmOnlyMyAura = false);
+    bool CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDistance = MELEE_MAX_DISTANCE, bool pmCheckAura = false, bool pmOnlyMyAura = false, bool pmClearShapeShift = false);
     bool HasAura(Unit* pmTarget, std::string pmSpellName, bool pmOnlyMyAura = false);
     void ClearShapeshift();
     void CancelAura(uint32 pmSpellID);
@@ -49,6 +48,7 @@ public:
     bool Follow(Unit* pmTarget, float pmDistance = FOLLOW_MIN_DISTANCE);
     void ChooseTarget(Unit* pmTarget);
     void ClearTarget();
+    std::set<Unit*> GetAttackersInRange(float pmRangeLimit = FOLLOW_MAX_DISTANCE);
 
     Player* me;
     std::unordered_map<std::string, uint32> spellIDMap;
@@ -57,7 +57,7 @@ public:
     uint8 characterTalentTab;
     // 0 dps, 1 tank, 2 healer
     uint32 characterType;
-
+    bool petting;
     float chaseDistanceMin;
     float chaseDistanceMax;
 };

@@ -21,6 +21,7 @@ enum Strategy_Index :uint32
     Strategy_Index_Group_Blackrock_Spire,
     Strategy_Index_Group_Alcaz_Island,
     Strategy_Index_Group_Shadow_Labyrinth,
+    Strategy_Index_Group_Ysondre,
 };
 
 class RobotAI
@@ -35,6 +36,6 @@ public:
     std::unordered_map<uint32, RobotStrategy*> strategyMap;
     uint32 activeStrategyIndex;
     uint32 robotType;
-    int checkDelay;
+    int checkDelay;    
 };
 #endif

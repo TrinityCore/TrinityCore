@@ -28,7 +28,16 @@
 
 static bool HasLostTarget(Unit* owner, Unit* target)
 {
-    return owner->GetVictim() != target;
+    // EJ use target instead victim
+    //return owner->GetVictim() != target;
+    if (owner && target)
+    {
+        if (owner->GetTarget() == target->GetGUID())
+        {
+            return false;
+        }
+    }
+    return true;
 }
 
 static bool IsMutualChase(Unit* owner, Unit* target)

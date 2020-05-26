@@ -99,7 +99,7 @@ public:
     std::vector<std::string> SplitString(std::string srcStr, std::string delimStr, bool repeatedCharIgnored);
     std::string TrimString(std::string srcStr);
     static RobotManager* instance();
-    void HandlePacket(WorldSession* pmSession, WorldPacket const* pmPacket);
+    void HandlePacket(WorldSession* pmSession, WorldPacket pmPacket);
     void WhisperTo(Player* pmSender, std::string pmContent, Language pmLanguage, Player* pmTarget);
     bool UnitTargetReachable(Player* pmCheckPlayer, Unit* pmTarget);
     void CheckLevelRobotEntities(uint32 pmLevel, uint32 pmRobotType, uint32 pmTotalCount);

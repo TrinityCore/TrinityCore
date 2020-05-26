@@ -22,6 +22,9 @@ RobotAI::RobotAI(Player* pmMe)
     RobotStrategy_Group_Shadow_Labyrinth* rsgsl = new RobotStrategy_Group_Shadow_Labyrinth(pmMe);
     strategyMap[Strategy_Index::Strategy_Index_Group_Shadow_Labyrinth] = rsgsl;
 
+    RobotStrategy_Group_Ysondre* rsgYsondre = new RobotStrategy_Group_Ysondre(pmMe);
+    strategyMap[Strategy_Index::Strategy_Index_Group_Ysondre] = rsgYsondre;
+
     activeStrategyIndex = Strategy_Index::Strategy_Index_Solo;
 }
 

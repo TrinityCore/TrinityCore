@@ -45,19 +45,22 @@ bool Script_Warlock::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTan
     case 0:
     {
         meResult = DPS_Affliction(pmTarget, pmChase, pmAOE, pmTank);
+        break;
     }
     case 1:
     {
         meResult = DPS_Demonology(pmTarget, pmChase, pmAOE, pmTank);
+        break;
     }
     case 2:
     {
         meResult = DPS_Destruction(pmTarget, pmChase, pmAOE, pmTank);
+        break;
     }
     default:
     {
         meResult = DPS_Common(pmTarget, pmChase, pmAOE, pmTank);
-
+        break;
     }
     }
     if (meResult)
@@ -380,19 +383,22 @@ bool Script_Warlock::Attack(Unit* pmTarget)
     case 0:
     {
         meResult = Attack_Affliction(pmTarget);
+        break;
     }
     case 1:
     {
         meResult = Attack_Demonology(pmTarget);
+        break;
     }
     case 2:
     {
         meResult = Attack_Destruction(pmTarget);
+        break;
     }
     default:
     {
         meResult = Attack_Common(pmTarget);
-
+        break;
     }
     }
     if (meResult)
@@ -641,13 +647,22 @@ bool Script_Warlock::Buff(Unit* pmTarget, bool pmCure)
                 return true;
             }
         }
-
-        Pet* myPet = me->GetPet();
-        if (!myPet)
+        if (petting)
         {
-            if (CastSpell(me, "Summon Imp"))
+            Pet* myPet = me->GetPet();
+            if (!myPet)
             {
-                return true;
+                if (CastSpell(me, "Summon Imp"))
+                {
+                    return true;
+                }
+            }
+        }
+        else
+        {
+            if (Pet* myPet = me->GetPet())
+            {
+                myPet->DespawnOrUnsummon(500);
             }
         }
     }

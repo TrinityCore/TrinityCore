@@ -307,14 +307,14 @@ bool MarketerManager::UpdateSeller()
                     if (proto->Quality > 1)
                     {
                         sellThis = true;
-                        stackCount = 1;
+                        stackCount = proto->Stackable;
                     }
                     break;
                 }
                 case ItemClass::ITEM_CLASS_GEM:
                 {
                     sellThis = true;
-                    stackCount = 1;
+                    stackCount = proto->Stackable;
                     break;
                 }
                 case ItemClass::ITEM_CLASS_ARMOR:
@@ -322,7 +322,7 @@ bool MarketerManager::UpdateSeller()
                     if (proto->Quality > 1)
                     {
                         sellThis = true;
-                        stackCount = 1;
+                        stackCount = proto->Stackable;
                     }
                     break;
                 }
@@ -362,7 +362,7 @@ bool MarketerManager::UpdateSeller()
                     if (proto->Quality > 1)
                     {
                         sellThis = true;
-                        stackCount = 1;
+                        stackCount = proto->Stackable;
                     }
                     break;
                 }

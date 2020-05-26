@@ -1046,7 +1046,11 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     }
     else
     {
-        pCurrChar->rai->strategyMap[Strategy_Index::Strategy_Index_Group]->sb->IdentifyCharacter();
+        for (std::unordered_map<uint32, RobotStrategy*>::iterator rsIT = pCurrChar->rai->strategyMap.begin(); rsIT != pCurrChar->rai->strategyMap.end(); rsIT++)
+        {
+            rsIT->second->sb->IdentifyCharacter();
+            rsIT->second->sb->Reset();
+        }        
         pCurrChar->groupRole = pCurrChar->rai->strategyMap[Strategy_Index::Strategy_Index_Group]->sb->characterType;
     }    
 }

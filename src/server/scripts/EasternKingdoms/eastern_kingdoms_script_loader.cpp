@@ -142,6 +142,11 @@ void AddSC_boss_timmy_the_cruel();
 void AddSC_boss_postmaster_malown();
 void AddSC_boss_baron_rivendare();
 void AddSC_boss_dathrohan_balnazzar();
+
+// EJ scripts
+void AddSC_boss_jarien();
+void AddSC_boss_sothos();
+
 void AddSC_boss_order_of_silver_hand();
 void AddSC_instance_stratholme();
 void AddSC_stratholme();
@@ -329,6 +334,11 @@ void AddEasternKingdomsScripts()
     AddSC_boss_postmaster_malown();
     AddSC_boss_baron_rivendare();
     AddSC_boss_dathrohan_balnazzar();
+
+    // EJ scripts
+    AddSC_boss_jarien();
+    AddSC_boss_sothos();
+
     AddSC_boss_order_of_silver_hand();
     AddSC_instance_stratholme();
     AddSC_stratholme();

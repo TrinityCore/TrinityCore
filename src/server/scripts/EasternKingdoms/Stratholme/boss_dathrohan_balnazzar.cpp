@@ -26,6 +26,8 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "stratholme.h"
 
+#include "GridNotifiers.h"
+
 enum Spells
 {
     //Dathrohan spells
@@ -232,4 +234,204 @@ public:
 void AddSC_boss_dathrohan_balnazzar()
 {
     new boss_dathrohan_balnazzar();
+}
+
+class boss_jarien : public CreatureScript
+{
+public:
+    boss_jarien() : CreatureScript("boss_jarien") { }
+
+    struct boss_jarienAI : public CreatureAI
+    {
+        boss_jarienAI(Creature* creature) : CreatureAI(creature) { }
+
+        void JustEngagedWith(Unit* who) override
+        {
+            events.ScheduleEvent(1, 5000, 8000);
+            events.ScheduleEvent(2, 8000, 10000);
+            events.ScheduleEvent(3, 10000, 12000);
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (!UpdateVictim())
+                return;
+
+            events.Update(diff);
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                case 1:
+                {
+                    std::list<Player*> players;
+                    Trinity::AnyPlayerInObjectRangeCheck checker(me, 25.0f);
+                    Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, players, checker);
+                    Cell::VisitWorldObjects(me, searcher, 25.0f);
+                    for (std::list<Player*>::iterator itr = players.begin(); itr != players.end(); ++itr)
+                    {
+                        if (Player* eachPlayer = *itr)
+                        {
+                            if (eachPlayer->IsAlive())
+                            {
+                                if (!eachPlayer->HasAura(20812))
+                                {
+                                    DoCast(eachPlayer, 20812);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    events.Repeat(10000, 15000);
+                    break;
+                }
+                case 2:
+                {
+                    DoCastVictim(19643);
+                    events.Repeat(15000, 18000);
+                    break;
+                }
+                case 3:
+                {
+                    DoCastVictim(18663);
+                    events.Repeat(18000, 20000);
+                    break;
+                }
+                }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+            }
+            DoMeleeAttackIfReady();
+        }
+
+    private:
+        EventMap events;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetStratholmeAI<boss_jarienAI>(creature);
+    }
+};
+
+void AddSC_boss_jarien()
+{
+    new boss_jarien();
+}
+
+class boss_sothos : public CreatureScript
+{
+public:
+    boss_sothos() : CreatureScript("boss_sothos") { }
+
+    struct boss_sothosAI : public CreatureAI
+    {
+        boss_sothosAI(Creature* creature) : CreatureAI(creature) { }
+
+        void JustEngagedWith(Unit* who) override
+        {
+            events.ScheduleEvent(1, 3000, 5000);
+            events.ScheduleEvent(2, 5000, 8000);
+            events.ScheduleEvent(3, 8000, 12000);
+            events.ScheduleEvent(4, 12000, 15000);
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (!UpdateVictim())
+                return;
+
+            events.Update(diff);
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                case 1:
+                {
+                    DoCastSelf(12169);
+                    events.Repeat(5000, 8000);
+                    break;
+                }
+                case 2:
+                {
+                    std::list<Player*> players;
+                    Trinity::AnyPlayerInObjectRangeCheck checker(me, 25.0f);
+                    Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, players, checker);
+                    Cell::VisitWorldObjects(me, searcher, 25.0f);
+                    for (std::list<Player*>::iterator itr = players.begin(); itr != players.end(); ++itr)
+                    {
+                        if (Player* eachPlayer = *itr)
+                        {
+                            if (eachPlayer->IsAlive())
+                            {
+                                if (!eachPlayer->HasAura(27641))
+                                {
+                                    DoCast(eachPlayer, 27641);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    events.Repeat(10000, 12000);
+                    break;
+                }                
+                case 3:
+                {
+                    std::list<Player*> players;
+                    Trinity::AnyPlayerInObjectRangeCheck checker(me, 25.0f);
+                    Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, players, checker);
+                    Cell::VisitWorldObjects(me, searcher, 25.0f);
+                    for (std::list<Player*>::iterator itr = players.begin(); itr != players.end(); ++itr)
+                    {
+                        if (Player* eachPlayer = *itr)
+                        {
+                            if (eachPlayer->IsAlive())
+                            {
+                                if (me->GetDistance(eachPlayer) > 8.0f)
+                                {
+                                    DoCast(eachPlayer, 15749);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    events.Repeat(12000, 15000);
+                    break;
+                }
+                case 4:
+                {
+                    DoCastVictim(8242);
+                    events.Repeat(15000, 20000);
+                    break;
+                }
+                }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+            }
+            DoMeleeAttackIfReady();
+        }
+
+    private:
+        EventMap events;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetStratholmeAI<boss_sothosAI>(creature);
+    }
+};
+
+void AddSC_boss_sothos()
+{
+    new boss_sothos();
 }

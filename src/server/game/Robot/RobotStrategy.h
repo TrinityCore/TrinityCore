@@ -91,6 +91,7 @@ public:
     bool Lightwell();
     Player* GetPlayerByGroupRole(uint32 pmGroupRole);
 
+    bool Update0(uint32 pmDiff);
     void Update(uint32 pmDiff) override;
 
     virtual bool Engage(Unit* pmTarget);
@@ -102,11 +103,12 @@ public:
     virtual bool Heal();
     virtual bool Buff();
     virtual bool Follow();
+    virtual bool Chasing();
     virtual std::string GetGroupRoleName();
     virtual void SetGroupRole(std::string pmRoleName);
     std::unordered_map<ObjectGuid, Unit*> GetAddsMap(uint32 pmBossEntry);
     std::unordered_map<ObjectGuid, Unit*> GetAttackerMap();
-    std::unordered_map<uint32, Unit*> GetBossMap();
+    virtual std::unordered_map<uint32, Unit*> GetBossMap();
 
 public:
     int combatTime;
@@ -115,9 +117,12 @@ public:
     int aoeDelay;
     int dpsDelay;
     int engageDelay;
+    int readyCheckDelay;
     float followDistance;
     bool staying;
     bool holding;
+    bool following;
+    bool marking;
     bool cure;
     uint32 paladinAura;
 };
@@ -164,6 +169,7 @@ public:
     void Update(uint32 pmDiff) override;
     std::string GetGroupRoleName() override;
     void SetGroupRole(std::string pmRoleName) override;
+    std::unordered_map<uint32, Unit*> GetBossMap() override;
     Player* GetMainTank() override;
     bool DPS() override;
     bool Engage(Unit* pmTarget);
@@ -211,5 +217,47 @@ public:
     {
         InitialStrategy();
     }
+};
+
+enum CreatureEntry_World_Boss :uint32
+{
+    CreatureEntry_World_Boss_Ysondre = 14887,    
+    CreatureEntry_World_Boss_Lethon = 14888,
+    CreatureEntry_World_Boss_Emeriss = 14889,
+    CreatureEntry_World_Boss_Taerar = 14890,
+    CreatureEntry_World_Boss_Dream_Fog = 15224,
+};
+
+enum GroupRole_Ysondre :uint32
+{
+    GroupRole_Ysondre_Tank1 = 0,
+    GroupRole_Ysondre_Tank2 = 1,    
+    GroupRole_Ysondre_Healer1 = 2,
+    GroupRole_Ysondre_Healer2 = 3,
+    GroupRole_Ysondre_DPS_Range = 4,
+    GroupRole_Ysondre_DPS_Melee = 5,
+};
+
+class RobotStrategy_Group_Ysondre :public RobotStrategy_Group
+{
+public:
+    RobotStrategy_Group_Ysondre(Player* pmMe) :RobotStrategy_Group(pmMe)
+    {
+        InitialStrategy();
+    }
+
+    void InitialStrategy();
+    std::string GetGroupRoleName() override;
+    void SetGroupRole(std::string pmRoleName) override;
+    std::unordered_map<uint32, Unit*> GetBossMap() override;
+    Player* GetMainTank() override;
+    bool DPS() override;
+    bool Tank() override;
+    bool Tank(Unit* pmTarget) override;
+    bool Heal() override;
+    void Update(uint32 pmDiff) override;
+
+    bool positioned;
+    Position engagePos;
 };
 #endif

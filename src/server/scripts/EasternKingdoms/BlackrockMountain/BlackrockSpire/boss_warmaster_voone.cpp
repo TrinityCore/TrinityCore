@@ -175,6 +175,7 @@ public:
                                 if (!eachPlayer->HasAura(27737))
                                 {
                                     DoCast(eachPlayer, 27737);
+                                    break;
                                 }
                             }
                         }

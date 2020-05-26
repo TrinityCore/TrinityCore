@@ -212,7 +212,8 @@ void WorldSession::SendPacket(WorldPacket const* packet)
     // EJ robot    
     if (isRobotSession)
     {
-        sRobotManager->HandlePacket(this, packet);
+        WorldPacket eachCopy(*packet);
+        sRobotManager->HandlePacket(this, eachCopy);
         return;
     }
 
