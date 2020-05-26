@@ -60,7 +60,7 @@ namespace WorldPackets
         class BuyBankSlotResult final : public ServerPacket
         {
         public:
-            ShowBank() : ServerPacket(SMSG_BUY_BANK_SLOT_RESULT, 4) { }
+            BuyBankSlotResult() : ServerPacket(SMSG_BUY_BANK_SLOT_RESULT, 4) { }
 
             WorldPacket const* Write() override;
 
