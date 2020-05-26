@@ -18,10 +18,8 @@
 /* ContentData
 go_ethereum_prison
 go_ethereum_stasis
-go_shrine_of_the_birds
 go_southfury_moonstone
 go_resonite_cask
-go_tablet_of_madness
 go_tablet_of_the_seven
 go_tele_to_dalaran_crystal
 go_tele_to_violet_stand
@@ -29,7 +27,6 @@ go_scourge_cage
 go_jotunheim_cage
 go_table_theka
 go_soulwell
-go_dragonflayer_cage
 go_amberpine_outhouse
 go_hive_pod
 go_veil_skith_cage
@@ -95,34 +92,6 @@ public:
 };
 
 /*######
-## go_tablet_of_madness
-######*/
-
-class go_tablet_of_madness : public GameObjectScript
-{
-public:
-    go_tablet_of_madness() : GameObjectScript("go_tablet_of_madness") { }
-
-    struct go_tablet_of_madnessAI : public GameObjectAI
-    {
-        go_tablet_of_madnessAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool GossipHello(Player* player) override
-        {
-            if (player->HasSkill(SKILL_ALCHEMY) && player->GetSkillValue(SKILL_ALCHEMY) >= 300 && !player->HasSpell(24266))
-                player->CastSpell(player, 24267, false);
-
-            return true;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_tablet_of_madnessAI(go);
-    }
-};
-
-/*######
 ## go_tablet_of_the_seven
 ######*/
 
@@ -151,34 +120,6 @@ public:
     GameObjectAI* GetAI(GameObject* go) const override
     {
         return new go_tablet_of_the_sevenAI(go);
-    }
-};
-
-/*#####
-## go_jump_a_tron
-######*/
-
-class go_jump_a_tron : public GameObjectScript
-{
-public:
-    go_jump_a_tron() : GameObjectScript("go_jump_a_tron") { }
-
-    struct go_jump_a_tronAI : public GameObjectAI
-    {
-        go_jump_a_tronAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool GossipHello(Player* player) override
-        {
-            if (player->GetQuestStatus(10111) == QUEST_STATUS_INCOMPLETE)
-                player->CastSpell(player, 33382, true);
-
-            return true;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_jump_a_tronAI(go);
     }
 };
 
@@ -319,62 +260,6 @@ public:
     GameObjectAI* GetAI(GameObject* go) const override
     {
         return new go_resonite_caskAI(go);
-    }
-};
-
-/*######
-## go_shrine_of_the_birds
-######*/
-
-enum ShrineOfTheBirds
-{
-    NPC_HAWK_GUARD      = 22992,
-    NPC_EAGLE_GUARD     = 22993,
-    NPC_FALCON_GUARD    = 22994,
-    GO_SHRINE_HAWK      = 185551,
-    GO_SHRINE_EAGLE     = 185547,
-    GO_SHRINE_FALCON    = 185553
-};
-
-class go_shrine_of_the_birds : public GameObjectScript
-{
-public:
-    go_shrine_of_the_birds() : GameObjectScript("go_shrine_of_the_birds") { }
-
-    struct go_shrine_of_the_birdsAI : public GameObjectAI
-    {
-        go_shrine_of_the_birdsAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool GossipHello(Player* player) override
-        {
-            uint32 BirdEntry = 0;
-
-            float fX, fY, fZ;
-            me->GetClosePoint(fX, fY, fZ, me->GetCombatReach(), INTERACTION_DISTANCE);
-
-            switch (me->GetEntry())
-            {
-                case GO_SHRINE_HAWK:
-                    BirdEntry = NPC_HAWK_GUARD;
-                    break;
-                case GO_SHRINE_EAGLE:
-                    BirdEntry = NPC_EAGLE_GUARD;
-                    break;
-                case GO_SHRINE_FALCON:
-                    BirdEntry = NPC_FALCON_GUARD;
-                    break;
-            }
-
-            if (BirdEntry)
-                player->SummonCreature(BirdEntry, fX, fY, fZ, me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
-
-            return false;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_shrine_of_the_birdsAI(go);
     }
 };
 
@@ -767,41 +652,6 @@ public:
 };
 
 /*######
-## go_inconspicuous_landmark
-######*/
-
-enum InconspicuousLandmark
-{
-    SPELL_SUMMON_PIRATES_TREASURE_AND_TRIGGER_MOB    = 11462,
-    ITEM_CUERGOS_KEY                                 = 9275,
-};
-
-class go_inconspicuous_landmark : public GameObjectScript
-{
-public:
-    go_inconspicuous_landmark() : GameObjectScript("go_inconspicuous_landmark") { }
-
-    struct go_inconspicuous_landmarkAI : public GameObjectAI
-    {
-        go_inconspicuous_landmarkAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool GossipHello(Player* player) override
-        {
-            if (player->HasItemCount(ITEM_CUERGOS_KEY))
-                return false;
-
-            player->CastSpell(player, SPELL_SUMMON_PIRATES_TREASURE_AND_TRIGGER_MOB, true);
-            return true;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_inconspicuous_landmarkAI(go);
-    }
-};
-
-/*######
 ## go_soulwell
 ######*/
 
@@ -900,67 +750,6 @@ class go_soulwell : public GameObjectScript
         {
             return new go_soulwellAI(go);
         }
-};
-
-/*######
-## Quest 11255: Prisoners of Wyrmskull
-## go_dragonflayer_cage
-######*/
-
-enum PrisonersOfWyrmskull
-{
-    QUEST_PRISONERS_OF_WYRMSKULL                  = 11255,
-    NPC_PRISONER_PRIEST                           = 24086,
-    NPC_PRISONER_MAGE                             = 24088,
-    NPC_PRISONER_WARRIOR                          = 24089,
-    NPC_PRISONER_PALADIN                          = 24090
-};
-
-class go_dragonflayer_cage : public GameObjectScript
-{
-public:
-    go_dragonflayer_cage() : GameObjectScript("go_dragonflayer_cage") { }
-
-    struct go_dragonflayer_cageAI : public GameObjectAI
-    {
-        go_dragonflayer_cageAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool GossipHello(Player* player) override
-        {
-            me->UseDoorOrButton();
-            if (player->GetQuestStatus(QUEST_PRISONERS_OF_WYRMSKULL) != QUEST_STATUS_INCOMPLETE)
-                return true;
-
-            Creature* pPrisoner = me->FindNearestCreature(NPC_PRISONER_PRIEST, 2.0f);
-            if (!pPrisoner)
-            {
-                pPrisoner = me->FindNearestCreature(NPC_PRISONER_MAGE, 2.0f);
-                if (!pPrisoner)
-                {
-                    pPrisoner = me->FindNearestCreature(NPC_PRISONER_WARRIOR, 2.0f);
-                    if (!pPrisoner)
-                        pPrisoner = me->FindNearestCreature(NPC_PRISONER_PALADIN, 2.0f);
-                }
-            }
-
-            if (!pPrisoner || !pPrisoner->IsAlive())
-                return true;
-
-            Quest const* qInfo = sObjectMgr->GetQuestTemplate(QUEST_PRISONERS_OF_WYRMSKULL);
-            if (qInfo)
-            {
-                /// @todo prisoner should help player for a short period of time
-                player->KilledMonsterCredit(qInfo->RequiredNpcOrGo[0]);
-                pPrisoner->DisappearAndDie();
-            }
-            return true;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_dragonflayer_cageAI(go);
-    }
 };
 
 /*######
@@ -1805,11 +1594,8 @@ public:
 void AddSC_go_scripts()
 {
     new go_gilded_brazier();
-    new go_shrine_of_the_birds();
     new go_southfury_moonstone();
-    new go_tablet_of_madness();
     new go_tablet_of_the_seven();
-    new go_jump_a_tron();
     new go_ethereum_prison();
     new go_ethereum_stasis();
     new go_resonite_cask();
@@ -1821,9 +1607,7 @@ void AddSC_go_scripts()
     new go_blood_filled_orb();
     new go_jotunheim_cage();
     new go_table_theka();
-    new go_inconspicuous_landmark();
     new go_soulwell();
-    new go_dragonflayer_cage();
     new go_amberpine_outhouse();
     new go_hive_pod();
     new go_massive_seaforium_charge();

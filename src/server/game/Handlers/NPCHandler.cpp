@@ -309,7 +309,7 @@ void WorldSession::SendBindPoint(Creature* npc)
     _player->PlayerTalkClass->SendCloseGossip();
 }
 
-void WorldSession::HandleListStabledPetsOpcode(WorldPacket& recvData)
+void WorldSession::HandleRequestStabledPets(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "WORLD: Recv MSG_LIST_STABLED_PETS");
     ObjectGuid npcGUID;
@@ -394,7 +394,7 @@ void WorldSession::SendStablePetCallback(ObjectGuid guid, PreparedQueryResult re
 
 }
 
-void WorldSession::SendStableResult(uint8 res)
+void WorldSession::SendPetStableResult(uint8 res)
 {
     WorldPacket data(SMSG_STABLE_RESULT, 1);
     data << uint8(res);
@@ -410,13 +410,13 @@ void WorldSession::HandleStablePet(WorldPacket& recvData)
 
     if (!GetPlayer()->IsAlive())
     {
-        SendStableResult(STABLE_ERR_STABLE);
+        SendPetStableResult(STABLE_ERR_STABLE);
         return;
     }
 
     if (!CheckStableMaster(npcGUID))
     {
-        SendStableResult(STABLE_ERR_STABLE);
+        SendPetStableResult(STABLE_ERR_STABLE);
         return;
     }
 
@@ -429,7 +429,7 @@ void WorldSession::HandleStablePet(WorldPacket& recvData)
     // can't place in stable dead pet
     if (!pet || !pet->IsAlive() || pet->getPetType() != HUNTER_PET)
     {
-        SendStableResult(STABLE_ERR_STABLE);
+        SendPetStableResult(STABLE_ERR_STABLE);
         return;
     }
 
@@ -470,10 +470,10 @@ void WorldSession::HandleStablePetCallback(PreparedQueryResult result)
     if (freeSlot > 0 && freeSlot <= GetPlayer()->m_stableSlots)
     {
         _player->RemovePet(_player->GetPet(), PetSaveMode(freeSlot));
-        SendStableResult(STABLE_SUCCESS_STABLE);
+        SendPetStableResult(STABLE_SUCCESS_STABLE);
     }
     else
-        SendStableResult(STABLE_ERR_STABLE);
+        SendPetStableResult(STABLE_ERR_STABLE);
 }
 
 void WorldSession::HandleUnstablePet(WorldPacket& recvData)
@@ -486,7 +486,7 @@ void WorldSession::HandleUnstablePet(WorldPacket& recvData)
 
     if (!CheckStableMaster(npcGUID))
     {
-        SendStableResult(STABLE_ERR_STABLE);
+        SendPetStableResult(STABLE_ERR_STABLE);
         return;
     }
 
@@ -518,7 +518,7 @@ void WorldSession::HandleUnstablePetCallback(uint32 petId, PreparedQueryResult r
 
     if (!petEntry)
     {
-        SendStableResult(STABLE_ERR_STABLE);
+        SendPetStableResult(STABLE_ERR_STABLE);
         return;
     }
 
@@ -527,16 +527,16 @@ void WorldSession::HandleUnstablePetCallback(uint32 petId, PreparedQueryResult r
     {
         // if problem in exotic pet
         if (creatureInfo && creatureInfo->IsTameable(true))
-            SendStableResult(STABLE_ERR_EXOTIC);
+            SendPetStableResult(STABLE_ERR_EXOTIC);
         else
-            SendStableResult(STABLE_ERR_STABLE);
+            SendPetStableResult(STABLE_ERR_STABLE);
         return;
     }
 
     Pet* pet = _player->GetPet();
     if (pet && pet->IsAlive())
     {
-        SendStableResult(STABLE_ERR_STABLE);
+        SendPetStableResult(STABLE_ERR_STABLE);
         return;
     }
 
@@ -549,11 +549,11 @@ void WorldSession::HandleUnstablePetCallback(uint32 petId, PreparedQueryResult r
     {
         delete newPet;
         newPet = nullptr;
-        SendStableResult(STABLE_ERR_STABLE);
+        SendPetStableResult(STABLE_ERR_STABLE);
         return;
     }
 
-    SendStableResult(STABLE_SUCCESS_UNSTABLE);
+    SendPetStableResult(STABLE_SUCCESS_UNSTABLE);
 }
 
 void WorldSession::HandleBuyStableSlot(WorldPacket& recvData)
@@ -565,7 +565,7 @@ void WorldSession::HandleBuyStableSlot(WorldPacket& recvData)
 
     if (!CheckStableMaster(npcGUID))
     {
-        SendStableResult(STABLE_ERR_STABLE);
+        SendPetStableResult(STABLE_ERR_STABLE);
         return;
     }
 
@@ -580,13 +580,13 @@ void WorldSession::HandleBuyStableSlot(WorldPacket& recvData)
         {
             ++GetPlayer()->m_stableSlots;
             _player->ModifyMoney(-int32(SlotPrice->Price));
-            SendStableResult(STABLE_SUCCESS_BUY_SLOT);
+            SendPetStableResult(STABLE_SUCCESS_BUY_SLOT);
         }
         else
-            SendStableResult(STABLE_ERR_MONEY);
+            SendPetStableResult(STABLE_ERR_MONEY);
     }
     else
-        SendStableResult(STABLE_ERR_STABLE);
+        SendPetStableResult(STABLE_ERR_STABLE);
 }
 
 void WorldSession::HandleStableRevivePet(WorldPacket &/* recvData */)
@@ -604,7 +604,7 @@ void WorldSession::HandleStableSwapPet(WorldPacket& recvData)
 
     if (!CheckStableMaster(npcGUID))
     {
-        SendStableResult(STABLE_ERR_STABLE);
+        SendPetStableResult(STABLE_ERR_STABLE);
         return;
     }
 
@@ -616,7 +616,7 @@ void WorldSession::HandleStableSwapPet(WorldPacket& recvData)
 
     if (!pet || pet->getPetType() != HUNTER_PET)
     {
-        SendStableResult(STABLE_ERR_STABLE);
+        SendPetStableResult(STABLE_ERR_STABLE);
         return;
     }
 
@@ -637,7 +637,7 @@ void WorldSession::HandleStableSwapPetCallback(uint32 petId, PreparedQueryResult
 
     if (!result)
     {
-        SendStableResult(STABLE_ERR_STABLE);
+        SendPetStableResult(STABLE_ERR_STABLE);
         return;
     }
 
@@ -648,7 +648,7 @@ void WorldSession::HandleStableSwapPetCallback(uint32 petId, PreparedQueryResult
 
     if (!petEntry)
     {
-        SendStableResult(STABLE_ERR_STABLE);
+        SendPetStableResult(STABLE_ERR_STABLE);
         return;
     }
 
@@ -657,9 +657,9 @@ void WorldSession::HandleStableSwapPetCallback(uint32 petId, PreparedQueryResult
     {
         // if problem in exotic pet
         if (creatureInfo && creatureInfo->IsTameable(true))
-            SendStableResult(STABLE_ERR_EXOTIC);
+            SendPetStableResult(STABLE_ERR_EXOTIC);
         else
-            SendStableResult(STABLE_ERR_STABLE);
+            SendPetStableResult(STABLE_ERR_STABLE);
         return;
     }
 
@@ -667,7 +667,7 @@ void WorldSession::HandleStableSwapPetCallback(uint32 petId, PreparedQueryResult
     // The player's pet could have been removed during the delay of the DB callback
     if (!pet)
     {
-        SendStableResult(STABLE_ERR_STABLE);
+        SendPetStableResult(STABLE_ERR_STABLE);
         return;
     }
 
@@ -679,10 +679,10 @@ void WorldSession::HandleStableSwapPetCallback(uint32 petId, PreparedQueryResult
     if (!newPet->LoadPetFromDB(_player, petEntry, petId))
     {
         delete newPet;
-        SendStableResult(STABLE_ERR_STABLE);
+        SendPetStableResult(STABLE_ERR_STABLE);
     }
     else
-        SendStableResult(STABLE_SUCCESS_UNSTABLE);
+        SendPetStableResult(STABLE_SUCCESS_UNSTABLE);
 }
 
 void WorldSession::HandleRepairItemOpcode(WorldPacket& recvData)
