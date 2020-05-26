@@ -137,11 +137,11 @@ void WorldSession::HandleAutoStoreBankItemOpcode(WorldPackets::Bank::AutoStoreBa
 
 void WorldSession::HandleBuyBankSlotOpcode(WorldPackets::Bank::BuyBankSlot& packet)
 {
-    WorldPacket data(SMSG_BUY_BANK_SLOT_RESULT, 4);
+    WorldPackets::Bank::BuyBankSlotResult packet;
     if (!CanUseBank(packet.Banker))
     {
-        data << uint32(ERR_BANKSLOT_NOTBANKER);
-        SendPacket(&data);
+        packet.Result = ERR_BANKSLOT_NOTBANKER;
+        SendPacket(packet.Write());
         TC_LOG_DEBUG("network", "WORLD: HandleBuyBankSlotOpcode - %s not found or you can't interact with him.", packet.Banker.ToString().c_str());
         return;
     }
@@ -157,8 +157,8 @@ void WorldSession::HandleBuyBankSlotOpcode(WorldPackets::Bank::BuyBankSlot& pack
 
     if (!slotEntry)
     {
-        data << uint32(ERR_BANKSLOT_FAILED_TOO_MANY);
-        SendPacket(&data);
+        packet.Result = ERR_BANKSLOT_FAILED_TOO_MANY;
+        SendPacket(packet.Write());
         return;
     }
 
@@ -166,16 +166,16 @@ void WorldSession::HandleBuyBankSlotOpcode(WorldPackets::Bank::BuyBankSlot& pack
 
     if (!_player->HasEnoughMoney(price))
     {
-        data << uint32(ERR_BANKSLOT_INSUFFICIENT_FUNDS);
-        SendPacket(&data);
+        packet.Result = ERR_BANKSLOT_INSUFFICIENT_FUNDS;
+        SendPacket(packet.Write());
         return;
     }
 
     _player->SetBankBagSlotCount(slot);
     _player->ModifyMoney(-int32(price));
 
-     data << uint32(ERR_BANKSLOT_OK);
-     SendPacket(&data);
+    packet.Result = ERR_BANKSLOT_OK;
+    SendPacket(packet.Write());
 
     _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BUY_BANK_SLOT);
 }
