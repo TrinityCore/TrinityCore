@@ -265,7 +265,7 @@ void WorldSession::HandleCharEnumOpcode(WorldPacket& /*recvData*/)
     stmt->setUInt8(0, PET_SAVE_AS_CURRENT);
     stmt->setUInt32(1, GetAccountId());
 
-    _queryProcessor.AddQuery(CharacterDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSession::HandleCharEnum, this, std::placeholders::_1)));
+    _queryProcessor.AddCallback(CharacterDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSession::HandleCharEnum, this, std::placeholders::_1)));
 }
 
 void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
@@ -408,7 +408,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHECK_NAME);
     stmt->setString(0, createInfo->Name);
 
-    _queryProcessor.AddQuery(CharacterDatabase.AsyncQuery(stmt)
+    _queryProcessor.AddCallback(CharacterDatabase.AsyncQuery(stmt)
         .WithChainingPreparedCallback([this](QueryCallback& queryCallback, PreparedQueryResult result)
     {
         if (result)
@@ -1135,7 +1135,7 @@ void WorldSession::HandleCharRenameOpcode(WorldPacket& recvData)
     stmt->setUInt32(1, GetAccountId());
     stmt->setString(2, renameInfo->Name);
 
-    _queryProcessor.AddQuery(CharacterDatabase.AsyncQuery(stmt)
+    _queryProcessor.AddCallback(CharacterDatabase.AsyncQuery(stmt)
         .WithPreparedCallback(std::bind(&WorldSession::HandleCharRenameCallBack, this, renameInfo, std::placeholders::_1)));
 }
 
@@ -1376,7 +1376,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_CUSTOMIZE_INFO);
     stmt->setUInt32(0, customizeInfo->Guid.GetCounter());
 
-    _queryProcessor.AddQuery(CharacterDatabase.AsyncQuery(stmt)
+    _queryProcessor.AddCallback(CharacterDatabase.AsyncQuery(stmt)
         .WithPreparedCallback(std::bind(&WorldSession::HandleCharCustomizeCallback, this, customizeInfo, std::placeholders::_1)));
 }
 
@@ -1632,7 +1632,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_RACE_OR_FACTION_CHANGE_INFOS);
     stmt->setUInt32(0, factionChangeInfo->Guid.GetCounter());
 
-    _queryProcessor.AddQuery(CharacterDatabase.AsyncQuery(stmt)
+    _queryProcessor.AddCallback(CharacterDatabase.AsyncQuery(stmt)
         .WithPreparedCallback(std::bind(&WorldSession::HandleCharFactionOrRaceChangeCallback, this, factionChangeInfo, std::placeholders::_1)));
 }
 

@@ -18,13 +18,13 @@
 #ifndef __AUTHSESSION_H__
 #define __AUTHSESSION_H__
 
+#include "AsyncCallbackProcessor.h"
 #include "BigNumber.h"
 #include "ByteBuffer.h"
 #include "Common.h"
 #include "Optional.h"
 #include "Socket.h"
 #include "QueryResult.h"
-#include "QueryCallbackProcessor.h"
 #include <memory>
 #include <boost/asio/ip/tcp.hpp>
 
