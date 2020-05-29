@@ -35,17 +35,6 @@
 #include <zlib.h>
 #include <memory>
 
-class EncryptablePacket : public WorldPacket
-{
-public:
-    EncryptablePacket(WorldPacket const& packet, bool encrypt) : WorldPacket(packet), _encrypt(encrypt) { }
-
-    bool NeedsEncryption() const { return _encrypt; }
-
-private:
-    bool _encrypt;
-};
-
 using boost::asio::ip::tcp;
 
 std::string const WorldSocket::ServerConnectionInitialize("WORLD OF WARCRAFT CONNECTION - SERVER TO CLIENT");

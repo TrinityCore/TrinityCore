@@ -32,7 +32,21 @@
 #include <boost/asio/ip/tcp.hpp>
 
 using boost::asio::ip::tcp;
-class EncryptablePacket;
+class EncryptablePacket : public WorldPacket
+{
+public:
+    EncryptablePacket(WorldPacket const& packet, bool encrypt) : WorldPacket(packet), _encrypt(encrypt)
+    {
+        SocketQueueLink.store(nullptr, std::memory_order_relaxed);
+    }
+
+    bool NeedsEncryption() const { return _encrypt; }
+
+    std::atomic<EncryptablePacket*> SocketQueueLink;
+
+private:
+    bool _encrypt;
+};
 
 struct z_stream_s;
 
@@ -138,7 +152,7 @@ private:
 
     z_stream_s* _compressionStream;
 
-    MPSCQueue<EncryptablePacket> _bufferQueue;
+    MPSCQueue<EncryptablePacket, &EncryptablePacket::SocketQueueLink> _bufferQueue;
     std::size_t _sendBufferSize;
 
     bool _initialized;
