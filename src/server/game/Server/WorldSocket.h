@@ -71,6 +71,7 @@ class TC_GAME_API WorldSocket : public Socket<WorldSocket>
 
 public:
     WorldSocket(tcp::socket&& socket);
+    ~WorldSocket();
 
     WorldSocket(WorldSocket const& right) = delete;
     WorldSocket& operator=(WorldSocket const& right) = delete;

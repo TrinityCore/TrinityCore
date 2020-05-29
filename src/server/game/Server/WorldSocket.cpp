@@ -39,6 +39,8 @@ WorldSocket::WorldSocket(tcp::socket&& socket)
     _headerBuffer.Resize(sizeof(ClientPktHeader));
 }
 
+WorldSocket::~WorldSocket() = default;
+
 void WorldSocket::Start()
 {
     std::string ip_address = GetRemoteIpAddress().to_string();
