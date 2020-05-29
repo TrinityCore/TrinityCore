@@ -78,6 +78,13 @@ class RBACData;
 
 namespace WorldPackets
 {
+    namespace Bank
+    {
+        class AutoBankItem;
+        class AutoStoreBankItem;
+        class BuyBankSlot;
+    }
+
     namespace Character
     {
         class LogoutCancel;
@@ -755,8 +762,6 @@ class TC_GAME_API WorldSession
         void SendActivateTaxiReply(ActivateTaxiReply reply);
 
         void HandleTabardVendorActivateOpcode(WorldPacket& recvPacket);
-        void HandleBankerActivateOpcode(WorldPacket& recvPacket);
-        void HandleBuyBankSlotOpcode(WorldPacket& recvPacket);
         void HandleTrainerListOpcode(WorldPackets::NPC::Hello& packet);
         void HandleTrainerBuySpellOpcode(WorldPackets::NPC::TrainerBuySpell& packet);
         void HandlePetitionShowListOpcode(WorldPacket& recvPacket);
@@ -798,6 +803,12 @@ class TC_GAME_API WorldSession
         void HandleAuctionPlaceBid(WorldPacket& recvData);
         void HandleAuctionListPendingSales(WorldPacket& recvData);
 
+        // Bank
+        void HandleBankerActivateOpcode(WorldPackets::NPC::Hello& packet);
+        void HandleAutoBankItemOpcode(WorldPackets::Bank::AutoBankItem& packet);
+        void HandleAutoStoreBankItemOpcode(WorldPackets::Bank::AutoStoreBankItem& packet);
+        void HandleBuyBankSlotOpcode(WorldPackets::Bank::BuyBankSlot& buyBankSlot);
+
         void HandleGetMailList(WorldPacket& recvData);
         void HandleSendMail(WorldPacket& recvData);
         void HandleMailTakeMoney(WorldPacket& recvData);
@@ -823,8 +834,6 @@ class TC_GAME_API WorldSession
         void HandleAutoEquipItemSlotOpcode(WorldPacket& recvPacket);
         void HandleSwapItem(WorldPacket& recvPacket);
         void HandleBuybackItem(WorldPacket& recvPacket);
-        void HandleAutoBankItemOpcode(WorldPacket& recvPacket);
-        void HandleAutoStoreBankItemOpcode(WorldPacket& recvPacket);
         void HandleWrapItemOpcode(WorldPacket& recvPacket);
 
         void HandleAttackSwingOpcode(WorldPackets::Combat::AttackSwing& packet);
