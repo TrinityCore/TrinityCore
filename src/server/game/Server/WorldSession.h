@@ -23,11 +23,11 @@
 #define __WORLDSESSION_H
 
 #include "Common.h"
+#include "AsyncCallbackProcessor.h"
 #include "DatabaseEnvFwd.h"
 #include "LockedQueue.h"
 #include "ObjectGuid.h"
 #include "Packet.h"
-#include "QueryCallbackProcessor.h"
 #include "SharedDefines.h"
 #include <string>
 #include <map>
@@ -1091,6 +1091,7 @@ class TC_GAME_API WorldSession
 
     public:
         QueryCallbackProcessor& GetQueryProcessor() { return _queryProcessor; }
+        TransactionCallback& AddTransactionCallback(TransactionCallback&& callback);
 
     private:
         void ProcessQueryCallbacks();
@@ -1099,6 +1100,7 @@ class TC_GAME_API WorldSession
         QueryResultHolderFuture _charLoginCallback;
 
         QueryCallbackProcessor _queryProcessor;
+        AsyncCallbackProcessor<TransactionCallback> _transactionCallbacks;
 
     friend class World;
     protected:
