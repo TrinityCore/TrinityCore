@@ -1098,6 +1098,13 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                     CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(petlevel, cinfo->unit_class);
                     float basedamage = stats->GenerateBaseDamage(cinfo);
 
+                    if (Unit* owner = GetOwner())
+                    {
+                        if (owner->GetTypeId() != TypeID::TYPEID_PLAYER)
+                        {
+                            basedamage = basedamage * cinfo->ModDamage;
+                        }
+                    }
                     float weaponBaseMinDamage = basedamage;
                     float weaponBaseMaxDamage = basedamage * 1.5f;
 

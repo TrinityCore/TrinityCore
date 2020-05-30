@@ -109,6 +109,8 @@ public:
     float WorldBossMPMod_Level;
     float RareMPMod_Level;
 
+    std::string CreatureModException;
+
     float PlayerHPMod_Level;
     float PlayerMPMod_Level;
 
@@ -123,6 +125,10 @@ public:
     uint32 LootCountEachGroup_RareElite;
     uint32 LootCountEachGroup_WorldBoss;
     uint32 LootCountEachGroup_Rare;
+
+    std::unordered_set<uint32> CreatureModExceptionSet;
+    std::vector<std::string> SplitString(std::string srcStr, std::string delimStr, bool repeatedCharIgnored);
+    std::string TrimString(std::string srcStr);
 };
 
 #define sJokerConfig JokerConfig::instance()

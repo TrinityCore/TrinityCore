@@ -142,7 +142,7 @@ bool Script_Base::SubTank(Unit* pmTarget, bool pmChase)
     }
     else
     {
-        if (!me->isInFront(pmTarget))
+        if (!me->isInFront(pmTarget, M_PI / 16))
         {
             me->SetFacingToObject(pmTarget);
         }
@@ -1084,10 +1084,10 @@ void Script_Base::TryEquip(std::unordered_set<uint32> pmClassSet, std::unordered
         {
             continue;
         }
-        if (proto->RandomSuffix > 0)
-        {
-            continue;
-        }
+        //if (proto->RandomSuffix > 0)
+        //{
+        //    continue;
+        //}
         std::unordered_set<uint32> usableSlotSet = sRobotManager->GetUsableEquipSlot(proto);
         if (usableSlotSet.find(pmTargetSlot) != usableSlotSet.end())
         {
@@ -1370,6 +1370,8 @@ bool Script_Base::Chase(Unit* pmTarget, float pmMaxDistance, float pmMinDistance
 {
     chaseDistanceMax = pmMaxDistance;
     chaseDistanceMin = pmMinDistance;
+    //chaseDistanceMax = pmTarget->GetCombatReach() + chaseDistanceMax;
+    //chaseDistanceMin = pmTarget->GetCombatReach() + chaseDistanceMin;
     if (!me)
     {
         return false;
@@ -1386,10 +1388,10 @@ bool Script_Base::Chase(Unit* pmTarget, float pmMaxDistance, float pmMinDistance
     {
         return true;
     }
-    float currentDistance = me->GetDistance(pmTarget);
-    if (pmMinDistance > INTERACTION_DISTANCE)
+    float currentDistance = me->GetExactDist(pmTarget);
+    if (chaseDistanceMin > INTERACTION_DISTANCE)
     {
-        if (currentDistance < pmMinDistance)
+        if (currentDistance < chaseDistanceMin)
         {
             if (pmTarget->GetTarget() != me->GetGUID())
             {
@@ -1401,7 +1403,7 @@ bool Script_Base::Chase(Unit* pmTarget, float pmMaxDistance, float pmMinDistance
                 float destX = 0.0f;
                 float destY = 0.0f;
                 float destZ = 0.0f;
-                pmTarget->GetNearPoint(pmTarget, destX, destY, destZ, pmMinDistance + MELEE_MIN_DISTANCE, pmTarget->GetAbsoluteAngle(me));
+                pmTarget->GetNearPoint(pmTarget, destX, destY, destZ, chaseDistanceMin + MELEE_MIN_DISTANCE, pmTarget->GetAbsoluteAngle(me));
                 me->GetMotionMaster()->MovePoint(0, destX, destY, destZ, true, me->GetAbsoluteAngle(pmTarget));
                 return true;
             }
@@ -1462,7 +1464,7 @@ bool Script_Base::Chase(Unit* pmTarget, float pmMaxDistance, float pmMinDistance
         me->SetWalk(false);
     }
     ChooseTarget(pmTarget);
-    me->GetMotionMaster()->MoveChase(pmTarget, ChaseRange(pmMinDistance, pmMaxDistance));
+    me->GetMotionMaster()->MoveChase(pmTarget, ChaseRange(chaseDistanceMin, chaseDistanceMax));
     return true;
 }
 
@@ -1526,7 +1528,8 @@ bool Script_Base::CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDis
     const SpellInfo* pST = sSpellMgr->GetSpellInfo(spellID);
     if (pmTarget->GetGUID() != me->GetGUID())
     {
-        if (me->GetDistance(pmTarget) > pmDistance)
+        float actualDistance = me->GetDistance(pmTarget);
+        if (actualDistance > pmDistance)
         {
             return false;
         }
@@ -1561,7 +1564,7 @@ bool Script_Base::CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDis
     {
         ChooseTarget(pmTarget);
     }
-    if (!me->isInFront(pmTarget))
+    if (!me->isInFront(pmTarget, M_PI / 16))
     {
         me->SetFacingToObject(pmTarget);
     }

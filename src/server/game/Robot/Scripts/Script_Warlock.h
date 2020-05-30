@@ -2,7 +2,7 @@
 #define ROBOT_STRATEGIES_SCRIPT_WARLOCK_H
 
 #ifndef WARLOCK_RANGE_DISTANCE
-# define WARLOCK_RANGE_DISTANCE 25
+# define WARLOCK_RANGE_DISTANCE 30
 #endif
 
 #include "Script_Base.h"

@@ -14,7 +14,7 @@
 #endif
 
 #ifndef DRUID_RANGE_DISTANCE
-# define DRUID_RANGE_DISTANCE 25
+# define DRUID_RANGE_DISTANCE 30
 #endif
 
 #ifndef DRUID_CHARGE_DISTANCE

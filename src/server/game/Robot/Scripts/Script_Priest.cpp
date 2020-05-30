@@ -60,54 +60,53 @@ bool Script_Priest::Heal_Holy(Unit* pmTarget, bool pmCure)
     {
         return false;
     }
-    if (me->GetDistance(pmTarget) > PRIEST_RANGE_DISTANCE)
+    if (me->GetDistance(pmTarget) > PRIEST_HEAL_DISTANCE)
     {
         return false;
     }
     float healthPCT = pmTarget->GetHealthPct();
-    if (healthPCT < 30.0f)
+    if (healthPCT > 40.0f && healthPCT < 90.0f)
     {
-        if (CastSpell(pmTarget, "Desperate Prayer", PRIEST_RANGE_DISTANCE))
+        if (!HasAura(pmTarget, "Weakened Soul"))
+        {
+            if (pmTarget->IsInCombat())
+            {
+                if (CastSpell(pmTarget, "Power Word: Shield", PRIEST_HEAL_DISTANCE))
+                {
+                    return true;
+                }
+            }
+        }
+        if (CastSpell(pmTarget, "Renew", PRIEST_HEAL_DISTANCE, true, true))
         {
             return true;
         }
     }
-    if (healthPCT < 60.0f)
+    if (healthPCT < 40.0f)
     {
-        if (CastSpell(pmTarget, "Greater Heal", PRIEST_RANGE_DISTANCE))
+        if (CastSpell(pmTarget, "Desperate Prayer", PRIEST_HEAL_DISTANCE))
         {
             return true;
         }
-        if (CastSpell(pmTarget, "Heal", PRIEST_RANGE_DISTANCE))
+    }
+    if (healthPCT < 50.0f)
+    {
+        if (CastSpell(pmTarget, "Flash Heal", PRIEST_HEAL_DISTANCE))
         {
             return true;
         }
     }
     if (healthPCT < 80.0f)
     {
-        if (CastSpell(pmTarget, "Flash Heal", PRIEST_RANGE_DISTANCE))
+        if (CastSpell(pmTarget, "Greater Heal", PRIEST_HEAL_DISTANCE))
+        {
+            return true;
+        }
+        if (CastSpell(pmTarget, "Heal", PRIEST_HEAL_DISTANCE))
         {
             return true;
         }
     }
-    if (healthPCT < 90.0f)
-    {
-        if (!HasAura(pmTarget, "Weakened Soul"))
-        {
-            if (pmTarget->IsInCombat())
-            {
-                if (CastSpell(pmTarget, "Power Word: Shield", PRIEST_RANGE_DISTANCE))
-                {
-                    return true;
-                }
-            }
-        }
-        if (CastSpell(pmTarget, "Renew", PRIEST_RANGE_DISTANCE, true))
-        {
-            return true;
-        }
-    }
-
     if (pmCure)
     {
         for (uint32 type = SPELL_AURA_NONE; type < TOTAL_AURAS; ++type)
@@ -120,7 +119,7 @@ bool Script_Priest::Heal_Holy(Unit* pmTarget, bool pmCure)
                 {
                     if (pST->Dispel == DispelType::DISPEL_DISEASE)
                     {
-                        if (CastSpell(pmTarget, "Cure Disease"))
+                        if (CastSpell(pmTarget, "Cure Disease", PRIEST_HEAL_DISTANCE))
                         {
                             return true;
                         }
@@ -170,7 +169,7 @@ bool Script_Priest::GroupHeal_Holy()
     {
         return false;
     }
-    if (CastSpell(me, "Circle of Healing", PRIEST_RANGE_DISTANCE))
+    if (CastSpell(me, "Circle of Healing", PRIEST_HEAL_DISTANCE))
     {
         return true;
     }
@@ -182,9 +181,9 @@ bool Script_Priest::GroupHeal_Holy()
             {
                 if (member->GetHealthPct() < 60.0f)
                 {
-                    if (me->GetDistance(member) > MID_RANGE && me->GetDistance(member) < PRIEST_RANGE_DISTANCE)
+                    if (me->GetDistance(member) > MID_RANGE && me->GetDistance(member) < PRIEST_HEAL_DISTANCE)
                     {
-                        if (CastSpell(me, "Prayer of Healing", PRIEST_RANGE_DISTANCE))
+                        if (CastSpell(me, "Prayer of Healing", PRIEST_HEAL_DISTANCE))
                         {
                             return true;
                         }
@@ -192,7 +191,7 @@ bool Script_Priest::GroupHeal_Holy()
                 }
             }
         }
-        if (CastSpell(me, "Holy Nova", PRIEST_RANGE_DISTANCE))
+        if (CastSpell(me, "Holy Nova", PRIEST_HEAL_DISTANCE))
         {
             return true;
         }
@@ -265,7 +264,7 @@ bool Script_Priest::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE, Player*
     }
     else
     {
-        if (!me->isInFront(pmTarget))
+        if (!me->isInFront(pmTarget, M_PI / 16))
         {
             me->SetFacingToObject(pmTarget);
         }
@@ -418,7 +417,7 @@ bool Script_Priest::Buff(Unit* pmTarget, bool pmCure)
                     {
                         if (pST->Dispel == DispelType::DISPEL_DISEASE)
                         {
-                            if (CastSpell(pmTarget, "Cure Disease"))
+                            if (CastSpell(pmTarget, "Cure Disease", PRIEST_HEAL_DISTANCE))
                             {
                                 return true;
                             }

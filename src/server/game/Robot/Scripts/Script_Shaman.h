@@ -2,7 +2,7 @@
 #define ROBOT_STRATEGIES_SCRIPT_SHAMAN_H
 
 #ifndef SHAMAN_RANGE_DISTANCE
-# define SHAMAN_RANGE_DISTANCE 25
+# define SHAMAN_RANGE_DISTANCE 30
 #endif
 
 #include "Script_Base.h"

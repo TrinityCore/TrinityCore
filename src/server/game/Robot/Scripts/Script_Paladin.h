@@ -10,7 +10,7 @@
 #endif
 
 #ifndef PALADIN_RANGE_DISTANCE
-# define PALADIN_RANGE_DISTANCE 25
+# define PALADIN_RANGE_DISTANCE 30
 #endif
 
 #include "Script_Base.h"

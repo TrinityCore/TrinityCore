@@ -1450,137 +1450,141 @@ void Creature::UpdateLevelDependantStats()
     // EJ mod 
     if (sJokerConfig->Enable)
     {
-        float attackMod_total = 1.0f;
-        float spellMod_total = 1.0f;
-        float hpMod_total = 1.0f;
-        float mpMod_total = 1.0f;
-
-        float attackMod_level = 1.0f;
-        float spellMod_level = 1.0f;
-        float hpMod_level = 1.0f;
-        float mpMod_level = 1.0f;
-        if (cInfo->rank == CreatureEliteType::CREATURE_ELITE_NORMAL)
+        uint32 checkEntry = GetEntry();     
+        if (sJokerConfig->CreatureModExceptionSet.find(checkEntry) == sJokerConfig->CreatureModExceptionSet.end())
         {
-            attackMod_total = sJokerConfig->NormalAttackMod_Total;
-            spellMod_total = sJokerConfig->NormalSpellMod_Total;
-            hpMod_total = sJokerConfig->NormalHPMod_Total;
-            mpMod_total = sJokerConfig->NormalMPMod_Total;
+            float attackMod_total = 1.0f;
+            float spellMod_total = 1.0f;
+            float hpMod_total = 1.0f;
+            float mpMod_total = 1.0f;
 
-            attackMod_level = sJokerConfig->NormalAttackMod_Level;
-            spellMod_level = sJokerConfig->NormalSpellMod_Level;
-            hpMod_level = sJokerConfig->NormalHPMod_Level;
-            mpMod_level = sJokerConfig->NormalMPMod_Level;
-        }
-        else if (cInfo->rank == CreatureEliteType::CREATURE_ELITE_ELITE)
-        {
-            if (sObjectMgr->ieSet.find(cInfo->Entry) != sObjectMgr->ieSet.end())
+            float attackMod_level = 1.0f;
+            float spellMod_level = 1.0f;
+            float hpMod_level = 1.0f;
+            float mpMod_level = 1.0f;
+            if (cInfo->rank == CreatureEliteType::CREATURE_ELITE_NORMAL)
             {
-                attackMod_total = sJokerConfig->InstanceEncounterAttackMod_Total;
-                spellMod_total = sJokerConfig->InstanceEncounterSpellMod_Total;
-                hpMod_total = sJokerConfig->InstanceEncounterHPMod_Total;
-                mpMod_total = sJokerConfig->InstanceEncounterMPMod_Total;
+                attackMod_total = sJokerConfig->NormalAttackMod_Total;
+                spellMod_total = sJokerConfig->NormalSpellMod_Total;
+                hpMod_total = sJokerConfig->NormalHPMod_Total;
+                mpMod_total = sJokerConfig->NormalMPMod_Total;
 
-                attackMod_level = sJokerConfig->InstanceEncounterAttackMod_Level;
-                spellMod_level = sJokerConfig->InstanceEncounterSpellMod_Level;
-                hpMod_level = sJokerConfig->InstanceEncounterHPMod_Level;
-                mpMod_level = sJokerConfig->InstanceEncounterMPMod_Level;
+                attackMod_level = sJokerConfig->NormalAttackMod_Level;
+                spellMod_level = sJokerConfig->NormalSpellMod_Level;
+                hpMod_level = sJokerConfig->NormalHPMod_Level;
+                mpMod_level = sJokerConfig->NormalMPMod_Level;
             }
-            else if (sObjectMgr->ueSet.find(cInfo->Entry) != sObjectMgr->ueSet.end())
+            else if (cInfo->rank == CreatureEliteType::CREATURE_ELITE_ELITE)
             {
-                attackMod_total = sJokerConfig->UniqueEliteAttackMod_Total;
-                spellMod_total = sJokerConfig->UniqueEliteSpellMod_Total;
-                hpMod_total = sJokerConfig->UniqueEliteHPMod_Total;
-                mpMod_total = sJokerConfig->UniqueEliteMPMod_Total;
+                if (sObjectMgr->ieSet.find(cInfo->Entry) != sObjectMgr->ieSet.end())
+                {
+                    attackMod_total = sJokerConfig->InstanceEncounterAttackMod_Total;
+                    spellMod_total = sJokerConfig->InstanceEncounterSpellMod_Total;
+                    hpMod_total = sJokerConfig->InstanceEncounterHPMod_Total;
+                    mpMod_total = sJokerConfig->InstanceEncounterMPMod_Total;
 
-                attackMod_level = sJokerConfig->UniqueEliteAttackMod_Level;
-                spellMod_level = sJokerConfig->UniqueEliteSpellMod_Level;
-                hpMod_level = sJokerConfig->UniqueEliteHPMod_Level;
-                mpMod_level = sJokerConfig->UniqueEliteMPMod_Level;
+                    attackMod_level = sJokerConfig->InstanceEncounterAttackMod_Level;
+                    spellMod_level = sJokerConfig->InstanceEncounterSpellMod_Level;
+                    hpMod_level = sJokerConfig->InstanceEncounterHPMod_Level;
+                    mpMod_level = sJokerConfig->InstanceEncounterMPMod_Level;
+                }
+                else if (sObjectMgr->ueSet.find(cInfo->Entry) != sObjectMgr->ueSet.end())
+                {
+                    attackMod_total = sJokerConfig->UniqueEliteAttackMod_Total;
+                    spellMod_total = sJokerConfig->UniqueEliteSpellMod_Total;
+                    hpMod_total = sJokerConfig->UniqueEliteHPMod_Total;
+                    mpMod_total = sJokerConfig->UniqueEliteMPMod_Total;
+
+                    attackMod_level = sJokerConfig->UniqueEliteAttackMod_Level;
+                    spellMod_level = sJokerConfig->UniqueEliteSpellMod_Level;
+                    hpMod_level = sJokerConfig->UniqueEliteHPMod_Level;
+                    mpMod_level = sJokerConfig->UniqueEliteMPMod_Level;
+                }
+                else
+                {
+                    attackMod_total = sJokerConfig->EliteAttackMod_Total;
+                    spellMod_total = sJokerConfig->EliteSpellMod_Total;
+                    hpMod_total = sJokerConfig->EliteHPMod_Total;
+                    mpMod_total = sJokerConfig->EliteMPMod_Total;
+
+                    attackMod_level = sJokerConfig->EliteAttackMod_Level;
+                    spellMod_level = sJokerConfig->EliteSpellMod_Level;
+                    hpMod_level = sJokerConfig->EliteHPMod_Level;
+                    mpMod_level = sJokerConfig->EliteMPMod_Level;
+                }
             }
-            else
+            else if (cInfo->rank == CreatureEliteType::CREATURE_ELITE_RAREELITE)
             {
-                attackMod_total = sJokerConfig->EliteAttackMod_Total;
-                spellMod_total = sJokerConfig->EliteSpellMod_Total;
-                hpMod_total = sJokerConfig->EliteHPMod_Total;
-                mpMod_total = sJokerConfig->EliteMPMod_Total;
+                attackMod_total = sJokerConfig->RareEliteAttackMod_Total;
+                spellMod_total = sJokerConfig->RareEliteSpellMod_Total;
+                hpMod_total = sJokerConfig->RareEliteHPMod_Total;
+                mpMod_total = sJokerConfig->RareEliteMPMod_Total;
 
-                attackMod_level = sJokerConfig->EliteAttackMod_Level;
-                spellMod_level = sJokerConfig->EliteSpellMod_Level;
-                hpMod_level = sJokerConfig->EliteHPMod_Level;
-                mpMod_level = sJokerConfig->EliteMPMod_Level;
+                attackMod_level = sJokerConfig->RareEliteAttackMod_Level;
+                spellMod_level = sJokerConfig->RareEliteSpellMod_Level;
+                hpMod_level = sJokerConfig->RareEliteHPMod_Level;
+                mpMod_level = sJokerConfig->RareEliteMPMod_Level;
             }
-        }
-        else if (cInfo->rank == CreatureEliteType::CREATURE_ELITE_RAREELITE)
-        {
-            attackMod_total = sJokerConfig->RareEliteAttackMod_Total;
-            spellMod_total = sJokerConfig->RareEliteSpellMod_Total;
-            hpMod_total = sJokerConfig->RareEliteHPMod_Total;
-            mpMod_total = sJokerConfig->RareEliteMPMod_Total;
+            else if (cInfo->rank == CreatureEliteType::CREATURE_ELITE_WORLDBOSS)
+            {
+                attackMod_total = sJokerConfig->WorldBossAttackMod_Total;
+                spellMod_total = sJokerConfig->WorldBossSpellMod_Total;
+                hpMod_total = sJokerConfig->WorldBossHPMod_Total;
+                mpMod_total = sJokerConfig->WorldBossMPMod_Total;
 
-            attackMod_level = sJokerConfig->RareEliteAttackMod_Level;
-            spellMod_level = sJokerConfig->RareEliteSpellMod_Level;
-            hpMod_level = sJokerConfig->RareEliteHPMod_Level;
-            mpMod_level = sJokerConfig->RareEliteMPMod_Level;
-        }
-        else if (cInfo->rank == CreatureEliteType::CREATURE_ELITE_WORLDBOSS)
-        {
-            attackMod_total = sJokerConfig->WorldBossAttackMod_Total;
-            spellMod_total = sJokerConfig->WorldBossSpellMod_Total;
-            hpMod_total = sJokerConfig->WorldBossHPMod_Total;
-            mpMod_total = sJokerConfig->WorldBossMPMod_Total;
+                attackMod_level = sJokerConfig->WorldBossAttackMod_Level;
+                spellMod_level = sJokerConfig->WorldBossSpellMod_Level;
+                hpMod_level = sJokerConfig->WorldBossHPMod_Level;
+                mpMod_level = sJokerConfig->WorldBossMPMod_Level;
+            }
+            else if (cInfo->rank == CreatureEliteType::CREATURE_ELITE_RARE)
+            {
+                attackMod_total = sJokerConfig->RareAttackMod_Total;
+                spellMod_total = sJokerConfig->RareSpellMod_Total;
+                hpMod_total = sJokerConfig->RareHPMod_Total;
+                mpMod_total = sJokerConfig->RareMPMod_Total;
 
-            attackMod_level = sJokerConfig->WorldBossAttackMod_Level;
-            spellMod_level = sJokerConfig->WorldBossSpellMod_Level;
-            hpMod_level = sJokerConfig->WorldBossHPMod_Level;
-            mpMod_level = sJokerConfig->WorldBossMPMod_Level;
-        }
-        else if (cInfo->rank == CreatureEliteType::CREATURE_ELITE_RARE)
-        {
-            attackMod_total = sJokerConfig->RareAttackMod_Total;
-            spellMod_total = sJokerConfig->RareSpellMod_Total;
-            hpMod_total = sJokerConfig->RareHPMod_Total;
-            mpMod_total = sJokerConfig->RareMPMod_Total;
+                attackMod_level = sJokerConfig->RareAttackMod_Level;
+                spellMod_level = sJokerConfig->RareSpellMod_Level;
+                hpMod_level = sJokerConfig->RareHPMod_Level;
+                mpMod_level = sJokerConfig->RareMPMod_Level;
+            }
 
-            attackMod_level = sJokerConfig->RareAttackMod_Level;
-            spellMod_level = sJokerConfig->RareSpellMod_Level;
-            hpMod_level = sJokerConfig->RareHPMod_Level;
-            mpMod_level = sJokerConfig->RareMPMod_Level;
-        }
+            float levelModPower = (float)GetLevel();
+            if (levelModPower > sJokerConfig->MaxModLevel)
+            {
+                levelModPower = sJokerConfig->MaxModLevel;
+            }
+            levelModPower = levelModPower * levelModPower;
+            levelModPower = levelModPower / 10000.0f;
 
-        float levelModPower = (float)GetLevel();
-        if (levelModPower > sJokerConfig->MaxModLevel)
-        {
-            levelModPower = sJokerConfig->MaxModLevel;
-        }
-        levelModPower = levelModPower * levelModPower;
-        levelModPower = levelModPower / 10000.0f;
+            attackMod_level = attackMod_level * levelModPower;
+            if (GetClass() == UnitClass::UNIT_CLASS_PALADIN)
+            {
+                attackMod_level = attackMod_level * 0.75f;
+            }
+            else if (GetClass() == UnitClass::UNIT_CLASS_MAGE)
+            {
+                attackMod_level = attackMod_level * 0.5f;
+            }
+            spellMod_level = spellMod_level * levelModPower;
+            hpMod_level = hpMod_level * levelModPower;
+            mpMod_level = mpMod_level * levelModPower;
 
-        attackMod_level = attackMod_level * levelModPower;
-        if (GetClass() == UnitClass::UNIT_CLASS_PALADIN)
-        {
-            attackMod_level = attackMod_level * 0.75f;
-        }
-        else if (GetClass() == UnitClass::UNIT_CLASS_MAGE)
-        {
-            attackMod_level = attackMod_level * 0.5f;
-        }
-        spellMod_level = spellMod_level * levelModPower;
-        hpMod_level = hpMod_level * levelModPower;
-        mpMod_level = mpMod_level * levelModPower;
+            float attackMod_creature_template = 0.0f;
+            if (GetCreatureTemplate()->ModDamage > 1.0f)
+            {
+                attackMod_creature_template = GetCreatureTemplate()->ModDamage / 2.0f;
+            }
 
-        float attackMod_creature_template = 0.0f;
-        if (GetCreatureTemplate()->ModDamage > 1.0f)
-        {
-            attackMod_creature_template = GetCreatureTemplate()->ModDamage / 2.0f;
+            jokerAttackMod = attackMod_total + attackMod_level + attackMod_creature_template;
+            jokerSpellMod = spellMod_total + spellMod_level;
+            jokerHPMod = hpMod_total + hpMod_level;
+            jokerMPMod = mpMod_total + mpMod_level;
+
+            health = health * jokerHPMod;
+            mana = mana * jokerMPMod;
         }
-
-        jokerAttackMod = attackMod_total + attackMod_level+ attackMod_creature_template;
-        jokerSpellMod = spellMod_total + spellMod_level;
-        jokerHPMod = hpMod_total + hpMod_level;
-        jokerMPMod = mpMod_total + mpMod_level;
-
-        health = health * jokerHPMod;
-        mana = mana * jokerMPMod;
     }
 
     SetCreateHealth(health);

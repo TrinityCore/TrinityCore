@@ -10,7 +10,7 @@
 #endif
 
 #ifndef HUNTER_RANGE_DISTANCE
-# define HUNTER_RANGE_DISTANCE 25
+# define HUNTER_RANGE_DISTANCE 35
 #endif
 
 #include "Script_Base.h"

@@ -48,7 +48,7 @@ public:
     bool Follow(Unit* pmTarget, float pmDistance = FOLLOW_MIN_DISTANCE);
     void ChooseTarget(Unit* pmTarget);
     void ClearTarget();
-    std::set<Unit*> GetAttackersInRange(float pmRangeLimit = FOLLOW_MAX_DISTANCE);
+    std::set<Unit*> GetAttackersInRange(float pmRangeLimit = RANGED_MAX_DISTANCE);
 
     Player* me;
     std::unordered_map<std::string, uint32> spellIDMap;

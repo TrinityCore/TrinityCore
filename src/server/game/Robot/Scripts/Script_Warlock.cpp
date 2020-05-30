@@ -109,7 +109,7 @@ bool Script_Warlock::DPS_Affliction(Unit* pmTarget, bool pmChase, bool pmAOE, Pl
     }
     else
     {
-        if (!me->isInFront(pmTarget))
+        if (!me->isInFront(pmTarget, M_PI / 16))
         {
             me->SetFacingToObject(pmTarget);
         }
@@ -166,7 +166,7 @@ bool Script_Warlock::DPS_Demonology(Unit* pmTarget, bool pmChase, bool pmAOE, Pl
     }
     else
     {
-        if (!me->isInFront(pmTarget))
+        if (!me->isInFront(pmTarget, M_PI / 16))
         {
             me->SetFacingToObject(pmTarget);
         }
@@ -223,7 +223,7 @@ bool Script_Warlock::DPS_Destruction(Unit* pmTarget, bool pmChase, bool pmAOE, P
     }
     else
     {
-        if (!me->isInFront(pmTarget))
+        if (!me->isInFront(pmTarget, M_PI / 16))
         {
             me->SetFacingToObject(pmTarget);
         }
@@ -334,7 +334,7 @@ bool Script_Warlock::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE, Player
     }
     else
     {
-        if (!me->isInFront(pmTarget))
+        if (!me->isInFront(pmTarget, M_PI / 16))
         {
             me->SetFacingToObject(pmTarget);
         }

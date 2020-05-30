@@ -2,7 +2,7 @@
 #define ROBOT_STRATEGIES_SCRIPT_MAGE_H
 
 #ifndef MAGE_RANGE_DISTANCE
-# define MAGE_RANGE_DISTANCE 25
+# define MAGE_RANGE_DISTANCE 30
 #endif
 
 #include "Script_Base.h"

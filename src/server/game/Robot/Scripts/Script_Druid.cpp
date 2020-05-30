@@ -40,7 +40,7 @@ bool Script_Druid::SubTank(Unit* pmTarget, bool pmChase)
     }
     else
     {
-        if (!me->isInFront(pmTarget))
+        if (!me->isInFront(pmTarget, M_PI / 16))
         {
             me->SetFacingToObject(pmTarget);
         }
@@ -77,15 +77,26 @@ bool Script_Druid::SubTank(Unit* pmTarget, bool pmChase)
         return true;
     }
     }
-    if (me->GetHealthPct() < 20.0f)
+    if (me->GetHealthPct() < 30.0f)
     {
         UseHealingPotion();
     }
-    if (me->GetHealthPct() < 10.0f)
+    if (me->GetHealthPct() < 20.0f)
     {
-        CastSpell(me, "Survival Instincts");
+        if (CastSpell(me, "Survival Instincts"))
+        {
+            me->Yell("Survival Instincts!", Language::LANG_UNIVERSAL);
+        }        
     }
     me->Attack(pmTarget, true);
+    uint32 rage = me->GetPower(Powers::POWER_RAGE);
+    if (rage > 300)
+    {
+        if (CastSpell(pmTarget, "Maul", MELEE_MAX_DISTANCE))
+        {
+            return true;
+        }
+    }
 
     return true;
 }
@@ -128,13 +139,16 @@ bool Script_Druid::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank)
     }
     case 1:
     {
-        if (me->GetHealthPct() < 20.0f)
+        if (me->GetHealthPct() < 30.0f)
         {
             UseHealingPotion();
         }
-        if (me->GetHealthPct() < 10.0f)
+        if (me->GetHealthPct() < 20.0f)
         {
-            CastSpell(me, "Survival Instincts");
+            if (CastSpell(me, "Survival Instincts"))
+            {
+                me->Yell("Survival Instincts!", Language::LANG_UNIVERSAL);
+            }
         }
         return DPS_Feral(pmTarget, pmChase, pmAOE, pmTank);
     }
@@ -205,7 +219,7 @@ bool Script_Druid::DPS_Balance(Unit* pmTarget, bool pmChase, bool pmAOE, Player*
     }
     else
     {
-        if (!me->isInFront(pmTarget))
+        if (!me->isInFront(pmTarget, M_PI / 16))
         {
             me->SetFacingToObject(pmTarget);
         }
@@ -362,7 +376,7 @@ bool Script_Druid::DPS_Feral(Unit* pmTarget, bool pmChase, bool pmAOE, Player* p
         }
         else
         {
-            if (!me->isInFront(pmTarget))
+            if (!me->isInFront(pmTarget, M_PI / 16))
             {
                 me->SetFacingToObject(pmTarget);
             }
@@ -442,13 +456,16 @@ bool Script_Druid::Tank(Unit* pmTarget, bool pmChase, bool pmSingle)
     {
         return false;
     }
-    if (me->GetHealthPct() < 20.0f)
+    if (me->GetHealthPct() < 30.0f)
     {
         UseHealingPotion();
     }
-    if (me->GetHealthPct() < 10.0f)
+    if (me->GetHealthPct() < 20.0f)
     {
-        CastSpell(me, "Survival Instincts");
+        if (CastSpell(me, "Survival Instincts"))
+        {
+            me->Yell("Survival Instincts!", Language::LANG_UNIVERSAL);
+        }
     }
     switch (characterTalentTab)
     {
@@ -512,7 +529,7 @@ bool Script_Druid::Tank_Feral(Unit* pmTarget, bool pmChase, bool pmSingle)
     }
     else
     {
-        if (!me->isInFront(pmTarget))
+        if (!me->isInFront(pmTarget, M_PI / 16))
         {
             me->SetFacingToObject(pmTarget);
         }
@@ -698,7 +715,7 @@ bool Script_Druid::Taunt(Unit* pmTarget)
     }
     }
 
-    CastSpell(pmTarget, "Growl");
+    CastSpell(pmTarget, "Growl", DRUID_RANGE_DISTANCE);
     return true;
 }
 
@@ -720,13 +737,16 @@ bool Script_Druid::Attack(Unit* pmTarget)
     }
     case 1:
     {
-        if (me->GetHealthPct() < 20.0f)
+        if (me->GetHealthPct() < 30.0f)
         {
             UseHealingPotion();
         }
-        if (me->GetHealthPct() < 10.0f)
+        if (me->GetHealthPct() < 20.0f)
         {
-            CastSpell(me, "Survival Instincts");
+            if (CastSpell(me, "Survival Instincts"))
+            {
+                me->Yell("Survival Instincts!", Language::LANG_UNIVERSAL);
+            }
         }
         return Attack_Feral(pmTarget);
     }

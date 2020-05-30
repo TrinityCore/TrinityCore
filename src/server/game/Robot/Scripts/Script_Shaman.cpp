@@ -78,7 +78,7 @@ bool Script_Shaman::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE, Player*
     }
     else
     {
-        if (!me->isInFront(pmTarget))
+        if (!me->isInFront(pmTarget, M_PI / 16))
         {
             me->SetFacingToObject(pmTarget);
         }

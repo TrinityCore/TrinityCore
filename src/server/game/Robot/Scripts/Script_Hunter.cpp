@@ -99,7 +99,7 @@ bool Script_Hunter::DPS_BeastMastery(Unit* pmTarget, bool pmChase, bool pmAOE, P
     }
     else
     {
-        if (!me->isInFront(pmTarget))
+        if (!me->isInFront(pmTarget, M_PI / 16))
         {
             me->SetFacingToObject(pmTarget);
         }
@@ -189,7 +189,7 @@ bool Script_Hunter::DPS_Marksmanship(Unit* pmTarget, bool pmChase, bool pmAOE, P
     }
     else
     {
-        if (!me->isInFront(pmTarget))
+        if (!me->isInFront(pmTarget, M_PI / 16))
         {
             me->SetFacingToObject(pmTarget);
         }
@@ -321,7 +321,7 @@ bool Script_Hunter::DPS_Survival(Unit* pmTarget, bool pmChase, bool pmAOE, Playe
     }
     else
     {
-        if (!me->isInFront(pmTarget))
+        if (!me->isInFront(pmTarget, M_PI / 16))
         {
             me->SetFacingToObject(pmTarget);
         }
@@ -754,7 +754,10 @@ bool Script_Hunter::Buff(Unit* pmTarget, bool pmCure)
         {
             if (Pet* myPet = me->GetPet())
             {
-                myPet->DespawnOrUnsummon(500);
+                if (CastSpell(myPet, "Dismiss Pet", HUNTER_RANGE_DISTANCE, true))
+                {
+                    return true;
+                }
             }
         }
     }

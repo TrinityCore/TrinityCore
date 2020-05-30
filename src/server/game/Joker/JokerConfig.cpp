@@ -234,6 +234,17 @@ bool JokerConfig::StartJokerSystem()
     WorldBossMPMod_Level = GetFloatDefault("WorldBossMPMod_Level", 1.0f);
     RareEliteMPMod_Level = GetFloatDefault("RareEliteMPMod_Level", 1.0f);
 
+    CreatureModException = GetStringDefault("CreatureModException", "");
+    CreatureModExceptionSet.clear();
+    std::string exceptions = TrimString(CreatureModException);
+    std::vector<std::string> exceptionVector = SplitString(exceptions, " ", true);
+    for (std::vector<std::string>::iterator exceptionIT = exceptionVector.begin(); exceptionIT != exceptionVector.end(); exceptionIT++)
+    {
+        std::string eachExceptionStr = *exceptionIT;
+        uint32 eachEntry = atoi(eachExceptionStr.c_str());
+        CreatureModExceptionSet.insert(eachEntry);
+    }
+
     PlayerHPMod_Level = GetFloatDefault("PlayerHPMod_Level", 1.0f);
     PlayerMPMod_Level = GetFloatDefault("PlayerMPMod_Level", 1.0f);
 
@@ -256,4 +267,37 @@ bool JokerConfig::StartJokerSystem()
     }
 
     return true;
+}
+
+std::vector<std::string> JokerConfig::SplitString(std::string srcStr, std::string delimStr, bool repeatedCharIgnored)
+{
+    std::vector<std::string> resultStringVector;
+    std::replace_if(srcStr.begin(), srcStr.end(), [&](const char& c) {if (delimStr.find(c) != std::string::npos) { return true; } else { return false; }}/*pred*/, delimStr.at(0));
+    size_t pos = srcStr.find(delimStr.at(0));
+    std::string addedString = "";
+    while (pos != std::string::npos) {
+        addedString = srcStr.substr(0, pos);
+        if (!addedString.empty() || !repeatedCharIgnored) {
+            resultStringVector.push_back(addedString);
+        }
+        srcStr.erase(srcStr.begin(), srcStr.begin() + pos + 1);
+        pos = srcStr.find(delimStr.at(0));
+    }
+    addedString = srcStr;
+    if (!addedString.empty() || !repeatedCharIgnored) {
+        resultStringVector.push_back(addedString);
+    }
+    return resultStringVector;
+}
+
+std::string JokerConfig::TrimString(std::string srcStr)
+{
+    std::string result = srcStr;
+    if (!result.empty())
+    {
+        result.erase(0, result.find_first_not_of(" "));
+        result.erase(result.find_last_not_of(" ") + 1);
+    }
+
+    return result;
 }

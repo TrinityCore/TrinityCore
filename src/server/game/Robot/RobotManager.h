@@ -28,7 +28,7 @@
 #endif
 
 #ifndef FOLLOW_MAX_DISTANCE
-# define FOLLOW_MAX_DISTANCE 30.0f
+# define FOLLOW_MAX_DISTANCE 60.0f
 #endif
 
 #ifndef MELEE_MIN_DISTANCE
@@ -45,6 +45,10 @@
 
 #ifndef RANGED_MAX_DISTANCE
 # define RANGED_MAX_DISTANCE 30.0f
+#endif
+
+#ifndef HEAL_MAX_DISTANCE
+# define HEAL_MAX_DISTANCE 40.0f
 #endif
 
 #ifndef ATTACK_RANGE_LIMIT

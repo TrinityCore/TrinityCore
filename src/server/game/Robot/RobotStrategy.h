@@ -4,6 +4,21 @@
 #include "Script_Base.h"
 #include "Player.h"
 
+enum CreatureEntry_RobotStrategy :uint32
+{
+    CreatureEntry_RobotStrategy_Gyth = 10339,
+    CreatureEntry_RobotStrategy_Rend = 10429,
+    CreatureEntry_RobotStrategy_Drakkisath = 10363,
+    CreatureEntry_RobotStrategy_Doctor_Weavil = 15552,
+    CreatureEntry_RobotStrategy_Ysondre = 14887,
+    CreatureEntry_RobotStrategy_Lethon = 14888,
+    CreatureEntry_RobotStrategy_Emeriss = 14889,
+    CreatureEntry_RobotStrategy_Taerar = 14890,
+    CreatureEntry_RobotStrategy_Dream_Fog = 15224,
+    CreatureEntry_RobotStrategy_Demented_Druid = 15260,
+    CreatureEntry_RobotStrategy_Shade_of_Taerar = 15302,
+};
+
 enum RobotStrategyType :uint32
 {
     RobotStrategyType_All = 0,
@@ -90,6 +105,7 @@ public:
     bool GroupInCombat();
     bool Lightwell();
     Player* GetPlayerByGroupRole(uint32 pmGroupRole);
+    std::unordered_set<ObjectGuid> GetPlayerGUIDSetByGroupRoleSet(std::unordered_set<uint32> pmGroupRoleSet);
 
     bool Update0(uint32 pmDiff);
     void Update(uint32 pmDiff) override;
@@ -97,16 +113,20 @@ public:
     virtual bool Engage(Unit* pmTarget);
     virtual bool DPS();
     virtual Player* GetMainTank();
+    virtual Player* GetSubTank();
     virtual bool Tank();
     virtual bool Tank(Unit* pmTarget);
     virtual bool Rest();
     virtual bool Heal();
     virtual bool Buff();
     virtual bool Follow();
+    virtual bool Stay(std::string pmTargetGroupRole);
+    virtual bool Hold(std::string pmTargetGroupRole);
     virtual bool Chasing();
     virtual std::string GetGroupRoleName();
     virtual void SetGroupRole(std::string pmRoleName);
     std::unordered_map<ObjectGuid, Unit*> GetAddsMap(uint32 pmBossEntry);
+    std::unordered_map<ObjectGuid, Unit*> GetAttackerMap(uint32 pmAttackerEntry);
     std::unordered_map<ObjectGuid, Unit*> GetAttackerMap();
     virtual std::unordered_map<uint32, Unit*> GetBossMap();
 
@@ -122,9 +142,11 @@ public:
     bool staying;
     bool holding;
     bool following;
-    bool marking;
     bool cure;
     uint32 paladinAura;
+    bool marked;
+    Position markPos;
+    Position basePos;
 };
 
 enum GroupRole_Blackrock_Spire :uint32
@@ -135,13 +157,6 @@ enum GroupRole_Blackrock_Spire :uint32
     GroupRole_Blackrock_Spire_Tank3 = 3,
     GroupRole_Blackrock_Spire_Healer1 = 4,
     GroupRole_Blackrock_Spire_Healer2 = 5,
-};
-
-enum CreatureEntry_Blackrock_Spire :uint32
-{
-    CreatureEntry_Blackrock_Spire_Gyth = 10339,
-    CreatureEntry_Blackrock_Spire_Rend = 10429,
-    CreatureEntry_Blackrock_Spire_Drakkisath = 10363,
 };
 
 enum ActionType_Blackrock_Spire :uint32
@@ -188,11 +203,6 @@ public:
     Position dpsDrakkisathPos;
 };
 
-enum CreatureEntry_Alcaz_Island :uint32
-{
-    CreatureEntry_Alcaz_Island_Doctor_Weavil = 15552,
-};
-
 class RobotStrategy_Group_Alcaz_Island :public RobotStrategy_Group
 {
 public:
@@ -201,7 +211,7 @@ public:
         InitialStrategy();
     }
 
-    bool DPS() override;        
+    bool DPS() override;
     bool Tank() override;
 };
 
@@ -219,23 +229,18 @@ public:
     }
 };
 
-enum CreatureEntry_World_Boss :uint32
-{
-    CreatureEntry_World_Boss_Ysondre = 14887,    
-    CreatureEntry_World_Boss_Lethon = 14888,
-    CreatureEntry_World_Boss_Emeriss = 14889,
-    CreatureEntry_World_Boss_Taerar = 14890,
-    CreatureEntry_World_Boss_Dream_Fog = 15224,
-};
-
 enum GroupRole_Ysondre :uint32
 {
     GroupRole_Ysondre_Tank1 = 0,
-    GroupRole_Ysondre_Tank2 = 1,    
-    GroupRole_Ysondre_Healer1 = 2,
-    GroupRole_Ysondre_Healer2 = 3,
-    GroupRole_Ysondre_DPS_Range = 4,
-    GroupRole_Ysondre_DPS_Melee = 5,
+    GroupRole_Ysondre_Tank2 = 1,
+    GroupRole_Ysondre_Tank3 = 2,
+    GroupRole_Ysondre_Healer1 = 3,
+    GroupRole_Ysondre_Healer2 = 4,
+    GroupRole_Ysondre_Healer3 = 5,
+    GroupRole_Ysondre_Healer4 = 6,
+    GroupRole_Ysondre_Healer5 = 7,
+    GroupRole_Ysondre_DPS_Range = 8,
+    GroupRole_Ysondre_DPS_Melee = 9,
 };
 
 class RobotStrategy_Group_Ysondre :public RobotStrategy_Group
@@ -251,13 +256,65 @@ public:
     void SetGroupRole(std::string pmRoleName) override;
     std::unordered_map<uint32, Unit*> GetBossMap() override;
     Player* GetMainTank() override;
+    Player* GetSubTank() override;
+    bool Follow() override;
+    bool Stay(std::string pmTargetGroupRole) override;
+    bool Hold(std::string pmTargetGroupRole) override;
+    bool Engage(Unit* pmTarget) override;
     bool DPS() override;
     bool Tank() override;
     bool Tank(Unit* pmTarget) override;
     bool Heal() override;
     void Update(uint32 pmDiff) override;
 
-    bool positioned;
-    Position engagePos;
+    std::unordered_set<ObjectGuid> GetAssignedDruidOGSet();
+
+    float engageAngle;
+    ObjectGuid druidOG;
+};
+
+
+enum GroupRole_Taerar :uint32
+{
+    GroupRole_Taerar_Tank1 = 0,
+    GroupRole_Taerar_Tank2 = 1,
+    GroupRole_Taerar_Tank3 = 2,
+    GroupRole_Taerar_Healer1 = 3,
+    GroupRole_Taerar_Healer2 = 4,
+    GroupRole_Taerar_Healer3 = 5,
+    GroupRole_Taerar_Healer4 = 6,
+    GroupRole_Taerar_Healer5 = 7,
+    GroupRole_Taerar_DPS_Range = 8,
+    GroupRole_Taerar_DPS_Melee = 9,
+};
+
+class RobotStrategy_Group_Taerar :public RobotStrategy_Group
+{
+public:
+    RobotStrategy_Group_Taerar(Player* pmMe) :RobotStrategy_Group(pmMe)
+    {
+        InitialStrategy();
+    }
+
+    void InitialStrategy();
+    std::string GetGroupRoleName() override;
+    void SetGroupRole(std::string pmRoleName) override;
+    std::unordered_map<uint32, Unit*> GetBossMap() override;
+    Player* GetMainTank() override;
+    Player* GetSubTank() override;
+    bool Follow() override;
+    bool Stay(std::string pmTargetGroupRole) override;
+    bool Hold(std::string pmTargetGroupRole) override;
+    bool Engage(Unit* pmTarget) override;
+    bool DPS() override;
+    bool Tank() override;
+    bool Tank(Unit* pmTarget) override;
+    bool Heal() override;
+    void Update(uint32 pmDiff) override;
+
+    std::unordered_set<ObjectGuid> GetAssignedShadeOGSet();
+
+    float engageAngle;
+    ObjectGuid shadeOG;
 };
 #endif
