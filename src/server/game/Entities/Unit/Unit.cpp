@@ -1734,7 +1734,34 @@ void Unit::HandleEmoteCommand(uint32 emoteId)
     if (!damageInfo.GetVictim() || !damageInfo.GetVictim()->IsAlive() || !damageInfo.GetDamage())
         return;
 
-    uint32 resistedDamage = Unit::CalcSpellResistedDamage(damageInfo.GetAttacker(), damageInfo.GetVictim(), damageInfo.GetDamage(), damageInfo.GetSchoolMask(), damageInfo.GetSpellInfo());
+    uint32 resistedDamage = 0;
+    // Custom cases
+    if (SpellInfo const* spellInfo = damageInfo.GetSpellInfo())
+    {
+        switch (spellInfo->Id)
+        {
+            case 70402: // Mutated Transformation (Professor Putricide - ICC)
+            case 72511:
+            case 72512:
+            case 72513:
+                resistedDamage = Unit::CalcSpellResistedDamage(damageInfo.GetAttacker(), damageInfo.GetVictim(), damageInfo.GetDamage(), SPELL_SCHOOL_MASK_SHADOW, nullptr);
+                resistedDamage += Unit::CalcSpellResistedDamage(damageInfo.GetAttacker(), damageInfo.GetVictim(), damageInfo.GetDamage(), SPELL_SCHOOL_MASK_NATURE, nullptr);
+                break;
+            case 71446: // Twilight Bloodbolt (Blood Queen - ICC)
+            case 71478:
+            case 71479:
+            case 71480:
+                resistedDamage = Unit::CalcSpellResistedDamage(damageInfo.GetAttacker(), damageInfo.GetVictim(), damageInfo.GetDamage(), SPELL_SCHOOL_MASK_SHADOW, nullptr);
+                resistedDamage += Unit::CalcSpellResistedDamage(damageInfo.GetAttacker(), damageInfo.GetVictim(), damageInfo.GetDamage(), SPELL_SCHOOL_MASK_ARCANE, nullptr);
+                break;
+            default:
+                resistedDamage = Unit::CalcSpellResistedDamage(damageInfo.GetAttacker(), damageInfo.GetVictim(), damageInfo.GetDamage(), damageInfo.GetSchoolMask(), damageInfo.GetSpellInfo());
+                break;
+        }
+    }
+    else
+        resistedDamage = Unit::CalcSpellResistedDamage(damageInfo.GetAttacker(), damageInfo.GetVictim(), damageInfo.GetDamage(), damageInfo.GetSchoolMask(), damageInfo.GetSpellInfo());
+
     damageInfo.ResistDamage(resistedDamage);
 
     // Ignore Absorption Auras
