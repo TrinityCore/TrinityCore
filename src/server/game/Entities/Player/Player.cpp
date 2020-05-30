@@ -19328,7 +19328,7 @@ void Player::SaveToDB(bool create /*=false*/)
     LoginDatabase.CommitTransaction(loginTransaction);
 }
 
-void Player::SaveToDB(LoginDatabaseTransaction loginTransaction, CharacterDatabaseTransaction trans, bool create /* = false */)
+void Player::SaveToDB(LoginDatabaseTransaction /*loginTransaction*/, CharacterDatabaseTransaction trans, bool create /* = false */)
 {
     // delay auto save at any saves (manual, in code, or autosave)
     m_nextSave = sWorld->getIntConfig(CONFIG_INTERVAL_SAVE);
