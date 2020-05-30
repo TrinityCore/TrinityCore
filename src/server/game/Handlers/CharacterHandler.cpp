@@ -585,7 +585,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
             LoginDatabaseTransaction trans = LoginDatabase.BeginTransaction();
 
                                                                   // Player created, save it now
-            newChar->SaveToDB(trans, characterTransaction, true);
+            newChar->SaveToDB(characterTransaction, true);
             createInfo->CharCount += 1;
 
             LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_REALM_CHARACTERS_BY_REALM);

@@ -19320,15 +19320,13 @@ bool Player::_LoadHomeBind(PreparedQueryResult result)
 void Player::SaveToDB(bool create /*=false*/)
 {
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
-    LoginDatabaseTransaction loginTransaction = LoginDatabase.BeginTransaction();
 
-    SaveToDB(loginTransaction, trans, create);
+    SaveToDB(trans, create);
 
     CharacterDatabase.CommitTransaction(trans);
-    LoginDatabase.CommitTransaction(loginTransaction);
 }
 
-void Player::SaveToDB(LoginDatabaseTransaction /*loginTransaction*/, CharacterDatabaseTransaction trans, bool create /* = false */)
+void Player::SaveToDB(CharacterDatabaseTransaction trans, bool create /* = false */)
 {
     // delay auto save at any saves (manual, in code, or autosave)
     m_nextSave = sWorld->getIntConfig(CONFIG_INTERVAL_SAVE);
