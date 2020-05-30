@@ -58,12 +58,6 @@ private:
     float m_orientation;
 
 public:
-    Position& operator=(Position const& loc)
-    {
-        Relocate(loc);
-        return *this;
-    }
-
     bool operator==(Position const& a);
     bool operator!=(Position const& a) { return !(operator==(a)); }
 
