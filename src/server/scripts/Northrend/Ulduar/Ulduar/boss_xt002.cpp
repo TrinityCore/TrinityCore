@@ -395,10 +395,11 @@ private:
 
 struct npc_xt002_heart : public NullCreatureAI
 {
-    npc_xt002_heart(Creature* creature) : NullCreatureAI(creature)
+    npc_xt002_heart(Creature* creature) : NullCreatureAI(creature), _instance(creature->GetInstanceScript()) { }
+
+    void Reset() override
     {
-        creature->SetRegenerateHealth(false);
-        _instance = creature->GetInstanceScript();
+        me->SetRegenerateHealth(false);
     }
 
     void DoAction(int32 action) override
