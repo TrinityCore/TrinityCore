@@ -82,10 +82,10 @@ enum BWLMisc
     DATA_EGG_EVENT
 };
 
-template<typename AI>
-inline AI* GetBlackwingLairAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetBlackwingLairAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, BWLScriptName);
+    return GetInstanceAI<AI>(obj, BWLScriptName);
 }
 
 #endif

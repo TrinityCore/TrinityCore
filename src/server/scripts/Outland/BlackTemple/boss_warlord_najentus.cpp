@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "GameObjectAI.h"
 #include "black_temple.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
@@ -175,16 +176,29 @@ class go_najentus_spine : public GameObjectScript
 public:
     go_najentus_spine() : GameObjectScript("go_najentus_spine") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
+    struct go_najentus_spineAI : public GameObjectAI
     {
-        if (InstanceScript* instance = go->GetInstanceScript())
+        go_najentus_spineAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
+
+        InstanceScript* instance;
+
+        bool GossipHello(Player* player, bool /*reportUse*/) override
+        {
             if (Creature* najentus = instance->GetCreature(DATA_HIGH_WARLORD_NAJENTUS))
+            {
                 if (ENSURE_AI(boss_najentus::boss_najentusAI, najentus->AI())->RemoveImpalingSpine())
                 {
-                    go->CastSpell(player, SPELL_CREATE_NAJENTUS_SPINE, true);
-                    go->Delete();
+                    me->CastSpell(player, SPELL_CREATE_NAJENTUS_SPINE, true);
+                    me->Delete();
                 }
-        return true;
+            }
+            return true;
+        }
+    };
+
+    GameObjectAI* GetAI(GameObject* go) const override
+    {
+        return GetBlackTempleAI<go_najentus_spineAI>(go);
     }
 };
 

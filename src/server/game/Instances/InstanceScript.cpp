@@ -145,7 +145,7 @@ void InstanceScript::LoadBossBoundaries(const BossBoundaryData& data)
 {
     for (BossBoundaryEntry const& entry : data)
         if (entry.BossId < bosses.size())
-            bosses[entry.BossId].boundary.insert(entry.Boundary);
+            bosses[entry.BossId].boundary.push_back(entry.Boundary);
 }
 
 void InstanceScript::LoadMinionData(const MinionData* data)

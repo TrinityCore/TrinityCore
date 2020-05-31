@@ -213,11 +213,15 @@ enum CriteriaCondition
     CRITERIA_CONDITION_UNK2            = 2,     // only used in "Complete a daily quest every day for five consecutive days"
     CRITERIA_CONDITION_BG_MAP          = 3,     // requires you to be on specific map, reset at change
     CRITERIA_CONDITION_NO_LOSE         = 4,     // only used in "Win 10 arenas without losing"
-    CRITERIA_CONDITION_UNK5            = 5,     // Have spell?
-    CRITERIA_CONDITION_UNK8            = 8,
+    CRITERIA_CONDITION_REMOVE_AURA     = 5,     // reset when this aura is removed
+    CRITERIA_CONDITION_CAST_SPELL      = 8,     // reset when casting this spell
     CRITERIA_CONDITION_NO_SPELL_HIT    = 9,     // requires the player not to be hit by specific spell
     CRITERIA_CONDITION_NOT_IN_GROUP    = 10,    // requires the player not to be in group
-    CRITERIA_CONDITION_UNK13           = 13     // unk
+    CRITERIA_CONDITION_LOSE_PET_BATTLE = 11,    // reset when losing pet battle
+    CRITERIA_CONDITION_UNK13           = 13,    // unk
+    CRITERIA_CONDITION_EVENT           = 14,
+
+    CRITERIA_CONDITION_MAX
 };
 
 enum CriteriaAdditionalCondition
@@ -951,7 +955,8 @@ enum MapFlags
 enum AbilytyLearnType
 {
     SKILL_LINE_ABILITY_LEARNED_ON_SKILL_VALUE  = 1, // Spell state will update depending on skill value
-    SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN  = 2  // Spell will be learned/removed together with entire skill
+    SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN  = 2, // Spell will be learned/removed together with entire skill
+    SKILL_LINE_ABILITY_REWARDED_FROM_QUEST     = 4  // Learned as quest reward, also re-learned if missing
 };
 
 enum GlyphSlotType
@@ -1335,7 +1340,8 @@ enum SummonPropFlags
     SUMMON_PROP_FLAG_UNK18           = 0x00020000,
     SUMMON_PROP_FLAG_UNK19           = 0x00040000,
     SUMMON_PROP_FLAG_UNK20           = 0x00080000,
-    SUMMON_PROP_FLAG_UNK21           = 0x00100000           // Totems
+    SUMMON_PROP_FLAG_UNK21           = 0x00100000,          // Totems
+    SUMMON_PROP_FLAG_COMPANION       = 0x00200000
 };
 
 #define MAX_TALENT_TIERS 7

@@ -891,6 +891,32 @@ void AreaTrigger::BuildValuesUpdate(ByteBuffer* data, Player const* target) cons
     data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
 }
 
+void AreaTrigger::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
+    UF::AreaTriggerData::Mask const& requestedAreaTriggerMask, Player const* target) const
+{
+    UpdateMask<NUM_CLIENT_OBJECT_TYPES> valuesMask;
+    if (requestedObjectMask.IsAnySet())
+        valuesMask.Set(TYPEID_OBJECT);
+
+    if (requestedAreaTriggerMask.IsAnySet())
+        valuesMask.Set(TYPEID_AREATRIGGER);
+
+    ByteBuffer buffer = PrepareValuesUpdateBuffer();
+    std::size_t sizePos = buffer.wpos();
+    buffer << uint32(0);
+    buffer << uint32(valuesMask.GetBlock(0));
+
+    if (valuesMask[TYPEID_OBJECT])
+        m_objectData->WriteUpdate(buffer, requestedObjectMask, true, this, target);
+
+    if (valuesMask[TYPEID_AREATRIGGER])
+        m_areaTriggerData->WriteUpdate(buffer, requestedAreaTriggerMask, true, this, target);
+
+    buffer.put<uint32>(sizePos, buffer.wpos() - sizePos - 4);
+
+    data->AddUpdateBlock(buffer);
+}
+
 void AreaTrigger::ClearUpdateMask(bool remove)
 {
     m_values.ClearChangesMask(&AreaTrigger::m_areaTriggerData);

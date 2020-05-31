@@ -91,7 +91,7 @@ enum BattlegroundDSEvents
 class BattlegroundDS : public Arena
 {
     public:
-        BattlegroundDS();
+        BattlegroundDS(BattlegroundTemplate const* battlegroundTemplate);
 
         /* inherited from BattlegroundClass */
         void StartingEventCloseDoors() override;

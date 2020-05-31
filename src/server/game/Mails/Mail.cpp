@@ -62,8 +62,8 @@ MailSender::MailSender(CalendarEvent* sender)
 {
 }
 
-MailSender::MailSender(AuctionEntry* sender)
-    : m_messageType(MAIL_AUCTION), m_senderId(uint64(sender->GetHouseId())), m_stationery(MAIL_STATIONERY_AUCTION) { }
+MailSender::MailSender(AuctionHouseObject const* sender)
+    : m_messageType(MAIL_AUCTION), m_senderId(uint64(sender->GetAuctionHouseId())), m_stationery(MAIL_STATIONERY_AUCTION) { }
 
 MailSender::MailSender(BlackMarketEntry* sender)
     : m_messageType(MAIL_BLACKMARKET), m_senderId(sender->GetTemplate()->SellerNPC), m_stationery(MAIL_STATIONERY_AUCTION) { }
@@ -87,6 +87,11 @@ MailReceiver::MailReceiver(Player* receiver) : m_receiver(receiver), m_receiver_
 MailReceiver::MailReceiver(Player* receiver, ObjectGuid::LowType receiver_lowguid) : m_receiver(receiver), m_receiver_lowguid(receiver_lowguid)
 {
     ASSERT(!receiver || receiver->GetGUID().GetCounter() == receiver_lowguid);
+}
+
+MailReceiver::MailReceiver(Player* receiver, ObjectGuid receiverGuid) : m_receiver(receiver), m_receiver_lowguid(receiverGuid.GetCounter())
+{
+    ASSERT(!receiver || receiver->GetGUID() == receiverGuid);
 }
 
 MailDraft& MailDraft::AddItem(Item* item)
@@ -182,7 +187,7 @@ void MailDraft::SendReturnToSender(uint32 sender_acc, ObjectGuid::LowType sender
 void MailDraft::SendMailTo(CharacterDatabaseTransaction& trans, MailReceiver const& receiver, MailSender const& sender, MailCheckMask checked, uint32 deliver_delay)
 {
     Player* pReceiver = receiver.GetPlayer();               // can be NULL
-    Player* pSender = ObjectAccessor::FindPlayer(ObjectGuid::Create<HighGuid::Player>(sender.GetSenderId()));
+    Player* pSender = sender.GetMailMessageType() == MAIL_NORMAL ? ObjectAccessor::FindPlayer(ObjectGuid::Create<HighGuid::Player>(sender.GetSenderId())) : nullptr;
 
     if (pReceiver)
         prepareItems(pReceiver, trans);                            // generate mail template items

@@ -788,7 +788,7 @@ class boss_prince_valanar_icc : public CreatureScript
 
         struct boss_prince_valanarAI : public BloodPrincesBossAI
         {
-            boss_prince_valanarAI(Creature* creature) : BloodPrincesBossAI(creature, DATA_PRINCE_TALDARAM) { }
+            boss_prince_valanarAI(Creature* creature) : BloodPrincesBossAI(creature, DATA_PRINCE_VALANAR) { }
 
             void ScheduleEvents() override
             {
@@ -1129,10 +1129,7 @@ class npc_dark_nucleus : public CreatureScript
                     if (Unit* victim = me->GetVictim())
                     {
                         if (me->GetDistance(victim) < 15.0f && !victim->HasAura(SPELL_SHADOW_RESONANCE_RESIST, me->GetGUID()))
-                        {
                             DoCast(victim, SPELL_SHADOW_RESONANCE_RESIST);
-                            me->ClearUnitState(UNIT_STATE_CASTING);
-                        }
                         else
                             MoveInLineOfSight(me->GetVictim());
                     }
@@ -1146,7 +1143,6 @@ class npc_dark_nucleus : public CreatureScript
                 }
 
                 DoCast(who, SPELL_SHADOW_RESONANCE_RESIST);
-                me->ClearUnitState(UNIT_STATE_CASTING);
             }
 
             void DamageTaken(Unit* attacker, uint32& /*damage*/) override

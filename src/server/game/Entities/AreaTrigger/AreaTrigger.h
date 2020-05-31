@@ -44,9 +44,14 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         AreaTrigger();
         ~AreaTrigger();
 
+    protected:
         void BuildValuesCreate(ByteBuffer* data, Player const* target) const override;
         void BuildValuesUpdate(ByteBuffer* data, Player const* target) const override;
         void ClearUpdateMask(bool remove) override;
+
+    public:
+        void BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
+            UF::AreaTriggerData::Mask const& requestedAreaTriggerMask, Player const* target) const;
 
         void AddToWorld() override;
         void RemoveFromWorld() override;

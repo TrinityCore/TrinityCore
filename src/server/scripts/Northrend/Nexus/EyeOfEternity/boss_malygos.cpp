@@ -1214,7 +1214,7 @@ public:
                     me->SetCanFly(false);
                 }
 
-                me->setFaction(FACTION_FRIENDLY);
+                me->SetFaction(FACTION_FRIENDLY);
                 me->RemoveAllAuras();
             }
         }

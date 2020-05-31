@@ -273,6 +273,32 @@ void DynamicObject::BuildValuesUpdate(ByteBuffer* data, Player const* target) co
     data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
 }
 
+void DynamicObject::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
+    UF::DynamicObjectData::Mask const& requestedDynamicObjectMask, Player const* target) const
+{
+    UpdateMask<NUM_CLIENT_OBJECT_TYPES> valuesMask;
+    if (requestedObjectMask.IsAnySet())
+        valuesMask.Set(TYPEID_OBJECT);
+
+    if (requestedDynamicObjectMask.IsAnySet())
+        valuesMask.Set(TYPEID_DYNAMICOBJECT);
+
+    ByteBuffer buffer = PrepareValuesUpdateBuffer();
+    std::size_t sizePos = buffer.wpos();
+    buffer << uint32(0);
+    buffer << uint32(valuesMask.GetBlock(0));
+
+    if (valuesMask[TYPEID_OBJECT])
+        m_objectData->WriteUpdate(buffer, requestedObjectMask, true, this, target);
+
+    if (valuesMask[TYPEID_DYNAMICOBJECT])
+        m_dynamicObjectData->WriteUpdate(buffer, requestedDynamicObjectMask, true, this, target);
+
+    buffer.put<uint32>(sizePos, buffer.wpos() - sizePos - 4);
+
+    data->AddUpdateBlock(buffer);
+}
+
 void DynamicObject::ClearUpdateMask(bool remove)
 {
     m_values.ClearChangesMask(&DynamicObject::m_dynamicObjectData);

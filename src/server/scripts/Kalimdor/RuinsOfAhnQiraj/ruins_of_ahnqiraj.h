@@ -60,10 +60,10 @@ enum AQRGameObjectIds
     GO_OSSIRIAN_CRYSTAL         = 180619
 };
 
-template<typename AI>
-inline AI* GetAQ20AI(Creature* creature)
+template<class AI, class T>
+AI* GetAQ20AI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, AQ20ScriptName);
+    return GetInstanceAI<AI>(obj, AQ20ScriptName);
 }
 
 #endif

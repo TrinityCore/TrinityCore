@@ -2721,221 +2721,57 @@ google::protobuf::ServiceDescriptor const* ClubMembershipListener::descriptor() 
   return ClubMembershipListener_descriptor_;
 }
 
-void ClubMembershipListener::OnClubAdded(::bgs::protocol::club::v1::membership::ClubAddedNotification const* request) {
+void ClubMembershipListener::OnClubAdded(::bgs::protocol::club::v1::membership::ClubAddedNotification const* request, bool client /*= false*/, bool server /*= false*/) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method ClubMembershipListener.OnClubAdded(bgs.protocol.club.v1.membership.ClubAddedNotification{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  SendRequest(service_hash_, 1, request);
+  SendRequest(service_hash_, 1 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
 }
 
-void ClubMembershipListener::OnClubRemoved(::bgs::protocol::club::v1::membership::ClubRemovedNotification const* request) {
+void ClubMembershipListener::OnClubRemoved(::bgs::protocol::club::v1::membership::ClubRemovedNotification const* request, bool client /*= false*/, bool server /*= false*/) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method ClubMembershipListener.OnClubRemoved(bgs.protocol.club.v1.membership.ClubRemovedNotification{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  SendRequest(service_hash_, 2, request);
+  SendRequest(service_hash_, 2 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
 }
 
-void ClubMembershipListener::OnReceivedInvitationAdded(::bgs::protocol::club::v1::membership::ReceivedInvitationAddedNotification const* request) {
+void ClubMembershipListener::OnReceivedInvitationAdded(::bgs::protocol::club::v1::membership::ReceivedInvitationAddedNotification const* request, bool client /*= false*/, bool server /*= false*/) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method ClubMembershipListener.OnReceivedInvitationAdded(bgs.protocol.club.v1.membership.ReceivedInvitationAddedNotification{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  SendRequest(service_hash_, 3, request);
+  SendRequest(service_hash_, 3 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
 }
 
-void ClubMembershipListener::OnReceivedInvitationRemoved(::bgs::protocol::club::v1::membership::ReceivedInvitationRemovedNotification const* request) {
+void ClubMembershipListener::OnReceivedInvitationRemoved(::bgs::protocol::club::v1::membership::ReceivedInvitationRemovedNotification const* request, bool client /*= false*/, bool server /*= false*/) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method ClubMembershipListener.OnReceivedInvitationRemoved(bgs.protocol.club.v1.membership.ReceivedInvitationRemovedNotification{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  SendRequest(service_hash_, 4, request);
+  SendRequest(service_hash_, 4 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
 }
 
-void ClubMembershipListener::OnSharedSettingsChanged(::bgs::protocol::club::v1::membership::SharedSettingsChangedNotification const* request) {
+void ClubMembershipListener::OnSharedSettingsChanged(::bgs::protocol::club::v1::membership::SharedSettingsChangedNotification const* request, bool client /*= false*/, bool server /*= false*/) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method ClubMembershipListener.OnSharedSettingsChanged(bgs.protocol.club.v1.membership.SharedSettingsChangedNotification{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  SendRequest(service_hash_, 5, request);
+  SendRequest(service_hash_, 5 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
 }
 
-void ClubMembershipListener::OnStreamMentionAdded(::bgs::protocol::club::v1::membership::StreamMentionAddedNotification const* request) {
+void ClubMembershipListener::OnStreamMentionAdded(::bgs::protocol::club::v1::membership::StreamMentionAddedNotification const* request, bool client /*= false*/, bool server /*= false*/) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method ClubMembershipListener.OnStreamMentionAdded(bgs.protocol.club.v1.membership.StreamMentionAddedNotification{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  SendRequest(service_hash_, 6, request);
+  SendRequest(service_hash_, 6 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
 }
 
-void ClubMembershipListener::OnStreamMentionRemoved(::bgs::protocol::club::v1::membership::StreamMentionRemovedNotification const* request) {
+void ClubMembershipListener::OnStreamMentionRemoved(::bgs::protocol::club::v1::membership::StreamMentionRemovedNotification const* request, bool client /*= false*/, bool server /*= false*/) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method ClubMembershipListener.OnStreamMentionRemoved(bgs.protocol.club.v1.membership.StreamMentionRemovedNotification{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  SendRequest(service_hash_, 7, request);
+  SendRequest(service_hash_, 7 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
 }
 
-void ClubMembershipListener::OnStreamMentionAdvanceViewTime(::bgs::protocol::club::v1::membership::StreamMentionAdvanceViewTimeNotification const* request) {
+void ClubMembershipListener::OnStreamMentionAdvanceViewTime(::bgs::protocol::club::v1::membership::StreamMentionAdvanceViewTimeNotification const* request, bool client /*= false*/, bool server /*= false*/) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method ClubMembershipListener.OnStreamMentionAdvanceViewTime(bgs.protocol.club.v1.membership.StreamMentionAdvanceViewTimeNotification{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  SendRequest(service_hash_, 8, request);
+  SendRequest(service_hash_, 8 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
 }
 
-void ClubMembershipListener::CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) {
-  switch(methodId) {
-    case 1: {
-      ::bgs::protocol::club::v1::membership::ClubAddedNotification request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for ClubMembershipListener.OnClubAdded server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, 1, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      uint32 status = HandleOnClubAdded(&request);
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method ClubMembershipListener.OnClubAdded(bgs.protocol.club.v1.membership.ClubAddedNotification{ %s }) status %u.",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str(), status);
-      if (status)
-        SendResponse(service_hash_, 1, token, status);
-      break;
-    }
-    case 2: {
-      ::bgs::protocol::club::v1::membership::ClubRemovedNotification request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for ClubMembershipListener.OnClubRemoved server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, 2, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      uint32 status = HandleOnClubRemoved(&request);
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method ClubMembershipListener.OnClubRemoved(bgs.protocol.club.v1.membership.ClubRemovedNotification{ %s }) status %u.",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str(), status);
-      if (status)
-        SendResponse(service_hash_, 2, token, status);
-      break;
-    }
-    case 3: {
-      ::bgs::protocol::club::v1::membership::ReceivedInvitationAddedNotification request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for ClubMembershipListener.OnReceivedInvitationAdded server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, 3, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      uint32 status = HandleOnReceivedInvitationAdded(&request);
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method ClubMembershipListener.OnReceivedInvitationAdded(bgs.protocol.club.v1.membership.ReceivedInvitationAddedNotification{ %s }) status %u.",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str(), status);
-      if (status)
-        SendResponse(service_hash_, 3, token, status);
-      break;
-    }
-    case 4: {
-      ::bgs::protocol::club::v1::membership::ReceivedInvitationRemovedNotification request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for ClubMembershipListener.OnReceivedInvitationRemoved server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, 4, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      uint32 status = HandleOnReceivedInvitationRemoved(&request);
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method ClubMembershipListener.OnReceivedInvitationRemoved(bgs.protocol.club.v1.membership.ReceivedInvitationRemovedNotification{ %s }) status %u.",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str(), status);
-      if (status)
-        SendResponse(service_hash_, 4, token, status);
-      break;
-    }
-    case 5: {
-      ::bgs::protocol::club::v1::membership::SharedSettingsChangedNotification request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for ClubMembershipListener.OnSharedSettingsChanged server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, 5, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      uint32 status = HandleOnSharedSettingsChanged(&request);
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method ClubMembershipListener.OnSharedSettingsChanged(bgs.protocol.club.v1.membership.SharedSettingsChangedNotification{ %s }) status %u.",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str(), status);
-      if (status)
-        SendResponse(service_hash_, 5, token, status);
-      break;
-    }
-    case 6: {
-      ::bgs::protocol::club::v1::membership::StreamMentionAddedNotification request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for ClubMembershipListener.OnStreamMentionAdded server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, 6, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      uint32 status = HandleOnStreamMentionAdded(&request);
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method ClubMembershipListener.OnStreamMentionAdded(bgs.protocol.club.v1.membership.StreamMentionAddedNotification{ %s }) status %u.",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str(), status);
-      if (status)
-        SendResponse(service_hash_, 6, token, status);
-      break;
-    }
-    case 7: {
-      ::bgs::protocol::club::v1::membership::StreamMentionRemovedNotification request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for ClubMembershipListener.OnStreamMentionRemoved server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, 7, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      uint32 status = HandleOnStreamMentionRemoved(&request);
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method ClubMembershipListener.OnStreamMentionRemoved(bgs.protocol.club.v1.membership.StreamMentionRemovedNotification{ %s }) status %u.",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str(), status);
-      if (status)
-        SendResponse(service_hash_, 7, token, status);
-      break;
-    }
-    case 8: {
-      ::bgs::protocol::club::v1::membership::StreamMentionAdvanceViewTimeNotification request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for ClubMembershipListener.OnStreamMentionAdvanceViewTime server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, 8, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      uint32 status = HandleOnStreamMentionAdvanceViewTime(&request);
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method ClubMembershipListener.OnStreamMentionAdvanceViewTime(bgs.protocol.club.v1.membership.StreamMentionAdvanceViewTimeNotification{ %s }) status %u.",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str(), status);
-      if (status)
-        SendResponse(service_hash_, 8, token, status);
-      break;
-    }
-    default:
-      TC_LOG_ERROR("service.protobuf", "Bad method id %u.", methodId);
-      SendResponse(service_hash_, methodId, token, ERROR_RPC_INVALID_METHOD);
-      break;
-    }
-}
-
-uint32 ClubMembershipListener::HandleOnClubAdded(::bgs::protocol::club::v1::membership::ClubAddedNotification const* request) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method ClubMembershipListener.OnClubAdded({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  return ERROR_RPC_NOT_IMPLEMENTED;
-}
-
-uint32 ClubMembershipListener::HandleOnClubRemoved(::bgs::protocol::club::v1::membership::ClubRemovedNotification const* request) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method ClubMembershipListener.OnClubRemoved({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  return ERROR_RPC_NOT_IMPLEMENTED;
-}
-
-uint32 ClubMembershipListener::HandleOnReceivedInvitationAdded(::bgs::protocol::club::v1::membership::ReceivedInvitationAddedNotification const* request) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method ClubMembershipListener.OnReceivedInvitationAdded({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  return ERROR_RPC_NOT_IMPLEMENTED;
-}
-
-uint32 ClubMembershipListener::HandleOnReceivedInvitationRemoved(::bgs::protocol::club::v1::membership::ReceivedInvitationRemovedNotification const* request) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method ClubMembershipListener.OnReceivedInvitationRemoved({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  return ERROR_RPC_NOT_IMPLEMENTED;
-}
-
-uint32 ClubMembershipListener::HandleOnSharedSettingsChanged(::bgs::protocol::club::v1::membership::SharedSettingsChangedNotification const* request) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method ClubMembershipListener.OnSharedSettingsChanged({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  return ERROR_RPC_NOT_IMPLEMENTED;
-}
-
-uint32 ClubMembershipListener::HandleOnStreamMentionAdded(::bgs::protocol::club::v1::membership::StreamMentionAddedNotification const* request) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method ClubMembershipListener.OnStreamMentionAdded({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  return ERROR_RPC_NOT_IMPLEMENTED;
-}
-
-uint32 ClubMembershipListener::HandleOnStreamMentionRemoved(::bgs::protocol::club::v1::membership::StreamMentionRemovedNotification const* request) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method ClubMembershipListener.OnStreamMentionRemoved({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  return ERROR_RPC_NOT_IMPLEMENTED;
-}
-
-uint32 ClubMembershipListener::HandleOnStreamMentionAdvanceViewTime(::bgs::protocol::club::v1::membership::StreamMentionAdvanceViewTimeNotification const* request) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method ClubMembershipListener.OnStreamMentionAdvanceViewTime({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  return ERROR_RPC_NOT_IMPLEMENTED;
+void ClubMembershipListener::CallServerMethod(uint32 token, uint32 methodId, MessageBuffer /*buffer*/) {
+  TC_LOG_ERROR("service.protobuf", "%s Server tried to call server method %u",
+    GetCallerInfo().c_str(), methodId);
 }
 
 

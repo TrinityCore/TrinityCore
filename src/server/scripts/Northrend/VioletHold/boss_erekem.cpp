@@ -78,7 +78,7 @@ class boss_erekem : public CreatureScript
             void MovementInform(uint32 type, uint32 pointId) override
             {
                 if (type == EFFECT_MOTION_TYPE && pointId == POINT_INTRO)
-                    me->SetFacingTo(4.921828f, true);
+                    me->SetFacingTo(4.921828f);
             }
 
             void JustReachedHome() override

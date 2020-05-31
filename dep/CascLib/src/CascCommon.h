@@ -207,7 +207,7 @@ typedef struct _CASC_FILE_FRAME
     CONTENT_KEY FrameHash;                          // MD5 hash of the file frame
     ULONGLONG StartOffset;                          // Starting offset of the file span
     ULONGLONG EndOffset;                            // Ending offset of the file span
-    DWORD DataFileOffset;                           // Offset in the data file (data.###)
+    ULONGLONG DataFileOffset;                       // Offset in the data file (data.###)
     DWORD EncodedSize;                              // Encoded size of the frame
     DWORD ContentSize;                              // Content size of the frame
 } CASC_FILE_FRAME, *PCASC_FILE_FRAME;
@@ -275,6 +275,7 @@ struct TCascStorage
 
     // Class members
     PCASC_OPEN_STORAGE_ARGS pArgs;                  // Open storage arguments. Only valid during opening the storage
+    CASC_LOCK StorageLock;                          // Lock for multi-threaded operations
 
     LPCTSTR szIndexFormat;                          // Format of the index file name
     LPTSTR  szCodeName;                             // On local storage, this select a product in a multi-product storage. For online storage, this selects a product
@@ -285,6 +286,7 @@ struct TCascStorage
     LPTSTR  szCdnServers;                           // Multi-SZ list of CDN servers
     LPTSTR  szCdnPath;                              // Remote CDN sub path for the product
     LPSTR   szRegion;                               // Product region. Only when "versions" is used as storage root file
+    LPSTR   szBuildKey;                             // Product build key, aka MD5 of the build file
     DWORD dwDefaultLocale;                          // Default locale, read from ".build.info"
     DWORD dwBuildNumber;                            // Product build number
     DWORD dwRefCount;                               // Number of references
@@ -330,7 +332,6 @@ struct TCascStorage
     CASC_ARRAY ExtraKeysList;                       // List additional encryption keys
     CASC_MAP   EncryptionKeys;                      // Map of encryption keys
     ULONGLONG  LastFailKeyName;                     // The value of the encryption key that recently was NOT found.
-
 };
 
 struct TCascFile

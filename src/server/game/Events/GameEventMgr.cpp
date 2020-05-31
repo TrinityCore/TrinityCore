@@ -1652,7 +1652,7 @@ public:
     {
         for (auto const& p : creatureMap)
             if (p.second->IsInWorld() && p.second->IsAIEnabled)
-                p.second->AI()->sOnGameEvent(_activate, _eventId);
+                p.second->AI()->OnGameEvent(_activate, _eventId);
     }
 
     void Visit(std::unordered_map<ObjectGuid, GameObject*>& gameObjectMap)

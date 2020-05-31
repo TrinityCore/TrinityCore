@@ -607,7 +607,7 @@ public:
             return false;
         }
 
-        creature->setFaction(factionId);
+        creature->SetFaction(factionId);
 
         // Faction is set in creature_template - not inside creature
 
@@ -726,7 +726,7 @@ public:
 
         CreatureTemplate const* cInfo = target->GetCreatureTemplate();
 
-        uint32 faction = target->getFaction();
+        uint32 faction = target->GetFaction();
         uint64 npcflags;
         memcpy(&npcflags, target->m_unitData->NpcFlags.begin(), sizeof(npcflags));
         uint32 mechanicImmuneMask = cInfo->MechanicImmuneMask;
@@ -1489,7 +1489,7 @@ public:
 
         // place pet before player
         float x, y, z;
-        player->GetClosePoint (x, y, z, creatureTarget->GetObjectSize(), CONTACT_DISTANCE);
+        player->GetClosePoint (x, y, z, creatureTarget->GetCombatReach(), CONTACT_DISTANCE);
         pet->Relocate(x, y, z, float(M_PI) - player->GetOrientation());
 
         // set pet to defensive mode by default (some classes can't control controlled pets in fact).

@@ -56,10 +56,10 @@ enum ZFPyramidPhases
     PYRAMID_KILLED_ALL_TROLLS,
 };
 
-template<typename AI>
-inline AI* GetZulFarrakAI(Creature* creature)
+template<class AI, class T>
+inline AI* GetZulFarrakAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, ZFScriptName);
+    return GetInstanceAI<AI>(obj, ZFScriptName);
 }
 
 #endif

@@ -72,9 +72,9 @@ void CollectionMgr::LoadMountDefinitions()
 
 namespace
 {
-    EnumClassFlag<ToyFlags> GetToyFlags(bool isFavourite, bool hasFanfare)
+    EnumFlag<ToyFlags> GetToyFlags(bool isFavourite, bool hasFanfare)
     {
-        EnumClassFlag<ToyFlags> flags(ToyFlags::None);
+        ToyFlags flags = ToyFlags::None;
         if (isFavourite)
             flags |= ToyFlags::Favorite;
 
@@ -151,7 +151,7 @@ void CollectionMgr::ToySetFavorite(uint32 itemId, bool favorite)
     if (favorite)
         itr->second |= ToyFlags::Favorite;
     else
-        itr->second.RemoveFlag(ToyFlags::Favorite);
+        itr->second &= ~ToyFlags::Favorite;
 }
 
 void CollectionMgr::ToyClearFanfare(uint32 itemId)
@@ -160,7 +160,7 @@ void CollectionMgr::ToyClearFanfare(uint32 itemId)
     if (itr == _toys.end())
         return;
 
-    itr->second.RemoveFlag(ToyFlags::HasFanfare);
+    itr->second &= ~ ToyFlags::HasFanfare;
 }
 
 void CollectionMgr::OnItemAdded(Item* item)
@@ -849,6 +849,19 @@ std::unordered_set<ObjectGuid> CollectionMgr::GetItemsProvidingTemporaryAppearan
         return temporaryAppearance->second;
 
     return std::unordered_set<ObjectGuid>();
+}
+
+std::unordered_set<uint32> CollectionMgr::GetAppearanceIds() const
+{
+    std::unordered_set<uint32> appearances;
+    std::size_t id = _appearances->find_first();
+    while (id != boost::dynamic_bitset<uint32>::npos)
+    {
+        appearances.insert(sItemModifiedAppearanceStore.AssertEntry(id)->ItemAppearanceID);
+        id = _appearances->find_next(id);
+    }
+
+    return appearances;
 }
 
 void CollectionMgr::SetAppearanceIsFavorite(uint32 itemModifiedAppearanceId, bool apply)

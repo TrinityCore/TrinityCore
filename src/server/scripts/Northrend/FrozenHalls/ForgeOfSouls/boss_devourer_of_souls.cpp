@@ -309,7 +309,7 @@ class boss_devourer_of_souls : public CreatureScript
 
                         case EVENT_WAILING_SOULS_TICK:
                             beamAngle += beamAngleDiff;
-                            me->SetFacingTo(beamAngle, true);
+                            me->SetFacingTo(beamAngle);
                             me->StopMoving();
 
                             DoCast(me, SPELL_WAILING_SOULS);

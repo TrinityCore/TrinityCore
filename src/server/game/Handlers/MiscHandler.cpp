@@ -649,8 +649,7 @@ void WorldSession::HandleUpdateAccountData(WorldPackets::ClientConfig::UserClien
         return;
     }
 
-    ByteBuffer dest;
-    dest.resize(packet.Size);
+    ByteBuffer dest(packet.Size, ByteBuffer::Resize{});
 
     uLongf realSize = packet.Size;
     if (uncompress(dest.contents(), &realSize, packet.CompressedData.contents(), packet.CompressedData.size()) != Z_OK)
