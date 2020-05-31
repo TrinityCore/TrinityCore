@@ -5091,6 +5091,7 @@ enum BattlegroundTypeId : uint32
     // 809 = "New Nagrand Arena (Legion)"
     BATTLEGROUND_AF             = 816, // Ashamane's Fall
     // 844 = "New Blade's Edge Arena (Legion)"
+    BATTLEGROUND_RANDOM_EPIC    = 901
 };
 
 #define MAX_BATTLEGROUND_TYPE_ID 845
@@ -5239,24 +5240,53 @@ enum DuelCompleteType : uint8
     DUEL_FLED        = 2
 };
 
-// handle the queue types and bg types separately to enable joining queue for different sized arenas at the same time
-enum BattlegroundQueueTypeId
+struct BattlegroundQueueTypeId
 {
-    BATTLEGROUND_QUEUE_NONE     = 0,
-    BATTLEGROUND_QUEUE_AV       = 1,
-    BATTLEGROUND_QUEUE_WS       = 2,
-    BATTLEGROUND_QUEUE_AB       = 3,
-    BATTLEGROUND_QUEUE_EY       = 4,
-    BATTLEGROUND_QUEUE_SA       = 5,
-    BATTLEGROUND_QUEUE_IC       = 6,
-    BATTLEGROUND_QUEUE_TP       = 7,
-    BATTLEGROUND_QUEUE_BFG      = 8,
-    BATTLEGROUND_QUEUE_RB       = 9,
-    BATTLEGROUND_QUEUE_2v2      = 10,
-    BATTLEGROUND_QUEUE_3v3      = 11,
-    BATTLEGROUND_QUEUE_5v5      = 12,
-    MAX_BATTLEGROUND_QUEUE_TYPES
+    uint16 BattlemasterListId;
+    uint8 Type;
+    bool Rated;
+    uint8 TeamSize;
+
+    static constexpr BattlegroundQueueTypeId FromPacked(uint64 packedQueueId)
+    {
+        return { packedQueueId & 0xFFFF, (packedQueueId >> 16) & 0xF, ((packedQueueId >> 20) & 1) != 0, (packedQueueId >> 24) & 0x3F };
+    }
+
+    constexpr uint64 GetPacked() const
+    {
+        return uint64(BattlemasterListId)
+            | (uint64(Type & 0xF) << 16)
+            | (uint64(Rated ? 1 : 0) << 20)
+            | (uint64(TeamSize & 0x3F) << 24)
+            | UI64LIT(0x1F10000000000000);
+    }
+
+    constexpr bool operator==(BattlegroundQueueTypeId right) const
+    {
+        return BattlemasterListId == right.BattlemasterListId
+            && Type == right.Type
+            && Rated == right.Rated
+            && TeamSize == right.TeamSize;
+    }
+
+    constexpr bool operator!=(BattlegroundQueueTypeId right) const
+    {
+        return !(*this == right);
+    }
+
+    constexpr bool operator<(BattlegroundQueueTypeId right) const
+    {
+        if (BattlemasterListId != right.BattlemasterListId)
+            return BattlemasterListId < right.BattlemasterListId;
+        if (Type != right.Type)
+            return Type < right.Type;
+        if (Rated != right.Rated)
+            return Rated < right.Rated;
+        return TeamSize < right.TeamSize;
+    }
 };
+
+constexpr BattlegroundQueueTypeId BATTLEGROUND_QUEUE_NONE = { 0, 0, false, 0 };
 
 enum GroupJoinBattlegroundResult
 {
