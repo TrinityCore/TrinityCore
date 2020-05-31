@@ -836,28 +836,16 @@ class TC_PROTO_API ClubMembershipListener : public ServiceBase
   static google::protobuf::ServiceDescriptor const* descriptor();
 
   // client methods --------------------------------------------------
+  void OnClubAdded(::bgs::protocol::club::v1::membership::ClubAddedNotification const* request, bool client = false, bool server = false);
+  void OnClubRemoved(::bgs::protocol::club::v1::membership::ClubRemovedNotification const* request, bool client = false, bool server = false);
+  void OnReceivedInvitationAdded(::bgs::protocol::club::v1::membership::ReceivedInvitationAddedNotification const* request, bool client = false, bool server = false);
+  void OnReceivedInvitationRemoved(::bgs::protocol::club::v1::membership::ReceivedInvitationRemovedNotification const* request, bool client = false, bool server = false);
+  void OnSharedSettingsChanged(::bgs::protocol::club::v1::membership::SharedSettingsChangedNotification const* request, bool client = false, bool server = false);
+  void OnStreamMentionAdded(::bgs::protocol::club::v1::membership::StreamMentionAddedNotification const* request, bool client = false, bool server = false);
+  void OnStreamMentionRemoved(::bgs::protocol::club::v1::membership::StreamMentionRemovedNotification const* request, bool client = false, bool server = false);
+  void OnStreamMentionAdvanceViewTime(::bgs::protocol::club::v1::membership::StreamMentionAdvanceViewTimeNotification const* request, bool client = false, bool server = false);
 
-  void OnClubAdded(::bgs::protocol::club::v1::membership::ClubAddedNotification const* request);
-  void OnClubRemoved(::bgs::protocol::club::v1::membership::ClubRemovedNotification const* request);
-  void OnReceivedInvitationAdded(::bgs::protocol::club::v1::membership::ReceivedInvitationAddedNotification const* request);
-  void OnReceivedInvitationRemoved(::bgs::protocol::club::v1::membership::ReceivedInvitationRemovedNotification const* request);
-  void OnSharedSettingsChanged(::bgs::protocol::club::v1::membership::SharedSettingsChangedNotification const* request);
-  void OnStreamMentionAdded(::bgs::protocol::club::v1::membership::StreamMentionAddedNotification const* request);
-  void OnStreamMentionRemoved(::bgs::protocol::club::v1::membership::StreamMentionRemovedNotification const* request);
-  void OnStreamMentionAdvanceViewTime(::bgs::protocol::club::v1::membership::StreamMentionAdvanceViewTimeNotification const* request);
-  // server methods --------------------------------------------------
-
-  void CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) override final;
-
- protected:
-  virtual uint32 HandleOnClubAdded(::bgs::protocol::club::v1::membership::ClubAddedNotification const* request);
-  virtual uint32 HandleOnClubRemoved(::bgs::protocol::club::v1::membership::ClubRemovedNotification const* request);
-  virtual uint32 HandleOnReceivedInvitationAdded(::bgs::protocol::club::v1::membership::ReceivedInvitationAddedNotification const* request);
-  virtual uint32 HandleOnReceivedInvitationRemoved(::bgs::protocol::club::v1::membership::ReceivedInvitationRemovedNotification const* request);
-  virtual uint32 HandleOnSharedSettingsChanged(::bgs::protocol::club::v1::membership::SharedSettingsChangedNotification const* request);
-  virtual uint32 HandleOnStreamMentionAdded(::bgs::protocol::club::v1::membership::StreamMentionAddedNotification const* request);
-  virtual uint32 HandleOnStreamMentionRemoved(::bgs::protocol::club::v1::membership::StreamMentionRemovedNotification const* request);
-  virtual uint32 HandleOnStreamMentionAdvanceViewTime(::bgs::protocol::club::v1::membership::StreamMentionAdvanceViewTimeNotification const* request);
+  void CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) final;
 
  private:
   uint32 service_hash_;

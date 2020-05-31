@@ -1125,20 +1125,10 @@ class TC_PROTO_API UserManagerService : public ServiceBase
 
   static google::protobuf::ServiceDescriptor const* descriptor();
 
-  // client methods --------------------------------------------------
-
-  void Subscribe(::bgs::protocol::user_manager::v1::SubscribeRequest const* request, std::function<void(::bgs::protocol::user_manager::v1::SubscribeResponse const*)> responseCallback);
-  void AddRecentPlayers(::bgs::protocol::user_manager::v1::AddRecentPlayersRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback);
-  void ClearRecentPlayers(::bgs::protocol::user_manager::v1::ClearRecentPlayersRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback);
-  void BlockPlayer(::bgs::protocol::user_manager::v1::BlockPlayerRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback);
-  void UnblockPlayer(::bgs::protocol::user_manager::v1::UnblockPlayerRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback);
-  void BlockPlayerForSession(::bgs::protocol::user_manager::v1::BlockPlayerRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback);
-  void Unsubscribe(::bgs::protocol::user_manager::v1::UnsubscribeRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback);
-  // server methods --------------------------------------------------
-
-  void CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) override final;
+  void CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) final;
 
  protected:
+  // server methods --------------------------------------------------
   virtual uint32 HandleSubscribe(::bgs::protocol::user_manager::v1::SubscribeRequest const* request, ::bgs::protocol::user_manager::v1::SubscribeResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
   virtual uint32 HandleAddRecentPlayers(::bgs::protocol::user_manager::v1::AddRecentPlayersRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
   virtual uint32 HandleClearRecentPlayers(::bgs::protocol::user_manager::v1::ClearRecentPlayersRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
@@ -1168,20 +1158,12 @@ class TC_PROTO_API UserManagerListener : public ServiceBase
   static google::protobuf::ServiceDescriptor const* descriptor();
 
   // client methods --------------------------------------------------
+  void OnBlockedPlayerAdded(::bgs::protocol::user_manager::v1::BlockedPlayerAddedNotification const* request, bool client = false, bool server = false);
+  void OnBlockedPlayerRemoved(::bgs::protocol::user_manager::v1::BlockedPlayerRemovedNotification const* request, bool client = false, bool server = false);
+  void OnRecentPlayersAdded(::bgs::protocol::user_manager::v1::RecentPlayersAddedNotification const* request, bool client = false, bool server = false);
+  void OnRecentPlayersRemoved(::bgs::protocol::user_manager::v1::RecentPlayersRemovedNotification const* request, bool client = false, bool server = false);
 
-  void OnBlockedPlayerAdded(::bgs::protocol::user_manager::v1::BlockedPlayerAddedNotification const* request);
-  void OnBlockedPlayerRemoved(::bgs::protocol::user_manager::v1::BlockedPlayerRemovedNotification const* request);
-  void OnRecentPlayersAdded(::bgs::protocol::user_manager::v1::RecentPlayersAddedNotification const* request);
-  void OnRecentPlayersRemoved(::bgs::protocol::user_manager::v1::RecentPlayersRemovedNotification const* request);
-  // server methods --------------------------------------------------
-
-  void CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) override final;
-
- protected:
-  virtual uint32 HandleOnBlockedPlayerAdded(::bgs::protocol::user_manager::v1::BlockedPlayerAddedNotification const* request);
-  virtual uint32 HandleOnBlockedPlayerRemoved(::bgs::protocol::user_manager::v1::BlockedPlayerRemovedNotification const* request);
-  virtual uint32 HandleOnRecentPlayersAdded(::bgs::protocol::user_manager::v1::RecentPlayersAddedNotification const* request);
-  virtual uint32 HandleOnRecentPlayersRemoved(::bgs::protocol::user_manager::v1::RecentPlayersRemovedNotification const* request);
+  void CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) final;
 
  private:
   uint32 service_hash_;

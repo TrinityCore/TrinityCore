@@ -23,6 +23,7 @@ Battlenet::WorldserverServiceDispatcher::WorldserverServiceDispatcher()
     AddService<WorldserverService<account::v1::AccountService>>();
     AddService<WorldserverService<authentication::v1::AuthenticationService>>();
     AddService<WorldserverService<club::v1::membership::ClubMembershipService>>();
+    AddService<WorldserverService<club::v1::ClubService>>();
     AddService<WorldserverService<connection::v1::ConnectionService>>();
     AddService<WorldserverService<friends::v1::FriendsService>>();
     AddService<GameUtilitiesService>();

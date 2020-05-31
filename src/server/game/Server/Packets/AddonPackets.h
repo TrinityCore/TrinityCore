@@ -31,7 +31,7 @@ namespace WorldPackets
             std::string Name;
             std::string Version;
             bool Loaded = false;
-            bool Enabled = false;
+            bool Disabled = false;
         };
 
         ByteBuffer& operator>>(ByteBuffer& data, AddOnInfo& addonInfo);

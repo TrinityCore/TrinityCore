@@ -42,9 +42,14 @@ public:
 
     int64 GetRespecCost() const;
 
+protected:
     void BuildValuesCreate(ByteBuffer* data, Player const* target) const override;
     void BuildValuesUpdate(ByteBuffer* data, Player const* target) const override;
     void ClearUpdateMask(bool remove) override;
+
+public:
+    void BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask, UF::ItemData::Mask const& requestedItemMask,
+        UF::AzeriteEmpoweredItemData::Mask const& requestedAzeriteEmpoweredItemMask, Player const* target) const;
 
     UF::UpdateField<UF::AzeriteEmpoweredItemData, 0, TYPEID_AZERITE_EMPOWERED_ITEM> m_azeriteEmpoweredItemData;
 

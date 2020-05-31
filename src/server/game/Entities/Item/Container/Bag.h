@@ -56,10 +56,15 @@ class TC_GAME_API Bag : public Item
         // overwrite virtual Item::DeleteFromDB
         void DeleteFromDB(CharacterDatabaseTransaction& trans) override;
 
+    protected:
         void BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) const override;
         void BuildValuesCreate(ByteBuffer* data, Player const* target) const override;
         void BuildValuesUpdate(ByteBuffer* data, Player const* target) const override;
         void ClearUpdateMask(bool remove) override;
+
+    public:
+        void BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask, UF::ItemData::Mask const& requestedItemMask,
+            UF::ContainerData::Mask const& requestedContainerMask, Player const* target) const;
 
         UF::UpdateField<UF::ContainerData, 0, TYPEID_CONTAINER> m_containerData;
 

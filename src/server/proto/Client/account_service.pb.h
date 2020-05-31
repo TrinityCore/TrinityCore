@@ -2532,25 +2532,10 @@ class TC_PROTO_API AccountService : public ServiceBase
 
   static google::protobuf::ServiceDescriptor const* descriptor();
 
-  // client methods --------------------------------------------------
-
-  void ResolveAccount(::bgs::protocol::account::v1::ResolveAccountRequest const* request, std::function<void(::bgs::protocol::account::v1::ResolveAccountResponse const*)> responseCallback);
-  void IsIgrAddress(::bgs::protocol::account::v1::IsIgrAddressRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback);
-  void Subscribe(::bgs::protocol::account::v1::SubscriptionUpdateRequest const* request, std::function<void(::bgs::protocol::account::v1::SubscriptionUpdateResponse const*)> responseCallback);
-  void Unsubscribe(::bgs::protocol::account::v1::SubscriptionUpdateRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback);
-  void GetAccountState(::bgs::protocol::account::v1::GetAccountStateRequest const* request, std::function<void(::bgs::protocol::account::v1::GetAccountStateResponse const*)> responseCallback);
-  void GetGameAccountState(::bgs::protocol::account::v1::GetGameAccountStateRequest const* request, std::function<void(::bgs::protocol::account::v1::GetGameAccountStateResponse const*)> responseCallback);
-  void GetLicenses(::bgs::protocol::account::v1::GetLicensesRequest const* request, std::function<void(::bgs::protocol::account::v1::GetLicensesResponse const*)> responseCallback);
-  void GetGameTimeRemainingInfo(::bgs::protocol::account::v1::GetGameTimeRemainingInfoRequest const* request, std::function<void(::bgs::protocol::account::v1::GetGameTimeRemainingInfoResponse const*)> responseCallback);
-  void GetGameSessionInfo(::bgs::protocol::account::v1::GetGameSessionInfoRequest const* request, std::function<void(::bgs::protocol::account::v1::GetGameSessionInfoResponse const*)> responseCallback);
-  void GetCAISInfo(::bgs::protocol::account::v1::GetCAISInfoRequest const* request, std::function<void(::bgs::protocol::account::v1::GetCAISInfoResponse const*)> responseCallback);
-  void GetAuthorizedData(::bgs::protocol::account::v1::GetAuthorizedDataRequest const* request, std::function<void(::bgs::protocol::account::v1::GetAuthorizedDataResponse const*)> responseCallback);
-  void GetSignedAccountState(::bgs::protocol::account::v1::GetSignedAccountStateRequest const* request, std::function<void(::bgs::protocol::account::v1::GetSignedAccountStateResponse const*)> responseCallback);
-  // server methods --------------------------------------------------
-
-  void CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) override final;
+  void CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) final;
 
  protected:
+  // server methods --------------------------------------------------
   virtual uint32 HandleResolveAccount(::bgs::protocol::account::v1::ResolveAccountRequest const* request, ::bgs::protocol::account::v1::ResolveAccountResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
   virtual uint32 HandleIsIgrAddress(::bgs::protocol::account::v1::IsIgrAddressRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
   virtual uint32 HandleSubscribe(::bgs::protocol::account::v1::SubscriptionUpdateRequest const* request, ::bgs::protocol::account::v1::SubscriptionUpdateResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
@@ -2585,20 +2570,12 @@ class TC_PROTO_API AccountListener : public ServiceBase
   static google::protobuf::ServiceDescriptor const* descriptor();
 
   // client methods --------------------------------------------------
+  void OnAccountStateUpdated(::bgs::protocol::account::v1::AccountStateNotification const* request, bool client = false, bool server = false);
+  void OnGameAccountStateUpdated(::bgs::protocol::account::v1::GameAccountStateNotification const* request, bool client = false, bool server = false);
+  void OnGameAccountsUpdated(::bgs::protocol::account::v1::GameAccountNotification const* request, bool client = false, bool server = false);
+  void OnGameSessionUpdated(::bgs::protocol::account::v1::GameAccountSessionNotification const* request, bool client = false, bool server = false);
 
-  void OnAccountStateUpdated(::bgs::protocol::account::v1::AccountStateNotification const* request);
-  void OnGameAccountStateUpdated(::bgs::protocol::account::v1::GameAccountStateNotification const* request);
-  void OnGameAccountsUpdated(::bgs::protocol::account::v1::GameAccountNotification const* request);
-  void OnGameSessionUpdated(::bgs::protocol::account::v1::GameAccountSessionNotification const* request);
-  // server methods --------------------------------------------------
-
-  void CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) override final;
-
- protected:
-  virtual uint32 HandleOnAccountStateUpdated(::bgs::protocol::account::v1::AccountStateNotification const* request);
-  virtual uint32 HandleOnGameAccountStateUpdated(::bgs::protocol::account::v1::GameAccountStateNotification const* request);
-  virtual uint32 HandleOnGameAccountsUpdated(::bgs::protocol::account::v1::GameAccountNotification const* request);
-  virtual uint32 HandleOnGameSessionUpdated(::bgs::protocol::account::v1::GameAccountSessionNotification const* request);
+  void CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) final;
 
  private:
   uint32 service_hash_;

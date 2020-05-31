@@ -4852,22 +4852,51 @@ enum SummonCategory
                                      // uses this category
 };
 
-enum SummonType
+enum class SummonTitle : int32
 {
-    SUMMON_TYPE_NONE        = 0,
-    SUMMON_TYPE_PET         = 1,
-    SUMMON_TYPE_GUARDIAN    = 2,
-    SUMMON_TYPE_MINION      = 3,
-    SUMMON_TYPE_TOTEM       = 4,
-    SUMMON_TYPE_MINIPET     = 5,
-    SUMMON_TYPE_GUARDIAN2   = 6,
-    SUMMON_TYPE_WILD2       = 7,
-    SUMMON_TYPE_WILD3       = 8,    // Related to phases and DK prequest line (3.3.5a)
-    SUMMON_TYPE_VEHICLE     = 9,
-    SUMMON_TYPE_VEHICLE2    = 10,   // Oculus and Argent Tournament vehicles (3.3.5a)
-    SUMMON_TYPE_LIGHTWELL   = 11,
-    SUMMON_TYPE_JEEVES      = 12,
-    SUMMON_TYPE_UNK13       = 13
+    None                = 0,
+    Pet                 = 1,
+    Guardian            = 2,
+    Minion              = 3,
+    Totem               = 4,
+    Companion           = 5,
+    Runeblade           = 6,
+    Construct           = 7,
+    Opponent            = 8,    // Related to phases and DK prequest line (3.3.5a)
+    Vehicle             = 9,
+    Mount               = 10,   // Oculus and Argent Tournament vehicles (3.3.5a)
+    Lightwell           = 11,
+    Butler              = 12,
+    aka                 = 13,
+    Gateway             = 14,
+    Hatred              = 15,
+    Statue              = 16,
+    Spirit              = 17,
+    WarBanner           = 18,
+    Heartwarmer         = 19,
+    HiredBy             = 20,
+    PurchasedBy         = 21,
+    Pride               = 22,
+    TwistedImage        = 23,
+    NoodleCart          = 24,
+    InnerDemon          = 25,
+    Bodyguard           = 26,
+    Name                = 27,
+    Squire              = 28,
+    Champion            = 29,
+    TheBetrayer         = 30,
+    EruptingReflection  = 31,
+    HopelessReflection  = 32,
+    MalignantReflection = 33,
+    WailingReflection   = 34,
+    Assistant           = 35,
+    Enforcer            = 36,
+    Recruit             = 37,
+    Admirer             = 38,
+    EvilTwin            = 39,
+    Greed               = 40,
+    LostMind            = 41,
+    ServantOfNZoth      = 44
 };
 
 enum EventId
@@ -5361,6 +5390,25 @@ enum DiminishingLevels
     DIMINISHING_LEVEL_IMMUNE        = 3,
     DIMINISHING_LEVEL_4             = 3,
     DIMINISHING_LEVEL_TAUNT_IMMUNE  = 4
+};
+
+enum WeaponAttackType : uint8
+{
+    BASE_ATTACK   = 0,
+    OFF_ATTACK    = 1,
+    RANGED_ATTACK = 2,
+    MAX_ATTACK
+};
+
+enum CharterTypes
+{
+    CHARTER_TYPE_NONE           = 0,
+    CHARTER_TYPE_ANY            = 10,
+
+    GUILD_CHARTER_TYPE          = 4,
+    ARENA_TEAM_CHARTER_2v2_TYPE = 2,
+    ARENA_TEAM_CHARTER_3v3_TYPE = 3,
+    ARENA_TEAM_CHARTER_5v5_TYPE = 5
 };
 
 enum TokenResult
@@ -6477,6 +6525,21 @@ enum class GameError : uint32
     ERR_ITEM_INTERACTION_NOT_ENOUGH_CURRENCY                        = 1045,
     ERR_CANT_USE_PROFANITY                                          = 1046,
     ERR_NOT_IN_PET_BATTLE                                           = 1047,
+};
+
+enum class MountResult : uint32
+{
+    InvalidMountee = 0,
+    TooFarAway     = 1,
+    AlreadyMounted = 2,
+    NotMountable   = 3,
+    NotYourPet     = 4,
+    Other          = 5,
+    Looting        = 6,
+    RaceCantMount  = 7,
+    Shapeshifted   = 8,
+    ForcedDismount = 9,
+    Ok             = 10 // never sent
 };
 
 #endif

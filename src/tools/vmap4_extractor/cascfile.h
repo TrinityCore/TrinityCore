@@ -39,10 +39,10 @@ class CASCFile
     CASCFile& operator=(const CASCFile &f) = delete;
 
 public:
-    CASCFile(CASC::StorageHandle const& casc, const char* filename, bool warnNoExist = true);    // filenames are not case sensitive
-    CASCFile(CASC::StorageHandle const& casc, uint32 fileDataId, std::string const& description, bool warnNoExist = true);
+    CASCFile(std::shared_ptr<CASC::Storage const> casc, const char* filename, bool warnNoExist = true);    // filenames are not case sensitive
+    CASCFile(std::shared_ptr<CASC::Storage const> casc, uint32 fileDataId, std::string const& description, bool warnNoExist = true);
     ~CASCFile() { close(); }
-    void init(CASC::FileHandle const& file, const char* description);
+    void init(CASC::File* file, const char* description);
     size_t read(void* dest, size_t bytes);
     size_t getSize() { return size; }
     size_t getPos() { return pointer; }

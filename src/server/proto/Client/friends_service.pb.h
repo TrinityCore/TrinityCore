@@ -2045,26 +2045,10 @@ class TC_PROTO_API FriendsService : public ServiceBase
 
   static google::protobuf::ServiceDescriptor const* descriptor();
 
-  // client methods --------------------------------------------------
-
-  void Subscribe(::bgs::protocol::friends::v1::SubscribeRequest const* request, std::function<void(::bgs::protocol::friends::v1::SubscribeResponse const*)> responseCallback);
-  void SendInvitation(::bgs::protocol::friends::v1::SendInvitationRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback);
-  void AcceptInvitation(::bgs::protocol::friends::v1::AcceptInvitationRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback);
-  void RevokeInvitation(::bgs::protocol::friends::v1::RevokeInvitationRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback);
-  void DeclineInvitation(::bgs::protocol::friends::v1::DeclineInvitationRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback);
-  void IgnoreInvitation(::bgs::protocol::friends::v1::IgnoreInvitationRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback);
-  void RemoveFriend(::bgs::protocol::friends::v1::RemoveFriendRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback);
-  void ViewFriends(::bgs::protocol::friends::v1::ViewFriendsRequest const* request, std::function<void(::bgs::protocol::friends::v1::ViewFriendsResponse const*)> responseCallback);
-  void UpdateFriendState(::bgs::protocol::friends::v1::UpdateFriendStateRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback);
-  void Unsubscribe(::bgs::protocol::friends::v1::UnsubscribeRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback);
-  void RevokeAllInvitations(::bgs::protocol::friends::v1::RevokeAllInvitationsRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback);
-  void GetFriendList(::bgs::protocol::friends::v1::GetFriendListRequest const* request, std::function<void(::bgs::protocol::friends::v1::GetFriendListResponse const*)> responseCallback);
-  void CreateFriendship(::bgs::protocol::friends::v1::CreateFriendshipRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback);
-  // server methods --------------------------------------------------
-
-  void CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) override final;
+  void CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) final;
 
  protected:
+  // server methods --------------------------------------------------
   virtual uint32 HandleSubscribe(::bgs::protocol::friends::v1::SubscribeRequest const* request, ::bgs::protocol::friends::v1::SubscribeResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
   virtual uint32 HandleSendInvitation(::bgs::protocol::friends::v1::SendInvitationRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
   virtual uint32 HandleAcceptInvitation(::bgs::protocol::friends::v1::AcceptInvitationRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
@@ -2100,26 +2084,15 @@ class TC_PROTO_API FriendsListener : public ServiceBase
   static google::protobuf::ServiceDescriptor const* descriptor();
 
   // client methods --------------------------------------------------
+  void OnFriendAdded(::bgs::protocol::friends::v1::FriendNotification const* request, bool client = false, bool server = false);
+  void OnFriendRemoved(::bgs::protocol::friends::v1::FriendNotification const* request, bool client = false, bool server = false);
+  void OnReceivedInvitationAdded(::bgs::protocol::friends::v1::InvitationNotification const* request, bool client = false, bool server = false);
+  void OnReceivedInvitationRemoved(::bgs::protocol::friends::v1::InvitationNotification const* request, bool client = false, bool server = false);
+  void OnSentInvitationAdded(::bgs::protocol::friends::v1::SentInvitationAddedNotification const* request, bool client = false, bool server = false);
+  void OnSentInvitationRemoved(::bgs::protocol::friends::v1::SentInvitationRemovedNotification const* request, bool client = false, bool server = false);
+  void OnUpdateFriendState(::bgs::protocol::friends::v1::UpdateFriendStateNotification const* request, bool client = false, bool server = false);
 
-  void OnFriendAdded(::bgs::protocol::friends::v1::FriendNotification const* request);
-  void OnFriendRemoved(::bgs::protocol::friends::v1::FriendNotification const* request);
-  void OnReceivedInvitationAdded(::bgs::protocol::friends::v1::InvitationNotification const* request);
-  void OnReceivedInvitationRemoved(::bgs::protocol::friends::v1::InvitationNotification const* request);
-  void OnSentInvitationAdded(::bgs::protocol::friends::v1::SentInvitationAddedNotification const* request);
-  void OnSentInvitationRemoved(::bgs::protocol::friends::v1::SentInvitationRemovedNotification const* request);
-  void OnUpdateFriendState(::bgs::protocol::friends::v1::UpdateFriendStateNotification const* request);
-  // server methods --------------------------------------------------
-
-  void CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) override final;
-
- protected:
-  virtual uint32 HandleOnFriendAdded(::bgs::protocol::friends::v1::FriendNotification const* request);
-  virtual uint32 HandleOnFriendRemoved(::bgs::protocol::friends::v1::FriendNotification const* request);
-  virtual uint32 HandleOnReceivedInvitationAdded(::bgs::protocol::friends::v1::InvitationNotification const* request);
-  virtual uint32 HandleOnReceivedInvitationRemoved(::bgs::protocol::friends::v1::InvitationNotification const* request);
-  virtual uint32 HandleOnSentInvitationAdded(::bgs::protocol::friends::v1::SentInvitationAddedNotification const* request);
-  virtual uint32 HandleOnSentInvitationRemoved(::bgs::protocol::friends::v1::SentInvitationRemovedNotification const* request);
-  virtual uint32 HandleOnUpdateFriendState(::bgs::protocol::friends::v1::UpdateFriendStateNotification const* request);
+  void CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) final;
 
  private:
   uint32 service_hash_;

@@ -180,35 +180,15 @@ void ChannelMgr::SendNotOnChannelNotify(Player const* player, std::string const&
 
 ObjectGuid ChannelMgr::CreateCustomChannelGuid()
 {
-    uint64 high = 0;
-    high |= uint64(HighGuid::ChatChannel) << 58;
-    high |= uint64(realm.Id.Realm) << 42;
-    high |= uint64(_team == ALLIANCE ? 3 : 5) << 4;
-
-    ObjectGuid channelGuid;
-    channelGuid.SetRawValue(high, _guidGenerator.Generate());
-    return channelGuid;
+    return ObjectGuid::Create<HighGuid::ChatChannel>(false, false, 0, _team == ALLIANCE ? 3 : 5, _guidGenerator.Generate());
 }
 
 ObjectGuid ChannelMgr::CreateBuiltinChannelGuid(uint32 channelId, AreaTableEntry const* zoneEntry /*= nullptr*/) const
 {
-
     ChatChannelsEntry const* channelEntry = sChatChannelsStore.AssertEntry(channelId);
     uint32 zoneId = zoneEntry ? zoneEntry->ID : 0;
     if (channelEntry->Flags & (CHANNEL_DBC_FLAG_GLOBAL | CHANNEL_DBC_FLAG_CITY_ONLY))
         zoneId = 0;
 
-    uint64 high = 0;
-    high |= uint64(HighGuid::ChatChannel) << 58;
-    high |= uint64(realm.Id.Realm) << 42;
-    high |= uint64(1) << 25; // built-in
-    if (channelEntry->Flags & CHANNEL_DBC_FLAG_CITY_ONLY2)
-        high |= uint64(1) << 24; // trade
-
-    high |= uint64(zoneId) << 10;
-    high |= uint64(_team == ALLIANCE ? 3 : 5) << 4;
-
-    ObjectGuid channelGuid;
-    channelGuid.SetRawValue(high, channelId);
-    return channelGuid;
+    return ObjectGuid::Create<HighGuid::ChatChannel>(true, (channelEntry->Flags & CHANNEL_DBC_FLAG_CITY_ONLY2) != 0, zoneId, _team == ALLIANCE ? 3 : 5, channelId);
 }

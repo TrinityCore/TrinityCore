@@ -598,13 +598,13 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
 
     if (canComplete)
     {
-        packet.CompEmoteDelay = quest->EmoteOnCompleteDelay;
-        packet.CompEmoteType = quest->EmoteOnComplete;
+        packet.CompEmoteDelay = quest->GetCompleteEmoteDelay();
+        packet.CompEmoteType = quest->GetCompleteEmote();
     }
     else
     {
-        packet.CompEmoteDelay = quest->EmoteOnIncompleteDelay;
-        packet.CompEmoteType = quest->EmoteOnIncomplete;
+        packet.CompEmoteDelay = quest->GetIncompleteEmoteDelay();
+        packet.CompEmoteType = quest->GetIncompleteEmote();
     }
 
     packet.QuestFlags[0] = quest->GetFlags();

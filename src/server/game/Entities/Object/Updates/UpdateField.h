@@ -38,6 +38,8 @@ namespace UF
         Empath = 0x08
     };
 
+    DEFINE_ENUM_FLAG(UpdateFieldFlag);
+
     template<typename T, uint32 BlockBit, uint32 Bit>
     class UpdateField;
 
@@ -236,7 +238,7 @@ namespace UF
             std::conditional_t<std::is_base_of<IsUpdateFieldStructureTag, V>::value,
             MutableFieldReference<V, PublicSet>,
             std::conditional_t<PublicSet, UpdateFieldPublicSetter<V>, UpdateFieldSetter<V>>>>
-            ModifyValue(UpdateField<V, BlockBit, Bit>(T:: * field))
+            ModifyValue(UpdateField<V, BlockBit, Bit>(T::* field))
         {
             _value._changesMask.Set(BlockBit);
             _value._changesMask.Set(Bit);
@@ -248,7 +250,7 @@ namespace UF
             std::conditional_t<std::is_base_of<IsUpdateFieldStructureTag, V>::value,
             MutableFieldReference<V, PublicSet>,
             std::conditional_t<PublicSet, UpdateFieldPublicSetter<V>, UpdateFieldSetter<V>>>>
-            ModifyValue(UpdateFieldArray<V, Size, Bit, FirstElementBit>(T:: * field), uint32 index)
+            ModifyValue(UpdateFieldArray<V, Size, Bit, FirstElementBit>(T::* field), uint32 index)
         {
             _value._changesMask.Set(Bit);
             _value._changesMask.Set(FirstElementBit + index);
@@ -269,7 +271,7 @@ namespace UF
             std::conditional_t<std::is_base_of<IsUpdateFieldStructureTag, V>::value,
             MutableFieldReference<V, PublicSet>,
             std::conditional_t<PublicSet, UpdateFieldPublicSetter<V>, UpdateFieldSetter<V>>>>
-            ModifyValue(DynamicUpdateField<V, BlockBit, Bit>(T:: * field), uint32 index)
+            ModifyValue(DynamicUpdateField<V, BlockBit, Bit>(T::* field), uint32 index)
         {
             if (index >= (_value.*field).size())
             {
@@ -353,24 +355,21 @@ namespace UF
         template<typename Derived, typename T, uint32 BlockBit, uint32 Bit>
         MutableFieldReference<T, false> ModifyValue(UpdateField<T, BlockBit, Bit>(Derived::* field))
         {
-            _changesMask.Set(BlockBit);
-            _changesMask.Set(Bit);
+            MarkChanged(field);
             return { (static_cast<Derived*>(this)->*field)._value };
         }
 
         template<typename Derived, typename T, std::size_t Size, uint32 Bit, uint32 FirstElementBit>
         MutableFieldReference<T, false> ModifyValue(UpdateFieldArray<T, Size, Bit, FirstElementBit>(Derived::* field), uint32 index)
         {
-            _changesMask.Set(Bit);
-            _changesMask.Set(FirstElementBit + index);
+            MarkChanged(field, index);
             return { (static_cast<Derived*>(this)->*field)._values[index] };
         }
 
         template<typename Derived, typename T, uint32 BlockBit, uint32 Bit>
         MutableFieldReference<T, false> ModifyValue(DynamicUpdateField<T, BlockBit, Bit>(Derived::* field))
         {
-            _changesMask.Set(BlockBit);
-            _changesMask.Set(Bit);
+            MarkChanged(field);
             return { (static_cast<Derived*>(this)->*field)._values };
         }
 
@@ -385,8 +384,7 @@ namespace UF
                 uf._updateMask.resize((uf._values.size() + 31) / 32);
             }
 
-            _changesMask.Set(BlockBit);
-            _changesMask.Set(Bit);
+            MarkChanged(field);
             (static_cast<Derived*>(this)->*field).MarkChanged(index);
             return { uf._values[index] };
         }
@@ -394,20 +392,59 @@ namespace UF
         template<typename Derived, typename T, uint32 BlockBit, uint32 Bit>
         MutableFieldReference<T, false> ModifyValue(OptionalUpdateField<T, BlockBit, Bit>(Derived::* field))
         {
+            MarkChanged(field);
+            return { *((static_cast<Derived*>(this)->*field)._value) };
+        }
+
+        template<typename Derived, typename T, uint32 BlockBit, uint32 Bit>
+        void MarkChanged(UpdateField<T, BlockBit, Bit>(Derived::*))
+        {
+            static_assert(std::is_base_of<Base, Derived>::value, "Given field argument must belong to the same structure as this HasChangesMask");
+
             _changesMask.Set(BlockBit);
             _changesMask.Set(Bit);
-            return { *((static_cast<Derived*>(this)->*field)._value) };
+        }
+
+        template<typename Derived, typename T, std::size_t Size, uint32 Bit, uint32 FirstElementBit>
+        void MarkChanged(UpdateFieldArray<T, Size, Bit, FirstElementBit>(Derived::*), uint32 index)
+        {
+            static_assert(std::is_base_of<Base, Derived>::value, "Given field argument must belong to the same structure as this HasChangesMask");
+
+            _changesMask.Set(Bit);
+            _changesMask.Set(FirstElementBit + index);
+        }
+
+        template<typename Derived, typename T, uint32 BlockBit, uint32 Bit>
+        void MarkChanged(DynamicUpdateField<T, BlockBit, Bit>(Derived::*), uint32)
+        {
+            static_assert(std::is_base_of<Base, Derived>::value, "Given field argument must belong to the same structure as this HasChangesMask");
+
+            _changesMask.Set(BlockBit);
+            _changesMask.Set(Bit);
+        }
+
+        template<typename Derived, typename T, uint32 BlockBit, uint32 Bit>
+        void MarkChanged(OptionalUpdateField<T, BlockBit, Bit>(Derived::*))
+        {
+            static_assert(std::is_base_of<Base, Derived>::value, "Given field argument must belong to the same structure as this HasChangesMask");
+
+            _changesMask.Set(BlockBit);
+            _changesMask.Set(Bit);
         }
 
         template<typename Derived, typename T, uint32 BlockBit, uint32 Bit>
         void ClearChanged(UpdateField<T, BlockBit, Bit>(Derived::*))
         {
+            static_assert(std::is_base_of<Base, Derived>::value, "Given field argument must belong to the same structure as this HasChangesMask");
+
             _changesMask.Reset(Bit);
         }
 
         template<typename Derived, typename T, std::size_t Size, uint32 Bit, uint32 FirstElementBit>
         void ClearChanged(UpdateFieldArray<T, Size, Bit, FirstElementBit>(Derived::*), uint32 index)
         {
+            static_assert(std::is_base_of<Base, Derived>::value, "Given field argument must belong to the same structure as this HasChangesMask");
+
             _changesMask.Reset(Bit);
             _changesMask.Reset(FirstElementBit + index);
         }
@@ -422,8 +459,12 @@ namespace UF
         template<typename Derived, typename T, uint32 BlockBit, uint32 Bit>
         void ClearChanged(OptionalUpdateField<T, BlockBit, Bit>(Derived::*))
         {
+            static_assert(std::is_base_of<Base, Derived>::value, "Given field argument must belong to the same structure as this HasChangesMask");
+
             _changesMask.Reset(Bit);
         }
+
+        Mask const& GetChangesMask() const { return _changesMask; }
 
     protected:
         template<typename T, uint32 BlockBit, uint32 Bit>
@@ -597,6 +638,7 @@ namespace UF
     };
 
     void WriteDynamicFieldUpdateMask(std::size_t size, std::vector<uint32> const& updateMask, ByteBuffer& data);
+    void WriteCompleteDynamicFieldUpdateMask(std::size_t size, ByteBuffer& data);
 
     template<typename T, uint32 BlockBit, uint32 Bit>
     class DynamicUpdateField

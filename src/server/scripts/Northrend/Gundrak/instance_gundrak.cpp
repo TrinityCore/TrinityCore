@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "GameObjectAI.h"
 #include "Creature.h"
 #include "EventMap.h"
 #include "GameObject.h"
@@ -352,18 +353,25 @@ class go_gundrak_altar : public GameObjectScript
     public:
         go_gundrak_altar() : GameObjectScript("go_gundrak_altar") { }
 
-        bool OnGossipHello(Player* /*player*/, GameObject* go) override
+        struct go_gundrak_altarAI : public GameObjectAI
         {
-            go->AddFlag(GO_FLAG_NOT_SELECTABLE);
-            go->SetGoState(GO_STATE_ACTIVE);
+            go_gundrak_altarAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
 
-            if (InstanceScript* instance = go->GetInstanceScript())
+            InstanceScript* instance;
+
+            bool GossipHello(Player* /*player*/, bool /*reportUse*/) override
             {
-                instance->SetData(DATA_STATUE_ACTIVATE, go->GetEntry());
+                me->AddFlag(GO_FLAG_NOT_SELECTABLE);
+                me->SetGoState(GO_STATE_ACTIVE);
+
+                instance->SetData(DATA_STATUE_ACTIVATE, me->GetEntry());
                 return true;
             }
+        };
 
-            return false;
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return GetGundrakAI<go_gundrak_altarAI>(go);
         }
 };
 

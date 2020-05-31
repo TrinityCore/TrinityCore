@@ -597,7 +597,7 @@ class boss_kaelthas : public CreatureScript
                         events.ScheduleEvent(EVENT_TRANSITION_1, 1000);
                         break;
                     case POINT_TRANSITION_CENTER_ASCENDING:
-                        me->SetFacingTo(float(M_PI), true);
+                        me->SetFacingTo(float(M_PI));
                         Talk(SAY_PHASE5_NUTS);
                         me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                         me->SetDisableGravity(true);
@@ -1278,7 +1278,7 @@ class npc_kael_flamestrike : public CreatureScript
                 Initialize();
 
                 me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
-                me->setFaction(14);
+                me->SetFaction(14);
             }
 
             void MoveInLineOfSight(Unit* /*who*/) override { }

@@ -43,11 +43,10 @@ enum OHWorldStateIds
     WORLD_STATE_OH              = 2436
 };
 
-
-template<typename AI>
-inline AI* GetOldHillsbradAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetOldHillsbradAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, OHScriptName);
+    return GetInstanceAI<AI>(obj, OHScriptName);
 }
 
 

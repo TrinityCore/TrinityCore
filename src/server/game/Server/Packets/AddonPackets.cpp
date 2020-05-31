@@ -20,10 +20,12 @@
 
 ByteBuffer& WorldPackets::Addon::operator>>(ByteBuffer& data, AddOnInfo& addonInfo)
 {
+    data.ResetBitPos();
+
     uint32 nameLength = data.ReadBits(10);
     uint32 versionLength = data.ReadBits(10);
     addonInfo.Loaded = data.ReadBit();
-    addonInfo.Enabled = data.ReadBit();
+    addonInfo.Disabled = data.ReadBit();
     if (nameLength > 1)
     {
         addonInfo.Name = data.ReadString(nameLength - 1);

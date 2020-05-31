@@ -22,6 +22,7 @@
 #include "GameObject.h"
 #include "GameTime.h"
 #include "Player.h"
+#include "UpdateData.h"
 #include <boost/date_time/gregorian/gregorian_types.hpp>
 #include <boost/date_time/posix_time/conversion.hpp>
 
@@ -211,9 +212,9 @@ void AzeriteItem::DeleteFromDB(CharacterDatabaseTransaction& trans)
 
 uint32 AzeriteItem::GetCurrentKnowledgeLevel()
 {
-    // count weeks from 26.06.2019
+    // count weeks from 14.01.2020
     boost::gregorian::date now = boost::posix_time::from_time_t(GameTime::GetGameTime()).date();
-    boost::gregorian::week_iterator itr(boost::gregorian::date(2019, boost::date_time::Jun, 26));
+    boost::gregorian::week_iterator itr(boost::gregorian::date(2020, boost::date_time::Jan, 14));
     uint32 knowledge = 0;
     while (*itr < now && knowledge < MAX_AZERITE_ITEM_KNOWLEDGE_LEVEL)
     {
@@ -433,13 +434,50 @@ void AzeriteItem::BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFla
 
     UF::ItemData::Mask mask;
     m_itemData->AppendAllowedFieldsMaskForFlag(mask, flags);
-    m_itemData->WriteUpdate(*data, mask, flags, this, target);
+    m_itemData->WriteUpdate(*data, mask, true, this, target);
 
     UF::AzeriteItemData::Mask mask2;
     m_azeriteItemData->AppendAllowedFieldsMaskForFlag(mask2, flags);
-    m_azeriteItemData->WriteUpdate(*data, mask2, flags, this, target);
+    m_azeriteItemData->WriteUpdate(*data, mask2, true, this, target);
 
     data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
+}
+
+void AzeriteItem::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
+    UF::ItemData::Mask const& requestedItemMask, UF::AzeriteItemData::Mask const& requestedAzeriteItemMask, Player const* target) const
+{
+    UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
+    UpdateMask<NUM_CLIENT_OBJECT_TYPES> valuesMask;
+    if (requestedObjectMask.IsAnySet())
+        valuesMask.Set(TYPEID_OBJECT);
+
+    UF::ItemData::Mask itemMask = requestedItemMask;
+    m_itemData->FilterDisallowedFieldsMaskForFlag(itemMask, flags);
+    if (itemMask.IsAnySet())
+        valuesMask.Set(TYPEID_ITEM);
+
+    UF::AzeriteItemData::Mask azeriteItemMask = requestedAzeriteItemMask;
+    m_azeriteItemData->FilterDisallowedFieldsMaskForFlag(azeriteItemMask, flags);
+    if (azeriteItemMask.IsAnySet())
+        valuesMask.Set(TYPEID_AZERITE_ITEM);
+
+    ByteBuffer buffer = PrepareValuesUpdateBuffer();
+    std::size_t sizePos = buffer.wpos();
+    buffer << uint32(0);
+    buffer << uint32(valuesMask.GetBlock(0));
+
+    if (valuesMask[TYPEID_OBJECT])
+        m_objectData->WriteUpdate(buffer, requestedObjectMask, true, this, target);
+
+    if (valuesMask[TYPEID_ITEM])
+        m_itemData->WriteUpdate(buffer, itemMask, true, this, target);
+
+    if (valuesMask[TYPEID_AZERITE_ITEM])
+        m_azeriteItemData->WriteUpdate(buffer, azeriteItemMask, true, this, target);
+
+    buffer.put<uint32>(sizePos, buffer.wpos() - sizePos - 4);
+
+    data->AddUpdateBlock(buffer);
 }
 
 void AzeriteItem::ClearUpdateMask(bool remove)

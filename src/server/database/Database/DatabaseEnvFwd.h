@@ -24,9 +24,9 @@
 class Field;
 
 class ResultSet;
-typedef std::shared_ptr<ResultSet> QueryResult;
-typedef std::future<QueryResult> QueryResultFuture;
-typedef std::promise<QueryResult> QueryResultPromise;
+using QueryResult = std::shared_ptr<ResultSet>;
+using QueryResultFuture = std::future<QueryResult>;
+using QueryResultPromise = std::promise<QueryResult>;
 
 class CharacterDatabaseConnection;
 class HotfixDatabaseConnection;
@@ -44,16 +44,26 @@ using LoginDatabasePreparedStatement = PreparedStatement<LoginDatabaseConnection
 using WorldDatabasePreparedStatement = PreparedStatement<WorldDatabaseConnection>;
 
 class PreparedResultSet;
-typedef std::shared_ptr<PreparedResultSet> PreparedQueryResult;
-typedef std::future<PreparedQueryResult> PreparedQueryResultFuture;
-typedef std::promise<PreparedQueryResult> PreparedQueryResultPromise;
+using PreparedQueryResult = std::shared_ptr<PreparedResultSet>;
+using PreparedQueryResultFuture = std::future<PreparedQueryResult>;
+using PreparedQueryResultPromise = std::promise<PreparedQueryResult>;
 
 class QueryCallback;
 
+template<typename T>
+class AsyncCallbackProcessor;
+
+using QueryCallbackProcessor = AsyncCallbackProcessor<QueryCallback>;
+
 class TransactionBase;
+
+using TransactionFuture = std::future<bool>;
+using TransactionPromise = std::promise<bool>;
 
 template<typename T>
 class Transaction;
+
+class TransactionCallback;
 
 template<typename T>
 using SQLTransaction = std::shared_ptr<Transaction<T>>;
@@ -64,8 +74,8 @@ using LoginDatabaseTransaction = SQLTransaction<LoginDatabaseConnection>;
 using WorldDatabaseTransaction = SQLTransaction<WorldDatabaseConnection>;
 
 class SQLQueryHolderBase;
-typedef std::future<SQLQueryHolderBase*> QueryResultHolderFuture;
-typedef std::promise<SQLQueryHolderBase*> QueryResultHolderPromise;
+using QueryResultHolderFuture = std::future<SQLQueryHolderBase*>;
+using QueryResultHolderPromise = std::promise<SQLQueryHolderBase*>;
 
 template<typename T>
 class SQLQueryHolder;

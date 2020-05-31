@@ -428,7 +428,7 @@ public:
 
                         if (Creature* pSpawn = me->SummonCreature(CREATURE_ARAN_BLIZZARD, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 25000))
                         {
-                            pSpawn->setFaction(me->getFaction());
+                            pSpawn->SetFaction(me->GetFaction());
                             pSpawn->CastSpell(pSpawn, SPELL_CIRCULAR_BLIZZARD, false);
                         }
                         break;
@@ -446,7 +446,7 @@ public:
                     if (Creature* unit = me->SummonCreature(CREATURE_WATER_ELEMENTAL, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 90000))
                     {
                         unit->Attack(me->GetVictim(), true);
-                        unit->setFaction(me->getFaction());
+                        unit->SetFaction(me->GetFaction());
                     }
                 }
 
@@ -460,7 +460,7 @@ public:
                     if (Creature* unit = me->SummonCreature(CREATURE_SHADOW_OF_ARAN, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000))
                     {
                         unit->Attack(me->GetVictim(), true);
-                        unit->setFaction(me->getFaction());
+                        unit->SetFaction(me->GetFaction());
                     }
                 }
 

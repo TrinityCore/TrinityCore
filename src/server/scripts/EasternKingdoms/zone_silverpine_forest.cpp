@@ -111,20 +111,16 @@ public:
         {
             Talk(SAY_AGGRO, who);
         }
-    };
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_ESCORTING)
+        void QuestAccept(Player* player, Quest const* quest) override
         {
-            creature->AI()->Talk(SAY_QUESTACCEPT, player);
-
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_deathstalker_erland::npc_deathstalker_erlandAI, creature->AI()))
-                pEscortAI->Start(true, false, player->GetGUID());
+            if (quest->GetQuestId() == QUEST_ESCORTING)
+            {
+                Talk(SAY_QUESTACCEPT, player);
+                Start(true, false, player->GetGUID());
+            }
         }
-
-        return true;
-    }
+    };
 
     CreatureAI* GetAI(Creature* creature) const override
     {

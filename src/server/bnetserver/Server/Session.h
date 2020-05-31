@@ -18,13 +18,13 @@
 #ifndef Session_h__
 #define Session_h__
 
+#include "AsyncCallbackProcessor.h"
 #include "Realm.h"
 #include "SslContext.h"
 #include "SslSocket.h"
 #include "Socket.h"
 #include "BigNumber.h"
 #include "QueryResult.h"
-#include "QueryCallbackProcessor.h"
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/ssl.hpp>
 #include <google/protobuf/message.h>

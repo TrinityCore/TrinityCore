@@ -61,6 +61,7 @@ struct Criteria
 };
 
 typedef std::vector<Criteria const*> CriteriaList;
+typedef std::unordered_map<uint32, CriteriaList> CriteriaListByAsset;
 
 struct CriteriaTree
 {
@@ -237,14 +238,14 @@ struct CriteriaData
     }
 
     bool IsValid(Criteria const* criteria);
-    bool Meets(uint32 criteriaId, Player const* source, Unit const* target, uint32 miscValue1 = 0) const;
+    bool Meets(uint32 criteriaId, Player const* source, Unit const* target, uint32 miscValue1 = 0, uint32 miscValue2 = 0) const;
 };
 
 struct CriteriaDataSet
 {
     CriteriaDataSet() : _criteriaId(0) { }
     void Add(CriteriaData const& data) { _storage.push_back(data); }
-    bool Meets(Player const* source, Unit const* target, uint32 miscValue = 0) const;
+    bool Meets(Player const* source, Unit const* target, uint32 miscValue1 = 0, uint32 miscValue2 = 0) const;
     void SetCriteriaId(uint32 id) { _criteriaId = id; }
 private:
     uint32 _criteriaId;
@@ -303,7 +304,7 @@ protected:
     bool ModifierSatisfied(ModifierTreeEntry const* modifier, uint64 miscValue1, uint64 miscValue2, Unit const* unit, Player* referencePlayer) const;
 
     virtual std::string GetOwnerInfo() const = 0;
-    virtual CriteriaList const& GetCriteriaByType(CriteriaTypes type) const = 0;
+    virtual CriteriaList const& GetCriteriaByType(CriteriaTypes type, uint32 asset) const = 0;
 
     CriteriaProgressMap _criteriaProgress;
     std::map<uint32, uint32 /*ms time left*/> _timeCriteriaTrees;
@@ -320,10 +321,7 @@ public:
 
     static CriteriaMgr* Instance();
 
-    CriteriaList const& GetPlayerCriteriaByType(CriteriaTypes type) const
-    {
-        return _criteriasByType[type];
-    }
+    CriteriaList const& GetPlayerCriteriaByType(CriteriaTypes type, uint32 asset) const;
 
     CriteriaList const& GetGuildCriteriaByType(CriteriaTypes type) const
     {
@@ -349,6 +347,12 @@ public:
     CriteriaList const& GetTimedCriteriaByType(CriteriaTimedTypes type) const
     {
         return _criteriasByTimedType[type];
+    }
+
+    CriteriaList const* GetCriteriaByFailEvent(CriteriaCondition condition, int32 asset)
+    {
+        auto itr = _criteriasByFailEvent[condition].find(asset);
+        return itr != _criteriasByFailEvent[condition].end() ? &itr->second : nullptr;
     }
 
     CriteriaDataSet const* GetCriteriaDataSet(Criteria const* Criteria) const
@@ -402,11 +406,13 @@ private:
 
     // store criterias by type to speed up lookup
     CriteriaList _criteriasByType[CRITERIA_TYPE_TOTAL];
+    CriteriaListByAsset _criteriasByAsset[CRITERIA_TYPE_TOTAL];
     CriteriaList _guildCriteriasByType[CRITERIA_TYPE_TOTAL];
     CriteriaList _scenarioCriteriasByType[CRITERIA_TYPE_TOTAL];
     CriteriaList _questObjectiveCriteriasByType[CRITERIA_TYPE_TOTAL];
 
     CriteriaList _criteriasByTimedType[CRITERIA_TIMED_TYPE_MAX];
+    std::unordered_map<int32, CriteriaList> _criteriasByFailEvent[CRITERIA_CONDITION_MAX];
 };
 
 #define sCriteriaMgr CriteriaMgr::Instance()
