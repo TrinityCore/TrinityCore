@@ -120,6 +120,7 @@ class TC_GAME_API Guardian : public Minion
         void UpdateDamagePhysical(WeaponAttackType attType) override;
 
         int32 GetBonusDamage() const { return m_bonusSpellDamage; }
+        float GetBonusStatFromOwner(Stats stat) const { return m_statFromOwner[stat]; }
         void SetBonusDamage(int32 damage);
     protected:
         int32   m_bonusSpellDamage;

@@ -187,7 +187,7 @@ void TempSummon::InitStats(uint32 duration)
 
     if (owner && IsTrigger() && m_spells[0])
     {
-        setFaction(owner->getFaction());
+        SetFaction(owner->GetFaction());
         SetLevel(owner->getLevel());
         if (owner->GetTypeId() == TYPEID_PLAYER)
             m_ControlledByPlayer = true;
@@ -212,9 +212,9 @@ void TempSummon::InitStats(uint32 duration)
     }
 
     if (m_Properties->Faction)
-        setFaction(m_Properties->Faction);
+        SetFaction(m_Properties->Faction);
     else if (IsVehicle() && owner) // properties should be vehicle
-        setFaction(owner->getFaction());
+        SetFaction(owner->GetFaction());
 }
 
 void TempSummon::InitSummon()
@@ -307,7 +307,7 @@ void Minion::InitStats(uint32 duration)
     SetReactState(REACT_PASSIVE);
 
     SetCreatorGUID(GetOwner()->GetGUID());
-    setFaction(GetOwner()->getFaction());
+    SetFaction(GetOwner()->GetFaction());
 
     GetOwner()->SetMinion(this, true);
 }
@@ -331,7 +331,7 @@ Guardian::Guardian(SummonPropertiesEntry const* properties, Unit* owner, bool is
 {
     memset(m_statFromOwner, 0, sizeof(float)*MAX_STATS);
     m_unitTypeMask |= UNIT_MASK_GUARDIAN;
-    if (properties && (properties->Title == SUMMON_TYPE_PET || properties->Control == SUMMON_CATEGORY_PET))
+    if (properties && (SummonTitle(properties->Title) == SummonTitle::Pet || properties->Control == SUMMON_CATEGORY_PET))
     {
         m_unitTypeMask |= UNIT_MASK_CONTROLABLE_GUARDIAN;
         InitCharmInfo();

@@ -954,7 +954,7 @@ struct BattlegroundICScore final : public BattlegroundScore
 class BattlegroundIC : public Battleground
 {
     public:
-        BattlegroundIC();
+        BattlegroundIC(BattlegroundTemplate const* battlegroundTemplate);
         ~BattlegroundIC();
 
         /* inherited from BattlegroundClass */

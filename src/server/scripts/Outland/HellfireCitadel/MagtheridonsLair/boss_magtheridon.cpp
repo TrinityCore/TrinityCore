@@ -27,6 +27,7 @@
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "PassiveAI.h"
+#include "GameObjectAI.h"
 
 enum Yells
 {
@@ -467,16 +468,26 @@ class go_manticron_cube : public GameObjectScript
 public:
     go_manticron_cube() : GameObjectScript("go_manticron_cube") { }
 
-    bool OnGossipHello(Player* player, GameObject* /*go*/) override
+    struct go_manticron_cubeAI : public GameObjectAI
     {
-        if (player->HasAura(SPELL_MIND_EXHAUSTION) || player->HasAura(SPELL_SHADOW_GRASP))
+        go_manticron_cubeAI(GameObject* go) : GameObjectAI(go) { }
+
+        bool GossipHello(Player* player, bool /*reportUse*/) override
+        {
+            if (player->HasAura(SPELL_MIND_EXHAUSTION) || player->HasAura(SPELL_SHADOW_GRASP))
+                return true;
+
+            if (Creature* trigger = player->FindNearestCreature(NPC_HELFIRE_RAID_TRIGGER, 10.0f))
+                trigger->CastSpell((Unit*)nullptr, SPELL_SHADOW_GRASP_VISUAL);
+
+            player->CastSpell((Unit*)nullptr, SPELL_SHADOW_GRASP, true);
             return true;
+        }
+    };
 
-        if (Creature* trigger = player->FindNearestCreature(NPC_HELFIRE_RAID_TRIGGER, 10.0f))
-            trigger->CastSpell((Unit*)nullptr, SPELL_SHADOW_GRASP_VISUAL);
-
-        player->CastSpell((Unit*)nullptr, SPELL_SHADOW_GRASP, true);
-        return true;
+    GameObjectAI* GetAI(GameObject* go) const override
+    {
+        return new go_manticron_cubeAI(go);
     }
 };
 

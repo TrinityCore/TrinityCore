@@ -43,7 +43,7 @@ uint32 BG_WSG_Honor[BG_HONOR_MODE_NUM][BG_WSG_REWARD_NUM] =
     {60, 40, 80}  // holiday
 };
 
-BattlegroundWS::BattlegroundWS()
+BattlegroundWS::BattlegroundWS(BattlegroundTemplate const* battlegroundTemplate) : Battleground(battlegroundTemplate)
 {
     BgObjects.resize(BG_WS_OBJECT_MAX);
     BgCreatures.resize(BG_CREATURES_MAX_WS);

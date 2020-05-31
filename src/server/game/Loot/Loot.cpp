@@ -54,7 +54,6 @@ LootItem::LootItem(LootStoreItem const& li)
     is_underthreshold = 0;
     is_counted = 0;
     rollWinnerGUID = ObjectGuid::Empty;
-    canSave = true;
 }
 
 // Basic checks for player/item compatibility - if false no chance to see the item in the loot
@@ -102,33 +101,6 @@ Loot::Loot(uint32 _gold /*= 0*/) : gold(_gold), unlootedCount(0), roundRobinPlay
 Loot::~Loot()
 {
     clear();
-}
-
-void Loot::DeleteLootItemFromContainerItemDB(uint32 itemID)
-{
-    // Deletes a single item associated with an openable item from the DB
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_ITEM);
-    stmt->setUInt64(0, containerID.GetCounter());
-    stmt->setUInt32(1, itemID);
-    CharacterDatabase.Execute(stmt);
-
-    // Mark the item looted to prevent resaving
-    for (LootItemList::iterator _itr = items.begin(); _itr != items.end(); ++_itr)
-    {
-        if (_itr->itemid != itemID)
-            continue;
-
-        _itr->canSave = false;
-        break;
-    }
-}
-
-void Loot::DeleteLootMoneyFromContainerItemDB()
-{
-    // Deletes money loot associated with an openable item from the DB
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_MONEY);
-    stmt->setUInt64(0, containerID.GetCounter());
-    CharacterDatabase.Execute(stmt);
 }
 
 void Loot::clear()

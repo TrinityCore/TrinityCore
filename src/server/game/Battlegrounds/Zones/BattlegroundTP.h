@@ -66,7 +66,7 @@ class BattlegroundTPScore final : public BattlegroundScore
 class BattlegroundTP : public Battleground
 {
     public:
-        BattlegroundTP();
+        BattlegroundTP(BattlegroundTemplate const* battlegroundTemplate);
         ~BattlegroundTP();
 };
 

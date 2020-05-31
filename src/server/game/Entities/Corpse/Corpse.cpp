@@ -245,6 +245,32 @@ void Corpse::BuildValuesUpdate(ByteBuffer* data, Player const* target) const
     data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
 }
 
+void Corpse::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
+    UF::CorpseData::Mask const& requestedCorpseMask, Player const* target) const
+{
+    UpdateMask<NUM_CLIENT_OBJECT_TYPES> valuesMask;
+    if (requestedObjectMask.IsAnySet())
+        valuesMask.Set(TYPEID_OBJECT);
+
+    if (requestedCorpseMask.IsAnySet())
+        valuesMask.Set(TYPEID_CORPSE);
+
+    ByteBuffer buffer = PrepareValuesUpdateBuffer();
+    std::size_t sizePos = buffer.wpos();
+    buffer << uint32(0);
+    buffer << uint32(valuesMask.GetBlock(0));
+
+    if (valuesMask[TYPEID_OBJECT])
+        m_objectData->WriteUpdate(buffer, requestedObjectMask, true, this, target);
+
+    if (valuesMask[TYPEID_CORPSE])
+        m_corpseData->WriteUpdate(buffer, requestedCorpseMask, true, this, target);
+
+    buffer.put<uint32>(sizePos, buffer.wpos() - sizePos - 4);
+
+    data->AddUpdateBlock(buffer);
+}
+
 void Corpse::ClearUpdateMask(bool remove)
 {
     m_values.ClearChangesMask(&Corpse::m_corpseData);

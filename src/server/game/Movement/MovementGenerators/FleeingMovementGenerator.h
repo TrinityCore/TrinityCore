@@ -19,41 +19,43 @@
 #define TRINITY_FLEEINGMOVEMENTGENERATOR_H
 
 #include "MovementGenerator.h"
+#include "Timer.h"
 
 template<class T>
 class FleeingMovementGenerator : public MovementGeneratorMedium< T, FleeingMovementGenerator<T> >
 {
     public:
-        FleeingMovementGenerator(ObjectGuid fright) : i_frightGUID(fright), i_nextCheckTime(0) { }
+        explicit FleeingMovementGenerator(ObjectGuid fleeTargetGUID) : _path(nullptr), _fleeTargetGUID(fleeTargetGUID), _timer(0), _interrupt(false) { }
+        ~FleeingMovementGenerator();
+
+        MovementGeneratorType GetMovementGeneratorType() const override { return FLEEING_MOTION_TYPE; }
 
         void DoInitialize(T*);
         void DoFinalize(T*);
         void DoReset(T*);
         bool DoUpdate(T*, uint32);
 
-        MovementGeneratorType GetMovementGeneratorType() const override { return FLEEING_MOTION_TYPE; }
-
     private:
-        void _setTargetLocation(T*);
-        void _getPoint(T*, float &x, float &y, float &z);
+        void SetTargetLocation(T*);
+        void GetPoint(T*, Position &position);
 
-        ObjectGuid i_frightGUID;
-        TimeTracker i_nextCheckTime;
+        PathGenerator* _path;
+        ObjectGuid _fleeTargetGUID;
+        TimeTracker _timer;
+        bool _interrupt;
 };
 
 class TimedFleeingMovementGenerator : public FleeingMovementGenerator<Creature>
 {
     public:
-        TimedFleeingMovementGenerator(ObjectGuid fright, uint32 time) :
-            FleeingMovementGenerator<Creature>(fright),
-            i_totalFleeTime(time) { }
+        explicit TimedFleeingMovementGenerator(ObjectGuid fleeTargetGUID, uint32 time) : FleeingMovementGenerator<Creature>(fleeTargetGUID), _totalFleeTime(time) { }
 
         MovementGeneratorType GetMovementGeneratorType() const override { return TIMED_FLEEING_MOTION_TYPE; }
         bool Update(Unit*, uint32) override;
         void Finalize(Unit*) override;
 
     private:
-        TimeTracker i_totalFleeTime;
+        TimeTracker _totalFleeTime;
 };
 
 #endif

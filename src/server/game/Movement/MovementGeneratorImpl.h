@@ -20,10 +20,10 @@
 
 #include "MovementGenerator.h"
 
-template<class MOVEMENT_GEN>
-inline MovementGenerator*
-MovementGeneratorFactory<MOVEMENT_GEN>::Create(void * /*data*/) const
+template<class Movement>
+inline MovementGenerator* MovementGeneratorFactory<Movement>::Create(void * /*data*/) const
 {
-    return (new MOVEMENT_GEN());
+    return (new Movement());
 }
+
 #endif

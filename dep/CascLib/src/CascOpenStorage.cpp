@@ -14,6 +14,10 @@
 #include "CascLib.h"
 #include "CascCommon.h"
 
+#ifdef INTERLOCKED_NOT_SUPPORTED
+#pragma error Interlocked operations are not supported on this architecture. Multi-threaded access to CASC storages will not work properly.
+#endif
+
 //-----------------------------------------------------------------------------
 // Local defines
 
@@ -23,15 +27,21 @@
 //-----------------------------------------------------------------------------
 // DEBUG functions
 
-//#define CHECKED_KEY "2a378c"
+#define CHECKED_KEY {0x00, 0x00, 0x0F, 0x84}
 
 #if defined(_DEBUG) && defined(CHECKED_KEY)
 
 inline bool CheckForXKey(LPBYTE XKey)
 {
-    BYTE CheckedKey[4];
-    ConvertStringToBinary(CHECKED_KEY, 6, CheckedKey);
-    return (XKey[0] == CheckedKey[0] && XKey[1] == CheckedKey[1] && XKey[2] == CheckedKey[2]);
+    BYTE CheckedKey[] = CHECKED_KEY;
+
+    for(size_t i = 0; i < _countof(CheckedKey); i++)
+    {
+        if(XKey[i] != CheckedKey[i])
+            return false;
+    }
+
+    return true;
 }
 #define BREAK_ON_WATCHED(XKey)  if(CheckForXKey((LPBYTE)XKey))  { __debugbreak(); }
 
@@ -54,14 +64,19 @@ TCascStorage::TCascStorage()
     szRootPath = szDataPath = szIndexPath = szBuildFile = szCdnServers = szCdnPath = szCodeName = NULL;
     szIndexFormat = NULL;
     szRegion = NULL;
-    
+    szBuildKey = NULL;
+
     memset(DataFiles, 0, sizeof(DataFiles));
     memset(IndexFiles, 0, sizeof(IndexFiles));
+    CascInitLock(StorageLock);
+    dwDefaultLocale = 0;
     dwBuildNumber = 0;
     dwFeatures = 0;
     BuildFileType = CascBuildNone;
 
+    LastFailKeyName = 0;
     LocalFiles = TotalFiles = EKeyEntries = EKeyLength = FileOffsetBits = 0;
+    pArgs = NULL;
 }
 
 TCascStorage::~TCascStorage()
@@ -81,6 +96,9 @@ TCascStorage::~TCascStorage()
     // Cleanup space occupied by index files
     FreeIndexFiles(this);
 
+    // Cleanup the lock
+    CascFreeLock(StorageLock);
+
     // Free the file paths
     CASC_FREE(szDataPath);
     CASC_FREE(szRootPath);
@@ -90,6 +108,7 @@ TCascStorage::~TCascStorage()
     CASC_FREE(szCdnPath);
     CASC_FREE(szCodeName);
     CASC_FREE(szRegion);
+    CASC_FREE(szBuildKey);
 
     // Free the blobs
     FreeCascBlob(&CdnConfigKey);
@@ -105,12 +124,15 @@ TCascStorage::~TCascStorage()
 
 TCascStorage * TCascStorage::AddRef()
 {
+    // Need this to be atomic to make multi-threaded file opens work
     CascInterlockedIncrement(&dwRefCount);
     return this;
 }
 
 TCascStorage * TCascStorage::Release()
 {
+    // If the reference count reached zero, we close the archive
+    // Need this to be atomic to make multi-threaded file opens work
     if(CascInterlockedDecrement(&dwRefCount) == 0)
     {
         delete this;
@@ -362,8 +384,6 @@ static DWORD InitCKeyArray(TCascStorage * hs)
     if(dwErrCode != ERROR_SUCCESS)
         return dwErrCode;
 
-    // Insert the entry of ENCODING file. This is vital for its opening and loading
-    InsertCKeyEntry(hs, hs->EncodingCKey);
     return ERROR_SUCCESS;
 }
 
@@ -433,9 +453,10 @@ static int LoadEncodingManifest(TCascStorage * hs)
     if(InvokeProgressCallback(hs, "Loading ENCODING manifest", NULL, 0, 0))
         return ERROR_CANCELLED;
 
-    // Fill-in the information from the index entry
+    // Fill-in the information from the index entry and insert it to the file tree
     if(!CopyEKeyEntry(hs, &CKeyEntry))
         return ERROR_FILE_NOT_FOUND;
+    InsertCKeyEntry(hs, CKeyEntry);
 
     // Load the entire encoding file to memory
     pbEncodingFile = LoadInternalFileToMemory(hs, &hs->EncodingCKey, &cbEncodingFile);
@@ -809,7 +830,9 @@ static bool InsertWellKnownFile(TCascStorage * hs, const char * szFileName, CASC
             // Insert the key to the root handler. Note that the file can already be referenced
             // ("index" vs "vfs-root" in Warcraft III storages)
             hs->pRootHandler->Insert(szFileName, pCKeyEntry);
-            pCKeyEntry->Flags |= (CASC_CE_IN_BUILD | dwFlags);
+
+            // Copy some flags
+            pCKeyEntry->Flags |= (dwFlags | CASC_CE_IN_BUILD);
             return true;
         }
     }
@@ -823,7 +846,7 @@ static bool InsertWellKnownFile(TCascStorage * hs, const char * szFileName, CASC
         if(pCKeyEntry != NULL)
         {
             hs->pRootHandler->Insert(szFileName, pCKeyEntry);
-            pCKeyEntry->Flags |= (CASC_CE_IN_BUILD | dwFlags);
+            pCKeyEntry->Flags |= (dwFlags | CASC_CE_IN_BUILD);
             return true;
         }
     }
@@ -1123,7 +1146,7 @@ static DWORD LoadCascStorage(TCascStorage * hs, PCASC_OPEN_STORAGE_ARGS pArgs)
 {
     LPCTSTR szCodeName = NULL;
     LPCTSTR szRegion = NULL;
-    char szRegionA[0x40];
+    LPCTSTR szBuildKey = NULL;
     DWORD dwLocaleMask = 0;
     DWORD dwErrCode = ERROR_SUCCESS;
 
@@ -1131,18 +1154,19 @@ static DWORD LoadCascStorage(TCascStorage * hs, PCASC_OPEN_STORAGE_ARGS pArgs)
     hs->pArgs = pArgs;
 
     // Extract optional arguments
-    ExtractVersionedArgument(pArgs, offsetof(CASC_OPEN_STORAGE_ARGS, dwLocaleMask), &dwLocaleMask);
+    ExtractVersionedArgument(pArgs, FIELD_OFFSET(CASC_OPEN_STORAGE_ARGS, dwLocaleMask), &dwLocaleMask);
     
     // Extract the product code name
-    if(ExtractVersionedArgument(pArgs, offsetof(CASC_OPEN_STORAGE_ARGS, szCodeName), &szCodeName) && szCodeName != NULL)
+    if(ExtractVersionedArgument(pArgs, FIELD_OFFSET(CASC_OPEN_STORAGE_ARGS, szCodeName), &szCodeName) && szCodeName != NULL)
         hs->szCodeName = CascNewStr(szCodeName);
 
     // Extract the region (optional)
-    if(ExtractVersionedArgument(pArgs, offsetof(CASC_OPEN_STORAGE_ARGS, szRegion), &szRegion) && szRegion != NULL)
-    {
-        CascStrCopy(szRegionA, _countof(szRegionA), szRegion);
-        hs->szRegion = CascNewStr(szRegionA);
-    }
+    if(ExtractVersionedArgument(pArgs, FIELD_OFFSET(CASC_OPEN_STORAGE_ARGS, szRegion), &szRegion) && szRegion != NULL)
+        hs->szRegion = CascNewStrT2A(szRegion);
+
+    // Extract the build key (optional)
+    if(ExtractVersionedArgument(pArgs, FIELD_OFFSET(CASC_OPEN_STORAGE_ARGS, szBuildKey), &szBuildKey) && szBuildKey != NULL)
+        hs->szBuildKey = CascNewStrT2A(szBuildKey);
 
     // For online storages, we need to load CDN servers
     if ((dwErrCode == ERROR_SUCCESS) && (hs->dwFeatures & CASC_FEATURE_ONLINE))
@@ -1271,6 +1295,7 @@ static LPTSTR ParseOpenParams(LPCTSTR szParams, PCASC_OPEN_STORAGE_ARGS pArgs)
         pArgs->szLocalPath = szParamsCopy;
         pArgs->szCodeName = NULL;
         pArgs->szRegion = NULL;
+        pArgs->szBuildKey = NULL;
 
         // Find the first ":". This will indicate the end of local path and also begin of product code
         if((szSeparator = _tcschr(szPlainName, _T(':'))) != NULL)
@@ -1284,6 +1309,13 @@ static LPTSTR ParseOpenParams(LPCTSTR szParams, PCASC_OPEN_STORAGE_ARGS pArgs)
             {
                 pArgs->szRegion = szSeparator + 1;
                 szSeparator[0] = 0;
+
+                // Try again. If found, it is a build key (MD5 of a build file)
+                if((szSeparator = _tcschr(szSeparator + 1, _T(':'))) != NULL)
+                {
+                    pArgs->szBuildKey = szSeparator + 1;
+                    szSeparator[0] = 0;
+                }
             }
         }
     }

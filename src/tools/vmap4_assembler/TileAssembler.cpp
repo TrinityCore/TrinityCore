@@ -37,12 +37,6 @@ template<> struct BoundsTrait<VMAP::ModelSpawn*>
 
 namespace VMAP
 {
-    bool readChunk(FILE* rf, char *dest, const char *compare, uint32 len)
-    {
-        if (fread(dest, sizeof(char), len, rf) != len) return false;
-        return memcmp(dest, compare, len) == 0;
-    }
-
     Vector3 ModelPosition::transform(const Vector3& pIn) const
     {
         Vector3 out = pIn * iScale;
@@ -202,13 +196,12 @@ namespace VMAP
             return false;
         }
         printf("Read coordinate mapping...\n");
-        uint32 mapID, check=0;
+        uint32 mapID, check;
         std::map<uint32, MapSpawns> data;
         while (!feof(dirf))
         {
-            check = 0;
             // read mapID, Flags, NameSet, UniqueId, Pos, Rot, Scale, Bound_lo, Bound_hi, name
-            check += fread(&mapID, sizeof(uint32), 1, dirf);
+            check = fread(&mapID, sizeof(uint32), 1, dirf);
             if (check == 0) // EoF...
                 break;
 

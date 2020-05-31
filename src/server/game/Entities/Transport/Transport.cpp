@@ -412,22 +412,22 @@ TempSummon* Transport::SummonPassenger(uint32 entry, Position const& pos, TempSu
             case SUMMON_CATEGORY_ALLY:
             case SUMMON_CATEGORY_UNK:
             {
-                switch (properties->Title)
+                switch (SummonTitle(properties->Title))
                 {
-                    case SUMMON_TYPE_MINION:
-                    case SUMMON_TYPE_GUARDIAN:
-                    case SUMMON_TYPE_GUARDIAN2:
+                    case SummonTitle::Minion:
+                    case SummonTitle::Guardian:
+                    case SummonTitle::Runeblade:
                         mask = UNIT_MASK_GUARDIAN;
                         break;
-                    case SUMMON_TYPE_TOTEM:
-                    case SUMMON_TYPE_LIGHTWELL:
+                    case SummonTitle::Totem:
+                    case SummonTitle::Lightwell:
                         mask = UNIT_MASK_TOTEM;
                         break;
-                    case SUMMON_TYPE_VEHICLE:
-                    case SUMMON_TYPE_VEHICLE2:
+                    case SummonTitle::Vehicle:
+                    case SummonTitle::Mount:
                         mask = UNIT_MASK_SUMMON;
                         break;
-                    case SUMMON_TYPE_MINIPET:
+                    case SummonTitle::Companion:
                         mask = UNIT_MASK_MINION;
                         break;
                     default:

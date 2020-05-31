@@ -25,7 +25,7 @@ int CaptureDownloadTag(CASC_DOWNLOAD_HEADER & DlHeader, CASC_TAG_ENTRY1 & DlTag,
 //-----------------------------------------------------------------------------
 // Local functions
 
-static char * StringFromLPTSTR(const TCHAR * szString, char * szBuffer, size_t cchBuffer)
+static char * StringFromLPTSTR(LPCTSTR szString, char * szBuffer, size_t cchBuffer)
 {
     char * szSaveBuffer = szBuffer;
     char * szBufferEnd = szBuffer + cchBuffer - 1;

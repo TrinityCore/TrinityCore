@@ -61,3 +61,8 @@ char const* DB2FileSystemSource::GetFileName() const
 {
     return _fileName.c_str();
 }
+
+DB2EncryptedSectionHandling DB2FileSystemSource::HandleEncryptedSection(DB2SectionHeader const& /*sectionHeader*/) const
+{
+    return DB2EncryptedSectionHandling::Skip;
+}

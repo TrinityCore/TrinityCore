@@ -15,28 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef QueryCallbackProcessor_h__
-#define QueryCallbackProcessor_h__
+// This is where scripts' loading functions should be declared:
+void AddSC_boss_garothi_worldbreaker();
+void AddSC_instance_antorus_the_burning_throne();
 
-#include "Define.h"
-#include <vector>
-
-class QueryCallback;
-
-class TC_DATABASE_API QueryCallbackProcessor
+// The name of this function should match:
+// void Add${NameOfDirectory}Scripts()
+void AddArgusScripts()
 {
-public:
-    QueryCallbackProcessor();
-    ~QueryCallbackProcessor();
-
-    void AddQuery(QueryCallback&& query);
-    void ProcessReadyQueries();
-
-private:
-    QueryCallbackProcessor(QueryCallbackProcessor const&) = delete;
-    QueryCallbackProcessor& operator=(QueryCallbackProcessor const&) = delete;
-
-    std::vector<QueryCallback> _callbacks;
-};
-
-#endif // QueryCallbackProcessor_h__
+    AddSC_boss_garothi_worldbreaker();              // Antorus the Burning Throne
+    AddSC_instance_antorus_the_burning_throne();
+}

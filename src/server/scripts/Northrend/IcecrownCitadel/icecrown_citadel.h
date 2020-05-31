@@ -321,6 +321,7 @@ enum ICCreaturesIds
     NPC_WORLD_TRIGGER_INFINITE_AOI              = 36171,
     NPC_SPIRIT_BOMB                             = 39189,
     NPC_FROSTMOURNE_TRIGGER                     = 38584,
+    NPC_SHADOW_TRAP                             = 39137,
 
     // Generic
     NPC_INVISIBLE_STALKER                       = 30298
@@ -524,8 +525,7 @@ enum ICWorldStatesICC
 
 enum ICAreaIds
 {
-    AREA_ICECROWN_CITADEL   = 4812,
-    AREA_THE_FROZEN_THRONE  = 4859
+    AREA_ICECROWN_CITADEL = 4812
 };
 
 class spell_trigger_spell_from_caster : public SpellScriptLoader

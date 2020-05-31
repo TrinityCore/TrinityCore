@@ -507,20 +507,20 @@ class npc_essence_of_twin : public CreatureScript
 
                 return spellReturned;
             }
+
+            bool GossipHello(Player* player) override
+            {
+                player->RemoveAurasDueToSpell(GetData(ESSENCE_REMOVE));
+                player->CastSpell(player, GetData(ESSENCE_APPLY), true);
+                CloseGossipMenuFor(player);
+                return true;
+            }
         };
 
         CreatureAI* GetAI(Creature* creature) const override
         {
             return GetTrialOfTheCrusaderAI<npc_essence_of_twinAI>(creature);
         };
-
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            player->RemoveAurasDueToSpell(creature->GetAI()->GetData(ESSENCE_REMOVE));
-            player->CastSpell(player, creature->GetAI()->GetData(ESSENCE_APPLY), true);
-            CloseGossipMenuFor(player);
-            return true;
-        }
 };
 
 struct npc_unleashed_ballAI : public ScriptedAI

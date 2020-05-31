@@ -486,6 +486,7 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons)
                     else
                         rDungeonId = (*dungeons.begin());
                     // No break on purpose (Random can only be dungeon or heroic dungeon)
+                    /* fallthrough */
                 case LFG_TYPE_HEROIC:
                 case LFG_TYPE_DUNGEON:
                     if (isRaid)

@@ -176,7 +176,7 @@ void npc_escortAI::JustRespawned()
     //add a small delay before going to first waypoint, normal in near all cases
     m_uiWPWaitTimer = 2500;
 
-    if (me->getFaction() != me->GetCreatureTemplate()->faction)
+    if (me->GetFaction() != me->GetCreatureTemplate()->faction)
         me->RestoreFaction();
 
     Reset();
