@@ -541,7 +541,8 @@ void WorldSession::LogoutPlayer(bool save)
 
         for (int i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
         {
-            if (BattlegroundQueueTypeId bgQueueTypeId = _player->GetBattlegroundQueueTypeId(i))
+            BattlegroundQueueTypeId bgQueueTypeId = _player->GetBattlegroundQueueTypeId(i);
+            if (bgQueueTypeId != BATTLEGROUND_QUEUE_NONE)
             {
                 _player->RemoveBattlegroundQueueId(bgQueueTypeId);
                 BattlegroundQueue& queue = sBattlegroundMgr->GetBattlegroundQueue(bgQueueTypeId);
