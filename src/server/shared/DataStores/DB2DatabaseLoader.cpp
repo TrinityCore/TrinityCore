@@ -69,8 +69,8 @@ char* DB2DatabaseLoader::Load(uint32& records, char**& indexTable, char*& string
     // Resize index table
     uint32 indexTableSize = records;
     if (PreparedQueryResult maxIdResult = HotfixDatabase.Query(HotfixDatabase.GetPreparedStatement(HotfixDatabaseStatements(_loadInfo->Statement + 1))))
-        if ((*maxIdResult)[0].GetUInt32() > records)
-            indexTableSize = (*maxIdResult)[0].GetUInt32();
+        if (uint32((*maxIdResult)[0].GetUInt64()) > records)
+            indexTableSize = uint32((*maxIdResult)[0].GetUInt64());
 
     if (indexTableSize > records)
     {
