@@ -407,14 +407,6 @@ public:
         return !(*this == right);
     }
 
-    inline flag96& operator=(flag96 const& right)
-    {
-        part[0] = right.part[0];
-        part[1] = right.part[1];
-        part[2] = right.part[2];
-        return *this;
-    }
-
     inline flag96 operator&(flag96 const& right) const
     {
         return flag96(part[0] & right.part[0], part[1] & right.part[1], part[2] & right.part[2]);
