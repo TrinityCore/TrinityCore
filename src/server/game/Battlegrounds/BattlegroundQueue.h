@@ -74,10 +74,10 @@ class Battleground;
 class TC_GAME_API BattlegroundQueue
 {
     public:
-        BattlegroundQueue();
+        BattlegroundQueue(BattlegroundQueueTypeId queueId);
         ~BattlegroundQueue();
 
-        void BattlegroundQueueUpdate(uint32 diff, BattlegroundTypeId bgTypeId, BattlegroundBracketId bracket_id, uint8 arenaType = 0, bool isRated = false, uint32 minRating = 0);
+        void BattlegroundQueueUpdate(uint32 diff, BattlegroundBracketId bracket_id, uint32 minRating = 0);
         void UpdateEvents(uint32 diff);
 
         void FillPlayersToBG(Battleground* bg, BattlegroundBracketId bracket_id);
@@ -128,6 +128,8 @@ class TC_GAME_API BattlegroundQueue
         uint32 GetPlayersInQueue(TeamId id);
     private:
 
+        BattlegroundQueueTypeId m_queueId;
+
         bool InviteGroupToBG(GroupQueueInfo* ginfo, Battleground* bg, uint32 side);
         uint32 m_WaitTimes[BG_TEAMS_COUNT][MAX_BATTLEGROUND_BRACKETS][COUNT_OF_PLAYERS_TO_AVERAGE_WAIT_TIME];
         uint32 m_WaitTimeLastPlayer[BG_TEAMS_COUNT][MAX_BATTLEGROUND_BRACKETS];
@@ -167,8 +169,8 @@ class TC_GAME_API BGQueueInviteEvent : public BasicEvent
 class TC_GAME_API BGQueueRemoveEvent : public BasicEvent
 {
     public:
-        BGQueueRemoveEvent(ObjectGuid pl_guid, uint32 bgInstanceGUID, BattlegroundTypeId BgTypeId, BattlegroundQueueTypeId bgQueueTypeId, uint32 removeTime)
-            : m_PlayerGuid(pl_guid), m_BgInstanceGUID(bgInstanceGUID), m_RemoveTime(removeTime), m_BgTypeId(BgTypeId), m_BgQueueTypeId(bgQueueTypeId)
+        BGQueueRemoveEvent(ObjectGuid pl_guid, uint32 bgInstanceGUID, BattlegroundQueueTypeId bgQueueTypeId, uint32 removeTime)
+            : m_PlayerGuid(pl_guid), m_BgInstanceGUID(bgInstanceGUID), m_RemoveTime(removeTime), m_BgQueueTypeId(bgQueueTypeId)
         { }
 
         virtual ~BGQueueRemoveEvent() { }
@@ -179,7 +181,6 @@ class TC_GAME_API BGQueueRemoveEvent : public BasicEvent
         ObjectGuid m_PlayerGuid;
         uint32 m_BgInstanceGUID;
         uint32 m_RemoveTime;
-        BattlegroundTypeId m_BgTypeId;
         BattlegroundQueueTypeId m_BgQueueTypeId;
 };
 

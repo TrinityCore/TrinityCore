@@ -18164,7 +18164,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder* holder)
         {
             map = currentBg->GetBgMap();
 
-            BattlegroundQueueTypeId bgQueueTypeId = sBattlegroundMgr->BGQueueTypeId(currentBg->GetTypeID(), currentBg->GetArenaType());
+            BattlegroundQueueTypeId bgQueueTypeId = currentBg->GetQueueId();
             AddBattlegroundQueueId(bgQueueTypeId);
 
             m_bgData.bgTypeID = currentBg->GetTypeID();
@@ -24791,7 +24791,7 @@ uint32 Player::AddBattlegroundQueueId(BattlegroundQueueTypeId val)
         {
             m_bgBattlegroundQueueID[i].bgQueueTypeId = val;
             m_bgBattlegroundQueueID[i].invitedToInstance = 0;
-            m_bgBattlegroundQueueID[i].joinTime = getMSTime();
+            m_bgBattlegroundQueueID[i].joinTime = GameTime::GetGameTime();
             return i;
         }
     }
