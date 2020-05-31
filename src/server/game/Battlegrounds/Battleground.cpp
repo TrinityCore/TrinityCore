@@ -737,8 +737,6 @@ void Battleground::EndBattleground(uint32 winner)
     BuildPvPLogDataPacket(*pvpMatchEnd.LogData);
     pvpMatchEnd.Write();
 
-    BattlegroundQueueTypeId bgQueueTypeId = GetQueueId();
-
     for (BattlegroundPlayerMap::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
     {
         uint32 team = itr->second.Team;
@@ -1044,10 +1042,6 @@ void Battleground::AddPlayer(Player* player)
     WorldPackets::Battleground::BattlegroundPlayerJoined playerJoined;
     playerJoined.Guid = player->GetGUID();
     SendPacketToTeam(team, playerJoined.Write(), player);
-
-    // BG Status packet
-    BattlegroundQueueTypeId bgQueueTypeId = GetQueueId();
-    uint32 queueSlot = player->GetBattlegroundQueueIndex(bgQueueTypeId);
 
     WorldPackets::Battleground::PVPMatchInit pvpMatchState;
     pvpMatchState.MapID = GetMapId();
@@ -1786,8 +1780,6 @@ void Battleground::PlayerAddedToBGCheckIfBGIsRunning(Player* player)
 {
     if (GetStatus() != STATUS_WAIT_LEAVE)
         return;
-
-    BattlegroundQueueTypeId bgQueueTypeId = GetQueueId();
 
     BlockMovement(player);
 
