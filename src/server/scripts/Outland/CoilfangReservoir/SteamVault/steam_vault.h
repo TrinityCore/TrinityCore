@@ -51,10 +51,10 @@ enum SVGameObjectIds
     GO_ACCESS_PANEL_MEK             = 184126
 };
 
-template<typename AI>
-inline AI* GetSteamVaultAI(Creature* creature)
+template<class AI, class T>
+inline AI* GetSteamVaultAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, SteamVaultScriptName);
+    return GetInstanceAI<AI>(obj, SteamVaultScriptName);
 }
 
 #endif

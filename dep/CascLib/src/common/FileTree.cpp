@@ -293,13 +293,7 @@ PCASC_FILE_NODE CASC_FILE_TREE::InsertByName(PCASC_CKEY_ENTRY pCKeyEntry, const 
     assert(szFileName != NULL && szFileName[0] != 0);
     assert(pCKeyEntry != NULL);
 
-    //char szCKey[MD5_STRING_SIZE+1];
-    //char szEKey[MD5_STRING_SIZE+1];
-    //StringFromBinary(pCKeyEntry->CKey, MD5_HASH_SIZE, szCKey);
-    //StringFromBinary(pCKeyEntry->EKey, MD5_HASH_SIZE, szEKey);
-    //printf("%s\t%s\t%s\n", szCKey, szEKey, szFileName);
-
-    //BREAK_ON_XKEY3(pCKeyEntry->EKey, 0x03, 0xDC, 0x7D);
+    //BREAK_ON_XKEY3(pCKeyEntry->EKey, 0x00, 0x00, 0x0F);
 
     // Calculate the file name hash
     FileNameHash = CalcFileNameHash(szFileName);

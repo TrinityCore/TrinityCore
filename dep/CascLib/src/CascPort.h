@@ -37,11 +37,11 @@
     #define WIN32_LEAN_AND_MEAN
   #endif
 
-//#pragma warning(disable:4995)     // warning C4995: 'sprintf': name was marked as #pragma deprecated
+  // Suppress definitions of `min` and `max` macros by <windows.h>:
+  #define NOMINMAX 1
 
   #include <tchar.h>
   #include <assert.h>
-  #include <intrin.h>       // Support for intrinsic functions
   #include <ctype.h>
   #include <io.h>
   #include <stdio.h>
@@ -63,12 +63,19 @@
   #define URL_SEP_CHAR              '/'
   #define PATH_SEP_CHAR             '\\'
   #define PATH_SEP_STRING           "\\"
-  
-  #pragma intrinsic(memcmp, memcpy)
 
   #define PLATFORM_WINDOWS
   #define PLATFORM_DEFINED                  // The platform is known now
 
+#endif
+
+#if _MSC_VER >= 1500
+  #include <intrin.h>       // Support for intrinsic functions
+  #pragma intrinsic(memcmp, memcpy)
+#endif
+
+#ifndef FIELD_OFFSET
+#define FIELD_OFFSET(type, field)    ((LONG)(size_t)&(((type *)0)->field))
 #endif
 
 //-----------------------------------------------------------------------------
@@ -93,6 +100,7 @@
   #include <wchar.h>
   #include <cassert>
   #include <errno.h>
+  #include <pthread.h>
 
   // Support for PowerPC on Max OS X
   #if (__ppc__ == 1) || (__POWERPC__ == 1) || (_ARCH_PPC == 1)
@@ -111,11 +119,10 @@
   #define URL_SEP_CHAR              '/'
   #define PATH_SEP_CHAR             '/'
   #define PATH_SEP_STRING           "/"
-  
+
   #define PLATFORM_MAC
   #define PLATFORM_DEFINED                  // The platform is known now
 
-  #define FIELD_OFFSET(t,f) offsetof(t,f)
 #endif
 
 //-----------------------------------------------------------------------------
@@ -138,16 +145,16 @@
   #include <wchar.h>
   #include <assert.h>
   #include <errno.h>
+  #include <pthread.h>
 
   #define URL_SEP_CHAR              '/'
   #define PATH_SEP_CHAR             '/'
   #define PATH_SEP_STRING           "/"
-  
+
   #define PLATFORM_LITTLE_ENDIAN
   #define PLATFORM_LINUX
   #define PLATFORM_DEFINED
 
-  #define FIELD_OFFSET(t,f) offsetof(t,f)
 #endif
 
 //-----------------------------------------------------------------------------
@@ -270,9 +277,9 @@
 #endif
 
 #ifndef _countof
-#define _countof(x)   (sizeof(x) / sizeof(x[0]))  
+#define _countof(x)   (sizeof(x) / sizeof(x[0]))
 #endif
-  
+
 //-----------------------------------------------------------------------------
 // Swapping functions
 
@@ -317,23 +324,49 @@
 //-----------------------------------------------------------------------------
 // Interlocked operations
 
-inline DWORD CascInterlockedIncrement(PDWORD PtrValue)
+inline DWORD CascInterlockedIncrement(DWORD * PtrValue)
 {
 #ifdef PLATFORM_WINDOWS
     return (DWORD)InterlockedIncrement((LONG *)(PtrValue));
+#elif defined(__GNUC__)
+    return __sync_add_and_fetch(PtrValue, 1);
 #else
-    return ++PtrValue[0];
+    #define INTERLOCKED_NOT_SUPPORTED
+    return ++(*PtrValue);
 #endif
 }
 
-inline DWORD CascInterlockedDecrement(PDWORD PtrValue)
+inline DWORD CascInterlockedDecrement(DWORD * PtrValue)
 {
 #ifdef PLATFORM_WINDOWS
     return (DWORD)InterlockedDecrement((LONG *)(PtrValue));
+#elif defined(__GNUC__)
+    return __sync_sub_and_fetch(PtrValue, 1);
 #else
-    return --PtrValue[0];
+    return --(*PtrValue);
 #endif
 }
+
+//-----------------------------------------------------------------------------
+// Lock functions
+
+#ifdef PLATFORM_WINDOWS
+
+typedef RTL_CRITICAL_SECTION CASC_LOCK;
+#define CascInitLock(Lock)      InitializeCriticalSection(&Lock);
+#define CascFreeLock(Lock)      DeleteCriticalSection(&Lock);
+#define CascLock(Lock)          EnterCriticalSection(&Lock);
+#define CascUnlock(Lock)        LeaveCriticalSection(&Lock);
+
+#else
+
+typedef pthread_mutex_t CASC_LOCK;
+#define CascInitLock(Lock)      pthread_mutex_init(&Lock, NULL);
+#define CascFreeLock(Lock)      pthread_mutex_destroy(&Lock);
+#define CascLock(Lock)          pthread_mutex_lock(&Lock);
+#define CascUnlock(Lock)        pthread_mutex_unlock(&Lock);
+
+#endif
 
 //-----------------------------------------------------------------------------
 // Forbidden functions, do not use

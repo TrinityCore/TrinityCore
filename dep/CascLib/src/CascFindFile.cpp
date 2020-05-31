@@ -138,7 +138,7 @@ static bool DoStorageSearch_CKey(TCascSearch * pSearch, PCASC_FIND_DATA pFindDat
     {
         // Locate the n-th CKey entry.
         pCKeyEntry = (PCASC_CKEY_ENTRY)hs->CKeyArray.ItemAt(pSearch->nFileIndex++);
-//      BREAK_ON_XKEY3(pCKeyEntry->CKey, 0x2B, 0xfc, 0xe4);
+        //BREAK_ON_XKEY3(pCKeyEntry->CKey, 0x2B, 0xfc, 0xe4);
 
         // Only report files that are unreferenced by the ROOT handler
         if(pCKeyEntry->IsFile() && pCKeyEntry->RefCount == 0)

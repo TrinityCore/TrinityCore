@@ -161,27 +161,6 @@ enum GuildCommandError
     ERR_GUILD_REP_TOO_LOW               = 39
 };
 
-enum PetitionTurns
-{
-    PETITION_TURN_OK                    = 0,
-    PETITION_TURN_ALREADY_IN_GUILD      = 2,
-    PETITION_TURN_NEED_MORE_SIGNATURES  = 4,
-    PETITION_TURN_GUILD_PERMISSIONS     = 11,
-    PETITION_TURN_GUILD_NAME_INVALID    = 12
-};
-
-enum PetitionSigns
-{
-    PETITION_SIGN_OK                    = 0,
-    PETITION_SIGN_ALREADY_SIGNED        = 1,
-    PETITION_SIGN_ALREADY_IN_GUILD      = 2,
-    PETITION_SIGN_CANT_SIGN_OWN         = 3,
-    PETITION_SIGN_NOT_SERVER            = 4,
-    PETITION_SIGN_FULL                  = 5,
-    PETITION_SIGN_ALREADY_SIGNED_OTHER  = 6,
-    PETITION_SIGN_RESTRICTED_ACCOUNT    = 7
-};
-
 enum GuildBankRights
 {
     GUILD_BANK_RIGHT_VIEW_TAB           = 0x01,

@@ -28,6 +28,7 @@
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "Player.h"
+#include "SpellMgr.h"
 #include "WorldSession.h"
 #include "GossipDef.h"
 
@@ -1198,14 +1199,12 @@ void WorldSession::HandleUseCritterItem(WorldPackets::Item::UseCritterItem& useC
         return;
 
     int32 spellToLearn = item->GetTemplate()->Effects[1]->SpellID;
-    for (BattlePetSpeciesEntry const* entry : sBattlePetSpeciesStore)
+
+
+    if (BattlePetSpeciesEntry const* entry = sSpellMgr->GetBattlePetSpecies(uint32(spellToLearn)))
     {
-        if (entry->SummonSpellID == spellToLearn)
-        {
-            GetBattlePetMgr()->AddPet(entry->ID, entry->CreatureID, BattlePetMgr::RollPetBreed(entry->ID), BattlePetMgr::GetDefaultPetQuality(entry->ID));
-            _player->UpdateCriteria(CRITERIA_TYPE_OWN_BATTLE_PET_COUNT);
-            break;
-        }
+        GetBattlePetMgr()->AddPet(entry->ID, entry->CreatureID, BattlePetMgr::RollPetBreed(entry->ID), BattlePetMgr::GetDefaultPetQuality(entry->ID));
+        _player->UpdateCriteria(CRITERIA_TYPE_OWN_BATTLE_PET_COUNT);
     }
 
     _player->DestroyItem(item->GetBagSlot(), item->GetSlot(), true);

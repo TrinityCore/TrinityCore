@@ -75,6 +75,35 @@ bool SpellImplicitTargetInfo::IsArea() const
     return GetSelectionCategory() == TARGET_SELECT_CATEGORY_AREA || GetSelectionCategory() == TARGET_SELECT_CATEGORY_CONE;
 }
 
+bool SpellImplicitTargetInfo::IsProximityBasedAoe() const
+{
+    switch (_target)
+    {
+    case TARGET_UNIT_SRC_AREA_ENTRY:
+    case TARGET_UNIT_SRC_AREA_ENEMY:
+    case TARGET_UNIT_CASTER_AREA_PARTY:
+    case TARGET_UNIT_SRC_AREA_ALLY:
+    case TARGET_UNIT_SRC_AREA_PARTY:
+    case TARGET_UNIT_LASTTARGET_AREA_PARTY:
+    case TARGET_GAMEOBJECT_SRC_AREA:
+    case TARGET_UNIT_CASTER_AREA_RAID:
+    case TARGET_CORPSE_SRC_AREA_ENEMY:
+        return true;
+
+    case TARGET_UNIT_DEST_AREA_ENTRY:
+    case TARGET_UNIT_DEST_AREA_ENEMY:
+    case TARGET_UNIT_DEST_AREA_ALLY:
+    case TARGET_UNIT_DEST_AREA_PARTY:
+    case TARGET_GAMEOBJECT_DEST_AREA:
+    case TARGET_UNIT_TARGET_AREA_RAID_CLASS:
+        return false;
+
+    default:
+        TC_LOG_WARN("spells", "SpellImplicitTargetInfo::IsProximityBasedAoe called a non-aoe spell");
+        return false;
+    }
+}
+
 SpellTargetSelectionCategories SpellImplicitTargetInfo::GetSelectionCategory() const
 {
     return _data[_target].SelectionCategory;
@@ -481,14 +510,16 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster /*= nullptr*/, int32 const* 
         if (Scaling.ResourceCoefficient)
             comboDamage = Scaling.ResourceCoefficient * value;
     }
-    else
+    else if (GetScalingExpectedStat() == ExpectedStatType::None)
     {
-        if (GetScalingExpectedStat() == ExpectedStatType::None)
+        if (caster && basePointsPerLevel != 0.0f)
         {
-            int32 level = caster ? int32(caster->getLevel()) : 0;
+            int32 level = int32(caster->getLevel());
             if (level > int32(_spellInfo->MaxLevel) && _spellInfo->MaxLevel > 0)
                 level = int32(_spellInfo->MaxLevel);
-            level -= int32(_spellInfo->BaseLevel);
+
+            // if base level is greater than spell level, reduce by base level (eg. pilgrims foods)
+            level -= int32(std::max(_spellInfo->BaseLevel, _spellInfo->SpellLevel));
             if (level < 0)
                 level = 0;
             value += level * basePointsPerLevel;
@@ -1644,7 +1675,7 @@ bool SpellInfo::IsChanneled() const
 
 bool SpellInfo::IsMoveAllowedChannel() const
 {
-    return IsChanneled() && HasAttribute(SPELL_ATTR5_CAN_CHANNEL_WHEN_MOVING);
+    return IsChanneled() && (HasAttribute(SPELL_ATTR5_CAN_CHANNEL_WHEN_MOVING) || (!(ChannelInterruptFlags[0] & (AURA_INTERRUPT_FLAG_MOVE | AURA_INTERRUPT_FLAG_TURNING))));
 }
 
 bool SpellInfo::NeedsComboPoints() const
@@ -2682,6 +2713,7 @@ void SpellInfo::_LoadSpellSpecific()
                         /// @workaround For non-stacking tracking spells (We need generic solution)
                         if (Id == 30645) // Gas Cloud Tracking
                             return SPELL_SPECIFIC_NORMAL;
+                        /* fallthrough */
                     case SPELL_AURA_TRACK_RESOURCES:
                     case SPELL_AURA_TRACK_STEALTHED:
                         return SPELL_SPECIFIC_TRACKER;
@@ -3213,7 +3245,7 @@ void SpellInfo::_LoadImmunityInfo()
                                 immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_CONFUSE);
                                 immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_FEAR);
                                 immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_ROOT_2);
-                                // no break intended
+                                /* fallthrough */
                             case 61869: // Overload
                             case 63481:
                             case 61887: // Lightning Tendrils
@@ -3353,11 +3385,14 @@ void SpellInfo::_LoadImmunityInfo()
             {
                 switch (Id)
                 {
+                    case 42292: // PvP trinket
+                    case 59752: // Every Man for Himself
+                        mechanicImmunityMask |= IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK;
+                        immuneInfo.AuraTypeImmune.insert(SPELL_AURA_USE_NORMAL_MOVEMENT_SPEED);
+                        break;
                     case 34471: // The Beast Within
                     case 19574: // Bestial Wrath
-                    case 42292: // PvP trinket
                     case 46227: // Medallion of Immunity
-                    case 59752: // Every Man for Himself
                     case 53490: // Bullheaded
                     case 65547: // PvP Trinket
                     case 134946: // Supremacy of the Alliance
@@ -4478,6 +4513,7 @@ bool SpellInfo::_IsPositiveEffect(uint32 effIndex, bool deep) const
                 case SPELL_AURA_MOD_STALKED:
                 case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
                 case SPELL_AURA_PREVENT_RESURRECTION:
+                case SPELL_AURA_EMPATHY:
                     return false;
                 case SPELL_AURA_PERIODIC_DAMAGE:            // used in positive spells also.
                     // part of negative spell if cast at self (prevent cancel)

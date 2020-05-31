@@ -922,7 +922,7 @@ class npc_toc_shaman : public CreatureScript
                             events.ScheduleEvent(EVENT_SPIRIT_CLEANSE, urand(15*IN_MILLISECONDS, 35*IN_MILLISECONDS));
                             return;
                         case EVENT_HEAL_BLOODLUST_HEROISM:
-                            if (me->getFaction()) // alliance = 1
+                            if (me->GetFaction()) // alliance = 1
                             {
                                 if (!me->HasAura(AURA_EXHAUSTION))
                                     DoCastAOE(SPELL_HEROISM);
@@ -2030,7 +2030,7 @@ class npc_toc_enh_shaman : public CreatureScript
                             events.ScheduleEvent(EVENT_STORMSTRIKE, urand(8*IN_MILLISECONDS, 10*IN_MILLISECONDS));
                             return;
                         case EVENT_DPS_BLOODLUST_HEROISM:
-                            if (me->getFaction()) //Am i alliance?
+                            if (me->GetFaction()) //Am i alliance?
                             {
                                 if (!me->HasAura(AURA_EXHAUSTION))
                                     DoCastAOE(SPELL_HEROISM);

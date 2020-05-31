@@ -83,10 +83,10 @@ enum STRSpellIds
     SPELL_BARON_ULTIMATUM               = 27861
 };
 
-template<typename AI>
-inline AI* GetStratholmeAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetStratholmeAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, StratholmeScriptName);
+    return GetInstanceAI<AI>(obj, StratholmeScriptName);
 }
 
 #endif

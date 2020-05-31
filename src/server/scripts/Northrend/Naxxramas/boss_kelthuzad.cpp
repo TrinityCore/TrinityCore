@@ -881,26 +881,20 @@ public:
     {
         PrepareAuraScript(spell_kelthuzad_chains_AuraScript);
 
-        void HandleApply(AuraEffect const* /*eff*/, AuraEffectHandleModes /*mode*/)
+        void HandleApply(AuraEffect const* aurEff, AuraEffectHandleModes mode)
         {
-            Unit* target = GetTarget();
-            float scale = target->GetObjectScale();
-            ApplyPercentModFloatVar(scale, 200.0f, true);
-            target->SetObjectScale(scale);
+            aurEff->HandleAuraModScale(GetTargetApplication(), mode, true);
         }
 
-        void HandleRemove(AuraEffect const* /*eff*/, AuraEffectHandleModes /*mode*/)
+        void HandleRemove(AuraEffect const* aurEff, AuraEffectHandleModes mode)
         {
-            Unit* target = GetTarget();
-            float scale = target->GetObjectScale();
-            ApplyPercentModFloatVar(scale, 200.0f, false);
-            target->SetObjectScale(scale);
+            aurEff->HandleAuraModScale(GetTargetApplication(), mode, false);
         }
 
         void Register() override
         {
-            AfterEffectApply += AuraEffectApplyFn(spell_kelthuzad_chains_AuraScript::HandleApply, EFFECT_0, SPELL_AURA_AOE_CHARM, AURA_EFFECT_HANDLE_REAL);
-            AfterEffectRemove += AuraEffectApplyFn(spell_kelthuzad_chains_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_AOE_CHARM, AURA_EFFECT_HANDLE_REAL);
+            AfterEffectApply += AuraEffectApplyFn(spell_kelthuzad_chains_AuraScript::HandleApply, EFFECT_1, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+            AfterEffectRemove += AuraEffectApplyFn(spell_kelthuzad_chains_AuraScript::HandleRemove, EFFECT_1, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
         }
     };
 

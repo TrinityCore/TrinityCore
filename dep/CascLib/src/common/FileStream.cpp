@@ -89,7 +89,7 @@ static bool BaseFile_Create(TFileStream * pStream)
     return true;
 }
 
-static bool BaseFile_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD dwStreamFlags)
+static bool BaseFile_Open(TFileStream * pStream, LPCTSTR szFileName, DWORD dwStreamFlags)
 {
 #ifdef PLATFORM_WINDOWS
     {
@@ -160,66 +160,72 @@ static bool BaseFile_Read(
     void * pvBuffer,                        // Pointer to data to be read
     DWORD dwBytesToRead)                    // Number of bytes to read from the file
 {
-    ULONGLONG ByteOffset = (pByteOffset != NULL) ? *pByteOffset : pStream->Base.File.FilePos;
     DWORD dwBytesRead = 0;                  // Must be set by platform-specific code
 
-#ifdef PLATFORM_WINDOWS
+    // Synchronize the access to the TFileStream structure
+    CascLock(pStream->Lock);
     {
-        // Note: We no longer support Windows 9x.
-        // Thus, we can use the OVERLAPPED structure to specify
-        // file offset to read from file. This allows us to skip
-        // one system call to SetFilePointer
+        ULONGLONG ByteOffset = (pByteOffset != NULL) ? *pByteOffset : pStream->Base.File.FilePos;
 
-        // Update the byte offset
-        pStream->Base.File.FilePos = ByteOffset;
-
-        // Read the data
-        if(dwBytesToRead != 0)
+#ifdef PLATFORM_WINDOWS
         {
-            OVERLAPPED Overlapped;
+            // Note: We no longer support Windows 9x.
+            // Thus, we can use the OVERLAPPED structure to specify
+            // file offset to read from file. This allows us to skip
+            // one system call to SetFilePointer
 
-            Overlapped.OffsetHigh = (DWORD)(ByteOffset >> 32);
-            Overlapped.Offset = (DWORD)ByteOffset;
-            Overlapped.hEvent = NULL;
-            if(!ReadFile(pStream->Base.File.hFile, pvBuffer, dwBytesToRead, &dwBytesRead, &Overlapped))
-                return false;
+            // Update the byte offset
+            pStream->Base.File.FilePos = ByteOffset;
+
+            // Read the data
+            if (dwBytesToRead != 0)
+            {
+                OVERLAPPED Overlapped;
+
+                Overlapped.OffsetHigh = (DWORD)(ByteOffset >> 32);
+                Overlapped.Offset = (DWORD)ByteOffset;
+                Overlapped.hEvent = NULL;
+                if (!ReadFile(pStream->Base.File.hFile, pvBuffer, dwBytesToRead, &dwBytesRead, &Overlapped))
+                    return false;
+            }
         }
-    }
 #endif
 
 #if defined(PLATFORM_MAC) || defined(PLATFORM_LINUX)
-    {
-        ssize_t bytes_read;
-
-        // If the byte offset is different from the current file position,
-        // we have to update the file position
-        if(ByteOffset != pStream->Base.File.FilePos)
         {
-            if(lseek64((intptr_t)pStream->Base.File.hFile, (off64_t)(ByteOffset), SEEK_SET) == (off64_t)-1)
-            {
-                SetLastError(errno);
-                return false;
-            }
-            pStream->Base.File.FilePos = ByteOffset;
-        }
+            ssize_t bytes_read;
 
-        // Perform the read operation
-        if(dwBytesToRead != 0)
-        {
-            bytes_read = read((intptr_t)pStream->Base.File.hFile, pvBuffer, (size_t)dwBytesToRead);
-            if(bytes_read == -1)
+            // If the byte offset is different from the current file position,
+            // we have to update the file position
+            if (ByteOffset != pStream->Base.File.FilePos)
             {
-                SetLastError(errno);
-                return false;
+                if (lseek64((intptr_t)pStream->Base.File.hFile, (off64_t)(ByteOffset), SEEK_SET) == (off64_t)-1)
+                {
+                    SetLastError(errno);
+                    return false;
+                }
+                pStream->Base.File.FilePos = ByteOffset;
             }
 
-            dwBytesRead = (DWORD)(size_t)bytes_read;
+            // Perform the read operation
+            if (dwBytesToRead != 0)
+            {
+                bytes_read = read((intptr_t)pStream->Base.File.hFile, pvBuffer, (size_t)dwBytesToRead);
+                if (bytes_read == -1)
+                {
+                    SetLastError(errno);
+                    return false;
+                }
+
+                dwBytesRead = (DWORD)(size_t)bytes_read;
+            }
         }
-    }
 #endif
 
-    // Increment the current file position by number of bytes read
-    pStream->Base.File.FilePos = ByteOffset + dwBytesRead;
+        // Increment the current file position by number of bytes read
+        pStream->Base.File.FilePos = ByteOffset + dwBytesRead;
+    }
+    CascUnlock(pStream->Lock);
 
     // If the number of bytes read doesn't match to required amount, return false
     // However, Blizzard's CASC handlers read encoded data so that if less than expected
@@ -249,67 +255,73 @@ static bool BaseFile_Read(
 
 static bool BaseFile_Write(TFileStream * pStream, ULONGLONG * pByteOffset, const void * pvBuffer, DWORD dwBytesToWrite)
 {
-    ULONGLONG ByteOffset = (pByteOffset != NULL) ? *pByteOffset : pStream->Base.File.FilePos;
     DWORD dwBytesWritten = 0;               // Must be set by platform-specific code
 
-#ifdef PLATFORM_WINDOWS
+    // Synchronize the access to the TFileStream structure
+    CascLock(pStream->Lock);
     {
-        // Note: We no longer support Windows 9x.
-        // Thus, we can use the OVERLAPPED structure to specify
-        // file offset to read from file. This allows us to skip
-        // one system call to SetFilePointer
+        ULONGLONG ByteOffset = (pByteOffset != NULL) ? *pByteOffset : pStream->Base.File.FilePos;
 
-        // Update the byte offset
-        pStream->Base.File.FilePos = ByteOffset;
-
-        // Read the data
-        if(dwBytesToWrite != 0)
+#ifdef PLATFORM_WINDOWS
         {
-            OVERLAPPED Overlapped;
+            // Note: We no longer support Windows 9x.
+            // Thus, we can use the OVERLAPPED structure to specify
+            // file offset to read from file. This allows us to skip
+            // one system call to SetFilePointer
 
-            Overlapped.OffsetHigh = (DWORD)(ByteOffset >> 32);
-            Overlapped.Offset = (DWORD)ByteOffset;
-            Overlapped.hEvent = NULL;
-            if(!WriteFile(pStream->Base.File.hFile, pvBuffer, dwBytesToWrite, &dwBytesWritten, &Overlapped))
-                return false;
+            // Update the byte offset
+            pStream->Base.File.FilePos = ByteOffset;
+
+            // Read the data
+            if (dwBytesToWrite != 0)
+            {
+                OVERLAPPED Overlapped;
+
+                Overlapped.OffsetHigh = (DWORD)(ByteOffset >> 32);
+                Overlapped.Offset = (DWORD)ByteOffset;
+                Overlapped.hEvent = NULL;
+                if (!WriteFile(pStream->Base.File.hFile, pvBuffer, dwBytesToWrite, &dwBytesWritten, &Overlapped))
+                    return false;
+            }
         }
-    }
 #endif
 
 #if defined(PLATFORM_MAC) || defined(PLATFORM_LINUX)
-    {
-        ssize_t bytes_written;
-
-        // If the byte offset is different from the current file position,
-        // we have to update the file position
-        if(ByteOffset != pStream->Base.File.FilePos)
         {
-            if(lseek64((intptr_t)pStream->Base.File.hFile, (off64_t)(ByteOffset), SEEK_SET) == (off64_t)-1)
+            ssize_t bytes_written;
+
+            // If the byte offset is different from the current file position,
+            // we have to update the file position
+            if (ByteOffset != pStream->Base.File.FilePos)
+            {
+                if (lseek64((intptr_t)pStream->Base.File.hFile, (off64_t)(ByteOffset), SEEK_SET) == (off64_t)-1)
+                {
+                    SetLastError(errno);
+                    return false;
+                }
+                pStream->Base.File.FilePos = ByteOffset;
+            }
+
+            // Perform the read operation
+            bytes_written = write((intptr_t)pStream->Base.File.hFile, pvBuffer, (size_t)dwBytesToWrite);
+            if (bytes_written == -1)
             {
                 SetLastError(errno);
                 return false;
             }
-            pStream->Base.File.FilePos = ByteOffset;
-        }
 
-        // Perform the read operation
-        bytes_written = write((intptr_t)pStream->Base.File.hFile, pvBuffer, (size_t)dwBytesToWrite);
-        if(bytes_written == -1)
-        {
-            SetLastError(errno);
-            return false;
+            dwBytesWritten = (DWORD)(size_t)bytes_written;
         }
-
-        dwBytesWritten = (DWORD)(size_t)bytes_written;
-    }
 #endif
 
-    // Increment the current file position by number of bytes read
-    pStream->Base.File.FilePos = ByteOffset + dwBytesWritten;
+        // Increment the current file position by number of bytes read
+        pStream->Base.File.FilePos = ByteOffset + dwBytesWritten;
 
-    // Also modify the file size, if needed
-    if(pStream->Base.File.FilePos > pStream->Base.File.FileSize)
-        pStream->Base.File.FileSize = pStream->Base.File.FilePos;
+        // Also modify the file size, if needed
+        if(pStream->Base.File.FilePos > pStream->Base.File.FileSize)
+            pStream->Base.File.FileSize = pStream->Base.File.FilePos;
+    }
+    CascUnlock(pStream->Lock);
 
     if(dwBytesWritten != dwBytesToWrite)
         SetLastError(ERROR_DISK_FULL);
@@ -383,12 +395,8 @@ static bool BaseFile_GetPos(TFileStream * pStream, ULONGLONG * pByteOffset)
 static bool BaseFile_Replace(TFileStream * pStream, TFileStream * pNewStream)
 {
 #ifdef PLATFORM_WINDOWS
-    // Delete the original stream file. Don't check the result value,
-    // because if the file doesn't exist, it would fail
-    DeleteFile(pStream->szFileName);
-
     // Rename the new file to the old stream's file
-    return (bool)MoveFile(pNewStream->szFileName, pStream->szFileName);
+    return (bool)MoveFileEx(pNewStream->szFileName, pStream->szFileName, MOVEFILE_COPY_ALLOWED | MOVEFILE_REPLACE_EXISTING);
 #endif
 
 #if defined(PLATFORM_MAC) || defined(PLATFORM_LINUX)
@@ -405,19 +413,24 @@ static bool BaseFile_Replace(TFileStream * pStream, TFileStream * pNewStream)
 
 static void BaseFile_Close(TFileStream * pStream)
 {
-    if(pStream->Base.File.hFile != INVALID_HANDLE_VALUE)
+    // Synchronize the access to multiple threads
+    CascLock(pStream->Lock);
     {
+        if(pStream->Base.File.hFile != INVALID_HANDLE_VALUE)
+        {
 #ifdef PLATFORM_WINDOWS
-        CloseHandle(pStream->Base.File.hFile);
+            CloseHandle(pStream->Base.File.hFile);
 #endif
 
 #if defined(PLATFORM_MAC) || defined(PLATFORM_LINUX)
-        close((intptr_t)pStream->Base.File.hFile);
+            close((intptr_t)pStream->Base.File.hFile);
 #endif
-    }
+        }
 
-    // Also invalidate the handle
-    pStream->Base.File.hFile = INVALID_HANDLE_VALUE;
+        // Also invalidate the handle
+        pStream->Base.File.hFile = INVALID_HANDLE_VALUE;
+    }
+    CascUnlock(pStream->Lock);
 }
 
 // Initializes base functions for the disk file
@@ -436,7 +449,7 @@ static void BaseFile_Init(TFileStream * pStream)
 //-----------------------------------------------------------------------------
 // Local functions - base memory-mapped file support
 
-static bool BaseMap_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD dwStreamFlags)
+static bool BaseMap_Open(TFileStream * pStream, LPCTSTR szFileName, DWORD dwStreamFlags)
 {
 #ifdef PLATFORM_WINDOWS
 
@@ -584,7 +597,7 @@ static void BaseMap_Init(TFileStream * pStream)
 //-----------------------------------------------------------------------------
 // Local functions - base HTTP file support
 
-static const TCHAR * BaseHttp_ExtractServerName(const TCHAR * szFileName, TCHAR * szServerName)
+static LPCTSTR BaseHttp_ExtractServerName(LPCTSTR szFileName, LPTSTR szServerName)
 {
     // Check for HTTP
     if(!_tcsnicmp(szFileName, _T("http://"), 7))
@@ -607,7 +620,7 @@ static const TCHAR * BaseHttp_ExtractServerName(const TCHAR * szFileName, TCHAR 
     return szFileName;
 }
 
-static bool BaseHttp_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD dwStreamFlags)
+static bool BaseHttp_Open(TFileStream * pStream, LPCTSTR szFileName, DWORD dwStreamFlags)
 {
 #ifdef PLATFORM_WINDOWS
 
@@ -1018,13 +1031,13 @@ static STREAM_INIT StreamBaseInit[4] =
 // The stream structure is created as flat block, variable length
 // The file name is placed after the end of the stream structure data
 static TFileStream * AllocateFileStream(
-    const TCHAR * szFileName,
+    LPCTSTR szFileName,
     size_t StreamSize,
     DWORD dwStreamFlags)
 {
     TFileStream * pMaster = NULL;
     TFileStream * pStream;
-    const TCHAR * szNextFile = szFileName;
+    LPCTSTR szNextFile = szFileName;
     size_t FileNameSize;
 
     // Sanity check
@@ -1063,9 +1076,12 @@ static TFileStream * AllocateFileStream(
         pStream->dwFlags = dwStreamFlags;
 
         // Initialize the file name
-        pStream->szFileName = (TCHAR *)((BYTE *)pStream + StreamSize);
+        pStream->szFileName = (LPTSTR)((BYTE *)pStream + StreamSize);
         memcpy(pStream->szFileName, szFileName, FileNameSize);
         pStream->szFileName[FileNameSize / sizeof(TCHAR)] = 0;
+
+        // Initialize the stream lock
+        CascInitLock(pStream->Lock);
 
         // Initialize the stream functions
         StreamBaseInit[dwStreamFlags & 0x03](pStream);
@@ -1367,7 +1383,7 @@ static bool FlatStream_CreateMirror(TBlockStream * pStream)
     return true;
 }
 
-static TFileStream * FlatStream_Open(const TCHAR * szFileName, DWORD dwStreamFlags)
+static TFileStream * FlatStream_Open(LPCTSTR szFileName, DWORD dwStreamFlags)
 {
     TBlockStream * pStream;
     ULONGLONG ByteOffset = 0;
@@ -1788,7 +1804,7 @@ static bool PartStream_CreateMirror(TBlockStream * pStream)
     return true;
 }
 
-static TFileStream * PartStream_Open(const TCHAR * szFileName, DWORD dwStreamFlags)
+static TFileStream * PartStream_Open(LPCTSTR szFileName, DWORD dwStreamFlags)
 {
     TBlockStream * pStream;
 
@@ -1897,13 +1913,6 @@ static const char * AuthCodeArray[] =
 
     NULL
 };
-
-static DWORD Rol32(DWORD dwValue, DWORD dwRolCount)
-{
-    DWORD dwShiftRight = 32 - dwRolCount;
-
-    return (dwValue << dwRolCount) | (dwValue >> dwShiftRight);
-}
 
 static void CreateKeyFromAuthCode(
     LPBYTE pbKeyBuffer,
@@ -2105,7 +2114,7 @@ static bool EncrStream_BlockRead(
     return true;
 }
 
-static TFileStream * EncrStream_Open(const TCHAR * szFileName, DWORD dwStreamFlags)
+static TFileStream * EncrStream_Open(LPCTSTR szFileName, DWORD dwStreamFlags)
 {
     TEncryptedStream * pStream;
 
@@ -2232,14 +2241,14 @@ static void Block4Stream_Close(TBlockStream * pStream)
     return;
 }
 
-static TFileStream * Block4Stream_Open(const TCHAR * szFileName, DWORD dwStreamFlags)
+static TFileStream * Block4Stream_Open(LPCTSTR szFileName, DWORD dwStreamFlags)
 {
     TBaseProviderData * NewBaseArray = NULL;
     ULONGLONG RemainderBlock;
     ULONGLONG BlockCount;
     ULONGLONG FileSize;
     TBlockStream * pStream;
-    TCHAR * szNameBuff;
+    LPTSTR szNameBuff;
     size_t nNameLength;
     DWORD dwBaseFiles = 0;
     DWORD dwBaseFlags;
@@ -2458,7 +2467,7 @@ TFileStream * FileStream_OpenFile(
  *
  * \a pStream Pointer to an open stream
  */
-const TCHAR * FileStream_GetFileName(TFileStream * pStream)
+LPCTSTR FileStream_GetFileName(TFileStream * pStream)
 {
     assert(pStream != NULL);
     return pStream->szFileName;
@@ -2753,6 +2762,9 @@ void FileStream_Close(TFileStream * pStream)
         // Also close base stream, if any
         else if(pStream->BaseClose != NULL)
             pStream->BaseClose(pStream);
+
+        // Free the stream lock
+        CascFreeLock(pStream->Lock);
 
         // Free the stream itself
         CASC_FREE(pStream);

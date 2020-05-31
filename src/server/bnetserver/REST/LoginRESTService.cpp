@@ -47,7 +47,7 @@ public:
     bool InvokeIfReady()
     {
         ASSERT(_callback);
-        return _callback->InvokeIfReady() == QueryCallback::Completed;
+        return _callback->InvokeIfReady();
     }
 
     soap* GetClient() { return &_client; }
@@ -82,7 +82,6 @@ bool LoginRESTService::Start(Trinity::Asio::IoContext* ioContext)
         _port = 8081;
     }
 
-    boost::system::error_code ec;
     boost::asio::ip::tcp::resolver resolver(*ioContext);
 
     std::string configuredAddress = sConfigMgr->GetStringDefault("LoginREST.ExternalAddress", "127.0.0.1");

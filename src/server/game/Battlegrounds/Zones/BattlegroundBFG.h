@@ -66,7 +66,7 @@ class BattlegroundBFGScore final : public BattlegroundScore
 class BattlegroundBFG : public Battleground
 {
     public:
-        BattlegroundBFG();
+        BattlegroundBFG(BattlegroundTemplate const* battlegroundTemplate);
         ~BattlegroundBFG();
 };
 

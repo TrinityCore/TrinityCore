@@ -23,6 +23,8 @@
 #include <string>
 #include <vector>
 
+enum LocaleConstant : uint8;
+
 class TC_COMMON_API Tokenizer
 {
 public:
@@ -60,13 +62,6 @@ TC_COMMON_API struct tm* localtime_r(const time_t* time, struct tm *result);
 TC_COMMON_API std::string secsToTimeString(uint64 timeInSecs, bool shortText = false, bool hoursOnly = false);
 TC_COMMON_API uint32 TimeStringToSecs(const std::string& timestring);
 TC_COMMON_API std::string TimeToTimestampStr(time_t t);
-
-inline void ApplyPercentModFloatVar(float& var, float val, bool apply)
-{
-    if (val == -100.0f)     // prevent set var to zero
-        val = -99.99f;
-    var *= (apply ? (100.0f + val) / 100.0f : 100.0f / (100.0f + val));
-}
 
 // Percentage calculation
 template <class T, class U>
@@ -247,6 +242,10 @@ inline wchar_t wcharToUpper(wchar_t wchar)
         return wchar_t(uint16(wchar)-0x0020);
     if (wchar == 0x0451)                                     // CYRILLIC SMALL LETTER IO
         return wchar_t(0x0401);
+    if (wchar == 0x0153)                                     // LATIN SMALL LIGATURE OE
+        return wchar_t(0x0152);
+    if (wchar == 0x00FF)                                     // LATIN SMALL LETTER Y WITH DIAERESIS
+        return wchar_t(0x0178);
 
     return wchar;
 }
@@ -273,11 +272,17 @@ inline wchar_t wcharToLower(wchar_t wchar)
         return wchar_t(0x00DF);
     if (wchar == 0x0401)                                     // CYRILLIC CAPITAL LETTER IO
         return wchar_t(0x0451);
+    if (wchar == 0x0152)                                     // LATIN CAPITAL LIGATURE OE
+        return wchar_t(0x0153);
+    if (wchar == 0x0178)                                     // LATIN CAPITAL LETTER Y WITH DIAERESIS
+        return wchar_t(0x00FF);
     if (wchar >= 0x0410 && wchar <= 0x042F)                  // CYRILLIC CAPITAL LETTER A - CYRILLIC CAPITAL LETTER YA
         return wchar_t(uint16(wchar)+0x0020);
 
     return wchar;
 }
+
+TC_COMMON_API std::wstring wstrCaseAccentInsensitiveParse(std::wstring const& wstr, LocaleConstant locale);
 
 TC_COMMON_API void wstrToUpper(std::wstring& str);
 TC_COMMON_API void wstrToLower(std::wstring& str);
@@ -405,15 +410,6 @@ public:
     inline bool operator !=(const flag128 &right) const
     {
         return !this->operator ==(right);
-    }
-
-    inline flag128 & operator =(const flag128 &right)
-    {
-        part[0] = right.part[0];
-        part[1] = right.part[1];
-        part[2] = right.part[2];
-        part[3] = right.part[3];
-        return *this;
     }
 
     inline flag128 operator &(const flag128 &right) const

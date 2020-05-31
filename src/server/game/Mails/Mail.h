@@ -23,15 +23,16 @@
 #include "Transaction.h"
 #include <map>
 
-struct AuctionEntry;
 struct CalendarEvent;
+class AuctionHouseObject;
 class BlackMarketEntry;
 class Item;
 class Object;
 class Player;
 
 #define MAIL_BODY_ITEM_TEMPLATE 8383                        // - plain letter, A Dusty Unsent Letter: 889
-#define MAX_MAIL_ITEMS 12
+#define MAX_CLIENT_MAIL_ITEMS 12                            // max number of items a player is allowed to attach
+#define MAX_MAIL_ITEMS 16
 
 enum MailMessageType
 {
@@ -91,7 +92,7 @@ class TC_GAME_API MailSender
         }
         MailSender(Object* sender, MailStationery stationery = MAIL_STATIONERY_DEFAULT);
         MailSender(CalendarEvent* sender);
-        MailSender(AuctionEntry* sender);
+        MailSender(AuctionHouseObject const* sender);
         MailSender(BlackMarketEntry* sender);
         MailSender(Player* sender);
         MailSender(uint32 senderEntry);
@@ -111,6 +112,7 @@ class TC_GAME_API MailReceiver
         explicit MailReceiver(ObjectGuid::LowType receiver_lowguid) : m_receiver(NULL), m_receiver_lowguid(receiver_lowguid) { }
         MailReceiver(Player* receiver);
         MailReceiver(Player* receiver, ObjectGuid::LowType receiver_lowguid);
+        MailReceiver(Player* receiver, ObjectGuid receiverGuid);
     public:                                                 // Accessors
         Player* GetPlayer() const { return m_receiver; }
         ObjectGuid::LowType GetPlayerGUIDLow() const { return m_receiver_lowguid; }

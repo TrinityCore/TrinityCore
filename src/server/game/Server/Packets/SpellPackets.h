@@ -999,6 +999,16 @@ namespace WorldPackets
             uint32 TeleportSpellID;
             uint32 LoadingScreenID;
         };
+
+        class MountResult final : public ServerPacket
+        {
+        public:
+            MountResult() : ServerPacket(SMSG_MOUNT_RESULT, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Result = 0;
+        };
     }
 }
 

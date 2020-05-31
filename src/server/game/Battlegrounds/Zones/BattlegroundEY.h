@@ -391,7 +391,7 @@ struct BattlegroundEYScore final : public BattlegroundScore
 class BattlegroundEY : public Battleground
 {
     public:
-        BattlegroundEY();
+        BattlegroundEY(BattlegroundTemplate const* battlegroundTemplate);
         ~BattlegroundEY();
 
         /* inherited from BattlegroundClass */

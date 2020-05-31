@@ -40,6 +40,7 @@ typedef std::unordered_map<uint32, PetSpell> PetSpellMap;
 typedef std::vector<uint32> AutoSpellList;
 
 class Player;
+class PetAura;
 
 class TC_GAME_API Pet : public Guardian
 {

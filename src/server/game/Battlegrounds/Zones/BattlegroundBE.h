@@ -44,7 +44,7 @@ enum BattlegroundBEGameObjects
 class BattlegroundBE : public Arena
 {
     public:
-        BattlegroundBE();
+        BattlegroundBE(BattlegroundTemplate const* battlegroundTemplate);
 
         /* inherited from BattlegroundClass */
         void StartingEventCloseDoors() override;

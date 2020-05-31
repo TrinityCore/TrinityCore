@@ -20,6 +20,7 @@
 #include "CreatureAIImpl.h"
 #include "MotionMaster.h"
 #include "Player.h"
+#include "QuestDef.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
 #include "SpellAuras.h"
@@ -65,14 +66,20 @@ void UnitAI::DoMeleeAttackIfReady()
     //Make sure our attack is ready and we aren't currently casting before checking distance
     if (me->isAttackReady())
     {
-        me->AttackerStateUpdate(victim);
+        if (ShouldSparWith(victim))
+            me->FakeAttackerStateUpdate(victim);
+        else
+            me->AttackerStateUpdate(victim);
 
         me->resetAttackTimer();
     }
 
     if (me->haveOffhandWeapon() && me->isAttackReady(OFF_ATTACK))
     {
-        me->AttackerStateUpdate(victim, OFF_ATTACK);
+        if (ShouldSparWith(victim))
+            me->FakeAttackerStateUpdate(victim, OFF_ATTACK);
+        else
+            me->AttackerStateUpdate(victim, OFF_ATTACK);
 
         me->resetAttackTimer(OFF_ATTACK);
     }
@@ -233,6 +240,11 @@ void UnitAI::FillAISpellInfo()
         AIInfo->realCooldown = spellInfo->RecoveryTime + spellInfo->StartRecoveryTime;
         AIInfo->maxRange = spellInfo->GetMaxRange(false) * 3 / 4;
     }
+}
+
+uint32 UnitAI::GetDialogStatus(Player* /*player*/)
+{
+    return DIALOG_STATUS_SCRIPTED_NO_STATUS;
 }
 
 ThreatManager& UnitAI::GetThreatManager()

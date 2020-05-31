@@ -141,10 +141,10 @@ enum BlackTempleMisc
     ACTION_OPEN_DOOR                = 4
 };
 
-template<typename AI>
-inline AI* GetBlackTempleAI(Creature* creature)
+template<class AI, class T>
+inline AI* GetBlackTempleAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, BTScriptName);
+    return GetInstanceAI<AI>(obj, BTScriptName);
 }
 
 #endif // BLACK_TEMPLE_H_

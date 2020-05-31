@@ -3423,7 +3423,7 @@ void Guild::SendBankList(WorldSession* session, uint8 tabId, bool fullUpdate) co
                     itemInfo.Charges = int32(abs(tabItem->GetSpellCharges()));
                     itemInfo.EnchantmentID = int32(tabItem->GetEnchantmentId(PERM_ENCHANTMENT_SLOT));
                     itemInfo.OnUseEnchantmentID = int32(tabItem->GetEnchantmentId(USE_ENCHANTMENT_SLOT));
-                    itemInfo.Flags = 0;
+                    itemInfo.Flags = tabItem->m_itemData->DynamicFlags;
 
                     uint8 i = 0;
                     for (UF::SocketedGem const& gemData : tabItem->m_itemData->Gems)

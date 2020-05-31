@@ -64,7 +64,7 @@ bool WorldSession::CanOpenMailBox(ObjectGuid guid)
 
 void WorldSession::HandleSendMail(WorldPackets::Mail::SendMail& packet)
 {
-    if (packet.Info.Attachments.size() > MAX_MAIL_ITEMS)        // client limit
+    if (packet.Info.Attachments.size() > MAX_CLIENT_MAIL_ITEMS)        // client limit
     {
         GetPlayer()->SendMailResult(0, MAIL_SEND, MAIL_ERR_TOO_MANY_ATTACHMENTS);
         return;
@@ -581,8 +581,8 @@ void WorldSession::HandleGetMailList(WorldPackets::Mail::MailGetList& packet)
         if (m->state == MAIL_STATE_DELETED || curTime < m->deliver_time)
             continue;
 
-        // max. 50 mails can be sent
-        if (response.Mails.size() < 50)
+        // max. 100 mails can be sent
+        if (response.Mails.size() < 100)
             response.Mails.emplace_back(m, player);
 
         ++response.TotalNumRecords;

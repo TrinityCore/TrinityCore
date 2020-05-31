@@ -19,23 +19,30 @@
 #define TRINITY_RANDOMMOTIONGENERATOR_H
 
 #include "MovementGenerator.h"
+#include "Timer.h"
 
 template<class T>
 class RandomMovementGenerator : public MovementGeneratorMedium< T, RandomMovementGenerator<T> >
 {
     public:
-        RandomMovementGenerator(float spawn_dist = 0.0f) : i_nextMoveTime(0), wander_distance(spawn_dist) { }
+        explicit RandomMovementGenerator(float distance = 0.0f) : _path(nullptr), _timer(0), _reference(0.f, 0.f, 0.f), _wanderDistance(distance), _interrupt(false) { }
+        ~RandomMovementGenerator();
 
-        void _setRandomLocation(T*);
+        MovementGeneratorType GetMovementGeneratorType() const override { return RANDOM_MOTION_TYPE; }
+
         void DoInitialize(T*);
         void DoFinalize(T*);
         void DoReset(T*);
-        bool DoUpdate(T*, const uint32);
-        bool GetResetPos(T*, float& x, float& y, float& z);
-        MovementGeneratorType GetMovementGeneratorType() const override { return RANDOM_MOTION_TYPE; }
-    private:
-        TimeTrackerSmall i_nextMoveTime;
+        bool DoUpdate(T*, uint32);
 
-        float wander_distance;
+    private:
+        void SetRandomLocation(T*);
+
+        PathGenerator* _path;
+        TimeTracker _timer;
+        Position _reference;
+        float _wanderDistance;
+        bool _interrupt;
 };
+
 #endif

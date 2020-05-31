@@ -96,7 +96,7 @@ public:
             if (summoned && summoned->GetEntry() == NPC_FOCUS_FIRE)
             {
                 summoned->CastSpell(summoned, SPELL_FOCUS_FIRE_VISUAL, false);
-                summoned->setFaction(me->getFaction());
+                summoned->SetFaction(me->GetFaction());
                 summoned->SetLevel(me->getLevel());
                 summoned->AddUnitState(UNIT_STATE_ROOT);
 

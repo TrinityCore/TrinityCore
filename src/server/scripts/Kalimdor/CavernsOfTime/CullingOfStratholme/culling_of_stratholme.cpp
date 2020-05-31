@@ -258,98 +258,6 @@ class npc_arthas : public CreatureScript
 public:
     npc_arthas() : CreatureScript("npc_arthas") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        ClearGossipMenuFor(player);
-        npc_arthasAI* ai = CAST_AI(npc_arthas::npc_arthasAI, creature->AI());
-
-        if (!ai)
-            return false;
-
-        switch (action)
-        {
-            case GOSSIP_ACTION_INFO_DEF:
-                ai->Start(true, true, player->GetGUID(), 0, false, false);
-                ai->SetDespawnAtEnd(false);
-                ai->bStepping = false;
-                ai->step = 1;
-                break;
-            case GOSSIP_ACTION_INFO_DEF+1:
-                ai->bStepping = true;
-                ai->step = 24;
-                break;
-            case GOSSIP_ACTION_INFO_DEF+2:
-                ai->SetHoldState(false);
-                ai->bStepping = false;
-                ai->step = 61;
-                break;
-            case GOSSIP_ACTION_INFO_DEF+3:
-                ai->SetHoldState(false);
-                break;
-            case GOSSIP_ACTION_INFO_DEF+4:
-                ai->bStepping = true;
-                ai->step = 84;
-                break;
-            case GOSSIP_ACTION_INFO_DEF+5:
-                ai->bStepping = true;
-                ai->step = 85;
-                break;
-        }
-        CloseGossipMenuFor(player);
-        ai->SetDespawnAtFar(false);
-        creature->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        npc_arthasAI* ai = CAST_AI(npc_arthas::npc_arthasAI, creature->AI());
-
-        if (ai && ai->bStepping == false)
-        {
-            switch (ai->gossipStep)
-            {
-                case 0: //This one is a workaround since the very beggining of the script is wrong.
-                {
-                    QuestStatus status = player->GetQuestStatus(13149);
-                    if (status != QUEST_STATUS_COMPLETE && status != QUEST_STATUS_REWARDED)
-                        return false;
-                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_ARTHAS_0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-                    SendGossipMenuFor(player, 907, creature->GetGUID());
-                    break;
-                }
-                case 1:
-                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_ARTHAS_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-                    SendGossipMenuFor(player, GOSSIP_MENU_ARTHAS_1, creature->GetGUID());
-                    break;
-                case 2:
-                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_ARTHAS_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-                    SendGossipMenuFor(player, GOSSIP_MENU_ARTHAS_2, creature->GetGUID());
-                    break;
-                case 3:
-                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_ARTHAS_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
-                    SendGossipMenuFor(player, GOSSIP_MENU_ARTHAS_3, creature->GetGUID());
-                    break;
-                case 4:
-                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_ARTHAS_4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
-                    SendGossipMenuFor(player, GOSSIP_MENU_ARTHAS_4, creature->GetGUID());
-                    break;
-                case 5:
-                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_ARTHAS_5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
-                    SendGossipMenuFor(player, GOSSIP_MENU_ARTHAS_5, creature->GetGUID());
-                    break;
-                default:
-                    return false;
-            }
-        }
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetCullingOfStratholmeAI<npc_arthasAI>(creature);
-    }
-
     struct npc_arthasAI : public npc_escortAI
     {
         npc_arthasAI(Creature* creature) : npc_escortAI(creature)
@@ -1234,8 +1142,93 @@ public:
 
             DoMeleeAttackIfReady();
         }
+
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        {
+            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+            ClearGossipMenuFor(player);
+            switch (action)
+            {
+                case GOSSIP_ACTION_INFO_DEF:
+                    Start(true, true, player->GetGUID(), 0, false, false);
+                    SetDespawnAtEnd(false);
+                    bStepping = false;
+                    step = 1;
+                    break;
+                case GOSSIP_ACTION_INFO_DEF + 1:
+                    bStepping = true;
+                    step = 24;
+                    break;
+                case GOSSIP_ACTION_INFO_DEF + 2:
+                    SetHoldState(false);
+                    bStepping = false;
+                    step = 61;
+                    break;
+                case GOSSIP_ACTION_INFO_DEF + 3:
+                    SetHoldState(false);
+                    break;
+                case GOSSIP_ACTION_INFO_DEF + 4:
+                    bStepping = true;
+                    step = 84;
+                    break;
+                case GOSSIP_ACTION_INFO_DEF + 5:
+                    bStepping = true;
+                    step = 85;
+                    break;
+            }
+            CloseGossipMenuFor(player);
+            SetDespawnAtFar(false);
+            me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+            return true;
+        }
+
+        bool GossipHello(Player* player) override
+        {
+            if (!bStepping)
+            {
+                switch (gossipStep)
+                {
+                    case 0: //This one is a workaround since the very beggining of the script is wrong.
+                    {
+                        QuestStatus status = player->GetQuestStatus(13149);
+                        if (status != QUEST_STATUS_COMPLETE && status != QUEST_STATUS_REWARDED)
+                            return false;
+                        AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_ARTHAS_0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+                        SendGossipMenuFor(player, 907, me->GetGUID());
+                        break; 
+                    }
+                    case 1:
+                        AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_ARTHAS_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                        SendGossipMenuFor(player, GOSSIP_MENU_ARTHAS_1, me->GetGUID());
+                        break;
+                    case 2:
+                        AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_ARTHAS_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                        SendGossipMenuFor(player, GOSSIP_MENU_ARTHAS_2, me->GetGUID());
+                        break;
+                    case 3:
+                        AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_ARTHAS_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+                        SendGossipMenuFor(player, GOSSIP_MENU_ARTHAS_3, me->GetGUID());
+                        break;
+                    case 4:
+                        AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_ARTHAS_4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+                        SendGossipMenuFor(player, GOSSIP_MENU_ARTHAS_4, me->GetGUID());
+                        break;
+                    case 5:
+                        AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_ARTHAS_5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
+                        SendGossipMenuFor(player, GOSSIP_MENU_ARTHAS_5, me->GetGUID());
+                        break;
+                    default:
+                        return false;
+                }
+            }
+            return true;
+        }
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetCullingOfStratholmeAI<npc_arthasAI>(creature);
+    }
 };
 
 class npc_crate_helper : public CreatureScript

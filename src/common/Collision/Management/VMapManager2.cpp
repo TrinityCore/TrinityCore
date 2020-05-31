@@ -32,6 +32,12 @@ using G3D::Vector3;
 
 namespace VMAP
 {
+    bool readChunk(FILE* rf, char* dest, const char* compare, uint32 len)
+    {
+        if (fread(dest, sizeof(char), len, rf) != len) return false;
+        return memcmp(dest, compare, len) == 0;
+    }
+
     VMapManager2::VMapManager2()
     {
         GetLiquidFlagsPtr = &GetLiquidFlagsDummy;

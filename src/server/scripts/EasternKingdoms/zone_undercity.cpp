@@ -96,14 +96,6 @@ class npc_lady_sylvanas_windrunner : public CreatureScript
 public:
     npc_lady_sylvanas_windrunner() : CreatureScript("npc_lady_sylvanas_windrunner") { }
 
-    bool OnQuestReward(Player* player, Creature* creature, const Quest *_Quest, uint32 /*slot*/) override
-    {
-        if (_Quest->GetQuestId() == QUEST_JOURNEY_TO_UNDERCITY)
-            creature->AI()->SetGUID(player->GetGUID(), GUID_EVENT_INVOKER);
-
-        return true;
-    }
-
     struct npc_lady_sylvanas_windrunnerAI : public ScriptedAI
     {
         npc_lady_sylvanas_windrunnerAI(Creature* creature) : ScriptedAI(creature)
@@ -236,6 +228,12 @@ public:
             }
 
             DoMeleeAttackIfReady();
+        }
+
+        void QuestReward(Player* player, Quest const* quest, uint32 /*opt*/) override
+        {
+            if (quest->GetQuestId() == QUEST_JOURNEY_TO_UNDERCITY)
+                SetGUID(player->GetGUID(), GUID_EVENT_INVOKER);
         }
 
     private:

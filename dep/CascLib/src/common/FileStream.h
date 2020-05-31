@@ -48,7 +48,7 @@ typedef bool (*STREAM_CREATE)(
 
 typedef bool (*STREAM_OPEN)(
     struct TFileStream * pStream,       // Pointer to an unopened stream
-    const TCHAR * szFileName,           // Pointer to file name to be open
+    LPCTSTR szFileName,           // Pointer to file name to be open
     DWORD dwStreamFlags                 // Stream flags
     );
 
@@ -205,11 +205,12 @@ struct TFileStream
     STREAM_CLOSE   BaseClose;               // Pointer to function closing the stream
 
     // Base provider data (file size, file position)
-    TBaseProviderData Base;
+    TBaseProviderData Base;                 // Stream information, like size or current position
+    CASC_LOCK Lock;                         // For multi-threaded synchronization
 
     // Stream provider data
     TFileStream * pMaster;                  // Master stream (e.g. MPQ on a web server)
-    TCHAR * szFileName;                     // File name (self-relative pointer)
+    LPTSTR szFileName;                      // File name (self-relative pointer)
 
     ULONGLONG StreamSize;                   // Stream size (can be less than file size)
     ULONGLONG StreamPos;                    // Stream position
@@ -249,7 +250,7 @@ struct TEncryptedStream : public TBlockStream
 
 TFileStream * FileStream_CreateFile(LPCTSTR szFileName, DWORD dwStreamFlags);
 TFileStream * FileStream_OpenFile(LPCTSTR szFileName, DWORD dwStreamFlags);
-const TCHAR * FileStream_GetFileName(TFileStream * pStream);
+LPCTSTR FileStream_GetFileName(TFileStream * pStream);
 size_t FileStream_Prefix(LPCTSTR szFileName, DWORD * pdwProvider);
 
 bool FileStream_SetCallback(TFileStream * pStream, STREAM_DOWNLOAD_CALLBACK pfnCallback, void * pvUserData);
