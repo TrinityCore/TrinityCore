@@ -68,6 +68,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void AddToWorld() override;
         void RemoveFromWorld() override;
 
+        float GetNativeObjectScale() const override;
         void SetObjectScale(float scale) override;
         void SetDisplayId(uint32 modelId) override;
         uint32 GetDisplayId() const final;
@@ -293,13 +294,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         virtual uint32 GetPetAutoSpellOnPos(uint8 pos) const;
         float GetPetChaseDistance() const;
 
-        void SetCannotReachTarget(bool cannotReach)
-        {
-            if (cannotReach == m_cannotReachTarget)
-                return;
-            m_cannotReachTarget = cannotReach;
-            m_cannotReachTimer = 0;
-        }
+        void SetCannotReachTarget(bool cannotReach);
         bool CanNotReachTarget() const { return m_cannotReachTarget; }
 
         void SetHomePosition(float x, float y, float z, float o) { m_homePosition.Relocate(x, y, z, o); }

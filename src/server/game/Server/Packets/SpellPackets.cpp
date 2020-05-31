@@ -191,3 +191,10 @@ WorldPacket const* WorldPackets::Spells::ResyncRunes::Write()
     }
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Spells::MountResult::Write()
+{
+    _worldPacket << int32(Result);
+
+    return &_worldPacket;
+}

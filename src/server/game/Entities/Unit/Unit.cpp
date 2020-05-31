@@ -3499,13 +3499,6 @@ void Unit::_RemoveNoStackAurasDueToAura(Aura* aura)
 
     if (!IsHighestExclusiveAura(aura))
     {
-        if (!aura->GetSpellInfo()->IsAffectingArea())
-        {
-            Unit* caster = aura->GetCaster();
-            if (caster && caster->GetTypeId() == TYPEID_PLAYER)
-                Spell::SendCastResult(caster->ToPlayer(), aura->GetSpellInfo(), 1, SPELL_FAILED_AURA_BOUNCED);
-        }
-
         aura->Remove();
         return;
     }
@@ -4137,7 +4130,7 @@ void Unit::RemoveAllAuras()
 {
     // this may be a dead loop if some events on aura remove will continiously apply aura on remove
     // we want to have all auras removed, so use your brain when linking events
-    while (!m_appliedAuras.empty() || !m_ownedAuras.empty())
+    for (int counter = 0; !m_appliedAuras.empty() || !m_ownedAuras.empty(); counter++)
     {
         AuraApplicationMap::iterator aurAppIter;
         for (aurAppIter = m_appliedAuras.begin(); aurAppIter != m_appliedAuras.end();)
@@ -4146,6 +4139,37 @@ void Unit::RemoveAllAuras()
         AuraMap::iterator aurIter;
         for (aurIter = m_ownedAuras.begin(); aurIter != m_ownedAuras.end();)
             RemoveOwnedAura(aurIter);
+
+        const int maxIteration = 50;
+        // give this loop a few tries, if there are still auras then log as much information as possible
+        if (counter >= maxIteration)
+        {
+            std::stringstream sstr;
+            sstr << "Unit::RemoveAllAuras() iterated " << maxIteration << " times already but there are still "
+                << m_appliedAuras.size() << " m_appliedAuras and " << m_ownedAuras.size() << " m_ownedAuras. Details:" << "\n";
+            sstr << GetDebugInfo() << "\n";
+
+            if (!m_appliedAuras.empty())
+            {
+                sstr << "m_appliedAuras:" << "\n";
+
+                for (std::pair<uint32 const, AuraApplication*>& auraAppPair : m_appliedAuras)
+                    sstr << auraAppPair.second->GetDebugInfo() << "\n";
+            }
+
+            if (!m_ownedAuras.empty())
+            {
+                sstr << "m_ownedAuras:" << "\n";
+
+                for (std::pair<uint32 const, Aura*>& auraPair : m_ownedAuras)
+                    sstr << auraPair.second->GetDebugInfo() << "\n";
+            }
+
+            TC_LOG_ERROR("entities.unit", "%s", sstr.str().c_str());
+            ABORT_MSG("%s", sstr.str().c_str());
+
+            break;
+        }
     }
 }
 
@@ -8849,7 +8873,10 @@ uint32 Unit::GetCreatureType() const
         if (ssEntry && ssEntry->creatureType > 0)
             return ssEntry->creatureType;
         else
-            return CREATURE_TYPE_HUMANOID;
+        {
+            ChrRacesEntry const* raceEntry = sChrRacesStore.AssertEntry(GetRace());
+            return raceEntry->CreatureType;
+        }
     }
     else
         return ToCreature()->GetCreatureTemplate()->type;
@@ -8902,8 +8929,8 @@ bool Unit::IsInDisallowedMountForm() const
     CreatureModelDataEntry const* model = sCreatureModelDataStore.LookupEntry(display->ModelId);
     ChrRacesEntry const* race = sChrRacesStore.LookupEntry(displayExtra->Race);
 
-    if (model && !(model->Flags & 0x80))
-        if (race && !(race->Flags & 0x4))
+    if (model && !(model->HasFlag(CREATURE_MODEL_DATA_FLAGS_CAN_MOUNT)))
+        if (race && !(race->HasFlag(CHRRACES_FLAGS_CAN_MOUNT)))
             return true;
 
     return false;
@@ -10265,6 +10292,14 @@ bool Unit::IsPolymorphed() const
     return spellInfo->GetSpellSpecific() == SPELL_SPECIFIC_MAGE_POLYMORPH;
 }
 
+void Unit::RecalculateObjectScale()
+{
+    int32 scaleAuras = GetTotalAuraModifier(SPELL_AURA_MOD_SCALE) + GetTotalAuraModifier(SPELL_AURA_MOD_SCALE_2);
+    float scale = GetNativeObjectScale() + CalculatePct(1.0f, scaleAuras);
+    float scaleMin = GetTypeId() == TYPEID_PLAYER ? 0.1 : 0.01;
+    SetObjectScale(std::max(scale, scaleMin));
+}
+
 void Unit::SetDisplayId(uint32 modelId)
 {
     SetUInt32Value(UNIT_FIELD_DISPLAYID, modelId);
@@ -11365,7 +11400,7 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
         charmer->RemoveAurasByType(SPELL_AURA_MOUNTED);
 
     ASSERT(type != CHARM_TYPE_POSSESS || charmer->GetTypeId() == TYPEID_PLAYER);
-    ASSERT((type == CHARM_TYPE_VEHICLE) == IsVehicle());
+    ASSERT((type == CHARM_TYPE_VEHICLE) == (GetVehicleKit() && GetVehicleKit()->IsControllableVehicle()));
 
     TC_LOG_DEBUG("entities.unit", "SetCharmedBy: charmer %s, charmed %s, type %u.", charmer->GetGUID().ToString().c_str(), GetGUID().ToString().c_str(), uint32(type));
 

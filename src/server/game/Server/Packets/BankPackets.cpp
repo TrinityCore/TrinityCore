@@ -15,28 +15,35 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef QueryCallbackProcessor_h__
-#define QueryCallbackProcessor_h__
+#include "BankPackets.h"
 
-#include "Define.h"
-#include <vector>
-
-class QueryCallback;
-
-class TC_DATABASE_API QueryCallbackProcessor
+void WorldPackets::Bank::AutoBankItem::Read()
 {
-public:
-    QueryCallbackProcessor();
-    ~QueryCallbackProcessor();
+    _worldPacket >> Bag;
+    _worldPacket >> Slot;
+}
 
-    void AddQuery(QueryCallback&& query);
-    void ProcessReadyQueries();
+void WorldPackets::Bank::AutoStoreBankItem::Read()
+{
+    _worldPacket >> Bag;
+    _worldPacket >> Slot;
+}
 
-private:
-    QueryCallbackProcessor(QueryCallbackProcessor const&) = delete;
-    QueryCallbackProcessor& operator=(QueryCallbackProcessor const&) = delete;
+void WorldPackets::Bank::BuyBankSlot::Read()
+{
+    _worldPacket >> Banker;
+}
 
-    std::vector<QueryCallback> _callbacks;
-};
+WorldPacket const* WorldPackets::Bank::BuyBankSlotResult::Write()
+{
+    _worldPacket << uint32(Result);
 
-#endif // QueryCallbackProcessor_h__
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Bank::ShowBank::Write()
+{
+    _worldPacket << Banker;
+
+    return &_worldPacket;
+}

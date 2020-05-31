@@ -290,8 +290,7 @@ void CreatureGroup::LeaderStartedMoving()
         float angle = pair.second->FollowAngle + float(M_PI); // for some reason, someone thought it was a great idea to invert relativ angles...
         float dist = pair.second->FollowDist;
 
-        MovementGenerator const* moveGen = member->GetMotionMaster()->GetMovementGenerator([](MovementGenerator const* movement)->bool { return movement->GetMovementGeneratorType() == FORMATION_MOTION_TYPE; }, MOTION_SLOT_DEFAULT);
-        if (!moveGen)
+        if (!member->HasUnitState(UNIT_STATE_FOLLOW_FORMATION))
             member->GetMotionMaster()->MoveFormation(_leader, dist, angle, pair.second->LeaderWaypointIDs[0], pair.second->LeaderWaypointIDs[1]);
     }
 }

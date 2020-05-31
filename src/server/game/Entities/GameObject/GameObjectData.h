@@ -610,7 +610,6 @@ struct GameObjectTemplate
             case GAMEOBJECT_TYPE_DOOR:                  return true;
             case GAMEOBJECT_TYPE_FLAGSTAND:             return true;
             case GAMEOBJECT_TYPE_FLAGDROP:              return true;
-            case GAMEOBJECT_TYPE_DUNGEON_DIFFICULTY:    return true;
             case GAMEOBJECT_TYPE_TRAPDOOR:              return true;
             default: return false;
         }

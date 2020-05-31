@@ -216,144 +216,6 @@ public:
 
 };
 
-/*######
-## go_corkis_prison and npc_corki
-######*/
-
-enum CorkiData
-{
-    // first quest
-    QUEST_HELP                                    = 9923,
-    NPC_CORKI                                     = 18445,
-    NPC_CORKI_CREDIT_1                            = 18369,
-    GO_CORKIS_PRISON                              = 182349,
-    CORKI_SAY_THANKS                              = 0,
-    // 2nd quest
-    QUEST_CORKIS_GONE_MISSING_AGAIN               = 9924,
-    NPC_CORKI_2                                   = 20812,
-    GO_CORKIS_PRISON_2                            = 182350,
-    CORKI_SAY_PROMISE                             = 0,
-    // 3rd quest
-    QUEST_CHOWAR_THE_PILLAGER                     = 9955,
-    NPC_CORKI_3                                   = 18369,
-    NPC_CORKI_CREDIT_3                            = 18444,
-    GO_CORKIS_PRISON_3                            = 182521,
-    CORKI_SAY_LAST                                = 0
-};
-
-class go_corkis_prison : public GameObjectScript
-{
-public:
-    go_corkis_prison() : GameObjectScript("go_corkis_prison") { }
-
-    struct go_corkis_prisonAI : public GameObjectAI
-    {
-        go_corkis_prisonAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool GossipHello(Player* player) override
-        {
-            me->SetGoState(GO_STATE_READY);
-            if (me->GetEntry() == GO_CORKIS_PRISON)
-            {
-                if (Creature* corki = me->FindNearestCreature(NPC_CORKI, 25, true))
-                {
-                    corki->GetMotionMaster()->MovePoint(1, me->GetPositionX() + 5, me->GetPositionY(), me->GetPositionZ());
-                    if (player)
-                        player->KilledMonsterCredit(NPC_CORKI_CREDIT_1);
-                }
-            }
-
-            if (me->GetEntry() == GO_CORKIS_PRISON_2)
-            {
-                if (Creature* corki = me->FindNearestCreature(NPC_CORKI_2, 25, true))
-                {
-                    corki->GetMotionMaster()->MovePoint(1, me->GetPositionX() - 5, me->GetPositionY(), me->GetPositionZ());
-                    if (player)
-                        player->KilledMonsterCredit(NPC_CORKI_2);
-                }
-            }
-
-            if (me->GetEntry() == GO_CORKIS_PRISON_3)
-            {
-                if (Creature* corki = me->FindNearestCreature(NPC_CORKI_3, 25, true))
-                {
-                    corki->GetMotionMaster()->MovePoint(1, me->GetPositionX() + 4, me->GetPositionY(), me->GetPositionZ());
-                    if (player)
-                        player->KilledMonsterCredit(NPC_CORKI_CREDIT_3);
-                }
-            }
-            return true;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_corkis_prisonAI(go);
-    }
-};
-
-class npc_corki : public CreatureScript
-{
-public:
-    npc_corki() : CreatureScript("npc_corki") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_corkiAI(creature);
-    }
-
-    struct npc_corkiAI : public ScriptedAI
-    {
-        npc_corkiAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-        }
-
-        void Initialize()
-        {
-            Say_Timer = 5000;
-            ReleasedFromCage = false;
-        }
-
-        uint32 Say_Timer;
-        bool ReleasedFromCage;
-
-        void Reset() override
-        {
-            Initialize();
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (ReleasedFromCage)
-            {
-                if (Say_Timer <= diff)
-                {
-                    me->DespawnOrUnsummon();
-                    ReleasedFromCage = false;
-                }
-                else
-                    Say_Timer -= diff;
-            }
-        }
-
-        void MovementInform(uint32 type, uint32 id) override
-        {
-            if (type == POINT_MOTION_TYPE && id == 1)
-            {
-                Say_Timer = 5000;
-                ReleasedFromCage = true;
-                if (me->GetEntry() == NPC_CORKI)
-                    Talk(CORKI_SAY_THANKS);
-                if (me->GetEntry() == NPC_CORKI_2)
-                    Talk(CORKI_SAY_PROMISE);
-                if (me->GetEntry() == NPC_CORKI_3)
-                    Talk(CORKI_SAY_LAST);
-            }
-        };
-    };
-};
-
 /*#####
 ## npc_kurenai_captive
 #####*/
@@ -545,50 +407,6 @@ public:
     {
         return new npc_kurenai_captiveAI(creature);
     }
-};
-
-/*######
-## go_warmaul_prison
-######*/
-
-enum FindingTheSurvivorsData
-{
-    QUEST_FINDING_THE_SURVIVORS                     = 9948,
-    NPC_MAGHAR_PRISONER                             = 18428,
-
-    SAY_FREE                                        = 0,
-};
-
-class go_warmaul_prison : public GameObjectScript
-{
-    public:
-        go_warmaul_prison() : GameObjectScript("go_warmaul_prison") { }
-
-        struct go_warmaul_prisonAI : public GameObjectAI
-        {
-            go_warmaul_prisonAI(GameObject* go) : GameObjectAI(go) { }
-
-            bool GossipHello(Player* player) override
-            {
-                me->UseDoorOrButton();
-                if (player->GetQuestStatus(QUEST_FINDING_THE_SURVIVORS) != QUEST_STATUS_INCOMPLETE)
-                    return false;
-
-                if (Creature* prisoner = me->FindNearestCreature(NPC_MAGHAR_PRISONER, 5.0f))
-                {
-                    player->KilledMonsterCredit(NPC_MAGHAR_PRISONER);
-
-                    prisoner->AI()->Talk(SAY_FREE, player);
-                    prisoner->DespawnOrUnsummon(6000);
-                }
-                return true;
-            }
-        };
-
-        GameObjectAI* GetAI(GameObject* go) const override
-        {
-            return new go_warmaul_prisonAI(go);
-        }
 };
 
 enum PlantBannerQuests
@@ -880,10 +698,7 @@ public:
 void AddSC_nagrand()
 {
     new npc_maghar_captive();
-    new npc_corki();
-    new go_corkis_prison();
     new npc_kurenai_captive();
-    new go_warmaul_prison();
     new npc_nagrand_banner();
     new condition_nagrand_banner();
 }

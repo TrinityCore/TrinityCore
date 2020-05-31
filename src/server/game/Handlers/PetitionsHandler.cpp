@@ -218,7 +218,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket& recvData)
     sPetitionMgr->AddPetition(charter->GetGUID(), _player->GetGUID(), name, type, false);
 }
 
-void WorldSession::HandlePetitionShowSignOpcode(WorldPacket& recvData)
+void WorldSession::HandlePetitionShowSignatures(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "Received opcode CMSG_PETITION_SHOW_SIGNATURES");
 
@@ -259,7 +259,7 @@ void WorldSession::SendPetitionSigns(Petition const* petition, Player* sendTo)
     sendTo->SendDirectMessage(&data);
 }
 
-void WorldSession::HandlePetitionQueryOpcode(WorldPacket& recvData)
+void WorldSession::HandleQueryPetition(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "Received opcode CMSG_PETITION_QUERY");   // ok
 
@@ -320,7 +320,7 @@ void WorldSession::SendPetitionQueryOpcode(ObjectGuid petitionguid)
     SendPacket(&data);
 }
 
-void WorldSession::HandlePetitionRenameOpcode(WorldPacket& recvData)
+void WorldSession::HandlePetitionRenameGuild(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "Received opcode MSG_PETITION_RENAME");   // ok
 
@@ -381,7 +381,7 @@ void WorldSession::HandlePetitionRenameOpcode(WorldPacket& recvData)
     SendPacket(&data);
 }
 
-void WorldSession::HandlePetitionSignOpcode(WorldPacket& recvData)
+void WorldSession::HandleSignPetition(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "Received opcode CMSG_PETITION_SIGN");    // ok
 
@@ -491,7 +491,7 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket& recvData)
         owner->SendDirectMessage(&data);
 }
 
-void WorldSession::HandlePetitionDeclineOpcode(WorldPacket& recvData)
+void WorldSession::HandleDeclinePetition(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "Received opcode MSG_PETITION_DECLINE");  // ok
 

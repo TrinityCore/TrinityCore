@@ -1356,21 +1356,7 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffIndex effIndex, SpellImplici
             Position pos = dest._position;
 
             unitCaster->MovePositionToFirstCollision(pos, dist, angle);
-            // Generate path to that point.
-            if (!m_preGeneratedPath)
-                m_preGeneratedPath = std::make_unique<PathGenerator>(unitCaster);
-
-            m_preGeneratedPath->SetPathLengthLimit(dist);
-
-            // Should we use straightline here ? What do we do when we don't have a full path ?
-            bool pathResult = m_preGeneratedPath->CalculatePath(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), false, true);
-            if (pathResult && m_preGeneratedPath->GetPathType() & (PATHFIND_NORMAL | PATHFIND_SHORTCUT))
-            {
-                pos.m_positionX = m_preGeneratedPath->GetActualEndPosition().x;
-                pos.m_positionY = m_preGeneratedPath->GetActualEndPosition().y;
-                pos.m_positionZ = m_preGeneratedPath->GetActualEndPosition().z;
-                dest.Relocate(pos);
-            }
+            dest.Relocate(pos);
             break;
         }
         default:
@@ -2482,10 +2468,6 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
             {
                 spellDamageInfo = std::make_unique<DamageInfo>(damageInfo, SPELL_DIRECT_DAMAGE, spell->m_attackType, hitMask);
                 procSpellType |= PROC_SPELL_TYPE_DAMAGE;
-
-                if (caster->GetTypeId() == TYPEID_PLAYER && !spell->m_spellInfo->HasAttribute(SPELL_ATTR0_STOP_ATTACK_TARGET) && !spell->m_spellInfo->HasAttribute(SPELL_ATTR4_CANT_TRIGGER_ITEM_SPELLS) &&
-                    (spell->m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MELEE || spell->m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_RANGED))
-                    caster->ToPlayer()->CastItemCombatSpell(*spellDamageInfo);
             }
         }
 
@@ -4091,6 +4073,23 @@ void Spell::SendPetCastResult(SpellCastResult result)
     player->SendDirectMessage(&data);
 }
 
+void Spell::SendMountResult(MountResult result)
+{
+    if (result == MountResult::Ok)
+        return;
+
+    if (m_caster->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    Player* caster = m_caster->ToPlayer();
+    if (caster->IsLoading())  // don't send mount results at loading time
+        return;
+
+    WorldPackets::Spells::MountResult packet;
+    packet.Result = AsUnderlyingType(result);
+    caster->SendDirectMessage(packet.Write());
+}
+
 void Spell::SendSpellStart()
 {
     if (!IsNeedSendToClient())
@@ -5393,6 +5392,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
     }
 
     uint8 approximateAuraEffectMask = 0;
+    uint8 nonAuraEffectMask = 0;
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
         // for effects of spells that have only one target
@@ -5519,7 +5519,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                     m_preGeneratedPath->SetPathLengthLimit(range);
 
                     // first try with raycast, if it fails fall back to normal path
-                    bool result = m_preGeneratedPath->CalculatePath(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), false, false);
+                    bool result = m_preGeneratedPath->CalculatePath(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), false);
                     if (m_preGeneratedPath->GetPathType() & PATHFIND_SHORT)
                         return SPELL_FAILED_NOPATH;
                     else if (!result || m_preGeneratedPath->GetPathType() & (PATHFIND_NOPATH | PATHFIND_INCOMPLETE))
@@ -5814,6 +5814,8 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
 
         if (m_spellInfo->Effects[i].IsAura())
             approximateAuraEffectMask |= 1 << i;
+        else if (m_spellInfo->Effects[i].IsEffect())
+            nonAuraEffectMask |= 1 << i;
     }
 
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
@@ -5893,7 +5895,10 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                     return SPELL_FAILED_NO_MOUNTS_ALLOWED;
 
                 if (unitCaster->IsInDisallowedMountForm())
-                    return SPELL_FAILED_NOT_SHAPESHIFT;
+                {
+                    SendMountResult(MountResult::Shapeshifted); // mount result gets sent before the cast result
+                    return SPELL_FAILED_DONT_REPORT;
+                }
                 break;
             }
             case SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS:
@@ -5940,9 +5945,10 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
         }
 
         // check if target already has the same type, but more powerful aura
-        if (!m_spellInfo->IsTargetingArea())
+        if (!nonAuraEffectMask && (approximateAuraEffectMask & (1 << i)) && !m_spellInfo->IsTargetingArea())
             if (Unit* target = m_targets.GetUnitTarget())
-                if (!target->IsHighestExclusiveAuraEffect(m_spellInfo, AuraType(m_spellInfo->Effects[i].ApplyAuraName), m_spellInfo->Effects[i].CalcValue(), approximateAuraEffectMask, false))
+                if (!target->IsHighestExclusiveAuraEffect(m_spellInfo, AuraType(m_spellInfo->Effects[i].ApplyAuraName),
+                    m_spellInfo->Effects[i].CalcValue(m_caster, &m_spellValue->EffectBasePoints[i]), approximateAuraEffectMask, false))
                     return SPELL_FAILED_AURA_BOUNCED;
     }
 
@@ -7173,7 +7179,7 @@ bool Spell::CheckEffectTarget(Unit const* target, uint32 eff, Position const* lo
         case SPELL_AURA_MOD_CHARM:
         case SPELL_AURA_MOD_POSSESS_PET:
         case SPELL_AURA_AOE_CHARM:
-            if (target->GetTypeId() == TYPEID_UNIT && target->IsVehicle())
+            if (target->GetVehicleKit() && target->GetVehicleKit()->IsControllableVehicle())
                 return false;
             if (target->IsMounted())
                 return false;
