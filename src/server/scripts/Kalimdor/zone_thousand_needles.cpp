@@ -25,8 +25,6 @@ EndScriptData */
 /* ContentData
 npc_lakota_windsong
 npc_swiftmountain
-npc_enraged_panther
-go_panther_cage
 EndContentData */
 
 #include "ScriptMgr.h"
@@ -199,79 +197,8 @@ public:
     }
 };
 
-enum PantherCage
-{
-    QUEST_HYPERCAPACITOR_GIZMO = 5151,
-    ENRAGED_PANTHER            = 10992
-};
-
-class go_panther_cage : public GameObjectScript
-{
-public:
-    go_panther_cage() : GameObjectScript("go_panther_cage") { }
-
-    struct go_panther_cageAI : public GameObjectAI
-    {
-        go_panther_cageAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool GossipHello(Player* player) override
-        {
-            me->UseDoorOrButton();
-            if (player->GetQuestStatus(QUEST_HYPERCAPACITOR_GIZMO) == QUEST_STATUS_INCOMPLETE)
-            {
-                if (Creature* panther = me->FindNearestCreature(ENRAGED_PANTHER, 5, true))
-                {
-                    panther->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                    panther->SetReactState(REACT_AGGRESSIVE);
-                    panther->AI()->AttackStart(player);
-                }
-            }
-
-            return true;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_panther_cageAI(go);
-    }
-};
-
-class npc_enraged_panther : public CreatureScript
-{
-public:
-    npc_enraged_panther() : CreatureScript("npc_enraged_panther") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_enraged_pantherAI(creature);
-    }
-
-    struct npc_enraged_pantherAI : public ScriptedAI
-    {
-        npc_enraged_pantherAI(Creature* creature) : ScriptedAI(creature) { }
-
-        void Reset() override
-        {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            me->SetReactState(REACT_PASSIVE);
-        }
-
-        void UpdateAI(uint32 /*diff*/) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            DoMeleeAttackIfReady();
-        }
-    };
-
-};
-
 void AddSC_thousand_needles()
 {
     new npc_lakota_windsong();
     new npc_paoka_swiftmountain();
-    new npc_enraged_panther();
-    new go_panther_cage();
 }

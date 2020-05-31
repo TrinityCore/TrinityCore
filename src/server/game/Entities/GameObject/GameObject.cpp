@@ -1357,7 +1357,7 @@ bool GameObject::ActivateToQuest(Player* target) const
                 return false;
 
             // scan GO chest with loot including quest items
-            if (LootTemplates_Gameobject.HaveQuestLootForPlayer(GetGOInfo()->GetLootId(), target))
+            if (target->GetQuestStatus(GetGOInfo()->chest.questId) == QUEST_STATUS_INCOMPLETE || LootTemplates_Gameobject.HaveQuestLootForPlayer(GetGOInfo()->GetLootId(), target))
             {
                 if (Battleground const* bg = target->GetBattleground())
                     return bg->CanActivateGO(GetEntry(), target->GetTeam());

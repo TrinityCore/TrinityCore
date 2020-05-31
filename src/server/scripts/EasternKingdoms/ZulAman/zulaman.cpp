@@ -23,7 +23,6 @@ SDCategory: Zul'Aman
 EndScriptData */
 
 /* ContentData
-npc_forest_frog
 EndContentData */
 
 #include "ScriptMgr.h"
@@ -36,93 +35,6 @@ EndContentData */
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "zulaman.h"
-
-/*######
-## npc_forest_frog
-######*/
-
-enum ForestFrog
-{
-    // Spells
-    SPELL_REMOVE_AMANI_CURSE   = 43732,
-    SPELL_PUSH_MOJO            = 43923,
-
-    // Creatures
-    NPC_FOREST_FROG             = 24396
-
-};
-
-class npc_forest_frog : public CreatureScript
-{
-    public:
-
-        npc_forest_frog() : CreatureScript("npc_forest_frog") { }
-
-        struct npc_forest_frogAI : public ScriptedAI
-        {
-            npc_forest_frogAI(Creature* creature) : ScriptedAI(creature)
-            {
-                instance = creature->GetInstanceScript();
-            }
-
-            InstanceScript* instance;
-
-            void Reset() override { }
-
-            void JustEngagedWith(Unit* /*who*/) override { }
-
-            void DoSpawnRandom() const
-            {
-                uint32 cEntry = RAND(
-                    24397,     //Mannuth
-                    24403,     //Deez
-                    24404,     //Galathryn
-                    24405,     //Adarrah
-                    24406,     //Fudgerick
-                    24407,     //Darwen
-                    24445,     //Mitzi
-                    24448,     //Christian
-                    24453,     //Brennan
-                    24455);    //Hollee
-
-                if (!instance->GetData(TYPE_RAND_VENDOR_1))
-                {
-                    if (roll_chance_i(10))
-                    {
-                        cEntry = 24408;      //Gunter
-                        instance->SetData(TYPE_RAND_VENDOR_1, DONE);
-                    }
-                }
-                else if (!instance->GetData(TYPE_RAND_VENDOR_2))
-                {
-                    if (roll_chance_i(10))
-                    {
-                        cEntry = 24409;      //Kyren
-                        instance->SetData(TYPE_RAND_VENDOR_2, DONE);
-                    }
-                }
-
-                me->UpdateEntry(cEntry);
-            }
-
-            void SpellHit(Unit* caster, SpellInfo const* spell) override
-            {
-                if (spell->Id == SPELL_REMOVE_AMANI_CURSE && caster->GetTypeId() == TYPEID_PLAYER && me->GetEntry() == NPC_FOREST_FROG)
-                {
-                    //increase or decrease chance of mojo?
-                    if (roll_chance_i(1))
-                        DoCast(caster, SPELL_PUSH_MOJO, true);
-                    else
-                        DoSpawnRandom();
-                }
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetZulAmanAI<npc_forest_frogAI>(creature);
-        }
-};
 
 /*######
 ## npc_zulaman_hostage
@@ -467,7 +379,6 @@ class spell_banging_the_gong : public SpellScriptLoader
 
 void AddSC_zulaman()
 {
-    new npc_forest_frog();
     new npc_zulaman_hostage();
     new npc_harrison_jones();
     new spell_banging_the_gong();
