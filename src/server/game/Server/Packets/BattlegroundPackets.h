@@ -90,13 +90,8 @@ namespace WorldPackets
             void Read() override { }
         };
 
-        class PVPLogData final : public ServerPacket
+        struct PVPLogData
         {
-        public:
-            PVPLogData() : ServerPacket(SMSG_PVP_LOG_DATA, 0) { }
-
-            WorldPacket const* Write() override;
-
             struct RatingData
             {
                 int32 Prematch[2] = { };
@@ -145,6 +140,16 @@ namespace WorldPackets
             std::vector<PVPMatchPlayerStatistics> Statistics;
             Optional<RatingData> Ratings;
             std::array<int8, 2> PlayerCount = { };
+        };
+
+        class PVPLogDataMessage final : public ServerPacket
+        {
+        public:
+            PVPLogDataMessage() : ServerPacket(SMSG_PVP_LOG_DATA, 0) { }
+
+            WorldPacket const* Write() override;
+
+            PVPLogData Data;
         };
 
         struct BattlefieldStatusHeader
@@ -417,6 +422,42 @@ namespace WorldPackets
             RequestRatedBattlefieldInfo(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_RATED_BATTLEFIELD_INFO, std::move(packet)) { }
 
             void Read() override { }
+        };
+
+        class PVPMatchInit final : public ServerPacket
+        {
+        public:
+            PVPMatchInit() : ServerPacket(SMSG_PVP_MATCH_INIT, 4 + 1 + 4 + 4 + 1 + 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            enum MatchState : uint8
+            {
+                InProgress = 1,
+                Complete = 3,
+                Inactive = 4
+            };
+
+            uint32 MapID = 0;
+            MatchState State = Inactive;
+            time_t StartTime = time_t(0);
+            int32 Duration = 0;
+            uint8 ArenaFaction = 0;
+            uint32 BattlemasterListID = 0;
+            bool Registered = false;
+            bool AffectsRating = false;
+        };
+
+        class PVPMatchEnd final : public ServerPacket
+        {
+        public:
+            PVPMatchEnd() : ServerPacket(SMSG_PVP_MATCH_END) { }
+
+            WorldPacket const* Write() override;
+
+            uint8 Winner = 0;
+            int32 Duration = 0;
+            Optional<PVPLogData> LogData;
         };
     }
 }
