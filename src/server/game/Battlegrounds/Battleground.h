@@ -42,7 +42,7 @@ namespace WorldPackets
 {
     namespace Battleground
     {
-        class PVPLogData;
+        struct PVPLogData;
         struct BattlegroundPlayerPosition;
     }
 
@@ -239,6 +239,15 @@ enum class BattlegroundQueueIdType : uint8
     ArenaSkirmish   = 4
 };
 
+enum class BattlegroundPointCaptureStatus
+{
+    AllianceControlled,
+    AllianceCapturing,
+    Neutral,
+    HordeCapturing,
+    HordeControlled
+};
+
 /*
 This class is used to:
 1. Add player to battleground
@@ -273,7 +282,7 @@ class TC_GAME_API Battleground
         /* Battleground */
         // Get methods:
         char const* GetName() const;
-        uint64 GetQueueId() const;
+        BattlegroundQueueTypeId GetQueueId() const { return m_queueId; }
         BattlegroundTypeId GetTypeID(bool getRandom = false) const;
         BattlegroundBracketId GetBracketId() const;
         uint32 GetInstanceID() const        { return m_InstanceID; }
@@ -299,6 +308,7 @@ class TC_GAME_API Battleground
         bool IsRandom() const { return m_IsRandom; }
 
         // Set methods:
+        void SetQueueId(BattlegroundQueueTypeId queueId) { m_queueId = queueId; }
         void SetRandomTypeID(BattlegroundTypeId TypeID) { m_RandomTypeID = TypeID; }
         //here we can count minlevel and maxlevel for players
         void SetBracket(PVPDifficultyEntry const* bracketEntry);
@@ -565,6 +575,7 @@ class TC_GAME_API Battleground
 
     private:
         // Battleground
+        BattlegroundQueueTypeId m_queueId;
         BattlegroundTypeId m_RandomTypeID;
         uint32 m_InstanceID;                                // Battleground Instance's GUID!
         BattlegroundStatus m_Status;

@@ -65,6 +65,7 @@ BattlegroundEY::BattlegroundEY(BattlegroundTemplate const* battlegroundTemplate)
         m_PointOwnedByTeam[i] = EY_POINT_NO_OWNER;
         m_PointState[i] = EY_POINT_STATE_UNCONTROLLED;
         m_PointBarStatus[i] = BG_EY_PROGRESS_BAR_STATE_MIDDLE;
+        m_LastPointCaptureStatus[i] = BattlegroundPointCaptureStatus::Neutral;
     }
 
     for (uint8 i = 0; i < 2 * EY_POINTS_MAX; ++i)
@@ -170,6 +171,22 @@ void BattlegroundEY::AddPoints(uint32 Team, uint32 Points)
     UpdateTeamScore(team_index);
 }
 
+BattlegroundPointCaptureStatus BattlegroundEY::GetPointCaptureStatus(uint32 point) const
+{
+    if (m_PointBarStatus[point] >= BG_EY_PROGRESS_BAR_ALI_CONTROLLED)
+        return BattlegroundPointCaptureStatus::AllianceControlled;
+
+    if (m_PointBarStatus[point] <= BG_EY_PROGRESS_BAR_HORDE_CONTROLLED)
+        return BattlegroundPointCaptureStatus::HordeControlled;
+
+    if (m_CurrentPointPlayersCount[2 * point] == m_CurrentPointPlayersCount[2 * point + 1])
+        return BattlegroundPointCaptureStatus::Neutral;
+
+    return m_CurrentPointPlayersCount[2 * point] > m_CurrentPointPlayersCount[2 * point + 1]
+        ? BattlegroundPointCaptureStatus::AllianceCapturing
+        : BattlegroundPointCaptureStatus::HordeCapturing;
+}
+
 void BattlegroundEY::CheckSomeoneJoinedPoint()
 {
     GameObject* obj = NULL;
@@ -252,51 +269,62 @@ void BattlegroundEY::UpdatePointStatuses()
 {
     for (uint8 point = 0; point < EY_POINTS_MAX; ++point)
     {
-        if (m_PlayersNearPoint[point].empty())
-            continue;
-        //count new point bar status:
-        m_PointBarStatus[point] += (m_CurrentPointPlayersCount[2 * point] - m_CurrentPointPlayersCount[2 * point + 1] < BG_EY_POINT_MAX_CAPTURERS_COUNT) ? m_CurrentPointPlayersCount[2 * point] - m_CurrentPointPlayersCount[2 * point + 1] : BG_EY_POINT_MAX_CAPTURERS_COUNT;
-
-        if (m_PointBarStatus[point] > BG_EY_PROGRESS_BAR_ALI_CONTROLLED)
-            //point is fully alliance's
-            m_PointBarStatus[point] = BG_EY_PROGRESS_BAR_ALI_CONTROLLED;
-        if (m_PointBarStatus[point] < BG_EY_PROGRESS_BAR_HORDE_CONTROLLED)
-            //point is fully horde's
-            m_PointBarStatus[point] = BG_EY_PROGRESS_BAR_HORDE_CONTROLLED;
-
-        uint32 pointOwnerTeamId = 0;
-        //find which team should own this point
-        if (m_PointBarStatus[point] <= BG_EY_PROGRESS_BAR_NEUTRAL_LOW)
-            pointOwnerTeamId = HORDE;
-        else if (m_PointBarStatus[point] >= BG_EY_PROGRESS_BAR_NEUTRAL_HIGH)
-            pointOwnerTeamId = ALLIANCE;
-        else
-            pointOwnerTeamId = EY_POINT_NO_OWNER;
-
-        for (uint8 i = 0; i < m_PlayersNearPoint[point].size(); ++i)
+        if (!m_PlayersNearPoint[point].empty())
         {
-            Player* player = ObjectAccessor::FindPlayer(m_PlayersNearPoint[point][i]);
-            if (player)
+            //count new point bar status:
+            int32 pointDelta = int32(m_CurrentPointPlayersCount[2 * point]) - int32(m_CurrentPointPlayersCount[2 * point + 1]);
+            RoundToInterval<int32>(pointDelta, -BG_EY_POINT_MAX_CAPTURERS_COUNT, BG_EY_POINT_MAX_CAPTURERS_COUNT);
+            m_PointBarStatus[point] += pointDelta;
+
+            if (m_PointBarStatus[point] > BG_EY_PROGRESS_BAR_ALI_CONTROLLED)
+                //point is fully alliance's
+                m_PointBarStatus[point] = BG_EY_PROGRESS_BAR_ALI_CONTROLLED;
+            if (m_PointBarStatus[point] < BG_EY_PROGRESS_BAR_HORDE_CONTROLLED)
+                //point is fully horde's
+                m_PointBarStatus[point] = BG_EY_PROGRESS_BAR_HORDE_CONTROLLED;
+
+            uint32 pointOwnerTeamId = 0;
+            //find which team should own this point
+            if (m_PointBarStatus[point] <= BG_EY_PROGRESS_BAR_NEUTRAL_LOW)
+                pointOwnerTeamId = HORDE;
+            else if (m_PointBarStatus[point] >= BG_EY_PROGRESS_BAR_NEUTRAL_HIGH)
+                pointOwnerTeamId = ALLIANCE;
+            else
+                pointOwnerTeamId = EY_POINT_NO_OWNER;
+
+            for (uint8 i = 0; i < m_PlayersNearPoint[point].size(); ++i)
             {
-                player->SendUpdateWorldState(PROGRESS_BAR_STATUS, m_PointBarStatus[point]);
-                //if point owner changed we must evoke event!
-                if (pointOwnerTeamId != m_PointOwnedByTeam[point])
+                Player* player = ObjectAccessor::FindPlayer(m_PlayersNearPoint[point][i]);
+                if (player)
                 {
-                    //point was uncontrolled and player is from team which captured point
-                    if (m_PointState[point] == EY_POINT_STATE_UNCONTROLLED && player->GetTeam() == pointOwnerTeamId)
-                        this->EventTeamCapturedPoint(player, point);
+                    player->SendUpdateWorldState(PROGRESS_BAR_STATUS, m_PointBarStatus[point]);
+                    //if point owner changed we must evoke event!
+                    if (pointOwnerTeamId != m_PointOwnedByTeam[point])
+                    {
+                        //point was uncontrolled and player is from team which captured point
+                        if (m_PointState[point] == EY_POINT_STATE_UNCONTROLLED && player->GetTeam() == pointOwnerTeamId)
+                            this->EventTeamCapturedPoint(player, point);
 
-                    //point was under control and player isn't from team which controlled it
-                    if (m_PointState[point] == EY_POINT_UNDER_CONTROL && player->GetTeam() != m_PointOwnedByTeam[point])
-                        this->EventTeamLostPoint(player, point);
+                        //point was under control and player isn't from team which controlled it
+                        if (m_PointState[point] == EY_POINT_UNDER_CONTROL && player->GetTeam() != m_PointOwnedByTeam[point])
+                            this->EventTeamLostPoint(player, point);
+                    }
+
+                    /// @workaround The original AreaTrigger is covered by a bigger one and not triggered on client side.
+                    if (point == FEL_REAVER && m_PointOwnedByTeam[point] == player->GetTeam())
+                        if (m_FlagState && GetFlagPickerGUID() == player->GetGUID())
+                            if (player->GetDistance(2044.0f, 1729.729f, 1190.03f) < 3.0f)
+                                EventPlayerCapturedFlag(player, BG_EY_OBJECT_FLAG_FEL_REAVER);
                 }
-
-                /// @workaround The original AreaTrigger is covered by a bigger one and not triggered on client side.
-                if (point == FEL_REAVER && m_PointOwnedByTeam[point] == player->GetTeam())
-                    if (m_FlagState && GetFlagPickerGUID() == player->GetGUID())
-                        if (player->GetDistance(2044.0f, 1729.729f, 1190.03f) < 3.0f)
-                            EventPlayerCapturedFlag(player, BG_EY_OBJECT_FLAG_FEL_REAVER);
             }
+        }
+
+        BattlegroundPointCaptureStatus captureStatus = GetPointCaptureStatus(point);
+        if (m_LastPointCaptureStatus[point] != captureStatus)
+        {
+            UpdateWorldState(m_PointsIconStruct[point].WorldStateAllianceStatusBarIcon, captureStatus == BattlegroundPointCaptureStatus::AllianceControlled ? 2 : (captureStatus == BattlegroundPointCaptureStatus::AllianceCapturing ? 1 : 0));
+            UpdateWorldState(m_PointsIconStruct[point].WorldStateHordeStatusBarIcon, captureStatus == BattlegroundPointCaptureStatus::HordeControlled ? 2 : (captureStatus == BattlegroundPointCaptureStatus::HordeCapturing ? 1 : 0));
+            m_LastPointCaptureStatus[point] = captureStatus;
         }
     }
 }
@@ -818,6 +846,9 @@ void BattlegroundEY::EventPlayerCapturedFlag(Player* player, uint32 BgObjectType
     if (m_TeamPointsCount[team_id] > 0)
         AddPoints(player->GetTeam(), BG_EY_FlagPoints[m_TeamPointsCount[team_id] - 1]);
 
+    UpdateWorldState(NETHERSTORM_FLAG_STATE_HORDE, BG_EY_FLAG_STATE_ON_BASE);
+    UpdateWorldState(NETHERSTORM_FLAG_STATE_ALLIANCE, BG_EY_FLAG_STATE_ON_BASE);
+
     UpdatePlayerScore(player, SCORE_FLAG_CAPTURES, 1);
 }
 
@@ -867,14 +898,22 @@ void BattlegroundEY::FillInitialWorldStates(WorldPackets::WorldState::InitWorldS
     packet.Worldstates.emplace_back(0xAD2, 0x1);
     packet.Worldstates.emplace_back(0xAD1, 0x1);
 
-    packet.Worldstates.emplace_back(0xABE, int32(GetTeamScore(TEAM_HORDE)));
-    packet.Worldstates.emplace_back(0xABD, int32(GetTeamScore(TEAM_ALLIANCE)));
+    packet.Worldstates.emplace_back(int32(EY_HORDE_RESOURCES), int32(GetTeamScore(TEAM_HORDE)));
+    packet.Worldstates.emplace_back(int32(EY_ALLIANCE_RESOURCES), int32(GetTeamScore(TEAM_ALLIANCE)));
+    packet.Worldstates.emplace_back(int32(EY_MAX_RESOURCES), int32(BG_EY_MAX_TEAM_SCORE));
 
     packet.Worldstates.emplace_back(0xA05, 0x8E);
     packet.Worldstates.emplace_back(0xAA0, 0x0);
     packet.Worldstates.emplace_back(0xA9F, 0x0);
     packet.Worldstates.emplace_back(0xA9E, 0x0);
     packet.Worldstates.emplace_back(0xC0D, 0x17B);
+
+    for (uint8 point = 0; point < EY_POINTS_MAX; ++point)
+    {
+        BattlegroundPointCaptureStatus captureStatus = GetPointCaptureStatus(point);
+        packet.Worldstates.emplace_back(m_PointsIconStruct[point].WorldStateAllianceStatusBarIcon, captureStatus == BattlegroundPointCaptureStatus::AllianceControlled ? 2 : (captureStatus == BattlegroundPointCaptureStatus::AllianceCapturing ? 1 : 0));
+        packet.Worldstates.emplace_back(m_PointsIconStruct[point].WorldStateHordeStatusBarIcon, captureStatus == BattlegroundPointCaptureStatus::HordeControlled ? 2 : (captureStatus == BattlegroundPointCaptureStatus::HordeCapturing ? 1 : 0));
+    }
 }
 
 WorldSafeLocsEntry const* BattlegroundEY::GetClosestGraveYard(Player* player)

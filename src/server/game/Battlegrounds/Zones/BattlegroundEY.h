@@ -31,8 +31,9 @@ enum BG_EY_Misc
 
 enum BG_EY_WorldStates
 {
-    EY_ALLIANCE_RESOURCES           = 2749,
-    EY_HORDE_RESOURCES              = 2750,
+    EY_ALLIANCE_RESOURCES           = 1776,
+    EY_HORDE_RESOURCES              = 1777,
+    EY_MAX_RESOURCES                = 1780,
     EY_ALLIANCE_BASE                = 2752,
     EY_HORDE_BASE                   = 2753,
     DRAENEI_RUINS_HORDE_CONTROL     = 2733,
@@ -52,8 +53,17 @@ enum BG_EY_WorldStates
     PROGRESS_BAR_SHOW               = 2718,                 //1 init, 0 druhy send - bez messagu, 1 = controlled aliance
     NETHERSTORM_FLAG                = 2757,
     //set to 2 when flag is picked up, and to 1 if it is dropped
-    NETHERSTORM_FLAG_STATE_ALLIANCE = 2769,
-    NETHERSTORM_FLAG_STATE_HORDE    = 2770
+    NETHERSTORM_FLAG_STATE_ALLIANCE = 9808,
+    NETHERSTORM_FLAG_STATE_HORDE    = 9809,
+
+    DRAENEI_RUINS_HORDE_CONTROL_STATE       = 17362,
+    DRAENEI_RUINS_ALLIANCE_CONTROL_STATE    = 17366,
+    MAGE_TOWER_HORDE_CONTROL_STATE          = 17361,
+    MAGE_TOWER_ALLIANCE_CONTROL_STATE       = 17368,
+    FEL_REAVER_HORDE_CONTROL_STATE          = 17364,
+    FEL_REAVER_ALLIANCE_CONTROL_STATE       = 17367,
+    BLOOD_ELF_HORDE_CONTROL_STATE           = 17363,
+    BLOOD_ELF_ALLIANCE_CONTROL_STATE        = 17365,
 };
 
 enum BG_EY_ProgressBarConsts
@@ -118,7 +128,7 @@ enum EYBattlegroundGaveyards
 {
     EY_GRAVEYARD_MAIN_ALLIANCE     = 1103,
     EY_GRAVEYARD_MAIN_HORDE        = 1104,
-    EY_GRAVEYARD_FEL_REAVER       = 1105,
+    EY_GRAVEYARD_FEL_REAVER        = 1105,
     EY_GRAVEYARD_BLOOD_ELF         = 1106,
     EY_GRAVEYARD_DRAENEI_RUINS     = 1107,
     EY_GRAVEYARD_MAGE_TOWER        = 1108
@@ -137,19 +147,19 @@ enum EYBattlegroundPoints
 
 enum EYBattlegroundCreaturesTypes
 {
-    EY_SPIRIT_FEL_REAVER      = 0,
+    EY_SPIRIT_FEL_REAVER       = 0,
     EY_SPIRIT_BLOOD_ELF        = 1,
     EY_SPIRIT_DRAENEI_RUINS    = 2,
     EY_SPIRIT_MAGE_TOWER       = 3,
     EY_SPIRIT_MAIN_ALLIANCE    = 4,
     EY_SPIRIT_MAIN_HORDE       = 5,
 
-    EY_TRIGGER_FEL_REAVER      = 6,
+    EY_TRIGGER_FEL_REAVER       = 6,
     EY_TRIGGER_BLOOD_ELF        = 7,
     EY_TRIGGER_DRAENEI_RUINS    = 8,
     EY_TRIGGER_MAGE_TOWER       = 9,
 
-    BG_EY_CREATURES_MAX        = 10
+    BG_EY_CREATURES_MAX         = 10
 };
 
 enum EYBattlegroundObjectTypes
@@ -283,11 +293,15 @@ enum BG_EY_BroadcastTexts
 
 struct BattlegroundEYPointIconsStruct
 {
-    BattlegroundEYPointIconsStruct(uint32 _WorldStateControlIndex, uint32 _WorldStateAllianceControlledIndex, uint32 _WorldStateHordeControlledIndex)
-        : WorldStateControlIndex(_WorldStateControlIndex), WorldStateAllianceControlledIndex(_WorldStateAllianceControlledIndex), WorldStateHordeControlledIndex(_WorldStateHordeControlledIndex) { }
+    BattlegroundEYPointIconsStruct(uint32 _WorldStateControlIndex, uint32 _WorldStateAllianceControlledIndex, uint32 _WorldStateHordeControlledIndex,
+        uint32 worldStateAllianceStatusBarIcon, uint32 worldStateHordeStatusBarIcon)
+        : WorldStateControlIndex(_WorldStateControlIndex), WorldStateAllianceControlledIndex(_WorldStateAllianceControlledIndex), WorldStateHordeControlledIndex(_WorldStateHordeControlledIndex),
+        WorldStateAllianceStatusBarIcon(worldStateAllianceStatusBarIcon), WorldStateHordeStatusBarIcon(worldStateHordeStatusBarIcon) { }
     uint32 WorldStateControlIndex;
     uint32 WorldStateAllianceControlledIndex;
     uint32 WorldStateHordeControlledIndex;
+    uint32 WorldStateAllianceStatusBarIcon;
+    uint32 WorldStateHordeStatusBarIcon;
 };
 
 Position const BG_EY_TriggerPositions[EY_POINTS_MAX] =
@@ -336,10 +350,10 @@ const uint32 BG_EY_FlagPoints[EY_POINTS_MAX] = {75, 85, 100, 500};
 //constant arrays:
 const BattlegroundEYPointIconsStruct m_PointsIconStruct[EY_POINTS_MAX] =
 {
-    BattlegroundEYPointIconsStruct(FEL_REAVER_UNCONTROL, FEL_REAVER_ALLIANCE_CONTROL, FEL_REAVER_HORDE_CONTROL),
-    BattlegroundEYPointIconsStruct(BLOOD_ELF_UNCONTROL, BLOOD_ELF_ALLIANCE_CONTROL, BLOOD_ELF_HORDE_CONTROL),
-    BattlegroundEYPointIconsStruct(DRAENEI_RUINS_UNCONTROL, DRAENEI_RUINS_ALLIANCE_CONTROL, DRAENEI_RUINS_HORDE_CONTROL),
-    BattlegroundEYPointIconsStruct(MAGE_TOWER_UNCONTROL, MAGE_TOWER_ALLIANCE_CONTROL, MAGE_TOWER_HORDE_CONTROL)
+    BattlegroundEYPointIconsStruct(FEL_REAVER_UNCONTROL, FEL_REAVER_ALLIANCE_CONTROL, FEL_REAVER_HORDE_CONTROL, FEL_REAVER_ALLIANCE_CONTROL_STATE, FEL_REAVER_HORDE_CONTROL_STATE),
+    BattlegroundEYPointIconsStruct(BLOOD_ELF_UNCONTROL, BLOOD_ELF_ALLIANCE_CONTROL, BLOOD_ELF_HORDE_CONTROL, BLOOD_ELF_ALLIANCE_CONTROL_STATE, BLOOD_ELF_HORDE_CONTROL_STATE),
+    BattlegroundEYPointIconsStruct(DRAENEI_RUINS_UNCONTROL, DRAENEI_RUINS_ALLIANCE_CONTROL, DRAENEI_RUINS_HORDE_CONTROL, DRAENEI_RUINS_ALLIANCE_CONTROL_STATE, DRAENEI_RUINS_HORDE_CONTROL_STATE),
+    BattlegroundEYPointIconsStruct(MAGE_TOWER_UNCONTROL, MAGE_TOWER_ALLIANCE_CONTROL, MAGE_TOWER_HORDE_CONTROL, MAGE_TOWER_ALLIANCE_CONTROL_STATE, MAGE_TOWER_HORDE_CONTROL_STATE)
 };
 const BattlegroundEYLosingPointStruct m_LosingPointTypes[EY_POINTS_MAX] =
 {
@@ -450,6 +464,7 @@ protected:
 
         void RemovePoint(uint32 TeamID, uint32 Points = 1) { m_TeamScores[GetTeamIndexByTeamId(TeamID)] -= Points; }
         void SetTeamPoint(uint32 TeamID, uint32 Points = 0) { m_TeamScores[GetTeamIndexByTeamId(TeamID)] = Points; }
+        BattlegroundPointCaptureStatus GetPointCaptureStatus(uint32 point) const;
 
         uint32 m_HonorScoreTics[2];
         uint32 m_TeamPointsCount[2];
@@ -466,6 +481,7 @@ protected:
         uint32 m_PointOwnedByTeam[EY_POINTS_MAX];
         uint8 m_PointState[EY_POINTS_MAX];
         int32 m_PointBarStatus[EY_POINTS_MAX];
+        BattlegroundPointCaptureStatus m_LastPointCaptureStatus[EY_POINTS_MAX];
         GuidVector m_PlayersNearPoint[EY_POINTS_MAX + 1];
         uint8 m_CurrentPointPlayersCount[2*EY_POINTS_MAX];
 
