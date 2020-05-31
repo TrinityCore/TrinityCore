@@ -149,11 +149,14 @@ void WorldPackets::Battleground::BattlemasterJoinArena::Read()
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::BattlefieldStatusHeader const& header)
 {
     data << header.Ticket;
-    data << uint64(header.QueueID);
+    data << uint32(header.QueueID.size());
     data << uint8(header.RangeMin);
     data << uint8(header.RangeMax);
     data << uint8(header.TeamSize);
     data << uint32(header.InstanceID);
+    for (uint64 queueID : header.QueueID)
+        data << uint64(queueID);
+
     data.WriteBit(header.RegisteredMatch);
     data.WriteBit(header.TournamentRules);
     data.FlushBits();

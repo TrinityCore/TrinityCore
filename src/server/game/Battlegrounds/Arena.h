@@ -48,7 +48,7 @@ enum ArenaWorldStates
 class TC_GAME_API Arena : public Battleground
 {
     protected:
-        Arena();
+        Arena(BattlegroundTemplate const* battlegroundTemplate);
 
         void AddPlayer(Player* player) override;
         void RemovePlayer(Player* /*player*/, ObjectGuid /*guid*/, uint32 /*team*/) override;

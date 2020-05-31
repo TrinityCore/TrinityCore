@@ -20,7 +20,7 @@
 
 #include "Define.h"
 #include "DatabaseEnvFwd.h"
-#include "EnumClassFlag.h"
+#include "EnumFlag.h"
 #include "ObjectGuid.h"
 #include <boost/dynamic_bitset_fwd.hpp>
 #include <map>
@@ -62,7 +62,9 @@ enum class ToyFlags : uint32
     HasFanfare  = 0x02
 };
 
-typedef std::map<uint32, EnumClassFlag<ToyFlags>> ToyBoxContainer;
+DEFINE_ENUM_FLAG(ToyFlags);
+
+typedef std::map<uint32, EnumFlag<ToyFlags>> ToyBoxContainer;
 typedef std::map<uint32, HeirloomData> HeirloomContainer;
 
 enum MountStatusFlags : uint8
@@ -132,6 +134,8 @@ public:
     // returns pair<hasAppearance, isTemporary>
     std::pair<bool, bool> HasItemAppearance(uint32 itemModifiedAppearanceId) const;
     std::unordered_set<ObjectGuid> GetItemsProvidingTemporaryAppearance(uint32 itemModifiedAppearanceId) const;
+    // returns ItemAppearance::ID, not ItemModifiedAppearance::ID
+    std::unordered_set<uint32> GetAppearanceIds() const;
 
     enum class FavoriteAppearanceState
     {

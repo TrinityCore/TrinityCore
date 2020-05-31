@@ -185,7 +185,7 @@ CASC_CSV::~CASC_CSV()
     m_szCsvFile = NULL;
 }
 
-DWORD CASC_CSV::Load(const TCHAR * szFileName)
+DWORD CASC_CSV::Load(LPCTSTR szFileName)
 {
     DWORD cbFileData = 0;
     DWORD dwErrCode = ERROR_SUCCESS;

@@ -1,0 +1,15 @@
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+
+jobs:
+  pr_labeler:
+    if: github.repository == 'TrinityCore/TrinityCore'
+    runs-on: ubuntu-latest
+    name: Pull Request Labeler
+    steps:
+    - name: Pull Request Labeler
+      id: pr-labeler
+      uses: TrinityCore/GitHub-Actions@pr-labeler-prod
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}

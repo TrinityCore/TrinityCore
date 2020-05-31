@@ -23,7 +23,7 @@
 #define EoEScriptName "instance_eye_of_eternity"
 #define DataHeader "EOE"
 
-enum InstanceData
+enum EOEInstanceData
 {
     DATA_MALYGOS_EVENT,
     MAX_ENCOUNTER,
@@ -33,7 +33,7 @@ enum InstanceData
     DATA_RESPAWN_IRIS
 };
 
-enum InstanceData64
+enum EOEInstanceData64
 {
     DATA_TRIGGER,
     DATA_MALYGOS,
@@ -44,7 +44,7 @@ enum InstanceData64
     DATA_GIFT_BOX_BUNNY_GUID
 };
 
-enum InstanceNpcs
+enum EOEInstanceNpcs
 {
     NPC_MALYGOS             = 28859,
     NPC_VORTEX_TRIGGER      = 30090,
@@ -60,7 +60,7 @@ enum InstanceNpcs
     NPC_SURGE_OF_POWER      = 30334
 };
 
-enum InstanceGameObjects
+enum EOEInstanceGameObjects
 {
     GO_NEXUS_RAID_PLATFORM      = 193070,
     GO_EXIT_PORTAL              = 193908,
@@ -72,12 +72,12 @@ enum InstanceGameObjects
     GO_HEART_OF_MAGIC_25        = 194159
 };
 
-enum InstanceEvents
+enum EOEInstanceEvents
 {
     EVENT_FOCUSING_IRIS = 20711
 };
 
-enum InstanceSpells
+enum EOEInstanceSpells
 {
     SPELL_VORTEX_4                        = 55853, // damage | used to enter to the vehicle
     SPELL_VORTEX_5                        = 56263, // damage | used to enter to the vehicle

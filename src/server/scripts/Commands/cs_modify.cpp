@@ -218,7 +218,7 @@ public:
 
         if (!pfactionid)
         {
-            uint32 factionid = target->getFaction();
+            uint32 factionid = target->GetFaction();
             uint32 flag      = target->m_unitData->Flags;
             uint64 npcflag;
             memcpy(&npcflag, target->m_unitData->NpcFlags.begin(), sizeof(uint64));
@@ -261,7 +261,7 @@ public:
 
         handler->PSendSysMessage(LANG_YOU_CHANGE_FACTION, target->GetGUID().ToString().c_str(), factionid, flag, std::to_string(npcflag).c_str(), dyflag);
 
-        target->setFaction(factionid);
+        target->SetFaction(factionid);
         target->SetUnitFlags(UnitFlags(flag));
         target->SetNpcFlags(NPCFlags(npcflag & 0xFFFFFFFF));
         target->SetNpcFlags2(NPCFlags2(npcflag >> 32));

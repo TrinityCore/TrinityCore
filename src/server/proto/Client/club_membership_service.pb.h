@@ -960,20 +960,10 @@ class TC_PROTO_API ClubMembershipService : public ServiceBase
 
   static google::protobuf::ServiceDescriptor const* descriptor();
 
-  // client methods --------------------------------------------------
-
-  void Subscribe(::bgs::protocol::club::v1::membership::SubscribeRequest const* request, std::function<void(::bgs::protocol::club::v1::membership::SubscribeResponse const*)> responseCallback);
-  void Unsubscribe(::bgs::protocol::club::v1::membership::UnsubscribeRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback);
-  void GetState(::bgs::protocol::club::v1::membership::GetStateRequest const* request, std::function<void(::bgs::protocol::club::v1::membership::GetStateResponse const*)> responseCallback);
-  void UpdateClubSharedSettings(::bgs::protocol::club::v1::membership::UpdateClubSharedSettingsRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback);
-  void GetStreamMentions(::bgs::protocol::club::v1::membership::GetStreamMentionsRequest const* request, std::function<void(::bgs::protocol::club::v1::membership::GetStreamMentionsResponse const*)> responseCallback);
-  void RemoveStreamMentions(::bgs::protocol::club::v1::membership::RemoveStreamMentionsRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback);
-  void AdvanceStreamMentionViewTime(::bgs::protocol::club::v1::membership::AdvanceStreamMentionViewTimeRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback);
-  // server methods --------------------------------------------------
-
-  void CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) override final;
+  void CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) final;
 
  protected:
+  // server methods --------------------------------------------------
   virtual uint32 HandleSubscribe(::bgs::protocol::club::v1::membership::SubscribeRequest const* request, ::bgs::protocol::club::v1::membership::SubscribeResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
   virtual uint32 HandleUnsubscribe(::bgs::protocol::club::v1::membership::UnsubscribeRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
   virtual uint32 HandleGetState(::bgs::protocol::club::v1::membership::GetStateRequest const* request, ::bgs::protocol::club::v1::membership::GetStateResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);

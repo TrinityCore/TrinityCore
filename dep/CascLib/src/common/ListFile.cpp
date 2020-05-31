@@ -121,7 +121,7 @@ static int ListFile_GetFileDataId(PLISTFILE_CACHE pCache, PDWORD PtrFileDataId)
 //-----------------------------------------------------------------------------
 // Functions for parsing an external listfile
 
-void * ListFile_OpenExternal(const TCHAR * szListFile)
+void * ListFile_OpenExternal(LPCTSTR szListFile)
 {
     PLISTFILE_CACHE pCache = NULL;
     TFileStream * pStream;

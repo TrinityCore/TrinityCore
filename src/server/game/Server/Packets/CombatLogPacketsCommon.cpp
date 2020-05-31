@@ -17,6 +17,7 @@
 
 #include "CombatLogPacketsCommon.h"
 #include "Creature.h"
+#include "Map.h"
 #include "Player.h"
 #include "Spell.h"
 #include "SpellInfo.h"
@@ -64,6 +65,7 @@ namespace WorldPackets
         bool ContentTuningParams::GenerateDataForUnits<Creature, Player>(Creature* attacker, Player* target)
         {
             CreatureTemplate const* creatureTemplate = attacker->GetCreatureTemplate();
+            CreatureLevelScaling const* creatureScaling = creatureTemplate->GetLevelScaling(attacker->GetMap()->GetDifficultyID());
 
             Type = TYPE_CREATURE_TO_PLAYER_DAMAGE;
             PlayerLevelDelta = target->m_activePlayerData->ScalingPlayerLevelDelta;
@@ -71,9 +73,9 @@ namespace WorldPackets
             TargetItemLevel = 0;
             ScalingHealthItemLevelCurveID = target->m_unitData->ScalingHealthItemLevelCurveID;
             TargetLevel = target->getLevel();
-            Expansion = creatureTemplate->RequiredExpansion;
-            TargetMinScalingLevel = uint8(creatureTemplate->levelScaling->MinLevel);
-            TargetMaxScalingLevel = uint8(creatureTemplate->levelScaling->MaxLevel);
+            Expansion = creatureTemplate->HealthScalingExpansion;
+            TargetMinScalingLevel = uint8(creatureScaling->MinLevel);
+            TargetMaxScalingLevel = uint8(creatureScaling->MaxLevel);
             TargetScalingLevelDelta = int8(attacker->m_unitData->ScalingLevelDelta);
             return true;
         }
@@ -82,6 +84,7 @@ namespace WorldPackets
         bool ContentTuningParams::GenerateDataForUnits<Player, Creature>(Player* attacker, Creature* target)
         {
             CreatureTemplate const* creatureTemplate = target->GetCreatureTemplate();
+            CreatureLevelScaling const* creatureScaling = creatureTemplate->GetLevelScaling(target->GetMap()->GetDifficultyID());
 
             Type = TYPE_PLAYER_TO_CREATURE_DAMAGE;
             PlayerLevelDelta = attacker->m_activePlayerData->ScalingPlayerLevelDelta;
@@ -89,9 +92,9 @@ namespace WorldPackets
             TargetItemLevel = 0;
             ScalingHealthItemLevelCurveID = target->m_unitData->ScalingHealthItemLevelCurveID;
             TargetLevel = target->getLevel();
-            Expansion = creatureTemplate->RequiredExpansion;
-            TargetMinScalingLevel = uint8(creatureTemplate->levelScaling->MinLevel);
-            TargetMaxScalingLevel = uint8(creatureTemplate->levelScaling->MaxLevel);
+            Expansion = creatureTemplate->HealthScalingExpansion;
+            TargetMinScalingLevel = uint8(creatureScaling->MinLevel);
+            TargetMaxScalingLevel = uint8(creatureScaling->MaxLevel);
             TargetScalingLevelDelta = int8(target->m_unitData->ScalingLevelDelta);
             return true;
         }
@@ -101,14 +104,15 @@ namespace WorldPackets
         {
             Creature* accessor = target->HasScalableLevels() ? target : attacker;
             CreatureTemplate const* creatureTemplate = accessor->GetCreatureTemplate();
+            CreatureLevelScaling const* creatureScaling = creatureTemplate->GetLevelScaling(accessor->GetMap()->GetDifficultyID());
 
             Type = TYPE_CREATURE_TO_CREATURE_DAMAGE;
             PlayerLevelDelta = 0;
             PlayerItemLevel = 0;
             TargetLevel = target->getLevel();
-            Expansion = creatureTemplate->RequiredExpansion;
-            TargetMinScalingLevel = uint8(creatureTemplate->levelScaling->MinLevel);
-            TargetMaxScalingLevel = uint8(creatureTemplate->levelScaling->MaxLevel);
+            Expansion = creatureTemplate->HealthScalingExpansion;
+            TargetMinScalingLevel = uint8(creatureScaling->MinLevel);
+            TargetMaxScalingLevel = uint8(creatureScaling->MaxLevel);
             TargetScalingLevelDelta = int8(accessor->m_unitData->ScalingLevelDelta);
             return true;
         }

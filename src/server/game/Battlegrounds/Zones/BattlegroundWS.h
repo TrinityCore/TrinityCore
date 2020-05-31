@@ -211,7 +211,7 @@ class BattlegroundWS : public Battleground
 {
     public:
         /* Construction */
-        BattlegroundWS();
+        BattlegroundWS(BattlegroundTemplate const* battlegroundTemplate);
         ~BattlegroundWS();
 
         /* inherited from BattlegroundClass */

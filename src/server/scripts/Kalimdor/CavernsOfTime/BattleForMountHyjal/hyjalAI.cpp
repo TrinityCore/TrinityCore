@@ -917,7 +917,7 @@ void hyjalAI::HideNearPos(float x, float y)
         for (std::list<Creature*>::const_iterator itr = creatures.begin(); itr != creatures.end(); ++itr)
         {
             (*itr)->SetVisible(false);
-            (*itr)->setFaction(35);//make them friendly so mobs won't attack them
+            (*itr)->SetFaction(35);//make them friendly so mobs won't attack them
         }
     }
 }
@@ -995,7 +995,7 @@ void hyjalAI::DoOverrun(uint32 faction, const uint32 diff)
                     if ((*itr) && (*itr)->IsAlive())
                     {
                         (*itr)->CastSpell(*itr, SPELL_TELEPORT_VISUAL, true);
-                        (*itr)->setFaction(35);//make them friendly so mobs won't attack them
+                        (*itr)->SetFaction(35);//make them friendly so mobs won't attack them
                         (*itr)->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                     }
                 }

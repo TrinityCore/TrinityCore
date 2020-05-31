@@ -34,7 +34,7 @@ public:
     void LoadFromDB(PreparedQueryResult objectiveResult, PreparedQueryResult criteriaResult);
     void SaveToDB(CharacterDatabaseTransaction& trans);
 
-    void ResetCriteria(CriteriaTypes type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, bool evenIfCriteriaComplete = false);
+    void ResetCriteria(CriteriaCondition condition, int32 failAsset, bool evenIfCriteriaComplete = false);
     void ResetCriteriaTree(uint32 criteriaTreeId);
 
     void SendAllData(Player const* receiver) const override;
@@ -54,7 +54,7 @@ protected:
     void SendPacket(WorldPacket const* data) const override;
 
     std::string GetOwnerInfo() const override;
-    CriteriaList const& GetCriteriaByType(CriteriaTypes type) const override;
+    CriteriaList const& GetCriteriaByType(CriteriaTypes type, uint32 asset) const override;
 
 private:
     Player* _owner;

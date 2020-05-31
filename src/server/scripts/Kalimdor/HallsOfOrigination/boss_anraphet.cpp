@@ -331,10 +331,10 @@ class npc_brann_bronzebeard_anraphet : public CreatureScript
         {
             npc_brann_bronzebeard_anraphetAI(Creature* creature) : CreatureAI(creature), _currentPoint(0), _instance(creature->GetInstanceScript()) { }
 
-            void sGossipSelect(Player* /*player*/, uint32 sender, uint32 action) override
+            bool GossipSelect(Player* /*player*/, uint32 sender, uint32 action) override
             {
                 if (_instance->GetBossState(DATA_VAULT_OF_LIGHTS) == DONE)
-                    return;
+                    return true;
 
                 if (me->GetCreatureTemplate()->GossipMenuId == sender && !action)
                 {
@@ -346,6 +346,7 @@ class npc_brann_bronzebeard_anraphet : public CreatureScript
                     Talk(BRANN_SAY_DOOR_INTRO);
                     events.ScheduleEvent(EVENT_BRANN_UNLOCK_DOOR, 7500);
                 }
+                return false;
             }
 
             void DoAction(int32 action) override
@@ -539,7 +540,7 @@ public:
             /// TODO: Remove this once we find a general rule for WorldObject::MovePosition (this spell shouldn't take the Z change into consideration)
             Unit* caster = GetCaster();
             float angle = float(rand_norm()) * static_cast<float>(2 * M_PI);
-            uint32 dist = caster->GetObjectSize() + GetSpellInfo()->GetEffect(EFFECT_0)->CalcRadius(caster) * (float)rand_norm();
+            uint32 dist = caster->GetCombatReach() + GetSpellInfo()->GetEffect(EFFECT_0)->CalcRadius(caster) * (float)rand_norm();
 
             float x = caster->GetPositionX() + dist * std::cos(angle);
             float y = caster->GetPositionY() + dist * std::sin(angle);

@@ -34,41 +34,43 @@ extern "C" {
 //
 //  X - D for Debug version, R for Release version
 //  Y - A for ANSI version, U for Unicode version
-//  Z - S for static-linked CRT library, D for multithreaded DLL CRT library
+//  Z - S for static-linked CRT library, D for dynamic CRT library (dll)
 //
-#if defined(_MSC_VER) && !defined(__CASCLIB_SELF__) && !defined(CASCLIB_NO_AUTO_LINK_LIBRARY)
 
-  #ifdef _DEBUG                                 // DEBUG VERSIONS
-    #ifndef _UNICODE
-      #ifdef _DLL
-        #pragma comment(lib, "CascLibDAD.lib")  // Debug Ansi CRT-DLL version
+#if defined(_MSC_VER) && !defined(__CASCLIB_SELF__) && !defined(CASCLIB_NO_AUTO_LINK_LIBRARY)
+  #ifndef WDK_BUILD
+    #ifdef _DEBUG                                 // DEBUG VERSIONS
+      #ifndef _UNICODE
+        #ifdef _DLL
+          #pragma comment(lib, "CascLibDAD.lib")  // Debug Ansi CRT-DLL version
+        #else
+          #pragma comment(lib, "CascLibDAS.lib")  // Debug Ansi CRT-LIB version
+        #endif
       #else
-        #pragma comment(lib, "CascLibDAS.lib")  // Debug Ansi CRT-LIB version
+        #ifdef _DLL
+          #pragma comment(lib, "CascLibDUD.lib")  // Debug Unicode CRT-DLL version
+        #else
+          #pragma comment(lib, "CascLibDUS.lib")  // Debug Unicode CRT-LIB version
+        #endif
       #endif
-    #else
-      #ifdef _DLL
-        #pragma comment(lib, "CascLibDUD.lib")  // Debug Unicode CRT-DLL version
+    #else                                         // RELEASE VERSIONS
+      #ifndef _UNICODE
+        #ifdef _DLL
+          #pragma comment(lib, "CascLibRAD.lib")  // Release Ansi CRT-DLL version
+        #else
+          #pragma comment(lib, "CascLibRAS.lib")  // Release Ansi CRT-LIB version
+        #endif
       #else
-        #pragma comment(lib, "CascLibDUS.lib")  // Debug Unicode CRT-LIB version
-      #endif
-    #endif
-  #else                                         // RELEASE VERSIONS
-    #ifndef _UNICODE
-      #ifdef _DLL
-        #pragma comment(lib, "CascLibRAD.lib")  // Release Ansi CRT-DLL version
-      #else
-        #pragma comment(lib, "CascLibRAS.lib")  // Release Ansi CRT-LIB version
-      #endif
-    #else
-      #ifdef _DLL
-        #pragma comment(lib, "CascLibRUD.lib")  // Release Unicode CRT-DLL version
-      #else
-        #pragma comment(lib, "CascLibRUS.lib")  // Release Unicode CRT-LIB version
+        #ifdef _DLL
+          #pragma comment(lib, "CascLibRUD.lib")  // Release Unicode CRT-DLL version
+        #else
+          #pragma comment(lib, "CascLibRUS.lib")  // Release Unicode CRT-LIB version
+        #endif
       #endif
     #endif
   #endif
-
 #endif
+
 //-----------------------------------------------------------------------------
 // Defines
 
@@ -159,7 +161,7 @@ typedef enum _CASC_STORAGE_INFO_CLASS
     // Returns the total file count, including the offline files
     CascStorageTotalFileCount,
 
-    
+
     CascStorageFeatures,                        // Returns the features flag
     CascStorageInstalledLocales,                // Not supported
     CascStorageProduct,                         // Gives CASC_STORAGE_PRODUCT
@@ -187,7 +189,7 @@ typedef enum _CASC_NAME_TYPE
     CascNameDataId,                             // Name created from file data id (FILE%08X.dat)
     CascNameCKey,                               // Name created as string representation of CKey
     CascNameEKey                                // Name created as string representation of EKey
-} CASC_NAME_TYPE, *PCASC_NAME_TYPE; 
+} CASC_NAME_TYPE, *PCASC_NAME_TYPE;
 
 // Structure for SFileFindFirstFile and SFileFindNextFile
 typedef struct _CASC_FIND_DATA
@@ -195,7 +197,7 @@ typedef struct _CASC_FIND_DATA
     // Full name of the found file. In case when this is CKey/EKey,
     // this will be just string representation of the key stored in 'FileKey'
     char szFileName[MAX_PATH];
-    
+
     // Content key. This is present if the CASC_FEATURE_ROOT_CKEY is present
     BYTE CKey[MD5_HASH_SIZE];
 
@@ -213,7 +215,7 @@ typedef struct _CASC_FIND_DATA
 
     // File data ID. Only valid if the storage supports file data IDs, otherwise CASC_INVALID_ID
     DWORD dwFileDataId;
-    
+
     // Locale flags. Only valid if the storage supports locale flags, otherwise CASC_INVALID_ID
     DWORD dwLocaleFlags;
 
@@ -246,7 +248,7 @@ typedef struct _CASC_STORAGE_TAGS
 
     CASC_STORAGE_TAG Tags[1];                   // Array of CASC tags
 
-} CASC_STORAGE_TAGS, *PCASC_STORAGE_TAGS; 
+} CASC_STORAGE_TAGS, *PCASC_STORAGE_TAGS;
 
 typedef struct _CASC_STORAGE_PRODUCT
 {
@@ -333,9 +335,11 @@ typedef struct _CASC_OPEN_STORAGE_ARGS
     // Any additional member from here on must be checked for availability using the ExtractVersionedArgument function.
     // Example:
     //
-    // DWORD dwMyExtraMember = 0;
-    // ExtractVersionedArgument(pArgs, offsetof(CASC_OPEN_STORAGE_ARGS, dwMyExtraMember), &dwMyExtraMember);
+    // LPCTSTR szBuildKey = NULL;
+    // ExtractVersionedArgument(pArgs, offsetof(CASC_OPEN_STORAGE_ARGS, szBuildId), &szBuildKey);
     //
+
+    LPCTSTR szBuildKey;                         // If non-null, this will specify a build key (aka MD5 of build config that is different that current online version)
 
 } CASC_OPEN_STORAGE_ARGS, *PCASC_OPEN_STORAGE_ARGS;
 
