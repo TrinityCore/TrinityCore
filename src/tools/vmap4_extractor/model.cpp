@@ -29,9 +29,8 @@
 
 extern HANDLE WorldMpq;
 
-Model::Model(std::string &filename) : filename(filename), vertices(0), indices(0)
+Model::Model(std::string &filename) : filename(filename), header(), vertices(nullptr), indices(nullptr)
 {
-    memset(&header, 0, sizeof(header));
 }
 
 bool Model::open()
@@ -147,7 +146,7 @@ void Doodad::Extract(ADT::MDDF const& doodadDef, char const* ModelInstName, uint
     // scale factor - divide by 1024. blizzard devs must be on crack, why not just use a float?
     float sc = doodadDef.Scale / 1024.0f;
 
-    char tempname[512];
+    char tempname[1036];
     sprintf(tempname, "%s/%s", szWorkDirWmo, ModelInstName);
     FILE* input = fopen(tempname, "r+b");
 
@@ -246,7 +245,7 @@ void Doodad::ExtractSet(WMODoodadData const& doodadData, ADT::MODF const& wmo, b
             }
         }
 
-        char tempname[512];
+        char tempname[1036];
         sprintf(tempname, "%s/%s", szWorkDirWmo, ModelInstName);
         FILE* input = fopen(tempname, "r+b");
         if (!input)
