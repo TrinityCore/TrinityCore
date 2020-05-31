@@ -2,8 +2,8 @@ version: 2
 jobs:
   pch_and_sql:
     docker:
-      - image: funjoker/circle-ci:4.3.4-buildpacks-disco
-      - image: circleci/mysql:5.7
+      - image: funjoker/circle-ci:4.3.4-buildpacks-focal
+      - image: circleci/mysql:8
         environment:
           MYSQL_ALLOW_EMPTY_PASSWORD: yes
           MYSQL_ROOT_PASSWORD: ''
@@ -39,7 +39,6 @@ jobs:
             mysql -h 127.0.0.1 -uroot hotfixes < sql/base/dev/hotfixes_database.sql
             cat sql/updates/world/4.3.4/*.sql | mysql -h 127.0.0.1 -uroot world
             cat sql/updates/hotfixes/4.3.4/*.sql | mysql -h 127.0.0.1 -uroot hotfixes
-            mysql -h 127.0.0.1 -uroot < sql/create/drop_mysql.sql
       - run:
           name: Build
           command: |
@@ -50,7 +49,7 @@ jobs:
             ./worldserver --version
   nopch:
     docker:
-      - image: funjoker/circle-ci:4.3.4-buildpacks-disco
+      - image: funjoker/circle-ci:4.3.4-buildpacks-focal
     steps:
       - run:
           name: Requirements
