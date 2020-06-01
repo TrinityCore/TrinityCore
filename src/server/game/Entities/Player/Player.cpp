@@ -160,6 +160,7 @@ Player::Player(WorldSession* session): Unit(true)
     m_comboPoints = 0;
 
     m_foodEmoteTimerCount = 0;
+    m_previousLiquidStatus = GetLiquidStatus();
     m_weaponChangeTimer = 0;
 
     m_zoneUpdateId = uint32(-1);
@@ -6036,6 +6037,13 @@ bool Player::UpdatePosition(float x, float y, float z, float orientation, bool t
         SetGroupUpdateFlag(GROUP_UPDATE_FLAG_POSITION);
 
     CheckAreaExploreAndOutdoor();
+
+    // Update mount capabilities
+    if (m_previousLiquidStatus != GetLiquidStatus())
+    {
+        UpdateMountCapabilities();
+        m_previousLiquidStatus = GetLiquidStatus();
+    }
 
     return true;
 }
@@ -18586,11 +18594,17 @@ void Player::UpdateMountCapabilities()
 {
     if (HasAuraType(SPELL_AURA_MOUNTED))
     {
-        for (AuraEffect* aurEff : GetAuraEffectsByType(SPELL_AURA_MOUNTED))
+        AuraEffectList mountEffects = GetAuraEffectsByType(SPELL_AURA_MOUNTED);
+        for (AuraEffect* aurEff : mountEffects)
         {
             MountCapabilityEntry const* capability = GetMountCapability(uint32(aurEff->GetMiscValueB()));
             if (!capability)
+            {
+                // No mount capabilitiy found, remove aura
+                if (Aura* aura = aurEff->GetBase())
+                    aura->Remove();
                 continue;
+            }
 
             if (capability->ID != uint32(aurEff->GetAmount()))
             {
@@ -23440,8 +23454,6 @@ void Player::SendInitialPacketsAfterAddToMap()
         if (!auraList.empty())
             auraList.front()->HandleEffect(this, AURA_EFFECT_HANDLE_SEND_FOR_CLIENT, true);
     }
-
-    UpdateMountCapabilities();
 
     if (CanFly())
         SendMovementSetCanTransitionBetweenSwimAndFly(true);

@@ -8319,7 +8319,7 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
     uint32 areaId = GetAreaId();
     uint32 ridingSkill = 5000;
     uint32 mountFlags = 0;
-    bool isSubmerged = false;
+    bool isUnderwater = false;
     bool isInWater = false;
 
     if (GetTypeId() == TYPEID_PLAYER)
@@ -8333,10 +8333,9 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
     else if (AreaTableEntry const* areaTable = sAreaTableStore.LookupEntry(areaId))
         mountFlags = areaTable->MountFlags;
 
-    LiquidData liquid;
-    ZLiquidStatus liquidStatus = GetMap()->GetLiquidStatus(GetPhaseShift(), GetPositionX(), GetPositionY(), GetPositionZ(), MAP_ALL_LIQUIDS, &liquid);
-    isSubmerged = (liquidStatus & LIQUID_MAP_UNDER_WATER) != 0 || HasUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
-    isInWater = (liquidStatus & (LIQUID_MAP_IN_WATER | LIQUID_MAP_UNDER_WATER)) != 0;
+    ZLiquidStatus liquidStatus = GetLiquidStatus();
+    isUnderwater = (liquidStatus & LIQUID_MAP_UNDER_WATER) != 0;
+    isInWater = (liquidStatus & LIQUID_MAP_IN_WATER) != 0;
 
     for (uint32 i = MAX_MOUNT_CAPABILITIES; i > 0; --i)
     {
@@ -8359,23 +8358,16 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
                 continue;
         }
 
-        if (!isSubmerged)
-        {
-            if (!isInWater)
-            {
-                // player is completely out of water
-                if (!(mountCapability->Flags & MOUNT_CAPABILITY_FLAG_GROUND))
-                    continue;
-            }
-            else if (!(mountCapability->Flags & MOUNT_CAPABILITY_FLAG_UNDERWATER))
-                continue;
-        }
-        else if (isInWater)
-        {
-            if (!(mountCapability->Flags & MOUNT_CAPABILITY_FLAG_UNDERWATER))
-                continue;
-        }
-        else if (!(mountCapability->Flags & MOUNT_CAPABILITY_FLAG_FLOAT))
+        // Do not allow underwater restricted capabilities when not underwater
+        if (!(mountCapability->Flags & MOUNT_CAPABILITY_FLAG_UNDERWATER) && isUnderwater)
+            continue;
+
+        // Do not allow water surface restricted capabilities when not on water surface
+        if (!(mountCapability->Flags & MOUNT_CAPABILITY_FLAG_FLOAT) && isInWater)
+            continue;
+
+        // Do not allow liquid restricted mounts on ground or in air
+        if (!(mountCapability->Flags & (MOUNT_CAPABILITY_FLAG_GROUND | MOUNT_CAPABILITY_FLAG_FLYING)) && !isUnderwater && !isInWater)
             continue;
 
         if (mountCapability->ReqMapID != -1 &&

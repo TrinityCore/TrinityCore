@@ -84,6 +84,7 @@ enum ItemClass : uint8;
 enum LootError : uint8;
 enum LootType : uint8;
 enum UpdateCollisionHeightReason : uint8;
+enum ZLiquidStatus : uint32;
 
 typedef std::deque<Mail*> PlayerMails;
 
@@ -2401,6 +2402,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         GuidList WhisperList;
         uint32 m_foodEmoteTimerCount;
         uint32 m_contestedPvPTimer;
+        ZLiquidStatus m_previousLiquidStatus;
 
         /*********************************************************/
         /***               BATTLEGROUND SYSTEM                 ***/
