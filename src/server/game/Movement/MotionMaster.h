@@ -168,7 +168,7 @@ class TC_GAME_API MotionMaster
         void MoveCloserAndStop(uint32 id, Unit* target, float distance);
 
         // These two movement types should only be used with creatures having landing/takeoff animations
-        void MoveLand(uint32 id, Position const& pos);
+        void MoveLand(uint32 id, Position const& pos, Optional<float> velocity = nullptr);
         void MoveTakeoff(uint32 id, Position const& pos);
 
         void MoveCharge(float x, float y, float z, float speed = SPEED_CHARGE, uint32 id = EVENT_CHARGE, bool generatePath = false);
