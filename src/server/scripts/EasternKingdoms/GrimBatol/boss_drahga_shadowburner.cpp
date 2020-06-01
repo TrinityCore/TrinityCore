@@ -206,6 +206,10 @@ class boss_drahga_shadowburner : public CreatureScript
                         valiona->SetDisableGravity(true);
                     }
                 }
+
+                // Drahga may not die before entering phase two
+                if (damage >= me->GetHealth() && events.IsInPhase(PHASE_1))
+                    damage = me->GetHealth() - 1;
             }
 
             void MovementInform(uint32 type, uint32 point) override
@@ -312,7 +316,7 @@ class npc_drahga_valiona : public CreatureScript
                         me->GetMotionMaster()->MovePoint(POINT_INTRO_2, ValionaPos2);
                         break;
                     case POINT_INTRO_2:
-                        me->GetMotionMaster()->MoveLand(POINT_LAND, LandingPos);
+                        me->GetMotionMaster()->MoveLand(POINT_LAND, LandingPos, me->GetSpeed(MOVE_RUN) * 1.75f);
                         break;
                     case POINT_LAND:
                         me->SendMovementSetSplineAnim(Movement::AnimType::ToGround);
@@ -372,6 +376,10 @@ class npc_drahga_valiona : public CreatureScript
                     }
                     _finished = true;
                 }
+
+                // Valiona must not die
+                if (damage >= me->GetHealth())
+                    damage = me->GetHealth() - 1;
             }
 
             void DoAction(int32 action) override
