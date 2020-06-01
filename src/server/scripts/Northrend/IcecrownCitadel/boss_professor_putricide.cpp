@@ -1669,7 +1669,7 @@ class spell_abomination_mutated_transformation : public SpellScript
 {
     PrepareSpellScript(spell_abomination_mutated_transformation);
 
-    void HandleResistance(DamageInfo damageInfo, uint32& resistAmount, int32& /*absorbAmount*/)
+    void HandleResistance(DamageInfo const& damageInfo, uint32& resistAmount, int32& /*absorbAmount*/)
     {
         Unit* caster = damageInfo.GetAttacker();;
         Unit* target = damageInfo.GetVictim();
@@ -1681,7 +1681,7 @@ class spell_abomination_mutated_transformation : public SpellScript
 
     void Register() override
     {
-        OnCaculateResistAbsorb += SpellOnResistAbsorbCalculateFn(spell_abomination_mutated_transformation::HandleResistance);
+        OnCalculateResistAbsorb += SpellOnResistAbsorbCalculateFn(spell_abomination_mutated_transformation::HandleResistance);
     }
 };
 

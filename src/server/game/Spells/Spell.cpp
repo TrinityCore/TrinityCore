@@ -8078,12 +8078,12 @@ std::string Spell::GetDebugInfo() const
     return sstr.str();
 }
 
-void Spell::CallScriptOnResistAbsorbCalculateHandlers(DamageInfo damageInfo, uint32& resistAmount, int32& absorbAmount)
+void Spell::CallScriptOnResistAbsorbCalculateHandlers(DamageInfo const& damageInfo, uint32& resistAmount, int32& absorbAmount)
 {
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_ON_RESIST_ABSORB_CALCULATION);
-        auto hookItrEnd = (*scritr)->OnCaculateResistAbsorb.end(), hookItr = (*scritr)->OnCaculateResistAbsorb.begin();
+        auto hookItrEnd = (*scritr)->OnCalculateResistAbsorb.end(), hookItr = (*scritr)->OnCalculateResistAbsorb.begin();
         for (; hookItr != hookItrEnd; ++hookItr)
                 hookItr->Call(*scritr, damageInfo, resistAmount, absorbAmount);
 

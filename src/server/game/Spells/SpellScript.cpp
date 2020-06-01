@@ -204,7 +204,7 @@ SpellScript::OnCalculateResistAbsorbHandler::OnCalculateResistAbsorbHandler(Spel
     pOnCalculateResistAbsorbHandlerScript = onResistAbsorbCalculateHandlerScript;
 }
 
-void SpellScript::OnCalculateResistAbsorbHandler::Call(SpellScript* spellScript, DamageInfo damageInfo, uint32& resistAmount, int32& absorbAmount)
+void SpellScript::OnCalculateResistAbsorbHandler::Call(SpellScript* spellScript, DamageInfo const& damageInfo, uint32& resistAmount, int32& absorbAmount)
 {
     return (spellScript->*pOnCalculateResistAbsorbHandlerScript)(damageInfo, resistAmount, absorbAmount);
 }

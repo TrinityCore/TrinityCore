@@ -193,7 +193,7 @@ class TC_GAME_API SpellScript : public _SpellScript
             typedef void(CLASSNAME::*SpellBeforeHitFnType)(SpellMissInfo missInfo); \
             typedef void(CLASSNAME::*SpellHitFnType)(); \
             typedef void(CLASSNAME::*SpellCastFnType)(); \
-            typedef void(CLASSNAME::*SpellOnResistAbsorbCalculateFnType)(DamageInfo damageInfo, uint32& resistAmount, int32& absorbAmount); \
+            typedef void(CLASSNAME::*SpellOnResistAbsorbCalculateFnType)(DamageInfo const& damageInfo, uint32& resistAmount, int32& absorbAmount); \
             typedef void(CLASSNAME::*SpellObjectAreaTargetSelectFnType)(std::list<WorldObject*>&); \
             typedef void(CLASSNAME::*SpellObjectTargetSelectFnType)(WorldObject*&); \
             typedef void(CLASSNAME::*SpellDestinationTargetSelectFnType)(SpellDestination&);
@@ -291,7 +291,7 @@ class TC_GAME_API SpellScript : public _SpellScript
         {
         public:
             OnCalculateResistAbsorbHandler(SpellOnResistAbsorbCalculateFnType _pOnCalculateResistAbsorbHandlerScript);
-            void Call(SpellScript* spellScript, DamageInfo damageInfo, uint32& resistAmount, int32& absorbAmount);
+            void Call(SpellScript* spellScript, DamageInfo const& damageInfo, uint32& resistAmount, int32& absorbAmount);
         private:
             SpellOnResistAbsorbCalculateFnType pOnCalculateResistAbsorbHandlerScript;
         };
@@ -302,7 +302,7 @@ class TC_GAME_API SpellScript : public _SpellScript
         class EffectHandlerFunction : public SpellScript::EffectHandler { public: EffectHandlerFunction(SpellEffectFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName) : SpellScript::EffectHandler((SpellScript::SpellEffectFnType)_pEffectHandlerScript, _effIndex, _effName) { } }; \
         class HitHandlerFunction : public SpellScript::HitHandler { public: HitHandlerFunction(SpellHitFnType _pHitHandlerScript) : SpellScript::HitHandler((SpellScript::SpellHitFnType)_pHitHandlerScript) { } }; \
         class BeforeHitHandlerFunction : public SpellScript::BeforeHitHandler { public: BeforeHitHandlerFunction(SpellBeforeHitFnType pBeforeHitHandlerScript) : SpellScript::BeforeHitHandler((SpellScript::SpellBeforeHitFnType)pBeforeHitHandlerScript) { } }; \
-        class OnCalculateResistAbsorbHandlerFunction : public SpellScript::OnCalculateResistAbsorbHandler { public: OnCalculateResistAbsorbHandlerFunction(SpellOnResistAbsorbCalculateFnType _onCaculateResistAbsorbScript) : SpellScript::OnCalculateResistAbsorbHandler((SpellScript::SpellOnResistAbsorbCalculateFnType)_onCaculateResistAbsorbScript) { } }; \
+        class OnCalculateResistAbsorbHandlerFunction : public SpellScript::OnCalculateResistAbsorbHandler { public: OnCalculateResistAbsorbHandlerFunction(SpellOnResistAbsorbCalculateFnType _onCalculateResistAbsorbScript) : SpellScript::OnCalculateResistAbsorbHandler((SpellScript::SpellOnResistAbsorbCalculateFnType)_onCalculateResistAbsorbScript) { } }; \
         class ObjectAreaTargetSelectHandlerFunction : public SpellScript::ObjectAreaTargetSelectHandler { public: ObjectAreaTargetSelectHandlerFunction(SpellObjectAreaTargetSelectFnType _pObjectAreaTargetSelectHandlerScript, uint8 _effIndex, uint16 _targetType) : SpellScript::ObjectAreaTargetSelectHandler((SpellScript::SpellObjectAreaTargetSelectFnType)_pObjectAreaTargetSelectHandlerScript, _effIndex, _targetType) { } }; \
         class ObjectTargetSelectHandlerFunction : public SpellScript::ObjectTargetSelectHandler { public: ObjectTargetSelectHandlerFunction(SpellObjectTargetSelectFnType _pObjectTargetSelectHandlerScript, uint8 _effIndex, uint16 _targetType) : SpellScript::ObjectTargetSelectHandler((SpellScript::SpellObjectTargetSelectFnType)_pObjectTargetSelectHandlerScript, _effIndex, _targetType) { } }; \
         class DestinationTargetSelectHandlerFunction : public SpellScript::DestinationTargetSelectHandler { public: DestinationTargetSelectHandlerFunction(SpellDestinationTargetSelectFnType _DestinationTargetSelectHandlerScript, uint8 _effIndex, uint16 _targetType) : SpellScript::DestinationTargetSelectHandler((SpellScript::SpellDestinationTargetSelectFnType)_DestinationTargetSelectHandlerScript, _effIndex, _targetType) { } }
@@ -343,9 +343,9 @@ class TC_GAME_API SpellScript : public _SpellScript
         HookList<CheckCastHandler> OnCheckCast;
         #define SpellCheckCastFn(F) CheckCastHandlerFunction(&F)
 
-        // example: OnCaculateResistAbsorb += SpellOnResistAbsorbCalculateFn(class::function);
-        // where function is void function(DamageInfo damageInfo, uint32& resistAmount, int32& absorbAmount)
-        HookList<OnCalculateResistAbsorbHandler> OnCaculateResistAbsorb;
+        // example: OnCalculateResistAbsorb += SpellOnResistAbsorbCalculateFn(class::function);
+        // where function is void function(DamageInfo const& damageInfo, uint32& resistAmount, int32& absorbAmount)
+        HookList<OnCalculateResistAbsorbHandler> OnCalculateResistAbsorb;
         #define SpellOnResistAbsorbCalculateFn(F) OnCalculateResistAbsorbHandlerFunction(&F)
 
         // example: OnEffect**** += SpellEffectFn(class::function, EffectIndexSpecifier, EffectNameSpecifier);
@@ -394,7 +394,7 @@ class TC_GAME_API SpellScript : public _SpellScript
         // 5. AfterCast - executed after spell missile is launched and immediate spell actions are done
         // 6. OnEffectLaunch - executed just before specified effect handler call - when spell missile is launched
         // 7. OnEffectLaunchTarget - executed just before specified effect handler call - when spell missile is launched - called for each target from spell target map
-        // 8. OnCaculateResistAbsorb - executed when damage resist/absorbs is calculated - before spell hit target
+        // 8. OnCalculateResistAbsorb - executed when damage resist/absorbs is calculated - before spell hit target
         // 9. OnEffectHit - executed just before specified effect handler call - when spell missile hits dest
         // 10. BeforeHit - executed just before spell hits a target - called for each target from spell target map
         // 11. OnEffectHitTarget - executed just before specified effect handler call - called for each target from spell target map

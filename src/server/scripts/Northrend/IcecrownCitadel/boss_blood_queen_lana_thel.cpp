@@ -867,7 +867,7 @@ class spell_blood_queen_twilight_bloodbolt : public SpellScript
 {
     PrepareSpellScript(spell_blood_queen_twilight_bloodbolt);
 
-    void HandleResistance(DamageInfo damageInfo, uint32& resistAmount, int32& /*absorbAmount*/)
+    void HandleResistance(DamageInfo const& damageInfo, uint32& resistAmount, int32& /*absorbAmount*/)
     {
         Unit* caster = damageInfo.GetAttacker();;
         Unit* target = damageInfo.GetVictim();
@@ -879,7 +879,7 @@ class spell_blood_queen_twilight_bloodbolt : public SpellScript
 
     void Register() override
     {
-        OnCaculateResistAbsorb += SpellOnResistAbsorbCalculateFn(spell_blood_queen_twilight_bloodbolt::HandleResistance);
+        OnCalculateResistAbsorb += SpellOnResistAbsorbCalculateFn(spell_blood_queen_twilight_bloodbolt::HandleResistance);
     }
 };
 
