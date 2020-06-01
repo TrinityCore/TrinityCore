@@ -431,7 +431,7 @@ class boss_theralion : public CreatureScript
                             break;
                         case EVENT_LAND:
                             events.SetPhase(PHASE_GROUND);
-                            me->GetMotionMaster()->MoveLand(POINT_LAND, TheralionLandingPos);
+                            me->GetMotionMaster()->MoveLand(POINT_LAND, TheralionLandingPos, me->GetSpeed(MOVE_RUN) * 2.67f);
                             if (Creature* valiona = instance->GetCreature(DATA_VALIONA))
                                 valiona->AI()->DoAction(ACTION_LIFTOFF);
                             break;
@@ -781,7 +781,7 @@ class boss_valiona : public CreatureScript
                             break;
                         case EVENT_LAND:
                             events.SetPhase(PHASE_GROUND);
-                            me->GetMotionMaster()->MoveLand(POINT_LAND, ValionaLandingPositions[_currentRoomSide]);
+                            me->GetMotionMaster()->MoveLand(POINT_LAND, ValionaLandingPositions[_currentRoomSide], me->GetSpeed(MOVE_RUN) * 2.67f);
                             if (Creature* theralion = instance->GetCreature(DATA_THERALION))
                                 theralion->AI()->DoAction(ACTION_LIFTOFF);
                             break;
