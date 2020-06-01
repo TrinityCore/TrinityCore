@@ -888,7 +888,7 @@ private:
 
         events.SetPhase(PHASE_THREE);
         events.ScheduleEvent(EVENT_SAY_PHASE_THREE, 14s + 700ms);
-        events.ScheduleEvent(EVENT_LAND_PHASE_THREE, 15s + 500ms, 0, PHASE_THREE);
+        events.ScheduleEvent(EVENT_PREPARE_LANDING, 15s + 500ms, 0, PHASE_THREE);
         if (Transport* elevator = GetElevator())
             elevator->SetTransportState(GO_STATE_TRANSPORT_STOPPED, TRANSPORT_STOP_FRAME_RAISED);
 
