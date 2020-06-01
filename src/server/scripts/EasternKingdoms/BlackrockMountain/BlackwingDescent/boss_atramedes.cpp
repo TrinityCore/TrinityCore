@@ -503,7 +503,7 @@ struct boss_atramedes : public BossAI
                     me->RemoveAurasDueToSpell(SPELL_SONAR_PULSE_PERIODIC_TRIGGER);
                     me->InterruptNonMeleeSpells(true);
                     summons.DespawnEntry(NPC_REVERBERATING_FLAME);
-                    me->GetMotionMaster()->MoveLand(POINT_LAND, LandPosition);
+                    me->GetMotionMaster()->MoveLand(POINT_LAND, LandPosition, me->GetSpeed(MOVE_RUN) * 3.f);
                     break;
                 case EVENT_REENGAGE_PLAYERS:
                     me->SetReactState(REACT_AGGRESSIVE);
