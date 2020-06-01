@@ -167,7 +167,8 @@ public:
             guidLow = map->GenerateLowGuid<HighGuid::GameObject>();
         }
 
-        if (!object->Create(guidLow, objectInfo->entry, map, *player, QuaternionData(), 255, GO_STATE_READY))
+        QuaternionData rotation = QuaternionData::fromEulerAnglesZYX(player->GetOrientation(), 0.f, 0.f);
+        if (!object->Create(guidLow, objectInfo->entry, map, *player, rotation, 255, GO_STATE_READY))
         {
             delete object;
             return false;
