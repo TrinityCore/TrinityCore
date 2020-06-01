@@ -282,7 +282,7 @@ struct OnyxiaChainData
     uint32 LightningSpellId;
 };
 
-std::vector<OnyxiaChainData> OnyxiaChainInfo =
+static OnyxiaChainData OnyxiaChainInfo[] =
 {
     { { -141.3331f, -224.6247f }, SPELL_CHAINS_A_STEEL, SPELL_CHAINS_A_LIGHTNING },
     { { -90.35625f, -253.4714f }, SPELL_CHAINS_B_STEEL, SPELL_CHAINS_B_LIGHTNING },
@@ -504,7 +504,7 @@ struct boss_nefarians_end : public BossAI
                     {
                         if (stalker->GetEntry() == NPC_INVISIBLE_STALKER_CATACLYSM_BOSS)
                         {
-                            for (OnyxiaChainData data : OnyxiaChainInfo)
+                            for (OnyxiaChainData const& data : OnyxiaChainInfo)
                             {
                                 if (stalker->GetExactDist2d(data.ComparisonPosition) < 1.0f)
                                 {
@@ -626,7 +626,7 @@ struct boss_nefarians_end : public BossAI
                     {
                         if (Creature* stalker = ObjectAccessor::GetCreature(*me, guid))
                             if (stalker->GetEntry() == NPC_INVISIBLE_STALKER_CATACLYSM_BOSS)
-                                for (OnyxiaChainData data : OnyxiaChainInfo)
+                                for (OnyxiaChainData const& data : OnyxiaChainInfo)
                                     if (stalker->GetExactDist2d(data.ComparisonPosition) < 1.0f)
                                         stalker->CastSpell(stalker, data.ChainSpellId);
                     }
