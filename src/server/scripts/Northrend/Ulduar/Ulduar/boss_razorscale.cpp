@@ -312,7 +312,6 @@ struct boss_razorscale : public BossAI
         _permaGround = false;
         _flyCount = 0;
         me->SetDisableGravity(true);
-        me->SetByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
     }
 
     void Reset() override
@@ -362,7 +361,6 @@ struct boss_razorscale : public BossAI
         summons.DoAction(ACTION_START_FIGHT, DummyEntryCheckPredicate());
         events.ScheduleEvent(EVENT_BERSERK, 15min);
         HandleMusic(true);
-        me->SetByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
     }
 
     void ScheduleAirPhaseEvents()
@@ -400,7 +398,6 @@ struct boss_razorscale : public BossAI
             case ACTION_START_PERMA_GROUND:
             {
                 me->SetDisableGravity(false);
-                me->RemoveByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                 me->RemoveAurasDueToSpell(SPELL_STUN_SELF);
                 Talk(EMOTE_PERMA_GROUND);
                 DoCastSelf(SPELL_WING_BUFFET);
@@ -432,7 +429,6 @@ struct boss_razorscale : public BossAI
                 break;
             case POINT_RAZORSCALE_GROUND:
                 me->SetDisableGravity(false);
-                me->RemoveByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                 if (!_permaGround)
                 {
                     DoCastSelf(SPELL_STUN_SELF, true);
@@ -628,7 +624,6 @@ struct boss_razorscale : public BossAI
                 case EVENT_RESUME_AIR_PHASE:
                 {
                     me->SetDisableGravity(true);
-                    me->SetByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                     events.SetPhase(PHASE_AIR);
                     me->SetReactState(REACT_PASSIVE);
                     Position pos = me->GetPosition();
