@@ -545,9 +545,7 @@ class npc_halfus_enslaved_dragon : public CreatureScript
                             if (me->GetEntry() != NPC_ORPHANED_EMERALD_WELP)
                             {
                                 me->SetDisableGravity(true);
-                                me->SendSetPlayHoverAnim(true);
-                                me->AddUnitMovementFlag(MOVEMENTFLAG_HOVER);
-                                me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                                me->SetHover(true);
                             }
 
                             switch (me->GetEntry())
