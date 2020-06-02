@@ -8085,7 +8085,7 @@ void Spell::CallScriptOnResistAbsorbCalculateHandlers(DamageInfo const& damageIn
         (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_ON_RESIST_ABSORB_CALCULATION);
         auto hookItrEnd = (*scritr)->OnCalculateResistAbsorb.end(), hookItr = (*scritr)->OnCalculateResistAbsorb.begin();
         for (; hookItr != hookItrEnd; ++hookItr)
-                hookItr->Call(*scritr, damageInfo, resistAmount, absorbAmount);
+            hookItr->Call(*scritr, damageInfo, resistAmount, absorbAmount);
 
         (*scritr)->_FinishScriptCall();
     }
