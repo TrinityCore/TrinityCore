@@ -434,7 +434,8 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     recvPacket >> authSession->RealmID;               // realmId from auth_database.realmlist table
     recvPacket >> authSession->DosResponse;
     recvPacket.read(authSession->Digest, 20);
-    authSession->AddonInfo.append(recvPacket.contents() + recvPacket.rpos(), recvPacket.size() - recvPacket.rpos());
+    authSession->AddonInfo.resize(recvPacket.size() - recvPacket.rpos());
+    recvPacket.read(authSession->AddonInfo.contents(), authSession->AddonInfo.size()); // .contents will throw if empty, thats what we want
 
     // Get the account information from the auth database
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO_BY_NAME);
