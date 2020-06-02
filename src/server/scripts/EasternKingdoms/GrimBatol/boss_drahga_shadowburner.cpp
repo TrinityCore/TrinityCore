@@ -290,7 +290,8 @@ class npc_drahga_valiona : public CreatureScript
             {
                 me->SetDisableGravity(true);
                 me->SetHover(true);
-                me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                // TODO: See the Pull Request.
+
                 me->SetSpeed(MOVE_FLIGHT, 4.5f);
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -319,11 +320,8 @@ class npc_drahga_valiona : public CreatureScript
                         me->GetMotionMaster()->MoveLand(POINT_LAND, LandingPos, me->GetSpeed(MOVE_RUN) * 1.75f);
                         break;
                     case POINT_LAND:
-                        me->SendMovementSetSplineAnim(Movement::AnimType::ToGround);
                         me->SetDisableGravity(false);
                         me->SetHover(false);
-                        me->SendMovementSetSplineAnim(Movement::AnimType::ToGround);
-                        me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                         me->SetReactState(REACT_AGGRESSIVE);
 
                         if (Unit* nearTarget = me->SelectNearestTarget(100.0f))
@@ -360,7 +358,6 @@ class npc_drahga_valiona : public CreatureScript
                     me->RemoveAurasDueToSpell(SPELL_RIDE_VEHICLE);
                     me->SetDisableGravity(true);
                     me->SetHover(true);
-                    me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
 
                     Position pos;
                     pos.Relocate(me);

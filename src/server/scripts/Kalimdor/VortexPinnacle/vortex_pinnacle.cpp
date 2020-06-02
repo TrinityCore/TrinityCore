@@ -226,23 +226,23 @@ struct npc_slipstream : public NullCreatureAI
         {
             switch (effect->GetSpellInfo()->Id)
             {
-            case SPELL_SLIPSTREAM_CONTROL_VEHICLE_FIRST:
-                DoCast(who, SPELL_SLIPSTREAM_SECOND);
-                break;
-            case SPELL_SLIPSTREAM_CONTROL_VEHICLE_SECOND:
-                if (_instance->GetGuidData(DATA_SLIPSTREAM_ERTAN_3) == _guid)
+                case SPELL_SLIPSTREAM_CONTROL_VEHICLE_FIRST:
+                    DoCast(who, SPELL_SLIPSTREAM_SECOND);
+                    break;
+                case SPELL_SLIPSTREAM_CONTROL_VEHICLE_SECOND:
+                    if (_instance->GetGuidData(DATA_SLIPSTREAM_ERTAN_3) == _guid)
+                        DoCast(who, SPELL_SLIPSTREAM_LAST);
+                    else
+                        DoCast(who, SPELL_SLIPSTREAM_THIRD);
+                    break;
+                case SPELL_SLIPSTREAM_CONTROL_VEHICLE_THIRD:
+                    DoCast(who, SPELL_SLIPSTREAM_FOURTH);
+                    break;
+                case SPELL_SLIPSTREAM_CONTROL_VEHICLE_FOURTH:
                     DoCast(who, SPELL_SLIPSTREAM_LAST);
-                else
-                    DoCast(who, SPELL_SLIPSTREAM_THIRD);
-                break;
-            case SPELL_SLIPSTREAM_CONTROL_VEHICLE_THIRD:
-                DoCast(who, SPELL_SLIPSTREAM_FOURTH);
-                break;
-            case SPELL_SLIPSTREAM_CONTROL_VEHICLE_FOURTH:
-                DoCast(who, SPELL_SLIPSTREAM_LAST);
-                break;
-            default:
-                break;
+                    break;
+                default:
+                    break;
             }
         }
     }
@@ -274,11 +274,11 @@ struct npc_slipstream_landing_zone : public ScriptedAI
         {
             switch (eventId)
             {
-            case EVENT_EJECT_ALL_PASSENGERS:
-                DoCast(me, SPELL_GENERIC_EJECT_ALL_PASSENGERS);
-                break;
-            default:
-                break;
+                case EVENT_EJECT_ALL_PASSENGERS:
+                    DoCast(me, SPELL_GENERIC_EJECT_ALL_PASSENGERS);
+                    break;
+                default:
+                    break;
             }
         }
     }
@@ -302,8 +302,6 @@ struct npc_vp_young_storm_dragon : public ScriptedAI
     {
         _EnterEvadeMode();
         me->SetHover(false);
-        me->SendMovementSetSplineAnim(Movement::AnimType::ToGround);
-        me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_HOVER);
         ScriptedAI::EnterEvadeMode(why);
     }
 
@@ -329,29 +327,27 @@ struct npc_vp_young_storm_dragon : public ScriptedAI
         {
             switch (eventId)
             {
-            case EVENT_TAKEOFF:
-            {
-                me->SendMovementSetSplineAnim(Movement::AnimType::ToFly);
-                me->SetHover(true);
-                me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_HOVER);
-                _events.ScheduleEvent(EVENT_ATTACK, 3s);
-                break;
-            }
-            case EVENT_ATTACK:
-                me->SetReactState(REACT_AGGRESSIVE);
-                _events.RescheduleEvent(EVENT_CHILLING_BLAST, 14s);
-                _events.RescheduleEvent(EVENT_HEALING_WELL, 15s);
-                break;
-            case EVENT_CHILLING_BLAST:
-                DoCastVictim(SPELL_CHILLING_BLAST);
-                _events.Repeat(14s);
-                break;
-            case EVENT_HEALING_WELL:
-                DoCast(me, SPELL_HEALING_WELL);
-                _events.Repeat(15s);
-                break;
-            default:
-                break;
+                case EVENT_TAKEOFF:
+                {
+                    me->SetHover(true);
+                    _events.ScheduleEvent(EVENT_ATTACK, 3s);
+                    break;
+                }
+                case EVENT_ATTACK:
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    _events.RescheduleEvent(EVENT_CHILLING_BLAST, 14s);
+                    _events.RescheduleEvent(EVENT_HEALING_WELL, 15s);
+                    break;
+                case EVENT_CHILLING_BLAST:
+                    DoCastVictim(SPELL_CHILLING_BLAST);
+                    _events.Repeat(14s);
+                    break;
+                case EVENT_HEALING_WELL:
+                    DoCast(me, SPELL_HEALING_WELL);
+                    _events.Repeat(15s);
+                    break;
+                default:
+                    break;
             }
         }
 

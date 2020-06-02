@@ -319,7 +319,6 @@ class instance_blackwing_descent : public InstanceMapScript
                             atramedes->SetDisableGravity(true);
                             atramedes->SetReactState(REACT_PASSIVE);
                             atramedes->SendSetPlayHoverAnim(true);
-                            atramedes->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_HOVER);
                             atramedes->AI()->DoAction(ACTION_START_ATRAMEDES_INTRO);
                         }
 

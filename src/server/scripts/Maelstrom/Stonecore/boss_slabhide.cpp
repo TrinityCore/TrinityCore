@@ -129,7 +129,6 @@ class boss_slabhide : public CreatureScript
                 {
                     me->SetCanFly(false);
                     me->SetDisableGravity(false);
-                    me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                 }
                 else
                 {
@@ -137,7 +136,6 @@ class boss_slabhide : public CreatureScript
                     me->setActive(true);
                     me->SetCanFly(true);
                     me->SetDisableGravity(true);
-                    me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                     me->SetReactState(REACT_PASSIVE);
                     events.SetPhase(PHASE_INTRO);
                 }
@@ -204,7 +202,6 @@ class boss_slabhide : public CreatureScript
                     case POINT_SLABHIDE_INTRO_LAND:
                         me->SetCanFly(false);
                         me->SetDisableGravity(false);
-                        me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                         me->SetHover(false);
                         me->SetHomePosition(SlabhideIntroLandPos);
                         me->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
@@ -215,7 +212,6 @@ class boss_slabhide : public CreatureScript
                         _isFlying = true;
                         me->SetCanFly(true);
                         me->SetDisableGravity(true);
-                        me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                         me->SetHover(true);
                         me->GetMotionMaster()->MoveTakeoff(POINT_SLABHIDE_IN_AIR, SlabhideInAirPos);
                         break;
@@ -226,7 +222,6 @@ class boss_slabhide : public CreatureScript
                         _isFlying = false;
                         me->SetCanFly(false);
                         me->SetDisableGravity(false);
-                        me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                         me->SetHover(false);
                         DoCast(me, SPELL_COOLDOWN_5S);
                         events.ScheduleEvent(EVENT_ATTACK, Seconds(1) + Milliseconds(200));

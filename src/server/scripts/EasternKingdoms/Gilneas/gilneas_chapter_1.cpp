@@ -732,8 +732,8 @@ struct npc_gilnean_crow : public PassiveAI
             switch (eventId)
             {
                 case EVENT_APPLY_HOVER_BYTES:
-                    me->RemoveByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_STAND_STATE, UNIT_BYTE1_FLAG_ALWAYS_STAND);
-                    me->SetByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_UNK_3);
+                    me->SetStandState(UNIT_STAND_STATE_SIT);
+                    me->SetAnimationTier(AnimationTier::Submerged);
                     _events.ScheduleEvent(EVENT_FLY_AWAY_1, 1s);
                     break;
                 case EVENT_FLY_AWAY_1:

@@ -22,6 +22,8 @@
 #include "MoveSplineInitArgs.h"
 #include <G3D/Vector3.h>
 
+enum class AnimationTier : uint8;
+
 namespace Movement
 {
     struct Location : public Vector3
@@ -124,6 +126,9 @@ namespace Movement
         Vector3 CurrentDestination() const { return Initialized() ? spline.getPoint(point_Idx + 1) : Vector3(); }
         int32 currentPathIdx() const;
         bool HasStarted() const { return time_passed > 0; }
+
+        bool HasAnimation() const { return splineflags.animation; }
+        AnimationTier GetAnimation() const { return static_cast<AnimationTier>(splineflags.animId); }
 
         bool onTransport;
         std::string ToString() const;

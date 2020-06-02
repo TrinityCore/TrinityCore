@@ -1355,10 +1355,8 @@ struct npc_madness_of_deathwing_thrall : public ScriptedAI
                 break;
             case ACTION_FIRE_DRAGON_SOUL:
                 _events.Reset();
-                me->SendMovementSetSplineAnim(Movement::AnimType::FlyToGround);
                 me->SetDisableGravity(true);
                 me->SendSetPlayHoverAnim(true);
-                me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                 DoCastAOE(SPELL_FIRE_DRAGON_SOUL_ASPECTS);
                 DoCastAOE(SPELL_TRIGGER_ASPECT_YELL);
                 DoCastSelf(SPELL_ASTRAL_RECALL_OUTRO);
@@ -1394,9 +1392,7 @@ struct npc_madness_of_deathwing_thrall : public ScriptedAI
                     break;
                 case EVENT_PLAY_MOVIE:
                     DoCastAOE(SPELL_PLAY_MOVIE);
-                    me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                     me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                    me->SendMovementSetSplineAnim(Movement::AnimType::ToGround);
                     me->SendSetPlayHoverAnim(false);
                     me->SetDisableGravity(false);
 
@@ -2184,14 +2180,14 @@ class spell_madness_of_deathwing_concentration : public AuraScript
                 if (creature->IsAIEnabled)
                     creature->AI()->SetGUID(GetTarget()->GetGUID(), DATA_FOCUSED_LIMB);
 
-        GetTarget()->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+        GetTarget()->SetDisableGravity(true);
         for (uint8 i = 0; i < 2; ++i)
             GetTarget()->CastSpell(GetTarget(), SPELL_SUMMON_COSMETIC_TENTACLE);
     }
 
     void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        GetTarget()->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+        GetTarget()->SetDisableGravity(false);
     }
 
     void Register() override

@@ -407,7 +407,7 @@ struct boss_nefarians_end : public BossAI
         else
         {
             me->AddUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
-            me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+            me->SetAnimationTier(AnimationTier::Fly);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
             me->GetMotionMaster()->MoveCyclicPath(NefarianCyclicRespawnPath, CyclicRespawnPathPoints, false, true, 14.0f);
             DoCastSelf(SPELL_INTRO_5A_START_FIGHT_PROC);
@@ -634,10 +634,8 @@ struct boss_nefarians_end : public BossAI
                 case EVENT_REMOVE_TRANSFORM_AURA:
                     me->RemoveAurasDueToSpell(SPELL_INTRO_2_STALKER_TRANSFORM);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    me->SendMovementSetSplineAnim(Movement::AnimType::FlyToGround);
-                    me->SetUnitMovementFlags(MOVEMENTFLAG_DISABLE_GRAVITY);
+                    me->SetDisableGravity(true);
                     me->SendSetPlayHoverAnim(true);
-                    me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                     events.ScheduleEvent(EVENT_LIFT_OFF, 2s, 0, PHASE_ONE);
                     break;
                 case EVENT_LIFT_OFF:
@@ -664,8 +662,6 @@ struct boss_nefarians_end : public BossAI
                 case EVENT_LANDED:
                     me->SetDisableGravity(false);
                     me->SendSetPlayHoverAnim(false);
-                    me->SendMovementSetSplineAnim(Movement::AnimType::ToGround);
-                    me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
 
                     if (events.IsInPhase(PHASE_ONE))
                     {
@@ -735,9 +731,7 @@ struct boss_nefarians_end : public BossAI
                     DoCastSelf(SPELL_NEFARIAN_PHASE_2_HEALTH_AURA);
                     me->SetDisableGravity(true);
                     me->SendSetPlayHoverAnim(true);
-                    me->SendMovementSetSplineAnim(Movement::AnimType::FlyToGround);
                     me->GetMotionMaster()->MovePoint(POINT_NONE, NefarianElevatorLiftOffPosition);
-                    me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                     events.ScheduleEvent(EVENT_SUMMON_CHROMATIC_PROTOTYPES, 400ms, 0, PHASE_TWO);
                     events.ScheduleEvent(EVENT_LOWER_ELEVATOR, 800ms, 0, PHASE_TWO);
                     events.ScheduleEvent(EVENT_SAY_PHASE_TWO, 4s + 800ms, 0, PHASE_TWO);

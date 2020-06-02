@@ -77,13 +77,14 @@ enum UnitBytes2Offsets : uint8
     UNIT_BYTES_2_OFFSET_SHAPESHIFT_FORM = 3,
 };
 
-// byte flags value (UNIT_FIELD_BYTES_1, 3)
-enum UnitBytes1_Flags : uint8
+// UNIT_FIELD_BYTES_1 (UNIT_BYTES_1_OFFSET_ANIM_TIER)
+enum class AnimationTier : uint8
 {
-    UNIT_BYTE1_FLAG_ALWAYS_STAND    = 0x01,
-    UNIT_BYTE1_FLAG_HOVER           = 0x02,
-    UNIT_BYTE1_FLAG_UNK_3           = 0x04,
-    UNIT_BYTE1_FLAG_ALL             = 0xFF
+    Ground = 0,
+    Swim = 1,
+    Hover = 2,
+    Fly = 3,
+    Submerged = 4,
 };
 
 // low byte (0 from 0..3) of UNIT_FIELD_BYTES_2

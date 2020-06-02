@@ -346,7 +346,7 @@ void MotionMaster::MoveLand(uint32 id, Position const& pos, Optional<float> velo
     init.MoveTo(PositionToVector3(pos), false);
     init.SetSmooth();
     init.SetFly();
-    init.SetAnimation(Movement::ToGround);
+    init.SetAnimation(AnimationTier::Ground);
     if (velocity)
         init.SetVelocity(velocity.get());
     Mutate(new GenericMovementGenerator(std::move(init), EFFECT_MOTION_TYPE, id), MOTION_SLOT_ACTIVE);
@@ -360,7 +360,7 @@ void MotionMaster::MoveTakeoff(uint32 id, Position const& pos)
     init.MoveTo(PositionToVector3(pos), false);
     init.SetSmooth();
     init.SetFly();
-    init.SetAnimation(Movement::ToFly);
+    init.SetAnimation(AnimationTier::Hover);
     Mutate(new GenericMovementGenerator(std::move(init), EFFECT_MOTION_TYPE, id), MOTION_SLOT_ACTIVE);
 }
 
@@ -482,7 +482,7 @@ void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool 
     {
         init.SetFly();
         init.SetCyclic();
-        init.SetAnimation(Movement::ToFly);
+        init.SetAnimation(AnimationTier::Hover);
         init.SetUncompressed();
     }
     else

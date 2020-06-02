@@ -604,7 +604,12 @@ void Unit::UpdateSplineMovement(uint32 t_diff)
     }
 
     if (arrived)
+    {
         DisableSpline();
+
+        if (movespline->HasAnimation())
+            SetAnimationTier(movespline->GetAnimation());
+    }
 
     UpdateSplinePosition();
 }
@@ -11212,6 +11217,14 @@ bool Unit::IsPolymorphed() const
     return spellInfo->GetSpellSpecific() == SPELL_SPECIFIC_MAGE_POLYMORPH;
 }
 
+void Unit::SetAnimationTier(AnimationTier tier, bool immediate /* = true */)
+{
+    SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, static_cast<uint8>(tier));
+
+    if (immediate)
+        SendMovementSetSplineAnim(tier);
+}
+
 void Unit::RecalculateObjectScale()
 {
     int32 scaleAuras = GetTotalAuraModifier(SPELL_AURA_MOD_SCALE) + GetTotalAuraModifier(SPELL_AURA_MOD_SCALE_2);
@@ -14365,7 +14378,7 @@ bool Unit::SetWalk(bool enable)
     return true;
 }
 
-bool Unit::SetDisableGravity(bool disable, bool packetOnly /*= false*/)
+bool Unit::SetDisableGravity(bool disable, bool packetOnly /*= false*/, bool updateAnimationTier /*= true*/)
 {
     if (!packetOnly)
     {
@@ -14390,6 +14403,16 @@ bool Unit::SetDisableGravity(bool disable, bool packetOnly /*= false*/)
         Movement::PacketSender(this, SMSG_SPLINE_MOVE_GRAVITY_DISABLE, SMSG_MOVE_GRAVITY_DISABLE).Send();
     else
         Movement::PacketSender(this, SMSG_SPLINE_MOVE_GRAVITY_ENABLE, SMSG_MOVE_GRAVITY_ENABLE).Send();
+
+    if (updateAnimationTier && IsAlive() && IsCreature())
+    {
+        if (IsGravityDisabled())
+            SetAnimationTier(AnimationTier::Fly);
+        else if (IsHovering())
+            SetAnimationTier(AnimationTier::Hover);
+        else
+            SetAnimationTier(AnimationTier::Ground);
+    }
 
     return true;
 }
@@ -14508,7 +14531,7 @@ bool Unit::SetFeatherFall(bool enable, bool packetOnly /*= false */)
     return true;
 }
 
-bool Unit::SetHover(bool enable, bool packetOnly /*= false*/)
+bool Unit::SetHover(bool enable, bool packetOnly /*= false*/, bool updateAnimationTier /*= true*/)
 {
     if (!packetOnly)
     {
@@ -14542,6 +14565,16 @@ bool Unit::SetHover(bool enable, bool packetOnly /*= false*/)
     else
         Movement::PacketSender(this, SMSG_SPLINE_MOVE_UNSET_HOVER, SMSG_MOVE_UNSET_HOVER).Send();
 
+    if (updateAnimationTier && IsAlive() && IsCreature())
+    {
+        if (IsGravityDisabled())
+            SetAnimationTier(AnimationTier::Fly);
+        else if (IsHovering())
+            SetAnimationTier(AnimationTier::Hover);
+        else
+            SetAnimationTier(AnimationTier::Ground);
+    }
+
     SendSetPlayHoverAnim(enable);
 
     return true;
@@ -14573,7 +14606,7 @@ void Unit::SendSetPlayHoverAnim(bool enable)
     SendMessageToSet(&data, true);
 }
 
-void Unit::SendMovementSetSplineAnim(Movement::AnimType anim)
+void Unit::SendMovementSetSplineAnim(AnimationTier anim)
 {
     WorldPacket data(SMSG_SPLINE_MOVE_SET_ANIM, 8 + 4);
     data << GetPackGUID();

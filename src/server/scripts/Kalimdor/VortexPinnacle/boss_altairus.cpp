@@ -104,7 +104,6 @@ struct boss_altairus : public BossAI
     boss_altairus(Creature* creature) : BossAI(creature, DATA_ALTAIRUS)
     {
         me->SetHover(true);
-        me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
     }
 
     void JustEngagedWith(Unit* /*target*/) override

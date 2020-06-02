@@ -286,7 +286,7 @@ class boss_theralion : public CreatureScript
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                 me->SendSetPlayHoverAnim(false);
                 me->SetDisableGravity(false);
-                me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+
                 summons.DespawnAll();
                 _DespawnAtEvade();
             }
@@ -323,7 +323,6 @@ class boss_theralion : public CreatureScript
                         me->PlayOneShotAnimKitId(ANIM_KIT_LIFTOFF);
                         me->SetDisableGravity(true);
                         me->SendSetPlayHoverAnim(true);
-                        me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                         _dazzlingDestructionCount = 0;
                         events.SetPhase(PHASE_AIR);
                         events.CancelEvent(EVENT_FABULOUS_FLAMES);
@@ -368,7 +367,6 @@ class boss_theralion : public CreatureScript
                     case POINT_LAND:
                         me->SetDisableGravity(false);
                         me->SendSetPlayHoverAnim(false);
-                        me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                         events.ScheduleEvent(EVENT_ATTACK_PLAYERS, Seconds(2));
                         break;
                     default:
@@ -551,7 +549,6 @@ class boss_valiona : public CreatureScript
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                 me->SendSetPlayHoverAnim(false);
                 me->SetDisableGravity(false);
-                me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                 summons.DespawnAll();
                 _DespawnAtEvade();
             }
@@ -591,7 +588,6 @@ class boss_valiona : public CreatureScript
                         me->PlayOneShotAnimKitId(ANIM_KIT_LIFTOFF);
                         me->SetDisableGravity(true);
                         me->SendSetPlayHoverAnim(true);
-                        me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                         _deepBreathCount = 0;
                         events.ScheduleEvent(EVENT_FLY_TO_DESTINATION, Seconds(1));
                         events.ScheduleEvent(EVENT_DEEP_BREATH, Minutes(1) + Seconds(25) + Milliseconds(100));
@@ -648,7 +644,6 @@ class boss_valiona : public CreatureScript
                     case POINT_LAND:
                         me->SetDisableGravity(false);
                         me->SendSetPlayHoverAnim(false);
-                        me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                         events.ScheduleEvent(EVENT_ATTACK_PLAYERS, Seconds(2));
                         events.ScheduleEvent(EVENT_BLACKOUT, Seconds(10) + Milliseconds(500));
                         events.ScheduleEvent(EVENT_DEVOURING_FLAMES, Seconds(25));

@@ -362,12 +362,10 @@ struct boss_atramedes : public BossAI
             case POINT_LAND_INTRO:
                 me->SetDisableGravity(false);
                 me->SendSetPlayHoverAnim(false);
-                me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_HOVER);
                 me->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
                 me->SetReactState(REACT_AGGRESSIVE);
                 break;
             case POINT_LIFTOFF:
-                me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_HOVER);
                 me->SetDisableGravity(true);
                 Talk(SAY_FLIGHT_PHASE);
                 DoCastSelf(SPELL_SONAR_PULSE_TRIGGER);
@@ -375,7 +373,6 @@ struct boss_atramedes : public BossAI
                 events.ScheduleEvent(EVENT_LAND, 31s, 0, PHASE_AIR);
                 break;
             case POINT_LAND:
-                me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_HOVER);
                 me->SetDisableGravity(false);
                 me->SendSetPlayHoverAnim(false);
                 events.SetPhase(PHASE_GROUND);
