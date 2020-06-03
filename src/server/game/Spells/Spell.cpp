@@ -7484,13 +7484,14 @@ void Spell::HandleLaunchPhase()
 
     PrepareTargetProcessing();
 
+    bool ammoTaken = false;
+
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
         float multiplier = 1.0f;
         if (m_applyMultiplierMask & (1 << i))
             multiplier = m_spellInfo->Effects[i].CalcDamageMultiplier(m_originalCaster, this);
 
-        bool ammoTaken = false;
         for (TargetInfo& target : m_UniqueTargetInfo)
         {
             uint32 mask = target.EffectMask;
