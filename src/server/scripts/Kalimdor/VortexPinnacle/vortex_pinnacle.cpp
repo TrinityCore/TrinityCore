@@ -40,13 +40,13 @@ enum Spells
 {
     // Lurking Tempest
     SPELL_LIGHTNING_BOLT                = 89105,
-    SPELL_LURK                          = 85467, // dummy aura while not playing dead
-    SPELL_LURK_SEARCH                   = 85294, // periodically triggers either SPELL_LURK_CHECK or SPELL_FEIGN_DEATH_CHECK
-    SPELL_LURK_CHECK                    = 85291,
+    SPELL_LURK                          = 85467,
+    SPELL_LURK_SEARCH_PERIODIC          = 85294,
+    SPELL_LURK_SEARCH_FACING_PLAYERS    = 85291,
+    SPELL_LURK_SEARCH_DEATH_CHECK       = 86493,
+    SPELL_LURK_SEARCH_SELECT_TARGET     = 86456,
+    SPELL_LURK_RESSURECT                = 85281,
     SPELL_FEIGN_DEATH                   = 85267,
-    SPELL_FEIGN_DEATH_CHECK             = 86493,
-    SPELL_LURK_RESSURECT                = 85281, // 1250 ms duration, on remove SPELL_LURK (85467) is cast
-    SPELL_LURK_FIND_VICTIM              = 86456,
 
     // Young Storm Dragon
     SPELL_HEALING_WELL                  = 88201,
@@ -104,30 +104,17 @@ enum Points
 //       SummonGroundingFieldPrism() void (instance_vortex_pinnacle.cpp), same like Slipstream which acts just fine.
 
 // 45704 - Lurking Tempest
-struct npc_lurking_tempest : public ScriptedAI
+struct npc_lurking_tempest : public NullCreatureAI
 {
-    npc_lurking_tempest(Creature* creature) : ScriptedAI(creature), _summonedByErtan(false) { }
-
-    void Reset() override
+    npc_lurking_tempest(Creature* creature) : NullCreatureAI(creature)
     {
-        SetCombatMovement(false);
-        DoCast(me, SPELL_LURK);
+        me->setRegeneratingHealth(false);
     }
 
-    void IsSummonedBy(Unit* /*summoner*/) override
+    void JustAppeared() override
     {
-        _summonedByErtan = true;
-    }
-
-    void MoveInLineOfSight(Unit* who) override
-    {
-        if (!me->IsInCombat() && me->IsWithinDist(who, _summonedByErtan ? 100.0f : 45.0f) && me->IsValidAttackTarget(who))
-            AttackStart(who);
-    }
-
-    void JustEngagedWith(Unit* /*target*/) override
-    {
-        DoCast(me, SPELL_LURK_SEARCH);
+        DoCastSelf(SPELL_LURK);
+        DoCastSelf(SPELL_LURK_SEARCH_PERIODIC);
     }
 
     void SpellHit(Unit* /*unit*/, SpellInfo const* spellInfo) override
@@ -135,25 +122,6 @@ struct npc_lurking_tempest : public ScriptedAI
         if (spellInfo->Id == SPELL_FEIGN_DEATH)
             Talk(SAY_FEIGN_DEATH);
     }
-
-    void UpdateAI(uint32 /*diff*/) override
-    {
-        if (!me->HasAura(SPELL_LURK) || !UpdateVictim())
-            return;
-
-        // Just stop combat when target is far away.
-        if (!_summonedByErtan && !me->IsWithinDistInMap(me->GetVictim(), 45.0f))
-        {
-            me->DeleteThreatList();
-            me->CombatStop(true);
-            return;
-        }
-
-        DoSpellAttackIfReady(SPELL_LIGHTNING_BOLT);
-    }
-
-private:
-    bool _summonedByErtan; // Is it summoned by Grand Vizier Ertan?
 };
 
 struct npc_vp_howling_gale : public NullCreatureAI
@@ -507,108 +475,122 @@ struct npc_vp_catch_fall : public NullCreatureAI
 };
 
 // 85294 - Lurk Search
-class spell_lurk_search : public AuraScript
+class spell_vp_lurk_search_periodic : public AuraScript
 {
-    PrepareAuraScript(spell_lurk_search);
+    PrepareAuraScript(spell_vp_lurk_search_periodic);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
             {
-                SPELL_LURK_CHECK,
-                SPELL_FEIGN_DEATH_CHECK
+                SPELL_LURK_SEARCH_FACING_PLAYERS,
+                SPELL_LURK_SEARCH_SELECT_TARGET,
+                SPELL_LURK_SEARCH_DEATH_CHECK
             });
     }
 
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
-        Creature* owner = GetOwner()->ToCreature();
-        if (!owner)
-            return;
-
-        if (owner->HasAura(SPELL_LURK))
+        Unit* target = GetTarget();
+        if (!target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29))
         {
-            if (owner->IsInCombat())
-                owner->CastSpell(owner, SPELL_LURK_CHECK, true);
+            target->CastSpell(target, SPELL_LURK_SEARCH_FACING_PLAYERS, true);
+            target->CastSpell(target, SPELL_LURK_SEARCH_SELECT_TARGET, true);
         }
-        else if (owner->HasAura(SPELL_FEIGN_DEATH))
-            owner->CastSpell(owner, SPELL_FEIGN_DEATH_CHECK, true);
+        else
+            target->CastSpell(target, SPELL_LURK_SEARCH_DEATH_CHECK, true);
+
+        target->DeleteThreatList();
+        target->ClearInCombat();
     }
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_lurk_search::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_vp_lurk_search_periodic::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
-// 85291 - Lurk Search (triggers Feign Death)
-// 86493 - Lurk Search (triggers Lurk Ressurect)
-class PlayerOrPetOrientationCheck
+class spell_vp_lurk_search : public SpellScript
 {
-public:
-    PlayerOrPetOrientationCheck(Unit* caster) : caster(caster) { }
-
-    bool operator()(WorldObject* object)
-    {
-        return (!object->ToUnit()->IsCharmedOwnedByPlayerOrPlayer() || !object->isInFront(caster, 2.5f));
-    }
-
-private:
-    Unit* caster;
-};
-
-class spell_lurk_search_check : public SpellScript
-{
-    PrepareSpellScript(spell_lurk_search_check);
+    PrepareSpellScript(spell_vp_lurk_search);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
             {
-                SPELL_FEIGN_DEATH,
-                SPELL_LURK_RESSURECT
+                SPELL_LURK_SEARCH_FACING_PLAYERS,
+                SPELL_LURK_SEARCH_DEATH_CHECK
             });
     }
 
-    void FilterTargets(std::list<WorldObject*>& unitList)
+    void FilterTargets(std::list<WorldObject*>& targets)
     {
-        unitList.remove_if(PlayerOrPetOrientationCheck(GetCaster()));
-        countFacingUnits = unitList.size();
-    }
+        if (targets.empty())
+            return;
 
-    void OnLaunch(SpellEffIndex /*effIndex*/)
-    {
         Unit* caster = GetCaster();
 
         switch (GetSpellInfo()->Id)
         {
-            case SPELL_LURK_CHECK:
-                if (countFacingUnits && !caster->HasAura(SPELL_FEIGN_DEATH))
-                    caster->CastSpell(caster, SPELL_FEIGN_DEATH, true);
+            case SPELL_LURK_SEARCH_FACING_PLAYERS:
+                targets.remove_if([caster](WorldObject const* target)->bool
+                {
+                    return !target->HasInArc(float(M_PI), caster);
+                });
+
+                if (!caster->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29))
+                    if (!targets.empty() && GetSpellInfo()->Id == SPELL_LURK_SEARCH_FACING_PLAYERS)
+                        caster->CastSpell(caster, SPELL_FEIGN_DEATH);
                 break;
-            case SPELL_FEIGN_DEATH_CHECK:
-                if (!countFacingUnits)
-                    caster->CastSpell(caster, SPELL_LURK_RESSURECT, true);
+            case SPELL_LURK_SEARCH_DEATH_CHECK:
+                targets.remove_if([caster](WorldObject const* target)->bool
+                {
+                    return target->HasInArc(float(M_PI), caster);
+                });
+
+                if (caster->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29))
+                    if (!targets.empty() && GetSpellInfo()->Id == SPELL_LURK_SEARCH_DEATH_CHECK && !caster->HasAura(SPELL_LURK_RESSURECT, caster->GetGUID()))
+                        caster->CastSpell(caster, SPELL_LURK_RESSURECT);
                 break;
+            case SPELL_LURK_SEARCH_SELECT_TARGET:
+            {
+                targets.remove_if([caster](WorldObject const* target)->bool
+                {
+                    return target->HasInArc(float(M_PI), caster);
+                });
+
+                if (targets.size() > 1)
+                    Trinity::Containers::RandomResize(targets, 1);
+                break;
+            }
             default:
                 break;
         }
     }
 
-    void Register() override
+    void HandleLightningBolt(SpellEffIndex /*effIndex*/)
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_lurk_search_check::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-        OnEffectLaunch += SpellEffectFn(spell_lurk_search_check::OnLaunch, EFFECT_0, SPELL_EFFECT_DUMMY);
+        if (GetSpellInfo()->Id != SPELL_LURK_SEARCH_SELECT_TARGET)
+            return;
+
+        Unit* caster = GetCaster();
+        if (!caster || caster->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        caster->CastSpell(GetHitUnit(), SPELL_LIGHTNING_BOLT);
     }
 
-private:
-    uint32 countFacingUnits = 0;
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_vp_lurk_search::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnEffectHitTarget += SpellEffectFn(spell_vp_lurk_search::HandleLightningBolt, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
 };
 
 // 85267 - Feign Death
-class spell_feign_death : public SpellScript
+class spell_vp_feign_death : public SpellScript
 {
-    PrepareSpellScript(spell_feign_death);
+    PrepareSpellScript(spell_vp_feign_death);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -617,78 +599,56 @@ class spell_feign_death : public SpellScript
 
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
-        Creature* creature = GetHitUnit()->ToCreature();
-        if (!creature)
-            return;
-
-        creature->RemoveAurasDueToSpell(SPELL_LURK);
+        GetHitUnit()->RemoveAurasDueToSpell(SPELL_LURK);
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_feign_death::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget += SpellEffectFn(spell_vp_feign_death::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+class spell_vp_feign_death_AuraScript : public AuraScript
+{
+    PrepareAuraScript(spell_vp_feign_death_AuraScript);
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectRemoveFn(spell_vp_feign_death_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_vp_feign_death_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
 // 85281 - Lurk Ressurect
-class spell_lurk_ressurect : public AuraScript
+class spell_vp_lurk_ressurect : public AuraScript
 {
-    PrepareAuraScript(spell_lurk_ressurect);
+    PrepareAuraScript(spell_vp_lurk_ressurect);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo(
-            {
-                SPELL_LURK,
-                SPELL_FEIGN_DEATH,
-                SPELL_LURK_SEARCH,
-                SPELL_LURK_FIND_VICTIM
-            });
+        return ValidateSpellInfo({ SPELL_LURK });
     }
 
-    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
-        Creature* owner = GetOwner()->ToCreature();
-        if (!owner)
-            return;
-
-        owner->RemoveAurasDueToSpell(SPELL_FEIGN_DEATH);
-        owner->RemoveAurasDueToSpell(SPELL_LURK_SEARCH);
-
-        owner->DeleteThreatList();
-        owner->CombatStop(true);
-
-        owner->CastSpell(owner, SPELL_LURK_FIND_VICTIM, true);
-    }
-
-    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        if (Creature * owner = GetOwner()->ToCreature())
-            owner->CastSpell(owner, SPELL_LURK, true);
+        Unit* target = GetTarget();
+        target->RemoveAurasDueToSpell(aurEff->GetAmount());
+        target->CastSpell(target, SPELL_LURK);
     }
 
     void Register() override
     {
-        OnEffectApply += AuraEffectApplyFn(spell_lurk_ressurect::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        OnEffectRemove += AuraEffectRemoveFn(spell_lurk_ressurect::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-    }
-};
-
-// 86456 - Lurk Search
-class spell_lurk_search_victim : public SpellScript
-{
-    PrepareSpellScript(spell_lurk_search_victim);
-
-    void HandleDummy(SpellEffIndex /*effIndex*/)
-    {
-        GetCaster()->AddThreat(GetHitUnit(), 0.0f);
-        GetCaster()->SetInCombatWith(GetHitUnit());
-        GetHitUnit()->SetInCombatWith(GetCaster());
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_lurk_search_victim::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_vp_lurk_ressurect::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -929,11 +889,10 @@ void AddSC_vortex_pinnacle()
     RegisterVortexPinnacleCreatureAI(npc_grounding_field);
     RegisterVortexPinnacleCreatureAI(npc_skyfall);
     RegisterVortexPinnacleCreatureAI(npc_skyfall_star);
-    RegisterAuraScript(spell_lurk_search);
-    RegisterSpellScript(spell_lurk_search_check);
-    RegisterSpellScript(spell_feign_death);
-    RegisterAuraScript(spell_lurk_ressurect);
-    RegisterSpellScript(spell_lurk_search_victim);
+    RegisterAuraScript(spell_vp_lurk_search_periodic);
+    RegisterSpellScript(spell_vp_lurk_search);
+    RegisterSpellAndAuraScriptPair(spell_vp_feign_death, spell_vp_feign_death_AuraScript);
+    RegisterAuraScript(spell_vp_lurk_ressurect);
     RegisterAuraScript(spell_vp_howling_gale);
     RegisterAuraScript(spell_vp_howling_gale_knockback);
     RegisterSpellScript(spell_slipstream);
