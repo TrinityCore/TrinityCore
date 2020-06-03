@@ -900,7 +900,6 @@ void Battleground::RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool Sen
 
     RemovePlayer(player, guid, team);                           // BG subclass specific code
 
-    BattlegroundTypeId bgTypeId = GetTypeID();
     BattlegroundQueueTypeId bgQueueTypeId = GetQueueId();
 
     if (participant) // if the player was a match participant, remove auras, calc rating, update queue
@@ -912,8 +911,6 @@ void Battleground::RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool Sen
             // if arena, remove the specific arena auras
             if (isArena())
             {
-                bgTypeId = BATTLEGROUND_AA;                   // set the bg type to all arenas (it will be used for queue refreshing)
-
                 // unsummon current and summon old pet if there was one and there isn't a current pet
                 player->RemovePet(NULL, PET_SAVE_NOT_IN_SLOT);
                 player->ResummonPetTemporaryUnSummonedIfAny();
