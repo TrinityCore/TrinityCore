@@ -5249,7 +5249,7 @@ struct BattlegroundQueueTypeId
 
     static constexpr BattlegroundQueueTypeId FromPacked(uint64 packedQueueId)
     {
-        return { packedQueueId & 0xFFFF, (packedQueueId >> 16) & 0xF, ((packedQueueId >> 20) & 1) != 0, (packedQueueId >> 24) & 0x3F };
+        return { uint16(packedQueueId & 0xFFFF), uint8((packedQueueId >> 16) & 0xF), ((packedQueueId >> 20) & 1) != 0, uint8((packedQueueId >> 24) & 0x3F) };
     }
 
     constexpr uint64 GetPacked() const
