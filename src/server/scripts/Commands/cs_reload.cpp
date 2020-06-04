@@ -434,6 +434,7 @@ public:
 
             WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CREATURE_TEMPLATE);
             stmt->setUInt32(0, entry);
+            stmt->setUInt32(1, 0);
             PreparedQueryResult result = WorldDatabase.Query(stmt);
 
             if (!result)
