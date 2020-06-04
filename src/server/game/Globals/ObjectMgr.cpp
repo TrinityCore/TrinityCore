@@ -414,24 +414,29 @@ void ObjectMgr::LoadCreatureTemplates()
     uint32 oldMSTime = getMSTime();
 
     //                                               0      1                   2                   3                   4            5            6     7           8
-    QueryResult result = WorldDatabase.Query("SELECT entry, difficulty_entry_1, difficulty_entry_2, difficulty_entry_3, KillCredit1, KillCredit2, name, femaleName, subname, "
+    //                                       "SELECT entry, difficulty_entry_1, difficulty_entry_2, difficulty_entry_3, KillCredit1, KillCredit2, name, femaleName, subname, "
     //                                        9         10        11              12        13        14                      15                 16
-                                             "TitleAlt, IconName, gossip_menu_id, minlevel, maxlevel, HealthScalingExpansion, RequiredExpansion, VignetteID, "
+    //                                       "TitleAlt, IconName, gossip_menu_id, minlevel, maxlevel, HealthScalingExpansion, RequiredExpansion, VignetteID, "
     //                                        17       18       19          20         21     22    23         24              25               26            27
-                                             "faction, npcflag, speed_walk, speed_run, scale, `rank`, dmgschool, BaseAttackTime, RangeAttackTime, BaseVariance, RangeVariance, "
+    //                                       "faction, npcflag, speed_walk, speed_run, scale, `rank`, dmgschool, BaseAttackTime, RangeAttackTime, BaseVariance, RangeVariance, "
     //                                        28          29          30           31           32            33      34             35
-                                             "unit_class, unit_flags, unit_flags2, unit_flags3, dynamicflags, family, trainer_class, type, "
+    //                                       "unit_class, unit_flags, unit_flags2, unit_flags3, dynamicflags, family, trainer_class, type, "
     //                                        36          37           38      39              40        41           42           43           44           45           46
-                                             "type_flags, type_flags2, lootid, pickpocketloot, skinloot, resistance1, resistance2, resistance3, resistance4, resistance5, resistance6, "
+    //                                       "type_flags, type_flags2, lootid, pickpocketloot, skinloot, resistance1, resistance2, resistance3, resistance4, resistance5, resistance6, "
     //                                        47      48      49      50      51      52      53      54      55         56       57       58      59
-                                             "spell1, spell2, spell3, spell4, spell5, spell6, spell7, spell8, VehicleId, mingold, maxgold, AIName, MovementType, "
+    //                                       "spell1, spell2, spell3, spell4, spell5, spell6, spell7, spell8, VehicleId, mingold, maxgold, AIName, MovementType, "
     //                                        60           61           62              63                   64            65                 66             67              68
-                                             "InhabitType, HoverHeight, HealthModifier, HealthModifierExtra, ManaModifier, ManaModifierExtra, ArmorModifier, DamageModifier, ExperienceModifier, "
+    //                                       "InhabitType, HoverHeight, HealthModifier, HealthModifierExtra, ManaModifier, ManaModifierExtra, ArmorModifier, DamageModifier, ExperienceModifier, "
     //                                        69            70          71                72           73                        74           75                    76
-                                             "RacialLeader, movementId, FadeRegionRadius, WidgetSetID, WidgetSetUnitConditionID, RegenHealth, mechanic_immune_mask, flags_extra, "
+    //                                       "RacialLeader, movementId, FadeRegionRadius, WidgetSetID, WidgetSetUnitConditionID, RegenHealth, mechanic_immune_mask, flags_extra, "
     //                                        77
-                                             "ScriptName FROM creature_template");
+    //                                       "ScriptName FROM creature_template WHERE entry = ? OR 1 = ?");
 
+    WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CREATURE_TEMPLATE);
+    stmt->setUInt32(0, 0);
+    stmt->setUInt32(1, 1);
+
+    PreparedQueryResult result = WorldDatabase.Query(stmt);
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 creature template definitions. DB table `creature_template` is empty.");
