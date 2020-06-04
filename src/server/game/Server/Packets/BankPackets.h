@@ -64,7 +64,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint32 Result;
+            uint32 Result = 0;
         };
 
         class ShowBank final : public ServerPacket

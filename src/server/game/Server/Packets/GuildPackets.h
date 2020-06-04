@@ -35,7 +35,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            uint32 GuildId;
+            uint32 GuildId = 0;
         };
 
         struct GuildInfo
@@ -59,7 +59,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint32 GuildId;
+            uint32 GuildId = 0;
             GuildInfo Info;
         };
 
