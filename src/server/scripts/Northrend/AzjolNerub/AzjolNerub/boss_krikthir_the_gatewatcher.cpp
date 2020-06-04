@@ -1009,7 +1009,7 @@ class spell_gatewatcher_web_wrap : public SpellScriptLoader
 
             void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+                if (!GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::Expired))
                     return;
 
                 if (Unit* target = GetTarget())

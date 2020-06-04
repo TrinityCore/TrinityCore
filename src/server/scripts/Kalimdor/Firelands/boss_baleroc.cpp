@@ -473,7 +473,7 @@ class spell_countdown_p2 : public SpellScriptLoader
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
+                if (GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::Expired))
                     GetTarget()->CastSpell((Unit*)nullptr, SPELL_COUNTDOWN_4, true);
                 GetTarget()->ToPlayer()->RemoveAurasDueToSpell(SPELL_COUNTDOWN_5);
             }
@@ -742,7 +742,7 @@ class spell_baleroc_tormented : public SpellScriptLoader
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_DEATH)
+                if (!GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::ByDeath))
                 {
                     if (GetTarget()->GetMap()->IsHeroic())
                         GetTarget()->CastSpell(GetTarget(), SPELL_TORMENTED_40, true);

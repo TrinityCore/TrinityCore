@@ -330,7 +330,7 @@ enum TriggerCastFlags : uint32
     TRIGGERED_IGNORE_BLOCKED_SPELL_FAMILY           = 0x00004000,   //! Will ignore blocked casts of SPELL_AURA_BLOCK_SPELL_FAMILY
     // reuse                                        = 0x00008000,
     TRIGGERED_IGNORE_CASTER_AURAS                   = 0x00010000,   //! Will ignore caster aura restrictions or requirements
-    TRIGGERED_DONT_RESET_PERIODIC_TIMER             = 0x00020000,   //! Will allow periodic aura timers to keep ticking (instead of resetting)
+    // reuse                                        = 0x00020000,
     TRIGGERED_DONT_REPORT_CAST_ERROR                = 0x00040000,   //! Will return SPELL_FAILED_DONT_REPORT in CheckCast functions
     TRIGGERED_FULL_MASK                             = 0x0007FFFF,   //! Used when doing CastSpell with triggered == true
 
@@ -1450,13 +1450,13 @@ class TC_GAME_API Unit : public WorldObject
         bool InitTamedPet(Pet* pet, uint8 level, uint32 spell_id);
 
         // aura apply/remove helpers - you should better not use these
-        Aura* _TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint8 effMask, Unit* caster, int32* baseAmount = nullptr, Item* castItem = nullptr, ObjectGuid casterGUID = ObjectGuid::Empty, bool resetPeriodicTimer = true);
+        Aura* _TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint8 effMask, Unit* caster, int32* baseAmount = nullptr, Item* castItem = nullptr, ObjectGuid casterGUID = ObjectGuid::Empty);
         void _AddAura(UnitAura* aura, Unit* caster);
         AuraApplication * _CreateAuraApplication(Aura* aura, uint8 effMask);
         void _ApplyAuraEffect(Aura* aura, uint8 effIndex);
         void _ApplyAura(AuraApplication * aurApp, uint8 effMask);
-        void _UnapplyAura(AuraApplicationMap::iterator &i, AuraRemoveMode removeMode);
-        void _UnapplyAura(AuraApplication * aurApp, AuraRemoveMode removeMode);
+        void _UnapplyAura(AuraApplicationMap::iterator &i, AuraRemoveFlags removeMode);
+        void _UnapplyAura(AuraApplication * aurApp, AuraRemoveFlags removeMode);
         void _RemoveNoStackAurasDueToAura(Aura* aura);
         void _RegisterAuraEffect(AuraEffect* aurEff, bool apply);
 
@@ -1464,9 +1464,9 @@ class TC_GAME_API Unit : public WorldObject
         AuraMap      & GetOwnedAuras()       { return m_ownedAuras; }
         AuraMap const& GetOwnedAuras() const { return m_ownedAuras; }
 
-        void RemoveOwnedAura(AuraMap::iterator &i, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
-        void RemoveOwnedAura(uint32 spellId, ObjectGuid casterGUID = ObjectGuid::Empty, uint8 reqEffMask = 0, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
-        void RemoveOwnedAura(Aura* aura, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
+        void RemoveOwnedAura(AuraMap::iterator &i, AuraRemoveFlags removeMode = AuraRemoveFlags::ByDefault);
+        void RemoveOwnedAura(uint32 spellId, ObjectGuid casterGUID = ObjectGuid::Empty, uint8 reqEffMask = 0, AuraRemoveFlags removeMode = AuraRemoveFlags::ByDefault);
+        void RemoveOwnedAura(Aura* aura, AuraRemoveFlags removeMode = AuraRemoveFlags::ByDefault);
 
         Aura* GetOwnedAura(uint32 spellId, ObjectGuid casterGUID = ObjectGuid::Empty, ObjectGuid itemCasterGUID = ObjectGuid::Empty, uint8 reqEffMask = 0, Aura* except = nullptr) const;
 
@@ -1474,10 +1474,10 @@ class TC_GAME_API Unit : public WorldObject
         AuraApplicationMap      & GetAppliedAuras()       { return m_appliedAuras; }
         AuraApplicationMap const& GetAppliedAuras() const { return m_appliedAuras; }
 
-        void RemoveAura(AuraApplicationMap::iterator &i, AuraRemoveMode mode = AURA_REMOVE_BY_DEFAULT);
-        void RemoveAura(uint32 spellId, ObjectGuid casterGUID = ObjectGuid::Empty, uint8 reqEffMask = 0, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
-        void RemoveAura(AuraApplication * aurApp, AuraRemoveMode mode = AURA_REMOVE_BY_DEFAULT);
-        void RemoveAura(Aura* aur, AuraRemoveMode mode = AURA_REMOVE_BY_DEFAULT);
+        void RemoveAura(AuraApplicationMap::iterator &i, AuraRemoveFlags mode = AuraRemoveFlags::ByDefault);
+        void RemoveAura(uint32 spellId, ObjectGuid casterGUID = ObjectGuid::Empty, uint8 reqEffMask = 0, AuraRemoveFlags removeMode = AuraRemoveFlags::ByDefault);
+        void RemoveAura(AuraApplication * aurApp, AuraRemoveFlags mode = AuraRemoveFlags::ByDefault);
+        void RemoveAura(Aura* aur, AuraRemoveFlags mode = AuraRemoveFlags::ByDefault);
 
         // Convenience methods removing auras by predicate
         void RemoveAppliedAuras(std::function<bool(AuraApplication const*)> const& check);
@@ -1489,17 +1489,17 @@ class TC_GAME_API Unit : public WorldObject
 
         void RemoveAurasByType(AuraType auraType, std::function<bool(AuraApplication const*)> const& check);
 
-        void RemoveAurasDueToSpell(uint32 spellId, ObjectGuid casterGUID = ObjectGuid::Empty, uint8 reqEffMask = 0, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
-        void RemoveAuraFromStack(uint32 spellId, ObjectGuid casterGUID = ObjectGuid::Empty, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
+        void RemoveAurasDueToSpell(uint32 spellId, ObjectGuid casterGUID = ObjectGuid::Empty, uint8 reqEffMask = 0, AuraRemoveFlags removeMode = AuraRemoveFlags::ByDefault);
+        void RemoveAuraFromStack(uint32 spellId, ObjectGuid casterGUID = ObjectGuid::Empty, AuraRemoveFlags removeMode = AuraRemoveFlags::ByDefault);
         void RemoveAurasDueToSpellByDispel(uint32 spellId, uint32 dispellerSpellId, ObjectGuid casterGUID, Unit* dispeller, uint8 chargesRemoved = 1);
         void RemoveAurasDueToSpellBySteal(uint32 spellId, ObjectGuid casterGUID, Unit* stealer);
         void RemoveAurasDueToItemSpell(uint32 spellId, ObjectGuid castItemGuid);
         void RemoveAurasByType(AuraType auraType, ObjectGuid casterGUID = ObjectGuid::Empty, Aura* except = nullptr, bool negative = true, bool positive = true);
         void RemoveNotOwnLimitedTargetAuras(bool onPhaseChange = false);
-        void RemoveAurasWithInterruptFlags(uint32 flag, uint32 except = 0);
+        void RemoveAurasWithInterruptFlags(uint32 flag, uint32 except = 0, Spell* interruptingSpell = nullptr);
         void RemoveAurasWithAttribute(uint32 flags);
         void RemoveAurasWithFamily(SpellFamilyNames family, uint32 familyFlag1, uint32 familyFlag2, uint32 familyFlag3, ObjectGuid casterGUID);
-        void RemoveAurasWithMechanic(uint32 mechanic_mask, AuraRemoveMode removemode = AURA_REMOVE_BY_DEFAULT, uint32 except = 0);
+        void RemoveAurasWithMechanic(uint32 mechanic_mask, AuraRemoveFlags removemode = AuraRemoveFlags::ByDefault, uint32 except = 0);
         void RemoveMovementImpairingAuras();
 
         void RemoveAreaAurasDueToLeaveWorld();
@@ -1596,7 +1596,7 @@ class TC_GAME_API Unit : public WorldObject
         void SetChannelObjectGuid(ObjectGuid guid) { SetGuidValue(UNIT_FIELD_CHANNEL_OBJECT, guid); }
 
         void SetCurrentCastSpell(Spell* pSpell);
-        void InterruptSpell(CurrentSpellTypes spellType, bool withDelayed = true, bool withInstant = true);
+        void InterruptSpell(CurrentSpellTypes spellType, bool withDelayed = true, bool withInstant = true, Spell* interruptingSpell = nullptr);
         void FinishSpell(CurrentSpellTypes spellType, bool ok = true);
 
         // set withDelayed to true to account delayed spells as cast
@@ -1606,7 +1606,7 @@ class TC_GAME_API Unit : public WorldObject
 
         // set withDelayed to true to interrupt delayed spells too
         // delayed+channeled spells are always interrupted
-        void InterruptNonMeleeSpells(bool withDelayed, uint32 spellid = 0, bool withInstant = true);
+        void InterruptNonMeleeSpells(bool withDelayed, uint32 spellid = 0, bool withInstant = true, Spell* interruptingSpell = nullptr);
 
         Spell* GetCurrentSpell(CurrentSpellTypes spellType) const { return m_currentSpells[spellType]; }
         Spell* GetCurrentSpell(uint32 spellType) const { return m_currentSpells[spellType]; }
@@ -1788,7 +1788,6 @@ class TC_GAME_API Unit : public WorldObject
 
         float ApplyEffectModifiers(SpellInfo const* spellProto, uint8 effect_index, float value) const;
         int32 CalculateSpellDamage(Unit const* target, SpellInfo const* spellProto, uint8 effect_index, int32 const* basePoints = nullptr) const;
-        int32 CalcSpellDuration(SpellInfo const* spellProto);
         int32 ModSpellDuration(SpellInfo const* spellProto, Unit const* target, int32 duration, bool positive, uint32 effectMask);
         void  ModSpellCastTime(SpellInfo const* spellProto, int32& castTime, Spell* spell = nullptr);
         void  ModSpellDurationTime(SpellInfo const* spellProto, int32& castTime, Spell* spell = nullptr);

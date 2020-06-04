@@ -717,11 +717,11 @@ class spell_gen_break_shield: public SpellScriptLoader
                                 SpellInfo const* auraInfo = aura->GetSpellInfo();
                                 if (auraInfo && auraInfo->SpellIconID == 2007 && aura->HasEffectType(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN))
                                 {
-                                    aura->ModStackAmount(-1, AURA_REMOVE_BY_ENEMY_SPELL);
+                                    aura->ModStackAmount(-1, AuraRemoveFlags::ByEnemySpell);
                                     // Remove dummys from rider (Necessary for updating visual shields)
                                     if (Unit* rider = target->GetCharmer())
                                         if (Aura* defend = rider->GetAura(aura->GetId()))
-                                            defend->ModStackAmount(-1, AURA_REMOVE_BY_ENEMY_SPELL);
+                                            defend->ModStackAmount(-1, AuraRemoveFlags::ByEnemySpell);
                                     break;
                                 }
                             }
@@ -2088,7 +2088,7 @@ class spell_gen_lifebloom : public SpellScriptLoader
             void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 // Final heal only on duration end
-                if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE && GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_ENEMY_SPELL)
+                if (!GetTargetApplication()->GetRemoveMode().HasAllFlags(AuraRemoveFlags::Expired | AuraRemoveFlags::ByEnemySpell))
                     return;
 
                 // final heal
@@ -2215,11 +2215,11 @@ class spell_gen_mounted_charge: public SpellScriptLoader
                                 SpellInfo const* auraInfo = aura->GetSpellInfo();
                                 if (auraInfo && auraInfo->SpellIconID == 2007 && aura->HasEffectType(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN))
                                 {
-                                    aura->ModStackAmount(-1, AURA_REMOVE_BY_ENEMY_SPELL);
+                                    aura->ModStackAmount(-1, AuraRemoveFlags::ByEnemySpell);
                                     // Remove dummys from rider (Necessary for updating visual shields)
                                     if (Unit* rider = target->GetCharmer())
                                         if (Aura* defend = rider->GetAura(aura->GetId()))
-                                            defend->ModStackAmount(-1, AURA_REMOVE_BY_ENEMY_SPELL);
+                                            defend->ModStackAmount(-1, AuraRemoveFlags::ByEnemySpell);
                                     break;
                                 }
                             }
@@ -2622,7 +2622,7 @@ class spell_gen_paralytic_poison : public SpellScriptLoader
 
             void HandleStun(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
-                if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+                if (!GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::Expired))
                     return;
 
                 GetTarget()->CastSpell((Unit*)nullptr, SPELL_PARALYSIS, true, nullptr, aurEff);
@@ -3505,7 +3505,7 @@ class spell_gen_turkey_marker : public SpellScriptLoader
 
                 // pop stack if it expired for us
                 if (_applyTimes.front() + GetMaxDuration() < GameTime::GetGameTimeMS())
-                    ModStackAmount(-1, AURA_REMOVE_BY_EXPIRE);
+                    ModStackAmount(-1, AuraRemoveFlags::Expired);
             }
 
             void Register() override

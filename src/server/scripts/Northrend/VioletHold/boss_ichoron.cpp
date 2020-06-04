@@ -183,7 +183,7 @@ class boss_ichoron : public CreatureScript
                 BossAI::SummonedCreatureDespawn(summon);
 
                 if (summons.empty())
-                    me->RemoveAurasDueToSpell(SPELL_DRAINED, ObjectGuid::Empty, 0, AURA_REMOVE_BY_EXPIRE);
+                    me->RemoveAurasDueToSpell(SPELL_DRAINED, ObjectGuid::Empty, 0, AuraRemoveFlags::Expired);
             }
 
             void UpdateAI(uint32 diff) override
@@ -323,7 +323,7 @@ class spell_ichoron_drained : public SpellScriptLoader
                 GetTarget()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_UNK_31);
                 GetTarget()->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
 
-                if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
+                if (GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::Expired))
                     if (GetTarget()->IsAIEnabled)
                         GetTarget()->GetAI()->DoAction(ACTION_DRAINED);
             }
@@ -396,7 +396,7 @@ class spell_ichoron_protective_bubble : public SpellScriptLoader
 
             void HandleShatter(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                //if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_ENEMY_SPELL)
+                //if (GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::ByEnemySpell))
                 if (GetAura()->GetCharges() <= 1)
                     if (GetTarget()->IsAIEnabled)
                         GetTarget()->GetAI()->DoAction(ACTION_PROTECTIVE_BUBBLE_SHATTERED);
@@ -445,7 +445,7 @@ class spell_ichoron_splatter : public SpellScriptLoader
 
             void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
+                if (GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::Expired))
                     if (Aura* aura = GetTarget()->GetAura(SPELL_SHRINK))
                         aura->ModStackAmount(10);
             }

@@ -346,7 +346,7 @@ class spell_frost_tomb : public SpellScriptLoader
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_DEATH)
+                if (!GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::ByDeath))
                     if (Unit* caster = GetCaster())
                         if (caster->IsAlive())
                             if (Creature* creature = caster->ToCreature())

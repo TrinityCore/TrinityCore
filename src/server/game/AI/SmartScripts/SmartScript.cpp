@@ -886,7 +886,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     if (e.action.removeAura.charges)
                     {
                         if (Aura* aur = target->ToUnit()->GetAura(e.action.removeAura.spell))
-                            aur->ModCharges(-static_cast<int32>(e.action.removeAura.charges), AURA_REMOVE_BY_EXPIRE);
+                            aur->ModCharges(-static_cast<int32>(e.action.removeAura.charges), AuraRemoveFlags::Expired);
                     }
                     else
                         target->ToUnit()->RemoveAurasDueToSpell(e.action.removeAura.spell);

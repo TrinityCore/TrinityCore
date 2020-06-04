@@ -304,8 +304,7 @@ class spell_warl_bane_of_doom : public SpellScriptLoader
                 if (!GetCaster())
                     return;
 
-                AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
-                if (removeMode != AURA_REMOVE_BY_DEATH || !IsExpired())
+                if (!GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::ByDeath) || !IsExpired())
                     return;
 
                 if (GetCaster()->ToPlayer()->isHonorOrXPTarget(GetTarget()))
@@ -1065,7 +1064,7 @@ class spell_warl_seed_of_corruption : public AuraScript
 
         Unit* target = GetTarget();
 
-        if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEATH)
+        if (GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::ByDeath))
         {
             if (_affectedBySoulburn)
             {
@@ -1643,7 +1642,7 @@ class spell_warl_drain_soul : public SpellScriptLoader
 
             void OnAuraRemoveHandler(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEATH)
+                if (GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::ByDeath))
                     if (Unit* caster = GetCaster())
                         if (GetOwner() && caster->ToPlayer() && caster->ToPlayer()->isHonorOrXPTarget(GetOwner()->ToUnit()))
                             caster->CastSpell(caster, SPELL_WARLOCK_SOUL_SHARD_ENERGIZE, true);
@@ -1839,7 +1838,7 @@ class spell_warl_shadowburn : public AuraScript
         if (!caster || !caster->IsPlayer())
             return;
 
-        if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEATH)
+        if (GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::ByDeath))
             if (caster->ToPlayer()->isHonorOrXPTarget(GetTarget()))
                 caster->CastCustomSpell(SPELL_WARLOCK_SOUL_SHARD, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), caster, true, nullptr, aurEff);
     }

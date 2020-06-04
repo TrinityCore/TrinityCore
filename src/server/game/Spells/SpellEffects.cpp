@@ -4577,7 +4577,7 @@ void Spell::EffectDispelMechanic(SpellEffIndex effIndex)
     }
 
     for (auto itr = dispel_list.begin(); itr != dispel_list.end(); ++itr)
-        unitTarget->RemoveAura(itr->first, itr->second, 0, AURA_REMOVE_BY_ENEMY_SPELL);
+        unitTarget->RemoveAura(itr->first, itr->second, 0, AuraRemoveFlags::ByEnemySpell);
 }
 
 void Spell::EffectResurrectPet(SpellEffIndex /*effIndex*/)

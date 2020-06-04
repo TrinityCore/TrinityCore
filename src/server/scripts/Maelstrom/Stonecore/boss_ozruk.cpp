@@ -296,7 +296,7 @@ class spell_ozruk_paralyze_stun : public AuraScript
 
     void OnAuraRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
+        if (GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::Expired))
             if (Unit* target = GetUnitOwner())
                 target->CastSpell(target, SPELL_PARALYZE_DAMAGE, true);
     }

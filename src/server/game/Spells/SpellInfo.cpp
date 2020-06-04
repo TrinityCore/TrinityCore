@@ -434,6 +434,25 @@ bool SpellEffectInfo::IsUnitOwnedAuraEffect() const
     return IsAreaAuraEffect() || Effect == SPELL_EFFECT_APPLY_AURA || Effect == SPELL_EFFECT_APPLY_AURA_2;
 }
 
+uint32 SpellEffectInfo::CalcPeriod(Unit* caster, Spell* spell /* = nullptr */) const
+{
+    // Default value found in client.
+    uint32 period = AuraPeriod;
+    if (period == 0)
+        period = 5200;
+
+    if (caster != nullptr)
+    {
+        if (Player* modOwner = caster->GetSpellModOwner())
+            modOwner->ApplySpellMod(_spellInfo->Id, SPELLMOD_ACTIVATION_TIME, period, spell);
+
+        if (_spellInfo->HasAttribute(SPELL_ATTR5_HASTE_AFFECT_DURATION) && !_spellInfo->HasAttribute(SPELL_ATTR3_NO_DONE_BONUS))
+            period = int32(period * caster->GetFloatValue(UNIT_MOD_CAST_HASTE));
+    }
+
+    return period;
+}
+
 int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const* target) const
 {
     float basePointsPerLevel = RealPointsPerLevel;
@@ -3043,7 +3062,7 @@ void SpellInfo::ApplyAllSpellImmunitiesTo(Unit* target, uint8 effIndex, bool app
                 target->ApplySpellImmune(Id, IMMUNITY_MECHANIC, i, apply);
 
         if (apply && HasAttribute(SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY))
-            target->RemoveAurasWithMechanic(mechanicImmunity, AURA_REMOVE_BY_DEFAULT, Id);
+            target->RemoveAurasWithMechanic(mechanicImmunity, AuraRemoveFlags::ByDefault, Id);
     }
 
     if (uint32 dispelImmunity = immuneInfo->DispelImmune)
@@ -3244,6 +3263,79 @@ int32 SpellInfo::GetMaxDuration() const
     if (!DurationEntry)
         return 0;
     return (DurationEntry->MaxDuration == -1) ? -1 : abs(DurationEntry->MaxDuration);
+}
+
+int32 SpellInfo::CalcDuration(Unit* caster, Spell* spell) const
+{
+    if (IsPassive() && !DurationEntry)
+        return -1;
+
+    if (!DurationEntry)
+        return 0;
+
+    int32 duration = GetMaxDuration();
+    if (duration == -1)
+        return -1;
+
+    if (caster != nullptr)
+    {
+        uint32 level = caster->getLevel();
+        if (MaxLevel > 0 && level > MaxLevel)
+            level = MaxLevel;
+        if (BaseLevel > 0)
+            level -= BaseLevel;
+
+        duration = DurationEntry->Duration + DurationEntry->DurationPerLevel * level;
+        duration = std::min(GetMaxDuration(), duration);
+    }
+
+    if (duration == -1)
+        return -1;
+
+    // This is ***not** in client code, but is very much needed for, ie, Slice and Dice.
+    uint8 comboPoints = caster != nullptr && caster->m_playerMovingMe ? caster->m_playerMovingMe->GetComboPoints() : 0;
+    if (comboPoints != 0)
+    {
+        if (GetDuration() != GetMaxDuration() && GetDuration() != -1)
+            duration += int32((GetMaxDuration() - GetDuration()) * comboPoints / 5);
+    }
+
+    if (caster != nullptr)
+        if (Player* modOwner = caster->GetSpellModOwner())
+            modOwner->ApplySpellMod(Id, SPELLMOD_DURATION, duration, spell);
+
+    bool hasUnk17 = HasAttribute(SPELL_ATTR8_UNK17);
+    bool hasAffectDuration = HasAttribute(SPELL_ATTR5_HASTE_AFFECT_DURATION);
+    // That aura is not used as of 4.3.4, but just include it, as it still is technically supported by the client, and so should we.
+    bool hasPeriodicHasteAuras = caster != nullptr && caster->HasAuraTypeWithAffectMask(SPELL_AURA_PERIODIC_HASTE, this);
+
+    if (hasAffectDuration || hasUnk17)
+    {
+        // This is just a stupid way to find the first periodic effect.
+        int32 periodicEffectIndex = 0;
+        while ((Effects[periodicEffectIndex].Effect == 0 || Effects[periodicEffectIndex].AuraPeriod == 0))
+        {
+            ++periodicEffectIndex;
+            if (periodicEffectIndex >= MAX_SPELL_EFFECTS)
+                return duration;
+        }
+
+        if ((hasAffectDuration || hasPeriodicHasteAuras) && !HasAttribute(SPELL_ATTR3_NO_DONE_BONUS))
+        {
+            float hasteValue = caster ? caster->GetFloatValue(UNIT_MOD_CAST_HASTE) : 0.0f;
+            if (hasteValue > 0.0f)
+            {
+                if (hasUnk17)
+                    return int32(duration * hasteValue);
+
+                int32 effectPeriod = Effects[periodicEffectIndex].CalcPeriod(caster, spell);
+                if (effectPeriod > 0)
+                    duration = std::floor(float(duration) / float(effectPeriod)) * effectPeriod;
+            }
+        }
+    }
+
+    return duration;
 }
 
 uint32 SpellInfo::CalcCastTime(uint8 level, Spell* spell /*= nullptr*/) const

@@ -691,7 +691,7 @@ void PlayerAI::CancelAllShapeshifts()
     }
 
     for (Aura* aura : removableShapeshifts)
-        me->RemoveOwnedAura(aura, AURA_REMOVE_BY_CANCEL);
+        me->RemoveOwnedAura(aura, AuraRemoveFlags::ByCancel);
 }
 
 Unit* PlayerAI::SelectAttackTarget() const

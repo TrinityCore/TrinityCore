@@ -1072,7 +1072,7 @@ class spell_algalon_phase_punch : public SpellScriptLoader
                     GetTarget()->RemoveAurasDueToSpell(PhasePunchAlphaId[GetStackAmount() - 2]);
                 GetTarget()->CastSpell(GetTarget(), PhasePunchAlphaId[GetStackAmount() - 1], TRIGGERED_FULL_MASK);
                 if (GetStackAmount() == 5)
-                    Remove(AURA_REMOVE_BY_DEFAULT);
+                    Remove(AuraRemoveFlags::ByDefault);
             }
 
             void OnRemove(AuraEffect const*, AuraEffectHandleModes)

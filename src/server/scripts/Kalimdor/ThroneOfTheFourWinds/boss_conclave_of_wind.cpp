@@ -1078,7 +1078,7 @@ class spell_conclave_of_wind_winds_pre_effect_warning : public AuraScript
 
     void OnAuraRemoveHandler(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
+        if (GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::Expired))
             if (Unit* caster = GetCaster())
                 if (Creature* conclave = caster->ToCreature())
                     if (conclave->IsAIEnabled)

@@ -941,7 +941,7 @@ class spell_rog_tricks_of_the_trade : public SpellScriptLoader
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_DEFAULT)
+                if (!GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::ByDefault))
                     GetTarget()->ResetRedirectThreat();
             }
 
@@ -958,7 +958,7 @@ class spell_rog_tricks_of_the_trade : public SpellScriptLoader
                 Unit* target = GetTarget();
                 target->CastSpell(_redirectTarget, SPELL_ROGUE_TRICKS_OF_THE_TRADE_DMG_BOOST, true);
                 target->CastSpell(target, SPELL_ROGUE_TRICKS_OF_THE_TRADE_PROC, true);
-                Remove(AURA_REMOVE_BY_DEFAULT); // maybe handle by proc charges
+                Remove(AuraRemoveFlags::ByDefault); // maybe handle by proc charges
             }
 
             void Register() override

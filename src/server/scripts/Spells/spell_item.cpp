@@ -4711,7 +4711,7 @@ class spell_item_egg_shell : public AuraScript
 
     void HandleEffectRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
-        if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_CANCEL)
+        if (GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::ByCancel))
             GetTarget()->CastSpell(GetTarget(), GetSpellInfo()->Id == SPELL_EGG_SHELL_NORMAL ? SPELL_EGG_SHELL_PERIODIC_NORMAL : SPELL_EGG_SHELL_PERIODIC_HEROIC, true, nullptr, aurEff);
     }
 

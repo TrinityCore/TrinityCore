@@ -18,6 +18,7 @@
 #define TRINITY_SPELLAURADEFINES_H
 
 #include "Define.h"
+#include "EnumFlag.h"
 
 #define MAX_AURAS 64                                        // client support up to 255, but it will cause problems with group auras updating
 
@@ -51,15 +52,19 @@ enum AuraEffectHandleModes
     AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK = (AURA_EFFECT_HANDLE_REAPPLY | AURA_EFFECT_HANDLE_REAL)
 };
 
-enum AuraRemoveMode
+enum class AuraRemoveFlags : uint32
 {
-    AURA_REMOVE_NONE = 0,
-    AURA_REMOVE_BY_DEFAULT = 1,       // scripted remove, remove by stack with aura with different ids and sc aura remove
-    AURA_REMOVE_BY_CANCEL,
-    AURA_REMOVE_BY_ENEMY_SPELL,       // dispel and absorb aura destroy
-    AURA_REMOVE_BY_EXPIRE,            // aura duration has ended
-    AURA_REMOVE_BY_DEATH
+    None                   = 0x00000000,
+    ByDefault              = 0x00000001, // scripted remove, remove by stack with aura with different ids and sc aura remove
+    ByCancel               = 0x00000002,
+    ByEnemySpell           = 0x00000004, // dispel and absorb aura destroy
+    Expired                = 0x00000008, // aura duration has ended
+    ByDeath                = 0x00000010, // aura owner died
+
+    DontResetPeriodicTimer = 0x00001000, // Do not reset periodic timer. Used by Aura::ModStackAmount.
 };
+
+DEFINE_ENUM_FLAG(AuraRemoveFlags)
 
 //m_schoolAbsorb
 enum DAMAGE_ABSORB_TYPE

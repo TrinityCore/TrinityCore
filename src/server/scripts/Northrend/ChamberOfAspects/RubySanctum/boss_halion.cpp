@@ -1416,7 +1416,7 @@ class spell_halion_meteor_strike_marker : public SpellScriptLoader
                 if (!GetCaster())
                     return;
 
-                if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
+                if (GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::Expired))
                     if (Creature* creCaster = GetCaster()->ToCreature())
                         creCaster->AI()->DoAction(ACTION_METEOR_STRIKE_AOE);
             }
@@ -1452,11 +1452,11 @@ class spell_halion_combustion_consumption : public SpellScriptLoader
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEATH)
+                if (GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::ByDeath))
                     return;
 
                 if (GetTarget()->HasAura(_markSpell))
-                    GetTarget()->RemoveAurasDueToSpell(_markSpell, ObjectGuid::Empty, 0, AURA_REMOVE_BY_EXPIRE);
+                    GetTarget()->RemoveAurasDueToSpell(_markSpell, ObjectGuid::Empty, 0, AuraRemoveFlags::Expired);
             }
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1554,12 +1554,12 @@ class spell_halion_marks : public SpellScriptLoader
 
                 if (Unit* dispelledUnit = GetUnitOwner())
                     if (dispelledUnit->HasAura(_removeSpellId))
-                        dispelledUnit->RemoveAurasDueToSpell(_removeSpellId, ObjectGuid::Empty, 0, AURA_REMOVE_BY_EXPIRE);
+                        dispelledUnit->RemoveAurasDueToSpell(_removeSpellId, ObjectGuid::Empty, 0, AuraRemoveFlags::Expired);
             }
 
             void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
-                if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+                if (!GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::Expired))
                     return;
 
                 // Stacks marker
@@ -1655,7 +1655,7 @@ class spell_halion_twilight_realm_handlers : public SpellScriptLoader
                 if (!target)
                     return;
 
-                target->RemoveAurasDueToSpell(_beforeHitSpellId, ObjectGuid::Empty, 0, AURA_REMOVE_BY_ENEMY_SPELL);
+                target->RemoveAurasDueToSpell(_beforeHitSpellId, ObjectGuid::Empty, 0, AuraRemoveFlags::ByEnemySpell);
                 if (InstanceScript* instance = target->GetInstanceScript())
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_UNK7);
             }

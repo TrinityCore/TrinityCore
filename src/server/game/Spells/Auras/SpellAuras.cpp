@@ -19,6 +19,7 @@
 #include "CellImpl.h"
 #include "Config.h"
 #include "DynamicObject.h"
+#include "EnumFlag.h"
 #include "GridNotifiersImpl.h"
 #include "Item.h"
 #include "Log.h"
@@ -39,7 +40,7 @@
 #include "WorldPacket.h"
 
 AuraApplication::AuraApplication(Unit* target, Unit* caster, Aura* aura, uint8 effMask):
-_target(target), _base(aura), _removeMode(AURA_REMOVE_NONE), _slot(MAX_AURAS),
+_target(target), _base(aura), _removeMode(AuraRemoveFlags::None), _slot(MAX_AURAS),
 _flags(AFLAG_NONE), _effectsToApply(effMask), _needClientUpdate(false)
 {
     ASSERT(GetTarget() && GetBase());
@@ -260,7 +261,7 @@ uint8 Aura::BuildEffectMaskForOwner(SpellInfo const* spellProto, uint8 available
     return effMask & availableEffectMask;
 }
 
-Aura* Aura::TryRefreshStackOrCreate(SpellInfo const* spellproto, uint8 tryEffMask, WorldObject* owner, Unit* caster, int32* baseAmount /*= nullptr*/, Item* castItem /*= nullptr*/, ObjectGuid casterGUID /*= ObjectGuid::Empty*/, bool* refresh /*= nullptr*/, bool resetPeriodicTimer /*= true*/)
+Aura* Aura::TryRefreshStackOrCreate(SpellInfo const* spellproto, uint8 tryEffMask, WorldObject* owner, Unit* caster, int32* baseAmount /*= nullptr*/, Item* castItem /*= nullptr*/, ObjectGuid casterGUID /*= ObjectGuid::Empty*/, bool* refresh /*= nullptr*/)
 {
     ASSERT(spellproto);
     ASSERT(owner);
@@ -273,7 +274,7 @@ Aura* Aura::TryRefreshStackOrCreate(SpellInfo const* spellproto, uint8 tryEffMas
     if (!effMask)
         return nullptr;
 
-    if (Aura* foundAura = owner->ToUnit()->_TryStackingOrRefreshingExistingAura(spellproto, effMask, caster, baseAmount, castItem, casterGUID, resetPeriodicTimer))
+    if (Aura* foundAura = owner->ToUnit()->_TryStackingOrRefreshingExistingAura(spellproto, effMask, caster, baseAmount, castItem, casterGUID))
     {
         // we've here aura, which script triggered removal after modding stack amount
         // check the state here, so we won't create new Aura object
@@ -361,6 +362,8 @@ m_procCooldown(std::chrono::steady_clock::time_point::min())
 
     m_maxDuration = CalcMaxDuration(caster);
     m_duration = m_maxDuration;
+    m_rolledOverDuration = 0;
+
     m_procCharges = CalcMaxCharges(caster);
     m_isUsingCharges = m_procCharges != 0;
     memset(m_effects, 0, sizeof(m_effects));
@@ -442,7 +445,7 @@ void Aura::_ApplyForTarget(Unit* target, Unit* caster, AuraApplication * auraApp
 void Aura::_UnapplyForTarget(Unit* target, Unit* caster, AuraApplication * auraApp)
 {
     ASSERT(target);
-    ASSERT(auraApp->GetRemoveMode());
+    ASSERT(auraApp->GetRemoveMode().HasAnyFlag());
     ASSERT(auraApp);
 
     ApplicationMap::iterator itr = m_applications.find(target->GetGUID());
@@ -469,9 +472,11 @@ void Aura::_UnapplyForTarget(Unit* target, Unit* caster, AuraApplication * auraA
 
 // removes aura from all targets
 // and marks aura as removed
-void Aura::_Remove(AuraRemoveMode removeMode)
+void Aura::_Remove(AuraRemoveFlags removeMode)
 {
-    ASSERT (!m_isRemoved);
+    ASSERT(!m_isRemoved);
+    ASSERT(!EnumFlag<AuraRemoveFlags>{ removeMode }.HasFlag(AuraRemoveFlags::DontResetPeriodicTimer), "Aura must not be removed with AuraRemoveFlags::DontResetPeriodicTimer");
+
     m_isRemoved = true;
     ApplicationMap::iterator appItr = m_applications.begin();
     for (appItr = m_applications.begin(); appItr != m_applications.end();)
@@ -605,7 +610,7 @@ void Aura::UpdateTargetMap(Unit* caster, bool apply)
     // remove auras from units no longer needing them
     for (Unit* unit : targetsToRemove)
         if (AuraApplication* aurApp = GetApplicationOfTarget(unit->GetGUID()))
-            unit->_UnapplyAura(aurApp, AURA_REMOVE_BY_DEFAULT);
+            unit->_UnapplyAura(aurApp, AuraRemoveFlags::ByDefault);
 
     if (!apply)
         return;
@@ -722,25 +727,7 @@ void Aura::Update(uint32 diff, Unit* caster)
 
 int32 Aura::CalcMaxDuration(Unit* caster) const
 {
-    Player* modOwner = nullptr;
-    int32 maxDuration;
-
-    if (caster)
-    {
-        modOwner = caster->GetSpellModOwner();
-        maxDuration = caster->CalcSpellDuration(m_spellInfo);
-    }
-    else
-        maxDuration = m_spellInfo->GetDuration();
-
-    if (IsPassive() && !m_spellInfo->DurationEntry)
-        maxDuration = -1;
-
-    // IsPermanent() checks max duration (which we are supposed to calculate here)
-    if (maxDuration != -1 && modOwner)
-        modOwner->ApplySpellMod(GetId(), SPELLMOD_DURATION, maxDuration);
-
-    return maxDuration;
+    return m_spellInfo->CalcDuration(caster);
 }
 
 void Aura::SetDuration(int32 duration, bool withMods)
@@ -774,23 +761,22 @@ void Aura::RefreshDuration(bool withMods)
         m_timeCla = 1 * IN_MILLISECONDS;
 }
 
-void Aura::RefreshTimers(bool resetPeriodicTimer)
+void Aura::RefreshTimers()
 {
     m_maxDuration = CalcMaxDuration();
-    if (m_spellInfo->HasAttribute(SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER))
+
+    bool resetPeriodicTimer = !m_spellInfo->HasAttribute(SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER);
+    if (!resetPeriodicTimer)
     {
-        int32 periodic = m_maxDuration;
+        int32 minAmplitude = m_maxDuration;
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
             if (AuraEffect const* eff = GetEffect(i))
                 if (int32 ampl = eff->GetPeriodic())
-                    periodic = std::min(ampl, periodic);
+                    minAmplitude = std::min(ampl, minAmplitude);
 
-        // If only one tick remaining, roll it over into new duration
-        if (GetDuration() <= periodic)
-        {
-            m_maxDuration += GetDuration();
-            resetPeriodicTimer = false;
-        }
+        // Roll over the time to next tick into the new duration
+        m_rolledOverDuration = GetDuration() % minAmplitude;
+        m_maxDuration += m_rolledOverDuration;
     }
 
     RefreshDuration();
@@ -824,7 +810,7 @@ uint8 Aura::CalcMaxCharges(Unit* caster) const
     return uint8(maxProcCharges);
 }
 
-bool Aura::ModCharges(int32 num, AuraRemoveMode removeMode)
+bool Aura::ModCharges(int32 num, AuraRemoveFlags removeMode)
 {
     if (IsUsingCharges())
     {
@@ -847,13 +833,13 @@ bool Aura::ModCharges(int32 num, AuraRemoveMode removeMode)
     return false;
 }
 
-void Aura::ModChargesDelayed(int32 num, AuraRemoveMode removeMode)
+void Aura::ModChargesDelayed(int32 num, AuraRemoveFlags removeMode)
 {
     m_dropEvent = nullptr;
     ModCharges(num, removeMode);
 }
 
-void Aura::DropChargeDelayed(uint32 delay, AuraRemoveMode removeMode)
+void Aura::DropChargeDelayed(uint32 delay, AuraRemoveFlags removeMode)
 {
     // aura is already during delayed charge drop
     if (m_dropEvent)
@@ -876,7 +862,7 @@ void Aura::SetStackAmount(uint8 stackAmount)
     GetApplicationList(applications);
 
     for (AuraApplication* aurApp : applications)
-        if (!aurApp->GetRemoveMode())
+        if (!aurApp->GetRemoveMode().HasAnyFlag())
             HandleAuraSpecificMods(aurApp, caster, false, true);
 
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
@@ -884,13 +870,13 @@ void Aura::SetStackAmount(uint8 stackAmount)
             aurEff->ChangeAmount(aurEff->CalculateAmount(caster), false, true);
 
     for (AuraApplication* aurApp : applications)
-        if (!aurApp->GetRemoveMode())
+        if (!aurApp->GetRemoveMode().HasAnyFlag())
             HandleAuraSpecificMods(aurApp, caster, true, true);
 
     SetNeedClientUpdateForTargets();
 }
 
-bool Aura::ModStackAmount(int32 num, AuraRemoveMode removeMode /*= AURA_REMOVE_BY_DEFAULT*/, bool resetPeriodicTimer /*= true*/)
+bool Aura::ModStackAmount(int32 num, AuraRemoveFlags removeMode /*= AuraRemoveFlags::ByDefault*/)
 {
     int32 stackAmount = m_stackAmount + num;
 
@@ -906,18 +892,20 @@ bool Aura::ModStackAmount(int32 num, AuraRemoveMode removeMode /*= AURA_REMOVE_B
     // we're out of stacks, remove
     else if (stackAmount <= 0)
     {
-        Remove(removeMode);
+        Remove(removeMode & ~AuraRemoveFlags::DontResetPeriodicTimer);
         return true;
     }
+
+    EnumFlag<AuraRemoveFlags> removeFlags = removeMode;
 
     bool refresh = stackAmount >= GetStackAmount();
 
     // Update stack amount
     SetStackAmount(stackAmount);
 
-    if (refresh)
+    if (refresh && !removeFlags.HasFlag(AuraRemoveFlags::DontResetPeriodicTimer))
     {
-        RefreshTimers(resetPeriodicTimer);
+        RefreshTimers();
 
         // reset charges
         SetCharges(CalcMaxCharges());
@@ -1172,7 +1160,8 @@ void Aura::SetNeedClientUpdateForTargets() const
 void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, bool apply, bool onReapply)
 {
     Unit* target = aurApp->GetTarget();
-    AuraRemoveMode removeMode = aurApp->GetRemoveMode();
+    EnumFlag<AuraRemoveFlags> removeMode = aurApp->GetRemoveMode();
+
     // handle spell_area table
     SpellAreaForAreaMapBounds saBounds = sSpellMgr->GetSpellAreaForAuraMapBounds(GetId());
     if (saBounds.first != saBounds.second)
@@ -1220,7 +1209,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                 {
                     if (*itr < 0)
                         target->RemoveAurasDueToSpell(-(*itr));
-                    else if (removeMode != AURA_REMOVE_BY_DEATH)
+                    else if (!removeMode.HasFlag(AuraRemoveFlags::ByDeath))
                         target->CastSpell(target, *itr, true, nullptr, nullptr, GetCasterGUID());
                 }
             }
@@ -1374,7 +1363,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                 switch (GetId())
                 {
                     case 66: // Invisibility
-                        if (removeMode != AURA_REMOVE_BY_EXPIRE)
+                        if (!removeMode.HasFlag(AuraRemoveFlags::Expired))
                             break;
                         target->CastSpell(target, 32612, true, nullptr, GetEffect(1));
                         target->CombatStop();
@@ -1408,7 +1397,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                 if (!caster)
                     break;
                 // Power word: shield
-                if (removeMode == AURA_REMOVE_BY_ENEMY_SPELL && GetSpellInfo()->SpellFamilyFlags[0] & 0x00000001)
+                if (removeMode.HasFlag(AuraRemoveFlags::ByEnemySpell) && GetSpellInfo()->SpellFamilyFlags[0] & 0x00000001)
                 {
                     // Rapture
                     if (Aura const* aura = caster->GetAuraOfRankedSpell(47535))
@@ -2286,7 +2275,7 @@ void UnitAura::_UnapplyForTarget(Unit* target, Unit* caster, AuraApplication * a
         target->ApplyDiminishingAura(group, false);
 }
 
-void UnitAura::Remove(AuraRemoveMode removeMode)
+void UnitAura::Remove(AuraRemoveFlags removeMode)
 {
     if (IsRemoved())
         return;
@@ -2389,7 +2378,7 @@ bool ChargeDropEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
     return true;
 }
 
-void DynObjAura::Remove(AuraRemoveMode removeMode)
+void DynObjAura::Remove(AuraRemoveFlags removeMode)
 {
     if (IsRemoved())
         return;

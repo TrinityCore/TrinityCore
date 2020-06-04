@@ -414,7 +414,7 @@ class spell_teron_gorefiend_shadow_of_death : public SpellScriptLoader
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
+                if (GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::Expired))
                 {
                     Unit* target = GetTarget();
                     target->CastSpell(target, SPELL_SUMMON_SPIRIT, true);

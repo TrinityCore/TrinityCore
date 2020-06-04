@@ -1826,7 +1826,7 @@ class spell_igb_rocket_pack : public SpellScriptLoader
             void HandlePeriodic(AuraEffect const* /*aurEff*/)
             {
                 if (GetTarget()->movespline->Finalized())
-                    Remove(AURA_REMOVE_BY_EXPIRE);
+                    Remove(AuraRemoveFlags::Expired);
             }
 
             void HandleRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)

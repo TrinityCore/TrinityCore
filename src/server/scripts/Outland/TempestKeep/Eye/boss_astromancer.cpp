@@ -520,7 +520,7 @@ class spell_astromancer_wrath_of_the_astromancer : public SpellScriptLoader
             void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 // Final heal only on duration end
-                if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+                if (!GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::Expired))
                     return;
 
                 Unit* target = GetUnitOwner();

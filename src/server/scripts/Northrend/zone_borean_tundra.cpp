@@ -714,7 +714,7 @@ public:
 
         void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
-            if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE || !GetCaster())
+            if (!GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::Expired) || !GetCaster())
                 return;
 
             Creature* owner = GetOwner()->ToCreature();

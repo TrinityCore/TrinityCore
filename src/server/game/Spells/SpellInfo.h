@@ -295,6 +295,8 @@ public:
     SpellEffectImplicitTargetTypes GetImplicitTargetType() const;
     SpellTargetObjectTypes GetUsedTargetObjectType() const;
 
+    uint32 CalcPeriod(Unit* caster, Spell* spell = nullptr) const;
+
 private:
     struct StaticData
     {
@@ -551,6 +553,8 @@ class TC_GAME_API SpellInfo
 
         int32 GetDuration() const;
         int32 GetMaxDuration() const;
+
+        int32 CalcDuration(Unit* caster, Spell* spell = nullptr) const;
 
         uint32 GetMaxTicks() const;
 

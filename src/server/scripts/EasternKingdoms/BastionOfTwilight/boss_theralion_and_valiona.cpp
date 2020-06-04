@@ -1274,8 +1274,7 @@ class spell_valiona_blackout: public SpellScriptLoader
 
             void OnAuraRemoveHandler(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_ENEMY_SPELL
-                    || GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
+                if (GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::ByEnemySpell | AuraRemoveFlags::Expired))
                     if (Unit* target = GetTarget())
                         target->CastSpell(target, SPELL_BLACKOUT_DAMAGE, true);
             }

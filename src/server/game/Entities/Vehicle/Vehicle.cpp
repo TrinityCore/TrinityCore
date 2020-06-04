@@ -831,7 +831,7 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
     ASSERT(itr != vehicleAuras.end());
 
     AuraApplication const* aurApp = (*itr)->GetBase()->GetApplicationOfTarget(Target->GetBase()->GetGUID());
-    ASSERT(aurApp && !aurApp->GetRemoveMode());
+    ASSERT(aurApp && !aurApp->GetRemoveMode().HasAnyFlag());
 
     Target->RemovePendingEventsForSeat(Seat->first);
     Target->RemovePendingEventsForPassenger(Passenger);

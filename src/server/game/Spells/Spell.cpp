@@ -2653,7 +2653,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         // Failed Pickpocket, reveal rogue
         if (missInfo == SPELL_MISS_RESIST && m_spellInfo->HasAttribute(SPELL_ATTR0_CU_PICKPOCKET) && unitTarget->GetTypeId() == TYPEID_UNIT)
         {
-            m_caster->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TALK);
+            m_caster->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TALK, 0, this);
             if (unitTarget->ToCreature()->IsAIEnabled)
                 unitTarget->ToCreature()->AI()->AttackStart(m_caster);
         }
@@ -2742,7 +2742,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
             return SPELL_MISS_EVADE;
 
         if (m_caster->_IsValidAttackTarget(unit, m_spellInfo))
-            unit->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_HITBYSPELL);
+            unit->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_HITBYSPELL, 0, this);
         else if (m_caster->IsFriendlyTo(unit))
         {
             // for delayed spells ignore negative spells (after duel end) for friendly targets
@@ -2809,9 +2809,9 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
         if (m_originalCaster)
         {
             bool refresh = false;
-            bool const resetPeriodicTimer = !(_triggeredCastFlags & TRIGGERED_DONT_RESET_PERIODIC_TIMER);
+            
             m_spellAura = Aura::TryRefreshStackOrCreate(aurSpellInfo, effectMask, unit,
-                m_originalCaster, (aurSpellInfo == m_spellInfo) ? &m_spellValue->EffectBasePoints[0] : &basePoints[0], m_CastItem, ObjectGuid::Empty, &refresh, resetPeriodicTimer);
+                m_originalCaster, (aurSpellInfo == m_spellInfo) ? &m_spellValue->EffectBasePoints[0] : &basePoints[0], m_CastItem, ObjectGuid::Empty, &refresh);
             if (m_spellAura)
             {
                 // Set aura stack amount to desired value
@@ -2859,44 +2859,26 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
 
                     duration = m_originalCaster->ModSpellDuration(aurSpellInfo, unit, duration, positive, effectMask);
 
-                    if (duration > 0)
-                    {
-                        // Haste modifies duration of channeled spells
-                        if (m_spellInfo->IsChanneled())
-                            m_originalCaster->ModSpellDurationTime(aurSpellInfo, duration, this);
-                        else if (m_spellInfo->HasAttribute(SPELL_ATTR5_HASTE_AFFECT_DURATION))
-                        {
-                            int32 origDuration = duration;
-                            duration = 0;
-                            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                            {
-                                if (AuraEffect const* eff = m_spellAura->GetEffect(i))
-                                {
-                                    if (int32 periodic = eff->GetPeriodic())  // amplitude is hastened by UNIT_MOD_CAST_SPEED
-                                    {
-                                        float preciseTicks = (float)origDuration / float(periodic);
-                                        int32 ticks = origDuration / periodic;
-
-                                        // additional ticks are being added by rounding up
-                                        if (preciseTicks - ticks >= 0.5f)
-                                            ticks = int32(std::ceil(preciseTicks));
-
-                                        duration = std::max(ticks * periodic, duration);
-                                    }
-                                }
-                            }
-
-                            // if there is no periodic effect
-                            if (!duration)
-                                duration = int32(origDuration * m_originalCaster->GetFloatValue(UNIT_MOD_CAST_SPEED));
-                        }
-                    }
-
                     if (duration != m_spellAura->GetMaxDuration())
                     {
                         m_spellAura->SetMaxDuration(duration);
                         m_spellAura->SetDuration(duration);
                     }
+
+                    if (DynamicObject* dynObj = m_originalCaster->GetDynObject(m_spellInfo->Id))
+                        dynObj->SetDuration(duration);
+
+                    if (m_spellInfo->IsChanneled() && refresh && m_spellInfo->HasAttribute(SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER))
+                    {
+                        SendChannelStart(m_spellAura->GetMaxDuration() - m_spellAura->GetRolledOverDuration());
+                        SendChannelUpdate(m_spellAura->GetMaxDuration());
+
+                        // A side-effect of SendChannelStart() is to set the spell's timer to the value passed as parameter.
+                        // However for channeled dot clipping to work properly, we need to roll over the duration.
+                        // So we need to re-update timer with a proper value.
+                        m_timer = m_spellAura->GetMaxDuration();
+                    }
+
                     m_spellAura->_RegisterForTargets();
                 }
             }
@@ -3265,11 +3247,11 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
         // skip triggered spell (item equip spell casting and other not explicit character casts/item uses)
         if (!(_triggeredCastFlags & TRIGGERED_IGNORE_AURA_INTERRUPT_FLAGS) && m_spellInfo->IsBreakingStealth())
         {
-            m_caster->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CAST);
+            m_caster->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CAST, 0, this);
             for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
                 if (m_spellInfo->Effects[i].GetUsedTargetObjectType() == TARGET_OBJECT_TYPE_UNIT)
                 {
-                    m_caster->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_SPELL_ATTACK);
+                    m_caster->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_SPELL_ATTACK, 0, this);
                     break;
                 }
         }
@@ -3291,13 +3273,15 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
     }
 }
 
-void Spell::cancel()
+void Spell::cancel(Spell* interruptingSpell /* = nullptr */)
 {
     if (m_spellState == SPELL_STATE_FINISHED)
         return;
 
     uint32 oldState = m_spellState;
     m_spellState = SPELL_STATE_FINISHED;
+
+    bool sendChannelUpdate = m_spellInfo->IsChanneled();
 
     m_autoRepeat = false;
     switch (oldState)
@@ -3312,13 +3296,33 @@ void Spell::cancel()
 
         case SPELL_STATE_CASTING:
             for (std::list<TargetInfo>::const_iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
-                if ((*ihit).missCondition == SPELL_MISS_NONE)
-                    if (Unit* unit = m_caster->GetGUID() == ihit->targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, ihit->targetGUID))
-                        unit->RemoveOwnedAura(m_spellInfo->Id, m_originalCasterGUID, 0, AURA_REMOVE_BY_CANCEL);
+            {
+                // Remove if no miss.
+                bool removeOwnedAura = (*ihit).missCondition == SPELL_MISS_NONE;
+                if (interruptingSpell != nullptr)
+                {
+                    // However if we are refreshing a channeled spell, only removed owned aura
+                    // if the new target isn't the old one.
+                    if (m_spellInfo->Id == interruptingSpell->m_spellInfo->Id && m_spellInfo->IsChanneled())
+                    {
+                        // Different target, ease up on the core and already remove auras
+                        // if same target, do nothing. If we miss with the new spell, auras will get removed anyways
+                        removeOwnedAura = (*ihit).targetGUID != interruptingSpell->m_targets.GetUnitTargetGUID();
+                    }
+                }
 
-            SendChannelUpdate(0);
-            SendInterrupted(0);
-            SendCastResult(SPELL_FAILED_INTERRUPTED);
+                if (removeOwnedAura)
+                    if (Unit* unit = m_caster->GetGUID() == ihit->targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, ihit->targetGUID))
+                        unit->RemoveOwnedAura(m_spellInfo->Id, m_originalCasterGUID, 0, AuraRemoveFlags::ByCancel);
+            }
+
+            // Only send channel updates if we are interrupt with a spell that is not the one currently channeled.
+            sendChannelUpdate &= interruptingSpell == nullptr || m_spellInfo->Id != interruptingSpell->m_spellInfo->Id;
+            if (sendChannelUpdate)
+            {
+                SendInterrupted(0);
+                SendCastResult(SPELL_FAILED_INTERRUPTED);
+            }
 
             m_appliedMods.clear();
             break;
@@ -3338,7 +3342,7 @@ void Spell::cancel()
     //set state back so finish will be processed
     m_spellState = oldState;
 
-    finish(false);
+    finish(false, sendChannelUpdate);
 }
 
 void Spell::cast(bool skipCheck)
@@ -3626,17 +3630,9 @@ void Spell::handle_immediate()
     // start channeling if applicable
     if (m_spellInfo->IsChanneled())
     {
-        int32 duration = m_spellInfo->GetDuration();
+        int32 duration = m_spellInfo->CalcDuration(m_caster);
         if (duration > 0)
         {
-            // First mod_duration then haste - see Missile Barrage
-            // Apply duration mod
-            if (Player* modOwner = m_caster->GetSpellModOwner())
-                modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_DURATION, duration);
-
-            // Apply haste mods
-            m_caster->ModSpellDurationTime(m_spellInfo, duration, this);
-
             m_spellState = SPELL_STATE_CASTING;
             m_caster->AddInterruptMask(m_spellInfo->ChannelInterruptFlags);
             m_channeledDuration = duration;
@@ -3896,7 +3892,7 @@ void Spell::update(uint32 difftime)
                     // Also remove applied auras
                     for (TargetInfo const& target : m_UniqueTargetInfo)
                         if (Unit* unit = m_caster->GetGUID() == target.targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, target.targetGUID))
-                            unit->RemoveOwnedAura(m_spellInfo->Id, m_originalCasterGUID, 0, AURA_REMOVE_BY_CANCEL);
+                            unit->RemoveOwnedAura(m_spellInfo->Id, m_originalCasterGUID, 0, AuraRemoveFlags::ByCancel);
                 }
 
                 if (m_timer > 0)
@@ -3924,7 +3920,7 @@ void Spell::update(uint32 difftime)
     }
 }
 
-void Spell::finish(bool ok)
+void Spell::finish(bool ok, bool sendChannelUpdate /* = false */)
 {
     if (!m_caster)
         return;
@@ -3935,6 +3931,9 @@ void Spell::finish(bool ok)
 
     if (m_spellInfo->IsChanneled())
         m_caster->UpdateInterruptMask();
+
+    if (sendChannelUpdate)
+        SendChannelUpdate(0);
 
     if (m_caster->HasUnitState(UNIT_STATE_CASTING) && !m_caster->IsNonMeleeSpellCast(false, false, true))
         m_caster->ClearUnitState(UNIT_STATE_CASTING);

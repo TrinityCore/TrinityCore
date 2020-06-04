@@ -621,8 +621,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
 
 void AuraEffect::CalculatePeriodic(Unit* caster, bool resetPeriodicTimer /*= true*/, bool load /*= false*/)
 {
-    m_effectPeriodicTimer = m_spellInfo->Effects[m_effIndex].AuraPeriod;
-
     // prepare periodics
     switch (GetAuraType())
     {
@@ -639,38 +637,21 @@ void AuraEffect::CalculatePeriodic(Unit* caster, bool resetPeriodicTimer /*= tru
         case SPELL_AURA_POWER_BURN:
         case SPELL_AURA_PERIODIC_DUMMY:
         case SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE:
-            // If no periodic timer is set, fall back to a 1 second interval to match client function
-            if (!m_effectPeriodicTimer)
-                m_effectPeriodicTimer = 1 * IN_MILLISECONDS;
-
             m_isPeriodic = true;
             break;
         default:
             break;
     }
 
-    GetBase()->CallScriptEffectCalcPeriodicHandlers(this, m_isPeriodic, m_effectPeriodicTimer);
+    int32_t newPeriod = m_spellInfo->Effects[m_effIndex].CalcPeriod(caster, nullptr);
 
+    GetBase()->CallScriptEffectCalcPeriodicHandlers(this, m_isPeriodic, newPeriod);
+
+    m_effectPeriodicTimer = 0;
     if (!m_isPeriodic)
         return;
 
-    Player* modOwner = caster ? caster->GetSpellModOwner() : nullptr;
-    // Apply casting time mods
-    if (m_effectPeriodicTimer)
-    {
-        // Apply periodic time mod
-        if (modOwner)
-            modOwner->ApplySpellMod(GetId(), SPELLMOD_ACTIVATION_TIME, m_effectPeriodicTimer);
-
-        if (caster)
-        {
-            // Haste modifies periodic time of channeled spells
-            if (m_spellInfo->IsChanneled())
-                caster->ModSpellDurationTime(m_spellInfo, m_effectPeriodicTimer);
-            else if (m_spellInfo->HasAttribute(SPELL_ATTR5_HASTE_AFFECT_DURATION))
-                m_effectPeriodicTimer = int32(m_effectPeriodicTimer * caster->GetFloatValue(UNIT_MOD_CAST_SPEED));
-        }
-    }
+    m_effectPeriodicTimer = newPeriod;
 
     if (load) // aura loaded from db
     {
@@ -691,6 +672,11 @@ void AuraEffect::CalculatePeriodic(Unit* caster, bool resetPeriodicTimer /*= tru
             // Start periodic on next tick or at aura apply
             if (m_effectPeriodicTimer && !m_spellInfo->HasAttribute(SPELL_ATTR5_START_PERIODIC_AT_APPLY))
                 m_periodicTimer += m_effectPeriodicTimer;
+
+            // If the aura was rolled over, use that timer as the first one to ensure ticks connect properly
+            // in case of a haste proc between this cast and the previous one.
+            //if (GetBase()->GetRolledOverDuration())
+            //    m_periodicTimer = GetBase()->GetRolledOverDuration();
         }
     }
 }
@@ -750,7 +736,7 @@ void AuraEffect::ChangeAmount(int32 newAmount, bool mark, bool onStackOrReapply)
 
     for (AuraApplication* aurApp : effectApplications)
     {
-        if (aurApp->GetRemoveMode() != AURA_REMOVE_NONE)
+        if (aurApp->GetRemoveMode().HasAnyFlag())
             continue;
 
         aurApp->GetTarget()->_RegisterAuraEffect(this, true);
@@ -786,13 +772,13 @@ void AuraEffect::HandleEffect(AuraApplication * aurApp, uint8 mode, bool apply)
         prevented = GetBase()->CallScriptEffectRemoveHandlers(this, aurApp, (AuraEffectHandleModes)mode);
 
     // check if script events have removed the aura or if default effect prevention was requested
-    if ((apply && aurApp->GetRemoveMode()) || prevented)
+    if ((apply && aurApp->GetRemoveMode().HasAnyFlag()) || prevented)
         return;
 
     (*this.*AuraEffectHandler[GetAuraType()])(aurApp, mode, apply);
 
     // check if script events have removed the aura or if default effect prevention was requested
-    if (apply && aurApp->GetRemoveMode())
+    if (apply && aurApp->GetRemoveMode().HasAnyFlag())
         return;
 
     // call scripts triggering additional events after apply/remove
@@ -1843,7 +1829,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
         target->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT, ObjectGuid::Empty, GetBase());
 
         // stop handling the effect if it was removed by linked event
-        if (aurApp->GetRemoveMode())
+        if (aurApp->GetRemoveMode().HasAnyFlag())
             return;
 
         if (PowerType != POWER_MANA)
@@ -1856,7 +1842,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
                 target->SetPower(POWER_ENERGY, 0);
         }
         // stop handling the effect if it was removed by linked event
-        if (aurApp->GetRemoveMode())
+        if (aurApp->GetRemoveMode().HasAnyFlag())
             return;
 
         ShapeshiftForm prevForm = target->GetShapeshiftForm();
@@ -1964,7 +1950,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
     }
 
     // stop handling the effect if it was removed by linked event
-    if (apply && aurApp->GetRemoveMode())
+    if (apply && aurApp->GetRemoveMode().HasAnyFlag())
         return;
 
     if (target->GetTypeId() == TYPEID_PLAYER)
@@ -2291,7 +2277,7 @@ void AuraEffect::HandleFeignDeath(AuraApplication const* aurApp, uint8 mode, boo
         target->getHostileRefManager().deleteReferences();
 
         // stop handling the effect if it was removed by linked event
-        if (aurApp->GetRemoveMode())
+        if (aurApp->GetRemoveMode().HasAnyFlag())
             return;
 
         target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);            // blizz like 2.0.x
@@ -4524,7 +4510,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                             break;
                         case 43681: // Inactive
                         {
-                            if (target->GetTypeId() != TYPEID_PLAYER || aurApp->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+                            if (target->GetTypeId() != TYPEID_PLAYER || !aurApp->GetRemoveMode().HasFlag(AuraRemoveFlags::Expired))
                                 return;
 
                             if (target->GetMap()->IsBattleground())
@@ -4542,7 +4528,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                             target->CastSpell((Unit*)nullptr, GetAmount(), true, nullptr, this);
                             break;
                         case 91604: // Restricted Flight Area
-                            if (aurApp->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
+                            if (aurApp->GetRemoveMode().HasFlag(AuraRemoveFlags::Expired))
                                 target->CastSpell(target, 58601, true);
                             break;
                     }
@@ -4760,7 +4746,7 @@ void AuraEffect::HandleChannelDeathItem(AuraApplication const* aurApp, uint8 mod
     if (!(mode & AURA_EFFECT_HANDLE_REAL))
         return;
 
-    if (apply || aurApp->GetRemoveMode() != AURA_REMOVE_BY_DEATH)
+    if (apply || !aurApp->GetRemoveMode().HasFlag(AuraRemoveFlags::ByDeath))
         return;
 
     Unit* caster = GetCaster();
