@@ -4530,22 +4530,25 @@ void Spell::TakeCastItem()
     bool expendable = false;
     bool withoutCharges = false;
 
-    for (uint8 i = 0; i < proto->Effects.size() && i < 5; ++i)
+    for (ItemEffectEntry const* itemEffect : m_CastItem->GetEffects())
     {
+        if (itemEffect->LegacySlotIndex >= m_CastItem->m_itemData->SpellCharges.size())
+            continue;
+
         // item has limited charges
-        if (proto->Effects[i]->Charges)
+        if (itemEffect->Charges)
         {
-            if (proto->Effects[i]->Charges < 0)
+            if (itemEffect->Charges < 0)
                 expendable = true;
 
-            int32 charges = m_CastItem->GetSpellCharges(i);
+            int32 charges = m_CastItem->GetSpellCharges(itemEffect->LegacySlotIndex);
 
             // item has charges left
             if (charges)
             {
                 (charges > 0) ? --charges : ++charges;  // abs(charges) less at 1 after use
                 if (proto->GetMaxStackSize() == 1)
-                    m_CastItem->SetSpellCharges(i, charges);
+                    m_CastItem->SetSpellCharges(itemEffect->LegacySlotIndex, charges);
                 m_CastItem->SetState(ITEM_CHANGED, player);
             }
 
@@ -4695,10 +4698,8 @@ void Spell::TakeReagents()
     if (m_caster->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    ItemTemplate const* castItemTemplate = m_CastItem ? m_CastItem->GetTemplate() : NULL;
-
     // do not take reagents for these item casts
-    if (castItemTemplate && castItemTemplate->GetFlags() & ITEM_FLAG_NO_REAGENT_COST)
+    if (m_CastItem && m_CastItem->GetTemplate()->GetFlags() & ITEM_FLAG_NO_REAGENT_COST)
         return;
 
     Player* p_caster = m_caster->ToPlayer();
@@ -4714,13 +4715,16 @@ void Spell::TakeReagents()
         uint32 itemcount = m_spellInfo->ReagentCount[x];
 
         // if CastItem is also spell reagent
-        if (castItemTemplate && castItemTemplate->GetId() == itemid)
+        if (m_CastItem && m_CastItem->GetEntry() == itemid)
         {
-            for (uint8 s = 0; s < castItemTemplate->Effects.size() && s < 5; ++s)
+            for (ItemEffectEntry const* itemEffect : m_CastItem->GetEffects())
             {
+                if (itemEffect->LegacySlotIndex >= m_CastItem->m_itemData->SpellCharges.size())
+                    continue;
+
                 // CastItem will be used up and does not count as reagent
-                int32 charges = m_CastItem->GetSpellCharges(s);
-                if (castItemTemplate->Effects[s]->Charges < 0 && abs(charges) < 2)
+                int32 charges = m_CastItem->GetSpellCharges(itemEffect->LegacySlotIndex);
+                if (itemEffect->Charges < 0 && abs(charges) < 2)
                 {
                     ++itemcount;
                     break;
@@ -6286,9 +6290,9 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
         if (!proto)
             return SPELL_FAILED_ITEM_NOT_READY;
 
-        for (uint8 i = 0; i < proto->Effects.size() && i < 5; ++i)
-            if (proto->Effects[i]->Charges)
-                if (m_CastItem->GetSpellCharges(i) == 0)
+        for (ItemEffectEntry const* itemEffect : m_CastItem->GetEffects())
+            if (itemEffect->LegacySlotIndex < m_CastItem->m_itemData->SpellCharges.size() && itemEffect->Charges)
+                if (m_CastItem->GetSpellCharges(itemEffect->LegacySlotIndex) == 0)
                     return SPELL_FAILED_NO_CHARGES_REMAIN;
 
         // consumable cast item checks
@@ -6388,11 +6392,15 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
                     ItemTemplate const* proto = m_CastItem->GetTemplate();
                     if (!proto)
                         return SPELL_FAILED_ITEM_NOT_READY;
-                    for (uint8 s = 0; s < proto->Effects.size() && s < 5; ++s)
+
+                    for (ItemEffectEntry const* itemEffect : m_CastItem->GetEffects())
                     {
+                        if (itemEffect->LegacySlotIndex >= m_CastItem->m_itemData->SpellCharges.size())
+                            continue;
+
                         // CastItem will be used up and does not count as reagent
-                        int32 charges = m_CastItem->GetSpellCharges(s);
-                        if (proto->Effects[s]->Charges < 0 && abs(charges) < 2)
+                        int32 charges = m_CastItem->GetSpellCharges(itemEffect->LegacySlotIndex);
+                        if (itemEffect->Charges < 0 && abs(charges) < 2)
                         {
                             ++itemcount;
                             break;
@@ -6521,10 +6529,9 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
                     return SPELL_FAILED_LOWLEVEL;
 
                 bool isItemUsable = false;
-                ItemTemplate const* proto = targetItem->GetTemplate();
-                for (uint8 e = 0; e < proto->Effects.size(); ++e)
+                for (ItemEffectEntry const* itemEffect : targetItem->GetEffects())
                 {
-                    if (proto->Effects[e]->SpellID && proto->Effects[e]->TriggerType == ITEM_SPELLTRIGGER_ON_USE)
+                    if (itemEffect->SpellID && itemEffect->TriggerType == ITEM_SPELLTRIGGER_ON_USE)
                     {
                         isItemUsable = true;
                         break;
@@ -6718,11 +6725,11 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
                      return SPELL_FAILED_ITEM_AT_MAX_CHARGES;
 
                  if (Item* item = player->GetItemByEntry(itemId))
-                 {
-                     for (uint8 x = 0; x < proto->Effects.size() && x < 5; ++x)
-                         if (proto->Effects[x]->Charges != 0 && item->GetSpellCharges(x) == proto->Effects[x]->Charges)
+                     for (ItemEffectEntry const* itemEffect : item->GetEffects())
+                         if (itemEffect->LegacySlotIndex <= item->m_itemData->SpellCharges.size()
+                             && itemEffect->Charges != 0
+                             && item->GetSpellCharges(itemEffect->LegacySlotIndex) == itemEffect->Charges)
                              return SPELL_FAILED_ITEM_AT_MAX_CHARGES;
-                 }
                  break;
             }
             case SPELL_EFFECT_RESPEC_AZERITE_EMPOWERED_ITEM:

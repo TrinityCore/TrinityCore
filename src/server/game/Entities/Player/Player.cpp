@@ -7846,13 +7846,12 @@ void Player::CastAllObtainSpells()
 
 void Player::ApplyItemObtainSpells(Item* item, bool apply)
 {
-    ItemTemplate const* itemTemplate = item->GetTemplate();
-    for (uint8 i = 0; i < itemTemplate->Effects.size(); ++i)
+    for (ItemEffectEntry const* effect : item->GetEffects())
     {
-        if (itemTemplate->Effects[i]->TriggerType != ITEM_SPELLTRIGGER_ON_OBTAIN) // On obtain trigger
+        if (effect->TriggerType != ITEM_SPELLTRIGGER_ON_OBTAIN) // On obtain trigger
             continue;
 
-        int32 const spellId = itemTemplate->Effects[i]->SpellID;
+        int32 const spellId = effect->SpellID;
         if (spellId <= 0)
             continue;
 
@@ -7949,14 +7948,8 @@ void Player::ApplyItemEquipSpell(Item* item, bool apply, bool formChange /*= fal
     if (!item)
         return;
 
-    ItemTemplate const* proto = item->GetTemplate();
-    if (!proto)
-        return;
-
-    for (uint8 i = 0; i < proto->Effects.size(); ++i)
+    for (ItemEffectEntry const* effectData : item->GetEffects())
     {
-        ItemEffectEntry const* effectData = proto->Effects[i];
-
         // wrong triggering type
         if (apply && effectData->TriggerType != ITEM_SPELLTRIGGER_ON_EQUIP)
             continue;
@@ -8294,10 +8287,8 @@ void Player::CastItemCombatSpell(DamageInfo const& damageInfo, Item* item, ItemT
     bool canTrigger = (damageInfo.GetHitMask() & (PROC_HIT_NORMAL | PROC_HIT_CRITICAL | PROC_HIT_ABSORB)) != 0;
     if (canTrigger)
     {
-        for (uint8 i = 0; i < proto->Effects.size(); ++i)
+        for (ItemEffectEntry const* effectData : item->GetEffects())
         {
-            ItemEffectEntry const* effectData = proto->Effects[i];
-
             // wrong triggering type
             if (effectData->TriggerType != ITEM_SPELLTRIGGER_CHANCE_ON_HIT)
                 continue;
@@ -8422,19 +8413,18 @@ void Player::CastItemCombatSpell(DamageInfo const& damageInfo, Item* item, ItemT
 
 void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, ObjectGuid castCount, int32* misc)
 {
-    ItemTemplate const* proto = item->GetTemplate();
     // special learning case
-    if (proto->Effects.size() >= 2)
+    if (item->GetBonus()->EffectCount >= 2)
     {
-        if (proto->Effects[0]->SpellID == 483 || proto->Effects[0]->SpellID == 55884)
+        if (item->GetEffect(0)->SpellID == 483 || item->GetEffect(0)->SpellID == 55884)
         {
-            uint32 learn_spell_id = proto->Effects[0]->SpellID;
-            uint32 learning_spell_id = proto->Effects[1]->SpellID;
+            uint32 learn_spell_id = item->GetEffect(0)->SpellID;
+            uint32 learning_spell_id = item->GetEffect(1)->SpellID;
 
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(learn_spell_id);
             if (!spellInfo)
             {
-                TC_LOG_ERROR("entities.player", "Player::CastItemUseSpell: Item (Entry: %u) has wrong spell id %u, ignoring", proto->GetId(), learn_spell_id);
+                TC_LOG_ERROR("entities.player", "Player::CastItemUseSpell: Item (Entry: %u) has wrong spell id %u, ignoring", item->GetEntry(), learn_spell_id);
                 SendEquipError(EQUIP_ERR_INTERNAL_BAG_ERROR, item, nullptr);
                 return;
             }
@@ -8455,10 +8445,8 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, Objec
     }
 
     // item spells cast at use
-    for (uint8 i = 0; i < proto->Effects.size(); ++i)
+    for (ItemEffectEntry const* effectData : item->GetEffects())
     {
-        ItemEffectEntry const* effectData = proto->Effects[i];
-
         // wrong triggering type
         if (effectData->TriggerType != ITEM_SPELLTRIGGER_ON_USE)
             continue;
@@ -8466,7 +8454,7 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, Objec
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(effectData->SpellID);
         if (!spellInfo)
         {
-            TC_LOG_ERROR("entities.player", "Player::CastItemUseSpell: Item (Entry: %u) has wrong spell id %u, ignoring", proto->GetId(), effectData->SpellID);
+            TC_LOG_ERROR("entities.player", "Player::CastItemUseSpell: Item (Entry: %u) has wrong spell id %u, ignoring", item->GetEntry(), effectData->SpellID);
             continue;
         }
 
@@ -24288,15 +24276,12 @@ void Player::SendInstanceResetWarning(uint32 mapid, Difficulty difficulty, uint3
 
 void Player::ApplyEquipCooldown(Item* pItem)
 {
-    ItemTemplate const* proto = pItem->GetTemplate();
-    if (proto->GetFlags() & ITEM_FLAG_NO_EQUIP_COOLDOWN)
+    if (pItem->GetTemplate()->GetFlags() & ITEM_FLAG_NO_EQUIP_COOLDOWN)
         return;
 
     std::chrono::steady_clock::time_point now = GameTime::GetGameTimeSteadyPoint();
-    for (uint8 i = 0; i < proto->Effects.size(); ++i)
+    for (ItemEffectEntry const* effectData : pItem->GetEffects())
     {
-        ItemEffectEntry const* effectData = proto->Effects[i];
-
         // apply proc cooldown to equip auras if we have any
         if (effectData->TriggerType == ITEM_SPELLTRIGGER_ON_EQUIP)
         {
