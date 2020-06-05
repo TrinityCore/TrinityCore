@@ -5392,9 +5392,10 @@ void Spell::EffectRechargeItem(SpellEffIndex /*effIndex*/)
 
     if (Item* item = player->GetItemByEntry(effectInfo->ItemType))
     {
-        ItemTemplate const* proto = item->GetTemplate();
-        for (size_t x = 0; x < proto->Effects.size() && x < 5; ++x)
-            item->SetSpellCharges(x, proto->Effects[x]->Charges);
+        for (ItemEffectEntry const* itemEffect : item->GetEffects())
+            if (itemEffect->LegacySlotIndex <= item->m_itemData->SpellCharges.size())
+                item->SetSpellCharges(itemEffect->LegacySlotIndex, itemEffect->Charges);
+
         item->SetState(ITEM_CHANGED, player);
     }
 }
