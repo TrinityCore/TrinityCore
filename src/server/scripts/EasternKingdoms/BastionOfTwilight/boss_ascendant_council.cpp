@@ -1094,8 +1094,6 @@ class npc_arion : public CreatureScript
                         case EVENT_THUNDERSHOCK:
                             Talk(SAY_ANNOUNCE_ABILITY);
                             DoCastAOE(SPELL_THUNDERSHOCK);
-                            _events.Repeat(1min + 8s);
-                            _events.ScheduleEvent(EVENT_THUNDERSHOCK_PRE_WARNING, 59s + 700ms);
                             break;
                         case EVENT_THUNDERSHOCK_PRE_WARNING:
                             if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
