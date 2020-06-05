@@ -20,6 +20,7 @@
 #include "DBCFileLoader.h"
 #include "MapBuilder.h"
 #include "Timer.h"
+#include "Util.h"
 #include "VMapFactory.h"
 #include "VMapManager2.h"
 #include <boost/filesystem/operations.hpp>
@@ -362,6 +363,6 @@ int main(int argc, char** argv)
     VMAP::VMapFactory::clear();
 
     if (!silent)
-        printf("Finished. MMAPS were built in %u ms!\n", GetMSTimeDiffToNow(start));
+        printf("Finished. MMAPS were built in %s\n", secsToTimeString(GetMSTimeDiffToNow(start) / 1000).c_str());
     return 0;
 }
