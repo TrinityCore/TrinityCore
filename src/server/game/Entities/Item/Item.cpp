@@ -466,8 +466,8 @@ bool Item::Create(ObjectGuid::LowType guidlow, uint32 itemId, ItemContext contex
     SetDurability(itemProto->MaxDurability);
 
     for (std::size_t i = 0; i < itemProto->Effects.size(); ++i)
-        if (i < 5)
-            SetSpellCharges(i, itemProto->Effects[i]->Charges);
+        if (itemProto->Effects[i]->LegacySlotIndex < 5)
+            SetSpellCharges(itemProto->Effects[i]->LegacySlotIndex, itemProto->Effects[i]->Charges);
 
     SetExpiration(itemProto->GetDuration());
     SetCreatePlayedTime(0);
@@ -557,9 +557,8 @@ void Item::SaveToDB(CharacterDatabaseTransaction& trans)
             stmt->setUInt32(++index, m_itemData->Expiration);
 
             std::ostringstream ssSpells;
-            if (ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(GetEntry()))
-                for (uint8 i = 0; i < itemProto->Effects.size(); ++i)
-                    ssSpells << GetSpellCharges(i) << ' ';
+            for (uint8 i = 0; i < m_itemData->SpellCharges.size() && i < _bonusData.EffectCount; ++i)
+                ssSpells << GetSpellCharges(i) << ' ';
             stmt->setString(++index, ssSpells.str());
 
             stmt->setUInt32(++index, m_itemData->DynamicFlags);
@@ -834,11 +833,6 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
         need_save = true;
     }
 
-    Tokenizer tokens(fields[6].GetString(), ' ', proto->Effects.size());
-    if (tokens.size() == proto->Effects.size())
-        for (uint8 i = 0; i < proto->Effects.size(); ++i)
-            SetSpellCharges(i, atoi(tokens[i]));
-
     SetItemFlags(ItemFieldFlags(itemFlags));
 
     uint32 durability = fields[10].GetUInt16();
@@ -869,6 +863,11 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
     for (char const* token : bonusListString)
         bonusListIDs.push_back(atoi(token));
     SetBonuses(std::move(bonusListIDs));
+
+    // load charges after bonuses, they can add more item effects
+    Tokenizer tokens(fields[6].GetString(), ' ', proto->Effects.size());
+    for (uint8 i = 0; i < m_itemData->SpellCharges.size() && i < _bonusData.EffectCount && i < tokens.size(); ++i)
+        SetSpellCharges(i, atoi(tokens[i]));
 
     SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_ALL_SPECS, fields[19].GetUInt32());
     SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_1, fields[20].GetUInt32());
@@ -2661,6 +2660,14 @@ void BonusData::Initialize(ItemTemplate const* proto)
         AzeriteTierUnlockSetId = azeriteEmpoweredItem->AzeriteTierUnlockSetID;
 
     Suffix = 0;
+
+    EffectCount = 0;
+    for (ItemEffectEntry const* itemEffect : proto->Effects)
+        Effects[EffectCount++] = itemEffect;
+
+    for (std::size_t i = EffectCount; i < Effects.size(); ++i)
+        Effects[i] = nullptr;
+
     CanDisenchant = (proto->GetFlags() & ITEM_FLAG_NO_DISENCHANT) == 0;
     CanScrap = (proto->GetFlags4() & ITEM_FLAG4_SCRAPABLE) != 0;
 
@@ -2785,6 +2792,10 @@ void BonusData::AddBonus(uint32 type, int32 const (&values)[3])
             break;
         case ITEM_BONUS_OVERRIDE_CAN_SCRAP:
             CanScrap = values[0] != 0;
+            break;
+        case ITEM_BONUS_ITEM_EFFECT_ID:
+            if (ItemEffectEntry const* itemEffect = sItemEffectStore.LookupEntry(values[0]))
+                Effects[EffectCount++] = itemEffect;
             break;
     }
 }
