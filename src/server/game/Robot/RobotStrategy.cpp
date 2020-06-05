@@ -641,6 +641,8 @@ void RobotStrategy_Group::InitialStrategy()
     holding = false;
     following = true;
     cure = true;
+    actionType = 0;
+    actionDelay = 0;
     followDistance = FOLLOW_NORMAL_DISTANCE;
     if (me)
     {
@@ -791,8 +793,8 @@ bool RobotStrategy_Group::Update0(uint32 pmDiff)
                     }
                     me->ClearInCombat();
                     me->TeleportTo(leaderPlayer->GetWorldLocation());
-                    return false;
                     sb->WhisperTo("I have come", Language::LANG_UNIVERSAL, leaderPlayer);
+                    return false;
                 }
             }
         }
@@ -1043,6 +1045,31 @@ Player* RobotStrategy_Group::GetPlayerByGroupRole(uint32 pmGroupRole)
     }
 
     return NULL;
+}
+
+std::unordered_set<Player*> RobotStrategy_Group::GetPlayerSetByGroupRoleSet(std::unordered_set<uint32> pmGroupRoleSet)
+{
+    std::unordered_set<Player*> resultSet;
+    resultSet.clear();
+
+    if (me)
+    {
+        if (Group* myGroup = me->GetGroup())
+        {
+            for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+            {
+                if (Player* member = groupRef->GetSource())
+                {
+                    if (pmGroupRoleSet.find(member->groupRole) != pmGroupRoleSet.end())
+                    {
+                        resultSet.insert(member);
+                    }
+                }
+            }
+        }
+    }
+
+    return resultSet;
 }
 
 std::unordered_set<ObjectGuid> RobotStrategy_Group::GetPlayerGUIDSetByGroupRoleSet(std::unordered_set<uint32> pmGroupRoleSet)
@@ -1601,61 +1628,6 @@ void RobotStrategy_Group::SetGroupRole(std::string pmRoleName)
     }
 }
 
-std::unordered_map<ObjectGuid, Unit*> RobotStrategy_Group::GetAddsMap(uint32 pmBossEntry)
-{
-    std::unordered_map<ObjectGuid, Unit*> addsMap;
-    addsMap.clear();
-    if (me)
-    {
-        if (Group* myGroup = me->GetGroup())
-        {
-            for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-            {
-                if (Player* member = groupRef->GetSource())
-                {
-                    if (member->IsAlive())
-                    {
-                        for (Unit::AttackerSet::const_iterator attackerIT = member->getAttackers().begin(); attackerIT != member->getAttackers().end(); ++attackerIT)
-                        {
-                            if (Unit* eachAttacker = *attackerIT)
-                            {
-                                if (eachAttacker->GetEntry() != pmBossEntry)
-                                {
-                                    if (addsMap.find(eachAttacker->GetGUID()) == addsMap.end())
-                                    {
-                                        addsMap[eachAttacker->GetGUID()] = eachAttacker;
-                                    }
-                                }
-                            }
-                        }
-                        if (Pet* memberPet = member->GetPet())
-                        {
-                            if (memberPet->IsAlive())
-                            {
-                                for (Unit::AttackerSet::const_iterator attackerIT = memberPet->getAttackers().begin(); attackerIT != memberPet->getAttackers().end(); ++attackerIT)
-                                {
-                                    if (Unit* eachAttacker = *attackerIT)
-                                    {
-                                        if (eachAttacker->GetEntry() != pmBossEntry)
-                                        {
-                                            if (addsMap.find(eachAttacker->GetGUID()) == addsMap.end())
-                                            {
-                                                addsMap[eachAttacker->GetGUID()] = eachAttacker;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    return addsMap;
-}
-
 std::unordered_map<ObjectGuid, Unit*> RobotStrategy_Group::GetAttackerMap()
 {
     std::unordered_map<ObjectGuid, Unit*> attackerMap;
@@ -1674,9 +1646,12 @@ std::unordered_map<ObjectGuid, Unit*> RobotStrategy_Group::GetAttackerMap()
                         {
                             if (Unit* eachAttacker = *attackerIT)
                             {
-                                if (attackerMap.find(eachAttacker->GetGUID()) == attackerMap.end())
+                                if (eachAttacker->IsAlive())
                                 {
-                                    attackerMap[eachAttacker->GetGUID()] = eachAttacker;
+                                    if (attackerMap.find(eachAttacker->GetGUID()) == attackerMap.end())
+                                    {
+                                        attackerMap[eachAttacker->GetGUID()] = eachAttacker;
+                                    }
                                 }
                             }
                         }
@@ -1688,9 +1663,75 @@ std::unordered_map<ObjectGuid, Unit*> RobotStrategy_Group::GetAttackerMap()
                                 {
                                     if (Unit* eachAttacker = *attackerIT)
                                     {
-                                        if (attackerMap.find(eachAttacker->GetGUID()) == attackerMap.end())
+                                        if (eachAttacker->IsAlive())
                                         {
-                                            attackerMap[eachAttacker->GetGUID()] = eachAttacker;
+                                            if (attackerMap.find(eachAttacker->GetGUID()) == attackerMap.end())
+                                            {
+                                                attackerMap[eachAttacker->GetGUID()] = eachAttacker;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return attackerMap;
+}
+
+std::unordered_map<ObjectGuid, Unit*> RobotStrategy_Group::GetAddsMap(uint32 pmBossEntry)
+{
+    std::unordered_map<ObjectGuid, Unit*> attackerMap;
+    attackerMap.clear();
+    if (me)
+    {
+        if (Group* myGroup = me->GetGroup())
+        {
+            for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+            {
+                if (Player* member = groupRef->GetSource())
+                {
+                    if (member->IsAlive())
+                    {
+                        for (Unit::AttackerSet::const_iterator attackerIT = member->getAttackers().begin(); attackerIT != member->getAttackers().end(); ++attackerIT)
+                        {
+                            if (Unit* eachAttacker = *attackerIT)
+                            {
+                                if (eachAttacker->IsAlive())
+                                {
+                                    if (eachAttacker->GetEntry() == pmBossEntry)
+                                    {
+                                        continue;
+                                    }
+                                    if (attackerMap.find(eachAttacker->GetGUID()) == attackerMap.end())
+                                    {
+                                        attackerMap[eachAttacker->GetGUID()] = eachAttacker;
+                                    }
+                                }
+                            }
+                        }
+                        if (Pet* memberPet = member->GetPet())
+                        {
+                            if (memberPet->IsAlive())
+                            {
+                                for (Unit::AttackerSet::const_iterator attackerIT = memberPet->getAttackers().begin(); attackerIT != memberPet->getAttackers().end(); ++attackerIT)
+                                {
+                                    if (Unit* eachAttacker = *attackerIT)
+                                    {
+                                        if (eachAttacker->IsAlive())
+                                        {
+                                            if (eachAttacker->GetEntry() == pmBossEntry)
+                                            {
+                                                continue;
+                                            }
+                                            if (attackerMap.find(eachAttacker->GetGUID()) == attackerMap.end())
+                                            {
+                                                attackerMap[eachAttacker->GetGUID()] = eachAttacker;
+                                            }
                                         }
                                     }
                                 }
@@ -1723,13 +1764,16 @@ std::unordered_map<ObjectGuid, Unit*> RobotStrategy_Group::GetAttackerMap(uint32
                         {
                             if (Unit* eachAttacker = *attackerIT)
                             {
-                                if (eachAttacker->GetEntry() != pmAttackerEntry)
+                                if (eachAttacker->IsAlive())
                                 {
-                                    continue;
-                                }
-                                if (attackerMap.find(eachAttacker->GetGUID()) == attackerMap.end())
-                                {
-                                    attackerMap[eachAttacker->GetGUID()] = eachAttacker;
+                                    if (eachAttacker->GetEntry() != pmAttackerEntry)
+                                    {
+                                        continue;
+                                    }
+                                    if (attackerMap.find(eachAttacker->GetGUID()) == attackerMap.end())
+                                    {
+                                        attackerMap[eachAttacker->GetGUID()] = eachAttacker;
+                                    }
                                 }
                             }
                         }
@@ -1741,13 +1785,16 @@ std::unordered_map<ObjectGuid, Unit*> RobotStrategy_Group::GetAttackerMap(uint32
                                 {
                                     if (Unit* eachAttacker = *attackerIT)
                                     {
-                                        if (eachAttacker->GetEntry() != pmAttackerEntry)
+                                        if (eachAttacker->IsAlive())
                                         {
-                                            continue;
-                                        }
-                                        if (attackerMap.find(eachAttacker->GetGUID()) == attackerMap.end())
-                                        {
-                                            attackerMap[eachAttacker->GetGUID()] = eachAttacker;
+                                            if (eachAttacker->GetEntry() != pmAttackerEntry)
+                                            {
+                                                continue;
+                                            }
+                                            if (attackerMap.find(eachAttacker->GetGUID()) == attackerMap.end())
+                                            {
+                                                attackerMap[eachAttacker->GetGUID()] = eachAttacker;
+                                            }
                                         }
                                     }
                                 }
@@ -1762,11 +1809,70 @@ std::unordered_map<ObjectGuid, Unit*> RobotStrategy_Group::GetAttackerMap(uint32
     return attackerMap;
 }
 
-std::unordered_map<uint32, Unit*> RobotStrategy_Group::GetBossMap()
+Unit* RobotStrategy_Group::GetAttacker(uint32 pmAttackerEntry)
 {
-    std::unordered_map<uint32, Unit*> bossMap;
-    bossMap.clear();
-    return bossMap;
+    if (me)
+    {
+        if (Group* myGroup = me->GetGroup())
+        {
+            for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+            {
+                if (Player* member = groupRef->GetSource())
+                {
+                    if (member->IsAlive())
+                    {
+                        for (Unit::AttackerSet::const_iterator attackerIT = member->getAttackers().begin(); attackerIT != member->getAttackers().end(); ++attackerIT)
+                        {
+                            if (Unit* eachAttacker = *attackerIT)
+                            {
+                                if (eachAttacker->IsAlive())
+                                {
+                                    if (eachAttacker->GetEntry() == pmAttackerEntry)
+                                    {
+                                        return eachAttacker;
+                                    }
+                                }
+                            }
+                        }
+                        if (Pet* memberPet = member->GetPet())
+                        {
+                            if (memberPet->IsAlive())
+                            {
+                                for (Unit::AttackerSet::const_iterator attackerIT = memberPet->getAttackers().begin(); attackerIT != memberPet->getAttackers().end(); ++attackerIT)
+                                {
+                                    if (Unit* eachAttacker = *attackerIT)
+                                    {
+                                        if (eachAttacker->IsAlive())
+                                        {
+                                            if (eachAttacker->GetEntry() == pmAttackerEntry)
+                                            {
+                                                return eachAttacker;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+Creature* RobotStrategy_Group::GetNearbyCreature(uint32 pmCreatureEntry, float pmDistance)
+{
+    if (me)
+    {
+        std::list<Creature*> creatures;
+        me->GetCreatureListWithEntryInGrid(creatures, pmCreatureEntry, pmDistance);
+        for (Creature* eachCreature : creatures)
+        {
+            return eachCreature;
+        }
+    }
+
+    return NULL;
 }
 
 std::string RobotStrategy_Group_Blackrock_Spire::GetGroupRoleName()
@@ -1844,8 +1950,6 @@ void RobotStrategy_Group_Blackrock_Spire::SetGroupRole(std::string pmRoleName)
 void RobotStrategy_Group_Blackrock_Spire::InitialStrategy()
 {
     RobotStrategy_Group::InitialStrategy();
-    actionType = ActionType_Blackrock_Spire::ActionType_Blackrock_Spire_None;
-    actionDelay = 0;
     tankGythPos.m_positionX = 180.0f;
     tankGythPos.m_positionY = -420.0f;
     tankGythPos.m_positionZ = 110.5f;
@@ -1873,87 +1977,6 @@ void RobotStrategy_Group_Blackrock_Spire::InitialStrategy()
     dpsDrakkisathPos.m_positionX = 12.0f;
     dpsDrakkisathPos.m_positionY = -285.0f;
     dpsDrakkisathPos.m_positionZ = 111.0f;
-}
-
-std::unordered_map<uint32, Unit*> RobotStrategy_Group_Blackrock_Spire::GetBossMap()
-{
-    std::unordered_map<uint32, Unit*> bossMap;
-    bossMap.clear();
-    if (me)
-    {
-        if (Group* myGroup = me->GetGroup())
-        {
-            for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-            {
-                if (Player* member = groupRef->GetSource())
-                {
-                    if (member->IsAlive())
-                    {
-                        for (Unit::AttackerSet::const_iterator attackerIT = member->getAttackers().begin(); attackerIT != member->getAttackers().end(); ++attackerIT)
-                        {
-                            if (Unit* eachAttacker = *attackerIT)
-                            {
-                                bool isBoss = false;
-                                if (eachAttacker->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Drakkisath)
-                                {
-                                    isBoss = true;
-                                }
-                                else if (eachAttacker->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Gyth)
-                                {
-                                    isBoss = true;
-                                }
-                                else if (eachAttacker->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Rend)
-                                {
-                                    isBoss = true;
-                                }
-                                if (isBoss)
-                                {
-                                    if (bossMap.find(eachAttacker->GetEntry()) == bossMap.end())
-                                    {
-                                        bossMap[eachAttacker->GetEntry()] = eachAttacker;
-                                    }
-                                }
-                            }
-                        }
-                        if (Pet* memberPet = member->GetPet())
-                        {
-                            if (memberPet->IsAlive())
-                            {
-                                for (Unit::AttackerSet::const_iterator attackerIT = memberPet->getAttackers().begin(); attackerIT != memberPet->getAttackers().end(); ++attackerIT)
-                                {
-                                    if (Unit* eachAttacker = *attackerIT)
-                                    {
-                                        bool isBoss = false;
-                                        if (eachAttacker->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Drakkisath)
-                                        {
-                                            isBoss = true;
-                                        }
-                                        else if (eachAttacker->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Gyth)
-                                        {
-                                            isBoss = true;
-                                        }
-                                        else if (eachAttacker->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Rend)
-                                        {
-                                            isBoss = true;
-                                        }
-                                        if (isBoss)
-                                        {
-                                            if (bossMap.find(eachAttacker->GetEntry()) == bossMap.end())
-                                            {
-                                                bossMap[eachAttacker->GetEntry()] = eachAttacker;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    return bossMap;
 }
 
 Player* RobotStrategy_Group_Blackrock_Spire::GetMainTank()
@@ -2026,10 +2049,9 @@ bool RobotStrategy_Group_Blackrock_Spire::DPS()
     {
         return false;
     }
-    std::unordered_map<uint32, Unit*> bossMap = GetBossMap();
     if (combatTime < dpsDelay)
     {
-        if (bossMap.find(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Gyth) != bossMap.end())
+        if (GetAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Gyth))
         {
             if (me->GetClass() == Classes::CLASS_HUNTER || me->GetClass() == Classes::CLASS_MAGE || me->GetClass() == Classes::CLASS_PRIEST || me->GetClass() == Classes::CLASS_SHAMAN || me->GetClass() == Classes::CLASS_WARLOCK)
             {
@@ -2041,7 +2063,7 @@ bool RobotStrategy_Group_Blackrock_Spire::DPS()
                 }
             }
         }
-        if (bossMap.find(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Drakkisath) != bossMap.end())
+        if (GetAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Drakkisath))
         {
             if (me->GetClass() == Classes::CLASS_HUNTER || me->GetClass() == Classes::CLASS_MAGE || me->GetClass() == Classes::CLASS_PRIEST || me->GetClass() == Classes::CLASS_SHAMAN || me->GetClass() == Classes::CLASS_WARLOCK)
             {
@@ -2056,7 +2078,7 @@ bool RobotStrategy_Group_Blackrock_Spire::DPS()
     }
     else
     {
-        if (bossMap.find(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Gyth) != bossMap.end())
+        if (Unit* gyth = GetAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Gyth))
         {
             if (me->GetClass() == Classes::CLASS_HUNTER || me->GetClass() == Classes::CLASS_MAGE || me->GetClass() == Classes::CLASS_PRIEST || me->GetClass() == Classes::CLASS_SHAMAN || me->GetClass() == Classes::CLASS_WARLOCK)
             {
@@ -2066,13 +2088,13 @@ bool RobotStrategy_Group_Blackrock_Spire::DPS()
                     actionDelay = 3000;
                     return true;
                 }
-                if (sb->DPS(bossMap[CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Gyth], Chasing(), false, NULL))
+                if (sb->DPS(gyth, Chasing(), false, NULL))
                 {
                     return true;
                 }
             }
         }
-        if (bossMap.find(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Gyth) != bossMap.end())
+        if (Unit* gyth = GetAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Drakkisath))
         {
             if (me->GetClass() == Classes::CLASS_HUNTER || me->GetClass() == Classes::CLASS_MAGE || me->GetClass() == Classes::CLASS_PRIEST || me->GetClass() == Classes::CLASS_SHAMAN || me->GetClass() == Classes::CLASS_WARLOCK)
             {
@@ -2102,8 +2124,7 @@ bool RobotStrategy_Group_Blackrock_Spire::Heal()
     {
         return false;
     }
-    std::unordered_map<uint32, Unit*> bossMap = GetBossMap();
-    if (bossMap.find(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Gyth) != bossMap.end())
+    if (GetAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Gyth))
     {
         if (me->GetDistance(dpsGythPos) > 3.0f)
         {
@@ -2112,7 +2133,7 @@ bool RobotStrategy_Group_Blackrock_Spire::Heal()
             return true;
         }
     }
-    else if (bossMap.find(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Drakkisath) != bossMap.end())
+    else if (GetAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Drakkisath))
     {
         if (me->GetDistance(dpsDrakkisathPos) > 3.0f)
         {
@@ -2281,16 +2302,15 @@ bool RobotStrategy_Group_Blackrock_Spire::Tank()
     {
         return false;
     }
-    std::unordered_map<uint32, Unit*> bossMap = GetBossMap();
     Player* mainTank = GetMainTank();
-    if (bossMap.find(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Gyth) != bossMap.end())
+    if (Unit* gyth = GetAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Gyth))
     {
         if (me->groupRole == GroupRole_Blackrock_Spire::GroupRole_Blackrock_Spire_Tank1)
         {
-            if (bossMap[CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Gyth]->GetTarget() != me->GetGUID())
+            if (gyth->GetTarget() != me->GetGUID())
             {
-                sb->Taunt(bossMap[CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Gyth]);
-                if (sb->Tank(bossMap[CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Gyth], Chasing()))
+                sb->Taunt(gyth);
+                if (sb->Tank(gyth, Chasing()))
                 {
                     return true;
                 }
@@ -2301,21 +2321,21 @@ bool RobotStrategy_Group_Blackrock_Spire::Tank()
                 actionDelay = 3000;
                 return true;
             }
-            sb->Taunt(bossMap[CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Gyth]);
-            if (sb->Tank(bossMap[CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Gyth], Chasing()))
+            sb->Taunt(gyth);
+            if (sb->Tank(gyth, Chasing()))
             {
                 return true;
             }
         }
     }
-    if (bossMap.find(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Rend) != bossMap.end())
+    if (Unit* rend = GetAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Rend))
     {
         if (me->groupRole == GroupRole_Blackrock_Spire::GroupRole_Blackrock_Spire_Tank2)
         {
-            if (bossMap[CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Rend]->GetTarget() != me->GetGUID())
+            if (rend->GetTarget() != me->GetGUID())
             {
-                sb->Taunt(bossMap[CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Rend]);
-                if (sb->Tank(bossMap[CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Rend], Chasing(), true))
+                sb->Taunt(rend);
+                if (sb->Tank(rend, Chasing(), true))
                 {
                     return true;
                 }
@@ -2326,14 +2346,14 @@ bool RobotStrategy_Group_Blackrock_Spire::Tank()
                 actionDelay = 3000;
                 return true;
             }
-            sb->Taunt(bossMap[CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Rend]);
-            if (sb->Tank(bossMap[CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Rend], Chasing(), true))
+            sb->Taunt(rend);
+            if (sb->Tank(rend, Chasing(), true))
             {
                 return true;
             }
         }
     }
-    if (bossMap.find(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Drakkisath) != bossMap.end())
+    if (Unit* drakkisath = GetAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Drakkisath))
     {
         if (me->groupRole == GroupRole_Blackrock_Spire::GroupRole_Blackrock_Spire_Tank1)
         {
@@ -2341,10 +2361,10 @@ bool RobotStrategy_Group_Blackrock_Spire::Tank()
             {
                 return true;
             }
-            if (bossMap[CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Drakkisath]->GetTarget() != me->GetGUID())
+            if (drakkisath->GetTarget() != me->GetGUID())
             {
-                sb->Taunt(bossMap[CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Drakkisath]);
-                if (sb->Tank(bossMap[CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Drakkisath], Chasing(), true))
+                sb->Taunt(drakkisath);
+                if (sb->Tank(drakkisath, Chasing(), true))
                 {
                     return true;
                 }
@@ -2355,8 +2375,8 @@ bool RobotStrategy_Group_Blackrock_Spire::Tank()
                 actionDelay = 1000;
                 return true;
             }
-            sb->Taunt(bossMap[CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Drakkisath]);
-            if (sb->Tank(bossMap[CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Drakkisath], Chasing(), true))
+            sb->Taunt(drakkisath);
+            if (sb->Tank(drakkisath, Chasing(), true))
             {
                 return true;
             }
@@ -2369,10 +2389,10 @@ bool RobotStrategy_Group_Blackrock_Spire::Tank()
             }
             if (mainTank->HasUnitState(UnitState::UNIT_STATE_CONFUSED))
             {
-                if (bossMap[CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Drakkisath]->GetTarget() != me->GetGUID())
+                if (drakkisath->GetTarget() != me->GetGUID())
                 {
-                    sb->Taunt(bossMap[CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Drakkisath]);
-                    if (sb->Tank(bossMap[CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Drakkisath], Chasing(), true))
+                    sb->Taunt(drakkisath);
+                    if (sb->Tank(drakkisath, Chasing(), true))
                     {
                         return true;
                     }
@@ -2383,8 +2403,8 @@ bool RobotStrategy_Group_Blackrock_Spire::Tank()
                     actionDelay = 1000;
                     return true;
                 }
-                sb->Taunt(bossMap[CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Drakkisath]);
-                if (sb->Tank(bossMap[CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Drakkisath], Chasing(), true))
+                sb->Taunt(drakkisath);
+                if (sb->Tank(drakkisath, Chasing(), true))
                 {
                     return true;
                 }
@@ -2397,9 +2417,9 @@ bool RobotStrategy_Group_Blackrock_Spire::Tank()
             }
             else
             {
-                if (!me->isInFront(bossMap[CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Drakkisath], M_PI / 16))
+                if (!me->isInFront(drakkisath, M_PI / 16))
                 {
-                    me->SetFacingToObject(bossMap[CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Drakkisath]);
+                    me->SetFacingToObject(drakkisath);
                 }
             }
             me->AttackStop();
@@ -2906,78 +2926,14 @@ bool RobotStrategy_Group_Alcaz_Island::Tank()
     return RobotStrategy_Group::Tank();
 }
 
-void RobotStrategy_Group_Ysondre::InitialStrategy()
+void RobotStrategy_Group_EmeraldDragon::InitialStrategy()
 {
     engageAngle = 0.0f;
+    sideAngle = 0.0f;
     RobotStrategy_Group::InitialStrategy();
 }
 
-std::unordered_map<uint32, Unit*> RobotStrategy_Group_Ysondre::GetBossMap()
-{
-    std::unordered_map<uint32, Unit*> bossMap;
-    bossMap.clear();
-    if (me)
-    {
-        if (Group* myGroup = me->GetGroup())
-        {
-            for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-            {
-                if (Player* member = groupRef->GetSource())
-                {
-                    if (member->IsAlive())
-                    {
-                        for (Unit::AttackerSet::const_iterator attackerIT = member->getAttackers().begin(); attackerIT != member->getAttackers().end(); ++attackerIT)
-                        {
-                            if (Unit* eachAttacker = *attackerIT)
-                            {
-                                bool isBoss = false;
-                                if (eachAttacker->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Ysondre)
-                                {
-                                    isBoss = true;
-                                }
-                                if (isBoss)
-                                {
-                                    if (bossMap.find(eachAttacker->GetEntry()) == bossMap.end())
-                                    {
-                                        bossMap[eachAttacker->GetEntry()] = eachAttacker;
-                                    }
-                                }
-                            }
-                        }
-                        if (Pet* memberPet = member->GetPet())
-                        {
-                            if (memberPet->IsAlive())
-                            {
-                                for (Unit::AttackerSet::const_iterator attackerIT = memberPet->getAttackers().begin(); attackerIT != memberPet->getAttackers().end(); ++attackerIT)
-                                {
-                                    if (Unit* eachAttacker = *attackerIT)
-                                    {
-                                        bool isBoss = false;
-                                        if (eachAttacker->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Ysondre)
-                                        {
-                                            isBoss = true;
-                                        }
-                                        if (isBoss)
-                                        {
-                                            if (bossMap.find(eachAttacker->GetEntry()) == bossMap.end())
-                                            {
-                                                bossMap[eachAttacker->GetEntry()] = eachAttacker;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    return bossMap;
-}
-
-std::string RobotStrategy_Group_Ysondre::GetGroupRoleName()
+std::string RobotStrategy_Group_EmeraldDragon::GetGroupRoleName()
 {
     if (!me)
     {
@@ -2985,43 +2941,63 @@ std::string RobotStrategy_Group_Ysondre::GetGroupRoleName()
     }
     switch (me->groupRole)
     {
-    case GroupRole_Ysondre::GroupRole_Ysondre_Tank1:
+    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank1:
     {
         return "tank1";
     }
-    case GroupRole_Ysondre::GroupRole_Ysondre_Tank2:
+    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank2:
     {
         return "tank2";
     }
-    case GroupRole_Ysondre::GroupRole_Ysondre_Tank3:
+    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank3:
     {
         return "tank3";
     }
-    case GroupRole_Ysondre::GroupRole_Ysondre_Healer1:
+    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank4:
+    {
+        return "tank4";
+    }
+    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank5:
+    {
+        return "tank5";
+    }
+    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer1:
     {
         return "healer1";
     }
-    case GroupRole_Ysondre::GroupRole_Ysondre_Healer2:
+    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer2:
     {
         return "healer2";
     }
-    case GroupRole_Ysondre::GroupRole_Ysondre_Healer3:
+    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer3:
     {
         return "healer3";
     }
-    case GroupRole_Ysondre::GroupRole_Ysondre_Healer4:
+    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer4:
     {
         return "healer4";
     }
-    case GroupRole_Ysondre::GroupRole_Ysondre_Healer5:
+    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer5:
     {
         return "healer5";
     }
-    case GroupRole_Ysondre::GroupRole_Ysondre_DPS_Range:
+    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer6:
+    {
+        return "healer6";
+    }
+    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer7:
+    {
+        return "healer7";
+    }
+    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer8:
+    {
+        return "healer8";
+    }
+    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_DPS_Range:
     {
         return "dpsr";
     }
-    case GroupRole_Ysondre::GroupRole_Ysondre_DPS_Melee:
+    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_DPS_Melee:
     {
         return "dpsm";
     }
@@ -3033,7 +3009,7 @@ std::string RobotStrategy_Group_Ysondre::GetGroupRoleName()
     return "dps";
 }
 
-void RobotStrategy_Group_Ysondre::SetGroupRole(std::string pmRoleName)
+void RobotStrategy_Group_EmeraldDragon::SetGroupRole(std::string pmRoleName)
 {
     if (!me)
     {
@@ -3041,149 +3017,71 @@ void RobotStrategy_Group_Ysondre::SetGroupRole(std::string pmRoleName)
     }
     else if (pmRoleName == "tank1")
     {
-        me->groupRole = GroupRole_Ysondre::GroupRole_Ysondre_Tank1;
+        me->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank1;
     }
     else if (pmRoleName == "tank2")
     {
-        me->groupRole = GroupRole_Ysondre::GroupRole_Ysondre_Tank2;
+        me->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank2;
     }
     else if (pmRoleName == "tank3")
     {
-        me->groupRole = GroupRole_Ysondre::GroupRole_Ysondre_Tank3;
+        me->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank3;
+    }
+    else if (pmRoleName == "tank4")
+    {
+        me->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank4;
+    }
+    else if (pmRoleName == "tank5")
+    {
+        me->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank5;
     }
     else if (pmRoleName == "healer1")
     {
-        me->groupRole = GroupRole_Ysondre::GroupRole_Ysondre_Healer1;
+        me->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer1;
     }
     else if (pmRoleName == "healer2")
     {
-        me->groupRole = GroupRole_Ysondre::GroupRole_Ysondre_Healer2;
+        me->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer2;
     }
     else if (pmRoleName == "healer3")
     {
-        me->groupRole = GroupRole_Ysondre::GroupRole_Ysondre_Healer3;
+        me->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer3;
     }
     else if (pmRoleName == "healer4")
     {
-        me->groupRole = GroupRole_Ysondre::GroupRole_Ysondre_Healer4;
+        me->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer4;
     }
     else if (pmRoleName == "healer5")
     {
-        me->groupRole = GroupRole_Ysondre::GroupRole_Ysondre_Healer5;
+        me->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer5;
+    }
+    else if (pmRoleName == "healer6")
+    {
+        me->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer6;
+    }
+    else if (pmRoleName == "healer7")
+    {
+        me->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer7;
+    }
+    else if (pmRoleName == "healer8")
+    {
+        me->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer8;
     }
     else if (pmRoleName == "dpsm")
     {
-        me->groupRole = GroupRole_Ysondre::GroupRole_Ysondre_DPS_Melee;
+        me->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_DPS_Melee;
     }
     else if (pmRoleName == "dpsr")
     {
-        me->groupRole = GroupRole_Ysondre::GroupRole_Ysondre_DPS_Range;
+        me->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_DPS_Range;
     }
     else
     {
-        me->groupRole = GroupRole_Ysondre::GroupRole_Ysondre_DPS_Range;
+        me->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_DPS_Range;
     }
 }
 
-Player* RobotStrategy_Group_Ysondre::GetMainTank()
-{
-    Player* tank1 = GetPlayerByGroupRole(GroupRole_Ysondre::GroupRole_Ysondre_Tank1);
-    Player* tank2 = GetPlayerByGroupRole(GroupRole_Ysondre::GroupRole_Ysondre_Tank2);
-
-    if (tank1)
-    {
-        if (tank1->IsAlive())
-        {
-            if (!tank1->HasAura(24778))
-            {
-                if (tank1->GetAuraCount(24818) < 3)
-                {
-                    return tank1;
-                }
-            }
-        }
-    }
-    if (tank2)
-    {
-        if (tank2->IsAlive())
-        {
-            if (!tank2->HasAura(24778))
-            {
-                if (tank2->GetAuraCount(24818) < 3)
-                {
-                    return tank2;
-                }
-            }
-        }
-    }
-    if (tank1)
-    {
-        if (tank1->IsAlive())
-        {
-            return tank1;
-        }
-    }
-    if (tank2)
-    {
-        if (tank2->IsAlive())
-        {
-            return tank2;
-        }
-    }
-
-    return NULL;
-}
-
-Player* RobotStrategy_Group_Ysondre::GetSubTank()
-{
-    Player* tank1 = GetPlayerByGroupRole(GroupRole_Ysondre::GroupRole_Ysondre_Tank1);
-    Player* tank2 = GetPlayerByGroupRole(GroupRole_Ysondre::GroupRole_Ysondre_Tank2);
-    std::unordered_map<uint32, Unit*> bossMap = GetBossMap();
-    if (bossMap.find(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Ysondre) != bossMap.end())
-    {
-        if (Unit* ysondre = bossMap.begin()->second)
-        {
-            if (tank1)
-            {
-                if (ysondre->GetTarget() == tank1->GetGUID())
-                {
-                    if (tank2)
-                    {
-                        if (tank2->IsAlive())
-                        {
-                            return tank2;
-                        }
-                    }
-                }
-            }
-            if (tank2)
-            {
-                if (ysondre->GetTarget() == tank2->GetGUID())
-                {
-                    if (tank1)
-                    {
-                        if (tank1->IsAlive())
-                        {
-                            return tank1;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    if (tank2)
-    {
-        if (tank2->IsAlive())
-        {
-            return tank2;
-        }
-    }
-
-    return NULL;
-}
-
-bool RobotStrategy_Group_Ysondre::Stay(std::string pmTargetGroupRole)
+bool RobotStrategy_Group_EmeraldDragon::Stay(std::string pmTargetGroupRole)
 {
     if (!me)
     {
@@ -3192,26 +3090,25 @@ bool RobotStrategy_Group_Ysondre::Stay(std::string pmTargetGroupRole)
     bool todo = true;
     if (pmTargetGroupRole == "dps")
     {
-        if (me->groupRole != GroupRole_Ysondre::GroupRole_Ysondre_DPS_Melee && me->groupRole != GroupRole_Ysondre::GroupRole_Ysondre_DPS_Range)
+        if (me->groupRole != GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_DPS_Melee && me->groupRole != GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_DPS_Range)
         {
             todo = false;
         }
     }
     else if (pmTargetGroupRole == "healer")
     {
-        if (me->groupRole != GroupRole_Ysondre::GroupRole_Ysondre_Healer1 && me->groupRole != GroupRole_Ysondre::GroupRole_Ysondre_Healer2 && me->groupRole != GroupRole_Ysondre::GroupRole_Ysondre_Healer3)
+        if (me->groupRole != GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer1 && me->groupRole != GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer2 && me->groupRole != GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer3 && me->groupRole != GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer4 && me->groupRole != GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer5 && me->groupRole != GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer6 && me->groupRole != GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer7 && me->groupRole != GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer8)
         {
             todo = false;
         }
     }
     else if (pmTargetGroupRole == "tank")
     {
-        if (me->groupRole != GroupRole_Ysondre::GroupRole_Ysondre_Tank1 && me->groupRole != GroupRole_Ysondre::GroupRole_Ysondre_Tank2 && me->groupRole != GroupRole_Ysondre::GroupRole_Ysondre_Tank3)
+        if (me->groupRole != GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank1 && me->groupRole != GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank2 && me->groupRole != GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank3 && me->groupRole != GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank4 && me->groupRole != GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank5)
         {
             todo = false;
         }
     }
-
     if (todo)
     {
         me->StopMoving();
@@ -3222,11 +3119,10 @@ bool RobotStrategy_Group_Ysondre::Stay(std::string pmTargetGroupRole)
         staying = true;
         return true;
     }
-
     return false;
 }
 
-bool RobotStrategy_Group_Ysondre::Hold(std::string pmTargetGroupRole)
+bool RobotStrategy_Group_EmeraldDragon::Hold(std::string pmTargetGroupRole)
 {
     if (!me)
     {
@@ -3235,38 +3131,35 @@ bool RobotStrategy_Group_Ysondre::Hold(std::string pmTargetGroupRole)
     bool todo = true;
     if (pmTargetGroupRole == "dps")
     {
-        if (me->groupRole != GroupRole_Ysondre::GroupRole_Ysondre_DPS_Melee && me->groupRole != GroupRole_Ysondre::GroupRole_Ysondre_DPS_Range)
+        if (me->groupRole != GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_DPS_Melee && me->groupRole != GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_DPS_Range)
         {
             todo = false;
         }
     }
     else if (pmTargetGroupRole == "healer")
     {
-        if (me->groupRole != GroupRole_Ysondre::GroupRole_Ysondre_Healer1 && me->groupRole != GroupRole_Ysondre::GroupRole_Ysondre_Healer2 && me->groupRole != GroupRole_Ysondre::GroupRole_Ysondre_Healer3)
+        if (me->groupRole != GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer1 && me->groupRole != GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer2 && me->groupRole != GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer3 && me->groupRole != GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer4 && me->groupRole != GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer5 && me->groupRole != GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer6 && me->groupRole != GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer7 && me->groupRole != GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer8)
         {
             todo = false;
         }
     }
     else if (pmTargetGroupRole == "tank")
     {
-        if (me->groupRole != GroupRole_Ysondre::GroupRole_Ysondre_Tank1 && me->groupRole != GroupRole_Ysondre::GroupRole_Ysondre_Tank2 && me->groupRole != GroupRole_Ysondre::GroupRole_Ysondre_Tank3)
+        if (me->groupRole != GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank1 && me->groupRole != GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank2 && me->groupRole != GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank3 && me->groupRole != GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank4 && me->groupRole != GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank5)
         {
             todo = false;
         }
     }
-
-
     if (todo)
     {
         holding = true;
         staying = false;
         return true;
     }
-
     return false;
 }
 
-bool RobotStrategy_Group_Ysondre::Engage(Unit* pmTarget)
+bool RobotStrategy_Group_EmeraldDragon::Engage(Unit* pmTarget)
 {
     if (!me)
     {
@@ -3278,23 +3171,43 @@ bool RobotStrategy_Group_Ysondre::Engage(Unit* pmTarget)
     }
     switch (me->groupRole)
     {
-    case GroupRole_Ysondre::GroupRole_Ysondre_Tank1:
+    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank1:
     {
         return sb->Tank(pmTarget, Chasing());
     }
-    case GroupRole_Ysondre::GroupRole_Ysondre_Tank2:
+    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank2:
     {
         return Tank();
     }
-    case GroupRole_Ysondre::GroupRole_Ysondre_Healer1:
+    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer1:
     {
         return Heal();
     }
-    case GroupRole_Ysondre::GroupRole_Ysondre_Healer2:
+    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer2:
     {
         return Heal();
     }
-    case GroupRole_Ysondre::GroupRole_Ysondre_Healer3:
+    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer3:
+    {
+        return Heal();
+    }
+    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer4:
+    {
+        return Heal();
+    }
+    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer5:
+    {
+        return Heal();
+    }
+    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer6:
+    {
+        return Heal();
+    }
+    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer7:
+    {
+        return Heal();
+    }
+    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer8:
     {
         return Heal();
     }
@@ -3307,7 +3220,7 @@ bool RobotStrategy_Group_Ysondre::Engage(Unit* pmTarget)
     return false;
 }
 
-bool RobotStrategy_Group_Ysondre::Follow()
+bool RobotStrategy_Group_EmeraldDragon::Follow()
 {
     if (!me)
     {
@@ -3331,7 +3244,7 @@ bool RobotStrategy_Group_Ysondre::Follow()
     return false;
 }
 
-void RobotStrategy_Group_Ysondre::Update(uint32 pmDiff)
+void RobotStrategy_Group_EmeraldDragon::Update(uint32 pmDiff)
 {
     if (!Update0(pmDiff))
     {
@@ -3339,6 +3252,26 @@ void RobotStrategy_Group_Ysondre::Update(uint32 pmDiff)
     }
     if (Group* myGroup = me->GetGroup())
     {
+        if (actionDelay > 0)
+        {
+            actionDelay -= pmDiff;
+            switch (actionType)
+            {
+            case ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove:
+            {
+                if (me->GetExactDist(markPos) < 0.5f)
+                {
+                    actionDelay = 0;
+                }
+                break;
+            }
+            default:
+            {
+                break;
+            }
+            }
+            return;
+        }
         bool groupInCombat = GroupInCombat();
         if (groupInCombat)
         {
@@ -3354,7 +3287,7 @@ void RobotStrategy_Group_Ysondre::Update(uint32 pmDiff)
             engageDelay -= pmDiff;
             switch (me->groupRole)
             {
-            case GroupRole_Ysondre::GroupRole_Ysondre_Tank1:
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank1:
             {
                 if (sb->Tank(engageTarget, Chasing()))
                 {
@@ -3367,7 +3300,7 @@ void RobotStrategy_Group_Ysondre::Update(uint32 pmDiff)
                 }
                 break;
             }
-            case GroupRole_Ysondre::GroupRole_Ysondre_Tank2:
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank2:
             {
                 if (sb->Tank(engageTarget, Chasing()))
                 {
@@ -3380,7 +3313,7 @@ void RobotStrategy_Group_Ysondre::Update(uint32 pmDiff)
                 }
                 break;
             }
-            case GroupRole_Ysondre::GroupRole_Ysondre_Tank3:
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank3:
             {
                 if (sb->Tank(engageTarget, Chasing()))
                 {
@@ -3393,7 +3326,33 @@ void RobotStrategy_Group_Ysondre::Update(uint32 pmDiff)
                 }
                 break;
             }
-            case GroupRole_Ysondre::GroupRole_Ysondre_Healer1:
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank4:
+            {
+                if (sb->Tank(engageTarget, Chasing()))
+                {
+                    return;
+                }
+                else
+                {
+                    engageTarget = NULL;
+                    engageDelay = 0;
+                }
+                break;
+            }
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank5:
+            {
+                if (sb->Tank(engageTarget, Chasing()))
+                {
+                    return;
+                }
+                else
+                {
+                    engageTarget = NULL;
+                    engageDelay = 0;
+                }
+                break;
+            }
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer1:
             {
                 if (Heal())
                 {
@@ -3401,7 +3360,7 @@ void RobotStrategy_Group_Ysondre::Update(uint32 pmDiff)
                 }
                 break;
             }
-            case GroupRole_Ysondre::GroupRole_Ysondre_Healer2:
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer2:
             {
                 if (Heal())
                 {
@@ -3409,7 +3368,7 @@ void RobotStrategy_Group_Ysondre::Update(uint32 pmDiff)
                 }
                 break;
             }
-            case GroupRole_Ysondre::GroupRole_Ysondre_Healer3:
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer3:
             {
                 if (Heal())
                 {
@@ -3417,7 +3376,7 @@ void RobotStrategy_Group_Ysondre::Update(uint32 pmDiff)
                 }
                 break;
             }
-            case GroupRole_Ysondre::GroupRole_Ysondre_Healer4:
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer4:
             {
                 if (Heal())
                 {
@@ -3425,7 +3384,7 @@ void RobotStrategy_Group_Ysondre::Update(uint32 pmDiff)
                 }
                 break;
             }
-            case GroupRole_Ysondre::GroupRole_Ysondre_Healer5:
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer5:
             {
                 if (Heal())
                 {
@@ -3433,7 +3392,31 @@ void RobotStrategy_Group_Ysondre::Update(uint32 pmDiff)
                 }
                 break;
             }
-            case GroupRole_Ysondre::GroupRole_Ysondre_DPS_Range:
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer6:
+            {
+                if (Heal())
+                {
+                    return;
+                }
+                break;
+            }
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer7:
+            {
+                if (Heal())
+                {
+                    return;
+                }
+                break;
+            }
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer8:
+            {
+                if (Heal())
+                {
+                    return;
+                }
+                break;
+            }
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_DPS_Range:
             {
                 if (sb->DPS(engageTarget, Chasing(), false, NULL))
                 {
@@ -3446,7 +3429,7 @@ void RobotStrategy_Group_Ysondre::Update(uint32 pmDiff)
                 }
                 break;
             }
-            case GroupRole_Ysondre::GroupRole_Ysondre_DPS_Melee:
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_DPS_Melee:
             {
                 if (sb->DPS(engageTarget, Chasing(), false, NULL))
                 {
@@ -3470,7 +3453,7 @@ void RobotStrategy_Group_Ysondre::Update(uint32 pmDiff)
         {
             switch (me->groupRole)
             {
-            case GroupRole_Ysondre::GroupRole_Ysondre_Tank1:
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank1:
             {
                 if (Tank())
                 {
@@ -3478,7 +3461,7 @@ void RobotStrategy_Group_Ysondre::Update(uint32 pmDiff)
                 }
                 break;
             }
-            case GroupRole_Ysondre::GroupRole_Ysondre_Tank2:
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank2:
             {
                 if (Tank())
                 {
@@ -3486,7 +3469,7 @@ void RobotStrategy_Group_Ysondre::Update(uint32 pmDiff)
                 }
                 break;
             }
-            case GroupRole_Ysondre::GroupRole_Ysondre_Tank3:
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank3:
             {
                 if (Tank())
                 {
@@ -3494,7 +3477,23 @@ void RobotStrategy_Group_Ysondre::Update(uint32 pmDiff)
                 }
                 break;
             }
-            case GroupRole_Ysondre::GroupRole_Ysondre_Healer1:
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank4:
+            {
+                if (Tank())
+                {
+                    return;
+                }
+                break;
+            }
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank5:
+            {
+                if (Tank())
+                {
+                    return;
+                }
+                break;
+            }
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer1:
             {
                 if (Heal())
                 {
@@ -3502,7 +3501,7 @@ void RobotStrategy_Group_Ysondre::Update(uint32 pmDiff)
                 }
                 break;
             }
-            case GroupRole_Ysondre::GroupRole_Ysondre_Healer2:
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer2:
             {
                 if (Heal())
                 {
@@ -3510,7 +3509,7 @@ void RobotStrategy_Group_Ysondre::Update(uint32 pmDiff)
                 }
                 break;
             }
-            case GroupRole_Ysondre::GroupRole_Ysondre_Healer3:
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer3:
             {
                 if (Heal())
                 {
@@ -3518,7 +3517,7 @@ void RobotStrategy_Group_Ysondre::Update(uint32 pmDiff)
                 }
                 break;
             }
-            case GroupRole_Ysondre::GroupRole_Ysondre_Healer4:
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer4:
             {
                 if (Heal())
                 {
@@ -3526,7 +3525,7 @@ void RobotStrategy_Group_Ysondre::Update(uint32 pmDiff)
                 }
                 break;
             }
-            case GroupRole_Ysondre::GroupRole_Ysondre_Healer5:
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer5:
             {
                 if (Heal())
                 {
@@ -3534,7 +3533,31 @@ void RobotStrategy_Group_Ysondre::Update(uint32 pmDiff)
                 }
                 break;
             }
-            case GroupRole_Ysondre::GroupRole_Ysondre_DPS_Range:
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer6:
+            {
+                if (Heal())
+                {
+                    return;
+                }
+                break;
+            }
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer7:
+            {
+                if (Heal())
+                {
+                    return;
+                }
+                break;
+            }
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer8:
+            {
+                if (Heal())
+                {
+                    return;
+                }
+                break;
+            }
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_DPS_Range:
             {
                 if (DPS())
                 {
@@ -3542,7 +3565,7 @@ void RobotStrategy_Group_Ysondre::Update(uint32 pmDiff)
                 }
                 break;
             }
-            case GroupRole_Ysondre::GroupRole_Ysondre_DPS_Melee:
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_DPS_Melee:
             {
                 if (DPS())
                 {
@@ -3566,7 +3589,7 @@ void RobotStrategy_Group_Ysondre::Update(uint32 pmDiff)
             switch (me->groupRole)
             {
 
-            case GroupRole_Ysondre::GroupRole_Ysondre_Tank1:
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank1:
             {
                 if (Rest())
                 {
@@ -3578,7 +3601,7 @@ void RobotStrategy_Group_Ysondre::Update(uint32 pmDiff)
                 }
                 break;
             }
-            case GroupRole_Ysondre::GroupRole_Ysondre_Tank2:
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank2:
             {
                 if (Rest())
                 {
@@ -3590,7 +3613,7 @@ void RobotStrategy_Group_Ysondre::Update(uint32 pmDiff)
                 }
                 break;
             }
-            case GroupRole_Ysondre::GroupRole_Ysondre_Tank3:
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank3:
             {
                 if (Rest())
                 {
@@ -3602,13 +3625,9 @@ void RobotStrategy_Group_Ysondre::Update(uint32 pmDiff)
                 }
                 break;
             }
-            case GroupRole_Ysondre::GroupRole_Ysondre_Healer1:
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank4:
             {
                 if (Rest())
-                {
-                    return;
-                }
-                if (Heal())
                 {
                     return;
                 }
@@ -3618,13 +3637,9 @@ void RobotStrategy_Group_Ysondre::Update(uint32 pmDiff)
                 }
                 break;
             }
-            case GroupRole_Ysondre::GroupRole_Ysondre_Healer2:
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank5:
             {
                 if (Rest())
-                {
-                    return;
-                }
-                if (Heal())
                 {
                     return;
                 }
@@ -3634,7 +3649,7 @@ void RobotStrategy_Group_Ysondre::Update(uint32 pmDiff)
                 }
                 break;
             }
-            case GroupRole_Ysondre::GroupRole_Ysondre_Healer3:
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer1:
             {
                 if (Rest())
                 {
@@ -3650,7 +3665,7 @@ void RobotStrategy_Group_Ysondre::Update(uint32 pmDiff)
                 }
                 break;
             }
-            case GroupRole_Ysondre::GroupRole_Ysondre_Healer4:
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer2:
             {
                 if (Rest())
                 {
@@ -3666,7 +3681,7 @@ void RobotStrategy_Group_Ysondre::Update(uint32 pmDiff)
                 }
                 break;
             }
-            case GroupRole_Ysondre::GroupRole_Ysondre_Healer5:
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer3:
             {
                 if (Rest())
                 {
@@ -3682,7 +3697,87 @@ void RobotStrategy_Group_Ysondre::Update(uint32 pmDiff)
                 }
                 break;
             }
-            case GroupRole_Ysondre::GroupRole_Ysondre_DPS_Range:
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer4:
+            {
+                if (Rest())
+                {
+                    return;
+                }
+                if (Heal())
+                {
+                    return;
+                }
+                if (Buff())
+                {
+                    return;
+                }
+                break;
+            }
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer5:
+            {
+                if (Rest())
+                {
+                    return;
+                }
+                if (Heal())
+                {
+                    return;
+                }
+                if (Buff())
+                {
+                    return;
+                }
+                break;
+            }
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer6:
+            {
+                if (Rest())
+                {
+                    return;
+                }
+                if (Heal())
+                {
+                    return;
+                }
+                if (Buff())
+                {
+                    return;
+                }
+                break;
+            }
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer7:
+            {
+                if (Rest())
+                {
+                    return;
+                }
+                if (Heal())
+                {
+                    return;
+                }
+                if (Buff())
+                {
+                    return;
+                }
+                break;
+            }
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer8:
+            {
+                if (Rest())
+                {
+                    return;
+                }
+                if (Heal())
+                {
+                    return;
+                }
+                if (Buff())
+                {
+                    return;
+                }
+                break;
+            }
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_DPS_Range:
             {
                 if (Rest())
                 {
@@ -3694,7 +3789,7 @@ void RobotStrategy_Group_Ysondre::Update(uint32 pmDiff)
                 }
                 break;
             }
-            case GroupRole_Ysondre::GroupRole_Ysondre_DPS_Melee:
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_DPS_Melee:
             {
                 if (Rest())
                 {
@@ -3722,167 +3817,363 @@ void RobotStrategy_Group_Ysondre::Update(uint32 pmDiff)
     }
 }
 
-std::unordered_set<ObjectGuid> RobotStrategy_Group_Ysondre::GetAssignedDruidOGSet()
+bool RobotStrategy_Group_EmeraldDragon::DPS()
 {
-    std::unordered_set<ObjectGuid> resultSet;
-    resultSet.clear();
-
-    if (me)
+    if (me->HasAura(24778))
     {
-        if (Group* myGroup = me->GetGroup())
+        return true;
+    }
+    //if (Creature* dreamFog = GetNearbyCreature(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Dream_Fog))
+    //{
+    //    if (me->GetDistance(dreamFog) < 5.0f)
+    //    {
+    //        if (urand(0, 1) == 0)
+    //        {
+    //            engageAngle = engageAngle - M_PI / 16;
+    //        }
+    //        else
+    //        {
+    //            engageAngle = engageAngle + M_PI / 16;
+    //        }
+    //        Position dodgePos;
+    //        float currentDistance = me->GetExactDist(basePos);
+    //        dodgePos.m_positionX = basePos.m_positionX + currentDistance * std::cos(engageAngle);
+    //        dodgePos.m_positionY = basePos.m_positionY + currentDistance * std::sin(engageAngle);
+    //        dodgePos.m_positionZ = basePos.m_positionZ + 10.0f;
+    //        me->UpdateAllowedPositionZ(dodgePos.m_positionX, dodgePos.m_positionY, dodgePos.m_positionZ);
+    //        markPos = dodgePos;
+    //        actionDelay = 10000;
+    //        actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+    //        me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(basePos));
+    //    }
+    //}
+    if (Group* myGroup = me->GetGroup())
+    {
+        std::unordered_map<ObjectGuid, Unit*> shadeOfTaerarMap = GetAttackerMap(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Shade_of_Taerar);
+        if (shadeOfTaerarMap.size() > 0)
         {
-            for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+            bool chaseDPS = true;
+            if (me->groupRole == GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_DPS_Range)
             {
-                if (Player* member = groupRef->GetSource())
-                {
-                    if (member->IsAlive())
-                    {
-                        if (member->groupRole == GroupRole_Ysondre::GroupRole_Ysondre_DPS_Range || member->groupRole == GroupRole_Ysondre::GroupRole_Ysondre_DPS_Melee)
-                        {
-                            if (RobotStrategy_Group_Ysondre* rs = (RobotStrategy_Group_Ysondre*)member->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
-                            {
-                                if (rs->druidOG.IsEmpty())
-                                {
-                                    resultSet.insert(rs->druidOG);
-                                }
-                            }
-                        }
-                    }
-                }
+                chaseDPS = false;
             }
-        }
-    }
-
-    return resultSet;
-}
-
-bool RobotStrategy_Group_Ysondre::DPS()
-{
-    if (!me)
-    {
-        return false;
-    }
-    std::unordered_map<uint32, Unit*> bossMap = GetBossMap();
-    if (bossMap.find(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Ysondre) != bossMap.end())
-    {
-        if (Unit* ysondre = bossMap.begin()->second)
-        {
-            Player* tank3 = GetPlayerByGroupRole(GroupRole_Ysondre::GroupRole_Ysondre_Tank3);
-            if (me->groupRole == GroupRole_Ysondre::GroupRole_Ysondre_DPS_Range)
+            //else if (me->groupRole == GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_DPS_Melee)
+            //{
+            //    if (Creature* taerar = GetNearbyCreature(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Taerar))
+            //    {
+            //        float currentDistance = me->GetDistance(taerar);
+            //        if (currentDistance < 35.0f || currentDistance > 40.0f)
+            //        {
+            //            taerar->GetNearPoint(me, markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ, 37.0f, engageAngle);
+            //            actionDelay = 5000;
+            //            actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+            //            me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(taerar->GetPosition()));
+            //        }
+            //    }
+            //}
+            if (Unit* shade7 = ObjectAccessor::GetUnit(*me, myGroup->GetOGByTargetIcon(7)))
             {
-                float currentDistance = me->GetDistance(ysondre);
-                if (currentDistance < 28.0f || currentDistance > 30.0f)
+                if (shade7->IsAlive())
                 {
-                    float newX = 0.0f;
-                    float newY = 0.0f;
-                    float newZ = 0.0f;
-                    ysondre->GetNearPoint(me, newX, newY, newZ, 29.0f, engageAngle);
-                    moveDelay = 1000;
-                    me->GetMotionMaster()->MovePoint(0, newX, newY, newZ, true, me->GetAbsoluteAngle(ysondre));
-                    return true;
-                }
-                if (combatTime > dpsDelay)
-                {
-                    std::list<Creature*> druids;
-                    me->GetCreatureListWithEntryInGrid(druids, CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Demented_Druid, 100.0f);
-                    if (druids.size() > 0)
-                    {
-                        if (Unit* myDruid = ObjectAccessor::GetUnit(*me, druidOG))
-                        {
-                            if (myDruid->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Demented_Druid)
-                            {
-                                if (sb->DPS(myDruid, false, true, tank3))
-                                {
-                                    return true;
-                                }
-                            }
-                        }
-                        druidOG.Clear();
-                        std::unordered_set<ObjectGuid> assignedDruid = GetAssignedDruidOGSet();
-                        for (Creature* eachDruid : druids)
-                        {
-                            if (assignedDruid.find(eachDruid->GetGUID()) == assignedDruid.end())
-                            {
-                                if (sb->DPS(eachDruid, false, true, tank3))
-                                {
-                                    druidOG = eachDruid->GetGUID();
-                                    return true;
-                                }
-                            }
-                        }
-                        for (Creature* eachDruid : druids)
-                        {
-                            if (sb->DPS(eachDruid, false, true, tank3))
-                            {
-                                druidOG = eachDruid->GetGUID();
-                                return true;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        druidOG.Clear();
-                    }
-                    if (sb->DPS(ysondre, false, false, NULL))
+                    if (sb->DPS(shade7, chaseDPS, false, NULL))
                     {
                         return true;
                     }
                 }
             }
-            else if (me->groupRole == GroupRole_Ysondre::GroupRole_Ysondre_DPS_Melee)
+            if (Player* activeTank = ObjectAccessor::GetPlayer(*me, myGroup->GetOGByTargetIcon(0)))
             {
-                std::list<Creature*> druids;
-                me->GetCreatureListWithEntryInGrid(druids, CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Demented_Druid, 100.0f);
-                if (druids.size() > 0)
+                if (activeTank->IsAlive())
                 {
-                    if (Unit* myDruid = ObjectAccessor::GetUnit(*me, druidOG))
+                    if (activeTank->groupRole == GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank1)
                     {
-                        if (myDruid->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Demented_Druid)
+                        if (Unit* shade5 = ObjectAccessor::GetUnit(*me, myGroup->GetOGByTargetIcon(5)))
                         {
-                            if (sb->DPS(myDruid, true, true, tank3))
+                            if (shade5->IsAlive())
+                            {
+                                if (sb->DPS(shade5, chaseDPS, false, NULL))
+                                {
+                                    return true;
+                                }
+                            }
+                        }
+                        if (Unit* shade6 = ObjectAccessor::GetUnit(*me, myGroup->GetOGByTargetIcon(6)))
+                        {
+                            if (shade6->IsAlive())
+                            {
+                                if (sb->DPS(shade6, chaseDPS, false, NULL))
+                                {
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (Unit* shade6 = ObjectAccessor::GetUnit(*me, myGroup->GetOGByTargetIcon(6)))
+                        {
+                            if (shade6->IsAlive())
+                            {
+                                if (sb->DPS(shade6, chaseDPS, false, NULL))
+                                {
+                                    return true;
+                                }
+                            }
+                        }
+                        if (Unit* shade5 = ObjectAccessor::GetUnit(*me, myGroup->GetOGByTargetIcon(5)))
+                        {
+                            if (shade5->IsAlive())
+                            {
+                                if (sb->DPS(shade5, chaseDPS, false, NULL))
+                                {
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            //return true;
+        }
+        if (Unit* taerar = GetAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Taerar))
+        {
+            if (me->groupRole == GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_DPS_Range)
+            {
+                if (taerar->GetTarget() != me->GetGUID())
+                {
+                    bool move = false;
+                    float currentDistance = me->GetDistance(taerar);
+                    float currentAngle = taerar->GetAbsoluteAngle(me->GetPosition());
+                    if (currentDistance < 28.0f || currentDistance > 30.0f)
+                    {
+                        move = true;
+                    }
+                    else if (currentAngle<engageAngle - M_PI / 16 || currentAngle>engageAngle + M_PI / 16)
+                    {
+                        move = true;
+                    }
+                    if (move)
+                    {
+                        me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                        me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                        me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                        me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                        taerar->GetNearPoint(me, markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ, 29.0f, engageAngle);
+                        //taerar->GetNearPoint(me, markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ, 29.0f, taerar->GetAbsoluteAngle(me->GetPosition()));
+                        actionDelay = 5000;
+                        actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                        me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(taerar->GetPosition()));
+                        return true;
+                    }
+                    if (combatTime > dpsDelay)
+                    {
+                        sb->DPS(taerar, false, false, NULL);
+                    }
+                }
+            }
+            else if (me->groupRole == GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_DPS_Melee)
+            {
+                float currentDistance = me->GetDistance(taerar);
+                if (currentDistance < 35.0f || currentDistance > 40.0f)
+                {
+                    taerar->GetNearPoint(me, markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ, 37.0f, engageAngle);
+                    actionDelay = 5000;
+                    actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                    me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(taerar->GetPosition()));
+                }
+                //if (Player* taerarTarget = ObjectAccessor::FindConnectedPlayer(taerar->GetTarget()))
+                //{
+                //    if (taerarTarget->groupRole == GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank1)
+                //    {
+                //        if (Player* tank2 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank2))
+                //        {
+                //            if (tank2->IsAlive())
+                //            {
+                //                markPos = tank2->GetPosition();
+                //                if (me->GetExactDist(markPos) > 0.5f)
+                //                {
+                //                    me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                //                    me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                //                    me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                //                    me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                //                    actionDelay = 5000;
+                //                    actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                //                    me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(taerar->GetPosition()));
+                //                    return true;
+                //                }
+                //                sb->DPS(taerar, false, false, NULL);
+                //            }
+                //        }
+                //    }
+                //    else if (taerarTarget->groupRole == GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank2)
+                //    {
+                //        if (Player* tank1 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank1))
+                //        {
+                //            if (tank1->IsAlive())
+                //            {
+                //                markPos = tank1->GetPosition();
+                //                if (me->GetExactDist(markPos) > 0.5f)
+                //                {
+                //                    me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                //                    me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                //                    me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                //                    me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                //                    actionDelay = 5000;
+                //                    actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                //                    me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(taerar->GetPosition()));
+                //                    return true;
+                //                }
+                //                sb->DPS(taerar, false, false, NULL);
+                //            }
+                //        }
+                //    }
+                //}
+            }
+            return true;
+        }
+        std::unordered_map<ObjectGuid, Unit*> dementedDruidMap = GetAttackerMap(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Demented_Druid);
+        if (dementedDruidMap.size() > 0)
+        {
+            bool chaseDPS = true;
+            float distanceLimit = VISIBILITY_DISTANCE_NORMAL;
+            if (me->groupRole == GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_DPS_Range)
+            {
+                chaseDPS = false;
+                distanceLimit = 30.0f;
+            }
+            if (myGroup->groupTargetArrangementMap.find(me->GetGUID()) != myGroup->groupTargetArrangementMap.end())
+            {
+                ObjectGuid myDruidGUID = myGroup->groupTargetArrangementMap[me->GetGUID()];
+                if (Unit* myDruid = ObjectAccessor::GetUnit(*me, myDruidGUID))
+                {
+                    if (myDruid->IsAlive())
+                    {
+                        if (me->GetDistance(myDruid) < distanceLimit)
+                        {
+                            if (sb->DPS(myDruid, chaseDPS, false, NULL))
                             {
                                 return true;
                             }
                         }
                     }
-                    druidOG.Clear();
-                    std::unordered_set<ObjectGuid> assignedDruid = GetAssignedDruidOGSet();
-                    for (Creature* eachDruid : druids)
+                }
+            }
+            for (std::unordered_map<ObjectGuid, Unit*>::iterator ddIT = dementedDruidMap.begin(); ddIT != dementedDruidMap.end(); ddIT++)
+            {
+                if (Unit* eachDD = ddIT->second)
+                {
+                    if (me->GetDistance(eachDD) < distanceLimit)
                     {
-                        if (assignedDruid.find(eachDruid->GetGUID()) == assignedDruid.end())
+                        bool arranged = false;
+                        for (std::unordered_map<ObjectGuid, ObjectGuid>::iterator arrangedIT = myGroup->groupTargetArrangementMap.begin(); arrangedIT != myGroup->groupTargetArrangementMap.end(); arrangedIT++)
                         {
-                            if (sb->DPS(eachDruid, true, true, tank3))
+                            if (eachDD->GetGUID() == arrangedIT->second)
                             {
-                                druidOG = eachDruid->GetGUID();
-                                return true;
+                                arranged = true;
+                                break;
                             }
                         }
-                    }
-                    for (Creature* eachDruid : druids)
-                    {
-                        if (sb->DPS(eachDruid, true, true, tank3))
+                        if (!arranged)
                         {
-                            druidOG = eachDruid->GetGUID();
+                            myGroup->groupTargetArrangementMap[me->GetGUID()] = eachDD->GetGUID();
                             return true;
                         }
                     }
                 }
-                else
+            }
+            for (std::unordered_map<ObjectGuid, Unit*>::iterator ddIT = dementedDruidMap.begin(); ddIT != dementedDruidMap.end(); ddIT++)
+            {
+                if (Unit* eachDD = ddIT->second)
                 {
-                    druidOG.Clear();
+                    if (me->GetDistance(eachDD) < distanceLimit)
+                    {
+                        if (sb->DPS(eachDD, chaseDPS, false, NULL))
+                        {
+                            return true;
+                        }
+                    }
                 }
+            }
+        }
+        else
+        {
+            myGroup->groupTargetArrangementMap.clear();
+        }
+        if (Unit* ysondre = GetAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Ysondre))
+        {
+            if (me->groupRole == GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_DPS_Range)
+            {
+                if (ysondre->GetTarget() != me->GetGUID())
+                {
+                    float currentDistance = me->GetDistance(ysondre);
+                    if (currentDistance < 28.0f || currentDistance > 30.0f)
+                    {
+                        me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                        me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                        me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                        me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                        ysondre->GetNearPoint(me, markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ, 29.0f, engageAngle);
+                        //taerar->GetNearPoint(me, markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ, 29.0f, taerar->GetAbsoluteAngle(me->GetPosition()));
+                        actionDelay = 5000;
+                        actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                        me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(ysondre->GetPosition()));
+                        return true;
+                    }
+                    if (combatTime > dpsDelay)
+                    {
+                        sb->DPS(ysondre, false, false, NULL);
+                    }
+                }
+            }
+            else if (me->groupRole == GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_DPS_Melee)
+            {
                 float currentDistance = me->GetDistance(ysondre);
-                if (currentDistance < 40.0f || currentDistance > 45.0f)
+                if (currentDistance < 35.0f || currentDistance > 40.0f)
                 {
-                    float newX = 0.0f;
-                    float newY = 0.0f;
-                    float newZ = 0.0f;
-                    ysondre->GetNearPoint(me, newX, newY, newZ, 43.0f, engageAngle);
-                    moveDelay = 1000;
-                    me->GetMotionMaster()->MovePoint(0, newX, newY, newZ, true, me->GetAbsoluteAngle(ysondre));
-                    return true;
+                    ysondre->GetNearPoint(me, markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ, 37.0f, engageAngle);
+                    actionDelay = 5000;
+                    actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                    me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(ysondre->GetPosition()));
                 }
-                return true;
+            }
+            return true;
+        }
+        if (Unit* lethon = GetAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Lethon))
+        {
+            if (me->groupRole == GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_DPS_Range)
+            {
+                if (lethon->GetTarget() != me->GetGUID())
+                {
+                    float currentDistance = me->GetDistance(lethon);
+                    if (currentDistance < 28.0f || currentDistance > 30.0f)
+                    {
+                        me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                        me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                        me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                        me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                        lethon->GetNearPoint(me, markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ, 29.0f, engageAngle);
+                        //taerar->GetNearPoint(me, markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ, 29.0f, taerar->GetAbsoluteAngle(me->GetPosition()));
+                        actionDelay = 5000;
+                        actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                        me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(lethon->GetPosition()));
+                        return true;
+                    }
+                    if (combatTime > dpsDelay)
+                    {
+                        sb->DPS(lethon, false, false, NULL);
+                    }
+                }
+            }
+            else if (me->groupRole == GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_DPS_Melee)
+            {
+                float currentDistance = me->GetDistance(lethon);
+                if (currentDistance < 35.0f || currentDistance > 40.0f)
+                {
+                    lethon->GetNearPoint(me, markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ, 37.0f, engageAngle);
+                    actionDelay = 5000;
+                    actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                    me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(lethon->GetPosition()));
+                }
             }
             return true;
         }
@@ -3891,1596 +4182,1193 @@ bool RobotStrategy_Group_Ysondre::DPS()
     return RobotStrategy_Group::DPS();
 }
 
-bool RobotStrategy_Group_Ysondre::Tank()
+bool RobotStrategy_Group_EmeraldDragon::Tank()
 {
-    if (!me)
+    if (me->HasAura(24778))
     {
-        return false;
+        return true;
     }
-    if (!me->IsAlive())
+    if (Group* myGroup = me->GetGroup())
     {
-        return false;
-    }
-    std::unordered_map<uint32, Unit*> bossMap = GetBossMap();
-    if (bossMap.find(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Ysondre) != bossMap.end())
-    {
-        if (Unit* ysondre = bossMap.begin()->second)
+        std::unordered_map<ObjectGuid, Unit*> shadeOfTaerarMap = GetAttackerMap(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Shade_of_Taerar);
+        if (shadeOfTaerarMap.size() > 0)
         {
-            if (me->groupRole == GroupRole_Ysondre::GroupRole_Ysondre_Tank1 || me->groupRole == GroupRole_Ysondre::GroupRole_Ysondre_Tank2)
+            if (Unit* firstShade = shadeOfTaerarMap.begin()->second)
             {
-                //std::list<Creature*> sleepFogs;
-                //me->GetCreatureListWithEntryInGrid(sleepFogs, 15224, 10.0f);
-                //if (sleepFogs.size() > 0)
-                //{
-                //    float newX = 0.0f;
-                //    float newY = 0.0f;
-                //    float newZ = 0.0f;
-                //    me->GetNearPoint(me, newX, newY, newZ, 10.0f, ysondre->GetOrientation());
-                //    engagePos.m_positionX = newX;
-                //    engagePos.m_positionY = newY;
-                //    engagePos.m_positionZ = newZ;
-                //    moveDelay = 1000;
-                //    me->GetMotionMaster()->MovePoint(0, engagePos, true, engagePos.GetAbsoluteAngle(ysondre));
-                //    return true;
-                //}
-                if (Player* mainTank = GetMainTank())
+                int targetIcon = myGroup->GetTargetIconByOG(firstShade->GetGUID());
+                if (targetIcon < 5 || targetIcon > 7)
                 {
-                    if (mainTank->GetGUID() != me->GetGUID())
+                    if (Player* activeTank = ObjectAccessor::GetPlayer(*me, myGroup->GetOGByTargetIcon(0)))
                     {
-                        if (ysondre->GetTarget() == mainTank->GetGUID())
-                        {
-                            float currentDistance = me->GetDistance(ysondre);
-                            if (currentDistance > 1.0f)
-                            {
-                                float newX = 0.0f;
-                                float newY = 0.0f;
-                                float newZ = 0.0f;
-                                ysondre->GetNearPoint(me, newX, newY, newZ, 0.0f, engageAngle);
-                                moveDelay = 1000;
-                                me->GetMotionMaster()->MovePoint(0, newX, newY, newZ, true, me->GetAbsoluteAngle(ysondre));
-                                return true;
-                            }
-                            return sb->SubTank(ysondre, false);
-                        }
-                        if (!me->isInFront(ysondre, M_PI / 16))
-                        {
-                            me->SetFacingToObject(ysondre);
-                        }
-                        me->AttackStop();
-                        sb->ClearTarget();
-                        return true;
+                        tankPos = activeTank->GetPosition();
                     }
-                }
-                sb->Taunt(ysondre);
-                return sb->Tank(ysondre, false);
-            }
-            else if (me->groupRole == GroupRole_Ysondre::GroupRole_Ysondre_Tank3)
-            {
-                if (Player* tank1 = GetPlayerByGroupRole(GroupRole_Ysondre::GroupRole_Ysondre_Tank1))
-                {
-                    if (!tank1->IsAlive())
+                    uint32 totalMana1 = 0;
+                    uint32 totalMana2 = 0;
+                    if (Player* healer1 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer1))
                     {
-                        tank1->groupRole = GroupRole_Ysondre::GroupRole_Ysondre_Tank3;
-                        me->groupRole = GroupRole_Ysondre::GroupRole_Ysondre_Tank1;
-                        if (RobotStrategy_Group_Ysondre* rs = (RobotStrategy_Group_Ysondre*)tank1->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
+                        if (healer1->IsAlive())
                         {
-                            engageAngle = rs->engageAngle;
-                        }
-                        me->GetMotionMaster()->MovePoint(0, tank1->GetPosition(), true, me->GetAbsoluteAngle(ysondre));
-                        moveDelay = 3000;
-                        return true;
-                    }
-                }
-                if (Player* tank2 = GetPlayerByGroupRole(GroupRole_Ysondre::GroupRole_Ysondre_Tank2))
-                {
-                    if (!tank2->IsAlive())
-                    {
-                        tank2->groupRole = GroupRole_Ysondre::GroupRole_Ysondre_Tank3;
-                        me->groupRole = GroupRole_Ysondre::GroupRole_Ysondre_Tank2;
-                        if (RobotStrategy_Group_Ysondre* rs = (RobotStrategy_Group_Ysondre*)tank2->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
-                        {
-                            engageAngle = rs->engageAngle;
-                        }
-                        me->GetMotionMaster()->MovePoint(0, tank2->GetPosition(), true, me->GetAbsoluteAngle(ysondre));
-                        moveDelay = 3000;
-                        return true;
-                    }
-                }
-                std::list<Creature*> druids;
-                me->GetCreatureListWithEntryInGrid(druids, CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Demented_Druid, 100.0f);
-                if (druids.size() > 0)
-                {
-                    if (Unit* myDruid = ObjectAccessor::GetUnit(*me, me->GetTarget()))
-                    {
-                        if (myDruid->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Demented_Druid)
-                        {
-                            if (myDruid->GetTarget() != me->GetGUID())
-                            {
-                                sb->Taunt(myDruid);
-                                if (sb->Tank(myDruid, true))
-                                {
-                                    return true;
-                                }
-                            }
+                            totalMana1 = totalMana1 + healer1->GetPower(Powers::POWER_MANA);
                         }
                     }
-                    for (Creature* eachDruid : druids)
+                    if (Player* healer2 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer2))
                     {
-                        if (eachDruid->GetTarget() != me->GetGUID())
+                        if (healer2->IsAlive())
                         {
-                            sb->Taunt(eachDruid);
-                            if (sb->Tank(eachDruid, true))
-                            {
-                                return true;
-                            }
+                            totalMana1 = totalMana1 + healer2->GetPower(Powers::POWER_MANA);
                         }
                     }
-                }
-                if (Player* tank = GetPlayerByGroupRole(GroupRole_Ysondre::GroupRole_Ysondre_Tank1))
-                {
-                    float currentDistance = me->GetDistance(tank);
-                    if (currentDistance < 40.0f || currentDistance > 45.0f)
+                    if (Player* healer3 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer3))
                     {
-                        float newX = 0.0f;
-                        float newY = 0.0f;
-                        float newZ = 0.0f;
-                        tank->GetNearPoint(me, newX, newY, newZ, 43.0f, engageAngle);
-                        moveDelay = 1000;
-                        me->GetMotionMaster()->MovePoint(0, newX, newY, newZ, true, me->GetAbsoluteAngle(ysondre));
-                        return true;
-                    }
-                }
-                return true;
-            }
-        }
-    }
-    return RobotStrategy_Group::Tank();
-}
-
-bool RobotStrategy_Group_Ysondre::Tank(Unit* pmTarget)
-{
-    if (!me)
-    {
-        return false;
-    }
-    if (!me->IsAlive())
-    {
-        return false;
-    }
-    switch (me->groupRole)
-    {
-    case GroupRole_Ysondre::GroupRole_Ysondre_Tank1:
-    {
-        sb->ClearTarget();
-        sb->ChooseTarget(pmTarget);
-        return sb->Tank(pmTarget, Chasing());
-    }
-    default:
-    {
-        break;
-    }
-    }
-
-    return false;
-}
-
-bool RobotStrategy_Group_Ysondre::Heal()
-{
-    if (!me)
-    {
-        return false;
-    }
-    std::unordered_map<uint32, Unit*> bossMap = GetBossMap();
-    if (bossMap.find(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Ysondre) != bossMap.end())
-    {
-        if (Unit* ysondre = bossMap.begin()->second)
-        {
-            if (me->groupRole == GroupRole_Ysondre::GroupRole_Ysondre_Healer1)
-            {
-                //std::list<Creature*> druids;
-                //me->GetCreatureListWithEntryInGrid(druids, CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Demented_Druid, 100.0f);
-                //if (druids.size() > 0)
-                //{
-                //    if (!druidsSpawned)
-                //    {
-                //        druidsSpawned = true;
-                //        me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
-                //        me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
-                //        me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
-                //        me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
-                //        moveDelay = 1000;
-                //        return true;
-                //    }
-                //}
-                //else
-                //{
-                //    druidsSpawned = false;
-                //}
-                bool switchHealer = false;
-                if (me->HasAura(24778))
-                {
-                    switchHealer = true;
-                }
-                else if (me->GetPower(Powers::POWER_MANA) < 500)
-                {
-                    switchHealer = true;
-                }
-                if (switchHealer)
-                {
-                    if (Player* healer = GetPlayerByGroupRole(GroupRole_Ysondre::GroupRole_Ysondre_Healer2))
-                    {
-                        healer->groupRole = GroupRole_Ysondre::GroupRole_Ysondre_Healer1;
-                        me->groupRole = GroupRole_Ysondre::GroupRole_Ysondre_Healer2;
-                        return true;
-                    }
-                }
-                if (Player* tank1 = GetPlayerByGroupRole(GroupRole_Ysondre::GroupRole_Ysondre_Tank1))
-                {
-                    float currentDistance = me->GetDistance(tank1);
-                    if (currentDistance < 33.0f || currentDistance>36.0f)
-                    {
-                        float newX = 0.0f;
-                        float newY = 0.0f;
-                        float newZ = 0.0f;
-                        tank1->GetNearPoint(me, newX, newY, newZ, 35.0f, engageAngle);
-                        moveDelay = 1000;
-                        me->GetMotionMaster()->MovePoint(0, newX, newY, newZ, true, me->GetAbsoluteAngle(tank1));
-                        return true;
-                    }
-                    if (tank1->IsAlive())
-                    {
-                        if (tank1->GetHealthPct() < 90.0f)
+                        if (healer3->IsAlive())
                         {
-                            if (sb->Heal(tank1, true))
-                            {
-                                return true;
-                            }
+                            totalMana2 = totalMana2 + healer3->GetPower(Powers::POWER_MANA);
                         }
                     }
-                    else
+                    if (Player* healer4 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer4))
                     {
-                        if (Player* tank2 = GetPlayerByGroupRole(GroupRole_Ysondre::GroupRole_Ysondre_Tank2))
+                        if (healer4->IsAlive())
                         {
-                            if (tank2->IsAlive())
-                            {
-                                if (tank2->GetHealthPct() < 90.0f)
-                                {
-                                    if (sb->Heal(tank2, true))
-                                    {
-                                        return true;
-                                    }
-                                }
-                            }
+                            totalMana2 = totalMana2 + healer4->GetPower(Powers::POWER_MANA);
                         }
                     }
-                }
-                if (me->GetHealthPct() < 60.0f)
-                {
-                    if (sb->Heal(me, true))
+                    if (totalMana1 > totalMana2)
                     {
-                        return true;
-                    }
-                }
-                return true;
-            }
-            else if (me->groupRole == GroupRole_Ysondre::GroupRole_Ysondre_Healer2)
-            {
-                if (Player* tank = GetPlayerByGroupRole(GroupRole_Ysondre::GroupRole_Ysondre_Tank1))
-                {
-                    if (tank->IsAlive())
-                    {
-                        float currentDistance = me->GetDistance(tank);
-                        if (currentDistance < 33.0f || currentDistance>36.0f)
-                        {
-                            float newX = 0.0f;
-                            float newY = 0.0f;
-                            float newZ = 0.0f;
-                            tank->GetNearPoint(me, newX, newY, newZ, 35.0f, engageAngle);
-                            moveDelay = 1000;
-                            me->GetMotionMaster()->MovePoint(0, newX, newY, newZ, true, me->GetAbsoluteAngle(tank));
-                            return true;
-                        }
-                    }
-                }
-                if (me->GetHealthPct() < 60.0f)
-                {
-                    if (sb->Heal(me, true))
-                    {
-                        return true;
-                    }
-                }
-                return true;
-            }
-            else if (me->groupRole == GroupRole_Ysondre::GroupRole_Ysondre_Healer3)
-            {
-                //std::list<Creature*> druids;
-                //me->GetCreatureListWithEntryInGrid(druids, CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Demented_Druid, 100.0f);
-                //if (druids.size() > 0)
-                //{
-                //    if (!druidsSpawned)
-                //    {
-                //        druidsSpawned = true;
-                //        me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
-                //        me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
-                //        me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
-                //        me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
-                //        moveDelay = 1000;
-                //        return true;
-                //    }
-                //}
-                //else
-                //{
-                //    druidsSpawned = false;
-                //}
-                bool switchHealer = false;
-                if (me->HasAura(24778))
-                {
-                    switchHealer = true;
-                }
-                else if (me->GetPower(Powers::POWER_MANA) < 500)
-                {
-                    switchHealer = true;
-                }
-                if (switchHealer)
-                {
-                    if (Player* healer = GetPlayerByGroupRole(GroupRole_Ysondre::GroupRole_Ysondre_Healer4))
-                    {
-                        healer->groupRole = GroupRole_Ysondre::GroupRole_Ysondre_Healer3;
-                        me->groupRole = GroupRole_Ysondre::GroupRole_Ysondre_Healer4;
-                        return true;
-                    }
-                }
-                if (Player* tank2 = GetPlayerByGroupRole(GroupRole_Ysondre::GroupRole_Ysondre_Tank2))
-                {
-                    float currentDistance = me->GetDistance(tank2);
-                    if (currentDistance < 33.0f || currentDistance>36.0f)
-                    {
-                        float newX = 0.0f;
-                        float newY = 0.0f;
-                        float newZ = 0.0f;
-                        tank2->GetNearPoint(me, newX, newY, newZ, 35.0f, engageAngle);
-                        moveDelay = 1000;
-                        me->GetMotionMaster()->MovePoint(0, newX, newY, newZ, true, me->GetAbsoluteAngle(tank2));
-                        return true;
-                    }
-                    if (tank2->IsAlive())
-                    {
-                        if (tank2->GetHealthPct() < 90.0f)
-                        {
-                            if (sb->Heal(tank2, true))
-                            {
-                                return true;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (Player* tank1 = GetPlayerByGroupRole(GroupRole_Ysondre::GroupRole_Ysondre_Tank1))
+                        if (Player* tank1 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank1))
                         {
                             if (tank1->IsAlive())
                             {
-                                if (tank1->GetHealthPct() < 90.0f)
-                                {
-                                    if (sb->Heal(tank1, true))
-                                    {
-                                        return true;
-                                    }
-                                }
+                                myGroup->SetTargetIcon(0, me->GetGUID(), tank1->GetGUID());
                             }
                         }
                     }
-                }
-                if (me->GetHealthPct() < 60.0f)
-                {
-                    if (sb->Heal(me, true))
+                    else
                     {
-                        return true;
-                    }
-                }
-                return true;
-            }
-            else if (me->groupRole == GroupRole_Ysondre::GroupRole_Ysondre_Healer4)
-            {
-                if (Player* tank = GetPlayerByGroupRole(GroupRole_Ysondre::GroupRole_Ysondre_Tank2))
-                {
-                    if (tank->IsAlive())
-                    {
-                        float currentDistance = me->GetDistance(tank);
-                        if (currentDistance < 33.0f || currentDistance>36.0f)
+                        if (Player* tank2 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank2))
                         {
-                            float newX = 0.0f;
-                            float newY = 0.0f;
-                            float newZ = 0.0f;
-                            tank->GetNearPoint(me, newX, newY, newZ, 35.0f, engageAngle);
-                            moveDelay = 1000;
-                            me->GetMotionMaster()->MovePoint(0, newX, newY, newZ, true, me->GetAbsoluteAngle(tank));
-                            return true;
-                        }
-                    }
-                }
-                if (me->GetHealthPct() < 60.0f)
-                {
-                    if (sb->Heal(me, true))
-                    {
-                        return true;
-                    }
-                }
-                return true;
-            }
-            else if (me->groupRole == GroupRole_Ysondre::GroupRole_Ysondre_Healer5)
-            {
-                if (Player* tank = GetPlayerByGroupRole(GroupRole_Ysondre::GroupRole_Ysondre_Tank1))
-                {
-                    float currentDistance = me->GetDistance(tank);
-                    if (currentDistance < 33.0f || currentDistance > 36.0f)
-                    {
-                        float newX = 0.0f;
-                        float newY = 0.0f;
-                        float newZ = 0.0f;
-                        tank->GetNearPoint(me, newX, newY, newZ, 35.0f, engageAngle);
-                        moveDelay = 1000;
-                        me->GetMotionMaster()->MovePoint(0, newX, newY, newZ, true, me->GetAbsoluteAngle(ysondre));
-                        return true;
-                    }
-                }
-                if (Group* myGroup = me->GetGroup())
-                {
-                    int lowMemberCount = 0;
-                    for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-                    {
-                        if (Player* member = groupRef->GetSource())
-                        {
-                            if (member->IsAlive())
+                            if (tank2->IsAlive())
                             {
-                                if (member->groupRole != GroupRole_Ysondre::GroupRole_Ysondre_Tank1 && member->groupRole != GroupRole_Ysondre::GroupRole_Ysondre_Tank2)
-                                {
-                                    if (member->GetHealthPct() < 60.0f)
-                                    {
-                                        if (me->GetDistance(member) < HEAL_MAX_DISTANCE)
-                                        {
-                                            lowMemberCount++;
-                                        }
-                                    }
-                                }
+                                myGroup->SetTargetIcon(0, me->GetGUID(), tank2->GetGUID());
                             }
                         }
                     }
-                    if (lowMemberCount > 3)
+                    int checkTargetIcon = 5;
+                    for (std::unordered_map<ObjectGuid, Unit*>::iterator shadeIT = shadeOfTaerarMap.begin(); shadeIT != shadeOfTaerarMap.end(); shadeIT++)
                     {
-                        if (sb->GroupHeal())
+                        if (Unit* eachShade = shadeIT->second)
                         {
-                            return true;
-                        }
-                    }
-                    for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-                    {
-                        if (Player* member = groupRef->GetSource())
-                        {
-                            if (member->IsAlive())
-                            {
-                                if (member->groupRole != GroupRole_Ysondre::GroupRole_Ysondre_Tank1 && member->groupRole != GroupRole_Ysondre::GroupRole_Ysondre_Tank2)
-                                {
-                                    if (member->GetHealthPct() < 50.0f)
-                                    {
-                                        if (me->GetDistance(member) < HEAL_MAX_DISTANCE)
-                                        {
-                                            if (sb->Heal(member, true))
-                                            {
-                                                return true;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+                            myGroup->SetTargetIcon(checkTargetIcon, me->GetGUID(), eachShade->GetGUID());
+                            checkTargetIcon++;
                         }
                     }
                 }
-                return true;
-            }
-        }
-    }
-    return RobotStrategy_Group::Heal();
-}
-
-void RobotStrategy_Group_Taerar::InitialStrategy()
-{
-    engageAngle = 0.0f;
-    RobotStrategy_Group::InitialStrategy();
-}
-
-std::unordered_map<uint32, Unit*> RobotStrategy_Group_Taerar::GetBossMap()
-{
-    std::unordered_map<uint32, Unit*> bossMap;
-    bossMap.clear();
-    if (me)
-    {
-        if (Group* myGroup = me->GetGroup())
-        {
-            for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-            {
-                if (Player* member = groupRef->GetSource())
-                {
-                    if (member->IsAlive())
-                    {
-                        for (Unit::AttackerSet::const_iterator attackerIT = member->getAttackers().begin(); attackerIT != member->getAttackers().end(); ++attackerIT)
-                        {
-                            if (Unit* eachAttacker = *attackerIT)
-                            {
-                                bool isBoss = false;
-                                if (eachAttacker->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Ysondre)
-                                {
-                                    isBoss = true;
-                                }
-                                if (isBoss)
-                                {
-                                    if (bossMap.find(eachAttacker->GetEntry()) == bossMap.end())
-                                    {
-                                        bossMap[eachAttacker->GetEntry()] = eachAttacker;
-                                    }
-                                }
-                            }
-                        }
-                        if (Pet* memberPet = member->GetPet())
-                        {
-                            if (memberPet->IsAlive())
-                            {
-                                for (Unit::AttackerSet::const_iterator attackerIT = memberPet->getAttackers().begin(); attackerIT != memberPet->getAttackers().end(); ++attackerIT)
-                                {
-                                    if (Unit* eachAttacker = *attackerIT)
-                                    {
-                                        bool isBoss = false;
-                                        if (eachAttacker->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Ysondre)
-                                        {
-                                            isBoss = true;
-                                        }
-                                        if (isBoss)
-                                        {
-                                            if (bossMap.find(eachAttacker->GetEntry()) == bossMap.end())
-                                            {
-                                                bossMap[eachAttacker->GetEntry()] = eachAttacker;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    return bossMap;
-}
-
-std::string RobotStrategy_Group_Taerar::GetGroupRoleName()
-{
-    if (!me)
-    {
-        return "";
-    }
-    switch (me->groupRole)
-    {
-    case GroupRole_Taerar::GroupRole_Taerar_Tank1:
-    {
-        return "tank1";
-    }
-    case GroupRole_Taerar::GroupRole_Taerar_Tank2:
-    {
-        return "tank2";
-    }
-    case GroupRole_Taerar::GroupRole_Taerar_Tank3:
-    {
-        return "tank3";
-    }
-    case GroupRole_Taerar::GroupRole_Taerar_Healer1:
-    {
-        return "healer1";
-    }
-    case GroupRole_Taerar::GroupRole_Taerar_Healer2:
-    {
-        return "healer2";
-    }
-    case GroupRole_Taerar::GroupRole_Taerar_Healer3:
-    {
-        return "healer3";
-    }
-    case GroupRole_Taerar::GroupRole_Taerar_Healer4:
-    {
-        return "healer4";
-    }
-    case GroupRole_Taerar::GroupRole_Taerar_Healer5:
-    {
-        return "healer5";
-    }
-    case GroupRole_Taerar::GroupRole_Taerar_DPS_Range:
-    {
-        return "dpsr";
-    }
-    case GroupRole_Taerar::GroupRole_Taerar_DPS_Melee:
-    {
-        return "dpsm";
-    }
-    default:
-    {
-        break;
-    }
-    }
-    return "dps";
-}
-
-void RobotStrategy_Group_Taerar::SetGroupRole(std::string pmRoleName)
-{
-    if (!me)
-    {
-        return;
-    }
-    else if (pmRoleName == "tank1")
-    {
-        me->groupRole = GroupRole_Taerar::GroupRole_Taerar_Tank1;
-    }
-    else if (pmRoleName == "tank2")
-    {
-        me->groupRole = GroupRole_Taerar::GroupRole_Taerar_Tank2;
-    }
-    else if (pmRoleName == "tank3")
-    {
-        me->groupRole = GroupRole_Taerar::GroupRole_Taerar_Tank3;
-    }
-    else if (pmRoleName == "healer1")
-    {
-        me->groupRole = GroupRole_Taerar::GroupRole_Taerar_Healer1;
-    }
-    else if (pmRoleName == "healer2")
-    {
-        me->groupRole = GroupRole_Taerar::GroupRole_Taerar_Healer2;
-    }
-    else if (pmRoleName == "healer3")
-    {
-        me->groupRole = GroupRole_Taerar::GroupRole_Taerar_Healer3;
-    }
-    else if (pmRoleName == "healer4")
-    {
-        me->groupRole = GroupRole_Taerar::GroupRole_Taerar_Healer4;
-    }
-    else if (pmRoleName == "healer5")
-    {
-        me->groupRole = GroupRole_Taerar::GroupRole_Taerar_Healer5;
-    }
-    else if (pmRoleName == "dpsm")
-    {
-        me->groupRole = GroupRole_Taerar::GroupRole_Taerar_DPS_Melee;
-    }
-    else if (pmRoleName == "dpsr")
-    {
-        me->groupRole = GroupRole_Taerar::GroupRole_Taerar_DPS_Range;
-    }
-    else
-    {
-        me->groupRole = GroupRole_Taerar::GroupRole_Taerar_DPS_Range;
-    }
-}
-
-Player* RobotStrategy_Group_Taerar::GetMainTank()
-{
-    Player* tank1 = GetPlayerByGroupRole(GroupRole_Taerar::GroupRole_Taerar_Tank1);
-    Player* tank2 = GetPlayerByGroupRole(GroupRole_Taerar::GroupRole_Taerar_Tank2);
-
-    if (tank1)
-    {
-        if (tank1->IsAlive())
-        {
-            if (!tank1->HasAura(24778))
-            {
-                if (tank1->GetAuraCount(24818) < 3)
-                {
-                    return tank1;
-                }
-            }
-        }
-    }
-    if (tank2)
-    {
-        if (tank2->IsAlive())
-        {
-            if (!tank2->HasAura(24778))
-            {
-                if (tank2->GetAuraCount(24818) < 3)
-                {
-                    return tank2;
-                }
-            }
-        }
-    }
-    if (tank1)
-    {
-        if (tank1->IsAlive())
-        {
-            return tank1;
-        }
-    }
-    if (tank2)
-    {
-        if (tank2->IsAlive())
-        {
-            return tank2;
-        }
-    }
-
-    return NULL;
-}
-
-Player* RobotStrategy_Group_Taerar::GetSubTank()
-{
-    Player* tank1 = GetPlayerByGroupRole(GroupRole_Taerar::GroupRole_Taerar_Tank1);
-    Player* tank2 = GetPlayerByGroupRole(GroupRole_Taerar::GroupRole_Taerar_Tank2);
-    std::unordered_map<uint32, Unit*> bossMap = GetBossMap();
-    if (bossMap.find(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Taerar) != bossMap.end())
-    {
-        if (Unit* ysondre = bossMap.begin()->second)
-        {
-            if (tank1)
-            {
-                if (ysondre->GetTarget() == tank1->GetGUID())
-                {
-                    if (tank2)
-                    {
-                        if (tank2->IsAlive())
-                        {
-                            return tank2;
-                        }
-                    }
-                }
-            }
-            if (tank2)
-            {
-                if (ysondre->GetTarget() == tank2->GetGUID())
-                {
-                    if (tank1)
-                    {
-                        if (tank1->IsAlive())
-                        {
-                            return tank1;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    if (tank2)
-    {
-        if (tank2->IsAlive())
-        {
-            return tank2;
-        }
-    }
-
-    return NULL;
-}
-
-bool RobotStrategy_Group_Taerar::Stay(std::string pmTargetGroupRole)
-{
-    if (!me)
-    {
-        return false;
-    }
-    bool todo = true;
-    if (pmTargetGroupRole == "dps")
-    {
-        if (me->groupRole != GroupRole_Taerar::GroupRole_Taerar_DPS_Melee && me->groupRole != GroupRole_Taerar::GroupRole_Taerar_DPS_Range)
-        {
-            todo = false;
-        }
-    }
-    else if (pmTargetGroupRole == "healer")
-    {
-        if (me->groupRole != GroupRole_Taerar::GroupRole_Taerar_Healer1 && me->groupRole != GroupRole_Taerar::GroupRole_Taerar_Healer2 && me->groupRole != GroupRole_Taerar::GroupRole_Taerar_Healer3)
-        {
-            todo = false;
-        }
-    }
-    else if (pmTargetGroupRole == "tank")
-    {
-        if (me->groupRole != GroupRole_Taerar::GroupRole_Taerar_Tank1 && me->groupRole != GroupRole_Taerar::GroupRole_Taerar_Tank2 && me->groupRole != GroupRole_Taerar::GroupRole_Taerar_Tank3)
-        {
-            todo = false;
-        }
-    }
-
-    if (todo)
-    {
-        me->StopMoving();
-        me->GetMotionMaster()->Clear();
-        me->AttackStop();
-        me->InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
-        sb->PetStop();
-        staying = true;
-        return true;
-    }
-
-    return false;
-}
-
-bool RobotStrategy_Group_Taerar::Hold(std::string pmTargetGroupRole)
-{
-    if (!me)
-    {
-        return false;
-    }
-    bool todo = true;
-    if (pmTargetGroupRole == "dps")
-    {
-        if (me->groupRole != GroupRole_Taerar::GroupRole_Taerar_DPS_Melee && me->groupRole != GroupRole_Taerar::GroupRole_Taerar_DPS_Range)
-        {
-            todo = false;
-        }
-    }
-    else if (pmTargetGroupRole == "healer")
-    {
-        if (me->groupRole != GroupRole_Taerar::GroupRole_Taerar_Healer1 && me->groupRole != GroupRole_Taerar::GroupRole_Taerar_Healer2 && me->groupRole != GroupRole_Taerar::GroupRole_Taerar_Healer3)
-        {
-            todo = false;
-        }
-    }
-    else if (pmTargetGroupRole == "tank")
-    {
-        if (me->groupRole != GroupRole_Taerar::GroupRole_Taerar_Tank1 && me->groupRole != GroupRole_Taerar::GroupRole_Taerar_Tank2 && me->groupRole != GroupRole_Taerar::GroupRole_Taerar_Tank3)
-        {
-            todo = false;
-        }
-    }
-
-
-    if (todo)
-    {
-        holding = true;
-        staying = false;
-        return true;
-    }
-
-    return false;
-}
-
-bool RobotStrategy_Group_Taerar::Engage(Unit* pmTarget)
-{
-    if (!me)
-    {
-        return false;
-    }
-    if (!me->IsAlive())
-    {
-        return false;
-    }
-    switch (me->groupRole)
-    {
-    case GroupRole_Taerar::GroupRole_Taerar_Tank1:
-    {
-        return sb->Tank(pmTarget, Chasing());
-    }
-    case GroupRole_Taerar::GroupRole_Taerar_Tank2:
-    {
-        return Tank();
-    }
-    case GroupRole_Taerar::GroupRole_Taerar_Healer1:
-    {
-        return Heal();
-    }
-    case GroupRole_Taerar::GroupRole_Taerar_Healer2:
-    {
-        return Heal();
-    }
-    case GroupRole_Taerar::GroupRole_Taerar_Healer3:
-    {
-        return Heal();
-    }
-    default:
-    {
-        return DPS();
-    }
-    }
-
-    return false;
-}
-
-bool RobotStrategy_Group_Taerar::Follow()
-{
-    if (!me)
-    {
-        return false;
-    }
-    if (holding)
-    {
-        return false;
-    }
-    if (!following)
-    {
-        return false;
-    }
-    if (Group* myGroup = me->GetGroup())
-    {
-        if (Player* leader = ObjectAccessor::FindConnectedPlayer(myGroup->GetLeaderGUID()))
-        {
-            return sb->Follow(leader, followDistance);
-        }
-    }
-    return false;
-}
-
-void RobotStrategy_Group_Taerar::Update(uint32 pmDiff)
-{
-    if (!Update0(pmDiff))
-    {
-        return;
-    }
-    if (Group* myGroup = me->GetGroup())
-    {
-        bool groupInCombat = GroupInCombat();
-        if (groupInCombat)
-        {
-            restDelay = 0;
-            combatTime += pmDiff;
-        }
-        else
-        {
-            combatTime = 0;
-        }
-        if (engageDelay > 0)
-        {
-            engageDelay -= pmDiff;
-            switch (me->groupRole)
-            {
-            case GroupRole_Taerar::GroupRole_Taerar_Tank1:
-            {
-                if (sb->Tank(engageTarget, Chasing()))
-                {
-                    return;
-                }
-                else
-                {
-                    engageTarget = NULL;
-                    engageDelay = 0;
-                }
-                break;
-            }
-            case GroupRole_Taerar::GroupRole_Taerar_Tank2:
-            {
-                if (sb->Tank(engageTarget, Chasing()))
-                {
-                    return;
-                }
-                else
-                {
-                    engageTarget = NULL;
-                    engageDelay = 0;
-                }
-                break;
-            }
-            case GroupRole_Taerar::GroupRole_Taerar_Tank3:
-            {
-                if (sb->Tank(engageTarget, Chasing()))
-                {
-                    return;
-                }
-                else
-                {
-                    engageTarget = NULL;
-                    engageDelay = 0;
-                }
-                break;
-            }
-            case GroupRole_Taerar::GroupRole_Taerar_Healer1:
-            {
-                if (Heal())
-                {
-                    return;
-                }
-                break;
-            }
-            case GroupRole_Taerar::GroupRole_Taerar_Healer2:
-            {
-                if (Heal())
-                {
-                    return;
-                }
-                break;
-            }
-            case GroupRole_Taerar::GroupRole_Taerar_Healer3:
-            {
-                if (Heal())
-                {
-                    return;
-                }
-                break;
-            }
-            case GroupRole_Taerar::GroupRole_Taerar_Healer4:
-            {
-                if (Heal())
-                {
-                    return;
-                }
-                break;
-            }
-            case GroupRole_Taerar::GroupRole_Taerar_Healer5:
-            {
-                if (Heal())
-                {
-                    return;
-                }
-                break;
-            }
-            case GroupRole_Taerar::GroupRole_Taerar_DPS_Range:
-            {
-                if (sb->DPS(engageTarget, Chasing(), false, NULL))
-                {
-                    return;
-                }
-                else
-                {
-                    engageTarget = NULL;
-                    engageDelay = 0;
-                }
-                break;
-            }
-            case GroupRole_Taerar::GroupRole_Taerar_DPS_Melee:
-            {
-                if (sb->DPS(engageTarget, Chasing(), false, NULL))
-                {
-                    return;
-                }
-                else
-                {
-                    engageTarget = NULL;
-                    engageDelay = 0;
-                }
-                break;
-            }
-            default:
-            {
-                break;
-            }
-            }
-            return;
-        }
-        if (groupInCombat)
-        {
-            switch (me->groupRole)
-            {
-            case GroupRole_Taerar::GroupRole_Taerar_Tank1:
-            {
-                if (Tank())
-                {
-                    return;
-                }
-                break;
-            }
-            case GroupRole_Taerar::GroupRole_Taerar_Tank2:
-            {
-                if (Tank())
-                {
-                    return;
-                }
-                break;
-            }
-            case GroupRole_Taerar::GroupRole_Taerar_Tank3:
-            {
-                if (Tank())
-                {
-                    return;
-                }
-                break;
-            }
-            case GroupRole_Taerar::GroupRole_Taerar_Healer1:
-            {
-                if (Heal())
-                {
-                    return;
-                }
-                break;
-            }
-            case GroupRole_Taerar::GroupRole_Taerar_Healer2:
-            {
-                if (Heal())
-                {
-                    return;
-                }
-                break;
-            }
-            case GroupRole_Taerar::GroupRole_Taerar_Healer3:
-            {
-                if (Heal())
-                {
-                    return;
-                }
-                break;
-            }
-            case GroupRole_Taerar::GroupRole_Taerar_Healer4:
-            {
-                if (Heal())
-                {
-                    return;
-                }
-                break;
-            }
-            case GroupRole_Taerar::GroupRole_Taerar_Healer5:
-            {
-                if (Heal())
-                {
-                    return;
-                }
-                break;
-            }
-            case GroupRole_Taerar::GroupRole_Taerar_DPS_Range:
-            {
-                if (DPS())
-                {
-                    return;
-                }
-                break;
-            }
-            case GroupRole_Taerar::GroupRole_Taerar_DPS_Melee:
-            {
-                if (DPS())
-                {
-                    return;
-                }
-                break;
-            }
-            default:
-            {
-                break;
-            }
-            }
-        }
-        else
-        {
-            if (restDelay > 0)
-            {
-                restDelay -= pmDiff;
-                return;
             }
             switch (me->groupRole)
             {
-
-            case GroupRole_Taerar::GroupRole_Taerar_Tank1:
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank1:
             {
-                if (Rest())
-                {
-                    return;
-                }
-                if (Buff())
-                {
-                    return;
-                }
-                break;
-            }
-            case GroupRole_Taerar::GroupRole_Taerar_Tank2:
-            {
-                if (Rest())
-                {
-                    return;
-                }
-                if (Buff())
-                {
-                    return;
-                }
-                break;
-            }
-            case GroupRole_Taerar::GroupRole_Taerar_Tank3:
-            {
-                if (Rest())
-                {
-                    return;
-                }
-                if (Buff())
-                {
-                    return;
-                }
-                break;
-            }
-            case GroupRole_Taerar::GroupRole_Taerar_Healer1:
-            {
-                if (Rest())
-                {
-                    return;
-                }
-                if (Heal())
-                {
-                    return;
-                }
-                if (Buff())
-                {
-                    return;
-                }
-                break;
-            }
-            case GroupRole_Taerar::GroupRole_Taerar_Healer2:
-            {
-                if (Rest())
-                {
-                    return;
-                }
-                if (Heal())
-                {
-                    return;
-                }
-                if (Buff())
-                {
-                    return;
-                }
-                break;
-            }
-            case GroupRole_Taerar::GroupRole_Taerar_Healer3:
-            {
-                if (Rest())
-                {
-                    return;
-                }
-                if (Heal())
-                {
-                    return;
-                }
-                if (Buff())
-                {
-                    return;
-                }
-                break;
-            }
-            case GroupRole_Taerar::GroupRole_Taerar_Healer4:
-            {
-                if (Rest())
-                {
-                    return;
-                }
-                if (Heal())
-                {
-                    return;
-                }
-                if (Buff())
-                {
-                    return;
-                }
-                break;
-            }
-            case GroupRole_Taerar::GroupRole_Taerar_Healer5:
-            {
-                if (Rest())
-                {
-                    return;
-                }
-                if (Heal())
-                {
-                    return;
-                }
-                if (Buff())
-                {
-                    return;
-                }
-                break;
-            }
-            case GroupRole_Taerar::GroupRole_Taerar_DPS_Range:
-            {
-                if (Rest())
-                {
-                    return;
-                }
-                if (Buff())
-                {
-                    return;
-                }
-                break;
-            }
-            case GroupRole_Taerar::GroupRole_Taerar_DPS_Melee:
-            {
-                if (Rest())
-                {
-                    return;
-                }
-                if (Buff())
-                {
-                    return;
-                }
-                break;
-            }
-            default:
-            {
-                break;
-            }
-            }
-        }
-        Follow();
-    }
-    else
-    {
-        me->rai->GetActiveStrategy()->sb->Reset();
-        me->rai->activeStrategyIndex = Strategy_Index::Strategy_Index_Solo;
-        return;
-    }
-}
-
-std::unordered_set<ObjectGuid> RobotStrategy_Group_Taerar::GetAssignedShadeOGSet()
-{
-    std::unordered_set<ObjectGuid> resultSet;
-    resultSet.clear();
-
-    if (me)
-    {
-        if (Group* myGroup = me->GetGroup())
-        {
-            for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-            {
-                if (Player* member = groupRef->GetSource())
-                {
-                    if (member->IsAlive())
-                    {
-                        if (member->groupRole == GroupRole_Taerar::GroupRole_Taerar_Tank1 || member->groupRole == GroupRole_Taerar::GroupRole_Taerar_Tank2 || member->groupRole == GroupRole_Taerar::GroupRole_Taerar_Tank3)
-                        {
-                            if (RobotStrategy_Group_Taerar* rs = (RobotStrategy_Group_Taerar*)member->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
-                            {
-                                if (rs->shadeOG.IsEmpty())
-                                {
-                                    resultSet.insert(rs->shadeOG);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    return resultSet;
-}
-
-bool RobotStrategy_Group_Taerar::DPS()
-{
-    if (!me)
-    {
-        return false;
-    }
-    std::unordered_map<uint32, Unit*> bossMap = GetBossMap();
-    if (bossMap.find(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Taerar) != bossMap.end())
-    {
-        if (Unit* ysondre = bossMap.begin()->second)
-        {
-            if (me->groupRole == GroupRole_Taerar::GroupRole_Taerar_DPS_Range)
-            {
-                float currentDistance = me->GetDistance(ysondre);
-                if (currentDistance < 28.0f || currentDistance > 30.0f)
-                {
-                    float newX = 0.0f;
-                    float newY = 0.0f;
-                    float newZ = 0.0f;
-                    ysondre->GetNearPoint(me, newX, newY, newZ, 29.0f, engageAngle);
-                    moveDelay = 1000;
-                    me->GetMotionMaster()->MovePoint(0, newX, newY, newZ, true, me->GetAbsoluteAngle(ysondre));
-                    return true;
-                }
-                if (combatTime > dpsDelay)
-                {
-                    std::list<Creature*> shades;
-                    me->GetCreatureListWithEntryInGrid(shades, CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Shade_of_Taerar, 100.0f);
-                    if (shades.size() > 0)
-                    {
-                        if (Player* tank3 = GetPlayerByGroupRole(GroupRole_Taerar::GroupRole_Taerar_Tank3))
-                        {
-                            if (sb->DPS(tank3->GetSelectedUnit(), false, false, tank3))
-                            {
-                                return true;
-                            }
-                        }
-                        if (Player* tank2 = GetPlayerByGroupRole(GroupRole_Taerar::GroupRole_Taerar_Tank2))
-                        {
-                            if (sb->DPS(tank2->GetSelectedUnit(), false, false, tank2))
-                            {
-                                return true;
-                            }
-                        }
-                        if (Player* tank1 = GetPlayerByGroupRole(GroupRole_Taerar::GroupRole_Taerar_Tank1))
-                        {
-                            if (sb->DPS(tank1->GetSelectedUnit(), false, false, tank1))
-                            {
-                                return true;
-                            }
-                        }
-                    }
-                    if (sb->DPS(ysondre, false, false, NULL))
-                    {
-                        return true;
-                    }
-                }
-            }
-            else if (me->groupRole == GroupRole_Taerar::GroupRole_Taerar_DPS_Melee)
-            {
-                std::list<Creature*> shades;
-                me->GetCreatureListWithEntryInGrid(shades, CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Shade_of_Taerar, 100.0f);
-                if (shades.size() > 0)
-                {
-                    if (Player* tank3 = GetPlayerByGroupRole(GroupRole_Taerar::GroupRole_Taerar_Tank3))
-                    {
-                        if (sb->DPS(tank3->GetSelectedUnit(), true, false, tank3))
-                        {
-                            return true;
-                        }
-                    }
-                    if (Player* tank2 = GetPlayerByGroupRole(GroupRole_Taerar::GroupRole_Taerar_Tank2))
-                    {
-                        if (sb->DPS(tank2->GetSelectedUnit(), true, false, tank2))
-                        {
-                            return true;
-                        }
-                    }
-                    if (Player* tank1 = GetPlayerByGroupRole(GroupRole_Taerar::GroupRole_Taerar_Tank1))
-                    {
-                        if (sb->DPS(tank1->GetSelectedUnit(), true, false, tank1))
-                        {
-                            return true;
-                        }
-                    }
-                }
-                float currentDistance = me->GetDistance(ysondre);
-                if (currentDistance < 40.0f || currentDistance > 45.0f)
-                {
-                    float newX = 0.0f;
-                    float newY = 0.0f;
-                    float newZ = 0.0f;
-                    ysondre->GetNearPoint(me, newX, newY, newZ, 43.0f, engageAngle);
-                    moveDelay = 1000;
-                    me->GetMotionMaster()->MovePoint(0, newX, newY, newZ, true, me->GetAbsoluteAngle(ysondre));
-                    return true;
-                }
-                return true;
-            }
-            return true;
-        }
-    }
-
-    return RobotStrategy_Group::DPS();
-}
-
-bool RobotStrategy_Group_Taerar::Tank()
-{
-    if (!me)
-    {
-        return false;
-    }
-    if (!me->IsAlive())
-    {
-        return false;
-    }
-    std::unordered_map<uint32, Unit*> bossMap = GetBossMap();
-    if (bossMap.find(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Taerar) != bossMap.end())
-    {
-        if (Unit* taerar = bossMap.begin()->second)
-        {
-            std::list<Creature*> shades;
-            me->GetCreatureListWithEntryInGrid(shades, CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Shade_of_Taerar, 100.0f);
-            if (shades.size() > 0)
-            {
-                if (Unit* myShade = ObjectAccessor::GetUnit(*me, shadeOG))
+                if (Unit* myShade = ObjectAccessor::GetUnit(*me, myGroup->GetOGByTargetIcon(5)))
                 {
                     if (myShade->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Shade_of_Taerar)
                     {
-                        if (sb->Tank(myShade, true))
+                        if (myShade->IsAlive())
                         {
-                            return true;
-                        }
-                    }
-                }
-                shadeOG.Clear();
-                std::unordered_set<ObjectGuid> assignedShadeOGSet = GetAssignedShadeOGSet();
-                for (Creature* eachShade : shades)
-                {
-                    if (assignedShadeOGSet.find(eachShade->GetGUID()) == assignedShadeOGSet.end())
-                    {
-                        if (sb->Tank(eachShade, true))
-                        {
-                            shadeOG = eachShade->GetGUID();
-                            return true;
-                        }
-                    }
-                }
-                for (Creature* eachShade : shades)
-                {
-                    if (sb->Tank(eachShade, true))
-                    {
-                        shadeOG = eachShade->GetGUID();
-                        return true;
-                    }
-                }
-            }
-            else
-            {
-                shadeOG.Clear();
-            }
-
-            if (me->groupRole == GroupRole_Taerar::GroupRole_Taerar_Tank1 || me->groupRole == GroupRole_Taerar::GroupRole_Taerar_Tank2)
-            {
-                if (Player* mainTank = GetMainTank())
-                {
-                    if (mainTank->GetGUID() != me->GetGUID())
-                    {
-                        if (taerar->GetTarget() == mainTank->GetGUID())
-                        {
-                            float currentDistance = me->GetDistance(taerar);
-                            if (currentDistance > 1.0f)
+                            if (myShade->GetTarget() == me->GetGUID())
                             {
-                                float newX = 0.0f;
-                                float newY = 0.0f;
-                                float newZ = 0.0f;
-                                taerar->GetNearPoint(me, newX, newY, newZ, 0.0f, engageAngle);
-                                moveDelay = 1000;
-                                me->GetMotionMaster()->MovePoint(0, newX, newY, newZ, true, me->GetAbsoluteAngle(taerar));
+                                bool move = true;
+                                //if (Unit* shade7 = ObjectAccessor::GetUnit(*me, myGroup->GetOGByTargetIcon(7)))
+                                //{
+                                //    if (shade7->IsAlive())
+                                //    {
+                                //        move = false;
+                                //    }
+                                //}
+                                if (move)
+                                {
+                                    Position shadePos = basePos;
+                                    if (Creature* taerar = GetNearbyCreature(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Taerar))
+                                    {
+                                        shadePos.m_positionX = taerar->GetPositionX() + 20.0f * std::cos(basePos.GetOrientation() + M_PI / 4);
+                                        shadePos.m_positionY = taerar->GetPositionY() + 20.0f * std::sin(basePos.GetOrientation() + M_PI / 4);
+                                        shadePos.m_positionZ = taerar->GetPositionZ() + 10.0f;
+                                        me->UpdateAllowedPositionZ(shadePos.m_positionX, shadePos.m_positionY, shadePos.m_positionZ);
+                                    }
+                                    float shadeDistance = me->GetExactDist(shadePos);
+                                    if (shadeDistance > 10.0f)
+                                    {
+                                        actionDelay = 3000;
+                                        actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                                        markPos = shadePos;
+                                        me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(myShade->GetPosition()));
+                                        return true;
+                                    }
+                                }
+                            }
+                            sb->Taunt(myShade);
+                            sb->Tank(myShade, true);
+                        }
+                        else
+                        {
+                            myGroup->SetTargetIcon(5, me->GetGUID(), ObjectGuid());
+                            if (ObjectGuid activeTankOG = myGroup->GetOGByTargetIcon(0))
+                            {
+                                if (activeTankOG == me->GetGUID())
+                                {
+                                    if (Creature* taerar = GetNearbyCreature(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Taerar))
+                                    {
+                                        Position frontPos;
+                                        taerar->GetNearPoint(me, frontPos.m_positionX, frontPos.m_positionY, frontPos.m_positionZ, -5.0, engageAngle);
+                                        if (me->GetExactDist(frontPos) > 1.0f)
+                                        {
+                                            actionDelay = 3000;
+                                            markPos = frontPos;
+                                            me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(taerar->GetPosition()));
+                                            return true;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                break;
+            }
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank2:
+            {
+                if (Unit* myShade = ObjectAccessor::GetUnit(*me, myGroup->GetOGByTargetIcon(6)))
+                {
+                    if (myShade->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Shade_of_Taerar)
+                    {
+                        if (myShade->IsAlive())
+                        {
+                            if (myShade->GetTarget() == me->GetGUID())
+                            {
+                                bool move = true;
+                                //if (Unit* shade7 = ObjectAccessor::GetUnit(*me, myGroup->GetOGByTargetIcon(7)))
+                                //{
+                                //    if (shade7->IsAlive())
+                                //    {
+                                //        move = false;
+                                //    }
+                                //}
+                                //if (move)
+                                //{
+                                //    if (Unit* shade5 = ObjectAccessor::GetUnit(*me, myGroup->GetOGByTargetIcon(5)))
+                                //    {
+                                //        if (shade5->IsAlive())
+                                //        {
+                                //            move = false;
+                                //        }
+                                //    }
+                                //}
+                                if (move)
+                                {
+                                    Position shadePos = basePos;
+                                    if (Creature* taerar = GetNearbyCreature(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Taerar))
+                                    {
+                                        shadePos.m_positionX = taerar->GetPositionX() + 20.0f * std::cos(basePos.GetOrientation() + M_PI / 4);
+                                        shadePos.m_positionY = taerar->GetPositionY() + 20.0f * std::sin(basePos.GetOrientation() + M_PI / 4);
+                                        shadePos.m_positionZ = taerar->GetPositionZ() + 10.0f;
+                                        me->UpdateAllowedPositionZ(shadePos.m_positionX, shadePos.m_positionY, shadePos.m_positionZ);
+                                    }
+                                    float shadeDistance = me->GetExactDist(shadePos);
+                                    if (shadeDistance > 10.0f)
+                                    {
+                                        actionDelay = 3000;
+                                        actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                                        markPos = shadePos;
+                                        me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(myShade->GetPosition()));
+                                        return true;
+                                    }
+                                }
+                            }
+                            sb->Taunt(myShade);
+                            sb->Tank(myShade, true);
+                        }
+                        else
+                        {
+                            myGroup->SetTargetIcon(6, me->GetGUID(), ObjectGuid());
+                            if (ObjectGuid activeTankOG = myGroup->GetOGByTargetIcon(0))
+                            {
+                                if (activeTankOG == me->GetGUID())
+                                {
+                                    if (Creature* taerar = GetNearbyCreature(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Taerar))
+                                    {
+                                        Position frontPos;
+                                        taerar->GetNearPoint(me, frontPos.m_positionX, frontPos.m_positionY, frontPos.m_positionZ, -5.0, engageAngle);
+                                        if (me->GetExactDist(frontPos) > 1.0f)
+                                        {
+                                            actionDelay = 3000;
+                                            markPos = frontPos;
+                                            me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(taerar->GetPosition()));
+                                            return true;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                break;
+            }
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank3:
+            {
+                if (Unit* myShade = ObjectAccessor::GetUnit(*me, myGroup->GetOGByTargetIcon(7)))
+                {
+                    if (myShade->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Shade_of_Taerar)
+                    {
+                        if (myShade->IsAlive())
+                        {
+                            if (myShade->GetTarget() == me->GetGUID())
+                            {
+                                Position shadePos = basePos;
+                                if (Creature* taerar = GetNearbyCreature(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Taerar))
+                                {
+                                    shadePos.m_positionX = taerar->GetPositionX() + 20.0f * std::cos(basePos.GetOrientation() + M_PI / 4);
+                                    shadePos.m_positionY = taerar->GetPositionY() + 20.0f * std::sin(basePos.GetOrientation() + M_PI / 4);
+                                    shadePos.m_positionZ = taerar->GetPositionZ() + 10.0f;
+                                    me->UpdateAllowedPositionZ(shadePos.m_positionX, shadePos.m_positionY, shadePos.m_positionZ);
+                                }
+                                float shadeDistance = me->GetExactDist(shadePos);
+                                if (shadeDistance > 10.0f)
+                                {
+                                    actionDelay = 3000;
+                                    actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                                    markPos = shadePos;
+                                    me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(myShade->GetPosition()));
+                                    return true;
+                                }
+                            }
+                            sb->Taunt(myShade);
+                            sb->Tank(myShade, true);
+                        }
+                        else
+                        {
+                            myGroup->SetTargetIcon(7, me->GetGUID(), ObjectGuid());
+                            if (Creature* taerar = GetNearbyCreature(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Taerar))
+                            {
+                                float currentDistance = me->GetDistance(taerar);
+                                if (currentDistance < 35.0f || currentDistance > 40.0f)
+                                {
+                                    taerar->GetNearPoint(me, markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ, 37.0f, engageAngle);
+                                    actionDelay = 5000;
+                                    actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                                    me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(taerar->GetPosition()));
+                                }
+                            }
+                        }
+                    }
+                }
+                break;
+            }
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank4:
+            {
+                if (Unit* shade7 = ObjectAccessor::GetUnit(*me, myGroup->GetOGByTargetIcon(7)))
+                {
+                    if (shade7->IsAlive())
+                    {
+                        if (sb->DPS(shade7, true, false, NULL))
+                        {
+                            return true;
+                        }
+                    }
+                }
+                if (Player* activeTank = ObjectAccessor::GetPlayer(*me, myGroup->GetOGByTargetIcon(0)))
+                {
+                    if (activeTank->IsAlive())
+                    {
+                        if (activeTank->groupRole == GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank1)
+                        {
+                            if (Unit* shade5 = ObjectAccessor::GetUnit(*me, myGroup->GetOGByTargetIcon(5)))
+                            {
+                                if (shade5->IsAlive())
+                                {
+                                    if (sb->DPS(shade5, true, false, NULL))
+                                    {
+                                        return true;
+                                    }
+                                }
+                            }
+                            if (Unit* shade6 = ObjectAccessor::GetUnit(*me, myGroup->GetOGByTargetIcon(6)))
+                            {
+                                if (shade6->IsAlive())
+                                {
+                                    if (sb->DPS(shade6, true, false, NULL))
+                                    {
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (Unit* shade6 = ObjectAccessor::GetUnit(*me, myGroup->GetOGByTargetIcon(6)))
+                            {
+                                if (shade6->IsAlive())
+                                {
+                                    if (sb->DPS(shade6, true, false, NULL))
+                                    {
+                                        return true;
+                                    }
+                                }
+                            }
+                            if (Unit* shade5 = ObjectAccessor::GetUnit(*me, myGroup->GetOGByTargetIcon(5)))
+                            {
+                                if (shade5->IsAlive())
+                                {
+                                    if (sb->DPS(shade5, true, false, NULL))
+                                    {
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                break;
+            }
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank5:
+            {
+                if (Unit* shade7 = ObjectAccessor::GetUnit(*me, myGroup->GetOGByTargetIcon(7)))
+                {
+                    if (shade7->IsAlive())
+                    {
+                        if (sb->DPS(shade7, true, false, NULL))
+                        {
+                            return true;
+                        }
+                    }
+                }
+                if (Player* activeTank = ObjectAccessor::GetPlayer(*me, myGroup->GetOGByTargetIcon(0)))
+                {
+                    if (activeTank->IsAlive())
+                    {
+                        if (activeTank->groupRole == GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank1)
+                        {
+                            if (Unit* shade5 = ObjectAccessor::GetUnit(*me, myGroup->GetOGByTargetIcon(5)))
+                            {
+                                if (shade5->IsAlive())
+                                {
+                                    if (sb->DPS(shade5, true, false, NULL))
+                                    {
+                                        return true;
+                                    }
+                                }
+                            }
+                            if (Unit* shade6 = ObjectAccessor::GetUnit(*me, myGroup->GetOGByTargetIcon(6)))
+                            {
+                                if (shade6->IsAlive())
+                                {
+                                    if (sb->DPS(shade6, true, false, NULL))
+                                    {
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (Unit* shade6 = ObjectAccessor::GetUnit(*me, myGroup->GetOGByTargetIcon(6)))
+                            {
+                                if (shade6->IsAlive())
+                                {
+                                    if (sb->DPS(shade6, true, false, NULL))
+                                    {
+                                        return true;
+                                    }
+                                }
+                            }
+                            if (Unit* shade5 = ObjectAccessor::GetUnit(*me, myGroup->GetOGByTargetIcon(5)))
+                            {
+                                if (shade5->IsAlive())
+                                {
+                                    if (sb->DPS(shade5, true, false, NULL))
+                                    {
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                break;
+            }
+            default:
+            {
+                break;
+            }
+            }
+            return true;
+        }
+        if (Unit* taerar = GetAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Taerar))
+        {
+            switch (me->groupRole)
+            {
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank1:
+            {
+                if (ObjectGuid activeTankOG = myGroup->GetOGByTargetIcon(0))
+                {
+                    if (activeTankOG == me->GetGUID())
+                    {
+                        bool tanking = true;
+                        if (me->GetAuraCount(24818) >= 3)
+                        {
+                            tanking = false;
+                        }
+                        if (tanking)
+                        {
+                            if (taerar->GetTarget() == me->GetGUID())
+                            {
+                                float baseDistance = taerar->GetExactDist(basePos);
+                                if (baseDistance > 50.0f)
+                                {
+                                    taerar->GetNearPoint(me, markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ, baseDistance + 20.0f, taerar->GetAbsoluteAngle(basePos));
+                                    actionDelay = 10000;
+                                    actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                                    me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(taerar->GetPosition()));
+                                    return true;
+                                }
+                                float extDistance = me->GetExactDist(taerar->GetPosition());
+                                bool move = false;
+                                if (extDistance < 14.0f)
+                                {
+                                    move = true;
+                                }
+                                else if (extDistance < 20.0f)
+                                {
+                                    float taerarAngle = taerar->GetOrientation();
+                                    if (taerarAngle < engageAngle - M_PI / 8 || taerarAngle > engageAngle + M_PI / 8)
+                                    {
+                                        move = true;
+                                    }
+                                }
+                                if (move)
+                                {
+                                    taerar->GetNearPoint(me, markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ, -5.0f, engageAngle);
+                                    actionDelay = 5000;
+                                    actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                                    me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(taerar->GetPosition()));
+                                    return true;
+                                }
+                            }
+                            sb->Taunt(taerar);
+                            sb->Tank(taerar, false);
+                        }
+                        else
+                        {
+                            if (Player* tank2 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank2))
+                            {
+                                if (tank2->IsAlive())
+                                {
+                                    myGroup->SetTargetIcon(0, me->GetGUID(), tank2->GetGUID());
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (taerar->GetTarget() != me->GetGUID())
+                        {
+                            Position sidePos;
+                            taerar->GetNearPoint(me, sidePos.m_positionX, sidePos.m_positionY, sidePos.m_positionZ, -5.0f, taerar->GetOrientation() + sideAngle);
+                            if (me->GetExactDist(sidePos) > 1.0f)
+                            {
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                                markPos = sidePos;
+                                actionDelay = 5000;
+                                actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                                me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(taerar->GetPosition()));
                                 return true;
                             }
-                            return sb->SubTank(taerar, true);
+                            sb->SubTank(taerar, false);
                         }
-                        if (!me->isInFront(taerar, M_PI / 16))
+                        if (Player* tank2 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank2))
                         {
-                            me->SetFacingToObject(taerar);
+                            if (tank2->IsAlive())
+                            {
+                                if (!tank2->HasAura(24778))
+                                {
+                                    break;
+                                }
+                            }
                         }
-                        me->AttackStop();
-                        sb->ClearTarget();
-                        return true;
+                        myGroup->SetTargetIcon(0, me->GetGUID(), me->GetGUID());
                     }
                 }
-                sb->Taunt(taerar);
-                return sb->Tank(taerar, true);
+                break;
             }
-            else if (me->groupRole == GroupRole_Taerar::GroupRole_Taerar_Tank3)
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank2:
             {
-                if (Player* tank1 = GetPlayerByGroupRole(GroupRole_Taerar::GroupRole_Taerar_Tank1))
+                if (ObjectGuid activeTankOG = myGroup->GetOGByTargetIcon(0))
                 {
-                    if (!tank1->IsAlive())
+                    if (activeTankOG == me->GetGUID())
                     {
-                        tank1->groupRole = GroupRole_Taerar::GroupRole_Taerar_Tank3;
-                        me->groupRole = GroupRole_Taerar::GroupRole_Taerar_Tank1;
-                        if (RobotStrategy_Group_Taerar* rs = (RobotStrategy_Group_Taerar*)tank1->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
+                        bool tanking = true;
+                        if (me->GetAuraCount(24818) >= 3)
                         {
-                            engageAngle = rs->engageAngle;
+                            tanking = false;
                         }
-                        me->GetMotionMaster()->MovePoint(0, tank1->GetPosition(), true, me->GetAbsoluteAngle(taerar));
-                        moveDelay = 3000;
-                        return true;
-                    }
-                }
-                if (Player* tank2 = GetPlayerByGroupRole(GroupRole_Taerar::GroupRole_Taerar_Tank2))
-                {
-                    if (!tank2->IsAlive())
-                    {
-                        tank2->groupRole = GroupRole_Taerar::GroupRole_Taerar_Tank3;
-                        me->groupRole = GroupRole_Taerar::GroupRole_Taerar_Tank2;
-                        if (RobotStrategy_Group_Taerar* rs = (RobotStrategy_Group_Taerar*)tank2->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
+                        if (tanking)
                         {
-                            engageAngle = rs->engageAngle;
+                            if (taerar->GetTarget() == me->GetGUID())
+                            {
+                                float baseDistance = taerar->GetExactDist(basePos);
+                                if (baseDistance > 50.0f)
+                                {
+                                    taerar->GetNearPoint(me, markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ, baseDistance + 20.0f, taerar->GetAbsoluteAngle(basePos));
+                                    actionDelay = 10000;
+                                    actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                                    me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(taerar->GetPosition()));
+                                    return true;
+                                }
+                                float extDistance = me->GetExactDist(taerar->GetPosition());
+                                bool move = false;
+                                if (extDistance < 14.0f)
+                                {
+                                    move = true;
+                                }
+                                else if (extDistance < 20.0f)
+                                {
+                                    float taerarAngle = taerar->GetOrientation();
+                                    if (taerarAngle < engageAngle - M_PI / 8 || taerarAngle > engageAngle + M_PI / 8)
+                                    {
+                                        move = true;
+                                    }
+                                }
+                                if (move)
+                                {
+                                    taerar->GetNearPoint(me, markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ, -5.0f, engageAngle);
+                                    actionDelay = 5000;
+                                    actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                                    me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(taerar->GetPosition()));
+                                    return true;
+                                }
+                            }
+                            sb->Taunt(taerar);
+                            sb->Tank(taerar, false);
                         }
-                        me->GetMotionMaster()->MovePoint(0, tank2->GetPosition(), true, me->GetAbsoluteAngle(taerar));
-                        moveDelay = 3000;
-                        return true;
+                        else
+                        {
+                            if (Player* tank1 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank1))
+                            {
+                                if (tank1->IsAlive())
+                                {
+                                    myGroup->SetTargetIcon(0, me->GetGUID(), tank1->GetGUID());
+                                }
+                            }
+                        }
                     }
-                }
-                if (Player* tank = GetPlayerByGroupRole(GroupRole_Taerar::GroupRole_Taerar_Tank1))
-                {
-                    float currentDistance = me->GetDistance(tank);
-                    if (currentDistance < 40.0f || currentDistance > 45.0f)
+                    else
                     {
-                        float newX = 0.0f;
-                        float newY = 0.0f;
-                        float newZ = 0.0f;
-                        tank->GetNearPoint(me, newX, newY, newZ, 43.0f, engageAngle);
-                        moveDelay = 1000;
-                        me->GetMotionMaster()->MovePoint(0, newX, newY, newZ, true, me->GetAbsoluteAngle(taerar));
-                        return true;
+                        if (taerar->GetTarget() != me->GetGUID())
+                        {
+                            Position sidePos;
+                            taerar->GetNearPoint(me, sidePos.m_positionX, sidePos.m_positionY, sidePos.m_positionZ, -5.0f, taerar->GetOrientation() + sideAngle);
+                            if (me->GetExactDist(sidePos) > 1.0f)
+                            {
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                                markPos = sidePos;
+                                actionDelay = 5000;
+                                actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                                me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(taerar->GetPosition()));
+                                return true;
+                            }
+                            sb->SubTank(taerar, false);
+                        }
+                        if (Player* tank1 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank1))
+                        {
+                            if (tank1->IsAlive())
+                            {
+                                if (!tank1->HasAura(24778))
+                                {
+                                    break;
+                                }
+                            }
+                        }
                     }
                 }
-                return true;
+                break;
             }
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank3:
+            {
+                float currentDistance = me->GetDistance(taerar);
+                if (currentDistance < 35.0f || currentDistance > 40.0f)
+                {
+                    taerar->GetNearPoint(me, markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ, 37.0f, engageAngle);
+                    actionDelay = 5000;
+                    actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                    me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(taerar->GetPosition()));
+                }
+                break;
+            }
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank4:
+            {
+                float currentDistance = me->GetDistance(taerar);
+                if (currentDistance < 35.0f || currentDistance > 40.0f)
+                {
+                    taerar->GetNearPoint(me, markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ, 37.0f, engageAngle);
+                    actionDelay = 5000;
+                    actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                    me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(taerar->GetPosition()));
+                }
+                break;
+            }
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank5:
+            {
+                float currentDistance = me->GetDistance(taerar);
+                if (currentDistance < 35.0f || currentDistance > 40.0f)
+                {
+                    taerar->GetNearPoint(me, markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ, 37.0f, engageAngle);
+                    actionDelay = 5000;
+                    actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                    me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(taerar->GetPosition()));
+                }
+                break;
+            }
+            default:
+            {
+                break;
+            }
+            }
+            return true;
+        }
+        std::unordered_map<ObjectGuid, Unit*> dementedDruidMap = GetAttackerMap(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Demented_Druid);
+        if (dementedDruidMap.size() > 0)
+        {
+            if (me->groupRole == GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank3 || me->groupRole == GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank4 || me->groupRole == GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank5)
+            {
+                if (dementedDruidMap.find(me->GetTarget()) != dementedDruidMap.end())
+                {
+                    if (Unit* myDruid = me->GetSelectedUnit())
+                    {
+                        if (myDruid->GetTarget() != me->GetGUID())
+                        {
+                            sb->Taunt(me->GetSelectedUnit());
+                            if (sb->Tank(me->GetSelectedUnit(), true))
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                }
+                for (std::unordered_map<ObjectGuid, Unit*>::iterator ddIT = dementedDruidMap.begin(); ddIT != dementedDruidMap.end(); ddIT++)
+                {
+                    if (Unit* eachDD = ddIT->second)
+                    {
+                        if (Player* ddTarget = ObjectAccessor::GetPlayer(*me, eachDD->GetTarget()))
+                        {
+                            if (ddTarget->groupRole == GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer1 || ddTarget->groupRole == GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer2 || ddTarget->groupRole == GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer3 || ddTarget->groupRole == GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer4 || ddTarget->groupRole == GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer5 || ddTarget->groupRole == GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer6 || ddTarget->groupRole == GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer7 || ddTarget->groupRole == GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer8)
+                            {
+                                sb->Taunt(eachDD);
+                                if (sb->Tank(eachDD, true))
+                                {
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
+                for (std::unordered_map<ObjectGuid, Unit*>::iterator ddIT = dementedDruidMap.begin(); ddIT != dementedDruidMap.end(); ddIT++)
+                {
+                    if (Unit* eachDD = ddIT->second)
+                    {
+                        sb->Taunt(eachDD);
+                        if (sb->Tank(eachDD, true))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+        if (Unit* ysondre = GetAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Ysondre))
+        {
+            switch (me->groupRole)
+            {
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank1:
+            {
+                if (ObjectGuid activeTankOG = myGroup->GetOGByTargetIcon(0))
+                {
+                    if (activeTankOG == me->GetGUID())
+                    {
+                        bool tanking = true;
+                        if (me->GetAuraCount(24818) >= 3)
+                        {
+                            tanking = false;
+                        }
+                        if (tanking)
+                        {
+                            if (ysondre->GetTarget() == me->GetGUID())
+                            {
+                                float baseDistance = ysondre->GetExactDist(basePos);
+                                if (baseDistance > 50.0f)
+                                {
+                                    ysondre->GetNearPoint(me, markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ, baseDistance + 20.0f, ysondre->GetAbsoluteAngle(basePos));
+                                    actionDelay = 10000;
+                                    actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                                    me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(ysondre->GetPosition()));
+                                    return true;
+                                }
+                                float extDistance = me->GetExactDist(ysondre->GetPosition());
+                                bool move = false;
+                                if (extDistance < 14.0f)
+                                {
+                                    move = true;
+                                }
+                                else if (extDistance < 20.0f)
+                                {
+                                    float taerarAngle = ysondre->GetOrientation();
+                                    if (taerarAngle < engageAngle - M_PI / 8 || taerarAngle > engageAngle + M_PI / 8)
+                                    {
+                                        move = true;
+                                    }
+                                }
+                                if (move)
+                                {
+                                    ysondre->GetNearPoint(me, markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ, -5.0f, engageAngle);
+                                    actionDelay = 5000;
+                                    actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                                    me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(ysondre->GetPosition()));
+                                    return true;
+                                }
+                            }
+                            sb->Taunt(ysondre);
+                            sb->Tank(ysondre, false);
+                        }
+                        else
+                        {
+                            if (Player* tank2 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank2))
+                            {
+                                if (tank2->IsAlive())
+                                {
+                                    myGroup->SetTargetIcon(0, me->GetGUID(), tank2->GetGUID());
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (ysondre->GetTarget() != me->GetGUID())
+                        {
+                            Position sidePos;
+                            ysondre->GetNearPoint(me, sidePos.m_positionX, sidePos.m_positionY, sidePos.m_positionZ, -5.0f, ysondre->GetOrientation() + sideAngle);
+                            if (me->GetExactDist(sidePos) > 1.0f)
+                            {
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                                markPos = sidePos;
+                                actionDelay = 5000;
+                                actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                                me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(ysondre->GetPosition()));
+                                return true;
+                            }
+                            sb->SubTank(ysondre, false);
+                        }
+                        if (Player* tank2 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank2))
+                        {
+                            if (tank2->IsAlive())
+                            {
+                                if (!tank2->HasAura(24778))
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                        myGroup->SetTargetIcon(0, me->GetGUID(), me->GetGUID());
+                    }
+                }
+                break;
+            }
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank2:
+            {
+                if (ObjectGuid activeTankOG = myGroup->GetOGByTargetIcon(0))
+                {
+                    if (activeTankOG == me->GetGUID())
+                    {
+                        bool tanking = true;
+                        if (me->GetAuraCount(24818) >= 3)
+                        {
+                            tanking = false;
+                        }
+                        if (tanking)
+                        {
+                            if (ysondre->GetTarget() == me->GetGUID())
+                            {
+                                float baseDistance = ysondre->GetExactDist(basePos);
+                                if (baseDistance > 50.0f)
+                                {
+                                    ysondre->GetNearPoint(me, markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ, baseDistance + 20.0f, ysondre->GetAbsoluteAngle(basePos));
+                                    actionDelay = 10000;
+                                    actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                                    me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(ysondre->GetPosition()));
+                                    return true;
+                                }
+                                float extDistance = me->GetExactDist(ysondre->GetPosition());
+                                bool move = false;
+                                if (extDistance < 14.0f)
+                                {
+                                    move = true;
+                                }
+                                else if (extDistance < 20.0f)
+                                {
+                                    float taerarAngle = ysondre->GetOrientation();
+                                    if (taerarAngle < engageAngle - M_PI / 8 || taerarAngle > engageAngle + M_PI / 8)
+                                    {
+                                        move = true;
+                                    }
+                                }
+                                if (move)
+                                {
+                                    ysondre->GetNearPoint(me, markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ, -5.0f, engageAngle);
+                                    actionDelay = 5000;
+                                    actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                                    me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(ysondre->GetPosition()));
+                                    return true;
+                                }
+                            }
+                            sb->Taunt(ysondre);
+                            sb->Tank(ysondre, false);
+                        }
+                        else
+                        {
+                            if (Player* tank1 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank1))
+                            {
+                                if (tank1->IsAlive())
+                                {
+                                    myGroup->SetTargetIcon(0, me->GetGUID(), tank1->GetGUID());
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (ysondre->GetTarget() != me->GetGUID())
+                        {
+                            Position sidePos;
+                            ysondre->GetNearPoint(me, sidePos.m_positionX, sidePos.m_positionY, sidePos.m_positionZ, -5.0f, ysondre->GetOrientation() + sideAngle);
+                            if (me->GetExactDist(sidePos) > 1.0f)
+                            {
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                                markPos = sidePos;
+                                actionDelay = 5000;
+                                actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                                me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(ysondre->GetPosition()));
+                                return true;
+                            }
+                            sb->SubTank(ysondre, false);
+                        }
+                        if (Player* tank1 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank1))
+                        {
+                            if (tank1->IsAlive())
+                            {
+                                if (!tank1->HasAura(24778))
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                break;
+            }
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank3:
+            {
+                float currentDistance = me->GetDistance(ysondre);
+                if (currentDistance < 35.0f || currentDistance > 40.0f)
+                {
+                    ysondre->GetNearPoint(me, markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ, 37.0f, engageAngle);
+                    actionDelay = 5000;
+                    actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                    me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(ysondre->GetPosition()));
+                }
+                break;
+            }
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank4:
+            {
+                float currentDistance = me->GetDistance(ysondre);
+                if (currentDistance < 35.0f || currentDistance > 40.0f)
+                {
+                    ysondre->GetNearPoint(me, markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ, 37.0f, engageAngle);
+                    actionDelay = 5000;
+                    actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                    me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(ysondre->GetPosition()));
+                }
+                break;
+            }
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank5:
+            {
+                float currentDistance = me->GetDistance(ysondre);
+                if (currentDistance < 35.0f || currentDistance > 40.0f)
+                {
+                    ysondre->GetNearPoint(me, markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ, 37.0f, engageAngle);
+                    actionDelay = 5000;
+                    actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                    me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(ysondre->GetPosition()));
+                }
+                break;
+            }
+            default:
+            {
+                break;
+            }
+            }
+            return true;
+        }
+        if (Unit* lethon = GetAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Lethon))
+        {
+            switch (me->groupRole)
+            {
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank1:
+            {
+                if (ObjectGuid activeTankOG = myGroup->GetOGByTargetIcon(0))
+                {
+                    if (activeTankOG == me->GetGUID())
+                    {
+                        bool tanking = true;
+                        if (me->GetAuraCount(24818) >= 3)
+                        {
+                            tanking = false;
+                        }
+                        if (tanking)
+                        {
+                            if (lethon->GetTarget() == me->GetGUID())
+                            {
+                                float baseDistance = lethon->GetExactDist(basePos);
+                                if (baseDistance > 50.0f)
+                                {
+                                    lethon->GetNearPoint(me, markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ, baseDistance + 20.0f, lethon->GetAbsoluteAngle(basePos));
+                                    actionDelay = 10000;
+                                    actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                                    me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(lethon->GetPosition()));
+                                    return true;
+                                }
+                                float extDistance = me->GetExactDist(lethon->GetPosition());
+                                bool move = false;
+                                if (extDistance < 14.0f)
+                                {
+                                    move = true;
+                                }
+                                else if (extDistance < 20.0f)
+                                {
+                                    float taerarAngle = lethon->GetOrientation();
+                                    if (taerarAngle < engageAngle - M_PI / 8 || taerarAngle > engageAngle + M_PI / 8)
+                                    {
+                                        move = true;
+                                    }
+                                }
+                                if (move)
+                                {
+                                    lethon->GetNearPoint(me, markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ, -5.0f, engageAngle);
+                                    actionDelay = 5000;
+                                    actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                                    me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(lethon->GetPosition()));
+                                    return true;
+                                }
+                            }
+                            sb->Taunt(lethon);
+                            sb->Tank(lethon, false);
+                        }
+                        else
+                        {
+                            if (Player* tank2 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank2))
+                            {
+                                if (tank2->IsAlive())
+                                {
+                                    myGroup->SetTargetIcon(0, me->GetGUID(), tank2->GetGUID());
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (lethon->GetTarget() != me->GetGUID())
+                        {
+                            Position sidePos;
+                            lethon->GetNearPoint(me, sidePos.m_positionX, sidePos.m_positionY, sidePos.m_positionZ, -5.0f, lethon->GetOrientation() + sideAngle);
+                            if (me->GetExactDist(sidePos) > 1.0f)
+                            {
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                                markPos = sidePos;
+                                actionDelay = 5000;
+                                actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                                me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(lethon->GetPosition()));
+                                return true;
+                            }
+                            sb->SubTank(lethon, false);
+                        }
+                        if (Player* tank2 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank2))
+                        {
+                            if (tank2->IsAlive())
+                            {
+                                if (!tank2->HasAura(24778))
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                        myGroup->SetTargetIcon(0, me->GetGUID(), me->GetGUID());
+                    }
+                }
+                break;
+            }
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank2:
+            {
+                if (ObjectGuid activeTankOG = myGroup->GetOGByTargetIcon(0))
+                {
+                    if (activeTankOG == me->GetGUID())
+                    {
+                        bool tanking = true;
+                        if (me->GetAuraCount(24818) >= 3)
+                        {
+                            tanking = false;
+                        }
+                        if (tanking)
+                        {
+                            if (lethon->GetTarget() == me->GetGUID())
+                            {
+                                float baseDistance = lethon->GetExactDist(basePos);
+                                if (baseDistance > 50.0f)
+                                {
+                                    lethon->GetNearPoint(me, markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ, baseDistance + 20.0f, lethon->GetAbsoluteAngle(basePos));
+                                    actionDelay = 10000;
+                                    actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                                    me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(lethon->GetPosition()));
+                                    return true;
+                                }
+                                float extDistance = me->GetExactDist(lethon->GetPosition());
+                                bool move = false;
+                                if (extDistance < 14.0f)
+                                {
+                                    move = true;
+                                }
+                                else if (extDistance < 20.0f)
+                                {
+                                    float taerarAngle = lethon->GetOrientation();
+                                    if (taerarAngle < engageAngle - M_PI / 8 || taerarAngle > engageAngle + M_PI / 8)
+                                    {
+                                        move = true;
+                                    }
+                                }
+                                if (move)
+                                {
+                                    lethon->GetNearPoint(me, markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ, -5.0f, engageAngle);
+                                    actionDelay = 5000;
+                                    actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                                    me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(lethon->GetPosition()));
+                                    return true;
+                                }
+                            }
+                            sb->Taunt(lethon);
+                            sb->Tank(lethon, false);
+                        }
+                        else
+                        {
+                            if (Player* tank1 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank1))
+                            {
+                                if (tank1->IsAlive())
+                                {
+                                    myGroup->SetTargetIcon(0, me->GetGUID(), tank1->GetGUID());
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (lethon->GetTarget() != me->GetGUID())
+                        {
+                            Position sidePos;
+                            lethon->GetNearPoint(me, sidePos.m_positionX, sidePos.m_positionY, sidePos.m_positionZ, -5.0f, lethon->GetOrientation() + sideAngle);
+                            if (me->GetExactDist(sidePos) > 1.0f)
+                            {
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                                markPos = sidePos;
+                                actionDelay = 5000;
+                                actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                                me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(lethon->GetPosition()));
+                                return true;
+                            }
+                            sb->SubTank(lethon, false);
+                        }
+                        if (Player* tank1 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank1))
+                        {
+                            if (tank1->IsAlive())
+                            {
+                                if (!tank1->HasAura(24778))
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                break;
+            }
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank3:
+            {
+                float currentDistance = me->GetDistance(lethon);
+                if (currentDistance < 35.0f || currentDistance > 40.0f)
+                {
+                    lethon->GetNearPoint(me, markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ, 37.0f, engageAngle);
+                    actionDelay = 5000;
+                    actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                    me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(lethon->GetPosition()));
+                }
+                break;
+            }
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank4:
+            {
+                float currentDistance = me->GetDistance(lethon);
+                if (currentDistance < 35.0f || currentDistance > 40.0f)
+                {
+                    lethon->GetNearPoint(me, markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ, 37.0f, engageAngle);
+                    actionDelay = 5000;
+                    actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                    me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(lethon->GetPosition()));
+                }
+                break;
+            }
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank5:
+            {
+                float currentDistance = me->GetDistance(lethon);
+                if (currentDistance < 35.0f || currentDistance > 40.0f)
+                {
+                    lethon->GetNearPoint(me, markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ, 37.0f, engageAngle);
+                    actionDelay = 5000;
+                    actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                    me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(lethon->GetPosition()));
+                }
+                break;
+            }
+            default:
+            {
+                break;
+            }
+            }
+            return true;
         }
     }
     return RobotStrategy_Group::Tank();
 }
 
-bool RobotStrategy_Group_Taerar::Tank(Unit* pmTarget)
+bool RobotStrategy_Group_EmeraldDragon::Tank(Unit* pmTarget)
 {
     if (!me)
     {
@@ -5492,7 +5380,7 @@ bool RobotStrategy_Group_Taerar::Tank(Unit* pmTarget)
     }
     switch (me->groupRole)
     {
-    case GroupRole_Taerar::GroupRole_Taerar_Tank1:
+    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank1:
     {
         sb->ClearTarget();
         sb->ChooseTarget(pmTarget);
@@ -5507,200 +5395,835 @@ bool RobotStrategy_Group_Taerar::Tank(Unit* pmTarget)
     return false;
 }
 
-bool RobotStrategy_Group_Taerar::Heal()
+bool RobotStrategy_Group_EmeraldDragon::Heal()
 {
-    if (!me)
+    if (me->HasAura(24778))
     {
-        return false;
+        return true;
     }
-    std::unordered_map<uint32, Unit*> bossMap = GetBossMap();
-    if (bossMap.find(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Taerar) != bossMap.end())
+    //if (Creature* dreamFog = GetNearbyCreature(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Dream_Fog))
+    //{
+    //    if (me->GetDistance(dreamFog) < 5.0f)
+    //    {
+    //        if (urand(0, 1) == 0)
+    //        {
+    //            engageAngle = engageAngle - M_PI / 16;
+    //        }
+    //        else
+    //        {
+    //            engageAngle = engageAngle + M_PI / 16;
+    //        }
+    //        Position dodgePos;
+    //        float currentDistance = me->GetExactDist(basePos);
+    //        dodgePos.m_positionX = basePos.m_positionX + currentDistance * std::cos(engageAngle);
+    //        dodgePos.m_positionY = basePos.m_positionY + currentDistance * std::sin(engageAngle);
+    //        dodgePos.m_positionZ = basePos.m_positionZ + 10.0f;
+    //        me->UpdateAllowedPositionZ(dodgePos.m_positionX, dodgePos.m_positionY, dodgePos.m_positionZ);
+    //        markPos = dodgePos;
+    //        actionDelay = 10000;
+    //        actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+    //        me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(basePos));
+    //    }
+    //}
+    if (Group* myGroup = me->GetGroup())
     {
-        if (Unit* taerar = bossMap.begin()->second)
+        std::unordered_map<ObjectGuid, Unit*> shadeOfTaerarMap = GetAttackerMap(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Shade_of_Taerar);
+        if (shadeOfTaerarMap.size() > 0)
         {
-            if (me->groupRole == GroupRole_Taerar::GroupRole_Taerar_Healer1)
+            if (Creature* taerar = GetNearbyCreature(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Taerar))
             {
-                //std::list<Creature*> druids;
-                //me->GetCreatureListWithEntryInGrid(druids, CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Demented_Druid, 100.0f);
-                //if (druids.size() > 0)
-                //{
-                //    if (!druidsSpawned)
-                //    {
-                //        druidsSpawned = true;
-                //        me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
-                //        me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
-                //        me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
-                //        me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
-                //        moveDelay = 1000;
-                //        return true;
-                //    }
-                //}
-                //else
-                //{
-                //    druidsSpawned = false;
-                //}
-                bool switchHealer = false;
-                if (me->HasAura(24778))
+                float taeraDistance = me->GetDistance(taerar);
+                if (taeraDistance < 30.0f)
                 {
-                    switchHealer = true;
+                    me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                    me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                    me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                    me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                    taerar->GetNearPoint(me, markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ, 33.0f, taerar->GetAbsoluteAngle(me->GetPosition()));
+                    actionDelay = 2000;
+                    actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                    me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(taerar->GetPosition()));
+                    return true;
                 }
-                else if (me->GetPower(Powers::POWER_MANA) < 500)
+            }
+        }
+        if (Unit* taerar = GetAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Taerar))
+        {
+            float taeraDistance = me->GetDistance(taerar);
+            if (taeraDistance < 30.0f)
+            {
+                me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                taerar->GetNearPoint(me, markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ, 33.0f, taerar->GetAbsoluteAngle(me->GetPosition()));
+                actionDelay = 2000;
+                actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(taerar->GetPosition()));
+                return true;
+            }
+            switch (me->groupRole)
+            {
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer1:
+            {
+                if (Player* tank1 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank1))
                 {
-                    switchHealer = true;
-                }
-                if (switchHealer)
-                {
-                    if (Player* healer = GetPlayerByGroupRole(GroupRole_Taerar::GroupRole_Taerar_Healer2))
-                    {
-                        healer->groupRole = GroupRole_Taerar::GroupRole_Taerar_Healer1;
-                        me->groupRole = GroupRole_Taerar::GroupRole_Taerar_Healer2;
-                        return true;
-                    }
-                }
-                if (Player* tank1 = GetPlayerByGroupRole(GroupRole_Taerar::GroupRole_Taerar_Tank1))
-                {
-                    float currentDistance = me->GetDistance(tank1);
-                    if (currentDistance < 33.0f || currentDistance>36.0f)
-                    {
-                        float newX = 0.0f;
-                        float newY = 0.0f;
-                        float newZ = 0.0f;
-                        tank1->GetNearPoint(me, newX, newY, newZ, 35.0f, engageAngle);
-                        moveDelay = 1000;
-                        me->GetMotionMaster()->MovePoint(0, newX, newY, newZ, true, me->GetAbsoluteAngle(tank1));
-                        return true;
-                    }
                     if (tank1->IsAlive())
                     {
-                        if (tank1->GetHealthPct() < 90.0f)
+                        if (RobotStrategy_Group_EmeraldDragon* rs = (RobotStrategy_Group_EmeraldDragon*)tank1->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
                         {
-                            if (sb->Heal(tank1, true))
+                            bool move = false;
+                            float currentDistance = me->GetExactDist(rs->markPos);
+                            float currentAngle = rs->markPos.GetAbsoluteAngle(me->GetPosition());
+                            if (currentDistance < 37.0f || currentDistance > 40.0f)
                             {
+                                move = true;
+                            }
+                            else if (currentAngle<engageAngle - M_PI / 16 || currentAngle>engageAngle + M_PI / 16)
+                            {
+                                move = true;
+                            }
+                            if (move)
+                            {
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                                //markPos.m_positionX = rs->markPos.m_positionX + 37.0f * std::cos(rs->markPos.GetAbsoluteAngle(me->GetPosition()));
+                                //markPos.m_positionY = rs->markPos.m_positionY + 37.0f * std::sin(rs->markPos.GetAbsoluteAngle(me->GetPosition()));
+                                markPos.m_positionX = rs->markPos.m_positionX + 38.0f * std::cos(engageAngle);
+                                markPos.m_positionY = rs->markPos.m_positionY + 38.0f * std::sin(engageAngle);
+                                markPos.m_positionZ = rs->markPos.m_positionZ + 10.0f;
+                                me->UpdateAllowedPositionZ(markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ);
+                                actionDelay = 2000;
+                                actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                                me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(tank1->GetPosition()));
                                 return true;
                             }
                         }
                     }
-                    else
+                }
+                break;
+            }
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer2:
+            {
+                if (Player* tank1 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank1))
+                {
+                    if (tank1->IsAlive())
                     {
-                        if (Player* tank2 = GetPlayerByGroupRole(GroupRole_Taerar::GroupRole_Taerar_Tank2))
+                        if (RobotStrategy_Group_EmeraldDragon* rs = (RobotStrategy_Group_EmeraldDragon*)tank1->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
                         {
-                            if (tank2->IsAlive())
+                            bool move = false;
+                            float currentDistance = me->GetExactDist(rs->markPos);
+                            float currentAngle = rs->markPos.GetAbsoluteAngle(me->GetPosition());
+                            if (currentDistance < 37.0f || currentDistance > 40.0f)
                             {
-                                if (tank2->GetHealthPct() < 90.0f)
-                                {
-                                    if (sb->Heal(tank2, true))
-                                    {
-                                        return true;
-                                    }
-                                }
+                                move = true;
+                            }
+                            else if (currentAngle<engageAngle - M_PI / 16 || currentAngle>engageAngle + M_PI / 16)
+                            {
+                                move = true;
+                            }
+                            if (move)
+                            {
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                                //markPos.m_positionX = rs->markPos.m_positionX + 37.0f * std::cos(rs->markPos.GetAbsoluteAngle(me->GetPosition()));
+                                //markPos.m_positionY = rs->markPos.m_positionY + 37.0f * std::sin(rs->markPos.GetAbsoluteAngle(me->GetPosition()));
+                                markPos.m_positionX = rs->markPos.m_positionX + 38.0f * std::cos(engageAngle);
+                                markPos.m_positionY = rs->markPos.m_positionY + 38.0f * std::sin(engageAngle);
+                                markPos.m_positionZ = rs->markPos.m_positionZ + 10.0f;
+                                me->UpdateAllowedPositionZ(markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ);
+                                actionDelay = 2000;
+                                actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                                me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(tank1->GetPosition()));
+                                return true;
                             }
                         }
                     }
                 }
-                if (me->GetHealthPct() < 60.0f)
-                {
-                    if (sb->Heal(me, true))
-                    {
-                        return true;
-                    }
-                }
-                return true;
+                break;
             }
-            else if (me->groupRole == GroupRole_Taerar::GroupRole_Taerar_Healer2)
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer3:
             {
-                if (Player* tank = GetPlayerByGroupRole(GroupRole_Taerar::GroupRole_Taerar_Tank1))
+                if (Player* tank1 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank1))
                 {
-                    if (tank->IsAlive())
+                    if (tank1->IsAlive())
                     {
-                        float currentDistance = me->GetDistance(tank);
-                        if (currentDistance < 33.0f || currentDistance>36.0f)
+                        if (RobotStrategy_Group_EmeraldDragon* rs = (RobotStrategy_Group_EmeraldDragon*)tank1->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
                         {
-                            float newX = 0.0f;
-                            float newY = 0.0f;
-                            float newZ = 0.0f;
-                            tank->GetNearPoint(me, newX, newY, newZ, 35.0f, engageAngle);
-                            moveDelay = 1000;
-                            me->GetMotionMaster()->MovePoint(0, newX, newY, newZ, true, me->GetAbsoluteAngle(tank));
-                            return true;
+                            bool move = false;
+                            float currentDistance = me->GetExactDist(rs->markPos);
+                            float currentAngle = rs->markPos.GetAbsoluteAngle(me->GetPosition());
+                            if (currentDistance < 37.0f || currentDistance > 40.0f)
+                            {
+                                move = true;
+                            }
+                            else if (currentAngle<engageAngle - M_PI / 16 || currentAngle>engageAngle + M_PI / 16)
+                            {
+                                move = true;
+                            }
+                            if (move)
+                            {
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                                //markPos.m_positionX = rs->markPos.m_positionX + 37.0f * std::cos(rs->markPos.GetAbsoluteAngle(me->GetPosition()));
+                                //markPos.m_positionY = rs->markPos.m_positionY + 37.0f * std::sin(rs->markPos.GetAbsoluteAngle(me->GetPosition()));
+                                markPos.m_positionX = rs->markPos.m_positionX + 38.0f * std::cos(engageAngle);
+                                markPos.m_positionY = rs->markPos.m_positionY + 38.0f * std::sin(engageAngle);
+                                markPos.m_positionZ = rs->markPos.m_positionZ + 10.0f;
+                                me->UpdateAllowedPositionZ(markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ);
+                                actionDelay = 2000;
+                                actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                                me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(tank1->GetPosition()));
+                                return true;
+                            }
                         }
                     }
                 }
-                if (me->GetHealthPct() < 60.0f)
-                {
-                    if (sb->Heal(me, true))
-                    {
-                        return true;
-                    }
-                }
-                return true;
+                break;
             }
-            else if (me->groupRole == GroupRole_Taerar::GroupRole_Taerar_Healer3)
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer4:
             {
-                //std::list<Creature*> druids;
-                //me->GetCreatureListWithEntryInGrid(druids, CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Demented_Druid, 100.0f);
-                //if (druids.size() > 0)
-                //{
-                //    if (!druidsSpawned)
-                //    {
-                //        druidsSpawned = true;
-                //        me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
-                //        me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
-                //        me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
-                //        me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
-                //        moveDelay = 1000;
-                //        return true;
-                //    }
-                //}
-                //else
-                //{
-                //    druidsSpawned = false;
-                //}
-                bool switchHealer = false;
-                if (me->HasAura(24778))
+                if (Player* tank2 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank2))
                 {
-                    switchHealer = true;
-                }
-                else if (me->GetPower(Powers::POWER_MANA) < 500)
-                {
-                    switchHealer = true;
-                }
-                if (switchHealer)
-                {
-                    if (Player* healer = GetPlayerByGroupRole(GroupRole_Taerar::GroupRole_Taerar_Healer4))
-                    {
-                        healer->groupRole = GroupRole_Taerar::GroupRole_Taerar_Healer3;
-                        me->groupRole = GroupRole_Taerar::GroupRole_Taerar_Healer4;
-                        return true;
-                    }
-                }
-                if (Player* tank2 = GetPlayerByGroupRole(GroupRole_Taerar::GroupRole_Taerar_Tank2))
-                {
-                    float currentDistance = me->GetDistance(tank2);
-                    if (currentDistance < 33.0f || currentDistance>36.0f)
-                    {
-                        float newX = 0.0f;
-                        float newY = 0.0f;
-                        float newZ = 0.0f;
-                        tank2->GetNearPoint(me, newX, newY, newZ, 35.0f, engageAngle);
-                        moveDelay = 1000;
-                        me->GetMotionMaster()->MovePoint(0, newX, newY, newZ, true, me->GetAbsoluteAngle(tank2));
-                        return true;
-                    }
                     if (tank2->IsAlive())
                     {
-                        if (tank2->GetHealthPct() < 90.0f)
+                        if (RobotStrategy_Group_EmeraldDragon* rs = (RobotStrategy_Group_EmeraldDragon*)tank2->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
                         {
-                            if (sb->Heal(tank2, true))
+                            bool move = false;
+                            float currentDistance = me->GetExactDist(rs->markPos);
+                            float currentAngle = rs->markPos.GetAbsoluteAngle(me->GetPosition());
+                            if (currentDistance < 37.0f || currentDistance > 40.0f)
                             {
+                                move = true;
+                            }
+                            else if (currentAngle<engageAngle - M_PI / 16 || currentAngle>engageAngle + M_PI / 16)
+                            {
+                                move = true;
+                            }
+                            if (move)
+                            {
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                                //markPos.m_positionX = rs->markPos.m_positionX + 37.0f * std::cos(rs->markPos.GetAbsoluteAngle(me->GetPosition()));
+                                //markPos.m_positionY = rs->markPos.m_positionY + 37.0f * std::sin(rs->markPos.GetAbsoluteAngle(me->GetPosition()));
+                                markPos.m_positionX = rs->markPos.m_positionX + 38.0f * std::cos(engageAngle);
+                                markPos.m_positionY = rs->markPos.m_positionY + 38.0f * std::sin(engageAngle);
+                                markPos.m_positionZ = rs->markPos.m_positionZ + 10.0f;
+                                me->UpdateAllowedPositionZ(markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ);
+                                actionDelay = 2000;
+                                actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                                me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(tank2->GetPosition()));
                                 return true;
                             }
                         }
                     }
-                    else
+                }
+                break;
+            }
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer5:
+            {
+                if (Player* tank2 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank2))
+                {
+                    if (tank2->IsAlive())
                     {
-                        if (Player* tank1 = GetPlayerByGroupRole(GroupRole_Taerar::GroupRole_Taerar_Tank1))
+                        if (RobotStrategy_Group_EmeraldDragon* rs = (RobotStrategy_Group_EmeraldDragon*)tank2->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
                         {
-                            if (tank1->IsAlive())
+                            bool move = false;
+                            float currentDistance = me->GetExactDist(rs->markPos);
+                            float currentAngle = rs->markPos.GetAbsoluteAngle(me->GetPosition());
+                            if (currentDistance < 37.0f || currentDistance > 40.0f)
+                            {
+                                move = true;
+                            }
+                            else if (currentAngle<engageAngle - M_PI / 16 || currentAngle>engageAngle + M_PI / 16)
+                            {
+                                move = true;
+                            }
+                            if (move)
+                            {
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                                //markPos.m_positionX = rs->markPos.m_positionX + 37.0f * std::cos(rs->markPos.GetAbsoluteAngle(me->GetPosition()));
+                                //markPos.m_positionY = rs->markPos.m_positionY + 37.0f * std::sin(rs->markPos.GetAbsoluteAngle(me->GetPosition()));
+                                markPos.m_positionX = rs->markPos.m_positionX + 38.0f * std::cos(engageAngle);
+                                markPos.m_positionY = rs->markPos.m_positionY + 38.0f * std::sin(engageAngle);
+                                markPos.m_positionZ = rs->markPos.m_positionZ + 10.0f;
+                                me->UpdateAllowedPositionZ(markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ);
+                                actionDelay = 2000;
+                                actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                                me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(tank2->GetPosition()));
+                                return true;
+                            }
+                        }
+                    }
+                }
+                break;
+            }
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer6:
+            {
+                if (Player* tank2 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank2))
+                {
+                    if (tank2->IsAlive())
+                    {
+                        if (RobotStrategy_Group_EmeraldDragon* rs = (RobotStrategy_Group_EmeraldDragon*)tank2->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
+                        {
+                            bool move = false;
+                            float currentDistance = me->GetExactDist(rs->markPos);
+                            float currentAngle = rs->markPos.GetAbsoluteAngle(me->GetPosition());
+                            if (currentDistance < 37.0f || currentDistance > 40.0f)
+                            {
+                                move = true;
+                            }
+                            else if (currentAngle<engageAngle - M_PI / 16 || currentAngle>engageAngle + M_PI / 16)
+                            {
+                                move = true;
+                            }
+                            if (move)
+                            {
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                                //markPos.m_positionX = rs->markPos.m_positionX + 37.0f * std::cos(rs->markPos.GetAbsoluteAngle(me->GetPosition()));
+                                //markPos.m_positionY = rs->markPos.m_positionY + 37.0f * std::sin(rs->markPos.GetAbsoluteAngle(me->GetPosition()));
+                                markPos.m_positionX = rs->markPos.m_positionX + 38.0f * std::cos(engageAngle);
+                                markPos.m_positionY = rs->markPos.m_positionY + 38.0f * std::sin(engageAngle);
+                                markPos.m_positionZ = rs->markPos.m_positionZ + 10.0f;
+                                me->UpdateAllowedPositionZ(markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ);
+                                actionDelay = 2000;
+                                actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                                me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(tank2->GetPosition()));
+                                return true;
+                            }
+                        }
+                    }
+                }
+                break;
+            }
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer7:
+            {
+                bool move = false;
+                float currentDistance = me->GetDistance(taerar);
+                float currentAngle = taerar->GetAbsoluteAngle(me->GetPosition());
+                if (currentDistance < 30.0f || currentDistance > 35.0f)
+                {
+                    move = true;
+                }
+                else if (currentAngle<engageAngle - M_PI / 16 || currentAngle>engageAngle + M_PI / 16)
+                {
+                    move = true;
+                }
+                if (move)
+                {
+                    me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                    me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                    me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                    me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                    taerar->GetNearPoint(me, markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ, 33.0f, engageAngle);
+                    actionDelay = 5000;
+                    actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                    me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(taerar->GetPosition()));
+                    return true;
+                }
+            }
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer8:
+            {
+                bool move = false;
+                float currentDistance = me->GetDistance(taerar);
+                float currentAngle = taerar->GetAbsoluteAngle(me->GetPosition());
+                if (currentDistance < 30.0f || currentDistance > 35.0f)
+                {
+                    move = true;
+                }
+                else if (currentAngle<engageAngle - M_PI / 16 || currentAngle>engageAngle + M_PI / 16)
+                {
+                    move = true;
+                }
+                if (move)
+                {
+                    me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                    me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                    me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                    me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                    taerar->GetNearPoint(me, markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ, 33.0f, engageAngle);
+                    actionDelay = 5000;
+                    actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                    me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(taerar->GetPosition()));
+                    return true;
+                }
+            }
+            default:
+            {
+                break;
+            }
+            }
+        }
+        if (Unit* ysondre = GetAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Ysondre))
+        {
+            float ysondreDistance = me->GetDistance(ysondre);
+            if (ysondreDistance < 30.0f)
+            {
+                me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                ysondre->GetNearPoint(me, markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ, 33.0f, ysondre->GetAbsoluteAngle(me->GetPosition()));
+                actionDelay = 2000;
+                actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(ysondre->GetPosition()));
+                return true;
+            }
+            switch (me->groupRole)
+            {
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer1:
+            {
+                if (Player* tank1 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank1))
+                {
+                    if (tank1->IsAlive())
+                    {
+                        if (RobotStrategy_Group_EmeraldDragon* rs = (RobotStrategy_Group_EmeraldDragon*)tank1->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
+                        {
+                            float currentDistance = me->GetExactDist(rs->markPos);
+                            if (currentDistance < 37.0f || currentDistance > 40.0f)
+                            {
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                                //markPos.m_positionX = rs->markPos.m_positionX + 37.0f * std::cos(rs->markPos.GetAbsoluteAngle(me->GetPosition()));
+                                //markPos.m_positionY = rs->markPos.m_positionY + 37.0f * std::sin(rs->markPos.GetAbsoluteAngle(me->GetPosition()));
+                                markPos.m_positionX = rs->markPos.m_positionX + 38.0f * std::cos(engageAngle);
+                                markPos.m_positionY = rs->markPos.m_positionY + 38.0f * std::sin(engageAngle);
+                                markPos.m_positionZ = rs->markPos.m_positionZ + 10.0f;
+                                me->UpdateAllowedPositionZ(markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ);
+                                actionDelay = 2000;
+                                actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                                me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(tank1->GetPosition()));
+                                return true;
+                            }
+                        }
+                    }
+                }
+                break;
+            }
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer2:
+            {
+                if (Player* tank1 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank1))
+                {
+                    if (tank1->IsAlive())
+                    {
+                        if (RobotStrategy_Group_EmeraldDragon* rs = (RobotStrategy_Group_EmeraldDragon*)tank1->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
+                        {
+                            float currentDistance = me->GetExactDist(rs->markPos);
+                            if (currentDistance < 37.0f || currentDistance > 40.0f)
+                            {
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                                //markPos.m_positionX = rs->markPos.m_positionX + 37.0f * std::cos(rs->markPos.GetAbsoluteAngle(me->GetPosition()));
+                                //markPos.m_positionY = rs->markPos.m_positionY + 37.0f * std::sin(rs->markPos.GetAbsoluteAngle(me->GetPosition()));
+                                markPos.m_positionX = rs->markPos.m_positionX + 38.0f * std::cos(engageAngle);
+                                markPos.m_positionY = rs->markPos.m_positionY + 38.0f * std::sin(engageAngle);
+                                markPos.m_positionZ = rs->markPos.m_positionZ + 10.0f;
+                                me->UpdateAllowedPositionZ(markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ);
+                                actionDelay = 2000;
+                                actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                                me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(tank1->GetPosition()));
+                                return true;
+                            }
+                        }
+                    }
+                }
+                break;
+            }
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer3:
+            {
+                if (Player* tank1 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank1))
+                {
+                    if (tank1->IsAlive())
+                    {
+                        if (RobotStrategy_Group_EmeraldDragon* rs = (RobotStrategy_Group_EmeraldDragon*)tank1->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
+                        {
+                            float currentDistance = me->GetExactDist(rs->markPos);
+                            if (currentDistance < 37.0f || currentDistance > 40.0f)
+                            {
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                                //markPos.m_positionX = rs->markPos.m_positionX + 37.0f * std::cos(rs->markPos.GetAbsoluteAngle(me->GetPosition()));
+                                //markPos.m_positionY = rs->markPos.m_positionY + 37.0f * std::sin(rs->markPos.GetAbsoluteAngle(me->GetPosition()));
+                                markPos.m_positionX = rs->markPos.m_positionX + 38.0f * std::cos(engageAngle);
+                                markPos.m_positionY = rs->markPos.m_positionY + 38.0f * std::sin(engageAngle);
+                                markPos.m_positionZ = rs->markPos.m_positionZ + 10.0f;
+                                me->UpdateAllowedPositionZ(markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ);
+                                actionDelay = 2000;
+                                actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                                me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(tank1->GetPosition()));
+                                return true;
+                            }
+                        }
+                    }
+                }
+                break;
+            }
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer4:
+            {
+                if (Player* tank2 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank2))
+                {
+                    if (tank2->IsAlive())
+                    {
+                        if (RobotStrategy_Group_EmeraldDragon* rs = (RobotStrategy_Group_EmeraldDragon*)tank2->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
+                        {
+                            float currentDistance = me->GetExactDist(rs->markPos);
+                            if (currentDistance < 37.0f || currentDistance > 40.0f)
+                            {
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                                //markPos.m_positionX = rs->markPos.m_positionX + 37.0f * std::cos(rs->markPos.GetAbsoluteAngle(me->GetPosition()));
+                                //markPos.m_positionY = rs->markPos.m_positionY + 37.0f * std::sin(rs->markPos.GetAbsoluteAngle(me->GetPosition()));
+                                markPos.m_positionX = rs->markPos.m_positionX + 38.0f * std::cos(engageAngle);
+                                markPos.m_positionY = rs->markPos.m_positionY + 38.0f * std::sin(engageAngle);
+                                markPos.m_positionZ = rs->markPos.m_positionZ + 10.0f;
+                                me->UpdateAllowedPositionZ(markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ);
+                                actionDelay = 2000;
+                                actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                                me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(tank2->GetPosition()));
+                                return true;
+                            }
+                        }
+                    }
+                }
+                break;
+            }
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer5:
+            {
+                if (Player* tank2 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank2))
+                {
+                    if (tank2->IsAlive())
+                    {
+                        if (RobotStrategy_Group_EmeraldDragon* rs = (RobotStrategy_Group_EmeraldDragon*)tank2->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
+                        {
+                            float currentDistance = me->GetExactDist(rs->markPos);
+                            if (currentDistance < 37.0f || currentDistance > 40.0f)
+                            {
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                                //markPos.m_positionX = rs->markPos.m_positionX + 37.0f * std::cos(rs->markPos.GetAbsoluteAngle(me->GetPosition()));
+                                //markPos.m_positionY = rs->markPos.m_positionY + 37.0f * std::sin(rs->markPos.GetAbsoluteAngle(me->GetPosition()));
+                                markPos.m_positionX = rs->markPos.m_positionX + 38.0f * std::cos(engageAngle);
+                                markPos.m_positionY = rs->markPos.m_positionY + 38.0f * std::sin(engageAngle);
+                                markPos.m_positionZ = rs->markPos.m_positionZ + 10.0f;
+                                me->UpdateAllowedPositionZ(markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ);
+                                actionDelay = 2000;
+                                actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                                me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(tank2->GetPosition()));
+                                return true;
+                            }
+                        }
+                    }
+                }
+                break;
+            }
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer6:
+            {
+                if (Player* tank2 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank2))
+                {
+                    if (tank2->IsAlive())
+                    {
+                        if (RobotStrategy_Group_EmeraldDragon* rs = (RobotStrategy_Group_EmeraldDragon*)tank2->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
+                        {
+                            float currentDistance = me->GetExactDist(rs->markPos);
+                            if (currentDistance < 37.0f || currentDistance > 40.0f)
+                            {
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                                //markPos.m_positionX = rs->markPos.m_positionX + 37.0f * std::cos(rs->markPos.GetAbsoluteAngle(me->GetPosition()));
+                                //markPos.m_positionY = rs->markPos.m_positionY + 37.0f * std::sin(rs->markPos.GetAbsoluteAngle(me->GetPosition()));
+                                markPos.m_positionX = rs->markPos.m_positionX + 38.0f * std::cos(engageAngle);
+                                markPos.m_positionY = rs->markPos.m_positionY + 38.0f * std::sin(engageAngle);
+                                markPos.m_positionZ = rs->markPos.m_positionZ + 10.0f;
+                                me->UpdateAllowedPositionZ(markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ);
+                                actionDelay = 2000;
+                                actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                                me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(tank2->GetPosition()));
+                                return true;
+                            }
+                        }
+                    }
+                }
+                break;
+            }
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer7:
+            {
+                break;
+            }
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer8:
+            {
+                break;
+            }
+            default:
+            {
+                break;
+            }
+            }
+        }
+        if (Unit* lethon = GetAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Lethon))
+        {
+            float bossDistance = me->GetDistance(lethon);
+            if (bossDistance < 30.0f)
+            {
+                me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                lethon->GetNearPoint(me, markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ, 33.0f, lethon->GetAbsoluteAngle(me->GetPosition()));
+                actionDelay = 2000;
+                actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(lethon->GetPosition()));
+                return true;
+            }
+            switch (me->groupRole)
+            {
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer1:
+            {
+                if (Player* tank1 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank1))
+                {
+                    if (tank1->IsAlive())
+                    {
+                        if (RobotStrategy_Group_EmeraldDragon* rs = (RobotStrategy_Group_EmeraldDragon*)tank1->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
+                        {
+                            float currentDistance = me->GetExactDist(rs->markPos);
+                            if (currentDistance < 37.0f || currentDistance > 40.0f)
+                            {
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                                //markPos.m_positionX = rs->markPos.m_positionX + 37.0f * std::cos(rs->markPos.GetAbsoluteAngle(me->GetPosition()));
+                                //markPos.m_positionY = rs->markPos.m_positionY + 37.0f * std::sin(rs->markPos.GetAbsoluteAngle(me->GetPosition()));
+                                markPos.m_positionX = rs->markPos.m_positionX + 38.0f * std::cos(engageAngle);
+                                markPos.m_positionY = rs->markPos.m_positionY + 38.0f * std::sin(engageAngle);
+                                markPos.m_positionZ = rs->markPos.m_positionZ + 10.0f;
+                                me->UpdateAllowedPositionZ(markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ);
+                                actionDelay = 2000;
+                                actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                                me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(tank1->GetPosition()));
+                                return true;
+                            }
+                        }
+                    }
+                }
+                break;
+            }
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer2:
+            {
+                if (Player* tank1 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank1))
+                {
+                    if (tank1->IsAlive())
+                    {
+                        if (RobotStrategy_Group_EmeraldDragon* rs = (RobotStrategy_Group_EmeraldDragon*)tank1->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
+                        {
+                            float currentDistance = me->GetExactDist(rs->markPos);
+                            if (currentDistance < 37.0f || currentDistance > 40.0f)
+                            {
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                                //markPos.m_positionX = rs->markPos.m_positionX + 37.0f * std::cos(rs->markPos.GetAbsoluteAngle(me->GetPosition()));
+                                //markPos.m_positionY = rs->markPos.m_positionY + 37.0f * std::sin(rs->markPos.GetAbsoluteAngle(me->GetPosition()));
+                                markPos.m_positionX = rs->markPos.m_positionX + 38.0f * std::cos(engageAngle);
+                                markPos.m_positionY = rs->markPos.m_positionY + 38.0f * std::sin(engageAngle);
+                                markPos.m_positionZ = rs->markPos.m_positionZ + 10.0f;
+                                me->UpdateAllowedPositionZ(markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ);
+                                actionDelay = 2000;
+                                actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                                me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(tank1->GetPosition()));
+                                return true;
+                            }
+                        }
+                    }
+                }
+                break;
+            }
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer3:
+            {
+                if (Player* tank1 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank1))
+                {
+                    if (tank1->IsAlive())
+                    {
+                        if (RobotStrategy_Group_EmeraldDragon* rs = (RobotStrategy_Group_EmeraldDragon*)tank1->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
+                        {
+                            float currentDistance = me->GetExactDist(rs->markPos);
+                            if (currentDistance < 37.0f || currentDistance > 40.0f)
+                            {
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                                //markPos.m_positionX = rs->markPos.m_positionX + 37.0f * std::cos(rs->markPos.GetAbsoluteAngle(me->GetPosition()));
+                                //markPos.m_positionY = rs->markPos.m_positionY + 37.0f * std::sin(rs->markPos.GetAbsoluteAngle(me->GetPosition()));
+                                markPos.m_positionX = rs->markPos.m_positionX + 38.0f * std::cos(engageAngle);
+                                markPos.m_positionY = rs->markPos.m_positionY + 38.0f * std::sin(engageAngle);
+                                markPos.m_positionZ = rs->markPos.m_positionZ + 10.0f;
+                                me->UpdateAllowedPositionZ(markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ);
+                                actionDelay = 2000;
+                                actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                                me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(tank1->GetPosition()));
+                                return true;
+                            }
+                        }
+                    }
+                }
+                break;
+            }
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer4:
+            {
+                if (Player* tank2 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank2))
+                {
+                    if (tank2->IsAlive())
+                    {
+                        if (RobotStrategy_Group_EmeraldDragon* rs = (RobotStrategy_Group_EmeraldDragon*)tank2->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
+                        {
+                            float currentDistance = me->GetExactDist(rs->markPos);
+                            if (currentDistance < 37.0f || currentDistance > 40.0f)
+                            {
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                                //markPos.m_positionX = rs->markPos.m_positionX + 37.0f * std::cos(rs->markPos.GetAbsoluteAngle(me->GetPosition()));
+                                //markPos.m_positionY = rs->markPos.m_positionY + 37.0f * std::sin(rs->markPos.GetAbsoluteAngle(me->GetPosition()));
+                                markPos.m_positionX = rs->markPos.m_positionX + 38.0f * std::cos(engageAngle);
+                                markPos.m_positionY = rs->markPos.m_positionY + 38.0f * std::sin(engageAngle);
+                                markPos.m_positionZ = rs->markPos.m_positionZ + 10.0f;
+                                me->UpdateAllowedPositionZ(markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ);
+                                actionDelay = 2000;
+                                actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                                me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(tank2->GetPosition()));
+                                return true;
+                            }
+                        }
+                    }
+                }
+                break;
+            }
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer5:
+            {
+                if (Player* tank2 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank2))
+                {
+                    if (tank2->IsAlive())
+                    {
+                        if (RobotStrategy_Group_EmeraldDragon* rs = (RobotStrategy_Group_EmeraldDragon*)tank2->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
+                        {
+                            float currentDistance = me->GetExactDist(rs->markPos);
+                            if (currentDistance < 37.0f || currentDistance > 40.0f)
+                            {
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                                //markPos.m_positionX = rs->markPos.m_positionX + 37.0f * std::cos(rs->markPos.GetAbsoluteAngle(me->GetPosition()));
+                                //markPos.m_positionY = rs->markPos.m_positionY + 37.0f * std::sin(rs->markPos.GetAbsoluteAngle(me->GetPosition()));
+                                markPos.m_positionX = rs->markPos.m_positionX + 38.0f * std::cos(engageAngle);
+                                markPos.m_positionY = rs->markPos.m_positionY + 38.0f * std::sin(engageAngle);
+                                markPos.m_positionZ = rs->markPos.m_positionZ + 10.0f;
+                                me->UpdateAllowedPositionZ(markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ);
+                                actionDelay = 2000;
+                                actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                                me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(tank2->GetPosition()));
+                                return true;
+                            }
+                        }
+                    }
+                }
+                break;
+            }
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer6:
+            {
+                if (Player* tank2 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank2))
+                {
+                    if (tank2->IsAlive())
+                    {
+                        if (RobotStrategy_Group_EmeraldDragon* rs = (RobotStrategy_Group_EmeraldDragon*)tank2->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
+                        {
+                            float currentDistance = me->GetExactDist(rs->markPos);
+                            if (currentDistance < 37.0f || currentDistance > 40.0f)
+                            {
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                                me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                                //markPos.m_positionX = rs->markPos.m_positionX + 37.0f * std::cos(rs->markPos.GetAbsoluteAngle(me->GetPosition()));
+                                //markPos.m_positionY = rs->markPos.m_positionY + 37.0f * std::sin(rs->markPos.GetAbsoluteAngle(me->GetPosition()));
+                                markPos.m_positionX = rs->markPos.m_positionX + 38.0f * std::cos(engageAngle);
+                                markPos.m_positionY = rs->markPos.m_positionY + 38.0f * std::sin(engageAngle);
+                                markPos.m_positionZ = rs->markPos.m_positionZ + 10.0f;
+                                me->UpdateAllowedPositionZ(markPos.m_positionX, markPos.m_positionY, markPos.m_positionZ);
+                                actionDelay = 2000;
+                                actionType = ActionType_EmeraldDragon::ActionType_EmeraldDragon_MarkMove;
+                                me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(tank2->GetPosition()));
+                                return true;
+                            }
+                        }
+                    }
+                }
+                break;
+            }
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer7:
+            {
+                break;
+            }
+            case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer8:
+            {
+                break;
+            }
+            default:
+            {
+                break;
+            }
+            }
+        }
+        switch (me->groupRole)
+        {
+        case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer1:
+        {
+            if (Player* tank1 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank1))
+            {
+                if (tank1->IsAlive())
+                {
+                    if (ObjectGuid activeHealerOG = myGroup->GetOGByTargetIcon(1))
+                    {
+                        if (activeHealerOG == me->GetGUID())
+                        {
+                            bool healing = true;
+                            if (me->GetPower(Powers::POWER_MANA) < 500)
+                            {
+                                healing = false;
+                            }
+                            else if (me->HasAura(24818))
+                            {
+                                healing = false;
+                            }
+                            if (healing)
                             {
                                 if (tank1->GetHealthPct() < 90.0f)
                                 {
@@ -5709,137 +6232,1171 @@ bool RobotStrategy_Group_Taerar::Heal()
                                         return true;
                                     }
                                 }
+                                if (me->GetHealthPct() < 50.0f)
+                                {
+                                    if (sb->Heal(me, true))
+                                    {
+                                        return true;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (Player* healer2 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer2))
+                                {
+                                    bool healerReady = true;
+                                    if (healer2->HasAura(24778))
+                                    {
+                                        healerReady = false;
+                                    }
+                                    else if (healer2->GetPower(Powers::POWER_MANA) < 500)
+                                    {
+                                        healerReady = false;
+                                    }
+                                    else if (healer2->HasAura(24818))
+                                    {
+                                        healerReady = false;
+                                    }
+                                    if (healerReady)
+                                    {
+                                        myGroup->SetTargetIcon(1, me->GetGUID(), healer2->GetGUID());
+                                        return true;
+                                    }
+                                }
+                                if (Player* healer3 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer3))
+                                {
+                                    bool healerReady = true;
+                                    if (healer3->HasAura(24778))
+                                    {
+                                        healerReady = false;
+                                    }
+                                    else if (healer3->GetPower(Powers::POWER_MANA) < 500)
+                                    {
+                                        healerReady = false;
+                                    }
+                                    else if (healer3->HasAura(24818))
+                                    {
+                                        healerReady = false;
+                                    }
+                                    if (healerReady)
+                                    {
+                                        myGroup->SetTargetIcon(1, me->GetGUID(), healer3->GetGUID());
+                                        return true;
+                                    }
+                                }
                             }
                         }
-                    }
-                }
-                if (me->GetHealthPct() < 60.0f)
-                {
-                    if (sb->Heal(me, true))
-                    {
-                        return true;
-                    }
-                }
-                return true;
-            }
-            else if (me->groupRole == GroupRole_Taerar::GroupRole_Taerar_Healer4)
-            {
-                if (Player* tank = GetPlayerByGroupRole(GroupRole_Taerar::GroupRole_Taerar_Tank2))
-                {
-                    if (tank->IsAlive())
-                    {
-                        float currentDistance = me->GetDistance(tank);
-                        if (currentDistance < 33.0f || currentDistance>36.0f)
+                        else
                         {
-                            float newX = 0.0f;
-                            float newY = 0.0f;
-                            float newZ = 0.0f;
-                            tank->GetNearPoint(me, newX, newY, newZ, 35.0f, engageAngle);
-                            moveDelay = 1000;
-                            me->GetMotionMaster()->MovePoint(0, newX, newY, newZ, true, me->GetAbsoluteAngle(tank));
-                            return true;
-                        }
-                    }
-                }
-                if (me->GetHealthPct() < 60.0f)
-                {
-                    if (sb->Heal(me, true))
-                    {
-                        return true;
-                    }
-                }
-                return true;
-            }
-            else if (me->groupRole == GroupRole_Taerar::GroupRole_Taerar_Healer5)
-            {
-                if (Player* tank = GetPlayerByGroupRole(GroupRole_Taerar::GroupRole_Taerar_Tank1))
-                {
-                    float currentDistance = me->GetDistance(tank);
-                    if (currentDistance < 33.0f || currentDistance > 36.0f)
-                    {
-                        float newX = 0.0f;
-                        float newY = 0.0f;
-                        float newZ = 0.0f;
-                        tank->GetNearPoint(me, newX, newY, newZ, 35.0f, engageAngle);
-                        moveDelay = 1000;
-                        me->GetMotionMaster()->MovePoint(0, newX, newY, newZ, true, me->GetAbsoluteAngle(taerar));
-                        return true;
-                    }
-                }
-                std::list<Creature*> shades;
-                me->GetCreatureListWithEntryInGrid(shades, CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Shade_of_Taerar, 100.0f);
-                if (shades.size() > 0)
-                {
-                    if (Player* tank3 = GetPlayerByGroupRole(GroupRole_Taerar::GroupRole_Taerar_Tank3))
-                    {
-                        if (tank3->IsAlive())
-                        {
-                            if (tank3->GetHealthPct() < 90.0f)
+                            bool healing = true;
+                            if (me->GetPower(Powers::POWER_MANA) < 500)
                             {
-                                if (sb->Heal(tank3, true))
+                                healing = false;
+                            }
+                            else if (me->HasAura(24818))
+                            {
+                                healing = false;
+                            }
+                            if (healing)
+                            {
+                                if (tank1->GetHealthPct() < 90.0f)
                                 {
-                                    return true;
+                                    if (sb->SubHeal(tank1))
+                                    {
+                                        return true;
+                                    }
                                 }
+                                if (me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA) > 50)
+                                {
+                                    if (Player* tank2 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank2))
+                                    {
+                                        if (tank2->IsAlive())
+                                        {
+                                            if (tank2->GetHealthPct() < 50.0f)
+                                            {
+                                                if (sb->Heal(tank2, true))
+                                                {
+                                                    return true;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    if (Player* tank3 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank3))
+                                    {
+                                        if (tank3->IsAlive())
+                                        {
+                                            if (tank3->GetHealthPct() < 50.0f)
+                                            {
+                                                if (sb->Heal(tank3, true))
+                                                {
+                                                    return true;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                if (me->GetHealthPct() < 50.0f)
+                                {
+                                    if (sb->Heal(me, true))
+                                    {
+                                        return true;
+                                    }
+                                }
+                                if (Player* activeHealer = ObjectAccessor::GetPlayer(*me, activeHealerOG))
+                                {
+                                    if (activeHealer->IsAlive())
+                                    {
+                                        if (!activeHealer->HasAura(24778))
+                                        {
+                                            if (!activeHealer->HasAura(24818))
+                                            {
+                                                if (!activeHealer->HasAura(24818))
+                                                {
+                                                    return true;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                myGroup->SetTargetIcon(1, me->GetGUID(), me->GetGUID());
                             }
                         }
                     }
                     return true;
                 }
-                if (Group* myGroup = me->GetGroup())
+            }
+            break;
+        }
+        case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer2:
+        {
+            if (Player* tank1 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank1))
+            {
+                if (tank1->IsAlive())
                 {
-                    int lowMemberCount = 0;
-                    for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                    if (ObjectGuid activeHealerOG = myGroup->GetOGByTargetIcon(1))
                     {
-                        if (Player* member = groupRef->GetSource())
+                        if (activeHealerOG == me->GetGUID())
                         {
-                            if (member->IsAlive())
+                            bool healing = true;
+                            if (me->GetPower(Powers::POWER_MANA) < 500)
                             {
-                                if (member->groupRole != GroupRole_Taerar::GroupRole_Taerar_Tank1 && member->groupRole != GroupRole_Taerar::GroupRole_Taerar_Tank2)
+                                healing = false;
+                            }
+                            else if (me->HasAura(24818))
+                            {
+                                healing = false;
+                            }
+                            if (healing)
+                            {
+                                if (tank1->GetHealthPct() < 90.0f)
                                 {
-                                    if (member->GetHealthPct() < 60.0f)
+                                    if (sb->Heal(tank1, true))
                                     {
-                                        if (me->GetDistance(member) < HEAL_MAX_DISTANCE)
-                                        {
-                                            lowMemberCount++;
-                                        }
+                                        return true;
+                                    }
+                                }
+                                if (me->GetHealthPct() < 50.0f)
+                                {
+                                    if (sb->Heal(me, true))
+                                    {
+                                        return true;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (Player* healer3 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer3))
+                                {
+                                    bool healerReady = true;
+                                    if (healer3->HasAura(24778))
+                                    {
+                                        healerReady = false;
+                                    }
+                                    else if (healer3->GetPower(Powers::POWER_MANA) < 500)
+                                    {
+                                        healerReady = false;
+                                    }
+                                    else if (healer3->HasAura(24818))
+                                    {
+                                        healerReady = false;
+                                    }
+                                    if (healerReady)
+                                    {
+                                        myGroup->SetTargetIcon(1, me->GetGUID(), healer3->GetGUID());
+                                        return true;
+                                    }
+                                }
+                                if (Player* healer1 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer1))
+                                {
+                                    bool healerReady = true;
+                                    if (healer1->HasAura(24778))
+                                    {
+                                        healerReady = false;
+                                    }
+                                    else if (healer1->GetPower(Powers::POWER_MANA) < 500)
+                                    {
+                                        healerReady = false;
+                                    }
+                                    else if (healer1->HasAura(24818))
+                                    {
+                                        healerReady = false;
+                                    }
+                                    if (healerReady)
+                                    {
+                                        myGroup->SetTargetIcon(1, me->GetGUID(), healer1->GetGUID());
+                                        return true;
                                     }
                                 }
                             }
                         }
-                    }
-                    if (lowMemberCount > 3)
-                    {
-                        if (sb->GroupHeal())
+                        else
                         {
-                            return true;
-                        }
-                    }
-                    for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-                    {
-                        if (Player* member = groupRef->GetSource())
-                        {
-                            if (member->IsAlive())
+                            bool healing = true;
+                            if (me->GetPower(Powers::POWER_MANA) < 500)
                             {
-                                if (member->groupRole != GroupRole_Taerar::GroupRole_Taerar_Tank1 && member->groupRole != GroupRole_Taerar::GroupRole_Taerar_Tank2)
+                                healing = false;
+                            }
+                            else if (me->HasAura(24818))
+                            {
+                                healing = false;
+                            }
+                            if (healing)
+                            {
+                                if (tank1->GetHealthPct() < 90.0f)
                                 {
-                                    if (member->GetHealthPct() < 50.0f)
+                                    if (sb->SubHeal(tank1))
                                     {
-                                        if (me->GetDistance(member) < HEAL_MAX_DISTANCE)
+                                        return true;
+                                    }
+                                }
+                                if (me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA) > 50)
+                                {
+                                    if (Player* tank2 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank2))
+                                    {
+                                        if (tank2->IsAlive())
                                         {
-                                            if (sb->Heal(member, true))
+                                            if (tank2->GetHealthPct() < 50.0f)
+                                            {
+                                                if (sb->Heal(tank2, true))
+                                                {
+                                                    return true;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    if (Player* tank3 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank3))
+                                    {
+                                        if (tank3->IsAlive())
+                                        {
+                                            if (tank3->GetHealthPct() < 50.0f)
+                                            {
+                                                if (sb->Heal(tank3, true))
+                                                {
+                                                    return true;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                if (me->GetHealthPct() < 50.0f)
+                                {
+                                    if (sb->Heal(me, true))
+                                    {
+                                        return true;
+                                    }
+                                }
+                                if (Player* activeHealer = ObjectAccessor::GetPlayer(*me, activeHealerOG))
+                                {
+                                    if (activeHealer->IsAlive())
+                                    {
+                                        if (!activeHealer->HasAura(24778))
+                                        {
+                                            if (!activeHealer->HasAura(24818))
                                             {
                                                 return true;
                                             }
                                         }
                                     }
                                 }
+                                myGroup->SetTargetIcon(1, me->GetGUID(), me->GetGUID());
+                            }
+                        }
+                    }
+                    return true;
+                }
+            }
+            break;
+        }
+        case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer3:
+        {
+            if (Player* tank1 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank1))
+            {
+                if (tank1->IsAlive())
+                {
+                    if (ObjectGuid activeHealerOG = myGroup->GetOGByTargetIcon(1))
+                    {
+                        if (activeHealerOG == me->GetGUID())
+                        {
+                            bool healing = true;
+                            if (me->GetPower(Powers::POWER_MANA) < 500)
+                            {
+                                healing = false;
+                            }
+                            else if (me->HasAura(24818))
+                            {
+                                healing = false;
+                            }
+                            if (healing)
+                            {
+                                if (tank1->GetHealthPct() < 90.0f)
+                                {
+                                    if (sb->Heal(tank1, true))
+                                    {
+                                        return true;
+                                    }
+                                }
+                                if (me->GetHealthPct() < 50.0f)
+                                {
+                                    if (sb->Heal(me, true))
+                                    {
+                                        return true;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (Player* healer1 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer1))
+                                {
+                                    bool healerReady = true;
+                                    if (healer1->HasAura(24778))
+                                    {
+                                        healerReady = false;
+                                    }
+                                    else if (healer1->GetPower(Powers::POWER_MANA) < 500)
+                                    {
+                                        healerReady = false;
+                                    }
+                                    else if (healer1->HasAura(24818))
+                                    {
+                                        healerReady = false;
+                                    }
+                                    if (healerReady)
+                                    {
+                                        myGroup->SetTargetIcon(1, me->GetGUID(), healer1->GetGUID());
+                                        return true;
+                                    }
+                                }
+                                if (Player* healer2 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer2))
+                                {
+                                    bool healerReady = true;
+                                    if (healer2->HasAura(24778))
+                                    {
+                                        healerReady = false;
+                                    }
+                                    else if (healer2->GetPower(Powers::POWER_MANA) < 500)
+                                    {
+                                        healerReady = false;
+                                    }
+                                    else if (healer2->HasAura(24818))
+                                    {
+                                        healerReady = false;
+                                    }
+                                    if (healerReady)
+                                    {
+                                        myGroup->SetTargetIcon(1, me->GetGUID(), healer2->GetGUID());
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            bool healing = true;
+                            if (me->GetPower(Powers::POWER_MANA) < 500)
+                            {
+                                healing = false;
+                            }
+                            else if (me->HasAura(24818))
+                            {
+                                healing = false;
+                            }
+                            if (healing)
+                            {
+                                if (tank1->GetHealthPct() < 90.0f)
+                                {
+                                    if (sb->SubHeal(tank1))
+                                    {
+                                        return true;
+                                    }
+                                }
+                                if (me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA) > 50)
+                                {
+                                    if (Player* tank2 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank2))
+                                    {
+                                        if (tank2->IsAlive())
+                                        {
+                                            if (tank2->GetHealthPct() < 50.0f)
+                                            {
+                                                if (sb->Heal(tank2, true))
+                                                {
+                                                    return true;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    if (Player* tank3 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank3))
+                                    {
+                                        if (tank3->IsAlive())
+                                        {
+                                            if (tank3->GetHealthPct() < 50.0f)
+                                            {
+                                                if (sb->Heal(tank3, true))
+                                                {
+                                                    return true;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                if (me->GetHealthPct() < 50.0f)
+                                {
+                                    if (sb->Heal(me, true))
+                                    {
+                                        return true;
+                                    }
+                                }
+                                if (Player* activeHealer = ObjectAccessor::GetPlayer(*me, activeHealerOG))
+                                {
+                                    if (activeHealer->IsAlive())
+                                    {
+                                        if (!activeHealer->HasAura(24778))
+                                        {
+                                            if (!activeHealer->HasAura(24818))
+                                            {
+                                                return true;
+                                            }
+                                        }
+                                    }
+                                }
+                                myGroup->SetTargetIcon(1, me->GetGUID(), me->GetGUID());
+                            }
+                        }
+                    }
+                    return true;
+                }
+            }
+            break;
+        }
+        case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer4:
+        {
+            if (Player* tank2 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank2))
+            {
+                if (tank2->IsAlive())
+                {
+                    if (ObjectGuid activeHealerOG = myGroup->GetOGByTargetIcon(2))
+                    {
+                        if (activeHealerOG == me->GetGUID())
+                        {
+                            bool healing = true;
+                            if (me->GetPower(Powers::POWER_MANA) < 500)
+                            {
+                                healing = false;
+                            }
+                            else if (me->HasAura(24818))
+                            {
+                                healing = false;
+                            }
+                            if (healing)
+                            {
+                                if (tank2->GetHealthPct() < 90.0f)
+                                {
+                                    if (sb->Heal(tank2, true))
+                                    {
+                                        return true;
+                                    }
+                                }
+                                if (me->GetHealthPct() < 50.0f)
+                                {
+                                    if (sb->Heal(me, true))
+                                    {
+                                        return true;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (Player* healer5 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer5))
+                                {
+                                    bool healerReady = true;
+                                    if (healer5->HasAura(24778))
+                                    {
+                                        healerReady = false;
+                                    }
+                                    else if (healer5->GetPower(Powers::POWER_MANA) < 500)
+                                    {
+                                        healerReady = false;
+                                    }
+                                    else if (healer5->HasAura(24818))
+                                    {
+                                        healerReady = false;
+                                    }
+                                    if (healerReady)
+                                    {
+                                        myGroup->SetTargetIcon(2, me->GetGUID(), healer5->GetGUID());
+                                        return true;
+                                    }
+                                }
+                                if (Player* healer6 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer6))
+                                {
+                                    bool healerReady = true;
+                                    if (healer6->HasAura(24778))
+                                    {
+                                        healerReady = false;
+                                    }
+                                    else if (healer6->GetPower(Powers::POWER_MANA) < 500)
+                                    {
+                                        healerReady = false;
+                                    }
+                                    else if (healer6->HasAura(24818))
+                                    {
+                                        healerReady = false;
+                                    }
+                                    if (healerReady)
+                                    {
+                                        myGroup->SetTargetIcon(2, me->GetGUID(), healer6->GetGUID());
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            bool healing = true;
+                            if (me->GetPower(Powers::POWER_MANA) < 500)
+                            {
+                                healing = false;
+                            }
+                            else if (me->HasAura(24818))
+                            {
+                                healing = false;
+                            }
+                            if (healing)
+                            {
+                                if (tank2->GetHealthPct() < 90.0f)
+                                {
+                                    if (sb->SubHeal(tank2))
+                                    {
+                                        return true;
+                                    }
+                                }
+                                if (me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA) > 50)
+                                {
+                                    if (Player* tank1 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank1))
+                                    {
+                                        if (tank1->IsAlive())
+                                        {
+                                            if (tank1->GetHealthPct() < 50.0f)
+                                            {
+                                                if (sb->Heal(tank1, true))
+                                                {
+                                                    return true;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    if (Player* tank3 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank3))
+                                    {
+                                        if (tank3->IsAlive())
+                                        {
+                                            if (tank3->GetHealthPct() < 50.0f)
+                                            {
+                                                if (sb->Heal(tank3, true))
+                                                {
+                                                    return true;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                if (me->GetHealthPct() < 50.0f)
+                                {
+                                    if (sb->Heal(me, true))
+                                    {
+                                        return true;
+                                    }
+                                }
+                                if (Player* activeHealer = ObjectAccessor::GetPlayer(*me, activeHealerOG))
+                                {
+                                    if (activeHealer->IsAlive())
+                                    {
+                                        if (!activeHealer->HasAura(24778))
+                                        {
+                                            if (!activeHealer->HasAura(24818))
+                                            {
+                                                return true;
+                                            }
+                                        }
+                                    }
+                                }
+                                myGroup->SetTargetIcon(2, me->GetGUID(), me->GetGUID());
+                            }
+                        }
+                    }
+                    return true;
+                }
+            }
+            break;
+        }
+        case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer5:
+        {
+            if (Player* tank2 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank2))
+            {
+                if (tank2->IsAlive())
+                {
+                    if (ObjectGuid activeHealerOG = myGroup->GetOGByTargetIcon(2))
+                    {
+                        if (activeHealerOG == me->GetGUID())
+                        {
+                            bool healing = true;
+                            if (me->GetPower(Powers::POWER_MANA) < 500)
+                            {
+                                healing = false;
+                            }
+                            else if (me->HasAura(24818))
+                            {
+                                healing = false;
+                            }
+                            if (healing)
+                            {
+                                if (tank2->GetHealthPct() < 90.0f)
+                                {
+                                    if (sb->Heal(tank2, true))
+                                    {
+                                        return true;
+                                    }
+                                }
+                                if (me->GetHealthPct() < 50.0f)
+                                {
+                                    if (sb->Heal(me, true))
+                                    {
+                                        return true;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (Player* healer6 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer6))
+                                {
+                                    bool healerReady = true;
+                                    if (healer6->HasAura(24778))
+                                    {
+                                        healerReady = false;
+                                    }
+                                    else if (healer6->GetPower(Powers::POWER_MANA) < 500)
+                                    {
+                                        healerReady = false;
+                                    }
+                                    else if (healer6->HasAura(24818))
+                                    {
+                                        healerReady = false;
+                                    }
+                                    if (healerReady)
+                                    {
+                                        myGroup->SetTargetIcon(2, me->GetGUID(), healer6->GetGUID());
+                                        return true;
+                                    }
+                                }
+                                if (Player* healer4 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer4))
+                                {
+                                    bool healerReady = true;
+                                    if (healer4->HasAura(24778))
+                                    {
+                                        healerReady = false;
+                                    }
+                                    else if (healer4->GetPower(Powers::POWER_MANA) < 500)
+                                    {
+                                        healerReady = false;
+                                    }
+                                    else if (healer4->HasAura(24818))
+                                    {
+                                        healerReady = false;
+                                    }
+                                    if (healerReady)
+                                    {
+                                        myGroup->SetTargetIcon(2, me->GetGUID(), healer4->GetGUID());
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            bool healing = true;
+                            if (me->GetPower(Powers::POWER_MANA) < 500)
+                            {
+                                healing = false;
+                            }
+                            else if (me->HasAura(24818))
+                            {
+                                healing = false;
+                            }
+                            if (healing)
+                            {
+                                if (tank2->GetHealthPct() < 90.0f)
+                                {
+                                    if (sb->SubHeal(tank2))
+                                    {
+                                        return true;
+                                    }
+                                }
+                                if (me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA) > 50)
+                                {
+                                    if (Player* tank1 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank1))
+                                    {
+                                        if (tank1->IsAlive())
+                                        {
+                                            if (tank1->GetHealthPct() < 50.0f)
+                                            {
+                                                if (sb->Heal(tank1, true))
+                                                {
+                                                    return true;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    if (Player* tank3 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank3))
+                                    {
+                                        if (tank3->IsAlive())
+                                        {
+                                            if (tank3->GetHealthPct() < 50.0f)
+                                            {
+                                                if (sb->Heal(tank3, true))
+                                                {
+                                                    return true;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                if (me->GetHealthPct() < 50.0f)
+                                {
+                                    if (sb->Heal(me, true))
+                                    {
+                                        return true;
+                                    }
+                                }
+                                if (Player* activeHealer = ObjectAccessor::GetPlayer(*me, activeHealerOG))
+                                {
+                                    if (activeHealer->IsAlive())
+                                    {
+                                        if (!activeHealer->HasAura(24778))
+                                        {
+                                            if (!activeHealer->HasAura(24818))
+                                            {
+                                                return true;
+                                            }
+                                        }
+                                    }
+                                }
+                                myGroup->SetTargetIcon(2, me->GetGUID(), me->GetGUID());
+                            }
+                        }
+                    }
+                    return true;
+                }
+            }
+            break;
+        }
+        case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer6:
+        {
+            if (Player* tank2 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank2))
+            {
+                if (tank2->IsAlive())
+                {
+                    if (ObjectGuid activeHealerOG = myGroup->GetOGByTargetIcon(2))
+                    {
+                        if (activeHealerOG == me->GetGUID())
+                        {
+                            bool healing = true;
+                            if (me->GetPower(Powers::POWER_MANA) < 500)
+                            {
+                                healing = false;
+                            }
+                            else if (me->HasAura(24818))
+                            {
+                                healing = false;
+                            }
+                            if (healing)
+                            {
+                                if (tank2->GetHealthPct() < 90.0f)
+                                {
+                                    if (sb->Heal(tank2, true))
+                                    {
+                                        return true;
+                                    }
+                                }
+                                if (me->GetHealthPct() < 50.0f)
+                                {
+                                    if (sb->Heal(me, true))
+                                    {
+                                        return true;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (Player* healer4 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer4))
+                                {
+                                    bool healerReady = true;
+                                    if (healer4->HasAura(24778))
+                                    {
+                                        healerReady = false;
+                                    }
+                                    else if (healer4->GetPower(Powers::POWER_MANA) < 500)
+                                    {
+                                        healerReady = false;
+                                    }
+                                    else if (healer4->HasAura(24818))
+                                    {
+                                        healerReady = false;
+                                    }
+                                    if (healerReady)
+                                    {
+                                        myGroup->SetTargetIcon(2, me->GetGUID(), healer4->GetGUID());
+                                        return true;
+                                    }
+                                }
+                                if (Player* healer5 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer5))
+                                {
+                                    bool healerReady = true;
+                                    if (healer5->HasAura(24778))
+                                    {
+                                        healerReady = false;
+                                    }
+                                    else if (healer5->GetPower(Powers::POWER_MANA) < 500)
+                                    {
+                                        healerReady = false;
+                                    }
+                                    else if (healer5->HasAura(24818))
+                                    {
+                                        healerReady = false;
+                                    }
+                                    if (healerReady)
+                                    {
+                                        myGroup->SetTargetIcon(2, me->GetGUID(), healer5->GetGUID());
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            bool healing = true;
+                            if (me->GetPower(Powers::POWER_MANA) < 500)
+                            {
+                                healing = false;
+                            }
+                            else if (me->HasAura(24818))
+                            {
+                                healing = false;
+                            }
+                            if (healing)
+                            {
+                                if (tank2->GetHealthPct() < 90.0f)
+                                {
+                                    if (sb->SubHeal(tank2))
+                                    {
+                                        return true;
+                                    }
+                                }
+                                if (me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA) > 50)
+                                {
+                                    if (Player* tank1 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank1))
+                                    {
+                                        if (tank1->IsAlive())
+                                        {
+                                            if (tank1->GetHealthPct() < 50.0f)
+                                            {
+                                                if (sb->Heal(tank1, true))
+                                                {
+                                                    return true;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    if (Player* tank3 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank3))
+                                    {
+                                        if (tank3->IsAlive())
+                                        {
+                                            if (tank3->GetHealthPct() < 50.0f)
+                                            {
+                                                if (sb->Heal(tank3, true))
+                                                {
+                                                    return true;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                if (me->GetHealthPct() < 50.0f)
+                                {
+                                    if (sb->Heal(me, true))
+                                    {
+                                        return true;
+                                    }
+                                }
+                                if (Player* activeHealer = ObjectAccessor::GetPlayer(*me, activeHealerOG))
+                                {
+                                    if (activeHealer->IsAlive())
+                                    {
+                                        if (!activeHealer->HasAura(24778))
+                                        {
+                                            if (!activeHealer->HasAura(24818))
+                                            {
+                                                return true;
+                                            }
+                                        }
+                                    }
+                                }
+                                myGroup->SetTargetIcon(2, me->GetGUID(), me->GetGUID());
+                            }
+                        }
+                    }
+                    return true;
+                }
+            }
+            break;
+        }
+        case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer7:
+        {
+            if (ObjectGuid activeHealerOG = myGroup->GetOGByTargetIcon(3))
+            {
+                if (activeHealerOG == me->GetGUID())
+                {
+                    bool healing = true;
+                    if (me->GetPower(Powers::POWER_MANA) < 500)
+                    {
+                        healing = false;
+                    }
+                    else if (me->HasAura(24818))
+                    {
+                        healing = false;
+                    }
+                    if (healing)
+                    {
+                        if (Player* tank3 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank3))
+                        {
+                            if (tank3->IsAlive())
+                            {
+                                if (tank3->GetHealthPct() < 90.0f)
+                                {
+                                    if (sb->Heal(tank3, true))
+                                    {
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
+                        for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                        {
+                            if (Player* member = groupRef->GetSource())
+                            {
+                                if (member->IsAlive())
+                                {
+                                    if (member->groupRole == GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank1 || member->groupRole == GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank2)
+                                    {
+                                        continue;
+                                    }
+                                    if (member->GetHealthPct() < 50.0f)
+                                    {
+                                        if (sb->Heal(member, true))
+                                        {
+                                            return true;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if (me->GetHealthPct() < 50.0f)
+                        {
+                            if (sb->Heal(me, true))
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (Player* healer8 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer8))
+                        {
+                            bool healerReady = true;
+                            if (healer8->HasAura(24778))
+                            {
+                                healerReady = false;
+                            }
+                            else if (healer8->GetPower(Powers::POWER_MANA) < 500)
+                            {
+                                healerReady = false;
+                            }
+                            else if (healer8->HasAura(24818))
+                            {
+                                healerReady = false;
+                            }
+                            if (healerReady)
+                            {
+                                myGroup->SetTargetIcon(3, me->GetGUID(), healer8->GetGUID());
+                                return true;
                             }
                         }
                     }
                 }
-                return true;
+                else
+                {
+                    bool healing = true;
+                    if (me->GetPower(Powers::POWER_MANA) < 500)
+                    {
+                        healing = false;
+                    }
+                    else if (me->HasAura(24818))
+                    {
+                        healing = false;
+                    }
+                    if (healing)
+                    {
+                        if (me->GetHealthPct() < 50.0f)
+                        {
+                            if (sb->Heal(me, true))
+                            {
+                                return true;
+                            }
+                        }
+                        if (Player* activeHealer = ObjectAccessor::GetPlayer(*me, activeHealerOG))
+                        {
+                            if (activeHealer->IsAlive())
+                            {
+                                if (!activeHealer->HasAura(24778))
+                                {
+                                    if (!activeHealer->HasAura(24818))
+                                    {
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
+                        myGroup->SetTargetIcon(3, me->GetGUID(), me->GetGUID());
+                    }
+                }
             }
+            break;
+        }
+        case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer8:
+        {
+            if (ObjectGuid activeHealerOG = myGroup->GetOGByTargetIcon(3))
+            {
+                if (activeHealerOG == me->GetGUID())
+                {
+                    bool healing = true;
+                    if (me->GetPower(Powers::POWER_MANA) < 500)
+                    {
+                        healing = false;
+                    }
+                    else if (me->HasAura(24818))
+                    {
+                        healing = false;
+                    }
+                    if (healing)
+                    {
+                        if (Player* tank3 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank3))
+                        {
+                            if (tank3->IsAlive())
+                            {
+                                if (tank3->GetHealthPct() < 90.0f)
+                                {
+                                    if (sb->Heal(tank3, true))
+                                    {
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
+                        if (me->GetHealthPct() < 50.0f)
+                        {
+                            if (sb->Heal(me, true))
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (Player* healer7 = GetPlayerByGroupRole(GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer7))
+                        {
+                            bool healerReady = true;
+                            if (healer7->HasAura(24778))
+                            {
+                                healerReady = false;
+                            }
+                            else if (healer7->GetPower(Powers::POWER_MANA) < 500)
+                            {
+                                healerReady = false;
+                            }
+                            else if (healer7->HasAura(24818))
+                            {
+                                healerReady = false;
+                            }
+                            if (healerReady)
+                            {
+                                myGroup->SetTargetIcon(3, me->GetGUID(), healer7->GetGUID());
+                                return true;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    bool healing = true;
+                    if (me->GetPower(Powers::POWER_MANA) < 500)
+                    {
+                        healing = false;
+                    }
+                    else if (me->HasAura(24818))
+                    {
+                        healing = false;
+                    }
+                    if (healing)
+                    {
+                        if (me->GetHealthPct() < 50.0f)
+                        {
+                            if (sb->Heal(me, true))
+                            {
+                                return true;
+                            }
+                        }
+                        if (Player* activeHealer = ObjectAccessor::GetPlayer(*me, activeHealerOG))
+                        {
+                            if (activeHealer->IsAlive())
+                            {
+                                if (!activeHealer->HasAura(24778))
+                                {
+                                    if (!activeHealer->HasAura(24818))
+                                    {
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
+                        myGroup->SetTargetIcon(3, me->GetGUID(), me->GetGUID());
+                    }
+                }
+            }
+            break;
+        }
+        default:
+        {
+            break;
+        }
         }
     }
+
     return RobotStrategy_Group::Heal();
 }

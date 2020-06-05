@@ -167,11 +167,14 @@ bool RobotConfig::StartRobotSystem()
     Enable = GetIntDefault("Enable", 0);
     ResetRobots = GetIntDefault("ResetRobots", 0);
     ResetEquipments = GetIntDefault("ResetEquipments", 0);
+    EnableAlliance = GetIntDefault("EnableAlliance", 1);
+    EnableHorde = GetIntDefault("EnableHorde", 1);
     AccountNamePrefix = GetStringDefault("AccountNamePrefix", "ROBOT");
     OnlineLevel = GetIntDefault("OnlineLevel", 0);
     CountEachLevel = GetIntDefault("CountEachLevel", 100);
     OnlineMinDelay = GetIntDefault("OnlineMinDelay", 60000);
     OnlineMaxDelay = GetIntDefault("OnlineMaxDelay", 300000);
+    AssembleDelay = GetIntDefault("AssembleDelay", 1);
     GroupInterest = GetIntDefault("GroupInterest", 1);
     TeleportMinRange = GetFloatDefault("TeleportMinRange", 300.0f);
     TeleportMaxRange = GetFloatDefault("TeleportMaxRange", 1000.0f);

@@ -40,6 +40,9 @@ public:
     uint32 Enable;
     uint32 ResetRobots;
     uint32 ResetEquipments;
+    uint32 EnableAlliance;
+    uint32 EnableHorde;
+    uint32 AssembleDelay;
     uint32 OnlineLevel;
     uint32 CountEachLevel;    
     uint32 OnlineMinDelay;

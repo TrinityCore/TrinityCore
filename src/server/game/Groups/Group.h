@@ -184,6 +184,12 @@ class TC_GAME_API Group
         Group();
         ~Group();
 
+        // EJ TargetIcon
+        ObjectGuid GetOGByTargetIcon(uint32 pmID);
+        int GetTargetIconByOG(ObjectGuid pmOG);
+        // EJ group target arrangement
+        std::unordered_map<ObjectGuid, ObjectGuid> groupTargetArrangementMap;
+
         void Update(uint32 diff);
 
         // group manipulation methods

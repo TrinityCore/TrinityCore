@@ -15,6 +15,41 @@ bool Script_Priest::Tank(Unit* pmTarget, bool pmChase, bool pmSingle)
     return false;
 }
 
+bool Script_Priest::SubHeal(Unit* pmTarget)
+{
+    if (!pmTarget)
+    {
+        return false;
+    }
+    else if (!pmTarget->IsAlive())
+    {
+        return false;
+    }
+    if (!me)
+    {
+        return false;
+    }
+    if (me->GetDistance(pmTarget) > PRIEST_HEAL_DISTANCE)
+    {
+        return false;
+    }
+    float healthPCT = pmTarget->GetHealthPct();
+    if (healthPCT < 90.0f)
+    {
+        if (CastSpell(pmTarget, "Renew", PRIEST_HEAL_DISTANCE, true, true))
+        {
+            return true;
+        }
+    }
+    if (healthPCT < 50.0f)
+    {
+        if (CastSpell(pmTarget, "Flash Heal", PRIEST_HEAL_DISTANCE))
+        {
+            return true;
+        }
+    }
+}
+
 bool Script_Priest::Heal(Unit* pmTarget, bool pmCure)
 {
     if (!me)
@@ -64,19 +99,15 @@ bool Script_Priest::Heal_Holy(Unit* pmTarget, bool pmCure)
     {
         return false;
     }
+    // EJ debug
+    //if (CastSpell(pmTarget, "Greater Heal", PRIEST_HEAL_DISTANCE))
+    //{
+    //    return true;
+    //}
+
     float healthPCT = pmTarget->GetHealthPct();
-    if (healthPCT > 40.0f && healthPCT < 90.0f)
+    if (healthPCT > 50.0f && healthPCT < 90.0f)
     {
-        if (!HasAura(pmTarget, "Weakened Soul"))
-        {
-            if (pmTarget->IsInCombat())
-            {
-                if (CastSpell(pmTarget, "Power Word: Shield", PRIEST_HEAL_DISTANCE))
-                {
-                    return true;
-                }
-            }
-        }
         if (CastSpell(pmTarget, "Renew", PRIEST_HEAL_DISTANCE, true, true))
         {
             return true;
@@ -87,6 +118,16 @@ bool Script_Priest::Heal_Holy(Unit* pmTarget, bool pmCure)
         if (CastSpell(pmTarget, "Desperate Prayer", PRIEST_HEAL_DISTANCE))
         {
             return true;
+        }
+        if (!HasAura(pmTarget, "Weakened Soul"))
+        {
+            if (pmTarget->IsInCombat())
+            {
+                if (CastSpell(pmTarget, "Power Word: Shield", PRIEST_HEAL_DISTANCE))
+                {
+                    return true;
+                }
+            }
         }
     }
     if (healthPCT < 50.0f)

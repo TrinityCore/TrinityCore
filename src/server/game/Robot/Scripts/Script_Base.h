@@ -17,6 +17,7 @@ public:
     virtual bool SubTank(Unit* pmTarget, bool pmChase);
     virtual bool Taunt(Unit* pmTarget);
     virtual bool Heal(Unit* pmTarget, bool pmCure);
+    virtual bool SubHeal(Unit* pmTarget);
     virtual bool GroupHeal();
     virtual bool Attack(Unit* pmTarget);
     virtual bool Buff(Unit* pmTarget, bool pmCure);

@@ -165,6 +165,11 @@ bool Script_Base::Heal(Unit* pmTarget, bool pmCure)
     return false;
 }
 
+bool Script_Base::SubHeal(Unit* pmTarget)
+{
+    return false;
+}
+
 bool Script_Base::GroupHeal()
 {
     return false;
@@ -1845,9 +1850,9 @@ bool Script_Base::Rest()
     {
         if (UseItem(pFood, me))
         {
-            std::ostringstream useRemarksStream;
-            useRemarksStream << "Use item " << pFood->GetTemplate()->Name1;
-            me->Say(useRemarksStream.str(), Language::LANG_UNIVERSAL);
+            //std::ostringstream useRemarksStream;
+            //useRemarksStream << "Use item " << pFood->GetTemplate()->Name1;
+            //me->Say(useRemarksStream.str(), Language::LANG_UNIVERSAL);
             result = true;
         }
     }
@@ -1856,9 +1861,9 @@ bool Script_Base::Rest()
     {
         if (UseItem(pDrink, me))
         {
-            std::ostringstream useRemarksStream;
-            useRemarksStream << "Use item " << pDrink->GetTemplate()->Name1;
-            me->Say(useRemarksStream.str(), Language::LANG_UNIVERSAL);
+            //std::ostringstream useRemarksStream;
+            //useRemarksStream << "Use item " << pDrink->GetTemplate()->Name1;
+            //me->Say(useRemarksStream.str(), Language::LANG_UNIVERSAL);
             result = true;
         }
     }

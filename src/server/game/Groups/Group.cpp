@@ -2685,3 +2685,21 @@ void Group::StopLeaderOfflineTimer()
 {
     m_isLeaderOffline = false;
 }
+
+// EJ Target Icon
+ObjectGuid Group::GetOGByTargetIcon(uint32 pmID)
+{
+    return m_targetIcons[pmID];
+}
+
+int Group::GetTargetIconByOG(ObjectGuid pmOG)
+{
+    for (int i = 0; i < TARGETICONCOUNT; ++i)
+    {
+        if (m_targetIcons[i] == pmOG)
+        {
+            return i;
+        }
+    }
+    return -1;
+}

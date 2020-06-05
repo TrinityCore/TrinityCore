@@ -21,8 +21,7 @@ enum Strategy_Index :uint32
     Strategy_Index_Group_Blackrock_Spire,
     Strategy_Index_Group_Alcaz_Island,
     Strategy_Index_Group_Shadow_Labyrinth,
-    Strategy_Index_Group_Ysondre,
-    Strategy_Index_Group_Taerar,
+    Strategy_Index_Group_EmeraldDragon,
 };
 
 class RobotAI

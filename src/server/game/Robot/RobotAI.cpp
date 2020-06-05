@@ -22,11 +22,8 @@ RobotAI::RobotAI(Player* pmMe)
     RobotStrategy_Group_Shadow_Labyrinth* rsgsl = new RobotStrategy_Group_Shadow_Labyrinth(pmMe);
     strategyMap[Strategy_Index::Strategy_Index_Group_Shadow_Labyrinth] = rsgsl;
 
-    RobotStrategy_Group_Ysondre* rsgYsondre = new RobotStrategy_Group_Ysondre(pmMe);
-    strategyMap[Strategy_Index::Strategy_Index_Group_Ysondre] = rsgYsondre;
-
-    RobotStrategy_Group_Taerar* rsgTaerar = new RobotStrategy_Group_Taerar(pmMe);
-    strategyMap[Strategy_Index::Strategy_Index_Group_Taerar] = rsgTaerar;
+    RobotStrategy_Group_EmeraldDragon* rsgEmeraldDragon = new RobotStrategy_Group_EmeraldDragon(pmMe);
+    strategyMap[Strategy_Index::Strategy_Index_Group_EmeraldDragon] = rsgEmeraldDragon;
 
     activeStrategyIndex = Strategy_Index::Strategy_Index_Solo;
 }

@@ -102,6 +102,7 @@ struct emerald_dragonAI : public WorldBossAI
         DoCast(me, SPELL_MARK_OF_NATURE_AURA, true);
         events.ScheduleEvent(EVENT_TAIL_SWEEP, 4s);
         events.ScheduleEvent(EVENT_NOXIOUS_BREATH, urand(7500, 15000));
+        // EJ scripts debug sleep fog
         events.ScheduleEvent(EVENT_SEEPING_FOG, urand(12500, 20000));
     }
 
@@ -109,7 +110,9 @@ struct emerald_dragonAI : public WorldBossAI
     void KilledUnit(Unit* who) override
     {
         if (who->GetTypeId() == TYPEID_PLAYER)
-            who->CastSpell(who, SPELL_MARK_OF_NATURE, true);
+        {
+            //who->CastSpell(who, SPELL_MARK_OF_NATURE, true);
+        }
     }
 
     // Execute and reschedule base events shared between all Emerald Dragons
@@ -566,6 +569,8 @@ enum TaerarSpells
     SPELL_SUMMON_SHADE_2            = 24842,
     SPELL_SUMMON_SHADE_3            = 24843,
     SPELL_ARCANE_BLAST              = 24857,
+    // EJ scripts
+    SPELL_SELF_STUN = 24883,
 };
 
 uint32 const TaerarShadeSpells[] =
@@ -595,8 +600,8 @@ class boss_taerar : public CreatureScript
 
             void Reset() override
             {
-                me->RemoveAurasDueToSpell(SPELL_SHADE);
-
+                //me->RemoveAurasDueToSpell(SPELL_SHADE);
+                me->RemoveAurasDueToSpell(TaerarSpells::SPELL_SELF_STUN);
                 Initialize();
 
                 emerald_dragonAI::Reset();
@@ -615,6 +620,43 @@ class boss_taerar : public CreatureScript
                 --_shades;
             }
 
+            void SetData(uint32 type, uint32 data) override
+            {
+                if (type == 1 && data == 1)
+                {
+                    if (_banished)
+                    {
+                        Reset();
+                        return;
+                    }
+                    _banished = true;
+                    _banishedTimer = 60000;
+
+                    me->InterruptNonMeleeSpells(false);
+                    DoStopAttack();
+
+                    Talk(SAY_TAERAR_SUMMON_SHADES);
+
+                    // EJ scripts taerar 
+                    //uint32 count = sizeof(TaerarShadeSpells) / sizeof(uint32);                    
+                    //for (uint32 i = 0; i < count; ++i)
+                    //    DoCastVictim(TaerarShadeSpells[i], true);
+                    //_shades += count;
+                    //DoCast(SPELL_SHADE);
+
+                    DoCastSelf(TaerarSpells::SPELL_SUMMON_SHADE_1);
+                    DoCastSelf(TaerarSpells::SPELL_SUMMON_SHADE_2);
+                    DoCastSelf(TaerarSpells::SPELL_SUMMON_SHADE_3);
+                    _shades = 3;
+                    DoCastSelf(TaerarSpells::SPELL_SELF_STUN);
+
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+                    me->SetReactState(REACT_PASSIVE);
+
+                    ++_stage;
+                }
+            }
+
             void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
             {
                 // At 75, 50 or 25 percent health, we need to activate the shades and go "banished"
@@ -629,12 +671,19 @@ class boss_taerar : public CreatureScript
 
                     Talk(SAY_TAERAR_SUMMON_SHADES);
 
-                    uint32 count = sizeof(TaerarShadeSpells) / sizeof(uint32);
-                    for (uint32 i = 0; i < count; ++i)
-                        DoCastVictim(TaerarShadeSpells[i], true);
-                    _shades += count;
+                    // EJ scripts taerar 
+                    //uint32 count = sizeof(TaerarShadeSpells) / sizeof(uint32);                    
+                    //for (uint32 i = 0; i < count; ++i)
+                    //    DoCastVictim(TaerarShadeSpells[i], true);
+                    //_shades += count;
+                    //DoCast(SPELL_SHADE);
 
-                    DoCast(SPELL_SHADE);
+                    DoCastSelf(TaerarSpells::SPELL_SUMMON_SHADE_1);
+                    DoCastSelf(TaerarSpells::SPELL_SUMMON_SHADE_2);
+                    DoCastSelf(TaerarSpells::SPELL_SUMMON_SHADE_3);
+                    _shades = 3;
+                    DoCastSelf(TaerarSpells::SPELL_SELF_STUN);
+
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
                     me->SetReactState(REACT_PASSIVE);
 
@@ -673,7 +722,8 @@ class boss_taerar : public CreatureScript
                         _banished = false;
 
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
-                        me->RemoveAurasDueToSpell(SPELL_SHADE);
+                        //me->RemoveAurasDueToSpell(SPELL_SHADE);
+                        me->RemoveAurasDueToSpell(TaerarSpells::SPELL_SELF_STUN);
                         me->SetReactState(REACT_AGGRESSIVE);
                     }
                     // _banishtimer has not expired, and we still have active shades:

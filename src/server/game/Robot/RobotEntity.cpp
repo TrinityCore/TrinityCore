@@ -1,5 +1,6 @@
 #include "RobotEntity.h"
 #include "RobotManager.h"
+#include "RobotConfig.h"
 #include "RobotAI.h"
 #include "Group.h"
 
@@ -128,6 +129,28 @@ void RobotEntity::Update(uint32 pmDiff)
         }
         case RobotEntityState::RobotEntityState_DoLogin:
         {
+            if (sRobotConfig->EnableAlliance == 0 || sRobotConfig->EnableHorde == 0)
+            {
+                uint32 characterRace = sRobotManager->GetCharacterRace(character_id);
+                if (sRobotConfig->EnableAlliance == 0)
+                {
+                    if (characterRace == Races::RACE_HUMAN || characterRace == Races::RACE_DWARF || characterRace == Races::RACE_NIGHTELF || characterRace == Races::RACE_GNOME || characterRace == Races::RACE_DRAENEI)
+                    {
+                        checkDelay = 1 * TimeConstants::HOUR * TimeConstants::IN_MILLISECONDS;
+                        entityState = RobotEntityState::RobotEntityState_None;
+                        break;
+                    }
+                }
+                if (sRobotConfig->EnableHorde == 0)
+                {
+                    if (characterRace == Races::RACE_ORC || characterRace == Races::RACE_UNDEAD_PLAYER || characterRace == Races::RACE_TAUREN || characterRace == Races::RACE_TROLL || characterRace == Races::RACE_BLOODELF)
+                    {
+                        checkDelay = 1 * TimeConstants::HOUR * TimeConstants::IN_MILLISECONDS;
+                        entityState = RobotEntityState::RobotEntityState_None;
+                        break;
+                    }
+                }
+            }
             sRobotManager->LoginRobot(account_id, character_id);
             checkDelay = 10 * TimeConstants::IN_MILLISECONDS;
             entityState = RobotEntityState::RobotEntityState_CheckLogin;

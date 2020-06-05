@@ -18,6 +18,7 @@ public:
     bool DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank);
     bool Tank(Unit* pmTarget, bool pmChase, bool pmSingle = false);
     bool Heal(Unit* pmTarget, bool pmCure);
+    bool SubHeal(Unit* pmTarget);
     bool GroupHeal();
     bool Attack(Unit* pmTarget);
     bool Buff(Unit* pmTarget, bool pmCure);

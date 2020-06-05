@@ -88,6 +88,7 @@ public:
     uint32 CheckRobotAccount(std::string pmAccountName);
     uint32 CreateRobotAccount();
     uint32 CheckAccountCharacter(uint32 pmAccountID);
+    uint32 GetCharacterRace(uint32 pmCharacterID);
     uint32 CreateRobotCharacter(uint32 pmAccountID);
     uint32 CreateRobotCharacter(uint32 pmAccountID, uint32 pmCharacterClass, uint32 pmCharacterRace);
     bool PrepareRobot(Player* pmRobot);
