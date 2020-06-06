@@ -485,8 +485,8 @@ class boss_flame_leviathan : public CreatureScript
                 if (spellInfo->Id != SPELL_PURSUED)
                     return;
 
-                _pursueTarget = target->GetGUID();
-                AttackStart(target);
+                _pursueTarget = unitTarget->GetGUID();
+                AttackStart(unitTarget);
 
                 for (SeatMap::const_iterator itr = unitTarget->GetVehicleKit()->Seats.begin(); itr != unitTarget->GetVehicleKit()->Seats.end(); ++itr)
                 {
