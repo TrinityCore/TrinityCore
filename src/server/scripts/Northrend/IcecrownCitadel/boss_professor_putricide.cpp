@@ -1669,21 +1669,19 @@ class spell_abomination_mutated_transformation : public SpellScript
 {
     PrepareSpellScript(spell_abomination_mutated_transformation);
 
-    /* Resist system always pick the min resist value for spells with multiple schools.
-       But following some combat logs of retail, this spell is a exception and need get the sum of both schools. */
-    void HandleResistance(SpellEffIndex /*effIndex*/)
+    void HandleResistance(DamageInfo const& damageInfo, uint32& resistAmount, int32& /*absorbAmount*/)
     {
-        Unit* caster = GetCaster();
-        uint32 damage = GetHitDamage();
-        Unit* target = GetHitUnit();
-        damage -= Unit::CalcSpellResistedDamage(caster, target, GetHitDamage(), SPELL_SCHOOL_MASK_SHADOW, nullptr);
-        damage -= Unit::CalcSpellResistedDamage(caster, target, GetHitDamage(), SPELL_SCHOOL_MASK_NATURE, nullptr);
-        SetHitDamage(damage);
+        Unit* caster = damageInfo.GetAttacker();;
+        Unit* target = damageInfo.GetVictim();
+        uint32 damage = damageInfo.GetDamage();
+        uint32 resistedDamage = Unit::CalcSpellResistedDamage(caster, target, damage, SPELL_SCHOOL_MASK_SHADOW, nullptr);
+        resistedDamage += Unit::CalcSpellResistedDamage(caster, target, damage, SPELL_SCHOOL_MASK_NATURE, nullptr);
+        resistAmount = resistedDamage;
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_abomination_mutated_transformation::HandleResistance, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnCalculateResistAbsorb += SpellOnResistAbsorbCalculateFn(spell_abomination_mutated_transformation::HandleResistance);
     }
 };
 

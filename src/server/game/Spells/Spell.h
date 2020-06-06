@@ -38,6 +38,7 @@ namespace WorldPackets
 class Aura;
 class AuraEffect;
 class Corpse;
+class DamageInfo;
 class DynamicObject;
 class DynObjAura;
 class GameObject;
@@ -562,6 +563,7 @@ class TC_GAME_API Spell
         Spell** m_selfContainer;                            // pointer to our spell container (if applicable)
 
         std::string GetDebugInfo() const;
+        void CallScriptOnResistAbsorbCalculateHandlers(DamageInfo const& damageInfo, uint32& resistAmount, int32& absorbAmount);
 
     protected:
         bool HasGlobalCooldown() const;

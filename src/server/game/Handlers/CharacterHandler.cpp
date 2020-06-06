@@ -265,7 +265,7 @@ void WorldSession::HandleCharEnumOpcode(WorldPacket& /*recvData*/)
     stmt->setUInt8(0, PET_SAVE_AS_CURRENT);
     stmt->setUInt32(1, GetAccountId());
 
-    _queryProcessor.AddQuery(CharacterDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSession::HandleCharEnum, this, std::placeholders::_1)));
+    _queryProcessor.AddCallback(CharacterDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSession::HandleCharEnum, this, std::placeholders::_1)));
 }
 
 void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
@@ -408,7 +408,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHECK_NAME);
     stmt->setString(0, createInfo->Name);
 
-    _queryProcessor.AddQuery(CharacterDatabase.AsyncQuery(stmt)
+    _queryProcessor.AddCallback(CharacterDatabase.AsyncQuery(stmt)
         .WithChainingPreparedCallback([this](QueryCallback& queryCallback, PreparedQueryResult result)
     {
         if (result)
@@ -563,28 +563,30 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
                 return;
             }
 
-            Player newChar(this);
-            newChar.GetMotionMaster()->Initialize();
-            if (!newChar.Create(sObjectMgr->GetGenerator<HighGuid::Player>().Generate(), createInfo.get()))
-
+            std::shared_ptr<Player> newChar(new Player(this), [](Player* ptr)
+            {
+                ptr->CleanupsBeforeDelete();
+                delete ptr;
+            });
+            newChar->GetMotionMaster()->Initialize();
+            if (!newChar->Create(sObjectMgr->GetGenerator<HighGuid::Player>().Generate(), createInfo.get()))
             {
                 // Player not create (race/class/etc problem?)
-                newChar.CleanupsBeforeDelete();
-
                 SendCharCreate(CHAR_CREATE_ERROR);
                 return;
             }
 
             if ((haveSameRace && skipCinematics == 1) || skipCinematics == 2)
-                newChar.setCinematic(1);                          // not show intro
+                newChar->setCinematic(1);                         // not show intro
 
-            newChar.SetAtLoginFlag(AT_LOGIN_FIRST);               // First login
+            newChar->SetAtLoginFlag(AT_LOGIN_FIRST);              // First login
+
+            CharacterDatabaseTransaction characterTransaction = CharacterDatabase.BeginTransaction();
+            LoginDatabaseTransaction trans = LoginDatabase.BeginTransaction();
 
                                                                   // Player created, save it now
-            newChar.SaveToDB(true);
+            newChar->SaveToDB(characterTransaction, true);
             createInfo->CharCount += 1;
-
-            LoginDatabaseTransaction trans = LoginDatabase.BeginTransaction();
 
             LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_REALM_CHARACTERS_BY_REALM);
             stmt->setUInt32(0, GetAccountId());
@@ -599,13 +601,19 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
 
             LoginDatabase.CommitTransaction(trans);
 
-            SendCharCreate(CHAR_CREATE_SUCCESS);
+            AddTransactionCallback(CharacterDatabase.AsyncCommitTransaction(characterTransaction)).AfterComplete([this, newChar = std::move(newChar)](bool success)
+            {
+                if (success)
+                {
+                    TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Create Character: %s %s", GetAccountId(), GetRemoteAddress().c_str(), newChar->GetName().c_str(), newChar->GetGUID().ToString().c_str());
+                    sScriptMgr->OnPlayerCreate(newChar.get());
+                    sCharacterCache->AddCharacterCacheEntry(newChar->GetGUID(), GetAccountId(), newChar->GetName(), newChar->GetNativeGender(), newChar->GetRace(), newChar->GetClass(), newChar->GetLevel());
 
-            TC_LOG_INFO("entities.player.character", "Account: %d (IP: %s) Create Character:[%s] %s", GetAccountId(), GetRemoteAddress().c_str(), createInfo->Name.c_str(), newChar.GetGUID().ToString().c_str());
-            sScriptMgr->OnPlayerCreate(&newChar);
-            sCharacterCache->AddCharacterCacheEntry(newChar.GetGUID(), GetAccountId(), newChar.GetName(), newChar.GetNativeGender(), newChar.GetRace(), newChar.GetClass(), newChar.GetLevel());
-
-            newChar.CleanupsBeforeDelete();
+                    SendCharCreate(CHAR_CREATE_SUCCESS);
+                }
+                else
+                    SendCharCreate(CHAR_CREATE_ERROR);
+            });
         };
 
         if (allowTwoSideAccounts && !skipCinematics && createInfo->Class != CLASS_DEATH_KNIGHT)
@@ -1135,7 +1143,7 @@ void WorldSession::HandleCharRenameOpcode(WorldPacket& recvData)
     stmt->setUInt32(1, GetAccountId());
     stmt->setString(2, renameInfo->Name);
 
-    _queryProcessor.AddQuery(CharacterDatabase.AsyncQuery(stmt)
+    _queryProcessor.AddCallback(CharacterDatabase.AsyncQuery(stmt)
         .WithPreparedCallback(std::bind(&WorldSession::HandleCharRenameCallBack, this, renameInfo, std::placeholders::_1)));
 }
 
@@ -1376,7 +1384,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_CUSTOMIZE_INFO);
     stmt->setUInt32(0, customizeInfo->Guid.GetCounter());
 
-    _queryProcessor.AddQuery(CharacterDatabase.AsyncQuery(stmt)
+    _queryProcessor.AddCallback(CharacterDatabase.AsyncQuery(stmt)
         .WithPreparedCallback(std::bind(&WorldSession::HandleCharCustomizeCallback, this, customizeInfo, std::placeholders::_1)));
 }
 
@@ -1632,7 +1640,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_RACE_OR_FACTION_CHANGE_INFOS);
     stmt->setUInt32(0, factionChangeInfo->Guid.GetCounter());
 
-    _queryProcessor.AddQuery(CharacterDatabase.AsyncQuery(stmt)
+    _queryProcessor.AddCallback(CharacterDatabase.AsyncQuery(stmt)
         .WithPreparedCallback(std::bind(&WorldSession::HandleCharFactionOrRaceChangeCallback, this, factionChangeInfo, std::placeholders::_1)));
 }
 

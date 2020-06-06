@@ -23,10 +23,10 @@
 #define __WORLD_H
 
 #include "Common.h"
+#include "AsyncCallbackProcessor.h"
 #include "DatabaseEnvFwd.h"
 #include "LockedQueue.h"
 #include "ObjectGuid.h"
-#include "QueryCallbackProcessor.h"
 #include "SharedDefines.h"
 #include "Timer.h"
 

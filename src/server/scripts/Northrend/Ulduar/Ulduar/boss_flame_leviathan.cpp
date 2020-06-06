@@ -486,8 +486,7 @@ class boss_flame_leviathan : public CreatureScript
                     return;
 
                 _pursueTarget = target->GetGUID();
-                me->GetMotionMaster()->Clear();
-                me->GetMotionMaster()->MoveChase(unitTarget);
+                AttackStart(target);
 
                 for (SeatMap::const_iterator itr = unitTarget->GetVehicleKit()->Seats.begin(); itr != unitTarget->GetVehicleKit()->Seats.end(); ++itr)
                 {
