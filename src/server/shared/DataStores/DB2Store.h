@@ -62,7 +62,7 @@ protected:
     uint32 _fieldCount;
     DB2LoadInfo const* _loadInfo;
     char* _dataTable;
-    char* _dataTableEx;
+    char* _dataTableEx[2];
     std::vector<char*> _stringPool;
     uint32 _indexTableSize;
 };

@@ -33,10 +33,12 @@ DB2LoadInfo::DB2LoadInfo(DB2FieldMeta const* fields, std::size_t fieldCount, DB2
 
 static char const* nullStr = "";
 
-char* DB2DatabaseLoader::Load(uint32& records, char**& indexTable, char*& stringHolders, std::vector<char*>& stringPool)
+char* DB2DatabaseLoader::Load(bool custom, uint32& records, char**& indexTable, char*& stringHolders, std::vector<char*>& stringPool)
 {
     // Even though this query is executed only once, prepared statement is used to send data from mysql server in binary format
-    PreparedQueryResult result = HotfixDatabase.Query(HotfixDatabase.GetPreparedStatement(_loadInfo->Statement));
+    HotfixDatabasePreparedStatement* stmt = HotfixDatabase.GetPreparedStatement(_loadInfo->Statement);
+    stmt->setBool(0, !custom);
+    PreparedQueryResult result = HotfixDatabase.Query(stmt);
     if (!result)
         return nullptr;
 
@@ -83,6 +85,9 @@ char* DB2DatabaseLoader::Load(uint32& records, char**& indexTable, char*& string
 
     char* tempDataTable = new char[result->GetRowCount() * recordSize];
     uint32* newIndexes = new uint32[result->GetRowCount()];
+    if (stringFields)
+        stringPool.reserve(std::max(stringPool.capacity(), stringPool.size() + stringFields * result->GetRowCount() + 1));
+
     uint32 rec = 0;
     uint32 newRecords = 0;
 
@@ -200,10 +205,11 @@ char* DB2DatabaseLoader::Load(uint32& records, char**& indexTable, char*& string
     return dataTable;
 }
 
-void DB2DatabaseLoader::LoadStrings(uint32 locale, uint32 records, char** indexTable, std::vector<char*>& stringPool)
+void DB2DatabaseLoader::LoadStrings(bool custom, uint32 locale, uint32 records, char** indexTable, std::vector<char*>& stringPool)
 {
     HotfixDatabasePreparedStatement* stmt = HotfixDatabase.GetPreparedStatement(HotfixDatabaseStatements(_loadInfo->Statement + 2));
-    stmt->setString(0, localeNames[locale]);
+    stmt->setBool(0, !custom);
+    stmt->setString(1, localeNames[locale]);
     PreparedQueryResult result = HotfixDatabase.Query(stmt);
     if (!result)
         return;
@@ -214,6 +220,8 @@ void DB2DatabaseLoader::LoadStrings(uint32 locale, uint32 records, char** indexT
 
     uint32 fieldCount = _loadInfo->Meta->FieldCount;
     uint32 recordSize = _loadInfo->Meta->GetRecordSize();
+
+    stringPool.reserve(std::max(stringPool.capacity(), stringPool.size() + stringFields * result->GetRowCount() + 1));
 
     do
     {
@@ -284,8 +292,6 @@ void DB2DatabaseLoader::LoadStrings(uint32 locale, uint32 records, char** indexT
             TC_LOG_ERROR("sql.sql", "Hotfix locale table for storage %s references row that does not exist %u locale %s!", _storageName.c_str(), indexValue, localeNames[locale]);
 
     } while (result->NextRow());
-
-    return;
 }
 
 char* DB2DatabaseLoader::AddString(char const** holder, std::string const& value)
