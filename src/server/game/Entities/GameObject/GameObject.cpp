@@ -2344,7 +2344,7 @@ void GameObject::EventInform(uint32 eventId, WorldObject* invoker /*= nullptr*/)
         AI()->EventInform(eventId);
 
     if (GetZoneScript())
-        GetZoneScript()->ProcessEvent(this, eventId);
+        GetZoneScript()->ProcessEvent(this, eventId, invoker);
 
     if (BattlegroundMap* bgMap = GetMap()->ToBattlegroundMap())
         if (bgMap->GetBG())
