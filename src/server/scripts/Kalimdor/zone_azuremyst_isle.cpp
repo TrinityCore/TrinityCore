@@ -106,9 +106,9 @@ public:
             }
         }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
         {
-            if (spell->SpellFamilyFlags[2] & 0x80000000 && !_tappedBySpell)
+            if (spellInfo->SpellFamilyFlags[2] & 0x80000000 && !_tappedBySpell)
             {
                 _events.Reset();
                 _tappedBySpell = true;

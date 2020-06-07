@@ -187,9 +187,9 @@ public:
             me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
-            if (spell->Id == SPELL_FLARE || spell->Id == SPELL_FOLLY)
+            if (spellInfo->Id == SPELL_FLARE || spellInfo->Id == SPELL_FOLLY)
             {
                 ++FlareCount;
 

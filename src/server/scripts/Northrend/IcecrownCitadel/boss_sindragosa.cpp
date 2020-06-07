@@ -439,10 +439,14 @@ class boss_sindragosa : public CreatureScript
                     summon->AI()->JustDied(summon);
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == 70127)
-                    if (Aura const* mysticBuffet = target->GetAura(spell->Id))
+                Unit* unitTarget = target->ToUnit();
+                if (!unitTarget)
+                    return;
+
+                if (spellInfo->Id == 70127)
+                    if (Aura const* mysticBuffet = unitTarget->GetAura(spellInfo->Id))
                         _mysticBuffetStack = std::max<uint8>(_mysticBuffetStack, mysticBuffet->GetStackAmount());
             }
 

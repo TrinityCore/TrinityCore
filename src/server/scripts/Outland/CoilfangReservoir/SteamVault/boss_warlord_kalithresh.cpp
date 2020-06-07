@@ -149,10 +149,10 @@ public:
             Talk(SAY_SLAY);
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
             //hack :(
-            if (spell->Id == SPELL_WARLORDS_RAGE_PROC)
+            if (spellInfo->Id == SPELL_WARLORDS_RAGE_PROC)
                 if (instance->GetData(DATA_DISTILLER) == DONE)
                     me->RemoveAurasDueToSpell(SPELL_WARLORDS_RAGE_PROC);
         }

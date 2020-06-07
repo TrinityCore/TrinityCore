@@ -1313,18 +1313,21 @@ public:
                 AttackStart(who);
         }
 
-        void SpellHit(Unit* pCaster, SpellInfo const* pSpell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
         {
-            if (pSpell->Id == SPELL_ARCANE_CHAINS && pCaster->GetTypeId() == TYPEID_PLAYER && !HealthAbovePct(50) && !bEnslaved)
+            Player* playerCaster = caster->ToPlayer();
+            if (!playerCaster)
+                return;
+
+            if (spellInfo->Id == SPELL_ARCANE_CHAINS && !HealthAbovePct(50) && !bEnslaved)
             {
                 EnterEvadeMode(); //We make sure that the npc is not attacking the player!
                 me->SetReactState(REACT_PASSIVE);
-                StartFollow(pCaster->ToPlayer());
+                StartFollow(playerCaster);
                 me->UpdateEntry(NPC_CAPTURED_BERLY_SORCERER);
                 DoCast(me, SPELL_COSMETIC_ENSLAVE_CHAINS_SELF, true);
 
-                if (Player* player = pCaster->ToPlayer())
-                    player->KilledMonsterCredit(NPC_CAPTURED_BERLY_SORCERER);
+                playerCaster->KilledMonsterCredit(NPC_CAPTURED_BERLY_SORCERER);
 
                 bEnslaved = true;
             }
@@ -1418,10 +1421,14 @@ public:
         {
         }
 
-        void SpellHit(Unit* unit, SpellInfo const* spell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
         {
-            if ((spell->Id == SPELL_NEURAL_NEEDLE || spell->Id == SPELL_PROTOTYPE_NEURAL_NEEDLE) && unit->GetTypeId() == TYPEID_PLAYER)
-                GotStinged(unit->ToPlayer(), spell->Id);
+            Player* playerCaster = caster->ToPlayer();
+            if (!playerCaster)
+                return;
+
+            if (spellInfo->Id == SPELL_NEURAL_NEEDLE || spellInfo->Id == SPELL_PROTOTYPE_NEURAL_NEEDLE)
+                GotStinged(playerCaster, spellInfo->Id);
         }
 
         void GotStinged(Player* caster, uint32 spellId)

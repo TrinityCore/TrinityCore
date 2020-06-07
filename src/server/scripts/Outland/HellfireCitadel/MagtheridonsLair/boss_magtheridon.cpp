@@ -184,9 +184,9 @@ class boss_magtheridon : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == SPELL_SHADOW_CAGE)
+                if (spellInfo->Id == SPELL_SHADOW_CAGE)
                     Talk(SAY_BANISHED);
             }
 

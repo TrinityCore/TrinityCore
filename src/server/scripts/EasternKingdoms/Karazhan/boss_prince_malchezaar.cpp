@@ -154,9 +154,9 @@ public:
                     creature->AI()->KilledUnit(who);
         }
 
-        void SpellHit(Unit* /*who*/, SpellInfo const* spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
-            if (spell->Id == SPELL_INFERNAL_RELAY)
+            if (spellInfo->Id == SPELL_INFERNAL_RELAY)
             {
                 me->SetDisplayId(me->GetNativeDisplayId());
                 me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);

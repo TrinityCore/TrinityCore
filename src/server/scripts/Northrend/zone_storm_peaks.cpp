@@ -226,15 +226,19 @@ public:
                 me->DespawnOrUnsummon();
         }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
         {
-            if (spell->Id != SPELL_ICE_LANCE)
+            Unit* unitCaster = caster->ToUnit();
+            if (!unitCaster)
                 return;
 
-            if (caster->GetVehicleKit()->GetAvailableSeatCount() != 0)
+            if (spellInfo->Id != SPELL_ICE_LANCE)
+                return;
+
+            if (unitCaster->GetVehicleKit()->GetAvailableSeatCount() != 0)
             {
                 me->CastSpell(me, SPELL_FREE_PRISONER, true);
-                me->CastSpell(caster, SPELL_RIDE_DRAKE, true);
+                me->CastSpell(unitCaster, SPELL_RIDE_DRAKE, true);
                 me->CastSpell(me, SPELL_SHARD_IMPACT, true);
                 freed = true;
             }
@@ -751,7 +755,7 @@ public:
             }
         }
 
-        void SpellHit(Unit* caster, SpellInfo const* spellInfo) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
         {
             if (!_playerGuid.IsEmpty() || spellInfo->Id != SPELL_SPEAR_OF_HODIR)
                 return;

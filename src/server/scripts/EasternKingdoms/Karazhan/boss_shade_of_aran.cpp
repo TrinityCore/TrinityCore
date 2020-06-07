@@ -499,7 +499,7 @@ public:
                 DrinkInturrupted = true;
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spellInfo) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
             //We only care about interrupt effects and only if they are durring a spell currently being cast
             if (!spellInfo->HasEffect(SPELL_EFFECT_INTERRUPT_CAST) || !me->IsNonMeleeSpellCast(false))

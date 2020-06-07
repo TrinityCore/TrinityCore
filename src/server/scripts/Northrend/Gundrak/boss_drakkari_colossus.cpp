@@ -346,9 +346,9 @@ class boss_drakkari_elemental : public CreatureScript
                 me->DespawnOrUnsummon();
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == SPELL_MERGE)
+                if (spellInfo->Id == SPELL_MERGE)
                 {
                     if (Creature* colossus = target->ToCreature())
                     {

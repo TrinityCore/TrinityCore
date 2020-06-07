@@ -52,8 +52,9 @@ enum Spells
     // Molten Golem
     SPELL_BLAST_WAVE                        = 23113,
     SPELL_IMMOLATION_STRIKE                 = 52433,
-    SPELL_SHATTER                           = 52429,
 };
+
+#define SPELL_SHATTER DUNGEON_MODE<uint32>(52429,59527)
 
 enum Events
 {
@@ -440,10 +441,10 @@ public:
             }
         }
 
-        void SpellHit(Unit* /*pCaster*/, SpellInfo const* pSpell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
             // This is the dummy effect of the spells
-            if (pSpell->Id == SPELL_SHATTER)
+            if (spellInfo->Id == SPELL_SHATTER)
                 if (me->GetEntry() == NPC_BRITTLE_GOLEM)
                     me->DespawnOrUnsummon();
         }

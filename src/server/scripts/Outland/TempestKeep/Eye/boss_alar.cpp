@@ -217,9 +217,9 @@ class boss_alar : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit*, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == SPELL_DIVE_BOMB_VISUAL)
+                if (spellInfo->Id == SPELL_DIVE_BOMB_VISUAL)
                 {
                     me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, true);
                     me->SetDisplayId(11686);
