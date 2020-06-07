@@ -170,7 +170,7 @@ bool Script_Base::SubHeal(Unit* pmTarget)
     return false;
 }
 
-bool Script_Base::GroupHeal()
+bool Script_Base::GroupHeal(float pmMaxHealthPercent)
 {
     return false;
 }

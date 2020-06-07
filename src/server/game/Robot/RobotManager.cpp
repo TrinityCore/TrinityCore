@@ -2385,7 +2385,7 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                                             healer7Count++;
                                             continue;
                                         }
-                                        else if (healer8Count < 1)
+                                        else if (healer8Count < 5)
                                         {
                                             member->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer8;
                                             healer8Count++;
@@ -2640,7 +2640,7 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                                     {
                                         rs->engageAngle = rs->engageAngle + M_PI * 3 / 8;
                                         rs->engageDistance = 38.0f;
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 4);
+                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 35.0f, rs->basePos.GetOrientation() + M_PI / 4);
                                         break;
                                     }
                                     case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer2:
@@ -2661,7 +2661,7 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                                     {
                                         rs->engageAngle = rs->engageAngle + M_PI * 5 / 8;
                                         rs->engageDistance = 38.0f;
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 50.0f, rs->basePos.GetOrientation() + M_PI * 3 / 4);
+                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 35.0f, rs->basePos.GetOrientation() + M_PI * 3 / 4);
                                         break;
                                     }
                                     case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer5:

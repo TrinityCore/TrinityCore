@@ -19,13 +19,13 @@ public:
     bool Tank(Unit* pmTarget, bool pmChase, bool pmSingle = false);
     bool Heal(Unit* pmTarget, bool pmCure);
     bool SubHeal(Unit* pmTarget);
-    bool GroupHeal();
+    bool GroupHeal(float pmMaxHealthPercent = 60.0f);
     bool Attack(Unit* pmTarget);
     bool Buff(Unit* pmTarget, bool pmCure);
 
 	bool DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank);
 	bool Attack_Common(Unit* pmTarget);
     bool Heal_Holy(Unit* pmTarget, bool pmCure);
-    bool GroupHeal_Holy();
+    bool GroupHeal_Holy(float pmMaxHealthPercent);
 };
 #endif

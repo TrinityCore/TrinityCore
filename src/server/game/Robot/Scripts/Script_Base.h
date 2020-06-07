@@ -18,7 +18,7 @@ public:
     virtual bool Taunt(Unit* pmTarget);
     virtual bool Heal(Unit* pmTarget, bool pmCure);
     virtual bool SubHeal(Unit* pmTarget);
-    virtual bool GroupHeal();
+    virtual bool GroupHeal(float pmMaxHealthPercent = 60.0f);
     virtual bool Attack(Unit* pmTarget);
     virtual bool Buff(Unit* pmTarget, bool pmCure);
 

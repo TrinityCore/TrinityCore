@@ -173,7 +173,7 @@ bool Script_Priest::Heal_Holy(Unit* pmTarget, bool pmCure)
     return false;
 }
 
-bool Script_Priest::GroupHeal()
+bool Script_Priest::GroupHeal(float pmMaxHealthPercent)
 {
     if (!me)
     {
@@ -187,24 +187,24 @@ bool Script_Priest::GroupHeal()
     {
     case 0:
     {
-        return GroupHeal_Holy();
+        return GroupHeal_Holy(pmMaxHealthPercent);
     }
     case 1:
     {
-        return GroupHeal_Holy();
+        return GroupHeal_Holy(pmMaxHealthPercent);
     }
     case 2:
     {
-        return GroupHeal_Holy();
+        return GroupHeal_Holy(pmMaxHealthPercent);
     }
     default:
-        return GroupHeal_Holy();
+        return GroupHeal_Holy(pmMaxHealthPercent);
     }
 
     return false;
 }
 
-bool Script_Priest::GroupHeal_Holy()
+bool Script_Priest::GroupHeal_Holy(float pmMaxHealthPercent)
 {
     if (!me)
     {
@@ -220,7 +220,7 @@ bool Script_Priest::GroupHeal_Holy()
         {
             if (Player* member = groupRef->GetSource())
             {
-                if (member->GetHealthPct() < 60.0f)
+                if (member->GetHealthPct() < pmMaxHealthPercent)
                 {
                     if (me->GetDistance(member) > MID_RANGE && me->GetDistance(member) < PRIEST_HEAL_DISTANCE)
                     {
