@@ -100,7 +100,7 @@ void RobotEntity::Update(uint32 pmDiff)
                 while (true)
                 {
                     targetClass = urand(Classes::CLASS_WARRIOR, Classes::CLASS_DRUID);
-                    if (targetClass == Classes::CLASS_WARRIOR || targetClass == Classes::CLASS_ROGUE || targetClass == Classes::CLASS_DEATH_KNIGHT || targetClass == Classes::CLASS_SHAMAN || targetClass == Classes::CLASS_MAGE || targetClass == Classes::CLASS_UNK)
+                    if (targetClass == Classes::CLASS_WARRIOR || targetClass == Classes::CLASS_DEATH_KNIGHT || targetClass == Classes::CLASS_SHAMAN || targetClass == Classes::CLASS_MAGE || targetClass == Classes::CLASS_UNK)
                     {
                         continue;
                     }

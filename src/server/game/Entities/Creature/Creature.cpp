@@ -2686,7 +2686,13 @@ bool Creature::LoadCreaturesAddon()
 
     // Load Path
     if (cainfo->path_id != 0)
-        _waypointPathId = cainfo->path_id;
+    {
+        // EJ path id 42560 will be ignored
+        if (cainfo->path_id != 42560)
+        {
+            _waypointPathId = cainfo->path_id;
+        }
+    }
 
     if (!cainfo->auras.empty())
     {

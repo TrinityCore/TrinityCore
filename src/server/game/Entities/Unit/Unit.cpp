@@ -13624,3 +13624,19 @@ std::string Unit::GetDebugInfo() const
         << " " << (movespline ? movespline->ToString() : "Movespline: <none>");
     return sstr.str();
 }
+
+Creature* Unit::GetNearbyCreatureWithEntry(uint32 pmEntry, float pmExactDistance)
+{
+    std::list<Creature*> allCreatures;
+    Trinity::AllCreaturesOfEntryInRange check(this, pmEntry, pmExactDistance);
+    Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(this, allCreatures, check);
+    Cell::VisitGridObjects(this, searcher, pmExactDistance);
+    for (Creature* eachCreature : allCreatures)
+    {
+        if (eachCreature->GetEntry() == pmEntry)
+        {
+            return eachCreature;
+        }
+    }
+    return NULL;
+}

@@ -65,7 +65,7 @@ bool Script_Rogue::DPS_Combat(Unit* pmTarget, bool pmChase, bool pmAOE, Player* 
     if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
     {
         return false;
-    }    
+    }
     if (pmChase)
     {
         if (!Chase(pmTarget))
@@ -190,7 +190,7 @@ bool Script_Rogue::Attack_Combat(Unit* pmTarget)
     if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
     {
         return false;
-    }    
+    }
     if (!Chase(pmTarget))
     {
         return false;

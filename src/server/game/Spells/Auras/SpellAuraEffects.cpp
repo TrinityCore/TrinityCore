@@ -5031,7 +5031,23 @@ void AuraEffect::HandlePreventResurrection(AuraApplication const* aurApp, uint8 
 
 void AuraEffect::HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster) const
 {
-    uint32 triggerSpellId = GetSpellInfo()->Effects[GetEffIndex()].TriggerSpell;
+    // EJ special spell triggers
+    uint32 triggerSpellId = 0;
+    if (const SpellInfo* pSI = GetSpellInfo())
+    {
+        triggerSpellId = GetSpellInfo()->Effects[GetEffIndex()].TriggerSpell;
+        if (triggerSpellId == 0)
+        {
+            if (GetSpellInfo()->Id == 24834)
+            {
+                uint32 spellForTick[8] = { 24820, 24821, 24822, 24823, 24835, 24836, 24837, 24838 };
+                int tickIndex = _ticksDone;
+                tickIndex = tickIndex - 1;
+                tickIndex = tickIndex % 8;
+                triggerSpellId = spellForTick[tickIndex];
+            }
+        }
+    }
     if (triggerSpellId == 0)
     {
         TC_LOG_WARN("spells.aura.effect.nospell", "AuraEffect::HandlePeriodicTriggerSpellAuraTick: Spell %u [EffectIndex: %u] does not have triggered spell.", GetId(), GetEffIndex());

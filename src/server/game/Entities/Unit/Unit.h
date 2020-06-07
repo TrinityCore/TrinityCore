@@ -785,6 +785,9 @@ public:
         void AddToWorld() override;
         void RemoveFromWorld() override;
 
+        // EJ get unit with entry
+        Creature* GetNearbyCreatureWithEntry(uint32 pmEntry, float pmExactDistance = VISIBILITY_DISTANCE_NORMAL);
+
         void CleanupBeforeRemoveFromMap(bool finalCleanup);
         void CleanupsBeforeDelete(bool finalCleanup = true) override;                        // used in ~Creature/~Player (or before mass creature delete to remove cross-references to already deleted units)
 

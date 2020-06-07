@@ -1,6 +1,10 @@
 #ifndef ROBOT_STRATEGY_H
 #define ROBOT_STRATEGY_H
 
+#ifndef ANGLE_RANGE
+# define ANGLE_RANGE M_PI / 16
+#endif
+
 #include "Script_Base.h"
 #include "Player.h"
 
@@ -17,6 +21,7 @@ enum CreatureEntry_RobotStrategy :uint32
     CreatureEntry_RobotStrategy_Dream_Fog = 15224,
     CreatureEntry_RobotStrategy_Demented_Druid = 15260,
     CreatureEntry_RobotStrategy_Shade_of_Taerar = 15302,
+    CreatureEntry_RobotStrategy_Spirit_Shade = 15261,
 };
 
 enum RobotStrategyType :uint32
@@ -93,6 +98,20 @@ enum GroupRole :uint32
     GroupRole_Healer = 2,
 };
 
+class EngagePosition
+{
+public:
+    EngagePosition()
+    {
+        engageAngle = 0.0f;
+        engageDistance = 0.0f;
+    }
+
+public:
+    float engageAngle;
+    float engageDistance;
+};
+
 class RobotStrategy_Group :public RobotStrategy
 {
 public:
@@ -130,7 +149,8 @@ public:
     std::unordered_map<ObjectGuid, Unit*> GetAttackerMap(uint32 pmAttackerEntry);
     std::unordered_map<ObjectGuid, Unit*> GetAttackerMap();
     Unit* GetAttacker(uint32 pmAttackerEntry);
-    Creature* GetNearbyCreature(uint32 pmCreatureEntry, float pmDistance = VISIBILITY_DISTANCE_NORMAL);
+    bool AngleInRange(float pmSourceAngle, float pmTargetAngle, float pmRange);
+    Position GetNearPoint(Position pmSourcePosition, float pmDistance, float pmAbsoluteAngle);    
 
 public:
     int combatTime;
@@ -266,7 +286,7 @@ public:
 
     void InitialStrategy();
     std::string GetGroupRoleName() override;
-    void SetGroupRole(std::string pmRoleName) override;    
+    void SetGroupRole(std::string pmRoleName) override;
     bool Follow() override;
     bool Stay(std::string pmTargetGroupRole) override;
     bool Hold(std::string pmTargetGroupRole) override;
@@ -278,7 +298,33 @@ public:
     void Update(uint32 pmDiff) override;
 
     float engageAngle;
+    float engageDistance;
     float sideAngle;
     Position tankPos;
+};
+
+class RobotStrategy_Group_Test :public RobotStrategy_Group
+{
+public:
+    RobotStrategy_Group_Test(Player* pmMe) :RobotStrategy_Group(pmMe)
+    {
+        InitialStrategy();
+    }
+
+    void InitialStrategy();
+    std::string GetGroupRoleName() override;
+    void SetGroupRole(std::string pmRoleName) override;
+    bool Follow() override;
+    bool Stay(std::string pmTargetGroupRole) override;
+    bool Hold(std::string pmTargetGroupRole) override;
+    bool Engage(Unit* pmTarget) override;
+    bool DPS() override;
+    bool Tank() override;
+    bool Tank(Unit* pmTarget) override;
+    bool Heal() override;
+    void Update(uint32 pmDiff) override;
+
+    float engageAngle;
+    float engageDistance;
 };
 #endif

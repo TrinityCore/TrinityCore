@@ -367,13 +367,14 @@ class boss_lethon : public CreatureScript
             {
                 Initialize();
                 emerald_dragonAI::Reset();
-                events.ScheduleEvent(EVENT_SHADOW_BOLT_WHIRL, 10s);
+                me->RemoveAurasDueToSpell(SPELL_SHADOW_BOLT_WHIRL);
             }
 
             void JustEngagedWith(Unit* who) override
             {
                 Talk(SAY_LETHON_AGGRO);
                 WorldBossAI::JustEngagedWith(who);
+                events.ScheduleEvent(EVENT_SHADOW_BOLT_WHIRL, 5s);
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
@@ -400,12 +401,15 @@ class boss_lethon : public CreatureScript
                 switch (eventId)
                 {
                     case EVENT_SHADOW_BOLT_WHIRL:
-                        me->CastSpell(nullptr, SPELL_SHADOW_BOLT_WHIRL, false);
-                        events.ScheduleEvent(EVENT_SHADOW_BOLT_WHIRL, 15s, 30s);
+                    {
+                        DoCastSelf(SPELL_SHADOW_BOLT_WHIRL);
                         break;
+                    }
                     default:
+                    {
                         emerald_dragonAI::ExecuteEvent(eventId);
                         break;
+                    }
                 }
             }
 
