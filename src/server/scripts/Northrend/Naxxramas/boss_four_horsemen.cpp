@@ -443,9 +443,9 @@ class boss_four_horsemen_baron : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* /*target*/, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == SPELL_UNHOLY_SHADOW)
+                if (spellInfo->Id == SPELL_UNHOLY_SHADOW)
                     Talk(SAY_SPECIAL);
             }
         };
@@ -519,9 +519,9 @@ class boss_four_horsemen_thane : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* /*target*/, SpellInfo const* spellInfo) override
             {
-                if (_shouldSay && spell->Id == SPELL_METEOR)
+                if (_shouldSay && spellInfo->Id == SPELL_METEOR)
                 {
                     Talk(SAY_SPECIAL);
                     _shouldSay = false;
@@ -671,9 +671,9 @@ class boss_four_horsemen_sir : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* /*target*/, SpellInfo const* spellInfo) override
             {
-                if (_shouldSay && spell->Id == SPELL_HOLY_WRATH)
+                if (_shouldSay && spellInfo->Id == SPELL_HOLY_WRATH)
                 {
                     Talk(SAY_SPECIAL);
                     _shouldSay = false;

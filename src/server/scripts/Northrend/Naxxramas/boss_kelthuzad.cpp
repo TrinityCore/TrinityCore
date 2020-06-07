@@ -234,8 +234,12 @@ public:
                 _abominationDeathCount = 0;
                 _phaseThree = false;
             }
+
             void EnterEvadeMode(EvadeReason /*why*/) override
             {
+                if (!me->IsAlive())
+                    return;
+
                 for (NAXData64 portalData : portalList)
                     if (GameObject* portal = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(portalData)))
                         portal->SetGoState(GO_STATE_READY);
@@ -280,9 +284,9 @@ public:
                     damage = 0;
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == SPELL_CHAINS_DUMMY)
+                if (spellInfo->Id == SPELL_CHAINS_DUMMY)
                 {
                     Talk(SAY_CHAINS);
                     std::list<Unit*> targets;
