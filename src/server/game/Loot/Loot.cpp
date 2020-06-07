@@ -274,7 +274,7 @@ void Loot::AddItem(LootStoreItem const& item)
         generatedLoot.count = std::min(count, proto->GetMaxStackSize());
         if (_itemContext != ItemContext::NONE)
         {
-            std::set<uint32> bonusListIDs = sDB2Manager.GetItemBonusTree(generatedLoot.itemid, _itemContext);
+            std::set<uint32> bonusListIDs = sDB2Manager.GetDefaultItemBonusTree(generatedLoot.itemid, _itemContext);
             generatedLoot.BonusListIDs.insert(generatedLoot.BonusListIDs.end(), bonusListIDs.begin(), bonusListIDs.end());
         }
 

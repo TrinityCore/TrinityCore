@@ -1081,6 +1081,7 @@ enum class ItemContext : uint8
     World_Quest_13          = 55,
     PVP_Ranked_Jackpot      = 56,
     Tournament_Realm        = 57,
+    Relinquished            = 58,
 };
 
 enum ItemLimitCategoryMode
