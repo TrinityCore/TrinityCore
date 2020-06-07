@@ -173,9 +173,9 @@ class boss_rotface : public CreatureScript
                     professor->AI()->EnterEvadeMode();
             }
 
-            void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* /*target*/, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == SPELL_SLIME_SPRAY)
+                if (spellInfo->Id == SPELL_SLIME_SPRAY)
                     Talk(SAY_SLIME_SPRAY);
             }
 

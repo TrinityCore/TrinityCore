@@ -122,11 +122,11 @@ class boss_gruul : public CreatureScript
                 Talk(SAY_DEATH);
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* pSpell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
             {
                 //This to emulate effect1 (77) of SPELL_GROUND_SLAM, knock back to any direction
                 //It's initially wrong, since this will cause fall damage, which is by comments, not intended.
-                if (pSpell->Id == SPELL_GROUND_SLAM)
+                if (spellInfo->Id == SPELL_GROUND_SLAM)
                 {
                     if (target->GetTypeId() == TYPEID_PLAYER)
                     {
@@ -144,7 +144,7 @@ class boss_gruul : public CreatureScript
                 }
 
                 //this part should be in the core
-                if (pSpell->Id == SPELL_SHATTER)
+                if (spellInfo->Id == SPELL_SHATTER)
                 {
                     /// @todo use eventmap to kill this stuff
                     //clear this, if we are still performing

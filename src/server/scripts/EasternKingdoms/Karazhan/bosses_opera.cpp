@@ -372,9 +372,9 @@ public:
             me->DespawnOrUnsummon();
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* Spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
-            if ((Spell->SchoolMask == SPELL_SCHOOL_MASK_FIRE) && (!(rand32() % 10)))
+            if ((spellInfo->SchoolMask == SPELL_SCHOOL_MASK_FIRE) && (!(rand32() % 10)))
             {
                 /*
                     if (not direct damage(aoe, dot))
@@ -1136,9 +1136,9 @@ public:
             me->DespawnOrUnsummon();
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* Spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
-            if (Spell->Id == SPELL_DRINK_POISON)
+            if (spellInfo->Id == SPELL_DRINK_POISON)
             {
                 Talk(SAY_JULIANNE_DEATH01);
                 DrinkPoisonTimer = 2500;

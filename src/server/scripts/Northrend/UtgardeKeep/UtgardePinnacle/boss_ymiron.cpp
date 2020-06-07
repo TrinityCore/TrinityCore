@@ -148,9 +148,9 @@ public:
             events.ScheduleEvent(EVENT_ANCESTORS_VENGEANCE, DUNGEON_MODE(60000, 45000), EVENT_GROUP_BASE_SPELLS);
         }
 
-        void SpellHitTarget(Unit* who, SpellInfo const* spell) override
+        void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
         {
-            if (who && who->GetTypeId() == TYPEID_PLAYER && spell->Id == SPELL_BANE_HIT)
+            if (target->GetTypeId() == TYPEID_PLAYER && spellInfo->Id == SPELL_BANE_HIT)
                 kingsBane = false;
         }
 

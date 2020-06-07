@@ -358,9 +358,9 @@ struct advisorbase_ai : public ScriptedAI
         ScriptedAI::AttackStart(who);
     }
 
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
     {
-        if (spell->Id == SPELL_RESSURECTION)
+        if (spellInfo->Id == SPELL_RESSURECTION)
         {
             _hasRessurrected = true;
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);

@@ -222,9 +222,9 @@ class boss_devourer_of_souls : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* /*target*/, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == H_SPELL_PHANTOM_BLAST)
+                if (spellInfo->Id == H_SPELL_PHANTOM_BLAST)
                     threeFaced = false;
             }
 

@@ -123,9 +123,9 @@ public:
             instance->SetBossState(DATA_PYROGAURD_EMBERSEER, DONE);
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
-            if (spell->Id == SPELL_ENCAGE_EMBERSEER)
+            if (spellInfo->Id == SPELL_ENCAGE_EMBERSEER)
             {
                 if (!me->GetAuraCount(SPELL_ENCAGED_EMBERSEER))
                 {
@@ -134,7 +134,7 @@ public:
                 }
             }
 
-            if (spell->Id == SPELL_EMBERSEER_GROWING_TRIGGER)
+            if (spellInfo->Id == SPELL_EMBERSEER_GROWING_TRIGGER)
             {
                 if (me->GetAuraCount(SPELL_EMBERSEER_GROWING_TRIGGER) == 10)
                     Talk(EMOTE_TEN_STACK);

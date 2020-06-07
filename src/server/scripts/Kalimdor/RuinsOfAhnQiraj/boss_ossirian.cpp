@@ -124,11 +124,11 @@ class boss_ossirian : public CreatureScript
                 Initialize();
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell) override
+            void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
             {
                 for (uint8 i = 0; i < NUM_WEAKNESS; ++i)
                 {
-                    if (spell->Id == SpellWeakness[i])
+                    if (spellInfo->Id == SpellWeakness[i])
                     {
                         me->RemoveAurasDueToSpell(SPELL_SUPREME);
                         // Despawn used crystal
