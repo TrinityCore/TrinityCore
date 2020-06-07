@@ -1034,10 +1034,10 @@ class boss_vx_001 : public CreatureScript
                         mimiron->AI()->Talk(events.IsInPhase(PHASE_VX_001) ? SAY_VX001_SLAY : SAY_V07TRON_SLAY);
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* /*spellProto*/) override
+            void SpellHit(WorldObject* caster, SpellInfo const* /*spellInfo*/) override
             {
                 if (caster->GetEntry() == NPC_BURST_TARGET && !me->HasUnitState(UNIT_STATE_CASTING))
-                    DoCast(caster, SPELL_RAPID_BURST);
+                    DoCast(caster->ToUnit(), SPELL_RAPID_BURST);
             }
 
             void UpdateAI(uint32 diff) override

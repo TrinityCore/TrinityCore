@@ -441,10 +441,10 @@ public:
             }
         }
 
-        void SpellHit(Unit* /*pCaster*/, SpellInfo const* pSpell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
             // This is the dummy effect of the spells
-            if (pSpell->Id == sSpellMgr->GetSpellIdForDifficulty(SPELL_SHATTER, me))
+            if (spellInfo->Id == sSpellMgr->GetSpellIdForDifficulty(SPELL_SHATTER, me))
                 if (me->GetEntry() == NPC_BRITTLE_GOLEM)
                     me->DespawnOrUnsummon();
         }

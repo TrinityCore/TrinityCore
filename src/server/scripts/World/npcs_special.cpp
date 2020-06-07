@@ -818,10 +818,10 @@ public:
 
         void JustEngagedWith(Unit* /*who*/) override { }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
         {
             Player* player = caster->ToPlayer();
-            if (!player || !me->IsAlive() || spell->Id != 20804)
+            if (!player || !me->IsAlive() || spellInfo->Id != 20804)
                 return;
 
             if (player->GetQuestStatus(6624) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(6622) == QUEST_STATUS_INCOMPLETE)
@@ -1024,9 +1024,9 @@ public:
 
         void JustEngagedWith(Unit* /*who*/) override { }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
         {
-            if (spell->Id == SPELL_LESSER_HEAL_R2 || spell->Id == SPELL_FORTITUDE_R1)
+            if (spellInfo->Id == SPELL_LESSER_HEAL_R2 || spellInfo->Id == SPELL_FORTITUDE_R1)
             {
                 //not while in combat
                 if (me->IsInCombat())
@@ -1040,16 +1040,16 @@ public:
                 {
                     if (quest && player->GetQuestStatus(quest) == QUEST_STATUS_INCOMPLETE)
                     {
-                        if (IsHealed && !CanRun && spell->Id == SPELL_FORTITUDE_R1)
+                        if (IsHealed && !CanRun && spellInfo->Id == SPELL_FORTITUDE_R1)
                         {
-                            Talk(SAY_THANKS, caster);
+                            Talk(SAY_THANKS, player);
                             CanRun = true;
                         }
-                        else if (!IsHealed && spell->Id == SPELL_LESSER_HEAL_R2)
+                        else if (!IsHealed && spellInfo->Id == SPELL_LESSER_HEAL_R2)
                         {
-                            CasterGUID = caster->GetGUID();
+                            CasterGUID = player->GetGUID();
                             me->SetStandState(UNIT_STAND_STATE_STAND);
-                            Talk(SAY_HEALED, caster);
+                            Talk(SAY_HEALED, player);
                             IsHealed = true;
                         }
                     }

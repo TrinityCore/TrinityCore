@@ -442,9 +442,9 @@ public:
             DoCast(SPELL_OMEN_SUMMON_SPOTLIGHT);
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
-            if (spell->Id == SPELL_ELUNE_CANDLE)
+            if (spellInfo->Id == SPELL_ELUNE_CANDLE)
             {
                 if (me->HasAura(SPELL_OMEN_STARFALL))
                     me->RemoveAurasDueToSpell(SPELL_OMEN_STARFALL);

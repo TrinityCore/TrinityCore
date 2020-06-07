@@ -280,9 +280,9 @@ public:
                     damage = 0;
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == SPELL_CHAINS_DUMMY)
+                if (spellInfo->Id == SPELL_CHAINS_DUMMY)
                 {
                     Talk(SAY_CHAINS);
                     std::list<Unit*> targets;

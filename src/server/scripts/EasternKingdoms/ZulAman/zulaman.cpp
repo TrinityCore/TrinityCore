@@ -206,9 +206,9 @@ class npc_harrison_jones : public CreatureScript
                return false;
             }
 
-            void SpellHit(Unit*, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == SPELL_COSMETIC_SPEAR_THROW)
+                if (spellInfo->Id == SPELL_COSMETIC_SPEAR_THROW)
                 {
                     me->RemoveAllAuras();
                     me->SetEntry(NPC_HARRISON_JONES_2);

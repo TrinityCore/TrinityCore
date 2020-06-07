@@ -353,9 +353,9 @@ public:
             summon->m_Events.AddEvent(new VoidSpawnSummon(summon), summon->m_Events.CalculateTime(1500));
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
-            switch (spell->Id)
+            switch (spellInfo->Id)
             {
                 case SPELL_OPEN_ALL_PORTALS:
                     DoCastAOE(SPELL_OPEN_PORTAL, true);
