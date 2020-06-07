@@ -710,7 +710,7 @@ namespace MMAP
         // TODO: special flags for DYNAMIC polygons, ie surfaces that can be turned on and off
         for (int i = 0; i < iv.polyMesh->npolys; ++i)
         {
-            if (uint8 area = iv.polyMesh->areas[i] & RC_WALKABLE_AREA)
+            if (uint8 area = iv.polyMesh->areas[i] & NAV_AREA_MAX_VALUE)
             {
                 if (area >= NAV_AREA_MIN_VALUE)
                     iv.polyMesh->flags[i] = 1 << (NAV_AREA_MAX_VALUE - area);
