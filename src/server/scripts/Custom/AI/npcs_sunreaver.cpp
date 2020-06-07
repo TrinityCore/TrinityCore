@@ -3,7 +3,7 @@
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
 #include "World.h"
-#include "Custom/AI/CustomAI.h"
+#include "CustomAI.h"
 
 #include <iostream>
 
@@ -47,7 +47,7 @@ enum Spells
 
 enum Phases
 {
-    PHASE_NORMAL = 1,
+    PHASE_NORMAL                = 1,
     PHASE_POSTCOMBUSTION
 };
 

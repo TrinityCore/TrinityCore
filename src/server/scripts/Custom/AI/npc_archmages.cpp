@@ -3,7 +3,7 @@
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
 #include "ScriptedCreature.h"
-#include "Custom/AI/CustomAI.h"
+#include "CustomAI.h"
 
 enum Spells
 {

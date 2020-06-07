@@ -1,16 +1,16 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "Custom/AI/CustomAI.h"
+#include "CustomAI.h"
 
 enum Spells
 {
-	SPELL_FIREBALL          = 100003,
-	SPELL_ICE_LANCE         = 100007,
-	SPELL_ICE_BLOCK         = 100008,
-	SPELL_BLINK             = 57869,
-	SPELL_ARCANE_BLAST      = 100010,
-    SPELL_PRISMATIC_BARRIER = 100069,
-    SPELL_IMMOLATE          = 100079
+	SPELL_FIREBALL              = 100003,
+	SPELL_ICE_LANCE             = 100007,
+	SPELL_ICE_BLOCK             = 100008,
+	SPELL_BLINK                 = 57869,
+	SPELL_ARCANE_BLAST          = 100010,
+    SPELL_PRISMATIC_BARRIER     = 100069,
+    SPELL_IMMOLATE              = 100079
 };
 
 class npc_hag : public CreatureScript

@@ -6,7 +6,7 @@
 #include "GridNotifiersImpl.h"
 #include "CreatureAIImpl.h"
 #include "CellImpl.h"
-#include "Custom/AI/CustomAI.h"
+#include "CustomAI.h"
 
 #include <iostream>
 
@@ -23,8 +23,17 @@ enum Spells
     SPELL_REJUVENATION          = 100024,
     SPELL_SPIRIT_HEALER_VISUAL  = 70571,
     SPELL_HOLY_NOVA             = 66546,
+    SPELL_PRAYER_OF_MENDING     = 48113,
     SPELL_MASS_DISPEL           = 32375,
+    SPELL_ETERNAL_AFFECTION     = 30878,
     SPELL_WEAKENED_SOUL         = 6788
+};
+
+enum Phase
+{
+    PHASE_HEALING               = 1,
+    PHASE_COMBAT,
+    PHASE_ENDANGERED
 };
 
 enum Misc
@@ -55,50 +64,7 @@ class npc_priest : public CreatureScript
 
         void JustEngagedWith(Unit* /*who*/) override
         {
-            scheduler
-                .Schedule(5ms, [this](TaskContext heal)
-                {
-                    if (Unit* target = DoSelectLowestHpFriendly(30.0f, 50))
-                        DoCast(target, urand(0, 70) ? SPELL_FLASH_HEAL : SPELL_REJUVENATION);
-                    heal.Repeat(8s);
-                })
-                .Schedule(5ms, [this](TaskContext powser_word_shield)
-                {
-                    Unit* target = DoSelectBelowHpPctFriendly(30.0f, 20, false);
-                    if (target && !target->HasAura(SPELL_WEAKENED_SOUL))
-                    {
-                        DoCast(target, SPELL_POWER_WORD_SHIELD);
-                        DoCast(target, SPELL_WEAKENED_SOUL);
-                    }
-                    powser_word_shield.Repeat(3s);
-                })
-                .Schedule(5ms, [this](TaskContext smite)
-                {
-                    DoCastVictim(SPELL_SMITE);
-                    smite.Repeat(1180ms);
-                })
-                .Schedule(8s, [this](TaskContext holy_fire)
-                {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(target, SPELL_HOLY_FIRE);
-                    holy_fire.Repeat(5s, 8s);
-                })
-                .Schedule(2s, [this](TaskContext mass_dispel)
-                {
-                    std::list<Unit*> targets = DoFindFriendlySuffering(20.0f);
-                    if (!targets.empty() && targets.size() > 3)
-                    {
-                        if (Unit* victim = me->GetVictim())
-                        {
-                            me->CastSpell(victim->GetPosition(), SPELL_MASS_DISPEL);
-                            mass_dispel.Repeat(25s, 30s);
-                        }
-                    }
-                    else
-                    {
-                        mass_dispel.Repeat(2s);
-                    }
-                });
+            SetInCombatPhase();
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -130,17 +96,26 @@ class npc_priest : public CreatureScript
         {
             if (!hasUseDamageReduction && !me->HasAura(SPELL_PAIN_SUPPRESSION) && HealthBelowPct(20))
             {
+                scheduler.CancelGroup(PHASE_HEALING);
+                scheduler.CancelGroup(PHASE_COMBAT);
+
                 DoCast(SPELL_PAIN_SUPPRESSION);
 
                 hasUseDamageReduction = true;
 
                 scheduler
-                    .Schedule(2s, [this](TaskContext /*context*/)
+                    .Schedule(1s, PHASE_ENDANGERED, [this](TaskContext /*context*/)
                     {
+                        me->Say(DAMAGE_TAKEN_01, LANG_COMMON);
+
                         DoCast(SPELL_MANA_POTION);
-                        DoCast(SPELL_HEALTH_POTION);
+                        DoCast(SPELL_ETERNAL_AFFECTION);
                     })
-                    .Schedule(1min, [this](TaskContext /*context*/)
+                    .Schedule(3s, PHASE_ENDANGERED, [this](TaskContext /*context*/)
+                    {
+                        SetInCombatPhase();
+                    })
+                    .Schedule(1min, PHASE_ENDANGERED, [this](TaskContext /*context*/)
                     {
                         hasUseDamageReduction = false;
                     });
@@ -149,6 +124,7 @@ class npc_priest : public CreatureScript
 
         private:
         bool hasUseDamageReduction;
+        const char* DAMAGE_TAKEN_01 = "La lumière me vient en aide !";
 
         Position GetPositionAround(Unit* target, double angle, float radius)
         {
@@ -181,6 +157,79 @@ class npc_priest : public CreatureScript
             }
 
             return result;
+        }
+
+        void SetInCombatPhase()
+        {
+            scheduler
+                .Schedule(5ms, PHASE_HEALING, [this](TaskContext heal)
+                {
+                    if (Unit* target = DoSelectLowestHpFriendly(30.0f, 50))
+                    {
+                        DoCast(target, RAND(SPELL_FLASH_HEAL, SPELL_REJUVENATION, SPELL_PRAYER_OF_MENDING));
+                        heal.Repeat(4s);
+                    }
+                    else
+                    {
+                        heal.Repeat(5ms);
+                    }
+                })
+                .Schedule(5ms, PHASE_HEALING, [this](TaskContext prayer_of_mending)
+                {
+                    if (Unit* target = DoSelectLowestHpFriendly(30.0f, 50))
+                    {
+                        CastSpellExtraArgs args;
+                        args.AddSpellBP0(3000);
+
+                        DoCast(target, SPELL_PRAYER_OF_MENDING, args);
+                        prayer_of_mending.Repeat(10s, 14s);
+                    }
+                    else
+                    {
+                        prayer_of_mending.Repeat(2s);
+                    }
+                })
+                .Schedule(5ms, PHASE_HEALING, [this](TaskContext power_word_shield)
+                {
+                    Unit* target = DoSelectBelowHpPctFriendly(30.0f, 20, false);
+                    if (target && !target->HasAura(SPELL_WEAKENED_SOUL))
+                    {
+                        DoCast(target, SPELL_POWER_WORD_SHIELD);
+                        DoCast(target, SPELL_WEAKENED_SOUL);
+                        power_word_shield.Repeat(3s);
+                    }
+                    else
+                    {
+                        power_word_shield.Repeat(5ms);
+                    }
+                })
+                .Schedule(5ms, PHASE_COMBAT, [this](TaskContext smite)
+                {
+                    DoCastVictim(SPELL_SMITE);
+                    smite.Repeat(3s);
+                })
+                .Schedule(8s, PHASE_COMBAT, [this](TaskContext holy_fire)
+                {
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, SPELL_HOLY_FIRE);
+                    holy_fire.Repeat(5s, 10s);
+                })
+                .Schedule(2s, PHASE_HEALING, [this](TaskContext mass_dispel)
+                {
+                    std::list<Unit*> targets = DoFindFriendlySuffering(20.0f);
+                    if (!targets.empty() && targets.size() > 3)
+                    {
+                        if (Unit* victim = me->GetVictim())
+                        {
+                            me->CastSpell(victim->GetPosition(), SPELL_MASS_DISPEL);
+                            mass_dispel.Repeat(25s, 30s);
+                        }
+                    }
+                    else
+                    {
+                        mass_dispel.Repeat(2s);
+                    }
+                });
         }
     };
 

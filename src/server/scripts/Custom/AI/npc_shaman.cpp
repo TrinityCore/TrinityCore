@@ -1,7 +1,7 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ThreatManager.h"
-#include "Custom/AI/CustomAI.h"
+#include "CustomAI.h"
 
 enum Spells
 {
