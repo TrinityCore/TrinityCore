@@ -22,14 +22,15 @@
 #include "DB2Meta.h"
 
 DB2StorageBase::DB2StorageBase(char const* fileName, DB2LoadInfo const* loadInfo)
-    : _tableHash(0), _layoutHash(0), _fileName(fileName), _fieldCount(0), _loadInfo(loadInfo), _dataTable(nullptr), _dataTableEx(nullptr), _indexTableSize(0)
+    : _tableHash(0), _layoutHash(0), _fileName(fileName), _fieldCount(0), _loadInfo(loadInfo), _dataTable(nullptr), _dataTableEx(), _indexTableSize(0)
 {
 }
 
 DB2StorageBase::~DB2StorageBase()
 {
     delete[] _dataTable;
-    delete[] _dataTableEx;
+    delete[] _dataTableEx[0];
+    delete[] _dataTableEx[1];
     for (char* strings : _stringPool)
         delete[] strings;
 }
@@ -135,10 +136,19 @@ bool DB2StorageBase::LoadStringsFrom(std::string const& path, uint32 locale, cha
 
 void DB2StorageBase::LoadFromDB(char**& indexTable)
 {
-    char* extraStringHolders = nullptr;
-    _dataTableEx = DB2DatabaseLoader(_fileName, _loadInfo).Load(_indexTableSize, indexTable, extraStringHolders, _stringPool);
-    if (extraStringHolders)
-        _stringPool.push_back(extraStringHolders);
+    DB2DatabaseLoader loader(_fileName, _loadInfo);
+
+    auto loadTable = [&](bool custom)
+    {
+        char* extraStringHolders = nullptr;
+        _dataTableEx[custom ? 1 : 0] = loader.Load(custom, _indexTableSize, indexTable, extraStringHolders, _stringPool);
+        if (extraStringHolders)
+            _stringPool.push_back(extraStringHolders);
+    };
+
+    loadTable(false);
+    loadTable(true);
+    _stringPool.shrink_to_fit();
 }
 
 void DB2StorageBase::LoadStringsFromDB(uint32 locale, char** indexTable)
@@ -146,5 +156,8 @@ void DB2StorageBase::LoadStringsFromDB(uint32 locale, char** indexTable)
     if (!_loadInfo->GetStringFieldCount(true))
         return;
 
-    DB2DatabaseLoader(_fileName, _loadInfo).LoadStrings(locale, _indexTableSize, indexTable, _stringPool);
+    DB2DatabaseLoader loader(_fileName, _loadInfo);
+    loader.LoadStrings(false, locale, _indexTableSize, indexTable, _stringPool);
+    loader.LoadStrings(true, locale, _indexTableSize, indexTable, _stringPool);
+    _stringPool.shrink_to_fit();
 }
