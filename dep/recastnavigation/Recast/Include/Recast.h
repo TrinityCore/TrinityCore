@@ -224,6 +224,9 @@ struct rcConfig
 	/// The maximum slope that is considered walkable. [Limits: 0 <= value < 90] [Units: Degrees] 
 	float walkableSlopeAngle;
 
+	/// The maximum slope that is considered walkable but not steep. It should be lower/equal than walkableSlopeAngle. [Limits: 0 <= value < 90] [Units: Degrees] 
+	float walkableSlopeAngleNotSteep;
+
 	/// Minimum floor to 'ceiling' height that will still allow the floor area to 
 	/// be considered walkable. [Limit: >= 3] [Units: vx] 
 	int walkableHeight;
@@ -586,7 +589,8 @@ static const unsigned char RC_NULL_AREA = 0;
 /// The default area id used to indicate a walkable polygon. 
 /// This is also the maximum allowed area id, and the only non-null area id 
 /// recognized by some steps in the build process. 
-static const unsigned char RC_WALKABLE_AREA = 63;
+static const unsigned char RC_WALKABLE_AREA = 62;
+static const unsigned char RC_WALKABLE_AREA_STEEP = 63;
 
 /// The value returned by #rcGetCon if the specified direction is not connected
 /// to another span. (Has no neighbor.)

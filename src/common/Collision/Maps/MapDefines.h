@@ -22,7 +22,7 @@
 #include "DetourNavMesh.h"
 
 const uint32 MMAP_MAGIC = 0x4d4d4150; // 'MMAP'
-#define MMAP_VERSION 10
+#define MMAP_VERSION 11
 
 struct MmapTileHeader
 {
@@ -51,17 +51,21 @@ enum NavArea
     NAV_AREA_EMPTY          = 0,
     // areas 1-60 will be used for destructible areas (currently skipped in vmaps, WMO with flag 1)
     // ground is the highest value to make recast choose ground over water when merging surfaces very close to each other (shallow water would be walkable)
-    NAV_AREA_GROUND         = 63,
-    NAV_AREA_WATER          = 62,
-    NAV_AREA_MAGMA_SLIME    = 61 // don't need to differentiate between them
+    NAV_AREA_GROUND_STEEP   = 63,
+    NAV_AREA_GROUND         = 62,
+    NAV_AREA_WATER          = 61,
+    NAV_AREA_MAGMA_SLIME    = 60, // don't need to differentiate between them
+    NAV_AREA_MAX_VALUE      = 63,
+    NAV_AREA_MIN_VALUE      = NAV_AREA_MAGMA_SLIME
 };
 
 enum NavTerrainFlag
 {
-    NAV_EMPTY       = 0x00,
-    NAV_GROUND      = 1 << (63 - NAV_AREA_GROUND),
-    NAV_WATER       = 1 << (63 - NAV_AREA_WATER),
-    NAV_MAGMA_SLIME = 1 << (63 - NAV_AREA_MAGMA_SLIME)
+    NAV_EMPTY        = 0x00,
+    NAV_GROUND_STEEP = 1 << (NAV_AREA_MAX_VALUE - NAV_AREA_GROUND_STEEP),
+    NAV_GROUND       = 1 << (NAV_AREA_MAX_VALUE - NAV_AREA_GROUND),
+    NAV_WATER        = 1 << (NAV_AREA_MAX_VALUE - NAV_AREA_WATER),
+    NAV_MAGMA_SLIME  = 1 << (NAV_AREA_MAX_VALUE - NAV_AREA_MAGMA_SLIME)
 };
 
 #endif /* _MAPDEFINES_H */
