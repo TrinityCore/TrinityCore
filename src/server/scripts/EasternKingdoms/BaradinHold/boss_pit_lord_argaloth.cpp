@@ -21,6 +21,7 @@
 #include "ObjectAccessor.h"
 #include "Map.h"
 #include "MotionMaster.h"
+#include "PassiveAI.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
@@ -58,198 +59,161 @@ enum Events
     EVENT_FEL_FLAMES
 };
 
-class boss_pit_lord_argaloth : public CreatureScript
+struct boss_pit_lord_argaloth : public BossAI
 {
-    public:
-        boss_pit_lord_argaloth() : CreatureScript("boss_pit_lord_argaloth") { }
+    boss_pit_lord_argaloth(Creature* creature) : BossAI(creature, DATA_ARGALOTH), _felFirestormCount(0) { }
 
-        struct boss_pit_lord_argalothAI : public BossAI
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _JustEngagedWith();
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+        events.ScheduleEvent(EVENT_METEOR_SLASH, 10s + 800ms);
+        events.ScheduleEvent(EVENT_CONSUMING_DARKNESS, 6s);
+        events.ScheduleEvent(EVENT_BERSERK, 5min);
+    }
+
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        _EnterEvadeMode();
+        summons.DespawnAll();
+        RemoveAuras();
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        _DespawnAtEvade();
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+        RemoveAuras();
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    {
+        if (me->HealthBelowPctDamaged(66, damage) && _felFirestormCount == 0)
         {
-            boss_pit_lord_argalothAI(Creature* creature) : BossAI(creature, DATA_ARGALOTH)
-            {
-                Initialize();
-            }
-
-            void Initialize()
-            {
-                _felFirestormCount = 0;
-                _felFlamesGUIDs.clear();
-            }
-
-            void Reset() override
-            {
-                _Reset();
-                Initialize();
-            }
-
-            void JustEngagedWith(Unit* /*who*/) override
-            {
-                _JustEngagedWith();
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-                events.ScheduleEvent(EVENT_METEOR_SLASH, 10s + 800ms);
-                events.ScheduleEvent(EVENT_CONSUMING_DARKNESS, 6s);
-                events.ScheduleEvent(EVENT_BERSERK, 5min);
-            }
-
-            void EnterEvadeMode(EvadeReason /*why*/) override
-            {
-                _EnterEvadeMode();
-                summons.DespawnAll();
-                RemoveAuras();
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                _DespawnAtEvade();
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                _JustDied();
-                RemoveAuras();
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-            }
-
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
-            {
-                if (me->HealthBelowPctDamaged(66, damage) && _felFirestormCount == 0)
-                {
-                    events.Reset();
-                    events.ScheduleEvent(EVENT_FEL_FIRESTORM, 1ms);
-                    _felFirestormCount++;
-                }
-                else if (me->HealthBelowPctDamaged(33, damage) && _felFirestormCount == 1)
-                {
-                    events.Reset();
-                    events.ScheduleEvent(EVENT_FEL_FIRESTORM, 1ms);
-                    _felFirestormCount++;
-                }
-            }
-
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
-            {
-                if (spell->Id == SPELL_FEL_FIRESTORM)
-                {
-                    DoCastSelf(SPELL_FEL_FIRESTORM_TRIGGERED, true);
-                    events.ScheduleEvent(EVENT_END_FEL_FLAME_PHASE, 18s);
-                }
-            }
-
-            void JustSummoned(Creature* summon) override
-            {
-                summons.Summon(summon);
-                _felFlamesGUIDs.insert(summon->GetGUID());
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_METEOR_SLASH:
-                            DoCastSelf(SPELL_METEOR_SLASH_VISUAL);
-                            DoCastAOE(SPELL_METEOR_SLASH);
-                            events.Repeat(17s);
-                            break;
-                        case EVENT_CONSUMING_DARKNESS:
-                            DoCastAOE(SPELL_CONSUMING_DARKNESS);
-                            events.Repeat(22s, 24s);
-                            break;
-                        case EVENT_BERSERK:
-                            DoCast(me, SPELL_BERSERK, true);
-                            break;
-                        case EVENT_FEL_FIRESTORM:
-                            me->AttackStop();
-                            me->SetReactState(REACT_PASSIVE);
-                            Talk(SAY_ANNOUNCE_FEL_FIRESTORM);
-                            DoCastAOE(SPELL_FEL_FIRESTORM);
-                            break;
-                        case EVENT_END_FEL_FLAME_PHASE:
-                            me->SetReactState(REACT_AGGRESSIVE);
-                            if (Unit* victim = me->GetVictim())
-                                AttackStart(victim);
-
-                            for (ObjectGuid guid : _felFlamesGUIDs)
-                            {
-                                if (Creature* felFlame = ObjectAccessor::GetCreature(*me, guid))
-                                    felFlame->RemoveAllAuras();
-
-                                _felFlamesGUIDs.erase(guid);
-                            }
-
-                            events.ScheduleEvent(EVENT_CONSUMING_DARKNESS, 6s);
-                            events.ScheduleEvent(EVENT_METEOR_SLASH, 9s);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-
-                DoMeleeAttackIfReady();
-            }
-
-        private:
-            uint8 _felFirestormCount;
-            GuidSet _felFlamesGUIDs;
-
-            void RemoveAuras()
-            {
-                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CONSUMING_DARKNESS);
-                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_METEOR_SLASH);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetBaradinHoldAI<boss_pit_lord_argalothAI>(creature);
+            events.Reset();
+            events.ScheduleEvent(EVENT_FEL_FIRESTORM, 1ms);
+            _felFirestormCount++;
         }
+        else if (me->HealthBelowPctDamaged(33, damage) && _felFirestormCount == 1)
+        {
+            events.Reset();
+            events.ScheduleEvent(EVENT_FEL_FIRESTORM, 1ms);
+            _felFirestormCount++;
+        }
+    }
+
+    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_FEL_FIRESTORM)
+        {
+            DoCastSelf(SPELL_FEL_FIRESTORM_TRIGGERED, true);
+            events.ScheduleEvent(EVENT_END_FEL_FLAME_PHASE, 18s);
+        }
+    }
+
+    void JustSummoned(Creature* summon) override
+    {
+        summons.Summon(summon);
+        _felFlamesGUIDs.insert(summon->GetGUID());
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_METEOR_SLASH:
+                    DoCastSelf(SPELL_METEOR_SLASH_VISUAL);
+                    DoCastAOE(SPELL_METEOR_SLASH);
+                    events.Repeat(17s);
+                    break;
+                case EVENT_CONSUMING_DARKNESS:
+                    DoCastAOE(SPELL_CONSUMING_DARKNESS);
+                    events.Repeat(22s, 24s);
+                    break;
+                case EVENT_BERSERK:
+                    DoCast(me, SPELL_BERSERK, true);
+                    break;
+                case EVENT_FEL_FIRESTORM:
+                    me->AttackStop();
+                    me->SetReactState(REACT_PASSIVE);
+                    Talk(SAY_ANNOUNCE_FEL_FIRESTORM);
+                    DoCastAOE(SPELL_FEL_FIRESTORM);
+                    break;
+                case EVENT_END_FEL_FLAME_PHASE:
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    if (Unit* victim = me->GetVictim())
+                        AttackStart(victim);
+
+                    for (ObjectGuid guid : _felFlamesGUIDs)
+                    {
+                        if (Creature* felFlame = ObjectAccessor::GetCreature(*me, guid))
+                            felFlame->RemoveAllAuras();
+
+                        _felFlamesGUIDs.erase(guid);
+                    }
+
+                    events.ScheduleEvent(EVENT_CONSUMING_DARKNESS, 6s);
+                    events.ScheduleEvent(EVENT_METEOR_SLASH, 9s);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    void RemoveAuras()
+    {
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CONSUMING_DARKNESS);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_METEOR_SLASH);
+    }
+
+    uint8 _felFirestormCount;
+    GuidSet _felFlamesGUIDs;
 };
 
-class npc_argaloth_fel_flames : public CreatureScript
+struct npc_argaloth_fel_flames : public NullCreatureAI
 {
-    public:
-        npc_argaloth_fel_flames() : CreatureScript("npc_argaloth_fel_flames") { }
+    npc_argaloth_fel_flames(Creature* creature) : NullCreatureAI(creature) { }
 
-        struct npc_argaloth_fel_flamesAI : public ScriptedAI
+    void IsSummonedBy(Unit* /*summoner*/) override
+    {
+        _events.ScheduleEvent(EVENT_FEL_FLAMES, 1s + 100ms);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
         {
-            npc_argaloth_fel_flamesAI(Creature* creature) : ScriptedAI(creature) { }
-
-            void IsSummonedBy(Unit* /*summoner*/) override
+            switch (eventId)
             {
-                _events.ScheduleEvent(EVENT_FEL_FLAMES, 1s + 100ms);
+                case EVENT_FEL_FLAMES:
+                    DoCastSelf(SPELL_FEL_FLAMES);
+                    break;
+                default:
+                    break;
             }
-
-            void UpdateAI(uint32 diff) override
-            {
-                _events.Update(diff);
-
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_FEL_FLAMES:
-                            DoCastSelf(SPELL_FEL_FLAMES);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            }
-
-        private:
-            EventMap _events;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetBaradinHoldAI<npc_argaloth_fel_flamesAI>(creature);
         }
+    }
+
+private:
+    EventMap _events;
 };
 
 // 88954 / 95173 - Consuming Darkness
@@ -340,8 +304,8 @@ class spell_argaloth_fel_firestorm : public SpellScript
 
 void AddSC_boss_pit_lord_argaloth()
 {
-    new boss_pit_lord_argaloth();
-    new npc_argaloth_fel_flames();
+    RegisterBaradinHoldCreatureAI(boss_pit_lord_argaloth);
+    RegisterBaradinHoldCreatureAI(npc_argaloth_fel_flames);
     RegisterSpellAndAuraScriptPair(spell_argaloth_consuming_darkness, spell_argaloth_consuming_darkness_AuraScript);
     RegisterSpellScript(spell_argaloth_meteor_slash);
     RegisterSpellScript(spell_argaloth_fel_firestorm);

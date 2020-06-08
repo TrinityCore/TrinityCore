@@ -62,4 +62,7 @@ inline AI* GetBaradinHoldAI(T* obj)
     return GetInstanceAI<AI>(obj, BHScriptName);
 }
 
+
+#define RegisterBaradinHoldCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetBaradinHoldAI)
+
 #endif
