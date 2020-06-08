@@ -1391,6 +1391,11 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
             maxPacketCounterAllowed = PLAYER_SLOTS_COUNT;
             break;
         }
+        case CMSG_HOTFIX_REQUEST:                       // not profiled
+        {
+            maxPacketCounterAllowed = 1;
+            break;
+        }
         default:
         {
             maxPacketCounterAllowed = 100;

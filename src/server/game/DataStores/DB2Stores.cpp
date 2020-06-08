@@ -1414,7 +1414,11 @@ void DB2Manager::LoadHotfixData()
         }
 
         _maxHotfixId = std::max(_maxHotfixId, id);
-        _hotfixData[id].emplace_back(tableHash, recordId);
+        HotfixRecord hotfixRecord;
+        hotfixRecord.TableHash = tableHash;
+        hotfixRecord.RecordID = recordId;
+        hotfixRecord.HotfixID = id;
+        _hotfixData.insert(hotfixRecord);
         ++_hotfixCount;
         deletedRecords[std::make_pair(tableHash, recordId)] = deleted;
         ++count;
@@ -1463,7 +1467,7 @@ void DB2Manager::LoadHotfixBlob()
 
 uint32 DB2Manager::GetHotfixCount() const
 {
-    return _hotfixCount;
+    return _hotfixData.size();
 }
 
 DB2Manager::HotfixContainer const& DB2Manager::GetHotfixData() const
@@ -1485,8 +1489,11 @@ uint32 DB2Manager::GetEmptyAnimStateID() const
 
 void DB2Manager::InsertNewHotfix(uint32 tableHash, uint32 recordId)
 {
-    _hotfixData[++_maxHotfixId].emplace_back(tableHash, recordId);
-    ++_hotfixCount;
+    HotfixRecord hotfixRecord;
+    hotfixRecord.TableHash = tableHash;
+    hotfixRecord.RecordID = recordId;
+    hotfixRecord.HotfixID = ++_maxHotfixId;
+    _hotfixData.insert(hotfixRecord);
 }
 
 std::vector<uint32> DB2Manager::GetAreasForGroup(uint32 areaGroupId) const
