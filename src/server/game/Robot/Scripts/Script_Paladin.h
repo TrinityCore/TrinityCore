@@ -35,7 +35,7 @@ public:
     Script_Paladin(Player* pmMe);
 
     void Reset();
-    bool DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank);
+    bool DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, bool pmInterruptCasting = true);
     bool Tank(Unit* pmTarget, bool pmChase, bool pmSingle = false);
     bool Heal(Unit* pmTarget, bool pmCure);
     bool Attack(Unit* pmTarget);

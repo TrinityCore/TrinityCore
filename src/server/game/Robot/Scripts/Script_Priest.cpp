@@ -25,6 +25,10 @@ bool Script_Priest::SubHeal(Unit* pmTarget)
     {
         return false;
     }
+    if (pmTarget->HasAura(20711))
+    {
+        return false;
+    }
     if (!me)
     {
         return false;
@@ -53,6 +57,10 @@ bool Script_Priest::SubHeal(Unit* pmTarget)
 bool Script_Priest::Heal(Unit* pmTarget, bool pmCure)
 {
     if (!me)
+    {
+        return false;
+    }
+    if (pmTarget->HasAura(20711))
     {
         return false;
     }
@@ -241,7 +249,7 @@ bool Script_Priest::GroupHeal_Holy(float pmMaxHealthPercent)
     return false;
 }
 
-bool Script_Priest::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank)
+bool Script_Priest::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, bool pmInterruptCasting)
 {
     if (!me)
     {
@@ -292,12 +300,13 @@ bool Script_Priest::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE, Player*
     {
         return false;
     }
-    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
-    {
-        return false;
-    }
+    float targetDistance = me->GetDistance(pmTarget);
     if (pmChase)
     {
+        if (targetDistance > ATTACK_RANGE_LIMIT)
+        {
+            return false;
+        }
         if (!Chase(pmTarget, PRIEST_RANGE_DISTANCE))
         {
             return false;
@@ -305,6 +314,10 @@ bool Script_Priest::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE, Player*
     }
     else
     {
+        if (targetDistance > RANGED_MAX_DISTANCE)
+        {
+            return false;
+        }
         if (!me->isInFront(pmTarget, M_PI / 16))
         {
             me->SetFacingToObject(pmTarget);

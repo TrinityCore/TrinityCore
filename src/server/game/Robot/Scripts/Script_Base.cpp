@@ -101,7 +101,7 @@ void Script_Base::Update(uint32 pmDiff)
     return;
 }
 
-bool Script_Base::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank)
+bool Script_Base::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, bool pmInterruptCasting)
 {
     return false;
 }
@@ -156,6 +156,11 @@ bool Script_Base::SubTank(Unit* pmTarget, bool pmChase)
 }
 
 bool Script_Base::Taunt(Unit* pmTarget)
+{
+    return false;
+}
+
+bool Script_Base::InterruptCasting(Unit* pmTarget)
 {
     return false;
 }

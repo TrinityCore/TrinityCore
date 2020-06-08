@@ -144,7 +144,7 @@ bool Script_Paladin::Tank(Unit* pmTarget, bool pmChase, bool pmSingle)
     return false;
 }
 
-bool Script_Paladin::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank)
+bool Script_Paladin::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, bool pmInterruptCasting)
 {
     if (!me)
     {
@@ -196,12 +196,12 @@ bool Script_Paladin::DPS_Retribution(Unit* pmTarget, bool pmChase, bool pmAOE, P
         return false;
     }
     float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > ATTACK_RANGE_LIMIT)
-    {
-        return false;
-    }
     if (pmChase)
     {
+        if (targetDistance > ATTACK_RANGE_LIMIT)
+        {
+            return false;
+        }
         if (!Chase(pmTarget))
         {
             return false;
@@ -209,6 +209,10 @@ bool Script_Paladin::DPS_Retribution(Unit* pmTarget, bool pmChase, bool pmAOE, P
     }
     else
     {
+        if (targetDistance > RANGED_MAX_DISTANCE)
+        {
+            return false;
+        }
         if (!me->isInFront(pmTarget, M_PI / 16))
         {
             me->SetFacingToObject(pmTarget);
@@ -294,12 +298,12 @@ bool Script_Paladin::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE, Player
         return false;
     }
     float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > ATTACK_RANGE_LIMIT)
-    {
-        return false;
-    }
     if (pmChase)
     {
+        if (targetDistance > ATTACK_RANGE_LIMIT)
+        {
+            return false;
+        }
         if (!Chase(pmTarget))
         {
             return false;
@@ -307,6 +311,10 @@ bool Script_Paladin::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE, Player
     }
     else
     {
+        if (targetDistance > RANGED_MAX_DISTANCE)
+        {
+            return false;
+        }
         if (!me->isInFront(pmTarget, M_PI / 16))
         {
             me->SetFacingToObject(pmTarget);

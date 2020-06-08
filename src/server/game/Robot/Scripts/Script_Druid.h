@@ -29,7 +29,7 @@ public:
     Script_Druid(Player* pmMe);
     void Update(uint32 pmDiff);
     bool SubTank(Unit* pmTarget, bool pmChase);
-    bool DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank);
+    bool DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, bool pmInterruptCasting = true);
     bool Tank(Unit* pmTarget, bool pmChase, bool pmSingle = false);
     bool Taunt(Unit* pmTarget);
     bool Heal(Unit* pmTarget, bool pmCure);

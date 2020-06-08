@@ -17,7 +17,7 @@ bool Script_Mage::Tank(Unit* pmTarget, bool pmChase, bool pmSingle)
     return false;
 }
 
-bool Script_Mage::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank)
+bool Script_Mage::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, bool pmInterruptCasting)
 {
     if (!me)
     {
@@ -56,8 +56,6 @@ bool Script_Mage::DPS_Arcane(Unit* pmTarget, bool pmChase, bool pmAOE, Player* p
     {
         return false;
     }
-
-
     if (!me)
     {
         return false;
@@ -66,12 +64,13 @@ bool Script_Mage::DPS_Arcane(Unit* pmTarget, bool pmChase, bool pmAOE, Player* p
     {
         return false;
     }
-    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
-    {
-        return false;
-    }
+    float targetDistance = me->GetDistance(pmTarget);
     if (pmChase)
     {
+        if (targetDistance > ATTACK_RANGE_LIMIT)
+        {
+            return false;
+        }
         if (!Chase(pmTarget, MAGE_RANGE_DISTANCE))
         {
             return false;
@@ -79,6 +78,10 @@ bool Script_Mage::DPS_Arcane(Unit* pmTarget, bool pmChase, bool pmAOE, Player* p
     }
     else
     {
+        if (targetDistance > RANGED_MAX_DISTANCE)
+        {
+            return false;
+        }
         if (!me->isInFront(pmTarget, M_PI / 16))
         {
             me->SetFacingToObject(pmTarget);
@@ -128,12 +131,12 @@ bool Script_Mage::DPS_Fire(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmT
         return false;
     }
     float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > ATTACK_RANGE_LIMIT)
-    {
-        return false;
-    }
     if (pmChase)
     {
+        if (targetDistance > ATTACK_RANGE_LIMIT)
+        {
+            return false;
+        }
         if (!Chase(pmTarget, MAGE_RANGE_DISTANCE))
         {
             return false;
@@ -141,6 +144,10 @@ bool Script_Mage::DPS_Fire(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmT
     }
     else
     {
+        if (targetDistance > RANGED_MAX_DISTANCE)
+        {
+            return false;
+        }
         if (!me->isInFront(pmTarget, M_PI / 16))
         {
             me->SetFacingToObject(pmTarget);
@@ -181,8 +188,6 @@ bool Script_Mage::DPS_Frost(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pm
     {
         return false;
     }
-
-
     if (!me)
     {
         return false;
@@ -191,12 +196,13 @@ bool Script_Mage::DPS_Frost(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pm
     {
         return false;
     }
-    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
-    {
-        return false;
-    }
+    float targetDistance = me->GetDistance(pmTarget);
     if (pmChase)
     {
+        if (targetDistance > ATTACK_RANGE_LIMIT)
+        {
+            return false;
+        }
         if (!Chase(pmTarget, MAGE_RANGE_DISTANCE))
         {
             return false;
@@ -204,6 +210,10 @@ bool Script_Mage::DPS_Frost(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pm
     }
     else
     {
+        if (targetDistance > RANGED_MAX_DISTANCE)
+        {
+            return false;
+        }
         if (!me->isInFront(pmTarget, M_PI / 16))
         {
             me->SetFacingToObject(pmTarget);

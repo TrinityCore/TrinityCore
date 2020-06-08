@@ -15,7 +15,7 @@ bool Script_Rogue::Tank(Unit* pmTarget, bool pmChase, bool pmSingle)
     return false;
 }
 
-bool Script_Rogue::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank)
+bool Script_Rogue::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, bool pmInterruptCasting)
 {
     if (!me)
     {
@@ -29,22 +29,22 @@ bool Script_Rogue::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank)
     {
     case 0:
     {
-        return DPS_Common(pmTarget, pmChase, pmAOE, pmTank);
+        return DPS_Common(pmTarget, pmChase, pmAOE, pmTank, pmInterruptCasting);
     }
     case 1:
     {
-        return DPS_Combat(pmTarget, pmChase, pmAOE, pmTank);
+        return DPS_Combat(pmTarget, pmChase, pmAOE, pmTank, pmInterruptCasting);
     }
     case 2:
     {
-        return DPS_Common(pmTarget, pmChase, pmAOE, pmTank);
+        return DPS_Common(pmTarget, pmChase, pmAOE, pmTank, pmInterruptCasting);
     }
     default:
-        return DPS_Common(pmTarget, pmChase, pmAOE, pmTank);
+        return DPS_Common(pmTarget, pmChase, pmAOE, pmTank, pmInterruptCasting);
     }
 }
 
-bool Script_Rogue::DPS_Combat(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank)
+bool Script_Rogue::DPS_Combat(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, bool pmInterruptCasting)
 {
     if (!pmTarget)
     {
@@ -62,12 +62,13 @@ bool Script_Rogue::DPS_Combat(Unit* pmTarget, bool pmChase, bool pmAOE, Player* 
     {
         return false;
     }
-    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
-    {
-        return false;
-    }
+    float targetDistance = me->GetDistance(pmTarget);
     if (pmChase)
     {
+        if (targetDistance > ATTACK_RANGE_LIMIT)
+        {
+            return false;
+        }
         if (!Chase(pmTarget))
         {
             return false;
@@ -75,6 +76,10 @@ bool Script_Rogue::DPS_Combat(Unit* pmTarget, bool pmChase, bool pmAOE, Player* 
     }
     else
     {
+        if (targetDistance > RANGED_MAX_DISTANCE)
+        {
+            return false;
+        }
         if (!me->isInFront(pmTarget, M_PI / 16))
         {
             me->SetFacingToObject(pmTarget);
@@ -82,13 +87,16 @@ bool Script_Rogue::DPS_Combat(Unit* pmTarget, bool pmChase, bool pmAOE, Player* 
     }
     me->Attack(pmTarget, true);
     uint32 energy = me->GetPower(Powers::POWER_ENERGY);
-    if (energy > 25)
+    if (pmInterruptCasting)
     {
-        if (pmTarget->IsNonMeleeSpellCast(false))
+        if (energy > 25)
         {
-            if (CastSpell(pmTarget, "Kick", MELEE_MAX_DISTANCE))
+            if (pmTarget->IsNonMeleeSpellCast(false))
             {
-                return true;
+                if (CastSpell(pmTarget, "Kick", MELEE_MAX_DISTANCE))
+                {
+                    return true;
+                }
             }
         }
     }
@@ -133,9 +141,9 @@ bool Script_Rogue::DPS_Combat(Unit* pmTarget, bool pmChase, bool pmAOE, Player* 
     return true;
 }
 
-bool Script_Rogue::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank)
+bool Script_Rogue::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, bool pmInterruptCasting)
 {
-    return DPS_Combat(pmTarget, pmChase, pmAOE, pmTank);
+    return DPS_Combat(pmTarget, pmChase, pmAOE, pmTank, pmInterruptCasting);
 }
 
 bool Script_Rogue::Attack(Unit* pmTarget)
@@ -255,5 +263,24 @@ bool Script_Rogue::Attack_Common(Unit* pmTarget)
 
 bool Script_Rogue::Buff(Unit* pmTarget, bool pmCure)
 {
+    return false;
+}
+
+bool Script_Rogue::InterruptCasting(Unit* pmTarget)
+{
+    if (me)
+    {
+        uint32 energy = me->GetPower(Powers::POWER_ENERGY);
+        if (energy > 25)
+        {
+            if (pmTarget->IsNonMeleeSpellCast(false))
+            {
+                if (CastSpell(pmTarget, "Kick", MELEE_MAX_DISTANCE))
+                {
+                    return true;
+                }
+            }
+        }
+    }
     return false;
 }

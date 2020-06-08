@@ -25,6 +25,9 @@ RobotAI::RobotAI(Player* pmMe)
     RobotStrategy_Group_EmeraldDragon* rsgEmeraldDragon = new RobotStrategy_Group_EmeraldDragon(pmMe);
     strategyMap[Strategy_Index::Strategy_Index_Group_EmeraldDragon] = rsgEmeraldDragon;
 
+    RobotStrategy_Group_Azuregos* rsgAzuregos = new RobotStrategy_Group_Azuregos(pmMe);
+    strategyMap[Strategy_Index::Strategy_Index_Group_Azuregos] = rsgAzuregos;
+
     RobotStrategy_Group_Test* rsgTest = new RobotStrategy_Group_Test(pmMe);
     strategyMap[Strategy_Index::Strategy_Index_Group_Test] = rsgTest;
 

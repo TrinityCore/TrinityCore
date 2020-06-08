@@ -27,12 +27,13 @@ bool Script_Druid::SubTank(Unit* pmTarget, bool pmChase)
     {
         return false;
     }
-    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
-    {
-        return false;
-    }
+    float targetDistance = me->GetDistance(pmTarget);
     if (pmChase)
     {
+        if (targetDistance > ATTACK_RANGE_LIMIT)
+        {
+            return false;
+        }
         if (!Chase(pmTarget))
         {
             return false;
@@ -40,6 +41,10 @@ bool Script_Druid::SubTank(Unit* pmTarget, bool pmChase)
     }
     else
     {
+        if (targetDistance > RANGED_MAX_DISTANCE)
+        {
+            return false;
+        }
         if (!me->isInFront(pmTarget, M_PI / 16))
         {
             me->SetFacingToObject(pmTarget);
@@ -121,7 +126,7 @@ void Script_Druid::Update(uint32 pmDiff)
     Script_Base::Update(pmDiff);
 }
 
-bool Script_Druid::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank)
+bool Script_Druid::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, bool pmInterruptCasting)
 {
     if (!me)
     {
@@ -191,11 +196,28 @@ bool Script_Druid::DPS_Balance(Unit* pmTarget, bool pmChase, bool pmAOE, Player*
         return false;
     }
     float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > ATTACK_RANGE_LIMIT)
+    if (pmChase)
     {
-        return false;
+        if (targetDistance > ATTACK_RANGE_LIMIT)
+        {
+            return false;
+        }
+        if (!Chase(pmTarget))
+        {
+            return false;
+        }
     }
-
+    else
+    {
+        if (targetDistance > RANGED_MAX_DISTANCE)
+        {
+            return false;
+        }
+        if (!me->isInFront(pmTarget, M_PI / 16))
+        {
+            me->SetFacingToObject(pmTarget);
+        }
+    }
     if (me->GetShapeshiftForm() == ShapeshiftForm::FORM_NONE)
     {
         if (CastSpell(me, "Moonkin Form"))
@@ -210,21 +232,6 @@ bool Script_Druid::DPS_Balance(Unit* pmTarget, bool pmChase, bool pmAOE, Player*
             return true;
         }
     }
-    if (pmChase)
-    {
-        if (!Chase(pmTarget, DRUID_RANGE_DISTANCE))
-        {
-            return false;
-        }
-    }
-    else
-    {
-        if (!me->isInFront(pmTarget, M_PI / 16))
-        {
-            me->SetFacingToObject(pmTarget);
-        }
-    }
-
     if (pmAOE)
     {
         if (pmTank)
@@ -366,21 +373,30 @@ bool Script_Druid::DPS_Feral(Unit* pmTarget, bool pmChase, bool pmAOE, Player* p
     }
     case ShapeshiftForm::FORM_CAT:
     {
+        float targetDistance = me->GetDistance(pmTarget);
         if (pmChase)
         {
+            if (targetDistance > ATTACK_RANGE_LIMIT)
+            {
+                return false;
+            }
             if (!Chase(pmTarget))
             {
                 return false;
             }
-            CastSpell(me, "Dash");
         }
         else
         {
+            if (targetDistance > RANGED_MAX_DISTANCE)
+            {
+                return false;
+            }
             if (!me->isInFront(pmTarget, M_PI / 16))
             {
                 me->SetFacingToObject(pmTarget);
             }
         }
+        CastSpell(me, "Dash");
         me->Attack(pmTarget, true);
         uint32 energy = me->GetPower(Powers::POWER_ENERGY);
         if (CastSpell(pmTarget, "Faerie Fire (Feral)", DRUID_RANGE_DISTANCE, true))
@@ -509,12 +525,12 @@ bool Script_Druid::Tank_Feral(Unit* pmTarget, bool pmChase, bool pmSingle)
         return false;
     }
     float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > ATTACK_RANGE_LIMIT)
-    {
-        return false;
-    }
     if (pmChase)
     {
+        if (targetDistance > ATTACK_RANGE_LIMIT)
+        {
+            return false;
+        }
         if (!Chase(pmTarget))
         {
             return false;
@@ -529,6 +545,10 @@ bool Script_Druid::Tank_Feral(Unit* pmTarget, bool pmChase, bool pmSingle)
     }
     else
     {
+        if (targetDistance > RANGED_MAX_DISTANCE)
+        {
+            return false;
+        }
         if (!me->isInFront(pmTarget, M_PI / 16))
         {
             me->SetFacingToObject(pmTarget);

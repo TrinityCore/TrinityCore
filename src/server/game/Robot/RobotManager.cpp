@@ -1231,6 +1231,11 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                 pmPlayer->rai->activeStrategyIndex = Strategy_Index::Strategy_Index_Group_EmeraldDragon;
                 replyStream << "Strategy set to emerald dragon";
             }
+            else if (strategyName == "azuregos")
+            {
+                pmPlayer->rai->activeStrategyIndex = Strategy_Index::Strategy_Index_Group_Azuregos;
+                replyStream << "Strategy set to azuregos";
+            }
             else if (strategyName == "test")
             {
                 pmPlayer->rai->activeStrategyIndex = Strategy_Index::Strategy_Index_Group_Test;
@@ -1273,6 +1278,11 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
             case Strategy_Index::Strategy_Index_Group_EmeraldDragon:
             {
                 replyStream << "Strategy is emerald dragon";
+                break;
+            }
+            case Strategy_Index::Strategy_Index_Group_Azuregos:
+            {
+                replyStream << "Strategy is azuregos";
                 break;
             }
             case Strategy_Index::Strategy_Index_Group_Test:
@@ -2046,7 +2056,7 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                                             healer7Count++;
                                             continue;
                                         }
-                                        else if (healer8Count < 1)
+                                        else if (healer8Count < 5)
                                         {
                                             member->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer8;
                                             healer8Count++;
@@ -2067,6 +2077,265 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                                         {
                                             member->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_DPS_Range;
                                         }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    replyStream << "Arranged";
+                    break;
+                }
+                case Strategy_Index::Strategy_Index_Group_Azuregos:
+                {
+                    bool tank1Set = false;
+                    uint32 healer1Count = 0;
+                    uint32 healer2Count = 0;
+
+                    bool paladinAura_concentration = false;
+                    bool paladinAura_devotion = false;
+                    bool paladinAura_retribution = false;
+                    bool paladinBlessing_kings = false;
+                    bool paladinBlessing_might = false;
+                    bool paladinBlessing_wisdom = false;
+                    for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                    {
+                        Player* member = groupRef->GetSource();
+                        if (member)
+                        {
+                            if (!member->GetSession()->isRobotSession)
+                            {
+                                member->groupRole = GroupRole_Azuregos::GroupRole_Azuregos_DPS;
+                                continue;
+                            }
+                            if (member->rai->activeStrategyIndex == Strategy_Index::Strategy_Index_Group_Azuregos)
+                            {
+                                if (RobotStrategy_Group_Azuregos* rs = (RobotStrategy_Group_Azuregos*)member->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
+                                {
+                                    rs->dpsDelay = 5000;
+                                    rs->aoeDelay = 10000;
+                                    rs->followDistance = FOLLOW_MAX_DISTANCE;
+                                    switch (member->GetClass())
+                                    {
+                                    case Classes::CLASS_WARRIOR:
+                                    {
+                                        break;
+                                    }
+                                    case Classes::CLASS_HUNTER:
+                                    {
+                                        break;
+                                    }
+                                    case Classes::CLASS_SHAMAN:
+                                    {
+                                        break;
+                                    }
+                                    case Classes::CLASS_PALADIN:
+                                    {
+                                        if (Script_Paladin* sp = (Script_Paladin*)rs->sb)
+                                        {
+                                            switch (sp->blessingType)
+                                            {
+                                            case PaladinBlessingType::PaladinBlessingType_Kings:
+                                            {
+                                                if (paladinBlessing_kings)
+                                                {
+                                                    if (!paladinBlessing_might)
+                                                    {
+                                                        sp->blessingType = PaladinBlessingType::PaladinBlessingType_Might;
+                                                        paladinBlessing_might = true;
+                                                    }
+                                                    else if (!paladinBlessing_wisdom)
+                                                    {
+                                                        sp->blessingType = PaladinBlessingType::PaladinBlessingType_Wisdom;
+                                                        paladinBlessing_wisdom = true;
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    paladinBlessing_kings = true;
+                                                }
+                                                break;
+                                            }
+                                            case PaladinBlessingType::PaladinBlessingType_Might:
+                                            {
+                                                if (paladinBlessing_might)
+                                                {
+                                                    if (!paladinBlessing_kings)
+                                                    {
+                                                        sp->blessingType = PaladinBlessingType::PaladinBlessingType_Kings;
+                                                        paladinBlessing_kings = true;
+                                                    }
+                                                    else if (!paladinBlessing_wisdom)
+                                                    {
+                                                        sp->blessingType = PaladinBlessingType::PaladinBlessingType_Wisdom;
+                                                        paladinBlessing_wisdom = true;
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    paladinBlessing_might = true;
+                                                }
+                                                break;
+                                            }
+                                            case PaladinBlessingType::PaladinBlessingType_Wisdom:
+                                            {
+                                                if (paladinBlessing_wisdom)
+                                                {
+                                                    if (!paladinBlessing_kings)
+                                                    {
+                                                        sp->blessingType = PaladinBlessingType::PaladinBlessingType_Kings;
+                                                        paladinBlessing_kings = true;
+                                                    }
+                                                    else if (!paladinBlessing_might)
+                                                    {
+                                                        sp->blessingType = PaladinBlessingType::PaladinBlessingType_Might;
+                                                        paladinBlessing_might = true;
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    paladinBlessing_wisdom = true;
+                                                }
+                                                break;
+                                            }
+                                            default:
+                                            {
+                                                break;
+                                            }
+                                            }
+                                            switch (sp->auraType)
+                                            {
+                                            case PaladinAuraType::PaladinAuraType_Concentration:
+                                            {
+                                                if (paladinAura_concentration)
+                                                {
+                                                    if (!paladinAura_devotion)
+                                                    {
+                                                        sp->auraType = PaladinAuraType::PaladinAuraType_Devotion;
+                                                        paladinAura_devotion = true;
+                                                    }
+                                                    else if (!paladinAura_retribution)
+                                                    {
+                                                        sp->auraType = PaladinAuraType::PaladinAuraType_Retribution;
+                                                        paladinAura_retribution = true;
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    paladinAura_concentration = true;
+                                                }
+                                                break;
+                                            }
+                                            case PaladinAuraType::PaladinAuraType_Devotion:
+                                            {
+                                                if (paladinAura_devotion)
+                                                {
+                                                    if (!paladinAura_concentration)
+                                                    {
+                                                        sp->auraType = PaladinAuraType::PaladinAuraType_Concentration;
+                                                        paladinAura_concentration = true;
+                                                    }
+                                                    else if (!paladinAura_retribution)
+                                                    {
+                                                        sp->auraType = PaladinAuraType::PaladinAuraType_Retribution;
+                                                        paladinAura_retribution = true;
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    paladinAura_devotion = true;
+                                                }
+                                                break;
+                                            }
+                                            case PaladinAuraType::PaladinAuraType_Retribution:
+                                            {
+                                                if (paladinAura_retribution)
+                                                {
+                                                    if (!paladinAura_concentration)
+                                                    {
+                                                        sp->auraType = PaladinAuraType::PaladinAuraType_Concentration;
+                                                        paladinAura_concentration = true;
+                                                    }
+                                                    else if (!paladinAura_devotion)
+                                                    {
+                                                        sp->auraType = PaladinAuraType::PaladinAuraType_Devotion;
+                                                        paladinAura_devotion = true;
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    paladinAura_retribution = true;
+                                                }
+                                                break;
+                                            }
+                                            default:
+                                            {
+                                                break;
+                                            }
+                                            }
+                                        }
+                                        break;
+                                    }
+                                    case Classes::CLASS_WARLOCK:
+                                    {
+                                        break;
+                                    }
+                                    case Classes::CLASS_PRIEST:
+                                    {
+                                        break;
+                                    }
+                                    case Classes::CLASS_ROGUE:
+                                    {
+                                        break;
+                                    }
+                                    case Classes::CLASS_MAGE:
+                                    {
+                                        break;
+                                    }
+                                    case Classes::CLASS_DRUID:
+                                    {
+                                        break;
+                                    }
+                                    default:
+                                    {
+                                        break;
+                                    }
+                                    }
+                                    if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_TANK)
+                                    {
+                                        if (!tank1Set)
+                                        {
+                                            member->groupRole = GroupRole_Azuregos::GroupRole_Azuregos_Tank;
+                                            myGroup->SetTargetIcon(0, member->GetGUID(), member->GetGUID());
+                                            tank1Set = true;
+                                            continue;
+                                        }
+                                        else
+                                        {
+                                            member->groupRole = GroupRole_Azuregos::GroupRole_Azuregos_DPS;
+                                        }
+                                    }
+                                    else if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_HEALER)
+                                    {
+                                        if (healer1Count < 4)
+                                        {
+                                            member->groupRole = GroupRole_Azuregos::GroupRole_Azuregos_Healer1;
+                                            healer1Count++;
+                                            continue;
+                                        }
+                                        else if (healer2Count < 4)
+                                        {
+                                            member->groupRole = GroupRole_Azuregos::GroupRole_Azuregos_Healer2;
+                                            healer2Count++;
+                                            continue;
+                                        }
+                                        else
+                                        {
+                                            member->groupRole = GroupRole_Azuregos::GroupRole_Azuregos_DPS;
+                                        }
+                                    }
+                                    else if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_DPS)
+                                    {
+                                        member->groupRole = GroupRole_Azuregos::GroupRole_Azuregos_DPS;
                                     }
                                 }
                             }
@@ -2472,110 +2741,216 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                                 if (RobotStrategy_Group_EmeraldDragon* rs = (RobotStrategy_Group_EmeraldDragon*)member->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
                                 {
                                     rs->basePos = pmPlayer->GetPosition();
-                                    rs->engageAngle = pmPlayer->GetOrientation();
-                                    rs->sideAngle = M_PI / 2;
+                                    rs->engageAngle = rs->basePos.GetOrientation();
+                                    rs->engageDistance = 14.0f;
                                     switch (member->groupRole)
                                     {
                                     case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank1:
                                     {
-                                        rs->sideAngle = M_PI * 3 / 2;
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 18.0f, rs->engageAngle);
+                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 20.0f, rs->basePos.GetOrientation());
                                         break;
                                     }
                                     case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank2:
                                     {
-                                        rs->sideAngle = M_PI / 2;
-                                        rs->engageAngle = rs->engageAngle + M_PI / 2;
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 30.0f, rs->engageAngle);
+                                        rs->engageAngle = rs->engageAngle + M_PI;
+                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 2);
                                         break;
                                     }
                                     case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank3:
                                     {
-                                        rs->engageAngle = rs->engageAngle + M_PI / 4;
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 55.0f, rs->engageAngle);
+                                        rs->engageAngle = rs->engageAngle + M_PI / 2;
+                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 2);
                                         break;
                                     }
                                     case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank4:
                                     {
-                                        rs->engageAngle = rs->engageAngle + M_PI / 8;
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 55.0f, rs->engageAngle);
+                                        rs->engageAngle = rs->engageAngle + M_PI / 2;
+                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 2);
                                         break;
                                     }
                                     case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank5:
                                     {
-                                        rs->engageAngle = rs->engageAngle + M_PI * 3 / 8;
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 55.0f, rs->engageAngle);
+                                        rs->engageAngle = rs->engageAngle + M_PI / 2;
+                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 2);
                                         break;
                                     }
                                     case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer1:
                                     {
-                                        rs->engageAngle = rs->engageAngle - M_PI / 8;
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 55.0f, rs->engageAngle);
+                                        rs->engageAngle = rs->engageAngle + M_PI * 3 / 8;
+                                        rs->engageDistance = 38.0f;
+                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 4);
                                         break;
                                     }
                                     case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer2:
                                     {
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 55.0f, rs->engageAngle);
+                                        rs->engageAngle = rs->engageAngle + M_PI * 3 / 8;
+                                        rs->engageDistance = 30.0f;
+                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 4);
                                         break;
                                     }
                                     case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer3:
                                     {
-                                        rs->engageAngle = rs->engageAngle + M_PI / 8;
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 55.0f, rs->engageAngle);
+                                        rs->engageAngle = rs->engageAngle + M_PI * 3 / 8;
+                                        rs->engageDistance = 22.0f;
+                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 4);
                                         break;
                                     }
                                     case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer4:
                                     {
-                                        rs->engageAngle = rs->engageAngle + M_PI / 2 - M_PI / 8;
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 55.0f, rs->engageAngle);
+                                        rs->engageAngle = rs->engageAngle + M_PI * 5 / 8;
+                                        rs->engageDistance = 38.0f;
+                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI * 3 / 4);
                                         break;
                                     }
                                     case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer5:
                                     {
-                                        rs->engageAngle = rs->engageAngle + M_PI / 2;
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 55.0f, rs->engageAngle);
+                                        rs->engageAngle = rs->engageAngle + M_PI * 5 / 8;
+                                        rs->engageDistance = 30.0f;
+                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI * 3 / 4);
                                         break;
                                     }
                                     case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer6:
                                     {
-                                        rs->engageAngle = rs->engageAngle + M_PI / 2 + M_PI / 8;
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 55.0f, rs->engageAngle);
+                                        rs->engageAngle = rs->engageAngle + M_PI * 5 / 8;
+                                        rs->engageDistance = 22.0f;
+                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI * 3 / 4);
                                         break;
                                     }
                                     case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer7:
                                     {
-                                        rs->engageAngle = rs->engageAngle + M_PI / 8;
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 55.0f, rs->engageAngle);
+                                        rs->engageAngle = rs->engageAngle + M_PI / 2;
+                                        rs->engageDistance = 38.0f;
+                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 2);
                                         break;
                                     }
                                     case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer8:
                                     {
-                                        rs->engageAngle = rs->engageAngle + M_PI * 3 / 8;
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 55.0f, rs->engageAngle);
+                                        rs->engageAngle = rs->engageAngle + M_PI / 2;
+                                        rs->engageDistance = 30.0f;
+                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 2);
                                         break;
                                     }
                                     case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_DPS_Range:
                                     {
-                                        float angleMin = rs->engageAngle;
-                                        float angleMax = rs->engageAngle + M_PI / 2;
+                                        float angleMin = rs->engageAngle + M_PI * 3 / 8;
+                                        float angleMax = rs->engageAngle + M_PI * 5 / 8;
                                         rs->engageAngle = frand(angleMin, angleMax);
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 50.0f, rs->engageAngle);
+                                        rs->engageDistance = frand(35.0f, 47.0f);
+                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->engageAngle);
                                         break;
                                     }
                                     case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_DPS_Melee:
                                     {
-                                        float angleMin = rs->engageAngle;
-                                        float angleMax = rs->engageAngle + M_PI / 2;
-                                        rs->engageAngle = frand(angleMin, angleMax);
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 50.0f, rs->engageAngle);
+                                        if (urand(0, 1) == 0)
+                                        {
+                                            rs->engageAngle = rs->engageAngle + M_PI / 2;
+                                        }
+                                        else
+                                        {
+                                            rs->engageAngle = rs->engageAngle + M_PI * 3 / 2;
+                                        }
+                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 2);
                                         break;
                                     }
                                     default:
                                     {
-                                        float angleMin = rs->engageAngle;
-                                        float angleMax = rs->engageAngle + M_PI / 2;
+                                        float angleMin = rs->engageAngle + M_PI * 3 / 8;
+                                        float angleMax = rs->engageAngle + M_PI * 5 / 8;
                                         rs->engageAngle = frand(angleMin, angleMax);
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 50.0f, rs->engageAngle);
+                                        rs->engageDistance = frand(30.0f, 47.0f);
+                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->engageAngle);
+                                        break;
+                                    }
+                                    }
+                                    rs->marked = true;
+                                }
+                            }
+                        }
+                    }
+                    replyStream << "marked";
+                    break;
+                }
+                case Strategy_Index::Strategy_Index_Group_Azuregos:
+                {
+                    for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                    {
+                        Player* member = groupRef->GetSource();
+                        if (member)
+                        {
+                            if (!member->GetSession()->isRobotSession)
+                            {
+                                continue;
+                            }
+                            if (member->rai->activeStrategyIndex == Strategy_Index::Strategy_Index_Group_Azuregos)
+                            {
+                                if (RobotStrategy_Group_Azuregos* rs = (RobotStrategy_Group_Azuregos*)member->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
+                                {
+                                    rs->basePos = pmPlayer->GetPosition();
+                                    rs->engageAngle = rs->basePos.GetOrientation();
+                                    rs->engageDistance = 14.0f;
+                                    switch (member->groupRole)
+                                    {
+                                    case GroupRole_Azuregos::GroupRole_Azuregos_Tank:
+                                    {
+                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 10.0f, rs->basePos.GetOrientation());
+                                        break;
+                                    }
+                                    case GroupRole_Azuregos::GroupRole_Azuregos_Healer1:
+                                    {
+                                        float angleMin = rs->engageAngle + M_PI * 5 / 4;
+                                        float angleMax = rs->engageAngle + M_PI * 7 / 4;
+                                        rs->engageAngle = frand(angleMin, angleMax);
+                                        float distanceMin = 25.0f;
+                                        float distanceMax = 35.0f;
+                                        rs->engageDistance = frand(distanceMin, distanceMax);
+                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, rs->engageDistance, rs->engageAngle);
+                                        break;
+                                    }
+                                    case GroupRole_Azuregos::GroupRole_Azuregos_Healer2:
+                                    {
+                                        float angleMin = rs->engageAngle + M_PI / 4;
+                                        float angleMax = rs->engageAngle + M_PI * 3 / 4;
+                                        rs->engageAngle = frand(angleMin, angleMax);
+                                        float distanceMin = 25.0f;
+                                        float distanceMax = 45.0f;
+                                        rs->engageDistance = frand(distanceMin, distanceMax);
+                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, rs->engageDistance, rs->engageAngle);
+                                        break;
+                                    }
+                                    case GroupRole_Azuregos::GroupRole_Azuregos_DPS:
+                                    {
+                                        if (member->GetClass() == Classes::CLASS_WARRIOR || member->GetClass() == Classes::CLASS_PALADIN || member->GetClass() == Classes::CLASS_ROGUE || member->GetClass() == Classes::CLASS_DEATH_KNIGHT || member->GetClass() == Classes::CLASS_DRUID)
+                                        {
+                                            rs->engageAngle = rs->engageAngle + M_PI / 2;
+                                        }
+                                        else
+                                        {
+                                            float angleMin = rs->engageAngle + M_PI / 4;
+                                            float angleMax = rs->engageAngle + M_PI * 3 / 4;
+                                            rs->engageAngle = frand(angleMin, angleMax);
+                                            float distanceMin = 25.0f;
+                                            float distanceMax = 45.0f;
+                                            rs->engageDistance = frand(distanceMin, distanceMax);
+                                        }
+                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, rs->engageDistance, rs->engageAngle);
+                                        break;
+                                    }
+                                    default:
+                                    {
+                                        if (member->GetClass() == Classes::CLASS_WARRIOR || member->GetClass() == Classes::CLASS_PALADIN || member->GetClass() == Classes::CLASS_ROGUE || member->GetClass() == Classes::CLASS_DEATH_KNIGHT || member->GetClass() == Classes::CLASS_DRUID)
+                                        {
+                                            rs->engageAngle = rs->engageAngle + M_PI / 2;
+                                        }
+                                        else
+                                        {
+                                            float angleMin = rs->engageAngle + M_PI / 4;
+                                            float angleMax = rs->engageAngle + M_PI * 3 / 4;
+                                            rs->engageAngle = frand(angleMin, angleMax);
+                                            float distanceMin = 25.0f;
+                                            float distanceMax = 45.0f;
+                                            rs->engageDistance = frand(distanceMin, distanceMax);
+                                        }
+                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, rs->engageDistance, rs->engageAngle);
                                         break;
                                     }
                                     }
@@ -2640,7 +3015,7 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                                     {
                                         rs->engageAngle = rs->engageAngle + M_PI * 3 / 8;
                                         rs->engageDistance = 38.0f;
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 35.0f, rs->basePos.GetOrientation() + M_PI / 4);
+                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 4);
                                         break;
                                     }
                                     case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer2:
@@ -2661,35 +3036,35 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                                     {
                                         rs->engageAngle = rs->engageAngle + M_PI * 5 / 8;
                                         rs->engageDistance = 38.0f;
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 35.0f, rs->basePos.GetOrientation() + M_PI * 3 / 4);
+                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI * 3 / 4);
                                         break;
                                     }
                                     case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer5:
                                     {
                                         rs->engageAngle = rs->engageAngle + M_PI * 5 / 8;
                                         rs->engageDistance = 30.0f;
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 50.0f, rs->basePos.GetOrientation() + M_PI * 3 / 4);
+                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI * 3 / 4);
                                         break;
                                     }
                                     case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer6:
                                     {
                                         rs->engageAngle = rs->engageAngle + M_PI * 5 / 8;
                                         rs->engageDistance = 22.0f;
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 50.0f, rs->basePos.GetOrientation() + M_PI * 3 / 4);
+                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI * 3 / 4);
                                         break;
                                     }
                                     case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer7:
                                     {
                                         rs->engageAngle = rs->engageAngle + M_PI / 2;
                                         rs->engageDistance = 38.0f;
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 50.0f, rs->basePos.GetOrientation() + M_PI / 2);
+                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 2);
                                         break;
                                     }
                                     case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer8:
                                     {
                                         rs->engageAngle = rs->engageAngle + M_PI / 2;
                                         rs->engageDistance = 30.0f;
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 50.0f, rs->basePos.GetOrientation() + M_PI / 2);
+                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 2);
                                         break;
                                     }
                                     case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_DPS_Range:
@@ -2697,12 +3072,12 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                                         float angleMin = rs->engageAngle + M_PI * 3 / 8;
                                         float angleMax = rs->engageAngle + M_PI * 5 / 8;
                                         rs->engageAngle = frand(angleMin, angleMax);
-                                        rs->engageDistance = frand(30.0f, 47.0f);
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 50.0f, rs->engageAngle);
+                                        rs->engageDistance = frand(35.0f, 47.0f);
+                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->engageAngle);
                                         break;
                                     }
                                     case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_DPS_Melee:
-                                    {                                        
+                                    {
                                         if (urand(0, 1) == 0)
                                         {
                                             rs->engageAngle = rs->engageAngle + M_PI / 2;
@@ -2720,7 +3095,7 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                                         float angleMax = rs->engageAngle + M_PI * 5 / 8;
                                         rs->engageAngle = frand(angleMin, angleMax);
                                         rs->engageDistance = frand(30.0f, 47.0f);
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 50.0f, rs->engageAngle);
+                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->engageAngle);
                                         break;
                                     }
                                     }
@@ -4757,6 +5132,11 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                                 member->rai->activeStrategyIndex = Strategy_Index::Strategy_Index_Group_EmeraldDragon;
                                 replyStream << "Strategy set to emerald dragon";
                             }
+                            else if (strategyName == "azuregos")
+                            {
+                                member->rai->activeStrategyIndex = Strategy_Index::Strategy_Index_Group_Azuregos;
+                                replyStream << "Strategy set to azuregos";
+                            }
                             else if (strategyName == "test")
                             {
                                 member->rai->activeStrategyIndex = Strategy_Index::Strategy_Index_Group_Test;
@@ -4789,6 +5169,11 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                             case Strategy_Index::Strategy_Index_Group_EmeraldDragon:
                             {
                                 replyStream << "Strategy is emerald dragon";
+                                break;
+                            }
+                            case Strategy_Index::Strategy_Index_Group_Azuregos:
+                            {
+                                replyStream << "Strategy is azuregos";
                                 break;
                             }
                             case Strategy_Index::Strategy_Index_Group_Test:

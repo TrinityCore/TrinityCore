@@ -85,7 +85,9 @@ class boss_azuregos : public CreatureScript
             void KilledUnit(Unit* who) override
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
-                    who->CastSpell(who, SPELL_MARK_OF_FROST, true);
+                {
+                    //who->CastSpell(who, SPELL_MARK_OF_FROST, true);
+                }
             }
 
             void UpdateAI(uint32 diff) override

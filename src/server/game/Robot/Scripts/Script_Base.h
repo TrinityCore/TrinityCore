@@ -12,10 +12,11 @@ public:
     Script_Base(Player* pmMe);
     virtual void Reset();
     virtual void Update(uint32 pmDiff);
-    virtual bool DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank);
+    virtual bool DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, bool pmInterruptCasting = true);
     virtual bool Tank(Unit* pmTarget, bool pmChase, bool pmSingle = false);
     virtual bool SubTank(Unit* pmTarget, bool pmChase);
     virtual bool Taunt(Unit* pmTarget);
+    virtual bool InterruptCasting(Unit* pmTarget);
     virtual bool Heal(Unit* pmTarget, bool pmCure);
     virtual bool SubHeal(Unit* pmTarget);
     virtual bool GroupHeal(float pmMaxHealthPercent = 60.0f);

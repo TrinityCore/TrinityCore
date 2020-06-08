@@ -17,7 +17,7 @@ bool Script_Warrior::Tank(Unit* pmTarget, bool pmChase, bool pmSingle)
     return false;
 }
 
-bool Script_Warrior::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank)
+bool Script_Warrior::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, bool pmInterruptCasting)
 {
     if (!me)
     {
@@ -67,19 +67,12 @@ bool Script_Warrior::DPS_Arms(Unit* pmTarget, bool pmChase, bool pmAOE, Player* 
         return false;
     }
     float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > ATTACK_RANGE_LIMIT)
-    {
-        return false;
-    }
-    else if (targetDistance < WARRIOR_CHARGE_DISTANCE)
-    {
-        if (CastSpell(me, "Bloodrage", MELEE_MAX_DISTANCE))
-        {
-            return true;
-        }
-    }
     if (pmChase)
     {
+        if (targetDistance > ATTACK_RANGE_LIMIT)
+        {
+            return false;
+        }
         if (!Chase(pmTarget))
         {
             return false;
@@ -87,9 +80,20 @@ bool Script_Warrior::DPS_Arms(Unit* pmTarget, bool pmChase, bool pmAOE, Player* 
     }
     else
     {
+        if (targetDistance > RANGED_MAX_DISTANCE)
+        {
+            return false;
+        }
         if (!me->isInFront(pmTarget, M_PI / 16))
         {
             me->SetFacingToObject(pmTarget);
+        }
+    }
+    if (targetDistance < WARRIOR_CHARGE_DISTANCE)
+    {
+        if (CastSpell(me, "Bloodrage", MELEE_MAX_DISTANCE))
+        {
+            return true;
         }
     }
     me->Attack(pmTarget, true);
@@ -183,11 +187,29 @@ bool Script_Warrior::DPS_Fury(Unit* pmTarget, bool pmChase, bool pmAOE, Player* 
         return false;
     }
     float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > ATTACK_RANGE_LIMIT)
+    if (pmChase)
     {
-        return false;
+        if (targetDistance > ATTACK_RANGE_LIMIT)
+        {
+            return false;
+        }
+        if (!Chase(pmTarget))
+        {
+            return false;
+        }
     }
-    else if (targetDistance < WARRIOR_CHARGE_DISTANCE)
+    else
+    {
+        if (targetDistance > RANGED_MAX_DISTANCE)
+        {
+            return false;
+        }
+        if (!me->isInFront(pmTarget, M_PI / 16))
+        {
+            me->SetFacingToObject(pmTarget);
+        }
+    }
+    if (targetDistance < WARRIOR_CHARGE_DISTANCE)
     {
         if (CastSpell(me, "Bloodrage", MELEE_MAX_DISTANCE))
         {
@@ -196,20 +218,6 @@ bool Script_Warrior::DPS_Fury(Unit* pmTarget, bool pmChase, bool pmAOE, Player* 
         if (CastSpell(me, "Recklessness", MELEE_MAX_DISTANCE))
         {
             return true;
-        }
-    }
-    if (pmChase)
-    {
-        if (!Chase(pmTarget))
-        {
-            return false;
-        }
-    }
-    else
-    {
-        if (!me->isInFront(pmTarget, M_PI / 16))
-        {
-            me->SetFacingToObject(pmTarget);
         }
     }
     me->Attack(pmTarget, true);

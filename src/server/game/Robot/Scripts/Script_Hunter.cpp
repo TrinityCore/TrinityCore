@@ -21,7 +21,7 @@ bool Script_Hunter::Tank(Unit* pmTarget, bool pmChase, bool pmSingle)
     return false;
 }
 
-bool Script_Hunter::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank)
+bool Script_Hunter::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, bool pmInterruptCasting)
 {
     bool meResult = false;
     if (!me)
@@ -86,12 +86,12 @@ bool Script_Hunter::DPS_BeastMastery(Unit* pmTarget, bool pmChase, bool pmAOE, P
         return false;
     }
     float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > ATTACK_RANGE_LIMIT)
-    {
-        return false;
-    }
     if (pmChase)
     {
+        if (targetDistance > ATTACK_RANGE_LIMIT)
+        {
+            return false;
+        }
         if (!Chase(pmTarget, HUNTER_RANGE_DISTANCE, HUNTER_MIN_RANGE_DISTANCE))
         {
             return false;
@@ -99,6 +99,10 @@ bool Script_Hunter::DPS_BeastMastery(Unit* pmTarget, bool pmChase, bool pmAOE, P
     }
     else
     {
+        if (targetDistance > RANGED_MAX_DISTANCE)
+        {
+            return false;
+        }
         if (!me->isInFront(pmTarget, M_PI / 16))
         {
             me->SetFacingToObject(pmTarget);
@@ -162,11 +166,6 @@ bool Script_Hunter::DPS_Marksmanship(Unit* pmTarget, bool pmChase, bool pmAOE, P
     {
         return false;
     }
-    float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > ATTACK_RANGE_LIMIT)
-    {
-        return false;
-    }
     if (pmTarget->GetTarget() == me->GetGUID())
     {
         if (me->isMoving())
@@ -179,9 +178,13 @@ bool Script_Hunter::DPS_Marksmanship(Unit* pmTarget, bool pmChase, bool pmAOE, P
         }
         return true;
     }
-    me->Attack(pmTarget, true);
+    float targetDistance = me->GetDistance(pmTarget);
     if (pmChase)
     {
+        if (targetDistance > ATTACK_RANGE_LIMIT)
+        {
+            return false;
+        }
         if (!Chase(pmTarget, HUNTER_RANGE_DISTANCE, HUNTER_MIN_RANGE_DISTANCE))
         {
             return false;
@@ -189,11 +192,16 @@ bool Script_Hunter::DPS_Marksmanship(Unit* pmTarget, bool pmChase, bool pmAOE, P
     }
     else
     {
+        if (targetDistance > RANGED_MAX_DISTANCE)
+        {
+            return false;
+        }
         if (!me->isInFront(pmTarget, M_PI / 16))
         {
             me->SetFacingToObject(pmTarget);
         }
     }
+    me->Attack(pmTarget, true);
     if (pmAOE)
     {
         if (pmTank)
@@ -307,13 +315,14 @@ bool Script_Hunter::DPS_Survival(Unit* pmTarget, bool pmChase, bool pmAOE, Playe
     {
         return false;
     }
+
     float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > ATTACK_RANGE_LIMIT)
-    {
-        return false;
-    }
     if (pmChase)
     {
+        if (targetDistance > ATTACK_RANGE_LIMIT)
+        {
+            return false;
+        }
         if (!Chase(pmTarget, HUNTER_RANGE_DISTANCE, HUNTER_MIN_RANGE_DISTANCE))
         {
             return false;
@@ -321,11 +330,16 @@ bool Script_Hunter::DPS_Survival(Unit* pmTarget, bool pmChase, bool pmAOE, Playe
     }
     else
     {
+        if (targetDistance > RANGED_MAX_DISTANCE)
+        {
+            return false;
+        }
         if (!me->isInFront(pmTarget, M_PI / 16))
         {
             me->SetFacingToObject(pmTarget);
         }
     }
+
     me->Attack(pmTarget, true);
     if (CastSpell(pmTarget, "Hunter's Mark", 100, true))
     {

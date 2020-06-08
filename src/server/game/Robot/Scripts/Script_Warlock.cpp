@@ -19,7 +19,7 @@ bool Script_Warlock::Tank(Unit* pmTarget, bool pmChase, bool pmSingle)
     return false;
 }
 
-bool Script_Warlock::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank)
+bool Script_Warlock::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, bool pmInterruptCasting)
 {
     bool meResult = false;
     if (!me)
@@ -95,13 +95,13 @@ bool Script_Warlock::DPS_Affliction(Unit* pmTarget, bool pmChase, bool pmAOE, Pl
     {
         return false;
     }
-    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
-    {
-        return false;
-    }
-
+    float targetDistance = me->GetDistance(pmTarget);
     if (pmChase)
     {
+        if (targetDistance > ATTACK_RANGE_LIMIT)
+        {
+            return false;
+        }
         if (!Chase(pmTarget, WARLOCK_RANGE_DISTANCE))
         {
             return false;
@@ -109,6 +109,10 @@ bool Script_Warlock::DPS_Affliction(Unit* pmTarget, bool pmChase, bool pmAOE, Pl
     }
     else
     {
+        if (targetDistance > RANGED_MAX_DISTANCE)
+        {
+            return false;
+        }
         if (!me->isInFront(pmTarget, M_PI / 16))
         {
             me->SetFacingToObject(pmTarget);
@@ -142,8 +146,6 @@ bool Script_Warlock::DPS_Demonology(Unit* pmTarget, bool pmChase, bool pmAOE, Pl
     {
         return false;
     }
-
-
     if (!me)
     {
         return false;
@@ -152,13 +154,13 @@ bool Script_Warlock::DPS_Demonology(Unit* pmTarget, bool pmChase, bool pmAOE, Pl
     {
         return false;
     }
-    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
-    {
-        return false;
-    }
-
+    float targetDistance = me->GetDistance(pmTarget);
     if (pmChase)
     {
+        if (targetDistance > ATTACK_RANGE_LIMIT)
+        {
+            return false;
+        }
         if (!Chase(pmTarget, WARLOCK_RANGE_DISTANCE))
         {
             return false;
@@ -166,6 +168,10 @@ bool Script_Warlock::DPS_Demonology(Unit* pmTarget, bool pmChase, bool pmAOE, Pl
     }
     else
     {
+        if (targetDistance > RANGED_MAX_DISTANCE)
+        {
+            return false;
+        }
         if (!me->isInFront(pmTarget, M_PI / 16))
         {
             me->SetFacingToObject(pmTarget);
@@ -199,8 +205,6 @@ bool Script_Warlock::DPS_Destruction(Unit* pmTarget, bool pmChase, bool pmAOE, P
     {
         return false;
     }
-
-
     if (!me)
     {
         return false;
@@ -209,13 +213,13 @@ bool Script_Warlock::DPS_Destruction(Unit* pmTarget, bool pmChase, bool pmAOE, P
     {
         return false;
     }
-    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
-    {
-        return false;
-    }
-
+    float targetDistance = me->GetDistance(pmTarget);
     if (pmChase)
     {
+        if (targetDistance > ATTACK_RANGE_LIMIT)
+        {
+            return false;
+        }
         if (!Chase(pmTarget, WARLOCK_RANGE_DISTANCE))
         {
             return false;
@@ -223,6 +227,10 @@ bool Script_Warlock::DPS_Destruction(Unit* pmTarget, bool pmChase, bool pmAOE, P
     }
     else
     {
+        if (targetDistance > RANGED_MAX_DISTANCE)
+        {
+            return false;
+        }
         if (!me->isInFront(pmTarget, M_PI / 16))
         {
             me->SetFacingToObject(pmTarget);
@@ -321,12 +329,13 @@ bool Script_Warlock::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE, Player
     {
         return false;
     }
-    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
-    {
-        return false;
-    }
+    float targetDistance = me->GetDistance(pmTarget);
     if (pmChase)
     {
+        if (targetDistance > ATTACK_RANGE_LIMIT)
+        {
+            return false;
+        }
         if (!Chase(pmTarget, WARLOCK_RANGE_DISTANCE))
         {
             return false;
@@ -334,6 +343,10 @@ bool Script_Warlock::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE, Player
     }
     else
     {
+        if (targetDistance > RANGED_MAX_DISTANCE)
+        {
+            return false;
+        }
         if (!me->isInFront(pmTarget, M_PI / 16))
         {
             me->SetFacingToObject(pmTarget);

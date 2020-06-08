@@ -22,6 +22,7 @@ enum CreatureEntry_RobotStrategy :uint32
     CreatureEntry_RobotStrategy_Demented_Druid = 15260,
     CreatureEntry_RobotStrategy_Shade_of_Taerar = 15302,
     CreatureEntry_RobotStrategy_Spirit_Shade = 15261,
+    CreatureEntry_RobotStrategy_Azuregos = 6109,
 };
 
 enum RobotStrategyType :uint32
@@ -299,8 +300,46 @@ public:
 
     float engageAngle;
     float engageDistance;
-    float sideAngle;
-    Position tankPos;
+    uint32 shadeCombatTime;
+};
+
+enum GroupRole_Azuregos :uint32
+{
+    GroupRole_Azuregos_Tank = 0,
+    GroupRole_Azuregos_Healer1,
+    GroupRole_Azuregos_Healer2,
+    GroupRole_Azuregos_DPS,
+};
+
+enum ActionType_Azuregos :uint32
+{
+    ActionType_Azuregos_None = 0,
+    ActionType_Azuregos_MarkMove,
+};
+
+class RobotStrategy_Group_Azuregos :public RobotStrategy_Group
+{
+public:
+    RobotStrategy_Group_Azuregos(Player* pmMe) :RobotStrategy_Group(pmMe)
+    {
+        InitialStrategy();
+    }
+
+    void InitialStrategy();
+    std::string GetGroupRoleName() override;
+    void SetGroupRole(std::string pmRoleName) override;
+    bool Follow() override;
+    bool Stay(std::string pmTargetGroupRole) override;
+    bool Hold(std::string pmTargetGroupRole) override;
+    bool Engage(Unit* pmTarget) override;
+    bool DPS() override;
+    bool Tank() override;
+    bool Tank(Unit* pmTarget) override;
+    bool Heal() override;
+    void Update(uint32 pmDiff) override;
+
+    float engageAngle;
+    float engageDistance;
 };
 
 class RobotStrategy_Group_Test :public RobotStrategy_Group
@@ -326,5 +365,6 @@ public:
 
     float engageAngle;
     float engageDistance;
+    uint32 shadeCombatTime;
 };
 #endif

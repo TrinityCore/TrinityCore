@@ -10,7 +10,7 @@
 #endif
 
 #ifndef HUNTER_RANGE_DISTANCE
-# define HUNTER_RANGE_DISTANCE 35
+# define HUNTER_RANGE_DISTANCE 40
 #endif
 
 #include "Script_Base.h"
@@ -19,7 +19,7 @@ class Script_Hunter :public Script_Base
 {
 public:    
     Script_Hunter(Player* pmMe);    
-    bool DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank);
+    bool DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, bool pmInterruptCasting = true);
     bool Tank(Unit* pmTarget, bool pmChase, bool pmSingle = false);
     bool Heal(Unit* pmTarget, bool pmCure);
     bool Attack(Unit* pmTarget);
