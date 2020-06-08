@@ -23,6 +23,7 @@
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
+#include "SpellInfo.h"
 #include "SpellScript.h"
 
 enum Texts
@@ -36,7 +37,7 @@ enum Texts
     SAY_BLADE_DANCE     = 5,
     SAY_SLAY            = 6,
     SAY_DEATH           = 7,
-    SAY_DISENGAGE       = 8,
+    SAY_DISENGAGE       = 8
 };
 
 enum Spells
