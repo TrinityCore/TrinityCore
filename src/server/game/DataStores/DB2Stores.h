@@ -227,11 +227,11 @@ struct TaxiPathBySourceAndDestination
     uint32 price;
 };
 
-typedef std::map<uint32, TaxiPathBySourceAndDestination> TaxiPathSetForSource;
-typedef std::map<uint32, TaxiPathSetForSource> TaxiPathSetBySource;
+using TaxiPathSetForSource = std::map<uint32, TaxiPathBySourceAndDestination>;
+using TaxiPathSetBySource = std::map<uint32, TaxiPathSetForSource>;
 
-typedef std::vector<TaxiPathNodeEntry const*> TaxiPathNodeList;
-typedef std::vector<TaxiPathNodeList> TaxiPathNodesByPath;
+using TaxiPathNodeList = std::vector<TaxiPathNodeEntry const*>;
+using TaxiPathNodesByPath = std::vector<TaxiPathNodeList>;
 
 TC_GAME_API extern TaxiMask                                         sTaxiNodesMask;
 TC_GAME_API extern TaxiMask                                         sOldContinentsNodesMask;
@@ -252,12 +252,24 @@ class TC_GAME_API DB2Manager
 public:
     DEFINE_DB2_SET_COMPARATOR(MountTypeXCapabilityEntry)
 
-    typedef std::map<int32 /*hotfixId*/, std::vector<std::pair<uint32 /*tableHash*/, int32 /*recordId*/>>> HotfixContainer;
+    struct HotfixRecord
+    {
+        uint32 TableHash = 0;
+        int32 RecordID = 0;
+        int32 HotfixID = 0;
 
-    typedef std::vector<ItemBonusEntry const*> ItemBonusList;
-    typedef std::unordered_map<uint32, std::unordered_map<uint32, MapDifficultyEntry const*>> MapDifficultyContainer;
-    typedef std::set<MountTypeXCapabilityEntry const*, MountTypeXCapabilityEntryComparator> MountTypeXCapabilitySet;
-    typedef std::vector<MountXDisplayEntry const*> MountXDisplayContainer;
+        friend bool operator<(HotfixRecord const& left, HotfixRecord const& right)
+        {
+            return std::tie(left.HotfixID, left.TableHash, left.RecordID) < std::tie(right.HotfixID, right.TableHash, right.RecordID);
+        }
+    };
+
+    using HotfixContainer = std::set<HotfixRecord>;
+
+    using ItemBonusList = std::vector<ItemBonusEntry const*>;
+    using MapDifficultyContainer = std::unordered_map<uint32, std::unordered_map<uint32, MapDifficultyEntry const*>>;
+    using MountTypeXCapabilitySet = std::set<MountTypeXCapabilityEntry const*, MountTypeXCapabilityEntryComparator>;
+    using MountXDisplayContainer = std::vector<MountXDisplayEntry const*>;
 
     static DB2Manager& Instance();
 
