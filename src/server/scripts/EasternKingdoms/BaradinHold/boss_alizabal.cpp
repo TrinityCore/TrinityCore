@@ -19,254 +19,243 @@
 #include "baradin_hold.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
+#include "MoveSpline.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
+#include "SpellScript.h"
 
 enum Texts
 {
-    SAY_INTRO               = 1,
-    SAY_AGGRO               = 2,
-    SAY_HATE                = 3,
-    SAY_SKEWER              = 4,
-    SAY_SKEWER_ANNOUNCE     = 5,
-    SAY_BLADE_STORM         = 6,
-    SAY_SLAY                = 10,
-    SAY_DEATH               = 12
+    // Alizabal
+    SAY_INTRO           = 0,
+    SAY_AGGRO           = 1,
+    SAY_SEETHING_HATE   = 2,
+    SAY_ANNOUNCE_SKEWER = 3,
+    SAY_SKEWER          = 4,
+    SAY_BLADE_DANCE     = 5,
+    SAY_SLAY            = 6,
+    SAY_DEATH           = 7,
+    SAY_DISENGAGE       = 8,
 };
 
 enum Spells
 {
-    SPELL_BLADE_DANCE       = 105784,
-    SPELL_BLADE_DANCE_DUMMY = 105828,
-    SPELL_SEETHING_HATE     = 105067,
-    SPELL_SKEWER            = 104936,
-    SPELL_BERSERK           = 47008
+    // Alizabal
+    SPELL_SKEWER                    = 104936,
+    SPELL_BLADE_DANCE               = 105828,
+    SPELL_BLADE_DANCE_CHARGE        = 105726,
+    SPELL_BLADE_DANCE_ROOT          = 105784,
+    SPELL_SEETHING_HATE_PERIODIC    = 105067,
+    SPELL_BERSERK                   = 47008
 };
+
+#define SPELL_SEETHING_HATE_TARGETING RAID_MODE<uint32>(105065, 108090)
 
 enum Actions
 {
-    ACTION_INTRO            = 1
-};
-
-    enum Points
-{
-    POINT_STORM             = 1
+    // Alizabal
+    ACTION_INTRO = 1
 };
 
 enum Events
 {
-    EVENT_RANDOM_CAST       = 1,
-    EVENT_STOP_STORM        = 2,
-    EVENT_MOVE_STORM        = 3,
-    EVENT_CAST_STORM        = 4
+    // Alizabal
+    EVENT_SEETHING_HATE = 1,
+    EVENT_SKEWER,
+    EVENT_BLADE_DANCE,
+    EVENT_BLADE_DANCE_CHARGE,
+    EVENT_BERSERK
 };
 
-class at_alizabal_intro : public AreaTriggerScript
+struct boss_alizabal : public BossAI
 {
-    public:
-        at_alizabal_intro() : AreaTriggerScript("at_alizabal_intro") { }
+    boss_alizabal(Creature* creature) : BossAI(creature, DATA_ALIZABAL), _bladeDanceChargeCount(0) { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _JustEngagedWith();
+        Talk(SAY_AGGRO);
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+        events.ScheduleEvent(EVENT_SEETHING_HATE, 9s + 500ms);
+        events.ScheduleEvent(EVENT_SKEWER, 18s);
+        events.ScheduleEvent(EVENT_BLADE_DANCE, 27s + 500ms);
+        events.ScheduleEvent(EVENT_BERSERK, 10min);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+        Talk(SAY_DEATH);
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SKEWER);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SEETHING_HATE_PERIODIC);
+    }
+
+    void KilledUnit(Unit* who) override
+    {
+        if (who->IsPlayer())
+            Talk(SAY_SLAY);
+    }
+
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        _EnterEvadeMode();
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SKEWER);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SEETHING_HATE_PERIODIC);
+        Talk(SAY_DISENGAGE);
+        _DespawnAtEvade();
+    }
+
+    void DoAction(int32 action) override
+    {
+        switch (action)
         {
-            if (InstanceScript* instance = player->GetInstanceScript())
-                if (Creature* alizabal = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_ALIZABAL)))
-                    alizabal->AI()->DoAction(ACTION_INTRO);
-            return true;
+            case ACTION_INTRO:
+                Talk(SAY_INTRO);
+                break;
+            default:
+                break;
         }
-};
+    }
 
-class boss_alizabal : public CreatureScript
-{
-    public:
-        boss_alizabal() : CreatureScript("boss_alizabal") { }
-
-        struct boss_alizabalAI : public BossAI
+    void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_SEETHING_HATE_TARGETING)
+            Talk(SAY_SEETHING_HATE, target);
+        else if (spell->Id == SPELL_SKEWER)
         {
-            boss_alizabalAI(Creature* creature) : BossAI(creature, DATA_ALIZABAL)
+            Talk(SAY_ANNOUNCE_SKEWER, target);
+            Talk(SAY_SKEWER, target);
+        }
+    }
+
+    void MovementInform(uint32 motionType, uint32 id) override
+    {
+        if (motionType != POINT_MOTION_TYPE)
+            return;
+
+        if (id == EVENT_CHARGE)
+            DoCastSelf(SPELL_BLADE_DANCE_ROOT);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
             {
-                _intro = false;
-            }
-
-            void Reset() override
-            {
-                _Reset();
-                _hate = false;
-                _skewer = false;
-            }
-
-            void JustEngagedWith(Unit* /*who*/) override
-            {
-                _JustEngagedWith();
-                Talk(SAY_AGGRO);
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-                events.ScheduleEvent(EVENT_RANDOM_CAST, 10000);
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                _JustDied();
-                Talk(SAY_DEATH);
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-            }
-
-            void KilledUnit(Unit* who) override
-            {
-                if (who->GetTypeId() == TYPEID_PLAYER)
-                    Talk(SAY_SLAY);
-            }
-
-            void EnterEvadeMode(EvadeReason /*why*/) override
-            {
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                me->GetMotionMaster()->MoveTargetedHome();
-                _DespawnAtEvade();
-            }
-
-            void DoAction(int32 action) override
-            {
-                switch (action)
-                {
-                    case ACTION_INTRO:
-                        if (!_intro)
-                        {
-                            Talk(SAY_INTRO);
-                            _intro = true;
-                        }
-                        break;
-                }
-            }
-
-            void MovementInform(uint32 /*type*/, uint32 pointId) override
-            {
-                switch (pointId)
-                {
-                    case POINT_STORM:
-                        events.ScheduleEvent(EVENT_CAST_STORM, 1);
-                        break;
-                }
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
+                case EVENT_SEETHING_HATE:
+                    DoCastAOE(SPELL_SEETHING_HATE_TARGETING);
+                    break;
+                case EVENT_SKEWER:
+                    DoCastVictim(SPELL_SKEWER);
+                    break;
+                case EVENT_BLADE_DANCE:
+                    Talk(SAY_BLADE_DANCE, me);
+                    DoCastSelf(SPELL_BLADE_DANCE);
+                    _bladeDanceChargeCount = 0;
+                    events.ScheduleEvent(EVENT_BLADE_DANCE_CHARGE, 100ms);
+                    events.Repeat(1min);
+                    ScheduleEvents();
+                    break;
+                case EVENT_BLADE_DANCE_CHARGE:
+                    if (_bladeDanceChargeCount < 3)
                     {
-                        case EVENT_RANDOM_CAST:
-                            switch (urand(0, 1))
-                            {
-                                case 0:
-                                    if (!_skewer)
-                                    {
-                                        if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0))
-                                        {
-                                            DoCast(target, SPELL_SKEWER, true);
-                                            Talk(SAY_SKEWER);
-                                            Talk(SAY_SKEWER_ANNOUNCE, target);
-                                        }
-                                        _skewer = true;
-                                        events.ScheduleEvent(EVENT_RANDOM_CAST, urand(7000, 10000));
-                                    }
-                                    else if (!_hate)
-                                    {
-                                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
-                                        {
-                                            DoCast(target, SPELL_SEETHING_HATE, true);
-                                            Talk(SAY_HATE);
-                                        }
-                                        _hate = true;
-                                        events.ScheduleEvent(EVENT_RANDOM_CAST, urand(7000, 10000));
-                                    }
-                                    else if (_hate && _skewer)
-                                    {
-                                        Talk(SAY_BLADE_STORM);
-                                        DoCastAOE(SPELL_BLADE_DANCE_DUMMY);
-                                        DoCastAOE(SPELL_BLADE_DANCE);
-                                        events.ScheduleEvent(EVENT_RANDOM_CAST, 21000);
-                                        events.ScheduleEvent(EVENT_MOVE_STORM, 4050);
-                                        events.ScheduleEvent(EVENT_STOP_STORM, 13000);
-                                    }
-                                    break;
-                                case 1:
-                                    if (!_hate)
-                                    {
-                                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
-                                        {
-                                            DoCast(target, SPELL_SEETHING_HATE, true);
-                                            Talk(SAY_HATE);
-                                        }
-                                        _hate = true;
-                                        events.ScheduleEvent(EVENT_RANDOM_CAST, urand(7000, 10000));
-                                    }
-                                    else if (!_skewer)
-                                    {
-                                        if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0))
-                                        {
-                                            DoCast(target, SPELL_SKEWER, true);
-                                            Talk(SAY_SKEWER);
-                                            Talk(SAY_SKEWER_ANNOUNCE, target);
-                                        }
-                                        _skewer = true;
-                                        events.ScheduleEvent(EVENT_RANDOM_CAST, urand(7000, 10000));
-                                    }
-                                    else if (_hate && _skewer)
-                                    {
-                                        Talk(SAY_BLADE_STORM);
-                                        DoCastAOE(SPELL_BLADE_DANCE_DUMMY);
-                                        DoCastAOE(SPELL_BLADE_DANCE);
-                                        events.ScheduleEvent(EVENT_RANDOM_CAST, 21000);
-                                        events.ScheduleEvent(EVENT_MOVE_STORM, 4050);
-                                        events.ScheduleEvent(EVENT_STOP_STORM, 13000);
-                                    }
-                                    break;
-                            }
-                            break;
-                        case EVENT_MOVE_STORM:
-                            me->SetSpeedRate(MOVE_RUN, 4.0f);
-                            me->SetSpeedRate(MOVE_WALK, 4.0f);
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
-                                me->GetMotionMaster()->MovePoint(POINT_STORM, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
-                            events.ScheduleEvent(EVENT_MOVE_STORM, 4050);
-                            break;
-                        case EVENT_STOP_STORM:
-                            me->RemoveAura(SPELL_BLADE_DANCE);
-                            me->RemoveAura(SPELL_BLADE_DANCE_DUMMY);
-                            me->SetSpeedRate(MOVE_WALK, 1.0f);
-                            me->SetSpeedRate(MOVE_RUN, 1.14f);
-                            me->GetMotionMaster()->MoveChase(me->GetVictim());
-                            _hate = false;
-                            _skewer = false;
-                            break;
-                        case EVENT_CAST_STORM:
-                            DoCastAOE(SPELL_BLADE_DANCE);
-                            break;
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.f, true))
+                            DoCast(target, SPELL_BLADE_DANCE_CHARGE);
+                        else
+                            DoCastVictim(SPELL_BLADE_DANCE_CHARGE);
+
+                        events.Repeat(4s + 100ms);
+                        ++_bladeDanceChargeCount;
                     }
-                }
-
-                DoMeleeAttackIfReady();
+                    break;
+                case EVENT_BERSERK:
+                    DoCastSelf(SPELL_BERSERK, true);
+                    break;
+                default:
+                    break;
             }
-
-        private:
-            bool _intro =false;
-            bool _hate =false;
-            bool _skewer =false;
-
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetBaradinHoldAI<boss_alizabalAI>(creature);
         }
+        DoMeleeAttackIfReady();
+    }
+private:
+    uint8 _bladeDanceChargeCount;
+
+    void ScheduleEvents()
+    {
+        events.ScheduleEvent(EVENT_SKEWER, 23s);
+        events.ScheduleEvent(EVENT_SEETHING_HATE, 31s + 400ms);
+        events.ScheduleEvent(EVENT_SKEWER, 43s + 400ms);
+        events.ScheduleEvent(EVENT_SEETHING_HATE, 51s + 800ms);
+    }
+};
+
+class spell_alizabal_seething_hate : public SpellScript
+{
+    PrepareSpellScript(spell_alizabal_seething_hate);
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.empty())
+            return;
+
+        Unit* caster = GetCaster();
+
+        if (targets.size() > 1)
+        {
+            targets.remove_if([caster](WorldObject* target)->bool
+            {
+                return caster->GetVictim() == target;
+            });
+        }
+
+        if (targets.size() > 1)
+            Trinity::Containers::RandomResize(targets, 1);
+    }
+
+    void HandleDummyEffect(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(GetHitUnit(), GetEffectValue());
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_alizabal_seething_hate::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnEffectHitTarget += SpellEffectFn(spell_alizabal_seething_hate::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+class at_alizabal_intro : public OnlyOnceAreaTriggerScript
+{
+public:
+    at_alizabal_intro() : OnlyOnceAreaTriggerScript("at_alizabal_intro") { }
+
+    bool _OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+    {
+        if (InstanceScript* instance = player->GetInstanceScript())
+            if (Creature* alizabal = instance->GetCreature(DATA_ALIZABAL))
+                if (alizabal->IsAIEnabled)
+                    alizabal->AI()->DoAction(ACTION_INTRO);
+
+        return true;
+    }
 };
 
 void AddSC_boss_alizabal()
 {
-    new boss_alizabal();
+    RegisterBaradinHoldCreatureAI(boss_alizabal);
+    RegisterSpellScript(spell_alizabal_seething_hate);
     new at_alizabal_intro();
 }
