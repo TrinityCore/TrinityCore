@@ -424,7 +424,7 @@ class spell_apothecary_lingering_fumes : public SpellScriptLoader
                 caster->GetCreatureListWithEntryInGrid(triggers, NPC_VIAL_BUNNY, 100.0f);
                 if (triggers.empty())
                     return;
-                
+
                 Creature* trigger = Trinity::Containers::SelectRandomContainerElement(triggers);
                 caster->GetMotionMaster()->MovePoint(0, trigger->GetPosition());
 
