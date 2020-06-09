@@ -597,7 +597,7 @@ namespace MMAP
                 unsigned char* triFlags = new unsigned char[tTriCount];
                 memset(triFlags, NAV_AREA_GROUND_STEEP, tTriCount*sizeof(unsigned char));
                 rcClearUnwalkableTriangles(m_rcContext, tileCfg.walkableSlopeAngle, tVerts, tVertCount, tTris, tTriCount, triFlags);
-                rcMarkWalkableTriangles(m_rcContext, tileCfg.walkableSlopeAngleNotSteep, tVerts, tVertCount, tTris, tTriCount, triFlags);
+                rcMarkWalkableTriangles(m_rcContext, tileCfg.walkableSlopeAngleNotSteep, tVerts, tVertCount, tTris, tTriCount, triFlags, NAV_AREA_GROUND);
                 rcRasterizeTriangles(m_rcContext, tVerts, tVertCount, tTris, triFlags, tTriCount, *tile.solid, config.walkableClimb);
                 delete[] triFlags;
 
@@ -710,7 +710,7 @@ namespace MMAP
         // TODO: special flags for DYNAMIC polygons, ie surfaces that can be turned on and off
         for (int i = 0; i < iv.polyMesh->npolys; ++i)
         {
-            if (uint8 area = iv.polyMesh->areas[i] & NAV_AREA_MAX_VALUE)
+            if (uint8 area = iv.polyMesh->areas[i] & NAV_AREA_ALL_MASK)
             {
                 if (area >= NAV_AREA_MIN_VALUE)
                     iv.polyMesh->flags[i] = 1 << (NAV_AREA_MAX_VALUE - area);

@@ -589,8 +589,7 @@ static const unsigned char RC_NULL_AREA = 0;
 /// The default area id used to indicate a walkable polygon. 
 /// This is also the maximum allowed area id, and the only non-null area id 
 /// recognized by some steps in the build process. 
-static const unsigned char RC_WALKABLE_AREA = 62;
-static const unsigned char RC_WALKABLE_AREA_STEEP = 63;
+static const unsigned char RC_WALKABLE_AREA = 63;
 
 /// The value returned by #rcGetCon if the specified direction is not connected
 /// to another span. (Has no neighbor.)
@@ -814,7 +813,7 @@ bool rcCreateHeightfield(rcContext* ctx, rcHeightfield& hf, int width, int heigh
 ///  @param[in]		nt					The number of triangles.
 ///  @param[out]	areas				The triangle area ids. [Length: >= @p nt]
 void rcMarkWalkableTriangles(rcContext* ctx, const float walkableSlopeAngle, const float* verts, int nv,
-							 const int* tris, int nt, unsigned char* areas); 
+							 const int* tris, int nt, unsigned char* areas, unsigned char areaType = RC_WALKABLE_AREA);
 
 /// Sets the area id of all triangles with a slope greater than or equal to the specified value to #RC_NULL_AREA.
 ///  @ingroup recast

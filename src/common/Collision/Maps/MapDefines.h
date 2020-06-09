@@ -51,12 +51,13 @@ enum NavArea
     NAV_AREA_EMPTY          = 0,
     // areas 1-60 will be used for destructible areas (currently skipped in vmaps, WMO with flag 1)
     // ground is the highest value to make recast choose ground over water when merging surfaces very close to each other (shallow water would be walkable)
-    NAV_AREA_GROUND_STEEP   = 63,
-    NAV_AREA_GROUND         = 62,
-    NAV_AREA_WATER          = 61,
-    NAV_AREA_MAGMA_SLIME    = 60, // don't need to differentiate between them
-    NAV_AREA_MAX_VALUE      = 63,
-    NAV_AREA_MIN_VALUE      = NAV_AREA_MAGMA_SLIME
+    NAV_AREA_GROUND_STEEP   = 11,
+    NAV_AREA_GROUND         = 10,
+    NAV_AREA_WATER          = 9,
+    NAV_AREA_MAGMA_SLIME    = 8, // don't need to differentiate between them
+    NAV_AREA_MAX_VALUE      = NAV_AREA_GROUND_STEEP,
+    NAV_AREA_MIN_VALUE      = NAV_AREA_MAGMA_SLIME,
+    NAV_AREA_ALL_MASK       = 0x3F // max allowed value
 };
 
 enum NavTerrainFlag
