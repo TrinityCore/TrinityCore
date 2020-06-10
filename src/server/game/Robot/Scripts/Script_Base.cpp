@@ -493,7 +493,7 @@ bool Script_Base::InitializeCharacter(uint32 pmTargetLevel)
     }
     case Classes::CLASS_PALADIN:
     {
-        switch (me->rai->GetActiveStrategy()->sb->characterTalentTab)
+        switch (me->rai->strategyMap[Strategy_Index::Strategy_Index_Solo]->sb->characterTalentTab)
         {
         case 0:
         {
@@ -1086,9 +1086,19 @@ void Script_Base::TryEquip(std::unordered_set<uint32> pmClassSet, std::unordered
         {
             continue;
         }
-        if (proto->Quality < ItemQualities::ITEM_QUALITY_UNCOMMON)
+        if (me->rai->robotType == RobotType::RobotType_Raid)
         {
-            continue;
+            if (proto->Quality < ItemQualities::ITEM_QUALITY_EPIC)
+            {
+                continue;
+            }
+        }
+        else if (me->rai->robotType == RobotType::RobotType_World)
+        {
+            if (proto->Quality < ItemQualities::ITEM_QUALITY_UNCOMMON)
+            {
+                continue;
+            }
         }
         if (proto->RequiredLevel < 10)
         {
@@ -1150,10 +1160,7 @@ void Script_Base::RandomTeleport()
     me->ClearInCombat();
     me->StopMoving();
     me->GetMotionMaster()->Clear();
-    if (RobotStrategy_Solo* rs = (RobotStrategy_Solo*)me->rai->strategyMap[Strategy_Index::Strategy_Index_Solo])
-    {
-        rs->Reset();
-    }
+    me->rai->Reset();
     bool validLocation = false;
     int destMapID = 0;
     float destX = 0.0f;

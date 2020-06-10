@@ -65,7 +65,12 @@ m_bgGroup(nullptr), m_bfGroup(nullptr), m_lootMethod(FREE_FOR_ALL), m_lootThresh
 m_masterLooterGuid(), m_subGroupsCounts(nullptr), m_guid(), m_counter(0), m_maxEnchantingLevel(0), m_dbStoreId(0), m_isLeaderOffline(false)
 {
     for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
+    {
         m_targetIcons[i].Clear();
+    }
+
+    // EJ group strategy index
+    groupStrategyIndex = Strategy_Index::Strategy_Index_Group;
 }
 
 Group::~Group()

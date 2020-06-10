@@ -1046,7 +1046,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     }
     else
     {
-        for (std::unordered_map<uint32, RobotStrategy*>::iterator rsIT = pCurrChar->rai->strategyMap.begin(); rsIT != pCurrChar->rai->strategyMap.end(); rsIT++)
+        for (std::unordered_map<uint32, RobotStrategy_Base*>::iterator rsIT = pCurrChar->rai->strategyMap.begin(); rsIT != pCurrChar->rai->strategyMap.end(); rsIT++)
         {
             rsIT->second->sb->IdentifyCharacter();
             rsIT->second->sb->Reset();

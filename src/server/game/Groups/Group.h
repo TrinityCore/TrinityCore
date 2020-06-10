@@ -190,6 +190,9 @@ class TC_GAME_API Group
         // EJ group target arrangement
         std::unordered_map<ObjectGuid, ObjectGuid> groupTargetArrangementMap;
 
+        // EJ group strategy index
+        uint32 groupStrategyIndex;
+
         void Update(uint32 diff);
 
         // group manipulation methods

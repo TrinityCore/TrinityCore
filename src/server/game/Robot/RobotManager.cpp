@@ -19,8 +19,19 @@
 #include "InstanceScript.h"
 #include "GridNotifiers.h"
 #include "PathGenerator.h"
-#include "RobotStrategy.h"
 #include "Script_Paladin.h"
+#include "RobotStrategy_Base.h"
+#include "RobotStrategy_Solo.h"
+#include "RobotStrategy_Group.h"
+#include "RobotStrategy_Group_Azuregos.h"
+#include "RobotStrategy_Group_BlackrockSpire.h"
+#include "RobotStrategy_Group_DoctorWeavil.h"
+#include "RobotStrategy_Group_Emeriss.h"
+#include "RobotStrategy_Group_Lethon.h"
+#include "RobotStrategy_Group_Taerar.h"
+#include "RobotStrategy_Group_Ysondre.h"
+#include "RobotStrategy_Group_Lucifron.h"
+#include "RobotStrategy_Group_Test.h"
 
 RobotManager::RobotManager()
 {
@@ -1169,133 +1180,182 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
     if (commandName == "role")
     {
         std::ostringstream replyStream;
-        if (RobotStrategy_Group* rsg = (RobotStrategy_Group*)pmPlayer->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
+        if (Group* myGroup = pmPlayer->GetGroup())
         {
-            if (commandVector.size() > 1)
+            if (RobotStrategy_Group* rsg = (RobotStrategy_Group*)pmPlayer->rai->strategyMap[myGroup->groupStrategyIndex])
             {
-                std::string newRole = commandVector.at(1);
-                rsg->SetGroupRole(newRole);
+                if (commandVector.size() > 1)
+                {
+                    std::string newRole = commandVector.at(1);
+                    rsg->SetGroupRole(newRole);
+                }
+                replyStream << "Your group role is ";
+                replyStream << rsg->GetGroupRoleName();
             }
-            replyStream << "Your group role is ";
-            replyStream << rsg->GetGroupRoleName();
+            else
+            {
+                replyStream << "Incorrect strategy";
+            }
         }
         else
         {
-            replyStream << "Incorrect strategy";
+            replyStream << "You are not in a group";
         }
         sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, replyStream.str().c_str(), pmPlayer);
     }
     else if (commandName == "strategy")
     {
         std::ostringstream replyStream;
-        if (commandVector.size() > 1)
+        if (Group* myGroup = pmPlayer->GetGroup())
         {
-            std::ostringstream targetStream;
-            uint8 arrayCount = 0;
-            for (std::vector<std::string>::iterator it = commandVector.begin(); it != commandVector.end(); it++)
+            if (commandVector.size() > 1)
             {
-                if (arrayCount > 0)
+                std::ostringstream targetStream;
+                uint8 arrayCount = 0;
+                for (std::vector<std::string>::iterator it = commandVector.begin(); it != commandVector.end(); it++)
                 {
-                    targetStream << (*it) << " ";
+                    if (arrayCount > 0)
+                    {
+                        targetStream << (*it) << " ";
+                    }
+                    arrayCount++;
                 }
-                arrayCount++;
-            }
-            std::string strategyName = sRobotManager->TrimString(targetStream.str());
-            if (strategyName == "solo")
-            {
-                pmPlayer->rai->activeStrategyIndex = Strategy_Index::Strategy_Index_Solo;
-                replyStream << "Strategy set to solo";
-            }
-            else if (strategyName == "group")
-            {
-                pmPlayer->rai->activeStrategyIndex = Strategy_Index::Strategy_Index_Group;
-                replyStream << "Strategy set to group";
-            }
-            else if (strategyName == "blackrock spire")
-            {
-                pmPlayer->rai->activeStrategyIndex = Strategy_Index::Strategy_Index_Group_Blackrock_Spire;
-                replyStream << "Strategy set to blackrock spire";
-            }
-            else if (strategyName == "alcaz island")
-            {
-                pmPlayer->rai->activeStrategyIndex = Strategy_Index::Strategy_Index_Group_Alcaz_Island;
-                replyStream << "Strategy set to alcaz island";
-            }
-            else if (strategyName == "shadow labyrinth")
-            {
-                pmPlayer->rai->activeStrategyIndex = Strategy_Index::Strategy_Index_Group_Shadow_Labyrinth;
-                replyStream << "Strategy set to shadow labyrinth";
-            }
-            else if (strategyName == "emerald dragon")
-            {
-                pmPlayer->rai->activeStrategyIndex = Strategy_Index::Strategy_Index_Group_EmeraldDragon;
-                replyStream << "Strategy set to emerald dragon";
-            }
-            else if (strategyName == "azuregos")
-            {
-                pmPlayer->rai->activeStrategyIndex = Strategy_Index::Strategy_Index_Group_Azuregos;
-                replyStream << "Strategy set to azuregos";
-            }
-            else if (strategyName == "test")
-            {
-                pmPlayer->rai->activeStrategyIndex = Strategy_Index::Strategy_Index_Group_Test;
-                replyStream << "Strategy set to test";
+                std::string strategyName = sRobotManager->TrimString(targetStream.str());
+                if (strategyName == "group")
+                {
+                    myGroup->groupStrategyIndex = Strategy_Index::Strategy_Index_Group;
+                    replyStream << "Strategy set to group";
+                }
+                else if (strategyName == "blackrock spire")
+                {
+                    myGroup->groupStrategyIndex = Strategy_Index::Strategy_Index_Group_Blackrock_Spire;
+                    replyStream << "Strategy set to blackrock spire";
+                }
+                else if (strategyName == "doctor weavil")
+                {
+                    myGroup->groupStrategyIndex = Strategy_Index::Strategy_Index_Group_DoctorWeavil;
+                    replyStream << "Strategy set to doctor weavil";
+                }
+                else if (strategyName == "ysondre")
+                {
+                    myGroup->groupStrategyIndex = Strategy_Index::Strategy_Index_Group_Ysondre;
+                    replyStream << "Strategy set to ysondre. 2 tanks. 8 healers. healer 1- 3 for tank1. healer 4 - 6 for tank2.";
+                }
+                else if (strategyName == "taerar")
+                {
+                    myGroup->groupStrategyIndex = Strategy_Index::Strategy_Index_Group_Taerar;
+                    replyStream << "Strategy set to taerar. 5 tanks. tank 3 - 5 for shades. 8 healers. healer 1- 3 for tank1. healer 4 - 6 for tank2.";
+                }
+                else if (strategyName == "lethon")
+                {
+                    myGroup->groupStrategyIndex = Strategy_Index::Strategy_Index_Group_Lethon;
+                    replyStream << "Strategy set to lethon. 2 tanks. 8 healers. healer 1- 3 for tank1. healer 4 - 6 for tank2.";
+                }
+                else if (strategyName == "emeriss")
+                {
+                    myGroup->groupStrategyIndex = Strategy_Index::Strategy_Index_Group_Emeriss;
+                    replyStream << "Strategy set to emeriss. 2 tanks. 12 healers. healer 1- 2 for tank1. healer 3 - 4 for tank2. healer 5 - 12 should be in every sub group.";
+                }
+                else if (strategyName == "azuregos")
+                {
+                    myGroup->groupStrategyIndex = Strategy_Index::Strategy_Index_Group_Azuregos;
+                    replyStream << "Strategy set to azuregos. 1 tank. 8 healers. healer 1- 4 for tank. healer 5 - 8 for members.";
+                }
+                else if (strategyName == "lucifron")
+                {
+                    myGroup->groupStrategyIndex = Strategy_Index::Strategy_Index_Group_Lucifron;
+                    replyStream << "Strategy set to lucifron";
+                }
+                else if (strategyName == "test")
+                {
+                    myGroup->groupStrategyIndex = Strategy_Index::Strategy_Index_Group_Test;
+                    replyStream << "Strategy set to test";
+                }
+                else
+                {
+                    replyStream << "Unknown strategy";
+                }
             }
             else
             {
-                replyStream << "Unknown strategy";
+                switch (myGroup->groupStrategyIndex)
+                {
+                case Strategy_Index::Strategy_Index_Solo:
+                {
+                    replyStream << "Strategy is solo";
+                    break;
+                }
+                case Strategy_Index::Strategy_Index_Group:
+                {
+                    replyStream << "Strategy is group";
+                    break;
+                }
+                case Strategy_Index::Strategy_Index_Group_Blackrock_Spire:
+                {
+                    replyStream << "Strategy is blackrock spire";
+                    break;
+                }
+                case Strategy_Index::Strategy_Index_Group_DoctorWeavil:
+                {
+                    replyStream << "Strategy is doctor weavil";
+                    break;
+                }
+                case Strategy_Index::Strategy_Index_Group_Ysondre:
+                {
+                    replyStream << "Strategy is ysondre";
+                    break;
+                }
+                case Strategy_Index::Strategy_Index_Group_Taerar:
+                {
+                    replyStream << "Strategy is taerar";
+                    break;
+                }
+                case Strategy_Index::Strategy_Index_Group_Lethon:
+                {
+                    replyStream << "Strategy is lethon";
+                    break;
+                }
+                case Strategy_Index::Strategy_Index_Group_Emeriss:
+                {
+                    replyStream << "Strategy is emeriss";
+                    break;
+                }
+                case Strategy_Index::Strategy_Index_Group_Azuregos:
+                {
+                    replyStream << "Strategy is azuregos";
+                    break;
+                }
+                case Strategy_Index::Strategy_Index_Group_Test:
+                {
+                    replyStream << "Strategy is test";
+                    break;
+                }
+                default:
+                {
+                    replyStream << "Strategy is unknown";
+                    break;
+                }
+                }
+            }
+            for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+            {
+                Player* member = groupRef->GetSource();
+                if (member)
+                {
+                    if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->strategyMap[myGroup->groupStrategyIndex])
+                    {
+                        rs->Reset();
+                        rs->sb->ClearTarget();
+                    }                    
+                    member->AttackStop();
+                    member->StopMoving();
+                    member->GetMotionMaster()->Clear();
+                }
             }
         }
         else
         {
-            switch (pmPlayer->rai->activeStrategyIndex)
-            {
-            case Strategy_Index::Strategy_Index_Solo:
-            {
-                replyStream << "Strategy is solo";
-                break;
-            }
-            case Strategy_Index::Strategy_Index_Group:
-            {
-                replyStream << "Strategy is group";
-                break;
-            }
-            case Strategy_Index::Strategy_Index_Group_Blackrock_Spire:
-            {
-                replyStream << "Strategy is blackrock spire";
-                break;
-            }
-            case Strategy_Index::Strategy_Index_Group_Alcaz_Island:
-            {
-                replyStream << "Strategy is alcaz island";
-                break;
-            }
-            case Strategy_Index::Strategy_Index_Group_Shadow_Labyrinth:
-            {
-                replyStream << "Strategy is shadow labyrinth";
-                break;
-            }
-            case Strategy_Index::Strategy_Index_Group_EmeraldDragon:
-            {
-                replyStream << "Strategy is emerald dragon";
-                break;
-            }
-            case Strategy_Index::Strategy_Index_Group_Azuregos:
-            {
-                replyStream << "Strategy is azuregos";
-                break;
-            }
-            case Strategy_Index::Strategy_Index_Group_Test:
-            {
-                replyStream << "Strategy is test";
-                break;
-            }
-            default:
-            {
-                replyStream << "Strategy is unknown";
-                break;
-            }
-            }
+            replyStream << "You are not in a group";
         }
         sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, replyStream.str().c_str(), pmPlayer);
     }
@@ -1306,177 +1366,177 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
         {
             if (myGroup->GetLeaderGUID() == pmPlayer->GetGUID())
             {
-                switch (pmPlayer->rai->activeStrategyIndex)
+                bool paladinAura_concentration = false;
+                bool paladinAura_devotion = false;
+                bool paladinAura_retribution = false;
+                bool paladinBlessing_kings = false;
+                bool paladinBlessing_might = false;
+                bool paladinBlessing_wisdom = false;
+                for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
                 {
-                case Strategy_Index::Strategy_Index_Group:
-                {
-                    bool paladinAura_concentration = false;
-                    bool paladinAura_devotion = false;
-                    bool paladinAura_retribution = false;
-                    bool paladinBlessing_kings = false;
-                    bool paladinBlessing_might = false;
-                    bool paladinBlessing_wisdom = false;
-                    for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                    Player* member = groupRef->GetSource();
+                    if (member)
                     {
-                        Player* member = groupRef->GetSource();
-                        if (member)
+                        if (!member->GetSession()->isRobotSession)
                         {
-                            if (!member->GetSession()->isRobotSession)
+                            member->groupRole = GroupRole::GroupRole_DPS;
+                            continue;
+                        }
+                        if (member->GetClass() == Classes::CLASS_PALADIN)
+                        {
+                            if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->strategyMap[myGroup->groupStrategyIndex])
                             {
-                                member->groupRole = GroupRole::GroupRole_DPS;
-                                continue;
-                            }
-                            if (member->GetClass() == Classes::CLASS_PALADIN)
-                            {
-                                if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
+                                if (Script_Paladin* sp = (Script_Paladin*)rs->sb)
                                 {
-                                    if (Script_Paladin* sp = (Script_Paladin*)rs->sb)
+                                    switch (sp->blessingType)
                                     {
-                                        switch (sp->blessingType)
+                                    case PaladinBlessingType::PaladinBlessingType_Kings:
+                                    {
+                                        if (paladinBlessing_kings)
                                         {
-                                        case PaladinBlessingType::PaladinBlessingType_Kings:
-                                        {
-                                            if (paladinBlessing_kings)
+                                            if (!paladinBlessing_might)
                                             {
-                                                if (!paladinBlessing_might)
-                                                {
-                                                    sp->blessingType = PaladinBlessingType::PaladinBlessingType_Might;
-                                                    paladinBlessing_might = true;
-                                                }
-                                                else if (!paladinBlessing_wisdom)
-                                                {
-                                                    sp->blessingType = PaladinBlessingType::PaladinBlessingType_Wisdom;
-                                                    paladinBlessing_wisdom = true;
-                                                }
-                                            }
-                                            else
-                                            {
-                                                paladinBlessing_kings = true;
-                                            }
-                                            break;
-                                        }
-                                        case PaladinBlessingType::PaladinBlessingType_Might:
-                                        {
-                                            if (paladinBlessing_might)
-                                            {
-                                                if (!paladinBlessing_kings)
-                                                {
-                                                    sp->blessingType = PaladinBlessingType::PaladinBlessingType_Kings;
-                                                    paladinBlessing_kings = true;
-                                                }
-                                                else if (!paladinBlessing_wisdom)
-                                                {
-                                                    sp->blessingType = PaladinBlessingType::PaladinBlessingType_Wisdom;
-                                                    paladinBlessing_wisdom = true;
-                                                }
-                                            }
-                                            else
-                                            {
+                                                sp->blessingType = PaladinBlessingType::PaladinBlessingType_Might;
                                                 paladinBlessing_might = true;
                                             }
-                                            break;
-                                        }
-                                        case PaladinBlessingType::PaladinBlessingType_Wisdom:
-                                        {
-                                            if (paladinBlessing_wisdom)
+                                            else if (!paladinBlessing_wisdom)
                                             {
-                                                if (!paladinBlessing_kings)
-                                                {
-                                                    sp->blessingType = PaladinBlessingType::PaladinBlessingType_Kings;
-                                                    paladinBlessing_kings = true;
-                                                }
-                                                else if (!paladinBlessing_might)
-                                                {
-                                                    sp->blessingType = PaladinBlessingType::PaladinBlessingType_Might;
-                                                    paladinBlessing_might = true;
-                                                }
-                                            }
-                                            else
-                                            {
+                                                sp->blessingType = PaladinBlessingType::PaladinBlessingType_Wisdom;
                                                 paladinBlessing_wisdom = true;
                                             }
-                                            break;
                                         }
-                                        default:
+                                        else
                                         {
-                                            break;
+                                            paladinBlessing_kings = true;
                                         }
-                                        }
-                                        switch (sp->auraType)
+                                        break;
+                                    }
+                                    case PaladinBlessingType::PaladinBlessingType_Might:
+                                    {
+                                        if (paladinBlessing_might)
                                         {
-                                        case PaladinAuraType::PaladinAuraType_Concentration:
-                                        {
-                                            if (paladinAura_concentration)
+                                            if (!paladinBlessing_kings)
                                             {
-                                                if (!paladinAura_devotion)
-                                                {
-                                                    sp->auraType = PaladinAuraType::PaladinAuraType_Devotion;
-                                                    paladinAura_devotion = true;
-                                                }
-                                                else if (!paladinAura_retribution)
-                                                {
-                                                    sp->auraType = PaladinAuraType::PaladinAuraType_Retribution;
-                                                    paladinAura_retribution = true;
-                                                }
+                                                sp->blessingType = PaladinBlessingType::PaladinBlessingType_Kings;
+                                                paladinBlessing_kings = true;
                                             }
-                                            else
+                                            else if (!paladinBlessing_wisdom)
                                             {
-                                                paladinAura_concentration = true;
+                                                sp->blessingType = PaladinBlessingType::PaladinBlessingType_Wisdom;
+                                                paladinBlessing_wisdom = true;
                                             }
-                                            break;
                                         }
-                                        case PaladinAuraType::PaladinAuraType_Devotion:
+                                        else
                                         {
-                                            if (paladinAura_devotion)
+                                            paladinBlessing_might = true;
+                                        }
+                                        break;
+                                    }
+                                    case PaladinBlessingType::PaladinBlessingType_Wisdom:
+                                    {
+                                        if (paladinBlessing_wisdom)
+                                        {
+                                            if (!paladinBlessing_kings)
                                             {
-                                                if (!paladinAura_concentration)
-                                                {
-                                                    sp->auraType = PaladinAuraType::PaladinAuraType_Concentration;
-                                                    paladinAura_concentration = true;
-                                                }
-                                                else if (!paladinAura_retribution)
-                                                {
-                                                    sp->auraType = PaladinAuraType::PaladinAuraType_Retribution;
-                                                    paladinAura_retribution = true;
-                                                }
+                                                sp->blessingType = PaladinBlessingType::PaladinBlessingType_Kings;
+                                                paladinBlessing_kings = true;
                                             }
-                                            else
+                                            else if (!paladinBlessing_might)
                                             {
+                                                sp->blessingType = PaladinBlessingType::PaladinBlessingType_Might;
+                                                paladinBlessing_might = true;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            paladinBlessing_wisdom = true;
+                                        }
+                                        break;
+                                    }
+                                    default:
+                                    {
+                                        break;
+                                    }
+                                    }
+                                    switch (sp->auraType)
+                                    {
+                                    case PaladinAuraType::PaladinAuraType_Concentration:
+                                    {
+                                        if (paladinAura_concentration)
+                                        {
+                                            if (!paladinAura_devotion)
+                                            {
+                                                sp->auraType = PaladinAuraType::PaladinAuraType_Devotion;
                                                 paladinAura_devotion = true;
                                             }
-                                            break;
-                                        }
-                                        case PaladinAuraType::PaladinAuraType_Retribution:
-                                        {
-                                            if (paladinAura_retribution)
+                                            else if (!paladinAura_retribution)
                                             {
-                                                if (!paladinAura_concentration)
-                                                {
-                                                    sp->auraType = PaladinAuraType::PaladinAuraType_Concentration;
-                                                    paladinAura_concentration = true;
-                                                }
-                                                else if (!paladinAura_devotion)
-                                                {
-                                                    sp->auraType = PaladinAuraType::PaladinAuraType_Devotion;
-                                                    paladinAura_devotion = true;
-                                                }
-                                            }
-                                            else
-                                            {
+                                                sp->auraType = PaladinAuraType::PaladinAuraType_Retribution;
                                                 paladinAura_retribution = true;
                                             }
-                                            break;
                                         }
-                                        default:
+                                        else
                                         {
-                                            break;
+                                            paladinAura_concentration = true;
                                         }
+                                        break;
+                                    }
+                                    case PaladinAuraType::PaladinAuraType_Devotion:
+                                    {
+                                        if (paladinAura_devotion)
+                                        {
+                                            if (!paladinAura_concentration)
+                                            {
+                                                sp->auraType = PaladinAuraType::PaladinAuraType_Concentration;
+                                                paladinAura_concentration = true;
+                                            }
+                                            else if (!paladinAura_retribution)
+                                            {
+                                                sp->auraType = PaladinAuraType::PaladinAuraType_Retribution;
+                                                paladinAura_retribution = true;
+                                            }
                                         }
+                                        else
+                                        {
+                                            paladinAura_devotion = true;
+                                        }
+                                        break;
+                                    }
+                                    case PaladinAuraType::PaladinAuraType_Retribution:
+                                    {
+                                        if (paladinAura_retribution)
+                                        {
+                                            if (!paladinAura_concentration)
+                                            {
+                                                sp->auraType = PaladinAuraType::PaladinAuraType_Concentration;
+                                                paladinAura_concentration = true;
+                                            }
+                                            else if (!paladinAura_devotion)
+                                            {
+                                                sp->auraType = PaladinAuraType::PaladinAuraType_Devotion;
+                                                paladinAura_devotion = true;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            paladinAura_retribution = true;
+                                        }
+                                        break;
+                                    }
+                                    default:
+                                    {
+                                        break;
+                                    }
                                     }
                                 }
                             }
                         }
                     }
+                }
+                switch (myGroup->groupStrategyIndex)
+                {
+                case Strategy_Index::Strategy_Index_Group:
+                {
                     replyStream << "Arranged";
                     break;
                 }
@@ -1486,13 +1546,6 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                     bool tank2Set = false;
                     bool tank3Set = false;
                     bool healer1Set = false;
-
-                    bool paladinAura_concentration = false;
-                    bool paladinAura_devotion = false;
-                    bool paladinAura_retribution = false;
-                    bool paladinBlessing_kings = false;
-                    bool paladinBlessing_might = false;
-                    bool paladinBlessing_wisdom = false;
                     for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
                     {
                         Player* member = groupRef->GetSource();
@@ -1503,202 +1556,11 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                                 member->groupRole = GroupRole_Blackrock_Spire::GroupRole_Blackrock_Spire_DPS;
                                 continue;
                             }
-                            if (RobotStrategy_Group_Blackrock_Spire* rs = (RobotStrategy_Group_Blackrock_Spire*)member->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
+                            if (RobotStrategy_Group_BlackrockSpire* rs = (RobotStrategy_Group_BlackrockSpire*)member->rai->strategyMap[myGroup->groupStrategyIndex])
                             {
                                 rs->dpsDelay = 5000;
                                 rs->aoeDelay = 10000;
                                 rs->followDistance = MELEE_MIN_DISTANCE;
-                                switch (member->GetClass())
-                                {
-                                case Classes::CLASS_WARRIOR:
-                                {
-                                    break;
-                                }
-                                case Classes::CLASS_HUNTER:
-                                {
-                                    rs->followDistance = RANGED_NORMAL_DISTANCE;
-                                    break;
-                                }
-                                case Classes::CLASS_SHAMAN:
-                                {
-                                    rs->followDistance = RANGED_NORMAL_DISTANCE;
-                                    break;
-                                }
-                                case Classes::CLASS_PALADIN:
-                                {
-                                    if (Script_Paladin* sp = (Script_Paladin*)rs->sb)
-                                    {
-                                        switch (sp->blessingType)
-                                        {
-                                        case PaladinBlessingType::PaladinBlessingType_Kings:
-                                        {
-                                            if (paladinBlessing_kings)
-                                            {
-                                                if (!paladinBlessing_might)
-                                                {
-                                                    sp->blessingType = PaladinBlessingType::PaladinBlessingType_Might;
-                                                    paladinBlessing_might = true;
-                                                }
-                                                else if (!paladinBlessing_wisdom)
-                                                {
-                                                    sp->blessingType = PaladinBlessingType::PaladinBlessingType_Wisdom;
-                                                    paladinBlessing_wisdom = true;
-                                                }
-                                            }
-                                            else
-                                            {
-                                                paladinBlessing_kings = true;
-                                            }
-                                            break;
-                                        }
-                                        case PaladinBlessingType::PaladinBlessingType_Might:
-                                        {
-                                            if (paladinBlessing_might)
-                                            {
-                                                if (!paladinBlessing_kings)
-                                                {
-                                                    sp->blessingType = PaladinBlessingType::PaladinBlessingType_Kings;
-                                                    paladinBlessing_kings = true;
-                                                }
-                                                else if (!paladinBlessing_wisdom)
-                                                {
-                                                    sp->blessingType = PaladinBlessingType::PaladinBlessingType_Wisdom;
-                                                    paladinBlessing_wisdom = true;
-                                                }
-                                            }
-                                            else
-                                            {
-                                                paladinBlessing_might = true;
-                                            }
-                                            break;
-                                        }
-                                        case PaladinBlessingType::PaladinBlessingType_Wisdom:
-                                        {
-                                            if (paladinBlessing_wisdom)
-                                            {
-                                                if (!paladinBlessing_kings)
-                                                {
-                                                    sp->blessingType = PaladinBlessingType::PaladinBlessingType_Kings;
-                                                    paladinBlessing_kings = true;
-                                                }
-                                                else if (!paladinBlessing_might)
-                                                {
-                                                    sp->blessingType = PaladinBlessingType::PaladinBlessingType_Might;
-                                                    paladinBlessing_might = true;
-                                                }
-                                            }
-                                            else
-                                            {
-                                                paladinBlessing_wisdom = true;
-                                            }
-                                            break;
-                                        }
-                                        default:
-                                        {
-                                            break;
-                                        }
-                                        }
-                                        switch (sp->auraType)
-                                        {
-                                        case PaladinAuraType::PaladinAuraType_Concentration:
-                                        {
-                                            if (paladinAura_concentration)
-                                            {
-                                                if (!paladinAura_devotion)
-                                                {
-                                                    sp->auraType = PaladinAuraType::PaladinAuraType_Devotion;
-                                                    paladinAura_devotion = true;
-                                                }
-                                                else if (!paladinAura_retribution)
-                                                {
-                                                    sp->auraType = PaladinAuraType::PaladinAuraType_Retribution;
-                                                    paladinAura_retribution = true;
-                                                }
-                                            }
-                                            else
-                                            {
-                                                paladinAura_concentration = true;
-                                            }
-                                            break;
-                                        }
-                                        case PaladinAuraType::PaladinAuraType_Devotion:
-                                        {
-                                            if (paladinAura_devotion)
-                                            {
-                                                if (!paladinAura_concentration)
-                                                {
-                                                    sp->auraType = PaladinAuraType::PaladinAuraType_Concentration;
-                                                    paladinAura_concentration = true;
-                                                }
-                                                else if (!paladinAura_retribution)
-                                                {
-                                                    sp->auraType = PaladinAuraType::PaladinAuraType_Retribution;
-                                                    paladinAura_retribution = true;
-                                                }
-                                            }
-                                            else
-                                            {
-                                                paladinAura_devotion = true;
-                                            }
-                                            break;
-                                        }
-                                        case PaladinAuraType::PaladinAuraType_Retribution:
-                                        {
-                                            if (paladinAura_retribution)
-                                            {
-                                                if (!paladinAura_concentration)
-                                                {
-                                                    sp->auraType = PaladinAuraType::PaladinAuraType_Concentration;
-                                                    paladinAura_concentration = true;
-                                                }
-                                                else if (!paladinAura_devotion)
-                                                {
-                                                    sp->auraType = PaladinAuraType::PaladinAuraType_Devotion;
-                                                    paladinAura_devotion = true;
-                                                }
-                                            }
-                                            else
-                                            {
-                                                paladinAura_retribution = true;
-                                            }
-                                            break;
-                                        }
-                                        default:
-                                        {
-                                            break;
-                                        }
-                                        }
-                                    }
-                                    break;
-                                }
-                                case Classes::CLASS_WARLOCK:
-                                {
-                                    rs->followDistance = RANGED_NORMAL_DISTANCE;
-                                    break;
-                                }
-                                case Classes::CLASS_PRIEST:
-                                {
-                                    rs->followDistance = RANGED_NORMAL_DISTANCE;
-                                    break;
-                                }
-                                case Classes::CLASS_ROGUE:
-                                {
-                                    break;
-                                }
-                                case Classes::CLASS_MAGE:
-                                {
-                                    rs->followDistance = RANGED_NORMAL_DISTANCE;
-                                    break;
-                                }
-                                case Classes::CLASS_DRUID:
-                                {
-                                    break;
-                                }
-                                default:
-                                {
-                                    break;
-                                }
-                                }
                                 if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_TANK)
                                 {
                                     if (!tank1Set)
@@ -1738,36 +1600,21 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                             }
                         }
                     }
-                    replyStream << "Arranged";
+                    replyStream << "Arranged ";
                     break;
                 }
-                case Strategy_Index::Strategy_Index_Group_Shadow_Labyrinth:
-                {
-                    replyStream << "Arranged";
-                    break;
-                }
-                case Strategy_Index::Strategy_Index_Group_EmeraldDragon:
+                case Strategy_Index::Strategy_Index_Group_Ysondre:
                 {
                     bool tank1Set = false;
                     bool tank2Set = false;
-                    bool tank3Set = false;
-                    bool tank4Set = false;
-                    bool tank5Set = false;
-                    uint32 healer1Count = 0;
-                    uint32 healer2Count = 0;
-                    uint32 healer3Count = 0;
-                    uint32 healer4Count = 0;
-                    uint32 healer5Count = 0;
-                    uint32 healer6Count = 0;
-                    uint32 healer7Count = 0;
-                    uint32 healer8Count = 0;
-
-                    bool paladinAura_concentration = false;
-                    bool paladinAura_devotion = false;
-                    bool paladinAura_retribution = false;
-                    bool paladinBlessing_kings = false;
-                    bool paladinBlessing_might = false;
-                    bool paladinBlessing_wisdom = false;
+                    bool healer1Set = false;
+                    bool healer2Set = false;
+                    bool healer3Set = false;
+                    bool healer4Set = false;
+                    bool healer5Set = false;
+                    bool healer6Set = false;
+                    bool healer7Set = false;
+                    bool healer8Set = false;
                     for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
                     {
                         Player* member = groupRef->GetSource();
@@ -1775,308 +1622,515 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                         {
                             if (!member->GetSession()->isRobotSession)
                             {
-                                member->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_DPS_Range;
+                                member->groupRole = GroupRole_Ysondre::GroupRole_Ysondre_DPS_Range;
                                 continue;
                             }
-                            if (member->rai->activeStrategyIndex == Strategy_Index::Strategy_Index_Group_EmeraldDragon)
+                            if (RobotStrategy_Group_Ysondre* rs = (RobotStrategy_Group_Ysondre*)member->rai->strategyMap[myGroup->groupStrategyIndex])
                             {
-                                if (RobotStrategy_Group_EmeraldDragon* rs = (RobotStrategy_Group_EmeraldDragon*)member->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
+                                rs->dpsDelay = 5000;
+                                rs->aoeDelay = 10000;
+                                rs->followDistance = FOLLOW_MAX_DISTANCE;
+                                if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_TANK)
                                 {
-                                    rs->dpsDelay = 5000;
-                                    rs->aoeDelay = 10000;
-                                    rs->followDistance = FOLLOW_MAX_DISTANCE;
-                                    switch (member->GetClass())
+                                    if (!tank1Set)
                                     {
-                                    case Classes::CLASS_WARRIOR:
-                                    {
-                                        break;
+                                        member->groupRole = GroupRole_Ysondre::GroupRole_Ysondre_Tank1;
+                                        myGroup->SetTargetIcon(0, member->GetGUID(), member->GetGUID());
+                                        tank1Set = true;
+                                        continue;
                                     }
-                                    case Classes::CLASS_HUNTER:
+                                    else if (!tank2Set)
                                     {
-                                        break;
+                                        member->groupRole = GroupRole_Ysondre::GroupRole_Ysondre_Tank2;
+                                        tank2Set = true;
+                                        continue;
                                     }
-                                    case Classes::CLASS_SHAMAN:
+                                    else
                                     {
-                                        break;
+                                        member->groupRole = GroupRole_Ysondre::GroupRole_Ysondre_DPS_Melee;
                                     }
-                                    case Classes::CLASS_PALADIN:
+                                }
+                                else if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_HEALER)
+                                {
+                                    if (!healer1Set)
                                     {
-                                        if (Script_Paladin* sp = (Script_Paladin*)rs->sb)
-                                        {
-                                            switch (sp->blessingType)
-                                            {
-                                            case PaladinBlessingType::PaladinBlessingType_Kings:
-                                            {
-                                                if (paladinBlessing_kings)
-                                                {
-                                                    if (!paladinBlessing_might)
-                                                    {
-                                                        sp->blessingType = PaladinBlessingType::PaladinBlessingType_Might;
-                                                        paladinBlessing_might = true;
-                                                    }
-                                                    else if (!paladinBlessing_wisdom)
-                                                    {
-                                                        sp->blessingType = PaladinBlessingType::PaladinBlessingType_Wisdom;
-                                                        paladinBlessing_wisdom = true;
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    paladinBlessing_kings = true;
-                                                }
-                                                break;
-                                            }
-                                            case PaladinBlessingType::PaladinBlessingType_Might:
-                                            {
-                                                if (paladinBlessing_might)
-                                                {
-                                                    if (!paladinBlessing_kings)
-                                                    {
-                                                        sp->blessingType = PaladinBlessingType::PaladinBlessingType_Kings;
-                                                        paladinBlessing_kings = true;
-                                                    }
-                                                    else if (!paladinBlessing_wisdom)
-                                                    {
-                                                        sp->blessingType = PaladinBlessingType::PaladinBlessingType_Wisdom;
-                                                        paladinBlessing_wisdom = true;
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    paladinBlessing_might = true;
-                                                }
-                                                break;
-                                            }
-                                            case PaladinBlessingType::PaladinBlessingType_Wisdom:
-                                            {
-                                                if (paladinBlessing_wisdom)
-                                                {
-                                                    if (!paladinBlessing_kings)
-                                                    {
-                                                        sp->blessingType = PaladinBlessingType::PaladinBlessingType_Kings;
-                                                        paladinBlessing_kings = true;
-                                                    }
-                                                    else if (!paladinBlessing_might)
-                                                    {
-                                                        sp->blessingType = PaladinBlessingType::PaladinBlessingType_Might;
-                                                        paladinBlessing_might = true;
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    paladinBlessing_wisdom = true;
-                                                }
-                                                break;
-                                            }
-                                            default:
-                                            {
-                                                break;
-                                            }
-                                            }
-                                            switch (sp->auraType)
-                                            {
-                                            case PaladinAuraType::PaladinAuraType_Concentration:
-                                            {
-                                                if (paladinAura_concentration)
-                                                {
-                                                    if (!paladinAura_devotion)
-                                                    {
-                                                        sp->auraType = PaladinAuraType::PaladinAuraType_Devotion;
-                                                        paladinAura_devotion = true;
-                                                    }
-                                                    else if (!paladinAura_retribution)
-                                                    {
-                                                        sp->auraType = PaladinAuraType::PaladinAuraType_Retribution;
-                                                        paladinAura_retribution = true;
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    paladinAura_concentration = true;
-                                                }
-                                                break;
-                                            }
-                                            case PaladinAuraType::PaladinAuraType_Devotion:
-                                            {
-                                                if (paladinAura_devotion)
-                                                {
-                                                    if (!paladinAura_concentration)
-                                                    {
-                                                        sp->auraType = PaladinAuraType::PaladinAuraType_Concentration;
-                                                        paladinAura_concentration = true;
-                                                    }
-                                                    else if (!paladinAura_retribution)
-                                                    {
-                                                        sp->auraType = PaladinAuraType::PaladinAuraType_Retribution;
-                                                        paladinAura_retribution = true;
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    paladinAura_devotion = true;
-                                                }
-                                                break;
-                                            }
-                                            case PaladinAuraType::PaladinAuraType_Retribution:
-                                            {
-                                                if (paladinAura_retribution)
-                                                {
-                                                    if (!paladinAura_concentration)
-                                                    {
-                                                        sp->auraType = PaladinAuraType::PaladinAuraType_Concentration;
-                                                        paladinAura_concentration = true;
-                                                    }
-                                                    else if (!paladinAura_devotion)
-                                                    {
-                                                        sp->auraType = PaladinAuraType::PaladinAuraType_Devotion;
-                                                        paladinAura_devotion = true;
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    paladinAura_retribution = true;
-                                                }
-                                                break;
-                                            }
-                                            default:
-                                            {
-                                                break;
-                                            }
-                                            }
-                                        }
-                                        break;
+                                        member->groupRole = GroupRole_Ysondre::GroupRole_Ysondre_Healer1;
+                                        myGroup->SetTargetIcon(1, member->GetGUID(), member->GetGUID());
+                                        healer1Set = true;
+                                        continue;
                                     }
-                                    case Classes::CLASS_WARLOCK:
+                                    else if (healer2Set)
                                     {
-                                        break;
+                                        member->groupRole = GroupRole_Ysondre::GroupRole_Ysondre_Healer2;
+                                        healer2Set = true;
+                                        continue;
                                     }
-                                    case Classes::CLASS_PRIEST:
+                                    else if (!healer3Set)
                                     {
-                                        break;
+                                        member->groupRole = GroupRole_Ysondre::GroupRole_Ysondre_Healer3;
+                                        healer3Set = true;
+                                        continue;
                                     }
-                                    case Classes::CLASS_ROGUE:
+                                    else if (!healer4Set)
                                     {
-                                        break;
+                                        member->groupRole = GroupRole_Ysondre::GroupRole_Ysondre_Healer4;
+                                        myGroup->SetTargetIcon(2, member->GetGUID(), member->GetGUID());
+                                        healer4Set = true;
+                                        continue;
                                     }
-                                    case Classes::CLASS_MAGE:
+                                    else if (!healer5Set)
                                     {
-                                        break;
+                                        member->groupRole = GroupRole_Ysondre::GroupRole_Ysondre_Healer5;
+                                        healer5Set = true;
+                                        continue;
                                     }
-                                    case Classes::CLASS_DRUID:
+                                    else if (!healer6Set)
                                     {
-                                        break;
+                                        member->groupRole = GroupRole_Ysondre::GroupRole_Ysondre_Healer6;
+                                        healer6Set = true;
+                                        continue;
                                     }
-                                    default:
+                                    else if (!healer7Set)
                                     {
-                                        break;
+                                        member->groupRole = GroupRole_Ysondre::GroupRole_Ysondre_Healer7;
+                                        myGroup->SetTargetIcon(3, member->GetGUID(), member->GetGUID());
+                                        healer7Set = true;
+                                        continue;
                                     }
-                                    }
-                                    if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_TANK)
+                                    else if (!healer8Set)
                                     {
-                                        if (!tank1Set)
-                                        {
-                                            member->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank1;
-                                            myGroup->SetTargetIcon(0, member->GetGUID(), member->GetGUID());
-                                            tank1Set = true;
-                                            continue;
-                                        }
-                                        else if (!tank2Set)
-                                        {
-                                            member->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank2;
-                                            tank2Set = true;
-                                            continue;
-                                        }
-                                        else if (!tank3Set)
-                                        {
-                                            member->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank3;
-                                            tank3Set = true;
-                                            continue;
-                                        }
-                                        else if (!tank4Set)
-                                        {
-                                            member->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank4;
-                                            tank4Set = true;
-                                            continue;
-                                        }
-                                        else if (!tank5Set)
-                                        {
-                                            member->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank5;
-                                            tank5Set = true;
-                                            continue;
-                                        }
-                                        else
-                                        {
-                                            member->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_DPS_Melee;
-                                        }
+                                        member->groupRole = GroupRole_Ysondre::GroupRole_Ysondre_Healer8;
+                                        healer8Set = true;
+                                        continue;
                                     }
-                                    else if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_HEALER)
+                                    else
                                     {
-                                        if (healer1Count < 1)
-                                        {
-                                            member->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer1;
-                                            myGroup->SetTargetIcon(1, member->GetGUID(), member->GetGUID());
-                                            healer1Count++;
-                                            continue;
-                                        }
-                                        else if (healer2Count < 1)
-                                        {
-                                            member->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer2;
-                                            healer2Count++;
-                                            continue;
-                                        }
-                                        else if (healer3Count < 1)
-                                        {
-                                            member->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer3;
-                                            healer3Count++;
-                                            continue;
-                                        }
-                                        else if (healer4Count < 1)
-                                        {
-                                            member->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer4;
-                                            myGroup->SetTargetIcon(2, member->GetGUID(), member->GetGUID());
-                                            healer4Count++;
-                                            continue;
-                                        }
-                                        else if (healer5Count < 1)
-                                        {
-                                            member->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer5;
-                                            healer5Count++;
-                                            continue;
-                                        }
-                                        else if (healer6Count < 1)
-                                        {
-                                            member->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer6;
-                                            healer6Count++;
-                                            continue;
-                                        }
-                                        else if (healer7Count < 1)
-                                        {
-                                            member->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer7;
-                                            myGroup->SetTargetIcon(3, member->GetGUID(), member->GetGUID());
-                                            healer7Count++;
-                                            continue;
-                                        }
-                                        else if (healer8Count < 5)
-                                        {
-                                            member->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer8;
-                                            healer8Count++;
-                                            continue;
-                                        }
-                                        else
-                                        {
-                                            member->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_DPS_Range;
-                                        }
+                                        member->groupRole = GroupRole_Ysondre::GroupRole_Ysondre_DPS_Range;
                                     }
-                                    else if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_DPS)
+                                }
+                                else if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_DPS)
+                                {
+                                    if (member->GetClass() == Classes::CLASS_WARRIOR || member->GetClass() == Classes::CLASS_PALADIN || member->GetClass() == Classes::CLASS_ROGUE || member->GetClass() == Classes::CLASS_DEATH_KNIGHT || member->GetClass() == Classes::CLASS_DRUID)
                                     {
-                                        if (member->GetClass() == Classes::CLASS_WARRIOR || member->GetClass() == Classes::CLASS_PALADIN || member->GetClass() == Classes::CLASS_ROGUE || member->GetClass() == Classes::CLASS_DEATH_KNIGHT || member->GetClass() == Classes::CLASS_DRUID)
-                                        {
-                                            member->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_DPS_Melee;
-                                        }
-                                        else
-                                        {
-                                            member->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_DPS_Range;
-                                        }
+                                        member->groupRole = GroupRole_Ysondre::GroupRole_Ysondre_DPS_Melee;
+                                    }
+                                    else
+                                    {
+                                        member->groupRole = GroupRole_Ysondre::GroupRole_Ysondre_DPS_Range;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    replyStream << "Arranged";
+                    break;
+                }
+                case Strategy_Index::Strategy_Index_Group_Lethon:
+                {
+                    bool tank1Set = false;
+                    bool tank2Set = false;
+                    bool healer1Set = false;
+                    bool healer2Set = false;
+                    bool healer3Set = false;
+                    bool healer4Set = false;
+                    bool healer5Set = false;
+                    bool healer6Set = false;
+                    bool healer7Set = false;
+                    bool healer8Set = false;
+                    for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                    {
+                        Player* member = groupRef->GetSource();
+                        if (member)
+                        {
+                            if (!member->GetSession()->isRobotSession)
+                            {
+                                member->groupRole = GroupRole_Lethon::GroupRole_Lethon_DPS_Range;
+                                continue;
+                            }
+                            if (RobotStrategy_Group_Lethon* rs = (RobotStrategy_Group_Lethon*)member->rai->strategyMap[myGroup->groupStrategyIndex])
+                            {
+                                rs->dpsDelay = 5000;
+                                rs->aoeDelay = 10000;
+                                rs->followDistance = FOLLOW_MAX_DISTANCE;
+                                if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_TANK)
+                                {
+                                    if (!tank1Set)
+                                    {
+                                        member->groupRole = GroupRole_Lethon::GroupRole_Lethon_Tank1;
+                                        myGroup->SetTargetIcon(0, member->GetGUID(), member->GetGUID());
+                                        tank1Set = true;
+                                        continue;
+                                    }
+                                    else if (!tank2Set)
+                                    {
+                                        member->groupRole = GroupRole_Lethon::GroupRole_Lethon_Tank2;
+                                        tank2Set = true;
+                                        continue;
+                                    }
+                                    else
+                                    {
+                                        member->groupRole = GroupRole_Lethon::GroupRole_Lethon_DPS_Melee;
+                                    }
+                                }
+                                else if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_HEALER)
+                                {
+                                    if (!healer1Set)
+                                    {
+                                        member->groupRole = GroupRole_Lethon::GroupRole_Lethon_Healer1;
+                                        myGroup->SetTargetIcon(1, member->GetGUID(), member->GetGUID());
+                                        healer1Set = true;
+                                        continue;
+                                    }
+                                    else if (!healer2Set)
+                                    {
+                                        member->groupRole = GroupRole_Lethon::GroupRole_Lethon_Healer2;
+                                        healer2Set = true;
+                                        continue;
+                                    }
+                                    else if (!healer3Set)
+                                    {
+                                        member->groupRole = GroupRole_Lethon::GroupRole_Lethon_Healer3;
+                                        healer3Set = true;
+                                        continue;
+                                    }
+                                    else if (!healer4Set)
+                                    {
+                                        member->groupRole = GroupRole_Lethon::GroupRole_Lethon_Healer4;
+                                        myGroup->SetTargetIcon(2, member->GetGUID(), member->GetGUID());
+                                        healer4Set = true;
+                                        continue;
+                                    }
+                                    else if (!healer5Set)
+                                    {
+                                        member->groupRole = GroupRole_Lethon::GroupRole_Lethon_Healer5;
+                                        healer5Set = true;
+                                        continue;
+                                    }
+                                    else if (!healer6Set)
+                                    {
+                                        member->groupRole = GroupRole_Lethon::GroupRole_Lethon_Healer6;
+                                        healer6Set = true;
+                                        continue;
+                                    }
+                                    else if (!healer7Set)
+                                    {
+                                        member->groupRole = GroupRole_Lethon::GroupRole_Lethon_Healer7;
+                                        myGroup->SetTargetIcon(3, member->GetGUID(), member->GetGUID());
+                                        healer7Set = true;
+                                        continue;
+                                    }
+                                    else if (!healer8Set)
+                                    {
+                                        member->groupRole = GroupRole_Lethon::GroupRole_Lethon_Healer8;
+                                        healer8Set = true;
+                                        continue;
+                                    }
+                                    else
+                                    {
+                                        member->groupRole = GroupRole_Lethon::GroupRole_Lethon_DPS_Range;
+                                    }
+                                }
+                                else if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_DPS)
+                                {
+                                    if (member->GetClass() == Classes::CLASS_WARRIOR || member->GetClass() == Classes::CLASS_PALADIN || member->GetClass() == Classes::CLASS_ROGUE || member->GetClass() == Classes::CLASS_DEATH_KNIGHT || member->GetClass() == Classes::CLASS_DRUID)
+                                    {
+                                        member->groupRole = GroupRole_Lethon::GroupRole_Lethon_DPS_Melee;
+                                    }
+                                    else
+                                    {
+                                        member->groupRole = GroupRole_Lethon::GroupRole_Lethon_DPS_Range;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    replyStream << "Arranged";
+                    break;
+                }
+                case Strategy_Index::Strategy_Index_Group_Taerar:
+                {
+                    bool tank1Set = false;
+                    bool tank2Set = false;
+                    bool tank3Set = false;
+                    bool tank4Set = false;
+                    bool tank5Set = false;
+                    bool healer1Set = false;
+                    bool healer2Set = false;
+                    bool healer3Set = false;
+                    bool healer4Set = false;
+                    bool healer5Set = false;
+                    bool healer6Set = false;
+                    bool healer7Set = false;
+                    bool healer8Set = false;
+                    for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                    {
+                        Player* member = groupRef->GetSource();
+                        if (member)
+                        {
+                            if (!member->GetSession()->isRobotSession)
+                            {
+                                member->groupRole = GroupRole_Taerar::GroupRole_Taerar_DPS_Range;
+                                continue;
+                            }
+                            if (RobotStrategy_Group_Taerar* rs = (RobotStrategy_Group_Taerar*)member->rai->strategyMap[myGroup->groupStrategyIndex])
+                            {
+                                rs->dpsDelay = 5000;
+                                rs->aoeDelay = 10000;
+                                rs->followDistance = FOLLOW_MAX_DISTANCE;
+                                if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_TANK)
+                                {
+                                    if (!tank1Set)
+                                    {
+                                        member->groupRole = GroupRole_Taerar::GroupRole_Taerar_Tank1;
+                                        myGroup->SetTargetIcon(0, member->GetGUID(), member->GetGUID());
+                                        tank1Set = true;
+                                        continue;
+                                    }
+                                    else if (!tank2Set)
+                                    {
+                                        member->groupRole = GroupRole_Taerar::GroupRole_Taerar_Tank2;
+                                        tank2Set = true;
+                                        continue;
+                                    }
+                                    else if (!tank3Set)
+                                    {
+                                        member->groupRole = GroupRole_Taerar::GroupRole_Taerar_Tank3;
+                                        tank3Set = true;
+                                        continue;
+                                    }
+                                    else if (!tank4Set)
+                                    {
+                                        member->groupRole = GroupRole_Taerar::GroupRole_Taerar_Tank4;
+                                        tank4Set = true;
+                                        continue;
+                                    }
+                                    else if (!tank5Set)
+                                    {
+                                        member->groupRole = GroupRole_Taerar::GroupRole_Taerar_Tank5;
+                                        tank5Set = true;
+                                        continue;
+                                    }
+                                    else
+                                    {
+                                        member->groupRole = GroupRole_Taerar::GroupRole_Taerar_DPS_Melee;
+                                    }
+                                }
+                                else if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_HEALER)
+                                {
+                                    if (!healer1Set)
+                                    {
+                                        member->groupRole = GroupRole_Taerar::GroupRole_Taerar_Healer1;
+                                        myGroup->SetTargetIcon(1, member->GetGUID(), member->GetGUID());
+                                        healer1Set = true;
+                                        continue;
+                                    }
+                                    else if (!healer2Set)
+                                    {
+                                        member->groupRole = GroupRole_Taerar::GroupRole_Taerar_Healer2;
+                                        healer2Set = true;
+                                        continue;
+                                    }
+                                    else if (!healer3Set)
+                                    {
+                                        member->groupRole = GroupRole_Taerar::GroupRole_Taerar_Healer3;
+                                        healer3Set = true;
+                                        continue;
+                                    }
+                                    else if (!healer4Set)
+                                    {
+                                        member->groupRole = GroupRole_Taerar::GroupRole_Taerar_Healer4;
+                                        myGroup->SetTargetIcon(2, member->GetGUID(), member->GetGUID());
+                                        healer4Set = true;
+                                        continue;
+                                    }
+                                    else if (!healer5Set)
+                                    {
+                                        member->groupRole = GroupRole_Taerar::GroupRole_Taerar_Healer5;
+                                        healer5Set = true;
+                                        continue;
+                                    }
+                                    else if (!healer6Set)
+                                    {
+                                        member->groupRole = GroupRole_Taerar::GroupRole_Taerar_Healer6;
+                                        healer6Set = true;
+                                        continue;
+                                    }
+                                    else if (!healer7Set)
+                                    {
+                                        member->groupRole = GroupRole_Taerar::GroupRole_Taerar_Healer7;
+                                        myGroup->SetTargetIcon(3, member->GetGUID(), member->GetGUID());
+                                        healer7Set = true;
+                                        continue;
+                                    }
+                                    else if (!healer8Set)
+                                    {
+                                        member->groupRole = GroupRole_Taerar::GroupRole_Taerar_Healer8;
+                                        healer8Set = true;
+                                        continue;
+                                    }
+                                    else
+                                    {
+                                        member->groupRole = GroupRole_Taerar::GroupRole_Taerar_DPS_Range;
+                                    }
+                                }
+                                else if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_DPS)
+                                {
+                                    if (member->GetClass() == Classes::CLASS_WARRIOR || member->GetClass() == Classes::CLASS_PALADIN || member->GetClass() == Classes::CLASS_ROGUE || member->GetClass() == Classes::CLASS_DEATH_KNIGHT || member->GetClass() == Classes::CLASS_DRUID)
+                                    {
+                                        member->groupRole = GroupRole_Taerar::GroupRole_Taerar_DPS_Melee;
+                                    }
+                                    else
+                                    {
+                                        member->groupRole = GroupRole_Taerar::GroupRole_Taerar_DPS_Range;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    replyStream << "Arranged";
+                    break;
+                }
+                case Strategy_Index::Strategy_Index_Group_Emeriss:
+                {
+                    bool tank1Set = false;
+                    bool tank2Set = false;
+                    bool healer1Set = false;
+                    bool healer2Set = false;
+                    bool healer3Set = false;
+                    bool healer4Set = false;
+                    bool healer5Set = false;
+                    bool healer6Set = false;
+                    bool healer7Set = false;
+                    bool healer8Set = false;
+                    bool healer9Set = false;
+                    bool healer10Set = false;
+                    bool healer11Set = false;
+                    bool healer12Set = false;
+                    for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                    {
+                        Player* member = groupRef->GetSource();
+                        if (member)
+                        {
+                            if (!member->GetSession()->isRobotSession)
+                            {
+                                member->groupRole = GroupRole_Emeriss::GroupRole_Emeriss_DPS_Range;
+                                continue;
+                            }
+                            if (RobotStrategy_Group_Emeriss* rs = (RobotStrategy_Group_Emeriss*)member->rai->strategyMap[myGroup->groupStrategyIndex])
+                            {
+                                rs->dpsDelay = 5000;
+                                rs->aoeDelay = 10000;
+                                rs->followDistance = FOLLOW_MAX_DISTANCE;
+                                if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_TANK)
+                                {
+                                    if (!tank1Set)
+                                    {
+                                        member->groupRole = GroupRole_Emeriss::GroupRole_Emeriss_Tank1;
+                                        myGroup->SetTargetIcon(0, member->GetGUID(), member->GetGUID());
+                                        tank1Set = true;
+                                        continue;
+                                    }
+                                    else if (!tank2Set)
+                                    {
+                                        member->groupRole = GroupRole_Emeriss::GroupRole_Emeriss_Tank2;
+                                        tank2Set = true;
+                                        continue;
+                                    }
+                                    else
+                                    {
+                                        member->groupRole = GroupRole_Emeriss::GroupRole_Emeriss_DPS_Melee;
+                                    }
+                                }
+                                else if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_HEALER)
+                                {
+                                    if (!healer1Set)
+                                    {
+                                        member->groupRole = GroupRole_Emeriss::GroupRole_Emeriss_Healer1;
+                                        myGroup->SetTargetIcon(1, member->GetGUID(), member->GetGUID());
+                                        healer1Set = true;
+                                        continue;
+                                    }
+                                    else if (!healer2Set)
+                                    {
+                                        member->groupRole = GroupRole_Emeriss::GroupRole_Emeriss_Healer2;
+                                        healer2Set = true;
+                                        continue;
+                                    }
+                                    else if (!healer3Set)
+                                    {
+                                        member->groupRole = GroupRole_Emeriss::GroupRole_Emeriss_Healer3;
+                                        myGroup->SetTargetIcon(2, member->GetGUID(), member->GetGUID());
+                                        healer3Set = true;
+                                        continue;
+                                    }
+                                    else if (!healer4Set)
+                                    {
+                                        member->groupRole = GroupRole_Emeriss::GroupRole_Emeriss_Healer4;
+                                        healer4Set = true;
+                                        continue;
+                                    }
+                                    else if (!healer5Set)
+                                    {
+                                        member->groupRole = GroupRole_Emeriss::GroupRole_Emeriss_Healer5;
+                                        healer5Set = true;
+                                        continue;
+                                    }
+                                    else if (!healer6Set)
+                                    {
+                                        member->groupRole = GroupRole_Emeriss::GroupRole_Emeriss_Healer6;
+                                        healer6Set = true;
+                                        continue;
+                                    }
+                                    else if (!healer7Set)
+                                    {
+                                        member->groupRole = GroupRole_Emeriss::GroupRole_Emeriss_Healer7;
+                                        healer7Set = true;
+                                        continue;
+                                    }
+                                    else if (!healer8Set)
+                                    {
+                                        member->groupRole = GroupRole_Emeriss::GroupRole_Emeriss_Healer8;
+                                        healer8Set = true;
+                                        continue;
+                                    }
+                                    else if (!healer9Set)
+                                    {
+                                        member->groupRole = GroupRole_Emeriss::GroupRole_Emeriss_Healer9;
+                                        healer9Set = true;
+                                        continue;
+                                    }
+                                    else if (!healer10Set)
+                                    {
+                                        member->groupRole = GroupRole_Emeriss::GroupRole_Emeriss_Healer10;
+                                        healer10Set = true;
+                                        continue;
+                                    }
+                                    else if (!healer11Set)
+                                    {
+                                        member->groupRole = GroupRole_Emeriss::GroupRole_Emeriss_Healer11;
+                                        healer11Set = true;
+                                        continue;
+                                    }
+                                    else if (!healer12Set)
+                                    {
+                                        member->groupRole = GroupRole_Emeriss::GroupRole_Emeriss_Healer12;
+                                        healer12Set = true;
+                                        continue;
+                                    }
+                                    else
+                                    {
+                                        member->groupRole = GroupRole_Emeriss::GroupRole_Emeriss_DPS_Range;
+                                    }
+                                }
+                                else if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_DPS)
+                                {
+                                    if (member->GetClass() == Classes::CLASS_WARRIOR || member->GetClass() == Classes::CLASS_PALADIN || member->GetClass() == Classes::CLASS_ROGUE || member->GetClass() == Classes::CLASS_DEATH_KNIGHT || member->GetClass() == Classes::CLASS_DRUID)
+                                    {
+                                        member->groupRole = GroupRole_Emeriss::GroupRole_Emeriss_DPS_Melee;
+                                    }
+                                    else
+                                    {
+                                        member->groupRole = GroupRole_Emeriss::GroupRole_Emeriss_DPS_Range;
                                     }
                                 }
                             }
@@ -2090,13 +2144,6 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                     bool tank1Set = false;
                     uint32 healer1Count = 0;
                     uint32 healer2Count = 0;
-
-                    bool paladinAura_concentration = false;
-                    bool paladinAura_devotion = false;
-                    bool paladinAura_retribution = false;
-                    bool paladinBlessing_kings = false;
-                    bool paladinBlessing_might = false;
-                    bool paladinBlessing_wisdom = false;
                     for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
                     {
                         Player* member = groupRef->GetSource();
@@ -2107,575 +2154,51 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                                 member->groupRole = GroupRole_Azuregos::GroupRole_Azuregos_DPS;
                                 continue;
                             }
-                            if (member->rai->activeStrategyIndex == Strategy_Index::Strategy_Index_Group_Azuregos)
+                            if (RobotStrategy_Group_Azuregos* rs = (RobotStrategy_Group_Azuregos*)member->rai->strategyMap[myGroup->groupStrategyIndex])
                             {
-                                if (RobotStrategy_Group_Azuregos* rs = (RobotStrategy_Group_Azuregos*)member->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
+                                rs->dpsDelay = 5000;
+                                rs->aoeDelay = 10000;
+                                rs->followDistance = FOLLOW_MAX_DISTANCE;
+                                if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_TANK)
                                 {
-                                    rs->dpsDelay = 5000;
-                                    rs->aoeDelay = 10000;
-                                    rs->followDistance = FOLLOW_MAX_DISTANCE;
-                                    switch (member->GetClass())
+                                    if (!tank1Set)
                                     {
-                                    case Classes::CLASS_WARRIOR:
-                                    {
-                                        break;
+                                        member->groupRole = GroupRole_Azuregos::GroupRole_Azuregos_Tank;
+                                        myGroup->SetTargetIcon(0, member->GetGUID(), member->GetGUID());
+                                        tank1Set = true;
+                                        continue;
                                     }
-                                    case Classes::CLASS_HUNTER:
-                                    {
-                                        break;
-                                    }
-                                    case Classes::CLASS_SHAMAN:
-                                    {
-                                        break;
-                                    }
-                                    case Classes::CLASS_PALADIN:
-                                    {
-                                        if (Script_Paladin* sp = (Script_Paladin*)rs->sb)
-                                        {
-                                            switch (sp->blessingType)
-                                            {
-                                            case PaladinBlessingType::PaladinBlessingType_Kings:
-                                            {
-                                                if (paladinBlessing_kings)
-                                                {
-                                                    if (!paladinBlessing_might)
-                                                    {
-                                                        sp->blessingType = PaladinBlessingType::PaladinBlessingType_Might;
-                                                        paladinBlessing_might = true;
-                                                    }
-                                                    else if (!paladinBlessing_wisdom)
-                                                    {
-                                                        sp->blessingType = PaladinBlessingType::PaladinBlessingType_Wisdom;
-                                                        paladinBlessing_wisdom = true;
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    paladinBlessing_kings = true;
-                                                }
-                                                break;
-                                            }
-                                            case PaladinBlessingType::PaladinBlessingType_Might:
-                                            {
-                                                if (paladinBlessing_might)
-                                                {
-                                                    if (!paladinBlessing_kings)
-                                                    {
-                                                        sp->blessingType = PaladinBlessingType::PaladinBlessingType_Kings;
-                                                        paladinBlessing_kings = true;
-                                                    }
-                                                    else if (!paladinBlessing_wisdom)
-                                                    {
-                                                        sp->blessingType = PaladinBlessingType::PaladinBlessingType_Wisdom;
-                                                        paladinBlessing_wisdom = true;
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    paladinBlessing_might = true;
-                                                }
-                                                break;
-                                            }
-                                            case PaladinBlessingType::PaladinBlessingType_Wisdom:
-                                            {
-                                                if (paladinBlessing_wisdom)
-                                                {
-                                                    if (!paladinBlessing_kings)
-                                                    {
-                                                        sp->blessingType = PaladinBlessingType::PaladinBlessingType_Kings;
-                                                        paladinBlessing_kings = true;
-                                                    }
-                                                    else if (!paladinBlessing_might)
-                                                    {
-                                                        sp->blessingType = PaladinBlessingType::PaladinBlessingType_Might;
-                                                        paladinBlessing_might = true;
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    paladinBlessing_wisdom = true;
-                                                }
-                                                break;
-                                            }
-                                            default:
-                                            {
-                                                break;
-                                            }
-                                            }
-                                            switch (sp->auraType)
-                                            {
-                                            case PaladinAuraType::PaladinAuraType_Concentration:
-                                            {
-                                                if (paladinAura_concentration)
-                                                {
-                                                    if (!paladinAura_devotion)
-                                                    {
-                                                        sp->auraType = PaladinAuraType::PaladinAuraType_Devotion;
-                                                        paladinAura_devotion = true;
-                                                    }
-                                                    else if (!paladinAura_retribution)
-                                                    {
-                                                        sp->auraType = PaladinAuraType::PaladinAuraType_Retribution;
-                                                        paladinAura_retribution = true;
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    paladinAura_concentration = true;
-                                                }
-                                                break;
-                                            }
-                                            case PaladinAuraType::PaladinAuraType_Devotion:
-                                            {
-                                                if (paladinAura_devotion)
-                                                {
-                                                    if (!paladinAura_concentration)
-                                                    {
-                                                        sp->auraType = PaladinAuraType::PaladinAuraType_Concentration;
-                                                        paladinAura_concentration = true;
-                                                    }
-                                                    else if (!paladinAura_retribution)
-                                                    {
-                                                        sp->auraType = PaladinAuraType::PaladinAuraType_Retribution;
-                                                        paladinAura_retribution = true;
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    paladinAura_devotion = true;
-                                                }
-                                                break;
-                                            }
-                                            case PaladinAuraType::PaladinAuraType_Retribution:
-                                            {
-                                                if (paladinAura_retribution)
-                                                {
-                                                    if (!paladinAura_concentration)
-                                                    {
-                                                        sp->auraType = PaladinAuraType::PaladinAuraType_Concentration;
-                                                        paladinAura_concentration = true;
-                                                    }
-                                                    else if (!paladinAura_devotion)
-                                                    {
-                                                        sp->auraType = PaladinAuraType::PaladinAuraType_Devotion;
-                                                        paladinAura_devotion = true;
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    paladinAura_retribution = true;
-                                                }
-                                                break;
-                                            }
-                                            default:
-                                            {
-                                                break;
-                                            }
-                                            }
-                                        }
-                                        break;
-                                    }
-                                    case Classes::CLASS_WARLOCK:
-                                    {
-                                        break;
-                                    }
-                                    case Classes::CLASS_PRIEST:
-                                    {
-                                        break;
-                                    }
-                                    case Classes::CLASS_ROGUE:
-                                    {
-                                        break;
-                                    }
-                                    case Classes::CLASS_MAGE:
-                                    {
-                                        break;
-                                    }
-                                    case Classes::CLASS_DRUID:
-                                    {
-                                        break;
-                                    }
-                                    default:
-                                    {
-                                        break;
-                                    }
-                                    }
-                                    if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_TANK)
-                                    {
-                                        if (!tank1Set)
-                                        {
-                                            member->groupRole = GroupRole_Azuregos::GroupRole_Azuregos_Tank;
-                                            myGroup->SetTargetIcon(0, member->GetGUID(), member->GetGUID());
-                                            tank1Set = true;
-                                            continue;
-                                        }
-                                        else
-                                        {
-                                            member->groupRole = GroupRole_Azuregos::GroupRole_Azuregos_DPS;
-                                        }
-                                    }
-                                    else if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_HEALER)
-                                    {
-                                        if (healer1Count < 4)
-                                        {
-                                            member->groupRole = GroupRole_Azuregos::GroupRole_Azuregos_Healer1;
-                                            healer1Count++;
-                                            continue;
-                                        }
-                                        else if (healer2Count < 4)
-                                        {
-                                            member->groupRole = GroupRole_Azuregos::GroupRole_Azuregos_Healer2;
-                                            healer2Count++;
-                                            continue;
-                                        }
-                                        else
-                                        {
-                                            member->groupRole = GroupRole_Azuregos::GroupRole_Azuregos_DPS;
-                                        }
-                                    }
-                                    else if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_DPS)
+                                    else
                                     {
                                         member->groupRole = GroupRole_Azuregos::GroupRole_Azuregos_DPS;
                                     }
                                 }
-                            }
-                        }
-                    }
-                    replyStream << "Arranged";
-                    break;
-                }
-                case Strategy_Index::Strategy_Index_Group_Test:
-                {
-                    bool tank1Set = false;
-                    bool tank2Set = false;
-                    bool tank3Set = false;
-                    bool tank4Set = false;
-                    bool tank5Set = false;
-                    uint32 healer1Count = 0;
-                    uint32 healer2Count = 0;
-                    uint32 healer3Count = 0;
-                    uint32 healer4Count = 0;
-                    uint32 healer5Count = 0;
-                    uint32 healer6Count = 0;
-                    uint32 healer7Count = 0;
-                    uint32 healer8Count = 0;
-
-                    bool paladinAura_concentration = false;
-                    bool paladinAura_devotion = false;
-                    bool paladinAura_retribution = false;
-                    bool paladinBlessing_kings = false;
-                    bool paladinBlessing_might = false;
-                    bool paladinBlessing_wisdom = false;
-                    for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-                    {
-                        Player* member = groupRef->GetSource();
-                        if (member)
-                        {
-                            if (!member->GetSession()->isRobotSession)
-                            {
-                                member->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_DPS_Range;
-                                continue;
-                            }
-                            if (member->rai->activeStrategyIndex == Strategy_Index::Strategy_Index_Group_Test)
-                            {
-                                if (RobotStrategy_Group_Test* rs = (RobotStrategy_Group_Test*)member->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
+                                else if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_HEALER)
                                 {
-                                    rs->dpsDelay = 5000;
-                                    rs->aoeDelay = 10000;
-                                    rs->followDistance = FOLLOW_MAX_DISTANCE;
-                                    switch (member->GetClass())
+                                    if (healer1Count < 4)
                                     {
-                                    case Classes::CLASS_WARRIOR:
-                                    {
-                                        break;
-                                    }
-                                    case Classes::CLASS_HUNTER:
-                                    {
-                                        break;
-                                    }
-                                    case Classes::CLASS_SHAMAN:
-                                    {
-                                        break;
-                                    }
-                                    case Classes::CLASS_PALADIN:
-                                    {
-                                        if (Script_Paladin* sp = (Script_Paladin*)rs->sb)
+                                        member->groupRole = GroupRole_Azuregos::GroupRole_Azuregos_Healer1;
+                                        if (healer1Count == 0)
                                         {
-                                            switch (sp->blessingType)
-                                            {
-                                            case PaladinBlessingType::PaladinBlessingType_Kings:
-                                            {
-                                                if (paladinBlessing_kings)
-                                                {
-                                                    if (!paladinBlessing_might)
-                                                    {
-                                                        sp->blessingType = PaladinBlessingType::PaladinBlessingType_Might;
-                                                        paladinBlessing_might = true;
-                                                    }
-                                                    else if (!paladinBlessing_wisdom)
-                                                    {
-                                                        sp->blessingType = PaladinBlessingType::PaladinBlessingType_Wisdom;
-                                                        paladinBlessing_wisdom = true;
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    paladinBlessing_kings = true;
-                                                }
-                                                break;
-                                            }
-                                            case PaladinBlessingType::PaladinBlessingType_Might:
-                                            {
-                                                if (paladinBlessing_might)
-                                                {
-                                                    if (!paladinBlessing_kings)
-                                                    {
-                                                        sp->blessingType = PaladinBlessingType::PaladinBlessingType_Kings;
-                                                        paladinBlessing_kings = true;
-                                                    }
-                                                    else if (!paladinBlessing_wisdom)
-                                                    {
-                                                        sp->blessingType = PaladinBlessingType::PaladinBlessingType_Wisdom;
-                                                        paladinBlessing_wisdom = true;
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    paladinBlessing_might = true;
-                                                }
-                                                break;
-                                            }
-                                            case PaladinBlessingType::PaladinBlessingType_Wisdom:
-                                            {
-                                                if (paladinBlessing_wisdom)
-                                                {
-                                                    if (!paladinBlessing_kings)
-                                                    {
-                                                        sp->blessingType = PaladinBlessingType::PaladinBlessingType_Kings;
-                                                        paladinBlessing_kings = true;
-                                                    }
-                                                    else if (!paladinBlessing_might)
-                                                    {
-                                                        sp->blessingType = PaladinBlessingType::PaladinBlessingType_Might;
-                                                        paladinBlessing_might = true;
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    paladinBlessing_wisdom = true;
-                                                }
-                                                break;
-                                            }
-                                            default:
-                                            {
-                                                break;
-                                            }
-                                            }
-                                            switch (sp->auraType)
-                                            {
-                                            case PaladinAuraType::PaladinAuraType_Concentration:
-                                            {
-                                                if (paladinAura_concentration)
-                                                {
-                                                    if (!paladinAura_devotion)
-                                                    {
-                                                        sp->auraType = PaladinAuraType::PaladinAuraType_Devotion;
-                                                        paladinAura_devotion = true;
-                                                    }
-                                                    else if (!paladinAura_retribution)
-                                                    {
-                                                        sp->auraType = PaladinAuraType::PaladinAuraType_Retribution;
-                                                        paladinAura_retribution = true;
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    paladinAura_concentration = true;
-                                                }
-                                                break;
-                                            }
-                                            case PaladinAuraType::PaladinAuraType_Devotion:
-                                            {
-                                                if (paladinAura_devotion)
-                                                {
-                                                    if (!paladinAura_concentration)
-                                                    {
-                                                        sp->auraType = PaladinAuraType::PaladinAuraType_Concentration;
-                                                        paladinAura_concentration = true;
-                                                    }
-                                                    else if (!paladinAura_retribution)
-                                                    {
-                                                        sp->auraType = PaladinAuraType::PaladinAuraType_Retribution;
-                                                        paladinAura_retribution = true;
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    paladinAura_devotion = true;
-                                                }
-                                                break;
-                                            }
-                                            case PaladinAuraType::PaladinAuraType_Retribution:
-                                            {
-                                                if (paladinAura_retribution)
-                                                {
-                                                    if (!paladinAura_concentration)
-                                                    {
-                                                        sp->auraType = PaladinAuraType::PaladinAuraType_Concentration;
-                                                        paladinAura_concentration = true;
-                                                    }
-                                                    else if (!paladinAura_devotion)
-                                                    {
-                                                        sp->auraType = PaladinAuraType::PaladinAuraType_Devotion;
-                                                        paladinAura_devotion = true;
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    paladinAura_retribution = true;
-                                                }
-                                                break;
-                                            }
-                                            default:
-                                            {
-                                                break;
-                                            }
-                                            }
-                                        }
-                                        break;
-                                    }
-                                    case Classes::CLASS_WARLOCK:
-                                    {
-                                        break;
-                                    }
-                                    case Classes::CLASS_PRIEST:
-                                    {
-                                        break;
-                                    }
-                                    case Classes::CLASS_ROGUE:
-                                    {
-                                        break;
-                                    }
-                                    case Classes::CLASS_MAGE:
-                                    {
-                                        break;
-                                    }
-                                    case Classes::CLASS_DRUID:
-                                    {
-                                        break;
-                                    }
-                                    default:
-                                    {
-                                        break;
-                                    }
-                                    }
-                                    if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_TANK)
-                                    {
-                                        if (!tank1Set)
-                                        {
-                                            member->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank1;
-                                            myGroup->SetTargetIcon(0, member->GetGUID(), member->GetGUID());
-                                            tank1Set = true;
-                                            continue;
-                                        }
-                                        else if (!tank2Set)
-                                        {
-                                            member->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank2;
-                                            tank2Set = true;
-                                            continue;
-                                        }
-                                        else if (!tank3Set)
-                                        {
-                                            member->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank3;
-                                            tank3Set = true;
-                                            continue;
-                                        }
-                                        else if (!tank4Set)
-                                        {
-                                            member->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank4;
-                                            tank4Set = true;
-                                            continue;
-                                        }
-                                        else if (!tank5Set)
-                                        {
-                                            member->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank5;
-                                            tank5Set = true;
-                                            continue;
-                                        }
-                                        else
-                                        {
-                                            member->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_DPS_Melee;
-                                        }
-                                    }
-                                    else if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_HEALER)
-                                    {
-                                        if (healer1Count < 1)
-                                        {
-                                            member->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer1;
-                                            myGroup->SetTargetIcon(1, member->GetGUID(), member->GetGUID());
-                                            healer1Count++;
-                                            continue;
-                                        }
-                                        else if (healer2Count < 1)
-                                        {
-                                            member->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer2;
-                                            healer2Count++;
-                                            continue;
-                                        }
-                                        else if (healer3Count < 1)
-                                        {
-                                            member->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer3;
-                                            healer3Count++;
-                                            continue;
-                                        }
-                                        else if (healer4Count < 1)
-                                        {
-                                            member->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer4;
                                             myGroup->SetTargetIcon(2, member->GetGUID(), member->GetGUID());
-                                            healer4Count++;
-                                            continue;
                                         }
-                                        else if (healer5Count < 1)
-                                        {
-                                            member->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer5;
-                                            healer5Count++;
-                                            continue;
-                                        }
-                                        else if (healer6Count < 1)
-                                        {
-                                            member->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer6;
-                                            healer6Count++;
-                                            continue;
-                                        }
-                                        else if (healer7Count < 1)
-                                        {
-                                            member->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer7;
-                                            myGroup->SetTargetIcon(3, member->GetGUID(), member->GetGUID());
-                                            healer7Count++;
-                                            continue;
-                                        }
-                                        else if (healer8Count < 5)
-                                        {
-                                            member->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer8;
-                                            healer8Count++;
-                                            continue;
-                                        }
-                                        else
-                                        {
-                                            member->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_DPS_Range;
-                                        }
+                                        healer1Count++;
+                                        continue;
                                     }
-                                    else if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_DPS)
+                                    else if (healer2Count < 4)
                                     {
-                                        if (member->GetClass() == Classes::CLASS_WARRIOR || member->GetClass() == Classes::CLASS_PALADIN || member->GetClass() == Classes::CLASS_ROGUE || member->GetClass() == Classes::CLASS_DEATH_KNIGHT || member->GetClass() == Classes::CLASS_DRUID)
-                                        {
-                                            member->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_DPS_Melee;
-                                        }
-                                        else
-                                        {
-                                            member->groupRole = GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_DPS_Range;
-                                        }
+                                        member->groupRole = GroupRole_Azuregos::GroupRole_Azuregos_Healer2;
+                                        healer2Count++;
+                                        continue;
                                     }
+                                    else
+                                    {
+                                        member->groupRole = GroupRole_Azuregos::GroupRole_Azuregos_DPS;
+                                    }
+                                }
+                                else if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_DPS)
+                                {
+                                    member->groupRole = GroupRole_Azuregos::GroupRole_Azuregos_DPS;
                                 }
                             }
                         }
@@ -2708,7 +2231,7 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
         {
             if (myGroup->GetLeaderGUID() == pmPlayer->GetGUID())
             {
-                switch (pmPlayer->rai->activeStrategyIndex)
+                switch (myGroup->groupStrategyIndex)
                 {
                 case Strategy_Index::Strategy_Index_Group:
                 {
@@ -2720,12 +2243,7 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                     replyStream << "No position";
                     break;
                 }
-                case Strategy_Index::Strategy_Index_Group_Shadow_Labyrinth:
-                {
-                    replyStream << "No position";
-                    break;
-                }
-                case Strategy_Index::Strategy_Index_Group_EmeraldDragon:
+                case Strategy_Index::Strategy_Index_Group_Ysondre:
                 {
                     for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
                     {
@@ -2736,134 +2254,524 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                             {
                                 continue;
                             }
-                            if (member->rai->activeStrategyIndex == Strategy_Index::Strategy_Index_Group_EmeraldDragon)
+                            if (RobotStrategy_Group_Ysondre* rs = (RobotStrategy_Group_Ysondre*)member->rai->strategyMap[myGroup->groupStrategyIndex])
                             {
-                                if (RobotStrategy_Group_EmeraldDragon* rs = (RobotStrategy_Group_EmeraldDragon*)member->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
+                                rs->basePos = pmPlayer->GetPosition();
+                                rs->engageAngle = rs->basePos.GetOrientation();
+                                rs->engageDistance = 14.0f;
+                                switch (member->groupRole)
                                 {
-                                    rs->basePos = pmPlayer->GetPosition();
-                                    rs->engageAngle = rs->basePos.GetOrientation();
-                                    rs->engageDistance = 14.0f;
-                                    switch (member->groupRole)
-                                    {
-                                    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank1:
-                                    {
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 20.0f, rs->basePos.GetOrientation());
-                                        break;
-                                    }
-                                    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank2:
-                                    {
-                                        rs->engageAngle = rs->engageAngle + M_PI;
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 2);
-                                        break;
-                                    }
-                                    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank3:
-                                    {
-                                        rs->engageAngle = rs->engageAngle + M_PI / 2;
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 2);
-                                        break;
-                                    }
-                                    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank4:
-                                    {
-                                        rs->engageAngle = rs->engageAngle + M_PI / 2;
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 2);
-                                        break;
-                                    }
-                                    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank5:
-                                    {
-                                        rs->engageAngle = rs->engageAngle + M_PI / 2;
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 2);
-                                        break;
-                                    }
-                                    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer1:
-                                    {
-                                        rs->engageAngle = rs->engageAngle + M_PI * 3 / 8;
-                                        rs->engageDistance = 38.0f;
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 4);
-                                        break;
-                                    }
-                                    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer2:
-                                    {
-                                        rs->engageAngle = rs->engageAngle + M_PI * 3 / 8;
-                                        rs->engageDistance = 30.0f;
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 4);
-                                        break;
-                                    }
-                                    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer3:
-                                    {
-                                        rs->engageAngle = rs->engageAngle + M_PI * 3 / 8;
-                                        rs->engageDistance = 22.0f;
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 4);
-                                        break;
-                                    }
-                                    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer4:
-                                    {
-                                        rs->engageAngle = rs->engageAngle + M_PI * 5 / 8;
-                                        rs->engageDistance = 38.0f;
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI * 3 / 4);
-                                        break;
-                                    }
-                                    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer5:
-                                    {
-                                        rs->engageAngle = rs->engageAngle + M_PI * 5 / 8;
-                                        rs->engageDistance = 30.0f;
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI * 3 / 4);
-                                        break;
-                                    }
-                                    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer6:
-                                    {
-                                        rs->engageAngle = rs->engageAngle + M_PI * 5 / 8;
-                                        rs->engageDistance = 22.0f;
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI * 3 / 4);
-                                        break;
-                                    }
-                                    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer7:
-                                    {
-                                        rs->engageAngle = rs->engageAngle + M_PI / 2;
-                                        rs->engageDistance = 38.0f;
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 2);
-                                        break;
-                                    }
-                                    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer8:
-                                    {
-                                        rs->engageAngle = rs->engageAngle + M_PI / 2;
-                                        rs->engageDistance = 30.0f;
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 2);
-                                        break;
-                                    }
-                                    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_DPS_Range:
-                                    {
-                                        float angleMin = rs->engageAngle + M_PI * 3 / 8;
-                                        float angleMax = rs->engageAngle + M_PI * 5 / 8;
-                                        rs->engageAngle = frand(angleMin, angleMax);
-                                        rs->engageDistance = frand(35.0f, 47.0f);
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->engageAngle);
-                                        break;
-                                    }
-                                    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_DPS_Melee:
-                                    {
-                                        if (urand(0, 1) == 0)
-                                        {
-                                            rs->engageAngle = rs->engageAngle + M_PI / 2;
-                                        }
-                                        else
-                                        {
-                                            rs->engageAngle = rs->engageAngle + M_PI * 3 / 2;
-                                        }
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 2);
-                                        break;
-                                    }
-                                    default:
-                                    {
-                                        float angleMin = rs->engageAngle + M_PI * 3 / 8;
-                                        float angleMax = rs->engageAngle + M_PI * 5 / 8;
-                                        rs->engageAngle = frand(angleMin, angleMax);
-                                        rs->engageDistance = frand(30.0f, 47.0f);
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->engageAngle);
-                                        break;
-                                    }
-                                    }
-                                    rs->marked = true;
+                                case GroupRole_Ysondre::GroupRole_Ysondre_Tank1:
+                                {
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 20.0f, rs->basePos.GetOrientation());
+                                    break;
                                 }
+                                case GroupRole_Ysondre::GroupRole_Ysondre_Tank2:
+                                {
+                                    rs->engageAngle = rs->engageAngle + M_PI;
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 2);
+                                    break;
+                                }
+                                case GroupRole_Ysondre::GroupRole_Ysondre_Healer1:
+                                {
+                                    rs->engageAngle = rs->engageAngle + M_PI * 3 / 8;
+                                    rs->engageDistance = 38.0f;
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 4);
+                                    break;
+                                }
+                                case GroupRole_Ysondre::GroupRole_Ysondre_Healer2:
+                                {
+                                    rs->engageAngle = rs->engageAngle + M_PI * 3 / 8;
+                                    rs->engageDistance = 30.0f;
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 4);
+                                    break;
+                                }
+                                case GroupRole_Ysondre::GroupRole_Ysondre_Healer3:
+                                {
+                                    rs->engageAngle = rs->engageAngle + M_PI * 3 / 8;
+                                    rs->engageDistance = 22.0f;
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 4);
+                                    break;
+                                }
+                                case GroupRole_Ysondre::GroupRole_Ysondre_Healer4:
+                                {
+                                    rs->engageAngle = rs->engageAngle + M_PI * 5 / 8;
+                                    rs->engageDistance = 38.0f;
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI * 3 / 4);
+                                    break;
+                                }
+                                case GroupRole_Ysondre::GroupRole_Ysondre_Healer5:
+                                {
+                                    rs->engageAngle = rs->engageAngle + M_PI * 5 / 8;
+                                    rs->engageDistance = 30.0f;
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI * 3 / 4);
+                                    break;
+                                }
+                                case GroupRole_Ysondre::GroupRole_Ysondre_Healer6:
+                                {
+                                    rs->engageAngle = rs->engageAngle + M_PI * 5 / 8;
+                                    rs->engageDistance = 22.0f;
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI * 3 / 4);
+                                    break;
+                                }
+                                case GroupRole_Ysondre::GroupRole_Ysondre_Healer7:
+                                {
+                                    rs->engageAngle = rs->engageAngle + M_PI / 2;
+                                    rs->engageDistance = 38.0f;
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 2);
+                                    break;
+                                }
+                                case GroupRole_Ysondre::GroupRole_Ysondre_Healer8:
+                                {
+                                    rs->engageAngle = rs->engageAngle + M_PI / 2;
+                                    rs->engageDistance = 30.0f;
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 2);
+                                    break;
+                                }
+                                case GroupRole_Ysondre::GroupRole_Ysondre_DPS_Range:
+                                {
+                                    float angleMin = rs->engageAngle + M_PI * 3 / 8;
+                                    float angleMax = rs->engageAngle + M_PI * 5 / 8;
+                                    rs->engageAngle = frand(angleMin, angleMax);
+                                    rs->engageDistance = frand(35.0f, 47.0f);
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->engageAngle);
+                                    break;
+                                }
+                                case GroupRole_Ysondre::GroupRole_Ysondre_DPS_Melee:
+                                {
+                                    if (urand(0, 1) == 0)
+                                    {
+                                        rs->engageAngle = rs->engageAngle + M_PI / 2;
+                                    }
+                                    else
+                                    {
+                                        rs->engageAngle = rs->engageAngle + M_PI * 3 / 2;
+                                    }
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 2);
+                                    break;
+                                }
+                                default:
+                                {
+                                    float angleMin = rs->engageAngle + M_PI * 3 / 8;
+                                    float angleMax = rs->engageAngle + M_PI * 5 / 8;
+                                    rs->engageAngle = frand(angleMin, angleMax);
+                                    rs->engageDistance = frand(30.0f, 47.0f);
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->engageAngle);
+                                    break;
+                                }
+                                }
+                                rs->marked = true;
+                            }
+                        }
+                    }
+                    replyStream << "marked";
+                    break;
+                }
+                case Strategy_Index::Strategy_Index_Group_Lethon:
+                {
+                    for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                    {
+                        Player* member = groupRef->GetSource();
+                        if (member)
+                        {
+                            if (!member->GetSession()->isRobotSession)
+                            {
+                                continue;
+                            }
+                            if (RobotStrategy_Group_Lethon* rs = (RobotStrategy_Group_Lethon*)member->rai->strategyMap[myGroup->groupStrategyIndex])
+                            {
+                                rs->basePos = pmPlayer->GetPosition();
+                                rs->engageAngle = rs->basePos.GetOrientation();
+                                rs->engageDistance = 14.0f;
+                                switch (member->groupRole)
+                                {
+                                case GroupRole_Lethon::GroupRole_Lethon_Tank1:
+                                {
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 20.0f, rs->basePos.GetOrientation());
+                                    break;
+                                }
+                                case GroupRole_Lethon::GroupRole_Lethon_Tank2:
+                                {
+                                    rs->engageAngle = rs->engageAngle + M_PI;
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 2);
+                                    break;
+                                }
+                                case GroupRole_Lethon::GroupRole_Lethon_Healer1:
+                                {
+                                    rs->engageAngle = rs->engageAngle + M_PI * 3 / 8;
+                                    rs->engageDistance = 38.0f;
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 4);
+                                    break;
+                                }
+                                case GroupRole_Lethon::GroupRole_Lethon_Healer2:
+                                {
+                                    rs->engageAngle = rs->engageAngle + M_PI * 3 / 8;
+                                    rs->engageDistance = 30.0f;
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 4);
+                                    break;
+                                }
+                                case GroupRole_Lethon::GroupRole_Lethon_Healer3:
+                                {
+                                    rs->engageAngle = rs->engageAngle + M_PI * 3 / 8;
+                                    rs->engageDistance = 22.0f;
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 4);
+                                    break;
+                                }
+                                case GroupRole_Lethon::GroupRole_Lethon_Healer4:
+                                {
+                                    rs->engageAngle = rs->engageAngle + M_PI * 5 / 8;
+                                    rs->engageDistance = 38.0f;
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI * 3 / 4);
+                                    break;
+                                }
+                                case GroupRole_Lethon::GroupRole_Lethon_Healer5:
+                                {
+                                    rs->engageAngle = rs->engageAngle + M_PI * 5 / 8;
+                                    rs->engageDistance = 30.0f;
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI * 3 / 4);
+                                    break;
+                                }
+                                case GroupRole_Lethon::GroupRole_Lethon_Healer6:
+                                {
+                                    rs->engageAngle = rs->engageAngle + M_PI * 5 / 8;
+                                    rs->engageDistance = 22.0f;
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI * 3 / 4);
+                                    break;
+                                }
+                                case GroupRole_Lethon::GroupRole_Lethon_Healer7:
+                                {
+                                    rs->engageAngle = rs->engageAngle + M_PI / 2;
+                                    rs->engageDistance = 38.0f;
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 2);
+                                    break;
+                                }
+                                case GroupRole_Lethon::GroupRole_Lethon_Healer8:
+                                {
+                                    rs->engageAngle = rs->engageAngle + M_PI / 2;
+                                    rs->engageDistance = 30.0f;
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 2);
+                                    break;
+                                }
+                                case GroupRole_Lethon::GroupRole_Lethon_DPS_Range:
+                                {
+                                    float angleMin = rs->engageAngle + M_PI * 3 / 8;
+                                    float angleMax = rs->engageAngle + M_PI * 5 / 8;
+                                    rs->engageAngle = frand(angleMin, angleMax);
+                                    rs->engageDistance = frand(35.0f, 47.0f);
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->engageAngle);
+                                    break;
+                                }
+                                case GroupRole_Lethon::GroupRole_Lethon_DPS_Melee:
+                                {
+                                    if (urand(0, 1) == 0)
+                                    {
+                                        rs->engageAngle = rs->engageAngle + M_PI / 2;
+                                    }
+                                    else
+                                    {
+                                        rs->engageAngle = rs->engageAngle + M_PI * 3 / 2;
+                                    }
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 2);
+                                    break;
+                                }
+                                default:
+                                {
+                                    float angleMin = rs->engageAngle + M_PI * 3 / 8;
+                                    float angleMax = rs->engageAngle + M_PI * 5 / 8;
+                                    rs->engageAngle = frand(angleMin, angleMax);
+                                    rs->engageDistance = frand(30.0f, 47.0f);
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->engageAngle);
+                                    break;
+                                }
+                                }
+                                rs->marked = true;
+                            }
+                        }
+                    }
+                    replyStream << "marked";
+                    break;
+                }
+                case Strategy_Index::Strategy_Index_Group_Taerar:
+                {
+                    for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                    {
+                        Player* member = groupRef->GetSource();
+                        if (member)
+                        {
+                            if (!member->GetSession()->isRobotSession)
+                            {
+                                continue;
+                            }
+                            if (RobotStrategy_Group_Taerar* rs = (RobotStrategy_Group_Taerar*)member->rai->strategyMap[myGroup->groupStrategyIndex])
+                            {
+                                rs->basePos = pmPlayer->GetPosition();
+                                rs->engageAngle = rs->basePos.GetOrientation();
+                                rs->engageDistance = 14.0f;
+                                switch (member->groupRole)
+                                {
+                                case GroupRole_Taerar::GroupRole_Taerar_Tank1:
+                                {
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 20.0f, rs->basePos.GetOrientation());
+                                    break;
+                                }
+                                case GroupRole_Taerar::GroupRole_Taerar_Tank2:
+                                {
+                                    rs->engageAngle = rs->engageAngle + M_PI;
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 2);
+                                    break;
+                                }
+                                case GroupRole_Taerar::GroupRole_Taerar_Tank3:
+                                {
+                                    rs->engageAngle = rs->engageAngle + M_PI / 2;
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 2);
+                                    break;
+                                }
+                                case GroupRole_Taerar::GroupRole_Taerar_Tank4:
+                                {
+                                    rs->engageAngle = rs->engageAngle + M_PI / 2;
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 2);
+                                    break;
+                                }
+                                case GroupRole_Taerar::GroupRole_Taerar_Tank5:
+                                {
+                                    rs->engageAngle = rs->engageAngle + M_PI / 2;
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 2);
+                                    break;
+                                }
+                                case GroupRole_Taerar::GroupRole_Taerar_Healer1:
+                                {
+                                    rs->engageAngle = rs->engageAngle + M_PI * 3 / 8;
+                                    rs->engageDistance = 38.0f;
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 4);
+                                    break;
+                                }
+                                case GroupRole_Taerar::GroupRole_Taerar_Healer2:
+                                {
+                                    rs->engageAngle = rs->engageAngle + M_PI * 3 / 8;
+                                    rs->engageDistance = 30.0f;
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 4);
+                                    break;
+                                }
+                                case GroupRole_Taerar::GroupRole_Taerar_Healer3:
+                                {
+                                    rs->engageAngle = rs->engageAngle + M_PI * 3 / 8;
+                                    rs->engageDistance = 22.0f;
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 4);
+                                    break;
+                                }
+                                case GroupRole_Taerar::GroupRole_Taerar_Healer4:
+                                {
+                                    rs->engageAngle = rs->engageAngle + M_PI * 5 / 8;
+                                    rs->engageDistance = 38.0f;
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI * 3 / 4);
+                                    break;
+                                }
+                                case GroupRole_Taerar::GroupRole_Taerar_Healer5:
+                                {
+                                    rs->engageAngle = rs->engageAngle + M_PI * 5 / 8;
+                                    rs->engageDistance = 30.0f;
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI * 3 / 4);
+                                    break;
+                                }
+                                case GroupRole_Taerar::GroupRole_Taerar_Healer6:
+                                {
+                                    rs->engageAngle = rs->engageAngle + M_PI * 5 / 8;
+                                    rs->engageDistance = 22.0f;
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI * 3 / 4);
+                                    break;
+                                }
+                                case GroupRole_Taerar::GroupRole_Taerar_Healer7:
+                                {
+                                    rs->engageAngle = rs->engageAngle + M_PI / 2;
+                                    rs->engageDistance = 38.0f;
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 2);
+                                    break;
+                                }
+                                case GroupRole_Taerar::GroupRole_Taerar_Healer8:
+                                {
+                                    rs->engageAngle = rs->engageAngle + M_PI / 2;
+                                    rs->engageDistance = 30.0f;
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 2);
+                                    break;
+                                }
+                                case GroupRole_Taerar::GroupRole_Taerar_DPS_Range:
+                                {
+                                    float angleMin = rs->engageAngle + M_PI * 3 / 8;
+                                    float angleMax = rs->engageAngle + M_PI * 5 / 8;
+                                    rs->engageAngle = frand(angleMin, angleMax);
+                                    rs->engageDistance = frand(35.0f, 47.0f);
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->engageAngle);
+                                    break;
+                                }
+                                case GroupRole_Taerar::GroupRole_Taerar_DPS_Melee:
+                                {
+                                    if (urand(0, 1) == 0)
+                                    {
+                                        rs->engageAngle = rs->engageAngle + M_PI / 2;
+                                    }
+                                    else
+                                    {
+                                        rs->engageAngle = rs->engageAngle + M_PI * 3 / 2;
+                                    }
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 2);
+                                    break;
+                                }
+                                default:
+                                {
+                                    float angleMin = rs->engageAngle + M_PI * 3 / 8;
+                                    float angleMax = rs->engageAngle + M_PI * 5 / 8;
+                                    rs->engageAngle = frand(angleMin, angleMax);
+                                    rs->engageDistance = frand(30.0f, 47.0f);
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->engageAngle);
+                                    break;
+                                }
+                                }
+                                rs->marked = true;
+                            }
+                        }
+                    }
+                    replyStream << "marked";
+                    break;
+                }
+                case Strategy_Index::Strategy_Index_Group_Emeriss:
+                {
+                    for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                    {
+                        Player* member = groupRef->GetSource();
+                        if (member)
+                        {
+                            if (!member->GetSession()->isRobotSession)
+                            {
+                                continue;
+                            }
+                            if (RobotStrategy_Group_Emeriss* rs = (RobotStrategy_Group_Emeriss*)member->rai->strategyMap[myGroup->groupStrategyIndex])
+                            {
+                                rs->basePos = pmPlayer->GetPosition();
+                                rs->engageAngle = rs->basePos.GetOrientation();
+                                rs->engageDistance = 14.0f;
+                                switch (member->groupRole)
+                                {
+                                case GroupRole_Emeriss::GroupRole_Emeriss_Tank1:
+                                {
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 20.0f, rs->basePos.GetOrientation());
+                                    break;
+                                }
+                                case GroupRole_Emeriss::GroupRole_Emeriss_Tank2:
+                                {
+                                    rs->engageAngle = rs->engageAngle + M_PI;
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 2);
+                                    break;
+                                }
+                                case GroupRole_Emeriss::GroupRole_Emeriss_Healer1:
+                                {
+                                    rs->engageAngle = rs->engageAngle + M_PI * 3 / 8;
+                                    rs->engageDistance = 38.0f;
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 4);
+                                    break;
+                                }
+                                case GroupRole_Emeriss::GroupRole_Emeriss_Healer2:
+                                {
+                                    rs->engageAngle = rs->engageAngle + M_PI * 3 / 8;
+                                    rs->engageDistance = 30.0f;
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 4);
+                                    break;
+                                }
+                                case GroupRole_Emeriss::GroupRole_Emeriss_Healer3:
+                                {
+                                    rs->engageAngle = rs->engageAngle + M_PI * 5 / 8;
+                                    rs->engageDistance = 38.0f;
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI * 3 / 4);
+                                    break;
+                                }
+                                case GroupRole_Emeriss::GroupRole_Emeriss_Healer4:
+                                {
+                                    rs->engageAngle = rs->engageAngle + M_PI * 5 / 8;
+                                    rs->engageDistance = 30.0f;
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI * 3 / 4);
+                                    break;
+                                }
+                                case GroupRole_Emeriss::GroupRole_Emeriss_Healer5:
+                                {
+                                    rs->engageAngle = rs->engageAngle + M_PI * 3 / 8;
+                                    rs->engageDistance = 25.0f;
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->engageAngle);
+                                    break;
+                                }
+                                case GroupRole_Emeriss::GroupRole_Emeriss_Healer6:
+                                {
+                                    rs->engageAngle = rs->engageAngle + M_PI * 5 / 8;
+                                    rs->engageDistance = 25.0f;
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->engageAngle);
+                                    break;
+                                }
+                                case GroupRole_Emeriss::GroupRole_Emeriss_Healer7:
+                                {
+                                    rs->engageAngle = rs->engageAngle + M_PI * 3 / 8;
+                                    rs->engageDistance = 33.0f;
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->engageAngle);
+                                    break;
+                                }
+                                case GroupRole_Emeriss::GroupRole_Emeriss_Healer8:
+                                {
+                                    rs->engageAngle = rs->engageAngle + M_PI * 4 / 8;
+                                    rs->engageDistance = 33.0f;
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->engageAngle);
+                                    break;
+                                }
+                                case GroupRole_Emeriss::GroupRole_Emeriss_Healer9:
+                                {
+                                    rs->engageAngle = rs->engageAngle + M_PI * 5 / 8;
+                                    rs->engageDistance = 33.0f;
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->engageAngle);
+                                    break;
+                                }
+                                case GroupRole_Emeriss::GroupRole_Emeriss_Healer10:
+                                {
+                                    rs->engageAngle = rs->engageAngle + M_PI * 3 / 8;
+                                    rs->engageDistance = 40.0f;
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->engageAngle);
+                                    break;
+                                }
+                                case GroupRole_Emeriss::GroupRole_Emeriss_Healer11:
+                                {
+                                    rs->engageAngle = rs->engageAngle + M_PI * 4 / 8;
+                                    rs->engageDistance = 40.0f;
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->engageAngle);
+                                    break;
+                                }
+                                case GroupRole_Emeriss::GroupRole_Emeriss_Healer12:
+                                {
+                                    rs->engageAngle = rs->engageAngle + M_PI * 5 / 8;
+                                    rs->engageDistance = 40.0f;
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->engageAngle);
+                                    break;
+                                }
+                                case GroupRole_Emeriss::GroupRole_Emeriss_DPS_Range:
+                                {
+                                    float angleMin = rs->engageAngle + M_PI * 3 / 8;
+                                    float angleMax = rs->engageAngle + M_PI * 5 / 8;
+                                    rs->engageAngle = frand(angleMin, angleMax);
+                                    rs->engageDistance = frand(35.0f, 47.0f);
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->engageAngle);
+                                    break;
+                                }
+                                case GroupRole_Emeriss::GroupRole_Emeriss_DPS_Melee:
+                                {
+                                    rs->engageAngle = rs->engageAngle + M_PI / 2;
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 2);
+                                    break;
+                                }
+                                default:
+                                {
+                                    float angleMin = rs->engageAngle + M_PI * 3 / 8;
+                                    float angleMax = rs->engageAngle + M_PI * 5 / 8;
+                                    rs->engageAngle = frand(angleMin, angleMax);
+                                    rs->engageDistance = frand(30.0f, 47.0f);
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->engageAngle);
+                                    break;
+                                }
+                                }
+                                rs->marked = true;
                             }
                         }
                     }
@@ -2881,32 +2789,47 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                             {
                                 continue;
                             }
-                            if (member->rai->activeStrategyIndex == Strategy_Index::Strategy_Index_Group_Azuregos)
+                            if (RobotStrategy_Group_Azuregos* rs = (RobotStrategy_Group_Azuregos*)member->rai->strategyMap[myGroup->groupStrategyIndex])
                             {
-                                if (RobotStrategy_Group_Azuregos* rs = (RobotStrategy_Group_Azuregos*)member->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
+                                rs->basePos = pmPlayer->GetPosition();
+                                rs->engageAngle = rs->basePos.GetOrientation();
+                                rs->engageDistance = 14.0f;
+                                switch (member->groupRole)
                                 {
-                                    rs->basePos = pmPlayer->GetPosition();
-                                    rs->engageAngle = rs->basePos.GetOrientation();
-                                    rs->engageDistance = 14.0f;
-                                    switch (member->groupRole)
+                                case GroupRole_Azuregos::GroupRole_Azuregos_Tank:
+                                {
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 10.0f, rs->basePos.GetOrientation());
+                                    break;
+                                }
+                                case GroupRole_Azuregos::GroupRole_Azuregos_Healer1:
+                                {
+                                    float angleMin = rs->engageAngle + M_PI * 5 / 4;
+                                    float angleMax = rs->engageAngle + M_PI * 7 / 4;
+                                    rs->engageAngle = frand(angleMin, angleMax);
+                                    float distanceMin = 25.0f;
+                                    float distanceMax = 35.0f;
+                                    rs->engageDistance = frand(distanceMin, distanceMax);
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, rs->engageDistance, rs->engageAngle);
+                                    break;
+                                }
+                                case GroupRole_Azuregos::GroupRole_Azuregos_Healer2:
+                                {
+                                    float angleMin = rs->engageAngle + M_PI / 4;
+                                    float angleMax = rs->engageAngle + M_PI * 3 / 4;
+                                    rs->engageAngle = frand(angleMin, angleMax);
+                                    float distanceMin = 25.0f;
+                                    float distanceMax = 45.0f;
+                                    rs->engageDistance = frand(distanceMin, distanceMax);
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, rs->engageDistance, rs->engageAngle);
+                                    break;
+                                }
+                                case GroupRole_Azuregos::GroupRole_Azuregos_DPS:
+                                {
+                                    if (member->GetClass() == Classes::CLASS_WARRIOR || member->GetClass() == Classes::CLASS_PALADIN || member->GetClass() == Classes::CLASS_ROGUE || member->GetClass() == Classes::CLASS_DEATH_KNIGHT || member->GetClass() == Classes::CLASS_DRUID)
                                     {
-                                    case GroupRole_Azuregos::GroupRole_Azuregos_Tank:
-                                    {
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 10.0f, rs->basePos.GetOrientation());
-                                        break;
+                                        rs->engageAngle = rs->engageAngle + M_PI / 2;
                                     }
-                                    case GroupRole_Azuregos::GroupRole_Azuregos_Healer1:
-                                    {
-                                        float angleMin = rs->engageAngle + M_PI * 5 / 4;
-                                        float angleMax = rs->engageAngle + M_PI * 7 / 4;
-                                        rs->engageAngle = frand(angleMin, angleMax);
-                                        float distanceMin = 25.0f;
-                                        float distanceMax = 35.0f;
-                                        rs->engageDistance = frand(distanceMin, distanceMax);
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, rs->engageDistance, rs->engageAngle);
-                                        break;
-                                    }
-                                    case GroupRole_Azuregos::GroupRole_Azuregos_Healer2:
+                                    else
                                     {
                                         float angleMin = rs->engageAngle + M_PI / 4;
                                         float angleMax = rs->engageAngle + M_PI * 3 / 4;
@@ -2914,48 +2837,30 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                                         float distanceMin = 25.0f;
                                         float distanceMax = 45.0f;
                                         rs->engageDistance = frand(distanceMin, distanceMax);
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, rs->engageDistance, rs->engageAngle);
-                                        break;
                                     }
-                                    case GroupRole_Azuregos::GroupRole_Azuregos_DPS:
-                                    {
-                                        if (member->GetClass() == Classes::CLASS_WARRIOR || member->GetClass() == Classes::CLASS_PALADIN || member->GetClass() == Classes::CLASS_ROGUE || member->GetClass() == Classes::CLASS_DEATH_KNIGHT || member->GetClass() == Classes::CLASS_DRUID)
-                                        {
-                                            rs->engageAngle = rs->engageAngle + M_PI / 2;
-                                        }
-                                        else
-                                        {
-                                            float angleMin = rs->engageAngle + M_PI / 4;
-                                            float angleMax = rs->engageAngle + M_PI * 3 / 4;
-                                            rs->engageAngle = frand(angleMin, angleMax);
-                                            float distanceMin = 25.0f;
-                                            float distanceMax = 45.0f;
-                                            rs->engageDistance = frand(distanceMin, distanceMax);
-                                        }
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, rs->engageDistance, rs->engageAngle);
-                                        break;
-                                    }
-                                    default:
-                                    {
-                                        if (member->GetClass() == Classes::CLASS_WARRIOR || member->GetClass() == Classes::CLASS_PALADIN || member->GetClass() == Classes::CLASS_ROGUE || member->GetClass() == Classes::CLASS_DEATH_KNIGHT || member->GetClass() == Classes::CLASS_DRUID)
-                                        {
-                                            rs->engageAngle = rs->engageAngle + M_PI / 2;
-                                        }
-                                        else
-                                        {
-                                            float angleMin = rs->engageAngle + M_PI / 4;
-                                            float angleMax = rs->engageAngle + M_PI * 3 / 4;
-                                            rs->engageAngle = frand(angleMin, angleMax);
-                                            float distanceMin = 25.0f;
-                                            float distanceMax = 45.0f;
-                                            rs->engageDistance = frand(distanceMin, distanceMax);
-                                        }
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, rs->engageDistance, rs->engageAngle);
-                                        break;
-                                    }
-                                    }
-                                    rs->marked = true;
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, rs->engageDistance, rs->engageAngle);
+                                    break;
                                 }
+                                default:
+                                {
+                                    if (member->GetClass() == Classes::CLASS_WARRIOR || member->GetClass() == Classes::CLASS_PALADIN || member->GetClass() == Classes::CLASS_ROGUE || member->GetClass() == Classes::CLASS_DEATH_KNIGHT || member->GetClass() == Classes::CLASS_DRUID)
+                                    {
+                                        rs->engageAngle = rs->engageAngle + M_PI / 2;
+                                    }
+                                    else
+                                    {
+                                        float angleMin = rs->engageAngle + M_PI / 4;
+                                        float angleMax = rs->engageAngle + M_PI * 3 / 4;
+                                        rs->engageAngle = frand(angleMin, angleMax);
+                                        float distanceMin = 25.0f;
+                                        float distanceMax = 45.0f;
+                                        rs->engageDistance = frand(distanceMin, distanceMax);
+                                    }
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, rs->engageDistance, rs->engageAngle);
+                                    break;
+                                }
+                                }
+                                rs->marked = true;
                             }
                         }
                     }
@@ -2973,134 +2878,24 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                             {
                                 continue;
                             }
-                            if (member->rai->activeStrategyIndex == Strategy_Index::Strategy_Index_Group_Test)
+                            if (RobotStrategy_Group_Test* rs = (RobotStrategy_Group_Test*)member->rai->strategyMap[myGroup->groupStrategyIndex])
                             {
-                                if (RobotStrategy_Group_Test* rs = (RobotStrategy_Group_Test*)member->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
+                                rs->basePos = pmPlayer->GetPosition();
+                                rs->engageAngle = rs->basePos.GetOrientation();
+                                rs->engageDistance = 14.0f;
+                                switch (member->groupRole)
                                 {
-                                    rs->basePos = pmPlayer->GetPosition();
-                                    rs->engageAngle = rs->basePos.GetOrientation();
-                                    rs->engageDistance = 14.0f;
-                                    switch (member->groupRole)
-                                    {
-                                    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank1:
-                                    {
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 20.0f, rs->basePos.GetOrientation());
-                                        break;
-                                    }
-                                    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank2:
-                                    {
-                                        rs->engageAngle = rs->engageAngle + M_PI;
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 2);
-                                        break;
-                                    }
-                                    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank3:
-                                    {
-                                        rs->engageAngle = rs->engageAngle + M_PI / 2;
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 2);
-                                        break;
-                                    }
-                                    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank4:
-                                    {
-                                        rs->engageAngle = rs->engageAngle + M_PI / 2;
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 2);
-                                        break;
-                                    }
-                                    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Tank5:
-                                    {
-                                        rs->engageAngle = rs->engageAngle + M_PI / 2;
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 2);
-                                        break;
-                                    }
-                                    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer1:
-                                    {
-                                        rs->engageAngle = rs->engageAngle + M_PI * 3 / 8;
-                                        rs->engageDistance = 38.0f;
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 4);
-                                        break;
-                                    }
-                                    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer2:
-                                    {
-                                        rs->engageAngle = rs->engageAngle + M_PI * 3 / 8;
-                                        rs->engageDistance = 30.0f;
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 4);
-                                        break;
-                                    }
-                                    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer3:
-                                    {
-                                        rs->engageAngle = rs->engageAngle + M_PI * 3 / 8;
-                                        rs->engageDistance = 22.0f;
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 4);
-                                        break;
-                                    }
-                                    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer4:
-                                    {
-                                        rs->engageAngle = rs->engageAngle + M_PI * 5 / 8;
-                                        rs->engageDistance = 38.0f;
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI * 3 / 4);
-                                        break;
-                                    }
-                                    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer5:
-                                    {
-                                        rs->engageAngle = rs->engageAngle + M_PI * 5 / 8;
-                                        rs->engageDistance = 30.0f;
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI * 3 / 4);
-                                        break;
-                                    }
-                                    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer6:
-                                    {
-                                        rs->engageAngle = rs->engageAngle + M_PI * 5 / 8;
-                                        rs->engageDistance = 22.0f;
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI * 3 / 4);
-                                        break;
-                                    }
-                                    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer7:
-                                    {
-                                        rs->engageAngle = rs->engageAngle + M_PI / 2;
-                                        rs->engageDistance = 38.0f;
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 2);
-                                        break;
-                                    }
-                                    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_Healer8:
-                                    {
-                                        rs->engageAngle = rs->engageAngle + M_PI / 2;
-                                        rs->engageDistance = 30.0f;
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 2);
-                                        break;
-                                    }
-                                    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_DPS_Range:
-                                    {
-                                        float angleMin = rs->engageAngle + M_PI * 3 / 8;
-                                        float angleMax = rs->engageAngle + M_PI * 5 / 8;
-                                        rs->engageAngle = frand(angleMin, angleMax);
-                                        rs->engageDistance = frand(35.0f, 47.0f);
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->engageAngle);
-                                        break;
-                                    }
-                                    case GroupRole_EmeraldDragon::GroupRole_EmeraldDragon_DPS_Melee:
-                                    {
-                                        if (urand(0, 1) == 0)
-                                        {
-                                            rs->engageAngle = rs->engageAngle + M_PI / 2;
-                                        }
-                                        else
-                                        {
-                                            rs->engageAngle = rs->engageAngle + M_PI * 3 / 2;
-                                        }
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->basePos.GetOrientation() + M_PI / 2);
-                                        break;
-                                    }
-                                    default:
-                                    {
-                                        float angleMin = rs->engageAngle + M_PI * 3 / 8;
-                                        float angleMax = rs->engageAngle + M_PI * 5 / 8;
-                                        rs->engageAngle = frand(angleMin, angleMax);
-                                        rs->engageDistance = frand(30.0f, 47.0f);
-                                        pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->engageAngle);
-                                        break;
-                                    }
-                                    }
-                                    rs->marked = true;
+                                default:
+                                {
+                                    float angleMin = rs->engageAngle + M_PI * 3 / 8;
+                                    float angleMax = rs->engageAngle + M_PI * 5 / 8;
+                                    rs->engageAngle = frand(angleMin, angleMax);
+                                    rs->engageDistance = frand(30.0f, 47.0f);
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 40.0f, rs->engageAngle);
+                                    break;
                                 }
+                                }
+                                rs->marked = true;
                             }
                         }
                     }
@@ -3734,7 +3529,7 @@ void RobotManager::HandlePacket(WorldSession* pmSession, WorldPacket pmPacket)
                 {
                     break;
                 }
-                if (RobotStrategy_Solo* rs = (RobotStrategy_Solo*)me->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Solo))
+                if (RobotStrategy_Solo* rs = (RobotStrategy_Solo*)me->rai->strategyMap[Strategy_Index::Strategy_Index_Solo])
                 {
                     if (rs->interestsDelay > 0)
                     {
@@ -3800,9 +3595,12 @@ void RobotManager::HandlePacket(WorldSession* pmSession, WorldPacket pmPacket)
             }
             case MSG_RAID_READY_CHECK:
             {
-                if (RobotStrategy_Group* rs = (RobotStrategy_Group*)me->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
+                if (Group* myGroup = me->GetGroup())
                 {
-                    rs->readyCheckDelay = urand(2000, 6000);
+                    if (RobotStrategy_Group* rs = (RobotStrategy_Group*)me->rai->strategyMap[myGroup->groupStrategyIndex])
+                    {
+                        rs->readyCheckDelay = urand(2000, 6000);
+                    }
                 }
                 break;
             }
@@ -3838,7 +3636,7 @@ void RobotManager::HandlePacket(WorldSession* pmSession, WorldPacket pmPacket)
                 if (me->IsResurrectRequested())
                 {
                     me->ResurrectUsingRequestData();
-                    if (RobotStrategy_Solo* rs = (RobotStrategy_Solo*)me->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Solo))
+                    if (RobotStrategy_Solo* rs = (RobotStrategy_Solo*)me->rai->strategyMap[Strategy_Index::Strategy_Index_Solo])
                     {
                         rs->deathDelay = 0;
                     }
@@ -3913,9 +3711,9 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
     std::string commandName = commandVector.at(0);
     if (commandName == "role")
     {
-        if (Group* checkGroup = pmSender->GetGroup())
+        if (Group* myGroup = pmSender->GetGroup())
         {
-            for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+            for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
             {
                 Player* member = groupRef->GetSource();
                 if (member)
@@ -3932,7 +3730,7 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                         }
                     }
                     std::ostringstream replyStream;
-                    if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
+                    if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->strategyMap[myGroup->groupStrategyIndex])
                     {
                         if (commandVector.size() > 1)
                         {
@@ -3949,11 +3747,11 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
     }
     else if (commandName == "follow")
     {
-        if (Group* checkGroup = pmSender->GetGroup())
+        if (Group* myGroup = pmSender->GetGroup())
         {
-            if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
+            if (myGroup->GetLeaderGUID() == pmSender->GetGUID())
             {
-                for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
                 {
                     Player* member = groupRef->GetSource();
                     if (member)
@@ -3969,7 +3767,7 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                                 continue;
                             }
                         }
-                        if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
+                        if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->strategyMap[myGroup->groupStrategyIndex])
                         {
                             if (commandVector.size() > 1)
                             {
@@ -3983,7 +3781,7 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                                 }
                                 else if (cmdDistance >= FOLLOW_MIN_DISTANCE && cmdDistance <= FOLLOW_MAX_DISTANCE)
                                 {
-                                    if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
+                                    if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->strategyMap[myGroup->groupStrategyIndex])
                                     {
                                         rs->followDistance = cmdDistance;
                                         std::ostringstream replyStream;
@@ -4029,11 +3827,11 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
     }
     else if (commandName == "stay")
     {
-        if (Group* checkGroup = pmSender->GetGroup())
+        if (Group* myGroup = pmSender->GetGroup())
         {
-            if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
+            if (myGroup->GetLeaderGUID() == pmSender->GetGUID())
             {
-                for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
                 {
                     Player* member = groupRef->GetSource();
                     if (member)
@@ -4049,7 +3847,7 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                                 continue;
                             }
                         }
-                        if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
+                        if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->strategyMap[myGroup->groupStrategyIndex])
                         {
                             std::string targetGroupRole = "";
                             if (commandVector.size() > 1)
@@ -4068,11 +3866,11 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
     }
     else if (commandName == "hold")
     {
-        if (Group* checkGroup = pmSender->GetGroup())
+        if (Group* myGroup = pmSender->GetGroup())
         {
-            if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
+            if (myGroup->GetLeaderGUID() == pmSender->GetGUID())
             {
-                for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
                 {
                     Player* member = groupRef->GetSource();
                     if (member)
@@ -4088,7 +3886,7 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                                 continue;
                             }
                         }
-                        if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
+                        if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->strategyMap[myGroup->groupStrategyIndex])
                         {
                             std::string targetGroupRole = "";
                             if (commandVector.size() > 1)
@@ -4107,15 +3905,15 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
     }
     else if (commandName == "engage")
     {
-        if (Group* checkGroup = pmSender->GetGroup())
+        if (Group* myGroup = pmSender->GetGroup())
         {
-            if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
+            if (myGroup->GetLeaderGUID() == pmSender->GetGUID())
             {
                 if (Unit* target = pmSender->GetSelectedUnit())
                 {
                     if (target->IsAlive())
                     {
-                        for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                        for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
                         {
                             Player* member = groupRef->GetSource();
                             if (member)
@@ -4141,7 +3939,7 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                                             member->AttackStop();
                                             member->StopMoving();
                                             member->GetMotionMaster()->Clear();
-                                            if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
+                                            if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->strategyMap[myGroup->groupStrategyIndex])
                                             {
                                                 rs->staying = false;
                                                 rs->sb->ClearTarget();
@@ -4173,11 +3971,11 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
     }
     else if (commandName == "rest")
     {
-        if (Group* checkGroup = pmSender->GetGroup())
+        if (Group* myGroup = pmSender->GetGroup())
         {
-            if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
+            if (myGroup->GetLeaderGUID() == pmSender->GetGUID())
             {
-                for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
                 {
                     Player* member = groupRef->GetSource();
                     if (member)
@@ -4196,7 +3994,7 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                         std::ostringstream replyStream;
                         if (member->IsAlive())
                         {
-                            if (RobotStrategy* rs = member->rai->GetActiveStrategy())
+                            if (RobotStrategy_Base* rs = member->rai->strategyMap[myGroup->groupStrategyIndex])
                             {
                                 if (rs->sb->Rest())
                                 {
@@ -4229,16 +4027,16 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
     {
         if (pmReceiver)
         {
-            if (RobotStrategy* rs = pmReceiver->rai->GetActiveStrategy())
+            if (RobotStrategy_Base* rs = pmReceiver->rai->strategyMap[Strategy_Index::Strategy_Index_Solo])
             {
                 WhisperTo(pmReceiver, sRobotManager->characterTalentTabNameMap[pmReceiver->GetClass()][rs->sb->characterTalentTab], Language::LANG_UNIVERSAL, pmSender);
             }
         }
         else
         {
-            if (Group* checkGroup = pmSender->GetGroup())
+            if (Group* myGroup = pmSender->GetGroup())
             {
-                for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
                 {
                     Player* member = groupRef->GetSource();
                     if (member)
@@ -4247,9 +4045,9 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                         {
                             continue;
                         }
-                        if (RobotStrategy* rs = member->rai->GetActiveStrategy())
+                        if (RobotStrategy_Base* rs = pmReceiver->rai->strategyMap[Strategy_Index::Strategy_Index_Solo])
                         {
-                            WhisperTo(member, sRobotManager->characterTalentTabNameMap[member->GetClass()][rs->sb->characterTalentTab], Language::LANG_UNIVERSAL, pmSender);
+                            WhisperTo(pmReceiver, sRobotManager->characterTalentTabNameMap[pmReceiver->GetClass()][rs->sb->characterTalentTab], Language::LANG_UNIVERSAL, pmSender);
                         }
                     }
                 }
@@ -4258,16 +4056,16 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
     }
     else if (commandName == "assemble")
     {
-        if (Group* checkGroup = pmSender->GetGroup())
+        if (Group* myGroup = pmSender->GetGroup())
         {
-            if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
+            if (myGroup->GetLeaderGUID() == pmSender->GetGUID())
             {
                 std::string memberType = "all";
                 if (commandVector.size() > 1)
                 {
                     memberType = commandVector.at(1);
                 }
-                for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
                 {
                     Player* member = groupRef->GetSource();
                     if (member)
@@ -4298,7 +4096,7 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                             }
                         }
                         std::ostringstream replyStream;
-                        if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
+                        if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->strategyMap[myGroup->groupStrategyIndex])
                         {
                             if (rs->moveDelay > 0 || rs->teleportAssembleDelay > 0)
                             {
@@ -4360,15 +4158,15 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
     }
     else if (commandName == "tank")
     {
-        if (Group* checkGroup = pmSender->GetGroup())
+        if (Group* myGroup = pmSender->GetGroup())
         {
-            if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
+            if (myGroup->GetLeaderGUID() == pmSender->GetGUID())
             {
                 if (Unit* target = pmSender->GetSelectedUnit())
                 {
                     if (target->IsAlive())
                     {
-                        for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                        for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
                         {
                             Player* member = groupRef->GetSource();
                             if (member)
@@ -4394,7 +4192,7 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                                             member->AttackStop();
                                             member->StopMoving();
                                             member->GetMotionMaster()->Clear();
-                                            if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
+                                            if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->strategyMap[myGroup->groupStrategyIndex])
                                             {
                                                 if (rs->Tank(target))
                                                 {
@@ -4424,11 +4222,11 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
     }
     else if (commandName == "switch")
     {
-        if (Group* checkGroup = pmSender->GetGroup())
+        if (Group* myGroup = pmSender->GetGroup())
         {
-            if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
+            if (myGroup->GetLeaderGUID() == pmSender->GetGUID())
             {
-                for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
                 {
                     Player* member = groupRef->GetSource();
                     if (member)
@@ -4521,11 +4319,11 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
     }
     else if (commandName == "cast")
     {
-        if (Group* checkGroup = pmSender->GetGroup())
+        if (Group* myGroup = pmSender->GetGroup())
         {
-            if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
+            if (myGroup->GetLeaderGUID() == pmSender->GetGUID())
             {
-                for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
                 {
                     Player* member = groupRef->GetSource();
                     if (member)
@@ -4562,7 +4360,7 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                                 {
                                     senderTarget = member;
                                 }
-                                if (RobotStrategy* rs = member->rai->GetActiveStrategy())
+                                if (RobotStrategy_Base* rs = member->rai->strategyMap[myGroup->groupStrategyIndex])
                                 {
                                     if (rs->sb->CastSpell(senderTarget, spellName, VISIBILITY_DISTANCE_NORMAL))
                                     {
@@ -4587,11 +4385,11 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
     }
     else if (commandName == "cancel")
     {
-        if (Group* checkGroup = pmSender->GetGroup())
+        if (Group* myGroup = pmSender->GetGroup())
         {
-            if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
+            if (myGroup->GetLeaderGUID() == pmSender->GetGUID())
             {
-                for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
                 {
                     Player* member = groupRef->GetSource();
                     if (member)
@@ -4623,7 +4421,7 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                                     arrayCount++;
                                 }
                                 std::string spellName = sRobotManager->TrimString(targetStream.str());
-                                if (RobotStrategy* rs = member->rai->GetActiveStrategy())
+                                if (RobotStrategy_Base* rs = member->rai->strategyMap[myGroup->groupStrategyIndex])
                                 {
                                     if (rs->sb->CancelAura(spellName))
                                     {
@@ -4648,11 +4446,11 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
     }
     else if (commandName == "use")
     {
-        if (Group* checkGroup = pmSender->GetGroup())
+        if (Group* myGroup = pmSender->GetGroup())
         {
-            if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
+            if (myGroup->GetLeaderGUID() == pmSender->GetGUID())
             {
-                for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
                 {
                     Player* member = groupRef->GetSource();
                     if (member)
@@ -4740,11 +4538,11 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
     }
     else if (commandName == "stop")
     {
-        if (Group* checkGroup = pmSender->GetGroup())
+        if (Group* myGroup = pmSender->GetGroup())
         {
-            if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
+            if (myGroup->GetLeaderGUID() == pmSender->GetGUID())
             {
-                for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
                 {
                     Player* member = groupRef->GetSource();
                     if (member)
@@ -4782,11 +4580,11 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
     }
     else if (commandName == "delay")
     {
-        if (Group* checkGroup = pmSender->GetGroup())
+        if (Group* myGroup = pmSender->GetGroup())
         {
-            if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
+            if (myGroup->GetLeaderGUID() == pmSender->GetGUID())
             {
-                for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
                 {
                     Player* member = groupRef->GetSource();
                     if (member)
@@ -4806,7 +4604,7 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                         if (commandVector.size() > 1)
                         {
                             std::string delayType = commandVector.at(1);
-                            if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
+                            if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->strategyMap[myGroup->groupStrategyIndex])
                             {
                                 if (commandVector.size() > 2)
                                 {
@@ -4855,11 +4653,11 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
     }
     else if (commandName == "threat")
     {
-        if (Group* checkGroup = pmSender->GetGroup())
+        if (Group* myGroup = pmSender->GetGroup())
         {
-            if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
+            if (myGroup->GetLeaderGUID() == pmSender->GetGUID())
             {
-                for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
                 {
                     Player* member = groupRef->GetSource();
                     if (member)
@@ -4896,12 +4694,12 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
     }
     else if (commandName == "revive")
     {
-        if (Group* checkGroup = pmSender->GetGroup())
+        if (Group* myGroup = pmSender->GetGroup())
         {
-            if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
+            if (myGroup->GetLeaderGUID() == pmSender->GetGUID())
             {
                 std::unordered_map<uint32, Player*> deadMap;
-                for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
                 {
                     if (Player* member = groupRef->GetSource())
                     {
@@ -4914,7 +4712,7 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                 if (deadMap.size() > 0)
                 {
                     uint32 reviveIndex = 0;
-                    for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                    for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
                     {
                         Player* member = groupRef->GetSource();
                         if (member)
@@ -4952,7 +4750,7 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                                     {
                                         break;
                                     }
-                                    if (RobotStrategy* rs = member->rai->GetActiveStrategy())
+                                    if (RobotStrategy_Base* rs = member->rai->strategyMap[myGroup->groupStrategyIndex])
                                     {
                                         if (rs->sb->CastSpell(deadMap[reviveIndex], reviveSpellName.str(), RANGED_MAX_DISTANCE, false, false, true))
                                         {
@@ -4975,11 +4773,11 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
     }
     else if (commandName == "cure")
     {
-        if (Group* checkGroup = pmSender->GetGroup())
+        if (Group* myGroup = pmSender->GetGroup())
         {
-            if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
+            if (myGroup->GetLeaderGUID() == pmSender->GetGUID())
             {
-                for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
                 {
                     Player* member = groupRef->GetSource();
                     if (member)
@@ -4996,7 +4794,7 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                             }
                         }
                         std::ostringstream replyStream;
-                        if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
+                        if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->strategyMap[myGroup->groupStrategyIndex])
                         {
                             if (commandVector.size() > 1)
                             {
@@ -5031,11 +4829,11 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
     }
     else if (commandName == "emote")
     {
-        if (Group* checkGroup = pmSender->GetGroup())
+        if (Group* myGroup = pmSender->GetGroup())
         {
-            if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
+            if (myGroup->GetLeaderGUID() == pmSender->GetGUID())
             {
-                for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
                 {
                     Player* member = groupRef->GetSource();
                     if (member)
@@ -5075,130 +4873,11 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
             }
         }
     }
-    else if (commandName == "strategy")
-    {
-        if (Group* checkGroup = pmSender->GetGroup())
-        {
-            if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
-            {
-                for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-                {
-                    Player* member = groupRef->GetSource();
-                    if (member)
-                    {
-                        if (!member->GetSession()->isRobotSession)
-                        {
-                            continue;
-                        }
-                        if (pmReceiver)
-                        {
-                            if (pmReceiver->GetGUID() != member->GetGUID())
-                            {
-                                continue;
-                            }
-                        }
-                        std::ostringstream replyStream;
-
-                        if (commandVector.size() > 1)
-                        {
-                            std::ostringstream targetStream;
-                            uint8 arrayCount = 0;
-                            for (std::vector<std::string>::iterator it = commandVector.begin(); it != commandVector.end(); it++)
-                            {
-                                if (arrayCount > 0)
-                                {
-                                    targetStream << (*it) << " ";
-                                }
-                                arrayCount++;
-                            }
-                            std::string strategyName = sRobotManager->TrimString(targetStream.str());
-                            if (strategyName == "group")
-                            {
-                                member->rai->activeStrategyIndex = Strategy_Index::Strategy_Index_Group;
-                                replyStream << "Strategy set to group";
-                            }
-                            else if (strategyName == "blackrock spire")
-                            {
-                                member->rai->activeStrategyIndex = Strategy_Index::Strategy_Index_Group_Blackrock_Spire;
-                                replyStream << "Strategy set to blackrock spire";
-                            }
-                            else if (strategyName == "shadow labyrinth")
-                            {
-                                member->rai->activeStrategyIndex = Strategy_Index::Strategy_Index_Group_Shadow_Labyrinth;
-                                replyStream << "Strategy set to shadow labyrinth";
-                            }
-                            else if (strategyName == "emerald dragon")
-                            {
-                                member->rai->activeStrategyIndex = Strategy_Index::Strategy_Index_Group_EmeraldDragon;
-                                replyStream << "Strategy set to emerald dragon";
-                            }
-                            else if (strategyName == "azuregos")
-                            {
-                                member->rai->activeStrategyIndex = Strategy_Index::Strategy_Index_Group_Azuregos;
-                                replyStream << "Strategy set to azuregos";
-                            }
-                            else if (strategyName == "test")
-                            {
-                                member->rai->activeStrategyIndex = Strategy_Index::Strategy_Index_Group_Test;
-                                replyStream << "Strategy set to test";
-                            }
-                            else
-                            {
-                                replyStream << "Unknown strategy";
-                            }
-                        }
-                        else
-                        {
-                            switch (member->rai->activeStrategyIndex)
-                            {
-                            case Strategy_Index::Strategy_Index_Group:
-                            {
-                                replyStream << "Strategy is group";
-                                break;
-                            }
-                            case Strategy_Index::Strategy_Index_Group_Blackrock_Spire:
-                            {
-                                replyStream << "Strategy is blackrock spire";
-                                break;
-                            }
-                            case Strategy_Index::Strategy_Index_Group_Shadow_Labyrinth:
-                            {
-                                replyStream << "Strategy is shadow labyrinth";
-                                break;
-                            }
-                            case Strategy_Index::Strategy_Index_Group_EmeraldDragon:
-                            {
-                                replyStream << "Strategy is emerald dragon";
-                                break;
-                            }
-                            case Strategy_Index::Strategy_Index_Group_Azuregos:
-                            {
-                                replyStream << "Strategy is azuregos";
-                                break;
-                            }
-                            case Strategy_Index::Strategy_Index_Group_Test:
-                            {
-                                replyStream << "Strategy is test";
-                                break;
-                            }
-                            default:
-                            {
-                                replyStream << "Strategy is unknown";
-                                break;
-                            }
-                            }
-                        }
-                        WhisperTo(member, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
-                    }
-                }
-            }
-        }
-    }
     else if (commandName == "side")
     {
-        if (Group* checkGroup = pmSender->GetGroup())
+        if (Group* myGroup = pmSender->GetGroup())
         {
-            if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
+            if (myGroup->GetLeaderGUID() == pmSender->GetGUID())
             {
                 if (Unit* target = pmSender->GetSelectedUnit())
                 {
@@ -5207,7 +4886,7 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                     {
                         memberType = commandVector.at(1);
                     }
-                    for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                    for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
                     {
                         Player* member = groupRef->GetSource();
                         if (member)
@@ -5238,7 +4917,7 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                                 }
                             }
                             std::ostringstream replyStream;
-                            if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
+                            if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->strategyMap[myGroup->groupStrategyIndex])
                             {
                                 if (rs->moveDelay > 0 || rs->teleportAssembleDelay > 0)
                                 {
@@ -5282,16 +4961,16 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
     }
     else if (commandName == "forward")
     {
-        if (Group* checkGroup = pmSender->GetGroup())
+        if (Group* myGroup = pmSender->GetGroup())
         {
-            if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
+            if (myGroup->GetLeaderGUID() == pmSender->GetGUID())
             {
                 std::string memberType = "all";
                 if (commandVector.size() > 1)
                 {
                     memberType = commandVector.at(1);
                 }
-                for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
                 {
                     Player* member = groupRef->GetSource();
                     if (member)
@@ -5322,7 +5001,7 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                             }
                         }
                         std::ostringstream replyStream;
-                        if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
+                        if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->strategyMap[myGroup->groupStrategyIndex])
                         {
                             if (rs->moveDelay > 0 || rs->teleportAssembleDelay > 0)
                             {
@@ -5365,16 +5044,16 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
     }
     else if (commandName == "back")
     {
-        if (Group* checkGroup = pmSender->GetGroup())
+        if (Group* myGroup = pmSender->GetGroup())
         {
-            if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
+            if (myGroup->GetLeaderGUID() == pmSender->GetGUID())
             {
                 std::string memberType = "all";
                 if (commandVector.size() > 1)
                 {
                     memberType = commandVector.at(1);
                 }
-                for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
                 {
                     Player* member = groupRef->GetSource();
                     if (member)
@@ -5405,7 +5084,7 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                             }
                         }
                         std::ostringstream replyStream;
-                        if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
+                        if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->strategyMap[myGroup->groupStrategyIndex])
                         {
                             if (rs->moveDelay > 0 || rs->teleportAssembleDelay > 0)
                             {
@@ -5448,11 +5127,11 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
     }
     else if (commandName == "lightwell")
     {
-        if (Group* checkGroup = pmSender->GetGroup())
+        if (Group* myGroup = pmSender->GetGroup())
         {
-            if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
+            if (myGroup->GetLeaderGUID() == pmSender->GetGUID())
             {
-                for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
                 {
                     Player* member = groupRef->GetSource();
                     if (member)
@@ -5470,7 +5149,7 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                         }
                         if (member->GetClass() == Classes::CLASS_PRIEST)
                         {
-                            if (member->rai->GetActiveStrategy()->sb->CastSpell(member, "Lightwell", NOMINAL_MELEE_RANGE))
+                            if (member->rai->strategyMap[myGroup->groupStrategyIndex]->sb->CastSpell(member, "Lightwell", NOMINAL_MELEE_RANGE))
                             {
                                 continue;
                             }
@@ -5520,11 +5199,11 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
     }
     else if (commandName == "pa")
     {
-        if (Group* checkGroup = pmSender->GetGroup())
+        if (Group* myGroup = pmSender->GetGroup())
         {
-            if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
+            if (myGroup->GetLeaderGUID() == pmSender->GetGUID())
             {
-                for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
                 {
                     Player* member = groupRef->GetSource();
                     if (member)
@@ -5543,7 +5222,7 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                         if (member->GetClass() == Classes::CLASS_PALADIN)
                         {
                             std::ostringstream replyStream;
-                            if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
+                            if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->strategyMap[myGroup->groupStrategyIndex])
                             {
                                 if (Script_Paladin* sp = (Script_Paladin*)rs->sb)
                                 {
@@ -5600,11 +5279,11 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
     }
     else if (commandName == "pb")
     {
-        if (Group* checkGroup = pmSender->GetGroup())
+        if (Group* myGroup = pmSender->GetGroup())
         {
-            if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
+            if (myGroup->GetLeaderGUID() == pmSender->GetGUID())
             {
-                for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
                 {
                     Player* member = groupRef->GetSource();
                     if (member)
@@ -5623,7 +5302,7 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                         if (member->GetClass() == Classes::CLASS_PALADIN)
                         {
                             std::ostringstream replyStream;
-                            if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
+                            if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->strategyMap[myGroup->groupStrategyIndex])
                             {
                                 if (Script_Paladin* sp = (Script_Paladin*)rs->sb)
                                 {
@@ -5680,11 +5359,11 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
     }
     else if (commandName == "mark")
     {
-        if (Group* checkGroup = pmSender->GetGroup())
+        if (Group* myGroup = pmSender->GetGroup())
         {
-            if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
+            if (myGroup->GetLeaderGUID() == pmSender->GetGUID())
             {
-                for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
                 {
                     Player* member = groupRef->GetSource();
                     if (member)
@@ -5700,7 +5379,7 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                                 continue;
                             }
                         }
-                        if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
+                        if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->strategyMap[myGroup->groupStrategyIndex])
                         {
                             if (rs->marked)
                             {
@@ -5732,11 +5411,11 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
     }
     else if (commandName == "petting")
     {
-        if (Group* checkGroup = pmSender->GetGroup())
+        if (Group* myGroup = pmSender->GetGroup())
         {
-            if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
+            if (myGroup->GetLeaderGUID() == pmSender->GetGUID())
             {
-                for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
                 {
                     Player* member = groupRef->GetSource();
                     if (member)
@@ -5752,7 +5431,7 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                                 continue;
                             }
                         }
-                        if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
+                        if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->strategyMap[myGroup->groupStrategyIndex])
                         {
                             if (commandVector.size() > 1)
                             {
@@ -5784,11 +5463,11 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
     }
     else if (commandName == "active")
     {
-        if (Group* checkGroup = pmSender->GetGroup())
+        if (Group* myGroup = pmSender->GetGroup())
         {
-            if (checkGroup->GetLeaderGUID() == pmSender->GetGUID())
+            if (myGroup->GetLeaderGUID() == pmSender->GetGUID())
             {
-                for (GroupReference* groupRef = checkGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
                 {
                     Player* member = groupRef->GetSource();
                     if (member)
@@ -5804,7 +5483,7 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                                 continue;
                             }
                         }
-                        if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->GetActiveStrategy(RobotStrategyType::RobotStrategyType_Group))
+                        if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->strategyMap[myGroup->groupStrategyIndex])
                         {
                             rs->staying = false;
                             rs->holding = false;

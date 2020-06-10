@@ -25,7 +25,7 @@ bool Script_Priest::SubHeal(Unit* pmTarget)
     {
         return false;
     }
-    if (pmTarget->HasAura(20711))
+    if (pmTarget->HasAura(27827))
     {
         return false;
     }
@@ -60,7 +60,7 @@ bool Script_Priest::Heal(Unit* pmTarget, bool pmCure)
     {
         return false;
     }
-    if (pmTarget->HasAura(20711))
+    if (pmTarget->HasAura(27827))
     {
         return false;
     }
@@ -224,25 +224,28 @@ bool Script_Priest::GroupHeal_Holy(float pmMaxHealthPercent)
     }
     if (Group* myGroup = me->GetGroup())
     {
+        uint8 mySubGroup = me->GetSubGroup();
         for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
         {
             if (Player* member = groupRef->GetSource())
             {
-                if (member->GetHealthPct() < pmMaxHealthPercent)
+                if (member->IsAlive())
                 {
-                    if (me->GetDistance(member) > MID_RANGE && me->GetDistance(member) < PRIEST_HEAL_DISTANCE)
+                    if (member->GetSubGroup() == mySubGroup)
                     {
-                        if (CastSpell(me, "Prayer of Healing", PRIEST_HEAL_DISTANCE))
+                        if (member->GetHealthPct() < pmMaxHealthPercent)
                         {
-                            return true;
+                            if (me->GetDistance(member) < PRIEST_HEAL_DISTANCE)
+                            {
+                                if (CastSpell(me, "Prayer of Healing", PRIEST_HEAL_DISTANCE))
+                                {
+                                    return true;
+                                }
+                            }
                         }
                     }
                 }
             }
-        }
-        if (CastSpell(me, "Holy Nova", PRIEST_HEAL_DISTANCE))
-        {
-            return true;
         }
     }
 

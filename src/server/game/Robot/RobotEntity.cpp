@@ -179,20 +179,20 @@ void RobotEntity::Update(uint32 pmDiff)
             ObjectGuid guid = ObjectGuid(HighGuid::Player, character_id);
             if (Player* me = ObjectAccessor::FindConnectedPlayer(guid))
             {
-                if (me->rai->GetActiveStrategy()->sb->InitializeCharacter(target_level))
+                if (me->rai->strategyMap[Strategy_Index::Strategy_Index_Solo]->sb->InitializeCharacter(target_level))
                 {
                     entityState = RobotEntityState::RobotEntityState_DoLogoff;
                 }
                 else
                 {
-                    for (std::unordered_map<uint32, RobotStrategy*>::iterator rsIT = me->rai->strategyMap.begin(); rsIT != me->rai->strategyMap.end(); rsIT++)
+                    for (std::unordered_map<uint32, RobotStrategy_Base*>::iterator rsIT = me->rai->strategyMap.begin(); rsIT != me->rai->strategyMap.end(); rsIT++)
                     {
                         rsIT->second->sb->IdentifyCharacter();
                         rsIT->second->sb->Reset();
                     }
                     entityState = RobotEntityState::RobotEntityState_Online;
                 }
-                me->groupRole = me->rai->GetActiveStrategy()->sb->characterType;
+                me->groupRole = me->rai->strategyMap[Strategy_Index::Strategy_Index_Solo]->sb->characterType;
             }
             else
             {
