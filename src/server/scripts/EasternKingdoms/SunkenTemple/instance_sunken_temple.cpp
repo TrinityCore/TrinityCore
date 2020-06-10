@@ -905,7 +905,7 @@ public:
 
         InstanceScript* instance;
 
-        void SpellHit(Unit* caster, SpellInfo const* spellInfo)
+        void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
         {
             instance->SetData(DOWSE_ETERNAL_FLAME, me->GetSpawnId());
         }
