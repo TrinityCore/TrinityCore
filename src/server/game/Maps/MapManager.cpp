@@ -104,6 +104,8 @@ Map* MapManager::CreateBaseMap_i(MapEntry const* mapEntry)
     else
         map = new Map(mapEntry->ID, i_gridCleanUpDelay, 0, REGULAR_DIFFICULTY);
 
+    map->DiscoverGridMapFiles();
+
     i_maps[mapEntry->ID] = map;
 
     for (uint32 childMapId : _parentMapData[mapEntry->ID])
@@ -287,16 +289,15 @@ bool MapManager::IsValidMAP(uint32 mapid, bool startUp)
 
 void MapManager::UnloadAll()
 {
-    // first unlink child maps
+    // first unload maps
     for (auto iter = i_maps.begin(); iter != i_maps.end(); ++iter)
-        iter->second->UnlinkAllChildTerrainMaps();
-
-    for (MapMapType::iterator iter = i_maps.begin(); iter != i_maps.end();)
-    {
         iter->second->UnloadAll();
+
+    // then delete them
+    for (auto iter = i_maps.begin(); iter != i_maps.end(); ++iter)
         delete iter->second;
-        i_maps.erase(iter++);
-    }
+
+    i_maps.clear();
 
     if (m_updater.activated())
         m_updater.deactivate();

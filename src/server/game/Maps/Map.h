@@ -224,8 +224,6 @@ class TC_GAME_API GridMap
 
     uint16* _holes;
 
-    bool _fileExists;
-
     bool loadAreaData(FILE* in, uint32 offset, uint32 size);
     bool loadHeightData(FILE* in, uint32 offset, uint32 size);
     bool loadLiquidData(FILE* in, uint32 offset, uint32 size);
@@ -243,7 +241,15 @@ class TC_GAME_API GridMap
 public:
     GridMap();
     ~GridMap();
-    bool loadData(char const* filename);
+
+    enum class LoadResult
+    {
+        Ok,
+        FileDoesNotExist,
+        InvalidFile
+    };
+
+    LoadResult loadData(const char* filename);
     void unloadData();
 
     uint16 getArea(float x, float y) const;
@@ -251,7 +257,6 @@ public:
     float getMinHeight(float x, float y) const;
     float getLiquidLevel(float x, float y) const;
     ZLiquidStatus GetLiquidStatus(float x, float y, float z, uint8 ReqLiquidType, LiquidData* data = 0, float collisionHeight = 2.03128f); // DEFAULT_COLLISION_HEIGHT in Object.h
-    bool fileExists() const { return _fileExists; }
 };
 
 #pragma pack(push, 1)
@@ -385,46 +390,50 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         time_t GetGridExpiry(void) const { return i_gridExpiry; }
         uint32 GetId() const;
 
-        bool HasGrid(uint32 mapId, int32 gx, int32 gy) const;
-        static bool ExistMap(uint32 mapid, int gx, int gy);
+        bool HasChildMapGridFile(uint32 mapId, int32 gx, int32 gy) const;
+        static bool ExistMap(uint32 mapid, int gx, int gy, bool log = true);
         static bool ExistVMap(uint32 mapid, int gx, int gy);
 
         static void InitStateMachine();
         static void DeleteStateMachine();
 
         Map const* GetParent() const { return m_parentMap; }
+
+        void DiscoverGridMapFiles();
+
+        Map* GetRootParentTerrainMap();
         void AddChildTerrainMap(Map* map) { m_childTerrainMaps->push_back(map); map->m_parentTerrainMap = this; }
         void UnlinkAllChildTerrainMaps() { m_childTerrainMaps->clear(); }
 
         // some calls like isInWater should not use vmaps due to processor power
         // can return INVALID_HEIGHT if under z+2 z coord not found height
-        float GetStaticHeight(PhaseShift const& phaseShift, float x, float y, float z, bool checkVMap = true, float maxSearchDist = DEFAULT_HEIGHT_SEARCH) const;
-        float GetMinHeight(float x, float y) const;
+        float GetStaticHeight(PhaseShift const& phaseShift, float x, float y, float z, bool checkVMap = true, float maxSearchDist = DEFAULT_HEIGHT_SEARCH);
+        float GetMinHeight(PhaseShift const& phaseShift, float x, float y);
 
-        void GetFullTerrainStatusForPosition(PhaseShift const& phaseShift, float x, float y, float z, PositionFullTerrainStatus& data, uint8 reqLiquidType = MAP_ALL_LIQUIDS, float collisionHeight = 2.03128f) const; // DEFAULT_COLLISION_HEIGHT in Object.h
-        ZLiquidStatus GetLiquidStatus(PhaseShift const& phaseShift, float x, float y, float z, uint8 ReqLiquidType, LiquidData* data = nullptr, float collisionHeight = 2.03128f) const; // DEFAULT_COLLISION_HEIGHT in Object.h
+        void GetFullTerrainStatusForPosition(PhaseShift const& phaseShift, float x, float y, float z, PositionFullTerrainStatus& data, uint8 reqLiquidType = MAP_ALL_LIQUIDS, float collisionHeight = 2.03128f); // DEFAULT_COLLISION_HEIGHT in Object.h
+        ZLiquidStatus GetLiquidStatus(PhaseShift const& phaseShift, float x, float y, float z, uint8 ReqLiquidType, LiquidData* data = nullptr, float collisionHeight = 2.03128f); // DEFAULT_COLLISION_HEIGHT in Object.h
 
-        uint32 GetAreaId(PhaseShift const& phaseShift, float x, float y, float z) const;
-        uint32 GetAreaId(PhaseShift const& phaseShift, Position const& pos) const
+        uint32 GetAreaId(PhaseShift const& phaseShift, float x, float y, float z);
+        uint32 GetAreaId(PhaseShift const& phaseShift, Position const& pos)
         {
             return GetAreaId(phaseShift, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
         }
 
-        uint32 GetZoneId(PhaseShift const& phaseShift, float x, float y, float z) const;
-        uint32 GetZoneId(PhaseShift const& phaseShift, Position const& pos) const
+        uint32 GetZoneId(PhaseShift const& phaseShift, float x, float y, float z);
+        uint32 GetZoneId(PhaseShift const& phaseShift, Position const& pos)
         {
             return GetZoneId(phaseShift, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
         }
 
-        void GetZoneAndAreaId(PhaseShift const& phaseShift, uint32& zoneid, uint32& areaid, float x, float y, float z) const;
-        void GetZoneAndAreaId(PhaseShift const& phaseShift, uint32& zoneid, uint32& areaid, Position const& pos) const
+        void GetZoneAndAreaId(PhaseShift const& phaseShift, uint32& zoneid, uint32& areaid, float x, float y, float z);
+        void GetZoneAndAreaId(PhaseShift const& phaseShift, uint32& zoneid, uint32& areaid, Position const& pos)
         {
             GetZoneAndAreaId(phaseShift, zoneid, areaid, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
         }
 
-        float GetWaterLevel(PhaseShift const& phaseShift, float x, float y) const;
-        bool IsInWater(PhaseShift const& phaseShift, float x, float y, float z, LiquidData* data = nullptr) const;
-        bool IsUnderWater(PhaseShift const& phaseShift, float x, float y, float z) const;
+        float GetWaterLevel(PhaseShift const& phaseShift, float x, float y);
+        bool IsInWater(PhaseShift const& phaseShift, float x, float y, float z, LiquidData* data = nullptr);
+        bool IsUnderWater(PhaseShift const& phaseShift, float x, float y, float z);
 
         void MoveAllCreaturesInMoveList();
         void MoveAllGameObjectsInMoveList();
@@ -578,11 +587,11 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         BattlegroundMap* ToBattlegroundMap() { if (IsBattlegroundOrArena()) return reinterpret_cast<BattlegroundMap*>(this); else return nullptr;  }
         BattlegroundMap const* ToBattlegroundMap() const { if (IsBattlegroundOrArena()) return reinterpret_cast<BattlegroundMap const*>(this); return nullptr; }
 
-        float GetWaterOrGroundLevel(PhaseShift const& phaseShift, float x, float y, float z, float* ground = nullptr, bool swim = false, float collisionHeight = 2.03128f) const; // DEFAULT_COLLISION_HEIGHT in Object.h
-        float GetGridHeight(uint32 mapId, float x, float y) const;
+        float GetWaterOrGroundLevel(PhaseShift const& phaseShift, float x, float y, float z, float* ground = nullptr, bool swim = false, float collisionHeight = 2.03128f); // DEFAULT_COLLISION_HEIGHT in Object.h
+        float GetGridHeight(uint32 mapId, float x, float y);
 
-        float GetHeight(PhaseShift const& phaseShift, float x, float y, float z, bool vmap = true, float maxSearchDist = DEFAULT_HEIGHT_SEARCH) const { return std::max<float>(GetStaticHeight(phaseShift, x, y, z, vmap, maxSearchDist), GetGameObjectFloor(phaseShift, x, y, z, maxSearchDist)); }
-        float GetHeight(PhaseShift const& phaseShift, Position const& pos, bool vmap = true, float maxSearchDist = DEFAULT_HEIGHT_SEARCH) const { return GetHeight(phaseShift, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), vmap, maxSearchDist); }
+        float GetHeight(PhaseShift const& phaseShift, float x, float y, float z, bool vmap = true, float maxSearchDist = DEFAULT_HEIGHT_SEARCH) { return std::max<float>(GetStaticHeight(phaseShift, x, y, z, vmap, maxSearchDist), GetGameObjectFloor(phaseShift, x, y, z, maxSearchDist)); }
+        float GetHeight(PhaseShift const& phaseShift, Position const& pos, bool vmap = true, float maxSearchDist = DEFAULT_HEIGHT_SEARCH) { return GetHeight(phaseShift, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), vmap, maxSearchDist); }
 
         bool isInLineOfSight(PhaseShift const& phaseShift, float x1, float y1, float z1, float x2, float y2, float z2, LineOfSightChecks checks, VMAP::ModelIgnoreFlags ignoreFlags) const;
         void Balance() { _dynamicTree.balance(); }
@@ -673,7 +682,6 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         void UnloadMap(int gx, int gy);
         static void UnloadMapImpl(Map* map, int gx, int gy);
         void LoadMMap(int gx, int gy);
-        GridMap* GetGrid(float x, float y);
         GridMap* GetGrid(uint32 mapId, float x, float y);
 
         void SetTimer(uint32 t) { i_gridExpiry = t < MIN_GRID_DELAY ? MIN_GRID_DELAY : t; }
@@ -767,8 +775,9 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         std::vector<Map*>* m_childTerrainMaps;                      // contains m_parentMap of maps that have MapEntry::ParentMapID == GetId()
 
         NGridType* i_grids[MAX_NUMBER_OF_GRIDS][MAX_NUMBER_OF_GRIDS];
-        GridMap* GridMaps[MAX_NUMBER_OF_GRIDS][MAX_NUMBER_OF_GRIDS];
+        std::shared_ptr<GridMap> GridMaps[MAX_NUMBER_OF_GRIDS][MAX_NUMBER_OF_GRIDS];
         uint16 GridMapReference[MAX_NUMBER_OF_GRIDS][MAX_NUMBER_OF_GRIDS];
+        std::bitset<MAX_NUMBER_OF_GRIDS* MAX_NUMBER_OF_GRIDS> i_gridFileExists; // cache what grids are available for this map (not including parent/child maps)
         std::bitset<TOTAL_NUMBER_OF_CELLS_PER_MAP*TOTAL_NUMBER_OF_CELLS_PER_MAP> marked_cells;
 
         //these functions used to process player/mob aggro reactions and

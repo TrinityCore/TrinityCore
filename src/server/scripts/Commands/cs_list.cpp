@@ -688,7 +688,7 @@ public:
     static bool HandleListRespawnsCommand(ChatHandler* handler, char const* args)
     {
         Player const* player = handler->GetSession()->GetPlayer();
-        Map const* map = player->GetMap();
+        Map* map = player->GetMap();
 
         uint32 range = 0;
         if (*args)
