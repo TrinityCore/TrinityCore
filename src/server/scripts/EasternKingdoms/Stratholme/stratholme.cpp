@@ -157,9 +157,9 @@ public:
 
         void JustEngagedWith(Unit* /*who*/) override { }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
         {
-            if (Tagged || spell->Id != SPELL_EGAN_BLASTER)
+            if (Tagged || spellInfo->Id != SPELL_EGAN_BLASTER)
                 return;
 
             Player* player = caster->ToPlayer();
@@ -253,9 +253,9 @@ public:
 
         void JustEngagedWith(Unit* /*who*/) override { }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
-            if (!Tagged && spell->Id == SPELL_EGAN_BLASTER)
+            if (!Tagged && spellInfo->Id == SPELL_EGAN_BLASTER)
                 Tagged = true;
         }
 

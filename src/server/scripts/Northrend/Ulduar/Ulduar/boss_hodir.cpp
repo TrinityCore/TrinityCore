@@ -967,9 +967,9 @@ class npc_toasty_fire : public CreatureScript
                 DoCast(me, SPELL_SINGED, true);
             }
 
-            void SpellHit(Unit* /*who*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == SPELL_BLOCK_OF_ICE || spell->Id == SPELL_ICE_SHARD || spell->Id == SPELL_ICE_SHARD_HIT)
+                if (spellInfo->Id == SPELL_BLOCK_OF_ICE || spellInfo->Id == SPELL_ICE_SHARD || spellInfo->Id == SPELL_ICE_SHARD_HIT)
                 {
                     if (GameObject* ToastyFire = me->FindNearestGameObject(GO_TOASTY_FIRE, 1.0f))
                         me->RemoveGameObject(ToastyFire, true);

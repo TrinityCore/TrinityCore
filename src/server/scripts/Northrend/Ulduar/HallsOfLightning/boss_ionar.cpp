@@ -146,9 +146,9 @@ public:
                 Talk(SAY_SLAY);
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
-            if (spell->Id == SPELL_DISPERSE)
+            if (spellInfo->Id == SPELL_DISPERSE)
             {
                 for (uint8 i = 0; i < DATA_MAX_SPARKS; ++i)
                     me->CastSpell(me, SPELL_SUMMON_SPARK, true);

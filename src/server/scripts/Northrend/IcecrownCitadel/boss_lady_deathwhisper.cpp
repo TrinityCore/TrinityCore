@@ -460,9 +460,9 @@ class boss_lady_deathwhisper : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == SPELL_SUMMON_SPIRITS)
+                if (spellInfo->Id == SPELL_SUMMON_SPIRITS)
                     _nextVengefulShadeTargetGUID.push_back(target->GetGUID());
             }
 
@@ -629,9 +629,9 @@ class npc_cult_fanatic : public CreatureScript
                     });
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
-                switch (spell->Id)
+                switch (spellInfo->Id)
                 {
                     case SPELL_DARK_TRANSFORMATION_T:
                         me->InterruptNonMeleeSpells(true);
@@ -736,9 +736,9 @@ class npc_cult_adherent : public CreatureScript
                    });
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
-                switch (spell->Id)
+                switch (spellInfo->Id)
                 {
                     case SPELL_DARK_EMPOWERMENT_T:
                         me->UpdateEntry(NPC_EMPOWERED_ADHERENT);
@@ -829,9 +829,9 @@ class npc_vengeful_shade : public CreatureScript
                 _targetGUID = guid;
             }
 
-            void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* /*target*/, SpellInfo const* spellInfo) override
             {
-                switch (spell->Id)
+                switch (spellInfo->Id)
                 {
                     case SPELL_VENGEFUL_BLAST:
                     case SPELL_VENGEFUL_BLAST_25N:

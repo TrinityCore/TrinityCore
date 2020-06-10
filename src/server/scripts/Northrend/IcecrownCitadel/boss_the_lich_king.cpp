@@ -815,15 +815,12 @@ class boss_the_lich_king : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == SPELL_HARVESTED_SOUL && me->IsInCombat() && !IsHeroic())
+                if (spellInfo->Id == SPELL_HARVESTED_SOUL && me->IsInCombat() && !IsHeroic())
                     Talk(SAY_LK_FROSTMOURNE_KILL);
-            }
 
-            void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
-            {
-                if (spell->Id == REMORSELESS_WINTER_1 || spell->Id == REMORSELESS_WINTER_2)
+                if (spellInfo->Id == REMORSELESS_WINTER_1 || spellInfo->Id == REMORSELESS_WINTER_2)
                 {
                     me->GetMap()->SetZoneOverrideLight(AREA_ICECROWN_CITADEL, LIGHT_DEFAULT, LIGHT_SNOWSTORM, 5000);
                     me->GetMap()->SetZoneWeather(AREA_ICECROWN_CITADEL, WEATHER_STATE_LIGHT_SNOW, 0.5f);
@@ -1228,11 +1225,11 @@ class npc_tirion_fordring_tft : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == SPELL_ICE_LOCK)
+                if (spellInfo->Id == SPELL_ICE_LOCK)
                     me->SetFacingTo(3.085098f);
-                else if (spell->Id == SPELL_BROKEN_FROSTMOURNE_KNOCK)
+                else if (spellInfo->Id == SPELL_BROKEN_FROSTMOURNE_KNOCK)
                     me->LoadEquipment(1); // remove glow on ashbringer
             }
 

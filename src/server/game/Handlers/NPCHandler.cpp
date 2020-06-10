@@ -78,36 +78,6 @@ void WorldSession::SendTabardVendorActivate(ObjectGuid guid)
     SendPacket(&data);
 }
 
-void WorldSession::HandleBankerActivateOpcode(WorldPacket& recvData)
-{
-    ObjectGuid guid;
-
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_BANKER_ACTIVATE");
-
-    recvData >> guid;
-
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_BANKER);
-    if (!unit)
-    {
-        TC_LOG_DEBUG("network", "WORLD: HandleBankerActivateOpcode - %s not found or you can not interact with him.", guid.ToString().c_str());
-        return;
-    }
-
-    // remove fake death
-    if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
-        GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
-
-    SendShowBank(guid);
-}
-
-void WorldSession::SendShowBank(ObjectGuid guid)
-{
-    WorldPacket data(SMSG_SHOW_BANK, 8);
-    data << guid;
-    m_currentBankerGUID = guid;
-    SendPacket(&data);
-}
-
 void WorldSession::SendShowMailBox(ObjectGuid guid)
 {
     WorldPacket data(SMSG_SHOW_MAILBOX, 8);
@@ -338,7 +308,7 @@ void WorldSession::SendStablePet(ObjectGuid guid)
     stmt->setUInt8(1, PET_SAVE_FIRST_STABLE_SLOT);
     stmt->setUInt8(2, PET_SAVE_LAST_STABLE_SLOT);
 
-    _queryProcessor.AddQuery(CharacterDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSession::SendStablePetCallback, this, guid, std::placeholders::_1)));
+    _queryProcessor.AddCallback(CharacterDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSession::SendStablePetCallback, this, guid, std::placeholders::_1)));
 }
 
 void WorldSession::SendStablePetCallback(ObjectGuid guid, PreparedQueryResult result)
@@ -439,7 +409,7 @@ void WorldSession::HandleStablePet(WorldPacket& recvData)
     stmt->setUInt8(1, PET_SAVE_FIRST_STABLE_SLOT);
     stmt->setUInt8(2, PET_SAVE_LAST_STABLE_SLOT);
 
-    _queryProcessor.AddQuery(CharacterDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSession::HandleStablePetCallback, this, std::placeholders::_1)));
+    _queryProcessor.AddCallback(CharacterDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSession::HandleStablePetCallback, this, std::placeholders::_1)));
 }
 
 void WorldSession::HandleStablePetCallback(PreparedQueryResult result)
@@ -501,7 +471,7 @@ void WorldSession::HandleUnstablePet(WorldPacket& recvData)
     stmt->setUInt8(2, PET_SAVE_FIRST_STABLE_SLOT);
     stmt->setUInt8(3, PET_SAVE_LAST_STABLE_SLOT);
 
-    _queryProcessor.AddQuery(CharacterDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSession::HandleUnstablePetCallback, this, petnumber, std::placeholders::_1)));
+    _queryProcessor.AddCallback(CharacterDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSession::HandleUnstablePetCallback, this, petnumber, std::placeholders::_1)));
 }
 
 void WorldSession::HandleUnstablePetCallback(uint32 petId, PreparedQueryResult result)
@@ -627,7 +597,7 @@ void WorldSession::HandleStableSwapPet(WorldPacket& recvData)
     stmt->setUInt32(0, _player->GetGUID().GetCounter());
     stmt->setUInt32(1, petId);
 
-    _queryProcessor.AddQuery(CharacterDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSession::HandleStableSwapPetCallback, this, petId, std::placeholders::_1)));
+    _queryProcessor.AddCallback(CharacterDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSession::HandleStableSwapPetCallback, this, petId, std::placeholders::_1)));
 }
 
 void WorldSession::HandleStableSwapPetCallback(uint32 petId, PreparedQueryResult result)

@@ -370,7 +370,6 @@ class boss_anubarak_trial : public CreatureScript
                             break;
                         }
                         case EVENT_EMERGE:
-                            events.ScheduleEvent(EVENT_SUBMERGE, 80*IN_MILLISECONDS, 0, PHASE_MELEE);
                             DoCast(SPELL_SPIKE_TELE);
                             summons.DespawnEntry(NPC_SPIKE);
                             me->RemoveAurasDueToSpell(SPELL_SUBMERGE_ANUBARAK);
@@ -825,8 +824,7 @@ class npc_anubarak_spike : public CreatureScript
                 me->GetThreatManager().ResetAllThreat();
                 DoZoneInCombat();
                 AddThreat(who, 1000000.0f);
-                me->GetMotionMaster()->Clear();
-                me->GetMotionMaster()->MoveChase(who);
+                AttackStart(who);
             }
 
             private:

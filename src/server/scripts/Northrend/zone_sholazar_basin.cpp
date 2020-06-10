@@ -304,7 +304,7 @@ public:
                 sayTimer -= diff;
         }
 
-        void SpellHit(Unit* caster, SpellInfo const* spellInfo) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
         {
             if (spellInfo->Id != SPELL_OFFER)
                 return;
@@ -504,9 +504,7 @@ public:
                     Creature* crunchy = shooter->FindNearestCreature(NPC_CRUNCHY, 30);
                     Creature* bird = shooter->FindNearestCreature(NPC_THICKBIRD, 30);
 
-                    if (!bird || !crunchy)
-                        ; // fall to EVENT_MISS
-                    else
+                    if (bird && crunchy)
                     {
                         shooter->CastSpell(bird, SPELL_MISS_BIRD_APPLE);
                         bird->CastSpell(bird, SPELL_BIRD_FALL);
@@ -517,7 +515,6 @@ public:
                         crunchy->GetMotionMaster()->MovePoint(0, bird->GetPositionX(), bird->GetPositionY(),
                             bird->GetMap()->GetWaterOrGroundLevel(bird->GetPhaseMask(), bird->GetPositionX(), bird->GetPositionY(), bird->GetPositionZ()));
                         /// @todo Make crunchy perform emote eat when he reaches the bird
-
                         break;
                     }
                 }
@@ -578,16 +575,16 @@ public:
     {
         npc_haiphoonAI(Creature* creature) : VehicleAI(creature) { }
 
-        void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+        void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
         {
             if (target == me)
                 return;
 
-            if (spell->Id == SPELL_DEVOUR_WIND && me->GetCharmerOrOwnerPlayerOrPlayerItself())
+            if (spellInfo->Id == SPELL_DEVOUR_WIND && me->GetCharmerOrOwnerPlayerOrPlayerItself())
             {
                 me->UpdateEntry(NPC_HAIPHOON_AIR);
             }
-            else if (spell->Id == SPELL_DEVOUR_WATER && me->GetCharmerOrOwnerPlayerOrPlayerItself())
+            else if (spellInfo->Id == SPELL_DEVOUR_WATER && me->GetCharmerOrOwnerPlayerOrPlayerItself())
             {
                 me->UpdateEntry(NPC_HAIPHOON_WATER);
             }

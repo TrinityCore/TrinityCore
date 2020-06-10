@@ -498,9 +498,9 @@ struct boss_razorscale : public BossAI
         }
     }
 
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
     {
-        if (spell->Id == SPELL_HARPOON_TRIGGER)
+        if (spellInfo->Id == SPELL_HARPOON_TRIGGER)
         {
             _harpoonHitCount++;
             if (_harpoonHitCount == RAID_MODE(2, 4))
@@ -1452,9 +1452,9 @@ struct npc_razorscale_harpoon_fire_state : public ScriptedAI
 {
     npc_razorscale_harpoon_fire_state(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
 
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
     {
-        if (spell->Id == SPELL_FIREBOLT)
+        if (spellInfo->Id == SPELL_FIREBOLT)
         {
             DoCastSelf(SPELL_HARPOON_FIRE_STATE);
             if (Creature* commander = _instance->GetCreature(DATA_EXPEDITION_COMMANDER))

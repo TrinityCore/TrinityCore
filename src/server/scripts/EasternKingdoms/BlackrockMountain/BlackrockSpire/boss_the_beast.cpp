@@ -85,10 +85,10 @@ struct boss_the_beast : public BossAI
             me->GetMotionMaster()->MovePath(BEAST_MOVEMENT_ID, true);
     }
 
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
     {
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-            if (spell->Effects[i].IsEffect(SPELL_EFFECT_SKINNING))
+            if (spellInfo->Effects[i].IsEffect(SPELL_EFFECT_SKINNING))
                 if (!me->IsAlive()) // can that even happen?
                     DoCastAOE(SPELL_FINKLE_IS_EINHORN, true);
     }

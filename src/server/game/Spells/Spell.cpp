@@ -2453,7 +2453,7 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
             else
             {
                 // Add bonuses and fill damageInfo struct
-                caster->CalculateSpellDamageTaken(&damageInfo, spell->m_damage, spell->m_spellInfo, spell->m_attackType, IsCrit);
+                caster->CalculateSpellDamageTaken(&damageInfo, spell->m_damage, spell->m_spellInfo, spell->m_attackType, IsCrit, spell);
                 Unit::DealDamageMods(damageInfo.target, damageInfo.damage, &damageInfo.absorb);
 
                 // Send log damage message to client
@@ -2537,12 +2537,7 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
         //AI functions
         if (Creature* cHitTarget = _spellHitTarget->ToCreature())
             if (CreatureAI* hitTargetAI = cHitTarget->AI())
-            {
-                if (spell->m_caster->GetTypeId() == TYPEID_GAMEOBJECT)
-                    hitTargetAI->SpellHitByGameObject(spell->m_caster->ToGameObject(), spell->m_spellInfo);
-                else
-                    hitTargetAI->SpellHit(spell->m_caster->ToUnit(), spell->m_spellInfo);
-            }
+                hitTargetAI->SpellHit(spell->m_caster, spell->m_spellInfo);
 
         if (spell->m_caster->GetTypeId() == TYPEID_UNIT && spell->m_caster->ToCreature()->IsAIEnabled())
             spell->m_caster->ToCreature()->AI()->SpellHitTarget(_spellHitTarget, spell->m_spellInfo);
@@ -2586,19 +2581,14 @@ void Spell::GOTargetInfo::DoTargetSpellHit(Spell* spell, uint8 effIndex)
 
     spell->HandleEffects(nullptr, nullptr, go, effIndex, SPELL_EFFECT_HANDLE_HIT_TARGET);
 
-    //AI functions
+    // AI functions
     if (go->AI())
-    {
-        if (spell->m_caster->GetTypeId() == TYPEID_GAMEOBJECT)
-            go->AI()->SpellHitByGameObject(spell->m_caster->ToGameObject(), spell->m_spellInfo);
-        else
-            go->AI()->SpellHit(spell->m_caster->ToUnit(), spell->m_spellInfo);
-    }
+        go->AI()->SpellHit(spell->m_caster, spell->m_spellInfo);
 
     if (spell->m_caster->GetTypeId() == TYPEID_UNIT && spell->m_caster->ToCreature()->IsAIEnabled())
-        spell->m_caster->ToCreature()->AI()->SpellHitTargetGameObject(go, spell->m_spellInfo);
+        spell->m_caster->ToCreature()->AI()->SpellHitTarget(go, spell->m_spellInfo);
     else if (spell->m_caster->GetTypeId() == TYPEID_GAMEOBJECT && spell->m_caster->ToGameObject()->AI())
-        spell->m_caster->ToGameObject()->AI()->SpellHitTargetGameObject(go, spell->m_spellInfo);
+        spell->m_caster->ToGameObject()->AI()->SpellHitTarget(go, spell->m_spellInfo);
 
     spell->CallScriptOnHitHandlers();
     spell->CallScriptAfterHitHandlers();
@@ -7532,13 +7522,14 @@ void Spell::HandleLaunchPhase()
 
     PrepareTargetProcessing();
 
+    bool ammoTaken = false;
+
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
         float multiplier = 1.0f;
         if (m_applyMultiplierMask & (1 << i))
             multiplier = m_spellInfo->Effects[i].CalcDamageMultiplier(m_originalCaster, this);
 
-        bool ammoTaken = false;
         for (TargetInfo& target : m_UniqueTargetInfo)
         {
             uint32 mask = target.EffectMask;
@@ -8124,6 +8115,19 @@ std::string Spell::GetDebugInfo() const
         << "Id: " << GetSpellInfo()->Id << " Name: '" << GetSpellInfo()->SpellName[sWorld->GetDefaultDbcLocale()] << "' OriginalCaster: " << m_originalCasterGUID.ToString()
         << " State: " << getState();
     return sstr.str();
+}
+
+void Spell::CallScriptOnResistAbsorbCalculateHandlers(DamageInfo const& damageInfo, uint32& resistAmount, int32& absorbAmount)
+{
+    for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
+    {
+        (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_ON_RESIST_ABSORB_CALCULATION);
+        auto hookItrEnd = (*scritr)->OnCalculateResistAbsorb.end(), hookItr = (*scritr)->OnCalculateResistAbsorb.begin();
+        for (; hookItr != hookItrEnd; ++hookItr)
+            hookItr->Call(*scritr, damageInfo, resistAmount, absorbAmount);
+
+        (*scritr)->_FinishScriptCall();
+    }
 }
 
 namespace Trinity
