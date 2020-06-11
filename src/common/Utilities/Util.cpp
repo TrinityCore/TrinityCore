@@ -19,6 +19,7 @@
 #include "Common.h"
 #include "Containers.h"
 #include "IpAddress.h"
+#include "StringFormat.h"
 #include <utf8.h>
 #include <algorithm>
 #include <sstream>
