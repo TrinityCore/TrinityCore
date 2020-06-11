@@ -234,7 +234,7 @@ public:
             events.Reset();
             summons.DespawnAll();
 
-            for (ObjectGuid const spawnerGuid : _spawners)
+            for (ObjectGuid spawnerGuid : _spawners)
                 if (Creature* spawner = ObjectAccessor::GetCreature(*me, spawnerGuid))
                     spawner->AI()->DoAction(ACTION_DESPAWN_ALL_SPAWNS);
 
