@@ -815,7 +815,7 @@ class spell_blood_queen_pact_of_the_darkfallen_dmg : public SpellScriptLoader
             // this is an additional effect to be executed
             void PeriodicTick(AuraEffect const* aurEff)
             {
-                SpellInfo const* damageSpell = sSpellMgr->AssertSpellInfo(SPELL_PACT_OF_THE_DARKFALLEN_DAMAGE);
+                SpellInfo const* damageSpell = sSpellMgr->AssertSpellInfo(SPELL_PACT_OF_THE_DARKFALLEN_DAMAGE, GetCastDifficulty());
                 int32 damage = damageSpell->GetEffect(EFFECT_0)->CalcValue();
                 float multiplier = 0.3375f + 0.1f * uint32(aurEff->GetTickNumber() / 10); // do not convert to 0.01f - we need tick number/10 as INT (damage increases every 10 ticks)
                 damage = int32(damage * multiplier);

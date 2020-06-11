@@ -32,6 +32,7 @@ EndContentData */
 #include "ScriptMgr.h"
 #include "GameObject.h"
 #include "Item.h"
+#include "Map.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "Spell.h"
@@ -69,7 +70,7 @@ public:
                     disabled = true;
                 break;
             case 34475:
-                if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_ARCANE_CHARGES))
+                if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_ARCANE_CHARGES, player->GetMap()->GetDifficultyID()))
                     Spell::SendCastResult(player, spellInfo, 0, castId, SPELL_FAILED_NOT_ON_GROUND);
                 break;
         }
@@ -278,7 +279,7 @@ public:
 
         if (!player->GetTransport() || player->GetAreaId() != AREA_ID_SHATTERED_STRAITS)
         {
-            if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_PETROV_BOMB))
+            if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_PETROV_BOMB, DIFFICULTY_NONE))
                 Spell::SendCastResult(player, spellInfo, 0, castId, SPELL_FAILED_NOT_HERE);
 
             return true;

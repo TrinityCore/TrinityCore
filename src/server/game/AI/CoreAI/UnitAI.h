@@ -22,6 +22,7 @@
 #include "EventMap.h"
 #include "ObjectGuid.h"
 #include "ThreatManager.h"
+#include <unordered_map>
 
 #define CAST_AI(a, b)   (dynamic_cast<a*>(b))
 #define ENSURE_AI(a,b)  (EnsureAI<a>(b))
@@ -40,6 +41,7 @@ class SpellInfo;
 class Unit;
 struct AISpellInfoType;
 enum DamageEffectType : uint8;
+enum Difficulty : uint8;
 enum SpellEffIndex : uint8;
 
 //Selection method used by SelectTarget
@@ -270,7 +272,7 @@ class TC_GAME_API UnitAI
         void DoMeleeAttackIfReady();
         bool DoSpellAttackIfReady(uint32 spellId);
 
-        static AISpellInfoType* AISpellInfo;
+        static std::unordered_map<std::pair<uint32, Difficulty>, AISpellInfoType> AISpellInfo;
         static void FillAISpellInfo();
 
         // Called when a player opens a gossip dialog with the creature.

@@ -589,7 +589,7 @@ class spell_marrowgar_coldflame_damage : public SpellScriptLoader
                 if (target->HasAura(SPELL_IMPALED))
                     return false;
 
-                if (SpellEffectInfo const* effect = GetSpellInfo()->GetEffect(target->GetMap()->GetDifficultyID(), EFFECT_0))
+                if (SpellEffectInfo const* effect = GetSpellInfo()->GetEffect(EFFECT_0))
                     if (target->GetExactDist2d(GetOwner()) > effect->CalcRadius())
                         return false;
 

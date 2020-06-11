@@ -552,7 +552,7 @@ class spell_rotface_mutated_infection : public SpellScriptLoader
             void HandleEffectRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 Unit* target = GetTarget();
-                target->CastSpell(target, uint32(GetAura()->GetSpellEffectInfo(EFFECT_2)->CalcValue()), true, nullptr, aurEff, GetCasterGUID());
+                target->CastSpell(target, uint32(GetSpellInfo()->GetEffect(EFFECT_2)->CalcValue()), true, nullptr, aurEff, GetCasterGUID());
             }
 
             void Register() override

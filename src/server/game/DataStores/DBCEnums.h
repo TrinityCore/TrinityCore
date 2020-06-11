@@ -1263,6 +1263,8 @@ enum SpellProcsPerMinuteModType
     SPELL_PPM_MOD_BATTLEGROUND  = 7
 };
 
+constexpr std::size_t MAX_POWERS_PER_SPELL = 4;
+
 enum SpellShapeshiftFormFlags
 {
     SHAPESHIFT_FORM_IS_NOT_A_SHAPESHIFT         = 0x0001,

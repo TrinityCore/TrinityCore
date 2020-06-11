@@ -288,7 +288,7 @@ class spell_rog_deadly_poison : public SpellScriptLoader
                             if (enchant->Effect[s] != ITEM_ENCHANTMENT_TYPE_COMBAT_SPELL)
                                 continue;
 
-                            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(enchant->EffectArg[s]);
+                            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(enchant->EffectArg[s], DIFFICULTY_NONE);
                             if (!spellInfo)
                             {
                                 TC_LOG_ERROR("spells", "Player::CastItemCombatSpell Enchant %i, player (Name: %s, %s) cast unknown spell %i", enchant->ID, player->GetName().c_str(), player->GetGUID().ToString().c_str(), enchant->EffectArg[s]);
@@ -486,9 +486,9 @@ class spell_rog_preparation : public SpellScriptLoader
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 Unit* caster = GetCaster();
-                caster->GetSpellHistory()->ResetCooldowns([caster](SpellHistory::CooldownStorageType::iterator itr)
+                caster->GetSpellHistory()->ResetCooldowns([caster, this](SpellHistory::CooldownStorageType::iterator itr)
                 {
-                    SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first);
+                    SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first, GetCastDifficulty());
                     if (spellInfo->SpellFamilyName != SPELLFAMILY_ROGUE)
                         return false;
 

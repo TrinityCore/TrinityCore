@@ -190,6 +190,7 @@ TC_GAME_API extern DB2Storage<SpellLevelsEntry>                     sSpellLevels
 TC_GAME_API extern DB2Storage<SpellMiscEntry>                       sSpellMiscStore;
 TC_GAME_API extern DB2Storage<SpellNameEntry>                       sSpellNameStore;
 TC_GAME_API extern DB2Storage<SpellPowerEntry>                      sSpellPowerStore;
+TC_GAME_API extern DB2Storage<SpellPowerDifficultyEntry>            sSpellPowerDifficultyStore;
 TC_GAME_API extern DB2Storage<SpellProcsPerMinuteEntry>             sSpellProcsPerMinuteStore;
 TC_GAME_API extern DB2Storage<SpellRadiusEntry>                     sSpellRadiusStore;
 TC_GAME_API extern DB2Storage<SpellRangeEntry>                      sSpellRangeStore;
@@ -358,7 +359,6 @@ public:
     std::vector<SpecializationSpellsEntry const*> const* GetSpecializationSpells(uint32 specId) const;
     bool IsSpecSetMember(int32 specSetId, uint32 specId) const;
     static bool IsValidSpellFamiliyName(SpellFamilyNames family);
-    std::vector<SpellPowerEntry const*> GetSpellPowers(uint32 spellId, Difficulty difficulty = DIFFICULTY_NONE, bool* hasDifficultyPowers = nullptr) const;
     std::vector<SpellProcsPerMinuteModEntry const*> GetSpellProcsPerMinuteMods(uint32 spellprocsPerMinuteId) const;
     std::vector<TalentEntry const*> const& GetTalentsByPosition(uint32 class_, uint32 tier, uint32 column) const;
     static bool IsTotemCategoryCompatibleWith(uint32 itemTotemCategoryId, uint32 requiredTotemCategoryId);
