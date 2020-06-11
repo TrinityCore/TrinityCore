@@ -73,7 +73,7 @@ CREATE TABLE `account_access` (
   `SecurityLevel` tinyint(3) unsigned NOT NULL,
   `RealmID` int(11) NOT NULL DEFAULT '-1',
   `Comment` VARCHAR(255) DEFAULT NULL,
-  PRIMARY KEY (`id`,`RealmID`)
+  PRIMARY KEY (`AccountID`,`RealmID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
