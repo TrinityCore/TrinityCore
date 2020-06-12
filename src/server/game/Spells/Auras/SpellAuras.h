@@ -119,15 +119,16 @@ class TC_GAME_API Aura
         typedef std::map<ObjectGuid, AuraApplication*> ApplicationMap;
 
         static uint32 BuildEffectMaskForOwner(SpellInfo const* spellProto, uint32 availableEffectMask, WorldObject* owner);
-        static Aura* TryRefreshStackOrCreate(SpellInfo const* spellproto, ObjectGuid castId, uint32 tryEffMask, WorldObject* owner, Unit* caster, int32* baseAmount = nullptr, Item* castItem = nullptr, ObjectGuid casterGUID = ObjectGuid::Empty, bool* refresh = nullptr, bool resetPeriodicTimer = true, ObjectGuid castItemGuid = ObjectGuid::Empty, uint32 castItemId = 0, int32 castItemLevel = -1);
-        static Aura* TryCreate(SpellInfo const* spellproto, ObjectGuid castId, uint32 tryEffMask, WorldObject* owner, Unit* caster, int32* baseAmount = nullptr, Item* castItem = nullptr, ObjectGuid casterGUID = ObjectGuid::Empty, ObjectGuid castItemGuid = ObjectGuid::Empty, uint32 castItemId = 0, int32 castItemLevel = -1);
-        static Aura* Create(SpellInfo const* spellproto, ObjectGuid castId, uint32 effMask, WorldObject* owner, Unit* caster, int32* baseAmount, Item* castItem, ObjectGuid casterGUID, ObjectGuid castItemGuid, uint32 castItemId, int32 castItemLevel);
-        Aura(SpellInfo const* spellproto, ObjectGuid castId, WorldObject* owner, Unit* caster, Item* castItem, ObjectGuid casterGUID, ObjectGuid castItemGuid, uint32 castItemId, int32 castItemLevel);
+        static Aura* TryRefreshStackOrCreate(SpellInfo const* spellproto, ObjectGuid castId, uint32 tryEffMask, WorldObject* owner, Unit* caster, Difficulty castDifficulty, int32* baseAmount = nullptr, Item* castItem = nullptr, ObjectGuid casterGUID = ObjectGuid::Empty, bool* refresh = nullptr, bool resetPeriodicTimer = true, ObjectGuid castItemGuid = ObjectGuid::Empty, uint32 castItemId = 0, int32 castItemLevel = -1);
+        static Aura* TryCreate(SpellInfo const* spellproto, ObjectGuid castId, uint32 tryEffMask, WorldObject* owner, Unit* caster, Difficulty castDifficulty, int32* baseAmount = nullptr, Item* castItem = nullptr, ObjectGuid casterGUID = ObjectGuid::Empty, ObjectGuid castItemGuid = ObjectGuid::Empty, uint32 castItemId = 0, int32 castItemLevel = -1);
+        static Aura* Create(SpellInfo const* spellproto, ObjectGuid castId, uint32 effMask, WorldObject* owner, Unit* caster, Difficulty castDifficulty, int32* baseAmount, Item* castItem, ObjectGuid casterGUID, ObjectGuid castItemGuid, uint32 castItemId, int32 castItemLevel);
+        Aura(SpellInfo const* spellproto, ObjectGuid castId, WorldObject* owner, Unit* caster, Difficulty castDifficulty, Item* castItem, ObjectGuid casterGUID, ObjectGuid castItemGuid, uint32 castItemId, int32 castItemLevel);
         void _InitEffects(uint32 effMask, Unit* caster, int32 *baseAmount);
         virtual ~Aura();
 
         SpellInfo const* GetSpellInfo() const { return m_spellInfo; }
         uint32 GetId() const{ return GetSpellInfo()->Id; }
+        Difficulty GetCastDifficulty() const { return m_castDifficulty; }
 
         ObjectGuid GetCastGUID() const { return m_castGuid; }
         ObjectGuid GetCasterGUID() const { return m_casterGuid; }
@@ -288,10 +289,7 @@ class TC_GAME_API Aura
 
         std::vector<AuraScript*> m_loadedScripts;
 
-        AuraEffectVector GetAuraEffects() const { return _effects; }
-
-        SpellEffectInfoVector GetSpellEffectInfos() const { return _spelEffectInfos; }
-        SpellEffectInfo const* GetSpellEffectInfo(uint32 index) const;
+        AuraEffectVector const& GetAuraEffects() const { return _effects; }
 
     private:
         AuraScript* GetScriptByName(std::string const& scriptName) const;
@@ -299,6 +297,7 @@ class TC_GAME_API Aura
 
     protected:
         SpellInfo const* const m_spellInfo;
+        Difficulty const m_castDifficulty;
         ObjectGuid const m_castGuid;
         ObjectGuid const m_casterGuid;
         ObjectGuid const m_castItemGuid;                    // it is NOT safe to keep a pointer to the item because it may get deleted
@@ -334,14 +333,13 @@ class TC_GAME_API Aura
         Unit::AuraApplicationList m_removedApplications;
 
         AuraEffectVector _effects;
-        SpellEffectInfoVector _spelEffectInfos;
 };
 
 class TC_GAME_API UnitAura : public Aura
 {
-    friend Aura* Aura::Create(SpellInfo const* spellproto, ObjectGuid castId, uint32 effMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem, ObjectGuid casterGUID, ObjectGuid castItemGuid, uint32 castItemId, int32 castItemLevel);
+    friend Aura* Aura::Create(SpellInfo const* spellproto, ObjectGuid castId, uint32 effMask, WorldObject* owner, Unit* caster, Difficulty castDifficulty, int32 *baseAmount, Item* castItem, ObjectGuid casterGUID, ObjectGuid castItemGuid, uint32 castItemId, int32 castItemLevel);
     public:
-        UnitAura(SpellInfo const* spellproto, ObjectGuid castId, uint32 effMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem, ObjectGuid casterGUID, ObjectGuid castItemGuid, uint32 castItemId, int32 castItemLevel);
+        UnitAura(SpellInfo const* spellproto, ObjectGuid castId, uint32 effMask, WorldObject* owner, Unit* caster, Difficulty castDifficulty, int32 *baseAmount, Item* castItem, ObjectGuid casterGUID, ObjectGuid castItemGuid, uint32 castItemId, int32 castItemLevel);
 
         void _ApplyForTarget(Unit* target, Unit* caster, AuraApplication * aurApp) override;
         void _UnapplyForTarget(Unit* target, Unit* caster, AuraApplication * aurApp) override;
@@ -360,9 +358,9 @@ class TC_GAME_API UnitAura : public Aura
 
 class TC_GAME_API DynObjAura : public Aura
 {
-    friend Aura* Aura::Create(SpellInfo const* spellproto, ObjectGuid castId, uint32 effMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem, ObjectGuid casterGUID, ObjectGuid castItemGuid, uint32 castItemId, int32 castItemLevel);
+    friend Aura* Aura::Create(SpellInfo const* spellproto, ObjectGuid castId, uint32 effMask, WorldObject* owner, Unit* caster, Difficulty castDifficulty, int32 *baseAmount, Item* castItem, ObjectGuid casterGUID, ObjectGuid castItemGuid, uint32 castItemId, int32 castItemLevel);
     public:
-        DynObjAura(SpellInfo const* spellproto, ObjectGuid castId, uint32 effMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem, ObjectGuid casterGUID, ObjectGuid castItemGuid, uint32 castItemId, int32 castItemLevel);
+        DynObjAura(SpellInfo const* spellproto, ObjectGuid castId, uint32 effMask, WorldObject* owner, Unit* caster, Difficulty castDifficulty, int32 *baseAmount, Item* castItem, ObjectGuid casterGUID, ObjectGuid castItemGuid, uint32 castItemId, int32 castItemLevel);
 
         void Remove(AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT) override;
 

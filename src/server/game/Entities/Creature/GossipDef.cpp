@@ -450,19 +450,10 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
     packet.SuggestedPartyMembers = quest->GetSuggestedPlayers();
 
     // RewardSpell can teach multiple spells in trigger spell effects. But not all effects must be SPELL_EFFECT_LEARN_SPELL. See example spell 33950
-    if (quest->GetRewSpell())
-    {
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(quest->GetRewSpell());
-        if (spellInfo->HasEffect(SPELL_EFFECT_LEARN_SPELL))
-        {
-            SpellEffectInfoVector effects = spellInfo->GetEffectsForDifficulty(DIFFICULTY_NONE);
-            for (SpellEffectInfoVector::const_iterator itr = effects.begin(); itr != effects.end(); ++itr)
-            {
-                if ((*itr)->IsEffect(SPELL_EFFECT_LEARN_SPELL))
-                    packet.LearnSpells.push_back((*itr)->TriggerSpell);
-            }
-        }
-    }
+    if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(quest->GetRewSpell(), DIFFICULTY_NONE))
+        for (SpellEffectInfo const* effect : spellInfo->GetEffects())
+            if (effect->IsEffect(SPELL_EFFECT_LEARN_SPELL))
+                packet.LearnSpells.push_back(effect->TriggerSpell);
 
     quest->BuildQuestRewards(packet.Rewards, _session->GetPlayer());
 

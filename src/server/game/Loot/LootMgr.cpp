@@ -1094,9 +1094,9 @@ void LoadLootTemplates_Spell()
     uint32 count = LootTemplates_Spell.LoadAndCollectLootIds(lootIdSet);
 
     // remove real entries and check existence loot
-    for (uint32 spell_id = 1; spell_id < sSpellMgr->GetSpellInfoStoreSize(); ++spell_id)
+    for (SpellNameEntry const* spellNameEntry : sSpellNameStore)
     {
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell_id);
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellNameEntry->ID, DIFFICULTY_NONE);
         if (!spellInfo)
             continue;
 
@@ -1104,15 +1104,15 @@ void LoadLootTemplates_Spell()
         if (!spellInfo->IsLootCrafting())
             continue;
 
-        if (lootIdSet.find(spell_id) == lootIdSet.end())
+        if (lootIdSet.find(spellInfo->Id) == lootIdSet.end())
         {
             // not report about not trainable spells (optionally supported by DB)
             // ignore 61756 (Northrend Inscription Research (FAST QA VERSION) for example
             if (!spellInfo->HasAttribute(SPELL_ATTR0_NOT_SHAPESHIFT) || (spellInfo->HasAttribute(SPELL_ATTR0_TRADESPELL)))
-                LootTemplates_Spell.ReportNonExistingId(spell_id, "Spell", spellInfo->Id);
+                LootTemplates_Spell.ReportNonExistingId(spellInfo->Id, "Spell", spellInfo->Id);
         }
         else
-            lootIdSet.erase(spell_id);
+            lootIdSet.erase(spellInfo->Id);
     }
 
     // output error for any still listed (not referenced from appropriate table) ids

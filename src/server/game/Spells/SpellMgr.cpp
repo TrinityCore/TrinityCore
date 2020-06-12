@@ -32,6 +32,36 @@
 #include "SpellAuraDefines.h"
 #include "SpellInfo.h"
 #include <G3D/g3dmath.h>
+#include <boost/multi_index_container.hpp>
+#include <boost/multi_index/composite_key.hpp>
+#include <boost/multi_index/hashed_index.hpp>
+#include <boost/multi_index/member.hpp>
+
+namespace
+{
+    struct SpellIdDifficultyIndex;
+    struct SpellIdIndex;
+
+    boost::multi_index::multi_index_container<
+        SpellInfo,
+        boost::multi_index::indexed_by<
+            boost::multi_index::hashed_unique<
+                boost::multi_index::tag<SpellIdDifficultyIndex>,
+                boost::multi_index::composite_key<
+                    SpellInfo,
+                    boost::multi_index::member<SpellInfo, uint32, &SpellInfo::Id>,
+                    boost::multi_index::member<SpellInfo, Difficulty, &SpellInfo::Difficulty>
+                >
+            >,
+            boost::multi_index::hashed_non_unique<
+                boost::multi_index::tag<SpellIdIndex>,
+                boost::multi_index::member<SpellInfo, uint32, &SpellInfo::Id>
+            >
+        >
+    > mSpellInfoMap;
+
+    std::unordered_map<std::pair<uint32, Difficulty>, SpellProcEntry> mSpellProcMap;
+}
 
 PetFamilySpellsStore sPetFamilySpellsStore;
 
@@ -80,7 +110,7 @@ bool SpellMgr::IsSpellValid(SpellInfo const* spellInfo, Player* player, bool msg
     bool needCheckReagents = false;
 
     // check effects
-    for (SpellEffectInfo const* effect : spellInfo->GetEffectsForDifficulty(DIFFICULTY_NONE))
+    for (SpellEffectInfo const* effect : spellInfo->GetEffects())
     {
         if (!effect)
             continue;
@@ -128,7 +158,7 @@ bool SpellMgr::IsSpellValid(SpellInfo const* spellInfo, Player* player, bool msg
             }
             case SPELL_EFFECT_LEARN_SPELL:
             {
-                SpellInfo const* spellInfo2 = sSpellMgr->GetSpellInfo(effect->TriggerSpell);
+                SpellInfo const* spellInfo2 = sSpellMgr->GetSpellInfo(effect->TriggerSpell, DIFFICULTY_NONE);
                 if (!IsSpellValid(spellInfo2, player, msg))
                 {
                     if (msg)
@@ -425,12 +455,25 @@ SpellGroupStackRule SpellMgr::GetSpellGroupStackRule(SpellGroup group) const
     return SPELL_GROUP_STACK_RULE_DEFAULT;
 }
 
-SpellProcEntry const* SpellMgr::GetSpellProcEntry(uint32 spellId) const
+SpellProcEntry const* SpellMgr::GetSpellProcEntry(SpellInfo const* spellInfo) const
 {
-    SpellProcMap::const_iterator itr = mSpellProcMap.find(spellId);
-    if (itr != mSpellProcMap.end())
-        return &itr->second;
-    return NULL;
+    SpellProcEntry const* procEntry = Trinity::Containers::MapGetValuePtr(mSpellProcMap, { spellInfo->Id, spellInfo->Difficulty });
+    if (procEntry)
+        return procEntry;
+
+    if (DifficultyEntry const* difficulty = sDifficultyStore.LookupEntry(spellInfo->Difficulty))
+    {
+        do
+        {
+            procEntry = Trinity::Containers::MapGetValuePtr(mSpellProcMap, { spellInfo->Id, Difficulty(difficulty->FallbackDifficultyID) });
+            if (procEntry)
+                return procEntry;
+
+            difficulty = sDifficultyStore.LookupEntry(difficulty->FallbackDifficultyID);
+        } while (difficulty);
+    }
+
+    return nullptr;
 }
 
 bool SpellMgr::CanSpellTriggerProcOnEvent(SpellProcEntry const& procEntry, ProcEventInfo& eventInfo)
@@ -619,6 +662,44 @@ SpellAreaForQuestAreaMapBounds SpellMgr::GetSpellAreaForQuestAreaMapBounds(uint3
     return mSpellAreaForQuestAreaMap.equal_range(std::pair<uint32, uint32>(area_id, quest_id));
 }
 
+SpellInfo const* SpellMgr::GetSpellInfo(uint32 spellId, Difficulty difficulty) const
+{
+    auto itr = mSpellInfoMap.find(boost::make_tuple(spellId, difficulty));
+    if (itr != mSpellInfoMap.end())
+        return &*itr;
+
+    if (DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(difficulty))
+    {
+        do
+        {
+            itr = mSpellInfoMap.find(boost::make_tuple(spellId, Difficulty(difficultyEntry->FallbackDifficultyID)));
+            if (itr != mSpellInfoMap.end())
+                return &*itr;
+
+            difficultyEntry = sDifficultyStore.LookupEntry(difficultyEntry->FallbackDifficultyID);
+        } while (difficultyEntry);
+    }
+
+    return nullptr;
+}
+
+auto _GetSpellInfo(uint32 spellId)
+{
+    return Trinity::Containers::MakeIteratorPair(mSpellInfoMap.get<SpellIdIndex>().equal_range(spellId));
+}
+
+void SpellMgr::ForEachSpellInfo(std::function<void(SpellInfo const*)> callback)
+{
+    for (SpellInfo const& spellInfo : mSpellInfoMap)
+        callback(&spellInfo);
+}
+
+void SpellMgr::ForEachSpellInfoDifficulty(uint32 spellId, std::function<void(SpellInfo const*)> callback)
+{
+    for (SpellInfo const& spellInfo : _GetSpellInfo(spellId))
+        callback(&spellInfo);
+}
+
 bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32 newArea) const
 {
     if (gender != GENDER_NONE)                   // is not expected gender
@@ -712,7 +793,8 @@ bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32
 void SpellMgr::UnloadSpellInfoChains()
 {
     for (SpellChainMap::iterator itr = mSpellChains.begin(); itr != mSpellChains.end(); ++itr)
-        mSpellInfoMap[itr->first]->ChainEntry = NULL;
+        for (SpellInfo const& spellInfo : _GetSpellInfo(itr->first))
+            const_cast<SpellInfo&>(spellInfo).ChainEntry = NULL;
 
     mSpellChains.clear();
 }
@@ -728,7 +810,7 @@ void SpellMgr::LoadSpellRanks()
         if (!skillAbility->SupercedesSpell)
             continue;
 
-        if (!GetSpellInfo(skillAbility->SupercedesSpell) || !GetSpellInfo(skillAbility->Spell))
+        if (!GetSpellInfo(skillAbility->SupercedesSpell, DIFFICULTY_NONE) || !GetSpellInfo(skillAbility->Spell, DIFFICULTY_NONE))
             continue;
 
         chains[skillAbility->SupercedesSpell] = skillAbility->Spell;
@@ -741,29 +823,31 @@ void SpellMgr::LoadSpellRanks()
         if (hasPrev.count(itr->first))
             continue;
 
-        SpellInfo const* first = AssertSpellInfo(itr->first);
-        SpellInfo const* next = AssertSpellInfo(itr->second);
+        SpellInfo const* first = AssertSpellInfo(itr->first, DIFFICULTY_NONE);
+        SpellInfo const* next = AssertSpellInfo(itr->second, DIFFICULTY_NONE);
 
         mSpellChains[itr->first].first = first;
         mSpellChains[itr->first].prev = nullptr;
         mSpellChains[itr->first].next = next;
         mSpellChains[itr->first].last = next;
         mSpellChains[itr->first].rank = 1;
-        mSpellInfoMap[itr->first]->ChainEntry = &mSpellChains[itr->first];
+        for (SpellInfo const& difficultyInfo : _GetSpellInfo(itr->first))
+            const_cast<SpellInfo&>(difficultyInfo).ChainEntry = &mSpellChains[itr->first];
 
         mSpellChains[itr->second].first = first;
         mSpellChains[itr->second].prev = first;
         mSpellChains[itr->second].next = nullptr;
         mSpellChains[itr->second].last = next;
         mSpellChains[itr->second].rank = 2;
-        mSpellInfoMap[itr->second]->ChainEntry = &mSpellChains[itr->second];
+        for (SpellInfo const& difficultyInfo : _GetSpellInfo(itr->second))
+            const_cast<SpellInfo&>(difficultyInfo).ChainEntry = &mSpellChains[itr->second];
 
         uint8 rank = 3;
         auto nextItr = chains.find(itr->second);
         while (nextItr != chains.end())
         {
-            SpellInfo const* prev = AssertSpellInfo(nextItr->first); // already checked in previous iteration (or above, in case this is the first one)
-            SpellInfo const* last = AssertSpellInfo(nextItr->second);
+            SpellInfo const* prev = AssertSpellInfo(nextItr->first, DIFFICULTY_NONE); // already checked in previous iteration (or above, in case this is the first one)
+            SpellInfo const* last = AssertSpellInfo(nextItr->second, DIFFICULTY_NONE);
 
             mSpellChains[nextItr->first].next = last;
 
@@ -772,7 +856,8 @@ void SpellMgr::LoadSpellRanks()
             mSpellChains[nextItr->second].next = nullptr;
             mSpellChains[nextItr->second].last = last;
             mSpellChains[nextItr->second].rank = rank++;
-            mSpellInfoMap[nextItr->second]->ChainEntry = &mSpellChains[nextItr->second];
+            for (SpellInfo const& difficultyInfo : _GetSpellInfo(nextItr->second))
+                const_cast<SpellInfo&>(difficultyInfo).ChainEntry = &mSpellChains[nextItr->second];
 
             // fill 'last'
             do
@@ -814,14 +899,14 @@ void SpellMgr::LoadSpellRequired()
         uint32 spell_req = fields[1].GetUInt32();
 
         // check if chain is made with valid first spell
-        SpellInfo const* spell = GetSpellInfo(spell_id);
+        SpellInfo const* spell = GetSpellInfo(spell_id, DIFFICULTY_NONE);
         if (!spell)
         {
             TC_LOG_ERROR("sql.sql", "spell_id %u in `spell_required` table could not be found in dbc, skipped.", spell_id);
             continue;
         }
 
-        SpellInfo const* reqSpell = GetSpellInfo(spell_req);
+        SpellInfo const* reqSpell = GetSpellInfo(spell_req, DIFFICULTY_NONE);
         if (!reqSpell)
         {
             TC_LOG_ERROR("sql.sql", "req_spell %u in `spell_required` table could not be found in dbc, skipped.", spell_req);
@@ -857,12 +942,12 @@ void SpellMgr::LoadSpellLearnSkills()
 
     // search auto-learned skills and add its to map also for use in unlearn spells/talents
     uint32 dbc_count = 0;
-    for (SpellInfo const* entry : mSpellInfoMap)
+    for (SpellInfo const& entry : mSpellInfoMap)
     {
-        if (!entry)
+        if (entry.Difficulty != DIFFICULTY_NONE)
             continue;
 
-        for (SpellEffectInfo const* effect : entry->GetEffectsForDifficulty(DIFFICULTY_NONE))
+        for (SpellEffectInfo const* effect : entry.GetEffects())
         {
             if (!effect)
                 continue;
@@ -889,7 +974,7 @@ void SpellMgr::LoadSpellLearnSkills()
                     continue;
             }
 
-            mSpellLearnSkills[entry->Id] = dbc_node;
+            mSpellLearnSkills[entry.Id] = dbc_node;
             ++dbc_count;
             break;
         }
@@ -925,14 +1010,14 @@ void SpellMgr::LoadSpellLearnSpells()
         node.Active      = fields[2].GetBool();
         node.AutoLearned = false;
 
-        SpellInfo const* spellInfo = GetSpellInfo(spell_id);
+        SpellInfo const* spellInfo = GetSpellInfo(spell_id, DIFFICULTY_NONE);
         if (!spellInfo)
         {
             TC_LOG_ERROR("sql.sql", "The spell %u listed in `spell_learn_spell` does not exist.", spell_id);
             continue;
         }
 
-        if (!GetSpellInfo(node.Spell))
+        if (!GetSpellInfo(node.Spell, DIFFICULTY_NONE))
         {
             TC_LOG_ERROR("sql.sql", "The spell %u listed in `spell_learn_spell` learning non-existing spell %u.", spell_id, node.Spell);
             continue;
@@ -954,14 +1039,12 @@ void SpellMgr::LoadSpellLearnSpells()
 
     // search auto-learned spells and add its to map also for use in unlearn spells/talents
     uint32 dbc_count = 0;
-    for (uint32 spell = 0; spell < GetSpellInfoStoreSize(); ++spell)
+    for (SpellInfo const& entry : mSpellInfoMap)
     {
-        SpellInfo const* entry = GetSpellInfo(spell);
-
-        if (!entry)
+        if (entry.Difficulty != DIFFICULTY_NONE)
             continue;
 
-        for (SpellEffectInfo const* effect : entry->GetEffectsForDifficulty(DIFFICULTY_NONE))
+        for (SpellEffectInfo const* effect : entry.GetEffects())
         {
             if (effect && effect->Effect == SPELL_EFFECT_LEARN_SPELL)
             {
@@ -971,15 +1054,15 @@ void SpellMgr::LoadSpellLearnSpells()
                 dbc_node.OverridesSpell = 0;
 
                 // ignore learning not existed spells (broken/outdated/or generic learnig spell 483
-                if (!GetSpellInfo(dbc_node.Spell))
+                if (!GetSpellInfo(dbc_node.Spell, DIFFICULTY_NONE))
                     continue;
 
                 // talent or passive spells or skill-step spells auto-cast and not need dependent learning,
                 // pet teaching spells must not be dependent learning (cast)
                 // other required explicit dependent learning
-                dbc_node.AutoLearned = effect->TargetA.GetTarget() == TARGET_UNIT_PET || entry->HasAttribute(SPELL_ATTR0_CU_IS_TALENT) || entry->IsPassive() || entry->HasEffect(SPELL_EFFECT_SKILL_STEP);
+                dbc_node.AutoLearned = effect->TargetA.GetTarget() == TARGET_UNIT_PET || entry.HasAttribute(SPELL_ATTR0_CU_IS_TALENT) || entry.IsPassive() || entry.HasEffect(SPELL_EFFECT_SKILL_STEP);
 
-                SpellLearnSpellMapBounds db_node_bounds = dbSpellLearnSpells.equal_range(spell);
+                SpellLearnSpellMapBounds db_node_bounds = dbSpellLearnSpells.equal_range(entry.Id);
 
                 bool found = false;
                 for (SpellLearnSpellMap::const_iterator itr = db_node_bounds.first; itr != db_node_bounds.second; ++itr)
@@ -987,7 +1070,7 @@ void SpellMgr::LoadSpellLearnSpells()
                     if (itr->second.Spell == dbc_node.Spell)
                     {
                         TC_LOG_ERROR("sql.sql", "The spell %u is an auto-learn spell %u in spell.dbc and the record in `spell_learn_spell` is redundant. Please update your DB.",
-                            spell, dbc_node.Spell);
+                            entry.Id, dbc_node.Spell);
                         found = true;
                         break;
                     }
@@ -995,7 +1078,7 @@ void SpellMgr::LoadSpellLearnSpells()
 
                 if (!found)                                  // add new spell-spell pair if not found
                 {
-                    mSpellLearnSpells.insert(SpellLearnSpellMap::value_type(spell, dbc_node));
+                    mSpellLearnSpells.insert(SpellLearnSpellMap::value_type(entry.Id, dbc_node));
                     ++dbc_count;
                 }
             }
@@ -1004,7 +1087,7 @@ void SpellMgr::LoadSpellLearnSpells()
 
     for (SpellLearnSpellEntry const* spellLearnSpell : sSpellLearnSpellStore)
     {
-        if (!GetSpellInfo(spellLearnSpell->SpellID))
+        if (!GetSpellInfo(spellLearnSpell->SpellID, DIFFICULTY_NONE))
             continue;
 
         SpellLearnSpellMapBounds db_node_bounds = dbSpellLearnSpells.equal_range(spellLearnSpell->LearnSpellID);
@@ -1092,7 +1175,7 @@ void SpellMgr::LoadSpellTargetPositions()
             continue;
         }
 
-        SpellInfo const* spellInfo = GetSpellInfo(spellId);
+        SpellInfo const* spellInfo = GetSpellInfo(spellId, DIFFICULTY_NONE);
         if (!spellInfo)
         {
             TC_LOG_ERROR("sql.sql", "Spell (Id: %u) listed in `spell_target_position` does not exist.", spellId);
@@ -1200,7 +1283,7 @@ void SpellMgr::LoadSpellGroups()
         }
         else
         {
-            SpellInfo const* spellInfo = GetSpellInfo(itr->second);
+            SpellInfo const* spellInfo = GetSpellInfo(itr->second, DIFFICULTY_NONE);
             if (!spellInfo)
             {
                 TC_LOG_ERROR("sql.sql", "The spell %u listed in `spell_group` does not exist", itr->second);
@@ -1302,8 +1385,8 @@ void SpellMgr::LoadSpellGroupStackRules()
 
             for (uint32 spellId : spellIds)
             {
-                SpellInfo const* spellInfo = AssertSpellInfo(spellId);
-                for (SpellEffectInfo const* effectInfo : spellInfo->GetEffectsForDifficulty(DIFFICULTY_NONE))
+                SpellInfo const* spellInfo = AssertSpellInfo(spellId, DIFFICULTY_NONE);
+                for (SpellEffectInfo const* effectInfo : spellInfo->GetEffects())
                 {
                     if (!effectInfo->IsAura())
                         continue;
@@ -1351,14 +1434,14 @@ void SpellMgr::LoadSpellGroupStackRules()
         // re-check spells against guessed group
         for (uint32 spellId : spellIds)
         {
-            SpellInfo const* spellInfo = AssertSpellInfo(spellId);
+            SpellInfo const* spellInfo = AssertSpellInfo(spellId, DIFFICULTY_NONE);
 
             bool found = false;
             while (spellInfo)
             {
                 for (uint32 auraType : auraTypes)
                 {
-                    if (spellInfo->HasAura(DIFFICULTY_NONE, AuraType(auraType)))
+                    if (spellInfo->HasAura(AuraType(auraType)))
                     {
                         found = true;
                         break;
@@ -1410,7 +1493,7 @@ void SpellMgr::LoadSpellProcs()
                 spellId = -spellId;
             }
 
-            SpellInfo const* spellInfo = GetSpellInfo(spellId);
+            SpellInfo const* spellInfo = GetSpellInfo(spellId, DIFFICULTY_NONE);
             if (!spellInfo)
             {
                 TC_LOG_ERROR("sql.sql", "The spell %u listed in `spell_proc` does not exist", spellId);
@@ -1450,7 +1533,7 @@ void SpellMgr::LoadSpellProcs()
 
             while (spellInfo)
             {
-                if (mSpellProcMap.find(spellInfo->Id) != mSpellProcMap.end())
+                if (mSpellProcMap.find({ spellInfo->Id, spellInfo->Difficulty }) != mSpellProcMap.end())
                 {
                     TC_LOG_ERROR("sql.sql", "The spell %u listed in `spell_proc` already has its first rank in the table.", spellInfo->Id);
                     break;
@@ -1500,7 +1583,7 @@ void SpellMgr::LoadSpellProcs()
                 if (procEntry.HitMask && !(procEntry.ProcFlags & TAKEN_HIT_PROC_FLAG_MASK || (procEntry.ProcFlags & DONE_HIT_PROC_FLAG_MASK && (!procEntry.SpellPhaseMask || procEntry.SpellPhaseMask & (PROC_SPELL_PHASE_HIT | PROC_SPELL_PHASE_FINISH)))))
                     TC_LOG_ERROR("sql.sql", "The `spell_proc` table entry for spellId %u has `HitMask` value defined, but it will not be used for defined `ProcFlags` and `SpellPhaseMask` values.", spellInfo->Id);
 
-                mSpellProcMap[spellInfo->Id] = procEntry;
+                mSpellProcMap[{ spellInfo->Id, spellInfo->Difficulty }] = procEntry;
 
                 if (allRanks)
                     spellInfo = spellInfo->GetNextRankSpell();
@@ -1608,22 +1691,19 @@ void SpellMgr::LoadSpellProcs()
     count = 0;
     oldMSTime = getMSTime();
 
-    for (SpellInfo const* spellInfo : mSpellInfoMap)
+    for (SpellInfo const& spellInfo : mSpellInfoMap)
     {
-        if (!spellInfo)
-            continue;
-
         // Data already present in DB, overwrites default proc
-        if (mSpellProcMap.find(spellInfo->Id) != mSpellProcMap.end())
+        if (mSpellProcMap.find({ spellInfo.Id, spellInfo.Difficulty }) != mSpellProcMap.end())
             continue;
 
         // Nothing to do if no flags set
-        if (!spellInfo->ProcFlags)
+        if (!spellInfo.ProcFlags)
             continue;
 
         bool addTriggerFlag = false;
         uint32 procSpellTypeMask = PROC_SPELL_TYPE_NONE;
-        for (SpellEffectInfo const* effect : spellInfo->GetEffectsForDifficulty(DIFFICULTY_NONE))
+        for (SpellEffectInfo const* effect : spellInfo.GetEffects())
         {
             if (!effect || !effect->IsEffect())
                 continue;
@@ -1641,7 +1721,7 @@ void SpellMgr::LoadSpellProcs()
 
             // many proc auras with taken procFlag mask don't have attribute "can proc with triggered"
             // they should proc nevertheless (example mage armor spells with judgement)
-            if (!addTriggerFlag && (spellInfo->ProcFlags & TAKEN_HIT_PROC_FLAG_MASK) != 0)
+            if (!addTriggerFlag && (spellInfo.ProcFlags & TAKEN_HIT_PROC_FLAG_MASK) != 0)
             {
                 switch (auraName)
                 {
@@ -1658,11 +1738,11 @@ void SpellMgr::LoadSpellProcs()
 
         if (!procSpellTypeMask)
         {
-            for (SpellEffectInfo const* effectInfo : spellInfo->GetEffectsForDifficulty(DIFFICULTY_NONE))
+            for (SpellEffectInfo const* effectInfo : spellInfo.GetEffects())
             {
                 if (effectInfo && effectInfo->IsAura())
                 {
-                    TC_LOG_ERROR("sql.sql", "Spell Id %u has DBC ProcFlags %u, but it's of non-proc aura type, it probably needs an entry in `spell_proc` table to be handled correctly.", spellInfo->Id, spellInfo->ProcFlags);
+                    TC_LOG_ERROR("sql.sql", "Spell Id %u has DBC ProcFlags %u, but it's of non-proc aura type, it probably needs an entry in `spell_proc` table to be handled correctly.", spellInfo.Id, spellInfo.ProcFlags);
                     break;
                 }
             }
@@ -1672,20 +1752,20 @@ void SpellMgr::LoadSpellProcs()
 
         SpellProcEntry procEntry;
         procEntry.SchoolMask      = 0;
-        procEntry.ProcFlags = spellInfo->ProcFlags;
+        procEntry.ProcFlags = spellInfo.ProcFlags;
         procEntry.SpellFamilyName = 0;
-        for (SpellEffectInfo const* effect : spellInfo->GetEffectsForDifficulty(DIFFICULTY_NONE))
+        for (SpellEffectInfo const* effect : spellInfo.GetEffects())
             if (effect && effect->IsEffect() && isTriggerAura[effect->ApplyAuraName])
                 procEntry.SpellFamilyMask |= effect->SpellClassMask;
 
         if (procEntry.SpellFamilyMask)
-            procEntry.SpellFamilyName = spellInfo->SpellFamilyName;
+            procEntry.SpellFamilyName = spellInfo.SpellFamilyName;
 
         procEntry.SpellTypeMask   = procSpellTypeMask;
         procEntry.SpellPhaseMask  = PROC_SPELL_PHASE_HIT;
         procEntry.HitMask         = PROC_HIT_NONE; // uses default proc @see SpellMgr::CanSpellTriggerProcOnEvent
 
-        for (SpellEffectInfo const* effect : spellInfo->GetEffectsForDifficulty(DIFFICULTY_NONE))
+        for (SpellEffectInfo const* effect : spellInfo.GetEffects())
         {
             if (!effect || !effect->IsAura())
                 continue;
@@ -1713,17 +1793,17 @@ void SpellMgr::LoadSpellProcs()
 
         procEntry.AttributesMask  = 0;
         procEntry.DisableEffectsMask = 0;
-        if (spellInfo->ProcFlags & PROC_FLAG_KILL)
+        if (spellInfo.ProcFlags & PROC_FLAG_KILL)
             procEntry.AttributesMask |= PROC_ATTR_REQ_EXP_OR_HONOR;
         if (addTriggerFlag)
             procEntry.AttributesMask |= PROC_ATTR_TRIGGERED_CAN_PROC;
 
         procEntry.ProcsPerMinute  = 0;
-        procEntry.Chance          = spellInfo->ProcChance;
-        procEntry.Cooldown        = Milliseconds(spellInfo->ProcCooldown);
-        procEntry.Charges         = spellInfo->ProcCharges;
+        procEntry.Chance          = spellInfo.ProcChance;
+        procEntry.Cooldown        = Milliseconds(spellInfo.ProcCooldown);
+        procEntry.Charges         = spellInfo.ProcCharges;
 
-        mSpellProcMap[spellInfo->Id] = procEntry;
+        mSpellProcMap[{ spellInfo.Id, spellInfo.Difficulty }] = procEntry;
         ++count;
     }
 
@@ -1751,7 +1831,7 @@ void SpellMgr::LoadSpellThreats()
 
         uint32 entry = fields[0].GetUInt32();
 
-        if (!GetSpellInfo(entry))
+        if (!GetSpellInfo(entry, DIFFICULTY_NONE))
         {
             TC_LOG_ERROR("sql.sql", "The spell %u listed in `spell_threat` does not exist.", entry);
             continue;
@@ -1819,7 +1899,7 @@ void SpellMgr::LoadSpellPetAuras()
             itr->second.AddAura(pet, aura);
         else
         {
-            SpellInfo const* spellInfo = GetSpellInfo(spell);
+            SpellInfo const* spellInfo = GetSpellInfo(spell, DIFFICULTY_NONE);
             if (!spellInfo)
             {
                 TC_LOG_ERROR("sql.sql", "The spell %u listed in `spell_pet_auras` does not exist.", spell);
@@ -1840,7 +1920,7 @@ void SpellMgr::LoadSpellPetAuras()
                 continue;
             }
 
-            SpellInfo const* spellInfo2 = GetSpellInfo(aura);
+            SpellInfo const* spellInfo2 = GetSpellInfo(aura, DIFFICULTY_NONE);
             if (!spellInfo2)
             {
                 TC_LOG_ERROR("sql.sql", "The aura %u listed in `spell_pet_auras` does not exist.", aura);
@@ -1866,20 +1946,16 @@ void SpellMgr::LoadEnchantCustomAttr()
     mEnchantCustomAttr.resize(size);
 
     for (uint32 i = 0; i < size; ++i)
-       mEnchantCustomAttr[i] = 0;
+       mEnchantCustomAttr[i] = false;
 
     uint32 count = 0;
-    for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
+    for (SpellInfo const& spellInfo : mSpellInfoMap)
     {
-        SpellInfo const* spellInfo = GetSpellInfo(i);
-        if (!spellInfo)
-            continue;
-
         /// @todo find a better check
-        if (!spellInfo->HasAttribute(SPELL_ATTR2_PRESERVE_ENCHANT_IN_ARENA) || !spellInfo->HasAttribute(SPELL_ATTR0_NOT_SHAPESHIFT))
+        if (!spellInfo.HasAttribute(SPELL_ATTR2_PRESERVE_ENCHANT_IN_ARENA) || !spellInfo.HasAttribute(SPELL_ATTR0_NOT_SHAPESHIFT))
             continue;
 
-        for (SpellEffectInfo const* effect : spellInfo->GetEffectsForDifficulty(DIFFICULTY_NONE))
+        for (SpellEffectInfo const* effect : spellInfo.GetEffects())
         {
             if (effect && effect->Effect == SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY)
             {
@@ -1963,7 +2039,7 @@ void SpellMgr::LoadSpellLinked()
         int32 effect = fields[1].GetInt32();
         int32 type = fields[2].GetUInt8();
 
-        SpellInfo const* spellInfo = GetSpellInfo(abs(trigger));
+        SpellInfo const* spellInfo = GetSpellInfo(abs(trigger), DIFFICULTY_NONE);
         if (!spellInfo)
         {
             TC_LOG_ERROR("sql.sql", "The spell %u listed in `spell_linked_spell` does not exist.", abs(trigger));
@@ -1971,13 +2047,13 @@ void SpellMgr::LoadSpellLinked()
         }
 
         if (effect >= 0)
-            for (SpellEffectInfo const* eff : spellInfo->GetEffectsForDifficulty(DIFFICULTY_NONE))
+            for (SpellEffectInfo const* eff : spellInfo->GetEffects())
             {
                 if (eff && eff->CalcValue() == abs(effect))
                     TC_LOG_ERROR("sql.sql", "The spell %u Effect: %u listed in `spell_linked_spell` has same bp%u like effect (possible hack)", abs(trigger), abs(effect), eff->EffectIndex);
             }
 
-        spellInfo = GetSpellInfo(abs(effect));
+        spellInfo = GetSpellInfo(abs(effect), DIFFICULTY_NONE);
         if (!spellInfo)
         {
             TC_LOG_ERROR("sql.sql", "The spell %u listed in `spell_linked_spell` does not exist.", abs(effect));
@@ -2025,17 +2101,13 @@ void SpellMgr::LoadPetLevelupSpellMap()
                 if (!skillLine)
                     continue;
 
-                //if (skillLine->skillId != creatureFamily->SkillLine[0] &&
-                //    (!creatureFamily->SkillLine[1] || skillLine->skillId != creatureFamily->SkillLine[1]))
-                //    continue;
-
                 if (skillLine->SkillLine != creatureFamily->SkillLine[j])
                     continue;
 
                 if (skillLine->AcquireMethod != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN)
                     continue;
 
-                SpellInfo const* spell = GetSpellInfo(skillLine->Spell);
+                SpellInfo const* spell = GetSpellInfo(skillLine->Spell, DIFFICULTY_NONE);
                 if (!spell) // not exist or triggered or talent
                     continue;
 
@@ -2115,13 +2187,11 @@ void SpellMgr::LoadPetDefaultSpells()
     oldMSTime = getMSTime();
 
     // different summon spells
-    for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
+    for (SpellInfo const& spellEntry : mSpellInfoMap)
     {
-        SpellInfo const* spellEntry = GetSpellInfo(i);
-        if (!spellEntry)
-            continue;
+        if (spellEntry.Difficulty != DIFFICULTY_NONE)
 
-        for (SpellEffectInfo const* effect : spellEntry->GetEffectsForDifficulty(DIFFICULTY_NONE))
+        for (SpellEffectInfo const* effect : spellEntry.GetEffects())
         {
             if (effect && (effect->Effect == SPELL_EFFECT_SUMMON || effect->Effect == SPELL_EFFECT_SUMMON_PET))
             {
@@ -2187,7 +2257,7 @@ void SpellMgr::LoadSpellAreas()
         spellArea.gender              = Gender(fields[8].GetUInt8());
         spellArea.flags               = fields[9].GetUInt8();
 
-        if (SpellInfo const* spellInfo = GetSpellInfo(spell))
+        if (SpellInfo const* spellInfo = GetSpellInfo(spell, DIFFICULTY_NONE))
         {
             if (spellArea.flags & SPELL_AREA_FLAG_AUTOCAST)
                 const_cast<SpellInfo*>(spellInfo)->Attributes |= SPELL_ATTR0_CANT_CANCEL;
@@ -2251,7 +2321,7 @@ void SpellMgr::LoadSpellAreas()
 
         if (spellArea.auraSpell)
         {
-            SpellInfo const* spellInfo = GetSpellInfo(abs(spellArea.auraSpell));
+            SpellInfo const* spellInfo = GetSpellInfo(abs(spellArea.auraSpell), DIFFICULTY_NONE);
             if (!spellInfo)
             {
                 TC_LOG_ERROR("sql.sql", "The spell %u listed in `spell_area` has wrong aura spell (%u) requirement", spell, abs(spellArea.auraSpell));
@@ -2351,17 +2421,14 @@ void SpellMgr::LoadSpellInfoStore()
     uint32 oldMSTime = getMSTime();
 
     UnloadSpellInfoStore();
-    mSpellInfoMap.resize(sSpellNameStore.GetNumRows(), NULL);
-    std::unordered_map<uint32, SpellInfoLoadHelper> loadData;
+
+    std::unordered_map<std::pair<uint32, Difficulty>, SpellInfoLoadHelper> loadData;
 
     std::unordered_map<int32, BattlePetSpeciesEntry const*> battlePetSpeciesByCreature;
     std::unordered_map<uint32, BattlePetSpeciesEntry const*> battlePetSpeciesBySpellId;
     for (BattlePetSpeciesEntry const* battlePetSpecies : sBattlePetSpeciesStore)
         if (battlePetSpecies->CreatureID)
             battlePetSpeciesByCreature[battlePetSpecies->CreatureID] = battlePetSpecies;
-
-    std::unordered_map<int32, SpellEffectEntryMap> effectsBySpell;
-    std::unordered_map<uint32, SpellVisualMap> visualsBySpell;
 
     for (SpellEffectEntry const* effect : sSpellEffectStore)
     {
@@ -2371,11 +2438,7 @@ void SpellMgr::LoadSpellInfoStore()
         ASSERT(effect->ImplicitTarget[0] < TOTAL_SPELL_TARGETS, "TOTAL_SPELL_TARGETS must be at least %u", effect->ImplicitTarget[0] + 1);
         ASSERT(effect->ImplicitTarget[1] < TOTAL_SPELL_TARGETS, "TOTAL_SPELL_TARGETS must be at least %u", effect->ImplicitTarget[1] + 1);
 
-        SpellEffectEntryVector& effectsForDifficulty = effectsBySpell[effect->SpellID][effect->DifficultyID];
-        if (effectsForDifficulty.size() <= std::size_t(effect->EffectIndex))
-            effectsForDifficulty.resize(std::size_t(effect->EffectIndex + 1));
-
-        effectsForDifficulty[effect->EffectIndex] = effect;
+        loadData[{ effect->SpellID, Difficulty(effect->DifficultyID) }].Effects[effect->EffectIndex] = effect;
 
         if (effect->Effect == SPELL_EFFECT_SUMMON)
             if (SummonPropertiesEntry const* summonProperties = sSummonPropertiesStore.LookupEntry(effect->EffectMiscValue[1]))
@@ -2385,68 +2448,131 @@ void SpellMgr::LoadSpellInfoStore()
     }
 
     for (SpellAuraOptionsEntry const* auraOptions : sSpellAuraOptionsStore)
-        if (!auraOptions->DifficultyID)    // TODO: implement
-            loadData[auraOptions->SpellID].AuraOptions = auraOptions;
+        loadData[{ auraOptions->SpellID, Difficulty(auraOptions->DifficultyID) }].AuraOptions = auraOptions;
 
     for (SpellAuraRestrictionsEntry const* auraRestrictions : sSpellAuraRestrictionsStore)
-        if (!auraRestrictions->DifficultyID)    // TODO: implement
-            loadData[auraRestrictions->SpellID].AuraRestrictions = auraRestrictions;
+        loadData[{ auraRestrictions->SpellID, Difficulty(auraRestrictions->DifficultyID) }].AuraRestrictions = auraRestrictions;
 
     for (SpellCastingRequirementsEntry const* castingRequirements : sSpellCastingRequirementsStore)
-        loadData[castingRequirements->SpellID].CastingRequirements = castingRequirements;
+        loadData[{ castingRequirements->SpellID, DIFFICULTY_NONE }].CastingRequirements = castingRequirements;
 
     for (SpellCategoriesEntry const* categories : sSpellCategoriesStore)
-        if (!categories->DifficultyID)  // TODO: implement
-            loadData[categories->SpellID].Categories = categories;
+        loadData[{ categories->SpellID, Difficulty(categories->DifficultyID) }].Categories = categories;
 
     for (SpellClassOptionsEntry const* classOptions : sSpellClassOptionsStore)
-        loadData[classOptions->SpellID].ClassOptions = classOptions;
+        loadData[{ classOptions->SpellID, DIFFICULTY_NONE }].ClassOptions = classOptions;
 
     for (SpellCooldownsEntry const* cooldowns : sSpellCooldownsStore)
-        if (!cooldowns->DifficultyID)   // TODO: implement
-            loadData[cooldowns->SpellID].Cooldowns = cooldowns;
+        loadData[{ cooldowns->SpellID, Difficulty(cooldowns->DifficultyID) }].Cooldowns = cooldowns;
 
     for (SpellEquippedItemsEntry const* equippedItems : sSpellEquippedItemsStore)
-        loadData[equippedItems->SpellID].EquippedItems = equippedItems;
+        loadData[{ equippedItems->SpellID, DIFFICULTY_NONE }].EquippedItems = equippedItems;
 
     for (SpellInterruptsEntry const* interrupts : sSpellInterruptsStore)
-        if (!interrupts->DifficultyID)  // TODO: implement
-            loadData[interrupts->SpellID].Interrupts = interrupts;
+        loadData[{ interrupts->SpellID, Difficulty(interrupts->DifficultyID) }].Interrupts = interrupts;
 
     for (SpellLevelsEntry const* levels : sSpellLevelsStore)
-        if (!levels->DifficultyID)  // TODO: implement
-            loadData[levels->SpellID].Levels = levels;
+        loadData[{ levels->SpellID, Difficulty(levels->DifficultyID) }].Levels = levels;
 
     for (SpellMiscEntry const* misc : sSpellMiscStore)
-        if (!misc->DifficultyID)
-            loadData[misc->SpellID].Misc = misc;
+        loadData[{ misc->SpellID, Difficulty(misc->DifficultyID) }].Misc = misc;
+
+    for (SpellPowerEntry const* power : sSpellPowerStore)
+    {
+        Difficulty difficulty = DIFFICULTY_NONE;
+        uint8 index = power->OrderIndex;
+        if (SpellPowerDifficultyEntry const* powerDifficulty = sSpellPowerDifficultyStore.LookupEntry(power->ID))
+        {
+            difficulty = Difficulty(powerDifficulty->DifficultyID);
+            index = powerDifficulty->OrderIndex;
+        }
+
+        loadData[{ power->SpellID, difficulty }].Powers[index] = power;
+    }
 
     for (SpellReagentsEntry const* reagents : sSpellReagentsStore)
-        loadData[reagents->SpellID].Reagents = reagents;
+        loadData[{ reagents->SpellID, DIFFICULTY_NONE }].Reagents = reagents;
 
     for (SpellScalingEntry const* scaling : sSpellScalingStore)
-        loadData[scaling->SpellID].Scaling = scaling;
+        loadData[{ scaling->SpellID, DIFFICULTY_NONE }].Scaling = scaling;
 
     for (SpellShapeshiftEntry const* shapeshift : sSpellShapeshiftStore)
-        loadData[shapeshift->SpellID].Shapeshift = shapeshift;
+        loadData[{ shapeshift->SpellID, DIFFICULTY_NONE }].Shapeshift = shapeshift;
 
     for (SpellTargetRestrictionsEntry const* targetRestrictions : sSpellTargetRestrictionsStore)
-        if (!targetRestrictions->DifficultyID)  // TODO: implement
-            loadData[targetRestrictions->SpellID].TargetRestrictions = targetRestrictions;
+        loadData[{ targetRestrictions->SpellID, Difficulty(targetRestrictions->DifficultyID) }].TargetRestrictions = targetRestrictions;
 
     for (SpellTotemsEntry const* totems : sSpellTotemsStore)
-        loadData[totems->SpellID].Totems = totems;
+        loadData[{ totems->SpellID, DIFFICULTY_NONE }].Totems = totems;
 
     for (SpellXSpellVisualEntry const* visual : sSpellXSpellVisualStore)
-        visualsBySpell[visual->SpellID][visual->DifficultyID].push_back(visual);
-
-    for (uint32 i = 0; i < sSpellNameStore.GetNumRows(); ++i)
     {
-        if (SpellNameEntry const* spellNameEntry = sSpellNameStore.LookupEntry(i))
+        SpellVisualVector& visuals = loadData[{ visual->SpellID, Difficulty(visual->DifficultyID) }].Visuals;
+
+        auto where = std::lower_bound(visuals.begin(), visuals.end(), visual, [](SpellXSpellVisualEntry const* first, SpellXSpellVisualEntry const* second)
         {
-            loadData[i].Entry = spellNameEntry;
-            mSpellInfoMap[i] = new SpellInfo(loadData[i], effectsBySpell[i], std::move(visualsBySpell[i]));
+            return first->CasterPlayerConditionID > second->CasterPlayerConditionID;
+        });
+
+        // sorted with unconditional visuals being last
+        visuals.insert(where, visual);
+    }
+
+    for (std::pair<std::pair<uint32, Difficulty> const, SpellInfoLoadHelper>& data : loadData)
+    {
+        SpellNameEntry const* spellNameEntry = sSpellNameStore.LookupEntry(data.first.first);
+        if (!spellNameEntry)
+            continue;
+
+        SpellVisualVector visuals = data.second.Visuals; // copy, need to ensure source remains unmodified
+
+        // fill blanks
+        if (DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(data.first.second))
+        {
+            do
+            {
+                if (SpellInfoLoadHelper const* fallbackData = Trinity::Containers::MapGetValuePtr(loadData, { data.first.first, Difficulty(difficultyEntry->FallbackDifficultyID) }))
+                {
+                    if (!data.second.AuraOptions)
+                        data.second.AuraOptions = fallbackData->AuraOptions;
+
+                    if (!data.second.AuraRestrictions)
+                        data.second.AuraRestrictions = fallbackData->AuraRestrictions;
+
+                    if (!data.second.Categories)
+                        data.second.Categories = fallbackData->Categories;
+
+                    if (!data.second.Cooldowns)
+                        data.second.Cooldowns = fallbackData->Cooldowns;
+
+                    for (std::size_t i = 0; i < data.second.Effects.size(); ++i)
+                        if (!data.second.Effects[i])
+                            data.second.Effects[i] = fallbackData->Effects[i];
+
+                    if (!data.second.Interrupts)
+                        data.second.Interrupts = fallbackData->Interrupts;
+
+                    if (!data.second.Levels)
+                        data.second.Levels = fallbackData->Levels;
+
+                    if (!data.second.Misc)
+                        data.second.Misc = fallbackData->Misc;
+
+                    for (std::size_t i = 0; i < fallbackData->Powers.size(); ++i)
+                        if (!data.second.Powers[i])
+                            data.second.Powers[i] = fallbackData->Powers[i];
+
+                    if (!data.second.TargetRestrictions)
+                        data.second.TargetRestrictions = fallbackData->TargetRestrictions;
+
+                    visuals.insert(visuals.end(), fallbackData->Visuals.begin(), fallbackData->Visuals.end());
+                }
+
+                difficultyEntry = sDifficultyStore.LookupEntry(difficultyEntry->FallbackDifficultyID);
+            } while (difficultyEntry);
         }
+
+        mSpellInfoMap.emplace(spellNameEntry, data.first.second, data.second, std::move(visuals));
     }
 
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo store in %u ms", GetMSTimeDiffToNow(oldMSTime));
@@ -2454,24 +2580,19 @@ void SpellMgr::LoadSpellInfoStore()
 
 void SpellMgr::UnloadSpellInfoStore()
 {
-    for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
-        delete mSpellInfoMap[i];
-
     mSpellInfoMap.clear();
 }
 
 void SpellMgr::UnloadSpellInfoImplicitTargetConditionLists()
 {
-    for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
-        if (mSpellInfoMap[i])
-            mSpellInfoMap[i]->_UnloadImplicitTargetConditionLists();
+    for (SpellInfo const& spellInfo : mSpellInfoMap)
+        const_cast<SpellInfo&>(spellInfo)._UnloadImplicitTargetConditionLists();
 }
 
 void SpellMgr::LoadSpellInfoCustomAttributes()
 {
     uint32 oldMSTime = getMSTime();
     uint32 oldMSTime2 = oldMSTime;
-    SpellInfo* spellInfo = NULL;
 
     QueryResult result = WorldDatabase.Query("SELECT entry, attributes FROM spell_custom_attr");
 
@@ -2487,24 +2608,27 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
             uint32 spellId = fields[0].GetUInt32();
             uint32 attributes = fields[1].GetUInt32();
 
-            spellInfo = _GetSpellInfo(spellId);
-            if (!spellInfo)
+            auto spells = _GetSpellInfo(spellId);
+            if (spells.begin() == spells.end())
             {
                 TC_LOG_ERROR("sql.sql", "Table `spell_custom_attr` has wrong spell (entry: %u), ignored.", spellId);
                 continue;
             }
 
             // TODO: validate attributes
-            if (attributes & SPELL_ATTR0_CU_SHARE_DAMAGE)
+            for (SpellInfo const& spellInfo : spells)
             {
-                if (!spellInfo->HasEffect(SPELL_EFFECT_SCHOOL_DAMAGE))
+                if (attributes & SPELL_ATTR0_CU_SHARE_DAMAGE)
                 {
-                    TC_LOG_ERROR("sql.sql", "Spell %u listed in table `spell_custom_attr` with SPELL_ATTR0_CU_SHARE_DAMAGE has no SPELL_EFFECT_SCHOOL_DAMAGE, ignored.", spellId);
-                    continue;
+                    if (!spellInfo.HasEffect(SPELL_EFFECT_SCHOOL_DAMAGE))
+                    {
+                        TC_LOG_ERROR("sql.sql", "Spell %u listed in table `spell_custom_attr` with SPELL_ATTR0_CU_SHARE_DAMAGE has no SPELL_EFFECT_SCHOOL_DAMAGE, ignored.", spellId);
+                        continue;
+                    }
                 }
-            }
 
-            spellInfo->AttributesCu |= attributes;
+                const_cast<SpellInfo&>(spellInfo).AttributesCu |= attributes;
+            }
             ++count;
         } while (result->NextRow());
 
@@ -2516,13 +2640,10 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
         if (TalentEntry const* talentInfo = sTalentStore.LookupEntry(i))
             talentSpells.insert(talentInfo->SpellID);
 
-    for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
+    for (SpellInfo const& spellInfo : mSpellInfoMap)
     {
-        spellInfo = mSpellInfoMap[i];
-        if (!spellInfo)
-            continue;
-
-        for (SpellEffectInfo const* effect : spellInfo->GetEffectsForDifficulty(DIFFICULTY_NONE))
+        SpellInfo* spellInfoMutable = const_cast<SpellInfo*>(&spellInfo);
+        for (SpellEffectInfo const* effect : spellInfoMutable->GetEffects())
         {
             if (!effect)
                 continue;
@@ -2535,7 +2656,7 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
                 case SPELL_AURA_AOE_CHARM:
                 case SPELL_AURA_MOD_FEAR:
                 case SPELL_AURA_MOD_STUN:
-                    spellInfo->AttributesCu |= SPELL_ATTR0_CU_AURA_CC;
+                    spellInfoMutable->AttributesCu |= SPELL_ATTR0_CU_AURA_CC;
                     break;
                 case SPELL_AURA_PERIODIC_HEAL:
                 case SPELL_AURA_PERIODIC_DAMAGE:
@@ -2547,7 +2668,7 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
                 case SPELL_AURA_OBS_MOD_HEALTH:
                 case SPELL_AURA_OBS_MOD_POWER:
                 case SPELL_AURA_POWER_BURN:
-                    spellInfo->AttributesCu |= SPELL_ATTR0_CU_NO_INITIAL_THREAT;
+                    spellInfoMutable->AttributesCu |= SPELL_ATTR0_CU_NO_INITIAL_THREAT;
                     break;
             }
 
@@ -2559,7 +2680,7 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
                 case SPELL_EFFECT_NORMALIZED_WEAPON_DMG:
                 case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE:
                 case SPELL_EFFECT_HEAL:
-                    spellInfo->AttributesCu |= SPELL_ATTR0_CU_DIRECT_DAMAGE;
+                    spellInfoMutable->AttributesCu |= SPELL_ATTR0_CU_DIRECT_DAMAGE;
                     break;
                 case SPELL_EFFECT_POWER_DRAIN:
                 case SPELL_EFFECT_POWER_BURN:
@@ -2569,17 +2690,17 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
                 case SPELL_EFFECT_ENERGIZE_PCT:
                 case SPELL_EFFECT_ENERGIZE:
                 case SPELL_EFFECT_HEAL_MECHANICAL:
-                    spellInfo->AttributesCu |= SPELL_ATTR0_CU_NO_INITIAL_THREAT;
+                    spellInfoMutable->AttributesCu |= SPELL_ATTR0_CU_NO_INITIAL_THREAT;
                     break;
                 case SPELL_EFFECT_CHARGE:
                 case SPELL_EFFECT_CHARGE_DEST:
                 case SPELL_EFFECT_JUMP:
                 case SPELL_EFFECT_JUMP_DEST:
                 case SPELL_EFFECT_LEAP_BACK:
-                    spellInfo->AttributesCu |= SPELL_ATTR0_CU_CHARGE;
+                    spellInfoMutable->AttributesCu |= SPELL_ATTR0_CU_CHARGE;
                     break;
                 case SPELL_EFFECT_PICKPOCKET:
-                    spellInfo->AttributesCu |= SPELL_ATTR0_CU_PICKPOCKET;
+                    spellInfoMutable->AttributesCu |= SPELL_ATTR0_CU_PICKPOCKET;
                     break;
                 case SPELL_EFFECT_ENCHANT_ITEM:
                 case SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY:
@@ -2587,7 +2708,7 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
                 case SPELL_EFFECT_ENCHANT_HELD_ITEM:
                 {
                     // only enchanting profession enchantments procs can stack
-                    if (IsPartOfSkillLine(SKILL_ENCHANTING, i))
+                    if (IsPartOfSkillLine(SKILL_ENCHANTING, spellInfo.Id))
                     {
                         uint32 enchantId = effect->MiscValue;
                         SpellItemEnchantmentEntry const* enchant = sSpellItemEnchantmentStore.LookupEntry(enchantId);
@@ -2599,17 +2720,16 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
                             if (enchant->Effect[s] != ITEM_ENCHANTMENT_TYPE_COMBAT_SPELL)
                                 continue;
 
-                            SpellInfo* procInfo = _GetSpellInfo(enchant->EffectArg[s]);
-                            if (!procInfo)
-                                continue;
+                            for (SpellInfo const& procInfo : _GetSpellInfo(enchant->EffectArg[s]))
+                            {
+                                // if proced directly from enchantment, not via proc aura
+                                // NOTE: Enchant Weapon - Blade Ward also has proc aura spell and is proced directly
+                                // however its not expected to stack so this check is good
+                                if (procInfo.HasAura(SPELL_AURA_PROC_TRIGGER_SPELL))
+                                    continue;
 
-                            // if proced directly from enchantment, not via proc aura
-                            // NOTE: Enchant Weapon - Blade Ward also has proc aura spell and is proced directly
-                            // however its not expected to stack so this check is good
-                            if (procInfo->HasAura(DIFFICULTY_NONE, SPELL_AURA_PROC_TRIGGER_SPELL))
-                                continue;
-
-                            procInfo->AttributesCu |= SPELL_ATTR0_CU_ENCHANT_PROC;
+                                const_cast<SpellInfo&>(procInfo).AttributesCu |= SPELL_ATTR0_CU_ENCHANT_PROC;
+                            }
                         }
                     }
                     break;
@@ -2618,10 +2738,10 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
         }
 
         // spells ignoring hit result should not be binary
-        if (!spellInfo->HasAttribute(SPELL_ATTR3_IGNORE_HIT_RESULT))
+        if (!spellInfoMutable->HasAttribute(SPELL_ATTR3_IGNORE_HIT_RESULT))
         {
             bool setFlag = false;
-            for (SpellEffectInfo const* effect : spellInfo->GetEffectsForDifficulty(DIFFICULTY_NONE))
+            for (SpellEffectInfo const* effect : spellInfoMutable->GetEffects())
             {
                 if (!effect)
                     continue;
@@ -2657,23 +2777,23 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
                     default:
                     {
                         // No value and not interrupt cast or crowd control without SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY flag
-                        if (!effect->CalcValue() && !((effect->Effect == SPELL_EFFECT_INTERRUPT_CAST || spellInfo->HasAttribute(SPELL_ATTR0_CU_AURA_CC)) && !spellInfo->HasAttribute(SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY)))
+                        if (!effect->CalcValue() && !((effect->Effect == SPELL_EFFECT_INTERRUPT_CAST || spellInfoMutable->HasAttribute(SPELL_ATTR0_CU_AURA_CC)) && !spellInfoMutable->HasAttribute(SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY)))
                             break;
 
                         // Sindragosa Frost Breath
-                        if (spellInfo->Id == 69649 || spellInfo->Id == 71056 || spellInfo->Id == 71057 || spellInfo->Id == 71058 || spellInfo->Id == 73061 || spellInfo->Id == 73062 || spellInfo->Id == 73063 || spellInfo->Id == 73064)
+                        if (spellInfoMutable->Id == 69649 || spellInfoMutable->Id == 71056 || spellInfoMutable->Id == 71057 || spellInfoMutable->Id == 71058 || spellInfoMutable->Id == 73061 || spellInfoMutable->Id == 73062 || spellInfoMutable->Id == 73063 || spellInfoMutable->Id == 73064)
                             break;
 
                         // Frostbolt
-                        if (spellInfo->SpellFamilyName == SPELLFAMILY_MAGE && (spellInfo->SpellFamilyFlags[0] & 0x20))
+                        if (spellInfoMutable->SpellFamilyName == SPELLFAMILY_MAGE && (spellInfoMutable->SpellFamilyFlags[0] & 0x20))
                             break;
 
                         // Frost Fever
-                        if (spellInfo->Id == 55095)
+                        if (spellInfoMutable->Id == 55095)
                             break;
 
                         // Haunt
-                        if (spellInfo->SpellFamilyName == SPELLFAMILY_WARLOCK && (spellInfo->SpellFamilyFlags[1] & 0x40000))
+                        if (spellInfoMutable->SpellFamilyName == SPELLFAMILY_WARLOCK && (spellInfoMutable->SpellFamilyFlags[1] & 0x40000))
                             break;
 
                         setFlag = true;
@@ -2683,7 +2803,7 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
 
                     if (setFlag)
                     {
-                        spellInfo->AttributesCu |= SPELL_ATTR0_CU_BINARY_SPELL;
+                        spellInfoMutable->AttributesCu |= SPELL_ATTR0_CU_BINARY_SPELL;
                         break;
                     }
                 }
@@ -2691,61 +2811,58 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
         }
 
         // Remove normal school mask to properly calculate damage
-        if ((spellInfo->SchoolMask & SPELL_SCHOOL_MASK_NORMAL) && (spellInfo->SchoolMask & SPELL_SCHOOL_MASK_MAGIC))
+        if ((spellInfoMutable->SchoolMask & SPELL_SCHOOL_MASK_NORMAL) && (spellInfoMutable->SchoolMask & SPELL_SCHOOL_MASK_MAGIC))
         {
-            spellInfo->SchoolMask &= ~SPELL_SCHOOL_MASK_NORMAL;
-            spellInfo->AttributesCu |= SPELL_ATTR0_CU_SCHOOLMASK_NORMAL_WITH_MAGIC;
+            spellInfoMutable->SchoolMask &= ~SPELL_SCHOOL_MASK_NORMAL;
+            spellInfoMutable->AttributesCu |= SPELL_ATTR0_CU_SCHOOLMASK_NORMAL_WITH_MAGIC;
         }
 
-        if (!spellInfo->_IsPositiveEffect(EFFECT_0, false))
-            spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE_EFF0;
+        if (!spellInfoMutable->_IsPositiveEffect(EFFECT_0, false))
+            spellInfoMutable->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE_EFF0;
 
-        if (!spellInfo->_IsPositiveEffect(EFFECT_1, false))
-            spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE_EFF1;
+        if (!spellInfoMutable->_IsPositiveEffect(EFFECT_1, false))
+            spellInfoMutable->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE_EFF1;
 
-        if (!spellInfo->_IsPositiveEffect(EFFECT_2, false))
-            spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE_EFF2;
+        if (!spellInfoMutable->_IsPositiveEffect(EFFECT_2, false))
+            spellInfoMutable->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE_EFF2;
 
-        if (talentSpells.count(spellInfo->Id))
-            spellInfo->AttributesCu |= SPELL_ATTR0_CU_IS_TALENT;
+        if (talentSpells.count(spellInfoMutable->Id))
+            spellInfoMutable->AttributesCu |= SPELL_ATTR0_CU_IS_TALENT;
 
-        switch (spellInfo->SpellFamilyName)
+        switch (spellInfoMutable->SpellFamilyName)
         {
         case SPELLFAMILY_WARRIOR:
             // Shout / Piercing Howl
-            if (spellInfo->SpellFamilyFlags[0] & 0x20000/* || spellInfo->SpellFamilyFlags[1] & 0x20*/)
-                spellInfo->AttributesCu |= SPELL_ATTR0_CU_AURA_CC;
+            if (spellInfoMutable->SpellFamilyFlags[0] & 0x20000/* || spellInfo->SpellFamilyFlags[1] & 0x20*/)
+                spellInfoMutable->AttributesCu |= SPELL_ATTR0_CU_AURA_CC;
             break;
         case SPELLFAMILY_DRUID:
             // Roar
-            if (spellInfo->SpellFamilyFlags[0] & 0x8)
-                spellInfo->AttributesCu |= SPELL_ATTR0_CU_AURA_CC;
+            if (spellInfoMutable->SpellFamilyFlags[0] & 0x8)
+                spellInfoMutable->AttributesCu |= SPELL_ATTR0_CU_AURA_CC;
             break;
         case SPELLFAMILY_GENERIC:
             // Stoneclaw Totem effect
-            if (spellInfo->Id == 5729)
-                spellInfo->AttributesCu |= SPELL_ATTR0_CU_AURA_CC;
+            if (spellInfoMutable->Id == 5729)
+                spellInfoMutable->AttributesCu |= SPELL_ATTR0_CU_AURA_CC;
             break;
         default:
             break;
         }
 
-        spellInfo->_InitializeExplicitTargetMask();
+        spellInfoMutable->_InitializeExplicitTargetMask();
     }
 
     // addition for binary spells, ommit spells triggering other spells
-    for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
+    for (SpellInfo const& spellInfo : mSpellInfoMap)
     {
-        spellInfo = mSpellInfoMap[i];
-        if (!spellInfo)
-            continue;
-
-        if (spellInfo->HasAttribute(SPELL_ATTR0_CU_BINARY_SPELL))
+        SpellInfo* spellInfoMutable = const_cast<SpellInfo*>(&spellInfo);
+        if (spellInfoMutable->HasAttribute(SPELL_ATTR0_CU_BINARY_SPELL))
             continue;
 
         bool allNonBinary = true;
         bool overrideAttr = false;
-        for (SpellEffectInfo const* effect : spellInfo->GetEffectsForDifficulty(DIFFICULTY_NONE))
+        for (SpellEffectInfo const* effect : spellInfoMutable->GetEffects())
         {
             if (!effect)
                 continue;
@@ -2756,7 +2873,7 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
                 {
                 case SPELL_AURA_PERIODIC_TRIGGER_SPELL:
                 case SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE:
-                    if (SpellInfo const* triggerSpell = sSpellMgr->GetSpellInfo(effect->TriggerSpell))
+                    if (SpellInfo const* triggerSpell = sSpellMgr->GetSpellInfo(effect->TriggerSpell, DIFFICULTY_NONE))
                     {
                         overrideAttr = true;
                         if (triggerSpell->HasAttribute(SPELL_ATTR0_CU_BINARY_SPELL))
@@ -2770,7 +2887,7 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
         }
 
         if (overrideAttr && allNonBinary)
-            spellInfo->AttributesCu &= ~SPELL_ATTR0_CU_BINARY_SPELL;
+            spellInfoMutable->AttributesCu &= ~SPELL_ATTR0_CU_BINARY_SPELL;
     }
 
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo custom attributes in %u ms", GetMSTimeDiffToNow(oldMSTime));
@@ -2780,14 +2897,15 @@ inline void ApplySpellFix(std::initializer_list<uint32> spellIds, void(*fix)(Spe
 {
     for (uint32 spellId : spellIds)
     {
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
-        if (!spellInfo)
+        auto range = _GetSpellInfo(spellId);
+        if (range.begin() == range.end())
         {
             TC_LOG_ERROR("server.loading", "Spell info correction specified for non-existing spell %u", spellId);
             continue;
         }
 
-        fix(const_cast<SpellInfo*>(spellInfo));
+        for (SpellInfo const& spellInfo : range)
+            fix(&const_cast<SpellInfo&>(spellInfo));
     }
 }
 
@@ -3724,14 +3842,13 @@ void SpellMgr::LoadSpellInfoCorrections()
         const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
     });
 
-    SpellInfo* spellInfo = NULL;
-    for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
+    for (SpellInfo const& s : mSpellInfoMap)
     {
-        spellInfo = (SpellInfo*)mSpellInfoMap[i];
+        SpellInfo* spellInfo = &const_cast<SpellInfo&>(s);
         if (!spellInfo)
             continue;
 
-        for (SpellEffectInfo const* effect : spellInfo->GetEffectsForDifficulty(DIFFICULTY_NONE))
+        for (SpellEffectInfo const* effect : spellInfo->GetEffects())
         {
             if (!effect)
                 continue;
@@ -3739,7 +3856,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             if (effect->IsEffect() && (effect->TargetA.GetTarget() == TARGET_DEST_TRAJ || effect->TargetB.GetTarget() == TARGET_DEST_TRAJ))
             {
                 // Get triggered spell if any
-                if (SpellInfo* spellInfoTrigger = const_cast<SpellInfo*>(GetSpellInfo(effect->TriggerSpell)))
+                if (SpellInfo* spellInfoTrigger = const_cast<SpellInfo*>(GetSpellInfo(effect->TriggerSpell, DIFFICULTY_NONE)))
                 {
                     float maxRangeMain = spellInfo->GetMaxRange();
                     float maxRangeTrigger = spellInfoTrigger->GetMaxRange();
@@ -3768,11 +3885,11 @@ void SpellMgr::LoadSpellInfoCorrections()
         }
 
         // disable proc for magnet auras, they're handled differently
-        if (spellInfo->HasAura(DIFFICULTY_NONE, SPELL_AURA_SPELL_MAGNET))
+        if (spellInfo->HasAura(SPELL_AURA_SPELL_MAGNET))
             spellInfo->ProcFlags = 0;
 
         // due to the way spell system works, unit would change orientation in Spell::_cast
-        if (spellInfo->HasAura(DIFFICULTY_NONE, SPELL_AURA_CONTROL_VEHICLE))
+        if (spellInfo->HasAura(SPELL_AURA_CONTROL_VEHICLE))
             spellInfo->AttributesEx5 |= SPELL_ATTR5_DONT_TURN_DURING_CAST;
 
         if (spellInfo->ActiveIconFileDataId == 135754)  // flight
@@ -3793,14 +3910,11 @@ void SpellMgr::LoadSpellInfoSpellSpecificAndAuraState()
 {
     uint32 oldMSTime = getMSTime();
 
-    for (SpellInfo* spellInfo : mSpellInfoMap)
+    for (SpellInfo const& spellInfo : mSpellInfoMap)
     {
-        if (!spellInfo)
-            continue;
-
         // AuraState depends on SpellSpecific
-        spellInfo->_LoadSpellSpecific();
-        spellInfo->_LoadAuraState();
+        const_cast<SpellInfo&>(spellInfo)._LoadSpellSpecific();
+        const_cast<SpellInfo&>(spellInfo)._LoadAuraState();
     }
 
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo SpellSpecific and AuraState in %u ms", GetMSTimeDiffToNow(oldMSTime));
@@ -3810,13 +3924,8 @@ void SpellMgr::LoadSpellInfoDiminishing()
 {
     uint32 oldMSTime = getMSTime();
 
-    for (SpellInfo* spellInfo : mSpellInfoMap)
-    {
-        if (!spellInfo)
-            continue;
-
-        spellInfo->_LoadSpellDiminishInfo();
-    }
+    for (SpellInfo const& spellInfo : mSpellInfoMap)
+        const_cast<SpellInfo&>(spellInfo)._LoadSpellDiminishInfo();
 
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo diminishing infos in %u ms", GetMSTimeDiffToNow(oldMSTime));
 }
@@ -3825,13 +3934,8 @@ void SpellMgr::LoadSpellInfoImmunities()
 {
     uint32 oldMSTime = getMSTime();
 
-    for (SpellInfo* spellInfo : mSpellInfoMap)
-    {
-        if (!spellInfo)
-            continue;
-
-        spellInfo->_LoadImmunityInfo();
-    }
+    for (SpellInfo const& spellInfo : mSpellInfoMap)
+        const_cast<SpellInfo&>(spellInfo)._LoadImmunityInfo();
 
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo immunity infos in %u ms", GetMSTimeDiffToNow(oldMSTime));
 }
@@ -3845,7 +3949,7 @@ void SpellMgr::LoadPetFamilySpellsStore()
 
     for (SkillLineAbilityEntry const* skillLine : sSkillLineAbilityStore)
     {
-        SpellInfo const* spellInfo = GetSpellInfo(skillLine->Spell);
+        SpellInfo const* spellInfo = GetSpellInfo(skillLine->Spell, DIFFICULTY_NONE);
         if (!spellInfo)
             continue;
 
@@ -3890,7 +3994,7 @@ void SpellMgr::LoadSpellTotemModel()
         uint8 race = fields[1].GetUInt8();
         uint32 displayId = fields[2].GetUInt32();
 
-        SpellInfo const* spellEntry = GetSpellInfo(spellId);
+        SpellInfo const* spellEntry = GetSpellInfo(spellId, DIFFICULTY_NONE);
         if (!spellEntry)
         {
             TC_LOG_ERROR("sql.sql", "SpellID: %u in `spell_totem_model` table could not be found in dbc, skipped.", spellId);

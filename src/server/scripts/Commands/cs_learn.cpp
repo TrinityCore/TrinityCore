@@ -86,13 +86,13 @@ public:
 
         // number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
         uint32 spell = handler->extractSpellIdFromLink((char*)args);
-        if (!spell || !sSpellMgr->GetSpellInfo(spell))
+        if (!spell || !sSpellMgr->GetSpellInfo(spell, DIFFICULTY_NONE))
             return false;
 
         char const* all = strtok(NULL, " ");
         bool allRanks = all ? (strncmp(all, "all", strlen(all)) == 0) : false;
 
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell);
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell, DIFFICULTY_NONE);
         if (!spellInfo || !SpellMgr::IsSpellValid(spellInfo, handler->GetSession()->GetPlayer()))
         {
             handler->PSendSysMessage(LANG_COMMAND_SPELL_BROKEN, spell);
@@ -120,16 +120,13 @@ public:
 
     static bool HandleLearnAllGMCommand(ChatHandler* handler, char const* /*args*/)
     {
-        for (uint32 i = 0; i < sSpellMgr->GetSpellInfoStoreSize(); ++i)
+        for (std::pair<uint32 const, SkillLineAbilityEntry const*> skillSpell : Trinity::Containers::MakeIteratorPair(sSpellMgr->GetSkillLineAbilityMapBounds(SKILL_INTERNAL)))
         {
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(i);
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(skillSpell.second->Spell, DIFFICULTY_NONE);
             if (!spellInfo || !SpellMgr::IsSpellValid(spellInfo, handler->GetSession()->GetPlayer(), false))
                 continue;
 
-            if (!spellInfo->IsAbilityOfSkillType(SKILL_INTERNAL))
-                continue;
-
-            handler->GetSession()->GetPlayer()->LearnSpell(i, false);
+            handler->GetSession()->GetPlayer()->LearnSpell(skillSpell.second->Spell, false);
         }
 
         handler->SendSysMessage(LANG_LEARNING_GM_SKILLS);
@@ -156,7 +153,7 @@ public:
             if (!entry)
                 continue;
 
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Spell);
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Spell, DIFFICULTY_NONE);
             if (!spellInfo)
                 continue;
 
@@ -197,7 +194,7 @@ public:
             if (playerClass != talentInfo->ClassID)
                 continue;
 
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(talentInfo->SpellID);
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(talentInfo->SpellID, DIFFICULTY_NONE);
             if (!spellInfo || !SpellMgr::IsSpellValid(spellInfo, handler->GetSession()->GetPlayer(), false))
                 continue;
 
@@ -439,7 +436,7 @@ public:
             if (skillLine->ClassMask && (skillLine->ClassMask & classmask) == 0)
                 continue;
 
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(skillLine->Spell);
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(skillLine->Spell, DIFFICULTY_NONE);
             if (!spellInfo || !SpellMgr::IsSpellValid(spellInfo, player, false))
                 continue;
 

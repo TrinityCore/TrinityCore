@@ -656,7 +656,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                             // unless target is outside spell range, out of mana, or LOS.
 
                             bool _allowMove = false;
-                            SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(e.action.cast.spell);
+                            SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(e.action.cast.spell, me->GetMap()->GetDifficultyID());
                             std::vector<SpellPowerCost> costs = spellInfo->CalcPowerCost(me, spellInfo->GetSchoolMask());
                             bool hasPower = true;
                             for (SpellPowerCost const& cost : costs)

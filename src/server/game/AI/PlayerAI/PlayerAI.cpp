@@ -18,6 +18,7 @@
 #include "PlayerAI.h"
 #include "Creature.h"
 #include "Item.h"
+#include "Map.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
@@ -498,7 +499,7 @@ PlayerAI::TargetedSpell PlayerAI::VerifySpellCast(uint32 spellId, Unit* target)
     if (!knownRank)
         return {};
 
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(knownRank);
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(knownRank, me->GetMap()->GetDifficultyID());
     if (!spellInfo)
         return {};
 

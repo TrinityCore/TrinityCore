@@ -56,7 +56,7 @@ public:
 
     static bool CheckSpellExistsAndIsValid(ChatHandler* handler, uint32 spellId)
     {
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE);
         if (!spellInfo)
         {
             handler->PSendSysMessage(LANG_COMMAND_NOSPELLFOUND);

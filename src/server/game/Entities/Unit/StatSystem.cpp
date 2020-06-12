@@ -539,7 +539,7 @@ void Player::UpdateMastery()
     {
         if (Aura* aura = GetAura(chrSpec->MasterySpellID[i]))
         {
-            for (SpellEffectInfo const* effect : aura->GetSpellEffectInfos())
+            for (SpellEffectInfo const* effect : aura->GetSpellInfo()->GetEffects())
             {
                 if (!effect)
                     continue;

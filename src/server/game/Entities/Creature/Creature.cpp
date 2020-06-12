@@ -2109,7 +2109,7 @@ bool Creature::IsImmunedToSpell(SpellInfo const* spellInfo, Unit* caster) const
         return false;
 
     bool immunedToAllEffects = true;
-    for (SpellEffectInfo const* effect : spellInfo->GetEffectsForDifficulty(GetMap()->GetDifficultyID()))
+    for (SpellEffectInfo const* effect : spellInfo->GetEffects())
     {
         if (!effect || !effect->IsEffect())
             continue;
@@ -2129,7 +2129,7 @@ bool Creature::IsImmunedToSpell(SpellInfo const* spellInfo, Unit* caster) const
 
 bool Creature::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index, Unit* caster) const
 {
-    SpellEffectInfo const* effect = spellInfo->GetEffect(GetMap()->GetDifficultyID(), index);
+    SpellEffectInfo const* effect = spellInfo->GetEffect(index);
     if (!effect)
         return true;
 
@@ -2165,7 +2165,7 @@ SpellInfo const* Creature::reachWithSpellAttack(Unit* victim)
     {
         if (!m_spells[i])
             continue;
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(m_spells[i]);
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(m_spells[i], GetMap()->GetDifficultyID());
         if (!spellInfo)
         {
             TC_LOG_ERROR("entities.unit", "WORLD: unknown spell id %i", m_spells[i]);
@@ -2173,7 +2173,7 @@ SpellInfo const* Creature::reachWithSpellAttack(Unit* victim)
         }
 
         bool bcontinue = true;
-        for (SpellEffectInfo const* effect : spellInfo->GetEffectsForDifficulty(GetMap()->GetDifficultyID()))
+        for (SpellEffectInfo const* effect : spellInfo->GetEffects())
         {
             if (effect && ((effect->Effect == SPELL_EFFECT_SCHOOL_DAMAGE)       ||
                 (effect->Effect == SPELL_EFFECT_INSTAKILL)            ||
@@ -2217,7 +2217,7 @@ SpellInfo const* Creature::reachWithSpellCure(Unit* victim)
     {
         if (!m_spells[i])
             continue;
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(m_spells[i]);
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(m_spells[i], GetMap()->GetDifficultyID());
         if (!spellInfo)
         {
             TC_LOG_ERROR("entities.unit", "WORLD: unknown spell id %i", m_spells[i]);
@@ -2225,7 +2225,7 @@ SpellInfo const* Creature::reachWithSpellCure(Unit* victim)
         }
 
         bool bcontinue = true;
-        for (SpellEffectInfo const* effect : spellInfo->GetEffectsForDifficulty(GetMap()->GetDifficultyID()))
+        for (SpellEffectInfo const* effect : spellInfo->GetEffects())
         {
             if (effect && (effect->Effect == SPELL_EFFECT_HEAL))
             {
@@ -2567,7 +2567,7 @@ bool Creature::LoadCreaturesAddon()
     {
         for (std::vector<uint32>::const_iterator itr = cainfo->auras.begin(); itr != cainfo->auras.end(); ++itr)
         {
-            SpellInfo const* AdditionalSpellInfo = sSpellMgr->GetSpellInfo(*itr);
+            SpellInfo const* AdditionalSpellInfo = sSpellMgr->GetSpellInfo(*itr, GetMap()->GetDifficultyID());
             if (!AdditionalSpellInfo)
             {
                 TC_LOG_ERROR("sql.sql", "Creature (%s) has wrong spell %u defined in `auras` field.", GetGUID().ToString().c_str(), *itr);
@@ -2931,7 +2931,7 @@ float Creature::GetPetChaseDistance() const
         if (!spellID)
             continue;
 
-        if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellID))
+        if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellID, GetMap()->GetDifficultyID()))
         {
             if (spellInfo->GetRecoveryTime() == 0 &&  // No cooldown
                     spellInfo->RangeEntry->ID != 1 /*Self*/ && spellInfo->RangeEntry->ID != 2 /*Combat Range*/ &&
@@ -3100,7 +3100,7 @@ void Creature::FocusTarget(Spell const* focusSpell, WorldObject const* target)
     SpellInfo const* spellInfo = focusSpell->GetSpellInfo();
 
     // don't use spell focus for vehicle spells
-    if (spellInfo->HasAura(DIFFICULTY_NONE, SPELL_AURA_CONTROL_VEHICLE))
+    if (spellInfo->HasAura(SPELL_AURA_CONTROL_VEHICLE))
         return;
 
     if ((!target || target == this) && !focusSpell->GetCastTime()) // instant cast, untargeted (or self-targeted) spell doesn't need any facing updates

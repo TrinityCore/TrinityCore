@@ -552,11 +552,11 @@ bool UnitFitToActionRequirement(Unit* unit, Unit* caster, AreaTriggerAction cons
     {
         case AREATRIGGER_ACTION_USER_FRIEND:
         {
-            return caster->_IsValidAssistTarget(unit, sSpellMgr->GetSpellInfo(action.Param));
+            return caster->_IsValidAssistTarget(unit, sSpellMgr->GetSpellInfo(action.Param, caster->GetMap()->GetDifficultyID()));
         }
         case AREATRIGGER_ACTION_USER_ENEMY:
         {
-            return caster->_IsValidAttackTarget(unit, sSpellMgr->GetSpellInfo(action.Param));
+            return caster->_IsValidAttackTarget(unit, sSpellMgr->GetSpellInfo(action.Param, caster->GetMap()->GetDifficultyID()));
         }
         case AREATRIGGER_ACTION_USER_RAID:
         {
