@@ -994,7 +994,7 @@ public:
             if (player->GetSkillValue(SKILL_RIDING) < 75)
                 return SPELL_FAILED_APPRENTICE_RIDING_REQUIREMENT;
 
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(player->IsInWater() ? SPELL_DRUID_FORM_AQUATIC : SPELL_DRUID_FORM_STAG);
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(player->IsInWater() ? SPELL_DRUID_FORM_AQUATIC : SPELL_DRUID_FORM_STAG, GetCastDifficulty());
             return spellInfo->CheckLocation(player->GetMapId(), player->GetZoneId(), player->GetAreaId(), player);
         }
 
@@ -1053,7 +1053,7 @@ public:
         SpellCastResult CheckLocationForForm(uint32 spell)
         {
             Player* player = GetTarget()->ToPlayer();
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell);
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell, GetCastDifficulty());
             return spellInfo->CheckLocation(player->GetMapId(), player->GetZoneId(), player->GetAreaId(), player);
         }
     };
@@ -1135,7 +1135,7 @@ public:
         SpellCastResult CheckLocationForForm(uint32 spell_id)
         {
             Player* player = GetTarget()->ToPlayer();
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell_id);
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell_id, GetCastDifficulty());
 
             if (!player->GetMap()->IsOutdoors(player->GetPhaseShift(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ()))
                 return SPELL_FAILED_ONLY_OUTDOORS;
@@ -1244,9 +1244,9 @@ class spell_dru_t10_balance_4p_bonus : public SpellScriptLoader
                 Unit* caster = eventInfo.GetActor();
                 Unit* target = eventInfo.GetProcTarget();
 
-                SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_DRUID_LANGUISH);
+                SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_DRUID_LANGUISH, GetCastDifficulty());
                 int32 amount = CalculatePct(static_cast<int32>(damageInfo->GetDamage()), aurEff->GetAmount());
-                amount /= spellInfo->GetMaxTicks(DIFFICULTY_NONE);
+                amount /= spellInfo->GetMaxTicks();
                 // Add remaining ticks to damage done
                 amount += target->GetRemainingPeriodicAmount(caster->GetGUID(), SPELL_DRUID_LANGUISH, SPELL_AURA_PERIODIC_DAMAGE);
 

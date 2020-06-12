@@ -24,6 +24,8 @@
 #include "TaskScheduler.h"
 
 class InstanceScript;
+enum SelectTargetType : uint8;
+enum SelectEffect : uint8;
 
 class TC_GAME_API SummonList
 {

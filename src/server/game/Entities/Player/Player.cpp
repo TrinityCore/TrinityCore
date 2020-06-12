@@ -1778,7 +1778,7 @@ void Player::SetObjectScale(float scale)
 
 bool Player::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index, Unit* caster) const
 {
-    SpellEffectInfo const* effect = spellInfo->GetEffect(GetMap()->GetDifficultyID(), index);
+    SpellEffectInfo const* effect = spellInfo->GetEffect(index);
     if (!effect || !effect->IsEffect())
         return false;
 
@@ -2800,7 +2800,7 @@ void DeleteSpellFromAllPlayers(uint32 spellId)
 
 bool Player::AddTalent(TalentEntry const* talent, uint8 spec, bool learning)
 {
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(talent->SpellID);
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(talent->SpellID, DIFFICULTY_NONE);
     if (!spellInfo)
     {
         TC_LOG_ERROR("spells", "Player::AddTalent: Spell (ID: %u) does not exist.", talent->SpellID);
@@ -2827,14 +2827,14 @@ bool Player::AddTalent(TalentEntry const* talent, uint8 spec, bool learning)
 
 void Player::RemoveTalent(TalentEntry const* talent)
 {
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(talent->SpellID);
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(talent->SpellID, DIFFICULTY_NONE);
     if (!spellInfo)
         return;
 
     RemoveSpell(talent->SpellID, true);
 
     // search for spells that the talent teaches and unlearn them
-    for (SpellEffectInfo const* effect : spellInfo->GetEffectsForDifficulty(DIFFICULTY_NONE))
+    for (SpellEffectInfo const* effect : spellInfo->GetEffects())
         if (effect && effect->TriggerSpell > 0 && effect->Effect == SPELL_EFFECT_LEARN_SPELL)
             RemoveSpell(effect->TriggerSpell, true);
 
@@ -2849,7 +2849,7 @@ void Player::RemoveTalent(TalentEntry const* talent)
 
 bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading /*= false*/, int32 fromSkill /*= 0*/)
 {
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE);
     if (!spellInfo)
     {
         // do character spell book cleanup (all characters)
@@ -3015,7 +3015,7 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
                 if (itr2->second->state == PLAYERSPELL_REMOVED)
                     continue;
 
-                SpellInfo const* i_spellInfo = sSpellMgr->GetSpellInfo(itr2->first);
+                SpellInfo const* i_spellInfo = sSpellMgr->GetSpellInfo(itr2->first, DIFFICULTY_NONE);
                 if (!i_spellInfo)
                     continue;
 
@@ -3212,7 +3212,7 @@ bool Player::HandlePassiveSpellLearn(SpellInfo const* spellInfo)
     // passive spells which apply aura and have an item requirement are to be added manually, instead of casted
     if (spellInfo->EquippedItemClass >= 0)
     {
-        for (SpellEffectInfo const* effectInfo : spellInfo->GetEffectsForDifficulty(DIFFICULTY_NONE))
+        for (SpellEffectInfo const* effectInfo : spellInfo->GetEffects())
             if (effectInfo && effectInfo->IsAura())
             {
                 if (!HasAura(spellInfo->Id) && HasItemFitToSpellRequirements(spellInfo))
@@ -3283,7 +3283,7 @@ void Player::RemoveSpell(uint32 spell_id, bool disabled /*= false*/, bool learn_
     // unlearn non talent higher ranks (recursive)
     if (uint32 nextSpell = sSpellMgr->GetNextSpellInChain(spell_id))
     {
-        SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(nextSpell);
+        SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(nextSpell, DIFFICULTY_NONE);
         if (HasSpell(nextSpell) && !spellInfo->HasAttribute(SPELL_ATTR0_CU_IS_TALENT))
             RemoveSpell(nextSpell, disabled, false);
     }
@@ -3325,7 +3325,7 @@ void Player::RemoveSpell(uint32 spell_id, bool disabled /*= false*/, bool learn_
             RemovePetAura(petSpell);
 
     // update free primary prof.points (if not overflow setting, can be in case GM use before .learn prof. learning)
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell_id);
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell_id, DIFFICULTY_NONE);
     if (spellInfo && spellInfo->IsPrimaryProfessionFirstRank())
     {
         uint32 freeProfs = GetFreePrimaryProfessionPoints()+1;
@@ -3449,7 +3449,7 @@ void Player::RemoveArenaSpellCooldowns(bool removeActivePetCooldowns)
     // remove cooldowns on spells that have < 10 min CD
     GetSpellHistory()->ResetCooldowns([](SpellHistory::CooldownStorageType::iterator itr)
     {
-        SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first);
+        SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first, DIFFICULTY_NONE);
         return spellInfo->RecoveryTime < 10 * MINUTE * IN_MILLISECONDS && spellInfo->CategoryRecoveryTime < 10 * MINUTE * IN_MILLISECONDS;
     }, true);
 
@@ -5442,7 +5442,7 @@ bool Player::UpdateCraftSkill(uint32 spellid)
             uint32 SkillValue = GetPureSkillValue(_spell_idx->second->SkillupSkillLineID);
 
             // Alchemy Discoveries here
-            SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(spellid);
+            SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(spellid, DIFFICULTY_NONE);
             if (spellEntry && spellEntry->Mechanic == MECHANIC_DISCOVERY)
             {
                 if (uint32 discoveredSpell = GetSkillDiscoverySpell(_spell_idx->second->SkillupSkillLineID, spellid, this))
@@ -6026,7 +6026,7 @@ bool Player::IsActionButtonDataValid(uint8 button, uint32 action, uint8 type) co
     switch (type)
     {
         case ACTION_BUTTON_SPELL:
-            if (!sSpellMgr->GetSpellInfo(action))
+            if (!sSpellMgr->GetSpellInfo(action, DIFFICULTY_NONE))
             {
                 TC_LOG_DEBUG("entities.player", "Player::IsActionButtonDataValid: Spell action %u not added into button %u for player %s (%s): spell does not exist. This can be due to a character imported from a different expansion",
                     action, button, GetName().c_str(), GetGUID().ToString().c_str());
@@ -7918,7 +7918,7 @@ void Player::ApplyItemDependentAuras(Item* item, bool apply)
             if (itr->second->state == PLAYERSPELL_REMOVED || itr->second->disabled)
                 continue;
 
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first);
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first, DIFFICULTY_NONE);
             if (!spellInfo || !spellInfo->IsPassive() || spellInfo->EquippedItemClass < 0)
                 continue;
 
@@ -7955,11 +7955,11 @@ void Player::ApplyItemEquipSpell(Item* item, bool apply, bool formChange /*= fal
             continue;
 
         // check if it is valid spell
-        SpellInfo const* spellproto = sSpellMgr->GetSpellInfo(effectData->SpellID);
+        SpellInfo const* spellproto = sSpellMgr->GetSpellInfo(effectData->SpellID, DIFFICULTY_NONE);
         if (!spellproto)
             continue;
 
-        if (spellproto->HasAura(GetMap()->GetDifficultyID(), SPELL_AURA_MOD_XP_PCT)
+        if (spellproto->HasAura(SPELL_AURA_MOD_XP_PCT)
             && !GetSession()->GetCollectionMgr()->CanApplyHeirloomXpBonus(item->GetEntry(), getLevel())
             && sDB2Manager.GetHeirloomByItemId(item->GetEntry()))
             continue;
@@ -8033,7 +8033,7 @@ void Player::UpdateItemSetAuras(bool formChange /*= false*/)
 
         for (ItemSetSpellEntry const* itemSetSpell : eff->SetBonuses)
         {
-            SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itemSetSpell->SpellID);
+            SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itemSetSpell->SpellID, DIFFICULTY_NONE);
 
             if (itemSetSpell->ChrSpecID && itemSetSpell->ChrSpecID != GetPrimarySpecialization())
                 ApplyEquipSpell(spellInfo, nullptr, false, false);  // item set aura is not for current spec
@@ -8074,7 +8074,7 @@ void Player::ApplyArtifactPowers(Item* item, bool apply)
 
 void Player::ApplyArtifactPowerRank(Item* artifact, ArtifactPowerRankEntry const* artifactPowerRank, bool apply)
 {
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(artifactPowerRank->SpellID);
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(artifactPowerRank->SpellID, DIFFICULTY_NONE);
     if (!spellInfo)
         return;
 
@@ -8189,7 +8189,7 @@ void Player::ApplyAzeriteEssence(AzeriteItem* item, uint32 azeriteEssenceId, uin
 
 void Player::ApplyAzeriteEssencePower(AzeriteItem* item, AzeriteEssencePowerEntry const* azeriteEssencePower, bool major, bool apply)
 {
-    if (SpellInfo const* powerSpell = sSpellMgr->GetSpellInfo(azeriteEssencePower->MinorPowerDescription))
+    if (SpellInfo const* powerSpell = sSpellMgr->GetSpellInfo(azeriteEssencePower->MinorPowerDescription, DIFFICULTY_NONE))
     {
         if (apply)
             CastSpell(this, powerSpell, true, item);
@@ -8199,7 +8199,7 @@ void Player::ApplyAzeriteEssencePower(AzeriteItem* item, AzeriteEssencePowerEntr
 
     if (major)
     {
-        if (SpellInfo const* powerSpell = sSpellMgr->GetSpellInfo(azeriteEssencePower->MajorPowerDescription))
+        if (SpellInfo const* powerSpell = sSpellMgr->GetSpellInfo(azeriteEssencePower->MajorPowerDescription, DIFFICULTY_NONE))
         {
             if (powerSpell->IsPassive())
             {
@@ -8293,7 +8293,7 @@ void Player::CastItemCombatSpell(DamageInfo const& damageInfo, Item* item, ItemT
             if (effectData->TriggerType != ITEM_SPELLTRIGGER_CHANCE_ON_HIT)
                 continue;
 
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(effectData->SpellID);
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(effectData->SpellID, DIFFICULTY_NONE);
             if (!spellInfo)
             {
                 TC_LOG_ERROR("entities.player.items", "Player::CastItemCombatSpell: Player '%s' (%s) cast unknown item spell (ID: %i)",
@@ -8302,7 +8302,7 @@ void Player::CastItemCombatSpell(DamageInfo const& damageInfo, Item* item, ItemT
             }
 
             // not allow proc extra attack spell at extra attack
-            if (m_extraAttacks && spellInfo->HasEffect(DIFFICULTY_NONE, SPELL_EFFECT_ADD_EXTRA_ATTACKS))
+            if (m_extraAttacks && spellInfo->HasEffect(SPELL_EFFECT_ADD_EXTRA_ATTACKS))
                 return;
 
             float chance = (float)spellInfo->ProcChance;
@@ -8352,7 +8352,7 @@ void Player::CastItemCombatSpell(DamageInfo const& damageInfo, Item* item, ItemT
             if (entry && (entry->AttributesMask & ENCHANT_PROC_ATTR_WHITE_HIT) && damageInfo.GetSpellInfo())
                 continue;
 
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(pEnchant->EffectArg[s]);
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(pEnchant->EffectArg[s], DIFFICULTY_NONE);
             if (!spellInfo)
             {
                 TC_LOG_ERROR("entities.player.items", "Player::CastItemCombatSpell: Player '%s' (%s) cast unknown spell (EnchantID: %u, SpellID: %i), ignoring",
@@ -8400,8 +8400,8 @@ void Player::CastItemCombatSpell(DamageInfo const& damageInfo, Item* item, ItemT
 
                     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
                     {
-                        if (spellInfo->GetEffect(DIFFICULTY_NONE, i)->IsEffect())
-                            values.AddSpellMod(static_cast<SpellValueMod>(SPELLVALUE_BASE_POINT0 + i), CalculatePct(spellInfo->GetEffect(DIFFICULTY_NONE, i)->CalcValue(this), effectPct));
+                        if (spellInfo->GetEffect(i)->IsEffect())
+                            values.AddSpellMod(static_cast<SpellValueMod>(SPELLVALUE_BASE_POINT0 + i), CalculatePct(spellInfo->GetEffect(i)->CalcValue(this), effectPct));
                     }
                 }
 
@@ -8421,7 +8421,7 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, Objec
             uint32 learn_spell_id = item->GetEffect(0)->SpellID;
             uint32 learning_spell_id = item->GetEffect(1)->SpellID;
 
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(learn_spell_id);
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(learn_spell_id, DIFFICULTY_NONE);
             if (!spellInfo)
             {
                 TC_LOG_ERROR("entities.player", "Player::CastItemUseSpell: Item (Entry: %u) has wrong spell id %u, ignoring", item->GetEntry(), learn_spell_id);
@@ -8451,7 +8451,7 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, Objec
         if (effectData->TriggerType != ITEM_SPELLTRIGGER_ON_USE)
             continue;
 
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(effectData->SpellID);
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(effectData->SpellID, DIFFICULTY_NONE);
         if (!spellInfo)
         {
             TC_LOG_ERROR("entities.player", "Player::CastItemUseSpell: Item (Entry: %u) has wrong spell id %u, ignoring", item->GetEntry(), effectData->SpellID);
@@ -8485,7 +8485,7 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, Objec
             if (pEnchant->Effect[s] != ITEM_ENCHANTMENT_TYPE_USE_SPELL)
                 continue;
 
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(pEnchant->EffectArg[s]);
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(pEnchant->EffectArg[s], DIFFICULTY_NONE);
             if (!spellInfo)
             {
                 TC_LOG_ERROR("entities.player", "Player::CastItemUseSpell: Enchant %i, cast unknown spell %i", enchant_id, pEnchant->EffectArg[s]);
@@ -12383,7 +12383,7 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
             if (pProto && IsInCombat() && (pProto->GetClass() == ITEM_CLASS_WEAPON || pProto->GetInventoryType() == INVTYPE_RELIC) && m_weaponChangeTimer == 0)
             {
                 uint32 cooldownSpell = getClass() == CLASS_ROGUE ? 6123 : 6119;
-                SpellInfo const* spellProto = sSpellMgr->GetSpellInfo(cooldownSpell);
+                SpellInfo const* spellProto = sSpellMgr->GetSpellInfo(cooldownSpell, DIFFICULTY_NONE);
 
                 if (!spellProto)
                     TC_LOG_ERROR("entities.player", "Player::EquipItem: Weapon switch cooldown spell %u for player '%s' (%s) couldn't be found in Spell.dbc",
@@ -15573,13 +15573,13 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
 
     if (quest->GetSrcSpell() > 0)
     {
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(quest->GetSrcSpell());
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(quest->GetSrcSpell(), GetMap()->GetDifficultyID());
         Unit* caster = this;
         if (questGiver && questGiver->isType(TYPEMASK_UNIT) && !quest->HasFlag(QUEST_FLAGS_PLAYER_CAST_ON_ACCEPT) && !spellInfo->HasTargetType(TARGET_UNIT_CASTER) && !spellInfo->HasTargetType(TARGET_DEST_CASTER_SUMMON))
             if (Unit* unit = questGiver->ToUnit())
-                unit->CastSpell(this, quest->GetSrcSpell(), true);
+                caster = unit;
 
-        caster->CastSpell(this, quest->GetSrcSpell(), true);
+        caster->CastSpell(this, spellInfo, true);
     }
 
     SetQuestSlot(log_slot, quest_id, qtime);
@@ -15892,13 +15892,13 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     // cast spells after mark quest complete (some spells have quest completed state requirements in spell_area data)
     if (quest->GetRewSpell() > 0)
     {
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(quest->GetRewSpell());
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(quest->GetRewSpell(), GetMap()->GetDifficultyID());
         Unit* caster = this;
         if (questGiver && questGiver->isType(TYPEMASK_UNIT) && !quest->HasFlag(QUEST_FLAGS_PLAYER_CAST_ON_COMPLETE) && !spellInfo->HasTargetType(TARGET_UNIT_CASTER))
             if (Unit* unit = questGiver->ToUnit())
                 caster = unit;
 
-        caster->CastSpell(this, quest->GetRewSpell(), true);
+        caster->CastSpell(this, spellInfo, true);
     }
     else
     {
@@ -15906,13 +15906,13 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
         {
             if (quest->RewardDisplaySpell[i] > 0)
             {
-                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(quest->RewardDisplaySpell[i]);
+                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(quest->RewardDisplaySpell[i], GetMap()->GetDifficultyID());
                 Unit* caster = this;
                 if (questGiver && questGiver->isType(TYPEMASK_UNIT) && !quest->HasFlag(QUEST_FLAGS_PLAYER_CAST_ON_COMPLETE) && !spellInfo->HasTargetType(TARGET_UNIT_CASTER))
                     if (Unit * unit = questGiver->ToUnit())
                         caster = unit;
 
-                caster->CastSpell(this, quest->RewardDisplaySpell[i], true);
+                caster->CastSpell(this, spellInfo, true);
             }
         }
     }
@@ -18823,8 +18823,8 @@ void Player::_LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult effe
     }
 
     /*
-                    0         1      2           3                4           5            6           7              8           9             10
-    SELECT casterGuid, itemGuid, spell, effectMask, recalculateMask, stackCount, maxDuration, remainTime, remainCharges, castItemId, castItemLevel FROM character_aura WHERE guid = ?
+                    0         1      2           3                4           5           6            7           8              9          10             11
+    SELECT casterGuid, itemGuid, spell, effectMask, recalculateMask, difficulty, stackCount, maxDuration, remainTime, remainCharges, castItemId, castItemLevel FROM character_aura WHERE guid = ?
     */
     if (auraResult)
     {
@@ -18835,18 +18835,26 @@ void Player::_LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult effe
             itemGuid.SetRawValue(fields[1].GetBinary());
             AuraKey key{ casterGuid, itemGuid, fields[2].GetUInt32(), fields[3].GetUInt32() };
             uint32 recalculateMask = fields[4].GetUInt32();
-            uint8 stackCount = fields[5].GetUInt8();
-            int32 maxDuration = fields[6].GetInt32();
-            int32 remainTime = fields[7].GetInt32();
-            uint8 remainCharges = fields[8].GetUInt8();
-            uint32 castItemId = fields[9].GetUInt32();
-            int32 castItemLevel = fields[10].GetInt32();
+            Difficulty difficulty = Difficulty(fields[5].GetUInt8());
+            uint8 stackCount = fields[6].GetUInt8();
+            int32 maxDuration = fields[7].GetInt32();
+            int32 remainTime = fields[8].GetInt32();
+            uint8 remainCharges = fields[9].GetUInt8();
+            uint32 castItemId = fields[10].GetUInt32();
+            int32 castItemLevel = fields[11].GetInt32();
 
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(key.SpellId);
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(key.SpellId, difficulty);
             if (!spellInfo)
             {
                 TC_LOG_ERROR("entities.player", "Player::_LoadAuras: Player '%s' (%s) has an invalid aura (SpellID: %u), ignoring.",
                     GetName().c_str(), GetGUID().ToString().c_str(), key.SpellId);
+                continue;
+            }
+
+            if (difficulty != DIFFICULTY_NONE && !sDifficultyStore.LookupEntry(difficulty))
+            {
+                TC_LOG_ERROR("entities.player", "Player::_LoadAuras: Player '%s' (%s) has an invalid aura difficulty %u (SpellID: %u), ignoring.",
+                    GetName().c_str(), GetGUID().ToString().c_str(), uint32(difficulty), key.SpellId);
                 continue;
             }
 
@@ -18872,7 +18880,7 @@ void Player::_LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult effe
 
             AuraLoadEffectInfo& info = effectInfo[key];
             ObjectGuid castId = ObjectGuid::Create<HighGuid::Cast>(SPELL_CAST_SOURCE_NORMAL, GetMapId(), spellInfo->Id, GetMap()->GenerateLowGuid<HighGuid::Cast>());
-            if (Aura* aura = Aura::TryCreate(spellInfo, castId, key.EffectMask, this, nullptr, info.BaseAmounts.data(), nullptr, casterGuid, itemGuid, castItemId, castItemLevel))
+            if (Aura* aura = Aura::TryCreate(spellInfo, castId, key.EffectMask, this, nullptr, difficulty, info.BaseAmounts.data(), nullptr, casterGuid, itemGuid, castItemId, castItemLevel))
             {
                 if (!aura->CanBeSaved())
                 {
@@ -20813,6 +20821,7 @@ void Player::_SaveAuras(CharacterDatabaseTransaction& trans)
         stmt->setUInt32(index++, key.SpellId);
         stmt->setUInt32(index++, key.EffectMask);
         stmt->setUInt32(index++, recalculateMask);
+        stmt->setUInt8(index++, aura->GetCastDifficulty());
         stmt->setUInt8(index++, aura->GetStackAmount());
         stmt->setInt32(index++, aura->GetMaxDuration());
         stmt->setInt32(index++, aura->GetDuration());
@@ -21771,7 +21780,7 @@ void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
     {
         //returning of reagents only for players, so best done here
         uint32 spellId = pet ? *pet->m_unitData->CreatedBySpell : m_oldpetspell;
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId, GetMap()->GetDifficultyID());
 
         if (spellInfo)
         {
@@ -22094,7 +22103,7 @@ void Player::VehicleSpellInitialize()
     for (uint32 i = 0; i < MAX_CREATURE_SPELLS; ++i)
     {
         uint32 spellId = vehicle->m_spells[i];
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId, GetMap()->GetDifficultyID());
         if (!spellInfo)
             continue;
 
@@ -22106,7 +22115,7 @@ void Player::VehicleSpellInitialize()
         }
 
         if (spellInfo->IsPassive())
-            vehicle->CastSpell(vehicle, spellId, true);
+            vehicle->CastSpell(vehicle, spellInfo, true);
 
         petSpells.ActionButtons[i] = MAKE_UNIT_ACTION_BUTTON(spellId, i + 8);
     }
@@ -22182,7 +22191,7 @@ bool Player::IsAffectedBySpellmod(SpellInfo const* spellInfo, SpellModifier* mod
 template <class T>
 void Player::ApplySpellMod(uint32 spellId, SpellModOp op, T& basevalue, Spell* spell /*= nullptr*/) const
 {
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId, GetMap()->GetDifficultyID());
     if (!spellInfo)
         return;
 
@@ -23329,7 +23338,7 @@ void Player::UpdatePotionCooldown(Spell* spell)
         if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(m_lastPotionId))
             for (uint8 idx = 0; idx < proto->Effects.size(); ++idx)
                 if (proto->Effects[idx]->TriggerType == ITEM_SPELLTRIGGER_ON_USE)
-                    if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(proto->Effects[idx]->SpellID))
+                    if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(proto->Effects[idx]->SpellID, DIFFICULTY_NONE))
                         GetSpellHistory()->SendCooldownEvent(spellInfo, m_lastPotionId);
     }
     // from spell cases (m_lastPotionId set in Spell::SendSpellCooldown)
@@ -24282,10 +24291,11 @@ void Player::ApplyEquipCooldown(Item* pItem)
     std::chrono::steady_clock::time_point now = GameTime::GetGameTimeSteadyPoint();
     for (ItemEffectEntry const* effectData : pItem->GetEffects())
     {
+        SpellInfo const* effectSpellInfo = sSpellMgr->AssertSpellInfo(effectData->SpellID, DIFFICULTY_NONE);
         // apply proc cooldown to equip auras if we have any
         if (effectData->TriggerType == ITEM_SPELLTRIGGER_ON_EQUIP)
         {
-            SpellProcEntry const* procEntry = sSpellMgr->GetSpellProcEntry(effectData->SpellID);
+            SpellProcEntry const* procEntry = sSpellMgr->GetSpellProcEntry(effectSpellInfo);
             if (!procEntry)
                 continue;
 
@@ -24299,7 +24309,7 @@ void Player::ApplyEquipCooldown(Item* pItem)
             continue;
 
         // Don't replace longer cooldowns by equip cooldown if we have any.
-        if (GetSpellHistory()->GetRemainingCooldown(sSpellMgr->AssertSpellInfo(effectData->SpellID)) > 30 * IN_MILLISECONDS)
+        if (GetSpellHistory()->GetRemainingCooldown(effectSpellInfo) > 30 * IN_MILLISECONDS)
             continue;
 
         GetSpellHistory()->AddCooldown(effectData->SpellID, pItem->GetEntry(), std::chrono::seconds(30));
@@ -24333,7 +24343,7 @@ void Player::ResetSpells(bool myClassOnly)
 
         for (PlayerSpellMap::const_iterator iter = smap.begin(); iter != smap.end(); ++iter)
         {
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(iter->first);
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(iter->first, DIFFICULTY_NONE);
             if (!spellInfo)
                 continue;
 
@@ -24458,13 +24468,13 @@ void Player::LearnQuestRewardedSpells(Quest const* quest)
         return;
     }
 
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell_id);
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell_id, DIFFICULTY_NONE);
     if (!spellInfo)
         return;
 
     // check learned spells state
     bool found = false;
-    for (SpellEffectInfo const* effect : spellInfo->GetEffectsForDifficulty(DIFFICULTY_NONE))
+    for (SpellEffectInfo const* effect : spellInfo->GetEffects())
     {
         if (effect && effect->Effect == SPELL_EFFECT_LEARN_SPELL && !HasSpell(effect->TriggerSpell))
         {
@@ -24477,7 +24487,7 @@ void Player::LearnQuestRewardedSpells(Quest const* quest)
     if (!found)
         return;
 
-    SpellEffectInfo const* effect = spellInfo->GetEffect(DIFFICULTY_NONE, EFFECT_0);
+    SpellEffectInfo const* effect = spellInfo->GetEffect(EFFECT_0);
     if (!effect)
         return;
 
@@ -24525,7 +24535,7 @@ void Player::LearnSkillRewardedSpells(uint32 skillId, uint32 skillValue)
 
     for (SkillLineAbilityEntry const* ability : *skillLineAbilities)
     {
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(ability->Spell);
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(ability->Spell, DIFFICULTY_NONE);
         if (!spellInfo)
             continue;
 
@@ -26669,7 +26679,7 @@ TalentLearnResult Player::LearnPvpTalent(uint32 talentID, uint8 slot, int32* spe
 bool Player::AddPvpTalent(PvpTalentEntry const* talent, uint8 activeTalentGroup, uint8 slot)
 {
     ASSERT(talent);
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(talent->SpellID);
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(talent->SpellID, DIFFICULTY_NONE);
     if (!spellInfo)
     {
         TC_LOG_ERROR("spells", "Player::AddTalent: Spell (ID: %u) does not exist.", talent->SpellID);
@@ -26696,7 +26706,7 @@ bool Player::AddPvpTalent(PvpTalentEntry const* talent, uint8 activeTalentGroup,
 
 void Player::RemovePvpTalent(PvpTalentEntry const* talent)
 {
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(talent->SpellID);
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(talent->SpellID, DIFFICULTY_NONE);
     if (!spellInfo)
         return;
 
@@ -26906,7 +26916,7 @@ void Player::SendTalentsInfoData()
                 continue;
             }
 
-            SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(talentInfo->SpellID);
+            SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(talentInfo->SpellID, DIFFICULTY_NONE);
             if (!spellEntry)
             {
                 TC_LOG_ERROR("entities.player", "Player::SendTalentsInfoData: Player '%s' (%s) has unknown talent spell: %u",
@@ -26930,7 +26940,7 @@ void Player::SendTalentsInfoData()
                 continue;
             }
 
-            SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(talentInfo->SpellID);
+            SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(talentInfo->SpellID, DIFFICULTY_NONE);
             if (!spellEntry)
             {
                 TC_LOG_ERROR("entities.player", "Player::SendTalentsInfoData: Player '%s' (%s) has unknown pvp talent spell: %u",
@@ -27334,14 +27344,14 @@ void Player::ActivateTalentGroup(ChrSpecializationEntry const* spec)
         if (talentInfo->SpellID == 0)
             continue;
 
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(talentInfo->SpellID);
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(talentInfo->SpellID, DIFFICULTY_NONE);
         if (!spellInfo)
             continue;
 
         RemoveSpell(talentInfo->SpellID, true);
 
         // search for spells that the talent teaches and unlearn them
-        for (SpellEffectInfo const* effect : spellInfo->GetEffectsForDifficulty(DIFFICULTY_NONE))
+        for (SpellEffectInfo const* effect : spellInfo->GetEffects())
             if (effect && effect->TriggerSpell > 0 && effect->Effect == SPELL_EFFECT_LEARN_SPELL)
                 RemoveSpell(effect->TriggerSpell, true);
 
@@ -27355,14 +27365,14 @@ void Player::ActivateTalentGroup(ChrSpecializationEntry const* spec)
         if (!talentInfo)
             continue;
 
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(talentInfo->SpellID);
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(talentInfo->SpellID, DIFFICULTY_NONE);
         if (!spellInfo)
             continue;
 
         RemoveSpell(talentInfo->SpellID, true);
 
         // search for spells that the talent teaches and unlearn them
-        for (SpellEffectInfo const* effect : spellInfo->GetEffectsForDifficulty(DIFFICULTY_NONE))
+        for (SpellEffectInfo const* effect : spellInfo->GetEffects())
             if (effect && effect->TriggerSpell > 0 && effect->Effect == SPELL_EFFECT_LEARN_SPELL)
                 RemoveSpell(effect->TriggerSpell, true);
 
@@ -28407,7 +28417,7 @@ SpellInfo const* Player::GetCastSpellInfo(SpellInfo const* spellInfo) const
     auto overrides = m_overrideSpells.find(spellInfo->Id);
     if (overrides != m_overrideSpells.end())
         for (uint32 spellId : overrides->second)
-            if (SpellInfo const* newInfo = sSpellMgr->GetSpellInfo(spellId))
+            if (SpellInfo const* newInfo = sSpellMgr->GetSpellInfo(spellId, GetMap()->GetDifficultyID()))
                 return Unit::GetCastSpellInfo(newInfo);
 
     return Unit::GetCastSpellInfo(spellInfo);
@@ -28436,7 +28446,7 @@ void Player::LearnSpecializationSpells()
         for (size_t j = 0; j < specSpells->size(); ++j)
         {
             SpecializationSpellsEntry const* specSpell = (*specSpells)[j];
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(specSpell->SpellID);
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(specSpell->SpellID, DIFFICULTY_NONE);
             if (!spellInfo || spellInfo->SpellLevel > getLevel())
                 continue;
 
