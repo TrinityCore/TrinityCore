@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "Map.h"
 #include "PassiveAI.h"
 #include "ScriptedCreature.h"
 #include "SpellMgr.h"
@@ -29,7 +30,7 @@ public:
     {
         trigger_periodicAI(Creature* creature) : NullCreatureAI(creature)
         {
-            spell = me->m_spells[0] ? sSpellMgr->GetSpellInfo(me->m_spells[0]) : NULL;
+            spell = me->m_spells[0] ? sSpellMgr->GetSpellInfo(me->m_spells[0], me->GetMap()->GetDifficultyID()) : NULL;
             interval = me->GetBaseAttackTime(BASE_ATTACK);
             timer = interval;
         }
