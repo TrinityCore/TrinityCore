@@ -137,14 +137,14 @@ bool CriteriaData::IsValid(Criteria const* criteria)
         case CRITERIA_DATA_TYPE_S_AURA:
         case CRITERIA_DATA_TYPE_T_AURA:
         {
-            SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(Aura.SpellId);
+            SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(Aura.SpellId, DIFFICULTY_NONE);
             if (!spellEntry)
             {
                 TC_LOG_ERROR("sql.sql", "Table `criteria_data` (Entry: %u Type: %u) for data type %s (%u) contains a wrong spell id in value1 (%u), ignored.",
                     criteria->ID, criteria->Entry->Type, (DataType == CRITERIA_DATA_TYPE_S_AURA ? "CRITERIA_DATA_TYPE_S_AURA" : "CRITERIA_DATA_TYPE_T_AURA"), DataType, Aura.SpellId);
                 return false;
             }
-            SpellEffectInfo const* effect = spellEntry->GetEffect(DIFFICULTY_NONE, Aura.EffectIndex);
+            SpellEffectInfo const* effect = spellEntry->GetEffect(Aura.EffectIndex);
             if (!effect)
             {
                 TC_LOG_ERROR("sql.sql", "Table `criteria_data` (Entry: %u Type: %u) for data type %s (%u) contains a wrong spell effect index in value2 (%u), ignored.",

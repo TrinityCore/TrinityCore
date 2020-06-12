@@ -2257,7 +2257,7 @@ public:
                     break;
             }
 
-            if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId))
+            if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE))
                 if (SpellEffectInfo const* effect0 = spellInfo->GetEffect(EFFECT_0))
                     if (effect0->Effect == SPELL_EFFECT_SUMMON_OBJECT_WILD)
                         return effect0->MiscValue;
