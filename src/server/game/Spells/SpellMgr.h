@@ -21,12 +21,14 @@
 // For static or at-server-startup loaded spell data
 
 #include "Define.h"
+#include "DBCEnums.h"
 #include "Duration.h"
 #include "IteratorPair.h"
 #include "RaceMask.h"
 #include "SharedDefines.h"
 #include "Util.h"
 
+#include <functional>
 #include <map>
 #include <set>
 #include <vector>
@@ -45,16 +47,19 @@ struct SpellCastingRequirementsEntry;
 struct SpellCategoriesEntry;
 struct SpellClassOptionsEntry;
 struct SpellCooldownsEntry;
+struct SpellEffectEntry;
 struct SpellEquippedItemsEntry;
 struct SpellInterruptsEntry;
 struct SpellLevelsEntry;
 struct SpellMiscEntry;
 struct SpellNameEntry;
+struct SpellPowerEntry;
 struct SpellReagentsEntry;
 struct SpellScalingEntry;
 struct SpellShapeshiftEntry;
 struct SpellTargetRestrictionsEntry;
 struct SpellTotemsEntry;
+struct SpellXSpellVisualEntry;
 
 // only used in code
 enum SpellCategories
@@ -281,8 +286,6 @@ struct SpellProcEntry
     Milliseconds Cooldown;   // if nonzero - cooldown in secs for aura proc, applied to aura
     uint32 Charges;          // if nonzero - owerwrite procCharges field for given Spell.dbc entry, defines how many times proc can occur before aura remove, 0 - infinite
 };
-
-typedef std::unordered_map<uint32, SpellProcEntry> SpellProcMap;
 
 enum EnchantProcAttributes
 {
@@ -578,8 +581,6 @@ typedef std::map<int32, PetDefaultSpellsEntry> PetDefaultSpellsMap;
 typedef std::vector<uint32> SpellCustomAttribute;
 typedef std::vector<bool> EnchantCustomAttribute;
 
-typedef std::vector<SpellInfo*> SpellInfoMap;
-
 typedef std::map<int32, std::vector<int32> > SpellLinkedMap;
 
 bool IsPrimaryProfessionSkill(uint32 skill);
@@ -602,23 +603,24 @@ TC_GAME_API extern PetFamilySpellsStore                         sPetFamilySpells
 
 struct SpellInfoLoadHelper
 {
-    SpellNameEntry const* Entry = nullptr;
-
     SpellAuraOptionsEntry const* AuraOptions = nullptr;
     SpellAuraRestrictionsEntry const* AuraRestrictions = nullptr;
     SpellCastingRequirementsEntry const* CastingRequirements = nullptr;
     SpellCategoriesEntry const* Categories = nullptr;
     SpellClassOptionsEntry const* ClassOptions = nullptr;
     SpellCooldownsEntry const* Cooldowns = nullptr;
+    std::array<SpellEffectEntry const*, MAX_SPELL_EFFECTS> Effects = { };
     SpellEquippedItemsEntry const* EquippedItems = nullptr;
     SpellInterruptsEntry const* Interrupts = nullptr;
     SpellLevelsEntry const* Levels = nullptr;
     SpellMiscEntry const* Misc = nullptr;
+    std::array<SpellPowerEntry const*, MAX_POWERS_PER_SPELL> Powers;
     SpellReagentsEntry const* Reagents = nullptr;
     SpellScalingEntry const* Scaling = nullptr;
     SpellShapeshiftEntry const* Shapeshift = nullptr;
     SpellTargetRestrictionsEntry const* TargetRestrictions = nullptr;
     SpellTotemsEntry const* Totems = nullptr;
+    std::vector<SpellXSpellVisualEntry const*> Visuals; // only to group visuals when parsing sSpellXSpellVisualStore, not for loading
 };
 
 typedef std::map<std::pair<uint32 /*SpellId*/, uint8 /*RaceId*/>, uint32 /*DisplayId*/> SpellTotemModelMap;
@@ -675,7 +677,7 @@ class TC_GAME_API SpellMgr
         SpellGroupStackRule GetSpellGroupStackRule(SpellGroup groupid) const;
 
         // Spell proc table
-        SpellProcEntry const* GetSpellProcEntry(uint32 spellId) const;
+        SpellProcEntry const* GetSpellProcEntry(SpellInfo const* spellInfo) const;
         static bool CanSpellTriggerProcOnEvent(SpellProcEntry const& procEntry, ProcEventInfo& eventInfo);
 
         // Spell threat table
@@ -702,25 +704,24 @@ class TC_GAME_API SpellMgr
         SpellAreaForQuestAreaMapBounds GetSpellAreaForQuestAreaMapBounds(uint32 area_id, uint32 quest_id) const;
 
         // SpellInfo object management
-        SpellInfo const* GetSpellInfo(uint32 spellId) const { return spellId < GetSpellInfoStoreSize() ?  mSpellInfoMap[spellId] : NULL; }
+        SpellInfo const* GetSpellInfo(uint32 spellId, Difficulty difficulty) const;
+
         // Use this only with 100% valid spellIds
-        SpellInfo const* AssertSpellInfo(uint32 spellId) const
+        SpellInfo const* AssertSpellInfo(uint32 spellId, Difficulty difficulty) const
         {
-            ASSERT(spellId < GetSpellInfoStoreSize());
-            SpellInfo const* spellInfo = mSpellInfoMap[spellId];
+            SpellInfo const* spellInfo = GetSpellInfo(spellId, difficulty);
             ASSERT(spellInfo);
             return spellInfo;
         }
-        uint32 GetSpellInfoStoreSize() const { return uint32(mSpellInfoMap.size()); }
+
+        void ForEachSpellInfo(std::function<void(SpellInfo const*)> callback);
+        void ForEachSpellInfoDifficulty(uint32 spellId, std::function<void(SpellInfo const*)> callback);
 
         void LoadPetFamilySpellsStore();
 
         uint32 GetModelForTotem(uint32 spellId, uint8 race) const;
 
         BattlePetSpeciesEntry const* GetBattlePetSpecies(uint32 spellId) const;
-
-    private:
-        SpellInfo* _GetSpellInfo(uint32 spellId) { return spellId < GetSpellInfoStoreSize() ?  mSpellInfoMap[spellId] : NULL; }
 
     // Modifiers
     public:
@@ -766,7 +767,6 @@ class TC_GAME_API SpellMgr
         SpellGroupSpellMap         mSpellGroupSpell;
         SpellGroupStackMap         mSpellGroupStack;
         SameEffectStackMap         mSpellSameEffectStack;
-        SpellProcMap               mSpellProcMap;
         SpellThreatMap             mSpellThreatMap;
         SpellPetAuraMap            mSpellPetAuraMap;
         SpellLinkedMap             mSpellLinkedMap;
@@ -781,7 +781,6 @@ class TC_GAME_API SpellMgr
         SkillLineAbilityMap        mSkillLineAbilityMap;
         PetLevelupSpellMap         mPetLevelupSpellMap;
         PetDefaultSpellsMap        mPetDefaultSpellsMap;           // only spells not listed in related mPetLevelupSpellMap entry
-        SpellInfoMap               mSpellInfoMap;
         SpellTotemModelMap         mSpellTotemModel;
         std::unordered_map<uint32, BattlePetSpeciesEntry const*> mBattlePets;
 };

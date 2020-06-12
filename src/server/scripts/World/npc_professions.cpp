@@ -282,11 +282,11 @@ void ProcessCastaction(Player* player, Creature* creature, uint32 spellId, uint3
 
 bool EquippedOk(Player* player, uint32 spellId)
 {
-    SpellInfo const* spell = sSpellMgr->GetSpellInfo(spellId);
+    SpellInfo const* spell = sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE);
     if (!spell)
         return false;
 
-    for (SpellEffectInfo const* effect : spell->GetEffectsForDifficulty(DIFFICULTY_NONE))
+    for (SpellEffectInfo const* effect : spell->GetEffects())
     {
         if (!effect)
             continue;

@@ -604,13 +604,13 @@ class spell_garothi_fel_bombardment_periodic : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(DIFFICULTY_NONE, EFFECT_0)->BasePoints) });
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0)->BasePoints) });
     }
 
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
         if (Unit* caster = GetCaster())
-            caster->CastSpell(GetTarget(), uint32(GetSpellInfo()->GetEffect(DIFFICULTY_NONE, EFFECT_0)->BasePoints), true);
+            caster->CastSpell(GetTarget(), uint32(GetSpellInfo()->GetEffect(EFFECT_0)->BasePoints), true);
     }
 
     void Register() override
@@ -757,13 +757,13 @@ class spell_garothi_annihilation_selector : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(DIFFICULTY_NONE, EFFECT_0)->BasePoints) });
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0)->BasePoints) });
     }
 
     void HandleHit(SpellEffIndex effIndex)
     {
         if (Unit* caster = GetCaster())
-            caster->CastSpell(GetHitUnit(), uint32(GetSpellInfo()->GetEffect(DIFFICULTY_NONE, effIndex)->BasePoints), true);
+            caster->CastSpell(GetHitUnit(), uint32(GetSpellInfo()->GetEffect(effIndex)->BasePoints), true);
     }
 
     void Register() override

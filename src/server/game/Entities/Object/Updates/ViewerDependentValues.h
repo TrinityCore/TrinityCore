@@ -115,8 +115,8 @@ public:
             CreatureTemplate const* cinfo = unit->ToCreature()->GetCreatureTemplate();
 
             // this also applies for transform auras
-            if (SpellInfo const* transform = sSpellMgr->GetSpellInfo(unit->getTransForm()))
-                for (SpellEffectInfo const* effect : transform->GetEffectsForDifficulty(unit->GetMap()->GetDifficultyID()))
+            if (SpellInfo const* transform = sSpellMgr->GetSpellInfo(unit->getTransForm(), unit->GetMap()->GetDifficultyID()))
+                for (SpellEffectInfo const* effect : transform->GetEffects())
                     if (effect && effect->IsAura(SPELL_AURA_TRANSFORM))
                         if (CreatureTemplate const* transformInfo = sObjectMgr->GetCreatureTemplate(effect->MiscValue))
                         {
