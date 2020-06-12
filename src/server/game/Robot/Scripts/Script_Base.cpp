@@ -354,7 +354,7 @@ bool Script_Base::InitializeCharacter(uint32 pmTargetLevel)
                     me->LearnTalent(eachTE->TalentID, maxRank);
                 }
             }
-        }        
+        }
     }
 
     for (std::unordered_set<uint32>::iterator questIT = sRobotManager->spellRewardClassQuestIDSet.begin(); questIT != sRobotManager->spellRewardClassQuestIDSet.end(); questIT++)
@@ -1088,19 +1088,19 @@ void Script_Base::TryEquip(std::unordered_set<uint32> pmClassSet, std::unordered
         }
         if (me->rai->robotType == RobotType::RobotType_Raid)
         {
-            if (proto->Quality < ItemQualities::ITEM_QUALITY_EPIC)
+            if (proto->Quality != ItemQualities::ITEM_QUALITY_EPIC)
             {
                 continue;
             }
         }
         else if (me->rai->robotType == RobotType::RobotType_World)
         {
-            if (proto->Quality < ItemQualities::ITEM_QUALITY_UNCOMMON)
+            if (proto->Quality < ItemQualities::ITEM_QUALITY_UNCOMMON || proto->Quality > ItemQualities::ITEM_QUALITY_EPIC)
             {
                 continue;
             }
         }
-        if (proto->RequiredLevel < 10)
+        if (proto->RequiredLevel < 15)
         {
             continue;
         }

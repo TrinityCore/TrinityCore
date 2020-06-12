@@ -5,18 +5,19 @@
 
 enum GroupRole_Lethon :uint32
 {
-    GroupRole_Lethon_Tank1 = 0,
-    GroupRole_Lethon_Tank2 = 1,
-    GroupRole_Lethon_Healer1 = 5,
-    GroupRole_Lethon_Healer2 = 6,
-    GroupRole_Lethon_Healer3 = 7,
-    GroupRole_Lethon_Healer4 = 8,
-    GroupRole_Lethon_Healer5 = 9,
-    GroupRole_Lethon_Healer6 = 10,
-    GroupRole_Lethon_Healer7 = 11,
-    GroupRole_Lethon_Healer8 = 12,
-    GroupRole_Lethon_DPS_Range = 13,
-    GroupRole_Lethon_DPS_Melee = 14,
+    GroupRole_Lethon_None = 0,
+    GroupRole_Lethon_Tank1,
+    GroupRole_Lethon_Tank2,
+    GroupRole_Lethon_Healer1,
+    GroupRole_Lethon_Healer2,
+    GroupRole_Lethon_Healer3,
+    GroupRole_Lethon_Healer4,
+    GroupRole_Lethon_Healer5,
+    GroupRole_Lethon_Healer6,
+    GroupRole_Lethon_Healer7,
+    GroupRole_Lethon_Healer8,
+    GroupRole_Lethon_DPS_Range,
+    GroupRole_Lethon_DPS_Melee,
 };
 
 enum ActionType_Lethon :uint32

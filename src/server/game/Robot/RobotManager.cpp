@@ -1275,6 +1275,21 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                 {
                     replyStream << "Unknown strategy";
                 }
+                for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                {
+                    Player* member = groupRef->GetSource();
+                    if (member)
+                    {
+                        if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->strategyMap[myGroup->groupStrategyIndex])
+                        {
+                            rs->Reset();
+                            rs->sb->ClearTarget();
+                        }
+                        member->AttackStop();
+                        member->StopMoving();
+                        member->GetMotionMaster()->Clear();
+                    }
+                }
             }
             else
             {
@@ -1335,21 +1350,6 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                     replyStream << "Strategy is unknown";
                     break;
                 }
-                }
-            }
-            for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-            {
-                Player* member = groupRef->GetSource();
-                if (member)
-                {
-                    if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->strategyMap[myGroup->groupStrategyIndex])
-                    {
-                        rs->Reset();
-                        rs->sb->ClearTarget();
-                    }                    
-                    member->AttackStop();
-                    member->StopMoving();
-                    member->GetMotionMaster()->Clear();
                 }
             }
         }
@@ -1659,7 +1659,7 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                                         healer1Set = true;
                                         continue;
                                     }
-                                    else if (healer2Set)
+                                    else if (!healer2Set)
                                     {
                                         member->groupRole = GroupRole_Ysondre::GroupRole_Ysondre_Healer2;
                                         healer2Set = true;

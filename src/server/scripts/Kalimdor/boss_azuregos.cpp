@@ -100,7 +100,7 @@ public:
         {
             if (who->GetTypeId() == TYPEID_PLAYER)
             {
-                //who->CastSpell(who, SPELL_MARK_OF_FROST, true);
+                who->CastSpell(who, SPELL_MARK_OF_FROST, true);
             }
         }
 

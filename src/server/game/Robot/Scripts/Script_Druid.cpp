@@ -91,7 +91,7 @@ bool Script_Druid::SubTank(Unit* pmTarget, bool pmChase)
         if (CastSpell(me, "Survival Instincts"))
         {
             me->Yell("Survival Instincts!", Language::LANG_UNIVERSAL);
-        }        
+        }
     }
     me->Attack(pmTarget, true);
     uint32 rage = me->GetPower(Powers::POWER_RAGE);
@@ -637,7 +637,7 @@ bool Script_Druid::Tank_Feral(Unit* pmTarget, bool pmChase, bool pmSingle)
             }
             validAttackerCount++;
         }
-    }    
+    }
     if (!pmSingle)
     {
         if (groupTaunt && validAttackerCount > 3)
@@ -1352,7 +1352,7 @@ bool Script_Druid::Buff(Unit* pmTarget, bool pmCure)
                 {
                     return true;
                 }
-            }            
+            }
         }
     }
 

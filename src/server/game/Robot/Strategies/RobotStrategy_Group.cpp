@@ -239,47 +239,50 @@ void RobotStrategy_Group::Update(uint32 pmDiff)
         if (engageDelay > 0)
         {
             engageDelay -= pmDiff;
-            switch (me->groupRole)
+            if (me->IsAlive())
             {
-            case GroupRole::GroupRole_DPS:
-            {
-                if (sb->DPS(engageTarget, Chasing(), false, NULL))
+                switch (me->groupRole)
                 {
-                    return;
-                }
-                else
+                case GroupRole::GroupRole_DPS:
                 {
-                    engageTarget = NULL;
-                    engageDelay = 0;
+                    if (sb->DPS(engageTarget, Chasing(), false, NULL))
+                    {
+                        return;
+                    }
+                    else
+                    {
+                        engageTarget = NULL;
+                        engageDelay = 0;
+                    }
+                    break;
                 }
-                break;
-            }
-            case GroupRole::GroupRole_Healer:
-            {
-                if (Heal())
+                case GroupRole::GroupRole_Healer:
                 {
-                    return;
+                    if (Heal())
+                    {
+                        return;
+                    }
+                    break;
                 }
-                break;
-            }
-            case GroupRole::GroupRole_Tank:
-            {
-                if (sb->Tank(engageTarget, Chasing()))
+                case GroupRole::GroupRole_Tank:
                 {
-                    return;
+                    if (sb->Tank(engageTarget, Chasing()))
+                    {
+                        return;
+                    }
+                    else
+                    {
+                        engageTarget = NULL;
+                        engageDelay = 0;
+                    }
+                    break;
                 }
-                else
+                default:
                 {
-                    engageTarget = NULL;
-                    engageDelay = 0;
+                    break;
                 }
-                break;
-            }
-            default:
-            {
-                break;
-            }
-            }
+                }
+            }            
             return;
         }
         if (groupInCombat)
@@ -1272,6 +1275,8 @@ Unit* RobotStrategy_Group::GetAttacker(uint32 pmAttackerEntry)
             }
         }
     }
+
+    return NULL;
 }
 
 bool RobotStrategy_Group::AngleInRange(float pmSourceAngle, float pmTargetAngle, float pmRange)

@@ -101,8 +101,7 @@ struct emerald_dragonAI : public WorldBossAI
         me->SetReactState(REACT_AGGRESSIVE);
         DoCast(me, SPELL_MARK_OF_NATURE_AURA, true);
         events.ScheduleEvent(EVENT_TAIL_SWEEP, 4s);
-        events.ScheduleEvent(EVENT_NOXIOUS_BREATH, urand(7500, 15000));
-        // EJ scripts debug sleep fog
+        events.ScheduleEvent(EVENT_NOXIOUS_BREATH, urand(7500, 15000));        
         events.ScheduleEvent(EVENT_SEEPING_FOG, urand(12500, 20000));
     }
 
@@ -111,7 +110,7 @@ struct emerald_dragonAI : public WorldBossAI
     {
         if (who->GetTypeId() == TYPEID_PLAYER)
         {
-            //who->CastSpell(who, SPELL_MARK_OF_NATURE, true);
+            who->CastSpell(who, SPELL_MARK_OF_NATURE, true);
         }
     }
 

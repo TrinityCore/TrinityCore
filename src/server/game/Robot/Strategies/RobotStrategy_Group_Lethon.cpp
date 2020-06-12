@@ -786,57 +786,42 @@ void RobotStrategy_Group_Lethon::Update(uint32 pmDiff)
 
 bool RobotStrategy_Group_Lethon::DPS()
 {
-    if (!me->IsAlive())
+    if (Unit* boss = GetAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Group_Lethon))
     {
-        return true;
-    }
-    if (me->HasAura(24778))
-    {
-        return true;
-    }
-    if (Group* myGroup = me->GetGroup())
-    {
-        if (Unit* boss = GetAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Group_Lethon))
+        if (me->IsAlive())
         {
-            bool bossPositionValid = false;
-            if (AngleInRange(basePos.GetOrientation(), boss->GetOrientation(), ANGLE_RANGE))
+            if (Group* myGroup = me->GetGroup())
             {
-                bossPositionValid = true;
-            }
-            else if (AngleInRange(basePos.GetOrientation() + M_PI, boss->GetOrientation(), ANGLE_RANGE))
-            {
-                bossPositionValid = true;
-            }
-            if (bossPositionValid)
-            {
-                bool myPositionValid = false;
-                float myBossAngle = boss->GetPosition().GetAbsoluteAngle(me->GetPosition());
-                float myBossDistance = me->GetExactDist(boss->GetPosition());
-                float engageDistanceMin = 13.0f;
-                float engageDistanceMax = 15.0f;
-                if (me->groupRole == GroupRole_Lethon::GroupRole_Lethon_DPS_Range)
+                bool moving = false;
+                bool attacking = false;
+                if (boss->GetTarget() != me->GetGUID())
                 {
-                    engageDistanceMin = 28.0f;
-                    engageDistanceMax = 49.0f;
-                    if (myBossAngle > basePos.GetOrientation() + M_PI * 5 / 16 && myBossAngle < basePos.GetOrientation() + M_PI * 11 / 16)
+                    attacking = true;
+                    if (Player* bossTarget = ObjectAccessor::GetPlayer(*me, boss->GetTarget()))
                     {
-                        if (myBossDistance > engageDistanceMin && myBossDistance < engageDistanceMax)
+                        if (bossTarget->groupRole == GroupRole_Lethon::GroupRole_Lethon_Tank1 || bossTarget->groupRole == GroupRole_Lethon::GroupRole_Lethon_Tank2)
                         {
-                            myPositionValid = true;
+                            float bossDistance = boss->GetExactDist(bossTarget->GetPosition());
+                            if (bossDistance < 20.0f)
+                            {
+                                if (AngleInRange(basePos.GetOrientation(), boss->GetOrientation(), ANGLE_RANGE) || AngleInRange(basePos.GetOrientation() + M_PI, boss->GetOrientation(), ANGLE_RANGE))
+                                {
+                                    float myBossDistance = boss->GetExactDist(me->GetPosition());
+                                    float myBossAngle = boss->GetAbsoluteAngle(me->GetPosition());
+                                    if (myBossDistance < engageDistance - 1.0f || myBossDistance>engageDistance + 1.0f)
+                                    {
+                                        moving = true;
+                                    }
+                                    else if (!AngleInRange(myBossAngle, engageAngle, ANGLE_RANGE))
+                                    {
+                                        moving = true;
+                                    }
+                                }
+                            }
                         }
                     }
                 }
-                else
-                {
-                    if (AngleInRange(myBossAngle, engageAngle, ANGLE_RANGE))
-                    {
-                        if (myBossDistance > engageDistanceMin && myBossDistance < engageDistanceMax)
-                        {
-                            myPositionValid = true;
-                        }
-                    }
-                }
-                if (!myPositionValid)
+                if (moving)
                 {
                     markPos = GetNearPoint(boss->GetPosition(), engageDistance, engageAngle);
                     actionDelay = 3000;
@@ -846,318 +831,155 @@ bool RobotStrategy_Group_Lethon::DPS()
                     me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
                     me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
                     me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(boss->GetPosition()));
-                    return true;
                 }
-            }
-            if (combatTime > dpsDelay)
-            {
-                bool attackSS = false;
-                if (attackSS)
+                else if (attacking)
                 {
-                    std::list<Creature*> spiritShades;
-                    me->GetCreatureListWithEntryInGrid(spiritShades, CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Spirit_Shade, VISIBILITY_DISTANCE_NORMAL);
-                    if (spiritShades.size() > 0)
+                    if (combatTime > dpsDelay)
                     {
-                        bool chaseDPS = true;
-                        float distanceLimit = VISIBILITY_DISTANCE_NORMAL;
-                        if (me->groupRole == GroupRole_Lethon::GroupRole_Lethon_DPS_Range)
-                        {
-                            chaseDPS = false;
-                            distanceLimit = 30.0f;
-                        }
-                        if (myGroup->groupTargetArrangementMap.find(me->GetGUID()) != myGroup->groupTargetArrangementMap.end())
-                        {
-                            ObjectGuid mySpiritShadeGUID = myGroup->groupTargetArrangementMap[me->GetGUID()];
-                            if (Unit* mySpiritShade = ObjectAccessor::GetUnit(*me, mySpiritShadeGUID))
-                            {
-                                if (mySpiritShade->IsAlive())
-                                {
-                                    if (me->GetDistance(mySpiritShade) < distanceLimit)
-                                    {
-                                        if (sb->DPS(mySpiritShade, chaseDPS, false, NULL))
-                                        {
-                                            return true;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        for (Creature* eachSS : spiritShades)
-                        {
-                            if (eachSS->IsAlive())
-                            {
-                                if (me->GetDistance(eachSS) < distanceLimit)
-                                {
-                                    bool arranged = false;
-                                    for (std::unordered_map<ObjectGuid, ObjectGuid>::iterator arrangedIT = myGroup->groupTargetArrangementMap.begin(); arrangedIT != myGroup->groupTargetArrangementMap.end(); arrangedIT++)
-                                    {
-                                        if (eachSS->GetGUID() == arrangedIT->second)
-                                        {
-                                            arranged = true;
-                                            break;
-                                        }
-                                    }
-                                    if (!arranged)
-                                    {
-                                        myGroup->groupTargetArrangementMap[me->GetGUID()] = eachSS->GetGUID();
-                                        return true;
-                                    }
-                                }
-                            }
-                        }
-                        for (Creature* eachSS : spiritShades)
-                        {
-                            if (eachSS->IsAlive())
-                            {
-                                if (me->GetDistance(eachSS) < distanceLimit)
-                                {
-                                    if (sb->DPS(eachSS, chaseDPS, false, NULL))
-                                    {
-                                        return true;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        myGroup->groupTargetArrangementMap.clear();
+                        sb->DPS(boss, false, false, NULL);
                     }
                 }
-                sb->DPS(boss, false, false, NULL);
             }
-            return true;
         }
+        return true;
     }
-
     return RobotStrategy_Group::DPS();
 }
 
 bool RobotStrategy_Group_Lethon::Tank()
 {
-    if (Group* myGroup = me->GetGroup())
+    if (Unit* boss = GetAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Group_Lethon))
     {
-        if (Unit* boss = GetAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Group_Lethon))
+        if (Group* myGroup = me->GetGroup())
         {
-            switch (me->groupRole)
+            ObjectGuid activeOG = myGroup->GetOGByTargetIcon(0);
+            if (!activeOG.IsEmpty())
             {
-            case GroupRole_Lethon::GroupRole_Lethon_Tank1:
-            {
-                if (ObjectGuid activeTankOG = myGroup->GetOGByTargetIcon(0))
+                bool moving = false;
+                bool tanking = false;
+                bool assisting = false;
+                bool changing = false;
+                if (activeOG == me->GetGUID())
                 {
-                    if (activeTankOG == me->GetGUID())
+                    if (!me->IsAlive())
                     {
-                        if (me->IsAlive())
-                        {
-                            if (!me->HasAura(24778))
-                            {
-                                if (me->GetAuraCount(24818) < 3)
-                                {
-                                    float myBossDistance = me->GetExactDist(boss->GetPosition());
-                                    if (myBossDistance < 22.0f)
-                                    {
-                                        if (boss->GetTarget() == me->GetGUID())
-                                        {
-                                            bool positionValid = true;
-                                            if (myBossDistance < 13.0f)
-                                            {
-                                                positionValid = false;
-                                            }
-                                            else if (!AngleInRange(basePos.GetOrientation(), boss->GetOrientation(), ANGLE_RANGE))
-                                            {
-                                                positionValid = false;
-                                            }
-                                            if (!positionValid)
-                                            {
-                                                markPos = GetNearPoint(boss->GetPosition(), 14.0f, basePos.GetOrientation());
-                                                actionDelay = 3000;
-                                                actionType = ActionType_Lethon::ActionType_Lethon_MarkMove;
-                                                me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
-                                                me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
-                                                me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
-                                                me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
-                                                me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(boss->GetPosition()));
-                                                return true;
-                                            }
-                                        }
-                                    }
-                                    sb->Taunt(boss);
-                                    sb->Tank(boss, false);
-                                    return true;
-                                }
-                            }
-                        }
-                        if (Player* tank2 = GetPlayerByGroupRole(GroupRole_Lethon::GroupRole_Lethon_Tank2))
-                        {
-                            if (tank2->IsAlive())
-                            {
-                                if (!tank2->HasAura(24778))
-                                {
-                                    myGroup->SetTargetIcon(0, me->GetGUID(), tank2->GetGUID());
-                                }
-                            }
-                        }
+                        changing = true;
+                    }
+                    else if (me->GetNearbyCreatureWithEntry(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Dream_Fog, 3.0f))
+                    {
+                        changing = true;
+                    }
+                    else if (me->GetAuraCount(24818) >= 3)
+                    {
+                        changing = true;
                     }
                     else
                     {
-                        if (boss->GetTarget() != me->GetGUID())
+                        tanking = true;
+                        float myBossDistance = boss->GetExactDist(me->GetPosition());
+                        if (myBossDistance < 20.0f)
                         {
-                            bool bossPositionValid = false;
-                            if (AngleInRange(basePos.GetOrientation(), boss->GetOrientation(), ANGLE_RANGE))
+                            if (!AngleInRange(basePos.GetOrientation(), boss->GetOrientation(), ANGLE_RANGE) && !AngleInRange(basePos.GetOrientation() + M_PI, boss->GetOrientation(), ANGLE_RANGE))
                             {
-                                bossPositionValid = true;
+                                moving = true;
                             }
-                            else if (AngleInRange(basePos.GetOrientation() + M_PI, boss->GetOrientation(), ANGLE_RANGE))
+                            else if (myBossDistance < engageDistance - 1.0f || myBossDistance>engageDistance + 1.0f)
                             {
-                                bossPositionValid = true;
+                                moving = true;
                             }
-                            if (bossPositionValid)
-                            {
-                                bool myPositionValid = false;
-                                float myBossAngle = boss->GetPosition().GetAbsoluteAngle(me->GetPosition());
-                                if (AngleInRange(engageAngle, myBossAngle, ANGLE_RANGE))
-                                {
-                                    float myBossDistance = me->GetExactDist(boss->GetPosition());
-                                    if (myBossDistance > 13.0f && myBossDistance < 15.0f)
-                                    {
-                                        myPositionValid = true;
-                                    }
-                                }
-                                if (!myPositionValid)
-                                {
-                                    if (me->groupRole == GroupRole_Lethon::GroupRole_Lethon_DPS_Range)
-                                    {
-                                        engageDistance = frand(37.0f, 43.0f);
-                                    }
-                                    markPos = GetNearPoint(boss->GetPosition(), engageDistance, engageAngle);
-                                    actionDelay = 3000;
-                                    actionType = ActionType_Lethon::ActionType_Lethon_MarkMove;
-                                    me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
-                                    me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
-                                    me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
-                                    me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
-                                    me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(boss->GetPosition()));
-                                    return true;
-                                }
-                            }
-                            sb->SubTank(boss, false);
                         }
                     }
                 }
-                break;
-            }
-            case GroupRole_Lethon::GroupRole_Lethon_Tank2:
-            {
-                if (ObjectGuid activeTankOG = myGroup->GetOGByTargetIcon(0))
+                else
                 {
-                    if (activeTankOG == me->GetGUID())
+                    if (me->IsAlive())
                     {
-                        if (me->IsAlive())
+                        if (boss->GetTarget() != me->GetGUID())
                         {
-                            if (!me->HasAura(24778))
+                            assisting = true;
+                            if (Player* bossTarget = ObjectAccessor::GetPlayer(*me, boss->GetTarget()))
                             {
-                                if (me->GetAuraCount(24818) < 3)
+                                if (bossTarget->groupRole == GroupRole_Lethon::GroupRole_Lethon_Tank1 || bossTarget->groupRole == GroupRole_Lethon::GroupRole_Lethon_Tank2)
                                 {
-                                    float myBossDistance = me->GetExactDist(boss->GetPosition());
-                                    if (myBossDistance < 22.0f)
+                                    float bossDistance = boss->GetExactDist(bossTarget->GetPosition());
+                                    if (bossDistance < 20.0f)
                                     {
-                                        if (boss->GetTarget() == me->GetGUID())
+                                        if (AngleInRange(basePos.GetOrientation(), boss->GetOrientation(), ANGLE_RANGE) || AngleInRange(basePos.GetOrientation() + M_PI, boss->GetOrientation(), ANGLE_RANGE))
                                         {
-                                            bool positionValid = true;
-                                            if (myBossDistance < 13.0f)
+                                            float myBossDistance = boss->GetExactDist(me->GetPosition());
+                                            float myBossAngle = boss->GetAbsoluteAngle(me->GetPosition());
+                                            if (myBossDistance < engageDistance - 1.0f || myBossDistance>engageDistance + 1.0f)
                                             {
-                                                positionValid = false;
+                                                moving = true;
                                             }
-                                            else if (!AngleInRange(basePos.GetOrientation() + M_PI, boss->GetOrientation(), ANGLE_RANGE))
+                                            else if (!AngleInRange(myBossAngle, engageAngle, ANGLE_RANGE))
                                             {
-                                                positionValid = false;
-                                            }
-                                            if (!positionValid)
-                                            {
-                                                markPos = GetNearPoint(boss->GetPosition(), 14.0f, basePos.GetOrientation() + M_PI);
-                                                actionDelay = 3000;
-                                                actionType = ActionType_Lethon::ActionType_Lethon_MarkMove;
-                                                me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
-                                                me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
-                                                me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
-                                                me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
-                                                me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(boss->GetPosition()));
-                                                return true;
+                                                moving = true;
                                             }
                                         }
                                     }
-                                    sb->Taunt(boss);
-                                    sb->Tank(boss, false);
-                                    return true;
                                 }
                             }
-                        }
-                        if (Player* tank1 = GetPlayerByGroupRole(GroupRole_Lethon::GroupRole_Lethon_Tank1))
-                        {
-                            if (tank1->IsAlive())
-                            {
-                                if (!tank1->HasAura(24778))
-                                {
-                                    myGroup->SetTargetIcon(0, me->GetGUID(), tank1->GetGUID());
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (boss->GetTarget() != me->GetGUID())
-                        {
-                            bool bossPositionValid = false;
-                            if (AngleInRange(basePos.GetOrientation(), boss->GetOrientation(), ANGLE_RANGE))
-                            {
-                                bossPositionValid = true;
-                            }
-                            else if (AngleInRange(basePos.GetOrientation() + M_PI, boss->GetOrientation(), ANGLE_RANGE))
-                            {
-                                bossPositionValid = true;
-                            }
-                            if (bossPositionValid)
-                            {
-                                bool myPositionValid = false;
-                                float myBossAngle = boss->GetPosition().GetAbsoluteAngle(me->GetPosition());
-                                if (AngleInRange(engageAngle, myBossAngle, ANGLE_RANGE))
-                                {
-                                    float myBossDistance = me->GetExactDist(boss->GetPosition());
-                                    if (myBossDistance > 13.0f && myBossDistance < 15.0f)
-                                    {
-                                        myPositionValid = true;
-                                    }
-                                }
-                                if (!myPositionValid)
-                                {
-                                    if (me->groupRole == GroupRole_Lethon::GroupRole_Lethon_DPS_Range)
-                                    {
-                                        engageDistance = frand(37.0f, 43.0f);
-                                    }
-                                    markPos = GetNearPoint(boss->GetPosition(), engageDistance, engageAngle);
-                                    actionDelay = 3000;
-                                    actionType = ActionType_Lethon::ActionType_Lethon_MarkMove;
-                                    me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
-                                    me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
-                                    me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
-                                    me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
-                                    me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(boss->GetPosition()));
-                                    return true;
-                                }
-                            }
-                            sb->SubTank(boss, false);
                         }
                     }
                 }
-                break;
+                if (moving)
+                {
+                    markPos = GetNearPoint(boss->GetPosition(), engageDistance, engageAngle);
+                    actionDelay = 3000;
+                    actionType = ActionType_Lethon::ActionType_Lethon_MarkMove;
+                    me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                    me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                    me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                    me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                    me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(boss->GetPosition()));
+                }
+                else if (tanking)
+                {
+                    sb->Taunt(boss);
+                    sb->Tank(boss, false);
+                }
+                else if (assisting)
+                {
+                    sb->SubTank(boss, false);
+                }
+                else if (changing)
+                {
+                    uint32 subRole = GroupRole_Lethon::GroupRole_Lethon_None;
+                    switch (me->groupRole)
+                    {
+                    case GroupRole_Lethon::GroupRole_Lethon_Tank1:
+                    {
+                        subRole = GroupRole_Lethon::GroupRole_Lethon_Tank2;
+                        break;
+                    }
+                    case GroupRole_Lethon::GroupRole_Lethon_Tank2:
+                    {
+                        subRole = GroupRole_Lethon::GroupRole_Lethon_Tank1;
+                        break;
+                    }
+                    default:
+                    {
+                        break;
+                    }
+                    }
+                    if (Player* subTank = GetPlayerByGroupRole(subRole))
+                    {
+                        if (subTank->IsAlive())
+                        {
+                            if (!subTank->GetNearbyCreatureWithEntry(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Dream_Fog, 3.0f))
+                            {
+                                if (subTank->GetAuraCount(24818) < 3)
+                                {
+                                    myGroup->SetTargetIcon(0, me->GetGUID(), subTank->GetGUID());
+                                }
+                            }
+                        }
+                    }
+                }
             }
-            default:
-            {
-                break;
-            }
-            }
-            return true;
         }
+        return true;
     }
     return RobotStrategy_Group::Tank();
 }
@@ -1191,939 +1013,264 @@ bool RobotStrategy_Group_Lethon::Tank(Unit* pmTarget)
 
 bool RobotStrategy_Group_Lethon::Heal()
 {
-    if (Group* myGroup = me->GetGroup())
+    if (Unit* boss = GetAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Group_Lethon))
     {
-        if (Unit* boss = GetAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Group_Lethon))
+        if (Group* myGroup = me->GetGroup())
         {
-            bool bossPositionValid = false;
-            bool myPositionValid = false;
-            if (AngleInRange(basePos.GetOrientation(), boss->GetOrientation(), ANGLE_RANGE))
+            int myTargetIcon = -1;
+            if (me->groupRole == GroupRole_Lethon::GroupRole_Lethon_Healer1 || me->groupRole == GroupRole_Lethon::GroupRole_Lethon_Healer2 || me->groupRole == GroupRole_Lethon::GroupRole_Lethon_Healer3)
             {
-                bossPositionValid = true;
+                myTargetIcon = 1;
             }
-            else if (AngleInRange(basePos.GetOrientation() + M_PI, boss->GetOrientation(), ANGLE_RANGE))
+            else if (me->groupRole == GroupRole_Lethon::GroupRole_Lethon_Healer4 || me->groupRole == GroupRole_Lethon::GroupRole_Lethon_Healer5 || me->groupRole == GroupRole_Lethon::GroupRole_Lethon_Healer6)
             {
-                bossPositionValid = true;
+                myTargetIcon = 2;
             }
-            if (bossPositionValid)
+            else if (me->groupRole == GroupRole_Lethon::GroupRole_Lethon_Healer7 || me->groupRole == GroupRole_Lethon::GroupRole_Lethon_Healer8)
             {
-                float myBossAngle = boss->GetPosition().GetAbsoluteAngle(me->GetPosition());
-                if (myBossAngle > basePos.GetOrientation() + M_PI * 5 / 16 && myBossAngle < basePos.GetOrientation() + M_PI * 11 / 16)
+                myTargetIcon = 3;
+            }
+            bool moving = false;
+            bool healing = false;
+            bool assisting = false;
+            bool changing = false;
+            if (me->IsAlive())
+            {
+                if (boss->GetTarget() != me->GetGUID())
                 {
-                    float myBossDistance = me->GetExactDist(boss->GetPosition());
-                    if (myBossDistance > 18.0f && myBossDistance < 42.0f)
+                    assisting = true;
+                    if (Player* bossTarget = ObjectAccessor::GetPlayer(*me, boss->GetTarget()))
                     {
-                        myPositionValid = true;
+                        if (bossTarget->groupRole == GroupRole_Lethon::GroupRole_Lethon_Tank1 || bossTarget->groupRole == GroupRole_Lethon::GroupRole_Lethon_Tank2)
+                        {
+                            float bossDistance = boss->GetExactDist(bossTarget->GetPosition());
+                            if (bossDistance < 20.0f)
+                            {
+                                if (AngleInRange(basePos.GetOrientation(), boss->GetOrientation(), ANGLE_RANGE) || AngleInRange(basePos.GetOrientation() + M_PI, boss->GetOrientation(), ANGLE_RANGE))
+                                {
+                                    float myBossDistance = boss->GetExactDist(me->GetPosition());
+                                    float myBossAngle = boss->GetAbsoluteAngle(me->GetPosition());
+                                    if (myBossDistance < engageDistance - 1.0f || myBossDistance>engageDistance + 1.0f)
+                                    {
+                                        moving = true;
+                                    }
+                                    else if (!AngleInRange(myBossAngle, engageAngle, ANGLE_RANGE))
+                                    {
+                                        moving = true;
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
-            switch (me->groupRole)
+            ObjectGuid activeOG = myGroup->GetOGByTargetIcon(myTargetIcon);
+            if (!activeOG.IsEmpty())
             {
-            case GroupRole_Lethon::GroupRole_Lethon_Healer1:
-            {
-                if (Player* tank1 = GetPlayerByGroupRole(GroupRole_Lethon::GroupRole_Lethon_Tank1))
+                if (activeOG == me->GetGUID())
                 {
-                    if (tank1->IsAlive())
+                    if (!me->IsAlive())
                     {
-                        if (bossPositionValid)
+                        changing = true;
+                    }
+                    else if (me->GetNearbyCreatureWithEntry(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Dream_Fog, 3.0f))
+                    {
+                        changing = true;
+                    }
+                    else if (me->HasAura(24818))
+                    {
+                        changing = true;
+                    }
+                    else if (me->GetPower(Powers::POWER_MANA) < 500)
+                    {
+                        changing = true;
+                    }
+                    else
+                    {
+                        healing = true;
+                    }
+                }
+            }
+            else
+            {
+                if (me->IsAlive())
+                {
+                    healing = true;
+                }
+            }
+            if (moving)
+            {
+                markPos = GetNearPoint(boss->GetPosition(), engageDistance, engageAngle);
+                actionDelay = 3000;
+                actionType = ActionType_Lethon::ActionType_Lethon_MarkMove;
+                me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(boss->GetPosition()));
+            }
+            else if (healing)
+            {
+                uint32 myTankRole = GroupRole_Lethon::GroupRole_Lethon_None;
+                if (me->groupRole == GroupRole_Lethon::GroupRole_Lethon_Healer1 || me->groupRole == GroupRole_Lethon::GroupRole_Lethon_Healer2 || me->groupRole == GroupRole_Lethon::GroupRole_Lethon_Healer3)
+                {
+                    myTankRole = GroupRole_Lethon::GroupRole_Lethon_Tank1;
+                }
+                else if (me->groupRole == GroupRole_Lethon::GroupRole_Lethon_Healer4 || me->groupRole == GroupRole_Lethon::GroupRole_Lethon_Healer5 || me->groupRole == GroupRole_Lethon::GroupRole_Lethon_Healer6)
+                {
+                    myTankRole = GroupRole_Lethon::GroupRole_Lethon_Tank2;
+                }
+                if (Player* myTank = GetPlayerByGroupRole(myTankRole))
+                {
+                    if (myTank->IsAlive())
+                    {
+                        if (myTank->GetHealthPct() < 90.0f)
                         {
-                            if (myPositionValid)
+                            if (sb->Heal(myTank, true))
                             {
-                                float myTankDistance = me->GetExactDist(tank1->GetPosition());
-                                if (myTankDistance > 40.0f)
-                                {
-                                    myPositionValid = false;
-                                }
-                            }
-                            if (!myPositionValid)
-                            {
-                                markPos = GetNearPoint(boss->GetPosition(), engageDistance, engageAngle);
-                                actionDelay = 3000;
-                                actionType = ActionType_Lethon::ActionType_Lethon_MarkMove;
-                                me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
-                                me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
-                                me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
-                                me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
-                                me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(boss->GetPosition()));
                                 return true;
                             }
                         }
-                        if (ObjectGuid activeHealerOG = myGroup->GetOGByTargetIcon(1))
+                    }
+                    if (me->GetHealthPct() < 50.0f)
+                    {
+                        if (sb->Heal(me, true))
                         {
-                            if (activeHealerOG == me->GetGUID())
+                            return true;
+                        }
+                    }
+                }
+                else
+                {
+                    for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                    {
+                        if (Player* member = groupRef->GetSource())
+                        {
+                            if (member->IsAlive())
                             {
-                                if (me->IsAlive())
+                                if (member->groupRole == GroupRole_Lethon::GroupRole_Lethon_Tank1 || member->groupRole == GroupRole_Lethon::GroupRole_Lethon_Tank2)
                                 {
-                                    if (!me->GetNearbyCreatureWithEntry(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Dream_Fog, 3.0f))
-                                    {
-                                        if (!me->HasAura(24818))
-                                        {
-                                            if (me->GetPower(Powers::POWER_MANA) > 500)
-                                            {
-                                                if (tank1->GetHealthPct() < 90.0f)
-                                                {
-                                                    if (sb->Heal(tank1, true))
-                                                    {
-                                                        return true;
-                                                    }
-                                                }
-                                                if (me->GetHealthPct() < 50.0f)
-                                                {
-                                                    if (sb->Heal(me, true))
-                                                    {
-                                                        return true;
-                                                    }
-                                                }
-                                                return true;
-                                            }
-                                        }
-                                    }
+                                    continue;
                                 }
-                                bool activeHealerSwitched = false;
-                                if (Player* healer2 = GetPlayerByGroupRole(GroupRole_Lethon::GroupRole_Lethon_Healer2))
+                                if (me->GetExactDist(member) < HEAL_MAX_DISTANCE)
                                 {
-                                    if (healer2->IsAlive())
+                                    if (member->GetHealthPct() < 50.0f)
                                     {
-                                        if (!healer2->GetNearbyCreatureWithEntry(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Dream_Fog, 3.0f))
+                                        if (sb->Heal(member, true))
                                         {
-                                            if (!healer2->HasAura(24818))
-                                            {
-                                                if (healer2->GetPower(Powers::POWER_MANA) > 500)
-                                                {
-                                                    myGroup->SetTargetIcon(1, me->GetGUID(), healer2->GetGUID());
-                                                    activeHealerSwitched = true;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                if (!activeHealerSwitched)
-                                {
-                                    if (Player* healer3 = GetPlayerByGroupRole(GroupRole_Lethon::GroupRole_Lethon_Healer3))
-                                    {
-                                        if (healer3->IsAlive())
-                                        {
-                                            if (!healer3->GetNearbyCreatureWithEntry(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Dream_Fog, 3.0f))
-                                            {
-                                                if (!healer3->HasAura(24818))
-                                                {
-                                                    if (healer3->GetPower(Powers::POWER_MANA) > 500)
-                                                    {
-                                                        myGroup->SetTargetIcon(1, me->GetGUID(), healer3->GetGUID());
-                                                        activeHealerSwitched = true;
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                if (me->IsAlive())
-                                {
-                                    if (!me->GetNearbyCreatureWithEntry(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Dream_Fog, 3.0f))
-                                    {
-                                        if (!me->HasAura(24818))
-                                        {
-                                            if (me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA) > 50)
-                                            {
-                                                if (tank1->GetHealthPct() < 90.0f)
-                                                {
-                                                    if (sb->SubHeal(tank1))
-                                                    {
-                                                        return true;
-                                                    }
-                                                }
-                                                if (Player* tank2 = GetPlayerByGroupRole(GroupRole_Lethon::GroupRole_Lethon_Tank2))
-                                                {
-                                                    if (tank2->IsAlive())
-                                                    {
-                                                        if (tank2->GetHealthPct() < 50.0f)
-                                                        {
-                                                            if (sb->Heal(tank2, true))
-                                                            {
-                                                                return true;
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
+                                            return true;
                                         }
                                     }
                                 }
                             }
                         }
-                        return true;
                     }
                 }
-                break;
             }
-            case GroupRole_Lethon::GroupRole_Lethon_Healer2:
+            else if (assisting)
             {
-                if (Player* tank1 = GetPlayerByGroupRole(GroupRole_Lethon::GroupRole_Lethon_Tank1))
+                uint32 myTankRole = GroupRole_Lethon::GroupRole_Lethon_None;
+                if (me->groupRole == GroupRole_Lethon::GroupRole_Lethon_Healer1 || me->groupRole == GroupRole_Lethon::GroupRole_Lethon_Healer2 || me->groupRole == GroupRole_Lethon::GroupRole_Lethon_Healer3)
                 {
-                    if (tank1->IsAlive())
+                    myTankRole = GroupRole_Lethon::GroupRole_Lethon_Tank2;
+                }
+                else if (me->groupRole == GroupRole_Lethon::GroupRole_Lethon_Healer4 || me->groupRole == GroupRole_Lethon::GroupRole_Lethon_Healer5 || me->groupRole == GroupRole_Lethon::GroupRole_Lethon_Healer6)
+                {
+                    myTankRole = GroupRole_Lethon::GroupRole_Lethon_Tank1;
+                }
+                if (Player* myTank = GetPlayerByGroupRole(myTankRole))
+                {
+                    if (myTank->IsAlive())
                     {
-                        if (bossPositionValid)
+                        if (myTank->GetHealthPct() < 90.0f)
                         {
-                            if (myPositionValid)
+                            if (sb->SubHeal(myTank))
                             {
-                                float myTankDistance = me->GetExactDist(tank1->GetPosition());
-                                if (myTankDistance > 40.0f)
-                                {
-                                    myPositionValid = false;
-                                }
-                            }
-                            if (!myPositionValid)
-                            {
-                                markPos = GetNearPoint(boss->GetPosition(), engageDistance, engageAngle);
-                                actionDelay = 3000;
-                                actionType = ActionType_Lethon::ActionType_Lethon_MarkMove;
-                                me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
-                                me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
-                                me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
-                                me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
-                                me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(boss->GetPosition()));
                                 return true;
                             }
                         }
-                        if (ObjectGuid activeHealerOG = myGroup->GetOGByTargetIcon(1))
-                        {
-                            if (activeHealerOG == me->GetGUID())
-                            {
-                                if (me->IsAlive())
-                                {
-                                    if (!me->GetNearbyCreatureWithEntry(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Dream_Fog, 3.0f))
-                                    {
-                                        if (!me->HasAura(24818))
-                                        {
-                                            if (me->GetPower(Powers::POWER_MANA) > 500)
-                                            {
-                                                if (tank1->GetHealthPct() < 90.0f)
-                                                {
-                                                    if (sb->Heal(tank1, true))
-                                                    {
-                                                        return true;
-                                                    }
-                                                }
-                                                if (me->GetHealthPct() < 50.0f)
-                                                {
-                                                    if (sb->Heal(me, true))
-                                                    {
-                                                        return true;
-                                                    }
-                                                }
-                                                return true;
-                                            }
-                                        }
-                                    }
-                                }
-                                bool activeHealerSwitched = false;
-                                if (Player* healer3 = GetPlayerByGroupRole(GroupRole_Lethon::GroupRole_Lethon_Healer3))
-                                {
-                                    if (healer3->IsAlive())
-                                    {
-                                        if (!healer3->GetNearbyCreatureWithEntry(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Dream_Fog, 3.0f))
-                                        {
-                                            if (!healer3->HasAura(24818))
-                                            {
-                                                if (healer3->GetPower(Powers::POWER_MANA) > 500)
-                                                {
-                                                    myGroup->SetTargetIcon(1, me->GetGUID(), healer3->GetGUID());
-                                                    activeHealerSwitched = true;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                if (!activeHealerSwitched)
-                                {
-                                    if (Player* healer1 = GetPlayerByGroupRole(GroupRole_Lethon::GroupRole_Lethon_Healer1))
-                                    {
-                                        if (healer1->IsAlive())
-                                        {
-                                            if (!healer1->GetNearbyCreatureWithEntry(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Dream_Fog, 3.0f))
-                                            {
-                                                if (!healer1->HasAura(24818))
-                                                {
-                                                    if (healer1->GetPower(Powers::POWER_MANA) > 500)
-                                                    {
-                                                        myGroup->SetTargetIcon(1, me->GetGUID(), healer1->GetGUID());
-                                                        activeHealerSwitched = true;
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                if (me->IsAlive())
-                                {
-                                    if (!me->GetNearbyCreatureWithEntry(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Dream_Fog, 3.0f))
-                                    {
-                                        if (!me->HasAura(24818))
-                                        {
-                                            if (me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA) > 50)
-                                            {
-                                                if (tank1->GetHealthPct() < 90.0f)
-                                                {
-                                                    if (sb->SubHeal(tank1))
-                                                    {
-                                                        return true;
-                                                    }
-                                                }
-                                                if (Player* tank2 = GetPlayerByGroupRole(GroupRole_Lethon::GroupRole_Lethon_Tank2))
-                                                {
-                                                    if (tank2->IsAlive())
-                                                    {
-                                                        if (tank2->GetHealthPct() < 50.0f)
-                                                        {
-                                                            if (sb->Heal(tank2, true))
-                                                            {
-                                                                return true;
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                    }
+                }
+                if (me->GetHealthPct() < 50.0f)
+                {
+                    if (sb->Heal(me, true))
+                    {
                         return true;
                     }
                 }
-                break;
             }
-            case GroupRole_Lethon::GroupRole_Lethon_Healer3:
+            else if (changing)
             {
-                if (Player* tank1 = GetPlayerByGroupRole(GroupRole_Lethon::GroupRole_Lethon_Tank1))
+                std::unordered_set<uint32> subRoleSet;
+                switch (me->groupRole)
                 {
-                    if (tank1->IsAlive())
-                    {
-                        if (bossPositionValid)
-                        {
-                            if (myPositionValid)
-                            {
-                                float myTankDistance = me->GetExactDist(tank1->GetPosition());
-                                if (myTankDistance > 40.0f)
-                                {
-                                    myPositionValid = false;
-                                }
-                            }
-                            if (!myPositionValid)
-                            {
-                                markPos = GetNearPoint(boss->GetPosition(), engageDistance, engageAngle);
-                                actionDelay = 3000;
-                                actionType = ActionType_Lethon::ActionType_Lethon_MarkMove;
-                                me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
-                                me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
-                                me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
-                                me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
-                                me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(boss->GetPosition()));
-                                return true;
-                            }
-                        }
-                        if (ObjectGuid activeHealerOG = myGroup->GetOGByTargetIcon(1))
-                        {
-                            if (activeHealerOG == me->GetGUID())
-                            {
-                                if (me->IsAlive())
-                                {
-                                    if (!me->GetNearbyCreatureWithEntry(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Dream_Fog, 3.0f))
-                                    {
-                                        if (!me->HasAura(24818))
-                                        {
-                                            if (me->GetPower(Powers::POWER_MANA) > 500)
-                                            {
-                                                if (tank1->GetHealthPct() < 90.0f)
-                                                {
-                                                    if (sb->Heal(tank1, true))
-                                                    {
-                                                        return true;
-                                                    }
-                                                }
-                                                if (me->GetHealthPct() < 50.0f)
-                                                {
-                                                    if (sb->Heal(me, true))
-                                                    {
-                                                        return true;
-                                                    }
-                                                }
-                                                return true;
-                                            }
-                                        }
-                                    }
-                                }
-                                bool activeHealerSwitched = false;
-                                if (Player* healer1 = GetPlayerByGroupRole(GroupRole_Lethon::GroupRole_Lethon_Healer1))
-                                {
-                                    if (healer1->IsAlive())
-                                    {
-                                        if (!healer1->GetNearbyCreatureWithEntry(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Dream_Fog, 3.0f))
-                                        {
-                                            if (!healer1->HasAura(24818))
-                                            {
-                                                if (healer1->GetPower(Powers::POWER_MANA) > 500)
-                                                {
-                                                    myGroup->SetTargetIcon(1, me->GetGUID(), healer1->GetGUID());
-                                                    activeHealerSwitched = true;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                if (!activeHealerSwitched)
-                                {
-                                    if (Player* healer2 = GetPlayerByGroupRole(GroupRole_Lethon::GroupRole_Lethon_Healer2))
-                                    {
-                                        if (healer2->IsAlive())
-                                        {
-                                            if (!healer2->GetNearbyCreatureWithEntry(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Dream_Fog, 3.0f))
-                                            {
-                                                if (!healer2->HasAura(24818))
-                                                {
-                                                    if (healer2->GetPower(Powers::POWER_MANA) > 500)
-                                                    {
-                                                        myGroup->SetTargetIcon(1, me->GetGUID(), healer2->GetGUID());
-                                                        activeHealerSwitched = true;
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                if (me->IsAlive())
-                                {
-                                    if (!me->GetNearbyCreatureWithEntry(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Dream_Fog, 3.0f))
-                                    {
-                                        if (!me->HasAura(24818))
-                                        {
-                                            if (me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA) > 50)
-                                            {
-                                                if (tank1->GetHealthPct() < 90.0f)
-                                                {
-                                                    if (sb->SubHeal(tank1))
-                                                    {
-                                                        return true;
-                                                    }
-                                                }
-                                                if (Player* tank2 = GetPlayerByGroupRole(GroupRole_Lethon::GroupRole_Lethon_Tank2))
-                                                {
-                                                    if (tank2->IsAlive())
-                                                    {
-                                                        if (tank2->GetHealthPct() < 50.0f)
-                                                        {
-                                                            if (sb->Heal(tank2, true))
-                                                            {
-                                                                return true;
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        return true;
-                    }
+                case GroupRole_Lethon::GroupRole_Lethon_Healer1:
+                {
+                    subRoleSet.insert(GroupRole_Lethon::GroupRole_Lethon_Healer2);
+                    subRoleSet.insert(GroupRole_Lethon::GroupRole_Lethon_Healer3);
+                    break;
                 }
-                break;
-            }
-            case GroupRole_Lethon::GroupRole_Lethon_Healer4:
-            {
-                if (Player* tank2 = GetPlayerByGroupRole(GroupRole_Lethon::GroupRole_Lethon_Tank2))
+                case GroupRole_Lethon::GroupRole_Lethon_Healer2:
                 {
-                    if (tank2->IsAlive())
-                    {
-                        if (bossPositionValid)
-                        {
-                            if (myPositionValid)
-                            {
-                                float myTankDistance = me->GetExactDist(tank2->GetPosition());
-                                if (myTankDistance > 40.0f)
-                                {
-                                    myPositionValid = false;
-                                }
-                            }
-                            if (!myPositionValid)
-                            {
-                                markPos = GetNearPoint(boss->GetPosition(), engageDistance, engageAngle);
-                                actionDelay = 3000;
-                                actionType = ActionType_Lethon::ActionType_Lethon_MarkMove;
-                                me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
-                                me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
-                                me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
-                                me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
-                                me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(boss->GetPosition()));
-                                return true;
-                            }
-                        }
-                        if (ObjectGuid activeHealerOG = myGroup->GetOGByTargetIcon(2))
-                        {
-                            if (activeHealerOG == me->GetGUID())
-                            {
-                                if (me->IsAlive())
-                                {
-                                    if (!me->GetNearbyCreatureWithEntry(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Dream_Fog, 3.0f))
-                                    {
-                                        if (!me->HasAura(24818))
-                                        {
-                                            if (me->GetPower(Powers::POWER_MANA) > 500)
-                                            {
-                                                if (tank2->GetHealthPct() < 90.0f)
-                                                {
-                                                    if (sb->Heal(tank2, true))
-                                                    {
-                                                        return true;
-                                                    }
-                                                }
-                                                if (me->GetHealthPct() < 50.0f)
-                                                {
-                                                    if (sb->Heal(me, true))
-                                                    {
-                                                        return true;
-                                                    }
-                                                }
-                                                return true;
-                                            }
-                                        }
-                                    }
-                                }
-                                bool activeHealerSwitched = false;
-                                if (Player* healer5 = GetPlayerByGroupRole(GroupRole_Lethon::GroupRole_Lethon_Healer5))
-                                {
-                                    if (healer5->IsAlive())
-                                    {
-                                        if (!healer5->GetNearbyCreatureWithEntry(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Dream_Fog, 3.0f))
-                                        {
-                                            if (!healer5->HasAura(24818))
-                                            {
-                                                if (healer5->GetPower(Powers::POWER_MANA) > 500)
-                                                {
-                                                    myGroup->SetTargetIcon(2, me->GetGUID(), healer5->GetGUID());
-                                                    activeHealerSwitched = true;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                if (!activeHealerSwitched)
-                                {
-                                    if (Player* healer6 = GetPlayerByGroupRole(GroupRole_Lethon::GroupRole_Lethon_Healer6))
-                                    {
-                                        if (healer6->IsAlive())
-                                        {
-                                            if (!healer6->GetNearbyCreatureWithEntry(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Dream_Fog, 3.0f))
-                                            {
-                                                if (!healer6->HasAura(24818))
-                                                {
-                                                    if (healer6->GetPower(Powers::POWER_MANA) > 500)
-                                                    {
-                                                        myGroup->SetTargetIcon(2, me->GetGUID(), healer6->GetGUID());
-                                                        activeHealerSwitched = true;
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                if (me->IsAlive())
-                                {
-                                    if (!me->GetNearbyCreatureWithEntry(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Dream_Fog, 3.0f))
-                                    {
-                                        if (!me->HasAura(24818))
-                                        {
-                                            if (me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA) > 50)
-                                            {
-                                                if (tank2->GetHealthPct() < 90.0f)
-                                                {
-                                                    if (sb->SubHeal(tank2))
-                                                    {
-                                                        return true;
-                                                    }
-                                                }
-                                                if (Player* tank1 = GetPlayerByGroupRole(GroupRole_Lethon::GroupRole_Lethon_Tank1))
-                                                {
-                                                    if (tank1->IsAlive())
-                                                    {
-                                                        if (tank1->GetHealthPct() < 50.0f)
-                                                        {
-                                                            if (sb->Heal(tank1, true))
-                                                            {
-                                                                return true;
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        return true;
-                    }
+                    subRoleSet.insert(GroupRole_Lethon::GroupRole_Lethon_Healer1);
+                    subRoleSet.insert(GroupRole_Lethon::GroupRole_Lethon_Healer3);
+                    break;
                 }
-                break;
-            }
-            case GroupRole_Lethon::GroupRole_Lethon_Healer5:
-            {
-                if (Player* tank2 = GetPlayerByGroupRole(GroupRole_Lethon::GroupRole_Lethon_Tank2))
+                case GroupRole_Lethon::GroupRole_Lethon_Healer3:
                 {
-                    if (tank2->IsAlive())
-                    {
-                        if (bossPositionValid)
-                        {
-                            if (myPositionValid)
-                            {
-                                float myTankDistance = me->GetExactDist(tank2->GetPosition());
-                                if (myTankDistance > 40.0f)
-                                {
-                                    myPositionValid = false;
-                                }
-                            }
-                            if (!myPositionValid)
-                            {
-                                markPos = GetNearPoint(boss->GetPosition(), engageDistance, engageAngle);
-                                actionDelay = 3000;
-                                actionType = ActionType_Lethon::ActionType_Lethon_MarkMove;
-                                me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
-                                me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
-                                me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
-                                me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
-                                me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(boss->GetPosition()));
-                                return true;
-                            }
-                        }
-                        if (ObjectGuid activeHealerOG = myGroup->GetOGByTargetIcon(2))
-                        {
-                            if (activeHealerOG == me->GetGUID())
-                            {
-                                if (me->IsAlive())
-                                {
-                                    if (!me->GetNearbyCreatureWithEntry(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Dream_Fog, 3.0f))
-                                    {
-                                        if (!me->HasAura(24818))
-                                        {
-                                            if (me->GetPower(Powers::POWER_MANA) > 500)
-                                            {
-                                                if (tank2->GetHealthPct() < 90.0f)
-                                                {
-                                                    if (sb->Heal(tank2, true))
-                                                    {
-                                                        return true;
-                                                    }
-                                                }
-                                                if (me->GetHealthPct() < 50.0f)
-                                                {
-                                                    if (sb->Heal(me, true))
-                                                    {
-                                                        return true;
-                                                    }
-                                                }
-                                                return true;
-                                            }
-                                        }
-                                    }
-                                }
-                                bool activeHealerSwitched = false;
-                                if (Player* healer6 = GetPlayerByGroupRole(GroupRole_Lethon::GroupRole_Lethon_Healer6))
-                                {
-                                    if (healer6->IsAlive())
-                                    {
-                                        if (!healer6->GetNearbyCreatureWithEntry(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Dream_Fog, 3.0f))
-                                        {
-                                            if (!healer6->HasAura(24818))
-                                            {
-                                                if (healer6->GetPower(Powers::POWER_MANA) > 500)
-                                                {
-                                                    myGroup->SetTargetIcon(2, me->GetGUID(), healer6->GetGUID());
-                                                    activeHealerSwitched = true;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                if (!activeHealerSwitched)
-                                {
-                                    if (Player* healer4 = GetPlayerByGroupRole(GroupRole_Lethon::GroupRole_Lethon_Healer4))
-                                    {
-                                        if (healer4->IsAlive())
-                                        {
-                                            if (!healer4->GetNearbyCreatureWithEntry(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Dream_Fog, 3.0f))
-                                            {
-                                                if (!healer4->HasAura(24818))
-                                                {
-                                                    if (healer4->GetPower(Powers::POWER_MANA) > 500)
-                                                    {
-                                                        myGroup->SetTargetIcon(2, me->GetGUID(), healer4->GetGUID());
-                                                        activeHealerSwitched = true;
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                if (me->IsAlive())
-                                {
-                                    if (!me->GetNearbyCreatureWithEntry(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Dream_Fog, 3.0f))
-                                    {
-                                        if (!me->HasAura(24818))
-                                        {
-                                            if (me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA) > 50)
-                                            {
-                                                if (tank2->GetHealthPct() < 90.0f)
-                                                {
-                                                    if (sb->SubHeal(tank2))
-                                                    {
-                                                        return true;
-                                                    }
-                                                }
-                                                if (Player* tank1 = GetPlayerByGroupRole(GroupRole_Lethon::GroupRole_Lethon_Tank1))
-                                                {
-                                                    if (tank1->IsAlive())
-                                                    {
-                                                        if (tank1->GetHealthPct() < 50.0f)
-                                                        {
-                                                            if (sb->Heal(tank1, true))
-                                                            {
-                                                                return true;
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        return true;
-                    }
+                    subRoleSet.insert(GroupRole_Lethon::GroupRole_Lethon_Healer1);
+                    subRoleSet.insert(GroupRole_Lethon::GroupRole_Lethon_Healer2);
+                    break;
                 }
-                break;
-            }
-            case GroupRole_Lethon::GroupRole_Lethon_Healer6:
-            {
-                if (Player* tank2 = GetPlayerByGroupRole(GroupRole_Lethon::GroupRole_Lethon_Tank2))
+                case GroupRole_Lethon::GroupRole_Lethon_Healer4:
                 {
-                    if (tank2->IsAlive())
-                    {
-                        if (bossPositionValid)
-                        {
-                            if (myPositionValid)
-                            {
-                                float myTankDistance = me->GetExactDist(tank2->GetPosition());
-                                if (myTankDistance > 40.0f)
-                                {
-                                    myPositionValid = false;
-                                }
-                            }
-                            if (!myPositionValid)
-                            {
-                                markPos = GetNearPoint(boss->GetPosition(), engageDistance, engageAngle);
-                                actionDelay = 3000;
-                                actionType = ActionType_Lethon::ActionType_Lethon_MarkMove;
-                                me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
-                                me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
-                                me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
-                                me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
-                                me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(boss->GetPosition()));
-                                return true;
-                            }
-                        }
-                        if (ObjectGuid activeHealerOG = myGroup->GetOGByTargetIcon(2))
-                        {
-                            if (activeHealerOG == me->GetGUID())
-                            {
-                                if (me->IsAlive())
-                                {
-                                    if (!me->GetNearbyCreatureWithEntry(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Dream_Fog, 3.0f))
-                                    {
-                                        if (!me->HasAura(24818))
-                                        {
-                                            if (me->GetPower(Powers::POWER_MANA) > 500)
-                                            {
-                                                if (tank2->GetHealthPct() < 90.0f)
-                                                {
-                                                    if (sb->Heal(tank2, true))
-                                                    {
-                                                        return true;
-                                                    }
-                                                }
-                                                if (me->GetHealthPct() < 50.0f)
-                                                {
-                                                    if (sb->Heal(me, true))
-                                                    {
-                                                        return true;
-                                                    }
-                                                }
-                                                return true;
-                                            }
-                                        }
-                                    }
-                                }
-                                bool activeHealerSwitched = false;
-                                if (Player* healer4 = GetPlayerByGroupRole(GroupRole_Lethon::GroupRole_Lethon_Healer4))
-                                {
-                                    if (healer4->IsAlive())
-                                    {
-                                        if (!healer4->GetNearbyCreatureWithEntry(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Dream_Fog, 3.0f))
-                                        {
-                                            if (!healer4->HasAura(24818))
-                                            {
-                                                if (healer4->GetPower(Powers::POWER_MANA) > 500)
-                                                {
-                                                    myGroup->SetTargetIcon(2, me->GetGUID(), healer4->GetGUID());
-                                                    activeHealerSwitched = true;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                if (!activeHealerSwitched)
-                                {
-                                    if (Player* healer5 = GetPlayerByGroupRole(GroupRole_Lethon::GroupRole_Lethon_Healer5))
-                                    {
-                                        if (healer5->IsAlive())
-                                        {
-                                            if (!healer5->GetNearbyCreatureWithEntry(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Dream_Fog, 3.0f))
-                                            {
-                                                if (!healer5->HasAura(24818))
-                                                {
-                                                    if (healer5->GetPower(Powers::POWER_MANA) > 500)
-                                                    {
-                                                        myGroup->SetTargetIcon(2, me->GetGUID(), healer5->GetGUID());
-                                                        activeHealerSwitched = true;
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                if (me->IsAlive())
-                                {
-                                    if (!me->GetNearbyCreatureWithEntry(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Dream_Fog, 3.0f))
-                                    {
-                                        if (!me->HasAura(24818))
-                                        {
-                                            if (me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA) > 50)
-                                            {
-                                                if (tank2->GetHealthPct() < 90.0f)
-                                                {
-                                                    if (sb->SubHeal(tank2))
-                                                    {
-                                                        return true;
-                                                    }
-                                                }
-                                                if (Player* tank1 = GetPlayerByGroupRole(GroupRole_Lethon::GroupRole_Lethon_Tank1))
-                                                {
-                                                    if (tank1->IsAlive())
-                                                    {
-                                                        if (tank1->GetHealthPct() < 50.0f)
-                                                        {
-                                                            if (sb->Heal(tank1, true))
-                                                            {
-                                                                return true;
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        return true;
-                    }
+                    subRoleSet.insert(GroupRole_Lethon::GroupRole_Lethon_Healer5);
+                    subRoleSet.insert(GroupRole_Lethon::GroupRole_Lethon_Healer6);
+                    break;
                 }
-                break;
-            }
-            case GroupRole_Lethon::GroupRole_Lethon_Healer7:
-            {
-                if (bossPositionValid)
+                case GroupRole_Lethon::GroupRole_Lethon_Healer5:
                 {
-                    if (!myPositionValid)
-                    {
-                        markPos = GetNearPoint(boss->GetPosition(), engageDistance, engageAngle);
-                        actionDelay = 3000;
-                        actionType = ActionType_Lethon::ActionType_Lethon_MarkMove;
-                        me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
-                        me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
-                        me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
-                        me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
-                        me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(boss->GetPosition()));
-                        return true;
-                    }
+                    subRoleSet.insert(GroupRole_Lethon::GroupRole_Lethon_Healer4);
+                    subRoleSet.insert(GroupRole_Lethon::GroupRole_Lethon_Healer6);
+                    break;
                 }
-                if (ObjectGuid activeHealerOG = myGroup->GetOGByTargetIcon(3))
+                case GroupRole_Lethon::GroupRole_Lethon_Healer6:
                 {
-                    if (activeHealerOG == me->GetGUID())
+                    subRoleSet.insert(GroupRole_Lethon::GroupRole_Lethon_Healer4);
+                    subRoleSet.insert(GroupRole_Lethon::GroupRole_Lethon_Healer5);
+                    break;
+                }
+                case GroupRole_Lethon::GroupRole_Lethon_Healer7:
+                {
+                    subRoleSet.insert(GroupRole_Lethon::GroupRole_Lethon_Healer8);
+                    break;
+                }
+                case GroupRole_Lethon::GroupRole_Lethon_Healer8:
+                {
+                    subRoleSet.insert(GroupRole_Lethon::GroupRole_Lethon_Healer7);
+                    break;
+                }
+                default:
+                {
+                    break;
+                }
+                }
+                for (std::unordered_set<uint32>::iterator roleIT = subRoleSet.begin(); roleIT != subRoleSet.end(); roleIT++)
+                {
+                    if (uint32 eachRole = *roleIT)
                     {
-                        if (me->IsAlive())
+                        if (Player* eachHealer = GetPlayerByGroupRole(eachRole))
                         {
-                            if (!me->GetNearbyCreatureWithEntry(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Dream_Fog, 3.0f))
+                            if (eachHealer->IsAlive())
                             {
-                                if (!me->HasAura(24818))
+                                if (!eachHealer->GetNearbyCreatureWithEntry(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Dream_Fog, 3.0f))
                                 {
-                                    if (me->GetPower(Powers::POWER_MANA) > 500)
+                                    if (!eachHealer->HasAura(24818))
                                     {
-                                        for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                                        if (eachHealer->GetPower(Powers::POWER_MANA) > 500)
                                         {
-                                            if (Player* member = groupRef->GetSource())
-                                            {
-                                                if (member->IsAlive())
-                                                {
-                                                    if (member->groupRole == GroupRole_Lethon::GroupRole_Lethon_Tank1 || member->groupRole == GroupRole_Lethon::GroupRole_Lethon_Tank2)
-                                                    {
-                                                        continue;
-                                                    }
-                                                    if (member->GetHealthPct() < 50.0f)
-                                                    {
-                                                        if (sb->Heal(member, true))
-                                                        {
-                                                            return true;
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        return true;
-                                    }
-                                }
-                            }
-                        }
-                        if (Player* healer8 = GetPlayerByGroupRole(GroupRole_Lethon::GroupRole_Lethon_Healer8))
-                        {
-                            if (healer8->IsAlive())
-                            {
-                                if (!healer8->GetNearbyCreatureWithEntry(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Dream_Fog, 3.0f))
-                                {
-                                    if (!healer8->HasAura(24818))
-                                    {
-                                        if (healer8->GetPower(Powers::POWER_MANA) > 500)
-                                        {
-                                            myGroup->SetTargetIcon(3, me->GetGUID(), healer8->GetGUID());
+                                            myGroup->SetTargetIcon(myTargetIcon, me->GetGUID(), eachHealer->GetGUID());
+                                            break;
                                         }
                                     }
                                 }
@@ -2131,91 +1278,9 @@ bool RobotStrategy_Group_Lethon::Heal()
                         }
                     }
                 }
-                return true;
-                break;
-            }
-            case GroupRole_Lethon::GroupRole_Lethon_Healer8:
-            {
-                if (bossPositionValid)
-                {
-                    if (!myPositionValid)
-                    {
-                        markPos = GetNearPoint(boss->GetPosition(), engageDistance, engageAngle);
-                        actionDelay = 3000;
-                        actionType = ActionType_Lethon::ActionType_Lethon_MarkMove;
-                        me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
-                        me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
-                        me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
-                        me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
-                        me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(boss->GetPosition()));
-                        return true;
-                    }
-                }
-                if (ObjectGuid activeHealerOG = myGroup->GetOGByTargetIcon(3))
-                {
-                    if (activeHealerOG == me->GetGUID())
-                    {
-                        if (me->IsAlive())
-                        {
-                            if (!me->GetNearbyCreatureWithEntry(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Dream_Fog, 3.0f))
-                            {
-                                if (!me->HasAura(24818))
-                                {
-                                    if (me->GetPower(Powers::POWER_MANA) > 500)
-                                    {
-                                        for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-                                        {
-                                            if (Player* member = groupRef->GetSource())
-                                            {
-                                                if (member->IsAlive())
-                                                {
-                                                    if (member->groupRole == GroupRole_Lethon::GroupRole_Lethon_Tank1 || member->groupRole == GroupRole_Lethon::GroupRole_Lethon_Tank2)
-                                                    {
-                                                        continue;
-                                                    }
-                                                    if (member->GetHealthPct() < 50.0f)
-                                                    {
-                                                        if (sb->Heal(member, true))
-                                                        {
-                                                            return true;
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        return true;
-                                    }
-                                }
-                            }
-                        }
-                        if (Player* healer7 = GetPlayerByGroupRole(GroupRole_Lethon::GroupRole_Lethon_Healer7))
-                        {
-                            if (healer7->IsAlive())
-                            {
-                                if (!healer7->GetNearbyCreatureWithEntry(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Dream_Fog, 3.0f))
-                                {
-                                    if (!healer7->HasAura(24818))
-                                    {
-                                        if (healer7->GetPower(Powers::POWER_MANA) > 500)
-                                        {
-                                            myGroup->SetTargetIcon(3, me->GetGUID(), healer7->GetGUID());
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                return true;
-                break;
-            }
-            default:
-            {
-                break;
-            }
             }
         }
+        return true;
     }
-
     return RobotStrategy_Group::Heal();
 }

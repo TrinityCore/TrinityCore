@@ -962,57 +962,42 @@ void RobotStrategy_Group_Emeriss::Update(uint32 pmDiff)
 
 bool RobotStrategy_Group_Emeriss::DPS()
 {
-    if (!me->IsAlive())
+    if (Unit* boss = GetAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Emeriss))
     {
-        return true;
-    }
-    if (me->HasAura(24778))
-    {
-        return true;
-    }
-    if (Group* myGroup = me->GetGroup())
-    {
-        if (Unit* boss = GetAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Emeriss))
+        if (me->IsAlive())
         {
-            bool bossPositionValid = false;
-            if (AngleInRange(basePos.GetOrientation(), boss->GetOrientation(), ANGLE_RANGE))
+            if (Group* myGroup = me->GetGroup())
             {
-                bossPositionValid = true;
-            }
-            else if (AngleInRange(basePos.GetOrientation() + M_PI, boss->GetOrientation(), ANGLE_RANGE))
-            {
-                bossPositionValid = true;
-            }
-            if (bossPositionValid)
-            {
-                bool myPositionValid = false;
-                float myBossAngle = boss->GetPosition().GetAbsoluteAngle(me->GetPosition());
-                float myBossDistance = me->GetExactDist(boss->GetPosition());
-                float engageDistanceMin = 13.0f;
-                float engageDistanceMax = 15.0f;
-                if (me->groupRole == GroupRole_Emeriss::GroupRole_Emeriss_DPS_Range)
+                bool moving = false;
+                bool attacking = false;
+                if (boss->GetTarget() != me->GetGUID())
                 {
-                    engageDistanceMin = 28.0f;
-                    engageDistanceMax = 49.0f;
-                    if (myBossAngle > basePos.GetOrientation() + M_PI * 5 / 16 && myBossAngle < basePos.GetOrientation() + M_PI * 11 / 16)
+                    attacking = true;
+                    if (Player* bossTarget = ObjectAccessor::GetPlayer(*me, boss->GetTarget()))
                     {
-                        if (myBossDistance > engageDistanceMin && myBossDistance < engageDistanceMax)
+                        if (bossTarget->groupRole == GroupRole_Emeriss::GroupRole_Emeriss_Tank1 || bossTarget->groupRole == GroupRole_Emeriss::GroupRole_Emeriss_Tank2)
                         {
-                            myPositionValid = true;
+                            float bossDistance = boss->GetExactDist(bossTarget->GetPosition());
+                            if (bossDistance < 20.0f)
+                            {
+                                if (AngleInRange(basePos.GetOrientation(), boss->GetOrientation(), ANGLE_RANGE) || AngleInRange(basePos.GetOrientation() + M_PI, boss->GetOrientation(), ANGLE_RANGE))
+                                {
+                                    float myBossDistance = boss->GetExactDist(me->GetPosition());
+                                    float myBossAngle = boss->GetAbsoluteAngle(me->GetPosition());
+                                    if (myBossDistance < engageDistance - 1.0f || myBossDistance>engageDistance + 1.0f)
+                                    {
+                                        moving = true;
+                                    }
+                                    else if (!AngleInRange(myBossAngle, engageAngle, ANGLE_RANGE))
+                                    {
+                                        moving = true;
+                                    }
+                                }
+                            }
                         }
                     }
                 }
-                else
-                {
-                    if (AngleInRange(myBossAngle, engageAngle, ANGLE_RANGE))
-                    {
-                        if (myBossDistance > engageDistanceMin && myBossDistance < engageDistanceMax)
-                        {
-                            myPositionValid = true;
-                        }
-                    }
-                }
-                if (!myPositionValid)
+                if (moving)
                 {
                     markPos = GetNearPoint(boss->GetPosition(), engageDistance, engageAngle);
                     actionDelay = 3000;
@@ -1022,257 +1007,167 @@ bool RobotStrategy_Group_Emeriss::DPS()
                     me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
                     me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
                     me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(boss->GetPosition()));
-                    return true;
+                }
+                else if (attacking)
+                {
+                    if (combatTime > dpsDelay)
+                    {
+                        bool doDPS = false;
+                        if (me->GetHealthPct() > 90.0f)
+                        {
+                            doDPS = true;
+                        }
+                        else if (boss->GetHealthPct() < 25.0f)
+                        {
+                            doDPS = true;
+                        }
+                        if (doDPS)
+                        {
+                            sb->DPS(boss, false, false, NULL);
+                        }
+                    }
                 }
             }
-            if (combatTime > dpsDelay)
-            {
-                bool doDPS = false;
-                if (me->GetHealthPct() > 90.0f)
-                {
-                    doDPS = true;
-                }
-                else if (boss->GetHealthPct() < 25.0f)
-                {
-                    doDPS = true;
-                }
-                if (doDPS)
-                {
-                    sb->DPS(boss, false, false, NULL);
-                }
-            }
-            return true;
         }
+        return true;
     }
-
     return RobotStrategy_Group::DPS();
 }
 
 bool RobotStrategy_Group_Emeriss::Tank()
 {
-    if (Group* myGroup = me->GetGroup())
+    if (Unit* boss = GetAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Emeriss))
     {
-        if (Unit* boss = GetAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Emeriss))
+        if (Group* myGroup = me->GetGroup())
         {
-            switch (me->groupRole)
+            ObjectGuid activeOG = myGroup->GetOGByTargetIcon(0);
+            if (!activeOG.IsEmpty())
             {
-            case GroupRole_Emeriss::GroupRole_Emeriss_Tank1:
-            {
-                if (ObjectGuid activeTankOG = myGroup->GetOGByTargetIcon(0))
+                bool moving = false;
+                bool tanking = false;
+                bool assisting = false;
+                bool changing = false;
+                if (activeOG == me->GetGUID())
                 {
-                    if (activeTankOG == me->GetGUID())
+                    if (!me->IsAlive())
                     {
-                        if (me->IsAlive())
-                        {
-                            if (!me->HasAura(24778))
-                            {
-                                if (me->GetAuraCount(24818) < 3)
-                                {
-                                    float myBossDistance = me->GetExactDist(boss->GetPosition());
-                                    if (myBossDistance < 22.0f)
-                                    {
-                                        if (boss->GetTarget() == me->GetGUID())
-                                        {
-                                            bool positionValid = true;
-                                            if (myBossDistance < 13.0f)
-                                            {
-                                                positionValid = false;
-                                            }
-                                            else if (!AngleInRange(basePos.GetOrientation(), boss->GetOrientation(), ANGLE_RANGE))
-                                            {
-                                                positionValid = false;
-                                            }
-                                            if (!positionValid)
-                                            {
-                                                markPos = GetNearPoint(boss->GetPosition(), 14.0f, basePos.GetOrientation());
-                                                actionDelay = 3000;
-                                                actionType = ActionType_Emeriss::ActionType_Emeriss_MarkMove;
-                                                me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
-                                                me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
-                                                me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
-                                                me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
-                                                me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(boss->GetPosition()));
-                                                return true;
-                                            }
-                                        }
-                                    }
-                                    sb->Taunt(boss);
-                                    sb->Tank(boss, false);
-                                    return true;
-                                }
-                            }
-                        }
-                        if (Player* tank2 = GetPlayerByGroupRole(GroupRole_Emeriss::GroupRole_Emeriss_Tank2))
-                        {
-                            if (tank2->IsAlive())
-                            {
-                                if (!tank2->HasAura(24778))
-                                {
-                                    myGroup->SetTargetIcon(0, me->GetGUID(), tank2->GetGUID());
-                                }
-                            }
-                        }
+                        changing = true;
+                    }
+                    else if (me->GetNearbyCreatureWithEntry(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Dream_Fog, 3.0f))
+                    {
+                        changing = true;
+                    }
+                    else if (me->GetAuraCount(24818) >= 3)
+                    {
+                        changing = true;
                     }
                     else
                     {
-                        if (boss->GetTarget() != me->GetGUID())
+                        tanking = true;
+                        float myBossDistance = boss->GetExactDist(me->GetPosition());
+                        if (myBossDistance < 20.0f)
                         {
-                            bool bossPositionValid = false;
-                            if (AngleInRange(basePos.GetOrientation(), boss->GetOrientation(), ANGLE_RANGE))
+                            if (!AngleInRange(basePos.GetOrientation(), boss->GetOrientation(), ANGLE_RANGE) && !AngleInRange(basePos.GetOrientation() + M_PI, boss->GetOrientation(), ANGLE_RANGE))
                             {
-                                bossPositionValid = true;
+                                moving = true;
                             }
-                            else if (AngleInRange(basePos.GetOrientation() + M_PI, boss->GetOrientation(), ANGLE_RANGE))
+                            else if (myBossDistance < engageDistance - 1.0f || myBossDistance>engageDistance + 1.0f)
                             {
-                                bossPositionValid = true;
+                                moving = true;
                             }
-                            if (bossPositionValid)
-                            {
-                                bool myPositionValid = false;
-                                float myBossAngle = boss->GetPosition().GetAbsoluteAngle(me->GetPosition());
-                                if (AngleInRange(engageAngle, myBossAngle, ANGLE_RANGE))
-                                {
-                                    float myBossDistance = me->GetExactDist(boss->GetPosition());
-                                    if (myBossDistance > 13.0f && myBossDistance < 15.0f)
-                                    {
-                                        myPositionValid = true;
-                                    }
-                                }
-                                if (!myPositionValid)
-                                {
-                                    if (me->groupRole == GroupRole_Emeriss::GroupRole_Emeriss_DPS_Range)
-                                    {
-                                        engageDistance = frand(37.0f, 43.0f);
-                                    }
-                                    markPos = GetNearPoint(boss->GetPosition(), engageDistance, engageAngle);
-                                    actionDelay = 3000;
-                                    actionType = ActionType_Emeriss::ActionType_Emeriss_MarkMove;
-                                    me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
-                                    me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
-                                    me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
-                                    me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
-                                    me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(boss->GetPosition()));
-                                    return true;
-                                }
-                            }
-                            sb->SubTank(boss, false);
                         }
                     }
                 }
-                break;
-            }
-            case GroupRole_Emeriss::GroupRole_Emeriss_Tank2:
-            {
-                if (ObjectGuid activeTankOG = myGroup->GetOGByTargetIcon(0))
+                else
                 {
-                    if (activeTankOG == me->GetGUID())
+                    if (me->IsAlive())
                     {
-                        if (me->IsAlive())
+                        if (boss->GetTarget() != me->GetGUID())
                         {
-                            if (!me->HasAura(24778))
+                            assisting = true;
+                            if (Player* bossTarget = ObjectAccessor::GetPlayer(*me, boss->GetTarget()))
                             {
-                                if (me->GetAuraCount(24818) < 3)
+                                if (bossTarget->groupRole == GroupRole_Emeriss::GroupRole_Emeriss_Tank1 || bossTarget->groupRole == GroupRole_Emeriss::GroupRole_Emeriss_Tank2)
                                 {
-                                    float myBossDistance = me->GetExactDist(boss->GetPosition());
-                                    if (myBossDistance < 22.0f)
+                                    float bossDistance = boss->GetExactDist(bossTarget->GetPosition());
+                                    if (bossDistance < 20.0f)
                                     {
-                                        if (boss->GetTarget() == me->GetGUID())
+                                        if (AngleInRange(basePos.GetOrientation(), boss->GetOrientation(), ANGLE_RANGE) || AngleInRange(basePos.GetOrientation() + M_PI, boss->GetOrientation(), ANGLE_RANGE))
                                         {
-                                            bool positionValid = true;
-                                            if (myBossDistance < 13.0f)
+                                            float myBossDistance = boss->GetExactDist(me->GetPosition());
+                                            float myBossAngle = boss->GetAbsoluteAngle(me->GetPosition());
+                                            if (myBossDistance < engageDistance - 1.0f || myBossDistance>engageDistance + 1.0f)
                                             {
-                                                positionValid = false;
+                                                moving = true;
                                             }
-                                            else if (!AngleInRange(basePos.GetOrientation() + M_PI, boss->GetOrientation(), ANGLE_RANGE))
+                                            else if (!AngleInRange(myBossAngle, engageAngle, ANGLE_RANGE))
                                             {
-                                                positionValid = false;
-                                            }
-                                            if (!positionValid)
-                                            {
-                                                markPos = GetNearPoint(boss->GetPosition(), 14.0f, basePos.GetOrientation() + M_PI);
-                                                actionDelay = 3000;
-                                                actionType = ActionType_Emeriss::ActionType_Emeriss_MarkMove;
-                                                me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
-                                                me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
-                                                me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
-                                                me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
-                                                me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(boss->GetPosition()));
-                                                return true;
+                                                moving = true;
                                             }
                                         }
                                     }
-                                    sb->Taunt(boss);
-                                    sb->Tank(boss, false);
-                                    return true;
                                 }
                             }
-                        }
-                        if (Player* tank1 = GetPlayerByGroupRole(GroupRole_Emeriss::GroupRole_Emeriss_Tank1))
-                        {
-                            if (tank1->IsAlive())
-                            {
-                                if (!tank1->HasAura(24778))
-                                {
-                                    myGroup->SetTargetIcon(0, me->GetGUID(), tank1->GetGUID());
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (boss->GetTarget() != me->GetGUID())
-                        {
-                            bool bossPositionValid = false;
-                            if (AngleInRange(basePos.GetOrientation(), boss->GetOrientation(), ANGLE_RANGE))
-                            {
-                                bossPositionValid = true;
-                            }
-                            else if (AngleInRange(basePos.GetOrientation() + M_PI, boss->GetOrientation(), ANGLE_RANGE))
-                            {
-                                bossPositionValid = true;
-                            }
-                            if (bossPositionValid)
-                            {
-                                bool myPositionValid = false;
-                                float myBossAngle = boss->GetPosition().GetAbsoluteAngle(me->GetPosition());
-                                if (AngleInRange(engageAngle, myBossAngle, ANGLE_RANGE))
-                                {
-                                    float myBossDistance = me->GetExactDist(boss->GetPosition());
-                                    if (myBossDistance > 13.0f && myBossDistance < 15.0f)
-                                    {
-                                        myPositionValid = true;
-                                    }
-                                }
-                                if (!myPositionValid)
-                                {
-                                    if (me->groupRole == GroupRole_Emeriss::GroupRole_Emeriss_DPS_Range)
-                                    {
-                                        engageDistance = frand(37.0f, 43.0f);
-                                    }
-                                    markPos = GetNearPoint(boss->GetPosition(), engageDistance, engageAngle);
-                                    actionDelay = 3000;
-                                    actionType = ActionType_Emeriss::ActionType_Emeriss_MarkMove;
-                                    me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
-                                    me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
-                                    me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
-                                    me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
-                                    me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(boss->GetPosition()));
-                                    return true;
-                                }
-                            }
-                            sb->SubTank(boss, false);
                         }
                     }
                 }
-                break;
+                if (moving)
+                {
+                    markPos = GetNearPoint(boss->GetPosition(), engageDistance, engageAngle);
+                    actionDelay = 3000;
+                    actionType = ActionType_Emeriss::ActionType_Emeriss_MarkMove;
+                    me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                    me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                    me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                    me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                    me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(boss->GetPosition()));
+                }
+                else if (tanking)
+                {
+                    sb->Taunt(boss);
+                    sb->Tank(boss, false);
+                }
+                else if (assisting)
+                {
+                    sb->SubTank(boss, false);
+                }
+                else if (changing)
+                {
+                    uint32 subRole = GroupRole_Emeriss::GroupRole_Emeriss_None;
+                    switch (me->groupRole)
+                    {
+                    case GroupRole_Emeriss::GroupRole_Emeriss_Tank1:
+                    {
+                        subRole = GroupRole_Emeriss::GroupRole_Emeriss_Tank2;
+                        break;
+                    }
+                    case GroupRole_Emeriss::GroupRole_Emeriss_Tank2:
+                    {
+                        subRole = GroupRole_Emeriss::GroupRole_Emeriss_Tank1;
+                        break;
+                    }
+                    default:
+                    {
+                        break;
+                    }
+                    }
+                    if (Player* subTank = GetPlayerByGroupRole(subRole))
+                    {
+                        if (subTank->IsAlive())
+                        {
+                            if (!subTank->GetNearbyCreatureWithEntry(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Dream_Fog, 3.0f))
+                            {
+                                if (subTank->GetAuraCount(24818) < 3)
+                                {
+                                    myGroup->SetTargetIcon(0, me->GetGUID(), subTank->GetGUID());
+                                }
+                            }
+                        }
+                    }
+                }
             }
-            default:
-            {
-                break;
-            }
-            }
-            return true;
         }
+        return true;
     }
     return RobotStrategy_Group::Tank();
 }
@@ -1306,965 +1201,144 @@ bool RobotStrategy_Group_Emeriss::Tank(Unit* pmTarget)
 
 bool RobotStrategy_Group_Emeriss::Heal()
 {
-    if (Group* myGroup = me->GetGroup())
+    if (Unit* boss = GetAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Emeriss))
     {
-        if (Unit* boss = GetAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Emeriss))
+        if (Group* myGroup = me->GetGroup())
         {
-            bool bossPositionValid = false;
-            bool myPositionValid = false;
-            if (AngleInRange(basePos.GetOrientation(), boss->GetOrientation(), ANGLE_RANGE))
+            int myTargetIcon = -1;
+            if (me->groupRole == GroupRole_Emeriss::GroupRole_Emeriss_Healer1 || me->groupRole == GroupRole_Emeriss::GroupRole_Emeriss_Healer2)
             {
-                bossPositionValid = true;
+                myTargetIcon = 1;
             }
-            else if (AngleInRange(basePos.GetOrientation() + M_PI, boss->GetOrientation(), ANGLE_RANGE))
+            else if (me->groupRole == GroupRole_Emeriss::GroupRole_Emeriss_Healer3 || me->groupRole == GroupRole_Emeriss::GroupRole_Emeriss_Healer4)
             {
-                bossPositionValid = true;
+                myTargetIcon = 2;
             }
-            if (bossPositionValid)
+            bool moving = false;
+            bool healing = false;
+            bool assisting = false;
+            bool changing = false;
+            if (me->IsAlive())
             {
-                float myBossAngle = boss->GetPosition().GetAbsoluteAngle(me->GetPosition());
-                if (myBossAngle > basePos.GetOrientation() + M_PI * 5 / 16 && myBossAngle < basePos.GetOrientation() + M_PI * 11 / 16)
+                if (boss->GetTarget() != me->GetGUID())
                 {
-                    float myBossDistance = me->GetExactDist(boss->GetPosition());
-                    if (myBossDistance > 18.0f && myBossDistance < 42.0f)
+                    assisting = true;
+                    if (Player* bossTarget = ObjectAccessor::GetPlayer(*me, boss->GetTarget()))
                     {
-                        myPositionValid = true;
-                    }
-                }
-            }
-            if (me->GetClass() == Classes::CLASS_PRIEST)
-            {
-                if (Player* activeTank = ObjectAccessor::GetPlayer(*me, myGroup->GetOGByTargetIcon(0)))
-                {
-                    if (activeTank->HasAura(24928))
-                    {
-                        if (me->GetExactDist(activeTank->GetPosition()) < 40.0f)
+                        if (bossTarget->groupRole == GroupRole_Emeriss::GroupRole_Emeriss_Tank1 || bossTarget->groupRole == GroupRole_Emeriss::GroupRole_Emeriss_Tank2)
                         {
-                            me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
-                            me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
-                            me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
-                            me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
-                            if (sb->CastSpell(activeTank, "Abolish Disease", 45.0f))
+                            float bossDistance = boss->GetExactDist(bossTarget->GetPosition());
+                            if (bossDistance < 20.0f)
                             {
-                                return true;
+                                if (AngleInRange(basePos.GetOrientation(), boss->GetOrientation(), ANGLE_RANGE) || AngleInRange(basePos.GetOrientation() + M_PI, boss->GetOrientation(), ANGLE_RANGE))
+                                {
+                                    float myBossDistance = boss->GetExactDist(me->GetPosition());
+                                    float myBossAngle = boss->GetAbsoluteAngle(me->GetPosition());
+                                    if (myBossDistance < engageDistance - 1.0f || myBossDistance>engageDistance + 1.0f)
+                                    {
+                                        moving = true;
+                                    }
+                                    else if (!AngleInRange(myBossAngle, engageAngle, ANGLE_RANGE))
+                                    {
+                                        moving = true;
+                                    }
+                                }
                             }
                         }
                     }
                 }
             }
-            switch (me->groupRole)
+            ObjectGuid activeOG = myGroup->GetOGByTargetIcon(myTargetIcon);
+            if (!activeOG.IsEmpty())
             {
-            case GroupRole_Emeriss::GroupRole_Emeriss_Healer1:
-            {
-                if (Player* tank1 = GetPlayerByGroupRole(GroupRole_Emeriss::GroupRole_Emeriss_Tank1))
+                if (activeOG == me->GetGUID())
                 {
-                    if (tank1->IsAlive())
+                    if (!me->IsAlive())
                     {
-                        if (bossPositionValid)
+                        changing = true;
+                    }
+                    else if (me->GetNearbyCreatureWithEntry(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Dream_Fog, 3.0f))
+                    {
+                        changing = true;
+                    }
+                    else if (me->HasAura(24818))
+                    {
+                        changing = true;
+                    }
+                    else if (me->GetPower(Powers::POWER_MANA) < 500)
+                    {
+                        changing = true;
+                    }
+                    else
+                    {
+                        healing = true;
+                    }
+                }
+            }
+            else
+            {
+                if (me->IsAlive())
+                {
+                    healing = true;
+                }
+            }
+            if (moving)
+            {
+                markPos = GetNearPoint(boss->GetPosition(), engageDistance, engageAngle);
+                actionDelay = 3000;
+                actionType = ActionType_Emeriss::ActionType_Emeriss_MarkMove;
+                me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(boss->GetPosition()));
+            }
+            else if (healing)
+            {
+                uint32 myTankRole = GroupRole_Emeriss::GroupRole_Emeriss_None;
+                if (me->groupRole == GroupRole_Emeriss::GroupRole_Emeriss_Healer1 || me->groupRole == GroupRole_Emeriss::GroupRole_Emeriss_Healer2)
+                {
+                    myTankRole = GroupRole_Emeriss::GroupRole_Emeriss_Tank1;
+                }
+                else if (me->groupRole == GroupRole_Emeriss::GroupRole_Emeriss_Healer3 || me->groupRole == GroupRole_Emeriss::GroupRole_Emeriss_Healer4)
+                {
+                    myTankRole = GroupRole_Emeriss::GroupRole_Emeriss_Tank2;
+                }
+                if (Player* myTank = GetPlayerByGroupRole(myTankRole))
+                {
+                    if (myTank->IsAlive())
+                    {
+                        if (me->GetClass() == Classes::CLASS_PRIEST)
                         {
-                            if (myPositionValid)
+                            if (myTank->HasAura(24928))
                             {
-                                float myTankDistance = me->GetExactDist(tank1->GetPosition());
-                                if (myTankDistance > 40.0f)
-                                {
-                                    myPositionValid = false;
-                                }
-                            }
-                            if (!myPositionValid)
-                            {
-                                markPos = GetNearPoint(boss->GetPosition(), engageDistance, engageAngle);
-                                actionDelay = 3000;
-                                actionType = ActionType_Emeriss::ActionType_Emeriss_MarkMove;
                                 me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
                                 me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
                                 me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
                                 me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
-                                me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(boss->GetPosition()));
+                                if (sb->CastSpell(myTank, "Abolish Disease", 45.0f))
+                                {
+                                    return true;
+                                }
+                            }
+                        }
+                        if (myTank->GetHealthPct() < 90.0f)
+                        {
+                            if (sb->Heal(myTank, true))
+                            {
                                 return true;
                             }
                         }
-                        if (ObjectGuid activeHealerOG = myGroup->GetOGByTargetIcon(1))
-                        {
-                            if (activeHealerOG == me->GetGUID())
-                            {
-                                if (me->IsAlive())
-                                {
-                                    if (!me->GetNearbyCreatureWithEntry(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Dream_Fog, 3.0f))
-                                    {
-                                        if (!me->HasAura(24818))
-                                        {
-                                            if (me->GetPower(Powers::POWER_MANA) > 500)
-                                            {
-                                                if (tank1->GetHealthPct() < 90.0f)
-                                                {
-                                                    if (sb->Heal(tank1, true))
-                                                    {
-                                                        return true;
-                                                    }
-                                                }
-                                                if (me->GetHealthPct() < 50.0f)
-                                                {
-                                                    if (sb->Heal(me, true))
-                                                    {
-                                                        return true;
-                                                    }
-                                                }
-                                                return true;
-                                            }
-                                        }
-                                    }
-                                }
-                                if (Player* healer2 = GetPlayerByGroupRole(GroupRole_Emeriss::GroupRole_Emeriss_Healer2))
-                                {
-                                    if (healer2->IsAlive())
-                                    {
-                                        if (!healer2->GetNearbyCreatureWithEntry(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Dream_Fog, 3.0f))
-                                        {
-                                            if (!healer2->HasAura(24818))
-                                            {
-                                                if (healer2->GetPower(Powers::POWER_MANA) > 500)
-                                                {
-                                                    myGroup->SetTargetIcon(1, me->GetGUID(), healer2->GetGUID());
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                if (me->IsAlive())
-                                {
-                                    if (!me->GetNearbyCreatureWithEntry(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Dream_Fog, 3.0f))
-                                    {
-                                        if (!me->HasAura(24818))
-                                        {
-                                            if (me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA) > 50)
-                                            {
-                                                if (tank1->GetHealthPct() < 90.0f)
-                                                {
-                                                    if (sb->SubHeal(tank1))
-                                                    {
-                                                        return true;
-                                                    }
-                                                }
-                                                if (Player* tank2 = GetPlayerByGroupRole(GroupRole_Emeriss::GroupRole_Emeriss_Tank2))
-                                                {
-                                                    if (tank2->IsAlive())
-                                                    {
-                                                        if (tank2->GetHealthPct() < 50.0f)
-                                                        {
-                                                            if (sb->Heal(tank2, true))
-                                                            {
-                                                                return true;
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        return true;
                     }
-                }
-                break;
-            }
-            case GroupRole_Emeriss::GroupRole_Emeriss_Healer2:
-            {
-                if (Player* tank1 = GetPlayerByGroupRole(GroupRole_Emeriss::GroupRole_Emeriss_Tank1))
-                {
-                    if (tank1->IsAlive())
+                    if (me->GetHealthPct() < 50.0f)
                     {
-                        if (bossPositionValid)
+                        if (sb->Heal(me, true))
                         {
-                            if (myPositionValid)
-                            {
-                                float myTankDistance = me->GetExactDist(tank1->GetPosition());
-                                if (myTankDistance > 40.0f)
-                                {
-                                    myPositionValid = false;
-                                }
-                            }
-                            if (!myPositionValid)
-                            {
-                                markPos = GetNearPoint(boss->GetPosition(), engageDistance, engageAngle);
-                                actionDelay = 3000;
-                                actionType = ActionType_Emeriss::ActionType_Emeriss_MarkMove;
-                                me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
-                                me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
-                                me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
-                                me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
-                                me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(boss->GetPosition()));
-                                return true;
-                            }
-                        }
-                        if (ObjectGuid activeHealerOG = myGroup->GetOGByTargetIcon(1))
-                        {
-                            if (activeHealerOG == me->GetGUID())
-                            {
-                                if (me->IsAlive())
-                                {
-                                    if (!me->GetNearbyCreatureWithEntry(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Dream_Fog, 3.0f))
-                                    {
-                                        if (!me->HasAura(24818))
-                                        {
-                                            if (me->GetPower(Powers::POWER_MANA) > 500)
-                                            {
-                                                if (tank1->GetHealthPct() < 90.0f)
-                                                {
-                                                    if (sb->Heal(tank1, true))
-                                                    {
-                                                        return true;
-                                                    }
-                                                }
-                                                if (me->GetHealthPct() < 50.0f)
-                                                {
-                                                    if (sb->Heal(me, true))
-                                                    {
-                                                        return true;
-                                                    }
-                                                }
-                                                return true;
-                                            }
-                                        }
-                                    }
-                                }
-
-                                if (Player* healer1 = GetPlayerByGroupRole(GroupRole_Emeriss::GroupRole_Emeriss_Healer1))
-                                {
-                                    if (healer1->IsAlive())
-                                    {
-                                        if (!healer1->GetNearbyCreatureWithEntry(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Dream_Fog, 3.0f))
-                                        {
-                                            if (!healer1->HasAura(24818))
-                                            {
-                                                if (healer1->GetPower(Powers::POWER_MANA) > 500)
-                                                {
-                                                    myGroup->SetTargetIcon(1, me->GetGUID(), healer1->GetGUID());
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                if (me->IsAlive())
-                                {
-                                    if (!me->GetNearbyCreatureWithEntry(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Dream_Fog, 3.0f))
-                                    {
-                                        if (!me->HasAura(24818))
-                                        {
-                                            if (me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA) > 50)
-                                            {
-                                                if (tank1->GetHealthPct() < 90.0f)
-                                                {
-                                                    if (sb->SubHeal(tank1))
-                                                    {
-                                                        return true;
-                                                    }
-                                                }
-                                                if (Player* tank2 = GetPlayerByGroupRole(GroupRole_Emeriss::GroupRole_Emeriss_Tank2))
-                                                {
-                                                    if (tank2->IsAlive())
-                                                    {
-                                                        if (tank2->GetHealthPct() < 50.0f)
-                                                        {
-                                                            if (sb->Heal(tank2, true))
-                                                            {
-                                                                return true;
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        return true;
-                    }
-                }
-                break;
-            }
-            case GroupRole_Emeriss::GroupRole_Emeriss_Healer3:
-            {
-                if (Player* tank2 = GetPlayerByGroupRole(GroupRole_Emeriss::GroupRole_Emeriss_Tank2))
-                {
-                    if (tank2->IsAlive())
-                    {
-                        if (bossPositionValid)
-                        {
-                            if (myPositionValid)
-                            {
-                                float myTankDistance = me->GetExactDist(tank2->GetPosition());
-                                if (myTankDistance > 40.0f)
-                                {
-                                    myPositionValid = false;
-                                }
-                            }
-                            if (!myPositionValid)
-                            {
-                                markPos = GetNearPoint(boss->GetPosition(), engageDistance, engageAngle);
-                                actionDelay = 3000;
-                                actionType = ActionType_Emeriss::ActionType_Emeriss_MarkMove;
-                                me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
-                                me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
-                                me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
-                                me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
-                                me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(boss->GetPosition()));
-                                return true;
-                            }
-                        }
-                        if (ObjectGuid activeHealerOG = myGroup->GetOGByTargetIcon(2))
-                        {
-                            if (activeHealerOG == me->GetGUID())
-                            {
-                                if (me->IsAlive())
-                                {
-                                    if (!me->GetNearbyCreatureWithEntry(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Dream_Fog, 3.0f))
-                                    {
-                                        if (!me->HasAura(24818))
-                                        {
-                                            if (me->GetPower(Powers::POWER_MANA) > 500)
-                                            {
-                                                if (tank2->GetHealthPct() < 90.0f)
-                                                {
-                                                    if (sb->Heal(tank2, true))
-                                                    {
-                                                        return true;
-                                                    }
-                                                }
-                                                if (me->GetHealthPct() < 50.0f)
-                                                {
-                                                    if (sb->Heal(me, true))
-                                                    {
-                                                        return true;
-                                                    }
-                                                }
-                                                return true;
-                                            }
-                                        }
-                                    }
-                                }
-                                if (Player* healer4 = GetPlayerByGroupRole(GroupRole_Emeriss::GroupRole_Emeriss_Healer4))
-                                {
-                                    if (healer4->IsAlive())
-                                    {
-                                        if (!healer4->GetNearbyCreatureWithEntry(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Dream_Fog, 3.0f))
-                                        {
-                                            if (!healer4->HasAura(24818))
-                                            {
-                                                if (healer4->GetPower(Powers::POWER_MANA) > 500)
-                                                {
-                                                    myGroup->SetTargetIcon(2, me->GetGUID(), healer4->GetGUID());
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                if (me->IsAlive())
-                                {
-                                    if (!me->GetNearbyCreatureWithEntry(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Dream_Fog, 3.0f))
-                                    {
-                                        if (!me->HasAura(24818))
-                                        {
-                                            if (me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA) > 50)
-                                            {
-                                                if (tank2->GetHealthPct() < 90.0f)
-                                                {
-                                                    if (sb->SubHeal(tank2))
-                                                    {
-                                                        return true;
-                                                    }
-                                                }
-                                                if (Player* tank1 = GetPlayerByGroupRole(GroupRole_Emeriss::GroupRole_Emeriss_Tank1))
-                                                {
-                                                    if (tank1->IsAlive())
-                                                    {
-                                                        if (tank1->GetHealthPct() < 50.0f)
-                                                        {
-                                                            if (sb->Heal(tank1, true))
-                                                            {
-                                                                return true;
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        return true;
-                    }
-                }
-                break;
-            }
-            case GroupRole_Emeriss::GroupRole_Emeriss_Healer4:
-            {
-                if (Player* tank2 = GetPlayerByGroupRole(GroupRole_Emeriss::GroupRole_Emeriss_Tank2))
-                {
-                    if (tank2->IsAlive())
-                    {
-                        if (bossPositionValid)
-                        {
-                            if (myPositionValid)
-                            {
-                                float myTankDistance = me->GetExactDist(tank2->GetPosition());
-                                if (myTankDistance > 40.0f)
-                                {
-                                    myPositionValid = false;
-                                }
-                            }
-                            if (!myPositionValid)
-                            {
-                                markPos = GetNearPoint(boss->GetPosition(), engageDistance, engageAngle);
-                                actionDelay = 3000;
-                                actionType = ActionType_Emeriss::ActionType_Emeriss_MarkMove;
-                                me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
-                                me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
-                                me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
-                                me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
-                                me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(boss->GetPosition()));
-                                return true;
-                            }
-                        }
-                        if (ObjectGuid activeHealerOG = myGroup->GetOGByTargetIcon(2))
-                        {
-                            if (activeHealerOG == me->GetGUID())
-                            {
-                                if (me->IsAlive())
-                                {
-                                    if (!me->GetNearbyCreatureWithEntry(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Dream_Fog, 3.0f))
-                                    {
-                                        if (!me->HasAura(24818))
-                                        {
-                                            if (me->GetPower(Powers::POWER_MANA) > 500)
-                                            {
-                                                if (tank2->GetHealthPct() < 90.0f)
-                                                {
-                                                    if (sb->Heal(tank2, true))
-                                                    {
-                                                        return true;
-                                                    }
-                                                }
-                                                if (me->GetHealthPct() < 50.0f)
-                                                {
-                                                    if (sb->Heal(me, true))
-                                                    {
-                                                        return true;
-                                                    }
-                                                }
-                                                return true;
-                                            }
-                                        }
-                                    }
-                                }
-                                if (Player* healer3 = GetPlayerByGroupRole(GroupRole_Emeriss::GroupRole_Emeriss_Healer3))
-                                {
-                                    if (healer3->IsAlive())
-                                    {
-                                        if (!healer3->GetNearbyCreatureWithEntry(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Dream_Fog, 3.0f))
-                                        {
-                                            if (!healer3->HasAura(24818))
-                                            {
-                                                if (healer3->GetPower(Powers::POWER_MANA) > 500)
-                                                {
-                                                    myGroup->SetTargetIcon(2, me->GetGUID(), healer3->GetGUID());
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                if (me->IsAlive())
-                                {
-                                    if (!me->GetNearbyCreatureWithEntry(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Dream_Fog, 3.0f))
-                                    {
-                                        if (!me->HasAura(24818))
-                                        {
-                                            if (me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA) > 50)
-                                            {
-                                                if (tank2->GetHealthPct() < 90.0f)
-                                                {
-                                                    if (sb->SubHeal(tank2))
-                                                    {
-                                                        return true;
-                                                    }
-                                                }
-                                                if (Player* tank1 = GetPlayerByGroupRole(GroupRole_Emeriss::GroupRole_Emeriss_Tank1))
-                                                {
-                                                    if (tank1->IsAlive())
-                                                    {
-                                                        if (tank1->GetHealthPct() < 50.0f)
-                                                        {
-                                                            if (sb->Heal(tank1, true))
-                                                            {
-                                                                return true;
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        return true;
-                    }
-                }
-                break;
-            }
-            case GroupRole_Emeriss::GroupRole_Emeriss_Healer5:
-            {
-                if (bossPositionValid)
-                {
-                    if (!myPositionValid)
-                    {
-                        markPos = GetNearPoint(boss->GetPosition(), engageDistance, engageAngle);
-                        actionDelay = 3000;
-                        actionType = ActionType_Emeriss::ActionType_Emeriss_MarkMove;
-                        me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
-                        me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
-                        me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
-                        me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
-                        me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(boss->GetPosition()));
-                        return true;
-                    }
-                }
-                if (me->IsAlive())
-                {
-                    uint8 mySubGroup = me->GetSubGroup();
-                    for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-                    {
-                        if (Player* member = groupRef->GetSource())
-                        {
-                            if (member->IsAlive())
-                            {
-                                if (member->groupRole != GroupRole_Emeriss::GroupRole_Emeriss_Tank1 && member->groupRole != GroupRole_Emeriss::GroupRole_Emeriss_Tank2)
-                                {
-                                    if (member->GetSubGroup() == mySubGroup)
-                                    {
-                                        if (member->GetHealthPct() < 90.0f)
-                                        {
-                                            if (me->GetExactDist(member->GetPosition()) < RANGED_MAX_DISTANCE)
-                                            {
-                                                if (sb->GroupHeal(100.0f))
-                                                {
-                                                    return true;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-                    {
-                        if (Player* member = groupRef->GetSource())
-                        {
-                            if (member->IsAlive())
-                            {
-                                if (member->groupRole != GroupRole_Emeriss::GroupRole_Emeriss_Tank1 && member->groupRole != GroupRole_Emeriss::GroupRole_Emeriss_Tank2)
-                                {
-                                    if (member->GetSubGroup() == mySubGroup)
-                                    {
-                                        if (member->GetHealthPct() < 90.0f)
-                                        {
-                                            if (sb->Heal(member, true))
-                                            {
-                                                return true;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+                            return true;
                         }
                     }
                 }
-                break;
-            }
-            case GroupRole_Emeriss::GroupRole_Emeriss_Healer6:
-            {
-                if (bossPositionValid)
-                {
-                    if (!myPositionValid)
-                    {
-                        markPos = GetNearPoint(boss->GetPosition(), engageDistance, engageAngle);
-                        actionDelay = 3000;
-                        actionType = ActionType_Emeriss::ActionType_Emeriss_MarkMove;
-                        me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
-                        me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
-                        me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
-                        me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
-                        me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(boss->GetPosition()));
-                        return true;
-                    }
-                }
-                if (me->IsAlive())
-                {
-                    uint8 mySubGroup = me->GetSubGroup();
-                    for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-                    {
-                        if (Player* member = groupRef->GetSource())
-                        {
-                            if (member->IsAlive())
-                            {
-                                if (member->groupRole != GroupRole_Emeriss::GroupRole_Emeriss_Tank1 && member->groupRole != GroupRole_Emeriss::GroupRole_Emeriss_Tank2)
-                                {
-                                    if (member->GetSubGroup() == mySubGroup)
-                                    {
-                                        if (member->GetHealthPct() < 90.0f)
-                                        {
-                                            if (me->GetExactDist(member->GetPosition()) < RANGED_MAX_DISTANCE)
-                                            {
-                                                if (sb->GroupHeal(100.0f))
-                                                {
-                                                    return true;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-                    {
-                        if (Player* member = groupRef->GetSource())
-                        {
-                            if (member->IsAlive())
-                            {
-                                if (member->groupRole != GroupRole_Emeriss::GroupRole_Emeriss_Tank1 && member->groupRole != GroupRole_Emeriss::GroupRole_Emeriss_Tank2)
-                                {
-                                    if (member->GetSubGroup() == mySubGroup)
-                                    {
-                                        if (member->GetHealthPct() < 90.0f)
-                                        {
-                                            if (sb->Heal(member, true))
-                                            {
-                                                return true;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                break;
-            }
-            case GroupRole_Emeriss::GroupRole_Emeriss_Healer7:
-            {
-                if (bossPositionValid)
-                {
-                    if (!myPositionValid)
-                    {
-                        markPos = GetNearPoint(boss->GetPosition(), engageDistance, engageAngle);
-                        actionDelay = 3000;
-                        actionType = ActionType_Emeriss::ActionType_Emeriss_MarkMove;
-                        me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
-                        me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
-                        me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
-                        me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
-                        me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(boss->GetPosition()));
-                        return true;
-                    }
-                }
-                if (me->IsAlive())
-                {
-                    uint8 mySubGroup = me->GetSubGroup();
-                    for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-                    {
-                        if (Player* member = groupRef->GetSource())
-                        {
-                            if (member->IsAlive())
-                            {
-                                if (member->groupRole != GroupRole_Emeriss::GroupRole_Emeriss_Tank1 && member->groupRole != GroupRole_Emeriss::GroupRole_Emeriss_Tank2)
-                                {
-                                    if (member->GetSubGroup() == mySubGroup)
-                                    {
-                                        if (member->GetHealthPct() < 90.0f)
-                                        {
-                                            if (me->GetExactDist(member->GetPosition()) < RANGED_MAX_DISTANCE)
-                                            {
-                                                if (sb->GroupHeal(100.0f))
-                                                {
-                                                    return true;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-                    {
-                        if (Player* member = groupRef->GetSource())
-                        {
-                            if (member->IsAlive())
-                            {
-                                if (member->groupRole != GroupRole_Emeriss::GroupRole_Emeriss_Tank1 && member->groupRole != GroupRole_Emeriss::GroupRole_Emeriss_Tank2)
-                                {
-                                    if (member->GetSubGroup() == mySubGroup)
-                                    {
-                                        if (member->GetHealthPct() < 90.0f)
-                                        {
-                                            if (sb->Heal(member, true))
-                                            {
-                                                return true;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                break;
-            }
-            case GroupRole_Emeriss::GroupRole_Emeriss_Healer8:
-            {
-                if (bossPositionValid)
-                {
-                    if (!myPositionValid)
-                    {
-                        markPos = GetNearPoint(boss->GetPosition(), engageDistance, engageAngle);
-                        actionDelay = 3000;
-                        actionType = ActionType_Emeriss::ActionType_Emeriss_MarkMove;
-                        me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
-                        me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
-                        me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
-                        me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
-                        me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(boss->GetPosition()));
-                        return true;
-                    }
-                }
-                if (me->IsAlive())
-                {
-                    uint8 mySubGroup = me->GetSubGroup();
-                    for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-                    {
-                        if (Player* member = groupRef->GetSource())
-                        {
-                            if (member->IsAlive())
-                            {
-                                if (member->groupRole != GroupRole_Emeriss::GroupRole_Emeriss_Tank1 && member->groupRole != GroupRole_Emeriss::GroupRole_Emeriss_Tank2)
-                                {
-                                    if (member->GetSubGroup() == mySubGroup)
-                                    {
-                                        if (member->GetHealthPct() < 90.0f)
-                                        {
-                                            if (me->GetExactDist(member->GetPosition()) < RANGED_MAX_DISTANCE)
-                                            {
-                                                if (sb->GroupHeal(100.0f))
-                                                {
-                                                    return true;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-                    {
-                        if (Player* member = groupRef->GetSource())
-                        {
-                            if (member->IsAlive())
-                            {
-                                if (member->groupRole != GroupRole_Emeriss::GroupRole_Emeriss_Tank1 && member->groupRole != GroupRole_Emeriss::GroupRole_Emeriss_Tank2)
-                                {
-                                    if (member->GetSubGroup() == mySubGroup)
-                                    {
-                                        if (member->GetHealthPct() < 90.0f)
-                                        {
-                                            if (sb->Heal(member, true))
-                                            {
-                                                return true;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                break;
-            }
-            case GroupRole_Emeriss::GroupRole_Emeriss_Healer9:
-            {
-                if (bossPositionValid)
-                {
-                    if (!myPositionValid)
-                    {
-                        markPos = GetNearPoint(boss->GetPosition(), engageDistance, engageAngle);
-                        actionDelay = 3000;
-                        actionType = ActionType_Emeriss::ActionType_Emeriss_MarkMove;
-                        me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
-                        me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
-                        me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
-                        me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
-                        me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(boss->GetPosition()));
-                        return true;
-                    }
-                }
-                if (me->IsAlive())
-                {
-                    uint8 mySubGroup = me->GetSubGroup();
-                    for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-                    {
-                        if (Player* member = groupRef->GetSource())
-                        {
-                            if (member->IsAlive())
-                            {
-                                if (member->groupRole != GroupRole_Emeriss::GroupRole_Emeriss_Tank1 && member->groupRole != GroupRole_Emeriss::GroupRole_Emeriss_Tank2)
-                                {
-                                    if (member->GetSubGroup() == mySubGroup)
-                                    {
-                                        if (member->GetHealthPct() < 90.0f)
-                                        {
-                                            if (me->GetExactDist(member->GetPosition()) < RANGED_MAX_DISTANCE)
-                                            {
-                                                if (sb->GroupHeal(100.0f))
-                                                {
-                                                    return true;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-                    {
-                        if (Player* member = groupRef->GetSource())
-                        {
-                            if (member->IsAlive())
-                            {
-                                if (member->groupRole != GroupRole_Emeriss::GroupRole_Emeriss_Tank1 && member->groupRole != GroupRole_Emeriss::GroupRole_Emeriss_Tank2)
-                                {
-                                    if (member->GetSubGroup() == mySubGroup)
-                                    {
-                                        if (member->GetHealthPct() < 90.0f)
-                                        {
-                                            if (sb->Heal(member, true))
-                                            {
-                                                return true;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                break;
-            }
-            case GroupRole_Emeriss::GroupRole_Emeriss_Healer10:
-            {
-                if (bossPositionValid)
-                {
-                    if (!myPositionValid)
-                    {
-                        markPos = GetNearPoint(boss->GetPosition(), engageDistance, engageAngle);
-                        actionDelay = 3000;
-                        actionType = ActionType_Emeriss::ActionType_Emeriss_MarkMove;
-                        me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
-                        me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
-                        me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
-                        me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
-                        me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(boss->GetPosition()));
-                        return true;
-                    }
-                }
-                if (me->IsAlive())
-                {
-                    uint8 mySubGroup = me->GetSubGroup();
-                    for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-                    {
-                        if (Player* member = groupRef->GetSource())
-                        {
-                            if (member->IsAlive())
-                            {
-                                if (member->groupRole != GroupRole_Emeriss::GroupRole_Emeriss_Tank1 && member->groupRole != GroupRole_Emeriss::GroupRole_Emeriss_Tank2)
-                                {
-                                    if (member->GetSubGroup() == mySubGroup)
-                                    {
-                                        if (member->GetHealthPct() < 90.0f)
-                                        {
-                                            if (me->GetExactDist(member->GetPosition()) < RANGED_MAX_DISTANCE)
-                                            {
-                                                if (sb->GroupHeal(100.0f))
-                                                {
-                                                    return true;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-                    {
-                        if (Player* member = groupRef->GetSource())
-                        {
-                            if (member->IsAlive())
-                            {
-                                if (member->groupRole != GroupRole_Emeriss::GroupRole_Emeriss_Tank1 && member->groupRole != GroupRole_Emeriss::GroupRole_Emeriss_Tank2)
-                                {
-                                    if (member->GetSubGroup() == mySubGroup)
-                                    {
-                                        if (member->GetHealthPct() < 90.0f)
-                                        {
-                                            if (sb->Heal(member, true))
-                                            {
-                                                return true;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                break;
-            }
-            case GroupRole_Emeriss::GroupRole_Emeriss_Healer11:
-            {
-                if (bossPositionValid)
-                {
-                    if (!myPositionValid)
-                    {
-                        markPos = GetNearPoint(boss->GetPosition(), engageDistance, engageAngle);
-                        actionDelay = 3000;
-                        actionType = ActionType_Emeriss::ActionType_Emeriss_MarkMove;
-                        me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
-                        me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
-                        me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
-                        me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
-                        me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(boss->GetPosition()));
-                        return true;
-                    }
-                }
-                if (me->IsAlive())
+                else
                 {
                     uint8 mySubGroup = me->GetSubGroup();
                     for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
@@ -2275,16 +1349,17 @@ bool RobotStrategy_Group_Emeriss::Heal()
                             {
                                 if (member->GetSubGroup() == mySubGroup)
                                 {
-                                    if (member->groupRole != GroupRole_Emeriss::GroupRole_Emeriss_Tank1 && member->groupRole != GroupRole_Emeriss::GroupRole_Emeriss_Tank2)
+                                    if (member->groupRole == GroupRole_Emeriss::GroupRole_Emeriss_Tank1 || member->groupRole == GroupRole_Emeriss::GroupRole_Emeriss_Tank2)
+                                    {
+                                        continue;
+                                    }
+                                    if (me->GetExactDist(member) < HEAL_MAX_DISTANCE)
                                     {
                                         if (member->GetHealthPct() < 90.0f)
                                         {
-                                            if (me->GetExactDist(member->GetPosition()) < RANGED_MAX_DISTANCE)
+                                            if (sb->GroupHeal(100.0f))
                                             {
-                                                if (sb->GroupHeal(100.0f))
-                                                {
-                                                    return true;
-                                                }
+                                                return true;
                                             }
                                         }
                                     }
@@ -2300,7 +1375,11 @@ bool RobotStrategy_Group_Emeriss::Heal()
                             {
                                 if (member->GetSubGroup() == mySubGroup)
                                 {
-                                    if (member->groupRole != GroupRole_Emeriss::GroupRole_Emeriss_Tank1 && member->groupRole != GroupRole_Emeriss::GroupRole_Emeriss_Tank2)
+                                    if (member->groupRole == GroupRole_Emeriss::GroupRole_Emeriss_Tank1 || member->groupRole == GroupRole_Emeriss::GroupRole_Emeriss_Tank2)
+                                    {
+                                        continue;
+                                    }
+                                    if (me->GetExactDist(member) < HEAL_MAX_DISTANCE)
                                     {
                                         if (member->GetHealthPct() < 90.0f)
                                         {
@@ -2315,69 +1394,85 @@ bool RobotStrategy_Group_Emeriss::Heal()
                         }
                     }
                 }
-                break;
             }
-            case GroupRole_Emeriss::GroupRole_Emeriss_Healer12:
+            else if (assisting)
             {
-                if (bossPositionValid)
+                uint32 myTankRole = GroupRole_Emeriss::GroupRole_Emeriss_None;
+                if (me->groupRole == GroupRole_Emeriss::GroupRole_Emeriss_Healer1 || me->groupRole == GroupRole_Emeriss::GroupRole_Emeriss_Healer2)
                 {
-                    if (!myPositionValid)
+                    myTankRole = GroupRole_Emeriss::GroupRole_Emeriss_Tank2;
+                }
+                else if (me->groupRole == GroupRole_Emeriss::GroupRole_Emeriss_Healer3 || me->groupRole == GroupRole_Emeriss::GroupRole_Emeriss_Healer4)
+                {
+                    myTankRole = GroupRole_Emeriss::GroupRole_Emeriss_Tank1;
+                }
+                if (Player* myTank = GetPlayerByGroupRole(myTankRole))
+                {
+                    if (myTank->IsAlive())
                     {
-                        markPos = GetNearPoint(boss->GetPosition(), engageDistance, engageAngle);
-                        actionDelay = 3000;
-                        actionType = ActionType_Emeriss::ActionType_Emeriss_MarkMove;
-                        me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
-                        me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
-                        me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
-                        me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
-                        me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(boss->GetPosition()));
+                        if (myTank->GetHealthPct() < 90.0f)
+                        {
+                            if (sb->SubHeal(myTank))
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                }
+                if (me->GetHealthPct() < 50.0f)
+                {
+                    if (sb->Heal(me, true))
+                    {
                         return true;
                     }
                 }
-                if (me->IsAlive())
+            }
+            else if (changing)
+            {
+                std::unordered_set<uint32> subRoleSet;
+                switch (me->groupRole)
                 {
-                    uint8 mySubGroup = me->GetSubGroup();
-                    for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                case GroupRole_Emeriss::GroupRole_Emeriss_Healer1:
+                {
+                    subRoleSet.insert(GroupRole_Emeriss::GroupRole_Emeriss_Healer2);
+                    break;
+                }
+                case GroupRole_Emeriss::GroupRole_Emeriss_Healer2:
+                {
+                    subRoleSet.insert(GroupRole_Emeriss::GroupRole_Emeriss_Healer1);
+                    break;
+                }
+                case GroupRole_Emeriss::GroupRole_Emeriss_Healer3:
+                {
+                    subRoleSet.insert(GroupRole_Emeriss::GroupRole_Emeriss_Healer4);
+                    break;
+                }
+                case GroupRole_Emeriss::GroupRole_Emeriss_Healer4:
+                {
+                    subRoleSet.insert(GroupRole_Emeriss::GroupRole_Emeriss_Healer3);
+                    break;
+                }
+                default:
+                {
+                    break;
+                }
+                }
+                for (std::unordered_set<uint32>::iterator roleIT = subRoleSet.begin(); roleIT != subRoleSet.end(); roleIT++)
+                {
+                    if (uint32 eachRole = *roleIT)
                     {
-                        if (Player* member = groupRef->GetSource())
+                        if (Player* eachHealer = GetPlayerByGroupRole(eachRole))
                         {
-                            if (member->IsAlive())
+                            if (eachHealer->IsAlive())
                             {
-                                if (member->groupRole != GroupRole_Emeriss::GroupRole_Emeriss_Tank1 && member->groupRole != GroupRole_Emeriss::GroupRole_Emeriss_Tank2)
+                                if (!eachHealer->GetNearbyCreatureWithEntry(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Dream_Fog, 3.0f))
                                 {
-                                    if (member->GetSubGroup() == mySubGroup)
+                                    if (!eachHealer->HasAura(24818))
                                     {
-                                        if (member->GetHealthPct() < 90.0f)
+                                        if (eachHealer->GetPower(Powers::POWER_MANA) > 500)
                                         {
-                                            if (me->GetExactDist(member->GetPosition()) < RANGED_MAX_DISTANCE)
-                                            {
-                                                if (sb->GroupHeal(100.0f))
-                                                {
-                                                    return true;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-                    {
-                        if (Player* member = groupRef->GetSource())
-                        {
-                            if (member->IsAlive())
-                            {
-                                if (member->groupRole != GroupRole_Emeriss::GroupRole_Emeriss_Tank1 && member->groupRole != GroupRole_Emeriss::GroupRole_Emeriss_Tank2)
-                                {
-                                    if (member->GetSubGroup() == mySubGroup)
-                                    {
-                                        if (member->GetHealthPct() < 90.0f)
-                                        {
-                                            if (sb->Heal(member, true))
-                                            {
-                                                return true;
-                                            }
+                                            myGroup->SetTargetIcon(myTargetIcon, me->GetGUID(), eachHealer->GetGUID());
+                                            break;
                                         }
                                     }
                                 }
@@ -2385,16 +1480,9 @@ bool RobotStrategy_Group_Emeriss::Heal()
                         }
                     }
                 }
-                break;
             }
-            default:
-            {
-                break;
-            }
-            }
-            return true;
         }
+        return true;
     }
-
     return RobotStrategy_Group::Heal();
 }

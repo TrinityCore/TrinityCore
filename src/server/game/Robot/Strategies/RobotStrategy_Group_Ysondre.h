@@ -5,18 +5,19 @@
 
 enum GroupRole_Ysondre :uint32
 {
-    GroupRole_Ysondre_Tank1 = 0,
-    GroupRole_Ysondre_Tank2 = 1,
-    GroupRole_Ysondre_Healer1 = 5,
-    GroupRole_Ysondre_Healer2 = 6,
-    GroupRole_Ysondre_Healer3 = 7,
-    GroupRole_Ysondre_Healer4 = 8,
-    GroupRole_Ysondre_Healer5 = 9,
-    GroupRole_Ysondre_Healer6 = 10,
-    GroupRole_Ysondre_Healer7 = 11,
-    GroupRole_Ysondre_Healer8 = 12,
-    GroupRole_Ysondre_DPS_Range = 13,
-    GroupRole_Ysondre_DPS_Melee = 14,
+    GroupRole_Ysondre_None = 0,
+    GroupRole_Ysondre_Tank1,
+    GroupRole_Ysondre_Tank2,
+    GroupRole_Ysondre_Healer1,
+    GroupRole_Ysondre_Healer2,
+    GroupRole_Ysondre_Healer3,
+    GroupRole_Ysondre_Healer4,
+    GroupRole_Ysondre_Healer5,
+    GroupRole_Ysondre_Healer6,
+    GroupRole_Ysondre_Healer7,
+    GroupRole_Ysondre_Healer8,
+    GroupRole_Ysondre_DPS_Range,
+    GroupRole_Ysondre_DPS_Melee,
 };
 
 enum ActionType_Ysondre :uint32

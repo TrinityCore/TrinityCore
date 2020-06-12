@@ -2692,9 +2692,13 @@ void Group::StopLeaderOfflineTimer()
 }
 
 // EJ Target Icon
-ObjectGuid Group::GetOGByTargetIcon(uint32 pmID)
+ObjectGuid Group::GetOGByTargetIcon(int pmID)
 {
-    return m_targetIcons[pmID];
+    if (pmID >= 0 && pmID < TARGETICONCOUNT)
+    {
+        return m_targetIcons[pmID];
+    }
+    return ObjectGuid::Empty;
 }
 
 int Group::GetTargetIconByOG(ObjectGuid pmOG)

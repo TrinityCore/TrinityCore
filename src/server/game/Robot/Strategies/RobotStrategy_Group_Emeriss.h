@@ -5,7 +5,8 @@
 
 enum GroupRole_Emeriss :uint32
 {
-    GroupRole_Emeriss_Tank1 = 0,
+    GroupRole_Emeriss_None = 0,
+    GroupRole_Emeriss_Tank1,
     GroupRole_Emeriss_Tank2,
     GroupRole_Emeriss_Healer1,
     GroupRole_Emeriss_Healer2,
