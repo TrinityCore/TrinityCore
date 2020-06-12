@@ -778,6 +778,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sWMOAreaTableStore);
     LOAD_DB2(sWorldEffectStore);
     LOAD_DB2(sWorldMapOverlayStore);
+    LOAD_DB2(sWorldStateExpressionStore);
 
 #undef LOAD_DB2
 
@@ -1385,9 +1386,9 @@ void DB2Manager::LoadHotfixData()
         uint32 tableHash = fields[1].GetUInt32();
         int32 recordId = fields[2].GetInt32();
         bool deleted = fields[3].GetBool();
-        if (_stores.find(tableHash) == _stores.end() && _hotfixBlob.find(std::make_pair(tableHash, recordId)) == _hotfixBlob.end())
+        if (!deleted && _stores.find(tableHash) == _stores.end() && _hotfixBlob.find(std::make_pair(tableHash, recordId)) == _hotfixBlob.end())
         {
-            TC_LOG_ERROR("sql.sql", "Table `hotfix_data` references unknown DB2 store by hash 0x%X and has no reference to `hotfix_blob` in hotfix id %d", tableHash, id);
+            TC_LOG_ERROR("sql.sql", "Table `hotfix_data` references unknown DB2 store by hash 0x%X and has no reference to `hotfix_blob` in hotfix id %d with RecordID: %d", tableHash, id, recordId);
             continue;
         }
 
