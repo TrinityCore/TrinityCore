@@ -2205,6 +2205,15 @@ uint32 Item::GetItemLevel(ItemTemplate const* itemTemplate, BonusData const& bon
 int32 Item::GetItemStatValue(uint32 index, Player const* owner) const
 {
     ASSERT(index < MAX_ITEM_PROTO_STATS);
+    switch (GetItemStatType(index))
+    {
+        case ITEM_MOD_CORRUPTION:
+        case ITEM_MOD_CORRUPTION_RESISTANCE:
+            return _bonusData.ItemStatAllocation[index];
+        default:
+            break;
+    }
+
     uint32 itemLevel = GetItemLevel(owner);
     if (uint32 randomPropPoints = GetRandomPropertyPoints(itemLevel, GetQuality(), GetTemplate()->GetInventoryType(), GetTemplate()->GetSubClass()))
     {
