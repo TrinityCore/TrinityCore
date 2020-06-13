@@ -689,6 +689,15 @@ struct ConversationLineEntry
     uint8 EndAnimation;
 };
 
+struct CorruptionEffectsEntry
+{
+    uint32 ID;
+    float MinCorruption;
+    int32 Aura;
+    int32 PlayerConditionID;
+    int32 Flags;
+};
+
 struct CreatureDisplayInfoEntry
 {
     uint32 ID;
