@@ -158,6 +158,15 @@ CASC::File::~File()
     ::CascCloseFile(_handle);
 }
 
+uint32 CASC::File::GetId() const
+{
+    CASC_FILE_FULL_INFO info;
+    if (!::CascGetFileInfo(_handle, CascFileFullInfo, &info, sizeof(info), nullptr))
+        return CASC_INVALID_ID;
+
+    return info.FileDataId;
+}
+
 int64 CASC::File::GetSize() const
 {
     ULONGLONG size;
