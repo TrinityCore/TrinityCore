@@ -1015,7 +1015,7 @@ namespace MMAP
         config.maxVertsPerPoly = DT_VERTS_PER_POLYGON;
         config.cs = tileConfig.BASE_UNIT_DIM;
         config.ch = tileConfig.BASE_UNIT_DIM;
-        config.walkableSlopeAngle = 70;
+        config.walkableSlopeAngle = 80;
         config.walkableSlopeAngleNotSteep = 55;
         config.tileSize = tileConfig.VERTEX_PER_TILE;
         config.walkableRadius = m_bigBaseUnit ? 1 : 2;
