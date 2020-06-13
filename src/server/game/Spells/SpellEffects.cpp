@@ -3247,10 +3247,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     if (unitTarget->GetTypeId() == TYPEID_UNIT && unitTarget->IsSummon())
                         unitTarget->ToTempSummon()->UnSummon();
                     return;
-                case 52479: // Gift of the Harvester
-                    if (unitTarget && m_originalCaster)
-                        m_originalCaster->CastSpell(unitTarget, urand(0, 1) ? damage : 52505, true);
-                    return;
                 case 53110: // Devour Humanoid
                     if (unitTarget)
                         unitTarget->CastSpell(m_caster, damage, true);
