@@ -593,7 +593,7 @@ int32 SpellEffectInfo::CalcBaseValue(Unit const* caster, Unit const* target, uin
                     if (ItemSparseEntry const* itemSparse = sItemSparseStore.LookupEntry(itemId))
                         value *= GetIlvlStatMultiplier(ratingMult, InventoryType(itemSparse->InventoryType));
 
-            if (IsAura(SPELL_AURA_MOD_RATING))
+            if (IsAura(SPELL_AURA_MOD_RATING) && !(MiscValue & ((1 << CR_CORRUPTION) | 1 << (CR_CORRUPTION_RESISTANCE))))
             {
                 if (GtCombatRatingsMultByILvl const* ratingMult = sCombatRatingsMultByILvlGameTable.GetRow(effectiveItemLevel))
                     if (ItemSparseEntry const* itemSparse = sItemSparseStore.LookupEntry(itemId))

@@ -1199,6 +1199,23 @@ struct ConversationLineLoadInfo
     }
 };
 
+struct CorruptionEffectsLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_FLOAT, "MinCorruption" },
+            { true, FT_INT, "Aura" },
+            { true, FT_INT, "PlayerConditionID" },
+            { true, FT_INT, "Flags" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, CorruptionEffectsMeta::Instance(), HOTFIX_SEL_CORRUPTION_EFFECTS);
+        return &loadInfo;
+    }
+};
+
 struct CreatureDisplayInfoLoadInfo
 {
     static DB2LoadInfo const* Instance()
