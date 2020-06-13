@@ -34,6 +34,7 @@ PathGenerator::PathGenerator(WorldObject const* owner) :
     _navMeshQuery(nullptr)
 {
     memset(_pathPolyRefs, 0, sizeof(_pathPolyRefs));
+    _filter.setAreaCost(NAV_AREA_GROUND_STEEP, 2.0f);
 
     TC_LOG_DEBUG("maps.mmaps", "++ PathGenerator::PathGenerator for %s", _source->GetGUID().ToString().c_str());
 
