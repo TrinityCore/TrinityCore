@@ -28,6 +28,7 @@
 #include "Player.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
+#include "SpellScript.h"
 #include "SpellInfo.h"
 #include "Vehicle.h"
 #include <G3D/Vector3.h>
