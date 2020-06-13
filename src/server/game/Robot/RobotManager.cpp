@@ -1537,6 +1537,34 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                 {
                 case Strategy_Index::Strategy_Index_Group:
                 {
+                    for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                    {
+                        Player* member = groupRef->GetSource();
+                        if (member)
+                        {
+                            if (!member->GetSession()->isRobotSession)
+                            {
+                                member->groupRole = GroupRole_Ysondre::GroupRole_Ysondre_DPS_Range;
+                                continue;
+                            }
+                            if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->strategyMap[myGroup->groupStrategyIndex])
+                            {
+                                rs->Reset();
+                                if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_TANK)
+                                {
+                                    member->groupRole = GroupRole::GroupRole_Tank;
+                                }
+                                else if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_HEALER)
+                                {
+                                    member->groupRole = GroupRole::GroupRole_Healer;
+                                }
+                                else if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_DPS)
+                                {
+                                    member->groupRole = GroupRole::GroupRole_DPS;
+                                }
+                            }
+                        }
+                    }
                     replyStream << "Arranged";
                     break;
                 }

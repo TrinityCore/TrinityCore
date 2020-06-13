@@ -114,6 +114,7 @@ void RobotStrategy_Solo::Update(uint32 pmDiff)
     soloDelay -= pmDiff;
     if (soloDelay < 0)
     {
+        soloDelay = urand(sRobotConfig->SoloMinDelay, sRobotConfig->SoloMaxDelay);
         sb->RandomTeleport();
         return;
     }

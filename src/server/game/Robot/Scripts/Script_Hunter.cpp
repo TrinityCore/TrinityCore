@@ -741,6 +741,10 @@ bool Script_Hunter::Buff(Unit* pmTarget, bool pmCure)
             }
             if (myPet)
             {
+                if (myPet->GetLevel() != me->GetLevel())
+                {
+                    myPet->GivePetLevel(me->GetLevel());
+                }
                 if (!myPet->IsAlive())
                 {
                     if (CastSpell(me, "Revive Pet"))

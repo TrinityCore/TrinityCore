@@ -32,6 +32,56 @@ void RobotStrategy_Group::Reset()
     cure = true;
     actionType = 0;
     actionDelay = 0;
+    aoeDelay = sRobotConfig->AOEDelay;
+    dpsDelay = sRobotConfig->DPSDelay;
+    followDistance = FOLLOW_NORMAL_DISTANCE;
+    switch (me->GetClass())
+    {
+    case Classes::CLASS_WARRIOR:
+    {
+        followDistance = MELEE_MIN_DISTANCE;
+        break;
+    }
+    case Classes::CLASS_HUNTER:
+    {
+        break;
+    }
+    case Classes::CLASS_SHAMAN:
+    {
+        break;
+    }
+    case Classes::CLASS_PALADIN:
+    {
+        followDistance = MELEE_MIN_DISTANCE;
+        break;
+    }
+    case Classes::CLASS_WARLOCK:
+    {
+        break;
+    }
+    case Classes::CLASS_PRIEST:
+    {
+        break;
+    }
+    case Classes::CLASS_ROGUE:
+    {
+        followDistance = MELEE_MIN_DISTANCE;
+        break;
+    }
+    case Classes::CLASS_MAGE:
+    {
+        break;
+    }
+    case Classes::CLASS_DRUID:
+    {
+        followDistance = MELEE_MIN_DISTANCE;
+        break;
+    }
+    default:
+    {
+        break;
+    }
+    }
 }
 
 void RobotStrategy_Group::InitialStrategy()
@@ -282,7 +332,7 @@ void RobotStrategy_Group::Update(uint32 pmDiff)
                     break;
                 }
                 }
-            }            
+            }
             return;
         }
         if (groupInCombat)

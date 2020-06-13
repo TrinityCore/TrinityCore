@@ -1100,27 +1100,24 @@ void Script_Base::TryEquip(std::unordered_set<uint32> pmClassSet, std::unordered
                 continue;
             }
         }
-        if (proto->RequiredLevel < 15)
+        // test items
+        if (proto->ItemId == 19879)
         {
             continue;
         }
-        //if (proto->RandomSuffix > 0)
-        //{
-        //    continue;
-        //}
         std::unordered_set<uint32> usableSlotSet = sRobotManager->GetUsableEquipSlot(proto);
         if (usableSlotSet.find(pmTargetSlot) != usableSlotSet.end())
         {
             uint32 checkMinRequiredLevel = me->GetLevel();
             if (checkMinRequiredLevel > 15)
             {
-                checkMinRequiredLevel = checkMinRequiredLevel - 10;
+                checkMinRequiredLevel = checkMinRequiredLevel - 5;
             }
             else
             {
-                checkMinRequiredLevel = 5;
+                checkMinRequiredLevel = 10;
             }
-            if (proto->RequiredLevel <= me->GetLevel() && proto->RequiredLevel > checkMinRequiredLevel)
+            if (proto->RequiredLevel <= me->GetLevel() && proto->RequiredLevel >= checkMinRequiredLevel)
             {
                 validEquipSet[validEquipSet.size()] = proto->ItemId;
             }
