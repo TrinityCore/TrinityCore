@@ -162,9 +162,7 @@ bool ExtractSingleWmo(std::string& fname)
 
     char szLocalFile[1024];
     char* plain_name = GetPlainName(&fname[0]);
-    if (fname.substr(0, 4) != "FILE")
-        FixNameCase(plain_name, strlen(plain_name));
-    FixNameSpaces(plain_name, strlen(plain_name));
+    NormalizeFileName(plain_name, strlen(plain_name));
     sprintf(szLocalFile, "%s/%s", szWorkDirWmo, plain_name);
 
     if (FileExists(szLocalFile))
@@ -173,17 +171,10 @@ bool ExtractSingleWmo(std::string& fname)
     int p = 0;
     // Select root wmo files
     char const* rchr = strrchr(plain_name, '_');
-    if (rchr != NULL)
-    {
-        char cpy[4];
-        memcpy(cpy, rchr, 4);
+    if (rchr != nullptr)
         for (int i = 0; i < 4; ++i)
-        {
-            int m = cpy[i];
-            if (isdigit(m))
+            if (isdigit(rchr[i]))
                 p++;
-        }
-    }
 
     if (p == 3)
         return true;
@@ -205,6 +196,7 @@ bool ExtractSingleWmo(std::string& fname)
     WMODoodadData& doodads = WmoDoodads[plain_name];
     std::swap(doodads, froot.DoodadData);
     int Wmo_nVertices = 0;
+    uint32 groupCount = 0;
     //printf("root has %d groups\n", froot->nGroups);
     for (std::size_t i = 0; i < froot.groupFileDataIDs.size(); ++i)
     {
@@ -217,7 +209,11 @@ bool ExtractSingleWmo(std::string& fname)
             break;
         }
 
+        if (fgroup.ShouldSkip(&froot))
+            continue;
+
         Wmo_nVertices += fgroup.ConvertToVMAPGroupWmo(output, preciseVectorData);
+        ++groupCount;
         for (uint16 groupReference : fgroup.DoodadReferences)
         {
             if (groupReference >= doodads.Spawns.size())
@@ -232,7 +228,8 @@ bool ExtractSingleWmo(std::string& fname)
     }
 
     fseek(output, 8, SEEK_SET); // store the correct no of vertices
-    fwrite(&Wmo_nVertices,sizeof(int),1,output);
+    fwrite(&Wmo_nVertices, sizeof(int), 1, output);
+    fwrite(&groupCount, sizeof(uint32), 1, output);
     fclose(output);
 
     // Delete the extracted file in the case of an error
@@ -270,12 +267,12 @@ void ParsMapFiles()
         return &itr->second;
     };
 
-    for (auto itr = map_ids.begin(); itr != map_ids.end(); ++itr)
+    for (MapEntry const& mapEntry : map_ids)
     {
-        if (WDTFile* WDT = getWDT(itr->Id))
+        if (WDTFile* WDT = getWDT(mapEntry.Id))
         {
-            WDTFile* parentWDT = itr->ParentMapID >= 0 ? getWDT(itr->ParentMapID) : nullptr;
-            printf("Processing Map %u\n[", itr->Id);
+            WDTFile* parentWDT = mapEntry.ParentMapID >= 0 ? getWDT(mapEntry.ParentMapID) : nullptr;
+            printf("Processing Map %u\n[", mapEntry.Id);
             for (int32 x = 0; x < 64; ++x)
             {
                 for (int32 y = 0; y < 64; ++y)
@@ -283,14 +280,14 @@ void ParsMapFiles()
                     bool success = false;
                     if (ADTFile* ADT = WDT->GetMap(x, y))
                     {
-                        success = ADT->init(itr->Id, itr->Id);
+                        success = ADT->init(mapEntry.Id, mapEntry.Id);
                         WDT->FreeADT(ADT);
                     }
                     if (!success && parentWDT)
                     {
                         if (ADTFile* ADT = parentWDT->GetMap(x, y))
                         {
-                            ADT->init(itr->Id, itr->ParentMapID);
+                            ADT->init(mapEntry.Id, mapEntry.ParentMapID);
                             parentWDT->FreeADT(ADT);
                         }
                     }
