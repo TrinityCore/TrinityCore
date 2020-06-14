@@ -1267,6 +1267,7 @@ INSERT INTO `rbac_linked_permissions` VALUES
 (198,316),
 (198,317),
 (198,318),
+(198,855),
 (198,367),
 (198,368),
 (198,369),
@@ -2084,6 +2085,7 @@ INSERT INTO `rbac_permissions` VALUES
 (852,'Command: go offset'),
 (853,'Command: .reload conversation_template'),
 (854,'Command: .debug conversation'),
+(855,'Command: debug play music'),
 (868,'Command: modify power'),
 (869,'Command: debug send playerchoice'),
 (872,'Command: server debug');
@@ -2331,6 +2333,7 @@ INSERT INTO `updates` VALUES
 ('2020_03_31_00_auth.sql','BA82A58E95730A397922B6723DA027986E6CD535','RELEASED','2020-03-31 17:00:16',0),
 ('2020_04_04_00_auth.sql','5F118989A9F8AFA3B2065AB9C2C0BB7D9A0EB97A','RELEASED','2020-04-04 13:23:53',0),
 ('2020_04_30_00_auth.sql','2FD304B8EF82D529D69287BF22EF061A267F827E','RELEASED','2020-04-30 00:39:29',0),
+('2020_05_19_00_auth.sql','12D9F26538F63546B74793499E8A71BD885E8E5F','RELEASED','2020-05-19 12:00:00',0),
 ('2020_06_04_00_auth.sql','BA797B558196B1A07F8FF66E5288AD04659CF6AC','RELEASED','2020-06-04 09:57:07',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;

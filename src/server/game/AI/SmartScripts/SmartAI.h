@@ -158,7 +158,7 @@ class TC_GAME_API SmartAI : public CreatureAI
         ObjectGuid GetGUID(int32 id = 0) const override;
 
         //core related
-        static int Permissible(const Creature*);
+        static int32 Permissible(Creature const* /*creature*/) { return PERMIT_BASE_NO; }
 
         // Called at movepoint reached
         void MovepointReached(uint32 id);
@@ -197,6 +197,8 @@ class TC_GAME_API SmartAI : public CreatureAI
         void OnSpellClick(Unit* clicker, bool& result) override;
 
         void SetWPPauseTimer(uint32 time) { mWPPauseTimer = time; }
+
+        void SetGossipReturn(bool val) { _gossipReturn = val; }
 
     private:
         bool mIsCharmed;
@@ -241,19 +243,22 @@ class TC_GAME_API SmartAI : public CreatureAI
         void CheckConditions(uint32 diff);
         bool mHasConditions;
         uint32 mConditionsTimer;
+
+        // Gossip
+        bool _gossipReturn;
 };
 
 class TC_GAME_API SmartGameObjectAI : public GameObjectAI
 {
     public:
-        SmartGameObjectAI(GameObject* g) : GameObjectAI(g) { }
+        SmartGameObjectAI(GameObject* g) : GameObjectAI(g), _gossipReturn(false) { }
         ~SmartGameObjectAI() { }
 
         void UpdateAI(uint32 diff) override;
         void InitializeAI() override;
         void Reset() override;
         SmartScript* GetScript() { return &mScript; }
-        static int Permissible(const GameObject* g);
+        static int32 Permissible(GameObject const* /*go*/) { return PERMIT_BASE_NO; }
 
         bool GossipHello(Player* player, bool reportUse) override;
         bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override;
@@ -268,8 +273,13 @@ class TC_GAME_API SmartGameObjectAI : public GameObjectAI
         void EventInform(uint32 eventId) override;
         void SpellHit(Unit* unit, const SpellInfo* spellInfo) override;
 
+        void SetGossipReturn(bool val) { _gossipReturn = val; }
+
     private:
         SmartScript mScript;
+
+        // Gossip
+        bool _gossipReturn;
 };
 
 /// Registers scripts required by the SAI scripting system

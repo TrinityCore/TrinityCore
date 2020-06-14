@@ -54,9 +54,6 @@ enum EternalBoard
 {
     QUEST_A_PAWN_ON_THE_ETERNAL_BOARD = 8519,
 
-    FACTION_HOSTILE                   = 14,
-    FACTION_FRIENDLY                  = 35,
-
     EVENT_AREA_RADIUS                 = 65,     // 65yds
     EVENT_COOLDOWN                    = 500000, // in ms. appears after event completed or failed (should be = Adds despawn time)
 
@@ -985,7 +982,7 @@ public:
                         Merithra->SetNpcFlags(UNIT_NPC_FLAG_NONE);
                         Merithra->SetStandState(UNIT_STAND_STATE_STAND);
                         Merithra->SetDisplayId(MERITHRA_NIGHT_ELF_FORM);
-                        Merithra->SetFaction(35);
+                        Merithra->SetFaction(FACTION_FRIENDLY);
                     }
 
                     if (Caelestrasz)
@@ -993,7 +990,7 @@ public:
                         Caelestrasz->SetNpcFlags(UNIT_NPC_FLAG_NONE);
                         Caelestrasz->SetStandState(UNIT_STAND_STATE_STAND);
                         Caelestrasz->SetDisplayId(CAELESTRASZ_NIGHT_ELF_FORM);
-                        Caelestrasz->SetFaction(35);
+                        Caelestrasz->SetFaction(FACTION_FRIENDLY);
                     }
 
                     if (Arygos)
@@ -1001,7 +998,7 @@ public:
                         Arygos->SetNpcFlags(UNIT_NPC_FLAG_NONE);
                         Arygos->SetStandState(UNIT_STAND_STATE_STAND);
                         Arygos->SetDisplayId(ARYGOS_GNOME_FORM);
-                        Arygos->SetFaction(35);
+                        Arygos->SetFaction(FACTION_FRIENDLY);
                     }
 
                     if (Anachronos)

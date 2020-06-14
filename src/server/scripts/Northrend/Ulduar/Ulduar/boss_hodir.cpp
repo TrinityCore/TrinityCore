@@ -408,7 +408,7 @@ class boss_hodir : public CreatureScript
 
                     DoCastAOE(SPELL_KILL_CREDIT, true); /// need to be cast before changing boss faction
                                                         /// spell will target enemies only
-                    me->SetFaction(35);
+                    me->SetFaction(FACTION_FRIENDLY);
                     me->DespawnOrUnsummon(10000);
 
                     _JustDied();

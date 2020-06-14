@@ -774,7 +774,7 @@ class boss_sara : public CreatureScript
             {
                 me->RemoveAllAuras();
                 me->SetReactState(REACT_PASSIVE);
-                me->SetFaction(35);
+                me->SetFaction(FACTION_FRIENDLY);
                 _events.Reset();
                 _events.SetPhase(PHASE_ONE);
             }
@@ -817,7 +817,7 @@ class boss_sara : public CreatureScript
                         case EVENT_TRANSFORM_3:
                             Talk(SAY_SARA_TRANSFORM_4);
                             DoCast(me, SPELL_FULL_HEAL);
-                            me->SetFaction(16);
+                            me->SetFaction(FACTION_MONSTER_2);
                             if (Creature* voice = _instance->GetCreature(DATA_VOICE_OF_YOGG_SARON))
                                 voice->AI()->DoAction(ACTION_PHASE_TWO);
                             if (Creature* mimiron = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_MIMIRON_YS)))
