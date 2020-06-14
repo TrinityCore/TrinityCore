@@ -42,9 +42,7 @@ bool ExtractSingleModel(std::string& fname)
     std::string originalName = fname;
 
     char* name = GetPlainName((char*)fname.c_str());
-    if (fname.substr(0, 4) != "FILE")
-        FixNameCase(name, strlen(name));
-    FixNameSpaces(name, strlen(name));
+    NormalizeFileName(name, strlen(name));
 
     std::string output(szWorkDirWmo);
     output += "/";
