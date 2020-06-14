@@ -249,8 +249,7 @@ void Doodad::ExtractSet(WMODoodadData const& doodadData, ADT::MODF const& wmo, b
             ASSERT(false);
 
         uint32 nlen = strlen(ModelInstName);
-        FixNameCase(ModelInstName, nlen);
-        FixNameSpaces(ModelInstName, nlen);
+        NormalizeFileName(ModelInstName, nlen);
         if (nlen > 3)
         {
             char const* extension = &ModelInstName[nlen - 4];

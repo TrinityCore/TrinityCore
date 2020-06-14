@@ -75,8 +75,7 @@ public:
 char const* GetPlainName(char const* FileName);
 char* GetPlainName(char* FileName);
 char* GetExtension(char* FileName);
-void FixNameCase(char* name, size_t len);
-void FixNameSpaces(char* name, size_t len);
+void NormalizeFileName(char* name, size_t len);
 //void fixMapNamen(char *name, size_t len);
 
 #endif
