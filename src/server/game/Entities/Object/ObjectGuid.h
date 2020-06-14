@@ -24,6 +24,7 @@
 #include <functional>
 #include <list>
 #include <set>
+#include <string>
 #include <type_traits>
 #include <vector>
 #include <unordered_set>
