@@ -64,6 +64,7 @@ namespace CASC
     public:
         ~File();
 
+        uint32 GetId() const;
         int64 GetSize() const;
         int64 GetPointer() const;
         bool SetPointer(int64 position);
