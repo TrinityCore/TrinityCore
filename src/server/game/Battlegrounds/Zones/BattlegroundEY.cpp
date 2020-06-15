@@ -810,7 +810,7 @@ void BattlegroundEY::EventTeamCapturedPoint(Player* player, uint32 Point)
     //aura should only apply to players who have accupied the node, set correct faction for trigger
     if (trigger)
     {
-        trigger->SetFaction(Team == ALLIANCE ? 84 : 83);
+        trigger->SetFaction(Team == ALLIANCE ? FACTION_ALLIANCE_GENERIC : FACTION_HORDE_GENERIC);
         trigger->CastSpell(trigger, SPELL_HONORABLE_DEFENDER_25Y, false);
     }
 }

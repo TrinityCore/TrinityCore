@@ -31,8 +31,6 @@ class IdleMovementGenerator : public MovementGenerator
         MovementGeneratorType GetMovementGeneratorType() const override { return IDLE_MOTION_TYPE; }
 };
 
-TC_GAME_API extern IdleMovementGenerator si_idleMovement;
-
 class RotateMovementGenerator : public MovementGenerator
 {
     public:

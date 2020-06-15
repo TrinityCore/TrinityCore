@@ -69,20 +69,28 @@ class MovementGeneratorMedium : public MovementGenerator
         }
 };
 
-struct SelectableMovement : public FactoryHolder<MovementGenerator, MovementGeneratorType>
-{
-    SelectableMovement(MovementGeneratorType movementGeneratorType) : FactoryHolder<MovementGenerator, MovementGeneratorType>(movementGeneratorType) { }
-};
+typedef FactoryHolder<MovementGenerator, Unit, MovementGeneratorType> MovementGeneratorCreator;
 
 template<class Movement>
-struct MovementGeneratorFactory : public SelectableMovement
+struct MovementGeneratorFactory : public MovementGeneratorCreator
 {
-    MovementGeneratorFactory(MovementGeneratorType movementGeneratorType) : SelectableMovement(movementGeneratorType) { }
+    MovementGeneratorFactory(MovementGeneratorType movementGeneratorType) : MovementGeneratorCreator(movementGeneratorType) { }
 
-    MovementGenerator* Create(void *) const override;
+    MovementGenerator* Create(Unit* /*object*/) const override
+    {
+        return new Movement();
+    }
 };
 
-typedef FactoryHolder<MovementGenerator, MovementGeneratorType> MovementGeneratorCreator;
-typedef FactoryHolder<MovementGenerator, MovementGeneratorType>::FactoryHolderRegistry MovementGeneratorRegistry;
+struct IdleMovementFactory : public MovementGeneratorCreator
+{
+    IdleMovementFactory() : MovementGeneratorCreator(IDLE_MOTION_TYPE) { }
+
+    MovementGenerator* Create(Unit* object) const override;
+};
+
+typedef MovementGeneratorCreator::FactoryHolderRegistry MovementGeneratorRegistry;
+
+#define sMovementGeneratorRegistry MovementGeneratorRegistry::instance()
 
 #endif

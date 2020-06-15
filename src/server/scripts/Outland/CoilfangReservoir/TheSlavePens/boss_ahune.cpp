@@ -662,7 +662,7 @@ public:
 
         InstanceScript* instance;
 
-        bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/)
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
         {
             ClearGossipMenuFor(player);
 

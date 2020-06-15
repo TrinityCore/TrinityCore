@@ -341,10 +341,6 @@ public:
 
 enum EnshlavedNetherwingDrake
 {
-    // Factions
-    FACTION_DEFAULT                 = 62,
-    FACTION_FRIENDLY                = 1840, // Not sure if this is correct, it was taken off of Mordenai.
-
     // Spells
     SPELL_HIT_FORCE_OF_NELTHARAKU   = 38762,
     SPELL_FORCE_OF_NELTHARAKU       = 38775,
@@ -380,7 +376,7 @@ public:
         void Reset() override
         {
             if (!Tapped)
-                me->SetFaction(FACTION_DEFAULT);
+                me->SetFaction(FACTION_ORC_DRAGONMAW);
 
             FlyTimer = 10000;
             me->SetDisableGravity(false);
@@ -396,7 +392,7 @@ public:
                 Tapped = true;
                 PlayerGUID = caster->GetGUID();
 
-                me->SetFaction(FACTION_FRIENDLY);
+                me->SetFaction(FACTION_FLAYER_HUNTER);
                 DoCast(caster, SPELL_FORCE_OF_NELTHARAKU, true);
 
                 Unit* Dragonmaw = me->FindNearestCreature(NPC_DRAGONMAW_SUBJUGATOR, 50);
@@ -589,8 +585,7 @@ enum Earthmender
     SPELL_HEALING_WAVE          = 12491,
 
     QUEST_ESCAPE_COILSCAR       = 10451,
-    NPC_COILSKAR_ASSASSIN       = 21044,
-    FACTION_EARTHEN             = 1726                      //guessed
+    NPC_COILSKAR_ASSASSIN       = 21044
 };
 
 class npc_earthmender_wilda : public CreatureScript
@@ -733,7 +728,7 @@ public:
             if (quest->GetQuestId() == QUEST_ESCAPE_COILSCAR)
             {
                 Talk(SAY_WIL_START, player);
-                me->SetFaction(FACTION_EARTHEN);
+                me->SetFaction(FACTION_EARTHEN_RING);
 
                 Start(false, false, player->GetGUID(), quest);
             }
@@ -1415,11 +1410,7 @@ enum Enraged_Dpirits
     NPC_CREDIT_EARTH                        = 21092,
 
     // Captured Spell / Buff
-    SPELL_SOUL_CAPTURED                     = 36115,
-
-    // Factions
-    FACTION_ENRAGED_SOUL_FRIENDLY           = 35,
-    FACTION_ENRAGED_SOUL_HOSTILE            = 14
+    SPELL_SOUL_CAPTURED                     = 36115
 };
 
 class npc_enraged_spirit : public CreatureScript
@@ -1487,7 +1478,7 @@ public:
                  totemOspirits = me->FindNearestCreature(ENTRY_TOTEM_OF_SPIRITS, RADIUS_TOTEM_OF_SPIRITS);
                  if (totemOspirits)
                  {
-                     Summoned->SetFaction(FACTION_ENRAGED_SOUL_FRIENDLY);
+                     Summoned->SetFaction(FACTION_FRIENDLY);
                      Summoned->GetMotionMaster()->MovePoint(0, totemOspirits->GetPositionX(), totemOspirits->GetPositionY(), Summoned->GetPositionZ());
 
                      if (Unit* owner = totemOspirits->GetOwner())

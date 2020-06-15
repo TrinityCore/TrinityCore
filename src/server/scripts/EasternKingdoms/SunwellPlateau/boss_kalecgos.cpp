@@ -161,7 +161,7 @@ public:
             if (Creature* Sath = ObjectAccessor::GetCreature(*me, SathGUID))
                 Sath->AI()->EnterEvadeMode();
 
-            me->SetFaction(14);
+            me->SetFaction(FACTION_MONSTER);
             if (!bJustReset) //first reset at create
             {
                 me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
@@ -388,7 +388,7 @@ public:
             switch (TalkSequence)
             {
                 case 1:
-                    me->SetFaction(35);
+                    me->SetFaction(FACTION_FRIENDLY);
                     TalkTimer = 1000;
                     break;
                 case 2:
@@ -676,7 +676,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_SATH_DEATH);
-            me->SetPosition(me->GetPositionX(), me->GetPositionY(), DRAGON_REALM_Z, me->GetOrientation());
+            me->UpdatePosition(me->GetPositionX(), me->GetPositionY(), DRAGON_REALM_Z, me->GetOrientation());
             TeleportAllPlayersBack();
             if (Creature* Kalecgos = ObjectAccessor::GetCreature(*me, KalecgosGUID))
             {

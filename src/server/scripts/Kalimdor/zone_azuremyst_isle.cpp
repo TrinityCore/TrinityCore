@@ -188,7 +188,6 @@ enum Overgrind
     AREA_COVE       = 3579,
     AREA_ISLE       = 3639,
     QUEST_GNOMERCY  = 9537,
-    FACTION_HOSTILE = 14,
     SPELL_DYNAMITE  = 7978
 };
 
@@ -233,7 +232,7 @@ public:
         bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
         {
             CloseGossipMenuFor(player);
-            me->SetFaction(FACTION_HOSTILE);
+            me->SetFaction(FACTION_MONSTER);
             me->Attack(player, true);
             return false;
         }
@@ -339,8 +338,7 @@ enum Magwin
     EVENT_STAND                 = 3,
     EVENT_TALK_END              = 4,
     EVENT_COWLEN_TALK           = 5,
-    QUEST_A_CRY_FOR_HELP        = 9528,
-    FACTION_QUEST               = 113
+    QUEST_A_CRY_FOR_HELP        = 9528
 };
 
 class npc_magwin : public CreatureScript
@@ -405,7 +403,7 @@ public:
                     case EVENT_ACCEPT_QUEST:
                         if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
                             Talk(SAY_START, player);
-                        me->SetFaction(FACTION_QUEST);
+                        me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
                         _events.ScheduleEvent(EVENT_START_ESCORT, Seconds(1));
                         break;
                     case EVENT_START_ESCORT:

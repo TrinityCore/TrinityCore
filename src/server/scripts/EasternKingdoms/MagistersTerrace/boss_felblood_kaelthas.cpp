@@ -217,7 +217,7 @@ public:
         {
             float x = KaelLocations[0][0];
             float y = KaelLocations[0][1];
-            me->SetPosition(x, y, LOCATION_Z, 0.0f);
+            me->UpdatePosition(x, y, LOCATION_Z, 0.0f);
             ThreatContainer::StorageType threatlist = me->getThreatManager().getThreatList();
             ThreatContainer::StorageType::const_iterator i = threatlist.begin();
             for (i = threatlist.begin(); i != threatlist.end(); ++i)
@@ -454,7 +454,7 @@ public:
             Initialize();
 
             me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
-            me->SetFaction(14);
+            me->SetFaction(FACTION_MONSTER);
 
             DoCast(me, SPELL_FLAMESTRIKE2, true);
         }
@@ -659,7 +659,7 @@ public:
 
             me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
             me->SetDisableGravity(true);
-            me->SetFaction(14);
+            me->SetFaction(FACTION_MONSTER);
             DoCast(me, SPELL_ARCANE_SPHERE_PASSIVE, true);
         }
 

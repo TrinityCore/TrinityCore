@@ -1278,7 +1278,7 @@ class npc_kael_flamestrike : public CreatureScript
                 Initialize();
 
                 me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
-                me->SetFaction(14);
+                me->SetFaction(FACTION_MONSTER);
             }
 
             void MoveInLineOfSight(Unit* /*who*/) override { }
