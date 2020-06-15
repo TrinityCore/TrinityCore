@@ -66,6 +66,7 @@ enum DruidSpells
     SPELL_DRUID_REJUVENATION_T10_PROC       = 70691,
     SPELL_DRUID_BALANCE_T10_BONUS           = 70718,
     SPELL_DRUID_BALANCE_T10_BONUS_PROC      = 70721,
+    SPELL_DRUID_RESTORATION_T10_2P_BONUS    = 70658,
     SPELL_DRUID_SUNFIRE_DAMAGE              = 164815,
     SPELL_DRUID_SURVIVAL_INSTINCTS          = 50322
 };
@@ -1434,13 +1435,51 @@ public:
             OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_wild_growth_SpellScript::SetTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ALLY);
         }
 
-    private:
         std::list<WorldObject*> _targets;
+    };
+
+    class spell_dru_wild_growth_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dru_wild_growth_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return ValidateSpellInfo({ SPELL_DRUID_RESTORATION_T10_2P_BONUS });
+        }
+
+        void HandleTickUpdate(AuraEffect* aurEff)
+        {
+            Unit* caster = GetCaster();
+            if (!caster)
+                return;
+
+            // calculate from base damage, not from aurEff->GetAmount() (already modified)
+            float damage = caster->CalculateSpellDamage(GetUnitOwner(), GetSpellInfo(), aurEff->GetEffIndex());
+
+            // Wild Growth = first tick gains a 6% bonus, reduced by 2% each tick
+            float reduction = 2.f;
+            if (AuraEffect* bonus = caster->GetAuraEffect(SPELL_DRUID_RESTORATION_T10_2P_BONUS, EFFECT_0))
+                reduction -= CalculatePct(reduction, bonus->GetAmount());
+            reduction *= (aurEff->GetTickNumber() - 1);
+
+            AddPct(damage, 6.f - reduction);
+            aurEff->SetAmount(int32(damage));
+        }
+
+        void Register() override
+        {
+            OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_dru_wild_growth_AuraScript::HandleTickUpdate, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+        }
     };
 
     SpellScript* GetSpellScript() const override
     {
         return new spell_dru_wild_growth_SpellScript();
+    }
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_dru_wild_growth_AuraScript();
     }
 };
 

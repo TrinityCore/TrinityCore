@@ -3363,6 +3363,14 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AttributesEx |= SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY;
     });
 
+    // Blizzard (Thorim)
+    ApplySpellFix({ 62576, 62602 }, [](SpellInfo* spellInfo)
+    {
+        // DBC data is wrong for EFFECT_0, it's a different dynobject target than EFFECT_1
+        // Both effects should be shared by the same DynObject
+            const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetA = SpellImplicitTargetInfo(TARGET_DEST_CASTER_LEFT);
+    });
+
     // Spinning Up (Mimiron)
     ApplySpellFix({ 63414 }, [](SpellInfo* spellInfo)
     {

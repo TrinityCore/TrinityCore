@@ -162,8 +162,7 @@ public:
 enum Cooshhooosh
 {
     SPELL_LIGHTNING_BOLT    = 9532,
-    QUEST_CRACK_SKULLS      = 10009,
-    FACTION_HOSTILE_CO      = 45
+    QUEST_CRACK_SKULLS      = 10009
 };
 
 class npc_cooshcoosh : public CreatureScript
@@ -226,7 +225,7 @@ public:
             if (action == GOSSIP_ACTION_INFO_DEF)
             {
                 CloseGossipMenuFor(player);
-                me->SetFaction(FACTION_HOSTILE_CO);
+                me->SetFaction(FACTION_OGRE);
                 AttackStart(player);
             }
             return true;

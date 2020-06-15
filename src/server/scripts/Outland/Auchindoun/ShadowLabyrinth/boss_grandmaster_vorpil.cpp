@@ -192,7 +192,7 @@ class boss_grandmaster_vorpil : public CreatureScript
                                         if (i_pl->IsAlive() && !i_pl->HasAura(SPELL_BANISH))
                                             i_pl->TeleportTo(me->GetMapId(), VorpilPosition.GetPositionX(), VorpilPosition.GetPositionY(), VorpilPosition.GetPositionZ(), VorpilPosition.GetOrientation(), TELE_TO_NOT_LEAVE_COMBAT);
 
-                                me->SetPosition(VorpilPosition);
+                                me->UpdatePosition(VorpilPosition);
                                 DoCast(me, SPELL_DRAW_SHADOWS, true);
                                 DoCast(me, SPELL_RAIN_OF_FIRE);
                                 events.ScheduleEvent(EVENT_SHADOWBOLT_VOLLEY, 6000);

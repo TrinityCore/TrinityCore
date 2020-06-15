@@ -439,7 +439,7 @@ public:
 
     bool operator()(Unit* unit) const
     {
-        return _me->GetDistance2d(unit) > 25.0f;
+        return unit->GetTypeId() == TYPEID_PLAYER && _me->GetDistance2d(unit) > 25.0f;
     }
 
 private:
@@ -2074,7 +2074,8 @@ class spell_illidan_flame_blast : public SpellScriptLoader
             void HandleBlaze(SpellEffIndex /*effIndex*/)
             {
                 Unit* target = GetHitUnit();
-                target->CastSpell(target, SPELL_BLAZE_SUMMON, true);
+                if (target->GetTypeId() == TYPEID_PLAYER)
+                    target->CastSpell(target, SPELL_BLAZE_SUMMON, true);
             }
 
             void Register() override
