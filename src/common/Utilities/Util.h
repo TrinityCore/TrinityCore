@@ -58,10 +58,14 @@ TC_COMMON_API void stripLineInvisibleChars(std::string &src);
 TC_COMMON_API int64 MoneyStringToMoney(std::string const& moneyString);
 
 TC_COMMON_API struct tm* localtime_r(time_t const* time, struct tm *result);
+TC_COMMON_API time_t LocalTimeToUTCTime(time_t time);
+TC_COMMON_API time_t GetLocalHourTimestamp(time_t time, uint8 hour, bool onlyAfterTime = true);
+TC_COMMON_API tm TimeBreakdown(time_t t);
 
 TC_COMMON_API std::string secsToTimeString(uint64 timeInSecs, bool shortText = false, bool hoursOnly = false);
 TC_COMMON_API uint32 TimeStringToSecs(std::string const& timestring);
 TC_COMMON_API std::string TimeToTimestampStr(time_t t);
+TC_COMMON_API std::string TimeToHumanReadable(time_t t);
 
 inline void ApplyPercentModFloatVar(float& var, float val, bool apply)
 {

@@ -261,6 +261,7 @@ enum WorldIntConfigs
     CONFIG_INSTANCE_RESET_TIME_HOUR,
     CONFIG_INSTANCE_UNLOAD_DELAY,
     CONFIG_DAILY_QUEST_RESET_TIME_HOUR,
+    CONFIG_WEEKLY_QUEST_RESET_TIME_WDAY,
     CONFIG_MAX_PRIMARY_TRADE_SKILL,
     CONFIG_MIN_PETITION_SIGNS,
     CONFIG_MIN_QUEST_SCALED_XP_RATIO,
@@ -551,11 +552,12 @@ enum RealmZone
 enum WorldStates
 {
     WS_ARENA_DISTRIBUTION_TIME  = 20001,                     // Next arena distribution time
-    WS_WEEKLY_QUEST_RESET_TIME  = 20002,                     // Next weekly reset time
+    WS_WEEKLY_QUEST_RESET_TIME  = 20002,                     // Next weekly quest reset time
     WS_BG_DAILY_RESET_TIME      = 20003,                     // Next daily BG reset time
     WS_CLEANING_FLAGS           = 20004,                     // Cleaning Flags
     WS_GUILD_DAILY_RESET_TIME   = 20006,                     // Next guild cap reset time
-    WS_MONTHLY_QUEST_RESET_TIME = 20007,                     // Next monthly reset time
+    WS_MONTHLY_QUEST_RESET_TIME = 20007,                     // Next monthly quest reset time
+    WS_DAILY_QUEST_RESET_TIME   = 20008,                     // Next daily quest reset time
     // Cata specific custom worldstates
     WS_GUILD_WEEKLY_RESET_TIME  = 20050,                     // Next guild week reset time
     WS_CURRENCY_RESET_TIME      = 20051,                     // Custom worldstate
@@ -813,15 +815,16 @@ class TC_GAME_API World
         // callback for UpdateRealmCharacters
         void _UpdateRealmCharCount(PreparedQueryResult resultCharCount);
 
-        void InitDailyQuestResetTime(bool loading = true);
-        void InitWeeklyQuestResetTime();
-        void InitMonthlyQuestResetTime();
-        void InitRandomBGResetTime();
-        void InitGuildResetTime();
-        void InitCurrencyResetTime();
+        void InitQuestResetTimes();
+        void CheckQuestResetTimes();
+
         void ResetDailyQuestsAndRewards();
         void ResetWeeklyQuestsAndRewards();
         void ResetMonthlyQuests();
+
+        void InitCurrencyResetTime();
+        void InitRandomBGResetTime();
+        void InitGuildResetTime();
         void ResetRandomBG();
         void ResetGuildCap();
         void ResetCurrencyWeekCap();

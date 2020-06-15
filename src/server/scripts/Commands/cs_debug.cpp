@@ -36,6 +36,8 @@ EndScriptData */
 #include "M2Stores.h"
 #include "ObjectMgr.h"
 #include "PhasingHandler.h"
+#include "PoolMgr.h"
+#include "QuestPools.h"
 #include "RBAC.h"
 #include "Transport.h"
 #include "WorldSession.h"

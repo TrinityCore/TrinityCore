@@ -624,6 +624,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         void SaveRespawnInfoDB(RespawnInfo const& info, CharacterDatabaseTransaction dbTrans = nullptr);
         void LoadRespawnTimes();
         void DeleteRespawnTimes() { UnloadAllRespawnInfos(); DeleteRespawnTimesInDB(GetId(), GetInstanceId()); }
+        static void DeleteRespawnTimesInDB(uint16 mapId, uint32 instanceId);
 
         void LoadCorpseData();
         void DeleteCorpseData();
@@ -631,8 +632,6 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         void RemoveCorpse(Corpse* corpse);
         Corpse* ConvertCorpseToBones(ObjectGuid const& ownerGuid, bool insignia = false);
         void RemoveOldCorpses();
-
-        static void DeleteRespawnTimesInDB(uint16 mapId, uint32 instanceId);
 
         void SendInitTransports(Player* player);
         void SendRemoveTransports(Player* player);
@@ -802,10 +801,10 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         // if return value is false and info->respawnTime is nonzero, it is guaranteed to be greater than time(NULL)
         bool CheckRespawn(RespawnInfo* info);
         void DoRespawn(SpawnObjectType type, ObjectGuid::LowType spawnId, uint32 gridId);
-        void Respawn(RespawnInfo* info, CharacterDatabaseTransaction dbTrans = nullptr);
         bool AddRespawnInfo(RespawnInfo const& info);
         void UnloadAllRespawnInfos();
         void DeleteRespawnInfo(RespawnInfo* info, CharacterDatabaseTransaction dbTrans = nullptr);
+        void DeleteRespawnInfoFromDB(SpawnObjectType type, ObjectGuid::LowType spawnId, CharacterDatabaseTransaction dbTrans = nullptr);
 
     public:
         void GetRespawnInfo(std::vector<RespawnInfo*>& respawnData, SpawnObjectTypeMask types) const;
@@ -815,11 +814,19 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
             if (RespawnInfo* info = GetRespawnInfo(type, spawnId))
                 Respawn(info, dbTrans);
         }
-        void RemoveRespawnTime(SpawnObjectType type, ObjectGuid::LowType spawnId, CharacterDatabaseTransaction dbTrans = nullptr)
+        void Respawn(RespawnInfo* info, CharacterDatabaseTransaction dbTrans = nullptr);
+        void RemoveRespawnTime(SpawnObjectType type, ObjectGuid::LowType spawnId, CharacterDatabaseTransaction dbTrans = nullptr, bool alwaysDeleteFromDB = false)
         {
             if (RespawnInfo* info = GetRespawnInfo(type, spawnId))
                 DeleteRespawnInfo(info, dbTrans);
+            // Some callers might need to make sure the database doesn't contain any respawn time
+            else if (alwaysDeleteFromDB)
+                DeleteRespawnInfoFromDB(type, spawnId, dbTrans);
         }
+        size_t DespawnAll(SpawnObjectType type, ObjectGuid::LowType spawnId);
+
+        bool ShouldBeSpawnedOnGridLoad(SpawnObjectType type, ObjectGuid::LowType spawnId) const;
+        template <typename T> bool ShouldBeSpawnedOnGridLoad(ObjectGuid::LowType spawnId) const { return ShouldBeSpawnedOnGridLoad(SpawnData::TypeFor<T>, spawnId); }
 
         SpawnGroupTemplateData const* GetSpawnGroupData(uint32 groupId) const;
 

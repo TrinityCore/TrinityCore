@@ -892,7 +892,8 @@ void GameObject::SaveToDB(uint32 mapid, uint8 spawnMask)
         data.spawnId = m_spawnId;
     ASSERT(data.spawnId == m_spawnId);
     data.id = GetEntry();
-    data.spawnPoint.WorldRelocate(this);
+    data.mapId = GetMapId();
+    data.spawnPoint.Relocate(this);
     data.rotation = m_localRotation;
     data.spawntimesecs = m_spawnedByDefault ? m_respawnDelayTime : -(int32)m_respawnDelayTime;
     data.animprogress = GetGoAnimProgress();
@@ -1015,7 +1016,7 @@ bool GameObject::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap
 
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
-    sMapMgr->DoForAllMapsWithMapId(data->spawnPoint.GetMapId(),
+    sMapMgr->DoForAllMapsWithMapId(data->mapId,
         [spawnId, trans](Map* map) -> void
         {
             // despawn all active objects, and remove their respawns
@@ -1055,24 +1056,12 @@ bool GameObject::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap
 /*********************************************************/
 bool GameObject::hasQuest(uint32 quest_id) const
 {
-    QuestRelationBounds qr = sObjectMgr->GetGOQuestRelationBounds(GetEntry());
-    for (QuestRelations::const_iterator itr = qr.first; itr != qr.second; ++itr)
-    {
-        if (itr->second == quest_id)
-            return true;
-    }
-    return false;
+    return sObjectMgr->GetGOQuestRelations(GetEntry()).HasQuest(quest_id);
 }
 
 bool GameObject::hasInvolvedQuest(uint32 quest_id) const
 {
-    QuestRelationBounds qir = sObjectMgr->GetGOQuestInvolvedRelationBounds(GetEntry());
-    for (QuestRelations::const_iterator itr = qir.first; itr != qir.second; ++itr)
-    {
-        if (itr->second == quest_id)
-            return true;
-    }
-    return false;
+    return sObjectMgr->GetGOQuestInvolvedRelations(GetEntry()).HasQuest(quest_id);
 }
 
 bool GameObject::IsTransport() const

@@ -446,13 +446,11 @@ void WorldSession::HandleQuestNPCQuery(WorldPacket& recvData)
             continue;
         }
 
-        auto creatures = sObjectMgr->GetCreatureQuestInvolvedRelationReverseBounds(questId);
-        for (auto it = creatures.first; it != creatures.second; ++it)
-            quests[questId].push_back(it->second);
+        for (uint32 creatureId : sObjectMgr->GetCreatureQuestInvolvedRelationsReverse(questId))
+            quests[questId].push_back(creatureId);
 
-        auto gos = sObjectMgr->GetGOQuestInvolvedRelationReverseBounds(questId);
-        for (auto it = gos.first; it != gos.second; ++it)
-            quests[questId].push_back(it->second | 0x80000000); // GO mask
+        for (uint32 goId : sObjectMgr->GetGOQuestInvolvedRelationsReverse(questId))
+            quests[questId].push_back(goId | 0x80000000); // GO mask
     }
 
     WorldPacket data(SMSG_QUEST_NPC_QUERY_RESPONSE, 3 + quests.size() * 14);

@@ -111,6 +111,37 @@ struct tm* localtime_r(time_t const* time, struct tm *result)
 }
 #endif
 
+tm TimeBreakdown(time_t time)
+{
+    tm timeLocal;
+    localtime_r(&time, &timeLocal);
+    return timeLocal;
+}
+
+time_t LocalTimeToUTCTime(time_t time)
+{
+#if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__))
+    return time + _timezone;
+#else
+    return time + timezone;
+#endif
+}
+
+time_t GetLocalHourTimestamp(time_t time, uint8 hour, bool onlyAfterTime)
+{
+    tm timeLocal = TimeBreakdown(time);
+    timeLocal.tm_hour = 0;
+    timeLocal.tm_min = 0;
+    timeLocal.tm_sec = 0;
+    time_t midnightLocal = mktime(&timeLocal);
+    time_t hourLocal = midnightLocal + hour * HOUR;
+
+    if (onlyAfterTime && hourLocal <= time)
+        hourLocal += DAY;
+
+    return hourLocal;
+}
+
 std::string secsToTimeString(uint64 timeInSecs, bool shortText, bool hoursOnly)
 {
     uint64 secs    = timeInSecs % MINUTE;
@@ -208,6 +239,15 @@ std::string TimeToTimestampStr(time_t t)
     //       MM     minutes (2 digits 00-59)
     //       SS     seconds (2 digits 00-59)
     return Trinity::StringFormat("%04d-%02d-%02d_%02d-%02d-%02d", aTm.tm_year + 1900, aTm.tm_mon + 1, aTm.tm_mday, aTm.tm_hour, aTm.tm_min, aTm.tm_sec);
+}
+
+std::string TimeToHumanReadable(time_t t)
+{
+    tm time;
+    localtime_r(&t, &time);
+    char buf[30];
+    strftime(buf, 30, "%c", &time);
+    return std::string(buf);
 }
 
 /// Check if the string is a valid ip address representation

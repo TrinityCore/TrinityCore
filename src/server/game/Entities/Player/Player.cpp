@@ -82,6 +82,7 @@
 #include "QueryHolder.h"
 #include "QuestDef.h"
 #include "QuestPackets.h"
+#include "QuestPools.h"
 #include "Realm.h"
 #include "ReputationMgr.h"
 #include "SkillDiscovery.h"
@@ -14270,15 +14271,15 @@ uint32 Player::GetDefaultGossipMenuForSource(WorldObject* source)
 
 void Player::PrepareQuestMenu(ObjectGuid guid)
 {
-    QuestRelationBounds objectQR;
-    QuestRelationBounds objectQIR;
+    QuestRelationResult objectQR;
+    QuestRelationResult objectQIR;
 
     // pets also can have quests
     Creature* creature = ObjectAccessor::GetCreatureOrPetOrVehicle(*this, guid);
     if (creature)
     {
-        objectQR  = sObjectMgr->GetCreatureQuestRelationBounds(creature->GetEntry());
-        objectQIR = sObjectMgr->GetCreatureQuestInvolvedRelationBounds(creature->GetEntry());
+        objectQR  = sObjectMgr->GetCreatureQuestRelations(creature->GetEntry());
+        objectQIR = sObjectMgr->GetCreatureQuestInvolvedRelations(creature->GetEntry());
     }
     else
     {
@@ -14289,8 +14290,8 @@ void Player::PrepareQuestMenu(ObjectGuid guid)
         GameObject* gameObject = _map->GetGameObject(guid);
         if (gameObject)
         {
-            objectQR  = sObjectMgr->GetGOQuestRelationBounds(gameObject->GetEntry());
-            objectQIR = sObjectMgr->GetGOQuestInvolvedRelationBounds(gameObject->GetEntry());
+            objectQR  = sObjectMgr->GetGOQuestRelations(gameObject->GetEntry());
+            objectQIR = sObjectMgr->GetGOQuestInvolvedRelations(gameObject->GetEntry());
         }
         else
             return;
@@ -14299,9 +14300,8 @@ void Player::PrepareQuestMenu(ObjectGuid guid)
     QuestMenu &qm = PlayerTalkClass->GetQuestMenu();
     qm.ClearMenu();
 
-    for (QuestRelations::const_iterator i = objectQIR.first; i != objectQIR.second; ++i)
+    for (uint32 quest_id : objectQIR)
     {
-        uint32 quest_id = i->second;
         QuestStatus status = GetQuestStatus(quest_id);
         if (status == QUEST_STATUS_COMPLETE)
             qm.AddMenuItem(quest_id, 4);
@@ -14311,9 +14311,8 @@ void Player::PrepareQuestMenu(ObjectGuid guid)
         //    qm.AddMenuItem(quest_id, 2);
     }
 
-    for (QuestRelations::const_iterator i = objectQR.first; i != objectQR.second; ++i)
+    for (uint32 quest_id : objectQR)
     {
-        uint32 quest_id = i->second;
         Quest const* quest = sObjectMgr->GetQuestTemplate(quest_id);
         if (!quest)
             continue;
@@ -14423,7 +14422,7 @@ bool Player::IsActiveQuest(uint32 quest_id) const
 
 Quest const* Player::GetNextQuest(ObjectGuid guid, Quest const* quest) const
 {
-    QuestRelationBounds objectQR;
+    QuestRelationResult quests;
     uint32 nextQuestID = quest->GetNextQuestInChain();
 
     switch (guid.GetHigh())
@@ -14436,7 +14435,7 @@ Quest const* Player::GetNextQuest(ObjectGuid guid, Quest const* quest) const
         case HighGuid::Vehicle:
         {
             if (Creature* creature = ObjectAccessor::GetCreatureOrPetOrVehicle(*this, guid))
-                objectQR  = sObjectMgr->GetCreatureQuestRelationBounds(creature->GetEntry());
+                quests = sObjectMgr->GetCreatureQuestRelations(creature->GetEntry());
             else
                 return nullptr;
             break;
@@ -14448,7 +14447,7 @@ Quest const* Player::GetNextQuest(ObjectGuid guid, Quest const* quest) const
             Map* _map = IsInWorld() ? GetMap() : sMapMgr->FindMap(GetMapId(), GetInstanceId());
             ASSERT(_map);
             if (GameObject* gameObject = _map->GetGameObject(guid))
-                objectQR = sObjectMgr->GetGOQuestRelationBounds(gameObject->GetEntry());
+                quests = sObjectMgr->GetGOQuestRelations(gameObject->GetEntry());
             else
                 return nullptr;
             break;
@@ -14458,11 +14457,9 @@ Quest const* Player::GetNextQuest(ObjectGuid guid, Quest const* quest) const
     }
 
     // for unit and go state
-    for (QuestRelations::const_iterator itr = objectQR.first; itr != objectQR.second; ++itr)
-    {
-        if (itr->second == nextQuestID)
+    if (nextQuestID)
+        if (quests.HasQuest(nextQuestID))
             return sObjectMgr->GetQuestTemplate(nextQuestID);
-    }
 
     return nullptr;
 }
@@ -15730,7 +15727,7 @@ bool Player::CanShareQuest(uint32 quest_id) const
         if (itr != m_QuestStatus.end())
         {
             // in pool and not currently available (wintergrasp weekly, dalaran weekly) - can't share
-            if (sPoolMgr->IsPartOfAPool<Quest>(quest_id) && !sPoolMgr->IsSpawnedObject<Quest>(quest_id))
+            if (sQuestPoolMgr->IsQuestActive(quest_id))
             {
                 SendPushToPartyResponse(this, QUEST_PARTY_MSG_CANT_BE_SHARED_TODAY);
                 return false;
@@ -15839,8 +15836,7 @@ uint8 Player::GetFirstRewardCountForDungeonId(uint32 dungeonId)
 
 QuestGiverStatus Player::GetQuestDialogStatus(Object* questgiver)
 {
-    QuestRelationBounds qr;
-    QuestRelationBounds qir;
+    QuestRelationResult qr, qir;
 
     switch (questgiver->GetTypeId())
     {
@@ -15849,8 +15845,8 @@ QuestGiverStatus Player::GetQuestDialogStatus(Object* questgiver)
             QuestGiverStatus questStatus = QuestGiverStatus(questgiver->ToGameObject()->AI()->GetDialogStatus(this));
             if (questStatus != DIALOG_STATUS_SCRIPTED_NO_STATUS)
                 return questStatus;
-            qr = sObjectMgr->GetGOQuestRelationBounds(questgiver->GetEntry());
-            qir = sObjectMgr->GetGOQuestInvolvedRelationBounds(questgiver->GetEntry());
+            qr = sObjectMgr->GetGOQuestRelations(questgiver->GetEntry());
+            qir = sObjectMgr->GetGOQuestInvolvedRelations(questgiver->GetEntry());
             break;
         }
         case TYPEID_UNIT:
@@ -15858,8 +15854,8 @@ QuestGiverStatus Player::GetQuestDialogStatus(Object* questgiver)
             QuestGiverStatus questStatus = QuestGiverStatus(questgiver->ToCreature()->AI()->GetDialogStatus(this));
             if (questStatus != DIALOG_STATUS_SCRIPTED_NO_STATUS)
                 return questStatus;
-            qr = sObjectMgr->GetCreatureQuestRelationBounds(questgiver->GetEntry());
-            qir = sObjectMgr->GetCreatureQuestInvolvedRelationBounds(questgiver->GetEntry());
+            qr = sObjectMgr->GetCreatureQuestRelations(questgiver->GetEntry());
+            qir = sObjectMgr->GetCreatureQuestInvolvedRelations(questgiver->GetEntry());
             break;
         }
         default:
@@ -15870,10 +15866,9 @@ QuestGiverStatus Player::GetQuestDialogStatus(Object* questgiver)
 
     QuestGiverStatus result = DIALOG_STATUS_NONE;
 
-    for (QuestRelations::const_iterator i = qir.first; i != qir.second; ++i)
+    for (uint32 questId : qir)
     {
         QuestGiverStatus result2 = DIALOG_STATUS_NONE;
-        uint32 questId = i->second;
         Quest const* quest = sObjectMgr->GetQuestTemplate(questId);
         if (!quest)
             continue;
@@ -15891,10 +15886,9 @@ QuestGiverStatus Player::GetQuestDialogStatus(Object* questgiver)
             result = result2;
     }
 
-    for (QuestRelations::const_iterator i = qr.first; i != qr.second; ++i)
+    for (uint32 questId : qr)
     {
         QuestGiverStatus result2 = DIALOG_STATUS_NONE;
-        uint32 questId = i->second;
         Quest const* quest = sObjectMgr->GetQuestTemplate(questId);
         if (!quest)
             continue;
