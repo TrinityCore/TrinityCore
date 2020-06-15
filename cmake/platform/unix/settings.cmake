@@ -4,12 +4,6 @@ if( NOT CONF_DIR )
   message(STATUS "UNIX: Using default configuration directory")
 endif()
 
-# set default library directory
-if( NOT LIBSDIR )
-  set(LIBSDIR ${CMAKE_INSTALL_PREFIX}/lib)
-  message(STATUS "UNIX: Using default library directory")
-endif()
-
 # configure uninstaller
 configure_file(
   "${CMAKE_SOURCE_DIR}/cmake/platform/cmake_uninstall.in.cmake"
