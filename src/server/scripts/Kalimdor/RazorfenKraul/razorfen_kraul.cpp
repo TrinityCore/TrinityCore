@@ -58,7 +58,7 @@ public:
             {
                 Start(true, false, player->GetGUID());
                 Talk(SAY_READY, player);
-                me->SetFaction(113);
+                me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
             }
         }
 

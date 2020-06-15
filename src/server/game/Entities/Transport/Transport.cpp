@@ -154,8 +154,8 @@ void Transport::Update(uint32 diff)
 
             if (timer < _currentFrame->DepartureTime)
             {
+                justStopped = IsMoving();
                 SetMoving(false);
-                justStopped = true;
                 if (_pendingStop && GetGoState() != GO_STATE_READY)
                 {
                     SetGoState(GO_STATE_READY);

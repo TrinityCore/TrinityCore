@@ -57,62 +57,68 @@ enum ScriptTexts
 enum Spells
 {
     // Lady Deathwhisper
-    SPELL_MANA_BARRIER              = 70842,
-    SPELL_SHADOW_BOLT               = 71254,
-    SPELL_DEATH_AND_DECAY           = 71001,
-    SPELL_DOMINATE_MIND             = 71289,
-    SPELL_DOMINATE_MIND_SCALE       = 71290,
-    SPELL_FROSTBOLT                 = 71420,
-    SPELL_FROSTBOLT_VOLLEY          = 72905,
-    SPELL_TOUCH_OF_INSIGNIFICANCE   = 71204,
-    SPELL_SUMMON_SHADE              = 71363,
-    SPELL_SHADOW_CHANNELING         = 43897,
-    SPELL_DARK_TRANSFORMATION_T     = 70895,
-    SPELL_DARK_EMPOWERMENT_T        = 70896,
-    SPELL_DARK_MARTYRDOM_T          = 70897,
-    SPELL_SUMMON_SPIRITS            = 72478,
+    SPELL_MANA_BARRIER                = 70842,
+    SPELL_SHADOW_BOLT                 = 71254,
+    SPELL_DEATH_AND_DECAY             = 71001,
+    SPELL_DOMINATE_MIND               = 71289,
+    SPELL_DOMINATE_MIND_SCALE         = 71290,
+    SPELL_FROSTBOLT                   = 71420,
+    SPELL_FROSTBOLT_VOLLEY            = 72905,
+    SPELL_TOUCH_OF_INSIGNIFICANCE     = 71204,
+    SPELL_SUMMON_SHADE                = 71363,
+    SPELL_SHADOW_CHANNELING           = 43897,
+    SPELL_DARK_TRANSFORMATION_T       = 70895,
+    SPELL_DARK_EMPOWERMENT_T          = 70896,
+    SPELL_DARK_MARTYRDOM_T            = 70897,
+    SPELL_SUMMON_SPIRITS              = 72478,
 
     // Achievement
-    SPELL_FULL_HOUSE                = 72827, // does not exist in dbc but still can be used for criteria check
+    SPELL_FULL_HOUSE                  = 72827, // does not exist in dbc but still can be used for criteria check
 
     // Both Adds
-    SPELL_TELEPORT_VISUAL           = 41236,
-    SPELL_CLEAR_ALL_DEBUFFS         = 34098,
-    SPELL_FULL_HEAL                 = 17683,
-    SPELL_PERMANENT_FEIGN_DEATH     = 70628,
+    SPELL_TELEPORT_VISUAL             = 41236,
+    SPELL_CLEAR_ALL_DEBUFFS           = 34098,
+    SPELL_FULL_HEAL                   = 17683,
+    SPELL_PERMANENT_FEIGN_DEATH       = 70628,
 
     // Fanatics
-    SPELL_DARK_TRANSFORMATION       = 70900,
-    SPELL_NECROTIC_STRIKE           = 70659,
-    SPELL_SHADOW_CLEAVE             = 70670,
-    SPELL_VAMPIRIC_MIGHT            = 70674,
-    SPELL_FANATIC_S_DETERMINATION   = 71235,
-    SPELL_DARK_MARTYRDOM_FANATIC    = 71236,
+    SPELL_DARK_TRANSFORMATION         = 70900,
+    SPELL_NECROTIC_STRIKE             = 70659,
+    SPELL_SHADOW_CLEAVE               = 70670,
+    SPELL_VAMPIRIC_MIGHT              = 70674,
+    SPELL_FANATIC_S_DETERMINATION     = 71235,
+    SPELL_DARK_MARTYRDOM_FANATIC      = 71236,
+    SPELL_DARK_MARTYRDOM_FANATIC_25N  = 72495,
+    SPELL_DARK_MARTYRDOM_FANATIC_10H  = 72496,
+    SPELL_DARK_MARTYRDOM_FANATIC_25H  = 72497,
 
     //  Adherents
-    SPELL_DARK_EMPOWERMENT          = 70901,
-    SPELL_FROST_FEVER               = 67767,
-    SPELL_DEATHCHILL_BOLT           = 70594,
-    SPELL_DEATHCHILL_BLAST          = 70906,
-    SPELL_CURSE_OF_TORPOR           = 71237,
-    SPELL_SHROUD_OF_THE_OCCULT      = 70768,
-    SPELL_ADHERENT_S_DETERMINATION  = 71234,
-    SPELL_DARK_MARTYRDOM_ADHERENT   = 70903,
+    SPELL_DARK_EMPOWERMENT            = 70901,
+    SPELL_FROST_FEVER                 = 67767,
+    SPELL_DEATHCHILL_BOLT             = 70594,
+    SPELL_DEATHCHILL_BLAST            = 70906,
+    SPELL_CURSE_OF_TORPOR             = 71237,
+    SPELL_SHROUD_OF_THE_OCCULT        = 70768,
+    SPELL_ADHERENT_S_DETERMINATION    = 71234,
+    SPELL_DARK_MARTYRDOM_ADHERENT     = 70903,
+    SPELL_DARK_MARTYRDOM_ADHERENT_25N = 72498,
+    SPELL_DARK_MARTYRDOM_ADHERENT_10H = 72499,
+    SPELL_DARK_MARTYRDOM_ADHERENT_25H = 72500,
 
     // Vengeful Shade
-    SPELL_VENGEFUL_BLAST            = 71544,
-    SPELL_VENGEFUL_BLAST_PASSIVE    = 71494,
-    SPELL_VENGEFUL_BLAST_25N        = 72010,
-    SPELL_VENGEFUL_BLAST_10H        = 72011,
-    SPELL_VENGEFUL_BLAST_25H        = 72012,
+    SPELL_VENGEFUL_BLAST              = 71544,
+    SPELL_VENGEFUL_BLAST_PASSIVE      = 71494,
+    SPELL_VENGEFUL_BLAST_25N          = 72010,
+    SPELL_VENGEFUL_BLAST_10H          = 72011,
+    SPELL_VENGEFUL_BLAST_25H          = 72012,
 
     // Darnavan
-    SPELL_BLADESTORM                = 65947,
-    SPELL_CHARGE                    = 65927,
-    SPELL_INTIMIDATING_SHOUT        = 65930,
-    SPELL_MORTAL_STRIKE             = 65926,
-    SPELL_SHATTERING_THROW          = 65940,
-    SPELL_SUNDER_ARMOR              = 65936,
+    SPELL_BLADESTORM                  = 65947,
+    SPELL_CHARGE                      = 65927,
+    SPELL_INTIMIDATING_SHOUT          = 65930,
+    SPELL_MORTAL_STRIKE               = 65926,
+    SPELL_SHATTERING_THROW            = 65940,
+    SPELL_SUNDER_ARMOR                = 65936,
 };
 
 enum EventTypes
@@ -359,7 +365,7 @@ class boss_lady_deathwhisper : public CreatureScript
                 {
                     if (darnavan->IsAlive())
                     {
-                        darnavan->SetFaction(35);
+                        darnavan->SetFaction(FACTION_FRIENDLY);
                         darnavan->CombatStop(true);
                         darnavan->GetMotionMaster()->MoveIdle();
                         darnavan->SetReactState(REACT_PASSIVE);
@@ -640,6 +646,9 @@ class npc_cult_fanatic : public CreatureScript
                         DoCastSelf(SPELL_DARK_MARTYRDOM_FANATIC);
                         break;
                     case SPELL_DARK_MARTYRDOM_FANATIC:
+                    case SPELL_DARK_MARTYRDOM_FANATIC_25N:
+                    case SPELL_DARK_MARTYRDOM_FANATIC_10H:
+                    case SPELL_DARK_MARTYRDOM_FANATIC_25H:
                         _scheduler
                             .Schedule(Seconds(2), [this](TaskContext /*context*/)
                             {
@@ -739,6 +748,9 @@ class npc_cult_adherent : public CreatureScript
                         DoCastSelf(SPELL_DARK_MARTYRDOM_ADHERENT);
                         break;
                     case SPELL_DARK_MARTYRDOM_ADHERENT:
+                    case SPELL_DARK_MARTYRDOM_ADHERENT_25N:
+                    case SPELL_DARK_MARTYRDOM_ADHERENT_10H:
+                    case SPELL_DARK_MARTYRDOM_ADHERENT_25H:
                         _scheduler
                             .Schedule(Seconds(2), [this](TaskContext /*context*/)
                             {

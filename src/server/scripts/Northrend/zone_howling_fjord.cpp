@@ -43,7 +43,6 @@ EndContentData */
 enum Entries
 {
     NPC_APOTHECARY_HANES = 23784,
-    FACTION_ESCORTEE_H   = 775,
     QUEST_TRAIL_OF_FIRE  = 11241,
 
     SPELL_HEALING_POTION = 17534,
@@ -155,7 +154,7 @@ public:
                         break;
                     case EVENT_START_ESCORT:
                         events.Reset();
-                        me->SetFaction(FACTION_ESCORTEE_H);
+                        me->SetFaction(FACTION_ESCORTEE_H_PASSIVE);
                         me->SetReactState(REACT_AGGRESSIVE);
                         ENSURE_AI(npc_escortAI, (me->AI()))->Start(true, true, _player);
                         break;

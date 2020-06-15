@@ -58,8 +58,6 @@ enum Belnistrasz
     EVENT_FIREBALL               = 5,
     EVENT_FROST_NOVA             = 6,
 
-    FACTION_ESCORT               = 250,
-
     PATH_ESCORT                  = 871710,
     POINT_REACH_IDOL             = 17,
 
@@ -137,7 +135,7 @@ public:
                 eventInProgress = true;
                 Talk(SAY_QUEST_ACCEPTED);
                 me->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
-                me->SetFaction(FACTION_ESCORT);
+                me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_ACTIVE);
                 me->GetMotionMaster()->MovePath(PATH_ESCORT, false);
             }
         }

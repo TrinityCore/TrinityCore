@@ -537,7 +537,7 @@ bool BossAI::CanAIAttack(Unit const* target) const
     return CheckBoundary(target);
 }
 
-void BossAI::_DespawnAtEvade(uint32 delayToRespawn, Creature* who)
+void BossAI::_DespawnAtEvade(uint32 delayToRespawn /*= 30*/, Creature* who /*= nullptr*/)
 {
     if (delayToRespawn < 2)
     {
