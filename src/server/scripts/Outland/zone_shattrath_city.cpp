@@ -44,7 +44,6 @@ enum RaliqTheDrunk
 {
     SAY_RALIQ_ATTACK         = 0,
     OPTION_ID_COLLECT_A_DEBT = 0,
-    FACTION_OGRE_HOSTILE     = 45,
     MENU_ID_COLLECT_A_DEBT   = 7729,
     NPC_TEXT_WUT_YOU_WANT    = 9440,
     CRACKIN_SOME_SKULLS      = 10009,
@@ -97,7 +96,7 @@ public:
             if (action == GOSSIP_ACTION_INFO_DEF + 1)
             {
                 CloseGossipMenuFor(player);
-                me->SetFaction(FACTION_OGRE_HOSTILE);
+                me->SetFaction(FACTION_OGRE);
                 Talk(SAY_RALIQ_ATTACK, player);
                 AttackStart(player);
             }
@@ -134,8 +133,6 @@ enum Salsalabim
 {
     SAY_DEMONIC_AGGRO          = 0,
     OPTION_ID_ALTRUIS_SENT_ME  = 0,
-    FACTION_FRIENDLY           = 35,
-    FACTION_DEMON_HOSTILE      = 90,
     MENU_ID_ALTRUIS_SENT_ME    = 7725,
     NPC_TEXT_SAL_GROWLS_AT_YOU = 9435,
     PATIENCE_AND_UNDERSTANDING = 10004,
@@ -198,7 +195,7 @@ public:
             if (action == GOSSIP_ACTION_INFO_DEF + 1)
             {
                 CloseGossipMenuFor(player);
-                me->SetFaction(FACTION_DEMON_HOSTILE);
+                me->SetFaction(FACTION_DEMON);
                 Talk(SAY_DEMONIC_AGGRO, player);
                 AttackStart(player);
             }

@@ -78,7 +78,7 @@ public:
             x -= 3.5f;
             y -= 5.0f;
             me->GetMotionMaster()->Clear(false);
-            me->SetPosition(x, y, z, 0.0f);
+            me->UpdatePosition(x, y, z, 0.0f);
         }
 
         void UpdateAI(uint32 diff) override

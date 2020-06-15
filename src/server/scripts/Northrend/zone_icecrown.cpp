@@ -47,7 +47,7 @@ public:
         {
             Initialize();
             creature->GetMotionMaster()->MovePoint(0, 8599.258f, 963.951f, 547.553f);
-            creature->SetFaction(35); //wrong faction in db?
+            creature->SetFaction(FACTION_FRIENDLY); //wrong faction in db?
         }
 
         void Initialize()
@@ -69,7 +69,7 @@ public:
             if (uiType != POINT_MOTION_TYPE)
                 return;
 
-            me->SetFaction(14);
+            me->SetFaction(FACTION_MONSTER);
         }
 
         void DamageTaken(Unit* pDoneBy, uint32& uiDamage) override
@@ -78,7 +78,7 @@ public:
             {
                 uiDamage = 0;
                 pDoneBy->CastSpell(pDoneBy, SPELL_KILL_CREDIT, true);
-                me->SetFaction(35);
+                me->SetFaction(FACTION_FRIENDLY);
                 me->DespawnOrUnsummon(5000);
                 me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
                 EnterEvadeMode();

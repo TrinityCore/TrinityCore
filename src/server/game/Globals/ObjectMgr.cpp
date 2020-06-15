@@ -21,10 +21,12 @@
 #include "AzeriteItem.h"
 #include "Chat.h"
 #include "Containers.h"
+#include "CreatureAIFactory.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "DisableMgr.h"
 #include "GameObject.h"
+#include "GameObjectAIFactory.h"
 #include "GameTables.h"
 #include "GridDefines.h"
 #include "GossipDef.h"
@@ -933,6 +935,12 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         _hasDifficultyEntries[diff].insert(cInfo->Entry);
         _difficultyEntries[diff].insert(cInfo->DifficultyEntry[diff]);
         ok = true;
+    }
+
+    if (!cInfo->AIName.empty() && !sCreatureAIRegistry->HasItem(cInfo->AIName))
+    {
+        TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has non-registered `AIName` '%s' set, removing", cInfo->Entry, cInfo->AIName.c_str());
+        const_cast<CreatureTemplate*>(cInfo)->AIName.clear();
     }
 
     FactionTemplateEntry const* factionTemplate = sFactionTemplateStore.LookupEntry(cInfo->faction);
@@ -2046,6 +2054,12 @@ void ObjectMgr::LoadCreatures()
         {
             if (!mapEntry->IsDungeon())
                 TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: " UI64FMTD " Entry: %u) with `creature_template`.`flags_extra` including CREATURE_FLAG_EXTRA_INSTANCE_BIND but creature is not in instance.", guid, data.id);
+        }
+
+        if (data.movementType >= MAX_DB_MOTION_TYPE)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: " UI64FMTD " Entry: %u) with wrong movement generator type (%u), ignored and set to IDLE.", guid, data.id, data.movementType);
+            data.movementType = IDLE_MOTION_TYPE;
         }
 
         if (data.spawndist < 0.0f)
@@ -7061,6 +7075,11 @@ void ObjectMgr::LoadGameObjectTemplate()
         got.ScriptId = GetScriptId(fields[44].GetString());
 
         // Checks
+        if (!got.AIName.empty() && !sGameObjectAIRegistry->HasItem(got.AIName))
+        {
+            TC_LOG_ERROR("sql.sql", "GameObject (Entry: %u) has non-registered `AIName` '%s' set, removing", got.entry, got.AIName.c_str());
+            got.AIName.clear();
+        }
 
         switch (got.type)
         {

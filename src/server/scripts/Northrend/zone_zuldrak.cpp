@@ -139,7 +139,7 @@ public:
 
         void Reset() override
         {
-            me->SetFaction(35);
+            me->SetFaction(FACTION_FRIENDLY);
             DoCast(me, SPELL_KNEEL, true); // Little Hack for kneel - Thanks Illy :P
         }
 

@@ -195,7 +195,7 @@ public:
             {
                 damage = 0;
                 EnterEvadeMode();
-                me->SetFaction(35);
+                me->SetFaction(FACTION_FRIENDLY);
                 bDone = true;
             }
         }
@@ -323,7 +323,7 @@ public:
             {
                 damage = 0;
                 EnterEvadeMode();
-                me->SetFaction(35);
+                me->SetFaction(FACTION_FRIENDLY);
                 bDone = true;
             }
         }

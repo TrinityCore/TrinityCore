@@ -340,7 +340,7 @@ public:
             if (quest->GetQuestId() == QUEST_DISASTER)
             {
                 me->GetMotionMaster()->MoveJumpTo(0, 0.4f, 0.4f);
-                me->SetFaction(113);
+                me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
 
                 Start(false, false, player->GetGUID());
                 Talk(SAY_WP_1);

@@ -200,7 +200,7 @@ public:
             if (quest->GetQuestId() == QUEST_TOTEM_KARDASH_H)
             {
                 me->SetStandState(UNIT_STAND_STATE_STAND);
-                me->SetFaction(232);
+                me->SetFaction(FACTION_ESCORTEE_H_NEUTRAL_ACTIVE);
                 Start(true, false, player->GetGUID(), quest);
                 Talk(SAY_MAG_START);
 
@@ -575,7 +575,7 @@ public:
             if (quest->GetQuestId() == QUEST_TOTEM_KARDASH_A)
             {
                 me->SetStandState(UNIT_STAND_STATE_STAND);
-                me->SetFaction(231);
+                me->SetFaction(FACTION_ESCORTEE_A_NEUTRAL_ACTIVE);
                 Start(true, false, player->GetGUID(), quest);
                 Talk(SAY_KUR_START);
 

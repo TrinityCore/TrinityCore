@@ -226,7 +226,7 @@ class npc_iron_roots : public CreatureScript
                 SetCombatMovement(false);
 
                 me->ApplySpellImmune(0, IMMUNITY_ID, 49560, true); // Death Grip
-                me->SetFaction(14);
+                me->SetFaction(FACTION_MONSTER);
                 me->SetReactState(REACT_PASSIVE);
             }
 
@@ -270,6 +270,7 @@ class boss_freya : public CreatureScript
         {
             boss_freyaAI(Creature* creature) : BossAI(creature, BOSS_FREYA)
             {
+                _encounterFinished = false;
                 Initialize();
                 memset(elementalTimer, 0, sizeof(elementalTimer));
                 diffTimer = 0;
@@ -312,9 +313,13 @@ class boss_freya : public CreatureScript
             bool checkElementalAlive[2];
             bool trioDefeated[2];
             bool random[3];
+            bool _encounterFinished;
 
             void Reset() override
             {
+                if (_encounterFinished)
+                    return;
+
                 _Reset();
                 Initialize();
             }
@@ -595,6 +600,11 @@ class boss_freya : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
+                if (_encounterFinished)
+                    return;
+
+                _encounterFinished = true;
+
                 //! Freya's chest is dynamically spawned on death by different spells.
                 const uint32 summonSpell[2][4] =
                 {
@@ -606,15 +616,15 @@ class boss_freya : public CreatureScript
                 me->CastSpell((Unit*)NULL, summonSpell[me->GetMap()->GetDifficultyID() - DIFFICULTY_10_N][elderCount], true);
 
                 Talk(SAY_DEATH);
+
                 me->SetReactState(REACT_PASSIVE);
-                _JustDied();
-                me->RemoveAllAuras();
+                me->InterruptNonMeleeSpells(true);
+                me->RemoveAllAttackers();
                 me->AttackStop();
-                me->SetFaction(35);
-                me->DeleteThreatList();
-                me->CombatStop(true);
+                me->SetFaction(FACTION_FRIENDLY);
                 me->DespawnOrUnsummon(7500);
                 me->CastSpell(me, SPELL_KNOCK_ON_WOOD_CREDIT, true);
+                _JustDied();
 
                 for (uint8 n = 0; n < 3; ++n)
                 {
