@@ -178,7 +178,7 @@ void AddSC_instance_zulgurub();
 void AddSC_blasted_lands();
 void AddSC_duskwood();
 //void AddSC_eastern_plaguelands();
-void AddSC_ghostlands();
+//void AddSC_ghostlands();
 void AddSC_goldshire();
 void AddSC_hinterlands();
 void AddSC_isle_of_queldanas();
@@ -188,7 +188,7 @@ void AddSC_stormwind_city();
 void AddSC_swamp_of_sorrows();
 void AddSC_tirisfal_glades();
 void AddSC_undercity();
-void AddSC_western_plaguelands();
+//void AddSC_western_plaguelands();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
@@ -356,7 +356,7 @@ void AddEasternKingdomsScripts()
     AddSC_blasted_lands();
     AddSC_duskwood();
     //AddSC_eastern_plaguelands();
-    AddSC_ghostlands();
+    //AddSC_ghostlands();
     AddSC_goldshire();
     AddSC_hinterlands();
     AddSC_isle_of_queldanas();
@@ -366,5 +366,5 @@ void AddEasternKingdomsScripts()
     AddSC_swamp_of_sorrows();
     AddSC_tirisfal_glades();
     AddSC_undercity();
-    AddSC_western_plaguelands();
+    //AddSC_western_plaguelands();
 }

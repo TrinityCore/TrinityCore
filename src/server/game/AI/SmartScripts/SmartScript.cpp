@@ -1164,6 +1164,13 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             }
             break;
         }
+        case SMART_ACTION_ATTACK_STOP:
+        {
+            for (WorldObject* target : targets)
+                if (Unit* unitTarget = target->ToUnit())
+                    unitTarget->AttackStop();
+            break;
+        }
         case SMART_ACTION_MOVE_OFFSET:
         {
             for (WorldObject* target : targets)
