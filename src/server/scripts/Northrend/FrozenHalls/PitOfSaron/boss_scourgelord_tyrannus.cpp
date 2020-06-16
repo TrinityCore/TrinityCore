@@ -252,7 +252,7 @@ class boss_tyrannus : public CreatureScript
                             events.ScheduleEvent(EVENT_MARK_OF_RIMEFANG, 25s, 27s);
                             break;
                         case EVENT_OVERLORD_BRAND:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true))
                                 DoCast(target, SPELL_OVERLORD_BRAND);
                             events.ScheduleEvent(EVENT_OVERLORD_BRAND, 11s, 12s);
                             break;
@@ -268,7 +268,7 @@ class boss_tyrannus : public CreatureScript
                             break;
                         case EVENT_MARK_OF_RIMEFANG:
                             Talk(SAY_MARK_RIMEFANG_1);
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true))
                             {
                                 Talk(SAY_MARK_RIMEFANG_2, target);
                                 DoCast(target, SPELL_MARK_OF_RIMEFANG);
@@ -366,7 +366,7 @@ class boss_rimefang : public CreatureScript
                             _events.ScheduleEvent(EVENT_MOVE_NEXT, 2s, 0, PHASE_COMBAT);
                             break;
                         case EVENT_ICY_BLAST:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                                 DoCast(target, SPELL_ICY_BLAST);
                             _events.ScheduleEvent(EVENT_ICY_BLAST, 15s, 0, PHASE_COMBAT);
                             break;

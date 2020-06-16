@@ -453,7 +453,7 @@ class npc_watcher_gashra : public CreatureScript
                             _events.Repeat(randtime(Seconds(12), Seconds(20)));
                             break;
                         case EVENT_WEB_WRAP:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f))
                                 DoCast(target, SPELL_WEB_WRAP);
                             _events.Repeat(randtime(Seconds(13), Seconds(19)));
                             break;
@@ -531,7 +531,7 @@ class npc_watcher_narjil : public CreatureScript
                             _events.Repeat(randtime(Seconds(23), Seconds(27)));
                             break;
                         case EVENT_WEB_WRAP:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, true))
                                 DoCast(target, SPELL_WEB_WRAP);
                             _events.Repeat(randtime(Seconds(13), Seconds(19)));
                             break;
@@ -609,7 +609,7 @@ class npc_watcher_silthik : public CreatureScript
                             _events.Repeat(randtime(Seconds(13), Seconds(19)));
                             break;
                         case EVENT_WEB_WRAP:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, true))
                                 DoCast(target, SPELL_WEB_WRAP);
                             _events.Repeat(randtime(Seconds(13), Seconds(17)));
                             break;
@@ -733,7 +733,7 @@ class npc_anub_ar_skirmisher : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_ANUBAR_CHARGE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                                 DoCast(target, SPELL_CHARGE);
                             _events.Repeat(randtime(Seconds(20), Seconds(25)));
                             break;
@@ -805,7 +805,7 @@ class npc_anub_ar_shadowcaster : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_SHADOW_BOLT:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                                 DoCast(target, SPELL_SHADOW_BOLT);
                             _events.Repeat(randtime(Seconds(2), Seconds(4)));
                             break;

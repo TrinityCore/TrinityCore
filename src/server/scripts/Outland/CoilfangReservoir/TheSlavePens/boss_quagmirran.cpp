@@ -95,7 +95,7 @@ class boss_quagmirran : public CreatureScript
                             events.ScheduleEvent(EVENT_CLEAVE, 18s, 34s);
                             break;
                         case EVENT_UPPERCUT:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 10.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 10.0f, true))
                             DoCast(target, SPELL_UPPERCUT);
                             events.ScheduleEvent(EVENT_UPPERCUT, 22s);
                             break;

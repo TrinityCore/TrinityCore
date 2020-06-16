@@ -79,7 +79,7 @@ class boss_grilek : public CreatureScript // grilek
                                     ModifyThreatByPercent(victim, -50);
                             }
 
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
                                 AttackStart(target);
                             events.ScheduleEvent(EVENT_AVATAR, 25s, 35s);
                             break;

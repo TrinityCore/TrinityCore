@@ -735,7 +735,7 @@ class boss_thorim : public CreatureScript
                             events.Repeat(15000, 20000);
                             break;
                         case EVENT_CHAIN_LIGHTNING:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                                 DoCast(target, SPELL_CHAIN_LIGHTNING);
                             events.Repeat(7000, 15000);
                             break;
@@ -1305,7 +1305,7 @@ class npc_thorim_arena_phase : public CreatureScript
                     case EVENT_ABILITY_CHARGE:
                     {
                         Unit* referer = me;
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, [referer](Unit* unit){ return unit->GetTypeId() == TYPEID_PLAYER && unit->IsInRange(referer, 8.0f, 25.0f); }))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, [referer](Unit* unit){ return unit->GetTypeId() == TYPEID_PLAYER && unit->IsInRange(referer, 8.0f, 25.0f); }))
                             DoCast(target, SPELL_CHARGE);
                         _events.ScheduleEvent(eventId, 12s);
                         break;
@@ -1462,7 +1462,7 @@ class npc_runic_colossus : public CreatureScript
                         case EVENT_RUNIC_CHARGE:
                         {
                             Unit* referer = me;
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, [referer](Unit* unit){ return unit->GetTypeId() == TYPEID_PLAYER && unit->IsInRange(referer, 8.0f, 40.0f); }))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, [referer](Unit* unit){ return unit->GetTypeId() == TYPEID_PLAYER && unit->IsInRange(referer, 8.0f, 40.0f); }))
                                 DoCast(target, SPELL_RUNIC_CHARGE);
                             _events.Repeat(20000);
                             break;
@@ -1555,7 +1555,7 @@ class npc_ancient_rune_giant : public CreatureScript
                             _events.Repeat(10000, 12000);
                             break;
                         case EVENT_RUNE_DETONATION:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 60.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 60.0f, true))
                                 DoCast(target, SPELL_RUNE_DETONATION);
                             _events.Repeat(10000, 12000);
                             break;
@@ -1635,7 +1635,7 @@ class npc_sif : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_BLINK:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                                 DoCast(target, SPELL_BLINK);
                             _events.ScheduleEvent(EVENT_FROST_NOVA, 0);
                             _events.Repeat(20000, 25000);
@@ -1644,7 +1644,7 @@ class npc_sif : public CreatureScript
                             DoCastAOE(SPELL_FROSTNOVA);
                             return;
                         case EVENT_FROSTBOLT:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                                 DoCast(target, SPELL_FROSTBOLT);
                             _events.Repeat(2000);
                             return;

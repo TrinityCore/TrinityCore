@@ -175,7 +175,7 @@ struct boss_the_beast : public BossAI
                     events.Repeat(Seconds(10));
                     break;
                 case EVENT_IMMOLATE:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.f, true))
                         DoCast(target, SPELL_IMMOLATE);
                     events.Repeat(Seconds(8));
                     break;
@@ -184,7 +184,7 @@ struct boss_the_beast : public BossAI
                     events.Repeat(Seconds(20));
                     break;
                 case EVENT_BERSERKER_CHARGE:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 38.f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 38.f, true))
                         DoCast(target, SPELL_BERSERKER_CHARGE);
                     events.Repeat(Seconds(15), Seconds(23));
                     break;

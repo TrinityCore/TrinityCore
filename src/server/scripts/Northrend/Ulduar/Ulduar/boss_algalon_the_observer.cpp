@@ -745,7 +745,7 @@ struct npc_living_constellation : public CreatureAI
             case ACTION_ACTIVATE_STAR:
                 if (Creature* algalon = _instance->GetCreature(BOSS_ALGALON))
                 {
-                    if (Unit* target = algalon->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(algalon)))
+                    if (Unit* target = algalon->AI()->SelectTarget(SelectTargetMethod::Random, 0, NonTankTargetSelector(algalon)))
                     {
                         me->SetReactState(REACT_AGGRESSIVE);
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);

@@ -384,7 +384,7 @@ class boss_deathbringer_saurfang : public CreatureScript
 
             void JustSummoned(Creature* summon) override
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true))
                 {
                     if (target->GetTransport())
                     {
@@ -584,7 +584,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                     }
                     case ACTION_MARK_OF_THE_FALLEN_CHAMPION:
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, true, -SPELL_MARK_OF_THE_FALLEN_CHAMPION))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true, true, -SPELL_MARK_OF_THE_FALLEN_CHAMPION))
                         {
                             ++_fallenChampionCastCount;
                             DoCast(target, SPELL_MARK_OF_THE_FALLEN_CHAMPION);

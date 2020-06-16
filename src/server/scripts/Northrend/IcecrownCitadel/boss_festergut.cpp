@@ -215,8 +215,8 @@ class boss_festergut : public CreatureScript
                         {
                             std::list<Unit*> ranged, melee;
                             uint32 minTargets = RAID_MODE<uint32>(3, 8, 3, 8);
-                            SelectTargetList(ranged, 25, SELECT_TARGET_RANDOM, 0, -5.0f, true);
-                            SelectTargetList(melee, 25, SELECT_TARGET_RANDOM, 0, 5.0f, true);
+                            SelectTargetList(ranged, 25, SelectTargetMethod::Random, 0, -5.0f, true);
+                            SelectTargetList(melee, 25, SelectTargetMethod::Random, 0, 5.0f, true);
                             while (ranged.size() < minTargets)
                             {
                                 if (melee.empty())

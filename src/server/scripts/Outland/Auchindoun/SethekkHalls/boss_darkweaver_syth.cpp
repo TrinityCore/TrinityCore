@@ -123,7 +123,7 @@ public:
 
         void JustSummoned(Creature* summoned) override
         {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                 summoned->AI()->AttackStart(target);
 
             summons.Summon(summoned);
@@ -168,27 +168,27 @@ public:
             switch (eventId)
             {
                 case EVENT_FLAME_SHOCK:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         DoCast(target, SPELL_FLAME_SHOCK);
                     events.ScheduleEvent(EVENT_FLAME_SHOCK, 10s, 15s);
                     break;
                 case EVENT_ARCANE_SHOCK:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         DoCast(target, SPELL_ARCANE_SHOCK);
                     events.ScheduleEvent(EVENT_ARCANE_SHOCK, 10s, 15s);
                     break;
                 case EVENT_FROST_SHOCK:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         DoCast(target, SPELL_FROST_SHOCK);
                     events.ScheduleEvent(EVENT_FROST_SHOCK, 10s, 15s);
                     break;
                 case EVENT_SHADOW_SHOCK:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         DoCast(target, SPELL_SHADOW_SHOCK);
                     events.ScheduleEvent(EVENT_SHADOW_SHOCK, 10s, 15s);
                     break;
                 case EVENT_CHAIN_LIGHTNING:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         DoCast(target, SPELL_CHAIN_LIGHTNING);
                     events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 25000);
                     break;
@@ -241,7 +241,7 @@ public:
 
             if (flameshock_timer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     DoCast(target, SPELL_FLAME_SHOCK);
 
                 flameshock_timer = 5000;
@@ -249,7 +249,7 @@ public:
 
             if (flamebuffet_timer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     DoCast(target, SPELL_FLAME_BUFFET);
 
                 flamebuffet_timer = 5000;
@@ -300,7 +300,7 @@ public:
 
             if (arcaneshock_timer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     DoCast(target, SPELL_ARCANE_SHOCK);
 
                 arcaneshock_timer = 5000;
@@ -308,7 +308,7 @@ public:
 
             if (arcanebuffet_timer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     DoCast(target, SPELL_ARCANE_BUFFET);
 
                 arcanebuffet_timer = 5000;
@@ -359,7 +359,7 @@ public:
 
             if (frostshock_timer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     DoCast(target, SPELL_FROST_SHOCK);
 
                 frostshock_timer = 5000;
@@ -367,7 +367,7 @@ public:
 
             if (frostbuffet_timer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     DoCast(target, SPELL_FROST_BUFFET);
 
                 frostbuffet_timer = 5000;
@@ -418,7 +418,7 @@ public:
 
             if (shadowshock_timer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     DoCast(target, SPELL_SHADOW_SHOCK);
 
                 shadowshock_timer = 5000;
@@ -426,7 +426,7 @@ public:
 
             if (shadowbuffet_timer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     DoCast(target, SPELL_SHADOW_BUFFET);
 
                 shadowbuffet_timer = 5000;
