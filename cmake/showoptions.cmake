@@ -9,9 +9,6 @@ message("")
 # output information about installation-directories and locations
 
 message("* Install core to        : ${CMAKE_INSTALL_PREFIX}")
-if(UNIX)
-  message("* Install libraries to   : ${LIBSDIR}")
-endif()
 message("")
 
 # Show infomation about the options selected during configuration

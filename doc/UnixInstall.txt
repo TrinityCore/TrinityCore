@@ -59,7 +59,6 @@ flags like
     PREFIX              Set installation directory
     NOJEM               Do not build with jemalloc (advanced users only)
     CONF_DIR            Set path as default configuration directory
-    LIBSDIR             Set path as default library directory
     CMAKE_C_FLAGS       Set C_FLAGS for compile (advanced users only)
     CMAKE_CXX_FLAGS     Set CXX_FLAGS for compile (advanced users only)
     CMAKE_BUILD_TYPE    Set buildtype - the supported modes are :
