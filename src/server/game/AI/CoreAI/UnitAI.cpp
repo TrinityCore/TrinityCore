@@ -128,7 +128,7 @@ SpellCastResult UnitAI::DoCast(uint32 spellId)
             if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId))
             {
                 bool playerOnly = spellInfo->HasAttribute(SPELL_ATTR3_ONLY_TARGET_PLAYERS);
-                target = SelectTarget(SELECT_TARGET_RANDOM, 0, spellInfo->GetMaxRange(false), playerOnly);
+                target = SelectTarget(SelectAggroTarget::Random, 0, spellInfo->GetMaxRange(false), playerOnly);
             }
             break;
         }
@@ -150,7 +150,7 @@ SpellCastResult UnitAI::DoCast(uint32 spellId)
                     && targetSelector(me->GetVictim()))
                     target = me->GetVictim();
                 else
-                    target = SelectTarget(SELECT_TARGET_RANDOM, 0, targetSelector);
+                    target = SelectTarget(SelectAggroTarget::Random, 0, targetSelector);
             }
             break;
         }
