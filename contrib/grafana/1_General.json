@@ -106,6 +106,7 @@
             }
           ],
           "measurement": "online_players",
+          "orderByTime": "ASC",
           "policy": "default",
           "refId": "A",
           "resultFormat": "time_series",
@@ -233,6 +234,7 @@
             }
           ],
           "measurement": "update_time_diff",
+          "orderByTime": "ASC",
           "policy": "default",
           "refId": "A",
           "resultFormat": "time_series",
@@ -359,6 +361,7 @@
             }
           ],
           "measurement": "update_time_diff",
+          "orderByTime": "ASC",
           "policy": "default",
           "refId": "A",
           "resultFormat": "time_series",
@@ -376,7 +379,13 @@
               }
             ]
           ],
-          "tags": []
+          "tags": [
+            {
+              "key": "realm",
+              "operator": "=~",
+              "value": "/^$realm$/"
+            }
+          ]
         }
       ],
       "thresholds": "",
@@ -479,6 +488,7 @@
             }
           ],
           "measurement": "update_time_diff",
+          "orderByTime": "ASC",
           "policy": "default",
           "refId": "A",
           "resultFormat": "time_series",
