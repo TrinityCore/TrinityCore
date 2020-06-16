@@ -7458,23 +7458,22 @@ void Spell::HandleLaunchPhase()
         HandleEffects(nullptr, nullptr, nullptr, i, SPELL_EFFECT_HANDLE_LAUNCH);
     }
 
-    bool usesAmmo;
+    PrepareTargetProcessing();
+
+    // Take ammunition if the ranged attack requires ammunition
     if (Player* player = m_caster->ToPlayer())
     {
-        usesAmmo = m_spellInfo->HasAttribute(SPELL_ATTR0_CU_DIRECT_DAMAGE);
+        bool usesAmmo = m_spellInfo->HasAttribute(SPELL_ATTR0_REQ_AMMO);
         if (player->HasAuraTypeWithAffectMask(SPELL_AURA_ABILITY_CONSUME_NO_AMMO, m_spellInfo))
             usesAmmo = false;
 
-        // do not consume ammo anymore for Hunter's volley spell
+        // Do not consume ammo for the triggered AoE ticks of Volley (Hunter spell)
         if (IsTriggered() && m_spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER && m_spellInfo->IsTargetingArea())
             usesAmmo = false;
+
+        if (usesAmmo)
+            TakeAmmo();
     }
-    else
-        usesAmmo = false;
-
-    PrepareTargetProcessing();
-
-    bool ammoTaken = false;
 
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
@@ -7487,32 +7486,6 @@ void Spell::HandleLaunchPhase()
             uint32 mask = target.EffectMask;
             if (!(mask & (1 << i)))
                 continue;
-
-            if (usesAmmo && !ammoTaken)
-            {
-                for (uint8 j = 0; j < MAX_SPELL_EFFECTS; ++j)
-                {
-                    if (!(mask & 1 << j))
-                        continue;
-
-                    switch (m_spellInfo->Effects[j].Effect)
-                    {
-                        case SPELL_EFFECT_SCHOOL_DAMAGE:
-                        case SPELL_EFFECT_WEAPON_DAMAGE:
-                        case SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL:
-                        case SPELL_EFFECT_NORMALIZED_WEAPON_DMG:
-                        case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE:
-                            ammoTaken = true;
-                            TakeAmmo();
-                            break;
-                        default:
-                            break;
-                    }
-
-                    if (ammoTaken)
-                        break;
-                }
-            }
 
             DoEffectOnLaunchTarget(target, multiplier, i);
         }
