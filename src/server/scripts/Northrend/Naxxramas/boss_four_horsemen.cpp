@@ -505,7 +505,7 @@ class boss_four_horsemen_thane : public CreatureScript
                             events.Repeat(Seconds(12));
                             break;
                         case EVENT_METEOR:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 20.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 20.0f, true))
                             {
                                 DoCast(target, SPELL_METEOR);
                                 _shouldSay = true;
@@ -580,7 +580,7 @@ class boss_four_horsemen_lady : public CreatureScript
                             events.Repeat(Seconds(15));
                             break;
                         case EVENT_VOIDZONE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 45.0f, true))
                             {
                                 DoCast(target, SPELL_VOID_ZONE, true);
                                 Talk(SAY_SPECIAL);
@@ -593,7 +593,7 @@ class boss_four_horsemen_lady : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                if (Unit* target = SelectTarget(SELECT_TARGET_MINDISTANCE, 0, 45.0f, true))
+                if (Unit* target = SelectTarget(SelectTargetMethod::MinDistance, 0, 45.0f, true))
                     DoCast(target, SPELL_SHADOW_BOLT);
                 else
                 {
@@ -650,7 +650,7 @@ class boss_four_horsemen_sir : public CreatureScript
                             events.Repeat(Seconds(15));
                             break;
                         case EVENT_HOLYWRATH:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_MINDISTANCE, 0, 45.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::MinDistance, 0, 45.0f, true))
                             {
                                 DoCast(target, SPELL_HOLY_WRATH, true);
                                 _shouldSay = true;
@@ -663,7 +663,7 @@ class boss_four_horsemen_sir : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                if (Unit* target = SelectTarget(SELECT_TARGET_MINDISTANCE, 0, 45.0f, true))
+                if (Unit* target = SelectTarget(SelectTargetMethod::MinDistance, 0, 45.0f, true))
                     DoCast(target, SPELL_HOLY_BOLT);
                 else
                 {

@@ -140,7 +140,7 @@ class boss_majordomo : public CreatureScript
                                 events.ScheduleEvent(EVENT_BLAST_WAVE, 10s);
                                 break;
                             case EVENT_TELEPORT:
-                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
                                     DoCast(target, SPELL_TELEPORT);
                                 events.ScheduleEvent(EVENT_TELEPORT, 20s);
                                 break;

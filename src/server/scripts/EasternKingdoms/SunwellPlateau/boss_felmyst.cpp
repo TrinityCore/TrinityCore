@@ -229,7 +229,7 @@ public:
         {
             if (summon->GetEntry() == NPC_DEAD)
             {
-                summon->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM));
+                summon->AI()->AttackStart(SelectTarget(SelectTargetMethod::Random));
                 DoZoneInCombat(summon);
                 summon->CastSpell(summon, SPELL_DEAD_PASSIVE, true);
             }
@@ -292,7 +292,7 @@ public:
                     break;
                 case 2:
                 {
-                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150, true);
+                    Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 150, true);
                     if (!target)
                         target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_PLAYER_GUID));
 
@@ -318,7 +318,7 @@ public:
                     DespawnSummons(NPC_VAPOR_TRAIL);
                     //DoCast(me, SPELL_VAPOR_SELECT); need core support
 
-                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150, true);
+                    Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 150, true);
                     if (!target)
                         target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_PLAYER_GUID));
 
@@ -347,7 +347,7 @@ public:
                     break;
                 case 5:
                 {
-                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150, true);
+                    Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 150, true);
                     if (!target)
                         target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_PLAYER_GUID));
 
@@ -389,7 +389,7 @@ public:
                         uiFlightCount = 4;
                     break;
                 case 9:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::MaxThreat))
                         DoStartMovement(target);
                     else
                     {
@@ -401,7 +401,7 @@ public:
                     me->SetDisableGravity(false);
                     me->HandleEmoteCommand(EMOTE_ONESHOT_LAND);
                     EnterPhase(PHASE_GROUND);
-                    AttackStart(SelectTarget(SELECT_TARGET_MAXTHREAT));
+                    AttackStart(SelectTarget(SelectTargetMethod::MaxThreat));
                     break;
             }
             ++uiFlightCount;
@@ -443,7 +443,7 @@ public:
                         events.ScheduleEvent(EVENT_GAS_NOVA, 20s, 25s);
                         break;
                     case EVENT_ENCAPSULATE:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 150, true))
                             DoCast(target, SPELL_ENCAPSULATE_CHANNEL, false);
                         events.ScheduleEvent(EVENT_ENCAPSULATE, 25s, 30s);
                         break;
@@ -542,7 +542,7 @@ public:
         void UpdateAI(uint32 /*diff*/) override
         {
             if (!me->GetVictim())
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, true))
                     AttackStart(target);
         }
     };

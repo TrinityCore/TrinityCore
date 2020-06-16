@@ -103,7 +103,7 @@ class boss_infinite_corruptor : public CreatureScript
                 switch (eventId)
                 {
                     case EVENT_CORRUPTING_BLIGHT:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 60.0f, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 60.0f, true))
                             DoCast(target, SPELL_CORRUPTING_BLIGHT);
                         events.ScheduleEvent(EVENT_CORRUPTING_BLIGHT, 15s);
                         break;

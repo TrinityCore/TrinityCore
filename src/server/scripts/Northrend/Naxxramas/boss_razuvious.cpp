@@ -154,7 +154,7 @@ public:
                         events.Repeat(Seconds(16));
                         return;
                     case EVENT_KNIFE:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 45.0f))
                             DoCast(target, SPELL_JAGGED_KNIFE);
                         events.Repeat(randtime(Seconds(10), Seconds(15)));
                         return;

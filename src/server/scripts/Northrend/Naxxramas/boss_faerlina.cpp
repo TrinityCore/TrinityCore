@@ -166,7 +166,7 @@ class boss_faerlina : public CreatureScript
                             events.Repeat(randtime(Seconds(8), Seconds(15)));
                             break;
                         case EVENT_FIRE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                                 DoCast(target, SPELL_RAIN_OF_FIRE);
                             events.Repeat(randtime(Seconds(6), Seconds(18)));
                             break;

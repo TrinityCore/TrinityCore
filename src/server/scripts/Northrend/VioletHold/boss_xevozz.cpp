@@ -146,7 +146,7 @@ class boss_xevozz : public CreatureScript
 
                 scheduler.Schedule(Seconds(10), Seconds(11), [this](TaskContext task)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 45.0f, true))
                         DoCast(target, SPELL_ARCANE_BUFFET);
                     task.Repeat(Seconds(15), Seconds(20));
                 });

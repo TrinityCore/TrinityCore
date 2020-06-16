@@ -174,7 +174,7 @@ public:
         void JustSummoned(Creature* summoned) override
         {
             DoZoneInCombat(summoned);
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                 summoned->AI()->AttackStart(target);
 
             switch (summoned->GetEntry())
@@ -237,7 +237,7 @@ public:
                         // tank selection based on phase one. If tank is not there i take nearest one
                         if (Unit* tank = ObjectAccessor::GetUnit(*me, tankGUID))
                             me->GetMotionMaster()->MoveChase(tank);
-                        else if (Unit* newtarget = SelectTarget(SELECT_TARGET_MINDISTANCE, 0))
+                        else if (Unit* newtarget = SelectTarget(SelectTargetMethod::MinDistance, 0))
                             me->GetMotionMaster()->MoveChase(newtarget);
                         events.ScheduleEvent(EVENT_BELLOWING_ROAR, 5s);
                         events.ScheduleEvent(EVENT_FLAME_BREATH, 10s, 20s);
@@ -451,7 +451,7 @@ public:
                         case EVENT_FIREBALL:         // Phase PHASE_BREATH
                             if (!IsMoving)
                             {
-                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                                     DoCast(target, SPELL_FIREBALL);
                                 events.ScheduleEvent(EVENT_FIREBALL, 8s);
                             }

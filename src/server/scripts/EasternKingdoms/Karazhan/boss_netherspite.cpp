@@ -283,7 +283,7 @@ public:
             // Void Zone
             if (VoidZoneTimer <= diff)
             {
-                DoCast(SelectTarget(SELECT_TARGET_RANDOM, 1, 45, true), SPELL_VOIDZONE, true);
+                DoCast(SelectTarget(SelectTargetMethod::Random, 1, 45, true), SPELL_VOIDZONE, true);
                 VoidZoneTimer = 15000;
             } else VoidZoneTimer -= diff;
 
@@ -326,7 +326,7 @@ public:
                 // Netherbreath
                 if (NetherbreathTimer <= diff)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40, true))
                         DoCast(target, SPELL_NETHERBREATH);
                     NetherbreathTimer = urand(5000, 7000);
                 } else NetherbreathTimer -= diff;

@@ -218,7 +218,7 @@ class boss_ichoron : public CreatureScript
 
                 scheduler.Schedule(Seconds(6), Seconds(9), [this](TaskContext task)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 50.0f))
                         DoCast(target, SPELL_WATER_BLAST);
                     task.Repeat(Seconds(6), Seconds(9));
                 });

@@ -94,7 +94,7 @@ public:
                         events.ScheduleEvent(EVENT_MIND_BLAST, 7s, 9s);
                         break;
                     case EVENT_SLEEP:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, true))
                         {
                             Talk(SAY_SLEEP);
                             DoCast(target, SPELL_SLEEP);

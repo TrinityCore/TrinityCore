@@ -131,7 +131,7 @@ class boss_elder_nadox : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_PLAGUE:
-                            DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), SPELL_BROOD_PLAGUE, true);
+                            DoCast(SelectTarget(SelectTargetMethod::Random, 0, 100, true), SPELL_BROOD_PLAGUE, true);
                             events.ScheduleEvent(EVENT_PLAGUE, 15s);
                             break;
                         case EVENT_RAGE:

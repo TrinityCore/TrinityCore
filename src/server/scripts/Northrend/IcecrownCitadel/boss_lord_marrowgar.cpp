@@ -234,9 +234,9 @@ class boss_lord_marrowgar : public CreatureScript
                         case EVENT_BONE_STORM_MOVE:
                         {
                             events.ScheduleEvent(EVENT_BONE_STORM_MOVE, _boneStormDuration/3);
-                            Unit* unit = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me));
+                            Unit* unit = SelectTarget(SelectTargetMethod::Random, 0, NonTankTargetSelector(me));
                             if (!unit)
-                                unit = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true);
+                                unit = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true);
                             if (unit)
                                 me->GetMotionMaster()->MovePoint(POINT_TARGET_BONESTORM_PLAYER, *unit);
                             break;
@@ -525,9 +525,9 @@ class spell_marrowgar_coldflame : public SpellScriptLoader
             {
                 targets.clear();
                 // select any unit but not the tank
-                Unit* target = GetCaster()->GetAI()->SelectTarget(SELECT_TARGET_RANDOM, 0, -GetCaster()->GetCombatReach(), true, false, -SPELL_IMPALED);
+                Unit* target = GetCaster()->GetAI()->SelectTarget(SelectTargetMethod::Random, 0, -GetCaster()->GetCombatReach(), true, false, -SPELL_IMPALED);
                 if (!target)
-                    target = GetCaster()->GetAI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true); // or the tank if its solo
+                    target = GetCaster()->GetAI()->SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true); // or the tank if its solo
                 if (!target)
                     return;
 
@@ -639,7 +639,7 @@ class spell_marrowgar_bone_spike_graveyard : public SpellScriptLoader
 
             SpellCastResult CheckCast()
             {
-                return GetCaster()->GetAI()->SelectTarget(SELECT_TARGET_RANDOM, 0, BoneSpikeTargetSelector(GetCaster()->GetAI())) ? SPELL_CAST_OK : SPELL_FAILED_NO_VALID_TARGETS;
+                return GetCaster()->GetAI()->SelectTarget(SelectTargetMethod::Random, 0, BoneSpikeTargetSelector(GetCaster()->GetAI())) ? SPELL_CAST_OK : SPELL_FAILED_NO_VALID_TARGETS;
             }
 
             void HandleSpikes(SpellEffIndex effIndex)
@@ -651,7 +651,7 @@ class spell_marrowgar_bone_spike_graveyard : public SpellScriptLoader
                     uint8 boneSpikeCount = uint8(GetCaster()->GetMap()->Is25ManRaid() ? 3 : 1);
 
                     std::list<Unit*> targets;
-                    marrowgarAI->SelectTargetList(targets, boneSpikeCount, SELECT_TARGET_RANDOM, 1, BoneSpikeTargetSelector(marrowgarAI));
+                    marrowgarAI->SelectTargetList(targets, boneSpikeCount, SelectTargetMethod::Random, 1, BoneSpikeTargetSelector(marrowgarAI));
                     if (targets.empty())
                         return;
 

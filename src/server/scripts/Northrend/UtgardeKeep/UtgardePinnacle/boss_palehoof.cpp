@@ -238,7 +238,7 @@ public:
                     events.Repeat(Seconds(7));
                     break;
                 case EVENT_IMPALE:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         DoCast(target, SPELL_IMPALE);
                     events.Repeat(Seconds(10), Seconds(15));
                     break;
@@ -475,7 +475,7 @@ public:
                     events.Repeat(Seconds(19));
                     break;
                 case EVENT_GRIEVOUS_WOUND:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
                         DoCast(target, SPELL_GRIEVOUS_WOUND);
                     events.Repeat(Seconds(18));
                     break;
@@ -533,7 +533,7 @@ public:
                     events.Repeat(Seconds(16));
                     break;
                 case EVENT_POISON_BREATH:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         DoCast(target, SPELL_POISON_BREATH);
                     events.Repeat(Seconds(14));
                     break;

@@ -387,7 +387,7 @@ class npc_hellfire_channeler : public CreatureScript
                             _events.Repeat(Seconds(15), Seconds(20));
                             break;
                         case EVENT_FEAR:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
                                 DoCast(target, SPELL_FEAR);
                             _events.Repeat(Seconds(25), Seconds(40));
                             break;

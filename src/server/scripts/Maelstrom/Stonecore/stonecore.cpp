@@ -226,12 +226,12 @@ class npc_sc_millhouse_manastorm : public CreatureScript
                             events.ScheduleEvent(EVENT_FROSTBOLT_VOLLEY, 7000);
                             break;
                         case EVENT_SHADOWFURY:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                                 DoCast(target, SPELL_SHADOWFURY);
                             events.ScheduleEvent(EVENT_SHADOWFURY, 7000);
                             break;
                         case EVENT_FEAR:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                                 DoCast(target, SPELL_FEAR);
                             events.ScheduleEvent(EVENT_FEAR, 18000);
                             break;

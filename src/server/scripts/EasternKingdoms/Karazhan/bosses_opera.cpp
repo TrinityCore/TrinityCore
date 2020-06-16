@@ -213,7 +213,7 @@ public:
 
             if (WaterBoltTimer <= diff)
             {
-                DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_WATERBOLT);
+                DoCast(SelectTarget(SelectTargetMethod::Random, 0), SPELL_WATERBOLT);
                 WaterBoltTimer = TitoDied ? 1500 : 5000;
             } else WaterBoltTimer -= diff;
 
@@ -419,7 +419,7 @@ public:
 
             if (BrainWipeTimer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, true))
                     DoCast(target, SPELL_BRAIN_WIPE);
                 BrainWipeTimer = 20000;
             } else BrainWipeTimer -= diff;
@@ -920,7 +920,7 @@ public:
             {
                 if (!IsChasing)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, true))
                     {
                         Talk(SAY_WOLF_HOOD);
                         DoCast(target, SPELL_LITTLE_RED_RIDING_HOOD, true);
@@ -1333,7 +1333,7 @@ public:
 
             if (BackwardLungeTimer <= diff)
             {
-                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true);
+                Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 100, true);
                 if (target && !me->HasInArc(float(M_PI), target))
                 {
                     DoCast(target, SPELL_BACKWARD_LUNGE);
@@ -1349,7 +1349,7 @@ public:
 
             if (DeadlySwatheTimer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, true))
                     DoCast(target, SPELL_DEADLY_SWATHE);
                 DeadlySwatheTimer = urand(15000, 25000);
             } else DeadlySwatheTimer -= diff;
@@ -1453,7 +1453,7 @@ void boss_julianne::boss_julianneAI::UpdateAI(uint32 diff)
 
     if (BlindingPassionTimer <= diff)
     {
-        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, true))
             DoCast(target, SPELL_BLINDING_PASSION);
         BlindingPassionTimer = urand(30000, 45000);
     } else BlindingPassionTimer -= diff;
@@ -1466,7 +1466,7 @@ void boss_julianne::boss_julianneAI::UpdateAI(uint32 diff)
 
     if (PowerfulAttractionTimer <= diff)
     {
-        DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_POWERFUL_ATTRACTION);
+        DoCast(SelectTarget(SelectTargetMethod::Random, 0), SPELL_POWERFUL_ATTRACTION);
         PowerfulAttractionTimer = urand(5000, 30000);
     } else PowerfulAttractionTimer -= diff;
 

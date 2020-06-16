@@ -641,7 +641,7 @@ void WorldBossAI::_JustDied()
 
 void WorldBossAI::_JustEngagedWith()
 {
-    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true);
+    Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true);
     if (target)
         AttackStart(target);
 }
@@ -649,7 +649,7 @@ void WorldBossAI::_JustEngagedWith()
 void WorldBossAI::JustSummoned(Creature* summon)
 {
     summons.Summon(summon);
-    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true);
+    Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true);
     if (target)
         summon->AI()->AttackStart(target);
 }

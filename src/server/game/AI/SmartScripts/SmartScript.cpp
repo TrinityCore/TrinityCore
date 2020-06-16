@@ -2686,10 +2686,10 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
             {
                 if (e.target.hostilRandom.powerType)
                 {
-                    if (Unit* u = me->AI()->SelectTarget(SELECT_TARGET_MAXTHREAT, 1, PowerUsersSelector(me, Powers(e.target.hostilRandom.powerType - 1), float(e.target.hostilRandom.maxDist), e.target.hostilRandom.playerOnly != 0)))
+                    if (Unit* u = me->AI()->SelectTarget(SelectTargetMethod::MaxThreat, 1, PowerUsersSelector(me, Powers(e.target.hostilRandom.powerType - 1), float(e.target.hostilRandom.maxDist), e.target.hostilRandom.playerOnly != 0)))
                         targets.push_back(u);
                 }
-                else if (Unit* u = me->AI()->SelectTarget(SELECT_TARGET_MAXTHREAT, 1, float(e.target.hostilRandom.maxDist), e.target.hostilRandom.playerOnly != 0))
+                else if (Unit* u = me->AI()->SelectTarget(SelectTargetMethod::MaxThreat, 1, float(e.target.hostilRandom.maxDist), e.target.hostilRandom.playerOnly != 0))
                     targets.push_back(u);
             }
             break;
@@ -2698,10 +2698,10 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
             {
                 if (e.target.hostilRandom.powerType)
                 {
-                    if (Unit* u = me->AI()->SelectTarget(SELECT_TARGET_MINTHREAT, 0, PowerUsersSelector(me, Powers(e.target.hostilRandom.powerType - 1), float(e.target.hostilRandom.maxDist), e.target.hostilRandom.playerOnly != 0)))
+                    if (Unit* u = me->AI()->SelectTarget(SelectTargetMethod::MinThreat, 0, PowerUsersSelector(me, Powers(e.target.hostilRandom.powerType - 1), float(e.target.hostilRandom.maxDist), e.target.hostilRandom.playerOnly != 0)))
                         targets.push_back(u);
                 }
-                else if (Unit* u = me->AI()->SelectTarget(SELECT_TARGET_MINTHREAT, 0, float(e.target.hostilRandom.maxDist), e.target.hostilRandom.playerOnly != 0))
+                else if (Unit* u = me->AI()->SelectTarget(SelectTargetMethod::MinThreat, 0, float(e.target.hostilRandom.maxDist), e.target.hostilRandom.playerOnly != 0))
                     targets.push_back(u);
             }
             break;
@@ -2710,10 +2710,10 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
             {
                 if (e.target.hostilRandom.powerType)
                 {
-                    if (Unit* u = me->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, PowerUsersSelector(me, Powers(e.target.hostilRandom.powerType - 1), float(e.target.hostilRandom.maxDist), e.target.hostilRandom.playerOnly != 0)))
+                    if (Unit* u = me->AI()->SelectTarget(SelectTargetMethod::Random, 0, PowerUsersSelector(me, Powers(e.target.hostilRandom.powerType - 1), float(e.target.hostilRandom.maxDist), e.target.hostilRandom.playerOnly != 0)))
                         targets.push_back(u);
                 }
-                else if (Unit* u = me->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, float(e.target.hostilRandom.maxDist), e.target.hostilRandom.playerOnly != 0))
+                else if (Unit* u = me->AI()->SelectTarget(SelectTargetMethod::Random, 0, float(e.target.hostilRandom.maxDist), e.target.hostilRandom.playerOnly != 0))
                     targets.push_back(u);
             }
             break;
@@ -2722,17 +2722,17 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
             {
                 if (e.target.hostilRandom.powerType)
                 {
-                    if (Unit* u = me->AI()->SelectTarget(SELECT_TARGET_RANDOM, 1, PowerUsersSelector(me, Powers(e.target.hostilRandom.powerType - 1), float(e.target.hostilRandom.maxDist), e.target.hostilRandom.playerOnly != 0)))
+                    if (Unit* u = me->AI()->SelectTarget(SelectTargetMethod::Random, 1, PowerUsersSelector(me, Powers(e.target.hostilRandom.powerType - 1), float(e.target.hostilRandom.maxDist), e.target.hostilRandom.playerOnly != 0)))
                         targets.push_back(u);
                 }
-                else if (Unit* u = me->AI()->SelectTarget(SELECT_TARGET_RANDOM, 1, float(e.target.hostilRandom.maxDist), e.target.hostilRandom.playerOnly != 0))
+                else if (Unit* u = me->AI()->SelectTarget(SelectTargetMethod::Random, 1, float(e.target.hostilRandom.maxDist), e.target.hostilRandom.playerOnly != 0))
                     targets.push_back(u);
             }
             break;
         case SMART_TARGET_FARTHEST:
             if (me)
             {
-                if (Unit* u = me->AI()->SelectTarget(SELECT_TARGET_MAXDISTANCE, 0, FarthestTargetSelector(me, float(e.target.farthest.maxDist), e.target.farthest.playerOnly != 0, e.target.farthest.isInLos != 0)))
+                if (Unit* u = me->AI()->SelectTarget(SelectTargetMethod::MaxDistance, 0, FarthestTargetSelector(me, float(e.target.farthest.maxDist), e.target.farthest.playerOnly != 0, e.target.farthest.isInLos != 0)))
                     targets.push_back(u);
             }
             break;

@@ -255,7 +255,7 @@ class boss_steelbreaker : public CreatureScript
                             events.ScheduleEvent(EVENT_FUSION_PUNCH, 13s, 22s);
                             break;
                         case EVENT_STATIC_DISRUPTION:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                                 DoCast(target, SPELL_STATIC_DISRUPTION);
                             events.ScheduleEvent(EVENT_STATIC_DISRUPTION, 20s, 40s);
                             break;
@@ -422,13 +422,13 @@ class boss_runemaster_molgeim : public CreatureScript
                             break;
                         case EVENT_RUNE_OF_DEATH:
                             Talk(SAY_MOLGEIM_RUNE_DEATH);
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                                 DoCast(target, SPELL_RUNE_OF_DEATH);
                             events.ScheduleEvent(EVENT_RUNE_OF_DEATH, 30s, 40s);
                             break;
                         case EVENT_RUNE_OF_SUMMONING:
                             Talk(SAY_MOLGEIM_SUMMON);
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                                 DoCast(target, SPELL_RUNE_OF_SUMMONING);
                             events.ScheduleEvent(EVENT_RUNE_OF_SUMMONING, 30s, 45s);
                             break;
@@ -574,7 +574,7 @@ class boss_stormcaller_brundir : public CreatureScript
                             events.CancelEvent(EVENT_BERSERK);
                             break;
                         case EVENT_CHAIN_LIGHTNING:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                                 DoCast(target, SPELL_CHAIN_LIGHTNING);
                             events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 7s, 10s);
                             break;
@@ -600,7 +600,7 @@ class boss_stormcaller_brundir : public CreatureScript
                             events.ScheduleEvent(EVENT_LIGHTNING_TENDRILS, 90s);
                             break;
                         case EVENT_FLIGHT:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                                 me->GetMotionMaster()->MovePoint(0, *target);
                             events.ScheduleEvent(EVENT_FLIGHT, 6s);
                             break;
