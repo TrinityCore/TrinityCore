@@ -1221,7 +1221,10 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_SUMMON_CREATURE:
         {
-            if (!GetBaseObject())
+            WorldObject* baseObj = GetBaseObject();
+            if (trigger)
+                baseObj = atPlayer;
+            if (!baseObj)
                 break;
 
             float x, y, z, o;
@@ -1232,7 +1235,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 y += e.target.y;
                 z += e.target.z;
                 o += e.target.o;
-                if (Creature* summon = GetBaseObject()->SummonCreature(e.action.summonCreature.creature, x, y, z, o, (TempSummonType)e.action.summonCreature.type, e.action.summonCreature.duration))
+                if (Creature* summon = baseObj->SummonCreature(e.action.summonCreature.creature, x, y, z, o, (TempSummonType)e.action.summonCreature.type, e.action.summonCreature.duration))
                     if (e.action.summonCreature.attackInvoker)
                         summon->AI()->AttackStart(target->ToUnit());
             }
@@ -1240,7 +1243,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (e.GetTargetType() != SMART_TARGET_POSITION)
                 break;
 
-            if (Creature* summon = GetBaseObject()->SummonCreature(e.action.summonCreature.creature, e.target.x, e.target.y, e.target.z, e.target.o, (TempSummonType)e.action.summonCreature.type, e.action.summonCreature.duration))
+            if (Creature* summon = baseObj->SummonCreature(e.action.summonCreature.creature, e.target.x, e.target.y, e.target.z, e.target.o, (TempSummonType)e.action.summonCreature.type, e.action.summonCreature.duration))
                 if (unit && e.action.summonCreature.attackInvoker)
                     summon->AI()->AttackStart(unit);
             break;
@@ -2484,6 +2487,9 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
         scriptTrigger = tempLastInvoker;
 
     WorldObject* baseObject = GetBaseObject();
+    if (trigger)
+        baseObject = atPlayer;
+
     switch (e.GetTargetType())
     {
         case SMART_TARGET_SELF:
@@ -2839,6 +2845,8 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
 void SmartScript::GetWorldObjectsInDist(ObjectVector& targets, float dist) const
 {
     WorldObject* obj = GetBaseObject();
+    if (trigger)
+        obj = atPlayer;
     if (!obj)
         return;
 
@@ -3750,15 +3758,21 @@ void SmartScript::OnInitialize(WorldObject* obj, AreaTriggerEntry const* at)
                 go = obj->ToGameObject();
                 TC_LOG_DEBUG("scripts.ai", "SmartScript::OnInitialize: source is GameObject %u", go->GetEntry());
                 break;
+            case TYPEID_PLAYER:
+                if (at)
+                {
+                    mScriptType = SMART_SCRIPT_TYPE_AREATRIGGER;
+                    trigger = at;
+                    atPlayer = obj->ToPlayer();
+                    TC_LOG_DEBUG("scripts.ai", "SmartScript::OnInitialize: source is AreaTrigger %u, triggered by player %s", trigger->id, atPlayer->GetGUID().ToString().c_str());
+                }
+                else
+                    TC_LOG_ERROR("misc", "SmartScript::OnInitialize: !WARNING! Player TypeID is only allowed for AreaTriggers");
+                break;
             default:
                 TC_LOG_ERROR("misc", "SmartScript::OnInitialize: Unhandled TypeID !WARNING!");
                 return;
         }
-    } else if (at)
-    {
-        mScriptType = SMART_SCRIPT_TYPE_AREATRIGGER;
-        trigger = at;
-        TC_LOG_DEBUG("scripts.ai", "SmartScript::OnInitialize: source is AreaTrigger %u", trigger->id);
     }
     else
     {

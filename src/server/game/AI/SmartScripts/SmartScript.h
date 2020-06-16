@@ -108,6 +108,7 @@ class TC_GAME_API SmartScript
         ObjectGuid meOrigGUID;
         GameObject* go;
         ObjectGuid goOrigGUID;
+        Player* atPlayer;
         AreaTriggerEntry const* trigger;
         SmartScriptType mScriptType;
         uint32 mEventPhase;
