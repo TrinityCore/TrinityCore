@@ -527,7 +527,7 @@ struct boss_sathrovarr : public BossAI
             {
                 CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
                 args.AddSpellMod(SPELLVALUE_MAX_TARGETS, 1);
-                if (Unit* target = SelectTarget(SelectAggroTarget::Random, 0, CurseAgonySelector(me)))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, CurseAgonySelector(me)))
                     DoCast(target, SPELL_AGONY_CURSE, args);
                 else
                     DoCastVictim(SPELL_AGONY_CURSE, args);

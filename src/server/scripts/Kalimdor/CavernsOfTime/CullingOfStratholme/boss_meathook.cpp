@@ -72,9 +72,9 @@ class boss_meathook : public CreatureScript
                 switch (eventId)
                 {
                     case EVENT_CHAIN:
-                        if (Unit* target = SelectTarget(SelectAggroTarget::Random, 0, -20.0f, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, -20.0f, true))
                             DoCast(target, SPELL_CONSTRICTING_CHAINS);
-                        else if (Unit* target = SelectTarget(SelectAggroTarget::Random, 1, 100.0f, true))
+                        else if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 100.0f, true))
                             DoCast(target, SPELL_CONSTRICTING_CHAINS);
                         else
                             DoCastVictim(SPELL_CONSTRICTING_CHAINS);

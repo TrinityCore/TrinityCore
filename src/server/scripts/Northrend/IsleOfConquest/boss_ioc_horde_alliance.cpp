@@ -97,7 +97,7 @@ public:
                         _events.ScheduleEvent(EVENT_BRUTAL_STRIKE, 5s);
                         break;
                     case EVENT_DAGGER_THROW:
-                        if (Unit* target = SelectTarget(SelectAggroTarget::Random, 1))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
                             DoCast(target, SPELL_DAGGER_THROW);
                         _events.ScheduleEvent(EVENT_DAGGER_THROW, 7s);
                         break;

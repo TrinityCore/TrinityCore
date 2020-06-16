@@ -143,7 +143,7 @@ public:
 
             if (Saw_Blade_Timer <= diff)
             {
-                if (Unit* target = SelectTarget(SelectAggroTarget::Random, 1))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
                     DoCast(target, SPELL_SAW_BLADE);
                 else
                     DoCastVictim(SPELL_SAW_BLADE);

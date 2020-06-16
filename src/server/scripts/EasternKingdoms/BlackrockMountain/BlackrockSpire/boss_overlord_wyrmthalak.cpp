@@ -96,7 +96,7 @@ public:
 
             if (!Summoned && HealthBelowPct(51))
             {
-                if (Unit* target = SelectTarget(SelectAggroTarget::Random, 0, 100, true))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, true))
                 {
                     if (Creature* warlord = me->SummonCreature(NPC_SPIRESTONE_WARLORD, SummonLocation1, TEMPSUMMON_TIMED_DESPAWN, 300 * IN_MILLISECONDS))
                         warlord->AI()->AttackStart(target);

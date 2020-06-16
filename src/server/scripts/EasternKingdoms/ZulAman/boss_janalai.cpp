@@ -412,7 +412,7 @@ class boss_janalai : public CreatureScript
 
                 if (FireBreathTimer <= diff)
                 {
-                    if (Unit* target = SelectTarget(SelectAggroTarget::Random, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     {
                         me->AttackStop();
                         me->GetMotionMaster()->Clear();

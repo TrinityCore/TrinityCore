@@ -122,7 +122,7 @@ class boss_nexusprince_shaffar : public CreatureScript
                 {
                     summoned->CastSpell(summoned, SPELL_ETHEREAL_BEACON_VISUAL, false);
 
-                    if (Unit* target = SelectTarget(SelectAggroTarget::Random, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         summoned->AI()->AttackStart(target);
                 }
 

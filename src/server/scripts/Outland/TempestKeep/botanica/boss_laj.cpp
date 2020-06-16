@@ -171,7 +171,7 @@ class boss_laj : public CreatureScript
             void JustSummoned(Creature* summon) override
             {
                 if (summon && me->GetVictim())
-                    summon->AI()->AttackStart(SelectTarget(SelectAggroTarget::Random, 0));
+                    summon->AI()->AttackStart(SelectTarget(SelectTargetMethod::Random, 0));
             }
 
             void UpdateAI(uint32 diff) override
