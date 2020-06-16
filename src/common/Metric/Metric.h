@@ -137,13 +137,13 @@ public:
         do {                                                           \
             if (sMetric->IsEnabled())                                  \
                 sMetric->LogEvent(category, title, description);       \
-        } while (0)                                                    
+        } while (0)
 #define TC_METRIC_VALUE(category, value, ...)                          \
         do {                                                           \
             if (sMetric->IsEnabled())                                  \
                 sMetric->LogValue(category, value, { __VA_ARGS__ });   \
-        } while (0)                                                    
-#else                                                                  
+        } while (0)
+#else
 #define TC_METRIC_EVENT(category, title, description)                  \
         __pragma(warning(push))                                        \
         __pragma(warning(disable:4127))                                \
@@ -151,7 +151,7 @@ public:
             if (sMetric->IsEnabled())                                  \
                 sMetric->LogEvent(category, title, description);       \
         } while (0)                                                    \
-        __pragma(warning(pop))                                         
+        __pragma(warning(pop))
 #define TC_METRIC_VALUE(category, value, ...)                          \
         __pragma(warning(push))                                        \
         __pragma(warning(disable:4127))                                \
