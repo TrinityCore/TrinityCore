@@ -105,7 +105,7 @@ public:
     void Update();
 
     template<class T>
-    void LogValue(std::string const& category, T value, std::vector<MetricTag> const& tags)
+    void LogValue(std::string const& category, T value, std::vector<MetricTag> tags)
     {
         using namespace std::chrono;
 
@@ -114,7 +114,7 @@ public:
         data->Timestamp = system_clock::now();
         data->Type = METRIC_DATA_VALUE;
         data->Value = FormatInfluxDBValue(value);
-        data->Tags = tags;
+        data->Tags = std::move(tags);
 
         _queuedData.Enqueue(data);
     }
