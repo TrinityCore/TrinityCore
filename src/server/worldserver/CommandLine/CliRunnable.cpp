@@ -34,9 +34,9 @@
 #include "Chat.h"
 #endif
 
-static constexpr char const *CLI_PREFIX = "TC> ";
+static constexpr char CLI_PREFIX[] = "TC> ";
 
-static inline void print_cli_prefix()
+static inline void PrintCliPrefix()
 {
     printf("%s", CLI_PREFIX);
 }
@@ -111,7 +111,7 @@ void utf8print(void* /*arg*/, char const* str)
 
 void commandFinished(void*, bool /*success*/)
 {
-    print_cli_prefix();
+    PrintCliPrefix();
     fflush(stdout);
 }
 
@@ -136,7 +136,7 @@ void CliThread()
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
     // print this here the first time
     // later it will be printed after command queue updates
-    print_cli_prefix();
+    PrintCliPrefix();
 #else
     rl_attempted_completion_function = cli_completion;
     rl_event_hook = cli_hook_func;
@@ -158,7 +158,7 @@ void CliThread()
         {
             if (!WStrToUtf8(commandbuf, wcslen(commandbuf), command))
             {
-                print_cli_prefix();
+                PrintCliPrefix();
                 continue;
             }
         }
@@ -180,7 +180,7 @@ void CliThread()
                 if (nextLineIndex == 0)
                 {
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
-                    print_cli_prefix();
+                    PrintCliPrefix();
 #endif
                     continue;
                 }
