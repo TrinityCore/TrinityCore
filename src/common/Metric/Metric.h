@@ -127,7 +127,7 @@ public:
 
 #define sMetric Metric::instance()
 
-#define TC_METRIC_VALUE_TAG(name, value) { name, value }
+#define TC_METRIC_TAG(name, value) { name, value }
 
 #ifdef PERFORMANCE_PROFILING
 #define TC_METRIC_EVENT(category, title, description) ((void)0)
