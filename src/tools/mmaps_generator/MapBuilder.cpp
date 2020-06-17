@@ -31,7 +31,7 @@
 
 namespace MMAP
 {
-    MapBuilder::MapBuilder(float maxWalkableAngle, bool skipLiquid,
+    MapBuilder::MapBuilder(bool skipLiquid,
         bool skipContinents, bool skipJunkMaps, bool skipBattlegrounds,
         bool debugOutput, bool bigBaseUnit, int mapid, char const* offMeshFilePath) :
         m_terrainBuilder     (nullptr),
@@ -40,7 +40,6 @@ namespace MMAP
         m_skipContinents     (skipContinents),
         m_skipJunkMaps       (skipJunkMaps),
         m_skipBattlegrounds  (skipBattlegrounds),
-        m_maxWalkableAngle   (maxWalkableAngle),
         m_bigBaseUnit        (bigBaseUnit),
         m_mapid              (mapid),
         m_totalTiles         (0u),
@@ -588,16 +587,26 @@ namespace MMAP
                 }
 
                 // mark all walkable tiles, both liquids and solids
+
+                /* we want to have triangles with slope less than walkableSlopeAngleNotSteep (<= 55) to have NAV_AREA_GROUND
+                 * and with slope between walkableSlopeAngleNotSteep and walkableSlopeAngle (55 < .. <= 70) to have NAV_AREA_GROUND_STEEP.
+                 * we achieve this using recast API: memset everything to NAV_AREA_GROUND_STEEP, call rcClearUnwalkableTriangles with 70 so
+                 * any area above that will get RC_NULL_AREA (unwalkable), then call rcMarkWalkableTriangles with 55 to set NAV_AREA_GROUND
+                 * on anything below 55 . Players and idle Creatures can use NAV_AREA_GROUND, while Creatures in combat can use NAV_AREA_GROUND_STEEP.
+                 */
                 unsigned char* triFlags = new unsigned char[tTriCount];
-                memset(triFlags, NAV_AREA_GROUND, tTriCount*sizeof(unsigned char));
+                memset(triFlags, NAV_AREA_GROUND_STEEP, tTriCount*sizeof(unsigned char));
                 rcClearUnwalkableTriangles(m_rcContext, tileCfg.walkableSlopeAngle, tVerts, tVertCount, tTris, tTriCount, triFlags);
+                rcMarkWalkableTriangles(m_rcContext, tileCfg.walkableSlopeAngleNotSteep, tVerts, tVertCount, tTris, tTriCount, triFlags, NAV_AREA_GROUND);
                 rcRasterizeTriangles(m_rcContext, tVerts, tVertCount, tTris, triFlags, tTriCount, *tile.solid, config.walkableClimb);
                 delete[] triFlags;
 
                 rcFilterLowHangingWalkableObstacles(m_rcContext, config.walkableClimb, *tile.solid);
-                rcFilterLedgeSpans(m_rcContext, tileCfg.walkableHeight, tileCfg.walkableClimb, *tile.solid);
+                // disabled as it ignores walkableSlopeAngle settings
+                //rcFilterLedgeSpans(m_rcContext, tileCfg.walkableHeight, tileCfg.walkableClimb, *tile.solid);
                 rcFilterWalkableLowHeightSpans(m_rcContext, tileCfg.walkableHeight, *tile.solid);
 
+                // add liquid triangles
                 rcRasterizeTriangles(m_rcContext, lVerts, lVertCount, lTris, lTriFlags, lTriCount, *tile.solid, config.walkableClimb);
 
                 // compact heightfield spans
@@ -702,10 +711,10 @@ namespace MMAP
         // TODO: special flags for DYNAMIC polygons, ie surfaces that can be turned on and off
         for (int i = 0; i < iv.polyMesh->npolys; ++i)
         {
-            if (uint8 area = iv.polyMesh->areas[i] & RC_WALKABLE_AREA)
+            if (uint8 area = iv.polyMesh->areas[i] & NAV_AREA_ALL_MASK)
             {
-                if (area >= NAV_AREA_MAGMA_SLIME)
-                    iv.polyMesh->flags[i] = 1 << (63 - area);
+                if (area >= NAV_AREA_MIN_VALUE)
+                    iv.polyMesh->flags[i] = 1 << (NAV_AREA_MAX_VALUE - area);
                 else
                     iv.polyMesh->flags[i] = NAV_GROUND; // TODO: these will be dynamic in future
             }
@@ -978,7 +987,8 @@ namespace MMAP
         config.maxVertsPerPoly = DT_VERTS_PER_POLYGON;
         config.cs = tileConfig.BASE_UNIT_DIM;
         config.ch = tileConfig.BASE_UNIT_DIM;
-        config.walkableSlopeAngle = m_maxWalkableAngle;
+        config.walkableSlopeAngle = 85;
+        config.walkableSlopeAngleNotSteep = 55;
         config.tileSize = tileConfig.VERTEX_PER_TILE;
         config.walkableRadius = m_bigBaseUnit ? 1 : 2;
         config.borderSize = config.walkableRadius + 3;

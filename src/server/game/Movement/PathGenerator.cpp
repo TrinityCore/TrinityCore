@@ -679,6 +679,7 @@ void PathGenerator::UpdateFilter()
     // allow creatures to cheat and use different movement types if they are moved
     // forcefully into terrain they can't normally move in
     if (Unit const* _sourceUnit = _source->ToUnit())
+    {
         if (_sourceUnit->IsInWater() || _sourceUnit->IsUnderWater())
         {
             uint16 includedFlags = _filter.getIncludeFlags();
@@ -688,6 +689,11 @@ void PathGenerator::UpdateFilter()
 
             _filter.setIncludeFlags(includedFlags);
         }
+
+        if (Creature const* _sourceCreature = _source->ToCreature())
+            if (_sourceCreature->IsInCombat() || _sourceCreature->IsInEvadeMode())
+                _filter.setIncludeFlags(_filter.getIncludeFlags() | NAV_GROUND_STEEP);
+    }
 }
 
 NavTerrainFlag PathGenerator::GetNavTerrain(float x, float y, float z)

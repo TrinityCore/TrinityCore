@@ -96,8 +96,7 @@ namespace MMAP
     class MapBuilder
     {
         public:
-            MapBuilder(float maxWalkableAngle   = 70.f,
-                bool skipLiquid          = false,
+            MapBuilder(bool skipLiquid   = false,
                 bool skipContinents      = false,
                 bool skipJunkMaps        = true,
                 bool skipBattlegrounds   = false,
@@ -164,7 +163,6 @@ namespace MMAP
             bool m_skipJunkMaps;
             bool m_skipBattlegrounds;
 
-            float m_maxWalkableAngle;
             bool m_bigBaseUnit;
 
             int32 m_mapid;

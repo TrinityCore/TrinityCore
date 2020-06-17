@@ -224,6 +224,9 @@ struct rcConfig
 	/// The maximum slope that is considered walkable. [Limits: 0 <= value < 90] [Units: Degrees] 
 	float walkableSlopeAngle;
 
+	/// The maximum slope that is considered walkable but not steep. It should be lower/equal than walkableSlopeAngle. [Limits: 0 <= value < 90] [Units: Degrees] 
+	float walkableSlopeAngleNotSteep;
+
 	/// Minimum floor to 'ceiling' height that will still allow the floor area to 
 	/// be considered walkable. [Limit: >= 3] [Units: vx] 
 	int walkableHeight;
@@ -810,7 +813,7 @@ bool rcCreateHeightfield(rcContext* ctx, rcHeightfield& hf, int width, int heigh
 ///  @param[in]		nt					The number of triangles.
 ///  @param[out]	areas				The triangle area ids. [Length: >= @p nt]
 void rcMarkWalkableTriangles(rcContext* ctx, const float walkableSlopeAngle, const float* verts, int nv,
-							 const int* tris, int nt, unsigned char* areas); 
+							 const int* tris, int nt, unsigned char* areas, unsigned char areaType = RC_WALKABLE_AREA);
 
 /// Sets the area id of all triangles with a slope greater than or equal to the specified value to #RC_NULL_AREA.
 ///  @ingroup recast

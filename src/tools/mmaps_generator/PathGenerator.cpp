@@ -99,7 +99,6 @@ bool handleArgs(int argc, char** argv,
                int &mapnum,
                int &tileX,
                int &tileY,
-               float &maxAngle,
                bool &skipLiquid,
                bool &skipContinents,
                bool &skipJunkMaps,
@@ -114,19 +113,7 @@ bool handleArgs(int argc, char** argv,
     char* param = nullptr;
     for (int i = 1; i < argc; ++i)
     {
-        if (strcmp(argv[i], "--maxAngle") == 0)
-        {
-            param = argv[++i];
-            if (!param)
-                return false;
-
-            float maxangle = atof(param);
-            if (maxangle <= 90.f && maxangle >= 45.f)
-                maxAngle = maxangle;
-            else
-                printf("invalid option for '--maxAngle', using default\n");
-        }
-        else if (strcmp(argv[i], "--threads") == 0)
+        if (strcmp(argv[i], "--threads") == 0)
         {
             param = argv[++i];
             if (!param)
@@ -353,7 +340,6 @@ int main(int argc, char** argv)
 
     unsigned int threads = std::thread::hardware_concurrency();
     int mapnum = -1;
-    float maxAngle = 70.0f;
     int tileX = -1, tileY = -1;
     bool skipLiquid = false,
          skipContinents = false,
@@ -366,7 +352,7 @@ int main(int argc, char** argv)
     char* file = nullptr;
 
     bool validParam = handleArgs(argc, argv, mapnum,
-                                 tileX, tileY, maxAngle,
+                                 tileX, tileY,
                                  skipLiquid, skipContinents, skipJunkMaps, skipBattlegrounds,
                                  debugOutput, silent, bigBaseUnit, offMeshInputPath, file, threads);
 
@@ -400,7 +386,7 @@ int main(int argc, char** argv)
         return itr != _liquidTypes.end() ? (1 << itr->second) : 0;
     };
 
-    MapBuilder builder(maxAngle, skipLiquid, skipContinents, skipJunkMaps,
+    MapBuilder builder(skipLiquid, skipContinents, skipJunkMaps,
                        skipBattlegrounds, debugOutput, bigBaseUnit, mapnum, offMeshInputPath);
 
     uint32 start = getMSTime();
