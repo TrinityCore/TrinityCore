@@ -202,7 +202,7 @@ public:
 
                 summoned->CastSpell(summoned, SPELL_SPARK_VISUAL_TRIGGER, true);
 
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                 {
                     summoned->SetInCombatWith(target);
                     summoned->GetMotionMaster()->Clear();
@@ -260,7 +260,7 @@ public:
 
             if (uiStaticOverloadTimer <= uiDiff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     DoCast(target, SPELL_STATIC_OVERLOAD);
 
                 uiStaticOverloadTimer = urand(5*IN_MILLISECONDS, 6*IN_MILLISECONDS);

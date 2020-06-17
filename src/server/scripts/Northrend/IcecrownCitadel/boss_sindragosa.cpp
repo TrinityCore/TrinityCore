@@ -932,7 +932,7 @@ class npc_rimefang : public CreatureScript
                         case EVENT_ICY_BLAST_CAST:
                             if (--_icyBlastCounter)
                             {
-                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                                 {
                                     me->SetFacingToObject(target);
                                     DoCast(target, SPELL_ICY_BLAST);

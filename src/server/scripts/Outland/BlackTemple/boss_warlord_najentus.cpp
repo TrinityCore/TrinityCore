@@ -150,7 +150,7 @@ struct boss_najentus : public BossAI
                 DoCastSelf(SPELL_BERSERK, true);
                 break;
             case EVENT_SPINE:
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 200.0f, true))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 200.0f, true))
                 {
                     DoCast(target, SPELL_IMPALING_SPINE, true);
                     _spineTargetGUID = target->GetGUID();

@@ -82,26 +82,26 @@ class boss_hydromancer_thespia : public CreatureScript
                 switch (eventId)
                 {
                     case EVENT_LIGHTNING_CLOUD:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 30.0f, true))
                             DoCast(target, SPELL_LIGHTNING_CLOUD);
                         // cast twice in Heroic mode
                         if (IsHeroic())
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 30.0f, true))
                                 DoCast(target, SPELL_LIGHTNING_CLOUD);
 
                         events.ScheduleEvent(EVENT_LIGHTNING_CLOUD, 15s, 25s);
                         break;
                     case EVENT_LUNG_BURST:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40.0f, true))
                             DoCast(target, SPELL_LUNG_BURST);
                         events.ScheduleEvent(EVENT_LUNG_BURST, 7s, 12s);
                         break;
                     case EVENT_ENVELOPING_WINDS:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 35.0f, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 35.0f, true))
                             DoCast(target, SPELL_ENVELOPING_WINDS);
                         // cast twice in Heroic mode
                         if (IsHeroic())
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 35.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 35.0f, true))
                                 DoCast(target, SPELL_ENVELOPING_WINDS);
 
                         events.ScheduleEvent(EVENT_ENVELOPING_WINDS, 10s, 15s);

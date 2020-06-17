@@ -124,7 +124,7 @@ class boss_nazan : public CreatureScript
 
                 if (Fireball_Timer <= diff)
                 {
-                    if (Unit* victim = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* victim = SelectTarget(SelectTargetMethod::Random, 0))
                         DoCast(victim, SPELL_FIREBALL, true);
                     Fireball_Timer = urand(4000, 7000);
                 }
@@ -142,7 +142,7 @@ class boss_nazan : public CreatureScript
                         me->SetDisableGravity(false);
                         me->SetWalk(true);
                         me->GetMotionMaster()->Clear();
-                        if (Unit* victim = SelectTarget(SELECT_TARGET_MINDISTANCE, 0))
+                        if (Unit* victim = SelectTarget(SelectTargetMethod::MinDistance, 0))
                             AttackStart(victim);
                         DoStartMovement(me->GetVictim());
                         Talk(EMOTE);

@@ -130,7 +130,7 @@ class boss_jindo : public CreatureScript
                             break;
                         case EVENT_DELUSIONS_OF_JINDO:
                             // Casting the delusion curse with a shade so shade will attack the same target with the curse.
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                             {
                                 DoCast(target, SPELL_SHADE_OF_JINDO, true);
                                 DoCast(target, SPELL_DELUSIONS_OF_JINDO);
@@ -139,7 +139,7 @@ class boss_jindo : public CreatureScript
                             break;
                         case EVENT_TELEPORT:
                             // Teleports a random player and spawns 9 Sacrificed Trolls to attack player
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                             {
                                 DoTeleportPlayer(target, TeleportLoc.GetPositionX(), TeleportLoc.GetPositionY(), TeleportLoc.GetPositionZ(), TeleportLoc.GetOrientation());
                                 if (GetThreat(me->GetVictim()))

@@ -190,7 +190,7 @@ public:
             //Impale_Timer
             if (Impale_Timer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     DoCast(target, SPELL_IMPALE);
 
                 Impale_Timer = 7500 + rand32() % 5000;

@@ -419,7 +419,7 @@ class boss_hexlord_malacrass : public CreatureScript
 
                 if (SiphonSoul_Timer <= diff)
                 {
-                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 70, true);
+                    Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 70, true);
                     Unit* trigger = DoSpawnCreature(NPC_TEMP_TRIGGER, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 30000);
                     if (!target || !trigger)
                     {
@@ -481,7 +481,7 @@ class boss_hexlord_malacrass : public CreatureScript
                         break;
                     case ABILITY_TARGET_ENEMY:
                     default:
-                        target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+                        target = SelectTarget(SelectTargetMethod::Random, 0, 100, true);
                         break;
                     case ABILITY_TARGET_HEAL:
                         target = DoSelectLowestHpFriendly(50.f, 0);
@@ -639,7 +639,7 @@ class boss_alyson_antille : public CreatureScript
                         if (urand(0, 1))
                             target = DoSelectLowestHpFriendly(50, 0);
                         else
-                            target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                            target = SelectTarget(SelectTargetMethod::Random, 0);
                         if (target)
                             DoCast(target, SPELL_DISPEL_MAGIC, false);
                     }
@@ -657,7 +657,7 @@ class boss_alyson_antille : public CreatureScript
                     DoCast(target, SPELL_DISPEL_MAGIC, false);
                 }
                 else
-                    me->CastSpell(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_DISPEL_MAGIC, false);
+                    me->CastSpell(SelectUnit(SelectTargetMethod::Random, 0), SPELL_DISPEL_MAGIC, false);
 
                 dispelmagic_timer = 12000;
                 }
@@ -882,7 +882,7 @@ class boss_slither : public CreatureScript
 
                 if (venomspit_timer <= diff)
                 {
-                    if (Unit* victim = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    if (Unit* victim = SelectTarget(SelectTargetMethod::Random, 0, 100, true))
                         DoCast(victim, SPELL_VENOM_SPIT, false);
                     venomspit_timer = 2500;
                 }
@@ -988,7 +988,7 @@ class boss_koragg : public CreatureScript
                 }
                 if (coldstare_timer <= diff)
                 {
-                    if (Unit* victim = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    if (Unit* victim = SelectTarget(SelectTargetMethod::Random, 0, 100, true))
                         DoCast(victim, SPELL_COLD_STARE, false);
                     coldstare_timer = 12000;
                 }

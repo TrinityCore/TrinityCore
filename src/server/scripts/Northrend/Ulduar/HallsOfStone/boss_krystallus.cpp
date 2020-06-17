@@ -91,12 +91,12 @@ class boss_krystallus : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_BOULDER_TOSS:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 50.0f, true))
                                 DoCast(target, SPELL_BOULDER_TOSS);
                             events.ScheduleEvent(EVENT_BOULDER_TOSS, 9s, 15s);
                             break;
                         case EVENT_GROUND_SPIKE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                                 DoCast(target, SPELL_GROUND_SPIKE);
                             events.ScheduleEvent(EVENT_GROUND_SPIKE, 12s, 17s);
                             break;

@@ -239,7 +239,7 @@ class npc_azure_ring_captain : public CreatureScript
                     case ACTION_CALL_DRAGON_EVENT:
                         if (Creature* varos = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VAROS)))
                         {
-                            if (Unit* victim = varos->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* victim = varos->AI()->SelectTarget(SelectTargetMethod::Random, 0))
                             {
                                 me->SetReactState(REACT_PASSIVE);
                                 me->SetWalk(false);

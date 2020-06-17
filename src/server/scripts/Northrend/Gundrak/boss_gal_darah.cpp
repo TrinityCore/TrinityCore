@@ -105,7 +105,7 @@ class boss_gal_darah : public CreatureScript
                 {
                     summon->CastSpell(summon, SPELL_STAMPEDE_SPIRIT, true);
                     summon->CastSpell(summon, SPELL_STAMPEDE_SPIRIT_2, true);
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         summon->CastSpell(target, SPELL_STAMPEDE_SPIRIT_CHARGE);
                 }
             }
@@ -185,7 +185,7 @@ class boss_gal_darah : public CreatureScript
                 switch (eventId)
                 {
                     case EVENT_IMPALING_CHARGE:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 60.0f, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 60.0f, true))
                             DoCast(target, SPELL_IMPALING_CHARGE);
                         if (++_phaseCounter >= 2)
                             events.ScheduleEvent(EVENT_TRANSFORM, 5s);

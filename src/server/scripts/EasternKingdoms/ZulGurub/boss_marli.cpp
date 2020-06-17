@@ -118,7 +118,7 @@ class boss_marli : public CreatureScript
 
             void JustSummoned(Creature* creature) override
             {
-                creature->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM, 0, 0.f, true));
+                creature->AI()->AttackStart(SelectTarget(SelectTargetMethod::Random, 0, 0.f, true));
                 summons.Summon(creature);
             }
 
@@ -184,7 +184,7 @@ class boss_marli : public CreatureScript
                             int i = 0;
                             while (i++ < 3) // max 3 tries to get a random target with power_mana
                             {
-                                target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true);  // not aggro leader
+                                target = SelectTarget(SelectTargetMethod::Random, 1, 100, true);  // not aggro leader
                                 if (target && target->GetPowerType() == POWER_MANA)
                                     break;
                             }

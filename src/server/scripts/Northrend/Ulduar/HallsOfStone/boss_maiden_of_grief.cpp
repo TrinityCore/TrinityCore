@@ -106,7 +106,7 @@ class boss_maiden_of_grief : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_PARTING_SORROW:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                                 DoCast(target, SPELL_PARTING_SORROW);
                             events.ScheduleEvent(EVENT_PARTING_SORROW, 30s, 40s);
                             break;
@@ -121,7 +121,7 @@ class boss_maiden_of_grief : public CreatureScript
                             events.ScheduleEvent(EVENT_SHOCK_OF_SORROW, 20s, 30s);
                             break;
                         case EVENT_PILLAR_OF_WOE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true))
                                 DoCast(target, SPELL_PILLAR_OF_WOE);
                             else
                                 DoCastVictim(SPELL_PILLAR_OF_WOE);

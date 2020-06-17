@@ -272,7 +272,7 @@ public:
 
             if (StolenSoul_Timer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                 {
                     if (target->GetTypeId() == TYPEID_PLAYER)
                     {
@@ -295,7 +295,7 @@ public:
 
             if (Ribbon_of_Souls_timer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     DoCast(target, SPELL_RIBBON_OF_SOULS);
 
                 Ribbon_of_Souls_timer = 5000 + (rand32() % 20 * 1000);
