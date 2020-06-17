@@ -1221,9 +1221,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_SUMMON_CREATURE:
         {
-            WorldObject* baseObj = GetBaseObject();
-            if (trigger)
-                baseObj = atPlayer;
+            WorldObject* baseObj = GetBaseObjectOrPlayerTrigger();
             if (!baseObj)
                 break;
 
@@ -2486,10 +2484,7 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
     else if (Unit* tempLastInvoker = GetLastInvoker())
         scriptTrigger = tempLastInvoker;
 
-    WorldObject* baseObject = GetBaseObject();
-    if (trigger)
-        baseObject = atPlayer;
-
+    WorldObject* baseObject = GetBaseObjectOrPlayerTrigger();
     switch (e.GetTargetType())
     {
         case SMART_TARGET_SELF:
@@ -2844,9 +2839,7 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
 
 void SmartScript::GetWorldObjectsInDist(ObjectVector& targets, float dist) const
 {
-    WorldObject* obj = GetBaseObject();
-    if (trigger)
-        obj = atPlayer;
+    WorldObject* obj = GetBaseObjectOrPlayerTrigger();
     if (!obj)
         return;
 
@@ -3592,6 +3585,11 @@ WorldObject* SmartScript::GetBaseObject() const
     else if (go)
         obj = go;
     return obj;
+}
+
+WorldObject* SmartScript::GetBaseObjectOrPlayerTrigger() const
+{
+    return trigger ? atPlayer : GetBaseObject();
 }
 
 bool SmartScript::IsUnit(WorldObject* obj)

@@ -55,6 +55,7 @@ class TC_GAME_API SmartScript
         void SetPathId(uint32 id) { mPathId = id; }
         uint32 GetPathId() const { return mPathId; }
         WorldObject* GetBaseObject() const;
+        WorldObject* GetBaseObjectOrPlayerTrigger() const;
         static bool IsUnit(WorldObject* obj);
         static bool IsPlayer(WorldObject* obj);
         static bool IsCreature(WorldObject* obj);
