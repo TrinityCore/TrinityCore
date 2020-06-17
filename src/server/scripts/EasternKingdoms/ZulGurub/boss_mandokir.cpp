@@ -258,7 +258,7 @@ class boss_mandokir : public CreatureScript
                             events.ScheduleEvent(EVENT_WHIRLWIND, 22s, 26s);
                             break;
                         case EVENT_WATCH_PLAYER:
-                            if (Unit* player = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                            if (Unit* player = SelectTarget(SelectTargetMethod::Random, 0, 100, true))
                             {
                                 DoCast(player, SPELL_WATCH);
                                 Talk(SAY_WATCH, player);
@@ -266,7 +266,7 @@ class boss_mandokir : public CreatureScript
                             events.ScheduleEvent(EVENT_WATCH_PLAYER, 12s, 15s);
                             break;
                         case EVENT_CHARGE_PLAYER:
-                            DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 40, true), SPELL_CHARGE);
+                            DoCast(SelectTarget(SelectTargetMethod::Random, 0, 40, true), SPELL_CHARGE);
                             events.ScheduleEvent(EVENT_CHARGE_PLAYER, 22s, 30s);
                             break;
                         default:

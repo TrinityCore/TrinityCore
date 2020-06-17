@@ -412,7 +412,7 @@ public:
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
                 if (Creature* _summoner = ObjectAccessor::GetCreature(*me, _summonerGUID))
-                    if (Unit* target = _summoner->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = _summoner->AI()->SelectTarget(SelectTargetMethod::Random, 0))
                         AttackStart(target);
             });
 

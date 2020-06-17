@@ -501,7 +501,7 @@ struct boss_sister_svalna : public BossAI
                     Talk(SAY_SVALNA_AGGRO);
                     break;
                 case EVENT_IMPALING_SPEAR:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, true, -SPELL_IMPALING_SPEAR))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true, true, -SPELL_IMPALING_SPEAR))
                     {
                         DoCast(me, SPELL_AETHER_SHIELD);
                         DoCast(target, SPELL_IMPALING_SPEAR);
@@ -980,7 +980,7 @@ struct npc_captain_arnath : public npc_argent_captainAI
                     Events.ScheduleEvent(EVENT_ARNATH_SMITE, 4s, 7s);
                     break;
                 case EVENT_ARNATH_DOMINATE_MIND:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true))
                         DoCast(target, SPELL_DOMINATE_MIND);
                     Events.ScheduleEvent(EVENT_ARNATH_DOMINATE_MIND, 28s, 37s);
                     break;
@@ -1050,7 +1050,7 @@ struct npc_captain_brandon : public npc_argent_captainAI
                     Events.ScheduleEvent(EVENT_BRANDON_JUDGEMENT_OF_COMMAND, 8s, 13s);
                     break;
                 case EVENT_BRANDON_HAMMER_OF_BETRAYAL:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true))
                         DoCast(target, SPELL_HAMMER_OF_BETRAYAL);
                     Events.ScheduleEvent(EVENT_BRANDON_HAMMER_OF_BETRAYAL, 45s, 60s);
                     break;
@@ -1109,7 +1109,7 @@ struct npc_captain_grondel : public npc_argent_captainAI
                     Events.ScheduleEvent(EVENT_GRONDEL_SUNDER_ARMOR, 5s, 17s);
                     break;
                 case EVENT_GRONDEL_CONFLAGRATION:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                         DoCast(target, SPELL_CONFLAGRATION);
                     Events.ScheduleEvent(EVENT_GRONDEL_CONFLAGRATION, 10s, 15s);
                     break;
@@ -1154,17 +1154,17 @@ struct npc_captain_rupert : public npc_argent_captainAI
             switch (eventId)
             {
                 case EVENT_RUPERT_FEL_IRON_BOMB:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         DoCast(target, SPELL_FEL_IRON_BOMB);
                     Events.ScheduleEvent(EVENT_RUPERT_FEL_IRON_BOMB, 15s, 20s);
                     break;
                 case EVENT_RUPERT_MACHINE_GUN:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
                         DoCast(target, SPELL_MACHINE_GUN);
                     Events.ScheduleEvent(EVENT_RUPERT_MACHINE_GUN, 25s, 30s);
                     break;
                 case EVENT_RUPERT_ROCKET_LAUNCH:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
                         DoCast(target, SPELL_ROCKET_LAUNCH);
                     Events.ScheduleEvent(EVENT_RUPERT_ROCKET_LAUNCH, 10s, 15s);
                     break;
@@ -1313,7 +1313,7 @@ struct npc_frostwing_ymirjar_vrykul : public ScriptedAI
                     _events.Repeat(10s, 20s);
                     break;
                 case EVENT_YMIRJAR_TWISTED_WINDS:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.f, true))
                         DoCast(target, SPELL_TWISTED_WINDS);
                     _events.Repeat(10s, 20s);
                     break;
@@ -1334,12 +1334,12 @@ struct npc_frostwing_ymirjar_vrykul : public ScriptedAI
                     _events.Repeat(20s, 30s);
                     break;
                 case EVENT_YMIRJAR_ICE_TRAP:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 20.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 20.0f, true))
                         DoCast(target, SPELL_ICE_TRAP);
                     _events.Repeat(15s, 20s);
                     break;
                 case EVENT_YMIRJAR_VOLLEY:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 40.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 40.0f, true))
                         DoCast(target, SPELL_VOLLEY);
                     _events.Repeat(10s, 20s);
                     break;
@@ -1356,7 +1356,7 @@ struct npc_frostwing_ymirjar_vrykul : public ScriptedAI
                     _events.Repeat(10s, 20s);
                     break;
                 case EVENT_YMIRJAR_BANISH:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 20.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 20.0f, true))
                         DoCast(target, SPELL_BANISH);
                     _events.Repeat(10s, 20s);
                     break;
