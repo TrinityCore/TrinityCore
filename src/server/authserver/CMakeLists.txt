@@ -62,7 +62,7 @@ set_target_properties(authserver
       FOLDER
         "server")
 
-if( WIN32 )
+if( COPY_CONF AND WIN32 )
   if ( "${CMAKE_MAKE_PROGRAM}" MATCHES "MSBuild" )
     add_custom_command(TARGET authserver
       POST_BUILD
@@ -78,10 +78,14 @@ endif()
 
 if( UNIX )
   install(TARGETS authserver DESTINATION bin)
-  install(FILES  authserver.conf.dist DESTINATION ${CONF_DIR})
+  if( COPY_CONF )
+    install(FILES  authserver.conf.dist DESTINATION ${CONF_DIR})
+  endif()
 elseif( WIN32 )
   install(TARGETS authserver DESTINATION "${CMAKE_INSTALL_PREFIX}")
-  install(FILES authserver.conf.dist DESTINATION "${CMAKE_INSTALL_PREFIX}")
+  if( COPY_CONF )
+    install(FILES authserver.conf.dist DESTINATION "${CMAKE_INSTALL_PREFIX}")
+  endif()
 endif()
 
 # Generate precompiled header
