@@ -47,6 +47,7 @@ SmartScript::SmartScript()
     go = nullptr;
     me = nullptr;
     trigger = nullptr;
+    atPlayer = nullptr;
     mEventPhase = 0;
     mPathId = 0;
     mTextTimer = 0;
