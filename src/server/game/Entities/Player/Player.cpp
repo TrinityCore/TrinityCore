@@ -484,7 +484,6 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     SetGender(Gender(createInfo->Sex));
     SetPowerType(Powers(powertype), false);
     InitDisplayIds();
-    UpdatePositionData();
     if (sWorld->getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_PVP || sWorld->getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_RPPVP)
     {
         AddPvpFlag(UNIT_BYTE2_FLAG_PVP);
