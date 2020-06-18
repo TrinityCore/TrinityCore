@@ -263,7 +263,7 @@ class boss_sapphiron : public CreatureScript
                             if (Unit* temp = ObjectAccessor::GetUnit(*me, summonGuid))
                                 blizzards.push_back(temp);
 
-                    if (Unit* newTarget = me->AI()->SelectTarget(SELECT_TARGET_RANDOM, 1, BlizzardTargetSelector(blizzards)))
+                    if (Unit* newTarget = me->AI()->SelectTarget(SelectTargetMethod::Random, 1, BlizzardTargetSelector(blizzards)))
                         return newTarget->GetGUID();
                 }
 
@@ -348,7 +348,7 @@ class boss_sapphiron : public CreatureScript
 
                                 _iceboltTargets.clear();
                                 std::list<Unit*> targets;
-                                SelectTargetList(targets, RAID_MODE(2, 3), SELECT_TARGET_RANDOM, 0, 200.0f, true);
+                                SelectTargetList(targets, RAID_MODE(2, 3), SelectTargetMethod::Random, 0, 200.0f, true);
                                 for (Unit* target : targets)
                                     if (target)
                                         _iceboltTargets.push_back(target->GetGUID());

@@ -196,7 +196,7 @@ public:
                         //Become unbanished again
                         me->SetReactState(REACT_AGGRESSIVE);
                         me->RemoveAurasDueToSpell(SPELL_RAGSUBMERGE);
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         {
                             AttackStart(target);
                         }

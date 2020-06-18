@@ -232,7 +232,7 @@ public:
                     if (!me->IsNonMeleeSpellCast(false))
                     {
                         me->InterruptSpell(CURRENT_GENERIC_SPELL);
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                             DoCast(target, SPELL_CONFLAGRATION);
                         ConflagrationTimer = 30000 + (rand32() % 5000);
                     }
@@ -244,7 +244,7 @@ public:
                 {
                     if (!me->IsNonMeleeSpellCast(false))
                     {
-                        Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                        Unit* target = SelectTarget(SelectTargetMethod::Random, 0);
                         if (target)
                             DoCast(target, SPELL_SHADOW_NOVA);
 
@@ -263,7 +263,7 @@ public:
             {
                 if (!me->IsNonMeleeSpellCast(false))
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         DoCast(target, SPELL_CONFOUNDING_BLOW);
                     ConfoundingblowTimer = 20000 + (rand32() % 5000);
                 }
@@ -275,7 +275,7 @@ public:
                 Creature* temp = nullptr;
                 for (uint8 i = 0; i<3; ++i)
                 {
-                    target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                    target = SelectTarget(SelectTargetMethod::Random, 0);
                     temp = DoSpawnCreature(NPC_SHADOW_IMAGE, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 10000);
                     if (temp && target)
                     {
@@ -573,7 +573,7 @@ public:
                 {
                     if (!me->IsNonMeleeSpellCast(false))
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                             DoCast(target, SPELL_SHADOW_NOVA);
                         ShadownovaTimer = 30000 + (rand32() % 5000);
                     }
@@ -586,7 +586,7 @@ public:
                     if (!me->IsNonMeleeSpellCast(false))
                     {
                         me->InterruptSpell(CURRENT_GENERIC_SPELL);
-                        Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                        Unit* target = SelectTarget(SelectTargetMethod::Random, 0);
                         if (target)
                             DoCast(target, SPELL_CONFLAGRATION);
                         ConflagrationTimer = 30000 + (rand32() % 5000);

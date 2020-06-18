@@ -278,7 +278,7 @@ public:
                         })
                         .Schedule(Seconds(11), [this](TaskContext poisonedSpear)
                         {
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random))
                                 DoCast(target, SPELL_POISONED_SPEAR);
                             poisonedSpear.Repeat();
                         })
@@ -609,7 +609,7 @@ public:
             _scheduler
                 .Schedule(Seconds(13), [this](TaskContext net)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_MAXDISTANCE, 0, 30, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::MaxDistance, 0, 30, true))
                         DoCast(target, SPELL_NET);
                     net.Repeat();
                 })
