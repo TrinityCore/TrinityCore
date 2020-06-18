@@ -362,9 +362,11 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
             break;
         case WAYPOINT_MOVE_TYPE_RUN:
             init.SetWalk(false);
+            owner->SetWalk(false);
             break;
         case WAYPOINT_MOVE_TYPE_WALK:
             init.SetWalk(true);
+            owner->SetWalk(true);
             break;
         default:
             break;

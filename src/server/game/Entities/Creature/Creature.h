@@ -147,6 +147,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         CreatureAI* AI() const { return reinterpret_cast<CreatureAI*>(GetAI()); }
 
         bool SetWalk(bool enable) override;
+        bool IsWalking() const override { return m_isWalking; }
         bool SetDisableGravity(bool disable, bool packetOnly = false) override;
         bool SetSwim(bool enable) override;
         bool SetCanFly(bool enable, bool packetOnly = false) override;
@@ -418,6 +419,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         // Waypoint path
         uint32 _waypointPathId;
         std::pair<uint32/*nodeId*/, uint32/*pathId*/> _currentWaypointNodeInfo;
+        bool m_isWalking;
 
         // Formation var
         CreatureGroup* m_formation;
