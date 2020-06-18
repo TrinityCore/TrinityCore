@@ -1,5 +1,5 @@
 #include "MarketerManager.h"
-
+#include "JokerManager.h"
 #include "GameTime.h"
 
 MarketerManager::MarketerManager()
@@ -24,18 +24,6 @@ MarketerManager::MarketerManager()
         } while (vendorItemQR->NextRow());
     }
 
-    std::unordered_set<uint32> expansionItemsSet;
-    QueryResult eiQR = WorldDatabase.PQuery("SELECT item_entry FROM joker_item_expansion where expansion <= %d", sMarketerConfig->MaxExpansion);
-    if (eiQR)
-    {
-        do
-        {
-            Field* fields = eiQR->Fetch();
-            uint32 eachItemEntry = fields[0].GetUInt32();
-            expansionItemsSet.insert(eachItemEntry);
-        } while (eiQR->NextRow());
-    }
-
     sellingItemIDMap.clear();
     ItemTemplateContainer const& its = sObjectMgr->GetItemTemplateStore();
     for (auto const& itemTemplatePair : its)
@@ -47,7 +35,19 @@ MarketerManager::MarketerManager()
         }
         if (proto->Class != ItemClass::ITEM_CLASS_GLYPH)
         {
-            if (expansionItemsSet.find(itemTemplatePair.first) == expansionItemsSet.end())
+            bool foundInExp = false;
+            for (std::unordered_map<uint32, std::unordered_set<uint32>>::iterator expIT = sJokerManager->expansionItemMap.begin(); expIT != sJokerManager->expansionItemMap.end(); expIT++)
+            {
+                if (expIT->first <= sMarketerConfig->MaxExpansion)
+                {
+                    if (expIT->second.find(itemTemplatePair.first) != expIT->second.end())
+                    {
+                        foundInExp = true;
+                        break;
+                    }
+                }
+            }
+            if (!foundInExp)
             {
                 continue;
             }

@@ -1,6 +1,9 @@
 #include "Script_Mage.h"
 #include "Group.h"
+#include "SpellInfo.h"
+#include "SpellMgr.h"
 #include "RobotManager.h"
+#include "MotionMaster.h"
 
 Script_Mage::Script_Mage(Player* pmMe) :Script_Base(pmMe)
 {
@@ -17,7 +20,7 @@ bool Script_Mage::Tank(Unit* pmTarget, bool pmChase, bool pmSingle)
     return false;
 }
 
-bool Script_Mage::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, bool pmInterruptCasting)
+bool Script_Mage::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, bool pmInterruptTargetCasting)
 {
     if (!me)
     {
@@ -27,6 +30,7 @@ bool Script_Mage::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, 
     {
         UseManaPotion();
     }
+    uint32 characterTalentTab = me->GetMaxTalentCountTab();
     switch (characterTalentTab)
     {
     case 0:
@@ -44,6 +48,63 @@ bool Script_Mage::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, 
     default:
         return DPS_Common(pmTarget, pmChase, pmAOE, pmTank);
     }
+    return false;
+}
+
+bool Script_Mage::Assist()
+{
+    if (!me)
+    {
+        return false;
+    }
+    if (!me->IsAlive())
+    {
+        return false;
+    }
+    if (rti >= 0 && rti < TARGETICONCOUNT)
+    {
+        if (Group* myGroup = me->GetGroup())
+        {
+            if (Unit* assistTarget = ObjectAccessor::GetUnit(*me, myGroup->GetOGByTargetIcon(rti)))
+            {
+                if (assistTarget->IsAlive())
+                {
+                    if (assistTarget->GetCreatureType() == CreatureType::CREATURE_TYPE_HUMANOID)
+                    {
+                        uint32 duration = GetAuraDuration(assistTarget, "Polymorph");
+                        if (duration < 1000)
+                        {
+                            float targetDistance = me->GetDistance(assistTarget);
+                            if (targetDistance < VISIBILITY_DISTANCE_NORMAL)
+                            {
+                                uint32 assistSpellID = FindSpellID("Polymorph");
+                                if (SpellValid(assistSpellID))
+                                {
+                                    if (const SpellInfo* pS = sSpellMgr->GetSpellInfo(assistSpellID))
+                                    {
+                                        if (!assistTarget->IsImmunedToSpell(pS, me))
+                                        {
+                                            if (targetDistance > MAGE_RANGE_DISTANCE)
+                                            {
+                                                me->GetMotionMaster()->MoveCloserAndStop(0, assistTarget, MAGE_RANGE_DISTANCE - 1.0f);
+                                                actionDelay = 1000;
+                                            }
+                                            else
+                                            {
+                                                CastSpell(assistTarget, "Polymorph", MAGE_RANGE_DISTANCE);
+                                            }
+                                            return true;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return false;
 }
 
 bool Script_Mage::DPS_Arcane(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank)
@@ -287,6 +348,7 @@ bool Script_Mage::Attack(Unit* pmTarget)
     {
         UseManaPotion();
     }
+    uint32 characterTalentTab = me->GetMaxTalentCountTab();
     switch (characterTalentTab)
     {
     case 0:
@@ -509,7 +571,7 @@ bool Script_Mage::Buff(Unit* pmTarget, bool pmCure)
                 {
                     return true;
                 }
-            }            
+            }
         }
     }
 

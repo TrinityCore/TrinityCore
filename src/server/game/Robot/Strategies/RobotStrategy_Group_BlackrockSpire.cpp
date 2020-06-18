@@ -192,88 +192,90 @@ bool RobotStrategy_Group_BlackrockSpire::DPS()
     {
         return false;
     }
-    if (combatTime < dpsDelay)
+    if (Group* myGroup = me->GetGroup())
     {
-        if (GetAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Gyth))
+        if (combatTime < dpsDelay)
         {
-            if (me->GetClass() == Classes::CLASS_HUNTER || me->GetClass() == Classes::CLASS_MAGE || me->GetClass() == Classes::CLASS_PRIEST || me->GetClass() == Classes::CLASS_SHAMAN || me->GetClass() == Classes::CLASS_WARLOCK)
+            if (myGroup->GetGroupAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Gyth))
             {
-                if (me->GetDistance(dpsGythPos) > 3.0f)
+                if (me->GetClass() == Classes::CLASS_HUNTER || me->GetClass() == Classes::CLASS_MAGE || me->GetClass() == Classes::CLASS_PRIEST || me->GetClass() == Classes::CLASS_SHAMAN || me->GetClass() == Classes::CLASS_WARLOCK)
                 {
-                    actionType = ActionType_Blackrock_Spire::ActionType_Blackrock_Spire_DPSGythMove;
-                    actionDelay = 3000;
-                    me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
-                    me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
-                    me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
-                    me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
-                    return true;
+                    if (me->GetDistance(dpsGythPos) > 3.0f)
+                    {
+                        actionType = ActionType_Blackrock_Spire::ActionType_Blackrock_Spire_DPSGythMove;
+                        actionDelay = 3000;
+                        me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                        me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                        me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                        me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                        return true;
+                    }
+                }
+            }
+            if (myGroup->GetGroupAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Drakkisath))
+            {
+                if (me->GetClass() == Classes::CLASS_HUNTER || me->GetClass() == Classes::CLASS_MAGE || me->GetClass() == Classes::CLASS_PRIEST || me->GetClass() == Classes::CLASS_SHAMAN || me->GetClass() == Classes::CLASS_WARLOCK)
+                {
+                    if (me->GetDistance(dpsDrakkisathPos) > 3.0f)
+                    {
+                        actionType = ActionType_Blackrock_Spire::ActionType_Blackrock_Spire_DPSDrakkisathMove;
+                        actionDelay = 3000;
+                        me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                        me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                        me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                        me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                        return true;
+                    }
                 }
             }
         }
-        if (GetAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Drakkisath))
+        else
         {
-            if (me->GetClass() == Classes::CLASS_HUNTER || me->GetClass() == Classes::CLASS_MAGE || me->GetClass() == Classes::CLASS_PRIEST || me->GetClass() == Classes::CLASS_SHAMAN || me->GetClass() == Classes::CLASS_WARLOCK)
+            if (Unit* gyth = myGroup->GetGroupAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Gyth))
             {
-                if (me->GetDistance(dpsDrakkisathPos) > 3.0f)
+                if (me->GetClass() == Classes::CLASS_HUNTER || me->GetClass() == Classes::CLASS_MAGE || me->GetClass() == Classes::CLASS_PRIEST || me->GetClass() == Classes::CLASS_SHAMAN || me->GetClass() == Classes::CLASS_WARLOCK)
                 {
-                    actionType = ActionType_Blackrock_Spire::ActionType_Blackrock_Spire_DPSDrakkisathMove;
-                    actionDelay = 3000;
-                    me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
-                    me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
-                    me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
-                    me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
-                    return true;
+                    if (me->GetDistance(dpsGythPos) > 3.0f)
+                    {
+                        actionType = ActionType_Blackrock_Spire::ActionType_Blackrock_Spire_DPSGythMove;
+                        actionDelay = 3000;
+                        me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                        me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                        me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                        me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                        return true;
+                    }
+                    if (me->rai->sb->DPS(gyth, Chasing(), false, NULL))
+                    {
+                        return true;
+                    }
+                }
+            }
+            if (Unit* gyth = myGroup->GetGroupAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Drakkisath))
+            {
+                if (me->GetClass() == Classes::CLASS_HUNTER || me->GetClass() == Classes::CLASS_MAGE || me->GetClass() == Classes::CLASS_PRIEST || me->GetClass() == Classes::CLASS_SHAMAN || me->GetClass() == Classes::CLASS_WARLOCK)
+                {
+                    if (me->GetDistance(dpsDrakkisathPos) > 3.0f)
+                    {
+                        actionType = ActionType_Blackrock_Spire::ActionType_Blackrock_Spire_DPSDrakkisathMove;
+                        actionDelay = 3000;
+                        me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                        me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                        me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                        me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                        return true;
+                    }
+                }
+                if (Player* addsTank = GetPlayerByGroupRole(GroupRole_Blackrock_Spire::GroupRole_Blackrock_Spire_Tank3))
+                {
+                    if (me->rai->sb->DPS(addsTank->GetSelectedUnit(), Chasing(), false, NULL))
+                    {
+                        return true;
+                    }
                 }
             }
         }
     }
-    else
-    {
-        if (Unit* gyth = GetAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Gyth))
-        {
-            if (me->GetClass() == Classes::CLASS_HUNTER || me->GetClass() == Classes::CLASS_MAGE || me->GetClass() == Classes::CLASS_PRIEST || me->GetClass() == Classes::CLASS_SHAMAN || me->GetClass() == Classes::CLASS_WARLOCK)
-            {
-                if (me->GetDistance(dpsGythPos) > 3.0f)
-                {
-                    actionType = ActionType_Blackrock_Spire::ActionType_Blackrock_Spire_DPSGythMove;
-                    actionDelay = 3000;
-                    me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
-                    me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
-                    me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
-                    me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
-                    return true;
-                }
-                if (sb->DPS(gyth, Chasing(), false, NULL))
-                {
-                    return true;
-                }
-            }
-        }
-        if (Unit* gyth = GetAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Drakkisath))
-        {
-            if (me->GetClass() == Classes::CLASS_HUNTER || me->GetClass() == Classes::CLASS_MAGE || me->GetClass() == Classes::CLASS_PRIEST || me->GetClass() == Classes::CLASS_SHAMAN || me->GetClass() == Classes::CLASS_WARLOCK)
-            {
-                if (me->GetDistance(dpsDrakkisathPos) > 3.0f)
-                {
-                    actionType = ActionType_Blackrock_Spire::ActionType_Blackrock_Spire_DPSDrakkisathMove;
-                    actionDelay = 3000;
-                    me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
-                    me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
-                    me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
-                    me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
-                    return true;
-                }
-            }
-            if (Player* addsTank = GetPlayerByGroupRole(GroupRole_Blackrock_Spire::GroupRole_Blackrock_Spire_Tank3))
-            {
-                if (sb->DPS(addsTank->GetSelectedUnit(), Chasing(), false, NULL))
-                {
-                    return true;
-                }
-            }
-        }
-    }
-
     return RobotStrategy_Group::DPS();
 }
 
@@ -283,107 +285,109 @@ bool RobotStrategy_Group_BlackrockSpire::Heal()
     {
         return false;
     }
-    if (GetAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Gyth))
+    if (Group* myGroup = me->GetGroup())
     {
-        if (me->GetDistance(dpsGythPos) > 3.0f)
+        if (myGroup->GetGroupAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Gyth))
         {
-            actionType = ActionType_Blackrock_Spire::ActionType_Blackrock_Spire_DPSGythMove;
-            actionDelay = 3000;
-            me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
-            me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
-            me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
-            me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
-            return true;
-        }
-    }
-    else if (GetAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Drakkisath))
-    {
-        if (me->GetDistance(dpsDrakkisathPos) > 3.0f)
-        {
-            actionType = ActionType_Blackrock_Spire::ActionType_Blackrock_Spire_DPSDrakkisathMove;
-            actionDelay = 3000;
-            me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
-            me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
-            me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
-            me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
-            return true;
-        }
-        if (me->groupRole == GroupRole_Blackrock_Spire::GroupRole_Blackrock_Spire_Healer1)
-        {
-            if (Player* tank1 = GetPlayerByGroupRole(GroupRole_Blackrock_Spire::GroupRole_Blackrock_Spire_Tank1))
+            if (me->GetDistance(dpsGythPos) > 3.0f)
             {
-                if (tank1->IsAlive())
-                {
-                    if (tank1->GetHealthPct() < 90.0f)
-                    {
-                        if (sb->Heal(tank1, cure))
-                        {
-                            return true;
-                        }
-                    }
-                }
+                actionType = ActionType_Blackrock_Spire::ActionType_Blackrock_Spire_DPSGythMove;
+                actionDelay = 3000;
+                me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                return true;
             }
-            if (Player* tank2 = GetPlayerByGroupRole(GroupRole_Blackrock_Spire::GroupRole_Blackrock_Spire_Tank2))
-            {
-                if (tank2->IsAlive())
-                {
-                    if (tank2->GetHealthPct() < 90.0f)
-                    {
-                        if (sb->Heal(tank2, cure))
-                        {
-                            return true;
-                        }
-                    }
-                }
-            }
-            return true;
         }
-        if (me->groupRole == GroupRole_Blackrock_Spire::GroupRole_Blackrock_Spire_Healer2)
+        else if (myGroup->GetGroupAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Drakkisath))
         {
-            if (Player* tank3 = GetPlayerByGroupRole(GroupRole_Blackrock_Spire::GroupRole_Blackrock_Spire_Tank3))
+            if (me->GetDistance(dpsDrakkisathPos) > 3.0f)
             {
-                if (tank3->IsAlive())
-                {
-                    if (tank3->GetHealthPct() < 90.0f)
-                    {
-                        if (sb->Heal(tank3, cure))
-                        {
-                            return true;
-                        }
-                    }
-                }
+                actionType = ActionType_Blackrock_Spire::ActionType_Blackrock_Spire_DPSDrakkisathMove;
+                actionDelay = 3000;
+                me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                return true;
             }
-            if (Group* myGroup = me->GetGroup())
+            if (me->groupRole == GroupRole_Blackrock_Spire::GroupRole_Blackrock_Spire_Healer1)
             {
-                int lowMemberCount = 0;
-                for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                if (Player* tank1 = GetPlayerByGroupRole(GroupRole_Blackrock_Spire::GroupRole_Blackrock_Spire_Tank1))
                 {
-                    if (Player* member = groupRef->GetSource())
+                    if (tank1->IsAlive())
                     {
-                        if (member->IsAlive())
+                        if (tank1->GetHealthPct() < 90.0f)
                         {
-                            if (member->GetHealthPct() < 60.0f)
+                            if (me->rai->sb->Heal(tank1, cure))
                             {
-                                if (me->GetDistance(member) < FOLLOW_NORMAL_DISTANCE)
-                                {
-                                    lowMemberCount++;
-                                }
+                                return true;
                             }
                         }
                     }
                 }
-                if (lowMemberCount > 1)
+                if (Player* tank2 = GetPlayerByGroupRole(GroupRole_Blackrock_Spire::GroupRole_Blackrock_Spire_Tank2))
                 {
-                    if (sb->GroupHeal())
+                    if (tank2->IsAlive())
                     {
-                        return true;
+                        if (tank2->GetHealthPct() < 90.0f)
+                        {
+                            if (me->rai->sb->Heal(tank2, cure))
+                            {
+                                return true;
+                            }
+                        }
                     }
                 }
+                return true;
             }
-            return true;
+            if (me->groupRole == GroupRole_Blackrock_Spire::GroupRole_Blackrock_Spire_Healer2)
+            {
+                if (Player* tank3 = GetPlayerByGroupRole(GroupRole_Blackrock_Spire::GroupRole_Blackrock_Spire_Tank3))
+                {
+                    if (tank3->IsAlive())
+                    {
+                        if (tank3->GetHealthPct() < 90.0f)
+                        {
+                            if (me->rai->sb->Heal(tank3, cure))
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                }
+                if (Group* myGroup = me->GetGroup())
+                {
+                    int lowMemberCount = 0;
+                    for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                    {
+                        if (Player* member = groupRef->GetSource())
+                        {
+                            if (member->IsAlive())
+                            {
+                                if (member->GetHealthPct() < 60.0f)
+                                {
+                                    if (me->GetDistance(member) < FOLLOW_NORMAL_DISTANCE)
+                                    {
+                                        lowMemberCount++;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (lowMemberCount > 1)
+                    {
+                        if (me->rai->sb->GroupHeal())
+                        {
+                            return true;
+                        }
+                    }
+                }
+                return true;
+            }
         }
     }
-
     return RobotStrategy_Group::Heal();
 }
 
@@ -401,7 +405,7 @@ bool RobotStrategy_Group_BlackrockSpire::Engage(Unit* pmTarget)
     {
     case GroupRole_Blackrock_Spire::GroupRole_Blackrock_Spire_DPS:
     {
-        return sb->DPS(pmTarget, Chasing(), false, NULL);
+        return me->rai->sb->DPS(pmTarget, Chasing(), false, NULL);
     }
     case GroupRole_Blackrock_Spire::GroupRole_Blackrock_Spire_Healer1:
     {
@@ -446,9 +450,9 @@ bool RobotStrategy_Group_BlackrockSpire::Tank(Unit* pmTarget)
     {
     case GroupRole_Blackrock_Spire::GroupRole_Blackrock_Spire_Tank1:
     {
-        sb->ClearTarget();
-        sb->ChooseTarget(pmTarget);
-        return sb->Tank(pmTarget, Chasing());
+        me->rai->sb->ClearTarget();
+        me->rai->sb->ChooseTarget(pmTarget);
+        return me->rai->sb->Tank(pmTarget, Chasing());
     }
     default:
     {
@@ -470,104 +474,118 @@ bool RobotStrategy_Group_BlackrockSpire::Tank()
         return false;
     }
     Player* mainTank = GetMainTank();
-    if (Unit* gyth = GetAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Gyth))
+    if (Group* myGroup = me->GetGroup())
     {
-        if (me->groupRole == GroupRole_Blackrock_Spire::GroupRole_Blackrock_Spire_Tank1)
+        if (Unit* gyth = myGroup->GetGroupAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Gyth))
         {
-            if (gyth->GetTarget() != me->GetGUID())
+            if (me->groupRole == GroupRole_Blackrock_Spire::GroupRole_Blackrock_Spire_Tank1)
             {
-                sb->Taunt(gyth);
-                if (sb->Tank(gyth, Chasing()))
+                if (gyth->GetTarget() != me->GetGUID())
+                {
+                    me->rai->sb->Taunt(gyth);
+                    if (me->rai->sb->Tank(gyth, Chasing()))
+                    {
+                        return true;
+                    }
+                }
+                if (me->GetDistance(tankGythPos) > 1.0f)
+                {
+                    actionType = ActionType_Blackrock_Spire::ActionType_Blackrock_Spire_TankGythMove;
+                    actionDelay = 3000;
+                    me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                    me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                    me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                    me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                    return true;
+                }
+                me->rai->sb->Taunt(gyth);
+                if (me->rai->sb->Tank(gyth, Chasing()))
                 {
                     return true;
                 }
             }
-            if (me->GetDistance(tankGythPos) > 1.0f)
-            {
-                actionType = ActionType_Blackrock_Spire::ActionType_Blackrock_Spire_TankGythMove;
-                actionDelay = 3000;
-                me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
-                me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
-                me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
-                me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
-                return true;
-            }
-            sb->Taunt(gyth);
-            if (sb->Tank(gyth, Chasing()))
-            {
-                return true;
-            }
         }
-    }
-    if (Unit* rend = GetAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Rend))
-    {
-        if (me->groupRole == GroupRole_Blackrock_Spire::GroupRole_Blackrock_Spire_Tank2)
+        if (Unit* rend = myGroup->GetGroupAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Rend))
         {
-            if (rend->GetTarget() != me->GetGUID())
+            if (me->groupRole == GroupRole_Blackrock_Spire::GroupRole_Blackrock_Spire_Tank2)
             {
-                sb->Taunt(rend);
-                if (sb->Tank(rend, Chasing(), true))
+                if (rend->GetTarget() != me->GetGUID())
+                {
+                    me->rai->sb->Taunt(rend);
+                    if (me->rai->sb->Tank(rend, Chasing(), true))
+                    {
+                        return true;
+                    }
+                }
+                if (me->GetDistance(tankRendPos) > 1.0f)
+                {
+                    actionType = ActionType_Blackrock_Spire::ActionType_Blackrock_Spire_TankRendMove;
+                    actionDelay = 3000;
+                    me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                    me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                    me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                    me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                    return true;
+                }
+                me->rai->sb->Taunt(rend);
+                if (me->rai->sb->Tank(rend, Chasing(), true))
                 {
                     return true;
                 }
             }
-            if (me->GetDistance(tankRendPos) > 1.0f)
-            {
-                actionType = ActionType_Blackrock_Spire::ActionType_Blackrock_Spire_TankRendMove;
-                actionDelay = 3000;
-                me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
-                me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
-                me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
-                me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
-                return true;
-            }
-            sb->Taunt(rend);
-            if (sb->Tank(rend, Chasing(), true))
-            {
-                return true;
-            }
         }
-    }
-    if (Unit* drakkisath = GetAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Drakkisath))
-    {
-        if (me->groupRole == GroupRole_Blackrock_Spire::GroupRole_Blackrock_Spire_Tank1)
+        if (Unit* drakkisath = myGroup->GetGroupAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Drakkisath))
         {
-            if (me->HasUnitState(UnitState::UNIT_STATE_CONFUSED))
+            if (me->groupRole == GroupRole_Blackrock_Spire::GroupRole_Blackrock_Spire_Tank1)
             {
-                return true;
-            }
-            if (drakkisath->GetTarget() != me->GetGUID())
-            {
-                sb->Taunt(drakkisath);
-                if (sb->Tank(drakkisath, Chasing(), true))
+                if (me->HasUnitState(UnitState::UNIT_STATE_CONFUSED))
                 {
                     return true;
                 }
-            }
-            if (me->GetDistance(tankDrakkisathPos1) > 1.0f)
-            {
-                actionType = ActionType_Blackrock_Spire::ActionType_Blackrock_Spire_TankDrakkisathMove1;
-                actionDelay = 1000;
-                return true;
-            }
-            sb->Taunt(drakkisath);
-            if (sb->Tank(drakkisath, Chasing(), true))
-            {
-                return true;
-            }
-        }
-        if (me->groupRole == GroupRole_Blackrock_Spire::GroupRole_Blackrock_Spire_Tank2)
-        {
-            if (me->HasUnitState(UnitState::UNIT_STATE_CONFUSED))
-            {
-                return true;
-            }
-            if (mainTank->HasUnitState(UnitState::UNIT_STATE_CONFUSED))
-            {
                 if (drakkisath->GetTarget() != me->GetGUID())
                 {
-                    sb->Taunt(drakkisath);
-                    if (sb->Tank(drakkisath, Chasing(), true))
+                    me->rai->sb->Taunt(drakkisath);
+                    if (me->rai->sb->Tank(drakkisath, Chasing(), true))
+                    {
+                        return true;
+                    }
+                }
+                if (me->GetDistance(tankDrakkisathPos1) > 1.0f)
+                {
+                    actionType = ActionType_Blackrock_Spire::ActionType_Blackrock_Spire_TankDrakkisathMove1;
+                    actionDelay = 1000;
+                    return true;
+                }
+                me->rai->sb->Taunt(drakkisath);
+                if (me->rai->sb->Tank(drakkisath, Chasing(), true))
+                {
+                    return true;
+                }
+            }
+            if (me->groupRole == GroupRole_Blackrock_Spire::GroupRole_Blackrock_Spire_Tank2)
+            {
+                if (me->HasUnitState(UnitState::UNIT_STATE_CONFUSED))
+                {
+                    return true;
+                }
+                if (mainTank->HasUnitState(UnitState::UNIT_STATE_CONFUSED))
+                {
+                    if (drakkisath->GetTarget() != me->GetGUID())
+                    {
+                        me->rai->sb->Taunt(drakkisath);
+                        if (me->rai->sb->Tank(drakkisath, Chasing(), true))
+                        {
+                            return true;
+                        }
+                    }
+                    if (me->GetDistance(tankDrakkisathPos2) > 1.0f)
+                    {
+                        actionType = ActionType_Blackrock_Spire::ActionType_Blackrock_Spire_TankDrakkisathMove2;
+                        actionDelay = 1000;
+                        return true;
+                    }
+                    me->rai->sb->Taunt(drakkisath);
+                    if (me->rai->sb->Tank(drakkisath, Chasing(), true))
                     {
                         return true;
                     }
@@ -575,89 +593,76 @@ bool RobotStrategy_Group_BlackrockSpire::Tank()
                 if (me->GetDistance(tankDrakkisathPos2) > 1.0f)
                 {
                     actionType = ActionType_Blackrock_Spire::ActionType_Blackrock_Spire_TankDrakkisathMove2;
-                    actionDelay = 1000;
+                    actionDelay = 3000;
+                    me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                    me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                    me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                    me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
                     return true;
                 }
-                sb->Taunt(drakkisath);
-                if (sb->Tank(drakkisath, Chasing(), true))
+                else
                 {
-                    return true;
+                    if (!me->isInFront(drakkisath, M_PI / 16))
+                    {
+                        me->SetFacingToObject(drakkisath);
+                    }
                 }
-            }
-            if (me->GetDistance(tankDrakkisathPos2) > 1.0f)
-            {
-                actionType = ActionType_Blackrock_Spire::ActionType_Blackrock_Spire_TankDrakkisathMove2;
-                actionDelay = 3000;
-                me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
-                me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
-                me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
-                me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                me->AttackStop();
                 return true;
             }
-            else
+            if (me->groupRole == GroupRole_Blackrock_Spire::GroupRole_Blackrock_Spire_Tank3)
             {
-                if (!me->isInFront(drakkisath, M_PI / 16))
+                if (me->HasUnitState(UnitState::UNIT_STATE_CONFUSED))
                 {
-                    me->SetFacingToObject(drakkisath);
-                }
-            }
-            me->AttackStop();
-            return true;
-        }
-        if (me->groupRole == GroupRole_Blackrock_Spire::GroupRole_Blackrock_Spire_Tank3)
-        {
-            if (me->HasUnitState(UnitState::UNIT_STATE_CONFUSED))
-            {
-                return true;
-            }
-            std::unordered_map<ObjectGuid, Unit*> addsMap = GetAddsMap(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Drakkisath);
-            if (addsMap.size() > 0)
-            {
-                Unit* closestAdds = NULL;
-                float closestAddsDistance = ATTACK_RANGE_LIMIT;
-                for (std::unordered_map<ObjectGuid, Unit*>::iterator addsIT = addsMap.begin(); addsIT != addsMap.end(); addsIT++)
-                {
-                    if (addsIT->second->GetTarget() != me->GetGUID())
-                    {
-                        sb->Taunt(addsIT->second);
-                        if (sb->Tank(addsIT->second, Chasing()))
-                        {
-                            return true;
-                        }
-                    }
-                    float eachAddsDistance = me->GetDistance(addsIT->second);
-                    if (eachAddsDistance < closestAddsDistance)
-                    {
-                        closestAdds = addsIT->second;
-                        closestAddsDistance = eachAddsDistance;
-                    }
-                }
-                if (me->GetDistance(tankDrakkisathAddsPos) > 1.0f)
-                {
-                    actionType = ActionType_Blackrock_Spire::ActionType_Blackrock_Spire_TankDrakkisathAddsMove;
-                    actionDelay = 1000;
                     return true;
                 }
-                if (Unit* myTarget = me->GetSelectedUnit())
+                if (myGroup->groupAttackersMap.size() > 0)
                 {
-                    if (addsMap.find(myTarget->GetGUID()) != addsMap.end())
+                    Unit* closestAdds = NULL;
+                    float closestAddsDistance = ATTACK_RANGE_LIMIT;
+                    for (std::unordered_map<ObjectGuid, Unit*>::iterator addsIT = myGroup->groupAttackersMap.begin(); addsIT != myGroup->groupAttackersMap.end(); addsIT++)
                     {
-                        sb->Taunt(myTarget);
-                        if (sb->Tank(myTarget, Chasing()))
+                        if (addsIT->second->GetTarget() != me->GetGUID())
                         {
-                            return true;
+                            me->rai->sb->Taunt(addsIT->second);
+                            if (me->rai->sb->Tank(addsIT->second, Chasing()))
+                            {
+                                return true;
+                            }
+                        }
+                        float eachAddsDistance = me->GetDistance(addsIT->second);
+                        if (eachAddsDistance < closestAddsDistance)
+                        {
+                            closestAdds = addsIT->second;
+                            closestAddsDistance = eachAddsDistance;
                         }
                     }
-                }
-                sb->Taunt(closestAdds);
-                if (sb->Tank(closestAdds, Chasing()))
-                {
-                    return true;
+                    if (me->GetDistance(tankDrakkisathAddsPos) > 1.0f)
+                    {
+                        actionType = ActionType_Blackrock_Spire::ActionType_Blackrock_Spire_TankDrakkisathAddsMove;
+                        actionDelay = 1000;
+                        return true;
+                    }
+                    if (Unit* myTarget = me->GetSelectedUnit())
+                    {
+                        if (myGroup->groupAttackersMap.find(myTarget->GetGUID()) != myGroup->groupAttackersMap.end())
+                        {
+                            me->rai->sb->Taunt(myTarget);
+                            if (me->rai->sb->Tank(myTarget, Chasing()))
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                    me->rai->sb->Taunt(closestAdds);
+                    if (me->rai->sb->Tank(closestAdds, Chasing()))
+                    {
+                        return true;
+                    }
                 }
             }
         }
     }
-
     return RobotStrategy_Group::Tank();
 }
 
@@ -782,7 +787,7 @@ void RobotStrategy_Group_BlackrockSpire::Update(uint32 pmDiff)
             {
             case GroupRole_Blackrock_Spire::GroupRole_Blackrock_Spire_DPS:
             {
-                if (sb->DPS(engageTarget, Chasing(), false, NULL))
+                if (me->rai->sb->DPS(engageTarget, Chasing(), false, NULL))
                 {
                     return;
                 }
@@ -811,7 +816,7 @@ void RobotStrategy_Group_BlackrockSpire::Update(uint32 pmDiff)
             }
             case GroupRole_Blackrock_Spire::GroupRole_Blackrock_Spire_Tank1:
             {
-                if (sb->Tank(engageTarget, Chasing()))
+                if (me->rai->sb->Tank(engageTarget, Chasing()))
                 {
                     return;
                 }
@@ -824,7 +829,7 @@ void RobotStrategy_Group_BlackrockSpire::Update(uint32 pmDiff)
             }
             case GroupRole_Blackrock_Spire::GroupRole_Blackrock_Spire_Tank2:
             {
-                if (sb->Tank(engageTarget, Chasing()))
+                if (me->rai->sb->Tank(engageTarget, Chasing()))
                 {
                     return;
                 }
@@ -837,7 +842,7 @@ void RobotStrategy_Group_BlackrockSpire::Update(uint32 pmDiff)
             }
             case GroupRole_Blackrock_Spire::GroupRole_Blackrock_Spire_Tank3:
             {
-                if (sb->Tank(engageTarget, Chasing()))
+                if (me->rai->sb->Tank(engageTarget, Chasing()))
                 {
                     return;
                 }
@@ -857,6 +862,10 @@ void RobotStrategy_Group_BlackrockSpire::Update(uint32 pmDiff)
         }
         if (groupInCombat)
         {
+            if (me->rai->sb->Assist())
+            {
+                return;
+            }
             switch (me->groupRole)
             {
             case GroupRole_Blackrock_Spire::GroupRole_Blackrock_Spire_DPS:

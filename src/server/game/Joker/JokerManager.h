@@ -31,6 +31,8 @@ public:
     int updateDelay;
 
     std::unordered_set<uint32> classicBookSpellSet;
+
+    std::unordered_map<uint32, std::unordered_set<uint32>> expansionItemMap;
 };
 
 #define sJokerManager JokerManager::instance()

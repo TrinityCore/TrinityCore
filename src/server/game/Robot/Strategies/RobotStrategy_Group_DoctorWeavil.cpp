@@ -24,42 +24,19 @@ bool RobotStrategy_Group_DoctorWeavil::DPS()
     {
         return false;
     }
-    if (combatTime > dpsDelay)
+    if (Group* myGroup = me->GetGroup())
     {
-        for (Unit::AttackerSet::const_iterator attackerIT = me->getAttackers().begin(); attackerIT != me->getAttackers().end(); ++attackerIT)
+        if (combatTime > dpsDelay)
         {
-            if (Unit* eachAttacker = *attackerIT)
+            if (Unit* weavil = myGroup->GetGroupAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Doctor_Weavil))
             {
-                if (eachAttacker->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Doctor_Weavil)
+                if (me->rai->sb->DPS(weavil, Chasing(), false, NULL))
                 {
-                    if (sb->DPS(eachAttacker, Chasing(), false, NULL))
-                    {
-                        return true;
-                    }
-                }
-            }
-        }
-        if (Pet* memberPet = me->GetPet())
-        {
-            if (memberPet->IsAlive())
-            {
-                for (Unit::AttackerSet::const_iterator attackerIT = memberPet->getAttackers().begin(); attackerIT != memberPet->getAttackers().end(); ++attackerIT)
-                {
-                    if (Unit* eachAttacker = *attackerIT)
-                    {
-                        if (eachAttacker->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Doctor_Weavil)
-                        {
-                            if (sb->DPS(eachAttacker, Chasing(), false, NULL))
-                            {
-                                return true;
-                            }
-                        }
-                    }
+                    return true;
                 }
             }
         }
     }
-
     return RobotStrategy_Group::DPS();
 }
 
@@ -69,35 +46,13 @@ bool RobotStrategy_Group_DoctorWeavil::Tank()
     {
         return false;
     }
-    for (Unit::AttackerSet::const_iterator attackerIT = me->getAttackers().begin(); attackerIT != me->getAttackers().end(); ++attackerIT)
+    if (Group* myGroup = me->GetGroup())
     {
-        if (Unit* eachAttacker = *attackerIT)
+        if (Unit* weavil = myGroup->GetGroupAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Doctor_Weavil))
         {
-            if (eachAttacker->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Doctor_Weavil)
+            if (me->rai->sb->Tank(weavil, Chasing(), true))
             {
-                if (sb->Tank(eachAttacker, Chasing(), true))
-                {
-                    return true;
-                }
-            }
-        }
-    }
-    if (Pet* memberPet = me->GetPet())
-    {
-        if (memberPet->IsAlive())
-        {
-            for (Unit::AttackerSet::const_iterator attackerIT = memberPet->getAttackers().begin(); attackerIT != memberPet->getAttackers().end(); ++attackerIT)
-            {
-                if (Unit* eachAttacker = *attackerIT)
-                {
-                    if (eachAttacker->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Doctor_Weavil)
-                    {
-                        if (sb->Tank(eachAttacker, Chasing(), true))
-                        {
-                            return true;
-                        }
-                    }
-                }
+                return true;
             }
         }
     }

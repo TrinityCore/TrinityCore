@@ -1488,6 +1488,18 @@ void Creature::UpdateLevelDependantStats()
                     hpMod_level = sJokerConfig->InstanceEncounterHPMod_Level;
                     mpMod_level = sJokerConfig->InstanceEncounterMPMod_Level;
                 }
+                else if (sObjectMgr->reSet.find(cInfo->Entry) != sObjectMgr->reSet.end())
+                {
+                    attackMod_total = sJokerConfig->RaidEliteAttackMod_Total;
+                    spellMod_total = sJokerConfig->RaidEliteSpellMod_Total;
+                    hpMod_total = sJokerConfig->RaidEliteHPMod_Total;
+                    mpMod_total = sJokerConfig->RaidEliteMPMod_Total;
+
+                    attackMod_level = sJokerConfig->RaidEliteAttackMod_Level;
+                    spellMod_level = sJokerConfig->RaidEliteSpellMod_Level;
+                    hpMod_level = sJokerConfig->RaidEliteHPMod_Level;
+                    mpMod_level = sJokerConfig->RaidEliteMPMod_Level;
+                }
                 else if (sObjectMgr->ueSet.find(cInfo->Entry) != sObjectMgr->ueSet.end())
                 {
                     attackMod_total = sJokerConfig->UniqueEliteAttackMod_Total;

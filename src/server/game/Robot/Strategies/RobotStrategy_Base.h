@@ -5,7 +5,6 @@
 # define ANGLE_RANGE M_PI / 16
 #endif
 
-#include "Script_Base.h"
 #include "Player.h"
 
 class RobotStrategy_Base
@@ -16,7 +15,6 @@ public:
 
 public:
     Player* me;
-    Script_Base* sb;
     Unit* engageTarget;
 
     int restDelay;

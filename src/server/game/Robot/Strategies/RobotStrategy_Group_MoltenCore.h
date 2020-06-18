@@ -1,34 +1,34 @@
-#ifndef ROBOT_STRATEGY_TEST_H
-#define ROBOT_STRATEGY_TEST_H
+#ifndef ROBOT_STRATEGY_MOLTEN_CORE_H
+#define ROBOT_STRATEGY_MOLTEN_CORE_H
 
 #include "RobotStrategy_Group.h"
 
-enum GroupRole_Test :uint32
+enum GroupRole_MoltenCore :uint32
 {
-    GroupRole_Test_Tank1 = 0,
-    GroupRole_Test_Tank2,    
-    GroupRole_Test_Healer,
-    GroupRole_Test_DPS_Range,
-    GroupRole_Test_DPS_Melee,
+    GroupRole_MoltenCore_Tank1 = 0,
+    GroupRole_MoltenCore_Tank2,
+    GroupRole_MoltenCore_Healer,
+    GroupRole_MoltenCore_DPS_Range,
+    GroupRole_MoltenCore_DPS_Melee,
 };
 
-enum ActionType_Test :uint32
+enum ActionType_MoltenCore :uint32
 {
-    ActionType_Test_None = 0,
-    ActionType_Test_MarkMove,
+    ActionType_MoltenCore_None = 0,
+    ActionType_MoltenCore_MarkMove,
 };
 
-class RobotStrategy_Group_Test :public RobotStrategy_Group
+class RobotStrategy_Group_MoltenCore :public RobotStrategy_Group
 {
 public:
-    RobotStrategy_Group_Test(Player* pmMe) :RobotStrategy_Group(pmMe)
+    RobotStrategy_Group_MoltenCore(Player* pmMe) :RobotStrategy_Group(pmMe)
     {
         InitialStrategy();
     }
 
     void InitialStrategy();
     std::string GetGroupRoleName() override;
-    void SetGroupRole(std::string pmRoleName) override;    
+    void SetGroupRole(std::string pmRoleName) override;
     bool Stay(std::string pmTargetGroupRole) override;
     bool Hold(std::string pmTargetGroupRole) override;
     bool Engage(Unit* pmTarget) override;

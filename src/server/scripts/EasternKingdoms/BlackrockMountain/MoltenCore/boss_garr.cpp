@@ -99,24 +99,27 @@ struct npc_firesworn : public ScriptedAI
     {
         // Timers for this are probably wrong
         _scheduler.Schedule(4s, [this](TaskContext context)
-        {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                DoCast(target, SPELL_IMMOLATE);
+            {
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, SPELL_IMMOLATE);
 
-            context.Repeat(5s, 10s);
-        });
+                context.Repeat(5s, 10s);
+            });
 
         // Separation Anxiety - Periodically check if Garr is nearby
         // ...and enrage if he is not.
         _scheduler.Schedule(3s, [this](TaskContext context)
-        {
-            if (!me->FindNearestCreature(NPC_GARR, 20.0f))
-                DoCastSelf(SPELL_SEPARATION_ANXIETY);
-            else if (me->HasAura(SPELL_SEPARATION_ANXIETY))
-                me->RemoveAurasDueToSpell(SPELL_SEPARATION_ANXIETY);
-
-            context.Repeat();
-        });
+            {
+                if (!me->FindNearestCreature(NPC_GARR, 20.0f))
+                {
+                    DoCastSelf(SPELL_SEPARATION_ANXIETY);
+                }
+                else if (me->HasAura(SPELL_SEPARATION_ANXIETY))
+                {
+                    me->RemoveAurasDueToSpell(SPELL_SEPARATION_ANXIETY);
+                }
+                context.Repeat();
+            });
     }
 
     void Reset() override
@@ -137,6 +140,10 @@ struct npc_firesworn : public ScriptedAI
         {
             damage = 0;
             DoCastVictim(SPELL_ERUPTION);
+            if (Creature* garr= me->FindNearestCreature(NPC_GARR, 100.0f))
+            {
+                garr->AI()->DoCastSelf(SPELL_ENRAGE);
+            }                
             me->DespawnOrUnsummon();
         }
     }

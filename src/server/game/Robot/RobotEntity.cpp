@@ -105,7 +105,7 @@ void RobotEntity::Update(uint32 pmDiff)
                         targetClass = Classes::CLASS_PRIEST;
                         break;
                     }
-                    else if (targetClass == Classes::CLASS_WARRIOR || targetClass == Classes::CLASS_DEATH_KNIGHT || targetClass == Classes::CLASS_SHAMAN || targetClass == Classes::CLASS_MAGE || targetClass == Classes::CLASS_UNK)
+                    else if (targetClass == Classes::CLASS_WARRIOR || targetClass == Classes::CLASS_DEATH_KNIGHT || targetClass == Classes::CLASS_SHAMAN || targetClass == Classes::CLASS_UNK)
                     {
                         continue;
                     }
@@ -184,20 +184,17 @@ void RobotEntity::Update(uint32 pmDiff)
             ObjectGuid guid = ObjectGuid(HighGuid::Player, character_id);
             if (Player* me = ObjectAccessor::FindConnectedPlayer(guid))
             {
-                if (me->rai->strategyMap[Strategy_Index::Strategy_Index_Solo]->sb->InitializeCharacter(target_level))
+                if (sRobotManager->InitializeCharacter(me, target_level))
                 {
                     entityState = RobotEntityState::RobotEntityState_DoLogoff;
                 }
                 else
                 {
-                    for (std::unordered_map<uint32, RobotStrategy_Base*>::iterator rsIT = me->rai->strategyMap.begin(); rsIT != me->rai->strategyMap.end(); rsIT++)
-                    {
-                        rsIT->second->sb->IdentifyCharacter();
-                        rsIT->second->sb->Reset();
-                    }
+                    me->rai->sb->IdentifyCharacterSpells();
+                    me->rai->sb->Reset();
                     entityState = RobotEntityState::RobotEntityState_Online;
                 }
-                me->groupRole = me->rai->strategyMap[Strategy_Index::Strategy_Index_Solo]->sb->characterType;
+                me->groupRole = me->rai->sb->characterType;
             }
             else
             {
@@ -207,7 +204,7 @@ void RobotEntity::Update(uint32 pmDiff)
         }
         case RobotEntityState::RobotEntityState_Online:
         {
-            checkDelay = urand(5 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
+            checkDelay = urand(10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
             ObjectGuid guid = ObjectGuid(HighGuid::Player, character_id);
             if (Player* me = ObjectAccessor::FindConnectedPlayer(guid))
             {

@@ -15,7 +15,7 @@ bool Script_Rogue::Tank(Unit* pmTarget, bool pmChase, bool pmSingle)
     return false;
 }
 
-bool Script_Rogue::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, bool pmInterruptCasting)
+bool Script_Rogue::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, bool pmInterruptTargetCasting)
 {
     if (!me)
     {
@@ -25,26 +25,27 @@ bool Script_Rogue::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank,
     {
         UseHealingPotion();
     }
+    uint32 characterTalentTab = me->GetMaxTalentCountTab();
     switch (characterTalentTab)
     {
     case 0:
     {
-        return DPS_Common(pmTarget, pmChase, pmAOE, pmTank, pmInterruptCasting);
+        return DPS_Common(pmTarget, pmChase, pmAOE, pmTank, pmInterruptTargetCasting);
     }
     case 1:
     {
-        return DPS_Combat(pmTarget, pmChase, pmAOE, pmTank, pmInterruptCasting);
+        return DPS_Combat(pmTarget, pmChase, pmAOE, pmTank, pmInterruptTargetCasting);
     }
     case 2:
     {
-        return DPS_Common(pmTarget, pmChase, pmAOE, pmTank, pmInterruptCasting);
+        return DPS_Common(pmTarget, pmChase, pmAOE, pmTank, pmInterruptTargetCasting);
     }
     default:
-        return DPS_Common(pmTarget, pmChase, pmAOE, pmTank, pmInterruptCasting);
+        return DPS_Common(pmTarget, pmChase, pmAOE, pmTank, pmInterruptTargetCasting);
     }
 }
 
-bool Script_Rogue::DPS_Combat(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, bool pmInterruptCasting)
+bool Script_Rogue::DPS_Combat(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, bool pmInterruptTargetCasting)
 {
     if (!pmTarget)
     {
@@ -87,7 +88,7 @@ bool Script_Rogue::DPS_Combat(Unit* pmTarget, bool pmChase, bool pmAOE, Player* 
     }
     me->Attack(pmTarget, true);
     uint32 energy = me->GetPower(Powers::POWER_ENERGY);
-    if (pmInterruptCasting)
+    if (pmInterruptTargetCasting)
     {
         if (energy > 25)
         {
@@ -141,9 +142,9 @@ bool Script_Rogue::DPS_Combat(Unit* pmTarget, bool pmChase, bool pmAOE, Player* 
     return true;
 }
 
-bool Script_Rogue::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, bool pmInterruptCasting)
+bool Script_Rogue::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, bool pmInterruptTargetCasting)
 {
-    return DPS_Combat(pmTarget, pmChase, pmAOE, pmTank, pmInterruptCasting);
+    return DPS_Combat(pmTarget, pmChase, pmAOE, pmTank, pmInterruptTargetCasting);
 }
 
 bool Script_Rogue::Attack(Unit* pmTarget)
@@ -156,6 +157,7 @@ bool Script_Rogue::Attack(Unit* pmTarget)
     {
         UseHealingPotion();
     }
+    uint32 characterTalentTab = me->GetMaxTalentCountTab();
     switch (characterTalentTab)
     {
     case 0:

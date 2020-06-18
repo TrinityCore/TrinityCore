@@ -15,7 +15,7 @@ bool Script_Priest::Tank(Unit* pmTarget, bool pmChase, bool pmSingle)
     return false;
 }
 
-bool Script_Priest::SubHeal(Unit* pmTarget)
+bool Script_Priest::SubHeal(Unit* pmTarget, bool pmCure)
 {
     if (!pmTarget)
     {
@@ -52,6 +52,34 @@ bool Script_Priest::SubHeal(Unit* pmTarget)
             return true;
         }
     }
+    if (pmCure)
+    {
+        for (uint32 type = SPELL_AURA_NONE; type < TOTAL_AURAS; ++type)
+        {
+            std::list<AuraEffect*> auraList = pmTarget->GetAuraEffectsByType((AuraType)type);
+            for (auto auraIT = auraList.begin(), end = auraList.end(); auraIT != end; ++auraIT)
+            {
+                const SpellInfo* pST = (*auraIT)->GetSpellInfo();
+                if (!pST->IsPositive())
+                {
+                    if (pST->Dispel == DispelType::DISPEL_DISEASE)
+                    {
+                        if (CastSpell(pmTarget, "Cure Disease", PRIEST_HEAL_DISTANCE))
+                        {
+                            return true;
+                        }
+                    }
+                    if (pST->Dispel == DispelType::DISPEL_MAGIC)
+                    {
+                        if (CastSpell(pmTarget, "Dispel Magic", PRIEST_HEAL_DISTANCE))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 bool Script_Priest::Heal(Unit* pmTarget, bool pmCure)
@@ -68,6 +96,7 @@ bool Script_Priest::Heal(Unit* pmTarget, bool pmCure)
     {
         UseManaPotion();
     }
+    uint32 characterTalentTab = me->GetMaxTalentCountTab();
     switch (characterTalentTab)
     {
     case 0:
@@ -173,6 +202,13 @@ bool Script_Priest::Heal_Holy(Unit* pmTarget, bool pmCure)
                             return true;
                         }
                     }
+                    if (pST->Dispel == DispelType::DISPEL_MAGIC)
+                    {
+                        if (CastSpell(pmTarget, "Dispel Magic", PRIEST_HEAL_DISTANCE))
+                        {
+                            return true;
+                        }
+                    }
                 }
             }
         }
@@ -191,6 +227,7 @@ bool Script_Priest::GroupHeal(float pmMaxHealthPercent)
     {
         UseManaPotion();
     }
+    uint32 characterTalentTab = me->GetMaxTalentCountTab();
     switch (characterTalentTab)
     {
     case 0:
@@ -252,7 +289,7 @@ bool Script_Priest::GroupHeal_Holy(float pmMaxHealthPercent)
     return false;
 }
 
-bool Script_Priest::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, bool pmInterruptCasting)
+bool Script_Priest::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, bool pmInterruptTargetCasting)
 {
     if (!me)
     {
@@ -262,6 +299,7 @@ bool Script_Priest::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank
     {
         UseManaPotion();
     }
+    uint32 characterTalentTab = me->GetMaxTalentCountTab();
     switch (characterTalentTab)
     {
     case 0:
@@ -358,6 +396,7 @@ bool Script_Priest::Attack(Unit* pmTarget)
     {
         UseManaPotion();
     }
+    uint32 characterTalentTab = me->GetMaxTalentCountTab();
     switch (characterTalentTab)
     {
     case 0:
@@ -475,6 +514,13 @@ bool Script_Priest::Buff(Unit* pmTarget, bool pmCure)
                         if (pST->Dispel == DispelType::DISPEL_DISEASE)
                         {
                             if (CastSpell(pmTarget, "Cure Disease", PRIEST_HEAL_DISTANCE))
+                            {
+                                return true;
+                            }
+                        }
+                        if (pST->Dispel == DispelType::DISPEL_MAGIC)
+                        {
+                            if (CastSpell(pmTarget, "Dispel Magic", PRIEST_HEAL_DISTANCE))
                             {
                                 return true;
                             }

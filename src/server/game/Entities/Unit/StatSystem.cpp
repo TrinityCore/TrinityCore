@@ -27,6 +27,9 @@
 #include "World.h"
 #include <numeric>
 
+// EJ joker
+#include "JokerConfig.h"
+
 inline bool _ModifyUInt32(bool apply, uint32& baseValue, int32& amount)
 {
     // If amount is negative, change sign and value of apply.
@@ -1126,7 +1129,10 @@ void Creature::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, 
     float dmgMultiplier = GetCreatureTemplate()->ModDamage;
 
     // EJ joker mod
-    dmgMultiplier = jokerAttackMod;
+    if (sJokerConfig->CreatureModExceptionSet.find(GetEntry()) == sJokerConfig->CreatureModExceptionSet.end())
+    {
+        dmgMultiplier = jokerAttackMod;
+    }
 
     minDamage = ((weaponMinDamage + baseValue) * dmgMultiplier * basePct + totalValue) * totalPct;
     maxDamage = ((weaponMaxDamage + baseValue) * dmgMultiplier * basePct + totalValue) * totalPct;

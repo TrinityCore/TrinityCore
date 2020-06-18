@@ -15,14 +15,14 @@ class Script_Rogue :public Script_Base
 {
 public:    
     Script_Rogue(Player* pmMe);
-    bool DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, bool pmInterruptCasting = true);
+    bool DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, bool pmInterruptTargetCasting = true);
     bool Tank(Unit* pmTarget, bool pmChase, bool pmSingle = false);
-    bool Heal(Unit* pmTarget, bool pmCure);
+    bool Heal(Unit* pmTarget, bool pmCure = true);
     bool Attack(Unit* pmTarget);
-    bool Buff(Unit* pmTarget, bool pmCure);
+    bool Buff(Unit* pmTarget, bool pmCure = true);
     bool InterruptCasting(Unit* pmTarget);
-	bool DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, bool pmInterruptCasting = true);
-    bool DPS_Combat(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, bool pmInterruptCasting = true);
+	bool DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, bool pmInterruptTargetCasting = true);
+    bool DPS_Combat(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, bool pmInterruptTargetCasting = true);
 
 	bool Attack_Common(Unit* pmTarget);    
     bool Attack_Combat(Unit* pmTarget);

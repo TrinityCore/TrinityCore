@@ -14,6 +14,7 @@ Script_Paladin::Script_Paladin(Player* pmMe) :Script_Base(pmMe)
 void Script_Paladin::Reset()
 {
     blessingType = PaladinBlessingType::PaladinBlessingType_Kings;
+    uint32 characterTalentTab = me->GetMaxTalentCountTab();
     switch (characterTalentTab)
     {
     case 0:
@@ -49,6 +50,7 @@ bool Script_Paladin::Heal(Unit* pmTarget, bool pmCure)
     {
         UseManaPotion();
     }
+    uint32 characterTalentTab = me->GetMaxTalentCountTab();
     switch (characterTalentTab)
     {
     case 0:
@@ -144,7 +146,7 @@ bool Script_Paladin::Tank(Unit* pmTarget, bool pmChase, bool pmSingle)
     return false;
 }
 
-bool Script_Paladin::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, bool pmInterruptCasting)
+bool Script_Paladin::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, bool pmInterruptTargetCasting)
 {
     if (!me)
     {
@@ -158,6 +160,7 @@ bool Script_Paladin::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTan
     {
         UseManaPotion();
     }
+    uint32 characterTalentTab = me->GetMaxTalentCountTab();
     switch (characterTalentTab)
     {
     case 0:
@@ -357,6 +360,7 @@ bool Script_Paladin::Attack(Unit* pmTarget)
     {
         UseManaPotion();
     }
+    uint32 characterTalentTab = me->GetMaxTalentCountTab();
     switch (characterTalentTab)
     {
     case 0:
@@ -542,6 +546,14 @@ bool Script_Paladin::Buff(Unit* pmTarget, bool pmCure)
     case PaladinAuraType::PaladinAuraType_Retribution:
     {
         if (CastSpell(me, "Retribution Aura", PALADIN_RANGE_DISTANCE, true))
+        {
+            return true;
+        }
+        break;
+    }
+    case PaladinAuraType::PaladinAuraType_FireResistant:
+    {
+        if (CastSpell(me, "Fire Resistance Aura", PALADIN_RANGE_DISTANCE, true))
         {
             return true;
         }

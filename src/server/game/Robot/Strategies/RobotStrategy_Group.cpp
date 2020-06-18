@@ -21,8 +21,7 @@
 void RobotStrategy_Group::Reset()
 {
     engageDelay = 0;
-    combatTime = 0;
-    moveDelay = 0;
+    combatTime = 0;    
     teleportAssembleDelay = 0;
     restDelay = 0;
     readyCheckDelay = 0;
@@ -30,6 +29,7 @@ void RobotStrategy_Group::Reset()
     holding = false;
     following = true;
     cure = true;
+    moveDelay = 0;
     actionType = 0;
     actionDelay = 0;
     aoeDelay = sRobotConfig->AOEDelay;
@@ -86,8 +86,7 @@ void RobotStrategy_Group::Reset()
 
 void RobotStrategy_Group::InitialStrategy()
 {
-    combatTime = 0;
-    moveDelay = 0;
+    combatTime = 0;    
     teleportAssembleDelay = 0;
     restDelay = 0;
     readyCheckDelay = 0;
@@ -99,6 +98,7 @@ void RobotStrategy_Group::InitialStrategy()
     cure = true;
     actionType = 0;
     actionDelay = 0;
+    assistDelay = 0;
     followDistance = FOLLOW_NORMAL_DISTANCE;
     if (me)
     {
@@ -106,57 +106,47 @@ void RobotStrategy_Group::InitialStrategy()
         {
         case Classes::CLASS_WARRIOR:
         {
-            sb = new Script_Warrior(me);
             followDistance = MELEE_MIN_DISTANCE;
             break;
         }
         case Classes::CLASS_HUNTER:
         {
-            sb = new  Script_Hunter(me);
             break;
         }
         case Classes::CLASS_SHAMAN:
         {
-            sb = new  Script_Shaman(me);
             break;
         }
         case Classes::CLASS_PALADIN:
         {
-            sb = new  Script_Paladin(me);
             followDistance = MELEE_MIN_DISTANCE;
             break;
         }
         case Classes::CLASS_WARLOCK:
         {
-            sb = new  Script_Warlock(me);
             break;
         }
         case Classes::CLASS_PRIEST:
         {
-            sb = new  Script_Priest(me);
             followDistance = MID_RANGE;
             break;
         }
         case Classes::CLASS_ROGUE:
         {
-            sb = new  Script_Rogue(me);
             followDistance = MELEE_MIN_DISTANCE;
             break;
         }
         case Classes::CLASS_MAGE:
         {
-            sb = new  Script_Mage(me);
             break;
         }
         case Classes::CLASS_DRUID:
         {
-            sb = new  Script_Druid(me);
             followDistance = MELEE_MIN_DISTANCE;
             break;
         }
         default:
         {
-            sb = new  Script_Base(me);
             break;
         }
         }
@@ -178,8 +168,6 @@ bool RobotStrategy_Group::Update0(uint32 pmDiff)
     {
         return false;
     }
-    sb->Update(pmDiff);
-
     if (Group* myGroup = me->GetGroup())
     {
         if (!me->GetSession()->isRobotSession)
@@ -193,6 +181,7 @@ bool RobotStrategy_Group::Update0(uint32 pmDiff)
                 if (leaderWS->isRobotSession)
                 {
                     me->RemoveFromGroup();
+                    me->rai->sb->Reset();
                     return false;
                 }
             }
@@ -235,6 +224,10 @@ bool RobotStrategy_Group::Update0(uint32 pmDiff)
                 }
             }
         }
+        if (moveDelay > 0)
+        {
+            moveDelay -= pmDiff;
+        }
         if (teleportAssembleDelay > 0)
         {
             teleportAssembleDelay -= pmDiff;
@@ -247,21 +240,30 @@ bool RobotStrategy_Group::Update0(uint32 pmDiff)
                         me->ResurrectPlayer(0.2f);
                         me->SpawnCorpseBones();
                     }
+                    me->GetThreatManager().ClearAllThreat();
                     me->ClearInCombat();
+                    me->rai->sb->ClearTarget();
                     me->TeleportTo(leaderPlayer->GetWorldLocation());
-                    sb->WhisperTo("I have come", Language::LANG_UNIVERSAL, leaderPlayer);
+                    me->rai->sb->WhisperTo("I have come", Language::LANG_UNIVERSAL, leaderPlayer);
                     return false;
                 }
             }
         }
-        if (moveDelay > 0)
-        {
-            moveDelay -= pmDiff;
-            return false;
-        }
         if (staying)
         {
             return false;
+        }
+        if (assistDelay > 0)
+        {
+            assistDelay -= pmDiff;
+            if (me->rai->sb->Assist())
+            {
+                return false;
+            }
+            else
+            {
+                assistDelay = 0;
+            }
         }
     }
 
@@ -295,7 +297,7 @@ void RobotStrategy_Group::Update(uint32 pmDiff)
                 {
                 case GroupRole::GroupRole_DPS:
                 {
-                    if (sb->DPS(engageTarget, Chasing(), false, NULL))
+                    if (me->rai->sb->DPS(engageTarget, Chasing(), false, NULL))
                     {
                         return;
                     }
@@ -316,7 +318,7 @@ void RobotStrategy_Group::Update(uint32 pmDiff)
                 }
                 case GroupRole::GroupRole_Tank:
                 {
-                    if (sb->Tank(engageTarget, Chasing()))
+                    if (me->rai->sb->Tank(engageTarget, Chasing()))
                     {
                         return;
                     }
@@ -337,6 +339,10 @@ void RobotStrategy_Group::Update(uint32 pmDiff)
         }
         if (groupInCombat)
         {
+            if (me->rai->sb->Assist())
+            {
+                return;
+            }
             switch (me->groupRole)
             {
             case GroupRole::GroupRole_DPS:
@@ -589,11 +595,11 @@ bool RobotStrategy_Group::Engage(Unit* pmTarget)
     {
     case GroupRole::GroupRole_Tank:
     {
-        return sb->Tank(pmTarget, Chasing());
+        return me->rai->sb->Tank(pmTarget, Chasing());
     }
     case GroupRole::GroupRole_DPS:
     {
-        return sb->DPS(pmTarget, Chasing(), false, NULL);
+        return me->rai->sb->DPS(pmTarget, Chasing(), false, NULL);
     }
     case GroupRole::GroupRole_Healer:
     {
@@ -624,31 +630,33 @@ bool RobotStrategy_Group::DPS()
         Player* mainTank = GetMainTank();
         if (mainTank)
         {
-            if (sb->DPS(mainTank->GetSelectedUnit(), Chasing(), aoe, mainTank))
+            if (me->rai->sb->DPS(mainTank->GetSelectedUnit(), Chasing(), aoe, mainTank))
             {
                 return true;
             }
         }
-        if (sb->DPS(me->GetSelectedUnit(), Chasing(), aoe, mainTank))
+        if (me->rai->sb->DPS(me->GetSelectedUnit(), Chasing(), aoe, mainTank))
         {
             return true;
         }
         Unit* closestVictim = NULL;
         float closestDistance = ATTACK_RANGE_LIMIT;
-        std::unordered_map<ObjectGuid, Unit*> groupAttackerMap = GetAttackerMap();
-        for (std::unordered_map<ObjectGuid, Unit*>::iterator gaIT = groupAttackerMap.begin(); gaIT != groupAttackerMap.end(); gaIT++)
+        if (Group* myGroup = me->GetGroup())
         {
-            if (Unit* eachAttacker = gaIT->second)
+            for (std::unordered_map<ObjectGuid, Unit*>::iterator gaIT =myGroup->groupAttackersMap.begin(); gaIT != myGroup->groupAttackersMap.end(); gaIT++)
             {
-                float eachAttackerDistance = me->GetDistance(eachAttacker);
-                if (eachAttackerDistance < closestDistance)
+                if (Unit* eachAttacker = gaIT->second)
                 {
-                    closestVictim = eachAttacker;
-                    closestDistance = eachAttackerDistance;
+                    float eachAttackerDistance = me->GetDistance(eachAttacker);
+                    if (eachAttackerDistance < closestDistance)
+                    {
+                        closestVictim = eachAttacker;
+                        closestDistance = eachAttackerDistance;
+                    }
                 }
             }
         }
-        if (sb->DPS(closestVictim, Chasing(), aoe, mainTank))
+        if (me->rai->sb->DPS(closestVictim, Chasing(), aoe, mainTank))
         {
             return true;
         }
@@ -722,8 +730,8 @@ bool RobotStrategy_Group::Tank()
             {
                 if (me->GetDistance(myTarget) < RANGED_MAX_DISTANCE)
                 {
-                    sb->Taunt(myTarget);
-                    if (sb->Tank(myTarget, Chasing()))
+                    me->rai->sb->Taunt(myTarget);
+                    if (me->rai->sb->Tank(myTarget, Chasing()))
                     {
                         return true;
                     }
@@ -733,27 +741,29 @@ bool RobotStrategy_Group::Tank()
     }
     Unit* closestVictim = NULL;
     float closestDistance = ATTACK_RANGE_LIMIT;
-    std::unordered_map<ObjectGuid, Unit*> groupAttackerMap = GetAttackerMap();
-    for (std::unordered_map<ObjectGuid, Unit*>::iterator gaIT = groupAttackerMap.begin(); gaIT != groupAttackerMap.end(); gaIT++)
+    if (Group* myGroup = me->GetGroup())
     {
-        if (Unit* eachAttacker = gaIT->second)
+        for (std::unordered_map<ObjectGuid, Unit*>::iterator gaIT = myGroup->groupAttackersMap.begin(); gaIT != myGroup->groupAttackersMap.end(); gaIT++)
         {
-            // tank can only cover 30.0f range
-            if (me->GetDistance(eachAttacker) < RANGED_MAX_DISTANCE)
+            if (Unit* eachAttacker = gaIT->second)
             {
-                if (eachAttacker->GetTarget() != me->GetGUID())
+                // tank can only cover 30.0f range
+                if (me->GetDistance(eachAttacker) < RANGED_MAX_DISTANCE)
                 {
-                    sb->Taunt(eachAttacker);
-                    if (sb->Tank(eachAttacker, Chasing()))
+                    if (eachAttacker->GetTarget() != me->GetGUID())
                     {
-                        return true;
+                        me->rai->sb->Taunt(eachAttacker);
+                        if (me->rai->sb->Tank(eachAttacker, Chasing()))
+                        {
+                            return true;
+                        }
                     }
-                }
-                float eachAttackerDistance = me->GetDistance(eachAttacker);
-                if (eachAttackerDistance < closestDistance)
-                {
-                    closestVictim = eachAttacker;
-                    closestDistance = eachAttackerDistance;
+                    float eachAttackerDistance = me->GetDistance(eachAttacker);
+                    if (eachAttackerDistance < closestDistance)
+                    {
+                        closestVictim = eachAttacker;
+                        closestDistance = eachAttackerDistance;
+                    }
                 }
             }
         }
@@ -762,13 +772,13 @@ bool RobotStrategy_Group::Tank()
     {
         if (me->IsValidAttackTarget(myTarget))
         {
-            if (sb->Tank(myTarget, Chasing()))
+            if (me->rai->sb->Tank(myTarget, Chasing()))
             {
                 return true;
             }
         }
     }
-    if (sb->Tank(closestVictim, Chasing()))
+    if (me->rai->sb->Tank(closestVictim, Chasing()))
     {
         return true;
     }
@@ -786,9 +796,9 @@ bool RobotStrategy_Group::Tank(Unit* pmTarget)
     {
     case GroupRole::GroupRole_Tank:
     {
-        sb->ClearTarget();
-        sb->ChooseTarget(pmTarget);
-        return sb->Tank(pmTarget, Chasing());
+        me->rai->sb->ClearTarget();
+        me->rai->sb->ChooseTarget(pmTarget);
+        return me->rai->sb->Tank(pmTarget, Chasing());
     }
     default:
     {
@@ -823,7 +833,7 @@ bool RobotStrategy_Group::Rest()
     }
     if (canTry)
     {
-        if (sb->Rest())
+        if (me->rai->sb->Rest())
         {
             restDelay = DEFAULT_REST_DELAY;
             return true;
@@ -846,17 +856,21 @@ bool RobotStrategy_Group::Heal()
     if (Group* myGroup = me->GetGroup())
     {
         int lowMemberCount = 0;
+        uint8 mySubGroup = me->GetSubGroup();
         for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
         {
             if (Player* member = groupRef->GetSource())
             {
                 if (member->IsAlive())
                 {
-                    if (member->GetHealthPct() < 60.0f)
+                    if (member->GetSubGroup() == mySubGroup)
                     {
-                        if (me->GetDistance(member) < RANGED_MAX_DISTANCE)
+                        if (member->GetHealthPct() < 60.0f)
                         {
-                            lowMemberCount++;
+                            if (me->GetDistance(member) < RANGED_MAX_DISTANCE)
+                            {
+                                lowMemberCount++;
+                            }
                         }
                     }
                 }
@@ -864,7 +878,7 @@ bool RobotStrategy_Group::Heal()
         }
         if (lowMemberCount > 2)
         {
-            if (sb->GroupHeal())
+            if (me->rai->sb->GroupHeal())
             {
                 return true;
             }
@@ -873,7 +887,7 @@ bool RobotStrategy_Group::Heal()
         {
             if (mainTank->GetHealthPct() < 90.0f)
             {
-                if (sb->Heal(mainTank, cure))
+                if (me->rai->sb->Heal(mainTank, cure))
                 {
                     return true;
                 }
@@ -887,7 +901,7 @@ bool RobotStrategy_Group::Heal()
                 {
                     if (member->GetHealthPct() < 50.0f)
                     {
-                        if (sb->Heal(member, cure))
+                        if (me->rai->sb->Heal(member, cure))
                         {
                             return true;
                         }
@@ -916,7 +930,7 @@ bool RobotStrategy_Group::Buff()
         {
             if (Player* member = groupRef->GetSource())
             {
-                if (sb->Buff(member, cure))
+                if (me->rai->sb->Buff(member, cure))
                 {
                     return true;
                 }
@@ -949,7 +963,7 @@ bool RobotStrategy_Group::Follow()
     {
         if (mainTank->GetGUID() != me->GetGUID())
         {
-            if (sb->Follow(mainTank, followDistance))
+            if (me->rai->sb->Follow(mainTank, followDistance))
             {
                 return true;
             }
@@ -959,7 +973,7 @@ bool RobotStrategy_Group::Follow()
     {
         if (Player* leader = ObjectAccessor::FindConnectedPlayer(myGroup->GetLeaderGUID()))
         {
-            return sb->Follow(leader, followDistance);
+            return me->rai->sb->Follow(leader, followDistance);
         }
     }
     return false;
@@ -1000,7 +1014,7 @@ bool RobotStrategy_Group::Stay(std::string pmTargetGroupRole)
         me->GetMotionMaster()->Clear();
         me->AttackStop();
         me->InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
-        sb->PetStop();
+        me->rai->sb->PetStop();
         staying = true;
         return true;
     }
@@ -1093,240 +1107,6 @@ void RobotStrategy_Group::SetGroupRole(std::string pmRoleName)
     {
         me->groupRole = GroupRole::GroupRole_Healer;
     }
-}
-
-std::unordered_map<ObjectGuid, Unit*> RobotStrategy_Group::GetAttackerMap()
-{
-    std::unordered_map<ObjectGuid, Unit*> attackerMap;
-    attackerMap.clear();
-    if (me)
-    {
-        if (Group* myGroup = me->GetGroup())
-        {
-            for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-            {
-                if (Player* member = groupRef->GetSource())
-                {
-                    if (member->IsAlive())
-                    {
-                        for (Unit::AttackerSet::const_iterator attackerIT = member->getAttackers().begin(); attackerIT != member->getAttackers().end(); ++attackerIT)
-                        {
-                            if (Unit* eachAttacker = *attackerIT)
-                            {
-                                if (eachAttacker->IsAlive())
-                                {
-                                    if (attackerMap.find(eachAttacker->GetGUID()) == attackerMap.end())
-                                    {
-                                        attackerMap[eachAttacker->GetGUID()] = eachAttacker;
-                                    }
-                                }
-                            }
-                        }
-                        if (Pet* memberPet = member->GetPet())
-                        {
-                            if (memberPet->IsAlive())
-                            {
-                                for (Unit::AttackerSet::const_iterator attackerIT = memberPet->getAttackers().begin(); attackerIT != memberPet->getAttackers().end(); ++attackerIT)
-                                {
-                                    if (Unit* eachAttacker = *attackerIT)
-                                    {
-                                        if (eachAttacker->IsAlive())
-                                        {
-                                            if (attackerMap.find(eachAttacker->GetGUID()) == attackerMap.end())
-                                            {
-                                                attackerMap[eachAttacker->GetGUID()] = eachAttacker;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    return attackerMap;
-}
-
-std::unordered_map<ObjectGuid, Unit*> RobotStrategy_Group::GetAddsMap(uint32 pmBossEntry)
-{
-    std::unordered_map<ObjectGuid, Unit*> attackerMap;
-    attackerMap.clear();
-    if (me)
-    {
-        if (Group* myGroup = me->GetGroup())
-        {
-            for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-            {
-                if (Player* member = groupRef->GetSource())
-                {
-                    if (member->IsAlive())
-                    {
-                        for (Unit::AttackerSet::const_iterator attackerIT = member->getAttackers().begin(); attackerIT != member->getAttackers().end(); ++attackerIT)
-                        {
-                            if (Unit* eachAttacker = *attackerIT)
-                            {
-                                if (eachAttacker->IsAlive())
-                                {
-                                    if (eachAttacker->GetEntry() == pmBossEntry)
-                                    {
-                                        continue;
-                                    }
-                                    if (attackerMap.find(eachAttacker->GetGUID()) == attackerMap.end())
-                                    {
-                                        attackerMap[eachAttacker->GetGUID()] = eachAttacker;
-                                    }
-                                }
-                            }
-                        }
-                        if (Pet* memberPet = member->GetPet())
-                        {
-                            if (memberPet->IsAlive())
-                            {
-                                for (Unit::AttackerSet::const_iterator attackerIT = memberPet->getAttackers().begin(); attackerIT != memberPet->getAttackers().end(); ++attackerIT)
-                                {
-                                    if (Unit* eachAttacker = *attackerIT)
-                                    {
-                                        if (eachAttacker->IsAlive())
-                                        {
-                                            if (eachAttacker->GetEntry() == pmBossEntry)
-                                            {
-                                                continue;
-                                            }
-                                            if (attackerMap.find(eachAttacker->GetGUID()) == attackerMap.end())
-                                            {
-                                                attackerMap[eachAttacker->GetGUID()] = eachAttacker;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    return attackerMap;
-}
-
-std::unordered_map<ObjectGuid, Unit*> RobotStrategy_Group::GetAttackerMap(uint32 pmAttackerEntry)
-{
-    std::unordered_map<ObjectGuid, Unit*> attackerMap;
-    attackerMap.clear();
-    if (me)
-    {
-        if (Group* myGroup = me->GetGroup())
-        {
-            for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-            {
-                if (Player* member = groupRef->GetSource())
-                {
-                    if (member->IsAlive())
-                    {
-                        for (Unit::AttackerSet::const_iterator attackerIT = member->getAttackers().begin(); attackerIT != member->getAttackers().end(); ++attackerIT)
-                        {
-                            if (Unit* eachAttacker = *attackerIT)
-                            {
-                                if (eachAttacker->IsAlive())
-                                {
-                                    if (eachAttacker->GetEntry() != pmAttackerEntry)
-                                    {
-                                        continue;
-                                    }
-                                    if (attackerMap.find(eachAttacker->GetGUID()) == attackerMap.end())
-                                    {
-                                        attackerMap[eachAttacker->GetGUID()] = eachAttacker;
-                                    }
-                                }
-                            }
-                        }
-                        if (Pet* memberPet = member->GetPet())
-                        {
-                            if (memberPet->IsAlive())
-                            {
-                                for (Unit::AttackerSet::const_iterator attackerIT = memberPet->getAttackers().begin(); attackerIT != memberPet->getAttackers().end(); ++attackerIT)
-                                {
-                                    if (Unit* eachAttacker = *attackerIT)
-                                    {
-                                        if (eachAttacker->IsAlive())
-                                        {
-                                            if (eachAttacker->GetEntry() != pmAttackerEntry)
-                                            {
-                                                continue;
-                                            }
-                                            if (attackerMap.find(eachAttacker->GetGUID()) == attackerMap.end())
-                                            {
-                                                attackerMap[eachAttacker->GetGUID()] = eachAttacker;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    return attackerMap;
-}
-
-Unit* RobotStrategy_Group::GetAttacker(uint32 pmAttackerEntry)
-{
-    if (me)
-    {
-        if (Group* myGroup = me->GetGroup())
-        {
-            for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-            {
-                if (Player* member = groupRef->GetSource())
-                {
-                    if (member->IsAlive())
-                    {
-                        for (Unit::AttackerSet::const_iterator attackerIT = member->getAttackers().begin(); attackerIT != member->getAttackers().end(); ++attackerIT)
-                        {
-                            if (Unit* eachAttacker = *attackerIT)
-                            {
-                                if (eachAttacker->IsAlive())
-                                {
-                                    if (eachAttacker->GetEntry() == pmAttackerEntry)
-                                    {
-                                        return eachAttacker;
-                                    }
-                                }
-                            }
-                        }
-                        if (Pet* memberPet = member->GetPet())
-                        {
-                            if (memberPet->IsAlive())
-                            {
-                                for (Unit::AttackerSet::const_iterator attackerIT = memberPet->getAttackers().begin(); attackerIT != memberPet->getAttackers().end(); ++attackerIT)
-                                {
-                                    if (Unit* eachAttacker = *attackerIT)
-                                    {
-                                        if (eachAttacker->IsAlive())
-                                        {
-                                            if (eachAttacker->GetEntry() == pmAttackerEntry)
-                                            {
-                                                return eachAttacker;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    return NULL;
 }
 
 bool RobotStrategy_Group::AngleInRange(float pmSourceAngle, float pmTargetAngle, float pmRange)

@@ -13,20 +13,20 @@
 
 class Script_Warrior :public Script_Base
 {
-public:    
+public:
     Script_Warrior(Player* pmMe);
-    bool DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, bool pmInterruptCasting = true);
+    bool DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, bool pmInterruptTargetCasting = true);
     bool Tank(Unit* pmTarget, bool pmChase, bool pmSingle = false);
-    bool Heal(Unit* pmTarget, bool pmCure);
+    bool Heal(Unit* pmTarget, bool pmCure = true);
     bool Attack(Unit* pmTarget);
-    bool Buff(Unit* pmTarget, bool pmCure);
+    bool Buff(Unit* pmTarget, bool pmCure = true);
 
-	bool DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank);
+    bool DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank);
     bool DPS_Arms(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank);
     bool DPS_Fury(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank);
 
-	bool Attack_Common(Unit* pmTarget);    
-    bool Attack_Arms(Unit* pmTarget);    
+    bool Attack_Common(Unit* pmTarget);
+    bool Attack_Arms(Unit* pmTarget);
     bool Attack_Fury(Unit* pmTarget);
     bool Attack_Protection(Unit* pmTarget);
 };

@@ -126,12 +126,13 @@ void Script_Druid::Update(uint32 pmDiff)
     Script_Base::Update(pmDiff);
 }
 
-bool Script_Druid::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, bool pmInterruptCasting)
+bool Script_Druid::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, bool pmInterruptTargetCasting)
 {
     if (!me)
     {
         return false;
     }
+    uint32 characterTalentTab = me->GetMaxTalentCountTab();
     switch (characterTalentTab)
     {
     case 0:
@@ -483,6 +484,7 @@ bool Script_Druid::Tank(Unit* pmTarget, bool pmChase, bool pmSingle)
             me->Yell("Survival Instincts!", Language::LANG_UNIVERSAL);
         }
     }
+    uint32 characterTalentTab = me->GetMaxTalentCountTab();
     switch (characterTalentTab)
     {
     case 0:
@@ -745,6 +747,7 @@ bool Script_Druid::Attack(Unit* pmTarget)
     {
         return false;
     }
+    uint32 characterTalentTab = me->GetMaxTalentCountTab();
     switch (characterTalentTab)
     {
     case 0:
@@ -1134,6 +1137,7 @@ bool Script_Druid::Heal(Unit* pmTarget, bool pmCure)
     {
         UseManaPotion();
     }
+    uint32 characterTalentTab = me->GetMaxTalentCountTab();
     switch (characterTalentTab)
     {
     case 0:
@@ -1281,7 +1285,7 @@ bool Script_Druid::Buff(Unit* pmTarget, bool pmCure)
         {
         case Classes::CLASS_WARRIOR:
         {
-            doThorn = true;
+            //doThorn = true;
             break;
         }
         case Classes::CLASS_HUNTER:
@@ -1294,7 +1298,7 @@ bool Script_Druid::Buff(Unit* pmTarget, bool pmCure)
         }
         case Classes::CLASS_PALADIN:
         {
-            doThorn = true;
+            //doThorn = true;
             break;
         }
         case Classes::CLASS_WARLOCK:
@@ -1307,7 +1311,7 @@ bool Script_Druid::Buff(Unit* pmTarget, bool pmCure)
         }
         case Classes::CLASS_ROGUE:
         {
-            doThorn = true;
+            //doThorn = true;
             break;
         }
         case Classes::CLASS_MAGE:

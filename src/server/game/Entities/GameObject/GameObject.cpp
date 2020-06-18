@@ -1492,6 +1492,13 @@ void GameObject::Use(Unit* user)
             playerUser->RemoveAurasByType(SPELL_AURA_MOUNTED);
 
         playerUser->PlayerTalkClass->ClearMenus();
+
+        // EJ zone script will answer go use
+        if (m_zoneScript)
+        {
+            m_zoneScript->OnGameObjectUse(this, playerUser);
+        }
+
         if (AI()->GossipHello(playerUser))
             return;
     }

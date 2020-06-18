@@ -19,7 +19,7 @@ bool Script_Warlock::Tank(Unit* pmTarget, bool pmChase, bool pmSingle)
     return false;
 }
 
-bool Script_Warlock::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, bool pmInterruptCasting)
+bool Script_Warlock::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, bool pmInterruptTargetCasting)
 {
     bool meResult = false;
     if (!me)
@@ -40,6 +40,7 @@ bool Script_Warlock::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTan
             }
         }
     }
+    uint32 characterTalentTab = me->GetMaxTalentCountTab();
     switch (characterTalentTab)
     {
     case 0:
@@ -391,6 +392,7 @@ bool Script_Warlock::Attack(Unit* pmTarget)
             }
         }
     }
+    uint32 characterTalentTab = me->GetMaxTalentCountTab();
     switch (characterTalentTab)
     {
     case 0:

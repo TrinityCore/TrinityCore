@@ -208,7 +208,7 @@ bool RobotStrategy_Group_Taerar::Stay(std::string pmTargetGroupRole)
         me->GetMotionMaster()->Clear();
         me->AttackStop();
         me->InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
-        sb->PetStop();
+        me->rai->sb->PetStop();
         staying = true;
         return true;
     }
@@ -266,7 +266,7 @@ bool RobotStrategy_Group_Taerar::Engage(Unit* pmTarget)
     {
     case GroupRole_Taerar::GroupRole_Taerar_Tank1:
     {
-        return sb->Tank(pmTarget, Chasing());
+        return me->rai->sb->Tank(pmTarget, Chasing());
     }
     case GroupRole_Taerar::GroupRole_Taerar_Tank2:
     {
@@ -347,7 +347,7 @@ bool RobotStrategy_Group_Taerar::Follow()
     {
         if (Player* leader = ObjectAccessor::FindConnectedPlayer(myGroup->GetLeaderGUID()))
         {
-            return sb->Follow(leader, followDistance);
+            return me->rai->sb->Follow(leader, followDistance);
         }
     }
     return false;
@@ -386,7 +386,7 @@ void RobotStrategy_Group_Taerar::Update(uint32 pmDiff)
         {
             restDelay = 0;
             combatTime += pmDiff;
-            if (GetAttackerMap(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Shade_of_Taerar).size() > 0)
+            if (myGroup->GetGroupAttackers(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Shade_of_Taerar).size() > 0)
             {
                 shadeCombatTime += pmDiff;
             }
@@ -406,7 +406,7 @@ void RobotStrategy_Group_Taerar::Update(uint32 pmDiff)
             {
             case GroupRole_Taerar::GroupRole_Taerar_Tank1:
             {
-                if (sb->Tank(engageTarget, Chasing()))
+                if (me->rai->sb->Tank(engageTarget, Chasing()))
                 {
                     return;
                 }
@@ -419,7 +419,7 @@ void RobotStrategy_Group_Taerar::Update(uint32 pmDiff)
             }
             case GroupRole_Taerar::GroupRole_Taerar_Tank2:
             {
-                if (sb->Tank(engageTarget, Chasing()))
+                if (me->rai->sb->Tank(engageTarget, Chasing()))
                 {
                     return;
                 }
@@ -432,7 +432,7 @@ void RobotStrategy_Group_Taerar::Update(uint32 pmDiff)
             }
             case GroupRole_Taerar::GroupRole_Taerar_Tank3:
             {
-                if (sb->Tank(engageTarget, Chasing()))
+                if (me->rai->sb->Tank(engageTarget, Chasing()))
                 {
                     return;
                 }
@@ -445,7 +445,7 @@ void RobotStrategy_Group_Taerar::Update(uint32 pmDiff)
             }
             case GroupRole_Taerar::GroupRole_Taerar_Tank4:
             {
-                if (sb->Tank(engageTarget, Chasing()))
+                if (me->rai->sb->Tank(engageTarget, Chasing()))
                 {
                     return;
                 }
@@ -458,7 +458,7 @@ void RobotStrategy_Group_Taerar::Update(uint32 pmDiff)
             }
             case GroupRole_Taerar::GroupRole_Taerar_Tank5:
             {
-                if (sb->Tank(engageTarget, Chasing()))
+                if (me->rai->sb->Tank(engageTarget, Chasing()))
                 {
                     return;
                 }
@@ -535,7 +535,7 @@ void RobotStrategy_Group_Taerar::Update(uint32 pmDiff)
             }
             case GroupRole_Taerar::GroupRole_Taerar_DPS_Range:
             {
-                if (sb->DPS(engageTarget, Chasing(), false, NULL))
+                if (me->rai->sb->DPS(engageTarget, Chasing(), false, NULL))
                 {
                     return;
                 }
@@ -548,7 +548,7 @@ void RobotStrategy_Group_Taerar::Update(uint32 pmDiff)
             }
             case GroupRole_Taerar::GroupRole_Taerar_DPS_Melee:
             {
-                if (sb->DPS(engageTarget, Chasing(), false, NULL))
+                if (me->rai->sb->DPS(engageTarget, Chasing(), false, NULL))
                 {
                     return;
                 }
@@ -568,6 +568,10 @@ void RobotStrategy_Group_Taerar::Update(uint32 pmDiff)
         }
         if (groupInCombat)
         {
+            if (me->rai->sb->Assist())
+            {
+                return;
+            }
             switch (me->groupRole)
             {
             case GroupRole_Taerar::GroupRole_Taerar_Tank1:
@@ -929,12 +933,12 @@ void RobotStrategy_Group_Taerar::Update(uint32 pmDiff)
 
 bool RobotStrategy_Group_Taerar::DPS()
 {
-    std::unordered_map<ObjectGuid, Unit*> shadeOfTaerarMap = GetAttackerMap(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Shade_of_Taerar);
-    if (shadeOfTaerarMap.size() > 0)
+    if (Group* myGroup = me->GetGroup())
     {
-        if (me->IsAlive())
+        std::unordered_map<ObjectGuid, Unit*> shadeOfTaerarMap = myGroup->GetGroupAttackers(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Shade_of_Taerar);
+        if (shadeOfTaerarMap.size() > 0)
         {
-            if (Group* myGroup = me->GetGroup())
+            if (me->IsAlive())
             {
                 if (Creature* boss = me->GetNearbyCreatureWithEntry(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Group_Taerar))
                 {
@@ -975,7 +979,7 @@ bool RobotStrategy_Group_Taerar::DPS()
                                             {
                                                 if (shade5->GetTarget() == tank3->GetGUID())
                                                 {
-                                                    if (sb->DPS(shade5, chaseDPS, false, NULL))
+                                                    if (me->rai->sb->DPS(shade5, chaseDPS, false, NULL))
                                                     {
                                                         return true;
                                                     }
@@ -1000,7 +1004,7 @@ bool RobotStrategy_Group_Taerar::DPS()
                                             {
                                                 if (shade6->GetTarget() == tank4->GetGUID())
                                                 {
-                                                    if (sb->DPS(shade6, chaseDPS, false, NULL))
+                                                    if (me->rai->sb->DPS(shade6, chaseDPS, false, NULL))
                                                     {
                                                         return true;
                                                     }
@@ -1025,7 +1029,7 @@ bool RobotStrategy_Group_Taerar::DPS()
                                             {
                                                 if (shade7->GetTarget() == tank5->GetGUID())
                                                 {
-                                                    if (sb->DPS(shade7, chaseDPS, false, NULL))
+                                                    if (me->rai->sb->DPS(shade7, chaseDPS, false, NULL))
                                                     {
                                                         return true;
                                                     }
@@ -1042,7 +1046,7 @@ bool RobotStrategy_Group_Taerar::DPS()
                             {
                                 if (me->GetDistance(shade5) < RANGED_MAX_DISTANCE)
                                 {
-                                    if (sb->DPS(shade5, chaseDPS, false, NULL))
+                                    if (me->rai->sb->DPS(shade5, chaseDPS, false, NULL))
                                     {
                                         return true;
                                     }
@@ -1055,7 +1059,7 @@ bool RobotStrategy_Group_Taerar::DPS()
                             {
                                 if (me->GetDistance(shade6) < RANGED_MAX_DISTANCE)
                                 {
-                                    if (sb->DPS(shade6, chaseDPS, false, NULL))
+                                    if (me->rai->sb->DPS(shade6, chaseDPS, false, NULL))
                                     {
                                         return true;
                                     }
@@ -1068,7 +1072,7 @@ bool RobotStrategy_Group_Taerar::DPS()
                             {
                                 if (me->GetDistance(shade7) < RANGED_MAX_DISTANCE)
                                 {
-                                    if (sb->DPS(shade7, chaseDPS, false, NULL))
+                                    if (me->rai->sb->DPS(shade7, chaseDPS, false, NULL))
                                     {
                                         return true;
                                     }
@@ -1080,12 +1084,9 @@ bool RobotStrategy_Group_Taerar::DPS()
                 }
             }
         }
-    }
-    if (Unit* boss = GetAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Group_Taerar))
-    {
-        if (me->IsAlive())
+        if (Unit* boss = myGroup->GetGroupAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Group_Taerar))
         {
-            if (Group* myGroup = me->GetGroup())
+            if (me->IsAlive())
             {
                 bool moving = false;
                 bool attacking = false;
@@ -1131,7 +1132,7 @@ bool RobotStrategy_Group_Taerar::DPS()
                 {
                     if (combatTime > dpsDelay)
                     {
-                        sb->DPS(boss, false, false, NULL);
+                        me->rai->sb->DPS(boss, false, false, NULL);
                     }
                 }
                 return true;
@@ -1143,10 +1144,10 @@ bool RobotStrategy_Group_Taerar::DPS()
 
 bool RobotStrategy_Group_Taerar::Tank()
 {
-    std::unordered_map<ObjectGuid, Unit*> shadeOfTaerarMap = GetAttackerMap(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Shade_of_Taerar);
-    if (shadeOfTaerarMap.size() > 0)
+    if (Group* myGroup = me->GetGroup())
     {
-        if (Group* myGroup = me->GetGroup())
+        std::unordered_map<ObjectGuid, Unit*> shadeOfTaerarMap = myGroup->GetGroupAttackers(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Shade_of_Taerar);
+        if (shadeOfTaerarMap.size() > 0)
         {
             if (Creature* boss = me->GetNearbyCreatureWithEntry(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Group_Taerar))
             {
@@ -1238,8 +1239,8 @@ bool RobotStrategy_Group_Taerar::Tank()
                                             }
                                         }
                                     }
-                                    sb->Taunt(myShade);
-                                    sb->Tank(myShade, true);
+                                    me->rai->sb->Taunt(myShade);
+                                    me->rai->sb->Tank(myShade, true);
                                 }
                             }
                             else
@@ -1293,8 +1294,8 @@ bool RobotStrategy_Group_Taerar::Tank()
                                             }
                                         }
                                     }
-                                    sb->Taunt(myShade);
-                                    sb->Tank(myShade, true);
+                                    me->rai->sb->Taunt(myShade);
+                                    me->rai->sb->Tank(myShade, true);
                                 }
                             }
                             else
@@ -1348,8 +1349,8 @@ bool RobotStrategy_Group_Taerar::Tank()
                                             }
                                         }
                                     }
-                                    sb->Taunt(myShade);
-                                    sb->Tank(myShade, true);
+                                    me->rai->sb->Taunt(myShade);
+                                    me->rai->sb->Tank(myShade, true);
                                 }
                             }
                             else
@@ -1381,10 +1382,7 @@ bool RobotStrategy_Group_Taerar::Tank()
                 return true;
             }
         }
-    }
-    if (Unit* boss = GetAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Group_Taerar))
-    {
-        if (Group* myGroup = me->GetGroup())
+        if (Unit* boss = myGroup->GetGroupAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Group_Taerar))
         {
             ObjectGuid activeOG = myGroup->GetOGByTargetIcon(0);
             if (!activeOG.IsEmpty())
@@ -1470,12 +1468,12 @@ bool RobotStrategy_Group_Taerar::Tank()
                 }
                 else if (tanking)
                 {
-                    sb->Taunt(boss);
-                    sb->Tank(boss, false);
+                    me->rai->sb->Taunt(boss);
+                    me->rai->sb->Tank(boss, false);
                 }
                 else if (assisting)
                 {
-                    sb->SubTank(boss, false);
+                    me->rai->sb->SubTank(boss, false);
                 }
                 else if (changing)
                 {
@@ -1512,8 +1510,8 @@ bool RobotStrategy_Group_Taerar::Tank()
                     }
                 }
             }
+            return true;
         }
-        return true;
     }
     return RobotStrategy_Group::Tank();
 }
@@ -1532,9 +1530,9 @@ bool RobotStrategy_Group_Taerar::Tank(Unit* pmTarget)
     {
     case GroupRole_Taerar::GroupRole_Taerar_Tank1:
     {
-        sb->ClearTarget();
-        sb->ChooseTarget(pmTarget);
-        return sb->Tank(pmTarget, Chasing());
+        me->rai->sb->ClearTarget();
+        me->rai->sb->ChooseTarget(pmTarget);
+        return me->rai->sb->Tank(pmTarget, Chasing());
     }
     default:
     {
@@ -1547,10 +1545,10 @@ bool RobotStrategy_Group_Taerar::Tank(Unit* pmTarget)
 
 bool RobotStrategy_Group_Taerar::Heal()
 {
-    std::unordered_map<ObjectGuid, Unit*> shadeOfTaerarMap = GetAttackerMap(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Shade_of_Taerar);
-    if (shadeOfTaerarMap.size() > 0)
+    if (Group* myGroup = me->GetGroup())
     {
-        if (Group* myGroup = me->GetGroup())
+        std::unordered_map<ObjectGuid, Unit*> shadeOfTaerarMap = myGroup->GetGroupAttackers(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Shade_of_Taerar);
+        if (shadeOfTaerarMap.size() > 0)
         {
             int myTargetIcon = -1;
             if (me->groupRole == GroupRole_Taerar::GroupRole_Taerar_Healer1 || me->groupRole == GroupRole_Taerar::GroupRole_Taerar_Healer2 || me->groupRole == GroupRole_Taerar::GroupRole_Taerar_Healer3)
@@ -1619,7 +1617,7 @@ bool RobotStrategy_Group_Taerar::Heal()
                     {
                         if (myTank->GetHealthPct() < 90.0f)
                         {
-                            if (sb->Heal(myTank, true))
+                            if (me->rai->sb->Heal(myTank, true))
                             {
                                 return true;
                             }
@@ -1631,7 +1629,7 @@ bool RobotStrategy_Group_Taerar::Heal()
                         {
                             if (tank3->GetHealthPct() < 90.0f)
                             {
-                                if (sb->Heal(tank3, true))
+                                if (me->rai->sb->Heal(tank3, true))
                                 {
                                     return true;
                                 }
@@ -1644,7 +1642,7 @@ bool RobotStrategy_Group_Taerar::Heal()
                         {
                             if (tank4->GetHealthPct() < 90.0f)
                             {
-                                if (sb->Heal(tank4, true))
+                                if (me->rai->sb->Heal(tank4, true))
                                 {
                                     return true;
                                 }
@@ -1657,7 +1655,7 @@ bool RobotStrategy_Group_Taerar::Heal()
                         {
                             if (tank5->GetHealthPct() < 90.0f)
                             {
-                                if (sb->Heal(tank5, true))
+                                if (me->rai->sb->Heal(tank5, true))
                                 {
                                     return true;
                                 }
@@ -1666,7 +1664,7 @@ bool RobotStrategy_Group_Taerar::Heal()
                     }
                     if (me->GetHealthPct() < 50.0f)
                     {
-                        if (sb->Heal(me, true))
+                        if (me->rai->sb->Heal(me, true))
                         {
                             return true;
                         }
@@ -1688,7 +1686,7 @@ bool RobotStrategy_Group_Taerar::Heal()
                                 {
                                     if (member->GetHealthPct() < 50.0f)
                                     {
-                                        if (sb->Heal(member, true))
+                                        if (me->rai->sb->Heal(member, true))
                                         {
                                             return true;
                                         }
@@ -1716,7 +1714,7 @@ bool RobotStrategy_Group_Taerar::Heal()
                     {
                         if (myTank->GetHealthPct() < 90.0f)
                         {
-                            if (sb->SubHeal(myTank))
+                            if (me->rai->sb->SubHeal(myTank))
                             {
                                 return true;
                             }
@@ -1725,7 +1723,7 @@ bool RobotStrategy_Group_Taerar::Heal()
                 }
                 if (me->GetHealthPct() < 50.0f)
                 {
-                    if (sb->Heal(me, true))
+                    if (me->rai->sb->Heal(me, true))
                     {
                         return true;
                     }
@@ -1812,10 +1810,7 @@ bool RobotStrategy_Group_Taerar::Heal()
                 }
             }
         }
-    }
-    if (Unit* boss = GetAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Group_Taerar))
-    {
-        if (Group* myGroup = me->GetGroup())
+        if (Unit* boss = myGroup->GetGroupAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Group_Taerar))
         {
             int myTargetIcon = -1;
             if (me->groupRole == GroupRole_Taerar::GroupRole_Taerar_Healer1 || me->groupRole == GroupRole_Taerar::GroupRole_Taerar_Healer2 || me->groupRole == GroupRole_Taerar::GroupRole_Taerar_Healer3)
@@ -1924,23 +1919,29 @@ bool RobotStrategy_Group_Taerar::Heal()
                 {
                     if (myTank->IsAlive())
                     {
-                        if (!myTank->HasAura(6346))
+                        if (me->GetClass() == Classes::CLASS_PRIEST)
                         {
-                            if (sb->SpellValid(6346))
+                            if (!myTank->HasAura(6346))
                             {
-                                me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
-                                me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
-                                me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
-                                me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
-                                if (sb->CastSpell(myTank, "Fear Ward", 35.0f))
+                                if (me->rai->sb->SpellValid(6346))
                                 {
-                                    return true;
+                                    if (me->GetExactDist(myTank) < RANGED_MAX_DISTANCE)
+                                    {
+                                        me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                                        me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                                        me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                                        me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                                        if (me->rai->sb->CastSpell(myTank, "Fear Ward", 35.0f))
+                                        {
+                                            return true;
+                                        }
+                                    }
                                 }
                             }
                         }
                         if (myTank->GetHealthPct() < 90.0f)
                         {
-                            if (sb->Heal(myTank, true))
+                            if (me->rai->sb->Heal(myTank, true))
                             {
                                 return true;
                             }
@@ -1948,7 +1949,7 @@ bool RobotStrategy_Group_Taerar::Heal()
                     }
                     if (me->GetHealthPct() < 50.0f)
                     {
-                        if (sb->Heal(me, true))
+                        if (me->rai->sb->Heal(me, true))
                         {
                             return true;
                         }
@@ -1970,7 +1971,7 @@ bool RobotStrategy_Group_Taerar::Heal()
                                 {
                                     if (member->GetHealthPct() < 50.0f)
                                     {
-                                        if (sb->Heal(member, true))
+                                        if (me->rai->sb->Heal(member, true))
                                         {
                                             return true;
                                         }
@@ -1998,7 +1999,7 @@ bool RobotStrategy_Group_Taerar::Heal()
                     {
                         if (myTank->GetHealthPct() < 90.0f)
                         {
-                            if (sb->SubHeal(myTank))
+                            if (me->rai->sb->SubHeal(myTank))
                             {
                                 return true;
                             }
@@ -2007,7 +2008,7 @@ bool RobotStrategy_Group_Taerar::Heal()
                 }
                 if (me->GetHealthPct() < 50.0f)
                 {
-                    if (sb->Heal(me, true))
+                    if (me->rai->sb->Heal(me, true))
                     {
                         return true;
                     }

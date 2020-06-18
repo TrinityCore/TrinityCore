@@ -1,4 +1,4 @@
-#include "RobotStrategy_Group_Test.h"
+#include "RobotStrategy_Group_MoltenCore.h"
 #include "Script_Warrior.h"
 #include "Script_Hunter.h"
 #include "Script_Shaman.h"
@@ -18,7 +18,7 @@
 #include "Map.h"
 #include "Pet.h"
 
-void RobotStrategy_Group_Test::InitialStrategy()
+void RobotStrategy_Group_MoltenCore::InitialStrategy()
 {
     engageAngle = 0.0f;
     engageDistance = 0.0f;
@@ -26,7 +26,7 @@ void RobotStrategy_Group_Test::InitialStrategy()
     RobotStrategy_Group::InitialStrategy();
 }
 
-std::string RobotStrategy_Group_Test::GetGroupRoleName()
+std::string RobotStrategy_Group_MoltenCore::GetGroupRoleName()
 {
     if (!me)
     {
@@ -34,23 +34,23 @@ std::string RobotStrategy_Group_Test::GetGroupRoleName()
     }
     switch (me->groupRole)
     {
-    case GroupRole_Test::GroupRole_Test_Tank1:
+    case GroupRole_MoltenCore::GroupRole_MoltenCore_Tank1:
     {
         return "tank1";
     }
-    case GroupRole_Test::GroupRole_Test_Tank2:
+    case GroupRole_MoltenCore::GroupRole_MoltenCore_Tank2:
     {
         return "tank2";
     }
-    case GroupRole_Test::GroupRole_Test_Healer:
+    case GroupRole_MoltenCore::GroupRole_MoltenCore_Healer:
     {
         return "healer";
     }
-    case GroupRole_Test::GroupRole_Test_DPS_Range:
+    case GroupRole_MoltenCore::GroupRole_MoltenCore_DPS_Range:
     {
         return "dpsr";
     }
-    case GroupRole_Test::GroupRole_Test_DPS_Melee:
+    case GroupRole_MoltenCore::GroupRole_MoltenCore_DPS_Melee:
     {
         return "dpsm";
     }
@@ -62,7 +62,7 @@ std::string RobotStrategy_Group_Test::GetGroupRoleName()
     return "dps";
 }
 
-void RobotStrategy_Group_Test::SetGroupRole(std::string pmRoleName)
+void RobotStrategy_Group_MoltenCore::SetGroupRole(std::string pmRoleName)
 {
     if (!me)
     {
@@ -70,31 +70,31 @@ void RobotStrategy_Group_Test::SetGroupRole(std::string pmRoleName)
     }
     else if (pmRoleName == "tank1")
     {
-        me->groupRole = GroupRole_Test::GroupRole_Test_Tank1;
+        me->groupRole = GroupRole_MoltenCore::GroupRole_MoltenCore_Tank1;
     }
     else if (pmRoleName == "tank2")
     {
-        me->groupRole = GroupRole_Test::GroupRole_Test_Tank2;
+        me->groupRole = GroupRole_MoltenCore::GroupRole_MoltenCore_Tank2;
     }
     else if (pmRoleName == "healer")
     {
-        me->groupRole = GroupRole_Test::GroupRole_Test_Healer;
+        me->groupRole = GroupRole_MoltenCore::GroupRole_MoltenCore_Healer;
     }
     else if (pmRoleName == "dpsm")
     {
-        me->groupRole = GroupRole_Test::GroupRole_Test_DPS_Melee;
+        me->groupRole = GroupRole_MoltenCore::GroupRole_MoltenCore_DPS_Melee;
     }
     else if (pmRoleName == "dpsr")
     {
-        me->groupRole = GroupRole_Test::GroupRole_Test_DPS_Range;
+        me->groupRole = GroupRole_MoltenCore::GroupRole_MoltenCore_DPS_Range;
     }
     else
     {
-        me->groupRole = GroupRole_Test::GroupRole_Test_DPS_Range;
+        me->groupRole = GroupRole_MoltenCore::GroupRole_MoltenCore_DPS_Range;
     }
 }
 
-bool RobotStrategy_Group_Test::Stay(std::string pmTargetGroupRole)
+bool RobotStrategy_Group_MoltenCore::Stay(std::string pmTargetGroupRole)
 {
     if (!me)
     {
@@ -103,21 +103,21 @@ bool RobotStrategy_Group_Test::Stay(std::string pmTargetGroupRole)
     bool todo = true;
     if (pmTargetGroupRole == "dps")
     {
-        if (me->groupRole != GroupRole_Test::GroupRole_Test_DPS_Melee && me->groupRole != GroupRole_Test::GroupRole_Test_DPS_Range)
+        if (me->groupRole != GroupRole_MoltenCore::GroupRole_MoltenCore_DPS_Melee && me->groupRole != GroupRole_MoltenCore::GroupRole_MoltenCore_DPS_Range)
         {
             todo = false;
         }
     }
     else if (pmTargetGroupRole == "healer")
     {
-        if (me->groupRole != GroupRole_Test::GroupRole_Test_Healer)
+        if (me->groupRole != GroupRole_MoltenCore::GroupRole_MoltenCore_Healer)
         {
             todo = false;
         }
     }
     else if (pmTargetGroupRole == "tank")
     {
-        if (me->groupRole != GroupRole_Test::GroupRole_Test_Tank1 && me->groupRole != GroupRole_Test::GroupRole_Test_Tank2)
+        if (me->groupRole != GroupRole_MoltenCore::GroupRole_MoltenCore_Tank1 && me->groupRole != GroupRole_MoltenCore::GroupRole_MoltenCore_Tank2)
         {
             todo = false;
         }
@@ -135,7 +135,7 @@ bool RobotStrategy_Group_Test::Stay(std::string pmTargetGroupRole)
     return false;
 }
 
-bool RobotStrategy_Group_Test::Hold(std::string pmTargetGroupRole)
+bool RobotStrategy_Group_MoltenCore::Hold(std::string pmTargetGroupRole)
 {
     if (!me)
     {
@@ -144,21 +144,21 @@ bool RobotStrategy_Group_Test::Hold(std::string pmTargetGroupRole)
     bool todo = true;
     if (pmTargetGroupRole == "dps")
     {
-        if (me->groupRole != GroupRole_Test::GroupRole_Test_DPS_Melee && me->groupRole != GroupRole_Test::GroupRole_Test_DPS_Range)
+        if (me->groupRole != GroupRole_MoltenCore::GroupRole_MoltenCore_DPS_Melee && me->groupRole != GroupRole_MoltenCore::GroupRole_MoltenCore_DPS_Range)
         {
             todo = false;
         }
     }
     else if (pmTargetGroupRole == "healer")
     {
-        if (me->groupRole != GroupRole_Test::GroupRole_Test_Healer)
+        if (me->groupRole != GroupRole_MoltenCore::GroupRole_MoltenCore_Healer)
         {
             todo = false;
         }
     }
     else if (pmTargetGroupRole == "tank")
     {
-        if (me->groupRole != GroupRole_Test::GroupRole_Test_Tank1 && me->groupRole != GroupRole_Test::GroupRole_Test_Tank2)
+        if (me->groupRole != GroupRole_MoltenCore::GroupRole_MoltenCore_Tank1 && me->groupRole != GroupRole_MoltenCore::GroupRole_MoltenCore_Tank2)
         {
             todo = false;
         }
@@ -172,7 +172,7 @@ bool RobotStrategy_Group_Test::Hold(std::string pmTargetGroupRole)
     return false;
 }
 
-bool RobotStrategy_Group_Test::Engage(Unit* pmTarget)
+bool RobotStrategy_Group_MoltenCore::Engage(Unit* pmTarget)
 {
     if (!me)
     {
@@ -184,15 +184,15 @@ bool RobotStrategy_Group_Test::Engage(Unit* pmTarget)
     }
     switch (me->groupRole)
     {
-    case GroupRole_Test::GroupRole_Test_Tank1:
+    case GroupRole_MoltenCore::GroupRole_MoltenCore_Tank1:
     {
         return me->rai->sb->Tank(pmTarget, Chasing());
     }
-    case GroupRole_Test::GroupRole_Test_Tank2:
+    case GroupRole_MoltenCore::GroupRole_MoltenCore_Tank2:
     {
         return Tank();
     }
-    case GroupRole_Test::GroupRole_Test_Healer:
+    case GroupRole_MoltenCore::GroupRole_MoltenCore_Healer:
     {
         return Heal();
     }
@@ -205,7 +205,7 @@ bool RobotStrategy_Group_Test::Engage(Unit* pmTarget)
     return false;
 }
 
-void RobotStrategy_Group_Test::Update(uint32 pmDiff)
+void RobotStrategy_Group_MoltenCore::Update(uint32 pmDiff)
 {
     if (!Update0(pmDiff))
     {
@@ -235,7 +235,7 @@ void RobotStrategy_Group_Test::Update(uint32 pmDiff)
             actionDelay -= pmDiff;
             switch (actionType)
             {
-            case ActionType_Test::ActionType_Test_MarkMove:
+            case ActionType_MoltenCore::ActionType_MoltenCore_MarkMove:
             {
                 if (me->GetExactDist(markPos) < 0.5f)
                 {
@@ -265,7 +265,7 @@ void RobotStrategy_Group_Test::Update(uint32 pmDiff)
             engageDelay -= pmDiff;
             switch (me->groupRole)
             {
-            case GroupRole_Test::GroupRole_Test_Tank1:
+            case GroupRole_MoltenCore::GroupRole_MoltenCore_Tank1:
             {
                 if (me->rai->sb->Tank(engageTarget, Chasing()))
                 {
@@ -278,7 +278,7 @@ void RobotStrategy_Group_Test::Update(uint32 pmDiff)
                 }
                 break;
             }
-            case GroupRole_Test::GroupRole_Test_Tank2:
+            case GroupRole_MoltenCore::GroupRole_MoltenCore_Tank2:
             {
                 if (Tank())
                 {
@@ -291,7 +291,7 @@ void RobotStrategy_Group_Test::Update(uint32 pmDiff)
                 }
                 break;
             }
-            case GroupRole_Test::GroupRole_Test_Healer:
+            case GroupRole_MoltenCore::GroupRole_MoltenCore_Healer:
             {
                 if (Heal())
                 {
@@ -299,7 +299,7 @@ void RobotStrategy_Group_Test::Update(uint32 pmDiff)
                 }
                 break;
             }
-            case GroupRole_Test::GroupRole_Test_DPS_Range:
+            case GroupRole_MoltenCore::GroupRole_MoltenCore_DPS_Range:
             {
                 if (me->rai->sb->DPS(engageTarget, Chasing(), false, NULL))
                 {
@@ -312,7 +312,7 @@ void RobotStrategy_Group_Test::Update(uint32 pmDiff)
                 }
                 break;
             }
-            case GroupRole_Test::GroupRole_Test_DPS_Melee:
+            case GroupRole_MoltenCore::GroupRole_MoltenCore_DPS_Melee:
             {
                 if (me->rai->sb->DPS(engageTarget, Chasing(), false, NULL))
                 {
@@ -340,7 +340,7 @@ void RobotStrategy_Group_Test::Update(uint32 pmDiff)
             }
             switch (me->groupRole)
             {
-            case GroupRole_Test::GroupRole_Test_Tank1:
+            case GroupRole_MoltenCore::GroupRole_MoltenCore_Tank1:
             {
                 if (Tank())
                 {
@@ -348,7 +348,7 @@ void RobotStrategy_Group_Test::Update(uint32 pmDiff)
                 }
                 break;
             }
-            case GroupRole_Test::GroupRole_Test_Tank2:
+            case GroupRole_MoltenCore::GroupRole_MoltenCore_Tank2:
             {
                 if (Tank())
                 {
@@ -356,7 +356,7 @@ void RobotStrategy_Group_Test::Update(uint32 pmDiff)
                 }
                 break;
             }
-            case GroupRole_Test::GroupRole_Test_Healer:
+            case GroupRole_MoltenCore::GroupRole_MoltenCore_Healer:
             {
                 if (Heal())
                 {
@@ -364,7 +364,7 @@ void RobotStrategy_Group_Test::Update(uint32 pmDiff)
                 }
                 break;
             }
-            case GroupRole_Test::GroupRole_Test_DPS_Range:
+            case GroupRole_MoltenCore::GroupRole_MoltenCore_DPS_Range:
             {
                 if (DPS())
                 {
@@ -372,7 +372,7 @@ void RobotStrategy_Group_Test::Update(uint32 pmDiff)
                 }
                 break;
             }
-            case GroupRole_Test::GroupRole_Test_DPS_Melee:
+            case GroupRole_MoltenCore::GroupRole_MoltenCore_DPS_Melee:
             {
                 if (DPS())
                 {
@@ -396,7 +396,7 @@ void RobotStrategy_Group_Test::Update(uint32 pmDiff)
             switch (me->groupRole)
             {
 
-            case GroupRole_Test::GroupRole_Test_Tank1:
+            case GroupRole_MoltenCore::GroupRole_MoltenCore_Tank1:
             {
                 if (Rest())
                 {
@@ -408,7 +408,7 @@ void RobotStrategy_Group_Test::Update(uint32 pmDiff)
                 }
                 break;
             }
-            case GroupRole_Test::GroupRole_Test_Tank2:
+            case GroupRole_MoltenCore::GroupRole_MoltenCore_Tank2:
             {
                 if (Rest())
                 {
@@ -420,7 +420,7 @@ void RobotStrategy_Group_Test::Update(uint32 pmDiff)
                 }
                 break;
             }
-            case GroupRole_Test::GroupRole_Test_Healer:
+            case GroupRole_MoltenCore::GroupRole_MoltenCore_Healer:
             {
                 if (Rest())
                 {
@@ -436,7 +436,7 @@ void RobotStrategy_Group_Test::Update(uint32 pmDiff)
                 }
                 break;
             }
-            case GroupRole_Test::GroupRole_Test_DPS_Range:
+            case GroupRole_MoltenCore::GroupRole_MoltenCore_DPS_Range:
             {
                 if (Rest())
                 {
@@ -448,7 +448,7 @@ void RobotStrategy_Group_Test::Update(uint32 pmDiff)
                 }
                 break;
             }
-            case GroupRole_Test::GroupRole_Test_DPS_Melee:
+            case GroupRole_MoltenCore::GroupRole_MoltenCore_DPS_Melee:
             {
                 if (Rest())
                 {
@@ -470,7 +470,7 @@ void RobotStrategy_Group_Test::Update(uint32 pmDiff)
     }
 }
 
-bool RobotStrategy_Group_Test::DPS()
+bool RobotStrategy_Group_MoltenCore::DPS()
 {
     if (!me->IsAlive())
     {
@@ -480,20 +480,30 @@ bool RobotStrategy_Group_Test::DPS()
     {
         if (myGroup->GetGroupAttackers(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Firesworn).size() > 0)
         {
-            for (int checkIcon = 0; checkIcon < 8; checkIcon++)
+            if (combatTime > dpsDelay)
             {
-                if (Creature* eachAdd = ObjectAccessor::GetCreature(*me, myGroup->GetOGByTargetIcon(checkIcon)))
+                if (Player* mainTank = GetMainTank())
                 {
-                    if (eachAdd->IsAlive())
-                    {
-                        if (combatTime > dpsDelay)
-                        {
-                            return me->rai->sb->DPS(eachAdd, true, false, NULL);
-                        }
-                    }
+                    return me->rai->sb->DPS(mainTank->GetSelectedUnit(), true, true, mainTank);
                 }
             }
         }
+        //if (myGroup->GetGroupAttackers(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Firesworn).size() > 0)
+        //{
+        //    for (int checkIcon = 0; checkIcon < 8; checkIcon++)
+        //    {
+        //        if (Creature* eachAdd = ObjectAccessor::GetCreature(*me, myGroup->GetOGByTargetIcon(checkIcon)))
+        //        {
+        //            if (eachAdd->IsAlive())
+        //            {
+        //                if (combatTime > dpsDelay)
+        //                {
+        //                    return me->rai->sb->DPS(eachAdd, true, false, NULL);
+        //                }
+        //            }
+        //        }
+        //    }
+        //}
         if (Unit* geddon = myGroup->GetGroupAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Baron_Geddon))
         {
             if (geddon->HasAura(19695))
@@ -502,7 +512,7 @@ bool RobotStrategy_Group_Test::DPS()
                 {
                     markPos = GetNearPoint(geddon->GetPosition(), 32.0f, basePos.GetOrientation());
                     actionDelay = 3000;
-                    actionType = ActionType_Test::ActionType_Test_MarkMove;
+                    actionType = ActionType_MoltenCore::ActionType_MoltenCore_MarkMove;
                     me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
                     me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
                     me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
@@ -523,13 +533,33 @@ bool RobotStrategy_Group_Test::DPS()
                 return me->rai->sb->DPS(golemagg, true, false, NULL);
             }
         }
-        if (myGroup->GetGroupAttackers(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Flamewaker_Elite).size() > 0 || myGroup->GetGroupAttackers(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Flamewaker_Healer).size() > 0)
+        if (myGroup->GetGroupAttackers(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Flamewaker_Elite).size() > 0)
         {
             if (combatTime > majordomoDPSDelay)
             {
-                if (Player* mainTank = GetMainTank())
+                if (Player* tank1 = GetPlayerByGroupRole(GroupRole_MoltenCore::GroupRole_MoltenCore_Tank1))
                 {
-                    return me->rai->sb->DPS(mainTank->GetSelectedUnit(), true, false, NULL);
+                    if (tank1->IsAlive())
+                    {
+                        return me->rai->sb->DPS(tank1->GetSelectedUnit(), false, true, NULL);
+                    }
+                }
+            }
+            else
+            {
+                return true;
+            }
+        }
+        if (myGroup->GetGroupAttackers(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Flamewaker_Healer).size() > 0)
+        {
+            if (combatTime > majordomoDPSDelay)
+            {
+                if (Player* tank1 = GetPlayerByGroupRole(GroupRole_MoltenCore::GroupRole_MoltenCore_Tank1))
+                {
+                    if (tank1->IsAlive())
+                    {
+                        return me->rai->sb->DPS(tank1->GetSelectedUnit(), false, true, NULL);
+                    }
                 }
             }
             else
@@ -540,7 +570,7 @@ bool RobotStrategy_Group_Test::DPS()
         std::unordered_map<ObjectGuid, Unit*> ragAddsMap = myGroup->GetGroupAttackers(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Ragnaros_Adds);
         if (ragAddsMap.size() > 0)
         {
-            if (Player* tank2 = GetPlayerByGroupRole(GroupRole_Test::GroupRole_Test_Tank2))
+            if (Player* tank2 = GetPlayerByGroupRole(GroupRole_MoltenCore::GroupRole_MoltenCore_Tank2))
             {
                 if (tank2->IsAlive())
                 {
@@ -556,7 +586,7 @@ bool RobotStrategy_Group_Test::DPS()
                 if (markDistance > 1.0f)
                 {
                     actionDelay = 3000;
-                    actionType = ActionType_Test::ActionType_Test_MarkMove;
+                    actionType = ActionType_MoltenCore::ActionType_MoltenCore_MarkMove;
                     me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
                     me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
                     me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
@@ -573,62 +603,96 @@ bool RobotStrategy_Group_Test::DPS()
     return RobotStrategy_Group::DPS();
 }
 
-bool RobotStrategy_Group_Test::Tank()
+bool RobotStrategy_Group_MoltenCore::Tank()
 {
     if (Group* myGroup = me->GetGroup())
     {
-        std::unordered_map<ObjectGuid, Unit* > fireswornMap = myGroup->GetGroupAttackers(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Firesworn);
+        std::unordered_map<ObjectGuid, Unit*> fireswornMap = myGroup->GetGroupAttackers(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Firesworn);
         if (fireswornMap.size() > 0)
         {
-            bool assigned = true;
-            for (std::unordered_map<ObjectGuid, Unit*>::iterator attackerIT = fireswornMap.begin(); attackerIT != fireswornMap.end(); attackerIT++)
+            if (Unit* myTarget = me->GetSelectedUnit())
             {
-                if (Unit* eachAttacker = attackerIT->second)
+                if (myTarget->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Firesworn || myTarget->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Garr)
                 {
-                    if (myGroup->GetTargetIconByOG(eachAttacker->GetGUID()) < 0)
+                    if (myTarget->GetTarget() != me->GetGUID())
                     {
-                        assigned = false;
-                        break;
+                        return me->rai->sb->Tank(myTarget, true);
                     }
                 }
             }
-            if (!assigned)
+            for (std::unordered_map<ObjectGuid, Unit*>::iterator eIT = myGroup->groupAttackersMap.begin(); eIT != myGroup->groupAttackersMap.end(); eIT++)
             {
-                int fireswornIndex = 0;
-                for (std::unordered_map<ObjectGuid, Unit*>::iterator attackerIT = fireswornMap.begin(); attackerIT != fireswornMap.end(); attackerIT++)
+                if (Unit* eachAdd = eIT->second)
                 {
-                    if (Unit* eachAttacker = attackerIT->second)
+                    if (eachAdd->GetTarget() != me->GetGUID())
                     {
-                        if (eachAttacker->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Firesworn)
-                        {
-                            myGroup->SetTargetIcon(fireswornIndex, me->GetGUID(), eachAttacker->GetGUID());
-                            fireswornIndex++;
-                        }
+                        return me->rai->sb->Tank(eachAdd, true);
                     }
                 }
-                return true;
             }
-            for (int checkIcon = 0; checkIcon < 8; checkIcon++)
+            if (Unit* myTarget = me->GetSelectedUnit())
             {
-                if (Creature* eachAdd = ObjectAccessor::GetCreature(*me, myGroup->GetOGByTargetIcon(checkIcon)))
+                if (myTarget->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Firesworn || myTarget->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Garr)
                 {
-                    if (eachAdd->IsAlive())
-                    {
-                        if (me->groupRole == GroupRole_Test::GroupRole_Test_Tank1)
-                        {
-                            return me->rai->sb->Tank(eachAdd, true);
-                        }
-                        else
-                        {
-                            if (combatTime > dpsDelay)
-                            {
-                                return me->rai->sb->DPS(eachAdd, true, false, NULL);
-                            }
-                        }
-                    }
+                    return me->rai->sb->Tank(myTarget, true);
+                }
+            }
+            for (std::unordered_map<ObjectGuid, Unit*>::iterator eIT = myGroup->groupAttackersMap.begin(); eIT != myGroup->groupAttackersMap.end(); eIT++)
+            {
+                if (Unit* eachAdd = eIT->second)
+                {
+                    return me->rai->sb->Tank(eachAdd, true);
                 }
             }
         }
+        //if (fireswornMap.size() > 0)
+        //{
+        //    bool assigned = true;
+        //    for (std::unordered_map<ObjectGuid, Unit*>::iterator attackerIT = fireswornMap.begin(); attackerIT != fireswornMap.end(); attackerIT++)
+        //    {
+        //        if (Unit* eachAttacker = attackerIT->second)
+        //        {
+        //            if (myGroup->GetTargetIconByOG(eachAttacker->GetGUID()) < 0)
+        //            {
+        //                assigned = false;
+        //                break;
+        //            }
+        //        }
+        //    }
+        //    if (!assigned)
+        //    {
+        //        int fireswornIndex = 0;
+        //        for (std::unordered_map<ObjectGuid, Unit*>::iterator attackerIT = fireswornMap.begin(); attackerIT != fireswornMap.end(); attackerIT++)
+        //        {
+        //            if (Unit* eachAttacker = attackerIT->second)
+        //            {
+        //                if (eachAttacker->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Firesworn)
+        //                {
+        //                    myGroup->SetTargetIcon(fireswornIndex, me->GetGUID(), eachAttacker->GetGUID());
+        //                    fireswornIndex++;
+        //                }
+        //            }
+        //        }
+        //        return true;
+        //    }
+        //    for (int checkIcon = 0; checkIcon < 8; checkIcon++)
+        //    {
+        //        if (Creature* eachAdd = ObjectAccessor::GetCreature(*me, myGroup->GetOGByTargetIcon(checkIcon)))
+        //        {
+        //                if (me->groupRole == GroupRole_MoltenCore::GroupRole_MoltenCore_Tank1)
+        //                {
+        //                    return me->rai->sb->Tank(eachAdd, true);
+        //                }
+        //                else
+        //                {
+        //                    if (combatTime > dpsDelay)
+        //                    {
+        //                        return me->rai->sb->DPS(eachAdd, true, false, NULL);
+        //                    }
+        //                }
+        //            }
+        //    }
+        //}
         if (Unit* geddon = myGroup->GetGroupAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Baron_Geddon))
         {
             if (geddon->HasAura(19695))
@@ -637,7 +701,7 @@ bool RobotStrategy_Group_Test::Tank()
                 {
                     markPos = GetNearPoint(geddon->GetPosition(), 32.0f, basePos.GetOrientation());
                     actionDelay = 3000;
-                    actionType = ActionType_Test::ActionType_Test_MarkMove;
+                    actionType = ActionType_MoltenCore::ActionType_MoltenCore_MarkMove;
                     me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
                     me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
                     me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
@@ -646,7 +710,7 @@ bool RobotStrategy_Group_Test::Tank()
                 }
                 return true;
             }
-            if (me->groupRole == GroupRole_Test::GroupRole_Test_Tank1)
+            if (me->groupRole == GroupRole_MoltenCore::GroupRole_MoltenCore_Tank1)
             {
                 return me->rai->sb->Tank(geddon, true);
             }
@@ -661,11 +725,11 @@ bool RobotStrategy_Group_Test::Tank()
 
         if (Unit* golemagg = myGroup->GetGroupAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Golemagg_the_Incinerator))
         {
-            if (me->groupRole == GroupRole_Test::GroupRole_Test_Tank1)
+            if (me->groupRole == GroupRole_MoltenCore::GroupRole_MoltenCore_Tank1)
             {
-                return me->rai->sb->Tank(golemagg, true);
+                return me->rai->sb->Tank(golemagg, true, true);
             }
-            else if (me->groupRole == GroupRole_Test::GroupRole_Test_Tank2)
+            else if (me->groupRole == GroupRole_MoltenCore::GroupRole_MoltenCore_Tank2)
             {
                 std::unordered_map<ObjectGuid, Unit*> houndMap = myGroup->GetGroupAttackers(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Core_Rager);
                 if (houndMap.size() > 0)
@@ -676,7 +740,7 @@ bool RobotStrategy_Group_Test::Tank()
                         {
                             if (eachHound->GetTarget() != me->GetGUID())
                             {
-                                return me->rai->sb->Tank(eachHound, true);
+                                return me->rai->sb->Tank(eachHound, true, true);
                             }
                         }
                     }
@@ -684,7 +748,7 @@ bool RobotStrategy_Group_Test::Tank()
                     {
                         markPos = GetNearPoint(golemagg->GetPosition(), 35.0f, engageAngle);
                         actionDelay = 3000;
-                        actionType = ActionType_Test::ActionType_Test_MarkMove;
+                        actionType = ActionType_MoltenCore::ActionType_MoltenCore_MarkMove;
                         me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
                         me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
                         me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
@@ -696,27 +760,23 @@ bool RobotStrategy_Group_Test::Tank()
                     {
                         if (myHound->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Core_Rager)
                         {
-                            return me->rai->sb->Tank(myHound, true);
+                            return me->rai->sb->Tank(myHound, true, true);
                         }
                     }
                     for (std::unordered_map<ObjectGuid, Unit*>::iterator hIT = houndMap.begin(); hIT != houndMap.end(); hIT++)
                     {
                         if (Unit* eachHound = hIT->second)
                         {
-                            return me->rai->sb->Tank(eachHound, true);
+                            return me->rai->sb->Tank(eachHound, true, true);
                         }
                     }
                 }
-            }
-            if (combatTime > dpsDelay)
-            {
-                return me->rai->sb->DPS(golemagg, true, false, NULL);
             }
         }
         std::unordered_map<ObjectGuid, Unit*> eliteMap = myGroup->GetGroupAttackers(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Flamewaker_Elite);
         if (eliteMap.size() > 0)
         {
-            if (me->groupRole == GroupRole_Test::GroupRole_Test_Tank1)
+            if (me->groupRole == GroupRole_MoltenCore::GroupRole_MoltenCore_Tank1)
             {
                 if (Unit* myTarget = me->GetSelectedUnit())
                 {
@@ -757,7 +817,7 @@ bool RobotStrategy_Group_Test::Tank()
         std::unordered_map<ObjectGuid, Unit*> healerMap = myGroup->GetGroupAttackers(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Flamewaker_Healer);
         if (healerMap.size() > 0)
         {
-            if (me->groupRole == GroupRole_Test::GroupRole_Test_Tank1)
+            if (me->groupRole == GroupRole_MoltenCore::GroupRole_MoltenCore_Tank1)
             {
                 if (Unit* myTarget = me->GetSelectedUnit())
                 {
@@ -804,25 +864,29 @@ bool RobotStrategy_Group_Test::Tank()
         }
         if (Unit* majordomo = myGroup->GetGroupAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Majordomo_Executus))
         {
-            if (me->groupRole == GroupRole_Test::GroupRole_Test_Tank2)
+            if (me->groupRole == GroupRole_MoltenCore::GroupRole_MoltenCore_Tank2)
             {
                 if (majordomo->GetTarget() == me->GetGUID())
                 {
-                    if (Player* tank1 = GetPlayerByGroupRole(GroupRole_Test::GroupRole_Test_Tank1))
+                    float majordomoDistance = me->GetExactDist(majordomo->GetPosition());
+                    if (majordomoDistance < 10.0f)
                     {
-                        if (tank1->IsAlive())
+                        if (Player* tank1 = GetPlayerByGroupRole(GroupRole_MoltenCore::GroupRole_MoltenCore_Tank1))
                         {
-                            if (me->GetExactDist(tank1->GetPosition()) < 40.0f)
+                            if (tank1->IsAlive())
                             {
-                                markPos = GetNearPoint(tank1->GetPosition(), 45.0f, engageAngle);
-                                actionDelay = 3000;
-                                actionType = ActionType_Test::ActionType_Test_MarkMove;
-                                me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
-                                me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
-                                me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
-                                me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
-                                me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(majordomo->GetPosition()));
-                                return true;
+                                if (me->GetExactDist(tank1->GetPosition()) < 35.0f)
+                                {
+                                    markPos = GetNearPoint(tank1->GetPosition(), 45.0f, engageAngle);
+                                    actionDelay = 3000;
+                                    actionType = ActionType_MoltenCore::ActionType_MoltenCore_MarkMove;
+                                    me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                                    me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                                    me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                                    me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                                    me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(majordomo->GetPosition()));
+                                    return true;
+                                }
                             }
                         }
                     }
@@ -833,11 +897,11 @@ bool RobotStrategy_Group_Test::Tank()
         std::unordered_map<ObjectGuid, Unit*> ragAddsMap = myGroup->GetGroupAttackers(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Ragnaros_Adds);
         if (ragAddsMap.size() > 0)
         {
-            if (me->groupRole == GroupRole_Test::GroupRole_Test_Tank1)
+            if (me->groupRole == GroupRole_MoltenCore::GroupRole_MoltenCore_Tank1)
             {
                 return true;
             }
-            else if (me->groupRole == GroupRole_Test::GroupRole_Test_Tank2)
+            else if (me->groupRole == GroupRole_MoltenCore::GroupRole_MoltenCore_Tank2)
             {
                 if (Unit* myTarget = me->GetSelectedUnit())
                 {
@@ -881,7 +945,7 @@ bool RobotStrategy_Group_Test::Tank()
             if (markDistance > 1.0f)
             {
                 actionDelay = 3000;
-                actionType = ActionType_Test::ActionType_Test_MarkMove;
+                actionType = ActionType_MoltenCore::ActionType_MoltenCore_MarkMove;
                 me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
                 me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
                 me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
@@ -889,11 +953,11 @@ bool RobotStrategy_Group_Test::Tank()
                 me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(rag->GetPosition()));
                 return true;
             }
-            if (me->groupRole == GroupRole_Test::GroupRole_Test_Tank1)
+            if (me->groupRole == GroupRole_MoltenCore::GroupRole_MoltenCore_Tank1)
             {
                 return me->rai->sb->Tank(rag, false);
             }
-            else if (me->groupRole == GroupRole_Test::GroupRole_Test_Tank2)
+            else if (me->groupRole == GroupRole_MoltenCore::GroupRole_MoltenCore_Tank2)
             {
                 return true;
             }
@@ -902,7 +966,7 @@ bool RobotStrategy_Group_Test::Tank()
     return RobotStrategy_Group::Tank();
 }
 
-bool RobotStrategy_Group_Test::Tank(Unit* pmTarget)
+bool RobotStrategy_Group_MoltenCore::Tank(Unit* pmTarget)
 {
     if (!me)
     {
@@ -914,7 +978,7 @@ bool RobotStrategy_Group_Test::Tank(Unit* pmTarget)
     }
     switch (me->groupRole)
     {
-    case GroupRole_Test::GroupRole_Test_Tank1:
+    case GroupRole_MoltenCore::GroupRole_MoltenCore_Tank1:
     {
         me->rai->sb->ClearTarget();
         me->rai->sb->ChooseTarget(pmTarget);
@@ -929,13 +993,13 @@ bool RobotStrategy_Group_Test::Tank(Unit* pmTarget)
     return false;
 }
 
-bool RobotStrategy_Group_Test::Heal()
+bool RobotStrategy_Group_MoltenCore::Heal()
 {
     if (Group* myGroup = me->GetGroup())
     {
         if (Unit* magmadar = myGroup->GetGroupAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Magmadar))
         {
-            if (Player* tank1 = GetPlayerByGroupRole(GroupRole_Test::GroupRole_Test_Tank1))
+            if (Player* tank1 = GetPlayerByGroupRole(GroupRole_MoltenCore::GroupRole_MoltenCore_Tank1))
             {
                 if (tank1->IsAlive())
                 {
@@ -970,7 +1034,7 @@ bool RobotStrategy_Group_Test::Heal()
                 {
                     markPos = GetNearPoint(geddon->GetPosition(), 32.0f, basePos.GetOrientation());
                     actionDelay = 3000;
-                    actionType = ActionType_Test::ActionType_Test_MarkMove;
+                    actionType = ActionType_MoltenCore::ActionType_MoltenCore_MarkMove;
                     me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
                     me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
                     me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
@@ -985,7 +1049,7 @@ bool RobotStrategy_Group_Test::Heal()
             bool assisnTank2Healer = true;
             if (Player* tank2Healer = ObjectAccessor::GetPlayer(*me, myGroup->GetOGByTargetIcon(7)))
             {
-                if (tank2Healer->groupRole == GroupRole_Test::GroupRole_Test_Healer)
+                if (tank2Healer->groupRole == GroupRole_MoltenCore::GroupRole_MoltenCore_Healer)
                 {
                     if (tank2Healer->IsAlive())
                     {
@@ -996,7 +1060,7 @@ bool RobotStrategy_Group_Test::Heal()
             if (assisnTank2Healer)
             {
                 std::unordered_set<uint32> healerRoleSet;
-                healerRoleSet.insert(GroupRole_Test::GroupRole_Test_Healer);
+                healerRoleSet.insert(GroupRole_MoltenCore::GroupRole_MoltenCore_Healer);
                 std::unordered_set<Player*> healerSet = GetPlayerSetByGroupRoleSet(healerRoleSet);
                 for (std::unordered_set<Player*>::iterator hIT = healerSet.begin(); hIT != healerSet.end(); hIT++)
                 {
@@ -1015,7 +1079,7 @@ bool RobotStrategy_Group_Test::Heal()
             }
             if (me->GetGUID() == myGroup->GetOGByTargetIcon(7))
             {
-                if (Player* tank2 = GetPlayerByGroupRole(GroupRole_Test::GroupRole_Test_Tank2))
+                if (Player* tank2 = GetPlayerByGroupRole(GroupRole_MoltenCore::GroupRole_MoltenCore_Tank2))
                 {
                     if (tank2->IsAlive())
                     {
@@ -1049,7 +1113,7 @@ bool RobotStrategy_Group_Test::Heal()
             if (markDistance > 1.0f)
             {
                 actionDelay = 3000;
-                actionType = ActionType_Test::ActionType_Test_MarkMove;
+                actionType = ActionType_MoltenCore::ActionType_MoltenCore_MarkMove;
                 me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
                 me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
                 me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
@@ -1063,7 +1127,7 @@ bool RobotStrategy_Group_Test::Heal()
                 if (me->GetPower(Powers::POWER_MANA) < 500)
                 {
                     std::unordered_set<uint32> healerRoleSet;
-                    healerRoleSet.insert(GroupRole_Test::GroupRole_Test_Healer);
+                    healerRoleSet.insert(GroupRole_MoltenCore::GroupRole_MoltenCore_Healer);
                     std::unordered_set<Player*> healerSet = GetPlayerSetByGroupRoleSet(healerRoleSet);
                     Player* maxManaHealer = NULL;
                     uint32 maxMana = 0;
@@ -1118,7 +1182,7 @@ bool RobotStrategy_Group_Test::Heal()
             //    {
             //        if (member->IsAlive())
             //        {
-            //            if (member->groupRole == GroupRole_Test::GroupRole_Test_Tank1)
+            //            if (member->groupRole == GroupRole_MoltenCore::GroupRole_MoltenCore_Tank1)
             //            {
             //                continue;
             //            }
@@ -1139,16 +1203,16 @@ bool RobotStrategy_Group_Test::Heal()
     return RobotStrategy_Group::Heal();
 }
 
-Player* RobotStrategy_Group_Test::GetMainTank()
+Player* RobotStrategy_Group_MoltenCore::GetMainTank()
 {
-    if (Player* tank1 = GetPlayerByGroupRole(GroupRole_Test::GroupRole_Test_Tank1))
+    if (Player* tank1 = GetPlayerByGroupRole(GroupRole_MoltenCore::GroupRole_MoltenCore_Tank1))
     {
         if (tank1->IsAlive())
         {
             return tank1;
         }
     }
-    if (Player* tank2 = GetPlayerByGroupRole(GroupRole_Test::GroupRole_Test_Tank2))
+    if (Player* tank2 = GetPlayerByGroupRole(GroupRole_MoltenCore::GroupRole_MoltenCore_Tank2))
     {
         if (tank2->IsAlive())
         {

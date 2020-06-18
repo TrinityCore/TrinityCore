@@ -21,7 +21,7 @@ bool Script_Hunter::Tank(Unit* pmTarget, bool pmChase, bool pmSingle)
     return false;
 }
 
-bool Script_Hunter::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, bool pmInterruptCasting)
+bool Script_Hunter::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, bool pmInterruptTargetCasting)
 {
     bool meResult = false;
     if (!me)
@@ -32,6 +32,7 @@ bool Script_Hunter::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank
     {
         UseManaPotion();
     }
+    uint32 characterTalentTab = me->GetMaxTalentCountTab();
     switch (characterTalentTab)
     {
     case 0:
@@ -92,7 +93,7 @@ bool Script_Hunter::DPS_BeastMastery(Unit* pmTarget, bool pmChase, bool pmAOE, P
         {
             return false;
         }
-        if (!Chase(pmTarget, HUNTER_RANGE_DISTANCE, HUNTER_MIN_RANGE_DISTANCE))
+        if (!Chase(pmTarget, HUNTER_CHASE_DISTANCE, HUNTER_MIN_RANGE_DISTANCE))
         {
             return false;
         }
@@ -396,6 +397,7 @@ bool Script_Hunter::Attack(Unit* pmTarget)
     {
         UseManaPotion();
     }
+    uint32 characterTalentTab = me->GetMaxTalentCountTab();
     switch (characterTalentTab)
     {
     case 0:

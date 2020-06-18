@@ -27,6 +27,10 @@
 # define FOLLOW_NORMAL_DISTANCE 15.0f
 #endif
 
+#ifndef FOLLOW_FAR_DISTANCE
+# define FOLLOW_FAR_DISTANCE 30.0f
+#endif
+
 #ifndef FOLLOW_MAX_DISTANCE
 # define FOLLOW_MAX_DISTANCE 60.0f
 #endif
@@ -44,7 +48,7 @@
 #endif
 
 #ifndef RANGED_MAX_DISTANCE
-# define RANGED_MAX_DISTANCE 30.0f
+# define RANGED_MAX_DISTANCE 45.0f
 #endif
 
 #ifndef HEAL_MAX_DISTANCE
@@ -109,6 +113,13 @@ public:
     bool UnitTargetReachable(Player* pmCheckPlayer, Unit* pmTarget);
     void CheckLevelRobotEntities(uint32 pmLevel, uint32 pmRobotType, uint32 pmTotalCount);
 
+    bool InitializeCharacter(Player* pmTargetPlayer, uint32 pmTargetLevel);
+    void InitializeEquipments(Player* pmTargetPlayer, bool pmReset);
+    uint32 GetUsableArmorSubClass(Player* pmTargetPlayer);
+    bool ApplyGlyph(Player* pmTargetPlayer, uint32 pmGlyphItemEntry, uint32 pmSlot);
+    void TryEquip(Player* pmTargetPlayer, std::unordered_set<uint32> pmClassSet, std::unordered_set<uint32> pmSubClassSet, uint32 pmTargetSlot);
+    bool EquipNewItem(Player* pmTargetPlayer, uint32 pmItemEntry, uint8 pmEquipSlot);
+
 public:
     std::unordered_map<uint32, std::unordered_map<uint32, uint32>> availableRaces;
     std::unordered_map<uint32, std::string> robotNameMap;
@@ -119,19 +130,7 @@ public:
     std::unordered_map<uint32, std::unordered_set<RobotEntity*>> robotEntityMap;
 
     uint32 nameIndex;
-    std::set<uint8> armorInventorySet;
-    std::unordered_map<uint8, uint8> miscInventoryMap;
-    // 0, staff 1, one hand sword 2, two hand sword 3, one hand mace 4, two hand mace 5, two hand axe 6, dagger 7, shield
-    // type | level range | index entry
-    std::unordered_map<uint8, std::unordered_map<uint8, std::unordered_map<uint32, uint32>>> meleeWeaponMap;
-    // 0, bow / cross bow / gun 1, wand 2, throw
-    // type | level range | index entry
-    std::unordered_map<uint8, std::unordered_map<uint8, std::unordered_map<uint32, uint32>>> rangeWeaponMap;
-    // 0, cloth 1, leather 2, mail 3, plate
-    // type | slot | level range | index entry
-    std::unordered_map<uint8, std::unordered_map<uint8, std::unordered_map<uint8, std::unordered_map<uint32, uint32>>>> armorMap;
-    // slot | level range | index entry
-    std::unordered_map<uint8, std::unordered_map<uint8, std::unordered_map<uint32, uint32>>> miscMap;
+
     std::unordered_set<uint32> spellRewardClassQuestIDSet;
     std::unordered_map<uint32, uint32> onlinePlayerIDMap;
 

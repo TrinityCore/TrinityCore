@@ -102,6 +102,19 @@ JokerManager::JokerManager()
     classicBookSpellSet.insert(26991);
     classicBookSpellSet.insert(31018);
     classicBookSpellSet.insert(31709);
+
+    QueryResult eiQR = WorldDatabase.PQuery("SELECT expansion, item_entry FROM joker_item_expansion");
+    if (eiQR)
+    {
+        do
+        {
+            Field* fields = eiQR->Fetch();
+            uint32 eachExpansion = fields[0].GetUInt32();
+            uint32 eachItemEntry = fields[1].GetUInt32();
+            expansionItemMap[eachExpansion].insert(eachItemEntry);
+        } while (eiQR->NextRow());
+    }
+
 }
 
 void JokerManager::UpdateJoker(uint32 pmDiff)

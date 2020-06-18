@@ -10,28 +10,25 @@ class Script_Base
 {
 public:
     Script_Base(Player* pmMe);
-    virtual void Reset();
-    virtual void Update(uint32 pmDiff);
-    virtual bool DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, bool pmInterruptCasting = true);
+    virtual void Reset();    
+    virtual bool DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, bool pmInterruptTargetCasting = true);
     virtual bool Tank(Unit* pmTarget, bool pmChase, bool pmSingle = false);
     virtual bool SubTank(Unit* pmTarget, bool pmChase);
     virtual bool Taunt(Unit* pmTarget);
     virtual bool InterruptCasting(Unit* pmTarget);
-    virtual bool Heal(Unit* pmTarget, bool pmCure);
-    virtual bool SubHeal(Unit* pmTarget);
+    virtual bool Heal(Unit* pmTarget, bool pmCure = true);
+    virtual bool SubHeal(Unit* pmTarget, bool pmCure = true);
     virtual bool GroupHeal(float pmMaxHealthPercent = 60.0f);
     virtual bool Attack(Unit* pmTarget);
-    virtual bool Buff(Unit* pmTarget, bool pmCure);
+    virtual bool Buff(Unit* pmTarget, bool pmCure = true);
+    virtual bool Assist();
+
+    bool Update(uint32 pmDiff);
 
     void PetAttack(Unit* pmTarget);
     void PetStop();
 
-    bool InitializeCharacter(uint32 pmTargetLevel);
-    void IdentifyCharacter();
-    uint32 GetUsableArmorSubClass();
-    bool ApplyGlyph( uint32 pmGlyphItemEntry, uint32 pmSlot);
-    void TryEquip(std::unordered_set<uint32> pmClassSet, std::unordered_set<uint32> pmSubClassSet, uint32 pmTargetSlot);
-    bool EquipNewItem(uint32 pmItemEntry, uint8 pmEquipSlot);
+    void IdentifyCharacterSpells();
     Item* GetItemInInventory(uint32 pmEntry);
     bool UseItem(Item* pmItem, Unit* pmTarget);
     bool UseHealingPotion();
@@ -40,6 +37,7 @@ public:
     bool SpellValid(uint32 pmSpellID);
     bool CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDistance = MELEE_MAX_DISTANCE, bool pmCheckAura = false, bool pmOnlyMyAura = false, bool pmClearShapeShift = false);
     bool HasAura(Unit* pmTarget, std::string pmSpellName, bool pmOnlyMyAura = false);
+    uint32 GetAuraDuration(Unit* pmTarget, std::string pmSpellName, bool pmOnlyMyAura = false);
     void ClearShapeshift();
     void CancelAura(uint32 pmSpellID);
     bool CancelAura(std::string pmSpellName);
@@ -56,11 +54,13 @@ public:
     std::unordered_map<std::string, uint32> spellIDMap;
     std::unordered_map<std::string, uint8> spellLevelMap;
 
-    uint8 characterTalentTab;
+    int actionDelay;
+
     // 0 dps, 1 tank, 2 healer
     uint32 characterType;
     bool petting;
     float chaseDistanceMin;
-    float chaseDistanceMax;
+    float chaseDistanceMax;    
+    int rti;
 };
 #endif

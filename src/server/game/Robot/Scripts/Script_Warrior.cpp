@@ -17,7 +17,7 @@ bool Script_Warrior::Tank(Unit* pmTarget, bool pmChase, bool pmSingle)
     return false;
 }
 
-bool Script_Warrior::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, bool pmInterruptCasting)
+bool Script_Warrior::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, bool pmInterruptTargetCasting)
 {
     if (!me)
     {
@@ -27,6 +27,7 @@ bool Script_Warrior::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTan
     {
         UseHealingPotion();
     }
+    uint32 characterTalentTab = me->GetMaxTalentCountTab();
     switch (characterTalentTab)
     {
     case 0:
@@ -277,6 +278,7 @@ bool Script_Warrior::Attack(Unit* pmTarget)
     {
         UseHealingPotion();
     }
+    uint32 characterTalentTab = me->GetMaxTalentCountTab();
     switch (characterTalentTab)
     {
     case 0:
@@ -559,6 +561,7 @@ bool Script_Warrior::Buff(Unit* pmTarget, bool pmCure)
     }
     if (me->GetGUID() == pmTarget->GetGUID())
     {
+        uint32 characterTalentTab = me->GetMaxTalentCountTab();
         switch (characterTalentTab)
         {
         case 0:

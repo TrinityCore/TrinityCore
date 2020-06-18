@@ -15,7 +15,7 @@ bool Script_Shaman::Heal(Unit* pmTarget, bool pmCure)
     return false;
 }
 
-bool Script_Shaman::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, bool pmInterruptCasting)
+bool Script_Shaman::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, bool pmInterruptTargetCasting)
 {
     if (!me)
     {
@@ -25,6 +25,7 @@ bool Script_Shaman::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank
     {
         UseManaPotion();
     }
+    uint32 characterTalentTab = me->GetMaxTalentCountTab();
     switch (characterTalentTab)
     {
     case 0:
@@ -106,6 +107,7 @@ bool Script_Shaman::Attack(Unit* pmTarget)
     {
         UseManaPotion();
     }
+    uint32 characterTalentTab = me->GetMaxTalentCountTab();
     switch (characterTalentTab)
     {
     case 0:

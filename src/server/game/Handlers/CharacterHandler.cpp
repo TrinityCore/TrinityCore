@@ -822,7 +822,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         }
     }
 
-    WorldPacket data(SMSG_LEARNED_DANCE_MOVES, 4+4);
+    WorldPacket data(SMSG_LEARNED_DANCE_MOVES, 4 + 4);
     data << uint32(0);
     data << uint32(0);
     SendPacket(&data);
@@ -1042,7 +1042,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     // EJ robot
     pCurrChar->rai = new RobotAI(pCurrChar);
     if (isRobotSession)
-    {        
+    {
         if (!sCharacterCache->HasCharacterCacheEntry(pCurrChar->GetGUID()))
         {
             sCharacterCache->AddCharacterCacheEntry(pCurrChar->GetGUID(), GetAccountId(), pCurrChar->GetName(), pCurrChar->GetGender(), pCurrChar->GetRace(), pCurrChar->GetClass(), pCurrChar->GetLevel());
@@ -1054,13 +1054,10 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     }
     else
     {
-        for (std::unordered_map<uint32, RobotStrategy_Base*>::iterator rsIT = pCurrChar->rai->strategyMap.begin(); rsIT != pCurrChar->rai->strategyMap.end(); rsIT++)
-        {
-            rsIT->second->sb->IdentifyCharacter();
-            rsIT->second->sb->Reset();
-        }        
-        pCurrChar->groupRole = pCurrChar->rai->strategyMap[Strategy_Index::Strategy_Index_Group]->sb->characterType;
-    }    
+        pCurrChar->rai->sb->IdentifyCharacterSpells();
+        pCurrChar->rai->sb->Reset();
+        pCurrChar->groupRole = pCurrChar->rai->sb->characterType;
+    }
 }
 
 void WorldSession::SendFeatureSystemStatus()

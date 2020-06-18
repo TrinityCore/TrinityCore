@@ -59,6 +59,13 @@ class boss_baron_geddon : public CreatureScript
         {
             boss_baron_geddonAI(Creature* creature) : BossAI(creature, BOSS_BARON_GEDDON)
             {
+                lastServed = false;
+            }
+
+            void Reset() override
+            {
+                BossAI::Reset();
+                lastServed = false;
             }
 
             void JustEngagedWith(Unit* victim) override
@@ -77,13 +84,17 @@ class boss_baron_geddon : public CreatureScript
                 events.Update(diff);
 
                 // If we are <2% hp cast Armageddon
-                if (!HealthAbovePct(2))
+                if (!lastServed)
                 {
-                    me->InterruptNonMeleeSpells(true);
-                    DoCast(me, SPELL_ARMAGEDDON);
-                    Talk(EMOTE_SERVICE);
-                    return;
-                }
+                    if (!HealthAbovePct(2))
+                    {
+                        me->InterruptNonMeleeSpells(true);
+                        DoCast(me, SPELL_ARMAGEDDON);
+                        Talk(EMOTE_SERVICE);
+                        lastServed = true;
+                        return;
+                    }
+                }                
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
@@ -116,6 +127,9 @@ class boss_baron_geddon : public CreatureScript
 
                 DoMeleeAttackIfReady();
             }
+
+        private:
+            bool lastServed;
         };
 
         CreatureAI* GetAI(Creature* creature) const override

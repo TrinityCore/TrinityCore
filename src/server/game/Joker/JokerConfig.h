@@ -46,6 +46,7 @@ public:
     float UniqueEliteAttackMod_Total;
     float EliteAttackMod_Total;
     float RareEliteAttackMod_Total;
+    float RaidEliteAttackMod_Total;
     float WorldBossAttackMod_Total;
     float RareAttackMod_Total;
 
@@ -54,6 +55,7 @@ public:
     float UniqueEliteSpellMod_Total;
     float EliteSpellMod_Total;
     float RareEliteSpellMod_Total;
+    float RaidEliteSpellMod_Total;
     float WorldBossSpellMod_Total;
     float RareSpellMod_Total;
 
@@ -62,6 +64,7 @@ public:
     float UniqueEliteHPMod_Total;
     float EliteHPMod_Total;
     float RareEliteHPMod_Total;
+    float RaidEliteHPMod_Total;
     float WorldBossHPMod_Total;
     float RareHPMod_Total;
 
@@ -70,6 +73,7 @@ public:
     float UniqueEliteMPMod_Total;
     float EliteMPMod_Total;
     float RareEliteMPMod_Total;
+    float RaidEliteMPMod_Total;
     float WorldBossMPMod_Total;
     float RareMPMod_Total;
 
@@ -81,6 +85,7 @@ public:
     float UniqueEliteAttackMod_Level;
     float EliteAttackMod_Level;
     float RareEliteAttackMod_Level;
+    float RaidEliteAttackMod_Level;
     float WorldBossAttackMod_Level;
     float RareAttackMod_Level;
 
@@ -89,6 +94,7 @@ public:
     float UniqueEliteSpellMod_Level;
     float EliteSpellMod_Level;
     float RareEliteSpellMod_Level;
+    float RaidEliteSpellMod_Level;
     float WorldBossSpellMod_Level;
     float RareSpellMod_Level;
 
@@ -97,6 +103,7 @@ public:
     float UniqueEliteHPMod_Level;
     float EliteHPMod_Level;
     float RareEliteHPMod_Level;
+    float RaidEliteHPMod_Level;
     float WorldBossHPMod_Level;
     float RareHPMod_Level;
 
@@ -106,6 +113,7 @@ public:
     float UniqueEliteMPMod_Level;
     float EliteMPMod_Level;
     float RareEliteMPMod_Level;
+    float RaidEliteMPMod_Level;
     float WorldBossMPMod_Level;
     float RareMPMod_Level;
 

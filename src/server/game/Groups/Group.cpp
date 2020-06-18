@@ -42,6 +42,9 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 
+ // EJ group
+#include "Pet.h"
+
 Roll::Roll(ObjectGuid _guid, LootItem const& li) : itemGUID(_guid), itemid(li.itemid),
 itemRandomPropId(li.randomPropertyId), itemRandomSuffix(li.randomSuffix), itemCount(li.count),
 totalPlayersRolling(0), totalNeed(0), totalGreed(0), totalPass(0), itemSlot(0),
@@ -89,7 +92,7 @@ Group::~Group()
     while (!RollId.empty())
     {
         itr = RollId.begin();
-        Roll *r = *itr;
+        Roll* r = *itr;
         RollId.erase(itr);
         delete(r);
     }
@@ -114,6 +117,83 @@ void Group::Update(uint32 diff)
             m_isLeaderOffline = false;
         }
     }
+
+    // EJ group updates
+    groupAttackersMap.clear();
+    for (GroupReference* groupRef = this->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+    {
+        if (Player* member = groupRef->GetSource())
+        {
+            if (member->IsAlive())
+            {
+                for (Unit::AttackerSet::const_iterator attackerIT = member->getAttackers().begin(); attackerIT != member->getAttackers().end(); ++attackerIT)
+                {
+                    if (Unit* eachAttacker = *attackerIT)
+                    {
+                        if (eachAttacker->IsAlive())
+                        {
+                            if (groupAttackersMap.find(eachAttacker->GetGUID()) == groupAttackersMap.end())
+                            {
+                                groupAttackersMap[eachAttacker->GetGUID()] = eachAttacker;
+                            }
+                        }
+                    }
+                }
+                if (Pet* memberPet = member->GetPet())
+                {
+                    if (memberPet->IsAlive())
+                    {
+                        for (Unit::AttackerSet::const_iterator attackerIT = memberPet->getAttackers().begin(); attackerIT != memberPet->getAttackers().end(); ++attackerIT)
+                        {
+                            if (Unit* eachAttacker = *attackerIT)
+                            {
+                                if (eachAttacker->IsAlive())
+                                {
+                                    if (groupAttackersMap.find(eachAttacker->GetGUID()) == groupAttackersMap.end())
+                                    {
+                                        groupAttackersMap[eachAttacker->GetGUID()] = eachAttacker;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// EJ group attackers
+std::unordered_map<ObjectGuid, Unit*> Group::GetGroupAttackers(uint32 pmCreatureEntry)
+{
+    std::unordered_map<ObjectGuid, Unit*> resultMap;
+    resultMap.clear();
+    for (std::unordered_map<ObjectGuid, Unit*>::iterator aIT = groupAttackersMap.begin(); aIT != groupAttackersMap.end(); aIT++)
+    {
+        if (Unit* eachA = aIT->second)
+        {
+            if (eachA->GetEntry() == pmCreatureEntry)
+            {
+                resultMap[eachA->GetGUID()] = eachA;
+            }
+        }
+    }
+    return resultMap;
+}
+
+Unit* Group::GetGroupAttacker(uint32 pmCreatureEntry)
+{
+    for (std::unordered_map<ObjectGuid, Unit*>::iterator aIT = groupAttackersMap.begin(); aIT != groupAttackersMap.end(); aIT++)
+    {
+        if (Unit* eachA = aIT->second)
+        {
+            if (eachA->GetEntry() == pmCreatureEntry)
+            {
+                return eachA;
+            }
+        }
+    }
+    return NULL;
 }
 
 void Group::SelectNewPartyOrRaidLeader()
@@ -244,7 +324,7 @@ void Group::LoadGroupFromDB(Field* fields)
     for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
         m_targetIcons[i].Set(fields[4 + i].GetUInt64());
 
-    m_groupType  = GroupType(fields[12].GetUInt8());
+    m_groupType = GroupType(fields[12].GetUInt8());
     if (m_groupType & GROUPTYPE_RAID)
         _initRaidSubGroupsCounter();
 
@@ -256,9 +336,9 @@ void Group::LoadGroupFromDB(Field* fields)
 
     uint32 r_diff = fields[14].GetUInt8();
     if (r_diff >= MAX_RAID_DIFFICULTY)
-       m_raidDifficulty = RAID_DIFFICULTY_10MAN_NORMAL;
+        m_raidDifficulty = RAID_DIFFICULTY_10MAN_NORMAL;
     else
-       m_raidDifficulty = Difficulty(r_diff);
+        m_raidDifficulty = Difficulty(r_diff);
 
     m_masterLooterGuid = ObjectGuid(HighGuid::Player, fields[15].GetUInt32());
 
@@ -422,11 +502,11 @@ bool Group::AddMember(Player* player)
     }
 
     MemberSlot member;
-    member.guid      = player->GetGUID();
-    member.name      = player->GetName();
-    member.group     = subGroup;
-    member.flags     = 0;
-    member.roles     = 0;
+    member.guid = player->GetGUID();
+    member.name = player->GetName();
+    member.group = subGroup;
+    member.flags = 0;
+    member.roles = 0;
     m_memberSlots.push_back(member);
 
     SubGroupCounterIncrease(subGroup);
@@ -582,7 +662,7 @@ bool Group::RemoveMember(ObjectGuid guid, RemoveMethod const& method /*= GROUP_R
             if (isBGGroup() || isBFGroup())
                 player->RemoveFromBattlegroundOrBattlefieldRaid();
             else
-            // Regular group
+                // Regular group
             {
                 if (player->GetOriginalGroup() == this)
                     player->SetOriginalGroup(nullptr);
@@ -602,7 +682,7 @@ bool Group::RemoveMember(ObjectGuid guid, RemoveMethod const& method /*= GROUP_R
             }
 
             // Do we really need to send this opcode?
-            data.Initialize(SMSG_GROUP_LIST, 1+1+1+1+8+4+4+8);
+            data.Initialize(SMSG_GROUP_LIST, 1 + 1 + 1 + 1 + 8 + 4 + 4 + 8);
             data << uint8(0x10) << uint8(0) << uint8(0) << uint8(0);
             data << uint64(m_guid) << uint32(m_counter) << uint32(0) << uint64(0);
             player->SendDirectMessage(&data);
@@ -756,7 +836,7 @@ void Group::ChangeLeader(ObjectGuid newLeaderGuid)
     m_leaderName = newLeader->GetName();
     ToggleGroupMemberFlag(slot, MEMBER_FLAG_ASSISTANT, false);
 
-    WorldPacket data(SMSG_GROUP_SET_LEADER, m_leaderName.size()+1);
+    WorldPacket data(SMSG_GROUP_SET_LEADER, m_leaderName.size() + 1);
     data << slot->name;
     BroadcastPacket(&data, true);
 }
@@ -843,7 +923,7 @@ void Group::Disband(bool hideDestroy /* = false */)
         }
         else
         {
-            data.Initialize(SMSG_GROUP_LIST, 1+1+1+1+8+4+4+8);
+            data.Initialize(SMSG_GROUP_LIST, 1 + 1 + 1 + 1 + 8 + 4 + 4 + 8);
             data << uint8(0x10) << uint8(0) << uint8(0) << uint8(0);
             data << uint64(m_guid) << uint32(m_counter) << uint32(0) << uint64(0);
             player->SendDirectMessage(&data);
@@ -890,7 +970,7 @@ void Group::Disband(bool hideDestroy /* = false */)
 
 void Group::SendLootStartRoll(uint32 countDown, uint32 mapid, Roll const& r)
 {
-    WorldPacket data(SMSG_LOOT_START_ROLL, (8+4+4+4+4+4+4+1));
+    WorldPacket data(SMSG_LOOT_START_ROLL, (8 + 4 + 4 + 4 + 4 + 4 + 4 + 1));
     data << uint64(r.itemGUID);                             // guid of rolled item
     data << uint32(mapid);                                  // 3.3.3 mapid
     data << uint32(r.itemSlot);                             // itemslot
@@ -901,7 +981,7 @@ void Group::SendLootStartRoll(uint32 countDown, uint32 mapid, Roll const& r)
     data << uint32(countDown);                              // the countdown time to choose "need" or "greed"
     data << uint8(r.rollVoteMask);                          // roll type mask
 
-    for (Roll::PlayerVote::const_iterator itr=r.playerVote.begin(); itr != r.playerVote.end(); ++itr)
+    for (Roll::PlayerVote::const_iterator itr = r.playerVote.begin(); itr != r.playerVote.end(); ++itr)
     {
         Player* p = ObjectAccessor::FindConnectedPlayer(itr->first);
         if (!p || !p->GetSession())
@@ -936,7 +1016,7 @@ void Group::SendLootStartRollToPlayer(uint32 countDown, uint32 mapId, Player* p,
 
 void Group::SendLootRoll(ObjectGuid sourceGuid, ObjectGuid targetGuid, uint8 rollNumber, uint8 rollType, Roll const& roll, bool autoPass)
 {
-    WorldPacket data(SMSG_LOOT_ROLL, (8+4+8+4+4+4+1+1+1));
+    WorldPacket data(SMSG_LOOT_ROLL, (8 + 4 + 8 + 4 + 4 + 4 + 1 + 1 + 1));
     data << uint64(sourceGuid);                             // guid of the item rolled
     data << uint32(roll.itemSlot);                          // slot
     data << uint64(targetGuid);
@@ -960,7 +1040,7 @@ void Group::SendLootRoll(ObjectGuid sourceGuid, ObjectGuid targetGuid, uint8 rol
 
 void Group::SendLootRollWon(ObjectGuid sourceGuid, ObjectGuid targetGuid, uint8 rollNumber, uint8 rollType, Roll const& roll)
 {
-    WorldPacket data(SMSG_LOOT_ROLL_WON, (8+4+4+4+4+8+1+1));
+    WorldPacket data(SMSG_LOOT_ROLL_WON, (8 + 4 + 4 + 4 + 4 + 8 + 1 + 1));
     data << uint64(sourceGuid);                             // guid of the item rolled
     data << uint32(roll.itemSlot);                          // slot
     data << uint32(roll.itemid);                            // the itemEntryId for the item that shall be rolled for
@@ -983,7 +1063,7 @@ void Group::SendLootRollWon(ObjectGuid sourceGuid, ObjectGuid targetGuid, uint8 
 
 void Group::SendLootAllPassed(Roll const& roll)
 {
-    WorldPacket data(SMSG_LOOT_ALL_PASSED, (8+4+4+4+4));
+    WorldPacket data(SMSG_LOOT_ALL_PASSED, (8 + 4 + 4 + 4 + 4));
     data << uint64(roll.itemGUID);                             // Guid of the item rolled
     data << uint32(roll.itemSlot);                             // Item loot slot
     data << uint32(roll.itemid);                               // The itemEntryId for the item that shall be rolled for
@@ -1006,7 +1086,7 @@ void Group::SendLooter(Creature* creature, Player* groupLooter)
 {
     ASSERT(creature);
 
-    WorldPacket data(SMSG_LOOT_LIST, (8+8));
+    WorldPacket data(SMSG_LOOT_LIST, (8 + 8));
     data << uint64(creature->GetGUID());
 
     if (GetLootMethod() == MASTER_LOOT && creature->loot.hasOverThresholdItem())
@@ -1095,7 +1175,7 @@ void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
                 // If there are any "auto pass", broadcast them now
                 if (r->totalPass)
                 {
-                    for (Roll::PlayerVote::const_iterator itr=r->playerVote.begin(); itr != r->playerVote.end(); ++itr)
+                    for (Roll::PlayerVote::const_iterator itr = r->playerVote.begin(); itr != r->playerVote.end(); ++itr)
                     {
                         Player* p = ObjectAccessor::FindConnectedPlayer(itr->first);
                         if (!p || !p->GetSession())
@@ -1411,26 +1491,26 @@ void Group::CountRollVote(ObjectGuid playerGUID, ObjectGuid Guid, uint8 Choice)
 
     switch (Choice)
     {
-        case ROLL_PASS:                                     // Player choose pass
-            SendLootRoll(ObjectGuid::Empty, playerGUID, 128, ROLL_PASS, *roll);
-            ++roll->totalPass;
-            itr->second = PASS;
-            break;
-        case ROLL_NEED:                                     // player choose Need
-            SendLootRoll(ObjectGuid::Empty, playerGUID, 0, 0, *roll);
-            ++roll->totalNeed;
-            itr->second = NEED;
-            break;
-        case ROLL_GREED:                                    // player choose Greed
-            SendLootRoll(ObjectGuid::Empty, playerGUID, 128, ROLL_GREED, *roll);
-            ++roll->totalGreed;
-            itr->second = GREED;
-            break;
-        case ROLL_DISENCHANT:                               // player choose Disenchant
-            SendLootRoll(ObjectGuid::Empty, playerGUID, 128, ROLL_DISENCHANT, *roll);
-            ++roll->totalGreed;
-            itr->second = DISENCHANT;
-            break;
+    case ROLL_PASS:                                     // Player choose pass
+        SendLootRoll(ObjectGuid::Empty, playerGUID, 128, ROLL_PASS, *roll);
+        ++roll->totalPass;
+        itr->second = PASS;
+        break;
+    case ROLL_NEED:                                     // player choose Need
+        SendLootRoll(ObjectGuid::Empty, playerGUID, 0, 0, *roll);
+        ++roll->totalNeed;
+        itr->second = NEED;
+        break;
+    case ROLL_GREED:                                    // player choose Greed
+        SendLootRoll(ObjectGuid::Empty, playerGUID, 128, ROLL_GREED, *roll);
+        ++roll->totalGreed;
+        itr->second = GREED;
+        break;
+    case ROLL_DISENCHANT:                               // player choose Disenchant
+        SendLootRoll(ObjectGuid::Empty, playerGUID, 128, ROLL_DISENCHANT, *roll);
+        ++roll->totalGreed;
+        itr->second = DISENCHANT;
+        break;
     }
 
     if (roll->totalPass + roll->totalNeed + roll->totalGreed >= roll->totalPlayersRolling)
@@ -1486,7 +1566,7 @@ void Group::CountTheRoll(Rolls::iterator rollI, Map* allowedMap)
                 SendLootRoll(ObjectGuid::Empty, itr->first, randomN, ROLL_NEED, *roll);
                 if (maxresul < randomN)
                 {
-                    maxguid  = itr->first;
+                    maxguid = itr->first;
                     maxresul = randomN;
                 }
             }
@@ -1549,7 +1629,7 @@ void Group::CountTheRoll(Rolls::iterator rollI, Map* allowedMap)
                 SendLootRoll(ObjectGuid::Empty, itr->first, randomN, itr->second, *roll);
                 if (maxresul < randomN)
                 {
-                    maxguid  = itr->first;
+                    maxguid = itr->first;
                     maxresul = randomN;
                     rollvote = itr->second;
                 }
@@ -1638,13 +1718,13 @@ void Group::SetTargetIcon(uint8 id, ObjectGuid whoGuid, ObjectGuid targetGuid)
 
     // clean other icons
     if (targetGuid)
-        for (int i=0; i<TARGETICONCOUNT; ++i)
+        for (int i = 0; i < TARGETICONCOUNT; ++i)
             if (m_targetIcons[i] == targetGuid)
                 SetTargetIcon(i, ObjectGuid::Empty, ObjectGuid::Empty);
 
     m_targetIcons[id] = targetGuid;
 
-    WorldPacket data(MSG_RAID_TARGET_UPDATE, (1+8+1+8));
+    WorldPacket data(MSG_RAID_TARGET_UPDATE, (1 + 8 + 1 + 8));
     data << uint8(0);                                       // set targets
     data << uint64(whoGuid);
     data << uint8(id);
@@ -1657,7 +1737,7 @@ void Group::SendTargetIconList(WorldSession* session)
     if (!session)
         return;
 
-    WorldPacket data(MSG_RAID_TARGET_UPDATE, (1+TARGETICONCOUNT*9));
+    WorldPacket data(MSG_RAID_TARGET_UPDATE, (1 + TARGETICONCOUNT * 9));
     data << uint8(1);                                       // list targets
 
     for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
@@ -1696,7 +1776,7 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
         slot = &(*witr);
     }
 
-    WorldPacket data(SMSG_GROUP_LIST, (1+1+1+1+1+4+8+4+4+(GetMembersCount()-1)*(13+8+1+1+1+1)+8+1+8+1+1+1+1));
+    WorldPacket data(SMSG_GROUP_LIST, (1 + 1 + 1 + 1 + 1 + 4 + 8 + 4 + 4 + (GetMembersCount() - 1) * (13 + 8 + 1 + 1 + 1 + 1) + 8 + 1 + 8 + 1 + 1 + 1 + 1));
     data << uint8(m_groupType);                         // group type (flags in 3.3)
     data << uint8(slot->group);
     data << uint8(slot->flags);
@@ -1709,7 +1789,7 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
 
     data << uint64(m_guid);
     data << uint32(m_counter++);                        // 3.3, value increases every time this packet gets sent
-    data << uint32(GetMembersCount()-1);
+    data << uint32(GetMembersCount() - 1);
     for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
     {
         if (slot->guid == citr->guid)
@@ -2186,20 +2266,20 @@ void Group::ResetInstances(uint8 method, bool isRaid, Player* SendMsgTo)
             {
                 if (map && map->IsDungeon() && SendMsgTo)
                 {
-                    AreaTrigger const * const instanceEntrance = sObjectMgr->GetGoBackTrigger(map->GetId());
+                    AreaTrigger const* const instanceEntrance = sObjectMgr->GetGoBackTrigger(map->GetId());
 
                     if (!instanceEntrance)
                         TC_LOG_DEBUG("root", "Instance entrance not found for maps %u", map->GetId());
                     else
                     {
-                        WorldSafeLocsEntry const * graveyardLocation = sObjectMgr->GetClosestGraveyard(instanceEntrance->target_X, instanceEntrance->target_Y, instanceEntrance->target_Z, instanceEntrance->target_mapId, SendMsgTo->GetTeam());
+                        WorldSafeLocsEntry const* graveyardLocation = sObjectMgr->GetClosestGraveyard(instanceEntrance->target_X, instanceEntrance->target_Y, instanceEntrance->target_Z, instanceEntrance->target_mapId, SendMsgTo->GetTeam());
                         uint32 const zoneId = sMapMgr->GetZoneId(graveyardLocation->map_id, graveyardLocation->x, graveyardLocation->y, graveyardLocation->z);
 
                         for (MemberSlot const& member : GetMemberSlots())
                         {
                             if (!ObjectAccessor::FindConnectedPlayer(member.guid))
                             {
-                                CharacterDatabasePreparedStatement*stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_POSITION_BY_MAPID);
+                                CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_POSITION_BY_MAPID);
 
                                 stmt->setFloat(0, graveyardLocation->x);
                                 stmt->setFloat(1, graveyardLocation->y);
@@ -2494,7 +2574,7 @@ bool Group::SameSubGroup(ObjectGuid guid1, ObjectGuid guid2) const
 {
     member_citerator mslot2 = _getMemberCSlot(guid2);
     if (mslot2 == m_memberSlots.end())
-       return false;
+        return false;
     return SameSubGroup(guid1, &*mslot2);
 }
 
@@ -2516,7 +2596,7 @@ uint8 Group::GetMemberGroup(ObjectGuid guid) const
 {
     member_citerator mslot = _getMemberCSlot(guid);
     if (mslot == m_memberSlots.end())
-       return (MAX_RAID_SUBGROUPS+1);
+        return (MAX_RAID_SUBGROUPS + 1);
     return mslot->group;
 }
 
@@ -2525,7 +2605,7 @@ void Group::SetBattlegroundGroup(Battleground* bg)
     m_bgGroup = bg;
 }
 
-void Group::SetBattlefieldGroup(Battlefield *bg)
+void Group::SetBattlefieldGroup(Battlefield* bg)
 {
     m_bfGroup = bg;
 }
@@ -2534,7 +2614,7 @@ void Group::SetGroupMemberFlag(ObjectGuid guid, bool apply, GroupMemberFlags fla
 {
     // Assistants, main assistants and main tanks are only available in raid groups
     if (!isRaidGroup())
-       return;
+        return;
 
     // Check if player is really in the raid
     member_witerator slot = _getMemberWSlot(guid);
@@ -2544,16 +2624,16 @@ void Group::SetGroupMemberFlag(ObjectGuid guid, bool apply, GroupMemberFlags fla
     // Do flag specific actions, e.g ensure uniqueness
     switch (flag)
     {
-        case MEMBER_FLAG_MAINASSIST:
-            RemoveUniqueGroupMemberFlag(MEMBER_FLAG_MAINASSIST);         // Remove main assist flag from current if any.
-            break;
-        case MEMBER_FLAG_MAINTANK:
-            RemoveUniqueGroupMemberFlag(MEMBER_FLAG_MAINTANK);           // Remove main tank flag from current if any.
-            break;
-        case MEMBER_FLAG_ASSISTANT:
-            break;
-        default:
-            return;                                                      // This should never happen
+    case MEMBER_FLAG_MAINASSIST:
+        RemoveUniqueGroupMemberFlag(MEMBER_FLAG_MAINASSIST);         // Remove main assist flag from current if any.
+        break;
+    case MEMBER_FLAG_MAINTANK:
+        RemoveUniqueGroupMemberFlag(MEMBER_FLAG_MAINTANK);           // Remove main tank flag from current if any.
+        break;
+    case MEMBER_FLAG_ASSISTANT:
+        break;
+    default:
+        return;                                                      // This should never happen
     }
 
     // Switch the actual flag
@@ -2631,7 +2711,7 @@ void Group::_initRaidSubGroupsCounter()
     if (!m_subGroupsCounts)
         m_subGroupsCounts = new uint8[MAX_RAID_SUBGROUPS];
 
-    memset((void*)m_subGroupsCounts, 0, (MAX_RAID_SUBGROUPS)*sizeof(uint8));
+    memset((void*)m_subGroupsCounts, 0, (MAX_RAID_SUBGROUPS) * sizeof(uint8));
 
     for (member_citerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
         ++m_subGroupsCounts[itr->group];
@@ -2691,7 +2771,6 @@ void Group::StopLeaderOfflineTimer()
     m_isLeaderOffline = false;
 }
 
-// EJ Target Icon
 ObjectGuid Group::GetOGByTargetIcon(int pmID)
 {
     if (pmID >= 0 && pmID < TARGETICONCOUNT)
