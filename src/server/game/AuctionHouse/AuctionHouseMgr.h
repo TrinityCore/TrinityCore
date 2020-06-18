@@ -211,6 +211,7 @@ struct AuctionsBucketData
     uint64 MinPrice = 0; // for sort
     std::array<std::pair<uint32, uint32>, 4> ItemModifiedAppearanceId = { }; // for uncollected search
     uint8 RequiredLevel = 0; // for usable search
+    uint8 SortLevel = 0;
     uint8 MinBattlePetLevel = 0;
     uint8 MaxBattlePetLevel = 0;
     std::array<std::wstring, TOTAL_LOCALES> FullName = { };
