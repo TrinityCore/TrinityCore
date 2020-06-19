@@ -167,80 +167,136 @@ bool JokerConfig::StartJokerSystem()
 
     ThreatMod = GetFloatDefault("ThreatMod", 1.0f);
 
-    NormalAttackMod_Total = GetFloatDefault("NormalAttackMod_Total", 1.0f);
-    InstanceEncounterAttackMod_Total = GetFloatDefault("InstanceEncounterAttackMod_Total", 1.0f);
-    EliteAttackMod_Total = GetFloatDefault("EliteAttackMod_Total", 1.0f);
-    UniqueEliteAttackMod_Total = GetFloatDefault("UniqueEliteAttackMod_Total", 1.0f);
-    RareAttackMod_Total = GetFloatDefault("RareAttackMod_Total", 1.0f);
-    RaidEliteAttackMod_Total = GetFloatDefault("RaidEliteAttackMod_Total", 1.0f);
-    WorldBossAttackMod_Total = GetFloatDefault("WorldBossAttackMod_Total", 1.0f);
-    RareEliteAttackMod_Total = GetFloatDefault("RareEliteAttackMod_Total", 1.0f);
+    AttackMod_Max_Normal = GetFloatDefault("AttackMod_Max_Normal", 2.0f);
+    AttackMod_Min_Normal = GetFloatDefault("AttackMod_Min_Normal", 1.0f);
+    AttackMod_Gap_Normal = GetFloatDefault("AttackMod_Gap_Normal", 1.0f);
 
-    NormalSpellMod_Total = GetFloatDefault("NormalSpellMod_Total", 1.0f);
-    InstanceEncounterSpellMod_Total = GetFloatDefault("InstanceEncounterSpellMod_Total", 1.0f);
-    EliteSpellMod_Total = GetFloatDefault("EliteSpellMod_Total", 1.0f);
-    UniqueEliteSpellMod_Total = GetFloatDefault("UniqueEliteSpellMod_Total", 1.0f);
-    RareSpellMod_Total = GetFloatDefault("RareSpellMod_Total", 1.0f);
-    RaidEliteSpellMod_Total = GetFloatDefault("RaidEliteSpellMod_Total", 1.0f);
-    WorldBossSpellMod_Total = GetFloatDefault("WorldBossSpellMod_Total", 1.0f);
-    RareEliteSpellMod_Total = GetFloatDefault("RareEliteSpellMod_Total", 1.0f);
+    AttackMod_Max_Elite = GetFloatDefault("AttackMod_Max_Elite", 5.0f);
+    AttackMod_Min_Elite = GetFloatDefault("AttackMod_Min_Elite", 2.0f);
+    AttackMod_Gap_Elite = GetFloatDefault("AttackMod_Gap_Elite", 1.0f);
 
-    NormalHPMod_Total = GetFloatDefault("NormalHPMod_Total", 1.0f);
-    InstanceEncounterHPMod_Total = GetFloatDefault("InstanceEncounterHPMod_Total", 1.0f);
-    EliteHPMod_Total = GetFloatDefault("EliteHPMod_Total", 1.0f);
-    UniqueEliteHPMod_Total = GetFloatDefault("UniqueEliteHPMod_Total", 1.0f);
-    RareHPMod_Total = GetFloatDefault("RareHPMod_Total", 1.0f);
-    RaidEliteHPMod_Total = GetFloatDefault("RaidEliteHPMod_Total", 1.0f);
-    WorldBossHPMod_Total = GetFloatDefault("WorldBossHPMod_Total", 1.0f);
-    RareEliteHPMod_Total = GetFloatDefault("RareEliteHPMod_Total", 1.0f);
+    AttackMod_Max_UniqueElite = GetFloatDefault("AttackMod_Max_UniqueElite", 6.0f);
+    AttackMod_Min_UniqueElite = GetFloatDefault("AttackMod_Min_UniqueElite", 2.5f);
+    AttackMod_Gap_UniqueElite = GetFloatDefault("AttackMod_Gap_UniqueElite", 1.0f);
 
-    NormalMPMod_Total = GetFloatDefault("NormalMPMod_Total", 1.0f);
-    InstanceEncounterMPMod_Total = GetFloatDefault("InstanceEncounterMPMod_Total", 1.0f);
-    EliteMPMod_Total = GetFloatDefault("EliteMPMod_Total", 1.0f);
-    UniqueEliteMPMod_Total = GetFloatDefault("UniqueEliteMPMod_Total", 1.0f);
-    RareMPMod_Total = GetFloatDefault("RareMPMod_Total", 1.0f);
-    RaidEliteMPMod_Total = GetFloatDefault("RaidEliteMPMod_Total", 1.0f);
-    WorldBossMPMod_Total = GetFloatDefault("WorldBossMPMod_Total", 1.0f);
-    RareEliteMPMod_Total = GetFloatDefault("RareEliteMPMod_Total", 1.0f);
+    AttackMod_Max_RaidElite = GetFloatDefault("AttackMod_Max_RaidElite", 1000.0f);
+    AttackMod_Min_RaidElite = GetFloatDefault("AttackMod_Min_RaidElite", 1.0f);
+    AttackMod_Gap_RaidElite = GetFloatDefault("AttackMod_Gap_RaidElite", 1000.0f);
 
-    PlayerHPMod_Total = GetFloatDefault("PlayerHPMod_Total", 1.0f);
-    PlayerMPMod_Total = GetFloatDefault("PlayerMPMod_Total", 1.0f);
+    AttackMod_Max_InstanceEncounter = GetFloatDefault("AttackMod_Max_InstanceEncounter", 10.0f);
+    AttackMod_Min_InstanceEncounter = GetFloatDefault("AttackMod_Min_InstanceEncounter", 4.0f);
+    AttackMod_Gap_InstanceEncounter = GetFloatDefault("AttackMod_Gap_InstanceEncounter", 1.0f);
 
-    NormalAttackMod_Level = GetFloatDefault("NormalAttackMod_Level", 1.0f);
-    InstanceEncounterAttackMod_Level = GetFloatDefault("InstanceEncounterAttackMod_Level", 1.0f);
-    EliteAttackMod_Level = GetFloatDefault("EliteAttackMod_Level", 1.0f);
-    UniqueEliteAttackMod_Level = GetFloatDefault("UniqueEliteAttackMod_Level", 1.0f);
-    RareAttackMod_Level = GetFloatDefault("RareAttackMod_Level", 1.0f);
-    RaidEliteAttackMod_Level = GetFloatDefault("RaidEliteAttackMod_Level", 1.0f);
-    WorldBossAttackMod_Level = GetFloatDefault("WorldBossAttackMod_Level", 1.0f);
-    RareEliteAttackMod_Level = GetFloatDefault("RareEliteAttackMod_Level", 1.0f);
+    AttackMod_Max_Rare = GetFloatDefault("AttackMod_Max_Rare", 7.0f);
+    AttackMod_Min_Rare = GetFloatDefault("AttackMod_Min_Rare", 3.0f);
+    AttackMod_Gap_Rare = GetFloatDefault("AttackMod_Gap_Rare", 1.0f);
 
-    NormalSpellMod_Level = GetFloatDefault("NormalSpellMod_Level", 1.0f);
-    InstanceEncounterSpellMod_Level = GetFloatDefault("InstanceEncounterSpellMod_Level", 1.0f);
-    EliteSpellMod_Level = GetFloatDefault("EliteSpellMod_Level", 1.0f);
-    UniqueEliteSpellMod_Level = GetFloatDefault("UniqueEliteSpellMod_Level", 1.0f);
-    RareSpellMod_Level = GetFloatDefault("RareSpellMod_Level", 1.0f);
-    RaidEliteSpellMod_Level = GetFloatDefault("RaidEliteSpellMod_Level", 1.0f);
-    WorldBossSpellMod_Level = GetFloatDefault("WorldBossSpellMod_Level", 1.0f);
-    RareEliteSpellMod_Level = GetFloatDefault("RareEliteSpellMod_Level", 1.0f);
+    AttackMod_Max_RareElite = GetFloatDefault("AttackMod_Max_RareElite", 9.0f);
+    AttackMod_Min_RareElite = GetFloatDefault("AttackMod_Min_RareElite", 3.5f);
+    AttackMod_Gap_RareElite = GetFloatDefault("AttackMod_Gap_RareElite", 1.0f);
 
-    NormalHPMod_Level = GetFloatDefault("NormalHPMod_Level", 1.0f);
-    InstanceEncounterHPMod_Level = GetFloatDefault("InstanceEncounterHPMod_Level", 1.0f);
-    EliteHPMod_Level = GetFloatDefault("EliteHPMod_Level", 1.0f);
-    UniqueEliteHPMod_Level = GetFloatDefault("UniqueEliteHPMod_Level", 1.0f);
-    RareHPMod_Level = GetFloatDefault("RareHPMod_Level", 1.0f);
-    RaidEliteHPMod_Level = GetFloatDefault("RaidEliteHPMod_Level", 1.0f);
-    WorldBossHPMod_Level = GetFloatDefault("WorldBossHPMod_Level", 1.0f);
-    RareEliteHPMod_Level = GetFloatDefault("RareEliteHPMod_Level", 1.0f);
+    AttackMod_Max_WorldBoss = GetFloatDefault("AttackMod_Max_WorldBoss", 1000.0f);
+    AttackMod_Min_WorldBoss = GetFloatDefault("AttackMod_Min_WorldBoss", 1.0f);
+    AttackMod_Gap_WorldBoss = GetFloatDefault("AttackMod_Gap_WorldBoss", 1000.0f);
 
-    NormalMPMod_Level = GetFloatDefault("NormalMPMod_Level", 1.0f);
-    InstanceEncounterMPMod_Level = GetFloatDefault("InstanceEncounterMPMod_Level", 1.0f);
-    EliteMPMod_Level = GetFloatDefault("EliteMPMod_Level", 1.0f);
-    UniqueEliteMPMod_Level = GetFloatDefault("UniqueEliteMPMod_Level", 1.0f);
-    RareMPMod_Level = GetFloatDefault("RareMPMod_Level", 1.0f);
-    RaidEliteMPMod_Level = GetFloatDefault("RaidEliteMPMod_Level", 1.0f);
-    WorldBossMPMod_Level = GetFloatDefault("WorldBossMPMod_Level", 1.0f);
-    RareEliteMPMod_Level = GetFloatDefault("RareEliteMPMod_Level", 1.0f);
+
+    SpellMod_Max_Normal = GetFloatDefault("SpellMod_Max_Normal", 1.0f);
+    SpellMod_Min_Normal = GetFloatDefault("SpellMod_Min_Normal", 1.0f);
+    SpellMod_Gap_Normal = GetFloatDefault("SpellMod_Gap_Normal", 1.0f);
+
+    SpellMod_Max_Elite = GetFloatDefault("SpellMod_Max_Elite", 1.0f);
+    SpellMod_Min_Elite = GetFloatDefault("SpellMod_Min_Elite", 1.0f);
+    SpellMod_Gap_Elite = GetFloatDefault("SpellMod_Gap_Elite", 1.0f);
+
+    SpellMod_Max_UniqueElite = GetFloatDefault("SpellMod_Max_UniqueElite", 1.0f);
+    SpellMod_Min_UniqueElite = GetFloatDefault("SpellMod_Min_UniqueElite", 1.0f);
+    SpellMod_Gap_UniqueElite = GetFloatDefault("SpellMod_Gap_UniqueElite", 1.0f);
+
+    SpellMod_Max_RaidElite = GetFloatDefault("SpellMod_Max_RaidElite", 1.0f);
+    SpellMod_Min_RaidElite = GetFloatDefault("SpellMod_Min_RaidElite", 1.0f);
+    SpellMod_Gap_RaidElite = GetFloatDefault("SpellMod_Gap_RaidElite", 1.0f);
+
+    SpellMod_Max_InstanceEncounter = GetFloatDefault("SpellMod_Max_InstanceEncounter", 1.0f);
+    SpellMod_Min_InstanceEncounter = GetFloatDefault("SpellMod_Min_InstanceEncounter", 1.0f);
+    SpellMod_Gap_InstanceEncounter = GetFloatDefault("SpellMod_Gap_InstanceEncounter", 1.0f);
+
+    SpellMod_Max_Rare = GetFloatDefault("SpellMod_Max_Rare", 1.0f);
+    SpellMod_Min_Rare = GetFloatDefault("SpellMod_Min_Rare", 1.0f);
+    SpellMod_Gap_Rare = GetFloatDefault("SpellMod_Gap_Rare", 1.0f);
+
+    SpellMod_Max_RareElite = GetFloatDefault("SpellMod_Max_RareElite", 1.0f);
+    SpellMod_Min_RareElite = GetFloatDefault("SpellMod_Min_RareElite", 1.0f);
+    SpellMod_Gap_RareElite = GetFloatDefault("SpellMod_Gap_RareElite", 1.0f);
+
+    SpellMod_Max_WorldBoss = GetFloatDefault("SpellMod_Max_WorldBoss", 1.0f);
+    SpellMod_Min_WorldBoss = GetFloatDefault("SpellMod_Min_WorldBoss", 1.0f);
+    SpellMod_Gap_WorldBoss = GetFloatDefault("SpellMod_Gap_WorldBoss", 1.0f);
+
+
+    HPMod_Max_Normal = GetFloatDefault("HPMod_Max_Normal", 2.0f);
+    HPMod_Min_Normal = GetFloatDefault("HPMod_Min_Normal", 1.0f);
+    HPMod_Gap_Normal = GetFloatDefault("HPMod_Gap_Normal", 1.0f);
+
+    HPMod_Max_Elite = GetFloatDefault("HPMod_Max_Elite", 6.0f);
+    HPMod_Min_Elite = GetFloatDefault("HPMod_Min_Elite", 3.0f);
+    HPMod_Gap_Elite = GetFloatDefault("HPMod_Gap_Elite", 1.0f);
+
+    HPMod_Max_UniqueElite = GetFloatDefault("HPMod_Max_UniqueElite", 8.0f);
+    HPMod_Min_UniqueElite = GetFloatDefault("HPMod_Min_UniqueElite", 4.0f);
+    HPMod_Gap_UniqueElite = GetFloatDefault("HPMod_Gap_UniqueElite", 1.0f);
+
+    HPMod_Max_RaidElite = GetFloatDefault("HPMod_Max_RaidElite", 1000.0f);
+    HPMod_Min_RaidElite = GetFloatDefault("HPMod_Min_RaidElite", 1.0f);
+    HPMod_Gap_RaidElite = GetFloatDefault("HPMod_Gap_RaidElite", 1000.0f);
+
+    HPMod_Max_InstanceEncounter = GetFloatDefault("HPMod_Max_InstanceEncounter", 25.0f);
+    HPMod_Min_InstanceEncounter = GetFloatDefault("HPMod_Min_InstanceEncounter", 10.0f);
+    HPMod_Gap_InstanceEncounter = GetFloatDefault("HPMod_Gap_InstanceEncounter", 5.0f);
+
+    HPMod_Max_Rare = GetFloatDefault("HPMod_Max_Rare", 3.0f);
+    HPMod_Min_Rare = GetFloatDefault("HPMod_Min_Rare", 1.0f);
+    HPMod_Gap_Rare = GetFloatDefault("HPMod_Gap_Rare", 1.0f);
+
+    HPMod_Max_RareElite = GetFloatDefault("HPMod_Max_RareElite", 5.0f);
+    HPMod_Min_RareElite = GetFloatDefault("HPMod_Min_RareElite", 2.0f);
+    HPMod_Gap_RareElite = GetFloatDefault("HPMod_Gap_RareElite", 1.0f);
+
+    HPMod_Max_WorldBoss = GetFloatDefault("HPMod_Max_WorldBoss", 1000.0f);
+    HPMod_Min_WorldBoss = GetFloatDefault("HPMod_Min_WorldBoss", 1.0f);
+    HPMod_Gap_WorldBoss = GetFloatDefault("HPMod_Gap_WorldBoss", 1000.0f);
+
+
+    MPMod_Max_Normal = GetFloatDefault("MPMod_Max_Normal", 1000.0f);
+    MPMod_Min_Normal = GetFloatDefault("MPMod_Min_Normal", 1.0f);
+    MPMod_Gap_Normal = GetFloatDefault("MPMod_Gap_Normal", 1000.0f);
+
+    MPMod_Max_Elite = GetFloatDefault("MPMod_Max_Elite", 1000.0f);
+    MPMod_Min_Elite = GetFloatDefault("MPMod_Min_Elite", 1.0f);
+    MPMod_Gap_Elite = GetFloatDefault("MPMod_Gap_Elite", 1000.0f);
+
+    MPMod_Max_UniqueElite = GetFloatDefault("MPMod_Max_UniqueElite", 1000.0f);
+    MPMod_Min_UniqueElite = GetFloatDefault("MPMod_Min_UniqueElite", 1.0f);
+    MPMod_Gap_UniqueElite = GetFloatDefault("MPMod_Gap_UniqueElite", 1000.0f);
+
+    MPMod_Max_RaidElite = GetFloatDefault("MPMod_Max_RaidElite", 1000.0f);
+    MPMod_Min_RaidElite = GetFloatDefault("MPMod_Min_RaidElite", 1.0f);
+    MPMod_Gap_RaidElite = GetFloatDefault("MPMod_Gap_RaidElite", 1000.0f);
+
+    MPMod_Max_InstanceEncounter = GetFloatDefault("MPMod_Max_InstanceEncounter", 1000.0f);
+    MPMod_Min_InstanceEncounter = GetFloatDefault("MPMod_Min_InstanceEncounter", 1.0f);
+    MPMod_Gap_InstanceEncounter = GetFloatDefault("MPMod_Gap_InstanceEncounter", 1000.0f);
+
+    MPMod_Max_Rare = GetFloatDefault("MPMod_Max_Rare", 1000.0f);
+    MPMod_Min_Rare = GetFloatDefault("MPMod_Min_Rare", 1.0f);
+    MPMod_Gap_Rare = GetFloatDefault("MPMod_Gap_Rare", 1000.0f);
+
+    MPMod_Max_RareElite = GetFloatDefault("MPMod_Max_RareElite", 1000.0f);
+    MPMod_Min_RareElite = GetFloatDefault("MPMod_Min_RareElite", 1.0f);
+    MPMod_Gap_RareElite = GetFloatDefault("MPMod_Gap_RareElite", 1000.0f);
+
+    MPMod_Max_WorldBoss = GetFloatDefault("MPMod_Max_WorldBoss", 1000.0f);
+    MPMod_Min_WorldBoss = GetFloatDefault("MPMod_Min_WorldBoss", 1.0f);
+    MPMod_Gap_WorldBoss = GetFloatDefault("MPMod_Gap_WorldBoss", 1000.0f);
 
     CreatureModException = GetStringDefault("CreatureModException", "");
     CreatureModExceptionSet.clear();
@@ -253,12 +309,11 @@ bool JokerConfig::StartJokerSystem()
         CreatureModExceptionSet.insert(eachEntry);
     }
 
-    PlayerHPMod_Level = GetFloatDefault("PlayerHPMod_Level", 1.0f);
-    PlayerMPMod_Level = GetFloatDefault("PlayerMPMod_Level", 1.0f);
-
-    MaxModLevel = GetIntDefault("MaxModLevel", 1);
+    MaxModLevel = GetIntDefault("MaxModLevel", 60);
 
     MaxTrainerSpellLevel = GetIntDefault("MaxTrainerSpellLevel", 80);
+
+    PlayerMod = GetFloatDefault("PlayerMod", 1);
 
     LootCountEachGroup_Normal = GetIntDefault("LootCountEachGroup_Normal", 1);
     LootCountEachGroup_InstanceEncounter = GetIntDefault("LootCountEachGroup_InstanceEncounter", 1);    

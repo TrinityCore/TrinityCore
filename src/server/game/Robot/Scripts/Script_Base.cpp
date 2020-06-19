@@ -313,6 +313,7 @@ void Script_Base::RandomTeleport()
         me->ResurrectPlayer(1.0f);
         me->SpawnCorpseBones();
     }
+    me->GetThreatManager().ClearAllThreat();
     me->ClearInCombat();
     me->StopMoving();
     me->GetMotionMaster()->Clear();
@@ -322,8 +323,6 @@ void Script_Base::RandomTeleport()
     float destX = 0.0f;
     float destY = 0.0f;
     float destZ = 0.0f;
-    float distance = frand(sRobotConfig->TeleportMinRange, sRobotConfig->TeleportMaxRange);
-    float angle = frand(0, 2 * M_PI);
 
     if (me->rai->robotType == RobotType::RobotType_Raid)
     {
@@ -345,53 +344,57 @@ void Script_Base::RandomTeleport()
             {
                 if (pair.second.spawnId == spawnID)
                 {
-                    me->TeleportTo(pair.second.mapId, pair.second.spawnPoint.m_positionX, pair.second.spawnPoint.m_positionY, pair.second.spawnPoint.m_positionZ, 0.0f);
+                    destMapID = pair.second.mapId;
+                    destX = pair.second.spawnPoint.m_positionX;
+                    destY = pair.second.spawnPoint.m_positionY;
+                    destZ = pair.second.spawnPoint.m_positionZ;
+                    validLocation = true;
                     break;
                 }
             }
-        }
-        return;
+        }        
     }
-
-    if (sRobotManager->onlinePlayerIDMap.size() > 0)
+    else if (me->rai->robotType == RobotType::RobotType_World)
     {
-        uint32 playerIndex = urand(0, sRobotManager->onlinePlayerIDMap.size() - 1);
-        uint32 cid = sRobotManager->onlinePlayerIDMap[playerIndex];
-        ObjectGuid og = ObjectGuid(HighGuid::Player, cid);
-        if (Player* targetP = ObjectAccessor::FindConnectedPlayer(og))
+        float distance = frand(sRobotConfig->TeleportMinRange, sRobotConfig->TeleportMaxRange);
+        float angle = frand(0, 2 * M_PI);
+        if (sRobotManager->onlinePlayerIDMap.size() > 0)
         {
-            if (!targetP->IsBeingTeleported())
+            uint32 playerIndex = urand(0, sRobotManager->onlinePlayerIDMap.size() - 1);
+            uint32 cid = sRobotManager->onlinePlayerIDMap[playerIndex];
+            ObjectGuid og = ObjectGuid(HighGuid::Player, cid);
+            if (Player* targetP = ObjectAccessor::FindConnectedPlayer(og))
             {
-                if (Map* checkMap = targetP->GetMap())
+                if (!targetP->IsBeingTeleported())
                 {
-                    if (!checkMap->Instanceable())
+                    if (Map* checkMap = targetP->GetMap())
                     {
-                        targetP->GetNearPoint(targetP, destX, destY, destZ, distance, angle);
-                        destMapID = targetP->GetMapId();
-                        validLocation = true;
+                        if (!checkMap->Instanceable())
+                        {
+                            targetP->GetNearPoint(targetP, destX, destY, destZ, distance, angle);
+                            destMapID = targetP->GetMapId();
+                            validLocation = true;
+                        }
                     }
                 }
             }
         }
-    }
-
-    if (!validLocation)
-    {
-        if (Corpse* myC = me->GetCorpse())
+        if (!validLocation)
         {
-            myC->GetNearPoint(myC, destX, destY, destZ, distance, angle);
-            destMapID = myC->GetMapId();
+            if (Corpse* myC = me->GetCorpse())
+            {
+                myC->GetNearPoint(myC, destX, destY, destZ, distance, angle);
+                destMapID = myC->GetMapId();
+                validLocation = true;
+            }
+        }
+        if (!validLocation)
+        {
+            me->GetNearPoint(me, destX, destY, destZ, distance, angle);
+            destMapID = me->GetMapId();
             validLocation = true;
         }
     }
-
-    if (!validLocation)
-    {
-        me->GetNearPoint(me, destX, destY, destZ, distance, angle);
-        destMapID = me->GetMapId();
-        validLocation = true;
-    }
-
     if (validLocation)
     {
         me->TeleportTo(destMapID, destX, destY, destZ, 0.0f);

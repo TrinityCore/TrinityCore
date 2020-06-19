@@ -738,12 +738,6 @@ class TC_GAME_API Unit : public WorldObject
 public:
     Unit* attackChargeTarget;
 
-    // EJ joker mod
-    float jokerAttackMod;
-    float jokerSpellMod;
-    float jokerHPMod;
-    float jokerMPMod;
-
     public:
         typedef std::set<Unit*> AttackerSet;
         typedef std::set<Unit*> ControlList;

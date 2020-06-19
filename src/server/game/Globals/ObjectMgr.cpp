@@ -367,49 +367,7 @@ void ObjectMgr::LoadCreatureTemplates()
     // 5. Select "Number to Insert", Initial number 1, Increase by 1
     // 6. Run this regex
     //  a.find    "\/\/[ ]+
-    //  b.replace "\r\n\t\t\/\/ (not that there is a space at the end of the regex, it's needed)
-    
-    // EJ mod temp instance_encounters and unique elite 
-    ieSet.clear();
-    ueSet.clear();
-    reSet.clear();
-    QueryResult ieQR = WorldDatabase.Query("SELECT creditEntry FROM instance_encounters");
-    if (ieQR)
-    {
-        do
-        {
-            Field* ieField = ieQR->Fetch();
-            uint32 eachEntry = ieField[0].GetUInt32();
-            ieSet.insert(eachEntry);
-        } while (ieQR->NextRow());
-    }
-    QueryResult ueQR = WorldDatabase.Query("SELECT id, count(*) cc FROM creature where id in (SELECT entry FROM creature_template where rank = 1) group by id");
-    if (ueQR)
-    {
-        do
-        {
-            Field* ueField = ueQR->Fetch();
-            uint32 eachEntry = ueField[0].GetUInt32();
-            uint32 eachCount = ueField[1].GetUInt32();
-            if (eachCount == 1)
-            {
-                ueSet.insert(eachEntry);
-            }
-        } while (ueQR->NextRow());
-    }
-    QueryResult reQR = WorldDatabase.Query("SELECT distinct id FROM world_trinity_core.creature where map = 409");
-    if (reQR)
-    {
-        do
-        {
-            Field* reField = reQR->Fetch();
-            uint32 eachEntry = reField[0].GetUInt32();
-            reSet.insert(eachEntry);
-        } while (reQR->NextRow());
-    }
-    reSet.insert(11663);
-    reSet.insert(11664);
-
+    //  b.replace "\r\n\t\t\/\/ (not that there is a space at the end of the regex, it's needed)       
     QueryResult result = WorldDatabase.Query(
         //  0
         "SELECT entry,"
@@ -660,6 +618,9 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     creatureTemplate.flags_extra = fields[61].GetUInt32();
     creatureTemplate.ScriptID = GetScriptId(fields[62].GetString());
 
+    // EJ creature template mod spell init
+    creatureTemplate.ModSpell = 1.0f;
+
     // EJ rare exp
     if (creatureTemplate.rank == 2)
     {
@@ -673,15 +634,233 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     // EJ mod
     if (sJokerConfig->Enable)
     {
-        if (creatureTemplate.minlevel > 1 && creatureTemplate.maxlevel < 10)
+        if (creatureTemplate.maxlevel > 2 && creatureTemplate.maxlevel < 10)
         {
             if (sJokerManager->expansionCreatureMap[0].find(creatureTemplate.Entry) != sJokerManager->expansionCreatureMap[0].end())
             {
                 creatureTemplate.faction = sJokerManager->expansionCreatureMap[0][creatureTemplate.Entry];
             }
-            else if (sJokerManager->expansionCreatureMap[1].find(creatureTemplate.Entry) != sJokerManager->expansionCreatureMap[1].end())
+        }
+        //else if (sJokerManager->expansionCreatureMap[1].find(creatureTemplate.Entry) != sJokerManager->expansionCreatureMap[1].end())
+        //{
+        //    creatureTemplate.faction = sJokerManager->expansionCreatureMap[1][creatureTemplate.Entry];
+        //}
+        if (sJokerConfig->CreatureModExceptionSet.find(creatureTemplate.Entry) == sJokerConfig->CreatureModExceptionSet.end())
+        {
+            float configAttackModMin = 1.0f;
+            float configAttackModMax = 100.0f;
+            float configAttackModGap = 100.0f;
+            float configSpellModMin = 1.0f;
+            float configSpellModMax = 100.0f;
+            float configSpellModGap = 100.0f;
+            float configHPModMin = 1.0f;
+            float configHPModMax = 100.0f;
+            float configHPModGap = 100.0f;
+            float configMPModMin = 1.0f;
+            float configMPModMax = 100.0f;
+            float configMPModGap = 100.0f;
+            switch (creatureTemplate.rank)
             {
-                creatureTemplate.faction = sJokerManager->expansionCreatureMap[1][creatureTemplate.Entry];
+            case CreatureEliteType::CREATURE_ELITE_NORMAL:
+            {
+                configAttackModMin = sJokerConfig->AttackMod_Min_Normal;
+                configAttackModMax = sJokerConfig->AttackMod_Max_Normal;
+                configAttackModGap = sJokerConfig->AttackMod_Gap_Normal;
+                configSpellModMin = sJokerConfig->SpellMod_Min_Normal;
+                configSpellModMax = sJokerConfig->SpellMod_Max_Normal;
+                configSpellModGap = sJokerConfig->SpellMod_Gap_Normal;
+                configHPModMin = sJokerConfig->HPMod_Min_Normal;
+                configHPModMax = sJokerConfig->HPMod_Max_Normal;
+                configHPModGap = sJokerConfig->HPMod_Gap_Normal;
+                configMPModMin = sJokerConfig->MPMod_Min_Normal;
+                configMPModMax = sJokerConfig->MPMod_Max_Normal;
+                configMPModGap = sJokerConfig->MPMod_Gap_Normal;
+                break;
+            }
+            case CreatureEliteType::CREATURE_ELITE_ELITE:
+            {
+                if (sJokerManager->ieSet.find(creatureTemplate.Entry) != sJokerManager->ieSet.end())
+                {
+                    configAttackModMin = sJokerConfig->AttackMod_Min_InstanceEncounter;
+                    configAttackModMax = sJokerConfig->AttackMod_Max_InstanceEncounter;
+                    configAttackModGap = sJokerConfig->AttackMod_Gap_InstanceEncounter;
+                    configSpellModMin = sJokerConfig->SpellMod_Min_InstanceEncounter;
+                    configSpellModMax = sJokerConfig->SpellMod_Max_InstanceEncounter;
+                    configSpellModGap = sJokerConfig->SpellMod_Gap_InstanceEncounter;
+                    configHPModMin = sJokerConfig->HPMod_Min_InstanceEncounter;
+                    configHPModMax = sJokerConfig->HPMod_Max_InstanceEncounter;
+                    configHPModGap = sJokerConfig->HPMod_Gap_InstanceEncounter;
+                    configMPModMin = sJokerConfig->MPMod_Min_InstanceEncounter;
+                    configMPModMax = sJokerConfig->MPMod_Max_InstanceEncounter;
+                    configMPModGap = sJokerConfig->MPMod_Gap_InstanceEncounter;
+                }
+                else if (sJokerManager->ueSet.find(creatureTemplate.Entry) != sJokerManager->ueSet.end())
+                {
+                    configAttackModMin = sJokerConfig->AttackMod_Min_UniqueElite;
+                    configAttackModMax = sJokerConfig->AttackMod_Max_UniqueElite;
+                    configAttackModGap = sJokerConfig->AttackMod_Gap_UniqueElite;
+                    configSpellModMin = sJokerConfig->SpellMod_Min_UniqueElite;
+                    configSpellModMax = sJokerConfig->SpellMod_Max_UniqueElite;
+                    configSpellModGap = sJokerConfig->SpellMod_Gap_UniqueElite;
+                    configHPModMin = sJokerConfig->HPMod_Min_UniqueElite;
+                    configHPModMax = sJokerConfig->HPMod_Max_UniqueElite;
+                    configHPModGap = sJokerConfig->HPMod_Gap_UniqueElite;
+                    configMPModMin = sJokerConfig->MPMod_Min_UniqueElite;
+                    configMPModMax = sJokerConfig->MPMod_Max_UniqueElite;
+                    configMPModGap = sJokerConfig->MPMod_Gap_UniqueElite;
+                }
+                else if (sJokerManager->reSet.find(creatureTemplate.Entry) != sJokerManager->reSet.end())
+                {
+                    configAttackModMin = sJokerConfig->AttackMod_Min_RaidElite;
+                    configAttackModMax = sJokerConfig->AttackMod_Max_RaidElite;
+                    configAttackModGap = sJokerConfig->AttackMod_Gap_RaidElite;
+                    configSpellModMin = sJokerConfig->SpellMod_Min_RaidElite;
+                    configSpellModMax = sJokerConfig->SpellMod_Max_RaidElite;
+                    configSpellModGap = sJokerConfig->SpellMod_Gap_RaidElite;
+                    configHPModMin = sJokerConfig->HPMod_Min_RaidElite;
+                    configHPModMax = sJokerConfig->HPMod_Max_RaidElite;
+                    configHPModGap = sJokerConfig->HPMod_Gap_RaidElite;
+                    configMPModMin = sJokerConfig->MPMod_Min_RaidElite;
+                    configMPModMax = sJokerConfig->MPMod_Max_RaidElite;
+                    configMPModGap = sJokerConfig->MPMod_Gap_RaidElite;
+                }
+                else
+                {
+                    configAttackModMin = sJokerConfig->AttackMod_Min_Elite;
+                    configAttackModMax = sJokerConfig->AttackMod_Max_Elite;
+                    configAttackModGap = sJokerConfig->AttackMod_Gap_Elite;
+                    configSpellModMin = sJokerConfig->SpellMod_Min_Elite;
+                    configSpellModMax = sJokerConfig->SpellMod_Max_Elite;
+                    configSpellModGap = sJokerConfig->SpellMod_Gap_Elite;
+                    configHPModMin = sJokerConfig->HPMod_Min_Elite;
+                    configHPModMax = sJokerConfig->HPMod_Max_Elite;
+                    configHPModGap = sJokerConfig->HPMod_Gap_Elite;
+                    configMPModMin = sJokerConfig->MPMod_Min_Elite;
+                    configMPModMax = sJokerConfig->MPMod_Max_Elite;
+                    configMPModGap = sJokerConfig->MPMod_Gap_Elite;
+                }                
+                break;
+            }
+            case CreatureEliteType::CREATURE_ELITE_RAREELITE:
+            {
+                configAttackModMin = sJokerConfig->AttackMod_Min_RareElite;
+                configAttackModMax = sJokerConfig->AttackMod_Max_RareElite;
+                configAttackModGap = sJokerConfig->AttackMod_Gap_RareElite;
+                configSpellModMin = sJokerConfig->SpellMod_Min_RareElite;
+                configSpellModMax = sJokerConfig->SpellMod_Max_RareElite;
+                configSpellModGap = sJokerConfig->SpellMod_Gap_RareElite;
+                configHPModMin = sJokerConfig->HPMod_Min_RareElite;
+                configHPModMax = sJokerConfig->HPMod_Max_RareElite;
+                configHPModGap = sJokerConfig->HPMod_Gap_RareElite;
+                configMPModMin = sJokerConfig->MPMod_Min_RareElite;
+                configMPModMax = sJokerConfig->MPMod_Max_RareElite;
+                configMPModGap = sJokerConfig->MPMod_Gap_RareElite;
+                break;
+            }
+            case CreatureEliteType::CREATURE_ELITE_WORLDBOSS:
+            {
+                configAttackModMin = sJokerConfig->AttackMod_Min_WorldBoss;
+                configAttackModMax = sJokerConfig->AttackMod_Max_WorldBoss;
+                configAttackModGap = sJokerConfig->AttackMod_Gap_WorldBoss;
+                configSpellModMin = sJokerConfig->SpellMod_Min_WorldBoss;
+                configSpellModMax = sJokerConfig->SpellMod_Max_WorldBoss;
+                configSpellModGap = sJokerConfig->SpellMod_Gap_WorldBoss;
+                configHPModMin = sJokerConfig->HPMod_Min_WorldBoss;
+                configHPModMax = sJokerConfig->HPMod_Max_WorldBoss;
+                configHPModGap = sJokerConfig->HPMod_Gap_WorldBoss;
+                configMPModMin = sJokerConfig->MPMod_Min_WorldBoss;
+                configMPModMax = sJokerConfig->MPMod_Max_WorldBoss;
+                configMPModGap = sJokerConfig->MPMod_Gap_WorldBoss;
+                break;
+            }
+            case CreatureEliteType::CREATURE_ELITE_RARE:
+            {
+                configAttackModMin = sJokerConfig->AttackMod_Min_Rare;
+                configAttackModMax = sJokerConfig->AttackMod_Max_Rare;
+                configAttackModGap = sJokerConfig->AttackMod_Gap_Rare;
+                configSpellModMin = sJokerConfig->SpellMod_Min_Rare;
+                configSpellModMax = sJokerConfig->SpellMod_Max_Rare;
+                configSpellModGap = sJokerConfig->SpellMod_Gap_Rare;
+                configHPModMin = sJokerConfig->HPMod_Min_Rare;
+                configHPModMax = sJokerConfig->HPMod_Max_Rare;
+                configHPModGap = sJokerConfig->HPMod_Gap_Rare;
+                configMPModMin = sJokerConfig->MPMod_Min_Rare;
+                configMPModMax = sJokerConfig->MPMod_Max_Rare;
+                configMPModGap = sJokerConfig->MPMod_Gap_Rare;
+                break;
+            }
+            default:
+            {
+                break;
+            }
+            }
+
+            float levelPower = (float)creatureTemplate.maxlevel;
+            float maxModLevel = (float)sJokerConfig->MaxModLevel;
+            if (levelPower > maxModLevel)
+            {
+                levelPower = maxModLevel;
+            }
+            float levelRate = levelPower / maxModLevel;
+
+            float jokerAttackMod = configAttackModMin;
+            float attackModSpace = configAttackModMax - jokerAttackMod;            
+            float attackExtraValue = levelRate * attackModSpace;
+            jokerAttackMod = jokerAttackMod + attackExtraValue;
+            float jokerAttackModMin = jokerAttackMod - configAttackModGap;
+            float jokerAttackModMax = jokerAttackMod + configAttackModGap;
+            if (creatureTemplate.ModDamage < jokerAttackModMin)
+            {
+                creatureTemplate.ModDamage = jokerAttackModMin;
+            }
+            else if (creatureTemplate.ModDamage > jokerAttackModMax)
+            {
+                creatureTemplate.ModDamage = jokerAttackModMax;
+            }
+
+            float jokerSpellMod = configSpellModMin;
+            float spellModSpace = configSpellModMax - jokerSpellMod;
+            float spellExtraValue = levelRate * spellModSpace;
+            jokerSpellMod = jokerSpellMod + spellExtraValue;
+            float jokerSpellModMin = jokerSpellMod - configSpellModGap;
+            float jokerSpellModMax = jokerSpellMod + configSpellModGap;
+            if (creatureTemplate.ModSpell < jokerSpellModMin)
+            {
+                creatureTemplate.ModSpell = jokerSpellModMin;
+            }
+            else if (creatureTemplate.ModSpell > jokerSpellModMax)
+            {
+                creatureTemplate.ModSpell = jokerSpellModMax;
+            }
+
+            float jokerHPMod = configHPModMin;
+            float HPModSpace = configHPModMax - jokerHPMod;
+            float HPExtraValue = levelRate * HPModSpace;
+            jokerHPMod = jokerHPMod + HPExtraValue;
+            float jokerHPModMin = jokerHPMod - configHPModGap;
+            float jokerHPModMax = jokerHPMod + configHPModGap;
+            if (creatureTemplate.ModHealth < jokerHPModMin)
+            {
+                creatureTemplate.ModHealth = jokerHPModMin;
+            }
+            else if (creatureTemplate.ModHealth > jokerHPModMax)
+            {
+                creatureTemplate.ModHealth = jokerHPModMax;
+            }
+
+            float jokerMPMod = configMPModMin;
+            float MPModSpace = configMPModMax - jokerMPMod;
+            float MPExtraValue = levelRate * MPModSpace;
+            jokerMPMod = jokerMPMod + MPExtraValue;
+            float jokerMPModMin = jokerMPMod - configMPModGap;
+            float jokerMPModMax = jokerMPMod + configMPModGap;
+            if (creatureTemplate.ModMana < jokerMPModMin)
+            {
+                creatureTemplate.ModMana = jokerMPModMin;
+            }
+            else if (creatureTemplate.ModMana > jokerMPModMax)
+            {
+                creatureTemplate.ModMana = jokerMPModMax;
             }
         }
     }
@@ -4356,24 +4535,20 @@ void ObjectMgr::LoadPlayerInfo()
             // EJ joker player mod
             if (sJokerConfig->Enable)
             {
-                float levelModPower = (float)current_level;
-                if (levelModPower > sJokerConfig->MaxModLevel)
+                if (sJokerConfig->PlayerMod == 1)
                 {
-                    levelModPower = sJokerConfig->MaxModLevel;
-                }
-                levelModPower = levelModPower * levelModPower;
-                levelModPower = levelModPower / 10000.0f;
+                    float levelPower = (float)current_level;
+                    float maxModLevel = (float)sJokerConfig->MaxModLevel;
+                    if (levelPower > maxModLevel)
+                    {
+                        levelPower = maxModLevel;
+                    }
+                    float levelRate = levelPower / maxModLevel;
+                    float jokerPlayerMod = 1.0f + levelRate;
 
-                float hpMod_total = sJokerConfig->PlayerHPMod_Total;
-                float hpMod_level = sJokerConfig->PlayerHPMod_Level * levelModPower;
-                float mpMod_total = sJokerConfig->PlayerMPMod_Total;
-                float mpMod_level = sJokerConfig->PlayerMPMod_Level * levelModPower;
-
-                float hpMod = hpMod_total + hpMod_level;
-                float mpMod = mpMod_total + mpMod_level;
-
-                levelInfo.basehealth = levelInfo.basehealth * hpMod;
-                levelInfo.basemana = levelInfo.basemana * mpMod;
+                    levelInfo.basehealth = levelInfo.basehealth * jokerPlayerMod;
+                    levelInfo.basemana = levelInfo.basemana * jokerPlayerMod;
+                }                
             }
 
             ++count;

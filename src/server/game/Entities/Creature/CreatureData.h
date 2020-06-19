@@ -195,6 +195,10 @@ struct TC_GAME_API CreatureTemplate
     float   ModMana;
     float   ModArmor;
     float   ModDamage;
+
+    // EJ mod spell in template
+    float ModSpell;
+
     float   ModExperience;
     bool    RacialLeader;
     uint32  movementId;

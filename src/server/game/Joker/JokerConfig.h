@@ -41,93 +41,145 @@ public:
     uint32 Enable;
     float ThreatMod;
 
-    float NormalAttackMod_Total;
-    float InstanceEncounterAttackMod_Total;
-    float UniqueEliteAttackMod_Total;
-    float EliteAttackMod_Total;
-    float RareEliteAttackMod_Total;
-    float RaidEliteAttackMod_Total;
-    float WorldBossAttackMod_Total;
-    float RareAttackMod_Total;
+    float AttackMod_Max_Normal;
+    float AttackMod_Min_Normal;
+    float AttackMod_Gap_Normal;
 
-    float NormalSpellMod_Total;
-    float InstanceEncounterSpellMod_Total;
-    float UniqueEliteSpellMod_Total;
-    float EliteSpellMod_Total;
-    float RareEliteSpellMod_Total;
-    float RaidEliteSpellMod_Total;
-    float WorldBossSpellMod_Total;
-    float RareSpellMod_Total;
+    float AttackMod_Max_Elite;
+    float AttackMod_Min_Elite;
+    float AttackMod_Gap_Elite;
 
-    float NormalHPMod_Total;
-    float InstanceEncounterHPMod_Total;
-    float UniqueEliteHPMod_Total;
-    float EliteHPMod_Total;
-    float RareEliteHPMod_Total;
-    float RaidEliteHPMod_Total;
-    float WorldBossHPMod_Total;
-    float RareHPMod_Total;
+    float AttackMod_Max_UniqueElite;
+    float AttackMod_Min_UniqueElite;
+    float AttackMod_Gap_UniqueElite;
 
-    float NormalMPMod_Total;
-    float InstanceEncounterMPMod_Total;
-    float UniqueEliteMPMod_Total;
-    float EliteMPMod_Total;
-    float RareEliteMPMod_Total;
-    float RaidEliteMPMod_Total;
-    float WorldBossMPMod_Total;
-    float RareMPMod_Total;
+    float AttackMod_Max_RaidElite;
+    float AttackMod_Min_RaidElite;
+    float AttackMod_Gap_RaidElite;
 
-    float PlayerHPMod_Total;
-    float PlayerMPMod_Total;
+    float AttackMod_Max_InstanceEncounter;
+    float AttackMod_Min_InstanceEncounter;
+    float AttackMod_Gap_InstanceEncounter;
 
-    float NormalAttackMod_Level;
-    float InstanceEncounterAttackMod_Level;
-    float UniqueEliteAttackMod_Level;
-    float EliteAttackMod_Level;
-    float RareEliteAttackMod_Level;
-    float RaidEliteAttackMod_Level;
-    float WorldBossAttackMod_Level;
-    float RareAttackMod_Level;
+    float AttackMod_Max_Rare;
+    float AttackMod_Min_Rare;
+    float AttackMod_Gap_Rare;
 
-    float NormalSpellMod_Level;
-    float InstanceEncounterSpellMod_Level;
-    float UniqueEliteSpellMod_Level;
-    float EliteSpellMod_Level;
-    float RareEliteSpellMod_Level;
-    float RaidEliteSpellMod_Level;
-    float WorldBossSpellMod_Level;
-    float RareSpellMod_Level;
+    float AttackMod_Max_RareElite;
+    float AttackMod_Min_RareElite;
+    float AttackMod_Gap_RareElite;
 
-    float NormalHPMod_Level;
-    float InstanceEncounterHPMod_Level;
-    float UniqueEliteHPMod_Level;
-    float EliteHPMod_Level;
-    float RareEliteHPMod_Level;
-    float RaidEliteHPMod_Level;
-    float WorldBossHPMod_Level;
-    float RareHPMod_Level;
+    float AttackMod_Max_WorldBoss;
+    float AttackMod_Min_WorldBoss;
+    float AttackMod_Gap_WorldBoss;
 
 
-    float NormalMPMod_Level;
-    float InstanceEncounterMPMod_Level;
-    float UniqueEliteMPMod_Level;
-    float EliteMPMod_Level;
-    float RareEliteMPMod_Level;
-    float RaidEliteMPMod_Level;
-    float WorldBossMPMod_Level;
-    float RareMPMod_Level;
+    float SpellMod_Max_Normal;
+    float SpellMod_Min_Normal;
+    float SpellMod_Gap_Normal;
+
+    float SpellMod_Max_Elite;
+    float SpellMod_Min_Elite;
+    float SpellMod_Gap_Elite;
+
+    float SpellMod_Max_UniqueElite;
+    float SpellMod_Min_UniqueElite;
+    float SpellMod_Gap_UniqueElite;
+
+    float SpellMod_Max_RaidElite;
+    float SpellMod_Min_RaidElite;
+    float SpellMod_Gap_RaidElite;
+
+    float SpellMod_Max_InstanceEncounter;
+    float SpellMod_Min_InstanceEncounter;
+    float SpellMod_Gap_InstanceEncounter;
+
+    float SpellMod_Max_Rare;
+    float SpellMod_Min_Rare;
+    float SpellMod_Gap_Rare;
+
+    float SpellMod_Max_RareElite;
+    float SpellMod_Min_RareElite;
+    float SpellMod_Gap_RareElite;
+
+    float SpellMod_Max_WorldBoss;
+    float SpellMod_Min_WorldBoss;
+    float SpellMod_Gap_WorldBoss;
+
+
+    float HPMod_Max_Normal;
+    float HPMod_Min_Normal;
+    float HPMod_Gap_Normal;
+
+    float HPMod_Max_Elite;
+    float HPMod_Min_Elite;
+    float HPMod_Gap_Elite;
+
+    float HPMod_Max_UniqueElite;
+    float HPMod_Min_UniqueElite;
+    float HPMod_Gap_UniqueElite;
+
+    float HPMod_Max_RaidElite;
+    float HPMod_Min_RaidElite;
+    float HPMod_Gap_RaidElite;
+
+    float HPMod_Max_InstanceEncounter;
+    float HPMod_Min_InstanceEncounter;
+    float HPMod_Gap_InstanceEncounter;
+
+    float HPMod_Max_Rare;
+    float HPMod_Min_Rare;
+    float HPMod_Gap_Rare;
+
+    float HPMod_Max_RareElite;
+    float HPMod_Min_RareElite;
+    float HPMod_Gap_RareElite;
+
+    float HPMod_Max_WorldBoss;
+    float HPMod_Min_WorldBoss;
+    float HPMod_Gap_WorldBoss;
+
+
+    float MPMod_Max_Normal;
+    float MPMod_Min_Normal;
+    float MPMod_Gap_Normal;
+
+    float MPMod_Max_Elite;
+    float MPMod_Min_Elite;
+    float MPMod_Gap_Elite;
+
+    float MPMod_Max_UniqueElite;
+    float MPMod_Min_UniqueElite;
+    float MPMod_Gap_UniqueElite;
+
+    float MPMod_Max_RaidElite;
+    float MPMod_Min_RaidElite;
+    float MPMod_Gap_RaidElite;
+
+    float MPMod_Max_InstanceEncounter;
+    float MPMod_Min_InstanceEncounter;
+    float MPMod_Gap_InstanceEncounter;
+
+    float MPMod_Max_Rare;
+    float MPMod_Min_Rare;
+    float MPMod_Gap_Rare;
+
+    float MPMod_Max_RareElite;
+    float MPMod_Min_RareElite;
+    float MPMod_Gap_RareElite;
+
+    float MPMod_Max_WorldBoss;
+    float MPMod_Min_WorldBoss;
+    float MPMod_Gap_WorldBoss;
 
     std::string CreatureModException;
-
-    float PlayerHPMod_Level;
-    float PlayerMPMod_Level;
-
     uint32 MaxModLevel;
-
     uint32 MaxTrainerSpellLevel;
 
+    uint32 PlayerMod;
+
     uint32 LootCountEachGroup_Normal;
-    uint32 LootCountEachGroup_InstanceEncounter;    
+    uint32 LootCountEachGroup_InstanceEncounter;
     uint32 LootCountEachGroup_UniqueElite;
     uint32 LootCountEachGroup_Elite;
     uint32 LootCountEachGroup_RareElite;

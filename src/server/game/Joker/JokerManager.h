@@ -24,6 +24,13 @@ public:
     static JokerManager* instance();
     void UpdateJoker(uint32 pmDiff);
 
+    // EJ instance_encounter 
+    std::unordered_set<uint32> ieSet;
+    // EJ unique elite set            
+    std::unordered_set<uint32> ueSet;
+    // EJ raid elite set            
+    std::unordered_set<uint32> reSet;
+
     std::unordered_map<uint32, uint32> petLoyaltyLevelMap;
     std::unordered_map<uint32, uint32> accompanyTimeMap;
     std::unordered_map<uint32, std::unordered_map<uint32, uint32>> expansionCreatureMap;

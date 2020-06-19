@@ -1734,13 +1734,6 @@ class TC_GAME_API ObjectMgr
             {
                 return _trainers;
             }
-
-            // EJ instance_encounter 
-            std::unordered_set<uint32> ieSet;
-            // EJ unique elite set            
-            std::unordered_set<uint32> ueSet;
-            // EJ raid elite set            
-            std::unordered_set<uint32> reSet;
 };
 
 #define sObjectMgr ObjectMgr::instance()

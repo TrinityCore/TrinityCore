@@ -1128,12 +1128,6 @@ void Creature::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, 
     float totalPct = addTotalPct ? GetPctModifierValue(unitMod, TOTAL_PCT) : 1.0f;    
     float dmgMultiplier = GetCreatureTemplate()->ModDamage;
 
-    // EJ joker mod
-    if (sJokerConfig->CreatureModExceptionSet.find(GetEntry()) == sJokerConfig->CreatureModExceptionSet.end())
-    {
-        dmgMultiplier = jokerAttackMod;
-    }
-
     minDamage = ((weaponMinDamage + baseValue) * dmgMultiplier * basePct + totalValue) * totalPct;
     maxDamage = ((weaponMaxDamage + baseValue) * dmgMultiplier * basePct + totalValue) * totalPct;
 }

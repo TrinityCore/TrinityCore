@@ -78,6 +78,7 @@
 
 // EJ joker
 #include "JokerConfig.h"
+#include "JokerManager.h"
 
 float baseMoveSpeed[MAX_MOVE_TYPE] =
 {
@@ -388,12 +389,6 @@ Unit::Unit(bool isWorldObject) :
 
     // EJ attack charge 
     attackChargeTarget = NULL;
-
-    //EJ joker
-    jokerSpellMod = 1.0f;
-    jokerAttackMod = 1.0f;
-    jokerHPMod = 1.0f;
-    jokerMPMod = 1.0f;
 }
 
 ////////////////////////////////////////////////////////////
@@ -6603,7 +6598,13 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
     // EJ joker mod
     if (sJokerConfig->Enable)
     {
-        DoneTotalMod *= jokerSpellMod;
+        if (const Creature* meC = ToCreature())
+        {
+            if (const CreatureTemplate* meCT = meC->GetCreatureTemplate())
+            {
+                DoneTotalMod *= meCT->ModSpell;
+            }
+        }
     }
 
     float maxModDamagePercentSchool = 0.0f;
@@ -10949,11 +10950,11 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
                         }
                         else if (cInfo->rank == CreatureEliteType::CREATURE_ELITE_ELITE)
                         {
-                            if (sObjectMgr->ieSet.find(cInfo->Entry) != sObjectMgr->ieSet.end())
+                            if (sJokerManager->ieSet.find(cInfo->Entry) != sJokerManager->ieSet.end())
                             {
                                 countEachGroup = sJokerConfig->LootCountEachGroup_InstanceEncounter;
                             }
-                            else if (sObjectMgr->ueSet.find(cInfo->Entry) != sObjectMgr->ueSet.end())
+                            else if (sJokerManager->ueSet.find(cInfo->Entry) != sJokerManager->ueSet.end())
                             {
                                 countEachGroup = sJokerConfig->LootCountEachGroup_UniqueElite;
                             }
