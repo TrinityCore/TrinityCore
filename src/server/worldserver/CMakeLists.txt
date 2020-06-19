@@ -90,7 +90,7 @@ endif()
 
 if( UNIX )
   install(TARGETS worldserver DESTINATION bin)
-  if ( COPY_CONF )
+  if( COPY_CONF )
     install(FILES worldserver.conf.dist DESTINATION ${CONF_DIR})
   endif()
 elseif( WIN32 )
