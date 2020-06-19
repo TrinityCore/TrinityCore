@@ -74,7 +74,7 @@ if (WORLDSERVER_DYNAMIC_SCRIPT_MODULES_DEPENDENCIES)
   add_dependencies(worldserver ${WORLDSERVER_DYNAMIC_SCRIPT_MODULES_DEPENDENCIES})
 endif()
 
-if( WIN32 )
+if( COPY_CONF AND WIN32 )
   if ( "${CMAKE_MAKE_PROGRAM}" MATCHES "MSBuild" )
     add_custom_command(TARGET worldserver
       POST_BUILD
@@ -90,10 +90,14 @@ endif()
 
 if( UNIX )
   install(TARGETS worldserver DESTINATION bin)
-  install(FILES worldserver.conf.dist DESTINATION ${CONF_DIR})
+  if( COPY_CONF )
+    install(FILES worldserver.conf.dist DESTINATION ${CONF_DIR})
+  endif()
 elseif( WIN32 )
   install(TARGETS worldserver DESTINATION "${CMAKE_INSTALL_PREFIX}")
-  install(FILES worldserver.conf.dist DESTINATION "${CMAKE_INSTALL_PREFIX}")
+  if( COPY_CONF )
+    install(FILES worldserver.conf.dist DESTINATION "${CMAKE_INSTALL_PREFIX}")
+  endif()
 endif()
 
 # Generate precompiled header
