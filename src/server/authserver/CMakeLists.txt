@@ -78,7 +78,7 @@ endif()
 
 if( UNIX )
   install(TARGETS authserver DESTINATION bin)
-  if ( COPY_CONF )
+  if( COPY_CONF )
     install(FILES  authserver.conf.dist DESTINATION ${CONF_DIR})
   endif()
 elseif( WIN32 )
