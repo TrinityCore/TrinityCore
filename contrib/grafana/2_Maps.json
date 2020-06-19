@@ -378,7 +378,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "alias": "Map $tag_map_id",
+          "alias": "Map $tag_map_id Instance $tag_map_instanceid",
           "groupBy": [
             {
               "params": [
@@ -389,6 +389,12 @@
             {
               "params": [
                 "map_id"
+              ],
+              "type": "tag"
+            },
+            {
+              "params": [
+                "map_instanceid"
               ],
               "type": "tag"
             },
@@ -517,7 +523,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "alias": "Map $tag_map_id",
+          "alias": "Map $tag_map_id Instance $tag_map_instanceid",
           "groupBy": [
             {
               "params": [
@@ -528,6 +534,12 @@
             {
               "params": [
                 "map_id"
+              ],
+              "type": "tag"
+            },
+            {
+              "params": [
+                "map_instanceid"
               ],
               "type": "tag"
             },
