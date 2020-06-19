@@ -103,7 +103,7 @@ class boss_azuregos : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_MANA_STORM:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 60.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 60.0f, true))
                                 DoCast(target, SPELL_MANA_STORM);
                             events.ScheduleEvent(EVENT_MANA_STORM, urand(7500, 12500));
                             break;

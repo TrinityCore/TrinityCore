@@ -205,7 +205,7 @@ class boss_gruul : public CreatureScript
                     // Hurtful Strike
                     if (m_uiHurtfulStrike_Timer <= diff)
                     {
-                        Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, 1);
+                        Unit* target = SelectTarget(SelectTargetMethod::MaxThreat, 1);
 
                         if (target && me->IsWithinMeleeRange(me->GetVictim()))
                             DoCast(target, SPELL_HURTFUL_STRIKE);
@@ -229,7 +229,7 @@ class boss_gruul : public CreatureScript
                     // Cave In
                     if (m_uiCaveIn_Timer <= diff)
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                             DoCast(target, SPELL_CAVE_IN);
 
                         if (m_uiCaveIn_StaticTimer >= 4000)

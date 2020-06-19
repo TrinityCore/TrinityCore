@@ -930,7 +930,7 @@ public:
                     case EVENT_SURGE_OF_POWER_P_THREE:
                         if (GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
                         {
-                            if (Unit* tempSurgeTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, false, true, SPELL_RIDE_RED_DRAGON_BUDDY))
+                            if (Unit* tempSurgeTarget = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, false, true, SPELL_RIDE_RED_DRAGON_BUDDY))
                             {
                                 if (Vehicle* drakeVehicle = tempSurgeTarget->GetVehicleKit())
                                 {
@@ -954,7 +954,7 @@ public:
                         events.ScheduleEvent(EVENT_SURGE_OF_POWER_P_THREE, 9s, 18s, 0, PHASE_THREE);
                         break;
                     case EVENT_STATIC_FIELD:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 60.0f, false, true, SPELL_RIDE_RED_DRAGON_BUDDY))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 60.0f, false, true, SPELL_RIDE_RED_DRAGON_BUDDY))
                             DoCast(target, SPELL_STATIC_FIELD_MISSLE, true);
 
                         events.ScheduleEvent(EVENT_STATIC_FIELD, 15s, 30s, 0, PHASE_THREE);
@@ -1336,7 +1336,7 @@ class npc_nexus_lord : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_ARCANE_SHOCK:
-                            if (Unit* victim = SelectTarget(SELECT_TARGET_RANDOM, 0, 5.0f, true))
+                            if (Unit* victim = SelectTarget(SelectTargetMethod::Random, 0, 5.0f, true))
                                 DoCast(victim, SPELL_ARCANE_SHOCK);
                             _events.ScheduleEvent(EVENT_ARCANE_SHOCK, 7s, 15s);
                             break;

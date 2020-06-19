@@ -723,9 +723,9 @@ class boss_prince_taldaram_icc : public CreatureScript
             void JustSummoned(Creature* summon) override
             {
                 summons.Summon(summon);
-                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, -10.0f, true); // first try at distance
+                Unit* target = SelectTarget(SelectTargetMethod::Random, 1, -10.0f, true); // first try at distance
                 if (!target)
-                    target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true);     // too bad for you raiders, its going to boom
+                    target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true);     // too bad for you raiders, its going to boom
 
                 if (summon->GetEntry() == NPC_BALL_OF_INFERNO_FLAME && target)
                     Talk(EMOTE_TALDARAM_FLAME, target);
@@ -854,7 +854,7 @@ class boss_prince_valanar_icc : public CreatureScript
                             Talk(SAY_VALANAR_BERSERK);
                             break;
                         case EVENT_KINETIC_BOMB:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true))
                             {
                                 DoCast(target, SPELL_KINETIC_BOMB_TARGET);
                                 Talk(SAY_VALANAR_SPECIAL);
@@ -870,7 +870,7 @@ class boss_prince_valanar_icc : public CreatureScript
                             }
                             else
                             {
-                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
+                                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true))
                                     DoCast(target, SPELL_SHOCK_VORTEX);
                                 events.Repeat(Seconds(18), Seconds(23));
                             }

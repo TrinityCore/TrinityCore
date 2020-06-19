@@ -258,7 +258,7 @@ class boss_anubarak_trial : public CreatureScript
                         break;
                     case NPC_SPIKE:
                         summoned->SetDisplayId(summoned->GetCreatureTemplate()->Modelid1);
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                         {
                             summoned->EngageWithTarget(target);
                             Talk(EMOTE_SPIKE, target);
@@ -558,7 +558,7 @@ class npc_nerubian_burrower : public CreatureScript
                 {
                     case ACTION_SHADOW_STRIKE:
                         if (!me->HasAura(SPELL_AWAKENED))
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                                 DoCast(target, SPELL_SHADOW_STRIKE);
                         break;
                     default:
@@ -719,7 +719,7 @@ class npc_anubarak_spike : public CreatureScript
 
             void JustEngagedWith(Unit* who) override
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                 {
                     StartChase(target);
                     Talk(EMOTE_SPIKE, who);
@@ -749,7 +749,7 @@ class npc_anubarak_spike : public CreatureScript
                                 DoCast(me, SPELL_SPIKE_SPEED1);
                                 DoCast(me, SPELL_SPIKE_TRAIL);
                                 _phase = PHASE_IMPALE_NORMAL;
-                                if (Unit* target2 = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                                if (Unit* target2 = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                                 {
                                     StartChase(target2);
                                     Talk(EMOTE_SPIKE, target2);

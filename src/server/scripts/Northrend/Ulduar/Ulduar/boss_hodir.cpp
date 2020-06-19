@@ -446,7 +446,7 @@ class boss_hodir : public CreatureScript
                             events.ScheduleEvent(EVENT_FREEZE, 30s, 45s);
                             break;
                         case EVENT_ICICLE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                                 DoCast(target, SPELL_ICICLE);
                             events.ScheduleEvent(EVENT_ICICLE, RAID_MODE(5500, 3500));
                             break;
@@ -454,7 +454,7 @@ class boss_hodir : public CreatureScript
                             Talk(SAY_FLASH_FREEZE);
                             Talk(EMOTE_FREEZE);
                             for (uint8 n = 0; n < RAID_MODE(2, 3); ++n)
-                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                                     target->CastSpell(target, SPELL_ICICLE_SNOWDRIFT, true);
                             DoCast(SPELL_FLASH_FREEZE);
                             events.ScheduleEvent(EVENT_FLASH_FREEZE_EFFECT, 500ms);
@@ -770,7 +770,7 @@ class npc_hodir_shaman : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_STORM_CLOUD:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                                 DoCast(target, SPELL_STORM_CLOUD, true);
                             events.ScheduleEvent(EVENT_STORM_CLOUD, 15s, 20s);
                             break;

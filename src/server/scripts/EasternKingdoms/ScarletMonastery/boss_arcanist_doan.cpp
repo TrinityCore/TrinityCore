@@ -88,7 +88,7 @@ struct boss_arcanist_doan : public BossAI
                     events.Repeat(8s);
                     break;
                 case EVENT_POLYMORPH:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 30.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 30.0f, true))
                         DoCast(target, SPELL_POLYMORPH);
                     events.Repeat(20s);
                     break;
