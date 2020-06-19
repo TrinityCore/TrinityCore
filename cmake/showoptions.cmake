@@ -13,7 +13,7 @@ if( UNIX )
   message("* Install configs to     : ${CONF_DIR}")
 endif()
 
-if ( COPY_CONF )
+if( COPY_CONF )
   if ( UNIX )
     message("* Install configs to     : ${CONF_DIR}")
   else()
