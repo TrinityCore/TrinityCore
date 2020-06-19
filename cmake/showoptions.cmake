@@ -14,7 +14,7 @@ if( UNIX )
 endif()
 
 if( COPY_CONF )
-  if ( UNIX )
+  if( UNIX )
     message("* Install configs to     : ${CONF_DIR}")
   else()
     message("* Install configs to     : ${CMAKE_INSTALL_PREFIX}")
