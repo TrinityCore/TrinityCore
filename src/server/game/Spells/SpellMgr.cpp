@@ -4887,12 +4887,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->ProcFlags = 0;
     });
 
-    // Shadowstep
-    ApplySpellFix({ 36563 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_4_YARDS); // 4yd
-    });
-
     // Feral Charge - Cat
     ApplySpellFix({ 49376 }, [](SpellInfo* spellInfo)
     {

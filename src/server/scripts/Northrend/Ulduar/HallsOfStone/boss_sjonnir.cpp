@@ -117,7 +117,7 @@ class boss_sjonnir : public CreatureScript
             void JustSummoned(Creature* summon) override
             {
                 summon->GetMotionMaster()->MovePoint(0, CenterPoint);
-                /*if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                /*if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, true))
                     summon->AI()->AttackStart(target);*/
                 summons.Summon(summon);
             }
@@ -163,7 +163,7 @@ class boss_sjonnir : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_CHAIN_LIGHTNING:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, true))
                                 DoCast(target, SPELL_CHAIN_LIGHTING);
                             events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 10s, 15s);
                             break;

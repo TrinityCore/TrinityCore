@@ -66,7 +66,7 @@ class boss_wushoolay : public CreatureScript
                             events.ScheduleEvent(EVENT_LIGHTNINGCLOUD, 15s, 20s);
                             break;
                         case EVENT_LIGHTNINGWAVE:
-                            DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), SPELL_LIGHTNINGWAVE);
+                            DoCast(SelectTarget(SelectTargetMethod::Random, 0, 100, true), SPELL_LIGHTNINGWAVE);
                             events.ScheduleEvent(EVENT_LIGHTNINGWAVE, 12s, 16s);
                             break;
                         default:

@@ -1060,7 +1060,7 @@ class boss_vx_001 : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_RAPID_BURST:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 120, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 120, true))
                                 DoCast(target, SPELL_SUMMON_BURST_TARGET);
                             events.RescheduleEvent(EVENT_RAPID_BURST, 3000, 0, PHASE_VX_001);
                             break;
@@ -1075,7 +1075,7 @@ class boss_vx_001 : public CreatureScript
                                     rocket->SetDisplayId(rocket->GetNativeDisplayId());
                             break;
                         case EVENT_HAND_PULSE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 120, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 120, true))
                                 DoCast(target, RAND(SPELL_HAND_PULSE_LEFT, SPELL_HAND_PULSE_RIGHT));
                             events.RescheduleEvent(EVENT_HAND_PULSE, urand(1500, 3000), 0, PHASE_VOL7RON);
                             break;
@@ -1308,7 +1308,7 @@ class npc_mimiron_assault_bot : public CreatureScript
 
                 if (me->HasUnitState(UNIT_STATE_ROOT))
                 {
-                    if (Unit* newTarget = SelectTarget(SELECT_TARGET_MINDISTANCE, 0, 30.0f, true))
+                    if (Unit* newTarget = SelectTarget(SelectTargetMethod::MinDistance, 0, 30.0f, true))
                     {
                         me->GetThreatManager().ResetAllThreat();
                         AttackStart(newTarget);

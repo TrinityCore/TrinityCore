@@ -276,7 +276,7 @@ public:
             //HauntingTimer
             if (HauntingTimer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     DoCast(target, SPELL_HAUNTING_PHANTOM);
                 HauntingTimer = 11000;
             }
@@ -285,7 +285,7 @@ public:
             //TouchTimer
             if (TouchTimer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     DoCast(target, SPELL_DEBILITATING_TOUCH);
                 TouchTimer = 7000;
             }

@@ -100,7 +100,7 @@ struct npc_firesworn : public ScriptedAI
         // Timers for this are probably wrong
         _scheduler.Schedule(4s, [this](TaskContext context)
         {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                 DoCast(target, SPELL_IMMOLATE);
 
             context.Repeat(5s, 10s);

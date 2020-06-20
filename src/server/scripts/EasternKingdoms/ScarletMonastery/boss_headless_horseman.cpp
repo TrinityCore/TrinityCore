@@ -688,7 +688,7 @@ struct boss_headless_horseman : public ScriptedAI
                     cleaveContext.Repeat(2s, 6s);
                 }).Schedule(15s, uint32(TASK_GROUP_COMBAT), [this](TaskContext clonfragateContext)
                 {
-                    if (Unit* player = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.f, true, false, -SPELL_CONFLAGRATION))
+                    if (Unit* player = SelectTarget(SelectTargetMethod::Random, 0, 0.f, true, false, -SPELL_CONFLAGRATION))
                         DoCast(player, SPELL_CONFLAGRATION, false);
                     clonfragateContext.Repeat(10s, 16s);
                 });

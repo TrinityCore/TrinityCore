@@ -2054,7 +2054,7 @@ class spell_pal_seal_of_righteousness : public SpellScriptLoader
                 float mws = GetTarget()->GetAttackTime(BASE_ATTACK);
                 mws /= 1000.0f;
 
-                int32 bp = int32(mws * (0.022f * ap + 0.044f * sph));
+                int32 bp = std::lroundf(mws * (0.022f * ap + 0.044f * sph));
                 CastSpellExtraArgs args(aurEff);
                 args.AddSpellBP0(bp);
                 GetTarget()->CastSpell(victim, SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS, args);
