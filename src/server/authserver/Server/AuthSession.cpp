@@ -141,8 +141,8 @@ void AccountInfo::LoadResult(Field* fields)
     //          0           1         2               3          4                5                                                             6
     //SELECT a.id, a.username, a.locked, a.lock_country, a.last_ip, a.failed_logins, ab.unbandate > UNIX_TIMESTAMP() OR ab.unbandate = ab.bandate,
     //                               7           8            9               10   11   12
-    //       ab.unbandate = ab.bandate, aa.gmlevel, a.totp_secret, a.sha_pass_hash, a.v, a.s
-    //FROM account a LEFT JOIN account_access aa ON a.id = aa.id LEFT JOIN account_banned ab ON ab.id = a.id AND ab.active = 1 WHERE a.username = ?
+    //       ab.unbandate = ab.bandate, aa.SecurityLevel, a.totp_secret, a.sha_pass_hash, a.v, a.s
+    //FROM account a LEFT JOIN account_access aa ON a.id = aa.AccountID LEFT JOIN account_banned ab ON ab.id = a.id AND ab.active = 1 WHERE a.username = ?
 
     Id = fields[0].GetUInt32();
     Login = fields[1].GetString();
