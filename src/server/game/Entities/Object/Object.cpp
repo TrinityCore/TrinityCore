@@ -1089,6 +1089,17 @@ void WorldObject::RemoveFromWorld()
     Object::RemoveFromWorld();
 }
 
+bool WorldObject::IsInWorldPvpZone() const
+{
+    switch (GetZoneId())
+    {
+        case AREA_WINTERGRASP: // Wintergrasp
+            return true;
+        default:
+            return false;
+    }
+}
+
 InstanceScript* WorldObject::GetInstanceScript() const
 {
     Map* map = GetMap();
