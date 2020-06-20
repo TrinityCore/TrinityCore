@@ -132,11 +132,11 @@ public:
                 if (!_introState)
                 {
                     me->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
-                    events.ScheduleEvent(EVENT_INTRO_1, 4000);
-                    events.ScheduleEvent(EVENT_INTRO_2, 23000);
-                    events.ScheduleEvent(EVENT_INTRO_3, 42000);
-                    events.ScheduleEvent(EVENT_INTRO_4, 45000);
-                    events.ScheduleEvent(EVENT_INTRO_5, 55000);
+                    events.ScheduleEvent(EVENT_INTRO_1, 10000);
+                    events.ScheduleEvent(EVENT_INTRO_2, 30000);
+                    events.ScheduleEvent(EVENT_INTRO_3, 50000);
+                    events.ScheduleEvent(EVENT_INTRO_4, 53000);
+                    events.ScheduleEvent(EVENT_INTRO_5, 65000);
                     _introState = 1;
                 }
 

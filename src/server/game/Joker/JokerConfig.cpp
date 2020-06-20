@@ -179,7 +179,7 @@ bool JokerConfig::StartJokerSystem()
     AttackMod_Min_UniqueElite = GetFloatDefault("AttackMod_Min_UniqueElite", 2.5f);
     AttackMod_Gap_UniqueElite = GetFloatDefault("AttackMod_Gap_UniqueElite", 1.0f);
 
-    AttackMod_Max_RaidElite = GetFloatDefault("AttackMod_Max_RaidElite", 1000.0f);
+    AttackMod_Max_RaidElite = GetFloatDefault("AttackMod_Max_RaidElite", 1.0f);
     AttackMod_Min_RaidElite = GetFloatDefault("AttackMod_Min_RaidElite", 1.0f);
     AttackMod_Gap_RaidElite = GetFloatDefault("AttackMod_Gap_RaidElite", 1000.0f);
 
@@ -195,7 +195,7 @@ bool JokerConfig::StartJokerSystem()
     AttackMod_Min_RareElite = GetFloatDefault("AttackMod_Min_RareElite", 3.5f);
     AttackMod_Gap_RareElite = GetFloatDefault("AttackMod_Gap_RareElite", 1.0f);
 
-    AttackMod_Max_WorldBoss = GetFloatDefault("AttackMod_Max_WorldBoss", 1000.0f);
+    AttackMod_Max_WorldBoss = GetFloatDefault("AttackMod_Max_WorldBoss", 1.0f);
     AttackMod_Min_WorldBoss = GetFloatDefault("AttackMod_Min_WorldBoss", 1.0f);
     AttackMod_Gap_WorldBoss = GetFloatDefault("AttackMod_Gap_WorldBoss", 1000.0f);
 
@@ -245,7 +245,7 @@ bool JokerConfig::StartJokerSystem()
     HPMod_Min_UniqueElite = GetFloatDefault("HPMod_Min_UniqueElite", 4.0f);
     HPMod_Gap_UniqueElite = GetFloatDefault("HPMod_Gap_UniqueElite", 1.0f);
 
-    HPMod_Max_RaidElite = GetFloatDefault("HPMod_Max_RaidElite", 1000.0f);
+    HPMod_Max_RaidElite = GetFloatDefault("HPMod_Max_RaidElite", 1.0f);
     HPMod_Min_RaidElite = GetFloatDefault("HPMod_Min_RaidElite", 1.0f);
     HPMod_Gap_RaidElite = GetFloatDefault("HPMod_Gap_RaidElite", 1000.0f);
 
@@ -261,40 +261,40 @@ bool JokerConfig::StartJokerSystem()
     HPMod_Min_RareElite = GetFloatDefault("HPMod_Min_RareElite", 2.0f);
     HPMod_Gap_RareElite = GetFloatDefault("HPMod_Gap_RareElite", 1.0f);
 
-    HPMod_Max_WorldBoss = GetFloatDefault("HPMod_Max_WorldBoss", 1000.0f);
+    HPMod_Max_WorldBoss = GetFloatDefault("HPMod_Max_WorldBoss", 1.0f);
     HPMod_Min_WorldBoss = GetFloatDefault("HPMod_Min_WorldBoss", 1.0f);
     HPMod_Gap_WorldBoss = GetFloatDefault("HPMod_Gap_WorldBoss", 1000.0f);
 
 
-    MPMod_Max_Normal = GetFloatDefault("MPMod_Max_Normal", 1000.0f);
+    MPMod_Max_Normal = GetFloatDefault("MPMod_Max_Normal", 1.0f);
     MPMod_Min_Normal = GetFloatDefault("MPMod_Min_Normal", 1.0f);
     MPMod_Gap_Normal = GetFloatDefault("MPMod_Gap_Normal", 1000.0f);
 
-    MPMod_Max_Elite = GetFloatDefault("MPMod_Max_Elite", 1000.0f);
+    MPMod_Max_Elite = GetFloatDefault("MPMod_Max_Elite", 1.0f);
     MPMod_Min_Elite = GetFloatDefault("MPMod_Min_Elite", 1.0f);
     MPMod_Gap_Elite = GetFloatDefault("MPMod_Gap_Elite", 1000.0f);
 
-    MPMod_Max_UniqueElite = GetFloatDefault("MPMod_Max_UniqueElite", 1000.0f);
+    MPMod_Max_UniqueElite = GetFloatDefault("MPMod_Max_UniqueElite", 1.0f);
     MPMod_Min_UniqueElite = GetFloatDefault("MPMod_Min_UniqueElite", 1.0f);
     MPMod_Gap_UniqueElite = GetFloatDefault("MPMod_Gap_UniqueElite", 1000.0f);
 
-    MPMod_Max_RaidElite = GetFloatDefault("MPMod_Max_RaidElite", 1000.0f);
+    MPMod_Max_RaidElite = GetFloatDefault("MPMod_Max_RaidElite", 1.0f);
     MPMod_Min_RaidElite = GetFloatDefault("MPMod_Min_RaidElite", 1.0f);
     MPMod_Gap_RaidElite = GetFloatDefault("MPMod_Gap_RaidElite", 1000.0f);
 
-    MPMod_Max_InstanceEncounter = GetFloatDefault("MPMod_Max_InstanceEncounter", 1000.0f);
+    MPMod_Max_InstanceEncounter = GetFloatDefault("MPMod_Max_InstanceEncounter", 1.0f);
     MPMod_Min_InstanceEncounter = GetFloatDefault("MPMod_Min_InstanceEncounter", 1.0f);
     MPMod_Gap_InstanceEncounter = GetFloatDefault("MPMod_Gap_InstanceEncounter", 1000.0f);
 
-    MPMod_Max_Rare = GetFloatDefault("MPMod_Max_Rare", 1000.0f);
+    MPMod_Max_Rare = GetFloatDefault("MPMod_Max_Rare", 1.0f);
     MPMod_Min_Rare = GetFloatDefault("MPMod_Min_Rare", 1.0f);
     MPMod_Gap_Rare = GetFloatDefault("MPMod_Gap_Rare", 1000.0f);
 
-    MPMod_Max_RareElite = GetFloatDefault("MPMod_Max_RareElite", 1000.0f);
+    MPMod_Max_RareElite = GetFloatDefault("MPMod_Max_RareElite", 1.0f);
     MPMod_Min_RareElite = GetFloatDefault("MPMod_Min_RareElite", 1.0f);
     MPMod_Gap_RareElite = GetFloatDefault("MPMod_Gap_RareElite", 1000.0f);
 
-    MPMod_Max_WorldBoss = GetFloatDefault("MPMod_Max_WorldBoss", 1000.0f);
+    MPMod_Max_WorldBoss = GetFloatDefault("MPMod_Max_WorldBoss", 1.0f);
     MPMod_Min_WorldBoss = GetFloatDefault("MPMod_Min_WorldBoss", 1.0f);
     MPMod_Gap_WorldBoss = GetFloatDefault("MPMod_Gap_WorldBoss", 1000.0f);
 

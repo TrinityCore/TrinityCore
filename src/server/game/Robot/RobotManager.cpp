@@ -2172,6 +2172,7 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                 {
                     bool tank1Set = false;
                     bool tank2Set = false;
+                    bool mainHealerSet = false;
                     uint32 healerCount = 0;
                     for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
                     {
@@ -2262,8 +2263,13 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                                 else if (member->rai->sb->characterType == RobotCharacterType::RobotCharacterType_HEALER)
                                 {
                                     if (healerCount < 6)
-                                    {
+                                    {                                        
                                         member->groupRole = GroupRole_MoltenCore::GroupRole_MoltenCore_Healer;
+                                        if (!mainHealerSet)
+                                        {
+                                            myGroup->SetTargetIcon(6, member->GetGUID(), member->GetGUID());
+                                            mainHealerSet = true;
+                                        }
                                         healerCount++;
                                         continue;
                                     }

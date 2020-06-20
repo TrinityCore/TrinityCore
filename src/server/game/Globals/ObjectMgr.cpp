@@ -806,12 +806,11 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
             float jokerAttackMod = configAttackModMin;
             float attackModSpace = configAttackModMax - jokerAttackMod;            
             float attackExtraValue = levelRate * attackModSpace;
-            jokerAttackMod = jokerAttackMod + attackExtraValue;
-            float jokerAttackModMin = jokerAttackMod - configAttackModGap;
+            jokerAttackMod = jokerAttackMod + attackExtraValue;            
             float jokerAttackModMax = jokerAttackMod + configAttackModGap;
-            if (creatureTemplate.ModDamage < jokerAttackModMin)
+            if (creatureTemplate.ModDamage < jokerAttackMod)
             {
-                creatureTemplate.ModDamage = jokerAttackModMin;
+                creatureTemplate.ModDamage = jokerAttackMod;
             }
             else if (creatureTemplate.ModDamage > jokerAttackModMax)
             {
@@ -821,12 +820,11 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
             float jokerSpellMod = configSpellModMin;
             float spellModSpace = configSpellModMax - jokerSpellMod;
             float spellExtraValue = levelRate * spellModSpace;
-            jokerSpellMod = jokerSpellMod + spellExtraValue;
-            float jokerSpellModMin = jokerSpellMod - configSpellModGap;
+            jokerSpellMod = jokerSpellMod + spellExtraValue;            
             float jokerSpellModMax = jokerSpellMod + configSpellModGap;
-            if (creatureTemplate.ModSpell < jokerSpellModMin)
+            if (creatureTemplate.ModSpell < jokerSpellMod)
             {
-                creatureTemplate.ModSpell = jokerSpellModMin;
+                creatureTemplate.ModSpell = jokerSpellMod;
             }
             else if (creatureTemplate.ModSpell > jokerSpellModMax)
             {
@@ -836,12 +834,11 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
             float jokerHPMod = configHPModMin;
             float HPModSpace = configHPModMax - jokerHPMod;
             float HPExtraValue = levelRate * HPModSpace;
-            jokerHPMod = jokerHPMod + HPExtraValue;
-            float jokerHPModMin = jokerHPMod - configHPModGap;
+            jokerHPMod = jokerHPMod + HPExtraValue;            
             float jokerHPModMax = jokerHPMod + configHPModGap;
-            if (creatureTemplate.ModHealth < jokerHPModMin)
+            if (creatureTemplate.ModHealth < jokerHPMod)
             {
-                creatureTemplate.ModHealth = jokerHPModMin;
+                creatureTemplate.ModHealth = jokerHPMod;
             }
             else if (creatureTemplate.ModHealth > jokerHPModMax)
             {
@@ -851,12 +848,11 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
             float jokerMPMod = configMPModMin;
             float MPModSpace = configMPModMax - jokerMPMod;
             float MPExtraValue = levelRate * MPModSpace;
-            jokerMPMod = jokerMPMod + MPExtraValue;
-            float jokerMPModMin = jokerMPMod - configMPModGap;
+            jokerMPMod = jokerMPMod + MPExtraValue;            
             float jokerMPModMax = jokerMPMod + configMPModGap;
-            if (creatureTemplate.ModMana < jokerMPModMin)
+            if (creatureTemplate.ModMana < jokerMPMod)
             {
-                creatureTemplate.ModMana = jokerMPModMin;
+                creatureTemplate.ModMana = jokerMPMod;
             }
             else if (creatureTemplate.ModMana > jokerMPModMax)
             {

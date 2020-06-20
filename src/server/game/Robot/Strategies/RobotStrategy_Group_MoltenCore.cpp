@@ -537,28 +537,28 @@ bool RobotStrategy_Group_MoltenCore::DPS()
         {
             if (combatTime > majordomoDPSDelay)
             {
-                if (Player* tank1 = GetPlayerByGroupRole(GroupRole_MoltenCore::GroupRole_MoltenCore_Tank1))
+                if (Unit* activeTarget = ObjectAccessor::GetCreature(*me, myGroup->GetOGByTargetIcon(7)))
                 {
-                    if (tank1->IsAlive())
+                    if (activeTarget->IsAlive())
                     {
-                        return me->rai->sb->DPS(tank1->GetSelectedUnit(), false, true, NULL);
+                        return me->rai->sb->DPS(activeTarget, true, false, NULL);
                     }
                 }
             }
             else
             {
-                return true;
+                return false;
             }
         }
         if (myGroup->GetGroupAttackers(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Flamewaker_Healer).size() > 0)
         {
             if (combatTime > majordomoDPSDelay)
             {
-                if (Player* tank1 = GetPlayerByGroupRole(GroupRole_MoltenCore::GroupRole_MoltenCore_Tank1))
+                if (Unit* activeTarget = ObjectAccessor::GetCreature(*me, myGroup->GetOGByTargetIcon(7)))
                 {
-                    if (tank1->IsAlive())
+                    if (activeTarget->IsAlive())
                     {
-                        return me->rai->sb->DPS(tank1->GetSelectedUnit(), false, true, NULL);
+                        return me->rai->sb->DPS(activeTarget, true, false, NULL);
                     }
                 }
             }
@@ -778,13 +778,19 @@ bool RobotStrategy_Group_MoltenCore::Tank()
         {
             if (me->groupRole == GroupRole_MoltenCore::GroupRole_MoltenCore_Tank1)
             {
-                if (Unit* myTarget = me->GetSelectedUnit())
+                if (Unit* activeTarget = ObjectAccessor::GetCreature(*me, myGroup->GetOGByTargetIcon(7)))
                 {
-                    if (myTarget->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Flamewaker_Elite)
+                    if (activeTarget->IsAlive())
                     {
-                        if (myTarget->GetTarget() != me->GetGUID())
+                        if (activeTarget->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Flamewaker_Elite)
                         {
-                            return me->rai->sb->Tank(myTarget, true, true);
+                            if (activeTarget->GetTarget() != me->GetGUID())
+                            {
+                                if (me->rai->sb->Tank(activeTarget, true, true))
+                                {
+                                    return true;
+                                }
+                            }
                         }
                     }
                 }
@@ -794,22 +800,36 @@ bool RobotStrategy_Group_MoltenCore::Tank()
                     {
                         if (eachAdd->GetTarget() != me->GetGUID())
                         {
-                            return me->rai->sb->Tank(eachAdd, true, true);
+                            myGroup->SetTargetIcon(7, me->GetGUID(), eachAdd->GetGUID());
+                            if (me->rai->sb->Tank(eachAdd, true, true))
+                            {
+                                return true;
+                            }
                         }
                     }
                 }
-                if (Unit* myTarget = me->GetSelectedUnit())
+                if (Unit* activeTarget = ObjectAccessor::GetCreature(*me, myGroup->GetOGByTargetIcon(7)))
                 {
-                    if (myTarget->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Flamewaker_Elite)
+                    if (activeTarget->IsAlive())
                     {
-                        return me->rai->sb->Tank(myTarget, true, true);
+                        if (activeTarget->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Flamewaker_Elite)
+                        {
+                            if (me->rai->sb->Tank(activeTarget, true, true))
+                            {
+                                return true;
+                            }
+                        }
                     }
                 }
                 for (std::unordered_map<ObjectGuid, Unit*>::iterator eIT = eliteMap.begin(); eIT != eliteMap.end(); eIT++)
                 {
                     if (Unit* eachAdd = eIT->second)
                     {
-                        return me->rai->sb->Tank(eachAdd, true, true);
+                        myGroup->SetTargetIcon(7, me->GetGUID(), eachAdd->GetGUID());
+                        if (me->rai->sb->Tank(eachAdd, true, true))
+                        {
+                            return true;
+                        }
                     }
                 }
             }
@@ -819,20 +839,19 @@ bool RobotStrategy_Group_MoltenCore::Tank()
         {
             if (me->groupRole == GroupRole_MoltenCore::GroupRole_MoltenCore_Tank1)
             {
-                if (Unit* myTarget = me->GetSelectedUnit())
+                if (Unit* activeTarget = ObjectAccessor::GetCreature(*me, myGroup->GetOGByTargetIcon(7)))
                 {
-                    if (myTarget->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Flamewaker_Healer)
+                    if (activeTarget->IsAlive())
                     {
-                        if (myGroup->GetTargetIconByOG(myTarget->GetGUID()) > 0)
+                        if (activeTarget->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Flamewaker_Healer)
                         {
-                            for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
+                            if (activeTarget->GetTarget() != me->GetGUID())
                             {
-                                myGroup->SetTargetIcon(i, ObjectGuid::Empty, ObjectGuid::Empty);
+                                if (me->rai->sb->Tank(activeTarget, true, true))
+                                {
+                                    return true;
+                                }
                             }
-                        }
-                        if (myTarget->GetTarget() != me->GetGUID())
-                        {
-                            return me->rai->sb->Tank(myTarget, true);
                         }
                     }
                 }
@@ -842,22 +861,36 @@ bool RobotStrategy_Group_MoltenCore::Tank()
                     {
                         if (eachAdd->GetTarget() != me->GetGUID())
                         {
-                            return me->rai->sb->Tank(eachAdd, true);
+                            myGroup->SetTargetIcon(7, me->GetGUID(), eachAdd->GetGUID());
+                            if (me->rai->sb->Tank(eachAdd, true, true))
+                            {
+                                return true;
+                            }
                         }
                     }
                 }
-                if (Unit* myTarget = me->GetSelectedUnit())
+                if (Unit* activeTarget = ObjectAccessor::GetCreature(*me, myGroup->GetOGByTargetIcon(7)))
                 {
-                    if (myTarget->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Flamewaker_Healer)
+                    if (activeTarget->IsAlive())
                     {
-                        return me->rai->sb->Tank(myTarget, true);
+                        if (activeTarget->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Flamewaker_Healer)
+                        {
+                            if (me->rai->sb->Tank(activeTarget, true, true))
+                            {
+                                return true;
+                            }
+                        }
                     }
                 }
                 for (std::unordered_map<ObjectGuid, Unit*>::iterator eIT = healerMap.begin(); eIT != healerMap.end(); eIT++)
                 {
                     if (Unit* eachAdd = eIT->second)
                     {
-                        return me->rai->sb->Tank(eachAdd, true);
+                        myGroup->SetTargetIcon(7, me->GetGUID(), eachAdd->GetGUID());
+                        if (me->rai->sb->Tank(eachAdd, true, true))
+                        {
+                            return true;
+                        }
                     }
                 }
             }
@@ -875,9 +908,9 @@ bool RobotStrategy_Group_MoltenCore::Tank()
                         {
                             if (tank1->IsAlive())
                             {
-                                if (me->GetExactDist(tank1->GetPosition()) < 35.0f)
+                                if (me->GetExactDist(tank1->GetPosition()) < 50.0f)
                                 {
-                                    markPos = GetNearPoint(tank1->GetPosition(), 45.0f, engageAngle);
+                                    markPos = GetNearPoint(tank1->GetPosition(), 60.0f, engageAngle);
                                     actionDelay = 3000;
                                     actionType = ActionType_MoltenCore::ActionType_MoltenCore_MarkMove;
                                     me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
@@ -997,6 +1030,7 @@ bool RobotStrategy_Group_MoltenCore::Heal()
 {
     if (Group* myGroup = me->GetGroup())
     {
+        int myTargetIcon = myGroup->GetTargetIconByOG(me->GetGUID());
         if (Unit* magmadar = myGroup->GetGroupAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Magmadar))
         {
             if (Player* tank1 = GetPlayerByGroupRole(GroupRole_MoltenCore::GroupRole_MoltenCore_Tank1))
@@ -1040,45 +1074,34 @@ bool RobotStrategy_Group_MoltenCore::Heal()
                     me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
                     me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
                     me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(geddon->GetPosition()));
+                    return true;
                 }
-                return true;
             }
         }
         if (Unit* majordomo = myGroup->GetGroupAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Majordomo_Executus))
         {
-            bool assisnTank2Healer = true;
-            if (Player* tank2Healer = ObjectAccessor::GetPlayer(*me, myGroup->GetOGByTargetIcon(7)))
+            ObjectGuid tank2HealerOG = myGroup->GetOGByTargetIcon(5);
+            if (tank2HealerOG.IsEmpty())
             {
-                if (tank2Healer->groupRole == GroupRole_MoltenCore::GroupRole_MoltenCore_Healer)
+                if (myTargetIcon == -1)
                 {
-                    if (tank2Healer->IsAlive())
+                    if (me->IsAlive())
                     {
-                        assisnTank2Healer = false;
-                    }
-                }
-            }
-            if (assisnTank2Healer)
-            {
-                std::unordered_set<uint32> healerRoleSet;
-                healerRoleSet.insert(GroupRole_MoltenCore::GroupRole_MoltenCore_Healer);
-                std::unordered_set<Player*> healerSet = GetPlayerSetByGroupRoleSet(healerRoleSet);
-                for (std::unordered_set<Player*>::iterator hIT = healerSet.begin(); hIT != healerSet.end(); hIT++)
-                {
-                    if (Player* eachHealer = *hIT)
-                    {
-                        if (eachHealer->IsAlive())
+                        if (me->GetPower(Powers::POWER_MANA) > 1000)
                         {
-                            if (eachHealer->GetPower(Powers::POWER_MANA) > 1000)
-                            {
-                                myGroup->SetTargetIcon(7, me->GetGUID(), eachHealer->GetGUID());
-                                break;
-                            }
+                            myGroup->SetTargetIcon(5, me->GetGUID(), me->GetGUID());
                         }
                     }
                 }
             }
-            if (me->GetGUID() == myGroup->GetOGByTargetIcon(7))
+            tank2HealerOG = myGroup->GetOGByTargetIcon(5);
+            if (tank2HealerOG == me->GetGUID())
             {
+                if (me->GetPower(Powers::POWER_MANA) < 500)
+                {
+                    myGroup->SetTargetIcon(5, ObjectGuid::Empty, ObjectGuid::Empty);
+                    return false;
+                }
                 if (Player* tank2 = GetPlayerByGroupRole(GroupRole_MoltenCore::GroupRole_MoltenCore_Tank2))
                 {
                     if (tank2->IsAlive())
@@ -1090,25 +1113,28 @@ bool RobotStrategy_Group_MoltenCore::Heal()
                                 return true;
                             }
                         }
-                        if (me->GetHealthPct() < 50.0f)
+                    }
+                }
+            }
+            else if (myTargetIcon == -1)
+            {
+                if (Player* tank2 = GetPlayerByGroupRole(GroupRole_MoltenCore::GroupRole_MoltenCore_Tank2))
+                {
+                    if (tank2->IsAlive())
+                    {
+                        if (tank2->GetHealthPct() < 90.0f)
                         {
-                            if (me->rai->sb->Heal(me, cure))
+                            if (me->rai->sb->SubHeal(tank2))
                             {
                                 return true;
                             }
                         }
-                        return true;
                     }
                 }
             }
         }
         if (Unit* rag = myGroup->GetGroupAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Ragnaros))
         {
-            ObjectGuid activeHealerOG = myGroup->GetOGByTargetIcon(4);
-            if (activeHealerOG.IsEmpty())
-            {
-                myGroup->SetTargetIcon(4, me->GetGUID(), me->GetGUID());
-            }
             float markDistance = me->GetExactDist(markPos);
             if (markDistance > 1.0f)
             {
@@ -1121,86 +1147,77 @@ bool RobotStrategy_Group_MoltenCore::Heal()
                 me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(rag->GetPosition()));
                 return true;
             }
-            activeHealerOG = myGroup->GetOGByTargetIcon(4);
-            if (activeHealerOG == me->GetGUID())
+        }
+
+        ObjectGuid activeHealerOG = myGroup->GetOGByTargetIcon(6);
+        if (activeHealerOG.IsEmpty())
+        {
+            if (me->IsAlive())
             {
-                if (me->GetPower(Powers::POWER_MANA) < 500)
+                if (me->GetPower(Powers::POWER_MANA) > 1000)
                 {
-                    std::unordered_set<uint32> healerRoleSet;
-                    healerRoleSet.insert(GroupRole_MoltenCore::GroupRole_MoltenCore_Healer);
-                    std::unordered_set<Player*> healerSet = GetPlayerSetByGroupRoleSet(healerRoleSet);
-                    Player* maxManaHealer = NULL;
-                    uint32 maxMana = 0;
-                    for (std::unordered_set<Player*>::iterator hIT = healerSet.begin(); hIT != healerSet.end(); hIT++)
+                    if (myTargetIcon == -1)
                     {
-                        if (Player* eachHealer = *hIT)
+                        myGroup->SetTargetIcon(6, me->GetGUID(), me->GetGUID());
+                    }
+                }
+            }
+        }
+        activeHealerOG = myGroup->GetOGByTargetIcon(6);
+        if (activeHealerOG == me->GetGUID())
+        {
+            if (me->GetPower(Powers::POWER_MANA) < 500)
+            {
+                myGroup->SetTargetIcon(6, ObjectGuid::Empty, ObjectGuid::Empty);
+                return false;
+            }
+            if (Player* mainTank = GetMainTank())
+            {
+                if (mainTank->GetHealthPct() < 90.0f)
+                {
+                    if (me->rai->sb->Heal(mainTank, cure))
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+        else
+        {
+            if (Player* mainTank = GetMainTank())
+            {
+                if (mainTank->GetHealthPct() < 90.0f)
+                {
+                    if (me->rai->sb->SubHeal(mainTank))
+                    {
+                        return true;
+                    }
+                }
+            }
+            for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+            {
+                if (Player* member = groupRef->GetSource())
+                {
+                    if (member->IsAlive())
+                    {
+                        if (member->groupRole == GroupRole_MoltenCore::GroupRole_MoltenCore_Tank1)
                         {
-                            if (eachHealer->IsAlive())
+                            continue;
+                        }
+                        if (member->GetHealthPct() < 60.0f)
+                        {
+                            if (me->rai->sb->Heal(member, true))
                             {
-                                uint32 eachMana = eachHealer->GetPower(Powers::POWER_MANA);
-                                if (eachMana > maxMana)
-                                {
-                                    maxManaHealer = eachHealer;
-                                    maxMana = eachMana;
-                                }
+                                return true;
                             }
                         }
                     }
-                    if (maxManaHealer->GetGUID() != me->GetGUID())
-                    {
-                        myGroup->SetTargetIcon(4, me->GetGUID(), maxManaHealer->GetGUID());
-                    }
-                    return true;
-                }
-                if (Player* mainTank = GetMainTank())
-                {
-                    if (mainTank->GetHealthPct() < 90.0f)
-                    {
-                        if (me->rai->sb->Heal(mainTank, cure))
-                        {
-                            return true;
-                        }
-                    }
                 }
             }
-            else
-            {
-                if (Player* mainTank = GetMainTank())
-                {
-                    if (mainTank->GetHealthPct() < 90.0f)
-                    {
-                        if (me->rai->sb->SubHeal(mainTank))
-                        {
-                            return true;
-                        }
-                    }
-                }
-            }
-            //for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-            //{
-            //    if (Player* member = groupRef->GetSource())
-            //    {
-            //        if (member->IsAlive())
-            //        {
-            //            if (member->groupRole == GroupRole_MoltenCore::GroupRole_MoltenCore_Tank1)
-            //            {
-            //                continue;
-            //            }
-            //            if (member->GetHealthPct() < 60.0f)
-            //            {
-            //                if (me->rai->sb->Heal(member, true))
-            //                {
-            //                    return true;
-            //                }
-            //            }
-            //        }
-            //    }
-            //}
-            return true;
         }
     }
 
-    return RobotStrategy_Group::Heal();
+    return false;
 }
 
 Player* RobotStrategy_Group_MoltenCore::GetMainTank()
