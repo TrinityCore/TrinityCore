@@ -96,6 +96,7 @@ void RobotStrategy_Group::InitialStrategy()
     holding = false;
     following = true;
     cure = true;
+    moveDelay = 0;
     actionType = 0;
     actionDelay = 0;
     assistDelay = 0;
