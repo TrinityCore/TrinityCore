@@ -21,6 +21,7 @@
 #include "Define.h"
 #include "Hash.h"
 #include <array>
+#include <string>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
