@@ -2263,7 +2263,7 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                                 else if (member->rai->sb->characterType == RobotCharacterType::RobotCharacterType_HEALER)
                                 {
                                     if (healerCount < 6)
-                                    {                                        
+                                    {
                                         member->groupRole = GroupRole_MoltenCore::GroupRole_MoltenCore_Healer;
                                         if (!mainHealerSet)
                                         {
@@ -2477,7 +2477,7 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                                 {
                                 case GroupRole_Ysondre::GroupRole_Ysondre_Tank1:
                                 {
-                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 20.0f, rs->basePos.GetOrientation());
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 2.0f, rs->basePos.GetOrientation());
                                     break;
                                 }
                                 case GroupRole_Ysondre::GroupRole_Ysondre_Tank2:
@@ -2605,7 +2605,7 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                                 {
                                 case GroupRole_Lethon::GroupRole_Lethon_Tank1:
                                 {
-                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 20.0f, rs->basePos.GetOrientation());
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 2.0f, rs->basePos.GetOrientation());
                                     break;
                                 }
                                 case GroupRole_Lethon::GroupRole_Lethon_Tank2:
@@ -2733,7 +2733,7 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                                 {
                                 case GroupRole_Taerar::GroupRole_Taerar_Tank1:
                                 {
-                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 20.0f, rs->basePos.GetOrientation());
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 2.0f, rs->basePos.GetOrientation());
                                     break;
                                 }
                                 case GroupRole_Taerar::GroupRole_Taerar_Tank2:
@@ -2879,7 +2879,7 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                                 {
                                 case GroupRole_Emeriss::GroupRole_Emeriss_Tank1:
                                 {
-                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 20.0f, rs->basePos.GetOrientation());
+                                    pmPlayer->GetNearPoint(member, rs->markPos.m_positionX, rs->markPos.m_positionY, rs->markPos.m_positionZ, 2.0f, rs->basePos.GetOrientation());
                                     break;
                                 }
                                 case GroupRole_Emeriss::GroupRole_Emeriss_Tank2:
@@ -6431,7 +6431,11 @@ bool RobotManager::InitializeCharacter(Player* pmTargetPlayer, uint32 pmTargetLe
     }
 
     bool resetEquipments = false;
-    if (sRobotConfig->ResetEquipments == 1)
+    if (isNew)
+    {
+        resetEquipments = true;
+    }
+    else if (sRobotConfig->ResetEquipments == 1)
     {
         resetEquipments = true;
     }

@@ -69,31 +69,34 @@ bool Script_Mage::Assist()
             {
                 if (assistTarget->IsAlive())
                 {
-                    if (assistTarget->GetCreatureType() == CreatureType::CREATURE_TYPE_HUMANOID)
+                    if (me->IsValidAttackTarget(assistTarget))
                     {
-                        uint32 duration = GetAuraDuration(assistTarget, "Polymorph");
-                        if (duration < 1000)
+                        if (assistTarget->GetCreatureType() == CreatureType::CREATURE_TYPE_HUMANOID)
                         {
-                            float targetDistance = me->GetDistance(assistTarget);
-                            if (targetDistance < VISIBILITY_DISTANCE_NORMAL)
+                            uint32 duration = GetAuraDuration(assistTarget, "Polymorph");
+                            if (duration < 1000)
                             {
-                                uint32 assistSpellID = FindSpellID("Polymorph");
-                                if (SpellValid(assistSpellID))
+                                float targetDistance = me->GetDistance(assistTarget);
+                                if (targetDistance < VISIBILITY_DISTANCE_NORMAL)
                                 {
-                                    if (const SpellInfo* pS = sSpellMgr->GetSpellInfo(assistSpellID))
+                                    uint32 assistSpellID = FindSpellID("Polymorph");
+                                    if (SpellValid(assistSpellID))
                                     {
-                                        if (!assistTarget->IsImmunedToSpell(pS, me))
+                                        if (const SpellInfo* pS = sSpellMgr->GetSpellInfo(assistSpellID))
                                         {
-                                            if (targetDistance > MAGE_RANGE_DISTANCE)
+                                            if (!assistTarget->IsImmunedToSpell(pS, me))
                                             {
-                                                me->GetMotionMaster()->MoveCloserAndStop(0, assistTarget, MAGE_RANGE_DISTANCE - 1.0f);
-                                                actionDelay = 1000;
+                                                if (targetDistance > MAGE_RANGE_DISTANCE)
+                                                {
+                                                    me->GetMotionMaster()->MoveCloserAndStop(0, assistTarget, MAGE_RANGE_DISTANCE - 1.0f);
+                                                    actionDelay = 1000;
+                                                }
+                                                else
+                                                {
+                                                    CastSpell(assistTarget, "Polymorph", MAGE_RANGE_DISTANCE);
+                                                }
+                                                return true;
                                             }
-                                            else
-                                            {
-                                                CastSpell(assistTarget, "Polymorph", MAGE_RANGE_DISTANCE);
-                                            }
-                                            return true;
                                         }
                                     }
                                 }

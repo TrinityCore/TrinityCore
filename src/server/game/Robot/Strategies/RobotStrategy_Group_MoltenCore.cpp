@@ -484,7 +484,7 @@ bool RobotStrategy_Group_MoltenCore::DPS()
             {
                 if (Player* activeHealer = ObjectAccessor::GetPlayer(*me, myGroup->GetOGByTargetIcon(6)))
                 {
-                    markPos = GetNearPoint(magmadar->GetPosition(), 15.0f, magmadar->GetAbsoluteAngle(activeHealer->GetPosition()));
+                    markPos = GetNearPoint(magmadar->GetPosition(), 10.0f, magmadar->GetAbsoluteAngle(activeHealer->GetPosition()));
                     if (me->GetExactDist(markPos) > 1.0f)
                     {
                         actionDelay = 3000;
@@ -499,6 +499,19 @@ bool RobotStrategy_Group_MoltenCore::DPS()
                     if (me->rai->sb->DPS(magmadar, false, false, NULL))
                     {
                         return true;
+                    }
+                }
+            }
+            else
+            {
+                if (magmadar->HasAura(19451))
+                {
+                    if (me->GetClass() == Classes::CLASS_HUNTER)
+                    {
+                        if (me->rai->sb->CastSpell(magmadar, "Tranquilizing Shot", RANGED_MAX_DISTANCE))
+                        {
+                            return true;
+                        }
                     }
                 }
             }
@@ -629,7 +642,7 @@ bool RobotStrategy_Group_MoltenCore::Tank()
             {
                 if (Player* activeHealer = ObjectAccessor::GetPlayer(*me, myGroup->GetOGByTargetIcon(6)))
                 {
-                    markPos = GetNearPoint(magmadar->GetPosition(), 15.0f, activeHealer->GetAbsoluteAngle(magmadar->GetPosition()));
+                    markPos = GetNearPoint(magmadar->GetPosition(), 10.0f, activeHealer->GetAbsoluteAngle(magmadar->GetPosition()));
                     if (me->GetExactDist(markPos) > 1.0f)
                     {
                         actionDelay = 3000;
@@ -647,7 +660,7 @@ bool RobotStrategy_Group_MoltenCore::Tank()
                     }
                 }
             }
-            else if (me->groupRole == GroupRole_MoltenCore::GroupRole_MoltenCore_Tank2)
+            else
             {
                 if (Player* activeHealer = ObjectAccessor::GetPlayer(*me, myGroup->GetOGByTargetIcon(6)))
                 {
@@ -673,38 +686,51 @@ bool RobotStrategy_Group_MoltenCore::Tank()
         std::unordered_map<ObjectGuid, Unit*> fireswornMap = myGroup->GetGroupAttackers(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Firesworn);
         if (fireswornMap.size() > 0)
         {
-            if (Unit* myTarget = me->GetSelectedUnit())
+            if (me->groupRole == GroupRole_MoltenCore::GroupRole_MoltenCore_Tank1)
             {
-                if (myTarget->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Firesworn || myTarget->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Garr)
+                if (Unit* myTarget = me->GetSelectedUnit())
                 {
-                    if (myTarget->GetTarget() != me->GetGUID())
+                    if (myTarget->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Firesworn || myTarget->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Garr)
+                    {
+                        if (myTarget->GetTarget() != me->GetGUID())
+                        {
+                            return me->rai->sb->Tank(myTarget, true);
+                        }
+                    }
+                }
+                for (std::unordered_map<ObjectGuid, Unit*>::iterator eIT = myGroup->groupAttackersMap.begin(); eIT != myGroup->groupAttackersMap.end(); eIT++)
+                {
+                    if (Unit* eachAdd = eIT->second)
+                    {
+                        if (eachAdd->GetTarget() != me->GetGUID())
+                        {
+                            return me->rai->sb->Tank(eachAdd, true);
+                        }
+                    }
+                }
+                if (Unit* myTarget = me->GetSelectedUnit())
+                {
+                    if (myTarget->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Firesworn || myTarget->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Garr)
                     {
                         return me->rai->sb->Tank(myTarget, true);
                     }
                 }
-            }
-            for (std::unordered_map<ObjectGuid, Unit*>::iterator eIT = myGroup->groupAttackersMap.begin(); eIT != myGroup->groupAttackersMap.end(); eIT++)
-            {
-                if (Unit* eachAdd = eIT->second)
+                for (std::unordered_map<ObjectGuid, Unit*>::iterator eIT = myGroup->groupAttackersMap.begin(); eIT != myGroup->groupAttackersMap.end(); eIT++)
                 {
-                    if (eachAdd->GetTarget() != me->GetGUID())
+                    if (Unit* eachAdd = eIT->second)
                     {
                         return me->rai->sb->Tank(eachAdd, true);
                     }
                 }
             }
-            if (Unit* myTarget = me->GetSelectedUnit())
+            else
             {
-                if (myTarget->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Firesworn || myTarget->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Garr)
+                if (combatTime > dpsDelay)
                 {
-                    return me->rai->sb->Tank(myTarget, true);
-                }
-            }
-            for (std::unordered_map<ObjectGuid, Unit*>::iterator eIT = myGroup->groupAttackersMap.begin(); eIT != myGroup->groupAttackersMap.end(); eIT++)
-            {
-                if (Unit* eachAdd = eIT->second)
-                {
-                    return me->rai->sb->Tank(eachAdd, true);
+                    if (Player* mainTank = GetMainTank())
+                    {
+                        return me->rai->sb->DPS(mainTank->GetSelectedUnit(), true, true, mainTank);
+                    }
                 }
             }
         }
@@ -769,11 +795,11 @@ bool RobotStrategy_Group_MoltenCore::Tank()
                     {
                         if (Player* activeHealer = ObjectAccessor::GetPlayer(*me, myGroup->GetOGByTargetIcon(6)))
                         {
-                            markPos = GetNearPoint(golemagg->GetPosition(), 40.0f, golemagg->GetAbsoluteAngle(activeHealer->GetPosition()) + M_PI * 3 / 2);
+                            markPos = GetNearPoint(golemagg->GetPosition(), 40.0f, golemagg->GetAbsoluteAngle(activeHealer->GetPosition()) + M_PI / 2);
                         }
                         else
                         {
-                            markPos = GetNearPoint(golemagg->GetPosition(), 40.0f, golemagg->GetAbsoluteAngle(me->GetPosition()) + M_PI * 3 / 2);
+                            markPos = GetNearPoint(golemagg->GetPosition(), 40.0f, golemagg->GetAbsoluteAngle(me->GetPosition()) + M_PI / 2);
                         }
                         actionDelay = 3000;
                         actionType = ActionType_MoltenCore::ActionType_MoltenCore_MarkMove;
@@ -1074,22 +1100,9 @@ bool RobotStrategy_Group_MoltenCore::Heal()
                 {
                     if (me->GetClass() == Classes::CLASS_PRIEST)
                     {
-                        if (!tank1->HasAura(6346))
+                        if (me->rai->sb->CastSpell(tank1, "Fear Ward", 35.0f, true))
                         {
-                            if (me->rai->sb->SpellValid(6346))
-                            {
-                                if (me->GetExactDist(tank1) < RANGED_MAX_DISTANCE)
-                                {
-                                    me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
-                                    me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
-                                    me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
-                                    me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
-                                    if (me->rai->sb->CastSpell(tank1, "Fear Ward", 35.0f))
-                                    {
-                                        return true;
-                                    }
-                                }
-                            }
+                            return true;
                         }
                     }
                 }
@@ -1246,7 +1259,7 @@ bool RobotStrategy_Group_MoltenCore::Heal()
                         {
                             continue;
                         }
-                        if (member->GetHealthPct() < 60.0f)
+                        if (member->GetHealthPct() < 40.0f)
                         {
                             if (me->rai->sb->Heal(member, true))
                             {

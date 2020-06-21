@@ -116,7 +116,7 @@ public:
                     EnterEvadeMode();
                     Talk(SAY_DEFEAT);
                     _JustDied();
-                    events.ScheduleEvent(EVENT_OUTRO_1, 20000);
+                    events.ScheduleEvent(EVENT_OUTRO_1, 30000);
                     return;
                 }
 

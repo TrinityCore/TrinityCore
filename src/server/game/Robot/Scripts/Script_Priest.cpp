@@ -45,7 +45,7 @@ bool Script_Priest::SubHeal(Unit* pmTarget, bool pmCure)
             return true;
         }
     }
-    if (healthPCT < 50.0f)
+    if (healthPCT < 30.0f)
     {
         if (CastSpell(pmTarget, "Flash Heal", PRIEST_HEAL_DISTANCE))
         {

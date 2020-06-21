@@ -1912,22 +1912,9 @@ bool RobotStrategy_Group_Taerar::Heal()
                     {
                         if (me->GetClass() == Classes::CLASS_PRIEST)
                         {
-                            if (!myTank->HasAura(6346))
+                            if (me->rai->sb->CastSpell(myTank, "Fear Ward", 35.0f, true))
                             {
-                                if (me->rai->sb->SpellValid(6346))
-                                {
-                                    if (me->GetExactDist(myTank) < RANGED_MAX_DISTANCE)
-                                    {
-                                        me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
-                                        me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
-                                        me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
-                                        me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
-                                        if (me->rai->sb->CastSpell(myTank, "Fear Ward", 35.0f))
-                                        {
-                                            return true;
-                                        }
-                                    }
-                                }
+                                return true;
                             }
                         }
                         if (myTank->GetHealthPct() < 90.0f)
