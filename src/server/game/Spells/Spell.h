@@ -935,7 +935,8 @@ namespace Trinity
     struct TC_GAME_API WorldObjectSpellConeTargetCheck : public WorldObjectSpellAreaTargetCheck
     {
         float _coneAngle;
-        WorldObjectSpellConeTargetCheck(float coneAngle, float range, Unit* caster,
+        float _lineWidth;
+        WorldObjectSpellConeTargetCheck(float coneAngle, float lineWidth, float range, Unit* caster,
             SpellInfo const* spellInfo, SpellTargetCheckTypes selectionType, ConditionContainer* condList);
         bool operator()(WorldObject* target);
     };
