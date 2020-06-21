@@ -1401,22 +1401,13 @@ bool RobotStrategy_Group_Emeriss::Heal()
             }
             else if (assisting)
             {
-                uint32 myTankRole = GroupRole_Emeriss::GroupRole_Emeriss_None;
-                if (me->groupRole == GroupRole_Emeriss::GroupRole_Emeriss_Healer1 || me->groupRole == GroupRole_Emeriss::GroupRole_Emeriss_Healer2)
+                if (Player* activeTank = ObjectAccessor::GetPlayer(*me, myGroup->GetOGByTargetIcon(0)))
                 {
-                    myTankRole = GroupRole_Emeriss::GroupRole_Emeriss_Tank2;
-                }
-                else if (me->groupRole == GroupRole_Emeriss::GroupRole_Emeriss_Healer3 || me->groupRole == GroupRole_Emeriss::GroupRole_Emeriss_Healer4)
-                {
-                    myTankRole = GroupRole_Emeriss::GroupRole_Emeriss_Tank1;
-                }
-                if (Player* myTank = GetPlayerByGroupRole(myTankRole))
-                {
-                    if (myTank->IsAlive())
+                    if (activeTank->IsAlive())
                     {
-                        if (myTank->GetHealthPct() < 90.0f)
+                        if (activeTank->GetHealthPct() < 90.0f)
                         {
-                            if (me->rai->sb->SubHeal(myTank))
+                            if (me->rai->sb->SubHeal(activeTank))
                             {
                                 return true;
                             }

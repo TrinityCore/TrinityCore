@@ -1699,22 +1699,13 @@ bool RobotStrategy_Group_Taerar::Heal()
             }
             else if (assisting)
             {
-                uint32 myTankRole = GroupRole_Taerar::GroupRole_Taerar_None;
-                if (me->groupRole == GroupRole_Taerar::GroupRole_Taerar_Healer1 || me->groupRole == GroupRole_Taerar::GroupRole_Taerar_Healer2 || me->groupRole == GroupRole_Taerar::GroupRole_Taerar_Healer3)
+                if (Player* activeTank = ObjectAccessor::GetPlayer(*me, myGroup->GetOGByTargetIcon(0)))
                 {
-                    myTankRole = GroupRole_Taerar::GroupRole_Taerar_Tank2;
-                }
-                else if (me->groupRole == GroupRole_Taerar::GroupRole_Taerar_Healer4 || me->groupRole == GroupRole_Taerar::GroupRole_Taerar_Healer5 || me->groupRole == GroupRole_Taerar::GroupRole_Taerar_Healer6)
-                {
-                    myTankRole = GroupRole_Taerar::GroupRole_Taerar_Tank1;
-                }
-                if (Player* myTank = GetPlayerByGroupRole(myTankRole))
-                {
-                    if (myTank->IsAlive())
+                    if (activeTank->IsAlive())
                     {
-                        if (myTank->GetHealthPct() < 90.0f)
+                        if (activeTank->GetHealthPct() < 90.0f)
                         {
-                            if (me->rai->sb->SubHeal(myTank))
+                            if (me->rai->sb->SubHeal(activeTank))
                             {
                                 return true;
                             }
@@ -1984,22 +1975,13 @@ bool RobotStrategy_Group_Taerar::Heal()
             }
             else if (assisting)
             {
-                uint32 myTankRole = GroupRole_Taerar::GroupRole_Taerar_None;
-                if (me->groupRole == GroupRole_Taerar::GroupRole_Taerar_Healer1 || me->groupRole == GroupRole_Taerar::GroupRole_Taerar_Healer2 || me->groupRole == GroupRole_Taerar::GroupRole_Taerar_Healer3)
+                if (Player* activeTank = ObjectAccessor::GetPlayer(*me, myGroup->GetOGByTargetIcon(0)))
                 {
-                    myTankRole = GroupRole_Taerar::GroupRole_Taerar_Tank2;
-                }
-                else if (me->groupRole == GroupRole_Taerar::GroupRole_Taerar_Healer4 || me->groupRole == GroupRole_Taerar::GroupRole_Taerar_Healer5 || me->groupRole == GroupRole_Taerar::GroupRole_Taerar_Healer6)
-                {
-                    myTankRole = GroupRole_Taerar::GroupRole_Taerar_Tank1;
-                }
-                if (Player* myTank = GetPlayerByGroupRole(myTankRole))
-                {
-                    if (myTank->IsAlive())
+                    if (activeTank->IsAlive())
                     {
-                        if (myTank->GetHealthPct() < 90.0f)
+                        if (activeTank->GetHealthPct() < 90.0f)
                         {
-                            if (me->rai->sb->SubHeal(myTank))
+                            if (me->rai->sb->SubHeal(activeTank))
                             {
                                 return true;
                             }

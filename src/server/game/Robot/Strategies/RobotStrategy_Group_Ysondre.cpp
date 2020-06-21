@@ -1238,22 +1238,13 @@ bool RobotStrategy_Group_Ysondre::Heal()
             }
             else if (assisting)
             {
-                uint32 myTankRole = GroupRole_Ysondre::GroupRole_Ysondre_None;
-                if (me->groupRole == GroupRole_Ysondre::GroupRole_Ysondre_Healer1 || me->groupRole == GroupRole_Ysondre::GroupRole_Ysondre_Healer2 || me->groupRole == GroupRole_Ysondre::GroupRole_Ysondre_Healer3)
+                if (Player* activeTank = ObjectAccessor::GetPlayer(*me, myGroup->GetOGByTargetIcon(0)))
                 {
-                    myTankRole = GroupRole_Ysondre::GroupRole_Ysondre_Tank2;
-                }
-                else if (me->groupRole == GroupRole_Ysondre::GroupRole_Ysondre_Healer4 || me->groupRole == GroupRole_Ysondre::GroupRole_Ysondre_Healer5 || me->groupRole == GroupRole_Ysondre::GroupRole_Ysondre_Healer6)
-                {
-                    myTankRole = GroupRole_Ysondre::GroupRole_Ysondre_Tank1;
-                }
-                if (Player* myTank = GetPlayerByGroupRole(myTankRole))
-                {
-                    if (myTank->IsAlive())
+                    if (activeTank->IsAlive())
                     {
-                        if (myTank->GetHealthPct() < 90.0f)
+                        if (activeTank->GetHealthPct() < 90.0f)
                         {
-                            if (me->rai->sb->SubHeal(myTank))
+                            if (me->rai->sb->SubHeal(activeTank))
                             {
                                 return true;
                             }

@@ -478,6 +478,31 @@ bool RobotStrategy_Group_MoltenCore::DPS()
     }
     if (Group* myGroup = me->GetGroup())
     {
+        if (Unit* magmadar = myGroup->GetGroupAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Magmadar))
+        {
+            if (me->groupRole == GroupRole_MoltenCore::GroupRole_MoltenCore_DPS_Melee)
+            {
+                if (Player* activeHealer = ObjectAccessor::GetPlayer(*me, myGroup->GetOGByTargetIcon(6)))
+                {
+                    markPos = GetNearPoint(magmadar->GetPosition(), 15.0f, magmadar->GetAbsoluteAngle(activeHealer->GetPosition()));
+                    if (me->GetExactDist(markPos) > 1.0f)
+                    {
+                        actionDelay = 3000;
+                        actionType = ActionType_MoltenCore::ActionType_MoltenCore_MarkMove;
+                        me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                        me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                        me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                        me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                        me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(magmadar->GetPosition()));
+                        return true;
+                    }
+                    if (me->rai->sb->DPS(magmadar, false, false, NULL))
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
         if (myGroup->GetGroupAttackers(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Firesworn).size() > 0)
         {
             if (combatTime > dpsDelay)
@@ -488,29 +513,20 @@ bool RobotStrategy_Group_MoltenCore::DPS()
                 }
             }
         }
-        //if (myGroup->GetGroupAttackers(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Firesworn).size() > 0)
-        //{
-        //    for (int checkIcon = 0; checkIcon < 8; checkIcon++)
-        //    {
-        //        if (Creature* eachAdd = ObjectAccessor::GetCreature(*me, myGroup->GetOGByTargetIcon(checkIcon)))
-        //        {
-        //            if (eachAdd->IsAlive())
-        //            {
-        //                if (combatTime > dpsDelay)
-        //                {
-        //                    return me->rai->sb->DPS(eachAdd, true, false, NULL);
-        //                }
-        //            }
-        //        }
-        //    }
-        //}
         if (Unit* geddon = myGroup->GetGroupAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Baron_Geddon))
         {
             if (geddon->HasAura(19695))
             {
                 if (me->GetExactDist(geddon) < 30.0f)
                 {
-                    markPos = GetNearPoint(geddon->GetPosition(), 32.0f, basePos.GetOrientation());
+                    if (Player* activeHealer = ObjectAccessor::GetPlayer(*me, myGroup->GetOGByTargetIcon(6)))
+                    {
+                        markPos = GetNearPoint(geddon->GetPosition(), 32.0f, geddon->GetAbsoluteAngle(activeHealer->GetPosition()));
+                    }
+                    else
+                    {
+                        markPos = GetNearPoint(geddon->GetPosition(), 32.0f, geddon->GetAbsoluteAngle(me->GetPosition()));
+                    }
                     actionDelay = 3000;
                     actionType = ActionType_MoltenCore::ActionType_MoltenCore_MarkMove;
                     me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
@@ -607,6 +623,53 @@ bool RobotStrategy_Group_MoltenCore::Tank()
 {
     if (Group* myGroup = me->GetGroup())
     {
+        if (Unit* magmadar = myGroup->GetGroupAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Magmadar))
+        {
+            if (me->groupRole == GroupRole_MoltenCore::GroupRole_MoltenCore_Tank1)
+            {
+                if (Player* activeHealer = ObjectAccessor::GetPlayer(*me, myGroup->GetOGByTargetIcon(6)))
+                {
+                    markPos = GetNearPoint(magmadar->GetPosition(), 15.0f, activeHealer->GetAbsoluteAngle(magmadar->GetPosition()));
+                    if (me->GetExactDist(markPos) > 1.0f)
+                    {
+                        actionDelay = 3000;
+                        actionType = ActionType_MoltenCore::ActionType_MoltenCore_MarkMove;
+                        me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                        me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                        me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                        me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                        me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(magmadar->GetPosition()));
+                        return true;
+                    }
+                    if (me->rai->sb->Tank(magmadar, false))
+                    {
+                        return true;
+                    }
+                }
+            }
+            else if (me->groupRole == GroupRole_MoltenCore::GroupRole_MoltenCore_Tank2)
+            {
+                if (Player* activeHealer = ObjectAccessor::GetPlayer(*me, myGroup->GetOGByTargetIcon(6)))
+                {
+                    markPos = GetNearPoint(magmadar->GetPosition(), 15.0f, magmadar->GetAbsoluteAngle(activeHealer->GetPosition()));
+                    if (me->GetExactDist(markPos) > 1.0f)
+                    {
+                        actionDelay = 3000;
+                        actionType = ActionType_MoltenCore::ActionType_MoltenCore_MarkMove;
+                        me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                        me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                        me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                        me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                        me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(magmadar->GetPosition()));
+                        return true;
+                    }
+                    if (me->rai->sb->DPS(magmadar, false, false, NULL))
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
         std::unordered_map<ObjectGuid, Unit*> fireswornMap = myGroup->GetGroupAttackers(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Firesworn);
         if (fireswornMap.size() > 0)
         {
@@ -645,61 +708,20 @@ bool RobotStrategy_Group_MoltenCore::Tank()
                 }
             }
         }
-        //if (fireswornMap.size() > 0)
-        //{
-        //    bool assigned = true;
-        //    for (std::unordered_map<ObjectGuid, Unit*>::iterator attackerIT = fireswornMap.begin(); attackerIT != fireswornMap.end(); attackerIT++)
-        //    {
-        //        if (Unit* eachAttacker = attackerIT->second)
-        //        {
-        //            if (myGroup->GetTargetIconByOG(eachAttacker->GetGUID()) < 0)
-        //            {
-        //                assigned = false;
-        //                break;
-        //            }
-        //        }
-        //    }
-        //    if (!assigned)
-        //    {
-        //        int fireswornIndex = 0;
-        //        for (std::unordered_map<ObjectGuid, Unit*>::iterator attackerIT = fireswornMap.begin(); attackerIT != fireswornMap.end(); attackerIT++)
-        //        {
-        //            if (Unit* eachAttacker = attackerIT->second)
-        //            {
-        //                if (eachAttacker->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Firesworn)
-        //                {
-        //                    myGroup->SetTargetIcon(fireswornIndex, me->GetGUID(), eachAttacker->GetGUID());
-        //                    fireswornIndex++;
-        //                }
-        //            }
-        //        }
-        //        return true;
-        //    }
-        //    for (int checkIcon = 0; checkIcon < 8; checkIcon++)
-        //    {
-        //        if (Creature* eachAdd = ObjectAccessor::GetCreature(*me, myGroup->GetOGByTargetIcon(checkIcon)))
-        //        {
-        //                if (me->groupRole == GroupRole_MoltenCore::GroupRole_MoltenCore_Tank1)
-        //                {
-        //                    return me->rai->sb->Tank(eachAdd, true);
-        //                }
-        //                else
-        //                {
-        //                    if (combatTime > dpsDelay)
-        //                    {
-        //                        return me->rai->sb->DPS(eachAdd, true, false, NULL);
-        //                    }
-        //                }
-        //            }
-        //    }
-        //}
         if (Unit* geddon = myGroup->GetGroupAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Baron_Geddon))
         {
             if (geddon->HasAura(19695))
             {
                 if (me->GetExactDist(geddon) < 30.0f)
                 {
-                    markPos = GetNearPoint(geddon->GetPosition(), 32.0f, basePos.GetOrientation());
+                    if (Player* activeHealer = ObjectAccessor::GetPlayer(*me, myGroup->GetOGByTargetIcon(6)))
+                    {
+                        markPos = GetNearPoint(geddon->GetPosition(), 32.0f, geddon->GetAbsoluteAngle(activeHealer->GetPosition()));
+                    }
+                    else
+                    {
+                        markPos = GetNearPoint(geddon->GetPosition(), 32.0f, geddon->GetAbsoluteAngle(me->GetPosition()));
+                    }
                     actionDelay = 3000;
                     actionType = ActionType_MoltenCore::ActionType_MoltenCore_MarkMove;
                     me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
@@ -722,7 +744,6 @@ bool RobotStrategy_Group_MoltenCore::Tank()
                 }
             }
         }
-
         if (Unit* golemagg = myGroup->GetGroupAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Golemagg_the_Incinerator))
         {
             if (me->groupRole == GroupRole_MoltenCore::GroupRole_MoltenCore_Tank1)
@@ -746,7 +767,14 @@ bool RobotStrategy_Group_MoltenCore::Tank()
                     }
                     if (me->GetExactDist(golemagg) < 30.0f)
                     {
-                        markPos = GetNearPoint(golemagg->GetPosition(), 35.0f, engageAngle);
+                        if (Player* activeHealer = ObjectAccessor::GetPlayer(*me, myGroup->GetOGByTargetIcon(6)))
+                        {
+                            markPos = GetNearPoint(golemagg->GetPosition(), 40.0f, golemagg->GetAbsoluteAngle(activeHealer->GetPosition()) + M_PI * 3 / 2);
+                        }
+                        else
+                        {
+                            markPos = GetNearPoint(golemagg->GetPosition(), 40.0f, golemagg->GetAbsoluteAngle(me->GetPosition()) + M_PI * 3 / 2);
+                        }
                         actionDelay = 3000;
                         actionType = ActionType_MoltenCore::ActionType_MoltenCore_MarkMove;
                         me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
@@ -910,7 +938,14 @@ bool RobotStrategy_Group_MoltenCore::Tank()
                             {
                                 if (me->GetExactDist(tank1->GetPosition()) < 50.0f)
                                 {
-                                    markPos = GetNearPoint(tank1->GetPosition(), 60.0f, engageAngle);
+                                    if (Player* activeHealer = ObjectAccessor::GetPlayer(*me, myGroup->GetOGByTargetIcon(6)))
+                                    {
+                                        markPos = GetNearPoint(tank1->GetPosition(), 60.0f, tank1->GetAbsoluteAngle(activeHealer->GetPosition()));
+                                    }
+                                    else
+                                    {
+                                        markPos = GetNearPoint(tank1->GetPosition(), 60.0f, tank1->GetAbsoluteAngle(me->GetPosition()));
+                                    }
                                     actionDelay = 3000;
                                     actionType = ActionType_MoltenCore::ActionType_MoltenCore_MarkMove;
                                     me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
@@ -1066,7 +1101,14 @@ bool RobotStrategy_Group_MoltenCore::Heal()
             {
                 if (me->GetExactDist(geddon) < 30.0f)
                 {
-                    markPos = GetNearPoint(geddon->GetPosition(), 32.0f, basePos.GetOrientation());
+                    if (Player* activeHealer = ObjectAccessor::GetPlayer(*me, myGroup->GetOGByTargetIcon(6)))
+                    {
+                        markPos = GetNearPoint(geddon->GetPosition(), 32.0f, geddon->GetAbsoluteAngle(activeHealer->GetPosition()));
+                    }
+                    else
+                    {
+                        markPos = GetNearPoint(geddon->GetPosition(), 32.0f, geddon->GetAbsoluteAngle(me->GetPosition()));
+                    }
                     actionDelay = 3000;
                     actionType = ActionType_MoltenCore::ActionType_MoltenCore_MarkMove;
                     me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
