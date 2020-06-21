@@ -345,7 +345,7 @@ class npc_warden_mellichar : public CreatureScript
             void JustSummoned(Creature* summon) override
             {
                 DoZoneInCombat(summon);
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                     summon->AI()->AttackStart(target);
             }
 

@@ -133,7 +133,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_ACCOUNT_PASSWORD                       = 225,
     RBAC_PERM_COMMAND_ACCOUNT_SET                            = 226,
     RBAC_PERM_COMMAND_ACCOUNT_SET_ADDON                      = 227,
-    RBAC_PERM_COMMAND_ACCOUNT_SET_GMLEVEL                    = 228,
+    RBAC_PERM_COMMAND_ACCOUNT_SET_SECLEVEL                   = 228,
     RBAC_PERM_COMMAND_ACCOUNT_SET_PASSWORD                   = 229,
     RBAC_PERM_COMMAND_ACHIEVEMENT                            = 230,
     RBAC_PERM_COMMAND_ACHIEVEMENT_ADD                        = 231,

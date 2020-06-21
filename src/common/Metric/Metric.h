@@ -25,6 +25,8 @@
 #include <iosfwd>
 #include <memory>
 #include <string>
+#include <vector>
+#include <utility>
 
 namespace Trinity
 {
@@ -41,11 +43,14 @@ enum MetricDataType
     METRIC_DATA_EVENT
 };
 
+typedef std::pair<std::string, std::string> MetricTag;
+
 struct MetricData
 {
     std::string Category;
     std::chrono::system_clock::time_point Timestamp;
     MetricDataType Type;
+    std::vector<MetricTag> Tags;
 
     // LogValue-specific fields
     std::string Value;
@@ -100,7 +105,7 @@ public:
     void Update();
 
     template<class T>
-    void LogValue(std::string const& category, T value)
+    void LogValue(std::string const& category, T value, std::vector<MetricTag> tags)
     {
         using namespace std::chrono;
 
@@ -109,6 +114,7 @@ public:
         data->Timestamp = system_clock::now();
         data->Type = METRIC_DATA_VALUE;
         data->Value = FormatInfluxDBValue(value);
+        data->Tags = std::move(tags);
 
         _queuedData.Enqueue(data);
     }
@@ -121,36 +127,38 @@ public:
 
 #define sMetric Metric::instance()
 
+#define TC_METRIC_TAG(name, value) { name, value }
+
 #ifdef PERFORMANCE_PROFILING
 #define TC_METRIC_EVENT(category, title, description) ((void)0)
 #define TC_METRIC_VALUE(category, value) ((void)0)
 #elif TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
-#define TC_METRIC_EVENT(category, title, description)                    \
-        do {                                                            \
-            if (sMetric->IsEnabled())                              \
-                sMetric->LogEvent(category, title, description);   \
+#define TC_METRIC_EVENT(category, title, description)                  \
+        do {                                                           \
+            if (sMetric->IsEnabled())                                  \
+                sMetric->LogEvent(category, title, description);       \
         } while (0)
-#define TC_METRIC_VALUE(category, value)                                 \
-        do {                                                            \
-            if (sMetric->IsEnabled())                              \
-                sMetric->LogValue(category, value);                \
+#define TC_METRIC_VALUE(category, value, ...)                          \
+        do {                                                           \
+            if (sMetric->IsEnabled())                                  \
+                sMetric->LogValue(category, value, { __VA_ARGS__ });   \
         } while (0)
 #else
-#define TC_METRIC_EVENT(category, title, description)                    \
-        __pragma(warning(push))                                         \
-        __pragma(warning(disable:4127))                                 \
-        do {                                                            \
-            if (sMetric->IsEnabled())                              \
-                sMetric->LogEvent(category, title, description);   \
-        } while (0)                                                     \
+#define TC_METRIC_EVENT(category, title, description)                  \
+        __pragma(warning(push))                                        \
+        __pragma(warning(disable:4127))                                \
+        do {                                                           \
+            if (sMetric->IsEnabled())                                  \
+                sMetric->LogEvent(category, title, description);       \
+        } while (0)                                                    \
         __pragma(warning(pop))
-#define TC_METRIC_VALUE(category, value)                                 \
-        __pragma(warning(push))                                         \
-        __pragma(warning(disable:4127))                                 \
-        do {                                                            \
-            if (sMetric->IsEnabled())                              \
-                sMetric->LogValue(category, value);                \
-        } while (0)                                                     \
+#define TC_METRIC_VALUE(category, value, ...)                          \
+        __pragma(warning(push))                                        \
+        __pragma(warning(disable:4127))                                \
+        do {                                                           \
+            if (sMetric->IsEnabled())                                  \
+                sMetric->LogValue(category, value, { __VA_ARGS__ });   \
+        } while (0)                                                    \
         __pragma(warning(pop))
 #endif
 

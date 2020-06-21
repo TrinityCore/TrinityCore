@@ -2,8 +2,8 @@ version: 2
 jobs:
   pch_and_sql:
     docker:
-      - image: trinitycore/circle-ci:3.3.5-buildpacks-disco
-      - image: circleci/mysql:5.7
+      - image: trinitycore/circle-ci:3.3.5-buildpacks-focal
+      - image: circleci/mysql:8
         environment:
           MYSQL_ALLOW_EMPTY_PASSWORD: yes
           MYSQL_ROOT_PASSWORD: ''
@@ -37,7 +37,6 @@ jobs:
             ./contrib/check_updates.sh characters 3.3.5 characters 127.0.0.1
             mysql -h 127.0.0.1 -uroot world < sql/base/dev/world_database.sql
             cat sql/updates/world/3.3.5/*.sql | mysql -h 127.0.0.1 -uroot world
-            mysql -h 127.0.0.1 -uroot < sql/create/drop_mysql.sql
       - run:
           name: Build
           command: |
@@ -48,7 +47,7 @@ jobs:
             ./worldserver --version
   nopch:
     docker:
-      - image: trinitycore/circle-ci:3.3.5-buildpacks-disco
+      - image: trinitycore/circle-ci:3.3.5-buildpacks-focal
     steps:
       - run:
           name: Requirements

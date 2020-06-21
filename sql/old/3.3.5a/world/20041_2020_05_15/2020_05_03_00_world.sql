@@ -1,0 +1,2 @@
+-- Incorrect/weird or drops from gameobjects or items
+DELETE FROM `creature_loot_template` WHERE `Item` IN (5263,5329,5368,19726,19727,19813,19814,19815,19816,19817,19818,19819,19820,19821,21037,21039,21040,21314,21211,21745);

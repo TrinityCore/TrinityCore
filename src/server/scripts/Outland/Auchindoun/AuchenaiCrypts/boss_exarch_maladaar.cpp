@@ -25,7 +25,6 @@ EndScriptData */
 /* ContentData
 npc_stolen_soul
 boss_exarch_maladaar
-npc_avatar_of_martyred
 EndContentData */
 
 #include "ScriptMgr.h"
@@ -272,7 +271,7 @@ public:
 
             if (StolenSoul_Timer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                 {
                     if (target->GetTypeId() == TYPEID_PLAYER)
                     {
@@ -295,7 +294,7 @@ public:
 
             if (Ribbon_of_Souls_timer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     DoCast(target, SPELL_RIBBON_OF_SOULS);
 
                 Ribbon_of_Souls_timer = 5000 + (rand32() % 20 * 1000);
@@ -313,59 +312,8 @@ public:
 
 };
 
-class npc_avatar_of_martyred : public CreatureScript
-{
-public:
-    npc_avatar_of_martyred() : CreatureScript("npc_avatar_of_martyred") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetAuchenaiCryptsAI<npc_avatar_of_martyredAI>(creature);
-    }
-
-    struct npc_avatar_of_martyredAI : public ScriptedAI
-    {
-        npc_avatar_of_martyredAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-        }
-
-        void Initialize()
-        {
-            Mortal_Strike_timer = 10000;
-        }
-
-        uint32 Mortal_Strike_timer;
-
-        void Reset() override
-        {
-            Initialize();
-        }
-
-        void JustEngagedWith(Unit* /*who*/) override
-        {
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            if (Mortal_Strike_timer <= diff)
-            {
-                DoCastVictim(SPELL_AV_MORTAL_STRIKE);
-                Mortal_Strike_timer = urand(10, 30) * 1000;
-            } else Mortal_Strike_timer -= diff;
-
-            DoMeleeAttackIfReady();
-        }
-    };
-
-};
-
 void AddSC_boss_exarch_maladaar()
 {
     new boss_exarch_maladaar();
-    new npc_avatar_of_martyred();
     new npc_stolen_soul();
 }

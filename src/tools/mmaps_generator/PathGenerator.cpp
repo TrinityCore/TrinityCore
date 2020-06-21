@@ -20,6 +20,7 @@
 #include "MapBuilder.h"
 #include "PathCommon.h"
 #include "Timer.h"
+#include "Util.h"
 #include <boost/filesystem.hpp>
 #include <unordered_map>
 
@@ -74,7 +75,6 @@ bool handleArgs(int argc, char** argv,
                int &mapnum,
                int &tileX,
                int &tileY,
-               float &maxAngle,
                bool &skipLiquid,
                bool &skipContinents,
                bool &skipJunkMaps,
@@ -89,19 +89,7 @@ bool handleArgs(int argc, char** argv,
     char* param = nullptr;
     for (int i = 1; i < argc; ++i)
     {
-        if (strcmp(argv[i], "--maxAngle") == 0)
-        {
-            param = argv[++i];
-            if (!param)
-                return false;
-
-            float maxangle = atof(param);
-            if (maxangle <= 90.f && maxangle >= 45.f)
-                maxAngle = maxangle;
-            else
-                printf("invalid option for '--maxAngle', using default\n");
-        }
-        else if (strcmp(argv[i], "--threads") == 0)
+        if (strcmp(argv[i], "--threads") == 0)
         {
             param = argv[++i];
             if (!param)
@@ -273,7 +261,6 @@ int main(int argc, char** argv)
 
     unsigned int threads = std::thread::hardware_concurrency();
     int mapnum = -1;
-    float maxAngle = 70.0f;
     int tileX = -1, tileY = -1;
     bool skipLiquid = false,
          skipContinents = false,
@@ -286,7 +273,7 @@ int main(int argc, char** argv)
     char* file = nullptr;
 
     bool validParam = handleArgs(argc, argv, mapnum,
-                                 tileX, tileY, maxAngle,
+                                 tileX, tileY,
                                  skipLiquid, skipContinents, skipJunkMaps, skipBattlegrounds,
                                  debugOutput, silent, bigBaseUnit, offMeshInputPath, file, threads);
 
@@ -312,7 +299,7 @@ int main(int argc, char** argv)
     if (_liquidTypes.empty())
         return silent ? -5 : finish("Failed to load LiquidType.dbc", -5);
 
-    MapBuilder builder(maxAngle, skipLiquid, skipContinents, skipJunkMaps,
+    MapBuilder builder(skipLiquid, skipContinents, skipJunkMaps,
                        skipBattlegrounds, debugOutput, bigBaseUnit, mapnum, offMeshInputPath);
 
     uint32 start = getMSTime();
@@ -326,6 +313,6 @@ int main(int argc, char** argv)
         builder.buildAllMaps(threads);
 
     if (!silent)
-        printf("Finished. MMAPS were built in %u ms!\n", GetMSTimeDiffToNow(start));
+        printf("Finished. MMAPS were built in %s\n", secsToTimeString(GetMSTimeDiffToNow(start) / 1000).c_str());
     return 0;
 }

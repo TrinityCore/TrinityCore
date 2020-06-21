@@ -206,7 +206,7 @@ class npc_ragin_flames : public CreatureScript
 
                     if (!onlyonce)
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                             me->GetMotionMaster()->MoveChase(target);
                         onlyonce = true;
                     }

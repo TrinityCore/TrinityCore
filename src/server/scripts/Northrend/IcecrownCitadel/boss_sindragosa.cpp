@@ -302,6 +302,8 @@ class boss_sindragosa : public CreatureScript
                 instance->SetBossState(DATA_SINDRAGOSA, FAIL);
                 me->SetCanFly(false);
                 me->SetDisableGravity(false);
+                me->RemoveByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                me->SetReactState(REACT_DEFENSIVE);
             }
 
             void KilledUnit(Unit* victim) override
@@ -435,11 +437,15 @@ class boss_sindragosa : public CreatureScript
                     summon->AI()->JustDied(summon);
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
             {
+                Unit* unitTarget = target->ToUnit();
+                if (!unitTarget)
+                    return;
+
                 if (uint32 spellId = sSpellMgr->GetSpellIdForDifficulty(70127, me))
-                    if (spellId == spell->Id)
-                        if (Aura const* mysticBuffet = target->GetAura(spell->Id))
+                    if (spellId == spellInfo->Id)
+                        if (Aura const* mysticBuffet = unitTarget->GetAura(spellId))
                             _mysticBuffetStack = std::max<uint8>(_mysticBuffetStack, mysticBuffet->GetStackAmount());
             }
 
@@ -926,7 +932,7 @@ class npc_rimefang : public CreatureScript
                         case EVENT_ICY_BLAST_CAST:
                             if (--_icyBlastCounter)
                             {
-                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                                 {
                                     me->SetFacingToObject(target);
                                     DoCast(target, SPELL_ICY_BLAST);
