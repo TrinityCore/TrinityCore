@@ -21,6 +21,7 @@
 
 #include "BattlefieldWG.h"
 #include "AchievementMgr.h"
+#include "BattlefieldMgr.h"
 #include "Battleground.h"
 #include "CreatureTextMgr.h"
 #include "GameObject.h"
@@ -32,6 +33,7 @@
 #include "Opcodes.h"
 #include "Player.h"
 #include "Random.h"
+#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "SpellAuras.h"
 #include "TemporarySummon.h"
@@ -1864,6 +1866,35 @@ public:
     }
 };
 
+class npc_wg_give_promotion_credit : public CreatureScript
+{
+public:
+    npc_wg_give_promotion_credit() : CreatureScript("npc_wg_give_promotion_credit") { }
+
+    struct npc_wg_give_promotion_creditAI : public ScriptedAI
+    {
+        npc_wg_give_promotion_creditAI(Creature* creature) : ScriptedAI(creature) { }
+
+        void JustDied(Unit* killer) override
+        {
+            if (!killer || killer->GetTypeId() != TYPEID_PLAYER)
+                return;
+
+            BattlefieldWG* wintergrasp = static_cast<BattlefieldWG*>(sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG));
+            if (!wintergrasp)
+                return;
+
+            wintergrasp->HandlePromotion(killer->ToPlayer(), me);
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_wg_give_promotion_creditAI(creature);
+    }
+};
+
 void AddSC_BF_wintergrasp() {
     new Battlefield_wintergrasp();
+    new npc_wg_give_promotion_credit();
 }

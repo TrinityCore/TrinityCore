@@ -399,34 +399,6 @@ class go_wg_vehicle_teleporter : public GameObjectScript
         }
 };
 
-class npc_wg_give_promotion_credit : public CreatureScript
-{
-    public:
-        npc_wg_give_promotion_credit() : CreatureScript("npc_wg_give_promotion_credit") { }
-
-        struct npc_wg_give_promotion_creditAI : public ScriptedAI
-        {
-            npc_wg_give_promotion_creditAI(Creature* creature) : ScriptedAI(creature) { }
-
-            void JustDied(Unit* killer) override
-            {
-                if (!killer || killer->GetTypeId() != TYPEID_PLAYER)
-                    return;
-
-                BattlefieldWG* wintergrasp = static_cast<BattlefieldWG*>(sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG));
-                if (!wintergrasp)
-                    return;
-
-                wintergrasp->HandlePromotion(killer->ToPlayer(), me);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_wg_give_promotion_creditAI(creature);
-        }
-};
-
 class spell_wintergrasp_force_building : public SpellScriptLoader
 {
     public:
@@ -661,7 +633,6 @@ void AddSC_wintergrasp()
     new npc_wg_spirit_guide();
     new npc_wg_demolisher_engineer();
     new go_wg_vehicle_teleporter();
-    new npc_wg_give_promotion_credit();
     new spell_wintergrasp_force_building();
     new spell_wintergrasp_grab_passenger();
     new achievement_wg_didnt_stand_a_chance();
