@@ -502,7 +502,7 @@ void WorldPackets::Misc::SaveCUFProfiles::Read()
     CUFProfiles.resize(_worldPacket.read<uint32>());
     for (std::unique_ptr<CUFProfile>& cufProfile : CUFProfiles)
     {
-        cufProfile = Trinity::make_unique<CUFProfile>();
+        cufProfile = std::make_unique<CUFProfile>();
 
         uint8 strLen = _worldPacket.ReadBits(7);
 
