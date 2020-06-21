@@ -153,7 +153,7 @@ class npc_sunreaver_pyromancer : public CreatureScript
                 })
                 .Schedule(14s, [this](TaskContext fireblast)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         DoCast(target, SPELL_FIREBLAST);
                     fireblast.Repeat(14s, 28s);
                 })
@@ -208,7 +208,7 @@ class npc_sunreaver_frosthand : public CreatureScript
                 })
                 .Schedule(14s, [this](TaskContext iceLance)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         DoCast(target, SPELL_ICE_LANCE);
                     iceLance.Repeat(14s, 28s);
                 })
@@ -300,7 +300,7 @@ class npc_magister_brasael : public CreatureScript
             me->SetControlled(false, UNIT_STATE_ROOT);
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spellInfo) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
         {
             if (spellInfo->Id == SPELL_POSTCOMBUSTION)
             {
@@ -315,7 +315,7 @@ class npc_magister_brasael : public CreatureScript
 
                     meteors++;
 
-                    const Position spellDestination = SelectTarget(SELECT_TARGET_RANDOM, 0)->GetPosition();
+                    const Position spellDestination = SelectTarget(SelectTargetMethod::Random, 0)->GetPosition();
                     if (Creature* fx = DoSummon(NPC_INVISIBLE_STALKER, spellDestination, 7000, TEMPSUMMON_TIMED_DESPAWN))
                         fx->CastSpell(fx, SPELL_DUMMY_METEOR);
 

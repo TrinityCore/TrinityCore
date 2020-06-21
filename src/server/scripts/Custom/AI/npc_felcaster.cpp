@@ -91,7 +91,7 @@ class npc_felcaster : public CreatureScript
                 })
                 .Schedule(8s, [this](TaskContext fel_fireball)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         DoCast(target, SPELL_FEL_FIREBALL);
                     fel_fireball.Repeat(8s, 13s);
                 })

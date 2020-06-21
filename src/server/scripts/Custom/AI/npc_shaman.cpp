@@ -46,7 +46,7 @@ class npc_shaman : public CreatureScript
                 })
                 .Schedule(3s, [this](TaskContext hex)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::MaxThreat, 0))
                         DoCast(target, SPELL_HEX);
                     hex.Repeat(25s, 30s);
                 })

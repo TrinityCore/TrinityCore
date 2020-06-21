@@ -393,7 +393,7 @@ class npc_jaina_theramore : public CreatureScript
                 })
                 .Schedule(14s, [this](TaskContext blizzard)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     {
                         me->AI()->Talk(RAND(SAY_BLIZZARD_1, SAY_BLIZZARD_2));
                         DoCast(target, SPELL_BLIZZARD);

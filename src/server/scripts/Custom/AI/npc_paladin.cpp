@@ -61,7 +61,7 @@ class npc_paladin : public CreatureScript
                 })
                 .Schedule(5s, GROUP_FIGHT, [this](TaskContext divine_storm)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_MAXDISTANCE, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         DoCast(target, SPELL_HAND_OF_RECKONING);
                     divine_storm.Repeat(24s, 35s);
                 });

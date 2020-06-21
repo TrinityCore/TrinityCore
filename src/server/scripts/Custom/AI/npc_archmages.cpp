@@ -79,13 +79,13 @@ class npc_archmage_fire : public CreatureScript
                 })
                 .Schedule(8s, [this](TaskContext fireblast)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         DoCast(target, SPELL_FIREBLAST);
                     fireblast.Repeat(14s, 22s);
                 })
                 .Schedule(12s, [this](TaskContext pyroblast)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_MAXDISTANCE, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::MaxDistance, 0))
                         DoCast(target, SPELL_PYROBLAST);
                     pyroblast.Repeat(22s, 35s);
                 });
@@ -260,7 +260,7 @@ class npc_archmage_frost : public CreatureScript
             SetCombatMovement(false);
         }
 
-        void SpellHitTarget(Unit* target, SpellInfo const* spellInfo) override
+        void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
         {
             if (spellInfo->Id == SPELL_ICE_BARRIER
                 || spellInfo->Id == SPELL_ICE_BLOCK)
@@ -268,8 +268,9 @@ class npc_archmage_frost : public CreatureScript
                 return;
             }
 
-            if (spellInfo->GetSchoolMask() == SPELL_SCHOOL_MASK_FROST && roll_chance_i(30))
-                DoCast(target, SPELL_FROSTBITE);
+            Unit* victim = target->ToUnit();
+            if (victim && spellInfo->GetSchoolMask() == SPELL_SCHOOL_MASK_FROST && roll_chance_i(30))
+                DoCast(victim, SPELL_FROSTBITE);
         }
 
         void JustEngagedWith(Unit* /*who*/) override
@@ -298,7 +299,7 @@ class npc_archmage_frost : public CreatureScript
                 .Schedule(3s, [this](TaskContext ice_lance)
                 {
                     me->InterruptNonMeleeSpells(false);
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         DoCast(target, SPELL_ICE_LANCE);
                     ice_lance.Repeat(8s, 14s);
                 })

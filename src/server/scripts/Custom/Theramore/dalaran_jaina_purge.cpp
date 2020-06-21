@@ -364,13 +364,13 @@ class dalaran_jaina_purge : public CreatureScript
                     switch (eventId)
                     {
                         case CASTING_BLIZZARD:
-                            if (Unit * target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit * target = SelectTarget(SelectTargetMethod::Random, 0))
                                 DoCast(target, SPELL_BLIZZARD);
                             events.RescheduleEvent(CASTING_BLIZZARD, 14s, 25s);
                             break;
 
                         case CASTING_FIREBALL:
-                            if (Unit * target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit * target = SelectTarget(SelectTargetMethod::Random, 0))
                                 DoCast(target, SPELL_FIREBALL);
                             events.RescheduleEvent(CASTING_FIREBALL, 5s, 8s);
                             break;

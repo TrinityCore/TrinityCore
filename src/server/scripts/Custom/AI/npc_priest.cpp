@@ -210,7 +210,7 @@ class npc_priest : public CreatureScript
                 })
                 .Schedule(8s, PHASE_COMBAT, [this](TaskContext holy_fire)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         DoCast(target, SPELL_HOLY_FIRE);
                     holy_fire.Repeat(5s, 10s);
                 })

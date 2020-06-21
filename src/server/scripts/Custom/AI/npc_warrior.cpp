@@ -57,7 +57,7 @@ class npc_warrior : public CreatureScript
                 })
                 .Schedule(10s, [this](TaskContext provocation)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_MINTHREAT, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::MinThreat, 0))
                         DoCast(target, SPELL_PROCOCATION);
                     provocation.Repeat(32s, 60s);
                 });

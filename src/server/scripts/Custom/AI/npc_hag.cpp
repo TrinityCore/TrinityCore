@@ -32,10 +32,11 @@ class npc_hag : public CreatureScript
             hasUsedIceBlock = false;
         }
 
-        void SpellHitTarget(Unit* target, SpellInfo const* spellInfo) override
+        void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
         {
-            if (spellInfo->GetSchoolMask() == SPELL_SCHOOL_MASK_FIRE && roll_chance_i(70))
-                me->AddAura(SPELL_IMMOLATE, target);
+            Unit* victim = target->ToUnit();
+            if (victim && spellInfo->GetSchoolMask() == SPELL_SCHOOL_MASK_FIRE && roll_chance_i(70))
+                me->AddAura(SPELL_IMMOLATE, victim);
         }
 
         void JustEngagedWith(Unit* /*who*/) override
@@ -51,20 +52,20 @@ class npc_hag : public CreatureScript
                 .Schedule(5s, [this](TaskContext ice_lance)
                 {
                     me->InterruptNonMeleeSpells(true);
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         DoCast(target, SPELL_ICE_LANCE);
                     ice_lance.Repeat(8s, 15s);
                 })
                 .Schedule(10s, [this](TaskContext blink)
                 {
                     me->InterruptNonMeleeSpells(true);
-                    if (Unit* target = SelectTarget(SELECT_TARGET_MAXDISTANCE))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::MaxDistance))
                         DoCast(target, SPELL_BLINK);
                     blink.Repeat(20s, 30s);
                 })
                 .Schedule(3s, [this](TaskContext arcane_blast)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         DoCast(target, SPELL_ARCANE_BLAST);
                     arcane_blast.Repeat(8s, 14s);
                 });
