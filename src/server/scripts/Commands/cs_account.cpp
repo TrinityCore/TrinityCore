@@ -59,7 +59,8 @@ public:
         {
             { "addon",          rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_ADDON,       true,  &HandleAccountSetAddonCommand,     ""       },
             { "sec",            rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SEC,         true,  nullptr,                "", accountSetSecTable },
-            { "gmlevel",        rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_GMLEVEL,     true,  &HandleAccountSetGmLevelCommand,   ""       },
+            { "gmlevel",        rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SECLEVEL,    true,  &HandleAccountSetSecLevelCommand,  ""       },  // temp for a transition period
+            { "seclevel",       rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SECLEVEL,    true,  &HandleAccountSetSecLevelCommand,  ""       },
             { "password",       rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_PASSWORD,    true,  &HandleAccountSetPasswordCommand,  ""       },
             { "2fa",            rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_2FA,         true,  &HandleAccountSet2FACommand,       ""       },
         };
@@ -575,8 +576,8 @@ public:
     static bool HandleAccountCommand(ChatHandler* handler)
     {
         // GM Level
-        AccountTypes gmLevel = handler->GetSession()->GetSecurity();
-        handler->PSendSysMessage(LANG_ACCOUNT_LEVEL, uint32(gmLevel));
+        AccountTypes securityLevel = handler->GetSession()->GetSecurity();
+        handler->PSendSysMessage(LANG_ACCOUNT_LEVEL, uint32(securityLevel));
 
         // Security level required
         bool hasRBAC = (handler->HasPermission(rbac::RBAC_PERM_EMAIL_CONFIRM_FOR_PASS_CHANGE) ? true : false);
@@ -665,7 +666,7 @@ public:
         return true;
     }
 
-    static bool HandleAccountSetGmLevelCommand(ChatHandler* handler, Optional<std::string> accountName, uint8 gmLevel, int32 realmId)
+    static bool HandleAccountSetSecLevelCommand(ChatHandler* handler, Optional<std::string> accountName, uint8 securityLevel, Optional<int32> realmId)
     {
         uint32 accountId;
         if (accountName)
@@ -695,24 +696,28 @@ public:
             AccountMgr::GetName(accountId, *accountName);
         }
 
-        if (gmLevel >= SEC_CONSOLE)
+        if (securityLevel >= SEC_CONSOLE)
         {
             handler->SendSysMessage(LANG_BAD_VALUE);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
+        int32 realmID = -1;
+        if (realmId)
+            realmID = *realmId;
+
         // handler->getSession() == nullptr only for console
         uint32 playerSecurity;
         if (handler->GetSession())
-            playerSecurity = AccountMgr::GetSecurity(handler->GetSession()->GetAccountId(), realmId);
+            playerSecurity = AccountMgr::GetSecurity(handler->GetSession()->GetAccountId(), realmID);
         else
             playerSecurity = SEC_CONSOLE;
 
         // can set security level only for target with less security and to less security that we have
         // This also restricts setting handler's own security.
-        uint32 targetSecurity = AccountMgr::GetSecurity(accountId, realmId);
-        if (targetSecurity >= playerSecurity || gmLevel >= playerSecurity)
+        uint32 targetSecurity = AccountMgr::GetSecurity(accountId, realmID);
+        if (targetSecurity >= playerSecurity || securityLevel >= playerSecurity)
         {
             handler->SendSysMessage(LANG_YOURS_SECURITY_IS_LOW);
             handler->SetSentErrorMessage(true);
@@ -720,12 +725,12 @@ public:
         }
 
         // Check and abort if the target gm has a higher rank on one of the realms and the new realm is -1
-        if (realmId == -1 && !AccountMgr::IsConsoleAccount(playerSecurity))
+        if (realmID == -1 && !AccountMgr::IsConsoleAccount(playerSecurity))
         {
-            LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_ACCESS_GMLEVEL_TEST);
+            LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_ACCESS_SECLEVEL_TEST);
 
             stmt->setUInt32(0, accountId);
-            stmt->setUInt8(1, gmLevel);
+            stmt->setUInt8(1, securityLevel);
 
             PreparedQueryResult result = LoginDatabase.Query(stmt);
 
@@ -738,16 +743,16 @@ public:
         }
 
         // Check if provided realmID has a negative value other than -1
-        if (realmId < -1)
+        if (realmID < -1)
         {
             handler->SendSysMessage(LANG_INVALID_REALMID);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        sAccountMgr->UpdateAccountAccess(nullptr, accountId, gmLevel, realmId);
+        sAccountMgr->UpdateAccountAccess(nullptr, accountId, securityLevel, realmID);
 
-        handler->PSendSysMessage(LANG_YOU_CHANGE_SECURITY, accountName->c_str(), gmLevel);
+        handler->PSendSysMessage(LANG_YOU_CHANGE_SECURITY, accountName->c_str(), securityLevel);
         return true;
     }
 
