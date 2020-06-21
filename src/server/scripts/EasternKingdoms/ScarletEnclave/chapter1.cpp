@@ -441,7 +441,7 @@ struct npc_eye_of_acherus : public ScriptedAI
             creature->GetCharmInfo()->InitPossessCreateSpells();
     }
 
-    void JustAppeared() override
+    void InitializeAI() override
     {
         DoCastSelf(SPELL_ROOT_SELF);
         DoCastSelf(SPELL_EYE_OF_ACHERUS_VISUAL);
