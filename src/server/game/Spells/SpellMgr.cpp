@@ -2829,6 +2829,9 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
         if (talentSpells.count(spellInfoMutable->Id))
             spellInfoMutable->AttributesCu |= SPELL_ATTR0_CU_IS_TALENT;
 
+        if (G3D::fuzzyNe(spellInfoMutable->Width, 0.0f))
+            spellInfoMutable->AttributesCu |= SPELL_ATTR0_CU_CONE_LINE;
+
         switch (spellInfoMutable->SpellFamilyName)
         {
         case SPELLFAMILY_WARRIOR:
