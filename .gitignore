@@ -17,8 +17,14 @@ CMakeLists.txt.user
 *.BASE.*
 *.LOCAL.*
 nbproject/*
-.idea/*
 .browse.VC*
 .vscode
 cmake-build-*/
 .vs
+
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/usage.statistics.xml
+.idea/**/dictionaries
+.idea/**/shelf
+.idea/misc.xml
