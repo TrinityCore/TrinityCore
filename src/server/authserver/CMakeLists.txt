@@ -16,14 +16,14 @@ CollectSourceFiles(
   # Exclude
   ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders)
 
-if( WIN32 )
+if(WIN32)
   list(APPEND PRIVATE_SOURCES ${sources_windows})
-  if ( MSVC )
+  if(MSVC)
     list(APPEND PRIVATE_SOURCES authserver.rc)
   endif()
 endif()
 
-if (USE_COREPCH)
+if(USE_COREPCH)
   set(PRIVATE_PCH_HEADER PrecompiledHeaders/authPCH.h)
 endif()
 
@@ -33,7 +33,7 @@ add_executable(authserver
   ${PRIVATE_SOURCES}
 )
 
-if( NOT WIN32 )
+if(NOT WIN32)
   set_target_properties(authserver PROPERTIES
     COMPILE_DEFINITIONS _TRINITY_REALM_CONFIG="${CONF_DIR}/authserver.conf"
   )
@@ -62,13 +62,13 @@ set_target_properties(authserver
       FOLDER
         "server")
 
-if( COPY_CONF AND WIN32 )
-  if ( "${CMAKE_MAKE_PROGRAM}" MATCHES "MSBuild" )
+if(COPY_CONF AND WIN32)
+  if("${CMAKE_MAKE_PROGRAM}" MATCHES "MSBuild")
     add_custom_command(TARGET authserver
       POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/authserver.conf.dist ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
     )
-  elseif ( MINGW )
+  elseif(MINGW)
     add_custom_command(TARGET authserver
       POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/authserver.conf.dist ${CMAKE_BINARY_DIR}/bin/
@@ -76,19 +76,19 @@ if( COPY_CONF AND WIN32 )
   endif()
 endif()
 
-if( UNIX )
+if(UNIX)
   install(TARGETS authserver DESTINATION bin)
-  if( COPY_CONF )
+  if(COPY_CONF)
     install(FILES  authserver.conf.dist DESTINATION ${CONF_DIR})
   endif()
-elseif( WIN32 )
+elseif(WIN32)
   install(TARGETS authserver DESTINATION "${CMAKE_INSTALL_PREFIX}")
-  if( COPY_CONF )
+  if(COPY_CONF)
     install(FILES authserver.conf.dist DESTINATION "${CMAKE_INSTALL_PREFIX}")
   endif()
 endif()
 
 # Generate precompiled header
-if (USE_COREPCH)
+if(USE_COREPCH)
   add_cxx_pch(authserver ${PRIVATE_PCH_HEADER})
 endif()
