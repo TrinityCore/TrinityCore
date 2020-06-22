@@ -1741,12 +1741,12 @@ enum Targets
     TARGET_UNK_115                     = 115,
     TARGET_UNK_116                     = 116,
     TARGET_UNK_117                     = 117,
-    TARGET_UNK_118                     = 118,
+    TARGET_UNIT_TARGET_ALLY_OR_RAID    = 118, // If target is in your party or raid, all party and raid members will be affected
     TARGET_CORPSE_SRC_AREA_RAID        = 119,
-    TARGET_UNK_120                     = 120,
+    TARGET_UNIT_CASTER_AND_SUMMONS     = 120,
     TARGET_UNK_121                     = 121,
-    TARGET_UNK_122                     = 122,
-    TARGET_UNK_123                     = 123,
+    TARGET_UNIT_AREA_THREAT_LIST       = 122,
+    TARGET_UNIT_AREA_TAP_LIST          = 123,
     TARGET_UNK_124                     = 124,
     TARGET_DEST_CASTER_FLOOR           = 125, // 1 spell in 4.3.4
     TARGET_UNK_126                     = 126,

@@ -1277,6 +1277,46 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
     }
 
     std::list<WorldObject*> targets;
+
+    switch (targetType.GetTarget())
+    {
+        case TARGET_UNIT_TARGET_ALLY_OR_RAID:
+            if (Unit* targetedUnit = m_targets.GetUnitTarget())
+            {
+                if (!m_caster->IsInRaidWith(targetedUnit))
+                {
+                    targets.push_back(m_targets.GetUnitTarget());
+
+                    CallScriptObjectAreaTargetSelectHandlers(targets, effIndex, targetType);
+
+                    if (!targets.empty())
+                    {
+                        // Other special target selection goes here
+                        if (uint32 maxTargets = m_spellValue->MaxAffectedTargets)
+                            Trinity::Containers::RandomResize(targets, maxTargets);
+
+                        for (WorldObject* target : targets)
+                        {
+                            if (Unit* unit = target->ToUnit())
+                                AddUnitTarget(unit, effMask, false, true, center);
+                            else if (GameObject* gObjTarget = target->ToGameObject())
+                                AddGOTarget(gObjTarget, effMask);
+                        }
+                    }
+
+                    return;
+                }
+
+                center = targetedUnit;
+            }
+            break;
+        case TARGET_UNIT_CASTER_AND_SUMMONS:
+            targets.push_back(m_caster);
+            break;
+        default:
+            break;
+    }
+
     float radius = m_spellInfo->Effects[effIndex].CalcRadius(m_caster);
     // Workaround for some spells that don't have RadiusEntry set in dbc (but SpellRange instead)
     if (G3D::fuzzyEq(radius, 0.f))
@@ -8222,6 +8262,16 @@ bool WorldObjectSpellTargetCheck::operator()(WorldObject* target)
                 if (!target->IsCorpse() && !_caster->_IsValidAssistTarget(unitTarget, _spellInfo))
                     return false;
                 if (!_referer->IsInRaidWith(unitTarget))
+                    return false;
+                break;
+            case TARGET_CHECK_THREAT:
+                if (_referer->getThreatManager().getThreat(unitTarget, true) <= 0.0f)
+                    return false;
+                break;
+            case TARGET_CHECK_TAP:
+                if (_referer->GetTypeId() != TYPEID_UNIT || unitTarget->GetTypeId() != TYPEID_PLAYER)
+                    return false;
+                if (!_referer->ToCreature()->isTappedBy(unitTarget->ToPlayer()))
                     return false;
                 break;
             default:
