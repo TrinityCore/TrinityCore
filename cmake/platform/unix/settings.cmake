@@ -1,5 +1,5 @@
 # set default configuration directory
-if( NOT CONF_DIR )
+if(NOT CONF_DIR)
   set(CONF_DIR ${CMAKE_INSTALL_PREFIX}/etc)
   message(STATUS "UNIX: Using default configuration directory")
 endif()
