@@ -19,6 +19,14 @@
 
 #include "Script_Base.h"
 
+enum HunterAspectType :uint32
+{
+    HunterAspectType_Hawk = 0,
+    HunterAspectType_Monkey,
+    HunterAspectType_Wild,
+    HunterAspectType_Pack,
+};
+
 class Script_Hunter :public Script_Base
 {
 public:    
@@ -38,5 +46,7 @@ public:
     bool Attack_BeastMastery(Unit* pmTarget);
     bool Attack_Marksmanship(Unit* pmTarget);
     bool Attack_Survival(Unit* pmTarget);
+
+    uint32 aspectType;
 };
 #endif

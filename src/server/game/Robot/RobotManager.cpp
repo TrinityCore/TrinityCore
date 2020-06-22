@@ -22,6 +22,7 @@
 #include "GridNotifiers.h"
 #include "PathGenerator.h"
 #include "Script_Paladin.h"
+#include "Script_Hunter.h"
 #include "RobotStrategy_Base.h"
 #include "RobotStrategy_Solo.h"
 #include "RobotStrategy_Group.h"
@@ -571,7 +572,14 @@ uint32 RobotManager::CreateRobotCharacter(uint32 pmAccountID)
     while (true)
     {
         targetClass = urand(Classes::CLASS_WARRIOR, Classes::CLASS_DRUID);
-        if (targetClass == Classes::CLASS_WARRIOR || targetClass == Classes::CLASS_DEATH_KNIGHT || targetClass == Classes::CLASS_SHAMAN || targetClass == Classes::CLASS_UNK)
+        if (targetClass == Classes::CLASS_DRUID)
+        {
+            if (urand(0, 1) == 0)
+            {
+                continue;
+            }
+        }
+        else if (targetClass == Classes::CLASS_WARRIOR || targetClass == Classes::CLASS_DEATH_KNIGHT || targetClass == Classes::CLASS_SHAMAN || targetClass == Classes::CLASS_UNK)
         {
             continue;
         }
@@ -1218,10 +1226,16 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                 bool paladinAura_devotion = false;
                 bool paladinAura_retribution = false;
                 bool paladinAura_fire = false;
+                bool paladinAura_frost = false;
+                bool paladinAura_shadow = false;
+
                 bool paladinBlessing_kings = false;
                 bool paladinBlessing_might = false;
                 bool paladinBlessing_wisdom = false;
+
                 int rtiIndex = 0;
+
+                bool hunterAspect_wild = false;
                 for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
                 {
                     Player* member = groupRef->GetSource();
@@ -1331,6 +1345,16 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                                             sp->auraType = PaladinAuraType::PaladinAuraType_FireResistant;
                                             paladinAura_fire = true;
                                         }
+                                        else if (!paladinAura_frost)
+                                        {
+                                            sp->auraType = PaladinAuraType::PaladinAuraType_FrostResistant;
+                                            paladinAura_frost = true;
+                                        }
+                                        else if (!paladinAura_shadow)
+                                        {
+                                            sp->auraType = PaladinAuraType::PaladinAuraType_ShadowResistant;
+                                            paladinAura_shadow = true;
+                                        }
                                     }
                                     else
                                     {
@@ -1356,6 +1380,16 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                                         {
                                             sp->auraType = PaladinAuraType::PaladinAuraType_FireResistant;
                                             paladinAura_fire = true;
+                                        }
+                                        else if (!paladinAura_frost)
+                                        {
+                                            sp->auraType = PaladinAuraType::PaladinAuraType_FrostResistant;
+                                            paladinAura_frost = true;
+                                        }
+                                        else if (!paladinAura_shadow)
+                                        {
+                                            sp->auraType = PaladinAuraType::PaladinAuraType_ShadowResistant;
+                                            paladinAura_shadow = true;
                                         }
                                     }
                                     else
@@ -1383,6 +1417,16 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                                             sp->auraType = PaladinAuraType::PaladinAuraType_FireResistant;
                                             paladinAura_fire = true;
                                         }
+                                        else if (!paladinAura_frost)
+                                        {
+                                            sp->auraType = PaladinAuraType::PaladinAuraType_FrostResistant;
+                                            paladinAura_frost = true;
+                                        }
+                                        else if (!paladinAura_shadow)
+                                        {
+                                            sp->auraType = PaladinAuraType::PaladinAuraType_ShadowResistant;
+                                            paladinAura_shadow = true;
+                                        }
                                     }
                                     else
                                     {
@@ -1409,10 +1453,92 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                                             sp->auraType = PaladinAuraType::PaladinAuraType_Retribution;
                                             paladinAura_retribution = true;
                                         }
+                                        else if (!paladinAura_frost)
+                                        {
+                                            sp->auraType = PaladinAuraType::PaladinAuraType_FrostResistant;
+                                            paladinAura_frost = true;
+                                        }
+                                        else if (!paladinAura_shadow)
+                                        {
+                                            sp->auraType = PaladinAuraType::PaladinAuraType_ShadowResistant;
+                                            paladinAura_shadow = true;
+                                        }
                                     }
                                     else
                                     {
                                         paladinAura_fire = true;
+                                    }
+                                    break;
+                                }
+                                case PaladinAuraType::PaladinAuraType_FrostResistant:
+                                {
+                                    if (paladinAura_frost)
+                                    {
+                                        if (!paladinAura_concentration)
+                                        {
+                                            sp->auraType = PaladinAuraType::PaladinAuraType_Concentration;
+                                            paladinAura_concentration = true;
+                                        }
+                                        else if (!paladinAura_devotion)
+                                        {
+                                            sp->auraType = PaladinAuraType::PaladinAuraType_Devotion;
+                                            paladinAura_devotion = true;
+                                        }
+                                        else if (!paladinAura_retribution)
+                                        {
+                                            sp->auraType = PaladinAuraType::PaladinAuraType_Retribution;
+                                            paladinAura_retribution = true;
+                                        }
+                                        else if (!paladinAura_fire)
+                                        {
+                                            sp->auraType = PaladinAuraType::PaladinAuraType_FireResistant;
+                                            paladinAura_fire = true;
+                                        }
+                                        else if (!paladinAura_shadow)
+                                        {
+                                            sp->auraType = PaladinAuraType::PaladinAuraType_ShadowResistant;
+                                            paladinAura_shadow = true;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        paladinAura_frost = true;
+                                    }
+                                    break;
+                                }
+                                case PaladinAuraType::PaladinAuraType_ShadowResistant:
+                                {
+                                    if (paladinAura_shadow)
+                                    {
+                                        if (!paladinAura_concentration)
+                                        {
+                                            sp->auraType = PaladinAuraType::PaladinAuraType_Concentration;
+                                            paladinAura_concentration = true;
+                                        }
+                                        else if (!paladinAura_devotion)
+                                        {
+                                            sp->auraType = PaladinAuraType::PaladinAuraType_Devotion;
+                                            paladinAura_devotion = true;
+                                        }
+                                        else if (!paladinAura_retribution)
+                                        {
+                                            sp->auraType = PaladinAuraType::PaladinAuraType_Retribution;
+                                            paladinAura_retribution = true;
+                                        }
+                                        else if (!paladinAura_fire)
+                                        {
+                                            sp->auraType = PaladinAuraType::PaladinAuraType_FireResistant;
+                                            paladinAura_fire = true;
+                                        }
+                                        else if (!paladinAura_frost)
+                                        {
+                                            sp->auraType = PaladinAuraType::PaladinAuraType_FrostResistant;
+                                            paladinAura_frost = true;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        paladinAura_shadow = true;
                                     }
                                     break;
                                 }
@@ -1429,6 +1555,21 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                             {
                                 member->rai->sb->rti = rtiIndex;
                                 rtiIndex++;
+                            }
+                        }
+                        else if (member->GetClass() == Classes::CLASS_HUNTER)
+                        {
+                            if (Script_Hunter* sh = (Script_Hunter*)member->rai->sb)
+                            {
+                                if (hunterAspect_wild)
+                                {
+                                    sh->aspectType = HunterAspectType::HunterAspectType_Hawk;
+                                }
+                                else
+                                {
+                                    sh->aspectType = HunterAspectType::HunterAspectType_Wild;
+                                    hunterAspect_wild = true;
+                                }
                             }
                         }
                     }
@@ -2172,7 +2313,6 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                 {
                     bool tank1Set = false;
                     bool tank2Set = false;
-                    bool mainHealerSet = false;
                     uint32 healerCount = 0;
                     for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
                     {
@@ -2265,11 +2405,6 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                                     if (healerCount < 6)
                                     {
                                         member->groupRole = GroupRole_MoltenCore::GroupRole_MoltenCore_Healer;
-                                        if (!mainHealerSet)
-                                        {
-                                            myGroup->SetTargetIcon(6, member->GetGUID(), member->GetGUID());
-                                            mainHealerSet = true;
-                                        }
                                         healerCount++;
                                         continue;
                                     }
@@ -5604,6 +5739,14 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                                     {
                                         sp->auraType = PaladinAuraType::PaladinAuraType_FireResistant;
                                     }
+                                    else if (auratypeName == "frost")
+                                    {
+                                        sp->auraType = PaladinAuraType::PaladinAuraType_FrostResistant;
+                                    }
+                                    else if (auratypeName == "shadow")
+                                    {
+                                        sp->auraType = PaladinAuraType::PaladinAuraType_ShadowResistant;
+                                    }
                                     else
                                     {
                                         replyStream << "Unknown type";
@@ -5629,6 +5772,107 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                                 case PaladinAuraType::PaladinAuraType_FireResistant:
                                 {
                                     replyStream << "fire";
+                                    break;
+                                }
+                                case PaladinAuraType::PaladinAuraType_FrostResistant:
+                                {
+                                    replyStream << "frost";
+                                    break;
+                                }
+                                case PaladinAuraType::PaladinAuraType_ShadowResistant:
+                                {
+                                    replyStream << "shadow";
+                                    break;
+                                }
+                                default:
+                                {
+                                    break;
+                                }
+                                }
+                            }
+                            WhisperTo(member, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else if (commandName == "ha")
+    {
+        if (Group* myGroup = pmSender->GetGroup())
+        {
+            if (myGroup->GetLeaderGUID() == pmSender->GetGUID())
+            {
+                for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                {
+                    Player* member = groupRef->GetSource();
+                    if (member)
+                    {
+                        if (!member->GetSession()->isRobotSession)
+                        {
+                            continue;
+                        }
+                        else if (!member->rai)
+                        {
+                            continue;
+                        }
+                        if (pmReceiver)
+                        {
+                            if (pmReceiver->GetGUID() != member->GetGUID())
+                            {
+                                continue;
+                            }
+                        }
+                        if (member->GetClass() == Classes::CLASS_HUNTER)
+                        {
+                            std::ostringstream replyStream;
+
+                            if (Script_Hunter* sh = (Script_Hunter*)member->rai->sb)
+                            {
+                                if (commandVector.size() > 1)
+                                {
+                                    std::string aspectName = commandVector.at(1);
+                                    if (aspectName == "hawk")
+                                    {
+                                        sh->aspectType = HunterAspectType::HunterAspectType_Hawk;
+                                    }
+                                    else if (aspectName == "monkey")
+                                    {
+                                        sh->aspectType = HunterAspectType::HunterAspectType_Monkey;
+                                    }
+                                    else if (aspectName == "wild")
+                                    {
+                                        sh->aspectType = HunterAspectType::HunterAspectType_Wild;
+                                    }
+                                    else if (aspectName == "pack")
+                                    {
+                                        sh->aspectType = HunterAspectType::HunterAspectType_Pack;
+                                    }
+                                    else
+                                    {
+                                        replyStream << "Unknown type";
+                                    }
+                                }
+                                switch (sh->aspectType)
+                                {
+                                case HunterAspectType::HunterAspectType_Hawk:
+                                {
+                                    replyStream << "hawk";
+                                    break;
+                                }
+                                case HunterAspectType::HunterAspectType_Monkey:
+                                {
+                                    replyStream << "monkey";
+                                    break;
+                                }
+                                case HunterAspectType::HunterAspectType_Wild:
+                                {
+                                    replyStream << "wild";
+                                    break;
+                                }
+                                case HunterAspectType::HunterAspectType_Pack:
+                                {
+                                    replyStream << "pack";
                                     break;
                                 }
                                 default:

@@ -8,7 +8,7 @@
 
 Script_Hunter::Script_Hunter(Player* pmMe) :Script_Base(pmMe)
 {
-
+    aspectType = HunterAspectType::HunterAspectType_Hawk;
 }
 
 bool Script_Hunter::Heal(Unit* pmTarget, bool pmCure)
@@ -116,10 +116,6 @@ bool Script_Hunter::DPS_BeastMastery(Unit* pmTarget, bool pmChase, bool pmAOE, P
     }
     if (targetDistance > HUNTER_MIN_RANGE_DISTANCE)
     {
-        if (CastSpell(me, "Aspect of the Hawk", 20, true, true))
-        {
-            return true;
-        }
         if (Spell* autoShotSpell = me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
         {
             if (autoShotSpell->m_targets.GetUnitTargetGUID() != pmTarget->GetGUID())
@@ -235,10 +231,6 @@ bool Script_Hunter::DPS_Marksmanship(Unit* pmTarget, bool pmChase, bool pmAOE, P
     {
         return true;
     }
-    if (CastSpell(me, "Aspect of the Hawk", HUNTER_RANGE_DISTANCE, true, true))
-    {
-        return true;
-    }
     if (targetDistance > HUNTER_MIN_RANGE_DISTANCE)
     {
         if (Spell* autoShotSpell = me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
@@ -348,10 +340,6 @@ bool Script_Hunter::DPS_Survival(Unit* pmTarget, bool pmChase, bool pmAOE, Playe
     }
     if (targetDistance > HUNTER_MIN_RANGE_DISTANCE)
     {
-        if (CastSpell(me, "Aspect of the Hawk", 20, true, true))
-        {
-            return true;
-        }
         if (Spell* autoShotSpell = me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
         {
             if (autoShotSpell->m_targets.GetUnitTargetGUID() != pmTarget->GetGUID())
@@ -467,10 +455,7 @@ bool Script_Hunter::Attack_BeastMastery(Unit* pmTarget)
     }
     if (targetDistance < HUNTER_MIN_RANGE_DISTANCE)
     {
-        if (CastSpell(me, "Aspect of the Monkey", 20, true, true))
-        {
-            return true;
-        }
+        aspectType = HunterAspectType::HunterAspectType_Monkey;
         if (CastSpell(pmTarget, "Raptor Strike", MELEE_MAX_DISTANCE))
         {
             return true;
@@ -482,10 +467,7 @@ bool Script_Hunter::Attack_BeastMastery(Unit* pmTarget)
     }
     else
     {
-        if (CastSpell(me, "Aspect of the Hawk", 20, true, true))
-        {
-            return true;
-        }
+        aspectType = HunterAspectType::HunterAspectType_Hawk;
         if (Spell* autoShotSpell = me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
         {
             if (autoShotSpell->m_targets.GetUnitTargetGUID() != pmTarget->GetGUID())
@@ -549,10 +531,7 @@ bool Script_Hunter::Attack_Marksmanship(Unit* pmTarget)
     }
     if (targetDistance < HUNTER_MIN_RANGE_DISTANCE)
     {
-        if (CastSpell(me, "Aspect of the Monkey", 20, true, true))
-        {
-            return true;
-        }
+        aspectType = HunterAspectType::HunterAspectType_Monkey;
         if (CastSpell(pmTarget, "Raptor Strike", MELEE_MAX_DISTANCE))
         {
             return true;
@@ -564,10 +543,7 @@ bool Script_Hunter::Attack_Marksmanship(Unit* pmTarget)
     }
     else
     {
-        if (CastSpell(me, "Aspect of the Hawk", 20, true, true))
-        {
-            return true;
-        }
+        aspectType = HunterAspectType::HunterAspectType_Hawk;
         if (Spell* autoShotSpell = me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
         {
             if (autoShotSpell->m_targets.GetUnitTargetGUID() != pmTarget->GetGUID())
@@ -631,10 +607,7 @@ bool Script_Hunter::Attack_Survival(Unit* pmTarget)
     }
     if (targetDistance < HUNTER_MIN_RANGE_DISTANCE)
     {
-        if (CastSpell(me, "Aspect of the Monkey", 20, true, true))
-        {
-            return true;
-        }
+        aspectType = HunterAspectType::HunterAspectType_Monkey;
         if (CastSpell(pmTarget, "Raptor Strike", MELEE_MAX_DISTANCE))
         {
             return true;
@@ -646,10 +619,7 @@ bool Script_Hunter::Attack_Survival(Unit* pmTarget)
     }
     else
     {
-        if (CastSpell(me, "Aspect of the Hawk", 20, true, true))
-        {
-            return true;
-        }
+        aspectType = HunterAspectType::HunterAspectType_Hawk;
         if (Spell* autoShotSpell = me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
         {
             if (autoShotSpell->m_targets.GetUnitTargetGUID() != pmTarget->GetGUID())
@@ -697,6 +667,46 @@ bool Script_Hunter::Buff(Unit* pmTarget, bool pmCure)
     if (!me)
     {
         return false;
+    }
+
+    switch (aspectType)
+    {
+    case HunterAspectType::HunterAspectType_Hawk:
+    {
+        if (CastSpell(me, "Aspect of the Hawk", HUNTER_RANGE_DISTANCE, true))
+        {
+            return true;
+        }
+        break;
+    }
+    case HunterAspectType::HunterAspectType_Monkey:
+    {
+        if (CastSpell(me, "Aspect of the Monkey", HUNTER_RANGE_DISTANCE, true))
+        {
+            return true;
+        }
+        break;
+    }
+    case HunterAspectType::HunterAspectType_Wild:
+    {
+        if (CastSpell(me, "Aspect of the Wild", HUNTER_RANGE_DISTANCE, true))
+        {
+            return true;
+        }
+        break;
+    }
+    case HunterAspectType::HunterAspectType_Pack:
+    {
+        if (CastSpell(me, "Aspect of the Pack", HUNTER_RANGE_DISTANCE, true))
+        {
+            return true;
+        }
+        break;
+    }
+    default:
+    {
+        break;
+    }
     }
     if (me->GetGUID() == pmTarget->GetGUID())
     {

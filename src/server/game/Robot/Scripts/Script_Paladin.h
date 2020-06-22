@@ -21,6 +21,8 @@ enum PaladinAuraType :uint32
     PaladinAuraType_Devotion,
     PaladinAuraType_Retribution,
     PaladinAuraType_FireResistant,
+    PaladinAuraType_FrostResistant,
+    PaladinAuraType_ShadowResistant,
 };
 
 enum PaladinBlessingType :uint32

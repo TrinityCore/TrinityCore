@@ -559,6 +559,22 @@ bool Script_Paladin::Buff(Unit* pmTarget, bool pmCure)
         }
         break;
     }
+    case PaladinAuraType::PaladinAuraType_FrostResistant:
+    {
+        if (CastSpell(me, "Frost Resistance Aura", PALADIN_RANGE_DISTANCE, true))
+        {
+            return true;
+        }
+        break;
+    }
+    case PaladinAuraType::PaladinAuraType_ShadowResistant:
+    {
+        if (CastSpell(me, "Shadow Resistance Aura", PALADIN_RANGE_DISTANCE, true))
+        {
+            return true;
+        }
+        break;
+    }
     default:
     {
         break;
