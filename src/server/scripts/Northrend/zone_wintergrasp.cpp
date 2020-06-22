@@ -535,7 +535,7 @@ class spell_wintergrasp_defender_teleport : public SpellScriptLoader
                 if (Battlefield* wg = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG))
                     if (Player* target = GetExplTargetUnit()->ToPlayer())
                         // check if we are in Wintergrasp at all, SotA uses same teleport spells
-                        if ((target->GetZoneId() == 4197 && target->GetTeamId() != wg->GetDefenderTeam()) || target->HasAura(SPELL_WINTERGRASP_TELEPORT_TRIGGER))
+                        if ((target->GetZoneId() == AREA_WINTERGRASP && target->GetTeamId() != wg->GetDefenderTeam()) || target->HasAura(SPELL_WINTERGRASP_TELEPORT_TRIGGER))
                             return SPELL_FAILED_BAD_TARGETS;
                 return SPELL_CAST_OK;
             }
