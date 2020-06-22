@@ -590,6 +590,11 @@ void SmartAI::JustSummoned(Creature* creature)
     GetScript()->ProcessEventsFor(SMART_EVENT_SUMMONED_UNIT, creature);
 }
 
+void SmartAI::SummonedCreatureDies(Creature* summon, Unit* /*killer*/)
+{
+    GetScript()->ProcessEventsFor(SMART_EVENT_SUMMONED_UNIT_DIES, summon);
+}
+
 void SmartAI::AttackStart(Unit* who)
 {
     // dont allow charmed npcs to act on their own
@@ -1098,6 +1103,11 @@ void SmartGameObjectAI::SpellHit(WorldObject* caster, SpellInfo const* spellInfo
 void SmartGameObjectAI::JustSummoned(Creature* creature)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_SUMMONED_UNIT, creature);
+}
+
+void SmartGameObjectAI::SummonedCreatureDies(Creature* summon, Unit* /*killer*/)
+{
+    GetScript()->ProcessEventsFor(SMART_EVENT_SUMMONED_UNIT_DIES, summon);
 }
 
 void SmartGameObjectAI::SummonedCreatureDespawn(Creature* unit)
