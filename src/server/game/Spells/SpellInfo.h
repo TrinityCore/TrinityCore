@@ -123,7 +123,6 @@ enum SpellTargetCheckTypes : uint8
     TARGET_CHECK_SUMMONED,
     TARGET_CHECK_THREAT,
     TARGET_CHECK_TAP,
-    TARGET_CHECK_SUMMONED
 };
 
 enum SpellTargetDirectionTypes
