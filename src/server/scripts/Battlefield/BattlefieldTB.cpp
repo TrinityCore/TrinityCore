@@ -359,18 +359,6 @@ void BattlefieldTB::FillInitialWorldStates(WorldPackets::WorldState::InitWorldSt
     packet.Worldstates.emplace_back(uint32(WS_BATTLEFIELD_TB_KEEP_HORDE), int32(GetDefenderTeam() == TEAM_HORDE ? 1 : 0));
 }
 
-void BattlefieldTB::SendInitWorldStatesTo(Player* player)
-{
-    WorldPackets::WorldState::InitWorldStates packet;
-    packet.AreaID = m_ZoneId;
-    packet.MapID = m_MapId;
-    packet.SubareaID = 0;
-
-    FillInitialWorldStates(packet);
-
-    player->SendDirectMessage(packet.Write());
-}
-
 void BattlefieldTB::SendInitWorldStatesToAll()
 {
     // Save

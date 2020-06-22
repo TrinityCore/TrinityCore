@@ -1179,17 +1179,6 @@ void BattlefieldWG::FillInitialWorldStates(WorldPackets::WorldState::InitWorldSt
         workshop->FillInitialWorldStates(packet);
 }
 
-void BattlefieldWG::SendInitWorldStatesTo(Player* player)
-{
-    WorldPackets::WorldState::InitWorldStates packet;
-    packet.MapID = m_MapId;
-    packet.AreaID = m_ZoneId;
-    packet.SubareaID = player->GetAreaId();
-    FillInitialWorldStates(packet);
-
-    player->SendDirectMessage(packet.Write());
-}
-
 void BattlefieldWG::SendInitWorldStatesToAll()
 {
     for (uint8 team = 0; team < PVP_TEAMS_COUNT; ++team)

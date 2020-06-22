@@ -224,6 +224,8 @@ class TC_GAME_API Battlefield : public ZoneScript
         /// Call this to init the Battlefield
         virtual bool SetupBattlefield() { return true; }
 
+        void SendInitWorldStatesTo(Player* player);
+
         /// Update data of a worldstate to all players present in zone
         void SendUpdateWorldState(uint32 variable, uint32 value, bool hidden = false);
 

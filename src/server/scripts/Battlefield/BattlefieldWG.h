@@ -329,7 +329,6 @@ class BattlefieldWG : public Battlefield
         void UpdateVehicleCountWG();
         void UpdateCounterVehicle(bool init);
 
-        void SendInitWorldStatesTo(Player* player);
         void SendInitWorldStatesToAll() override;
         void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
 
