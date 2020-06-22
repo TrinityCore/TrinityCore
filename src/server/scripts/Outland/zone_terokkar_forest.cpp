@@ -30,6 +30,7 @@ EndContentData */
 #include "ScriptMgr.h"
 #include "GameObject.h"
 #include "Group.h"
+#include "Map.h"
 #include "Player.h"
 #include "ScriptedEscortAI.h"
 #include "Spell.h"
