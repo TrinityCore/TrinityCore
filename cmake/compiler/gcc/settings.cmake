@@ -22,7 +22,7 @@ target_compile_definitions(trinity-compile-option-interface
     -D__SSE2__)
 message(STATUS "GCC: SFMT enabled, SSE2 flags forced")
 
-if( WITH_WARNINGS )
+if(WITH_WARNINGS)
   target_compile_options(trinity-warning-interface
     INTERFACE
       -W
@@ -36,7 +36,7 @@ if( WITH_WARNINGS )
   message(STATUS "GCC: All warnings enabled")
 endif()
 
-if( WITH_COREDEBUG )
+if(WITH_COREDEBUG)
   target_compile_options(trinity-compile-option-interface
     INTERFACE
       -g3)
@@ -44,7 +44,7 @@ if( WITH_COREDEBUG )
   message(STATUS "GCC: Debug-flags set (-g3)")
 endif()
 
-if (BUILD_SHARED_LIBS)
+if(BUILD_SHARED_LIBS)
   target_compile_options(trinity-compile-option-interface
     INTERFACE
       -fPIC

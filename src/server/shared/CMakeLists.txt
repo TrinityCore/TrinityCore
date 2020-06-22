@@ -18,7 +18,7 @@ CollectSourceFiles(
 # Build shared sourcelist
 #
 
-if (USE_COREPCH)
+if(USE_COREPCH)
   set(PRIVATE_PCH_HEADER PrecompiledHeaders/sharedPCH.h)
 endif()
 
@@ -55,12 +55,12 @@ set_target_properties(shared
       FOLDER
         "server")
 
-if( BUILD_SHARED_LIBS )
-  if( UNIX )
+if(BUILD_SHARED_LIBS)
+  if(UNIX)
     install(TARGETS shared
       LIBRARY
         DESTINATION lib)
-  elseif( WIN32 )
+  elseif(WIN32)
     install(TARGETS shared
       RUNTIME
         DESTINATION "${CMAKE_INSTALL_PREFIX}")
@@ -68,6 +68,6 @@ if( BUILD_SHARED_LIBS )
 endif()
 
 # Generate precompiled header
-if (USE_COREPCH)
+if(USE_COREPCH)
   add_cxx_pch(shared ${PRIVATE_PCH_HEADER})
-endif ()
+endif()
