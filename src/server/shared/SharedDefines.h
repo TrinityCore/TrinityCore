@@ -3827,6 +3827,39 @@ enum AreaId : uint32
     AREA_EASTPARK_WORKSHOP          = 4612,
 };
 
+enum WorldState : uint32
+{
+    WS_BATTLEFIELD_WG_VEHICLE_H        = 3490,
+    WS_BATTLEFIELD_WG_MAX_VEHICLE_H    = 3491,
+    WS_BATTLEFIELD_WG_VEHICLE_A        = 3680,
+    WS_BATTLEFIELD_WG_MAX_VEHICLE_A    = 3681,
+    WS_BATTLEFIELD_WG_WORKSHOP_K_W     = 3698,
+    WS_BATTLEFIELD_WG_WORKSHOP_K_E     = 3699,
+    WS_BATTLEFIELD_WG_WORKSHOP_NW      = 3700,
+    WS_BATTLEFIELD_WG_WORKSHOP_NE      = 3701,
+    WS_BATTLEFIELD_WG_WORKSHOP_SW      = 3702,
+    WS_BATTLEFIELD_WG_WORKSHOP_SE      = 3703,
+    WS_BATTLEFIELD_WG_SHOW_WORLDSTATE  = 3710,
+    WS_BATTLEFIELD_WG_TIME_BATTLE_END  = 3781,
+    WS_BATTLEFIELD_WG_ACTIVE           = 3801,
+    WS_BATTLEFIELD_WG_DEFENDER         = 3802,
+    WS_BATTLEFIELD_WG_ATTACKER         = 3803,
+    WS_BATTLEFIELD_WG_ATTACKED_H       = 4022,
+    WS_BATTLEFIELD_WG_ATTACKED_A       = 4023,
+    WS_BATTLEFIELD_WG_DEFENDED_H       = 4024,
+    WS_BATTLEFIELD_WG_DEFENDED_A       = 4025,
+    WS_BATTLEFIELD_WG_TIME_NEXT_BATTLE = 4354,
+
+    WS_ARENA_DISTRIBUTION_TIME  = 20001,                     // Next arena distribution time
+    WS_WEEKLY_QUEST_RESET_TIME  = 20002,                     // Next weekly quest reset time
+    WS_BG_DAILY_RESET_TIME      = 20003,                     // Next daily BG reset time
+    WS_CLEANING_FLAGS           = 20004,                     // Cleaning Flags
+    WS_GUILD_DAILY_RESET_TIME   = 20006,                     // Next guild cap reset time
+    WS_MONTHLY_QUEST_RESET_TIME = 20007,                     // Next monthly quest reset time
+    WS_DAILY_QUEST_RESET_TIME   = 20008,                     // Next daily quest reset time
+    WS_DAILY_CALENDAR_DELETION_OLD_EVENTS_TIME = 20009,      // Next daily calendar deletions of old events time
+};
+
 namespace Trinity
 {
 namespace Impl
