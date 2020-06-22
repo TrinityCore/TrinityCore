@@ -752,11 +752,7 @@ bool RobotManager::PrepareRobot(Player* pmRobot)
         return false;
     }
 
-    uint32 weaponType = 0;
-    bool dual = false;
-    bool hasShield = false;
-    bool hasRange = false;
-    uint32 rangeType = 0;
+    InitializeEquipments(pmRobot, false);
 
     pmRobot->DurabilityRepairAll(false, 0, false);
     if (pmRobot->GetClass() == Classes::CLASS_HUNTER)
