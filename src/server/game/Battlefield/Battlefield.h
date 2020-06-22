@@ -25,7 +25,8 @@
 
 enum BattlefieldTypes
 {
-    BATTLEFIELD_WG                                          // Wintergrasp
+    BATTLEFIELD_WG  = 1, // Wintergrasp
+    BATTLEFIELD_MAX
 };
 
 enum BattlefieldIDs
