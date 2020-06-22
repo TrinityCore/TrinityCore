@@ -1,4 +1,4 @@
-SET @GUID := xxx; -- Need 3 free GUIDs
+SET @GUID := 9999999; -- Need 3 free GUIDs
 
 DELETE FROM `creature` WHERE `guid` BETWEEN @GUID AND @GUID+2;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES
@@ -89,11 +89,6 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (13, 3, 40722, 0, 0, 1, 0, 40726, 0, 0, 1, 0, 0, "", "Will of the Arakkoa God does not affect targets with Chosen One aura"),
 (22, 13, 21838, 0, 0, 1, 1, 40657, 1, 0, 1, 0, 0, "", "SAI executes only if Terokk does not have Ancient Flames aura AND"),
 (22, 13, 21838, 0, 0, 1, 1, 40733, 0, 0, 1, 0, 0, "", "SAI executes only if Terokk does not have Divine Shield aura");
-
--- Will of the Arakkoa God is negative
-DELETE FROM `spell_custom_attr` WHERE `entry`=40722;
-INSERT INTO `spell_custom_attr` (`entry`, `attributes`) VALUES
-(40722, 4096+8192);
 
 DELETE FROM `creature_template_movement` WHERE `CreatureId`=23377;
 INSERT INTO `creature_template_movement` (`CreatureId`, `Flight`) VALUES
