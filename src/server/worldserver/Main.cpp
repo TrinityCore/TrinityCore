@@ -264,10 +264,10 @@ extern int main(int argc, char** argv)
     if (!StartDB())
         return 1;
 
+    std::shared_ptr<void> dbHandle(nullptr, [](void*) { StopDB(); });
+
     if (vm.count("update-databases-only"))
         return 0;
-
-    std::shared_ptr<void> dbHandle(nullptr, [](void*) { StopDB(); });
 
     // Set server offline (not connectable)
     LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag | %u WHERE id = '%d'", REALM_FLAG_OFFLINE, realm.Id.Realm);
