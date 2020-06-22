@@ -53,7 +53,7 @@ void Battlenet::Session::AccountInfo::LoadResult(PreparedQueryResult result)
 
 void Battlenet::Session::GameAccountInfo::LoadResult(Field* fields)
 {
-    // a.id, a.username, ab.unbandate, ab.unbandate = ab.bandate, aa.gmlevel
+    // a.id, a.username, ab.unbandate, ab.unbandate = ab.bandate, aa.SecurityLevel
     Id = fields[0].GetUInt32();
     Name = fields[1].GetString();
     UnbanDate = fields[2].GetUInt32();
