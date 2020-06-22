@@ -31,6 +31,7 @@
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "Random.h"
+#include "ScriptMgr.h"
 #include "SpellAuras.h"
 #include "TemporarySummon.h"
 #include "World.h"
@@ -1850,4 +1851,20 @@ void WintergraspWorkshop::FillInitialWorldStates(WorldPackets::WorldState::InitW
 void WintergraspWorkshop::Save()
 {
     sWorld->setWorldState(_staticInfo->WorldStateId, _state);
+}
+
+class Battlefield_wintergrasp : public BattlefieldScript
+{
+public:
+    Battlefield_wintergrasp() : BattlefieldScript("battlefield_wg") { }
+
+    Battlefield* GetBattlefield() const override
+    {
+        return new BattlefieldWG();
+    }
+};
+
+void AddSC_BF_wintergrasp()
+{
+    new Battlefield_wintergrasp();
 }

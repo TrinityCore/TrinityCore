@@ -25,8 +25,9 @@
 
 enum BattlefieldTypes
 {
-    BATTLEFIELD_WG,                                         // Wintergrasp
-    BATTLEFIELD_TB                                          // Tol Barad (cataclysm)
+    BATTLEFIELD_WG = 1,                                     // Wintergrasp
+    BATTLEFIELD_TB = 2,                                     // Tol Barad (cataclysm)
+    BATTLEFIELD_MAX
 };
 
 enum BattlefieldIDs
