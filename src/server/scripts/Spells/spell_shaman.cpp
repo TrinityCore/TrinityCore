@@ -48,7 +48,7 @@ enum ShamanSpells
     SPELL_SHAMAN_EARTHQUAKE_STUN                = 77505,
     SPELL_SHAMAN_ELEMENTAL_MASTERY              = 16166,
     SPELL_SHAMAN_EXHAUSTION                     = 57723,
-    SPELL_SHAMAN_FIRE_NOVA_TRIGGERED_R1         = 8349,
+    SPELL_SHAMAN_FIRE_NOVA_DAMAGE               = 8349,
     SPELL_SHAMAN_FLAME_SHOCK                    = 8050,
     SPELL_SHAMAN_FLAMETONGUE_ATTACK             = 10444,
     SPELL_SHAMAN_FLAMETONGUE_WEAPON             = 8024,
@@ -488,38 +488,52 @@ class spell_sha_feedback : public SpellScriptLoader
 
 // 1535 Fire Nova
 /// Updated 4.3.4
-class spell_sha_fire_nova : public SpellScriptLoader
+class spell_sha_fire_nova : public SpellScript
 {
-    public:
-        spell_sha_fire_nova() : SpellScriptLoader("spell_sha_fire_nova") { }
+    PrepareSpellScript(spell_sha_fire_nova);
 
-        class spell_sha_fire_nova_SpellScript : public SpellScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_ELEMENTAL_MASTERY });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* caster = GetCaster())
+            if (Unit* target = GetHitUnit())
+                if (target->HasAura(SPELL_SHAMAN_FLAME_SHOCK))
+                    caster->CastSpell(target, SPELL_SHAMAN_FIRE_NOVA_DAMAGE, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_sha_fire_nova::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 8349 - Fire Nova
+class spell_sha_fire_nova_damage : public SpellScript
+{
+    PrepareSpellScript(spell_sha_fire_nova_damage);
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.empty())
+            return;
+
+        Unit const* targetUnit = GetExplTargetUnit();
+
+        targets.remove_if([targetUnit](WorldObject const* target)->bool
         {
-            PrepareSpellScript(spell_sha_fire_nova_SpellScript);
+            return targetUnit == target;
+        });
+    }
 
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                Unit* caster = GetCaster();
-                if (Unit* target = GetHitUnit())
-                {
-                    if (target->HasAura(SPELL_SHAMAN_FLAME_SHOCK))
-                    {
-                        caster->CastSpell(target, SPELL_SHAMAN_FIRE_NOVA_TRIGGERED_R1, true);
-                        target->RemoveAurasDueToSpell(SPELL_SHAMAN_FLAME_SHOCK);
-                    }
-                }
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_sha_fire_nova_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_sha_fire_nova_SpellScript();
-        }
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_fire_nova_damage::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_fire_nova_damage::FilterTargets, EFFECT_2, TARGET_UNIT_DEST_AREA_ENEMY);
+    }
 };
 
 // 8050 -Flame Shock
@@ -2129,7 +2143,8 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellScript(spell_sha_earthquake_damage);
     RegisterAuraScript(spell_sha_elemental_overload);
     new spell_sha_feedback();
-    new spell_sha_fire_nova();
+    RegisterSpellScript(spell_sha_fire_nova);
+    RegisterSpellScript(spell_sha_fire_nova_damage);
     new spell_sha_flame_shock();
     RegisterAuraScript(spell_sha_flametongue_weapon);
     new spell_sha_focused_insight();
