@@ -5702,14 +5702,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
 
 bool AuraEffect::IsAreaAuraEffect() const
 {
-    if (_effectInfo->Effect == SPELL_EFFECT_APPLY_AREA_AURA_PARTY ||
-        _effectInfo->Effect == SPELL_EFFECT_APPLY_AREA_AURA_RAID ||
-        _effectInfo->Effect == SPELL_EFFECT_APPLY_AREA_AURA_FRIEND ||
-        _effectInfo->Effect == SPELL_EFFECT_APPLY_AREA_AURA_ENEMY ||
-        _effectInfo->Effect == SPELL_EFFECT_APPLY_AREA_AURA_PET ||
-        _effectInfo->Effect == SPELL_EFFECT_APPLY_AREA_AURA_OWNER)
-        return true;
-    return false;
+    return _effectInfo->IsAreaAuraEffect();
 }
 
 void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) const

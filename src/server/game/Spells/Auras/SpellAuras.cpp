@@ -2285,7 +2285,7 @@ void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit* c
 
         std::deque<Unit*> units;
         // non-area aura
-        if (effect->Effect == SPELL_EFFECT_APPLY_AURA)
+        if (effect->Effect == SPELL_EFFECT_APPLY_AURA || effect->Effect == SPELL_EFFECT_202)
         {
             units.push_back(GetUnitOwner());
         }
@@ -2299,6 +2299,7 @@ void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit* c
                 {
                     case SPELL_EFFECT_APPLY_AREA_AURA_PARTY:
                     case SPELL_EFFECT_APPLY_AREA_AURA_RAID:
+                    case SPELL_EFFECT_APPLY_AREA_AURA_PARTY_NONRANDOM:
                     {
                         units.push_back(GetUnitOwner());
                         Trinity::AnyGroupedUnitInObjectRangeCheck u_check(GetUnitOwner(), GetUnitOwner(), radius, effect->Effect == SPELL_EFFECT_APPLY_AREA_AURA_RAID, m_spellInfo->HasAttribute(SPELL_ATTR3_ONLY_TARGET_PLAYERS), false, true);
@@ -2329,6 +2330,12 @@ void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit* c
                         if (Unit* owner = GetUnitOwner()->GetCharmerOrOwner())
                             if (GetUnitOwner()->IsWithinDistInMap(owner, radius))
                                 units.push_back(owner);
+                        break;
+                    }
+                    case SPELL_EFFECT_APPLY_AURA_ON_PET:
+                    {
+                        if (Unit* pet = ObjectAccessor::GetUnit(*GetUnitOwner(), GetUnitOwner()->GetPetGUID()))
+                            units.push_back(pet);
                         break;
                     }
                 }
