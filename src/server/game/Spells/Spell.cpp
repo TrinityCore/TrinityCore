@@ -8264,6 +8264,12 @@ bool WorldObjectSpellTargetCheck::operator()(WorldObject* target)
                 if (!_referer->IsInRaidWith(unitTarget))
                     return false;
                 break;
+            case TARGET_CHECK_SUMMONED:
+                if (!unitTarget->IsSummon())
+                    return false;
+                if (unitTarget->ToTempSummon()->GetSummonerGUID() != _caster->GetGUID())
+                    return false;
+                break;
             case TARGET_CHECK_THREAT:
                 if (_referer->getThreatManager().getThreat(unitTarget, true) <= 0.0f)
                     return false;
