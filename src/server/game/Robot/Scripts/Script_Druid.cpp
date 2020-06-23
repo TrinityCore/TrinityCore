@@ -196,6 +196,10 @@ bool Script_Druid::DPS_Balance(Unit* pmTarget, bool pmChase, bool pmAOE, Player*
     {
         return false;
     }
+    else if (pmTarget->HasUnitState(UNIT_STATE_EVADE))
+    {
+        return false;
+    }
     float targetDistance = me->GetDistance(pmTarget);
     if (pmChase)
     {
@@ -356,6 +360,10 @@ bool Script_Druid::DPS_Feral(Unit* pmTarget, bool pmChase, bool pmAOE, Player* p
         return false;
     }
     else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    else if (pmTarget->HasUnitState(UNIT_STATE_EVADE))
     {
         return false;
     }
@@ -523,6 +531,10 @@ bool Script_Druid::Tank_Feral(Unit* pmTarget, bool pmChase, bool pmSingle)
         return false;
     }
     else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    else if (pmTarget->HasUnitState(UNIT_STATE_EVADE))
     {
         return false;
     }
@@ -702,6 +714,10 @@ bool Script_Druid::Taunt(Unit* pmTarget)
     {
         return false;
     }
+    else if (pmTarget->HasUnitState(UNIT_STATE_EVADE))
+    {
+        return false;
+    }
     float targetDistance = me->GetDistance(pmTarget);
     if (targetDistance > ATTACK_RANGE_LIMIT)
     {
@@ -812,6 +828,10 @@ bool Script_Druid::Attack_Balance(Unit* pmTarget)
     {
         return false;
     }
+    else if (pmTarget->HasUnitState(UNIT_STATE_EVADE))
+    {
+        return false;
+    }
     float targetDistance = me->GetDistance(pmTarget);
     if (targetDistance > ATTACK_RANGE_LIMIT)
     {
@@ -879,6 +899,10 @@ bool Script_Druid::Attack_Feral(Unit* pmTarget)
     {
         return false;
     }
+    else if (pmTarget->HasUnitState(UNIT_STATE_EVADE))
+    {
+        return false;
+    }
     float targetDistance = me->GetDistance(pmTarget);
     if (targetDistance > ATTACK_RANGE_LIMIT)
     {
@@ -942,6 +966,10 @@ bool Script_Druid::Attack_Feral_Cat(Unit* pmTarget)
         return false;
     }
     else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    else if (pmTarget->HasUnitState(UNIT_STATE_EVADE))
     {
         return false;
     }
@@ -1043,6 +1071,10 @@ bool Script_Druid::Attack_Feral_Bear(Unit* pmTarget)
         return false;
     }
     else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    else if (pmTarget->HasUnitState(UNIT_STATE_EVADE))
     {
         return false;
     }

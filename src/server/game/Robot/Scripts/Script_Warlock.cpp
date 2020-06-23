@@ -86,13 +86,15 @@ bool Script_Warlock::DPS_Affliction(Unit* pmTarget, bool pmChase, bool pmAOE, Pl
     {
         return false;
     }
-
-
     if (!me)
     {
         return false;
     }
     else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    else if (pmTarget->HasUnitState(UNIT_STATE_EVADE))
     {
         return false;
     }
@@ -155,6 +157,10 @@ bool Script_Warlock::DPS_Demonology(Unit* pmTarget, bool pmChase, bool pmAOE, Pl
     {
         return false;
     }
+    else if (pmTarget->HasUnitState(UNIT_STATE_EVADE))
+    {
+        return false;
+    }
     float targetDistance = me->GetDistance(pmTarget);
     if (pmChase)
     {
@@ -211,6 +217,10 @@ bool Script_Warlock::DPS_Destruction(Unit* pmTarget, bool pmChase, bool pmAOE, P
         return false;
     }
     else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    else if (pmTarget->HasUnitState(UNIT_STATE_EVADE))
     {
         return false;
     }
@@ -330,6 +340,10 @@ bool Script_Warlock::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE, Player
     {
         return false;
     }
+    else if (pmTarget->HasUnitState(UNIT_STATE_EVADE))
+    {
+        return false;
+    }
     float targetDistance = me->GetDistance(pmTarget);
     if (pmChase)
     {
@@ -438,8 +452,6 @@ bool Script_Warlock::Attack_Affliction(Unit* pmTarget)
     {
         return false;
     }
-
-
     if (!me)
     {
         return false;
@@ -449,6 +461,10 @@ bool Script_Warlock::Attack_Affliction(Unit* pmTarget)
         return false;
     }
     if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
+    {
+        return false;
+    }
+    else if (pmTarget->HasUnitState(UNIT_STATE_EVADE))
     {
         return false;
     }
@@ -485,13 +501,15 @@ bool Script_Warlock::Attack_Demonology(Unit* pmTarget)
     {
         return false;
     }
-
-
     if (!me)
     {
         return false;
     }
     else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    else if (pmTarget->HasUnitState(UNIT_STATE_EVADE))
     {
         return false;
     }
@@ -532,13 +550,15 @@ bool Script_Warlock::Attack_Destruction(Unit* pmTarget)
     {
         return false;
     }
-
-
     if (!me)
     {
         return false;
     }
     else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    else if (pmTarget->HasUnitState(UNIT_STATE_EVADE))
     {
         return false;
     }
@@ -596,13 +616,15 @@ bool Script_Warlock::Attack_Common(Unit* pmTarget)
     {
         return false;
     }
-
-
     if (!me)
     {
         return false;
     }
     else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    else if (pmTarget->HasUnitState(UNIT_STATE_EVADE))
     {
         return false;
     }

@@ -57,13 +57,15 @@ bool Script_Warrior::DPS_Arms(Unit* pmTarget, bool pmChase, bool pmAOE, Player* 
     {
         return false;
     }
-
-
     if (!me)
     {
         return false;
     }
     else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    else if (pmTarget->HasUnitState(UNIT_STATE_EVADE))
     {
         return false;
     }
@@ -177,13 +179,15 @@ bool Script_Warrior::DPS_Fury(Unit* pmTarget, bool pmChase, bool pmAOE, Player* 
     {
         return false;
     }
-
-
     if (!me)
     {
         return false;
     }
     else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    else if (pmTarget->HasUnitState(UNIT_STATE_EVADE))
     {
         return false;
     }
@@ -308,13 +312,15 @@ bool Script_Warrior::Attack_Arms(Unit* pmTarget)
     {
         return false;
     }
-
-
     if (!me)
     {
         return false;
     }
     else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    else if (pmTarget->HasUnitState(UNIT_STATE_EVADE))
     {
         return false;
     }
@@ -398,13 +404,15 @@ bool Script_Warrior::Attack_Fury(Unit* pmTarget)
     {
         return false;
     }
-
-
     if (!me)
     {
         return false;
     }
     else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    else if (pmTarget->HasUnitState(UNIT_STATE_EVADE))
     {
         return false;
     }
@@ -484,13 +492,15 @@ bool Script_Warrior::Attack_Protection(Unit* pmTarget)
     {
         return false;
     }
-
-
     if (!me)
     {
         return false;
     }
     else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    else if (pmTarget->HasUnitState(UNIT_STATE_EVADE))
     {
         return false;
     }

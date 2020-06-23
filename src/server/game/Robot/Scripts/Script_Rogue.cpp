@@ -187,13 +187,15 @@ bool Script_Rogue::Attack_Combat(Unit* pmTarget)
     {
         return false;
     }
-
-
     if (!me)
     {
         return false;
     }
     else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    else if (pmTarget->HasUnitState(UNIT_STATE_EVADE))
     {
         return false;
     }

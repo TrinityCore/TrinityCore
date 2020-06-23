@@ -198,6 +198,10 @@ bool Script_Paladin::DPS_Retribution(Unit* pmTarget, bool pmChase, bool pmAOE, P
     {
         return false;
     }
+    else if (pmTarget->HasUnitState(UNIT_STATE_EVADE))
+    {
+        return false;
+    }
     float targetDistance = me->GetDistance(pmTarget);
     if (pmChase)
     {
@@ -297,6 +301,10 @@ bool Script_Paladin::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE, Player
         return false;
     }
     else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    else if (pmTarget->HasUnitState(UNIT_STATE_EVADE))
     {
         return false;
     }
@@ -400,6 +408,10 @@ bool Script_Paladin::Attack_Retribution(Unit* pmTarget)
     {
         return false;
     }
+    else if (pmTarget->HasUnitState(UNIT_STATE_EVADE))
+    {
+        return false;
+    }
     if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
     {
         return false;
@@ -452,13 +464,15 @@ bool Script_Paladin::Attack_Common(Unit* pmTarget)
     {
         return false;
     }
-
-
     if (!me)
     {
         return false;
     }
     else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    else if (pmTarget->HasUnitState(UNIT_STATE_EVADE))
     {
         return false;
     }

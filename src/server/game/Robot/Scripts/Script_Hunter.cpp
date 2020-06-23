@@ -86,6 +86,10 @@ bool Script_Hunter::DPS_BeastMastery(Unit* pmTarget, bool pmChase, bool pmAOE, P
     {
         return false;
     }
+    else if (pmTarget->HasUnitState(UNIT_STATE_EVADE))
+    {
+        return false;
+    }
     float targetDistance = me->GetDistance(pmTarget);
     if (pmChase)
     {
@@ -160,6 +164,10 @@ bool Script_Hunter::DPS_Marksmanship(Unit* pmTarget, bool pmChase, bool pmAOE, P
         return false;
     }
     else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    else if (pmTarget->HasUnitState(UNIT_STATE_EVADE))
     {
         return false;
     }
@@ -308,7 +316,10 @@ bool Script_Hunter::DPS_Survival(Unit* pmTarget, bool pmChase, bool pmAOE, Playe
     {
         return false;
     }
-
+    else if (pmTarget->HasUnitState(UNIT_STATE_EVADE))
+    {
+        return false;
+    }
     float targetDistance = me->GetDistance(pmTarget);
     if (pmChase)
     {
@@ -439,6 +450,10 @@ bool Script_Hunter::Attack_BeastMastery(Unit* pmTarget)
     {
         return false;
     }
+    else if (pmTarget->HasUnitState(UNIT_STATE_EVADE))
+    {
+        return false;
+    }
     float targetDistance = me->GetDistance(pmTarget);
     if (targetDistance > ATTACK_RANGE_LIMIT)
     {
@@ -515,6 +530,10 @@ bool Script_Hunter::Attack_Marksmanship(Unit* pmTarget)
     {
         return false;
     }
+    else if (pmTarget->HasUnitState(UNIT_STATE_EVADE))
+    {
+        return false;
+    }
     float targetDistance = me->GetDistance(pmTarget);
     if (targetDistance > ATTACK_RANGE_LIMIT)
     {
@@ -588,6 +607,10 @@ bool Script_Hunter::Attack_Survival(Unit* pmTarget)
         return false;
     }
     else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    else if (pmTarget->HasUnitState(UNIT_STATE_EVADE))
     {
         return false;
     }

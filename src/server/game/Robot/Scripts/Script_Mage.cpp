@@ -128,6 +128,10 @@ bool Script_Mage::DPS_Arcane(Unit* pmTarget, bool pmChase, bool pmAOE, Player* p
     {
         return false;
     }
+    else if (pmTarget->HasUnitState(UNIT_STATE_EVADE))
+    {
+        return false;
+    }
     float targetDistance = me->GetDistance(pmTarget);
     if (pmChase)
     {
@@ -194,6 +198,10 @@ bool Script_Mage::DPS_Fire(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmT
     {
         return false;
     }
+    else if (pmTarget->HasUnitState(UNIT_STATE_EVADE))
+    {
+        return false;
+    }
     float targetDistance = me->GetDistance(pmTarget);
     if (pmChase)
     {
@@ -257,6 +265,10 @@ bool Script_Mage::DPS_Frost(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pm
         return false;
     }
     else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    else if (pmTarget->HasUnitState(UNIT_STATE_EVADE))
     {
         return false;
     }
@@ -391,6 +403,10 @@ bool Script_Mage::Attack_Arcane(Unit* pmTarget)
     {
         return false;
     }
+    else if (pmTarget->HasUnitState(UNIT_STATE_EVADE))
+    {
+        return false;
+    }
     float targetDistance = me->GetDistance(pmTarget);
     if (targetDistance > ATTACK_RANGE_LIMIT)
     {
@@ -446,6 +462,10 @@ bool Script_Mage::Attack_Fire(Unit* pmTarget)
     {
         return false;
     }
+    else if (pmTarget->HasUnitState(UNIT_STATE_EVADE))
+    {
+        return false;
+    }
     float targetDistance = me->GetDistance(pmTarget);
     if (targetDistance > ATTACK_RANGE_LIMIT)
     {
@@ -498,6 +518,10 @@ bool Script_Mage::Attack_Frost(Unit* pmTarget)
         return false;
     }
     else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    else if (pmTarget->HasUnitState(UNIT_STATE_EVADE))
     {
         return false;
     }

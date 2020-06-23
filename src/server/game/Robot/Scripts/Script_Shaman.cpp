@@ -57,12 +57,15 @@ bool Script_Shaman::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE, Player*
     {
         return false;
     }
-
     if (!me)
     {
         return false;
     }
     else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    else if (pmTarget->HasUnitState(UNIT_STATE_EVADE))
     {
         return false;
     }
@@ -142,6 +145,10 @@ bool Script_Shaman::Attack_Common(Unit* pmTarget)
         return false;
     }
     else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    else if (pmTarget->HasUnitState(UNIT_STATE_EVADE))
     {
         return false;
     }
