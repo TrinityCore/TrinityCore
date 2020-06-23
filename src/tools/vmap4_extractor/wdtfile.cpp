@@ -32,7 +32,7 @@ WDTFile::WDTFile(uint32 fileDataId, std::string const& description, std::string 
     memset(&_adtInfo, 0, sizeof(WDT::MAIN));
     if (cache)
     {
-        _adtCache = Trinity::make_unique<ADTCache>();
+        _adtCache = std::make_unique<ADTCache>();
         memset(_adtCache->file, 0, sizeof(_adtCache->file));
     }
     else
@@ -80,7 +80,7 @@ bool WDTFile::init(uint32 mapId)
         else if (!strcmp(fourcc, "MAID"))
         {
             ASSERT(size == sizeof(WDT::MAID));
-            _adtFileDataIds = Trinity::make_unique<WDT::MAID>();
+            _adtFileDataIds = std::make_unique<WDT::MAID>();
             _file.read(_adtFileDataIds.get(), sizeof(WDT::MAID));
         }
         else if (!strcmp(fourcc,"MWMO"))
