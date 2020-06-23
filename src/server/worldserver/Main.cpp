@@ -520,7 +520,7 @@ bool LoadRealmInfo(Trinity::Asio::IoContext& ioContext)
         return false;
     }
 
-    realm.ExternalAddress = Trinity::make_unique<boost::asio::ip::address>(externalAddress->address());
+    realm.ExternalAddress = std::make_unique<boost::asio::ip::address>(externalAddress->address());
 
     Optional<boost::asio::ip::tcp::endpoint> localAddress = Trinity::Net::Resolve(resolver, boost::asio::ip::tcp::v4(), fields[3].GetString(), "");
     if (!localAddress)
@@ -529,7 +529,7 @@ bool LoadRealmInfo(Trinity::Asio::IoContext& ioContext)
         return false;
     }
 
-    realm.LocalAddress = Trinity::make_unique<boost::asio::ip::address>(localAddress->address());
+    realm.LocalAddress = std::make_unique<boost::asio::ip::address>(localAddress->address());
 
     Optional<boost::asio::ip::tcp::endpoint> localSubmask = Trinity::Net::Resolve(resolver, boost::asio::ip::tcp::v4(), fields[4].GetString(), "");
     if (!localSubmask)
@@ -538,7 +538,7 @@ bool LoadRealmInfo(Trinity::Asio::IoContext& ioContext)
         return false;
     }
 
-    realm.LocalSubnetMask = Trinity::make_unique<boost::asio::ip::address>(localSubmask->address());
+    realm.LocalSubnetMask = std::make_unique<boost::asio::ip::address>(localSubmask->address());
 
     realm.Port = fields[5].GetUInt16();
     realm.Type = fields[6].GetUInt8();
