@@ -240,7 +240,7 @@ std::unique_ptr<Trinity::Crypto::RSA> ConnectToRSA;
 
 bool WorldPackets::Auth::ConnectTo::InitializeEncryption()
 {
-    std::unique_ptr<Trinity::Crypto::RSA> rsa = Trinity::make_unique<Trinity::Crypto::RSA>();
+    std::unique_ptr<Trinity::Crypto::RSA> rsa = std::make_unique<Trinity::Crypto::RSA>();
     if (!rsa->LoadFromString(RSAPrivateKey, Trinity::Crypto::RSA::PrivateKey{}))
         return false;
 

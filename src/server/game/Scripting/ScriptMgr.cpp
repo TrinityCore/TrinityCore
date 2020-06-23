@@ -243,7 +243,7 @@ public:
     void QueueForDelayedDelete(T&& any)
     {
         _delayed_delete_queue.push_back(
-            Trinity::make_unique<
+    std::make_unique<
                 DeleteableObject<typename std::decay<T>::type>
             >(std::forward<T>(any))
         );

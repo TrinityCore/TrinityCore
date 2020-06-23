@@ -936,7 +936,7 @@ private:
         }
 
         // Create the source listener
-        auto listener = Trinity::make_unique<SourceUpdateListener>(
+        auto listener = std::make_unique<SourceUpdateListener>(
             sScriptReloadMgr->GetSourceDirectory() / module_name,
             module_name);
 
