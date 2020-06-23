@@ -253,7 +253,7 @@ int32 LoginRESTService::HandleGetGameAccounts(std::shared_ptr<AsyncRequest> requ
     if (!request->GetClient()->userid)
         return 401;
 
-    request->SetCallback(Trinity::make_unique<QueryCallback>(LoginDatabase.AsyncQuery([&] {
+    request->SetCallback(std::make_unique<QueryCallback>(LoginDatabase.AsyncQuery([&] {
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_GAME_ACCOUNT_LIST);
         stmt->setString(0, request->GetClient()->userid);
         return stmt;
@@ -345,7 +345,7 @@ int32 LoginRESTService::HandlePostLogin(std::shared_ptr<AsyncRequest> request)
 
     std::string sentPasswordHash = CalculateShaPassHash(login, password);
 
-    request->SetCallback(Trinity::make_unique<QueryCallback>(LoginDatabase.AsyncQuery(stmt)
+    request->SetCallback(std::make_unique<QueryCallback>(LoginDatabase.AsyncQuery(stmt)
         .WithChainingPreparedCallback([request, login, sentPasswordHash, this](QueryCallback& callback, PreparedQueryResult result)
     {
         if (result)
@@ -444,7 +444,7 @@ int32 LoginRESTService::HandlePostRefreshLoginTicket(std::shared_ptr<AsyncReques
     if (!request->GetClient()->userid)
         return 401;
 
-    request->SetCallback(Trinity::make_unique<QueryCallback>(LoginDatabase.AsyncQuery([&] {
+    request->SetCallback(std::make_unique<QueryCallback>(LoginDatabase.AsyncQuery([&] {
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_EXISTING_AUTHENTICATION);
         stmt->setString(0, request->GetClient()->userid);
         return stmt;
