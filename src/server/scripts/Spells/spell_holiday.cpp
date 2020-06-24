@@ -1732,8 +1732,8 @@ class spell_midsummer_juggle_torch : public SpellScript
             torchShadowSpellID = SPELL_JUGGLE_TORCH_SHADOW_FAST;
         }
 
-        GetCaster()->CastSpell(spellDest.GetPosition(), torchSpellID);
-        GetCaster()->CastSpell(spellDest.GetPosition(), torchShadowSpellID);
+        GetCaster()->CastSpell(spellDest, torchSpellID);
+        GetCaster()->CastSpell(spellDest, torchShadowSpellID);
     }
 
     void Register() override
