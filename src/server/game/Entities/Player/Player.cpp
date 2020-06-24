@@ -5938,8 +5938,8 @@ void Player::UpdateSkillsForLevel()
         /// update only level dependent max skill values
         if (max != 1)
         {
-            /// maximize skill always
-            if (alwaysMaxSkill)
+            // Some skills (for example racial, class skills) have their current and maximum values scale at a rate of 5 skill points for each level
+            if (alwaysMaxSkill || SkillLevelScalesWithPlayerLevel(itr->first))
             {
                 SetUInt32Value(valueIndex, MAKE_SKILL_VALUE(maxSkill, maxSkill));
                 if (itr->second.uState != SKILL_NEW)

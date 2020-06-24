@@ -571,6 +571,8 @@ inline bool IsProfessionOrRidingSkill(uint32 skill)
 
 bool IsPartOfSkillLine(uint32 skillId, uint32 spellId);
 
+bool SkillLevelScalesWithPlayerLevel(uint32 skillId);
+
 class TC_GAME_API SpellMgr
 {
     // Constructors
