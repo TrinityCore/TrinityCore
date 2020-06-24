@@ -25658,7 +25658,7 @@ bool Player::isHonorOrXPTarget(Unit const* victim) const
 
     if (Creature const* const creature = victim->ToCreature())
     {
-        if (!creature->CanGiveExperience())
+        if (creature->IsCritter() || creature->IsTotem())
             return false;
     }
     return true;
