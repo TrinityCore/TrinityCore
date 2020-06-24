@@ -938,13 +938,13 @@ void SmartAI::UpdatePath(uint32 diff)
     // handle pause
     if (HasEscortState(SMART_ESCORT_PAUSED) && (_waypointReached || _waypointPauseForced))
     {
-        if (_waypointPauseTimer <= diff)
+        if (!me->IsInCombat() && !HasEscortState(SMART_ESCORT_RETURNING))
         {
-            if (!me->IsInCombat() && !HasEscortState(SMART_ESCORT_RETURNING))
+            if (_waypointPauseTimer <= diff)
                 ResumePath();
+            else
+                _waypointPauseTimer -= diff;
         }
-        else
-            _waypointPauseTimer -= diff;
     }
     else if (_waypointPathEnded) // end path
     {
