@@ -82,8 +82,8 @@ char* DBCDatabaseLoader::Load(uint32& records, char**& indexTable)
         indexTable = tmpIdxTable;
     }
 
-    std::unique_ptr<char[]> dataTable = Trinity::make_unique<char[]>(result->GetRowCount() * _recordSize);
-    std::unique_ptr<uint32[]> newIndexes = Trinity::make_unique<uint32[]>(result->GetRowCount());
+    std::unique_ptr<char[]> dataTable = std::make_unique<char[]>(result->GetRowCount() * _recordSize);
+    std::unique_ptr<uint32[]> newIndexes = std::make_unique<uint32[]>(result->GetRowCount());
     uint32 newRecords = 0;
 
     // Insert sql data into the data array
