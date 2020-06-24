@@ -34,7 +34,7 @@ else()
   )
 
   # make sure we're using minimum the required version of git, so the "dirty-testing" will work properly
-  ensure_version( "${_REQUIRED_GIT_VERSION}" "${_GIT_VERSION}" _GIT_VERSION_OK)
+  ensure_version("${_REQUIRED_GIT_VERSION}" "${_GIT_VERSION}" _GIT_VERSION_OK)
 
   # throw an error if we don't have a recent enough version of git...
   if(NOT _GIT_VERSION_OK)

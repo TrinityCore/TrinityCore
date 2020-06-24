@@ -5505,7 +5505,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                     float objSize = target->GetCombatReach();
                     float range = m_spellInfo->GetMaxRange(true, unitCaster, this) * 1.5f + objSize; // can't be overly strict
 
-                    m_preGeneratedPath = Trinity::make_unique<PathGenerator>(unitCaster);
+                    m_preGeneratedPath = std::make_unique<PathGenerator>(unitCaster);
                     m_preGeneratedPath->SetPathLengthLimit(range);
 
                     // first try with raycast, if it fails fall back to normal path
@@ -8090,7 +8090,7 @@ WorldObjectSpellTargetCheck::WorldObjectSpellTargetCheck(WorldObject* caster, Wo
     _targetSelectionType(selectionType), _condSrcInfo(nullptr), _condList(condList)
 {
     if (condList)
-        _condSrcInfo = Trinity::make_unique<ConditionSourceInfo>(nullptr, caster);
+        _condSrcInfo = std::make_unique<ConditionSourceInfo>(nullptr, caster);
 }
 
 WorldObjectSpellTargetCheck::~WorldObjectSpellTargetCheck()
