@@ -1,4 +1,4 @@
-SET @GUID := 9999999; -- Need 3 free GUIDs
+SET @GUID := 130968; -- Need 3 free GUIDs
 
 DELETE FROM `creature` WHERE `guid` BETWEEN @GUID AND @GUID+2;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES
