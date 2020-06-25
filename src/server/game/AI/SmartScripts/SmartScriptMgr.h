@@ -174,8 +174,13 @@ enum SMART_EVENT
     SMART_EVENT_DISTANCE_CREATURE        = 75,      // guid, entry, distance, repeat
     SMART_EVENT_DISTANCE_GAMEOBJECT      = 76,      // guid, entry, distance, repeat
     SMART_EVENT_COUNTER_SET              = 77,      // id, value, cooldownMin, cooldownMax
+    SMART_EVENT_SCENE_START              = 78,      // don't use on 3.3.5a
+    SMART_EVENT_SCENE_TRIGGER            = 79,      // don't use on 3.3.5a
+    SMART_EVENT_SCENE_CANCEL             = 80,      // don't use on 3.3.5a
+    SMART_EVENT_SCENE_COMPLETE           = 81,      // don't use on 3.3.5a
+    SMART_EVENT_SUMMONED_UNIT_DIES       = 82,      // CreatureId(0 all), CooldownMin, CooldownMax
 
-    SMART_EVENT_END                      = 78
+    SMART_EVENT_END                      = 83
 };
 
 struct SmartEvent
@@ -1498,7 +1503,12 @@ const uint32 SmartAIEventMask[SMART_EVENT_END][2] =
     {SMART_EVENT_FRIENDLY_HEALTH_PCT,       SMART_SCRIPT_TYPE_MASK_CREATURE },
     {SMART_EVENT_DISTANCE_CREATURE,         SMART_SCRIPT_TYPE_MASK_CREATURE },
     {SMART_EVENT_DISTANCE_GAMEOBJECT,       SMART_SCRIPT_TYPE_MASK_CREATURE },
-    {SMART_EVENT_COUNTER_SET,               SMART_SCRIPT_TYPE_MASK_CREATURE + SMART_SCRIPT_TYPE_MASK_GAMEOBJECT }
+    {SMART_EVENT_COUNTER_SET,               SMART_SCRIPT_TYPE_MASK_CREATURE + SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
+    {SMART_EVENT_SCENE_START,               0 },
+    {SMART_EVENT_SCENE_TRIGGER,             0 },
+    {SMART_EVENT_SCENE_CANCEL,              0 },
+    {SMART_EVENT_SCENE_COMPLETE,            0 },
+    {SMART_EVENT_SUMMONED_UNIT_DIES,        SMART_SCRIPT_TYPE_MASK_CREATURE + SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
 };
 
 enum SmartEventFlags
