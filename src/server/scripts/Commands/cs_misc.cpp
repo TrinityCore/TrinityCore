@@ -93,7 +93,6 @@ public:
             { "kick",             rbac::RBAC_PERM_COMMAND_KICK,              true, &HandleKickPlayerCommand,       "" },
             { "linkgrave",        rbac::RBAC_PERM_COMMAND_LINKGRAVE,        false, &HandleLinkGraveCommand,        "" },
             { "listfreeze",       rbac::RBAC_PERM_COMMAND_LISTFREEZE,       false, &HandleListFreezeCommand,       "" },
-            { "maxskill",         rbac::RBAC_PERM_COMMAND_MAXSKILL,         false, &HandleMaxSkillCommand,         "" },
             { "movegens",         rbac::RBAC_PERM_COMMAND_MOVEGENS,         false, &HandleMovegensCommand,         "" },
             { "mute",             rbac::RBAC_PERM_COMMAND_MUTE,              true, &HandleMuteCommand,             "" },
             { "mutehistory",      rbac::RBAC_PERM_COMMAND_MUTEHISTORY,       true, &HandleMuteInfoCommand,         "" },
@@ -1495,22 +1494,6 @@ public:
 
         weather->SetWeather(WeatherType(type), grade);
 
-        return true;
-    }
-
-
-    static bool HandleMaxSkillCommand(ChatHandler* handler, char const* /*args*/)
-    {
-        Player* player = handler->getSelectedPlayerOrSelf();
-        if (!player)
-        {
-            handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        // each skills that have max skill value dependent from level seted to current level max skill value
-        player->UpdateSkillsToMaxSkillsForLevel();
         return true;
     }
 
