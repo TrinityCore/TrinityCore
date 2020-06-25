@@ -1094,7 +1094,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             }
         case SMART_ACTION_RANDOM_EMOTE:
         {
-            if (std::all_of(e.action.randomEmote.emotes.begin(), e.action.randomEmote.emotes.end(), [](uint32 emote) { return emote == 0; }))
+            if (std::all_of(std::begin(e.action.randomEmote.emotes), std::end(e.action.randomEmote.emotes), [](uint32 emote) { return emote == 0; }))
             {
                 TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry " SI64FMTD " SourceType %u Event %u Action %u does not have any non-zero emote",
                     e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
@@ -1108,7 +1108,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         }
         case SMART_ACTION_CALL_RANDOM_TIMED_ACTIONLIST:
         {
-            if (std::all_of(e.action.randTimedActionList.actionLists.begin(), e.action.randTimedActionList.actionLists.end(), [](uint32 actionList) { return actionList == 0; }))
+            if (std::all_of(std::begin(e.action.randTimedActionList.actionLists), std::end(e.action.randTimedActionList.actionLists), [](uint32 actionList) { return actionList == 0; }))
             {
                 TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry " SI64FMTD " SourceType %u Event %u Action %u does not have any non-zero action list",
                     e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
@@ -1118,7 +1118,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         }
         case SMART_ACTION_START_CLOSEST_WAYPOINT:
         {
-            if (std::all_of(e.action.closestWaypointFromList.wps.begin(), e.action.closestWaypointFromList.wps.end(), [](uint32 wp) { return wp == 0; }))
+            if (std::all_of(std::begin(e.action.closestWaypointFromList.wps), std::end(e.action.closestWaypointFromList.wps), [](uint32 wp) { return wp == 0; }))
             {
                 TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry " SI64FMTD " SourceType %u Event %u Action %u does not have any non-zero waypoint id",
                     e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
@@ -1210,14 +1210,14 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             break;
         case SMART_ACTION_RANDOM_PHASE:
         {
-            if (std::all_of(e.action.randomPhase.phases.begin(), e.action.randomPhase.phases.end(), [](uint32 phase) { return phase == 0; }))
+            if (std::all_of(std::begin(e.action.randomPhase.phases), std::end(e.action.randomPhase.phases), [](uint32 phase) { return phase == 0; }))
             {
                 TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry " SI64FMTD " SourceType %u Event %u Action %u does not have any non-zero phase",
                     e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
                 return false;
             }
 
-            if (std::any_of(e.action.randomPhase.phases.begin(), e.action.randomPhase.phases.end(), [](uint32 phase) { return phase >= SMART_EVENT_PHASE_MAX; }))
+            if (std::any_of(std::begin(e.action.randomPhase.phases), std::end(e.action.randomPhase.phases), [](uint32 phase) { return phase >= SMART_EVENT_PHASE_MAX; }))
             {
                 TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry " SI64FMTD " SourceType %u Event %u Action %u attempts to set invalid phase, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
                 return false;
@@ -1715,4 +1715,20 @@ CacheSpellContainerBounds SmartAIMgr::GetKillCreditSpellContainerBounds(uint32 k
 CacheSpellContainerBounds SmartAIMgr::GetCreateItemSpellContainerBounds(uint32 itemId) const
 {
     return CreateItemSpellStore.equal_range(itemId);
+}
+
+ObjectGuidVector::ObjectGuidVector(ObjectVector const& objectVector) : _objectVector(objectVector)
+{
+    _guidVector.reserve(_objectVector.size());
+    for (WorldObject* obj : _objectVector)
+        _guidVector.push_back(obj->GetGUID());
+}
+
+void ObjectGuidVector::UpdateObjects(WorldObject const& ref) const
+{
+    _objectVector.clear();
+
+    for (ObjectGuid const& guid : _guidVector)
+        if (WorldObject* obj = ObjectAccessor::GetWorldObject(ref, guid))
+            _objectVector.push_back(obj);
 }

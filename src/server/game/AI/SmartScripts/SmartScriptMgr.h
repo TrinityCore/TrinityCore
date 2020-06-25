@@ -18,15 +18,13 @@
 #ifndef TRINITY_SMARTSCRIPTMGR_H
 #define TRINITY_SMARTSCRIPTMGR_H
 
-#include "Creature.h"
 #include "Define.h"
-#include "ObjectAccessor.h"
 #include "ObjectGuid.h"
-#include "UnitDefines.h"
 #include <map>
 #include <string>
 #include <unordered_map>
 
+class WorldObject;
 enum SpellEffIndex : uint8;
 
 struct WayPoint
@@ -660,7 +658,7 @@ struct SmartAction
 
         struct
         {
-            std::array<uint32, SMART_ACTION_PARAM_COUNT> emotes;
+            uint32 emotes[SMART_ACTION_PARAM_COUNT];
         } randomEmote;
 
         struct
@@ -753,7 +751,7 @@ struct SmartAction
 
         struct
         {
-            std::array<uint32, SMART_ACTION_PARAM_COUNT> phases;
+            uint32 phases[SMART_ACTION_PARAM_COUNT];
         } randomPhase;
 
         struct
@@ -952,7 +950,9 @@ struct SmartAction
         {
             uint32 entry;
             uint32 mask;
-            std::array<uint32, MAX_EQUIPMENT_ITEMS> slots;
+            uint32 slot1;
+            uint32 slot2;
+            uint32 slot3;
         } equip;
 
         struct
@@ -986,7 +986,7 @@ struct SmartAction
 
         struct
         {
-            std::array<uint32, SMART_ACTION_PARAM_COUNT> actionLists;
+            uint32 actionLists[SMART_ACTION_PARAM_COUNT];
         } randTimedActionList;
 
         struct
@@ -1096,7 +1096,7 @@ struct SmartAction
 
         struct
         {
-            std::array<uint32, SMART_ACTION_PARAM_COUNT> wps;
+            uint32 wps[SMART_ACTION_PARAM_COUNT];
         } closestWaypointFromList;
 
         struct
@@ -1554,12 +1554,7 @@ typedef std::vector<WorldObject*> ObjectVector;
 class ObjectGuidVector
 {
     public:
-        explicit ObjectGuidVector(ObjectVector const& objectVector) : _objectVector(objectVector)
-        {
-            _guidVector.reserve(_objectVector.size());
-            for (WorldObject* obj : _objectVector)
-                _guidVector.push_back(obj->GetGUID());
-        }
+        explicit ObjectGuidVector(ObjectVector const& objectVector);
 
         ObjectVector const* GetObjectVector(WorldObject const& ref) const
         {
@@ -1574,14 +1569,7 @@ class ObjectGuidVector
         mutable ObjectVector _objectVector;
 
         //sanitize vector using _guidVector
-        void UpdateObjects(WorldObject const& ref) const
-        {
-            _objectVector.clear();
-
-            for (ObjectGuid const& guid : _guidVector)
-                if (WorldObject* obj = ObjectAccessor::GetWorldObject(ref, guid))
-                    _objectVector.push_back(obj);
-        }
+        void UpdateObjects(WorldObject const& ref) const;
 };
 typedef std::unordered_map<uint32, ObjectGuidVector> ObjectVectorMap;
 

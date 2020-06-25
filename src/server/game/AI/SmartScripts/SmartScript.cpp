@@ -425,7 +425,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         case SMART_ACTION_RANDOM_EMOTE:
         {
             std::vector<uint32> emotes;
-            std::copy_if(e.action.randomEmote.emotes.begin(), e.action.randomEmote.emotes.end(),
+            std::copy_if(std::begin(e.action.randomEmote.emotes), std::end(e.action.randomEmote.emotes),
                 std::back_inserter(emotes), [](uint32 emote) { return emote != 0; });
 
             for (WorldObject* target : targets)
@@ -869,7 +869,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 break;
 
             std::vector<uint32> phases;
-            std::copy_if(e.action.randomPhase.phases.begin(), e.action.randomPhase.phases.end(),
+            std::copy_if(std::begin(e.action.randomPhase.phases), std::end(e.action.randomPhase.phases),
                 std::back_inserter(phases), [](uint32 phase) { return phase != 0; });
 
             uint32 phase = Trinity::Containers::SelectRandomContainerElement(phases);
@@ -1497,9 +1497,9 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     }
                     else
                     {
-                        slot[0].ItemId = e.action.equip.slots[0];
-                        slot[1].ItemId = e.action.equip.slots[1];
-                        slot[2].ItemId = e.action.equip.slots[2];
+                        slot[0].ItemId = e.action.equip.slot1;
+                        slot[1].ItemId = e.action.equip.slot2;
+                        slot[2].ItemId = e.action.equip.slot3;
                     }
 
                     for (uint32 i = 0; i < MAX_EQUIPMENT_ITEMS; ++i)
@@ -1683,7 +1683,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         case SMART_ACTION_CALL_RANDOM_TIMED_ACTIONLIST:
         {
             std::vector<uint32> actionLists;
-            std::copy_if(e.action.randTimedActionList.actionLists.begin(), e.action.randTimedActionList.actionLists.end(),
+            std::copy_if(std::begin(e.action.randTimedActionList.actionLists), std::end(e.action.randTimedActionList.actionLists),
                 std::back_inserter(actionLists), [](uint32 actionList) { return actionList != 0; });
 
             uint32 id = Trinity::Containers::SelectRandomContainerElement(actionLists);
@@ -2046,7 +2046,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         case SMART_ACTION_START_CLOSEST_WAYPOINT:
         {
             std::vector<uint32> waypoints;
-            std::copy_if(e.action.closestWaypointFromList.wps.begin(), e.action.closestWaypointFromList.wps.end(),
+            std::copy_if(std::begin(e.action.closestWaypointFromList.wps), std::end(e.action.closestWaypointFromList.wps),
                 std::back_inserter(waypoints), [](uint32 wp) { return wp != 0; });
 
             float distanceToClosest = std::numeric_limits<float>::max();
