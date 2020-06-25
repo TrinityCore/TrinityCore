@@ -54,23 +54,6 @@ bool IsPartOfSkillLine(uint32 skillId, uint32 spellId)
     return false;
 }
 
-bool SkillLevelScalesWithPlayerLevel(uint32 skillId)
-{
-    // Only the maximum value of lockpicking and weapon skills scales with level
-    if (skillId == SKILL_LOCKPICKING)
-        return false;
-
-    SkillLineEntry const* skill = sSkillLineStore.LookupEntry(skillId);
-    if (!skill)
-        return false;
-
-    if (skill->categoryId == SKILL_CATEGORY_WEAPON)
-        return false;
-
-    // All other skills with SKILL_RANGE_LEVEL also scale their current value
-    return true;
-}
-
 SpellMgr::SpellMgr() { }
 
 SpellMgr::~SpellMgr()
