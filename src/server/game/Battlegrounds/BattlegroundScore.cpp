@@ -51,7 +51,7 @@ void BattlegroundScore::UpdateScore(uint32 type, uint32 value)
             HealingDone += value;
             break;
         default:
-            ASSERT(false, "Not implemented Battleground score type %u!", type);
+            ABORT_MSG("Not implemented Battleground score type %u!", type);
             break;
     }
 }

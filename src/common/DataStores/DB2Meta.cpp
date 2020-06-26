@@ -73,7 +73,7 @@ uint32 DB2Meta::GetRecordSize() const
                     size += sizeof(char*);
                     break;
                 default:
-                    ASSERT(false, "Unsupported column type specified %c", Fields[i].Type);
+                    ABORT_MSG("Unsupported column type specified %c", Fields[i].Type);
                     break;
             }
         }
@@ -124,7 +124,7 @@ uint32 DB2Meta::GetIndexFieldOffset() const
                     offset += sizeof(char*);
                     break;
                 default:
-                    ASSERT(false, "Unsupported column type specified %c", Fields[i].Type);
+                    ABORT_MSG("Unsupported column type specified %c", Fields[i].Type);
                     break;
             }
         }
@@ -168,7 +168,7 @@ int32 DB2Meta::GetParentIndexFieldOffset() const
                     offset += sizeof(char*);
                     break;
                 default:
-                    ASSERT(false, "Unsupported column type specified %c", Fields[i].Type);
+                    ABORT_MSG("Unsupported column type specified %c", Fields[i].Type);
                     break;
             }
         }

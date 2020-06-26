@@ -579,7 +579,7 @@ ThreatReference const* ThreatManager::ReselectVictim()
         ++it;
     }
     // we should have found the old victim at some point in the loop above, so execution should never get to this point
-    ASSERT(false, "Current victim not found in sorted threat list even though it has a reference - manager desync!");
+    ABORT_MSG("Current victim not found in sorted threat list even though it has a reference - manager desync!");
     return nullptr;
 }
 

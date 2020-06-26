@@ -2904,7 +2904,7 @@ SpawnData const* ObjectMgr::GetSpawnData(SpawnObjectType type, ObjectGuid::LowTy
         case SPAWN_TYPE_AREATRIGGER:
             return sAreaTriggerDataStore->GetAreaTriggerSpawn(spawnId);
         default:
-            ASSERT(false, "Invalid spawn object type %u", uint32(type));
+            ABORT_MSG("Invalid spawn object type %u", uint32(type));
             return nullptr;
     }
 }
@@ -2924,7 +2924,7 @@ void ObjectMgr::OnDeleteSpawnData(SpawnData const* data)
         _spawnGroupMapStore.erase(it);
         return;
     }
-    ASSERT(false, "Spawn data (%u," UI64FMTD ") being removed is member of spawn group %u, but not actually listed in the lookup table for that group!", uint32(data->type), data->spawnId, data->spawnGroupData->groupId);
+    ABORT_MSG("Spawn data (%u," UI64FMTD ") being removed is member of spawn group %u, but not actually listed in the lookup table for that group!", uint32(data->type), data->spawnId, data->spawnGroupData->groupId);
 }
 
 void ObjectMgr::AddGameobjectToGrid(GameObjectData const* data)

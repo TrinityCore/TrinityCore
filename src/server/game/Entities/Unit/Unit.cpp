@@ -8701,7 +8701,7 @@ void Unit::UpdateUnitMod(UnitMods unitMod)
         case UNIT_MOD_DAMAGE_RANGED:       UpdateDamagePhysical(RANGED_ATTACK);  break;
 
         default:
-            ASSERT(false, "Not implemented UnitMod %u", unitMod);
+            ABORT_MSG("Not implemented UnitMod %u", unitMod);
             break;
     }
 }
