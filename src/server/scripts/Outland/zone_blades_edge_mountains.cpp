@@ -18,13 +18,12 @@
 /* ScriptData
 SDName: Blades_Edge_Mountains
 SD%Complete: 90
-SDComment: Quest support: 10503, 10504, 10556, 10594, 10609, 10821. Ogri'la->Skettis Flight. (npc_daranelle needs bit more work before consider complete)
+SDComment: Quest support: 10503, 10504, 10594, 10609, 10821. Ogri'la->Skettis Flight.
 SDCategory: Blade's Edge Mountains
 EndScriptData */
 
 /* ContentData
 npc_nether_drake
-npc_daranelle
 go_legion_obelisk
 EndContentData */
 
@@ -228,53 +227,6 @@ public:
     CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_nether_drakeAI(creature);
-    }
-};
-
-/*######
-## npc_daranelle
-######*/
-
-enum Daranelle
-{
-    SAY_SPELL_INFLUENCE       = 0,
-    SPELL_LASHHAN_CHANNEL     = 36904,
-    SPELL_DISPELLING_ANALYSIS = 37028
-};
-
-class npc_daranelle : public CreatureScript
-{
-public:
-    npc_daranelle() : CreatureScript("npc_daranelle") { }
-
-    struct npc_daranelleAI : public ScriptedAI
-    {
-        npc_daranelleAI(Creature* creature) : ScriptedAI(creature) { }
-
-        void Reset() override { }
-
-        void JustEngagedWith(Unit* /*who*/) override { }
-
-        void MoveInLineOfSight(Unit* who) override
-
-        {
-            if (who->GetTypeId() == TYPEID_PLAYER)
-            {
-                if (who->HasAura(SPELL_LASHHAN_CHANNEL) && me->IsWithinDistInMap(who, 10.0f))
-                {
-                    Talk(SAY_SPELL_INFLUENCE, who);
-                    /// @todo Move the below to updateAI and run if this statement == true
-                    DoCast(who, SPELL_DISPELLING_ANALYSIS, true);
-                }
-            }
-
-            ScriptedAI::MoveInLineOfSight(who);
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_daranelleAI(creature);
     }
 };
 
@@ -1062,7 +1014,6 @@ class spell_oscillating_field : public SpellScriptLoader
 void AddSC_blades_edge_mountains()
 {
     new npc_nether_drake();
-    new npc_daranelle();
     new go_legion_obelisk();
     new npc_simon_bunny();
     new go_simon_cluster();
