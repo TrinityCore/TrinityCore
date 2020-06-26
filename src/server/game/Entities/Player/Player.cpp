@@ -2871,6 +2871,23 @@ void Player::InitStatsForLevel(bool reapplyMods)
     sObjectMgr->GetPlayerLevelInfo(GetRace(), GetClass(), GetLevel(), &info);
 
     SetUInt32Value(PLAYER_FIELD_MAX_LEVEL, sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL));
+    // EJ max level with server exp
+    if (sJokerConfig->Enable)
+    {
+        if (sJokerConfig->ServerExpansion == 0)
+        {
+            SetUInt32Value(PLAYER_FIELD_MAX_LEVEL, 60);
+        }
+        else if (sJokerConfig->ServerExpansion == 1)
+        {
+            SetUInt32Value(PLAYER_FIELD_MAX_LEVEL, 70);
+        }
+        else if (sJokerConfig->ServerExpansion == 2)
+        {
+            SetUInt32Value(PLAYER_FIELD_MAX_LEVEL, 80);
+        }
+    }
+
     SetUInt32Value(PLAYER_NEXT_LEVEL_XP, sObjectMgr->GetXPForLevel(GetLevel()));
 
     // reset before any aura state sources (health set/aura apply)

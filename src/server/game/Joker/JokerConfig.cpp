@@ -330,29 +330,6 @@ bool JokerConfig::StartJokerSystem()
         return false;
     }
 
-    switch (ServerExpansion)
-    {
-    case 0:
-    {
-        sWorld->setIntConfig(CONFIG_MAX_PLAYER_LEVEL, 60);
-        break;
-    }
-    case 1:
-    {
-        sWorld->setIntConfig(CONFIG_MAX_PLAYER_LEVEL, 70);
-        break;
-    }
-    case 2:
-    {
-        sWorld->setIntConfig(CONFIG_MAX_PLAYER_LEVEL, 80);
-        break;
-    }
-    default:
-    {
-        break;
-    }
-    }
-
     return true;
 }
 

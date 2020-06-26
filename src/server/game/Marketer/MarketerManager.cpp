@@ -35,7 +35,6 @@ MarketerManager::MarketerManager()
         }
         if (sJokerConfig->Enable)
         {
-
             if (proto->Class != ItemClass::ITEM_CLASS_GLYPH)
             {
                 bool foundInExp = false;

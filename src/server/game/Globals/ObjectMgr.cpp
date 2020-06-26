@@ -1502,6 +1502,12 @@ void ObjectMgr::LoadCreatureAddons()
 
         ObjectGuid::LowType guid = fields[0].GetUInt32();
 
+        // EJ some creatures will not be loaded - tbc fly trainer, negatron
+        if (guid == 88165 || guid == 88166 || guid == 70976)
+        {
+            continue;
+        }
+
         CreatureData const* creData = GetCreatureData(guid);
         if (!creData)
         {
@@ -2356,8 +2362,8 @@ void ObjectMgr::LoadCreatures()
         ObjectGuid::LowType guid = fields[0].GetUInt32();
         uint32 entry        = fields[1].GetUInt32();
 
-        // EJ some creatures will not be loaded - tbc fly trainer
-        if (entry == 35093 || entry == 35099 || entry == 35100 || entry == 35101)
+        // EJ some creatures will not be loaded - tbc fly trainer, negatron
+        if (entry == 35093 || entry == 35099 || entry == 35100 || entry == 35101 || entry == 19851)
         {
             continue;
         }
@@ -2905,6 +2911,12 @@ void ObjectMgr::LoadSpawnGroups()
             continue;
         }
         ObjectGuid::LowType spawnId = fields[2].GetUInt32();
+
+        // EJ some creatures will not be loaded - tbc fly trainer, negatron
+        if (spawnId == 70976)
+        {
+            continue;
+        }
 
         SpawnMetadata const* data = GetSpawnMetadata(spawnType, spawnId);
         if (!data)
