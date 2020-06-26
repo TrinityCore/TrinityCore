@@ -147,7 +147,7 @@ class TC_GAME_API MotionMaster
         void MoveIdle();
         void MoveTargetedHome();
         void MoveRandom(float spawndist = 0.0f);
-        void MoveFollow(Unit* target, float dist, ChaseAngle angle, bool allignToTargetSpeed = false, MovementSlot slot = MOTION_SLOT_ACTIVE);
+        void MoveFollow(Unit* target, float dist, float angle, bool joinFormation = false, bool catchUpToTarget = false, MovementSlot slot = MOTION_SLOT_IDLE);
 
         void MoveChase(Unit* target, float dist = 0.f, Optional<ChaseAngle> angle = {});
         void MoveChase(Unit* target, float dist, float angle) { MoveChase(target, dist, ChaseAngle(angle)); }

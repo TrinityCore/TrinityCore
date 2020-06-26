@@ -507,7 +507,7 @@ void SmartAI::EnterEvadeMode(EvadeReason /*why*/)
 
     if (Unit* owner = me->GetCharmerOrOwner())
     {
-        me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+        me->FollowTarget(owner);
         me->ClearUnitState(UNIT_STATE_EVADE);
     }
     else if (HasEscortState(SMART_ESCORT_ESCORTING))
@@ -517,7 +517,7 @@ void SmartAI::EnterEvadeMode(EvadeReason /*why*/)
     }
     else if (Unit* target = _followGuid ? ObjectAccessor::GetUnit(*me, _followGuid) : nullptr)
     {
-        me->GetMotionMaster()->MoveFollow(target, _followDist, _followAngle);
+        me->FollowTarget(target);
         // evade is not cleared in MoveFollow, so we can't keep it
         me->ClearUnitState(UNIT_STATE_EVADE);
     }
@@ -889,7 +889,11 @@ void SmartAI::SetFollow(Unit* target, float dist, float angle, uint32 credit, ui
     _followArrivedEntry = end;
     _followCreditType = creditType;
     SetRun(_run);
-    me->GetMotionMaster()->MoveFollow(target, _followDist, _followAngle);
+
+    if (dist > 0.f && angle > 0.f)
+        me->GetMotionMaster()->MoveFollow(target, dist, angle);
+    else
+        me->FollowTarget(target);
 }
 
 void SmartAI::StopFollow(bool complete)

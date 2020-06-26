@@ -760,8 +760,8 @@ public:
             return false;
         }
 
-        // Follow player - Using pet's default dist and angle
-        creature->GetMotionMaster()->MoveFollow(player, PET_FOLLOW_DIST, creature->GetFollowAngle());
+        // Follow player
+        creature->FollowTarget(player);
 
         handler->PSendSysMessage(LANG_CREATURE_FOLLOW_YOU_NOW, creature->GetName().c_str());
         return true;
@@ -1351,8 +1351,7 @@ public:
             return false;
         }
 
-        FollowMovementGenerator const* mgen = static_cast<FollowMovementGenerator const*>((creature->GetMotionMaster()->top()));
-
+        FollowMovementGenerator* mgen = static_cast<FollowMovementGenerator*>((creature->GetMotionMaster()->top()));
         if (mgen->GetTarget() != player)
         {
             handler->PSendSysMessage(LANG_CREATURE_NOT_FOLLOW_YOU, creature->GetName().c_str());
@@ -1362,7 +1361,6 @@ public:
 
         // reset movement
         creature->GetMotionMaster()->MovementExpired(true);
-
         handler->PSendSysMessage(LANG_CREATURE_NOT_FOLLOW_YOU_NOW, creature->GetName().c_str());
         return true;
     }

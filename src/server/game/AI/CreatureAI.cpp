@@ -235,7 +235,7 @@ void CreatureAI::JustAppeared()
                 if (Unit* owner = summon->GetCharmerOrOwner())
                 {
                     summon->GetMotionMaster()->Clear();
-                    summon->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, summon->GetFollowAngle(), summon->IsMinion());
+                    summon->FollowTarget(owner);
                 }
             }
         }
@@ -252,10 +252,7 @@ void CreatureAI::EnterEvadeMode(EvadeReason why)
     if (!me->GetVehicle()) // otherwise me will be in evade mode forever
     {
         if (Unit* owner = me->GetCharmerOrOwner())
-        {
-            me->GetMotionMaster()->Clear(false);
-            me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle(), me->IsMinion());
-        }
+            me->FollowTarget(owner);
         else
         {
             // Required to prevent attacking creatures that are evading and cause them to reenter combat

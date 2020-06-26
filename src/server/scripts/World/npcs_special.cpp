@@ -2383,7 +2383,7 @@ public:
         {
             Initialize();
             if (Unit* owner = me->GetOwner())
-                me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+                me->FollowTarget(owner);
         }
 
         void JustEngagedWith(Unit* /*who*/) override { }

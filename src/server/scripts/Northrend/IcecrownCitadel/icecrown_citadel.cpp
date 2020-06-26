@@ -1141,8 +1141,8 @@ struct npc_argent_captainAI : public ScriptedAI
     public:
         npc_argent_captainAI(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript()), _firstDeath(true)
         {
-            FollowAngle = PET_FOLLOW_ANGLE;
-            FollowDist = PET_FOLLOW_DIST;
+            FollowAngle = float(M_PI_2);
+            FollowDist = 3.f;
             IsUndead = false;
         }
 
@@ -1172,7 +1172,7 @@ struct npc_argent_captainAI : public ScriptedAI
                     me->SetReactState(REACT_DEFENSIVE);
                     FollowAngle = me->GetAngle(crok) + me->GetOrientation();
                     FollowDist = me->GetDistance2d(crok);
-                    me->GetMotionMaster()->MoveFollow(crok, FollowDist, FollowAngle, MOTION_SLOT_IDLE);
+                    me->GetMotionMaster()->MoveFollow(crok, FollowDist, FollowAngle, true, true);
                 }
 
                 me->setActive(true);

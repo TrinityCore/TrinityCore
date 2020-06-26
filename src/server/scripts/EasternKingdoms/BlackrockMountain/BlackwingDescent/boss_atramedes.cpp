@@ -274,7 +274,7 @@ struct boss_atramedes : public BossAI
                 if (Unit* summoner = summon->ToTempSummon()->GetSummoner())
                 {
                     summon->CastSpell(summoner, SPELL_TRACKING);
-                    summon->GetMotionMaster()->MoveFollow(summoner, 0.0f, ChaseAngle(0.0f, 0.0f));
+                    summon->GetMotionMaster()->MoveFollow(summoner, 0.f, 0.f);
                     me->SetFacingToObject(summon);
                     DoCast(summon, SPELL_SONIC_BREATH_CAST);
                 }
@@ -288,7 +288,7 @@ struct boss_atramedes : public BossAI
                     summon->CastSpell(summon, SPELL_ROARING_FLAME_BREATH_REVERSE_CAST);
                     summon->CastSpell(summon, SPELL_AGGRO_CREATOR);
                     summon->CastSpell(summoner, SPELL_TRACKING);
-                    summon->GetMotionMaster()->MoveFollow(summoner, 0.0f, ChaseAngle(0.0f, 0.0f));
+                    summon->GetMotionMaster()->MoveFollow(summoner, 0.0f, 0.f);
                     _reverberatingFlameGUID = summon->GetGUID();
                 }
                 break;
@@ -492,7 +492,7 @@ struct boss_atramedes : public BossAI
                         {
                             flame->CastSpell(flame, SPELL_SONIC_FLAMES);
                             flame->CastSpell(target, SPELL_TRACKING);
-                            flame->GetMotionMaster()->MoveFollow(target, 0.0f, ChaseAngle(0.0f, 0.0f));
+                            flame->GetMotionMaster()->MoveFollow(target, 0.0f, 0.f);
                         }
                     }
                     break;

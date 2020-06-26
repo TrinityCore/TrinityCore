@@ -87,7 +87,7 @@ public:
                     me->CombatStop();
                     me->DeleteThreatList();
                     me->SetSpeedRate(MOVE_RUN, 0.6f);
-                    me->GetMotionMaster()->MoveFollow(caster, PET_FOLLOW_DIST, me->GetFollowAngle());
+                    me->FollowTarget(caster);
                     me->setActive(true);
                 }
             }

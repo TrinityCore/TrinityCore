@@ -2158,7 +2158,7 @@ public:
                     break;
                 case CHASE_MOTION_TYPE:
                 {
-                    Unit* target = static_cast<ChaseMovementGenerator const*>(movementGenerator)->GetTarget();
+                    Unit const* target = static_cast<ChaseMovementGenerator*>(movementGenerator)->GetTarget();
 
                     if (!target)
                         handler->SendSysMessage(LANG_MOVEGENS_CHASE_NULL);
@@ -2170,7 +2170,7 @@ public:
                 }
                 case FOLLOW_MOTION_TYPE:
                 {
-                    Unit* target = static_cast<FollowMovementGenerator const*>(movementGenerator)->GetTarget();
+                    Unit const* target = static_cast<FollowMovementGenerator*>(movementGenerator)->GetTarget();
 
                     if (!target)
                         handler->SendSysMessage(LANG_MOVEGENS_FOLLOW_NULL);

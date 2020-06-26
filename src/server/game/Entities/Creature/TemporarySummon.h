@@ -106,8 +106,6 @@ class TC_GAME_API Minion : public TempSummon
         void InitStats(uint32 duration) override;
         void RemoveFromWorld() override;
         Unit* GetOwner() const { return m_owner; }
-        float GetFollowAngle() const override { return m_followAngle; }
-        void SetFollowAngle(float angle) { m_followAngle = angle; }
         bool IsPetGhoul() const { return GetEntry() == ENTRY_GHOUL; } // Ghoul may be guardian or pet
         bool IsRisenAlly() const { return GetEntry() == ENTRY_RISEN_ALLY; }
         bool IsSpiritWolf() const { return GetEntry() == ENTRY_SPIRIT_WOLF; } // Spirit wolf from feral spirits
@@ -115,7 +113,6 @@ class TC_GAME_API Minion : public TempSummon
         bool IsWarlockMinion() const;
     protected:
         Unit* const m_owner;
-        float m_followAngle;
 };
 
 class TC_GAME_API Guardian : public Minion

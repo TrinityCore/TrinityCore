@@ -158,6 +158,9 @@ MovementSlot MotionMaster::GetCurrentSlot() const
     if (_slot[MOTION_SLOT_ACTIVE])
         return MOTION_SLOT_ACTIVE;
 
+    if (_slot[MOTION_SLOT_CONTROLLED])
+        return MOTION_SLOT_CONTROLLED;
+
     return MAX_MOTION_SLOT;
 }
 
@@ -239,7 +242,7 @@ void MotionMaster::MoveTargetedHome()
     else
     {
         TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveTargetedHome: '%s', starts following '%s'", _owner->GetGUID().ToString().c_str(), target->GetGUID().ToString().c_str());
-        Mutate(new FollowMovementGenerator(target, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE), MOTION_SLOT_ACTIVE);
+        owner->FollowTarget(target);
     }
 }
 
@@ -252,7 +255,7 @@ void MotionMaster::MoveRandom(float spawndist)
     }
 }
 
-void MotionMaster::MoveFollow(Unit* target, float dist, ChaseAngle angle, bool allignToTargetSpeed, MovementSlot slot)
+void MotionMaster::MoveFollow(Unit* target, float dist, float angle, bool joinFormation /*= false*/, bool catchUpToTarget /*= false*/, MovementSlot slot /*= MOTION_SLOT_IDLE*/)
 {
     // ignore movement request if target not exist
     if (!target || target == _owner)
@@ -260,7 +263,7 @@ void MotionMaster::MoveFollow(Unit* target, float dist, ChaseAngle angle, bool a
 
     TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveFollow: '%s', starts following '%s'", _owner->GetGUID().ToString().c_str(), target->GetGUID().ToString().c_str());
 
-    Mutate(new FollowMovementGenerator(target, dist, angle, allignToTargetSpeed), slot);
+    Mutate(new FollowMovementGenerator(target, dist, angle, joinFormation, catchUpToTarget), slot);
 }
 
 void MotionMaster::MoveChase(Unit* target, float dist, Optional<ChaseAngle> angle)

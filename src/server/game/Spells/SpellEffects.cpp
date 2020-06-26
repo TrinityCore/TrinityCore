@@ -3377,7 +3377,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                 {
                     int32 basepoints0 = damage;
                     // Cast Absorb on totems
-                    for (uint8 slot = SUMMON_SLOT_TOTEM; slot < MAX_TOTEM_SLOT; ++slot)
+                    for (uint8 slot = SUMMON_SLOT_TOTEM_FIRE; slot < MAX_TOTEM_SLOT; ++slot)
                     {
                         if (!unitTarget->m_SummonSlot[slot])
                             continue;
@@ -4608,11 +4608,10 @@ void Spell::EffectResurrectPet(SpellEffIndex /*effIndex*/)
     if (hadPet)
     {
         // Reposition the pet's corpse before reviving so as not to grab aggro
-        // We can use a different, more accurate version of GetClosePoint() since we have a pet
-        float x, y, z; // Will be used later to reposition the pet if we have one
-        player->GetClosePoint(x, y, z, pet->GetCombatReach(), PET_FOLLOW_DIST, pet->GetFollowAngle());
-        pet->NearTeleportTo(x, y, z, player->GetOrientation());
-        pet->Relocate(x, y, z, player->GetOrientation()); // This is needed so SaveStayPosition() will get the proper coords.
+        Position pos = player->GetPosition();
+        player->MovePositionToFirstCollision(pos, DEFAULT_FOLLOW_DISTANCE_PET, float(M_PI_2));
+        pet->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), player->GetOrientation());
+        pet->Relocate(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), player->GetOrientation()); // This is needed so SaveStayPosition() will get the proper coords.
     }
 
     pet->SetUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_NONE);
@@ -4644,7 +4643,7 @@ void Spell::EffectDestroyAllTotems(SpellEffIndex /*effIndex*/)
         return;
 
     int32 mana = 0;
-    for (uint8 slot = SUMMON_SLOT_TOTEM; slot < MAX_TOTEM_SLOT; ++slot)
+    for (uint8 slot = SUMMON_SLOT_TOTEM_FIRE; slot < MAX_TOTEM_SLOT; ++slot)
     {
         if (!m_caster->m_SummonSlot[slot])
             continue;
@@ -5198,9 +5197,9 @@ void Spell::EffectCreateTamedPet(SpellEffIndex effIndex)
         return;
 
     // relocate
-    float px, py, pz;
-    unitTarget->GetClosePoint(px, py, pz, pet->GetCombatReach(), PET_FOLLOW_DIST, pet->GetFollowAngle());
-    pet->Relocate(px, py, pz, unitTarget->GetOrientation());
+    Position pos = unitTarget->GetPosition();
+    unitTarget->MovePositionToFirstCollision(pos, DEFAULT_FOLLOW_DISTANCE_PET, float(M_PI_2));
+    pet->Relocate(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), unitTarget->GetOrientation());
 
     // add to world
     pet->GetMap()->AddToMap(pet->ToCreature());

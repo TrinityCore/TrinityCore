@@ -236,13 +236,14 @@ struct npc_pet_dk_army_of_the_dead_ghoul : public AggressorAI
     npc_pet_dk_army_of_the_dead_ghoul(Creature* creature) : AggressorAI(creature), _readyToAttack(false) { }
 
 
-    void JustAppeared() override
+    void IsSummonedBy(Unit* summoner) override
     {
         DoCastSelf(SPELL_DEATH_KNIGHT_PET_SCALING_2);
         DoCastSelf(SPELL_DEATH_KNIGHT_PET_SCALING_3);
         DoCastSelf(SPELL_DEATH_KNIGHT_PET_SCALING_5);
         DoCastSelf(SPELL_BIRTH);
         me->AddUnitState(UNIT_STATE_ROOT);
+        me->FollowTarget(summoner);
         _events.ScheduleEvent(EVENT_ALLOW_ATTACKS, 4s);
     }
 

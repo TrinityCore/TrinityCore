@@ -95,7 +95,7 @@ public:
                     break;
                 case 11:
                     if (Creature* Mrfloppy = ObjectAccessor::GetCreature(*me, _mrfloppyGUID))
-                        Mrfloppy->GetMotionMaster()->MoveFollow(me, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+                        Mrfloppy->FollowTarget(me);
                     break;
                 case 17:
                     if (Creature* Mrfloppy = ObjectAccessor::GetCreature(*me, _mrfloppyGUID))
@@ -151,7 +151,7 @@ public:
                                 RWORG->DisappearAndDie();
                             me->GetMotionMaster()->MovePoint(0, Mrfloppy->GetPositionX(), Mrfloppy->GetPositionY(), Mrfloppy->GetPositionZ());
                             Mrfloppy->setDeathState(ALIVE);
-                            Mrfloppy->GetMotionMaster()->MoveFollow(me, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+                            Mrfloppy->FollowTarget(me);
                             Talk(SAY_VICTORY3);
                         }
                     }
@@ -189,7 +189,7 @@ public:
             {
                 Talk(SAY_QUEST_ACCEPT);
                 if (Creature* Mrfloppy = GetClosestCreatureWithEntry(me, NPC_MRFLOPPY, 180.0f))
-                    Mrfloppy->GetMotionMaster()->MoveFollow(me, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+                    Mrfloppy->FollowTarget(me);
 
                 Start(true, false, player->GetGUID());
             }

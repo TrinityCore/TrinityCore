@@ -163,8 +163,11 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
             switch (spellid)
             {
                 case COMMAND_STAY:                          //flat=1792  //STAY
-                    pet->StopMoving();
-                    pet->GetMotionMaster()->Clear(false);
+                    if (pet->GetMotionMaster()->GetCurrentSlot() != MOTION_SLOT_CONTROLLED)
+                        pet->StopMoving();
+
+                    pet->GetMotionMaster()->Clear(MOTION_SLOT_IDLE);
+                    pet->GetMotionMaster()->Clear(MOTION_SLOT_ACTIVE);
                     pet->GetMotionMaster()->MoveIdle();
                     charmInfo->SetCommandState(COMMAND_STAY);
 
@@ -179,7 +182,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
                     pet->AttackStop();
                     pet->InterruptNonMeleeSpells(false);
                     pet->ClearInPetCombat();
-                    pet->GetMotionMaster()->MoveFollow(_player, PET_FOLLOW_DIST, ChaseAngle(pet->GetFollowAngle(), 0.f), true);
+                    pet->FollowTarget(_player);
                     charmInfo->SetCommandState(COMMAND_FOLLOW);
 
                     charmInfo->SetIsCommandAttack(false);
@@ -269,11 +272,10 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
                     }
                     break;
                 case COMMAND_MOVE_TO:
-                    pet->StopMoving();
-                    pet->GetMotionMaster()->Clear(false);
+                    pet->GetMotionMaster()->Clear(MOTION_SLOT_IDLE);
+                    pet->GetMotionMaster()->MoveIdle();
                     pet->GetMotionMaster()->MovePoint(0, x, y, z);
                     charmInfo->SetCommandState(COMMAND_MOVE_TO);
-
                     charmInfo->SetIsCommandAttack(false);
                     charmInfo->SetIsAtStay(true);
                     charmInfo->SetIsCommandFollow(false);

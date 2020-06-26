@@ -18,36 +18,56 @@
 #ifndef TRINITY_FOLLOWMOVEMENTGENERATOR_H
 #define TRINITY_FOLLOWMOVEMENTGENERATOR_H
 
-#include "AbstractFollower.h"
 #include "MovementGenerator.h"
+#include "EventMap.h"
 #include "Optional.h"
 #include "Timer.h"
 
 class PathGenerator;
 class Unit;
 
-class FollowMovementGenerator : public MovementGenerator, public AbstractFollower
+enum Events
+{
+    EVENT_ALLIGN_TO_TARGET = 1,
+    EVENT_ALLIGN_TO_FACING_DIRECTION,
+};
+
+constexpr uint8 MAX_FOLLOWERS_PER_ROW = 6;
+constexpr uint8 DEFAULT_ROW_FOLLOWERS = 2;
+constexpr float STRAIGHT_FOLLOW_DISTANCE = 3.f;
+constexpr float SIDE_FOLLOW_DISTANCE = 3.3541f;
+
+class FollowMovementGenerator : public MovementGenerator
 {
 public:
     MovementGeneratorType GetMovementGeneratorType() const override { return FOLLOW_MOTION_TYPE; }
 
-    FollowMovementGenerator(Unit* target, float range, ChaseAngle angle, bool alligntToTargetSpeed = false);
+    FollowMovementGenerator(Unit* target, Optional<float> distance, Optional<float> angle, bool joinFormation = false, bool catchUpToTarget = false);
     ~FollowMovementGenerator();
 
     void Initialize(Unit* owner) override;
-    void Reset(Unit* owner) override { Initialize(owner); }
-    bool Update(Unit* owner, uint32 diff) override;
     void Finalize(Unit* owner) override;
+    void Reset(Unit* /*owner*/) override;
+    bool Update(Unit* owner, uint32 diff) override;
+
+    Unit const* GetTarget() { return _target; }
 
 private:
-    static constexpr uint32 FOLLOW_MOVEMENT_INTERVAL = 800; // sniffed (2 batch update cycles)
-    // static inline const when?
+    void UpdateFollowFormation();
+    void UpdateFormationFollowOffsets(uint32 slot);
+    void LaunchMovement(Unit* owner);
 
-    float const _range;
-    bool const _useTargetSpeed;
-    bool _hasStopped;
-    ChaseAngle const _angle;
+    static constexpr uint32 FOLLOW_MOVEMENT_INTERVAL = 400; // sniffed (1 batch update cycle)
+    static constexpr uint32 ALLIGN_MOVEMENT_INTERVAL = 2000; // sniffed (5 batch update cycles)
+
+    Unit* _target;
+    float _distance;
+    float _angle;
+    bool _joinFormation;
+    bool _catchUpToTarget;
+
     TimeTrackerSmall _followMovementTimer;
+    EventMap _events;
 };
 
 #endif

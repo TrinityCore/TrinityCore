@@ -64,12 +64,6 @@ struct npc_pet_mage_mirror_image : ScriptedAI
         AttackStartCaster(who, 20.0f);
     }
 
-    void EnterEvadeMode(EvadeReason /*why*/) override
-    {
-        if (Unit* summoner = me->ToTempSummon()->GetSummoner())
-            me->GetMotionMaster()->MoveFollow(summoner, PET_FOLLOW_DIST, _angle, true, MOTION_SLOT_IDLE);
-    }
-
     void IsSummonedBy(Unit* summoner) override
     {
         DoCastAOE(SPELL_INHERIT_MASTERS_THREAT_LIST);
@@ -79,7 +73,7 @@ struct npc_pet_mage_mirror_image : ScriptedAI
         DoCast(summoner, SPELL_COPY_WEAPON);
 
         _angle = summoner->GetAngle(me);
-        me->GetMotionMaster()->MoveFollow(summoner, PET_FOLLOW_DIST, _angle, true, MOTION_SLOT_IDLE);
+        me->FollowTarget(summoner);
     }
 
     void SpellHitTarget(Unit* target, SpellInfo const* spell) override

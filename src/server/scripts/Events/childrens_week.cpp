@@ -224,7 +224,7 @@ class npc_winterfin_playmate : public CreatureScript
                             orphan->AI()->Talk(TEXT_ORACLE_ORPHAN_3);
                             me->HandleEmoteCommand(EMOTE_STATE_NONE);
                             player->GroupEventHappens(QUEST_PLAYMATE_ORACLE, me);
-                            orphan->GetMotionMaster()->MoveFollow(player, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+                            orphan->FollowTarget(player);
                             Reset();
                             return;
                     }
@@ -331,7 +331,7 @@ class npc_snowfall_glade_playmate : public CreatureScript
                         case 5:
                             orphan->AI()->Talk(TEXT_WOLVAR_ORPHAN_3);
                             player->GroupEventHappens(QUEST_PLAYMATE_WOLVAR, me);
-                            orphan->GetMotionMaster()->MoveFollow(player, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+                            orphan->FollowTarget(player);
                             Reset();
                             return;
                     }
@@ -425,7 +425,7 @@ class npc_the_biggest_tree : public CreatureScript
                             break;
                         case 3:
                             player->GroupEventHappens(QUEST_THE_BIGGEST_TREE_EVER, me);
-                            orphan->GetMotionMaster()->MoveFollow(player, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+                            orphan->FollowTarget(player);
                             Reset();
                             return;
                     }
@@ -522,7 +522,7 @@ class npc_high_oracle_soo_roo : public CreatureScript
                         case 3:
                             orphan->AI()->Talk(TEXT_ORACLE_ORPHAN_6);
                             player->GroupEventHappens(QUEST_THE_BRONZE_DRAGONSHRINE_ORACLE, me);
-                            orphan->GetMotionMaster()->MoveFollow(player, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+                            orphan->FollowTarget(player);
                             Reset();
                             return;
                     }
@@ -617,7 +617,7 @@ class npc_elder_kekek : public CreatureScript
                         case 3:
                             orphan->AI()->Talk(TEXT_WOLVAR_ORPHAN_5);
                             player->GroupEventHappens(QUEST_THE_BRONZE_DRAGONSHRINE_WOLVAR, me);
-                            orphan->GetMotionMaster()->MoveFollow(player, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+                            orphan->FollowTarget(player);
                             Reset();
                             return;
                     }
@@ -738,7 +738,7 @@ class npc_the_etymidian : public CreatureScript
                             timer = 5000;
                             break;
                         case 5:
-                            orphan->GetMotionMaster()->MoveFollow(player, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+                            orphan->FollowTarget(player);
                             player->GroupEventHappens(QUEST_MEETING_A_GREAT_ONE, me);
                             Reset();
                             return;
@@ -875,7 +875,7 @@ class npc_alexstraza_the_lifebinder : public CreatureScript
                             me->SetStandState(UNIT_STAND_STATE_STAND);
                             me->SetOrientation(me->GetHomePosition().GetOrientation());
                             player->GroupEventHappens(QUEST_THE_DRAGON_QUEEN_ORACLE, me);
-                            orphan->GetMotionMaster()->MoveFollow(player, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+                            orphan->FollowTarget(player);
                             Reset();
                             return;
                         case 7:
@@ -906,7 +906,7 @@ class npc_alexstraza_the_lifebinder : public CreatureScript
                             break;
                         case 12:
                             player->GroupEventHappens(QUEST_THE_DRAGON_QUEEN_WOLVAR, me);
-                            orphan->GetMotionMaster()->MoveFollow(player, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+                            orphan->FollowTarget(player);
                             Reset();
                             return;
                     }

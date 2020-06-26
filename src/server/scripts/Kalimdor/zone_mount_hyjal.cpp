@@ -602,7 +602,7 @@ struct npc_mh_arch_druid_fandral_staghelm : public PassiveAI
     void IsSummonedBy(Unit* summoner) override
     {
         if (summoner)
-            me->GetMotionMaster()->MoveFollow(summoner, 0.0f, ChaseAngle(float(M_PI), 0.0f));
+            me->FollowTarget(summoner);
     }
 
     void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override

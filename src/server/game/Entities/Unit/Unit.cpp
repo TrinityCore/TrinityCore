@@ -16,7 +16,6 @@
  */
 
 #include "Unit.h"
-#include "AbstractFollower.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
 #include "Battleground.h"
@@ -325,8 +324,9 @@ Unit::Unit(bool isWorldObject) :
     m_ControlledByPlayer(false), movespline(new Movement::MoveSpline()),
     i_AI(nullptr), i_disabledAI(nullptr), m_AutoRepeatFirstCast(false), m_procDeep(0),
     m_removedAurasCount(0), i_motionMaster(new MotionMaster(this)), m_ThreatManager(this),
-    m_vehicle(nullptr), m_vehicleKit(nullptr), m_unitTypeMask(UNIT_MASK_NONE), m_Diminishing(),
-    m_HostileRefManager(this), _lastDamagedTime(0), m_spellHistory(new SpellHistory(this))
+    m_vehicle(nullptr), m_vehicleKit(nullptr), m_unitTypeMask(UNIT_MASK_NONE),
+     m_Diminishing(), m_HostileRefManager(this), _lastDamagedTime(0),
+    m_spellHistory(new SpellHistory(this))
 {
     m_objectType |= TYPEMASK_UNIT;
     m_objectTypeId = TYPEID_UNIT;
@@ -9179,10 +9179,75 @@ void Unit::SetSpeedRate(UnitMoveType mtype, float rate)
     Movement::PacketSender(this, moveTypeToOpcode[mtype][0], moveTypeToOpcode[mtype][1], NULL_OPCODE, &extra).Send();
 }
 
-void Unit::RemoveAllFollowers()
+void Unit::FollowTarget(Unit* target)
 {
-    while (!m_followingMe.empty())
-        (*m_followingMe.begin())->SetTarget(nullptr);
+    if (!target)
+    {
+        TC_LOG_ERROR("entities.unit", "Unit::FollowTarget: Unit (%s) tried to follow a non-existant target.", GetGUID().ToString().c_str());
+        return;
+    }
+
+    // Determine follow configuration
+    bool joinFormation      = false; // unit will follow its target in a generated formation shape and catches up to its target
+    bool catchUpToTarget    = false; // unit will allign to the target speed and catches up to the target automatically
+    float distance          = DEFAULT_FOLLOW_DISTANCE_PET;
+
+    if (TempSummon* summon = ToTempSummon())
+    {
+        if (SummonPropertiesEntry const* properties = summon->m_Properties)
+        {
+            // Allied summons, pet summons join a formation unless the following exceptions are being met.
+            if (properties->Control == SUMMON_CATEGORY_ALLY || properties->Control == SUMMON_CATEGORY_PET)
+                joinFormation = true;
+
+            // Companion minipets will always be able to catch up to their target
+            if (properties->Slot == SUMMON_SLOT_MINIPET)
+            {
+                joinFormation = false;
+                catchUpToTarget = true;
+                distance = DEFAULT_FOLLOW_DISTANCE;
+            }
+
+            // Quest npcs follow their target outside of formations
+            if (properties->Slot == SUMMON_SLOT_QUEST)
+            {
+                joinFormation = false;
+                distance = DEFAULT_FOLLOW_DISTANCE;
+            }
+        }
+
+        // Pets and minions alwys move in a formation of their target
+        if (summon->IsPet())
+            joinFormation = true;
+    }
+
+    // Unit is already following its target
+    if (joinFormation && target->HasFormationFollower(this))
+        return;
+
+    GetMotionMaster()->MoveFollow(target, distance, DEFAULT_FOLLOW_ANGLE, joinFormation, catchUpToTarget);
+}
+
+void Unit::RemoveFormationFollower(Unit* follower)
+{
+    for (FormationFollowerContainer::const_iterator itr = _formationFollowers.begin(); itr != _formationFollowers.end();)
+    {
+        Unit* follwingUnit = *itr;
+        // Cleaning up dead references while at it
+        if (!follwingUnit || follwingUnit == follower)
+            _formationFollowers.erase(itr);
+        else
+            itr++;
+    }
+}
+
+bool Unit::HasFormationFollower(Unit* follower) const
+{
+    for (Unit* followingUnit : _formationFollowers)
+        if (followingUnit == follower)
+            return true;
+
+    return false;
 }
 
 void Unit::setDeathState(DeathState s)
@@ -10382,7 +10447,7 @@ void Unit::RemoveFromWorld()
 
         RemoveAreaAurasDueToLeaveWorld();
 
-        RemoveAllFollowers();
+        GetMotionMaster()->Clear(MOTION_SLOT_IDLE); // clear idle movement slot to finalize follow movement to unregister formation targets
 
         if (GetCharmerGUID())
         {

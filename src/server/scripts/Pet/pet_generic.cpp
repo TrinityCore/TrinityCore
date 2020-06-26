@@ -53,7 +53,7 @@ public:
         npc_pet_gen_baby_blizzard_bearAI(Creature* creature) : NullCreatureAI(creature)
         {
             if (Unit* owner = me->GetCharmerOrOwner())
-                me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle());
+                me->FollowTarget(owner);
             _events.ScheduleEvent(EVENT_BBB_PET_SIT, urandms(10, 30));
         }
 
@@ -117,7 +117,7 @@ public:
         {
             _events.Reset();
             if (Unit* owner = me->GetCharmerOrOwner())
-                me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle());
+                me->FollowTarget(owner);
         }
 
         void EnterEvadeMode(EvadeReason why) override
@@ -137,7 +137,7 @@ public:
                 if (!me->IsWithinDist(owner, 40.f))
                 {
                     me->RemoveAura(SPELL_EGBERT);
-                    me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle());
+                    me->FollowTarget(owner);
                 }
             }
 
@@ -237,7 +237,7 @@ public:
                     break;
                 case EVENT_FOLLOW:
                     if (Unit* owner = me->GetCharmerOrOwner())
-                        me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+                        me->FollowTarget(owner);
                     break;
                 case EVENT_DRINK:
                     me->CastSpell(me, SPELL_PANDAREN_MONK, false);
@@ -375,7 +375,6 @@ class npc_pet_gen_lil_ragnaros : public CreatureScript
                                     me->RemoveAllAuras();
                                     DoCastSelf(SPELL_DND_LR_1, true);
                                     DoCastSelf(SPELL_DND_DESPAWN_BASIC_CAMPFIRE, true);
-                                    me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
                                     _submerged = true;
                                 }
                                 else if (me->GetDistance(owner) <= 5.0f && _submerged)

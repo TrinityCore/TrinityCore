@@ -303,10 +303,6 @@ Minion::Minion(SummonPropertiesEntry const* properties, Unit* owner, bool isWorl
 {
     ASSERT(m_owner);
     m_unitTypeMask |= UNIT_MASK_MINION;
-    m_followAngle = PET_FOLLOW_ANGLE;
-
-    if (properties && SummonTitle(properties->Title) == SummonTitle::Companion)
-        m_followAngle = COMPANION_FOLLOW_ANGLE;
 
     /// @todo: Find correct way
     InitCharmInfo();
@@ -330,7 +326,7 @@ void Minion::InitStats(uint32 duration)
                 totemOwner->m_Controlled.insert(this);
     }
 
-    if (m_Properties && m_Properties->Title == AsUnderlyingType(SummonTitle::Companion))
+    if (m_Properties && m_Properties->Slot == SUMMON_SLOT_MINIPET)
     {
         SelectLevel();       // some summoned creaters have different from 1 DB data for level/hp
         SetUInt32Value(UNIT_NPC_FLAGS, GetCreatureTemplate()->npcflag);

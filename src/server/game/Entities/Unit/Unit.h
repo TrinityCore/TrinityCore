@@ -226,7 +226,6 @@ enum InventorySlot
     NULL_SLOT                  = 255
 };
 
-struct AbstractFollower;
 struct FactionTemplateEntry;
 struct LiquidData;
 struct LiquidTypeEntry;
@@ -927,14 +926,6 @@ enum ReactiveType
 };
 
 #define MAX_REACTIVE 3
-#define SUMMON_SLOT_PET     0
-#define SUMMON_SLOT_TOTEM   1
-#define MAX_TOTEM_SLOT      5
-#define SUMMON_SLOT_MINIPET 5
-#define SUMMON_SLOT_QUEST   6
-#define MAX_SUMMON_SLOT     7
-
-#define MAX_GAMEOBJECT_SLOT 4
 
 enum PlayerTotemType
 {
@@ -982,6 +973,7 @@ class TC_GAME_API Unit : public WorldObject
         typedef std::list<AuraApplication *> AuraApplicationList;
 
         typedef std::vector<std::pair<uint8 /*procEffectMask*/, AuraApplication*>> AuraApplicationProcContainer;
+        typedef std::vector<Unit*> FormationFollowerContainer;
 
         typedef std::map<uint8, AuraApplication*> VisibleAuraMap;
 
@@ -1792,9 +1784,13 @@ class TC_GAME_API Unit : public WorldObject
         void  ModSpellCastTime(SpellInfo const* spellProto, int32& castTime, Spell* spell = nullptr);
         void  ModSpellDurationTime(SpellInfo const* spellProto, int32& castTime, Spell* spell = nullptr);
 
-        void FollowerAdded(AbstractFollower* f) { m_followingMe.insert(f); }
-        void FollowerRemoved(AbstractFollower* f) { m_followingMe.erase(f); }
-        void RemoveAllFollowers();
+        // Makes the unit follow the given target. Use this function above using the MotionMaster::MoveFollow for default follow behaivior.
+        void FollowTarget(Unit* target);
+
+        FormationFollowerContainer GetFormationFollowers() { return _formationFollowers; }
+        void AddFormationFollower(Unit* follower) { _formationFollowers.push_back(follower); }
+        void RemoveFormationFollower(Unit* follower);
+        bool HasFormationFollower(Unit* follower) const;
 
         MotionMaster* GetMotionMaster() { return i_motionMaster; }
         MotionMaster const* GetMotionMaster() const { return i_motionMaster; }
@@ -1895,8 +1891,6 @@ class TC_GAME_API Unit : public WorldObject
         }
 
         void RewardRage(uint32 baseRage, bool attacker);
-
-        virtual float GetFollowAngle() const { return static_cast<float>(M_PI/2); }
 
         void OutDebugInfo() const;
         virtual bool IsLoading() const { return false; }
@@ -2023,7 +2017,6 @@ class TC_GAME_API Unit : public WorldObject
         virtual void ProcessTerrainStatusUpdate(ZLiquidStatus status, Optional<LiquidData> const& liquidData);
 
         void InterruptMovementBasedAuras();
-
     private:
 
         void UpdateSplineMovement(uint32 t_diff);
@@ -2055,8 +2048,6 @@ class TC_GAME_API Unit : public WorldObject
         // Manage all Units that are threatened by us
         HostileRefManager m_HostileRefManager;
 
-        std::unordered_set<AbstractFollower*> m_followingMe;
-
         GuidSet m_ComboPointHolders;
 
         RedirectThreatInfo _redirectThreadInfo;
@@ -2072,6 +2063,8 @@ class TC_GAME_API Unit : public WorldObject
         SpellHistory* m_spellHistory;
 
         PositionUpdateInfo _positionUpdateInfo;
+
+        FormationFollowerContainer _formationFollowers;
 };
 
 namespace Trinity
