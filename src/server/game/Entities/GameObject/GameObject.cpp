@@ -2703,7 +2703,7 @@ private:
 
 GameObjectModel* GameObject::CreateModel()
 {
-    return GameObjectModel::Create(Trinity::make_unique<GameObjectModelOwnerImpl>(this), sWorld->GetDataPath());
+    return GameObjectModel::Create(std::make_unique<GameObjectModelOwnerImpl>(this), sWorld->GetDataPath());
 }
 
 std::string GameObject::GetDebugInfo() const

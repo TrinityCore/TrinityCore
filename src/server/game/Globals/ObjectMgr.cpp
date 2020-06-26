@@ -3993,7 +3993,7 @@ void ObjectMgr::LoadPetLevelInfo()
 
         auto& pInfoMapEntry = _petInfoStore[creature_id];
         if (!pInfoMapEntry)
-            pInfoMapEntry = Trinity::make_unique<PetLevelInfo[]>(sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL));
+            pInfoMapEntry = std::make_unique<PetLevelInfo[]>(sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL));
 
         // data for level 1 stored in [0] array element, ...
         PetLevelInfo* pLevelInfo = &pInfoMapEntry[current_level - 1];
@@ -4151,7 +4151,7 @@ void ObjectMgr::LoadPlayerInfo()
                     continue;
                 }
 
-                std::unique_ptr<PlayerInfo> info = Trinity::make_unique<PlayerInfo>();
+                std::unique_ptr<PlayerInfo> info = std::make_unique<PlayerInfo>();
                 info->mapId = mapId;
                 info->areaId = areaId;
                 info->positionX = positionX;
@@ -4515,8 +4515,8 @@ void ObjectMgr::LoadPlayerInfo()
             auto& info = _playerClassInfo[current_class];
             if (!info)
             {
-                info = Trinity::make_unique<PlayerClassInfo>();
-                info->levelInfo = Trinity::make_unique<PlayerClassLevelInfo[]>(sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL));
+                info = std::make_unique<PlayerClassInfo>();
+                info->levelInfo = std::make_unique<PlayerClassLevelInfo[]>(sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL));
             }
 
             PlayerClassLevelInfo& levelInfo = info->levelInfo[current_level - 1];
@@ -4626,7 +4626,7 @@ void ObjectMgr::LoadPlayerInfo()
             if (auto& info = _playerInfo[current_race][current_class])
             {
                 if (!info->levelInfo)
-                    info->levelInfo = Trinity::make_unique<PlayerLevelInfo[]>(sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL));
+                    info->levelInfo = std::make_unique<PlayerLevelInfo[]>(sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL));
 
                 PlayerLevelInfo& levelInfo = info->levelInfo[current_level - 1];
                 for (uint8 i = 0; i < MAX_STATS; ++i)
@@ -6390,7 +6390,7 @@ void ObjectMgr::LoadInstanceEncounters()
         }
 
         DungeonEncounterList& encounters = _dungeonEncounterStore[MAKE_PAIR32(dungeonEncounter->mapId, dungeonEncounter->difficulty)];
-        encounters.emplace_back(Trinity::make_unique<DungeonEncounter>(dungeonEncounter, EncounterCreditType(creditType), creditEntry, lastEncounterDungeon));
+        encounters.emplace_back(std::make_unique<DungeonEncounter>(dungeonEncounter, EncounterCreditType(creditType), creditEntry, lastEncounterDungeon));
         ++count;
     } while (result->NextRow());
 
@@ -7468,7 +7468,7 @@ void ObjectMgr::LoadAccessRequirements()
         uint32 requirement_ID = MAKE_PAIR32(mapid, difficulty);
 
         auto& ar = _accessRequirementStore[requirement_ID];
-        ar = Trinity::make_unique<AccessRequirement>();
+        ar = std::make_unique<AccessRequirement>();
 
         ar->levelMin = fields[2].GetUInt8();
         ar->levelMax = fields[3].GetUInt8();
@@ -9904,6 +9904,8 @@ void ObjectMgr::LoadScriptNames()
 
     QueryResult result = WorldDatabase.Query(
         "SELECT DISTINCT(ScriptName) FROM achievement_criteria_data WHERE ScriptName <> '' AND type = 11 "
+        "UNION "
+        "SELECT DISTINCT(ScriptName) FROM battlefield_template WHERE ScriptName <> '' "
         "UNION "
         "SELECT DISTINCT(ScriptName) FROM battleground_template WHERE ScriptName <> '' "
         "UNION "

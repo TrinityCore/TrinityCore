@@ -806,8 +806,12 @@ class npc_violet_hold_teleportation_portal_intro : public CreatureScript
 
                 _scheduler.Schedule(Seconds(15), [this](TaskContext task)
                 {
-                    uint32 entry = RAND(NPC_AZURE_INVADER_1, NPC_AZURE_MAGE_SLAYER_1, NPC_AZURE_BINDER_1);
-                    DoSummon(entry, me, 2.0f, 20000, TEMPSUMMON_DEAD_DESPAWN);
+                    // Limit the number of current summons
+                    if (_summons.size() < 3)
+                    {
+                        uint32 entry = RAND(NPC_AZURE_INVADER_1, NPC_AZURE_MAGE_SLAYER_1, NPC_AZURE_BINDER_1);
+                        DoSummon(entry, me, 2.0f, 20000, TEMPSUMMON_DEAD_DESPAWN);
+                    }
 
                     task.Repeat();
                 });

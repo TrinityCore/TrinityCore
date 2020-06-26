@@ -27,10 +27,10 @@
 
 void Metric::Initialize(std::string const& realmName, Trinity::Asio::IoContext& ioContext, std::function<void()> overallStatusLogger)
 {
-    _dataStream = Trinity::make_unique<boost::asio::ip::tcp::iostream>();
+    _dataStream = std::make_unique<boost::asio::ip::tcp::iostream>();
     _realmName = FormatInfluxDBTagValue(realmName);
-    _batchTimer = Trinity::make_unique<Trinity::Asio::DeadlineTimer>(ioContext);
-    _overallStatusTimer = Trinity::make_unique<Trinity::Asio::DeadlineTimer>(ioContext);
+    _batchTimer = std::make_unique<Trinity::Asio::DeadlineTimer>(ioContext);
+    _overallStatusTimer = std::make_unique<Trinity::Asio::DeadlineTimer>(ioContext);
     _overallStatusLogger = overallStatusLogger;
     LoadFromConfigs();
 }
@@ -135,6 +135,9 @@ void Metric::SendBatch()
         batchedData << data->Category;
         if (!_realmName.empty())
             batchedData << ",realm=" << _realmName;
+
+        for (MetricTag const& tag : data->Tags)
+            batchedData << "," << tag.first << "=" << tag.second;
 
         batchedData << " ";
 
