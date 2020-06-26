@@ -33,23 +33,27 @@ MarketerManager::MarketerManager()
         {
             continue;
         }
-        if (proto->Class != ItemClass::ITEM_CLASS_GLYPH)
+        if (sJokerConfig->Enable)
         {
-            bool foundInExp = false;
-            for (std::unordered_map<uint32, std::unordered_set<uint32>>::iterator expIT = sJokerManager->expansionItemMap.begin(); expIT != sJokerManager->expansionItemMap.end(); expIT++)
+
+            if (proto->Class != ItemClass::ITEM_CLASS_GLYPH)
             {
-                if (expIT->first <= sMarketerConfig->MaxExpansion)
+                bool foundInExp = false;
+                for (std::unordered_map<uint32, std::unordered_set<uint32>>::iterator expIT = sJokerManager->expansionItemMap.begin(); expIT != sJokerManager->expansionItemMap.end(); expIT++)
                 {
-                    if (expIT->second.find(itemTemplatePair.first) != expIT->second.end())
+                    if (expIT->first <= sJokerConfig->ServerExpansion)
                     {
-                        foundInExp = true;
-                        break;
+                        if (expIT->second.find(itemTemplatePair.first) != expIT->second.end())
+                        {
+                            foundInExp = true;
+                            break;
+                        }
                     }
                 }
-            }
-            if (!foundInExp)
-            {
-                continue;
+                if (!foundInExp)
+                {
+                    continue;
+                }
             }
         }
         if (proto->ItemLevel < 1)
