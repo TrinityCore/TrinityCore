@@ -9987,9 +9987,6 @@ uint32 createProcHitMask(SpellNonMeleeDamage* damageInfo, SpellMissInfo missCond
 
 void Unit::ProcSkillsAndReactives(bool isVictim, Unit* procTarget, uint32 typeMask, uint32 hitMask, WeaponAttackType attType)
 {
-    if (!procTarget)
-        return;
-
     // Player is loaded now - do not allow passive spell casts to proc
     if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetSession()->PlayerLoading())
         return;
@@ -10001,7 +9998,7 @@ void Unit::ProcSkillsAndReactives(bool isVictim, Unit* procTarget, uint32 typeMa
         // only when you are not fighting other players or their pets/totems (pvp)
         if (GetTypeId() == TYPEID_PLAYER &&
                 procTarget->GetTypeId() != TYPEID_PLAYER &&
-                !(procTarget->IsTotem() && procTarget->ToTotem()->GetOwner()) &&
+                !(procTarget->IsTotem() && procTarget->ToTotem()->GetOwner()->GetControllingPlayer()) &&
                 !(procTarget->IsPet() && procTarget->ToPet()->GetOwner())
            )
         {
