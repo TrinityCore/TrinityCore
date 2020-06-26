@@ -1567,21 +1567,12 @@ bool SpellInfo::CanBeUsedInCombat() const
 
 bool SpellInfo::IsPositive() const
 {
-    return !HasAttribute(SPELL_ATTR0_CU_NEGATIVE);
+    return NegativeEffects.none();
 }
 
 bool SpellInfo::IsPositiveEffect(uint8 effIndex) const
 {
-    switch (effIndex)
-    {
-        default:
-        case 0:
-            return !HasAttribute(SPELL_ATTR0_CU_NEGATIVE_EFF0);
-        case 1:
-            return !HasAttribute(SPELL_ATTR0_CU_NEGATIVE_EFF1);
-        case 2:
-            return !HasAttribute(SPELL_ATTR0_CU_NEGATIVE_EFF2);
-    }
+    return !NegativeEffects.test(effIndex);
 }
 
 bool SpellInfo::IsChanneled() const
