@@ -4,6 +4,7 @@ on:
 
 jobs:
   issue_labeler:
+    if: github.repository == 'TrinityCore/TrinityCore'
     runs-on: ubuntu-latest
     name: Issue Labeler
     steps:
