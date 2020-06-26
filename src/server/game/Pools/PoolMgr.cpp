@@ -804,7 +804,7 @@ uint32 PoolMgr::IsPartOfAPool(SpawnObjectType type, ObjectGuid::LowType spawnId)
         case SPAWN_TYPE_GAMEOBJECT:
             return IsPartOfAPool<GameObject>(spawnId);
         default:
-            ASSERT(false, "Invalid spawn type %u passed to PoolMgr::IsPartOfPool (with spawnId %u)", uint32(type), spawnId);
+            ABORT_MSG("Invalid spawn type %u passed to PoolMgr::IsPartOfPool (with spawnId %u)", uint32(type), spawnId);
             return 0;
     }
 }

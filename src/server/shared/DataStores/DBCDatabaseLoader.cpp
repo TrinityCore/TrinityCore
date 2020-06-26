@@ -43,7 +43,7 @@ DBCDatabaseLoader::DBCDatabaseLoader(char const* tableName, char const* dbFormat
             case FT_SQL_ABSENT:
                 break;
             default:
-                ASSERT(false, "Invalid DB format string for '%s'", tableName);
+                ABORT_MSG("Invalid DB format string for '%s'", tableName);
                 break;
         }
         --uIndexPos;
@@ -66,7 +66,7 @@ char* DBCDatabaseLoader::Load(uint32& records, char**& indexTable)
     // Check if sql index pos is valid
     if (int32(result->GetFieldCount() - 1) < _sqlIndexPos)
     {
-        ASSERT(false, "Invalid index pos for dbc: '%s'", _sqlTableName);
+        ABORT_MSG("Invalid index pos for dbc: '%s'", _sqlTableName);
         return nullptr;
     }
 
@@ -102,7 +102,7 @@ char* DBCDatabaseLoader::Load(uint32& records, char**& indexTable)
         else
         {
             // Attempt to overwrite existing data
-            ASSERT(false, "Index %d already exists in dbc:'%s'", indexValue, _sqlTableName);
+            ABORT_MSG("Index %d already exists in dbc:'%s'", indexValue, _sqlTableName);
             return nullptr;
         }
 
@@ -114,7 +114,7 @@ char* DBCDatabaseLoader::Load(uint32& records, char**& indexTable)
         {
             if (!*dbcFormat || !*sqlFormat)
             {
-                ASSERT(false, "DB and DBC format strings do not have the same length for '%s'", _sqlTableName);
+                ABORT_MSG("DB and DBC format strings do not have the same length for '%s'", _sqlTableName);
                 return nullptr;
             }
             if (!*dbcFormat)
@@ -144,7 +144,7 @@ char* DBCDatabaseLoader::Load(uint32& records, char**& indexTable)
                         case FT_SORT:
                             break;
                         default:
-                            ASSERT(false, "Unsupported data type '%c' marked present in table '%s'", *dbcFormat, _sqlTableName);
+                            ABORT_MSG("Unsupported data type '%c' marked present in table '%s'", *dbcFormat, _sqlTableName);
                             return nullptr;
                     }
                     ++sqlColumnNumber;
@@ -172,7 +172,7 @@ char* DBCDatabaseLoader::Load(uint32& records, char**& indexTable)
                     }
                     break;
                 default:
-                    ASSERT(false, "Invalid DB format string for '%s'", _sqlTableName);
+                    ABORT_MSG("Invalid DB format string for '%s'", _sqlTableName);
                     return nullptr;
             }
         }
