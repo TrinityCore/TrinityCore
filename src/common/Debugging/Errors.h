@@ -69,6 +69,8 @@ TC_COMMON_API std::string GetDebugInfo();
 #define ASSERT_NODEBUGINFO WPAssert_NODEBUGINFO
 #endif
 
+#define ASSERT_WITH_SIDE_EFFECTS WPAssert
+
 #define ABORT WPAbort
 #define ABORT_MSG WPAbort_MSG
 
