@@ -189,7 +189,7 @@ void WorldSession::HandleWhoOpcode(WorldPackets::Who::WhoRequestPkt& whoRequest)
         {
             std::string aName;
             if (AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(target.GetZoneId()))
-                aName = areaEntry->AreaName->Str[GetSessionDbcLocale()];
+                aName = areaEntry->AreaName[GetSessionDbcLocale()];
 
             bool show = false;
             for (size_t i = 0; i < wWords.size(); ++i)
@@ -564,7 +564,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigge
                 case Map::CANNOT_ENTER_INSTANCE_BIND_MISMATCH:
                     if (MapEntry const* entry = sMapStore.LookupEntry(at->target_mapId))
                     {
-                        char const* mapName = entry->MapName->Str[player->GetSession()->GetSessionDbcLocale()];
+                        char const* mapName = entry->MapName[player->GetSession()->GetSessionDbcLocale()];
                         TC_LOG_DEBUG("maps", "MAP: Player '%s' cannot enter instance map '%s' because their permanent bind is incompatible with their group's", player->GetName().c_str(), mapName);
                         // is there a special opcode for this?
                         // @todo figure out how to get player localized difficulty string (e.g. "10 player", "Heroic" etc)

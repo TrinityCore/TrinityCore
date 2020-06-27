@@ -5636,7 +5636,7 @@ void ObjectMgr::LoadInstanceEncounters()
         if (lastEncounterDungeon && !sLFGMgr->GetLFGDungeonEntry(lastEncounterDungeon))
         {
             TC_LOG_ERROR("sql.sql", "Table `instance_encounters` has an encounter %u (%s) marked as final for invalid dungeon id %u, skipped!",
-                entry, dungeonEncounter->Name->Str[sWorld->GetDefaultDbcLocale()], lastEncounterDungeon);
+                entry, dungeonEncounter->Name[sWorld->GetDefaultDbcLocale()], lastEncounterDungeon);
             continue;
         }
 
@@ -5646,7 +5646,7 @@ void ObjectMgr::LoadInstanceEncounters()
             if (itr != dungeonLastBosses.end())
             {
                 TC_LOG_ERROR("sql.sql", "Table `instance_encounters` specified encounter %u (%s) as last encounter but %u (%s) is already marked as one, skipped!",
-                    entry, dungeonEncounter->Name->Str[sWorld->GetDefaultDbcLocale()], itr->second.first, itr->second.second->Name->Str[sWorld->GetDefaultDbcLocale()]);
+                    entry, dungeonEncounter->Name[sWorld->GetDefaultDbcLocale()], itr->second.first, itr->second.second->Name[sWorld->GetDefaultDbcLocale()]);
                 continue;
             }
 
@@ -5661,7 +5661,7 @@ void ObjectMgr::LoadInstanceEncounters()
                 if (!creatureInfo)
                 {
                     TC_LOG_ERROR("sql.sql", "Table `instance_encounters` has an invalid creature (entry %u) linked to the encounter %u (%s), skipped!",
-                        creditEntry, entry, dungeonEncounter->Name->Str[sWorld->GetDefaultDbcLocale()]);
+                        creditEntry, entry, dungeonEncounter->Name[sWorld->GetDefaultDbcLocale()]);
                     continue;
                 }
                 const_cast<CreatureTemplate*>(creatureInfo)->flags_extra |= CREATURE_FLAG_EXTRA_DUNGEON_BOSS;
@@ -5679,13 +5679,13 @@ void ObjectMgr::LoadInstanceEncounters()
                 if (!sSpellMgr->GetSpellInfo(creditEntry, DIFFICULTY_NONE))
                 {
                     TC_LOG_ERROR("sql.sql", "Table `instance_encounters` has an invalid spell (entry %u) linked to the encounter %u (%s), skipped!",
-                        creditEntry, entry, dungeonEncounter->Name->Str[sWorld->GetDefaultDbcLocale()]);
+                        creditEntry, entry, dungeonEncounter->Name[sWorld->GetDefaultDbcLocale()]);
                     continue;
                 }
                 break;
             default:
                 TC_LOG_ERROR("sql.sql", "Table `instance_encounters` has an invalid credit type (%u) for encounter %u (%s), skipped!",
-                    creditType, entry, dungeonEncounter->Name->Str[sWorld->GetDefaultDbcLocale()]);
+                    creditType, entry, dungeonEncounter->Name[sWorld->GetDefaultDbcLocale()]);
                 continue;
         }
 
@@ -7025,7 +7025,7 @@ void ObjectMgr::LoadGameObjectTemplate()
         go.entry = db2go->ID;
         go.type = db2go->TypeID;
         go.displayId = db2go->DisplayID;
-        go.name = db2go->Name->Str[sWorld->GetDefaultDbcLocale()];
+        go.name = db2go->Name[sWorld->GetDefaultDbcLocale()];
         go.size = db2go->Scale;
         memset(go.raw.data, 0, sizeof(go.raw.data));
         memcpy(go.raw.data, db2go->PropValue, std::min(sizeof(db2go->PropValue), sizeof(go.raw.data)));

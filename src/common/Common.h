@@ -103,8 +103,13 @@ TC_COMMON_API LocaleConstant GetLocaleByName(std::string const& name);
 
 #pragma pack(push, 1)
 
-struct TC_COMMON_API LocalizedString
+struct LocalizedString
 {
+    constexpr char const* operator[](LocaleConstant locale) const
+    {
+        return Str[locale];
+    }
+
     char const* Str[TOTAL_LOCALES];
 };
 
