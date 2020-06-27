@@ -29,11 +29,8 @@
 namespace VMAP
 {
     class WorldModel;
-<<<<<<< HEAD
-    enum class ModelIgnoreFlags : uint32;
-=======
     struct AreaInfo;
->>>>>>> 42f9deb21e... Core/Maps: Implemented getting area id from gameobject spawns
+    enum class ModelIgnoreFlags : uint32;
 }
 
 class GameObject;
@@ -42,27 +39,15 @@ struct GameObjectDisplayInfoEntry;
 class TC_COMMON_API GameObjectModelOwnerBase
 {
 public:
-<<<<<<< HEAD
     virtual bool IsSpawned() const = 0;
     virtual uint32 GetDisplayId() const = 0;
     virtual uint32 GetPhaseMask() const = 0;
+    virtual uint8 GetNameSetId() const = 0;
     virtual G3D::Vector3 GetPosition() const = 0;
     virtual float GetOrientation() const = 0;
     virtual float GetScale() const = 0;
     virtual void DebugVisualizeCorner(G3D::Vector3 const& /*corner*/) const = 0;
     virtual ~GameObjectModelOwnerBase() { }
-=======
-    virtual ~GameObjectModelOwnerBase() = default;
-
-    virtual bool IsSpawned() const { return false; }
-    virtual uint32 GetDisplayId() const { return 0; }
-    virtual uint8 GetNameSetId() const { return 0; }
-    virtual bool IsInPhase(PhaseShift const& /*phaseShift*/) const { return false; }
-    virtual G3D::Vector3 GetPosition() const { return G3D::Vector3::zero(); }
-    virtual float GetOrientation() const { return 0.0f; }
-    virtual float GetScale() const { return 1.0f; }
-    virtual void DebugVisualizeCorner(G3D::Vector3 const& /*corner*/) const { }
->>>>>>> 42f9deb21e... Core/Maps: Implemented getting area id from gameobject spawns
 };
 
 class TC_COMMON_API GameObjectModel /*, public Intersectable*/
@@ -81,14 +66,10 @@ public:
     void disable() { phasemask = 0;}
     void enable(uint32 ph_mask) { phasemask = ph_mask;}
 
-<<<<<<< HEAD
     bool isEnabled() const {return phasemask != 0;}
 
     bool intersectRay(const G3D::Ray& Ray, float& MaxDist, bool StopAtFirstHit, uint32 ph_mask, VMAP::ModelIgnoreFlags ignoreFlags) const;
-=======
-    bool intersectRay(G3D::Ray const& ray, float& maxDist, bool stopAtFirstHit, PhaseShift const& phaseShift) const;
-    void intersectPoint(G3D::Vector3 const& point, VMAP::AreaInfo& info, PhaseShift const& phaseShift) const;
->>>>>>> 42f9deb21e... Core/Maps: Implemented getting area id from gameobject spawns
+    void intersectPoint(const G3D::Vector3& point, VMAP::AreaInfo& info, uint32 phasemask) const;
 
     static GameObjectModel* Create(std::unique_ptr<GameObjectModelOwnerBase> modelOwner, std::string const& dataPath);
 

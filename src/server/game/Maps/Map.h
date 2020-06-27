@@ -401,6 +401,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
 
         uint32 GetAreaId(float x, float y, float z) const;
         uint32 GetAreaId(Position const& pos) const { return GetAreaId(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ()); }
+        bool GetAreaInfo(uint32 phasemask, float x, float y, float z, uint32& mogpflags, int32& adtId, int32& rootId, int32& groupId) const;
         uint32 GetZoneId(float x, float y, float z) const;
         uint32 GetZoneId(Position const& pos) const { return GetZoneId(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ()); }
         void GetZoneAndAreaId(uint32& zoneid, uint32& areaid, float x, float y, float z) const;

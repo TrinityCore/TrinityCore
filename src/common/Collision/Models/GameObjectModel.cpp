@@ -183,12 +183,9 @@ bool GameObjectModel::intersectRay(const G3D::Ray& ray, float& MaxDist, bool Sto
     return hit;
 }
 
-void GameObjectModel::intersectPoint(G3D::Vector3 const& point, VMAP::AreaInfo& info, PhaseShift const& phaseShift) const
+void GameObjectModel::intersectPoint(G3D::Vector3 const& point, VMAP::AreaInfo& info, uint32 phasemask) const
 {
-    if (!isCollisionEnabled() || !owner->IsSpawned())
-        return;
-
-    if (!owner->IsInPhase(phaseShift))
+    if (!phasemask || !owner->IsSpawned())
         return;
 
     if (!iBound.contains(point))

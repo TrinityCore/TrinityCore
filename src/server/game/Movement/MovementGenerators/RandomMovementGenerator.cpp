@@ -57,17 +57,11 @@ void RandomMovementGenerator<T>::Pause(uint32 timer /*= 0*/)
     }
 }
 
-<<<<<<< HEAD
 template<class T>
 void RandomMovementGenerator<T>::Resume(uint32 overrideTimer /*= 0*/)
 {
     if (overrideTimer)
         _timer.Reset(overrideTimer);
-=======
-    float respX, respY, respZ, respO, destX, destY, destZ, travelDistZ;
-    creature->GetHomePosition(respX, respY, respZ, respO);
-    Map const* map = creature->GetMap();
->>>>>>> 42f9deb21e... Core/Maps: Implemented getting area id from gameobject spawns
 
     this->RemoveFlag(MOVEMENTGENERATOR_FLAG_PAUSED);
 }
