@@ -45,10 +45,10 @@ int32 const SocketColorToGemTypeMask[19] =
 
 char const* ItemTemplate::GetName(LocaleConstant locale) const
 {
-    if (!strlen(ExtendedData->Display->Str[locale]))
+    if (!strlen(ExtendedData->Display[locale]))
         return GetDefaultLocaleName();
 
-    return ExtendedData->Display->Str[locale];
+    return ExtendedData->Display[locale];
 }
 
 
@@ -112,7 +112,7 @@ uint32 ItemTemplate::GetSkill() const
 
 char const* ItemTemplate::GetDefaultLocaleName() const
 {
-    return ExtendedData->Display->Str[sWorld->GetDefaultDbcLocale()];
+    return ExtendedData->Display[sWorld->GetDefaultDbcLocale()];
 }
 
 uint32 ItemTemplate::GetArmor(uint32 itemLevel) const
