@@ -154,8 +154,8 @@ static void GetFollowOffsets(uint8 followerIndex, float& distance, float& relati
     relativeAngle = Position().GetRelativeAngle(pos);
 }
 
-FollowMovementGenerator::FollowMovementGenerator(Unit* target, Optional<float> distance, Optional<float> angle, bool joinFormation /*= true*/, bool catchUpToTarget /*= false*/) :
-    _target(target), _joinFormation(joinFormation), _catchUpToTarget(catchUpToTarget)
+FollowMovementGenerator::FollowMovementGenerator(Unit* target, Optional<float> distance, Optional<float> angle, bool joinFormation /*= true*/, bool catchUpToTarget /*= false*/, bool faceTarget /*= false*/) :
+    _target(target), _joinFormation(joinFormation), _catchUpToTarget(catchUpToTarget), _faceTarget(faceTarget)
 {
     _distance = distance ? distance.get() : 0.f;
     _angle = angle ? angle.get() : 0.f;
@@ -227,10 +227,16 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
         }
         else if (owner->HasUnitState(UNIT_STATE_FOLLOW_MOVE))
         {
-            owner->StopMoving();
             owner->ClearUnitState(UNIT_STATE_FOLLOW_MOVE);
             DoMovementInform(owner, _target);
-            _events.ScheduleEvent(EVENT_ALLIGN_TO_TARGET, Milliseconds(ALLIGN_MOVEMENT_INTERVAL));
+
+            if (!_faceTarget)
+            {
+                owner->StopMoving();
+                _events.ScheduleEvent(EVENT_ALLIGN_TO_TARGET, Milliseconds(ALLIGN_MOVEMENT_INTERVAL));
+            }
+            else
+                _events.ScheduleEvent(EVENT_ALLIGN_TO_TARGET, 1ms);
         }
     }
 
@@ -243,10 +249,15 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
             {
                 Position pos = _target->GetPosition();
                 _target->MovePositionToFirstCollision(pos, _distance, _angle);
+
                 Movement::MoveSplineInit init (owner);
+                if (_faceTarget)
+                    init.SetFacing(_target);
                 init.MoveTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
                 uint32 duration = std::max<uint32>(1, init.Launch());
-                _events.ScheduleEvent(EVENT_ALLIGN_TO_FACING_DIRECTION, Milliseconds(duration + FOLLOW_MOVEMENT_INTERVAL));
+
+                if (!_faceTarget)
+                    _events.ScheduleEvent(EVENT_ALLIGN_TO_FACING_DIRECTION, Milliseconds(duration + FOLLOW_MOVEMENT_INTERVAL));
                 break;
             }
             case EVENT_ALLIGN_TO_FACING_DIRECTION:
@@ -339,6 +350,10 @@ void FollowMovementGenerator::LaunchMovement(Unit* owner)
     Movement::MoveSplineInit init(owner);
     init.MoveTo(dest.GetPositionX(), dest.GetPositionY(), dest.GetPositionZ());
     init.SetVelocity(velocity);
+
+    if (_faceTarget)
+        init.SetFacing(_target);
+
     init.Launch();
 
     owner->AddUnitState(UNIT_STATE_FOLLOW_MOVE);

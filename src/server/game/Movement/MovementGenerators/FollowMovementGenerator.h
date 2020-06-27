@@ -42,7 +42,7 @@ class FollowMovementGenerator : public MovementGenerator
 public:
     MovementGeneratorType GetMovementGeneratorType() const override { return FOLLOW_MOTION_TYPE; }
 
-    FollowMovementGenerator(Unit* target, Optional<float> distance, Optional<float> angle, bool joinFormation = false, bool catchUpToTarget = false);
+    FollowMovementGenerator(Unit* target, Optional<float> distance, Optional<float> angle, bool joinFormation = false, bool catchUpToTarget = false, bool faceTarget = false);
     ~FollowMovementGenerator();
 
     void Initialize(Unit* owner) override;
@@ -63,8 +63,9 @@ private:
     Unit* _target;
     float _distance;
     float _angle;
-    bool _joinFormation;
-    bool _catchUpToTarget;
+    bool const _joinFormation;
+    bool const _catchUpToTarget;
+    bool const _faceTarget;
 
     TimeTrackerSmall _followMovementTimer;
     EventMap _events;

@@ -255,7 +255,7 @@ void MotionMaster::MoveRandom(float spawndist)
     }
 }
 
-void MotionMaster::MoveFollow(Unit* target, float dist, float angle, bool joinFormation /*= false*/, bool catchUpToTarget /*= false*/, MovementSlot slot /*= MOTION_SLOT_IDLE*/)
+void MotionMaster::MoveFollow(Unit* target, float dist, float angle, bool joinFormation /*= false*/, bool catchUpToTarget /*= false*/, bool faceTarget /*= false*/, MovementSlot slot /*= MOTION_SLOT_IDLE*/)
 {
     // ignore movement request if target not exist
     if (!target || target == _owner)
@@ -263,7 +263,7 @@ void MotionMaster::MoveFollow(Unit* target, float dist, float angle, bool joinFo
 
     TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveFollow: '%s', starts following '%s'", _owner->GetGUID().ToString().c_str(), target->GetGUID().ToString().c_str());
 
-    Mutate(new FollowMovementGenerator(target, dist, angle, joinFormation, catchUpToTarget), slot);
+    Mutate(new FollowMovementGenerator(target, dist, angle, joinFormation, catchUpToTarget, faceTarget), slot);
 }
 
 void MotionMaster::MoveChase(Unit* target, float dist, Optional<ChaseAngle> angle)

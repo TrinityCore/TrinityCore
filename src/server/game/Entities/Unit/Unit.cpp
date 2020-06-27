@@ -9190,6 +9190,7 @@ void Unit::FollowTarget(Unit* target)
     // Determine follow configuration
     bool joinFormation      = false; // unit will follow its target in a generated formation shape and catches up to its target
     bool catchUpToTarget    = false; // unit will allign to the target speed and catches up to the target automatically
+    bool faceTarget         = false; // unit will face its target with every spline
     float distance          = DEFAULT_FOLLOW_DISTANCE_PET;
 
     if (TempSummon* summon = ToTempSummon())
@@ -9205,6 +9206,7 @@ void Unit::FollowTarget(Unit* target)
             {
                 joinFormation = false;
                 catchUpToTarget = true;
+                faceTarget = true;
                 distance = DEFAULT_FOLLOW_DISTANCE;
             }
 
@@ -9225,7 +9227,7 @@ void Unit::FollowTarget(Unit* target)
     if (joinFormation && target->HasFormationFollower(this))
         return;
 
-    GetMotionMaster()->MoveFollow(target, distance, DEFAULT_FOLLOW_ANGLE, joinFormation, catchUpToTarget);
+    GetMotionMaster()->MoveFollow(target, distance, DEFAULT_FOLLOW_ANGLE, joinFormation, catchUpToTarget, faceTarget);
 }
 
 void Unit::RemoveFormationFollower(Unit* follower)
