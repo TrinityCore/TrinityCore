@@ -71,13 +71,6 @@ namespace WorldPackets
             DB2Manager::HotfixContainer const& Hotfixes;
         };
 
-        struct HotfixRecord
-        {
-            uint32 TableHash = 0;
-            int32 RecordID = 0;
-            int32 HotfixID = 0;
-        };
-
         class HotfixRequest final : public ClientPacket
         {
         public:
@@ -87,7 +80,7 @@ namespace WorldPackets
 
             uint32 ClientBuild = 0;
             uint32 DataBuild = 0;
-            std::vector<HotfixRecord> Hotfixes;
+            std::vector<DB2Manager::HotfixRecord> Hotfixes;
         };
 
         class HotfixResponse final : public ServerPacket
@@ -95,7 +88,7 @@ namespace WorldPackets
         public:
             struct HotfixData
             {
-                HotfixRecord Record;
+                DB2Manager::HotfixRecord Record;
                 Optional<uint32> Size;
             };
 

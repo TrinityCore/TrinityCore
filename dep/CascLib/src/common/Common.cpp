@@ -356,6 +356,44 @@ wchar_t * CascNewStr(const wchar_t * szString, size_t nCharsToReserve)
     return szNewString;
 }
 
+LPSTR CascNewStrT2A(LPCTSTR szString, size_t nCharsToReserve)
+{
+    LPSTR szNewString = NULL;
+    size_t nLength;
+
+    if(szString != NULL)
+    {
+        nLength = _tcslen(szString);
+        szNewString = CASC_ALLOC<char>(nLength + nCharsToReserve + 1);
+        if(szNewString != NULL)
+        {
+            CascStrCopy(szNewString, nLength + nCharsToReserve + 1, szString, nLength);
+//          szNewString[nLength] = 0;
+        }
+    }
+
+    return szNewString;
+}
+
+LPTSTR CascNewStrA2T(LPCSTR szString, size_t nCharsToReserve)
+{
+    LPTSTR szNewString = NULL;
+    size_t nLength;
+
+    if(szString != NULL)
+    {
+        nLength = strlen(szString);
+        szNewString = CASC_ALLOC<TCHAR>(nLength + nCharsToReserve + 1);
+        if(szNewString != NULL)
+        {
+            CascStrCopy(szNewString, nLength + nCharsToReserve + 1, szString, nLength);
+//          szNewString[nLength] = 0;
+        }
+    }
+
+    return szNewString;
+}
+
 //-----------------------------------------------------------------------------
 // String merging
 
@@ -387,7 +425,7 @@ LPTSTR GetLastPathPart(LPTSTR szWorkPath)
     return NULL;
 }
 
-bool CutLastPathPart(TCHAR * szWorkPath)
+bool CutLastPathPart(LPTSTR szWorkPath)
 {
     // Get the last part of the path
     szWorkPath = GetLastPathPart(szWorkPath);
@@ -482,7 +520,7 @@ ULONGLONG CalcFileNameHash(const char * szFileName)
     return CalcNormNameHash(szNormName, nLength);
 }
 
-int ConvertDigitToInt32(const TCHAR * szString, PDWORD PtrValue)
+DWORD ConvertDigitToInt32(LPCTSTR szString, PDWORD PtrValue)
 {
     BYTE Digit;
 
@@ -494,7 +532,7 @@ int ConvertDigitToInt32(const TCHAR * szString, PDWORD PtrValue)
     return (Digit > 0x0F) ? ERROR_BAD_FORMAT : ERROR_SUCCESS;
 }
 
-int ConvertStringToInt08(const char * szString, PDWORD PtrValue)
+DWORD ConvertStringToInt08(LPCSTR szString, PDWORD PtrValue)
 {
     BYTE DigitOne = AsciiToUpperTable_BkSlash[szString[0]] - '0';
     BYTE DigitTwo = AsciiToUpperTable_BkSlash[szString[1]] - '0';
@@ -510,7 +548,7 @@ int ConvertStringToInt08(const char * szString, PDWORD PtrValue)
     return (DigitOne <= 0x0F && DigitTwo <= 0x0F) ? ERROR_SUCCESS : ERROR_BAD_FORMAT;
 }
 
-int ConvertStringToInt32(const TCHAR * szString, size_t nMaxDigits, PDWORD PtrValue)
+DWORD ConvertStringToInt32(LPCTSTR szString, size_t nMaxDigits, PDWORD PtrValue)
 {
     // The number of digits must be even
     assert((nMaxDigits & 0x01) == 0);
@@ -545,8 +583,8 @@ int ConvertStringToInt32(const TCHAR * szString, size_t nMaxDigits, PDWORD PtrVa
 }
 
 // Converts string blob to binary blob.
-int ConvertStringToBinary(
-    const char * szString,
+DWORD ConvertStringToBinary(
+    LPCSTR szString,
     size_t nMaxDigits,
     LPBYTE pbBinary)
 {

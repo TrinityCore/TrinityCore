@@ -1,0 +1,15 @@
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  issue_labeler:
+    if: github.repository == 'TrinityCore/TrinityCore'
+    runs-on: ubuntu-latest
+    name: Issue Labeler
+    steps:
+    - name: Issue Labeler
+      id: issue-labeler
+      uses: TrinityCore/GitHub-Actions@issue-labeler-prod
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}

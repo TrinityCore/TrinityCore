@@ -29,6 +29,7 @@ guard_shattrath_scryer
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "CreatureAIImpl.h"
 #include "GuardAI.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"

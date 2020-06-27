@@ -19,10 +19,6 @@
 **Description:**
 
 CHANGEME Description of the problem or issue here.
-
-**Current behaviour:**
-
-CHANGEME Tell us what happens.
 If this is a crash, post the crashlog (upload to https://gist.github.com/).
 
 **Expected behaviour:**

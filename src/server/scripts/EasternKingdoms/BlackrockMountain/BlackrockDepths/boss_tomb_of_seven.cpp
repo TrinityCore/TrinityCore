@@ -149,7 +149,7 @@ class boss_doomrel : public CreatureScript
             {
                 Initialize();
 
-                me->SetFaction(FACTION_FRIEND);
+                me->SetFaction(FACTION_FRIENDLY);
 
                 // was set before event start, so set again
                 me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
@@ -239,7 +239,7 @@ class boss_doomrel : public CreatureScript
                     case GOSSIP_ACTION_INFO_DEF + 2:
                         CloseGossipMenuFor(player);
                         //start event here
-                        me->SetFaction(FACTION_HOSTILE);
+                        me->SetFaction(FACTION_DARK_IRON_DWARVES);
                         me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
                         me->AI()->AttackStart(player);
 

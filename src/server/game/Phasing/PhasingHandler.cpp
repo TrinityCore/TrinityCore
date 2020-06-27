@@ -487,16 +487,9 @@ uint32 PhasingHandler::GetTerrainMapId(PhaseShift const& phaseShift, Map const* 
     int32 gx = (MAX_NUMBER_OF_GRIDS - 1) - gridCoord.x_coord;
     int32 gy = (MAX_NUMBER_OF_GRIDS - 1) - gridCoord.y_coord;
 
-    int32 gxbegin = std::max(gx - 1, 0);
-    int32 gxend = std::min(gx + 1, MAX_NUMBER_OF_GRIDS);
-    int32 gybegin = std::max(gy - 1, 0);
-    int32 gyend = std::min(gy + 1, MAX_NUMBER_OF_GRIDS);
-
-    for (auto itr = phaseShift.VisibleMapIds.rbegin(); itr != phaseShift.VisibleMapIds.rend(); ++itr)
-        for (int32 gxi = gxbegin; gxi < gxend; ++gxi)
-            for (int32 gyi = gybegin; gyi < gyend; ++gyi)
-                if (map->HasGrid(itr->first, gxi, gyi))
-                    return itr->first;
+    for (std::pair<uint32 const, PhaseShift::VisibleMapIdRef> const& visibleMap : phaseShift.VisibleMapIds)
+        if (map->HasChildMapGridFile(visibleMap.first, gx, gy))
+            return visibleMap.first;
 
     return map->GetId();
 }

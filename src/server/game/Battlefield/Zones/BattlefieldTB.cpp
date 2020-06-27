@@ -850,14 +850,14 @@ void TolBaradCapturePoint::ChangeTeam(TeamId /*oldTeam*/)
             break;
         case BF_CAPTUREPOINT_OBJECTIVESTATE_HORDE_ALLIANCE_CHALLENGE:
             m_Bf->SendWarning(TBCapturePoints[iBase].textLost[TEAM_HORDE]);
-            //no break here!
+            /* fallthrough */
         case BF_CAPTUREPOINT_OBJECTIVESTATE_NEUTRAL_ALLIANCE_CHALLENGE:
             SendUpdateWorldState(TBCapturePoints[iBase].wsCapturing[TEAM_ALLIANCE], uint32(1));
             GetCapturePointGo()->SetGoArtKit(TB_GO_ARTKIT_FLAG_NONE);
             break;
         case BF_CAPTUREPOINT_OBJECTIVESTATE_ALLIANCE_HORDE_CHALLENGE:
             m_Bf->SendWarning(TBCapturePoints[iBase].textLost[TEAM_ALLIANCE]);
-            //no break here!
+            /* fallthrough */
         case BF_CAPTUREPOINT_OBJECTIVESTATE_NEUTRAL_HORDE_CHALLENGE:
             SendUpdateWorldState(TBCapturePoints[iBase].wsCapturing[TEAM_HORDE], uint32(1));
             GetCapturePointGo()->SetGoArtKit(TB_GO_ARTKIT_FLAG_NONE);

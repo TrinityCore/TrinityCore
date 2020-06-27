@@ -1190,11 +1190,10 @@ void WorldSession::HandleUseCritterItem(WorldPackets::Item::UseCritterItem& useC
     if (!item)
         return;
 
-    if (item->GetTemplate()->Effects.size() < 2)
+    if (item->GetBonus()->EffectCount < 2)
         return;
 
-    int32 spellToLearn = item->GetTemplate()->Effects[1]->SpellID;
-
+    int32 spellToLearn = item->GetEffect(1)->SpellID;
 
     if (BattlePetSpeciesEntry const* entry = sSpellMgr->GetBattlePetSpecies(uint32(spellToLearn)))
     {

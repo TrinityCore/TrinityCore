@@ -185,7 +185,7 @@ public:
     virtual uint32 GetRecordCopyCount() const = 0;
     virtual uint32 GetMaxId() const = 0;
     virtual DB2FileLoadInfo const* GetLoadInfo() const = 0;
-    virtual DB2SectionHeader const& GetSection(uint32 section) const = 0;
+    virtual DB2SectionHeader& GetSection(uint32 section) const = 0;
     virtual bool IsSignedField(uint32 field) const = 0;
 
 private:
@@ -225,7 +225,7 @@ public:
     uint32 GetRecordCopyCount() const override;
     uint32 GetMaxId() const override;
     DB2FileLoadInfo const* GetLoadInfo() const override;
-    DB2SectionHeader const& GetSection(uint32 section) const override;
+    DB2SectionHeader& GetSection(uint32 section) const override;
     bool IsSignedField(uint32 field) const override;
 
 private:
@@ -284,7 +284,7 @@ public:
     uint32 GetRecordCopyCount() const override;
     uint32 GetMaxId() const override;
     DB2FileLoadInfo const* GetLoadInfo() const override;
-    DB2SectionHeader const& GetSection(uint32 section) const override;
+    DB2SectionHeader& GetSection(uint32 section) const override;
     bool IsSignedField(uint32 field) const override;
 
 private:
@@ -348,7 +348,7 @@ bool DB2FileLoaderRegularImpl::LoadTableData(DB2FileSource* source, uint32 secti
 {
     if (!_data)
     {
-        _data = Trinity::make_unique<uint8[]>(_header->RecordSize * _header->RecordCount + _header->StringTableSize + 8);
+        _data = std::make_unique<uint8[]>(_header->RecordSize * _header->RecordCount + _header->StringTableSize + 8);
         _stringTable = &_data[_header->RecordSize * _header->RecordCount];
     }
 
@@ -961,7 +961,7 @@ DB2FileLoadInfo const* DB2FileLoaderRegularImpl::GetLoadInfo() const
     return _loadInfo;
 }
 
-DB2SectionHeader const& DB2FileLoaderRegularImpl::GetSection(uint32 section) const
+DB2SectionHeader& DB2FileLoaderRegularImpl::GetSection(uint32 section) const
 {
     return _sections[section];
 }
@@ -1002,7 +1002,7 @@ DB2FileLoaderSparseImpl::DB2FileLoaderSparseImpl(char const* fileName, DB2FileLo
     _source(source),
     _totalRecordSize(0),
     _maxRecordSize(0),
-    _fieldAndArrayOffsets(loadInfo ? (Trinity::make_unique<std::size_t[]>(loadInfo->Meta->FieldCount + loadInfo->FieldCount - (!loadInfo->Meta->HasIndexFieldInData() ? 1 : 0))) : nullptr)
+    _fieldAndArrayOffsets(loadInfo ? (std::make_unique<std::size_t[]>(loadInfo->Meta->FieldCount + loadInfo->FieldCount - (!loadInfo->Meta->HasIndexFieldInData() ? 1 : 0))) : nullptr)
 {
 }
 
@@ -1057,7 +1057,7 @@ bool DB2FileLoaderSparseImpl::LoadCatalogData(DB2FileSource* source, uint32 sect
 void DB2FileLoaderSparseImpl::SetAdditionalData(std::vector<uint32> /*idTable*/, std::vector<DB2RecordCopy> /*copyTable*/, std::vector<std::vector<DB2IndexData>> parentIndexes)
 {
     _parentIndexes = std::move(parentIndexes);
-    _recordBuffer = Trinity::make_unique<uint8[]>(_maxRecordSize);
+    _recordBuffer = std::make_unique<uint8[]>(_maxRecordSize);
 }
 
 char* DB2FileLoaderSparseImpl::AutoProduceData(uint32& maxId, char**& indexTable, std::vector<char*>& stringPool)
@@ -1605,7 +1605,7 @@ DB2FileLoadInfo const* DB2FileLoaderSparseImpl::GetLoadInfo() const
     return _loadInfo;
 }
 
-DB2SectionHeader const& DB2FileLoaderSparseImpl::GetSection(uint32 section) const
+DB2SectionHeader& DB2FileLoaderSparseImpl::GetSection(uint32 section) const
 {
     return _sections[section];
 }
@@ -1777,7 +1777,7 @@ bool DB2FileLoader::LoadHeaders(DB2FileSource* source, DB2FileLoadInfo const* lo
     if (loadInfo && (_header.ParentLookupCount && loadInfo->Meta->ParentIndexField == -1))
         return false;
 
-    std::unique_ptr<DB2SectionHeader[]> sections = Trinity::make_unique<DB2SectionHeader[]>(_header.SectionCount);
+    std::unique_ptr<DB2SectionHeader[]> sections = std::make_unique<DB2SectionHeader[]>(_header.SectionCount);
     if (_header.SectionCount && !source->Read(sections.get(), sizeof(DB2SectionHeader) * _header.SectionCount))
         return false;
 
@@ -1808,7 +1808,7 @@ bool DB2FileLoader::LoadHeaders(DB2FileSource* source, DB2FileLoadInfo const* lo
             return false;
     }
 
-    std::unique_ptr<DB2FieldEntry[]> fieldData = Trinity::make_unique<DB2FieldEntry[]>(_header.FieldCount);
+    std::unique_ptr<DB2FieldEntry[]> fieldData = std::make_unique<DB2FieldEntry[]>(_header.FieldCount);
     if (!source->Read(fieldData.get(), sizeof(DB2FieldEntry) * _header.FieldCount))
         return false;
 
@@ -1818,7 +1818,7 @@ bool DB2FileLoader::LoadHeaders(DB2FileSource* source, DB2FileLoadInfo const* lo
     std::unique_ptr<std::unordered_map<uint32, uint32>[]> commonValues;
     if (_header.ColumnMetaSize)
     {
-        columnMeta = Trinity::make_unique<DB2ColumnMeta[]>(_header.TotalFieldCount);
+        columnMeta = std::make_unique<DB2ColumnMeta[]>(_header.TotalFieldCount);
         if (!source->Read(columnMeta.get(), _header.ColumnMetaSize))
             return false;
 
@@ -1830,30 +1830,30 @@ bool DB2FileLoader::LoadHeaders(DB2FileSource* source, DB2FileLoadInfo const* lo
                 columnMeta[loadInfo->Meta->IndexField].CompressionType == DB2ColumnCompression::SignedImmediate);
         }
 
-        palletValues = Trinity::make_unique<std::unique_ptr<DB2PalletValue[]>[]>(_header.TotalFieldCount);
+        palletValues = std::make_unique<std::unique_ptr<DB2PalletValue[]>[]>(_header.TotalFieldCount);
         for (uint32 i = 0; i < _header.TotalFieldCount; ++i)
         {
             if (columnMeta[i].CompressionType != DB2ColumnCompression::Pallet)
                 continue;
 
-            palletValues[i] = Trinity::make_unique<DB2PalletValue[]>(columnMeta[i].AdditionalDataSize / sizeof(DB2PalletValue));
+            palletValues[i] = std::make_unique<DB2PalletValue[]>(columnMeta[i].AdditionalDataSize / sizeof(DB2PalletValue));
             if (!source->Read(palletValues[i].get(), columnMeta[i].AdditionalDataSize))
                 return false;
         }
 
-        palletArrayValues = Trinity::make_unique<std::unique_ptr<DB2PalletValue[]>[]>(_header.TotalFieldCount);
+        palletArrayValues = std::make_unique<std::unique_ptr<DB2PalletValue[]>[]>(_header.TotalFieldCount);
         for (uint32 i = 0; i < _header.TotalFieldCount; ++i)
         {
             if (columnMeta[i].CompressionType != DB2ColumnCompression::PalletArray)
                 continue;
 
-            palletArrayValues[i] = Trinity::make_unique<DB2PalletValue[]>(columnMeta[i].AdditionalDataSize / sizeof(DB2PalletValue));
+            palletArrayValues[i] = std::make_unique<DB2PalletValue[]>(columnMeta[i].AdditionalDataSize / sizeof(DB2PalletValue));
             if (!source->Read(palletArrayValues[i].get(), columnMeta[i].AdditionalDataSize))
                 return false;
         }
 
-        std::unique_ptr<std::unique_ptr<DB2CommonValue[]>[]> commonData = Trinity::make_unique<std::unique_ptr<DB2CommonValue[]>[]>(_header.TotalFieldCount);
-        commonValues = Trinity::make_unique<std::unordered_map<uint32, uint32>[]>(_header.TotalFieldCount);
+        std::unique_ptr<std::unique_ptr<DB2CommonValue[]>[]> commonData = std::make_unique<std::unique_ptr<DB2CommonValue[]>[]>(_header.TotalFieldCount);
+        commonValues = std::make_unique<std::unordered_map<uint32, uint32>[]>(_header.TotalFieldCount);
         for (uint32 i = 0; i < _header.TotalFieldCount; ++i)
         {
             if (columnMeta[i].CompressionType != DB2ColumnCompression::CommonData)
@@ -1862,7 +1862,7 @@ bool DB2FileLoader::LoadHeaders(DB2FileSource* source, DB2FileLoadInfo const* lo
             if (!columnMeta[i].AdditionalDataSize)
                 continue;
 
-            commonData[i] = Trinity::make_unique<DB2CommonValue[]>(columnMeta[i].AdditionalDataSize / sizeof(DB2CommonValue));
+            commonData[i] = std::make_unique<DB2CommonValue[]>(columnMeta[i].AdditionalDataSize / sizeof(DB2CommonValue));
             if (!source->Read(commonData[i].get(), columnMeta[i].AdditionalDataSize))
                 return false;
 
@@ -1906,13 +1906,22 @@ bool DB2FileLoader::Load(DB2FileSource* source, DB2FileLoadInfo const* loadInfo)
 
     for (uint32 i = 0; i < _header.SectionCount; ++i)
     {
-        DB2SectionHeader const& section = _impl->GetSection(i);
+        DB2SectionHeader& section = _impl->GetSection(i);
 
         if (section.TactId)
         {
-            _impl->SkipEncryptedSection(i);
-            idTable.resize(idTable.size() + section.IdTableSize / sizeof(uint32));
-            continue;
+            switch (source->HandleEncryptedSection(section))
+            {
+                case DB2EncryptedSectionHandling::Skip:
+                    _impl->SkipEncryptedSection(i);
+                    idTable.resize(idTable.size() + section.IdTableSize / sizeof(uint32));
+                    continue;
+                case DB2EncryptedSectionHandling::Process:
+                    section.TactId = 0;
+                    break;
+                default:
+                    break;
+            }
         }
 
         if (!source->SetPosition(section.FileOffset))

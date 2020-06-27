@@ -93,7 +93,7 @@ public:
             if (menuId == GOSSIP_ID && gossipListId == GOSSIP_OPTION_ID)
             {
                 CloseGossipMenuFor(player);
-                me->SetFaction(113);
+                me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
                 Start(true, true, player->GetGUID());
             }
             return false;
@@ -1335,9 +1335,7 @@ public:
 
         bool Validate(SpellInfo const* spellInfo) override
         {
-            if (!sSpellMgr->GetSpellInfo(spellInfo->GetEffect(EFFECT_0)->CalcValue()))
-                return false;
-            return true;
+            return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0)->CalcValue()) });
         }
 
         void HandleScript(SpellEffIndex /*effIndex*/)
@@ -1441,9 +1439,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_FATAL_STRIKE_DAMAGE))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_FATAL_STRIKE_DAMAGE });
         }
 
         void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -1520,9 +1516,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_FIGHT_WYRM))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_FIGHT_WYRM });
         }
 
         void HandleDummy(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)

@@ -259,8 +259,6 @@ enum ChickenCluck
     EMOTE_CLUCK_TEXT    = 2,
 
     QUEST_CLUCK         = 3861,
-    FACTION_FRIENDLY    = 35,
-    FACTION_CHICKEN     = 31
 };
 
 class npc_chicken_cluck : public CreatureScript
@@ -285,7 +283,7 @@ public:
         void Reset() override
         {
             Initialize();
-            me->SetFaction(FACTION_CHICKEN);
+            me->SetFaction(FACTION_PREY);
             me->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
         }
 
@@ -2257,7 +2255,7 @@ public:
                     break;
             }
 
-            if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId))
+            if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE))
                 if (SpellEffectInfo const* effect0 = spellInfo->GetEffect(EFFECT_0))
                     if (effect0->Effect == SPELL_EFFECT_SUMMON_OBJECT_WILD)
                         return effect0->MiscValue;

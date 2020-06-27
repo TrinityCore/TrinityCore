@@ -17,6 +17,7 @@
 
 #include "CreatureAI.h"
 #include "AreaBoundary.h"
+#include "Containers.h"
 #include "Creature.h"
 #include "CreatureAIImpl.h"
 #include "CreatureTextMgr.h"
@@ -41,8 +42,11 @@ void CreatureAI::OnCharmed(bool apply)
     }
 }
 
-AISpellInfoType* UnitAI::AISpellInfo;
-AISpellInfoType* GetAISpellInfo(uint32 i) { return &UnitAI::AISpellInfo[i]; }
+std::unordered_map<std::pair<uint32, Difficulty>, AISpellInfoType> UnitAI::AISpellInfo;
+AISpellInfoType* GetAISpellInfo(uint32 spellId, Difficulty difficulty)
+{
+    return Trinity::Containers::MapGetValuePtr(UnitAI::AISpellInfo, { spellId, difficulty });
+}
 
 CreatureAI::CreatureAI(Creature* creature) : UnitAI(creature), me(creature), _boundary(nullptr), _negateBoundary(false), m_MoveInLineOfSight_locked(false)
 {

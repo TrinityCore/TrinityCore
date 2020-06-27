@@ -99,7 +99,6 @@ enum Hendel
     EMOTE_SURRENDER             = 4,
 
     QUEST_MISSING_DIPLO_PT16    = 1324,
-    FACTION_HOSTILE             = 168,                      //guessed, may be different
 
     NPC_SENTRY                  = 5184,                     //helps hendel
     NPC_JAINA                   = 4968,                     //appears once hendel gives up
@@ -149,7 +148,7 @@ public:
         void QuestAccept(Player* /*player*/, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_MISSING_DIPLO_PT16)
-                me->SetFaction(FACTION_HOSTILE);
+                me->SetFaction(FACTION_ENEMY);
         }
     };
 

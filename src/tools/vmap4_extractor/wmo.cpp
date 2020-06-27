@@ -36,7 +36,7 @@ WMORoot::WMORoot(std::string const& filename)
     memset(bbcorn2, 0, sizeof(bbcorn2));
 }
 
-extern CASC::StorageHandle CascStorage;
+extern std::shared_ptr<CASC::Storage> CascStorage;
 
 bool WMORoot::open()
 {
@@ -76,6 +76,11 @@ bool WMORoot::open()
             f.read(&flags, 2);
             f.read(&numLod, 2);
         }
+        else if (!strcmp(fourcc, "MOGN"))
+        {
+            GroupNames.resize(size);
+            f.read(GroupNames.data(), size);
+        }
         else if (!strcmp(fourcc, "MODS"))
         {
             DoodadData.Sets.resize(size / sizeof(WMO::MODS));
@@ -94,8 +99,7 @@ bool WMORoot::open()
                 std::string path = ptr;
 
                 char* s = GetPlainName(ptr);
-                FixNameCase(s, strlen(s));
-                FixNameSpaces(s, strlen(s));
+                NormalizeFileName(s, strlen(s));
 
                 uint32 doodadNameIndex = ptr - f.getPointer();
                 ptr += path.length() + 1;
@@ -158,9 +162,6 @@ bool WMORoot::open()
         else if (!strcmp(fourcc,"MOMT"))
         {
         }
-        else if (!strcmp(fourcc,"MOGN"))
-        {
-        }
         else if (!strcmp(fourcc,"MOGI"))
         {
         }
@@ -202,8 +203,8 @@ bool WMORoot::ConvertToVMAPRootWmo(FILE* pOutfile)
 }
 
 WMOGroup::WMOGroup(const std::string &filename) :
-    filename(filename), MOPY(0), MOVI(0), MoviEx(0), MOVT(0), MOBA(0), MobaEx(0),
-    hlq(0), LiquEx(0), LiquBytes(0), groupName(0), descGroupName(0), mogpFlags(0),
+    filename(filename), MOPY(nullptr), MOVI(nullptr), MoviEx(nullptr), MOVT(nullptr), MOBA(nullptr), MobaEx(nullptr),
+    hlq(nullptr), LiquEx(nullptr), LiquBytes(nullptr), groupName(0), descGroupName(0), mogpFlags(0),
     moprIdx(0), moprNItems(0), nBatchA(0), nBatchB(0), nBatchC(0), fogIdx(0),
     groupLiquid(0), groupWMOID(0), mopy_size(0), moba_size(0), LiquEx_size(0),
     nVertices(0), nTriangles(0), liquflags(0)
@@ -221,17 +222,15 @@ bool WMOGroup::open(WMORoot* rootWMO)
         return false;
     }
     uint32 size;
-    char fourcc[5];
+    char fourcc[5] = { };
     while (!f.isEof())
     {
         f.read(fourcc,4);
         f.read(&size, 4);
         flipcc(fourcc);
-        if (!strcmp(fourcc,"MOGP"))//Fix sizeoff = Data size.
-        {
+        if (!strcmp(fourcc,"MOGP")) //size specified in MOGP chunk is all the other chunks combined, adjust to read MOGP-only
             size = 68;
-        }
-        fourcc[4] = 0;
+
         size_t nextpos = f.getPos() + size;
         if (!strcmp(fourcc,"MOGP"))//header
         {
@@ -540,6 +539,18 @@ uint32 WMOGroup::GetLiquidTypeId(uint32 liquidTypeId)
         }
     }
     return liquidTypeId;
+}
+
+bool WMOGroup::ShouldSkip(WMORoot const* root) const
+{
+    // skip antiportals
+    if (mogpFlags & 0x4000000)
+        return true;
+
+    if (groupName < int32(root->GroupNames.size()) && !strcmp(&root->GroupNames[groupName], "antiportal"))
+        return true;
+
+    return false;
 }
 
 WMOGroup::~WMOGroup()

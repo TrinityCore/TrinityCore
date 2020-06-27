@@ -243,10 +243,14 @@ namespace VMAP
         if (!result.File)
         {
             int32 parentMapId = vm->getParentMapId(mapID);
-            if (parentMapId != -1)
+            while (parentMapId != -1)
             {
                 result.Name = basePath + getTileFileName(parentMapId, tileX, tileY);
                 result.File = fopen(result.Name.c_str(), "rb");
+                if (result.File)
+                    break;
+
+                parentMapId = vm->getParentMapId(uint32(parentMapId));
             }
         }
 

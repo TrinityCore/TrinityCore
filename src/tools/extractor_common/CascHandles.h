@@ -32,34 +32,49 @@ namespace boost
 
 namespace CASC
 {
-    struct StorageDeleter
-    {
-        typedef HANDLE pointer;
-        void operator()(HANDLE handle);
-    };
-
-    struct FileDeleter
-    {
-        typedef HANDLE pointer;
-        void operator()(HANDLE handle);
-    };
-
-    typedef std::unique_ptr<HANDLE, StorageDeleter> StorageHandle;
-    typedef std::unique_ptr<HANDLE, FileDeleter> FileHandle;
-
     char const* HumanReadableCASCError(uint32 error);
 
-    StorageHandle OpenStorage(boost::filesystem::path const& path, uint32 localeMask, char const* product);
-    uint32 GetBuildNumber(StorageHandle const& storage);
-    uint32 GetInstalledLocalesMask(StorageHandle const& storage);
-    bool HasTactKey(StorageHandle const& storage, uint64 keyLookup);
+    class File;
 
-    FileHandle OpenFile(StorageHandle const& storage, char const* fileName, uint32 localeMask, bool printErrors = false, bool zerofillEncryptedParts = false);
-    FileHandle OpenFile(StorageHandle const& storage, uint32 fileDataId, uint32 localeMask, bool printErrors = false, bool zerofillEncryptedParts = false);
-    int64 GetFileSize(FileHandle const& file);
-    int64 GetFilePointer(FileHandle const& file);
-    bool SetFilePointer(FileHandle const& file, int64 position);
-    bool ReadFile(FileHandle const& file, void* buffer, uint32 bytes, uint32* bytesRead);
+    class Storage
+    {
+    public:
+        ~Storage();
+
+        static Storage* Open(boost::filesystem::path const& path, uint32 localeMask, char const* product);
+
+        uint32 GetBuildNumber() const;
+        uint32 GetInstalledLocalesMask() const;
+        bool HasTactKey(uint64 keyLookup) const;
+
+        File* OpenFile(char const* fileName, uint32 localeMask, bool printErrors = false, bool zerofillEncryptedParts = false) const;
+        File* OpenFile(uint32 fileDataId, uint32 localeMask, bool printErrors = false, bool zerofillEncryptedParts = false) const;
+
+    private:
+        Storage(HANDLE handle);
+
+        HANDLE _handle;
+    };
+
+    class File
+    {
+        friend File* Storage::OpenFile(char const* fileName, uint32 localeMask, bool printErrors, bool zerofillEncryptedParts) const;
+        friend File* Storage::OpenFile(uint32 fileDataId, uint32 localeMask, bool printErrors, bool zerofillEncryptedParts) const;
+
+    public:
+        ~File();
+
+        uint32 GetId() const;
+        int64 GetSize() const;
+        int64 GetPointer() const;
+        bool SetPointer(int64 position);
+        bool ReadFile(void* buffer, uint32 bytes, uint32* bytesRead);
+
+    private:
+        File(HANDLE handle);
+
+        HANDLE _handle;
+    };
 }
 
 #endif // CascHandles_h__
