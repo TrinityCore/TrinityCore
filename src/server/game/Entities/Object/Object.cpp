@@ -2950,6 +2950,13 @@ bool WorldObject::IsValidAttackTarget(WorldObject const* target, SpellInfo const
     if (unitTarget && unitTarget->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED) && unit && unit->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED) && (unitTarget->IsInSanctuary() || unit->IsInSanctuary()))
         return false;
 
+    // Traps shouldn't activate in Sanctuary
+    if (GameObject const* go = ToGameObject())
+        if (go->GetGoType() == GAMEOBJECT_TYPE_TRAP)
+            if (AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(go->GetAreaId()))
+                if (areaEntry->IsSanctuary())
+                    return false;
+
     // additional checks - only PvP case
     if (playerAffectingAttacker && playerAffectingTarget)
     {
