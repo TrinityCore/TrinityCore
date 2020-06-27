@@ -123,12 +123,12 @@ void Channel::GetChannelName(std::string& channelName, uint32 channelId, LocaleC
         if (!(channelEntry->Flags & CHANNEL_DBC_FLAG_GLOBAL))
         {
             if (channelEntry->Flags & CHANNEL_DBC_FLAG_CITY_ONLY)
-                channelName = Trinity::StringFormat(channelEntry->Name->Str[locale], sObjectMgr->GetTrinityString(LANG_CHANNEL_CITY, locale));
+                channelName = Trinity::StringFormat(channelEntry->Name[locale], sObjectMgr->GetTrinityString(LANG_CHANNEL_CITY, locale));
             else
-                channelName = Trinity::StringFormat(channelEntry->Name->Str[locale], ASSERT_NOTNULL(zoneEntry)->AreaName->Str[locale]);
+                channelName = Trinity::StringFormat(channelEntry->Name[locale], ASSERT_NOTNULL(zoneEntry)->AreaName[locale]);
         }
         else
-            channelName = channelEntry->Name->Str[locale];
+            channelName = channelEntry->Name[locale];
     }
 }
 
