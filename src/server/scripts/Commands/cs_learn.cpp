@@ -370,20 +370,20 @@ public:
                 !skillInfo->CanLink)                            // only prof with recipes have set
                 continue;
 
-            int locale = handler->GetSessionDbcLocale();
-            name = skillInfo->DisplayName->Str[locale];
+            LocaleConstant locale = handler->GetSessionDbcLocale();
+            name = skillInfo->DisplayName[locale];
             if (name.empty())
                 continue;
 
             if (!Utf8FitTo(name, namePart))
             {
-                locale = 0;
-                for (; locale < TOTAL_LOCALES; ++locale)
+                locale = LOCALE_enUS;
+                for (; locale < TOTAL_LOCALES; locale = LocaleConstant(locale + 1))
                 {
                     if (locale == handler->GetSessionDbcLocale())
                         continue;
 
-                    name = skillInfo->DisplayName->Str[locale];
+                    name = skillInfo->DisplayName[locale];
                     if (name.empty())
                         continue;
 
