@@ -217,6 +217,8 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
     _followMovementTimer.Update(diff);
     if (_followMovementTimer.Passed())
     {
+
+        _followMovementTimer.Reset(FOLLOW_MOVEMENT_INTERVAL);
         if (IsTargetMoving(_target))
         {
             _events.Reset();
@@ -231,7 +233,6 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
             _events.ScheduleEvent(EVENT_ALLIGN_TO_TARGET, Milliseconds(ALLIGN_MOVEMENT_INTERVAL));
         }
     }
-    _followMovementTimer.Reset(FOLLOW_MOVEMENT_INTERVAL);
 
     _events.Update(diff);
     while (uint32 eventId = _events.ExecuteEvent())
@@ -256,71 +257,6 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
         }
     }
 
-    /*
-    // Target is currently not moving. Return to intended follow position after a short delay.
-    if (!owner->HasUnitState(UNIT_STATE_FOLLOW_MOVE) && !_faceTarget)
-    {
-        _allignMovementTimer.Update(diff);
-        _facingMovementTimer.Update(diff);
-
-        if (_allignMovementTimer.Passed() && _returnState == RETURN_STATE_NONE)
-        {
-            // Return to our follow target
-            Position dest = _target->GetPosition();
-            _target->MovePositionToFirstCollision(dest, _range, _angle.RelativeAngle);
-
-            // Launch a alligning spline when we are too far away from our follow target
-            if (owner->GetExactDist2d(dest) > 1.f)
-            {
-                Movement::MoveSplineInit init(owner);
-                init.MoveTo(dest.GetPositionX(), dest.GetPositionY(), dest.GetPositionZ());
-                init.SetVelocity(_target->GetSpeed(SelectSpeedType(_target->GetUnitMovementFlags())));
-                init.Launch();
-                _returnState = RETURN_STATE_RETURNING;
-                _facingMovementTimer.Reset(FOLLOW_MOVEMENT_INTERVAL);
-            }
-            else
-                _returnState = RETURN_STATE_RETURNED;
-        }
-
-        if (_facingMovementTimer.Passed() && _returnState == RETURN_STATE_RETURNING)
-        {
-            if (owner->movespline->Finalized())
-            {
-                owner->SetFacingTo(_target->GetOrientation());
-                _returnState = RETURN_STATE_RETURNED;
-            }
-            else
-                _facingMovementTimer.Reset(FOLLOW_MOVEMENT_INTERVAL);
-        }
-
-        _followMovementTimer.Reset(0);
-    }
-
-    _followMovementTimer.Update(diff);
-    if (_followMovementTimer.Passed())
-    {
-        // Target is currently moving, launch our next spline
-        if (!_target->movespline->Finalized() || _target->isMoving())
-            LaunchMovement(owner, false);
-        else if (owner->HasUnitState(UNIT_STATE_FOLLOW_MOVE) && _target->movespline->Finalized() && !_target->isMoving())
-        {
-            // Owner is no longer moving. Prepare out allignment movement
-            if (!_faceTarget)
-            {
-                owner->StopMoving();
-                owner->ClearUnitState(UNIT_STATE_FOLLOW_MOVE);
-                _allignMovementTimer.Reset(ALLING_MOVEMENT_INTERVAL);
-                DoMovementInform(owner, _target);
-            }
-            else
-                LaunchMovement(owner, true);
-        }
-
-        _followMovementTimer.Reset(FOLLOW_MOVEMENT_INTERVAL);
-    }
-
-    */
     return true;
 }
 
