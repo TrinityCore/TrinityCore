@@ -934,7 +934,7 @@ void LFGMgr::MakeNewGroup(LfgProposal const& proposal)
                     dpsPlayers.push_back(guid);
                     break;
                 default:
-                    ASSERT(false, "Invalid LFG role %u", it->second.role);
+                    ABORT_MSG("Invalid LFG role %u", it->second.role);
                     break;
             }
 

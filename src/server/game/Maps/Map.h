@@ -850,7 +850,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
             switch (type)
             {
                 default:
-                    ASSERT(false);
+                    ABORT();
                 case SPAWN_TYPE_CREATURE:
                     return _creatureRespawnTimesBySpawnId;
                 case SPAWN_TYPE_GAMEOBJECT:
@@ -862,7 +862,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
             switch (type)
             {
                 default:
-                    ASSERT(false);
+                    ABORT();
                 case SPAWN_TYPE_CREATURE:
                     return _creatureRespawnTimesBySpawnId;
                 case SPAWN_TYPE_GAMEOBJECT:
