@@ -2184,7 +2184,7 @@ void Group::ResetInstances(uint8 method, bool isRaid, Player* SendMsgTo)
                     else
                     {
                         WorldSafeLocsEntry const * graveyardLocation = sObjectMgr->GetClosestGraveyard(instanceEntrance->target_X, instanceEntrance->target_Y, instanceEntrance->target_Z, instanceEntrance->target_mapId, SendMsgTo->GetTeam());
-                        uint32 const zoneId = sMapMgr->GetZoneId(graveyardLocation->map_id, graveyardLocation->x, graveyardLocation->y, graveyardLocation->z);
+                        uint32 const zoneId = sMapMgr->GetZoneId(PHASEMASK_NORMAL, graveyardLocation->map_id, graveyardLocation->x, graveyardLocation->y, graveyardLocation->z);
 
                         for (MemberSlot const& member : GetMemberSlots())
                         {
