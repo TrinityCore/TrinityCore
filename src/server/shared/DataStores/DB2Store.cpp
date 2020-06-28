@@ -98,11 +98,12 @@ bool DB2StorageBase::Load(std::string const& path, LocaleConstant locale, char**
 
     // load raw non-string data
     _dataTable = db2.AutoProduceData(_indexTableSize, indexTable, _stringPool);
+    if (!_dataTable)
+        return false;
 
     // load strings from db2 data
-    if (!_stringPool.empty())
-        if (char* stringBlock = db2.AutoProduceStrings(indexTable, _indexTableSize, locale))
-            _stringPool.push_back(stringBlock);
+    if (char* stringBlock = db2.AutoProduceStrings(indexTable, _indexTableSize, locale))
+        _stringPool.push_back(stringBlock);
 
     db2.AutoProduceRecordCopies(_indexTableSize, indexTable, _dataTable);
 

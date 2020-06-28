@@ -522,6 +522,9 @@ char* DB2FileLoaderRegularImpl::AutoProduceStrings(char** indexTable, uint32 ind
         return nullptr;
     }
 
+    if (!_loadInfo->GetStringFieldCount(false))
+        return nullptr;
+
     char* stringPool = new char[_header->StringTableSize];
     memcpy(stringPool, _stringTable, _header->StringTableSize);
 
@@ -1111,29 +1114,15 @@ char* DB2FileLoaderSparseImpl::AutoProduceData(uint32& maxId, char**& indexTable
                             offset += 8;
                             break;
                         case FT_STRING:
-                        {
-                            LocalizedString* slot = (LocalizedString*)(&dataTable[offset]);
-                            for (uint32 locale = 0; locale < TOTAL_LOCALES; ++locale)
-                            {
-                                slot->Str[locale] = nullStr;
-                                if (_header->Locale & (1 << locale))
-                                    slot->Str[locale] = stringPtr;
-                            }
+                            for (char const*& localeStr : ((LocalizedString*)(&dataTable[offset]))->Str)
+                                localeStr = nullStr;
 
-                            strcpy(stringPtr, RecordGetString(rawRecord, x, z));
-                            stringPtr += strlen(stringPtr) + 1;
                             offset += sizeof(LocalizedString);
                             break;
-                        }
                         case FT_STRING_NOT_LOCALIZED:
-                        {
-                            char const** slot = (char const**)(&dataTable[offset]);
-                            *slot = stringPtr;
-                            strcpy(stringPtr, RecordGetString(rawRecord, x, z));
-                            stringPtr += strlen(stringPtr) + 1;
+                            *(char const**)(&dataTable[offset]) = nullStr;
                             offset += sizeof(char*);
                             break;
-                        }
                         default:
                             ASSERT(false, "Unknown format character '%c' found in %s meta for field %s",
                                 _loadInfo->TypesString[fieldIndex], _fileName, _loadInfo->Fields[fieldIndex].Name);
@@ -1203,6 +1192,9 @@ char* DB2FileLoaderSparseImpl::AutoProduceStrings(char** indexTable, uint32 inde
     uint32 recordsize = _loadInfo->Meta->GetRecordSize();
     std::size_t stringFields = _loadInfo->GetStringFieldCount(false);
     std::size_t localizedStringFields = _loadInfo->GetStringFieldCount(true);
+
+    if (!stringFields)
+        return nullptr;
 
     std::size_t stringsInRecordSize = (stringFields - localizedStringFields) * sizeof(char*);
     std::size_t localizedStringsInRecordSize = localizedStringFields * sizeof(LocalizedString);
@@ -1276,8 +1268,14 @@ char* DB2FileLoaderSparseImpl::AutoProduceStrings(char** indexTable, uint32 inde
                             break;
                         }
                         case FT_STRING_NOT_LOCALIZED:
+                        {
+                            char const** db2str = (char const**)(&recordData[offset]);
+                            *db2str = stringPtr;
+                            strcpy(stringPtr, RecordGetString(rawRecord, x, z));
+                            stringPtr += strlen(stringPtr) + 1;
                             offset += sizeof(char*);
                             break;
+                        }
                         default:
                             ASSERT(false, "Unknown format character '%c' found in %s meta for field %s",
                                 _loadInfo->TypesString[fieldIndex], _fileName, _loadInfo->Fields[fieldIndex].Name);
