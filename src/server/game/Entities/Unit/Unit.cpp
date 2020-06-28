@@ -9239,7 +9239,7 @@ void Unit::RemoveFormationFollower(Unit* follower)
         if (!follwingUnit || follwingUnit == follower)
             itr = _formationFollowers.erase(itr);
         else
-            itr++;
+            ++itr;
     }
 }
 

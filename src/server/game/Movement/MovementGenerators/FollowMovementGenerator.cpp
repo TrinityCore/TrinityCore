@@ -18,7 +18,6 @@
 #include "FollowMovementGenerator.h"
 #include "CreatureAI.h"
 #include "EventProcessor.h"
-#include "Log.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
 #include "PathGenerator.h"
@@ -277,12 +276,6 @@ void FollowMovementGenerator::UpdateFollowFormation()
     uint8 followSlot = 0;
     for (Unit* follower : _target->GetFormationFollowers())
     {
-        if (!follower)
-        {
-            TC_LOG_ERROR("movement.motionmaster", "Unit (%s) has a invalid follower reference in its formation follower container.", _target->GetGUID().ToString().c_str());
-            continue;
-        }
-
         for (uint8 slot = MOTION_SLOT_IDLE; slot < MAX_MOTION_SLOT; ++slot)
         {
             MovementGenerator* moveGen = follower->GetMotionMaster()->GetMotionSlot(MovementSlot(slot));
