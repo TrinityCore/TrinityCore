@@ -212,6 +212,51 @@ void GameObjectModel::intersectPoint(G3D::Vector3 const& point, VMAP::AreaInfo& 
     }
 }
 
+bool GameObjectModel::GetLocationInfo(G3D::Vector3 const& point, VMAP::LocationInfo& info, PhaseShift const& phaseShift) const
+{
+    if (!isCollisionEnabled() || !owner->IsSpawned() || !isMapObject())
+        return false;
+
+    if (!owner->IsInPhase(phaseShift))
+        return false;
+
+    if (!iBound.contains(point))
+        return false;
+
+    // child bounds are defined in object space:
+    Vector3 pModel = iInvRot * (point - iPos) * iInvScale;
+    Vector3 zDirModel = iInvRot * Vector3(0.f, 0.f, -1.f);
+    float zDist;
+    if (iModel->GetLocationInfo(pModel, zDirModel, zDist, info))
+    {
+        Vector3 modelGround = pModel + zDist * zDirModel;
+        float world_Z = ((modelGround * iInvRot) * iScale + iPos).z;
+        if (info.ground_Z < world_Z)
+        {
+            info.ground_Z = world_Z;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool GameObjectModel::GetLiquidLevel(G3D::Vector3 const& point, VMAP::LocationInfo& info, float& liqHeight) const
+{
+    // child bounds are defined in object space:
+    Vector3 pModel = iInvRot * (point - iPos) * iInvScale;
+    //Vector3 zDirModel = iInvRot * Vector3(0.f, 0.f, -1.f);
+    float zDist;
+    if (info.hitModel->GetLiquidLevel(pModel, zDist))
+    {
+        // calculate world height (zDist in model coords):
+        // assume WMO not tilted (wouldn't make much sense anyway)
+        liqHeight = zDist * iScale + iPos.z;
+        return true;
+    }
+    return false;
+}
+
 bool GameObjectModel::UpdatePosition()
 {
     if (!iModel)
