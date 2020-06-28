@@ -9237,7 +9237,7 @@ void Unit::RemoveFormationFollower(Unit* follower)
         Unit* follwingUnit = *itr;
         // Cleaning up dead references while at it
         if (!follwingUnit || follwingUnit == follower)
-            _formationFollowers.erase(itr);
+            itr = _formationFollowers.erase(itr);
         else
             itr++;
     }
