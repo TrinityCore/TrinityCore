@@ -18,6 +18,7 @@
 #include "FollowMovementGenerator.h"
 #include "CreatureAI.h"
 #include "EventProcessor.h"
+#include "Log.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
 #include "PathGenerator.h"
