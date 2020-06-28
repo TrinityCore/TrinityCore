@@ -226,7 +226,7 @@ class boss_anubarak_trial : public CreatureScript
                 for (int i = 0; i < 10; i++)
                     if (Creature* scarab = me->SummonCreature(NPC_SCARAB, AnubarakLoc[1].GetPositionX()+urand(0, 50)-25, AnubarakLoc[1].GetPositionY()+urand(0, 50)-25, AnubarakLoc[1].GetPositionZ()))
                     {
-                        scarab->SetFaction(31);
+                        scarab->SetFaction(FACTION_PREY);
                         scarab->GetMotionMaster()->MoveRandom(10);
                     }
             }

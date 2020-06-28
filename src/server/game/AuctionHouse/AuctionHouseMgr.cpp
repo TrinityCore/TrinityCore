@@ -280,11 +280,7 @@ private:
             case AuctionHouseSortOrder::Name:
                 return left->FullName[_locale].compare(right->FullName[_locale]);
             case AuctionHouseSortOrder::Level:
-            {
-                int32 leftLevel = !left->MaxBattlePetLevel ? left->RequiredLevel : left->MaxBattlePetLevel;
-                int32 rightLevel = !right->MaxBattlePetLevel ? right->RequiredLevel : right->MaxBattlePetLevel;
-                return leftLevel - rightLevel;
-            }
+                return int32(left->SortLevel) - int32(right->SortLevel);
             default:
                 break;
         }
@@ -335,10 +331,10 @@ private:
             case AuctionHouseSortOrder::Level:
             {
                 int32 leftLevel = !left->Items[0]->GetModifier(ITEM_MODIFIER_BATTLE_PET_SPECIES_ID)
-                    ? left->Items[0]->GetRequiredLevel()
+                    ? left->Bucket->SortLevel
                     : left->Items[0]->GetModifier(ITEM_MODIFIER_BATTLE_PET_LEVEL);
                 int32 rightLevel = !right->Items[0]->GetModifier(ITEM_MODIFIER_BATTLE_PET_SPECIES_ID)
-                    ? right->Items[0]->GetRequiredLevel()
+                    ? right->Bucket->SortLevel
                     : right->Items[0]->GetModifier(ITEM_MODIFIER_BATTLE_PET_LEVEL);
                 return leftLevel - rightLevel;
             }
@@ -902,6 +898,33 @@ void AuctionHouseObject::AddAuction(CharacterDatabaseTransaction trans, AuctionP
         bucket->ItemSubClass = itemTemplate->GetSubClass();
         bucket->InventoryType = itemTemplate->GetInventoryType();
         bucket->RequiredLevel = auction.Items[0]->GetRequiredLevel();
+        switch (itemTemplate->GetClass())
+        {
+            case ITEM_CLASS_WEAPON:
+            case ITEM_CLASS_ARMOR:
+                bucket->SortLevel = key.ItemLevel;
+                break;
+            case ITEM_CLASS_CONTAINER:
+                bucket->SortLevel = itemTemplate->GetContainerSlots();
+                break;
+            case ITEM_CLASS_GEM:
+            case ITEM_CLASS_ITEM_ENHANCEMENT:
+                bucket->SortLevel = itemTemplate->GetBaseItemLevel();
+                break;
+            case ITEM_CLASS_CONSUMABLE:
+                bucket->SortLevel = std::max<uint8>(1, bucket->RequiredLevel);
+                break;
+            case ITEM_CLASS_MISCELLANEOUS:
+            case ITEM_CLASS_BATTLE_PETS:
+                bucket->SortLevel = 1;
+                break;
+            case ITEM_CLASS_RECIPE:
+                bucket->SortLevel = itemTemplate->GetSubClass() != ITEM_SUBCLASS_BOOK ? itemTemplate->GetRequiredSkillRank() : itemTemplate->GetBaseRequiredLevel();
+                break;
+            default:
+                break;
+        }
+
         for (LocaleConstant locale = LOCALE_enUS; locale < TOTAL_LOCALES; locale = LocaleConstant(locale + 1))
         {
             if (locale == LOCALE_none)
@@ -956,6 +979,7 @@ void AuctionHouseObject::AddAuction(CharacterDatabaseTransaction trans, AuctionP
                 bucket->MinBattlePetLevel = battlePetLevel;
 
             bucket->MaxBattlePetLevel = std::max<uint8>(bucket->MaxBattlePetLevel, battlePetLevel);
+            bucket->SortLevel = bucket->MaxBattlePetLevel;
         }
     }
 

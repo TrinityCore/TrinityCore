@@ -93,7 +93,6 @@ public:
             { "kick",             rbac::RBAC_PERM_COMMAND_KICK,              true, &HandleKickPlayerCommand,       "" },
             { "linkgrave",        rbac::RBAC_PERM_COMMAND_LINKGRAVE,        false, &HandleLinkGraveCommand,        "" },
             { "listfreeze",       rbac::RBAC_PERM_COMMAND_LISTFREEZE,       false, &HandleListFreezeCommand,       "" },
-            { "maxskill",         rbac::RBAC_PERM_COMMAND_MAXSKILL,         false, &HandleMaxSkillCommand,         "" },
             { "movegens",         rbac::RBAC_PERM_COMMAND_MOVEGENS,         false, &HandleMovegensCommand,         "" },
             { "mute",             rbac::RBAC_PERM_COMMAND_MUTE,              true, &HandleMuteCommand,             "" },
             { "mutehistory",      rbac::RBAC_PERM_COMMAND_MUTEHISTORY,       true, &HandleMuteInfoCommand,         "" },
@@ -286,9 +285,9 @@ public:
         char const* unknown = handler->GetTrinityString(LANG_UNKNOWN);
 
         handler->PSendSysMessage(LANG_MAP_POSITION,
-            mapId, (mapEntry ? mapEntry->MapName->Str[handler->GetSessionDbcLocale()] : unknown),
-            zoneId, (zoneEntry ? zoneEntry->AreaName->Str[handler->GetSessionDbcLocale()] : unknown),
-            areaId, (areaEntry ? areaEntry->AreaName->Str[handler->GetSessionDbcLocale()] : unknown),
+            mapId, (mapEntry ? mapEntry->MapName[handler->GetSessionDbcLocale()] : unknown),
+            zoneId, (zoneEntry ? zoneEntry->AreaName[handler->GetSessionDbcLocale()] : unknown),
+            areaId, (areaEntry ? areaEntry->AreaName[handler->GetSessionDbcLocale()] : unknown),
             object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), object->GetOrientation());
         if (Transport* transport = object->GetTransport())
             handler->PSendSysMessage(LANG_TRANSPORT_POSITION,
@@ -1270,8 +1269,8 @@ public:
                 std::string itemName = itemNameStr+1;
                 auto itr = std::find_if(sItemSparseStore.begin(), sItemSparseStore.end(), [&itemName](ItemSparseEntry const* sparse)
                 {
-                    for (uint32 i = 0; i < TOTAL_LOCALES; ++i)
-                        if (itemName == sparse->Display->Str[i])
+                    for (LocaleConstant i = LOCALE_enUS; i < TOTAL_LOCALES; i = LocaleConstant(i + 1))
+                        if (itemName == sparse->Display[i])
                             return true;
                     return false;
                 });
@@ -1498,22 +1497,6 @@ public:
         return true;
     }
 
-
-    static bool HandleMaxSkillCommand(ChatHandler* handler, char const* /*args*/)
-    {
-        Player* player = handler->getSelectedPlayerOrSelf();
-        if (!player)
-        {
-            handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        // each skills that have max skill value dependent from level seted to current level max skill value
-        player->UpdateSkillsToMaxSkillsForLevel();
-        return true;
-    }
-
     static bool HandleSetSkillCommand(ChatHandler* handler, char const* args)
     {
         // number or [name] Shift-click form |color|Hskill:skill_id|h[name]|h|r
@@ -1566,7 +1549,7 @@ public:
         // add the skill to the player's book with step 1 (which is the first rank, in most cases something
         // like 'Apprentice <skill>'.
         target->SetSkill(skill, targetHasSkill ? target->GetSkillStep(skill) : 1, level, max);
-        handler->PSendSysMessage(LANG_SET_SKILL, skill, skillLine->DisplayName->Str[handler->GetSessionDbcLocale()], handler->GetNameLink(target).c_str(), level, max);
+        handler->PSendSysMessage(LANG_SET_SKILL, skill, skillLine->DisplayName[handler->GetSessionDbcLocale()], handler->GetNameLink(target).c_str(), level, max);
         return true;
     }
 
@@ -1904,15 +1887,15 @@ public:
         AreaTableEntry const* area = sAreaTableStore.LookupEntry(areaId);
         if (area)
         {
-            areaName = area->AreaName->Str[handler->GetSessionDbcLocale()];
+            areaName = area->AreaName[handler->GetSessionDbcLocale()];
 
             AreaTableEntry const* zone = sAreaTableStore.LookupEntry(area->ParentAreaID);
             if (zone)
-                zoneName = zone->AreaName->Str[handler->GetSessionDbcLocale()];
+                zoneName = zone->AreaName[handler->GetSessionDbcLocale()];
         }
 
         if (target)
-            handler->PSendSysMessage(LANG_PINFO_CHR_MAP, map->MapName->Str[handler->GetSessionDbcLocale()],
+            handler->PSendSysMessage(LANG_PINFO_CHR_MAP, map->MapName[handler->GetSessionDbcLocale()],
                 (!zoneName.empty() ? zoneName.c_str() : handler->GetTrinityString(LANG_UNKNOWN)),
                 (!areaName.empty() ? areaName.c_str() : handler->GetTrinityString(LANG_UNKNOWN)));
 

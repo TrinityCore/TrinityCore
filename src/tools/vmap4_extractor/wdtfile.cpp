@@ -23,15 +23,6 @@
 #include "StringFormat.h"
 #include <cstdio>
 
-char * wdtGetPlainName(char * FileName)
-{
-    char * szTemp;
-
-    if((szTemp = strrchr(FileName, '\\')) != NULL)
-        FileName = szTemp + 1;
-    return FileName;
-}
-
 extern std::shared_ptr<CASC::Storage> CascStorage;
 
 WDTFile::WDTFile(uint32 fileDataId, std::string const& description, std::string mapName, bool cache)
@@ -41,7 +32,7 @@ WDTFile::WDTFile(uint32 fileDataId, std::string const& description, std::string 
     memset(&_adtInfo, 0, sizeof(WDT::MAIN));
     if (cache)
     {
-        _adtCache = Trinity::make_unique<ADTCache>();
+        _adtCache = std::make_unique<ADTCache>();
         memset(_adtCache->file, 0, sizeof(_adtCache->file));
     }
     else
@@ -89,7 +80,7 @@ bool WDTFile::init(uint32 mapId)
         else if (!strcmp(fourcc, "MAID"))
         {
             ASSERT(size == sizeof(WDT::MAID));
-            _adtFileDataIds = Trinity::make_unique<WDT::MAID>();
+            _adtFileDataIds = std::make_unique<WDT::MAID>();
             _file.read(_adtFileDataIds.get(), sizeof(WDT::MAID));
         }
         else if (!strcmp(fourcc,"MWMO"))
@@ -104,11 +95,10 @@ bool WDTFile::init(uint32 mapId)
                 {
                     std::string path(p);
 
-                    char* s = wdtGetPlainName(p);
-                    FixNameCase(s, strlen(s));
-                    FixNameSpaces(s, strlen(s));
+                    char* s = GetPlainName(p);
+                    NormalizeFileName(s, strlen(s));
                     p = p + strlen(p) + 1;
-                    _wmoNames.push_back(s);
+                    _wmoNames.emplace_back(s);
 
                     ExtractSingleWmo(path);
                 }
@@ -160,7 +150,7 @@ ADTFile* WDTFile::GetMap(int32 x, int32 y)
         return nullptr;
 
     ADTFile* adt;
-    std::string name = Trinity::StringFormat("World\\Maps\\%s\\%s_%d_%d_obj0.adt", _mapName.c_str(), _mapName.c_str(), x, y);
+    std::string name = Trinity::StringFormat(R"(World\Maps\%s\%s_%d_%d_obj0.adt)", _mapName.c_str(), _mapName.c_str(), x, y);
     if (_header.Flags & 0x200)
         adt = new ADTFile(_adtFileDataIds->Data[y][x].Obj0ADT, name, _adtCache != nullptr);
     else

@@ -86,6 +86,7 @@ public:
     float bbcorn2[3];
     uint16 flags, numLod;
 
+    std::vector<char> GroupNames;
     WMODoodadData DoodadData;
     std::unordered_set<uint32> ValidDoodadNames;
     std::vector<uint32> groupFileDataIDs;
@@ -156,6 +157,7 @@ public:
     bool open(WMORoot* rootWMO);
     int ConvertToVMAPGroupWmo(FILE* output, bool preciseVectorData);
     uint32 GetLiquidTypeId(uint32 liquidTypeId);
+    bool ShouldSkip(WMORoot const* root) const;
 };
 
 namespace MapObject

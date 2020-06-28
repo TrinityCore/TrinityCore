@@ -2411,7 +2411,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_SEND_GOSSIP_MENU:
         {
-            if (!GetBaseObject())
+            if (!GetBaseObject() || !IsSmart())
                 break;
 
             TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_SEND_GOSSIP_MENU: gossipMenuId %d, gossipNpcTextId %d",
@@ -2420,6 +2420,12 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             ObjectList* targets = GetTargets(e, unit);
             if (!targets)
                 break;
+
+            // override default gossip
+            if (me)
+                ENSURE_AI(SmartAI, me->AI())->SetGossipReturn(true);
+            else if (go)
+                ENSURE_AI(SmartGameObjectAI, go->AI())->SetGossipReturn(true);
 
             for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
             {

@@ -638,7 +638,7 @@ class boss_mimiron : public CreatureScript
                         case EVENT_OUTTRO_1:
                             me->RemoveAurasDueToSpell(SPELL_SLEEP_VISUAL_1);
                             DoCast(me, SPELL_SLEEP_VISUAL_2);
-                            me->SetFaction(35);
+                            me->SetFaction(FACTION_FRIENDLY);
                             events.ScheduleEvent(EVENT_OUTTRO_2, 3000);
                             break;
                         case EVENT_OUTTRO_2:

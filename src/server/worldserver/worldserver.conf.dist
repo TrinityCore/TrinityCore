@@ -3039,15 +3039,6 @@ ResetDuelCooldowns = 0
 ResetDuelHealthMana = 0
 
 #
-#    AlwaysMaxWeaponSkill
-#        Description: Players will automatically gain max weapon/defense skill when logging in,
-#                     or leveling.
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
-
-AlwaysMaxWeaponSkill = 0
-
-#
 #    PvPToken.Enable
 #        Description: Character will receive a token after defeating another character that yields
 #                     honor.

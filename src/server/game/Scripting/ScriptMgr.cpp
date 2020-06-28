@@ -243,7 +243,7 @@ public:
     void QueueForDelayedDelete(T&& any)
     {
         _delayed_delete_queue.push_back(
-            Trinity::make_unique<
+    std::make_unique<
                 DeleteableObject<typename std::decay<T>::type>
             >(std::forward<T>(any))
         );
@@ -1607,7 +1607,10 @@ bool ScriptMgr::CanSpawn(ObjectGuid::LowType spawnId, uint32 entry, CreatureTemp
     CreatureTemplate const* baseTemplate = sObjectMgr->GetCreatureTemplate(entry);
     if (!baseTemplate)
         baseTemplate = actTemplate;
-    GET_SCRIPT_RET(CreatureScript, (cData ? cData->ScriptId : baseTemplate->ScriptID), tmpscript, true);
+    uint32 scriptId = baseTemplate->ScriptID;
+    if (cData && cData->ScriptId)
+        scriptId = cData->ScriptId;
+    GET_SCRIPT_RET(CreatureScript, scriptId, tmpscript, true);
     return tmpscript->CanSpawn(spawnId, entry, baseTemplate, actTemplate, cData, map);
 }
 

@@ -39,8 +39,6 @@ enum Yenniku
 {
     SPELL_YENNIKUS_RELEASE   = 3607,
     QUEST_SAVING_YENNIKU     = 592,
-    FACTION_HORDE_GENERIC    = 83,
-    FACTION_TROLL_BLOODSCALP = 28
 };
 
 class npc_yenniku : public CreatureScript

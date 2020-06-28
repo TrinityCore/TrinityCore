@@ -703,6 +703,33 @@ void Player::UpdateSpellCritChance()
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::SpellCritPercentage), crit);
 }
 
+void Player::UpdateCorruption()
+{
+    float effectiveCorruption = GetRatingBonusValue(CR_CORRUPTION) - GetRatingBonusValue(CR_CORRUPTION_RESISTANCE);
+    for (CorruptionEffectsEntry const* corruptionEffect : sCorruptionEffectsStore)
+    {
+        if ((CorruptionEffectsFlag(corruptionEffect->Flags) & CorruptionEffectsFlag::Disabled) != CorruptionEffectsFlag::None)
+            continue;
+
+        if (effectiveCorruption < corruptionEffect->MinCorruption)
+        {
+            RemoveAura(corruptionEffect->Aura);
+            continue;
+        }
+
+        if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(corruptionEffect->PlayerConditionID))
+        {
+            if (!ConditionMgr::IsPlayerMeetingCondition(this, playerCondition))
+            {
+                RemoveAura(corruptionEffect->Aura);
+                continue;
+            }
+        }
+
+        CastSpell(this, corruptionEffect->Aura, true);
+    }
+}
+
 void Player::UpdateArmorPenetration(int32 amount)
 {
     // Store Rating Value

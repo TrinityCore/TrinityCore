@@ -69,8 +69,8 @@ struct GtCombatRatingsEntry
     float CritMelee = 0.0f;
     float CritRanged = 0.0f;
     float CritSpell = 0.0f;
-    float MultiStrike = 0.0f;
-    float Readiness = 0.0f;
+    float Corruption = 0.0f;
+    float CorruptionResistance = 0.0f;
     float Speed = 0.0f;
     float ResilienceCritTaken = 0.0f;
     float ResiliencePlayerDamage = 0.0f;

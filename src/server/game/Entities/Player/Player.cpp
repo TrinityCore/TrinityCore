@@ -346,14 +346,14 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
 
     m_achievementMgr = new PlayerAchievementMgr(this);
     m_reputationMgr = new ReputationMgr(this);
-    m_questObjectiveCriteriaMgr = Trinity::make_unique<QuestObjectiveCriteriaMgr>(this);
+    m_questObjectiveCriteriaMgr = std::make_unique<QuestObjectiveCriteriaMgr>(this);
 
     for (uint8 i = 0; i < MAX_CUF_PROFILES; ++i)
         _CUFProfiles[i] = nullptr;
 
     _advancedCombatLoggingEnabled = false;
 
-    _restMgr = Trinity::make_unique<RestMgr>(this);
+    _restMgr = std::make_unique<RestMgr>(this);
 
     _usePvpItemLevels = false;
 }
@@ -2105,8 +2105,8 @@ Creature* Player::GetNPCIfCanInteractWith(ObjectGuid const& guid, NPCFlags npcFl
     if (creature->GetReactionTo(this) <= REP_UNFRIENDLY)
         return nullptr;
 
-    // not too far
-    if (!creature->IsWithinDistInMap(this, INTERACTION_DISTANCE))
+    // not too far, taken from CGGameUI::SetInteractTarget
+    if (!creature->IsWithinDistInMap(this, creature->GetCombatReach() + 4.0f))
         return nullptr;
 
     return creature;
@@ -2114,33 +2114,36 @@ Creature* Player::GetNPCIfCanInteractWith(ObjectGuid const& guid, NPCFlags npcFl
 
 GameObject* Player::GetGameObjectIfCanInteractWith(ObjectGuid const& guid) const
 {
-    if (GameObject* go = GetMap()->GetGameObject(guid))
-    {
-        if (go->IsWithinDistInMap(this, go->GetInteractionDistance()))
-            return go;
+    if (!guid)
+        return nullptr;
 
-        TC_LOG_DEBUG("maps", "Player::GetGameObjectIfCanInteractWith: GameObject '%s' (%s) is too far away from player '%s' (%s) to be used by him (Distance: %f, maximal %f is allowed)",
-            go->GetGOInfo()->name.c_str(), go->GetGUID().ToString().c_str(), GetName().c_str(), GetGUID().ToString().c_str(), go->GetDistance(this), go->GetInteractionDistance());
-    }
+    if (!IsInWorld())
+        return nullptr;
 
-    return nullptr;
+    if (IsInFlight())
+        return nullptr;
+
+    // exist
+    GameObject* go = ObjectAccessor::GetGameObject(*this, guid);
+    if (!go)
+        return nullptr;
+
+    if (!go->IsWithinDistInMap(this, go->GetInteractionDistance()))
+        return nullptr;
+
+    return go;
 }
 
 GameObject* Player::GetGameObjectIfCanInteractWith(ObjectGuid const& guid, GameobjectTypes type) const
 {
-    if (GameObject* go = GetMap()->GetGameObject(guid))
-    {
-        if (go->GetGoType() == type)
-        {
-            if (go->IsWithinDistInMap(this, go->GetInteractionDistance()))
-                return go;
+    GameObject* go = GetGameObjectIfCanInteractWith(guid);
+    if (!go)
+        return nullptr;
 
-            TC_LOG_DEBUG("maps", "Player::GetGameObjectIfCanInteractWith: GameObject '%s' (%s) is too far away from player '%s' (%s) to be used by him (Distance: %f, maximal %f is allowed)",
-                go->GetGOInfo()->name.c_str(), go->GetGUID().ToString().c_str(), GetName().c_str(), GetGUID().ToString().c_str(), go->GetDistance(this), go->GetInteractionDistance());
-        }
-    }
+    if (go->GetGoType() != type)
+        return nullptr;
 
-    return nullptr;
+    return go;
 }
 
 bool Player::IsUnderWater() const
@@ -2201,13 +2204,13 @@ void Player::SetGameMaster(bool on)
     if (on)
     {
         m_ExtraFlags |= PLAYER_EXTRA_GM_ON;
-        SetFaction(35);
+        SetFaction(FACTION_FRIENDLY);
         AddPlayerFlag(PLAYER_FLAGS_GM);
         AddUnitFlag2(UNIT_FLAG2_ALLOW_CHEAT_SPELLS);
 
         if (Pet* pet = GetPet())
         {
-            pet->SetFaction(35);
+            pet->SetFaction(FACTION_FRIENDLY);
             pet->getHostileRefManager().setOnlineOfflineState(false);
         }
 
@@ -2466,9 +2469,6 @@ void Player::GiveLevel(uint8 level)
         ResetPvpTalents();
 
     UpdateAllStats();
-
-    if (sWorld->getBoolConfig(CONFIG_ALWAYS_MAXSKILL)) // Max weapon skill when leveling up
-        UpdateSkillsToMaxSkillsForLevel();
 
     _ApplyAllLevelScaleItemMods(true); // Moved to above SetFullHealth so player will have full health from Heirlooms
 
@@ -5172,10 +5172,10 @@ inline float GetGameTableColumnForCombatRating(GtCombatRatingsEntry const* row, 
             return row->CritRanged;
         case CR_CRIT_SPELL:
             return row->CritSpell;
-        case CR_MULTISTRIKE:
-            return row->MultiStrike;
-        case CR_READINESS:
-            return row->Readiness;
+        case CR_CORRUPTION:
+            return row->Corruption;
+        case CR_CORRUPTION_RESISTANCE:
+            return row->CorruptionResistance;
         case CR_SPEED:
             return row->Speed;
         case CR_RESILIENCE_CRIT_TAKEN:
@@ -5324,8 +5324,10 @@ void Player::UpdateRating(CombatRating cr)
             if (affectStats)
                 UpdateSpellCritChance();
             break;
-        case CR_MULTISTRIKE:
-        case CR_READINESS:
+        case CR_CORRUPTION:
+        case CR_CORRUPTION_RESISTANCE:
+            UpdateCorruption();
+            break;
         case CR_SPEED:
         case CR_RESILIENCE_PLAYER_DAMAGE:
         case CR_RESILIENCE_CRIT_TAKEN:
@@ -5636,53 +5638,16 @@ void Player::UpdateSkillsForLevel()
 
         if (GetSkillRangeType(rcEntry) == SKILL_RANGE_LEVEL)
         {
-            if (!IsWeaponSkill(rcEntry->SkillID))
-            {
-                uint16 max = m_activePlayerData->Skill->SkillMaxRank[itr->second.pos];
+            if (rcEntry->Flags & SKILL_FLAG_ALWAYS_MAX_VALUE)
+                SetSkillRank(itr->second.pos, maxSkill);
 
-                /// update only level dependent max skill values
-                if (max != 1)
-                {
-                    SetSkillRank(itr->second.pos, maxSkill);
-                    SetSkillMaxRank(itr->second.pos, maxSkill);
-                    if (itr->second.uState != SKILL_NEW)
-                        itr->second.uState = SKILL_CHANGED;
-                }
-            }
+            SetSkillMaxRank(itr->second.pos, maxSkill);
+            if (itr->second.uState != SKILL_NEW)
+                itr->second.uState = SKILL_CHANGED;
         }
 
         // Update level dependent skillline spells
         LearnSkillRewardedSpells(rcEntry->SkillID, m_activePlayerData->Skill->SkillRank[itr->second.pos]);
-    }
-}
-
-void Player::UpdateSkillsToMaxSkillsForLevel()
-{
-    for (SkillStatusMap::iterator itr = mSkillStatus.begin(); itr != mSkillStatus.end(); ++itr)
-    {
-        if (itr->second.uState == SKILL_DELETED || !m_activePlayerData->Skill->SkillRank[itr->second.pos])
-            continue;
-
-        uint32 pskill = itr->first;
-        SkillRaceClassInfoEntry const* rcEntry = sDB2Manager.GetSkillRaceClassInfo(pskill, getRace(), getClass());
-        if (!rcEntry)
-            continue;
-
-        if (IsProfessionOrRidingSkill(rcEntry->SkillID))
-            continue;
-
-        if (IsWeaponSkill(rcEntry->SkillID))
-            continue;
-
-        uint16 max = m_activePlayerData->Skill->SkillMaxRank[itr->second.pos];
-
-        if (max > 1)
-        {
-            SetSkillRank(itr->second.pos, max);
-
-            if (itr->second.uState != SKILL_NEW)
-                itr->second.uState = SKILL_CHANGED;
-        }
     }
 }
 
@@ -7714,14 +7679,11 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
             case ITEM_MOD_PVP_POWER:
                 ApplyRatingMod(CR_PVP_POWER, int32(val), apply);
                 break;
-            case ITEM_MOD_CR_AMPLIFY:
-                ApplyRatingMod(CR_AMPLIFY, int32(val), apply);
+            case ITEM_MOD_CORRUPTION:
+                ApplyRatingMod(CR_CORRUPTION, int32(val), apply);
                 break;
-            case ITEM_MOD_CR_MULTISTRIKE:
-                ApplyRatingMod(CR_MULTISTRIKE, int32(val), apply);
-                break;
-            case ITEM_MOD_CR_READINESS:
-                ApplyRatingMod(CR_READINESS, int32(val * combatRatingMultiplier), apply);
+            case ITEM_MOD_CORRUPTION_RESISTANCE:
+                ApplyRatingMod(CR_CORRUPTION_RESISTANCE, int32(val), apply);
                 break;
             case ITEM_MOD_CR_SPEED:
                 ApplyRatingMod(CR_SPEED, int32(val * combatRatingMultiplier), apply);
@@ -7734,15 +7696,6 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
                 break;
             case ITEM_MOD_CR_STURDINESS:
                 ApplyRatingMod(CR_STURDINESS, int32(val * combatRatingMultiplier), apply);
-                break;
-            case ITEM_MOD_CR_UNUSED_7:
-                ApplyRatingMod(CR_UNUSED_7, int32(val), apply);
-                break;
-            case ITEM_MOD_CR_CLEAVE:
-                ApplyRatingMod(CR_CLEAVE, int32(val), apply);
-                break;
-            case ITEM_MOD_CR_UNUSED_12:
-                ApplyRatingMod(CR_UNUSED_12, int32(val), apply);
                 break;
             case ITEM_MOD_AGI_STR_INT:
                 HandleStatFlatModifier(UNIT_MOD_STAT_AGILITY, BASE_VALUE, float(val), apply);
@@ -16614,7 +16567,6 @@ QuestGiverStatus Player::GetQuestDialogStatus(Object* questgiver)
     QuestRelationBounds qr;
     QuestRelationBounds qir;
 
-    PlayerTalkClass->ClearMenus();
     switch (questgiver->GetTypeId())
     {
     case TYPEID_GAMEOBJECT:
@@ -16842,9 +16794,7 @@ void Player::AreaExploredOrEventHappens(uint32 questId)
                 q_status.Explored = true;
                 m_QuestStatusSave[questId] = QUEST_DEFAULT_SAVE_TYPE;
 
-                // if we cannot complete quest send exploration succeded (to mark exploration on client)
-                if (!CanCompleteQuest(questId))
-                    SendQuestComplete(questId);
+                SendQuestComplete(questId);
             }**/
         }
         if (CanCompleteQuest(questId))
@@ -18655,7 +18605,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder* holder)
 
     _LoadCUFProfiles(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_CUF_PROFILES));
 
-    std::unique_ptr<Garrison> garrison = Trinity::make_unique<Garrison>(this);
+    std::unique_ptr<Garrison> garrison = std::make_unique<Garrison>(this);
     if (garrison->LoadFromDB(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GARRISON),
         holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GARRISON_BLUEPRINTS),
         holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GARRISON_BUILDINGS),
@@ -18714,7 +18664,7 @@ void Player::_LoadCUFProfiles(PreparedQueryResult result)
             continue;
         }
 
-        _CUFProfiles[id] = Trinity::make_unique<CUFProfile>(name, frameHeight, frameWidth, sortBy, healthText, boolOptions, topPoint, bottomPoint, leftPoint, topOffset, bottomOffset, leftOffset);
+        _CUFProfiles[id] = std::make_unique<CUFProfile>(name, frameHeight, frameWidth, sortBy, healthText, boolOptions, topPoint, bottomPoint, leftPoint, topOffset, bottomOffset, leftOffset);
     }
     while (result->NextRow());
 }
@@ -19846,7 +19796,7 @@ void Player::_LoadBoundInstances(PreparedQueryResult result)
             bool deleteInstance = false;
 
             MapEntry const* mapEntry = sMapStore.LookupEntry(mapId);
-            std::string mapname = mapEntry ? mapEntry->MapName->Str[sWorld->GetDefaultDbcLocale()] : "Unknown";
+            std::string mapname = mapEntry ? mapEntry->MapName[sWorld->GetDefaultDbcLocale()] : "Unknown";
 
             if (!mapEntry || !mapEntry->IsDungeon())
             {
@@ -20166,7 +20116,7 @@ bool Player::Satisfy(AccessRequirement const* ar, uint32 target_map, bool report
             {
                 if (missingQuest && !ar->questFailedText.empty())
                     ChatHandler(GetSession()).PSendSysMessage("%s", ar->questFailedText.c_str());
-                else if (mapDiff->Message->Str[sWorld->GetDefaultDbcLocale()][0] != '\0') // if (missingAchievement) covered by this case
+                else if (mapDiff->Message[sWorld->GetDefaultDbcLocale()][0] != '\0') // if (missingAchievement) covered by this case
                     SendTransferAborted(target_map, TRANSFER_ABORT_DIFFICULTY, target_difficulty);
                 else if (missingItem)
                     GetSession()->SendNotification(GetSession()->GetTrinityString(LANG_LEVEL_MINREQUIRED_AND_ITEM), LevelMin, ASSERT_NOTNULL(sObjectMgr->GetItemTemplate(missingItem))->GetName(GetSession()->GetSessionDbcLocale()));
@@ -24425,8 +24375,6 @@ void Player::LearnDefaultSkill(SkillRaceClassInfoEntry const* rcInfo)
                 skillValue = maxValue;
             else if (getClass() == CLASS_DEATH_KNIGHT)
                 skillValue = std::min(std::max<uint16>({ 1, uint16((getLevel() - 1) * 5) }), maxValue);
-            else if (skillId == SKILL_FIST_WEAPONS)
-                skillValue = std::max<uint16>(1, GetSkillValue(SKILL_UNARMED));
 
             SetSkill(skillId, 0, skillValue, maxValue);
             break;
@@ -25400,18 +25348,24 @@ void Player::ResurrectUsingRequestData()
 
 void Player::ResurrectUsingRequestDataImpl()
 {
+    // save health and mana before resurrecting, _resurrectionData can be erased
+    uint32 resurrectHealth = _resurrectionData->Health;
+    uint32 resurrectMana = _resurrectionData->Mana;
+    uint32 resurrectAura = _resurrectionData->Aura;
+    ObjectGuid resurrectGUID = _resurrectionData->GUID;
+
     ResurrectPlayer(0.0f, false);
 
-    SetHealth(_resurrectionData->Health);
-    SetPower(POWER_MANA, _resurrectionData->Mana);
+    SetHealth(resurrectHealth);
+    SetPower(POWER_MANA, resurrectMana);
 
     SetPower(POWER_RAGE, 0);
     SetFullPower(POWER_ENERGY);
     SetFullPower(POWER_FOCUS);
     SetPower(POWER_LUNAR_POWER, 0);
 
-    if (uint32 aura = _resurrectionData->Aura)
-        CastSpell(this, aura, true, nullptr, nullptr, _resurrectionData->GUID);
+    if (uint32 aura = resurrectAura)
+        CastSpell(this, aura, true, nullptr, nullptr, resurrectGUID);
 
     SpawnCorpseBones();
 }
@@ -28134,9 +28088,9 @@ std::string Player::GetMapAreaAndZoneString() const
     std::string zoneName = "Unknown";
     if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(areaId))
     {
-        areaName = area->AreaName->Str[GetSession()->GetSessionDbcLocale()];
+        areaName = area->AreaName[GetSession()->GetSessionDbcLocale()];
         if (AreaTableEntry const* zone = sAreaTableStore.LookupEntry(area->ParentAreaID))
-            zoneName = zone->AreaName->Str[GetSession()->GetSessionDbcLocale()];
+            zoneName = zone->AreaName[GetSession()->GetSessionDbcLocale()];
     }
 
     std::ostringstream str;

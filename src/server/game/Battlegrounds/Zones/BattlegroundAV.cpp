@@ -757,7 +757,7 @@ void BattlegroundAV::PopulateNode(BG_AV_Nodes node)
             DelCreature(node + 302);
             return;
         }
-        trigger->SetFaction(owner == ALLIANCE ? 84 : 83);
+        trigger->SetFaction(owner == ALLIANCE ? FACTION_ALLIANCE_GENERIC : FACTION_HORDE_GENERIC);
         trigger->CastSpell(trigger, SPELL_HONORABLE_DEFENDER_25Y, false);
     }
 }
