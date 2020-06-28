@@ -2280,8 +2280,8 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
 
             uint32 modelId = m_goInfo->displayId;
             if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->building.destructibleData))
-                if (modelData->DamagedDisplayId)
-                    modelId = modelData->DamagedDisplayId;
+                if (modelData->State1Wmo)
+                    modelId = modelData->State1Wmo;
             SetDisplayId(modelId);
 
             if (setHealth)
@@ -2309,8 +2309,8 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
 
             uint32 modelId = m_goInfo->displayId;
             if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->building.destructibleData))
-                if (modelData->DestroyedDisplayId)
-                    modelId = modelData->DestroyedDisplayId;
+                if (modelData->State2Wmo)
+                    modelId = modelData->State2Wmo;
             SetDisplayId(modelId);
 
             if (setHealth)
@@ -2328,8 +2328,8 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
 
             uint32 modelId = m_goInfo->displayId;
             if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->building.destructibleData))
-                if (modelData->RebuildingDisplayId)
-                    modelId = modelData->RebuildingDisplayId;
+                if (modelData->State3Wmo)
+                    modelId = modelData->State3Wmo;
             SetDisplayId(modelId);
 
             // restores to full health
@@ -2662,13 +2662,13 @@ class GameObjectModelOwnerImpl : public GameObjectModelOwnerBase
 public:
     explicit GameObjectModelOwnerImpl(GameObject const* owner) : _owner(owner) { }
 
-    virtual bool IsSpawned() const override { return _owner->isSpawned(); }
-    virtual uint32 GetDisplayId() const override { return _owner->GetDisplayId(); }
-    virtual uint32 GetPhaseMask() const override { return _owner->GetPhaseMask(); }
-    virtual G3D::Vector3 GetPosition() const override { return G3D::Vector3(_owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ()); }
-    virtual float GetOrientation() const override { return _owner->GetOrientation(); }
-    virtual float GetScale() const override { return _owner->GetObjectScale(); }
-    virtual void DebugVisualizeCorner(G3D::Vector3 const& corner) const override { const_cast<GameObject*>(_owner)->SummonCreature(1, corner.x, corner.y, corner.z, 0, TEMPSUMMON_MANUAL_DESPAWN); }
+    bool IsSpawned() const override { return _owner->isSpawned(); }
+    uint32 GetDisplayId() const override { return _owner->GetDisplayId(); }
+    uint32 GetPhaseMask() const override { return _owner->GetPhaseMask(); }
+    G3D::Vector3 GetPosition() const override { return G3D::Vector3(_owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ()); }
+    float GetOrientation() const override { return _owner->GetOrientation(); }
+    float GetScale() const override { return _owner->GetObjectScale(); }
+    void DebugVisualizeCorner(G3D::Vector3 const& corner) const override { const_cast<GameObject*>(_owner)->SummonCreature(1, corner.x, corner.y, corner.z, 0, TEMPSUMMON_MANUAL_DESPAWN); }
 
 private:
     GameObject const* _owner;

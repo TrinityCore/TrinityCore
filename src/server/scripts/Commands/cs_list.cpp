@@ -716,7 +716,7 @@ public:
                 uint32 respawnZoneId = 0;
                 if (SpawnData const* edata = data->ToSpawnData())
                 {
-                    respawnZoneId = map->GetZoneId(edata->spawnPoint);
+                    respawnZoneId = map->GetZoneId(edata->phaseMask, edata->spawnPoint);
                     if (range)
                     {
                         if (!player->IsInDist(edata->spawnPoint, range))
