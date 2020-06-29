@@ -384,16 +384,16 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         if (movementFlags)
             data->WriteBits(movementFlags, 30);
 
-        data->WriteBit(hasSpline && GetTypeId() == TYPEID_PLAYER);              // Has spline (from MovementInfo)
+        data->WriteBit(hasSpline && !self->IsPlayer());                         // !Has player spline data
         data->WriteBit(!hasPitch);                                              // !Has pitch
         data->WriteBit(hasSpline);                                              // Has spline data (independent)
         data->WriteBit(hasFallData);                                            // Has fall data
         data->WriteBit(!hasSplineElevation);                                    // !Has spline elevation
         data->WriteBit(guid[5]);
-        data->WriteBit(self->m_movementInfo.transport.guid);                    // Has transport data
+        data->WriteBit(!self->m_movementInfo.transport.guid.IsEmpty());         // Has transport data
         data->WriteBit(0);                                                      // !HasTime
 
-        if (self->m_movementInfo.transport.guid)
+        if (!self->m_movementInfo.transport.guid.IsEmpty())
         {
             ObjectGuid transGuid = self->m_movementInfo.transport.guid;
 
