@@ -578,6 +578,7 @@ m_caster((info->HasAttribute(SPELL_ATTR6_CAST_BY_CHARMER) && caster->GetCharmerO
     unitTarget = nullptr;
     itemTarget = nullptr;
     gameObjTarget = nullptr;
+    corpseTarget = nullptr;
     destTarget = nullptr;
     damage = 0;
     targetMissInfo = SPELL_MISS_NONE;
@@ -1135,6 +1136,17 @@ void Spell::SelectImplicitNearbyTargets(SpellEffIndex effIndex, SpellImplicitTar
                 return;
             }
             break;
+        case TARGET_OBJECT_TYPE_CORPSE:
+            if (Corpse* corpseTarget = target->ToCorpse())
+                AddCorpseTarget(corpseTarget, effMask);
+            else
+            {
+                TC_LOG_DEBUG("spells", "Spell::SelectImplicitNearbyTargets: OnObjectTargetSelect script hook for spell Id %u set object of wrong type, expected corpse, got %s, effect %u", m_spellInfo->Id, target->GetGUID().GetTypeName(), effMask);
+                SendCastResult(SPELL_FAILED_BAD_IMPLICIT_TARGETS);
+                finish(false);
+                return;
+            }
+            break;
         case TARGET_OBJECT_TYPE_DEST:
         {
             SpellDestination dest(*target);
@@ -1188,12 +1200,14 @@ void Spell::SelectImplicitConeTargets(SpellEffIndex effIndex, SpellImplicitTarge
                 Trinity::Containers::RandomResize(targets, maxTargets);
             }
 
-            for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
+            for (WorldObject* itr : targets)
             {
-                if (Unit* unit = (*itr)->ToUnit())
+                if (Unit* unit = itr->ToUnit())
                     AddUnitTarget(unit, effMask, false);
-                else if (GameObject* gObjTarget = (*itr)->ToGameObject())
+                else if (GameObject* gObjTarget = itr->ToGameObject())
                     AddGOTarget(gObjTarget, effMask);
+                else if (Corpse* corpse = itr->ToCorpse())
+                    AddCorpseTarget(corpse, effMask);
             }
         }
     }
@@ -1272,12 +1286,14 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
             Trinity::Containers::RandomResize(targets, maxTargets);
         }
 
-        for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
+        for (WorldObject* itr : targets)
         {
-            if (Unit* unit = (*itr)->ToUnit())
+            if (Unit* unit = itr->ToUnit())
                 AddUnitTarget(unit, effMask, false, true, center);
-            else if (GameObject* gObjTarget = (*itr)->ToGameObject())
+            else if (GameObject* gObjTarget = itr->ToGameObject())
                 AddGOTarget(gObjTarget, effMask);
+            else if (Corpse* corpse = itr->ToCorpse())
+                AddCorpseTarget(corpse, effMask);
         }
     }
 }
@@ -1538,6 +1554,8 @@ void Spell::SelectImplicitTargetObjectTargets(SpellEffIndex effIndex, SpellImpli
             AddUnitTarget(unit, 1 << effIndex, true, false);
         else if (GameObject* gobj = target->ToGameObject())
             AddGOTarget(gobj, 1 << effIndex);
+        else if (Corpse* corpse = target->ToCorpse())
+            AddCorpseTarget(corpse, 1 << effIndex);
 
         SelectImplicitChainTargets(effIndex, targetType, target, 1 << effIndex);
     }
@@ -1700,7 +1718,7 @@ void Spell::SelectEffectTypeImplicitTargets(uint8 effIndex)
                         if (player->IsImmunedToSpellEffect(spell->GetSpellInfo(), effIndex, nullptr))
                             return;
 
-                        spell->HandleEffects(player, nullptr, nullptr, effIndex, SPELL_EFFECT_HANDLE_HIT_TARGET);
+                        spell->HandleEffects(player, nullptr, nullptr, nullptr, effIndex, SPELL_EFFECT_HANDLE_HIT_TARGET);
                     }, std::placeholders::_1, this, effIndex, target->GetGUID()));
                 }
             }
@@ -1732,11 +1750,7 @@ void Spell::SelectEffectTypeImplicitTargets(uint8 effIndex)
                 else if (targetMask & TARGET_FLAG_CORPSE_MASK)
                 {
                     if (Corpse* corpseTarget = m_targets.GetCorpseTarget())
-                    {
-                        /// @todo this is a workaround - corpses should be added to spell target map too, but we can't do that so we add owner instead
-                        if (Player* owner = ObjectAccessor::FindPlayer(corpseTarget->GetOwnerGUID()))
-                            target = owner;
-                    }
+                        target = corpseTarget;
                 }
                 else //if (targetMask & TARGET_FLAG_UNIT_MASK)
                     target = m_caster;
@@ -1767,6 +1781,8 @@ void Spell::SelectEffectTypeImplicitTargets(uint8 effIndex)
             AddUnitTarget(target->ToUnit(), 1 << effIndex, false);
         else if (target->ToGameObject())
             AddGOTarget(target->ToGameObject(), 1 << effIndex);
+        else if (target->ToCorpse())
+            AddCorpseTarget(target->ToCorpse(), 1 << effIndex);
     }
 }
 
@@ -1780,6 +1796,12 @@ uint32 Spell::GetSearcherTypeMask(SpellTargetObjectTypes objType, ConditionConta
     {
         case TARGET_OBJECT_TYPE_UNIT:
         case TARGET_OBJECT_TYPE_UNIT_AND_DEST:
+            if (!m_spellInfo->HasAttribute(SPELL_ATTR2_CAN_TARGET_DEAD))
+            {
+                retMask &= GRID_MAP_TYPE_MASK_PLAYER | GRID_MAP_TYPE_MASK_CREATURE;
+                break;
+            }
+            // No break here
         case TARGET_OBJECT_TYPE_CORPSE:
         case TARGET_OBJECT_TYPE_CORPSE_ENEMY:
         case TARGET_OBJECT_TYPE_CORPSE_ALLY:
@@ -1792,8 +1814,7 @@ uint32 Spell::GetSearcherTypeMask(SpellTargetObjectTypes objType, ConditionConta
         default:
             break;
     }
-    if (!m_spellInfo->HasAttribute(SPELL_ATTR2_CAN_TARGET_DEAD))
-        retMask &= ~GRID_MAP_TYPE_MASK_CORPSE;
+
     if (m_spellInfo->HasAttribute(SPELL_ATTR3_ONLY_TARGET_PLAYERS))
         retMask &= GRID_MAP_TYPE_MASK_CORPSE | GRID_MAP_TYPE_MASK_PLAYER;
     if (m_spellInfo->HasAttribute(SPELL_ATTR3_ONLY_TARGET_GHOSTS))
@@ -2241,6 +2262,54 @@ void Spell::AddItemTarget(Item* item, uint32 effectMask)
     m_UniqueItemInfo.emplace_back(std::move(target));
 }
 
+void Spell::AddCorpseTarget(Corpse* corpse, uint32 effectMask)
+{
+    {
+        for (uint32 effIndex = 0; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
+            if (!m_spellInfo->Effects[effIndex].IsEffect())
+                effectMask &= ~(1 << effIndex);
+
+        if (!effectMask)
+            return;
+
+        ObjectGuid targetGUID = corpse->GetGUID();
+
+        // Lookup target in already in list
+        for (CorpseTargetInfo ihit : m_UniqueCorpseTargetInfo)
+        {
+            if (targetGUID == ihit.TargetGUID)                 // Found in list
+            {
+                ihit.EffectMask |= effectMask;                 // Add only effect mask
+                return;
+            }
+        }
+
+        // This is new target calculate data for him
+        CorpseTargetInfo target;
+        target.TargetGUID = targetGUID;
+        target.EffectMask = effectMask;
+
+        // Spell have speed - need calculate incoming time
+        if (m_spellInfo->Speed > 0.0f)
+        {
+            // calculate spell incoming interval
+            float dist = m_caster->GetDistance(corpse->GetPositionX(), corpse->GetPositionY(), corpse->GetPositionZ());
+            if (dist < 5.0f)
+                dist = 5.0f;
+
+            target.TimeDelay = uint64(floor(dist / m_spellInfo->Speed * 1000.0f));
+
+            if (!m_delayMoment || m_delayMoment > target.TimeDelay)
+                m_delayMoment = target.TimeDelay;
+        }
+        else
+            target.TimeDelay = 0LL;
+
+        // Add target to list
+        m_UniqueCorpseTargetInfo.push_back(target);
+    }
+}
+
 void Spell::AddDestTarget(SpellDestination const& dest, uint32 effIndex)
 {
     m_destTargets[effIndex] = dest;
@@ -2576,7 +2645,7 @@ void Spell::GOTargetInfo::DoTargetSpellHit(Spell* spell, uint8 effIndex)
 
     spell->CallScriptBeforeHitHandlers(SPELL_MISS_NONE);
 
-    spell->HandleEffects(nullptr, nullptr, go, effIndex, SPELL_EFFECT_HANDLE_HIT_TARGET);
+    spell->HandleEffects(nullptr, nullptr, go, nullptr, effIndex, SPELL_EFFECT_HANDLE_HIT_TARGET);
 
     // AI functions
     if (go->AI())
@@ -2595,7 +2664,21 @@ void Spell::ItemTargetInfo::DoTargetSpellHit(Spell* spell, uint8 effIndex)
 {
     spell->CallScriptBeforeHitHandlers(SPELL_MISS_NONE);
 
-    spell->HandleEffects(nullptr, TargetItem, nullptr, effIndex, SPELL_EFFECT_HANDLE_HIT_TARGET);
+    spell->HandleEffects(nullptr, TargetItem, nullptr, nullptr, effIndex, SPELL_EFFECT_HANDLE_HIT_TARGET);
+
+    spell->CallScriptOnHitHandlers();
+    spell->CallScriptAfterHitHandlers();
+}
+
+void Spell::CorpseTargetInfo::DoTargetSpellHit(Spell* spell, uint8 effIndex)
+{
+    Corpse* corpse = ObjectAccessor::GetCorpse(*spell->m_caster, TargetGUID);
+    if (!corpse)
+        return;
+
+    spell->CallScriptBeforeHitHandlers(SPELL_MISS_NONE);
+
+    spell->HandleEffects(nullptr, nullptr, nullptr, corpse, effIndex, SPELL_EFFECT_HANDLE_HIT_TARGET);
 
     spell->CallScriptOnHitHandlers();
     spell->CallScriptAfterHitHandlers();
@@ -2797,7 +2880,7 @@ void Spell::DoSpellEffectHit(Unit* unit, uint8 effIndex, TargetInfo& hitInfo)
     }
 
     _spellAura = hitInfo.HitAura;
-    HandleEffects(unit, nullptr, nullptr, effIndex, SPELL_EFFECT_HANDLE_HIT_TARGET);
+    HandleEffects(unit, nullptr, nullptr, nullptr, effIndex, SPELL_EFFECT_HANDLE_HIT_TARGET);
     _spellAura = nullptr;
 }
 
@@ -3491,6 +3574,8 @@ void Spell::handle_immediate()
 
     DoProcessTargetContainer(m_UniqueGOTargetInfo);
 
+    DoProcessTargetContainer(m_UniqueCorpseTargetInfo);
+
     FinishTargetProcessing();
 
     // spell is finished, perform some last features of the spell here
@@ -3608,7 +3693,7 @@ void Spell::_handle_immediate_phase()
             continue;
 
         // call effect handlers to handle destination hit
-        HandleEffects(nullptr, nullptr, nullptr, j, SPELL_EFFECT_HANDLE_HIT);
+        HandleEffects(nullptr, nullptr, nullptr, nullptr, j, SPELL_EFFECT_HANDLE_HIT);
     }
 
     // process items
@@ -4986,12 +5071,13 @@ void Spell::HandleThreatSpells()
     TC_LOG_DEBUG("spells", "Spell %u, added an additional %f threat for %s %u target(s)", m_spellInfo->Id, threat, IsPositive() ? "assisting" : "harming", uint32(m_UniqueTargetInfo.size()));
 }
 
-void Spell::HandleEffects(Unit* pUnitTarget, Item* pItemTarget, GameObject* pGOTarget, uint32 i, SpellEffectHandleMode mode)
+void Spell::HandleEffects(Unit* pUnitTarget, Item* pItemTarget, GameObject* pGoTarget, Corpse* pCorpseTarget, uint32 i, SpellEffectHandleMode mode)
 {
     effectHandleMode = mode;
     unitTarget = pUnitTarget;
     itemTarget = pItemTarget;
-    gameObjTarget = pGOTarget;
+    gameObjTarget = pGoTarget;
+    corpseTarget = pCorpseTarget;
     destTarget = &m_destTargets[i]._position;
     unitCaster = m_originalCaster ? m_originalCaster : m_caster->ToUnit();
 
@@ -7455,7 +7541,7 @@ void Spell::HandleLaunchPhase()
         if (!m_spellInfo->Effects[i].IsEffect())
             continue;
 
-        HandleEffects(nullptr, nullptr, nullptr, i, SPELL_EFFECT_HANDLE_LAUNCH);
+        HandleEffects(nullptr, nullptr, nullptr, nullptr, i, SPELL_EFFECT_HANDLE_LAUNCH);
     }
 
     PrepareTargetProcessing();
@@ -7514,7 +7600,7 @@ void Spell::DoEffectOnLaunchTarget(TargetInfo& targetInfo, float multiplier, uin
     m_damage = 0;
     m_healing = 0;
 
-    HandleEffects(unit, nullptr, nullptr, effIndex, SPELL_EFFECT_HANDLE_LAUNCH_TARGET);
+    HandleEffects(unit, nullptr, nullptr, nullptr, effIndex, SPELL_EFFECT_HANDLE_LAUNCH_TARGET);
 
     if (m_originalCaster && m_damage > 0)
     {
@@ -8094,13 +8180,15 @@ bool WorldObjectSpellTargetCheck::operator()(WorldObject* target) const
             case TARGET_CHECK_ENEMY:
                 if (unitTarget->IsTotem())
                     return false;
-                if (!_caster->IsValidAttackTarget(unitTarget, _spellInfo))
+                // TODO: restore IsValidAttackTarget for corpses using corpse owner (faction, etc)
+                if (!target->IsCorpse() && !_caster->IsValidAttackTarget(unitTarget, _spellInfo))
                     return false;
                 break;
             case TARGET_CHECK_ALLY:
                 if (unitTarget->IsTotem())
                     return false;
-                if (!_caster->IsValidAssistTarget(unitTarget, _spellInfo))
+                // TODO: restore IsValidAttackTarget for corpses using corpse owner (faction, etc)
+                if (!target->IsCorpse() && !_caster->IsValidAssistTarget(unitTarget, _spellInfo))
                     return false;
                 break;
             case TARGET_CHECK_PARTY:
@@ -8108,7 +8196,8 @@ bool WorldObjectSpellTargetCheck::operator()(WorldObject* target) const
                     return false;
                 if (unitTarget->IsTotem())
                     return false;
-                if (!_caster->IsValidAssistTarget(unitTarget, _spellInfo))
+                // TODO: restore IsValidAttackTarget for corpses using corpse owner (faction, etc)
+                if (!target->IsCorpse() && !_caster->IsValidAssistTarget(unitTarget, _spellInfo))
                     return false;
                 if (!refUnit->IsInPartyWith(unitTarget))
                     return false;
@@ -8124,7 +8213,8 @@ bool WorldObjectSpellTargetCheck::operator()(WorldObject* target) const
                     return false;
                 if (unitTarget->IsTotem())
                     return false;
-                if (!_caster->IsValidAssistTarget(unitTarget, _spellInfo))
+                // TODO: restore IsValidAttackTarget for corpses using corpse owner (faction, etc)
+                if (!target->IsCorpse() && !_caster->IsValidAssistTarget(unitTarget, _spellInfo))
                     return false;
                 if (!refUnit->IsInRaidWith(unitTarget))
                     return false;
