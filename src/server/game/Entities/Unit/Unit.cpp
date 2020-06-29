@@ -10449,8 +10449,6 @@ void Unit::RemoveFromWorld()
 
         RemoveAreaAurasDueToLeaveWorld();
 
-        GetMotionMaster()->Clear(MOTION_SLOT_IDLE); // clear idle movement slot to finalize follow movement to unregister formation targets
-
         if (GetCharmerGUID())
         {
             TC_LOG_FATAL("entities.unit", "Unit %u has charmer guid when removed from world", GetEntry());
@@ -10475,6 +10473,9 @@ void Unit::CleanupBeforeRemoveFromMap(bool finalCleanup)
 {
     // This needs to be before RemoveFromWorld to make GetCaster() return a valid pointer on aura removal
     InterruptNonMeleeSpells(true);
+
+    // clear idle movement slot to finalize follow movement to unregister formation targets
+    GetMotionMaster()->Clear(MOTION_SLOT_IDLE);
 
     if (IsInWorld())
         RemoveFromWorld();
