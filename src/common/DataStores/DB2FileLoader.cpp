@@ -171,7 +171,7 @@ public:
     virtual bool LoadTableData(DB2FileSource* source, uint32 section) = 0;
     virtual bool LoadCatalogData(DB2FileSource* source, uint32 section) = 0;
     virtual void SetAdditionalData(std::vector<uint32> idTable, std::vector<DB2RecordCopy> copyTable, std::vector<std::vector<DB2IndexData>> parentIndexes) = 0;
-    virtual char* AutoProduceData(uint32& count, char**& indexTable, std::vector<char*>& stringPool) = 0;
+    virtual char* AutoProduceData(uint32& indexTableSize, char**& indexTable) = 0;
     virtual char* AutoProduceStrings(char** indexTable, uint32 indexTableSize, uint32 locale) = 0;
     virtual void AutoProduceRecordCopies(uint32 records, char** indexTable, char* dataTable) = 0;
     virtual DB2Record GetRecord(uint32 recordNumber) const = 0;
@@ -211,7 +211,7 @@ public:
     bool LoadTableData(DB2FileSource* source, uint32 section) override;
     bool LoadCatalogData(DB2FileSource* /*source*/, uint32 /*section*/) override { return true; }
     void SetAdditionalData(std::vector<uint32> idTable, std::vector<DB2RecordCopy> copyTable, std::vector<std::vector<DB2IndexData>> parentIndexes) override;
-    char* AutoProduceData(uint32& count, char**& indexTable, std::vector<char*>& stringPool) override;
+    char* AutoProduceData(uint32& indexTableSize, char**& indexTable) override;
     char* AutoProduceStrings(char** indexTable, uint32 indexTableSize, uint32 locale) override;
     void AutoProduceRecordCopies(uint32 records, char** indexTable, char* dataTable) override;
     DB2Record GetRecord(uint32 recordNumber) const override;
@@ -270,7 +270,7 @@ public:
     bool LoadTableData(DB2FileSource* /*source*/, uint32 /*section*/) override { return true; }
     bool LoadCatalogData(DB2FileSource* source, uint32 section) override;
     void SetAdditionalData(std::vector<uint32> idTable, std::vector<DB2RecordCopy> copyTable, std::vector<std::vector<DB2IndexData>> parentIndexes) override;
-    char* AutoProduceData(uint32& records, char**& indexTable, std::vector<char*>& stringPool) override;
+    char* AutoProduceData(uint32& indexTableSize, char**& indexTable) override;
     char* AutoProduceStrings(char** indexTable, uint32 indexTableSize, uint32 locale) override;
     void AutoProduceRecordCopies(uint32 records, char** indexTable, char* dataTable) override;
     DB2Record GetRecord(uint32 recordNumber) const override;
@@ -377,7 +377,7 @@ DB2FileLoaderRegularImpl::~DB2FileLoaderRegularImpl()
 
 static char const* const nullStr = "";
 
-char* DB2FileLoaderRegularImpl::AutoProduceData(uint32& records, char**& indexTable, std::vector<char*>& /*stringPool*/)
+char* DB2FileLoaderRegularImpl::AutoProduceData(uint32& indexTableSize, char**& indexTable)
 {
     //get struct size and index pos
     uint32 recordsize = _loadInfo->Meta->GetRecordSize();
@@ -386,7 +386,7 @@ char* DB2FileLoaderRegularImpl::AutoProduceData(uint32& records, char**& indexTa
 
     using index_entry_t = char*;
 
-    records = maxi;
+    indexTableSize = maxi;
     indexTable = new index_entry_t[maxi];
     memset(indexTable, 0, maxi * sizeof(index_entry_t));
 
@@ -521,6 +521,9 @@ char* DB2FileLoaderRegularImpl::AutoProduceStrings(char** indexTable, uint32 ind
         TC_LOG_ERROR("", "Attempted to load %s which has locales %s as %s. Check if you placed your localized db2 files in correct directory.", _fileName, str.str().c_str(), localeNames[locale]);
         return nullptr;
     }
+
+    if (!_loadInfo->GetStringFieldCount(false))
+        return nullptr;
 
     char* stringPool = new char[_header->StringTableSize];
     memcpy(stringPool, _stringTable, _header->StringTableSize);
@@ -1021,7 +1024,7 @@ void DB2FileLoaderSparseImpl::SetAdditionalData(std::vector<uint32> /*idTable*/,
     _recordBuffer = std::make_unique<uint8[]>(_maxRecordSize);
 }
 
-char* DB2FileLoaderSparseImpl::AutoProduceData(uint32& maxId, char**& indexTable, std::vector<char*>& stringPool)
+char* DB2FileLoaderSparseImpl::AutoProduceData(uint32& indexTableSize, char**& indexTable)
 {
     if (_loadInfo->Meta->FieldCount != _header->FieldCount)
         return nullptr;
@@ -1032,26 +1035,12 @@ char* DB2FileLoaderSparseImpl::AutoProduceData(uint32& maxId, char**& indexTable
 
     using index_entry_t = char*;
 
-    maxId = _header->MaxId + 1;
-    indexTable = new index_entry_t[maxId];
-    memset(indexTable, 0, maxId * sizeof(index_entry_t));
+    indexTableSize = _header->MaxId + 1;
+    indexTable = new index_entry_t[indexTableSize];
+    memset(indexTable, 0, indexTableSize * sizeof(index_entry_t));
 
     char* dataTable = new char[(records + _copyTable.size()) * recordsize];
     memset(dataTable, 0, (records + _copyTable.size()) * recordsize);
-
-    std::size_t stringFields = _loadInfo->GetStringFieldCount(false);
-    std::size_t localizedStringFields = _loadInfo->GetStringFieldCount(true);
-
-    std::size_t stringsInRecordSize = (stringFields - localizedStringFields) * sizeof(char*);
-    std::size_t localizedStringsInRecordSize = localizedStringFields * sizeof(LocalizedString);
-
-    // string table size is "total size of all records" - RecordCount * "size of record without strings"
-    std::size_t stringTableSize = _totalRecordSize - (records * ((recordsize - (!_loadInfo->Meta->HasIndexFieldInData() ? 4 : 0)) - stringsInRecordSize - localizedStringsInRecordSize));
-
-    char* stringTable = new char[stringTableSize];
-    memset(stringTable, 0, stringTableSize);
-    stringPool.push_back(stringTable);
-    char* stringPtr = stringTable;
 
     uint32 offset = 0;
     uint32 recordNum = 0;
@@ -1111,29 +1100,15 @@ char* DB2FileLoaderSparseImpl::AutoProduceData(uint32& maxId, char**& indexTable
                             offset += 8;
                             break;
                         case FT_STRING:
-                        {
-                            LocalizedString* slot = (LocalizedString*)(&dataTable[offset]);
-                            for (uint32 locale = 0; locale < TOTAL_LOCALES; ++locale)
-                            {
-                                slot->Str[locale] = nullStr;
-                                if (_header->Locale & (1 << locale))
-                                    slot->Str[locale] = stringPtr;
-                            }
+                            for (char const*& localeStr : ((LocalizedString*)(&dataTable[offset]))->Str)
+                                localeStr = nullStr;
 
-                            strcpy(stringPtr, RecordGetString(rawRecord, x, z));
-                            stringPtr += strlen(stringPtr) + 1;
                             offset += sizeof(LocalizedString);
                             break;
-                        }
                         case FT_STRING_NOT_LOCALIZED:
-                        {
-                            char const** slot = (char const**)(&dataTable[offset]);
-                            *slot = stringPtr;
-                            strcpy(stringPtr, RecordGetString(rawRecord, x, z));
-                            stringPtr += strlen(stringPtr) + 1;
+                            *(char const**)(&dataTable[offset]) = nullStr;
                             offset += sizeof(char*);
                             break;
-                        }
                         default:
                             ASSERT(false, "Unknown format character '%c' found in %s meta for field %s",
                                 _loadInfo->TypesString[fieldIndex], _fileName, _loadInfo->Fields[fieldIndex].Name);
@@ -1203,6 +1178,9 @@ char* DB2FileLoaderSparseImpl::AutoProduceStrings(char** indexTable, uint32 inde
     uint32 recordsize = _loadInfo->Meta->GetRecordSize();
     std::size_t stringFields = _loadInfo->GetStringFieldCount(false);
     std::size_t localizedStringFields = _loadInfo->GetStringFieldCount(true);
+
+    if (!stringFields)
+        return nullptr;
 
     std::size_t stringsInRecordSize = (stringFields - localizedStringFields) * sizeof(char*);
     std::size_t localizedStringsInRecordSize = localizedStringFields * sizeof(LocalizedString);
@@ -1276,8 +1254,14 @@ char* DB2FileLoaderSparseImpl::AutoProduceStrings(char** indexTable, uint32 inde
                             break;
                         }
                         case FT_STRING_NOT_LOCALIZED:
+                        {
+                            char const** db2str = (char const**)(&recordData[offset]);
+                            *db2str = stringPtr;
+                            strcpy(stringPtr, RecordGetString(rawRecord, x, z));
+                            stringPtr += strlen(stringPtr) + 1;
                             offset += sizeof(char*);
                             break;
+                        }
                         default:
                             ASSERT(false, "Unknown format character '%c' found in %s meta for field %s",
                                 _loadInfo->TypesString[fieldIndex], _fileName, _loadInfo->Fields[fieldIndex].Name);
@@ -1957,9 +1941,9 @@ bool DB2FileLoader::Load(DB2FileSource* source, DB2FileLoadInfo const* loadInfo)
     return true;
 }
 
-char* DB2FileLoader::AutoProduceData(uint32& count, char**& indexTable, std::vector<char*>& stringPool)
+char* DB2FileLoader::AutoProduceData(uint32& indexTableSize, char**& indexTable)
 {
-    return _impl->AutoProduceData(count, indexTable, stringPool);
+    return _impl->AutoProduceData(indexTableSize, indexTable);
 }
 
 char* DB2FileLoader::AutoProduceStrings(char** indexTable, uint32 indexTableSize, LocaleConstant locale)
