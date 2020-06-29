@@ -97,7 +97,7 @@ bool DB2StorageBase::Load(std::string const& path, LocaleConstant locale, char**
     _layoutHash = db2.GetLayoutHash();
 
     // load raw non-string data
-    _dataTable = db2.AutoProduceData(_indexTableSize, indexTable, _stringPool);
+    _dataTable = db2.AutoProduceData(_indexTableSize, indexTable);
     if (!_dataTable)
         return false;
 
