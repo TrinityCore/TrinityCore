@@ -486,6 +486,7 @@ class TC_GAME_API SpellScript : public _SpellScript
         int64 GetUnitTargetCountForEffect(SpellEffIndex effect) const;
         int64 GetGameObjectTargetCountForEffect(SpellEffIndex effect) const;
         int64 GetItemTargetCountForEffect(SpellEffIndex effect) const;
+        int64 GetCorpseTargetCountForEffect(SpellEffIndex effect) const;
 
         // methods useable only during spell hit on target, or during spell launch on target:
         // returns: target of current effect if it was Unit otherwise NULL
