@@ -9629,7 +9629,6 @@ void ObjectMgr::LoadVendors()
     QueryResult result = WorldDatabase.Query("SELECT entry, item, maxcount, incrtime, ExtendedCost FROM npc_vendor ORDER BY entry, slot ASC");
     if (!result)
     {
-
         TC_LOG_ERROR("sql.sql", ">>  Loaded 0 Vendors. DB table `npc_vendor` is empty!");
         return;
     }
@@ -9643,9 +9642,17 @@ void ObjectMgr::LoadVendors()
         uint32 entry        = fields[0].GetUInt32();
         int32 item_id      = fields[1].GetInt32();
 
+        // EJ ignored items
+        if (item_id == 27736)
+        {
+            continue;
+        }
+
         // if item is a negative, its a reference
         if (item_id < 0)
+        {
             count += LoadReferenceVendor(entry, -item_id, &skip_vendors);
+        }
         else
         {
             uint32 maxcount     = fields[2].GetUInt8();
