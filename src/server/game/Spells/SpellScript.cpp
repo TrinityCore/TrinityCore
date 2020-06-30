@@ -1030,7 +1030,7 @@ bool AuraScript::_IsDefaultActionPrevented()
         case AURA_SCRIPT_HOOK_EFFECT_PROC:
             return m_defaultActionPrevented;
         default:
-            ASSERT(false && "AuraScript::_IsDefaultActionPrevented is called in a wrong place");
+            ABORT_MSG("AuraScript::_IsDefaultActionPrevented is called in a wrong place");
             return false;
     }
 }
