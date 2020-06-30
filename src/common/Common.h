@@ -101,6 +101,11 @@ TC_COMMON_API extern char const* localeNames[TOTAL_LOCALES];
 
 TC_COMMON_API LocaleConstant GetLocaleByName(std::string const& name);
 
+constexpr inline bool IsValidLocale(LocaleConstant locale)
+{
+    return locale < TOTAL_LOCALES&& locale != LOCALE_none;
+}
+
 #pragma pack(push, 1)
 
 struct LocalizedString
