@@ -1300,7 +1300,7 @@ void AchievementGlobalMgr::LoadRewardLocales()
 
         AchievementRewardLocale& data = _achievementRewardLocales[id];
         LocaleConstant locale         = GetLocaleByName(localeName);
-        if (locale == LOCALE_enUS)
+        if (!IsValidLocale(locale) || locale == LOCALE_enUS)
             continue;
 
         ObjectMgr::AddLocaleString(fields[2].GetString(), locale, data.Subject);
