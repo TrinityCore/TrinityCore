@@ -226,17 +226,26 @@ void HandleArgs(int argc, char* arg[])
     }
 }
 
+void TryLoadDB2(char const* name, DB2CascFileSource* source, DB2FileLoader* db2, DB2FileLoadInfo const* loadInfo)
+{
+    try
+    {
+        db2->Load(source, loadInfo);
+    }
+    catch (std::exception const& e)
+    {
+        printf("Fatal error: Invalid %s file format! %s\n%s\n", name, CASC::HumanReadableCASCError(GetLastError()), e.what());
+        exit(1);
+    }
+}
+
 void ReadMapDBC()
 {
     printf("Read Map.db2 file...\n");
 
     DB2CascFileSource source(CascStorage, MapLoadInfo::Instance()->Meta->FileDataId);
     DB2FileLoader db2;
-    if (!db2.Load(&source, MapLoadInfo::Instance()))
-    {
-        printf("Fatal error: Invalid Map.db2 file format! %s\n", CASC::HumanReadableCASCError(GetLastError()));
-        exit(1);
-    }
+    TryLoadDB2("Map.db2", &source, &db2, MapLoadInfo::Instance());
 
     map_ids.reserve(db2.GetRecordCount());
     std::unordered_map<uint32, std::size_t> idToIndex;
@@ -281,11 +290,7 @@ void ReadLiquidMaterialTable()
 
     DB2CascFileSource source(CascStorage, LiquidMaterialLoadInfo::Instance()->Meta->FileDataId);
     DB2FileLoader db2;
-    if (!db2.Load(&source, LiquidMaterialLoadInfo::Instance()))
-    {
-        printf("Fatal error: Invalid LiquidMaterial.db2 file format!\n");
-        exit(1);
-    }
+    TryLoadDB2("LiquidMaterial.db2", &source, &db2, LiquidMaterialLoadInfo::Instance());
 
     for (uint32 x = 0; x < db2.GetRecordCount(); ++x)
     {
@@ -309,11 +314,7 @@ void ReadLiquidObjectTable()
 
     DB2CascFileSource source(CascStorage, LiquidObjectLoadInfo::Instance()->Meta->FileDataId);
     DB2FileLoader db2;
-    if (!db2.Load(&source, LiquidObjectLoadInfo::Instance()))
-    {
-        printf("Fatal error: Invalid LiquidObject.db2 file format!\n");
-        exit(1);
-    }
+    TryLoadDB2("LiquidObject.db2", &source, &db2, LiquidObjectLoadInfo::Instance());
 
     for (uint32 x = 0; x < db2.GetRecordCount(); ++x)
     {
@@ -337,11 +338,7 @@ void ReadLiquidTypeTable()
 
     DB2CascFileSource source(CascStorage, LiquidTypeLoadInfo::Instance()->Meta->FileDataId);
     DB2FileLoader db2;
-    if (!db2.Load(&source, LiquidTypeLoadInfo::Instance()))
-    {
-        printf("Fatal error: Invalid LiquidType.db2 file format!\n");
-        exit(1);
-    }
+    TryLoadDB2("LiquidType.db2", &source, &db2, LiquidTypeLoadInfo::Instance());
 
     for (uint32 x = 0; x < db2.GetRecordCount(); ++x)
     {
@@ -366,11 +363,7 @@ bool ReadCinematicCameraDBC()
 
     DB2CascFileSource source(CascStorage, CinematicCameraLoadInfo::Instance()->Meta->FileDataId);
     DB2FileLoader db2;
-    if (!db2.Load(&source, CinematicCameraLoadInfo::Instance()))
-    {
-        printf("Invalid CinematicCamera.db2 file format. Camera extract aborted. %s\n", CASC::HumanReadableCASCError(GetLastError()));
-        return false;
-    }
+    TryLoadDB2("CinematicCamera.db2", &source, &db2, CinematicCameraLoadInfo::Instance());
 
     // get camera file list from DB2
     for (size_t i = 0; i < db2.GetRecordCount(); ++i)
@@ -1223,9 +1216,13 @@ bool ExtractDB2File(uint32 fileDataId, char const* cascFileName, int locale, boo
     }
 
     DB2FileLoader db2;
-    if (!db2.LoadHeaders(&source, nullptr))
+    try
     {
-        printf("Can't read DB2 headers of '%s'\n", cascFileName);
+        db2.LoadHeaders(&source, nullptr);
+    }
+    catch (std::exception const& e)
+    {
+        printf("Can't read DB2 headers of '%s': %s\n", cascFileName, e.what());
         return false;
     }
 

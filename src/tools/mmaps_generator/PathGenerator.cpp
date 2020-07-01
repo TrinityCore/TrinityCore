@@ -275,13 +275,14 @@ int finish(const char* message, int returnValue)
     return returnValue;
 }
 
-std::unordered_map<uint32, uint8> LoadLiquid(std::string const& locale)
+std::unordered_map<uint32, uint8> LoadLiquid(std::string const& locale, bool silent, int32 errorExitCode)
 {
     DB2FileLoader liquidDb2;
     std::unordered_map<uint32, uint8> liquidData;
     DB2FileSystemSource liquidTypeSource((boost::filesystem::path("dbc") / locale / "LiquidType.db2").string());
-    if (liquidDb2.Load(&liquidTypeSource, LiquidTypeLoadInfo::Instance()))
+    try
     {
+        liquidDb2.Load(&liquidTypeSource, LiquidTypeLoadInfo::Instance());
         for (uint32 x = 0; x < liquidDb2.GetRecordCount(); ++x)
         {
             DB2Record record = liquidDb2.GetRecord(x);
@@ -291,17 +292,25 @@ std::unordered_map<uint32, uint8> LoadLiquid(std::string const& locale)
             liquidData[record.GetId()] = record.GetUInt8("SoundBank");
         }
     }
+    catch (std::exception const& e)
+    {
+        if (silent)
+            exit(errorExitCode);
+
+        exit(finish(e.what(), errorExitCode));
+    }
 
     return liquidData;
 }
 
-std::unordered_map<uint32, std::vector<uint32>> LoadMap(std::string const& locale)
+std::unordered_map<uint32, std::vector<uint32>> LoadMap(std::string const& locale, bool silent, int32 errorExitCode)
 {
     DB2FileLoader mapDb2;
     std::unordered_map<uint32, std::vector<uint32>> mapData;
     DB2FileSystemSource mapSource((boost::filesystem::path("dbc") / locale / "Map.db2").string());
-    if (mapDb2.Load(&mapSource, MapLoadInfo::Instance()))
+    try
     {
+        mapDb2.Load(&mapSource, MapLoadInfo::Instance());
         for (uint32 x = 0; x < mapDb2.GetRecordCount(); ++x)
         {
             DB2Record record = mapDb2.GetRecord(x);
@@ -313,6 +322,13 @@ std::unordered_map<uint32, std::vector<uint32>> LoadMap(std::string const& local
             if (parentMapId != -1)
                 mapData[parentMapId].push_back(record.GetId());
         }
+    }
+    catch (std::exception const& e)
+    {
+        if (silent)
+            exit(errorExitCode);
+
+        exit(finish(e.what(), errorExitCode));
     }
 
     return mapData;
@@ -360,13 +376,9 @@ int main(int argc, char** argv)
     if (!checkDirectories(debugOutput, dbcLocales))
         return silent ? -3 : finish("Press ENTER to close...", -3);
 
-    _liquidTypes = LoadLiquid(dbcLocales[0]);
-    if (_liquidTypes.empty())
-        return silent ? -5 : finish("Failed to load LiquidType.db2", -5);
+    _liquidTypes = LoadLiquid(dbcLocales[0], silent, -5);
 
-    std::unordered_map<uint32, std::vector<uint32>> mapData = LoadMap(dbcLocales[0]);
-    if (mapData.empty())
-        return silent ? -4 : finish("Failed to load Map.db2", -4);
+    std::unordered_map<uint32, std::vector<uint32>> mapData = LoadMap(dbcLocales[0], silent, -4);
 
     static_cast<VMAP::VMapManager2*>(VMAP::VMapFactory::createOrGetVMapManager())->InitializeThreadUnsafe(mapData);
     static_cast<VMAP::VMapManager2*>(VMAP::VMapFactory::createOrGetVMapManager())->GetLiquidFlagsPtr = [](uint32 liquidId) -> uint32
