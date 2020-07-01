@@ -275,7 +275,7 @@ public:
 
     static DB2Manager& Instance();
 
-    void LoadStores(std::string const& dataPath, LocaleConstant defaultLocale);
+    uint32 LoadStores(std::string const& dataPath, LocaleConstant defaultLocale);
     DB2StorageBase const* GetStorage(uint32 type) const;
 
     void LoadHotfixData();

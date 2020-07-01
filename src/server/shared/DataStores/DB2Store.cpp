@@ -20,6 +20,7 @@
 #include "DB2DatabaseLoader.h"
 #include "DB2FileSystemSource.h"
 #include "DB2Meta.h"
+#include "StringFormat.h"
 
 DB2StorageBase::DB2StorageBase(char const* fileName, DB2LoadInfo const* loadInfo)
     : _tableHash(0), _layoutHash(0), _fileName(fileName), _fieldCount(0), _loadInfo(loadInfo), _dataTable(nullptr), _dataTableEx(), _indexTableSize(0)
@@ -83,14 +84,13 @@ void DB2StorageBase::WriteRecordData(char const* entry, LocaleConstant locale, B
     }
 }
 
-bool DB2StorageBase::Load(std::string const& path, LocaleConstant locale, char**& indexTable)
+void DB2StorageBase::Load(std::string const& path, LocaleConstant locale, char**& indexTable)
 {
     indexTable = nullptr;
     DB2FileLoader db2;
     DB2FileSystemSource source(path + _fileName);
     // Check if load was successful, only then continue
-    if (!db2.Load(&source, _loadInfo))
-        return false;
+    db2.Load(&source, _loadInfo);
 
     _fieldCount = db2.GetCols();
     _tableHash = db2.GetTableHash();
@@ -98,37 +98,29 @@ bool DB2StorageBase::Load(std::string const& path, LocaleConstant locale, char**
 
     // load raw non-string data
     _dataTable = db2.AutoProduceData(_indexTableSize, indexTable);
-    if (!_dataTable)
-        return false;
 
     // load strings from db2 data
     if (char* stringBlock = db2.AutoProduceStrings(indexTable, _indexTableSize, locale))
         _stringPool.push_back(stringBlock);
 
     db2.AutoProduceRecordCopies(_indexTableSize, indexTable, _dataTable);
-
-    // error in db2 file at loading if NULL
-    return indexTable != nullptr;
 }
 
-bool DB2StorageBase::LoadStringsFrom(std::string const& path, LocaleConstant locale, char** indexTable)
+void DB2StorageBase::LoadStringsFrom(std::string const& path, LocaleConstant locale, char** indexTable)
 {
     // DB2 must be already loaded using Load
     if (!indexTable)
-        return false;
+        throw DB2FileLoadException(Trinity::StringFormat("%s was not loaded properly, cannot load strings", path.c_str()));
 
     DB2FileLoader db2;
     DB2FileSystemSource source(path + _fileName);
     // Check if load was successful, only then continue
-    if (!db2.Load(&source, _loadInfo))
-        return false;
+    db2.Load(&source, _loadInfo);
 
     // load strings from another locale db2 data
     if (_loadInfo->GetStringFieldCount(true))
         if (char* stringBlock = db2.AutoProduceStrings(indexTable, _indexTableSize, locale))
             _stringPool.push_back(stringBlock);
-
-    return true;
 }
 
 void DB2StorageBase::LoadFromDB(char**& indexTable)
