@@ -4596,6 +4596,7 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, SpellEffectInfo const& ef
             case SPELL_AURA_MOD_RANGED_ATTACK_POWER:
             case SPELL_AURA_MOD_DAMAGE_PERCENT_DONE:
             case SPELL_AURA_MOD_SPEED_SLOW_ALL:
+            case SPELL_AURA_MELEE_SLOW:
             case SPELL_AURA_MOD_ATTACK_POWER_PCT:
                 if (!_isPositiveTarget(effect) || bp < 0)
                     return false;
