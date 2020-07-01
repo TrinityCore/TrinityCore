@@ -1130,8 +1130,6 @@ void Group::MasterLoot(Loot* loot, WorldObject* pLootedObject)
         i->is_blocked = !i->is_underthreshold;
     }
 
-    uint32 real_count = 0;
-
     WorldPackets::Loot::MasterLootCandidateList masterLootCandidateList;
     masterLootCandidateList.LootObj = loot->GetGUID();
 
