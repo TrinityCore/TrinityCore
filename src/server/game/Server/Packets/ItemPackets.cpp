@@ -313,6 +313,18 @@ WorldPacket const* WorldPackets::Item::ItemCooldown::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Item::EnchantmentLog::Write()
+{
+    _worldPacket << Owner;
+    _worldPacket << Caster;
+    _worldPacket << ItemGUID;
+    _worldPacket << int32(ItemID);
+    _worldPacket << int32(Enchantment);
+    _worldPacket << int32(EnchantSlot);
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Item::ItemEnchantTimeUpdate::Write()
 {
     _worldPacket << ItemGuid;

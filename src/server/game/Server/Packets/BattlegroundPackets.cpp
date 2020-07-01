@@ -307,6 +307,35 @@ WorldPacket const* WorldPackets::Battleground::DestroyArenaUnit::Write()
     return &_worldPacket;
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::RatedBattlefieldInfo::BracketInfo const& bracketInfo)
+{
+    data << int32(bracketInfo.PersonalRating);
+    data << int32(bracketInfo.Ranking);
+    data << int32(bracketInfo.SeasonPlayed);
+    data << int32(bracketInfo.SeasonWon);
+    data << int32(bracketInfo.Unused1);
+    data << int32(bracketInfo.Unused2);
+    data << int32(bracketInfo.WeeklyPlayed);
+    data << int32(bracketInfo.WeeklyWon);
+    data << int32(bracketInfo.BestWeeklyRating);
+    data << int32(bracketInfo.LastWeeksBestRating);
+    data << int32(bracketInfo.BestSeasonRating);
+    data << int32(bracketInfo.PvpTierID);
+    data << int32(bracketInfo.Unused3);
+    data.WriteBit(bracketInfo.Unused4);
+    data.FlushBits();
+
+    return data;
+}
+
+WorldPacket const* WorldPackets::Battleground::RatedBattlefieldInfo::Write()
+{
+    for (BracketInfo const& bracket : Bracket)
+        _worldPacket << bracket;
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Battleground::PVPMatchInit::Write()
 {
     _worldPacket << uint32(MapID);

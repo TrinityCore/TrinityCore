@@ -96,6 +96,14 @@ namespace WorldPackets
             int32 GameTimeHolidayOffset = 0;
         };
 
+        class ResetWeeklyCurrency final : public ServerPacket
+        {
+        public:
+            ResetWeeklyCurrency() : ServerPacket(SMSG_RESET_WEEKLY_CURRENCY, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
+
         class SetCurrency final : public ServerPacket
         {
         public:

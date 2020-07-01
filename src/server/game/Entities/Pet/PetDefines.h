@@ -59,12 +59,13 @@ enum PetSpellType
     PETSPELL_TALENT = 2
 };
 
-enum ActionFeedback
+enum class PetActionFeedback : uint8
 {
-    FEEDBACK_NONE            = 0,
-    FEEDBACK_PET_DEAD        = 1,
-    FEEDBACK_NOTHING_TO_ATT  = 2,
-    FEEDBACK_CANT_ATT_TARGET = 3
+    None            = 0,
+    Dead            = 1,
+    NoTarget        = 2,
+    InvalidTarget   = 3,
+    NoPath          = 4
 };
 
 enum PetTalk

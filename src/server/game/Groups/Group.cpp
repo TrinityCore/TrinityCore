@@ -1132,8 +1132,8 @@ void Group::MasterLoot(Loot* loot, WorldObject* pLootedObject)
 
     uint32 real_count = 0;
 
-    WorldPacket data(SMSG_MASTER_LOOT_CANDIDATE_LIST, 1 + GetMembersCount() * 8);
-    data << uint8(GetMembersCount());
+    WorldPackets::Loot::MasterLootCandidateList masterLootCandidateList;
+    masterLootCandidateList.LootObj = loot->GetGUID();
 
     for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
@@ -1142,19 +1142,16 @@ void Group::MasterLoot(Loot* loot, WorldObject* pLootedObject)
             continue;
 
         if (looter->IsAtGroupRewardDistance(pLootedObject))
-        {
-            data << looter->GetGUID();
-            ++real_count;
-        }
+            masterLootCandidateList.Players.push_back(looter->GetGUID());
     }
 
-    data.put<uint8>(0, real_count);
+    masterLootCandidateList.Write();
 
     for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
         Player* looter = itr->GetSource();
         if (looter->IsAtGroupRewardDistance(pLootedObject))
-            looter->GetSession()->SendPacket(&data);
+            looter->GetSession()->SendPacket(masterLootCandidateList.GetRawPacket());
     }
 }
 
