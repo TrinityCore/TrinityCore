@@ -80,9 +80,13 @@ void ExtractGameobjectModels()
 
     DB2CascFileSource source(CascStorage, GameobjectDisplayInfoLoadInfo::Instance()->Meta->FileDataId);
     DB2FileLoader db2;
-    if (!db2.Load(&source, GameobjectDisplayInfoLoadInfo::Instance()))
+    try
     {
-        printf("Fatal error: Invalid GameObjectDisplayInfo.db2 file format!\n");
+        db2.Load(&source, GameobjectDisplayInfoLoadInfo::Instance());
+    }
+    catch (std::exception const& e)
+    {
+        printf("Fatal error: Invalid GameObjectDisplayInfo.db2 file format!\n%s\n", e.what());
         exit(1);
     }
 

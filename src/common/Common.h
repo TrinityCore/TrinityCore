@@ -103,7 +103,7 @@ TC_COMMON_API LocaleConstant GetLocaleByName(std::string const& name);
 
 constexpr inline bool IsValidLocale(LocaleConstant locale)
 {
-    return locale < TOTAL_LOCALES&& locale != LOCALE_none;
+    return locale < TOTAL_LOCALES && locale != LOCALE_none;
 }
 
 #pragma pack(push, 1)

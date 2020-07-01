@@ -44,15 +44,15 @@ public:
     uint32 GetFieldCount() const { return _fieldCount; }
     DB2LoadInfo const* GetLoadInfo() const { return _loadInfo; }
 
-    virtual bool Load(std::string const& path, LocaleConstant locale) = 0;
-    virtual bool LoadStringsFrom(std::string const& path, LocaleConstant locale) = 0;
+    virtual void Load(std::string const& path, LocaleConstant locale) = 0;
+    virtual void LoadStringsFrom(std::string const& path, LocaleConstant locale) = 0;
     virtual void LoadFromDB() = 0;
     virtual void LoadStringsFromDB(LocaleConstant locale) = 0;
 
 protected:
     void WriteRecordData(char const* entry, LocaleConstant locale, ByteBuffer& buffer) const;
-    bool Load(std::string const& path, LocaleConstant locale, char**& indexTable);
-    bool LoadStringsFrom(std::string const& path, LocaleConstant locale, char** indexTable);
+    void Load(std::string const& path, LocaleConstant locale, char**& indexTable);
+    void LoadStringsFrom(std::string const& path, LocaleConstant locale, char** indexTable);
     void LoadFromDB(char**& indexTable);
     void LoadStringsFromDB(LocaleConstant locale, char** indexTable);
 
@@ -77,12 +77,12 @@ public:
 
     DB2Storage(char const* fileName, DB2LoadInfo const* loadInfo) : DB2StorageBase(fileName, loadInfo)
     {
-        _indexTable.AsT = nullptr;
+        _indexTable.AsChar = nullptr;
     }
 
     ~DB2Storage()
     {
-        delete[] reinterpret_cast<char*>(_indexTable.AsT);
+        delete[] _indexTable.AsChar;
     }
 
     bool HasRecord(uint32 id) const override { return id < _indexTableSize && _indexTable.AsT[id] != nullptr; }
@@ -98,12 +98,12 @@ public:
     T const* operator[](uint32 id) const { return LookupEntry(id); }
 
     uint32 GetNumRows() const { return _indexTableSize; }
-    bool Load(std::string const& path, LocaleConstant locale) override
+    void Load(std::string const& path, LocaleConstant locale) override
     {
         return DB2StorageBase::Load(path, locale, _indexTable.AsChar);
     }
 
-    bool LoadStringsFrom(std::string const& path, LocaleConstant locale) override
+    void LoadStringsFrom(std::string const& path, LocaleConstant locale) override
     {
         return DB2StorageBase::LoadStringsFrom(path, locale, _indexTable.AsChar);
     }

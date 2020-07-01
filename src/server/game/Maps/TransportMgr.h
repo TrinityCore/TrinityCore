@@ -102,8 +102,6 @@ typedef std::map<uint32, TransportAnimation> TransportAnimationContainer;
 
 class TC_GAME_API TransportMgr
 {
-        friend void DB2Manager::LoadStores(std::string const&, LocaleConstant);
-
     public:
         static TransportMgr* instance();
 
