@@ -14,7 +14,7 @@ CollectSourceFiles(
   # Exclude
   ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders)
 
-if (USE_COREPCH)
+if(USE_COREPCH)
   set(PRIVATE_PCH_HEADER PrecompiledHeaders/protoPCH.h)
 endif()
 
@@ -48,7 +48,7 @@ target_link_libraries(proto
     common
     protobuf)
 
-if (MSVC)
+if(MSVC)
   target_compile_definitions(protobuf
     PRIVATE
       -D_SCL_SECURE_NO_WARNINGS)
@@ -59,12 +59,12 @@ set_target_properties(proto
     FOLDER
       "server")
 
-if( BUILD_SHARED_LIBS )
-  if( UNIX )
+if(BUILD_SHARED_LIBS)
+  if(UNIX)
     install(TARGETS proto
       LIBRARY
         DESTINATION lib)
-  elseif( WIN32 )
+  elseif(WIN32)
     install(TARGETS proto
       RUNTIME
         DESTINATION "${CMAKE_INSTALL_PREFIX}")
@@ -72,6 +72,6 @@ if( BUILD_SHARED_LIBS )
 endif()
 
 # Generate precompiled header
-if (USE_COREPCH)
+if(USE_COREPCH)
   add_cxx_pch(proto ${PRIVATE_PCH_HEADER})
 endif()

@@ -5,7 +5,7 @@ if(NOT CONF_DIR)
 endif()
 
 # set default library directory
-if( NOT LIBSDIR )
+if(NOT LIBSDIR)
   set(LIBSDIR ${CMAKE_INSTALL_PREFIX}/lib)
   message(STATUS "UNIX: Using default library directory")
 endif()
