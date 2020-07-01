@@ -585,9 +585,9 @@ class spell_warr_improved_spell_reflection : public SpellScriptLoader
 };
 
 // 3411 - Intervene
-class spell_war_intervene : public SpellScript
+class spell_warr_intervene : public SpellScript
 {
-    PrepareSpellScript(spell_war_intervene);
+    PrepareSpellScript(spell_warr_intervene);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -602,7 +602,7 @@ class spell_war_intervene : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_war_intervene::HandleThreat, EFFECT_0, SPELL_EFFECT_CHARGE);
+        OnEffectHitTarget += SpellEffectFn(spell_warr_intervene::HandleThreat, EFFECT_0, SPELL_EFFECT_CHARGE);
     }
 };
 
@@ -1225,7 +1225,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_glyph_of_blocking();
     new spell_warr_glyph_of_sunder_armor();
     new spell_warr_improved_spell_reflection();
-    RegisterSpellScript(spell_war_intervene);
+    RegisterSpellScript(spell_warr_intervene);
     new spell_warr_intimidating_shout();
     new spell_warr_item_t10_prot_4p_bonus();
     new spell_warr_last_stand();
