@@ -212,6 +212,9 @@ class UnitAI;
 class UnitAura;
 class Vehicle;
 class VehicleJoinEvent;
+
+enum class PetActionFeedback : uint8;
+
 namespace Movement
 {
     class MoveSpline;
@@ -1909,8 +1912,8 @@ class TC_GAME_API Unit : public WorldObject
         void SetControlled(bool apply, UnitState state);
 
         ///----------Pet responses methods-----------------
-        void SendPetActionFeedback (uint8 msg);
-        void SendPetTalk (uint32 pettalk);
+        void SendPetActionFeedback(PetActionFeedback msg, uint32 spellId);
+        void SendPetTalk(uint32 pettalk);
         void SendPetAIReaction(ObjectGuid guid);
         ///----------End of Pet responses methods----------
 

@@ -19,6 +19,7 @@
 #include "ArenaTeam.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
+#include "MiscPackets.h"
 #include "Player.h"
 #include "Timer.h"
 #include "World.h"
@@ -131,9 +132,9 @@ void CharacterCache::UpdateCharacterData(ObjectGuid const& guid, std::string con
     if (race)
         itr->second.Race = *race;
 
-    WorldPacket data(SMSG_INVALIDATE_PLAYER, 8);
-    data << guid;
-    sWorld->SendGlobalMessage(&data);
+    WorldPackets::Misc::InvalidatePlayer invalidatePlayer;
+    invalidatePlayer.Guid = guid;
+    sWorld->SendGlobalMessage(invalidatePlayer.Write());
 
     // Correct name -> pointer storage
     _characterCacheByNameStore.erase(oldName);
