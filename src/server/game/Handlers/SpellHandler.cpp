@@ -420,7 +420,7 @@ void WorldSession::HandlePetCancelAuraOpcode(WorldPackets::Spells::PetCancelAura
 
     if (!pet->IsAlive())
     {
-        pet->SendPetActionFeedback(FEEDBACK_PET_DEAD);
+        pet->SendPetActionFeedback(PetActionFeedback::Dead, 0);
         return;
     }
 

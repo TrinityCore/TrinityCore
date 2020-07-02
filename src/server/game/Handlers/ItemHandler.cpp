@@ -758,14 +758,16 @@ void WorldSession::HandleAutoStoreBagItemOpcode(WorldPackets::Item::AutoStoreBag
     _player->StoreItem(dest, item, true);
 }
 
-void WorldSession::SendEnchantmentLog(ObjectGuid target, ObjectGuid caster, uint32 itemId, uint32 enchantId)
+void WorldSession::SendEnchantmentLog(ObjectGuid owner, ObjectGuid caster, ObjectGuid itemGuid, uint32 itemId, uint32 enchantId, uint32 enchantSlot)
 {
-    WorldPacket data(SMSG_ENCHANTMENT_LOG, (8+8+4+4));
-    data << target;
-    data << caster;
-    data << uint32(itemId);
-    data << uint32(enchantId);
-    GetPlayer()->SendMessageToSet(&data, true);
+    WorldPackets::Item::EnchantmentLog enchantmentLog;
+    enchantmentLog.Owner = owner;
+    enchantmentLog.Caster = caster;
+    enchantmentLog.ItemGUID = itemGuid;
+    enchantmentLog.ItemID = itemId;
+    enchantmentLog.Enchantment = enchantId;
+    enchantmentLog.EnchantSlot = enchantSlot;
+    GetPlayer()->SendMessageToSet(enchantmentLog.Write(), true);
 }
 
 void WorldSession::SendItemEnchantTimeUpdate(ObjectGuid Playerguid, ObjectGuid Itemguid, uint32 slot, uint32 Duration)
