@@ -2882,9 +2882,9 @@ bool WorldObject::IsValidAttackTarget(WorldObject const* target, SpellInfo const
         return false;
 
     Unit const* unitOrOwner = unit;
-    if (GameObject const* go = ToGameObject())
-        if (go->GetGoType() == GAMEOBJECT_TYPE_TRAP)
-            unitOrOwner = go->GetOwner();
+    GameObject const* go = ToGameObject();
+    if (go && go->GetGoType() == GAMEOBJECT_TYPE_TRAP)
+        unitOrOwner = go->GetOwner();
 
     // ignore immunity flags when assisting
     if (unitOrOwner && unitTarget && !(isPositiveSpell && bySpell->HasAttribute(SPELL_ATTR6_ASSIST_IGNORE_IMMUNE_FLAG)))
@@ -2903,23 +2903,32 @@ bool WorldObject::IsValidAttackTarget(WorldObject const* target, SpellInfo const
     }
 
     // CvC case - can attack each other only when one of them is hostile
-    if (unit && !HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED) && target->ToUnit() && !target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED))
-        return IsHostileTo(target) || target->IsHostileTo(this);
+    if (unit && !HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED) && unitTarget && !unitTarget->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED))
+        return IsHostileTo(unitTarget) || unitTarget->IsHostileTo(this);
+
+    // Traps without owner or with NPC owner versus Creature case - can attack to creature only when one of them is hostile
+    if (go && go->GetGoType() == GAMEOBJECT_TYPE_TRAP)
+    {
+        Unit const* goOwner = go->GetOwner();
+        if (!goOwner || !goOwner->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED))
+            if (unitTarget && !unitTarget->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED))
+                return IsHostileTo(unitTarget) || unitTarget->IsHostileTo(this);
+    }
 
     // PvP, PvC, CvP case
     // can't attack friendly targets
     if (IsFriendlyTo(target) || target->IsFriendlyTo(this))
         return false;
 
-    Player const* playerAffectingAttacker = unit && HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED) ? GetAffectingPlayer() : ToGameObject() ? GetAffectingPlayer() : nullptr;
-    Player const* playerAffectingTarget = target->ToUnit() && target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED) ? target->GetAffectingPlayer() : nullptr;
+    Player const* playerAffectingAttacker = unit && HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED) ? GetAffectingPlayer() : go ? GetAffectingPlayer() : nullptr;
+    Player const* playerAffectingTarget = unitTarget && unitTarget->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED) ? unitTarget->GetAffectingPlayer() : nullptr;
 
     // Not all neutral creatures can be attacked (even some unfriendly faction does not react aggresive to you, like Sporaggar)
     if ((playerAffectingAttacker && !playerAffectingTarget) || (!playerAffectingAttacker && playerAffectingTarget))
     {
         Player const* player = playerAffectingAttacker ? playerAffectingAttacker : playerAffectingTarget;
 
-        if (Unit const* creature = playerAffectingAttacker ? target->ToUnit() : unit)
+        if (Unit const* creature = playerAffectingAttacker ? unitTarget : unit)
         {
             if (creature->IsContestedGuard() && player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_CONTESTED_PVP))
                 return true;
