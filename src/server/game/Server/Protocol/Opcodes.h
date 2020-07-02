@@ -1834,7 +1834,6 @@ enum OpcodeServer : uint16
 
     // Deleted opcodes, here only to allow compile
     SMSG_ARENA_TEAM_STATS                             = 0xBADD,
-    SMSG_BUY_BANK_SLOT_RESULT                         = 0xBADD,
     SMSG_BF_MGR_EJECTED                               = 0xBADD,
     SMSG_BF_MGR_ENTERING                              = 0xBADD,
     SMSG_BF_MGR_ENTRY_INVITE                          = 0xBADD,
