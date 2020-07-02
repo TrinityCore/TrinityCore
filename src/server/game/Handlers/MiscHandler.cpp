@@ -467,50 +467,10 @@ void WorldSession::HandleZoneUpdateOpcode(WorldPacket& recvData)
     //GetPlayer()->SendInitWorldStates(true, newZone);
 }
 
-<<<<<<< HEAD
 void WorldSession::HandleSetSelectionOpcode(WorldPacket& recvData)
 {
     ObjectGuid guid;
     recvData >> guid;
-=======
-void WorldSession::HandlePortGraveyard(WorldPackets::Misc::PortGraveyard& /*packet*/)
-{
-    if (GetPlayer()->IsAlive() || !GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
-        return;
-    GetPlayer()->RepopAtGraveyard();
-}
-
-void WorldSession::HandleRequestCemeteryList(WorldPackets::Misc::RequestCemeteryList& /*packet*/)
-{
-    uint32 zoneId = _player->GetZoneId();
-    uint32 team = _player->GetTeam();
-
-    std::vector<uint32> graveyardIds;
-    auto range = sObjectMgr->GraveYardStore.equal_range(zoneId);
-
-    for (auto it = range.first; it != range.second && graveyardIds.size() < 16; ++it) // client max
-    {
-        if (it->second.team == 0 || it->second.team == team)
-            graveyardIds.push_back(it->first);
-    }
-
-    if (graveyardIds.empty())
-    {
-        TC_LOG_DEBUG("network", "No graveyards found for zone %u for %s (team %u) in CMSG_REQUEST_CEMETERY_LIST",
-            zoneId, _player->GetGUID().ToString().c_str(), team);
-        return;
-    }
-
-    WorldPackets::Misc::RequestCemeteryListResponse packet;
-    packet.IsGossipTriggered = false;
-    packet.CemeteryID.reserve(graveyardIds.size());
-
-    for (uint32 id : graveyardIds)
-        packet.CemeteryID.push_back(id);
-
-    SendPacket(packet.Write());
-}
->>>>>>> c2722959a9... Core/PacketIO: Updated corpse related packet structures
 
     _player->SetSelection(guid);
 }

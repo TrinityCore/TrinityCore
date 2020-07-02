@@ -34,11 +34,6 @@
 #include "Player.h"
 #include "WorldSession.h"
 #include "Opcodes.h"
-<<<<<<< HEAD
-=======
-#include "AchievementMgr.h"
-#include "MiscPackets.h"
->>>>>>> c2722959a9... Core/PacketIO: Updated corpse related packet structures
 
 MapManager::MapManager()
     : _nextInstanceId(0), _scheduledScripts(0)
@@ -179,17 +174,8 @@ Map::EnterState MapManager::PlayerCannotEnter(uint32 mapid, Player* player, bool
             } while (corpseMap);
 
             if (!corpseMap)
-<<<<<<< HEAD
                 return Map::CANNOT_ENTER_CORPSE_IN_DIFFERENT_INSTANCE;
 
-=======
-            {
-                WorldPackets::Misc::AreaTriggerNoCorpse packet;
-                player->GetSession()->SendPacket(packet.Write());
-                TC_LOG_DEBUG("maps", "MAP: Player '%s' does not have a corpse in instance '%s' and cannot enter.", player->GetName().c_str(), mapName);
-                return false;
-            }
->>>>>>> c2722959a9... Core/PacketIO: Updated corpse related packet structures
             TC_LOG_DEBUG("maps", "MAP: Player '%s' has corpse in instance '%s' and can enter.", player->GetName().c_str(), mapName);
         }
         else

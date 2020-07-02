@@ -148,7 +148,6 @@ namespace WorldPackets
     }
     namespace Misc
     {
-<<<<<<< HEAD
         class CompleteCinematic;
         class CompleteMovie;
         class NextCinematicCamera;
@@ -156,20 +155,9 @@ namespace WorldPackets
         class RandomRollClient;
         class TogglePvP;
         class WorldTeleport;
-=======
-        class AreaTrigger;
-        class SetSelection;
-        class ViolenceLevel;
-        class TimeSyncResponse;
-        class TutorialSetFlag;
-        class SetDungeonDifficulty;
-        class SetRaidDifficulty;
-        class PortGraveyard;
         class ReclaimCorpse;
         class RepopRequest;
-        class RequestCemeteryList;
         class ResurrectResponse;
->>>>>>> c2722959a9... Core/PacketIO: Updated corpse related packet structures
     }
 
     namespace Pet
@@ -185,13 +173,8 @@ namespace WorldPackets
     {
         class QueryCreature;
         class QueryGameObject;
-<<<<<<< HEAD
         class QueryItemSingle;
         class QuestPOIQuery;
-=======
-        class QueryCorpseLocationFromClient;
-        class QueryCorpseTransport;
->>>>>>> c2722959a9... Core/PacketIO: Updated corpse related packet structures
     }
     namespace Quest
     {
@@ -619,14 +602,6 @@ class TC_GAME_API WorldSession
         // new
         void HandleMoveUnRootAck(WorldPacket& recvPacket);
         void HandleMoveRootAck(WorldPacket& recvPacket);
-<<<<<<< HEAD
-=======
-        void HandleLookingForGroup(WorldPacket& recvPacket);
-
-        // cemetery/graveyard related
-        void HandlePortGraveyard(WorldPackets::Misc::PortGraveyard& packet);
-        void HandleRequestCemeteryList(WorldPackets::Misc::RequestCemeteryList& packet);
->>>>>>> c2722959a9... Core/PacketIO: Updated corpse related packet structures
 
         // new inspect
         void HandleInspectOpcode(WorldPacket& recvPacket);
@@ -654,12 +629,7 @@ class TC_GAME_API WorldSession
         void HandleMoveTeleportAck(WorldPacket& recvPacket);
         void HandleForceSpeedChangeAck(WorldPacket& recvData);
 
-<<<<<<< HEAD
-        void HandleRepopRequestOpcode(WorldPacket& recvPacket);
-=======
-        void HandlePingOpcode(WorldPacket& recvPacket);
         void HandleRepopRequest(WorldPackets::Misc::RepopRequest& packet);
->>>>>>> c2722959a9... Core/PacketIO: Updated corpse related packet structures
         void HandleAutostoreLootItemOpcode(WorldPacket& recvPacket);
         void HandleLootMoneyOpcode(WorldPacket& recvPacket);
         void HandleLootOpcode(WorldPacket& recvPacket);
@@ -914,20 +884,10 @@ class TC_GAME_API WorldSession
         void HandleTextEmoteOpcode(WorldPacket& recvPacket);
         void HandleChatIgnoredOpcode(WorldPacket& recvPacket);
 
-<<<<<<< HEAD
-        void HandleReclaimCorpseOpcode(WorldPacket& recvPacket);
+        void HandleReclaimCorpse(WorldPackets::Misc::ReclaimCorpse& packet);
         void HandleCorpseQueryOpcode(WorldPacket& recvPacket);
         void HandleCorpseMapPositionQuery(WorldPacket& recvPacket);
-        void HandleResurrectResponseOpcode(WorldPacket& recvPacket);
-=======
-        void HandleUnregisterAddonPrefixesOpcode(WorldPacket& recvPacket);
-        void HandleAddonRegisteredPrefixesOpcode(WorldPacket& recvPacket);
-
-        void HandleReclaimCorpse(WorldPackets::Misc::ReclaimCorpse& packet);
-        void HandleQueryCorpseLocation(WorldPackets::Query::QueryCorpseLocationFromClient& packet);
-        void HandleQueryCorpseTransport(WorldPackets::Query::QueryCorpseTransport& packet);
         void HandleResurrectResponse(WorldPackets::Misc::ResurrectResponse& packet);
->>>>>>> c2722959a9... Core/PacketIO: Updated corpse related packet structures
         void HandleSummonResponseOpcode(WorldPacket& recvData);
 
         void HandleJoinChannel(WorldPacket& recvPacket);

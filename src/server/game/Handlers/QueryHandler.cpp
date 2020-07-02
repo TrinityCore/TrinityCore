@@ -141,40 +141,22 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPackets::Query::QueryGameObj
     }
 }
 
-<<<<<<< HEAD
 void WorldSession::HandleCorpseQueryOpcode(WorldPacket & /*recvData*/)
 {
     if (!_player->HasCorpse())
-=======
-void WorldSession::HandleQueryCorpseLocation(WorldPackets::Query::QueryCorpseLocationFromClient& /*packet*/)
-{
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_QUERY_CORPSE_LOCATION_FROM_CLIENT");
-
-    Corpse* corpse = GetPlayer()->GetCorpse();
-
-    if (!corpse)
->>>>>>> c2722959a9... Core/PacketIO: Updated corpse related packet structures
     {
-        WorldPackets::Query::CorpseLocation packet;
-        packet.Valid = false;                               // corpse not found
-        SendPacket(packet.Write());
+        WorldPacket data(MSG_CORPSE_QUERY, 1);
+        data << uint8(0);                                   // corpse not found
+        SendPacket(&data);
         return;
     }
 
-<<<<<<< HEAD
     WorldLocation corpseLocation = _player->GetCorpseLocation();
     uint32 corpseMapID = corpseLocation.GetMapId();
     uint32 mapID = corpseLocation.GetMapId();
     float x = corpseLocation.GetPositionX();
     float y = corpseLocation.GetPositionY();
     float z = corpseLocation.GetPositionZ();
-=======
-    uint32 mapID = corpse->GetMapId();
-    float x = corpse->GetPositionX();
-    float y = corpse->GetPositionY();
-    float z = corpse->GetPositionZ();
-    uint32 corpseMapID = mapID;
->>>>>>> c2722959a9... Core/PacketIO: Updated corpse related packet structures
 
     // if corpse at different map
     if (mapID != _player->GetMapId())
@@ -187,22 +169,15 @@ void WorldSession::HandleQueryCorpseLocation(WorldPackets::Query::QueryCorpseLoc
                 // if corpse map have entrance
                 if (Map const* entranceMap = sMapMgr->CreateBaseMap(corpseMapEntry->entrance_map))
                 {
-<<<<<<< HEAD
                     mapID = corpseMapEntry->entrance_map;
                     x = corpseMapEntry->entrance_x;
                     y = corpseMapEntry->entrance_y;
-=======
-                    mapID = corpseMapEntry->CorpseMapID;
-                    x = corpseMapEntry->CorpsePos.X;
-                    y = corpseMapEntry->CorpsePos.Y;
->>>>>>> c2722959a9... Core/PacketIO: Updated corpse related packet structures
                     z = entranceMap->GetHeight(GetPlayer()->GetPhaseMask(), x, y, MAX_HEIGHT);
                 }
             }
         }
     }
 
-<<<<<<< HEAD
     WorldPacket data(MSG_CORPSE_QUERY, 1+(6*4));
     data << uint8(1);                                       // corpse found
     data << int32(mapID);
@@ -212,15 +187,6 @@ void WorldSession::HandleQueryCorpseLocation(WorldPackets::Query::QueryCorpseLoc
     data << int32(corpseMapID);
     data << uint32(0);                                      // unknown
     SendPacket(&data);
-=======
-    WorldPackets::Query::CorpseLocation packet;
-    packet.Valid = true;
-    packet.MapID = corpseMapID;
-    packet.ActualMapID = mapID;
-    packet.Position = G3D::Vector3(x, y, z);
-    packet.Transport = ObjectGuid::Empty;                   // NYI
-    SendPacket(packet.Write());
->>>>>>> c2722959a9... Core/PacketIO: Updated corpse related packet structures
 }
 
 void WorldSession::HandleNpcTextQueryOpcode(WorldPacket& recvData)
@@ -348,21 +314,19 @@ void WorldSession::HandleQueryPageText(WorldPacket& recvData)
     }
 }
 
-void WorldSession::HandleQueryCorpseTransport(WorldPackets::Query::QueryCorpseTransport& packet)
+void WorldSession::HandleCorpseMapPositionQuery(WorldPacket& recvData)
 {
-<<<<<<< HEAD
     TC_LOG_DEBUG("network", "WORLD: Recv CMSG_CORPSE_MAP_POSITION_QUERY");
 
     uint32 unk;
     recvData >> unk;
-=======
-    TC_LOG_DEBUG("network", "WORLD: Recv CMSG_QUERY_CORPSE_TRANSPORT");
->>>>>>> c2722959a9... Core/PacketIO: Updated corpse related packet structures
 
-    WorldPackets::Query::CorpseTransportQuery response;
-    response.Position = G3D::Vector3(0.0f, 0.0f, 0.0f);
-    response.Facing = 0.0f;
-    SendPacket(response.Write());
+    WorldPacket data(SMSG_CORPSE_MAP_POSITION_QUERY_RESPONSE, 4+4+4+4);
+    data << float(0);
+    data << float(0);
+    data << float(0);
+    data << float(0);
+    SendPacket(&data);
 }
 
 void WorldSession::HandleQuestPOIQuery(WorldPackets::Query::QuestPOIQuery& query)

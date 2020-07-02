@@ -352,15 +352,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             int32 MapID = 0;
-            G3D::Vector3 Loc;
-        };
-
-        class PortGraveyard final : public ClientPacket
-        {
-        public:
-            PortGraveyard(WorldPacket&& packet) : ClientPacket(CMSG_PORT_GRAVEYARD, std::move(packet)) { }
-
-            void Read() override { }
+            TaggedPosition<Position::XYZ> Loc;
         };
 
         class PreRessurect : public ServerPacket
@@ -393,25 +385,6 @@ namespace WorldPackets
             bool CheckInstance = false;
         };
 
-        class RequestCemeteryList final : public ClientPacket
-        {
-        public:
-            RequestCemeteryList(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_CEMETERY_LIST, std::move(packet)) { }
-
-            void Read() override { }
-        };
-
-        class RequestCemeteryListResponse : public ServerPacket
-        {
-        public:
-            RequestCemeteryListResponse() : ServerPacket(SMSG_REQUEST_CEMETERY_LIST_RESPONSE, 1) { }
-
-            WorldPacket const* Write() override;
-
-            bool IsGossipTriggered = false;
-            std::vector<uint32> CemeteryID;
-        };
-
         class ResurrectResponse final : public ClientPacket
         {
         public:
@@ -421,14 +394,6 @@ namespace WorldPackets
 
             ObjectGuid Resurrecter;
             uint32 Response = 0;
-        };
-
-        class AreaTriggerNoCorpse : public ServerPacket
-        {
-        public:
-            AreaTriggerNoCorpse() : ServerPacket(SMSG_AREA_TRIGGER_NO_CORPSE, 0) { }
-
-            WorldPacket const* Write() override { return &_worldPacket; }
         };
     }
 }
