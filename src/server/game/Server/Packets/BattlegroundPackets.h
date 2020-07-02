@@ -424,6 +424,32 @@ namespace WorldPackets
             void Read() override { }
         };
 
+        class RatedBattlefieldInfo final : public ServerPacket
+        {
+        public:
+            RatedBattlefieldInfo() : ServerPacket(SMSG_RATED_BATTLEFIELD_INFO, 6 * sizeof(BracketInfo)) { }
+
+            WorldPacket const* Write() override;
+
+            struct BracketInfo
+            {
+                int32 PersonalRating = 0;
+                int32 Ranking = 0;
+                int32 SeasonPlayed = 0;
+                int32 SeasonWon = 0;
+                int32 Unused1 = 0;
+                int32 Unused2 = 0;
+                int32 WeeklyPlayed = 0;
+                int32 WeeklyWon = 0;
+                int32 BestWeeklyRating = 0;
+                int32 LastWeeksBestRating = 0;
+                int32 BestSeasonRating = 0;
+                int32 PvpTierID = 0;
+                int32 Unused3 = 0;
+                bool Unused4 = false;
+            } Bracket[6];
+        };
+
         class PVPMatchInit final : public ServerPacket
         {
         public:

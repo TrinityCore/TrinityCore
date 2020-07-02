@@ -424,6 +424,21 @@ namespace WorldPackets
             uint32 Cooldown = 0;
         };
 
+        class EnchantmentLog final : public ServerPacket
+        {
+        public:
+            EnchantmentLog() : ServerPacket(SMSG_ENCHANTMENT_LOG, 0) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Owner;
+            ObjectGuid Caster;
+            ObjectGuid ItemGUID;
+            int32 ItemID = 0;
+            int32 Enchantment = 0;
+            int32 EnchantSlot = 0;
+        };
+
         class ItemEnchantTimeUpdate final : public ServerPacket
         {
         public:
