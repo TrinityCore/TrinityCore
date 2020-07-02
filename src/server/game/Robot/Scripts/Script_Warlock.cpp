@@ -105,7 +105,7 @@ bool Script_Warlock::DPS_Affliction(Unit* pmTarget, bool pmChase, bool pmAOE, Pl
         {
             return false;
         }
-        if (!Chase(pmTarget, WARLOCK_RANGE_DISTANCE))
+        if (!Chase(pmTarget, RANGE_CHASE_DISTANCE))
         {
             return false;
         }
@@ -168,7 +168,7 @@ bool Script_Warlock::DPS_Demonology(Unit* pmTarget, bool pmChase, bool pmAOE, Pl
         {
             return false;
         }
-        if (!Chase(pmTarget, WARLOCK_RANGE_DISTANCE))
+        if (!Chase(pmTarget, RANGE_CHASE_DISTANCE))
         {
             return false;
         }
@@ -231,7 +231,7 @@ bool Script_Warlock::DPS_Destruction(Unit* pmTarget, bool pmChase, bool pmAOE, P
         {
             return false;
         }
-        if (!Chase(pmTarget, WARLOCK_RANGE_DISTANCE))
+        if (!Chase(pmTarget, RANGE_CHASE_DISTANCE))
         {
             return false;
         }
@@ -351,7 +351,7 @@ bool Script_Warlock::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE, Player
         {
             return false;
         }
-        if (!Chase(pmTarget, WARLOCK_RANGE_DISTANCE))
+        if (!Chase(pmTarget, RANGE_CHASE_DISTANCE))
         {
             return false;
         }
@@ -469,7 +469,7 @@ bool Script_Warlock::Attack_Affliction(Unit* pmTarget)
         return false;
     }
 
-    if (!Chase(pmTarget, WARLOCK_RANGE_DISTANCE))
+    if (!Chase(pmTarget, RANGE_CHASE_DISTANCE))
     {
         return false;
     }
@@ -518,7 +518,7 @@ bool Script_Warlock::Attack_Demonology(Unit* pmTarget)
         return false;
     }
 
-    if (!Chase(pmTarget, WARLOCK_RANGE_DISTANCE))
+    if (!Chase(pmTarget, RANGE_CHASE_DISTANCE))
     {
         return false;
     }
@@ -567,7 +567,7 @@ bool Script_Warlock::Attack_Destruction(Unit* pmTarget)
         return false;
     }
 
-    if (!Chase(pmTarget, WARLOCK_RANGE_DISTANCE))
+    if (!Chase(pmTarget, RANGE_CHASE_DISTANCE))
     {
         return false;
     }
@@ -632,7 +632,7 @@ bool Script_Warlock::Attack_Common(Unit* pmTarget)
     {
         return false;
     }
-    if (!Chase(pmTarget, WARLOCK_RANGE_DISTANCE))
+    if (!Chase(pmTarget, RANGE_CHASE_DISTANCE))
     {
         return false;
     }

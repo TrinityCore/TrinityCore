@@ -165,6 +165,8 @@ bool MarketerConfig::StartMarketerSystem()
     LoadInitial(configFile.generic_string(), std::vector<std::string>(), configError);
     Enable = GetIntDefault("Enable", 0);
     Reset = GetIntDefault("Reset", 0);
+    Buying = GetIntDefault("Buying", 0);
+    ExpireTime = GetIntDefault("ExpireTime", 2 * TimeConstants::DAY * TimeConstants::IN_MILLISECONDS);
 
     if (Enable == 0)
     {

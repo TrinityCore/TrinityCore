@@ -844,7 +844,7 @@ bool Script_Druid::Attack_Balance(Unit* pmTarget)
             return true;
         }
     }
-    if (!Chase(pmTarget, DRUID_RANGE_DISTANCE))
+    if (!Chase(pmTarget, RANGE_CHASE_DISTANCE))
     {
         return false;
     }

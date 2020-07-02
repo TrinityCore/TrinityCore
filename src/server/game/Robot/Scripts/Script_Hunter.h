@@ -10,11 +10,7 @@
 #endif
 
 #ifndef HUNTER_RANGE_DISTANCE
-# define HUNTER_RANGE_DISTANCE 40.0f
-#endif
-
-#ifndef HUNTER_CHASE_DISTANCE
-# define HUNTER_CHASE_DISTANCE 35.0f
+# define HUNTER_RANGE_DISTANCE 30.0f
 #endif
 
 #include "Script_Base.h"
@@ -29,8 +25,8 @@ enum HunterAspectType :uint32
 
 class Script_Hunter :public Script_Base
 {
-public:    
-    Script_Hunter(Player* pmMe);    
+public:
+    Script_Hunter(Player* pmMe);
     bool DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, bool pmInterruptTargetCasting = true);
     bool Tank(Unit* pmTarget, bool pmChase, bool pmSingle = false);
     bool Heal(Unit* pmTarget, bool pmCure = true);

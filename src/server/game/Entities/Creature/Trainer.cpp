@@ -58,7 +58,16 @@ namespace Trainer
                 {
                     continue;
                 }
-                if (trainerSpell.ReqLevel > sJokerConfig->MaxTrainerSpellLevel)
+                uint32 maxTrainerSpellLevel = 80;
+                if (sJokerConfig->ServerExpansion < 1)
+                {
+                    maxTrainerSpellLevel = 60;
+                }
+                else if (sJokerConfig->ServerExpansion < 2)
+                {
+                    maxTrainerSpellLevel = 70;
+                }
+                if (trainerSpell.ReqLevel > maxTrainerSpellLevel)
                 {
                     continue;
                 }

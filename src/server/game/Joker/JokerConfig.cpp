@@ -311,8 +311,6 @@ bool JokerConfig::StartJokerSystem()
 
     MaxModLevel = GetIntDefault("MaxModLevel", 60);
 
-    MaxTrainerSpellLevel = GetIntDefault("MaxTrainerSpellLevel", 80);
-
     PlayerMod = GetFloatDefault("PlayerMod", 1);
 
     LootCountEachGroup_Normal = GetIntDefault("LootCountEachGroup_Normal", 1);

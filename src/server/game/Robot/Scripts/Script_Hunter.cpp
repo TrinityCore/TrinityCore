@@ -97,7 +97,7 @@ bool Script_Hunter::DPS_BeastMastery(Unit* pmTarget, bool pmChase, bool pmAOE, P
         {
             return false;
         }
-        if (!Chase(pmTarget, HUNTER_CHASE_DISTANCE, HUNTER_MIN_RANGE_DISTANCE))
+        if (!Chase(pmTarget, RANGE_CHASE_DISTANCE, HUNTER_MIN_RANGE_DISTANCE))
         {
             return false;
         }
@@ -190,7 +190,7 @@ bool Script_Hunter::DPS_Marksmanship(Unit* pmTarget, bool pmChase, bool pmAOE, P
         {
             return false;
         }
-        if (!Chase(pmTarget, HUNTER_RANGE_DISTANCE, HUNTER_MIN_RANGE_DISTANCE))
+        if (!Chase(pmTarget, RANGE_CHASE_DISTANCE, HUNTER_MIN_RANGE_DISTANCE))
         {
             return false;
         }
@@ -327,7 +327,7 @@ bool Script_Hunter::DPS_Survival(Unit* pmTarget, bool pmChase, bool pmAOE, Playe
         {
             return false;
         }
-        if (!Chase(pmTarget, HUNTER_RANGE_DISTANCE, HUNTER_MIN_RANGE_DISTANCE))
+        if (!Chase(pmTarget, RANGE_CHASE_DISTANCE, HUNTER_MIN_RANGE_DISTANCE))
         {
             return false;
         }
@@ -459,7 +459,7 @@ bool Script_Hunter::Attack_BeastMastery(Unit* pmTarget)
     {
         return false;
     }
-    if (!Chase(pmTarget, HUNTER_RANGE_DISTANCE))
+    if (!Chase(pmTarget, RANGE_CHASE_DISTANCE))
     {
         return false;
     }
@@ -539,7 +539,7 @@ bool Script_Hunter::Attack_Marksmanship(Unit* pmTarget)
     {
         return false;
     }
-    if (!Chase(pmTarget, HUNTER_RANGE_DISTANCE))
+    if (!Chase(pmTarget, RANGE_CHASE_DISTANCE))
     {
         return false;
     }
@@ -619,7 +619,7 @@ bool Script_Hunter::Attack_Survival(Unit* pmTarget)
     {
         return false;
     }
-    if (!Chase(pmTarget, HUNTER_RANGE_DISTANCE))
+    if (!Chase(pmTarget, RANGE_CHASE_DISTANCE))
     {
         return false;
     }

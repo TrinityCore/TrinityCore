@@ -572,14 +572,7 @@ uint32 RobotManager::CreateRobotCharacter(uint32 pmAccountID)
     while (true)
     {
         targetClass = urand(Classes::CLASS_WARRIOR, Classes::CLASS_DRUID);
-        if (targetClass == Classes::CLASS_DRUID)
-        {
-            if (urand(0, 1) == 0)
-            {
-                continue;
-            }
-        }
-        else if (targetClass == Classes::CLASS_WARRIOR || targetClass == Classes::CLASS_DEATH_KNIGHT || targetClass == Classes::CLASS_SHAMAN || targetClass == Classes::CLASS_UNK)
+        if (targetClass == Classes::CLASS_WARRIOR || targetClass == Classes::CLASS_DEATH_KNIGHT || targetClass == Classes::CLASS_SHAMAN || targetClass == Classes::CLASS_UNK)
         {
             continue;
         }

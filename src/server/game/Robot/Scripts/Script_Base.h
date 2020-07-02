@@ -1,6 +1,10 @@
 #ifndef ROBOT_STRATEGIES_SCRIPT_BASE_H
 #define ROBOT_STRATEGIES_SCRIPT_BASE_H
 
+#ifndef RANGE_CHASE_DISTANCE
+# define RANGE_CHASE_DISTANCE 25.0f
+#endif
+
 #include "Unit.h"
 #include "Item.h"
 #include "Player.h"

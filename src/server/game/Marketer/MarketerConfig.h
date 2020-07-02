@@ -40,6 +40,8 @@ public :
 
     uint32 Enable;
     uint32 Reset;
+    uint32 Buying;
+    uint32 ExpireTime;
 };
 
 #define sMarketerConfig MarketerConfig::instance()

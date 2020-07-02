@@ -2362,8 +2362,8 @@ void ObjectMgr::LoadCreatures()
         ObjectGuid::LowType guid = fields[0].GetUInt32();
         uint32 entry        = fields[1].GetUInt32();
 
-        // EJ some creatures will not be loaded - tbc fly trainer, negatron
-        if (entry == 35093 || entry == 35099 || entry == 35100 || entry == 35101 || entry == 19851)
+        // EJ some creatures will not be loaded - tbc fly trainer, negatron, huge bag vender
+        if (entry == 35093 || entry == 35099 || entry == 35100 || entry == 35101 || entry == 19851 || entry == 18756)
         {
             continue;
         }
@@ -3168,6 +3168,233 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.MaxCount                  = fields[24].GetInt32();
         itemTemplate.Stackable                 = fields[25].GetInt32();
         itemTemplate.ContainerSlots            = uint32(fields[26].GetUInt8());
+
+        // EJ bag mod
+        if (sJokerConfig->Enable)
+        {
+            if (itemTemplate.Class == ItemClass::ITEM_CLASS_CONTAINER)
+            {
+                switch (itemTemplate.SubClass)
+                {
+                case ItemSubclassContainer::ITEM_SUBCLASS_CONTAINER:
+                {
+                    if (itemTemplate.ContainerSlots >= 22)
+                    {
+                        itemTemplate.ContainerSlots = 16;
+                    }
+                    else if (itemTemplate.ContainerSlots >= 20)
+                    {
+                        itemTemplate.ContainerSlots = 14;
+                    }
+                    else if (itemTemplate.ContainerSlots >= 18)
+                    {
+                        itemTemplate.ContainerSlots = 14;
+                    }
+                    else if (itemTemplate.ContainerSlots >= 16)
+                    {
+                        itemTemplate.ContainerSlots = 12;
+                    }
+                    else if (itemTemplate.ContainerSlots >= 14)
+                    {
+                        itemTemplate.ContainerSlots = 10;
+                    }
+                    else if (itemTemplate.ContainerSlots >= 12)
+                    {
+                        itemTemplate.ContainerSlots = 8;
+                    }
+                    else if (itemTemplate.ContainerSlots >= 10)
+                    {
+                        itemTemplate.ContainerSlots = 6;
+                    }
+                    else if (itemTemplate.ContainerSlots >= 8)
+                    {
+                        itemTemplate.ContainerSlots = 4;
+                    }
+                    else
+                    {
+                        itemTemplate.ContainerSlots = 2;
+                    }
+                    break;
+                }
+                case ItemSubclassContainer::ITEM_SUBCLASS_SOUL_CONTAINER:
+                {
+                    if (itemTemplate.ContainerSlots >= 32)
+                    {
+                        itemTemplate.ContainerSlots = 16;
+                    }
+                    else if (itemTemplate.ContainerSlots >= 28)
+                    {
+                        itemTemplate.ContainerSlots = 14;
+                    }
+                    else if (itemTemplate.ContainerSlots >= 24)
+                    {
+                        itemTemplate.ContainerSlots = 12;
+                    }
+                    else if (itemTemplate.ContainerSlots >= 20)
+                    {
+                        itemTemplate.ContainerSlots = 10;
+                    }
+                    else
+                    {
+                        itemTemplate.ContainerSlots = 8;
+                    }
+                    break;
+                }
+                case ItemSubclassContainer::ITEM_SUBCLASS_HERB_CONTAINER:
+                {
+                    if (itemTemplate.ContainerSlots >= 32)
+                    {
+                        itemTemplate.ContainerSlots = 16;
+                    }
+                    else if (itemTemplate.ContainerSlots >= 28)
+                    {
+                        itemTemplate.ContainerSlots = 14;
+                    }
+                    else if (itemTemplate.ContainerSlots >= 24)
+                    {
+                        itemTemplate.ContainerSlots = 12;
+                    }
+                    else if (itemTemplate.ContainerSlots >= 20)
+                    {
+                        itemTemplate.ContainerSlots = 10;
+                    }
+                    else
+                    {
+                        itemTemplate.ContainerSlots = 8;
+                    }
+                    break;
+                }
+                case ItemSubclassContainer::ITEM_SUBCLASS_ENCHANTING_CONTAINER:
+                {
+                    if (itemTemplate.ContainerSlots >= 32)
+                    {
+                        itemTemplate.ContainerSlots = 16;
+                    }
+                    else if (itemTemplate.ContainerSlots >= 28)
+                    {
+                        itemTemplate.ContainerSlots = 14;
+                    }
+                    else if (itemTemplate.ContainerSlots >= 24)
+                    {
+                        itemTemplate.ContainerSlots = 12;
+                    }
+                    else if (itemTemplate.ContainerSlots >= 20)
+                    {
+                        itemTemplate.ContainerSlots = 10;
+                    }
+                    else
+                    {
+                        itemTemplate.ContainerSlots = 8;
+                    }
+                    break;
+                }
+                case ItemSubclassContainer::ITEM_SUBCLASS_ENGINEERING_CONTAINER:
+                {
+                    if (itemTemplate.ContainerSlots >= 32)
+                    {
+                        itemTemplate.ContainerSlots = 16;
+                    }
+                    else if (itemTemplate.ContainerSlots >= 28)
+                    {
+                        itemTemplate.ContainerSlots = 14;
+                    }
+                    else if (itemTemplate.ContainerSlots >= 24)
+                    {
+                        itemTemplate.ContainerSlots = 12;
+                    }
+                    else if (itemTemplate.ContainerSlots >= 20)
+                    {
+                        itemTemplate.ContainerSlots = 10;
+                    }
+                    else
+                    {
+                        itemTemplate.ContainerSlots = 8;
+                    }
+                    break;
+                }
+                case ItemSubclassContainer::ITEM_SUBCLASS_GEM_CONTAINER:
+                {
+                    if (itemTemplate.ContainerSlots >= 24)
+                    {
+                        itemTemplate.ContainerSlots = 16;
+                    }
+                    else if (itemTemplate.ContainerSlots >= 20)
+                    {
+                        itemTemplate.ContainerSlots = 12;
+                    }
+                    break;
+                }
+                case ItemSubclassContainer::ITEM_SUBCLASS_MINING_CONTAINER:
+                {
+                    if (itemTemplate.ContainerSlots >= 32)
+                    {
+                        itemTemplate.ContainerSlots = 16;
+                    }
+                    else if (itemTemplate.ContainerSlots >= 28)
+                    {
+                        itemTemplate.ContainerSlots = 14;
+                    }
+                    else if (itemTemplate.ContainerSlots >= 20)
+                    {
+                        itemTemplate.ContainerSlots = 12;
+                    }
+                    break;
+                }
+                case ItemSubclassContainer::ITEM_SUBCLASS_LEATHERWORKING_CONTAINER:
+                {
+                    if (itemTemplate.ContainerSlots >= 28)
+                    {
+                        itemTemplate.ContainerSlots = 16;
+                    }
+                    else if (itemTemplate.ContainerSlots >= 24)
+                    {
+                        itemTemplate.ContainerSlots = 14;
+                    }
+                    else if (itemTemplate.ContainerSlots >= 20)
+                    {
+                        itemTemplate.ContainerSlots = 12;
+                    }
+                    break;
+                }
+                case ItemSubclassContainer::ITEM_SUBCLASS_INSCRIPTION_CONTAINER:
+                {
+                    if (itemTemplate.ContainerSlots >= 32)
+                    {
+                        itemTemplate.ContainerSlots = 16;
+                    }
+                    break;
+                }
+                default:
+                {
+                    break;
+                }
+                }
+            }
+            else if (itemTemplate.Class == ItemClass::ITEM_CLASS_QUIVER)
+            {
+                if (itemTemplate.ContainerSlots >= 28)
+                {
+                    itemTemplate.ContainerSlots = 16;
+                }
+                else if (itemTemplate.ContainerSlots >= 20)
+                {
+                    itemTemplate.ContainerSlots = 14;
+                }
+                else if (itemTemplate.ContainerSlots >= 16)
+                {
+                    itemTemplate.ContainerSlots = 12;
+                }
+                else if (itemTemplate.ContainerSlots >= 12)
+                {
+                    itemTemplate.ContainerSlots = 10;
+                }
+                else
+                {
+                    itemTemplate.ContainerSlots = 8;
+                }
+            }
+        }
+
         itemTemplate.StatsCount                = uint32(fields[27].GetUInt8());
 
         if (itemTemplate.StatsCount > MAX_ITEM_PROTO_STATS)

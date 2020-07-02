@@ -173,8 +173,7 @@ public:
     float MPMod_Level_WorldBoss;
 
     std::string CreatureModException;
-    uint32 MaxModLevel;
-    uint32 MaxTrainerSpellLevel;
+    uint32 MaxModLevel;    
 
     uint32 PlayerMod;
 

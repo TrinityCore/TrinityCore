@@ -252,15 +252,18 @@ bool MarketerManager::UpdateMarketer(uint32 pmDiff)
         return false;
     }
     sellerCheckDelay -= pmDiff;
-    buyerCheckDelay -= pmDiff;
     if (sellerCheckDelay < 0)
     {
         UpdateSeller();
     }
-    if (buyerCheckDelay < 0)
+    if (sMarketerConfig->Buying)
     {
-        UpdateBuyer();
-    }
+        buyerCheckDelay -= pmDiff;
+        if (buyerCheckDelay < 0)
+        {
+            UpdateBuyer();
+        }
+    }    
 
     return true;
 }
@@ -292,17 +295,10 @@ bool MarketerManager::UpdateSeller()
                 {
                 case ItemClass::ITEM_CLASS_CONSUMABLE:
                 {
-                    sellThis = true;
-                    stackCount = proto->Stackable;
                     break;
                 }
                 case ItemClass::ITEM_CLASS_CONTAINER:
                 {
-                    if (proto->Quality > 1)
-                    {
-                        sellThis = true;
-                        stackCount = proto->Stackable;
-                    }
                     break;
                 }
                 case ItemClass::ITEM_CLASS_WEAPON:
@@ -463,7 +459,7 @@ bool MarketerManager::UpdateSeller()
                             auctionEntry->deposit = dep;
                             auctionEntry->auctionHouseEntry = ahEntry;
                             //auctionEntry->depositTime = time(NULL);
-                            auctionEntry->expire_time = GameTime::GetGameTime() + 12 * HOUR;
+                            auctionEntry->expire_time = GameTime::GetGameTime() + sMarketerConfig->ExpireTime;
                             item->SaveToDB(trans);
                             sAuctionMgr->AddAItem(item);
                             aho->AddAuction(auctionEntry);

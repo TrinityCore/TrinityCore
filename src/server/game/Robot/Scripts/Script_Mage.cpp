@@ -139,7 +139,7 @@ bool Script_Mage::DPS_Arcane(Unit* pmTarget, bool pmChase, bool pmAOE, Player* p
         {
             return false;
         }
-        if (!Chase(pmTarget, MAGE_RANGE_DISTANCE))
+        if (!Chase(pmTarget, RANGE_CHASE_DISTANCE))
         {
             return false;
         }
@@ -209,7 +209,7 @@ bool Script_Mage::DPS_Fire(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmT
         {
             return false;
         }
-        if (!Chase(pmTarget, MAGE_RANGE_DISTANCE))
+        if (!Chase(pmTarget, RANGE_CHASE_DISTANCE))
         {
             return false;
         }
@@ -279,7 +279,7 @@ bool Script_Mage::DPS_Frost(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pm
         {
             return false;
         }
-        if (!Chase(pmTarget, MAGE_RANGE_DISTANCE))
+        if (!Chase(pmTarget, RANGE_CHASE_DISTANCE))
         {
             return false;
         }
@@ -413,7 +413,7 @@ bool Script_Mage::Attack_Arcane(Unit* pmTarget)
         return false;
     }
 
-    if (!Chase(pmTarget, MAGE_RANGE_DISTANCE))
+    if (!Chase(pmTarget, RANGE_CHASE_DISTANCE))
     {
         return false;
     }
@@ -472,7 +472,7 @@ bool Script_Mage::Attack_Fire(Unit* pmTarget)
         return false;
     }
 
-    if (!Chase(pmTarget, MAGE_RANGE_DISTANCE))
+    if (!Chase(pmTarget, RANGE_CHASE_DISTANCE))
     {
         return false;
     }
@@ -531,7 +531,7 @@ bool Script_Mage::Attack_Frost(Unit* pmTarget)
         return false;
     }
 
-    if (!Chase(pmTarget, MAGE_RANGE_DISTANCE))
+    if (!Chase(pmTarget, RANGE_CHASE_DISTANCE))
     {
         return false;
     }
