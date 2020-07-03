@@ -21,6 +21,7 @@
 #include "InstanceScript.h"
 #include "Map.h"
 #include "ScriptedCreature.h"
+#include "ObjectMgr.h"
 
 DoorData const doorData[] =
 {
@@ -92,7 +93,12 @@ class instance_blood_furnace : public InstanceMapScript
             void OnUnitDeath(Unit* unit) override
             {
                 if (unit->GetTypeId() == TYPEID_UNIT && (unit->GetEntry() == NPC_PRISONER1 || unit->GetEntry() == NPC_PRISONER2))
-                    PrisonerDied(unit->GetGUID());
+                {
+                    if (Creature* prisoner = unit->ToCreature())
+                    {
+                        PrisonerDied(prisoner->GetSpawnId());
+                    }
+                }                    
             }
 
             void OnGameObjectCreate(GameObject* go) override
@@ -182,49 +188,33 @@ class instance_blood_furnace : public InstanceMapScript
 
             void ResetPrisons()
             {
-                ResetPrisoners(PrisonersCell5);
-                PrisonerCounter5 = PrisonersCell5.size();
+                PrisonerCounter5 = prisonersCellSpawnIDSet5.size();
+                PrisonerCounter6 = prisonersCellSpawnIDSet6.size();
+                PrisonerCounter7 = prisonersCellSpawnIDSet7.size();
+                PrisonerCounter8 = prisonersCellSpawnIDSet8.size();
+
+                ResetPrisoners(prisonersCellSpawnIDSet5);
                 HandleGameObject(PrisonCellGUIDs[DATA_PRISON_CELL5 - DATA_PRISON_CELL1], false);
 
-                ResetPrisoners(PrisonersCell6);
-                PrisonerCounter6 = PrisonersCell6.size();
+                ResetPrisoners(prisonersCellSpawnIDSet6);                
                 HandleGameObject(PrisonCellGUIDs[DATA_PRISON_CELL6 - DATA_PRISON_CELL1], false);
 
-                ResetPrisoners(PrisonersCell7);
-                PrisonerCounter7 = PrisonersCell7.size();
+                ResetPrisoners(prisonersCellSpawnIDSet7);                
                 HandleGameObject(PrisonCellGUIDs[DATA_PRISON_CELL7 - DATA_PRISON_CELL1], false);
 
-                ResetPrisoners(PrisonersCell8);
-                PrisonerCounter8 = PrisonersCell8.size();
+                ResetPrisoners(prisonersCellSpawnIDSet8);                
                 HandleGameObject(PrisonCellGUIDs[DATA_PRISON_CELL8 - DATA_PRISON_CELL1], false);
             }
 
-            void ResetPrisoners(GuidSet& prisoners)
+            void ResetPrisoners(std::unordered_set<uint32> pmPrisonersSpawnIDSet)
             {
-                for (GuidSet::const_iterator i = prisoners.begin(); i != prisoners.end();)
+                for (std::unordered_set<uint32>::iterator pIT = pmPrisonersSpawnIDSet.begin(); pIT != pmPrisonersSpawnIDSet.end(); pIT++)
                 {
-                    if (Creature * prisoner = instance->GetCreature(*i))
+                    if (uint32 eachSpawnID = *pIT)
                     {
-                        if (!prisoner->IsAlive())
-                            i = prisoners.erase(i);
-                        else
-                            ++i;
-
-                        ResetPrisoner(prisoner);
+                        instance->Respawn(SpawnObjectType::SPAWN_TYPE_CREATURE, eachSpawnID);                        
                     }
-                    else
-                        ++i;
                 }
-            }
-
-            void ResetPrisoner(Creature* prisoner)
-            {
-                if (!prisoner->IsAlive())
-                    prisoner->Respawn(true);
-                prisoner->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                prisoner->SetImmuneToAll(true);
-                if (prisoner->IsAIEnabled())
-                    prisoner->AI()->EnterEvadeMode();
             }
 
             void StorePrisoner(Creature* creature)
@@ -237,13 +227,21 @@ class instance_blood_furnace : public InstanceMapScript
                 {
                     if (posY >= 106.0f && posY <= 123.0f && posZ <= 17)
                     {
-                        PrisonersCell5.insert(creature->GetGUID());
-                        ++PrisonerCounter5;
+                        uint32 checkSpawnID = creature->GetSpawnId();
+                        if (prisonersCellSpawnIDSet5.find(checkSpawnID) == prisonersCellSpawnIDSet5.end())
+                        {
+                            prisonersCellSpawnIDSet5.insert(checkSpawnID);
+                        }
+                        PrisonerCounter5 = prisonersCellSpawnIDSet5.size();                        
                     }
                     else if (posY >= 76.0f && posY <= 91.0f && posZ <= 17)
                     {
-                        PrisonersCell6.insert(creature->GetGUID());
-                        ++PrisonerCounter6;
+                        uint32 checkSpawnID = creature->GetSpawnId();
+                        if (prisonersCellSpawnIDSet6.find(checkSpawnID) == prisonersCellSpawnIDSet6.end())
+                        {
+                            prisonersCellSpawnIDSet6.insert(checkSpawnID);
+                        }
+                        PrisonerCounter6 = prisonersCellSpawnIDSet6.size();                        
                     }
                     else return;
                 }
@@ -251,13 +249,21 @@ class instance_blood_furnace : public InstanceMapScript
                 {
                     if (posY >= 106.0f && posY <= 123.0f && posZ <= 17)
                     {
-                        PrisonersCell7.insert(creature->GetGUID());
-                        ++PrisonerCounter7;
+                        uint32 checkSpawnID = creature->GetSpawnId();
+                        if (prisonersCellSpawnIDSet7.find(checkSpawnID) == prisonersCellSpawnIDSet7.end())
+                        {
+                            prisonersCellSpawnIDSet7.insert(checkSpawnID);
+                        }
+                        PrisonerCounter7 = prisonersCellSpawnIDSet7.size();                        
                     }
                     else if (posY >= 76.0f && posY <= 91.0f && posZ <= 17)
                     {
-                        PrisonersCell8.insert(creature->GetGUID());
-                        ++PrisonerCounter8;
+                        uint32 checkSpawnID = creature->GetSpawnId();
+                        if (prisonersCellSpawnIDSet8.find(checkSpawnID) == prisonersCellSpawnIDSet8.end())
+                        {
+                            prisonersCellSpawnIDSet8.insert(checkSpawnID);
+                        }
+                        PrisonerCounter8 = prisonersCellSpawnIDSet8.size();
                     }
                     else
                         return;
@@ -265,18 +271,27 @@ class instance_blood_furnace : public InstanceMapScript
                 else
                     return;
 
-                ResetPrisoner(creature);
+                if (!creature->IsAlive())
+                {
+                    creature->Respawn(true);
+                }
+                creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                creature->SetImmuneToAll(true);
+                if (creature->IsAIEnabled())
+                {
+                    creature->AI()->EnterEvadeMode();
+                }
             }
 
-            void PrisonerDied(ObjectGuid guid)
+            void PrisonerDied(uint32 pmPrisonerSpawnID)
             {
-                if (PrisonersCell5.find(guid) != PrisonersCell5.end() && --PrisonerCounter5 <= 0)
+                if (prisonersCellSpawnIDSet5.find(pmPrisonerSpawnID) != prisonersCellSpawnIDSet5.end() && --PrisonerCounter5 <= 0)
                     ActivateCell(DATA_PRISON_CELL6);
-                else if (PrisonersCell6.find(guid) != PrisonersCell6.end() && --PrisonerCounter6 <= 0)
+                else if (prisonersCellSpawnIDSet6.find(pmPrisonerSpawnID) != prisonersCellSpawnIDSet6.end() && --PrisonerCounter6 <= 0)
                     ActivateCell(DATA_PRISON_CELL7);
-                else if (PrisonersCell7.find(guid) != PrisonersCell7.end() && --PrisonerCounter7 <= 0)
+                else if (prisonersCellSpawnIDSet7.find(pmPrisonerSpawnID) != prisonersCellSpawnIDSet7.end() && --PrisonerCounter7 <= 0)
                     ActivateCell(DATA_PRISON_CELL8);
-                else if (PrisonersCell8.find(guid) != PrisonersCell8.end() && --PrisonerCounter8 <= 0)
+                else if (prisonersCellSpawnIDSet8.find(pmPrisonerSpawnID) != prisonersCellSpawnIDSet8.end() && --PrisonerCounter8 <= 0)
                     ActivateCell(DATA_DOOR_4);
             }
 
@@ -286,19 +301,19 @@ class instance_blood_furnace : public InstanceMapScript
                 {
                     case DATA_PRISON_CELL5:
                         HandleGameObject(PrisonCellGUIDs[id - DATA_PRISON_CELL1], true);
-                        ActivatePrisoners(PrisonersCell5);
+                        ActivatePrisoners(prisonersCellSpawnIDSet5);
                         break;
                     case DATA_PRISON_CELL6:
                         HandleGameObject(PrisonCellGUIDs[id - DATA_PRISON_CELL1], true);
-                        ActivatePrisoners(PrisonersCell6);
+                        ActivatePrisoners(prisonersCellSpawnIDSet6);
                         break;
                     case DATA_PRISON_CELL7:
                         HandleGameObject(PrisonCellGUIDs[id - DATA_PRISON_CELL1], true);
-                        ActivatePrisoners(PrisonersCell7);
+                        ActivatePrisoners(prisonersCellSpawnIDSet7);
                         break;
                     case DATA_PRISON_CELL8:
                         HandleGameObject(PrisonCellGUIDs[id - DATA_PRISON_CELL1], true);
-                        ActivatePrisoners(PrisonersCell8);
+                        ActivatePrisoners(prisonersCellSpawnIDSet8);
                         break;
                     case DATA_DOOR_4:
                         HandleGameObject(PrisonDoor4GUID, true);
@@ -308,15 +323,23 @@ class instance_blood_furnace : public InstanceMapScript
                 }
             }
 
-            void ActivatePrisoners(GuidSet const& prisoners)
+            void ActivatePrisoners(std::unordered_set<uint32> pmPrisonersSpawnIDSet)
             {
-                for (GuidSet::const_iterator i = prisoners.begin(); i != prisoners.end(); ++i)
-                    if (Creature* prisoner = instance->GetCreature(*i))
+                for (std::unordered_set<uint32>::iterator pIT = pmPrisonersSpawnIDSet.begin(); pIT != pmPrisonersSpawnIDSet.end(); pIT++)
+                {
+                    if (uint32 eachSpawnID = *pIT)
                     {
-                        prisoner->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                        prisoner->SetImmuneToAll(false);
-                        prisoner->AI()->DoZoneInCombat();
+                        if (Creature* prisoner = instance->GetCreatureBySpawnId(eachSpawnID))
+                        {
+                            if (prisoner->IsAlive())
+                            {
+                                prisoner->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                                prisoner->SetImmuneToAll(false);
+                                prisoner->AI()->DoZoneInCombat();
+                            }
+                        }
                     }
+                }
             }
 
         protected:
@@ -329,10 +352,16 @@ class instance_blood_furnace : public InstanceMapScript
 
             ObjectGuid PrisonCellGUIDs[8];
 
-            GuidSet PrisonersCell5;
-            GuidSet PrisonersCell6;
-            GuidSet PrisonersCell7;
-            GuidSet PrisonersCell8;
+            //GuidSet PrisonersCell5;
+            //GuidSet PrisonersCell6;
+            //GuidSet PrisonersCell7;
+            //GuidSet PrisonersCell8;
+
+            // EJ spawn id instead of guid, corpse will despawn
+            std::unordered_set<uint32> prisonersCellSpawnIDSet5;
+            std::unordered_set<uint32> prisonersCellSpawnIDSet6;
+            std::unordered_set<uint32> prisonersCellSpawnIDSet7;
+            std::unordered_set<uint32> prisonersCellSpawnIDSet8;
 
             uint8 PrisonerCounter5;
             uint8 PrisonerCounter6;

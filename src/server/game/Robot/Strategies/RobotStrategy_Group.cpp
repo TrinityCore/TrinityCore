@@ -228,6 +228,7 @@ bool RobotStrategy_Group::Update0(uint32 pmDiff)
         if (moveDelay > 0)
         {
             moveDelay -= pmDiff;
+            return false;
         }
         if (teleportAssembleDelay > 0)
         {

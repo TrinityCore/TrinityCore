@@ -4541,7 +4541,7 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                                 {
                                     if (member->GetDistance(pmSender) < sRobotConfig->AssembleTeleportMinRange)
                                     {
-                                        rs->moveDelay = 5000;
+                                        rs->moveDelay = 3000;
                                         replyStream << "We are close, I will move to you";
                                         member->GetMotionMaster()->Clear();
                                         member->StopMoving();
@@ -5217,8 +5217,8 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                                         std::ostringstream replyStream;
                                         replyStream << "Reviving " << deadMap[reviveIndex]->GetName();
                                         WhisperTo(member, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
-                                        reviveIndex++;
                                     }
+                                    reviveIndex++;
                                 }
                             }
                         }
@@ -5500,7 +5500,7 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                                     {
                                         member->SetWalk(false);
                                     }
-                                    member->GetMotionMaster()->MovePoint(1, destX, destY, destZ, true, member->GetOrientation());
+                                    member->GetMotionMaster()->MovePoint(1, destX, destY, destZ, true, member->GetOrientation());                                    
                                 }
                                 else
                                 {
