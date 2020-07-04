@@ -282,7 +282,7 @@ public:
     void LoadHotfixBlob();
     uint32 GetHotfixCount() const;
     HotfixContainer const& GetHotfixData() const;
-    std::vector<uint8> const* GetHotfixBlobData(uint32 tableHash, int32 recordId);
+    std::vector<uint8> const* GetHotfixBlobData(uint32 tableHash, int32 recordId, LocaleConstant locale);
 
     uint32 GetEmptyAnimStateID() const;
     std::vector<uint32> GetAreasForGroup(uint32 areaGroupId) const;

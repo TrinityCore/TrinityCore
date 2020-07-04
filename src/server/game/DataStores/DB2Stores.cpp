@@ -352,6 +352,8 @@ typedef std::vector<TalentEntry const*> TalentsByPosition[MAX_CLASSES][MAX_TALEN
 typedef std::unordered_set<uint32> ToyItemIdsContainer;
 typedef std::tuple<uint16, uint8, int32> WMOAreaTableKey;
 typedef std::map<WMOAreaTableKey, WMOAreaTableEntry const*> WMOAreaTableLookupContainer;
+typedef std::pair<uint32 /*tableHash*/, int32 /*recordId*/> HotfixBlobKey;
+typedef std::map<HotfixBlobKey, std::vector<uint8>> HotfixBlobMap;
 
 namespace
 {
@@ -365,7 +367,7 @@ namespace
 
     StorageMap _stores;
     DB2Manager::HotfixContainer _hotfixData;
-    std::map<std::pair<uint32 /*tableHash*/, int32 /*recordId*/>, std::vector<uint8>> _hotfixBlob;
+    std::array<HotfixBlobMap, TOTAL_LOCALES> _hotfixBlob;
 
     AreaGroupMemberContainer _areaGroupMembers;
     ArtifactPowersContainer _artifactPowers;
@@ -1413,10 +1415,14 @@ void DB2Manager::LoadHotfixData()
         uint32 tableHash = fields[1].GetUInt32();
         int32 recordId = fields[2].GetInt32();
         bool deleted = fields[3].GetBool();
-        if (!deleted && _stores.find(tableHash) == _stores.end() && _hotfixBlob.find(std::make_pair(tableHash, recordId)) == _hotfixBlob.end())
+        if (!deleted && _stores.find(tableHash) == _stores.end())
         {
-            TC_LOG_ERROR("sql.sql", "Table `hotfix_data` references unknown DB2 store by hash 0x%X and has no reference to `hotfix_blob` in hotfix id %d with RecordID: %d", tableHash, id, recordId);
-            continue;
+            HotfixBlobKey key = std::make_pair(tableHash, recordId);
+            if (std::none_of(_hotfixBlob.begin(), _hotfixBlob.end(), [key](HotfixBlobMap const& blob) { return blob.find(key) != blob.end(); }))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `hotfix_data` references unknown DB2 store by hash 0x%X and has no reference to `hotfix_blob` in hotfix id %d with RecordID: %d", tableHash, id, recordId);
+                continue;
+            }
         }
 
         _maxHotfixId = std::max(_maxHotfixId, id);
@@ -1440,9 +1446,8 @@ void DB2Manager::LoadHotfixData()
 void DB2Manager::LoadHotfixBlob()
 {
     uint32 oldMSTime = getMSTime();
-    _hotfixBlob.clear();
 
-    QueryResult result = HotfixDatabase.Query("SELECT TableHash, RecordId, `Blob` FROM hotfix_blob ORDER BY TableHash");
+    QueryResult result = HotfixDatabase.Query("SELECT TableHash, RecordId, locale, `Blob` FROM hotfix_blob ORDER BY TableHash");
 
     if (!result)
     {
@@ -1450,6 +1455,7 @@ void DB2Manager::LoadHotfixBlob()
         return;
     }
 
+    uint32 hotfixBlobCount = 0;
     do
     {
         Field* fields = result->Fetch();
@@ -1464,10 +1470,20 @@ void DB2Manager::LoadHotfixBlob()
         }
 
         int32 recordId = fields[1].GetInt32();
-        _hotfixBlob[std::make_pair(tableHash, recordId)] = fields[2].GetBinary();
+        std::string localeName = fields[2].GetString();
+        LocaleConstant locale = GetLocaleByName(localeName);
+
+        if (!IsValidLocale(locale))
+        {
+            TC_LOG_ERROR("server.loading", "`hotfix_blob` contains invalid locale: %s at TableHash: 0x%X and RecordID: %d", localeName.c_str(), tableHash, recordId);
+            continue;
+        }
+
+        _hotfixBlob[locale][std::make_pair(tableHash, recordId)] = fields[3].GetBinary();
+        hotfixBlobCount++;
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " hotfix blob records in %u ms", _hotfixBlob.size(), GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded %d hotfix blob records in %u ms", hotfixBlobCount, GetMSTimeDiffToNow(oldMSTime));
 }
 
 uint32 DB2Manager::GetHotfixCount() const
@@ -1480,9 +1496,11 @@ DB2Manager::HotfixContainer const& DB2Manager::GetHotfixData() const
     return _hotfixData;
 }
 
-std::vector<uint8> const* DB2Manager::GetHotfixBlobData(uint32 tableHash, int32 recordId)
+std::vector<uint8> const* DB2Manager::GetHotfixBlobData(uint32 tableHash, int32 recordId, LocaleConstant locale)
 {
-    return Trinity::Containers::MapGetValuePtr(_hotfixBlob, std::make_pair(tableHash, recordId));
+    ASSERT(IsValidLocale(locale), "Locale %u is invalid locale", uint32(locale));
+
+    return Trinity::Containers::MapGetValuePtr(_hotfixBlob[locale], std::make_pair(tableHash, recordId));
 }
 
 uint32 DB2Manager::GetEmptyAnimStateID() const
