@@ -193,11 +193,10 @@ void RobotEntity::Update(uint32 pmDiff)
                 }
                 else
                 {
-                    me->rai->sb->IdentifyCharacterSpells();
-                    me->rai->sb->Reset();
+                    me->rai->ResetStrategies();
+                    me->groupRole = me->rai->strategyMap[Strategy_Index::Strategy_Index_Solo]->sb->characterType;
                     entityState = RobotEntityState::RobotEntityState_Online;
                 }
-                me->groupRole = me->rai->sb->characterType;
             }
             else
             {

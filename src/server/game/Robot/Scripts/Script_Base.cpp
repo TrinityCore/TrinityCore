@@ -18,9 +18,6 @@
 Script_Base::Script_Base(Player* pmMe)
 {
     me = pmMe;
-
-    actionDelay = 0;
-
     spellIDMap.clear();
     spellLevelMap.clear();
     characterType = 0;
@@ -102,12 +99,7 @@ std::set<Unit*> Script_Base::GetAttackersInRange(float pmRangeLimit)
 
 bool Script_Base::Update(uint32 pmDiff)
 {
-    if (actionDelay > 0)
-    {
-        actionDelay -= pmDiff;
-        return false;
-    }
-    return true;
+    return false;
 }
 
 bool Script_Base::DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, bool pmInterruptTargetCasting)
@@ -295,110 +287,6 @@ void Script_Base::IdentifyCharacterSpells()
                 }
             }
         }
-    }
-}
-
-void Script_Base::RandomTeleport()
-{
-    if (!me)
-    {
-        return;
-    }
-    if (me->IsBeingTeleported())
-    {
-        return;
-    }
-    if (!me->IsAlive())
-    {
-        me->ResurrectPlayer(1.0f);
-        me->SpawnCorpseBones();
-    }
-    me->GetThreatManager().ClearAllThreat();
-    me->ClearInCombat();
-    me->StopMoving();
-    me->GetMotionMaster()->Clear();
-    me->rai->Reset();
-    bool validLocation = false;
-    int destMapID = 0;
-    float destX = 0.0f;
-    float destY = 0.0f;
-    float destZ = 0.0f;
-
-    if (me->rai->robotType == RobotType::RobotType_Raid)
-    {
-        // raid robot will only wonder in main city
-        uint32 spawnID = 0;
-        if (me->GetRace() == Races::RACE_BLOODELF || me->GetRace() == Races::RACE_ORC || me->GetRace() == Races::RACE_TAUREN || me->GetRace() == Races::RACE_TROLL || me->GetRace() == Races::RACE_UNDEAD_PLAYER)
-        {
-            spawnID = urand(0, sRobotManager->orgrimmar_gruntSpawnIDMap.size() - 1);
-            spawnID = sRobotManager->orgrimmar_gruntSpawnIDMap[spawnID];
-        }
-        else
-        {
-            spawnID = urand(0, sRobotManager->ironforge_guardSpawnIDMap.size() - 1);
-            spawnID = sRobotManager->ironforge_guardSpawnIDMap[spawnID];
-        }
-        if (spawnID > 0)
-        {
-            for (auto const& pair : sObjectMgr->GetAllCreatureData())
-            {
-                if (pair.second.spawnId == spawnID)
-                {
-                    destMapID = pair.second.mapId;
-                    destX = pair.second.spawnPoint.m_positionX;
-                    destY = pair.second.spawnPoint.m_positionY;
-                    destZ = pair.second.spawnPoint.m_positionZ;
-                    validLocation = true;
-                    break;
-                }
-            }
-        }        
-    }
-    else if (me->rai->robotType == RobotType::RobotType_World)
-    {
-        float distance = frand(sRobotConfig->TeleportMinRange, sRobotConfig->TeleportMaxRange);
-        float angle = frand(0, 2 * M_PI);
-        if (sRobotManager->onlinePlayerIDMap.size() > 0)
-        {
-            uint32 playerIndex = urand(0, sRobotManager->onlinePlayerIDMap.size() - 1);
-            uint32 cid = sRobotManager->onlinePlayerIDMap[playerIndex];
-            ObjectGuid og = ObjectGuid(HighGuid::Player, cid);
-            if (Player* targetP = ObjectAccessor::FindConnectedPlayer(og))
-            {
-                if (!targetP->IsBeingTeleported())
-                {
-                    if (Map* checkMap = targetP->GetMap())
-                    {
-                        if (!checkMap->Instanceable())
-                        {
-                            targetP->GetNearPoint(targetP, destX, destY, destZ, distance, angle);
-                            destMapID = targetP->GetMapId();
-                            validLocation = true;
-                        }
-                    }
-                }
-            }
-        }
-        if (!validLocation)
-        {
-            if (Corpse* myC = me->GetCorpse())
-            {
-                myC->GetNearPoint(myC, destX, destY, destZ, distance, angle);
-                destMapID = myC->GetMapId();
-                validLocation = true;
-            }
-        }
-        if (!validLocation)
-        {
-            me->GetNearPoint(me, destX, destY, destZ, distance, angle);
-            destMapID = me->GetMapId();
-            validLocation = true;
-        }
-    }
-    if (validLocation)
-    {
-        me->TeleportTo(destMapID, destX, destY, destZ, 0.0f);
-        sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Teleport robot %s (level %d)", me->GetName(), me->GetLevel());
     }
 }
 

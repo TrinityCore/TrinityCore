@@ -128,7 +128,7 @@ bool RobotStrategy_Group_Test::Stay(std::string pmTargetGroupRole)
         me->GetMotionMaster()->Clear();
         me->AttackStop();
         me->InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
-        me->rai->sb->PetStop();
+        sb->PetStop();
         staying = true;
         return true;
     }
@@ -186,7 +186,7 @@ bool RobotStrategy_Group_Test::Engage(Unit* pmTarget)
     {
     case GroupRole_Test::GroupRole_Test_Tank1:
     {
-        return me->rai->sb->Tank(pmTarget, Chasing());
+        return sb->Tank(pmTarget, Chasing());
     }
     case GroupRole_Test::GroupRole_Test_Tank2:
     {
@@ -207,6 +207,7 @@ bool RobotStrategy_Group_Test::Engage(Unit* pmTarget)
 
 void RobotStrategy_Group_Test::Update(uint32 pmDiff)
 {
+    RobotStrategy_Base::Update(pmDiff);
     if (!Update0(pmDiff))
     {
         return;
@@ -221,9 +222,9 @@ void RobotStrategy_Group_Test::Update(uint32 pmDiff)
                 {
                     me->StoreNewItemInBestSlots(9030, 20);
                 }
-                if (Item* pPotion = me->rai->sb->GetItemInInventory(9030))
+                if (Item* pPotion = sb->GetItemInInventory(9030))
                 {
-                    me->rai->sb->UseItem(pPotion, me);
+                    sb->UseItem(pPotion, me);
                 }
             }
         }
@@ -267,7 +268,7 @@ void RobotStrategy_Group_Test::Update(uint32 pmDiff)
             {
             case GroupRole_Test::GroupRole_Test_Tank1:
             {
-                if (me->rai->sb->Tank(engageTarget, Chasing()))
+                if (sb->Tank(engageTarget, Chasing()))
                 {
                     return;
                 }
@@ -301,7 +302,7 @@ void RobotStrategy_Group_Test::Update(uint32 pmDiff)
             }
             case GroupRole_Test::GroupRole_Test_DPS_Range:
             {
-                if (me->rai->sb->DPS(engageTarget, Chasing(), false, NULL))
+                if (sb->DPS(engageTarget, Chasing(), false, NULL))
                 {
                     return;
                 }
@@ -314,7 +315,7 @@ void RobotStrategy_Group_Test::Update(uint32 pmDiff)
             }
             case GroupRole_Test::GroupRole_Test_DPS_Melee:
             {
-                if (me->rai->sb->DPS(engageTarget, Chasing(), false, NULL))
+                if (sb->DPS(engageTarget, Chasing(), false, NULL))
                 {
                     return;
                 }
@@ -334,7 +335,7 @@ void RobotStrategy_Group_Test::Update(uint32 pmDiff)
         }
         if (groupInCombat)
         {
-            if (me->rai->sb->Assist())
+            if (sb->Assist())
             {
                 return;
             }
@@ -488,7 +489,7 @@ bool RobotStrategy_Group_Test::DPS()
                     {
                         if (combatTime > dpsDelay)
                         {
-                            return me->rai->sb->DPS(eachAdd, true, false, NULL);
+                            return sb->DPS(eachAdd, true, false, NULL);
                         }
                     }
                 }
@@ -513,14 +514,14 @@ bool RobotStrategy_Group_Test::DPS()
             }
             if (combatTime > dpsDelay)
             {
-                return me->rai->sb->DPS(geddon, true, false, NULL);
+                return sb->DPS(geddon, true, false, NULL);
             }
         }
         if (Unit* golemagg = myGroup->GetGroupAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Golemagg_the_Incinerator))
         {
             if (combatTime > dpsDelay)
             {
-                return me->rai->sb->DPS(golemagg, true, false, NULL);
+                return sb->DPS(golemagg, true, false, NULL);
             }
         }
         if (myGroup->GetGroupAttackers(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Flamewaker_Elite).size() > 0 || myGroup->GetGroupAttackers(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Flamewaker_Healer).size() > 0)
@@ -529,7 +530,7 @@ bool RobotStrategy_Group_Test::DPS()
             {
                 if (Player* mainTank = GetMainTank())
                 {
-                    return me->rai->sb->DPS(mainTank->GetSelectedUnit(), true, false, NULL);
+                    return sb->DPS(mainTank->GetSelectedUnit(), true, false, NULL);
                 }
             }
             else
@@ -544,7 +545,7 @@ bool RobotStrategy_Group_Test::DPS()
             {
                 if (tank2->IsAlive())
                 {
-                    return me->rai->sb->DPS(tank2->GetSelectedUnit(), false, true, tank2);
+                    return sb->DPS(tank2->GetSelectedUnit(), false, true, tank2);
                 }
             }
         }
@@ -564,7 +565,7 @@ bool RobotStrategy_Group_Test::DPS()
                     me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(rag->GetPosition()));
                     return true;
                 }
-                return me->rai->sb->DPS(rag, false, false, NULL);
+                return sb->DPS(rag, false, false, NULL);
             }
             return true;
         }
@@ -616,13 +617,13 @@ bool RobotStrategy_Group_Test::Tank()
                     {
                         if (me->groupRole == GroupRole_Test::GroupRole_Test_Tank1)
                         {
-                            return me->rai->sb->Tank(eachAdd, true);
+                            return sb->Tank(eachAdd, true);
                         }
                         else
                         {
                             if (combatTime > dpsDelay)
                             {
-                                return me->rai->sb->DPS(eachAdd, true, false, NULL);
+                                return sb->DPS(eachAdd, true, false, NULL);
                             }
                         }
                     }
@@ -648,13 +649,13 @@ bool RobotStrategy_Group_Test::Tank()
             }
             if (me->groupRole == GroupRole_Test::GroupRole_Test_Tank1)
             {
-                return me->rai->sb->Tank(geddon, true);
+                return sb->Tank(geddon, true);
             }
             else
             {
                 if (combatTime > dpsDelay)
                 {
-                    return me->rai->sb->DPS(geddon, true, false, NULL);
+                    return sb->DPS(geddon, true, false, NULL);
                 }
             }
         }
@@ -663,7 +664,7 @@ bool RobotStrategy_Group_Test::Tank()
         {
             if (me->groupRole == GroupRole_Test::GroupRole_Test_Tank1)
             {
-                return me->rai->sb->Tank(golemagg, true);
+                return sb->Tank(golemagg, true);
             }
             else if (me->groupRole == GroupRole_Test::GroupRole_Test_Tank2)
             {
@@ -676,7 +677,7 @@ bool RobotStrategy_Group_Test::Tank()
                         {
                             if (eachHound->GetTarget() != me->GetGUID())
                             {
-                                return me->rai->sb->Tank(eachHound, true);
+                                return sb->Tank(eachHound, true);
                             }
                         }
                     }
@@ -696,21 +697,21 @@ bool RobotStrategy_Group_Test::Tank()
                     {
                         if (myHound->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Core_Rager)
                         {
-                            return me->rai->sb->Tank(myHound, true);
+                            return sb->Tank(myHound, true);
                         }
                     }
                     for (std::unordered_map<ObjectGuid, Unit*>::iterator hIT = houndMap.begin(); hIT != houndMap.end(); hIT++)
                     {
                         if (Unit* eachHound = hIT->second)
                         {
-                            return me->rai->sb->Tank(eachHound, true);
+                            return sb->Tank(eachHound, true);
                         }
                     }
                 }
             }
             if (combatTime > dpsDelay)
             {
-                return me->rai->sb->DPS(golemagg, true, false, NULL);
+                return sb->DPS(golemagg, true, false, NULL);
             }
         }
         std::unordered_map<ObjectGuid, Unit*> eliteMap = myGroup->GetGroupAttackers(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Flamewaker_Elite);
@@ -724,7 +725,7 @@ bool RobotStrategy_Group_Test::Tank()
                     {
                         if (myTarget->GetTarget() != me->GetGUID())
                         {
-                            return me->rai->sb->Tank(myTarget, true, true);
+                            return sb->Tank(myTarget, true, true);
                         }
                     }
                 }
@@ -734,7 +735,7 @@ bool RobotStrategy_Group_Test::Tank()
                     {
                         if (eachAdd->GetTarget() != me->GetGUID())
                         {
-                            return me->rai->sb->Tank(eachAdd, true, true);
+                            return sb->Tank(eachAdd, true, true);
                         }
                     }
                 }
@@ -742,14 +743,14 @@ bool RobotStrategy_Group_Test::Tank()
                 {
                     if (myTarget->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Flamewaker_Elite)
                     {
-                        return me->rai->sb->Tank(myTarget, true, true);
+                        return sb->Tank(myTarget, true, true);
                     }
                 }
                 for (std::unordered_map<ObjectGuid, Unit*>::iterator eIT = eliteMap.begin(); eIT != eliteMap.end(); eIT++)
                 {
                     if (Unit* eachAdd = eIT->second)
                     {
-                        return me->rai->sb->Tank(eachAdd, true, true);
+                        return sb->Tank(eachAdd, true, true);
                     }
                 }
             }
@@ -772,7 +773,7 @@ bool RobotStrategy_Group_Test::Tank()
                         }
                         if (myTarget->GetTarget() != me->GetGUID())
                         {
-                            return me->rai->sb->Tank(myTarget, true);
+                            return sb->Tank(myTarget, true);
                         }
                     }
                 }
@@ -782,7 +783,7 @@ bool RobotStrategy_Group_Test::Tank()
                     {
                         if (eachAdd->GetTarget() != me->GetGUID())
                         {
-                            return me->rai->sb->Tank(eachAdd, true);
+                            return sb->Tank(eachAdd, true);
                         }
                     }
                 }
@@ -790,14 +791,14 @@ bool RobotStrategy_Group_Test::Tank()
                 {
                     if (myTarget->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Flamewaker_Healer)
                     {
-                        return me->rai->sb->Tank(myTarget, true);
+                        return sb->Tank(myTarget, true);
                     }
                 }
                 for (std::unordered_map<ObjectGuid, Unit*>::iterator eIT = healerMap.begin(); eIT != healerMap.end(); eIT++)
                 {
                     if (Unit* eachAdd = eIT->second)
                     {
-                        return me->rai->sb->Tank(eachAdd, true);
+                        return sb->Tank(eachAdd, true);
                     }
                 }
             }
@@ -827,7 +828,7 @@ bool RobotStrategy_Group_Test::Tank()
                         }
                     }
                 }
-                return me->rai->sb->Tank(majordomo, true, true);
+                return sb->Tank(majordomo, true, true);
             }
         }
         std::unordered_map<ObjectGuid, Unit*> ragAddsMap = myGroup->GetGroupAttackers(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Ragnaros_Adds);
@@ -845,7 +846,7 @@ bool RobotStrategy_Group_Test::Tank()
                     {
                         if (myTarget->GetTarget() != me->GetGUID())
                         {
-                            return me->rai->sb->Tank(myTarget, true);
+                            return sb->Tank(myTarget, true);
                         }
                     }
                 }
@@ -855,7 +856,7 @@ bool RobotStrategy_Group_Test::Tank()
                     {
                         if (eachAdd->GetTarget() != me->GetGUID())
                         {
-                            return me->rai->sb->Tank(eachAdd, true);
+                            return sb->Tank(eachAdd, true);
                         }
                     }
                 }
@@ -863,14 +864,14 @@ bool RobotStrategy_Group_Test::Tank()
                 {
                     if (myTarget->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Ragnaros_Adds)
                     {
-                        return me->rai->sb->Tank(myTarget, true);
+                        return sb->Tank(myTarget, true);
                     }
                 }
                 for (std::unordered_map<ObjectGuid, Unit*>::iterator addsIT = ragAddsMap.begin(); addsIT != ragAddsMap.end(); addsIT++)
                 {
                     if (Unit* eachAdd = addsIT->second)
                     {
-                        return me->rai->sb->Tank(eachAdd, true);
+                        return sb->Tank(eachAdd, true);
                     }
                 }
             }
@@ -891,7 +892,7 @@ bool RobotStrategy_Group_Test::Tank()
             }
             if (me->groupRole == GroupRole_Test::GroupRole_Test_Tank1)
             {
-                return me->rai->sb->Tank(rag, false);
+                return sb->Tank(rag, false);
             }
             else if (me->groupRole == GroupRole_Test::GroupRole_Test_Tank2)
             {
@@ -916,9 +917,9 @@ bool RobotStrategy_Group_Test::Tank(Unit* pmTarget)
     {
     case GroupRole_Test::GroupRole_Test_Tank1:
     {
-        me->rai->sb->ClearTarget();
-        me->rai->sb->ChooseTarget(pmTarget);
-        return me->rai->sb->Tank(pmTarget, Chasing());
+        sb->ClearTarget();
+        sb->ChooseTarget(pmTarget);
+        return sb->Tank(pmTarget, Chasing());
     }
     default:
     {
@@ -943,7 +944,7 @@ bool RobotStrategy_Group_Test::Heal()
                     {
                         if (!tank1->HasAura(6346))
                         {
-                            if (me->rai->sb->SpellValid(6346))
+                            if (sb->SpellValid(6346))
                             {
                                 if (me->GetExactDist(tank1) < RANGED_MAX_DISTANCE)
                                 {
@@ -951,7 +952,7 @@ bool RobotStrategy_Group_Test::Heal()
                                     me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
                                     me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
                                     me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
-                                    if (me->rai->sb->CastSpell(tank1, "Fear Ward", 35.0f))
+                                    if (sb->CastSpell(tank1, "Fear Ward", 35.0f))
                                     {
                                         return true;
                                     }
@@ -1021,14 +1022,14 @@ bool RobotStrategy_Group_Test::Heal()
                     {
                         if (tank2->GetHealthPct() < 90.0f)
                         {
-                            if (me->rai->sb->Heal(tank2, cure))
+                            if (sb->Heal(tank2, cure))
                             {
                                 return true;
                             }
                         }
                         if (me->GetHealthPct() < 50.0f)
                         {
-                            if (me->rai->sb->Heal(me, cure))
+                            if (sb->Heal(me, cure))
                             {
                                 return true;
                             }
@@ -1092,7 +1093,7 @@ bool RobotStrategy_Group_Test::Heal()
                 {
                     if (mainTank->GetHealthPct() < 90.0f)
                     {
-                        if (me->rai->sb->Heal(mainTank, cure))
+                        if (sb->Heal(mainTank, cure))
                         {
                             return true;
                         }
@@ -1105,7 +1106,7 @@ bool RobotStrategy_Group_Test::Heal()
                 {
                     if (mainTank->GetHealthPct() < 90.0f)
                     {
-                        if (me->rai->sb->SubHeal(mainTank))
+                        if (sb->SubHeal(mainTank))
                         {
                             return true;
                         }
@@ -1124,7 +1125,7 @@ bool RobotStrategy_Group_Test::Heal()
             //            }
             //            if (member->GetHealthPct() < 60.0f)
             //            {
-            //                if (me->rai->sb->Heal(member, true))
+            //                if (sb->Heal(member, true))
             //                {
             //                    return true;
             //                }

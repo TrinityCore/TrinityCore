@@ -119,7 +119,7 @@ bool RobotStrategy_Group_Azuregos::Stay(std::string pmTargetGroupRole)
         me->GetMotionMaster()->Clear();
         me->AttackStop();
         me->InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
-        me->rai->sb->PetStop();
+        sb->PetStop();
         staying = true;
         return true;
     }
@@ -177,7 +177,7 @@ bool RobotStrategy_Group_Azuregos::Engage(Unit* pmTarget)
     {
     case GroupRole_Azuregos::GroupRole_Azuregos_Tank:
     {
-        return me->rai->sb->Tank(pmTarget, Chasing());
+        return sb->Tank(pmTarget, Chasing());
     }
     case GroupRole_Azuregos::GroupRole_Azuregos_Healer1:
     {
@@ -222,7 +222,7 @@ bool RobotStrategy_Group_Azuregos::Follow()
     {
         if (Player* leader = ObjectAccessor::FindConnectedPlayer(myGroup->GetLeaderGUID()))
         {
-            return me->rai->sb->Follow(leader, followDistance);
+            return sb->Follow(leader, followDistance);
         }
     }
     return false;
@@ -230,6 +230,7 @@ bool RobotStrategy_Group_Azuregos::Follow()
 
 void RobotStrategy_Group_Azuregos::Update(uint32 pmDiff)
 {
+    RobotStrategy_Base::Update(pmDiff);
     if (!Update0(pmDiff))
     {
         return;
@@ -244,9 +245,9 @@ void RobotStrategy_Group_Azuregos::Update(uint32 pmDiff)
                 {
                     me->StoreNewItemInBestSlots(9030, 20);
                 }
-                if (Item* pPotion = me->rai->sb->GetItemInInventory(9030))
+                if (Item* pPotion = sb->GetItemInInventory(9030))
                 {
-                    me->rai->sb->UseItem(pPotion, me);
+                    sb->UseItem(pPotion, me);
                 }
             }
         }
@@ -290,7 +291,7 @@ void RobotStrategy_Group_Azuregos::Update(uint32 pmDiff)
             {
             case GroupRole_Azuregos::GroupRole_Azuregos_Tank:
             {
-                if (me->rai->sb->Tank(engageTarget, Chasing()))
+                if (sb->Tank(engageTarget, Chasing()))
                 {
                     return;
                 }
@@ -319,7 +320,7 @@ void RobotStrategy_Group_Azuregos::Update(uint32 pmDiff)
             }
             case GroupRole_Azuregos::GroupRole_Azuregos_DPS:
             {
-                if (me->rai->sb->DPS(engageTarget, Chasing(), false, NULL))
+                if (sb->DPS(engageTarget, Chasing(), false, NULL))
                 {
                     return;
                 }
@@ -339,7 +340,7 @@ void RobotStrategy_Group_Azuregos::Update(uint32 pmDiff)
         }
         if (groupInCombat)
         {
-            if (me->rai->sb->Assist())
+            if (sb->Assist())
             {
                 return;
             }
@@ -513,7 +514,7 @@ bool RobotStrategy_Group_Azuregos::DPS()
                 {
                     if (castingSpell->m_spellInfo->Id == 21097)
                     {
-                        if (me->rai->sb->InterruptCasting(boss))
+                        if (sb->InterruptCasting(boss))
                         {
                             me->Yell("Mana storm interrupted!", Language::LANG_UNIVERSAL);
                             return true;
@@ -537,7 +538,7 @@ bool RobotStrategy_Group_Azuregos::DPS()
                     {
                         if (bossTarget->groupRole == GroupRole_Azuregos::GroupRole_Azuregos_Tank)
                         {
-                            me->rai->sb->DPS(boss, false, false, NULL, false);
+                            sb->DPS(boss, false, false, NULL, false);
                         }
                     }
                 }
@@ -585,8 +586,8 @@ bool RobotStrategy_Group_Azuregos::Tank()
                         }
                     }
                 }
-                me->rai->sb->Taunt(boss);
-                me->rai->sb->Tank(boss, false);
+                sb->Taunt(boss);
+                sb->Tank(boss, false);
             }
             return true;
         }
@@ -608,9 +609,9 @@ bool RobotStrategy_Group_Azuregos::Tank(Unit* pmTarget)
     {
     case GroupRole_Azuregos::GroupRole_Azuregos_Tank:
     {
-        me->rai->sb->ClearTarget();
-        me->rai->sb->ChooseTarget(pmTarget);
-        return me->rai->sb->Tank(pmTarget, Chasing());
+        sb->ClearTarget();
+        sb->ChooseTarget(pmTarget);
+        return sb->Tank(pmTarget, Chasing());
     }
     default:
     {
@@ -680,7 +681,7 @@ bool RobotStrategy_Group_Azuregos::Heal()
                     {
                         if (tank->GetHealthPct() < 90.0f)
                         {
-                            if (me->rai->sb->Heal(tank, true))
+                            if (sb->Heal(tank, true))
                             {
                                 return true;
                             }
@@ -689,7 +690,7 @@ bool RobotStrategy_Group_Azuregos::Heal()
                 }
                 if (me->GetHealthPct() < 50.0f)
                 {
-                    if (me->rai->sb->Heal(me, true))
+                    if (sb->Heal(me, true))
                     {
                         return true;
                     }
@@ -710,7 +711,7 @@ bool RobotStrategy_Group_Azuregos::Heal()
                             }
                             if (member->GetHealthPct() < 60.0f)
                             {
-                                if (me->rai->sb->Heal(member, true))
+                                if (sb->Heal(member, true))
                                 {
                                     return true;
                                 }

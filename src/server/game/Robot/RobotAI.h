@@ -5,7 +5,6 @@
 # define AI_CHECK_DELAY 100
 #endif
 
-#include "Script_Base.h"
 #include "RobotStrategy_Base.h"
 
 enum RobotCharacterType :uint32
@@ -34,12 +33,11 @@ class RobotAI
 {
 public:
     RobotAI(Player* pmMe);
+    void ResetStrategies();
     void Update(uint32 pmDiff);
-    void Reset();
 
 public:
     Player* me;
-    Script_Base* sb;
     std::unordered_map<uint32, RobotStrategy_Base*> strategyMap;
     uint32 robotType;
     int checkDelay;

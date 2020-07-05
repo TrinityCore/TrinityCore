@@ -119,6 +119,7 @@ public:
     bool ApplyGlyph(Player* pmTargetPlayer, uint32 pmGlyphItemEntry, uint32 pmSlot);
     void TryEquip(Player* pmTargetPlayer, std::unordered_set<uint32> pmClassSet, std::unordered_set<uint32> pmSubClassSet, uint32 pmTargetSlot);
     bool EquipNewItem(Player* pmTargetPlayer, uint32 pmItemEntry, uint8 pmEquipSlot);
+    void RandomTeleport(Player* pmTargetPlayer);
 
 public:
     std::unordered_map<uint32, std::unordered_map<uint32, uint32>> availableRaces;

@@ -183,7 +183,7 @@ bool RobotStrategy_Group_Ysondre::Stay(std::string pmTargetGroupRole)
         me->GetMotionMaster()->Clear();
         me->AttackStop();
         me->InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
-        me->rai->sb->PetStop();
+        sb->PetStop();
         staying = true;
         return true;
     }
@@ -241,7 +241,7 @@ bool RobotStrategy_Group_Ysondre::Engage(Unit* pmTarget)
     {
     case GroupRole_Ysondre::GroupRole_Ysondre_Tank1:
     {
-        return me->rai->sb->Tank(pmTarget, Chasing());
+        return sb->Tank(pmTarget, Chasing());
     }
     case GroupRole_Ysondre::GroupRole_Ysondre_Tank2:
     {
@@ -310,7 +310,7 @@ bool RobotStrategy_Group_Ysondre::Follow()
     {
         if (Player* leader = ObjectAccessor::GetPlayer(*me, myGroup->GetLeaderGUID()))
         {
-            return me->rai->sb->Follow(leader, followDistance);
+            return sb->Follow(leader, followDistance);
         }
     }
     return false;
@@ -318,6 +318,7 @@ bool RobotStrategy_Group_Ysondre::Follow()
 
 void RobotStrategy_Group_Ysondre::Update(uint32 pmDiff)
 {
+    RobotStrategy_Base::Update(pmDiff);
     if (!Update0(pmDiff))
     {
         return;
@@ -361,7 +362,7 @@ void RobotStrategy_Group_Ysondre::Update(uint32 pmDiff)
             {
             case GroupRole_Ysondre::GroupRole_Ysondre_Tank1:
             {
-                if (me->rai->sb->Tank(engageTarget, Chasing()))
+                if (sb->Tank(engageTarget, Chasing()))
                 {
                     return;
                 }
@@ -374,7 +375,7 @@ void RobotStrategy_Group_Ysondre::Update(uint32 pmDiff)
             }
             case GroupRole_Ysondre::GroupRole_Ysondre_Tank2:
             {
-                if (me->rai->sb->Tank(engageTarget, Chasing()))
+                if (sb->Tank(engageTarget, Chasing()))
                 {
                     return;
                 }
@@ -451,7 +452,7 @@ void RobotStrategy_Group_Ysondre::Update(uint32 pmDiff)
             }
             case GroupRole_Ysondre::GroupRole_Ysondre_DPS_Range:
             {
-                if (me->rai->sb->DPS(engageTarget, Chasing(), false, NULL))
+                if (sb->DPS(engageTarget, Chasing(), false, NULL))
                 {
                     return;
                 }
@@ -464,7 +465,7 @@ void RobotStrategy_Group_Ysondre::Update(uint32 pmDiff)
             }
             case GroupRole_Ysondre::GroupRole_Ysondre_DPS_Melee:
             {
-                if (me->rai->sb->DPS(engageTarget, Chasing(), false, NULL))
+                if (sb->DPS(engageTarget, Chasing(), false, NULL))
                 {
                     return;
                 }
@@ -484,7 +485,7 @@ void RobotStrategy_Group_Ysondre::Update(uint32 pmDiff)
         }
         if (groupInCombat)
         {
-            if (me->rai->sb->Assist())
+            if (sb->Assist())
             {
                 return;
             }
@@ -856,7 +857,7 @@ bool RobotStrategy_Group_Ysondre::DPS()
                                     {
                                         if (me->GetExactDist(myDruid->GetPosition()) < RANGED_MAX_DISTANCE)
                                         {
-                                            if (me->rai->sb->DPS(myDruid, chaseDPS, false, NULL))
+                                            if (sb->DPS(myDruid, chaseDPS, false, NULL))
                                             {
                                                 return true;
                                             }
@@ -893,7 +894,7 @@ bool RobotStrategy_Group_Ysondre::DPS()
                                 {
                                     if (me->GetExactDist(eachDD->GetPosition()) < RANGED_MAX_DISTANCE)
                                     {
-                                        if (me->rai->sb->DPS(eachDD, chaseDPS, false, NULL))
+                                        if (sb->DPS(eachDD, chaseDPS, false, NULL))
                                         {
                                             return true;
                                         }
@@ -905,7 +906,7 @@ bool RobotStrategy_Group_Ysondre::DPS()
                         {
                             myGroup->groupTargetArrangementMap.clear();
                         }
-                        me->rai->sb->DPS(boss, false, false, NULL);
+                        sb->DPS(boss, false, false, NULL);
                     }
                 }
             }
@@ -1005,12 +1006,12 @@ bool RobotStrategy_Group_Ysondre::Tank()
                 }
                 else if (tanking)
                 {
-                    me->rai->sb->Taunt(boss);
-                    me->rai->sb->Tank(boss, false);
+                    sb->Taunt(boss);
+                    sb->Tank(boss, false);
                 }
                 else if (assisting)
                 {
-                    me->rai->sb->SubTank(boss, false);
+                    sb->SubTank(boss, false);
                 }
                 else if (changing)
                 {
@@ -1067,9 +1068,9 @@ bool RobotStrategy_Group_Ysondre::Tank(Unit* pmTarget)
     {
     case GroupRole_Ysondre::GroupRole_Ysondre_Tank1:
     {
-        me->rai->sb->ClearTarget();
-        me->rai->sb->ChooseTarget(pmTarget);
-        return me->rai->sb->Tank(pmTarget, Chasing());
+        sb->ClearTarget();
+        sb->ChooseTarget(pmTarget);
+        return sb->Tank(pmTarget, Chasing());
     }
     default:
     {
@@ -1195,7 +1196,7 @@ bool RobotStrategy_Group_Ysondre::Heal()
                     {
                         if (myTank->GetHealthPct() < 90.0f)
                         {
-                            if (me->rai->sb->Heal(myTank, true))
+                            if (sb->Heal(myTank, true))
                             {
                                 return true;
                             }
@@ -1203,7 +1204,7 @@ bool RobotStrategy_Group_Ysondre::Heal()
                     }
                     if (me->GetHealthPct() < 50.0f)
                     {
-                        if (me->rai->sb->Heal(me, true))
+                        if (sb->Heal(me, true))
                         {
                             return true;
                         }
@@ -1225,7 +1226,7 @@ bool RobotStrategy_Group_Ysondre::Heal()
                                 {
                                     if (member->GetHealthPct() < 50.0f)
                                     {
-                                        if (me->rai->sb->Heal(member, true))
+                                        if (sb->Heal(member, true))
                                         {
                                             return true;
                                         }
@@ -1244,7 +1245,7 @@ bool RobotStrategy_Group_Ysondre::Heal()
                     {
                         if (activeTank->GetHealthPct() < 90.0f)
                         {
-                            if (me->rai->sb->SubHeal(activeTank))
+                            if (sb->SubHeal(activeTank))
                             {
                                 return true;
                             }
@@ -1253,7 +1254,7 @@ bool RobotStrategy_Group_Ysondre::Heal()
                 }
                 if (me->GetHealthPct() < 50.0f)
                 {
-                    if (me->rai->sb->Heal(me, true))
+                    if (sb->Heal(me, true))
                     {
                         return true;
                     }

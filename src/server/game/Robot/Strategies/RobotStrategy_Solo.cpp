@@ -33,6 +33,7 @@ void RobotStrategy_Solo::InitialStrategy()
 
 void RobotStrategy_Solo::Update(uint32 pmDiff)
 {
+    RobotStrategy_Base::Update(pmDiff);
     if (!me)
     {
         return;
@@ -52,7 +53,7 @@ void RobotStrategy_Solo::Update(uint32 pmDiff)
             deathDelay -= pmDiff;
             if (deathDelay <= 0)
             {
-                me->rai->sb->RandomTeleport();
+                sRobotManager->RandomTeleport(me);
                 return;
             }
         }
@@ -66,7 +67,7 @@ void RobotStrategy_Solo::Update(uint32 pmDiff)
     if (soloDelay < 0)
     {
         soloDelay = urand(sRobotConfig->SoloMinDelay, sRobotConfig->SoloMaxDelay);
-        me->rai->sb->RandomTeleport();
+        sRobotManager->RandomTeleport(me);
         return;
     }
     switch (soloState)
@@ -156,7 +157,7 @@ void RobotStrategy_Solo::Update(uint32 pmDiff)
                 soloState = RobotSoloState::RobotSoloState_Wander;
                 return;
             }
-            if (me->rai->sb->Attack(engageTarget))
+            if (sb->Attack(engageTarget))
             {
                 return;
             }
@@ -259,7 +260,7 @@ bool RobotStrategy_Solo::Buff()
 {
     if (me)
     {
-        return me->rai->sb->Buff(me, true);
+        return sb->Buff(me, true);
     }
     return false;
 }
@@ -288,7 +289,7 @@ bool RobotStrategy_Solo::Rest()
         }
         else
         {
-            if (me->rai->sb->Rest())
+            if (sb->Rest())
             {
                 soloState = RobotSoloState::RobotSoloState_Rest;
                 restDelay = DEFAULT_REST_DELAY;
@@ -310,7 +311,7 @@ bool RobotStrategy_Solo::Battle()
     {
         if (Player* targetPlayer = myTarget->ToPlayer())
         {
-            if (me->rai->sb->Attack(targetPlayer))
+            if (sb->Attack(targetPlayer))
             {
                 engageTarget = targetPlayer;
                 return true;
@@ -323,7 +324,7 @@ bool RobotStrategy_Solo::Battle()
         {
             if (Player* targetPlayer = pTarget->ToPlayer())
             {
-                if (me->rai->sb->Attack(targetPlayer))
+                if (sb->Attack(targetPlayer))
                 {
                     engageTarget = targetPlayer;
                     return true;
@@ -341,7 +342,7 @@ bool RobotStrategy_Solo::Battle()
                 {
                     if (Player* targetPlayer = eachAttacker->ToPlayer())
                     {
-                        if (me->rai->sb->Attack(targetPlayer))
+                        if (sb->Attack(targetPlayer))
                         {
                             engageTarget = targetPlayer;
                             return true;
@@ -353,7 +354,7 @@ bool RobotStrategy_Solo::Battle()
     }
     if (Unit* myTarget = me->GetSelectedUnit())
     {
-        if (me->rai->sb->Attack(myTarget))
+        if (sb->Attack(myTarget))
         {
             engageTarget = myTarget;
             return true;
@@ -391,7 +392,7 @@ bool RobotStrategy_Solo::Battle()
             }
         }
     }
-    if (me->rai->sb->Attack(closestAttacker))
+    if (sb->Attack(closestAttacker))
     {
         engageTarget = closestAttacker;
         return true;
@@ -427,7 +428,7 @@ bool RobotStrategy_Solo::Battle()
             }
             if (eachU->GetTypeId() == TypeID::TYPEID_PLAYER)
             {
-                if (me->rai->sb->Attack(eachU))
+                if (sb->Attack(eachU))
                 {
                     engageTarget = eachU;
                     return true;
@@ -441,7 +442,7 @@ bool RobotStrategy_Solo::Battle()
             }
         }
     }
-    if (me->rai->sb->Attack(nearestAttackableTarget))
+    if (sb->Attack(nearestAttackableTarget))
     {
         engageTarget = nearestAttackableTarget;
         return true;
@@ -464,7 +465,7 @@ bool RobotStrategy_Solo::PVP()
     {
         if (Player* eachPlayer = *it)
         {
-            if (me->rai->sb->Attack(eachPlayer))
+            if (sb->Attack(eachPlayer))
             {
                 engageTarget = eachPlayer;
                 return true;
@@ -479,7 +480,7 @@ bool RobotStrategy_Solo::Heal()
 {
     if (me)
     {
-        return me->rai->sb->Heal(me, true);
+        return sb->Heal(me, true);
     }
     return false;
 }
@@ -488,7 +489,7 @@ bool RobotStrategy_Solo::Wait()
 {
     if (me)
     {
-        me->rai->sb->ClearTarget();
+        sb->ClearTarget();
         me->AttackStop();
         me->GetMotionMaster()->Clear();
         me->StopMoving();
@@ -542,7 +543,7 @@ void RobotStrategy_Solo::HandleChatCommand(Player* pmSender, std::string pmCMD)
     std::string commandName = commandVector.at(0);
     if (commandName == "who")
     {
-        me->rai->sb->WhisperTo(sRobotManager->characterTalentTabNameMap[me->GetClass()][me->GetMaxTalentCountTab()], Language::LANG_UNIVERSAL, pmSender);
+        sb->WhisperTo(sRobotManager->characterTalentTabNameMap[me->GetClass()][me->GetMaxTalentCountTab()], Language::LANG_UNIVERSAL, pmSender);
     }
 }
 

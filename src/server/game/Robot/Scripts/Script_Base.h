@@ -14,7 +14,7 @@ class Script_Base
 {
 public:
     Script_Base(Player* pmMe);
-    virtual void Reset();    
+    virtual void Reset();
     virtual bool DPS(Unit* pmTarget, bool pmChase, bool pmAOE, Player* pmTank, bool pmInterruptTargetCasting = true);
     virtual bool Tank(Unit* pmTarget, bool pmChase, bool pmSingle = false);
     virtual bool SubTank(Unit* pmTarget, bool pmChase);
@@ -46,8 +46,7 @@ public:
     void CancelAura(uint32 pmSpellID);
     bool CancelAura(std::string pmSpellName);
     bool Rest();
-    void WhisperTo(std::string pmContent, Language pmLanguage, Player* pmTarget);
-    void RandomTeleport();
+    void WhisperTo(std::string pmContent, Language pmLanguage, Player* pmTarget);    
     bool Chase(Unit* pmTarget, float pmMaxDistance = MELEE_MIN_DISTANCE, float pmMinDistance = MIN_DISTANCE_GAP);
     bool Follow(Unit* pmTarget, float pmDistance = FOLLOW_MIN_DISTANCE);
     void ChooseTarget(Unit* pmTarget);
@@ -58,13 +57,11 @@ public:
     std::unordered_map<std::string, uint32> spellIDMap;
     std::unordered_map<std::string, uint8> spellLevelMap;
 
-    int actionDelay;
-
     // 0 dps, 1 tank, 2 healer
     uint32 characterType;
     bool petting;
     float chaseDistanceMin;
-    float chaseDistanceMax;    
+    float chaseDistanceMax;
     int rti;
 };
 #endif

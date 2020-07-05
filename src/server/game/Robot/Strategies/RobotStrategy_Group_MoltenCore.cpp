@@ -128,7 +128,7 @@ bool RobotStrategy_Group_MoltenCore::Stay(std::string pmTargetGroupRole)
         me->GetMotionMaster()->Clear();
         me->AttackStop();
         me->InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
-        me->rai->sb->PetStop();
+        sb->PetStop();
         staying = true;
         return true;
     }
@@ -186,7 +186,7 @@ bool RobotStrategy_Group_MoltenCore::Engage(Unit* pmTarget)
     {
     case GroupRole_MoltenCore::GroupRole_MoltenCore_Tank1:
     {
-        return me->rai->sb->Tank(pmTarget, Chasing());
+        return sb->Tank(pmTarget, Chasing());
     }
     case GroupRole_MoltenCore::GroupRole_MoltenCore_Tank2:
     {
@@ -207,6 +207,7 @@ bool RobotStrategy_Group_MoltenCore::Engage(Unit* pmTarget)
 
 void RobotStrategy_Group_MoltenCore::Update(uint32 pmDiff)
 {
+    RobotStrategy_Base::Update(pmDiff);
     if (!Update0(pmDiff))
     {
         return;
@@ -221,9 +222,9 @@ void RobotStrategy_Group_MoltenCore::Update(uint32 pmDiff)
                 {
                     me->StoreNewItemInBestSlots(9030, 20);
                 }
-                if (Item* pPotion = me->rai->sb->GetItemInInventory(9030))
+                if (Item* pPotion = sb->GetItemInInventory(9030))
                 {
-                    me->rai->sb->UseItem(pPotion, me);
+                    sb->UseItem(pPotion, me);
                 }
             }
         }
@@ -267,7 +268,7 @@ void RobotStrategy_Group_MoltenCore::Update(uint32 pmDiff)
             {
             case GroupRole_MoltenCore::GroupRole_MoltenCore_Tank1:
             {
-                if (me->rai->sb->Tank(engageTarget, Chasing()))
+                if (sb->Tank(engageTarget, Chasing()))
                 {
                     return;
                 }
@@ -301,7 +302,7 @@ void RobotStrategy_Group_MoltenCore::Update(uint32 pmDiff)
             }
             case GroupRole_MoltenCore::GroupRole_MoltenCore_DPS_Range:
             {
-                if (me->rai->sb->DPS(engageTarget, Chasing(), false, NULL))
+                if (sb->DPS(engageTarget, Chasing(), false, NULL))
                 {
                     return;
                 }
@@ -314,7 +315,7 @@ void RobotStrategy_Group_MoltenCore::Update(uint32 pmDiff)
             }
             case GroupRole_MoltenCore::GroupRole_MoltenCore_DPS_Melee:
             {
-                if (me->rai->sb->DPS(engageTarget, Chasing(), false, NULL))
+                if (sb->DPS(engageTarget, Chasing(), false, NULL))
                 {
                     return;
                 }
@@ -334,7 +335,7 @@ void RobotStrategy_Group_MoltenCore::Update(uint32 pmDiff)
         }
         if (groupInCombat)
         {
-            if (me->rai->sb->Assist())
+            if (sb->Assist())
             {
                 return;
             }
@@ -496,7 +497,7 @@ bool RobotStrategy_Group_MoltenCore::DPS()
                         me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(magmadar->GetPosition()));
                         return true;
                     }
-                    if (me->rai->sb->DPS(magmadar, false, false, NULL))
+                    if (sb->DPS(magmadar, false, false, NULL))
                     {
                         return true;
                     }
@@ -508,7 +509,7 @@ bool RobotStrategy_Group_MoltenCore::DPS()
                 {
                     if (me->GetClass() == Classes::CLASS_HUNTER)
                     {
-                        if (me->rai->sb->CastSpell(magmadar, "Tranquilizing Shot", RANGED_MAX_DISTANCE))
+                        if (sb->CastSpell(magmadar, "Tranquilizing Shot", RANGED_MAX_DISTANCE))
                         {
                             return true;
                         }
@@ -522,7 +523,7 @@ bool RobotStrategy_Group_MoltenCore::DPS()
             {
                 if (Player* mainTank = GetMainTank())
                 {
-                    return me->rai->sb->DPS(mainTank->GetSelectedUnit(), true, true, mainTank);
+                    return sb->DPS(mainTank->GetSelectedUnit(), true, true, mainTank);
                 }
             }
         }
@@ -552,14 +553,14 @@ bool RobotStrategy_Group_MoltenCore::DPS()
             }
             if (combatTime > dpsDelay)
             {
-                return me->rai->sb->DPS(geddon, true, false, NULL);
+                return sb->DPS(geddon, true, false, NULL);
             }
         }
         if (Unit* golemagg = myGroup->GetGroupAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Golemagg_the_Incinerator))
         {
             if (combatTime > dpsDelay)
             {
-                return me->rai->sb->DPS(golemagg, true, false, NULL);
+                return sb->DPS(golemagg, true, false, NULL);
             }
         }
         if (myGroup->GetGroupAttackers(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Flamewaker_Elite).size() > 0)
@@ -570,7 +571,7 @@ bool RobotStrategy_Group_MoltenCore::DPS()
                 {
                     if (activeTarget->IsAlive())
                     {
-                        return me->rai->sb->DPS(activeTarget, true, false, NULL);
+                        return sb->DPS(activeTarget, true, false, NULL);
                     }
                 }
             }
@@ -587,7 +588,7 @@ bool RobotStrategy_Group_MoltenCore::DPS()
                 {
                     if (activeTarget->IsAlive())
                     {
-                        return me->rai->sb->DPS(activeTarget, true, false, NULL);
+                        return sb->DPS(activeTarget, true, false, NULL);
                     }
                 }
             }
@@ -603,7 +604,7 @@ bool RobotStrategy_Group_MoltenCore::DPS()
             {
                 if (tank2->IsAlive())
                 {
-                    return me->rai->sb->DPS(tank2->GetSelectedUnit(), false, true, tank2);
+                    return sb->DPS(tank2->GetSelectedUnit(), false, true, tank2);
                 }
             }
         }
@@ -623,7 +624,7 @@ bool RobotStrategy_Group_MoltenCore::DPS()
                     me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(rag->GetPosition()));
                     return true;
                 }
-                return me->rai->sb->DPS(rag, false, false, NULL);
+                return sb->DPS(rag, false, false, NULL);
             }
             return true;
         }
@@ -654,7 +655,7 @@ bool RobotStrategy_Group_MoltenCore::Tank()
                         me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(magmadar->GetPosition()));
                         return true;
                     }
-                    if (me->rai->sb->Tank(magmadar, false))
+                    if (sb->Tank(magmadar, false))
                     {
                         return true;
                     }
@@ -676,7 +677,7 @@ bool RobotStrategy_Group_MoltenCore::Tank()
                         me->GetMotionMaster()->MovePoint(0, markPos, true, me->GetAbsoluteAngle(magmadar->GetPosition()));
                         return true;
                     }
-                    if (me->rai->sb->DPS(magmadar, false, false, NULL))
+                    if (sb->DPS(magmadar, false, false, NULL))
                     {
                         return true;
                     }
@@ -694,7 +695,7 @@ bool RobotStrategy_Group_MoltenCore::Tank()
                     {
                         if (myTarget->GetTarget() != me->GetGUID())
                         {
-                            return me->rai->sb->Tank(myTarget, true);
+                            return sb->Tank(myTarget, true);
                         }
                     }
                 }
@@ -704,7 +705,7 @@ bool RobotStrategy_Group_MoltenCore::Tank()
                     {
                         if (eachAdd->GetTarget() != me->GetGUID())
                         {
-                            return me->rai->sb->Tank(eachAdd, true);
+                            return sb->Tank(eachAdd, true);
                         }
                     }
                 }
@@ -712,14 +713,14 @@ bool RobotStrategy_Group_MoltenCore::Tank()
                 {
                     if (myTarget->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Firesworn || myTarget->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Garr)
                     {
-                        return me->rai->sb->Tank(myTarget, true);
+                        return sb->Tank(myTarget, true);
                     }
                 }
                 for (std::unordered_map<ObjectGuid, Unit*>::iterator eIT = myGroup->groupAttackersMap.begin(); eIT != myGroup->groupAttackersMap.end(); eIT++)
                 {
                     if (Unit* eachAdd = eIT->second)
                     {
-                        return me->rai->sb->Tank(eachAdd, true);
+                        return sb->Tank(eachAdd, true);
                     }
                 }
             }
@@ -729,7 +730,7 @@ bool RobotStrategy_Group_MoltenCore::Tank()
                 {
                     if (Player* mainTank = GetMainTank())
                     {
-                        return me->rai->sb->DPS(mainTank->GetSelectedUnit(), true, true, mainTank);
+                        return sb->DPS(mainTank->GetSelectedUnit(), true, true, mainTank);
                     }
                 }
             }
@@ -760,13 +761,13 @@ bool RobotStrategy_Group_MoltenCore::Tank()
             }
             if (me->groupRole == GroupRole_MoltenCore::GroupRole_MoltenCore_Tank1)
             {
-                return me->rai->sb->Tank(geddon, true);
+                return sb->Tank(geddon, true);
             }
             else
             {
                 if (combatTime > dpsDelay)
                 {
-                    return me->rai->sb->DPS(geddon, true, false, NULL);
+                    return sb->DPS(geddon, true, false, NULL);
                 }
             }
         }
@@ -774,7 +775,7 @@ bool RobotStrategy_Group_MoltenCore::Tank()
         {
             if (me->groupRole == GroupRole_MoltenCore::GroupRole_MoltenCore_Tank1)
             {
-                return me->rai->sb->Tank(golemagg, true, true);
+                return sb->Tank(golemagg, true, true);
             }
             else if (me->groupRole == GroupRole_MoltenCore::GroupRole_MoltenCore_Tank2)
             {
@@ -787,7 +788,7 @@ bool RobotStrategy_Group_MoltenCore::Tank()
                         {
                             if (eachHound->GetTarget() != me->GetGUID())
                             {
-                                return me->rai->sb->Tank(eachHound, true, true);
+                                return sb->Tank(eachHound, true, true);
                             }
                         }
                     }
@@ -814,14 +815,14 @@ bool RobotStrategy_Group_MoltenCore::Tank()
                     {
                         if (myHound->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Core_Rager)
                         {
-                            return me->rai->sb->Tank(myHound, true, true);
+                            return sb->Tank(myHound, true, true);
                         }
                     }
                     for (std::unordered_map<ObjectGuid, Unit*>::iterator hIT = houndMap.begin(); hIT != houndMap.end(); hIT++)
                     {
                         if (Unit* eachHound = hIT->second)
                         {
-                            return me->rai->sb->Tank(eachHound, true, true);
+                            return sb->Tank(eachHound, true, true);
                         }
                     }
                 }
@@ -840,7 +841,7 @@ bool RobotStrategy_Group_MoltenCore::Tank()
                         {
                             if (activeTarget->GetTarget() != me->GetGUID())
                             {
-                                if (me->rai->sb->Tank(activeTarget, true, true))
+                                if (sb->Tank(activeTarget, true, true))
                                 {
                                     return true;
                                 }
@@ -855,7 +856,7 @@ bool RobotStrategy_Group_MoltenCore::Tank()
                         if (eachAdd->GetTarget() != me->GetGUID())
                         {
                             myGroup->SetTargetIcon(7, me->GetGUID(), eachAdd->GetGUID());
-                            if (me->rai->sb->Tank(eachAdd, true, true))
+                            if (sb->Tank(eachAdd, true, true))
                             {
                                 return true;
                             }
@@ -868,7 +869,7 @@ bool RobotStrategy_Group_MoltenCore::Tank()
                     {
                         if (activeTarget->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Flamewaker_Elite)
                         {
-                            if (me->rai->sb->Tank(activeTarget, true, true))
+                            if (sb->Tank(activeTarget, true, true))
                             {
                                 return true;
                             }
@@ -880,7 +881,7 @@ bool RobotStrategy_Group_MoltenCore::Tank()
                     if (Unit* eachAdd = eIT->second)
                     {
                         myGroup->SetTargetIcon(7, me->GetGUID(), eachAdd->GetGUID());
-                        if (me->rai->sb->Tank(eachAdd, true, true))
+                        if (sb->Tank(eachAdd, true, true))
                         {
                             return true;
                         }
@@ -901,7 +902,7 @@ bool RobotStrategy_Group_MoltenCore::Tank()
                         {
                             if (activeTarget->GetTarget() != me->GetGUID())
                             {
-                                if (me->rai->sb->Tank(activeTarget, true, true))
+                                if (sb->Tank(activeTarget, true, true))
                                 {
                                     return true;
                                 }
@@ -916,7 +917,7 @@ bool RobotStrategy_Group_MoltenCore::Tank()
                         if (eachAdd->GetTarget() != me->GetGUID())
                         {
                             myGroup->SetTargetIcon(7, me->GetGUID(), eachAdd->GetGUID());
-                            if (me->rai->sb->Tank(eachAdd, true, true))
+                            if (sb->Tank(eachAdd, true, true))
                             {
                                 return true;
                             }
@@ -929,7 +930,7 @@ bool RobotStrategy_Group_MoltenCore::Tank()
                     {
                         if (activeTarget->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Flamewaker_Healer)
                         {
-                            if (me->rai->sb->Tank(activeTarget, true, true))
+                            if (sb->Tank(activeTarget, true, true))
                             {
                                 return true;
                             }
@@ -941,7 +942,7 @@ bool RobotStrategy_Group_MoltenCore::Tank()
                     if (Unit* eachAdd = eIT->second)
                     {
                         myGroup->SetTargetIcon(7, me->GetGUID(), eachAdd->GetGUID());
-                        if (me->rai->sb->Tank(eachAdd, true, true))
+                        if (sb->Tank(eachAdd, true, true))
                         {
                             return true;
                         }
@@ -985,7 +986,7 @@ bool RobotStrategy_Group_MoltenCore::Tank()
                         }
                     }
                 }
-                return me->rai->sb->Tank(majordomo, true, true);
+                return sb->Tank(majordomo, true, true);
             }
         }
         std::unordered_map<ObjectGuid, Unit*> ragAddsMap = myGroup->GetGroupAttackers(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Ragnaros_Adds);
@@ -1003,7 +1004,7 @@ bool RobotStrategy_Group_MoltenCore::Tank()
                     {
                         if (myTarget->GetTarget() != me->GetGUID())
                         {
-                            return me->rai->sb->Tank(myTarget, true);
+                            return sb->Tank(myTarget, true);
                         }
                     }
                 }
@@ -1013,7 +1014,7 @@ bool RobotStrategy_Group_MoltenCore::Tank()
                     {
                         if (eachAdd->GetTarget() != me->GetGUID())
                         {
-                            return me->rai->sb->Tank(eachAdd, true);
+                            return sb->Tank(eachAdd, true);
                         }
                     }
                 }
@@ -1021,14 +1022,14 @@ bool RobotStrategy_Group_MoltenCore::Tank()
                 {
                     if (myTarget->GetEntry() == CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Ragnaros_Adds)
                     {
-                        return me->rai->sb->Tank(myTarget, true);
+                        return sb->Tank(myTarget, true);
                     }
                 }
                 for (std::unordered_map<ObjectGuid, Unit*>::iterator addsIT = ragAddsMap.begin(); addsIT != ragAddsMap.end(); addsIT++)
                 {
                     if (Unit* eachAdd = addsIT->second)
                     {
-                        return me->rai->sb->Tank(eachAdd, true);
+                        return sb->Tank(eachAdd, true);
                     }
                 }
             }
@@ -1049,7 +1050,7 @@ bool RobotStrategy_Group_MoltenCore::Tank()
             }
             if (me->groupRole == GroupRole_MoltenCore::GroupRole_MoltenCore_Tank1)
             {
-                return me->rai->sb->Tank(rag, false);
+                return sb->Tank(rag, false);
             }
             else if (me->groupRole == GroupRole_MoltenCore::GroupRole_MoltenCore_Tank2)
             {
@@ -1074,9 +1075,9 @@ bool RobotStrategy_Group_MoltenCore::Tank(Unit* pmTarget)
     {
     case GroupRole_MoltenCore::GroupRole_MoltenCore_Tank1:
     {
-        me->rai->sb->ClearTarget();
-        me->rai->sb->ChooseTarget(pmTarget);
-        return me->rai->sb->Tank(pmTarget, Chasing());
+        sb->ClearTarget();
+        sb->ChooseTarget(pmTarget);
+        return sb->Tank(pmTarget, Chasing());
     }
     default:
     {
@@ -1100,7 +1101,7 @@ bool RobotStrategy_Group_MoltenCore::Heal()
                 {
                     if (me->GetClass() == Classes::CLASS_PRIEST)
                     {
-                        if (me->rai->sb->CastSpell(tank1, "Fear Ward", 35.0f, true))
+                        if (sb->CastSpell(tank1, "Fear Ward", 35.0f, true))
                         {
                             return true;
                         }
@@ -1163,7 +1164,7 @@ bool RobotStrategy_Group_MoltenCore::Heal()
                     {
                         if (tank2->GetHealthPct() < 90.0f)
                         {
-                            if (me->rai->sb->Heal(tank2, cure))
+                            if (sb->Heal(tank2, cure))
                             {
                                 return true;
                             }
@@ -1179,7 +1180,7 @@ bool RobotStrategy_Group_MoltenCore::Heal()
                     {
                         if (tank2->GetHealthPct() < 90.0f)
                         {
-                            if (me->rai->sb->SubHeal(tank2))
+                            if (sb->SubHeal(tank2))
                             {
                                 return true;
                             }
@@ -1230,7 +1231,7 @@ bool RobotStrategy_Group_MoltenCore::Heal()
             {
                 if (mainTank->GetHealthPct() < 90.0f)
                 {
-                    if (me->rai->sb->Heal(mainTank, cure))
+                    if (sb->Heal(mainTank, cure))
                     {
                         return true;
                     }
@@ -1243,7 +1244,7 @@ bool RobotStrategy_Group_MoltenCore::Heal()
             {
                 if (mainTank->GetHealthPct() < 90.0f)
                 {
-                    if (me->rai->sb->SubHeal(mainTank))
+                    if (sb->SubHeal(mainTank))
                     {
                         return true;
                     }
@@ -1261,7 +1262,7 @@ bool RobotStrategy_Group_MoltenCore::Heal()
                         }
                         if (member->GetHealthPct() < 40.0f)
                         {
-                            if (me->rai->sb->Heal(member, true))
+                            if (sb->Heal(member, true))
                             {
                                 return true;
                             }

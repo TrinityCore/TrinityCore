@@ -182,7 +182,7 @@ bool RobotStrategy_Group::Update0(uint32 pmDiff)
                 if (leaderWS->isRobotSession)
                 {
                     me->RemoveFromGroup();
-                    me->rai->sb->Reset();
+                    sb->Reset();
                     return false;
                 }
             }
@@ -244,9 +244,9 @@ bool RobotStrategy_Group::Update0(uint32 pmDiff)
                     }
                     me->GetThreatManager().ClearAllThreat();
                     me->ClearInCombat();
-                    me->rai->sb->ClearTarget();
+                    sb->ClearTarget();
                     me->TeleportTo(leaderPlayer->GetWorldLocation());
-                    me->rai->sb->WhisperTo("I have come", Language::LANG_UNIVERSAL, leaderPlayer);
+                    sb->WhisperTo("I have come", Language::LANG_UNIVERSAL, leaderPlayer);
                     return false;
                 }
             }
@@ -258,7 +258,7 @@ bool RobotStrategy_Group::Update0(uint32 pmDiff)
         if (assistDelay > 0)
         {
             assistDelay -= pmDiff;
-            if (me->rai->sb->Assist())
+            if (sb->Assist())
             {
                 return false;
             }
@@ -274,6 +274,7 @@ bool RobotStrategy_Group::Update0(uint32 pmDiff)
 
 void RobotStrategy_Group::Update(uint32 pmDiff)
 {
+    RobotStrategy_Base::Update(pmDiff);
     if (!Update0(pmDiff))
     {
         return;
@@ -299,7 +300,7 @@ void RobotStrategy_Group::Update(uint32 pmDiff)
                 {
                 case GroupRole::GroupRole_DPS:
                 {
-                    if (me->rai->sb->DPS(engageTarget, Chasing(), false, NULL))
+                    if (sb->DPS(engageTarget, Chasing(), false, NULL))
                     {
                         return;
                     }
@@ -320,7 +321,7 @@ void RobotStrategy_Group::Update(uint32 pmDiff)
                 }
                 case GroupRole::GroupRole_Tank:
                 {
-                    if (me->rai->sb->Tank(engageTarget, Chasing()))
+                    if (sb->Tank(engageTarget, Chasing()))
                     {
                         return;
                     }
@@ -341,7 +342,7 @@ void RobotStrategy_Group::Update(uint32 pmDiff)
         }
         if (groupInCombat)
         {
-            if (me->rai->sb->Assist())
+            if (sb->Assist())
             {
                 return;
             }
@@ -597,11 +598,11 @@ bool RobotStrategy_Group::Engage(Unit* pmTarget)
     {
     case GroupRole::GroupRole_Tank:
     {
-        return me->rai->sb->Tank(pmTarget, Chasing());
+        return sb->Tank(pmTarget, Chasing());
     }
     case GroupRole::GroupRole_DPS:
     {
-        return me->rai->sb->DPS(pmTarget, Chasing(), false, NULL);
+        return sb->DPS(pmTarget, Chasing(), false, NULL);
     }
     case GroupRole::GroupRole_Healer:
     {
@@ -632,12 +633,12 @@ bool RobotStrategy_Group::DPS()
         Player* mainTank = GetMainTank();
         if (mainTank)
         {
-            if (me->rai->sb->DPS(mainTank->GetSelectedUnit(), Chasing(), aoe, mainTank))
+            if (sb->DPS(mainTank->GetSelectedUnit(), Chasing(), aoe, mainTank))
             {
                 return true;
             }
         }
-        if (me->rai->sb->DPS(me->GetSelectedUnit(), Chasing(), aoe, mainTank))
+        if (sb->DPS(me->GetSelectedUnit(), Chasing(), aoe, mainTank))
         {
             return true;
         }
@@ -658,7 +659,7 @@ bool RobotStrategy_Group::DPS()
                 }
             }
         }
-        if (me->rai->sb->DPS(closestVictim, Chasing(), aoe, mainTank))
+        if (sb->DPS(closestVictim, Chasing(), aoe, mainTank))
         {
             return true;
         }
@@ -732,8 +733,8 @@ bool RobotStrategy_Group::Tank()
             {
                 if (me->GetDistance(myTarget) < RANGED_MAX_DISTANCE)
                 {
-                    me->rai->sb->Taunt(myTarget);
-                    if (me->rai->sb->Tank(myTarget, Chasing()))
+                    sb->Taunt(myTarget);
+                    if (sb->Tank(myTarget, Chasing()))
                     {
                         return true;
                     }
@@ -754,8 +755,8 @@ bool RobotStrategy_Group::Tank()
                 {
                     if (eachAttacker->GetTarget() != me->GetGUID())
                     {
-                        me->rai->sb->Taunt(eachAttacker);
-                        if (me->rai->sb->Tank(eachAttacker, Chasing()))
+                        sb->Taunt(eachAttacker);
+                        if (sb->Tank(eachAttacker, Chasing()))
                         {
                             return true;
                         }
@@ -774,13 +775,13 @@ bool RobotStrategy_Group::Tank()
     {
         if (me->IsValidAttackTarget(myTarget))
         {
-            if (me->rai->sb->Tank(myTarget, Chasing()))
+            if (sb->Tank(myTarget, Chasing()))
             {
                 return true;
             }
         }
     }
-    if (me->rai->sb->Tank(closestVictim, Chasing()))
+    if (sb->Tank(closestVictim, Chasing()))
     {
         return true;
     }
@@ -798,9 +799,9 @@ bool RobotStrategy_Group::Tank(Unit* pmTarget)
     {
     case GroupRole::GroupRole_Tank:
     {
-        me->rai->sb->ClearTarget();
-        me->rai->sb->ChooseTarget(pmTarget);
-        return me->rai->sb->Tank(pmTarget, Chasing());
+        sb->ClearTarget();
+        sb->ChooseTarget(pmTarget);
+        return sb->Tank(pmTarget, Chasing());
     }
     default:
     {
@@ -835,7 +836,7 @@ bool RobotStrategy_Group::Rest()
     }
     if (canTry)
     {
-        if (me->rai->sb->Rest())
+        if (sb->Rest())
         {
             restDelay = DEFAULT_REST_DELAY;
             return true;
@@ -880,7 +881,7 @@ bool RobotStrategy_Group::Heal()
         }
         if (lowMemberCount > 2)
         {
-            if (me->rai->sb->GroupHeal())
+            if (sb->GroupHeal())
             {
                 return true;
             }
@@ -889,7 +890,7 @@ bool RobotStrategy_Group::Heal()
         {
             if (mainTank->GetHealthPct() < 90.0f)
             {
-                if (me->rai->sb->Heal(mainTank, cure))
+                if (sb->Heal(mainTank, cure))
                 {
                     return true;
                 }
@@ -903,7 +904,7 @@ bool RobotStrategy_Group::Heal()
                 {
                     if (member->GetHealthPct() < 50.0f)
                     {
-                        if (me->rai->sb->Heal(member, cure))
+                        if (sb->Heal(member, cure))
                         {
                             return true;
                         }
@@ -932,7 +933,7 @@ bool RobotStrategy_Group::Buff()
         {
             if (Player* member = groupRef->GetSource())
             {
-                if (me->rai->sb->Buff(member, cure))
+                if (sb->Buff(member, cure))
                 {
                     return true;
                 }
@@ -965,7 +966,7 @@ bool RobotStrategy_Group::Follow()
     {
         if (mainTank->GetGUID() != me->GetGUID())
         {
-            if (me->rai->sb->Follow(mainTank, followDistance))
+            if (sb->Follow(mainTank, followDistance))
             {
                 return true;
             }
@@ -975,7 +976,7 @@ bool RobotStrategy_Group::Follow()
     {
         if (Player* leader = ObjectAccessor::FindConnectedPlayer(myGroup->GetLeaderGUID()))
         {
-            return me->rai->sb->Follow(leader, followDistance);
+            return sb->Follow(leader, followDistance);
         }
     }
     return false;
@@ -1016,7 +1017,7 @@ bool RobotStrategy_Group::Stay(std::string pmTargetGroupRole)
         me->GetMotionMaster()->Clear();
         me->AttackStop();
         me->InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
-        me->rai->sb->PetStop();
+        sb->PetStop();
         staying = true;
         return true;
     }

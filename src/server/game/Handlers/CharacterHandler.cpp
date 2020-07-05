@@ -1054,9 +1054,9 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     }
     else
     {
-        pCurrChar->rai->sb->IdentifyCharacterSpells();
-        pCurrChar->rai->sb->Reset();
-        pCurrChar->groupRole = pCurrChar->rai->sb->characterType;
+        pCurrChar->rai->strategyMap[Strategy_Index::Strategy_Index_Solo]->sb->IdentifyCharacterSpells();
+        pCurrChar->rai->strategyMap[Strategy_Index::Strategy_Index_Solo]->sb->Reset();
+        pCurrChar->rai->strategyMap[Strategy_Index::Strategy_Index_Solo]->sb->characterType;
     }
 }
 

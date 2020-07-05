@@ -30,7 +30,7 @@ bool RobotStrategy_Group_DoctorWeavil::DPS()
         {
             if (Unit* weavil = myGroup->GetGroupAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Doctor_Weavil))
             {
-                if (me->rai->sb->DPS(weavil, Chasing(), false, NULL))
+                if (sb->DPS(weavil, Chasing(), false, NULL))
                 {
                     return true;
                 }
@@ -50,7 +50,7 @@ bool RobotStrategy_Group_DoctorWeavil::Tank()
     {
         if (Unit* weavil = myGroup->GetGroupAttacker(CreatureEntry_RobotStrategy::CreatureEntry_RobotStrategy_Doctor_Weavil))
         {
-            if (me->rai->sb->Tank(weavil, Chasing(), true))
+            if (sb->Tank(weavil, Chasing(), true))
             {
                 return true;
             }

@@ -1122,7 +1122,7 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                             rs->Reset();
                             if (member->rai)
                             {
-                                member->rai->sb->ClearTarget();
+                                rs->sb->ClearTarget();
                             }
                         }
                         member->AttackStop();
@@ -1239,325 +1239,328 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                         {
                             continue;
                         }
-                        if (member->GetClass() == Classes::CLASS_PALADIN)
+                        if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->strategyMap[myGroup->groupStrategyIndex])
                         {
-                            if (Script_Paladin* sp = (Script_Paladin*)member->rai->sb)
+                            if (member->GetClass() == Classes::CLASS_PALADIN)
                             {
-                                switch (sp->blessingType)
+                                if (Script_Paladin* sp = (Script_Paladin*)rs->sb)
                                 {
-                                case PaladinBlessingType::PaladinBlessingType_Kings:
-                                {
-                                    if (paladinBlessing_kings)
+                                    switch (sp->blessingType)
                                     {
-                                        if (!paladinBlessing_might)
+                                    case PaladinBlessingType::PaladinBlessingType_Kings:
+                                    {
+                                        if (paladinBlessing_kings)
                                         {
-                                            sp->blessingType = PaladinBlessingType::PaladinBlessingType_Might;
-                                            paladinBlessing_might = true;
+                                            if (!paladinBlessing_might)
+                                            {
+                                                sp->blessingType = PaladinBlessingType::PaladinBlessingType_Might;
+                                                paladinBlessing_might = true;
+                                            }
+                                            else if (!paladinBlessing_wisdom)
+                                            {
+                                                sp->blessingType = PaladinBlessingType::PaladinBlessingType_Wisdom;
+                                                paladinBlessing_wisdom = true;
+                                            }
                                         }
-                                        else if (!paladinBlessing_wisdom)
+                                        else
                                         {
-                                            sp->blessingType = PaladinBlessingType::PaladinBlessingType_Wisdom;
-                                            paladinBlessing_wisdom = true;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        paladinBlessing_kings = true;
-                                    }
-                                    break;
-                                }
-                                case PaladinBlessingType::PaladinBlessingType_Might:
-                                {
-                                    if (paladinBlessing_might)
-                                    {
-                                        if (!paladinBlessing_kings)
-                                        {
-                                            sp->blessingType = PaladinBlessingType::PaladinBlessingType_Kings;
                                             paladinBlessing_kings = true;
                                         }
-                                        else if (!paladinBlessing_wisdom)
-                                        {
-                                            sp->blessingType = PaladinBlessingType::PaladinBlessingType_Wisdom;
-                                            paladinBlessing_wisdom = true;
-                                        }
+                                        break;
                                     }
-                                    else
+                                    case PaladinBlessingType::PaladinBlessingType_Might:
                                     {
-                                        paladinBlessing_might = true;
-                                    }
-                                    break;
-                                }
-                                case PaladinBlessingType::PaladinBlessingType_Wisdom:
-                                {
-                                    if (paladinBlessing_wisdom)
-                                    {
-                                        if (!paladinBlessing_kings)
+                                        if (paladinBlessing_might)
                                         {
-                                            sp->blessingType = PaladinBlessingType::PaladinBlessingType_Kings;
-                                            paladinBlessing_kings = true;
+                                            if (!paladinBlessing_kings)
+                                            {
+                                                sp->blessingType = PaladinBlessingType::PaladinBlessingType_Kings;
+                                                paladinBlessing_kings = true;
+                                            }
+                                            else if (!paladinBlessing_wisdom)
+                                            {
+                                                sp->blessingType = PaladinBlessingType::PaladinBlessingType_Wisdom;
+                                                paladinBlessing_wisdom = true;
+                                            }
                                         }
-                                        else if (!paladinBlessing_might)
+                                        else
                                         {
-                                            sp->blessingType = PaladinBlessingType::PaladinBlessingType_Might;
                                             paladinBlessing_might = true;
                                         }
+                                        break;
                                     }
-                                    else
+                                    case PaladinBlessingType::PaladinBlessingType_Wisdom:
                                     {
-                                        paladinBlessing_wisdom = true;
+                                        if (paladinBlessing_wisdom)
+                                        {
+                                            if (!paladinBlessing_kings)
+                                            {
+                                                sp->blessingType = PaladinBlessingType::PaladinBlessingType_Kings;
+                                                paladinBlessing_kings = true;
+                                            }
+                                            else if (!paladinBlessing_might)
+                                            {
+                                                sp->blessingType = PaladinBlessingType::PaladinBlessingType_Might;
+                                                paladinBlessing_might = true;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            paladinBlessing_wisdom = true;
+                                        }
+                                        break;
                                     }
-                                    break;
-                                }
-                                default:
-                                {
-                                    break;
-                                }
-                                }
-                                switch (sp->auraType)
-                                {
-                                case PaladinAuraType::PaladinAuraType_Concentration:
-                                {
-                                    if (paladinAura_concentration)
+                                    default:
                                     {
-                                        if (!paladinAura_devotion)
-                                        {
-                                            sp->auraType = PaladinAuraType::PaladinAuraType_Devotion;
-                                            paladinAura_devotion = true;
-                                        }
-                                        else if (!paladinAura_retribution)
-                                        {
-                                            sp->auraType = PaladinAuraType::PaladinAuraType_Retribution;
-                                            paladinAura_retribution = true;
-                                        }
-                                        else if (!paladinAura_fire)
-                                        {
-                                            sp->auraType = PaladinAuraType::PaladinAuraType_FireResistant;
-                                            paladinAura_fire = true;
-                                        }
-                                        else if (!paladinAura_frost)
-                                        {
-                                            sp->auraType = PaladinAuraType::PaladinAuraType_FrostResistant;
-                                            paladinAura_frost = true;
-                                        }
-                                        else if (!paladinAura_shadow)
-                                        {
-                                            sp->auraType = PaladinAuraType::PaladinAuraType_ShadowResistant;
-                                            paladinAura_shadow = true;
-                                        }
+                                        break;
                                     }
-                                    else
-                                    {
-                                        paladinAura_concentration = true;
                                     }
-                                    break;
-                                }
-                                case PaladinAuraType::PaladinAuraType_Devotion:
-                                {
-                                    if (paladinAura_devotion)
+                                    switch (sp->auraType)
                                     {
-                                        if (!paladinAura_concentration)
+                                    case PaladinAuraType::PaladinAuraType_Concentration:
+                                    {
+                                        if (paladinAura_concentration)
                                         {
-                                            sp->auraType = PaladinAuraType::PaladinAuraType_Concentration;
+                                            if (!paladinAura_devotion)
+                                            {
+                                                sp->auraType = PaladinAuraType::PaladinAuraType_Devotion;
+                                                paladinAura_devotion = true;
+                                            }
+                                            else if (!paladinAura_retribution)
+                                            {
+                                                sp->auraType = PaladinAuraType::PaladinAuraType_Retribution;
+                                                paladinAura_retribution = true;
+                                            }
+                                            else if (!paladinAura_fire)
+                                            {
+                                                sp->auraType = PaladinAuraType::PaladinAuraType_FireResistant;
+                                                paladinAura_fire = true;
+                                            }
+                                            else if (!paladinAura_frost)
+                                            {
+                                                sp->auraType = PaladinAuraType::PaladinAuraType_FrostResistant;
+                                                paladinAura_frost = true;
+                                            }
+                                            else if (!paladinAura_shadow)
+                                            {
+                                                sp->auraType = PaladinAuraType::PaladinAuraType_ShadowResistant;
+                                                paladinAura_shadow = true;
+                                            }
+                                        }
+                                        else
+                                        {
                                             paladinAura_concentration = true;
                                         }
-                                        else if (!paladinAura_retribution)
-                                        {
-                                            sp->auraType = PaladinAuraType::PaladinAuraType_Retribution;
-                                            paladinAura_retribution = true;
-                                        }
-                                        else if (!paladinAura_fire)
-                                        {
-                                            sp->auraType = PaladinAuraType::PaladinAuraType_FireResistant;
-                                            paladinAura_fire = true;
-                                        }
-                                        else if (!paladinAura_frost)
-                                        {
-                                            sp->auraType = PaladinAuraType::PaladinAuraType_FrostResistant;
-                                            paladinAura_frost = true;
-                                        }
-                                        else if (!paladinAura_shadow)
-                                        {
-                                            sp->auraType = PaladinAuraType::PaladinAuraType_ShadowResistant;
-                                            paladinAura_shadow = true;
-                                        }
+                                        break;
                                     }
-                                    else
+                                    case PaladinAuraType::PaladinAuraType_Devotion:
                                     {
-                                        paladinAura_devotion = true;
-                                    }
-                                    break;
-                                }
-                                case PaladinAuraType::PaladinAuraType_Retribution:
-                                {
-                                    if (paladinAura_retribution)
-                                    {
-                                        if (!paladinAura_concentration)
+                                        if (paladinAura_devotion)
                                         {
-                                            sp->auraType = PaladinAuraType::PaladinAuraType_Concentration;
-                                            paladinAura_concentration = true;
+                                            if (!paladinAura_concentration)
+                                            {
+                                                sp->auraType = PaladinAuraType::PaladinAuraType_Concentration;
+                                                paladinAura_concentration = true;
+                                            }
+                                            else if (!paladinAura_retribution)
+                                            {
+                                                sp->auraType = PaladinAuraType::PaladinAuraType_Retribution;
+                                                paladinAura_retribution = true;
+                                            }
+                                            else if (!paladinAura_fire)
+                                            {
+                                                sp->auraType = PaladinAuraType::PaladinAuraType_FireResistant;
+                                                paladinAura_fire = true;
+                                            }
+                                            else if (!paladinAura_frost)
+                                            {
+                                                sp->auraType = PaladinAuraType::PaladinAuraType_FrostResistant;
+                                                paladinAura_frost = true;
+                                            }
+                                            else if (!paladinAura_shadow)
+                                            {
+                                                sp->auraType = PaladinAuraType::PaladinAuraType_ShadowResistant;
+                                                paladinAura_shadow = true;
+                                            }
                                         }
-                                        else if (!paladinAura_devotion)
+                                        else
                                         {
-                                            sp->auraType = PaladinAuraType::PaladinAuraType_Devotion;
                                             paladinAura_devotion = true;
                                         }
-                                        else if (!paladinAura_fire)
-                                        {
-                                            sp->auraType = PaladinAuraType::PaladinAuraType_FireResistant;
-                                            paladinAura_fire = true;
-                                        }
-                                        else if (!paladinAura_frost)
-                                        {
-                                            sp->auraType = PaladinAuraType::PaladinAuraType_FrostResistant;
-                                            paladinAura_frost = true;
-                                        }
-                                        else if (!paladinAura_shadow)
-                                        {
-                                            sp->auraType = PaladinAuraType::PaladinAuraType_ShadowResistant;
-                                            paladinAura_shadow = true;
-                                        }
+                                        break;
                                     }
-                                    else
+                                    case PaladinAuraType::PaladinAuraType_Retribution:
                                     {
-                                        paladinAura_retribution = true;
-                                    }
-                                    break;
-                                }
-                                case PaladinAuraType::PaladinAuraType_FireResistant:
-                                {
-                                    if (paladinAura_fire)
-                                    {
-                                        if (!paladinAura_concentration)
+                                        if (paladinAura_retribution)
                                         {
-                                            sp->auraType = PaladinAuraType::PaladinAuraType_Concentration;
-                                            paladinAura_concentration = true;
+                                            if (!paladinAura_concentration)
+                                            {
+                                                sp->auraType = PaladinAuraType::PaladinAuraType_Concentration;
+                                                paladinAura_concentration = true;
+                                            }
+                                            else if (!paladinAura_devotion)
+                                            {
+                                                sp->auraType = PaladinAuraType::PaladinAuraType_Devotion;
+                                                paladinAura_devotion = true;
+                                            }
+                                            else if (!paladinAura_fire)
+                                            {
+                                                sp->auraType = PaladinAuraType::PaladinAuraType_FireResistant;
+                                                paladinAura_fire = true;
+                                            }
+                                            else if (!paladinAura_frost)
+                                            {
+                                                sp->auraType = PaladinAuraType::PaladinAuraType_FrostResistant;
+                                                paladinAura_frost = true;
+                                            }
+                                            else if (!paladinAura_shadow)
+                                            {
+                                                sp->auraType = PaladinAuraType::PaladinAuraType_ShadowResistant;
+                                                paladinAura_shadow = true;
+                                            }
                                         }
-                                        else if (!paladinAura_devotion)
+                                        else
                                         {
-                                            sp->auraType = PaladinAuraType::PaladinAuraType_Devotion;
-                                            paladinAura_devotion = true;
-                                        }
-                                        else if (!paladinAura_retribution)
-                                        {
-                                            sp->auraType = PaladinAuraType::PaladinAuraType_Retribution;
                                             paladinAura_retribution = true;
                                         }
-                                        else if (!paladinAura_frost)
-                                        {
-                                            sp->auraType = PaladinAuraType::PaladinAuraType_FrostResistant;
-                                            paladinAura_frost = true;
-                                        }
-                                        else if (!paladinAura_shadow)
-                                        {
-                                            sp->auraType = PaladinAuraType::PaladinAuraType_ShadowResistant;
-                                            paladinAura_shadow = true;
-                                        }
+                                        break;
                                     }
-                                    else
+                                    case PaladinAuraType::PaladinAuraType_FireResistant:
                                     {
-                                        paladinAura_fire = true;
-                                    }
-                                    break;
-                                }
-                                case PaladinAuraType::PaladinAuraType_FrostResistant:
-                                {
-                                    if (paladinAura_frost)
-                                    {
-                                        if (!paladinAura_concentration)
+                                        if (paladinAura_fire)
                                         {
-                                            sp->auraType = PaladinAuraType::PaladinAuraType_Concentration;
-                                            paladinAura_concentration = true;
+                                            if (!paladinAura_concentration)
+                                            {
+                                                sp->auraType = PaladinAuraType::PaladinAuraType_Concentration;
+                                                paladinAura_concentration = true;
+                                            }
+                                            else if (!paladinAura_devotion)
+                                            {
+                                                sp->auraType = PaladinAuraType::PaladinAuraType_Devotion;
+                                                paladinAura_devotion = true;
+                                            }
+                                            else if (!paladinAura_retribution)
+                                            {
+                                                sp->auraType = PaladinAuraType::PaladinAuraType_Retribution;
+                                                paladinAura_retribution = true;
+                                            }
+                                            else if (!paladinAura_frost)
+                                            {
+                                                sp->auraType = PaladinAuraType::PaladinAuraType_FrostResistant;
+                                                paladinAura_frost = true;
+                                            }
+                                            else if (!paladinAura_shadow)
+                                            {
+                                                sp->auraType = PaladinAuraType::PaladinAuraType_ShadowResistant;
+                                                paladinAura_shadow = true;
+                                            }
                                         }
-                                        else if (!paladinAura_devotion)
+                                        else
                                         {
-                                            sp->auraType = PaladinAuraType::PaladinAuraType_Devotion;
-                                            paladinAura_devotion = true;
-                                        }
-                                        else if (!paladinAura_retribution)
-                                        {
-                                            sp->auraType = PaladinAuraType::PaladinAuraType_Retribution;
-                                            paladinAura_retribution = true;
-                                        }
-                                        else if (!paladinAura_fire)
-                                        {
-                                            sp->auraType = PaladinAuraType::PaladinAuraType_FireResistant;
                                             paladinAura_fire = true;
                                         }
-                                        else if (!paladinAura_shadow)
-                                        {
-                                            sp->auraType = PaladinAuraType::PaladinAuraType_ShadowResistant;
-                                            paladinAura_shadow = true;
-                                        }
+                                        break;
                                     }
-                                    else
+                                    case PaladinAuraType::PaladinAuraType_FrostResistant:
                                     {
-                                        paladinAura_frost = true;
-                                    }
-                                    break;
-                                }
-                                case PaladinAuraType::PaladinAuraType_ShadowResistant:
-                                {
-                                    if (paladinAura_shadow)
-                                    {
-                                        if (!paladinAura_concentration)
+                                        if (paladinAura_frost)
                                         {
-                                            sp->auraType = PaladinAuraType::PaladinAuraType_Concentration;
-                                            paladinAura_concentration = true;
+                                            if (!paladinAura_concentration)
+                                            {
+                                                sp->auraType = PaladinAuraType::PaladinAuraType_Concentration;
+                                                paladinAura_concentration = true;
+                                            }
+                                            else if (!paladinAura_devotion)
+                                            {
+                                                sp->auraType = PaladinAuraType::PaladinAuraType_Devotion;
+                                                paladinAura_devotion = true;
+                                            }
+                                            else if (!paladinAura_retribution)
+                                            {
+                                                sp->auraType = PaladinAuraType::PaladinAuraType_Retribution;
+                                                paladinAura_retribution = true;
+                                            }
+                                            else if (!paladinAura_fire)
+                                            {
+                                                sp->auraType = PaladinAuraType::PaladinAuraType_FireResistant;
+                                                paladinAura_fire = true;
+                                            }
+                                            else if (!paladinAura_shadow)
+                                            {
+                                                sp->auraType = PaladinAuraType::PaladinAuraType_ShadowResistant;
+                                                paladinAura_shadow = true;
+                                            }
                                         }
-                                        else if (!paladinAura_devotion)
+                                        else
                                         {
-                                            sp->auraType = PaladinAuraType::PaladinAuraType_Devotion;
-                                            paladinAura_devotion = true;
-                                        }
-                                        else if (!paladinAura_retribution)
-                                        {
-                                            sp->auraType = PaladinAuraType::PaladinAuraType_Retribution;
-                                            paladinAura_retribution = true;
-                                        }
-                                        else if (!paladinAura_fire)
-                                        {
-                                            sp->auraType = PaladinAuraType::PaladinAuraType_FireResistant;
-                                            paladinAura_fire = true;
-                                        }
-                                        else if (!paladinAura_frost)
-                                        {
-                                            sp->auraType = PaladinAuraType::PaladinAuraType_FrostResistant;
                                             paladinAura_frost = true;
                                         }
+                                        break;
                                     }
-                                    else
+                                    case PaladinAuraType::PaladinAuraType_ShadowResistant:
                                     {
-                                        paladinAura_shadow = true;
+                                        if (paladinAura_shadow)
+                                        {
+                                            if (!paladinAura_concentration)
+                                            {
+                                                sp->auraType = PaladinAuraType::PaladinAuraType_Concentration;
+                                                paladinAura_concentration = true;
+                                            }
+                                            else if (!paladinAura_devotion)
+                                            {
+                                                sp->auraType = PaladinAuraType::PaladinAuraType_Devotion;
+                                                paladinAura_devotion = true;
+                                            }
+                                            else if (!paladinAura_retribution)
+                                            {
+                                                sp->auraType = PaladinAuraType::PaladinAuraType_Retribution;
+                                                paladinAura_retribution = true;
+                                            }
+                                            else if (!paladinAura_fire)
+                                            {
+                                                sp->auraType = PaladinAuraType::PaladinAuraType_FireResistant;
+                                                paladinAura_fire = true;
+                                            }
+                                            else if (!paladinAura_frost)
+                                            {
+                                                sp->auraType = PaladinAuraType::PaladinAuraType_FrostResistant;
+                                                paladinAura_frost = true;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            paladinAura_shadow = true;
+                                        }
+                                        break;
                                     }
-                                    break;
-                                }
-                                default:
-                                {
-                                    break;
-                                }
+                                    default:
+                                    {
+                                        break;
+                                    }
+                                    }
                                 }
                             }
-                        }
-                        else if (member->GetClass() == Classes::CLASS_MAGE)
-                        {
-                            if (rtiIndex >= 0 && rtiIndex < TARGETICONCOUNT)
+                            else if (member->GetClass() == Classes::CLASS_MAGE)
                             {
-                                member->rai->sb->rti = rtiIndex;
-                                rtiIndex++;
-                            }
-                        }
-                        else if (member->GetClass() == Classes::CLASS_HUNTER)
-                        {
-                            if (Script_Hunter* sh = (Script_Hunter*)member->rai->sb)
-                            {
-                                if (hunterAspect_wild)
+                                if (rtiIndex >= 0 && rtiIndex < TARGETICONCOUNT)
                                 {
-                                    sh->aspectType = HunterAspectType::HunterAspectType_Hawk;
+                                    rs->sb->rti = rtiIndex;
+                                    rtiIndex++;
                                 }
-                                else
+                            }
+                            else if (member->GetClass() == Classes::CLASS_HUNTER)
+                            {
+                                if (Script_Hunter* sh = (Script_Hunter*)rs->sb)
                                 {
-                                    sh->aspectType = HunterAspectType::HunterAspectType_Wild;
-                                    hunterAspect_wild = true;
+                                    if (hunterAspect_wild)
+                                    {
+                                        sh->aspectType = HunterAspectType::HunterAspectType_Hawk;
+                                    }
+                                    else
+                                    {
+                                        sh->aspectType = HunterAspectType::HunterAspectType_Wild;
+                                        hunterAspect_wild = true;
+                                    }
                                 }
                             }
                         }
@@ -1584,15 +1587,15 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                             if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->strategyMap[myGroup->groupStrategyIndex])
                             {
                                 rs->Reset();
-                                if (member->rai->sb->characterType == RobotCharacterType::RobotCharacterType_TANK)
+                                if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_TANK)
                                 {
                                     member->groupRole = GroupRole::GroupRole_Tank;
                                 }
-                                else if (member->rai->sb->characterType == RobotCharacterType::RobotCharacterType_HEALER)
+                                else if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_HEALER)
                                 {
                                     member->groupRole = GroupRole::GroupRole_Healer;
                                 }
-                                else if (member->rai->sb->characterType == RobotCharacterType::RobotCharacterType_DPS)
+                                else if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_DPS)
                                 {
                                     member->groupRole = GroupRole::GroupRole_DPS;
                                 }
@@ -1628,7 +1631,7 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                                 rs->dpsDelay = 5000;
                                 rs->aoeDelay = 10000;
                                 rs->followDistance = MELEE_MIN_DISTANCE;
-                                if (member->rai->sb->characterType == RobotCharacterType::RobotCharacterType_TANK)
+                                if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_TANK)
                                 {
                                     if (!tank1Set)
                                     {
@@ -1649,7 +1652,7 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                                         continue;
                                     }
                                 }
-                                else if (member->rai->sb->characterType == RobotCharacterType::RobotCharacterType_HEALER)
+                                else if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_HEALER)
                                 {
                                     if (!healer1Set)
                                     {
@@ -1702,7 +1705,7 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                                 rs->dpsDelay = 5000;
                                 rs->aoeDelay = 10000;
                                 rs->followDistance = FOLLOW_MAX_DISTANCE;
-                                if (member->rai->sb->characterType == RobotCharacterType::RobotCharacterType_TANK)
+                                if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_TANK)
                                 {
                                     if (!tank1Set)
                                     {
@@ -1722,7 +1725,7 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                                         member->groupRole = GroupRole_Ysondre::GroupRole_Ysondre_DPS_Melee;
                                     }
                                 }
-                                else if (member->rai->sb->characterType == RobotCharacterType::RobotCharacterType_HEALER)
+                                else if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_HEALER)
                                 {
                                     if (!healer1Set)
                                     {
@@ -1780,7 +1783,7 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                                         member->groupRole = GroupRole_Ysondre::GroupRole_Ysondre_DPS_Range;
                                     }
                                 }
-                                else if (member->rai->sb->characterType == RobotCharacterType::RobotCharacterType_DPS)
+                                else if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_DPS)
                                 {
                                     if (member->GetClass() == Classes::CLASS_WARRIOR || member->GetClass() == Classes::CLASS_PALADIN || member->GetClass() == Classes::CLASS_ROGUE || member->GetClass() == Classes::CLASS_DEATH_KNIGHT || member->GetClass() == Classes::CLASS_DRUID)
                                     {
@@ -1829,7 +1832,7 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                                 rs->dpsDelay = 5000;
                                 rs->aoeDelay = 10000;
                                 rs->followDistance = FOLLOW_MAX_DISTANCE;
-                                if (member->rai->sb->characterType == RobotCharacterType::RobotCharacterType_TANK)
+                                if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_TANK)
                                 {
                                     if (!tank1Set)
                                     {
@@ -1849,7 +1852,7 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                                         member->groupRole = GroupRole_Lethon::GroupRole_Lethon_DPS_Melee;
                                     }
                                 }
-                                else if (member->rai->sb->characterType == RobotCharacterType::RobotCharacterType_HEALER)
+                                else if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_HEALER)
                                 {
                                     if (!healer1Set)
                                     {
@@ -1907,7 +1910,7 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                                         member->groupRole = GroupRole_Lethon::GroupRole_Lethon_DPS_Range;
                                     }
                                 }
-                                else if (member->rai->sb->characterType == RobotCharacterType::RobotCharacterType_DPS)
+                                else if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_DPS)
                                 {
                                     if (member->GetClass() == Classes::CLASS_WARRIOR || member->GetClass() == Classes::CLASS_PALADIN || member->GetClass() == Classes::CLASS_ROGUE || member->GetClass() == Classes::CLASS_DEATH_KNIGHT || member->GetClass() == Classes::CLASS_DRUID)
                                     {
@@ -1959,7 +1962,7 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                                 rs->dpsDelay = 5000;
                                 rs->aoeDelay = 10000;
                                 rs->followDistance = FOLLOW_MAX_DISTANCE;
-                                if (member->rai->sb->characterType == RobotCharacterType::RobotCharacterType_TANK)
+                                if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_TANK)
                                 {
                                     if (!tank1Set)
                                     {
@@ -1997,7 +2000,7 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                                         member->groupRole = GroupRole_Taerar::GroupRole_Taerar_DPS_Melee;
                                     }
                                 }
-                                else if (member->rai->sb->characterType == RobotCharacterType::RobotCharacterType_HEALER)
+                                else if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_HEALER)
                                 {
                                     if (!healer1Set)
                                     {
@@ -2055,7 +2058,7 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                                         member->groupRole = GroupRole_Taerar::GroupRole_Taerar_DPS_Range;
                                     }
                                 }
-                                else if (member->rai->sb->characterType == RobotCharacterType::RobotCharacterType_DPS)
+                                else if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_DPS)
                                 {
                                     if (member->GetClass() == Classes::CLASS_WARRIOR || member->GetClass() == Classes::CLASS_PALADIN || member->GetClass() == Classes::CLASS_ROGUE || member->GetClass() == Classes::CLASS_DEATH_KNIGHT || member->GetClass() == Classes::CLASS_DRUID)
                                     {
@@ -2108,7 +2111,7 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                                 rs->dpsDelay = 5000;
                                 rs->aoeDelay = 10000;
                                 rs->followDistance = FOLLOW_MAX_DISTANCE;
-                                if (member->rai->sb->characterType == RobotCharacterType::RobotCharacterType_TANK)
+                                if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_TANK)
                                 {
                                     if (!tank1Set)
                                     {
@@ -2128,7 +2131,7 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                                         member->groupRole = GroupRole_Emeriss::GroupRole_Emeriss_DPS_Melee;
                                     }
                                 }
-                                else if (member->rai->sb->characterType == RobotCharacterType::RobotCharacterType_HEALER)
+                                else if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_HEALER)
                                 {
                                     if (!healer1Set)
                                     {
@@ -2209,7 +2212,7 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                                         member->groupRole = GroupRole_Emeriss::GroupRole_Emeriss_DPS_Range;
                                     }
                                 }
-                                else if (member->rai->sb->characterType == RobotCharacterType::RobotCharacterType_DPS)
+                                else if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_DPS)
                                 {
                                     if (member->GetClass() == Classes::CLASS_WARRIOR || member->GetClass() == Classes::CLASS_PALADIN || member->GetClass() == Classes::CLASS_ROGUE || member->GetClass() == Classes::CLASS_DEATH_KNIGHT || member->GetClass() == Classes::CLASS_DRUID)
                                     {
@@ -2251,7 +2254,7 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                                 rs->dpsDelay = 5000;
                                 rs->aoeDelay = 10000;
                                 rs->followDistance = FOLLOW_MAX_DISTANCE;
-                                if (member->rai->sb->characterType == RobotCharacterType::RobotCharacterType_TANK)
+                                if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_TANK)
                                 {
                                     if (!tank1Set)
                                     {
@@ -2265,7 +2268,7 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                                         member->groupRole = GroupRole_Azuregos::GroupRole_Azuregos_DPS;
                                     }
                                 }
-                                else if (member->rai->sb->characterType == RobotCharacterType::RobotCharacterType_HEALER)
+                                else if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_HEALER)
                                 {
                                     if (healer1Count < 4)
                                     {
@@ -2288,7 +2291,7 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                                         member->groupRole = GroupRole_Azuregos::GroupRole_Azuregos_DPS;
                                     }
                                 }
-                                else if (member->rai->sb->characterType == RobotCharacterType::RobotCharacterType_DPS)
+                                else if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_DPS)
                                 {
                                     member->groupRole = GroupRole_Azuregos::GroupRole_Azuregos_DPS;
                                 }
@@ -2370,7 +2373,7 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                                     break;
                                 }
                                 }
-                                if (member->rai->sb->characterType == RobotCharacterType::RobotCharacterType_TANK)
+                                if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_TANK)
                                 {
                                     if (!tank1Set)
                                     {
@@ -2389,7 +2392,7 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                                         member->groupRole = GroupRole_MoltenCore::GroupRole_MoltenCore_DPS_Melee;
                                     }
                                 }
-                                else if (member->rai->sb->characterType == RobotCharacterType::RobotCharacterType_HEALER)
+                                else if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_HEALER)
                                 {
                                     if (healerCount < 6)
                                     {
@@ -2402,7 +2405,7 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                                         member->groupRole = GroupRole_MoltenCore::GroupRole_MoltenCore_DPS_Range;
                                     }
                                 }
-                                else if (member->rai->sb->characterType == RobotCharacterType::RobotCharacterType_DPS)
+                                else if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_DPS)
                                 {
                                     if (member->GetClass() == Classes::CLASS_WARRIOR || member->GetClass() == Classes::CLASS_PALADIN || member->GetClass() == Classes::CLASS_ROGUE || member->GetClass() == Classes::CLASS_DEATH_KNIGHT || member->GetClass() == Classes::CLASS_DRUID)
                                     {
@@ -2491,7 +2494,7 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                                     break;
                                 }
                                 }
-                                if (member->rai->sb->characterType == RobotCharacterType::RobotCharacterType_TANK)
+                                if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_TANK)
                                 {
                                     if (!tank1Set)
                                     {
@@ -2510,7 +2513,7 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                                         member->groupRole = GroupRole_Test::GroupRole_Test_DPS_Melee;
                                     }
                                 }
-                                else if (member->rai->sb->characterType == RobotCharacterType::RobotCharacterType_HEALER)
+                                else if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_HEALER)
                                 {
                                     if (healerCount < 6)
                                     {
@@ -2523,7 +2526,7 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                                         member->groupRole = GroupRole_Test::GroupRole_Test_DPS_Range;
                                     }
                                 }
-                                else if (member->rai->sb->characterType == RobotCharacterType::RobotCharacterType_DPS)
+                                else if (rs->sb->characterType == RobotCharacterType::RobotCharacterType_DPS)
                                 {
                                     if (member->GetClass() == Classes::CLASS_WARRIOR || member->GetClass() == Classes::CLASS_PALADIN || member->GetClass() == Classes::CLASS_ROGUE || member->GetClass() == Classes::CLASS_DEATH_KNIGHT || member->GetClass() == Classes::CLASS_DRUID)
                                     {
@@ -4214,7 +4217,7 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                                     break;
                                 }
                             }
-                            member->rai->sb->ClearTarget();
+                            rs->sb->ClearTarget();
                             rs->restDelay = 0;
                             rs->staying = false;
                             rs->holding = false;
@@ -4232,7 +4235,7 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                                 {
                                     member->SetWalk(false);
                                 }
-                                member->rai->sb->ChooseTarget(pmSender);
+                                rs->sb->ChooseTarget(pmSender);
                                 member->GetMotionMaster()->MoveChase(pmSender, ChaseRange(0.0f, rs->followDistance));
                             }
                             std::ostringstream replyStream;
@@ -4373,8 +4376,8 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                                             if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->strategyMap[myGroup->groupStrategyIndex])
                                             {
                                                 rs->staying = false;
-                                                member->rai->sb->ClearTarget();
-                                                member->rai->sb->ChooseTarget(target);
+                                                rs->sb->ClearTarget();
+                                                rs->sb->ChooseTarget(target);
                                                 if (rs->Engage(target))
                                                 {
                                                     rs->engageTarget = target;
@@ -4431,7 +4434,7 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                         {
                             if (RobotStrategy_Base* rs = member->rai->strategyMap[myGroup->groupStrategyIndex])
                             {
-                                if (member->rai->sb->Rest())
+                                if (rs->sb->Rest())
                                 {
                                     int checkDelay = DEFAULT_REST_DELAY;
                                     if (commandVector.size() > 1)
@@ -4805,13 +4808,16 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                                 {
                                     senderTarget = member;
                                 }
-                                if (member->rai->sb->CastSpell(senderTarget, spellName, VISIBILITY_DISTANCE_NORMAL))
+                                if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->strategyMap[myGroup->groupStrategyIndex])
                                 {
-                                    replyStream << "Cast spell " << spellName << " on " << senderTarget->GetName();
-                                }
-                                else
-                                {
-                                    replyStream << "Can not cast spell " << spellName << " on " << senderTarget->GetName();
+                                    if (rs->sb->CastSpell(senderTarget, spellName, VISIBILITY_DISTANCE_NORMAL))
+                                    {
+                                        replyStream << "Cast spell " << spellName << " on " << senderTarget->GetName();
+                                    }
+                                    else
+                                    {
+                                        replyStream << "Can not cast spell " << spellName << " on " << senderTarget->GetName();
+                                    }
                                 }
                             }
                         }
@@ -4867,13 +4873,16 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                                     arrayCount++;
                                 }
                                 std::string spellName = TrimString(targetStream.str());
-                                if (member->rai->sb->CancelAura(spellName))
+                                if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->strategyMap[myGroup->groupStrategyIndex])
                                 {
-                                    replyStream << "Aura canceled " << spellName;
-                                }
-                                else
-                                {
-                                    replyStream << "Can not cancel aura " << spellName;
+                                    if (rs->sb->CancelAura(spellName))
+                                    {
+                                        replyStream << "Aura canceled " << spellName;
+                                    }
+                                    else
+                                    {
+                                        replyStream << "Can not cancel aura " << spellName;
+                                    }
                                 }
                             }
                         }
@@ -5196,27 +5205,30 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                                 std::ostringstream reviveSpellName;
                                 if (member->GetClass() == Classes::CLASS_DRUID || member->GetClass() == Classes::CLASS_PRIEST || member->GetClass() == Classes::CLASS_PALADIN)
                                 {
-                                    if (member->GetClass() == Classes::CLASS_DRUID)
+                                    if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->strategyMap[myGroup->groupStrategyIndex])
                                     {
-                                        reviveSpellName << "Revive";
-                                    }
-                                    else if (member->GetClass() == Classes::CLASS_PRIEST)
-                                    {
-                                        reviveSpellName << "Resurrection";
-                                    }
-                                    else if (member->GetClass() == Classes::CLASS_PALADIN)
-                                    {
-                                        reviveSpellName << "Redemption";
-                                    }
-                                    if (deadMap.find(reviveIndex) == deadMap.end())
-                                    {
-                                        break;
-                                    }
-                                    if (member->rai->sb->CastSpell(deadMap[reviveIndex], reviveSpellName.str(), RANGED_MAX_DISTANCE, false, false, true))
-                                    {
-                                        std::ostringstream replyStream;
-                                        replyStream << "Reviving " << deadMap[reviveIndex]->GetName();
-                                        WhisperTo(member, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                                        if (member->GetClass() == Classes::CLASS_DRUID)
+                                        {
+                                            reviveSpellName << "Revive";
+                                        }
+                                        else if (member->GetClass() == Classes::CLASS_PRIEST)
+                                        {
+                                            reviveSpellName << "Resurrection";
+                                        }
+                                        else if (member->GetClass() == Classes::CLASS_PALADIN)
+                                        {
+                                            reviveSpellName << "Redemption";
+                                        }
+                                        if (deadMap.find(reviveIndex) == deadMap.end())
+                                        {
+                                            break;
+                                        }
+                                        if (rs->sb->CastSpell(deadMap[reviveIndex], reviveSpellName.str(), RANGED_MAX_DISTANCE, false, false, true))
+                                        {
+                                            std::ostringstream replyStream;
+                                            replyStream << "Reviving " << deadMap[reviveIndex]->GetName();
+                                            WhisperTo(member, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                                        }
                                     }
                                     reviveIndex++;
                                 }
@@ -5629,9 +5641,12 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                         }
                         if (member->GetClass() == Classes::CLASS_PRIEST)
                         {
-                            if (member->rai->sb->CastSpell(member, "Lightwell", NOMINAL_MELEE_RANGE))
+                            if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->strategyMap[myGroup->groupStrategyIndex])
                             {
-                                continue;
+                                if (rs->sb->CastSpell(member, "Lightwell", NOMINAL_MELEE_RANGE))
+                                {
+                                    continue;
+                                }
                             }
                         }
                         std::ostringstream replyStream;
@@ -5705,81 +5720,83 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                         }
                         if (member->GetClass() == Classes::CLASS_PALADIN)
                         {
-                            std::ostringstream replyStream;
-
-                            if (Script_Paladin* sp = (Script_Paladin*)member->rai->sb)
+                            if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->strategyMap[myGroup->groupStrategyIndex])
                             {
-                                if (commandVector.size() > 1)
+                                std::ostringstream replyStream;
+                                if (Script_Paladin* sp = (Script_Paladin*)rs->sb)
                                 {
-                                    std::string auratypeName = commandVector.at(1);
-                                    if (auratypeName == "concentration")
+                                    if (commandVector.size() > 1)
                                     {
-                                        sp->auraType = PaladinAuraType::PaladinAuraType_Concentration;
+                                        std::string auratypeName = commandVector.at(1);
+                                        if (auratypeName == "concentration")
+                                        {
+                                            sp->auraType = PaladinAuraType::PaladinAuraType_Concentration;
+                                        }
+                                        else if (auratypeName == "devotion")
+                                        {
+                                            sp->auraType = PaladinAuraType::PaladinAuraType_Devotion;
+                                        }
+                                        else if (auratypeName == "retribution")
+                                        {
+                                            sp->auraType = PaladinAuraType::PaladinAuraType_Retribution;
+                                        }
+                                        else if (auratypeName == "fire")
+                                        {
+                                            sp->auraType = PaladinAuraType::PaladinAuraType_FireResistant;
+                                        }
+                                        else if (auratypeName == "frost")
+                                        {
+                                            sp->auraType = PaladinAuraType::PaladinAuraType_FrostResistant;
+                                        }
+                                        else if (auratypeName == "shadow")
+                                        {
+                                            sp->auraType = PaladinAuraType::PaladinAuraType_ShadowResistant;
+                                        }
+                                        else
+                                        {
+                                            replyStream << "Unknown type";
+                                        }
                                     }
-                                    else if (auratypeName == "devotion")
+                                    switch (sp->auraType)
                                     {
-                                        sp->auraType = PaladinAuraType::PaladinAuraType_Devotion;
-                                    }
-                                    else if (auratypeName == "retribution")
+                                    case PaladinAuraType::PaladinAuraType_Concentration:
                                     {
-                                        sp->auraType = PaladinAuraType::PaladinAuraType_Retribution;
+                                        replyStream << "concentration";
+                                        break;
                                     }
-                                    else if (auratypeName == "fire")
+                                    case PaladinAuraType::PaladinAuraType_Devotion:
                                     {
-                                        sp->auraType = PaladinAuraType::PaladinAuraType_FireResistant;
+                                        replyStream << "devotion";
+                                        break;
                                     }
-                                    else if (auratypeName == "frost")
+                                    case PaladinAuraType::PaladinAuraType_Retribution:
                                     {
-                                        sp->auraType = PaladinAuraType::PaladinAuraType_FrostResistant;
+                                        replyStream << "retribution";
+                                        break;
                                     }
-                                    else if (auratypeName == "shadow")
+                                    case PaladinAuraType::PaladinAuraType_FireResistant:
                                     {
-                                        sp->auraType = PaladinAuraType::PaladinAuraType_ShadowResistant;
+                                        replyStream << "fire";
+                                        break;
                                     }
-                                    else
+                                    case PaladinAuraType::PaladinAuraType_FrostResistant:
                                     {
-                                        replyStream << "Unknown type";
+                                        replyStream << "frost";
+                                        break;
+                                    }
+                                    case PaladinAuraType::PaladinAuraType_ShadowResistant:
+                                    {
+                                        replyStream << "shadow";
+                                        break;
+                                    }
+                                    default:
+                                    {
+                                        break;
+                                    }
                                     }
                                 }
-                                switch (sp->auraType)
-                                {
-                                case PaladinAuraType::PaladinAuraType_Concentration:
-                                {
-                                    replyStream << "concentration";
-                                    break;
-                                }
-                                case PaladinAuraType::PaladinAuraType_Devotion:
-                                {
-                                    replyStream << "devotion";
-                                    break;
-                                }
-                                case PaladinAuraType::PaladinAuraType_Retribution:
-                                {
-                                    replyStream << "retribution";
-                                    break;
-                                }
-                                case PaladinAuraType::PaladinAuraType_FireResistant:
-                                {
-                                    replyStream << "fire";
-                                    break;
-                                }
-                                case PaladinAuraType::PaladinAuraType_FrostResistant:
-                                {
-                                    replyStream << "frost";
-                                    break;
-                                }
-                                case PaladinAuraType::PaladinAuraType_ShadowResistant:
-                                {
-                                    replyStream << "shadow";
-                                    break;
-                                }
-                                default:
-                                {
-                                    break;
-                                }
-                                }
+                                WhisperTo(member, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
                             }
-                            WhisperTo(member, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
                         }
                     }
                 }
@@ -5814,63 +5831,65 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                         }
                         if (member->GetClass() == Classes::CLASS_HUNTER)
                         {
-                            std::ostringstream replyStream;
-
-                            if (Script_Hunter* sh = (Script_Hunter*)member->rai->sb)
+                            if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->strategyMap[myGroup->groupStrategyIndex])
                             {
-                                if (commandVector.size() > 1)
+                                std::ostringstream replyStream;
+                                if (Script_Hunter* sh = (Script_Hunter*)rs->sb)
                                 {
-                                    std::string aspectName = commandVector.at(1);
-                                    if (aspectName == "hawk")
+                                    if (commandVector.size() > 1)
                                     {
-                                        sh->aspectType = HunterAspectType::HunterAspectType_Hawk;
+                                        std::string aspectName = commandVector.at(1);
+                                        if (aspectName == "hawk")
+                                        {
+                                            sh->aspectType = HunterAspectType::HunterAspectType_Hawk;
+                                        }
+                                        else if (aspectName == "monkey")
+                                        {
+                                            sh->aspectType = HunterAspectType::HunterAspectType_Monkey;
+                                        }
+                                        else if (aspectName == "wild")
+                                        {
+                                            sh->aspectType = HunterAspectType::HunterAspectType_Wild;
+                                        }
+                                        else if (aspectName == "pack")
+                                        {
+                                            sh->aspectType = HunterAspectType::HunterAspectType_Pack;
+                                        }
+                                        else
+                                        {
+                                            replyStream << "Unknown type";
+                                        }
                                     }
-                                    else if (aspectName == "monkey")
+                                    switch (sh->aspectType)
                                     {
-                                        sh->aspectType = HunterAspectType::HunterAspectType_Monkey;
-                                    }
-                                    else if (aspectName == "wild")
+                                    case HunterAspectType::HunterAspectType_Hawk:
                                     {
-                                        sh->aspectType = HunterAspectType::HunterAspectType_Wild;
+                                        replyStream << "hawk";
+                                        break;
                                     }
-                                    else if (aspectName == "pack")
+                                    case HunterAspectType::HunterAspectType_Monkey:
                                     {
-                                        sh->aspectType = HunterAspectType::HunterAspectType_Pack;
+                                        replyStream << "monkey";
+                                        break;
                                     }
-                                    else
+                                    case HunterAspectType::HunterAspectType_Wild:
                                     {
-                                        replyStream << "Unknown type";
+                                        replyStream << "wild";
+                                        break;
+                                    }
+                                    case HunterAspectType::HunterAspectType_Pack:
+                                    {
+                                        replyStream << "pack";
+                                        break;
+                                    }
+                                    default:
+                                    {
+                                        break;
+                                    }
                                     }
                                 }
-                                switch (sh->aspectType)
-                                {
-                                case HunterAspectType::HunterAspectType_Hawk:
-                                {
-                                    replyStream << "hawk";
-                                    break;
-                                }
-                                case HunterAspectType::HunterAspectType_Monkey:
-                                {
-                                    replyStream << "monkey";
-                                    break;
-                                }
-                                case HunterAspectType::HunterAspectType_Wild:
-                                {
-                                    replyStream << "wild";
-                                    break;
-                                }
-                                case HunterAspectType::HunterAspectType_Pack:
-                                {
-                                    replyStream << "pack";
-                                    break;
-                                }
-                                default:
-                                {
-                                    break;
-                                }
-                                }
+                                WhisperTo(member, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
                             }
-                            WhisperTo(member, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
                         }
                     }
                 }
@@ -5905,53 +5924,56 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                         }
                         if (member->GetClass() == Classes::CLASS_PALADIN)
                         {
-                            std::ostringstream replyStream;
-                            if (Script_Paladin* sp = (Script_Paladin*)member->rai->sb)
+                            if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->strategyMap[myGroup->groupStrategyIndex])
                             {
-                                if (commandVector.size() > 1)
+                                std::ostringstream replyStream;
+                                if (Script_Paladin* sp = (Script_Paladin*)rs->sb)
                                 {
-                                    std::string blessingtypeName = commandVector.at(1);
-                                    if (blessingtypeName == "kings")
+                                    if (commandVector.size() > 1)
                                     {
-                                        sp->blessingType = PaladinBlessingType::PaladinBlessingType_Kings;
+                                        std::string blessingtypeName = commandVector.at(1);
+                                        if (blessingtypeName == "kings")
+                                        {
+                                            sp->blessingType = PaladinBlessingType::PaladinBlessingType_Kings;
+                                        }
+                                        else if (blessingtypeName == "might")
+                                        {
+                                            sp->blessingType = PaladinBlessingType::PaladinBlessingType_Might;
+                                        }
+                                        else if (blessingtypeName == "wisdom")
+                                        {
+                                            sp->blessingType = PaladinBlessingType::PaladinBlessingType_Wisdom;
+                                        }
+                                        else
+                                        {
+                                            replyStream << "Unknown type";
+                                        }
                                     }
-                                    else if (blessingtypeName == "might")
+                                    switch (sp->blessingType)
                                     {
-                                        sp->blessingType = PaladinBlessingType::PaladinBlessingType_Might;
-                                    }
-                                    else if (blessingtypeName == "wisdom")
+                                    case PaladinBlessingType::PaladinBlessingType_Kings:
                                     {
-                                        sp->blessingType = PaladinBlessingType::PaladinBlessingType_Wisdom;
+                                        replyStream << "kings";
+                                        break;
                                     }
-                                    else
+                                    case PaladinBlessingType::PaladinBlessingType_Might:
                                     {
-                                        replyStream << "Unknown type";
+                                        replyStream << "might";
+                                        break;
+                                    }
+                                    case PaladinBlessingType::PaladinBlessingType_Wisdom:
+                                    {
+                                        replyStream << "wisdom";
+                                        break;
+                                    }
+                                    default:
+                                    {
+                                        break;
+                                    }
                                     }
                                 }
-                                switch (sp->blessingType)
-                                {
-                                case PaladinBlessingType::PaladinBlessingType_Kings:
-                                {
-                                    replyStream << "kings";
-                                    break;
-                                }
-                                case PaladinBlessingType::PaladinBlessingType_Might:
-                                {
-                                    replyStream << "might";
-                                    break;
-                                }
-                                case PaladinBlessingType::PaladinBlessingType_Wisdom:
-                                {
-                                    replyStream << "wisdom";
-                                    break;
-                                }
-                                default:
-                                {
-                                    break;
-                                }
-                                }
+                                WhisperTo(member, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
                             }
-                            WhisperTo(member, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
                         }
                     }
                 }
@@ -6048,28 +6070,31 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                                 continue;
                             }
                         }
-                        if (commandVector.size() > 1)
+                        if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->strategyMap[myGroup->groupStrategyIndex])
                         {
-                            std::string pettingStatus = commandVector.at(1);
-                            if (pettingStatus == "on")
+                            if (commandVector.size() > 1)
                             {
-                                member->rai->sb->petting = true;
+                                std::string pettingStatus = commandVector.at(1);
+                                if (pettingStatus == "on")
+                                {
+                                    rs->sb->petting = true;
+                                }
+                                else if (pettingStatus == "off")
+                                {
+                                    rs->sb->petting = false;
+                                }
                             }
-                            else if (pettingStatus == "off")
+                            std::ostringstream replyStream;
+                            if (rs->sb->petting)
                             {
-                                member->rai->sb->petting = false;
+                                replyStream << "petting is on";
                             }
+                            else
+                            {
+                                replyStream << "petting is off";
+                            }
+                            WhisperTo(member, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
                         }
-                        std::ostringstream replyStream;
-                        if (member->rai->sb->petting)
-                        {
-                            replyStream << "petting is on";
-                        }
-                        else
-                        {
-                            replyStream << "petting is off";
-                        }
-                        WhisperTo(member, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
                     }
                 }
             }
@@ -6202,37 +6227,11 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
         {
             if (myGroup->GetLeaderGUID() == pmSender->GetGUID())
             {
+                int targetIcon = -1;
                 if (commandVector.size() > 1)
                 {
                     std::string iconIndex = commandVector.at(1);
-                    int targetIcon = atoi(iconIndex.c_str());
-                    if (targetIcon < 0 || targetIcon>7)
-                    {
-                        return;
-                    }
-                    for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-                    {
-                        Player* member = groupRef->GetSource();
-                        if (member)
-                        {
-                            if (!member->GetSession()->isRobotSession)
-                            {
-                                continue;
-                            }
-                            else if (!member->rai)
-                            {
-                                continue;
-                            }
-                            if (pmReceiver)
-                            {
-                                if (pmReceiver->GetGUID() != member->GetGUID())
-                                {
-                                    continue;
-                                }
-                            }
-                            member->rai->sb->rti = targetIcon;
-                        }
-                    }
+                    targetIcon = atoi(iconIndex.c_str());
                 }
                 for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
                 {
@@ -6254,9 +6253,16 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                                 continue;
                             }
                         }
-                        std::ostringstream replyStream;
-                        replyStream << "RTI is " << member->rai->sb->rti;
-                        WhisperTo(member, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                        if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->strategyMap[myGroup->groupStrategyIndex])
+                        {
+                            if (targetIcon >= 0 && targetIcon < TARGETICONCOUNT)
+                            {
+                                rs->sb->rti = targetIcon;
+                            }
+                            std::ostringstream replyStream;
+                            replyStream << "RTI is " << rs->sb->rti;
+                            WhisperTo(member, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                        }
                     }
                 }
             }
@@ -6288,13 +6294,13 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                                 continue;
                             }
                         }
-                        if (member->rai->sb->Assist())
+                        if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->strategyMap[myGroup->groupStrategyIndex])
                         {
-                            if (RobotStrategy_Group* rs = (RobotStrategy_Group*)member->rai->strategyMap[myGroup->groupStrategyIndex])
+                            if (rs->sb->Assist())
                             {
-                                rs->assistDelay = 5000;
+                                rs->assistDelay = 2000;
                                 std::ostringstream replyStream;
-                                replyStream << "Try to pin down my RTI : " << member->rai->sb->rti;
+                                replyStream << "Try to pin down my RTI : " << rs->sb->rti;
                                 WhisperTo(member, replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
                             }
                         }
@@ -7222,5 +7228,109 @@ void RobotManager::TryEquip(Player* pmTargetPlayer, std::unordered_set<uint32> p
             }
             tryTimes--;
         }
+    }
+}
+
+void RobotManager::RandomTeleport(Player* pmTargetPlayer)
+{
+    if (!pmTargetPlayer)
+    {
+        return;
+    }
+    if (pmTargetPlayer->IsBeingTeleported())
+    {
+        return;
+    }
+    if (!pmTargetPlayer->IsAlive())
+    {
+        pmTargetPlayer->ResurrectPlayer(1.0f);
+        pmTargetPlayer->SpawnCorpseBones();
+    }
+    pmTargetPlayer->GetThreatManager().ClearAllThreat();
+    pmTargetPlayer->ClearInCombat();
+    pmTargetPlayer->StopMoving();
+    pmTargetPlayer->GetMotionMaster()->Clear();
+    pmTargetPlayer->rai->strategyMap[Strategy_Index::Strategy_Index_Solo]->sb->Reset();
+    bool validLocation = false;
+    int destMapID = 0;
+    float destX = 0.0f;
+    float destY = 0.0f;
+    float destZ = 0.0f;
+
+    if (pmTargetPlayer->rai->robotType == RobotType::RobotType_Raid)
+    {
+        // raid robot will only wonder in main city
+        uint32 spawnID = 0;
+        if (pmTargetPlayer->GetRace() == Races::RACE_BLOODELF || pmTargetPlayer->GetRace() == Races::RACE_ORC || pmTargetPlayer->GetRace() == Races::RACE_TAUREN || pmTargetPlayer->GetRace() == Races::RACE_TROLL || pmTargetPlayer->GetRace() == Races::RACE_UNDEAD_PLAYER)
+        {
+            spawnID = urand(0, sRobotManager->orgrimmar_gruntSpawnIDMap.size() - 1);
+            spawnID = sRobotManager->orgrimmar_gruntSpawnIDMap[spawnID];
+        }
+        else
+        {
+            spawnID = urand(0, sRobotManager->ironforge_guardSpawnIDMap.size() - 1);
+            spawnID = sRobotManager->ironforge_guardSpawnIDMap[spawnID];
+        }
+        if (spawnID > 0)
+        {
+            for (auto const& pair : sObjectMgr->GetAllCreatureData())
+            {
+                if (pair.second.spawnId == spawnID)
+                {
+                    destMapID = pair.second.mapId;
+                    destX = pair.second.spawnPoint.m_positionX;
+                    destY = pair.second.spawnPoint.m_positionY;
+                    destZ = pair.second.spawnPoint.m_positionZ;
+                    validLocation = true;
+                    break;
+                }
+            }
+        }
+    }
+    else if (pmTargetPlayer->rai->robotType == RobotType::RobotType_World)
+    {
+        float distance = frand(sRobotConfig->TeleportMinRange, sRobotConfig->TeleportMaxRange);
+        float angle = frand(0, 2 * M_PI);
+        if (sRobotManager->onlinePlayerIDMap.size() > 0)
+        {
+            uint32 playerIndex = urand(0, sRobotManager->onlinePlayerIDMap.size() - 1);
+            uint32 cid = sRobotManager->onlinePlayerIDMap[playerIndex];
+            ObjectGuid og = ObjectGuid(HighGuid::Player, cid);
+            if (Player* targetP = ObjectAccessor::FindConnectedPlayer(og))
+            {
+                if (!targetP->IsBeingTeleported())
+                {
+                    if (Map* checkMap = targetP->GetMap())
+                    {
+                        if (!checkMap->Instanceable())
+                        {
+                            targetP->GetNearPoint(targetP, destX, destY, destZ, distance, angle);
+                            destMapID = targetP->GetMapId();
+                            validLocation = true;
+                        }
+                    }
+                }
+            }
+        }
+        if (!validLocation)
+        {
+            if (Corpse* myC = pmTargetPlayer->GetCorpse())
+            {
+                myC->GetNearPoint(myC, destX, destY, destZ, distance, angle);
+                destMapID = myC->GetMapId();
+                validLocation = true;
+            }
+        }
+        if (!validLocation)
+        {
+            pmTargetPlayer->GetNearPoint(pmTargetPlayer, destX, destY, destZ, distance, angle);
+            destMapID = pmTargetPlayer->GetMapId();
+            validLocation = true;
+        }
+    }
+    if (validLocation)
+    {
+        pmTargetPlayer->TeleportTo(destMapID, destX, destY, destZ, 0.0f);
+        sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Teleport robot %s (level %d)", pmTargetPlayer->GetName(), pmTargetPlayer->GetLevel());
     }
 }

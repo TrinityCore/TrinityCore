@@ -245,7 +245,7 @@ bool RobotStrategy_Group_BlackrockSpire::DPS()
                         me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
                         return true;
                     }
-                    if (me->rai->sb->DPS(gyth, Chasing(), false, NULL))
+                    if (sb->DPS(gyth, Chasing(), false, NULL))
                     {
                         return true;
                     }
@@ -268,7 +268,7 @@ bool RobotStrategy_Group_BlackrockSpire::DPS()
                 }
                 if (Player* addsTank = GetPlayerByGroupRole(GroupRole_Blackrock_Spire::GroupRole_Blackrock_Spire_Tank3))
                 {
-                    if (me->rai->sb->DPS(addsTank->GetSelectedUnit(), Chasing(), false, NULL))
+                    if (sb->DPS(addsTank->GetSelectedUnit(), Chasing(), false, NULL))
                     {
                         return true;
                     }
@@ -320,7 +320,7 @@ bool RobotStrategy_Group_BlackrockSpire::Heal()
                     {
                         if (tank1->GetHealthPct() < 90.0f)
                         {
-                            if (me->rai->sb->Heal(tank1, cure))
+                            if (sb->Heal(tank1, cure))
                             {
                                 return true;
                             }
@@ -333,7 +333,7 @@ bool RobotStrategy_Group_BlackrockSpire::Heal()
                     {
                         if (tank2->GetHealthPct() < 90.0f)
                         {
-                            if (me->rai->sb->Heal(tank2, cure))
+                            if (sb->Heal(tank2, cure))
                             {
                                 return true;
                             }
@@ -350,7 +350,7 @@ bool RobotStrategy_Group_BlackrockSpire::Heal()
                     {
                         if (tank3->GetHealthPct() < 90.0f)
                         {
-                            if (me->rai->sb->Heal(tank3, cure))
+                            if (sb->Heal(tank3, cure))
                             {
                                 return true;
                             }
@@ -378,7 +378,7 @@ bool RobotStrategy_Group_BlackrockSpire::Heal()
                     }
                     if (lowMemberCount > 1)
                     {
-                        if (me->rai->sb->GroupHeal())
+                        if (sb->GroupHeal())
                         {
                             return true;
                         }
@@ -405,7 +405,7 @@ bool RobotStrategy_Group_BlackrockSpire::Engage(Unit* pmTarget)
     {
     case GroupRole_Blackrock_Spire::GroupRole_Blackrock_Spire_DPS:
     {
-        return me->rai->sb->DPS(pmTarget, Chasing(), false, NULL);
+        return sb->DPS(pmTarget, Chasing(), false, NULL);
     }
     case GroupRole_Blackrock_Spire::GroupRole_Blackrock_Spire_Healer1:
     {
@@ -450,9 +450,9 @@ bool RobotStrategy_Group_BlackrockSpire::Tank(Unit* pmTarget)
     {
     case GroupRole_Blackrock_Spire::GroupRole_Blackrock_Spire_Tank1:
     {
-        me->rai->sb->ClearTarget();
-        me->rai->sb->ChooseTarget(pmTarget);
-        return me->rai->sb->Tank(pmTarget, Chasing());
+        sb->ClearTarget();
+        sb->ChooseTarget(pmTarget);
+        return sb->Tank(pmTarget, Chasing());
     }
     default:
     {
@@ -482,8 +482,8 @@ bool RobotStrategy_Group_BlackrockSpire::Tank()
             {
                 if (gyth->GetTarget() != me->GetGUID())
                 {
-                    me->rai->sb->Taunt(gyth);
-                    if (me->rai->sb->Tank(gyth, Chasing()))
+                    sb->Taunt(gyth);
+                    if (sb->Tank(gyth, Chasing()))
                     {
                         return true;
                     }
@@ -498,8 +498,8 @@ bool RobotStrategy_Group_BlackrockSpire::Tank()
                     me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
                     return true;
                 }
-                me->rai->sb->Taunt(gyth);
-                if (me->rai->sb->Tank(gyth, Chasing()))
+                sb->Taunt(gyth);
+                if (sb->Tank(gyth, Chasing()))
                 {
                     return true;
                 }
@@ -511,8 +511,8 @@ bool RobotStrategy_Group_BlackrockSpire::Tank()
             {
                 if (rend->GetTarget() != me->GetGUID())
                 {
-                    me->rai->sb->Taunt(rend);
-                    if (me->rai->sb->Tank(rend, Chasing(), true))
+                    sb->Taunt(rend);
+                    if (sb->Tank(rend, Chasing(), true))
                     {
                         return true;
                     }
@@ -527,8 +527,8 @@ bool RobotStrategy_Group_BlackrockSpire::Tank()
                     me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
                     return true;
                 }
-                me->rai->sb->Taunt(rend);
-                if (me->rai->sb->Tank(rend, Chasing(), true))
+                sb->Taunt(rend);
+                if (sb->Tank(rend, Chasing(), true))
                 {
                     return true;
                 }
@@ -544,8 +544,8 @@ bool RobotStrategy_Group_BlackrockSpire::Tank()
                 }
                 if (drakkisath->GetTarget() != me->GetGUID())
                 {
-                    me->rai->sb->Taunt(drakkisath);
-                    if (me->rai->sb->Tank(drakkisath, Chasing(), true))
+                    sb->Taunt(drakkisath);
+                    if (sb->Tank(drakkisath, Chasing(), true))
                     {
                         return true;
                     }
@@ -556,8 +556,8 @@ bool RobotStrategy_Group_BlackrockSpire::Tank()
                     actionDelay = 1000;
                     return true;
                 }
-                me->rai->sb->Taunt(drakkisath);
-                if (me->rai->sb->Tank(drakkisath, Chasing(), true))
+                sb->Taunt(drakkisath);
+                if (sb->Tank(drakkisath, Chasing(), true))
                 {
                     return true;
                 }
@@ -572,8 +572,8 @@ bool RobotStrategy_Group_BlackrockSpire::Tank()
                 {
                     if (drakkisath->GetTarget() != me->GetGUID())
                     {
-                        me->rai->sb->Taunt(drakkisath);
-                        if (me->rai->sb->Tank(drakkisath, Chasing(), true))
+                        sb->Taunt(drakkisath);
+                        if (sb->Tank(drakkisath, Chasing(), true))
                         {
                             return true;
                         }
@@ -584,8 +584,8 @@ bool RobotStrategy_Group_BlackrockSpire::Tank()
                         actionDelay = 1000;
                         return true;
                     }
-                    me->rai->sb->Taunt(drakkisath);
-                    if (me->rai->sb->Tank(drakkisath, Chasing(), true))
+                    sb->Taunt(drakkisath);
+                    if (sb->Tank(drakkisath, Chasing(), true))
                     {
                         return true;
                     }
@@ -624,8 +624,8 @@ bool RobotStrategy_Group_BlackrockSpire::Tank()
                     {
                         if (addsIT->second->GetTarget() != me->GetGUID())
                         {
-                            me->rai->sb->Taunt(addsIT->second);
-                            if (me->rai->sb->Tank(addsIT->second, Chasing()))
+                            sb->Taunt(addsIT->second);
+                            if (sb->Tank(addsIT->second, Chasing()))
                             {
                                 return true;
                             }
@@ -647,15 +647,15 @@ bool RobotStrategy_Group_BlackrockSpire::Tank()
                     {
                         if (myGroup->groupAttackersMap.find(myTarget->GetGUID()) != myGroup->groupAttackersMap.end())
                         {
-                            me->rai->sb->Taunt(myTarget);
-                            if (me->rai->sb->Tank(myTarget, Chasing()))
+                            sb->Taunt(myTarget);
+                            if (sb->Tank(myTarget, Chasing()))
                             {
                                 return true;
                             }
                         }
                     }
-                    me->rai->sb->Taunt(closestAdds);
-                    if (me->rai->sb->Tank(closestAdds, Chasing()))
+                    sb->Taunt(closestAdds);
+                    if (sb->Tank(closestAdds, Chasing()))
                     {
                         return true;
                     }
@@ -668,6 +668,7 @@ bool RobotStrategy_Group_BlackrockSpire::Tank()
 
 void RobotStrategy_Group_BlackrockSpire::Update(uint32 pmDiff)
 {
+    RobotStrategy_Base::Update(pmDiff);
     if (!Update0(pmDiff))
     {
         return;
@@ -787,7 +788,7 @@ void RobotStrategy_Group_BlackrockSpire::Update(uint32 pmDiff)
             {
             case GroupRole_Blackrock_Spire::GroupRole_Blackrock_Spire_DPS:
             {
-                if (me->rai->sb->DPS(engageTarget, Chasing(), false, NULL))
+                if (sb->DPS(engageTarget, Chasing(), false, NULL))
                 {
                     return;
                 }
@@ -816,7 +817,7 @@ void RobotStrategy_Group_BlackrockSpire::Update(uint32 pmDiff)
             }
             case GroupRole_Blackrock_Spire::GroupRole_Blackrock_Spire_Tank1:
             {
-                if (me->rai->sb->Tank(engageTarget, Chasing()))
+                if (sb->Tank(engageTarget, Chasing()))
                 {
                     return;
                 }
@@ -829,7 +830,7 @@ void RobotStrategy_Group_BlackrockSpire::Update(uint32 pmDiff)
             }
             case GroupRole_Blackrock_Spire::GroupRole_Blackrock_Spire_Tank2:
             {
-                if (me->rai->sb->Tank(engageTarget, Chasing()))
+                if (sb->Tank(engageTarget, Chasing()))
                 {
                     return;
                 }
@@ -842,7 +843,7 @@ void RobotStrategy_Group_BlackrockSpire::Update(uint32 pmDiff)
             }
             case GroupRole_Blackrock_Spire::GroupRole_Blackrock_Spire_Tank3:
             {
-                if (me->rai->sb->Tank(engageTarget, Chasing()))
+                if (sb->Tank(engageTarget, Chasing()))
                 {
                     return;
                 }
@@ -862,7 +863,7 @@ void RobotStrategy_Group_BlackrockSpire::Update(uint32 pmDiff)
         }
         if (groupInCombat)
         {
-            if (me->rai->sb->Assist())
+            if (sb->Assist())
             {
                 return;
             }

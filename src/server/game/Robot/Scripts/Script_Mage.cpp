@@ -86,16 +86,11 @@ bool Script_Mage::Assist()
                                         {
                                             if (!assistTarget->IsImmunedToSpell(pS, me))
                                             {
-                                                if (targetDistance > MAGE_RANGE_DISTANCE)
-                                                {
-                                                    me->GetMotionMaster()->MoveCloserAndStop(0, assistTarget, MAGE_RANGE_DISTANCE - 1.0f);
-                                                    actionDelay = 1000;
-                                                }
-                                                else
+                                                if (targetDistance < MAGE_RANGE_DISTANCE)
                                                 {
                                                     CastSpell(assistTarget, "Polymorph", MAGE_RANGE_DISTANCE);
+                                                    return true;
                                                 }
-                                                return true;
                                             }
                                         }
                                     }
