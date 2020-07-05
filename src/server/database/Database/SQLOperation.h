@@ -24,7 +24,7 @@
 //- Union that holds element data
 union SQLElementUnion
 {
-    PreparedStatement* stmt;
+    PreparedStatementBase* stmt;
     char const* query;
 };
 

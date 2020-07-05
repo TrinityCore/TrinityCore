@@ -174,7 +174,7 @@ public:
         void JustSummoned(Creature* summoned) override
         {
             DoZoneInCombat(summoned);
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                 summoned->AI()->AttackStart(target);
 
             switch (summoned->GetEntry())
@@ -196,14 +196,14 @@ public:
             Talk(SAY_KILL);
         }
 
-        void SpellHit(Unit* /*pCaster*/, SpellInfo const* Spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
-            if (Spell->Id == SPELL_BREATH_EAST_TO_WEST ||
-                Spell->Id == SPELL_BREATH_WEST_TO_EAST ||
-                Spell->Id == SPELL_BREATH_SE_TO_NW ||
-                Spell->Id == SPELL_BREATH_NW_TO_SE ||
-                Spell->Id == SPELL_BREATH_SW_TO_NE ||
-                Spell->Id == SPELL_BREATH_NE_TO_SW)
+            if (spellInfo->Id == SPELL_BREATH_EAST_TO_WEST ||
+                spellInfo->Id == SPELL_BREATH_WEST_TO_EAST ||
+                spellInfo->Id == SPELL_BREATH_SE_TO_NW ||
+                spellInfo->Id == SPELL_BREATH_NW_TO_SE ||
+                spellInfo->Id == SPELL_BREATH_SW_TO_NE ||
+                spellInfo->Id == SPELL_BREATH_NE_TO_SW)
             {
                 PointData = GetMoveData();
                 MovePoint = PointData->LocIdEnd;
@@ -237,7 +237,7 @@ public:
                         // tank selection based on phase one. If tank is not there i take nearest one
                         if (Unit* tank = ObjectAccessor::GetUnit(*me, tankGUID))
                             me->GetMotionMaster()->MoveChase(tank);
-                        else if (Unit* newtarget = SelectTarget(SELECT_TARGET_MINDISTANCE, 0))
+                        else if (Unit* newtarget = SelectTarget(SelectTargetMethod::MinDistance, 0))
                             me->GetMotionMaster()->MoveChase(newtarget);
                         events.ScheduleEvent(EVENT_BELLOWING_ROAR, 5s);
                         events.ScheduleEvent(EVENT_FLAME_BREATH, 10s, 20s);
@@ -274,20 +274,20 @@ public:
             }
         }
 
-        void SpellHitTarget(Unit* target, SpellInfo const* Spell) override
+        void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
         {
             //Workaround - Couldn't find a way to group this spells (All Eruption)
-            if (((Spell->Id >= 17086 && Spell->Id <= 17095) ||
-                (Spell->Id == 17097) ||
-                (Spell->Id >= 18351 && Spell->Id <= 18361) ||
-                (Spell->Id >= 18564 && Spell->Id <= 18576) ||
-                (Spell->Id >= 18578 && Spell->Id <= 18607) ||
-                (Spell->Id == 18609) ||
-                (Spell->Id >= 18611 && Spell->Id <= 18628) ||
-                (Spell->Id >= 21132 && Spell->Id <= 21133) ||
-                (Spell->Id >= 21135 && Spell->Id <= 21139) ||
-                (Spell->Id >= 22191 && Spell->Id <= 22202) ||
-                (Spell->Id >= 22267 && Spell->Id <= 22268)) &&
+            if (((spellInfo->Id >= 17086 && spellInfo->Id <= 17095) ||
+                (spellInfo->Id == 17097) ||
+                (spellInfo->Id >= 18351 && spellInfo->Id <= 18361) ||
+                (spellInfo->Id >= 18564 && spellInfo->Id <= 18576) ||
+                (spellInfo->Id >= 18578 && spellInfo->Id <= 18607) ||
+                (spellInfo->Id == 18609) ||
+                (spellInfo->Id >= 18611 && spellInfo->Id <= 18628) ||
+                (spellInfo->Id >= 21132 && spellInfo->Id <= 21133) ||
+                (spellInfo->Id >= 21135 && spellInfo->Id <= 21139) ||
+                (spellInfo->Id >= 22191 && spellInfo->Id <= 22202) ||
+                (spellInfo->Id >= 22267 && spellInfo->Id <= 22268)) &&
                 (target->GetTypeId() == TYPEID_PLAYER))
             {
                 instance->SetData(DATA_SHE_DEEP_BREATH_MORE, FAIL);
@@ -451,7 +451,7 @@ public:
                         case EVENT_FIREBALL:         // Phase PHASE_BREATH
                             if (!IsMoving)
                             {
-                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                                     DoCast(target, SPELL_FIREBALL);
                                 events.ScheduleEvent(EVENT_FIREBALL, 8s);
                             }

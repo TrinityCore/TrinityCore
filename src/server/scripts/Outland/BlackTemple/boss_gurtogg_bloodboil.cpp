@@ -194,7 +194,7 @@ struct boss_gurtogg_bloodboil : public BossAI
                     events.Repeat(Seconds(10));
                     break;
                 case EVENT_FEL_ACID_BREATH:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, me->GetCombatReach()))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, me->GetCombatReach()))
                         DoCast(target, SPELL_FEL_ACID_BREATH);
                     events.Repeat(Seconds(25), Seconds(30));
                     break;
@@ -209,7 +209,7 @@ struct boss_gurtogg_bloodboil : public BossAI
                     ChangePhase();
                     break;
                 case EVENT_START_PHASE_2:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
                     {
                         if (Unit* oldTarget = me->GetVictim())
                         {

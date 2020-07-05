@@ -1,8 +1,8 @@
 # set up output paths for executable binaries (.exe-files, and .dll-files on DLL-capable platforms)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-set(MSVC_EXPECTED_VERSION 19.16)
-set(MSVC_EXPECTED_VERSION_STRING "MSVC 2017")
+set(MSVC_EXPECTED_VERSION 19.24)
+set(MSVC_EXPECTED_VERSION_STRING "Microsoft Visual Studio 2019 16.4")
 
 if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS MSVC_EXPECTED_VERSION)
   message(FATAL_ERROR "MSVC: TrinityCore requires version ${MSVC_EXPECTED_VERSION} (${MSVC_EXPECTED_VERSION_STRING}) to build but found ${CMAKE_CXX_COMPILER_VERSION}")
@@ -59,7 +59,7 @@ else()
   # while all make-like generators do (nmake, ninja)
   target_compile_definitions(trinity-compile-option-interface
     INTERFACE
-      -D_BUILD_DIRECTIVE="${CMAKE_BUILD_TYPE}")
+      -D_BUILD_DIRECTIVE="$<CONFIG>")
 endif()
 
 # multithreaded compiling on VS
@@ -128,7 +128,7 @@ if(NOT WITH_WARNINGS)
   message(STATUS "MSVC: Disabled generic compiletime warnings")
 endif()
 
-if (BUILD_SHARED_LIBS)
+if(BUILD_SHARED_LIBS)
   # C4251: needs to have dll-interface to be used by clients of class '...'
   # C4275: non dll-interface class ...' used as base for dll-interface class '...'
   target_compile_options(trinity-compile-option-interface

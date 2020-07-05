@@ -266,10 +266,10 @@ class npc_ruby_emerald_amber_drake : public CreatureScript
                 Initialize();
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
                 if (Unit* creator = ObjectAccessor::GetUnit(*me, me->GetCreatorGUID()))
-                    if (spell->Id == SPELL_GPS)
+                    if (spellInfo->Id == SPELL_GPS)
                     {
                         if (_instance->GetBossState(DATA_EREGOS) == DONE)
                             Talk(WHISPER_GPS_END, creator);
@@ -297,13 +297,13 @@ class npc_ruby_emerald_amber_drake : public CreatureScript
                 switch (me->GetEntry())
                 {
                     case NPC_RUBY_DRAKE_VEHICLE:
-                        me->CastSpell(summoner, SPELL_RIDE_RUBY_DRAKE_QUE);
+                        me->CastSpell(summoner, SPELL_RIDE_RUBY_DRAKE_QUE, true);
                         break;
                     case NPC_EMERALD_DRAKE_VEHICLE:
-                        me->CastSpell(summoner, SPELL_RIDE_EMERALD_DRAKE_QUE);
+                        me->CastSpell(summoner, SPELL_RIDE_EMERALD_DRAKE_QUE, true);
                         break;
                     case NPC_AMBER_DRAKE_VEHICLE:
-                        me->CastSpell(summoner, SPELL_RIDE_AMBER_DRAKE_QUE);
+                        me->CastSpell(summoner, SPELL_RIDE_AMBER_DRAKE_QUE, true);
                         break;
                     default:
                         return;

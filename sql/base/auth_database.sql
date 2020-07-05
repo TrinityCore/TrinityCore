@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.25, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.29, for Linux (x86_64)
 --
 -- Host: localhost    Database: auth
 -- ------------------------------------------------------
--- Server version	5.7.25-0ubuntu0.16.04.2
+-- Server version	5.7.29-0ubuntu0.18.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -69,10 +69,11 @@ DROP TABLE IF EXISTS `account_access`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `account_access` (
-  `id` int(10) unsigned NOT NULL,
-  `gmlevel` tinyint(3) unsigned NOT NULL,
+  `AccountID` int(10) unsigned NOT NULL,
+  `SecurityLevel` tinyint(3) unsigned NOT NULL,
   `RealmID` int(11) NOT NULL DEFAULT '-1',
-  PRIMARY KEY (`id`,`RealmID`)
+  `Comment` VARCHAR(255) DEFAULT NULL,
+  PRIMARY KEY (`AccountID`,`RealmID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -341,6 +342,7 @@ CREATE TABLE `logs_ip_actions` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Unique Identifier',
   `account_id` int(10) unsigned NOT NULL COMMENT 'Account ID',
   `character_guid` int(10) unsigned NOT NULL COMMENT 'Character Guid',
+  `realm_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Realm ID',
   `type` tinyint(3) unsigned NOT NULL,
   `ip` varchar(15) NOT NULL DEFAULT '127.0.0.1',
   `systemnote` text COMMENT 'Notes inserted by system',
@@ -1956,7 +1958,14 @@ INSERT INTO `updates` VALUES
 ('2019_12_07_00_auth.sql','F354DA31D5B300609C6AE8A25667CA4DE0A7349F','ARCHIVED','2019-12-07 12:57:23',0),
 ('2019_12_15_00_auth.sql','62CFB68A53F73E875B1104F0D0BAC81145090524','ARCHIVED','2019-12-15 18:26:21',0),
 ('2020_01_15_00_auth.sql','D486C0CEF68FDE5122E835128A1F663E0E72A21E','ARCHIVED','2020-01-15 07:45:18',0),
-('2020_02_15_00_auth.sql','9CDBEBC722BEBB7C93091CF16EEB9C922C4116BD','ARCHIVED','2020-02-15 17:36:05',0);
+('2020_02_15_00_auth.sql','9CDBEBC722BEBB7C93091CF16EEB9C922C4116BD','ARCHIVED','2020-02-15 17:36:05',0),
+('2020_03_16_00_auth.sql','B27E4CE14C713C73216930A7F3F770786D902A3F','ARCHIVED','2020-03-16 08:47:49',0),
+('2020_04_07_00_auth.sql','6D73A4E1EC5382F10C39F20E2E6E764510A8A5E6','ARCHIVED','2020-04-07 22:23:35',0),
+('2020_04_15_00_auth.sql','031E61B50B03E40406F07C196826DB9016A7203F','ARCHIVED','2020-04-15 11:03:56',0),
+('2020_04_18_00_auth.sql','BD962B50760771B60F2785027D6957EEF2009240','ARCHIVED','2020-04-18 14:09:28',0),
+('2020_05_15_00_auth.sql','765389B45F97A02160A58B373D63166F7F7D4427','ARCHIVED','2020-05-15 08:55:56',0),
+('2020_06_15_00_auth.sql','3158036285CC9A4AB7D39063F9687649A21D0A94','ARCHIVED','2020-06-15 07:48:08',0),
+('2020_06_20_00_auth.sql','85345FAF20B91DA7B157AE1E17DF5B6446C2E109','ARCHIVED','2020-06-11 10:48:00',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2058,4 +2067,4 @@ SET character_set_client = @saved_cs_client;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-02-15 17:36:06
+-- Dump completed on 2020-06-15  7:48:11

@@ -225,7 +225,7 @@ public:
             {
                 me->InterruptNonMeleeSpells(true);
 
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 250, true))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 250, true))
                 {
                     if (target->IsAlive())
                     {
@@ -351,7 +351,7 @@ public:
 
             if (uiHolyFireTimer <= uiDiff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 250, true))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 250, true))
                 {
                     if (target->IsAlive())
                         DoCast(target, SPELL_HOLY_FIRE);
@@ -364,7 +364,7 @@ public:
 
             if (uiHolySmiteTimer <= uiDiff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 250, true))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 250, true))
                 {
                     if (target->IsAlive())
                         DoCast(target, SPELL_SMITE);
@@ -457,7 +457,7 @@ public:
 
             if (uiOldWoundsTimer <= uiDiff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                 {
                     if (target->IsAlive())
                         DoCast(target, SPELL_OLD_WOUNDS);
@@ -473,7 +473,7 @@ public:
 
             if (uiShadowPastTimer <= uiDiff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
                 {
                     if (target->IsAlive())
                         DoCast(target, SPELL_SHADOWS_PAST);

@@ -97,7 +97,7 @@ class boss_emperor_dagran_thaurissan : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_HANDOFTHAURISSAN:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                                 DoCast(target, SPELL_HANDOFTHAURISSAN);
                             _events.ScheduleEvent(EVENT_HANDOFTHAURISSAN, 5s);
                             break;

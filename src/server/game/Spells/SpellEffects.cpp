@@ -36,6 +36,7 @@
 #include "LootMgr.h"
 #include "MiscPackets.h"
 #include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "OutdoorPvPMgr.h"
@@ -244,25 +245,27 @@ void Spell::EffectResurrectNew(SpellEffIndex effIndex)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    if (!unitTarget || unitTarget->IsAlive())
+    if (!corpseTarget && !unitTarget)
         return;
 
-    if (unitTarget->GetTypeId() != TYPEID_PLAYER)
+    Player* player = nullptr;
+
+    if (corpseTarget)
+        player = ObjectAccessor::FindPlayer(corpseTarget->GetOwnerGUID());
+    else if (unitTarget)
+        player = unitTarget->ToPlayer();
+
+    if (!player || player->IsAlive() || !player->IsInWorld())
         return;
 
-    if (!unitTarget->IsInWorld())
-        return;
-
-    Player* target = unitTarget->ToPlayer();
-
-    if (target->IsResurrectRequested())       // already have one active request
+    if (player->IsResurrectRequested())       // already have one active request
         return;
 
     uint32 health = damage;
     uint32 mana = m_spellInfo->Effects[effIndex].MiscValue;
-    ExecuteLogEffectResurrect(effIndex, target);
-    target->SetResurrectRequestData(m_caster, health, mana, 0);
-    SendResurrectRequest(target);
+    ExecuteLogEffectResurrect(effIndex, player);
+    player->SetResurrectRequestData(m_caster, health, mana, 0);
+    SendResurrectRequest(player);
 }
 
 void Spell::EffectInstaKill(SpellEffIndex /*effIndex*/)
@@ -694,7 +697,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    if (!unitTarget && !gameObjTarget && !itemTarget)
+    if (!unitTarget && !gameObjTarget && !itemTarget && !corpseTarget)
         return;
 
     // pet auras
@@ -1093,7 +1096,7 @@ void Spell::EffectUnlearnSpecialization(SpellEffIndex effIndex)
 
     player->RemoveSpell(spellToUnlearn);
 
-    TC_LOG_DEBUG("spells", "Spell: Player %u has unlearned spell %u from NpcGUID: %u", player->GetGUID().GetCounter(), spellToUnlearn, m_caster->GetGUID().GetCounter());
+    TC_LOG_DEBUG("spells", "Spell: Player %s has unlearned spell %u from Npc %s", player->GetGUID().ToString().c_str(), spellToUnlearn, m_caster->GetGUID().ToString().c_str());
 }
 
 void Spell::EffectPowerDrain(SpellEffIndex effIndex)
@@ -1150,6 +1153,8 @@ void Spell::EffectSendEvent(SpellEffIndex effIndex)
             target = unitTarget;
         else if (gameObjTarget)
             target = gameObjTarget;
+        else if (corpseTarget)
+            target = corpseTarget;
     }
     else // if (effectHandleMode == SPELL_EFFECT_HANDLE_HIT)
     {
@@ -1701,8 +1706,8 @@ void Spell::SendLoot(ObjectGuid guid, LootType loottype)
         // Players shouldn't be able to loot gameobjects that are currently despawned
         if (!gameObjTarget->isSpawned() && !player->IsGameMaster())
         {
-            TC_LOG_ERROR("entities.player.cheat", "Possible hacking attempt: Player %s [guid: %u] tried to loot a gameobject [entry: %u id: %u] which is on respawn timer without being in GM mode!",
-                            player->GetName().c_str(), player->GetGUID().GetCounter(), gameObjTarget->GetEntry(), gameObjTarget->GetGUID().GetCounter());
+            TC_LOG_ERROR("entities.player.cheat", "Possible hacking attempt: Player %s %s tried to loot a gameobject %s which is on respawn timer without being in GM mode!",
+                            player->GetName().c_str(), player->GetGUID().ToString().c_str(), gameObjTarget->GetGUID().ToString().c_str());
             return;
         }
         // special case, already has GossipHello inside so return and avoid calling twice
@@ -2232,7 +2237,7 @@ void Spell::EffectLearnSpell(SpellEffIndex effIndex)
     uint32 spellToLearn = (m_spellInfo->Id == 483 || m_spellInfo->Id == 55884) ? damage : m_spellInfo->Effects[effIndex].TriggerSpell;
     player->LearnSpell(spellToLearn, false);
 
-    TC_LOG_DEBUG("spells", "Spell: Player %u has learned spell %u from NpcGUID: %u", player->GetGUID().GetCounter(), spellToLearn, m_caster->GetGUID().GetCounter());
+    TC_LOG_DEBUG("spells", "Spell: Player %s has learned spell %u from Npc %s", player->GetGUID().ToString().c_str(), spellToLearn, m_caster->GetGUID().ToString().c_str());
 }
 
 void Spell::EffectDispel(SpellEffIndex effIndex)
@@ -2479,7 +2484,7 @@ void Spell::EffectAddHonor(SpellEffIndex /*effIndex*/)
     if (m_CastItem)
     {
         unitTarget->ToPlayer()->RewardHonor(nullptr, 1, damage/10);
-        TC_LOG_DEBUG("spells", "SpellEffect::AddHonor (spell_id %u) rewards %d honor points (item %u) for player: %u", m_spellInfo->Id, damage/10, m_CastItem->GetEntry(), unitTarget->ToPlayer()->GetGUID().GetCounter());
+        TC_LOG_DEBUG("spells", "SpellEffect::AddHonor (spell_id %u) rewards %d honor points (item %u) for player %s", m_spellInfo->Id, damage/10, m_CastItem->GetEntry(), unitTarget->ToPlayer()->GetGUID().ToString().c_str());
         return;
     }
 
@@ -2488,13 +2493,13 @@ void Spell::EffectAddHonor(SpellEffIndex /*effIndex*/)
     {
         uint32 honor_reward = Trinity::Honor::hk_honor_at_level(unitTarget->GetLevel(), float(damage));
         unitTarget->ToPlayer()->RewardHonor(nullptr, 1, honor_reward);
-        TC_LOG_DEBUG("spells", "SpellEffect::AddHonor (spell_id %u) rewards %u honor points (scale) to player: %u", m_spellInfo->Id, honor_reward, unitTarget->ToPlayer()->GetGUID().GetCounter());
+        TC_LOG_DEBUG("spells", "SpellEffect::AddHonor (spell_id %u) rewards %u honor points (scale) to player %s", m_spellInfo->Id, honor_reward, unitTarget->ToPlayer()->GetGUID().ToString().c_str());
     }
     else
     {
         //maybe we have correct honor_gain in damage already
         unitTarget->ToPlayer()->RewardHonor(nullptr, 1, damage);
-        TC_LOG_DEBUG("spells", "SpellEffect::AddHonor (spell_id %u) rewards %u honor points (non scale) for player: %u", m_spellInfo->Id, damage, unitTarget->ToPlayer()->GetGUID().GetCounter());
+        TC_LOG_DEBUG("spells", "SpellEffect::AddHonor (spell_id %u) rewards %u honor points (non scale) for player %s", m_spellInfo->Id, damage, unitTarget->ToPlayer()->GetGUID().ToString().c_str());
     }
 }
 
@@ -3680,7 +3685,7 @@ void Spell::EffectStuck(SpellEffIndex /*effIndex*/)
         return;
 
     TC_LOG_DEBUG("spells", "Spell Effect: Stuck");
-    TC_LOG_DEBUG("spells", "Player %s (guid %u) used the auto-unstuck feature at map %u (%f, %f, %f).", player->GetName().c_str(), player->GetGUID().GetCounter(), player->GetMapId(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
+    TC_LOG_DEBUG("spells", "Player %s %s used the auto-unstuck feature at map %u (%f, %f, %f).", player->GetName().c_str(), player->GetGUID().ToString().c_str(), player->GetMapId(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
 
     if (player->IsInFlight())
         return;
@@ -4000,24 +4005,29 @@ void Spell::EffectResurrect(SpellEffIndex effIndex)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+    if (!corpseTarget && !unitTarget)
         return;
 
-    if (unitTarget->IsAlive() || !unitTarget->IsInWorld())
+    Player* player = nullptr;
+
+    if (corpseTarget)
+        player = ObjectAccessor::FindPlayer(corpseTarget->GetOwnerGUID());
+    else if (unitTarget)
+        player = unitTarget->ToPlayer();
+
+    if (!player || player->IsAlive() || !player->IsInWorld())
         return;
 
-    Player* target = unitTarget->ToPlayer();
-
-    if (target->IsResurrectRequested())       // already have one active request
+    if (player->IsResurrectRequested())       // already have one active request
         return;
 
-    uint32 health = target->CountPctFromMaxHealth(damage);
-    uint32 mana   = CalculatePct(target->GetMaxPower(POWER_MANA), damage);
+    uint32 health = player->CountPctFromMaxHealth(damage);
+    uint32 mana   = CalculatePct(player->GetMaxPower(POWER_MANA), damage);
 
-    ExecuteLogEffectResurrect(effIndex, target);
+    ExecuteLogEffectResurrect(effIndex, player);
 
-    target->SetResurrectRequestData(m_caster, health, mana, 0);
-    SendResurrectRequest(target);
+    player->SetResurrectRequestData(m_caster, health, mana, 0);
+    SendResurrectRequest(player);
 }
 
 void Spell::EffectAddExtraAttacks(SpellEffIndex effIndex)
@@ -4392,12 +4402,26 @@ void Spell::EffectPullTowards(SpellEffIndex effIndex)
     if (!unitTarget)
         return;
 
-    float speedXY = m_spellInfo->Effects[effIndex].MiscValue / 10.0f;
-    float speedZ = damage / 10.0f;
-    Position pos;
-    pos.Relocate(m_caster);
+    Position pos = m_caster->GetFirstCollisionPosition(m_caster->GetCombatReach(), m_caster->GetRelativeAngle(unitTarget));
 
-    unitTarget->GetMotionMaster()->MoveJump(pos, speedXY, speedZ);
+    // This is a blizzlike mistake: this should be 2D distance according to projectile motion formulas, but Blizzard erroneously used 3D distance.
+    float distXY = unitTarget->GetExactDist(pos);
+
+    // Avoid division by 0
+    if (distXY < 0.001)
+        return;
+
+    float distZ = pos.GetPositionZ() - unitTarget->GetPositionZ();
+    float speedXY = m_spellInfo->Effects[effIndex].MiscValue ? m_spellInfo->Effects[effIndex].MiscValue / 10.0f : 30.0f;
+    float speedZ = (2 * speedXY * speedXY * distZ + Movement::gravity * distXY * distXY) / (2 * speedXY * distXY);
+
+    if (!std::isfinite(speedZ))
+    {
+        TC_LOG_ERROR("spells", "Spell %u with SPELL_EFFECT_PULL_TOWARDS called with invalid speedZ. %s", m_spellInfo->Id, GetDebugInfo().c_str());
+        return;
+    }
+
+    unitTarget->JumpTo(speedXY, speedZ, true, pos);
 }
 
 void Spell::EffectPullTowardsDest(SpellEffIndex effIndex)
@@ -4417,10 +4441,21 @@ void Spell::EffectPullTowardsDest(SpellEffIndex effIndex)
     Position const* pos = m_targets.GetDstPos();
     // This is a blizzlike mistake: this should be 2D distance according to projectile motion formulas, but Blizzard erroneously used 3D distance
     float distXY = unitTarget->GetExactDist(pos);
+
+    // Avoid division by 0
+    if (distXY < 0.001)
+        return;
+
     float distZ = pos->GetPositionZ() - unitTarget->GetPositionZ();
 
-    float speedXY = m_spellInfo->Effects[effIndex].MiscValue / 10.0f;
+    float speedXY = m_spellInfo->Effects[effIndex].MiscValue ? m_spellInfo->Effects[effIndex].MiscValue / 10.0f : 30.0f;
     float speedZ = (2 * speedXY * speedXY * distZ + Movement::gravity * distXY * distXY) / (2 * speedXY * distXY);
+
+    if (!std::isfinite(speedZ))
+    {
+        TC_LOG_ERROR("spells", "Spell %u with SPELL_EFFECT_PULL_TOWARDS_DEST called with invalid speedZ. %s", m_spellInfo->Id, GetDebugInfo().c_str());
+        return;
+    }
 
     unitTarget->JumpTo(speedXY, speedZ, true, *pos);
 }
@@ -4823,7 +4858,13 @@ void Spell::EffectSkinPlayerCorpse(SpellEffIndex /*effIndex*/)
     TC_LOG_DEBUG("spells", "Effect: SkinPlayerCorpse");
 
     Player* player = m_caster->ToPlayer();
-    Player* target = unitTarget->ToPlayer();
+
+    Player* target = nullptr;
+    if (unitTarget)
+        target = unitTarget->ToPlayer();
+    else if (corpseTarget)
+        target = ObjectAccessor::FindPlayer(corpseTarget->GetOwnerGUID());
+
     if (!player || !target || target->IsAlive())
         return;
 

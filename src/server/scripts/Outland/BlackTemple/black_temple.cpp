@@ -159,7 +159,7 @@ struct npc_wrathbone_flayer : public ScriptedAI
                     _events.ScheduleEvent(EVENT_CLEAVE, 1s, 2s);
                     break;
                 case EVENT_IGNORED:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         DoCast(target, SPELL_IGNORED);
                     _events.ScheduleEvent(EVENT_IGNORED, 10s);
                     break;

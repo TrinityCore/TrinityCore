@@ -407,14 +407,6 @@ public:
         return !(*this == right);
     }
 
-    inline flag96& operator=(flag96 const& right)
-    {
-        part[0] = right.part[0];
-        part[1] = right.part[1];
-        part[2] = right.part[2];
-        return *this;
-    }
-
     inline flag96 operator&(flag96 const& right) const
     {
         return flag96(part[0] & right.part[0], part[1] & right.part[1], part[2] & right.part[2]);
@@ -517,6 +509,18 @@ constexpr typename std::underlying_type<E>::type AsUnderlyingType(E enumValue)
 {
     static_assert(std::is_enum<E>::value, "AsUnderlyingType can only be used with enums");
     return static_cast<typename std::underlying_type<E>::type>(enumValue);
+}
+
+template<typename Ret, typename Only>
+Ret* Coalesce(Only* arg)
+{
+    return arg;
+}
+
+template<typename Ret, typename T1, typename... T>
+Ret* Coalesce(T1* first, T*... rest)
+{
+    return static_cast<Ret*>(first ? static_cast<Ret*>(first) : Coalesce<Ret>(rest...));
 }
 
 #endif

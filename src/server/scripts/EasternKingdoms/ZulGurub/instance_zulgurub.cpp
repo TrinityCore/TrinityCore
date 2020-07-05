@@ -36,12 +36,14 @@ ObjectData const creatureData[] =
     { NPC_ARLOKK,             DATA_ARLOKK },
     { NPC_PRIESTESS_MARLI,    DATA_MARLI },
     { NPC_VILEBRANCH_SPEAKER, DATA_VILEBRANCH_SPEAKER },
-    { NPC_HAKKAR,             DATA_HAKKAR }
+    { NPC_HAKKAR,             DATA_HAKKAR },
+    { 0,                      0 } // END
 };
 
 ObjectData const gameobjectData[] =
 {
-    { GO_GONG_OF_BETHEKK, DATA_GONG_BETHEKK }
+    { GO_GONG_OF_BETHEKK, DATA_GONG_BETHEKK },
+    { 0,                  0 } // END
 };
 
 class instance_zulgurub : public InstanceMapScript

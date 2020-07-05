@@ -100,12 +100,12 @@ bool UnitAI::DoSpellAttackIfReady(uint32 spell)
     return false;
 }
 
-Unit* UnitAI::SelectTarget(SelectAggroTarget targetType, uint32 position, float dist, bool playerOnly, bool withTank, int32 aura)
+Unit* UnitAI::SelectTarget(SelectTargetMethod targetType, uint32 position, float dist, bool playerOnly, bool withTank, int32 aura)
 {
     return SelectTarget(targetType, position, DefaultTargetSelector(me, dist, playerOnly, withTank, aura));
 }
 
-void UnitAI::SelectTargetList(std::list<Unit*>& targetList, uint32 num, SelectAggroTarget targetType, uint32 offset, float dist, bool playerOnly, bool withTank, int32 aura)
+void UnitAI::SelectTargetList(std::list<Unit*>& targetList, uint32 num, SelectTargetMethod targetType, uint32 offset, float dist, bool playerOnly, bool withTank, int32 aura)
 {
     SelectTargetList(targetList, num, targetType, offset, DefaultTargetSelector(me, dist, playerOnly, withTank, aura));
 }
@@ -128,7 +128,7 @@ SpellCastResult UnitAI::DoCast(uint32 spellId)
             if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId))
             {
                 bool playerOnly = spellInfo->HasAttribute(SPELL_ATTR3_ONLY_TARGET_PLAYERS);
-                target = SelectTarget(SELECT_TARGET_RANDOM, 0, spellInfo->GetMaxRange(false), playerOnly);
+                target = SelectTarget(SelectTargetMethod::Random, 0, spellInfo->GetMaxRange(false), playerOnly);
             }
             break;
         }
@@ -150,7 +150,7 @@ SpellCastResult UnitAI::DoCast(uint32 spellId)
                     && targetSelector(me->GetVictim()))
                     target = me->GetVictim();
                 else
-                    target = SelectTarget(SELECT_TARGET_RANDOM, 0, targetSelector);
+                    target = SelectTarget(SelectTargetMethod::Random, 0, targetSelector);
             }
             break;
         }

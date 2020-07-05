@@ -90,7 +90,7 @@ public:
 
         void JustSummoned(Creature* summoned) override
         {
-            summoned->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM, 0, 50, true));
+            summoned->AI()->AttackStart(SelectTarget(SelectTargetMethod::Random, 0, 50, true));
             summoned->SetFaction(me->GetFaction());
             WaterElementalGUID = summoned->GetGUID();
             summons.Summon(summoned);

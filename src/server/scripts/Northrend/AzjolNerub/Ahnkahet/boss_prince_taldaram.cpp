@@ -192,7 +192,7 @@ class boss_prince_taldaram : public CreatureScript
                         {
                             if (me->GetThreatManager().GetThreatListSize() > 1)
                             {
-                                if (Unit* embraceTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                                if (Unit* embraceTarget = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                                     _embraceTargetGUID = embraceTarget->GetGUID();
                                 Talk(SAY_VANISH);
                                 DoCast(me, SPELL_VANISH);

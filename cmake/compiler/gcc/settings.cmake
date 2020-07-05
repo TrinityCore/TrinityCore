@@ -1,7 +1,7 @@
 # Set build-directive (used in core to tell which buildtype we used)
 target_compile_definitions(trinity-compile-option-interface
   INTERFACE
-    -D_BUILD_DIRECTIVE="${CMAKE_BUILD_TYPE}")
+    -D_BUILD_DIRECTIVE="$<CONFIG>")
 
 set(GCC_EXPECTED_VERSION 7.1.0)
 
@@ -24,7 +24,7 @@ if(NOT CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
   message(STATUS "GCC: SFMT enabled, SSE2 flags forced")
 endif()
 
-if( WITH_WARNINGS )
+if(WITH_WARNINGS)
   target_compile_options(trinity-warning-interface
     INTERFACE
       -W
@@ -35,10 +35,14 @@ if( WITH_WARNINGS )
       -Wfatal-errors
       -Woverloaded-virtual)
 
+  target_compile_options(trinity-warning-interface
+    INTERFACE
+      -Wno-deprecated-copy) # warning in g3d
+
   message(STATUS "GCC: All warnings enabled")
 endif()
 
-if( WITH_COREDEBUG )
+if(WITH_COREDEBUG)
   target_compile_options(trinity-compile-option-interface
     INTERFACE
       -g3)
@@ -64,7 +68,7 @@ if(ASAN)
   message(STATUS "GCC: Enabled Address Sanitizer")
 endif()
 
-if (BUILD_SHARED_LIBS)
+if(BUILD_SHARED_LIBS)
   target_compile_options(trinity-compile-option-interface
     INTERFACE
       -fPIC

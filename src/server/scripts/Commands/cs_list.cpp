@@ -202,7 +202,7 @@ public:
         // inventory case
         uint32 inventoryCount = 0;
 
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_INVENTORY_COUNT_ITEM);
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_INVENTORY_COUNT_ITEM);
         stmt->setUInt32(0, itemId);
         result = CharacterDatabase.Query(stmt);
 
@@ -538,7 +538,7 @@ public:
         Player* target;
         ObjectGuid targetGuid;
         std::string targetName;
-        PreparedStatement* stmt = nullptr;
+        CharacterDatabasePreparedStatement* stmt = nullptr;
 
         if (!*args)
             return false;
@@ -716,7 +716,7 @@ public:
                 uint32 respawnZoneId = 0;
                 if (SpawnData const* edata = data->ToSpawnData())
                 {
-                    respawnZoneId = map->GetZoneId(edata->spawnPoint);
+                    respawnZoneId = map->GetZoneId(edata->phaseMask, edata->spawnPoint);
                     if (range)
                     {
                         if (!player->IsInDist(edata->spawnPoint, range))

@@ -132,7 +132,7 @@ class boss_watchkeeper_gargolmar : public CreatureScript
                             break;
                         case EVENT_SURGE:
                             Talk(SAY_SURGE);
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                                 DoCast(target, SPELL_SURGE);
                             events.ScheduleEvent(EVENT_SURGE, urand (5000, 13000));
                             break;

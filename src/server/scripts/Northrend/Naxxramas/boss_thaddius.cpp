@@ -442,7 +442,7 @@ struct boss_thaddius : public BossAI
                     DoMeleeAttackIfReady();
                 }
                 else if (ballLightningUnlocked)
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random))
                         DoCast(target, SPELL_BALL_LIGHTNING);
             }
         }
@@ -599,35 +599,36 @@ public:
                 refreshBeam = true;
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell) override
+            void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
             {
-                if (!caster)
+                Creature* creatureCaster = caster->ToCreature();
+                if (!creatureCaster)
                     return;
-                if (spell->Id != SPELL_STALAGG_TESLA_PERIODIC)
+
+                if (spellInfo->Id != SPELL_STALAGG_TESLA_PERIODIC)
                     return;
                 if (!isFeignDeath && me->IsInCombat() && !me->GetHomePosition().IsInDist(me, OVERLOAD_DISTANCE))
                 {
                     if (!isOverloading)
                     {
                         isOverloading = true;
-                        caster->SetImmuneToPC(false);
-                        if (Creature* creatureCaster = caster->ToCreature())
-                            creatureCaster->AI()->Talk(EMOTE_TESLA_LINK_BREAKS);
+                        creatureCaster->SetImmuneToPC(false);
+                        creatureCaster->AI()->Talk(EMOTE_TESLA_LINK_BREAKS);
                         me->RemoveAura(SPELL_STALAGG_CHAIN_VISUAL);
                     }
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random))
                     {
-                        caster->CastStop(SPELL_TESLA_SHOCK);
-                        caster->CastSpell(target, SPELL_TESLA_SHOCK,true);
+                        creatureCaster->CastStop(SPELL_TESLA_SHOCK);
+                        creatureCaster->CastSpell(target, SPELL_TESLA_SHOCK,true);
                     }
                 }
                 else if (isOverloading || refreshBeam)
                 {
                     isOverloading = false;
                     refreshBeam = false;
-                    caster->CastStop();
-                    caster->CastSpell(me, SPELL_STALAGG_CHAIN_VISUAL, true);
-                    caster->SetImmuneToPC(true);
+                    creatureCaster->CastStop();
+                    creatureCaster->CastSpell(me, SPELL_STALAGG_CHAIN_VISUAL, true);
+                    creatureCaster->SetImmuneToPC(true);
                 }
             }
 
@@ -848,35 +849,37 @@ public:
                 refreshBeam = true;
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell) override
+            void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
             {
-                if (!caster)
+                Creature* creatureCaster = caster->ToCreature();
+                if (!creatureCaster)
                     return;
-                if (spell->Id != SPELL_FEUGEN_TESLA_PERIODIC)
+
+                if (spellInfo->Id != SPELL_FEUGEN_TESLA_PERIODIC)
                     return;
+
                 if (!isFeignDeath && me->IsInCombat() && !me->GetHomePosition().IsInDist(me, OVERLOAD_DISTANCE))
                 {
                     if (!isOverloading)
                     {
                         isOverloading = true;
-                        caster->SetImmuneToPC(false);
-                        if (Creature* creatureCaster = caster->ToCreature())
-                            creatureCaster->AI()->Talk(EMOTE_TESLA_LINK_BREAKS);
+                        creatureCaster->SetImmuneToPC(false);
+                        creatureCaster->AI()->Talk(EMOTE_TESLA_LINK_BREAKS);
                         me->RemoveAura(SPELL_STALAGG_CHAIN_VISUAL);
                     }
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     {
-                        caster->CastStop(SPELL_TESLA_SHOCK);
-                        caster->CastSpell(target, SPELL_TESLA_SHOCK,true);
+                        creatureCaster->CastStop(SPELL_TESLA_SHOCK);
+                        creatureCaster->CastSpell(target, SPELL_TESLA_SHOCK,true);
                     }
                 }
                 else if (isOverloading || refreshBeam)
                 {
                     isOverloading = false;
                     refreshBeam = false;
-                    caster->CastStop();
-                    caster->CastSpell(me, SPELL_FEUGEN_CHAIN_VISUAL, true);
-                    caster->SetImmuneToPC(true);
+                    creatureCaster->CastStop();
+                    creatureCaster->CastSpell(me, SPELL_FEUGEN_CHAIN_VISUAL, true);
+                    creatureCaster->SetImmuneToPC(true);
                 }
             }
 
