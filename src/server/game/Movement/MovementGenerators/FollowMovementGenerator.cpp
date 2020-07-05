@@ -202,7 +202,7 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
         return false;
 
     // Our target might have gone away
-    if (!_target || !_target->IsInWorld())
+    if (!_target || !_target->IsInWorld() || !_target->IsAlive())
         return false;
 
     // Follower cannot move at the moment
