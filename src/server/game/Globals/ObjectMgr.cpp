@@ -3318,7 +3318,7 @@ void ObjectMgr::LoadItemTemplates()
                     {
                         itemTemplate.ContainerSlots = 16;
                     }
-                    else if (itemTemplate.ContainerSlots >= 20)
+                    else
                     {
                         itemTemplate.ContainerSlots = 12;
                     }
@@ -3334,7 +3334,7 @@ void ObjectMgr::LoadItemTemplates()
                     {
                         itemTemplate.ContainerSlots = 14;
                     }
-                    else if (itemTemplate.ContainerSlots >= 20)
+                    else
                     {
                         itemTemplate.ContainerSlots = 12;
                     }
@@ -3350,7 +3350,7 @@ void ObjectMgr::LoadItemTemplates()
                     {
                         itemTemplate.ContainerSlots = 14;
                     }
-                    else if (itemTemplate.ContainerSlots >= 20)
+                    else
                     {
                         itemTemplate.ContainerSlots = 12;
                     }
@@ -3361,6 +3361,10 @@ void ObjectMgr::LoadItemTemplates()
                     if (itemTemplate.ContainerSlots >= 32)
                     {
                         itemTemplate.ContainerSlots = 16;
+                    }
+                    else
+                    {
+                        itemTemplate.ContainerSlots = 12;
                     }
                     break;
                 }
@@ -3393,6 +3397,9 @@ void ObjectMgr::LoadItemTemplates()
                     itemTemplate.ContainerSlots = 8;
                 }
             }
+
+            // EJ joker mod item stack
+            itemTemplate.Stackable = sJokerManager->classicItemStackMap[itemTemplate.ItemId];
         }
 
         itemTemplate.StatsCount                = uint32(fields[27].GetUInt8());
@@ -4961,7 +4968,24 @@ void ObjectMgr::LoadPlayerInfo()
                 }
                 continue;
             }
+
             //PlayerXPperLevel
+            // EJ joker mod level up exp rate
+            if (sJokerConfig->Enable)
+            {
+                if (current_level < 60)
+                {
+                    current_xp = current_xp * sJokerConfig->LevelUpEXPRate_Expansion_0;
+                }
+                else if (current_level < 70)
+                {
+                    current_xp = current_xp * sJokerConfig->LevelUpEXPRate_Expansion_1;
+                }
+                else
+                {
+                    current_xp = current_xp * sJokerConfig->LevelUpEXPRate_Expansion_2;
+                }
+            }
             _playerXPperLevel[current_level] = current_xp;
             ++count;
         }

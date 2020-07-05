@@ -5500,7 +5500,7 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                                     {
                                         member->SetWalk(false);
                                     }
-                                    member->GetMotionMaster()->MovePoint(1, destX, destY, destZ, true, member->GetOrientation());                                    
+                                    member->GetMotionMaster()->MovePoint(1, destX, destY, destZ, true, member->GetOrientation());
                                 }
                                 else
                                 {

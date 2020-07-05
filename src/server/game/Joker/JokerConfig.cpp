@@ -313,6 +313,10 @@ bool JokerConfig::StartJokerSystem()
 
     PlayerMod = GetFloatDefault("PlayerMod", 1);
 
+    LevelUpEXPRate_Expansion_0 = GetFloatDefault("LevelUpEXPRate_Expansion_0", 1.0f);
+    LevelUpEXPRate_Expansion_1 = GetFloatDefault("LevelUpEXPRate_Expansion_1", 1.0f);
+    LevelUpEXPRate_Expansion_2 = GetFloatDefault("LevelUpEXPRate_Expansion_2", 1.0f);
+
     LootCountEachGroup_Normal = GetIntDefault("LootCountEachGroup_Normal", 1);
     LootCountEachGroup_InstanceEncounter = GetIntDefault("LootCountEachGroup_InstanceEncounter", 1);
     LootCountEachGroup_UniqueElite = GetIntDefault("LootCountEachGroup_UniqueElite", 1);

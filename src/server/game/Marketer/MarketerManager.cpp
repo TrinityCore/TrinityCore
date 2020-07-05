@@ -263,7 +263,7 @@ bool MarketerManager::UpdateMarketer(uint32 pmDiff)
         {
             UpdateBuyer();
         }
-    }    
+    }
 
     return true;
 }

@@ -35,6 +35,7 @@ public:
     std::unordered_map<uint32, uint32> accompanyTimeMap;
     std::unordered_map<uint32, std::unordered_map<uint32, uint32>> expansionCreatureMap;
     std::unordered_map<uint32, std::unordered_set<uint32>> expansionQuestMap;
+    std::unordered_map<uint32, uint32> classicItemStackMap;
     std::unordered_map<uint32, std::unordered_set<uint32>> expansionItemMap;
     std::unordered_set<uint32> classicBookSpellSet;
 

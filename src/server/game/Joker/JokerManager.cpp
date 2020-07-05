@@ -103,7 +103,7 @@ JokerManager::JokerManager()
     classicBookSpellSet.insert(31018);
     classicBookSpellSet.insert(31709);
 
-    QueryResult eiQR = WorldDatabase.PQuery("SELECT expansion, item_entry FROM joker_item_expansion");
+    QueryResult eiQR = WorldDatabase.PQuery("SELECT expansion, item_entry, stack FROM joker_item_expansion");
     if (eiQR)
     {
         do
@@ -111,7 +111,9 @@ JokerManager::JokerManager()
             Field* fields = eiQR->Fetch();
             uint32 eachExpansion = fields[0].GetUInt32();
             uint32 eachItemEntry = fields[1].GetUInt32();
+            uint32 eachItemStack = fields[2].GetUInt32();
             expansionItemMap[eachExpansion].insert(eachItemEntry);
+            classicItemStackMap[eachItemEntry] = eachItemStack;
         } while (eiQR->NextRow());
     }
 
@@ -180,7 +182,7 @@ void JokerManager::UpdateJoker(uint32 pmDiff)
                 currentPetGUIDSet.insert(pet_guid);
             } while (jhpQR->NextRow());
         }
-        
+
         for (std::unordered_map<uint32, uint32>::iterator it = accompanyTimeMap.begin(); it != accompanyTimeMap.end(); it++)
         {
             std::ostringstream sqlStream;
@@ -194,7 +196,7 @@ void JokerManager::UpdateJoker(uint32 pmDiff)
             }
             std::string sql = sqlStream.str();
             CharacterDatabase.Execute(sql.c_str());
-        }        
+        }
     }
 }
 

@@ -177,6 +177,10 @@ public:
 
     uint32 PlayerMod;
 
+    float LevelUpEXPRate_Expansion_0;
+    float LevelUpEXPRate_Expansion_1;
+    float LevelUpEXPRate_Expansion_2;
+
     uint32 LootCountEachGroup_Normal;
     uint32 LootCountEachGroup_InstanceEncounter;
     uint32 LootCountEachGroup_UniqueElite;
