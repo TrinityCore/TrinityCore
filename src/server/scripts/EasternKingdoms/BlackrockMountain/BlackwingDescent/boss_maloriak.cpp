@@ -551,8 +551,7 @@ struct boss_maloriak : public BossAI
                     events.ScheduleEvent(EVENT_ABSOLUTE_ZERO, 8s + 400ms, 0, PHASE_TWO);
                     break;
                 case EVENT_MAGMA_JETS:
-                    //DoCastAOE(SPELL_MAGMA_JETS_SCRIPT_EFFECT); // seems like an old changed mechanic spell. No purpose atm.
-                    DoCastSelf(SPELL_MAGMA_JETS_SUMMON);
+                    DoCastAOE(SPELL_MAGMA_JETS_SCRIPT_EFFECT);
                     events.Repeat(6s);
                     break;
                 case EVENT_ACID_NOVA:
@@ -1095,6 +1094,41 @@ class spell_maloriak_release_experiments : public SpellScript
     }
 };
 
+class spell_maloriak_magma_jets_script : public SpellScript
+{
+    PrepareSpellScript(spell_maloriak_magma_jets_script);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGMA_JETS_SUMMON });
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.empty())
+            return;
+
+        Trinity::Containers::RandomResize(targets, 1);
+    }
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        Unit* target = GetHitUnit();
+        if (Unit* caster = GetCaster())
+        {
+            caster->SetOrientation(caster->GetAngle(target));
+            caster->SetFacingToObject(target); // update orientation immediately
+            caster->CastSpell(target, SPELL_MAGMA_JETS_SUMMON);
+        }
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_maloriak_magma_jets_script::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnEffectHitTarget += SpellEffectFn(spell_maloriak_magma_jets_script::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 class spell_maloriak_magma_jets_periodic : public AuraScript
 {
     PrepareAuraScript(spell_maloriak_magma_jets_periodic);
@@ -1260,6 +1294,7 @@ void AddSC_boss_maloriak()
     RegisterSpellScript(spell_maloriak_flash_freeze_targeting);
     RegisterSpellScript(spell_maloriak_flash_freeze_dummy);
     RegisterSpellScript(spell_maloriak_release_experiments);
+    RegisterSpellScript(spell_maloriak_magma_jets_script);
     RegisterAuraScript(spell_maloriak_magma_jets_periodic);
     RegisterSpellScript(spell_maloriak_absolute_zero);
     RegisterAuraScript(spell_maloriak_vile_swill);
