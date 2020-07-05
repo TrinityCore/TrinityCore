@@ -153,16 +153,7 @@ Position const LadyNazjarAddJumpPositions[] =
 
 struct boss_lady_nazjar : public BossAI
 {
-    boss_lady_nazjar(Creature* creature) : BossAI(creature, DATA_LADY_NAZJAR)
-    {
-        Initialize();
-    }
-
-    void Initialize()
-    {
-        _waterspoutPhaseCount = 0;
-        _killedAdds = 0;
-    }
+    boss_lady_nazjar(Creature* creature) : BossAI(creature, DATA_LADY_NAZJAR), _waterspoutPhaseCount(0), _killedAdds(0), _isInTransition(false) { }
 
     void JustEngagedWith(Unit* /*who*/) override
     {
@@ -178,7 +169,6 @@ struct boss_lady_nazjar : public BossAI
     void Reset() override
     {
         _Reset();
-        Initialize();
         me->MakeInterruptable(false);
     }
 
@@ -261,13 +251,13 @@ struct boss_lady_nazjar : public BossAI
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage) override
     {
-        // Oneshot cases
-        if (damage >= me->GetHealth())
-            return;
+        if (damage >= me->GetHealth() && (_waterspoutPhaseCount < 2 || _isInTransition))
+            damage = me->GetHealth() - 1;
 
         if ((me->HealthBelowPctDamaged(60, damage) && _waterspoutPhaseCount == 0)
             || (me->HealthBelowPctDamaged(30, damage) && _waterspoutPhaseCount == 1))
         {
+            _isInTransition = true;
             events.Reset();
             me->InterruptNonMeleeSpells(true);
             me->NearTeleportTo(LadyNazjarCenterPosition);
@@ -335,6 +325,7 @@ struct boss_lady_nazjar : public BossAI
                     if (Unit* target = me->GetVictim())
                         AttackStart(target);
 
+                    _isInTransition = false;
                     instance->SetData(DATA_LADY_NAZJAR_GEYSERS, NOT_STARTED);
                     events.ScheduleEvent(EVENT_SUMMON_GEYSER, 11s, 16s);
                     events.ScheduleEvent(EVENT_FUNGAL_SPORES, 13s, 19s);
@@ -362,19 +353,12 @@ private:
 
     uint8 _waterspoutPhaseCount;
     uint8 _killedAdds;
+    bool _isInTransition;
 };
 
 struct npc_nazjar_nazjar_honor_guard : public ScriptedAI
 {
-    npc_nazjar_nazjar_honor_guard(Creature* creature) : ScriptedAI(creature)
-    {
-        Initialize();
-    }
-
-    void Initialize()
-    {
-        _enraged = false;
-    }
+    npc_nazjar_nazjar_honor_guard(Creature* creature) : ScriptedAI(creature), _enraged(false) { }
 
     void JustEngagedWith(Unit* /*who*/) override
     {
