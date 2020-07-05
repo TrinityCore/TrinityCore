@@ -1801,7 +1801,7 @@ uint32 Spell::GetSearcherTypeMask(SpellTargetObjectTypes objType, ConditionConta
                 retMask &= GRID_MAP_TYPE_MASK_PLAYER | GRID_MAP_TYPE_MASK_CREATURE;
                 break;
             }
-            // No break here
+            /* fallthrough */
         case TARGET_OBJECT_TYPE_CORPSE:
         case TARGET_OBJECT_TYPE_CORPSE_ENEMY:
         case TARGET_OBJECT_TYPE_CORPSE_ALLY:
@@ -4465,6 +4465,9 @@ void Spell::UpdateSpellCastDataTargets(WorldPackets::Spells::SpellCastData& data
     }
 
     for (GOTargetInfo const& targetInfo : m_UniqueGOTargetInfo)
+        data.HitTargets->push_back(targetInfo.TargetGUID); // Always hits
+
+    for (CorpseTargetInfo const& targetInfo : m_UniqueCorpseTargetInfo)
         data.HitTargets->push_back(targetInfo.TargetGUID); // Always hits
 
     // Reset m_needAliveTargetMask for non channeled spell
