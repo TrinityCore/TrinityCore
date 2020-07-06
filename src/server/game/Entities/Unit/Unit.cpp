@@ -9995,7 +9995,12 @@ void Unit::ProcSkillsAndReactives(bool isVictim, Unit* procTarget, uint32 typeMa
     if (typeMask & MELEE_BASED_TRIGGER_MASK && procTarget)
     {
         // Update skills here for players
-        if (GetTypeId() == TYPEID_PLAYER)
+        // only when you are not fighting other players or their pets/totems (pvp)
+        if (GetTypeId() == TYPEID_PLAYER &&
+                procTarget->GetTypeId() != TYPEID_PLAYER &&
+                !(procTarget->IsTotem() && procTarget->ToTotem()->GetOwner()->IsPlayer()) &&
+                !procTarget->IsPet()
+           )
         {
             // On melee based hit/miss/resist need update skill (for victim and attacker)
             if (hitMask & (PROC_HIT_NORMAL | PROC_HIT_MISS | PROC_HIT_FULL_RESIST))
