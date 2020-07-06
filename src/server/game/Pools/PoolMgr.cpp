@@ -285,7 +285,7 @@ void PoolGroup<T>::SpawnObject(ActivePoolData& spawns, uint32 limit, uint64 trig
                 roll -= obj.chance;
                 // Triggering object is marked as spawned at this time and can be also rolled (respawn case)
                 // so this need explicit check for this case
-                if (roll < 0 && (obj.guid == triggerFrom || !spawns.IsActiveObject<T>(obj.guid)))
+                if (roll < 0 && (/*obj.guid == triggerFrom ||*/ !spawns.IsActiveObject<T>(obj.guid)))
                 {
                     rolledObjects.push_back(obj);
                     break;
@@ -295,9 +295,9 @@ void PoolGroup<T>::SpawnObject(ActivePoolData& spawns, uint32 limit, uint64 trig
 
         if (!EqualChanced.empty() && rolledObjects.empty())
         {
-            std::copy_if(EqualChanced.begin(), EqualChanced.end(), std::back_inserter(rolledObjects), [triggerFrom, &spawns](PoolObject const& object)
+            std::copy_if(EqualChanced.begin(), EqualChanced.end(), std::back_inserter(rolledObjects), [/*triggerFrom, */&spawns](PoolObject const& object)
             {
-                return object.guid == triggerFrom || !spawns.IsActiveObject<T>(object.guid);
+                return /*object.guid == triggerFrom ||*/ !spawns.IsActiveObject<T>(object.guid);
             });
 
             Trinity::Containers::RandomResize(rolledObjects, count);
