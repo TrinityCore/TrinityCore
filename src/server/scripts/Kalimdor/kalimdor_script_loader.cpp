@@ -122,7 +122,7 @@ void AddSC_tanaris();
 void AddSC_the_barrens();
 // void AddSC_thousand_needles();
 void AddSC_thunder_bluff();
-void AddSC_ungoro_crater();
+// void AddSC_ungoro_crater();
 void AddSC_winterspring();
 
 // The name of this function should match:
@@ -235,6 +235,6 @@ void AddKalimdorScripts()
     AddSC_the_barrens();
     // AddSC_thousand_needles();
     AddSC_thunder_bluff();
-    AddSC_ungoro_crater();
+    // AddSC_ungoro_crater();
     AddSC_winterspring();
 }
