@@ -28,6 +28,7 @@
 #include <CascLib.h>
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
+#include <bitset>
 #include <cstdio>
 #include <deque>
 #include <fstream>
@@ -1121,34 +1122,44 @@ void ExtractMaps(uint32 build)
         printf("Extract %s (" SZFMTD "/" SZFMTD ")                  \n", map_ids[z].Name.c_str(), z + 1, map_ids.size());
         // Loadup map grid data
         ChunkedFile wdt;
-        if (!wdt.loadFile(CascStorage, map_ids[z].WdtFileDataId, Trinity::StringFormat("WDT for map %u", map_ids[z].Id), false))
-            continue;
-
-        FileChunk* mphd = wdt.GetChunk("MPHD");
-        FileChunk* main = wdt.GetChunk("MAIN");
-        FileChunk* maid = wdt.GetChunk("MAID");
-        for (uint32 y = 0; y < WDT_MAP_SIZE; ++y)
+        std::bitset<(WDT_MAP_SIZE) * (WDT_MAP_SIZE)> existingTiles;
+        if (wdt.loadFile(CascStorage, map_ids[z].WdtFileDataId, Trinity::StringFormat("WDT for map %u", map_ids[z].Id), false))
         {
-            for (uint32 x = 0; x < WDT_MAP_SIZE; ++x)
+            FileChunk* mphd = wdt.GetChunk("MPHD");
+            FileChunk* main = wdt.GetChunk("MAIN");
+            FileChunk* maid = wdt.GetChunk("MAID");
+            for (uint32 y = 0; y < WDT_MAP_SIZE; ++y)
             {
-                if (!(main->As<wdt_MAIN>()->adt_list[y][x].flag & 0x1))
-                    continue;
+                for (uint32 x = 0; x < WDT_MAP_SIZE; ++x)
+                {
+                    if (!(main->As<wdt_MAIN>()->adt_list[y][x].flag & 0x1))
+                        continue;
 
-                outputFileName =  Trinity::StringFormat("%s/maps/%04u_%02u_%02u.map", output_path.string().c_str(), map_ids[z].Id, y, x);
-                bool ignoreDeepWater = IsDeepWaterIgnored(map_ids[z].Id, y, x);
-                if (mphd && mphd->As<wdt_MPHD>()->flags & 0x200)
-                {
-                    ConvertADT(maid->As<wdt_MAID>()->adt_files[y][x].rootADT, map_ids[z].Name, outputFileName, y, x, build, ignoreDeepWater);
+                    outputFileName = Trinity::StringFormat("%s/maps/%04u_%02u_%02u.map", output_path.string().c_str(), map_ids[z].Id, y, x);
+                    bool ignoreDeepWater = IsDeepWaterIgnored(map_ids[z].Id, y, x);
+                    if (mphd && mphd->As<wdt_MPHD>()->flags & 0x200)
+                    {
+                        existingTiles[y * WDT_MAP_SIZE + x] = ConvertADT(maid->As<wdt_MAID>()->adt_files[y][x].rootADT, map_ids[z].Name, outputFileName, y, x, build, ignoreDeepWater);
+                    }
+                    else
+                    {
+                        std::string storagePath = Trinity::StringFormat(R"(World\Maps\%s\%s_%u_%u.adt)", map_ids[z].Directory.c_str(), map_ids[z].Directory.c_str(), x, y);
+                        existingTiles[y * WDT_MAP_SIZE + x] = ConvertADT(storagePath, map_ids[z].Name, outputFileName, y, x, build, ignoreDeepWater);
+                    }
                 }
-                else
-                {
-                    std::string storagePath = Trinity::StringFormat("World\\Maps\\%s\\%s_%u_%u.adt", map_ids[z].Directory.c_str(), map_ids[z].Directory.c_str(), x, y);
-                    ConvertADT(storagePath, map_ids[z].Name, outputFileName, y, x, build, ignoreDeepWater);
-                }
+
+                // draw progress bar
+                printf("Processing........................%d%%\r", (100 * (y + 1)) / WDT_MAP_SIZE);
             }
+        }
 
-            // draw progress bar
-            printf("Processing........................%d%%\r", (100 * (y+1)) / WDT_MAP_SIZE);
+        if (FILE* tileList = fopen(Trinity::StringFormat("%s/maps/%04u.tilelist", output_path.string().c_str(), map_ids[z].Id).c_str(), "wb"))
+        {
+            fwrite(MAP_MAGIC, 1, strlen(MAP_MAGIC), tileList);
+            fwrite(MAP_VERSION_MAGIC, 1, strlen(MAP_VERSION_MAGIC), tileList);
+            fwrite(&build, sizeof(build), 1, tileList);
+            fwrite(existingTiles.to_string().c_str(), 1, existingTiles.size(), tileList);
+            fclose(tileList);
         }
     }
 
