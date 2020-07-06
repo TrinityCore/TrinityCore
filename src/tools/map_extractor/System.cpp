@@ -15,8 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "StringFormat.h"
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
+#include <bitset>
 #include <cstdio>
 #include <deque>
 #include <fstream>
@@ -1122,25 +1124,36 @@ void ExtractMapsFromMpq(uint32 build)
         // Loadup map grid data
         sprintf(mpq_map_name, "World\\Maps\\%s\\%s.wdt", map_ids[z].name, map_ids[z].name);
         ChunkedFile wdt;
-        if (!wdt.loadFile(WorldMpq, mpq_map_name, false))
-            continue;
 
-        FileChunk* chunk = wdt.GetChunk("MAIN");
-        for (uint32 y = 0; y < WDT_MAP_SIZE; ++y)
+        std::bitset<(WDT_MAP_SIZE)* (WDT_MAP_SIZE)> existingTiles;
+        if (wdt.loadFile(WorldMpq, mpq_map_name, false))
         {
-            for (uint32 x = 0; x < WDT_MAP_SIZE; ++x)
+            FileChunk* main = wdt.GetChunk("MAIN");
+            for (uint32 y = 0; y < WDT_MAP_SIZE; ++y)
             {
-                if (!(chunk->As<wdt_MAIN>()->adt_list[y][x].flag & 0x1))
-                    continue;
+                for (uint32 x = 0; x < WDT_MAP_SIZE; ++x)
+                {
+                    if (!(main->As<wdt_MAIN>()->adt_list[y][x].flag & 0x1))
+                        continue;
 
-                sprintf(mpq_filename, "World\\Maps\\%s\\%s_%u_%u.adt", map_ids[z].name, map_ids[z].name, x, y);
-                sprintf(output_filename, "%s/maps/%03u%02u%02u.map", output_path, map_ids[z].id, y, x);
-                bool ignoreDeepWater = IsDeepWaterIgnored(map_ids[z].id, y, x);
-                ConvertADT(mpq_filename, output_filename, y, x, build, ignoreDeepWater);
+                    sprintf(mpq_filename, "World\\Maps\\%s\\%s_%u_%u.adt", map_ids[z].name, map_ids[z].name, x, y);
+                    sprintf(output_filename, "%s/maps/%03u%02u%02u.map", output_path, map_ids[z].id, y, x);
+                    bool ignoreDeepWater = IsDeepWaterIgnored(map_ids[z].id, y, x);
+                    existingTiles[y * WDT_MAP_SIZE + x] = ConvertADT(mpq_filename, output_filename, y, x, build, ignoreDeepWater);
+                }
+
+                // draw progress bar
+                printf("Processing........................%d%%\r", (100 * (y + 1)) / WDT_MAP_SIZE);
             }
+        }
 
-            // draw progress bar
-            printf("Processing........................%d%%\r", (100 * (y+1)) / WDT_MAP_SIZE);
+        if (FILE* tileList = fopen(Trinity::StringFormat("%s/maps/%03u.tilelist", output_path, map_ids[z].id).c_str(), "wb"))
+        {
+            fwrite(MAP_MAGIC, 1, strlen(MAP_MAGIC), tileList);
+            fwrite(MAP_VERSION_MAGIC, 1, strlen(MAP_VERSION_MAGIC), tileList);
+            fwrite(&build, sizeof(build), 1, tileList);
+            fwrite(existingTiles.to_string().c_str(), 1, existingTiles.size(), tileList);
+            fclose(tileList);
         }
     }
 
