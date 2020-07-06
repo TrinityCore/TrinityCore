@@ -510,7 +510,7 @@ void World::LoadConfigSettings(bool reload)
 
     m_defaultDbcLocale = LocaleConstant(sConfigMgr->GetIntDefault("DBC.Locale", 0));
 
-    if (m_defaultDbcLocale >= TOTAL_LOCALES)
+    if (m_defaultDbcLocale >= TOTAL_LOCALES || m_defaultDbcLocale < LOCALE_enUS)
     {
         TC_LOG_ERROR("server.loading", "Incorrect DBC.Locale! Must be >= 0 and < %d (set to 0)", TOTAL_LOCALES);
         m_defaultDbcLocale = LOCALE_enUS;
@@ -1655,8 +1655,8 @@ void World::SetInitialWorldSettings()
 
     ///- Load the DBC/DB2 files
     TC_LOG_INFO("server.loading", "Initialize data stores...");
-    sDBCManager.LoadStores(m_dataPath);
-    sDB2Manager.LoadStores(m_dataPath);
+    sDBCManager.LoadStores(m_dataPath, m_defaultDbcLocale);
+    sDB2Manager.LoadStores(m_dataPath, m_defaultDbcLocale);
 
     TC_LOG_INFO("misc", "Loading hotfix info...");
     sDB2Manager.LoadHotfixData();

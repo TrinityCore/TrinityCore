@@ -213,7 +213,7 @@ class TC_GAME_API DBCManager
 public:
     static DBCManager& Instance();
 
-    void LoadStores(const std::string& dataPath);
+    void LoadStores(const std::string& dataPath, uint32 defaultLocale);
 
     SimpleFactionsList const* GetFactionTeamList(uint32 faction);
     static char const* GetPetName(uint32 petfamily, uint32 dbclang);

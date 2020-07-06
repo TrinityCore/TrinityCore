@@ -17,6 +17,7 @@
 
 #include "Common.h"
 #include "DatabaseEnv.h"
+#include "DBCStores.h"
 #include "DB2Stores.h"
 #include "DB2fmt.h"
 #include "Errors.h"
@@ -43,7 +44,7 @@ DB2Manager& DB2Manager::Instance()
 uint32 DB2FilesCount = 0;
 
 template<class T>
-inline void LoadDB2(uint32& availableDb2Locales, DB2StoreProblemList& errlist, DB2Manager::StorageMap& stores, DB2Storage<T>* storage, std::string const& db2_path)
+inline void LoadDB2(uint32& availableDb2Locales, DB2StoreProblemList& errlist, DB2Manager::StorageMap& stores, DB2Storage<T>* storage, std::string const& db2Path, uint32 defaultLocale)
 {
     // compatibility format and C++ structure sizes
     ASSERT(DB2FileLoader::GetFormatRecordSize(storage->GetFormat()) == sizeof(T),
@@ -52,17 +53,21 @@ inline void LoadDB2(uint32& availableDb2Locales, DB2StoreProblemList& errlist, D
 
     ++DB2FilesCount;
 
-    if (storage->Load(db2_path, uint32(sWorld->GetDefaultDbcLocale())))
+    if (storage->Load(db2Path + localeNames[defaultLocale] + '/', defaultLocale))
     {
         storage->LoadFromDB();
+        // LoadFromDB() always loads strings into enUS locale, other locales are expected to have data in corresponding _locale tables
+        // so we need to make additional call to load that data in case said locale is set as default by worldserver.conf (and we do not want to load all this data from .db2 file again)
+        if (defaultLocale != LOCALE_enUS)
+            storage->LoadStringsFromDB(LocaleConstant(defaultLocale));
 
         for (uint32 i = 0; i < TOTAL_LOCALES; ++i)
         {
-            if (uint32(sWorld->GetDefaultDbcLocale()) == i)
+            if (defaultLocale == i)
                 continue;
 
             if (availableDb2Locales & (1 << i))
-                if (!storage->LoadStringsFrom((db2_path + localeNames[i] + '/'), i))
+                if (!storage->LoadStringsFrom((db2Path + localeNames[i] + '/'), i))
                     availableDb2Locales &= ~(1 << i);             // mark as not available for speedup next checks
 
             storage->LoadStringsFromDB(LocaleConstant(i));
@@ -71,7 +76,7 @@ inline void LoadDB2(uint32& availableDb2Locales, DB2StoreProblemList& errlist, D
     else
     {
         // sort problematic db2 to (1) non compatible and (2) nonexistent
-        if (FILE* f = fopen((db2_path + storage->GetFileName()).c_str(), "rb"))
+        if (FILE* f = fopen((db2Path + storage->GetFileName()).c_str(), "rb"))
         {
             std::ostringstream stream;
             stream << storage->GetFileName() << " exists, and has " << storage->GetFieldCount() << " field(s) (expected " << strlen(storage->GetFormat())
@@ -87,7 +92,7 @@ inline void LoadDB2(uint32& availableDb2Locales, DB2StoreProblemList& errlist, D
     stores[storage->GetHash()] = storage;
 }
 
-void DB2Manager::LoadStores(std::string const& dataPath)
+void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
 {
     uint32 oldMSTime = getMSTime();
 
@@ -96,16 +101,16 @@ void DB2Manager::LoadStores(std::string const& dataPath)
     DB2StoreProblemList bad_db2_files;
     uint32 availableDb2Locales = 0xFF;
 
-    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sItemStore,                db2Path);
-    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sItemCurrencyCostStore,    db2Path);
-    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sItemSparseStore,          db2Path);
-    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sItemExtendedCostStore,    db2Path);
-    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sKeyChainStore,            db2Path);
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sItemStore,                db2Path, defaultLocale);
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sItemCurrencyCostStore,    db2Path, defaultLocale);
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sItemSparseStore,          db2Path, defaultLocale);
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sItemExtendedCostStore,    db2Path, defaultLocale);
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sKeyChainStore,            db2Path, defaultLocale);
 
     // error checks
     if (bad_db2_files.size() >= DB2FilesCount)
     {
-        TC_LOG_ERROR("misc", "\nIncorrect DataDir value in worldserver.conf or ALL required *.db2 files (%d) not found by path: %sdb2", DB2FilesCount, dataPath.c_str());
+        TC_LOG_ERROR("misc", "\nIncorrect DataDir value in worldserver.conf or ALL required *.db2 files (%d) not found by path: %sdbc/%s/", DB2FilesCount, dataPath.c_str(), localeNames[defaultLocale]);
         exit(1);
     }
     else if (!bad_db2_files.empty())

@@ -27,6 +27,11 @@
 #include <cstdlib>
 #include <cstring>
 
+#include "Common.h"
+#ifdef PLATFORM_WINDOWS
+#undef PLATFORM_WINDOWS
+#endif
+
 #ifdef _WIN32
 #include "direct.h"
 #else
@@ -89,8 +94,9 @@ std::vector<map_id> map_ids;
 std::unordered_map<uint32, LiquidMaterialEntry> LiquidMaterials;
 std::unordered_map<uint32, LiquidObjectEntry> LiquidObjects;
 std::unordered_map<uint32, LiquidTypeEntry> LiquidTypes;
-char output_path[128] = ".";
-char input_path[128] = ".";
+#define MAX_PATH_LENGTH 128
+char output_path[MAX_PATH_LENGTH];
+char input_path[MAX_PATH_LENGTH];
 
 // **************************************************
 // Extractor options
@@ -147,6 +153,25 @@ char const* Locales[LOCALES_COUNT] =
     "itIT"
 };
 
+uint8 const MpqToWowLocale[LOCALES_COUNT] =
+{
+    LOCALE_enUS,
+    LOCALE_enUS,
+    LOCALE_deDE,
+    LOCALE_esES,
+    LOCALE_frFR,
+    LOCALE_koKR,
+    LOCALE_zhCN,
+    LOCALE_zhTW,
+    LOCALE_zhCN,
+    LOCALE_zhTW,
+    LOCALE_esMX,
+    LOCALE_ruRU,
+    LOCALE_ptBR,
+    LOCALE_ptBR,
+    LOCALE_itIT
+};
+
 TCHAR const* LocalesT[LOCALES_COUNT] =
 {
     _T("enGB"), _T("enUS"),
@@ -163,8 +188,8 @@ void CreateDir(std::string const& path)
 {
     if (chdir(path.c_str()) == 0)
     {
-            chdir("../");
-            return;
+        chdir("../");
+        return;
     }
 
 #ifdef _WIN32
@@ -216,17 +241,22 @@ void HandleArgs(int argc, char* arg[])
         switch (arg[c][1])
         {
             case 'i':
-                if (c + 1 < argc)                            // all ok
-                    strcpy(input_path, arg[c++ + 1]);
+                if (c + 1 < argc && strlen(arg[c + 1]) < MAX_PATH_LENGTH) // all ok
+                {
+                    strncpy(input_path, arg[c++ + 1], MAX_PATH_LENGTH);
+                    input_path[MAX_PATH_LENGTH - 1] = '\0';
+                }
                 else
                     Usage(arg[0]);
                 break;
             case 'o':
-                if (c + 1 < argc)                            // all ok
-                    strcpy(output_path, arg[c++ + 1]);
+                if (c + 1 < argc && strlen(arg[c + 1]) < MAX_PATH_LENGTH) // all ok
+                {
+                    strncpy(output_path, arg[c++ + 1], MAX_PATH_LENGTH);
+                    output_path[MAX_PATH_LENGTH - 1] = '\0';
+                }
                 else
                     Usage(arg[0]);
-                break;
             case 'f':
                 if (c + 1 < argc)                            // all ok
                     CONF_allow_float_to_int = atoi(arg[c++ + 1])!=0;
@@ -1183,7 +1213,7 @@ bool ExtractFile(HANDLE fileInArchive, char const* filename)
     return true;
 }
 
-void ExtractDBCFiles(int l, bool basicLocale)
+void ExtractDBCFiles(int l)
 {
     printf("Extracting dbc files...\n");
 
@@ -1198,12 +1228,9 @@ void ExtractDBCFiles(int l, bool basicLocale)
         outputPath += "/dbc/";
 
         CreateDir(outputPath);
-        if (!basicLocale)
-        {
-            outputPath += Locales[l];
-            outputPath += "/";
-            CreateDir(outputPath);
-        }
+        outputPath += localeNames[MpqToWowLocale[l]];
+        outputPath += "/";
+        CreateDir(outputPath);
 
         std::string filename;
 
@@ -1233,7 +1260,7 @@ void ExtractDBCFiles(int l, bool basicLocale)
     printf("Extracted %u DBC files\n\n", count);
 }
 
-void ExtractDB2Files(int l, bool basicLocale)
+void ExtractDB2Files(int l)
 {
     printf("Extracting db2 files...\n");
 
@@ -1246,11 +1273,8 @@ void ExtractDB2Files(int l, bool basicLocale)
     {
         std::string outputPath = output_path;
         outputPath += "/dbc/";
-        if (!basicLocale)
-        {
-            outputPath += Locales[l];
-            outputPath += "/";
-        }
+        outputPath += localeNames[MpqToWowLocale[l]];
+        outputPath += "/";
 
         std::string filename;
 
@@ -1276,7 +1300,7 @@ void ExtractDB2Files(int l, bool basicLocale)
     printf("Extracted %u DB2 files\n\n", count);
 }
 
-void ExtractCameraFiles(int locale, bool basicLocale)
+void ExtractCameraFiles(int locale)
 {
     printf("Extracting camera files...\n");
     HANDLE dbcFile;
@@ -1311,12 +1335,6 @@ void ExtractCameraFiles(int locale, bool basicLocale)
     std::string path = output_path;
     path += "/Cameras/";
     CreateDir(path);
-    if (!basicLocale)
-    {
-        path += Locales[locale];
-        path += "/";
-        CreateDir(path);
-    }
 
     // extract M2s
     uint32 count = 0;
@@ -1463,6 +1481,10 @@ int main(int argc, char * arg[])
 {
     Trinity::Banner::Show("Map & DBC Extractor", [](char const* text) { printf("%s\n", text); }, nullptr);
 
+    boost::filesystem::path current(boost::filesystem::current_path());
+    strcpy(input_path, current.string().c_str());
+    strcpy(output_path, current.string().c_str());
+
     HandleArgs(argc, arg);
 
     int FirstLocale = -1;
@@ -1505,8 +1527,8 @@ int main(int argc, char * arg[])
         }
 
         printf("\n");
-        ExtractDBCFiles(i, FirstLocale < 0);
-        ExtractDB2Files(i, FirstLocale < 0);
+        ExtractDBCFiles(i);
+        ExtractDB2Files(i);
 
         if (FirstLocale < 0)
         {
@@ -1533,7 +1555,7 @@ int main(int argc, char * arg[])
         LoadCommonMPQFiles(build);
 
         // Extract cameras
-        ExtractCameraFiles(FirstLocale, true);
+        ExtractCameraFiles(FirstLocale);
 
         // Close MPQs
         SFileCloseArchive(WorldMpq);

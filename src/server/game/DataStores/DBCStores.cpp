@@ -283,13 +283,13 @@ static bool LoadDBC_assert_print(uint32 fsize, uint32 rsize, const std::string& 
 }
 
 template<class T>
-inline void LoadDBC(uint32& availableDbcLocales, StoreProblemList& errors, DBCStorage<T>& storage, std::string const& dbcPath, std::string const& filename, std::string const& customFormat = std::string(), std::string const& customIndexName = std::string())
+inline void LoadDBC(uint32& availableDbcLocales, StoreProblemList& errors, DBCStorage<T>& storage, std::string const& dbcPath, std::string const& filename, uint32 defaultLocale, std::string const& customFormat = std::string(), std::string const& customIndexName = std::string())
 {
     // compatibility format and C++ structure sizes
     ASSERT(DBCFileLoader::GetFormatRecordSize(storage.GetFormat()) == sizeof(T) || LoadDBC_assert_print(DBCFileLoader::GetFormatRecordSize(storage.GetFormat()), sizeof(T), filename));
 
     ++DBCFileCount;
-    std::string dbcFilename = dbcPath + filename;
+    std::string dbcFilename = dbcPath + localeNames[defaultLocale] + '/' + filename;
 
     if (storage.Load(dbcFilename))
     {
@@ -326,7 +326,7 @@ inline void LoadDBC(uint32& availableDbcLocales, StoreProblemList& errors, DBCSt
     }
 }
 
-void DBCManager::LoadStores(const std::string& dataPath)
+void DBCManager::LoadStores(const std::string& dataPath, uint32 defaultLocale)
 {
     uint32 oldMSTime = getMSTime();
 
@@ -343,7 +343,7 @@ void DBCManager::LoadStores(const std::string& dataPath)
     DBCStorage<PhaseGroupEntry> sPhaseGroupStore(PhaseGroupfmt);
     DBCStorage<TalentTreePrimarySpellsEntry> sTalentTreePrimarySpellsStore(TalentTreePrimarySpellsfmt);
 
-#define LOAD_DBC(store, file) LoadDBC(availableDbcLocales, bad_dbc_files, store, dbcPath, file)
+#define LOAD_DBC(store, file) LoadDBC(availableDbcLocales, bad_dbc_files, store, dbcPath, file, defaultLocale)
 
     LOAD_DBC(sAreaTableStore,                     "AreaTable.dbc");
     LOAD_DBC(sAnimKitStore,                       "AnimKit.dbc");//15595
@@ -513,7 +513,7 @@ void DBCManager::LoadStores(const std::string& dataPath)
 
 #undef LOAD_DBC
 
-#define LOAD_DBC_EXT(store, file, dbformat, dbpk) LoadDBC(availableDbcLocales, bad_dbc_files, store, dbcPath, file, dbformat, dbpk)
+#define LOAD_DBC_EXT(store, file, dbformat, dbpk) LoadDBC(availableDbcLocales, bad_dbc_files, store, dbcPath, file, defaultLocale, dbformat, dbpk)
 
     LOAD_DBC_EXT(sAchievementStore,     "Achievement.dbc",     CustomAchievementfmt,      CustomAchievementIndex);//15595
     LOAD_DBC_EXT(sSpellStore,           "Spell.dbc",           CustomSpellEntryfmt,       CustomSpellEntryIndex);//
@@ -779,7 +779,7 @@ void DBCManager::LoadStores(const std::string& dataPath)
     // error checks
     if (bad_dbc_files.size() >= DBCFileCount)
     {
-        TC_LOG_ERROR("misc", "Incorrect DataDir value in worldserver.conf or ALL required *.dbc files (%d) not found by path: %sdbc", DBCFileCount, dataPath.c_str());
+        TC_LOG_ERROR("misc", "Incorrect DataDir value in worldserver.conf or ALL required *.dbc files (%d) not found by path: %sdbc/%s", DBCFileCount, dataPath.c_str(), localeNames[defaultLocale]);
         exit(1);
     }
     else if (!bad_dbc_files.empty())

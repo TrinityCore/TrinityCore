@@ -92,6 +92,7 @@ enum LocaleConstant : uint8
     LOCALE_ruRU = 8,
     LOCALE_NONE = 9,
     LOCALE_ptBR = 10,
+    LOCALE_itIT = 11,
 
     TOTAL_LOCALES
 };
