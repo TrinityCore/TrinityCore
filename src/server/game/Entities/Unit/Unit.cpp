@@ -9998,8 +9998,8 @@ void Unit::ProcSkillsAndReactives(bool isVictim, Unit* procTarget, uint32 typeMa
         // only when you are not fighting other players or their pets/totems (pvp)
         if (GetTypeId() == TYPEID_PLAYER &&
                 procTarget->GetTypeId() != TYPEID_PLAYER &&
-                !(procTarget->IsTotem() && procTarget->ToTotem()->GetOwner()->GetControllingPlayer()) &&
-                !(procTarget->IsPet() && procTarget->ToPet()->GetOwner())
+                !(procTarget->IsTotem() && procTarget->ToTotem()->GetOwner()->IsPlayer()) &&
+                !procTarget->IsPet()
            )
         {
             // On melee based hit/miss/resist need update skill (for victim and attacker)
