@@ -125,7 +125,7 @@ void AddSC_moonglade();
 void AddSC_mulgore();
 void AddSC_orgrimmar();
 void AddSC_silithus();
-void AddSC_stonetalon_mountains();
+// void AddSC_stonetalon_mountains();
 void AddSC_tanaris();
 void AddSC_the_barrens();
 void AddSC_thousand_needles();
@@ -238,7 +238,7 @@ void AddKalimdorScripts()
     AddSC_mulgore();
     AddSC_orgrimmar();
     AddSC_silithus();
-    AddSC_stonetalon_mountains();
+    // AddSC_stonetalon_mountains();
     AddSC_tanaris();
     AddSC_the_barrens();
     AddSC_thousand_needles();
