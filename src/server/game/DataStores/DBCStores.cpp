@@ -401,8 +401,8 @@ void LoadDBCStores(const std::string& dataPath)
 #undef LOAD_DBC_EXT
 
     for (CharacterFacialHairStylesEntry const* entry : sCharacterFacialHairStylesStore)
-        if (entry->Race && ((1 << (entry->Race - 1)) & RACEMASK_ALL_PLAYABLE) != 0) // ignore nonplayable races
-            sCharFacialHairMap.insert({ entry->Race | (entry->Gender << 8) | (entry->Variation << 16), entry });
+        if (entry->RaceID && ((1 << (entry->RaceID - 1)) & RACEMASK_ALL_PLAYABLE) != 0) // ignore nonplayable races
+            sCharFacialHairMap.insert({ entry->RaceID | (entry->SexID << 8) | (entry->VariationID << 16), entry });
 
     for (CharSectionsEntry const* entry : sCharSectionsStore)
         if (entry->Race && ((1 << (entry->Race - 1)) & RACEMASK_ALL_PLAYABLE) != 0) // ignore nonplayable races

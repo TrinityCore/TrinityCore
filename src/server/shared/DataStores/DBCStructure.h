@@ -308,10 +308,10 @@ struct BattlemasterListEntry
 
 struct CharacterFacialHairStylesEntry
 {
-    uint32 Race;
-    uint32 Gender;
-    uint32 Variation;
-    // uint32 Geoset[5];
+    uint32 RaceID;                                          // 0
+    uint32 SexID;                                           // 1
+    uint32 VariationID;                                     // 2
+    //uint32 Geoset[5];                                     // 3-7
 };
 
 enum CharSectionFlags
