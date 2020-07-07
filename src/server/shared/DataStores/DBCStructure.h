@@ -359,13 +359,13 @@ struct CharStartOutfitEntry
 
 struct CharTitlesEntry
 {
-    uint32  ID;                                             // 0, title ids, for example in Quest::GetCharTitleId()
-    //uint32      unk1;                                     // 1 flags?
-    char*   nameMale[16];                                   // 2-17
-                                                            // 18 string flag, unused
-    char*   nameFemale[16];                                 // 19-34
-                                                            // 35 string flag, unused
-    uint32  bit_index;                                      // 36 used in PLAYER_CHOSEN_TITLE and 1<<index in PLAYER__FIELD_KNOWN_TITLES
+    uint32 ID;                                              // 0, title ids, for example in Quest::GetCharTitleId()
+    //uint32 ConditionID;                                   // 1
+    char* Name[16];                                         // 2-17 male
+    //uint32 Name_lang_mask;                                // 18
+    char* Name1[16];                                        // 19-34 female
+    //uint32 Name1_lang_mask;                               // 35
+    uint32 MaskID;                                          // 36 used in PLAYER_CHOSEN_TITLE and 1<<index in PLAYER__FIELD_KNOWN_TITLES
 };
 
 struct ChatChannelsEntry

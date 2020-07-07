@@ -1267,7 +1267,7 @@ public:
             {
                 /// @todo: implement female support
                 uint8 locale = handler->GetSessionDbcLocale();
-                std::string name = titleInfo->nameMale[locale];
+                std::string name = titleInfo->Name[locale];
                 if (name.empty())
                     continue;
 
@@ -1279,7 +1279,7 @@ public:
                         if (locale == handler->GetSessionDbcLocale())
                             continue;
 
-                        name = titleInfo->nameMale[locale];
+                        name = titleInfo->Name[locale];
                         if (name.empty())
                             continue;
 
@@ -1298,7 +1298,7 @@ public:
 
                     char const* knownStr = target && target->HasTitle(titleInfo) ? handler->GetTrinityString(LANG_KNOWN) : "";
 
-                    char const* activeStr = target && target->GetUInt32Value(PLAYER_CHOSEN_TITLE) == titleInfo->bit_index
+                    char const* activeStr = target && target->GetUInt32Value(PLAYER_CHOSEN_TITLE) == titleInfo->MaskID
                         ? handler->GetTrinityString(LANG_ACTIVE)
                         : "";
 
@@ -1307,9 +1307,9 @@ public:
 
                     // send title in "id (idx:idx) - [namedlink locale]" format
                     if (handler->GetSession())
-                        handler->PSendSysMessage(LANG_TITLE_LIST_CHAT, id, titleInfo->bit_index, id, titleNameStr, localeNames[locale], knownStr, activeStr);
+                        handler->PSendSysMessage(LANG_TITLE_LIST_CHAT, id, titleInfo->MaskID, id, titleNameStr, localeNames[locale], knownStr, activeStr);
                     else
-                        handler->PSendSysMessage(LANG_TITLE_LIST_CONSOLE, id, titleInfo->bit_index, titleNameStr, localeNames[locale], knownStr, activeStr);
+                        handler->PSendSysMessage(LANG_TITLE_LIST_CONSOLE, id, titleInfo->MaskID, titleNameStr, localeNames[locale], knownStr, activeStr);
 
                     ++counter;
                 }
