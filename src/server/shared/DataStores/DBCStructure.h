@@ -459,20 +459,20 @@ struct CinematicSequencesEntry
 
 struct CreatureDisplayInfoEntry
 {
-    uint32      Displayid;                                  // 0        m_ID
-    uint32      ModelId;                                    // 1        m_modelID
-                                                            // 2        m_soundID
-    uint32      ExtraId;                                    // 3        m_extendedDisplayInfoID
-    float       scale;                                      // 4        m_creatureModelScale
-                                                            // 5        m_creatureModelAlpha
-                                                            // 6-8      m_textureVariation[3]
-                                                            // 9        m_portraitTextureName
-                                                            // 10       m_sizeClass
-                                                            // 11       m_bloodID
-                                                            // 12       m_NPCSoundID
-                                                            // 13       m_particleColorID
-                                                            // 14       m_creatureGeosetData
-                                                            // 15       m_objectEffectPackageID
+    uint32 ID;                                              // 0
+    uint32 ModelID;                                         // 1
+    //uint32 SoundID;                                       // 2
+    uint32 ExtendedDisplayInfoID;                           // 3
+    float CreatureModelScale;                               // 4
+    //uint32 CreatureModelAlpha;                            // 5
+    //char* TextureVariation[3];                            // 6-8
+    //char* PortraitTextureName;                            // 9
+    //uint32 SizeClass;                                     // 10
+    //uint32 BloodID;                                       // 11
+    //uint32 NPCSoundID;                                    // 12
+    //uint32 ParticleColorID;                               // 13
+    //uint32 CreatureGeosetData;                            // 14
+    //uint32 ObjectEffectPackageID;                         // 15
 };
 
 struct CreatureDisplayInfoExtraEntry
