@@ -405,8 +405,8 @@ void LoadDBCStores(const std::string& dataPath)
             sCharFacialHairMap.insert({ entry->RaceID | (entry->SexID << 8) | (entry->VariationID << 16), entry });
 
     for (CharSectionsEntry const* entry : sCharSectionsStore)
-        if (entry->Race && ((1 << (entry->Race - 1)) & RACEMASK_ALL_PLAYABLE) != 0) // ignore nonplayable races
-            sCharSectionMap.insert({ entry->GenType | (entry->Gender << 8) | (entry->Race << 16), entry });
+        if (entry->RaceID && ((1 << (entry->RaceID - 1)) & RACEMASK_ALL_PLAYABLE) != 0) // ignore nonplayable races
+            sCharSectionMap.insert({ entry->BaseSection | (entry->SexID << 8) | (entry->RaceID << 16), entry });
 
     for (CharStartOutfitEntry const* outfit : sCharStartOutfitStore)
         sCharStartOutfitMap[outfit->Race | (outfit->Class << 8) | (outfit->Gender << 16)] = outfit;
@@ -879,7 +879,7 @@ CharSectionsEntry const* GetCharSectionEntry(uint8 race, CharSectionType genType
     uint32 const key = uint32(genType) | uint32(gender << 8) | uint32(race << 16);
     for (auto const& section : Trinity::Containers::MapEqualRange(sCharSectionMap, key))
     {
-        if (section.second->Type == type && section.second->Color == color)
+        if (section.second->VariationIndex == type && section.second->ColorIndex == color)
             return section.second;
     }
 
