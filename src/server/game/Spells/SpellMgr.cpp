@@ -2305,7 +2305,7 @@ void SpellMgr::LoadPetDefaultSpells()
         int32 petSpellsId = -int32(creatureTemplatePair.second.PetSpellDataId);
         PetDefaultSpellsEntry petDefSpells;
         for (uint8 j = 0; j < MAX_CREATURE_SPELL_DATA_SLOT; ++j)
-            petDefSpells.spellid[j] = spellDataEntry->spellId[j];
+            petDefSpells.spellid[j] = spellDataEntry->Spells[j];
 
         if (LoadPetDefaultSpells_helper(&creatureTemplatePair.second, petDefSpells))
         {
