@@ -25,28 +25,28 @@
 #include <set>
 #include <map>
 
-// Structures using to access raw DBC data and required packing to portability
+// Structures used to access raw DBC data require packing for portability
 #pragma pack(push, 1)
 
 struct AchievementEntry
 {
-    uint32 ID;
-    int32 Faction;                                                  // -1=all, 0=horde, 1=alliance
-    int32 MapID;                                                    // -1 = none
-    //uint32 Supercedes;                                            // its Achievement parent (can`t start while parent uncomplete, use its Criteria if don`t have own, use its progress on begin)
-    char* Title[16];
-    //uint32 Title_flags;
-    //char* Description[16];
-    //uint32 Description_flags;
-    uint32 Category;
-    uint32 Points;
-    //uint32 UIOrder;
-    uint32 Flags;
-    //uint32  IconID;
-    //char* Reward[16];
-    //uint32 Reward_flags;
-    uint32 MinimumCriteria;                                         // need this count of completed criterias (own or referenced achievement criterias)
-    uint32 SharesCriteria;                                          // referenced achievement (counting of all completed criterias)
+    uint32 ID;                                              // 0
+    int32 Faction;                                          // 1 -1=all, 0=horde, 1=alliance
+    int32 InstanceID;                                       // 2 -1=none
+    //uint32 Supercedes;                                    // 3 its Achievement parent (can`t start while parent uncomplete, use its Criteria if don`t have own, use its progress on begin)
+    char* Title[16];                                        // 4-19
+    //uint32 Title_lang_mask;                               // 20
+    //char* Description[16];                                // 21-36
+    //uint32 Description_lang_mask;                         // 37
+    uint32 Category;                                        // 38
+    uint32 Points;                                          // 39 reward points
+    //uint32 UiOrder;                                       // 40 icon (from SpellIcon.dbc)
+    uint32 Flags;                                           // 41
+    //uint32 IconID;                                        // 42
+    //char* Reward[16];                                     // 43-58
+    //uint32 Reward_lang_mask;                              // 59
+    uint32 MinimumCriteria;                                 // 60 - need this count of completed criterias (own or referenced achievement criterias)
+    uint32 SharesCriteria;                                  // 61 - referenced achievement (counting of all completed criterias)
 };
 
 struct AchievementCriteriaEntry
