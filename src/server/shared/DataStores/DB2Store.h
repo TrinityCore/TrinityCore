@@ -92,11 +92,12 @@ public:
                     break;
                 case FT_STRING:
                 {
+                    uint32 selectedLocale = locale;
                     LocalizedString* locStr = *(LocalizedString**)entry;
-                    if (locStr->Str[locale][0] == '\0')
-                        locale = 0;
+                    if (locStr->Str[selectedLocale][0] == '\0')
+                        selectedLocale = 0;
 
-                    char const* str = locStr->Str[locale];
+                    char const* str = locStr->Str[selectedLocale];
                     std::size_t len = strlen(str);
                     buffer << uint16(len ? len : 0);
                     if (len)
