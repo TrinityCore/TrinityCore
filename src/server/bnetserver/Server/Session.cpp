@@ -506,9 +506,7 @@ void Battlenet::Session::HandleJoinRequestV2(WoWRealm::JoinRequestV2 const& join
     stmt->setString(4, _gameAccountInfo->Name);
     LoginDatabase.DirectExecute(stmt);
 
-    joinResponse->IPv4.emplace_back(*realm->ExternalAddress, realm->Port);
-    if (*realm->ExternalAddress != *realm->LocalAddress)
-        joinResponse->IPv4.emplace_back(*realm->LocalAddress, realm->Port);
+    joinResponse->IPv4.push_back(realm->GetAddressForClient(GetRemoteIpAddress()));
 
     AsyncWrite(joinResponse);
 }
