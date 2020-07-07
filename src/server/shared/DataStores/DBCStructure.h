@@ -555,19 +555,19 @@ enum CreatureTypeEntryFlags
 
 struct CreatureTypeEntry
 {
-    uint32    ID;                                           // 0        m_ID
-    //char*   Name[16];                                     // 1-16     name
-                                                            // 17       string flags
-    //uint32  Flags;                                        // 18 Critters, non-combat pets, gas cloud. (called Flags in struct)
+    uint32 ID;                                              // 0
+    //char* Name[16];                                       // 1-16
+    //uint32 Name_lang_mask;                                // 17
+    //uint32 Flags;                                         // 18
 };
 
 /* not used
 struct CurrencyCategoryEntry
 {
-    uint32    ID;                                           // 0
-    uint32    Unk1;                                         // 1        0 for known categories and 3 for unknown one (3.0.9)
-    char*   Name[16];                                       // 2-17     name
-    //                                                      // 18       string flags
+    uint32 ID;                                              // 0
+    uint32 Flags;                                           // 1
+    char* Name[16];                                         // 2-17
+    uint32 Name_lang_mask;                                  // 18
 };
 */
 
