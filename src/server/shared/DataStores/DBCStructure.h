@@ -225,20 +225,20 @@ struct AreaGroupEntry
 
 struct AreaPOIEntry
 {
-    uint32 id;              //0
-    uint32 icon[11];        //1-11
-    float x;                //12
-    float y;                //13
-    float z;                //14
-    uint32 mapId;           //15
-    //uint32 val1;          //16
-    uint32 zoneId;          //17
-    //char* name[16];       //18-33
-    //uint32 name_flag;     //34
-    //char* name2[16];      //35-50
-    //uint32 name_flag2;    //51
-    uint32 worldState;      //52
-    //uint32 val2;          //53
+    uint32 ID;                                              // 0
+    uint32 Importance;                                      // 1
+    uint32 Icon[9];                                         // 2-10
+    uint32 FactionID;                                       // 11
+    DBCPosition3D Pos;                                      // 12-14
+    uint32 ContinentID;                                     // 15
+    //uint32 Flags;                                         // 16
+    uint32 AreaID;                                          // 17
+    //char* Name[16];                                       // 18-33
+    //uint32 Name_lang_mask;                                // 34
+    //char* Description[16];                                // 35-50
+    //uint32 Description_lang_mask;                         // 51
+    uint32 WorldStateID;                                    // 52
+    //uint32 WorldMapLink;                                  // 53
 };
 
 struct AreaTriggerEntry
