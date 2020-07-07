@@ -513,26 +513,32 @@ enum CreatureModelDataFlags
 
 struct CreatureModelDataEntry
 {
-    uint32 Id;
-    uint32 Flags;
-    char* ModelPath;
-    //uint32 Unk1;
-    float Scale;                                             // Used in calculation of unit collision data
-    //int32 Unk2
-    //int32 Unk3
-    //uint32 Unk4
-    //uint32 Unk5
-    //float Unk6
-    //uint32 Unk7
-    //float Unk8
-    //uint32 Unk9
-    //uint32 Unk10
-    //float CollisionWidth;
-    float CollisionHeight;
-    float MountHeight;                                       // Used in calculation of unit collision data when mounted
-    //float Unks[11]
+    uint32 ID;                                              // 0
+    uint32 Flags;                                           // 1
+    char* ModelName;                                        // 2
+    //uint32 SizeClass;                                     // 3
+    float ModelScale;                                       // 4 Used in calculation of unit collision data
+    //int32 BloodID;                                        // 5
+    //int32 FootprintTextureID;                             // 6
+    //uint32 FootprintTextureLength;                        // 7
+    //uint32 FootprintTextureWidth;                         // 8
+    //float FootprintParticleScale;                         // 9
+    //uint32 FoleyMaterialID;                               // 10
+    //float FootstepShakeSize;                              // 11
+    //uint32 DeathThudShakeSize;                            // 12
+    //uint32 SoundID;                                       // 13
+    //float CollisionWidth;                                 // 14
+    float CollisionHeight;                                  // 15
+    float MountHeight;                                      // 16 Used in calculation of unit collision data when mounted
+    //float GeoBoxMin[3];                                   // 17-19
+    //float GeoBoxMax[3];                                   // 20-22
+    //float WorldEffectScale;                               // 23
+    //float AttachedEffectScale;                            // 24
+    //float MissileCollisionRadius;                         // 25
+    //float MissileCollisionPush;                           // 26
+    //float MissileCollisionRaise;                          // 27
 
-    inline bool HasFlag(CreatureModelDataFlags flag) const { return !!(Flags & flag); }
+    inline bool HasFlag(CreatureModelDataFlags flag) const { return (Flags & flag) != 0; }
 };
 
 struct CreatureSpellDataEntry
