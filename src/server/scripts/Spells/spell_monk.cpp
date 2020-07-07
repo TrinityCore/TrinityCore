@@ -39,6 +39,11 @@ enum MonkSpells
     SPELL_MONK_SOOTHING_MIST                            = 115175,
     SPELL_MONK_STANCE_OF_THE_SPIRITED_CRANE             = 154436,
     SPELL_MONK_SURGING_MIST_HEAL                        = 116995,
+    SPELL_MONK_ROLL                                     = 109132,
+    SPELL_MONK_ROLL_TRIGGER                             = 107427,
+    SPELL_MONK_ITEM_PVP_GLOVES_BONUS                    = 124489,
+    SPELL_MONK_DISABLE                                  = 116095,
+    SPELL_MONK_DISABLE_ROOT                             = 116706,
 };
 
 // 117952 - Crackling Jade Lightning
@@ -159,9 +164,63 @@ class spell_monk_provoke : public SpellScript
     }
 };
 
+// Roll - 109132 or Roll (3 charges) - 121827
+class spell_monk_roll : public SpellScriptLoader
+{
+  public:
+    spell_monk_roll() : SpellScriptLoader("spell_monk_roll") { }
+
+    class spell_monk_roll_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_monk_roll_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return ValidateSpellInfo({ SPELL_MONK_ROLL });
+        }
+
+        void HandleBeforeCast()
+        {
+            Aura* aur = GetCaster()->AddAura(SPELL_MONK_ROLL_TRIGGER, GetCaster());
+            if (!aur)
+                return;
+
+            AuraApplication* app = aur->GetApplicationOfTarget(GetCaster()->GetGUID());
+            if (!app)
+                return;
+
+            app->ClientUpdate();
+        }
+
+        void HandleAfterCast()
+        {
+            Unit* caster = GetCaster();
+            if (!caster || caster->GetTypeId() != TYPEID_PLAYER)
+                return;
+
+            caster->CastSpell(caster, SPELL_MONK_ROLL_TRIGGER, true);
+
+            if (caster->HasAura(SPELL_MONK_ITEM_PVP_GLOVES_BONUS))
+                caster->RemoveAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
+        }
+
+        void Register() override
+        {
+            BeforeCast += SpellCastFn(spell_monk_roll_SpellScript::HandleBeforeCast);
+            AfterCast += SpellCastFn(spell_monk_roll_SpellScript::HandleAfterCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_monk_roll_SpellScript();
+    }
+};
+
 void AddSC_monk_spell_scripts()
 {
     RegisterAuraScript(spell_monk_crackling_jade_lightning);
     RegisterAuraScript(spell_monk_crackling_jade_lightning_knockback_proc_aura);
     RegisterSpellScript(spell_monk_provoke);
+    new spell_monk_roll();
 }
