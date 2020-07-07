@@ -492,18 +492,18 @@ struct CreatureDisplayInfoExtraEntry
 
 struct CreatureFamilyEntry
 {
-    uint32  ID;                                             // 0        m_ID
-    float   minScale;                                       // 1        m_minScale
-    uint32  minScaleLevel;                                  // 2        m_minScaleLevel
-    float   maxScale;                                       // 3        m_maxScale
-    uint32  maxScaleLevel;                                  // 4        m_maxScaleLevel
-    uint32  skillLine[2];                                   // 5-6      m_skillLine
-    uint32  petFoodMask;                                    // 7        m_petFoodMask
-    int32   petTalentType;                                  // 8        m_petTalentType
-                                                            // 9        m_categoryEnumID
-    char*   Name[16];                                       // 10-25    m_name_lang
-                                                            // 26 string flags
-                                                            // 27       m_iconFile
+    uint32 ID;                                              // 0
+    float MinScale;                                         // 1
+    uint32 MinScaleLevel;                                   // 2
+    float MaxScale;                                         // 3
+    uint32 MaxScaleLevel;                                   // 4
+    uint32 SkillLine[2];                                    // 5-6
+    uint32 PetFoodMask;                                     // 7
+    int32 PetTalentType;                                    // 8
+    //int32 CategoryEnumID;                                 // 9
+    char* Name[16];                                         // 10-25
+    //uint32 Name_lang_mask;                                // 26
+    //char* IconFile;                                       // 27
 };
 
 enum CreatureModelDataFlags

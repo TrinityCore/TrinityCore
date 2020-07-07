@@ -481,7 +481,7 @@ void LoadDBCStores(const std::string& dataPath)
         {
             for (CreatureFamilyEntry const* cFamily : sCreatureFamilyStore)
             {
-                if (skillLine->skillId != cFamily->skillLine[0] && skillLine->skillId != cFamily->skillLine[1])
+                if (skillLine->skillId != cFamily->SkillLine[0] && skillLine->skillId != cFamily->SkillLine[1])
                     continue;
                 if (spellInfo->spellLevel)
                     continue;

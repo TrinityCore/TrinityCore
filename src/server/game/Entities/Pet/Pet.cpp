@@ -1077,7 +1077,7 @@ bool Pet::HaveInDiet(ItemTemplate const* item) const
     if (!cFamily)
         return false;
 
-    uint32 diet = cFamily->petFoodMask;
+    uint32 diet = cFamily->PetFoodMask;
     uint32 FoodMask = 1 << (item->FoodType-1);
     return (diet & FoodMask) != 0;
 }
@@ -1605,7 +1605,7 @@ bool Pet::resetTalents()
         return false;
     // Check pet talent type
     CreatureFamilyEntry const* pet_family = sCreatureFamilyStore.LookupEntry(ci->family);
-    if (!pet_family || pet_family->petTalentType < 0)
+    if (!pet_family || pet_family->PetTalentType < 0)
         return false;
 
     uint8 level = GetLevel();
@@ -1630,7 +1630,7 @@ bool Pet::resetTalents()
             continue;
 
         // unlearn only talents for pets family talent type
-        if (!((1 << pet_family->petTalentType) & talentTabInfo->petTalentMask))
+        if (!((1 << pet_family->PetTalentType) & talentTabInfo->petTalentMask))
             continue;
 
         for (uint8 j = 0; j < MAX_TALENT_RANK; ++j)
@@ -1964,15 +1964,15 @@ Player* Pet::GetOwner() const
 float Pet::GetNativeObjectScale() const
 {
     CreatureFamilyEntry const* creatureFamily = sCreatureFamilyStore.LookupEntry(GetCreatureTemplate()->family);
-    if (creatureFamily && creatureFamily->minScale > 0.0f && getPetType() == HUNTER_PET)
+    if (creatureFamily && creatureFamily->MinScale > 0.0f && getPetType() == HUNTER_PET)
     {
         float scale;
-        if (GetLevel() >= creatureFamily->maxScaleLevel)
-            scale = creatureFamily->maxScale;
-        else if (GetLevel() <= creatureFamily->minScaleLevel)
-            scale = creatureFamily->minScale;
+        if (GetLevel() >= creatureFamily->MaxScaleLevel)
+            scale = creatureFamily->MaxScale;
+        else if (GetLevel() <= creatureFamily->MinScaleLevel)
+            scale = creatureFamily->MinScale;
         else
-            scale = creatureFamily->minScale + float(GetLevel() - creatureFamily->minScaleLevel) / creatureFamily->maxScaleLevel * (creatureFamily->maxScale - creatureFamily->minScale);
+            scale = creatureFamily->MinScale + float(GetLevel() - creatureFamily->MinScaleLevel) / creatureFamily->MaxScaleLevel * (creatureFamily->MaxScale - creatureFamily->MinScale);
 
         return scale;
     }
