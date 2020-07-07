@@ -4076,7 +4076,7 @@ SpellInfo const* SpellInfo::GetAuraRankForLevel(uint8 level) const
     bool needRankSelection = false;
     for (SpellEffectInfo const* effect : _effects)
     {
-        if (effect && IsPositiveEffect(effect->Effect) &&
+        if (effect && IsPositiveEffect(effect->EffectIndex) &&
             (effect->Effect == SPELL_EFFECT_APPLY_AURA ||
             effect->Effect == SPELL_EFFECT_APPLY_AREA_AURA_PARTY ||
             effect->Effect == SPELL_EFFECT_APPLY_AREA_AURA_RAID) &&

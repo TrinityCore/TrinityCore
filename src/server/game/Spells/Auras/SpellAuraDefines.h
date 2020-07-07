@@ -393,7 +393,7 @@ enum AuraType : uint32
     SPELL_AURA_MOD_NO_ACTIONS                               = 321,
     SPELL_AURA_INTERFERE_TARGETTING                         = 322,
     SPELL_AURA_323                                          = 323,  // Not used in 4.3.4
-    SPELL_AURA_324                                          = 324,  // spell critical chance (probably by school mask)
+    SPELL_AURA_OVERRIDE_UNLOCKED_AZERITE_ESSENCE_RANK       = 324,  // testing aura
     SPELL_AURA_LEARN_PVP_TALENT                             = 325,  // NYI
     SPELL_AURA_PHASE_GROUP                                  = 326,  // Puts the player in all the phases that are in the group with id = miscB
     SPELL_AURA_327                                          = 327,  // Not used in 4.3.4
@@ -549,7 +549,7 @@ enum AuraType : uint32
     SPELL_AURA_477                                          = 477,
     SPELL_AURA_478                                          = 478,
     SPELL_AURA_479                                          = 479,
-    SPELL_AURA_480                                          = 480,
+    SPELL_AURA_MOD_ARTIFACT_ITEM_LEVEL                      = 480,
     SPELL_AURA_CONVERT_CONSUMED_RUNE                        = 481,
     SPELL_AURA_482                                          = 482,
     SPELL_AURA_SUPPRESS_TRANSFORMS                          = 483,  // NYI
