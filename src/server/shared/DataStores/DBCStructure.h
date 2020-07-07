@@ -265,8 +265,8 @@ struct AuctionHouseEntry
 
 struct BankBagSlotPricesEntry
 {
-    uint32  ID;
-    uint32  price;
+    uint32 ID;                                              // 0
+    uint32 Cost;                                            // 1
 };
 
 struct BannedAddOnsEntry
