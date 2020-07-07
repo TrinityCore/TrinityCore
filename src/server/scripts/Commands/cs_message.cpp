@@ -82,7 +82,7 @@ public:
             if (!entry)
                 continue;
 
-            if (strstr(entry->pattern[handler->GetSessionDbcLocale()], channelStr))
+            if (strstr(entry->Name[handler->GetSessionDbcLocale()], channelStr))
             {
                 channelId = i;
                 break;

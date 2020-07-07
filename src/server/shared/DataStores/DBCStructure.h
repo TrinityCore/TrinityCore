@@ -370,12 +370,13 @@ struct CharTitlesEntry
 
 struct ChatChannelsEntry
 {
-    uint32  ChannelID;                                      // 0
-    uint32  flags;                                          // 1
-    char*   pattern[16];                                    // 3-18
-                                                            // 19 string flags, unused
-    //char*       name[16];                                 // 20-35 unused
-                                                            // 36 string flag, unused
+    uint32 ID;                                              // 0
+    uint32 Flags;                                           // 1
+    //uint32 FactionGroup;                                  // 2
+    char* Name[16];                                         // 3-18
+    //uint32 Name_lang_mask;                                // 19
+    //char* Shortcut[16];                                   // 20-35
+    //uint32 Shortcut_lang_mask;                            // 36
 };
 
 struct ChrClassesEntry
