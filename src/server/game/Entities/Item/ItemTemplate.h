@@ -559,16 +559,6 @@ const uint32 MaxItemSubclassValues[MAX_ITEM_CLASS] =
     MAX_ITEM_SUBCLASS_GLYPH
 };
 
-inline uint8 ItemSubClassToDurabilityMultiplierId(uint32 ItemClass, uint32 ItemSubClass)
-{
-    switch (ItemClass)
-    {
-        case ITEM_CLASS_WEAPON: return ItemSubClass;
-        case ITEM_CLASS_ARMOR:  return ItemSubClass + 21;
-    }
-    return 0;
-}
-
 #pragma pack(push, 1)
 
 struct _Damage

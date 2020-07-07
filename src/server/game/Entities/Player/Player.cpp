@@ -4936,7 +4936,17 @@ uint32 Player::DurabilityRepair(uint16 pos, bool cost, float discountMod, bool g
                 return TotalCost;
             }
 
-            uint32 dmultiplier = dcost->multiplier[ItemSubClassToDurabilityMultiplierId(ditemProto->Class, ditemProto->SubClass)];
+            uint32 dmultiplier;
+            switch (ditemProto->Class)
+            {
+                case ITEM_CLASS_WEAPON:
+                    dmultiplier = dcost->WeaponSubClassCost[ditemProto->SubClass];
+                case ITEM_CLASS_ARMOR:
+                    dmultiplier = dcost->ArmorSubClassCost[ditemProto->SubClass];
+                default:
+                    dmultiplier = 0;
+            }
+
             uint32 costs = uint32(LostDurability*dmultiplier*double(dQualitymodEntry->quality_mod));
 
             costs = uint32(costs * discountMod * sWorld->getRate(RATE_REPAIRCOST));
