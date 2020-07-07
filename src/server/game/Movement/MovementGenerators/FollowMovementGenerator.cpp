@@ -93,10 +93,10 @@ static void ApplyCatchUpMod(Unit* owner, Position dest, float& velocity)
 {
     float distance = owner->GetExactDist2d(dest);
 
-    if (dest.HasInArc(float(M_PI), owner)) // owner is beyond default destination. throttle speed.
-        AddPct(velocity, -((distance / velocity) * 100.f));
-    else // owner is behind destination, catch up.
+    if (!dest.HasInArc(float(M_PI), owner)) // owner is falling back. Catch up
         AddPct(velocity, ((distance / velocity) * 100.f));
+    else if (distance < 3.f)
+        AddPct(velocity, -((distance / velocity) * 100.f));
 }
 
 static void DoMovementInform(Unit* owner, Unit* target)
