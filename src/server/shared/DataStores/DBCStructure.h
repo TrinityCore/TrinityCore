@@ -623,8 +623,8 @@ struct DurabilityCostsEntry
 
 struct DurabilityQualityEntry
 {
-    uint32    Id;                                           // 0
-    float     quality_mod;                                  // 1
+    uint32 ID;                                              // 0
+    float Data;                                             // 1
 };
 
 struct EmotesEntry
