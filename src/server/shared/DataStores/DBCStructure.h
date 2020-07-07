@@ -414,29 +414,31 @@ enum ChrRacesFlags
 
 struct ChrRacesEntry
 {
-    uint32      RaceID;                                     // 0
-    uint32      Flags;                                      // 1
-    uint32      FactionID;                                  // 2 facton template id
-                                                            // 3 unused
-    uint32      model_m;                                    // 4
-    uint32      model_f;                                    // 5
-                                                            // 6 unused
-    uint32      TeamID;                                     // 7 (7-Alliance 1-Horde)
-    uint32      CreatureType;                               // 8 Blizzlike Always 7 (humanoid).
-    uint32      ResSicknessSpellID;                         // 9 Blizzlike DBC always 15007.
-                                                            // 10-11 unused
-    uint32      CinematicSequence;                          // 12 id from CinematicSequences.dbc
-    uint32      Alliance;                                   // 13 faction (0 alliance, 1 horde, 2 not available?)
-    char*       name[16];                                   // 14-29 used for DBC language detection/selection
-                                                            // 30 string flags, unused
-    //char*       nameFemale[16];                           // 31-46, if different from base (male) case
-                                                            // 47 string flags, unused
-    //char*       nameNeutralGender[16];                    // 48-63, if different from base (male) case
-                                                            // 64 string flags, unused
-                                                            // 65-67 unused
-    uint32      expansion;                                  // 68 (0 - original race, 1 - tbc addon, ...)
+    uint32 ID;                                              // 0
+    uint32 Flags;                                           // 1
+    uint32 FactionID;                                       // 2
+    //uint32 ExplorationSoundID;                            // 3
+    uint32 MaleDisplayID;                                   // 4
+    uint32 FemaleDisplayID;                                 // 5
+    //char* ClientPrefix;                                   // 6
+    uint32 BaseLanguage;                                    // 7 (7-Alliance 1-Horde)
+    uint32 CreatureType;                                    // 8
+    uint32 ResSicknessSpellID;                              // 9
+    //uint32 SplashSoundID;                                 // 10
+    //char* ClientFileString;                               // 11
+    uint32 CinematicSequenceID;                             // 12 ID from CinematicSequences.dbc
+    uint32 Alliance;                                        // 13
+    char* Name[16];                                         // 14-29
+    //uint32 Name_lang_mask;                                // 30
+    //char* NameFemale[16];                                 // 31-46
+    //uint32 NameFemale_lang_mask;                          // 47
+    //char* NameMale[16];                                   // 48-63
+    //uint32 NameMale_lang_mask;                            // 64
+    //char* FacialHairCustomization[2];                     // 65-66
+    //char* HairCustomization;                              // 67
+    uint32 RequiredExpansion;                               // 68
 
-    inline bool HasFlag(ChrRacesFlags flag) const { return !!(Flags & flag); }
+    inline bool HasFlag(ChrRacesFlags flag) const { return (Flags & flag) != 0; }
 };
 
 struct CinematicCameraEntry

@@ -704,7 +704,7 @@ WMOAreaTableEntry const* GetWMOAreaTableEntryByTripple(int32 rootid, int32 adtid
 char const* GetRaceName(uint8 race, uint8 locale)
 {
     ChrRacesEntry const* raceEntry = sChrRacesStore.LookupEntry(race);
-    return raceEntry ? raceEntry->name[locale] : nullptr;
+    return raceEntry ? raceEntry->Name[locale] : nullptr;
 }
 
 char const* GetClassName(uint8 class_, uint8 locale)

@@ -324,9 +324,9 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
     }
 
     // prevent character creating Expansion race without Expansion account
-    if (raceEntry->expansion > Expansion())
+    if (raceEntry->RequiredExpansion > Expansion())
     {
-        TC_LOG_ERROR("entities.player.cheat", "Expansion %u account:[%d] tried to Create character with expansion %u race (%u)", Expansion(), GetAccountId(), raceEntry->expansion, createInfo->Race);
+        TC_LOG_ERROR("entities.player.cheat", "Expansion %u account:[%d] tried to Create character with expansion %u race (%u)", Expansion(), GetAccountId(), raceEntry->RequiredExpansion, createInfo->Race);
         SendCharCreate(CHAR_CREATE_EXPANSION);
         return;
     }
@@ -816,7 +816,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
             if (cEntry->CinematicSequenceID)
                 pCurrChar->SendCinematicStart(cEntry->CinematicSequenceID);
             else if (ChrRacesEntry const* rEntry = sChrRacesStore.LookupEntry(pCurrChar->GetRace()))
-                pCurrChar->SendCinematicStart(rEntry->CinematicSequence);
+                pCurrChar->SendCinematicStart(rEntry->CinematicSequenceID);
 
             // send new char string if not empty
             if (!sWorld->GetNewCharString().empty())
@@ -2224,6 +2224,6 @@ void WorldSession::HandleOpeningCinematic(WorldPackets::Misc::OpeningCinematic& 
         if (classEntry->CinematicSequenceID)
             _player->SendCinematicStart(classEntry->CinematicSequenceID);
         else if (ChrRacesEntry const* raceEntry = sChrRacesStore.LookupEntry(_player->GetRace()))
-            _player->SendCinematicStart(raceEntry->CinematicSequence);
+            _player->SendCinematicStart(raceEntry->CinematicSequenceID);
     }
 }
