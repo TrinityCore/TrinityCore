@@ -374,7 +374,6 @@ public:
         ItemTemplateContainer const* its = sObjectMgr->GetItemTemplateStore();
         for (ItemTemplateContainer::const_iterator itr = its->begin(); itr != its->end(); ++itr)
         {
-            printf("sessionlocale = %u\n", handler->GetSessionDbcLocale());
             std::string name = itr->second.GetName(handler->GetSessionDbcLocale());
             if (name.empty())
                 continue;
