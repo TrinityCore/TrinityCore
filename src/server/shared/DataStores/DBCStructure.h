@@ -604,14 +604,14 @@ struct DestructibleModelDataEntry
 
 struct DungeonEncounterEntry
 {
-    uint32 id;                                              // 0        unique id
-    uint32 mapId;                                           // 1        map id
-    uint32 difficulty;                                      // 2        instance mode
-    //uint32 unk0;                                          // 3
-    uint32 encounterIndex;                                  // 4        encounter index for creating completed mask
-    char*  encounterName[16];                               // 5-20     encounter name
-    //uint32 nameFlags;                                     // 21
-    //uint32 unk1;                                          // 22
+    uint32 ID;                                              // 0
+    uint32 MapID;                                           // 1
+    uint32 Difficulty;                                      // 2
+    //uint32 OrderIndex;                                    // 3
+    uint32 Bit;                                             // 4 encounter index for creating completed mask
+    char* Name[16];                                         // 5-20
+    //uint32 Name_lang_mask;                                // 21
+    //uint32 SpellIconID;                                   // 22
 };
 
 struct DurabilityCostsEntry
