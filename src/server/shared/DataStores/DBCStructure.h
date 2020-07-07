@@ -477,27 +477,17 @@ struct CreatureDisplayInfoEntry
 
 struct CreatureDisplayInfoExtraEntry
 {
-    //uint32 Id;                                            // 0
-    uint32 Race;                                            // 1
-    uint32 Gender;                                          // 2
-    //uint32 SkinColor;                                     // 3
-    //uint32 FaceType;                                      // 4
-    //uint32 HairType;                                      // 5
-    //uint32 HairStyle;                                     // 6
-    //uint32 FacialHair;                                    // 7
-    //uint32 HelmDisplayId;                                 // 8
-    //uint32 ShoulderDisplayId;                             // 9
-    //uint32 ShirtDisplayId;                                // 10
-    //uint32 ChestDisplayId;                                // 11
-    //uint32 BeltDisplayId;                                 // 12
-    //uint32 LegsDisplayId;                                 // 13
-    //uint32 BootsDisplayId;                                // 14
-    //uint32 WristDisplayId;                                // 15
-    //uint32 GlovesDisplayId;                               // 16
-    //uint32 TabardDisplayId;                               // 17
-    //uint32 CloakDisplayId;                                // 18
-    //uint32 CanEquip;                                      // 19
-    //char const* Texture;                                  // 20
+    //uint32 ID;                                            // 0
+    uint32 DisplayRaceID;                                   // 1
+    uint32 DisplaySexID;                                    // 2
+    //uint32 SkinID;                                        // 3
+    //uint32 FaceID;                                        // 4
+    //uint32 HairStyleID;                                   // 5
+    //uint32 HairColorID;                                   // 6
+    //uint32 FacialHairID;                                  // 7
+    //uint32 NPCItemDisplay[11];                            // 8-18
+    //uint32 Flags;                                         // 19
+    //char* BakeName;                                       // 20
 };
 
 struct CreatureFamilyEntry
