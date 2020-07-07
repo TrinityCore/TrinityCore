@@ -521,7 +521,7 @@ void AchievementMgr::ResetAchievementCriteria(AchievementCriteriaCondition condi
 
     for (AchievementCriteriaEntry const* achievementCriteria : *achievementCriteriaList)
     {
-        AchievementEntry const* achievement = sAchievementMgr->GetAchievement(achievementCriteria->ReferredAchievement);
+        AchievementEntry const* achievement = sAchievementMgr->GetAchievement(achievementCriteria->AchievementID);
         if (!achievement)
             continue;
 
@@ -771,7 +771,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
     AchievementCriteriaEntryList const& achievementCriteriaList = sAchievementMgr->GetAchievementCriteriaByType(type, miscValue1);
     for (AchievementCriteriaEntry const* achievementCriteria : achievementCriteriaList)
     {
-        AchievementEntry const* achievement = sAchievementMgr->GetAchievement(achievementCriteria->ReferredAchievement);
+        AchievementEntry const* achievement = sAchievementMgr->GetAchievement(achievementCriteria->AchievementID);
         if (!achievement)
             continue;
 
@@ -1215,18 +1215,18 @@ bool AchievementMgr::IsCompletedCriteria(AchievementCriteriaEntry const* achieve
         case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LINE:
         case ACHIEVEMENT_CRITERIA_TYPE_USE_LFD_TO_GROUP_WITH_PLAYERS:
         case ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS:
-            return progress->counter >= achievementCriteria->Amount;
+            return progress->counter >= achievementCriteria->Quantity;
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT:
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST:
         case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SPELL:
         case ACHIEVEMENT_CRITERIA_TYPE_EXPLORE_AREA:
             return progress->counter >= 1;
         case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LEVEL:
-            return progress->counter >= (achievementCriteria->Amount * 75);
+            return progress->counter >= (achievementCriteria->Quantity * 75);
         case ACHIEVEMENT_CRITERIA_TYPE_EARN_ACHIEVEMENT_POINTS:
             return progress->counter >= 9000;
         case ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA:
-            return achievementCriteria->Amount && progress->counter >= achievementCriteria->Amount;
+            return achievementCriteria->Quantity && progress->counter >= achievementCriteria->Quantity;
         case ACHIEVEMENT_CRITERIA_TYPE_ON_LOGIN:
             return true;
         // handle all statistic-only criteria here
@@ -1312,7 +1312,7 @@ bool AchievementMgr::IsCompletedAchievement(AchievementEntry const* entry)
             count += progress->counter;
 
             // for counters, field4 contains the main count requirement
-            if (count >= criteria->Amount)
+            if (count >= criteria->Quantity)
                 return true;
         }
         return false;
@@ -1408,7 +1408,7 @@ void AchievementMgr::SetCriteriaProgress(AchievementCriteriaEntry const* entry, 
     if (entry->StartTimer)
     {
         // has to exist, otherwise we wouldn't be here
-        timedCompleted = IsCompletedCriteria(entry, sAchievementMgr->GetAchievement(entry->ReferredAchievement));
+        timedCompleted = IsCompletedCriteria(entry, sAchievementMgr->GetAchievement(entry->AchievementID));
         // Client expects this in packet
         timeElapsed = entry->StartTimer - (timedIter->second/IN_MILLISECONDS);
 
@@ -1465,7 +1465,7 @@ void AchievementMgr::StartTimedAchievement(AchievementCriteriaTimedTypes type, u
         if (criteria->StartAsset != entry)
             continue;
 
-        AchievementEntry const* achievement = sAchievementMgr->GetAchievement(criteria->ReferredAchievement);
+        AchievementEntry const* achievement = sAchievementMgr->GetAchievement(criteria->AchievementID);
         if (m_timedAchievements.find(criteria->ID) == m_timedAchievements.end() && !IsCompletedCriteria(criteria, achievement))
         {
             // Start the timer
@@ -2325,7 +2325,7 @@ void AchievementGlobalMgr::LoadAchievementCriteriaList()
             criteria->Type + 1, ACHIEVEMENT_CRITERIA_TYPE_TOTAL);
 
         m_AchievementCriteriasByType[criteria->Type].push_back(criteria);
-        m_AchievementCriteriaListByAchievement[criteria->ReferredAchievement].push_back(criteria);
+        m_AchievementCriteriaListByAchievement[criteria->AchievementID].push_back(criteria);
         if (IsAchievementCriteriaTypeStoredByMiscValue(AchievementCriteriaTypes(criteria->Type)))
         {
             if (criteria->Type != ACHIEVEMENT_CRITERIA_TYPE_EXPLORE_AREA)
@@ -2495,7 +2495,7 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
                 break;
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST:
             {
-                AchievementEntry const* achievement = sAchievementMgr->GetAchievement(criteria->ReferredAchievement);
+                AchievementEntry const* achievement = sAchievementMgr->GetAchievement(criteria->AchievementID);
                 if (!achievement)
                     continue;
 
@@ -2510,21 +2510,21 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
                     continue;
                 break;
             case ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE:        // need skip generic cases
-                if (criteria->Amount == 0)
+                if (criteria->Quantity == 0)
                     continue;
                 break;
             case ACHIEVEMENT_CRITERIA_TYPE_WIN_DUEL:        // skip statistics
-                if (criteria->Amount == 0)
+                if (criteria->Quantity == 0)
                     continue;
                 break;
             case ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE:       // need skip generic cases
-                if (criteria->Amount != 1)
+                if (criteria->Quantity != 1)
                     continue;
                 break;
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DAILY_QUEST:
             case ACHIEVEMENT_CRITERIA_TYPE_USE_ITEM:        // only Children's Week achievements
             {
-                AchievementEntry const* achievement = sAchievementMgr->GetAchievement(criteria->ReferredAchievement);
+                AchievementEntry const* achievement = sAchievementMgr->GetAchievement(criteria->AchievementID);
                 if (!achievement)
                     continue;
                 if (achievement->Category != CATEGORY_CHILDRENS_WEEK && achievement->ID != 1785)
@@ -2536,7 +2536,7 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
         }
 
         if (!GetCriteriaDataSet(criteria) && !DisableMgr::IsDisabledFor(DISABLE_TYPE_ACHIEVEMENT_CRITERIA, entryId, nullptr))
-            TC_LOG_ERROR("sql.sql", "Table `achievement_criteria_data` does not contain expected data for criteria (Entry: %u Type: %u) for achievement %u.", criteria->ID, criteria->Type, criteria->ReferredAchievement);
+            TC_LOG_ERROR("sql.sql", "Table `achievement_criteria_data` does not contain expected data for criteria (Entry: %u Type: %u) for achievement %u.", criteria->ID, criteria->Type, criteria->AchievementID);
     }
 
     TC_LOG_INFO("server.loading", ">> Loaded %u additional achievement criteria data in %u ms", count, GetMSTimeDiffToNow(oldMSTime));

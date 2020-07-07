@@ -51,9 +51,9 @@ struct AchievementEntry
 
 struct AchievementCriteriaEntry
 {
-    uint32 ID;
-    uint32 ReferredAchievement;
-    uint32 Type;
+    uint32 ID;                                              // 0
+    uint32 AchievementID;                                   // 1
+    uint32 Type;                                            // 2
     union
     {
         uint32 ID;
@@ -154,23 +154,23 @@ struct AchievementCriteriaEntry
 
         // ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE              = 109
         uint32 LootType;
-    } Asset;
+    } Asset;                                                // 3
 
-    uint32 Amount;
+    uint32 Quantity;                                        // 4
 
     struct
     {
-        uint32  Type;
-        uint32  Asset;
-    } AdditionalRequirements[MAX_CRITERIA_REQUIREMENTS];
+        uint32 Type;
+        uint32 Asset;
+    } AdditionalRequirements[MAX_CRITERIA_REQUIREMENTS];    // 5-8
 
-    //char*  Description[16];
-    //uint32 Description_flags;
-    uint32 Flags;
-    uint32 StartEvent;
-    uint32 StartAsset;
-    uint32 StartTimer;
-    //uint32 OrderIndex;
+    //char* Description[16];                                // 9-24
+    //uint32 Description_lang_mask;                         // 25
+    uint32 Flags;                                           // 26
+    uint32 StartEvent;                                      // 27 AchievementCriteriaTimedTypes
+    uint32 StartAsset;                                      // 28 Always appears with timed events, used internally to start the achievement, store
+    uint32 StartTimer;                                      // 29 time limit in seconds
+    //uint32 UiOrder;                                       // 30
 };
 
 struct AreaTableEntry
