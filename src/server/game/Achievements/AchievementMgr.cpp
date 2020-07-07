@@ -1891,11 +1891,11 @@ bool AchievementMgr::RequirementsSatisfied(AchievementCriteriaEntry const* achie
                 if (!area)
                     break;
 
-                uint32 playerIndexOffset = uint32(area->exploreFlag) / 32;
+                uint32 playerIndexOffset = uint32(area->AreaBit) / 32;
                 if (playerIndexOffset >= PLAYER_EXPLORED_ZONES_SIZE)
                     continue;
 
-                uint32 mask = 1 << (uint32(area->exploreFlag) % 32);
+                uint32 mask = 1 << (uint32(area->AreaBit) % 32);
                 if (GetPlayer()->GetUInt32Value(PLAYER_EXPLORED_ZONES_1 + playerIndexOffset) & mask)
                 {
                     matchFound = true;

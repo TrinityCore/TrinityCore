@@ -126,7 +126,7 @@ public:
             if (areaEntry)
             {
                 uint8 locale = handler->GetSessionDbcLocale();
-                std::string name = areaEntry->area_name[locale];
+                std::string name = areaEntry->AreaName[locale];
                 if (name.empty())
                     continue;
 
@@ -138,7 +138,7 @@ public:
                         if (locale == handler->GetSessionDbcLocale())
                             continue;
 
-                        name = areaEntry->area_name[locale];
+                        name = areaEntry->AreaName[locale];
                         if (name.empty())
                             continue;
 

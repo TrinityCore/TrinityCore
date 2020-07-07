@@ -96,7 +96,7 @@ public:
             if (!entry)
                 continue;
 
-            if (strstr(entry->area_name[handler->GetSessionDbcLocale()], channelStr))
+            if (strstr(entry->AreaName[handler->GetSessionDbcLocale()], channelStr))
             {
                 zoneEntry = entry;
                 break;

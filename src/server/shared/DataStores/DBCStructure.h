@@ -175,31 +175,38 @@ struct AchievementCriteriaEntry
 
 struct AreaTableEntry
 {
-    uint32  ID;                                             // 0
-    uint32  mapid;                                          // 1
-    uint32  zone;                                           // 2 if 0 then it's zone, else it's zone id of this area
-    uint32  exploreFlag;                                    // 3
-    uint32  flags;                                          // 4, unknown value but 312 for all cities
-                                                            // 5-9 unused
-    int32   area_level;                                     // 10
-    char*   area_name[16];                                  // 11-26
-                                                            // 27, string flags, unused
-    uint32  team;                                           // 28
-    uint32  LiquidTypeOverride[4];                          // 29-32 liquid override by type
+    uint32 ID;                                              // 0
+    uint32 ContinentID;                                     // 1
+    uint32 ParentAreaID;                                    // 2 if 0 then it's zone, else it's zone id of this area
+    uint32 AreaBit;                                         // 3
+    uint32 Flags;                                           // 4
+    //uint32 SoundProviderPref;                             // 5
+    //uint32 SoundProviderPrefUnderwater;                   // 6
+    //uint32 AmbienceID;                                    // 7
+    //uint32 ZoneMusic;                                     // 8
+    //uint32 IntroSound;                                    // 9
+    int32 ExplorationLevel;                                 // 10
+    char* AreaName[16];                                     // 11-26
+    //uint32 AreaName_lang_mask;                            // 27
+    uint32 FactionGroupMask;                                // 28
+    uint32 LiquidTypeID[4];                                 // 29-32 liquid override by type
+    //float MinElevation;                                   // 33
+    //float AmbientMultiplier;                              // 34
+    //uint32 LightID;                                       // 35
 
     // helpers
     bool IsSanctuary() const
     {
-        if (mapid == 609)
+        if (ContinentID == 609)
             return true;
-        return (flags & AREA_FLAG_SANCTUARY) != 0;
+        return (Flags & AREA_FLAG_SANCTUARY) != 0;
     }
 
     bool IsFlyable() const
     {
-        if (flags & AREA_FLAG_OUTLAND)
+        if (Flags & AREA_FLAG_OUTLAND)
         {
-            if (!(flags & AREA_FLAG_NO_FLY_ZONE))
+            if (!(Flags & AREA_FLAG_NO_FLY_ZONE))
                 return true;
         }
 
