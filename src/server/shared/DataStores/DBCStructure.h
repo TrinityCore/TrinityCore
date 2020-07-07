@@ -581,25 +581,25 @@ struct CurrencyTypesEntry
 
 struct DestructibleModelDataEntry
 {
-    uint32  Id;
-    //uint32  State0ImpactEffectDoodadSet;
-    //uint32  State0AmbientDoodadSet;
-    uint32  State1Wmo;
-    //uint32  State1DestructionDoodadSet;
-    //uint32  State1ImpactEffectDoodadSet;
-    //uint32  State1AmbientDoodadSet;
-    uint32  State2Wmo;
-    //uint32  State2DestructionDoodadSet;
-    //uint32  State2ImpactEffectDoodadSet;
-    //uint32  State2AmbientDoodadSet;
-    uint32  State3Wmo;
-    //uint32  State3InitDoodadSet;
-    //uint32  State3AmbientDoodadSet;
-    //uint32  EjectDirection;
-    uint32  State0Wmo;
-    //uint32  DoNotHighlight;
-    //uint32  HealEffect;
-    //uint32  HealEffectSpeed;
+    uint32 ID;                                              // 0
+    //uint32 State0ImpactEffectDoodadSet;                   // 1
+    //uint32 State0AmbientDoodadSet;                        // 2
+    uint32 State1Wmo;                                       // 3
+    //uint32 State1DestructionDoodadSet;                    // 4
+    //uint32 State1ImpactEffectDoodadSet;                   // 5
+    //uint32 State1AmbientDoodadSet;                        // 6
+    uint32 State2Wmo;                                       // 7
+    //uint32 State2DestructionDoodadSet;                    // 8
+    //uint32 State2ImpactEffectDoodadSet;                   // 9
+    //uint32 State2AmbientDoodadSet;                        // 10
+    uint32 State3Wmo;                                       // 11
+    //uint32 State3InitDoodadSet;                           // 12
+    //uint32 State3AmbientDoodadSet;                        // 13
+    //uint32 EjectDirection;                                // 14
+    uint32 RepairGroundFx;                                  // 15
+    //uint32 DoNotHighlight;                                // 16
+    //uint32 HealEffect;                                    // 17
+    //uint32 HealEffectSpeed;                               // 18
 };
 
 struct DungeonEncounterEntry
