@@ -347,14 +347,14 @@ struct CharSectionsEntry
 
 struct CharStartOutfitEntry
 {
-    //uint32 Id;                                            // 0
-    uint8 Race;                                             // 1
-    uint8 Class;                                            // 2
-    uint8 Gender;                                           // 3
-    //uint8 Unused;                                         // 4
-    int32 ItemId[MAX_OUTFIT_ITEMS];                         // 5-28
-    //int32 ItemDisplayId[MAX_OUTFIT_ITEMS];                // 29-52 not required at server side
-    //int32 ItemInventorySlot[MAX_OUTFIT_ITEMS];            // 53-76 not required at server side
+    //uint32 ID;                                            // 0
+    uint8 RaceID;                                           // 1
+    uint8 ClassID;                                          // 2
+    uint8 SexID;                                            // 3
+    //uint8 OutfitID;                                       // 4
+    int32 ItemID[MAX_OUTFIT_ITEMS];                         // 5-28
+    //int32 DisplayItemID[MAX_OUTFIT_ITEMS];                // 29-52 not required at server side
+    //int32 InventoryType[MAX_OUTFIT_ITEMS];                // 53-76 not required at server side
 };
 
 struct CharTitlesEntry

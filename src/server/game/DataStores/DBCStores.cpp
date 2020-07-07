@@ -409,7 +409,7 @@ void LoadDBCStores(const std::string& dataPath)
             sCharSectionMap.insert({ entry->BaseSection | (entry->SexID << 8) | (entry->RaceID << 16), entry });
 
     for (CharStartOutfitEntry const* outfit : sCharStartOutfitStore)
-        sCharStartOutfitMap[outfit->Race | (outfit->Class << 8) | (outfit->Gender << 16)] = outfit;
+        sCharStartOutfitMap[outfit->RaceID | (outfit->ClassID << 8) | (outfit->SexID << 16)] = outfit;
 
     for (EmotesTextSoundEntry const* entry : sEmotesTextSoundStore)
         sEmotesTextSoundMap[EmotesTextSoundKey(entry->EmotesTextId, entry->RaceId, entry->SexId)] = entry;
