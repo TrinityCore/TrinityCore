@@ -1585,10 +1585,10 @@ void GameEventMgr::UpdateWorldStates(uint16 event_id, bool Activate)
         if (bgTypeId != BATTLEGROUND_TYPE_NONE)
         {
             BattlemasterListEntry const* bl = sBattlemasterListStore.LookupEntry(bgTypeId);
-            if (bl && bl->HolidayWorldStateId)
+            if (bl && bl->HolidayWorldState)
             {
                 WorldPackets::WorldState::UpdateWorldState worldstate;
-                worldstate.VariableID = bl->HolidayWorldStateId;
+                worldstate.VariableID = bl->HolidayWorldState;
                 worldstate.Value = Activate ? 1 : 0;
                 sWorld->SendGlobalMessage(worldstate.Write());
             }

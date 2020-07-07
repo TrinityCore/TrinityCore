@@ -294,16 +294,16 @@ struct BarberShopStyleEntry
 
 struct BattlemasterListEntry
 {
-    uint32  id;                                             // 0
-    int32   mapid[8];                                       // 1-8 mapid
-    uint32  type;                                           // 9 map type (3 - BG, 4 - arena)
-    //uint32 canJoinAsGroup;                                // 10 (0 or 1)
-    char*   name[16];                                       // 11-26
-    //uint32 nameFlags                                      // 27 string flag, unused
-    uint32 maxGroupSize;                                    // 28 maxGroupSize, used for checking if queue as group
-    uint32 HolidayWorldStateId;                             // 29 new 3.1
+    uint32 ID;                                              // 0
+    int32 MapID[8];                                         // 1-8
+    uint32 InstanceType;                                    // 9 map type (3 - BG, 4 - arena)
+    //uint32 GroupsAllowed;                                 // 10
+    char* Name[16];                                         // 11-26
+    //uint32 Name_lang_mask;                                // 27
+    uint32 MaxGroupSize;                                    // 28 used for checking if queue as group
+    uint32 HolidayWorldState;                               // 29
     //uint32 MinLevel;                                      // 30
-    //uint32 SomeLevel;                                     // 31, may be max level
+    //uint32 MaxLevel;                                      // 31
 };
 
 struct CharacterFacialHairStylesEntry
