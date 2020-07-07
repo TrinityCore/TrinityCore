@@ -1701,7 +1701,6 @@ class spell_madness_of_deathwing_carrying_winds_triggered : public SpellScript
 
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
-        printf("spellId to remove : %i \n", GetEffectValue());
         GetHitUnit()->RemoveAurasDueToSpell(GetEffectValue());
     }
 
