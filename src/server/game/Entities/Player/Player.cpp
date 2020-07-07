@@ -5816,9 +5816,8 @@ bool Player::UpdateSkillPro(uint16 SkillId, int32 Chance, uint32 step)
 
 void Player::UpdateWeaponSkill(WeaponAttackType attType)
 {
-    // no skill gain in pvp
     Unit* victim = GetVictim();
-    if (victim && victim->GetTypeId() == TYPEID_PLAYER)
+    if (!victim)
         return;
 
     if (IsInFeralForm())
