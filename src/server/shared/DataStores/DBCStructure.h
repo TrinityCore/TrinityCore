@@ -381,21 +381,21 @@ struct ChatChannelsEntry
 
 struct ChrClassesEntry
 {
-    uint32  ClassID;                                        // 0
-                                                            // 1, unused
-    uint32  powerType;                                      // 2
-                                                            // 3-4, unused
-    char*   name[16];                                       // 5-20 unused
-                                                            // 21 string flag, unused
-    //char*       nameFemale[16];                           // 21-36 unused, if different from base (male) case
-                                                            // 37 string flag, unused
-    //char*       nameNeutralGender[16];                    // 38-53 unused, if different from base (male) case
-                                                            // 54 string flag, unused
-                                                            // 55, unused
-    uint32  spellfamily;                                    // 56
-                                                            // 57, unused
-    uint32  CinematicSequence;                              // 58 id from CinematicSequences.dbc
-    uint32  expansion;                                       // 59 (0 - original race, 1 - tbc addon, ...)
+    uint32 ID;                                              // 0
+    //uint32 DamageBonusStat;                               // 1
+    uint32 DisplayPower;                                    // 2
+    //char* PetNameToken;                                   // 3
+    char* Name[16];                                         // 4-19
+    //uint32 Name_lang_mask;                                // 20
+    //char* NameFemale[16];                                 // 21-36
+    //uint32 NameFemale_lang_mask;                          // 37
+    //char* NameMale[16];                                   // 38-53
+    //uint32 NameMale_lang_mask;                            // 54
+    //char* Filename;                                       // 55
+    uint32 SpellClassSet;                                   // 56
+    //uint32 Flags;                                         // 57
+    uint32 CinematicSequenceID;                             // 58 ID from CinematicSequences.dbc
+    uint32 RequiredExpansion;                               // 59
 };
 
 enum ChrRacesAllianceType

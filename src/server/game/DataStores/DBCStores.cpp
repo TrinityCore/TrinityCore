@@ -710,7 +710,7 @@ char const* GetRaceName(uint8 race, uint8 locale)
 char const* GetClassName(uint8 class_, uint8 locale)
 {
     ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(class_);
-    return classEntry ? classEntry->name[locale] : nullptr;
+    return classEntry ? classEntry->Name[locale] : nullptr;
 }
 
 uint32 GetVirtualMapForMapAndZone(uint32 mapid, uint32 zoneId)
