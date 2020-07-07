@@ -243,16 +243,14 @@ struct AreaPOIEntry
 
 struct AreaTriggerEntry
 {
-    uint32  id;                                             // 0        m_ID
-    uint32  mapid;                                          // 1        m_ContinentID
-    float   x;                                              // 2        m_x
-    float   y;                                              // 3        m_y
-    float   z;                                              // 4        m_z
-    float   radius;                                         // 5        m_radius
-    float   box_x;                                          // 6        m_box_length
-    float   box_y;                                          // 7        m_box_width
-    float   box_z;                                          // 8        m_box_heigh
-    float   box_orientation;                                // 9        m_box_yaw
+    uint32 ID;                                              // 0
+    uint32 ContinentID;                                     // 1
+    DBCPosition3D Pos;                                      // 2-4
+    float Radius;                                           // 5
+    float BoxLength;                                        // 6
+    float BoxWidth;                                         // 7
+    float BoxHeight;                                        // 8
+    float BoxYaw;                                           // 9
 };
 
 struct AuctionHouseEntry

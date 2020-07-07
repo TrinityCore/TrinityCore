@@ -261,7 +261,7 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
-        return DoTeleport(handler, { at->x, at->y, at->z }, at->mapid);
+        return DoTeleport(handler, { at->Pos.X, at->Pos.Y, at->Pos.Z }, at->ContinentID);
     }
 
     //teleport at coordinates

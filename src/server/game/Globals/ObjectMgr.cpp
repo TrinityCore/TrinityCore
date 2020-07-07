@@ -7259,7 +7259,7 @@ AreaTrigger const* ObjectMgr::GetGoBackTrigger(uint32 Map) const
         if ((!useParentDbValue && itr->second.target_mapId == entrance_map) || (useParentDbValue && itr->second.target_mapId == parentId))
         {
             AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(itr->first);
-            if (atEntry && atEntry->mapid == Map)
+            if (atEntry && atEntry->ContinentID == Map)
                 return &itr->second;
         }
     return nullptr;
