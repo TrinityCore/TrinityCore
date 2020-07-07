@@ -255,12 +255,12 @@ struct AreaTriggerEntry
 
 struct AuctionHouseEntry
 {
-    uint32    houseId;                                      // 0 index
-    uint32    faction;                                      // 1 id of faction.dbc for player factions associated with city
-    uint32    depositPercent;                               // 2 1/3 from real
-    uint32    cutPercent;                                   // 3
-    //char*     name[16];                                   // 4-19
-                                                            // 20 string flag, unused
+    uint32 ID;                                              // 0
+    uint32 FactionID;                                       // 1 id of faction.dbc for player factions associated with city
+    uint32 DepositRate;                                     // 2 1/3 from real
+    uint32 ConsignmentRate;                                 // 3
+    //char* Name[16];                                       // 4-19
+    //uint32 Name_lang_mask;                                // 20
 };
 
 struct BankBagSlotPricesEntry

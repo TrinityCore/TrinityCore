@@ -70,7 +70,7 @@ void WorldSession::SendAuctionHello(ObjectGuid guid, Creature* unit)
 
     WorldPacket data(MSG_AUCTION_HELLO, 12);
     data << uint64(guid);
-    data << uint32(ahEntry->houseId);
+    data << uint32(ahEntry->ID);
     data << uint8(1);                                       // 3.3.3: 1 - AH enabled, 0 - AH disabled
     SendPacket(&data);
 }
@@ -286,7 +286,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
         }
 
         AuctionHouseEntry const* AHEntry = sAuctionMgr->GetAuctionHouseEntry(auctioneerInfo->faction);
-        AH->houseId = AHEntry->houseId;
+        AH->houseId = AHEntry->ID;
     }
 
     // Required stack size of auction matches to current item stack size, just move item to auctionhouse
