@@ -1300,7 +1300,7 @@ void ExtractDB2Files(int l)
     printf("Extracted %u DB2 files\n\n", count);
 }
 
-void ExtractCameraFiles(int locale)
+void ExtractCameraFiles()
 {
     printf("Extracting camera files...\n");
     HANDLE dbcFile;
@@ -1555,7 +1555,7 @@ int main(int argc, char * arg[])
         LoadCommonMPQFiles(build);
 
         // Extract cameras
-        ExtractCameraFiles(FirstLocale);
+        ExtractCameraFiles();
 
         // Close MPQs
         SFileCloseArchive(WorldMpq);
