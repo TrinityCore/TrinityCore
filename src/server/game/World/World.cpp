@@ -1656,7 +1656,12 @@ void World::SetInitialWorldSettings()
     ///- Load the DBC/DB2 files
     TC_LOG_INFO("server.loading", "Initialize data stores...");
     sDBCManager.LoadStores(m_dataPath, m_defaultDbcLocale);
-    sDB2Manager.LoadStores(m_dataPath, m_defaultDbcLocale);
+    m_availableDbcLocaleMask = sDB2Manager.LoadStores(m_dataPath, m_defaultDbcLocale);
+    if (!(m_availableDbcLocaleMask & (1 << m_defaultDbcLocale)))
+    {
+        TC_LOG_FATAL("server.loading", "Unable to load db2/dbc files for %s locale specified in DBC.Locale config!", localeNames[m_defaultDbcLocale]);
+        exit(1);
+    }
 
     TC_LOG_INFO("misc", "Loading hotfix info...");
     sDB2Manager.LoadHotfixData();

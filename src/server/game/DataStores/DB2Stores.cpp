@@ -63,7 +63,7 @@ inline void LoadDB2(uint32& availableDb2Locales, DB2StoreProblemList& errlist, D
 
         for (uint32 i = 0; i < TOTAL_LOCALES; ++i)
         {
-            if (defaultLocale == i)
+            if (defaultLocale == i || i == LOCALE_NONE)
                 continue;
 
             if (availableDb2Locales & (1 << i))
@@ -92,7 +92,7 @@ inline void LoadDB2(uint32& availableDb2Locales, DB2StoreProblemList& errlist, D
     stores[storage->GetHash()] = storage;
 }
 
-void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
+uint32 DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
 {
     uint32 oldMSTime = getMSTime();
 
@@ -132,6 +132,8 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     }
 
     TC_LOG_INFO("server.loading", ">> Initialized %d DB2 data stores in %u ms", DB2FilesCount, GetMSTimeDiffToNow(oldMSTime));
+
+    return availableDb2Locales;
 }
 
 DB2StorageBase const* DB2Manager::GetStorage(uint32 type) const
