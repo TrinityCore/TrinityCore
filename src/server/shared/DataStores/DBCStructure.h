@@ -280,16 +280,16 @@ struct BannedAddOnsEntry
 
 struct BarberShopStyleEntry
 {
-    uint32  Id;                                             // 0
-    uint32  type;                                           // 1 value 0 -> hair, value 2 -> facialhair
-    //char*   name[16];                                     // 2-17 name of hair style
-    //uint32  name_flags;                                   // 18
-    //uint32  unk_name[16];                                 // 19-34, all empty
-    //uint32  unk_flags;                                    // 35
-    //float   CostMultiplier;                               // 36 values 1 and 0.75
-    uint32  race;                                           // 37 race
-    uint32  gender;                                         // 38 0 -> male, 1 -> female
-    uint32  hair_id;                                        // 39 real ID to hair/facial hair
+    uint32 ID;                                              // 0
+    uint32 Type;                                            // 1 value 0 -> hair, value 2 -> facialhair
+    //char* DisplayName[16];                                // 2-17
+    //uint32 DisplayName_lang_mask;                         // 18
+    //uint32 Description[16];                               // 19-34, all empty
+    //uint32 Description_lang_mask;                         // 35
+    //float CostModifier;                                   // 36
+    uint32 Race;                                            // 37
+    uint32 Sex;                                             // 38
+    uint32 Data;                                            // 39 real ID to hair/facial hair
 };
 
 struct BattlemasterListEntry
