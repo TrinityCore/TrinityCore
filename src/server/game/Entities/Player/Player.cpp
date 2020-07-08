@@ -5328,7 +5328,7 @@ float Player::GetMeleeCritFromAgility() const
     if (critBase == nullptr || critRatio == nullptr)
         return 0.0f;
 
-    float crit = critBase->base + GetStat(STAT_AGILITY)*critRatio->ratio;
+    float crit = critBase->Data + GetStat(STAT_AGILITY)*critRatio->ratio;
     return crit*100.0f;
 }
 

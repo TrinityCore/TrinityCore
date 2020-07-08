@@ -782,7 +782,7 @@ struct GtCombatRatingsEntry
 
 struct GtChanceToMeleeCritBaseEntry
 {
-    float    base;
+    float Data;                                             // 0
 };
 
 struct GtChanceToMeleeCritEntry
