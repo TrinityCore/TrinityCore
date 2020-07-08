@@ -983,9 +983,9 @@ void GameEventMgr::LoadHolidayDates()
         if (uint32 duration = fields[3].GetUInt32())
             entry->Duration[0] = duration;
 
-        auto itr = std::lower_bound(modifiedHolidays.begin(), modifiedHolidays.end(), entry->Id);
-        if (itr == modifiedHolidays.end() || *itr != entry->Id)
-            modifiedHolidays.insert(itr, entry->Id);
+        auto itr = std::lower_bound(modifiedHolidays.begin(), modifiedHolidays.end(), entry->ID);
+        if (itr == modifiedHolidays.end() || *itr != entry->ID)
+            modifiedHolidays.insert(itr, entry->ID);
         ++count;
 
     } while (result->NextRow());
