@@ -34,53 +34,6 @@
 #include "WorldSession.h"
 
 /*######
-## npc_khunok_the_behemoth
-######*/
-
-enum Khunok
-{
-    NPC_ORPHANED_MAMMOTH_CALF        = 25861,
-    SPELL_MAMMOTH_CALF_ESCORT_CREDIT = 46231
-};
-
-class npc_khunok_the_behemoth : public CreatureScript
-{
-public:
-    npc_khunok_the_behemoth() : CreatureScript("npc_khunok_the_behemoth") { }
-
-    struct npc_khunok_the_behemothAI : public ScriptedAI
-    {
-        npc_khunok_the_behemothAI(Creature* creature) : ScriptedAI(creature) { }
-
-        void MoveInLineOfSight(Unit* who) override
-
-        {
-            ScriptedAI::MoveInLineOfSight(who);
-
-            if (who->GetTypeId() != TYPEID_UNIT)
-                return;
-
-            if (who->GetEntry() == NPC_ORPHANED_MAMMOTH_CALF && me->IsWithinDistInMap(who, 10.0f))
-            {
-                if (Unit* owner = who->GetOwner())
-                {
-                    if (owner->GetTypeId() == TYPEID_PLAYER)
-                    {
-                        owner->CastSpell(owner, SPELL_MAMMOTH_CALF_ESCORT_CREDIT, true);
-                        who->ToCreature()->DespawnOrUnsummon();
-                    }
-                }
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_khunok_the_behemothAI(creature);
-    }
-};
-
-/*######
 ## npc_corastrasza
 ######*/
 
@@ -2294,7 +2247,6 @@ class spell_q11653_shortening_blaster : public SpellScript
 
 void AddSC_borean_tundra()
 {
-    new npc_khunok_the_behemoth();
     new npc_corastrasza();
     new npc_nerubar_victim();
     RegisterSpellScript(spell_q11865_place_fake_fur);
