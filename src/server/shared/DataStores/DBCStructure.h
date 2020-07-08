@@ -907,13 +907,15 @@ struct ItemDisplayInfoEntry
 };
 */
 
-//struct ItemCondExtCostsEntry
-//{
-//    uint32      ID;
-//    uint32      condExtendedCost;                         // ItemTemplate::CondExtendedCost
-//    uint32      itemextendedcostentry;                    // ItemTemplate::ExtendedCost
-//    uint32      arenaseason;                              // arena season number(1-4)
-//};
+/*
+struct ItemCondExtCostsEntry
+{
+    uint32 ID;                                              // 0
+    uint32 CondExtendedCost;                                // 1 ItemTemplate::CondExtendedCost
+    uint32 ItemExtendedCostEntry;                           // 2 ItemTemplate::ExtendedCost
+    uint32 ArenaSeason;                                     // 3 arena season number (1-4)
+};
+*/
 
 #define MAX_ITEM_EXTENDED_COST_REQUIREMENTS 5
 
