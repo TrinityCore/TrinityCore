@@ -135,7 +135,7 @@ struct LinkValidator<LinkTags::item>
         else if (data.RandomPropertyId > 0)
         {
             if (ItemRandomPropertiesEntry const* propEntry = sItemRandomPropertiesStore.LookupEntry(data.RandomPropertyId))
-                randomSuffix = propEntry->nameSuffix;
+                randomSuffix = propEntry->Name;
             else
                 return false;
         }
