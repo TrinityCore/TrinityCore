@@ -772,7 +772,7 @@ struct GlyphSlotEntry
 
 struct GtBarberShopCostBaseEntry
 {
-    float   cost;
+    float Data;                                             // 0
 };
 
 struct GtCombatRatingsEntry

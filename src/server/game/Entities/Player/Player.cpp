@@ -24521,16 +24521,16 @@ uint32 Player::GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 n
     float cost = 0;
 
     if (hairstyle != newhairstyle)
-        cost += bsc->cost;                                  // full price
+        cost += bsc->Data;                                  // full price
 
     if ((haircolor != newhaircolor) && (hairstyle == newhairstyle))
-        cost += bsc->cost * 0.5f;                           // +1/2 of price
+        cost += bsc->Data * 0.5f;                           // +1/2 of price
 
     if (facialhair != newfacialhair)
-        cost += bsc->cost * 0.75f;                          // +3/4 of price
+        cost += bsc->Data * 0.75f;                          // +3/4 of price
 
     if (newSkin && skincolor != newSkin->Data)
-        cost += bsc->cost * 0.75f;                          // +5/6 of price
+        cost += bsc->Data * 0.75f;                          // +5/6 of price
 
     return uint32(cost);
 }
