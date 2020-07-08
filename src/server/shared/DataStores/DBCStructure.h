@@ -787,7 +787,7 @@ struct GtChanceToMeleeCritBaseEntry
 
 struct GtChanceToMeleeCritEntry
 {
-    float    ratio;
+    float Data;                                             // 0
 };
 
 struct GtChanceToSpellCritBaseEntry
