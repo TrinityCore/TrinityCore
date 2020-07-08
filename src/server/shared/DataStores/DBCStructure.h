@@ -648,11 +648,11 @@ struct EmotesTextEntry
 
 struct EmotesTextSoundEntry
 {
-    uint32 Id;                                              // 0
-    uint32 EmotesTextId;                                    // 1
-    uint32 RaceId;                                          // 2
-    uint32 SexId;                                           // 3, 0 male / 1 female
-    uint32 SoundId;                                         // 4
+    uint32 ID;                                              // 0
+    uint32 EmotesTextID;                                    // 1
+    uint32 RaceID;                                          // 2
+    uint32 SexID;                                           // 3 0 male / 1 female
+    uint32 SoundID;                                         // 4
 };
 
 struct FactionEntry

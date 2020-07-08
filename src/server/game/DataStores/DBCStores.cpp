@@ -412,7 +412,7 @@ void LoadDBCStores(const std::string& dataPath)
         sCharStartOutfitMap[outfit->RaceID | (outfit->ClassID << 8) | (outfit->SexID << 16)] = outfit;
 
     for (EmotesTextSoundEntry const* entry : sEmotesTextSoundStore)
-        sEmotesTextSoundMap[EmotesTextSoundKey(entry->EmotesTextId, entry->RaceId, entry->SexId)] = entry;
+        sEmotesTextSoundMap[EmotesTextSoundKey(entry->EmotesTextID, entry->RaceID, entry->SexID)] = entry;
 
     for (FactionEntry const* faction : sFactionStore)
     {
