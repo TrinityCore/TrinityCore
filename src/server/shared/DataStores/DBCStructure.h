@@ -733,16 +733,12 @@ struct FactionTemplateEntry
 
 struct GameObjectDisplayInfoEntry
 {
-    uint32      Displayid;                                  // 0        m_ID
-    char* filename;                                      // 1
-    //uint32  unk1[10];   //2-11
-    float   minX;
-    float   minY;
-    float   minZ;
-    float   maxX;
-    float   maxY;
-    float   maxZ;
-    //uint32  transport;  //18
+    uint32 ID;                                              // 0
+    char* ModelName;                                        // 1
+    //uint32 Sound[10];                                     // 2-11
+    DBCPosition3D GeoBoxMin;                                // 12-14
+    DBCPosition3D GeoBoxMax;                                // 15-17
+    //uint32 ObjectEffectPackageID;                         // 18
 };
 
 struct GemPropertiesEntry
