@@ -889,21 +889,23 @@ struct ItemBagFamilyEntry
     //uint32 Name_lang_mask;                                // 17
 };
 
+/*
 struct ItemDisplayInfoEntry
 {
-    uint32      ID;                                         // 0        m_ID
-                                                            // 1        m_modelName[2]
-                                                            // 2        m_modelTexture[2]
-                                                            // 3        m_inventoryIcon
-                                                            // 4        m_geosetGroup[3]
-                                                            // 5        m_flags
-                                                            // 6        m_spellVisualID
-                                                            // 7        m_groupSoundIndex
-                                                            // 8        m_helmetGeosetVis[2]
-                                                            // 9        m_texture[2]
-                                                            // 10       m_itemVisual[8]
-                                                            // 11       m_particleColorID
+    uint32 ID;                                              // 0
+    char* ModelName[2];                                     // 1-2
+    char* ModelTexture[2];                                  // 3-4
+    char* InventoryIcon[2];                                 // 5-6
+    uint32 GeosetGroup[3];                                  // 7-9
+    uint32 Flags;                                           // 10
+    uint32 SpellVisualID;                                   // 11
+    uint32 GroupSoundIndex;                                 // 12
+    uint32 HelmetGeosetVisID[2];                            // 13-14
+    char* Texture[8];                                       // 15-22
+    int32 ItemVisual;                                       // 23
+    uint32 ParticleColorID;                                 // 24
 };
+*/
 
 //struct ItemCondExtCostsEntry
 //{
