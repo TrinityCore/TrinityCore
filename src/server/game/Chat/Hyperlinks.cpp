@@ -128,7 +128,7 @@ struct LinkValidator<LinkTags::item>
         if (data.RandomPropertyId < 0)
         {
             if (ItemRandomSuffixEntry const* suffixEntry = sItemRandomSuffixStore.LookupEntry(-data.RandomPropertyId))
-                randomSuffix = suffixEntry->nameSuffix;
+                randomSuffix = suffixEntry->Name;
             else
                 return false;
         }

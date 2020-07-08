@@ -954,14 +954,14 @@ struct ItemRandomPropertiesEntry
 
 struct ItemRandomSuffixEntry
 {
-    uint32    ID;                                           // 0        m_ID
-    char*     nameSuffix[16];                               // 1-16     m_name_lang
-                                                            // 17, name flags
-                                                            // 18       m_internalName
-    uint32    enchant_id[MAX_ITEM_ENCHANTMENT_EFFECTS];     // 19-21    m_enchantment
-    //uint32    unk1[2]                                     // 22-23    unknown
-    uint32    prefix[MAX_ITEM_ENCHANTMENT_EFFECTS];         // 24-26    m_allocationPct
-    //uint32    unk2[2]                                     // 27-28    unknown
+    uint32 ID;                                              // 0
+    char* Name[16];                                         // 1-16
+    //uint32 Name_lang_mask;                                // 17
+    //char* InternalName;                                   // 18
+    uint32 Enchantment[MAX_ITEM_ENCHANTMENT_EFFECTS];       // 19-21
+    //uint32 UnusedEnchantment[2]                           // 22-23
+    uint32 AllocationPct[MAX_ITEM_ENCHANTMENT_EFFECTS];     // 24-26
+    //uint32 UnusedAllocationPct[2]                         // 27-28
 };
 
 #define MAX_ITEM_SET_ITEMS 10
