@@ -640,8 +640,10 @@ struct EmotesEntry
 
 struct EmotesTextEntry
 {
-    uint32  Id;
-    uint32  textid;
+    uint32 ID;                                              // 0
+    //char* Name;                                           // 1
+    uint32 EmoteID;                                         // 2
+    //uint32 EmoteText[16];                                 // 3-18
 };
 
 struct EmotesTextSoundEntry
