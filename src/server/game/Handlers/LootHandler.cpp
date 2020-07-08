@@ -27,6 +27,7 @@
 #include "Log.h"
 #include "LootItemStorage.h"
 #include "LootMgr.h"
+#include "LootPackets.h"
 #include "Map.h"
 #include "Object.h"
 #include "ObjectAccessor.h"
@@ -237,10 +238,10 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
                     if (uint32 guildGold = CalculatePct(goldPerPlayer, (*i)->GetTotalAuraModifier(SPELL_AURA_DEPOSIT_BONUS_MONEY_IN_GUILD_BANK_ON_LOOT)))
                         guild->HandleMemberDepositMoney(this, guildGold, true);
 
-                WorldPacket data(SMSG_LOOT_MONEY_NOTIFY, 4 + 1);
-                data << uint32(goldPerPlayer);
-                data << uint8(playersNear.size() <= 1); // Controls the text displayed in chat. 0 is "Your share is..." and 1 is "You loot..."
-                (*i)->SendDirectMessage(&data);
+                WorldPackets::Loot::LootMoneyNotify packet;
+                packet.Money = goldPerPlayer;
+                packet.SoleLooter = playersNear.size() <= 1; // Controls the text displayed in chat. 0 is "Your share is..." and 1 is "You loot..."
+                (*i)->SendDirectMessage(packet.Write());
             }
         }
         else
@@ -252,10 +253,10 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
                 if (uint32 guildGold = CalculatePct(loot->gold, player->GetTotalAuraModifier(SPELL_AURA_DEPOSIT_BONUS_MONEY_IN_GUILD_BANK_ON_LOOT)))
                     guild->HandleMemberDepositMoney(this, guildGold, true);
 
-            WorldPacket data(SMSG_LOOT_MONEY_NOTIFY, 4 + 1);
-            data << uint32(loot->gold);
-            data << uint8(1);   // "You loot..."
-            SendPacket(&data);
+            WorldPackets::Loot::LootMoneyNotify packet;
+            packet.Money = loot->gold;
+            packet.SoleLooter = true; // "You loot..."
+            SendPacket(packet.Write());
         }
 
         loot->gold = 0;

@@ -17,6 +17,29 @@
 
 #include "LootPackets.h"
 
+WorldPacket const* WorldPackets::Loot::LootMoneyNotify::Write()
+{
+    _worldPacket << uint32(Money);
+    _worldPacket << uint8(SoleLooter);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Loot::LootRemoved::Write()
+{
+    _worldPacket << uint8(LootListID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Loot::LootReleaseResponse::Write()
+{
+    _worldPacket << LootObj;
+    _worldPacket << uint8(UnkBool);
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Loot::LootList::Write()
 {
     _worldPacket << Owner;

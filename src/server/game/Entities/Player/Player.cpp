@@ -62,6 +62,7 @@
 #include "Log.h"
 #include "LootItemStorage.h"
 #include "LootMgr.h"
+#include "LootPackets.h"
 #include "Mail.h"
 #include "MapInstanced.h"
 #include "MapManager.h"
@@ -8304,9 +8305,9 @@ void Player::RemovedInsignia(Player* looterPlr)
 
 void Player::SendLootRelease(ObjectGuid guid) const
 {
-    WorldPacket data(SMSG_LOOT_RELEASE_RESPONSE, (8+1));
-    data << uint64(guid) << uint8(1);
-    SendDirectMessage(&data);
+    WorldPackets::Loot::LootReleaseResponse packet;
+    packet.LootObj = guid;
+    SendDirectMessage(packet.Write());
 }
 
 void Player::SendLoot(ObjectGuid guid, LootType loot_type)
@@ -8686,15 +8687,14 @@ void Player::SendLootError(ObjectGuid guid, LootError error) const
 
 void Player::SendNotifyLootMoneyRemoved() const
 {
-    WorldPacket data(SMSG_LOOT_CLEAR_MONEY, 0);
-    SendDirectMessage(&data);
+    SendDirectMessage(WorldPackets::Loot::CoinRemoved().Write());
 }
 
 void Player::SendNotifyLootItemRemoved(uint8 lootSlot) const
 {
-    WorldPacket data(SMSG_LOOT_REMOVED, 1);
-    data << uint8(lootSlot);
-    SendDirectMessage(&data);
+    WorldPackets::Loot::LootRemoved packet;
+    packet.LootListID = lootSlot;
+    SendDirectMessage(packet.Write());
 }
 
 void Player::SendNotifyCurrencyLootRemoved(uint8 lootSlot)

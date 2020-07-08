@@ -26,6 +26,46 @@ namespace WorldPackets
 {
     namespace Loot
     {
+        class LootMoneyNotify final : public ServerPacket
+        {
+        public:
+            LootMoneyNotify() : ServerPacket(SMSG_LOOT_MONEY_NOTIFY, 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Money = 0;
+            bool SoleLooter = false;
+        };
+
+        class CoinRemoved final : public ServerPacket
+        {
+        public:
+            CoinRemoved() : ServerPacket(SMSG_COIN_REMOVED, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; };
+        };
+
+        class LootRemoved final : public ServerPacket
+        {
+        public:
+            LootRemoved() : ServerPacket(SMSG_LOOT_REMOVED, 1) { }
+
+            WorldPacket const* Write() override;
+
+            uint8 LootListID = 0;
+        };
+
+        class LootReleaseResponse final : public ServerPacket
+        {
+        public:
+            LootReleaseResponse() : ServerPacket(SMSG_LOOT_RELEASE, 8 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid LootObj;
+            bool UnkBool = true;
+        };
+
         class LootList final : public ServerPacket
         {
         public:

@@ -945,13 +945,13 @@ enum OpcodeServer
     SMSG_LOGOUT_RESPONSE                              = 0x0524,
     SMSG_LOG_XPGAIN                                   = 0x4514,
     SMSG_LOOT_ALL_PASSED                              = 0x6237,
-    SMSG_LOOT_CLEAR_MONEY                             = 0x2B37,
+    SMSG_COIN_REMOVED                                 = 0x2B37,
     SMSG_LOOT_CONTENTS                                = 0x11B1,
     SMSG_LOOT_ITEM_NOTIFY                             = 0x6D15,
     SMSG_LOOT_LIST                                    = 0x6807,
     SMSG_LOOT_MASTER_LIST                             = 0x0325,
     SMSG_LOOT_MONEY_NOTIFY                            = 0x2836,
-    SMSG_LOOT_RELEASE_RESPONSE                        = 0x6D25,
+    SMSG_LOOT_RELEASE                                 = 0x6D25,
     SMSG_LOOT_REMOVED                                 = 0x6817,
     SMSG_LOOT_RESPONSE                                = 0x4C16,
     SMSG_LOOT_ROLL                                    = 0x6507,
@@ -1399,14 +1399,14 @@ inline bool IsInstanceOnlyOpcode(uint32 opcode)
         case SMSG_MOUNT_RESULT:
         case SMSG_DUEL_COMPLETE:
         case SMSG_LOOT_MONEY_NOTIFY:
-        case SMSG_LOOT_CLEAR_MONEY:
+        case SMSG_COIN_REMOVED:
         case SMSG_ATTACKSTART:
         case SMSG_DUEL_WINNER:
         case SMSG_DUEL_REQUESTED:
         case SMSG_LOOT_RESPONSE:
         case SMSG_LOOT_REMOVED:
         case SMSG_LOOT_ITEM_NOTIFY:
-        case SMSG_LOOT_RELEASE_RESPONSE:
+        case SMSG_LOOT_RELEASE:
             return true;
         default:
             return false;
