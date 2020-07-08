@@ -812,7 +812,7 @@ struct GtOCTClassCombatRatingScalarEntry
 
 struct GtOCTRegenHPEntry
 {
-    float    ratio;
+    float Data;                                             // 0
 };
 
 //struct GtOCTRegenMPEntry
