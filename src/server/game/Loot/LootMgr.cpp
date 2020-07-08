@@ -30,6 +30,9 @@
 #include "Util.h"
 #include "World.h"
 
+// EJ joker mod
+#include "JokerConfig.h"
+
 static Rates const qualityToRate[MAX_ITEM_QUALITY] =
 {
     RATE_DROP_ITEM_POOR,                                    // ITEM_QUALITY_POOR
@@ -165,6 +168,22 @@ uint32 LootStore::LoadLootTable()
             TC_LOG_ERROR("sql.sql", "Table '%s' Entry %d Item %d: GroupId (%u) must be less %u - skipped", GetName(), entry, item, groupid, 1 << 7);
             return 0;
         }
+
+        // EJ quest loot will increace chance
+        if (sJokerConfig->Enable)
+        {
+            if (needsquest)
+            {
+                if (chance < 10.0f)
+                {
+                    chance = 10.0f;
+                }
+                else if (chance < 30.0f)
+                {
+                    chance = 30.0f;
+                }
+            }
+        }        
 
         LootStoreItem* storeitem = new LootStoreItem(item, reference, chance, needsquest, lootmode, groupid, mincount, maxcount);
 

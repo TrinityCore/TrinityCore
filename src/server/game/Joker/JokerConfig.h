@@ -175,7 +175,7 @@ public:
     std::string CreatureModException;
     uint32 MaxModLevel;    
 
-    uint32 PlayerMod;
+    float PlayerModRate;
 
     float LevelUpEXPRate_Expansion_0;
     float LevelUpEXPRate_Expansion_1;

@@ -4772,20 +4772,18 @@ void ObjectMgr::LoadPlayerInfo()
             // EJ joker player mod
             if (sJokerConfig->Enable)
             {
-                if (sJokerConfig->PlayerMod == 1)
+                float levelPower = (float)current_level;
+                float maxModLevel = (float)sJokerConfig->MaxModLevel;
+                if (levelPower > maxModLevel)
                 {
-                    float levelPower = (float)current_level;
-                    float maxModLevel = (float)sJokerConfig->MaxModLevel;
-                    if (levelPower > maxModLevel)
-                    {
-                        levelPower = maxModLevel;
-                    }
-                    float levelRate = levelPower / maxModLevel;
-                    float jokerPlayerMod = 1.0f + levelRate;
+                    levelPower = maxModLevel;
+                }
+                float levelRate = levelPower / maxModLevel;
+                levelRate = levelRate * sJokerConfig->PlayerModRate;
+                float jokerPlayerMod = 1.0f + levelRate;
 
-                    levelInfo.basehealth = levelInfo.basehealth * jokerPlayerMod;
-                    levelInfo.basemana = levelInfo.basemana * jokerPlayerMod;
-                }                
+                levelInfo.basehealth = levelInfo.basehealth * jokerPlayerMod;
+                levelInfo.basemana = levelInfo.basemana * jokerPlayerMod;
             }
 
             ++count;
