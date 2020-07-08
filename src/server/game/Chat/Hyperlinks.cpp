@@ -255,7 +255,7 @@ struct LinkValidator<LinkTags::glyph>
 {
     static bool IsTextValid(GlyphLinkData const& data, char const* pos, size_t len)
     {
-        if (SpellInfo const* info = sSpellMgr->GetSpellInfo(data.Glyph->SpellId))
+        if (SpellInfo const* info = sSpellMgr->GetSpellInfo(data.Glyph->SpellID))
             return LinkValidator<LinkTags::spell>::IsTextValid(info, pos, len);
         return false;
     }

@@ -5523,7 +5523,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
 
                 uint32 glyphId = m_spellInfo->Effects[i].MiscValue;
                 if (GlyphPropertiesEntry const* gp = sGlyphPropertiesStore.LookupEntry(glyphId))
-                    if (m_caster->ToPlayer()->HasAura(gp->SpellId))
+                    if (m_caster->ToPlayer()->HasAura(gp->SpellID))
                         return SPELL_FAILED_UNIQUE_GLYPH;
                 break;
             }

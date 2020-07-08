@@ -3785,7 +3785,7 @@ void Spell::EffectApplyGlyph(SpellEffIndex effIndex)
         {
             if (GlyphSlotEntry const* gs = sGlyphSlotStore.LookupEntry(player->GetGlyphSlot(m_glyphIndex)))
             {
-                if (gp->TypeFlags != gs->TypeFlags)
+                if (gp->GlyphSlotFlags != gs->TypeFlags)
                 {
                     SendCastResult(SPELL_FAILED_INVALID_GLYPH);
                     return;                                 // glyph slot mismatch
@@ -3797,12 +3797,12 @@ void Spell::EffectApplyGlyph(SpellEffIndex effIndex)
             {
                 if (GlyphPropertiesEntry const* old_gp = sGlyphPropertiesStore.LookupEntry(oldglyph))
                 {
-                    player->RemoveAurasDueToSpell(old_gp->SpellId);
+                    player->RemoveAurasDueToSpell(old_gp->SpellID);
                     player->SetGlyph(m_glyphIndex, 0);
                 }
             }
 
-            player->CastSpell(player, gp->SpellId, true);
+            player->CastSpell(player, gp->SpellID, true);
             player->SetGlyph(m_glyphIndex, glyph);
             player->SendTalentsInfoData(false);
         }

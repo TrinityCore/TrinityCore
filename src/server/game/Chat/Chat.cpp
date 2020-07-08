@@ -890,7 +890,7 @@ uint32 ChatHandler::extractSpellIdFromLink(char* text)
             if (!glyphPropEntry)
                 return 0;
 
-            return glyphPropEntry->SpellId;
+            return glyphPropEntry->SpellID;
         }
     }
 

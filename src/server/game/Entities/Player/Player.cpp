@@ -18105,13 +18105,13 @@ void Player::_LoadGlyphAuras()
             {
                 if (GlyphSlotEntry const* gs = sGlyphSlotStore.LookupEntry(GetGlyphSlot(i)))
                 {
-                    if (gp->TypeFlags == gs->TypeFlags)
+                    if (gp->GlyphSlotFlags == gs->TypeFlags)
                     {
-                        CastSpell(this, gp->SpellId, true);
+                        CastSpell(this, gp->SpellID, true);
                         continue;
                     }
                     else
-                        TC_LOG_ERROR("entities.player", "Player::_LoadGlyphAuras: Player '%s' (%s) has glyph with typeflags %u in slot with typeflags %u, removing.", GetName().c_str(), GetGUID().ToString().c_str(), gp->TypeFlags, gs->TypeFlags);
+                        TC_LOG_ERROR("entities.player", "Player::_LoadGlyphAuras: Player '%s' (%s) has glyph with typeflags %u in slot with typeflags %u, removing.", GetName().c_str(), GetGUID().ToString().c_str(), gp->GlyphSlotFlags, gs->TypeFlags);
                 }
                 else
                     TC_LOG_ERROR("entities.player", "Player::_LoadGlyphAuras: Player '%s' (%s) has not existing glyph slot entry %u on index %u", GetName().c_str(), GetGUID().ToString().c_str(), GetGlyphSlot(i), i);
@@ -26160,7 +26160,7 @@ void Player::ActivateSpec(uint8 spec)
         // remove secondary glyph
         if (uint32 oldglyph = m_Glyphs[m_activeSpec][slot])
             if (GlyphPropertiesEntry const* old_gp = sGlyphPropertiesStore.LookupEntry(oldglyph))
-                RemoveAurasDueToSpell(old_gp->SpellId);
+                RemoveAurasDueToSpell(old_gp->SpellID);
 
     SetActiveSpec(spec);
     uint32 spentTalents = 0;
@@ -26204,7 +26204,7 @@ void Player::ActivateSpec(uint8 spec)
         // apply primary glyph
         if (glyph)
             if (GlyphPropertiesEntry const* gp = sGlyphPropertiesStore.LookupEntry(glyph))
-                CastSpell(this, gp->SpellId, true);
+                CastSpell(this, gp->SpellID, true);
 
         SetGlyph(slot, glyph);
     }
