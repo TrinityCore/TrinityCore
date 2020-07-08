@@ -933,11 +933,11 @@ struct ItemExtendedCostEntry
 
 struct ItemLimitCategoryEntry
 {
-    uint32      ID;                                         // 0 Id
-    //char*     name[16]                                    // 1-16     m_name_lang
-                                                            // 17 name flags
-    uint32      maxCount;                                   // 18, max allowed equipped as item or in gem slot
-    uint32      mode;                                       // 19, 0 = have, 1 = equip (enum ItemLimitCategoryMode)
+    uint32 ID;                                              // 0
+    //char* Name[16]                                        // 1-16
+    //uint32 Name_lang_mask;                                // 17
+    uint32 Quantity;                                        // 18 max allowed equipped as item or in gem slot
+    uint32 Flags;                                           // 19 enum ItemLimitCategoryMode
 };
 
 #define MAX_ITEM_ENCHANTMENT_EFFECTS 3
