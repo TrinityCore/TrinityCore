@@ -921,13 +921,14 @@ struct ItemCondExtCostsEntry
 
 struct ItemExtendedCostEntry
 {
-    uint32      ID;                                                 // 0 extended-cost entry id
-    uint32      reqhonorpoints;                                     // 1 required honor points
-    uint32      reqarenapoints;                                     // 2 required arena points
-    uint32      reqarenaslot;                                       // 3 arena slot restrctions (min slot value)
-    uint32      reqitem[MAX_ITEM_EXTENDED_COST_REQUIREMENTS];       // 4-8 required item id
-    uint32      reqitemcount[MAX_ITEM_EXTENDED_COST_REQUIREMENTS];  // 9-14 required count of 1st item
-    uint32      reqpersonalarenarating;                             // 15 required personal arena rating};
+    uint32 ID;                                              // 0
+    uint32 HonorPoints;                                     // 1 required honor points
+    uint32 ArenaPoints;                                     // 2 required arena points
+    uint32 ArenaBracket;                                    // 3 arena slot restrictions (min slot value)
+    uint32 ItemID[MAX_ITEM_EXTENDED_COST_REQUIREMENTS];     // 4-8 required item id
+    uint32 ItemCount[MAX_ITEM_EXTENDED_COST_REQUIREMENTS];  // 9-13 required count of item
+    uint32 RequiredArenaRating;                             // 14 required personal arena rating
+    //uint32 ItemPurchaseGroup;                             // 15
 };
 
 struct ItemLimitCategoryEntry
