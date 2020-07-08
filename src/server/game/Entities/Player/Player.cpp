@@ -5456,7 +5456,7 @@ float Player::OCTRegenHPPerSpirit() const
     if (baseSpirit > 50)
         baseSpirit = 50;
     float moreSpirit = spirit - baseSpirit;
-    float regen = baseSpirit * baseRatio->Data + moreSpirit * moreRatio->ratio;
+    float regen = baseSpirit * baseRatio->Data + moreSpirit * moreRatio->Data;
     return regen;
 }
 

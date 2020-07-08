@@ -815,14 +815,16 @@ struct GtOCTRegenHPEntry
     float Data;                                             // 0
 };
 
-//struct GtOCTRegenMPEntry
-//{
-//    float    ratio;
-//};
+/*
+struct GtOCTRegenMPEntry
+{
+    float Data;                                             // 0
+};
+*/
 
 struct GtRegenHPPerSptEntry
 {
-    float    ratio;
+    float Data;                                             // 0
 };
 
 struct GtRegenMPPerSptEntry
