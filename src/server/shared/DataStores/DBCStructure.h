@@ -832,16 +832,16 @@ struct GtRegenMPPerSptEntry
     float Data;                                             // 0
 };
 
-/* no used
+/*
 struct HolidayDescriptionsEntry
 {
-    uint32 ID;                                              // 0, m_holidayDescriptionID
-    //char*     name[16]                                    // 1-16 m_name_lang
-                                                            // 17 name flags
+    uint32 ID;                                              // 0
+    char* Description[16];                                  // 1-16
+    uint32 Description_lang_mask;                           // 17 name flags
 };
 */
 
-/* no used
+/*
 struct HolidayNamesEntry
 {
     uint32 ID;                                              // 0, m_holidayNameID
