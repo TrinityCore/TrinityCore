@@ -837,16 +837,16 @@ struct HolidayDescriptionsEntry
 {
     uint32 ID;                                              // 0
     char* Description[16];                                  // 1-16
-    uint32 Description_lang_mask;                           // 17 name flags
+    uint32 Description_lang_mask;                           // 17
 };
 */
 
 /*
 struct HolidayNamesEntry
 {
-    uint32 ID;                                              // 0, m_holidayNameID
-    //char*     name[16]                                    // 1-16 m_name_lang
-    // 17 name flags
+    uint32 ID;                                              // 0
+    char* Name[16];                                         // 1-16
+    uint32 Name_lang_mask;                                  // 17
 };
 */
 
