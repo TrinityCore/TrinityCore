@@ -797,7 +797,7 @@ struct GtChanceToSpellCritBaseEntry
 
 struct GtNPCManaCostScalerEntry
 {
-    float    ratio;
+    float Data;                                             // 0
 };
 
 struct GtChanceToSpellCritEntry
