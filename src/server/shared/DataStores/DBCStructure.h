@@ -777,7 +777,7 @@ struct GtBarberShopCostBaseEntry
 
 struct GtCombatRatingsEntry
 {
-    float    ratio;
+    float Data;                                             // 0
 };
 
 struct GtChanceToMeleeCritBaseEntry

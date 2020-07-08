@@ -5415,7 +5415,7 @@ float Player::GetRatingMultiplier(CombatRating cr) const
     if (!Rating || !classRating)
         return 1.0f;                                        // By default use minimum coefficient (not must be called)
 
-    return classRating->ratio / Rating->ratio;
+    return classRating->ratio / Rating->Data;
 }
 
 float Player::GetRatingBonusValue(CombatRating cr) const
