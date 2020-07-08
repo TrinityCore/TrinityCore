@@ -5398,7 +5398,7 @@ float Player::GetSpellCritFromIntellect() const
     if (critBase == nullptr || critRatio == nullptr)
         return 0.0f;
 
-    float crit = critBase->Data + GetStat(STAT_INTELLECT) * critRatio->ratio;
+    float crit = critBase->Data + GetStat(STAT_INTELLECT) * critRatio->Data;
     return crit * 100.0f;
 }
 

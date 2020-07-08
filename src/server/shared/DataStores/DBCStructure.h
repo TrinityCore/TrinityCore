@@ -802,7 +802,7 @@ struct GtNPCManaCostScalerEntry
 
 struct GtChanceToSpellCritEntry
 {
-    float    ratio;
+    float Data;                                             // 0
 };
 
 struct GtOCTClassCombatRatingScalarEntry
