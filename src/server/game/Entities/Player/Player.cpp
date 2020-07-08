@@ -22083,7 +22083,7 @@ bool Player::EnchantmentFitsRequirements(uint32 enchantmentcondition, int8 slot)
                 if (!gemProperty)
                     continue;
 
-                uint8 GemColor = gemProperty->color;
+                uint8 GemColor = gemProperty->Type;
 
                 for (uint8 b = 0, tmpcolormask = 1; b < 4; b++, tmpcolormask <<= 1)
                 {

@@ -743,9 +743,11 @@ struct GameObjectDisplayInfoEntry
 
 struct GemPropertiesEntry
 {
-    uint32      ID;
-    uint32      spellitemenchantement;
-    uint32      color;
+    uint32 ID;                                              // 0
+    uint32 EnchantID;                                       // 1
+    //uint32 MaxCountInv;                                   // 2
+    //uint32 MaxCountItem;                                  // 3
+    uint32 Type;                                            // 4
 };
 
 struct GlyphPropertiesEntry
