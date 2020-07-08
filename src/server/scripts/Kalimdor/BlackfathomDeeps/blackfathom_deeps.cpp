@@ -236,6 +236,6 @@ void AddSC_blackfathom_deeps()
 {
     new go_blackfathom_altar();
     new go_blackfathom_fire();
-    RegisterCreatureAI(npc_blackfathom_deeps_event);
+    RegisterBlackfathomDeepsCreatureAI(npc_blackfathom_deeps_event);
     new npc_morridune();
 }
