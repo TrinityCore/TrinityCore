@@ -542,7 +542,7 @@ public:
             if (set)
             {
                 uint8 locale = handler->GetSessionDbcLocale();
-                std::string name = set->name[locale];
+                std::string name = set->Name[locale];
                 if (name.empty())
                     continue;
 
@@ -554,7 +554,7 @@ public:
                         if (locale == handler->GetSessionDbcLocale())
                             continue;
 
-                        name = set->name[locale];
+                        name = set->Name[locale];
                         if (name.empty())
                             continue;
 

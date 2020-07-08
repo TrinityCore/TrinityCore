@@ -969,15 +969,15 @@ struct ItemRandomSuffixEntry
 
 struct ItemSetEntry
 {
-    //uint32    id                                          // 0        m_ID
-    char*     name[16];                                     // 1-16     m_name_lang
-                                                            // 17 string flags, unused
-    uint32    itemId[MAX_ITEM_SET_ITEMS];                   // 18-27    m_itemID
-    //uint32    unknown[7];                                 // 28-34    unk, all 0
-    uint32    spells[MAX_ITEM_SET_SPELLS];                  // 35-42    m_setSpellID
-    uint32    items_to_triggerspell[MAX_ITEM_SET_SPELLS];   // 43-50    m_setThreshold
-    uint32    required_skill_id;                            // 51       m_requiredSkill
-    uint32    required_skill_value;                         // 52       m_requiredSkillRank
+    //uint32 ID;                                            // 0
+    char* Name[16];                                         // 1-16
+    //uint32 Name_lang_mask;                                // 17
+    uint32 ItemID[MAX_ITEM_SET_ITEMS];                      // 18-27
+    //uint32 UnusedItemID[7];                               // 28-34
+    uint32 SetSpellID[MAX_ITEM_SET_SPELLS];                 // 35-42
+    uint32 SetThreshold[MAX_ITEM_SET_SPELLS];               // 43-50
+    uint32 RequiredSkill;                                   // 51
+    uint32 RequiredSkillRank;                               // 52
 };
 
 struct LFGDungeonEntry
