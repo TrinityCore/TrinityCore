@@ -829,7 +829,7 @@ struct GtRegenHPPerSptEntry
 
 struct GtRegenMPPerSptEntry
 {
-    float    ratio;
+    float Data;                                             // 0
 };
 
 /* no used
