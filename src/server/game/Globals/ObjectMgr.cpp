@@ -2967,18 +2967,18 @@ void ObjectMgr::LoadItemTemplates()
 
         if (dbcitem)
         {
-            if (itemTemplate.Class != dbcitem->Class)
+            if (itemTemplate.Class != dbcitem->ClassID)
             {
-                TC_LOG_ERROR("sql.sql", "Item (Entry: %u) does not have a correct class %u, must be %u .", entry, itemTemplate.Class, dbcitem->Class);
+                TC_LOG_ERROR("sql.sql", "Item (Entry: %u) does not have a correct class %u, must be %u .", entry, itemTemplate.Class, dbcitem->ClassID);
                 if (enforceDBCAttributes)
-                    itemTemplate.Class = dbcitem->Class;
+                    itemTemplate.Class = dbcitem->ClassID;
             }
 
-            if (itemTemplate.SoundOverrideSubclass != dbcitem->SoundOverrideSubclass)
+            if (itemTemplate.SoundOverrideSubclass != dbcitem->SoundOverrideSubclassID)
             {
-                TC_LOG_ERROR("sql.sql", "Item (Entry: %u) does not have a correct SoundOverrideSubclass (%i), must be %i .", entry, itemTemplate.SoundOverrideSubclass, dbcitem->SoundOverrideSubclass);
+                TC_LOG_ERROR("sql.sql", "Item (Entry: %u) does not have a correct SoundOverrideSubclass (%i), must be %i .", entry, itemTemplate.SoundOverrideSubclass, dbcitem->SoundOverrideSubclassID);
                 if (enforceDBCAttributes)
-                    itemTemplate.SoundOverrideSubclass = dbcitem->SoundOverrideSubclass;
+                    itemTemplate.SoundOverrideSubclass = dbcitem->SoundOverrideSubclassID;
             }
             if (itemTemplate.Material != dbcitem->Material)
             {
@@ -2992,17 +2992,17 @@ void ObjectMgr::LoadItemTemplates()
                 if (enforceDBCAttributes)
                     itemTemplate.InventoryType = dbcitem->InventoryType;
             }
-            if (itemTemplate.DisplayInfoID != dbcitem->DisplayId)
+            if (itemTemplate.DisplayInfoID != dbcitem->DisplayInfoID)
             {
-                TC_LOG_ERROR("sql.sql", "Item (Entry: %u) does not have a correct display id (%u), must be %u .", entry, itemTemplate.DisplayInfoID, dbcitem->DisplayId);
+                TC_LOG_ERROR("sql.sql", "Item (Entry: %u) does not have a correct display id (%u), must be %u .", entry, itemTemplate.DisplayInfoID, dbcitem->DisplayInfoID);
                 if (enforceDBCAttributes)
-                    itemTemplate.DisplayInfoID = dbcitem->DisplayId;
+                    itemTemplate.DisplayInfoID = dbcitem->DisplayInfoID;
             }
-            if (itemTemplate.Sheath != dbcitem->Sheath)
+            if (itemTemplate.Sheath != dbcitem->SheatheType)
             {
-                TC_LOG_ERROR("sql.sql", "Item (Entry: %u) does not have a correct sheathid (%u), must be %u .", entry, itemTemplate.Sheath, dbcitem->Sheath);
+                TC_LOG_ERROR("sql.sql", "Item (Entry: %u) does not have a correct sheathid (%u), must be %u .", entry, itemTemplate.Sheath, dbcitem->SheatheType);
                 if (enforceDBCAttributes)
-                    itemTemplate.Sheath = dbcitem->Sheath;
+                    itemTemplate.Sheath = dbcitem->SheatheType;
             }
 
         }
