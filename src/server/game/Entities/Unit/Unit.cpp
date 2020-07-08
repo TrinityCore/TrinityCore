@@ -40,6 +40,7 @@
 #include "Item.h"
 #include "Log.h"
 #include "LootMgr.h"
+#include "LootPackets.h"
 #include "MiscPackets.h"
 #include "MotionMaster.h"
 #include "MovementGenerator.h"
@@ -11861,11 +11862,11 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
 
             if (creature)
             {
-                WorldPacket data2(SMSG_LOOT_LIST, 8 + 1 + 1);
-                data2 << uint64(creature->GetGUID());
-                data2 << uint8(0); // unk1
-                data2 << uint8(0); // no group looter
-                player->SendMessageToSet(&data2, true);
+                WorldPackets::Loot::LootList lootList;
+                lootList.Owner = creature->GetGUID();
+                lootList.RoundRobinWinner = player->GetGUID();
+
+                player->SendMessageToSet(lootList.Write(), true);
             }
         }
 

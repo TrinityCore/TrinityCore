@@ -334,9 +334,9 @@ class TC_GAME_API Group
                 worker(itr->GetSource());
         }
 
-        void BroadcastPacket(WorldPacket* packet, bool ignorePlayersInBGRaid, int group = -1, ObjectGuid ignoredPlayer = ObjectGuid::Empty);
-        void BroadcastAddonMessagePacket(WorldPacket* packet, const std::string& prefix, bool ignorePlayersInBGRaid, int group = -1, uint64 ignore = 0);
-        void BroadcastReadyCheck(WorldPacket* packet);
+        void BroadcastPacket(WorldPacket const* packet, bool ignorePlayersInBGRaid, int group = -1, ObjectGuid ignoredPlayer = ObjectGuid::Empty);
+        void BroadcastAddonMessagePacket(WorldPacket const* packet, const std::string& prefix, bool ignorePlayersInBGRaid, int group = -1, uint64 ignore = 0);
+        void BroadcastReadyCheck(WorldPacket const* packet);
         void OfflineReadyCheck();
 
         /*********************************************************/

@@ -29,6 +29,7 @@
 #include "InstanceSaveMgr.h"
 #include "LFGMgr.h"
 #include "LootMgr.h"
+#include "LootPackets.h"
 #include "MapManager.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -1015,20 +1016,17 @@ void Group::SendLooter(Creature* creature, Player* groupLooter)
 {
     ASSERT(creature);
 
-    WorldPacket data(SMSG_LOOT_LIST, (8+8));
-    data << uint64(creature->GetGUID());
+    WorldPackets::Loot::LootList lootList;
+
+    lootList.Owner = creature->GetGUID();
 
     if (GetLootMethod() == MASTER_LOOT && creature->loot.hasOverThresholdItem())
-        data << GetMasterLooterGuid().WriteAsPacked();
-    else
-        data << uint8(0);
+        lootList.Master = GetMasterLooterGuid();
 
     if (groupLooter)
-        data << groupLooter->GetPackGUID();
-    else
-        data << uint8(0);
+        lootList.RoundRobinWinner = groupLooter->GetGUID();
 
-    BroadcastPacket(&data, false);
+    BroadcastPacket(lootList.Write(), false);
 }
 
 void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
@@ -1814,7 +1812,7 @@ void Group::UpdatePlayerOutOfRange(Player* player)
     }
 }
 
-void Group::BroadcastAddonMessagePacket(WorldPacket* packet, const std::string& prefix, bool ignorePlayersInBGRaid, int group, uint64 ignore)
+void Group::BroadcastAddonMessagePacket(WorldPacket const* packet, const std::string& prefix, bool ignorePlayersInBGRaid, int group, uint64 ignore)
 {
     for (GroupReference* itr = GetFirstMember(); itr != nullptr; itr = itr->next())
     {
@@ -1829,7 +1827,7 @@ void Group::BroadcastAddonMessagePacket(WorldPacket* packet, const std::string& 
     }
 }
 
-void Group::BroadcastPacket(WorldPacket* packet, bool ignorePlayersInBGRaid, int group, ObjectGuid ignoredPlayer)
+void Group::BroadcastPacket(WorldPacket const* packet, bool ignorePlayersInBGRaid, int group, ObjectGuid ignoredPlayer)
 {
     for (GroupReference* itr = GetFirstMember(); itr != nullptr; itr = itr->next())
     {
@@ -1842,7 +1840,7 @@ void Group::BroadcastPacket(WorldPacket* packet, bool ignorePlayersInBGRaid, int
     }
 }
 
-void Group::BroadcastReadyCheck(WorldPacket* packet)
+void Group::BroadcastReadyCheck(WorldPacket const* packet)
 {
     for (GroupReference* itr = GetFirstMember(); itr != nullptr; itr = itr->next())
     {
