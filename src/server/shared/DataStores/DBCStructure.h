@@ -657,26 +657,26 @@ struct EmotesTextSoundEntry
 
 struct FactionEntry
 {
-    uint32      ID;                                         // 0        m_ID
-    int32       reputationListID;                           // 1        m_reputationIndex
-    uint32      BaseRepRaceMask[4];                         // 2-5      m_reputationRaceMask
-    uint32      BaseRepClassMask[4];                        // 6-9      m_reputationClassMask
-    int32       BaseRepValue[4];                            // 10-13    m_reputationBase
-    uint32      ReputationFlags[4];                         // 14-17    m_reputationFlags
-    uint32      team;                                       // 18       m_parentFactionID
-    float       spilloverRateIn;                            // 19       Faction gains incoming rep * spilloverRateIn
-    float       spilloverRateOut;                           // 20       Faction outputs rep * spilloverRateOut as spillover reputation
-    uint32      spilloverMaxRankIn;                         // 21       The highest rank the faction will profit from incoming spillover
-    //uint32    spilloverRank_unk;                          // 22       It does not seem to be the max standing at which a faction outputs spillover ...so no idea
-    char*       name[16];                                   // 23-38    m_name_lang
-                                                            // 39 string flags
-    //char*     description[16];                            // 40-55    m_description_lang
-                                                            // 56 string flags
+    uint32 ID;                                              // 0
+    int32 ReputationIndex;                                  // 1
+    uint32 ReputationRaceMask[4];                           // 2-5
+    uint32 ReputationClassMask[4];                          // 6-9
+    int32 ReputationBase[4];                                // 10-13
+    uint32 ReputationFlags[4];                              // 14-17
+    uint32 ParentFactionID;                                 // 18
+    float ParentFactionMod[2];                              // 19-20 [0] Faction gains incoming rep * spilloverRateIn
+                                                            //       [1] Faction outputs rep * spilloverRateOut as spillover reputation
+    uint32 ParentFactionCap[2];                             // 21-22 [0] The highest rank the faction will profit from incoming spillover
+                                                            //       [1] It does not seem to be the max standing at which a faction outputs spillover ...so no idea
+    char* Name[16];                                         // 23-38
+    //uint32 Name_lang_mask;                                // 39
+    //char* Description[16];                                // 40-55
+    //uint32 Description_lang_mask;                         // 56
 
     // helpers
     bool CanHaveReputation() const
     {
-        return reputationListID >= 0;
+        return ReputationIndex >= 0;
     }
 };
 

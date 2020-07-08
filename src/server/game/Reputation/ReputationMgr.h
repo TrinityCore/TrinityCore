@@ -85,7 +85,7 @@ class TC_GAME_API ReputationMgr
 
         FactionState const* GetState(FactionEntry const* factionEntry) const
         {
-            return factionEntry->CanHaveReputation() ? GetState(factionEntry->reputationListID) : nullptr;
+            return factionEntry->CanHaveReputation() ? GetState(factionEntry->ReputationIndex) : nullptr;
         }
 
         FactionState const* GetState(RepListID id) const

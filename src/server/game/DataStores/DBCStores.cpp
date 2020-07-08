@@ -416,9 +416,9 @@ void LoadDBCStores(const std::string& dataPath)
 
     for (FactionEntry const* faction : sFactionStore)
     {
-        if (faction->team)
+        if (faction->ParentFactionID)
         {
-            SimpleFactionsList& flist = sFactionTeamMap[faction->team];
+            SimpleFactionsList& flist = sFactionTeamMap[faction->ParentFactionID];
             flist.push_back(faction->ID);
         }
     }

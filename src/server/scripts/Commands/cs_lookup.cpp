@@ -338,7 +338,7 @@ public:
                 FactionState const* factionState = target ? target->GetReputationMgr().GetState(factionEntry) : nullptr;
 
                 uint8 locale = handler->GetSessionDbcLocale();
-                std::string name = factionEntry->name[locale];
+                std::string name = factionEntry->Name[locale];
                 if (name.empty())
                     continue;
 
@@ -350,7 +350,7 @@ public:
                         if (locale == handler->GetSessionDbcLocale())
                             continue;
 
-                        name = factionEntry->name[locale];
+                        name = factionEntry->Name[locale];
                         if (name.empty())
                             continue;
 
