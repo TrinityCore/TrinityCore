@@ -629,13 +629,13 @@ struct DurabilityQualityEntry
 
 struct EmotesEntry
 {
-    uint32  Id;                                             // 0
-    //char*   Name;                                         // 1, internal name
-    //uint32  AnimationId;                                  // 2, ref to animationData
-    uint32  Flags;                                          // 3, bitmask, may be unit_flags
-    uint32  EmoteType;                                      // 4, Can be 0, 1 or 2 (determine how emote are shown)
-    uint32  UnitStandState;                                 // 5, uncomfirmed, may be enum UnitStandStateType
-    //uint32  SoundId;                                      // 6, ref to soundEntries
+    uint32 ID;                                              // 0
+    //char* EmoteSlashCommand;                              // 1 internal name
+    //uint32 AnimID;                                        // 2 ref to animationData
+    uint32 EmoteFlags;                                      // 3 bitmask, may be unit_flags
+    uint32 EmoteSpecProc;                                   // 4 Can be 0, 1 or 2 (determine how emote are shown)
+    uint32 EmoteSpecProcParam;                              // 5 unconfirmed, may be enum UnitStandStateType
+    //uint32 EventSoundID;                                  // 6
 };
 
 struct EmotesTextEntry
