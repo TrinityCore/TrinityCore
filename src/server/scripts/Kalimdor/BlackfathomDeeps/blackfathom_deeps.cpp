@@ -85,109 +85,103 @@ class go_blackfathom_fire : public GameObjectScript
         }
 };
 
-class npc_blackfathom_deeps_event : public CreatureScript
+enum Events
 {
-public:
-    npc_blackfathom_deeps_event() : CreatureScript("npc_blackfathom_deeps_event") { }
+    EVENT_RAVAGE = 1,
+    EVENT_FROST_NOVA,
+    EVENT_FROST_BOLT_VOLLEY
+};
 
-    CreatureAI* GetAI(Creature* creature) const override
+struct npc_blackfathom_deeps_event : public ScriptedAI
+{
+    npc_blackfathom_deeps_event(Creature* creature) : ScriptedAI(creature), _instance(me->GetInstanceScript()), _flee(false) { }
+
+    void JustEngagedWith(Unit* /*who*/) override
     {
-        return GetBlackfathomDeepsAI<npc_blackfathom_deeps_eventAI>(creature);
+        _flee = false;
+
+        switch (me->GetEntry())
+        {
+            case NPC_AKU_MAI_SNAPJAW:
+                _events.ScheduleEvent(EVENT_RAVAGE, 5s, 8s);
+                break;
+            case NPC_AKU_MAI_SERVANT:
+                _events.ScheduleEvent(EVENT_FROST_NOVA, 9s, 12s);
+                _events.ScheduleEvent(EVENT_FROST_BOLT_VOLLEY, 2s, 4s);
+                break;
+            default:
+                break;
+        }
     }
 
-    struct npc_blackfathom_deeps_eventAI : public ScriptedAI
+    void EnterEvadeMode(EvadeReason why) override
     {
-        npc_blackfathom_deeps_eventAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-            if (creature->IsSummon())
-                creature->SetHomePosition(HomePosition);
+        _events.Reset();
+        ScriptedAI::EnterEvadeMode(why);
+    }
 
-            instance = creature->GetInstanceScript();
+    void IsSummonedBy(WorldObject* /*summoner*/) override
+    {
+        DoZoneInCombat();
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        if (me->IsSummon()) //we are not a normal spawn.
+            _instance->SetData(DATA_EVENT, _instance->GetData(DATA_EVENT) + 1);
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    {
+        if (me->GetEntry() != NPC_MURKSHALLOW_SOFTSHELL && me->GetEntry() != NPC_BARBED_CRUSTACEAN)
+            return;
+
+        if (!_flee && me->HealthBelowPctDamaged(15, damage))
+        {
+            _flee = true;
+            me->DoFleeToGetAssistance();
         }
+    }
 
-        void Initialize()
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = _events.ExecuteEvent())
         {
-            Flee = false;
-
-            ravageTimer = urand(5000, 8000);
-            frostNovaTimer = urand(9000, 12000);
-            frostBoltVolleyTimer = urand(2000, 4000);
-        }
-
-        InstanceScript* instance;
-
-        uint32 ravageTimer;
-        uint32 frostNovaTimer;
-        uint32 frostBoltVolleyTimer;
-
-        bool Flee;
-
-        void Reset() override
-        {
-            Initialize();
-        }
-
-        void IsSummonedBy(WorldObject*) override
-        {
-            DoZoneInCombat();
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            switch (me->GetEntry())
+            switch (eventId)
             {
-                case NPC_AKU_MAI_SNAPJAW:
-                {
-                    if (ravageTimer <= diff)
-                    {
-                        DoCastVictim(SPELL_RAVAGE);
-                        ravageTimer = urand(9000, 14000);
-                    } else ravageTimer -= diff;
+                case EVENT_RAVAGE:
+                    DoCastVictim(SPELL_RAVAGE);
+                    _events.Repeat(9s, 14s);
                     break;
-                }
-                case NPC_MURKSHALLOW_SOFTSHELL:
-                case NPC_BARBED_CRUSTACEAN:
-                {
-                    if (!Flee && HealthBelowPct(15))
-                    {
-                        Flee = true;
-                        me->DoFleeToGetAssistance();
-                    }
+                case EVENT_FROST_NOVA:
+                    DoCastAOE(SPELL_FROST_NOVA, false);
+                    _events.Repeat(25s, 30s);
                     break;
-                }
-                case NPC_AKU_MAI_SERVANT:
-                {
-                    if (frostBoltVolleyTimer <= diff)
-                    {
-                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                            DoCast(target, SPELL_FROST_BOLT_VOLLEY);
-                        frostBoltVolleyTimer = urand(5000, 8000);
-                    }
-                    else frostBoltVolleyTimer -= diff;
-
-                    if (frostNovaTimer <= diff)
-                    {
-                        DoCastAOE(SPELL_FROST_NOVA, false);
-                        frostNovaTimer = urand(25000, 30000);
-                    }
-                    else frostNovaTimer -= diff;
+                case EVENT_FROST_BOLT_VOLLEY:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                        DoCast(target, SPELL_FROST_BOLT_VOLLEY);
+                    _events.Repeat(5s, 8s);
                     break;
-                }
+                default:
+                    break;
             }
-
-            DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* /*killer*/) override
-        {
-            if (me->IsSummon()) //we are not a normal spawn.
-                instance->SetData(DATA_EVENT, instance->GetData(DATA_EVENT) + 1);
-        }
-    };
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
+    InstanceScript* _instance;
+    bool _flee;
 };
 
 enum Morridune
@@ -271,7 +265,7 @@ void AddSC_blackfathom_deeps()
 {
     new go_blackfathom_altar();
     new go_blackfathom_fire();
-    new npc_blackfathom_deeps_event();
+    RegisterBlackfathomDeepsCreatureAI(npc_blackfathom_deeps_event);
     new npc_morridune();
     new spell_subjugator_korul_darkness_calls();
 }
