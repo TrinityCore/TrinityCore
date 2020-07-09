@@ -231,19 +231,13 @@ enum HoOEvents
 Position const AnraphetSpawnPos     = { -90.2726f, 366.339f, 89.8639f,  3.14159f  };
 Position const AnraphetRespawnPos   = { -193.656f, 366.689f, 75.91001f, 3.138207f };
 
-template<typename AI>
-inline AI* GetHallsOfOriginationAI(Creature* creature)
+template<typename AI, class T>
+inline AI* GetHallsOfOriginationAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, HoOScriptName);
+    return GetInstanceAI<AI>(obj, HoOScriptName);
 }
 
 #define RegisterHallsOfOriginationCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetHallsOfOriginationAI)
-
-template<typename AI>
-inline AI* GetHallsOfOriginationAI(GameObject* go)
-{
-    return GetInstanceAI<AI>(go, HoOScriptName);
-}
 
 
 #endif // HALLS_OF_ORIGINATION_H
