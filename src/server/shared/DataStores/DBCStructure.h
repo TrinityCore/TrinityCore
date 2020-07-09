@@ -1179,9 +1179,9 @@ struct PvPDifficultyEntry
 
 struct QuestSortEntry
 {
-    uint32      id;                                         // 0        m_ID
-    //char*       name[16];                                 // 1-16     m_SortName_lang
-                                                            // 17 name flags
+    uint32 ID;                                              // 0
+    //char* SortName[16];                                   // 1-16
+    //uint32 SortName_lang;                                 // 17
 };
 
 struct QuestXPEntry
