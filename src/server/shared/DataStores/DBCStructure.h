@@ -1133,9 +1133,9 @@ struct MovieEntry
 
 struct NamesProfanityEntry
 {
-    //uint32    ID;                                         // 0
-    char const* Name;                                       // 1
-    int32       Language;                                   // 2
+    //uint32 ID;                                            // 0
+    char* Name;                                             // 1
+    int32 Language;                                         // 2
 };
 
 struct NamesReservedEntry
