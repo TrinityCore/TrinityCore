@@ -919,8 +919,8 @@ uint32 GetDefaultMapLight(uint32 mapId)
         if (!light)
             continue;
 
-        if (light->MapId == mapId && light->X == 0.0f && light->Y == 0.0f && light->Z == 0.0f)
-            return light->Id;
+        if (light->ContinentID == mapId && light->GameCoords.X == 0.0f && light->GameCoords.Y == 0.0f && light->GameCoords.Z == 0.0f)
+            return light->ID;
     }
 
     return 0;

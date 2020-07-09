@@ -1008,21 +1008,12 @@ struct LFGDungeonEntry
 
 struct LightEntry
 {
-    uint32 Id;
-    uint32 MapId;
-    float X;
-    float Y;
-    float Z;
-    //float FalloffStart;
-    //float FalloffEnd;
-    //uint32 SkyAndFog;
-    //uint32 WaterSettings;
-    //uint32 SunsetParams;
-    //uint32 OtherParams;
-    //uint32 DeathParams;
-    //uint32 Unknown;
-    //uint32 Unknown;
-    //uint32 Unknown;
+    uint32 ID;                                              // 0
+    uint32 ContinentID;                                     // 1
+    DBCPosition3D GameCoords;                               // 2-4
+    //float GameFalloffStart;                               // 5
+    //float GameFalloffEnd;                                 // 6
+    //uint32 LightParamsID[8];                              // 7-14
 };
 
 struct LiquidTypeEntry
