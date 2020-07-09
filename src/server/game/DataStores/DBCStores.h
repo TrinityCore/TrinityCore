@@ -162,7 +162,7 @@ TC_GAME_API extern DBCStorage <PowerDisplayEntry>            sPowerDisplayStore;
 TC_GAME_API extern DBCStorage <QuestSortEntry>               sQuestSortStore;
 TC_GAME_API extern DBCStorage <QuestXPEntry>                 sQuestXPStore;
 TC_GAME_API extern DBCStorage <QuestFactionRewEntry>         sQuestFactionRewardStore;
-TC_GAME_API extern DBCStorage <RandomPropertiesPointsEntry>  sRandomPropertiesPointsStore;
+TC_GAME_API extern DBCStorage <RandPropPointsEntry>          sRandPropPointsStore;
 TC_GAME_API extern DBCStorage <ScalingStatDistributionEntry> sScalingStatDistributionStore;
 TC_GAME_API extern DBCStorage <ScalingStatValuesEntry>       sScalingStatValuesStore;
 TC_GAME_API extern DBCStorage <SkillLineEntry>               sSkillLineStore;

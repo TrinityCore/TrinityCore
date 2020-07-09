@@ -1196,13 +1196,12 @@ struct QuestFactionRewEntry
     int32 Difficulty[10];                                   // 1
 };
 
-struct RandomPropertiesPointsEntry
+struct RandPropPointsEntry
 {
-    //uint32  Id;                                           // 0 hidden key
-    uint32    itemLevel;                                    // 1
-    uint32    EpicPropertiesPoints[5];                      // 2-6
-    uint32    RarePropertiesPoints[5];                      // 7-11
-    uint32    UncommonPropertiesPoints[5];                  // 12-16
+    uint32 ID;                                              // 0 item level
+    uint32 Epic[5];                                         // 1-5
+    uint32 Superior[5];                                     // 6-10
+    uint32 Good[5];                                         // 11-15
 };
 
 struct ScalingStatDistributionEntry
