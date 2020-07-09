@@ -3113,8 +3113,13 @@ class spell_the_lich_king_jump : public SpellScriptLoader
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
-                GetHitUnit()->RemoveAurasDueToSpell(SPELL_RAISE_DEAD);
-                GetHitUnit()->CastSpell((Unit*)nullptr, SPELL_JUMP_2, true);
+
+                if (Unit* target = GetHitUnit())
+                {
+                    target->RemoveAurasDueToSpell(SPELL_RAISE_DEAD);
+                    target->CastSpell((Unit*)nullptr, SPELL_JUMP_2, true);
+                }
+
                 if (Creature* creature = GetHitCreature())
                     creature->AI()->DoAction(ACTION_BREAK_FROSTMOURNE);
             }
