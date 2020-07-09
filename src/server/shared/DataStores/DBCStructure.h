@@ -1149,9 +1149,9 @@ struct NamesReservedEntry
 
 struct OverrideSpellDataEntry
 {
-    uint32      id;                                         // 0
-    uint32      spellId[MAX_OVERRIDE_SPELL];                // 1-10
-    //uint32      unk0;                                     // 11
+    uint32 ID;                                              // 0
+    uint32 Spells[MAX_OVERRIDE_SPELL];                      // 1-10
+    //uint32 Flags;                                         // 11
 };
 
 struct PowerDisplayEntry
