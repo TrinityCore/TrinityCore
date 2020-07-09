@@ -29,6 +29,7 @@ class Aura;
 class AuraApplication;
 class AuraEffect;
 class Creature;
+class Corpse;
 class DamageInfo;
 class DispelInfo;
 class DynamicObject;
