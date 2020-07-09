@@ -1156,12 +1156,12 @@ struct OverrideSpellDataEntry
 
 struct PowerDisplayEntry
 {
-    uint32 Id;                                              // 0
-    uint32 PowerType;                                       // 1
-    //char*  Name;                                          // 2
-    //uint32 R;                                             // 3
-    //uint32 G;                                             // 4
-    //uint32 B;                                             // 5
+    uint32 ID;                                              // 0
+    uint32 ActualType;                                      // 1
+    //char* GlobalStringBaseTag;                            // 2
+    //uint8 Red;                                            // 3
+    //uint8 Green;                                          // 4
+    //uint8 Blue;                                           // 5
 };
 
 struct PvPDifficultyEntry
