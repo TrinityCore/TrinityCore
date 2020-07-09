@@ -1114,14 +1114,14 @@ struct MapEntry
 
 struct MapDifficultyEntry
 {
-    //uint32      Id;                                       // 0
-    uint32      MapId;                                      // 1
-    uint32      Difficulty;                                 // 2 (for arenas: arena slot)
-    char*       areaTriggerText;                            // 3-18 text showed when transfer to map failed (missing requirements)
-    //uint32      textFlags;                                // 19
-    uint32      resetTime;                                  // 20
-    uint32      maxPlayers;                                 // 21
-    //char*       difficultyString;                         // 22
+    //uint32 ID;                                            // 0
+    uint32 MapID;                                           // 1
+    uint32 Difficulty;                                      // 2 (for arenas: arena slot)
+    char* Message;                                          // 3-18 text showed when transfer to map failed (missing requirements)
+    //uint32 Message_lang_mask;                             // 19
+    uint32 RaidDuration;                                    // 20
+    uint32 MaxPlayers;                                      // 21
+    //char* Difficultystring;                               // 22
 };
 
 struct MovieEntry
