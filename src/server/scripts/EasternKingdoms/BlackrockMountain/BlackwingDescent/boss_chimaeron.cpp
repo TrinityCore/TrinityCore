@@ -38,7 +38,6 @@ enum Spells
     SPELL_MASSACRE                  = 82848,
     SPELL_DOUBLE_ATTACK             = 88826,
     SPELL_DOUBLE_ATTACK_TRIGGERED   = 82882,
-    //SPELL_GUARDIAN_TAUNT            = 85667, Todo: research me
     SPELL_MORTALITY_1               = 82890,
     SPELL_MORTALITY_2               = 82934,
     SPELL_FEUD                      = 88872,
@@ -48,12 +47,7 @@ enum Spells
     SPELL_FINKLES_MIXTURE_VISUAL    = 91106,
     SPELL_SYSTEM_FAILURE            = 88853,
     SPELL_REROUTE_POWER             = 88861,
-    SPELL_SHUT_DOWN                 = 90405,
-
-    // Lord Victor Nefarius
-    SPELL_MOCKING_SHADOWS           = 91307,
-    SPELL_TELEPORT_VISUAL_ONLY      = 41232,
-    SPELL_SHADOW_WHIP               = 91304
+    SPELL_SHUT_DOWN                 = 90405
 };
 
 enum Texts
@@ -73,14 +67,7 @@ enum Texts
     SAY_ACTIVATED               = 0,
     SAY_KNOCKED_OUT             = 1,
     SAY_ONLINE                  = 2,
-    SAY_SHUT_DOWN               = 3,
-
-    // Lord Victor Nefarius
-    SAY_INTRODUCTION            = 0,
-    SAY_STOP_FEUD               = 1,
-    SAY_PHASE_2                 = 2,
-    SAY_CHIMAERON_LOST          = 3,
-    SAY_ENTRANCE_INTRO_HEROIC   = 4
+    SAY_SHUT_DOWN               = 3
 };
 
 enum Phases
@@ -107,13 +94,6 @@ enum Events
 
     // Bile-O-Tron 800
     EVENT_SHUT_DOWN,
-
-    // Lord Victor Nefarius
-    EVENT_INTRODUCE_CHIMAERON = 1,
-    EVENT_MOCKING_SHADOWS,
-    EVENT_TALK_CHIMAERON_DIED,
-    EVENT_TELEPORT_AWAY,
-    EVENT_TALK_HEROIC_INTRO
 };
 
 enum Actions
@@ -183,7 +163,7 @@ struct boss_chimaeron : public BossAI
         events.ScheduleEvent(EVENT_MASSACRE, 26s, 0, PHASE_1);
 
         if (IsHeroic())
-            DoSummon(NPC_LORD_VICTOR_NEFARIUS_CHIMAERON, LordVictorNefariusSummonPosition, 0, TEMPSUMMON_MANUAL_DESPAWN);
+            DoSummon(NPC_LORD_VICTOR_NEFARIUS_GENERIC, LordVictorNefariusSummonPosition, 0, TEMPSUMMON_MANUAL_DESPAWN);
 
         if (Creature * finkle = instance->GetCreature(DATA_FINKLE_EINHORN))
             if (finkle->IsAIEnabled)
@@ -202,8 +182,9 @@ struct boss_chimaeron : public BossAI
         if (Creature* finkle = instance->GetCreature(DATA_FINKLE_EINHORN))
             finkle->DespawnOrUnsummon(0ms, 30s);
 
-        if (Creature* nefarius = instance->GetCreature(DATA_LORD_VICTOR_NEFARIUS_CHIMAERON))
-            nefarius->DespawnOrUnsummon();
+        if (IsHeroic())
+            if (Creature* nefarius = instance->GetCreature(DATA_LORD_VICTOR_NEFARIUS_GENERIC))
+                nefarius->DespawnOrUnsummon();
 
         _DespawnAtEvade();
     }
@@ -222,9 +203,10 @@ struct boss_chimaeron : public BossAI
             if (finkle->IsAIEnabled)
                 finkle->AI()->DoAction(ACTION_CHIMAERON_DIED);
 
-        if (Creature * nefarius = instance->GetCreature(DATA_LORD_VICTOR_NEFARIUS_CHIMAERON))
-            if (nefarius->IsAIEnabled)
-                nefarius->AI()->DoAction(ACTION_CHIMAERON_DEFEATED);
+        if (IsHeroic())
+            if (Creature* nefarius = instance->GetCreature(DATA_LORD_VICTOR_NEFARIUS_GENERIC))
+                if (nefarius->IsAIEnabled)
+                    nefarius->AI()->DoAction(ACTION_CHIMAERON_DEFEATED);
                 
     }
 
@@ -246,9 +228,10 @@ struct boss_chimaeron : public BossAI
             DoCastAOE(SPELL_MORTALITY_1, true);
             DoCastSelf(SPELL_MORTALITY_2, true);
 
-            if (Creature * nefarius = instance->GetCreature(DATA_LORD_VICTOR_NEFARIUS_CHIMAERON))
-                if (nefarius->IsAIEnabled)
-                    nefarius->AI()->DoAction(ACTION_ENTER_PHASE_2);
+            if (IsHeroic())
+                if (Creature* nefarius = instance->GetCreature(DATA_LORD_VICTOR_NEFARIUS_GENERIC))
+                    if (nefarius->IsAIEnabled)
+                        nefarius->AI()->DoAction(ACTION_ENTER_PHASE_2);
         }
     }
 
@@ -306,7 +289,7 @@ struct boss_chimaeron : public BossAI
             case ACTION_START_FEUD:
                 _isInFeud = true;
                 if (IsHeroic())
-                    if (Creature * nefarius = instance->GetCreature(DATA_LORD_VICTOR_NEFARIUS_CHIMAERON))
+                    if (Creature* nefarius = instance->GetCreature(DATA_LORD_VICTOR_NEFARIUS_GENERIC))
                         if (nefarius->IsAIEnabled)
                             nefarius->AI()->DoAction(ACTION_STOP_FEUD);
                 break;
@@ -322,7 +305,7 @@ struct boss_chimaeron : public BossAI
     {
         switch (summon->GetEntry())
         {
-            case NPC_LORD_VICTOR_NEFARIUS_CHIMAERON:
+            case NPC_LORD_VICTOR_NEFARIUS_GENERIC:
                 break;
             default:
                 summons.Summon(summon);
@@ -543,82 +526,6 @@ private:
     InstanceScript* _instance;
 };
 
-struct npc_chimaeron_lord_victor_nefarius : public NullCreatureAI
-{
-    npc_chimaeron_lord_victor_nefarius(Creature* creature) : NullCreatureAI(creature), _instance(me->GetInstanceScript()) { }
-
-    void JustAppeared() override
-    {
-        DoCastSelf(SPELL_TELEPORT_VISUAL_ONLY);
-        if (me->FindNearestCreature(BOSS_CHIMAERON, 50.0f, true))
-            _events.ScheduleEvent(EVENT_INTRODUCE_CHIMAERON, 4s);
-        else
-            _events.ScheduleEvent(EVENT_TALK_HEROIC_INTRO, 3s);
-    }
-
-    void UpdateAI(uint32 diff) override
-    {
-        _events.Update(diff);
-
-        if (me->HasUnitState(UNIT_STATE_CASTING))
-            return;
-
-        while (uint32 eventId = _events.ExecuteEvent())
-        {
-            switch (eventId)
-            {
-                case EVENT_INTRODUCE_CHIMAERON:
-                    Talk(SAY_INTRODUCTION);
-                    break;
-                case EVENT_MOCKING_SHADOWS:
-                    Talk(SAY_PHASE_2);
-                    DoCastSelf(SPELL_MOCKING_SHADOWS);
-                    me->AddAura(SPELL_MOCKING_SHADOWS, me); // Tempfix until player only attribute spells accept creatures as original caster
-                    break;
-                case EVENT_TALK_CHIMAERON_DIED:
-                    Talk(SAY_CHIMAERON_LOST);
-                    _events.ScheduleEvent(EVENT_TELEPORT_AWAY, 6s);
-                    break;
-                case EVENT_TELEPORT_AWAY:
-                    DoCastSelf(SPELL_TELEPORT_VISUAL_ONLY);
-                    me->DespawnOrUnsummon(2s);
-                    break;
-                case EVENT_TALK_HEROIC_INTRO:
-                    Talk(SAY_ENTRANCE_INTRO_HEROIC);
-                    _events.ScheduleEvent(EVENT_TELEPORT_AWAY, 6s);
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-
-    void DoAction(int32 action) override
-    {
-        switch (action)
-        {
-            case ACTION_ENTER_PHASE_2:
-                _events.ScheduleEvent(EVENT_MOCKING_SHADOWS, 1ms);
-                break;
-            case ACTION_CHIMAERON_DEFEATED:
-                me->RemoveAllAurasExceptType(SPELL_AURA_DUMMY);
-                _events.Reset();
-                _events.ScheduleEvent(EVENT_TALK_CHIMAERON_DIED, 2s + 500ms);
-                break;
-            case ACTION_STOP_FEUD:
-                Talk(SAY_STOP_FEUD);
-                DoCastSelf(SPELL_SHADOW_WHIP);
-                break;
-            default:
-                break;
-        }
-    }
-
-private:
-    EventMap _events;
-    InstanceScript* _instance;
-};
-
 class spell_chimaeron_caustic_slime_targeting : public SpellScript
 {
     PrepareSpellScript(spell_chimaeron_caustic_slime_targeting);
@@ -826,7 +733,6 @@ void AddSC_boss_chimaeron()
     RegisterBlackwingDescentCreatureAI(boss_chimaeron);
     RegisterBlackwingDescentCreatureAI(npc_chimaeron_finkle_einhorn);
     RegisterBlackwingDescentCreatureAI(npc_chimaeron_bile_o_tron);
-    RegisterBlackwingDescentCreatureAI(npc_chimaeron_lord_victor_nefarius);
     RegisterSpellScript(spell_chimaeron_caustic_slime_targeting);
     RegisterSpellScript(spell_chimaeron_caustic_slime);
     RegisterAuraScript(spell_chimaeron_double_attack);

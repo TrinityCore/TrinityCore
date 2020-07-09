@@ -45,9 +45,9 @@ ObjectData const creatureData[] =
     { NPC_LORD_VICTOR_NEFARIUS_ATRAMEDES,       DATA_LORD_VICTOR_NEFARIUS_ATRAMEDES     },
     { NPC_BILE_O_TRON_800,                      DATA_BILE_O_TRON_800                    },
     { NPC_FINKLE_EINHORN,                       DATA_FINKLE_EINHORN                     },
-    { NPC_LORD_VICTOR_NEFARIUS_CHIMAERON,       DATA_LORD_VICTOR_NEFARIUS_CHIMAERON     },
     { NPC_CAULDRON_TRIGGER,                     DATA_CAULDRON_TRIGGER                   },
     { NPC_LORD_VICTOR_NEFARIUS_MALORIAK,        DATA_LORD_VICTOR_NEFARIUS_MALORIAK      },
+    { NPC_LORD_VICTOR_NEFARIUS_GENERIC,         DATA_LORD_VICTOR_NEFARIUS_GENERIC       },
     { NPC_LORD_VICTOR_NEFARIUS_NEFARIANS_END,   DATA_LORD_VICTOR_NEFARIUS_NEFARIANS_END },
     { NPC_INVISIBLE_STALKER,                    DATA_INVISIBLE_STALKER                  },
     { NPC_NEFARIANS_LIGHTNING_MACHINE,          DATA_NEFARIANS_LIGHTNING_MACHINE        },
@@ -91,6 +91,7 @@ enum Events
 
 enum Actions
 {
+    // Instance Actions
     ACTION_START_ATRAMEDES_INTRO = 0
 };
 
@@ -120,7 +121,6 @@ class instance_blackwing_descent : public InstanceMapScript
                 LoadDoorData(doorData);
                 _deadDwarfSpirits = 0;
                 _atramedesIntroState = NOT_STARTED;
-                _entranceSequenceDone = false;
                 _nefarianAchievementEligible = true;
                 _nefariansEndIntroDone = false;
             }
@@ -258,8 +258,21 @@ class instance_blackwing_descent : public InstanceMapScript
                                     stalker->DespawnOrUnsummon(0s, 30s);
                             }
 
+                            if (state == DONE)
+                                if (Creature* nefarius = GetCreature(DATA_LORD_VICTOR_NEFARIUS_GENERIC))
+                                    if (nefarius->IsAIEnabled)
+                                        nefarius->AI()->SetData(DATA_BOSS_DEFEATED, type);
+
                             _roomStalkerGUIDs.clear();
                         }
+                        break;
+                    case DATA_OMNOTRON_DEFENSE_SYSTEM:
+                    case DATA_CHIMAERON:
+                    case DATA_MALORIAK:
+                        if (state == DONE)
+                            if (Creature* nefarius = GetCreature(DATA_LORD_VICTOR_NEFARIUS_GENERIC))
+                                if (nefarius->IsAIEnabled)
+                                    nefarius->AI()->SetData(DATA_BOSS_DEFEATED, type);
                         break;
                     case DATA_ATRAMEDES:
                         if (state == FAIL)
@@ -268,7 +281,12 @@ class instance_blackwing_descent : public InstanceMapScript
                             instance->SpawnGroupDespawn(SPAWN_GROUP_ANCIENT_DWARVEN_SHIELDS, false);
                         }
                         else if (state == DONE)
+                        {
                             instance->SpawnGroupDespawn(SPAWN_GROUP_ANCIENT_DWARVEN_SHIELDS, false);
+                            if (Creature* nefarius = GetCreature(DATA_LORD_VICTOR_NEFARIUS_GENERIC))
+                                if (nefarius->IsAIEnabled)
+                                    nefarius->AI()->SetData(DATA_BOSS_DEFEATED, type);
+                        }
                         break;
                     case DATA_NEFARIANS_END:
                         if (state == FAIL)
@@ -325,15 +343,17 @@ class instance_blackwing_descent : public InstanceMapScript
                         SaveToDB();
                         break;
                     case DATA_ENTRANCE_INTRO:
-                        if (!_entranceSequenceDone)
-                        {
-                            if (instance->IsHeroic())
-                            {
-                                instance->SummonCreature(NPC_LORD_VICTOR_NEFARIUS_CHIMAERON, LordVictorNefariusIntroPosition);
-                                _entranceSequenceDone = true;
-                            }
-                        }
+                    {
+                        Creature* nefarius = nullptr;
+                        if (instance->IsHeroic())
+                            nefarius = instance->SummonCreature(NPC_LORD_VICTOR_NEFARIUS_GENERIC, LordVictorNefariusIntroPosition);
+                        else
+                            nefarius = GetCreature(DATA_LORD_VICTOR_NEFARIUS_GENERIC);
+
+                        if (nefarius && nefarius->IsAIEnabled)
+                            nefarius->AI()->SetData(DATA_HEROES_ENTERED_HALLS, DONE);
                         break;
+                    }
                     case DATA_NEFARIAN_ACHIEVEMENT_STATE:
                         _nefarianAchievementEligible = uint8(data);
                         DoUpdateWorldState(WS_KEEPING_IT_IN_THE_FAMILY, uint8(_nefarianAchievementEligible));
@@ -419,6 +439,8 @@ class instance_blackwing_descent : public InstanceMapScript
 
                         break;
                     }
+                    default:
+                        break;
                 }
 
                 return ObjectGuid::Empty;
@@ -489,7 +511,6 @@ class instance_blackwing_descent : public InstanceMapScript
             GuidVector _atramedesIntroGUIDs;
             uint8 _deadDwarfSpirits;
             uint8 _atramedesIntroState;
-            bool _entranceSequenceDone;
             bool _nefarianAchievementEligible;
             bool _nefariansEndIntroDone;
 

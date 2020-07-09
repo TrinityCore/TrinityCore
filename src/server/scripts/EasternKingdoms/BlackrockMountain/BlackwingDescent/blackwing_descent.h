@@ -42,6 +42,9 @@ enum BWDDataTypes
     DATA_ATRAMEDES_INTRO,
     DATA_ENTRANCE_INTRO,
     DATA_NEFARIAN_ACHIEVEMENT_STATE,
+    DATA_LORD_VICTOR_NEFARIUS_GENERIC,
+    DATA_BOSS_DEFEATED,
+    DATA_HEROES_ENTERED_HALLS,
 
     // Encounter Data
     /*Magmaw*/
@@ -62,7 +65,6 @@ enum BWDDataTypes
     /*Chimaeron*/
     DATA_BILE_O_TRON_800,
     DATA_FINKLE_EINHORN,
-    DATA_LORD_VICTOR_NEFARIUS_CHIMAERON,
 
     /*Maloriak*/
     DATA_CAULDRON_TRIGGER,
@@ -128,7 +130,6 @@ enum BWDCreatureIds
     /*Chimaeron*/
     NPC_FINKLE_EINHORN                      = 44202,
     NPC_BILE_O_TRON_800                     = 44418,
-    NPC_LORD_VICTOR_NEFARIUS_CHIMAERON      = 48964,
 
     /*Maloriak*/
     NPC_CAULDRON_TRIGGER                    = 41505,
@@ -159,7 +160,8 @@ enum BWDCreatureIds
     NPC_SPIRIT_OF_IRONSTAR                  = 43127,
     NPC_SPIRIT_OF_THAURISSAN                = 43126,
     NPC_SPIRIT_OF_BURNINGEYE                = 43130,
-    NPC_COLUMN_OF_LIGHT                     = 51506
+    NPC_COLUMN_OF_LIGHT                     = 51506,
+    NPC_LORD_VICTOR_NEFARIUS_GENERIC        = 48964
 };
 
 enum BWDGameObjectIds

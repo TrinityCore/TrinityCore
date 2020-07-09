@@ -23,9 +23,162 @@
 #include "Spell.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "Map.h"
+#include "PassiveAI.h"
 #include "Player.h"
 #include "InstanceScript.h"
 #include "blackwing_descent.h"
+
+enum LordVictorNefarius
+{
+    // Spells
+    SPELL_MOCKING_SHADOWS       = 91307,
+    SPELL_TELEPORT_VISUAL_ONLY  = 41232,
+    SPELL_SHADOW_WHIP           = 91304,
+
+    // Texts
+    SAY_INTRODUCTION            = 0,
+    SAY_STOP_FEUD               = 1,
+    SAY_PHASE_2                 = 2,
+    SAY_CHIMAERON_LOST          = 3,
+    SAY_ENTRANCE_INTRO_HEROIC   = 4,
+    SAY_ENTRANCE_INTRO_NORMAL   = 5,
+    SAY_MAGMAW_DEFEATED         = 6,
+    SAY_OMNOTRON_DEFEATED       = 7,
+    SAY_CHIMAERON_DEFEATED      = 8,
+    SAY_ATRAMEDES_DEFEATED      = 9,
+    SAY_MALORIAK_DEFEATED       = 10,
+
+    // Actions
+    ACTION_STOP_FEUD            = 1,
+    ACTION_ENTER_PHASE_2        = 2,
+    ACTION_CHIMAERON_DEFEATED   = 3,
+
+    // Events
+    EVENT_INTRODUCE_CHIMAERON   = 1,
+    EVENT_MOCKING_SHADOWS,
+    EVENT_TALK_CHIMAERON_DIED,
+    EVENT_TELEPORT_AWAY,
+    EVENT_TALK_INTRO_NORMAL,
+    EVENT_TALK_INTRO_HEROIC,
+    EVENT_TALK_BOSS_DEFEATED,
+
+};
+
+struct npc_bwd_lord_victor_nefarius : public NullCreatureAI
+{
+    npc_bwd_lord_victor_nefarius(Creature* creature) : NullCreatureAI(creature), _talkTextId(0) { }
+
+    void IsSummonedBy(Unit* summoner) override
+    {
+        if (summoner && summoner->GetEntry() == BOSS_CHIMAERON)
+        {
+            _events.ScheduleEvent(EVENT_INTRODUCE_CHIMAERON, 4s);
+            DoCastSelf(SPELL_TELEPORT_VISUAL_ONLY);
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_INTRODUCE_CHIMAERON:
+                    Talk(SAY_INTRODUCTION);
+                    break;
+                case EVENT_MOCKING_SHADOWS:
+                    Talk(SAY_PHASE_2);
+                    DoCastSelf(SPELL_MOCKING_SHADOWS);
+                    me->AddAura(SPELL_MOCKING_SHADOWS, me); // Tempfix until player only attribute spells accept creatures as original caster
+                    break;
+                case EVENT_TALK_CHIMAERON_DIED:
+                    Talk(SAY_CHIMAERON_LOST);
+                    _events.ScheduleEvent(EVENT_TELEPORT_AWAY, 6s);
+                    break;
+                case EVENT_TELEPORT_AWAY:
+                    DoCastSelf(SPELL_TELEPORT_VISUAL_ONLY);
+                    me->DespawnOrUnsummon(2s);
+                    break;
+                case EVENT_TALK_INTRO_NORMAL:
+                    Talk(SAY_ENTRANCE_INTRO_NORMAL);
+                    me->setActive(false);
+                    break;
+                case EVENT_TALK_INTRO_HEROIC:
+                    Talk(SAY_ENTRANCE_INTRO_HEROIC);
+                    _events.ScheduleEvent(EVENT_TELEPORT_AWAY, 6s);
+                    break;
+                case EVENT_TALK_BOSS_DEFEATED:
+                    Talk(_talkTextId);
+                    me->setActive(false);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    void SetData(uint32 type, uint32 data) override
+    {
+        if (type == DATA_BOSS_DEFEATED && !me->GetMap()->IsHeroic())
+        {
+            me->setActive(true);
+            switch (data)
+            {
+                case DATA_MAGMAW:                   _talkTextId = SAY_MAGMAW_DEFEATED; break;
+                case DATA_OMNOTRON_DEFENSE_SYSTEM:  _talkTextId = SAY_OMNOTRON_DEFEATED; break;
+                case DATA_CHIMAERON:                _talkTextId = SAY_CHIMAERON_DEFEATED; break;
+                case DATA_ATRAMEDES:                _talkTextId = SAY_ATRAMEDES_DEFEATED; break;
+                case DATA_MALORIAK:                 _talkTextId = SAY_MALORIAK_DEFEATED; break;
+                default:
+                    break;
+            }
+            _events.ScheduleEvent(EVENT_TALK_BOSS_DEFEATED, 15s);
+        }
+        else if (type == DATA_HEROES_ENTERED_HALLS)
+        {
+            me->setActive(true);
+            if (me->GetMap()->IsHeroic())
+            {
+                DoCastSelf(SPELL_TELEPORT_VISUAL_ONLY);
+                _events.ScheduleEvent(EVENT_TALK_INTRO_HEROIC, 3s);
+            }
+            else
+                _events.ScheduleEvent(EVENT_TALK_INTRO_NORMAL, 12s);
+        }
+    }
+
+    void DoAction(int32 action) override
+    {
+        switch (action)
+        {
+            case ACTION_ENTER_PHASE_2:
+                _events.ScheduleEvent(EVENT_MOCKING_SHADOWS, 1ms);
+                break;
+            case ACTION_CHIMAERON_DEFEATED:
+                // This is only going to be triggered on heroic difficulty
+                me->RemoveAllAurasExceptType(SPELL_AURA_DUMMY);
+                _events.Reset();
+                _events.ScheduleEvent(EVENT_TALK_CHIMAERON_DIED, 2s + 500ms);
+                break;
+            case ACTION_STOP_FEUD:
+                Talk(SAY_STOP_FEUD);
+                DoCastSelf(SPELL_SHADOW_WHIP);
+                break;
+            default:
+                break;
+        }
+    }
+
+private:
+    EventMap _events;
+    uint8 _talkTextId;
+};
 
 struct go_bwd_ancient_bell : public GameObjectAI
 {
@@ -84,14 +237,14 @@ class spell_bwd_dragon_orb : public SpellScript
     }
 };
 
-class at_bwd_intro: public AreaTriggerScript
+class at_bwd_intro: public OnlyOnceAreaTriggerScript
 {
     public:
-        at_bwd_intro() : AreaTriggerScript("at_bwd_intro") { }
+        at_bwd_intro() : OnlyOnceAreaTriggerScript("at_bwd_intro") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
+        bool _OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
         {
-            if (InstanceScript * instance = player->GetInstanceScript())
+            if (InstanceScript* instance = player->GetInstanceScript())
                 instance->SetData(DATA_ENTRANCE_INTRO, IN_PROGRESS);
             return true;
         }
@@ -99,6 +252,7 @@ class at_bwd_intro: public AreaTriggerScript
 
 void AddSC_blackwing_descent()
 {
+    RegisterBlackwingDescentCreatureAI(npc_bwd_lord_victor_nefarius);
     RegisterGameObjectAI(go_bwd_ancient_bell);
     RegisterSpellScript(spell_bwd_dragon_orb);
     new at_bwd_intro();
