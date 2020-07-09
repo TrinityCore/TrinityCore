@@ -334,9 +334,15 @@ void FollowMovementGenerator::LaunchMovement(Unit* owner)
     if (velocity <= 0.1f)
         return;
 
-    // Predicting our follow destination
-    dest.m_positionX += std::cos(Position::NormalizeOrientation(_target->GetOrientation() + offset)) * velocity;
-    dest.m_positionY += std::sin(Position::NormalizeOrientation(_target->GetOrientation() + offset)) * velocity;
+    // Predicting our follow destination if the owner is slower or equally as fast as the target
+    bool predictDestination = (!_joinFormation && !_catchUpToTarget && velocity < _target->GetSpeed(SelectSpeedType(_target->m_movementInfo.GetMovementFlags())))
+        || (_joinFormation || _catchUpToTarget);
+
+    if (predictDestination)
+    {
+        dest.m_positionX += std::cos(Position::NormalizeOrientation(_target->GetOrientation() + offset)) * velocity;
+        dest.m_positionY += std::sin(Position::NormalizeOrientation(_target->GetOrientation() + offset)) * velocity;
+    }
 
     // Now we calculate our actual destination data
     if (!owner->HasUnitState(UNIT_STATE_IGNORE_PATHFINDING))

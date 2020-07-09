@@ -1815,7 +1815,7 @@ class npc_ascendant_council_frozen_orb : public CreatureScript
                                 Talk(SAY_ANNOUNCE_PURSUE_PLAYER, target);
                                 DoCast(target, SPELL_FROST_BEACON);
                                 me->ClearUnitState(UNIT_STATE_CASTING);
-                                me->GetMotionMaster()->MoveFollow(target, 0.0f, 0.0f);
+                                me->GetMotionMaster()->MoveFollow(target, 0.0f, 0.0f, false, false, true);
                                 _events.ScheduleEvent(EVENT_INCREASE_SPEED, 1s);
                             }
                             break;
