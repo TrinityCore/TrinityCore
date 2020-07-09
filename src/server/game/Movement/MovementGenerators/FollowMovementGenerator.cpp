@@ -341,9 +341,9 @@ void FollowMovementGenerator::LaunchMovement(Unit* owner)
     // Now we calculate our actual destination data
     if (!owner->HasUnitState(UNIT_STATE_IGNORE_PATHFINDING))
     {
-        float relativeAngle = _target->GetRelativeAngle(dest);
-        float distance = _target->GetExactDist2d(dest);
-        dest = _target->GetPosition();
+        float relativeAngle = owner->GetRelativeAngle(dest) - _target->GetOrientation() + owner->GetOrientation();
+        float distance = owner->GetExactDist2d(dest);
+        dest = owner->GetPosition();
         _target->MovePositionToFirstCollision(dest, distance, relativeAngle);
     }
 
