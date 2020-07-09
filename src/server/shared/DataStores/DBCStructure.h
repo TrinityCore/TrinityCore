@@ -1126,9 +1126,9 @@ struct MapDifficultyEntry
 
 struct MovieEntry
 {
-    uint32      Id;                                         // 0 index
-    //char*       filename;                                 // 1
-    //uint32      unk2;                                     // 2 always 100
+    uint32 ID;                                              // 0
+    //char* Filename;                                       // 1
+    //uint32 Volume;                                        // 2 always 100
 };
 
 struct NamesProfanityEntry
