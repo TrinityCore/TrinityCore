@@ -1018,25 +1018,25 @@ struct LightEntry
 
 struct LiquidTypeEntry
 {
-    uint32 Id;
-    //char*  Name;
-    //uint32 Flags;
-    uint32 Type;
-    //uint32 SoundId;
-    uint32 SpellId;
-    //float MaxDarkenDepth;
-    //float FogDarkenIntensity;
-    //float AmbDarkenIntensity;
-    //float DirDarkenIntensity;
-    //uint32 LightID;
-    //float ParticleScale;
-    //uint32 ParticleMovement;
-    //uint32 ParticleTexSlots;
-    //uint32 LiquidMaterialID;
-    //char* Texture[6];
-    //uint32 Color[2];
-    //float Unk1[18];
-    //uint32 Unk2[4];
+    uint32 ID;                                              // 0
+    //char* Name;                                           // 1
+    //uint32 Flags;                                         // 2
+    uint32 SoundBank;                                       // 3
+    //uint32 SoundID;                                       // 4
+    uint32 SpellID;                                         // 5
+    //float MaxDarkenDepth;                                 // 6
+    //float FogDarkenIntensity;                             // 7
+    //float AmbDarkenIntensity;                             // 8
+    //float DirDarkenIntensity;                             // 9
+    //uint32 LightID;                                       // 10
+    //float ParticleScale;                                  // 11
+    //uint32 ParticleMovement;                              // 12
+    //uint32 ParticleTexSlots;                              // 13
+    //uint32 MaterialID;                                    // 14
+    //char* Texture[6];                                     // 15-20
+    //uint32 Color[2];                                      // 21-22
+    //float Unk1[18];                                       // 23-40
+    //uint32 Unk2[4];                                       // 41-44
 };
 
 #define MAX_LOCK_CASE 8

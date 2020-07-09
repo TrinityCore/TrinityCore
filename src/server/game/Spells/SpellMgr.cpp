@@ -2943,7 +2943,7 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
     // add custom attribute to liquid auras
     for (LiquidTypeEntry const* liquid : sLiquidTypeStore)
     {
-        if (uint32 spellId = liquid->SpellId)
+        if (uint32 spellId = liquid->SpellID)
             if (SpellInfo* spellInfo = _GetSpellInfo(spellId))
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_LIQUID_AURA;
     }

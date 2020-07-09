@@ -3160,15 +3160,15 @@ void Unit::ProcessTerrainStatusUpdate(ZLiquidStatus status, Optional<LiquidData>
         curLiquid = sLiquidTypeStore.LookupEntry(liquidData->entry);
     if (curLiquid != _lastLiquid)
     {
-        if (_lastLiquid && _lastLiquid->SpellId)
-            RemoveAurasDueToSpell(_lastLiquid->SpellId);
+        if (_lastLiquid && _lastLiquid->SpellID)
+            RemoveAurasDueToSpell(_lastLiquid->SpellID);
         Player* player = GetCharmerOrOwnerPlayerOrPlayerItself();
 
         // Set _lastLiquid before casting liquid spell to avoid infinite loops
         _lastLiquid = curLiquid;
 
-        if (curLiquid && curLiquid->SpellId && (!player || !player->IsGameMaster()))
-            CastSpell(this, curLiquid->SpellId, true);
+        if (curLiquid && curLiquid->SpellID && (!player || !player->IsGameMaster()))
+            CastSpell(this, curLiquid->SpellID, true);
     }
 }
 

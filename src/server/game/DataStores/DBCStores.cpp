@@ -860,7 +860,7 @@ uint32 const* GetTalentTabPages(uint8 cls)
 uint32 GetLiquidFlags(uint32 liquidType)
 {
     if (LiquidTypeEntry const* liq = sLiquidTypeStore.LookupEntry(liquidType))
-        return 1 << liq->Type;
+        return 1 << liq->SoundBank;
 
     return 0;
 }

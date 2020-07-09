@@ -2352,23 +2352,23 @@ inline ZLiquidStatus GridMap::GetLiquidStatus(float x, float y, float z, uint8 R
     if (LiquidTypeEntry const* liquidEntry = sLiquidTypeStore.LookupEntry(entry))
     {
         type &= MAP_LIQUID_TYPE_DARK_WATER;
-        uint32 liqTypeIdx = liquidEntry->Type;
+        uint32 liqTypeIdx = liquidEntry->SoundBank;
         if (entry < 21)
         {
             if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(getArea(x, y)))
             {
-                uint32 overrideLiquid = area->LiquidTypeID[liquidEntry->Type];
+                uint32 overrideLiquid = area->LiquidTypeID[liquidEntry->SoundBank];
                 if (!overrideLiquid && area->ParentAreaID)
                 {
                     area = sAreaTableStore.LookupEntry(area->ParentAreaID);
                     if (area)
-                        overrideLiquid = area->LiquidTypeID[liquidEntry->Type];
+                        overrideLiquid = area->LiquidTypeID[liquidEntry->SoundBank];
                 }
 
                 if (LiquidTypeEntry const* liq = sLiquidTypeStore.LookupEntry(overrideLiquid))
                 {
                     entry = overrideLiquid;
-                    liqTypeIdx = liq->Type;
+                    liqTypeIdx = liq->SoundBank;
                 }
             }
         }
@@ -2646,7 +2646,7 @@ ZLiquidStatus Map::GetLiquidStatus(uint32 phaseMask, float x, float y, float z, 
 
                 uint32 liquidFlagType = 0;
                 if (LiquidTypeEntry const* liq = sLiquidTypeStore.LookupEntry(liquid_type))
-                    liquidFlagType = liq->Type;
+                    liquidFlagType = liq->SoundBank;
 
                 if (liquid_type && liquid_type < 21)
                 {
@@ -2663,7 +2663,7 @@ ZLiquidStatus Map::GetLiquidStatus(uint32 phaseMask, float x, float y, float z, 
                         if (LiquidTypeEntry const* liq = sLiquidTypeStore.LookupEntry(overrideLiquid))
                         {
                             liquid_type = overrideLiquid;
-                            liquidFlagType = liq->Type;
+                            liquidFlagType = liq->SoundBank;
                         }
                     }
                 }
@@ -2801,7 +2801,7 @@ void Map::GetFullTerrainStatusForPosition(uint32 phaseMask, float x, float y, fl
 
         uint32 liquidFlagType = 0;
         if (LiquidTypeEntry const* liquidData = sLiquidTypeStore.LookupEntry(liquidType))
-            liquidFlagType = liquidData->Type;
+            liquidFlagType = liquidData->SoundBank;
 
         if (liquidType && liquidType < 21 && areaEntry)
         {
@@ -2816,7 +2816,7 @@ void Map::GetFullTerrainStatusForPosition(uint32 phaseMask, float x, float y, fl
             if (LiquidTypeEntry const* overrideData = sLiquidTypeStore.LookupEntry(overrideLiquid))
             {
                 liquidType = overrideLiquid;
-                liquidFlagType = overrideData->Type;
+                liquidFlagType = overrideData->SoundBank;
             }
         }
 
