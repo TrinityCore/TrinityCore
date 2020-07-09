@@ -18850,7 +18850,7 @@ void Player::_LoadBoundInstances(PreparedQueryResult result)
             bool deleteInstance = false;
 
             MapEntry const* mapEntry = sMapStore.LookupEntry(mapId);
-            std::string mapname = mapEntry ? mapEntry->name[sWorld->GetDefaultDbcLocale()] : "Unknown";
+            std::string mapname = mapEntry ? mapEntry->MapName[sWorld->GetDefaultDbcLocale()] : "Unknown";
 
             if (!mapEntry || !mapEntry->IsDungeon())
             {
@@ -20511,7 +20511,7 @@ void Player::ResetInstances(uint8 method, bool isRaid)
         if (method == INSTANCE_RESET_ALL)
         {
             // the "reset all instances" method can only reset normal maps
-            if (entry->map_type == MAP_RAID || diff == DUNGEON_DIFFICULTY_HEROIC)
+            if (entry->InstanceType == MAP_RAID || diff == DUNGEON_DIFFICULTY_HEROIC)
             {
                 ++itr;
                 continue;

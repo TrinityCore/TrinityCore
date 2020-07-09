@@ -6921,9 +6921,9 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveyard(float x, float y, float
         {
             // if find graveyard at different map from where entrance placed (or no entrance data), use any first
             if (!mapEntry
-                || mapEntry->entrance_map < 0
-                || uint32(mapEntry->entrance_map) != entry->map_id
-                || (mapEntry->entrance_x == 0 && mapEntry->entrance_y == 0))
+                || mapEntry->CorpseMapID < 0
+                || uint32(mapEntry->CorpseMapID) != entry->map_id
+                || (mapEntry->Corpse.X == 0 && mapEntry->Corpse.Y == 0))
             {
                 // not have any corrdinates for check distance anyway
                 entryFar = entry;
@@ -6931,8 +6931,8 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveyard(float x, float y, float
             }
 
             // at entrance map calculate distance (2D);
-            float dist2 = (entry->x - mapEntry->entrance_x)*(entry->x - mapEntry->entrance_x)
-                +(entry->y - mapEntry->entrance_y)*(entry->y - mapEntry->entrance_y);
+            float dist2 = (entry->x - mapEntry->Corpse.X)*(entry->x - mapEntry->Corpse.X)
+                +(entry->y - mapEntry->Corpse.Y)*(entry->y - mapEntry->Corpse.Y);
             if (foundEntr)
             {
                 if (dist2 < distEntr)
@@ -7240,7 +7240,7 @@ AreaTrigger const* ObjectMgr::GetGoBackTrigger(uint32 Map) const
     bool useParentDbValue = false;
     uint32 parentId = 0;
     MapEntry const* mapEntry = sMapStore.LookupEntry(Map);
-    if (!mapEntry || mapEntry->entrance_map < 0)
+    if (!mapEntry || mapEntry->CorpseMapID < 0)
         return nullptr;
 
     if (mapEntry->IsDungeon())
@@ -7254,7 +7254,7 @@ AreaTrigger const* ObjectMgr::GetGoBackTrigger(uint32 Map) const
         useParentDbValue = true;
     }
 
-    uint32 entrance_map = uint32(mapEntry->entrance_map);
+    uint32 entrance_map = uint32(mapEntry->CorpseMapID);
     for (AreaTriggerContainer::const_iterator itr = _areaTriggerStore.begin(); itr != _areaTriggerStore.end(); ++itr)
         if ((!useParentDbValue && itr->second.target_mapId == entrance_map) || (useParentDbValue && itr->second.target_mapId == parentId))
         {

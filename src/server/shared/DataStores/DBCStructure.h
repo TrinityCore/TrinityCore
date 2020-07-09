@@ -1061,53 +1061,52 @@ struct MailTemplateEntry
 
 struct MapEntry
 {
-    uint32  MapID;                                          // 0
-    //char*       internalname;                             // 1 unused
-    uint32  map_type;                                       // 2
-    uint32  Flags;                                          // 3
-                                                            // 4 0 or 1 for battlegrounds (not arenas)
-    char*   name[16];                                       // 5-20
-                                                            // 21 name flags, unused
-    uint32  linked_zone;                                    // 22 common zone for instance and continent map
-    //char*     hordeIntro[16];                             // 23-38 text for PvP Zones
-                                                            // 39 intro text flags
-    //char*     allianceIntro[16];                          // 40-55 text for PvP Zones
-                                                            // 56 intro text flags
-    uint32  multimap_id;                                    // 57
-    //float BattlefieldMapIconScale;                        // 58
-    int32   entrance_map;                                   // 59 map_id of entrance map
-    float   entrance_x;                                     // 60 entrance x coordinate (if exist single entry)
-    float   entrance_y;                                     // 61 entrance y coordinate (if exist single entry)
+    uint32 ID;                                              // 0
+    //char* Directory;                                      // 1
+    uint32 InstanceType;                                    // 2
+    uint32 Flags;                                           // 3
+    //uint32 MapType;                                       // 4 0 or 1 for battlegrounds (not arenas)
+    char* MapName[16];                                      // 5-20
+    //uint32 MapName_lang_mask;                             // 21
+    uint32 AreaTableID;                                     // 22 common zone for instance and continent map
+    //char* MapDescription0[16];                            // 23-38 text for PvP Zones (Horde)
+    //uint32 MapDescription0_lang_mask;                     // 39
+    //char* MapDescription1[16];                            // 40-55 text for PvP Zones (Alliance)
+    //uint32 MapDescription1_lang_mask;                     // 56
+    uint32 LoadingScreenID;                                 // 57
+    //float MinimapIconScale;                               // 58
+    int32 CorpseMapID;                                      // 59 MapID of entrance map
+    DBCPosition2D Corpse;                                   // 60-61 entrance coordinate (if exist single entry)
     //uint32 TimeOfDayOverride;                             // 62 -1, 0 and 720
-    uint32  addon;                                          // 63 (0-original maps, 1-tbc addon)
-    uint32  unk_time;                                       // 64 some kind of time?
-    uint32  maxPlayers;                                     // 65 max players, fallback if not present in MapDifficulty.dbc
+    uint32 ExpansionID;                                     // 63
+    uint32 RaidOffset;                                      // 64
+    uint32 MaxPlayers;                                      // 65 max players, fallback if not present in MapDifficulty.dbc
 
     // Helpers
-    uint32 Expansion() const { return addon; }
+    uint32 Expansion() const { return ExpansionID; }
 
-    bool IsDungeon() const { return map_type == MAP_INSTANCE || map_type == MAP_RAID; }
-    bool IsNonRaidDungeon() const { return map_type == MAP_INSTANCE; }
-    bool Instanceable() const { return map_type == MAP_INSTANCE || map_type == MAP_RAID || map_type == MAP_BATTLEGROUND || map_type == MAP_ARENA; }
-    bool IsRaid() const { return map_type == MAP_RAID; }
-    bool IsBattleground() const { return map_type == MAP_BATTLEGROUND; }
-    bool IsBattleArena() const { return map_type == MAP_ARENA; }
-    bool IsBattlegroundOrArena() const { return map_type == MAP_BATTLEGROUND || map_type == MAP_ARENA; }
-    bool IsWorldMap() const { return map_type == MAP_COMMON; }
+    bool IsDungeon() const { return InstanceType == MAP_INSTANCE || InstanceType == MAP_RAID; }
+    bool IsNonRaidDungeon() const { return InstanceType == MAP_INSTANCE; }
+    bool Instanceable() const { return InstanceType == MAP_INSTANCE || InstanceType == MAP_RAID || InstanceType == MAP_BATTLEGROUND || InstanceType == MAP_ARENA; }
+    bool IsRaid() const { return InstanceType == MAP_RAID; }
+    bool IsBattleground() const { return InstanceType == MAP_BATTLEGROUND; }
+    bool IsBattleArena() const { return InstanceType == MAP_ARENA; }
+    bool IsBattlegroundOrArena() const { return InstanceType == MAP_BATTLEGROUND || InstanceType == MAP_ARENA; }
+    bool IsWorldMap() const { return InstanceType == MAP_COMMON; }
 
     bool GetEntrancePos(int32 &mapid, float &x, float &y) const
     {
-        if (entrance_map < 0)
+        if (CorpseMapID < 0)
             return false;
-        mapid = entrance_map;
-        x = entrance_x;
-        y = entrance_y;
+        mapid = CorpseMapID;
+        x = Corpse.X;
+        y = Corpse.Y;
         return true;
     }
 
     bool IsContinent() const
     {
-        return MapID == 0 || MapID == 1 || MapID == 530 || MapID == 571;
+        return ID == 0 || ID == 1 || ID == 530 || ID == 571;
     }
 
     bool IsDynamicDifficultyMap() const { return (Flags & MAP_FLAG_DYNAMIC_DIFFICULTY) != 0; }

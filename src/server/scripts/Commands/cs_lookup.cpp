@@ -1343,7 +1343,7 @@ public:
         {
             if (MapEntry const* mapInfo = sMapStore.LookupEntry(id))
             {
-                std::string name = mapInfo->name[locale];
+                std::string name = mapInfo->MapName[locale];
                 if (name.empty())
                     continue;
 
@@ -1361,7 +1361,7 @@ public:
                     if (mapInfo->IsContinent())
                         ss << handler->GetTrinityString(LANG_CONTINENT);
 
-                    switch (mapInfo->map_type)
+                    switch (mapInfo->InstanceType)
                     {
                         case MAP_INSTANCE:
                             ss << handler->GetTrinityString(LANG_INSTANCE);
@@ -1400,7 +1400,7 @@ public:
         if (MapEntry const* mapInfo = sMapStore.LookupEntry(id))
         {
             uint8 locale = handler->GetSession() ? handler->GetSession()->GetSessionDbcLocale() : sWorld->GetDefaultDbcLocale();
-            std::string name = mapInfo->name[locale];
+            std::string name = mapInfo->MapName[locale];
             if (name.empty())
             {
                 handler->SendSysMessage(LANG_COMMAND_NOSPELLFOUND);
@@ -1413,7 +1413,7 @@ public:
             if (mapInfo->IsContinent())
                 ss << handler->GetTrinityString(LANG_CONTINENT);
 
-            switch (mapInfo->map_type)
+            switch (mapInfo->InstanceType)
             {
             case MAP_INSTANCE:
                 ss << handler->GetTrinityString(LANG_INSTANCE);

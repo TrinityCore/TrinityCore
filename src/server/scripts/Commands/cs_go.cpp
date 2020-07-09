@@ -402,7 +402,7 @@ public:
         {
             uint32 count = 0;
             std::string const& scriptName = sObjectMgr->GetScriptName(pair.second.ScriptId);
-            char const* mapName = ASSERT_NOTNULL(sMapStore.LookupEntry(pair.first))->name[handler->GetSessionDbcLocale()];
+            char const* mapName = ASSERT_NOTNULL(sMapStore.LookupEntry(pair.first))->MapName[handler->GetSessionDbcLocale()];
             for (auto const& label : labels)
                 if (StringContainsStringI(scriptName, label))
                     ++count;
@@ -451,7 +451,7 @@ public:
             else
             {
                 uint32 const parentMapId = exit->target_mapId;
-                char const* const parentMapName = ASSERT_NOTNULL(sMapStore.LookupEntry(parentMapId))->name[handler->GetSessionDbcLocale()];
+                char const* const parentMapName = ASSERT_NOTNULL(sMapStore.LookupEntry(parentMapId))->MapName[handler->GetSessionDbcLocale()];
                 handler->PSendSysMessage(LANG_COMMAND_GO_INSTANCE_GATE_FAILED, mapName, mapId, parentMapName, parentMapId);
             }
         }
@@ -552,7 +552,7 @@ public:
             {
                 uint32 const mapId = spawn->mapId;
                 MapEntry const* const map = ASSERT_NOTNULL(sMapStore.LookupEntry(mapId));
-                handler->PSendSysMessage(LANG_COMMAND_BOSS_MULTIPLE_SPAWN_ETY, spawn->spawnId, mapId, map->name[handler->GetSessionDbcLocale()], spawn->spawnPoint.ToString().c_str());
+                handler->PSendSysMessage(LANG_COMMAND_BOSS_MULTIPLE_SPAWN_ETY, spawn->spawnId, mapId, map->MapName[handler->GetSessionDbcLocale()], spawn->spawnPoint.ToString().c_str());
             }
             handler->SetSentErrorMessage(true);
             return false;
@@ -568,7 +568,7 @@ public:
         uint32 const mapId = spawn->mapId;
         if (!player->TeleportTo({ mapId, spawn->spawnPoint }))
         {
-            char const* const mapName = ASSERT_NOTNULL(sMapStore.LookupEntry(mapId))->name[handler->GetSessionDbcLocale()];
+            char const* const mapName = ASSERT_NOTNULL(sMapStore.LookupEntry(mapId))->MapName[handler->GetSessionDbcLocale()];
             handler->PSendSysMessage(LANG_COMMAND_GO_BOSS_FAILED, spawn->spawnId, boss->Name.c_str(), boss->Entry, mapName);
             handler->SetSentErrorMessage(true);
             return false;

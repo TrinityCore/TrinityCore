@@ -278,7 +278,7 @@ public:
         char const* unknown = handler->GetTrinityString(LANG_UNKNOWN);
 
         handler->PSendSysMessage(LANG_MAP_POSITION,
-            mapId, (mapEntry ? mapEntry->name[handler->GetSessionDbcLocale()] : unknown),
+            mapId, (mapEntry ? mapEntry->MapName[handler->GetSessionDbcLocale()] : unknown),
             zoneId, (zoneEntry ? zoneEntry->AreaName[handler->GetSessionDbcLocale()] : unknown),
             areaId, (areaEntry ? areaEntry->AreaName[handler->GetSessionDbcLocale()] : unknown),
             object->GetPhaseMask(),
@@ -1854,9 +1854,9 @@ public:
             zoneName = handler->GetTrinityString(LANG_UNKNOWN);
 
         if (areaName)
-            handler->PSendSysMessage(LANG_PINFO_CHR_MAP_WITH_AREA, map->name[locale], zoneName, areaName);
+            handler->PSendSysMessage(LANG_PINFO_CHR_MAP_WITH_AREA, map->MapName[locale], zoneName, areaName);
         else
-            handler->PSendSysMessage(LANG_PINFO_CHR_MAP, map->name[locale], zoneName);
+            handler->PSendSysMessage(LANG_PINFO_CHR_MAP, map->MapName[locale], zoneName);
 
         // Output XVII. - XVIX. if they are not empty
         if (!guildName.empty())
