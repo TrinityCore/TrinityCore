@@ -3188,11 +3188,6 @@ class spell_the_lich_king_jump_remove_aura : public SpellScriptLoader
         {
             PrepareSpellScript(spell_the_lich_king_jump_SpellScript);
 
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                targets.remove_if([](WorldObject const* target) { return target->IsCorpse(); });
-            }
-
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
@@ -3201,7 +3196,6 @@ class spell_the_lich_king_jump_remove_aura : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_the_lich_king_jump_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
                 OnEffectHitTarget += SpellEffectFn(spell_the_lich_king_jump_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };

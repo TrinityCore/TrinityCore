@@ -1954,12 +1954,8 @@ uint32 Spell::GetSearcherTypeMask(SpellTargetObjectTypes objType, ConditionConta
     {
         case TARGET_OBJECT_TYPE_UNIT:
         case TARGET_OBJECT_TYPE_UNIT_AND_DEST:
-            if (!m_spellInfo->HasAttribute(SPELL_ATTR2_CAN_TARGET_DEAD))
-            {
-                retMask &= GRID_MAP_TYPE_MASK_PLAYER | GRID_MAP_TYPE_MASK_CREATURE;
-                break;
-            }
-            [[fallthrough]];
+            retMask &= GRID_MAP_TYPE_MASK_PLAYER | GRID_MAP_TYPE_MASK_CREATURE;
+            break;
         case TARGET_OBJECT_TYPE_CORPSE:
         case TARGET_OBJECT_TYPE_CORPSE_ENEMY:
         case TARGET_OBJECT_TYPE_CORPSE_ALLY:
