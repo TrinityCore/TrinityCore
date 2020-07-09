@@ -1192,8 +1192,8 @@ struct QuestXPEntry
 
 struct QuestFactionRewEntry
 {
-  uint32      id;
-  int32       QuestRewFactionValue[10];
+    uint32 ID;                                              // 0
+    int32 Difficulty[10];                                   // 1
 };
 
 struct RandomPropertiesPointsEntry
