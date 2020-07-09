@@ -523,9 +523,6 @@ void SmartAI::InitializeAI()
     _despawnTime = 0;
     _despawnState = 0;
     _escortState = SMART_ESCORT_NONE;
-
-    me->SetVisible(true);
-
     _followGUID.Clear(); // do not reset follower on Reset(), we need it after combat evade
     _followDistance = 0;
     _followAngle = 0;
