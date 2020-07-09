@@ -982,25 +982,28 @@ struct ItemSetEntry
 
 struct LFGDungeonEntry
 {
-    uint32  ID;                                             // 0
-    char*   name[16];                                       // 1-17 Name lang
-    uint32  minlevel;                                       // 18
-    uint32  maxlevel;                                       // 19
-    uint32  reclevel;                                       // 20
-    uint32  recminlevel;                                    // 21
-    uint32  recmaxlevel;                                    // 22
-    int32   map;                                            // 23
-    uint32  difficulty;                                     // 24
-    uint32  flags;                                          // 25
-    uint32  type;                                           // 26
-    //uint32  unk;                                          // 27
-    //char*   iconname;                                     // 28
-    uint32  expansion;                                      // 29
-    //uint32  unk4;                                         // 30
-    uint32  grouptype;                                      // 31
-    //char*   desc[16];                                     // 32-47 Description
+    uint32 ID;                                              // 0
+    char* Name[16];                                         // 1-16
+    //uint32 Name_lang_mask;                                // 17
+    uint32 MinLevel;                                        // 18
+    uint32 MaxLevel;                                        // 19
+    uint32 TargetLevel;                                     // 20
+    uint32 TargetLevelMin;                                  // 21
+    uint32 TargetLevelMax;                                  // 22
+    int32 MapID;                                            // 23
+    uint32 Difficulty;                                      // 24
+    uint32 Flags;                                           // 25
+    uint32 TypeID;                                          // 26
+    //int32 Faction;                                        // 27
+    //char* TextureFilename;                                // 28
+    uint32 ExpansionLevel;                                  // 29
+    //uint32 OrderIndex;                                    // 30
+    uint32 GroupID;                                         // 31
+    //char* Description[16];                                // 32-47
+    //uint32 Description_lang_mask;                         // 48
+
     // Helpers
-    uint32 Entry() const { return ID + (type << 24); }
+    uint32 Entry() const { return ID + (TypeID << 24); }
 };
 
 struct LightEntry
