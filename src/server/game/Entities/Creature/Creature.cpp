@@ -3070,7 +3070,7 @@ std::string Creature::GetNameForLocaleIdx(LocaleConstant locale) const
 
 uint32 Creature::GetPetAutoSpellOnPos(uint8 pos) const
 {
-    if (pos >= MAX_SPELL_CHARM || m_charmInfo->GetCharmSpell(pos)->GetType() != ACT_ENABLED)
+    if (pos >= MAX_SPELL_CHARM || !m_charmInfo || m_charmInfo->GetCharmSpell(pos)->GetType() != ACT_ENABLED)
         return 0;
     else
         return m_charmInfo->GetCharmSpell(pos)->GetAction();
