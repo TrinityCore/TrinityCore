@@ -423,6 +423,8 @@ class TC_GAME_API SpellScript : public _SpellScript
         Item* GetHitItem() const;
         // returns: target of current effect if it was GameObject otherwise nullptr
         GameObject* GetHitGObj() const;
+        // returns: target of current effect if it was Corpse otherwise nullptr
+        Corpse* GetHitCorpse() const;
         // returns: destination of current effect
         WorldLocation* GetHitDest() const;
         // setter/getter for for damage done by spell to target of spell hit
