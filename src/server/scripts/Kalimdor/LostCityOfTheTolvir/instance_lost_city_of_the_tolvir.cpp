@@ -119,6 +119,11 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
                     case NPC_REPENTANCE:
                         repenteanceGUIDs.push_back(creature->GetGUID());
                         break;
+                    case NPC_TOLVIR_LAND_MINE:
+                        if (Creature* husam = GetCreature(DATA_GENERAL_HUSAM))
+                            if (husam->IsAIEnabled)
+                                husam->AI()->JustSummoned(creature);
+                        break;
                     default:
                         break;
                 }

@@ -55,11 +55,13 @@ enum LCTCreatureIds
     BOSS_HIGH_PROPHET_BARIM         = 43612,
     BOSS_SIAMAT                     = 44819,
 
-    // Misc
+    // Encounter related creatures
+    /*General Husam*/
     NPC_BAD_INTENTIONS_TARGET       = 44586,
     NPC_SHOCKWAVE_STALKER           = 44711,
     NPC_SHOCKWAVE_VISUAL            = 44712,
-    NPC_TOLVIR_LAND_MINE            = 44796,
+    NPC_TOLVIR_LAND_MINE            = 44840,
+
     NPC_REPENTANCE                  = 43817,
     NPC_BLAZE_OF_THE_HEAVENS        = 48906,
     NPC_BLAZE_OF_THE_HEAVENS_FIRE   = 48907,
@@ -74,6 +76,8 @@ enum LCTCreatureIds
     NPC_MINION_OF_SIAMAT            = 44704,
     NPC_MINION_OF_SIAMAT_STORM      = 44713,
     NPC_CLOUD_BURST                 = 44541,
+
+    // Misc
     NPC_WIND_TUNNEL                 = 48092
 };
 
@@ -104,5 +108,7 @@ inline AI* GetLostCityOfTheTolvirAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, LCTScriptName);
 }
+
+#define RegisterLostCityOfTheTolvirAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetLostCityOfTheTolvirAI)
 
 #endif // LOST_CITY_OF_THE_TOLVIR_H_
