@@ -1186,8 +1186,8 @@ struct QuestSortEntry
 
 struct QuestXPEntry
 {
-  uint32      id;
-  uint32      Exp[10];
+    uint32 ID;                                              // 0
+    uint32 Difficulty[10];                                  // 1-10
 };
 
 struct QuestFactionRewEntry
