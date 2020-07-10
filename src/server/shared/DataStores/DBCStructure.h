@@ -1545,6 +1545,17 @@ struct SpellItemEnchantmentEntry
     uint32 MinLevel;                                        // 37
 };
 
+struct SpellItemEnchantmentConditionEntry
+{
+    uint32 ID;                                              // 0
+    uint8 LtOperandType[5];                                 // 1-5
+    //uint32 LtOperand[5];                                  // 6-10
+    uint8 Operator[5];                                      // 11-15
+    uint8 RtOperandType[5];                                 // 15-20
+    uint32 RtOperand[5];                                    // 21-25
+    //uint8 Logic[5];                                       // 25-30
+};
+
 struct SpellRadiusEntry
 {
     uint32 ID;                                              // 0
@@ -1589,17 +1600,6 @@ struct SpellShapeshiftFormEntry
     uint32 CombatRoundTime;                                 // 22
     uint32 CreatureDisplayID[4];                            // 23-26 [0] Alliance [1] Horde [2] Unk [3] Unk
     uint32 PresetSpellID[MAX_SHAPESHIFT_SPELLS];            // 27-34
-};
-
-struct SpellItemEnchantmentConditionEntry
-{
-    uint32  ID;                                             // 0        m_ID
-    uint8   Color[5];                                       // 1-5      m_lt_operandType[5]
-    //uint32  LT_Operand[5];                                // 6-10     m_lt_operand[5]
-    uint8   Comparator[5];                                  // 11-15    m_operator[5]
-    uint8   CompareColor[5];                                // 15-20    m_rt_operandType[5]
-    uint32  Value[5];                                       // 21-25    m_rt_operand[5]
-    //uint8   Logic[5]                                      // 25-30    m_logic[5]
 };
 
 struct SpellVisualEntry

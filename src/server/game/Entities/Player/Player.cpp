@@ -22098,15 +22098,15 @@ bool Player::EnchantmentFitsRequirements(uint32 enchantmentcondition, int8 slot)
 
     for (uint8 i = 0; i < 5; i++)
     {
-        if (!Condition->Color[i])
+        if (!Condition->LtOperandType[i])
             continue;
 
-        uint32 _cur_gem = curcount[Condition->Color[i] - 1];
+        uint32 _cur_gem = curcount[Condition->LtOperandType[i] - 1];
 
         // if have <CompareColor> use them as count, else use <value> from Condition
-        uint32 _cmp_gem = Condition->CompareColor[i] ? curcount[Condition->CompareColor[i] - 1]: Condition->Value[i];
+        uint32 _cmp_gem = Condition->RtOperandType[i] ? curcount[Condition->RtOperandType[i] - 1]: Condition->RtOperand[i];
 
-        switch (Condition->Comparator[i])
+        switch (Condition->Operator[i])
         {
             case 2:                                         // requires less <color> than (<value> || <comparecolor>) gems
                 activate &= (_cur_gem < _cmp_gem) ? true : false;
