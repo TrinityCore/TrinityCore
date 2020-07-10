@@ -1526,6 +1526,25 @@ struct SpellFocusObjectEntry
     //uint32 Name_lang_mask;                                // 16
 };
 
+struct SpellItemEnchantmentEntry
+{
+    uint32 ID;                                              // 0
+    //uint32 Charges;                                       // 1
+    uint32 Effect[MAX_ITEM_ENCHANTMENT_EFFECTS];            // 2-4
+    uint32 EffectPointsMin[MAX_ITEM_ENCHANTMENT_EFFECTS];   // 5-7
+    //uint32 EffectPointsMax[MAX_ITEM_ENCHANTMENT_EFFECTS]  // 8-10
+    uint32 EffectArg[MAX_ITEM_ENCHANTMENT_EFFECTS];         // 11-13
+    char* Name[16];                                         // 14-29
+    //uint32 Name_lang_mask;                                // 30
+    uint32 ItemVisual;                                      // 31
+    uint32 Flags;                                           // 32
+    uint32 SrcItemID;                                       // 33
+    uint32 ConditionID;                                     // 34
+    uint32 RequiredSkillID;                                 // 35
+    uint32 RequiredSkillRank;                               // 36
+    uint32 MinLevel;                                        // 37
+};
+
 struct SpellRadiusEntry
 {
     uint32 ID;                                              // 0
@@ -1570,25 +1589,6 @@ struct SpellShapeshiftFormEntry
     uint32 CombatRoundTime;                                 // 22
     uint32 CreatureDisplayID[4];                            // 23-26 [0] Alliance [1] Horde [2] Unk [3] Unk
     uint32 PresetSpellID[MAX_SHAPESHIFT_SPELLS];            // 27-34
-};
-
-struct SpellItemEnchantmentEntry
-{
-    uint32      ID;                                         // 0        m_ID
-    //uint32      charges;                                  // 1        m_charges
-    uint32      type[MAX_ITEM_ENCHANTMENT_EFFECTS];         // 2-4      m_effect[MAX_ITEM_ENCHANTMENT_EFFECTS]
-    uint32      amount[MAX_ITEM_ENCHANTMENT_EFFECTS];       // 5-7      m_effectPointsMin[MAX_ITEM_ENCHANTMENT_EFFECTS]
-    //uint32      amount2[MAX_ITEM_ENCHANTMENT_EFFECTS]     // 8-10     m_effectPointsMax[MAX_ITEM_ENCHANTMENT_EFFECTS]
-    uint32      spellid[MAX_ITEM_ENCHANTMENT_EFFECTS];      // 11-13    m_effectArg[MAX_ITEM_ENCHANTMENT_EFFECTS]
-    char*       description[16];                            // 14-29    m_name_lang[16]
-    //uint32      descriptionFlags;                         // 30 name flags
-    uint32      aura_id;                                    // 31       m_itemVisual
-    uint32      slot;                                       // 32       m_flags
-    uint32      GemID;                                      // 33       m_src_itemID
-    uint32      EnchantmentCondition;                       // 34       m_condition_id
-    uint32      requiredSkill;                              // 35       m_requiredSkillID
-    uint32      requiredSkillValue;                         // 36       m_requiredSkillRank
-    uint32      requiredLevel;                              // 37       m_requiredLevel
 };
 
 struct SpellItemEnchantmentConditionEntry
