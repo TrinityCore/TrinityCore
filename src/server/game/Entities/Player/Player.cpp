@@ -408,8 +408,6 @@ Player::Player(WorldSession* session): Unit(true)
     m_reputationMgr = new ReputationMgr(this);
 
     m_groupUpdateTimer.Reset(5000);
-
-    _acc_expansion = GetSession()->Expansion();
 }
 
 Player::~Player()
@@ -2667,29 +2665,9 @@ void Player::GiveLevel(uint8 level)
     sScriptMgr->OnPlayerLevelChanged(this, oldLevel);
 }
 
-uint8 Player::GetExpansionLevelLimit() const
-{
-    uint8 max_lvl = GetMaxLevelForExpansion(_acc_expansion);
-
-    // if _acc_expansion stores some undefined value, GetMaxLevelForExpansion
-    // returns 0 and it should be treated like the latest expansion
-    // with deafult max lvl
-    return max_lvl != 0 ? max_lvl : DEFAULT_MAX_LEVEL;
-}
-
 bool Player::IsMaxLevel() const
 {
-    uint8 exp_max_lvl = GetExpansionLevelLimit();
-    uint8 player_level = GetLevel();
-    uint8 conf_max_lvl = sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL);
-
-    if (player_level >= conf_max_lvl)
-        return true;
-    // only if expansion max level is not equal to the default value
-    else if (exp_max_lvl != DEFAULT_MAX_LEVEL && player_level >= exp_max_lvl)
-        return true;
-
-    return false;
+    return GetLevel() >= GetUInt32Value(PLAYER_FIELD_MAX_LEVEL);
 }
 
 void Player::InitTalentForLevel()
@@ -2743,7 +2721,12 @@ void Player::InitStatsForLevel(bool reapplyMods)
     PlayerLevelInfo info;
     sObjectMgr->GetPlayerLevelInfo(GetRace(), GetClass(), GetLevel(), &info);
 
-    SetUInt32Value(PLAYER_FIELD_MAX_LEVEL, sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL));
+    uint8 exp_max_lvl = GetMaxLevelForExpansion(GetSession()->Expansion());
+    uint8 conf_max_lvl = sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL);
+    if (exp_max_lvl == DEFAULT_MAX_LEVEL || exp_max_lvl >= conf_max_lvl)
+        SetUInt32Value(PLAYER_FIELD_MAX_LEVEL, conf_max_lvl);
+    else
+        SetUInt32Value(PLAYER_FIELD_MAX_LEVEL, exp_max_lvl);
     SetUInt32Value(PLAYER_NEXT_LEVEL_XP, sObjectMgr->GetXPForLevel(GetLevel()));
 
     // reset before any aura state sources (health set/aura apply)
