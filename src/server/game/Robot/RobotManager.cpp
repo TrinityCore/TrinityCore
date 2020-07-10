@@ -358,7 +358,7 @@ void RobotManager::UpdateRobotManager(uint32 pmDiff)
                     {
                         continue;
                     }
-                    if (eachPlayer->GetLevel() < 20)
+                    if (eachPlayer->GetLevel() < sRobotConfig->RobotMinLevel)
                     {
                         continue;
                     }
@@ -370,7 +370,7 @@ void RobotManager::UpdateRobotManager(uint32 pmDiff)
                 }
             }
         }
-        if (sRobotConfig->OnlineLevel >= 20)
+        if (sRobotConfig->OnlineLevel >= sRobotConfig->RobotMinLevel)
         {
             if (onlinePlayerLevelSet.find(sRobotConfig->OnlineLevel) == onlinePlayerLevelSet.end())
             {
@@ -4480,7 +4480,7 @@ void RobotManager::HandleChatCommand(Player* pmSender, std::string pmCMD, Player
                         {
                             continue;
                         }
-                        WhisperTo(pmReceiver, characterTalentTabNameMap[pmReceiver->GetClass()][pmReceiver->GetMaxTalentCountTab()], Language::LANG_UNIVERSAL, pmSender);
+                        WhisperTo(member, characterTalentTabNameMap[member->GetClass()][member->GetMaxTalentCountTab()], Language::LANG_UNIVERSAL, pmSender);
                     }
                 }
             }
@@ -6396,7 +6396,8 @@ bool RobotManager::InitializeCharacter(Player* pmTargetPlayer, uint32 pmTargetLe
         }
     }
 
-    if (pmTargetPlayer->GetFreeTalentPoints() > 0)
+    int freePoints = pmTargetPlayer->GetFreeTalentPoints();
+    if (freePoints > 0)
     {
         pmTargetPlayer->ResetTalents(true);
         uint8 specialty = urand(0, 2);
@@ -6465,30 +6466,42 @@ bool RobotManager::InitializeCharacter(Player* pmTargetPlayer, uint32 pmTargetLe
             }
             for (std::vector<TalentEntry const*>::iterator it = eachRowTalents.begin(); it != eachRowTalents.end(); it++)
             {
-                if (const TalentEntry* eachTE = *it)
+                freePoints = pmTargetPlayer->GetFreeTalentPoints();
+                if (freePoints > 0)
                 {
-                    uint8 maxRank = 4;
-                    if (eachTE->RankID[4] > 0)
+                    if (const TalentEntry* eachTE = *it)
                     {
-                        maxRank = 4;
+                        uint8 maxRank = 4;
+                        if (eachTE->RankID[4] > 0)
+                        {
+                            maxRank = 4;
+                        }
+                        else if (eachTE->RankID[3] > 0)
+                        {
+                            maxRank = 3;
+                        }
+                        else if (eachTE->RankID[2] > 0)
+                        {
+                            maxRank = 2;
+                        }
+                        else if (eachTE->RankID[1] > 0)
+                        {
+                            maxRank = 1;
+                        }
+                        else
+                        {
+                            maxRank = 0;
+                        }
+                        if (maxRank > freePoints - 1)
+                        {
+                            maxRank = freePoints - 1;
+                        }
+                        pmTargetPlayer->LearnTalent(eachTE->TalentID, maxRank);
                     }
-                    else if (eachTE->RankID[3] > 0)
-                    {
-                        maxRank = 3;
-                    }
-                    else if (eachTE->RankID[2] > 0)
-                    {
-                        maxRank = 2;
-                    }
-                    else if (eachTE->RankID[1] > 0)
-                    {
-                        maxRank = 1;
-                    }
-                    else
-                    {
-                        maxRank = 0;
-                    }
-                    pmTargetPlayer->LearnTalent(eachTE->TalentID, maxRank);
+                }
+                else
+                {
+                    break;
                 }
             }
         }
@@ -6706,15 +6719,34 @@ void RobotManager::InitializeEquipments(Player* pmTargetPlayer, bool pmReset)
             }
         }
     }
+    uint32 minQuality = ItemQualities::ITEM_QUALITY_UNCOMMON;
+    if (pmTargetPlayer->GetLevel() < 20)
+    {
+        minQuality = ItemQualities::ITEM_QUALITY_POOR;
+    }
     for (uint32 checkEquipSlot = EquipmentSlots::EQUIPMENT_SLOT_HEAD; checkEquipSlot < EquipmentSlots::EQUIPMENT_SLOT_TABARD; checkEquipSlot++)
     {
         if (checkEquipSlot == EquipmentSlots::EQUIPMENT_SLOT_HEAD || checkEquipSlot == EquipmentSlots::EQUIPMENT_SLOT_SHOULDERS || checkEquipSlot == EquipmentSlots::EQUIPMENT_SLOT_CHEST || checkEquipSlot == EquipmentSlots::EQUIPMENT_SLOT_WAIST || checkEquipSlot == EquipmentSlots::EQUIPMENT_SLOT_LEGS || checkEquipSlot == EquipmentSlots::EQUIPMENT_SLOT_FEET || checkEquipSlot == EquipmentSlots::EQUIPMENT_SLOT_WRISTS || checkEquipSlot == EquipmentSlots::EQUIPMENT_SLOT_HANDS)
         {
+            if (checkEquipSlot == EquipmentSlots::EQUIPMENT_SLOT_HEAD)
+            {
+                if (pmTargetPlayer->GetLevel() < 30)
+                {
+                    continue;
+                }
+            }
+            else if (checkEquipSlot == EquipmentSlots::EQUIPMENT_SLOT_SHOULDERS)
+            {
+                if (pmTargetPlayer->GetLevel() < 20)
+                {
+                    continue;
+                }
+            }
             if (Item* currentEquip = pmTargetPlayer->GetItemByPos(INVENTORY_SLOT_BAG_0, checkEquipSlot))
             {
                 if (const ItemTemplate* checkIT = currentEquip->GetTemplate())
                 {
-                    if (checkIT->Quality > ItemQualities::ITEM_QUALITY_NORMAL)
+                    if (checkIT->Quality >= minQuality)
                     {
                         continue;
                     }
@@ -6736,7 +6768,7 @@ void RobotManager::InitializeEquipments(Player* pmTargetPlayer, bool pmReset)
             {
                 if (const ItemTemplate* checkIT = currentEquip->GetTemplate())
                 {
-                    if (checkIT->Quality > ItemQualities::ITEM_QUALITY_NORMAL)
+                    if (checkIT->Quality >= minQuality)
                     {
                         continue;
                     }
@@ -6854,7 +6886,7 @@ void RobotManager::InitializeEquipments(Player* pmTargetPlayer, bool pmReset)
             {
                 if (const ItemTemplate* checkIT = currentEquip->GetTemplate())
                 {
-                    if (checkIT->Quality > ItemQualities::ITEM_QUALITY_NORMAL)
+                    if (checkIT->Quality >= minQuality)
                     {
                         continue;
                     }
@@ -6872,11 +6904,15 @@ void RobotManager::InitializeEquipments(Player* pmTargetPlayer, bool pmReset)
         }
         else if (checkEquipSlot == EquipmentSlots::EQUIPMENT_SLOT_FINGER1)
         {
+            if (pmTargetPlayer->GetLevel() < 20)
+            {
+                continue;
+            }
             if (Item* currentEquip = pmTargetPlayer->GetItemByPos(checkEquipSlot))
             {
                 if (const ItemTemplate* checkIT = currentEquip->GetTemplate())
                 {
-                    if (checkIT->Quality > ItemQualities::ITEM_QUALITY_NORMAL)
+                    if (checkIT->Quality >= minQuality)
                     {
                         continue;
                     }
@@ -6894,11 +6930,15 @@ void RobotManager::InitializeEquipments(Player* pmTargetPlayer, bool pmReset)
         }
         else if (checkEquipSlot == EquipmentSlots::EQUIPMENT_SLOT_FINGER2)
         {
+            if (pmTargetPlayer->GetLevel() < 20)
+            {
+                continue;
+            }
             if (Item* currentEquip = pmTargetPlayer->GetItemByPos(checkEquipSlot))
             {
                 if (const ItemTemplate* checkIT = currentEquip->GetTemplate())
                 {
-                    if (checkIT->Quality > ItemQualities::ITEM_QUALITY_NORMAL)
+                    if (checkIT->Quality >= minQuality)
                     {
                         continue;
                     }
@@ -6916,11 +6956,15 @@ void RobotManager::InitializeEquipments(Player* pmTargetPlayer, bool pmReset)
         }
         else if (checkEquipSlot == EquipmentSlots::EQUIPMENT_SLOT_NECK)
         {
+            if (pmTargetPlayer->GetLevel() < 30)
+            {
+                continue;
+            }
             if (Item* currentEquip = pmTargetPlayer->GetItemByPos(checkEquipSlot))
             {
                 if (const ItemTemplate* checkIT = currentEquip->GetTemplate())
                 {
-                    if (checkIT->Quality > ItemQualities::ITEM_QUALITY_NORMAL)
+                    if (checkIT->Quality >= minQuality)
                     {
                         continue;
                     }
@@ -7126,6 +7170,11 @@ void RobotManager::TryEquip(Player* pmTargetPlayer, std::unordered_set<uint32> p
     {
         return;
     }
+    uint32 minQuality = ItemQualities::ITEM_QUALITY_UNCOMMON;
+    if (pmTargetPlayer->GetLevel() < 20)
+    {
+        minQuality = ItemQualities::ITEM_QUALITY_POOR;
+    }
     std::unordered_map<uint32, uint32> validEquipSet;
     ItemTemplateContainer const& its = sObjectMgr->GetItemTemplateStore();
     for (auto const& itemTemplatePair : its)
@@ -7152,7 +7201,7 @@ void RobotManager::TryEquip(Player* pmTargetPlayer, std::unordered_set<uint32> p
         }
         else if (pmTargetPlayer->rai->robotType == RobotType::RobotType_World)
         {
-            if (proto->Quality < ItemQualities::ITEM_QUALITY_UNCOMMON || proto->Quality > ItemQualities::ITEM_QUALITY_EPIC)
+            if (proto->Quality < minQuality || proto->Quality > ItemQualities::ITEM_QUALITY_EPIC)
             {
                 continue;
             }
@@ -7201,13 +7250,13 @@ void RobotManager::TryEquip(Player* pmTargetPlayer, std::unordered_set<uint32> p
         if (usableSlotSet.find(pmTargetSlot) != usableSlotSet.end())
         {
             uint32 checkMinRequiredLevel = pmTargetPlayer->GetLevel();
-            if (checkMinRequiredLevel > 15)
+            if (checkMinRequiredLevel > 10)
             {
                 checkMinRequiredLevel = checkMinRequiredLevel - 5;
             }
             else
             {
-                checkMinRequiredLevel = 10;
+                checkMinRequiredLevel = 5;
             }
             if (proto->RequiredLevel <= pmTargetPlayer->GetLevel() && proto->RequiredLevel >= checkMinRequiredLevel)
             {

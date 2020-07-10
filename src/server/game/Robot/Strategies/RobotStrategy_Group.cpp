@@ -245,9 +245,36 @@ bool RobotStrategy_Group::Update0(uint32 pmDiff)
                     me->GetThreatManager().ClearAllThreat();
                     me->ClearInCombat();
                     sb->ClearTarget();
-                    me->TeleportTo(leaderPlayer->GetWorldLocation());
-                    sb->WhisperTo("I have come", Language::LANG_UNIVERSAL, leaderPlayer);
-                    return false;
+
+                    bool canTeleport = true;
+                    if (Group* myGroup = me->GetGroup())
+                    {
+                        for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                        {
+                            if (Player* member = groupRef->GetSource())
+                            {
+                                if (member->IsBeingTeleported())
+                                {
+                                    teleportAssembleDelay = 100;
+                                    canTeleport = false;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (canTeleport)
+                    {
+                        if (Map* leaderMap = leaderPlayer->GetMap())
+                        {
+                            if (!leaderMap->CannotEnter(me))
+                            {
+                                me->TeleportTo(leaderPlayer->GetWorldLocation());
+                                sb->WhisperTo("I have come", Language::LANG_UNIVERSAL, leaderPlayer);
+                                return false;
+                            }
+                        }
+                        sb->WhisperTo("I can not come to you", Language::LANG_UNIVERSAL, leaderPlayer);
+                    }
                 }
             }
         }

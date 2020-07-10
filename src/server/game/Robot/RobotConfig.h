@@ -44,6 +44,7 @@ public:
     uint32 EnableHorde;
     uint32 AssembleDelay;
     uint32 OnlineLevel;
+    uint32 RobotMinLevel;
     uint32 CountEachLevel;    
     uint32 OnlineMinDelay;
     uint32 OnlineMaxDelay;

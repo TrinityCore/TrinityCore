@@ -171,6 +171,12 @@ bool RobotConfig::StartRobotSystem()
     EnableHorde = GetIntDefault("EnableHorde", 1);
     AccountNamePrefix = GetStringDefault("AccountNamePrefix", "ROBOT");
     OnlineLevel = GetIntDefault("OnlineLevel", 0);
+    RobotMinLevel = GetIntDefault("RobotMinLevel", 10);
+    if (RobotMinLevel < 10)
+    {
+        TC_LOG_WARN("server.loading", "RobotMinLevel can not be less than 10");
+        RobotMinLevel = 10;
+    }
     CountEachLevel = GetIntDefault("CountEachLevel", 100);
     OnlineMinDelay = GetIntDefault("OnlineMinDelay", 60000);
     OnlineMaxDelay = GetIntDefault("OnlineMaxDelay", 300000);

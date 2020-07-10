@@ -295,7 +295,20 @@ void SmartAI::UpdateAI(uint32 diff)
         return;
 
     if (!hasVictim)
+    {
+        // EJ NPC guardian will really be a guardian
+        if (me->IsGuardian())
+        {
+            if (Unit* owner = me->GetOwner())
+            {
+                if (Unit* ov = owner->GetVictim())
+                {
+                    AttackStart(ov);
+                }
+            }
+        }
         return;
+    }        
 
     if (_canAutoAttack)
         DoMeleeAttackIfReady();
