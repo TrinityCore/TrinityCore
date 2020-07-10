@@ -541,7 +541,7 @@ float SpellEffectInfo::CalcRadius(WorldObject* caster /*= nullptr*/, Spell* spel
     if (!HasRadius())
         return 0.0f;
 
-    float radius = RadiusEntry->RadiusMin;
+    float radius = RadiusEntry->Radius;
     if (caster)
     {
         if (Unit* casterUnit = caster->ToUnit())
