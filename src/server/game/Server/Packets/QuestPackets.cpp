@@ -166,8 +166,8 @@ WorldPacket const* WorldPackets::Quest::QuestGiverQuestDetails::Write()
     _worldPacket << uint32(DescEmotes.size());
     for (WorldPackets::Quest::QuestDescEmote const& emote : DescEmotes)
     {
-        _worldPacket << uint32(emote.Delay);
         _worldPacket << uint32(emote.Type);
+        _worldPacket << uint32(emote.Delay);
     }
 
     return &_worldPacket;
