@@ -1540,12 +1540,12 @@ struct SpellRangeEntry
 
 struct SpellRuneCostEntry
 {
-    uint32  ID;                                             // 0
-    uint32  RuneCost[3];                                    // 1-3 (0=blood, 1=frost, 2=unholy)
-    uint32  runePowerGain;                                  // 4
+    uint32 ID;                                              // 0
+    uint32 RuneCost[3];                                     // 1-3 [0] Blood [1] Unholy [2] Frost
+    uint32 RunicPower;                                      // 4
 
     bool NoRuneCost() const { return RuneCost[0] == 0 && RuneCost[1] == 0 && RuneCost[2] == 0; }
-    bool NoRunicPowerGain() const { return runePowerGain == 0; }
+    bool NoRunicPowerGain() const { return RunicPower == 0; }
 };
 
 #define MAX_SHAPESHIFT_SPELLS 8
