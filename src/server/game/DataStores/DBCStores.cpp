@@ -476,17 +476,17 @@ void LoadDBCStores(const std::string& dataPath)
 
     for (SkillLineAbilityEntry const* skillLine : sSkillLineAbilityStore)
     {
-        SpellEntry const* spellInfo = sSpellStore.LookupEntry(skillLine->spellId);
+        SpellEntry const* spellInfo = sSpellStore.LookupEntry(skillLine->Spell);
         if (spellInfo && spellInfo->Attributes & SPELL_ATTR0_PASSIVE)
         {
             for (CreatureFamilyEntry const* cFamily : sCreatureFamilyStore)
             {
-                if (skillLine->skillId != cFamily->SkillLine[0] && skillLine->skillId != cFamily->SkillLine[1])
+                if (skillLine->SkillLine != cFamily->SkillLine[0] && skillLine->SkillLine != cFamily->SkillLine[1])
                     continue;
                 if (spellInfo->spellLevel)
                     continue;
 
-                if (skillLine->AutolearnType != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN)
+                if (skillLine->AcquireMethod != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN)
                     continue;
 
                 sPetFamilySpellsStore[cFamily->ID].insert(spellInfo->Id);

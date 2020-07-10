@@ -159,7 +159,7 @@ public:
             if (!entry)
                 continue;
 
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->spellId);
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Spell);
             if (!spellInfo)
                 continue;
 
@@ -450,26 +450,26 @@ public:
                 continue;
 
             // wrong skill
-            if (skillLine->skillId != skillId)
+            if (skillLine->SkillLine != skillId)
                 continue;
 
             // not high rank
-            if (skillLine->forward_spellid)
+            if (skillLine->SupercededBySpell)
                 continue;
 
             // skip racial skills
-            if (skillLine->racemask != 0)
+            if (skillLine->RaceMask != 0)
                 continue;
 
             // skip wrong class skills
-            if (skillLine->classmask && (skillLine->classmask & classmask) == 0)
+            if (skillLine->ClassMask && (skillLine->ClassMask & classmask) == 0)
                 continue;
 
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(skillLine->spellId);
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(skillLine->Spell);
             if (!spellInfo || !SpellMgr::IsSpellValid(spellInfo, player, false))
                 continue;
 
-            player->LearnSpell(skillLine->spellId, false);
+            player->LearnSpell(skillLine->Spell, false);
         }
     }
 

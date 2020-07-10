@@ -227,7 +227,7 @@ struct LinkValidator<LinkTags::enchant>
 
         for (auto pair = bounds.first; pair != bounds.second; ++pair)
         {
-            SkillLineEntry const* skill = sSkillLineStore.LookupEntry(pair->second->skillId);
+            SkillLineEntry const* skill = sSkillLineStore.LookupEntry(pair->second->SkillLine);
             if (!skill)
                 return false;
 

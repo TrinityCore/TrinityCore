@@ -2930,7 +2930,7 @@ void Player::SendUnlearnSpells()
         bool hasSupercededSpellInfoInClient = false;
         for (auto boundsItr = skillLineAbilities.first; boundsItr != skillLineAbilities.second; ++boundsItr)
         {
-            if (boundsItr->second->forward_spellid)
+            if (boundsItr->second->SupercededBySpell)
             {
                 hasSupercededSpellInfoInClient = true;
                 break;
@@ -3119,7 +3119,7 @@ static bool IsUnlearnSpellsPacketNeededForSpell(uint32 spellId)
             bool hasSupercededSpellInfoInClient = false;
             for (auto boundsItr = skillLineAbilities.first; boundsItr != skillLineAbilities.second; ++boundsItr)
             {
-                if (boundsItr->second->forward_spellid)
+                if (boundsItr->second->SupercededBySpell)
                 {
                     hasSupercededSpellInfoInClient = true;
                     break;
@@ -3433,7 +3433,7 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
         // not ranked skills
         for (SkillLineAbilityMap::const_iterator _spell_idx = skill_bounds.first; _spell_idx != skill_bounds.second; ++_spell_idx)
         {
-            SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(_spell_idx->second->skillId);
+            SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(_spell_idx->second->SkillLine);
             if (!pSkill)
                 continue;
 
@@ -3442,7 +3442,7 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
 
             ///@todo: confirm if rogues start with lockpicking skill at level 1 but only receive the spell to use it at level 16
             // Also added for runeforging. It's already confirmed this happens upon learning for Death Knights, not from character creation.
-            if ((_spell_idx->second->AutolearnType == SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN && !HasSkill(pSkill->ID)) || ((pSkill->ID == SKILL_LOCKPICKING || pSkill->ID == SKILL_RUNEFORGING) && _spell_idx->second->max_value == 0))
+            if ((_spell_idx->second->AcquireMethod == SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN && !HasSkill(pSkill->ID)) || ((pSkill->ID == SKILL_LOCKPICKING || pSkill->ID == SKILL_RUNEFORGING) && _spell_idx->second->TrivialSkillLineRankHigh == 0))
                 LearnDefaultSkill(pSkill->ID, 0);
 
             if (pSkill->ID == SKILL_MOUNTS && !Has310Flyer(false))
@@ -3472,8 +3472,8 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
         // not ranked skills
         for (SkillLineAbilityMap::const_iterator _spell_idx = skill_bounds.first; _spell_idx != skill_bounds.second; ++_spell_idx)
         {
-            UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LINE, _spell_idx->second->skillId);
-            UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILLLINE_SPELLS, _spell_idx->second->skillId);
+            UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LINE, _spell_idx->second->SkillLine);
+            UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILLLINE_SPELLS, _spell_idx->second->SkillLine);
         }
 
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LEARN_SPELL, spellId);
@@ -3694,11 +3694,11 @@ void Player::RemoveSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
         {
             for (SkillLineAbilityMap::const_iterator _spell_idx = bounds.first; _spell_idx != bounds.second; ++_spell_idx)
             {
-                SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(_spell_idx->second->skillId);
+                SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(_spell_idx->second->SkillLine);
                 if (!pSkill)
                     continue;
 
-                if (_spell_idx->second->skillId == SKILL_MOUNTS)
+                if (_spell_idx->second->SkillLine == SKILL_MOUNTS)
                 {
                     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
                     {
@@ -3803,7 +3803,7 @@ bool Player::Has310Flyer(bool checkAllSpells, uint32 excludeSpellId)
             SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(itr->first);
             for (SkillLineAbilityMap::const_iterator _spell_idx = bounds.first; _spell_idx != bounds.second; ++_spell_idx)
             {
-                if (_spell_idx->second->skillId != SKILL_MOUNTS)
+                if (_spell_idx->second->SkillLine != SKILL_MOUNTS)
                     break;  // We can break because mount spells belong only to one skillline (at least 310 flyers do)
 
                 spellInfo = sSpellMgr->AssertSpellInfo(itr->first);
@@ -5681,24 +5681,24 @@ bool Player::UpdateCraftSkill(uint32 spellid)
 
     for (SkillLineAbilityMap::const_iterator _spell_idx = bounds.first; _spell_idx != bounds.second; ++_spell_idx)
     {
-        if (_spell_idx->second->skillId)
+        if (_spell_idx->second->SkillLine)
         {
-            uint32 SkillValue = GetPureSkillValue(_spell_idx->second->skillId);
+            uint32 SkillValue = GetPureSkillValue(_spell_idx->second->SkillLine);
 
             // Alchemy Discoveries here
             SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(spellid);
             if (spellEntry && spellEntry->Mechanic == MECHANIC_DISCOVERY)
             {
-                if (uint32 discoveredSpell = GetSkillDiscoverySpell(_spell_idx->second->skillId, spellid, this))
+                if (uint32 discoveredSpell = GetSkillDiscoverySpell(_spell_idx->second->SkillLine, spellid, this))
                     LearnSpell(discoveredSpell, false);
             }
 
             uint32 craft_skill_gain = sWorld->getIntConfig(CONFIG_SKILL_GAIN_CRAFTING);
 
-            return UpdateSkillPro(_spell_idx->second->skillId, SkillGainChance(SkillValue,
-                _spell_idx->second->max_value,
-                (_spell_idx->second->max_value + _spell_idx->second->min_value)/2,
-                _spell_idx->second->min_value),
+            return UpdateSkillPro(_spell_idx->second->SkillLine, SkillGainChance(SkillValue,
+                _spell_idx->second->TrivialSkillLineRankHigh,
+                (_spell_idx->second->TrivialSkillLineRankHigh + _spell_idx->second->TrivialSkillLineRankLow)/2,
+                _spell_idx->second->TrivialSkillLineRankLow),
                 craft_skill_gain);
         }
     }
@@ -6049,8 +6049,8 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
             // remove all spells that related to this skill
             for (uint32 j = 0; j < sSkillLineAbilityStore.GetNumRows(); ++j)
                 if (SkillLineAbilityEntry const* pAbility = sSkillLineAbilityStore.LookupEntry(j))
-                    if (pAbility->skillId == id)
-                        RemoveSpell(sSpellMgr->GetFirstSpellInChain(pAbility->spellId));
+                    if (pAbility->SkillLine == id)
+                        RemoveSpell(sSpellMgr->GetFirstSpellInChain(pAbility->Spell));
         }
     }
     else if (newVal)                                        //add
@@ -23158,37 +23158,37 @@ void Player::LearnSkillRewardedSpells(uint32 skillId, uint32 skillValue)
     for (uint32 j = 0; j < sSkillLineAbilityStore.GetNumRows(); ++j)
     {
         SkillLineAbilityEntry const* ability = sSkillLineAbilityStore.LookupEntry(j);
-        if (!ability || ability->skillId != skillId)
+        if (!ability || ability->SkillLine != skillId)
             continue;
 
-        if (!sSpellMgr->GetSpellInfo(ability->spellId))
+        if (!sSpellMgr->GetSpellInfo(ability->Spell))
             continue;
 
-        if (ability->AutolearnType != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_VALUE && ability->AutolearnType != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN)
+        if (ability->AcquireMethod != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_VALUE && ability->AcquireMethod != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN)
             continue;
 
         // Check race if set
-        if (ability->racemask && !(ability->racemask & raceMask))
+        if (ability->RaceMask && !(ability->RaceMask & raceMask))
             continue;
 
         // Check class if set
-        if (ability->classmask && !(ability->classmask & classMask))
+        if (ability->ClassMask && !(ability->ClassMask & classMask))
             continue;
 
         // need unlearn spell
-        if (skillValue < ability->req_skill_value && ability->AutolearnType == SKILL_LINE_ABILITY_LEARNED_ON_SKILL_VALUE)
-            RemoveSpell(ability->spellId);
+        if (skillValue < ability->MinSkillLineRank && ability->AcquireMethod == SKILL_LINE_ABILITY_LEARNED_ON_SKILL_VALUE)
+            RemoveSpell(ability->Spell);
         // need learn
         else
         {
             // used to avoid double Seal of Righteousness on paladins, it's the only player spell which has both spell and forward spell in auto learn
-            if (ability->AutolearnType == SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN && ability->forward_spellid)
+            if (ability->AcquireMethod == SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN && ability->SupercededBySpell)
             {
                 bool skipCurrent = false;
-                auto bounds = sSpellMgr->GetSkillLineAbilityMapBounds(ability->forward_spellid);
+                auto bounds = sSpellMgr->GetSkillLineAbilityMapBounds(ability->SupercededBySpell);
                 for (auto itr = bounds.first; itr != bounds.second; ++itr)
                 {
-                    if (itr->second->AutolearnType == SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN && skillValue >= itr->second->req_skill_value)
+                    if (itr->second->AcquireMethod == SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN && skillValue >= itr->second->MinSkillLineRank)
                     {
                         skipCurrent = true;
                         break;
@@ -23200,9 +23200,9 @@ void Player::LearnSkillRewardedSpells(uint32 skillId, uint32 skillValue)
             }
 
             if (!IsInWorld())
-                AddSpell(ability->spellId, true, true, true, false, false, ability->skillId);
+                AddSpell(ability->Spell, true, true, true, false, false, ability->SkillLine);
             else
-                LearnSpell(ability->spellId, true, ability->skillId);
+                LearnSpell(ability->Spell, true, ability->SkillLine);
         }
     }
 }
@@ -23494,15 +23494,15 @@ bool Player::IsSpellFitByClassAndRace(uint32 spell_id) const
     for (SkillLineAbilityMap::const_iterator _spell_idx = bounds.first; _spell_idx != bounds.second; ++_spell_idx)
     {
         // skip wrong race skills
-        if (_spell_idx->second->racemask && (_spell_idx->second->racemask & racemask) == 0)
+        if (_spell_idx->second->RaceMask && (_spell_idx->second->RaceMask & racemask) == 0)
             continue;
 
         // skip wrong class skills
-        if (_spell_idx->second->classmask && (_spell_idx->second->classmask & classmask) == 0)
+        if (_spell_idx->second->ClassMask && (_spell_idx->second->ClassMask & classmask) == 0)
             continue;
 
         // skip wrong class and race skill saved in SkillRaceClassInfo.dbc
-        if (!GetSkillRaceClassInfo(_spell_idx->second->skillId, GetRace(), GetClass()))
+        if (!GetSkillRaceClassInfo(_spell_idx->second->SkillLine, GetRace(), GetClass()))
             continue;
 
         return true;

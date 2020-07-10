@@ -48,7 +48,7 @@ bool IsPartOfSkillLine(uint32 skillId, uint32 spellId)
 {
     SkillLineAbilityMapBounds skillBounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellId);
     for (SkillLineAbilityMap::const_iterator itr = skillBounds.first; itr != skillBounds.second; ++itr)
-        if (itr->second->skillId == skillId)
+        if (itr->second->SkillLine == skillId)
             return true;
 
     return false;
@@ -1970,7 +1970,7 @@ void SpellMgr::LoadSkillLineAbilityMap()
         if (!SkillInfo)
             continue;
 
-        mSkillLineAbilityMap.insert(SkillLineAbilityMap::value_type(SkillInfo->spellId, SkillInfo));
+        mSkillLineAbilityMap.insert(SkillLineAbilityMap::value_type(SkillInfo->Spell, SkillInfo));
         ++count;
     }
 
@@ -2208,13 +2208,13 @@ void SpellMgr::LoadPetLevelupSpellMap()
                 //    (!creatureFamily->SkillLine[1] || skillLine->skillId != creatureFamily->SkillLine[1]))
                 //    continue;
 
-                if (skillLine->skillId != creatureFamily->SkillLine[j])
+                if (skillLine->SkillLine != creatureFamily->SkillLine[j])
                     continue;
 
-                if (skillLine->AutolearnType != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN)
+                if (skillLine->AcquireMethod != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN)
                     continue;
 
-                SpellInfo const* spell = GetSpellInfo(skillLine->spellId);
+                SpellInfo const* spell = GetSpellInfo(skillLine->Spell);
                 if (!spell) // not exist or triggered or talent
                     continue;
 
