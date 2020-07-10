@@ -22,7 +22,7 @@ INSERT INTO `creature_addon` (`guid`, `auras`) VALUES
 (@CGUID+0, '41577');
 
 -- Serverside Spells
-DELETE FROM `spell_dbc` WHERE `Id` IN (41577, 94991, 75688, 75771, 75791, 75769, 75695);
+DELETE FROM `spell_dbc` WHERE `Id`= 41577;
 INSERT INTO `spell_dbc` (`Id`, `CastingTimeIndex`, `DurationIndex`, `RangeIndex`, `Attributes`, `AttributesEx`, `AttributesEx2`, `AttributesEx3`, `Comment`) VALUES
 (41577, 1, 21, 1, 0x00000110, 0x10000000, 0x00000001, 0x00100000, '(Serverside/Non-DB2) Transform: Invisible Stalker');
 
