@@ -48,6 +48,8 @@ enum Spells
     SPELL_MASSIVE_CRASH                         = 88253,
     SPELL_IMPALE_SELF                           = 77907,
     SPELL_EJECT_PASSENGER_3                     = 95204,
+    SPELL_EMOTE_MAGMA_LAVA_SPLASH               = 79461,
+    SPELL_EMOTE_SPELLCASTDIRECTED               = 20718,
 
     // Exposed Head of Magmaw
     SPELL_POINT_OF_VULNERABILITY_SHARE_DAMAGE   = 79010,
@@ -1232,6 +1234,30 @@ class spell_magmaw_impale_self : public AuraScript
     }
 };
 
+class spell_magmaw_captured : public AuraScript
+{
+    PrepareAuraScript(spell_magmaw_captured);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_EMOTE_MAGMA_LAVA_SPLASH,
+                SPELL_EMOTE_SPELLCASTDIRECTED
+            });
+    }
+
+    void HandleTick(AuraEffect const* /*aurEff*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), RAND(SPELL_EMOTE_MAGMA_LAVA_SPLASH, SPELL_EMOTE_SPELLCASTDIRECTED), true);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_magmaw_captured::HandleTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
 class achievement_parasite_evening : public AchievementCriteriaScript
 {
     public:
@@ -1268,5 +1294,6 @@ void AddSC_boss_magmaw()
     RegisterSpellScript(spell_magmaw_shadow_breath_targeting);
     RegisterAuraScript(spell_magmaw_massive_crash);
     RegisterAuraScript(spell_magmaw_impale_self);
+    RegisterAuraScript(spell_magmaw_captured);
     new achievement_parasite_evening();
 }

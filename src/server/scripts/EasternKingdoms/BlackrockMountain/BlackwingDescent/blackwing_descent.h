@@ -161,7 +161,11 @@ enum BWDCreatureIds
     NPC_SPIRIT_OF_THAURISSAN                = 43126,
     NPC_SPIRIT_OF_BURNINGEYE                = 43130,
     NPC_COLUMN_OF_LIGHT                     = 51506,
-    NPC_LORD_VICTOR_NEFARIUS_GENERIC        = 48964
+    NPC_LORD_VICTOR_NEFARIUS_GENERIC        = 48964,
+
+    // Generic Creatures
+    NPC_DRAKONID_DRUDGE                     = 42362,
+    NPC_OVERHEAD_SMASH                      = 42690
 };
 
 enum BWDGameObjectIds

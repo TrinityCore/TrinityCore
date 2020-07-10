@@ -106,6 +106,11 @@ enum SummonGroups
     SUMMON_GROUP_ATRAMEDES_INTRO = 0
 };
 
+enum Spells
+{
+    SPELL_EMOTE_MAGMA_LAVA_SPLASH = 79461
+};
+
 class instance_blackwing_descent : public InstanceMapScript
 {
     public:
@@ -185,6 +190,9 @@ class instance_blackwing_descent : public InstanceMapScript
                     case NPC_DOMINION_STALKER:
                         if (Creature* nefarian = GetCreature(DATA_NEFARIANS_END))
                             nefarian->AI()->JustSummoned(creature);
+                        break;
+                    case NPC_DRAKONID_DRUDGE:
+                        creature->ApplySpellImmune(SPELL_EMOTE_MAGMA_LAVA_SPLASH, IMMUNITY_ID, SPELL_EMOTE_MAGMA_LAVA_SPLASH, true);
                         break;
                     default:
                         break;

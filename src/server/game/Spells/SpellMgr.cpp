@@ -5610,12 +5610,33 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->MaxAffectedTargets = 1;
     });
 
+    // Constricting Chains
+    ApplySpellFix({ 79589 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 2;
+    });
+
+    // Constricting Chains
+    ApplySpellFix({ 91911 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 4;
+    });
+
     // ENDOF BLACKWING DESCENT SPELLS
 
     // Living Bomb
     ApplySpellFix({ 44457 }, [](SpellInfo* spellInfo)
     {
         spellInfo->MaxAuraTargets = 3;
+    });
+
+    // Overhead Smash
+    ApplySpellFix({
+        79580,
+        91906,
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(6); // 100 yards
     });
 
     // Living Bomb

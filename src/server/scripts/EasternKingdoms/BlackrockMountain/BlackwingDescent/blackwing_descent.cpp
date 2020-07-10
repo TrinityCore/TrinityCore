@@ -180,6 +180,91 @@ private:
     uint8 _talkTextId;
 };
 
+enum DrakonidChainWielder
+{
+    // Events
+    EVENT_OVERHEAD_SMASH = 1,
+    EVENT_GRIEVOUS_WOUND,
+    EVENT_CONSTRICTING_CHAINS,
+
+    // Spells
+    SPELL_OVERHEAD_SMASH_SUMMON = 79578, // Serverside spell
+    SPELL_OVERHEAD_SMASH        = 79580,
+    SPELL_GRIEVOUS_WOUND        = 80051,
+    SPELL_CONSTRICTING_CHAINS   = 79589,
+};
+
+struct npc_bwd_drakonid_chainwielder : public ScriptedAI
+{
+    npc_bwd_drakonid_chainwielder(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _events.ScheduleEvent(EVENT_GRIEVOUS_WOUND, 9s);
+        _events.ScheduleEvent(EVENT_OVERHEAD_SMASH, 12s);
+        _events.ScheduleEvent(EVENT_CONSTRICTING_CHAINS, 42s);
+    }
+
+    void EnterEvadeMode(EvadeReason why) override
+    {
+        ScriptedAI::EnterEvadeMode(why);
+        _events.Reset();
+    }
+
+    void JustSummoned(Creature* summon) override
+    {
+        if (summon->GetEntry() == NPC_OVERHEAD_SMASH)
+        {
+            me->SetFacingToObject(summon);
+            DoCast(summon, SPELL_OVERHEAD_SMASH);
+        }
+    }
+
+    void JustDied(Unit* killer) override
+    {
+        ScriptedAI::JustDied(killer);
+        _events.Reset();
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_OVERHEAD_SMASH:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 60.f, true))
+                        DoCast(target, SPELL_OVERHEAD_SMASH_SUMMON);
+                    _events.Repeat(27s, 36s);
+                    break;
+                case EVENT_GRIEVOUS_WOUND:
+                    DoCastVictim(SPELL_GRIEVOUS_WOUND);
+                    _events.Repeat(22s, 25s);
+                    break;
+                case EVENT_CONSTRICTING_CHAINS:
+                    DoCastAOE(SPELL_CONSTRICTING_CHAINS);
+                    _events.Repeat(7s, 11s);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
+};
+
 struct go_bwd_ancient_bell : public GameObjectAI
 {
     go_bwd_ancient_bell(GameObject* go) : GameObjectAI(go), _instance(go->GetInstanceScript()) { }
@@ -237,6 +322,25 @@ class spell_bwd_dragon_orb : public SpellScript
     }
 };
 
+class spell_bwd_grievous_wound : public AuraScript
+{
+    PrepareAuraScript(spell_bwd_grievous_wound);
+
+    void OnPeriodic(AuraEffect const* /*aurEff*/)
+    {
+        if (GetUnitOwner()->HealthAbovePct(90))
+        {
+            PreventDefaultAction();
+            Remove(AuraRemoveFlags::ByEnemySpell);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_bwd_grievous_wound::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+    }
+};
+
 class at_bwd_intro: public OnlyOnceAreaTriggerScript
 {
     public:
@@ -253,7 +357,9 @@ class at_bwd_intro: public OnlyOnceAreaTriggerScript
 void AddSC_blackwing_descent()
 {
     RegisterBlackwingDescentCreatureAI(npc_bwd_lord_victor_nefarius);
+    RegisterBlackwingDescentCreatureAI(npc_bwd_drakonid_chainwielder);
     RegisterGameObjectAI(go_bwd_ancient_bell);
     RegisterSpellScript(spell_bwd_dragon_orb);
+    RegisterAuraScript(spell_bwd_grievous_wound);
     new at_bwd_intro();
 }
