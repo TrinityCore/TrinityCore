@@ -23072,7 +23072,7 @@ void Player::LearnDefaultSkill(uint32 skillId, uint16 rank)
             if (!rank)
                 break;
 
-            SkillTiersEntry const* tier = sSkillTiersStore.LookupEntry(rcInfo->SkillTier);
+            SkillTiersEntry const* tier = sSkillTiersStore.LookupEntry(rcInfo->SkillTierID);
             uint16 maxValue = tier->MaxSkill[std::max<int32>(rank - 1, 0)];
             uint16 skillValue = 1;
             if (rcInfo->Flags & SKILL_FLAG_ALWAYS_MAX_VALUE)
@@ -25017,7 +25017,7 @@ void Player::_LoadSkills(PreparedQueryResult result)
             }
 
             uint16 skillStep = 0;
-            if (SkillTiersEntry const* skillTier = sSkillTiersStore.LookupEntry(rcEntry->SkillTier))
+            if (SkillTiersEntry const* skillTier = sSkillTiersStore.LookupEntry(rcEntry->SkillTierID))
             {
                 for (uint32 i = 0; i < MAX_SKILL_STEP; ++i)
                 {

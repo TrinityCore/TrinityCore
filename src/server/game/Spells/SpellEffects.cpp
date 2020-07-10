@@ -2464,7 +2464,7 @@ void Spell::EffectLearnSkill(SpellEffIndex effIndex)
     if (!rcEntry)
         return;
 
-    SkillTiersEntry const* tier = sSkillTiersStore.LookupEntry(rcEntry->SkillTier);
+    SkillTiersEntry const* tier = sSkillTiersStore.LookupEntry(rcEntry->SkillTierID);
     if (!tier)
         return;
 

@@ -1342,14 +1342,14 @@ struct SkillLineCategoryEntry
 
 struct SkillRaceClassInfoEntry
 {
-    //uint32 Id;                                            // 0
-    uint32 SkillId;                                         // 1
+    //uint32 ID;                                            // 0
+    uint32 SkillID;                                         // 1
     uint32 RaceMask;                                        // 2
     uint32 ClassMask;                                       // 3
     uint32 Flags;                                           // 4
     //uint32 MinLevel;                                      // 5
-    uint32 SkillTier;                                       // 6
-    //uint32 SkillCostType;                                 // 7
+    uint32 SkillTierID;                                     // 6
+    //uint32 SkillCostIndex;                                // 7
 };
 
 #define MAX_SKILL_STEP 16

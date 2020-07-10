@@ -471,8 +471,8 @@ void LoadDBCStores(const std::string& dataPath)
     }
 
     for (SkillRaceClassInfoEntry const* entry : sSkillRaceClassInfoStore)
-        if (sSkillLineStore.LookupEntry(entry->SkillId))
-            SkillRaceClassInfoBySkill.emplace(entry->SkillId, entry);
+        if (sSkillLineStore.LookupEntry(entry->SkillID))
+            SkillRaceClassInfoBySkill.emplace(entry->SkillID, entry);
 
     for (SkillLineAbilityEntry const* skillLine : sSkillLineAbilityStore)
     {
