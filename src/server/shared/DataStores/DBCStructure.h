@@ -1363,18 +1363,18 @@ struct SkillTiersEntry
 
 struct SoundEntriesEntry
 {
-    uint32    Id;                                           // 0        m_ID
-    //uint32    Type;                                       // 1        m_soundType
-    //char*     InternalName;                               // 2        m_name
-    //char*     FileName[10];                               // 3-12     m_File[10]
-    //uint32    Unk13[10];                                  // 13-22    m_Freq[10]
-    //char*     Path;                                       // 23       m_DirectoryBase
-                                                            // 24       m_volumeFloat
-                                                            // 25       m_flags
-                                                            // 26       m_minDistance
-                                                            // 27       m_distanceCutoff
-                                                            // 28       m_EAXDef
-                                                            // 29       new in 3.1
+    uint32 ID;                                              // 0
+    //uint32 SoundType;                                     // 1
+    //char* Name;                                           // 2
+    //char* File[10];                                       // 3-12
+    //uint32 Freq[10];                                      // 13-22
+    //char* DirectoryBase;                                  // 23
+    //float VolumeFloat;                                    // 24
+    //uint32 Flags;                                         // 25
+    //float MinDistance;                                    // 26
+    //float DistanceCutoff;                                 // 27
+    //uint32 EAXDef;                                        // 28
+    //uint32 SoundEntriesAdvancedID;                        // 29
 };
 
 struct SpellEntry
