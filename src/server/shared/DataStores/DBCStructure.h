@@ -1511,6 +1511,14 @@ struct SpellDifficultyEntry
     int32 DifficultySpellID[MAX_DIFFICULTY];                // 1-4 instance modes: 10N, 25N, 10H, 25H or Normal/Heroic if only 1-2 is set, if 3-4 is 0 then Mode-2
 };
 
+struct SpellDurationEntry
+{
+    uint32 ID;                                              // 0
+    int32 Duration;                                         // 1
+    int32 DurationPerLevel;                                 // 2
+    int32 MaxDuration;                                      // 3
+};
+
 struct SpellFocusObjectEntry
 {
     uint32 ID;                                              // 0
@@ -1562,12 +1570,6 @@ struct SpellShapeshiftFormEntry
     uint32 CombatRoundTime;                                 // 22
     uint32 CreatureDisplayID[4];                            // 23-26 [0] Alliance [1] Horde [2] Unk [3] Unk
     uint32 PresetSpellID[MAX_SHAPESHIFT_SPELLS];            // 27-34
-};
-
-struct SpellDurationEntry
-{
-    uint32    ID;
-    int32     Duration[3];
 };
 
 struct SpellItemEnchantmentEntry
