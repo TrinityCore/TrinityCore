@@ -1207,7 +1207,7 @@ class TC_GAME_API Unit : public WorldObject
         float MeleeSpellMissChance(Unit const* victim, WeaponAttackType attType, uint32 spellId) const;
         SpellMissInfo MeleeSpellHitResult(Unit* victim, SpellInfo const* spellInfo);
         SpellMissInfo MagicSpellHitResult(Unit* victim, SpellInfo const* spellInfo);
-        SpellMissInfo SpellHitResult(Unit* victim, SpellInfo const* spellInfo, bool canReflect = false);
+        SpellMissInfo SpellHitResult(Unit* victim, SpellInfo const* spellInfo, bool canReflect = false, Optional<uint8> effectMask = nullptr);
 
         float GetUnitDodgeChance(Unit const* attacker) const;
         float GetUnitParryChance(Unit const* attacker) const;
@@ -1758,7 +1758,7 @@ class TC_GAME_API Unit : public WorldObject
         uint32 GetRemainingPeriodicAmount(ObjectGuid caster, uint32 spellId, AuraType auraType, uint8 effectIndex = 0) const;
 
         void ApplySpellImmune(uint32 spellId, uint32 op, uint32 type, bool apply);
-        virtual bool IsImmunedToSpell(SpellInfo const* spellInfo, Unit* caster) const; // redefined in Creature
+        virtual bool IsImmunedToSpell(SpellInfo const* spellInfo, Unit* caster, Optional<uint8> effectMask = nullptr) const; // redefined in Creature
         uint32 GetSchoolImmunityMask() const;
         uint32 GetMechanicImmunityMask() const;
 

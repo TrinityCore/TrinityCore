@@ -2026,7 +2026,7 @@ void Creature::LoadTemplateImmunities()
     }
 }
 
-bool Creature::IsImmunedToSpell(SpellInfo const* spellInfo, Unit* caster) const
+bool Creature::IsImmunedToSpell(SpellInfo const* spellInfo, Unit* caster, Optional<uint8> effectMask /*= nullptr*/) const
 {
     if (!spellInfo)
         return false;
@@ -2036,6 +2036,10 @@ bool Creature::IsImmunedToSpell(SpellInfo const* spellInfo, Unit* caster) const
     {
         if (!spellInfo->Effects[i].IsEffect())
             continue;
+
+        if (effectMask && !(effectMask.get() & (1 << i)))
+            continue;
+
         if (!IsImmunedToSpellEffect(spellInfo, i, caster))
         {
             immunedToAllEffects = false;

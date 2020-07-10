@@ -2795,7 +2795,7 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit* victim, SpellInfo const* spellInfo
 //   Parry
 // For spells
 //   Resist
-SpellMissInfo Unit::SpellHitResult(Unit* victim, SpellInfo const* spellInfo, bool canReflect /*= false*/)
+SpellMissInfo Unit::SpellHitResult(Unit* victim, SpellInfo const* spellInfo, bool canReflect /*= false*/, Optional<uint8> effectMask /*= nullptr*/)
 {
     // All positive spells can`t miss
     /// @todo client not show miss log for this spells - so need find info for this in dbc and use it!
@@ -2826,7 +2826,7 @@ SpellMissInfo Unit::SpellHitResult(Unit* victim, SpellInfo const* spellInfo, boo
         return SPELL_MISS_NONE;
 
     // Check for immune
-    if (victim->IsImmunedToSpell(spellInfo, this))
+    if (victim->IsImmunedToSpell(spellInfo, this, effectMask))
         return SPELL_MISS_IMMUNE;
 
     // Damage immunity is only checked if the spell has damage effects, this immunity must not prevent aura apply
@@ -7831,7 +7831,7 @@ bool Unit::IsImmunedToDamage(SpellInfo const* spellInfo) const
     return false;
 }
 
-bool Unit::IsImmunedToSpell(SpellInfo const* spellInfo, Unit* caster) const
+bool Unit::IsImmunedToSpell(SpellInfo const* spellInfo, Unit* caster, Optional<uint8> effectMask /*= nullptr*/) const
 {
     if (!spellInfo)
         return false;
@@ -7865,6 +7865,9 @@ bool Unit::IsImmunedToSpell(SpellInfo const* spellInfo, Unit* caster) const
         // State/effect immunities applied by aura expect full spell immunity
         // Ignore effects with mechanic, they are supposed to be checked separately
         if (!spellInfo->Effects[i].IsEffect())
+            continue;
+
+        if (effectMask && !(effectMask.get() & (1 << i)))
             continue;
 
         if (!IsImmunedToSpellEffect(spellInfo, i, caster))
