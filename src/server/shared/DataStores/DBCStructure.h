@@ -1636,8 +1636,8 @@ struct SpellVisualEntry
 
 struct StableSlotPricesEntry
 {
-    uint32 Slot;
-    uint32 Price;
+    uint32 ID;                                              // 0
+    uint32 Cost;                                            // 1
 };
 
 struct SummonPropertiesEntry
