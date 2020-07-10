@@ -873,7 +873,7 @@ SpellInfo::~SpellInfo()
 
 uint32 SpellInfo::GetCategory() const
 {
-    return CategoryEntry ? CategoryEntry->Id : 0;
+    return CategoryEntry ? CategoryEntry->ID : 0;
 }
 
 bool SpellInfo::HasEffect(SpellEffects effect) const

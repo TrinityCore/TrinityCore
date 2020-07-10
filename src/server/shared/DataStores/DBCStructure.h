@@ -1501,8 +1501,8 @@ struct SpellCastTimesEntry
 
 struct SpellCategoryEntry
 {
-    uint32 Id;
-    uint32 Flags;
+    uint32 ID;                                              // 0
+    uint32 Flags;                                           // 1
 };
 
 struct SpellDifficultyEntry
