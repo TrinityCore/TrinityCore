@@ -1493,10 +1493,10 @@ typedef std::map<uint32, PetFamilySpellsSet> PetFamilySpellsStore;
 
 struct SpellCastTimesEntry
 {
-    uint32    ID;                                           // 0
-    int32     CastTime;                                     // 1
-    //float     CastTimePerLevel;                           // 2 unsure / per skill?
-    //int32     MinCastTime;                                // 3 unsure
+    uint32 ID;                                              // 0
+    int32 Base;                                             // 1
+    //int32 PerLevel;                                       // 2
+    //int32 Minimum;                                        // 3
 };
 
 struct SpellCategoryEntry

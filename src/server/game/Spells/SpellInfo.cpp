@@ -3093,7 +3093,7 @@ uint32 SpellInfo::CalcCastTime(Spell* spell /*= nullptr*/) const
     if (!CastTimeEntry)
         return 0;
 
-    int32 castTime = CastTimeEntry->CastTime;
+    int32 castTime = CastTimeEntry->Base;
 
     if (spell)
         spell->GetCaster()->ModSpellCastTime(this, castTime, spell);
