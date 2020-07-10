@@ -199,20 +199,20 @@ uint32 SpellMgr::GetSpellIdForDifficulty(uint32 spellId, WorldObject const* cast
         return spellId; //return source spell
     }
 
-    if (difficultyEntry->SpellID[mode] <= 0 && mode > DUNGEON_DIFFICULTY_HEROIC)
+    if (difficultyEntry->DifficultySpellID[mode] <= 0 && mode > DUNGEON_DIFFICULTY_HEROIC)
     {
         TC_LOG_DEBUG("spells", "SpellMgr::GetSpellIdForDifficulty: spell %u mode %u spell is NULL, using mode %u", spellId, mode, mode - 2);
         mode -= 2;
     }
 
-    if (difficultyEntry->SpellID[mode] <= 0)
+    if (difficultyEntry->DifficultySpellID[mode] <= 0)
     {
         TC_LOG_ERROR("sql.sql", "SpellMgr::GetSpellIdForDifficulty: spell %u mode %u spell is 0. Check spelldifficulty_dbc!", spellId, mode);
         return spellId;
     }
 
-    TC_LOG_DEBUG("spells", "SpellMgr::GetSpellIdForDifficulty: spellid for spell %u in mode %u is %d", spellId, mode, difficultyEntry->SpellID[mode]);
-    return uint32(difficultyEntry->SpellID[mode]);
+    TC_LOG_DEBUG("spells", "SpellMgr::GetSpellIdForDifficulty: spellid for spell %u in mode %u is %d", spellId, mode, difficultyEntry->DifficultySpellID[mode]);
+    return uint32(difficultyEntry->DifficultySpellID[mode]);
 }
 
 SpellInfo const* SpellMgr::GetSpellForDifficultyFromSpell(SpellInfo const* spell, WorldObject const* caster) const
