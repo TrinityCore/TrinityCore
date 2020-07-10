@@ -969,6 +969,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetXP(uint32 xp) { SetUInt32Value(PLAYER_XP, xp); }
         void GiveXP(uint32 xp, Unit* victim, float group_rate = 1.0f);
         void GiveLevel(uint8 level);
+        uint8 GetExpansionLevelLimit() const;
+        bool IsMaxLevel() const;
 
         void InitStatsForLevel(bool reapplyMods = false);
 
@@ -2498,6 +2500,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         // variables to save health and mana before duel and restore them after duel
         uint32 healthBeforeDuel;
         uint32 manaBeforeDuel;
+
+        uint8 _acc_expansion;
 
         WorldLocation _corpseLocation;
 };
