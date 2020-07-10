@@ -1513,9 +1513,9 @@ struct SpellDifficultyEntry
 
 struct SpellFocusObjectEntry
 {
-    uint32    ID;                                           // 0
-    //char*     Name[16];                                   // 1-15 unused
-                                                            // 16 string flags, unused
+    uint32 ID;                                              // 0
+    //char* Name[16];                                       // 1-15
+    //uint32 Name_lang_mask;                                // 16
 };
 
 struct SpellRadiusEntry
