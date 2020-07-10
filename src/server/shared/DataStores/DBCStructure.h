@@ -1356,9 +1356,9 @@ struct SkillRaceClassInfoEntry
 
 struct SkillTiersEntry
 {
-    uint32 Id;                                              // 0
-    //uint32 StepCost[MAX_SKILL_STEP];                      // 1-16
-    uint32 MaxSkill[MAX_SKILL_STEP];                        // 17-32
+    uint32 ID;                                              // 0
+    //uint32 Cost[MAX_SKILL_STEP];                          // 1-16
+    uint32 Value[MAX_SKILL_STEP];                           // 17-32
 };
 
 struct SoundEntriesEntry
