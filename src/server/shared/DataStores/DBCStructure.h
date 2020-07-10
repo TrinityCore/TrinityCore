@@ -1214,26 +1214,41 @@ struct ScalingStatDistributionEntry
 
 struct ScalingStatValuesEntry
 {
-    uint32  Id;                                             // 0
-    uint32  Level;                                          // 1
-    uint32  ssdMultiplier[4];                               // 2-5 Multiplier for ScalingStatDistribution
-    uint32  armorMod[4];                                    // 6-9 Armor for level
-    uint32  dpsMod[6];                                      // 10-15 DPS mod for level
-    uint32  spellPower;                                     // 16 spell power for level
-    uint32  ssdMultiplier2;                                 // 17 there's data from 3.1 dbc ssdMultiplier[3]
-    uint32  ssdMultiplier3;                                 // 18 3.3
-    uint32  armorMod2[5];                                   // 19-23 Armor for level
+    uint32 ID;                                              // 0
+    uint32 Charlevel;                                       // 1
+    uint32 ShoulderBudget;                                  // 2
+    uint32 TrinketBudget;                                   // 3
+    uint32 WeaponBudget1H;                                  // 4
+    uint32 RangedBudget;                                    // 5
+    uint32 ClothShoulderArmor;                              // 6
+    uint32 LeatherShoulderArmor;                            // 7
+    uint32 MailShoulderArmor;                               // 8
+    uint32 PlateShoulderArmor;                              // 9
+    uint32 WeaponDPS1H;                                     // 10
+    uint32 WeaponDPS2H;                                     // 11
+    uint32 SpellcasterDPS1H;                                // 12
+    uint32 SpellcasterDPS2H;                                // 13
+    uint32 RangedDPS;                                       // 14
+    uint32 WandDPS;                                         // 15
+    uint32 SpellPower;                                      // 16
+    uint32 PrimaryBudget;                                   // 17
+    uint32 TertiaryBudget;                                  // 18
+    uint32 ClothCloakArmor;                                 // 19
+    uint32 ClothChestArmor;                                 // 20
+    uint32 LeatherChestArmor;                               // 21
+    uint32 MailChestArmor;                                  // 22
+    uint32 PlateChestArmor;                                 // 23
 
     uint32 getssdMultiplier(uint32 mask) const
     {
         if (mask & 0x4001F)
         {
-            if (mask & 0x00000001) return ssdMultiplier[0]; // Shoulder
-            if (mask & 0x00000002) return ssdMultiplier[1]; // Trinket
-            if (mask & 0x00000004) return ssdMultiplier[2]; // Weapon1H
-            if (mask & 0x00000008) return ssdMultiplier2;
-            if (mask & 0x00000010) return ssdMultiplier[3]; // Ranged
-            if (mask & 0x00040000) return ssdMultiplier3;
+            if (mask & 0x00000001) return ShoulderBudget;
+            if (mask & 0x00000002) return TrinketBudget;
+            if (mask & 0x00000004) return WeaponBudget1H;
+            if (mask & 0x00000008) return PrimaryBudget;
+            if (mask & 0x00000010) return RangedBudget;
+            if (mask & 0x00040000) return TertiaryBudget;
         }
         return 0;
     }
@@ -1242,16 +1257,16 @@ struct ScalingStatValuesEntry
     {
         if (mask & 0x00F001E0)
         {
-            if (mask & 0x00000020) return armorMod[0];      // Cloth shoulder
-            if (mask & 0x00000040) return armorMod[1];      // Leather shoulder
-            if (mask & 0x00000080) return armorMod[2];      // Mail shoulder
-            if (mask & 0x00000100) return armorMod[3];      // Plate shoulder
+            if (mask & 0x00000020) return ClothShoulderArmor;
+            if (mask & 0x00000040) return LeatherShoulderArmor;
+            if (mask & 0x00000080) return MailShoulderArmor;
+            if (mask & 0x00000100) return PlateShoulderArmor;
 
-            if (mask & 0x00080000) return armorMod2[0];      // cloak
-            if (mask & 0x00100000) return armorMod2[1];      // cloth
-            if (mask & 0x00200000) return armorMod2[2];      // leather
-            if (mask & 0x00400000) return armorMod2[3];      // mail
-            if (mask & 0x00800000) return armorMod2[4];      // plate
+            if (mask & 0x00080000) return ClothCloakArmor;
+            if (mask & 0x00100000) return ClothChestArmor;
+            if (mask & 0x00200000) return LeatherChestArmor;
+            if (mask & 0x00400000) return MailChestArmor;
+            if (mask & 0x00800000) return PlateChestArmor;
         }
         return 0;
     }
@@ -1260,19 +1275,19 @@ struct ScalingStatValuesEntry
     {
         if (mask & 0x7E00)
         {
-            if (mask & 0x00000200) return dpsMod[0];        // Weapon 1h
-            if (mask & 0x00000400) return dpsMod[1];        // Weapon 2h
-            if (mask & 0x00000800) return dpsMod[2];        // Caster dps 1h
-            if (mask & 0x00001000) return dpsMod[3];        // Caster dps 2h
-            if (mask & 0x00002000) return dpsMod[4];        // Ranged
-            if (mask & 0x00004000) return dpsMod[5];        // Wand
+            if (mask & 0x00000200) return WeaponDPS1H;
+            if (mask & 0x00000400) return WeaponDPS2H;
+            if (mask & 0x00000800) return SpellcasterDPS1H;
+            if (mask & 0x00001000) return SpellcasterDPS2H;
+            if (mask & 0x00002000) return RangedDPS;
+            if (mask & 0x00004000) return WandDPS;
         }
         return 0;
     }
 
     uint32 getSpellBonus(uint32 mask) const
     {
-        if (mask & 0x00008000) return spellPower;
+        if (mask & 0x00008000) return SpellPower;
         return 0;
     }
 
