@@ -1550,21 +1550,18 @@ struct SpellRuneCostEntry
 
 #define MAX_SHAPESHIFT_SPELLS 8
 
-struct SpellShapeshiftEntry
+struct SpellShapeshiftFormEntry
 {
     uint32 ID;                                              // 0
-    //uint32 buttonPosition;                                // 1 unused
-    //char*  Name[16];                                      // 2-17 unused
-    //uint32 NameFlags;                                     // 18 unused
-    uint32 flags1;                                          // 19
-    int32  creatureType;                                    // 20 <= 0 humanoid, other normal creature types
-    //uint32 unk1;                                          // 21 unused
-    uint32 attackSpeed;                                     // 22
-    uint32 modelID_A;                                       // 23 alliance modelid
-    uint32 modelID_H;                                       // 24 horde modelid (only one form)
-    //uint32 unk3;                                          // 25 unused
-    //uint32 unk4;                                          // 26 unused
-    uint32 stanceSpell[MAX_SHAPESHIFT_SPELLS];                                  // 27 - 34 unused
+    //uint32 BonusActionBar;                                // 1
+    //char* Name[16];                                       // 2-17
+    //uint32 Name_lang_mask;                                // 18
+    uint32 Flags;                                           // 19
+    int32 CreatureType;                                     // 20 <= 0 humanoid, other normal creature types
+    //uint32 AttackIconID;                                  // 21
+    uint32 CombatRoundTime;                                 // 22
+    uint32 CreatureDisplayID[4];                            // 23-26 [0] Alliance [1] Horde [2] Unk [3] Unk
+    uint32 PresetSpellID[MAX_SHAPESHIFT_SPELLS];            // 27-34
 };
 
 struct SpellDurationEntry
