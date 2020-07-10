@@ -1300,17 +1300,17 @@ struct ScalingStatValuesEntry
 
 struct SkillLineEntry
 {
-    uint32    id;                                           // 0        m_ID
-    int32     categoryId;                                   // 1        m_categoryID
-    //uint32    skillCostID;                                // 2        m_skillCostsID
-    char*     name[16];                                     // 3-18     m_displayName_lang
-                                                            // 19 string flags
-    //char*     description[16];                            // 20-35    m_description_lang
-                                                            // 36 string flags
-    uint32    spellIcon;                                    // 37       m_spellIconID
-    //char*     alternateVerb[16];                          // 38-53    m_alternateVerb_lang
-                                                            // 54 string flags
-    uint32    canLink;                                      // 55       m_canLink (prof. with recipes
+    uint32 ID;                                              // 0
+    int32 CategoryID;                                       // 1
+    //uint32 SkillCostsID;                                  // 2
+    char* DisplayName[16];                                  // 3-18
+    //uint32 DisplayName_lang_mask;                         // 19
+    //char* Description[16];                                // 20-35
+    //uint32 Description_lang_mask;                         // 36
+    uint32 SpellIconID;                                     // 37
+    //char* AlternateVerb[16];                              // 38-53
+    //uint32 AlternateVerb_lang_mask;                       // 54
+    uint32 CanLink;                                         // 55
 };
 
 struct SkillLineAbilityEntry

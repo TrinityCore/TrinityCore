@@ -233,7 +233,7 @@ struct LinkValidator<LinkTags::enchant>
 
             for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
             {
-                char const* skillName = skill->name[i];
+                char const* skillName = skill->DisplayName[i];
                 size_t skillLen = strlen(skillName);
                 if (len > skillLen + 2 &&                         // or of form [Skill Name: Spell Name]
                     !strncmp(pos, skillName, skillLen) && !strncmp(pos + skillLen, ": ", 2) &&
