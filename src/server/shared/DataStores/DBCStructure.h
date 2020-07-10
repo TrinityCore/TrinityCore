@@ -1298,13 +1298,6 @@ struct ScalingStatValuesEntry
     }
 };
 
-//struct SkillLineCategoryEntry{
-//    uint32    id;                                         // 0      m_ID
-//    char*     name[16];                                   // 1-17   m_name_lang
-//                                                          // 18 string flag
-//    uint32    displayOrder;                               // 19     m_sortIndex
-//};
-
 struct SkillLineEntry
 {
     uint32    id;                                           // 0        m_ID
@@ -1336,6 +1329,16 @@ struct SkillLineAbilityEntry
     uint32    min_value;                                    // 11       m_trivialSkillLineRankLow
     //uint32    characterPoints[2];                         // 12-13    m_characterPoints[2]
 };
+
+/*
+struct SkillLineCategoryEntry
+{
+    uint32 ID;                                              // 0
+    char* Name[16];                                         // 1-17
+    uint32 Name_lang_mask;                                  // 18
+    uint32 SortIndex;                                       // 19
+};
+*/
 
 struct SkillRaceClassInfoEntry
 {
