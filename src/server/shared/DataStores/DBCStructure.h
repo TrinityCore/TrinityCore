@@ -1869,17 +1869,17 @@ struct WMOAreaTableEntry
 
 struct WorldMapAreaEntry
 {
-    //uint32  ID;                                           // 0
-    uint32  map_id;                                         // 1
-    uint32  area_id;                                        // 2 index (continent 0 areas ignored)
-    //char* internal_name                                   // 3
-    float   y1;                                             // 4
-    float   y2;                                             // 5
-    float   x1;                                             // 6
-    float   x2;                                             // 7
-    int32   virtual_map_id;                                 // 8 -1 (map_id have correct map) other: virtual map where zone show (map_id - where zone in fact internally)
-    // int32   dungeonMap_id;                               // 9 pointer to DungeonMap.dbc (owerride x1, x2, y1, y2 coordinates)
-    // uint32  parentMapID;                                 // 10
+    //uint32 ID;                                            // 0
+    uint32 MapID;                                           // 1
+    uint32 AreaID;                                          // 2
+    //char* AreaName                                        // 3
+    float LocLeft;                                          // 4
+    float LocRight;                                         // 5
+    float LocTop;                                           // 6
+    float LocBottom;                                        // 7
+    int32 DisplayMapID;                                     // 8 -1 (map_id have correct map) other: virtual map where zone show (map_id - where zone in fact internally)
+    //int32 DefaultDungeonFloor;                            // 9 pointer to DungeonMap.dbc (override x1, x2, y1, y2 coordinates)
+    //uint32 ParentWorldMapID;                              // 10
 };
 
 #define MAX_WORLD_MAP_OVERLAY_AREA_IDX 4

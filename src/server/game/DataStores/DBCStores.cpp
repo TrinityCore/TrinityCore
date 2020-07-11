@@ -719,7 +719,7 @@ uint32 GetVirtualMapForMapAndZone(uint32 mapid, uint32 zoneId)
         return mapid;
 
     if (WorldMapAreaEntry const* wma = sWorldMapAreaStore.LookupEntry(zoneId))
-        return wma->virtual_map_id >= 0 ? wma->virtual_map_id : wma->map_id;
+        return wma->DisplayMapID >= 0 ? wma->DisplayMapID : wma->MapID;
 
     return mapid;
 }
@@ -771,8 +771,8 @@ void Zone2MapCoordinates(float& x, float& y, uint32 zone)
         return;
 
     std::swap(x, y);                                         // at client map coords swapped
-    x = x*((maEntry->x2-maEntry->x1)/100)+maEntry->x1;
-    y = y*((maEntry->y2-maEntry->y1)/100)+maEntry->y1;      // client y coord from top to down
+    x = x*((maEntry->LocBottom-maEntry->LocTop)/100)+maEntry->LocTop;
+    y = y*((maEntry->LocRight-maEntry->LocLeft)/100)+maEntry->LocLeft;      // client y coord from top to down
 }
 
 void Map2ZoneCoordinates(float& x, float& y, uint32 zone)
@@ -783,8 +783,8 @@ void Map2ZoneCoordinates(float& x, float& y, uint32 zone)
     if (!maEntry)
         return;
 
-    x = (x-maEntry->x1)/((maEntry->x2-maEntry->x1)/100);
-    y = (y-maEntry->y1)/((maEntry->y2-maEntry->y1)/100);    // client y coord from top to down
+    x = (x-maEntry->LocTop)/((maEntry->LocBottom-maEntry->LocTop)/100);
+    y = (y-maEntry->LocLeft)/((maEntry->LocRight-maEntry->LocLeft)/100);    // client y coord from top to down
     std::swap(x, y);                                         // client have map coords swapped
 }
 
