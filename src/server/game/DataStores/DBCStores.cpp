@@ -539,7 +539,7 @@ void LoadDBCStores(const std::string& dataPath)
             // store class talent tab pages
             for (uint32 cls = 1; cls < MAX_CLASSES; ++cls)
                 if (talentTabInfo->ClassMask & (1 << (cls - 1)))
-                    sTalentTabPages[cls][talentTabInfo->tabpage] = talentTabInfo->TalentTabID;
+                    sTalentTabPages[cls][talentTabInfo->OrderIndex] = talentTabInfo->ID;
         }
     }
 

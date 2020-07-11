@@ -283,7 +283,7 @@ public:
                 continue;
 
             // prevent learn talent for different family (cheating)
-            if (((1 << petFamily->PetTalentType) & talentTabInfo->petTalentMask) == 0)
+            if (((1 << petFamily->PetTalentType) & talentTabInfo->CategoryEnumID) == 0)
                 continue;
 
             // search highest talent rank

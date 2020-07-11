@@ -1669,15 +1669,15 @@ struct TalentEntry
 
 struct TalentTabEntry
 {
-    uint32  TalentTabID;                                    // 0
-    //char* name[16];                                       // 1-16, unused
-    //uint32  nameFlags;                                    // 17, unused
-    //unit32  spellicon;                                    // 18
-                                                            // 19 not used
-    uint32  ClassMask;                                      // 20
-    uint32  petTalentMask;                                  // 21
-    uint32  tabpage;                                        // 22
-    //char* internalname;                                   // 23
+    uint32 ID;                                              // 0
+    //char* Name[16];                                       // 1-16
+    //uint32 Name_lang_mask;                                // 17
+    //unit32 SpellIconID;                                   // 18
+    //uint32 RaceMask;                                      // 19
+    uint32 ClassMask;                                       // 20
+    uint32 CategoryEnumID;                                  // 21
+    uint32 OrderIndex;                                      // 22
+    //char* BackgroundFile;                                 // 23
 };
 
 struct TaxiNodesEntry

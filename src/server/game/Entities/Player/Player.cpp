@@ -25386,7 +25386,7 @@ void Player::LearnPetTalent(ObjectGuid petGuid, uint32 talentId, uint32 talentRa
         return;
 
     // prevent learn talent for different family (cheating)
-    if (!((1 << pet_family->PetTalentType) & talentTabInfo->petTalentMask))
+    if (!((1 << pet_family->PetTalentType) & talentTabInfo->CategoryEnumID))
         return;
 
     // find current max talent rank (0~5)
@@ -25650,7 +25650,7 @@ void Player::BuildPetTalentsInfoData(WorldPacket* data)
         if (!talentTabInfo)
             continue;
 
-        if (!((1 << pet_family->PetTalentType) & talentTabInfo->petTalentMask))
+        if (!((1 << pet_family->PetTalentType) & talentTabInfo->CategoryEnumID))
             continue;
 
         for (uint32 talentId = 0; talentId < sTalentStore.GetNumRows(); ++talentId)
