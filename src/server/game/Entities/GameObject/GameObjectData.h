@@ -699,20 +699,6 @@ enum class GameObjectActions : uint32
     UseArtKit2,                     // Use ArtKit2
     UseArtKit3,                     // Use ArtKit3
     SetTapList,                     // Set Tap List
-    GoTo1stFloor,                   // Go to 1st floor
-    GoTo2ndFloor,                   // Go to 2nd floor
-    GoTo3rdFloor,                   // Go to 3rd floor
-    GoTo4thFloor,                   // Go to 4th floor
-    GoTo5thFloor,                   // Go to 5th floor
-    GoTo6thFloor,                   // Go to 6th floor
-    GoTo7thFloor,                   // Go to 7th floor
-    GoTo8thFloor,                   // Go to 8th floor
-    GoTo9thFloor,                   // Go to 9th floor
-    GoTo10thFloor,                  // Go to 10th floor
-    UseArtKit4,                     // Use ArtKit4
-    PlayAnimKit,                    // Play Anim Kit "%s"               // MiscValueB -> Anim Kit ID
-    OpenAndPlayAnimKit,             // Open + Play Anim Kit "%s"        // MiscValueB -> Anim Kit ID
-    CloseAndPlayAnimKit,            // Close + Play Anim Kit "%s"       // MiscValueB -> Anim Kit ID
 };
 
 #endif // GameObjectData_h__

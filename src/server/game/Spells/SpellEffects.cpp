@@ -3787,7 +3787,6 @@ void Spell::EffectActivateObject(SpellEffIndex effIndex)
         case GameObjectActions::UseArtKit1:
         case GameObjectActions::UseArtKit2:
         case GameObjectActions::UseArtKit3:
-        case GameObjectActions::UseArtKit4:
         {
             GameObjectTemplateAddon const* templateAddon = gameObjTarget->GetTemplateAddon();
 
@@ -3805,37 +3804,6 @@ void Spell::EffectActivateObject(SpellEffIndex effIndex)
             else
                 gameObjTarget->SetGoArtKit(artKitValue);
 
-            break;
-        }
-        case GameObjectActions::PlayAnimKit:
-            gameObjTarget->PlayAnimKit(m_spellInfo->Effects[effIndex].MiscValueB);
-            break;
-            break;
-        case GameObjectActions::OpenAndPlayAnimKit:
-            if (Unit* unitCaster = m_caster->ToUnit())
-            {
-                gameObjTarget->Use(unitCaster);
-                gameObjTarget->PlayAnimKit(m_spellInfo->Effects[effIndex].MiscValueB);
-            }
-            break;
-        case GameObjectActions::CloseAndPlayAnimKit:
-            gameObjTarget->ResetDoorOrButton();
-            gameObjTarget->PlayAnimKit(m_spellInfo->Effects[effIndex].MiscValueB);
-            break;
-        case GameObjectActions::GoTo1stFloor:
-        case GameObjectActions::GoTo2ndFloor:
-        case GameObjectActions::GoTo3rdFloor:
-        case GameObjectActions::GoTo4thFloor:
-        case GameObjectActions::GoTo5thFloor:
-        case GameObjectActions::GoTo6thFloor:
-        case GameObjectActions::GoTo7thFloor:
-        case GameObjectActions::GoTo8thFloor:
-        case GameObjectActions::GoTo9thFloor:
-        case GameObjectActions::GoTo10thFloor:
-        {
-            // Cast is kind of loose but it'll do
-            if (Transport* transportTarget = gameObjTarget->ToTransport())
-                transportTarget->SetTransportState(GO_STATE_TRANSPORT_STOPPED, uint32_t(action) - uint32(GameObjectActions::GoTo1stFloor));
             break;
         }
         case GameObjectActions::None:
