@@ -1713,8 +1713,8 @@ struct TaxiPathNodeEntry
 
 struct TeamContributionPointsEntry
 {
-    //uint32    entry;                                      // 0
-    float     value;                                        // 1 (???)
+    //uint32 ID;                                            // 0
+    float Data;                                             // 1
 };
 
 struct TotemCategoryEntry
