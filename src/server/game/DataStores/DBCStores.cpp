@@ -621,7 +621,7 @@ void LoadDBCStores(const std::string& dataPath)
     }
 
     for (WMOAreaTableEntry const* entry : sWMOAreaTableStore)
-        sWMOAreaInfoByTripple[WMOAreaTableKey(entry->rootId, entry->adtId, entry->groupId)] = entry;
+        sWMOAreaInfoByTripple[WMOAreaTableKey(entry->WMOID, entry->NameSetID, entry->WMOGroupID)] = entry;
 
     // error checks
     if (bad_dbc_files.size() >= DBCFileCount)

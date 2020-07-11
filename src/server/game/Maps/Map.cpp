@@ -2589,7 +2589,7 @@ uint32 Map::GetAreaId(uint32 phaseMask, float x, float y, float z) const
     {
         // wmo found
         if (WMOAreaTableEntry const* wmoEntry = GetWMOAreaTableEntryByTripple(rootId, adtId, groupId))
-            areaId = wmoEntry->areaId;
+            areaId = wmoEntry->AreaTableID;
 
         if (!areaId)
             areaId = gridAreaId;
@@ -2765,7 +2765,7 @@ void Map::GetFullTerrainStatusForPosition(uint32 phaseMask, float x, float y, fl
             data.outdoors = (wmoData->areaInfo->mogpFlags & 0x8) != 0;
             if (wmoEntry)
             {
-                data.areaId = wmoEntry->areaId;
+                data.areaId = wmoEntry->AreaTableID;
                 if (wmoEntry->Flags & 4)
                     data.outdoors = true;
                 else if (wmoEntry->Flags & 2)
