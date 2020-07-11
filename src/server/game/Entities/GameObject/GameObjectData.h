@@ -674,7 +674,7 @@ struct GameObjectData : public SpawnData
 
 enum class GameObjectActions : uint32
 {
-    // Name from client executable      // Comments
+                                    // Name from client executable      // Comments
     None,                           // -NONE-
     AnimateCustom0,                 // Animate Custom0
     AnimateCustom1,                 // Animate Custom1
