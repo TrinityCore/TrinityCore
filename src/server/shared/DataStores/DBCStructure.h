@@ -1692,10 +1692,10 @@ struct TaxiNodesEntry
 
 struct TaxiPathEntry
 {
-    uint32    ID;                                           // 0        m_ID
-    uint32    from;                                         // 1        m_FromTaxiNode
-    uint32    to;                                           // 2        m_ToTaxiNode
-    uint32    price;                                        // 3        m_Cost
+    uint32 ID;                                              // 0
+    uint32 FromTaxiNode;                                    // 1
+    uint32 ToTaxiNode;                                      // 2
+    uint32 Cost;                                            // 3
 };
 
 struct TaxiPathNodeEntry

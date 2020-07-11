@@ -21501,8 +21501,8 @@ bool Player::ActivateTaxiPathTo(uint32 taxi_path_id, uint32 spellid /*= 0*/)
     std::vector<uint32> nodes;
 
     nodes.resize(2);
-    nodes[0] = entry->from;
-    nodes[1] = entry->to;
+    nodes[0] = entry->FromTaxiNode;
+    nodes[1] = entry->ToTaxiNode;
 
     return ActivateTaxiPathTo(nodes, nullptr, spellid);
 }
