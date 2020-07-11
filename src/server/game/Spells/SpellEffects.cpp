@@ -3753,11 +3753,13 @@ void Spell::EffectActivateObject(SpellEffIndex effIndex)
             break;
         case GameObjectActions::Disturb: // What's the difference with Open?
         case GameObjectActions::Open:
-            gameObjTarget->Use(m_caster);
+            if (Unit* unitCaster = m_caster->ToUnit())
+                gameObjTarget->Use(unitCaster);
             break;
         case GameObjectActions::OpenAndUnlock:
-            gameObjTarget->UseDoorOrButton(0, false, m_caster);
-            // no break
+            if (Unit* unitCaster = m_caster->ToUnit())
+                gameObjTarget->UseDoorOrButton(0, false, unitCaster);
+            /* fallthrough */
         case GameObjectActions::Unlock:
         case GameObjectActions::Lock:
             gameObjTarget->ApplyModFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED, action == GameObjectActions::Lock);
@@ -3778,7 +3780,8 @@ void Spell::EffectActivateObject(SpellEffIndex effIndex)
             gameObjTarget->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
             break;
         case GameObjectActions::Destroy:
-            gameObjTarget->UseDoorOrButton(0, true, m_caster);
+            if (Unit* unitCaster = m_caster->ToUnit())
+                gameObjTarget->UseDoorOrButton(0, true, unitCaster);
             break;
         case GameObjectActions::UseArtKit0:
         case GameObjectActions::UseArtKit1:
@@ -3809,8 +3812,11 @@ void Spell::EffectActivateObject(SpellEffIndex effIndex)
             break;
             break;
         case GameObjectActions::OpenAndPlayAnimKit:
-            gameObjTarget->Use(m_caster);
-            gameObjTarget->PlayAnimKit(m_spellInfo->Effects[effIndex].MiscValueB);
+            if (Unit* unitCaster = m_caster->ToUnit())
+            {
+                gameObjTarget->Use(unitCaster);
+                gameObjTarget->PlayAnimKit(m_spellInfo->Effects[effIndex].MiscValueB);
+            }
             break;
         case GameObjectActions::CloseAndPlayAnimKit:
             gameObjTarget->ResetDoorOrButton();
