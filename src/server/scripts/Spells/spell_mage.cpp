@@ -82,6 +82,7 @@ enum MageSpells
     SPELL_MAGE_INCANTERS_ABSORBTION_TRIGGERED    = 44413,
     SPELL_MAGE_INCANTERS_ABSORBTION_KNOCKBACK    = 86261,
     SPELL_MAGE_IGNITE                            = 12654,
+    SPELL_MAGE_LIVING_BOMB                       = 44457,
     SPELL_MAGE_MASTER_OF_ELEMENTS_ENERGIZE       = 29077,
     SPELL_MAGE_MIRROR_IMAGE_TRIGGERED_FIRE       = 88092,
     SPELL_MAGE_MIRROR_IMAGE_TRIGGERED_ARCANE     = 88091,
@@ -89,6 +90,7 @@ enum MageSpells
     SPELL_MAGE_PERMAFROST_REDUCE_HEAL            = 68391,
     SPELL_MAGE_PERMAFROST_HEAL                   = 91394,
     SPELL_MAGE_PYROBLAST                         = 11366,
+    SPELL_MAGE_PYROBLAST_HOT_STREAK              = 92315,
     SPELL_MAGE_PYROMANIAC_TRIGGERED              = 83582,
     SPELL_MAGE_SCORCH                            = 2948,
     SPELL_MAGE_SLOW                              = 31589,
@@ -2216,24 +2218,44 @@ class spell_mage_combustion : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_MAGE_COMBUSTION_DAMAGE });
+        return ValidateSpellInfo(
+            {
+                SPELL_MAGE_COMBUSTION_DAMAGE,
+                SPELL_MAGE_LIVING_BOMB
+            });
     }
 
     void HandleDotEffect(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
-        Unit* target = GetHitUnit();
-        if (!target || !caster)
+        if (!caster)
             return;
 
-        std::list<AuraEffect*> dotAuraEffects = target->GetAuraEffectsByType(SPELL_AURA_PERIODIC_DAMAGE);
-        if (dotAuraEffects.empty())
-            return;
+        Unit* target = GetHitUnit();
 
         int32 totalAmount = 0;
-        for (AuraEffect const* effect : dotAuraEffects)
-            if (effect->GetCasterGUID() == caster->GetGUID() && effect->GetSpellInfo()->SpellFamilyFlags[2] & 0x00000008)
-                totalAmount += effect->GetAmount();
+        for (AuraEffect const* aurEff : target->GetAuraEffectsByType(SPELL_AURA_PERIODIC_DAMAGE))
+        {
+            if (aurEff->GetCasterGUID() == caster->GetGUID() && aurEff->GetSpellInfo()->SpellFamilyFlags[2] & 0x00000008)
+            {
+                if (aurEff->GetSpellInfo()->Id == SPELL_MAGE_COMBUSTION_DAMAGE)
+                    continue;
+
+                switch (aurEff->GetSpellInfo()->Id)
+                {
+                    case SPELL_MAGE_IGNITE:
+                        totalAmount += aurEff->GetAmount() / 2;
+                        break;
+                    case SPELL_MAGE_LIVING_BOMB:
+                    case SPELL_MAGE_PYROBLAST:
+                    case SPELL_MAGE_PYROBLAST_HOT_STREAK:
+                        totalAmount += aurEff->GetAmount() / 3;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
 
         if (totalAmount)
             caster->CastCustomSpell(SPELL_MAGE_COMBUSTION_DAMAGE, SPELLVALUE_BASE_POINT0, totalAmount, target, true);
