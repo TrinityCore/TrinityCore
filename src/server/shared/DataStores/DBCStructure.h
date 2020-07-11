@@ -1728,13 +1728,11 @@ struct TotemCategoryEntry
 
 struct TransportAnimationEntry
 {
-    //uint32  Id;
-    uint32  TransportEntry;
-    uint32  TimeSeg;
-    float   X;
-    float   Y;
-    float   Z;
-    //uint32  MovementId;
+    //uint32 ID;                                            // 0
+    uint32 TransportID;                                     // 1
+    uint32 TimeIndex;                                       // 2
+    DBCPosition3D Pos;                                      // 3
+    //uint32 SequenceID;                                    // 4
 };
 
 struct TransportRotationEntry

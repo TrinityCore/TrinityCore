@@ -95,7 +95,7 @@ void TransportMgr::LoadTransportAnimationAndRotation()
 {
     for (uint32 i = 0; i < sTransportAnimationStore.GetNumRows(); ++i)
         if (TransportAnimationEntry const* anim = sTransportAnimationStore.LookupEntry(i))
-            AddPathNodeToTransport(anim->TransportEntry, anim->TimeSeg, anim);
+            AddPathNodeToTransport(anim->TransportID, anim->TimeIndex, anim);
 
     for (uint32 i = 0; i < sTransportRotationStore.GetNumRows(); ++i)
         if (TransportRotationEntry const* rot = sTransportRotationStore.LookupEntry(i))
