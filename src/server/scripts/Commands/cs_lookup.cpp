@@ -1129,7 +1129,7 @@ public:
             if (nodeEntry)
             {
                 uint8 locale = handler->GetSessionDbcLocale();
-                std::string name = nodeEntry->name[locale];
+                std::string name = nodeEntry->Name[locale];
                 if (name.empty())
                     continue;
 
@@ -1141,7 +1141,7 @@ public:
                         if (locale == handler->GetSessionDbcLocale())
                             continue;
 
-                        name = nodeEntry->name[locale];
+                        name = nodeEntry->Name[locale];
                         if (name.empty())
                             continue;
 
@@ -1161,10 +1161,10 @@ public:
                     // send taxinode in "id - [name] (Map:m X:x Y:y Z:z)" format
                     if (handler->GetSession())
                         handler->PSendSysMessage(LANG_TAXINODE_ENTRY_LIST_CHAT, id, id, name.c_str(), localeNames[locale],
-                            nodeEntry->map_id, nodeEntry->x, nodeEntry->y, nodeEntry->z);
+                            nodeEntry->ContinentID, nodeEntry->Pos.X, nodeEntry->Pos.Y, nodeEntry->Pos.Z);
                     else
                         handler->PSendSysMessage(LANG_TAXINODE_ENTRY_LIST_CONSOLE, id, name.c_str(), localeNames[locale],
-                            nodeEntry->map_id, nodeEntry->x, nodeEntry->y, nodeEntry->z);
+                            nodeEntry->ContinentID, nodeEntry->Pos.X, nodeEntry->Pos.Y, nodeEntry->Pos.Z);
 
                     if (!found)
                         found = true;

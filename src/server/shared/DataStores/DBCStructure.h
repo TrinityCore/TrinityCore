@@ -1682,14 +1682,12 @@ struct TalentTabEntry
 
 struct TaxiNodesEntry
 {
-    uint32    ID;                                           // 0        m_ID
-    uint32    map_id;                                       // 1        m_ContinentID
-    float     x;                                            // 2        m_x
-    float     y;                                            // 3        m_y
-    float     z;                                            // 4        m_z
-    char*     name[16];                                     // 5-21     m_Name_lang
-                                                            // 22 string flags
-    uint32    MountCreatureID[2];                           // 23-24    m_MountCreatureID[2]
+    uint32 ID;                                              // 0
+    uint32 ContinentID;                                     // 1
+    DBCPosition3D Pos;                                      // 2-4
+    char* Name[16];                                         // 5-21
+    //uint32 Name_lang_mask;                                // 22
+    uint32 MountCreatureID[2];                              // 23-24
 };
 
 struct TaxiPathEntry

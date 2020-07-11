@@ -249,7 +249,7 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
-        return DoTeleport(handler, { node->x, node->y, node->z }, node->map_id);
+        return DoTeleport(handler, { node->Pos.X, node->Pos.Y, node->Pos.Z }, node->ContinentID);
     }
 
     static bool HandleGoAreaTriggerCommand(ChatHandler* handler, Variant<Hyperlink<areatrigger>, uint32> areaTriggerId)

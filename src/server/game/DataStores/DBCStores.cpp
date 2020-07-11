@@ -611,7 +611,7 @@ void LoadDBCStores(const std::string& dataPath)
                 sDeathKnightTaxiNodesMask[field] |= submask;
 
             // old continent node (+ nodes virtually at old continents, check explicitly to avoid loading map files for zone info)
-            if (node->map_id < 2 || node->ID == 82 || node->ID == 83 || node->ID == 93 || node->ID == 94)
+            if (node->ContinentID < 2 || node->ID == 82 || node->ID == 83 || node->ID == 93 || node->ID == 94)
                 sOldContinentsNodesMask[field] |= submask;
 
             // fix DK node at Ebon Hold and Shadow Vault flight master

@@ -17528,8 +17528,8 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder* holder)
             else                                                // has start node, teleport to it
             {
                 TC_LOG_ERROR("entities.player", "Player::LoadFromDB: Player (%s) has too short taxi destination list, teleport to original node.", GetGUID().ToString().c_str());
-                mapId = nodeEntry->map_id;
-                Relocate(nodeEntry->x, nodeEntry->y, nodeEntry->z, 0.0f);
+                mapId = nodeEntry->ContinentID;
+                Relocate(nodeEntry->Pos.X, nodeEntry->Pos.Y, nodeEntry->Pos.Z, 0.0f);
             }
             m_taxi.ClearTaxiDestinations();
         }
@@ -17538,11 +17538,11 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder* holder)
         {
             // save source node as recall coord to prevent recall and fall from sky
             TaxiNodesEntry const* nodeEntry = sTaxiNodesStore.LookupEntry(node_id);
-            if (nodeEntry && nodeEntry->map_id == GetMapId())
+            if (nodeEntry && nodeEntry->ContinentID == GetMapId())
             {
                 ASSERT(nodeEntry);                                  // checked in m_taxi.LoadTaxiDestinationsFromString
-                mapId = nodeEntry->map_id;
-                Relocate(nodeEntry->x, nodeEntry->y, nodeEntry->z, 0.0f);
+                mapId = nodeEntry->ContinentID;
+                Relocate(nodeEntry->Pos.X, nodeEntry->Pos.Y, nodeEntry->Pos.Z, 0.0f);
             }
 
             // flight will started later
@@ -21479,7 +21479,7 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
         m_taxi.ClearTaxiDestinations();
         ModifyMoney(-(int32)totalcost);
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_TRAVELLING, totalcost);
-        TeleportTo(lastPathNode->map_id, lastPathNode->x, lastPathNode->y, lastPathNode->z, GetOrientation());
+        TeleportTo(lastPathNode->ContinentID, lastPathNode->Pos.X, lastPathNode->Pos.Y, lastPathNode->Pos.Z, GetOrientation());
         return false;
     }
     else
