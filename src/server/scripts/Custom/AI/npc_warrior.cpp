@@ -19,7 +19,7 @@ class npc_warrior : public CreatureScript
 
     struct npc_warriorAI : public CustomAI
     {
-        npc_warriorAI(Creature* creature) : CustomAI(creature, MELEE) {}
+        npc_warriorAI(Creature* creature) : CustomAI(creature, AI_Type::Melee) {}
 
         void JustEngagedWith(Unit* /*who*/) override
         {

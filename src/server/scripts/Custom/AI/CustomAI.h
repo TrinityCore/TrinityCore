@@ -7,16 +7,16 @@
 #include "DBCEnums.h"
 #include "TaskScheduler.h"
 
-enum AI_Type
+enum class AI_Type
 {
-    MELEE,
-    DISTANCE
+    Melee,
+    Distance
 };
 
 class TC_GAME_API CustomAI : public ScriptedAI
 {
     public:
-        CustomAI(Creature* creature, AI_Type type = DISTANCE);
+        CustomAI(Creature* creature, AI_Type type = AI_Type::Distance);
         virtual ~CustomAI() { };
 
         virtual void Initialize();

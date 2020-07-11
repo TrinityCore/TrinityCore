@@ -289,18 +289,8 @@ class dalaran_jaina_purge : public CreatureScript
 
         void Initialize()
         {
-            teleport = false;
             teleportTimer = 3 * IN_MILLISECONDS;
         }
-
-        //void AttackStart(Unit* who) override
-        //{
-        //    if (!who)
-        //        return;
-
-        //    if (me->Attack(who, false))
-        //        SetCombatMovement(false);
-        //}
 
         void Reset() override
         {
@@ -315,7 +305,8 @@ class dalaran_jaina_purge : public CreatureScript
         {
             if (victim->GetEntry() == NPC_DISPLACED_SUNREAVER)
             {
-                Talk(SAY_JAINA_SLAIN);
+                if (roll_chance_i(60))
+                    Talk(SAY_JAINA_SLAIN);
 
                 teleportTimer = 1 * IN_MILLISECONDS;
             }
@@ -389,7 +380,6 @@ class dalaran_jaina_purge : public CreatureScript
 
         private:
         EventMap events;
-        bool teleport;
         uint32 teleportTimer;
     };
 
@@ -931,20 +921,18 @@ public:
     {
         npc_vereesa_windrunnerAI(Creature* creature) : ScriptedAI(creature) { }
 
-        //void QuestAccept(Player* player, Quest const* quest) override
-        //{
-        //    switch (quest->GetQuestId())
-        //    {
-        //        case QUEST_NOWHERE_TO_HIDE:
-        //            if (Creature * mage = me->FindNearestCreature(NPC_SILVER_COV_GUARDIAN, 5.f, true))
-        //            {
-        //                mage->GetMotionMaster()->MoveFollow(player, PET_FOLLOW_ANGLE, PET_FOLLOW_ANGLE);
-        //                mage->SetFlag(UNIT_FIELD_FLAGS, CREATURE_TYPE_FLAG_CAN_ASSIST);
-        //                player->SetPetGUID(mage->GetGUID());
-        //            }
-        //            break;
-        //    }
-        //}
+        void QuestAccept(Player* player, Quest const* quest) override
+        {
+            switch (quest->GetQuestId())
+            {
+                case QUEST_NOWHERE_TO_HIDE:
+                {
+                    const Position pos = player->GetPositionWithOffset({ 2.0f, 2.0f, 0.0f, 0.0f });
+                    player->SummonPet(100071, pos.GetPositionX(), pos.GetPositionY(), player->GetPositionZ(), PET_FOLLOW_ANGLE, SUMMON_PET, 0U, true);
+                    break;
+                }
+            }
+        }
 
         void Reset() override
         {

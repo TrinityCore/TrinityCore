@@ -8,7 +8,7 @@ CustomAI::CustomAI(Creature* creature, AI_Type type) : ScriptedAI(creature),
 
 void CustomAI::Initialize()
 {
-    if (type == DISTANCE)
+    if (type == AI_Type::Distance)
     {
         scheduler.SetValidator([this]
         {

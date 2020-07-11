@@ -770,7 +770,16 @@ class dalaran_jaina_anduin : public CreatureScript
                         break;
 
                     case EVENT_DARNASSUS_3:
-                        if (Creature * track = me->SummonCreature(NPC_INVISIBLE_STALKER, MagicTracksPos[magicTracks], TEMPSUMMON_MANUAL_DESPAWN))
+                    {
+                        Position pos =
+                        {
+                            MagicTracksPos[magicTracks].GetPositionX(),
+                            MagicTracksPos[magicTracks].GetPositionY(),
+                            MagicTracksPos[magicTracks].GetPositionZ() + frand(-0.8f, 0.8f),
+                            MagicTracksPos[magicTracks].GetOrientation()
+                        };
+
+                        if (Creature* track = me->SummonCreature(NPC_INVISIBLE_STALKER, pos, TEMPSUMMON_MANUAL_DESPAWN))
                             track->CastSpell(track, SPELL_MAGIC_TRACKS);
                         magicTracks++;
                         if (magicTracks >= TOTAL_TRACKERS_COUNT)
@@ -778,6 +787,7 @@ class dalaran_jaina_anduin : public CreatureScript
                         else
                             events.RescheduleEvent(EVENT_DARNASSUS_3, 1ms);
                         break;
+                    }
 
                     case EVENT_DARNASSUS_4:
                         me->GetMotionMaster()->MoveFollow(player, PET_FOLLOW_DIST, PET_FOLLOW_DIST);

@@ -68,7 +68,7 @@ class npc_sunreaver_assassin : public CreatureScript
 
     struct npc_sunreaver_assassinAI : public CustomAI
     {
-        npc_sunreaver_assassinAI(Creature* creature) : CustomAI(creature, MELEE) {}
+        npc_sunreaver_assassinAI(Creature* creature) : CustomAI(creature, AI_Type::Melee) {}
 
         void JustEngagedWith(Unit* /*who*/) override
         {
@@ -111,7 +111,7 @@ class npc_sunreaver_duelist : public CreatureScript
 
     struct npc_sunreaver_duelistAI : public CustomAI
     {
-        npc_sunreaver_duelistAI(Creature* creature) : CustomAI(creature, MELEE) {}
+        npc_sunreaver_duelistAI(Creature* creature) : CustomAI(creature, AI_Type::Melee) {}
 
         void JustEngagedWith(Unit* /*who*/) override
         {
@@ -265,11 +265,10 @@ class npc_magister_brasael : public CreatureScript
 
         void DamageTaken(Unit* attacker, uint32& /*damage*/) override
         {
-            if (attacker->GetTypeId() != TYPEID_PLAYER)
-                return;
-
             if (!combustionUsed && HealthBelowPct(80))
             {
+                combustionUsed = true;
+
                 phase = PHASE_POSTCOMBUSTION;
 
                 scheduler.Schedule(1s, PHASE_POSTCOMBUSTION, [this](TaskContext postcombustion)
@@ -277,8 +276,6 @@ class npc_magister_brasael : public CreatureScript
                     if (me->GetVictim()->GetTypeId() == TYPEID_PLAYER)
                     {
                         scheduler.CancelGroup(PHASE_NORMAL);
-
-                        combustionUsed = true;
 
                         DoCastSelf(SPELL_POSTCOMBUSTION);
 
