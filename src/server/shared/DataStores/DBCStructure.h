@@ -1914,21 +1914,22 @@ struct WorldSafeLocsEntry
 /*
 struct WorldStateUI
 {
-    uint32    ID;                                           // 0
-    uint32    map_id;                                       // 1        Can be -1 to show up everywhere.
-    uint32    zone;                                         // 2        Can be zero for "everywhere".
-    uint32    phaseMask;                                    // 3        Phase this WorldState is avaliable in
-    uint32    icon;                                         // 4        The icon that is used in the interface.
-    char*     textureFilename;                              // 5
-    char*     text;                                         // 6-21     The worldstate text
-    char*     description;                                  // 22-38    Text shown when hovering mouse on icon
-    uint32    worldstateID;                                 // 39       This is the actual ID used
-    uint32    type;                                         // 40       0 = unknown, 1 = unknown, 2 = not shown in ui, 3 = wintergrasp
-    uint32    unk1;                                         // 41
-    uint32    unk2;                                         // 43
-    uint32    unk3;                                         // 44-58
-    uint32    unk4;                                         // 59-61    Used for some progress bars.
-    uint32    unk7;                                         // 62       Unused in 3.3.5a
+    uint32 ID;                                              // 0
+    uint32 MapID;                                           // 1 Can be -1 to show up everywhere.
+    uint32 AreaID;                                          // 2 Can be zero for "everywhere".
+    uint32 PhaseShift;                                      // 3 Phase this WorldState is avaliable in
+    char* Icon;                                             // 4 The icon that is used in the interface.
+    char* String;                                           // 5-20
+    uint32 String_lang_mask;                                // 21
+    char* Tooltip;                                          // 22-37
+    uint32 Tooltip_lang_mask;                               // 38
+    uint32 StateVariable;                                   // 39
+    uint32 Type;                                            // 40 0 = unknown, 1 = unknown, 2 = not shown in ui, 3 = wintergrasp
+    char* DynamicIcon;                                      // 41
+    char* DynamicTooltip[16];                               // 42-57
+    uint32 DynamicTooltip_lang_mask;                        // 58
+    char* ExtendedUI;                                       // 59
+    uint32 ExtendedUIStateVariable[3];                      // 60-62
 };
 */
 
