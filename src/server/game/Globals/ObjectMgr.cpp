@@ -6917,12 +6917,12 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveyard(float x, float y, float
             continue;
 
         // find now nearest graveyard at other map
-        if (MapId != entry->map_id)
+        if (MapId != entry->Continent)
         {
             // if find graveyard at different map from where entrance placed (or no entrance data), use any first
             if (!mapEntry
                 || mapEntry->CorpseMapID < 0
-                || uint32(mapEntry->CorpseMapID) != entry->map_id
+                || uint32(mapEntry->CorpseMapID) != entry->Continent
                 || (mapEntry->Corpse.X == 0 && mapEntry->Corpse.Y == 0))
             {
                 // not have any corrdinates for check distance anyway
@@ -6931,8 +6931,8 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveyard(float x, float y, float
             }
 
             // at entrance map calculate distance (2D);
-            float dist2 = (entry->x - mapEntry->Corpse.X)*(entry->x - mapEntry->Corpse.X)
-                +(entry->y - mapEntry->Corpse.Y)*(entry->y - mapEntry->Corpse.Y);
+            float dist2 = (entry->Loc.X - mapEntry->Corpse.X)*(entry->Loc.X - mapEntry->Corpse.X)
+                +(entry->Loc.Y - mapEntry->Corpse.Y)*(entry->Loc.Y - mapEntry->Corpse.Y);
             if (foundEntr)
             {
                 if (dist2 < distEntr)
@@ -6951,7 +6951,7 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveyard(float x, float y, float
         // find now nearest graveyard at same map
         else
         {
-            float dist2 = (entry->x - x)*(entry->x - x)+(entry->y - y)*(entry->y - y)+(entry->z - z)*(entry->z - z);
+            float dist2 = (entry->Loc.X - x)*(entry->Loc.X - x)+(entry->Loc.Y - y)*(entry->Loc.Y - y)+(entry->Loc.Z - z)*(entry->Loc.Z - z);
             if (foundNear)
             {
                 if (dist2 < distNear)

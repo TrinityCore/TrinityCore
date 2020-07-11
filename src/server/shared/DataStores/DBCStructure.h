@@ -1904,13 +1904,11 @@ struct WorldMapOverlayEntry
 
 struct WorldSafeLocsEntry
 {
-    uint32    ID;                                           // 0
-    uint32    map_id;                                       // 1
-    float     x;                                            // 2
-    float     y;                                            // 3
-    float     z;                                            // 4
-    //char*   name[16]                                      // 5-20 name, unused
-                                                            // 21 name flags, unused
+    uint32 ID;                                              // 0
+    uint32 Continent;                                       // 1
+    DBCPosition3D Loc;                                      // 2-4
+    //char* AreaName[16]                                    // 5-20
+    //uint32 AreaName_lang_mask;                            // 21
 };
 
 /*
