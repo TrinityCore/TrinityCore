@@ -1784,56 +1784,63 @@ struct VehicleEntry
 
 struct VehicleSeatEntry
 {
-    uint32  m_ID;                                           // 0
-    uint32  m_flags;                                        // 1
-    int32   m_attachmentID;                                 // 2
-    float   m_attachmentOffsetX;                            // 3
-    float   m_attachmentOffsetY;                            // 4
-    float   m_attachmentOffsetZ;                            // 5
-    float   m_enterPreDelay;                                // 6
-    float   m_enterSpeed;                                   // 7
-    float   m_enterGravity;                                 // 8
-    float   m_enterMinDuration;                             // 9
-    float   m_enterMaxDuration;                             // 10
-    float   m_enterMinArcHeight;                            // 11
-    float   m_enterMaxArcHeight;                            // 12
-    int32   m_enterAnimStart;                               // 13
-    int32   m_enterAnimLoop;                                // 14
-    int32   m_rideAnimStart;                                // 15
-    int32   m_rideAnimLoop;                                 // 16
-    int32   m_rideUpperAnimStart;                           // 17
-    int32   m_rideUpperAnimLoop;                            // 18
-    float   m_exitPreDelay;                                 // 19
-    float   m_exitSpeed;                                    // 20
-    float   m_exitGravity;                                  // 21
-    float   m_exitMinDuration;                              // 22
-    float   m_exitMaxDuration;                              // 23
-    float   m_exitMinArcHeight;                             // 24
-    float   m_exitMaxArcHeight;                             // 25
-    int32   m_exitAnimStart;                                // 26
-    int32   m_exitAnimLoop;                                 // 27
-    int32   m_exitAnimEnd;                                  // 28
-    float   m_passengerYaw;                                 // 29
-    float   m_passengerPitch;                               // 30
-    float   m_passengerRoll;                                // 31
-    int32   m_passengerAttachmentID;                        // 32
-    int32   m_vehicleEnterAnim;                             // 33
-    int32   m_vehicleExitAnim;                              // 34
-    int32   m_vehicleRideAnimLoop;                          // 35
-    int32   m_vehicleEnterAnimBone;                         // 36
-    int32   m_vehicleExitAnimBone;                          // 37
-    int32   m_vehicleRideAnimLoopBone;                      // 38
-    float   m_vehicleEnterAnimDelay;                        // 39
-    float   m_vehicleExitAnimDelay;                         // 40
-    uint32  m_vehicleAbilityDisplay;                        // 41
-    uint32  m_enterUISoundID;                               // 42
-    uint32  m_exitUISoundID;                                // 43
-    int32   m_uiSkin;                                       // 44
-    uint32  m_flagsB;                                       // 45
-                                                            // 46-57 added in 3.1, floats mostly
+    uint32 ID;                                              // 0
+    uint32 Flags;                                           // 1
+    int32 AttachmentID;                                     // 2
+    DBCPosition3D AttachmentOffset;                         // 3-5
+    float EnterPreDelay;                                    // 6
+    float EnterSpeed;                                       // 7
+    float EnterGravity;                                     // 8
+    float EnterMinDuration;                                 // 9
+    float EnterMaxDuration;                                 // 10
+    float EnterMinArcHeight;                                // 11
+    float EnterMaxArcHeight;                                // 12
+    int32 EnterAnimStart;                                   // 13
+    int32 EnterAnimLoop;                                    // 14
+    int32 RideAnimStart;                                    // 15
+    int32 RideAnimLoop;                                     // 16
+    int32 RideUpperAnimStart;                               // 17
+    int32 RideUpperAnimLoop;                                // 18
+    float ExitPreDelay;                                     // 19
+    float ExitSpeed;                                        // 20
+    float ExitGravity;                                      // 21
+    float ExitMinDuration;                                  // 22
+    float ExitMaxDuration;                                  // 23
+    float ExitMinArcHeight;                                 // 24
+    float ExitMaxArcHeight;                                 // 25
+    int32 ExitAnimStart;                                    // 26
+    int32 ExitAnimLoop;                                     // 27
+    int32 ExitAnimEnd;                                      // 28
+    float PassengerYaw;                                     // 29
+    float PassengerPitch;                                   // 30
+    float PassengerRoll;                                    // 31
+    int32 PassengerAttachmentID;                            // 32
+    int32 VehicleEnterAnim;                                 // 33
+    int32 VehicleExitAnim;                                  // 34
+    int32 VehicleRideAnimLoop;                              // 35
+    int32 VehicleEnterAnimBone;                             // 36
+    int32 VehicleExitAnimBone;                              // 37
+    int32 VehicleRideAnimLoopBone;                          // 38
+    float VehicleEnterAnimDelay;                            // 39
+    float VehicleExitAnimDelay;                             // 40
+    uint32 VehicleAbilityDisplay;                           // 41
+    uint32 EnterUISoundID;                                  // 42
+    uint32 ExitUISoundID;                                   // 43
+    int32 UiSkin;                                           // 44
+    uint32 FlagsB;                                          // 45
+    //float CameraEnteringDelay;                            // 46
+    //float CameraEnteringDuration;                         // 47
+    //float CameraExitingDelay;                             // 48
+    //float CameraExitingDuration;                          // 49
+    //DBCPosition3D CameraOffset;                           // 50-52
+    //float CameraPosChaseRate;                             // 53
+    //float CameraFacingChaseRate;                          // 54
+    //float CameraEnteringZoom;                             // 55
+    //float CameraSeatZoomMin;                              // 56
+    //float CameraSeatZoomMax;                              // 57
 
-    inline bool HasFlag(VehicleSeatFlags flag) const { return !!(m_flags & flag); }
-    inline bool HasFlag(VehicleSeatFlagsB flag) const { return !!(m_flagsB & flag); }
+    inline bool HasFlag(VehicleSeatFlags flag) const { return (Flags & flag) != 0; }
+    inline bool HasFlag(VehicleSeatFlagsB flag) const { return (FlagsB & flag) != 0; }
 
     inline bool CanEnterOrExit() const { return HasFlag(VehicleSeatFlags(VEHICLE_SEAT_FLAG_CAN_ENTER_OR_EXIT | VEHICLE_SEAT_FLAG_CAN_CONTROL | VEHICLE_SEAT_FLAG_SHOULD_USE_VEH_SEAT_EXIT_ANIM_ON_VOLUNTARY_EXIT)); }
     inline bool CanSwitchFromSeat() const { return HasFlag(VEHICLE_SEAT_FLAG_CAN_SWITCH); }
