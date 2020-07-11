@@ -3791,9 +3791,6 @@ void Spell::EffectActivateObject(SpellEffIndex effIndex)
             GameObjectTemplateAddon const* templateAddon = gameObjTarget->GetTemplateAddon();
 
             uint32 artKitIndex = uint32(action) - uint32(GameObjectActions::UseArtKit0);
-            // Non-sequential here
-            if (action == GameObjectActions::UseArtKit4)
-                artKitIndex = 4;
 
             uint32 artKitValue = 0;
             if (templateAddon != nullptr)
