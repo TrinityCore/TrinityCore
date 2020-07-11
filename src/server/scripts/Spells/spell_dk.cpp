@@ -71,6 +71,7 @@ enum DeathKnightSpells
     SPELL_DK_FROST_STRIKE_OFFHAND               = 66196,
     SPELL_DK_GHOUL_EXPLODE                      = 47496,
     SPELL_DK_GLYPH_OF_ICEBOUND_FORTITUDE        = 58625,
+    SPELL_DK_IMPROVED_BLOOD_PRESENCE_R1         = 50365,
     SPELL_DK_IMPROVED_BLOOD_PRESENCE            = 63611,
     SPELL_DK_IMPROVED_DEATH_STRIKE              = 62905,
     SPELL_DK_IMPROVED_FROST_PRESENCE            = 63621,
@@ -103,8 +104,7 @@ enum DKSpellIcons
     DK_ICON_ID_RUNIC_CORRUPTION                 = 4068,
     DK_ICON_ID_RESILIENT_INFECTION              = 1910,
     DK_ICON_ID_IMPROVED_UNHOLY_PRESENCE         = 2633,
-    DK_ICON_ID_IMPROVED_FROST_PRESENCE          = 2632,
-    DK_ICON_ID_IMPROVED_BLOOD_PRESENCE          = 2636,
+    DK_ICON_ID_IMPROVED_FROST_PRESENCE          = 2632
 };
 
 // 48707 - Anti-Magic Shell (on self)
@@ -769,7 +769,8 @@ class spell_dk_presence : public AuraScript
                 SPELL_DK_BLOOD_PRESENCE_TRIGGERED,
                 SPELL_DK_IMPROVED_UNHOLY_PRESENCE,
                 SPELL_DK_IMPROVED_FROST_PRESENCE,
-                SPELL_DK_IMPROVED_BLOOD_PRESENCE
+                SPELL_DK_IMPROVED_BLOOD_PRESENCE,
+                SPELL_DK_IMPROVED_BLOOD_PRESENCE_R1
             });
     }
 
@@ -793,21 +794,25 @@ class spell_dk_presence : public AuraScript
         // Improved Blood Presence and Blood Presence triggered effect
         if (spellId == SPELL_DK_BLOOD_PRESENCE)
         {
-            // Rune Regeneration bonus effect
-            if (AuraEffect const* eff = target->GetDummyAuraEffect(SPELLFAMILY_DEATHKNIGHT, DK_ICON_ID_IMPROVED_BLOOD_PRESENCE, EFFECT_2))
-                target->CastCustomSpell(SPELL_DK_IMPROVED_BLOOD_PRESENCE, SPELLVALUE_BASE_POINT0, eff->GetAmount(), target, true, nullptr, aurEff);
+            if (Aura const* improvedBloodPresenceAura = target->GetAuraOfRankedSpell(SPELL_DK_IMPROVED_BLOOD_PRESENCE_R1, target->GetGUID()))
+            {
+                // Rune Regeneration bonus effect
+                if (AuraEffect const* eff2 = improvedBloodPresenceAura->GetEffect(EFFECT_2))
+                    target->CastCustomSpell(SPELL_DK_IMPROVED_BLOOD_PRESENCE, SPELLVALUE_BASE_POINT0, eff2->GetAmount(), target, true, nullptr, aurEff);
 
-            // Crit Hit Chance reduction bonus effect
-            if (AuraEffect const* eff = target->GetDummyAuraEffect(SPELLFAMILY_DEATHKNIGHT, DK_ICON_ID_IMPROVED_BLOOD_PRESENCE, EFFECT_1))
-                target->CastCustomSpell(SPELL_DK_BLOOD_PRESENCE_TRIGGERED, SPELLVALUE_BASE_POINT1, eff->GetAmount(), target, true, nullptr, aurEff);
+                // Crit Hit Chance reduction bonus effect
+                if (AuraEffect const* eff1 = improvedBloodPresenceAura->GetEffect(EFFECT_1))
+                    target->CastCustomSpell(SPELL_DK_BLOOD_PRESENCE_TRIGGERED, SPELLVALUE_BASE_POINT1, eff1->GetAmount(), target, true, nullptr, aurEff);
+            }
             else
                 target->CastSpell(target, SPELL_DK_BLOOD_PRESENCE_TRIGGERED, true, nullptr, aurEff);
         }
         else
         {
             // Damage Reduction bonus effect for the other presences
-            if (AuraEffect const* eff = target->GetDummyAuraEffect(SPELLFAMILY_DEATHKNIGHT, DK_ICON_ID_IMPROVED_BLOOD_PRESENCE, EFFECT_0))
-                target->CastCustomSpell(SPELL_DK_BLOOD_PRESENCE_TRIGGERED, SPELLVALUE_BASE_POINT0, -eff->GetAmount(), target, true, nullptr, aurEff);
+            if (Aura const* improvedBloodPresenceAura = target->GetAuraOfRankedSpell(SPELL_DK_IMPROVED_BLOOD_PRESENCE_R1, target->GetGUID()))
+                if (AuraEffect const* eff0 = improvedBloodPresenceAura->GetEffect(EFFECT_0))
+                    target->CastCustomSpell(SPELL_DK_BLOOD_PRESENCE_TRIGGERED, SPELLVALUE_BASE_POINT0, -eff0->GetAmount(), target, true, nullptr, aurEff);
         }
     }
 
