@@ -170,8 +170,6 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
 
         void SetPhaseMask(uint32 newPhaseMask, bool update) override;
 
-        void PlayAnimKit(int32 animKit);
-
         void EnableCollision(bool enable);
 
         void Use(Unit* user);
