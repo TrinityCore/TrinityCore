@@ -1885,7 +1885,7 @@ bool AchievementMgr::RequirementsSatisfied(AchievementCriteriaEntry const* achie
                 return false;
 
             bool matchFound = false;
-            for (uint32 j : worldOverlayEntry->areatableID)
+            for (uint32 j : worldOverlayEntry->AreaID)
             {
                 AreaTableEntry const* area = sAreaTableStore.LookupEntry(j);
                 if (!area)
@@ -2338,14 +2338,14 @@ void AchievementGlobalMgr::LoadAchievementCriteriaList()
 
                 for (uint8 j = 0; j < MAX_WORLD_MAP_OVERLAY_AREA_IDX; ++j)
                 {
-                    if (worldOverlayEntry->areatableID[j])
+                    if (worldOverlayEntry->AreaID[j])
                     {
                         bool valid = true;
                         for (uint8 i = 0; i < j; ++i)
-                            if (worldOverlayEntry->areatableID[j] == worldOverlayEntry->areatableID[i])
+                            if (worldOverlayEntry->AreaID[j] == worldOverlayEntry->AreaID[i])
                                 valid = false;
                         if (valid)
-                            m_AchievementCriteriasByMiscValue[criteria->Type][worldOverlayEntry->areatableID[j]].push_back(criteria);
+                            m_AchievementCriteriasByMiscValue[criteria->Type][worldOverlayEntry->AreaID[j]].push_back(criteria);
                     }
                 }
             }

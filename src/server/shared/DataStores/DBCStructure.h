@@ -1886,12 +1886,20 @@ struct WorldMapAreaEntry
 
 struct WorldMapOverlayEntry
 {
-    uint32    ID;                                           // 0
-    //uint32    worldMapAreaId;                             // 1 idx in WorldMapArea.dbc
-    uint32    areatableID[MAX_WORLD_MAP_OVERLAY_AREA_IDX];  // 2-5
-                                                            // 6-7 always 0, possible part of areatableID[]
-    //char* internal_name                                   // 8
-                                                            // 9-16 some ints
+    uint32 ID;                                              // 0
+    //uint32 MapAreaID;                                     // 1 ID in WorldMapArea.dbc
+    uint32 AreaID[MAX_WORLD_MAP_OVERLAY_AREA_IDX];          // 2-5
+    //uint32 MapPointX;                                     // 6
+    //uint32 MapPointY;                                     // 7
+    //char* TextureName                                     // 8
+    //uint32 TextureWidth;                                  // 9
+    //uint32 TextureHeight;                                 // 10
+    //uint32 OffsetX;                                       // 11
+    //uint32 OffsetY;                                       // 12
+    //uint32 HitRectTop;                                    // 13
+    //uint32 HitRectLeft;                                   // 14
+    //uint32 HitRectBottom;                                 // 15
+    //uint32 HitRectRight;                                  // 16
 };
 
 struct WorldSafeLocsEntry
