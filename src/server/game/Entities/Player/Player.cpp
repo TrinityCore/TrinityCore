@@ -2536,7 +2536,7 @@ void Player::GiveXP(uint32 xp, Unit* victim, float group_rate)
     sScriptMgr->OnGivePlayerXP(this, xp, victim);
 
     // XP to money conversion processed in Player::RewardQuest
-    if (level >= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+    if (IsMaxLevel())
         return;
 
     uint32 bonus_xp;
@@ -2553,11 +2553,11 @@ void Player::GiveXP(uint32 xp, Unit* victim, float group_rate)
     uint32 nextLvlXP = GetUInt32Value(PLAYER_NEXT_LEVEL_XP);
     uint32 newXP = GetXP() + xp + bonus_xp;
 
-    while (newXP >= nextLvlXP && level < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+    while (newXP >= nextLvlXP && !IsMaxLevel())
     {
         newXP -= nextLvlXP;
 
-        if (level < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+        if (!IsMaxLevel())
             GiveLevel(level + 1);
 
         level = GetLevel();
@@ -2665,6 +2665,11 @@ void Player::GiveLevel(uint8 level)
     sScriptMgr->OnPlayerLevelChanged(this, oldLevel);
 }
 
+bool Player::IsMaxLevel() const
+{
+    return GetLevel() >= GetUInt32Value(PLAYER_FIELD_MAX_LEVEL);
+}
+
 void Player::InitTalentForLevel()
 {
     uint8 level = GetLevel();
@@ -2716,7 +2721,12 @@ void Player::InitStatsForLevel(bool reapplyMods)
     PlayerLevelInfo info;
     sObjectMgr->GetPlayerLevelInfo(GetRace(), GetClass(), GetLevel(), &info);
 
-    SetUInt32Value(PLAYER_FIELD_MAX_LEVEL, sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL));
+    uint8 exp_max_lvl = GetMaxLevelForExpansion(GetSession()->Expansion());
+    uint8 conf_max_lvl = sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL);
+    if (exp_max_lvl == DEFAULT_MAX_LEVEL || exp_max_lvl >= conf_max_lvl)
+        SetUInt32Value(PLAYER_FIELD_MAX_LEVEL, conf_max_lvl);
+    else
+        SetUInt32Value(PLAYER_FIELD_MAX_LEVEL, exp_max_lvl);
     SetUInt32Value(PLAYER_NEXT_LEVEL_XP, sObjectMgr->GetXPForLevel(GetLevel()));
 
     // reset before any aura state sources (health set/aura apply)
@@ -6447,7 +6457,7 @@ void Player::CheckAreaExploreAndOutdoor()
 
         if (areaEntry->area_level > 0)
         {
-            if (GetLevel() >= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+            if (IsMaxLevel())
             {
                 SendExplorationExperience(areaId, 0);
             }
@@ -15196,7 +15206,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     // handle SPELL_AURA_MOD_XP_QUEST_PCT auras
     XP *= GetTotalAuraMultiplier(SPELL_AURA_MOD_XP_QUEST_PCT);
 
-    if (GetLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+    if (!IsMaxLevel())
         GiveXP(XP, nullptr);
 
     // Give player extra money if GetRewOrReqMoney > 0 and get ReqMoney if negative
@@ -16804,7 +16814,7 @@ void Player::SendQuestReward(Quest const* quest, uint32 XP) const
     WorldPacket data(SMSG_QUESTGIVER_QUEST_COMPLETE, (4+4+4+4+4));
     data << uint32(questid);
 
-    if (GetLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+    if (!IsMaxLevel())
         data << uint32(XP);
     else
         data << uint32(0);
@@ -21265,7 +21275,7 @@ void Player::LeaveAllArenaTeams(ObjectGuid guid)
 void Player::SetRestBonus(float rest_bonus_new)
 {
     // Prevent resting on max level
-    if (GetLevel() >= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+    if (IsMaxLevel())
         rest_bonus_new = 0;
 
     if (rest_bonus_new < 0)
