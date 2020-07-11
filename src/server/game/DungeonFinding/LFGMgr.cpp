@@ -399,6 +399,13 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, const
     if (!player || !player->GetSession() || dungeons.empty())
         return;
 
+    // At least 1 role must be selected
+    if (!(roles & (PLAYER_ROLE_TANK | PLAYER_ROLE_HEALER | PLAYER_ROLE_DAMAGE)))
+        return;
+
+    // Sanitize input roles
+    roles &= PLAYER_ROLE_ANY;
+
     Group* grp = player->GetGroup();
     ObjectGuid guid = player->GetGUID();
     ObjectGuid gguid = grp ? grp->GetGUID() : guid;
@@ -700,6 +707,9 @@ void LFGMgr::UpdateRoleCheck(ObjectGuid gguid, ObjectGuid guid /* = ObjectGuid::
     if (itRoleCheck == RoleChecksStore.end())
         return;
 
+    // Sanitize input roles
+    roles &= PLAYER_ROLE_ANY;
+
     LfgRoleCheck& roleCheck = itRoleCheck->second;
     bool sendRoleChosen = roleCheck.state != LFG_ROLECHECK_DEFAULT && guid;
 
@@ -924,7 +934,7 @@ void LFGMgr::MakeNewGroup(LfgProposal const& proposal)
                     dpsPlayers.push_back(guid);
                     break;
                 default:
-                    ASSERT(false, "Invalid LFG role %u", it->second.role);
+                    ABORT_MSG("Invalid LFG role %u", it->second.role);
                     break;
             }
 

@@ -22,6 +22,8 @@
 #include "MySQLHacks.h"
 #include "MySQLWorkaround.h"
 
+namespace
+{
 static uint32 SizeForType(MYSQL_FIELD* field)
 {
     switch (field->type)
@@ -116,17 +118,65 @@ DatabaseFieldTypes MysqlTypeToFieldType(enum_field_types type)
     return DatabaseFieldTypes::Null;
 }
 
+static char const* FieldTypeToString(enum_field_types type)
+{
+    switch (type)
+    {
+        case MYSQL_TYPE_BIT:         return "BIT";
+        case MYSQL_TYPE_BLOB:        return "BLOB";
+        case MYSQL_TYPE_DATE:        return "DATE";
+        case MYSQL_TYPE_DATETIME:    return "DATETIME";
+        case MYSQL_TYPE_NEWDECIMAL:  return "NEWDECIMAL";
+        case MYSQL_TYPE_DECIMAL:     return "DECIMAL";
+        case MYSQL_TYPE_DOUBLE:      return "DOUBLE";
+        case MYSQL_TYPE_ENUM:        return "ENUM";
+        case MYSQL_TYPE_FLOAT:       return "FLOAT";
+        case MYSQL_TYPE_GEOMETRY:    return "GEOMETRY";
+        case MYSQL_TYPE_INT24:       return "INT24";
+        case MYSQL_TYPE_LONG:        return "LONG";
+        case MYSQL_TYPE_LONGLONG:    return "LONGLONG";
+        case MYSQL_TYPE_LONG_BLOB:   return "LONG_BLOB";
+        case MYSQL_TYPE_MEDIUM_BLOB: return "MEDIUM_BLOB";
+        case MYSQL_TYPE_NEWDATE:     return "NEWDATE";
+        case MYSQL_TYPE_NULL:        return "NULL";
+        case MYSQL_TYPE_SET:         return "SET";
+        case MYSQL_TYPE_SHORT:       return "SHORT";
+        case MYSQL_TYPE_STRING:      return "STRING";
+        case MYSQL_TYPE_TIME:        return "TIME";
+        case MYSQL_TYPE_TIMESTAMP:   return "TIMESTAMP";
+        case MYSQL_TYPE_TINY:        return "TINY";
+        case MYSQL_TYPE_TINY_BLOB:   return "TINY_BLOB";
+        case MYSQL_TYPE_VAR_STRING:  return "VAR_STRING";
+        case MYSQL_TYPE_YEAR:        return "YEAR";
+        default:                     return "-Unknown-";
+    }
+}
+
+void InitializeDatabaseFieldMetadata(QueryResultFieldMetadata* meta, MySQLField const* field, uint32 fieldIndex)
+{
+    meta->TableName = field->org_table;
+    meta->TableAlias = field->table;
+    meta->Name = field->org_name;
+    meta->Alias = field->name;
+    meta->TypeName = FieldTypeToString(field->type);
+    meta->Index = fieldIndex;
+    meta->Type = MysqlTypeToFieldType(field->type);
+}
+}
+
 ResultSet::ResultSet(MySQLResult* result, MySQLField* fields, uint64 rowCount, uint32 fieldCount) :
 _rowCount(rowCount),
 _fieldCount(fieldCount),
 _result(result),
 _fields(fields)
 {
+    _fieldMetadata.resize(_fieldCount);
     _currentRow = new Field[_fieldCount];
-#ifdef TRINITY_STRICT_DATABASE_TYPE_CHECKS
     for (uint32 i = 0; i < _fieldCount; i++)
-        _currentRow[i].SetMetadata(&_fields[i], i);
-#endif
+    {
+        InitializeDatabaseFieldMetadata(&_fieldMetadata[i], &_fields[i], i);
+        _currentRow[i].SetMetadata(&_fieldMetadata[i]);
+    }
 }
 
 PreparedResultSet::PreparedResultSet(MySQLStmt* stmt, MySQLResult* result, uint64 rowCount, uint32 fieldCount) :
@@ -172,11 +222,14 @@ m_metadataResult(result)
 
     //- This is where we prepare the buffer based on metadata
     MySQLField* field = reinterpret_cast<MySQLField*>(mysql_fetch_fields(m_metadataResult));
+    m_fieldMetadata.resize(m_fieldCount);
     std::size_t rowSize = 0;
     for (uint32 i = 0; i < m_fieldCount; ++i)
     {
         uint32 size = SizeForType(&field[i]);
         rowSize += size;
+
+        InitializeDatabaseFieldMetadata(&m_fieldMetadata[i], &field[i], i);
 
         m_rBind[i].buffer_type = field[i].type;
         m_rBind[i].buffer_length = size;
@@ -209,6 +262,8 @@ m_metadataResult(result)
     {
         for (uint32 fIndex = 0; fIndex < m_fieldCount; ++fIndex)
         {
+            m_rows[uint32(m_rowPosition) * m_fieldCount + fIndex].SetMetadata(&m_fieldMetadata[fIndex]);
+
             unsigned long buffer_length = m_rBind[fIndex].buffer_length;
             unsigned long fetched_length = *m_rBind[fIndex].length;
             if (!*m_rBind[fIndex].is_null)
@@ -226,7 +281,7 @@ m_metadataResult(result)
                         // when mysql_stmt_fetch returned MYSQL_DATA_TRUNCATED
                         // we cannot blindly null-terminate the data either as it may be retrieved as binary blob and not specifically a string
                         // in this case using Field::GetCString will result in garbage
-                        // TODO: remove Field::GetCString and use boost::string_ref (currently proposed for TS as string_view, maybe in C++17)
+                        // TODO: remove Field::GetCString and use std::string_view in C++17
                         if (fetched_length < buffer_length)
                             *((char*)buffer + fetched_length) = '\0';
                         break;
@@ -235,8 +290,7 @@ m_metadataResult(result)
                 }
 
                 m_rows[uint32(m_rowPosition) * m_fieldCount + fIndex].SetByteValue(
-                    buffer,
-                    MysqlTypeToFieldType(m_rBind[fIndex].buffer_type),
+                    (char const*)buffer,
                     fetched_length);
 
                 // move buffer pointer to next part
@@ -246,13 +300,8 @@ m_metadataResult(result)
             {
                 m_rows[uint32(m_rowPosition) * m_fieldCount + fIndex].SetByteValue(
                     nullptr,
-                    MysqlTypeToFieldType(m_rBind[fIndex].buffer_type),
                     *m_rBind[fIndex].length);
             }
-
-#ifdef TRINITY_STRICT_DATABASE_TYPE_CHECKS
-            m_rows[uint32(m_rowPosition) * m_fieldCount + fIndex].SetMetadata(&field[fIndex], fIndex);
-#endif
         }
         m_rowPosition++;
     }
@@ -295,7 +344,7 @@ bool ResultSet::NextRow()
     }
 
     for (uint32 i = 0; i < _fieldCount; i++)
-        _currentRow[i].SetStructuredValue(row[i], MysqlTypeToFieldType(_fields[i].type), lengths[i]);
+        _currentRow[i].SetStructuredValue(row[i], lengths[i]);
 
     return true;
 }

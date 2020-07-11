@@ -552,6 +552,16 @@ GameObject* SpellScript::GetHitGObj() const
     return m_spell->gameObjTarget;
 }
 
+Corpse* SpellScript::GetHitCorpse() const
+{
+    if (!IsInTargetHook())
+    {
+        TC_LOG_ERROR("scripts", "Script: `%s` Spell: `%u`: function SpellScript::GetHitCorpse was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
+        return nullptr;
+    }
+    return m_spell->corpseTarget;
+}
+
 WorldLocation* SpellScript::GetHitDest() const
 {
     if (!IsInEffectHook())
@@ -1030,7 +1040,7 @@ bool AuraScript::_IsDefaultActionPrevented()
         case AURA_SCRIPT_HOOK_EFFECT_PROC:
             return m_defaultActionPrevented;
         default:
-            ASSERT(false && "AuraScript::_IsDefaultActionPrevented is called in a wrong place");
+            ABORT_MSG("AuraScript::_IsDefaultActionPrevented is called in a wrong place");
             return false;
     }
 }

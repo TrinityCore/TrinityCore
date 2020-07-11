@@ -1348,7 +1348,7 @@ class TC_GAME_API ObjectMgr
                 case SPAWN_TYPE_GAMEOBJECT:
                     return GetGameObjectData(spawnId);
                 default:
-                    ASSERT(false, "Invalid spawn object type %u", uint32(type));
+                    ABORT_MSG("Invalid spawn object type %u", uint32(type));
                     return nullptr;
             }
         }

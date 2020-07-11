@@ -579,24 +579,24 @@ struct CurrencyTypesEntry
 struct DestructibleModelDataEntry
 {
     uint32  Id;
-    //uint32  DamagedUnk1;
-    //uint32  DamagedUnk2;
-    uint32  DamagedDisplayId;
-    //uint32  DamagedUnk3;
-    //uint32  DestroyedUnk1;
-    //uint32  DestroyedUnk2;
-    uint32  DestroyedDisplayId;
-    //uint32  DestroyedUnk3;
-    //uint32  RebuildingUnk1;
-    //uint32  RebuildingUnk2;
-    uint32  RebuildingDisplayId;
-    //uint32  RebuildingUnk3;
-    //uint32  SmokeUnk1;
-    //uint32  SmokeUnk2;
-    uint32  SmokeDisplayId;
-    //uint32  SmokeUnk3;
-    //uint32  Unk4;
-    //uint32  Unk5;
+    //uint32  State0ImpactEffectDoodadSet;
+    //uint32  State0AmbientDoodadSet;
+    uint32  State1Wmo;
+    //uint32  State1DestructionDoodadSet;
+    //uint32  State1ImpactEffectDoodadSet;
+    //uint32  State1AmbientDoodadSet;
+    uint32  State2Wmo;
+    //uint32  State2DestructionDoodadSet;
+    //uint32  State2ImpactEffectDoodadSet;
+    //uint32  State2AmbientDoodadSet;
+    uint32  State3Wmo;
+    //uint32  State3InitDoodadSet;
+    //uint32  State3AmbientDoodadSet;
+    //uint32  EjectDirection;
+    uint32  State0Wmo;
+    //uint32  DoNotHighlight;
+    //uint32  HealEffect;
+    //uint32  HealEffectSpeed;
 };
 
 struct DungeonEncounterEntry

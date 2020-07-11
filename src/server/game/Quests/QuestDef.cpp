@@ -242,7 +242,7 @@ int32 Quest::GetRewOrReqMoney(Player const* player) const
         return _rewardMoney;
 
     // RewardMoney: the positive amount
-    if (!player || player->GetLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+    if (!player || !player->IsMaxLevel())
         return int32(_rewardMoney * sWorld->getRate(RATE_MONEY_QUEST));
     else // At level cap, the money reward is the maximum amount between normal and bonus money reward
         return std::max(int32(GetRewMoneyMaxLevel()), int32(_rewardMoney * sWorld->getRate(RATE_MONEY_QUEST)));

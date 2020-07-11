@@ -30,6 +30,11 @@ namespace G3D
 class GameObjectModel;
 struct DynTreeImpl;
 
+namespace VMAP
+{
+    struct AreaAndLiquidData;
+}
+
 class TC_COMMON_API DynamicMapTree
 {
     DynTreeImpl *impl;
@@ -44,6 +49,8 @@ public:
 
     bool getIntersectionTime(uint32 phasemask, const G3D::Ray& ray,
                              const G3D::Vector3& endPos, float& maxDist) const;
+    bool getAreaInfo(float x, float y, float& z, uint32 phasemask, uint32& flags, int32& adtId, int32& rootId, int32& groupId) const;
+    void getAreaAndLiquidData(float x, float y, float z, uint32 phasemask, uint8 reqLiquidType, VMAP::AreaAndLiquidData& data) const;
 
     bool getObjectHitPos(uint32 phasemask, const G3D::Vector3& pPos1,
                          const G3D::Vector3& pPos2, G3D::Vector3& pResultHitPos,
