@@ -5622,6 +5622,15 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->MaxAffectedTargets = 4;
     });
 
+    // Laser Strike
+    ApplySpellFix({
+        81067,
+        91884
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
+    });
+
     // ENDOF BLACKWING DESCENT SPELLS
 
     // Living Bomb
