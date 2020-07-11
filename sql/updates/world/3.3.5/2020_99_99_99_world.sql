@@ -5,8 +5,8 @@ ALTER TABLE `gameobject_template_addon`
 	ADD COLUMN `artkit2` INT NOT NULL DEFAULT 0 AFTER `artkit1`,
 	ADD COLUMN `artkit3` INT NOT NULL DEFAULT 0 AFTER `artkit2`;
 
--- Note: All of these should be targettable by spells 46904 and 46903, but conditions are only set for Stormwind (damn Horde fanatics)
-UPDATE gameobject_template SET artkit0 = 121, arkit1 = 122 WHERE entry IN (
+-- Note: All of these should be targetable by spells 46904 and 46903, but conditions are only set for Stormwind (damn Horde fanatics)
+UPDATE gameobject_template_addon SET artkit0 = 121, arkit1 = 122 WHERE entry IN (
 	188352, -- Flame of Shattrath
 	188129, -- Flame of Silvermoon
 	188128, -- Flame of the Exodar
