@@ -1719,11 +1719,11 @@ struct TeamContributionPointsEntry
 
 struct TotemCategoryEntry
 {
-    uint32    ID;                                           // 0
-    //char*   name[16];                                     // 1-16
-                                                            // 17 string flags, unused
-    uint32    categoryType;                                 // 18 (one for specialization)
-    uint32    categoryMask;                                 // 19 (compatibility mask for same type: different for totems, compatible from high to low for rods)
+    uint32 ID;                                              // 0
+    //char* Name[16];                                       // 1-16
+    //uint32 Name_lang_mask;                                // 17
+    uint32 TotemCategoryType;                               // 18 (one for specialization)
+    uint32 TotemCategoryMask;                               // 19 (compatibility mask for same type: different for totems, compatible from high to low for rods)
 };
 
 struct TransportAnimationEntry
