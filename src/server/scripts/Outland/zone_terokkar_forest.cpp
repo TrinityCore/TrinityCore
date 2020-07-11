@@ -15,17 +15,17 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Terokkar_Forest
-SD%Complete: 85
-SDComment: Quest support: 9889, 10051, 10052.
-SDCategory: Terokkar Forest
-EndScriptData */
+ /* ScriptData
+ SDName: Terokkar_Forest
+ SD%Complete: 85
+ SDComment: Quest support: 9889, 10051, 10052.
+ SDCategory: Terokkar Forest
+ EndScriptData */
 
-/* ContentData
-npc_unkor_the_ruthless
-npc_isla_starmane
-EndContentData */
+ /* ContentData
+ npc_unkor_the_ruthless
+ npc_isla_starmane
+ EndContentData */
 
 #include "ScriptMgr.h"
 #include "GameObject.h"
@@ -36,16 +36,17 @@ EndContentData */
 #include "Spell.h"
 #include "SpellScript.h"
 #include "WorldSession.h"
+#include "GridNotifiers.h"
 
-/*######
-## npc_unkor_the_ruthless
-######*/
+ /*######
+ ## npc_unkor_the_ruthless
+ ######*/
 
 enum UnkorTheRuthless
 {
-    SAY_SUBMIT              = 0,
-    REQUIRED_KILL_COUNT     = 10,
-    SPELL_PULVERIZE         = 2676,
+    SAY_SUBMIT = 0,
+    REQUIRED_KILL_COUNT = 10,
+    SPELL_PULVERIZE = 2676,
     QUEST_DONTKILLTHEFATONE = 9889,
     NPC_BOULDERFIST_INVADER = 18260
 };
@@ -98,7 +99,7 @@ public:
             UnkorUnfriendly_Timer = 60000;
         }
 
-        void DamageTaken(Unit* done_by, uint32 &damage) override
+        void DamageTaken(Unit* done_by, uint32& damage) override
         {
             if (!done_by || !me->HealthBelowPctDamaged(30, damage))
                 return;
@@ -144,7 +145,8 @@ public:
                     {
                         EnterEvadeMode();
                         return;
-                    } else UnkorUnfriendly_Timer -= diff;
+                    }
+                    else UnkorUnfriendly_Timer -= diff;
                 }
             }
 
@@ -155,7 +157,8 @@ public:
             {
                 DoCast(me, SPELL_PULVERIZE);
                 Pulverize_Timer = 9000;
-            } else Pulverize_Timer -= diff;
+            }
+            else Pulverize_Timer -= diff;
 
             DoMeleeAttackIfReady();
         }
@@ -167,15 +170,15 @@ public:
 ######*/
 enum IslaStarmaneData
 {
-    SAY_PROGRESS_1               = 0,
-    SAY_PROGRESS_2               = 1,
-    SAY_PROGRESS_3               = 2,
-    SAY_PROGRESS_4               = 3,
-    GO_DISTANCE                  = 10,
+    SAY_PROGRESS_1 = 0,
+    SAY_PROGRESS_2 = 1,
+    SAY_PROGRESS_3 = 2,
+    SAY_PROGRESS_4 = 3,
+    GO_DISTANCE = 10,
     ESCAPE_FROM_FIREWING_POINT_A = 10051,
     ESCAPE_FROM_FIREWING_POINT_H = 10052,
-    SPELL_TRAVEL_FORM_CAT        = 32447,
-    GO_CAGE                      = 182794
+    SPELL_TRAVEL_FORM_CAT = 32447,
+    GO_CAGE = 182794
 };
 
 class npc_isla_starmane : public CreatureScript
@@ -195,34 +198,34 @@ public:
 
             switch (waypointId)
             {
-                case 0:
-                    if (GameObject* Cage = me->FindNearestGameObject(GO_CAGE, GO_DISTANCE))
-                        Cage->SetGoState(GO_STATE_ACTIVE);
-                    break;
-                case 2:
-                    Talk(SAY_PROGRESS_1, player);
-                    break;
-                case 5:
-                    Talk(SAY_PROGRESS_2, player);
-                    break;
-                case 6:
-                    Talk(SAY_PROGRESS_3, player);
-                    break;
-                case 29:
-                    Talk(SAY_PROGRESS_4, player);
-                    if (player->GetTeam() == ALLIANCE)
-                        player->GroupEventHappens(ESCAPE_FROM_FIREWING_POINT_A, me);
-                    else if (player->GetTeam() == HORDE)
-                        player->GroupEventHappens(ESCAPE_FROM_FIREWING_POINT_H, me);
-                    me->SetFacingToObject(player);
-                    break;
-                case 30:
-                    me->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);
-                    break;
-                case 31:
-                    DoCast(me, SPELL_TRAVEL_FORM_CAT);
-                    me->SetWalk(false);
-                    break;
+            case 0:
+                if (GameObject* Cage = me->FindNearestGameObject(GO_CAGE, GO_DISTANCE))
+                    Cage->SetGoState(GO_STATE_ACTIVE);
+                break;
+            case 2:
+                Talk(SAY_PROGRESS_1, player);
+                break;
+            case 5:
+                Talk(SAY_PROGRESS_2, player);
+                break;
+            case 6:
+                Talk(SAY_PROGRESS_3, player);
+                break;
+            case 29:
+                Talk(SAY_PROGRESS_4, player);
+                if (player->GetTeam() == ALLIANCE)
+                    player->GroupEventHappens(ESCAPE_FROM_FIREWING_POINT_A, me);
+                else if (player->GetTeam() == HORDE)
+                    player->GroupEventHappens(ESCAPE_FROM_FIREWING_POINT_H, me);
+                me->SetFacingToObject(player);
+                break;
+            case 30:
+                me->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);
+                break;
+            case 31:
+                DoCast(me, SPELL_TRAVEL_FORM_CAT);
+                me->SetWalk(false);
+                break;
             }
         }
 
@@ -274,9 +277,131 @@ class spell_skyguard_flare : public SpellScript
     }
 };
 
+// EJ scripts 
+class npc_bone_crawler : public CreatureScript
+{
+public:
+    npc_bone_crawler() : CreatureScript("npc_bone_crawler") { }
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_bone_crawlerAI(creature);
+    }
+
+    struct npc_bone_crawlerAI : public ScriptedAI
+    {
+        npc_bone_crawlerAI(Creature* creature) : ScriptedAI(creature)
+        {
+            _events.Reset();
+            nearDelay = 0;
+            stand = false;
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            SetCombatMovement(false);
+            Reset();
+        }
+
+        void Reset() override
+        {
+            _events.Reset();
+            nearDelay = 0;
+            attackDelay = 0;
+            stand = false;
+        }
+
+        void JustEngagedWith(Unit* /*who*/) override
+        {
+
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (!stand)
+            {
+                Unit* victim = nullptr;
+                Trinity::NearestAttackableUnitInObjectRangeCheck u_check(me, me->GetCharmerOrOwnerOrSelf(), 5.0f);
+                Trinity::UnitLastSearcher<Trinity::NearestAttackableUnitInObjectRangeCheck> checker(me, victim, u_check);
+                Cell::VisitAllObjects(me, checker, 5.0f);
+                if (victim)
+                {
+                    nearDelay += diff;
+                    if (nearDelay > 3000)
+                    {
+                        AttackStart(victim);
+                        DoCastSelf(37752);
+                        me->RemoveAurasDueToSpell(38885);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        stand = true;
+                        attackDelay = 0;
+                        _events.ScheduleEvent(1, 8000, 10000);
+                        _events.ScheduleEvent(2, 5000, 8000);
+                    }
+                    return;
+                }
+                if (!me->HasAura(38885))
+                {
+                    DoCastSelf(38885);
+                }
+                if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
+                {
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                }
+                nearDelay = 0;
+                return;
+            }
+            if (!UpdateVictim())
+            {
+                return;
+            }
+            attackDelay += diff;
+            _events.Update(diff);
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+            {
+                return;
+            }
+            while (uint32 eventId = _events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                case 1:
+                {
+                    DoCastVictim(31747);
+                    _events.Repeat(5000, 10000);
+                    break;
+                }
+                case 2:
+                {
+                    DoCastVictim(32738);
+                    _events.Repeat(20000, 30000);
+                    break;
+                }
+                default:
+                {
+                    break;
+                }
+                }
+            }
+            if (attackDelay > 2500)
+            {
+                DoMeleeAttackIfReady();
+            }
+        }
+
+    private:
+        EventMap _events;
+        int nearDelay;
+        int attackDelay;
+        bool stand;
+    };
+};
+
 void AddSC_terokkar_forest()
 {
     new npc_unkor_the_ruthless();
+    new npc_bone_crawler();
     new npc_isla_starmane();
     RegisterSpellScript(spell_skyguard_flare);
 }

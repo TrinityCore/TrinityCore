@@ -1,0 +1,10 @@
+UPDATE `world_trinity_core`.`creature_template` SET `AIName` = '', `ScriptName` = 'npc_bone_crawler' WHERE (`entry` = '21849');
+DELETE FROM `world_trinity_core`.`smart_scripts` WHERE (`entryorguid` = '21849') and (`source_type` = '0') and (`id` = '0') and (`link` = '1');
+DELETE FROM `world_trinity_core`.`smart_scripts` WHERE (`entryorguid` = '21849') and (`source_type` = '0') and (`id` = '1') and (`link` = '2');
+DELETE FROM `world_trinity_core`.`smart_scripts` WHERE (`entryorguid` = '21849') and (`source_type` = '0') and (`id` = '2') and (`link` = '3');
+DELETE FROM `world_trinity_core`.`smart_scripts` WHERE (`entryorguid` = '21849') and (`source_type` = '0') and (`id` = '3') and (`link` = '0');
+DELETE FROM `world_trinity_core`.`smart_scripts` WHERE (`entryorguid` = '21849') and (`source_type` = '0') and (`id` = '4') and (`link` = '5');
+DELETE FROM `world_trinity_core`.`smart_scripts` WHERE (`entryorguid` = '21849') and (`source_type` = '0') and (`id` = '5') and (`link` = '6');
+DELETE FROM `world_trinity_core`.`smart_scripts` WHERE (`entryorguid` = '21849') and (`source_type` = '0') and (`id` = '6') and (`link` = '0');
+DELETE FROM `world_trinity_core`.`smart_scripts` WHERE (`entryorguid` = '21849') and (`source_type` = '0') and (`id` = '7') and (`link` = '0');
+DELETE FROM `world_trinity_core`.`smart_scripts` WHERE (`entryorguid` = '21849') and (`source_type` = '0') and (`id` = '8') and (`link` = '0');
