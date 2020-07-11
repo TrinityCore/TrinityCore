@@ -633,7 +633,7 @@ struct GameObjectTemplateAddon : public GameObjectOverride
 {
     uint32 Mingold;
     uint32 Maxgold;
-    std::array<uint32, 4> artKits;
+    std::array<uint32, 4> artKits = {};
 };
 
 struct GameObjectLocale
