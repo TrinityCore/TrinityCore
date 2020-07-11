@@ -3,8 +3,7 @@ ALTER TABLE `gameobject_template_addon`
 	ADD COLUMN `artkit0` INT NOT NULL DEFAULT 0 AFTER `maxgold`,
 	ADD COLUMN `artkit1` INT NOT NULL DEFAULT 0 AFTER `artkit0`,
 	ADD COLUMN `artkit2` INT NOT NULL DEFAULT 0 AFTER `artkit1`,
-	ADD COLUMN `artkit3` INT NOT NULL DEFAULT 0 AFTER `artkit2`,
-	ADD COLUMN `artkit4` INT NOT NULL DEFAULT 0 AFTER `artkit3`;
+	ADD COLUMN `artkit3` INT NOT NULL DEFAULT 0 AFTER `artkit2`;
 
 -- Note: All of these should be targettable by spells 46904 and 46903, but conditions are only set for Stormwind (damn Horde fanatics)
 UPDATE gameobject_template SET artkit0 = 121, arkit1 = 122 WHERE entry IN (
