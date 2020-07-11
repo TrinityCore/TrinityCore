@@ -1912,21 +1912,6 @@ struct WorldSafeLocsEntry
 };
 
 /*
-struct WorldStateSounds
-{
-    uint32    ID;                                           // 0        Worldstate
-    uint32    unk;                                          // 1
-    uint32    areaTable;                                    // 2
-    uint32    WMOAreaTable;                                 // 3
-    uint32    zoneIntroMusicTable;                          // 4
-    uint32    zoneIntroMusic;                               // 5
-    uint32    zoneMusic;                                    // 6
-    uint32    soundAmbience;                                // 7
-    uint32    soundProviderPreferences;                     // 8
-};
-*/
-
-/*
 struct WorldStateUI
 {
     uint32    ID;                                           // 0
@@ -1944,6 +1929,20 @@ struct WorldStateUI
     uint32    unk3;                                         // 44-58
     uint32    unk4;                                         // 59-61    Used for some progress bars.
     uint32    unk7;                                         // 62       Unused in 3.3.5a
+};
+*/
+
+/*
+struct WorldStateZoneSounds
+{
+    uint32 WorldStateID;                                    // 0
+    uint32 WorldStateValue;                                 // 1
+    uint32 AreaID;                                          // 2
+    uint32 WMOAreaID;                                       // 3
+    uint32 ZoneIntroMusicID;                                // 4
+    uint32 ZoneMusicID;                                     // 5
+    uint32 SoundAmbienceID;                                 // 6
+    uint32 SoundProviderPreferencesID;                      // 7
 };
 */
 
