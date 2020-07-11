@@ -1737,13 +1737,13 @@ struct TransportAnimationEntry
 
 struct TransportRotationEntry
 {
-    //uint32  Id;
-    uint32  TransportEntry;
-    uint32  TimeSeg;
-    float   X;
-    float   Y;
-    float   Z;
-    float   W;
+    //uint32 ID;                                            // 0
+    uint32 GameObjectsID;                                   // 1
+    uint32 TimeIndex;                                       // 2
+    float X;                                                // 3
+    float Y;                                                // 4
+    float Z;                                                // 5
+    float W;                                                // 6
 };
 
 #define MAX_VEHICLE_SEATS 8

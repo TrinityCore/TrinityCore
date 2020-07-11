@@ -99,7 +99,7 @@ void TransportMgr::LoadTransportAnimationAndRotation()
 
     for (uint32 i = 0; i < sTransportRotationStore.GetNumRows(); ++i)
         if (TransportRotationEntry const* rot = sTransportRotationStore.LookupEntry(i))
-            AddPathRotationToTransport(rot->TransportEntry, rot->TimeSeg, rot);
+            AddPathRotationToTransport(rot->GameObjectsID, rot->TimeIndex, rot);
 }
 
 class SplineRawInitializer
