@@ -480,7 +480,7 @@ class achievement_wg_didnt_stand_a_chance : public AchievementCriteriaScript
                     return false;
 
                 if (Vehicle* vehicle = source->GetVehicle())
-                    if (vehicle->GetVehicleInfo()->m_ID == 244) // Wintergrasp Tower Cannon
+                    if (vehicle->GetVehicleInfo()->ID == 244) // Wintergrasp Tower Cannon
                         return true;
             }
 

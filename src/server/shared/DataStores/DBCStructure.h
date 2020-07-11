@@ -1750,39 +1750,36 @@ struct TransportRotationEntry
 
 struct VehicleEntry
 {
-    uint32  m_ID;                                           // 0
-    uint32  m_flags;                                        // 1
-    float   m_turnSpeed;                                    // 2
-    float   m_pitchSpeed;                                   // 3
-    float   m_pitchMin;                                     // 4
-    float   m_pitchMax;                                     // 5
-    uint32  m_seatID[MAX_VEHICLE_SEATS];                    // 6-13
-    float   m_mouseLookOffsetPitch;                         // 14
-    float   m_cameraFadeDistScalarMin;                      // 15
-    float   m_cameraFadeDistScalarMax;                      // 16
-    float   m_cameraPitchOffset;                            // 17
-    //int     m_powerType[3];                               //       removed in 3.1
-    //int     m_powerToken[3];                              //       removed in 3.1
-    float   m_facingLimitRight;                             // 18
-    float   m_facingLimitLeft;                              // 19
-    float   m_msslTrgtTurnLingering;                        // 20
-    float   m_msslTrgtPitchLingering;                       // 21
-    float   m_msslTrgtMouseLingering;                       // 22
-    float   m_msslTrgtEndOpacity;                           // 23
-    float   m_msslTrgtArcSpeed;                             // 24
-    float   m_msslTrgtArcRepeat;                            // 25
-    float   m_msslTrgtArcWidth;                             // 26
-    float   m_msslTrgtImpactRadius[2];                      // 27-28
-    char*   m_msslTrgtArcTexture;                           // 29
-    char*   m_msslTrgtImpactTexture;                        // 30
-    char*   m_msslTrgtImpactModel[2];                       // 31-32
-    float   m_cameraYawOffset;                              // 33
-    uint32  m_uiLocomotionType;                             // 34
-    float   m_msslTrgtImpactTexRadius;                      // 35
-    uint32  m_uiSeatIndicatorType;                          // 36
-    uint32  m_powerDisplayId;                               // 37, new in 3.1
-                                                            // 38, new in 3.1
-                                                            // 39, new in 3.1
+    uint32 ID;                                              // 0
+    uint32 Flags;                                           // 1
+    float TurnSpeed;                                        // 2
+    float PitchSpeed;                                       // 3
+    float PitchMin;                                         // 4
+    float PitchMax;                                         // 5
+    uint32 SeatID[MAX_VEHICLE_SEATS];                       // 6-13
+    float MouseLookOffsetPitch;                             // 14
+    float CameraFadeDistScalarMin;                          // 15
+    float CameraFadeDistScalarMax;                          // 16
+    float CameraPitchOffset;                                // 17
+    float FacingLimitRight;                                 // 18
+    float FacingLimitLeft;                                  // 19
+    float MsslTrgtTurnLingering;                            // 20
+    float MsslTrgtPitchLingering;                           // 21
+    float MsslTrgtMouseLingering;                           // 22
+    float MsslTrgtEndOpacity;                               // 23
+    float MsslTrgtArcSpeed;                                 // 24
+    float MsslTrgtArcRepeat;                                // 25
+    float MsslTrgtArcWidth;                                 // 26
+    float MsslTrgtImpactRadius[2];                          // 27-28
+    char* MsslTrgtArcTexture;                               // 29
+    char* MsslTrgtImpactTexture;                            // 30
+    char* MsslTrgtImpactModel[2];                           // 31-32
+    float CameraYawOffset;                                  // 33
+    uint32 UiLocomotionType;                                // 34
+    float MsslTrgtImpactTexRadius;                          // 35
+    uint32 VehicleUIIndicatorID;                            // 36
+    uint32 PowerDisplayID;                                  // 37
+    //uint32 PowerDisplayIDUnused[2];                       // 38-39
 };
 
 struct VehicleSeatEntry

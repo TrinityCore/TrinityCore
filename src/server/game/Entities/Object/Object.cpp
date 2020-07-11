@@ -455,7 +455,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         ASSERT(unit);
         ASSERT(unit->GetVehicleKit());
         ASSERT(unit->GetVehicleKit()->GetVehicleInfo());
-        *data << uint32(unit->GetVehicleKit()->GetVehicleInfo()->m_ID);
+        *data << uint32(unit->GetVehicleKit()->GetVehicleInfo()->ID);
         if (unit->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
             *data << float(unit->GetTransOffsetO());
         else
