@@ -522,8 +522,8 @@ void LoadDBCStores(const std::string& dataPath)
     for (TalentEntry const* talentInfo : sTalentStore)
     {
         for (uint8 j = 0; j < MAX_TALENT_RANK; ++j)
-            if (talentInfo->RankID[j])
-                sTalentSpellPosMap[talentInfo->RankID[j]] = TalentSpellPos(talentInfo->TalentID, j);
+            if (talentInfo->SpellRank[j])
+                sTalentSpellPosMap[talentInfo->SpellRank[j]] = TalentSpellPos(talentInfo->ID, j);
     }
 
 

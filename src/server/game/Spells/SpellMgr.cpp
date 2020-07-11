@@ -810,9 +810,9 @@ void SpellMgr::LoadSpellTalentRanks()
         SpellInfo const* lastSpell = nullptr;
         for (uint8 rank = MAX_TALENT_RANK - 1; rank > 0; --rank)
         {
-            if (talentInfo->RankID[rank])
+            if (talentInfo->SpellRank[rank])
             {
-                lastSpell = GetSpellInfo(talentInfo->RankID[rank]);
+                lastSpell = GetSpellInfo(talentInfo->SpellRank[rank]);
                 break;
             }
         }
@@ -820,17 +820,17 @@ void SpellMgr::LoadSpellTalentRanks()
         if (!lastSpell)
             continue;
 
-        SpellInfo const* firstSpell = GetSpellInfo(talentInfo->RankID[0]);
+        SpellInfo const* firstSpell = GetSpellInfo(talentInfo->SpellRank[0]);
         if (!firstSpell)
         {
-            TC_LOG_ERROR("spells", "SpellMgr::LoadSpellTalentRanks: First Rank Spell %u for TalentEntry %u does not exist.", talentInfo->RankID[0], i);
+            TC_LOG_ERROR("spells", "SpellMgr::LoadSpellTalentRanks: First Rank Spell %u for TalentEntry %u does not exist.", talentInfo->SpellRank[0], i);
             continue;
         }
 
         SpellInfo const* prevSpell = nullptr;
         for (uint8 rank = 0; rank < MAX_TALENT_RANK; ++rank)
         {
-            uint32 spellId = talentInfo->RankID[rank];
+            uint32 spellId = talentInfo->SpellRank[rank];
             if (!spellId)
                 break;
 
@@ -847,7 +847,7 @@ void SpellMgr::LoadSpellTalentRanks()
             node.rank  = rank + 1;
 
             node.prev = prevSpell;
-            node.next = node.rank < MAX_TALENT_RANK ? GetSpellInfo(talentInfo->RankID[node.rank]) : nullptr;
+            node.next = node.rank < MAX_TALENT_RANK ? GetSpellInfo(talentInfo->SpellRank[node.rank]) : nullptr;
 
             mSpellChains[spellId] = node;
             mSpellInfoMap[spellId]->ChainEntry = &mSpellChains[spellId];

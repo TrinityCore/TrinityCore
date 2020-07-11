@@ -1652,19 +1652,19 @@ struct SummonPropertiesEntry
 
 struct TalentEntry
 {
-    uint32    TalentID;                                     // 0
-    uint32    TalentTab;                                    // 1 index in TalentTab.dbc (TalentTabEntry)
-    uint32    Row;                                          // 2
-    uint32    Col;                                          // 3
-    uint32    RankID[MAX_TALENT_RANK];                      // 4-8
-                                                            // 9-12 not used, always 0, maybe not used high ranks
-    uint32    DependsOn;                                    // 13 index in Talent.dbc (TalentEntry)
-                                                            // 14-15 not used
-    uint32    DependsOnRank;                                // 16
-                                                            // 17-18 not used
-    //uint32  needAddInSpellBook;                           // 19  also need disable higest ranks on reset talent tree
-    //uint32  unk2;                                         // 20, all 0
-    //uint64  allowForPet;                                  // 21 its a 64 bit mask for pet 1<<m_categoryEnumID in CreatureFamily.dbc
+    uint32 ID;                                              // 0
+    uint32 TabID;                                           // 1 index in TalentTab.dbc (TalentTabEntry)
+    uint32 TierID;                                          // 2
+    uint32 ColumnIndex;                                     // 3
+    uint32 SpellRank[MAX_TALENT_RANK];                      // 4-8
+    //uint32 SpellRankUnused[4];                            // 9-12
+    uint32 PrereqTalent;                                    // 13 index in Talent.dbc (TalentEntry)
+    //uint32 PrereqTalentUnused[2];                         // 14-15
+    uint32 PrereqRank;                                      // 16
+    //uint32 PrereqRankUnused[2];                           // 17-18
+    //uint32 Flags;                                         // 19
+    //uint32 RequiredSpellID;                               // 20 all 0
+    //uint32 CategoryMask[2];                               // 21 its a 64 bit mask for pet 1<<CategoryEnumID in CreatureFamily.dbc
 };
 
 struct TalentTabEntry

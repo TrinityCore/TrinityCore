@@ -3087,7 +3087,7 @@ bool Player::AddTalent(uint32 spellId, uint8 spec, bool learning)
             for (uint8 rank = 0; rank < MAX_TALENT_RANK; ++rank)
             {
                 // skip learning spell and no rank spell case
-                uint32 rankSpellId = talentInfo->RankID[rank];
+                uint32 rankSpellId = talentInfo->SpellRank[rank];
                 if (!rankSpellId || rankSpellId == spellId)
                     continue;
 
@@ -3290,7 +3290,7 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
                 for (uint8 rank = 0; rank < MAX_TALENT_RANK; ++rank)
                 {
                     // skip learning spell and no rank spell case
-                    uint32 rankSpellId = talentInfo->RankID[rank];
+                    uint32 rankSpellId = talentInfo->SpellRank[rank];
                     if (!rankSpellId || rankSpellId == spellId)
                         continue;
 
@@ -3907,7 +3907,7 @@ bool Player::ResetTalents(bool no_cost)
         if (!talentInfo)
             continue;
 
-        TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TalentTab);
+        TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TabID);
 
         if (!talentTabInfo)
             continue;
@@ -3921,18 +3921,18 @@ bool Player::ResetTalents(bool no_cost)
         for (int8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
         {
             // skip non-existing talent ranks
-            if (talentInfo->RankID[rank] == 0)
+            if (talentInfo->SpellRank[rank] == 0)
                 continue;
-            SpellInfo const* _spellEntry = sSpellMgr->GetSpellInfo(talentInfo->RankID[rank]);
+            SpellInfo const* _spellEntry = sSpellMgr->GetSpellInfo(talentInfo->SpellRank[rank]);
             if (!_spellEntry)
                 continue;
-            RemoveSpell(talentInfo->RankID[rank], true);
+            RemoveSpell(talentInfo->SpellRank[rank], true);
             // search for spells that the talent teaches and unlearn them
             for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
                 if (_spellEntry->Effects[i].TriggerSpell > 0 && _spellEntry->Effects[i].Effect == SPELL_EFFECT_LEARN_SPELL)
                     RemoveSpell(_spellEntry->Effects[i].TriggerSpell, true);
             // if this talent rank can be found in the PlayerTalentMap, mark the talent as removed so it gets deleted
-            PlayerTalentMap::iterator plrTalent = m_talents[m_activeSpec]->find(talentInfo->RankID[rank]);
+            PlayerTalentMap::iterator plrTalent = m_talents[m_activeSpec]->find(talentInfo->SpellRank[rank]);
             if (plrTalent != m_talents[m_activeSpec]->end())
                 plrTalent->second->state = PLAYERSPELL_REMOVED;
         }
@@ -25260,7 +25260,7 @@ void Player::LearnTalent(uint32 talentId, uint32 talentRank)
     if (!talentInfo)
         return;
 
-    TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TalentTab);
+    TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TabID);
 
     if (!talentTabInfo)
         return;
@@ -25273,7 +25273,7 @@ void Player::LearnTalent(uint32 talentId, uint32 talentRank)
     uint8 curtalent_maxrank = 0; // 0 = not learned any rank
     for (int8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
     {
-        if (talentInfo->RankID[rank] && HasSpell(talentInfo->RankID[rank]))
+        if (talentInfo->SpellRank[rank] && HasSpell(talentInfo->SpellRank[rank]))
         {
             curtalent_maxrank = (rank + 1);
             break;
@@ -25289,15 +25289,15 @@ void Player::LearnTalent(uint32 talentId, uint32 talentRank)
         return;
 
     // Check if it requires another talent
-    if (talentInfo->DependsOn > 0)
+    if (talentInfo->PrereqTalent > 0)
     {
-        if (TalentEntry const* depTalentInfo = sTalentStore.LookupEntry(talentInfo->DependsOn))
+        if (TalentEntry const* depTalentInfo = sTalentStore.LookupEntry(talentInfo->PrereqTalent))
         {
             bool hasEnoughRank = false;
-            for (uint8 rank = talentInfo->DependsOnRank; rank < MAX_TALENT_RANK; rank++)
+            for (uint8 rank = talentInfo->PrereqRank; rank < MAX_TALENT_RANK; rank++)
             {
-                if (depTalentInfo->RankID[rank] != 0)
-                    if (HasSpell(depTalentInfo->RankID[rank]))
+                if (depTalentInfo->SpellRank[rank] != 0)
+                    if (HasSpell(depTalentInfo->SpellRank[rank]))
                         hasEnoughRank = true;
             }
             if (!hasEnoughRank)
@@ -25308,22 +25308,22 @@ void Player::LearnTalent(uint32 talentId, uint32 talentRank)
     // Find out how many points we have in this field
     uint32 spentPoints = 0;
 
-    uint32 tTab = talentInfo->TalentTab;
-    if (talentInfo->Row > 0)
+    uint32 tTab = talentInfo->TabID;
+    if (talentInfo->TierID > 0)
         for (uint32 i = 0; i < sTalentStore.GetNumRows(); i++)          // Loop through all talents.
             if (TalentEntry const* tmpTalent = sTalentStore.LookupEntry(i))                                  // the way talents are tracked
-                if (tmpTalent->TalentTab == tTab)
+                if (tmpTalent->TabID == tTab)
                     for (uint8 rank = 0; rank < MAX_TALENT_RANK; rank++)
-                        if (tmpTalent->RankID[rank] != 0)
-                            if (HasSpell(tmpTalent->RankID[rank]))
+                        if (tmpTalent->SpellRank[rank] != 0)
+                            if (HasSpell(tmpTalent->SpellRank[rank]))
                                 spentPoints += (rank + 1);
 
     // not have required min points spent in talent tree
-    if (spentPoints < (talentInfo->Row * MAX_TALENT_RANK))
+    if (spentPoints < (talentInfo->TierID * MAX_TALENT_RANK))
         return;
 
     // spell not set in talent.dbc
-    uint32 spellid = talentInfo->RankID[talentRank];
+    uint32 spellid = talentInfo->SpellRank[talentRank];
     if (spellid == 0)
     {
         TC_LOG_ERROR("entities.player", "Player::LearnTalent: Talent.dbc has no spellInfo for talent: %u (spell id = 0)", talentId);
@@ -25367,7 +25367,7 @@ void Player::LearnPetTalent(ObjectGuid petGuid, uint32 talentId, uint32 talentRa
     if (!talentInfo)
         return;
 
-    TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TalentTab);
+    TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TabID);
 
     if (!talentTabInfo)
         return;
@@ -25393,7 +25393,7 @@ void Player::LearnPetTalent(ObjectGuid petGuid, uint32 talentId, uint32 talentRa
     uint8 curtalent_maxrank = 0; // 0 = not learned any rank
     for (int8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
     {
-        if (talentInfo->RankID[rank] && pet->HasSpell(talentInfo->RankID[rank]))
+        if (talentInfo->SpellRank[rank] && pet->HasSpell(talentInfo->SpellRank[rank]))
         {
             curtalent_maxrank = (rank + 1);
             break;
@@ -25409,15 +25409,15 @@ void Player::LearnPetTalent(ObjectGuid petGuid, uint32 talentId, uint32 talentRa
         return;
 
     // Check if it requires another talent
-    if (talentInfo->DependsOn > 0)
+    if (talentInfo->PrereqTalent > 0)
     {
-        if (TalentEntry const* depTalentInfo = sTalentStore.LookupEntry(talentInfo->DependsOn))
+        if (TalentEntry const* depTalentInfo = sTalentStore.LookupEntry(talentInfo->PrereqTalent))
         {
             bool hasEnoughRank = false;
-            for (uint8 rank = talentInfo->DependsOnRank; rank < MAX_TALENT_RANK; rank++)
+            for (uint8 rank = talentInfo->PrereqRank; rank < MAX_TALENT_RANK; rank++)
             {
-                if (depTalentInfo->RankID[rank] != 0)
-                    if (pet->HasSpell(depTalentInfo->RankID[rank]))
+                if (depTalentInfo->SpellRank[rank] != 0)
+                    if (pet->HasSpell(depTalentInfo->SpellRank[rank]))
                         hasEnoughRank = true;
             }
             if (!hasEnoughRank)
@@ -25428,8 +25428,8 @@ void Player::LearnPetTalent(ObjectGuid petGuid, uint32 talentId, uint32 talentRa
     // Find out how many points we have in this field
     uint32 spentPoints = 0;
 
-    uint32 tTab = talentInfo->TalentTab;
-    if (talentInfo->Row > 0)
+    uint32 tTab = talentInfo->TabID;
+    if (talentInfo->TierID > 0)
     {
         uint32 numRows = sTalentStore.GetNumRows();
         for (uint32 i = 0; i < numRows; ++i)          // Loop through all talents.
@@ -25438,13 +25438,13 @@ void Player::LearnPetTalent(ObjectGuid petGuid, uint32 talentId, uint32 talentRa
             TalentEntry const* tmpTalent = sTalentStore.LookupEntry(i);
             if (tmpTalent)                                  // the way talents are tracked
             {
-                if (tmpTalent->TalentTab == tTab)
+                if (tmpTalent->TabID == tTab)
                 {
                     for (uint8 rank = 0; rank < MAX_TALENT_RANK; rank++)
                     {
-                        if (tmpTalent->RankID[rank] != 0)
+                        if (tmpTalent->SpellRank[rank] != 0)
                         {
-                            if (pet->HasSpell(tmpTalent->RankID[rank]))
+                            if (pet->HasSpell(tmpTalent->SpellRank[rank]))
                             {
                                 spentPoints += (rank + 1);
                             }
@@ -25456,11 +25456,11 @@ void Player::LearnPetTalent(ObjectGuid petGuid, uint32 talentId, uint32 talentRa
     }
 
     // not have required min points spent in talent tree
-    if (spentPoints < (talentInfo->Row * MAX_PET_TALENT_RANK))
+    if (spentPoints < (talentInfo->TierID * MAX_PET_TALENT_RANK))
         return;
 
     // spell not set in talent.dbc
-    uint32 spellid = talentInfo->RankID[talentRank];
+    uint32 spellid = talentInfo->SpellRank[talentRank];
     if (spellid == 0)
     {
         TC_LOG_ERROR("entities.player", "Talent.dbc contains talent: %u Rank: %u spell id = 0", talentId, talentRank);
@@ -25583,14 +25583,14 @@ void Player::BuildPlayerTalentsInfoData(WorldPacket* data)
                         continue;
 
                     // skip another tab talents
-                    if (talentInfo->TalentTab != talentTabId)
+                    if (talentInfo->TabID != talentTabId)
                         continue;
 
                     // find max talent rank (0~4)
                     int8 curtalent_maxrank = -1;
                     for (int8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
                     {
-                        if (talentInfo->RankID[rank] && HasTalent(talentInfo->RankID[rank], specIdx))
+                        if (talentInfo->SpellRank[rank] && HasTalent(talentInfo->SpellRank[rank], specIdx))
                         {
                             curtalent_maxrank = rank;
                             break;
@@ -25601,7 +25601,7 @@ void Player::BuildPlayerTalentsInfoData(WorldPacket* data)
                     if (curtalent_maxrank < 0)
                         continue;
 
-                    *data << uint32(talentInfo->TalentID);  // Talent.dbc
+                    *data << uint32(talentInfo->ID);  // Talent.dbc
                     *data << uint8(curtalent_maxrank);      // talentMaxRank (0-4)
 
                     ++talentIdCount;
@@ -25660,14 +25660,14 @@ void Player::BuildPetTalentsInfoData(WorldPacket* data)
                 continue;
 
             // skip another tab talents
-            if (talentInfo->TalentTab != talentTabId)
+            if (talentInfo->TabID != talentTabId)
                 continue;
 
             // find max talent rank (0~4)
             int8 curtalent_maxrank = -1;
             for (int8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
             {
-                if (talentInfo->RankID[rank] && pet->HasSpell(talentInfo->RankID[rank]))
+                if (talentInfo->SpellRank[rank] && pet->HasSpell(talentInfo->SpellRank[rank]))
                 {
                     curtalent_maxrank = rank;
                     break;
@@ -25678,7 +25678,7 @@ void Player::BuildPetTalentsInfoData(WorldPacket* data)
             if (curtalent_maxrank < 0)
                 continue;
 
-            *data << uint32(talentInfo->TalentID);          // Talent.dbc
+            *data << uint32(talentInfo->ID);          // Talent.dbc
             *data << uint8(curtalent_maxrank);              // talentMaxRank (0-4)
 
             ++talentIdCount;
@@ -26127,7 +26127,7 @@ void Player::ActivateSpec(uint8 spec)
         if (!talentInfo)
             continue;
 
-        TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TalentTab);
+        TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TabID);
 
         if (!talentTabInfo)
             continue;
@@ -26141,10 +26141,10 @@ void Player::ActivateSpec(uint8 spec)
         for (int8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
         {
             // skip non-existing talent ranks
-            if (talentInfo->RankID[rank] == 0)
+            if (talentInfo->SpellRank[rank] == 0)
                 continue;
-            RemoveSpell(talentInfo->RankID[rank], true); // removes the talent, and all dependant, learned, and chained spells..
-            if (SpellInfo const* _spellEntry = sSpellMgr->GetSpellInfo(talentInfo->RankID[rank]))
+            RemoveSpell(talentInfo->SpellRank[rank], true); // removes the talent, and all dependant, learned, and chained spells..
+            if (SpellInfo const* _spellEntry = sSpellMgr->GetSpellInfo(talentInfo->SpellRank[rank]))
                 for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)                  // search through the SpellInfo for valid trigger spells
                     if (_spellEntry->Effects[i].TriggerSpell > 0 && _spellEntry->Effects[i].Effect == SPELL_EFFECT_LEARN_SPELL)
                         RemoveSpell(_spellEntry->Effects[i].TriggerSpell, true); // and remove any spells that the talent teaches
@@ -26172,7 +26172,7 @@ void Player::ActivateSpec(uint8 spec)
         if (!talentInfo)
             continue;
 
-        TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TalentTab);
+        TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TabID);
 
         if (!talentTabInfo)
             continue;
@@ -26185,12 +26185,12 @@ void Player::ActivateSpec(uint8 spec)
         for (int8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
         {
             // skip non-existing talent ranks
-            if (talentInfo->RankID[rank] == 0)
+            if (talentInfo->SpellRank[rank] == 0)
                 continue;
             // if the talent can be found in the newly activated PlayerTalentMap
-            if (HasTalent(talentInfo->RankID[rank], m_activeSpec))
+            if (HasTalent(talentInfo->SpellRank[rank], m_activeSpec))
             {
-                LearnSpell(talentInfo->RankID[rank], false); // add the talent to the PlayerSpellMap
+                LearnSpell(talentInfo->SpellRank[rank], false); // add the talent to the PlayerSpellMap
                 spentTalents += (rank + 1);                  // increment the spentTalents count
             }
         }

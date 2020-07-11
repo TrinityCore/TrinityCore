@@ -201,7 +201,7 @@ public:
             if (!talentInfo)
                 continue;
 
-            TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TalentTab);
+            TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TabID);
             if (!talentTabInfo)
                 continue;
 
@@ -212,9 +212,9 @@ public:
             uint32 spellId = 0;
             for (int8 rank = MAX_TALENT_RANK - 1; rank >= 0; --rank)
             {
-                if (talentInfo->RankID[rank] != 0)
+                if (talentInfo->SpellRank[rank] != 0)
                 {
-                    spellId = talentInfo->RankID[rank];
+                    spellId = talentInfo->SpellRank[rank];
                     break;
                 }
             }
@@ -278,7 +278,7 @@ public:
             if (!talentInfo)
                 continue;
 
-            TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TalentTab);
+            TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TabID);
             if (!talentTabInfo)
                 continue;
 
@@ -291,9 +291,9 @@ public:
 
             for (int8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
             {
-                if (talentInfo->RankID[rank] != 0)
+                if (talentInfo->SpellRank[rank] != 0)
                 {
-                    spellId = talentInfo->RankID[rank];
+                    spellId = talentInfo->SpellRank[rank];
                     break;
                 }
             }

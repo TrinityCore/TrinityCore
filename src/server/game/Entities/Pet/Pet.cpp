@@ -1384,7 +1384,7 @@ bool Pet::addSpell(uint32 spellId, ActiveStates active /*= ACT_DECIDE*/, PetSpel
             for (uint8 i = 0; i < MAX_TALENT_RANK; ++i)
             {
                 // skip learning spell and no rank spell case
-                uint32 rankSpellId = talentInfo->RankID[i];
+                uint32 rankSpellId = talentInfo->SpellRank[i];
                 if (!rankSpellId || rankSpellId == spellId)
                     continue;
 
@@ -1624,7 +1624,7 @@ bool Pet::resetTalents()
         if (!talentInfo)
             continue;
 
-        TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TalentTab);
+        TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TabID);
 
         if (!talentTabInfo)
             continue;
@@ -1646,7 +1646,7 @@ bool Pet::resetTalents()
                 uint32 itrFirstId = sSpellMgr->GetFirstSpellInChain(itr->first);
 
                 // unlearn if first rank is talent or learned by talent
-                if (itrFirstId == talentInfo->RankID[j] || sSpellMgr->IsSpellLearnToSpell(talentInfo->RankID[j], itrFirstId))
+                if (itrFirstId == talentInfo->SpellRank[j] || sSpellMgr->IsSpellLearnToSpell(talentInfo->SpellRank[j], itrFirstId))
                 {
                     unlearnSpell(itr->first, false);
                     itr = m_spells.begin();

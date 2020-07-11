@@ -130,7 +130,7 @@ bool Trinity::Hyperlinks::LinkTags::talent::StoreTo(TalentLinkData& val, char co
     val.Rank = rank+1;
     if (!(val.Talent = sTalentStore.LookupEntry(talentId)))
         return false;
-    if (val.Rank > 0 && !val.Talent->RankID[val.Rank - 1])
+    if (val.Rank > 0 && !val.Talent->SpellRank[val.Rank - 1])
         return false;
     return true;
 }
