@@ -7701,7 +7701,19 @@ void ObjectMgr::LoadGameObjectTemplateAddons()
         gameObjectAddon.Maxgold = fields[4].GetUInt32();
 
         for (uint32 i = 0; i < gameObjectAddon.artKits.size(); ++i)
-            gameObjectAddon.artKits[i] = fields[5 + i].GetUInt32();
+        {
+            uint32 artKitID = fields[5 + i].GetUInt32();
+            if (!artKitID)
+                continue;
+
+            if (!sGameObjectArtKitStore.LookupEntry(artKitID))
+            {
+                TC_LOG_ERROR("sql.sql", "GameObject (Entry: %u) has invalid `artkit%d` (%d) defined, set to zero instead.", entry, i, artKitID);
+                continue;
+            }
+
+            gameObjectAddon.artKits[i] = artKitID;
+        }
 
         // checks
         if (gameObjectAddon.Faction && !sFactionTemplateStore.LookupEntry(gameObjectAddon.Faction))
@@ -7717,20 +7729,6 @@ void ObjectMgr::LoadGameObjectTemplateAddons()
                 default:
                     TC_LOG_ERROR("sql.sql", "GameObject (Entry %u GoType: %u) cannot be looted but has maxgold set in `gameobject_template_addon`.", entry, got->type);
                     break;
-            }
-        }
-
-        uint32 artKitIndex = 0;
-        for (uint32& artKitID : gameObjectAddon.artKits)
-        {
-            ++artKitIndex;
-            if (!artKitID)
-                continue;
-
-            if (!sGameObjectArtKitStore.LookupEntry(artKitID))
-            {
-                TC_LOG_ERROR("sql.sql", "GameObject (Entry: %u) has invalid `artkit%d` (%d) defined, set to zero instead.", entry, artKitIndex - 1, artKitID);
-                artKitID = 0;
             }
         }
 
