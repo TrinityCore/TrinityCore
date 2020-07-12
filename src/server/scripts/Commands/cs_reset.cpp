@@ -101,7 +101,7 @@ public:
             return false;
         }
 
-        uint8 powerType = classEntry->powerType;
+        uint8 powerType = classEntry->DisplayPower;
 
         // reset m_form if no aura
         if (!player->HasAuraType(SPELL_AURA_MOD_SHAPESHIFT))

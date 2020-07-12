@@ -48,10 +48,10 @@ LFGDungeonData::LFGDungeonData() : id(0), name(), map(0), type(0), expansion(0),
 {
 }
 
-LFGDungeonData::LFGDungeonData(LFGDungeonEntry const* dbc) : id(dbc->ID), name(dbc->name[0]), map(dbc->map),
-    type(dbc->type), expansion(uint8(dbc->expansion)), group(uint8(dbc->grouptype)),
-    minlevel(uint8(dbc->minlevel)), maxlevel(uint8(dbc->maxlevel)), difficulty(Difficulty(dbc->difficulty)),
-    seasonal((dbc->flags & LFG_FLAG_SEASONAL) != 0), x(0.0f), y(0.0f), z(0.0f), o(0.0f)
+LFGDungeonData::LFGDungeonData(LFGDungeonEntry const* dbc) : id(dbc->ID), name(dbc->Name[0]), map(dbc->MapID),
+    type(dbc->TypeID), expansion(uint8(dbc->ExpansionLevel)), group(uint8(dbc->GroupID)),
+    minlevel(uint8(dbc->MinLevel)), maxlevel(uint8(dbc->MaxLevel)), difficulty(Difficulty(dbc->Difficulty)),
+    seasonal((dbc->Flags & LFG_FLAG_SEASONAL) != 0), x(0.0f), y(0.0f), z(0.0f), o(0.0f)
 {
 }
 
@@ -198,7 +198,7 @@ void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
         if (!dungeon)
             continue;
 
-        switch (dungeon->type)
+        switch (dungeon->TypeID)
         {
             case LFG_TYPE_DUNGEON:
             case LFG_TYPE_HEROIC:
@@ -982,7 +982,7 @@ void LFGMgr::MakeNewGroup(LfgProposal const& proposal)
         {
             uint32 rDungeonId = (*dungeons.begin());
             LFGDungeonEntry const* dungeonEntry = sLFGDungeonStore.LookupEntry(rDungeonId);
-            if (dungeonEntry && dungeonEntry->type == LFG_TYPE_RANDOM)
+            if (dungeonEntry && dungeonEntry->TypeID == LFG_TYPE_RANDOM)
                 player->CastSpell(player, LFG_SPELL_DUNGEON_COOLDOWN, false);
         }
     }

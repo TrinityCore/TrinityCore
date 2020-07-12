@@ -161,7 +161,7 @@ static bool ShouldFollowOnSpawn(SummonPropertiesEntry const* properties)
     if (!properties)
         return false;
 
-    switch (properties->Category)
+    switch (properties->Control)
     {
         case SUMMON_CATEGORY_PET:
             return true;
@@ -170,7 +170,7 @@ static bool ShouldFollowOnSpawn(SummonPropertiesEntry const* properties)
         case SUMMON_CATEGORY_UNK:
             if (properties->Flags & 512)
                 return true;
-            switch (properties->Type)
+            switch (properties->Title)
             {
                 case SUMMON_TYPE_PET:
                 case SUMMON_TYPE_GUARDIAN:
