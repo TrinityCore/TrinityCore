@@ -332,7 +332,7 @@ SpellEffectInfo::SpellEffectInfo(SpellEntry const* spellEntry, SpellInfo const* 
     _effIndex = effIndex;
     Effect = spellEntry->Effect[effIndex];
     ApplyAuraName = spellEntry->EffectAura[effIndex];
-    Amplitude = spellEntry->EffectAmplitude[effIndex];
+    Amplitude = spellEntry->EffectAuraPeriod[effIndex];
     DieSides = spellEntry->EffectDieSides[effIndex];
     RealPointsPerLevel = spellEntry->EffectRealPointsPerLevel[effIndex];
     BasePoints = spellEntry->EffectBasePoints[effIndex];
