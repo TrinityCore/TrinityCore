@@ -402,6 +402,7 @@ struct boss_thaddius : public BossAI
                         break;
                     case EVENT_ENABLE_BALL_LIGHTNING:
                         ballLightningUnlocked = true;
+                        [[fallthrough]];
                     case EVENT_ENGAGE:
                         me->SetReactState(REACT_AGGRESSIVE);
                         break;
