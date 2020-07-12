@@ -2486,12 +2486,12 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
                     // new team
                     if (newTeamId == TEAM_ALLIANCE)
                     {
-                        uint32 maskID = htitleInfo->MaskID;
-                        uint32 index = maskID / 32;
+                        uint32 bitIndex = htitleInfo->MaskID;
+                        uint32 index = bitIndex / 32;
                         if (index >= knownTitles.size())
                             continue;
 
-                        uint32 old_flag = 1 << (maskID % 32);
+                        uint32 old_flag = 1 << (bitIndex % 32);
                         uint32 new_flag = 1 << (atitleInfo->MaskID % 32);
                         if (knownTitles[index] & old_flag)
                         {
@@ -2502,12 +2502,12 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
                     }
                     else
                     {
-                        uint32 maskID = atitleInfo->MaskID;
-                        uint32 index = maskID / 32;
+                        uint32 bitIndex = htitleInfo->MaskID;
+                        uint32 index = bitIndex / 32;
                         if (index >= knownTitles.size())
                             continue;
 
-                        uint32 old_flag = 1 << (maskID % 32);
+                        uint32 old_flag = 1 << (bitIndex % 32);
                         uint32 new_flag = 1 << (htitleInfo->MaskID % 32);
                         if (knownTitles[index] & old_flag)
                         {

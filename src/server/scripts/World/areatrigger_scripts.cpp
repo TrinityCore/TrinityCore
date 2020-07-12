@@ -184,12 +184,12 @@ class AreaTrigger_at_sholazar_waygate : public AreaTriggerScript
     public:
         AreaTrigger_at_sholazar_waygate() : AreaTriggerScript("at_sholazar_waygate") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* areaTrigger) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger) override
         {
             if (!player->isDead() && (player->GetQuestStatus(QUEST_MEETING_A_GREAT_ONE) != QUEST_STATUS_NONE ||
                 (player->GetQuestStatus(QUEST_THE_MAKERS_OVERLOOK) == QUEST_STATUS_REWARDED && player->GetQuestStatus(QUEST_THE_MAKERS_PERCH) == QUEST_STATUS_REWARDED)))
             {
-                switch (areaTrigger->ID)
+                switch (trigger->ID)
                 {
                     case AT_SHOLAZAR:
                         player->CastSpell(player, SPELL_SHOLAZAR_TO_UNGORO_TELEPORT, true);
@@ -266,9 +266,9 @@ class AreaTrigger_at_brewfest : public AreaTriggerScript
             _triggerTimes[AT_BREWFEST_DUROTAR] = _triggerTimes[AT_BREWFEST_DUN_MOROGH] = 0;
         }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* areaTrigger) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger) override
         {
-            uint32 triggerId = areaTrigger->ID;
+            uint32 triggerId = trigger->ID;
             // Second trigger happened too early after first, skip for now
             if (GameTime::GetGameTime() - _triggerTimes[triggerId] < AREATRIGGER_TALK_COOLDOWN)
                 return false;
@@ -319,17 +319,18 @@ class AreaTrigger_at_area_52_entrance : public AreaTriggerScript
             _triggerTimes[AT_AREA_52_SOUTH] = _triggerTimes[AT_AREA_52_NORTH] = _triggerTimes[AT_AREA_52_WEST] = _triggerTimes[AT_AREA_52_EAST] = 0;
         }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* areaTrigger) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger) override
         {
             float x = 0.0f, y = 0.0f, z = 0.0f;
 
             if (!player->IsAlive())
                 return false;
 
-            if (GameTime::GetGameTime() - _triggerTimes[areaTrigger->ID] < SUMMON_COOLDOWN)
+            uint32 triggerId = trigger->ID;
+            if (GameTime::GetGameTime() - _triggerTimes[triggerId] < SUMMON_COOLDOWN)
                 return false;
 
-            switch (areaTrigger->ID)
+            switch (triggerId)
             {
                 case AT_AREA_52_EAST:
                     x = 3044.176f;
@@ -355,7 +356,7 @@ class AreaTrigger_at_area_52_entrance : public AreaTriggerScript
 
             player->SummonCreature(NPC_SPOTLIGHT, x, y, z, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 5000);
             player->AddAura(SPELL_A52_NEURALYZER, player);
-            _triggerTimes[areaTrigger->ID] = GameTime::GetGameTime();
+            _triggerTimes[trigger->ID] = GameTime::GetGameTime();
             return false;
         }
 

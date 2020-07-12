@@ -1914,13 +1914,13 @@ public:
         AreaTableEntry const* area = sAreaTableStore.LookupEntry(areaId);
         if (area)
         {
-            zoneName = area->AreaName[handler->GetSessionDbcLocale()];
+            zoneName = area->AreaName[locale];
 
             AreaTableEntry const* zone = sAreaTableStore.LookupEntry(area->ParentAreaID);
             if (zone)
             {
                 areaName = zoneName;
-                zoneName = zone->AreaName[handler->GetSessionDbcLocale()];
+                zoneName = zone->AreaName[locale];
             }
         }
 
