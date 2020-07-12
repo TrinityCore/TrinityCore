@@ -198,84 +198,85 @@ float SplineBase::SegLengthBezier3(index_type index) const
     return length;
 }
 
-void SplineBase::init_spline(const Vector3 * controls, index_type count, EvaluationMode m, float orientation)
+void SplineBase::init_spline(Trinity::IteratorPair<ControlArray::const_iterator> controls, EvaluationMode m, float orientation)
 {
     m_mode = m;
     cyclic = false;
     initialOrientation = orientation;
 
-    (this->*initializers[m_mode])(controls, count, 0);
+    (this->*initializers[m_mode])(controls, 0);
 }
 
-void SplineBase::init_cyclic_spline(const Vector3 * controls, index_type count, EvaluationMode m, index_type cyclic_point, float orientation)
+void SplineBase::init_cyclic_spline(Trinity::IteratorPair<ControlArray::const_iterator> controls, EvaluationMode m, index_type cyclic_point, float orientation)
 {
     m_mode = m;
     cyclic = true;
     initialOrientation = orientation;
 
-    (this->*initializers[m_mode])(controls, count, cyclic_point);
+    (this->*initializers[m_mode])(controls, cyclic_point);
 }
 
-void SplineBase::InitLinear(Vector3 const* controls, index_type count, index_type cyclic_point)
+void SplineBase::InitLinear(Trinity::IteratorPair<ControlArray::const_iterator> controls, index_type cyclic_point)
 {
+    index_type count = std::distance(controls.begin(), controls.end());
     ASSERT(count >= 2);
     const int real_size = count + 1;
 
     points.resize(real_size);
-
-    memcpy(&points[0], controls, sizeof(Vector3) * count);
+    std::copy(controls.begin(), controls.end(), points.begin());
 
     // first and last two indexes are space for special 'virtual points'
     // these points are required for proper C_Evaluate and C_Evaluate_Derivative methtod work
     if (cyclic)
-        points[count] = controls[cyclic_point];
+        points[count] = *(controls.begin() + cyclic_point);
     else
-        points[count] = controls[count-1];
+        points[count] = *(controls.end() - 1);
 
     index_lo = 0;
     index_hi = cyclic ? count : (count - 1);
 }
 
-void SplineBase::InitCatmullRom(Vector3 const* controls, index_type count, index_type cyclic_point)
+void SplineBase::InitCatmullRom(Trinity::IteratorPair<ControlArray::const_iterator> controls, index_type cyclic_point)
 {
+    index_type count = std::distance(controls.begin(), controls.end());
     const int real_size = count + (cyclic ? (1+2) : (1+1));
-
-    points.resize(real_size);
 
     int lo_index = 1;
     int high_index = lo_index + count - 1;
 
-    memcpy(&points[lo_index], controls, sizeof(Vector3) * count);
+    points.resize(real_size);
+    std::copy(controls.begin(), controls.end(), points.begin() + lo_index);
 
     // first and last two indexes are space for special 'virtual points'
     // these points are required for proper C_Evaluate and C_Evaluate_Derivative methtod work
     if (cyclic)
     {
         if (cyclic_point == 0)
-            points[0] = controls[count-1];
+            points[0] = *(controls.end() - 1);
         else
-            points[0] = controls[0] - G3D::Vector3{ std::cos(initialOrientation), std::sin(initialOrientation), 0.0f };
+            points[0] = *controls.begin() - G3D::Vector3{ std::cos(initialOrientation), std::sin(initialOrientation), 0.0f };
 
-        points[high_index+1] = controls[cyclic_point];
-        points[high_index+2] = controls[cyclic_point+1];
+        points[high_index+1] = *(controls.begin() + cyclic_point);
+        points[high_index+2] = *(controls.begin() + cyclic_point + 1);
     }
     else
     {
-        points[0] = controls[0] - G3D::Vector3{ std::cos(initialOrientation), std::sin(initialOrientation), 0.0f };
-        points[high_index+1] = controls[count-1];
+        points[0] = *controls.begin() - G3D::Vector3{ std::cos(initialOrientation), std::sin(initialOrientation), 0.0f };
+        points[high_index+1] = *(controls.end() - 1);
     }
 
     index_lo = lo_index;
     index_hi = high_index + (cyclic ? 1 : 0);
 }
 
-void SplineBase::InitBezier3(Vector3 const* controls, index_type count, index_type /*cyclic_point*/)
+void SplineBase::InitBezier3(Trinity::IteratorPair<ControlArray::const_iterator>  controls, index_type /*cyclic_point*/)
 {
+    index_type count = std::distance(controls.begin(), controls.end());
     index_type c = count / 3u * 3u;
     index_type t = c / 3u;
 
     points.resize(c);
-    memcpy(&points[0], controls, sizeof(Vector3) * c);
+    std::copy(controls.begin(), controls.begin() + c, points.begin());
 
     index_lo = 0;
     index_hi = t-1;

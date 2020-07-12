@@ -23,6 +23,7 @@
 #include <G3D/Vector3.h>
 #include <limits>
 #include <vector>
+#include <IteratorPair.h>
 
 namespace Movement {
 
@@ -78,15 +79,15 @@ protected:
     typedef float (SplineBase::*SegLenghtMethtod)(index_type) const;
     static SegLenghtMethtod seglengths[ModesEnd];
 
-    void InitLinear(Vector3 const*, index_type, index_type);
-    void InitCatmullRom(Vector3 const*, index_type, index_type);
-    void InitBezier3(Vector3 const*, index_type, index_type);
-    typedef void (SplineBase::*InitMethtod)(Vector3 const*, index_type, index_type);
+    void InitLinear(Trinity::IteratorPair<ControlArray::const_iterator> controls, index_type);
+    void InitCatmullRom(Trinity::IteratorPair<ControlArray::const_iterator> controls, index_type);
+    void InitBezier3(Trinity::IteratorPair<ControlArray::const_iterator> controls, index_type);
+    typedef void (SplineBase::*InitMethtod)(Trinity::IteratorPair<ControlArray::const_iterator> controls, index_type);
     static InitMethtod initializers[ModesEnd];
 
     void UninitializedSplineEvaluationMethod(index_type, float, Vector3&) const { ABORT(); }
     float UninitializedSplineSegLenghtMethod(index_type) const { ABORT(); return 0.0f; }
-    void UninitializedSplineInitMethod(Vector3 const*, index_type, index_type) { ABORT(); }
+    void UninitializedSplineInitMethod(Trinity::IteratorPair<ControlArray::const_iterator>, index_type) { ABORT(); }
 
 public:
 
@@ -117,8 +118,8 @@ public:
     Vector3 const& getPoint(index_type i) const { return points[i];}
 
     /** Initializes spline. Don't call other methods while spline not initialized. */
-    void init_spline(const Vector3 * controls, index_type count, EvaluationMode m, float orientation);
-    void init_cyclic_spline(const Vector3 * controls, index_type count, EvaluationMode m, index_type cyclic_point, float orientation);
+    void init_spline(Trinity::IteratorPair<ControlArray::const_iterator> controls, EvaluationMode m, float orientation);
+    void init_cyclic_spline(Trinity::IteratorPair<ControlArray::const_iterator> controls, EvaluationMode m, index_type cyclic_point, float orientation);
 
     /** As i can see there are a lot of ways how spline can be initialized
         would be no harm to have some custom initializers. */
@@ -173,8 +174,8 @@ public:
     void computeIndex(float t, index_type& out_idx, float& out_u) const;
 
     /** Initializes spline. Don't call other methods while spline not initialized. */
-    void init_spline(const Vector3 * controls, index_type count, EvaluationMode m, float orientation = 0) { SplineBase::init_spline(controls, count, m, orientation);}
-    void init_cyclic_spline(const Vector3 * controls, index_type count, EvaluationMode m, index_type cyclic_point, float orientation = 0) { SplineBase::init_cyclic_spline(controls, count, m, cyclic_point, orientation);}
+    void init_spline(Trinity::IteratorPair<ControlArray::const_iterator> controls, EvaluationMode m, float orientation = 0) { SplineBase::init_spline(controls, m, orientation);}
+    void init_cyclic_spline(Trinity::IteratorPair<ControlArray::const_iterator> controls, EvaluationMode m, index_type cyclic_point, float orientation = 0) { SplineBase::init_cyclic_spline(controls, m, cyclic_point, orientation);}
 
     /**  Initializes lengths with SplineBase::SegLength method. */
     void initLengths();

@@ -223,7 +223,7 @@ void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTempl
         {
             size_t extra = !keyFrames[i - 1].Teleport ? 1 : 0;
             std::shared_ptr<TransportSpline> spline = std::make_shared<TransportSpline>();
-            spline->init_spline(&splinePath[start], i - start + extra, Movement::SplineBase::ModeCatmullrom);
+            spline->init_spline({splinePath.cbegin() + start, splinePath.cbegin() + i + extra}, Movement::SplineBase::ModeCatmullrom);
             spline->initLengths();
             for (size_t j = start; j < i + extra; ++j)
             {
