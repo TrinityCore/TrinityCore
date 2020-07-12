@@ -23,8 +23,90 @@
 #include "SpellAuraEffects.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
+#include "Object.h"
+#include "PassiveAI.h"
 #include "Player.h"
 #include "bastion_of_twilight.h"
+
+#include <vector>
+
+enum PhaseTwist
+{
+    // Events
+    EVENT_REGISTER_TWISTERS = 1,
+    EVENT_CHECK_TWISTERS,
+    EVENT_PHASE_BURN,
+
+    // Spells
+    SPELL_PHASED_BURN = 85799
+};
+
+struct npc_bot_invisible_stalker_phase_twist : public NullCreatureAI
+{
+    npc_bot_invisible_stalker_phase_twist(Creature* creature) : NullCreatureAI(creature) { }
+
+    void JustAppeared() override
+    {
+        _events.ScheduleEvent(EVENT_REGISTER_TWISTERS, 1s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_REGISTER_TWISTERS:
+                    me->GetCreatureListWithEntryInGrid(_phaseTwisterVector, NPC_TWILIGHT_PHASE_SHIFTER, 10.f);
+                    if (_phaseTwisterVector.empty()) // if the twister have not been added to the grid yet, keep searching
+                        _events.Repeat(1s);
+                    else
+                    {
+                        _events.ScheduleEvent(EVENT_CHECK_TWISTERS, 1s);
+                        _events.ScheduleEvent(EVENT_PHASE_BURN, 1s);
+                    }
+                    break;
+                case EVENT_CHECK_TWISTERS:
+                {
+                    uint8 deadTwisters = 0;
+                    for (Unit const* twister : _phaseTwisterVector)
+                    {
+                        if (!twister || twister->isDead())
+                            ++deadTwisters;
+                    }
+
+                    if (deadTwisters == _phaseTwisterVector.size())
+                    {
+                        _events.Reset();
+                        me->InterruptNonMeleeSpells(true);
+                        me->RemoveAllAuras();
+                        me->DespawnOrUnsummon(4s);
+                    }
+                    else
+                        _events.Repeat(1s);
+                    break;
+                }
+                case EVENT_PHASE_BURN:
+                    if (Unit* target = me->SelectNearestTarget(40.f, true))
+                    {
+                        DoCast(target, SPELL_PHASED_BURN);
+                        _events.Repeat(8s);
+                    }
+                    else
+                        _events.Repeat(1s);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+    std::vector<Creature*> _phaseTwisterVector;
+};
 
 class at_theralion_and_valiona_intro : public AreaTriggerScript
 {
@@ -93,6 +175,7 @@ class at_chogall_intro : public AreaTriggerScript
 
 void AddSC_bastion_of_twilight()
 {
+    RegisterBastionOfTwilightCreatureAI(npc_bot_invisible_stalker_phase_twist);
     new at_theralion_and_valiona_intro();
     new at_ascendant_council_intro_1();
     new at_ascendant_council_intro_2();

@@ -145,7 +145,8 @@ enum BoTCreatures
     NPC_SPIKED_TENTACLE_TRIGGER         = 50265,
 
     // Generic Creatures
-    NPC_INVISIBLE_STALKER               = 42098
+    NPC_INVISIBLE_STALKER               = 42098,
+    NPC_TWILIGHT_PHASE_SHIFTER          = 45267
 };
 
 enum BoTGameObjects
