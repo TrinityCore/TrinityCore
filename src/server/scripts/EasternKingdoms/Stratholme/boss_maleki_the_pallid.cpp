@@ -62,8 +62,8 @@ public:
 
         void JustEngagedWith(Unit* /*who*/) override
         {
-            _events.ScheduleEvent(EVENT_FROSTBOLT,  1 * IN_MILLISECONDS);
-            _events.ScheduleEvent(EVENT_ICETOMB,   16 * IN_MILLISECONDS);
+            _events.ScheduleEvent(EVENT_FROSTBOLT, 1s);
+            _events.ScheduleEvent(EVENT_ICETOMB, 16s);
             _events.ScheduleEvent(EVENT_DRAINLIFE, 31s);
         }
 
@@ -90,7 +90,7 @@ public:
                     case EVENT_FROSTBOLT:
                         if (rand32() % 90)
                             DoCastVictim(SPELL_FROSTBOLT);
-                        _events.ScheduleEvent(EVENT_FROSTBOLT, 3.5 * IN_MILLISECONDS);
+                        _events.ScheduleEvent(EVENT_FROSTBOLT, 3500ms);
                         break;
                     case EVENT_ICETOMB:
                         if (rand32() % 65)

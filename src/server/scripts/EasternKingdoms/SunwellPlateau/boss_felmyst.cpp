@@ -238,7 +238,7 @@ public:
         void MovementInform(uint32, uint32) override
         {
             if (phase == PHASE_FLIGHT)
-                events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 1);
+                events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 1ms);
         }
 
         void DamageTaken(Unit*, uint32 &damage) override
@@ -343,7 +343,7 @@ public:
                 }
                 case 4:
                     DespawnSummons(NPC_VAPOR_TRAIL);
-                    events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 1);
+                    events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 1ms);
                     break;
                 case 5:
                 {
@@ -377,14 +377,14 @@ public:
                     x = 2 * breathX - x;
                     y = 2 * breathY - y;
                     me->GetMotionMaster()->MovePoint(0, x, y, z);
-                    events.ScheduleEvent(EVENT_SUMMON_FOG, 1);
+                    events.ScheduleEvent(EVENT_SUMMON_FOG, 1ms);
                     break;
                 }
                 case 8:
                     me->CastStop(SPELL_FOG_BREATH);
                     me->RemoveAurasDueToSpell(SPELL_FOG_BREATH);
                     ++uiBreathCount;
-                    events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 1);
+                    events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 1ms);
                     if (uiBreathCount < 3)
                         uiFlightCount = 4;
                     break;
