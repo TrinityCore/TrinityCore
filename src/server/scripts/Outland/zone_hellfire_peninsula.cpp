@@ -891,7 +891,7 @@ public:
                     me->SetImmuneToPC(false);
                     me->SetFaction(FACTION_MONSTER_2);
                     me->EngageWithTarget(ObjectAccessor::GetPlayer(*me, _playerGUID));
-                    _events.ScheduleEvent(EVENT_FIREBALL, 1);
+                    _events.ScheduleEvent(EVENT_FIREBALL, 1ms);
                     _events.ScheduleEvent(EVENT_FROSTNOVA, 5s);
                     break;
                 case EVENT_FIREBALL:
