@@ -298,6 +298,7 @@ public:
                         if (GetBossState(DATA_DRAGONSPIRE_ROOM) != DONE)
                             Events.ScheduleEvent(EVENT_DARGONSPIRE_ROOM_STORE, 1s);
                     }
+                    break;
                 case DATA_BLACKHAND_INCARCERATOR:
                     for (GuidList::const_iterator itr = _incarceratorList.begin(); itr != _incarceratorList.end(); ++itr)
                         if (Creature* creature = instance->GetCreature(*itr))

@@ -769,7 +769,7 @@ void GameObject::Update(uint32 diff)
                     Unit* target = nullptr;
 
                     /// @todo this hack with search required until GO casting not implemented
-                    if (Unit* owner = GetOwner())
+                    if (GetOwner())
                     {
                         // Hunter trap: Search units which are unfriendly to the trap's owner
                         Trinity::NearestAttackableNoTotemUnitInObjectRangeCheck checker(this, radius);

@@ -276,13 +276,10 @@ void EscortAI::AddWaypoint(uint32 id, float x, float y, float z, float orientati
 void EscortAI::Start(bool isActiveAttacker /* = true*/, bool run /* = false */, ObjectGuid playerGUID /* = 0 */, Quest const* quest /* = nullptr */, bool instantRespawn /* = false */, bool canLoopPath /* = false */, bool resetWaypoints /* = true */)
 {
     // Queue respawn from the point it starts
-    if (Map* map = me->GetMap())
+    if (CreatureData const* cdata = me->GetCreatureData())
     {
-        if (CreatureData const* cdata = me->GetCreatureData())
-        {
-            if (sWorld->getBoolConfig(CONFIG_RESPAWN_DYNAMIC_ESCORTNPC) && (cdata->spawnGroupData->flags & SPAWNGROUP_FLAG_ESCORTQUESTNPC))
-                me->SaveRespawnTime(me->GetRespawnDelay());
-        }
+        if (sWorld->getBoolConfig(CONFIG_RESPAWN_DYNAMIC_ESCORTNPC) && (cdata->spawnGroupData->flags & SPAWNGROUP_FLAG_ESCORTQUESTNPC))
+            me->SaveRespawnTime(me->GetRespawnDelay());
     }
 
     if (me->IsEngaged())
