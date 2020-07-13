@@ -2179,7 +2179,7 @@ class spell_madness_of_deathwing_concentration : public AuraScript
                 if (creature->IsAIEnabled)
                     creature->AI()->SetGUID(GetTarget()->GetGUID(), DATA_FOCUSED_LIMB);
 
-        GetTarget()->SetDisableGravity(true);
+        GetTarget()->SetAnimationTier(AnimationTier::Fly);
         for (uint8 i = 0; i < 2; ++i)
             GetTarget()->CastSpell(GetTarget(), SPELL_SUMMON_COSMETIC_TENTACLE);
     }
