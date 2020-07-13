@@ -26,7 +26,6 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "MPSCQueue.h"
-#include <chrono>
 #include <boost/asio/ip/tcp.hpp>
 
 using boost::asio::ip::tcp;
@@ -116,7 +115,7 @@ private:
     uint32 _authSeed;
     AuthCrypt _authCrypt;
 
-    std::chrono::steady_clock::time_point _LastPingTime;
+    TimePoint _LastPingTime;
     uint32 _OverSpeedPings;
 
     std::mutex _worldSessionLock;
