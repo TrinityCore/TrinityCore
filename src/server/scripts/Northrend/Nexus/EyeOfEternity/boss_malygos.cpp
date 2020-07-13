@@ -947,7 +947,9 @@ public:
                         }
                         else if (GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
                         {
-                            memset(_surgeTargetGUID, 0, sizeof(_surgeTargetGUID));
+                            for (ObjectGuid& guid : _surgeTargetGUID)
+                                guid.Clear();
+
                             DoCastAOE(SPELL_SURGE_OF_POWER_WARNING_SELECTOR_25, true);
                         }
 
