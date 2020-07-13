@@ -16,15 +16,6 @@ if(WITH_WARNINGS)
       -Wno-mismatched-tags
       -Woverloaded-virtual)
 
-  set(CMAKE_REQUIRED_FLAGS "-Wno-deprecated-copy")
-  check_cxx_source_compiles("int main() { return 0; }" CLANG_HAS_DEPRECATED_COPY)
-  unset(CMAKE_REQUIRED_FLAGS)
-  if(CLANG_HAS_DEPRECATED_COPY)
-    target_compile_options(trinity-warning-interface
-      INTERFACE
-        -Wno-deprecated-copy) # warning in g3d
-  endif()
-
   message(STATUS "Clang: All warnings enabled")
 endif()
 
