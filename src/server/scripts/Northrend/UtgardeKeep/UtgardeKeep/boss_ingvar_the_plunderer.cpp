@@ -185,9 +185,9 @@ class boss_ingvar_the_plunderer : public CreatureScript
             {
                 events.SetPhase(PHASE_UNDEAD);
                 events.ScheduleEvent(EVENT_DARK_SMASH, 14s, 18s, 0, PHASE_UNDEAD);
-                events.ScheduleEvent(EVENT_DREADFUL_ROAR, 0, 0, PHASE_UNDEAD);
+                events.ScheduleEvent(EVENT_DREADFUL_ROAR, 0ms, 0, PHASE_UNDEAD);
                 events.ScheduleEvent(EVENT_WOE_STRIKE, 10s, 14s, 0, PHASE_UNDEAD);
-                events.ScheduleEvent(EVENT_SHADOW_AXE, 30*IN_MILLISECONDS, 0, PHASE_UNDEAD);
+                events.ScheduleEvent(EVENT_SHADOW_AXE, 30s, 0, PHASE_UNDEAD);
             }
 
             void KilledUnit(Unit* who) override
@@ -253,7 +253,7 @@ class boss_ingvar_the_plunderer : public CreatureScript
                         case EVENT_SHADOW_AXE:
                             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true))
                                 DoCast(target, SPELL_SHADOW_AXE_SUMMON);
-                            events.ScheduleEvent(EVENT_SHADOW_AXE, 30*IN_MILLISECONDS, 0, PHASE_UNDEAD);
+                            events.ScheduleEvent(EVENT_SHADOW_AXE, 30s, 0, PHASE_UNDEAD);
                             break;
                         default:
                             break;
@@ -312,7 +312,7 @@ class npc_annhylde_the_caller : public CreatureScript
                             ingvar->CastSpell(ingvar, SPELL_SCOURG_RESURRECTION_DUMMY, true);
                             DoCast(ingvar, SPELL_SCOURG_RESURRECTION_BEAM);
                         }
-                        _events.ScheduleEvent(EVENT_RESURRECT_1, 8000);
+                        _events.ScheduleEvent(EVENT_RESURRECT_1, 8s);
                         break;
                     case 2:
                         me->DespawnOrUnsummon();
@@ -340,7 +340,7 @@ class npc_annhylde_the_caller : public CreatureScript
                                 ingvar->RemoveAura(SPELL_INGVAR_FEIGN_DEATH);
                                 ingvar->CastSpell(ingvar, SPELL_SCOURG_RESURRECTION_HEAL, false);
                             }
-                            _events.ScheduleEvent(EVENT_RESURRECT_2, 3000);
+                            _events.ScheduleEvent(EVENT_RESURRECT_2, 3s);
                             break;
                         case EVENT_RESURRECT_2:
                             if (Creature* ingvar = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_INGVAR)))
