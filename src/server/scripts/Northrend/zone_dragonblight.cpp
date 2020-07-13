@@ -185,7 +185,7 @@ class npc_commander_eligor_dawnbringer : public CreatureScript
                                 switch (urand (0, 1))
                                 {
                                     case 0: ChangeImage(NPC_IMAGE_OF_KELTHUZAD, MODEL_IMAGE_OF_KELTHUZAD, SAY_KELTHUZAD_1);
-                                            _events.ScheduleEvent(EVENT_KELTHUZAD_2, 8000); break;
+                                            _events.ScheduleEvent(EVENT_KELTHUZAD_2, 8s); break;
                                     case 1: ChangeImage(NPC_IMAGE_OF_SAPPHIRON, MODEL_IMAGE_OF_SAPPHIRON, SAY_SAPPHIRON); break;
                                 }
                             }
@@ -197,7 +197,7 @@ class npc_commander_eligor_dawnbringer : public CreatureScript
                                     case 0: ChangeImage(NPC_IMAGE_OF_RAZUVIOUS, MODEL_IMAGE_OF_RAZUVIOUS, SAY_RAZUVIOUS); break;
                                     case 1: ChangeImage(NPC_IMAGE_OF_GOTHIK, MODEL_IMAGE_OF_GOTHIK, SAY_GOTHIK); break;
                                     case 2: ChangeImage(NPC_IMAGE_OF_THANE, MODEL_IMAGE_OF_THANE, SAY_DEATH_KNIGHTS_1);
-                                            _events.ScheduleEvent(EVENT_DEATH_KNIGHTS_2, 10000); break;
+                                            _events.ScheduleEvent(EVENT_DEATH_KNIGHTS_2, 10s); break;
                                 }
                             }
                             break;
@@ -228,7 +228,7 @@ class npc_commander_eligor_dawnbringer : public CreatureScript
                                 {
                                     case 0: ChangeImage(NPC_IMAGE_OF_NOTH, MODEL_IMAGE_OF_NOTH, SAY_NOTH); break;
                                     case 1: ChangeImage(NPC_IMAGE_OF_HEIGAN, MODEL_IMAGE_OF_HEIGAN, SAY_HEIGAN_1);
-                                            _events.ScheduleEvent(EVENT_HEIGAN_2, 8000); break;
+                                            _events.ScheduleEvent(EVENT_HEIGAN_2, 8s); break;
                                     case 2: ChangeImage(NPC_IMAGE_OF_LOATHEB, MODEL_IMAGE_OF_LOATHEB, SAY_LOATHEB); break;
                                 }
                             }
@@ -319,7 +319,7 @@ class npc_commander_eligor_dawnbringer : public CreatureScript
                             break;
                         case EVENT_KELTHUZAD_2:
                             Talk(SAY_KELTHUZAD_2);
-                            _events.ScheduleEvent(EVENT_KELTHUZAD_3, 8000);
+                            _events.ScheduleEvent(EVENT_KELTHUZAD_3, 8s);
                             break;
                         case EVENT_KELTHUZAD_3:
                             Talk(SAY_KELTHUZAD_3);
@@ -331,7 +331,7 @@ class npc_commander_eligor_dawnbringer : public CreatureScript
                                 creature->SetEntry(NPC_IMAGE_OF_BLAUMEUX);
                                 creature->SetDisplayId(MODEL_IMAGE_OF_BLAUMEUX);
                             }
-                            _events.ScheduleEvent(EVENT_DEATH_KNIGHTS_3, 10000);
+                            _events.ScheduleEvent(EVENT_DEATH_KNIGHTS_3, 10s);
                             break;
                         case EVENT_DEATH_KNIGHTS_3:
                             Talk(SAY_DEATH_KNIGHTS_3);
@@ -340,7 +340,7 @@ class npc_commander_eligor_dawnbringer : public CreatureScript
                                 creature->SetEntry(NPC_IMAGE_OF_ZELIEK);
                                 creature->SetDisplayId(MODEL_IMAGE_OF_ZELIEK);
                             }
-                            _events.ScheduleEvent(EVENT_DEATH_KNIGHTS_4, 10000);
+                            _events.ScheduleEvent(EVENT_DEATH_KNIGHTS_4, 10s);
                             break;
                         case EVENT_DEATH_KNIGHTS_4:
                             Talk(SAY_DEATH_KNIGHTS_4);
@@ -663,7 +663,7 @@ class npc_torturer_lecraft : public CreatureScript
                     {
                         case EVENT_HEMORRHAGE:
                             DoCastVictim(SPELL_HEMORRHAGE);
-                            _events.ScheduleEvent(EVENT_HEMORRHAGE, urand(12000, 168000));
+                            _events.ScheduleEvent(EVENT_HEMORRHAGE, 12s, 168s);
                             break;
                         case EVENT_KIDNEY_SHOT:
                             DoCastVictim(SPELL_KIDNEY_SHOT);
