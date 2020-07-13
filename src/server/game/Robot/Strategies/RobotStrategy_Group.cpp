@@ -237,15 +237,6 @@ bool RobotStrategy_Group::Update0(uint32 pmDiff)
             {
                 if (Player* leaderPlayer = ObjectAccessor::FindConnectedPlayer(myGroup->GetLeaderGUID()))
                 {
-                    if (!me->IsAlive())
-                    {
-                        me->ResurrectPlayer(0.2f);
-                        me->SpawnCorpseBones();
-                    }
-                    me->GetThreatManager().ClearAllThreat();
-                    me->ClearInCombat();
-                    sb->ClearTarget();
-
                     bool canTeleport = true;
                     if (Group* myGroup = me->GetGroup())
                     {
@@ -264,17 +255,32 @@ bool RobotStrategy_Group::Update0(uint32 pmDiff)
                     }
                     if (canTeleport)
                     {
-                        if (Map* leaderMap = leaderPlayer->GetMap())
+                        if (!me->IsAlive())
                         {
-                            if (!leaderMap->CannotEnter(me))
+                            me->ResurrectPlayer(0.2f);
+                            me->SpawnCorpseBones();
+                        }
+                        me->GetThreatManager().ClearAllThreat();
+                        me->ClearInCombat();
+                        sb->ClearTarget();                        
+                        if (me->GetMapId() != leaderPlayer->GetMapId())
+                        {
+                            if (Map* leaderMap = leaderPlayer->GetMap())
                             {
-                                me->TeleportTo(leaderPlayer->GetWorldLocation());
-                                sb->WhisperTo("I have come", Language::LANG_UNIVERSAL, leaderPlayer);
-                                return false;
+                                if (leaderMap->CannotEnter(me))
+                                {
+                                    canTeleport = false;                                    
+                                }
                             }
                         }
-                        sb->WhisperTo("I can not come to you", Language::LANG_UNIVERSAL, leaderPlayer);
                     }
+                    if (canTeleport)
+                    {
+                        me->TeleportTo(leaderPlayer->GetWorldLocation());
+                        sb->WhisperTo("I have come", Language::LANG_UNIVERSAL, leaderPlayer);
+                        return false;
+                    }
+                    sb->WhisperTo("I can not come to you", Language::LANG_UNIVERSAL, leaderPlayer);
                 }
             }
         }
@@ -800,12 +806,9 @@ bool RobotStrategy_Group::Tank()
     }
     if (Unit* myTarget = me->GetSelectedUnit())
     {
-        if (me->IsValidAttackTarget(myTarget))
+        if (sb->Tank(myTarget, Chasing()))
         {
-            if (sb->Tank(myTarget, Chasing()))
-            {
-                return true;
-            }
+            return true;
         }
     }
     if (sb->Tank(closestVictim, Chasing()))

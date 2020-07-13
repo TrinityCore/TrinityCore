@@ -294,13 +294,16 @@ public:
         {
             _events.Reset();
             nearDelay = 0;
+            attackDelay = 0;
             stand = false;
             Initialize();
         }
 
         void Initialize()
         {
+            me->GetMotionMaster()->Clear();
             SetCombatMovement(false);
+            me->AddUnitState(UNIT_STATE_ROOT);
             Reset();
         }
 
@@ -321,26 +324,6 @@ public:
         {
             if (!stand)
             {
-                Unit* victim = nullptr;
-                Trinity::NearestAttackableUnitInObjectRangeCheck u_check(me, me->GetCharmerOrOwnerOrSelf(), 5.0f);
-                Trinity::UnitLastSearcher<Trinity::NearestAttackableUnitInObjectRangeCheck> checker(me, victim, u_check);
-                Cell::VisitAllObjects(me, checker, 5.0f);
-                if (victim)
-                {
-                    nearDelay += diff;
-                    if (nearDelay > 3000)
-                    {
-                        AttackStart(victim);
-                        DoCastSelf(37752);
-                        me->RemoveAurasDueToSpell(38885);
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        stand = true;
-                        attackDelay = 0;
-                        _events.ScheduleEvent(1, 8000, 10000);
-                        _events.ScheduleEvent(2, 5000, 8000);
-                    }
-                    return;
-                }
                 if (!me->HasAura(38885))
                 {
                     DoCastSelf(38885);
@@ -349,14 +332,48 @@ public:
                 {
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 }
+                Unit* victim = nullptr;
+                Trinity::NearestAttackableUnitInObjectRangeCheck u_check(me, me->GetCharmerOrOwnerOrSelf(), 5.0f);
+                Trinity::UnitLastSearcher<Trinity::NearestAttackableUnitInObjectRangeCheck> checker(me, victim, u_check);
+                Cell::VisitAllObjects(me, checker, 5.0f);
+                if (victim)
+                {
+                    nearDelay += diff;
+                    if (nearDelay > 5000)
+                    {
+                        DoCastSelf(37752);
+                        me->RemoveAurasDueToSpell(38885);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        stand = true;
+                        attackDelay = 0;
+                        _events.ScheduleEvent(1, 5000, 8000);
+                        _events.ScheduleEvent(2, 3000, 5000);
+                    }
+                    return;
+                }
                 nearDelay = 0;
                 return;
+            }
+            attackDelay += diff;
+            if (attackDelay < 1000)
+            {
+                return;
+            }
+            if (!UpdateVictim())
+            {
+                Unit* victim = nullptr;
+                Trinity::NearestAttackableUnitInObjectRangeCheck u_check(me, me->GetCharmerOrOwnerOrSelf(), 10.0f);
+                Trinity::UnitLastSearcher<Trinity::NearestAttackableUnitInObjectRangeCheck> checker(me, victim, u_check);
+                Cell::VisitAllObjects(me, checker, 10.0f);
+                if (victim)
+                {
+                    AttackStart(victim);
+                }
             }
             if (!UpdateVictim())
             {
                 return;
             }
-            attackDelay += diff;
             _events.Update(diff);
             if (me->HasUnitState(UNIT_STATE_CASTING))
             {
@@ -369,7 +386,17 @@ public:
                 case 1:
                 {
                     DoCastVictim(31747);
-                    _events.Repeat(5000, 10000);
+                    if (Unit* victim = me->GetVictim())
+                    {
+                        if (!me->IsWithinMeleeRange(victim))
+                        {
+                            _events.Repeat(2500, 2600);
+                        }
+                        else
+                        {
+                            _events.Repeat(5000, 8000);
+                        }
+                    }
                     break;
                 }
                 case 2:
@@ -384,10 +411,441 @@ public:
                 }
                 }
             }
-            if (attackDelay > 2500)
+            DoMeleeAttackIfReady();
+        }
+
+    private:
+        EventMap _events;
+        int nearDelay;
+        int attackDelay;
+        bool stand;
+    };
+};
+
+class npc_bone_sifter : public CreatureScript
+{
+public:
+    npc_bone_sifter() : CreatureScript("npc_bone_sifter") { }
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_bone_sifterAI(creature);
+    }
+
+    struct npc_bone_sifterAI : public ScriptedAI
+    {
+        npc_bone_sifterAI(Creature* creature) : ScriptedAI(creature)
+        {
+            _events.Reset();
+            nearDelay = 0;
+            attackDelay = 0;
+            stand = false;
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            me->GetMotionMaster()->Clear();
+            SetCombatMovement(false);
+            me->AddUnitState(UNIT_STATE_ROOT);
+            Reset();
+        }
+
+        void Reset() override
+        {
+            _events.Reset();
+            nearDelay = 0;
+            attackDelay = 0;
+            stand = false;
+        }
+
+        void JustEngagedWith(Unit* /*who*/) override
+        {
+
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (!stand)
             {
-                DoMeleeAttackIfReady();
+                if (!me->HasAura(38885))
+                {
+                    DoCastSelf(38885);
+                }
+                if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
+                {
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                }
+                Unit* victim = nullptr;
+                Trinity::NearestAttackableUnitInObjectRangeCheck u_check(me, me->GetCharmerOrOwnerOrSelf(), 5.0f);
+                Trinity::UnitLastSearcher<Trinity::NearestAttackableUnitInObjectRangeCheck> checker(me, victim, u_check);
+                Cell::VisitAllObjects(me, checker, 5.0f);
+                if (victim)
+                {
+                    nearDelay += diff;
+                    if (nearDelay > 5000)
+                    {
+                        DoCastSelf(37752);
+                        me->RemoveAurasDueToSpell(38885);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        stand = true;
+                        attackDelay = 0;
+                        _events.ScheduleEvent(1, 5000, 8000);
+                        //_events.ScheduleEvent(2, 5000, 8000);
+                    }
+                    return;
+                }
+                nearDelay = 0;
+                return;
             }
+            attackDelay += diff;
+            if (attackDelay < 1000)
+            {
+                return;
+            }
+            if (!UpdateVictim())
+            {
+                Unit* victim = nullptr;
+                Trinity::NearestAttackableUnitInObjectRangeCheck u_check(me, me->GetCharmerOrOwnerOrSelf(), 10.0f);
+                Trinity::UnitLastSearcher<Trinity::NearestAttackableUnitInObjectRangeCheck> checker(me, victim, u_check);
+                Cell::VisitAllObjects(me, checker, 10.0f);
+                if (victim)
+                {
+                    AttackStart(victim);
+                }
+            }
+            if (!UpdateVictim())
+            {
+                return;
+            }
+            _events.Update(diff);
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+            {
+                return;
+            }
+            while (uint32 eventId = _events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                case 1:
+                {
+                    DoCastVictim(31747);
+                    if (Unit* victim = me->GetVictim())
+                    {
+                        if (!me->IsWithinMeleeRange(victim))
+                        {
+                            _events.Repeat(2500, 2600);
+                        }
+                        else
+                        {
+                            _events.Repeat(5000, 8000);
+                        }
+                    }
+                    break;
+                }
+                case 2:
+                {
+                    DoCastVictim(32738);
+                    _events.Repeat(20000, 30000);
+                    break;
+                }
+                default:
+                {
+                    break;
+                }
+                }
+            }
+            DoMeleeAttackIfReady();
+        }
+
+    private:
+        EventMap _events;
+        int nearDelay;
+        int attackDelay;
+        bool stand;
+    };
+};
+
+class npc_mature_bone_sifter : public CreatureScript
+{
+public:
+    npc_mature_bone_sifter() : CreatureScript("npc_mature_bone_sifter") { }
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_mature_bone_sifterAI(creature);
+    }
+
+    struct npc_mature_bone_sifterAI : public ScriptedAI
+    {
+        npc_mature_bone_sifterAI(Creature* creature) : ScriptedAI(creature)
+        {
+            _events.Reset();
+            nearDelay = 0;
+            attackDelay = 0;
+            stand = false;
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            me->GetMotionMaster()->Clear();
+            SetCombatMovement(false);
+            me->AddUnitState(UNIT_STATE_ROOT);
+            Reset();
+        }
+
+        void Reset() override
+        {
+            _events.Reset();
+            nearDelay = 0;
+            attackDelay = 0;
+            stand = false;
+        }
+
+        void JustEngagedWith(Unit* /*who*/) override
+        {
+
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (!stand)
+            {
+                if (!me->HasAura(38885))
+                {
+                    DoCastSelf(38885);
+                }
+                if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
+                {
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                }
+                Unit* victim = nullptr;
+                Trinity::NearestAttackableUnitInObjectRangeCheck u_check(me, me->GetCharmerOrOwnerOrSelf(), 5.0f);
+                Trinity::UnitLastSearcher<Trinity::NearestAttackableUnitInObjectRangeCheck> checker(me, victim, u_check);
+                Cell::VisitAllObjects(me, checker, 5.0f);
+                if (victim)
+                {
+                    nearDelay += diff;
+                    if (nearDelay > 5000)
+                    {
+                        DoCastSelf(37752);
+                        me->RemoveAurasDueToSpell(38885);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        stand = true;
+                        attackDelay = 0;
+                        _events.ScheduleEvent(1, 5000, 8000);
+                        _events.ScheduleEvent(2, 3000, 5000);
+                    }
+                    return;
+                }
+                nearDelay = 0;
+                return;
+            }
+            attackDelay += diff;
+            if (attackDelay < 1000)
+            {
+                return;
+            }
+            if (!UpdateVictim())
+            {
+                Unit* victim = nullptr;
+                Trinity::NearestAttackableUnitInObjectRangeCheck u_check(me, me->GetCharmerOrOwnerOrSelf(), 10.0f);
+                Trinity::UnitLastSearcher<Trinity::NearestAttackableUnitInObjectRangeCheck> checker(me, victim, u_check);
+                Cell::VisitAllObjects(me, checker, 10.0f);
+                if (victim)
+                {
+                    AttackStart(victim);
+                }
+            }
+            if (!UpdateVictim())
+            {
+                return;
+            }
+            _events.Update(diff);
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+            {
+                return;
+            }
+            while (uint32 eventId = _events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                case 1:
+                {
+                    DoCastVictim(31747);
+                    if (Unit* victim = me->GetVictim())
+                    {
+                        if (!me->IsWithinMeleeRange(victim))
+                        {
+                            _events.Repeat(2500, 2600);
+                        }
+                        else
+                        {
+                            _events.Repeat(5000, 8000);
+                        }
+                    }
+                    break;
+                }
+                case 2:
+                {
+                    DoCastVictim(32738);
+                    _events.Repeat(20000, 30000);
+                    break;
+                }
+                default:
+                {
+                    break;
+                }
+                }
+            }
+
+            DoMeleeAttackIfReady();
+        }
+
+    private:
+        EventMap _events;
+        int nearDelay;
+        int attackDelay;
+        bool stand;
+    };
+};
+
+class npc_haishulud : public CreatureScript
+{
+public:
+    npc_haishulud() : CreatureScript("npc_haishulud") { }
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_haishuludAI(creature);
+    }
+
+    struct npc_haishuludAI : public ScriptedAI
+    {
+        npc_haishuludAI(Creature* creature) : ScriptedAI(creature)
+        {
+            _events.Reset();
+            nearDelay = 0;
+            attackDelay = 0;
+            stand = false;
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            me->GetMotionMaster()->Clear();
+            SetCombatMovement(false);
+            me->AddUnitState(UNIT_STATE_ROOT);
+            Reset();
+        }
+
+        void Reset() override
+        {
+            _events.Reset();
+            nearDelay = 0;
+            attackDelay = 0;
+            stand = false;
+        }
+
+        void JustEngagedWith(Unit* /*who*/) override
+        {
+
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (!stand)
+            {
+                if (!me->HasAura(38885))
+                {
+                    DoCastSelf(38885);
+                }
+                if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
+                {
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                }
+                Unit* victim = nullptr;
+                Trinity::NearestAttackableUnitInObjectRangeCheck u_check(me, me->GetCharmerOrOwnerOrSelf(), 5.0f);
+                Trinity::UnitLastSearcher<Trinity::NearestAttackableUnitInObjectRangeCheck> checker(me, victim, u_check);
+                Cell::VisitAllObjects(me, checker, 5.0f);
+                if (victim)
+                {
+                    nearDelay += diff;
+                    if (nearDelay > 10000)
+                    {
+                        DoCastSelf(37752);
+                        me->RemoveAurasDueToSpell(38885);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        stand = true;
+                        attackDelay = 0;
+                        _events.ScheduleEvent(1, 5000, 8000);
+                        _events.ScheduleEvent(2, 3000, 5000);
+                    }
+                    return;
+                }
+                nearDelay = 0;
+                return;
+            }
+            attackDelay += diff;
+            if (attackDelay < 1000)
+            {
+                return;
+            }
+            if (!UpdateVictim())
+            {
+                Unit* victim = nullptr;
+                Trinity::NearestAttackableUnitInObjectRangeCheck u_check(me, me->GetCharmerOrOwnerOrSelf(), 10.0f);
+                Trinity::UnitLastSearcher<Trinity::NearestAttackableUnitInObjectRangeCheck> checker(me, victim, u_check);
+                Cell::VisitAllObjects(me, checker, 10.0f);
+                if (victim)
+                {
+                    AttackStart(victim);
+                }
+            }
+            if (!UpdateVictim())
+            {
+                return;
+            }
+            _events.Update(diff);
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+            {
+                return;
+            }
+            while (uint32 eventId = _events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                case 1:
+                {
+                    DoCastVictim(37840);
+                    if (Unit* victim = me->GetVictim())
+                    {
+                        if (!me->IsWithinMeleeRange(victim))
+                        {
+                            _events.Repeat(2500, 2600);
+                        }
+                        else
+                        {
+                            _events.Repeat(5000, 8000);
+                        }
+                    }
+                    break;
+                }
+                case 2:
+                {
+                    DoCastVictim(32738);
+                    _events.Repeat(20000, 30000);
+                    break;
+                }
+                default:
+                {
+                    break;
+                }
+                }
+            }
+
+            DoMeleeAttackIfReady();
         }
 
     private:
@@ -402,6 +860,9 @@ void AddSC_terokkar_forest()
 {
     new npc_unkor_the_ruthless();
     new npc_bone_crawler();
+    new npc_bone_sifter();
+    new npc_mature_bone_sifter();
+    new npc_haishulud();
     new npc_isla_starmane();
     RegisterSpellScript(spell_skyguard_flare);
 }
