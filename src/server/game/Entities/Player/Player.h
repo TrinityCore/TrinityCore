@@ -1103,6 +1103,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void GiveXP(uint32 xp, Unit* victim, float group_rate=1.0f);
         void GiveLevel(uint8 level);
+        bool IsMaxLevel() const;
 
         void InitStatsForLevel(bool reapplyMods = false);
 

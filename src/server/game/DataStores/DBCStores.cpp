@@ -883,18 +883,18 @@ uint32 DBCManager::GetMaxLevelForExpansion(uint32 expansion)
 {
     switch (expansion)
     {
-        case CONTENT_1_60:
+        case EXPANSION_CLASSIC:
             return 60;
-        case CONTENT_61_70:
+        case EXPANSION_THE_BURNING_CRUSADE:
             return 70;
-        case CONTENT_71_80:
+        case EXPANSION_WRATH_OF_THE_LICH_KING:
             return 80;
-        case CONTENT_81_85:
+        case EXPANSION_CATACLYSM:
             return 85;
         default:
             break;
     }
-    return 0;
+    return DEFAULT_MAX_LEVEL;
 }
 
 /*
