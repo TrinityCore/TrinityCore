@@ -858,6 +858,9 @@ enum HotfixDatabaseStatements : uint32
     MAX_HOTFIXDATABASE_STATEMENTS
 };
 
+uint32 constexpr HOTFIX_MAX_ID_STMT_OFFSET = 1;
+uint32 constexpr HOTFIX_LOCALE_STMT_OFFSET = 2;
+
 class TC_DATABASE_API HotfixDatabaseConnection : public MySQLConnection
 {
 public:
