@@ -4384,6 +4384,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->MaxAffectedTargets = 1;
     });
 
+    // Phased Burn
+    ApplySpellFix({ 85799 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 1;
+    });
+
     // ENDOF BASTION OF TWILIGHT
 
     //
