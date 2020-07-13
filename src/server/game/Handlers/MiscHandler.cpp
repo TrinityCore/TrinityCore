@@ -1058,7 +1058,7 @@ void WorldSession::HandleGuildSetFocusedAchievement(WorldPackets::Achievement::G
 void WorldSession::HandleServerTimeOffsetRequest(WorldPackets::Misc::ServerTimeOffsetRequest& /*request*/)
 {
     WorldPackets::Misc::ServerTimeOffset response;
-    response.Time = GameTime::GetGameTimeSystemPoint();
+    response.Time = GameTime::GetSystemTime();
     SendPacket(response.Write());
 }
 

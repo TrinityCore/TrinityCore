@@ -205,7 +205,7 @@ namespace WorldPackets
     public:
         Timestamp() = default;
         Timestamp(time_t value) : _value(value) { }
-        Timestamp(std::chrono::system_clock::time_point const& systemTime) : _value(std::chrono::system_clock::to_time_t(systemTime)) { }
+        Timestamp(SystemTimePoint const& systemTime) : _value(std::chrono::system_clock::to_time_t(systemTime)) { }
 
         Timestamp& operator=(time_t value)
         {
@@ -213,7 +213,7 @@ namespace WorldPackets
             return *this;
         }
 
-        Timestamp& operator=(std::chrono::system_clock::time_point const& systemTime)
+        Timestamp& operator=(SystemTimePoint const& systemTime)
         {
             _value = std::chrono::system_clock::to_time_t(systemTime);
             return *this;

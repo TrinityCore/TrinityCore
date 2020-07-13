@@ -182,7 +182,7 @@ void WorldSession::HandleAuctionGetCommodityQuote(WorldPackets::AuctionHouse::Au
     {
         commodityQuoteResult.TotalPrice = quote->TotalPrice;
         commodityQuoteResult.Quantity = quote->Quantity;
-        commodityQuoteResult.QuoteDuration = std::chrono::duration_cast<Milliseconds>(quote->ValidTo - GameTime::GetGameTimeSteadyPoint());
+        commodityQuoteResult.QuoteDuration = std::chrono::duration_cast<Milliseconds>(quote->ValidTo - GameTime::Now());
     }
 
     commodityQuoteResult.ItemID = getCommodityQuote.ItemID;
@@ -695,7 +695,7 @@ void WorldSession::HandleAuctionSellCommodity(WorldPackets::AuctionHouse::Auctio
     auction.OwnerAccount = GetAccountGUID();
     auction.BuyoutOrUnitPrice = sellCommodity.UnitPrice;
     auction.Deposit = deposit;
-    auction.StartTime = GameTime::GetGameTimeSystemPoint();
+    auction.StartTime = GameTime::GetSystemTime();
     auction.EndTime = auction.StartTime + auctionTime;
 
     // keep track of what was cloned to undo/modify counts later
@@ -890,7 +890,7 @@ void WorldSession::HandleAuctionSellItem(WorldPackets::AuctionHouse::AuctionSell
     auction.BuyoutOrUnitPrice = sellItem.BuyoutPrice;
     auction.Deposit = deposit;
     auction.BidAmount = sellItem.MinBid;
-    auction.StartTime = GameTime::GetGameTimeSystemPoint();
+    auction.StartTime = GameTime::GetSystemTime();
     auction.EndTime = auction.StartTime + auctionTime;
 
     if (HasPermission(rbac::RBAC_PERM_LOG_GM_TRADE))
