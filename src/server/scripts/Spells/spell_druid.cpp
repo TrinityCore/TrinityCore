@@ -228,7 +228,7 @@ class spell_dru_eclipse : public AuraScript
         if (!spellInfo || !(spellInfo->SpellFamilyFlags[0] & 4)) // Starfire
             return false;
 
-        return _solarProcCooldownEnd <= GameTime::GetGameTimeSteadyPoint();
+        return _solarProcCooldownEnd <= GameTime::Now();
     }
 
     bool CheckLunar(AuraEffect const*  /*aurEff*/, ProcEventInfo& eventInfo)
@@ -241,14 +241,14 @@ class spell_dru_eclipse : public AuraScript
         if (!roll_chance_i(60))
             return false;
 
-        return _lunarProcCooldownEnd <= GameTime::GetGameTimeSteadyPoint();
+        return _lunarProcCooldownEnd <= GameTime::Now();
     }
 
     void ProcSolar(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
 
-        _solarProcCooldownEnd = GameTime::GetGameTimeSteadyPoint() + Seconds(30);
+        _solarProcCooldownEnd = GameTime::Now() + 30s;
         eventInfo.GetActor()->CastSpell(eventInfo.GetActor(), SPELL_DRUID_ECLIPSE_SOLAR_PROC, aurEff);
     }
 
@@ -256,7 +256,7 @@ class spell_dru_eclipse : public AuraScript
     {
         PreventDefaultAction();
 
-        _lunarProcCooldownEnd = GameTime::GetGameTimeSteadyPoint() + Seconds(30);
+        _lunarProcCooldownEnd = GameTime::Now() + 30s;
         eventInfo.GetActor()->CastSpell(eventInfo.GetActor(), SPELL_DRUID_ECLIPSE_LUNAR_PROC, aurEff);
     }
 
@@ -271,8 +271,8 @@ class spell_dru_eclipse : public AuraScript
         OnEffectProc += AuraEffectProcFn(spell_dru_eclipse::ProcLunar, EFFECT_1, SPELL_AURA_DUMMY);
     }
 
-    std::chrono::steady_clock::time_point _lunarProcCooldownEnd = std::chrono::steady_clock::time_point::min();
-    std::chrono::steady_clock::time_point _solarProcCooldownEnd = std::chrono::steady_clock::time_point::min();
+    TimePoint _lunarProcCooldownEnd = std::chrono::steady_clock::time_point::min();
+    TimePoint _solarProcCooldownEnd = std::chrono::steady_clock::time_point::min();
 };
 
 // 5229 - Enrage
