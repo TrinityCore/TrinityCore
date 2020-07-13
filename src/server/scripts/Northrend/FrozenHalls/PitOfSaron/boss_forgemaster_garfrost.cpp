@@ -135,7 +135,7 @@ class boss_garfrost : public CreatureScript
                 {
                     events.SetPhase(PHASE_TWO);
                     Talk(SAY_PHASE2);
-                    events.DelayEvents(8000);
+                    events.DelayEvents(8s);
                     DoCast(me, SPELL_THUNDERING_STOMP);
                     events.ScheduleEvent(EVENT_FORGE_JUMP, 1500ms);
                     return;
@@ -145,7 +145,7 @@ class boss_garfrost : public CreatureScript
                 {
                     events.SetPhase(PHASE_THREE);
                     Talk(SAY_PHASE3);
-                    events.DelayEvents(8000);
+                    events.DelayEvents(8s);
                     DoCast(me, SPELL_THUNDERING_STOMP);
                     events.ScheduleEvent(EVENT_FORGE_JUMP, 1500ms);
                     return;
@@ -209,7 +209,7 @@ class boss_garfrost : public CreatureScript
                                 Talk(SAY_THROW_SARONITE, target);
                                 DoCast(target, SPELL_THROW_SARONITE);
                             }
-                            events.ScheduleEvent(EVENT_THROW_SARONITE, urand(12500, 20000));
+                            events.ScheduleEvent(EVENT_THROW_SARONITE, 12500ms, 20s);
                             break;
                         case EVENT_CHILLING_WAVE:
                             DoCast(me, SPELL_CHILLING_WAVE);
