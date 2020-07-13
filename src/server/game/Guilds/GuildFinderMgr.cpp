@@ -98,8 +98,7 @@ void GuildFinderMgr::LoadGuildSettings()
             if (raceEntry->BaseLanguage == 1)
                 guildTeam = TEAM_HORDE;
 
-        LFGuildSettings settings(listed, guildTeam, guildId, classRoles, availability, interests, level, comment);
-        _guildSettings[guildId] = settings;
+        _guildSettings[guildId] = LFGuildSettings(listed, guildTeam, guildId, classRoles, availability, interests, level, comment);
 
         ++count;
     } while (result->NextRow());
