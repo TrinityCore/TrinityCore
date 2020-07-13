@@ -83,8 +83,6 @@ class instance_throne_of_the_four_winds : public InstanceMapScript
                 {
 
                     case BOSS_ALAKIR:
-                        creature->setActive(true);
-                        creature->SetFarVisible(true);
                         if (GetBossState(DATA_CONCLAVE_OF_WIND) != DONE)
                             creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                         break;
@@ -118,8 +116,6 @@ class instance_throne_of_the_four_winds : public InstanceMapScript
                     case BOSS_ANSHAL:
                     case BOSS_NEZIR:
                     case BOSS_ROHASH:
-                        creature->setActive(true);
-                        creature->SetFarVisible(true);
                         break;
                     default:
                         break;
@@ -129,9 +125,6 @@ class instance_throne_of_the_four_winds : public InstanceMapScript
             void OnGameObjectCreate(GameObject* go) override
             {
                 InstanceScript::OnGameObjectCreate(go);
-
-                go->setActive(true);
-                go->SetFarVisible(true);
 
                 switch (go->GetEntry())
                 {
