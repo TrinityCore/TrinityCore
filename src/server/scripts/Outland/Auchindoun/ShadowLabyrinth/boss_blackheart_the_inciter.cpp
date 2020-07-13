@@ -84,7 +84,7 @@ struct boss_blackheart_the_inciter : public BossAI
         BossAI::JustEngagedWith(who);
         events.ScheduleEvent(EVENT_INCITE_CHAOS, 20s);
         events.ScheduleEvent(EVENT_CHARGE_ATTACK, 5s);
-        events.ScheduleEvent(EVENT_WAR_STOMP, 15000);
+        events.ScheduleEvent(EVENT_WAR_STOMP, 15s);
 
         Talk(SAY_AGGRO);
     }
