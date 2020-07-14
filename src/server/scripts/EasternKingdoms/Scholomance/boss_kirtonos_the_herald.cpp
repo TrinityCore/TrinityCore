@@ -126,7 +126,7 @@ class boss_kirtonos_the_herald : public CreatureScript
 
             void IsSummonedBy(WorldObject* /*summoner*/) override
             {
-                events.ScheduleEvent(INTRO_1, 500);
+                events.ScheduleEvent(INTRO_1, 500ms);
                 me->SetDisableGravity(true);
                 me->SetReactState(REACT_PASSIVE);
                 me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
@@ -141,7 +141,7 @@ class boss_kirtonos_the_herald : public CreatureScript
             void MovementInform(uint32 type, uint32 id) override
             {
                 if (type == WAYPOINT_MOTION_TYPE && id == POINT_KIRTONOS_LAND)
-                    events.ScheduleEvent(INTRO_2, 1500);
+                    events.ScheduleEvent(INTRO_2, 1500ms);
             }
 
             void UpdateAI(uint32 diff) override
@@ -159,13 +159,13 @@ class boss_kirtonos_the_herald : public CreatureScript
                                 break;
                             case INTRO_2:
                                 me->GetMotionMaster()->MovePoint(0, PosMove[0]);
-                                events.ScheduleEvent(INTRO_3, 1000);
+                                events.ScheduleEvent(INTRO_3, 1s);
                                 break;
                             case INTRO_3:
                                 if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_GATE_KIRTONOS)))
                                     gate->SetGoState(GO_STATE_READY);
                                 me->SetFacingTo(0.01745329f);
-                                events.ScheduleEvent(INTRO_4, 3000);
+                                events.ScheduleEvent(INTRO_4, 3s);
                                 break;
                             case INTRO_4:
                                 if (GameObject* brazier = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_BRAZIER_OF_THE_HERALD)))
@@ -174,14 +174,14 @@ class boss_kirtonos_the_herald : public CreatureScript
                                 me->SetDisableGravity(false);
                                 DoCast(me, SPELL_KIRTONOS_TRANSFORM);
                                 me->SetCanFly(false);
-                                events.ScheduleEvent(INTRO_5, 1000);
+                                events.ScheduleEvent(INTRO_5, 1s);
                                 break;
                             case INTRO_5:
                                 me->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
                                 me->SetVirtualItem(0, uint32(WEAPON_KIRTONOS_STAFF));
                                 me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
                                 me->SetReactState(REACT_AGGRESSIVE);
-                                events.ScheduleEvent(INTRO_6, 5000);
+                                events.ScheduleEvent(INTRO_6, 5s);
                                 break;
                             case INTRO_6:
                                 me->GetMotionMaster()->MovePoint(0, PosMove[1]);

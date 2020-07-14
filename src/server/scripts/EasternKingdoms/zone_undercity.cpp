@@ -126,7 +126,7 @@ public:
             DoPlaySoundToSet(me, SOUND_AGGRO);
             _events.ScheduleEvent(EVENT_FADE, 30s);
             _events.ScheduleEvent(EVENT_SUMMON_SKELETON, 20s);
-            _events.ScheduleEvent(EVENT_BLACK_ARROW, 15000);
+            _events.ScheduleEvent(EVENT_BLACK_ARROW, 15s);
             _events.ScheduleEvent(EVENT_SHOOT, 8s);
             _events.ScheduleEvent(EVENT_MULTI_SHOT, 10s);
         }

@@ -257,7 +257,7 @@ class instance_stratholme : public InstanceMapScript
                                 if (EncounterState[0] == IN_PROGRESS || EncounterState[0] == FAIL)
                                     break;
                                 EncounterState[0] = data;
-                                events.ScheduleEvent(EVENT_BARON_RUN, 2700000);
+                                events.ScheduleEvent(EVENT_BARON_RUN, 45min);
                                 TC_LOG_DEBUG("scripts", "Instance Stratholme: Baron run in progress.");
                                 break;
                             case FAIL:

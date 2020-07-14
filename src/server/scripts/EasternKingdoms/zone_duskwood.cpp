@@ -74,7 +74,7 @@ public:
         void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(YELL_TWILIGHT_CORRUPTOR_AGGRO);
-            _events.ScheduleEvent(EVENT_SOUL_CORRUPTION, 15000);
+            _events.ScheduleEvent(EVENT_SOUL_CORRUPTION, 15s);
             _events.ScheduleEvent(EVENT_CREATURE_OF_NIGHTMARE, 30s);
         }
 
@@ -114,7 +114,7 @@ public:
                     case EVENT_CREATURE_OF_NIGHTMARE:
                         if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                             DoCast(target, SPELL_CREATURE_OF_NIGHTMARE);
-                        _events.ScheduleEvent(EVENT_CREATURE_OF_NIGHTMARE, 45000);
+                        _events.ScheduleEvent(EVENT_CREATURE_OF_NIGHTMARE, 45s);
                         break;
                     default:
                         break;
