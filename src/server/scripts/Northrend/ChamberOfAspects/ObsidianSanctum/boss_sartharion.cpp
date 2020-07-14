@@ -178,7 +178,7 @@ public:
             events.ScheduleEvent(EVENT_FLAME_TSUNAMI, 30s);
             events.ScheduleEvent(EVENT_CALL_TENEBRON, 30s);
             events.ScheduleEvent(EVENT_CALL_SHADRON, 75s);
-            events.ScheduleEvent(EVENT_CALL_VESPERON, 120000);
+            events.ScheduleEvent(EVENT_CALL_VESPERON, 120s);
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -462,7 +462,10 @@ public:
                             if (urand(0, 5) == 0)
                                 Talk(SAY_SARTHARION_SPECIAL);
                         }
-                        events.ScheduleEvent(EVENT_LAVA_STRIKE, (_isSoftEnraged ? urand(1400, 2000) : urand(5000, 20000)));
+                        if (_isSoftEnraged)
+                            events.ScheduleEvent(EVENT_LAVA_STRIKE, 1400ms, 2s);
+                        else
+                            events.ScheduleEvent(EVENT_LAVA_STRIKE, 5s, 20s);
                         break;
                     case EVENT_CALL_TENEBRON:
                         CallDragon(DATA_TENEBRON);

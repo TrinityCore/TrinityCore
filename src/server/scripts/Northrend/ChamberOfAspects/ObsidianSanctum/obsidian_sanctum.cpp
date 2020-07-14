@@ -386,12 +386,12 @@ struct dummy_dragonAI : public ScriptedAI
             case EVENT_SHADOW_FISSURE:
                 if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                     DoCast(target, SPELL_SHADOW_FISSURE);
-                events.ScheduleEvent(eventId, urand(15000, 20000));
+                events.ScheduleEvent(eventId, 15s, 20s);
                 break;
             case EVENT_SHADOW_BREATH:
                 Talk(SAY_BREATH);
                 DoCastVictim(SPELL_SHADOW_BREATH);
-                events.ScheduleEvent(eventId, urand(20000, 25000));
+                events.ScheduleEvent(eventId, 20s, 25s);
                 break;
             default:
                 break;
