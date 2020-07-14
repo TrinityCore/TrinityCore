@@ -70,7 +70,7 @@ class boss_gatewatcher_gyrokill : public CreatureScript
                 BossAI::JustEngagedWith(who);
                 events.ScheduleEvent(EVENT_STREAM_OF_MACHINE_FLUID, 10s);
                 events.ScheduleEvent(EVENT_SAW_BLADE, 20s);
-                events.ScheduleEvent(EVENT_SHADOW_POWER, 25000);
+                events.ScheduleEvent(EVENT_SHADOW_POWER, 25s);
                 Talk(SAY_AGGRO);
             }
 

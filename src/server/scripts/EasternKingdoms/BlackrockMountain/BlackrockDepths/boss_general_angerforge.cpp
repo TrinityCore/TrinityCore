@@ -68,8 +68,8 @@ class boss_general_angerforge : public CreatureScript
                 if (me->HealthBelowPctDamaged(20, damage) && _events.IsInPhase(PHASE_ONE))
                 {
                     _events.SetPhase(PHASE_TWO);
-                    _events.ScheduleEvent(EVENT_MEDIC, 0, 0, PHASE_TWO);
-                    _events.ScheduleEvent(EVENT_ADDS, 0, 0, PHASE_TWO);
+                    _events.ScheduleEvent(EVENT_MEDIC, 0s, 0, PHASE_TWO);
+                    _events.ScheduleEvent(EVENT_ADDS, 0s, 0, PHASE_TWO);
                 }
             }
 

@@ -492,7 +492,7 @@ class TC_GAME_API Spell
         void SendChannelStart(uint32 duration);
         void SendResurrectRequest(Player* target);
 
-        void HandleEffects(Unit* pUnitTarget, Item* pItemTarget, GameObject* pGOTarget, uint32 i, SpellEffectHandleMode mode);
+        void HandleEffects(Unit* pUnitTarget, Item* pItemTarget, GameObject* pGoTarget, Corpse* pCorpseTarget, uint32 i, SpellEffectHandleMode mode);
         void HandleThreatSpells();
 
         SpellInfo const* const m_spellInfo;
@@ -618,6 +618,7 @@ class TC_GAME_API Spell
         Unit* unitTarget;
         Item* itemTarget;
         GameObject* gameObjTarget;
+        Corpse* corpseTarget;
         WorldLocation* destTarget;
         int32 damage;
         SpellMissInfo targetMissInfo;
@@ -709,6 +710,15 @@ class TC_GAME_API Spell
         };
         std::vector<ItemTargetInfo> m_UniqueItemInfo;
 
+        struct CorpseTargetInfo : public TargetInfoBase
+        {
+            void DoTargetSpellHit(Spell* spell, uint8 effIndex) override;
+
+            ObjectGuid TargetGUID;
+            uint64 TimeDelay = 0ULL;
+        };
+        std::vector<CorpseTargetInfo> m_UniqueCorpseTargetInfo;
+
         template <class Container>
         void DoProcessTargetContainer(Container& targetContainer);
 
@@ -717,6 +727,7 @@ class TC_GAME_API Spell
         void AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid = true, bool implicit = true, Position const* losPosition = nullptr);
         void AddGOTarget(GameObject* target, uint32 effectMask);
         void AddItemTarget(Item* item, uint32 effectMask);
+        void AddCorpseTarget(Corpse* target, uint32 effectMask);
         void AddDestTarget(SpellDestination const& dest, uint32 effIndex);
 
         SpellMissInfo PreprocessSpellHit(Unit* unit, bool scaleAura, TargetInfo& targetInfo);

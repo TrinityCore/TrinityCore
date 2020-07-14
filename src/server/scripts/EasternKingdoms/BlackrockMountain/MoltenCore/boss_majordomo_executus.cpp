@@ -114,7 +114,7 @@ class boss_majordomo : public CreatureScript
                         EnterEvadeMode();
                         Talk(SAY_DEFEAT);
                         _JustDied();
-                        events.ScheduleEvent(EVENT_OUTRO_1, 32000);
+                        events.ScheduleEvent(EVENT_OUTRO_1, 32s);
                         return;
                     }
 
@@ -186,8 +186,8 @@ class boss_majordomo : public CreatureScript
                 {
                     me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     Talk(SAY_SUMMON_MAJ);
-                    events.ScheduleEvent(EVENT_OUTRO_2, 8000);
-                    events.ScheduleEvent(EVENT_OUTRO_3, 24000);
+                    events.ScheduleEvent(EVENT_OUTRO_2, 8s);
+                    events.ScheduleEvent(EVENT_OUTRO_3, 24s);
                 }
                 else if (action == ACTION_START_RAGNAROS_ALT)
                 {

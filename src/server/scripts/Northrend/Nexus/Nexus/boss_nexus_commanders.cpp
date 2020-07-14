@@ -74,7 +74,7 @@ class boss_nexus_commanders : public CreatureScript
                         break;
                     case EVENT_WHIRLWIND:
                         DoCast(me, SPELL_WHIRLWIND);
-                        events.ScheduleEvent(EVENT_WHIRLWIND, urand(19500, 25000));
+                        events.ScheduleEvent(EVENT_WHIRLWIND, 19500ms, 25s);
                         break;
                     case EVENT_FRIGHTENING_SHOUT:
                         DoCastAOE(SPELL_FRIGHTENING_SHOUT);

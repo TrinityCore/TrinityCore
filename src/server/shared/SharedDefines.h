@@ -18,6 +18,7 @@
 #ifndef TRINITY_SHAREDDEFINES_H
 #define TRINITY_SHAREDDEFINES_H
 
+#include "DBCEnums.h"
 #include "Define.h"
 #include "DetourNavMesh.h"
 #include "SmartEnum.h"
@@ -67,7 +68,7 @@ inline uint32 GetMaxLevelForExpansion(uint32 expansion)
         default:
             break;
     }
-    return 0;
+    return DEFAULT_MAX_LEVEL;
 }
 
 enum Gender
@@ -3212,7 +3213,7 @@ enum ChatLinkColors : uint32
     CHAT_LINK_COLOR_GLYPH       = 0xff66bbff
 };
 
-// Values from ItemPetFood (power of (value-1) used for compare with CreatureFamilyEntry.petDietMask
+// Values from ItemPetFood (power of (value-1) used for compare with CreatureFamilyEntry.PetFoodMask
 enum PetDiet
 {
     PET_DIET_MEAT     = 1,

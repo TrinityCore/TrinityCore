@@ -521,9 +521,6 @@ void SmartAI::InitializeAI()
     _despawnTime = 0;
     _despawnState = 0;
     _escortState = SMART_ESCORT_NONE;
-
-    me->SetVisible(true);
-
     _followGUID.Clear(); // do not reset follower on Reset(), we need it after combat evade
     _followDistance = 0;
     _followAngle = 0;
@@ -1126,10 +1123,10 @@ class SmartTrigger : public AreaTriggerScript
             if (!player->IsAlive())
                 return false;
 
-            TC_LOG_DEBUG("scripts.ai", "AreaTrigger %u is using SmartTrigger script", trigger->id);
+            TC_LOG_DEBUG("scripts.ai", "AreaTrigger %u is using SmartTrigger script", trigger->ID);
             SmartScript script;
             script.OnInitialize(player, trigger);
-            script.ProcessEventsFor(SMART_EVENT_AREATRIGGER_ONTRIGGER, player, trigger->id);
+            script.ProcessEventsFor(SMART_EVENT_AREATRIGGER_ONTRIGGER, player, trigger->ID);
             return true;
         }
 };

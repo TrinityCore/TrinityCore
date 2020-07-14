@@ -49,7 +49,7 @@
 
 bool BattlegroundTemplate::IsArena() const
 {
-    return BattlemasterEntry->type == MAP_ARENA;
+    return BattlemasterEntry->InstanceType == MAP_ARENA;
 }
 
 /*********************************************************/
@@ -499,8 +499,8 @@ bool BattlegroundMgr::CreateBattleground(BattlegroundTemplate const* bgTemplate)
         AddBattleground(bg);
     }
 
-    bg->SetMapId(bgTemplate->BattlemasterEntry->mapid[0]);
-    bg->SetName(bgTemplate->BattlemasterEntry->name[sWorld->GetDefaultDbcLocale()]);
+    bg->SetMapId(bgTemplate->BattlemasterEntry->MapID[0]);
+    bg->SetName(bgTemplate->BattlemasterEntry->Name[sWorld->GetDefaultDbcLocale()]);
     bg->SetArenaorBGType(bgTemplate->IsArena());
     bg->SetMinPlayersPerTeam(bgTemplate->MinPlayersPerTeam);
     bg->SetMaxPlayersPerTeam(bgTemplate->MaxPlayersPerTeam);
@@ -580,7 +580,7 @@ void BattlegroundMgr::LoadBattlegroundTemplates()
             uint32 startId = fields[5].GetUInt32();
             if (WorldSafeLocsEntry const* start = sWorldSafeLocsStore.LookupEntry(startId))
             {
-                bgTemplate.StartLocation[TEAM_ALLIANCE].Relocate(start->x, start->y, start->z, fields[6].GetFloat());
+                bgTemplate.StartLocation[TEAM_ALLIANCE].Relocate(start->Loc.X, start->Loc.Y, start->Loc.Z, fields[6].GetFloat());
             }
             else
             {
@@ -591,7 +591,7 @@ void BattlegroundMgr::LoadBattlegroundTemplates()
             startId = fields[7].GetUInt32();
             if (WorldSafeLocsEntry const* start = sWorldSafeLocsStore.LookupEntry(startId))
             {
-                bgTemplate.StartLocation[TEAM_HORDE].Relocate(start->x, start->y, start->z, fields[8].GetFloat());
+                bgTemplate.StartLocation[TEAM_HORDE].Relocate(start->Loc.X, start->Loc.Y, start->Loc.Z, fields[8].GetFloat());
             }
             else
             {
@@ -605,8 +605,8 @@ void BattlegroundMgr::LoadBattlegroundTemplates()
 
         _battlegroundTemplates[bgTypeId] = bgTemplate;
 
-        if (bgTemplate.BattlemasterEntry->mapid[1] == -1) // in this case we have only one mapId
-            _battlegroundMapTemplates[bgTemplate.BattlemasterEntry->mapid[0]] = &_battlegroundTemplates[bgTypeId];
+        if (bgTemplate.BattlemasterEntry->MapID[1] == -1) // in this case we have only one mapId
+            _battlegroundMapTemplates[bgTemplate.BattlemasterEntry->MapID[0]] = &_battlegroundTemplates[bgTypeId];
 
         ++count;
     }
@@ -828,12 +828,17 @@ void BattlegroundMgr::ToggleArenaTesting()
     sWorld->SendWorldText(m_ArenaTesting ? LANG_DEBUG_ARENA_ON : LANG_DEBUG_ARENA_OFF);
 }
 
-void BattlegroundMgr::SetHolidayWeekends(uint32 mask)
+void BattlegroundMgr::ResetHolidays()
 {
-    // The current code supports battlegrounds up to BattlegroundTypeId(31)
-    for (uint32 bgtype = 1; bgtype < MAX_BATTLEGROUND_TYPE_ID && bgtype < 32; ++bgtype)
-        if (Battleground* bg = GetBattlegroundTemplate(BattlegroundTypeId(bgtype)))
-            bg->SetHoliday((mask & (1 << bgtype)) != 0);
+    for (uint32 i = BATTLEGROUND_AV; i < MAX_BATTLEGROUND_TYPE_ID; i++)
+        if (Battleground* bg = GetBattlegroundTemplate(BattlegroundTypeId(i)))
+            bg->SetHoliday(false);
+}
+
+void BattlegroundMgr::SetHolidayActive(uint32 battlegroundId)
+{
+    if (Battleground* bg = GetBattlegroundTemplate(BattlegroundTypeId(battlegroundId)))
+        bg->SetHoliday(true);
 }
 
 void BattlegroundMgr::ScheduleQueueUpdate(uint32 arenaMatchmakerRating, uint8 arenaType, BattlegroundQueueTypeId bgQueueTypeId, BattlegroundTypeId bgTypeId, BattlegroundBracketId bracket_id)
@@ -968,7 +973,7 @@ BattlegroundTypeId BattlegroundMgr::GetRandomBG(BattlegroundTypeId bgTypeId)
         ids.reserve(16);
         std::vector<double> weights;
         weights.reserve(16);
-        for (int32 mapId : bgTemplate->BattlemasterEntry->mapid)
+        for (int32 mapId : bgTemplate->BattlemasterEntry->MapID)
         {
             if (mapId == -1)
                 break;

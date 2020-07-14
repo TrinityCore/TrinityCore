@@ -244,7 +244,7 @@ class npc_wg_spirit_guide : public CreatureScript
                     for (uint8 i = 0; i < gy.size(); i++)
                         if (action - GOSSIP_ACTION_INFO_DEF == i && gy[i]->GetControlTeamId() == player->GetTeamId())
                             if (WorldSafeLocsEntry const* safeLoc = sWorldSafeLocsStore.LookupEntry(gy[i]->GetGraveyardId()))
-                                player->TeleportTo(safeLoc->map_id, safeLoc->x, safeLoc->y, safeLoc->z, 0);
+                                player->TeleportTo(safeLoc->Continent, safeLoc->Loc.X, safeLoc->Loc.Y, safeLoc->Loc.Z, 0);
                 }
                 return true;
             }
@@ -480,7 +480,7 @@ class achievement_wg_didnt_stand_a_chance : public AchievementCriteriaScript
                     return false;
 
                 if (Vehicle* vehicle = source->GetVehicle())
-                    if (vehicle->GetVehicleInfo()->m_ID == 244) // Wintergrasp Tower Cannon
+                    if (vehicle->GetVehicleInfo()->ID == 244) // Wintergrasp Tower Cannon
                         return true;
             }
 

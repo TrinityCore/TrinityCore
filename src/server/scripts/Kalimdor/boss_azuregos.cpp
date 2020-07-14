@@ -105,7 +105,7 @@ class boss_azuregos : public CreatureScript
                         case EVENT_MANA_STORM:
                             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 60.0f, true))
                                 DoCast(target, SPELL_MANA_STORM);
-                            events.ScheduleEvent(EVENT_MANA_STORM, urand(7500, 12500));
+                            events.ScheduleEvent(EVENT_MANA_STORM, 7500ms, 12500ms);
                             break;
                         case EVENT_CHILL:
                             DoCastVictim(SPELL_CHILL);

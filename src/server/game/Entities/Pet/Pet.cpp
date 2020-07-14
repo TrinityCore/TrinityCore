@@ -1077,7 +1077,7 @@ bool Pet::HaveInDiet(ItemTemplate const* item) const
     if (!cFamily)
         return false;
 
-    uint32 diet = cFamily->petFoodMask;
+    uint32 diet = cFamily->PetFoodMask;
     uint32 FoodMask = 1 << (item->FoodType-1);
     return (diet & FoodMask) != 0;
 }
@@ -1384,7 +1384,7 @@ bool Pet::addSpell(uint32 spellId, ActiveStates active /*= ACT_DECIDE*/, PetSpel
             for (uint8 i = 0; i < MAX_TALENT_RANK; ++i)
             {
                 // skip learning spell and no rank spell case
-                uint32 rankSpellId = talentInfo->RankID[i];
+                uint32 rankSpellId = talentInfo->SpellRank[i];
                 if (!rankSpellId || rankSpellId == spellId)
                     continue;
 
@@ -1605,7 +1605,7 @@ bool Pet::resetTalents()
         return false;
     // Check pet talent type
     CreatureFamilyEntry const* pet_family = sCreatureFamilyStore.LookupEntry(ci->family);
-    if (!pet_family || pet_family->petTalentType < 0)
+    if (!pet_family || pet_family->PetTalentType < 0)
         return false;
 
     uint8 level = GetLevel();
@@ -1624,13 +1624,13 @@ bool Pet::resetTalents()
         if (!talentInfo)
             continue;
 
-        TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TalentTab);
+        TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TabID);
 
         if (!talentTabInfo)
             continue;
 
         // unlearn only talents for pets family talent type
-        if (!((1 << pet_family->petTalentType) & talentTabInfo->petTalentMask))
+        if (!((1 << pet_family->PetTalentType) & talentTabInfo->CategoryEnumID))
             continue;
 
         for (uint8 j = 0; j < MAX_TALENT_RANK; ++j)
@@ -1646,7 +1646,7 @@ bool Pet::resetTalents()
                 uint32 itrFirstId = sSpellMgr->GetFirstSpellInChain(itr->first);
 
                 // unlearn if first rank is talent or learned by talent
-                if (itrFirstId == talentInfo->RankID[j] || sSpellMgr->IsSpellLearnToSpell(talentInfo->RankID[j], itrFirstId))
+                if (itrFirstId == talentInfo->SpellRank[j] || sSpellMgr->IsSpellLearnToSpell(talentInfo->SpellRank[j], itrFirstId))
                 {
                     unlearnSpell(itr->first, false);
                     itr = m_spells.begin();
@@ -1964,15 +1964,15 @@ Player* Pet::GetOwner() const
 float Pet::GetNativeObjectScale() const
 {
     CreatureFamilyEntry const* creatureFamily = sCreatureFamilyStore.LookupEntry(GetCreatureTemplate()->family);
-    if (creatureFamily && creatureFamily->minScale > 0.0f && getPetType() == HUNTER_PET)
+    if (creatureFamily && creatureFamily->MinScale > 0.0f && getPetType() == HUNTER_PET)
     {
         float scale;
-        if (GetLevel() >= creatureFamily->maxScaleLevel)
-            scale = creatureFamily->maxScale;
-        else if (GetLevel() <= creatureFamily->minScaleLevel)
-            scale = creatureFamily->minScale;
+        if (GetLevel() >= creatureFamily->MaxScaleLevel)
+            scale = creatureFamily->MaxScale;
+        else if (GetLevel() <= creatureFamily->MinScaleLevel)
+            scale = creatureFamily->MinScale;
         else
-            scale = creatureFamily->minScale + float(GetLevel() - creatureFamily->minScaleLevel) / creatureFamily->maxScaleLevel * (creatureFamily->maxScale - creatureFamily->minScale);
+            scale = creatureFamily->MinScale + float(GetLevel() - creatureFamily->MinScaleLevel) / creatureFamily->MaxScaleLevel * (creatureFamily->MaxScale - creatureFamily->MinScale);
 
         return scale;
     }

@@ -210,7 +210,7 @@ class boss_marli : public CreatureScript
                             events.ScheduleEvent(EVENT_TRANSFORM, 45s, 0, PHASE_TWO);
                             events.ScheduleEvent(EVENT_POISON_VOLLEY, 15s);
                             events.ScheduleEvent(EVENT_HATCH_SPIDER_EGG, 12s, 17s);
-                            events.ScheduleEvent(EVENT_TRANSFORM, urand(35000, 60000), 0, PHASE_TWO);
+                            events.ScheduleEvent(EVENT_TRANSFORM, 35s, 60s, 0, PHASE_TWO);
                             events.SetPhase(PHASE_TWO);
                             break;
                         }

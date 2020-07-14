@@ -50,7 +50,7 @@ void AddItemsSetItem(Player* player, Item* item)
         return;
     }
 
-    if (set->required_skill_id && player->GetSkillValue(set->required_skill_id) < set->required_skill_value)
+    if (set->RequiredSkill && player->GetSkillValue(set->RequiredSkill) < set->RequiredSkillRank)
         return;
 
     ItemSetEffect* eff = nullptr;
@@ -84,15 +84,15 @@ void AddItemsSetItem(Player* player, Item* item)
 
     for (uint32 x = 0; x < MAX_ITEM_SET_SPELLS; ++x)
     {
-        if (!set->spells [x])
+        if (!set->SetSpellID[x])
             continue;
         //not enough for  spell
-        if (set->items_to_triggerspell[x] > eff->item_count)
+        if (set->SetThreshold[x] > eff->item_count)
             continue;
 
         uint32 z = 0;
         for (; z < MAX_ITEM_SET_SPELLS; ++z)
-            if (eff->spells[z] && eff->spells[z]->Id == set->spells[x])
+            if (eff->spells[z] && eff->spells[z]->Id == set->SetSpellID[x])
                 break;
 
         if (z < MAX_ITEM_SET_SPELLS)
@@ -103,10 +103,10 @@ void AddItemsSetItem(Player* player, Item* item)
         {
             if (!eff->spells[y])                             // free slot
             {
-                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(set->spells[x]);
+                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(set->SetSpellID[x]);
                 if (!spellInfo)
                 {
-                    TC_LOG_ERROR("entities.player.items", "WORLD: unknown spell id %u in items set %u effects", set->spells[x], setid);
+                    TC_LOG_ERROR("entities.player.items", "WORLD: unknown spell id %u in items set %u effects", set->SetSpellID[x], setid);
                     break;
                 }
 
@@ -150,16 +150,16 @@ void RemoveItemsSetItem(Player*player, ItemTemplate const* proto)
 
     for (uint32 x = 0; x < MAX_ITEM_SET_SPELLS; x++)
     {
-        if (!set->spells[x])
+        if (!set->SetSpellID[x])
             continue;
 
         // enough for spell
-        if (set->items_to_triggerspell[x] <= eff->item_count)
+        if (set->SetThreshold[x] <= eff->item_count)
             continue;
 
         for (uint32 z = 0; z < MAX_ITEM_SET_SPELLS; z++)
         {
-            if (eff->spells[z] && eff->spells[z]->Id == set->spells[x])
+            if (eff->spells[z] && eff->spells[z]->Id == set->SetSpellID[x])
             {
                 // spell can be not active if not fit form requirement
                 player->ApplyEquipSpell(eff->spells[z], nullptr, false);
@@ -591,7 +591,7 @@ void Item::SetItemRandomProperties(int32 randomPropId)
                 SetState(ITEM_CHANGED, GetOwner());
             }
             for (uint32 i = PROP_ENCHANTMENT_SLOT_2; i < PROP_ENCHANTMENT_SLOT_2 + 3; ++i)
-                SetEnchantment(EnchantmentSlot(i), item_rand->enchant_id[i - PROP_ENCHANTMENT_SLOT_2], 0, 0);
+                SetEnchantment(EnchantmentSlot(i), item_rand->Enchantment[i - PROP_ENCHANTMENT_SLOT_2], 0, 0);
         }
     }
     else
@@ -608,7 +608,7 @@ void Item::SetItemRandomProperties(int32 randomPropId)
             }
 
             for (uint32 i = PROP_ENCHANTMENT_SLOT_0; i < PROP_ENCHANTMENT_SLOT_0 + 3; ++i)
-                SetEnchantment(EnchantmentSlot(i), item_rand->enchant_id[i - PROP_ENCHANTMENT_SLOT_0], 0, 0);
+                SetEnchantment(EnchantmentSlot(i), item_rand->Enchantment[i - PROP_ENCHANTMENT_SLOT_0], 0, 0);
         }
     }
 }
@@ -735,7 +735,7 @@ bool Item::HasEnchantRequiredSkill(Player const* player) const
     for (uint32 enchant_slot = PERM_ENCHANTMENT_SLOT; enchant_slot < MAX_ENCHANTMENT_SLOT; ++enchant_slot)
         if (uint32 enchant_id = GetEnchantmentId(EnchantmentSlot(enchant_slot)))
             if (SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(enchant_id))
-                if (enchantEntry->requiredSkill && player->GetSkillValue(enchantEntry->requiredSkill) < enchantEntry->requiredSkillValue)
+                if (enchantEntry->RequiredSkillID && player->GetSkillValue(enchantEntry->RequiredSkillID) < enchantEntry->RequiredSkillRank)
                     return false;
 
     return true;
@@ -749,8 +749,8 @@ uint32 Item::GetEnchantRequiredLevel() const
     for (uint32 enchant_slot = PERM_ENCHANTMENT_SLOT; enchant_slot < MAX_ENCHANTMENT_SLOT; ++enchant_slot)
         if (uint32 enchant_id = GetEnchantmentId(EnchantmentSlot(enchant_slot)))
             if (SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(enchant_id))
-                if (enchantEntry->requiredLevel > level)
-                    level = enchantEntry->requiredLevel;
+                if (enchantEntry->MinLevel > level)
+                    level = enchantEntry->MinLevel;
 
     return level;
 }
@@ -761,7 +761,7 @@ bool Item::IsBoundByEnchant() const
     for (uint32 enchant_slot = PERM_ENCHANTMENT_SLOT; enchant_slot < MAX_ENCHANTMENT_SLOT; ++enchant_slot)
         if (uint32 enchant_id = GetEnchantmentId(EnchantmentSlot(enchant_slot)))
             if (SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(enchant_id))
-                if (enchantEntry->slot & ENCHANTMENT_CAN_SOULBOUND)
+                if (enchantEntry->Flags & ENCHANTMENT_CAN_SOULBOUND)
                     return true;
     return false;
 }
@@ -889,7 +889,7 @@ bool Item::GemsFitSockets() const
 
         uint8 GemColor = 0;
 
-        uint32 gemid = enchantEntry->GemID;
+        uint32 gemid = enchantEntry->SrcItemID;
         if (gemid)
         {
             ItemTemplate const* gemProto = sObjectMgr->GetItemTemplate(gemid);
@@ -897,7 +897,7 @@ bool Item::GemsFitSockets() const
             {
                 GemPropertiesEntry const* gemProperty = sGemPropertiesStore.LookupEntry(gemProto->GemProperties);
                 if (gemProperty)
-                    GemColor = gemProperty->color;
+                    GemColor = gemProperty->Type;
             }
         }
 
@@ -920,7 +920,7 @@ uint8 Item::GetGemCountWithID(uint32 GemID) const
         if (!enchantEntry)
             continue;
 
-        if (GemID == enchantEntry->GemID)
+        if (GemID == enchantEntry->SrcItemID)
             ++count;
     }
     return count;
@@ -939,7 +939,7 @@ uint8 Item::GetGemCountWithLimitCategory(uint32 limitCategory) const
         if (!enchantEntry)
             continue;
 
-        ItemTemplate const* gemProto = sObjectMgr->GetItemTemplate(enchantEntry->GemID);
+        ItemTemplate const* gemProto = sObjectMgr->GetItemTemplate(enchantEntry->SrcItemID);
         if (!gemProto)
             continue;
 

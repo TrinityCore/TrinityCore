@@ -192,9 +192,9 @@ public:
             return false;
         }
 
-        if (!MapManager::IsValidMapCoord(gy->map_id, gy->x, gy->y, gy->z))
+        if (!MapManager::IsValidMapCoord(gy->Continent, gy->Loc.X, gy->Loc.Y, gy->Loc.Z))
         {
-            handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, gy->x, gy->y, gy->map_id);
+            handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, gy->Loc.X, gy->Loc.Y, gy->Continent);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -206,7 +206,7 @@ public:
         else
             player->SaveRecallPosition(); // save only in non-flight case
 
-        player->TeleportTo(gy->map_id, gy->x, gy->y, gy->z, player->GetOrientation());
+        player->TeleportTo(gy->Continent, gy->Loc.X, gy->Loc.Y, gy->Loc.Z, player->GetOrientation());
         return true;
     }
 
@@ -249,7 +249,7 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
-        return DoTeleport(handler, { node->x, node->y, node->z }, node->map_id);
+        return DoTeleport(handler, { node->Pos.X, node->Pos.Y, node->Pos.Z }, node->ContinentID);
     }
 
     static bool HandleGoAreaTriggerCommand(ChatHandler* handler, Variant<Hyperlink<areatrigger>, uint32> areaTriggerId)
@@ -261,7 +261,7 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
-        return DoTeleport(handler, { at->x, at->y, at->z }, at->mapid);
+        return DoTeleport(handler, { at->Pos.X, at->Pos.Y, at->Pos.Z }, at->ContinentID);
     }
 
     //teleport at coordinates
@@ -300,23 +300,23 @@ public:
         }
 
         // update to parent zone if exist (client map show only zones without parents)
-        AreaTableEntry const* zoneEntry = areaEntry->zone ? sAreaTableStore.LookupEntry(areaEntry->zone) : areaEntry;
+        AreaTableEntry const* zoneEntry = areaEntry->ParentAreaID ? sAreaTableStore.LookupEntry(areaEntry->ParentAreaID) : areaEntry;
         ASSERT(zoneEntry);
 
-        Map const* map = sMapMgr->CreateBaseMap(zoneEntry->mapid);
+        Map const* map = sMapMgr->CreateBaseMap(zoneEntry->ContinentID);
 
         if (map->Instanceable())
         {
-            handler->PSendSysMessage(LANG_INVALID_ZONE_MAP, areaEntry->ID, areaEntry->area_name[handler->GetSessionDbcLocale()], map->GetId(), map->GetMapName());
+            handler->PSendSysMessage(LANG_INVALID_ZONE_MAP, areaEntry->ID, areaEntry->AreaName[handler->GetSessionDbcLocale()], map->GetId(), map->GetMapName());
             handler->SetSentErrorMessage(true);
             return false;
         }
 
         Zone2MapCoordinates(x, y, zoneEntry->ID);
 
-        if (!MapManager::IsValidMapCoord(zoneEntry->mapid, x, y))
+        if (!MapManager::IsValidMapCoord(zoneEntry->ContinentID, x, y))
         {
-            handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, x, y, zoneEntry->mapid);
+            handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, x, y, zoneEntry->ContinentID);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -329,7 +329,7 @@ public:
 
         float z = std::max(map->GetHeight(x, y, MAX_HEIGHT), map->GetWaterLevel(x, y));
 
-        player->TeleportTo(zoneEntry->mapid, x, y, z, player->GetOrientation());
+        player->TeleportTo(zoneEntry->ContinentID, x, y, z, player->GetOrientation());
         return true;
     }
 
@@ -402,7 +402,7 @@ public:
         {
             uint32 count = 0;
             std::string const& scriptName = sObjectMgr->GetScriptName(pair.second.ScriptId);
-            char const* mapName = ASSERT_NOTNULL(sMapStore.LookupEntry(pair.first))->name[handler->GetSessionDbcLocale()];
+            char const* mapName = ASSERT_NOTNULL(sMapStore.LookupEntry(pair.first))->MapName[handler->GetSessionDbcLocale()];
             for (auto const& label : labels)
                 if (StringContainsStringI(scriptName, label))
                     ++count;
@@ -451,7 +451,7 @@ public:
             else
             {
                 uint32 const parentMapId = exit->target_mapId;
-                char const* const parentMapName = ASSERT_NOTNULL(sMapStore.LookupEntry(parentMapId))->name[handler->GetSessionDbcLocale()];
+                char const* const parentMapName = ASSERT_NOTNULL(sMapStore.LookupEntry(parentMapId))->MapName[handler->GetSessionDbcLocale()];
                 handler->PSendSysMessage(LANG_COMMAND_GO_INSTANCE_GATE_FAILED, mapName, mapId, parentMapName, parentMapId);
             }
         }
@@ -552,7 +552,7 @@ public:
             {
                 uint32 const mapId = spawn->mapId;
                 MapEntry const* const map = ASSERT_NOTNULL(sMapStore.LookupEntry(mapId));
-                handler->PSendSysMessage(LANG_COMMAND_BOSS_MULTIPLE_SPAWN_ETY, spawn->spawnId, mapId, map->name[handler->GetSessionDbcLocale()], spawn->spawnPoint.ToString().c_str());
+                handler->PSendSysMessage(LANG_COMMAND_BOSS_MULTIPLE_SPAWN_ETY, spawn->spawnId, mapId, map->MapName[handler->GetSessionDbcLocale()], spawn->spawnPoint.ToString().c_str());
             }
             handler->SetSentErrorMessage(true);
             return false;
@@ -568,7 +568,7 @@ public:
         uint32 const mapId = spawn->mapId;
         if (!player->TeleportTo({ mapId, spawn->spawnPoint }))
         {
-            char const* const mapName = ASSERT_NOTNULL(sMapStore.LookupEntry(mapId))->name[handler->GetSessionDbcLocale()];
+            char const* const mapName = ASSERT_NOTNULL(sMapStore.LookupEntry(mapId))->MapName[handler->GetSessionDbcLocale()];
             handler->PSendSysMessage(LANG_COMMAND_GO_BOSS_FAILED, spawn->spawnId, boss->Name.c_str(), boss->Entry, mapName);
             handler->SetSentErrorMessage(true);
             return false;

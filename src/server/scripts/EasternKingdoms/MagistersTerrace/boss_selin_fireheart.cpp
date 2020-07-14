@@ -227,16 +227,16 @@ class boss_selin_fireheart : public CreatureScript
                     if (events.IsInPhase(PHASE_NORMAL) && !_scheduledEvents)
                     {
                         _scheduledEvents = true;
-                        uint32 timer = urand(3000, 7000);
+                        Milliseconds timer = randtime(3s, 7s);
                         events.ScheduleEvent(EVENT_DRAIN_LIFE, timer, 0, PHASE_NORMAL);
 
                         if (IsHeroic())
                         {
-                            events.ScheduleEvent(EVENT_DRAIN_CRYSTAL, urand(10000, 15000), 0, PHASE_NORMAL);
-                            events.ScheduleEvent(EVENT_DRAIN_MANA, timer + 5000, 0, PHASE_NORMAL);
+                            events.ScheduleEvent(EVENT_DRAIN_CRYSTAL, 10s, 15s, 0, PHASE_NORMAL);
+                            events.ScheduleEvent(EVENT_DRAIN_MANA, timer + 5s, 0, PHASE_NORMAL);
                         }
                         else
-                            events.ScheduleEvent(EVENT_DRAIN_CRYSTAL, urand(20000, 25000), 0, PHASE_NORMAL);
+                            events.ScheduleEvent(EVENT_DRAIN_CRYSTAL, 20s, 25s, 0, PHASE_NORMAL);
                     }
                 }
 

@@ -746,7 +746,7 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket& recvData)
     {
         MailTemplateEntry const* mailTemplateEntry = sMailTemplateStore.LookupEntry(m->mailTemplateId);
         ASSERT(mailTemplateEntry);
-        bodyItem->SetText(mailTemplateEntry->content[GetSessionDbcLocale()]);
+        bodyItem->SetText(mailTemplateEntry->Body[GetSessionDbcLocale()]);
     }
     else
         bodyItem->SetText(m->body);

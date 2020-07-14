@@ -439,13 +439,13 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                         {
                             for (uint8 k = 0; k < MAX_ITEM_ENCHANTMENT_EFFECTS; ++k)
                             {
-                                if (SpellItemEnchantmentEntry const* pEnchant = sSpellItemEnchantmentStore.LookupEntry(item_rand_suffix->enchant_id[k]))
+                                if (SpellItemEnchantmentEntry const* pEnchant = sSpellItemEnchantmentStore.LookupEntry(item_rand_suffix->Enchantment[k]))
                                 {
                                     for (uint8 t = 0; t < MAX_ITEM_ENCHANTMENT_EFFECTS; ++t)
                                     {
-                                        if (pEnchant->spellid[t] == m_spellInfo->Id)
+                                        if (pEnchant->EffectArg[t] == m_spellInfo->Id)
                                         {
-                                            amount = uint32((item_rand_suffix->prefix[k] * castItem->GetItemSuffixFactor()) / 10000);
+                                            amount = uint32((item_rand_suffix->AllocationPct[k] * castItem->GetItemSuffixFactor()) / 10000);
                                             break;
                                         }
                                     }
@@ -1168,12 +1168,12 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
                 {
                     if (GlyphPropertiesEntry const* glyph = sGlyphPropertiesStore.LookupEntry(glyphId))
                     {
-                        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(glyph->SpellId);
+                        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(glyph->SpellID);
                         if (!spellInfo || !(spellInfo->HasAttribute(SPELL_ATTR0_PASSIVE) || spellInfo->HasAttribute(SPELL_ATTR0_HIDDEN_CLIENTSIDE)))
                             continue;
 
                         if (spellInfo->Stances & (UI64LIT(1) << (GetMiscValue() - 1)))
-                            target->CastSpell(target, glyph->SpellId, this);
+                            target->CastSpell(target, glyph->SpellID, this);
                     }
                 }
             }
@@ -1887,17 +1887,17 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
 
     if (target->GetTypeId() == TYPEID_PLAYER)
     {
-        SpellShapeshiftEntry const* shapeInfo = sSpellShapeshiftStore.LookupEntry(form);
+        SpellShapeshiftFormEntry const* shapeInfo = sSpellShapeshiftFormStore.LookupEntry(form);
         ASSERT(shapeInfo);
         // Learn spells for shapeshift form - no need to send action bars or add spells to spellbook
         for (uint8 i = 0; i<MAX_SHAPESHIFT_SPELLS; ++i)
         {
-            if (!shapeInfo->stanceSpell[i])
+            if (!shapeInfo->PresetSpellID[i])
                 continue;
             if (apply)
-                target->ToPlayer()->AddTemporarySpell(shapeInfo->stanceSpell[i]);
+                target->ToPlayer()->AddTemporarySpell(shapeInfo->PresetSpellID[i]);
             else
-                target->ToPlayer()->RemoveTemporarySpell(shapeInfo->stanceSpell[i]);
+                target->ToPlayer()->RemoveTemporarySpell(shapeInfo->PresetSpellID[i]);
         }
     }
 }
@@ -4973,7 +4973,7 @@ void AuraEffect::HandleAuraOverrideSpells(AuraApplication const* aurApp, uint8 m
         target->SetUInt16Value(PLAYER_FIELD_BYTES2, PLAYER_BYTES_2_OVERRIDE_SPELLS_UINT16_OFFSET, overrideId);
         if (OverrideSpellDataEntry const* overrideSpells = sOverrideSpellDataStore.LookupEntry(overrideId))
             for (uint8 i = 0; i < MAX_OVERRIDE_SPELL; ++i)
-                if (uint32 spellId = overrideSpells->spellId[i])
+                if (uint32 spellId = overrideSpells->Spells[i])
                     target->AddTemporarySpell(spellId);
     }
     else
@@ -4981,7 +4981,7 @@ void AuraEffect::HandleAuraOverrideSpells(AuraApplication const* aurApp, uint8 m
         target->SetUInt16Value(PLAYER_FIELD_BYTES2, PLAYER_BYTES_2_OVERRIDE_SPELLS_UINT16_OFFSET, 0);
         if (OverrideSpellDataEntry const* overrideSpells = sOverrideSpellDataStore.LookupEntry(overrideId))
             for (uint8 i = 0; i < MAX_OVERRIDE_SPELL; ++i)
-                if (uint32 spellId = overrideSpells->spellId[i])
+                if (uint32 spellId = overrideSpells->Spells[i])
                     target->RemoveTemporarySpell(spellId);
     }
 }

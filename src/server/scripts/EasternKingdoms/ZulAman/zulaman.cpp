@@ -349,37 +349,9 @@ class npc_harrison_jones : public CreatureScript
         }
 };
 
-class spell_banging_the_gong : public SpellScriptLoader
-{
-    public:
-        spell_banging_the_gong() : SpellScriptLoader("spell_banging_the_gong") { }
-
-        class spell_banging_the_gong_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_banging_the_gong_SpellScript);
-
-            void Activate(SpellEffIndex index)
-            {
-                PreventHitDefaultEffect(index);
-                GetHitGObj()->SendCustomAnim(0);
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_banging_the_gong_SpellScript::Activate, EFFECT_1, SPELL_EFFECT_ACTIVATE_OBJECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_banging_the_gong_SpellScript();
-        }
-};
-
 
 void AddSC_zulaman()
 {
     new npc_zulaman_hostage();
     new npc_harrison_jones();
-    new spell_banging_the_gong();
 }

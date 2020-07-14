@@ -38,7 +38,7 @@ UsableSeatNum(0), _me(unit), _vehicleInfo(vehInfo), _creatureEntry(creatureEntry
 {
     for (uint32 i = 0; i < MAX_VEHICLE_SEATS; ++i)
     {
-        if (uint32 seatId = _vehicleInfo->m_seatID[i])
+        if (uint32 seatId = _vehicleInfo->SeatID[i])
             if (VehicleSeatEntry const* veSeat = sVehicleSeatStore.LookupEntry(seatId))
             {
                 VehicleSeatAddon const* addon = sObjectMgr->GetVehicleSeatAddon(seatId);
@@ -193,11 +193,11 @@ void Vehicle::ApplyAllImmunities()
     // If vehicle flag for fixed position set (cannons), or if the following hardcoded units, then set state rooted
     //  30236 | Argent Cannon
     //  39759 | Tankbuster Cannon
-    if ((GetVehicleInfo()->m_flags & VEHICLE_FLAG_FIXED_POSITION) || GetBase()->GetEntry() == 30236 || GetBase()->GetEntry() == 39759)
+    if ((GetVehicleInfo()->Flags & VEHICLE_FLAG_FIXED_POSITION) || GetBase()->GetEntry() == 30236 || GetBase()->GetEntry() == 39759)
         _me->SetControlled(true, UNIT_STATE_ROOT);
 
     // Different immunities for vehicles goes below
-    switch (GetVehicleInfo()->m_ID)
+    switch (GetVehicleInfo()->ID)
     {
         // code below prevents a bug with movable cannons
         case 160: // Strand of the Ancients
@@ -434,7 +434,7 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
     }
 
     TC_LOG_DEBUG("entities.vehicle", "Unit %s scheduling enter vehicle (entry: %u, vehicleId: %u, guid: %s on seat %d",
-        unit->GetName().c_str(), _me->GetEntry(), _vehicleInfo->m_ID, _me->GetGUID().ToString().c_str(), (int32)seatId);
+        unit->GetName().c_str(), _me->GetEntry(), _vehicleInfo->ID, _me->GetGUID().ToString().c_str(), (int32)seatId);
 
     // The seat selection code may kick other passengers off the vehicle.
     // While the validity of the following may be arguable, it is possible that when such a passenger
@@ -503,18 +503,18 @@ Vehicle* Vehicle::RemovePassenger(Unit* unit)
     ASSERT(seat != Seats.end());
 
     TC_LOG_DEBUG("entities.vehicle", "Unit %s exit vehicle entry %u id %u guid %s seat %d",
-        unit->GetName().c_str(), _me->GetEntry(), _vehicleInfo->m_ID, _me->GetGUID().ToString().c_str(), (int32)seat->first);
+        unit->GetName().c_str(), _me->GetEntry(), _vehicleInfo->ID, _me->GetGUID().ToString().c_str(), (int32)seat->first);
 
     if (seat->second.SeatInfo->CanEnterOrExit() && ++UsableSeatNum)
         _me->SetFlag(UNIT_NPC_FLAGS, (_me->GetTypeId() == TYPEID_PLAYER ? UNIT_NPC_FLAG_PLAYER_VEHICLE : UNIT_NPC_FLAG_SPELLCLICK));
 
     // Remove UNIT_FLAG_NOT_SELECTABLE if passenger did not have it before entering vehicle
-    if (seat->second.SeatInfo->m_flags & VEHICLE_SEAT_FLAG_PASSENGER_NOT_SELECTABLE && !seat->second.Passenger.IsUnselectable)
+    if (seat->second.SeatInfo->Flags & VEHICLE_SEAT_FLAG_PASSENGER_NOT_SELECTABLE && !seat->second.Passenger.IsUnselectable)
         unit->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
     seat->second.Passenger.Reset();
 
-    if (_me->GetTypeId() == TYPEID_UNIT && unit->GetTypeId() == TYPEID_PLAYER && seat->second.SeatInfo->m_flags & VEHICLE_SEAT_FLAG_CAN_CONTROL)
+    if (_me->GetTypeId() == TYPEID_UNIT && unit->GetTypeId() == TYPEID_PLAYER && seat->second.SeatInfo->Flags & VEHICLE_SEAT_FLAG_CAN_CONTROL)
         _me->RemoveCharmedBy(unit);
 
     if (_me->IsInWorld())
@@ -616,7 +616,7 @@ bool Vehicle::IsControllableVehicle() const
 
 void Vehicle::InitMovementInfoForBase()
 {
-    uint32 vehicleFlags = GetVehicleInfo()->m_flags;
+    uint32 vehicleFlags = GetVehicleInfo()->Flags;
 
     if (vehicleFlags & VEHICLE_FLAG_NO_STRAFE)
         _me->AddExtraUnitMovementFlag(MOVEMENTFLAG2_NO_STRAFE);
@@ -858,9 +858,9 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
 
 
     float o = veSeatAddon ? veSeatAddon->SeatOrientationOffset : 0.f;
-    float x = veSeat->m_attachmentOffsetX;
-    float y = veSeat->m_attachmentOffsetY;
-    float z = veSeat->m_attachmentOffsetZ;
+    float x = veSeat->AttachmentOffset.X;
+    float y = veSeat->AttachmentOffset.Y;
+    float z = veSeat->AttachmentOffset.Z;
 
     Passenger->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
     Passenger->m_movementInfo.transport.pos.Relocate(x, y, z, o);
