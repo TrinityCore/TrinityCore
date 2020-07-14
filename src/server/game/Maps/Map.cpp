@@ -2759,7 +2759,7 @@ void Map::GetFullTerrainStatusForPosition(uint32 phaseMask, float x, float y, fl
     {
         if (wmoData->areaInfo)
         {
-            data.areaInfo = boost::in_place(wmoData->areaInfo->adtId, wmoData->areaInfo->rootId, wmoData->areaInfo->groupId, wmoData->areaInfo->mogpFlags);
+            data.areaInfo.emplace(wmoData->areaInfo->adtId, wmoData->areaInfo->rootId, wmoData->areaInfo->groupId, wmoData->areaInfo->mogpFlags);
             // wmo found
             WMOAreaTableEntry const* wmoEntry = GetWMOAreaTableEntryByTripple(wmoData->areaInfo->rootId, wmoData->areaInfo->adtId, wmoData->areaInfo->groupId);
             data.outdoors = (wmoData->areaInfo->mogpFlags & 0x8) != 0;
@@ -2820,7 +2820,7 @@ void Map::GetFullTerrainStatusForPosition(uint32 phaseMask, float x, float y, fl
             }
         }
 
-        data.liquidInfo = boost::in_place();
+        data.liquidInfo.emplace();
         data.liquidInfo->level = wmoData->liquidInfo->level;
         data.liquidInfo->depth_level = wmoData->floorZ;
         data.liquidInfo->entry = liquidType;
