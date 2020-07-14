@@ -51,17 +51,17 @@ float PortalLocation[4][4]=
 struct Wave
 {
     uint32 PortalBoss;                                      //protector of current portal
-    uint32 NextPortalTime;                                  //time to next portal, or 0 if portal boss need to be killed
+    Milliseconds NextPortalTime;                            //time to next portal, or 0 if portal boss need to be killed
 };
 
 static Wave RiftWaves[]=
 {
-    { RIFT_BOSS,                0 },
-    { NPC_CRONO_LORD_DEJA,      0 },
-    { RIFT_BOSS,           120000 },
-    { NPC_TEMPORUS,        140000 },
-    { RIFT_BOSS,           120000 },
-    { NPC_AEONUS,               0 }
+    { RIFT_BOSS,             0s },
+    { NPC_CRONO_LORD_DEJA,   0s },
+    { RIFT_BOSS,           120s },
+    { NPC_TEMPORUS,        140s },
+    { RIFT_BOSS,           120s },
+    { NPC_AEONUS,            0s }
 };
 
 enum EventIds
@@ -195,7 +195,7 @@ public:
                         TC_LOG_DEBUG("scripts", "Instance The Black Morass: Starting event.");
                         InitWorldState();
                         m_auiEncounter[1] = IN_PROGRESS;
-                        ScheduleEventNextPortal(15000);
+                        ScheduleEventNextPortal(15s);
                     }
 
                     if (data == DONE)
@@ -227,7 +227,7 @@ public:
                 if (data == SPECIAL)
                 {
                     if (mRiftPortalCount < 7)
-                        ScheduleEventNextPortal(5000);
+                        ScheduleEventNextPortal(5s);
                 }
                 else
                     m_auiEncounter[1] = data;
@@ -338,9 +338,9 @@ public:
             }
         }
 
-        void ScheduleEventNextPortal(uint32 nextPortalTime)
+        void ScheduleEventNextPortal(Milliseconds nextPortalTime)
         {
-            if (nextPortalTime > 0)
+            if (nextPortalTime > 0s)
                 Events.RescheduleEvent(EVENT_NEXT_PORTAL, nextPortalTime);
         }
 

@@ -164,7 +164,7 @@ public:
                         Talk(SAY_EVENT_START);
                         DoCastSelf(SPELL_IDOL_SHUTDOWN_VISUAL);
                         events.ScheduleEvent(EVENT_IDOL_ROOM_SPAWNER, 100ms);
-                        events.ScheduleEvent(EVENT_PROGRESS, 120000);
+                        events.ScheduleEvent(EVENT_PROGRESS, 120s);
                         break;
                     case EVENT_IDOL_ROOM_SPAWNER:
                         if (Creature* creature = me->SummonCreature(NPC_IDOL_ROOM_SPAWNER, PosSummonSpawner[urand(0,2)], TEMPSUMMON_TIMED_DESPAWN, 4000))

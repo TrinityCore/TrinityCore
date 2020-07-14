@@ -84,7 +84,7 @@ class boss_epoch : public CreatureScript
                     case EVENT_CURSE_OF_EXERTION:
                         if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                             DoCast(target, SPELL_CURSE_OF_EXERTION);
-                        events.ScheduleEvent(EVENT_CURSE_OF_EXERTION, 9300);
+                        events.ScheduleEvent(EVENT_CURSE_OF_EXERTION, 9300ms);
                         break;
                     case EVENT_TIME_WARP:
                         Talk(SAY_TIME_WARP);
