@@ -53,8 +53,8 @@ public:
         void JustEngagedWith(Unit* who) override
         {
             BossAI::JustEngagedWith(who);
-            events.ScheduleEvent(EVENT_FRENZY,      20000);
-            events.ScheduleEvent(EVENT_KNOCK_AWAY,  18000);
+            events.ScheduleEvent(EVENT_FRENZY, 20s);
+            events.ScheduleEvent(EVENT_KNOCK_AWAY, 18s);
         }
 
         void JustDied(Unit* /*killer*/) override
