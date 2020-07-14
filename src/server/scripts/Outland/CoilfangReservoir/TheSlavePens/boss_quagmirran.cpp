@@ -64,7 +64,7 @@ class boss_quagmirran : public CreatureScript
             void JustEngagedWith(Unit* who) override
             {
                 BossAI::JustEngagedWith(who);
-                events.ScheduleEvent(EVENT_ACID_SPRAY, 25000);
+                events.ScheduleEvent(EVENT_ACID_SPRAY, 25s);
                 events.ScheduleEvent(EVENT_CLEAVE, 9s);
                 events.ScheduleEvent(EVENT_UPPERCUT, 20s);
                 events.ScheduleEvent(EVENT_POISON_BOLT_VOLLEY, 31s);
