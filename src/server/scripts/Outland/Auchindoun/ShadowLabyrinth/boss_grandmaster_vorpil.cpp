@@ -143,7 +143,7 @@ class boss_grandmaster_vorpil : public CreatureScript
                 events.ScheduleEvent(EVENT_SHADOWBOLT_VOLLEY, 7s, 14s);
                 if (IsHeroic())
                     events.ScheduleEvent(EVENT_BANISH, 15s);
-                events.ScheduleEvent(EVENT_DRAW_SHADOWS, 45000);
+                events.ScheduleEvent(EVENT_DRAW_SHADOWS, 45s);
                 events.ScheduleEvent(EVENT_SUMMON_TRAVELER, 90s);
 
                 Talk(SAY_AGGRO);
