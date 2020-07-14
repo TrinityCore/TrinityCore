@@ -3,6 +3,8 @@
 #include "GameObject.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
+#include "SpellInfo.h"
+#include "SpellMgr.h"
 #include "TemporarySummon.h"
 #include "ScriptedCreature.h"
 #include "CreatureAIImpl.h"
@@ -43,7 +45,14 @@ enum Spells
     SPELL_REMEMBER_THERAMORE    = 100051,
     SPELL_KNOCKBACK             = 100052,
     SPELL_ARCANE_SHIELD         = 100048,
-    SPELL_FROST_CHANNELING      = 45846
+    SPELL_FROST_CHANNELING      = 45846,
+    SPELL_TELEPORT_STORMWIND    = 100057,
+
+    SPELL_SHOT                  = 100086,
+    SPELL_MULTI_SHOT            = 100088,
+    SPELL_SILENCING_SHOT        = 100086,
+    SPELL_SCATTER_SHOT          = 100087,
+    SPELL_ARCANE_SHOT           = 100089
 };
 
 enum Misc
@@ -51,6 +60,7 @@ enum Misc
     // Quests
     QUEST_JAINAS_RESOLUTION     = 80015,
     QUEST_NOWHERE_TO_HIDE       = 80016,
+    QUEST_WHAT_HAD_TO_BE_DONE   = 80019,
 
     // GoB
     GOB_ICE_WALL                = 500012,
@@ -160,9 +170,20 @@ class npc_displaced_sunreaver : public CreatureScript
         void DamageTaken(Unit* attacker, uint32& /*damage*/) override
         {
             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
-
             me->SetReactState(REACT_AGGRESSIVE);
-            me->Attack(attacker, true);
+        }
+
+        void AttackStart(Unit* who) override
+        {
+            if (!who)
+                return;
+
+            if (me->Attack(who, false))
+            {
+                AddThreat(who, 50.0f);
+                DoStartMovement(who, 20.0f);
+                SetCombatMovement(true);
+            }
         }
 
         void JustEngagedWith(Unit* who) override
@@ -172,7 +193,7 @@ class npc_displaced_sunreaver : public CreatureScript
 
             CallAssistance(who, 20.f);
 
-            events.ScheduleEvent(CASTING_FIREBALL, 2s);
+            events.ScheduleEvent(CASTING_FIREBALL, 5ms, 1s);
             events.ScheduleEvent(CASTING_FIREBLAST, 5s);
         }
 
@@ -221,13 +242,14 @@ class npc_displaced_sunreaver : public CreatureScript
                     switch (eventId)
                     {
                         case CASTING_FIREBLAST:
+                            me->InterruptNonMeleeSpells(true);
                             DoCastVictim(SPELL_FIREBLAST_MINOR);
                             events.RescheduleEvent(CASTING_FIREBLAST, 3s, 10s);
                             break;
 
                         case CASTING_FIREBALL:
                             DoCastVictim(SPELL_FIREBALL_MINOR);
-                            events.RescheduleEvent(CASTING_FIREBALL, 5s, 8s);
+                            events.RescheduleEvent(CASTING_FIREBALL, 2s);
                             break;
 
                         default:
@@ -237,8 +259,6 @@ class npc_displaced_sunreaver : public CreatureScript
                     if (me->HasUnitState(UNIT_STATE_CASTING))
                         return;
                 }
-
-                DoMeleeAttackIfReady();
             }
         }
 
@@ -259,11 +279,18 @@ class npc_displaced_sunreaver : public CreatureScript
                     if (assist->IsEngaged())
                         continue;
 
-                    assist->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
-                    assist->SetReactState(REACT_AGGRESSIVE);
-                    assist->GetMotionMaster()->Clear();
-                    assist->GetMotionMaster()->MoveChase(who, 10.f);
-                    assist->Attack(who, true);
+                    if (assist->Attack(who, false))
+                    {
+                        DoStartMovement(who, 20.0f);
+                        SetCombatMovement(true);
+
+                        assist->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
+                        assist->SetReactState(REACT_AGGRESSIVE);
+                        assist->GetMotionMaster()->Clear();
+                        assist->GetMotionMaster()->MoveChase(who, 10.f);
+
+                        AddThreat(who, 1000000.f, me);
+                    }
                 }
             }
         }
@@ -463,6 +490,7 @@ class dalaran_aethas_event : public CreatureScript
                                 aethas = temp;
                                 temp->SetWalk(true);
                                 temp->GetMotionMaster()->MovePoint(0, destinationAethas1);
+                                temp->SetSheath(SHEATH_STATE_UNARMED);
                                 break;
 
                             case NPC_SUNREAVER_GUARDIAN:
@@ -490,17 +518,12 @@ class dalaran_aethas_event : public CreatureScript
                 switch (eventId)
                 {
                     case EVENT_ELEMENTAL:
-                    {
                         if (currentVictim && currentVictim->IsAlive())
                             currentVictim->KillSelf();
-
                         KillVictimWithElemental(victimIndex++);
-
                         if (victimIndex < 4)
                             events.RescheduleEvent(EVENT_ELEMENTAL, 3s);
-
                         break;
-                    }
 
                     case EVENT_AETHAS_1:
                         jaina->AI()->Talk(SAY_JAINA_1);
@@ -535,16 +558,22 @@ class dalaran_aethas_event : public CreatureScript
                         break;
 
                     case EVENT_AETHAS_7:
+                    {
+                        aethas->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                        aethas->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STUN);
+
+                        CastSpellExtraArgs args;
+                        args.SetTriggerFlags(TRIGGERED_CAST_DIRECTLY);
+                        elemental->CastSpell(aethas, SPELL_ICE_PRISON, args);
+
                         jaina->GetMotionMaster()->MoveCloserAndStop(0, aethas, 3.f);
-                        events.ScheduleEvent(EVENT_AETHAS_8, 3s);
+                        events.ScheduleEvent(EVENT_AETHAS_8, 5s);
                         break;
+                    }
 
                     case EVENT_AETHAS_8:
                         jaina->AI()->Talk(SAY_JAINA_7);
-                        aethas->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                        aethas->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STUN);
-                        elemental->CastSpell(aethas, SPELL_ICE_PRISON);
-                        events.ScheduleEvent(EVENT_AETHAS_9, 6s);
+                        events.ScheduleEvent(EVENT_AETHAS_9, 4s);
                         break;
 
                     case EVENT_AETHAS_9:
@@ -552,14 +581,14 @@ class dalaran_aethas_event : public CreatureScript
                         aethas->CastSpell(aethas, SPELL_POWER_BALL_VISUAL);
                         jaina->DespawnOrUnsummon(2s);
                         aethas->DespawnOrUnsummon(2s);
-                        elemental->KillSelf();
                         events.ScheduleEvent(EVENT_AETHAS_10, 3s);
                         break;
 
                     case EVENT_AETHAS_10:
                         player->CompleteQuest(QUEST_JAINAS_RESOLUTION);
                         player->SetPhaseMask(1, true);
-                        elemental->DespawnOrUnsummon();
+                        elemental->KillSelf();
+                        elemental->DespawnOrUnsummon(2s);
                         me->setActive(false);
                         break;
 
@@ -583,6 +612,7 @@ class dalaran_aethas_event : public CreatureScript
         void KillVictimWithElemental(uint8 index)
         {
             CastSpellExtraArgs args;
+            args.SetTriggerFlags(TRIGGERED_CAST_DIRECTLY);
             args.SetTriggerFlags(TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD);
             args.SetTriggerFlags(TRIGGERED_IGNORE_GCD);
             args.AddSpellBP0(9999999);
@@ -733,10 +763,7 @@ class npc_arcanist_uovril : public CreatureScript
             Initialize();
         }
 
-        void Initialize()
-        {
-
-        }
+        void Initialize() { }
 
         void Reset() override
         {
@@ -919,7 +946,18 @@ public:
 
     struct npc_vereesa_windrunnerAI : public ScriptedAI
     {
-        npc_vereesa_windrunnerAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_vereesa_windrunnerAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            scheduler.SetValidator([this]
+            {
+                return !me->HasUnitState(UNIT_STATE_CASTING);
+            });
+        }
 
         void QuestAccept(Player* player, Quest const* quest) override
         {
@@ -931,12 +969,92 @@ public:
                     player->SummonPet(100071, pos.GetPositionX(), pos.GetPositionY(), player->GetPositionZ(), PET_FOLLOW_ANGLE, SUMMON_PET, 0U, true);
                     break;
                 }
+
+                case QUEST_WHAT_HAD_TO_BE_DONE:
+                    me->SummonGameObject(500015, 5787.86f, 774.21f, 661.27f, 0.11f, QuaternionData::QuaternionData(), 0);
+                    break;
             }
+        }
+
+        void AttackStart(Unit* who) override
+        {
+            if (!who)
+                return;
+
+            if (me->Attack(who, false))
+            {
+                AddThreat(who, 50.0f);
+                DoStartMovement(who, 20.0f);
+                SetCombatMovement(true);
+            }
+        }
+
+        void JustEngagedWith(Unit* /*who*/) override
+        {
+            scheduler
+                .Schedule(5ms, [this](TaskContext shot)
+                {
+                    DoCast(SPELL_SHOT);
+                    shot.Repeat(1s);
+                })
+                .Schedule(3s, [this](TaskContext multi_shot)
+                {
+                    me->InterruptNonMeleeSpells(true);
+                    DoCastAOE(SPELL_MULTI_SHOT);
+                    multi_shot.Repeat(8s, 24s);
+                })
+                .Schedule(8s, [this](TaskContext arcane_shot)
+                {
+                    me->InterruptNonMeleeSpells(true);
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                        DoCast(target, SPELL_ARCANE_SHOT);
+                    arcane_shot.Repeat(4s, 12s);
+                })
+                .Schedule(12s, [this](TaskContext scatter_shot)
+                {
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                    {
+                        if (target->HasAura(SPELL_SCATTER_SHOT))
+                        {
+                            scatter_shot.Repeat(1s);
+                        }
+                        else
+                        {
+                            me->InterruptNonMeleeSpells(true);
+                            DoCast(target, SPELL_SCATTER_SHOT);
+                            scatter_shot.Repeat(14s, 32s);
+                        }
+                    }
+                    else
+                    {
+                        scatter_shot.Repeat(1s);
+                    }
+                })
+                .Schedule(5ms, [this](TaskContext silencing_shot)
+                {
+                    if (Unit* target = DoSelectCastingUnit(SPELL_SILENCING_SHOT, 35.f))
+                    {
+                        me->InterruptNonMeleeSpells(true);
+                        DoCast(target, SPELL_SILENCING_SHOT);
+                        silencing_shot.Repeat(25s, 40s);
+                    }
+                    else
+                    {
+                        silencing_shot.Repeat(1s);
+                    }
+                });
+        }
+
+        void JustDied(Unit* /*killer*/) override
+        {
+            scheduler.CancelAll();
         }
 
         void Reset() override
         {
+            Initialize();
 
+            scheduler.CancelAll();
         }
 
         void UpdateAI(uint32 diff) override
@@ -944,8 +1062,11 @@ public:
             if (!UpdateVictim())
                 return;
 
-            DoMeleeAttackIfReady();
+            scheduler.Update();
         }
+
+        private:
+        TaskScheduler scheduler;
     };
 
     CreatureAI* GetAI(Creature* creature) const override

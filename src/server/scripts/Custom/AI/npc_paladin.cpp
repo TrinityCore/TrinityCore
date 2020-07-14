@@ -67,10 +67,12 @@ class npc_paladin : public CreatureScript
                 });
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
         {
-            if (!healOnCooldown && HealthBelowPct(20))
+            if (!healOnCooldown && HealthBelowPct(30))
             {
+                damage = 0;
+
                 scheduler.DelayGroup(GROUP_FIGHT, 5s);
 
                 DoCastSelf(SPELL_DIVINE_SHIELD);

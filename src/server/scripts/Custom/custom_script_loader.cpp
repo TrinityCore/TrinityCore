@@ -32,6 +32,7 @@ void AddSC_dalaran_jaina_purge();
 void AddSC_npcs_sunreaver();
 void AddSC_action_update_phase();
 void AddSC_jaina_affray_isle();
+void AddSC_stormwind_final_event();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
@@ -53,4 +54,5 @@ void AddCustomScripts()
     AddSC_npcs_sunreaver();
     AddSC_action_update_phase();
     AddSC_jaina_affray_isle();
+    AddSC_stormwind_final_event();
 }

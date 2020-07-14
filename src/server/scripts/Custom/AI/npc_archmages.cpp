@@ -326,8 +326,20 @@ class npc_archmage_frost : public CreatureScript
 
         void DamageTaken(Unit* /*attacker*/, uint32& damage) override
         {
+            // Que pour la bataille de Theramore
+            if (me->GetMapId() == 726)
+            {
+                if (damage >= me->GetMaxHealth())
+                    damage = 0;
+
+                if (HealthBelowPct(20))
+                    damage = 0;
+            }
+
             if (!me->HasAura(SPELL_HYPOTHERMIA) && HealthBelowPct(30))
             {
+                damage = 0;
+
                 me->InterruptNonMeleeSpells(false);
 
                 DoCastSelf(SPELL_HYPOTHERMIA);
@@ -342,16 +354,6 @@ class npc_archmage_frost : public CreatureScript
                     {
                         DoCast(SPELL_BLINK);
                     });
-            }
-
-            // Que pour la bataille de Theramore
-            if (me->GetMapId() == 726)
-            {
-                if (damage >= me->GetMaxHealth())
-                    damage = 0;
-
-                if (HealthBelowPct(20))
-                    damage = 0;
             }
         }
     };

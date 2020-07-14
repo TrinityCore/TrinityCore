@@ -44,7 +44,27 @@ public:
         }
     }
 
+    //void OnSave(Player* player) override
+    //{
+    //    SavePhaseToDatabase(player);
+    //}
+
     void OnLogout(Player* player) override
+    {
+        SavePhaseToDatabase(player);
+    }
+
+    //void OnUpdateZone(Player* player, uint32 /*newZone*/, uint32 /*newArea*/) override
+    //{
+    //    SavePhaseToDatabase(player);
+    //}
+
+    //void OnMapChanged(Player* player) override
+    //{
+    //    SavePhaseToDatabase(player);
+    //}
+
+    void SavePhaseToDatabase(Player* player)
     {
         ObjectGuid::LowType lowGuid = player->GetGUID().GetCounter();
 
