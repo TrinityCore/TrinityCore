@@ -87,6 +87,9 @@ class instance_blackrock_caverns : public InstanceMapScript
                         if (Creature* karsh = GetCreature(DATA_KARSH_STEELBENDER))
                             karsh->AI()->JustSummoned(creature);
                         break;
+                    case NPC_TWILIGHT_PORTAL:
+                        creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK); // Set spellclick flag manually because the seats are flagged as unusable due to their flags
+                        break;
                     default:
                         break;
                 }

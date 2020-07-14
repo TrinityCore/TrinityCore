@@ -41,9 +41,14 @@ ObjectData const creatureData[] =
     { BOSS_SLABHIDE,                DATA_SLABHIDE               },
     { BOSS_OZRUK,                   DATA_OZRUK,                 },
     { BOSS_HIGH_PRIESTESS_AZIL,     DATA_HIGH_PRIESTESS_AZIL    },
-    { NPC_STONECORE_TELEPORTER,     DATA_STONECORE_TELEPORTER   },
+    { NPC_STONECORE_TELEPORTER_1,   DATA_STONECORE_TELEPORTER_1 },
     { NPC_STONECORE_TELEPORTER_2,   DATA_STONECORE_TELEPORTER_2 },
     { 0,                            0                           } // END
+};
+
+enum Spells
+{
+    SPELL_TELEPORTER_ACTIVE_VISUAL = 95298
 };
 
 class instance_stonecore : public InstanceMapScript
@@ -111,10 +116,13 @@ class instance_stonecore : public InstanceMapScript
             {
                 switch (creature->GetEntry())
                 {
-                    case NPC_STONECORE_TELEPORTER:
+                    case NPC_STONECORE_TELEPORTER_1:
                     case NPC_STONECORE_TELEPORTER_2:
                         if (GetBossState(DATA_SLABHIDE) == DONE)
-                            ActivateTeleporter(creature);
+                        {
+                            creature->CastSpell(creature, SPELL_TELEPORTER_ACTIVE_VISUAL);
+                            creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                        }
                         break;
                     case BOSS_CORBORUS:
                     case BOSS_SLABHIDE:
@@ -162,8 +170,17 @@ class instance_stonecore : public InstanceMapScript
                         // Activate teleporters
                         if (state == DONE)
                         {
-                            ActivateTeleporter(GetCreature(DATA_STONECORE_TELEPORTER));
-                            ActivateTeleporter(GetCreature(DATA_STONECORE_TELEPORTER_2));
+                            if (Creature* teleporter1 = GetCreature(DATA_STONECORE_TELEPORTER_1))
+                            {
+                                teleporter1->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                                teleporter1->CastSpell(teleporter1, SPELL_TELEPORTER_ACTIVE_VISUAL);
+                            }
+
+                            if (Creature* teleporter2 = GetCreature(DATA_STONECORE_TELEPORTER_2))
+                            {
+                                teleporter2->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                                teleporter2->CastSpell(teleporter2, SPELL_TELEPORTER_ACTIVE_VISUAL);
+                            }
                         }
 
                         if (state == FAIL)
@@ -278,15 +295,6 @@ class instance_stonecore : public InstanceMapScript
                 for (ObjectGuid guid : _millhouseLastGroupGUIDs)
                     if (Creature* creature = instance->GetCreature(guid))
                         creature->DespawnOrUnsummon(Seconds(3));
-            }
-
-            void ActivateTeleporter(Creature* teleporter)
-            {
-                if (!teleporter)
-                    return;
-
-                teleporter->CastSpell(teleporter, SPELL_TELEPORTER_ACTIVE_VISUAL, true);
-                teleporter->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
             }
 
             EventMap _events;

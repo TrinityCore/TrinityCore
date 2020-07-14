@@ -49,7 +49,9 @@ enum TotTDataTypes
     DATA_NEPTULON                           = 15,
     DATA_OZUMAT_VEHICLE                     = 16,
     DATA_LADY_NAZJAR_GEYSERS                = 17,
-    DATA_OZUMAT_PASSENGER                   = 18
+    DATA_OZUMAT_PASSENGER                   = 18,
+    DATA_THRONE_OF_THE_TIDES_TELEPORTER_1   = 19,
+    DATA_THRONE_OF_THE_TIDES_TELEPORTER_2   = 20
 };
 
 enum TotTCreatureIds
@@ -97,7 +99,9 @@ enum TotTCreatureIds
     NPC_GEYSER_DUMMY                        = 48983,
     NPC_GILGOBLIN_HUNTER                    = 40935,
     NPC_FACELESS_WATCHER                    = 40936,
-    NPC_GILGOBLIN_AQUAMAGE                  = 40943
+    NPC_GILGOBLIN_AQUAMAGE                  = 40943,
+    NPC_THRONE_OF_THE_TIDES_TELEPORTER_1    = 51391, // Entrance
+    NPC_THRONE_OF_THE_TIDES_TELEPORTER_2    = 51395  // Neptulon's Rise
 };
 
 enum TotTGameObjectIds

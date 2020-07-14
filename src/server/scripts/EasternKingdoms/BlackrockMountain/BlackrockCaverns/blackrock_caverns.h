@@ -72,8 +72,10 @@ enum BRCCreatureIds
     /*Ascendant Lord Obsidius*/
     NPC_SHADOW_OF_OBSIDIUS              = 40817,
 
+    // Generic Creatures
     NPC_TWILIGHT_FLAME_CALLER           = 39708,
-    NPC_RAZ_THE_CRAZED                  = 39670
+    NPC_RAZ_THE_CRAZED                  = 39670,
+    NPC_TWILIGHT_PORTAL                 = 51340
 };
 
 enum BRCActions

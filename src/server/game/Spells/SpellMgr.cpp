@@ -4195,13 +4195,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     //
     // STONECORE SPELLS
     //
-    ApplySpellFix({
-        95284, // Teleport (from entrance to Slabhide)
-        95285  // Teleport (from Slabhide to entrance)
-    }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].TargetB = SpellImplicitTargetInfo(TARGET_DEST_DB);
-    });
 
     // Paralyze
     ApplySpellFix({ 92426 }, [](SpellInfo* spellInfo)
@@ -4832,6 +4825,15 @@ void SpellMgr::LoadSpellInfoCorrections()
     {
         spellInfo->ChannelInterruptFlags = 0;
         spellInfo->AuraInterruptFlags &= ~AURA_INTERRUPT_FLAG_TURNING;
+    });
+
+    // Twilight Portal
+    ApplySpellFix({
+        95210,
+        95012
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].AuraPeriod = 1250;
     });
 
     // ENDOF BLACKROCK CAVERNS SPELLS

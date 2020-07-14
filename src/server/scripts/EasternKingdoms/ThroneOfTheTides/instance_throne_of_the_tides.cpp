@@ -30,16 +30,18 @@
 
 ObjectData const creatureData[] =
 {
-    { BOSS_LADY_NAZJAR,         DATA_LADY_NAZJAR            },
-    { BOSS_COMMANDER_ULTHOK,    DATA_COMMANDER_ULTHOK       },
-    { BOSS_MINDBENDER_GURSHA,   DATA_MINDBENDER_GURSHA      },
-    { BOSS_OZUMAT,              DATA_OZUMAT                 },
-    { NPC_LADY_NAZJAR,          DATA_LADY_NAZJAR_GAUNTLET   },
-    { NPC_OZUMAT_VEHICLE_BIG,   DATA_OZUMAT_VEHICLE_BIG     },
-    { NPC_OZUMAT_VEHICLE,       DATA_OZUMAT_VEHICLE         },
-    { NPC_NEPTULON,             DATA_NEPTULON               },
-    { NPC_OZUMAT,               DATA_OZUMAT_PASSENGER       },
-    { 0,                        0                           } // END
+    { BOSS_LADY_NAZJAR,                     DATA_LADY_NAZJAR                        },
+    { BOSS_COMMANDER_ULTHOK,                DATA_COMMANDER_ULTHOK                   },
+    { BOSS_MINDBENDER_GURSHA,               DATA_MINDBENDER_GURSHA                  },
+    { BOSS_OZUMAT,                          DATA_OZUMAT                             },
+    { NPC_LADY_NAZJAR,                      DATA_LADY_NAZJAR_GAUNTLET               },
+    { NPC_OZUMAT_VEHICLE_BIG,               DATA_OZUMAT_VEHICLE_BIG                 },
+    { NPC_OZUMAT_VEHICLE,                   DATA_OZUMAT_VEHICLE                     },
+    { NPC_NEPTULON,                         DATA_NEPTULON                           },
+    { NPC_OZUMAT,                           DATA_OZUMAT_PASSENGER                   },
+    { NPC_THRONE_OF_THE_TIDES_TELEPORTER_1, DATA_THRONE_OF_THE_TIDES_TELEPORTER_1   },
+    { NPC_THRONE_OF_THE_TIDES_TELEPORTER_2, DATA_THRONE_OF_THE_TIDES_TELEPORTER_2   },
+    { 0,                                    0                                       } // END
 };
 
 ObjectData const gameobjectData[] =
@@ -173,6 +175,11 @@ class GeyserActivationEvent : public BasicEvent
         Creature* _owner;
 };
 
+enum Spells
+{
+    SPELL_TELEPORTER_ACTIVE_VISUAL = 95296
+};
+
 class instance_throne_of_the_tides : public InstanceMapScript
 {
     public:
@@ -198,8 +205,23 @@ class instance_throne_of_the_tides : public InstanceMapScript
                 {
                     case DATA_LADY_NAZJAR:
                         if (state == DONE)
+                        {
                             if (GameObject* defenseSystem = GetGameObject(DATA_THRONE_OF_THE_TIDES_DEFENSE_SYSTEM))
                                 defenseSystem->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+
+                            if (Creature* teleporter1 = GetCreature(DATA_THRONE_OF_THE_TIDES_TELEPORTER_1))
+                            {
+                                teleporter1->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                                teleporter1->CastSpell(teleporter1, SPELL_TELEPORTER_ACTIVE_VISUAL);
+                            }
+
+                            if (Creature* teleporter2 = GetCreature(DATA_THRONE_OF_THE_TIDES_TELEPORTER_2))
+                            {
+                                teleporter2->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                                teleporter2->CastSpell(teleporter2, SPELL_TELEPORTER_ACTIVE_VISUAL);
+                            }
+
+                        }
                         break;
                     case DATA_COMMANDER_ULTHOK:
                         if (state == FAIL)
@@ -263,6 +285,14 @@ class instance_throne_of_the_tides : public InstanceMapScript
                     case NPC_BLIGHT_OF_OZUMAT_2:
                         if (Creature* neptulon = GetCreature(DATA_NEPTULON))
                             neptulon->AI()->JustSummoned(creature);
+                        break;
+                    case NPC_THRONE_OF_THE_TIDES_TELEPORTER_1:
+                    case NPC_THRONE_OF_THE_TIDES_TELEPORTER_2:
+                        if (GetBossState(DATA_LADY_NAZJAR == DONE))
+                        {
+                            creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                            creature->CastSpell(creature, SPELL_TELEPORTER_ACTIVE_VISUAL);
+                        }
                         break;
                     default:
                         break;

@@ -42,7 +42,7 @@ enum SCDataTypes
     DATA_EVENT_PROGRESS,
 
     // Teleporters
-    DATA_STONECORE_TELEPORTER,
+    DATA_STONECORE_TELEPORTER_1,
     DATA_STONECORE_TELEPORTER_2,
 };
 
@@ -72,7 +72,11 @@ enum SCCreatureIds
 
     // High Priestess Azil
     NPC_DEVOUT_FOLLOWER             = 42428,
-    NPC_SEISMIC_SHARD               = 42355
+    NPC_SEISMIC_SHARD               = 42355,
+
+    // Generic Creatures
+    NPC_STONECORE_TELEPORTER_1      = 51396,
+    NPC_STONECORE_TELEPORTER_2      = 51397
 };
 
 enum SCGameobjectIds
@@ -90,9 +94,6 @@ enum SCMisc
 
     // Stonecore Teleporter misc
     MAX_STONECORE_TELEPORTERS                       = 2,
-    NPC_STONECORE_TELEPORTER                        = 51396, // Entrance teleporter
-    NPC_STONECORE_TELEPORTER_2                      = 51397, // Slabhide teleporter
-    SPELL_TELEPORTER_ACTIVE_VISUAL                  = 95298,
     SPELL_RING_WYRM_KNOCKBACK                       = 81235,
 
     // Creature Formation IDs
