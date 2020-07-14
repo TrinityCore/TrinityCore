@@ -20,6 +20,7 @@
 #include "EventProcessor.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
+#include "ObjectAccessor.h"
 #include "PathGenerator.h"
 #include "Pet.h"
 #include "TemporarySummon.h"
