@@ -1027,16 +1027,12 @@ enum BrewfestMusic
     EVENT_BREWFESTGOBLIN03 = 11815 // 0.28 min
 };
 
-// These are in seconds
-enum BrewfestMusicTime
-{
-    EVENT_BREWFESTDWARF01_TIME = 95000,
-    EVENT_BREWFESTDWARF02_TIME = 155000,
-    EVENT_BREWFESTDWARF03_TIME = 23000,
-    EVENT_BREWFESTGOBLIN01_TIME = 68000,
-    EVENT_BREWFESTGOBLIN02_TIME = 93000,
-    EVENT_BREWFESTGOBLIN03_TIME = 28000
-};
+constexpr Seconds EVENT_BREWFESTDWARF01_TIME = 95s;
+constexpr Seconds EVENT_BREWFESTDWARF02_TIME = 155s;
+constexpr Seconds EVENT_BREWFESTDWARF03_TIME = 23s;
+constexpr Seconds EVENT_BREWFESTGOBLIN01_TIME = 68s;
+constexpr Seconds EVENT_BREWFESTGOBLIN02_TIME = 93s;
+constexpr Seconds EVENT_BREWFESTGOBLIN03_TIME = 28s;
 
 enum BrewfestMusicAreas
 {
@@ -1067,7 +1063,7 @@ public:
     struct go_brewfest_musicAI : public GameObjectAI
     {
         uint32 rnd = 0;
-        uint32 musicTime = 1000;
+        Milliseconds musicTime = 1s;
 
         go_brewfest_musicAI(GameObject* go) : GameObjectAI(go)
         {

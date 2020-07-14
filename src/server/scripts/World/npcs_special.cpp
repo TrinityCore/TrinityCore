@@ -483,7 +483,7 @@ public:
                 return;
 
             running = true;
-            events.ScheduleEvent(EVENT_CAST_RED_FIRE_RING, 1);
+            events.ScheduleEvent(EVENT_CAST_RED_FIRE_RING, 1ms);
         }
 
         bool checkNearbyPlayers()
