@@ -117,16 +117,16 @@ public:
             DespawnGolem();
             m_lGolemGUIDList.clear();
             events.SetPhase(PHASE_INTRO);
-            events.ScheduleEvent(EVENT_FORGE_CAST, 2 * IN_MILLISECONDS, 0, PHASE_INTRO);
+            events.ScheduleEvent(EVENT_FORGE_CAST, 2s, 0, PHASE_INTRO);
         }
 
         void JustEngagedWith(Unit* who) override
         {
             Talk(SAY_AGGRO);
             events.SetPhase(PHASE_NORMAL);
-            events.ScheduleEvent(EVENT_PAUSE,            3.5 * IN_MILLISECONDS, 0, PHASE_NORMAL);
-            events.ScheduleEvent(EVENT_SHATTERING_STOMP,   0 * IN_MILLISECONDS, 0, PHASE_NORMAL);
-            events.ScheduleEvent(EVENT_SHATTER,            5 * IN_MILLISECONDS, 0, PHASE_NORMAL);
+            events.ScheduleEvent(EVENT_PAUSE, 3500ms, 0, PHASE_NORMAL);
+            events.ScheduleEvent(EVENT_SHATTERING_STOMP, 0s, 0, PHASE_NORMAL);
+            events.ScheduleEvent(EVENT_SHATTER, 5s, 0, PHASE_NORMAL);
             BossAI::JustEngagedWith(who);
         }
 
@@ -249,7 +249,7 @@ public:
 
                             m_bHasTemper = false;
                             m_bIsStriking = false;
-                            events.ScheduleEvent(EVENT_PAUSE, 3.5 * IN_MILLISECONDS, 0, PHASE_NORMAL);
+                            events.ScheduleEvent(EVENT_PAUSE, 3500ms, 0, PHASE_NORMAL);
                         }
                         break;
                     case EVENT_SHATTERING_STOMP:
@@ -263,19 +263,19 @@ public:
                             Talk(EMOTE_SHATTER);
                             m_bCanShatterGolem = true;
                         }
-                        events.ScheduleEvent(EVENT_SHATTERING_STOMP, 30 * IN_MILLISECONDS, 0, PHASE_NORMAL);
+                        events.ScheduleEvent(EVENT_SHATTERING_STOMP, 30s, 0, PHASE_NORMAL);
                         break;
                     case EVENT_SHATTER:
                         if (m_bCanShatterGolem)
                         {
                             ShatterGolem();
-                            events.ScheduleEvent(EVENT_SHATTER, 3 * IN_MILLISECONDS, 0, PHASE_NORMAL);
+                            events.ScheduleEvent(EVENT_SHATTER, 3s, 0, PHASE_NORMAL);
                             m_bCanShatterGolem = false;
                         }
                         break;
                     case EVENT_FORGE_CAST:
                         DoCast(me, SPELL_FORGE_VISUAL);
-                        events.ScheduleEvent(EVENT_FORGE_CAST, 15 * IN_MILLISECONDS, 0, PHASE_INTRO);
+                        events.ScheduleEvent(EVENT_FORGE_CAST, 15s, 0, PHASE_INTRO);
                         break;
                     default:
                         break;
@@ -398,8 +398,8 @@ public:
         void Initialize()
         {
             m_bIsFrozen = false;
-            events.ScheduleEvent(EVENT_BLAST,      20 * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_IMMOLATION,  5 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_BLAST, 20s);
+            events.ScheduleEvent(EVENT_IMMOLATION, 5s);
         }
 
         bool m_bIsFrozen;

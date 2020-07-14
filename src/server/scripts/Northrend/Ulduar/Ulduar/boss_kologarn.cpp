@@ -125,7 +125,7 @@ class boss_kologarn : public CreatureScript
                 events.ScheduleEvent(EVENT_MELEE_CHECK, 6s);
                 events.ScheduleEvent(EVENT_SMASH, 5s);
                 events.ScheduleEvent(EVENT_SWEEP, 19s);
-                events.ScheduleEvent(EVENT_STONE_GRIP, 25000);
+                events.ScheduleEvent(EVENT_STONE_GRIP, 25s);
                 events.ScheduleEvent(EVENT_FOCUSED_EYEBEAM, 21s);
                 events.ScheduleEvent(EVENT_ENRAGE, 10min);
 
