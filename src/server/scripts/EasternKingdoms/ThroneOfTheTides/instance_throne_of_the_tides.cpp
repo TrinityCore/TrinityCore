@@ -288,7 +288,7 @@ class instance_throne_of_the_tides : public InstanceMapScript
                         break;
                     case NPC_THRONE_OF_THE_TIDES_TELEPORTER_1:
                     case NPC_THRONE_OF_THE_TIDES_TELEPORTER_2:
-                        if (GetBossState(DATA_LADY_NAZJAR == DONE))
+                        if (GetBossState(DATA_LADY_NAZJAR) == DONE)
                         {
                             creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
                             creature->CastSpell(creature, SPELL_TELEPORTER_ACTIVE_VISUAL);
