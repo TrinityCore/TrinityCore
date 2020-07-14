@@ -274,19 +274,22 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
 void FollowMovementGenerator::UpdateFollowFormation()
 {
     uint8 followSlot = 0;
-    for (Unit* follower : _target->GetFormationFollowers())
+    for (ObjectGuid guid : _target->GetFormationFollowers())
     {
-        for (uint8 slot = MOTION_SLOT_IDLE; slot < MAX_MOTION_SLOT; ++slot)
+        if (Unit* follower = ObjectAccessor::GetUnit(*_target, guid))
         {
-            MovementGenerator* moveGen = follower->GetMotionMaster()->GetMotionSlot(MovementSlot(slot));
-            if (!moveGen || moveGen->GetMovementGeneratorType() != FOLLOW_MOTION_TYPE)
-                continue;
+            for (uint8 slot = MOTION_SLOT_IDLE; slot < MAX_MOTION_SLOT; ++slot)
+            {
+                MovementGenerator* moveGen = follower->GetMotionMaster()->GetMotionSlot(MovementSlot(slot));
+                if (!moveGen || moveGen->GetMovementGeneratorType() != FOLLOW_MOTION_TYPE)
+                    continue;
 
-            if (FollowMovementGenerator* followMoveGen = static_cast<FollowMovementGenerator*>(moveGen))
-                followMoveGen->UpdateFormationFollowOffsets(followSlot);
+                if (FollowMovementGenerator* followMoveGen = static_cast<FollowMovementGenerator*>(moveGen))
+                    followMoveGen->UpdateFormationFollowOffsets(followSlot);
+            }
+
+            ++followSlot;
         }
-
-        ++followSlot;
     }
 }
 

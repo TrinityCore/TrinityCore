@@ -9236,22 +9236,27 @@ void Unit::FollowTarget(Unit* target)
 
 void Unit::RemoveFormationFollower(Unit* follower)
 {
-    for (FormationFollowerContainer::const_iterator itr = _formationFollowers.begin(); itr != _formationFollowers.end();)
+    for (FormationFollowerGUIDContainer::const_iterator itr = _formationFollowers.begin(); itr != _formationFollowers.end();)
     {
-        Unit* follwingUnit = *itr;
-        // Cleaning up dead references while at it
-        if (!follwingUnit || follwingUnit == follower)
-            itr = _formationFollowers.erase(itr);
+        ObjectGuid guid = *itr;
+        if (Unit* followingUnit = ObjectAccessor::GetUnit(*this, guid))
+        {
+            if (followingUnit == follower)
+                itr = _formationFollowers.erase(itr);
+            else
+                ++itr;
+        }
         else
-            ++itr;
+            itr = _formationFollowers.erase(itr);
     }
 }
 
 bool Unit::HasFormationFollower(Unit* follower) const
 {
-    for (Unit* followingUnit : _formationFollowers)
-        if (followingUnit == follower)
-            return true;
+    for (ObjectGuid guid : _formationFollowers)
+        if (Unit* followingUnit = ObjectAccessor::GetUnit(*this, guid))
+            if (followingUnit == follower)
+                return true;
 
     return false;
 }

@@ -973,7 +973,7 @@ class TC_GAME_API Unit : public WorldObject
         typedef std::list<AuraApplication *> AuraApplicationList;
 
         typedef std::vector<std::pair<uint8 /*procEffectMask*/, AuraApplication*>> AuraApplicationProcContainer;
-        typedef std::vector<Unit*> FormationFollowerContainer;
+        typedef std::vector<ObjectGuid> FormationFollowerGUIDContainer;
 
         typedef std::map<uint8, AuraApplication*> VisibleAuraMap;
 
@@ -1787,8 +1787,8 @@ class TC_GAME_API Unit : public WorldObject
         // Makes the unit follow the given target. Use this function above using the MotionMaster::MoveFollow for default follow behaivior.
         void FollowTarget(Unit* target);
 
-        FormationFollowerContainer GetFormationFollowers() { return _formationFollowers; }
-        void AddFormationFollower(Unit* follower) { _formationFollowers.push_back(follower); }
+        FormationFollowerGUIDContainer GetFormationFollowers() { return _formationFollowers; }
+        void AddFormationFollower(Unit* follower) { _formationFollowers.push_back(follower->GetGUID()); }
         void RemoveFormationFollower(Unit* follower);
         bool HasFormationFollower(Unit* follower) const;
 
@@ -2064,7 +2064,7 @@ class TC_GAME_API Unit : public WorldObject
 
         PositionUpdateInfo _positionUpdateInfo;
 
-        FormationFollowerContainer _formationFollowers;
+        FormationFollowerGUIDContainer _formationFollowers;
 };
 
 namespace Trinity
