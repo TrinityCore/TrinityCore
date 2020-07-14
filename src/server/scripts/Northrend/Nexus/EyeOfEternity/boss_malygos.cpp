@@ -466,7 +466,7 @@ public:
                         me->GetMotionMaster()->MoveLand(POINT_LAND_P_ONE, pos);
                         me->SetImmuneToAll(false);
                         DoZoneInCombat();
-                        events.ScheduleEvent(EVENT_LAND_START_ENCOUNTER, 7*IN_MILLISECONDS, 1, PHASE_NOT_STARTED);
+                        events.ScheduleEvent(EVENT_LAND_START_ENCOUNTER, 7s, 1, PHASE_NOT_STARTED);
                     }
                     break;
                 case ACTION_EXECUTE_VORTEX:
@@ -502,11 +502,11 @@ public:
                     me->GetMotionMaster()->Clear();
                     me->StopMoving();
                     if (me->GetPositionZ() > 300.0f)
-                        events.ScheduleEvent(EVENT_DELAY_MOVE_TO_DESTROY_P, 5*IN_MILLISECONDS, 0, PHASE_TWO);
+                        events.ScheduleEvent(EVENT_DELAY_MOVE_TO_DESTROY_P, 5s, 0, PHASE_TWO);
                     else
                         me->GetMotionMaster()->MovePoint(POINT_DESTROY_PLATFORM_P_TWO, MalygosPositions[0]);
 
-                    events.ScheduleEvent(EVENT_LIGHT_DIMENSION_CHANGE, 1*IN_MILLISECONDS, 0, PHASE_TWO);
+                    events.ScheduleEvent(EVENT_LIGHT_DIMENSION_CHANGE, 1s, 0, PHASE_TWO);
                     break;
                 case ACTION_HANDLE_RESPAWN:
                     // Teleport to spawn position, we can't use normal relocate
@@ -537,8 +537,8 @@ public:
             switch (_phase)
             {
                 case PHASE_NOT_STARTED:
-                    events.ScheduleEvent(EVENT_SAY_INTRO, 1*IN_MILLISECONDS, 1, _phase);
-                    events.ScheduleEvent(EVENT_START_FIRST_RANDOM_PORTAL, 2*IN_MILLISECONDS, 1, _phase);
+                    events.ScheduleEvent(EVENT_SAY_INTRO, 1s, 1, _phase);
+                    events.ScheduleEvent(EVENT_START_FIRST_RANDOM_PORTAL, 2s, 1, _phase);
                     break;
                 case PHASE_ONE:
                     events.ScheduleEvent(EVENT_ARCANE_BREATH, 8s, 10s, 0, _phase);
@@ -547,12 +547,12 @@ public:
                     events.ScheduleEvent(EVENT_POWER_SPARKS, 20s, 30s, 0, _phase);
                     break;
                 case PHASE_TWO:
-                    events.ScheduleEvent(EVENT_MOVE_TO_POINT_SURGE_P_TWO, 60*IN_MILLISECONDS, 0, _phase);
+                    events.ScheduleEvent(EVENT_MOVE_TO_POINT_SURGE_P_TWO, 60s, 0, _phase);
                     DoAction(ACTION_LIFT_IN_AIR);
                     break;
                 case PHASE_THREE:
-                    events.ScheduleEvent(EVENT_ARCANE_PULSE, 7*IN_MILLISECONDS, 0, _phase);
-                    events.ScheduleEvent(EVENT_ARCANE_STORM, 10*IN_MILLISECONDS, 0, _phase);
+                    events.ScheduleEvent(EVENT_ARCANE_PULSE, 7s, 0, _phase);
+                    events.ScheduleEvent(EVENT_ARCANE_STORM, 10s, 0, _phase);
                     events.ScheduleEvent(EVENT_SURGE_OF_POWER_P_THREE, 4s, 6s, 0, _phase);
                     events.ScheduleEvent(EVENT_STATIC_FIELD, 20s, 30s, 0, _phase);
                     break;
@@ -610,17 +610,17 @@ public:
                 {
                     case PHASE_ONE:
                         Talk(SAY_KILLED_PLAYER_P_ONE);
-                        events.ScheduleEvent(EVENT_PREVENT_SAY_SPAM_ON_KILL, 5*IN_MILLISECONDS, 0, _phase);
+                        events.ScheduleEvent(EVENT_PREVENT_SAY_SPAM_ON_KILL, 5s, 0, _phase);
                         _killSpamFilter = true;
                         break;
                     case PHASE_TWO:
                         Talk(SAY_KILLED_PLAYER_P_TWO);
-                        events.ScheduleEvent(EVENT_PREVENT_SAY_SPAM_ON_KILL, 5*IN_MILLISECONDS, 0, _phase);
+                        events.ScheduleEvent(EVENT_PREVENT_SAY_SPAM_ON_KILL, 5s, 0, _phase);
                         _killSpamFilter = true;
                         break;
                     case PHASE_THREE:
                         Talk(SAY_KILLED_PLAYER_P_THREE);
-                        events.ScheduleEvent(EVENT_PREVENT_SAY_SPAM_ON_KILL, 5*IN_MILLISECONDS, 0, _phase);
+                        events.ScheduleEvent(EVENT_PREVENT_SAY_SPAM_ON_KILL, 5s, 0, _phase);
                         _killSpamFilter = true;
                         break;
                 }
@@ -661,8 +661,8 @@ public:
                 case POINT_NEAR_RANDOM_PORTAL_P_NONE:
                     if (Creature* portal = me->FindNearestCreature(NPC_PORTAL_TRIGGER, 31.0f, true))
                     {
-                        events.ScheduleEvent(EVENT_STOP_PORTAL_BEAM, 10*IN_MILLISECONDS, 1, PHASE_NOT_STARTED);
-                        events.ScheduleEvent(EVENT_RANDOM_PORTAL, 14*IN_MILLISECONDS, 1, PHASE_NOT_STARTED);
+                        events.ScheduleEvent(EVENT_STOP_PORTAL_BEAM, 10s, 1, PHASE_NOT_STARTED);
+                        events.ScheduleEvent(EVENT_RANDOM_PORTAL, 14s, 1, PHASE_NOT_STARTED);
                         DoCast(portal, SPELL_PORTAL_BEAM);
                     }
                     break;
@@ -680,7 +680,7 @@ public:
                     break;
                 case POINT_LIFT_IN_AIR_P_ONE:
                     me->SetDisableGravity(true);
-                    events.ScheduleEvent(EVENT_MOVE_TO_VORTEX_POINT, 1, 0, PHASE_ONE);
+                    events.ScheduleEvent(EVENT_MOVE_TO_VORTEX_POINT, 1ms, 0, PHASE_ONE);
                     break;
                 case POINT_FLY_OUT_OF_PLATFORM_P_TWO:
                     if (!_firstCyclicMovementStarted)
@@ -689,35 +689,35 @@ public:
                         me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                         if (Creature* alexstraszaBunny = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ALEXSTRASZA_BUNNY_GUID)))
                             me->SetFacingToObject(alexstraszaBunny);
-                        events.ScheduleEvent(EVENT_SUMMON_ARCANE_BOMB, 1*IN_MILLISECONDS, 0, PHASE_TWO);
+                        events.ScheduleEvent(EVENT_SUMMON_ARCANE_BOMB, 1s, 0, PHASE_TWO);
                     }
                     _flyingOutOfPlatform = false;
                     _performingSurgeOfPower = false;
-                    events.ScheduleEvent(EVENT_PATHING_AROUND_PLATFORM, 1*IN_MILLISECONDS, 0, PHASE_TWO);
+                    events.ScheduleEvent(EVENT_PATHING_AROUND_PLATFORM, 1s, 0, PHASE_TWO);
                     break;
                 case POINT_PHASE_ONE_TO_TWO_TRANSITION:
                     me->SetDisableGravity(true);
                     if (Creature* alexstraszaBunny = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ALEXSTRASZA_BUNNY_GUID)))
                         me->SetFacingToObject(alexstraszaBunny);
                     me->GetMap()->SetZoneOverrideLight(AREA_EYE_OF_ETERNITY, LIGHT_DEFAULT, LIGHT_ARCANE_RUNES, 5 * IN_MILLISECONDS);
-                    events.ScheduleEvent(EVENT_FLY_OUT_OF_PLATFORM, 18 * IN_MILLISECONDS, 0, PHASE_TWO);
+                    events.ScheduleEvent(EVENT_FLY_OUT_OF_PLATFORM, 18s, 0, PHASE_TWO);
                     break;
                 case POINT_SURGE_OF_POWER_P_TWO:
                     if (!_performingDestroyPlatform)
                     {
                         Talk(EMOTE_SURGE_OF_POWER_WARNING_P2);
                         DoCastAOE(SPELL_SURGE_OF_POWER_P_II, true);
-                        events.ScheduleEvent(EVENT_FLY_OUT_OF_PLATFORM, 7*IN_MILLISECONDS, 0, PHASE_TWO);
+                        events.ScheduleEvent(EVENT_FLY_OUT_OF_PLATFORM, 7s, 0, PHASE_TWO);
                     }
                     break;
                 case POINT_DESTROY_PLATFORM_P_TWO:
                     me->GetMap()->SetZoneOverrideLight(AREA_EYE_OF_ETERNITY, LIGHT_DEFAULT, LIGHT_OBSCURE_SPACE, 1 * IN_MILLISECONDS);
                     DoCast(me, SPELL_DESTROY_PLATFORM_CHANNEL);
-                    events.ScheduleEvent(EVENT_MOVE_TO_P_THREE_POINT, 11*IN_MILLISECONDS, 0, PHASE_TWO);
+                    events.ScheduleEvent(EVENT_MOVE_TO_P_THREE_POINT, 11s, 0, PHASE_TWO);
                     break;
                 case POINT_IDLE_P_THREE:
                     me->SetControlled(true, UNIT_STATE_ROOT);
-                    events.ScheduleEvent(EVENT_START_P_THREE, 5*IN_MILLISECONDS, 0, PHASE_TWO);
+                    events.ScheduleEvent(EVENT_START_P_THREE, 5s, 0, PHASE_TWO);
                     break;
             }
         }
@@ -789,24 +789,24 @@ public:
                     case EVENT_ARCANE_BREATH:
                         if (_executingVortex)
                         {
-                            events.ScheduleEvent(EVENT_ARCANE_BREATH, 20*IN_MILLISECONDS, 0, PHASE_ONE);
+                            events.ScheduleEvent(EVENT_ARCANE_BREATH, 20s, 0, PHASE_ONE);
                             break;
                         }
 
                         me->CastSpell(me->GetVictim(), SPELL_ARCANE_BREATH);
-                        events.ScheduleEvent(EVENT_ARCANE_BREATH, 20*IN_MILLISECONDS, 0, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_ARCANE_BREATH, 20s, 0, PHASE_ONE);
                         break;
                     case EVENT_ARCANE_STORM:
                         if (_phase == PHASE_ONE)
                         {
                             if (_executingVortex)
                             {
-                                events.ScheduleEvent(EVENT_ARCANE_STORM, 10*IN_MILLISECONDS, 0, PHASE_ONE);
+                                events.ScheduleEvent(EVENT_ARCANE_STORM, 10s, 0, PHASE_ONE);
                                 break;
                             }
 
                             DoCastAOE(SPELL_ARCANE_STORM_P_I, true);
-                            events.ScheduleEvent(EVENT_ARCANE_STORM, 10*IN_MILLISECONDS, 0, PHASE_ONE);
+                            events.ScheduleEvent(EVENT_ARCANE_STORM, 10s, 0, PHASE_ONE);
                         }
                         else if (_phase == PHASE_THREE)
                         {
@@ -847,7 +847,7 @@ public:
                             _arcaneReinforcements = false;
 
                             if (GetDifficulty() == DIFFICULTY_25_N)
-                                events.ScheduleEvent(EVENT_DELAYED_REINFORCEMENTS, 1*IN_MILLISECONDS, 0, PHASE_TWO);
+                                events.ScheduleEvent(EVENT_DELAYED_REINFORCEMENTS, 1s, 0, PHASE_TWO);
                         }
                         break;
                     case EVENT_DELAYED_REINFORCEMENTS:
@@ -875,14 +875,14 @@ public:
                             _performingSurgeOfPower = true;
                             Talk(SAY_DEEP_BREATH);
                             me->GetMotionMaster()->MovePoint(POINT_SURGE_OF_POWER_P_TWO, MalygosPositions[3]);
-                            events.ScheduleEvent(EVENT_MOVE_TO_POINT_SURGE_P_TWO, 60*IN_MILLISECONDS, 2, PHASE_TWO);
+                            events.ScheduleEvent(EVENT_MOVE_TO_POINT_SURGE_P_TWO, 60s, 2, PHASE_TWO);
                         }
                         break;
                     case EVENT_SUMMON_ARCANE_BOMB:
                         if (!_performingSurgeOfPower && !_performingDestroyPlatform)
                         {
                             me->StopMoving();
-                            events.ScheduleEvent(EVENT_PATHING_AROUND_PLATFORM, 3*IN_MILLISECONDS, 0, PHASE_TWO);
+                            events.ScheduleEvent(EVENT_PATHING_AROUND_PLATFORM, 3s, 0, PHASE_TWO);
                         }
 
                         if (!_flyingOutOfPlatform)
@@ -897,13 +897,13 @@ public:
                         if (_preparingPulsesChecker < 2)
                         {
                             DoCastAOE(SPELL_ARCANE_PULSE, true);
-                            events.ScheduleEvent(EVENT_ARCANE_PULSE, 7*IN_MILLISECONDS, 0, PHASE_THREE);
+                            events.ScheduleEvent(EVENT_ARCANE_PULSE, 7s, 0, PHASE_THREE);
                             _preparingPulsesChecker++;
                         }
                         else
                         {
                             DoCastAOE(SPELL_ARCANE_PULSE, true);
-                            events.ScheduleEvent(EVENT_ARCANE_PULSE, 2*IN_MILLISECONDS, 0, PHASE_THREE);
+                            events.ScheduleEvent(EVENT_ARCANE_PULSE, 2s, 0, PHASE_THREE);
                         }
                         break;
                     case EVENT_LIGHT_DIMENSION_CHANGE:
@@ -1217,7 +1217,7 @@ public:
 
             if (_wpCount < 3)
             {
-                _events.ScheduleEvent(id + 1, 1);
+                _events.ScheduleEvent(id + 1, 1ms);
                 ++_wpCount;
             }
             else if (Vehicle* hoverDisk = me->GetVehicleKit())
@@ -1324,7 +1324,7 @@ class npc_nexus_lord : public CreatureScript
 
             void DoAction(int32 /*action*/) override
             {
-                _events.ScheduleEvent(EVENT_NUKE_DUMMY, 1);
+                _events.ScheduleEvent(EVENT_NUKE_DUMMY, 1ms);
                 _events.ScheduleEvent(EVENT_ARCANE_SHOCK, 2s);
                 _events.ScheduleEvent(EVENT_HASTE_BUFF, 12s);
             }

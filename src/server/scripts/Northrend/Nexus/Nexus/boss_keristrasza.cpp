@@ -98,7 +98,7 @@ class boss_keristrasza : public CreatureScript
                 BossAI::JustEngagedWith(who);
 
                 events.ScheduleEvent(EVENT_CRYSTAL_FIRE_BREATH, 14s);
-                events.ScheduleEvent(EVENT_CRYSTAL_CHAINS_CRYSTALLIZE, DUNGEON_MODE(30000, 11000));
+                events.ScheduleEvent(EVENT_CRYSTAL_CHAINS_CRYSTALLIZE, DUNGEON_MODE(30s, 11s));
                 events.ScheduleEvent(EVENT_TAIL_SWEEP, 5s);
             }
 
@@ -189,7 +189,7 @@ class boss_keristrasza : public CreatureScript
                                 DoCast(me, SPELL_CRYSTALLIZE);
                             else if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                                 DoCast(target, SPELL_CRYSTAL_CHAINS);
-                            events.ScheduleEvent(EVENT_TAIL_SWEEP, DUNGEON_MODE(30000, 11000));
+                            events.ScheduleEvent(EVENT_TAIL_SWEEP, DUNGEON_MODE(30s, 11s));
                             break;
                         default:
                             break;
