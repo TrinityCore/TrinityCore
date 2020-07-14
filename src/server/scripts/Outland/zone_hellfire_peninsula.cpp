@@ -892,7 +892,7 @@ public:
                     me->SetFaction(FACTION_MONSTER_2);
                     if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
                         me->EngageWithTarget(player);
-                    _events.ScheduleEvent(EVENT_FIREBALL, 1);
+                    _events.ScheduleEvent(EVENT_FIREBALL, 1ms);
                     _events.ScheduleEvent(EVENT_FROSTNOVA, 5s);
                     break;
                 case EVENT_FIREBALL:
