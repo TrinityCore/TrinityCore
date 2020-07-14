@@ -147,11 +147,11 @@ class boss_ignis : public CreatureScript
                 BossAI::JustEngagedWith(who);
                 Talk(SAY_AGGRO);
                 events.ScheduleEvent(EVENT_JET, 30s);
-                events.ScheduleEvent(EVENT_SCORCH, 25000);
-                events.ScheduleEvent(EVENT_SLAG_POT, 35000);
-                events.ScheduleEvent(EVENT_CONSTRUCT, 15000);
+                events.ScheduleEvent(EVENT_SCORCH, 25s);
+                events.ScheduleEvent(EVENT_SLAG_POT, 35s);
+                events.ScheduleEvent(EVENT_CONSTRUCT, 15s);
                 events.ScheduleEvent(EVENT_END_POT, 40s);
-                events.ScheduleEvent(EVENT_BERSERK, 480000);
+                events.ScheduleEvent(EVENT_BERSERK, 480s);
                 Initialize();
                 instance->DoStartCriteriaTimer(CriteriaStartEvent::SendEvent, ACHIEVEMENT_IGNIS_START_EVENT);
             }
@@ -230,10 +230,10 @@ class boss_ignis : public CreatureScript
                                 Talk(SAY_SLAG_POT);
                                 _slagPotGUID = target->GetGUID();
                                 DoCast(target, SPELL_GRAB);
-                                events.DelayEvents(3000);
+                                events.DelayEvents(3s);
                                 events.ScheduleEvent(EVENT_GRAB_POT, 500ms);
                             }
-                            events.ScheduleEvent(EVENT_SLAG_POT, RAID_MODE(30000, 15000));
+                            events.ScheduleEvent(EVENT_SLAG_POT, RAID_MODE(30s, 15s));
                             break;
                         case EVENT_GRAB_POT:
                             if (Unit* slagPotTarget = ObjectAccessor::GetUnit(*me, _slagPotGUID))
@@ -266,14 +266,14 @@ class boss_ignis : public CreatureScript
                             if (Unit* target = me->GetVictim())
                                 me->SummonCreature(NPC_GROUND_SCORCH, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 45000);
                             DoCast(SPELL_SCORCH);
-                            events.ScheduleEvent(EVENT_SCORCH, 25000);
+                            events.ScheduleEvent(EVENT_SCORCH, 25s);
                             break;
                         case EVENT_CONSTRUCT:
                             Talk(SAY_SUMMON);
                             DoSummon(NPC_IRON_CONSTRUCT, ConstructSpawnPosition[urand(0, CONSTRUCT_SPAWN_POINTS - 1)], 30000, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT);
                             DoCast(SPELL_STRENGHT);
                             DoCast(me, SPELL_ACTIVATE_CONSTRUCT);
-                            events.ScheduleEvent(EVENT_CONSTRUCT, RAID_MODE(40000, 30000));
+                            events.ScheduleEvent(EVENT_CONSTRUCT, RAID_MODE(40s, 30s));
                             break;
                         case EVENT_BERSERK:
                             DoCast(me, SPELL_BERSERK, true);

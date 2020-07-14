@@ -337,7 +337,7 @@ struct boss_algalon_the_observer : public BossAI
                 events.Reset();
                 events.SetPhase(PHASE_ROLE_PLAY);
                 if (me->IsInCombat())
-                    events.ScheduleEvent(EVENT_ASCEND_TO_THE_HEAVENS, 1);
+                    events.ScheduleEvent(EVENT_ASCEND_TO_THE_HEAVENS, 1ms);
                 events.ScheduleEvent(EVENT_DESPAWN_ALGALON_1, 5s);
                 events.ScheduleEvent(EVENT_DESPAWN_ALGALON_2, 17s);
                 events.ScheduleEvent(EVENT_DESPAWN_ALGALON_3, 26s);
@@ -361,7 +361,7 @@ struct boss_algalon_the_observer : public BossAI
 
     void JustEngagedWith(Unit* who) override
     {
-        uint32 introDelay = 0;
+        Milliseconds introDelay = 0ms;
         me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
         me->SetImmuneToNPC(true);
         events.Reset();
@@ -372,7 +372,7 @@ struct boss_algalon_the_observer : public BossAI
             Talk(SAY_ALGALON_AGGRO);
             me->PlayDirectMusic(ENGAGE_MUSIC_ID);
             BossAI::JustEngagedWith(who);
-            introDelay = 8000;
+            introDelay = 8s;
         }
         else
         {
@@ -382,19 +382,19 @@ struct boss_algalon_the_observer : public BossAI
             me->setActive(true);
             me->SetFarVisible(true);
             DoZoneInCombat();
-            introDelay = 26500;
+            introDelay = 26500ms;
             summons.DespawnEntry(NPC_AZEROTH);
             instance->SetData(EVENT_DESPAWN_ALGALON, 0);
             events.ScheduleEvent(EVENT_START_COMBAT, 16s);
         }
 
         events.ScheduleEvent(EVENT_INTRO_TIMER_DONE, introDelay);
-        events.ScheduleEvent(EVENT_QUANTUM_STRIKE, 3500 + introDelay);
-        events.ScheduleEvent(EVENT_PHASE_PUNCH, 15500 + introDelay);
-        events.ScheduleEvent(EVENT_SUMMON_COLLAPSING_STAR, 18000 + introDelay);
-        events.ScheduleEvent(EVENT_BIG_BANG, 90000 + introDelay);
-        events.ScheduleEvent(EVENT_ASCEND_TO_THE_HEAVENS, 360000 + introDelay);
-        events.ScheduleEvent(EVENT_COSMIC_SMASH, 25000 + introDelay);
+        events.ScheduleEvent(EVENT_QUANTUM_STRIKE, 3500ms + introDelay);
+        events.ScheduleEvent(EVENT_PHASE_PUNCH, 15500ms + introDelay);
+        events.ScheduleEvent(EVENT_SUMMON_COLLAPSING_STAR, 18s + introDelay);
+        events.ScheduleEvent(EVENT_BIG_BANG, 90s + introDelay);
+        events.ScheduleEvent(EVENT_ASCEND_TO_THE_HEAVENS, 360s + introDelay);
+        events.ScheduleEvent(EVENT_COSMIC_SMASH, 25s + introDelay);
 
         std::list<Creature*> stalkers;
         me->GetCreatureListWithEntryInGrid(stalkers, NPC_ALGALON_STALKER, 200.0f);

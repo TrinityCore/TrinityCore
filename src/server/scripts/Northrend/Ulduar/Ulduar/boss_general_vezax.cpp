@@ -173,7 +173,7 @@ class boss_general_vezax : public CreatureScript
                         }
                         case EVENT_SEARING_FLAMES:
                             DoCastAOE(SPELL_SEARING_FLAMES);
-                            events.ScheduleEvent(EVENT_SEARING_FLAMES, urand(14000, 17500));
+                            events.ScheduleEvent(EVENT_SEARING_FLAMES, 14s, 17500ms);
                             break;
                         case EVENT_MARK_OF_THE_FACELESS:
                         {

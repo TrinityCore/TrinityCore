@@ -450,7 +450,7 @@ class boss_hodir : public CreatureScript
                         case EVENT_ICICLE:
                             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                                 DoCast(target, SPELL_ICICLE);
-                            events.ScheduleEvent(EVENT_ICICLE, RAID_MODE(5500, 3500));
+                            events.ScheduleEvent(EVENT_ICICLE, RAID_MODE(5500ms, 3500ms));
                             break;
                         case EVENT_FLASH_FREEZE:
                             Talk(SAY_FLASH_FREEZE);

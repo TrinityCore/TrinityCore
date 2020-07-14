@@ -278,8 +278,8 @@ class boss_flame_leviathan : public CreatureScript
             {
                 BossAI::JustEngagedWith(who);
                 me->SetReactState(REACT_PASSIVE);
-                events.ScheduleEvent(EVENT_PURSUE, 1);
-                events.ScheduleEvent(EVENT_MISSILE, urand(1500, 4*IN_MILLISECONDS));
+                events.ScheduleEvent(EVENT_PURSUE, 1ms);
+                events.ScheduleEvent(EVENT_MISSILE, 1500ms, 4s);
                 events.ScheduleEvent(EVENT_VENT, 20s);
                 events.ScheduleEvent(EVENT_SHUTDOWN, 150s);
                 events.ScheduleEvent(EVENT_SPEED, 15s);
@@ -429,7 +429,7 @@ class boss_flame_leviathan : public CreatureScript
                             if (Shutout)
                                 Shutout = false;
                             events.ScheduleEvent(EVENT_REPAIR, 4s);
-                            events.DelayEvents(20 * IN_MILLISECONDS, 0);
+                            events.DelayEvents(20s, 0);
                             break;
                         case EVENT_REPAIR:
                             Talk(EMOTE_REPAIR);
@@ -586,7 +586,7 @@ class boss_flame_leviathan : public CreatureScript
 
                         if (!target)
                         {
-                            events.RescheduleEvent(EVENT_PURSUE, 0);
+                            events.RescheduleEvent(EVENT_PURSUE, 0s);
                             return;
                         }
 

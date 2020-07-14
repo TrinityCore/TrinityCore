@@ -776,7 +776,7 @@ class instance_ulduar : public InstanceMapScript
                         DoUpdateWorldState(WORLD_STATE_ALGALON_TIMER_ENABLED, 1);
                         DoUpdateWorldState(WORLD_STATE_ALGALON_DESPAWN_TIMER, 60);
                         _algalonTimer = 60;
-                        _events.ScheduleEvent(EVENT_DESPAWN_ALGALON, 3600000);
+                        _events.ScheduleEvent(EVENT_DESPAWN_ALGALON, 1h);
                         _events.ScheduleEvent(EVENT_UPDATE_ALGALON_TIMER, 1min);
                         break;
                     case DATA_ALGALON_SUMMON_STATE:
