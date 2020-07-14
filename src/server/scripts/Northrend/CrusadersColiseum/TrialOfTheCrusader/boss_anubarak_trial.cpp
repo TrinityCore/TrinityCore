@@ -305,14 +305,14 @@ class boss_anubarak_trial : public CreatureScript
                     {
                         case EVENT_FREEZE_SLASH:
                             DoCastVictim(SPELL_FREEZE_SLASH);
-                            events.ScheduleEvent(EVENT_FREEZE_SLASH, 15*IN_MILLISECONDS, 0, PHASE_MELEE);
+                            events.ScheduleEvent(EVENT_FREEZE_SLASH, 15s, 0, PHASE_MELEE);
                             return;
                         case EVENT_PENETRATING_COLD:
                         {
                             CastSpellExtraArgs args;
                             args.AddSpellMod(SPELLVALUE_MAX_TARGETS, RAID_MODE(2, 5, 2, 5));
                             me->CastSpell(nullptr, SPELL_PENETRATING_COLD, args);
-                            events.ScheduleEvent(EVENT_PENETRATING_COLD, 20 * IN_MILLISECONDS, 0, PHASE_MELEE);
+                            events.ScheduleEvent(EVENT_PENETRATING_COLD, 20s, 0, PHASE_MELEE);
                             return;
                         }
                         case EVENT_SUMMON_NERUBIAN:
@@ -322,13 +322,13 @@ class boss_anubarak_trial : public CreatureScript
                                 args.AddSpellMod(SPELLVALUE_MAX_TARGETS, RAID_MODE(1, 2, 2, 4));
                                 me->CastSpell(nullptr, SPELL_SUMMON_BURROWER, args);
                             }
-                            events.ScheduleEvent(EVENT_SUMMON_NERUBIAN, 45*IN_MILLISECONDS, 0, PHASE_MELEE);
+                            events.ScheduleEvent(EVENT_SUMMON_NERUBIAN, 45s, 0, PHASE_MELEE);
                             return;
                         case EVENT_NERUBIAN_SHADOW_STRIKE:
                         {
                             EntryCheckPredicate pred(NPC_BURROWER);
                             summons.DoAction(ACTION_SHADOW_STRIKE, pred);
-                            events.ScheduleEvent(EVENT_NERUBIAN_SHADOW_STRIKE, 30*IN_MILLISECONDS, 0, PHASE_MELEE);
+                            events.ScheduleEvent(EVENT_NERUBIAN_SHADOW_STRIKE, 30s, 0, PHASE_MELEE);
                             break;
                         }
                         case EVENT_SUBMERGE:
@@ -339,9 +339,9 @@ class boss_anubarak_trial : public CreatureScript
                                 me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
                                 Talk(EMOTE_BURROWER);
                                 events.SetPhase(PHASE_SUBMERGED);
-                                events.ScheduleEvent(EVENT_PURSUING_SPIKE, 2*IN_MILLISECONDS, 0, PHASE_SUBMERGED);
-                                events.ScheduleEvent(EVENT_SUMMON_SCARAB, 4*IN_MILLISECONDS, 0, PHASE_SUBMERGED);
-                                events.ScheduleEvent(EVENT_EMERGE, 1*MINUTE*IN_MILLISECONDS, 0, PHASE_SUBMERGED);
+                                events.ScheduleEvent(EVENT_PURSUING_SPIKE, 2s, 0, PHASE_SUBMERGED);
+                                events.ScheduleEvent(EVENT_SUMMON_SCARAB, 4s, 0, PHASE_SUBMERGED);
+                                events.ScheduleEvent(EVENT_EMERGE, 60s, 0, PHASE_SUBMERGED);
                             }
                             break;
                         case EVENT_PURSUING_SPIKE:
@@ -359,7 +359,7 @@ class boss_anubarak_trial : public CreatureScript
                             if (Creature* pBurrow = ObjectAccessor::GetCreature(*me, *i))
                                 pBurrow->CastSpell(pBurrow, 66340, false);
 
-                            events.ScheduleEvent(EVENT_SUMMON_SCARAB, 4*IN_MILLISECONDS, 0, PHASE_SUBMERGED);
+                            events.ScheduleEvent(EVENT_SUMMON_SCARAB, 4s, 0, PHASE_SUBMERGED);
 
                             /*It seems that this spell have something more that needs to be taken into account
                             //Need more sniff info
@@ -376,12 +376,12 @@ class boss_anubarak_trial : public CreatureScript
                             DoCast(me, SPELL_EMERGE_ANUBARAK);
                             Talk(EMOTE_EMERGE);
                             events.SetPhase(PHASE_MELEE);
-                            events.ScheduleEvent(EVENT_FREEZE_SLASH, 15*IN_MILLISECONDS, 0, PHASE_MELEE);
-                            events.ScheduleEvent(EVENT_PENETRATING_COLD, 20*IN_MILLISECONDS, PHASE_MELEE);
-                            events.ScheduleEvent(EVENT_SUMMON_NERUBIAN, 10*IN_MILLISECONDS, 0, PHASE_MELEE);
-                            events.ScheduleEvent(EVENT_SUBMERGE, 80*IN_MILLISECONDS, 0, PHASE_MELEE);
+                            events.ScheduleEvent(EVENT_FREEZE_SLASH, 15s, 0, PHASE_MELEE);
+                            events.ScheduleEvent(EVENT_PENETRATING_COLD, 20s, PHASE_MELEE);
+                            events.ScheduleEvent(EVENT_SUMMON_NERUBIAN, 10s, 0, PHASE_MELEE);
+                            events.ScheduleEvent(EVENT_SUBMERGE, 80s, 0, PHASE_MELEE);
                             if (IsHeroic())
-                                events.ScheduleEvent(EVENT_NERUBIAN_SHADOW_STRIKE, 30*IN_MILLISECONDS, 0, PHASE_MELEE);
+                                events.ScheduleEvent(EVENT_NERUBIAN_SHADOW_STRIKE, 30s, 0, PHASE_MELEE);
                             return;
                         case EVENT_SUMMON_FROST_SPHERE:
                         {
