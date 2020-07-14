@@ -210,9 +210,9 @@ class boss_tyrannus : public CreatureScript
                 {
                     Talk(SAY_TYRANNUS_INTRO_1);
                     events.SetPhase(PHASE_INTRO);
-                    events.ScheduleEvent(EVENT_INTRO_1, 14000, 0, PHASE_INTRO);
-                    events.ScheduleEvent(EVENT_INTRO_2, 22000, 0, PHASE_INTRO);
-                    events.ScheduleEvent(EVENT_INTRO_3, 34000, 0, PHASE_INTRO);
+                    events.ScheduleEvent(EVENT_INTRO_1, 14s, 0, PHASE_INTRO);
+                    events.ScheduleEvent(EVENT_INTRO_2, 22s, 0, PHASE_INTRO);
+                    events.ScheduleEvent(EVENT_INTRO_3, 34s, 0, PHASE_INTRO);
                     events.ScheduleEvent(EVENT_COMBAT_START, 36s, 0, PHASE_INTRO);
                     instance->SetBossState(DATA_TYRANNUS, IN_PROGRESS);
                 }
@@ -331,7 +331,7 @@ class boss_rimefang : public CreatureScript
                 {
                     _events.SetPhase(PHASE_COMBAT);
                     DoZoneInCombat();
-                    _events.ScheduleEvent(EVENT_MOVE_NEXT, 500, 0, PHASE_COMBAT);
+                    _events.ScheduleEvent(EVENT_MOVE_NEXT, 500ms, 0, PHASE_COMBAT);
                     _events.ScheduleEvent(EVENT_ICY_BLAST, 15s, 0, PHASE_COMBAT);
                 }
                 else if (actionId == ACTION_END_COMBAT)
