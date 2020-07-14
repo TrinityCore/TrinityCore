@@ -219,7 +219,7 @@ WorldPacket const* WorldPackets::Misc::DeathReleaseLoc::Write()
 
 WorldPacket const* WorldPackets::Misc::PreRessurect::Write()
 {
-    PlayerGUID.WriteAsPacked();
+    _worldPacket << PlayerGUID.WriteAsPacked();
 
     return &_worldPacket;
 }
