@@ -101,7 +101,7 @@ public:
             events.ScheduleEvent(EVENT_ARCANE_SHOCK, 4s);
             events.ScheduleEvent(EVENT_FROST_SHOCK, 6s);
             events.ScheduleEvent(EVENT_SHADOW_SHOCK, 8s);
-            events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 15000);
+            events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 15s);
 
             Talk(SAY_AGGRO);
         }
@@ -190,7 +190,7 @@ public:
                 case EVENT_CHAIN_LIGHTNING:
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         DoCast(target, SPELL_CHAIN_LIGHTNING);
-                    events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 25000);
+                    events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 25s);
                     break;
                 default:
                     break;
