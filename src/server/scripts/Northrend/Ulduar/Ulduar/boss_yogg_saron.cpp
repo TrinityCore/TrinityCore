@@ -769,7 +769,7 @@ class boss_sara : public CreatureScript
                 Talk(SAY_SARA_AGGRO);
                 _events.ScheduleEvent(EVENT_SARAS_FERVOR, 5s, 0, PHASE_ONE);
                 _events.ScheduleEvent(EVENT_SARAS_BLESSING, 10s, 30s, 0, PHASE_ONE);
-                _events.ScheduleEvent(EVENT_SARAS_ANGER, 15s,  25s, 0, PHASE_ONE);
+                _events.ScheduleEvent(EVENT_SARAS_ANGER, 15s, 25s, 0, PHASE_ONE);
             }
 
             void JustEnteredCombat(Unit* who) override
