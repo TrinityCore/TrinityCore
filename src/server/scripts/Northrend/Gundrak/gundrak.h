@@ -88,7 +88,7 @@ enum GDSpellIds
     SPELL_FIRE_BEAM_ELEMENTAL        = 57072
 };
 
-constexpr auto TIMER_STATUE_ACTIVATION = 3500ms;
+constexpr Milliseconds TIMER_STATUE_ACTIVATION = 3500ms;
 
 template <class AI, class T>
 inline AI* GetGundrakAI(T* obj)
