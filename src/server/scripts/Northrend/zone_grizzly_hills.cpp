@@ -421,7 +421,7 @@ public:
                 me->SetEmoteState(EMOTE_STATE_USE_STANDING);
             }
             else
-                _events.ScheduleEvent(EVENT_WOODSMAN_1, 0);
+                _events.ScheduleEvent(EVENT_WOODSMAN_1, 0s);
         }
 
         void UpdateAI(uint32 diff) override
@@ -434,11 +434,11 @@ public:
                 {
                     case EVENT_WOODSMAN_1:
                         me->SetEmoteState(EMOTE_STATE_LOOT);
-                        _events.ScheduleEvent(EVENT_WOODSMAN_2, 3000);
+                        _events.ScheduleEvent(EVENT_WOODSMAN_2, 3s);
                         break;
                     case EVENT_WOODSMAN_2:
                         me->SetEmoteState(EMOTE_ONESHOT_ATTACK1H);
-                        _events.ScheduleEvent(EVENT_WOODSMAN_1, 4000);
+                        _events.ScheduleEvent(EVENT_WOODSMAN_1, 4s);
                         break;
                     default:
                         break;
@@ -594,16 +594,16 @@ public:
                         if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
                              DoCast(player, SPELL_VENTURE_STRAGGLER_CREDIT);
                          me->GetMotionMaster()->MovePoint(0, me->GetPositionX()-7, me->GetPositionY()+7, me->GetPositionZ());
-                         _events.ScheduleEvent(EVENT_STRAGGLER_2, 2500);
+                         _events.ScheduleEvent(EVENT_STRAGGLER_2, 2500ms);
                          break;
                     case EVENT_STRAGGLER_2:
                          Talk(SAY_SEO);
                          me->GetMotionMaster()->MovePoint(0, me->GetPositionX()-7, me->GetPositionY()-5, me->GetPositionZ());
-                         _events.ScheduleEvent(EVENT_STRAGGLER_3, 2500);
+                         _events.ScheduleEvent(EVENT_STRAGGLER_3, 2500ms);
                          break;
                     case EVENT_STRAGGLER_3:
                         me->GetMotionMaster()->MovePoint(0, me->GetPositionX()-5, me->GetPositionY()-5, me->GetPositionZ());
-                        _events.ScheduleEvent(EVENT_STRAGGLER_4, 2500);
+                        _events.ScheduleEvent(EVENT_STRAGGLER_4, 2500ms);
                         break;
                     case EVENT_STRAGGLER_4:
                         me->DisappearAndDie();
@@ -632,7 +632,7 @@ public:
                 me->SetReactState(REACT_PASSIVE);
                 me->CombatStop(false);
                 _playerGUID = caster->GetGUID();
-                _events.ScheduleEvent(EVENT_STRAGGLER_1, 3500);
+                _events.ScheduleEvent(EVENT_STRAGGLER_1, 3500ms);
             }
         }
 
@@ -720,19 +720,19 @@ public:
                         case EVENT_LAKEFROG_1:
                             DoCast(me, SPELL_MAIDEN_OF_ASHWOOD_LAKE_TRANSFORM);
                             me->SetEntry(NPC_MAIDEN_OF_ASHWOOD_LAKE);
-                            _events.ScheduleEvent(EVENT_LAKEFROG_2, 2000);
+                            _events.ScheduleEvent(EVENT_LAKEFROG_2, 2s);
                             break;
                         case EVENT_LAKEFROG_2:
                             Talk(SAY_MAIDEN_0);
-                            _events.ScheduleEvent(EVENT_LAKEFROG_3, 3000);
+                            _events.ScheduleEvent(EVENT_LAKEFROG_3, 3s);
                             break;
                         case EVENT_LAKEFROG_3:
                             me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
-                            _events.ScheduleEvent(EVENT_LAKEFROG_4, 25000);
+                            _events.ScheduleEvent(EVENT_LAKEFROG_4, 25s);
                             break;
                         case EVENT_LAKEFROG_4:
                             me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
-                            _events.ScheduleEvent(EVENT_LAKEFROG_5, 2000);
+                            _events.ScheduleEvent(EVENT_LAKEFROG_5, 2s);
                             break;
                         case EVENT_LAKEFROG_5:
                             Talk(SAY_MAIDEN_1);
@@ -768,7 +768,7 @@ public:
                             me->GetMotionMaster()->MoveIdle();
                             me->SetFacingToObject(player);
                             _runningScript = true;
-                            _events.ScheduleEvent(EVENT_LAKEFROG_1, 2000);
+                            _events.ScheduleEvent(EVENT_LAKEFROG_1, 2s);
                         }
                     }
                 }

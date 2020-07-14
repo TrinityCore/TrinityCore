@@ -252,7 +252,7 @@ public:
                         me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                         me->SetEmoteState(EMOTE_ONESHOT_NONE);
                         Talk(SAY_RECRUIT);
-                        _events.ScheduleEvent(EVENT_RECRUIT_2, 3000);
+                        _events.ScheduleEvent(EVENT_RECRUIT_2, 3s);
                         break;
                     case EVENT_RECRUIT_2:
                         me->SetWalk(true);
@@ -270,7 +270,7 @@ public:
 
         bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
         {
-            _events.ScheduleEvent(EVENT_RECRUIT_1, 100);
+            _events.ScheduleEvent(EVENT_RECRUIT_1, 100ms);
             CloseGossipMenuFor(player);
             me->CastSpell(player, SPELL_QUEST_CREDIT, true);
             me->SetFacingToObject(player);
@@ -491,16 +491,16 @@ public:
                    {
                         case 2:
                         case 3:
-                            _events.ScheduleEvent(EVENT_EASY_123, 100);
+                            _events.ScheduleEvent(EVENT_EASY_123, 100ms);
                             break;
                         case 4:
-                            _events.ScheduleEvent(EVENT_MEDIUM_4, 100);
+                            _events.ScheduleEvent(EVENT_MEDIUM_4, 100ms);
                             break;
                         case 5:
-                            _events.ScheduleEvent(EVENT_MEDIUM_5, 100);
+                            _events.ScheduleEvent(EVENT_MEDIUM_5, 100ms);
                             break;
                         case 6:
-                            _events.ScheduleEvent(EVENT_HARD_6, 100);
+                            _events.ScheduleEvent(EVENT_HARD_6, 100ms);
                             break;
                         default:
                             break;
@@ -569,7 +569,7 @@ public:
                 DoCast(player, SPELL_ALCHEMIST_APPRENTICE_INVISBUFF);
                 _playerGUID = player->GetGUID();
                 _getingredienttry = 1;
-                _events.ScheduleEvent(EVENT_EASY_123, 100);
+                _events.ScheduleEvent(EVENT_EASY_123, 100ms);
                 return false;
             }
 
