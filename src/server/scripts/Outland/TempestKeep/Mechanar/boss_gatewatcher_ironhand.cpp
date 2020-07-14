@@ -64,9 +64,9 @@ class boss_gatewatcher_iron_hand : public CreatureScript
             void JustEngagedWith(Unit* who) override
             {
                 BossAI::JustEngagedWith(who);
-                events.ScheduleEvent(EVENT_STREAM_OF_MACHINE_FLUID, 55000);
-                events.ScheduleEvent(EVENT_JACKHAMMER, 45000);
-                events.ScheduleEvent(EVENT_SHADOW_POWER, 25000);
+                events.ScheduleEvent(EVENT_STREAM_OF_MACHINE_FLUID, 55s);
+                events.ScheduleEvent(EVENT_JACKHAMMER, 45s);
+                events.ScheduleEvent(EVENT_SHADOW_POWER, 25s);
                 Talk(SAY_AGGRO);
             }
 
