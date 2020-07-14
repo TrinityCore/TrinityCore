@@ -226,7 +226,7 @@ class boss_arlokk : public CreatureScript
                                 DoCast(target, SPELL_MARK_OF_ARLOKK, true);
                                 Talk(SAY_FEAST_PROWLER, target);
                             }
-                            events.ScheduleEvent(EVENT_MARK_OF_ARLOKK, 120s , 130s);
+                            events.ScheduleEvent(EVENT_MARK_OF_ARLOKK, 120s, 130s);
                             break;
                         }
                         case EVENT_TRANSFORM:
