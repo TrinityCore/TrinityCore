@@ -531,7 +531,7 @@ struct npc_crok_scourgebane : public EscortAI
     void Reset() override
     {
         _events.Reset();
-        _events.ScheduleEvent(EVENT_SCOURGE_STRIKE, urand(7500, 12500));
+        _events.ScheduleEvent(EVENT_SCOURGE_STRIKE, 7500ms, 12500ms);
         _events.ScheduleEvent(EVENT_DEATH_STRIKE, 25s, 30s);
         me->SetReactState(REACT_DEFENSIVE);
         Initialize();
@@ -554,8 +554,8 @@ struct npc_crok_scourgebane : public EscortAI
                 svalna->AI()->DoAction(ACTION_START_GAUNTLET);
 
             Talk(SAY_CROK_INTRO_1);
-            _events.ScheduleEvent(EVENT_ARNATH_INTRO_2, 7000);
-            _events.ScheduleEvent(EVENT_CROK_INTRO_3, 14000);
+            _events.ScheduleEvent(EVENT_ARNATH_INTRO_2, 7s);
+            _events.ScheduleEvent(EVENT_CROK_INTRO_3, 14s);
             _events.ScheduleEvent(EVENT_START_PATHING, 35s);
             me->setActive(true);
             me->SetFarVisible(true);

@@ -98,7 +98,7 @@ class boss_festergut : public CreatureScript
                 events.ScheduleEvent(EVENT_BERSERK, 5min);
                 events.ScheduleEvent(EVENT_INHALE_BLIGHT, 25s, 30s);
                 events.ScheduleEvent(EVENT_GAS_SPORE, 20s, 25s);
-                events.ScheduleEvent(EVENT_GASTRIC_BLOAT, urand(12500, 15000));
+                events.ScheduleEvent(EVENT_GASTRIC_BLOAT, 12500ms, 15s);
                 _maxInoculatedStack = 0;
                 _inhaleCounter = 0;
                 me->RemoveAurasDueToSpell(SPELL_BERSERK2);
@@ -195,7 +195,7 @@ class boss_festergut : public CreatureScript
                                 _inhaleCounter = 0;
                                 if (Creature* professor = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_PROFESSOR_PUTRICIDE)))
                                     professor->AI()->DoAction(ACTION_FESTERGUT_GAS);
-                                events.RescheduleEvent(EVENT_GAS_SPORE, urand(20000, 25000));
+                                events.RescheduleEvent(EVENT_GAS_SPORE, 20s, 25s);
                             }
                             else
                             {
@@ -207,7 +207,7 @@ class boss_festergut : public CreatureScript
                                         .SetOriginalCaster(me->GetGUID()));
                             }
 
-                            events.ScheduleEvent(EVENT_INHALE_BLIGHT, urand(33500, 35000));
+                            events.ScheduleEvent(EVENT_INHALE_BLIGHT, 33500ms, 35s);
                             break;
                         }
                         case EVENT_VILE_GAS:
@@ -241,11 +241,11 @@ class boss_festergut : public CreatureScript
                             Talk(EMOTE_GAS_SPORE);
                             me->CastSpell(me, SPELL_GAS_SPORE, CastSpellExtraArgs().AddSpellMod(SPELLVALUE_MAX_TARGETS, RAID_MODE<int32>(2, 3, 2, 3)));
                             events.ScheduleEvent(EVENT_GAS_SPORE, 40s, 45s);
-                            events.RescheduleEvent(EVENT_VILE_GAS, urand(28000, 35000));
+                            events.RescheduleEvent(EVENT_VILE_GAS, 28s, 35s);
                             break;
                         case EVENT_GASTRIC_BLOAT:
                             DoCastVictim(SPELL_GASTRIC_BLOAT);
-                            events.ScheduleEvent(EVENT_GASTRIC_BLOAT, urand(15000, 17500));
+                            events.ScheduleEvent(EVENT_GASTRIC_BLOAT, 15s, 17500ms);
                             break;
                         case EVENT_BERSERK:
                             DoCast(me, SPELL_BERSERK2);
@@ -342,7 +342,7 @@ class npc_stinky_icc : public CreatureScript
                             break;
                         case EVENT_MORTAL_WOUND:
                             DoCastVictim(SPELL_MORTAL_WOUND);
-                            _events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(10000, 12500));
+                            _events.ScheduleEvent(EVENT_MORTAL_WOUND, 10s, 12500ms);
                             break;
                         default:
                             break;

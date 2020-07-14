@@ -318,7 +318,7 @@ class boss_valithria_dreamwalker : public CreatureScript
                 _events.ScheduleEvent(EVENT_INTRO_TALK, 15s);
                 _events.ScheduleEvent(EVENT_DREAM_PORTAL, 45s, 48s);
                 if (IsHeroic())
-                    _events.ScheduleEvent(EVENT_BERSERK, 420000);
+                    _events.ScheduleEvent(EVENT_BERSERK, 420s);
             }
 
             void HealReceived(Unit* healer, uint32& heal) override
@@ -881,7 +881,7 @@ class npc_suppresser : public CreatureScript
             void MovementInform(uint32 type, uint32 /*id*/) override
             {
                 if (type == CHASE_MOTION_TYPE)
-                    _events.RescheduleEvent(EVENT_SUPPRESSION, 1);
+                    _events.RescheduleEvent(EVENT_SUPPRESSION, 1ms);
             }
 
             void UpdateAI(uint32 diff) override
@@ -1090,7 +1090,7 @@ class npc_dream_cloud : public CreatureScript
                             Trinity::AnyPlayerInObjectRangeCheck check(me, 5.0f);
                             Trinity::PlayerSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, player, check);
                             Cell::VisitWorldObjects(me, searcher, 7.5f);
-                            _events.ScheduleEvent(player ? EVENT_EXPLODE : EVENT_CHECK_PLAYER, 1000);
+                            _events.ScheduleEvent(player ? EVENT_EXPLODE : EVENT_CHECK_PLAYER, 1s);
                             break;
                         }
                         case EVENT_EXPLODE:

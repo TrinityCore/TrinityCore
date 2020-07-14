@@ -109,7 +109,7 @@ class boss_rotface : public CreatureScript
             boss_rotfaceAI(Creature* creature) : BossAI(creature, DATA_ROTFACE)
             {
                 infectionStage = 0;
-                infectionCooldown = 14000;
+                infectionCooldown = 14s;
             }
 
             void Reset() override
@@ -122,7 +122,7 @@ class boss_rotface : public CreatureScript
                     events.ScheduleEvent(EVENT_VILE_GAS, 22s, 27s);
 
                 infectionStage = 0;
-                infectionCooldown = 14000;
+                infectionCooldown = 14s;
             }
 
             void JustEngagedWith(Unit* who) override
@@ -213,7 +213,7 @@ class boss_rotface : public CreatureScript
                         case EVENT_HASTEN_INFECTIONS:
                             if (infectionStage++ < 4)
                             {
-                                infectionCooldown -= 2000;
+                                infectionCooldown -= 2s;
                                 events.ScheduleEvent(EVENT_HASTEN_INFECTIONS, 90s);
                             }
                             break;
@@ -237,7 +237,7 @@ class boss_rotface : public CreatureScript
             }
 
         private:
-            uint32 infectionCooldown;
+            Milliseconds infectionCooldown;
             uint32 infectionStage;
         };
 
@@ -433,7 +433,7 @@ class npc_precious_icc : public CreatureScript
                             break;
                         case EVENT_MORTAL_WOUND:
                             DoCastVictim(SPELL_MORTAL_WOUND);
-                            _events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(10000, 12500));
+                            _events.ScheduleEvent(EVENT_MORTAL_WOUND, 10s, 12500ms);
                             break;
                         case EVENT_SUMMON_ZOMBIES:
                             Talk(EMOTE_PRECIOUS_ZOMBIES);
