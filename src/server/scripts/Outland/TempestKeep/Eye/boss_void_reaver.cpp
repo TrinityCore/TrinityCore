@@ -84,7 +84,7 @@ class boss_void_reaver : public CreatureScript
                 Talk(SAY_AGGRO);
                 BossAI::JustEngagedWith(who);
 
-                events.ScheduleEvent(EVENT_POUNDING, 15000);
+                events.ScheduleEvent(EVENT_POUNDING, 15s);
                 events.ScheduleEvent(EVENT_ARCANE_ORB, 3s);
                 events.ScheduleEvent(EVENT_KNOCK_AWAY, 30s);
                 events.ScheduleEvent(EVENT_BERSERK, 10min);
@@ -107,7 +107,7 @@ class boss_void_reaver : public CreatureScript
                         case EVENT_POUNDING:
                             DoCastVictim(SPELL_POUNDING);
                             Talk(SAY_POUNDING);
-                            events.ScheduleEvent(EVENT_POUNDING, 15000);
+                            events.ScheduleEvent(EVENT_POUNDING, 15s);
                             break;
                         case EVENT_ARCANE_ORB:
                         {
