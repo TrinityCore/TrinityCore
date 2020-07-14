@@ -131,11 +131,11 @@ class boss_ragnaros : public CreatureScript
                     if (!_introState)
                     {
                         me->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
-                        events.ScheduleEvent(EVENT_INTRO_1, 4000);
-                        events.ScheduleEvent(EVENT_INTRO_2, 23000);
-                        events.ScheduleEvent(EVENT_INTRO_3, 42000);
-                        events.ScheduleEvent(EVENT_INTRO_4, 43000);
-                        events.ScheduleEvent(EVENT_INTRO_5, 53000);
+                        events.ScheduleEvent(EVENT_INTRO_1, 4s);
+                        events.ScheduleEvent(EVENT_INTRO_2, 23s);
+                        events.ScheduleEvent(EVENT_INTRO_3, 42s);
+                        events.ScheduleEvent(EVENT_INTRO_4, 43s);
+                        events.ScheduleEvent(EVENT_INTRO_5, 53s);
                         _introState = 1;
                     }
 
