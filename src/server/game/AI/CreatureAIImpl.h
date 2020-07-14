@@ -78,8 +78,8 @@ struct AISpellInfoType
         , cooldown(AI_DEFAULT_COOLDOWN), realCooldown(0), maxRange(0.0f){ }
     AITarget target;
     AICondition condition;
-    uint32 cooldown;
-    uint32 realCooldown;
+    Milliseconds cooldown;
+    Milliseconds realCooldown;
     float maxRange;
 
     uint8 Targets;                                          // set of enum SelectTarget
