@@ -356,7 +356,7 @@ public:
                 if (_nextSubmerge && me->HealthBelowPctDamaged(_nextSubmerge, damage))
                 {
                     events.CancelEvent(EVENT_SUBMERGE);
-                    events.ScheduleEvent(EVENT_SUBMERGE, 0, 0, PHASE_EMERGE);
+                    events.ScheduleEvent(EVENT_SUBMERGE, 0s, 0, PHASE_EMERGE);
                     _nextSubmerge = _nextSubmerge-25;
                 }
         }
