@@ -273,14 +273,17 @@ bool RobotStrategy_Group::Update0(uint32 pmDiff)
                                 }
                             }
                         }
-                    }
-                    if (canTeleport)
-                    {
-                        me->TeleportTo(leaderPlayer->GetWorldLocation());
-                        sb->WhisperTo("I have come", Language::LANG_UNIVERSAL, leaderPlayer);
-                        return false;
-                    }
-                    sb->WhisperTo("I can not come to you", Language::LANG_UNIVERSAL, leaderPlayer);
+                        if (canTeleport)
+                        {
+                            me->TeleportTo(leaderPlayer->GetWorldLocation());
+                            sb->WhisperTo("I have come", Language::LANG_UNIVERSAL, leaderPlayer);
+                            return false;
+                        }
+                        else
+                        {
+                            sb->WhisperTo("I can not come to you", Language::LANG_UNIVERSAL, leaderPlayer);
+                        }
+                    }           
                 }
             }
         }
@@ -602,10 +605,13 @@ Player* RobotStrategy_Group::GetMainTank()
             {
                 if (Player* member = groupRef->GetSource())
                 {
-                    if (member->groupRole == GroupRole::GroupRole_Tank)
+                    if (member->IsAlive())
                     {
-                        return member;
-                    }
+                        if (member->groupRole == GroupRole::GroupRole_Tank)
+                        {
+                            return member;
+                        }
+                    }                    
                 }
             }
         }
