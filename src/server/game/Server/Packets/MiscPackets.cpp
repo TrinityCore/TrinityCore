@@ -211,7 +211,7 @@ WorldPacket const* WorldPackets::Misc::CorpseReclaimDelay::Write()
 
 WorldPacket const* WorldPackets::Misc::DeathReleaseLoc::Write()
 {
-    _worldPacket << MapID;
+    _worldPacket << int32(MapID);
     _worldPacket << Loc;
 
     return &_worldPacket;
