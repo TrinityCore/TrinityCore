@@ -7671,8 +7671,8 @@ void ObjectMgr::LoadGameObjectTemplateAddons()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                0       1       2      3        4
-    QueryResult result = WorldDatabase.Query("SELECT entry, faction, flags, mingold, maxgold FROM gameobject_template_addon");
+    //                                                0       1       2      3        4       5        6        7        8
+    QueryResult result = WorldDatabase.Query("SELECT entry, faction, flags, mingold, maxgold, artkit0, artkit1, artkit2, artkit3 FROM gameobject_template_addon");
 
     if (!result)
     {
@@ -7699,6 +7699,21 @@ void ObjectMgr::LoadGameObjectTemplateAddons()
         gameObjectAddon.Flags   = fields[2].GetUInt32();
         gameObjectAddon.Mingold = fields[3].GetUInt32();
         gameObjectAddon.Maxgold = fields[4].GetUInt32();
+
+        for (uint32 i = 0; i < gameObjectAddon.artKits.size(); ++i)
+        {
+            uint32 artKitID = fields[5 + i].GetUInt32();
+            if (!artKitID)
+                continue;
+
+            if (!sGameObjectArtKitStore.LookupEntry(artKitID))
+            {
+                TC_LOG_ERROR("sql.sql", "GameObject (Entry: %u) has invalid `artkit%d` (%d) defined, set to zero instead.", entry, i, artKitID);
+                continue;
+            }
+
+            gameObjectAddon.artKits[i] = artKitID;
+        }
 
         // checks
         if (gameObjectAddon.Faction && !sFactionTemplateStore.LookupEntry(gameObjectAddon.Faction))
