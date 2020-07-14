@@ -971,7 +971,8 @@ public:
                 }
 
                 case QUEST_WHAT_HAD_TO_BE_DONE:
-                    me->SummonGameObject(500015, 5787.86f, 774.21f, 661.27f, 0.11f, QuaternionData::QuaternionData(), 0);
+                    player->SetPhaseMask(4, true);
+                    player->CastSpell(player, SPELL_TELEPORT_STORMWIND);
                     break;
             }
         }
