@@ -223,36 +223,8 @@ class npc_voljin_zulaman : public CreatureScript
         }
 };
 
-// 45226 - Banging the Gong
-class spell_banging_the_gong : public SpellScriptLoader
-{
-    public:
-        spell_banging_the_gong() : SpellScriptLoader("spell_banging_the_gong") { }
-
-        class spell_banging_the_gong_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_banging_the_gong_SpellScript);
-
-            void Activate(SpellEffIndex index)
-            {
-                PreventHitDefaultEffect(index);
-                GetHitGObj()->SendCustomAnim(0);
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_banging_the_gong_SpellScript::Activate, EFFECT_1, SPELL_EFFECT_ACTIVATE_OBJECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_banging_the_gong_SpellScript();
-        }
-};
 
 void AddSC_zulaman()
 {
     new npc_voljin_zulaman();
-    new spell_banging_the_gong();
 }
