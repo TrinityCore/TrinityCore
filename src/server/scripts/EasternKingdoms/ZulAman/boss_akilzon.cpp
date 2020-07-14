@@ -122,7 +122,7 @@ class boss_akilzon : public CreatureScript
                 events.ScheduleEvent(EVENT_CALL_LIGHTNING, 10s, 20s);    // totaly random timer. can't find any info on this
                 events.ScheduleEvent(EVENT_ELECTRICAL_STORM, 1min);                // 60 seconds(bosskillers)
                 events.ScheduleEvent(EVENT_RAIN, 47s, 52s);
-                events.ScheduleEvent(EVENT_ENRAGE, 10*MINUTE*IN_MILLISECONDS);      // 10 minutes till enrage(bosskillers)
+                events.ScheduleEvent(EVENT_ENRAGE, 10min);      // 10 minutes till enrage(bosskillers)
 
                 Talk(SAY_AGGRO);
             }
