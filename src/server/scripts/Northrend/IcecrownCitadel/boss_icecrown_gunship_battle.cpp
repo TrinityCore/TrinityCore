@@ -916,7 +916,7 @@ class npc_high_overlord_saurfang_igb : public CreatureScript
                 }
                 else if (action == ACTION_SPAWN_MAGE)
                 {
-                    auto now = GameTime::GetGameTimeSteadyPoint();
+                    std::chrono::steady_clock::time_point now = GameTime::GetGameTimeSteadyPoint();
                     if (_firstMageCooldown > now)
                         _events.ScheduleEvent(EVENT_SUMMON_MAGE, std::chrono::duration_cast<Milliseconds>(_firstMageCooldown - now));
                     else
@@ -1180,7 +1180,7 @@ class npc_muradin_bronzebeard_igb : public CreatureScript
                 }
                 else if (action == ACTION_SPAWN_MAGE)
                 {
-                    auto now = GameTime::GetGameTimeSteadyPoint();
+                    std::chrono::steady_clock::time_point now = GameTime::GetGameTimeSteadyPoint();
                     if (_firstMageCooldown > now)
                         _events.ScheduleEvent(EVENT_SUMMON_MAGE, std::chrono::duration_cast<Milliseconds>(_firstMageCooldown - now));
                     else
