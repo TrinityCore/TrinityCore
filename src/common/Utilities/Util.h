@@ -21,6 +21,7 @@
 #include "Define.h"
 #include "Errors.h"
 
+#include <memory>
 #include <string>
 #include <sstream>
 #include <utility>
@@ -522,5 +523,26 @@ Ret* Coalesce(T1* first, T*... rest)
 {
     return static_cast<Ret*>(first ? static_cast<Ret*>(first) : Coalesce<Ret>(rest...));
 }
+
+// Wrapper for lazy initialization
+template<typename T>
+class LazyWrapper
+{
+public:
+    LazyWrapper() = default;
+    ~LazyWrapper() = default;
+
+    // Associated storage is initialized on first use.
+    T* operator-> ()
+    {
+        if (!_impl)
+            _impl = std::make_unique<T>();
+
+        return _impl.get();
+    }
+
+private:
+    std::unique_ptr<T> _impl;
+};
 
 #endif
