@@ -33,12 +33,7 @@ void EventMap::SetPhase(uint8 phase)
         _phase = uint8(1 << (phase - 1));
 }
 
-void EventMap::ScheduleEvent(uint32 eventId, Milliseconds minTime, Milliseconds maxTime, uint32 group /*= 0*/, uint8 phase /*= 0*/)
-{
-    ScheduleEvent(eventId, urand(uint32(minTime.count()), uint32(maxTime.count())), group, phase);
-}
-
-void EventMap::ScheduleEvent(uint32 eventId, uint32 time, uint32 group /*= 0*/, uint8 phase /*= 0*/)
+void EventMap::ScheduleEvent(uint32 eventId, Milliseconds time, uint32 group /*= 0*/, uint8 phase /*= 0*/)
 {
     if (group && group <= 8)
         eventId |= (1 << (group + 15));
@@ -46,17 +41,33 @@ void EventMap::ScheduleEvent(uint32 eventId, uint32 time, uint32 group /*= 0*/, 
     if (phase && phase <= 8)
         eventId |= (1 << (phase + 23));
 
-    _eventMap.insert(EventStore::value_type(_time + time, eventId));
+    _eventMap.insert(EventStore::value_type(_time + time.count(), eventId));
+}
+
+void EventMap::ScheduleEvent(uint32 eventId, Milliseconds minTime, Milliseconds maxTime, uint32 group /*= 0*/, uint8 phase /*= 0*/)
+{
+    ScheduleEvent(eventId, randtime(minTime, maxTime), group, phase);
+}
+
+void EventMap::RescheduleEvent(uint32 eventId, Milliseconds time, uint32 group /*= 0*/, uint8 phase /*= 0*/)
+{
+    CancelEvent(eventId);
+    ScheduleEvent(eventId, time, group, phase);
 }
 
 void EventMap::RescheduleEvent(uint32 eventId, Milliseconds minTime, Milliseconds maxTime, uint32 group /*= 0*/, uint8 phase /*= 0*/)
 {
-    RescheduleEvent(eventId, urand(uint32(minTime.count()), uint32(maxTime.count())), group, phase);
+    RescheduleEvent(eventId, randtime(minTime, maxTime), group, phase);
 }
 
-void EventMap::Repeat(uint32 minTime, uint32 maxTime)
+void EventMap::Repeat(Milliseconds time)
 {
-    Repeat(urand(minTime, maxTime));
+    _eventMap.insert(EventStore::value_type(_time + time.count(), _lastEvent));
+}
+
+void EventMap::Repeat(Milliseconds minTime, Milliseconds maxTime)
+{
+    Repeat(randtime(minTime, maxTime));
 }
 
 uint32 EventMap::ExecuteEvent()
@@ -81,7 +92,12 @@ uint32 EventMap::ExecuteEvent()
     return 0;
 }
 
-void EventMap::DelayEvents(uint32 delay, uint32 group)
+void EventMap::DelayEvents(Milliseconds delay)
+{
+    _time = delay.count() < _time ? _time - delay.count() : 0;
+}
+
+void EventMap::DelayEvents(Milliseconds delay, uint32 group)
 {
     if (!group || group > 8 || Empty())
         return;
@@ -92,7 +108,7 @@ void EventMap::DelayEvents(uint32 delay, uint32 group)
     {
         if (itr->second & (1 << (group + 15)))
         {
-            delayed.insert(EventStore::value_type(itr->first + delay, itr->second));
+            delayed.insert(EventStore::value_type(itr->first + delay.count(), itr->second));
             _eventMap.erase(itr++);
         }
         else
