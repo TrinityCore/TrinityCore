@@ -2882,7 +2882,7 @@ void Creature::UpdateMovementFlags()
         if (GetMovementTemplate().Flight == CreatureFlightMovementType::CanFly)
             SetCanFly(true);
         else
-            SetDisableGravity(true);
+            SetDisableGravity(true, false, false);
 
         if (!HasAuraType(SPELL_AURA_HOVER))
             SetHover(false);
@@ -2890,9 +2890,9 @@ void Creature::UpdateMovementFlags()
     else
     {
         SetCanFly(false);
-        SetDisableGravity(false);
+        SetDisableGravity(false, false, false);
         if ((IsAlive() && CanHover()) || HasAuraType(SPELL_AURA_HOVER))
-            SetHover(true);
+            SetHover(true, false, false);
     }
 
     if (!isInAir)
