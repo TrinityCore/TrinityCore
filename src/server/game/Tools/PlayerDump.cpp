@@ -23,7 +23,6 @@
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "UpdateFields.h"
 #include "World.h"
 
 // static data

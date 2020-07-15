@@ -28,7 +28,6 @@
 #include "World.h"
 #include "Corpse.h"
 #include "ObjectMgr.h"
-#include "Language.h"
 #include "WorldPacket.h"
 #include "Group.h"
 #include "Player.h"

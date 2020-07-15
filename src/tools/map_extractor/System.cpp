@@ -34,7 +34,6 @@
 
 #include <G3D/Plane.h>
 #include <boost/filesystem.hpp>
-#include <unordered_map>
 
 extern ArchiveSet gOpenArchives;
 
