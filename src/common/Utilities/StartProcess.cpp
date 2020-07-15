@@ -19,6 +19,7 @@
 #include "Errors.h"
 #include "Log.h"
 #include "Optional.h"
+#include "Util.h"
 
 #include "Hacks/boost_1_73_process_windows_nopch.h"
 
