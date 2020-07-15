@@ -214,7 +214,7 @@ public:
     static bool HandleGoGridCommand(ChatHandler* handler, float gridX, float gridY, Optional<uint32> oMapId)
     {
         Player* player = handler->GetSession()->GetPlayer();
-        uint32 mapId = oMapId.get_value_or(player->GetMapId());
+        uint32 mapId = oMapId.value_or(player->GetMapId());
 
         // center of grid
         float x = (gridX - CENTER_GRID_ID + 0.5f) * SIZE_OF_GRIDS;
@@ -337,7 +337,7 @@ public:
     static bool HandleGoXYZCommand(ChatHandler* handler, float x, float y, Optional<float> z, Optional<uint32> id, Optional<float> o)
     {
         Player* player = handler->GetSession()->GetPlayer();
-        uint32 mapId = id.get_value_or(player->GetMapId());
+        uint32 mapId = id.value_or(player->GetMapId());
         if (z)
         {
             if (!MapManager::IsValidMapCoord(mapId, x, y, *z))
@@ -359,7 +359,7 @@ public:
             z = std::max(map->GetHeight(x, y, MAX_HEIGHT), map->GetWaterLevel(x, y));
         }
 
-        return DoTeleport(handler, { x, y, *z, o.get_value_or(0.0f) }, mapId);
+        return DoTeleport(handler, { x, y, *z, o.value_or(0.0f) }, mapId);
     }
 
     static bool HandleGoTicketCommand(ChatHandler* handler, uint32 ticketId)
@@ -386,7 +386,7 @@ public:
     static bool HandleGoOffsetCommand(ChatHandler* handler, float dX, Optional<float> dY, Optional<float> dZ, Optional<float> dO)
     {
         Position loc = handler->GetSession()->GetPlayer()->GetPosition();
-        loc.RelocateOffset({ dX, dY.get_value_or(0.0f), dZ.get_value_or(0.0f), dO.get_value_or(0.0f) });
+        loc.RelocateOffset({ dX, dY.value_or(0.0f), dZ.value_or(0.0f), dO.value_or(0.0f) });
 
         return DoTeleport(handler, loc);
     }

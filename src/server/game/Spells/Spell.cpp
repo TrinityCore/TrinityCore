@@ -185,14 +185,14 @@ void SpellCastTargets::Write(WorldPackets::Spells::SpellTargetData& data)
 
     if (m_targetMask & (TARGET_FLAG_ITEM | TARGET_FLAG_TRADE_ITEM))
     {
-        data.Item = boost::in_place();
+        data.Item.emplace();
         if (m_itemTarget)
             data.Item = m_itemTarget->GetGUID();
     }
 
     if (m_targetMask & TARGET_FLAG_SOURCE_LOCATION)
     {
-        data.SrcLocation = boost::in_place();
+        data.SrcLocation.emplace();
         data.SrcLocation->Transport = m_src._transportGUID;
         if (!m_src._transportGUID.IsEmpty())
             data.SrcLocation->Location = m_src._transportOffset;
@@ -202,7 +202,7 @@ void SpellCastTargets::Write(WorldPackets::Spells::SpellTargetData& data)
 
     if (m_targetMask & TARGET_FLAG_DEST_LOCATION)
     {
-        data.DstLocation = boost::in_place();
+        data.DstLocation.emplace();
         data.DstLocation->Transport = m_dst._transportGUID;
         if (m_dst._transportGUID)
             data.DstLocation->Location = m_dst._transportOffset;
@@ -4214,13 +4214,13 @@ void Spell::SendSpellStart()
 
     if (castFlags & CAST_FLAG_AMMO)
     {
-        castData.Ammo = boost::in_place();
+        castData.Ammo.emplace();
         UpdateSpellCastDataAmmo(*castData.Ammo);
     }
 
     if (castFlags & CAST_FLAG_IMMUNITY)
     {
-        castData.Immunities = boost::in_place();
+        castData.Immunities.emplace();
         castData.Immunities->School = schoolImmunityMask;
         castData.Immunities->Value = mechanicImmunityMask;
     }
@@ -4290,7 +4290,7 @@ void Spell::SendSpellGo()
 
     if (castFlags & CAST_FLAG_RUNE_LIST && !m_spellInfo->HasAura(SPELL_AURA_CONVERT_RUNE)) // rune cooldowns list
     {
-        castData.RemainingRunes = boost::in_place();
+        castData.RemainingRunes.emplace();
 
         /// @todo There is a crash caused by a spell with CAST_FLAG_RUNE_LIST cast by a creature
         // The creature is the mover of a player, so HandleCastSpellOpcode uses it as the caster
@@ -4316,14 +4316,14 @@ void Spell::SendSpellGo()
 
     if (castFlags & CAST_FLAG_ADJUST_MISSILE)
     {
-        castData.MissileTrajectory = boost::in_place();
+        castData.MissileTrajectory.emplace();
         castData.MissileTrajectory->Pitch = m_targets.GetElevation();
         castData.MissileTrajectory->TravelTime = m_delayMoment;
     }
 
     if (castFlags & CAST_FLAG_AMMO)
     {
-        castData.Ammo = boost::in_place();
+        castData.Ammo.emplace();
         UpdateSpellCastDataAmmo(*castData.Ammo);
     }
 
@@ -4337,7 +4337,7 @@ void Spell::SendSpellGo()
 
         // update nearby players (remove flag)
         castData.CastFlags &= ~CAST_FLAG_POWER_LEFT_SELF;
-        castData.RemainingPower = boost::none;
+        castData.RemainingPower = std::nullopt;
         m_caster->SendMessageToSet(packet.Write(), false);
     }
     else
@@ -4431,8 +4431,8 @@ void Spell::UpdateSpellCastDataAmmo(WorldPackets::Spells::SpellAmmo& ammo)
 /// Writes miss and hit targets for a SMSG_SPELL_GO packet
 void Spell::UpdateSpellCastDataTargets(WorldPackets::Spells::SpellCastData& data)
 {
-    data.HitTargets = boost::in_place();
-    data.MissStatus = boost::in_place();
+    data.HitTargets.emplace();
+    data.MissStatus.emplace();
 
     // This function also fill data for channeled spells:
     // m_needAliveTargetMask req for stop channelig if one target die
