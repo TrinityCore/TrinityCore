@@ -110,7 +110,7 @@ class boss_rotface : public CreatureScript
             boss_rotfaceAI(Creature* creature) : BossAI(creature, DATA_ROTFACE)
             {
                 infectionStage = 0;
-                infectionCooldown = 14000;
+                infectionCooldown = 14s;
             }
 
             void Reset() override
@@ -123,7 +123,7 @@ class boss_rotface : public CreatureScript
                     events.ScheduleEvent(EVENT_VILE_GAS, 22s, 27s);
 
                 infectionStage = 0;
-                infectionCooldown = 14000;
+                infectionCooldown = 14s;
             }
 
             void JustEngagedWith(Unit* who) override
@@ -173,9 +173,9 @@ class boss_rotface : public CreatureScript
                     professor->AI()->EnterEvadeMode();
             }
 
-            void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* /*target*/, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == SPELL_SLIME_SPRAY)
+                if (spellInfo->Id == SPELL_SLIME_SPRAY)
                     Talk(SAY_SLIME_SPRAY);
             }
 
@@ -203,7 +203,7 @@ class boss_rotface : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_SLIME_SPRAY:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true))
                             {
                                 DoSummon(NPC_OOZE_SPRAY_STALKER, *target, 8000, TEMPSUMMON_TIMED_DESPAWN);
                                 Talk(EMOTE_SLIME_SPRAY);
@@ -214,7 +214,7 @@ class boss_rotface : public CreatureScript
                         case EVENT_HASTEN_INFECTIONS:
                             if (infectionStage++ < 4)
                             {
-                                infectionCooldown -= 2000;
+                                infectionCooldown -= 2s;
                                 events.ScheduleEvent(EVENT_HASTEN_INFECTIONS, 90s);
                             }
                             break;
@@ -238,7 +238,7 @@ class boss_rotface : public CreatureScript
             }
 
         private:
-            uint32 infectionCooldown;
+            Milliseconds infectionCooldown;
             uint32 infectionStage;
         };
 
@@ -397,7 +397,7 @@ class npc_precious_icc : public CreatureScript
             void JustSummoned(Creature* summon) override
             {
                 _summons.Summon(summon);
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     summon->AI()->AttackStart(target);
             }
 
@@ -434,7 +434,7 @@ class npc_precious_icc : public CreatureScript
                             break;
                         case EVENT_MORTAL_WOUND:
                             DoCastVictim(SPELL_MORTAL_WOUND);
-                            _events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(10000, 12500));
+                            _events.ScheduleEvent(EVENT_MORTAL_WOUND, 10s, 12500ms);
                             break;
                         case EVENT_SUMMON_ZOMBIES:
                             Talk(EMOTE_PRECIOUS_ZOMBIES);

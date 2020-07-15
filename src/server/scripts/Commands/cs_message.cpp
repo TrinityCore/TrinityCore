@@ -82,7 +82,7 @@ public:
             if (!entry)
                 continue;
 
-            if (strstr(entry->pattern[handler->GetSessionDbcLocale()], channelStr))
+            if (strstr(entry->Name[handler->GetSessionDbcLocale()], channelStr))
             {
                 channelId = i;
                 break;
@@ -96,7 +96,7 @@ public:
             if (!entry)
                 continue;
 
-            if (strstr(entry->area_name[handler->GetSessionDbcLocale()], channelStr))
+            if (strstr(entry->AreaName[handler->GetSessionDbcLocale()], channelStr))
             {
                 zoneEntry = entry;
                 break;
@@ -113,7 +113,7 @@ public:
         {
             if (channel)
                 channel->SetOwnership(true);
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHANNEL_OWNERSHIP);
+            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHANNEL_OWNERSHIP);
             stmt->setUInt8 (0, 1);
             stmt->setString(1, channelStr);
             CharacterDatabase.Execute(stmt);
@@ -123,7 +123,7 @@ public:
         {
             if (channel)
                 channel->SetOwnership(false);
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHANNEL_OWNERSHIP);
+            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHANNEL_OWNERSHIP);
             stmt->setUInt8 (0, 0);
             stmt->setString(1, channelStr);
             CharacterDatabase.Execute(stmt);

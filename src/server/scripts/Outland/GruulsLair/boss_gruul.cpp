@@ -122,11 +122,11 @@ class boss_gruul : public CreatureScript
                 Talk(SAY_DEATH);
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* pSpell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
             {
                 //This to emulate effect1 (77) of SPELL_GROUND_SLAM, knock back to any direction
                 //It's initially wrong, since this will cause fall damage, which is by comments, not intended.
-                if (pSpell->Id == SPELL_GROUND_SLAM)
+                if (spellInfo->Id == SPELL_GROUND_SLAM)
                 {
                     if (target->GetTypeId() == TYPEID_PLAYER)
                     {
@@ -144,7 +144,7 @@ class boss_gruul : public CreatureScript
                 }
 
                 //this part should be in the core
-                if (pSpell->Id == SPELL_SHATTER)
+                if (spellInfo->Id == SPELL_SHATTER)
                 {
                     /// @todo use eventmap to kill this stuff
                     //clear this, if we are still performing
@@ -205,7 +205,7 @@ class boss_gruul : public CreatureScript
                     // Hurtful Strike
                     if (m_uiHurtfulStrike_Timer <= diff)
                     {
-                        Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, 1);
+                        Unit* target = SelectTarget(SelectTargetMethod::MaxThreat, 1);
 
                         if (target && me->IsWithinMeleeRange(me->GetVictim()))
                             DoCast(target, SPELL_HURTFUL_STRIKE);
@@ -229,7 +229,7 @@ class boss_gruul : public CreatureScript
                     // Cave In
                     if (m_uiCaveIn_Timer <= diff)
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                             DoCast(target, SPELL_CAVE_IN);
 
                         if (m_uiCaveIn_StaticTimer >= 4000)

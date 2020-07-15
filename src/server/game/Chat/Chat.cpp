@@ -47,7 +47,7 @@ std::vector<ChatCommand> const& ChatHandler::getCommandTable()
         // calls getCommandTable() recursively.
         commandTableCache = sScriptMgr->GetChatCommands();
 
-        PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_COMMANDS);
+        WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_COMMANDS);
         PreparedQueryResult result = WorldDatabase.Query(stmt);
         if (result)
         {
@@ -290,9 +290,9 @@ bool ChatHandler::ExecuteCommandInTable(std::vector<ChatCommand> const& table, c
                 if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(areaId))
                 {
                     int locale = GetSessionDbcLocale();
-                    areaName = area->area_name[locale];
-                    if (AreaTableEntry const* zone = sAreaTableStore.LookupEntry(area->zone))
-                        zoneName = zone->area_name[locale];
+                    areaName = area->AreaName[locale];
+                    if (AreaTableEntry const* zone = sAreaTableStore.LookupEntry(area->ParentAreaID))
+                        zoneName = zone->AreaName[locale];
                 }
 
                 sLog->outCommand(m_session->GetAccountId(), "Command: %s [Player: %s (%s) (Account: %u) X: %f Y: %f Z: %f Map: %u (%s) Area: %u (%s) Zone: %s Selected: %s (%s)]",
@@ -877,7 +877,7 @@ uint32 ChatHandler::extractSpellIdFromLink(char* text)
             if (rank >= MAX_TALENT_RANK)
                 return 0;
 
-            return talentEntry->RankID[rank];
+            return talentEntry->SpellRank[rank];
         }
         case SPELL_LINK_ENCHANT:
         case SPELL_LINK_TRADE:
@@ -890,7 +890,7 @@ uint32 ChatHandler::extractSpellIdFromLink(char* text)
             if (!glyphPropEntry)
                 return 0;
 
-            return glyphPropEntry->SpellId;
+            return glyphPropEntry->SpellID;
         }
     }
 

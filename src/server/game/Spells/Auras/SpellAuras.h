@@ -82,6 +82,8 @@ class TC_GAME_API AuraApplication
         bool IsNeedClientUpdate() const { return _needClientUpdate;}
         void BuildUpdatePacket(ByteBuffer& data, bool remove) const;
         void ClientUpdate(bool remove = false);
+
+        std::string GetDebugInfo() const;
 };
 
 // Caches some information about caster (because it may no longer exist)

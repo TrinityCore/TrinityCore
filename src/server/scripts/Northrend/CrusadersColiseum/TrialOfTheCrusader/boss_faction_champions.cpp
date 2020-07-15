@@ -727,10 +727,10 @@ struct boss_faction_championsAI : public BossAI
                     if (me->HasBreakableByDamageCrowdControlAura())
                     {
                         RemoveCC();
-                        _events.RescheduleEvent(EVENT_REMOVE_CC, 2*MINUTE*IN_MILLISECONDS);
+                        _events.RescheduleEvent(EVENT_REMOVE_CC, 2min);
                     }
                     else
-                        _events.RescheduleEvent(EVENT_REMOVE_CC, 3*IN_MILLISECONDS);
+                        _events.RescheduleEvent(EVENT_REMOVE_CC, 3s);
                     return;
                 default:
                     return;
@@ -817,10 +817,10 @@ class npc_toc_druid : public CreatureScript
                             if (HealthBelowPct(30))
                             {
                                 DoCast(me, SPELL_BARKSKIN);
-                                events.RescheduleEvent(EVENT_HEAL_BARKSKIN, 60*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_HEAL_BARKSKIN, 60s);
                             }
                             else
-                                events.RescheduleEvent(EVENT_HEAL_BARKSKIN, 3*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_HEAL_BARKSKIN, 3s);
                             return;
                         case EVENT_THORNS:
                             if (Creature* target = SelectRandomFriendlyMissingBuff(SPELL_THORNS))
@@ -907,10 +907,10 @@ class npc_toc_shaman : public CreatureScript
                                 if (!me->HasAura(AURA_SATED))
                                     DoCastAOE(SPELL_BLOODLUST);
                             }
-                            events.ScheduleEvent(EVENT_HEAL_BLOODLUST_HEROISM, 5*MINUTE*IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_HEAL_BLOODLUST_HEROISM, 5min);
                             return;
                         case EVENT_HEX:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, NonTankTargetSelector(me)))
                                 DoCast(target, SPELL_HEX);
                             events.ScheduleEvent(EVENT_HEX, 15s, 30s);
                             return;
@@ -984,10 +984,10 @@ class npc_toc_paladin : public CreatureScript
                             if (HealthBelowPct(30) && !me->HasAura(SPELL_FORBEARANCE))
                             {
                                 DoCast(me, SPELL_DIVINE_SHIELD);
-                                events.RescheduleEvent(EVENT_HEAL_DIVINE_SHIELD, 5*MINUTE*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_HEAL_DIVINE_SHIELD, 5min);
                             }
                             else
-                                events.RescheduleEvent(EVENT_HEAL_DIVINE_SHIELD, 5*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_HEAL_DIVINE_SHIELD, 5s);
                             return;
                         case EVENT_CLEANSE:
                             if (Unit* target = DoSelectLowestHpFriendly(40.0f))
@@ -1015,16 +1015,16 @@ class npc_toc_paladin : public CreatureScript
                                 if (!target->HasAura(SPELL_FORBEARANCE))
                                 {
                                     DoCast(target, SPELL_HAND_OF_PROTECTION);
-                                    events.RescheduleEvent(EVENT_HEAL_HAND_OF_PROTECTION, 5*MINUTE*IN_MILLISECONDS);
+                                    events.RescheduleEvent(EVENT_HEAL_HAND_OF_PROTECTION, 5min);
                                 }
                                 else
-                                    events.RescheduleEvent(EVENT_HEAL_HAND_OF_PROTECTION, 3*IN_MILLISECONDS);
+                                    events.RescheduleEvent(EVENT_HEAL_HAND_OF_PROTECTION, 3s);
                             }
                             else
-                                events.RescheduleEvent(EVENT_HEAL_HAND_OF_PROTECTION, 10*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_HEAL_HAND_OF_PROTECTION, 10s);
                             return;
                         case EVENT_HAMMER_OF_JUSTICE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 15.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 15.0f, true))
                                 DoCast(target, SPELL_HAMMER_OF_JUSTICE);
                             events.ScheduleEvent(EVENT_HAMMER_OF_JUSTICE, 40s);
                             return;
@@ -1094,7 +1094,7 @@ class npc_toc_priest : public CreatureScript
                             events.ScheduleEvent(EVENT_FLASH_HEAL, 3s, 5s);
                             return;
                         case EVENT_HEAL_DISPEL:
-                            if (Unit* target = urand(0, 1) ? SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, true) : DoSelectLowestHpFriendly(40.0f))
+                            if (Unit* target = urand(0, 1) ? SelectTarget(SelectTargetMethod::Random, 0, 30.0f, true) : DoSelectLowestHpFriendly(40.0f))
                                 DoCast(target, SPELL_DISPEL);
                             events.ScheduleEvent(EVENT_HEAL_DISPEL, 10s, 20s);
                             return;
@@ -1174,12 +1174,12 @@ class npc_toc_shadow_priest : public CreatureScript
                             events.ScheduleEvent(EVENT_SILENCE, 10s, 25s);
                             return;
                         case EVENT_VAMPIRIC_TOUCH:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 30.0f, true))
                                 DoCast(target, SPELL_VAMPIRIC_TOUCH);
                             events.ScheduleEvent(EVENT_VAMPIRIC_TOUCH, 10s, 35s);
                             return;
                         case EVENT_SW_PAIN:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40.0f, true))
                                 DoCast(target, SPELL_SW_PAIN);
                             events.ScheduleEvent(EVENT_SW_PAIN, 10s, 35s);
                             return;
@@ -1195,13 +1195,13 @@ class npc_toc_shadow_priest : public CreatureScript
                             if (HealthBelowPct(40))
                             {
                                 DoCast(me, SPELL_DISPERSION);
-                                events.RescheduleEvent(EVENT_DISPERSION, 180*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_DISPERSION, 180s);
                             }
                             else
-                                events.RescheduleEvent(EVENT_DISPERSION, 5*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_DISPERSION, 5s);
                             return;
                         case EVENT_DPS_DISPEL:
-                            if (Unit* target = urand(0, 1) ? SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, true) : DoSelectLowestHpFriendly(40.0f))
+                            if (Unit* target = urand(0, 1) ? SelectTarget(SelectTargetMethod::Random, 0, 30.0f, true) : DoSelectLowestHpFriendly(40.0f))
                                 DoCast(target, SPELL_DISPEL);
                             events.ScheduleEvent(EVENT_DPS_DISPEL, 10s, 20s);
                             return;
@@ -1273,22 +1273,22 @@ class npc_toc_warlock : public CreatureScript
                             events.ScheduleEvent(EVENT_HELLFIRE, 10s, 30s);
                             return;
                         case EVENT_CORRUPTION:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 30.0f))
                                 DoCast(target, SPELL_CORRUPTION);
                             events.ScheduleEvent(EVENT_CORRUPTION, 15s, 25s);
                             return;
                         case EVENT_CURSE_OF_AGONY:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 30.0f))
                                 DoCast(target, SPELL_CURSE_OF_AGONY);
                             events.ScheduleEvent(EVENT_CURSE_OF_AGONY, 20s, 35s);
                             return;
                         case EVENT_CURSE_OF_EXHAUSTION:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 30.0f))
                                 DoCast(target, SPELL_CURSE_OF_EXHAUSTION);
                             events.ScheduleEvent(EVENT_CURSE_OF_EXHAUSTION, 20s, 35s);
                             return;
                         case EVENT_FEAR:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 20.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 20.0f, true))
                                 DoCast(target, SPELL_FEAR);
                             events.ScheduleEvent(EVENT_FEAR, 5s, 20s);
                             return;
@@ -1297,7 +1297,7 @@ class npc_toc_warlock : public CreatureScript
                             events.ScheduleEvent(EVENT_SEARING_PAIN, 10s, 25s);
                             return;
                         case EVENT_UNSTABLE_AFFLICTION:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 30.0f, true))
                                 DoCast(target, SPELL_UNSTABLE_AFFLICTION);
                             events.ScheduleEvent(EVENT_UNSTABLE_AFFLICTION, 10s, 25s);
                             return;
@@ -1385,13 +1385,13 @@ class npc_toc_mage : public CreatureScript
                             if (HealthBelowPct(30))
                             {
                                 DoCast(SPELL_ICE_BLOCK);
-                                events.RescheduleEvent(EVENT_ICE_BLOCK, 5*MINUTE*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_ICE_BLOCK, 5min);
                             }
                             else
-                                events.RescheduleEvent(EVENT_ICE_BLOCK, 5*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_ICE_BLOCK, 5s);
                             return;
                         case EVENT_POLYMORPH:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, NonTankTargetSelector(me)))
                                 DoCast(target, SPELL_POLYMORPH);
                             events.ScheduleEvent(EVENT_POLYMORPH, 10s, 30s);
                             return;
@@ -1461,10 +1461,10 @@ class npc_toc_hunter : public CreatureScript
                             if (HealthBelowPct(30))
                             {
                                 DoCast(SPELL_DETERRENCE);
-                                events.RescheduleEvent(EVENT_DETERRENCE, 150*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_DETERRENCE, 150s);
                             }
                             else
-                                events.RescheduleEvent(EVENT_DETERRENCE, 10*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_DETERRENCE, 10s);
                             return;
                         case EVENT_DISENGAGE:
                             if (EnemiesInRange(10.0f) >= 2)
@@ -1493,7 +1493,7 @@ class npc_toc_hunter : public CreatureScript
                             events.ScheduleEvent(EVENT_WING_CLIP, 15s, 25s);
                             return;
                         case EVENT_WYVERN_STING:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, NonTankTargetSelector(me)))
                                 DoCast(target, SPELL_WYVERN_STING);
                             events.ScheduleEvent(EVENT_WYVERN_STING, 10s, 30s);
                             return;
@@ -1551,12 +1551,12 @@ class npc_toc_boomkin : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_CYCLONE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, NonTankTargetSelector(me)))
                                 DoCast(target, SPELL_CYCLONE);
                             events.ScheduleEvent(EVENT_CYCLONE, 10s, 20s);
                             return;
                         case EVENT_ENTANGLING_ROOTS:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 30.0f, true))
                                 DoCast(target, SPELL_ENTANGLING_ROOTS);
                             events.ScheduleEvent(EVENT_ENTANGLING_ROOTS, 10s, 20s);
                             return;
@@ -1584,10 +1584,10 @@ class npc_toc_boomkin : public CreatureScript
                             if (HealthBelowPct(30))
                             {
                                 DoCast(me, SPELL_BARKSKIN);
-                                events.RescheduleEvent(EVENT_DPS_BARKSKIN, 60*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_DPS_BARKSKIN, 60s);
                             }
                             else
-                                events.RescheduleEvent(EVENT_DPS_BARKSKIN, 5*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_DPS_BARKSKIN, 5s);
                             return;
                         default:
                             return;
@@ -1679,20 +1679,20 @@ class npc_toc_warrior : public CreatureScript
                                 if (target->HasAuraWithMechanic(1 << MECHANIC_IMMUNE_SHIELD))
                                 {
                                     DoCast(target, SPELL_SHATTERING_THROW);
-                                    events.RescheduleEvent(EVENT_SHATTERING_THROW, 5*MINUTE*IN_MILLISECONDS);
+                                    events.RescheduleEvent(EVENT_SHATTERING_THROW, 5min);
                                     return;
                                 }
                             }
-                            events.RescheduleEvent(EVENT_SHATTERING_THROW, 3*IN_MILLISECONDS);
+                            events.RescheduleEvent(EVENT_SHATTERING_THROW, 3s);
                             return;
                         case EVENT_RETALIATION:
                             if (HealthBelowPct(50))
                             {
                                 DoCast(SPELL_RETALIATION);
-                                events.RescheduleEvent(EVENT_RETALIATION, 5*MINUTE*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_RETALIATION, 5min);
                             }
                             else
-                                events.RescheduleEvent(EVENT_RETALIATION, 5*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_RETALIATION, 5s);
                             return;
                         default:
                             return;
@@ -1758,11 +1758,11 @@ class npc_toc_dk : public CreatureScript
                                 if (me->IsInRange(target, 5.0f, 30.0f, false))
                                 {
                                     DoCast(target, SPELL_DEATH_GRIP);
-                                    events.RescheduleEvent(EVENT_DEATH_GRIP, 35*IN_MILLISECONDS);
+                                    events.RescheduleEvent(EVENT_DEATH_GRIP, 35s);
                                     return;
                                 }
                             }
-                            events.RescheduleEvent(EVENT_DEATH_GRIP, 3*IN_MILLISECONDS);
+                            events.RescheduleEvent(EVENT_DEATH_GRIP, 3s);
                             return;
                         case EVENT_FROST_STRIKE:
                             DoCastVictim(SPELL_FROST_STRIKE);
@@ -1772,10 +1772,10 @@ class npc_toc_dk : public CreatureScript
                             if (HealthBelowPct(50))
                             {
                                 DoCast(SPELL_ICEBOUND_FORTITUDE);
-                                events.RescheduleEvent(EVENT_ICEBOUND_FORTITUDE, 60*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_ICEBOUND_FORTITUDE, 60s);
                             }
                             else
-                                events.RescheduleEvent(EVENT_ICEBOUND_FORTITUDE, 5*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_ICEBOUND_FORTITUDE, 5s);
                             return;
                         case EVENT_ICY_TOUCH:
                             DoCastVictim(SPELL_ICY_TOUCH);
@@ -1785,10 +1785,10 @@ class npc_toc_dk : public CreatureScript
                             if (Unit* target = SelectEnemyCaster(false))
                             {
                                 DoCast(target, SPELL_STRANGULATE);
-                                events.RescheduleEvent(EVENT_STRANGULATE, 120*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_STRANGULATE, 120s);
                             }
                             else
-                                events.RescheduleEvent(EVENT_STRANGULATE, 5*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_STRANGULATE, 5s);
                             return;
                         default:
                             return;
@@ -1849,7 +1849,7 @@ class npc_toc_rogue : public CreatureScript
                             events.ScheduleEvent(EVENT_FAN_OF_KNIVES, 10s, 20s);
                             return;
                         case EVENT_BLIND:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, NonTankTargetSelector(me)))
                                 DoCast(target, SPELL_BLIND);
                             events.ScheduleEvent(EVENT_BLIND, 10s, 30s);
                             return;
@@ -1857,19 +1857,19 @@ class npc_toc_rogue : public CreatureScript
                             if (HealthBelowPct(50))
                             {
                                 DoCast(SPELL_CLOAK);
-                                events.RescheduleEvent(EVENT_CLOAK, 90*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_CLOAK, 90s);
                             }
                             else
-                                events.RescheduleEvent(EVENT_CLOAK, 5*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_CLOAK, 5s);
                             return;
                         case EVENT_BLADE_FLURRY:
                             if (EnemiesInRange(10.0f) >= 2)
                             {
                                 DoCast(SPELL_BLADE_FLURRY);
-                                events.RescheduleEvent(EVENT_BLADE_FLURRY, 120*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_BLADE_FLURRY, 120s);
                             }
                             else
-                                events.RescheduleEvent(EVENT_BLADE_FLURRY, 5*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_BLADE_FLURRY, 5s);
                             return;
                         case EVENT_SHADOWSTEP:
                             if (Unit* target = me->GetVictim())
@@ -1877,11 +1877,11 @@ class npc_toc_rogue : public CreatureScript
                                 if (me->IsInRange(target, 10.0f, 40.0f, false))
                                 {
                                     DoCast(target, SPELL_SHADOWSTEP);
-                                    events.RescheduleEvent(EVENT_SHADOWSTEP, 30*IN_MILLISECONDS);
+                                    events.RescheduleEvent(EVENT_SHADOWSTEP, 30s);
                                     return;
                                 }
                             }
-                            events.RescheduleEvent(EVENT_SHADOWSTEP, 5*IN_MILLISECONDS);
+                            events.RescheduleEvent(EVENT_SHADOWSTEP, 5s);
                             return;
                         case EVENT_HEMORRHAGE:
                             DoCastVictim(SPELL_HEMORRHAGE);
@@ -2015,7 +2015,7 @@ class npc_toc_enh_shaman : public CreatureScript
                                 if (!me->HasAura(AURA_SATED))
                                     DoCastAOE(SPELL_BLOODLUST);
                             }
-                            events.ScheduleEvent(EVENT_DPS_BLOODLUST_HEROISM, 5*MINUTE*IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_DPS_BLOODLUST_HEROISM, 5min);
                             return;
                         case EVENT_DEPLOY_TOTEM:
                             if (_totemCount < 4 || me->GetDistance2d(_totemOldCenterX, _totemOldCenterY) > 20.0f)
@@ -2108,7 +2108,7 @@ class npc_toc_retro_paladin : public CreatureScript
                             events.ScheduleEvent(EVENT_JUDGEMENT_OF_COMMAND, 10s, 15s);
                             return;
                         case EVENT_REPENTANCE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, NonTankTargetSelector(me)))
                                 DoCast(target, SPELL_REPENTANCE);
                             events.ScheduleEvent(EVENT_REPENTANCE, 1min);
                             return;
@@ -2118,22 +2118,22 @@ class npc_toc_retro_paladin : public CreatureScript
                                 if (!target->HasAura(SPELL_FORBEARANCE))
                                 {
                                     DoCast(target, SPELL_HAND_OF_PROTECTION);
-                                    events.RescheduleEvent(EVENT_DPS_HAND_OF_PROTECTION, 5*MINUTE*IN_MILLISECONDS);
+                                    events.RescheduleEvent(EVENT_DPS_HAND_OF_PROTECTION, 5min);
                                 }
                                 else
-                                    events.RescheduleEvent(EVENT_DPS_HAND_OF_PROTECTION, 5*IN_MILLISECONDS);
+                                    events.RescheduleEvent(EVENT_DPS_HAND_OF_PROTECTION, 5s);
                             }
                             else
-                                events.RescheduleEvent(EVENT_DPS_HAND_OF_PROTECTION, 5*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_DPS_HAND_OF_PROTECTION, 5s);
                             return;
                         case EVENT_DPS_DIVINE_SHIELD:
                             if (HealthBelowPct(30) && !me->HasAura(SPELL_FORBEARANCE))
                             {
                                 DoCast(me, SPELL_DIVINE_SHIELD);
-                                events.RescheduleEvent(EVENT_DPS_DIVINE_SHIELD, 5*MINUTE*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_DPS_DIVINE_SHIELD, 5min);
                             }
                             else
-                                events.RescheduleEvent(EVENT_DPS_DIVINE_SHIELD, 5*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_DPS_DIVINE_SHIELD, 5s);
                             return;
                         default:
                             return;

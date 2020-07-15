@@ -9,7 +9,7 @@
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 if(WIN32)
- set(BOOST_DEBUG ON)
+  set(BOOST_DEBUG ON)
   if(DEFINED ENV{BOOST_ROOT})
     set(BOOST_ROOT $ENV{BOOST_ROOT})
     if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.0)
@@ -29,13 +29,18 @@ if(WIN32)
 		endif()
       endif()
     endif()
-  else()
+  elseif(NOT DEFINED Boost_DIR AND NOT DEFINED BOOST_ROOT AND NOT DEFINED BOOSTROOT)
     message(FATAL_ERROR "No BOOST_ROOT environment variable could be found! Please make sure it is set and the points to your Boost installation.")
   endif()
 
   set(Boost_USE_STATIC_LIBS        ON)
   set(Boost_USE_MULTITHREADED      ON)
   set(Boost_USE_STATIC_RUNTIME     OFF)
+endif()
+
+if (CMAKE_VERSION VERSION_LESS "3.16.0")
+  # boost's own cmake file adds extra compile definitions that cotire fails to pick up
+  set(Boost_NO_BOOST_CMAKE ON)
 endif()
 
 include (CheckCXXSourceCompiles)
@@ -78,14 +83,11 @@ target_compile_definitions(boost
     -DBOOST_DATE_TIME_NO_LIB
     -DBOOST_REGEX_NO_LIB
     -DBOOST_CHRONO_NO_LIB
-    # Due to MSVC linking error boost::none" already defined in scripts_...
-    # May be removed when the requirement is raised to boost 1.61 on windows.
-    -DBOOST_OPTIONAL_USE_OLD_DEFINITION_OF_NONE
-    -DBOOST_CHRONO_NO_LIB
     -DBOOST_SERIALIZATION_NO_LIB
     -DBOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE
     -DBOOST_ASIO_NO_DEPRECATED
-    -DBOOST_SYSTEM_USE_UTF8)
+    -DBOOST_SYSTEM_USE_UTF8
+    -DBOOST_BIND_NO_PLACEHOLDERS)
 
 if (NOT boost_filesystem_copy_links_without_NO_SCOPED_ENUM)
   target_compile_definitions(boost

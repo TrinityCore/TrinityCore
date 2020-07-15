@@ -276,8 +276,8 @@ class boss_flame_leviathan : public CreatureScript
             {
                 BossAI::JustEngagedWith(who);
                 me->SetReactState(REACT_PASSIVE);
-                events.ScheduleEvent(EVENT_PURSUE, 1);
-                events.ScheduleEvent(EVENT_MISSILE, urand(1500, 4*IN_MILLISECONDS));
+                events.ScheduleEvent(EVENT_PURSUE, 1ms);
+                events.ScheduleEvent(EVENT_MISSILE, 1500ms, 4s);
                 events.ScheduleEvent(EVENT_VENT, 20s);
                 events.ScheduleEvent(EVENT_SHUTDOWN, 150s);
                 events.ScheduleEvent(EVENT_SPEED, 15s);
@@ -331,16 +331,16 @@ class boss_flame_leviathan : public CreatureScript
                 Talk(SAY_DEATH);
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == SPELL_START_THE_ENGINE)
+                if (spellInfo->Id == SPELL_START_THE_ENGINE)
                     if (Vehicle* vehicleKit = me->GetVehicleKit())
                         vehicleKit->InstallAllAccessories(false);
 
-                if (spell->Id == SPELL_ELECTROSHOCK)
+                if (spellInfo->Id == SPELL_ELECTROSHOCK)
                     me->InterruptSpell(CURRENT_CHANNELED_SPELL);
 
-                if (spell->Id == SPELL_OVERLOAD_CIRCUIT)
+                if (spellInfo->Id == SPELL_OVERLOAD_CIRCUIT)
                     ++Shutdown;
             }
 
@@ -427,7 +427,7 @@ class boss_flame_leviathan : public CreatureScript
                             if (Shutout)
                                 Shutout = false;
                             events.ScheduleEvent(EVENT_REPAIR, 4s);
-                            events.DelayEvents(20 * IN_MILLISECONDS, 0);
+                            events.DelayEvents(20s, 0);
                             break;
                         case EVENT_REPAIR:
                             Talk(EMOTE_REPAIR);
@@ -463,7 +463,7 @@ class boss_flame_leviathan : public CreatureScript
                             for (int32 i = 0; i < 4; ++i)
                                 me->SummonCreature(NPC_FREYA_BEACON, FreyaBeacons[i]);
 
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random))
                                 DoCast(target, SPELL_FREYA_S_WARD);
                             events.CancelEvent(EVENT_FREYA_S_WARD);
                             break;
@@ -476,16 +476,19 @@ class boss_flame_leviathan : public CreatureScript
                 DoBatteringRamIfReady();
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
             {
-                if (spell->Id != SPELL_PURSUED)
+                Unit* unitTarget = target->ToUnit();
+                if (!unitTarget)
                     return;
 
-                _pursueTarget = target->GetGUID();
-                me->GetMotionMaster()->Clear();
-                me->GetMotionMaster()->MoveChase(target);
+                if (spellInfo->Id != SPELL_PURSUED)
+                    return;
 
-                for (SeatMap::const_iterator itr = target->GetVehicleKit()->Seats.begin(); itr != target->GetVehicleKit()->Seats.end(); ++itr)
+                _pursueTarget = unitTarget->GetGUID();
+                AttackStart(unitTarget);
+
+                for (SeatMap::const_iterator itr = unitTarget->GetVehicleKit()->Seats.begin(); itr != unitTarget->GetVehicleKit()->Seats.end(); ++itr)
                 {
                     if (Player* passenger = ObjectAccessor::GetPlayer(*me, itr->second.Passenger.Guid))
                     {
@@ -581,7 +584,7 @@ class boss_flame_leviathan : public CreatureScript
 
                         if (!target)
                         {
-                            events.RescheduleEvent(EVENT_PURSUE, 0);
+                            events.RescheduleEvent(EVENT_PURSUE, 0s);
                             return;
                         }
 
@@ -698,7 +701,7 @@ class boss_flame_leviathan_defense_cannon : public CreatureScript
 
                 if (NapalmTimer <= diff)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         if (CanAIAttack(target))
                             DoCast(target, SPELL_NAPALM, true);
 
@@ -907,9 +910,9 @@ class npc_pool_of_tar : public CreatureScript
                 damage = 0;
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
-                if (spell->SchoolMask & SPELL_SCHOOL_MASK_FIRE && !me->HasAura(SPELL_BLAZE))
+                if (spellInfo->SchoolMask & SPELL_SCHOOL_MASK_FIRE && !me->HasAura(SPELL_BLAZE))
                     me->CastSpell(me, SPELL_BLAZE, true);
             }
 

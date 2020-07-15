@@ -61,6 +61,7 @@ class TC_GAME_API Vehicle : public TransportBase
         void RelocatePassengers();
         void RemoveAllPassengers();
         bool IsVehicleInUse() const;
+        bool IsControllableVehicle() const;
 
         void SetLastShootPos(Position const& pos) { _lastShootPos.Relocate(pos); }
         Position const& GetLastShootPos() const { return _lastShootPos; }

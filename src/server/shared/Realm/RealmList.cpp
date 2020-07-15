@@ -42,8 +42,8 @@ RealmList* RealmList::Instance()
 void RealmList::Initialize(Trinity::Asio::IoContext& ioContext, uint32 updateInterval)
 {
     _updateInterval = updateInterval;
-    _updateTimer = Trinity::make_unique<Trinity::Asio::DeadlineTimer>(ioContext);
-    _resolver = Trinity::make_unique<boost::asio::ip::tcp::resolver>(ioContext);
+    _updateTimer = std::make_unique<Trinity::Asio::DeadlineTimer>(ioContext);
+    _resolver = std::make_unique<boost::asio::ip::tcp::resolver>(ioContext);
 
     LoadBuildInfo();
     // Get the content of the realmlist table in the database
@@ -103,11 +103,11 @@ void RealmList::UpdateRealm(RealmHandle const& id, uint32 build, std::string con
     realm.AllowedSecurityLevel = allowedSecurityLevel;
     realm.PopulationLevel = population;
     if (!realm.ExternalAddress || *realm.ExternalAddress != address)
-        realm.ExternalAddress = Trinity::make_unique<boost::asio::ip::address>(std::move(address));
+        realm.ExternalAddress = std::make_unique<boost::asio::ip::address>(std::move(address));
     if (!realm.LocalAddress || *realm.LocalAddress != localAddr)
-        realm.LocalAddress = Trinity::make_unique<boost::asio::ip::address>(std::move(localAddr));
+        realm.LocalAddress = std::make_unique<boost::asio::ip::address>(std::move(localAddr));
     if (!realm.LocalSubnetMask || *realm.LocalSubnetMask != localSubmask)
-        realm.LocalSubnetMask = Trinity::make_unique<boost::asio::ip::address>(std::move(localSubmask));
+        realm.LocalSubnetMask = std::make_unique<boost::asio::ip::address>(std::move(localSubmask));
     realm.Port = port;
 }
 
@@ -118,7 +118,7 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
 
     TC_LOG_DEBUG("server.authserver", "Updating Realm List...");
 
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_REALMLIST);
+    LoginDatabasePreparedStatement *stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_REALMLIST);
     PreparedQueryResult result = LoginDatabase.Query(stmt);
 
     std::map<RealmHandle, std::string> existingRealms;

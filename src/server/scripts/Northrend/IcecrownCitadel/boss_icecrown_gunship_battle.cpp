@@ -854,7 +854,7 @@ class npc_high_overlord_saurfang_igb : public CreatureScript
                 _controller.SetTransport(creature->GetTransport());
                 me->SetRegenerateHealth(false);
                 me->m_CombatDistance = 70.0f;
-                _firstMageCooldown = GameTime::GetGameTime() + 60;
+                _firstMageCooldown = GameTime::GetGameTimeSteadyPoint() + 60s;
                 _axethrowersYellCooldown = time_t(0);
                 _rocketeersYellCooldown = time_t(0);
             }
@@ -864,7 +864,7 @@ class npc_high_overlord_saurfang_igb : public CreatureScript
                 ScriptedAI::InitializeAI();
 
                 _events.Reset();
-                _firstMageCooldown = GameTime::GetGameTime() + 60;
+                _firstMageCooldown = GameTime::GetGameTimeSteadyPoint() + 60s;
                 _axethrowersYellCooldown = time_t(0);
                 _rocketeersYellCooldown = time_t(0);
             }
@@ -897,9 +897,9 @@ class npc_high_overlord_saurfang_igb : public CreatureScript
                         muradin->AI()->DoAction(ACTION_SPAWN_ALL_ADDS);
 
                     Talk(SAY_SAURFANG_INTRO_5);
-                    _events.ScheduleEvent(EVENT_INTRO_H_5, 4000);
-                    _events.ScheduleEvent(EVENT_INTRO_H_6, 11000);
-                    _events.ScheduleEvent(EVENT_KEEP_PLAYER_IN_COMBAT, 1);
+                    _events.ScheduleEvent(EVENT_INTRO_H_5, 4s);
+                    _events.ScheduleEvent(EVENT_INTRO_H_6, 11s);
+                    _events.ScheduleEvent(EVENT_KEEP_PLAYER_IN_COMBAT, 1ms);
 
                     _instance->SetBossState(DATA_ICECROWN_GUNSHIP_BATTLE, IN_PROGRESS);
                     // Combat starts now
@@ -916,11 +916,11 @@ class npc_high_overlord_saurfang_igb : public CreatureScript
                 }
                 else if (action == ACTION_SPAWN_MAGE)
                 {
-                    time_t now = GameTime::GetGameTime();
+                    std::chrono::steady_clock::time_point now = GameTime::GetGameTimeSteadyPoint();
                     if (_firstMageCooldown > now)
-                        _events.ScheduleEvent(EVENT_SUMMON_MAGE, (_firstMageCooldown - now) * IN_MILLISECONDS);
+                        _events.ScheduleEvent(EVENT_SUMMON_MAGE, std::chrono::duration_cast<Milliseconds>(_firstMageCooldown - now));
                     else
-                        _events.ScheduleEvent(EVENT_SUMMON_MAGE, 1);
+                        _events.ScheduleEvent(EVENT_SUMMON_MAGE, 1ms);
                 }
                 else if (action == ACTION_SPAWN_ALL_ADDS)
                 {
@@ -954,7 +954,7 @@ class npc_high_overlord_saurfang_igb : public CreatureScript
                 {
                     _controller.ClearSlot(PassengerSlots(data));
                     if (data == SLOT_FREEZE_MAGE)
-                        _events.ScheduleEvent(EVENT_SUMMON_MAGE, urand(30000, 33500));
+                        _events.ScheduleEvent(EVENT_SUMMON_MAGE, 30s, 33500ms);
                 }
             }
 
@@ -963,11 +963,11 @@ class npc_high_overlord_saurfang_igb : public CreatureScript
                 me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 me->GetTransport()->EnableMovement(true);
                 _events.SetPhase(PHASE_INTRO);
-                _events.ScheduleEvent(EVENT_INTRO_H_1, 5000, 0, PHASE_INTRO);
-                _events.ScheduleEvent(EVENT_INTRO_H_2, 16000, 0, PHASE_INTRO);
-                _events.ScheduleEvent(EVENT_INTRO_SUMMON_SKYBREAKER, 24600, 0, PHASE_INTRO);
-                _events.ScheduleEvent(EVENT_INTRO_H_3, 29600, 0, PHASE_INTRO);
-                _events.ScheduleEvent(EVENT_INTRO_H_4, 39200, 0, PHASE_INTRO);
+                _events.ScheduleEvent(EVENT_INTRO_H_1, 5s, 0, PHASE_INTRO);
+                _events.ScheduleEvent(EVENT_INTRO_H_2, 16s, 0, PHASE_INTRO);
+                _events.ScheduleEvent(EVENT_INTRO_SUMMON_SKYBREAKER, 24600ms, 0, PHASE_INTRO);
+                _events.ScheduleEvent(EVENT_INTRO_H_3, 29600ms, 0, PHASE_INTRO);
+                _events.ScheduleEvent(EVENT_INTRO_H_4, 39200ms, 0, PHASE_INTRO);
                 return false;
             }
 
@@ -1093,7 +1093,7 @@ class npc_high_overlord_saurfang_igb : public CreatureScript
             EventMap _events;
             PassengerController _controller;
             InstanceScript* _instance;
-            time_t _firstMageCooldown;
+            std::chrono::steady_clock::time_point _firstMageCooldown;
             time_t _axethrowersYellCooldown;
             time_t _rocketeersYellCooldown;
         };
@@ -1118,7 +1118,7 @@ class npc_muradin_bronzebeard_igb : public CreatureScript
                 _controller.SetTransport(creature->GetTransport());
                 me->SetRegenerateHealth(false);
                 me->m_CombatDistance = 70.0f;
-                _firstMageCooldown = GameTime::GetGameTime() + 60;
+                _firstMageCooldown = GameTime::GetGameTimeSteadyPoint() + 60s;
                 _riflemanYellCooldown = time_t(0);
                 _mortarYellCooldown = time_t(0);
             }
@@ -1128,7 +1128,7 @@ class npc_muradin_bronzebeard_igb : public CreatureScript
                 ScriptedAI::InitializeAI();
 
                 _events.Reset();
-                _firstMageCooldown = GameTime::GetGameTime() + 60;
+                _firstMageCooldown = GameTime::GetGameTimeSteadyPoint() + 60s;
                 _riflemanYellCooldown = time_t(0);
                 _mortarYellCooldown = time_t(0);
             }
@@ -1161,9 +1161,9 @@ class npc_muradin_bronzebeard_igb : public CreatureScript
                         muradin->AI()->DoAction(ACTION_SPAWN_ALL_ADDS);
 
                     Talk(SAY_MURADIN_INTRO_6);
-                    _events.ScheduleEvent(EVENT_INTRO_A_6, 5000);
-                    _events.ScheduleEvent(EVENT_INTRO_A_7, 11000);
-                    _events.ScheduleEvent(EVENT_KEEP_PLAYER_IN_COMBAT, 1);
+                    _events.ScheduleEvent(EVENT_INTRO_A_6, 5s);
+                    _events.ScheduleEvent(EVENT_INTRO_A_7, 11s);
+                    _events.ScheduleEvent(EVENT_KEEP_PLAYER_IN_COMBAT, 1ms);
 
                     _instance->SetBossState(DATA_ICECROWN_GUNSHIP_BATTLE, IN_PROGRESS);
                     // Combat starts now
@@ -1180,11 +1180,11 @@ class npc_muradin_bronzebeard_igb : public CreatureScript
                 }
                 else if (action == ACTION_SPAWN_MAGE)
                 {
-                    time_t now = GameTime::GetGameTime();
+                    std::chrono::steady_clock::time_point now = GameTime::GetGameTimeSteadyPoint();
                     if (_firstMageCooldown > now)
-                        _events.ScheduleEvent(EVENT_SUMMON_MAGE, (_firstMageCooldown - now) * IN_MILLISECONDS);
+                        _events.ScheduleEvent(EVENT_SUMMON_MAGE, std::chrono::duration_cast<Milliseconds>(_firstMageCooldown - now));
                     else
-                        _events.ScheduleEvent(EVENT_SUMMON_MAGE, 1);
+                        _events.ScheduleEvent(EVENT_SUMMON_MAGE, 1ms);
                 }
                 else if (action == ACTION_SPAWN_ALL_ADDS)
                 {
@@ -1218,7 +1218,7 @@ class npc_muradin_bronzebeard_igb : public CreatureScript
                 {
                     _controller.ClearSlot(PassengerSlots(data));
                     if (data == SLOT_FREEZE_MAGE)
-                        _events.ScheduleEvent(EVENT_SUMMON_MAGE, urand(30000, 33500));
+                        _events.ScheduleEvent(EVENT_SUMMON_MAGE, 30s, 33500ms);
                 }
             }
 
@@ -1227,12 +1227,12 @@ class npc_muradin_bronzebeard_igb : public CreatureScript
                 me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 me->GetTransport()->EnableMovement(true);
                 _events.SetPhase(PHASE_INTRO);
-                _events.ScheduleEvent(EVENT_INTRO_A_1, 5000);
-                _events.ScheduleEvent(EVENT_INTRO_A_2, 10000, 0, PHASE_INTRO);
+                _events.ScheduleEvent(EVENT_INTRO_A_1, 5s);
+                _events.ScheduleEvent(EVENT_INTRO_A_2, 10s, 0, PHASE_INTRO);
                 _events.ScheduleEvent(EVENT_INTRO_SUMMON_ORGRIMS_HAMMER, 28s, 0, PHASE_INTRO);
-                _events.ScheduleEvent(EVENT_INTRO_A_3, 33000, 0, PHASE_INTRO);
-                _events.ScheduleEvent(EVENT_INTRO_A_4, 39000, 0, PHASE_INTRO);
-                _events.ScheduleEvent(EVENT_INTRO_A_5, 45000, 0, PHASE_INTRO);
+                _events.ScheduleEvent(EVENT_INTRO_A_3, 33s, 0, PHASE_INTRO);
+                _events.ScheduleEvent(EVENT_INTRO_A_4, 39s, 0, PHASE_INTRO);
+                _events.ScheduleEvent(EVENT_INTRO_A_5, 45s, 0, PHASE_INTRO);
                 return false;
             }
 
@@ -1361,7 +1361,7 @@ class npc_muradin_bronzebeard_igb : public CreatureScript
             EventMap _events;
             PassengerController _controller;
             InstanceScript* _instance;
-            time_t _firstMageCooldown;
+            std::chrono::steady_clock::time_point _firstMageCooldown;
             time_t _riflemanYellCooldown;
             time_t _mortarYellCooldown;
         };

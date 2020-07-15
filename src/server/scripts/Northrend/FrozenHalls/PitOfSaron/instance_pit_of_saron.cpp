@@ -138,8 +138,10 @@ class instance_pit_of_saron : public InstanceMapScript
                         return _teamInInstance == ALLIANCE ? NPC_FREED_SLAVE_3_ALLIANCE : NPC_FREED_SLAVE_3_HORDE;
                     case NPC_RESCUED_SLAVE_HORDE:
                         return _teamInInstance == ALLIANCE ? NPC_RESCUED_SLAVE_ALLIANCE : NPC_RESCUED_SLAVE_HORDE;
+                    case NPC_GORKUN_IRONSKULL_1:
+                        return _teamInInstance == ALLIANCE ? NPC_MARTIN_VICTUS_1 : NPC_GORKUN_IRONSKULL_1;
                     case NPC_GORKUN_IRONSKULL_2:
-                        return _teamInInstance == ALLIANCE ? NPC_MARTIN_VICTUS_1 : NPC_GORKUN_IRONSKULL_2;
+                        return _teamInInstance == ALLIANCE ? NPC_MARTIN_VICTUS_2 : NPC_GORKUN_IRONSKULL_2;
                     default:
                         return entry;
                 }
@@ -155,7 +157,7 @@ class instance_pit_of_saron : public InstanceMapScript
                     case DATA_GARFROST:
                         if (state == DONE)
                         {
-                            if (Creature* summoner = instance->GetCreature(_garfrostGUID))
+                            if (instance->GetCreature(_garfrostGUID))
                             {
                                 if (_teamInInstance == ALLIANCE)
                                 {
@@ -164,7 +166,7 @@ class instance_pit_of_saron : public InstanceMapScript
                                 }
                                 else
                                 {
-                                    if (TempSummon* summon = instance->SummonCreature(NPC_GORKUN_IRONSKULL_2, SlaveLeaderPos))
+                                    if (TempSummon* summon = instance->SummonCreature(NPC_GORKUN_IRONSKULL_1, SlaveLeaderPos))
                                         summon->SetTempSummonType(TEMPSUMMON_MANUAL_DESPAWN);
                                 }
                             }
@@ -173,7 +175,7 @@ class instance_pit_of_saron : public InstanceMapScript
                     case DATA_TYRANNUS:
                         if (state == DONE)
                         {
-                            if (Creature* summoner = instance->GetCreature(_tyrannusGUID))
+                            if (instance->GetCreature(_tyrannusGUID))
                             {
                                 if (_teamInInstance == ALLIANCE)
                                 {

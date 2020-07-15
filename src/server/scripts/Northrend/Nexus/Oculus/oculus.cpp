@@ -266,10 +266,10 @@ class npc_ruby_emerald_amber_drake : public CreatureScript
                 Initialize();
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
                 if (Unit* creator = ObjectAccessor::GetUnit(*me, me->GetCreatorGUID()))
-                    if (spell->Id == SPELL_GPS)
+                    if (spellInfo->Id == SPELL_GPS)
                     {
                         if (_instance->GetBossState(DATA_EREGOS) == DONE)
                             Talk(WHISPER_GPS_END, creator);
@@ -344,7 +344,7 @@ class npc_ruby_emerald_amber_drake : public CreatureScript
                 if (_healthWarning)
                 {
                     if (me->GetHealthPct() <= 40.0f)
-                        _events.ScheduleEvent(EVENT_LOW_HEALTH, 0);
+                        _events.ScheduleEvent(EVENT_LOW_HEALTH, 0ms);
                 }
 
                 _events.Update(diff);

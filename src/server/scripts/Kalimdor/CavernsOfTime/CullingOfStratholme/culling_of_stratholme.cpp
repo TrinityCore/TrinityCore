@@ -360,7 +360,7 @@ class npc_chromie_start : public CreatureScript
                         break;
                     case GOSSIP_OFFSET_SKIP_1:
                         AdvanceDungeonFar();
-                        // intentional missing break
+                        /* fallthrough */
                     case GOSSIP_OFFSET_TELEPORT:
                         CloseGossipMenuFor(player);
                         me->CastSpell(player, SPELL_TELEPORT_PLAYER);
@@ -1407,9 +1407,9 @@ public:
             current = candidate;
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
-            if (!_crateRevealed && spell->Id == SPELL_ARCANE_DISRUPTION)
+            if (!_crateRevealed && spellInfo->Id == SPELL_ARCANE_DISRUPTION)
             {
                 _crateRevealed = true;
                 if (InstanceScript* instance = me->GetInstanceScript())

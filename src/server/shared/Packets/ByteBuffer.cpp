@@ -53,16 +53,16 @@ ByteBufferSourceException::ByteBufferSourceException(size_t pos, size_t size,
     message().assign(ss.str());
 }
 
-ByteBufferInvalidValueException::ByteBufferInvalidValueException(char const* type, size_t pos)
+ByteBufferInvalidValueException::ByteBufferInvalidValueException(char const* type, char const* value)
 {
-    message().assign(Trinity::StringFormat("Invalid %s value found in ByteBuffer at pos " SZFMTD, type, pos));
+    message().assign(Trinity::StringFormat("Invalid %s value (%s) found in ByteBuffer", type, value));
 }
 
 ByteBuffer& ByteBuffer::operator>>(float& value)
 {
     value = read<float>();
     if (!std::isfinite(value))
-        throw ByteBufferInvalidValueException("float", _rpos - sizeof(float));
+        throw ByteBufferInvalidValueException("float", "infinity");
     return *this;
 }
 
@@ -70,7 +70,7 @@ ByteBuffer& ByteBuffer::operator>>(double& value)
 {
     value = read<double>();
     if (!std::isfinite(value))
-        throw ByteBufferInvalidValueException("double", _rpos - sizeof(double));
+        throw ByteBufferInvalidValueException("double", "infinity");
     return *this;
 }
 
@@ -85,7 +85,7 @@ std::string ByteBuffer::ReadCString(bool requireValidUtf8 /*= true*/)
         value += c;
     }
     if (requireValidUtf8 && !utf8::is_valid(value.begin(), value.end()))
-        throw ByteBufferInvalidValueException("string", _rpos - value.length() - 1);
+        throw ByteBufferInvalidValueException("string", value.c_str());
     return value;
 }
 
@@ -188,8 +188,8 @@ void ByteBuffer::hexlike() const
 
     for (uint32 i = 0; i < size(); ++i)
     {
-        char buf[3];
-        snprintf(buf, 3, "%2X", read<uint8>(i));
+        char buf[4];
+        snprintf(buf, 4, "%2X ", read<uint8>(i));
         if ((i == (j * 8)) && ((i != (k * 16))))
         {
             o << "| ";

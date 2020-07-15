@@ -258,36 +258,36 @@ class npc_highlord_tirion_fordring_lh : public CreatureScript
                             return;
 
                         Talk(SAY_TIRION_INTRO_1);
-                        _events.ScheduleEvent(EVENT_TIRION_INTRO_2, 4000);
-                        _events.ScheduleEvent(EVENT_TIRION_INTRO_3, 14000);
-                        _events.ScheduleEvent(EVENT_TIRION_INTRO_4, 18000);
-                        _events.ScheduleEvent(EVENT_TIRION_INTRO_5, 31000);
-                        _events.ScheduleEvent(EVENT_LK_INTRO_1, 35000);
-                        _events.ScheduleEvent(EVENT_TIRION_INTRO_6, 51000);
-                        _events.ScheduleEvent(EVENT_LK_INTRO_2, 58000);
-                        _events.ScheduleEvent(EVENT_LK_INTRO_3, 74000);
-                        _events.ScheduleEvent(EVENT_LK_INTRO_4, 86000);
-                        _events.ScheduleEvent(EVENT_BOLVAR_INTRO_1, 100000);
-                        _events.ScheduleEvent(EVENT_LK_INTRO_5, 108000);
+                        _events.ScheduleEvent(EVENT_TIRION_INTRO_2, 4s);
+                        _events.ScheduleEvent(EVENT_TIRION_INTRO_3, 14s);
+                        _events.ScheduleEvent(EVENT_TIRION_INTRO_4, 18s);
+                        _events.ScheduleEvent(EVENT_TIRION_INTRO_5, 31s);
+                        _events.ScheduleEvent(EVENT_LK_INTRO_1, 35s);
+                        _events.ScheduleEvent(EVENT_TIRION_INTRO_6, 51s);
+                        _events.ScheduleEvent(EVENT_LK_INTRO_2, 58s);
+                        _events.ScheduleEvent(EVENT_LK_INTRO_3, 74s);
+                        _events.ScheduleEvent(EVENT_LK_INTRO_4, 86s);
+                        _events.ScheduleEvent(EVENT_BOLVAR_INTRO_1, 100s);
+                        _events.ScheduleEvent(EVENT_LK_INTRO_5, 108s);
 
                         if (_instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
                         {
-                            _events.ScheduleEvent(EVENT_SAURFANG_INTRO_1, 120000);
-                            _events.ScheduleEvent(EVENT_TIRION_INTRO_H_7, 129000);
-                            _events.ScheduleEvent(EVENT_SAURFANG_INTRO_2, 139000);
-                            _events.ScheduleEvent(EVENT_SAURFANG_INTRO_3, 150000);
-                            _events.ScheduleEvent(EVENT_SAURFANG_INTRO_4, 162000);
-                            _events.ScheduleEvent(EVENT_SAURFANG_RUN, 170000);
+                            _events.ScheduleEvent(EVENT_SAURFANG_INTRO_1, 120s);
+                            _events.ScheduleEvent(EVENT_TIRION_INTRO_H_7, 129s);
+                            _events.ScheduleEvent(EVENT_SAURFANG_INTRO_2, 139s);
+                            _events.ScheduleEvent(EVENT_SAURFANG_INTRO_3, 150s);
+                            _events.ScheduleEvent(EVENT_SAURFANG_INTRO_4, 162s);
+                            _events.ScheduleEvent(EVENT_SAURFANG_RUN, 170s);
                         }
                         else
                         {
-                            _events.ScheduleEvent(EVENT_MURADIN_INTRO_1, 120000);
-                            _events.ScheduleEvent(EVENT_MURADIN_INTRO_2, 124000);
-                            _events.ScheduleEvent(EVENT_MURADIN_INTRO_3, 127000);
-                            _events.ScheduleEvent(EVENT_TIRION_INTRO_A_7, 136000);
-                            _events.ScheduleEvent(EVENT_MURADIN_INTRO_4, 144000);
-                            _events.ScheduleEvent(EVENT_MURADIN_INTRO_5, 151000);
-                            _events.ScheduleEvent(EVENT_MURADIN_RUN, 157000);
+                            _events.ScheduleEvent(EVENT_MURADIN_INTRO_1, 120s);
+                            _events.ScheduleEvent(EVENT_MURADIN_INTRO_2, 124s);
+                            _events.ScheduleEvent(EVENT_MURADIN_INTRO_3, 127s);
+                            _events.ScheduleEvent(EVENT_TIRION_INTRO_A_7, 136s);
+                            _events.ScheduleEvent(EVENT_MURADIN_INTRO_4, 144s);
+                            _events.ScheduleEvent(EVENT_MURADIN_INTRO_5, 151s);
+                            _events.ScheduleEvent(EVENT_MURADIN_RUN, 157s);
                         }
                     }
                 }
@@ -483,7 +483,7 @@ class npc_rotting_frost_giant : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_DEATH_PLAGUE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, DeathPlagueTargetSelector(me)))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, DeathPlagueTargetSelector(me)))
                             {
                                 Talk(EMOTE_DEATH_PLAGUE_WARNING, target);
                                 DoCast(target, SPELL_DEATH_PLAGUE_AURA);
@@ -534,7 +534,7 @@ class npc_frost_freeze_trap : public CreatureScript
                 {
                     case 1000:
                     case 11000:
-                        _events.ScheduleEvent(EVENT_ACTIVATE_TRAP, uint32(action));
+                        _events.ScheduleEvent(EVENT_ACTIVATE_TRAP, Milliseconds(action));
                         break;
                     default:
                         break;
@@ -746,9 +746,9 @@ struct npc_icc_orb_controller : public ScriptedAI
         }
     }
 
-    void SpellHit(Unit* caster, SpellInfo const* spell) override
+    void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
     {
-        if (spell->Id == SPELL_ORB_CONTROLLER_ACTIVE)
+        if (spellInfo->Id == SPELL_ORB_CONTROLLER_ACTIVE)
             if (GameObject* orb = me->FindNearestGameObject(GO_EMPOWERING_BLOOD_ORB, 5.0f))
                 orb->AI()->SetGUID(caster->GetGUID(), DATA_GUID);
     }
@@ -922,7 +922,7 @@ struct npc_darkfallen_noble : public DarkFallenAI
         AttackSpellId = SPELL_SHADOW_BOLT;
         Scheduler.Schedule(500ms, [this](TaskContext /*context*/)
         {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, false, -SPELL_CHAINS_OF_SHADOW))
+            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true, false, -SPELL_CHAINS_OF_SHADOW))
                 DoCast(target, SPELL_CHAINS_OF_SHADOW);
         })
         .Schedule(11s, [this](TaskContext summonVampiric)
@@ -982,7 +982,7 @@ struct npc_darkfallen_archmage : public DarkFallenAI
         AttackSpellId = SPELL_FIREBALL;
         Scheduler.Schedule(1s, [this](TaskContext amplifyMagic)
         {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                 DoCast(target, SPELL_AMPLIFY_MAGIC);
             amplifyMagic.Repeat(15s, 24s);
         })
@@ -993,7 +993,7 @@ struct npc_darkfallen_archmage : public DarkFallenAI
         })
         .Schedule(17s, [this](TaskContext polymorph)
         {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, false, -SPELL_POLYMORPH))
+            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true, false, -SPELL_POLYMORPH))
                 DoCast(target, SPELL_POLYMORPH);
             polymorph.Repeat(25s, 35s);
         });
@@ -1033,7 +1033,7 @@ struct npc_darkfallen_tactician : public DarkFallenAI
         })
         .Schedule(10s, [this](TaskContext shadowStep)
         {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, false))
+            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true, false))
             {
                 DoCast(target, SPELL_SHADOWSTEP);
                 DoCast(target, SPELL_BLOOD_SAP);

@@ -138,7 +138,7 @@ class boss_lord_marrowgar : public CreatureScript
         {
             boss_lord_marrowgarAI(Creature* creature) : BossAI(creature, DATA_LORD_MARROWGAR)
             {
-                _boneStormDuration = RAID_MODE<uint32>(20000, 30000, 20000, 30000);
+                _boneStormDuration = RAID_MODE(20s, 30s, 20s, 30s);
                 _baseSpeed = creature->GetSpeedRate(MOVE_RUN);
                 _coldflameLastPos.Relocate(creature);
                 _boneSlice = false;
@@ -221,23 +221,23 @@ class boss_lord_marrowgar : public CreatureScript
                             Talk(EMOTE_BONE_STORM);
                             me->FinishSpell(CURRENT_MELEE_SPELL, false);
                             DoCast(me, SPELL_BONE_STORM);
-                            events.DelayEvents(3000, EVENT_GROUP_SPECIAL);
-                            events.ScheduleEvent(EVENT_BONE_STORM_BEGIN, 3050);
+                            events.DelayEvents(3s, EVENT_GROUP_SPECIAL);
+                            events.ScheduleEvent(EVENT_BONE_STORM_BEGIN, 3050ms);
                             events.ScheduleEvent(EVENT_WARN_BONE_STORM, 90s, 95s);
                             break;
                         case EVENT_BONE_STORM_BEGIN:
                             if (Aura* pStorm = me->GetAura(SPELL_BONE_STORM))
-                                pStorm->SetDuration(int32(_boneStormDuration));
+                                pStorm->SetDuration(int32(_boneStormDuration.count()));
                             me->SetSpeedRate(MOVE_RUN, _baseSpeed*3.0f);
                             Talk(SAY_BONE_STORM);
-                            events.ScheduleEvent(EVENT_BONE_STORM_END, _boneStormDuration+1);
+                            events.ScheduleEvent(EVENT_BONE_STORM_END, _boneStormDuration + 1ms);
                             /* fallthrough */
                         case EVENT_BONE_STORM_MOVE:
                         {
                             events.ScheduleEvent(EVENT_BONE_STORM_MOVE, _boneStormDuration/3);
-                            Unit* unit = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me));
+                            Unit* unit = SelectTarget(SelectTargetMethod::Random, 0, NonTankTargetSelector(me));
                             if (!unit)
-                                unit = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true);
+                                unit = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true);
                             if (unit)
                                 me->GetMotionMaster()->MovePoint(POINT_TARGET_BONESTORM_PLAYER, *unit);
                             break;
@@ -258,7 +258,7 @@ class boss_lord_marrowgar : public CreatureScript
                             events.CancelEvent(EVENT_BONE_STORM_MOVE);
                             events.ScheduleEvent(EVENT_ENABLE_BONE_SLICE, 10s);
                             if (!IsHeroic())
-                                events.RescheduleEvent(EVENT_BONE_SPIKE_GRAVEYARD, 15000, EVENT_GROUP_SPECIAL);
+                                events.RescheduleEvent(EVENT_BONE_SPIKE_GRAVEYARD, 15s, EVENT_GROUP_SPECIAL);
                             break;
                         case EVENT_ENABLE_BONE_SLICE:
                             _boneSlice = true;
@@ -352,7 +352,7 @@ class boss_lord_marrowgar : public CreatureScript
             Position _coldflameLastPos;
             GuidVector _boneSpikeImmune;
             ObjectGuid _coldflameTarget;
-            uint32 _boneStormDuration;
+            Milliseconds _boneStormDuration;
             float _baseSpeed;
             bool _boneSlice;
         };
@@ -526,9 +526,9 @@ class spell_marrowgar_coldflame : public SpellScriptLoader
             {
                 targets.clear();
                 // select any unit but not the tank
-                Unit* target = GetCaster()->GetAI()->SelectTarget(SELECT_TARGET_RANDOM, 0, -GetCaster()->GetCombatReach(), true, false, -SPELL_IMPALED);
+                Unit* target = GetCaster()->GetAI()->SelectTarget(SelectTargetMethod::Random, 0, -GetCaster()->GetCombatReach(), true, false, -SPELL_IMPALED);
                 if (!target)
-                    target = GetCaster()->GetAI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true); // or the tank if its solo
+                    target = GetCaster()->GetAI()->SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true); // or the tank if its solo
                 if (!target)
                     return;
 
@@ -640,7 +640,7 @@ class spell_marrowgar_bone_spike_graveyard : public SpellScriptLoader
 
             SpellCastResult CheckCast()
             {
-                return GetCaster()->GetAI()->SelectTarget(SELECT_TARGET_RANDOM, 0, BoneSpikeTargetSelector(GetCaster()->GetAI())) ? SPELL_CAST_OK : SPELL_FAILED_NO_VALID_TARGETS;
+                return GetCaster()->GetAI()->SelectTarget(SelectTargetMethod::Random, 0, BoneSpikeTargetSelector(GetCaster()->GetAI())) ? SPELL_CAST_OK : SPELL_FAILED_NO_VALID_TARGETS;
             }
 
             void HandleSpikes(SpellEffIndex effIndex)
@@ -652,7 +652,7 @@ class spell_marrowgar_bone_spike_graveyard : public SpellScriptLoader
                     uint8 boneSpikeCount = uint8(GetCaster()->GetMap()->GetSpawnMode() & 1 ? 3 : 1);
 
                     std::list<Unit*> targets;
-                    marrowgarAI->SelectTargetList(targets, boneSpikeCount, SELECT_TARGET_RANDOM, 1, BoneSpikeTargetSelector(marrowgarAI));
+                    marrowgarAI->SelectTargetList(targets, boneSpikeCount, SelectTargetMethod::Random, 1, BoneSpikeTargetSelector(marrowgarAI));
                     if (targets.empty())
                         return;
 

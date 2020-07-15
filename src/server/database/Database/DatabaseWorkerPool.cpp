@@ -68,7 +68,7 @@ template <class T>
 void DatabaseWorkerPool<T>::SetConnectionInfo(std::string const& infoString,
     uint8 const asyncThreads, uint8 const synchThreads)
 {
-    _connectionInfo = Trinity::make_unique<MySQLConnectionInfo>(infoString);
+    _connectionInfo = std::make_unique<MySQLConnectionInfo>(infoString);
 
     _async_threads = asyncThreads;
     _synch_threads = synchThreads;
@@ -183,7 +183,7 @@ QueryResult DatabaseWorkerPool<T>::Query(char const* sql, T* connection /*= null
 }
 
 template <class T>
-PreparedQueryResult DatabaseWorkerPool<T>::Query(PreparedStatement* stmt)
+PreparedQueryResult DatabaseWorkerPool<T>::Query(PreparedStatement<T>* stmt)
 {
     auto connection = GetFreeConnection();
     PreparedResultSet* ret = connection->Query(stmt);
@@ -212,7 +212,7 @@ QueryCallback DatabaseWorkerPool<T>::AsyncQuery(char const* sql)
 }
 
 template <class T>
-QueryCallback DatabaseWorkerPool<T>::AsyncQuery(PreparedStatement* stmt)
+QueryCallback DatabaseWorkerPool<T>::AsyncQuery(PreparedStatement<T>* stmt)
 {
     PreparedStatementTask* task = new PreparedStatementTask(stmt, true);
     // Store future result before enqueueing - task might get already processed and deleted before returning from this method
@@ -222,7 +222,7 @@ QueryCallback DatabaseWorkerPool<T>::AsyncQuery(PreparedStatement* stmt)
 }
 
 template <class T>
-QueryResultHolderFuture DatabaseWorkerPool<T>::DelayQueryHolder(SQLQueryHolder* holder)
+QueryResultHolderFuture DatabaseWorkerPool<T>::DelayQueryHolder(SQLQueryHolder<T>* holder)
 {
     SQLQueryHolderTask* task = new SQLQueryHolderTask(holder);
     // Store future result before enqueueing - task might get already processed and deleted before returning from this method
@@ -232,13 +232,13 @@ QueryResultHolderFuture DatabaseWorkerPool<T>::DelayQueryHolder(SQLQueryHolder* 
 }
 
 template <class T>
-SQLTransaction DatabaseWorkerPool<T>::BeginTransaction()
+SQLTransaction<T> DatabaseWorkerPool<T>::BeginTransaction()
 {
-    return std::make_shared<Transaction>();
+    return std::make_shared<Transaction<T>>();
 }
 
 template <class T>
-void DatabaseWorkerPool<T>::CommitTransaction(SQLTransaction transaction)
+void DatabaseWorkerPool<T>::CommitTransaction(SQLTransaction<T> transaction)
 {
 #ifdef TRINITY_DEBUG
     //! Only analyze transaction weaknesses in Debug mode.
@@ -261,7 +261,33 @@ void DatabaseWorkerPool<T>::CommitTransaction(SQLTransaction transaction)
 }
 
 template <class T>
-void DatabaseWorkerPool<T>::DirectCommitTransaction(SQLTransaction& transaction)
+TransactionCallback DatabaseWorkerPool<T>::AsyncCommitTransaction(SQLTransaction<T> transaction)
+{
+#ifdef TRINITY_DEBUG
+    //! Only analyze transaction weaknesses in Debug mode.
+    //! Ideally we catch the faults in Debug mode and then correct them,
+    //! so there's no need to waste these CPU cycles in Release mode.
+    switch (transaction->GetSize())
+    {
+        case 0:
+            TC_LOG_DEBUG("sql.driver", "Transaction contains 0 queries. Not executing.");
+            break;
+        case 1:
+            TC_LOG_DEBUG("sql.driver", "Warning: Transaction only holds 1 query, consider removing Transaction context in code.");
+            break;
+        default:
+            break;
+    }
+#endif // TRINITY_DEBUG
+
+    TransactionWithResultTask* task = new TransactionWithResultTask(transaction);
+    TransactionFuture result = task->GetFuture();
+    Enqueue(task);
+    return TransactionCallback(std::move(result));
+}
+
+template <class T>
+void DatabaseWorkerPool<T>::DirectCommitTransaction(SQLTransaction<T>& transaction)
 {
     T* connection = GetFreeConnection();
     int errorCode = connection->ExecuteTransaction(transaction);
@@ -291,9 +317,9 @@ void DatabaseWorkerPool<T>::DirectCommitTransaction(SQLTransaction& transaction)
 }
 
 template <class T>
-PreparedStatement* DatabaseWorkerPool<T>::GetPreparedStatement(PreparedStatementIndex index)
+PreparedStatement<T>* DatabaseWorkerPool<T>::GetPreparedStatement(PreparedStatementIndex index)
 {
-    return new PreparedStatement(index, _preparedStatementSize[index]);
+    return new PreparedStatement<T>(index, _preparedStatementSize[index]);
 }
 
 template <class T>
@@ -339,9 +365,9 @@ uint32 DatabaseWorkerPool<T>::OpenConnections(InternalIndex type, uint8 numConne
             switch (type)
             {
             case IDX_ASYNC:
-                return Trinity::make_unique<T>(_queue.get(), *_connectionInfo);
+                return std::make_unique<T>(_queue.get(), *_connectionInfo);
             case IDX_SYNCH:
-                return Trinity::make_unique<T>(*_connectionInfo);
+                return std::make_unique<T>(*_connectionInfo);
             default:
                 ABORT();
             }
@@ -418,7 +444,7 @@ void DatabaseWorkerPool<T>::Execute(char const* sql)
 }
 
 template <class T>
-void DatabaseWorkerPool<T>::Execute(PreparedStatement* stmt)
+void DatabaseWorkerPool<T>::Execute(PreparedStatement<T>* stmt)
 {
     PreparedStatementTask* task = new PreparedStatementTask(stmt);
     Enqueue(task);
@@ -436,7 +462,7 @@ void DatabaseWorkerPool<T>::DirectExecute(char const* sql)
 }
 
 template <class T>
-void DatabaseWorkerPool<T>::DirectExecute(PreparedStatement* stmt)
+void DatabaseWorkerPool<T>::DirectExecute(PreparedStatement<T>* stmt)
 {
     T* connection = GetFreeConnection();
     connection->Execute(stmt);
@@ -447,7 +473,7 @@ void DatabaseWorkerPool<T>::DirectExecute(PreparedStatement* stmt)
 }
 
 template <class T>
-void DatabaseWorkerPool<T>::ExecuteOrAppend(SQLTransaction& trans, char const* sql)
+void DatabaseWorkerPool<T>::ExecuteOrAppend(SQLTransaction<T>& trans, char const* sql)
 {
     if (!trans)
         Execute(sql);
@@ -456,7 +482,7 @@ void DatabaseWorkerPool<T>::ExecuteOrAppend(SQLTransaction& trans, char const* s
 }
 
 template <class T>
-void DatabaseWorkerPool<T>::ExecuteOrAppend(SQLTransaction& trans, PreparedStatement* stmt)
+void DatabaseWorkerPool<T>::ExecuteOrAppend(SQLTransaction<T>& trans, PreparedStatement<T>* stmt)
 {
     if (!trans)
         Execute(stmt);

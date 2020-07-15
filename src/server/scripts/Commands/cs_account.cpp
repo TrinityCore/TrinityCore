@@ -59,7 +59,8 @@ public:
         {
             { "addon",          rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_ADDON,       true,  &HandleAccountSetAddonCommand,     ""       },
             { "sec",            rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SEC,         true,  nullptr,                "", accountSetSecTable },
-            { "gmlevel",        rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_GMLEVEL,     true,  &HandleAccountSetGmLevelCommand,   ""       },
+            { "gmlevel",        rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SECLEVEL,    true,  &HandleAccountSetSecLevelCommand,  ""       },  // temp for a transition period
+            { "seclevel",       rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SECLEVEL,    true,  &HandleAccountSetSecLevelCommand,  ""       },
             { "password",       rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_PASSWORD,    true,  &HandleAccountSetPasswordCommand,  ""       },
             { "2fa",            rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_2FA,         true,  &HandleAccountSet2FACommand,       ""       },
         };
@@ -106,7 +107,7 @@ public:
         uint32 const accountId = handler->GetSession()->GetAccountId();
 
         { // check if 2FA already enabled
-            PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_TOTP_SECRET);
+            LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_TOTP_SECRET);
             stmt->setUInt32(0, accountId);
             PreparedQueryResult result = LoginDatabase.Query(stmt);
 
@@ -139,7 +140,7 @@ public:
                 if (masterKey)
                     Trinity::Crypto::AEEncryptWithRandomIV<Trinity::Crypto::AES>(pair.first->second, *masterKey);
 
-                PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_TOTP_SECRET);
+                LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_TOTP_SECRET);
                 stmt->setBinary(0, pair.first->second);
                 stmt->setUInt32(1, accountId);
                 LoginDatabase.Execute(stmt);
@@ -170,7 +171,7 @@ public:
         uint32 const accountId = handler->GetSession()->GetAccountId();
         Trinity::Crypto::TOTP::Secret secret;
         { // get current TOTP secret
-            PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_TOTP_SECRET);
+            LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_TOTP_SECRET);
             stmt->setUInt32(0, accountId);
             PreparedQueryResult result = LoginDatabase.Query(stmt);
 
@@ -209,7 +210,7 @@ public:
 
             if (Trinity::Crypto::TOTP::ValidateToken(secret, *token))
             {
-                PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_TOTP_SECRET);
+                LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_TOTP_SECRET);
                 stmt->setNull(0);
                 stmt->setUInt32(1, accountId);
                 LoginDatabase.Execute(stmt);
@@ -234,7 +235,7 @@ public:
             return false;
         }
 
-        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_EXPANSION);
+        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_EXPANSION);
 
         stmt->setUInt8(0, expansion);
         stmt->setUInt32(1, handler->GetSession()->GetAccountId());
@@ -255,16 +256,16 @@ public:
             return false;
         }
 
-        switch (sAccountMgr->CreateAccount(accountName, password, email.get_value_or("")))
+        switch (sAccountMgr->CreateAccount(accountName, password, email.value_or("")))
         {
             case AccountOpResult::AOR_OK:
                 handler->PSendSysMessage(LANG_ACCOUNT_CREATED, accountName);
                 if (handler->GetSession())
                 {
-                    TC_LOG_INFO("entities.player.character", "Account: %d (IP: %s) Character:[%s] (GUID: %u) created Account %s (Email: '%s')",
+                    TC_LOG_INFO("entities.player.character", "Account: %d (IP: %s) Character:[%s] %s) created Account %s (Email: '%s')",
                         handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
-                        handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID().GetCounter(),
-                        accountName.c_str(), email.get_value_or("").c_str());
+                        handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID().ToString().c_str(),
+                        accountName.c_str(), email.value_or("").c_str());
                 }
                 break;
             case AccountOpResult::AOR_NAME_TOO_LONG:
@@ -344,9 +345,7 @@ public:
     static bool HandleAccountOnlineListCommand(ChatHandler* handler)
     {
         ///- Get the list of accounts ID logged to the realm
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_ONLINE);
-
-        PreparedQueryResult result = CharacterDatabase.Query(stmt);
+        PreparedQueryResult result = CharacterDatabase.Query(CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_ONLINE));
 
         if (!result)
         {
@@ -368,7 +367,7 @@ public:
 
             ///- Get the username, last IP and GM level of each account
             // No SQL injection. account is uint32.
-            stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO);
+            LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO);
             stmt->setUInt32(0, account);
             PreparedQueryResult resultLogin = LoginDatabase.Query(stmt);
 
@@ -395,7 +394,7 @@ public:
         {
             if (IpLocationRecord const* location = sIPLocation->GetLocationRecord(handler->GetSession()->GetRemoteAddress()))
             {
-                PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_LOCK_COUNTRY);
+                LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_LOCK_COUNTRY);
                 stmt->setString(0, location->CountryCode);
                 stmt->setUInt32(1, handler->GetSession()->GetAccountId());
                 LoginDatabase.Execute(stmt);
@@ -410,7 +409,7 @@ public:
         }
         else
         {
-            PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_LOCK_COUNTRY);
+            LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_LOCK_COUNTRY);
             stmt->setString(0, "00");
             stmt->setUInt32(1, handler->GetSession()->GetAccountId());
             LoginDatabase.Execute(stmt);
@@ -421,7 +420,7 @@ public:
 
     static bool HandleAccountLockIpCommand(ChatHandler* handler, bool state)
     {
-        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_LOCK);
+        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_LOCK);
 
         if (state)
         {
@@ -447,9 +446,9 @@ public:
             handler->SendSysMessage(LANG_COMMAND_WRONGEMAIL);
             sScriptMgr->OnFailedEmailChange(handler->GetSession()->GetAccountId());
             handler->SetSentErrorMessage(true);
-            TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Character:[%s] (GUID: %u) Tried to change email, but the provided email [%s] is not equal to registration email [%s].",
+            TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Character:[%s] %s Tried to change email, but the provided email [%s] is not equal to registration email [%s].",
                 handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
-                handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID().GetCounter(),
+                handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID().ToString().c_str(),
                 email.c_str(), oldEmail.c_str());
             return false;
         }
@@ -459,9 +458,9 @@ public:
             handler->SendSysMessage(LANG_COMMAND_WRONGOLDPASSWORD);
             sScriptMgr->OnFailedEmailChange(handler->GetSession()->GetAccountId());
             handler->SetSentErrorMessage(true);
-            TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Character:[%s] (GUID: %u) Tried to change email, but the provided password is wrong.",
+            TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Character:[%s] %s Tried to change email, but the provided password is wrong.",
                 handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
-                handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID().GetCounter());
+                handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID().ToString().c_str());
             return false;
         }
 
@@ -478,9 +477,9 @@ public:
             handler->SendSysMessage(LANG_NEW_EMAILS_NOT_MATCH);
             sScriptMgr->OnFailedEmailChange(handler->GetSession()->GetAccountId());
             handler->SetSentErrorMessage(true);
-            TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Character:[%s] (GUID: %u) Tried to change email, but the confirm email does not match.",
+            TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Character:[%s] %s Tried to change email, but the confirm email does not match.",
                 handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
-                handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID().GetCounter());
+                handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID().ToString().c_str());
             return false;
         }
 
@@ -490,9 +489,9 @@ public:
             case AccountOpResult::AOR_OK:
                 handler->SendSysMessage(LANG_COMMAND_EMAIL);
                 sScriptMgr->OnEmailChange(handler->GetSession()->GetAccountId());
-                TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Character:[%s] (GUID: %u) Changed Email from [%s] to [%s].",
+                TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Character:[%s] %s Changed Email from [%s] to [%s].",
                     handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
-                    handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID().GetCounter(),
+                    handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID().ToString().c_str(),
                     oldEmail.c_str(), email.c_str());
                 break;
             case AccountOpResult::AOR_EMAIL_TOO_LONG:
@@ -520,23 +519,23 @@ public:
             handler->SendSysMessage(LANG_COMMAND_WRONGOLDPASSWORD);
             sScriptMgr->OnFailedPasswordChange(handler->GetSession()->GetAccountId());
             handler->SetSentErrorMessage(true);
-            TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Character:[%s] (GUID: %u) Tried to change password, but the provided old password is wrong.",
+            TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Character:[%s] %s Tried to change password, but the provided old password is wrong.",
                 handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
-                handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID().GetCounter());
+                handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID().ToString().c_str());
             return false;
         }
 
         // This compares the old, current email to the entered email - however, only...
         if ((pwConfig == PW_EMAIL || (pwConfig == PW_RBAC && handler->HasPermission(rbac::RBAC_PERM_EMAIL_CONFIRM_FOR_PASS_CHANGE))) // ...if either PW_EMAIL or PW_RBAC with the Permission is active...
-            && !AccountMgr::CheckEmail(handler->GetSession()->GetAccountId(), confirmEmail.get_value_or(""))) // ... and returns false if the comparison fails.
+            && !AccountMgr::CheckEmail(handler->GetSession()->GetAccountId(), confirmEmail.value_or(""))) // ... and returns false if the comparison fails.
         {
             handler->SendSysMessage(LANG_COMMAND_WRONGEMAIL);
             sScriptMgr->OnFailedPasswordChange(handler->GetSession()->GetAccountId());
             handler->SetSentErrorMessage(true);
-            TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Character:[%s] (GUID: %u) Tried to change password, but the entered email [%s] is wrong.",
+            TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Character:[%s] %s Tried to change password, but the entered email [%s] is wrong.",
                 handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
-                handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID().GetCounter(),
-                confirmEmail.get_value_or("").c_str());
+                handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID().ToString().c_str(),
+                confirmEmail.value_or("").c_str());
             return false;
         }
 
@@ -556,9 +555,9 @@ public:
             case AccountOpResult::AOR_OK:
                 handler->SendSysMessage(LANG_COMMAND_PASSWORD);
                 sScriptMgr->OnPasswordChange(handler->GetSession()->GetAccountId());
-                TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Character:[%s] (GUID: %u) changed password.",
+                TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Character:[%s] %s changed password.",
                     handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
-                    handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID().GetCounter());
+                    handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID().ToString().c_str());
                 break;
             case AccountOpResult::AOR_PASS_TOO_LONG:
                 handler->SendSysMessage(LANG_PASSWORD_TOO_LONG);
@@ -577,8 +576,8 @@ public:
     static bool HandleAccountCommand(ChatHandler* handler)
     {
         // GM Level
-        AccountTypes gmLevel = handler->GetSession()->GetSecurity();
-        handler->PSendSysMessage(LANG_ACCOUNT_LEVEL, uint32(gmLevel));
+        AccountTypes securityLevel = handler->GetSession()->GetSecurity();
+        handler->PSendSysMessage(LANG_ACCOUNT_LEVEL, uint32(securityLevel));
 
         // Security level required
         bool hasRBAC = (handler->HasPermission(rbac::RBAC_PERM_EMAIL_CONFIRM_FOR_PASS_CHANGE) ? true : false);
@@ -599,7 +598,7 @@ public:
             std::string emailoutput;
             uint32 accountId = handler->GetSession()->GetAccountId();
 
-            PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_EMAIL_BY_ID);
+            LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_EMAIL_BY_ID);
             stmt->setUInt32(0, accountId);
             PreparedQueryResult result = LoginDatabase.Query(stmt);
 
@@ -656,7 +655,7 @@ public:
         if (expansion > sWorld->getIntConfig(CONFIG_EXPANSION))
             return false;
 
-        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_EXPANSION);
+        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_EXPANSION);
 
         stmt->setUInt8(0, expansion);
         stmt->setUInt32(1, accountId);
@@ -667,7 +666,7 @@ public:
         return true;
     }
 
-    static bool HandleAccountSetGmLevelCommand(ChatHandler* handler, Optional<std::string> accountName, uint8 gmLevel, int32 realmId)
+    static bool HandleAccountSetSecLevelCommand(ChatHandler* handler, Optional<std::string> accountName, uint8 securityLevel, Optional<int32> realmId)
     {
         uint32 accountId;
         if (accountName)
@@ -697,24 +696,28 @@ public:
             AccountMgr::GetName(accountId, *accountName);
         }
 
-        if (gmLevel >= SEC_CONSOLE)
+        if (securityLevel >= SEC_CONSOLE)
         {
             handler->SendSysMessage(LANG_BAD_VALUE);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
+        int32 realmID = -1;
+        if (realmId)
+            realmID = *realmId;
+
         // handler->getSession() == nullptr only for console
         uint32 playerSecurity;
         if (handler->GetSession())
-            playerSecurity = AccountMgr::GetSecurity(handler->GetSession()->GetAccountId(), realmId);
+            playerSecurity = AccountMgr::GetSecurity(handler->GetSession()->GetAccountId(), realmID);
         else
             playerSecurity = SEC_CONSOLE;
 
         // can set security level only for target with less security and to less security that we have
         // This also restricts setting handler's own security.
-        uint32 targetSecurity = AccountMgr::GetSecurity(accountId, realmId);
-        if (targetSecurity >= playerSecurity || gmLevel >= playerSecurity)
+        uint32 targetSecurity = AccountMgr::GetSecurity(accountId, realmID);
+        if (targetSecurity >= playerSecurity || securityLevel >= playerSecurity)
         {
             handler->SendSysMessage(LANG_YOURS_SECURITY_IS_LOW);
             handler->SetSentErrorMessage(true);
@@ -722,12 +725,12 @@ public:
         }
 
         // Check and abort if the target gm has a higher rank on one of the realms and the new realm is -1
-        if (realmId == -1 && !AccountMgr::IsConsoleAccount(playerSecurity))
+        if (realmID == -1 && !AccountMgr::IsConsoleAccount(playerSecurity))
         {
-            PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_ACCESS_GMLEVEL_TEST);
+            LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_ACCESS_SECLEVEL_TEST);
 
             stmt->setUInt32(0, accountId);
-            stmt->setUInt8(1, gmLevel);
+            stmt->setUInt8(1, securityLevel);
 
             PreparedQueryResult result = LoginDatabase.Query(stmt);
 
@@ -740,16 +743,16 @@ public:
         }
 
         // Check if provided realmID has a negative value other than -1
-        if (realmId < -1)
+        if (realmID < -1)
         {
             handler->SendSysMessage(LANG_INVALID_REALMID);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        sAccountMgr->UpdateAccountAccess(nullptr, accountId, gmLevel, realmId);
+        sAccountMgr->UpdateAccountAccess(nullptr, accountId, securityLevel, realmID);
 
-        handler->PSendSysMessage(LANG_YOU_CHANGE_SECURITY, accountName->c_str(), gmLevel);
+        handler->PSendSysMessage(LANG_YOU_CHANGE_SECURITY, accountName->c_str(), securityLevel);
         return true;
     }
 
@@ -827,7 +830,7 @@ public:
 
         if (secret == "off")
         {
-            PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_TOTP_SECRET);
+            LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_TOTP_SECRET);
             stmt->setNull(0);
             stmt->setUInt32(1, targetAccountId);
             LoginDatabase.Execute(stmt);
@@ -842,7 +845,7 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
-        
+
         Optional<std::vector<uint8>> decoded = Trinity::Encoding::Base32::Decode(secret);
         if (!decoded)
         {
@@ -860,7 +863,7 @@ public:
         if (masterKey)
             Trinity::Crypto::AEEncryptWithRandomIV<Trinity::Crypto::AES>(*decoded, *masterKey);
 
-        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_TOTP_SECRET);
+        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_TOTP_SECRET);
         stmt->setBinary(0, *decoded);
         stmt->setUInt32(1, targetAccountId);
         LoginDatabase.Execute(stmt);

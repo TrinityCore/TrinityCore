@@ -19,6 +19,8 @@
 #include "DatabaseEnv.h"
 #include "Player.h"
 #include "WorldSession.h"
+#include "World.h"
+#include "Realm.h"
 
 enum IPLoggingTypes
 {
@@ -97,6 +99,7 @@ class AccountActionIpLogger : public AccountScript
             // We declare all the required variables
             uint32 playerGuid = accountId;
             ObjectGuid::LowType characterGuid = 0;
+            uint32 realmId = realm.Id.Realm;
             std::string systemNote = "ERROR"; // "ERROR" is a placeholder here. We change it later.
 
             // With this switch, we change systemNote so that we have a more accurate phrasing of what type it is.
@@ -104,22 +107,22 @@ class AccountActionIpLogger : public AccountScript
             switch (aType)
             {
             case ACCOUNT_LOGIN:
-                systemNote = "Logged on Successful AccountLogin";
+                systemNote = "Logged into WoW";
                 break;
             case ACCOUNT_FAIL_LOGIN:
-                systemNote = "Logged on Failed AccountLogin";
+                systemNote = "Login to WoW Failed";
                 break;
             case ACCOUNT_CHANGE_PW:
-                systemNote = "Logged on Successful Account Password Change";
+                systemNote = "Password Reset Completed";
                 break;
             case ACCOUNT_CHANGE_PW_FAIL:
-                systemNote = "Logged on Failed Account Password Change";
+                systemNote = "Password Reset Failed";
                 break;
             case ACCOUNT_CHANGE_EMAIL:
-                systemNote = "Logged on Successful Account Email Change";
+                systemNote = "Email Change Completed";
                 break;
             case ACCOUNT_CHANGE_EMAIL_FAIL:
-                systemNote = "Logged on Failed Account Email Change";
+                systemNote = "Email Change Failed";
                 break;
             /*case ACCOUNT_LOGOUT:
                 systemNote = "Logged on AccountLogout"; //Can not be logged
@@ -138,24 +141,26 @@ class AccountActionIpLogger : public AccountScript
             {
                 // As we can assume most account actions are NOT failed login, so this is the more accurate check.
                 // For those, we need last_ip...
-                PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ALDL_IP_LOGGING);
+                LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ALDL_IP_LOGGING);
 
                 stmt->setUInt32(0, playerGuid);
                 stmt->setUInt32(1, characterGuid);
-                stmt->setUInt8(2, aType);
-                stmt->setUInt32(3, playerGuid);
-                stmt->setString(4, systemNote);
+                stmt->setUInt32(2, realmId);
+                stmt->setUInt8(3, aType);
+                stmt->setUInt32(4, playerGuid);
+                stmt->setString(5, systemNote);
                 LoginDatabase.Execute(stmt);
             }
             else // ... but for failed login, we query last_attempt_ip from account table. Which we do with an unique query
             {
-                PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_FACL_IP_LOGGING);
+                LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_FACL_IP_LOGGING);
 
                 stmt->setUInt32(0, playerGuid);
                 stmt->setUInt32(1, characterGuid);
-                stmt->setUInt8(2, aType);
-                stmt->setUInt32(3, playerGuid);
-                stmt->setString(4, systemNote);
+                stmt->setUInt32(2, realmId);
+                stmt->setUInt8(3, aType);
+                stmt->setUInt32(4, playerGuid);
+                stmt->setString(5, systemNote);
                 LoginDatabase.Execute(stmt);
             }
             return;
@@ -202,6 +207,7 @@ class CharacterActionIpLogger : public PlayerScript
             // We declare all the required variables
             uint32 playerGuid = player->GetSession()->GetAccountId();
             ObjectGuid::LowType characterGuid = player->GetGUID().GetCounter();
+            uint32 realmId = realm.Id.Realm;
             const std::string currentIp = player->GetSession()->GetRemoteAddress();
             std::string systemNote = "ERROR"; // "ERROR" is a placeholder here. We change it...
 
@@ -209,19 +215,19 @@ class CharacterActionIpLogger : public PlayerScript
             switch (aType)
             {
             case CHARACTER_CREATE:
-                systemNote = "Logged on CharacterCreate";
+                systemNote = "Character Created";
                 break;
             case CHARACTER_LOGIN:
-                systemNote = "Logged on CharacterLogin";
+                systemNote = "Logged onto Character";
                 break;
             case CHARACTER_LOGOUT:
-                systemNote = "Logged on CharacterLogout";
+                systemNote = "Logged out of Character";
                 break;
             case CHARACTER_DELETE:
-                systemNote = "Logged on CharacterDelete";
+                systemNote = "Character Deleted";
                 break;
             case CHARACTER_FAILED_DELETE:
-                systemNote = "Logged on Failed CharacterDelete";
+                systemNote = "Character Deletion Failed";
                 break;
                 // Neither should happen. Ever. Period. If it does, call Mythbusters.
             case UNKNOWN_ACTION:
@@ -231,13 +237,14 @@ class CharacterActionIpLogger : public PlayerScript
             }
 
             // Once we have done everything, we can insert the new log.
-            PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_CHAR_IP_LOGGING);
+            LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_CHAR_IP_LOGGING);
 
             stmt->setUInt32(0, playerGuid);
             stmt->setUInt32(1, characterGuid);
-            stmt->setUInt8(2, aType);
-            stmt->setString(3, currentIp); // We query the ip here.
-            stmt->setString(4, systemNote);
+            stmt->setUInt32(2, realmId);
+            stmt->setUInt8(3, aType);
+            stmt->setString(4, currentIp); // We query the ip here.
+            stmt->setString(5, systemNote);
             // Seeing as the time differences should be minimal, we do not get unixtime and the timestamp right now;
             // Rather, we let it be added with the SQL query.
 
@@ -270,6 +277,7 @@ public:
 
         // We declare all the required variables
         ObjectGuid::LowType characterGuid = guid.GetCounter(); // We have no access to any member function of Player* or WorldSession*. So use old-fashioned way.
+        uint32 realmId = realm.Id.Realm;
         // Query playerGuid/accountId, as we only have characterGuid
         std::string systemNote = "ERROR"; // "ERROR" is a placeholder here. We change it later.
 
@@ -278,10 +286,10 @@ public:
         switch (aType)
         {
         case CHARACTER_DELETE:
-            systemNote = "Logged on CharacterDelete";
+            systemNote = "Character Deleted";
             break;
         case CHARACTER_FAILED_DELETE:
-            systemNote = "Logged on Failed CharacterDelete";
+            systemNote = "Character Deletion Failed";
             break;
             // Neither should happen. Ever. Period. If it does, call to whatever god you have for mercy and guidance.
         case UNKNOWN_ACTION:
@@ -291,17 +299,19 @@ public:
         }
 
         // Once we have done everything, we can insert the new log.
-        PreparedStatement* stmt2 = LoginDatabase.GetPreparedStatement(LOGIN_INS_ALDL_IP_LOGGING);
+        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ALDL_IP_LOGGING);
 
-        stmt2->setUInt32(0, playerGuid);
-        stmt2->setUInt32(1, characterGuid);
-        stmt2->setUInt8(2, aType);
-        stmt2->setUInt32(3, playerGuid);
-        stmt2->setString(4, systemNote);
+        stmt->setUInt32(0, playerGuid);
+        stmt->setUInt32(1, characterGuid);
+        stmt->setUInt32(2, realmId);
+        stmt->setUInt8(3, aType);
+        stmt->setUInt32(4, playerGuid);
+        stmt->setString(5, systemNote);
+
         // Seeing as the time differences should be minimal, we do not get unixtime and the timestamp right now;
         // Rather, we let it be added with the SQL query.
 
-        LoginDatabase.Execute(stmt2);
+        LoginDatabase.Execute(stmt);
         return;
     }
 };

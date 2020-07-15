@@ -21,8 +21,9 @@
 
 enum Spells
 {
-    SPELL_MIND_BLAST    = 15587,
-    SPELL_SLEEP         = 8399,
+    SPELL_MIND_BLAST             = 15587,
+    SPELL_SLEEP                  = 8399,
+    SPELL_BLACKFATHOM_CHANNELING = 8734
 };
 
 enum Texts
@@ -47,10 +48,23 @@ public:
     {
         boss_kelrisAI(Creature* creature) : BossAI(creature, DATA_KELRIS) { }
 
+        void Reset() override
+        {
+            _Reset();
+            DoCastSelf(SPELL_BLACKFATHOM_CHANNELING);
+        }
+
+        void JustReachedHome() override
+        {
+            _JustReachedHome();
+            DoCastSelf(SPELL_BLACKFATHOM_CHANNELING);
+        }
+
         void JustEngagedWith(Unit* who) override
         {
             BossAI::JustEngagedWith(who);
             Talk(SAY_AGGRO);
+            me->RemoveAurasDueToSpell(SPELL_BLACKFATHOM_CHANNELING);
             events.ScheduleEvent(EVENT_MIND_BLAST, 2s, 5s);
             events.ScheduleEvent(EVENT_SLEEP, 9s, 12s);
         }
@@ -80,7 +94,7 @@ public:
                         events.ScheduleEvent(EVENT_MIND_BLAST, 7s, 9s);
                         break;
                     case EVENT_SLEEP:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, true))
                         {
                             Talk(SAY_SLEEP);
                             DoCast(target, SPELL_SLEEP);

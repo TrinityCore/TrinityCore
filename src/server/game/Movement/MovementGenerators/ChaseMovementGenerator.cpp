@@ -26,6 +26,11 @@
 #include "Unit.h"
 #include "Util.h"
 
+static bool HasLostTarget(Unit* owner, Unit* target)
+{
+    return owner->GetVictim() != target;
+}
+
 static bool IsMutualChase(Unit* owner, Unit* target)
 {
     if (target->GetMotionMaster()->GetCurrentMovementGeneratorType() != CHASE_MOTION_TYPE)
@@ -60,8 +65,8 @@ static void DoMovementInform(Unit* owner, Unit* target)
         AI->MovementInform(CHASE_MOTION_TYPE, target->GetGUID().GetCounter());
 }
 
-ChaseMovementGenerator::ChaseMovementGenerator(Unit *target, Optional<ChaseRange> range, Optional<ChaseAngle> angle)
-        : AbstractFollower(ASSERT_NOTNULL(target)), _range(range), _angle(angle)
+ChaseMovementGenerator::ChaseMovementGenerator(Unit *target, Optional<ChaseRange> range, Optional<ChaseAngle> angle) : AbstractFollower(ASSERT_NOTNULL(target)), _range(range),
+    _angle(angle), _rangeCheckTimer(RANGE_CHECK_INTERVAL)
 {
     Mode = MOTION_MODE_DEFAULT;
     Priority = MOTION_PRIORITY_NORMAL;
@@ -73,7 +78,7 @@ ChaseMovementGenerator::~ChaseMovementGenerator() = default;
 void ChaseMovementGenerator::Initialize(Unit* /*owner*/)
 {
     RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
-    AddFlag(MOVEMENTGENERATOR_FLAG_INITIALIZED);
+    AddFlag(MOVEMENTGENERATOR_FLAG_INITIALIZED | MOVEMENTGENERATOR_FLAG_INFORM_ENABLED);
 
     _path = nullptr;
     _lastTargetPosition.reset();
@@ -97,8 +102,8 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
     if (!target || !target->IsInWorld())
         return false;
 
-    // the owner might be unable to move (rooted or casting), pause movement
-    if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || owner->IsMovementPreventedByCasting())
+    // the owner might be unable to move (rooted or casting), or we have lost the target, pause movement
+    if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || owner->IsMovementPreventedByCasting() || HasLostTarget(owner, target))
     {
         owner->StopMoving();
         _lastTargetPosition.reset();
@@ -107,36 +112,36 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
         return true;
     }
 
-    bool const mutualChase     = IsMutualChase(owner, target);
-    float const hitboxSum      = owner->GetCombatReach() + target->GetCombatReach();
-    float const minRange       = _range ? _range->MinRange + hitboxSum : CONTACT_DISTANCE;
-    float const minTarget      = (_range ? _range->MinTolerance : 0.0f) + hitboxSum;
-    float const maxRange       = _range ? _range->MaxRange + hitboxSum : owner->GetMeleeRange(target); // melee range already includes hitboxes
-    float const maxTarget      = _range ? _range->MaxTolerance + hitboxSum : CONTACT_DISTANCE + hitboxSum;
+    bool const mutualChase = IsMutualChase(owner, target);
+    float const hitboxSum = owner->GetCombatReach() + target->GetCombatReach();
+    float const minRange = _range ? _range->MinRange + hitboxSum : CONTACT_DISTANCE;
+    float const minTarget = (_range ? _range->MinTolerance : 0.0f) + hitboxSum;
+    float const maxRange = _range ? _range->MaxRange + hitboxSum : owner->GetMeleeRange(target); // melee range already includes hitboxes
+    float const maxTarget = _range ? _range->MaxTolerance + hitboxSum : CONTACT_DISTANCE + hitboxSum;
     Optional<ChaseAngle> angle = mutualChase ? Optional<ChaseAngle>() : _angle;
 
-    // if we're already moving, periodically check if we're already in the expected range...
-    if (owner->HasUnitState(UNIT_STATE_CHASE_MOVE))
+    // periodically check if we're already in the expected range...
+    _rangeCheckTimer.Update(diff);
+    if (_rangeCheckTimer.Passed())
     {
-        if (_rangeCheckTimer > diff)
-            _rangeCheckTimer -= diff;
-        else
+        _rangeCheckTimer.Reset(RANGE_CHECK_INTERVAL);
+        if (HasFlag(MOVEMENTGENERATOR_FLAG_INFORM_ENABLED) && PositionOkay(owner, target, _movingTowards ? Optional<float>() : minTarget, _movingTowards ? maxTarget : Optional<float>(), angle))
         {
-            _rangeCheckTimer = RANGE_CHECK_INTERVAL;
-            if (PositionOkay(owner, target, _movingTowards ? Optional<float>() : minTarget, _movingTowards ? maxTarget : Optional<float>(), angle))
-            {
-                _path = nullptr;
-                owner->StopMoving();
-                owner->SetInFront(target);
-                DoMovementInform(owner, target);
-                return true;
-            }
+            RemoveFlag(MOVEMENTGENERATOR_FLAG_INFORM_ENABLED);
+            _path = nullptr;
+            if (Creature* cOwner = owner->ToCreature())
+                cOwner->SetCannotReachTarget(false);
+            owner->StopMoving();
+            owner->SetInFront(target);
+            DoMovementInform(owner, target);
+            return true;
         }
     }
 
     // if we're done moving, we want to clean up
     if (owner->HasUnitState(UNIT_STATE_CHASE_MOVE) && owner->movespline->Finalized())
     {
+        RemoveFlag(MOVEMENTGENERATOR_FLAG_INFORM_ENABLED);
         _path = nullptr;
         if (Creature* cOwner = owner->ToCreature())
             cOwner->SetCannotReachTarget(false);
@@ -146,7 +151,7 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
     }
 
     // if the target moved, we have to consider whether to adjust
-    if (!_lastTargetPosition || target->GetPosition() != _lastTargetPosition.get() || mutualChase != _mutualChase)
+    if (!_lastTargetPosition || target->GetPosition() != _lastTargetPosition.value() || mutualChase != _mutualChase)
     {
         _lastTargetPosition = target->GetPosition();
         _mutualChase = mutualChase;
@@ -203,8 +208,6 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
             if (cOwner)
                 cOwner->SetCannotReachTarget(false);
 
-            owner->AddUnitState(UNIT_STATE_CHASE_MOVE);
-
             bool walk = false;
             if (cOwner && !cOwner->IsPet())
             {
@@ -221,11 +224,13 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
                 }
             }
 
+            owner->AddUnitState(UNIT_STATE_CHASE_MOVE);
+            AddFlag(MOVEMENTGENERATOR_FLAG_INFORM_ENABLED);
+
             Movement::MoveSplineInit init(owner);
             init.MovebyPath(_path->GetPath());
             init.SetWalk(walk);
             init.SetFacing(target);
-
             init.Launch();
         }
     }
@@ -237,6 +242,7 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
 void ChaseMovementGenerator::Deactivate(Unit* owner)
 {
     AddFlag(MOVEMENTGENERATOR_FLAG_DEACTIVATED);
+    RemoveFlag(MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_INFORM_ENABLED);
     owner->ClearUnitState(UNIT_STATE_CHASE_MOVE);
     if (Creature* cOwner = owner->ToCreature())
         cOwner->SetCannotReachTarget(false);

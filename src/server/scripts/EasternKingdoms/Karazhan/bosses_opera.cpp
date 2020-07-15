@@ -213,7 +213,7 @@ public:
 
             if (WaterBoltTimer <= diff)
             {
-                DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_WATERBOLT);
+                DoCast(SelectTarget(SelectTargetMethod::Random, 0), SPELL_WATERBOLT);
                 WaterBoltTimer = TitoDied ? 1500 : 5000;
             } else WaterBoltTimer -= diff;
 
@@ -372,9 +372,9 @@ public:
             me->DespawnOrUnsummon();
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* Spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
-            if ((Spell->SchoolMask == SPELL_SCHOOL_MASK_FIRE) && (!(rand32() % 10)))
+            if ((spellInfo->SchoolMask == SPELL_SCHOOL_MASK_FIRE) && (!(rand32() % 10)))
             {
                 /*
                     if (not direct damage(aoe, dot))
@@ -419,7 +419,7 @@ public:
 
             if (BrainWipeTimer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, true))
                     DoCast(target, SPELL_BRAIN_WIPE);
                 BrainWipeTimer = 20000;
             } else BrainWipeTimer -= diff;
@@ -920,7 +920,7 @@ public:
             {
                 if (!IsChasing)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, true))
                     {
                         Talk(SAY_WOLF_HOOD);
                         DoCast(target, SPELL_LITTLE_RED_RIDING_HOOD, true);
@@ -1136,9 +1136,9 @@ public:
             me->DespawnOrUnsummon();
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* Spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
-            if (Spell->Id == SPELL_DRINK_POISON)
+            if (spellInfo->Id == SPELL_DRINK_POISON)
             {
                 Talk(SAY_JULIANNE_DEATH01);
                 DrinkPoisonTimer = 2500;
@@ -1333,7 +1333,7 @@ public:
 
             if (BackwardLungeTimer <= diff)
             {
-                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true);
+                Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 100, true);
                 if (target && !me->HasInArc(float(M_PI), target))
                 {
                     DoCast(target, SPELL_BACKWARD_LUNGE);
@@ -1349,7 +1349,7 @@ public:
 
             if (DeadlySwatheTimer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, true))
                     DoCast(target, SPELL_DEADLY_SWATHE);
                 DeadlySwatheTimer = urand(15000, 25000);
             } else DeadlySwatheTimer -= diff;
@@ -1453,7 +1453,7 @@ void boss_julianne::boss_julianneAI::UpdateAI(uint32 diff)
 
     if (BlindingPassionTimer <= diff)
     {
-        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, true))
             DoCast(target, SPELL_BLINDING_PASSION);
         BlindingPassionTimer = urand(30000, 45000);
     } else BlindingPassionTimer -= diff;
@@ -1466,7 +1466,7 @@ void boss_julianne::boss_julianneAI::UpdateAI(uint32 diff)
 
     if (PowerfulAttractionTimer <= diff)
     {
-        DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_POWERFUL_ATTRACTION);
+        DoCast(SelectTarget(SelectTargetMethod::Random, 0), SPELL_POWERFUL_ATTRACTION);
         PowerfulAttractionTimer = urand(5000, 30000);
     } else PowerfulAttractionTimer -= diff;
 

@@ -91,7 +91,7 @@ struct boss_toravon : public BossAI
                     events.Repeat(38s);
                     break;
                 case EVENT_FREEZING_GROUND:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
                         DoCast(target, SPELL_FREEZING_GROUND);
                     events.Repeat(38s);
                     break;
@@ -198,7 +198,7 @@ class spell_toravon_random_aggro : public SpellScript
         caster->GetThreatManager().ResetAllThreat();
 
         if (CreatureAI* ai = caster->AI())
-            if (Unit* target = ai->SelectTarget(SELECT_TARGET_RANDOM, 1))
+            if (Unit* target = ai->SelectTarget(SelectTargetMethod::Random, 1))
                 caster->GetThreatManager().AddThreat(target, 1000000);
     }
 

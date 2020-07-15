@@ -68,13 +68,13 @@ class boss_nexus_commanders : public CreatureScript
                 switch (eventId)
                 {
                     case EVENT_CHARGE_COMMANDER:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                             DoCast(target, SPELL_CHARGE);
                         events.ScheduleEvent(EVENT_CHARGE_COMMANDER, 11s, 15s);
                         break;
                     case EVENT_WHIRLWIND:
                         DoCast(me, SPELL_WHIRLWIND);
-                        events.ScheduleEvent(EVENT_WHIRLWIND, urand(19500, 25000));
+                        events.ScheduleEvent(EVENT_WHIRLWIND, 19500ms, 25s);
                         break;
                     case EVENT_FRIGHTENING_SHOUT:
                         DoCastAOE(SPELL_FRIGHTENING_SHOUT);

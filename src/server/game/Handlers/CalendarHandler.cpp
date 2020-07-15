@@ -157,7 +157,7 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
     {
         HolidaysEntry const* holiday = sHolidaysStore.LookupEntry(entry);
 
-        data << uint32(holiday->Id);                        // m_ID
+        data << uint32(holiday->ID);                        // m_ID
         data << uint32(holiday->Region);                    // m_region, might be looping
         data << uint32(holiday->Looping);                   // m_looping, might be region
         data << uint32(holiday->Priority);                  // m_priority
@@ -330,7 +330,7 @@ void WorldSession::HandleCalendarAddEvent(WorldPacket& recvData)
             throw;
         }
 
-        SQLTransaction trans;
+        CharacterDatabaseTransaction trans;
         if (inviteCount > 1)
             trans = CharacterDatabase.BeginTransaction();
 
@@ -489,7 +489,7 @@ void WorldSession::HandleCalendarCopyEvent(WorldPacket& recvData)
         sCalendarMgr->AddEvent(newEvent, CALENDAR_SENDTYPE_COPY);
 
         CalendarInviteStore invites = sCalendarMgr->GetEventInvites(eventId);
-        SQLTransaction trans;
+        CharacterDatabaseTransaction trans;
         if (invites.size() > 1)
             trans = CharacterDatabase.BeginTransaction();
 

@@ -1389,7 +1389,7 @@ public:
                     me->CombatStop(true);
                     me->InterruptNonMeleeSpells(false);
                     me->SetWalk(false);
-                    
+
                     EngagementOver();
 
                     for (uint8 i = 0; i < ENCOUNTER_DEFENDER_NUMBER; ++i)
@@ -1486,7 +1486,7 @@ public:
         {
             if (Creature* temp = ObjectAccessor::GetCreature(*me, ui_GUID))
                 if (temp->IsAlive())
-                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* pTarget = SelectTarget(SelectTargetMethod::Random, 0))
                         if (pTarget->IsAlive())
                         {
                             AddThreat(pTarget, 0.0f, temp);

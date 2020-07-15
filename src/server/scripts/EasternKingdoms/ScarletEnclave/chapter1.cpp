@@ -260,22 +260,22 @@ public:
                     {
                     case EVENT_ICY_TOUCH:
                         DoCastVictim(SPELL_ICY_TOUCH);
-                        events.DelayEvents(1000, GCD_CAST);
+                        events.DelayEvents(1s, GCD_CAST);
                         events.ScheduleEvent(EVENT_ICY_TOUCH, 5s, GCD_CAST);
                         break;
                     case EVENT_PLAGUE_STRIKE:
                         DoCastVictim(SPELL_PLAGUE_STRIKE);
-                        events.DelayEvents(1000, GCD_CAST);
+                        events.DelayEvents(1s, GCD_CAST);
                         events.ScheduleEvent(EVENT_PLAGUE_STRIKE, 5s, GCD_CAST);
                         break;
                     case EVENT_BLOOD_STRIKE:
                         DoCastVictim(SPELL_BLOOD_STRIKE);
-                        events.DelayEvents(1000, GCD_CAST);
+                        events.DelayEvents(1s, GCD_CAST);
                         events.ScheduleEvent(EVENT_BLOOD_STRIKE, 5s, GCD_CAST);
                         break;
                     case EVENT_DEATH_COIL:
                         DoCastVictim(SPELL_DEATH_COIL);
-                        events.DelayEvents(1000, GCD_CAST);
+                        events.DelayEvents(1s, GCD_CAST);
                         events.ScheduleEvent(EVENT_DEATH_COIL, 5s, GCD_CAST);
                         break;
                     }
@@ -435,7 +435,7 @@ struct npc_eye_of_acherus : public ScriptedAI
         creature->SetReactState(REACT_PASSIVE);
     }
 
-    void JustAppeared() override
+    void InitializeAI() override
     {
         DoCastSelf(SPELL_ROOT_SELF);
         DoCastSelf(SPELL_EYE_OF_ACHERUS_VISUAL);
@@ -571,12 +571,12 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SWIMMING);
         }
 
-        void SpellHit(Unit* pCaster, SpellInfo const* pSpell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
         {
-            if (!m_bIsDuelInProgress && pSpell->Id == SPELL_DUEL)
+            if (!m_bIsDuelInProgress && spellInfo->Id == SPELL_DUEL)
             {
-                m_uiDuelerGUID = pCaster->GetGUID();
-                Talk(SAY_DUEL, pCaster);
+                m_uiDuelerGUID = caster->GetGUID();
+                Talk(SAY_DUEL, caster);
                 m_bIsDuelInProgress = true;
             }
         }
@@ -752,9 +752,9 @@ struct npc_dark_rider_of_acherus : public ScriptedAI
         }
     }
 
-    void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+    void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
     {
-        if (spell->Id == SPELL_DESPAWN_HORSE && target->GetGUID() == _horseGUID)
+        if (spellInfo->Id == SPELL_DESPAWN_HORSE && target->GetGUID() == _horseGUID)
             if (Creature* creature = target->ToCreature())
                 creature->DespawnOrUnsummon(2s);
     }

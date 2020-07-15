@@ -69,7 +69,7 @@ public:
         {
             events.ScheduleEvent(EVENT_SHADOWBOLT_VOLLEY, 10s);
             events.ScheduleEvent(EVENT_BONE_SHIELD, 2s);
-            events.ScheduleEvent(EVENT_SUMMON_MINIONS, 15000);
+            events.ScheduleEvent(EVENT_SUMMON_MINIONS, 15s);
         }
 
         void JustSummoned(Creature* summoned) override
@@ -102,11 +102,11 @@ public:
                 {
                     case EVENT_SHADOWBOLT_VOLLEY:
                         DoCastVictim(SPELL_SHADOWBOLT_VOLLEY);
-                        events.ScheduleEvent(EVENT_SHADOWBOLT_VOLLEY, 15000);
+                        events.ScheduleEvent(EVENT_SHADOWBOLT_VOLLEY, 15s);
                         break;
                     case EVENT_BONE_SHIELD:
                         DoCastVictim(SPELL_BONE_SHIELD);
-                        events.ScheduleEvent(EVENT_BONE_SHIELD, 45000);
+                        events.ScheduleEvent(EVENT_BONE_SHIELD, 45s);
                         break;
                     case EVENT_SUMMON_MINIONS:
                         DoCast(SPELL_SUMMON_BONE_MINIONS);

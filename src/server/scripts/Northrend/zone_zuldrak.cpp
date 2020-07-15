@@ -75,27 +75,28 @@ public:
             rageclaw->SetFacingToObject(me);
         }
 
-        void UnlockRageclaw(Unit* who, Creature* rageclaw)
+        void UnlockRageclaw(Creature* rageclaw)
         {
-            if (!who)
-                return;
-
             // pointer check not needed
             DoCast(rageclaw, SPELL_FREE_RAGECLAW, true);
 
             me->setDeathState(DEAD);
         }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
         {
-            if (spell->Id == SPELL_UNLOCK_SHACKLE)
+            Player* playerCaster = caster->ToPlayer();
+            if (!playerCaster)
+                return;
+
+            if (spellInfo->Id == SPELL_UNLOCK_SHACKLE)
             {
-                if (caster->ToPlayer()->GetQuestStatus(QUEST_TROLLS_IS_GONE_CRAZY) == QUEST_STATUS_INCOMPLETE)
+                if (playerCaster->GetQuestStatus(QUEST_TROLLS_IS_GONE_CRAZY) == QUEST_STATUS_INCOMPLETE)
                 {
                     if (Creature* rageclaw = ObjectAccessor::GetCreature(*me, _rageclawGUID))
                     {
-                        UnlockRageclaw(caster, rageclaw);
-                        caster->ToPlayer()->KilledMonster(rageclaw->GetCreatureTemplate(), _rageclawGUID);
+                        UnlockRageclaw(rageclaw);
+                        playerCaster->KilledMonster(rageclaw->GetCreatureTemplate(), _rageclawGUID);
                         me->RemoveAurasDueToSpell(SPELL_CHAIN_OF_THE_SCURGE_RIGHT);
                         me->DespawnOrUnsummon();
                     }
@@ -142,9 +143,9 @@ public:
 
         void MoveInLineOfSight(Unit* /*who*/) override { }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
-            if (spell->Id == SPELL_FREE_RAGECLAW)
+            if (spellInfo->Id == SPELL_FREE_RAGECLAW)
             {
                 me->RemoveAurasDueToSpell(SPELL_CHAIN_OF_THE_SCURGE_LEFT);
                 me->SetStandState(UNIT_STAND_STATE_STAND);
@@ -251,7 +252,7 @@ public:
                         me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
                         Talk(SAY_RECRUIT);
-                        _events.ScheduleEvent(EVENT_RECRUIT_2, 3000);
+                        _events.ScheduleEvent(EVENT_RECRUIT_2, 3s);
                         break;
                     case EVENT_RECRUIT_2:
                         me->SetWalk(true);
@@ -269,7 +270,7 @@ public:
 
         bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
         {
-            _events.ScheduleEvent(EVENT_RECRUIT_1, 100);
+            _events.ScheduleEvent(EVENT_RECRUIT_1, 100ms);
             CloseGossipMenuFor(player);
             me->CastSpell(player, SPELL_QUEST_CREDIT, true);
             me->SetFacingToObject(player);
@@ -490,16 +491,16 @@ public:
                    {
                         case 2:
                         case 3:
-                            _events.ScheduleEvent(EVENT_EASY_123, 100);
+                            _events.ScheduleEvent(EVENT_EASY_123, 100ms);
                             break;
                         case 4:
-                            _events.ScheduleEvent(EVENT_MEDIUM_4, 100);
+                            _events.ScheduleEvent(EVENT_MEDIUM_4, 100ms);
                             break;
                         case 5:
-                            _events.ScheduleEvent(EVENT_MEDIUM_5, 100);
+                            _events.ScheduleEvent(EVENT_MEDIUM_5, 100ms);
                             break;
                         case 6:
-                            _events.ScheduleEvent(EVENT_HARD_6, 100);
+                            _events.ScheduleEvent(EVENT_HARD_6, 100ms);
                             break;
                         default:
                             break;
@@ -568,7 +569,7 @@ public:
                 DoCast(player, SPELL_ALCHEMIST_APPRENTICE_INVISBUFF);
                 _playerGUID = player->GetGUID();
                 _getingredienttry = 1;
-                _events.ScheduleEvent(EVENT_EASY_123, 100);
+                _events.ScheduleEvent(EVENT_EASY_123, 100ms);
                 return false;
             }
 
@@ -925,16 +926,22 @@ public:
             Reset();
         }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
         {
-            if (spell->Id != GYMERS_GRAB)
+            Unit* unitCaster = caster->ToUnit();
+            if (!unitCaster)
                 return;
 
-            if (Vehicle* veh = caster->GetVehicleKit())
-                if (veh->GetAvailableSeatCount() != 0)
+            if (spellInfo->Id != GYMERS_GRAB)
+                return;
+
+            if (Vehicle* veh = unitCaster->GetVehicleKit())
             {
-                me->CastSpell(caster, RIDE_VEHICLE, true);
-                me->CastSpell(caster, HEALING_WINDS, true);
+                if (veh->GetAvailableSeatCount() != 0)
+                {
+                    me->CastSpell(caster, RIDE_VEHICLE, true);
+                    me->CastSpell(caster, HEALING_WINDS, true);
+                }
             }
         }
     };

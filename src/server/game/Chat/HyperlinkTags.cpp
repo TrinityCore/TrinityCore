@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
- 
+
 #include "Hyperlinks.h"
 #include "AchievementMgr.h"
 #include "ObjectMgr.h"
@@ -130,7 +130,7 @@ bool Trinity::Hyperlinks::LinkTags::talent::StoreTo(TalentLinkData& val, char co
     val.Rank = rank+1;
     if (!(val.Talent = sTalentStore.LookupEntry(talentId)))
         return false;
-    if (val.Rank > 0 && !val.Talent->RankID[val.Rank - 1])
+    if (val.Rank > 0 && !val.Talent->SpellRank[val.Rank - 1])
         return false;
     return true;
 }

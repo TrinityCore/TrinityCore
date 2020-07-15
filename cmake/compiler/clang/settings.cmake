@@ -1,7 +1,7 @@
 # Set build-directive (used in core to tell which buildtype we used)
 target_compile_definitions(trinity-compile-option-interface
   INTERFACE
-    -D_BUILD_DIRECTIVE="${CMAKE_BUILD_TYPE}")
+    -D_BUILD_DIRECTIVE="$<CONFIG>")
 
 if(WITH_WARNINGS)
   target_compile_options(trinity-warning-interface
@@ -45,12 +45,13 @@ endif()
 
 # -Wno-narrowing needed to suppress a warning in g3d
 # -Wno-deprecated-register is needed to suppress 185 gsoap warnings on Unix systems.
+# -Wno-deprecated-copy needed to suppress a warning in g3d
 target_compile_options(trinity-compile-option-interface
   INTERFACE
     -Wno-narrowing
     -Wno-deprecated-register)
 
-if (BUILD_SHARED_LIBS)
+if(BUILD_SHARED_LIBS)
   # -fPIC is needed to allow static linking in shared libs.
   # -fvisibility=hidden sets the default visibility to hidden to prevent exporting of all symbols.
   target_compile_options(trinity-compile-option-interface

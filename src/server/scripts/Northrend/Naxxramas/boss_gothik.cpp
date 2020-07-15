@@ -522,7 +522,7 @@ class boss_gothik : public CreatureScript
                                 _lastTeleportDead = !_lastTeleportDead;
 
                                 events.CancelEvent(EVENT_BOLT);
-                                events.ScheduleEvent(EVENT_RESUME_ATTACK, 2 * IN_MILLISECONDS, 0, PHASE_TWO);
+                                events.ScheduleEvent(EVENT_RESUME_ATTACK, 2s, 0, PHASE_TWO);
                                 events.Repeat(Seconds(20));
                             }
                             break;
@@ -914,12 +914,10 @@ public:
 
             return nullptr;
         }
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
-        {
-            if (!spell)
-                return;
 
-            switch (spell->Id)
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+        {
+            switch (spellInfo->Id)
             {
                 case SPELL_ANCHOR_1_TRAINEE:
                     DoCastAOE(SPELL_ANCHOR_2_TRAINEE, true);

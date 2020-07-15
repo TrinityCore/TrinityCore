@@ -217,7 +217,8 @@ public:
             IsFinalForm = false;
             NeedThreatReset = false;
             EnrageUsed = false;
-            memset(InnderDemon, 0, sizeof(InnderDemon));
+            for (ObjectGuid& guid : InnderDemon)
+                guid.Clear();
             InnerDemon_Count = 0;
         }
 
@@ -436,7 +437,7 @@ public:
             {
                 if (Whirlwind_Timer <= diff)
                 {
-                    Unit* newTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                    Unit* newTarget = SelectTarget(SelectTargetMethod::Random, 0);
                     if (newTarget)
                     {
                         ResetThreatList();
@@ -775,7 +776,7 @@ public:
 
             if (Mindblast_Timer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     DoCast(target, SPELL_MINDBLAST);
 
                 Mindblast_Timer = urand(10000, 15000);

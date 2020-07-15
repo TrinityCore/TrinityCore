@@ -643,7 +643,7 @@ struct npc_open_portal_target_toc : public ScriptedAI
         me->SetDisableGravity(true);
     }
 
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spellInfo) override
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
     {
         if (spellInfo->Id == SPELL_OPEN_PORTAL)
         {

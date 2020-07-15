@@ -206,7 +206,7 @@ public:
                         break;
                     }
                 }
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     Summoned->AI()->AttackStart(target);
                 return Summoned->GetGUID();
             }
@@ -325,7 +325,7 @@ public:
 
             if (uiIceNovaTimer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                 {
                     DoCast(target, SPELL_ICE_NOVA, false);
                     uiCooldown = 1500;
@@ -345,7 +345,7 @@ public:
 
             if (uiFireBombTimer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                 {
                     DoCast(target, SPELL_FIREBOMB, false);
                     uiCooldown = 2*IN_MILLISECONDS;
