@@ -24216,6 +24216,10 @@ bool Player::GetBGAccessByLevel(BattlegroundTypeId bgTypeId) const
 
 float Player::GetReputationPriceDiscount(Creature const* creature) const
 {
+    ChrRacesEntry const* raceEntry = sChrRacesStore.LookupEntry(getRace());
+    if (raceEntry->Flags & 0x100)
+        return 0.8f;
+
     FactionTemplateEntry const* vendor_faction = creature->GetFactionTemplateEntry();
     if (!vendor_faction || !vendor_faction->Faction)
         return 1.0f;
