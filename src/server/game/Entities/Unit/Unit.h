@@ -20,7 +20,6 @@
 
 #include "Object.h"
 #include "CombatManager.h"
-#include "OptionalFwd.h"
 #include "SpellAuraDefines.h"
 #include "ThreatManager.h"
 #include "Timer.h"
