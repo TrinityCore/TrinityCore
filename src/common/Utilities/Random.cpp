@@ -18,24 +18,11 @@
 #include "Random.h"
 #include "Errors.h"
 #include "SFMTRand.h"
-#include <boost/thread/tss.hpp>
+#include "Util.h"
 #include <random>
 
-static boost::thread_specific_ptr<SFMTRand> sfmtRand;
+static thread_local LazyWrapper<SFMTRand> sfmtRand;
 static RandomEngine engine;
-
-static SFMTRand* GetRng()
-{
-    SFMTRand* rand = sfmtRand.get();
-
-    if (!rand)
-    {
-        rand = new SFMTRand();
-        sfmtRand.reset(rand);
-    }
-
-    return rand;
-}
 
 int32 irand(int32 min, int32 max)
 {
@@ -74,7 +61,7 @@ Milliseconds randtime(Milliseconds min, Milliseconds max)
 
 uint32 rand32()
 {
-    return GetRng()->RandomUInt32();
+    return sfmtRand->RandomUInt32();
 }
 
 double rand_norm()
