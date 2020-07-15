@@ -816,6 +816,7 @@ public:
                         me->SetImmuneToPC(true);
                         me->DespawnOrUnsummon(30 * IN_MILLISECONDS); // just in case anything interrupts the movement
                         me->GetMotionMaster()->MoveTargetedHome();
+                        break;
                     default:
                         break;
                 }
