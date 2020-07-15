@@ -708,6 +708,42 @@ uint32 Script_Base::GetAuraDuration(Unit* pmTarget, std::string pmSpellName, boo
     return duration;
 }
 
+uint32 Script_Base::GetAuraCount(Unit* pmTarget, std::string pmSpellName, bool pmOnlyMyAura)
+{
+    uint32 auraCount = 0;
+    if (!me)
+    {
+        return false;
+    }
+    Unit* target = pmTarget;
+    if (!pmTarget)
+    {
+        target = me;
+    }
+    std::set<uint32> spellIDSet = sRobotManager->spellNameEntryMap[pmSpellName];
+    for (std::set<uint32>::iterator it = spellIDSet.begin(); it != spellIDSet.end(); it++)
+    {
+        uint32 spellID = *it;
+        if (pmOnlyMyAura)
+        {
+
+            if (Aura* checkA = target->GetAura(spellID, me->GetGUID()))
+            {
+                auraCount = checkA->GetStackAmount();
+            }
+        }
+        else
+        {
+            if (Aura* checkA = target->GetAura(spellID))
+            {
+                auraCount = checkA->GetStackAmount();
+            }
+        }
+    }
+
+    return auraCount;
+}
+
 void Script_Base::ClearShapeshift()
 {
     if (!me)

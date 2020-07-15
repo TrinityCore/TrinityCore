@@ -3163,9 +3163,15 @@ void WorldObject::GetNearPoint2D(WorldObject const* searcher, float& x, float& y
 void WorldObject::GetNearPoint(WorldObject const* searcher, float& x, float& y, float& z, float distance2d, float absAngle) const
 {
     GetNearPoint2D(searcher, x, y, distance2d, absAngle);
-    z = GetPositionZ();
-    // EJ Z add 10
-    z = z + 10.0f;
+    z = GetPositionZ();    
+    // EJ Z add 10    
+    if (const Unit* su = searcher->ToUnit())
+    {
+        if (!su->IsInWater())
+        {
+            z = z + 10.0f;
+        }
+    }
     (searcher ? searcher : this)->UpdateAllowedPositionZ(x, y, z);
 
     // if detection disabled, return first point

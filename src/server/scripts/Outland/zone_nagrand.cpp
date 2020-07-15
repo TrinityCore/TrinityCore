@@ -15,16 +15,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Nagrand
-SD%Complete: 90
-SDComment: Quest support: 9868, 9874, 10085. TextId's unknown for altruis_the_sufferer and greatmother_geyah (npc_text)
-SDCategory: Nagrand
-EndScriptData */
+ /* ScriptData
+ SDName: Nagrand
+ SD%Complete: 90
+ SDComment: Quest support: 9868, 9874, 10085. TextId's unknown for altruis_the_sufferer and greatmother_geyah (npc_text)
+ SDCategory: Nagrand
+ EndScriptData */
 
-/* ContentData
-npc_maghar_captive
-EndContentData */
+ /* ContentData
+ npc_maghar_captive
+ EndContentData */
 
 #include "ScriptMgr.h"
 #include "GameObject.h"
@@ -36,35 +36,35 @@ EndContentData */
 #include "SpellInfo.h"
 #include "TemporarySummon.h"
 
-/*######
-## npc_maghar_captive
-#####*/
+ /*######
+ ## npc_maghar_captive
+ #####*/
 
 enum MagharCaptive
 {
-    SAY_MAG_START               = 0,
-    SAY_MAG_NO_ESCAPE           = 0,
-    SAY_MAG_MORE                = 1,
-    SAY_MAG_MORE_REPLY          = 0,
-    SAY_MAG_LIGHTNING           = 2,
-    SAY_MAG_SHOCK               = 3,
-    SAY_MAG_COMPLETE            = 4,
+    SAY_MAG_START = 0,
+    SAY_MAG_NO_ESCAPE = 0,
+    SAY_MAG_MORE = 1,
+    SAY_MAG_MORE_REPLY = 0,
+    SAY_MAG_LIGHTNING = 2,
+    SAY_MAG_SHOCK = 3,
+    SAY_MAG_COMPLETE = 4,
 
-    SPELL_CHAIN_LIGHTNING       = 16006,
-    SPELL_EARTHBIND_TOTEM       = 15786,
-    SPELL_FROST_SHOCK           = 12548,
-    SPELL_HEALING_WAVE          = 12491,
+    SPELL_CHAIN_LIGHTNING = 16006,
+    SPELL_EARTHBIND_TOTEM = 15786,
+    SPELL_FROST_SHOCK = 12548,
+    SPELL_HEALING_WAVE = 12491,
 
-    QUEST_TOTEM_KARDASH_H       = 9868,
+    QUEST_TOTEM_KARDASH_H = 9868,
 
-    NPC_MURK_RAIDER             = 18203,
-    NPC_MURK_BRUTE              = 18211,
-    NPC_MURK_SCAVENGER          = 18207,
-    NPC_MURK_PUTRIFIER          = 18202
+    NPC_MURK_RAIDER = 18203,
+    NPC_MURK_BRUTE = 18211,
+    NPC_MURK_SCAVENGER = 18207,
+    NPC_MURK_PUTRIFIER = 18202
 };
 
-static float m_afAmbushA[]= {-1568.805786f, 8533.873047f, 1.958f};
-static float m_afAmbushB[]= {-1491.554321f, 8506.483398f, 1.248f};
+static float m_afAmbushA[] = { -1568.805786f, 8533.873047f, 1.958f };
+static float m_afAmbushB[] = { -1491.554321f, 8506.483398f, 1.248f };
 
 class npc_maghar_captive : public CreatureScript
 {
@@ -107,24 +107,24 @@ public:
         {
             switch (waypointId)
             {
-                case 7:
-                    Talk(SAY_MAG_MORE);
+            case 7:
+                Talk(SAY_MAG_MORE);
 
-                    if (Creature* temp = me->SummonCreature(NPC_MURK_PUTRIFIER, m_afAmbushB[0], m_afAmbushB[1], m_afAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000))
-                        temp->AI()->Talk(SAY_MAG_MORE_REPLY);
+                if (Creature* temp = me->SummonCreature(NPC_MURK_PUTRIFIER, m_afAmbushB[0], m_afAmbushB[1], m_afAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000))
+                    temp->AI()->Talk(SAY_MAG_MORE_REPLY);
 
-                    me->SummonCreature(NPC_MURK_PUTRIFIER, m_afAmbushB[0]-2.5f, m_afAmbushB[1]-2.5f, m_afAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                    me->SummonCreature(NPC_MURK_SCAVENGER, m_afAmbushB[0]+2.5f, m_afAmbushB[1]+2.5f, m_afAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                    me->SummonCreature(NPC_MURK_SCAVENGER, m_afAmbushB[0]+2.5f, m_afAmbushB[1]-2.5f, m_afAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                    break;
-                case 16:
-                    Talk(SAY_MAG_COMPLETE);
+                me->SummonCreature(NPC_MURK_PUTRIFIER, m_afAmbushB[0] - 2.5f, m_afAmbushB[1] - 2.5f, m_afAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                me->SummonCreature(NPC_MURK_SCAVENGER, m_afAmbushB[0] + 2.5f, m_afAmbushB[1] + 2.5f, m_afAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                me->SummonCreature(NPC_MURK_SCAVENGER, m_afAmbushB[0] + 2.5f, m_afAmbushB[1] - 2.5f, m_afAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                break;
+            case 16:
+                Talk(SAY_MAG_COMPLETE);
 
-                    if (Player* player = GetPlayerForEscort())
-                        player->GroupEventHappens(QUEST_TOTEM_KARDASH_H, me);
+                if (Player* player = GetPlayerForEscort())
+                    player->GroupEventHappens(QUEST_TOTEM_KARDASH_H, me);
 
-                    SetRun();
-                    break;
+                SetRun();
+                break;
             }
         }
 
@@ -222,29 +222,29 @@ public:
 
 enum KurenaiCaptive
 {
-    SAY_KUR_START                   = 0,
-    SAY_KUR_NO_ESCAPE               = 1,
-    SAY_KUR_MORE                    = 2,
-    SAY_KUR_MORE_TWO                = 3,
-    SAY_KUR_LIGHTNING               = 4,
-    SAY_KUR_SHOCK                   = 5,
-    SAY_KUR_COMPLETE                = 6,
+    SAY_KUR_START = 0,
+    SAY_KUR_NO_ESCAPE = 1,
+    SAY_KUR_MORE = 2,
+    SAY_KUR_MORE_TWO = 3,
+    SAY_KUR_LIGHTNING = 4,
+    SAY_KUR_SHOCK = 5,
+    SAY_KUR_COMPLETE = 6,
 
-    SPELL_KUR_CHAIN_LIGHTNING       = 16006,
-    SPELL_KUR_EARTHBIND_TOTEM       = 15786,
-    SPELL_KUR_FROST_SHOCK           = 12548,
-    SPELL_KUR_HEALING_WAVE          = 12491,
+    SPELL_KUR_CHAIN_LIGHTNING = 16006,
+    SPELL_KUR_EARTHBIND_TOTEM = 15786,
+    SPELL_KUR_FROST_SHOCK = 12548,
+    SPELL_KUR_HEALING_WAVE = 12491,
 
-    QUEST_TOTEM_KARDASH_A           = 9879,
+    QUEST_TOTEM_KARDASH_A = 9879,
 
-    NPC_KUR_MURK_RAIDER             = 18203,
-    NPC_KUR_MURK_BRUTE              = 18211,
-    NPC_KUR_MURK_SCAVENGER          = 18207,
-    NPC_KUR_MURK_PUTRIFIER          = 18202,
+    NPC_KUR_MURK_RAIDER = 18203,
+    NPC_KUR_MURK_BRUTE = 18211,
+    NPC_KUR_MURK_SCAVENGER = 18207,
+    NPC_KUR_MURK_PUTRIFIER = 18202,
 };
 
-static float kurenaiAmbushA[]= {-1568.805786f, 8533.873047f, 1.958f};
-static float kurenaiAmbushB[]= {-1491.554321f, 8506.483398f, 1.248f};
+static float kurenaiAmbushA[] = { -1568.805786f, 8533.873047f, 1.958f };
+static float kurenaiAmbushB[] = { -1491.554321f, 8506.483398f, 1.248f };
 
 class npc_kurenai_captive : public CreatureScript
 {
@@ -295,28 +295,28 @@ public:
         {
             switch (waypointId)
             {
-                case 3:
-                {
-                    Talk(SAY_KUR_MORE);
+            case 3:
+            {
+                Talk(SAY_KUR_MORE);
 
-                    if (me->SummonCreature(NPC_KUR_MURK_PUTRIFIER, kurenaiAmbushB[0], kurenaiAmbushB[1], kurenaiAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000))
-                        Talk(SAY_KUR_MORE_TWO);
+                if (me->SummonCreature(NPC_KUR_MURK_PUTRIFIER, kurenaiAmbushB[0], kurenaiAmbushB[1], kurenaiAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000))
+                    Talk(SAY_KUR_MORE_TWO);
 
-                    me->SummonCreature(NPC_KUR_MURK_PUTRIFIER, kurenaiAmbushB[0]-2.5f, kurenaiAmbushB[1]-2.5f, kurenaiAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                    me->SummonCreature(NPC_KUR_MURK_SCAVENGER, kurenaiAmbushB[0]+2.5f, kurenaiAmbushB[1]+2.5f, kurenaiAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                    me->SummonCreature(NPC_KUR_MURK_SCAVENGER, kurenaiAmbushB[0]+2.5f, kurenaiAmbushB[1]-2.5f, kurenaiAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                    break;
-                }
-                case 7:
-                {
-                    Talk(SAY_KUR_COMPLETE);
+                me->SummonCreature(NPC_KUR_MURK_PUTRIFIER, kurenaiAmbushB[0] - 2.5f, kurenaiAmbushB[1] - 2.5f, kurenaiAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                me->SummonCreature(NPC_KUR_MURK_SCAVENGER, kurenaiAmbushB[0] + 2.5f, kurenaiAmbushB[1] + 2.5f, kurenaiAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                me->SummonCreature(NPC_KUR_MURK_SCAVENGER, kurenaiAmbushB[0] + 2.5f, kurenaiAmbushB[1] - 2.5f, kurenaiAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                break;
+            }
+            case 7:
+            {
+                Talk(SAY_KUR_COMPLETE);
 
-                    if (Player* player = GetPlayerForEscort())
-                        player->GroupEventHappens(QUEST_TOTEM_KARDASH_A, me);
+                if (Player* player = GetPlayerForEscort())
+                    player->GroupEventHappens(QUEST_TOTEM_KARDASH_A, me);
 
-                    SetRun();
-                    break;
-                }
+                SetRun();
+                break;
+            }
             }
         }
 
@@ -367,7 +367,8 @@ public:
             {
                 DoCastVictim(SPELL_KUR_CHAIN_LIGHTNING);
                 ChainLightningTimer = urand(7000, 14000);
-            } else ChainLightningTimer -= diff;
+            }
+            else ChainLightningTimer -= diff;
 
             if (HealthBelowPct(30))
             {
@@ -375,14 +376,16 @@ public:
                 {
                     DoCast(me, SPELL_KUR_HEALING_WAVE);
                     HealTimer = 5000;
-                } else HealTimer -= diff;
+                }
+                else HealTimer -= diff;
             }
 
             if (FrostShockTimer <= diff)
             {
                 DoCastVictim(SPELL_KUR_FROST_SHOCK);
                 FrostShockTimer = urand(7500, 15000);
-            } else FrostShockTimer -= diff;
+            }
+            else FrostShockTimer -= diff;
 
             DoMeleeAttackIfReady();
         }
@@ -411,15 +414,15 @@ public:
 
 enum PlantBannerQuests
 {
-    SPELL_PLANT_WARMAUL_OGRE_BANNER  = 32307,
-    SPELL_PLANT_KIL_SORROW_BANNER    = 32314,
+    SPELL_PLANT_WARMAUL_OGRE_BANNER = 32307,
+    SPELL_PLANT_KIL_SORROW_BANNER = 32314,
 
-    NPC_KIL_SORROW_SPELLBINDER       = 17146,
-    NPC_KIL_SORROW_CULTIST           = 17147,
-    NPC_KIL_SORROW_DEATHSWORN        = 17148,
-    NPC_GISELDA_THE_CRONE            = 18391,
-    NPC_WARMAUL_REAVER               = 17138,
-    NPC_WARMAUL_SHAMAN               = 18064
+    NPC_KIL_SORROW_SPELLBINDER = 17146,
+    NPC_KIL_SORROW_CULTIST = 17147,
+    NPC_KIL_SORROW_DEATHSWORN = 17148,
+    NPC_GISELDA_THE_CRONE = 18391,
+    NPC_WARMAUL_REAVER = 17138,
+    NPC_WARMAUL_SHAMAN = 18064
 };
 
 class npc_nagrand_banner : public CreatureScript
@@ -432,9 +435,9 @@ public:
         npc_nagrand_bannerAI(Creature* creature) : ScriptedAI(creature), bannered(false)
         {
             scheduler.SetValidator([this]
-            {
-                return !me->HasUnitState(UNIT_STATE_CASTING);
-            });
+                {
+                    return !me->HasUnitState(UNIT_STATE_CASTING);
+                });
         }
 
         void Reset() override
@@ -454,9 +457,9 @@ public:
                 return;
 
             scheduler.Update(diff, [this]
-            {
-                DoMeleeAttackIfReady();
-            });
+                {
+                    DoMeleeAttackIfReady();
+                });
         }
 
         bool IsBannered()
@@ -476,8 +479,8 @@ public:
         enum KilSorrowSpellBinder
         {
             SPELL_ARCANE_MISSILES = 34447,
-            SPELL_CHAINS_OF_ICE   = 22744,
-            SPELL_COUNTERSPELL    = 31999
+            SPELL_CHAINS_OF_ICE = 22744,
+            SPELL_COUNTERSPELL = 31999
         };
 
         npc_kil_sorrow_spellbinderAI(Creature* creature) : npc_nagrand_bannerAI(creature), has_fled(false), interrupt_cooldown(20000)
@@ -490,16 +493,16 @@ public:
             interrupt_cooldown = 20000;
             scheduler
                 .Schedule(Seconds(0), [this](TaskContext ArcaneMissiles)
-                {
-                    DoCastVictim(SPELL_ARCANE_MISSILES);
-                    ArcaneMissiles.Repeat(Milliseconds(2400), Milliseconds(3800));
-                })
+                    {
+                        DoCastVictim(SPELL_ARCANE_MISSILES);
+                        ArcaneMissiles.Repeat(Milliseconds(2400), Milliseconds(3800));
+                    })
                 .Schedule(Seconds(3), Seconds(6), [this](TaskContext ChainsOfIce)
-                {
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random))
-                        DoCast(target, SPELL_CHAINS_OF_ICE, true);
-                    ChainsOfIce.Repeat(Seconds(20),Seconds(25));
-                });
+                    {
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random))
+                            DoCast(target, SPELL_CHAINS_OF_ICE, true);
+                        ChainsOfIce.Repeat(Seconds(20), Seconds(25));
+                    });
         }
 
         void UpdateAI(uint32 diff) override
@@ -518,9 +521,9 @@ public:
             }
 
             scheduler.Update(diff, [this]
-            {
-                DoMeleeAttackIfReady();
-            });
+                {
+                    DoMeleeAttackIfReady();
+                });
         }
 
         void DamageTaken(Unit* /*attacker*/, uint32& damage) override
@@ -552,10 +555,10 @@ public:
         {
             scheduler
                 .Schedule(Milliseconds(4500), [this](TaskContext MindSear)
-                {
-                    DoCastVictim(SPELL_MIND_SEAR);
-                    MindSear.Repeat(Milliseconds(7000), Milliseconds(11000));
-                });
+                    {
+                        DoCastVictim(SPELL_MIND_SEAR);
+                        MindSear.Repeat(Milliseconds(7000), Milliseconds(11000));
+                    });
         }
     };
 
@@ -622,8 +625,8 @@ public:
         enum WarmaulShaman
         {
             SPELL_SCORCHING_TOTEM = 15038,
-            SPELL_FROST_SHOCK     = 12548,
-            SPELL_HEALING_WAVE    = 11986
+            SPELL_FROST_SHOCK = 12548,
+            SPELL_HEALING_WAVE = 11986
         };
 
         npc_warmaul_shamanAI(Creature* creature) : npc_nagrand_bannerAI(creature), used_healing(false)
@@ -635,14 +638,14 @@ public:
             used_healing = false;
             scheduler
                 .Schedule(Seconds(2), [this](TaskContext /*SearingTotem*/)
-                {
-                    DoCast(SPELL_SCORCHING_TOTEM);
-                })
+                    {
+                        DoCast(SPELL_SCORCHING_TOTEM);
+                    })
                 .Schedule(Seconds(6), [this](TaskContext FrostShock)
-                {
-                    DoCastVictim(SPELL_FROST_SHOCK);
-                    FrostShock.Repeat(Seconds(12));
-                });
+                    {
+                        DoCastVictim(SPELL_FROST_SHOCK);
+                        FrostShock.Repeat(Seconds(12));
+                    });
         }
 
         void DamageTaken(Unit* /*attacker*/, uint32& damage) override
@@ -662,18 +665,18 @@ public:
     {
         switch (creature->GetEntry())
         {
-            case NPC_KIL_SORROW_SPELLBINDER:
-                return new npc_kil_sorrow_spellbinderAI(creature);
-            case NPC_KIL_SORROW_CULTIST:
-                return new npc_kil_sorrow_cultistAI(creature);
-            case NPC_KIL_SORROW_DEATHSWORN:
-                return new npc_kil_sorrow_deathswornAI(creature);
-            case NPC_GISELDA_THE_CRONE:
-                return new npc_giselda_the_croneAI(creature);
-            case NPC_WARMAUL_SHAMAN:
-                return new npc_warmaul_shamanAI(creature);
-            default:
-                return new npc_nagrand_bannerAI(creature);
+        case NPC_KIL_SORROW_SPELLBINDER:
+            return new npc_kil_sorrow_spellbinderAI(creature);
+        case NPC_KIL_SORROW_CULTIST:
+            return new npc_kil_sorrow_cultistAI(creature);
+        case NPC_KIL_SORROW_DEATHSWORN:
+            return new npc_kil_sorrow_deathswornAI(creature);
+        case NPC_GISELDA_THE_CRONE:
+            return new npc_giselda_the_croneAI(creature);
+        case NPC_WARMAUL_SHAMAN:
+            return new npc_warmaul_shamanAI(creature);
+        default:
+            return new npc_nagrand_bannerAI(creature);
         }
     }
 };
@@ -688,11 +691,576 @@ public:
         WorldObject* target = sourceInfo.mConditionTargets[condition->ConditionTarget];
         if (Creature* creature = target->ToCreature())
         {
-            if (npc_nagrand_banner::npc_nagrand_bannerAI *ai = CAST_AI(npc_nagrand_banner::npc_nagrand_bannerAI, creature->AI()))
+            if (npc_nagrand_banner::npc_nagrand_bannerAI* ai = CAST_AI(npc_nagrand_banner::npc_nagrand_bannerAI, creature->AI()))
                 return !ai->IsBannered();
         }
         return false;
     }
+};
+
+// EJ scripts
+class npc_boulderfist_hunter : public CreatureScript
+{
+public:
+    npc_boulderfist_hunter() : CreatureScript("npc_boulderfist_hunter") { }
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_boulderfist_hunterAI(creature);
+    }
+
+    struct npc_boulderfist_hunterAI : public ScriptedAI
+    {
+        npc_boulderfist_hunterAI(Creature* creature) : ScriptedAI(creature)
+        {
+            _events.Reset();
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            Reset();
+        }
+
+        void Reset() override
+        {
+            _events.Reset();
+        }
+
+        void JustEngagedWith(Unit* /*who*/) override
+        {
+            _events.ScheduleEvent(1, 100, 200);
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (!UpdateVictim())
+            {
+                return;
+            }
+            _events.Update(diff);
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+            {
+                return;
+            }
+            if (Unit* victim = me->GetVictim())
+            {
+                if (me->IsWithinMeleeRange(victim))
+                {
+                    if (me->HasUnitState(UNIT_STATE_ROOT))
+                    {
+                        me->ClearUnitState(UNIT_STATE_ROOT);
+                    }
+                    DoMeleeAttackIfReady();
+                }
+                else
+                {
+                    if (!me->HasUnitState(UNIT_STATE_ROOT))
+                    {
+                        me->AddUnitState(UNIT_STATE_ROOT);
+                    }
+                    while (uint32 eventId = _events.ExecuteEvent())
+                    {
+                        switch (eventId)
+                        {
+                        case 1:
+                        {
+                            DoCastVictim(32248);
+                            _events.Repeat(2000, 2500);
+                            break;
+                        }
+                        default:
+                        {
+                            break;
+                        }
+                        }
+                    }
+                }
+            }
+        }
+
+    private:
+        EventMap _events;
+    };
+};
+
+class npc_boulderfist_mage : public CreatureScript
+{
+public:
+    npc_boulderfist_mage() : CreatureScript("npc_boulderfist_mage") { }
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_boulderfist_mageAI(creature);
+    }
+
+    struct npc_boulderfist_mageAI : public ScriptedAI
+    {
+        npc_boulderfist_mageAI(Creature* creature) : ScriptedAI(creature)
+        {
+            _events.Reset();
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            Reset();
+        }
+
+        void Reset() override
+        {
+            _events.Reset();
+        }
+
+        void JustEngagedWith(Unit* /*who*/) override
+        {
+            _events.ScheduleEvent(1, 100, 200);
+            _events.ScheduleEvent(2, 5000, 8000);
+            _events.ScheduleEvent(3, 3000, 5000);
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (!UpdateVictim())
+            {
+                return;
+            }
+            _events.Update(diff);
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+            {
+                return;
+            }
+            if (Unit* victim = me->GetVictim())
+            {
+                bool chase = false;
+                if (me->GetPower(Powers::POWER_MANA) < 500)
+                {
+                    chase = true;
+                }
+                else if (!me->IsWithinLOSInMap(victim))
+                {
+                    chase = true;
+                }
+                if (chase)
+                {
+                    if (me->HasUnitState(UNIT_STATE_ROOT))
+                    {
+                        me->ClearUnitState(UNIT_STATE_ROOT);
+                    }
+                }
+                else
+                {
+                    if (!me->HasUnitState(UNIT_STATE_ROOT))
+                    {
+                        me->AddUnitState(UNIT_STATE_ROOT);
+                    }
+                }
+                while (uint32 eventId = _events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                    case 1:
+                    {
+                        DoCastVictim(9672);
+                        _events.Repeat(3500, 4000);
+                        break;
+                    }
+                    case 2:
+                    {
+                        DoCastVictim(20795);
+                        _events.Repeat(8000, 10000);
+                        break;
+                    }
+                    case 3:
+                    {
+                        std::list<Creature*> warriors;
+                        me->GetCreatureListWithEntryInGrid(warriors, 17136, 30.0f);
+                        for (Creature* eachWarrior : warriors)
+                        {
+                            if (eachWarrior->IsInCombat())
+                            {
+                                if (eachWarrior->GetTarget() == me->GetTarget())
+                                {
+                                    if (!eachWarrior->HasAura(6742))
+                                    {
+                                        DoCast(eachWarrior, 6742);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        _events.Repeat(5000, 10000);
+                        break;
+                    }
+                    default:
+                    {
+                        break;
+                    }
+                    }
+                }
+                DoMeleeAttackIfReady();
+            }
+        }
+
+    private:
+        EventMap _events;
+    };
+};
+
+class npc_boulderfist_saboteur : public CreatureScript
+{
+public:
+    npc_boulderfist_saboteur() : CreatureScript("npc_boulderfist_saboteur") { }
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_boulderfist_saboteurAI(creature);
+    }
+
+    struct npc_boulderfist_saboteurAI : public ScriptedAI
+    {
+        npc_boulderfist_saboteurAI(Creature* creature) : ScriptedAI(creature)
+        {
+            _events.Reset();
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            Reset();
+        }
+
+        void Reset() override
+        {
+            _events.Reset();
+        }
+
+        void JustEngagedWith(Unit* /*who*/) override
+        {
+            _events.ScheduleEvent(1, 100, 200);
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (!UpdateVictim())
+            {
+                return;
+            }
+            _events.Update(diff);
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+            {
+                return;
+            }
+            if (Unit* victim = me->GetVictim())
+            {
+                if (me->IsWithinMeleeRange(victim))
+                {
+                    if (me->HasUnitState(UNIT_STATE_ROOT))
+                    {
+                        me->ClearUnitState(UNIT_STATE_ROOT);
+                    }
+                }
+                else if (me->IsWithinLOSInMap(victim))
+                {
+                    if (!me->HasUnitState(UNIT_STATE_ROOT))
+                    {
+                        me->AddUnitState(UNIT_STATE_ROOT);
+                    }
+                    while (uint32 eventId = _events.ExecuteEvent())
+                    {
+                        switch (eventId)
+                        {
+                        case 1:
+                        {
+                            DoCastVictim(32248);
+                            _events.Repeat(2000, 2500);
+                            break;
+                        }
+                        default:
+                        {
+                            break;
+                        }
+                        }
+                    }
+                }
+                else
+                {
+                    if (me->HasUnitState(UNIT_STATE_ROOT))
+                    {
+                        me->ClearUnitState(UNIT_STATE_ROOT);
+                    }
+                }
+                DoMeleeAttackIfReady();
+            }
+        }
+
+    private:
+        EventMap _events;
+    };
+};
+
+class npc_boulderfist_warrior : public CreatureScript
+{
+public:
+    npc_boulderfist_warrior() : CreatureScript("npc_boulderfist_warrior") { }
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_boulderfist_warriorAI(creature);
+    }
+
+    struct npc_boulderfist_warriorAI : public ScriptedAI
+    {
+        npc_boulderfist_warriorAI(Creature* creature) : ScriptedAI(creature)
+        {
+            _events.Reset();
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            Reset();
+        }
+
+        void Reset() override
+        {
+            _events.Reset();
+        }
+
+        void JustEngagedWith(Unit* /*who*/) override
+        {
+            DoCastSelf(674);
+            _events.ScheduleEvent(1, 100, 200);
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (!UpdateVictim())
+            {
+                return;
+            }
+            _events.Update(diff);
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+            {
+                return;
+            }
+            if (Unit* victim = me->GetVictim())
+            {
+                while (uint32 eventId = _events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                    case 1:
+                    {
+                        float victimDistance = me->GetDistance(victim);
+                        if (victimDistance > 8.0f && victimDistance < 25.0f)
+                        {
+                            DoCastVictim(31994);
+                            _events.Repeat(10000, 15000);
+                        }
+                        break;
+                    }
+                    default:
+                    {
+                        break;
+                    }
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        }
+
+    private:
+        EventMap _events;
+    };
+};
+
+class npc_zorbo_the_advisor : public CreatureScript
+{
+public:
+    npc_zorbo_the_advisor() : CreatureScript("npc_zorbo_the_advisor") { }
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_zorbo_the_advisorAI(creature);
+    }
+
+    struct npc_zorbo_the_advisorAI : public ScriptedAI
+    {
+        npc_zorbo_the_advisorAI(Creature* creature) : ScriptedAI(creature)
+        {
+            _events.Reset();
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            Reset();
+        }
+
+        void Reset() override
+        {
+            _events.Reset();
+        }
+
+        void JustEngagedWith(Unit* /*who*/) override
+        {
+            _events.ScheduleEvent(1, 5000, 8000);
+            _events.ScheduleEvent(2, 8000, 10000);
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (!UpdateVictim())
+            {
+                return;
+            }
+            _events.Update(diff);
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+            {
+                return;
+            }
+            if (Unit* victim = me->GetVictim())
+            {
+                while (uint32 eventId = _events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                    case 1:
+                    {
+                        DoCastVictim(12548);
+                        _events.Repeat(5000, 8000);
+                        break;
+                    }
+                    case 2:
+                    {
+                        if (me->GetHealthPct() < 40.0f)
+                        {
+                            DoCastSelf(11986);
+                            _events.Repeat(8000, 10000);
+                        }
+                        else
+                        {
+                            _events.Repeat(1000, 3000);
+                        }
+                        break;
+                    }
+                    default:
+                    {
+                        break;
+                    }
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        }
+
+    private:
+        EventMap _events;
+    };
+};
+
+class npc_chowar_the_pillager : public CreatureScript
+{
+public:
+    npc_chowar_the_pillager() : CreatureScript("npc_chowar_the_pillager") { }
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_chowar_the_pillagerAI(creature);
+    }
+
+    struct npc_chowar_the_pillagerAI : public ScriptedAI
+    {
+        npc_chowar_the_pillagerAI(Creature* creature) : ScriptedAI(creature)
+        {
+            _events.Reset();
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            Reset();
+        }
+
+        void Reset() override
+        {
+            _events.Reset();
+        }
+
+        void JustEngagedWith(Unit* /*who*/) override
+        {
+            _events.ScheduleEvent(1, 100, 200);
+            _events.ScheduleEvent(2, 2000, 4000);
+            _events.ScheduleEvent(3, 6000, 10000);
+            _events.ScheduleEvent(4, 15000, 20000);
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (!UpdateVictim())
+            {
+                return;
+            }
+            _events.Update(diff);
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+            {
+                return;
+            }
+            if (Unit* victim = me->GetVictim())
+            {
+                while (uint32 eventId = _events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                    case 1:
+                    {
+                        float victimDistance = me->GetDistance(victim);
+                        if (victimDistance > 8.0f && victimDistance < 25.0f)
+                        {
+                            DoCastVictim(32323);
+                            _events.Repeat(10000, 15000);
+                        }
+                        else
+                        {
+                            _events.Repeat(2000, 3000);
+                        }
+                        break;
+                    }
+                    case 2:
+                    {
+                        DoCastSelf(31403);
+                        _events.Repeat(120000, 130000);
+                        break;
+                    }
+                    case 3:
+                    {
+                        DoCastVictim(17963);
+                        _events.Repeat(15000, 20000);
+                        break;
+                    }
+                    case 4:
+                    {
+                        DoCastVictim(15708);
+                        _events.Repeat(20000, 25000);
+                        break;
+                    }
+                    default:
+                    {
+                        break;
+                    }
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        }
+
+    private:
+        EventMap _events;
+    };
 };
 
 void AddSC_nagrand()
@@ -701,4 +1269,12 @@ void AddSC_nagrand()
     new npc_kurenai_captive();
     new npc_nagrand_banner();
     new condition_nagrand_banner();
+
+    // EJ scripts
+    new npc_boulderfist_hunter();
+    new npc_boulderfist_mage();
+    new npc_boulderfist_saboteur();
+    new npc_boulderfist_warrior();
+    new npc_zorbo_the_advisor();
+    new npc_chowar_the_pillager();
 }

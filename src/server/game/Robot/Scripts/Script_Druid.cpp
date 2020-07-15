@@ -407,54 +407,97 @@ bool Script_Druid::DPS_Feral(Unit* pmTarget, bool pmChase, bool pmAOE, Player* p
         }
         CastSpell(me, "Dash");
         me->Attack(pmTarget, true);
+        if (me->GetHealthPct() < 50.0f)
+        {
+            CastSpell(me, "Barkskin");
+        }
         uint32 energy = me->GetPower(Powers::POWER_ENERGY);
         if (CastSpell(pmTarget, "Faerie Fire (Feral)", DRUID_RANGE_DISTANCE, true))
         {
             return true;
         }
-        if (energy < 30)
+        if (HasAura(me, "Berserk"))
         {
-            if (CastSpell(me, "Tiger's Fury", MELEE_MAX_DISTANCE, true))
+            uint8 comboPoints = me->GetComboPoints();
+            if (comboPoints >= 4)
             {
-                return true;
-            }
-        }
-        if (energy > 45)
-        {
-            if (CastSpell(pmTarget, "Rake", MELEE_MAX_DISTANCE, true, true))
-            {
-                return true;
-            }
-            if (CastSpell(pmTarget, "Mangle (Cat)", MELEE_MAX_DISTANCE))
-            {
-                return true;
-            }
-            if (CastSpell(pmTarget, "Claw", MELEE_MAX_DISTANCE))
-            {
-                return true;
-            }
-        }
-        if (energy > 35)
-        {
-            uint32 spellID = FindSpellID("Rip");
-            if (spellID != 0)
-            {
-                uint8 comboPoints = me->GetComboPoints();
-                if (HasAura(pmTarget, "Rip", true))
+                if (energy > 17)
                 {
-                    if (urand(1, 5) <= comboPoints)
+                    if (CastSpell(pmTarget, "Rip", MELEE_MAX_DISTANCE, true, true))
                     {
-                        CastSpell(pmTarget, "Ferocious Bite", MELEE_MAX_DISTANCE);
+                        return true;
+                    }
+                    if (CastSpell(pmTarget, "Ferocious Bite", MELEE_MAX_DISTANCE))
+                    {
                         return true;
                     }
                 }
-                else
+            }
+            if (energy > 22)
+            {
+                if (CastSpell(pmTarget, "Rake", MELEE_MAX_DISTANCE, true, true))
                 {
-                    if (urand(1, 5) <= comboPoints)
+                    return true;
+                }
+                if (CastSpell(pmTarget, "Mangle (Cat)", MELEE_MAX_DISTANCE))
+                {
+                    return true;
+                }
+                if (CastSpell(pmTarget, "Claw", MELEE_MAX_DISTANCE))
+                {
+                    return true;
+                }
+            }
+        }
+        else
+        {
+            // when facing boss 
+            if (pmTarget->GetMaxHealth() / me->GetMaxHealth() > 10.0f)
+            {
+                if (energy > 70)
+                {
+                    if (CastSpell(me, "Berserk", MELEE_MAX_DISTANCE))
                     {
-                        CastSpell(pmTarget, "Rip", MELEE_MAX_DISTANCE);
+                        me->Yell("Berserk!", Language::LANG_UNIVERSAL);
                         return true;
                     }
+                }
+            }
+            if (energy < 30)
+            {
+                if (CastSpell(me, "Tiger's Fury", MELEE_MAX_DISTANCE, true))
+                {
+                    return true;
+                }
+            }
+            uint8 comboPoints = me->GetComboPoints();
+            if (comboPoints >= 4)
+            {
+                if (energy > 35)
+                {
+                    if (CastSpell(pmTarget, "Rip", MELEE_MAX_DISTANCE, true, true))
+                    {
+                        return true;
+                    }
+                    if (CastSpell(pmTarget, "Ferocious Bite", MELEE_MAX_DISTANCE))
+                    {
+                        return true;
+                    }
+                }
+            }
+            if (energy > 45)
+            {
+                if (CastSpell(pmTarget, "Rake", MELEE_MAX_DISTANCE, true, true))
+                {
+                    return true;
+                }
+                if (CastSpell(pmTarget, "Mangle (Cat)", MELEE_MAX_DISTANCE))
+                {
+                    return true;
+                }
+                if (CastSpell(pmTarget, "Claw", MELEE_MAX_DISTANCE))
+                {
+                    return true;
                 }
             }
         }
@@ -597,7 +640,7 @@ bool Script_Druid::Tank_Feral(Unit* pmTarget, bool pmChase, bool pmSingle)
         return true;
     }
     }
-    if (me->GetHealthPct() < 80)
+    if (me->GetHealthPct() < 50.0f)
     {
         CastSpell(me, "Barkskin");
     }
@@ -675,9 +718,35 @@ bool Script_Druid::Tank_Feral(Unit* pmTarget, bool pmChase, bool pmSingle)
             }
         }
     }
-    if (CastSpell(pmTarget, "Faerie Fire (Feral)", MELEE_MAX_DISTANCE))
+    if (CastSpell(pmTarget, "Faerie Fire (Feral)", MELEE_MAX_DISTANCE, true))
     {
         return true;
+    }
+    // when facing boss 
+    if (pmTarget->GetMaxHealth() / me->GetMaxHealth() > 10.0f)
+    {
+        if (rage > 200)
+        {
+            if (GetAuraCount(pmTarget, "Lacerate", true) < 5)
+            {
+                if (CastSpell(pmTarget, "Lacerate", MELEE_MAX_DISTANCE))
+                {
+                    return true;
+                }
+            }
+            else if (GetAuraDuration(pmTarget, "Lacerate", true) < 3000)
+            {
+                if (CastSpell(pmTarget, "Lacerate", MELEE_MAX_DISTANCE))
+                {
+                    return true;
+                }
+            }
+        }
+        if (CastSpell(me, "Berserk", MELEE_MAX_DISTANCE))
+        {
+            me->Yell("Berserk!", Language::LANG_UNIVERSAL);
+            return true;
+        }
     }
     if (rage > 200)
     {
@@ -993,6 +1062,10 @@ bool Script_Druid::Attack_Feral_Cat(Unit* pmTarget)
         }
         me->Attack(pmTarget, true);
         CastSpell(me, "Dash");
+        if (me->GetHealthPct() < 50.0f)
+        {
+            CastSpell(me, "Barkskin");
+        }
         uint32 energy = me->GetPower(Powers::POWER_ENERGY);
         if (CastSpell(pmTarget, "Faerie Fire (Feral)", DRUID_RANGE_DISTANCE, true))
         {
@@ -1003,6 +1076,21 @@ bool Script_Druid::Attack_Feral_Cat(Unit* pmTarget)
             if (CastSpell(me, "Tiger's Fury", MELEE_MAX_DISTANCE, true))
             {
                 return true;
+            }
+        }
+        uint8 comboPoints = me->GetComboPoints();
+        if (comboPoints >= 4)
+        {
+            if (energy > 35)
+            {
+                if (CastSpell(pmTarget, "Rip", MELEE_MAX_DISTANCE, true, true))
+                {
+                    return true;
+                }
+                if (CastSpell(pmTarget, "Ferocious Bite", MELEE_MAX_DISTANCE))
+                {
+                    return true;
+                }
             }
         }
         if (energy > 45)
@@ -1018,30 +1106,6 @@ bool Script_Druid::Attack_Feral_Cat(Unit* pmTarget)
             if (CastSpell(pmTarget, "Claw", MELEE_MAX_DISTANCE))
             {
                 return true;
-            }
-        }
-        if (energy > 35)
-        {
-            uint32 spellID = FindSpellID("Rip");
-            if (spellID != 0)
-            {
-                uint8 comboPoints = me->GetComboPoints();
-                if (HasAura(pmTarget, "Rip", true))
-                {
-                    if (urand(1, 5) <= comboPoints)
-                    {
-                        CastSpell(pmTarget, "Ferocious Bite", MELEE_MAX_DISTANCE);
-                        return true;
-                    }
-                }
-                else
-                {
-                    if (urand(1, 5) <= comboPoints)
-                    {
-                        CastSpell(pmTarget, "Rip", MELEE_MAX_DISTANCE);
-                        return true;
-                    }
-                }
             }
         }
         break;
@@ -1088,6 +1152,10 @@ bool Script_Druid::Attack_Feral_Bear(Unit* pmTarget)
         return false;
     }
     me->Attack(pmTarget, true);
+    if (me->GetHealthPct() < 50.0f)
+    {
+        CastSpell(me, "Barkskin");
+    }
     CastSpell(me, "Enrage");
     uint32 rage = me->GetPower(Powers::POWER_RAGE);
     if (rage > 50)
@@ -1125,32 +1193,21 @@ bool Script_Druid::Attack_Feral_Bear(Unit* pmTarget)
             }
         }
     }
-    uint16 validAttackerCount = 0;
-    for (Unit::AttackerSet::const_iterator itr = me->getAttackers().begin(); itr != me->getAttackers().end(); ++itr)
+    if (rage > 200)
     {
-        float distance = me->GetDistance((*itr));
-        if (distance <= 5)
+        if (CastSpell(pmTarget, "Mangle (Bear)", MELEE_MAX_DISTANCE))
         {
-            validAttackerCount++;
+            return true;
         }
     }
-    if (rage > 150)
+    if (rage > 250)
     {
-        if (validAttackerCount > 1)
+        if (CastSpell(pmTarget, "Maul", MELEE_MAX_DISTANCE))
         {
-            if (CastSpell(pmTarget, "Swipe (Bear)", MELEE_MAX_DISTANCE))
-            {
-                return true;
-            }
-        }
-        else
-        {
-            if (CastSpell(pmTarget, "Maul", MELEE_MAX_DISTANCE))
-            {
-                return true;
-            }
+            return true;
         }
     }
+
     return true;
 }
 

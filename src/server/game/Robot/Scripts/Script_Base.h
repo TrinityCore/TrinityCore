@@ -42,6 +42,7 @@ public:
     bool CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDistance = MELEE_MAX_DISTANCE, bool pmCheckAura = false, bool pmOnlyMyAura = false, bool pmClearShapeShift = false);
     bool HasAura(Unit* pmTarget, std::string pmSpellName, bool pmOnlyMyAura = false);
     uint32 GetAuraDuration(Unit* pmTarget, std::string pmSpellName, bool pmOnlyMyAura = false);
+    uint32 GetAuraCount(Unit* pmTarget, std::string pmSpellName, bool pmOnlyMyAura = false);
     void ClearShapeshift();
     void CancelAura(uint32 pmSpellID);
     bool CancelAura(std::string pmSpellName);
