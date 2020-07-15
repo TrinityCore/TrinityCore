@@ -122,7 +122,7 @@ inline bool Utf8toWStr(const std::string& utf8str, wchar_t* wstr, size_t& wsize)
 
 TC_COMMON_API bool WStrToUtf8(std::wstring const& wstr, std::string& utf8str);
 // size==real string size
-TC_COMMON_API bool WStrToUtf8(wchar_t* wstr, size_t size, std::string& utf8str);
+TC_COMMON_API bool WStrToUtf8(wchar_t const* wstr, size_t size, std::string& utf8str);
 
 // set string to "" if invalid utf8 sequence
 TC_COMMON_API size_t utf8length(std::string& utf8str);
