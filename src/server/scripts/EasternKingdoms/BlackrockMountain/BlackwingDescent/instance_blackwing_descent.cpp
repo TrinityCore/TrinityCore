@@ -86,7 +86,9 @@ enum Events
     EVENT_MAKE_ANCIENT_BELL_SELECTABLE = 1,
     EVENT_RESPAWN_ATRAMEDES,
     EVENT_RESPAWN_NEFARIAN,
-    EVENT_RAISE_ELEVATOR
+    EVENT_RAISE_ELEVATOR,
+    EVENT_RESPAWN_LEFT_DWARVEN_GROUP,
+    EVENT_RESPAWN_RIGHT_DWARVEN_GROUP
 };
 
 enum Actions
@@ -98,7 +100,9 @@ enum Actions
 enum SpawnGroup
 {
     SPAWN_GROUP_ANCIENT_DWARVEN_SHIELDS = 400,
-    SPAWN_GROUP_NEFARIANS_END           = 402
+    SPAWN_GROUP_NEFARIANS_END           = 402,
+    SPAWN_GROUP_DWARVEN_SPIRITS_LEFT    = 435,
+    SPAWN_GROUP_DWARVEN_SPIRITS_RIGHT   = 436
 };
 
 enum SummonGroups
@@ -124,7 +128,8 @@ class instance_blackwing_descent : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadObjectData(creatureData, gameobjectData);
                 LoadDoorData(doorData);
-                _deadDwarfSpirits = 0;
+                _deadDwarfSpiritsLeft = 0;
+                _deadDwarfSpiritsRight = 0;
                 _atramedesIntroState = NOT_STARTED;
                 _nefarianAchievementEligible = true;
                 _nefariansEndIntroDone = false;
@@ -133,6 +138,8 @@ class instance_blackwing_descent : public InstanceMapScript
             void Create() override
             {
                 instance->SpawnGroupSpawn(SPAWN_GROUP_ANCIENT_DWARVEN_SHIELDS, true);
+                instance->SpawnGroupSpawn(SPAWN_GROUP_DWARVEN_SPIRITS_LEFT, true);
+                instance->SpawnGroupSpawn(SPAWN_GROUP_DWARVEN_SPIRITS_RIGHT, true);
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -208,36 +215,6 @@ class instance_blackwing_descent : public InstanceMapScript
                     case GO_INNER_CHAMBER_DOOR:
                         if (GetBossState(DATA_MAGMAW) == DONE && GetBossState(DATA_OMNOTRON_DEFENSE_SYSTEM) == DONE)
                             go->SetGoState(GO_STATE_ACTIVE);
-                        break;
-                    case GO_ANCIENT_BELL:
-                        if (_deadDwarfSpirits == 8 && _atramedesIntroState != DONE)
-                        {
-                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-                            if (Creature* column = instance->SummonCreature(NPC_COLUMN_OF_LIGHT, ColumnOfLightPosition))
-                                column->CastSpell(column, SPELL_COLUMN_OF_LIGHT);
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void OnUnitDeath(Unit* unit) override
-            {
-                if (unit->GetTypeId() != TYPEID_UNIT)
-                    return;
-
-                switch (unit->GetEntry())
-                {
-                    case NPC_SPIRIT_OF_MOLTENFIST:
-                    case NPC_SPIRIT_OF_ANVILRAGE:
-                    case NPC_SPIRIT_OF_SHADOWFORGE:
-                    case NPC_SPIRIT_OF_COREHAMMER:
-                    case NPC_SPIRIT_OF_ANGERFORGE:
-                    case NPC_SPIRIT_OF_IRONSTAR:
-                    case NPC_SPIRIT_OF_THAURISSAN:
-                    case NPC_SPIRIT_OF_BURNINGEYE:
-                        SetData(DATA_DEAD_DWARF_SPIRITS, DONE);
                         break;
                     default:
                         break;
@@ -318,12 +295,17 @@ class instance_blackwing_descent : public InstanceMapScript
             {
                 switch (type)
                 {
-                    case DATA_DEAD_DWARF_SPIRITS:
-                        _deadDwarfSpirits++;
-                        SaveToDB();
+                    case DATA_DWARVEN_SPIRIT_DIED:
+                        if (data == DWARVEN_SPIRIT_GROUP_LEFT)
+                            ++_deadDwarfSpiritsLeft;
+                        else
+                            ++_deadDwarfSpiritsRight;
 
-                        if (_deadDwarfSpirits == 8)
+                        if ((_deadDwarfSpiritsLeft + _deadDwarfSpiritsRight) == 8)
                         {
+                            _atramedesIntroState = DONE;
+                            SaveToDB();
+
                             std::list<TempSummon*> summoned;
                             instance->SummonCreatureGroup(SUMMON_GROUP_ATRAMEDES_INTRO, &summoned);
                             for (TempSummon* summon : summoned)
@@ -333,22 +315,38 @@ class instance_blackwing_descent : public InstanceMapScript
                             _events.ScheduleEvent(EVENT_MAKE_ANCIENT_BELL_SELECTABLE, 4s + 500ms);
                         }
                         break;
-                    case DATA_ATRAMEDES_INTRO:
-                        _atramedesIntroState = data;
-
-                        if (Creature* atramedes = instance->SummonCreature(BOSS_ATRAMEDES, AtramedesIntroSummonPosition))
+                    case DATA_RESET_DWARVEN_SPIRIT_GROUP:
+                        if (data == DWARVEN_SPIRIT_GROUP_LEFT)
                         {
-                            for (ObjectGuid guid : _atramedesIntroGUIDs)
-                                if (Creature* intro = instance->GetCreature(guid))
-                                    intro->DespawnOrUnsummon();
-
-                            atramedes->SetDisableGravity(true);
-                            atramedes->SetReactState(REACT_PASSIVE);
-                            atramedes->SendSetPlayHoverAnim(true);
-                            atramedes->AI()->DoAction(ACTION_START_ATRAMEDES_INTRO);
+                            _deadDwarfSpiritsLeft = 0;
+                            _events.RescheduleEvent(EVENT_RESPAWN_LEFT_DWARVEN_GROUP, 30s);
+                            instance->SpawnGroupDespawn(SPAWN_GROUP_DWARVEN_SPIRITS_LEFT);
+                        }
+                        else
+                        {
+                            _deadDwarfSpiritsRight = 0;
+                            _events.RescheduleEvent(EVENT_RESPAWN_RIGHT_DWARVEN_GROUP, 30s);
+                            instance->SpawnGroupDespawn(SPAWN_GROUP_DWARVEN_SPIRITS_RIGHT);
                         }
 
-                        SaveToDB();
+                        break;
+                    case DATA_ATRAMEDES_INTRO:
+                        if (!GetCreature(DATA_ATRAMEDES))
+                        {
+                            if (Creature* atramedes = instance->SummonCreature(BOSS_ATRAMEDES, AtramedesIntroSummonPosition))
+                            {
+                                for (ObjectGuid guid : _atramedesIntroGUIDs)
+                                    if (Creature* intro = instance->GetCreature(guid))
+                                        intro->DespawnOrUnsummon();
+
+                                atramedes->SetDisableGravity(true);
+                                atramedes->SetReactState(REACT_PASSIVE);
+                                atramedes->SendSetPlayHoverAnim(true);
+
+                                if (atramedes->IsAIEnabled)
+                                    atramedes->AI()->DoAction(ACTION_START_ATRAMEDES_INTRO);
+                            }
+                        }
                         break;
                     case DATA_ENTRANCE_INTRO:
                     {
@@ -481,6 +479,12 @@ class instance_blackwing_descent : public InstanceMapScript
                                 if (Transport* transport = gameobject->ToTransport())
                                     transport->SetTransportState(GO_STATE_TRANSPORT_STOPPED, 1);
                             break;
+                        case EVENT_RESPAWN_LEFT_DWARVEN_GROUP:
+                            instance->SpawnGroupSpawn(SPAWN_GROUP_DWARVEN_SPIRITS_LEFT, true);
+                            break;
+                        case EVENT_RESPAWN_RIGHT_DWARVEN_GROUP:
+                            instance->SpawnGroupSpawn(SPAWN_GROUP_DWARVEN_SPIRITS_RIGHT, true);
+                            break;
                         default:
                             break;
                     }
@@ -489,21 +493,25 @@ class instance_blackwing_descent : public InstanceMapScript
 
             void WriteSaveDataMore(std::ostringstream& data) override
             {
-                data << _deadDwarfSpirits << ' '
-                    << _atramedesIntroState;
+                data << _atramedesIntroState;
             }
 
             void ReadSaveDataMore(std::istringstream& data) override
             {
-                data >> _deadDwarfSpirits;
                 data >> _atramedesIntroState;
 
-                // Atramedes' intro is done but he has not been defeated yet: spawm him at his respawn location
-                if (_atramedesIntroState == DONE && GetBossState(DATA_ATRAMEDES) != DONE)
-                    instance->SummonCreature(BOSS_ATRAMEDES, AtramedesRespawnPosition);
-
                 if (GetBossState(DATA_ATRAMEDES) != DONE)
+                {
                     instance->SpawnGroupSpawn(SPAWN_GROUP_ANCIENT_DWARVEN_SHIELDS, true);
+
+                    if (_atramedesIntroState == DONE)
+                        instance->SummonCreature(BOSS_ATRAMEDES, AtramedesRespawnPosition);
+                    else
+                    {
+                        instance->SpawnGroupSpawn(SPAWN_GROUP_DWARVEN_SPIRITS_LEFT, true);
+                        instance->SpawnGroupSpawn(SPAWN_GROUP_DWARVEN_SPIRITS_RIGHT, true);
+                    }
+                }
 
                 if (IsNefarianAvailable())
                     instance->SpawnGroupSpawn(SPAWN_GROUP_NEFARIANS_END, true);
@@ -517,7 +525,8 @@ class instance_blackwing_descent : public InstanceMapScript
             ObjectGuid _roomStalkerTargetDummyRightGuid;
             GuidVector _roomStalkerGUIDs;
             GuidVector _atramedesIntroGUIDs;
-            uint8 _deadDwarfSpirits;
+            uint8 _deadDwarfSpiritsLeft;
+            uint8 _deadDwarfSpiritsRight;
             uint8 _atramedesIntroState;
             bool _nefarianAchievementEligible;
             bool _nefariansEndIntroDone;
