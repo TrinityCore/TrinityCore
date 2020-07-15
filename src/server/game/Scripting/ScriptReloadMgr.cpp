@@ -368,7 +368,6 @@ static int InvokeCMakeCommand(T&&... args)
 {
     auto const executable = BuiltInConfig::GetCMakeCommand();
     return Trinity::StartProcess(executable, {
-        executable,
         std::forward<T>(args)...
     }, "scripts.hotswap");
 }
@@ -379,7 +378,6 @@ static std::shared_ptr<Trinity::AsyncProcessResult> InvokeAsyncCMakeCommand(T&&.
 {
     auto const executable = BuiltInConfig::GetCMakeCommand();
     return Trinity::StartAsyncProcess(executable, {
-        executable,
         std::forward<T>(args)...
     }, "scripts.hotswap");
 }
@@ -1358,7 +1356,7 @@ private:
                         return;
 
                     TC_LOG_INFO("scripts.hotswap", ">> Found outdated CMAKE_INSTALL_PREFIX (\"%s\"), "
-                        "worldserver is currently installed at %s...",
+                        "worldserver is currently installed at %s",
                         value.generic_string().c_str(), current_path.generic_string().c_str());
                 }
                 else

@@ -9,10 +9,6 @@ message("")
 # output information about installation-directories and locations
 
 message("* Install core to        : ${CMAKE_INSTALL_PREFIX}")
-if(UNIX)
-  message("* Install configs to     : ${CONF_DIR}")
-endif()
-
 if(COPY_CONF)
   if(UNIX)
     message("* Install configs to     : ${CONF_DIR}")
