@@ -64,6 +64,8 @@ void BattlefieldMgr::InitBattlefield()
             uint32 scriptId = sObjectMgr->GetScriptId(fields[1].GetString());
 
             Battlefield* bf = sScriptMgr->CreateBattlefield(scriptId);
+            if (!bf)
+                continue;
 
             if (!bf->SetupBattlefield())
             {
