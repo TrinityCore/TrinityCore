@@ -221,7 +221,7 @@ void AuraApplication::BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo
         for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
             if (AuraEffect const* effect = aura->GetEffect(i))
                 if (HasEffect(i))       // Not all of aura's effects have to be applied on every target
-                    auraData.Points.push_back(effect->GetAmount());
+                    auraData.Points[i] = effect->GetAmount();
 }
 
 void AuraApplication::ClientUpdate(bool remove)

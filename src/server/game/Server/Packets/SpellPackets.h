@@ -188,7 +188,7 @@ namespace WorldPackets
             Optional<ObjectGuid> CastUnit;
             Optional<int32> Duration;
             Optional<int32> Remaining;
-            std::vector<int32> Points;
+            std::array<Optional<int32>, 3 /*MAX_SPELL_EFFECTS*/> Points;
         };
 
         struct AuraInfo

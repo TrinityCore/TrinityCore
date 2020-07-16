@@ -225,8 +225,9 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::AuraDataInfo cons
     if (auraData.Remaining)
         data << int32(*auraData.Remaining);
 
-    for (int32 amount : auraData.Points)
-        data << int32(amount);
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        if (auraData.Points[i].is_initialized())
+            data << int32(*auraData.Points[i]);
 
     return data;
 }
