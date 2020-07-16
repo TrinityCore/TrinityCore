@@ -25,7 +25,6 @@
 #include "DBCStores.h"
 #include "GossipDef.h"
 #include "Item.h"
-#include "Language.h"
 #include "Log.h"
 #include "Map.h"
 #include "NPCPackets.h"
