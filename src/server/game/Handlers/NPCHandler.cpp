@@ -28,7 +28,6 @@
 #include "GossipDef.h"
 #include "Item.h"
 #include "ItemPackets.h"
-#include "Language.h"
 #include "Log.h"
 #include "MailPackets.h"
 #include "Map.h"
