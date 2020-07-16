@@ -13,7 +13,8 @@ Development of this project dates back to 2004, and was developed under various 
 * WoW Daemon Team, 2004
 * MaNGOS project, 2005-2008, located at http://www.mangosproject.org
 * MaNGOS project, 2008-2011, located at http://getmangos.com
-* SD2 project, 2008-2009, located at http://getmangos.com
+* UDB project, 2007-2009, located at http://udbforums.org
+* SD2 project, 2008-2009, located at http://www.scriptdev2.com
 * TrinityCore, 2008-2020, located at https://www.trinitycore.org/
 
 ## Authorship of the code
