@@ -28,6 +28,14 @@ struct SpellModifier;
 struct ProcTriggerSpell;
 struct SpellProcEntry;
 
+namespace WorldPackets
+{
+    namespace Spells
+    {
+        struct AuraInfo;
+    }
+}
+
 // forward decl
 class AuraEffect;
 class Aura;
@@ -78,7 +86,7 @@ class TC_GAME_API AuraApplication
 
         void SetNeedClientUpdate() { _needClientUpdate = true;}
         bool IsNeedClientUpdate() const { return _needClientUpdate;}
-        void BuildUpdatePacket(ByteBuffer& data, bool remove) const;
+        void BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo, bool remove) const;
         void ClientUpdate(bool remove = false);
 };
 

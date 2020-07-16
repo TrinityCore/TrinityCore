@@ -92,6 +92,7 @@
 #include "SpellAuras.h"
 #include "SpellHistory.h"
 #include "SpellMgr.h"
+#include "SpellPackets.h"
 #include "TicketMgr.h"
 #include "TradeData.h"
 #include "Trainer.h"
@@ -23931,17 +23932,20 @@ void Player::SendAurasForTarget(Unit* target) const
     if (target->HasAuraType(SPELL_AURA_HOVER))
         target->SetHover(true, true);
 
-    WorldPacket data(SMSG_AURA_UPDATE_ALL);
-    data << target->GetPackGUID();
-
     Unit::VisibleAuraMap const* visibleAuras = target->GetVisibleAuras();
+
+    WorldPackets::Spells::AuraUpdateAll update;
+    update.UnitGUID = target->GetGUID();
+    update.Auras.reserve(visibleAuras->size());
+
     for (Unit::VisibleAuraMap::const_iterator itr = visibleAuras->begin(); itr != visibleAuras->end(); ++itr)
     {
-        AuraApplication * auraApp = itr->second;
-        auraApp->BuildUpdatePacket(data, false);
+        WorldPackets::Spells::AuraInfo auraInfo;
+        AuraApplication* auraApp = itr->second;
+        auraApp->BuildUpdatePacket(auraInfo, false);
+        update.Auras.push_back(auraInfo);
     }
-
-    SendDirectMessage(&data);
+    GetSession()->SendPacket(update.Write());
 }
 
 void Player::SetDailyQuestStatus(uint32 quest_id)

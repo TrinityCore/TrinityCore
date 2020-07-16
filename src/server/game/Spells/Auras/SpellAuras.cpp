@@ -32,6 +32,7 @@
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
 #include "SpellMgr.h"
+#include "SpellPackets.h"
 #include "SpellScript.h"
 #include "Unit.h"
 #include "Util.h"
@@ -181,54 +182,60 @@ void AuraApplication::_HandleEffect(uint8 effIndex, bool apply)
     SetNeedClientUpdate();
 }
 
-void AuraApplication::BuildUpdatePacket(ByteBuffer& data, bool remove) const
+void AuraApplication::BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo, bool remove) const
 {
-    data << uint8(_slot);
+    auraInfo.Slot = GetSlot();
+
+    WorldPackets::Spells::AuraDataInfo& auraData = auraInfo.AuraData;
 
     if (remove)
     {
         ASSERT(!_target->GetVisibleAura(_slot));
-        data << uint32(0);
         return;
     }
     ASSERT(_target->GetVisibleAura(_slot));
 
+
     Aura const* aura = GetBase();
-    data << uint32(aura->GetId());
-    uint32 flags = _flags;
+    auraData.SpellID = aura->GetId();
+    auraData.Flags = GetFlags();
     if (aura->GetType() != DYNOBJ_AURA_TYPE && aura->GetMaxDuration() > 0 && !aura->GetSpellInfo()->HasAttribute(SPELL_ATTR5_HIDE_DURATION))
-        flags |= AFLAG_DURATION;
-    data << uint16(flags);
-    data << uint8(aura->GetCasterLevel());
+        auraData.Flags |= AFLAG_DURATION;
+
+    auraData.CastLevel = uint16(aura->GetCasterLevel());
+
     // send stack amount for aura which could be stacked (never 0 - causes incorrect display) or charges
     // stack amount has priority over charges (checked on retail with spell 50262)
-    data << uint8(aura->GetSpellInfo()->StackAmount ? aura->GetStackAmount() : aura->GetCharges());
+    auraData.Applications = aura->GetSpellInfo()->StackAmount ? aura->GetStackAmount() : aura->GetCharges();
 
-    if (!(flags & AFLAG_CASTER))
-        data << aura->GetCasterGUID().WriteAsPacked();
+    if (!(auraData.Flags & AFLAG_CASTER))
+        auraData.CastUnit = aura->GetCasterGUID();
 
-    if (flags & AFLAG_DURATION)
+    if (auraData.Flags & AFLAG_DURATION)
     {
-        data << uint32(aura->GetMaxDuration());
-        data << uint32(aura->GetDuration());
+        auraData.Duration = aura->GetMaxDuration();
+        auraData.Remaining = aura->GetDuration();
     }
 
-    if (flags & AFLAG_ANY_EFFECT_AMOUNT_SENT)
+    if (auraData.Flags & AFLAG_ANY_EFFECT_AMOUNT_SENT)
         for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-            if (AuraEffect const* eff = aura->GetEffect(i))
+            if (AuraEffect const* effect = aura->GetEffect(i))
                 if (HasEffect(i))       // Not all of aura's effects have to be applied on every target
-                    data << int32(eff->GetAmount());
+                    auraData.Points.push_back(effect->GetAmount());
 }
 
 void AuraApplication::ClientUpdate(bool remove)
 {
     _needClientUpdate = false;
 
-    WorldPacket data(SMSG_AURA_UPDATE);
-    data << GetTarget()->GetPackGUID();
-    BuildUpdatePacket(data, remove);
+    WorldPackets::Spells::AuraUpdate update;
+    update.UnitGUID = GetTarget()->GetGUID();
 
-    _target->SendMessageToSet(&data, true);
+    WorldPackets::Spells::AuraInfo auraInfo;
+    BuildUpdatePacket(auraInfo, remove);
+    update.Auras.push_back(auraInfo);
+
+    _target->SendMessageToSet(update.Write(), true);
 }
 
 uint8 Aura::BuildEffectMaskForOwner(SpellInfo const* spellProto, uint8 availableEffectMask, WorldObject* owner)

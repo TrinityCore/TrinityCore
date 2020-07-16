@@ -178,6 +178,46 @@ namespace WorldPackets
 
             uint32 Result = 0;
         };
+
+        struct AuraDataInfo
+        {
+            int32 SpellID = 0;
+            int16 Flags = 0;
+            uint8 CastLevel = 0;
+            uint8 Applications = 0;
+            Optional<ObjectGuid> CastUnit;
+            Optional<int32> Duration;
+            Optional<int32> Remaining;
+            std::vector<int32> Points;
+        };
+
+        struct AuraInfo
+        {
+            uint8 Slot = 0;
+            AuraDataInfo AuraData;
+        };
+
+        class AuraUpdate final : public ServerPacket
+        {
+        public:
+            AuraUpdate() : ServerPacket(SMSG_AURA_UPDATE) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid UnitGUID;
+            std::vector<AuraInfo> Auras;
+        };
+
+        class AuraUpdateAll final : public ServerPacket
+        {
+        public:
+            AuraUpdateAll() : ServerPacket(SMSG_AURA_UPDATE_ALL) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid UnitGUID;
+            std::vector<AuraInfo> Auras;
+        };
     }
 }
 
