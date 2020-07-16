@@ -6621,10 +6621,7 @@ std::pair<float, float> Spell::GetMinMaxRange(bool strict) const
     float minRange = 0.0f;
     float maxRange = 0.0f;
     if (strict && m_spellInfo->IsNextMeleeSwingSpell())
-    {
-        maxRange = 100.0f;
-        return std::pair<float, float>(minRange, maxRange);
-    }
+        return { 0.0f, 100.0f };
 
     if (m_spellInfo->RangeEntry)
     {
@@ -6665,7 +6662,7 @@ std::pair<float, float> Spell::GetMinMaxRange(bool strict) const
 
     maxRange += rangeMod;
 
-    return std::pair<float, float>(minRange, maxRange);
+    return { minRange, maxRange };
 }
 
 SpellCastResult Spell::CheckPower() const
@@ -8314,9 +8311,10 @@ bool WorldObjectSpellAreaTargetCheck::operator()(WorldObject* target)
         if (!isInRange)
             return false;
     }
-    else
+    else if (target->ToUnit())
     {
-        bool isInsideCylinder = target->IsWithinDist2d(_position, _range) && std::abs(target->GetPositionZ() - _position->GetPositionZ()) <= _range;
+        float hitboxSum = _spellInfo->HasAttribute(SPELL_ATTR5_INCLUDE_MELEE_RANGE) ? target->ToUnit()->GetMeleeRange(_caster) : 0.f;
+        bool isInsideCylinder = target->IsWithinDist2d(_position, _range + hitboxSum) && std::abs(target->GetPositionZ() - _position->GetPositionZ()) <= (_range + hitboxSum);
         if (!isInsideCylinder)
             return false;
     }
