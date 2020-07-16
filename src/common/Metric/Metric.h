@@ -60,6 +60,18 @@ struct MetricData
     std::string Text;
 };
 
+class MetricStopWatch
+{
+public:
+    MetricStopWatch(std::string const& category, std::vector<MetricTag> tags);
+    ~MetricStopWatch();
+
+private:
+    std::string Category;
+    std::chrono::steady_clock::time_point StartTime;
+    std::vector<MetricTag> Tags;
+};
+
 class TC_COMMON_API Metric
 {
 private:
@@ -90,6 +102,7 @@ private:
     static std::string FormatInfluxDBValue(char const* value);
     static std::string FormatInfluxDBValue(double value);
     static std::string FormatInfluxDBValue(float value);
+    static std::string FormatInfluxDBValue(std::chrono::nanoseconds value);
 
     static std::string FormatInfluxDBTagValue(std::string const& value);
 

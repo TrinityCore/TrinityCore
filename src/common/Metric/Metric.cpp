@@ -25,6 +25,22 @@
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/asio/ip/tcp.hpp>
 
+MetricStopWatch::MetricStopWatch(std::string const& category, std::vector<MetricTag> tags)
+{
+    if (sMetric->IsEnabled())
+    {
+        StartTime = std::chrono::steady_clock::now();
+        Category = category;
+        Tags = std::move(tags);
+    }
+}
+
+MetricStopWatch::~MetricStopWatch()
+{
+    if (sMetric->IsEnabled())
+        sMetric->LogValue(Category, std::chrono::steady_clock::now() - StartTime, Tags);
+}
+
 void Metric::Initialize(std::string const& realmName, Trinity::Asio::IoContext& ioContext, std::function<void()> overallStatusLogger)
 {
     _dataStream = std::make_unique<boost::asio::ip::tcp::iostream>();
@@ -277,6 +293,11 @@ std::string Metric::FormatInfluxDBTagValue(std::string const& value)
 {
     // ToDo: should handle '=' and ',' characters too
     return boost::replace_all_copy(value, " ", "\\ ");
+}
+
+std::string Metric::FormatInfluxDBValue(std::chrono::nanoseconds value)
+{
+    return FormatInfluxDBValue(std::chrono::duration_cast<std::chrono::milliseconds>(value).count());
 }
 
 Metric::Metric()
