@@ -72,8 +72,11 @@ struct MovementInfo
     // spline
     float splineElevation;
 
+    // height change
+    bool heightChangeFailed;
+
     MovementInfo() :
-        flags(0), flags2(0), time(0), pitch(0.0f), splineElevation(0.0f)
+        flags(0), flags2(0), time(0), pitch(0.0f), splineElevation(0.0f), heightChangeFailed(false)
     {
         pos.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
         transport.Reset();

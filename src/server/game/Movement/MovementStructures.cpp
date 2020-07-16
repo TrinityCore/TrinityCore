@@ -1985,79 +1985,6 @@ MovementStatusElements const DismissControlledVehicle[] =
     MSEEnd,
 };
 
-MovementStatusElements const MoveUpdateTeleport[] =
-{
-    MSEPositionZ,
-    MSEPositionY,
-    MSEPositionX,
-    MSEHasOrientation,
-    MSEHasSpline,
-    MSEHasMovementFlags,
-    MSEHasGuidByte2,
-    MSEHasGuidByte4,
-    MSEHasGuidByte6,
-    MSEHasFallData,
-    MSEHasGuidByte0,
-    MSEHasTransportData,
-    MSEHasGuidByte5,
-    MSEHasTransportGuidByte1,
-    MSEHasTransportGuidByte4,
-    MSEHasTransportGuidByte5,
-    MSEHasTransportGuidByte3,
-    MSEHasTransportGuidByte0,
-    MSEHasTransportTime2,
-    MSEHasTransportGuidByte7,
-    MSEHasTransportGuidByte6,
-    MSEHasVehicleId,
-    MSEHasTransportGuidByte2,
-    MSEZeroBit,
-    MSEHasGuidByte7,
-    MSEHasGuidByte3,
-    MSEHasPitch,
-    MSEHasMovementFlags2,
-    MSEHasTimestamp,
-    MSEHasFallDirection,
-    MSEMovementFlags2,
-    MSEHasSplineElevation,
-    MSEMovementFlags,
-    MSEHasGuidByte1,
-    MSEFlushBits,
-    MSEGuidByte7,
-    MSETransportGuidByte3,
-    MSETransportGuidByte4,
-    MSETransportOrientation,
-    MSETransportVehicleId,
-    MSETransportGuidByte1,
-    MSETransportTime2,
-    MSETransportPositionZ,
-    MSETransportGuidByte7,
-    MSETransportGuidByte0,
-    MSETransportGuidByte6,
-    MSETransportGuidByte5,
-    MSETransportGuidByte2,
-    MSETransportSeat,
-    MSETransportTime,
-    MSETransportPositionY,
-    MSETransportPositionX,
-    MSEGuidByte6,
-    MSEPitch,
-    MSESplineElevation,
-    MSEOrientation,
-    MSEGuidByte2,
-    MSEGuidByte3,
-    MSEGuidByte1,
-    MSEFallTime,
-    MSEFallHorizontalSpeed,
-    MSEFallCosAngle,
-    MSEFallSinAngle,
-    MSEFallVerticalSpeed,
-    MSEGuidByte5,
-    MSEGuidByte4,
-    MSETimestamp,
-    MSEGuidByte0,
-    MSEEnd
-};
-
 MovementStatusElements const MovementSetRunMode[] =
 {
     MSEPositionY,
@@ -5702,8 +5629,6 @@ MovementStatusElements const* GetMovementStatusElementsSequence(uint32 opcode)
             return MoveNotActiveMover;
         case CMSG_DISMISS_CONTROLLED_VEHICLE:
             return DismissControlledVehicle;
-        case SMSG_MOVE_UPDATE_TELEPORT:
-            return MoveUpdateTeleport;
         case CMSG_FORCE_MOVE_ROOT_ACK:
             return ForceMoveRootAck;
         case CMSG_FORCE_MOVE_UNROOT_ACK:

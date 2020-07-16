@@ -13995,80 +13995,40 @@ void Unit::SendTeleportPacket(Position const& pos)
     // SMSG_MOVE_UPDATE_TELEPORT is sent to nearby players to signal the teleport
     // MSG_MOVE_TELEPORT is sent to self in order to trigger MSG_MOVE_TELEPORT_ACK and update the position server side
 
-    // This oldPos actually contains the destination position if the Unit is a Player.
-    Position oldPos = {GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation()};
+    WorldPackets::Movement::MoveUpdateTeleport moveUpdateTeleport;
+    moveUpdateTeleport.Status = &m_movementInfo;
 
-    if (GetTypeId() == TYPEID_UNIT)
-        Relocate(&pos); // Relocate the unit to its new position in order to build the packets correctly.
+    Unit* broadcastSource = this;
 
-    ObjectGuid guid = GetGUID();
-    ObjectGuid transGuid = GetTransGUID();
-
-    WorldPacket data(SMSG_MOVE_UPDATE_TELEPORT, 38);
-    WriteMovementInfo(data);
-
-    if (GetTypeId() == TYPEID_PLAYER)
+    if (Player* playerMover = GetPlayerBeingMoved())
     {
-        WorldPacket data2(MSG_MOVE_TELEPORT, 38);
-        data2.WriteBit(guid[6]);
-        data2.WriteBit(guid[0]);
-        data2.WriteBit(guid[3]);
-        data2.WriteBit(guid[2]);
-        data2.WriteBit(uint64(transGuid));
-        data2.WriteBit(bool(GetVehicle())); // unknown
-        data2.WriteBit(guid[1]);
-        if (transGuid)
-        {
-            data2.WriteBit(transGuid[1]);
-            data2.WriteBit(transGuid[3]);
-            data2.WriteBit(transGuid[2]);
-            data2.WriteBit(transGuid[5]);
-            data2.WriteBit(transGuid[0]);
-            data2.WriteBit(transGuid[7]);
-            data2.WriteBit(transGuid[6]);
-            data2.WriteBit(transGuid[4]);
-        }
-        data2.WriteBit(guid[4]);
-        data2.WriteBit(guid[7]);
-        data2.WriteBit(guid[5]);
-        data2.FlushBits();
+        float x, y, z, o;
+        pos.GetPosition(x, y, z, o);
+        if (TransportBase* transportBase = GetDirectTransport())
+            transportBase->CalculatePassengerOffset(x, y, z, &o);
 
-        if (transGuid)
-        {
-            data2.WriteByteSeq(transGuid[6]);
-            data2.WriteByteSeq(transGuid[5]);
-            data2.WriteByteSeq(transGuid[1]);
-            data2.WriteByteSeq(transGuid[7]);
-            data2.WriteByteSeq(transGuid[0]);
-            data2.WriteByteSeq(transGuid[2]);
-            data2.WriteByteSeq(transGuid[4]);
-            data2.WriteByteSeq(transGuid[3]);
-        }
+        WorldPackets::Movement::MoveTeleport moveTeleport;
+        moveTeleport.MoverGUID = GetGUID();
+        moveTeleport.Pos = Position(x, y, z);
+        if (GetTransGUID())
+            moveTeleport.TransportGUID = GetTransGUID();
+        moveTeleport.Facing = o;
+        moveTeleport.SequenceIndex = m_movementCounter++;
+        playerMover->SendDirectMessage(moveTeleport.Write());
 
-        data2 << uint32(0); // counter
-        data2.WriteByteSeq(guid[1]);
-        data2.WriteByteSeq(guid[2]);
-        data2.WriteByteSeq(guid[3]);
-        data2.WriteByteSeq(guid[5]);
-        data2 << float(GetPositionX());
-        data2.WriteByteSeq(guid[4]);
-        data2 << float(GetOrientation());
-        data2.WriteByteSeq(guid[7]);
-        data2 << float(GetPositionZ());
-        data2.WriteByteSeq(guid[0]);
-        data2.WriteByteSeq(guid[6]);
-        data2 << float(GetPositionY());
-        ToPlayer()->SendDirectMessage(&data2); // Send the MSG_MOVE_TELEPORT packet to self.
+        broadcastSource = playerMover;
+    }
+    else
+    {
+        // This is the only packet sent for creatures which contains MovementInfo structure
+        // we do not update m_movementInfo for creatures so it needs to be done manually here
+        moveUpdateTeleport.Status->guid = GetGUID();
+        moveUpdateTeleport.Status->pos.Relocate(pos);
+        moveUpdateTeleport.Status->time = GameTime::GetGameTimeMS();
     }
 
-    // Relocate the player/creature to its old position, so we can broadcast to nearby players correctly
-    if (GetTypeId() == TYPEID_PLAYER)
-        Relocate(&pos);
-    else
-        Relocate(&oldPos);
-
     // Broadcast the packet to everyone except self.
-    SendMessageToSet(&data, false);
+    broadcastSource->SendMessageToSet(moveUpdateTeleport.Write(), false);
 }
 
 bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool teleport)

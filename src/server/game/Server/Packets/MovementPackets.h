@@ -113,6 +113,60 @@ namespace WorldPackets
             MoveKnockBackSpeeds Speeds;
             uint32 SequenceIndex = 0;
         };
+
+        struct VehicleTeleport
+        {
+            uint8 VehicleSeatIndex = 0;
+            bool VehicleExitVoluntary = false;
+            bool VehicleExitTeleport = false;
+        };
+
+        class MoveTeleport final : public ServerPacket
+        {
+        public:
+            MoveTeleport() : ServerPacket(OpcodeServer(MSG_MOVE_TELEPORT), 12 + 4 + 8 + 8 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            TaggedPosition<Position::XYZ> Pos;
+            Optional<VehicleTeleport> Vehicle;
+            uint32 SequenceIndex = 0;
+            ObjectGuid MoverGUID;
+            Optional<ObjectGuid> TransportGUID;
+            float Facing = 0.0f;
+        };
+
+        class MoveTeleportAck final : public ClientPacket
+        {
+        public:
+            MoveTeleportAck(WorldPacket&& packet) : ClientPacket(OpcodeClient(MSG_MOVE_TELEPORT_ACK), std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid MoverGUID;
+            int32 AckIndex = 0;
+            int32 MoveTime = 0;
+        };
+
+        class SetActiveMover final : public ClientPacket
+        {
+        public:
+            SetActiveMover(WorldPacket&& packet) : ClientPacket(CMSG_SET_ACTIVE_MOVER, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid ActiveMover;
+        };
+
+        class MoveUpdateTeleport final : public ServerPacket
+        {
+        public:
+            MoveUpdateTeleport() : ServerPacket(SMSG_MOVE_UPDATE_TELEPORT) { }
+
+            WorldPacket const* Write() override;
+
+            MovementInfo* Status = nullptr;
+        };
     }
 }
 

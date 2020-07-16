@@ -59,8 +59,7 @@ bool MovementInfo::HasSpline() const
 
 bool MovementInfo::HasHeightChangeFailed() const
 {
-    // Todo: handle this
-    return false;
+    return heightChangeFailed;
 }
 
 bool MovementInfo::HasTime() const
