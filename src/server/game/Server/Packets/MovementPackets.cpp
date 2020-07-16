@@ -203,8 +203,8 @@ WorldPacket const* WorldPackets::Movement::MoveTeleport::Write()
 
 void WorldPackets::Movement::MoveTeleportAck::Read()
 {
-    _worldPacket >> int32(AckIndex);
-    _worldPacket >> int32(MoveTime);
+    _worldPacket >> AckIndex;
+    _worldPacket >> MoveTime;
 
     MoverGUID[5] = _worldPacket.ReadBit();
     MoverGUID[0] = _worldPacket.ReadBit();
