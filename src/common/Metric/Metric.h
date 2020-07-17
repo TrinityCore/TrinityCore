@@ -135,7 +135,7 @@ class MetricStopWatch
 public:
     MetricStopWatch(LoggerType&& loggerFunc) :
         _logger(std::forward<LoggerType>(loggerFunc)),
-        _startTime(sMetric->IsEnabled() ? std::chrono::steady_clock::now() : std::chrono::steady_clock::time_point())
+        _startTime(sMetric->IsEnabled() ? std::chrono::steady_clock::now() : TimePoint())
     {
     }
 
@@ -147,7 +147,7 @@ public:
 
 private:
     LoggerType _logger;
-    std::chrono::steady_clock::time_point _startTime;
+    TimePoint _startTime;
 };
 
 template<typename LoggerType>
@@ -191,7 +191,7 @@ MetricStopWatch<LoggerType> MakeMetricStopWatch(LoggerType&& loggerFunc)
         __pragma(warning(pop))
 #endif
 #define TC_METRIC_TIMER(category, ...)                           \
-        MetricStopWatch __tc_metric_stop_watch = MakeMetricStopWatch([&](std::chrono::steady_clock::time_point start) \
+        MetricStopWatch __tc_metric_stop_watch = MakeMetricStopWatch([&](TimePoint start) \
         {                                                                                                             \
             sMetric->LogValue(category, std::chrono::steady_clock::now() - start, { __VA_ARGS__ });               \
         });
