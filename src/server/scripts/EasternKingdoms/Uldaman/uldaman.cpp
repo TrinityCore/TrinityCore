@@ -127,7 +127,7 @@ class go_keystone_chamber : public GameObjectScript
 
             InstanceScript* instance;
 
-            bool GossipHello(Player* /*player*/, bool /*reportUse*/) override
+            bool GossipHello(Player* /*player*/) override
             {
                 instance->SetData(DATA_IRONAYA_SEAL, IN_PROGRESS); //door animation and save state.
                 return false;

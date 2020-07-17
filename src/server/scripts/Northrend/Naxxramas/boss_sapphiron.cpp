@@ -344,6 +344,7 @@ class boss_sapphiron : public CreatureScript
                             case EVENT_EXPLOSION:
                                 DoCastAOE(SPELL_FROST_BREATH);
                                 DoCastAOE(SPELL_FROST_BREATH_ANTICHEAT);
+                                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ICEBOLT);
                                 events.ScheduleEvent(EVENT_LAND, Seconds(3) + Milliseconds(500), 0, PHASE_FLIGHT);
                                 return;
                             case EVENT_LAND:
@@ -508,81 +509,6 @@ class spell_sapphiron_icebolt : public SpellScriptLoader
     }
 };
 
-// @hack Hello, developer from the future! How has your day been?
-// Anyway, this is, as you can undoubtedly see, a hack to emulate line of sight checks on a spell that abides line of sight anyway.
-// In the current core, line of sight is not properly checked for people standing behind an ice block. This is not a good thing and kills people.
-// Thus, we have this hack to check for ice block LoS in a "safe" way. Kind of. It's inaccurate, but in a good way (tends to save people when it shouldn't in edge cases).
-// If LoS handling is better in whatever the current revision is when you read this, please get rid of the hack. Thanks!
-class spell_sapphiron_frost_breath : public SpellScriptLoader
-{
-    public:
-        spell_sapphiron_frost_breath() : SpellScriptLoader("spell_sapphiron_frost_breath") { }
-
-        class spell_sapphiron_frost_breath_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_sapphiron_frost_breath_SpellScript);
-
-            bool Validate(SpellInfo const* /*spell*/) override
-            {
-                return ValidateSpellInfo({ SPELL_FROST_BREATH });
-            }
-
-            void HandleTargets(std::list<WorldObject*>& targetList)
-            {
-                std::list<GameObject*> blocks;
-                if (GetCaster())
-                    GetCaster()->GetGameObjectListWithEntryInGrid(blocks, GO_ICEBLOCK, 200.0f);
-
-                std::vector<Unit*> toRemove;
-                toRemove.reserve(3);
-                std::list<WorldObject*>::iterator it = targetList.begin();
-                while (it != targetList.end())
-                {
-                    Unit* target = (*it)->ToUnit();
-                    if (!target)
-                    {
-                        it = targetList.erase(it);
-                        continue;
-                    }
-
-                    if (target->HasAura(SPELL_ICEBOLT))
-                    {
-                        it = targetList.erase(it);
-                        toRemove.push_back(target);
-                        continue;
-                    }
-
-                    bool found = false;
-                    for (GameObject* block : blocks)
-                        if (block->IsInBetween(GetCaster(), target, 2.0f) && GetCaster()->GetExactDist2d(block) + 5 >= GetCaster()->GetExactDist2d(target))
-                        {
-                            found = true;
-                            break;
-                        }
-                    if (found)
-                    {
-                        it = targetList.erase(it);
-                        continue;
-                    }
-                    ++it;
-                }
-
-                for (Unit* block : toRemove)
-                    block->RemoveAura(SPELL_ICEBOLT);
-            }
-
-            void Register() override
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sapphiron_frost_breath_SpellScript::HandleTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_sapphiron_frost_breath_SpellScript();
-        }
-};
-
 class spell_sapphiron_summon_blizzard : public SpellScriptLoader
 {
     public:
@@ -644,7 +570,6 @@ void AddSC_boss_sapphiron()
     new go_sapphiron_birth();
     new spell_sapphiron_change_blizzard_target();
     new spell_sapphiron_icebolt();
-    new spell_sapphiron_frost_breath();
     new spell_sapphiron_summon_blizzard();
     new achievement_the_hundred_club();
 }

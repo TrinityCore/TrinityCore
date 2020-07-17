@@ -23,6 +23,73 @@
 #include "Player.h"
 #include "WorldStatePackets.h"
 
+uint8 const OutdoorPvPTFBuffZonesNum = 5;
+uint32 const OutdoorPvPTFBuffZones[OutdoorPvPTFBuffZonesNum] =
+{
+    3519 /*Terokkar Forest*/,
+    3791 /*Sethekk Halls*/,
+    3789 /*Shadow Labyrinth*/,
+    3792 /*Mana-Tombs*/,
+    3790 /*Auchenai Crypts*/
+};
+
+// locked for 6 hours after capture
+uint32 const TF_LOCK_TIME = 3600 * 6 * 1000;
+
+// update lock timer every 1/4 minute (overkill, but this way it's sure the timer won't "jump" 2 minutes at once.)
+uint32 const TF_LOCK_TIME_UPDATE = 15000;
+
+// blessing of auchindoun, used in TeamCastSpell which uses signed int, so signed
+int32 const TF_CAPTURE_BUFF = 33377;
+
+uint32 const TF_ALLY_QUEST = 11505;
+uint32 const TF_HORDE_QUEST = 11506;
+
+go_type const TFCapturePoints[TF_TOWER_NUM] =
+{
+    { 183104, 530, { -3081.65f, 5335.03f, 17.1853f, -2.146750f }, { 0.0f, 0.0f, 0.878817f, -0.477159f } },
+    { 183411, 530, { -2939.90f, 4788.73f, 18.9870f,  2.775070f }, { 0.0f, 0.0f, 0.983255f,  0.182236f } },
+    { 183412, 530, { -3174.94f, 4440.97f, 16.2281f,  1.867500f }, { 0.0f, 0.0f, 0.803857f,  0.594823f } },
+    { 183413, 530, { -3603.31f, 4529.15f, 20.9077f,  0.994838f }, { 0.0f, 0.0f, 0.477159f,  0.878817f } },
+    { 183414, 530, { -3812.37f, 4899.30f, 17.7249f,  0.087266f }, { 0.0f, 0.0f, 0.043619f,  0.999048f } }
+};
+
+struct tf_tower_world_state
+{
+    uint32 n;
+    uint32 h;
+    uint32 a;
+};
+
+tf_tower_world_state const TFTowerWorldStates[TF_TOWER_NUM] =
+{
+    { 0xa79, 0xa7a, 0xa7b },
+    { 0xa7e, 0xa7d, 0xa7c },
+    { 0xa82, 0xa81, 0xa80 },
+    { 0xa88, 0xa87, 0xa86 },
+    { 0xa85, 0xa84, 0xa83 }
+};
+
+/*
+uint32 const TFTowerPlayerEnterEvents[TF_TOWER_NUM] =
+{
+    12226,
+    12497,
+    12486,
+    12499,
+    12501
+};
+
+uint32 const TFTowerPlayerLeaveEvents[TF_TOWER_NUM] =
+{
+    12225,
+    12496,
+    12487,
+    12498,
+    12500
+};
+*/
+
 OutdoorPvPTF::OutdoorPvPTF()
 {
     m_TypeId = OUTDOOR_PVP_TF;
@@ -42,7 +109,7 @@ OutdoorPvPTF::OutdoorPvPTF()
 OPvPCapturePointTF::OPvPCapturePointTF(OutdoorPvP* pvp, OutdoorPvPTF_TowerType type)
 : OPvPCapturePoint(pvp), m_TowerType(type), m_TowerState(TF_TOWERSTATE_N)
 {
-    SetCapturePointData(TFCapturePoints[type].entry, TFCapturePoints[type].map, TFCapturePoints[type].x, TFCapturePoints[type].y, TFCapturePoints[type].z, TFCapturePoints[type].o, TFCapturePoints[type].rot0, TFCapturePoints[type].rot1, TFCapturePoints[type].rot2, TFCapturePoints[type].rot3);
+    SetCapturePointData(TFCapturePoints[type].entry, TFCapturePoints[type].map, TFCapturePoints[type].pos, TFCapturePoints[type].rot);
 }
 
 void OPvPCapturePointTF::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)

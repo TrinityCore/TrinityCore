@@ -187,13 +187,16 @@ void ReputationMgr::SendState(FactionState const* faction)
     WorldPackets::Reputation::SetFactionStanding setFactionStanding;
     setFactionStanding.ReferAFriendBonus = 0.0f;
     setFactionStanding.BonusFromAchievementSystem = 0.0f;
-    setFactionStanding.Faction.emplace_back(int32(faction->ReputationListID), faction->Standing);
+
+    if (faction)
+        setFactionStanding.Faction.emplace_back(int32(faction->ReputationListID), faction->Standing);
+
     for (FactionStateList::iterator itr = _factions.begin(); itr != _factions.end(); ++itr)
     {
         if (itr->second.needSend)
         {
             itr->second.needSend = false;
-            if (itr->second.ReputationListID != faction->ReputationListID)
+            if (!faction || itr->second.ReputationListID != faction->ReputationListID)
                 setFactionStanding.Faction.emplace_back(int32(itr->second.ReputationListID), itr->second.Standing);
         }
     }
@@ -217,12 +220,6 @@ void ReputationMgr::SendInitialReputations()
     }
 
     _player->SendDirectMessage(initFactions.Write());
-}
-
-void ReputationMgr::SendStates()
-{
-    for (FactionStateList::iterator itr = _factions.begin(); itr != _factions.end(); ++itr)
-        SendState(&(itr->second));
 }
 
 void ReputationMgr::SendVisible(FactionState const* faction, bool visible) const

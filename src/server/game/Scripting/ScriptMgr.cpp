@@ -1654,11 +1654,9 @@ Battleground* ScriptMgr::CreateBattleground(BattlegroundTypeId /*typeId*/)
     return NULL;
 }
 
-OutdoorPvP* ScriptMgr::CreateOutdoorPvP(OutdoorPvPData const* data)
+OutdoorPvP* ScriptMgr::CreateOutdoorPvP(uint32 scriptId)
 {
-    ASSERT(data);
-
-    GET_SCRIPT_RET(OutdoorPvPScript, data->ScriptId, tmpscript, NULL);
+    GET_SCRIPT_RET(OutdoorPvPScript, scriptId, tmpscript, NULL);
     return tmpscript->GetOutdoorPvP();
 }
 

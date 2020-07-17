@@ -687,7 +687,7 @@ class go_captain_tyralius_prison : public GameObjectScript
         {
             go_captain_tyralius_prisonAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 me->UseDoorOrButton();
                 if (Creature* tyralius = me->FindNearestCreature(NPC_CAPTAIN_TYRALIUS, 1.0f))

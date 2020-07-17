@@ -71,7 +71,6 @@ struct CreatureTemplate;
 struct CreatureData;
 struct ItemTemplate;
 struct MapEntry;
-struct OutdoorPvPData;
 struct QuestObjective;
 struct SceneTemplate;
 
@@ -991,7 +990,7 @@ class TC_GAME_API ScriptMgr
 
     public: /* OutdoorPvPScript */
 
-        OutdoorPvP* CreateOutdoorPvP(OutdoorPvPData const* data);
+        OutdoorPvP* CreateOutdoorPvP(uint32 scriptId);
 
     public: /* CommandScript */
 

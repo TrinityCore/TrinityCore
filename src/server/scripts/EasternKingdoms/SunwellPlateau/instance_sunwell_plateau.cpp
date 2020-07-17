@@ -44,6 +44,24 @@ DoorData const doorData[] =
     { 0,                   0,             DOOR_TYPE_ROOM } // END
 };
 
+ObjectData const creatureData[] =
+{
+    { NPC_KALECGOS,               DATA_KALECGOS_DRAGON      },
+    { NPC_KALECGOS_HUMAN,         DATA_KALECGOS_HUMAN       },
+    { NPC_SATHROVARR,             DATA_SATHROVARR           },
+    { NPC_BRUTALLUS,              DATA_BRUTALLUS            },
+    { NPC_MADRIGOSA,              DATA_MADRIGOSA            },
+    { NPC_FELMYST,                DATA_FELMYST              },
+    { NPC_GRAND_WARLOCK_ALYTHESS, DATA_ALYTHESS             },
+    { NPC_LADY_SACROLASH,         DATA_SACROLASH            },
+    { NPC_MURU,                   DATA_MURU                 },
+    { NPC_KILJAEDEN,              DATA_KILJAEDEN            },
+    { NPC_KILJAEDEN_CONTROLLER,   DATA_KILJAEDEN_CONTROLLER },
+    { NPC_ANVEENA,                DATA_ANVEENA              },
+    { NPC_KALECGOS_KJ,            DATA_KALECGOS_KJ          },
+    { 0,                          0                         } // END
+};
+
 class instance_sunwell_plateau : public InstanceMapScript
 {
     public:
@@ -56,9 +74,7 @@ class instance_sunwell_plateau : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
-
-                SpectralPlayers             = 0;
-                SpectralRealmTimer          = 5000;
+                LoadObjectData(creatureData, nullptr);
             }
 
             Player const* GetPlayerInMap() const
@@ -80,118 +96,10 @@ class instance_sunwell_plateau : public InstanceMapScript
                 return NULL;
             }
 
-            void OnCreatureCreate(Creature* creature) override
-            {
-                switch (creature->GetEntry())
-                {
-                    case NPC_KALECGOS:
-                        KalecgosDragonGUID = creature->GetGUID();
-                        break;
-                    case NPC_KALEC:
-                        KalecgosHumanGUID = creature->GetGUID();
-                        break;
-                    case NPC_SATHROVARR:
-                        SathrovarrGUID = creature->GetGUID();
-                        break;
-                    case NPC_BRUTALLUS:
-                        BrutallusGUID = creature->GetGUID();
-                        break;
-                    case NPC_MADRIGOSA:
-                        MadrigosaGUID = creature->GetGUID();
-                        break;
-                    case NPC_FELMYST:
-                        FelmystGUID = creature->GetGUID();
-                        break;
-                    case NPC_GRAND_WARLOCK_ALYTHESS:
-                        AlythessGUID = creature->GetGUID();
-                        break;
-                    case NPC_LADY_SACROLASH:
-                        SacrolashGUID = creature->GetGUID();
-                        break;
-                    case NPC_MURU:
-                        MuruGUID = creature->GetGUID();
-                        break;
-                    case NPC_KILJAEDEN:
-                        KilJaedenGUID = creature->GetGUID();
-                        break;
-                    case NPC_KILJAEDEN_CONTROLLER:
-                        KilJaedenControllerGUID = creature->GetGUID();
-                        break;
-                    case NPC_ANVEENA:
-                        AnveenaGUID = creature->GetGUID();
-                        break;
-                    case NPC_KALECGOS_KJ:
-                        KalecgosKjGUID = creature->GetGUID();
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void OnGameObjectCreate(GameObject* go) override
-            {
-                switch (go->GetEntry())
-                {
-                    case GO_FORCE_FIELD:
-                    case GO_BOSS_COLLISION_1:
-                    case GO_BOSS_COLLISION_2:
-                    case GO_FIRE_BARRIER:
-                    case GO_MURUS_GATE_1:
-                    case GO_MURUS_GATE_2:
-                        AddDoor(go, true);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void OnGameObjectRemove(GameObject* go) override
-            {
-                switch (go->GetEntry())
-                {
-                    case GO_FIRE_BARRIER:
-                    case GO_MURUS_GATE_1:
-                    case GO_MURUS_GATE_2:
-                    case GO_BOSS_COLLISION_1:
-                    case GO_BOSS_COLLISION_2:
-                    case GO_FORCE_FIELD:
-                        AddDoor(go, false);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
             ObjectGuid GetGuidData(uint32 id) const override
             {
                 switch (id)
                 {
-                    case DATA_KALECGOS_DRAGON:
-                        return KalecgosDragonGUID;
-                    case DATA_KALECGOS_HUMAN:
-                        return KalecgosHumanGUID;
-                    case DATA_SATHROVARR:
-                        return SathrovarrGUID;
-                    case DATA_BRUTALLUS:
-                        return BrutallusGUID;
-                    case DATA_MADRIGOSA:
-                        return MadrigosaGUID;
-                    case DATA_FELMYST:
-                        return FelmystGUID;
-                    case DATA_ALYTHESS:
-                        return AlythessGUID;
-                    case DATA_SACROLASH:
-                        return SacrolashGUID;
-                    case DATA_MURU:
-                        return MuruGUID;
-                    case DATA_KILJAEDEN:
-                        return KilJaedenGUID;
-                    case DATA_KILJAEDEN_CONTROLLER:
-                        return KilJaedenControllerGUID;
-                    case DATA_ANVEENA:
-                        return AnveenaGUID;
-                    case DATA_KALECGOS_KJ:
-                        return KalecgosKjGUID;
                     case DATA_PLAYER_GUID:
                     {
                         Player const* target = GetPlayerInMap();
@@ -202,25 +110,6 @@ class instance_sunwell_plateau : public InstanceMapScript
                 }
                 return ObjectGuid::Empty;
             }
-
-        protected:
-            ObjectGuid KalecgosDragonGUID;
-            ObjectGuid KalecgosHumanGUID;
-            ObjectGuid SathrovarrGUID;
-            ObjectGuid BrutallusGUID;
-            ObjectGuid MadrigosaGUID;
-            ObjectGuid FelmystGUID;
-            ObjectGuid AlythessGUID;
-            ObjectGuid SacrolashGUID;
-            ObjectGuid MuruGUID;
-            ObjectGuid KilJaedenGUID;
-            ObjectGuid KilJaedenControllerGUID;
-            ObjectGuid AnveenaGUID;
-            ObjectGuid KalecgosKjGUID;
-            uint32 SpectralPlayers;
-
-            uint32 SpectralRealmTimer;
-            GuidVector SpectralRealmList;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

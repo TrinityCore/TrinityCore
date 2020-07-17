@@ -105,17 +105,6 @@ public:
                 summoned->AI()->AttackStart(player);
         }
 
-        void AttackedBy(Unit* pAttacker) override
-        {
-            if (me->GetVictim())
-                return;
-
-            if (me->IsFriendlyTo(pAttacker))
-                return;
-
-            AttackStart(pAttacker);
-        }
-
         void DamageTaken(Unit* /*pDoneBy*/, uint32& uiDamage) override
         {
             if (HealthBelowPct(20))
