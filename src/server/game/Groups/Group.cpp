@@ -2501,12 +2501,12 @@ ObjectGuid Group::GetMemberGUID(const std::string& name)
     return ObjectGuid::Empty;
 }
 
-bool Group::IsAssistant(ObjectGuid guid) const
+uint8 Group::GetMemberFlags(ObjectGuid guid) const
 {
     member_citerator mslot = _getMemberCSlot(guid);
     if (mslot == m_memberSlots.end())
-        return false;
-    return mslot->flags & MEMBER_FLAG_ASSISTANT;
+        return 0u;
+    return mslot->flags;
 }
 
 bool Group::SameSubGroup(ObjectGuid guid1, ObjectGuid guid2) const
@@ -2560,7 +2560,8 @@ void Group::SetGroupMemberFlag(ObjectGuid guid, bool apply, GroupMemberFlags fla
         return;
 
     // Do flag specific actions, e.g ensure uniqueness
-    switch (flag) {
+    switch (flag)
+    {
         case MEMBER_FLAG_MAINASSIST:
             RemoveUniqueGroupMemberFlag(MEMBER_FLAG_MAINASSIST);         // Remove main assist flag from current if any.
             break;

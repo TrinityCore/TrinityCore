@@ -636,7 +636,7 @@ public:
     {
         go_ravager_cageAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool GossipHello(Player* player, bool /*reportUse*/) override
+        bool GossipHello(Player* player) override
         {
             me->UseDoorOrButton();
             if (player->GetQuestStatus(QUEST_STRENGTH_ONE) == QUEST_STATUS_INCOMPLETE)
@@ -816,7 +816,7 @@ class go_bristlelimb_cage : public GameObjectScript
         {
             go_bristlelimb_cageAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 me->SetGoState(GO_STATE_READY);
                 if (player->GetQuestStatus(QUEST_THE_PROPHECY_OF_AKIDA) == QUEST_STATUS_INCOMPLETE)

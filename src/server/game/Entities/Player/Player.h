@@ -143,7 +143,7 @@ enum PlayerUnderwaterState
     UNDERWATER_INWATER                  = 0x01,             // terrain type is water and player is afflicted by it
     UNDERWATER_INLAVA                   = 0x02,             // terrain type is lava and player is afflicted by it
     UNDERWATER_INSLIME                  = 0x04,             // terrain type is lava and player is afflicted by it
-    UNDERWARER_INDARKWATER              = 0x08,             // terrain type is dark water and player is afflicted by it
+    UNDERWATER_INDARKWATER              = 0x08,             // terrain type is dark water and player is afflicted by it
 
     UNDERWATER_EXIST_TIMERS             = 0x10
 };
@@ -724,7 +724,8 @@ enum TeleportToOptions
     TELE_TO_NOT_LEAVE_COMBAT    = 0x04,
     TELE_TO_NOT_UNSUMMON_PET    = 0x08,
     TELE_TO_SPELL               = 0x10,
-    TELE_TO_SEAMLESS            = 0x20
+    TELE_TO_TRANSPORT_TELEPORT  = 0x20, // 3.3.5 only
+    TELE_TO_SEAMLESS            = 0x40
 };
 
 /// Type of environmental damages
@@ -1429,8 +1430,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SendQuestUpdateAddPlayer(Quest const* quest, uint16 newCount) const;
         void SendQuestGiverStatusMultiple();
 
-        ObjectGuid GetDivider() const { return m_divider; }
-        void SetDivider(ObjectGuid guid) { m_divider = guid; }
+        uint32 GetSharedQuestID() const { return m_sharedQuestId; }
+        ObjectGuid GetPlayerSharingQuest() const { return m_playerSharingQuest; }
+        void SetQuestSharingInfo(ObjectGuid guid, uint32 id) { m_playerSharingQuest = guid; m_sharedQuestId = id; }
+        void ClearQuestSharingInfo() { m_playerSharingQuest = ObjectGuid::Empty; m_sharedQuestId = 0; }
 
         uint32 GetInGameTime() const { return m_ingametime; }
         void SetInGameTime(uint32 time) { m_ingametime = time; }
@@ -1860,7 +1863,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         bool UpdatePosition(float x, float y, float z, float orientation, bool teleport = false) override;
         bool UpdatePosition(const Position &pos, bool teleport = false) override { return UpdatePosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), teleport); }
-        void UpdateUnderwaterState(Map* m, float x, float y, float z) override;
+        void ProcessTerrainStatusUpdate(ZLiquidStatus status, Optional<LiquidData> const& liquidData) override;
 
         void SendMessageToSet(WorldPacket const* data, bool self) const override { SendMessageToSetInRange(data, GetVisibilityRange(), self); }
         void SendMessageToSetInRange(WorldPacket const* data, float dist, bool self) const override;
@@ -2531,7 +2534,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         QuestSet m_monthlyquests;
         SeasonalEventQuestMap m_seasonalquests;
 
-        ObjectGuid m_divider;
+        ObjectGuid m_playerSharingQuest;
+        uint32 m_sharedQuestId;
         uint32 m_ingametime;
 
         /*********************************************************/

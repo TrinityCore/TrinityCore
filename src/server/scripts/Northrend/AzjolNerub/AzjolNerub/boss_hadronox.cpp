@@ -97,7 +97,7 @@ enum Spells
     SPELL_ANIMATE_BONES_2                   = 53336,
 };
 
-enum SummonGroups
+enum SummonGroups : uint32
 {
     SUMMON_GROUP_CRUSHER_1      = 1,
     SUMMON_GROUP_CRUSHER_2      = 2,

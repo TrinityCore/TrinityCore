@@ -22,34 +22,48 @@
 #include "Player.h"
 #include "WorldStatePackets.h"
 
-const uint32 HP_LANG_CAPTURE_A[HP_TOWER_NUM] = { TEXT_BROKEN_HILL_TAKEN_ALLIANCE, TEXT_OVERLOOK_TAKEN_ALLIANCE, TEXT_STADIUM_TAKEN_ALLIANCE };
 
-const uint32 HP_LANG_CAPTURE_H[HP_TOWER_NUM] = { TEXT_BROKEN_HILL_TAKEN_HORDE, TEXT_OVERLOOK_TAKEN_HORDE, TEXT_STADIUM_TAKEN_HORDE };
+uint32 const OutdoorPvPHPBuffZonesNum = 6;
+                                                         //  HP, citadel, ramparts, blood furnace, shattered halls, mag's lair
+uint32 const OutdoorPvPHPBuffZones[OutdoorPvPHPBuffZonesNum] = { 3483, 3563, 3562, 3713, 3714, 3836 };
+
+uint32 const HP_CREDITMARKER[HP_TOWER_NUM] = { 19032, 19028, 19029 };
+
+/*
+uint32 const HP_CapturePointEvent_Enter[HP_TOWER_NUM] = { 11404, 11396, 11388 };
+uint32 const HP_CapturePointEvent_Leave[HP_TOWER_NUM] = { 11403, 11395, 11387 };
+*/
+
+uint32 const HP_MAP_N[HP_TOWER_NUM] = { 0x9b5, 0x9b2, 0x9a8 };
+uint32 const HP_MAP_A[HP_TOWER_NUM] = { 0x9b3, 0x9b0, 0x9a7 };
+uint32 const HP_MAP_H[HP_TOWER_NUM] = { 0x9b4, 0x9b1, 0x9a6 };
+
+uint32 const HP_TowerArtKit_A[HP_TOWER_NUM] = { 65, 62, 67 };
+uint32 const HP_TowerArtKit_H[HP_TOWER_NUM] = { 64, 61, 68 };
+uint32 const HP_TowerArtKit_N[HP_TOWER_NUM] = { 66, 63, 69 };
+
+go_type const HPCapturePoints[HP_TOWER_NUM] =
+{
+    { 182175, 530, { -471.462f, 3451.09f, 34.6432f,  0.174533f }, { 0.0f, 0.0f, 0.087156f,  0.996195f } },  // 0 - Broken Hill
+    { 182174, 530, { -184.889f, 3476.93f, 38.2050f, -0.017453f }, { 0.0f, 0.0f, 0.008727f, -0.999962f } },  // 1 - Overlook
+    { 182173, 530, { -290.016f, 3702.42f, 56.6729f,  0.034907f }, { 0.0f, 0.0f, 0.017452f,  0.999848f } }   // 2 - Stadium
+};
+
+go_type const HPTowerFlags[HP_TOWER_NUM] =
+{
+    { 183514, 530, { -467.078f, 3528.17f, 64.7121f,  3.14159f }, { 0.0f, 0.0f, 1.000000f,  0.000000f } },   // 0 broken hill
+    { 182525, 530, { -187.887f, 3459.38f, 60.0403f, -3.12414f }, { 0.0f, 0.0f, 0.999962f, -0.008727f } },   // 1 overlook
+    { 183515, 530, { -289.610f, 3696.83f, 75.9447f,  3.12414f }, { 0.0f, 0.0f, 0.999962f,  0.008727f } }    // 2 stadium
+};
+
+uint32 const HP_LANG_CAPTURE_A[HP_TOWER_NUM] = { TEXT_BROKEN_HILL_TAKEN_ALLIANCE, TEXT_OVERLOOK_TAKEN_ALLIANCE, TEXT_STADIUM_TAKEN_ALLIANCE };
+uint32 const HP_LANG_CAPTURE_H[HP_TOWER_NUM] = { TEXT_BROKEN_HILL_TAKEN_HORDE, TEXT_OVERLOOK_TAKEN_HORDE, TEXT_STADIUM_TAKEN_HORDE };
 
 OPvPCapturePointHP::OPvPCapturePointHP(OutdoorPvP* pvp, OutdoorPvPHPTowerType type)
 : OPvPCapturePoint(pvp), m_TowerType(type)
 {
-    SetCapturePointData(HPCapturePoints[type].entry,
-        HPCapturePoints[type].map,
-        HPCapturePoints[type].x,
-        HPCapturePoints[type].y,
-        HPCapturePoints[type].z,
-        HPCapturePoints[type].o,
-        HPCapturePoints[type].rot0,
-        HPCapturePoints[type].rot1,
-        HPCapturePoints[type].rot2,
-        HPCapturePoints[type].rot3);
-    AddObject(type,
-        HPTowerFlags[type].entry,
-        HPTowerFlags[type].map,
-        HPTowerFlags[type].x,
-        HPTowerFlags[type].y,
-        HPTowerFlags[type].z,
-        HPTowerFlags[type].o,
-        HPTowerFlags[type].rot0,
-        HPTowerFlags[type].rot1,
-        HPTowerFlags[type].rot2,
-        HPTowerFlags[type].rot3);
+    SetCapturePointData(HPCapturePoints[type].entry, HPCapturePoints[type].map, HPCapturePoints[type].pos, HPCapturePoints[type].rot);
+    AddObject(type, HPTowerFlags[type].entry, HPTowerFlags[type].map, HPTowerFlags[type].pos, HPTowerFlags[type].rot);
 }
 
 OutdoorPvPHP::OutdoorPvPHP()
@@ -66,7 +80,7 @@ bool OutdoorPvPHP::SetupOutdoorPvP()
     SetMapFromZone(OutdoorPvPHPBuffZones[0]);
 
     // add the zones affected by the pvp buff
-    for (int i = 0; i < OutdoorPvPHPBuffZonesNum; ++i)
+    for (uint32 i = 0; i < OutdoorPvPHPBuffZonesNum; ++i)
         RegisterZone(OutdoorPvPHPBuffZones[i]);
 
     AddCapturePoint(new OPvPCapturePointHP(this, HP_TOWER_BROKEN_HILL));

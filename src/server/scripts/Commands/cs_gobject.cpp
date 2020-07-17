@@ -98,9 +98,11 @@ public:
             return false;
         }
 
+        uint32_t const autoCloseTime = object->GetGOInfo()->GetAutoCloseTime() ? 10000u : 0u;
+
         // Activate
         object->SetLootState(GO_READY);
-        object->UseDoorOrButton(10000, false, handler->GetSession()->GetPlayer());
+        object->UseDoorOrButton(autoCloseTime, false, handler->GetSession()->GetPlayer());
 
         handler->PSendSysMessage("Object activated!");
 

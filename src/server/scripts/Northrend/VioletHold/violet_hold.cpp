@@ -1304,7 +1304,7 @@ class go_activation_crystal : public GameObjectScript
         {
             go_activation_crystalAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 player->CastSpell(player, SPELL_CRYSTAL_ACTIVATION, true);
                 return false;

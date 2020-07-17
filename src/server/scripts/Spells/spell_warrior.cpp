@@ -1398,7 +1398,7 @@ class spell_warr_vigilance : public SpellScriptLoader
         }
 };
 
-// 50725 Vigilance
+// 50725 - Vigilance (Reset Taunt Cooldown)
 class spell_warr_vigilance_trigger : public SpellScriptLoader
 {
     public:
