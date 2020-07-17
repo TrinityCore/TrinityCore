@@ -25,22 +25,6 @@
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/asio/ip/tcp.hpp>
 
-MetricStopWatch::MetricStopWatch(std::string const& category, std::vector<MetricTag> tags)
-{
-    if (sMetric->IsEnabled())
-    {
-        StartTime = std::chrono::steady_clock::now();
-        Category = category;
-        Tags = std::move(tags);
-    }
-}
-
-MetricStopWatch::~MetricStopWatch()
-{
-    if (sMetric->IsEnabled())
-        sMetric->LogValue(Category, std::chrono::steady_clock::now() - StartTime, Tags);
-}
-
 void Metric::Initialize(std::string const& realmName, Trinity::Asio::IoContext& ioContext, std::function<void()> overallStatusLogger)
 {
     _dataStream = std::make_unique<boost::asio::ip::tcp::iostream>();

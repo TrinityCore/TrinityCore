@@ -60,18 +60,6 @@ struct MetricData
     std::string Text;
 };
 
-class MetricStopWatch
-{
-public:
-    MetricStopWatch(std::string const& category, std::vector<MetricTag> tags);
-    ~MetricStopWatch();
-
-private:
-    std::string Category;
-    std::chrono::steady_clock::time_point StartTime;
-    std::vector<MetricTag> Tags;
-};
-
 class TC_COMMON_API Metric
 {
 private:
@@ -140,6 +128,34 @@ public:
 
 #define sMetric Metric::instance()
 
+
+template<typename LoggerType>
+class MetricStopWatch
+{
+public:
+    MetricStopWatch(LoggerType&& loggerFunc) :
+        _logger(std::forward<LoggerType>(loggerFunc)),
+        _startTime(sMetric->IsEnabled() ? std::chrono::steady_clock::now() : std::chrono::steady_clock::time_point())
+    {
+    }
+
+    ~MetricStopWatch()
+    {
+        if (sMetric->IsEnabled())
+            _logger(_startTime);
+    }
+
+private:
+    LoggerType _logger;
+    std::chrono::steady_clock::time_point _startTime;
+};
+
+template<typename LoggerType>
+MetricStopWatch<LoggerType> MakeMetricStopWatch(LoggerType&& loggerFunc)
+{
+    return { std::forward<LoggerType>(loggerFunc) };
+}
+
 #define TC_METRIC_TAG(name, value) { name, value }
 
 #ifdef PERFORMANCE_PROFILING
@@ -187,23 +203,11 @@ public:
                 sMetric->LogValue(category, value, { __VA_ARGS__ });   \
         } while (0)                                                    \
         __pragma(warning(pop))
-#define TC_METRIC_TIMER_START()                                        \
-        __pragma(warning(push))                                        \
-        __pragma(warning(disable:4127))                                \
-        std::chrono::steady_clock::time_point __tc_metric_timer_start; \
-        do {                                                           \
-            if (sMetric->IsEnabled())                                  \
-                __tc_metric_timer_start = std::chrono::steady_clock::now();   \
-        } while (0)                                                    \
-        __pragma(warning(pop))
-#define TC_METRIC_TIMER_END(category, ...)                             \
-        __pragma(warning(push))                                        \
-        __pragma(warning(disable:4127))                                \
-        do {                                                           \
-            if (sMetric->IsEnabled())                                  \
-                sMetric->LogValue(category, std::chrono::steady_clock::now() - __tc_metric_timer_start, { __VA_ARGS__ });   \
-        } while (0)                                                    \
-        __pragma(warning(pop))
 #endif
+#define TC_METRIC_TIMER(category, ...)                           \
+        MetricStopWatch __tc_metric_stop_watch = MakeMetricStopWatch([&](std::chrono::steady_clock::time_point start) \
+        {                                                                                                             \
+            sMetric->LogValue(category, std::chrono::steady_clock::now() - start, { __VA_ARGS__ });               \
+        });
 
 #endif // METRIC_H__
