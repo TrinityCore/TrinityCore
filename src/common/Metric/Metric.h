@@ -161,8 +161,6 @@ MetricStopWatch<LoggerType> MakeMetricStopWatch(LoggerType&& loggerFunc)
 #ifdef PERFORMANCE_PROFILING
 #define TC_METRIC_EVENT(category, title, description) ((void)0)
 #define TC_METRIC_VALUE(category, value) ((void)0)
-#define TC_METRIC_TIMER_START() ((void)0)
-#define TC_METRIC_TIMER_END(category, ...) ((void)0)
 #elif TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
 #define TC_METRIC_EVENT(category, title, description)                  \
         do {                                                           \
@@ -174,18 +172,6 @@ MetricStopWatch<LoggerType> MakeMetricStopWatch(LoggerType&& loggerFunc)
             if (sMetric->IsEnabled())                                  \
                 sMetric->LogValue(category, value, { __VA_ARGS__ });   \
         } while (0)
-#define TC_METRIC_TIMER_START()                                        \
-        std::chrono::steady_clock::time_point __tc_metric_timer_start; \
-        do {                                                           \
-            if (sMetric->IsEnabled())                                  \
-                __tc_metric_timer_start = std::chrono::steady_clock::now();   \
-        } while (0)                                                    \
-#define TC_METRIC_TIMER_END(category, ...)                             \
-        do {                                                           \
-            if (sMetric->IsEnabled())                                  \
-                sMetric->LogValue(category, std::chrono::steady_clock::now() - __tc_metric_timer_start, { __VA_ARGS__ });   \
-        } while (0)                                                    \
-#endif
 #else
 #define TC_METRIC_EVENT(category, title, description)                  \
         __pragma(warning(push))                                        \
