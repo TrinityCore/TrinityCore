@@ -5837,8 +5837,6 @@ bool Player::UpdateSkillPro(uint16 SkillId, int32 Chance, uint32 step)
 void Player::UpdateWeaponSkill(WeaponAttackType attType)
 {
     Unit* victim = GetVictim();
-    if (!victim)
-        return;
 
     if (IsInFeralForm())
         return;                                             // always maximized SKILL_FERAL_COMBAT in fact
