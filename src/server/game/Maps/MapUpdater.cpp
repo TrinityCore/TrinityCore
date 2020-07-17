@@ -39,9 +39,10 @@ class MapUpdateRequest
 
         void call()
         {
-            MetricStopWatch stopWatch("map_update_time_diff", { TC_METRIC_TAG("map_id", std::to_string(m_map.GetId())) });
+            TC_METRIC_TIMER_START;
             m_map.Update (m_diff);
             m_updater.update_finished();
+            TC_METRIC_TIMER_END("map_update_time_diff", { TC_METRIC_TAG("map_id", std::to_string(m_map.GetId())) });
         }
 };
 
