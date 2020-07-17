@@ -358,7 +358,7 @@ namespace WorldPackets
         class PreRessurect : public ServerPacket
         {
         public:
-            PreRessurect() : ServerPacket(SMSG_PRE_RESURRECT, 16) { }
+            PreRessurect() : ServerPacket(SMSG_PRE_RESURRECT, 8) { }
 
             WorldPacket const* Write() override;
 
@@ -393,7 +393,7 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid Resurrecter;
-            uint32 Response = 0;
+            uint8 Response = 0;
         };
     }
 }
