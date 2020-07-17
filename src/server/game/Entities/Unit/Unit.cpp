@@ -6714,6 +6714,10 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
             // Hunter Pet basic attacks (RAP * 0.4 * 0.2)
             if (spellProto->SpellFamilyFlags[0] & 0x00080000)
                 DoneTotal += (owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.4f) * 0.2f;
+
+            // Kill Command
+            if (spellProto->SpellFamilyFlags[1] & 0x00000800)
+                DoneTotal += owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.516f;
             break;
         case SPELLFAMILY_WARLOCK:
             // Warlock Minions inherit 50% of their owner's spell power
@@ -7282,7 +7286,7 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                             && spellProto->SpellIconID == 1680
                             && victim->HasAuraState(AURA_STATE_BLEEDING))
                         {
-                            if (AuraEffect const* rendAndTear = GetDummyAuraEffect(SPELLFAMILY_DRUID, 2859, 1))
+                            if (AuraEffect const* rendAndTear = GetDummyAuraEffect(SPELLFAMILY_DRUID, 2859, EFFECT_1))
                                 crit_chance += rendAndTear->GetAmount();
                             break;
                         }
@@ -7293,6 +7297,13 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                                 if (AuraEffect const* healthAuraEff = GetDummyAuraEffect(SPELLFAMILY_DRUID, 1563, EFFECT_1))
                                     if (victim->GetHealthPct() >= healthAuraEff->GetAmount())
                                         crit_chance += critAuraEff->GetAmount();
+                        break;
+                    case SPELLFAMILY_HUNTER:
+                        // Kill Command - Improved Kill Command
+                        if (spellProto->SpellFamilyFlags[1] & 0x00000800)
+                            if (Player* player = GetSpellModOwner())
+                                if (AuraEffect const* improvedKillCommand = player->GetDummyAuraEffect(SPELLFAMILY_HUNTER, 2221, EFFECT_0))
+                                    crit_chance += improvedKillCommand->GetAmount();
                         break;
                 }
             }

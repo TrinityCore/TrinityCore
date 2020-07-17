@@ -49,6 +49,7 @@ enum HunterSpells
     SPELL_HUNTER_FRENZY_EFFECT                      = 19615,
     SPELL_HUNTER_FOCUS_FIRE_ENERGIZE                = 83468,
     SPELL_HUNTER_FOCUS_FIRE_DUMMY                   = 88843,
+    SPELL_HUNTER_FOCUS_FIRE                         = 82692,
     SPELL_HUNTER_GENERIC_ENERGIZE_FOCUS             = 91954,
     SPELL_HUNTER_IMPROVED_MEND_PET                  = 24406,
     SPELL_HUNTER_IMPROVED_SERPENT_STING_DAMAGE      = 83077,
@@ -1670,14 +1671,19 @@ class spell_hun_frenzy_effect : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_HUNTER_FOCUS_FIRE_DUMMY });
+        return ValidateSpellInfo(
+            {
+                SPELL_HUNTER_FOCUS_FIRE_DUMMY,
+                SPELL_HUNTER_FOCUS_FIRE
+            });
     }
 
     void AfterApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
         if (GetStackAmount() == GetSpellInfo()->StackAmount)
             if (Unit* owner = GetTarget()->GetOwner())
-                owner->CastSpell(owner, SPELL_HUNTER_FOCUS_FIRE_DUMMY, true, nullptr, aurEff);
+                if (owner->HasSpell(SPELL_HUNTER_FOCUS_FIRE))
+                    owner->CastSpell(owner, SPELL_HUNTER_FOCUS_FIRE_DUMMY, true, nullptr, aurEff);
     }
 
     void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1688,8 +1694,31 @@ class spell_hun_frenzy_effect : public AuraScript
 
     void Register() override
     {
-        AfterEffectApply += AuraEffectApplyFn(spell_hun_frenzy_effect::AfterApply, EFFECT_0, SPELL_AURA_MOD_MELEE_HASTE_3, AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK);
+        AfterEffectApply += AuraEffectApplyFn(spell_hun_frenzy_effect::AfterApply, EFFECT_0, SPELL_AURA_MOD_MELEE_HASTE_3, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
         AfterEffectRemove += AuraEffectRemoveFn(spell_hun_frenzy_effect::AfterRemove, EFFECT_0, SPELL_AURA_MOD_MELEE_HASTE_3, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 34026 - Kill Command
+class spell_hun_kill_command: public SpellScript
+{
+    PrepareSpellScript(spell_hun_kill_command);
+
+    void HandleScriptEffect(SpellEffIndex effIndex)
+    {
+        Unit* caster = GetCaster();
+        if (!caster || !caster->IsPlayer())
+            return;
+
+        Player* player = caster->ToPlayer();
+        if (Pet* pet = player->GetPet())
+            if (Unit* target = pet->GetVictim())
+                pet->CastSpell(target, GetSpellInfo()->Effects[effIndex].BasePoints, false);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_hun_kill_command::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -1709,6 +1738,7 @@ void AddSC_hunter_spell_scripts()
     RegisterAuraScript(spell_hun_glyph_of_kill_shot);
     new spell_hun_improved_mend_pet();
     RegisterSpellScript(spell_hun_invigoration);
+    RegisterSpellScript(spell_hun_kill_command);
     new spell_hun_last_stand_pet();
     new spell_hun_lock_and_load();
     RegisterAuraScript(spell_hun_marked_for_death);
