@@ -233,12 +233,12 @@ public:
                     events.ScheduleEvent(EVENT_TALK_6, Seconds(17));
                     break;
                 case 35:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
-                        Talk(TALK_7, player);
+                    if (Player* pl = ObjectAccessor::GetPlayer(*me, _player))
+                        Talk(TALK_7, pl);
                     break;
                 case 40:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
-                        player->GroupEventHappens(QUEST_TRAIL_OF_FIRE, me);
+                    if (Player* pl = ObjectAccessor::GetPlayer(*me, _player))
+                        pl->GroupEventHappens(QUEST_TRAIL_OF_FIRE, me);
                     events.ScheduleEvent(EVENT_TALK_8, Seconds(4));
                     break;
             }
