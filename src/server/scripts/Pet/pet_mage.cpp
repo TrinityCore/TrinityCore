@@ -199,8 +199,8 @@ class npc_pet_mage_mirror_image : public CreatureScript
                 if (!target || me->GetVictim() != target)
                 {
                     Unit* ownerTarget = nullptr;
-                    if (Player* ownerPlayer = me->GetCharmerOrOwner()->ToPlayer())
-                        ownerTarget = ownerPlayer->GetSelectedUnit();
+                    if (Player* playerOwner = me->GetCharmerOrOwner()->ToPlayer())
+                        ownerTarget = playerOwner->GetSelectedUnit();
 
                     // recognize which victim will be choosen
                     if (ownerTarget && ownerTarget->GetTypeId() == TYPEID_PLAYER)

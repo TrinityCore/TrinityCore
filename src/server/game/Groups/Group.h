@@ -310,7 +310,11 @@ class TC_GAME_API Group
         bool IsMember(ObjectGuid guid) const;
         bool IsLeader(ObjectGuid guid) const;
         ObjectGuid GetMemberGUID(const std::string& name);
-        bool IsAssistant(ObjectGuid guid) const;
+        uint8 GetMemberFlags(ObjectGuid guid) const;
+        bool IsAssistant(ObjectGuid guid) const
+        {
+            return (GetMemberFlags(guid) & MEMBER_FLAG_ASSISTANT) == MEMBER_FLAG_ASSISTANT;
+        }
 
         Player* GetInvited(ObjectGuid guid) const;
         Player* GetInvited(const std::string& name) const;
@@ -324,6 +328,7 @@ class TC_GAME_API Group
         GroupReference* GetFirstMember() { return m_memberMgr.getFirst(); }
         GroupReference const* GetFirstMember() const { return m_memberMgr.getFirst(); }
         uint32 GetMembersCount() const { return uint32(m_memberSlots.size()); }
+        uint32 GetInviteeCount() const { return m_invitees.size(); }
         GroupFlags GetGroupFlags() const { return m_groupFlags; }
 
         uint8 GetMemberGroup(ObjectGuid guid) const;

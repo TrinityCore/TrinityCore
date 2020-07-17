@@ -1440,7 +1440,7 @@ void GameObject::Use(Unit* user)
     if (Player* playerUser = user->ToPlayer())
     {
         playerUser->PlayerTalkClass->ClearMenus();
-        if (AI()->GossipHello(playerUser, false))
+        if (AI()->GossipHello(playerUser))
             return;
     }
 

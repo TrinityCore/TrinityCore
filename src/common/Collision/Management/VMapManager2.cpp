@@ -311,6 +311,37 @@ namespace VMAP
         return false;
     }
 
+    void VMapManager2::getAreaAndLiquidData(unsigned int mapId, float x, float y, float z, uint8 reqLiquidType, AreaAndLiquidData& data) const
+    {
+        if (IsVMAPDisabledForPtr(mapId, VMAP_DISABLE_LIQUIDSTATUS))
+        {
+            data.floorZ = z;
+            int32 adtId, rootId, groupId;
+            uint32 flags;
+            if (getAreaInfo(mapId, x, y, data.floorZ, flags, adtId, rootId, groupId))
+                data.areaInfo = boost::in_place(adtId, rootId, groupId, flags);
+            return;
+        }
+        InstanceTreeMap::const_iterator instanceTree = GetMapTree(mapId);
+        if (instanceTree != iInstanceMapTrees.end())
+        {
+            LocationInfo info;
+            Vector3 pos = convertPositionToInternalRep(x, y, z);
+            if (instanceTree->second->GetLocationInfo(pos, info))
+            {
+                data.floorZ = info.ground_Z;
+                uint32 liquidType = info.hitModel->GetLiquidType();
+                float liquidLevel;
+                if (!reqLiquidType || (GetLiquidFlagsPtr(liquidType) & reqLiquidType))
+                    if (info.hitInstance->GetLiquidLevel(pos, info, liquidLevel))
+                        data.liquidInfo = boost::in_place(liquidType, liquidLevel);
+                
+                if (!IsVMAPDisabledForPtr(mapId, VMAP_DISABLE_AREAFLAG))
+                    data.areaInfo = boost::in_place(info.hitInstance->adtId, info.rootId, info.hitModel->GetWmoID(), info.hitModel->GetMogpFlags());
+            }
+        }
+    }
+
     WorldModel* VMapManager2::acquireModelInstance(const std::string& basepath, const std::string& filename, uint32 flags/* Only used when creating the model */)
     {
         //! Critical section, thread safe access to iLoadedModelFiles

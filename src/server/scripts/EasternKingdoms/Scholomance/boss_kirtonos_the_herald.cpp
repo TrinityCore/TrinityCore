@@ -288,7 +288,7 @@ class go_brazier_of_the_herald : public GameObjectScript
         {
             go_brazier_of_the_heraldAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 me->UseDoorOrButton();
                 me->PlayDirectSound(SOUND_SCREECH, 0);

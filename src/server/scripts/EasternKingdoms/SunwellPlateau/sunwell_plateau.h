@@ -60,7 +60,7 @@ enum SWPCreatureIds
     NPC_MURU                                 = 25741,
     NPC_ENTROPIUS                            = 25840,
     NPC_KALECGOS                             = 24850,
-    NPC_KALEC                                = 24891,
+    NPC_KALECGOS_HUMAN                       = 24891,
     NPC_SATHROVARR                           = 24892,
     NPC_BRUTALLUS                            = 24882,
     NPC_MADRIGOSA                            = 24895,
