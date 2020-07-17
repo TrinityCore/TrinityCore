@@ -279,6 +279,11 @@ std::string Metric::FormatInfluxDBTagValue(std::string const& value)
     return boost::replace_all_copy(value, " ", "\\ ");
 }
 
+std::string Metric::FormatInfluxDBValue(std::chrono::nanoseconds value)
+{
+    return FormatInfluxDBValue(std::chrono::duration_cast<std::chrono::milliseconds>(value).count());
+}
+
 Metric::Metric()
 {
 }
