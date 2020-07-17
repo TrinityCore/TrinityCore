@@ -472,7 +472,7 @@ public:
     {
         go_manticron_cubeAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool GossipHello(Player* player, bool /*reportUse*/) override
+        bool GossipHello(Player* player) override
         {
             if (player->HasAura(SPELL_MIND_EXHAUSTION) || player->HasAura(SPELL_SHADOW_GRASP))
                 return true;

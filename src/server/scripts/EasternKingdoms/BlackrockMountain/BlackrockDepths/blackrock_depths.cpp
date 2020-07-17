@@ -41,7 +41,7 @@ class go_shadowforge_brazier : public GameObjectScript
 
             InstanceScript* instance;
 
-            bool GossipHello(Player* /*player*/, bool /*reportUse*/) override
+            bool GossipHello(Player* /*player*/) override
             {
                 if (instance->GetData(TYPE_LYCEUM) == IN_PROGRESS)
                     instance->SetData(TYPE_LYCEUM, DONE);

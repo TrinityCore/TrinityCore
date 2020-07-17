@@ -119,8 +119,6 @@ class TC_GAME_API CreatureAI : public UnitAI
         // Called when spell hits a target
         virtual void SpellHitTarget(Unit* /*target*/, SpellInfo const* /*spell*/) { }
 
-        // Called when the creature is target of hostile action: swing, hostile spell landed, fear/etc)
-        virtual void AttackedBy(Unit* /*attacker*/) { }
         virtual bool IsEscorted() const { return false; }
 
         // Called when creature is spawned or respawned
@@ -146,15 +144,14 @@ class TC_GAME_API CreatureAI : public UnitAI
         virtual void ReceiveEmote(Player* /*player*/, uint32 /*emoteId*/) { }
 
         // Called when owner takes damage
-        virtual void OwnerAttackedBy(Unit* /*attacker*/) { }
+        virtual void OwnerAttackedBy(Unit* attacker) { _OnOwnerCombatInteraction(attacker); }
 
         // Called when owner attacks something
-        virtual void OwnerAttacked(Unit* /*target*/) { }
+        virtual void OwnerAttacked(Unit* target) { _OnOwnerCombatInteraction(target); }
 
         /// == Triggered Actions Requested ==================
 
         // Called when creature attack expected (if creature can and no have current victim)
-        // Note: for reaction at hostile action must be called AttackedBy function.
         //virtual void AttackStart(Unit*) { }
 
         // Called at World update tick
@@ -202,6 +199,7 @@ class TC_GAME_API CreatureAI : public UnitAI
 
     private:
         bool m_MoveInLineOfSight_locked;
+        void _OnOwnerCombatInteraction(Unit* target);
 };
 
 enum Permitions : int32

@@ -437,7 +437,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
         Quest::AddQuestLevelToTitle(packet.QuestTitle, quest->GetQuestLevel());
 
     packet.QuestGiverGUID = npcGUID;
-    packet.InformUnit = _session->GetPlayer()->GetDivider();
+    packet.InformUnit = _session->GetPlayer()->GetPlayerSharingQuest();
     packet.QuestID = quest->GetQuestId();
     packet.PortraitGiver = quest->GetQuestGiverPortrait();
     packet.PortraitGiverMount = quest->GetQuestGiverPortraitMount();

@@ -185,7 +185,7 @@ class go_orb_of_domination : public GameObjectScript
 
             InstanceScript* instance;
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 if (instance->GetData(DATA_EGG_EVENT) != DONE)
                 {

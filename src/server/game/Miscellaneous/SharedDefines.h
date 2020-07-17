@@ -5486,6 +5486,14 @@ enum CharterTypes
     ARENA_TEAM_CHARTER_5v5_TYPE = 5
 };
 
+enum LineOfSightChecks : uint8
+{
+    LINEOFSIGHT_CHECK_VMAP      = 0x1, // check static floor layout data
+    LINEOFSIGHT_CHECK_GOBJECT   = 0x2, // check dynamic game object data
+
+    LINEOFSIGHT_ALL_CHECKS      = (LINEOFSIGHT_CHECK_VMAP | LINEOFSIGHT_CHECK_GOBJECT)
+};
+
 enum TokenResult
 {
     TOKEN_RESULT_SUCCESS                        = 0,

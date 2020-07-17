@@ -21,6 +21,7 @@
 #include <string>
 #include "Define.h"
 #include "ModelIgnoreFlags.h"
+#include "Optional.h"
 
 //===========================================================
 
@@ -48,6 +49,27 @@ namespace VMAP
     #define VMAP_INVALID_HEIGHT       -100000.0f            // for check
     #define VMAP_INVALID_HEIGHT_VALUE -200000.0f            // real assigned value in unknown height case
 
+    struct AreaAndLiquidData
+    {
+        struct AreaInfo
+        {
+            AreaInfo(int32 _adtId, int32 _rootId, int32 _groupId, uint32 _flags) : adtId(_adtId), rootId(_rootId), groupId(_groupId), mogpFlags(_flags) { }
+            int32 const adtId;
+            int32 const rootId;
+            int32 const groupId;
+            uint32 const mogpFlags;
+        };
+        struct LiquidInfo
+        {
+            LiquidInfo(uint32 _type, float _level) : type(_type), level(_level) { }
+            uint32 const type;
+            float const level;
+        };
+        
+        float floorZ = VMAP_INVALID_HEIGHT;
+        Optional<AreaInfo> areaInfo;
+        Optional<LiquidInfo> liquidInfo;
+    };
     //===========================================================
     class TC_COMMON_API IVMapManager
     {
@@ -101,6 +123,8 @@ namespace VMAP
             */
             virtual bool getAreaInfo(unsigned int pMapId, float x, float y, float &z, uint32 &flags, int32 &adtId, int32 &rootId, int32 &groupId) const=0;
             virtual bool GetLiquidLevel(uint32 pMapId, float x, float y, float z, uint8 ReqLiquidType, float &level, float &floor, uint32 &type) const=0;
+            // get both area + liquid data in a single vmap lookup
+            virtual void getAreaAndLiquidData(unsigned int mapId, float x, float y, float z, uint8 reqLiquidType, AreaAndLiquidData& data) const=0;
     };
 
 }

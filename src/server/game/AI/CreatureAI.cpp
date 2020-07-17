@@ -147,15 +147,22 @@ void CreatureAI::MoveInLineOfSight(Unit* who)
     if (me->GetVictim())
         return;
 
-    if (me->GetCreatureType() == CREATURE_TYPE_NON_COMBAT_PET) // non-combat pets should just stand there and look good;)
-        return;
-
     if (me->HasReactState(REACT_AGGRESSIVE) && me->CanStartAttack(who, false))
         AttackStart(who);
-    //else if (who->GetVictim() && me->IsFriendlyTo(who)
-    //    && me->IsWithinDistInMap(who, sWorld->getIntConfig(CONFIG_CREATURE_FAMILY_ASSISTANCE_RADIUS))
-    //    && me->CanStartAttack(who->GetVictim(), true)) /// @todo if we use true, it will not attack it when it arrives
-    //    me->GetMotionMaster()->MoveChase(who->GetVictim());
+}
+
+void CreatureAI::_OnOwnerCombatInteraction(Unit* target)
+{
+    if (!target || !me->IsAlive())
+        return;
+
+    if (!me->HasReactState(REACT_PASSIVE) && me->CanStartAttack(target, true))
+    {
+        if (me->IsInCombat())
+            me->AddThreat(target, 0.0f);
+        else
+            AttackStart(target);
+    }
 }
 
 // Distract creature, if player gets too close while stealthed/prowling
@@ -210,12 +217,6 @@ void CreatureAI::EnterEvadeMode(EvadeReason why)
     if (me->IsVehicle()) // use the same sequence of addtoworld, aireset may remove all summons!
         me->GetVehicleKit()->Reset(true);
 }
-
-/*void CreatureAI::AttackedBy(Unit* attacker)
-{
-    if (!me->GetVictim())
-        AttackStart(attacker);
-}*/
 
 void CreatureAI::SetGazeOn(Unit* target)
 {

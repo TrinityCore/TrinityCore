@@ -24,6 +24,112 @@
 #include "Player.h"
 #include "WorldStatePackets.h"
 
+ // kill credit for pks
+uint32 const NA_CREDIT_MARKER = 24867;
+
+uint32 const NA_GUARDS_MAX = 15;
+
+uint32 const NA_BUFF_ZONE = 3518;
+
+uint32 const NA_HALAA_GRAVEYARD = 993;
+
+uint32 const NA_HALAA_GRAVEYARD_ZONE = 3518; // need to add zone id, not area id
+
+uint32 const NA_RESPAWN_TIME = 3600000; // one hour to capture after defeating all guards
+
+uint32 const NA_GUARD_CHECK_TIME = 500; // every half second
+
+uint32 const FLIGHT_NODES_NUM = 4;
+
+uint32 const FlightPathStartNodes[FLIGHT_NODES_NUM] = { 103, 105, 107, 109 };
+uint32 const FlightPathEndNodes[FLIGHT_NODES_NUM] = { 104, 106, 108, 110 };
+
+// spawned when the alliance is attacking, horde is in control
+go_type const HordeControlGOs[NA_CONTROL_GO_NUM] =
+{
+    { 182267, 530, { -1815.8000f, 8036.5100f, -26.2354f, -2.897250f }, { 0.0f, 0.0f, 0.992546f, -0.121869f } }, //ALLY_ROOST_SOUTH
+    { 182280, 530, { -1507.9500f, 8132.1000f, -19.5585f, -1.343900f }, { 0.0f, 0.0f, 0.622515f, -0.782608f } }, //ALLY_ROOST_WEST
+    { 182281, 530, { -1384.5200f, 7779.3300f, -11.1663f, -0.575959f }, { 0.0f, 0.0f, 0.284015f, -0.958820f } }, //ALLY_ROOST_NORTH
+    { 182282, 530, { -1650.1100f, 7732.5600f, -15.4505f, -2.809980f }, { 0.0f, 0.0f, 0.986286f, -0.165048f } }, //ALLY_ROOST_EAST
+
+    { 182222, 530, { -1825.4022f, 8039.2602f, -26.0800f, -2.897250f }, { 0.0f, 0.0f, 0.992546f, -0.121869f } }, //HORDE_BOMB_WAGON_SOUTH
+    { 182272, 530, { -1515.3700f, 8136.9100f, -20.4200f, -1.343900f }, { 0.0f, 0.0f, 0.622515f, -0.782608f } }, //HORDE_BOMB_WAGON_WEST
+    { 182273, 530, { -1377.9500f, 7773.4400f, -10.3100f, -0.575959f }, { 0.0f, 0.0f, 0.284015f, -0.958820f } }, //HORDE_BOMB_WAGON_NORTH
+    { 182274, 530, { -1659.8700f, 7733.1500f, -15.7500f, -2.809980f }, { 0.0f, 0.0f, 0.986286f, -0.165048f } }, //HORDE_BOMB_WAGON_EAST
+
+    { 182266, 530, { -1815.8000f, 8036.5100f, -26.2354f, -2.897250f }, { 0.0f, 0.0f, 0.992546f, -0.121869f } }, //DESTROYED_ALLY_ROOST_SOUTH
+    { 182275, 530, { -1507.9500f, 8132.1000f, -19.5585f, -1.343900f }, { 0.0f, 0.0f, 0.622515f, -0.782608f } }, //DESTROYED_ALLY_ROOST_WEST
+    { 182276, 530, { -1384.5200f, 7779.3300f, -11.1663f, -0.575959f }, { 0.0f, 0.0f, 0.284015f, -0.958820f } }, //DESTROYED_ALLY_ROOST_NORTH
+    { 182277, 530, { -1650.1100f, 7732.5600f, -15.4505f, -2.809980f }, { 0.0f, 0.0f, 0.986286f, -0.165048f } }  //DESTROYED_ALLY_ROOST_EAST
+};
+
+// spawned when the horde is attacking, alliance is in control
+go_type const AllianceControlGOs[NA_CONTROL_GO_NUM] =
+{
+    { 182301, 530, { -1815.8000f, 8036.5100f, -26.2354f, -2.897250f }, { 0.0f, 0.0f, 0.992546f, -0.121869f } }, //HORDE_ROOST_SOUTH
+    { 182302, 530, { -1507.9500f, 8132.1000f, -19.5585f, -1.343900f }, { 0.0f, 0.0f, 0.622515f, -0.782608f } }, //HORDE_ROOST_WEST
+    { 182303, 530, { -1384.5200f, 7779.3300f, -11.1663f, -0.575959f }, { 0.0f, 0.0f, 0.284015f, -0.958820f } }, //HORDE_ROOST_NORTH
+    { 182304, 530, { -1650.1100f, 7732.5600f, -15.4505f, -2.809980f }, { 0.0f, 0.0f, 0.986286f, -0.165048f } }, //HORDE_ROOST_EAST
+
+    { 182305, 530, { -1825.4022f, 8039.2602f, -26.0800f, -2.897250f }, { 0.0f, 0.0f, 0.992546f, -0.121869f } }, //ALLY_BOMB_WAGON_SOUTH
+    { 182306, 530, { -1515.3700f, 8136.9100f, -20.4200f, -1.343900f }, { 0.0f, 0.0f, 0.622515f, -0.782608f } }, //ALLY_BOMB_WAGON_WEST
+    { 182307, 530, { -1377.9500f, 7773.4400f, -10.3100f, -0.575959f }, { 0.0f, 0.0f, 0.284015f, -0.958820f } }, //ALLY_BOMB_WAGON_NORTH
+    { 182308, 530, { -1659.8700f, 7733.1500f, -15.7500f, -2.809980f }, { 0.0f, 0.0f, 0.986286f, -0.165048f } }, //ALLY_BOMB_WAGON_EAST
+
+    { 182297, 530, { -1815.8000f, 8036.5100f, -26.2354f, -2.897250f }, { 0.0f, 0.0f, 0.992546f, -0.121869f } }, //DESTROYED_HORDE_ROOST_SOUTH
+    { 182298, 530, { -1507.9500f, 8132.1000f, -19.5585f, -1.343900f }, { 0.0f, 0.0f, 0.622515f, -0.782608f } }, //DESTROYED_HORDE_ROOST_WEST
+    { 182299, 530, { -1384.5200f, 7779.3300f, -11.1663f, -0.575959f }, { 0.0f, 0.0f, 0.284015f, -0.958820f } }, //DESTROYED_HORDE_ROOST_NORTH
+    { 182300, 530, { -1650.1100f, 7732.5600f, -15.4505f, -2.809980f }, { 0.0f, 0.0f, 0.986286f, -0.165048f } }  //DESTROYED_HORDE_ROOST_EAST
+};
+
+creature_type const HordeControlNPCs[NA_CONTROL_NPC_NUM] =
+{
+    { 18816, 530, { -1523.92f, 7951.76f, -17.6942f, 3.51172f } },
+    { 18821, 530, { -1527.75f, 7952.46f, -17.6948f, 3.99317f } },
+    { 21474, 530, { -1520.14f, 7927.11f, -20.2527f, 3.39389f } },
+    { 21484, 530, { -1524.84f, 7930.34f, -20.1820f, 3.64050f } },
+    { 21483, 530, { -1570.01f, 7993.80f, -22.4505f, 5.02655f } },
+    { 18192, 530, { -1654.06f, 8000.46f, -26.5900f, 3.37000f } },
+    { 18192, 530, { -1487.18f, 7899.10f, -19.5300f, 0.95400f } },
+    { 18192, 530, { -1480.88f, 7908.79f, -19.1900f, 4.48500f } },
+    { 18192, 530, { -1540.56f, 7995.44f, -20.4500f, 0.94700f } },
+    { 18192, 530, { -1546.95f, 8000.85f, -20.7200f, 6.03500f } },
+    { 18192, 530, { -1595.31f, 7860.53f, -21.5100f, 3.74700f } },
+    { 18192, 530, { -1642.31f, 7995.59f, -25.8000f, 3.31700f } },
+    { 18192, 530, { -1545.46f, 7995.35f, -20.6300f, 1.09400f } },
+    { 18192, 530, { -1487.58f, 7907.99f, -19.2700f, 5.56700f } },
+    { 18192, 530, { -1651.54f, 7988.56f, -26.5289f, 2.98451f } },
+    { 18192, 530, { -1602.46f, 7866.43f, -22.1177f, 4.74729f } },
+    { 18192, 530, { -1591.22f, 7875.29f, -22.3536f, 4.34587f } },
+    { 18192, 530, { -1550.60f, 7944.45f, -21.6300f, 3.55900f } },
+    { 18192, 530, { -1545.57f, 7935.83f, -21.1300f, 3.44800f } },
+    { 18192, 530, { -1550.86f, 7937.56f, -21.7000f, 3.80100f } }
+};
+
+creature_type const AllianceControlNPCs[NA_CONTROL_NPC_NUM] =
+{
+    { 18817, 530, { -1591.18f, 8020.39f, -22.2042f, 4.59022f } },
+    { 18822, 530, { -1588.00f, 8019.00f, -22.2042f, 4.06662f } },
+    { 21485, 530, { -1521.93f, 7927.37f, -20.2299f, 3.24631f } },
+    { 21487, 530, { -1540.33f, 7971.95f, -20.7186f, 3.07178f } },
+    { 21488, 530, { -1570.01f, 7993.80f, -22.4505f, 5.02655f } },
+    { 18256, 530, { -1654.06f, 8000.46f, -26.5900f, 3.37000f } },
+    { 18256, 530, { -1487.18f, 7899.10f, -19.5300f, 0.95400f } },
+    { 18256, 530, { -1480.88f, 7908.79f, -19.1900f, 4.48500f } },
+    { 18256, 530, { -1540.56f, 7995.44f, -20.4500f, 0.94700f } },
+    { 18256, 530, { -1546.95f, 8000.85f, -20.7200f, 6.03500f } },
+    { 18256, 530, { -1595.31f, 7860.53f, -21.5100f, 3.74700f } },
+    { 18256, 530, { -1642.31f, 7995.59f, -25.8000f, 3.31700f } },
+    { 18256, 530, { -1545.46f, 7995.35f, -20.6300f, 1.09400f } },
+    { 18256, 530, { -1487.58f, 7907.99f, -19.2700f, 5.56700f } },
+    { 18256, 530, { -1651.54f, 7988.56f, -26.5289f, 2.98451f } },
+    { 18256, 530, { -1602.46f, 7866.43f, -22.1177f, 4.74729f } },
+    { 18256, 530, { -1591.22f, 7875.29f, -22.3536f, 4.34587f } },
+    { 18256, 530, { -1603.75f, 8000.36f, -24.1800f, 4.51600f } },
+    { 18256, 530, { -1585.73f, 7994.68f, -23.2900f, 4.43900f } },
+    { 18256, 530, { -1595.50f, 7991.27f, -23.5300f, 4.73800f } }
+};
+
 OutdoorPvPNA::OutdoorPvPNA()
 {
     m_TypeId = OUTDOOR_PVP_NA;
@@ -93,7 +199,7 @@ void OPvPCapturePointNA::SpawnNPCsForTeam(uint32 team)
     else
         return;
     for (int i = 0; i < NA_CONTROL_NPC_NUM; ++i)
-        AddCreature(i, creatures[i].entry, creatures[i].map, creatures[i].x, creatures[i].y, creatures[i].z, creatures[i].o, OutdoorPvP::GetTeamIdByTeam(team), 1000000);
+        AddCreature(i, creatures[i].entry, creatures[i].map, creatures[i].pos, OutdoorPvP::GetTeamIdByTeam(team), 1000000);
 }
 
 void OPvPCapturePointNA::DeSpawnNPCs()
@@ -104,26 +210,25 @@ void OPvPCapturePointNA::DeSpawnNPCs()
 
 void OPvPCapturePointNA::SpawnGOsForTeam(uint32 team)
 {
-    const go_type * gos = NULL;
+    go_type const* gos = nullptr;
     if (team == ALLIANCE)
-        gos=AllianceControlGOs;
+        gos = AllianceControlGOs;
     else if (team == HORDE)
-        gos=HordeControlGOs;
+        gos = HordeControlGOs;
     else
         return;
-    for (int i = 0; i < NA_CONTROL_GO_NUM; ++i)
+
+    // roosts and bomb wagons are spawned when someone uses the matching destroyed roost
+    static ControlGOTypes const GoTypes[] =
     {
-        if (i == NA_ROOST_S ||
-            i == NA_ROOST_W ||
-            i == NA_ROOST_N ||
-            i == NA_ROOST_E ||
-            i == NA_BOMB_WAGON_S ||
-            i == NA_BOMB_WAGON_W ||
-            i == NA_BOMB_WAGON_N ||
-            i == NA_BOMB_WAGON_E)
-            continue;   // roosts and bomb wagons are spawned when someone uses the matching destroyed roost
-        AddObject(i, gos[i].entry, gos[i].map, gos[i].x, gos[i].y, gos[i].z, gos[i].o, gos[i].rot0, gos[i].rot1, gos[i].rot2, gos[i].rot3);
-    }
+        NA_DESTROYED_ROOST_S,
+        NA_DESTROYED_ROOST_W,
+        NA_DESTROYED_ROOST_N,
+        NA_DESTROYED_ROOST_E
+    };
+
+    for (ControlGOTypes goType : GoTypes)
+        AddObject(goType, gos[goType].entry, gos[goType].map, gos[goType].pos, gos[goType].rot);
 }
 
 void OPvPCapturePointNA::DeSpawnGOs()
@@ -184,7 +289,7 @@ OPvPCapturePoint(pvp), m_capturable(true), m_GuardsAlive(0), m_ControllingFactio
 m_WyvernStateNorth(0), m_WyvernStateSouth(0), m_WyvernStateEast(0), m_WyvernStateWest(0),
 m_HalaaState(HALAA_N), m_RespawnTimer(NA_RESPAWN_TIME), m_GuardCheckTimer(NA_GUARD_CHECK_TIME)
 {
-    SetCapturePointData(182210, 530, -1572.57f, 7945.3f, -22.475f, 2.05949f, 0.0f, 0.0f, 0.857167f, 0.515038f);
+    SetCapturePointData(182210, 530, { -1572.57f, 7945.3f, -22.475f, 2.05949f }, { 0.0f, 0.0f, 0.857167f, 0.515038f });
 }
 
 bool OutdoorPvPNA::SetupOutdoorPvP()
@@ -490,10 +595,10 @@ int32 OPvPCapturePointNA::HandleOpenGo(Player* player, GameObject* go)
             DelObject(del2);
 
         if (add>-1)
-            AddObject(add, gos[add].entry, gos[add].map, gos[add].x, gos[add].y, gos[add].z, gos[add].o, gos[add].rot0, gos[add].rot1, gos[add].rot2, gos[add].rot3);
+            AddObject(add, gos[add].entry, gos[add].map, gos[add].pos, gos[add].rot);
 
         if (add2>-1)
-            AddObject(add2, gos[add2].entry, gos[add2].map, gos[add2].x, gos[add2].y, gos[add2].z, gos[add2].o, gos[add2].rot0, gos[add2].rot1, gos[add2].rot2, gos[add2].rot3);
+            AddObject(add2, gos[add2].entry, gos[add2].map, gos[add2].pos, gos[add2].rot);
 
         return retval;
     }

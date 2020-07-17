@@ -182,7 +182,7 @@ public:
 
         InstanceScript* instance;
 
-        bool GossipHello(Player* player, bool /*reportUse*/) override
+        bool GossipHello(Player* player) override
         {
             if (Creature* najentus = instance->GetCreature(DATA_HIGH_WARLORD_NAJENTUS))
             {
