@@ -168,6 +168,7 @@ class instance_black_temple : public InstanceMapScript
                         break;
                     case DATA_AKAMA_ILLIDAN_INTRO:
                         AkamaIllidanIntro = data;
+                        break;
                     default:
                         break;
                 }

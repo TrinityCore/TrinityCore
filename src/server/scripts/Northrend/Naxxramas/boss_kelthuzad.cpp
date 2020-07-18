@@ -809,6 +809,7 @@ public:
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                         me->DespawnOrUnsummon(30 * IN_MILLISECONDS); // just in case anything interrupts the movement
                         me->GetMotionMaster()->MoveTargetedHome();
+                        break;
                     default:
                         break;
                 }

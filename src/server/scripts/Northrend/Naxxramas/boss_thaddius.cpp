@@ -835,6 +835,7 @@ public:
                     case ACTION_TRANSITION_3:
                         if (GameObject* coil = myCoilGO())
                             coil->SetGoState(GO_STATE_READY);
+                        break;
                     default:
                         break;
                 }

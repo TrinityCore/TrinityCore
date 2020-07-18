@@ -126,6 +126,7 @@ class instance_magisters_terrace : public InstanceMapScript
                     case NPC_SUNBLADE_BLOOD_KNIGHT:
                         if (creature->GetDistance(KaelthasTrashGroupDistanceComparisonPos) < 10.0f)
                             _kaelthasPreTrashGUIDs.insert(creature->GetGUID());
+                        break;
                     default:
                         break;
                 }

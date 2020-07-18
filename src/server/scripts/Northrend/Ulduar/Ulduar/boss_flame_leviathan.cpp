@@ -354,6 +354,7 @@ class boss_flame_leviathan : public CreatureScript
                     case DATA_ORBIT_ACHIEVEMENTS:
                         if (ActiveTowers) // Only on HardMode
                             return ActiveTowersCount;
+                        break;
                     default:
                         break;
                 }
