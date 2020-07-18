@@ -23,10 +23,8 @@
 #include "WardenCheckMgr.h"
 #include "Warden.h"
 #include "World.h"
-#include <boost/thread/locks.hpp>
-#include <boost/thread/shared_mutex.hpp>
 
-WardenCheckMgr::WardenCheckMgr() : _checkStoreLock(new boost::shared_mutex())
+WardenCheckMgr::WardenCheckMgr()
 {
 }
 
@@ -37,8 +35,6 @@ WardenCheckMgr::~WardenCheckMgr()
 
     for (CheckResultContainer::iterator itr = CheckResultStore.begin(); itr != CheckResultStore.end(); ++itr)
         delete itr->second;
-
-    delete _checkStoreLock;
 }
 
 void WardenCheckMgr::LoadWardenChecks()
@@ -151,7 +147,7 @@ void WardenCheckMgr::LoadWardenOverrides()
 
     uint32 count = 0;
 
-    boost::unique_lock<boost::shared_mutex> lock(*sWardenCheckMgr->_checkStoreLock);
+    std::unique_lock<std::shared_mutex> lock(sWardenCheckMgr->_checkStoreLock);
 
     do
     {

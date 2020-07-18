@@ -30,9 +30,6 @@
 #include "Transport.h"
 #include "World.h"
 
-#include <boost/thread/shared_mutex.hpp>
-#include <boost/thread/locks.hpp>
-
 template<class T>
 void HashMapHolder<T>::Insert(T* o)
 {
@@ -40,7 +37,7 @@ void HashMapHolder<T>::Insert(T* o)
         || std::is_same<Transport, T>::value,
         "Only Player and Transport can be registered in global HashMapHolder");
 
-    boost::unique_lock<boost::shared_mutex> lock(*GetLock());
+    std::unique_lock<std::shared_mutex> lock(*GetLock());
 
     GetContainer()[o->GetGUID()] = o;
 }
@@ -48,7 +45,7 @@ void HashMapHolder<T>::Insert(T* o)
 template<class T>
 void HashMapHolder<T>::Remove(T* o)
 {
-    boost::unique_lock<boost::shared_mutex> lock(*GetLock());
+    std::unique_lock<std::shared_mutex> lock(*GetLock());
 
     GetContainer().erase(o->GetGUID());
 }
@@ -56,7 +53,7 @@ void HashMapHolder<T>::Remove(T* o)
 template<class T>
 T* HashMapHolder<T>::Find(ObjectGuid guid)
 {
-    boost::shared_lock<boost::shared_mutex> lock(*GetLock());
+    std::shared_lock<std::shared_mutex> lock(*GetLock());
 
     typename MapType::iterator itr = GetContainer().find(guid);
     return (itr != GetContainer().end()) ? itr->second : nullptr;
@@ -70,9 +67,9 @@ auto HashMapHolder<T>::GetContainer() -> MapType&
 }
 
 template<class T>
-boost::shared_mutex* HashMapHolder<T>::GetLock()
+std::shared_mutex* HashMapHolder<T>::GetLock()
 {
-    static boost::shared_mutex _lock;
+    static std::shared_mutex _lock;
     return &_lock;
 }
 
@@ -299,7 +296,7 @@ HashMapHolder<Player>::MapType const& ObjectAccessor::GetPlayers()
 
 void ObjectAccessor::SaveAllPlayers()
 {
-    boost::shared_lock<boost::shared_mutex> lock(*HashMapHolder<Player>::GetLock());
+    std::shared_lock<std::shared_mutex> lock(*HashMapHolder<Player>::GetLock());
 
     HashMapHolder<Player>::MapType const& m = GetPlayers();
     for (HashMapHolder<Player>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)
