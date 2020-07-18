@@ -228,8 +228,8 @@ void PoolGroup<Creature>::Despawn1Object(uint64 guid)
     {
         sObjectMgr->RemoveCreatureFromGrid(guid, data);
 
-        Map* map = sMapMgr->CreateBaseMap(data->mapid);
-        if (!map->Instanceable())
+        Map* map = sMapMgr->FindMap(data->mapid, 0);
+        if (map && !map->Instanceable())
         {
             auto creatureBounds = map->GetCreatureBySpawnIdStore().equal_range(guid);
             for (auto itr = creatureBounds.first; itr != creatureBounds.second;)
@@ -250,8 +250,8 @@ void PoolGroup<GameObject>::Despawn1Object(uint64 guid)
     {
         sObjectMgr->RemoveGameobjectFromGrid(guid, data);
 
-        Map* map = sMapMgr->CreateBaseMap(data->mapid);
-        if (!map->Instanceable())
+        Map* map = sMapMgr->FindMap(data->mapid, 0);
+        if (map && !map->Instanceable())
         {
             auto gameobjectBounds = map->GetGameObjectBySpawnIdStore().equal_range(guid);
             for (auto itr = gameobjectBounds.first; itr != gameobjectBounds.second;)
@@ -385,9 +385,9 @@ void PoolGroup<Creature>::Spawn1Object(PoolObject* obj)
         sObjectMgr->AddCreatureToGrid(obj->guid, data);
 
         // Spawn if necessary (loaded grids only)
-        Map* map = sMapMgr->CreateBaseMap(data->mapid);
+        Map* map = sMapMgr->FindMap(data->mapid, 0);
         // We use spawn coords to spawn
-        if (!map->Instanceable() && map->IsGridLoaded(data->posX, data->posY))
+        if (map && !map->Instanceable() && map->IsGridLoaded(data->posX, data->posY))
             Creature::CreateCreatureFromDB(obj->guid, map);
     }
 }
@@ -401,9 +401,9 @@ void PoolGroup<GameObject>::Spawn1Object(PoolObject* obj)
         sObjectMgr->AddGameobjectToGrid(obj->guid, data);
         // Spawn if necessary (loaded grids only)
         // this base map checked as non-instanced and then only existed
-        Map* map = sMapMgr->CreateBaseMap(data->mapid);
+        Map* map = sMapMgr->FindMap(data->mapid, 0);
         // We use current coords to unspawn, not spawn coords since creature can have changed grid
-        if (!map->Instanceable() && map->IsGridLoaded(data->posX, data->posY))
+        if (map && !map->Instanceable() && map->IsGridLoaded(data->posX, data->posY))
         {
             if (GameObject* go = GameObject::CreateGameObjectFromDB(obj->guid, map, false))
             {
