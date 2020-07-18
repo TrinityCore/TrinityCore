@@ -562,7 +562,7 @@ public:
                     Spark->DisappearAndDie();
                     DespawnNagaFlag(false);
                     me->DisappearAndDie();
-                    /* fallthrough */
+                    [[fallthrough]];
                 default:
                     return 99999999;
             }
