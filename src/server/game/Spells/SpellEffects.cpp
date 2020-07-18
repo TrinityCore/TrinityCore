@@ -1540,6 +1540,7 @@ void Spell::SendLoot(ObjectGuid guid, LootType loottype)
                     gameObjTarget->TriggeringLinkedGameObject(trapEntry, player);
 
                 // Don't return, let loots been taken
+                break;
             default:
                 break;
         }

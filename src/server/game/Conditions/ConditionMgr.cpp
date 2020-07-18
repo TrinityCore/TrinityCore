@@ -3474,6 +3474,7 @@ int32 EvalSingleValue(ByteBuffer& buffer, Player const* player)
                 return 0;
 
             value = WorldStateExpressionFunctions[functionType](player, arg1, arg2);
+            break;
         }
         default:
             break;

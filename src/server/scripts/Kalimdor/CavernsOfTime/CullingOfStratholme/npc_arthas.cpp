@@ -1485,6 +1485,7 @@ public:
                             chromie->AI()->Talk(RP5_LINE_CHROMIE0);
                             chromie->AddNpcFlag(NPCFlags(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER));
                         }
+                        break;
                     default:
                         break;
                 }

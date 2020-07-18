@@ -303,6 +303,7 @@ public:
                     for (GuidList::const_iterator itr = _incarceratorList.begin(); itr != _incarceratorList.end(); ++itr)
                         if (Creature* creature = instance->GetCreature(*itr))
                             creature->Respawn();
+                    break;
                 default:
                     break;
             }

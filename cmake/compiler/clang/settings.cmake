@@ -11,6 +11,7 @@ if(WITH_WARNINGS)
       -W
       -Wall
       -Wextra
+      -Wimplicit-fallthrough
       -Winit-self
       -Wfatal-errors
       -Wno-mismatched-tags

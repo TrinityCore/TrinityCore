@@ -330,8 +330,11 @@ public:
                     std::list<Creature*> creatureList;
                     GetCreatureListWithEntryInGrid(creatureList, me, NPC_BLOODMYST_TESLA_COIL, 500.0f);
                     if (!creatureList.empty())
+                    {
                         for (std::list<Creature*>::iterator itr = creatureList.begin(); itr != creatureList.end(); ++itr)
                             (*itr)->InterruptNonMeleeSpells(true, SPELL_BLOODMYST_TESLA);
+                    }
+                    break;
                 }
                 default:
                     break;
