@@ -440,7 +440,7 @@ void GameObject::Update(uint32 diff)
                     break;
             }
         }
-        /* fallthrough */
+        [[fallthrough]];
         case GO_READY:
         {
             if (m_respawnCompatibilityMode)
