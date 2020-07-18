@@ -167,6 +167,15 @@ class npc_displaced_sunreaver : public CreatureScript
             me->DespawnOrUnsummon(1s);
         }
 
+        void OnSpellCastInterrupt(SpellInfo const* /*spell*/) override
+        {
+            if (me->IsInCombat() && me->GetVictim())
+            {
+                me->GetMotionMaster()->Clear();
+                me->GetMotionMaster()->MoveFleeing(me->GetVictim(), 5);
+            }
+        }
+
         void DamageTaken(Unit* attacker, uint32& /*damage*/) override
         {
             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
@@ -941,7 +950,7 @@ class npc_enchanter_isian : public CreatureScript
 
 class npc_vereesa_windrunner : public CreatureScript
 {
-public:
+    public:
     npc_vereesa_windrunner() : CreatureScript("npc_vereesa_windrunner") {}
 
     struct npc_vereesa_windrunnerAI : public ScriptedAI
@@ -995,21 +1004,26 @@ public:
             scheduler
                 .Schedule(5ms, [this](TaskContext shot)
                 {
-                    DoCast(SPELL_SHOT);
-                    shot.Repeat(1s);
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                    {
+                        if (!target->HasAura(SPELL_SCATTER_SHOT))
+                            DoCast(target, SPELL_SHOT);
+                    }
+                    shot.Repeat(2s);
                 })
                 .Schedule(3s, [this](TaskContext multi_shot)
                 {
-                    me->InterruptNonMeleeSpells(true);
                     DoCastAOE(SPELL_MULTI_SHOT);
-                    multi_shot.Repeat(8s, 24s);
+                    multi_shot.Repeat(4s, 8s);
                 })
                 .Schedule(8s, [this](TaskContext arcane_shot)
                 {
-                    me->InterruptNonMeleeSpells(true);
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                        DoCast(target, SPELL_ARCANE_SHOT);
-                    arcane_shot.Repeat(4s, 12s);
+                    {
+                        if (!target->HasAura(SPELL_SCATTER_SHOT))
+                            DoCast(target, SPELL_ARCANE_SHOT);
+                    }
+                    arcane_shot.Repeat(2s, 4s);
                 })
                 .Schedule(12s, [this](TaskContext scatter_shot)
                 {
@@ -1021,7 +1035,6 @@ public:
                         }
                         else
                         {
-                            me->InterruptNonMeleeSpells(true);
                             DoCast(target, SPELL_SCATTER_SHOT);
                             scatter_shot.Repeat(14s, 32s);
                         }
@@ -1031,13 +1044,19 @@ public:
                         scatter_shot.Repeat(1s);
                     }
                 })
-                .Schedule(5ms, [this](TaskContext silencing_shot)
+                .Schedule(3s, [this](TaskContext silencing_shot)
                 {
                     if (Unit* target = DoSelectCastingUnit(SPELL_SILENCING_SHOT, 35.f))
                     {
-                        me->InterruptNonMeleeSpells(true);
-                        DoCast(target, SPELL_SILENCING_SHOT);
-                        silencing_shot.Repeat(25s, 40s);
+                        if (!target->HasAura(SPELL_SCATTER_SHOT))
+                        {
+                            DoCast(target, SPELL_SILENCING_SHOT);
+                            silencing_shot.Repeat(35s, 40s);
+                        }
+                        else
+                        {
+                            silencing_shot.Repeat(1s);
+                        }
                     }
                     else
                     {

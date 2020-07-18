@@ -394,6 +394,7 @@ class npc_jaina_theramore : public CreatureScript
 
         void JustDied(Unit* /*killer*/) override
         {
+            scheduler.CancelAll();
             events.Reset();
         }
 

@@ -11,6 +11,7 @@ enum Spells
     SPELL_FIREBLAST             = 100004,
     SPELL_PYROBLAST             = 100005,
     SPELL_LIVING_BOMB           = 100080,
+    SPELL_IGNITE                = 100092,
 
     SPELL_FROSTBOLT             = 100006,
     SPELL_ICE_LANCE             = 100007,
@@ -49,6 +50,16 @@ class npc_archmage_fire : public CreatureScript
         npc_archmage_fireAI(Creature* creature) : CustomAI(creature)
         {
             SetCombatMovement(false);
+        }
+
+        void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
+        {
+            if (spellInfo->Id == SPELL_FIREBALL || spellInfo->Id == SPELL_FIREBLAST || spellInfo->Id == SPELL_PYROBLAST)
+            {
+                Unit* victim = target->ToUnit();
+                if (victim && roll_chance_i(40))
+                    DoCast(victim, SPELL_IGNITE, true);
+            }
         }
 
         void JustEngagedWith(Unit* /*who*/) override
@@ -262,15 +273,12 @@ class npc_archmage_frost : public CreatureScript
 
         void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
         {
-            if (spellInfo->Id == SPELL_ICE_BARRIER
-                || spellInfo->Id == SPELL_ICE_BLOCK)
+            if (spellInfo->Id == SPELL_FROSTBOLT || spellInfo->Id == SPELL_ICE_LANCE)
             {
-                return;
+                Unit* victim = target->ToUnit();
+                if (victim && roll_chance_i(60))
+                    DoCast(victim, SPELL_FROSTBITE, true);
             }
-
-            Unit* victim = target->ToUnit();
-            if (victim && spellInfo->GetSchoolMask() == SPELL_SCHOOL_MASK_FROST && roll_chance_i(30))
-                DoCast(victim, SPELL_FROSTBITE);
         }
 
         void JustEngagedWith(Unit* /*who*/) override
