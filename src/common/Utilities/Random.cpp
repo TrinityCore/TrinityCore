@@ -18,6 +18,7 @@
 #include "Random.h"
 #include "Errors.h"
 #include "SFMTRand.h"
+#include <memory>
 #include <random>
 
 static thread_local std::unique_ptr<SFMTRand> sfmtRand;
