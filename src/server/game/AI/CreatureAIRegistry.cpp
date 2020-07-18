@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,18 +15,18 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PassiveAI.h"
-#include "ReactorAI.h"
+#include "CreatureAIFactory.h"
+#include "GameObjectAIFactory.h"
+
 #include "CombatAI.h"
 #include "GuardAI.h"
+#include "PassiveAI.h"
 #include "PetAI.h"
-#include "TotemAI.h"
-#include "RandomMovementGenerator.h"
-#include "MovementGeneratorImpl.h"
-#include "CreatureAIRegistry.h"
-#include "WaypointMovementGenerator.h"
-#include "CreatureAIFactory.h"
+#include "ReactorAI.h"
 #include "SmartAI.h"
+#include "TotemAI.h"
+
+#include "MovementGenerator.h"
 
 namespace AIRegistry
 {
@@ -40,19 +39,20 @@ namespace AIRegistry
         (new CreatureAIFactory<PassiveAI>("PassiveAI"))->RegisterSelf();
         (new CreatureAIFactory<CritterAI>("CritterAI"))->RegisterSelf();
         (new CreatureAIFactory<GuardAI>("GuardAI"))->RegisterSelf();
-        (new CreatureAIFactory<PetAI>("PetAI"))->RegisterSelf();
-        (new CreatureAIFactory<TotemAI>("TotemAI"))->RegisterSelf();
+        (new CreatureAIFactory<PetAI, false>("PetAI"))->RegisterSelf();
+        (new CreatureAIFactory<TotemAI, false>("TotemAI"))->RegisterSelf();
         (new CreatureAIFactory<CombatAI>("CombatAI"))->RegisterSelf();
         (new CreatureAIFactory<ArcherAI>("ArcherAI"))->RegisterSelf();
         (new CreatureAIFactory<TurretAI>("TurretAI"))->RegisterSelf();
         (new CreatureAIFactory<VehicleAI>("VehicleAI"))->RegisterSelf();
         (new CreatureAIFactory<SmartAI>("SmartAI"))->RegisterSelf();
 
+        (new GameObjectAIFactory<NullGameObjectAI>("NullGameObjectAI"))->RegisterSelf();
         (new GameObjectAIFactory<GameObjectAI>("GameObjectAI"))->RegisterSelf();
         (new GameObjectAIFactory<SmartGameObjectAI>("SmartGameObjectAI"))->RegisterSelf();
 
-        (new MovementGeneratorFactory<RandomMovementGenerator<Creature> >(RANDOM_MOTION_TYPE))->RegisterSelf();
-        (new MovementGeneratorFactory<WaypointMovementGenerator<Creature> >(WAYPOINT_MOTION_TYPE))->RegisterSelf();
+        (new IdleMovementFactory())->RegisterSelf();
+        (new RandomMovementFactory())->RegisterSelf();
+        (new WaypointMovementFactory())->RegisterSelf();
     }
 }
-

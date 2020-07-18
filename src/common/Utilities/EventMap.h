@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,11 +18,11 @@
 #ifndef _EVENT_MAP_H_
 #define _EVENT_MAP_H_
 
-#include "Common.h"
+#include "Define.h"
 #include "Duration.h"
-#include "Util.h"
+#include <map>
 
-class EventMap
+class TC_COMMON_API EventMap
 {
     /**
     * Internal storage type.
@@ -58,7 +58,7 @@ public:
 
     /**
     * @name GetTimer
-    * @return Current timer in ms value.
+    * @return Current timer value in ms.
     */
     uint32 GetTimer() const
     {
@@ -114,141 +114,82 @@ public:
 
     /**
     * @name ScheduleEvent
-    * @brief Creates new event entry in map.
+    * @brief Schedules a new event.
     * @param eventId The id of the new event.
-    * @param time The time in milliseconds as std::chrono::duration until the event occurs.
+    * @param time The time until the event occurs as std::chrono type.
     * @param group The group which the event is associated to. Has to be between 1 and 8. 0 means it has no group.
     * @param phase The phase in which the event can occur. Has to be between 1 and 8. 0 means it can occur in all phases.
     */
-    void ScheduleEvent(uint32 eventId, Milliseconds const& time, uint32 group = 0, uint8 phase = 0)
-    {
-        ScheduleEvent(eventId, time.count(), group, phase);
-    }
+    void ScheduleEvent(uint32 eventId, Milliseconds time, uint32 group = 0, uint8 phase = 0);
 
     /**
     * @name ScheduleEvent
-    * @brief Creates new event entry in map.
+    * @brief Schedules a new event.
     * @param eventId The id of the new event.
-    * @param time The time in milliseconds until the event occurs.
+    * @param minTime The minimum time until the event occurs as std::chrono type.
+    * @param maxTime The maximum time until the event occurs as std::chrono type.
     * @param group The group which the event is associated to. Has to be between 1 and 8. 0 means it has no group.
     * @param phase The phase in which the event can occur. Has to be between 1 and 8. 0 means it can occur in all phases.
     */
-    void ScheduleEvent(uint32 eventId, uint32 time, uint32 group = 0, uint8 phase = 0);
+    void ScheduleEvent(uint32 eventId, Milliseconds minTime, Milliseconds maxTime, uint32 group = 0, uint32 phase = 0);
 
     /**
     * @name RescheduleEvent
     * @brief Cancels the given event and reschedules it.
     * @param eventId The id of the event.
-    * @param time The time in milliseconds as std::chrono::duration until the event occurs.
+    * @param time The time until the event occurs as std::chrono type.
     * @param group The group which the event is associated to. Has to be between 1 and 8. 0 means it has no group.
     * @param phase The phase in which the event can occur. Has to be between 1 and 8. 0 means it can occur in all phases.
     */
-    void RescheduleEvent(uint32 eventId, Milliseconds const& time, uint32 group = 0, uint8 phase = 0)
-    {
-        RescheduleEvent(eventId, time.count(), group, phase);
-    }
+    void RescheduleEvent(uint32 eventId, Milliseconds time, uint32 group = 0, uint8 phase = 0);
 
     /**
     * @name RescheduleEvent
     * @brief Cancels the given event and reschedules it.
     * @param eventId The id of the event.
-    * @param time The time in milliseconds until the event occurs.
+    * @param minTime The minimum time until the event occurs as std::chrono type.
+    * @param maxTime The maximum time until the event occurs as std::chrono type.
     * @param group The group which the event is associated to. Has to be between 1 and 8. 0 means it has no group.
     * @param phase The phase in which the event can occur. Has to be between 1 and 8. 0 means it can occur in all phases.
     */
-    void RescheduleEvent(uint32 eventId, uint32 time, uint32 group = 0, uint8 phase = 0)
-    {
-        CancelEvent(eventId);
-        ScheduleEvent(eventId, time, group, phase);
-    }
+    void RescheduleEvent(uint32 eventId, Milliseconds minTime, Milliseconds maxTime, uint32 group = 0, uint32 phase = 0);
 
     /**
     * @name RepeatEvent
-    * @brief Repeats the mostly recently executed event.
-    * @param time Time until in milliseconds as std::chrono::duration the event occurs.
+    * @brief Repeats the most recently executed event.
+    * @param time Time until the event occurs as std::chrono type.
     */
-    void Repeat(Milliseconds const& time)
-    {
-        Repeat(time.count());
-    }
+    void Repeat(Milliseconds time);
 
     /**
     * @name RepeatEvent
-    * @brief Repeats the mostly recently executed event.
-    * @param time Time until the event occurs.
+    * @brief Repeats the most recently executed event.
+    * @param minTime The minimum time until the event occurs as std::chrono type.
+    * @param maxTime The maximum time until the event occurs as std::chrono type.
     */
-    void Repeat(uint32 time)
-    {
-        _eventMap.insert(EventStore::value_type(_time + time, _lastEvent));
-    }
-
-    /**
-    * @name RepeatEvent
-    * @brief Repeats the mostly recently executed event.
-    * @param minTime Minimum time as std::chrono::duration until the event occurs.
-    * @param maxTime Maximum time as std::chrono::duration until the event occurs.
-    */
-    void Repeat(Milliseconds const& minTime, Milliseconds const& maxTime)
-    {
-        Repeat(minTime.count(), maxTime.count());
-    }
-
-    /**
-    * @name RepeatEvent
-    * @brief Repeats the mostly recently executed event, Equivalent to Repeat(urand(minTime, maxTime).
-    * @param minTime Minimum time until the event occurs.
-    * @param maxTime Maximum time until the event occurs.
-    */
-    void Repeat(uint32 minTime, uint32 maxTime)
-    {
-        Repeat(urand(minTime, maxTime));
-    }
+    void Repeat(Milliseconds minTime, Milliseconds maxTime);
 
     /**
     * @name ExecuteEvent
-    * @brief Returns the next event to execute and removes it from map.
+    * @brief Returns the next event to be executed and removes it from map.
     * @return Id of the event to execute.
     */
     uint32 ExecuteEvent();
 
     /**
     * @name DelayEvents
-    * @brief Delays all events in the map. If delay is greater than or equal internal timer, delay will be 0.
-    * @param delay Amount of delay in ms as std::chrono::duration.
+    * @brief Delays all events. If delay is greater than or equal internal timer, delay will be 0.
+    * @param delay Amount of delay as std::chrono type.
     */
-    void DelayEvents(Milliseconds const& delay)
-    {
-        DelayEvents(delay.count());
-    }
-
-    /**
-    * @name DelayEvents
-    * @brief Delays all events in the map. If delay is greater than or equal internal timer, delay will be 0.
-    * @param delay Amount of delay.
-    */
-    void DelayEvents(uint32 delay)
-    {
-        _time = delay < _time ? _time - delay : 0;
-    }
+    void DelayEvents(Milliseconds delay);
 
     /**
     * @name DelayEvents
     * @brief Delay all events of the same group.
-    * @param delay Amount of delay in ms as std::chrono::duration.
+    * @param delay Amount of delay as std::chrono type.
     * @param group Group of the events.
     */
-    void DelayEvents(Milliseconds const& delay, uint32 group)
-    {
-        DelayEvents(delay.count(), group);
-    }
-
-    /**
-    * @name DelayEvents
-    * @brief Delay all events of the same group.
-    * @param delay Amount of delay.
-    * @param group Group of the events.
-    */
-    void DelayEvents(uint32 delay, uint32 group);
+    void DelayEvents(Milliseconds delay, uint32 group);
 
     /**
     * @name CancelEvent
@@ -266,7 +207,7 @@ public:
 
     /**
     * @name GetNextEventTime
-    * @brief Returns closest occurence of specified event.
+    * @brief Returns closest occurrence of specified event.
     * @param eventId Wanted event id.
     * @return Time of found event.
     */

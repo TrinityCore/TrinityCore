@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,10 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Log.h"
-#include "Item.h"
-#include "ItemPrototype.h"
 #include "AuctionHouseBotBuyer.h"
+#include "GameTime.h"
+#include "DatabaseEnv.h"
+#include "Item.h"
+#include "ItemTemplate.h"
+#include "Log.h"
+#include "Random.h"
 
 AuctionBotBuyer::AuctionBotBuyer() : _checkInterval(20 * MINUTE)
 {
@@ -95,7 +98,7 @@ bool AuctionBotBuyer::Update(AuctionHouseType houseType)
 uint32 AuctionBotBuyer::GetItemInformation(BuyerConfiguration& config)
 {
     config.SameItemInfo.clear();
-    time_t now = time(nullptr);
+    time_t now = GameTime::GetGameTime();
     uint32 count = 0;
 
     AuctionHouseObject* house = sAuctionMgr->GetAuctionsMap(config.GetHouseType());
@@ -103,7 +106,7 @@ uint32 AuctionBotBuyer::GetItemInformation(BuyerConfiguration& config)
     {
         AuctionEntry* entry = itr->second;
 
-        if (!entry->owner)
+        if (!entry->owner || sAuctionBotConfig->IsBotChar(entry->owner))
             continue; // Skip auctions owned by AHBot
 
         Item* item = sAuctionMgr->GetAItem(entry->itemGUIDLow);
@@ -156,7 +159,7 @@ uint32 AuctionBotBuyer::GetItemInformation(BuyerConfiguration& config)
 }
 
 // ahInfo can be NULL
-bool AuctionBotBuyer::RollBuyChance(const BuyerItemInfo* ahInfo, const Item* item, const AuctionEntry* auction, uint32 /*bidPrice*/)
+bool AuctionBotBuyer::RollBuyChance(BuyerItemInfo const* ahInfo, Item const* item, AuctionEntry const* auction, uint32 /*bidPrice*/)
 {
     if (!auction->buyout)
         return false;
@@ -195,7 +198,7 @@ bool AuctionBotBuyer::RollBuyChance(const BuyerItemInfo* ahInfo, const Item* ite
 }
 
 // ahInfo can be NULL
-bool AuctionBotBuyer::RollBidChance(const BuyerItemInfo* ahInfo, const Item* item, const AuctionEntry* auction, uint32 bidPrice)
+bool AuctionBotBuyer::RollBidChance(BuyerItemInfo const* ahInfo, Item const* item, AuctionEntry const* auction, uint32 bidPrice)
 {
     float itemBidPrice = float(bidPrice / item->GetCount());
     float itemPrice = float(item->GetTemplate()->SellPrice ? item->GetTemplate()->SellPrice : GetVendorPrice(item->GetTemplate()->Quality));
@@ -218,7 +221,7 @@ bool AuctionBotBuyer::RollBidChance(const BuyerItemInfo* ahInfo, const Item* ite
     }
 
     // If a player has bidded on item, have fifth of normal chance
-    if (auction->bidder)
+    if (auction->bidder && !sAuctionBotConfig->IsBotChar(auction->bidder))
         chance = chance / 5.f;
 
     // Add config weigh in for quality
@@ -235,7 +238,7 @@ bool AuctionBotBuyer::RollBidChance(const BuyerItemInfo* ahInfo, const Item* ite
 void AuctionBotBuyer::PrepareListOfEntry(BuyerConfiguration& config)
 {
     // now - 5 seconds to leave out all old entries but keep the ones just updated a moment ago
-    time_t now = time(nullptr) - 5;
+    time_t now = GameTime::GetGameTime() - 5;
 
     for (CheckEntryMap::iterator itr = config.EligibleItems.begin(); itr != config.EligibleItems.end();)
     {
@@ -251,7 +254,7 @@ void AuctionBotBuyer::PrepareListOfEntry(BuyerConfiguration& config)
 // Tries to bid and buy items based on their prices and chances set in configs
 void AuctionBotBuyer::BuyAndBidItems(BuyerConfiguration& config)
 {
-    time_t now = time(nullptr);
+    time_t now = GameTime::GetGameTime();
     AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(config.GetHouseType());
     CheckEntryMap& items = config.EligibleItems;
 
@@ -306,7 +309,7 @@ void AuctionBotBuyer::BuyAndBidItems(BuyerConfiguration& config)
             bidPrice = auction->startbid;
         }
 
-        const BuyerItemInfo* ahInfo = nullptr;
+        BuyerItemInfo const* ahInfo = nullptr;
         BuyerItemInfoMap::const_iterator sameItemItr = config.SameItemInfo.find(item->GetEntry());
         if (sameItemItr != config.SameItemInfo.end())
             ahInfo = &sameItemItr->second;
@@ -388,14 +391,14 @@ void AuctionBotBuyer::BuyEntry(AuctionEntry* auction, AuctionHouseObject* auctio
 {
     TC_LOG_DEBUG("ahbot", "AHBot: Entry %u bought at %.2fg", auction->Id, float(auction->buyout) / GOLD);
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
     // Send mail to previous bidder if any
-    if (auction->bidder)
-        sAuctionMgr->SendAuctionOutbiddedMail(auction, auction->buyout, NULL, trans);
+    if (auction->bidder && !sAuctionBotConfig->IsBotChar(auction->bidder))
+        sAuctionMgr->SendAuctionOutbiddedMail(auction, auction->buyout, nullptr, trans);
 
     // Set bot as bidder and set new bid amount
-    auction->bidder = 0;
+    auction->bidder = sAuctionBotConfig->GetRandCharExclude(auction->owner);
     auction->bid = auction->buyout;
 
     // Mails must be under transaction control too to prevent data loss
@@ -419,18 +422,18 @@ void AuctionBotBuyer::PlaceBidToEntry(AuctionEntry* auction, uint32 bidPrice)
 {
     TC_LOG_DEBUG("ahbot", "AHBot: Bid placed to entry %u, %.2fg", auction->Id, float(bidPrice) / GOLD);
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
     // Send mail to previous bidder if any
-    if (auction->bidder)
-        sAuctionMgr->SendAuctionOutbiddedMail(auction, bidPrice, NULL, trans);
+    if (auction->bidder && !sAuctionBotConfig->IsBotChar(auction->bidder))
+        sAuctionMgr->SendAuctionOutbiddedMail(auction, bidPrice, nullptr, trans);
 
     // Set bot as bidder and set new bid amount
-    auction->bidder = 0;
+    auction->bidder = sAuctionBotConfig->GetRandCharExclude(auction->owner);
     auction->bid = bidPrice;
 
     // Update auction to DB
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_AUCTION_BID);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_AUCTION_BID);
     stmt->setUInt32(0, auction->bidder);
     stmt->setUInt32(1, auction->bid);
     stmt->setUInt32(2, auction->Id);

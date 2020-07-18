@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,7 +23,9 @@ SDCategory: Coilfang Resevoir, Underbog
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
+#include "the_underbog.h"
 
 enum Spells
 {
@@ -49,7 +50,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_the_black_stalkerAI(creature);
+        return GetTheUnderbogAI<boss_the_black_stalkerAI>(creature);
     }
 
     struct boss_the_black_stalkerAI : public ScriptedAI
@@ -87,14 +88,14 @@ public:
             Striders.DespawnAll();
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void JustSummoned(Creature* summon) override
         {
             if (summon && summon->GetEntry() == ENTRY_SPORE_STRIDER)
             {
                 Striders.Summon(summon);
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
                     summon->AI()->AttackStart(target);
                 else
                     if (me->GetVictim())
@@ -162,7 +163,7 @@ public:
             }
             if (Levitate_Timer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
                 {
                     DoCast(target, SPELL_LEVITATE);
                     LevitatedTarget = target->GetGUID();
@@ -175,7 +176,7 @@ public:
             // Chain Lightning
             if (ChainLightning_Timer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     DoCast(target, SPELL_CHAIN_LIGHTNING);
                 ChainLightning_Timer = 7000;
             } else ChainLightning_Timer -= diff;
@@ -183,7 +184,7 @@ public:
             // Static Charge
             if (StaticCharge_Timer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30, true))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 30, true))
                     DoCast(target, SPELL_STATIC_CHARGE);
                 StaticCharge_Timer = 10000;
             } else StaticCharge_Timer -= diff;

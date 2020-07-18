@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -61,23 +61,23 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
-            events.ScheduleEvent(EVENT_WHIRLWIND, urand(1 * IN_MILLISECONDS, 20 * IN_MILLISECONDS));
-            events.ScheduleEvent(EVENT_WHIRLWIND2, urand(1 * IN_MILLISECONDS, 20 * IN_MILLISECONDS));
-            events.ScheduleEvent(EVENT_KNOCKDOWN, 12 * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_FRENZY, 6 * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_RANDOM_YELL, urand(20 * IN_MILLISECONDS, 30 * IN_MILLISECONDS)); //20 to 30 seconds
+            events.ScheduleEvent(EVENT_WHIRLWIND, 1s, 20s);
+            events.ScheduleEvent(EVENT_WHIRLWIND2, 1s, 20s);
+            events.ScheduleEvent(EVENT_KNOCKDOWN, 12s);
+            events.ScheduleEvent(EVENT_FRENZY, 6s);
+            events.ScheduleEvent(EVENT_RANDOM_YELL, 20s, 30s);
         }
 
-        void JustRespawned() override
+        void JustAppeared() override
         {
             Reset();
             Talk(SAY_RESPAWN);
         }
 
-        bool CheckInRoom()
+        bool CheckInRoom() override
         {
             if (me->GetDistance2d(me->GetHomePosition().GetPositionX(), me->GetHomePosition().GetPositionY()) > 50)
             {
@@ -105,27 +105,30 @@ public:
                 {
                     case EVENT_WHIRLWIND:
                         DoCastVictim(SPELL_WHIRLWIND);
-                        events.ScheduleEvent(EVENT_WHIRLWIND, urand(8 * IN_MILLISECONDS, 18 * IN_MILLISECONDS));
+                        events.ScheduleEvent(EVENT_WHIRLWIND, 8s, 18s);
                         break;
                     case EVENT_WHIRLWIND2:
                         DoCastVictim(SPELL_WHIRLWIND2);
-                        events.ScheduleEvent(EVENT_WHIRLWIND2, urand(7 * IN_MILLISECONDS, 25 * IN_MILLISECONDS));
+                        events.ScheduleEvent(EVENT_WHIRLWIND2, 7s, 25s);
                         break;
                     case EVENT_KNOCKDOWN:
                         DoCastVictim(SPELL_KNOCKDOWN);
-                        events.ScheduleEvent(EVENT_KNOCKDOWN, urand(10 * IN_MILLISECONDS, 15 * IN_MILLISECONDS));
+                        events.ScheduleEvent(EVENT_KNOCKDOWN, 10s, 15s);
                         break;
                     case EVENT_FRENZY:
                         DoCastVictim(SPELL_FRENZY);
-                        events.ScheduleEvent(EVENT_FRENZY, urand(20 * IN_MILLISECONDS, 30 * IN_MILLISECONDS));
+                        events.ScheduleEvent(EVENT_FRENZY, 20s, 30s);
                         break;
                     case EVENT_RANDOM_YELL:
                         Talk(SAY_RANDOM);
-                        events.ScheduleEvent(EVENT_RANDOM_YELL, urand(20 * IN_MILLISECONDS, 30 * IN_MILLISECONDS));
+                        events.ScheduleEvent(EVENT_RANDOM_YELL, 20s, 30s);
                         break;
                     default:
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
 
             DoMeleeAttackIfReady();

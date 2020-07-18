@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,27 +15,20 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Grilek
-SD%Complete: 100
-SDComment:
-SDCategory: Zul'Gurub
-EndScriptData */
-
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "zulgurub.h"
+#include "ScriptedCreature.h"
+#include "ScriptMgr.h"
 
 enum Spells
 {
-    SPELL_AVATAR                    = 24646, // Enrage Spell
-    SPELL_GROUND_TREMOR             = 6524
+    SPELL_AVATAR = 24646, // Enrage Spell
+    SPELL_GROUND_TREMOR = 6524
 };
 
 enum Events
 {
-    EVENT_AVATAR                    = 1,
-    EVENT_GROUND_TREMOR             = 2
+    EVENT_AVATAR = 1,
+    EVENT_GROUND_TREMOR = 2
 };
 
 class boss_grilek : public CreatureScript // grilek
@@ -58,11 +50,11 @@ class boss_grilek : public CreatureScript // grilek
                 _JustDied();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _EnterCombat();
-                events.ScheduleEvent(EVENT_AVATAR, urand(15000, 25000));
-                events.ScheduleEvent(EVENT_GROUND_TREMOR, urand(15000, 25000));
+                BossAI::JustEngagedWith(who);
+                events.ScheduleEvent(EVENT_AVATAR, 15s, 25s);
+                events.ScheduleEvent(EVENT_GROUND_TREMOR, 15s, 25s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -83,21 +75,24 @@ class boss_grilek : public CreatureScript // grilek
                             DoCast(me, SPELL_AVATAR);
                             if (Unit* victim = me->GetVictim())
                             {
-                                if (DoGetThreat(victim))
-                                    DoModifyThreatPercent(victim, -50);
+                                if (GetThreat(victim))
+                                    ModifyThreatByPercent(victim, -50);
                             }
 
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
                                 AttackStart(target);
-                            events.ScheduleEvent(EVENT_AVATAR, urand(25000, 35000));
+                            events.ScheduleEvent(EVENT_AVATAR, 25s, 35s);
                             break;
                         case EVENT_GROUND_TREMOR:
                             DoCastVictim(SPELL_GROUND_TREMOR, true);
-                            events.ScheduleEvent(EVENT_GROUND_TREMOR, urand(12000, 16000));
+                            events.ScheduleEvent(EVENT_GROUND_TREMOR, 12s, 16s);
                             break;
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -106,7 +101,7 @@ class boss_grilek : public CreatureScript // grilek
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_grilekAI(creature);
+            return GetZulGurubAI<boss_grilekAI>(creature);
         }
 };
 
@@ -114,4 +109,3 @@ void AddSC_boss_grilek()
 {
     new boss_grilek();
 }
-

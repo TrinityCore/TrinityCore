@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+# This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -14,7 +14,7 @@
 
 string(COMPARE EQUAL "${CMAKE_SOURCE_DIR}" "${CMAKE_BINARY_DIR}" BUILDING_IN_SOURCE)
 
-if( BUILDING_IN_SOURCE )
+if(BUILDING_IN_SOURCE)
   message(FATAL_ERROR "
     This project requires an out of source build. Remove the file 'CMakeCache.txt'
     found in this directory before continuing, create a separate build directory

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,15 +15,18 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "InstanceScript.h"
-#include "Player.h"
 #include "ScriptMgr.h"
+#include "Creature.h"
+#include "GameObject.h"
 #include "halls_of_stone.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "Player.h"
 
 DoorData const doorData[] =
 {
-    { GO_SJONNIR_DOOR, DATA_TRIBUNAL_OF_AGES, DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
-    { 0,               0,                     DOOR_TYPE_ROOM,    BOUNDARY_NONE } // END
+    { GO_SJONNIR_DOOR, DATA_TRIBUNAL_OF_AGES, DOOR_TYPE_PASSAGE },
+    { 0,               0,                     DOOR_TYPE_ROOM } // END
 };
 
 class instance_halls_of_stone : public InstanceMapScript
@@ -72,6 +75,8 @@ class instance_halls_of_stone : public InstanceMapScript
 
             void OnGameObjectCreate(GameObject* go) override
             {
+                InstanceScript::OnGameObjectCreate(go);
+
                 switch (go->GetEntry())
                 {
                     case GO_ABEDNEUM:
@@ -94,21 +99,6 @@ class instance_halls_of_stone : public InstanceMapScript
                         break;
                     case GO_TRIBUNAL_SKY_FLOOR:
                         TribunalSkyFloorGUID = go->GetGUID();
-                        break;
-                    case GO_SJONNIR_DOOR:
-                        AddDoor(go, true);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void OnGameObjectRemove(GameObject* go) override
-            {
-                switch (go->GetEntry())
-                {
-                    case GO_SJONNIR_DOOR:
-                        AddDoor(go, false);
                         break;
                     default:
                         break;

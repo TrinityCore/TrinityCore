@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -92,7 +91,7 @@ struct ClientWardenModule
 
 class WorldSession;
 
-class Warden
+class TC_GAME_API Warden
 {
     friend class WardenWin;
     friend class WardenMac;
@@ -119,7 +118,7 @@ class Warden
         static uint32 BuildChecksum(const uint8 *data, uint32 length);
 
         // If no check is passed, the default action from config is executed
-        std::string Penalty(WardenCheck* check = NULL);
+        std::string Penalty(WardenCheck* check = nullptr);
 
     private:
         WorldSession* _session;

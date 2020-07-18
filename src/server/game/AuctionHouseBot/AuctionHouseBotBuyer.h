@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -26,21 +26,21 @@ struct BuyerAuctionEval
 {
     BuyerAuctionEval() : AuctionId(0), LastChecked(0), LastExist(0) { }
 
-    uint32  AuctionId;
-    time_t  LastChecked;
-    time_t  LastExist;
+    uint32 AuctionId;
+    time_t LastChecked;
+    time_t LastExist;
 };
 
 struct BuyerItemInfo
 {
     BuyerItemInfo() : BidItemCount(0), BuyItemCount(0), MinBuyPrice(0), MinBidPrice(0), TotalBuyPrice(0), TotalBidPrice(0) { }
 
-    uint32  BidItemCount;
-    uint32  BuyItemCount;
-    uint32  MinBuyPrice;
-    uint32  MinBidPrice;
-    double  TotalBuyPrice;
-    double  TotalBidPrice;
+    uint32 BidItemCount;
+    uint32 BuyItemCount;
+    uint32 MinBuyPrice;
+    uint32 MinBidPrice;
+    double TotalBuyPrice;
+    double TotalBidPrice;
 };
 
 typedef std::map<uint32, BuyerItemInfo> BuyerItemInfoMap;
@@ -67,7 +67,7 @@ private:
 
 // This class handle all Buyer method
 // (holder of AuctionBotConfig for each auction house type)
-class AuctionBotBuyer : public AuctionBotAgent
+class TC_GAME_API AuctionBotBuyer : public AuctionBotAgent
 {
 public:
     AuctionBotBuyer();
@@ -86,8 +86,8 @@ private:
     void LoadBuyerValues(BuyerConfiguration& config);
 
     // ahInfo can be NULL
-    bool RollBuyChance(const BuyerItemInfo* ahInfo, const Item* item, const AuctionEntry* auction, uint32 bidPrice);
-    bool RollBidChance(const BuyerItemInfo* ahInfo, const Item* item, const AuctionEntry* auction, uint32 bidPrice);
+    bool RollBuyChance(BuyerItemInfo const* ahInfo, Item const* item, AuctionEntry const* auction, uint32 bidPrice);
+    bool RollBidChance(BuyerItemInfo const* ahInfo, Item const* item, AuctionEntry const* auction, uint32 bidPrice);
     void PlaceBidToEntry(AuctionEntry* auction, uint32 bidPrice);
     void BuyEntry(AuctionEntry* auction, AuctionHouseObject* auctionHouse);
     void PrepareListOfEntry(BuyerConfiguration& config);

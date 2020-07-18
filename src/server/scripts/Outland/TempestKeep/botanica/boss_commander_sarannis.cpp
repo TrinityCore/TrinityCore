@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,9 +16,10 @@
  */
 
 #include "ScriptMgr.h"
+#include "Map.h"
 #include "ScriptedCreature.h"
-#include "the_botanica.h"
 #include "SpellScript.h"
+#include "the_botanica.h"
 
 enum Says
 {
@@ -66,12 +67,12 @@ class boss_commander_sarannis : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _EnterCombat();
+                BossAI::JustEngagedWith(who);
                 Talk(SAY_AGGRO);
-                events.ScheduleEvent(EVENT_ARCANE_RESONANCE, 42700);
-                events.ScheduleEvent(EVENT_ARCANE_DEVASTATION, 15200);
+                events.ScheduleEvent(EVENT_ARCANE_RESONANCE, 42700ms);
+                events.ScheduleEvent(EVENT_ARCANE_DEVASTATION, 15200ms);
             }
 
             void KilledUnit(Unit* /*victim*/) override
@@ -118,16 +119,19 @@ class boss_commander_sarannis : public CreatureScript
                         case EVENT_ARCANE_RESONANCE:
                             Talk(SAY_ARCANE_RESONANCE);
                             DoCastVictim(SPELL_ARCANE_RESONANCE, true);
-                            events.ScheduleEvent(EVENT_ARCANE_RESONANCE, 42700);
+                            events.ScheduleEvent(EVENT_ARCANE_RESONANCE, 42700ms);
                             break;
                         case EVENT_ARCANE_DEVASTATION:
                             Talk(SAY_ARCANE_DEVASTATION);
                             DoCastVictim(SPELL_ARCANE_DEVASTATION, true);
-                            events.ScheduleEvent(EVENT_ARCANE_DEVASTATION, urand(11000, 19200));
+                            events.ScheduleEvent(EVENT_ARCANE_DEVASTATION, 11s, 19200ms);
                             break;
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -139,7 +143,7 @@ class boss_commander_sarannis : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_commander_sarannisAI(creature);
+            return GetBotanicaAI<boss_commander_sarannisAI>(creature);
         }
 };
 

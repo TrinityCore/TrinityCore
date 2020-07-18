@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -26,10 +25,11 @@ EndScriptData */
 /* ContentData
 npc_stolen_soul
 boss_exarch_maladaar
-npc_avatar_of_martyred
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "auchenai_crypts.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 
 enum Spells
@@ -56,7 +56,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_stolen_soulAI(creature);
+        return GetAuchenaiCryptsAI<npc_stolen_soulAI>(creature);
     }
 
     struct npc_stolen_soulAI : public ScriptedAI
@@ -76,7 +76,7 @@ public:
             Class_Timer = 1000;
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         { }
 
         void SetMyClass(uint8 myclass)
@@ -163,7 +163,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_exarch_maladaarAI(creature);
+        return GetAuchenaiCryptsAI<boss_exarch_maladaarAI>(creature);
     }
 
     struct boss_exarch_maladaarAI : public ScriptedAI
@@ -215,7 +215,7 @@ public:
             ScriptedAI::MoveInLineOfSight(who);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
         }
@@ -227,7 +227,7 @@ public:
                 //SPELL_STOLEN_SOUL_VISUAL has shapeshift effect, but not implemented feature in Trinity for this spell.
                 summoned->CastSpell(summoned, SPELL_STOLEN_SOUL_VISUAL, false);
                 summoned->SetDisplayId(soulmodel);
-                summoned->setFaction(me->getFaction());
+                summoned->SetFaction(me->GetFaction());
 
                 if (Unit* target = ObjectAccessor::GetUnit(*me, soulholder))
                 {
@@ -271,7 +271,7 @@ public:
 
             if (StolenSoul_Timer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                 {
                     if (target->GetTypeId() == TYPEID_PLAYER)
                     {
@@ -282,7 +282,7 @@ public:
 
                         soulmodel = target->GetDisplayId();
                         soulholder = target->GetGUID();
-                        soulclass = target->getClass();
+                        soulclass = target->GetClass();
 
                         DoCast(target, SPELL_STOLEN_SOUL);
                         me->SummonCreature(ENTRY_STOLEN_SOUL, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
@@ -294,7 +294,7 @@ public:
 
             if (Ribbon_of_Souls_timer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     DoCast(target, SPELL_RIBBON_OF_SOULS);
 
                 Ribbon_of_Souls_timer = 5000 + (rand32() % 20 * 1000);
@@ -312,59 +312,8 @@ public:
 
 };
 
-class npc_avatar_of_martyred : public CreatureScript
-{
-public:
-    npc_avatar_of_martyred() : CreatureScript("npc_avatar_of_martyred") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_avatar_of_martyredAI(creature);
-    }
-
-    struct npc_avatar_of_martyredAI : public ScriptedAI
-    {
-        npc_avatar_of_martyredAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-        }
-
-        void Initialize()
-        {
-            Mortal_Strike_timer = 10000;
-        }
-
-        uint32 Mortal_Strike_timer;
-
-        void Reset() override
-        {
-            Initialize();
-        }
-
-        void EnterCombat(Unit* /*who*/) override
-        {
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            if (Mortal_Strike_timer <= diff)
-            {
-                DoCastVictim(SPELL_AV_MORTAL_STRIKE);
-                Mortal_Strike_timer = urand(10, 30) * 1000;
-            } else Mortal_Strike_timer -= diff;
-
-            DoMeleeAttackIfReady();
-        }
-    };
-
-};
-
 void AddSC_boss_exarch_maladaar()
 {
     new boss_exarch_maladaar();
-    new npc_avatar_of_martyred();
     new npc_stolen_soul();
 }

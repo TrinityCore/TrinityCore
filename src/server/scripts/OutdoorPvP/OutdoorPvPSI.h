@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -28,22 +28,6 @@ enum OutdoorPvPSISpells
     SI_CENARION_FAVOR = 30754
 };
 
-const uint32 SI_MAX_RESOURCES = 200;
-
-const uint8 OutdoorPvPSIBuffZonesNum = 3;
-
-const uint32 OutdoorPvPSIBuffZones[OutdoorPvPSIBuffZonesNum] = { 1377, 3428, 3429 };
-
-const uint32 SI_AREATRIGGER_H = 4168;
-
-const uint32 SI_AREATRIGGER_A = 4162;
-
-const uint32 SI_TURNIN_QUEST_CM_A = 17090;
-
-const uint32 SI_TURNIN_QUEST_CM_H = 18199;
-
-const uint32 SI_SILITHYST_MOUND = 181597;
-
 enum SI_WorldStates
 {
     SI_GATHERED_A = 2313,
@@ -56,29 +40,20 @@ class OutdoorPvPSI : public OutdoorPvP
     public:
         OutdoorPvPSI();
 
-        bool SetupOutdoorPvP();
-
-        void HandlePlayerEnterZone(Player* player, uint32 zone);
-        void HandlePlayerLeaveZone(Player* player, uint32 zone);
-
-        bool Update(uint32 diff);
-
-        void FillInitialWorldStates(WorldPacket &data);
-
-        void SendRemoveWorldStates(Player* player);
-
-        bool HandleAreaTrigger(Player* player, uint32 trigger);
-
-        bool HandleDropFlag(Player* player, uint32 spellId);
-
-        bool HandleCustomSpell(Player* player, uint32 spellId, GameObject* go);
-
+        bool SetupOutdoorPvP() override;
+        void HandlePlayerEnterZone(Player* player, uint32 zone) override;
+        void HandlePlayerLeaveZone(Player* player, uint32 zone) override;
+        bool Update(uint32 diff) override;
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
+        void SendRemoveWorldStates(Player* player) override;
+        bool HandleAreaTrigger(Player* player, uint32 trigger) override;
+        bool HandleDropFlag(Player* player, uint32 spellId) override;
+        bool HandleCustomSpell(Player* player, uint32 spellId, GameObject* go) override;
         void UpdateWorldState();
 
     private:
         uint32 m_Gathered_A;
         uint32 m_Gathered_H;
-
         uint32 m_LastController;
 };
 

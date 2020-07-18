@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,16 +18,14 @@
 #ifndef _SQLOPERATION_H
 #define _SQLOPERATION_H
 
-#include "QueryResult.h"
-
-//- Forward declare (don't include header to prevent circular includes)
-class PreparedStatement;
+#include "Define.h"
+#include "DatabaseEnvFwd.h"
 
 //- Union that holds element data
 union SQLElementUnion
 {
-    PreparedStatement* stmt;
-    const char* query;
+    PreparedStatementBase* stmt;
+    char const* query;
 };
 
 //- Type specifier of our element data
@@ -53,10 +51,10 @@ union SQLResultSetUnion
 
 class MySQLConnection;
 
-class SQLOperation
+class TC_DATABASE_API SQLOperation
 {
     public:
-        SQLOperation(): m_conn(NULL) { }
+        SQLOperation(): m_conn(nullptr) { }
         virtual ~SQLOperation() { }
 
         virtual int call()

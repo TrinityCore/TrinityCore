@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,18 +18,17 @@
 #ifndef _TASK_SCHEDULER_H_
 #define _TASK_SCHEDULER_H_
 
+#include "Duration.h"
+#include "Optional.h"
+#include "Random.h"
 #include <algorithm>
 #include <chrono>
+#include <functional>
 #include <vector>
 #include <queue>
 #include <memory>
 #include <utility>
 #include <set>
-
-#include <boost/optional.hpp>
-
-#include "Util.h"
-#include "Duration.h"
 
 class TaskContext;
 
@@ -46,7 +45,7 @@ class TaskContext;
 /// with the same duration or a new one.
 /// It also provides access to the repeat counter which is useful for task that repeat itself often
 /// but behave different every time (spoken event dialogs for example).
-class TaskScheduler
+class TC_COMMON_API TaskScheduler
 {
     friend class TaskContext;
 
@@ -73,19 +72,19 @@ class TaskScheduler
 
         timepoint_t _end;
         duration_t _duration;
-        boost::optional<group_t> _group;
+        Optional<group_t> _group;
         repeated_t _repeated;
         task_handler_t _task;
 
     public:
         // All Argument construct
-        Task(timepoint_t const& end, duration_t const& duration, boost::optional<group_t> const& group,
+        Task(timepoint_t const& end, duration_t const& duration, Optional<group_t> const& group,
             repeated_t const repeated, task_handler_t const& task)
                 : _end(end), _duration(duration), _group(group), _repeated(repeated), _task(task) { }
 
         // Minimal Argument construct
         Task(timepoint_t const& end, duration_t const& duration, task_handler_t const& task)
-            : _end(end), _duration(duration), _group(boost::none), _repeated(0), _task(task) { }
+            : _end(end), _duration(duration), _group(std::nullopt), _repeated(0), _task(task) { }
 
         // Copy construct
         Task(Task const&) = delete;
@@ -125,13 +124,13 @@ class TaskScheduler
     /// Container which provides Task order, insert and reschedule operations.
     struct Compare
     {
-        bool operator() (TaskContainer const& left, TaskContainer const& right)
+        bool operator() (TaskContainer const& left, TaskContainer const& right) const
         {
             return (*left.get()) < (*right.get());
         };
     };
 
-    class TaskQueue
+    class TC_COMMON_API TaskQueue
     {
         std::multiset<TaskContainer, Compare> container;
 
@@ -401,14 +400,14 @@ private:
         auto const milli_max = std::chrono::duration_cast<std::chrono::milliseconds>(max);
 
         // TC specific: use SFMT URandom
-        return std::chrono::milliseconds(urand(milli_min.count(), milli_max.count()));
+        return std::chrono::milliseconds(urand(uint32(milli_min.count()), uint32(milli_max.count())));
     }
 
     /// Dispatch remaining tasks
     void Dispatch(success_t const& callback);
 };
 
-class TaskContext
+class TC_COMMON_API TaskContext
 {
     friend class TaskScheduler;
 

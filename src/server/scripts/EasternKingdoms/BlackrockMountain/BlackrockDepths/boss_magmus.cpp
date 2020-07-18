@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,8 +16,9 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "blackrock_depths.h"
+#include "InstanceScript.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -51,10 +52,12 @@ class boss_magmus : public CreatureScript
                 _events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
+                if (InstanceScript* instance = me->GetInstanceScript())
+                    instance->SetData(TYPE_IRON_HALL, IN_PROGRESS);
                 _events.SetPhase(PHASE_ONE);
-                _events.ScheduleEvent(EVENT_FIERY_BURST, 5000);
+                _events.ScheduleEvent(EVENT_FIERY_BURST, 5s);
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage) override
@@ -62,7 +65,7 @@ class boss_magmus : public CreatureScript
                 if (me->HealthBelowPctDamaged(50, damage) && _events.IsInPhase(PHASE_ONE))
                 {
                     _events.SetPhase(PHASE_TWO);
-                    _events.ScheduleEvent(EVENT_WARSTOMP, 0, 0, PHASE_TWO);
+                    _events.ScheduleEvent(EVENT_WARSTOMP, 0s, 0, PHASE_TWO);
                 }
             }
 
@@ -79,11 +82,11 @@ class boss_magmus : public CreatureScript
                     {
                         case EVENT_FIERY_BURST:
                             DoCastVictim(SPELL_FIERYBURST);
-                            _events.ScheduleEvent(EVENT_FIERY_BURST, 6000);
+                            _events.ScheduleEvent(EVENT_FIERY_BURST, 6s);
                             break;
                         case EVENT_WARSTOMP:
                             DoCastVictim(SPELL_WARSTOMP);
-                            _events.ScheduleEvent(EVENT_WARSTOMP, 8000, 0, PHASE_TWO);
+                            _events.ScheduleEvent(EVENT_WARSTOMP, 8s, 0, PHASE_TWO);
                             break;
                         default:
                             break;
@@ -96,7 +99,10 @@ class boss_magmus : public CreatureScript
             void JustDied(Unit* /*killer*/) override
             {
                 if (InstanceScript* instance = me->GetInstanceScript())
+                {
                     instance->HandleGameObject(instance->GetGuidData(DATA_THRONE_DOOR), true);
+                    instance->SetData(TYPE_IRON_HALL, DONE);
+                }
             }
 
         private:
@@ -105,11 +111,71 @@ class boss_magmus : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_magmusAI(creature);
+            return GetBlackrockDepthsAI<boss_magmusAI>(creature);
         }
+};
+
+enum IronhandGuardian
+{
+    EVENT_GOUTOFFLAME = 1,
+    SPELL_GOUTOFFLAME = 15529
+};
+
+class npc_ironhand_guardian : public CreatureScript
+{
+public:
+    npc_ironhand_guardian() : CreatureScript("npc_ironhand_guardian") { }
+
+    struct npc_ironhand_guardianAI : public ScriptedAI
+    {
+        npc_ironhand_guardianAI(Creature* creature) : ScriptedAI(creature)
+        {
+            _instance = me->GetInstanceScript();
+            _active = false;
+        }
+
+        void Reset() override
+        {
+            _events.Reset();
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (!_active)
+            {
+                if (_instance->GetData(TYPE_IRON_HALL) == NOT_STARTED)
+                    return;
+                // Once the boss is engaged, the guardians will stay activated until the next instance reset
+                _events.ScheduleEvent(EVENT_GOUTOFFLAME, 0s, 10s);
+                _active = true;
+            }
+
+            _events.Update(diff);
+
+            while (uint32 eventId = _events.ExecuteEvent())
+            {
+                if (eventId == EVENT_GOUTOFFLAME)
+                {
+                    DoCastAOE(SPELL_GOUTOFFLAME);
+                    _events.Repeat(16s, 21s);
+                }
+            }
+        }
+
+    private:
+        EventMap _events;
+        InstanceScript* _instance;
+        bool _active;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetBlackrockDepthsAI<npc_ironhand_guardianAI>(creature);
+    }
 };
 
 void AddSC_boss_magmus()
 {
     new boss_magmus();
+    new npc_ironhand_guardian();
 }

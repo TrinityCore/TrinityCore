@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,7 @@
  */
 
 #include "TaskScheduler.h"
+#include "Errors.h"
 
 TaskScheduler& TaskScheduler::ClearValidator()
 {
@@ -187,7 +188,7 @@ TaskContext& TaskContext::SetGroup(TaskScheduler::group_t const group)
 
 TaskContext& TaskContext::ClearGroup()
 {
-    _task->_group = boost::none;
+    _task->_group = std::nullopt;
     return *this;
 }
 

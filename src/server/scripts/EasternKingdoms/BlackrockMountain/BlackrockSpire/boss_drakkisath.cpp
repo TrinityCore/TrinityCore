@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,8 +16,8 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "blackrock_spire.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -50,13 +49,13 @@ public:
             _Reset();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _EnterCombat();
-            events.ScheduleEvent(EVENT_FIRE_NOVA, 6000);
-            events.ScheduleEvent(EVENT_CLEAVE,    8000);
-            events.ScheduleEvent(EVENT_CONFLIGURATION, 15000);
-            events.ScheduleEvent(EVENT_THUNDERCLAP,    17000);
+            BossAI::JustEngagedWith(who);
+            events.ScheduleEvent(EVENT_FIRE_NOVA, 6s);
+            events.ScheduleEvent(EVENT_CLEAVE, 8s);
+            events.ScheduleEvent(EVENT_CONFLIGURATION, 15s);
+            events.ScheduleEvent(EVENT_THUNDERCLAP, 17s);
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -80,21 +79,24 @@ public:
                 {
                     case EVENT_FIRE_NOVA:
                         DoCastVictim(SPELL_FIRENOVA);
-                        events.ScheduleEvent(EVENT_FIRE_NOVA, 10000);
+                        events.ScheduleEvent(EVENT_FIRE_NOVA, 10s);
                         break;
                     case EVENT_CLEAVE:
                         DoCastVictim(SPELL_CLEAVE);
-                        events.ScheduleEvent(EVENT_CLEAVE, 8000);
+                        events.ScheduleEvent(EVENT_CLEAVE, 8s);
                         break;
                     case EVENT_CONFLIGURATION:
                         DoCastVictim(SPELL_CONFLIGURATION);
-                        events.ScheduleEvent(EVENT_CONFLIGURATION, 18000);
+                        events.ScheduleEvent(EVENT_CONFLIGURATION, 18s);
                         break;
                     case EVENT_THUNDERCLAP:
                         DoCastVictim(SPELL_THUNDERCLAP);
-                        events.ScheduleEvent(EVENT_THUNDERCLAP, 20000);
+                        events.ScheduleEvent(EVENT_THUNDERCLAP, 20s);
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
             DoMeleeAttackIfReady();
         }
@@ -102,7 +104,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_drakkisathAI(creature);
+        return GetBlackrockSpireAI<boss_drakkisathAI>(creature);
     }
 };
 

@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,8 +23,11 @@ SDCategory: Molten Core
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "InstanceScript.h"
 #include "molten_core.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 
 enum Texts
 {
@@ -104,16 +106,16 @@ class boss_ragnaros : public CreatureScript
                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
             }
 
-            void EnterCombat(Unit* victim) override
+            void JustEngagedWith(Unit* victim) override
             {
-                BossAI::EnterCombat(victim);
-                events.ScheduleEvent(EVENT_ERUPTION, 15000);
-                events.ScheduleEvent(EVENT_WRATH_OF_RAGNAROS, 30000);
-                events.ScheduleEvent(EVENT_HAND_OF_RAGNAROS, 25000);
-                events.ScheduleEvent(EVENT_LAVA_BURST, 10000);
-                events.ScheduleEvent(EVENT_ELEMENTAL_FIRE, 3000);
-                events.ScheduleEvent(EVENT_MAGMA_BLAST, 2000);
-                events.ScheduleEvent(EVENT_SUBMERGE, 180000);
+                BossAI::JustEngagedWith(victim);
+                events.ScheduleEvent(EVENT_ERUPTION, 15s);
+                events.ScheduleEvent(EVENT_WRATH_OF_RAGNAROS, 30s);
+                events.ScheduleEvent(EVENT_HAND_OF_RAGNAROS, 25s);
+                events.ScheduleEvent(EVENT_LAVA_BURST, 10s);
+                events.ScheduleEvent(EVENT_ELEMENTAL_FIRE, 3s);
+                events.ScheduleEvent(EVENT_MAGMA_BLAST, 2s);
+                events.ScheduleEvent(EVENT_SUBMERGE, 3min);
             }
 
             void KilledUnit(Unit* /*victim*/) override
@@ -129,11 +131,11 @@ class boss_ragnaros : public CreatureScript
                     if (!_introState)
                     {
                         me->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
-                        events.ScheduleEvent(EVENT_INTRO_1, 4000);
-                        events.ScheduleEvent(EVENT_INTRO_2, 23000);
-                        events.ScheduleEvent(EVENT_INTRO_3, 42000);
-                        events.ScheduleEvent(EVENT_INTRO_4, 43000);
-                        events.ScheduleEvent(EVENT_INTRO_5, 53000);
+                        events.ScheduleEvent(EVENT_INTRO_1, 4s);
+                        events.ScheduleEvent(EVENT_INTRO_2, 23s);
+                        events.ScheduleEvent(EVENT_INTRO_3, 42s);
+                        events.ScheduleEvent(EVENT_INTRO_4, 43s);
+                        events.ScheduleEvent(EVENT_INTRO_5, 53s);
                         _introState = 1;
                     }
 
@@ -155,11 +157,12 @@ class boss_ragnaros : public CreatureScript
                         case EVENT_INTRO_4:
                             Talk(SAY_ARRIVAL5_RAG);
                             if (Creature* executus = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_MAJORDOMO_EXECUTUS)))
-                                me->Kill(executus);
+                                Unit::Kill(me, executus);
                             break;
                         case EVENT_INTRO_5:
                             me->SetReactState(REACT_AGGRESSIVE);
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                            me->SetImmuneToPC(false);
                             _introState = 2;
                             break;
                         default:
@@ -173,11 +176,11 @@ class boss_ragnaros : public CreatureScript
                     {
                         //Become unbanished again
                         me->SetReactState(REACT_AGGRESSIVE);
-                        me->setFaction(14);
+                        me->SetFaction(FACTION_MONSTER);
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
                         me->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                             AttackStart(target);
                         instance->SetData(DATA_RAGNAROS_ADDS, 0);
 
@@ -203,27 +206,27 @@ class boss_ragnaros : public CreatureScript
                         {
                             case EVENT_ERUPTION:
                                 DoCastVictim(SPELL_ERRUPTION);
-                                events.ScheduleEvent(EVENT_ERUPTION, urand(20000, 45000));
+                                events.ScheduleEvent(EVENT_ERUPTION, 20s, 45s);
                                 break;
                             case EVENT_WRATH_OF_RAGNAROS:
                                 DoCastVictim(SPELL_WRATH_OF_RAGNAROS);
                                 if (urand(0, 1))
                                     Talk(SAY_WRATH);
-                                events.ScheduleEvent(EVENT_WRATH_OF_RAGNAROS, 25000);
+                                events.ScheduleEvent(EVENT_WRATH_OF_RAGNAROS, 25s);
                                 break;
                             case EVENT_HAND_OF_RAGNAROS:
                                 DoCast(me, SPELL_HAND_OF_RAGNAROS);
                                 if (urand(0, 1))
                                     Talk(SAY_HAND);
-                                events.ScheduleEvent(EVENT_HAND_OF_RAGNAROS, 20000);
+                                events.ScheduleEvent(EVENT_HAND_OF_RAGNAROS, 20s);
                                 break;
                             case EVENT_LAVA_BURST:
                                 DoCastVictim(SPELL_LAVA_BURST);
-                                events.ScheduleEvent(EVENT_LAVA_BURST, 10000);
+                                events.ScheduleEvent(EVENT_LAVA_BURST, 10s);
                                 break;
                             case EVENT_ELEMENTAL_FIRE:
                                 DoCastVictim(SPELL_ELEMENTAL_FIRE);
-                                events.ScheduleEvent(EVENT_ELEMENTAL_FIRE, urand(10000, 14000));
+                                events.ScheduleEvent(EVENT_ELEMENTAL_FIRE, 10s, 14s);
                                 break;
                             case EVENT_MAGMA_BLAST:
                                 if (!me->IsWithinMeleeRange(me->GetVictim()))
@@ -236,7 +239,7 @@ class boss_ragnaros : public CreatureScript
                                         _hasYelledMagmaBurst = true;
                                     }
                                 }
-                                events.ScheduleEvent(EVENT_MAGMA_BLAST, 2500);
+                                events.ScheduleEvent(EVENT_MAGMA_BLAST, 2500ms);
                                 break;
                             case EVENT_SUBMERGE:
                             {
@@ -246,12 +249,12 @@ class boss_ragnaros : public CreatureScript
                                     //is not very well supported in the core //no it really isnt
                                     //so added normaly spawning and banish workaround and attack again after 90 secs.
                                     me->AttackStop();
-                                    DoResetThreat();
+                                    ResetThreatList();
                                     me->SetReactState(REACT_PASSIVE);
                                     me->InterruptNonMeleeSpells(false);
                                     //Root self
                                     //DoCast(me, 23973);
-                                    me->setFaction(35);
+                                    me->SetFaction(FACTION_FRIENDLY);
                                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                     me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_SUBMERGED);
                                     me->HandleEmoteCommand(EMOTE_ONESHOT_SUBMERGE);
@@ -263,7 +266,7 @@ class boss_ragnaros : public CreatureScript
 
                                         // summon 8 elementals
                                         for (uint8 i = 0; i < 8; ++i)
-                                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                                                 if (Creature* summoned = me->SummonCreature(12143, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 900000))
                                                     summoned->AI()->AttackStart(target);
 
@@ -278,7 +281,7 @@ class boss_ragnaros : public CreatureScript
                                         Talk(SAY_REINFORCEMENTS2);
 
                                         for (uint8 i = 0; i < 8; ++i)
-                                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                                                 if (Creature* summoned = me->SummonCreature(12143, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 900000))
                                                     summoned->AI()->AttackStart(target);
 
@@ -287,7 +290,7 @@ class boss_ragnaros : public CreatureScript
                                         _emergeTimer = 90000;
                                     }
                                 }
-                                events.ScheduleEvent(EVENT_SUBMERGE, 180000);
+                                events.ScheduleEvent(EVENT_SUBMERGE, 3min);
                                 break;
                             }
                             default:
@@ -309,7 +312,7 @@ class boss_ragnaros : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_ragnarosAI>(creature);
+            return GetMoltenCoreAI<boss_ragnarosAI>(creature);
         }
 };
 
@@ -344,7 +347,7 @@ class npc_son_of_flame : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_son_of_flameAI>(creature);
+            return GetMoltenCoreAI<npc_son_of_flameAI>(creature);
         }
 };
 

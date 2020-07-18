@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,63 +20,74 @@
 
 #include "CreatureAI.h"
 
-class PassiveAI : public CreatureAI
+class TC_GAME_API PassiveAI : public CreatureAI
 {
     public:
-        explicit PassiveAI(Creature* c);
+        explicit PassiveAI(Creature* creature);
 
         void MoveInLineOfSight(Unit*) override { }
         void AttackStart(Unit*) override { }
         void UpdateAI(uint32) override;
 
-        static int Permissible(const Creature*) { return PERMIT_BASE_IDLE;  }
+        static int32 Permissible(Creature const* /*creature*/) { return PERMIT_BASE_NO; }
 };
 
-class PossessedAI : public CreatureAI
+class TC_GAME_API PossessedAI : public CreatureAI
 {
     public:
-        explicit PossessedAI(Creature* c);
+        explicit PossessedAI(Creature* creature);
 
         void MoveInLineOfSight(Unit*) override { }
         void AttackStart(Unit* target) override;
+        void JustEnteredCombat(Unit* who) override { EngagementStart(who); }
+        void JustExitedCombat() override { EngagementOver(); }
+        void JustStartedThreateningMe(Unit*) override { }
         void UpdateAI(uint32) override;
-        void EnterEvadeMode() override { }
+        void EnterEvadeMode(EvadeReason /*why*/) override { }
 
         void JustDied(Unit*) override;
         void KilledUnit(Unit* victim) override;
 
-        static int Permissible(const Creature*) { return PERMIT_BASE_IDLE;  }
+        static int32 Permissible(Creature const* /*creature*/) { return PERMIT_BASE_NO; }
 };
 
-class NullCreatureAI : public CreatureAI
+class TC_GAME_API NullCreatureAI : public CreatureAI
 {
     public:
-        explicit NullCreatureAI(Creature* c);
+        explicit NullCreatureAI(Creature* creature);
 
         void MoveInLineOfSight(Unit*) override { }
         void AttackStart(Unit*) override { }
+        void JustStartedThreateningMe(Unit*) override { }
+        void JustEnteredCombat(Unit*) override { }
         void UpdateAI(uint32) override { }
-        void EnterEvadeMode() override { }
-        void OnCharmed(bool /*apply*/) override { }
+        void JustAppeared() override { }
+        void EnterEvadeMode(EvadeReason /*why*/) override { }
+        void OnCharmed(bool /*isNew*/) override { }
 
-        static int Permissible(const Creature*) { return PERMIT_BASE_IDLE;  }
+        static int32 Permissible(Creature const* creature);
 };
 
-class CritterAI : public PassiveAI
+class TC_GAME_API CritterAI : public PassiveAI
 {
     public:
-        explicit CritterAI(Creature* c) : PassiveAI(c) { }
+        explicit CritterAI(Creature* creature) : PassiveAI(creature) { }
 
-        void DamageTaken(Unit* done_by, uint32& /*damage*/) override;
-        void EnterEvadeMode() override;
+        void JustEngagedWith(Unit* /*who*/) override;
+        void EnterEvadeMode(EvadeReason why) override;
+
+        void OnMovementGeneratorFinalized(MovementGeneratorType type) override;
+
+        static int32 Permissible(Creature const* creature);
 };
 
-class TriggerAI : public NullCreatureAI
+class TC_GAME_API TriggerAI : public NullCreatureAI
 {
     public:
-        explicit TriggerAI(Creature* c) : NullCreatureAI(c) { }
-        void IsSummonedBy(Unit* summoner) override;
+        explicit TriggerAI(Creature* creature) : NullCreatureAI(creature) { }
+        void IsSummonedBy(WorldObject* summoner) override;
+
+        static int32 Permissible(Creature const* creature);
 };
 
 #endif
-

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,11 +16,15 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "Player.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
+#include "InstanceScript.h"
 #include "nexus.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
 
 enum Spells
 {
@@ -30,7 +34,7 @@ enum Spells
     SPELL_CRYSTAL_CHAINS                          = 50997,
     SPELL_ENRAGE                                  = 8599,
     SPELL_CRYSTALFIRE_BREATH                      = 48096,
-    SPELL_CRYSTALIZE                              = 48179,
+    SPELL_CRYSTALLIZE                             = 48179,
     SPELL_INTENSE_COLD                            = 48094,
     SPELL_INTENSE_COLD_TRIGGERED                  = 48095
 };
@@ -38,7 +42,7 @@ enum Spells
 enum Events
 {
     EVENT_CRYSTAL_FIRE_BREATH                     = 1,
-    EVENT_CRYSTAL_CHAINS_CRYSTALIZE,
+    EVENT_CRYSTAL_CHAINS_CRYSTALLIZE,
     EVENT_TAIL_SWEEP
 };
 
@@ -88,15 +92,15 @@ class boss_keristrasza : public CreatureScript
                 _Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
                 Talk(SAY_AGGRO);
                 DoCastAOE(SPELL_INTENSE_COLD);
-                _EnterCombat();
+                BossAI::JustEngagedWith(who);
 
-                events.ScheduleEvent(EVENT_CRYSTAL_FIRE_BREATH, 14000);
-                events.ScheduleEvent(EVENT_CRYSTAL_CHAINS_CRYSTALIZE, DUNGEON_MODE(30000, 11000));
-                events.ScheduleEvent(EVENT_TAIL_SWEEP, 5000);
+                events.ScheduleEvent(EVENT_CRYSTAL_FIRE_BREATH, 14s);
+                events.ScheduleEvent(EVENT_CRYSTAL_CHAINS_CRYSTALLIZE, DUNGEON_MODE(30s, 11s));
+                events.ScheduleEvent(EVENT_TAIL_SWEEP, 5s);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -113,9 +117,9 @@ class boss_keristrasza : public CreatureScript
 
             bool CheckContainmentSpheres(bool remove_prison = false)
             {
-                ContainmentSphereGUIDs[0] = instance->GetGuidData(ANOMALUS_CONTAINMET_SPHERE);
-                ContainmentSphereGUIDs[1] = instance->GetGuidData(ORMOROKS_CONTAINMET_SPHERE);
-                ContainmentSphereGUIDs[2] = instance->GetGuidData(TELESTRAS_CONTAINMET_SPHERE);
+                ContainmentSphereGUIDs[0] = instance->GetGuidData(ANOMALUS_CONTAINMENT_SPHERE);
+                ContainmentSphereGUIDs[1] = instance->GetGuidData(ORMOROKS_CONTAINMENT_SPHERE);
+                ContainmentSphereGUIDs[2] = instance->GetGuidData(TELESTRAS_CONTAINMENT_SPHERE);
 
                 for (uint8 i = 0; i < DATA_CONTAINMENT_SPHERES; ++i)
                 {
@@ -134,20 +138,20 @@ class boss_keristrasza : public CreatureScript
             {
                 if (remove)
                 {
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                    me->SetImmuneToPC(false);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     if (me->HasAura(SPELL_FROZEN_PRISON))
                         me->RemoveAurasDueToSpell(SPELL_FROZEN_PRISON);
                 }
                 else
                 {
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                    me->SetImmuneToPC(true);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     DoCast(me, SPELL_FROZEN_PRISON, false);
                 }
             }
 
-            void SetGUID(ObjectGuid guid, int32 id/* = 0 */) override
+            void SetGUID(ObjectGuid const& guid, int32 id) override
             {
                 if (id == DATA_INTENSE_COLD)
                     _intenseColdList.push_back(guid);
@@ -180,23 +184,26 @@ class boss_keristrasza : public CreatureScript
                     {
                         case EVENT_CRYSTAL_FIRE_BREATH:
                             DoCastVictim(SPELL_CRYSTALFIRE_BREATH);
-                            events.ScheduleEvent(EVENT_CRYSTAL_FIRE_BREATH, 14000);
+                            events.ScheduleEvent(EVENT_CRYSTAL_FIRE_BREATH, 14s);
                             break;
-                        case EVENT_CRYSTAL_CHAINS_CRYSTALIZE:
+                        case EVENT_CRYSTAL_CHAINS_CRYSTALLIZE:
                             DoCast(me, SPELL_TAIL_SWEEP);
-                            events.ScheduleEvent(EVENT_CRYSTAL_CHAINS_CRYSTALIZE, 5000);
+                            events.ScheduleEvent(EVENT_CRYSTAL_CHAINS_CRYSTALLIZE, 5s);
                             break;
                         case EVENT_TAIL_SWEEP:
                             Talk(SAY_CRYSTAL_NOVA);
                             if (IsHeroic())
-                                DoCast(me, SPELL_CRYSTALIZE);
-                            else if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                                DoCast(me, SPELL_CRYSTALLIZE);
+                            else if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                                 DoCast(target, SPELL_CRYSTAL_CHAINS);
-                            events.ScheduleEvent(EVENT_TAIL_SWEEP, DUNGEON_MODE(30000, 11000));
+                            events.ScheduleEvent(EVENT_TAIL_SWEEP, DUNGEON_MODE(30s, 11s));
                             break;
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -212,7 +219,7 @@ class boss_keristrasza : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_keristraszaAI>(creature);
+            return GetNexusAI<boss_keristraszaAI>(creature);
         }
 };
 
@@ -221,22 +228,31 @@ class containment_sphere : public GameObjectScript
 public:
     containment_sphere() : GameObjectScript("containment_sphere") { }
 
-    bool OnGossipHello(Player* /*player*/, GameObject* go) override
+    struct containment_sphereAI : public GameObjectAI
     {
-        InstanceScript* instance = go->GetInstanceScript();
+        containment_sphereAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
 
-        Creature* pKeristrasza = ObjectAccessor::GetCreature(*go, instance->GetGuidData(DATA_KERISTRASZA));
-        if (pKeristrasza && pKeristrasza->IsAlive())
+        InstanceScript* instance;
+
+        bool GossipHello(Player* /*player*/) override
         {
-            // maybe these are hacks :(
-            go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-            go->SetGoState(GO_STATE_ACTIVE);
+            Creature* keristrasza = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KERISTRASZA));
+            if (keristrasza && keristrasza->IsAlive())
+            {
+                // maybe these are hacks :(
+                me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                me->SetGoState(GO_STATE_ACTIVE);
 
-            ENSURE_AI(boss_keristrasza::boss_keristraszaAI, pKeristrasza->AI())->CheckContainmentSpheres(true);
+                ENSURE_AI(boss_keristrasza::boss_keristraszaAI, keristrasza->AI())->CheckContainmentSpheres(true);
+            }
+            return true;
         }
-        return true;
-    }
+    };
 
+    GameObjectAI* GetAI(GameObject* go) const override
+    {
+        return GetNexusAI<containment_sphereAI>(go);
+    }
 };
 
 class spell_intense_cold : public SpellScriptLoader

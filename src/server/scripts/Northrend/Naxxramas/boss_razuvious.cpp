@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,44 +16,44 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "naxxramas.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
+#include "SpellInfo.h"
 
-//Razuvious - NO TEXT sound only
-//8852 aggro01 - Hah hah, I'm just getting warmed up!
-//8853 aggro02 Stand and fight!
-//8854 aggro03 Show me what you've got!
-//8861 slay1 - You should've stayed home!
-//8863 slay2-
-//8858 cmmnd3 - You disappoint me, students!
-//8855 cmmnd1 - Do as I taught you!
-//8856 cmmnd2 - Show them no mercy!
-//8859 cmmnd4 - The time for practice is over! Show me what you've learned!
-//8861 Sweep the leg! Do you have a problem with that?
-//8860 death - An honorable... death...
-//8947 - Aggro Mixed? - ?
-
-#define SOUND_AGGRO     RAND(8852, 8853, 8854)
-#define SOUND_SLAY      RAND(8861, 8863)
-#define SOUND_COMMND    RAND(8855, 8856, 8858, 8859, 8861)
-#define SOUND_DEATH     8860
-#define SOUND_AGGROMIX  8847
+enum Yells
+{
+    SAY_AGGRO = 0,
+    SAY_SLAY = 1,
+    SAY_TAUNTED = 2,
+    SAY_DEATH = 3
+};
 
 enum Spells
 {
-    SPELL_UNBALANCING_STRIKE   = 26613,
-    SPELL_DISRUPTING_SHOUT     = 29107,
-    SPELL_JAGGED_KNIFE         = 55550,
-    SPELL_HOPELESS             = 29125
+    SPELL_UNBALANCING_STRIKE        = 26613,
+    SPELL_DISRUPTING_SHOUT          = 29107,
+    SPELL_JAGGED_KNIFE              = 55550,
+    SPELL_HOPELESS                  = 29125,
+    SPELL_UNDERSTUDY_TAUNT          = 29060,
+    SPELL_UNDERSTUDY_BLOOD_STRIKE   = 61696,
+    SPELL_FORCE_OBEDIENCE           = 55479
 };
 
 enum Events
 {
-    EVENT_NONE,
+    EVENT_ATTACK = 1,
     EVENT_STRIKE,
     EVENT_SHOUT,
-    EVENT_KNIFE,
-    EVENT_COMMAND,
+    EVENT_KNIFE
+};
+
+enum SummonGroups
+{
+    SUMMON_GROUP_10MAN = 1,
+    SUMMON_GROUP_25MAN = 2
 };
 
 class boss_razuvious : public CreatureScript
@@ -63,43 +63,70 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_razuviousAI(creature);
+        return GetNaxxramasAI<boss_razuviousAI>(creature);
     }
 
     struct boss_razuviousAI : public BossAI
     {
         boss_razuviousAI(Creature* creature) : BossAI(creature, BOSS_RAZUVIOUS) { }
 
-        void KilledUnit(Unit* /*victim*/) override
+        void SummonAdds()
         {
-            if (!(rand32() % 3))
-                DoPlaySoundToSet(me, SOUND_SLAY);
+            me->SummonCreatureGroup(SUMMON_GROUP_10MAN);
+            if (Is25ManRaid())
+                me->SummonCreatureGroup(SUMMON_GROUP_25MAN);
         }
 
-        void DamageTaken(Unit* pDone_by, uint32& uiDamage) override
+        void InitializeAI() override
         {
-            // Damage done by the controlled Death Knight understudies should also count toward damage done by players
-            if (pDone_by->GetTypeId() == TYPEID_UNIT && (pDone_by->GetEntry() == 16803 || pDone_by->GetEntry() == 29941))
+            if (!me->isDead() && instance->GetBossState(BOSS_RAZUVIOUS) != DONE)
             {
-                me->LowerPlayerDamageReq(uiDamage);
+                Reset();
+                SummonAdds();
             }
+        }
+
+        void JustReachedHome() override
+        {
+            _JustReachedHome();
+            SummonAdds();
+            me->GetMotionMaster()->Initialize();
+        }
+
+        void KilledUnit(Unit* victim) override
+        {
+            if (victim->GetTypeId() == TYPEID_PLAYER || (victim->GetTypeId() == TYPEID_UNIT && victim->GetEntry() == NPC_DK_UNDERSTUDY))
+                Talk(SAY_SLAY);
+        }
+
+        void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
+        {
+            if (spellInfo->Id == SPELL_UNDERSTUDY_TAUNT)
+                Talk(SAY_TAUNTED, caster);
         }
 
         void JustDied(Unit* /*killer*/) override
         {
-            _JustDied();
-            DoPlaySoundToSet(me, SOUND_DEATH);
-            me->CastSpell(me, SPELL_HOPELESS, true); /// @todo this may affect other creatures
+            for (ObjectGuid summonGuid : summons)
+                if (Creature* summon = ObjectAccessor::GetCreature(*me, summonGuid))
+                    summon->RemoveCharmAuras();
+            Talk(SAY_DEATH);
+            DoCastAOE(SPELL_HOPELESS, true);
+
+            events.Reset();
+            instance->SetBossState(BOSS_RAZUVIOUS, DONE);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _EnterCombat();
-            DoPlaySoundToSet(me, SOUND_AGGRO);
-            events.ScheduleEvent(EVENT_STRIKE, 30000);
-            events.ScheduleEvent(EVENT_SHOUT, 25000);
-            events.ScheduleEvent(EVENT_COMMAND, 40000);
-            events.ScheduleEvent(EVENT_KNIFE, 10000);
+            BossAI::JustEngagedWith(who);
+            me->StopMoving();
+            summons.DoZoneInCombat();
+            Talk(SAY_AGGRO);
+            events.ScheduleEvent(EVENT_ATTACK, 7s);
+            events.ScheduleEvent(EVENT_STRIKE, 21s);
+            events.ScheduleEvent(EVENT_SHOUT, 16s);
+            events.ScheduleEvent(EVENT_KNIFE, 10s);
         }
 
         void UpdateAI(uint32 diff) override
@@ -113,33 +140,102 @@ public:
             {
                 switch (eventId)
                 {
+                    case EVENT_ATTACK:
+                        SetCombatMovement(true);
+                        if (Unit* victim = me->GetVictim())
+                            me->GetMotionMaster()->MoveChase(victim);
+                        break;
                     case EVENT_STRIKE:
                         DoCastVictim(SPELL_UNBALANCING_STRIKE);
-                        events.ScheduleEvent(EVENT_STRIKE, 30000);
+                        events.Repeat(Seconds(6));
                         return;
                     case EVENT_SHOUT:
                         DoCastAOE(SPELL_DISRUPTING_SHOUT);
-                        events.ScheduleEvent(EVENT_SHOUT, 25000);
+                        events.Repeat(Seconds(16));
                         return;
                     case EVENT_KNIFE:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 45.0f))
                             DoCast(target, SPELL_JAGGED_KNIFE);
-                        events.ScheduleEvent(EVENT_KNIFE, 10000);
-                        return;
-                    case EVENT_COMMAND:
-                        DoPlaySoundToSet(me, SOUND_COMMND);
-                        events.ScheduleEvent(EVENT_COMMAND, 40000);
+                        events.Repeat(randtime(Seconds(10), Seconds(15)));
                         return;
                 }
             }
 
             DoMeleeAttackIfReady();
         }
+
+        void Reset() override
+        {
+            SetCombatMovement(false);
+            _Reset();
+        }
     };
 
+};
+
+class npc_dk_understudy : public CreatureScript
+{
+    public:
+        npc_dk_understudy() : CreatureScript("npc_dk_understudy") { }
+
+        struct npc_dk_understudyAI : public ScriptedAI
+        {
+            npc_dk_understudyAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()), bloodStrikeTimer(0)
+            {
+                creature->LoadEquipment(1);
+            }
+
+            void JustEngagedWith(Unit* /*who*/) override
+            {
+                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
+                if (Creature* razuvious = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_RAZUVIOUS)))
+                    razuvious->AI()->DoZoneInCombat();
+            }
+
+            void JustReachedHome() override
+            {
+                if (_instance->GetBossState(BOSS_RAZUVIOUS) == DONE)
+                    me->DespawnOrUnsummon();
+                else
+                    ScriptedAI::JustReachedHome();
+            }
+
+            void UpdateAI(uint32 diff) override
+            {
+                if (!me->isPossessedByPlayer() && !UpdateVictim())
+                    return;
+
+                if (!me->isPossessedByPlayer())
+                {
+                    if (diff < bloodStrikeTimer)
+                        bloodStrikeTimer -= diff;
+                    else
+                        DoCastVictim(SPELL_UNDERSTUDY_BLOOD_STRIKE);
+                }
+
+                DoMeleeAttackIfReady();
+            }
+
+            void OnCharmed(bool isNew) override
+            {
+                if (me->IsCharmed() && !me->IsEngaged())
+                    JustEngagedWith(nullptr);
+                ScriptedAI::OnCharmed(isNew);
+            }
+        private:
+            InstanceScript* const _instance;
+            ObjectGuid _charmer;
+            uint32 bloodStrikeTimer;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return GetNaxxramasAI<npc_dk_understudyAI>(creature);
+        }
 };
 
 void AddSC_boss_razuvious()
 {
     new boss_razuvious();
+    new npc_dk_understudy();
 }

@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,7 +23,10 @@ SDCategory: Caverns of Time, Old Hillsbrad Foothills
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "old_hillsbrad.h"
 #include "ScriptedEscortAI.h"
 
@@ -37,19 +39,26 @@ class go_barrel_old_hillsbrad : public GameObjectScript
 public:
     go_barrel_old_hillsbrad() : GameObjectScript("go_barrel_old_hillsbrad") { }
 
-    bool OnGossipHello(Player* /*player*/, GameObject* go) override
+    struct go_barrel_old_hillsbradAI : public GameObjectAI
     {
-        if (InstanceScript* instance = go->GetInstanceScript())
+        go_barrel_old_hillsbradAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
+
+        InstanceScript* instance;
+
+        bool GossipHello(Player* /*player*/) override
         {
             if (instance->GetData(TYPE_BARREL_DIVERSION) == DONE)
                 return false;
 
             instance->SetData(TYPE_BARREL_DIVERSION, IN_PROGRESS);
+            return false;
         }
+    };
 
-        return false;
+    GameObjectAI* GetAI(GameObject* go) const override
+    {
+        return GetOldHillsbradAI<go_barrel_old_hillsbradAI>(go);
     }
-
 };
 
 /*######
@@ -71,7 +80,7 @@ enum LieutenantDrake
     SPELL_FRIGHTENING_SHOUT = 33789
 };
 
-G3D::Vector3 const DrakeWP[]=
+Position const DrakeWP[]=
 {
     { 2125.84f, 88.2535f, 54.8830f },
     { 2111.01f, 93.8022f, 52.6356f },
@@ -101,7 +110,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_lieutenant_drakeAI(creature);
+        return GetOldHillsbradAI<boss_lieutenant_drakeAI>(creature);
     }
 
     struct boss_lieutenant_drakeAI : public ScriptedAI
@@ -135,7 +144,7 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
         }
@@ -155,7 +164,7 @@ public:
             /// @todo make this work
             if (CanPatrol && wpId == 0)
             {
-                me->GetMotionMaster()->MovePoint(wpId, DrakeWP[wpId].x, DrakeWP[wpId].y, DrakeWP[wpId].z);
+                me->GetMotionMaster()->MovePoint(wpId, DrakeWP[wpId]);
                 ++wpId;
             }
 

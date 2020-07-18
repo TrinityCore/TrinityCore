@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,15 +18,23 @@
 #ifndef TRINITY_TIMER_H
 #define TRINITY_TIMER_H
 
+#include "Define.h"
 #include <chrono>
+
+inline std::chrono::steady_clock::time_point GetApplicationStartTime()
+{
+    using namespace std::chrono;
+
+    static const steady_clock::time_point ApplicationStartTime = steady_clock::now();
+
+    return ApplicationStartTime;
+}
 
 inline uint32 getMSTime()
 {
     using namespace std::chrono;
 
-    static const system_clock::time_point ApplicationStartTime = system_clock::now();
-
-    return uint32(duration_cast<milliseconds>(system_clock::now() - ApplicationStartTime).count());
+    return uint32(duration_cast<milliseconds>(steady_clock::now() - GetApplicationStartTime()).count());
 }
 
 inline uint32 getMSTimeDiff(uint32 oldMSTime, uint32 newMSTime)
@@ -37,6 +44,14 @@ inline uint32 getMSTimeDiff(uint32 oldMSTime, uint32 newMSTime)
         return (0xFFFFFFFF - oldMSTime) + newMSTime;
     else
         return newMSTime - oldMSTime;
+}
+
+inline uint32 getMSTimeDiff(uint32 oldMSTime, std::chrono::steady_clock::time_point newTime)
+{
+    using namespace std::chrono;
+
+    uint32 newMSTime = uint32(duration_cast<milliseconds>(newTime - GetApplicationStartTime()).count());
+    return getMSTimeDiff(oldMSTime, newMSTime);
 }
 
 inline uint32 GetMSTimeDiffToNow(uint32 oldMSTime)
@@ -135,7 +150,7 @@ struct TimeTrackerSmall
 {
 public:
 
-    TimeTrackerSmall(uint32 expiry = 0)
+    TimeTrackerSmall(int32 expiry = 0)
         : i_expiryTime(expiry)
     {
     }
@@ -150,7 +165,7 @@ public:
         return i_expiryTime <= 0;
     }
 
-    void Reset(uint32 interval)
+    void Reset(int32 interval)
     {
         i_expiryTime = interval;
     }

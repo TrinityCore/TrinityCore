@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -25,6 +24,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "the_underbog.h"
 
 enum Spells
 {
@@ -43,7 +43,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_hungarfenAI(creature);
+        return GetTheUnderbogAI<boss_hungarfenAI>(creature);
     }
 
     struct boss_hungarfenAI : public ScriptedAI
@@ -69,7 +69,7 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
         }
 
@@ -89,7 +89,7 @@ public:
 
             if (Mushroom_Timer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     me->SummonCreature(17990, target->GetPositionX() + (rand32() % 8), target->GetPositionY() + (rand32() % 8), target->GetPositionZ(), float(rand32() % 5), TEMPSUMMON_TIMED_DESPAWN, 22000);
                 else
                     me->SummonCreature(17990, me->GetPositionX() + (rand32() % 8), me->GetPositionY() + (rand32() % 8), me->GetPositionZ(), float(rand32() % 5), TEMPSUMMON_TIMED_DESPAWN, 22000);
@@ -99,7 +99,7 @@ public:
 
             if (AcidGeyser_Timer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     DoCast(target, SPELL_ACID_GEYSER);
                 AcidGeyser_Timer = 10000 + rand32() % 7500;
             } else AcidGeyser_Timer -= diff;
@@ -117,7 +117,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_underbog_mushroomAI(creature);
+        return GetTheUnderbogAI<npc_underbog_mushroomAI>(creature);
     }
 
     struct npc_underbog_mushroomAI : public ScriptedAI
@@ -151,7 +151,7 @@ public:
 
         void AttackStart(Unit* /*who*/) override { }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void UpdateAI(uint32 diff) override
         {

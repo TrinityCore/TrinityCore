@@ -22,8 +22,15 @@
 #include "DetourAlloc.h"
 #include "DetourStatus.h"
 
+// Undefine (or define in a build cofnig) the following line to use 64bit polyref.
+// Generally not needed, useful for very large worlds.
+// Note: tiles build using 32bit refs are not compatible with 64bit refs!
+#define DT_POLYREF64 1
 
-// Edited by TC
+#ifdef DT_POLYREF64
+// TODO: figure out a multiplatform version of uint64_t
+// - maybe: https://code.google.com/p/msinttypes/
+// - or: http://www.azillionmonkeys.com/qed/pstdint.h
 #if defined(WIN32) && !defined(__MINGW32__)
 /// Do not rename back to uint64. Otherwise mac complains about typedef redefinition
 typedef unsigned __int64    uint64_d;
@@ -37,20 +44,29 @@ typedef unsigned __int64    uint64_d;
 /// Do not rename back to uint64. Otherwise mac complains about typedef redefinition
 typedef uint64_t            uint64_d;
 #endif 
+#endif
 
 // Note: If you want to use 64-bit refs, change the types of both dtPolyRef & dtTileRef.
 // It is also recommended that you change dtHashRef() to a proper 64-bit hash.
 
-// Edited by TC
-// We cannot have over 31 bits for either tile nor poly
-// without changing polyCount to use 64bits too.
 /// A handle to a polygon within a navigation mesh tile.
 /// @ingroup detour
-typedef uint64_d dtPolyRef; // Edited by TC
+#ifdef DT_POLYREF64
+static const unsigned int DT_SALT_BITS = 12;
+static const unsigned int DT_TILE_BITS = 21;
+static const unsigned int DT_POLY_BITS = 31;
+typedef uint64_d dtPolyRef;
+#else
+typedef unsigned int dtPolyRef;
+#endif
 
 /// A handle to a tile within a navigation mesh.
 /// @ingroup detour
-typedef uint64_d dtTileRef; // Edited by TC
+#ifdef DT_POLYREF64
+typedef uint64_d dtTileRef;
+#else
+typedef unsigned int dtTileRef;
+#endif
 
 /// The maximum number of vertices per navigation polygon.
 /// @ingroup detour
@@ -90,12 +106,6 @@ static const unsigned int DT_OFFMESH_CON_BIDIR = 1;
 /// @ingroup detour
 static const int DT_MAX_AREAS = 64;
 
-static const int STATIC_SALT_BITS = 12;
-static const int STATIC_TILE_BITS = 21;
-static const int STATIC_POLY_BITS = 31;
-// we cannot have over 31 bits for either tile nor poly
-// without changing polyCount to use 64bits too.
-
 /// Tile flags used for various functions and fields.
 /// For an example, see dtNavMesh::addTile().
 enum dtTileFlags
@@ -120,17 +130,21 @@ enum dtStraightPathOptions
 };
 
 
-/// Options for dtNavMeshQuery::findPath
+/// Options for dtNavMeshQuery::initSlicedFindPath and updateSlicedFindPath
 enum dtFindPathOptions
 {
-	DT_FINDPATH_LOW_QUALITY_FAR = 0x01,		///< [provisional] trade quality for performance far from the origin. The idea is that by then a new query will be issued
-	DT_FINDPATH_ANY_ANGLE	= 0x02,			///< use raycasts during pathfind to "shortcut" (raycast still consider costs)
+	DT_FINDPATH_ANY_ANGLE	= 0x02,		///< use raycasts during pathfind to "shortcut" (raycast still consider costs)
 };
 
 /// Options for dtNavMeshQuery::raycast
 enum dtRaycastOptions
 {
 	DT_RAYCAST_USE_COSTS = 0x01,		///< Raycast should calculate movement cost along the ray and fill RaycastHit::cost
+};
+
+enum dtDetailTriEdgeFlags
+{
+	DT_DETAIL_EDGE_BOUNDARY = 0x01,		///< Detail triangle edge is part of the poly boundary
 };
 
 
@@ -148,7 +162,7 @@ enum dtPolyTypes
 };
 
 
-/// Defines a polyogn within a dtMeshTile object.
+/// Defines a polygon within a dtMeshTile object.
 /// @ingroup detour
 struct dtPoly
 {
@@ -290,7 +304,8 @@ struct dtMeshTile
 	/// The detail mesh's unique vertices. [(x, y, z) * dtMeshHeader::detailVertCount]
 	float* detailVerts;	
 
-	/// The detail mesh's triangles. [(vertA, vertB, vertC) * dtMeshHeader::detailTriCount]
+	/// The detail mesh's triangles. [(vertA, vertB, vertC, triFlags) * dtMeshHeader::detailTriCount].
+	/// See dtDetailTriEdgeFlags and dtGetDetailTriEdgeFlags.
 	unsigned char* detailTris;	
 
 	/// The tile bounding volume nodes. [Size: dtMeshHeader::bvNodeCount]
@@ -303,7 +318,19 @@ struct dtMeshTile
 	int dataSize;							///< Size of the tile data.
 	int flags;								///< Tile flags. (See: #dtTileFlags)
 	dtMeshTile* next;						///< The next free tile, or the next tile in the spatial grid.
+private:
+	dtMeshTile(const dtMeshTile&);
+	dtMeshTile& operator=(const dtMeshTile&);
 };
+
+/// Get flags for edge in detail triangle.
+/// @param	triFlags[in]		The flags for the triangle (last component of detail vertices above).
+/// @param	edgeIndex[in]		The index of the first vertex of the edge. For instance, if 0,
+///								returns flags for edge AB.
+inline int dtGetDetailTriEdgeFlags(unsigned char triFlags, int edgeIndex)
+{
+	return (triFlags >> (edgeIndex * 2)) & 0x3;
+}
 
 /// Configuration parameters used to define multi-tile navigation meshes.
 /// The values are used to allocate space during the initialization of a navigation mesh.
@@ -513,7 +540,11 @@ public:
 	///  @param[in]	ip		The index of the polygon within the tile.
 	inline dtPolyRef encodePolyId(unsigned int salt, unsigned int it, unsigned int ip) const
 	{
+#ifdef DT_POLYREF64
+		return ((dtPolyRef)salt << (DT_POLY_BITS+DT_TILE_BITS)) | ((dtPolyRef)it << DT_POLY_BITS) | (dtPolyRef)ip;
+#else
 		return ((dtPolyRef)salt << (m_polyBits+m_tileBits)) | ((dtPolyRef)it << m_polyBits) | (dtPolyRef)ip;
+#endif
 	}
 	
 	/// Decodes a standard polygon reference.
@@ -525,12 +556,21 @@ public:
 	///  @see #encodePolyId
 	inline void decodePolyId(dtPolyRef ref, unsigned int& salt, unsigned int& it, unsigned int& ip) const
 	{
+#ifdef DT_POLYREF64
+		const dtPolyRef saltMask = ((dtPolyRef)1<<DT_SALT_BITS)-1;
+		const dtPolyRef tileMask = ((dtPolyRef)1<<DT_TILE_BITS)-1;
+		const dtPolyRef polyMask = ((dtPolyRef)1<<DT_POLY_BITS)-1;
+		salt = (unsigned int)((ref >> (DT_POLY_BITS+DT_TILE_BITS)) & saltMask);
+		it = (unsigned int)((ref >> DT_POLY_BITS) & tileMask);
+		ip = (unsigned int)(ref & polyMask);
+#else
 		const dtPolyRef saltMask = ((dtPolyRef)1<<m_saltBits)-1;
 		const dtPolyRef tileMask = ((dtPolyRef)1<<m_tileBits)-1;
 		const dtPolyRef polyMask = ((dtPolyRef)1<<m_polyBits)-1;
 		salt = (unsigned int)((ref >> (m_polyBits+m_tileBits)) & saltMask);
 		it = (unsigned int)((ref >> m_polyBits) & tileMask);
 		ip = (unsigned int)(ref & polyMask);
+#endif
 	}
 
 	/// Extracts a tile's salt value from the specified polygon reference.
@@ -539,8 +579,13 @@ public:
 	///  @see #encodePolyId
 	inline unsigned int decodePolyIdSalt(dtPolyRef ref) const
 	{
+#ifdef DT_POLYREF64
+		const dtPolyRef saltMask = ((dtPolyRef)1<<DT_SALT_BITS)-1;
+		return (unsigned int)((ref >> (DT_POLY_BITS+DT_TILE_BITS)) & saltMask);
+#else
 		const dtPolyRef saltMask = ((dtPolyRef)1<<m_saltBits)-1;
 		return (unsigned int)((ref >> (m_polyBits+m_tileBits)) & saltMask);
+#endif
 	}
 	
 	/// Extracts the tile's index from the specified polygon reference.
@@ -549,8 +594,13 @@ public:
 	///  @see #encodePolyId
 	inline unsigned int decodePolyIdTile(dtPolyRef ref) const
 	{
+#ifdef DT_POLYREF64
+		const dtPolyRef tileMask = ((dtPolyRef)1<<DT_TILE_BITS)-1;
+		return (unsigned int)((ref >> DT_POLY_BITS) & tileMask);
+#else
 		const dtPolyRef tileMask = ((dtPolyRef)1<<m_tileBits)-1;
 		return (unsigned int)((ref >> m_polyBits) & tileMask);
+#endif
 	}
 	
 	/// Extracts the polygon's index (within its tile) from the specified polygon reference.
@@ -559,13 +609,21 @@ public:
 	///  @see #encodePolyId
 	inline unsigned int decodePolyIdPoly(dtPolyRef ref) const
 	{
+#ifdef DT_POLYREF64
+		const dtPolyRef polyMask = ((dtPolyRef)1<<DT_POLY_BITS)-1;
+		return (unsigned int)(ref & polyMask);
+#else
 		const dtPolyRef polyMask = ((dtPolyRef)1<<m_polyBits)-1;
 		return (unsigned int)(ref & polyMask);
+#endif
 	}
 
 	/// @}
 	
 private:
+	// Explicitly disabled copy constructor and copy assignment operator.
+	dtNavMesh(const dtNavMesh&);
+	dtNavMesh& operator=(const dtNavMesh&);
 
 	/// Returns pointer to tile in the tile array.
 	dtMeshTile* getTile(int i);
@@ -594,7 +652,7 @@ private:
 	void connectExtOffMeshLinks(dtMeshTile* tile, dtMeshTile* target, int side);
 	
 	/// Removes external links at specified side.
-	void unconnectExtLinks(dtMeshTile* tile, dtMeshTile* target);
+	void unconnectLinks(dtMeshTile* tile, dtMeshTile* target);
 	
 
 	// TODO: These methods are duplicates from dtNavMeshQuery, but are needed for off-mesh connection finding.
@@ -604,7 +662,9 @@ private:
 							dtPolyRef* polys, const int maxPolys) const;
 	/// Find nearest polygon within a tile.
 	dtPolyRef findNearestPolyInTile(const dtMeshTile* tile, const float* center,
-									const float* extents, float* nearestPt) const;
+									const float* halfExtents, float* nearestPt) const;
+	/// Returns whether position is over the poly and the height at the position if so.
+	bool getPolyHeight(const dtMeshTile* tile, const dtPoly* poly, const float* pos, float* height) const;
 	/// Returns closest point on polygon.
 	void closestPointOnPoly(dtPolyRef ref, const float* pos, float* closest, bool* posOverPoly) const;
 	
@@ -619,9 +679,13 @@ private:
 	dtMeshTile* m_nextFree;				///< Freelist of tiles.
 	dtMeshTile* m_tiles;				///< List of tiles.
 		
+#ifndef DT_POLYREF64
 	unsigned int m_saltBits;			///< Number of salt bits in the tile ID.
 	unsigned int m_tileBits;			///< Number of tile bits in the tile ID.
 	unsigned int m_polyBits;			///< Number of poly bits in the tile ID.
+#endif
+
+	friend class dtNavMeshQuery;
 };
 
 /// Allocates a navigation mesh object using the Detour allocator.

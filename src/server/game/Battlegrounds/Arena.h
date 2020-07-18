@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,6 +20,14 @@
 
 #include "Battleground.h"
 
+enum ArenaBroadcastTexts
+{
+    ARENA_TEXT_START_ONE_MINUTE             = 15740,
+    ARENA_TEXT_START_THIRTY_SECONDS         = 15741,
+    ARENA_TEXT_START_FIFTEEN_SECONDS        = 15739,
+    ARENA_TEXT_START_BATTLE_HAS_BEGUN       = 15742,
+};
+
 enum ArenaSpellIds
 {
     SPELL_ALLIANCE_GOLD_FLAG                = 32724,
@@ -36,7 +44,7 @@ enum ArenaWorldStates
     ARENA_WORLD_STATE_ALIVE_PLAYERS_GOLD    = 3601
 };
 
-class Arena : public Battleground
+class TC_GAME_API Arena : public Battleground
 {
     protected:
         Arena();
@@ -44,7 +52,7 @@ class Arena : public Battleground
         void AddPlayer(Player* player) override;
         void RemovePlayer(Player* /*player*/, ObjectGuid /*guid*/, uint32 /*team*/) override;
 
-        void FillInitialWorldStates(WorldPacket& data) override;
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
         void UpdateArenaWorldState();
 
         void HandleKillPlayer(Player* player, Player* killer) override;

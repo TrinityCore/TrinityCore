@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,8 +20,11 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "halls_of_lightning.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
 #include "SpellInfo.h"
 
 enum Spells
@@ -69,7 +71,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_ionarAI>(creature);
+        return GetHallsOfLightningAI<boss_ionarAI>(creature);
     }
 
     struct boss_ionarAI : public ScriptedAI
@@ -113,7 +115,8 @@ public:
 
             Initialize();
 
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_DISABLE_MOVE);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+            me->SetControlled(false, UNIT_STATE_ROOT);
 
             if (!me->IsVisible())
                 me->SetVisible(true);
@@ -121,7 +124,7 @@ public:
             instance->SetBossState(DATA_IONAR, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
 
@@ -143,16 +146,17 @@ public:
                 Talk(SAY_SLAY);
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
-            if (spell->Id == SPELL_DISPERSE)
+            if (spellInfo->Id == SPELL_DISPERSE)
             {
                 for (uint8 i = 0; i < DATA_MAX_SPARKS; ++i)
                     me->CastSpell(me, SPELL_SUMMON_SPARK, true);
 
                 me->AttackStop();
                 me->SetVisible(false);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_DISABLE_MOVE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                me->SetControlled(true, UNIT_STATE_ROOT);
 
                 me->GetMotionMaster()->Clear();
                 me->GetMotionMaster()->MoveIdle();
@@ -174,7 +178,7 @@ public:
                 {
                     if (pSpark->IsAlive())
                     {
-                        pSpark->SetSpeed(MOVE_RUN, 2.0f);
+                        pSpark->SetSpeedRate(MOVE_RUN, 2.0f);
                         pSpark->GetMotionMaster()->Clear();
                         pSpark->GetMotionMaster()->MovePoint(DATA_POINT_CALLBACK, pos);
                     }
@@ -198,7 +202,7 @@ public:
 
                 summoned->CastSpell(summoned, SPELL_SPARK_VISUAL_TRIGGER, true);
 
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                 {
                     summoned->SetInCombatWith(target);
                     summoned->GetMotionMaster()->Clear();
@@ -236,7 +240,8 @@ public:
                     else if (lSparkList.empty())
                     {
                         me->SetVisible(true);
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_DISABLE_MOVE);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                        me->SetControlled(false, UNIT_STATE_ROOT);
 
                         DoCast(me, SPELL_SPARK_DESPAWN, false);
 
@@ -255,7 +260,7 @@ public:
 
             if (uiStaticOverloadTimer <= uiDiff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     DoCast(target, SPELL_STATIC_OVERLOAD);
 
                 uiStaticOverloadTimer = urand(5*IN_MILLISECONDS, 6*IN_MILLISECONDS);
@@ -355,7 +360,7 @@ public:
                     {
                         Position pos = ionar->GetPosition();
 
-                        me->SetSpeed(MOVE_RUN, 2.0f);
+                        me->SetSpeedRate(MOVE_RUN, 2.0f);
                         me->GetMotionMaster()->Clear();
                         me->GetMotionMaster()->MovePoint(DATA_POINT_CALLBACK, pos);
                     }
@@ -373,7 +378,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_spark_of_ionarAI>(creature);
+        return GetHallsOfLightningAI<npc_spark_of_ionarAI>(creature);
     }
 };
 

@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,10 +18,11 @@
 #include "Common.h"
 #include "AchievementMgr.h"
 #include "CharacterDatabaseCleaner.h"
-#include "World.h"
-#include "Database/DatabaseEnv.h"
-#include "SpellMgr.h"
+#include "DatabaseEnv.h"
 #include "DBCStores.h"
+#include "Log.h"
+#include "SpellMgr.h"
+#include "World.h"
 
 void CharacterDatabaseCleaner::CleanDatabase()
 {
@@ -67,7 +67,7 @@ void CharacterDatabaseCleaner::CleanDatabase()
     TC_LOG_INFO("server.loading", ">> Cleaned character database in %u ms", GetMSTimeDiffToNow(oldMSTime));
 }
 
-void CharacterDatabaseCleaner::CheckUnique(const char* column, const char* table, bool (*check)(uint32))
+void CharacterDatabaseCleaner::CheckUnique(char const* column, char const* table, bool (*check)(uint32))
 {
     QueryResult result = CharacterDatabase.PQuery("SELECT DISTINCT %s FROM %s", column, table);
     if (!result)
@@ -142,7 +142,7 @@ bool CharacterDatabaseCleaner::TalentCheck(uint32 talent_id)
     if (!talentInfo)
         return false;
 
-    return sTalentTabStore.LookupEntry(talentInfo->TalentTab) != nullptr;
+    return sTalentTabStore.LookupEntry(talentInfo->TabID) != nullptr;
 }
 
 void CharacterDatabaseCleaner::CleanCharacterTalent()
@@ -155,4 +155,3 @@ void CharacterDatabaseCleaner::CleanCharacterQuestStatus()
 {
     CharacterDatabase.DirectExecute("DELETE FROM character_queststatus WHERE status = 0");
 }
-

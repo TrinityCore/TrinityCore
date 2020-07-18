@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,10 +18,11 @@
 #include "mpq_libmpq04.h"
 #include <deque>
 #include <cstdio>
+#include <algorithm>
 
 ArchiveSet gOpenArchives;
 
-MPQArchive::MPQArchive(const char* filename)
+MPQArchive::MPQArchive(char const* filename)
 {
     int result = libmpq__archive_open(&mpq_a, filename, -1);
     printf("Opening %s\n", filename);
@@ -52,13 +52,18 @@ MPQArchive::MPQArchive(const char* filename)
     gOpenArchives.push_front(this);
 }
 
+bool MPQArchive::isOpened() const
+{
+    return std::find(gOpenArchives.begin(), gOpenArchives.end(), this) != gOpenArchives.end();
+}
+
 void MPQArchive::close()
 {
     //gOpenArchives.erase(erase(&mpq_a);
     libmpq__archive_close(mpq_a);
 }
 
-MPQFile::MPQFile(const char* filename):
+MPQFile::MPQFile(char const* filename):
     eof(false),
     buffer(0),
     pointer(0),
@@ -123,7 +128,7 @@ void MPQFile::seekRelative(int offset)
 
 void MPQFile::close()
 {
-    if (buffer) delete[] buffer;
+    delete[] buffer;
     buffer = 0;
     eof = true;
 }

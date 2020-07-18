@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -46,15 +45,14 @@ struct GossipText
 
 struct PageTextLocale
 {
-    StringVector Text;
+    std::vector<std::string> Text;
 };
 
 struct NpcTextLocale
 {
     NpcTextLocale() { }
 
-    StringVector Text_0[MAX_GOSSIP_TEXT_OPTIONS];
-    StringVector Text_1[MAX_GOSSIP_TEXT_OPTIONS];
+    std::vector<std::string> Text_0[MAX_GOSSIP_TEXT_OPTIONS];
+    std::vector<std::string> Text_1[MAX_GOSSIP_TEXT_OPTIONS];
 };
 #endif
-

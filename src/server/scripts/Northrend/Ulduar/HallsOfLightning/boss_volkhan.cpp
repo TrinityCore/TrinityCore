@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,10 +23,12 @@ SDCategory: Halls of Lightning
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "halls_of_lightning.h"
-#include "Player.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
 #include "SpellInfo.h"
+#include "SpellMgr.h"
 
 enum Texts
 {
@@ -116,24 +117,24 @@ public:
             DespawnGolem();
             m_lGolemGUIDList.clear();
             events.SetPhase(PHASE_INTRO);
-            events.ScheduleEvent(EVENT_FORGE_CAST, 2 * IN_MILLISECONDS, 0, PHASE_INTRO);
+            events.ScheduleEvent(EVENT_FORGE_CAST, 2s, 0, PHASE_INTRO);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
             Talk(SAY_AGGRO);
             events.SetPhase(PHASE_NORMAL);
-            events.ScheduleEvent(EVENT_PAUSE,            3.5 * IN_MILLISECONDS, 0, PHASE_NORMAL);
-            events.ScheduleEvent(EVENT_SHATTERING_STOMP,   0 * IN_MILLISECONDS, 0, PHASE_NORMAL);
-            events.ScheduleEvent(EVENT_SHATTER,            5 * IN_MILLISECONDS, 0, PHASE_NORMAL);
-            _EnterCombat();
+            events.ScheduleEvent(EVENT_PAUSE, 3500ms, 0, PHASE_NORMAL);
+            events.ScheduleEvent(EVENT_SHATTERING_STOMP, 0s, 0, PHASE_NORMAL);
+            events.ScheduleEvent(EVENT_SHATTER, 5s, 0, PHASE_NORMAL);
+            BossAI::JustEngagedWith(who);
         }
 
         void AttackStart(Unit* who) override
         {
             if (me->Attack(who, true))
             {
-                me->AddThreat(who, 0.0f);
+                AddThreat(who, 0.0f);
                 me->SetInCombatWith(who);
                 who->SetInCombatWith(me);
 
@@ -196,20 +197,23 @@ public:
             {
                 m_lGolemGUIDList.push_back(summoned->GetGUID());
 
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     summoned->GetMotionMaster()->MoveFollow(target, 0.0f, 0.0f);
 
                 // Why healing when just summoned?
-                summoned->CastSpell(summoned, SPELL_HEAT, false, NULL, NULL, me->GetGUID());
+                summoned->CastSpell(summoned, SPELL_HEAT, CastSpellExtraArgs().SetOriginalCaster(me->GetGUID()));
             }
         }
 
-        void JustReachedHome() override
+        void MovementInform(uint32 type, uint32 data) override
         {
-            if (m_uiSummonPhase == 2)
+            if (type == POINT_MOTION_TYPE && data == EVENT_FORGE_CAST)
             {
-                me->SetOrientation(2.29f);
-                m_uiSummonPhase = 3;
+                if (m_uiSummonPhase == 2)
+                {
+                    me->SetOrientation(2.29f);
+                    m_uiSummonPhase = 3;
+                }
             }
         }
 
@@ -245,7 +249,7 @@ public:
 
                             m_bHasTemper = false;
                             m_bIsStriking = false;
-                            events.ScheduleEvent(EVENT_PAUSE, 3.5 * IN_MILLISECONDS, 0, PHASE_NORMAL);
+                            events.ScheduleEvent(EVENT_PAUSE, 3500ms, 0, PHASE_NORMAL);
                         }
                         break;
                     case EVENT_SHATTERING_STOMP:
@@ -257,26 +261,33 @@ public:
                             DoCast(me, SPELL_SHATTERING_STOMP);
 
                             Talk(EMOTE_SHATTER);
-                            events.ScheduleEvent(EVENT_SHATTERING_STOMP, 30 * IN_MILLISECONDS, 0, PHASE_NORMAL);
                             m_bCanShatterGolem = true;
                         }
+                        events.ScheduleEvent(EVENT_SHATTERING_STOMP, 30s, 0, PHASE_NORMAL);
                         break;
                     case EVENT_SHATTER:
                         if (m_bCanShatterGolem)
                         {
                             ShatterGolem();
-                            events.ScheduleEvent(EVENT_SHATTER, 3 * IN_MILLISECONDS, 0, PHASE_NORMAL);
+                            events.ScheduleEvent(EVENT_SHATTER, 3s, 0, PHASE_NORMAL);
                             m_bCanShatterGolem = false;
                         }
                         break;
                     case EVENT_FORGE_CAST:
                         DoCast(me, SPELL_FORGE_VISUAL);
-                        events.ScheduleEvent(EVENT_FORGE_CAST, 15 * IN_MILLISECONDS, 0, PHASE_INTRO);
+                        events.ScheduleEvent(EVENT_FORGE_CAST, 15s, 0, PHASE_INTRO);
                         break;
                     default:
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
+
+            // All the events below happen during the PHASE_NORMAL phase and shouldn't be executed before that
+            if (!events.IsInPhase(PHASE_NORMAL))
+                return;
 
             // Health check
             if (!m_bCanShatterGolem && me->HealthBelowPct(100 - 20 * m_uiHealthAmountModifier))
@@ -298,12 +309,12 @@ public:
                 case 1:
                     // 1 - Start run to Anvil
                     Talk(EMOTE_TO_ANVIL);
-                    me->GetMotionMaster()->MoveTargetedHome();
+                    me->GetMotionMaster()->MovePoint(EVENT_FORGE_CAST, me->GetHomePosition());
                     m_uiSummonPhase = 2;        // Set Next Phase
                     break;
                 case 2:
                     // 2 - Check if reached Anvil
-                    // This is handled in: void JustReachedHome() override
+                    // This is handled in: void MovementInform(uint32, uint32) override
                     break;
                 case 3:
                     // 3 - Cast Temper on the Anvil
@@ -320,7 +331,7 @@ public:
                     // 4 - Wait for delay to expire
                     if (m_uiDelay_Timer <= diff)
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::MaxThreat, 0))
                         {
                             me->SetReactState(REACT_AGGRESSIVE);
                             me->SetInCombatWith(target);
@@ -359,9 +370,8 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_volkhanAI>(creature);
+        return GetHallsOfLightningAI<boss_volkhanAI>(creature);
     }
-
 };
 
 /*######
@@ -375,7 +385,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_molten_golemAI(creature);
+        return GetHallsOfLightningAI<npc_molten_golemAI>(creature);
     }
 
     struct npc_molten_golemAI : public ScriptedAI
@@ -388,8 +398,8 @@ public:
         void Initialize()
         {
             m_bIsFrozen = false;
-            events.ScheduleEvent(EVENT_BLAST,      20 * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_IMMOLATION,  5 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_BLAST, 20s);
+            events.ScheduleEvent(EVENT_IMMOLATION, 5s);
         }
 
         bool m_bIsFrozen;
@@ -403,7 +413,7 @@ public:
         {
             if (me->Attack(who, true))
             {
-                me->AddThreat(who, 0.0f);
+                AddThreat(who, 0.0f);
                 me->SetInCombatWith(who);
                 who->SetInCombatWith(me);
 
@@ -412,29 +422,29 @@ public:
             }
         }
 
-        void DamageTaken(Unit* /*pDoneBy*/, uint32 &uiDamage) override
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
         {
-            if (uiDamage > me->GetHealth())
+            if (damage >= me->GetHealth())
             {
                 me->UpdateEntry(NPC_BRITTLE_GOLEM);
                 me->SetHealth(1);
-                uiDamage = 0;
+                damage = 0;
                 me->RemoveAllAuras();
                 me->AttackStop();
-                // me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);  //Set in DB
-                // me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE); //Set in DB
+                // me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED); // Set in DB
+                // me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE); // Set in DB
                 if (me->IsNonMeleeSpellCast(false))
                     me->InterruptNonMeleeSpells(false);
-                if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == CHASE_MOTION_TYPE)
-                    me->GetMotionMaster()->MovementExpired();
+
+                me->GetMotionMaster()->Clear();
                 m_bIsFrozen = true;
             }
         }
 
-        void SpellHit(Unit* /*pCaster*/, const SpellInfo* pSpell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
             // This is the dummy effect of the spells
-            if (pSpell->Id == sSpellMgr->GetSpellIdForDifficulty(SPELL_SHATTER, me))
+            if (spellInfo->Id == sSpellMgr->GetSpellIdForDifficulty(SPELL_SHATTER, me))
                 if (me->GetEntry() == NPC_BRITTLE_GOLEM)
                     me->DespawnOrUnsummon();
         }
@@ -456,15 +466,18 @@ public:
                 {
                     case EVENT_BLAST:
                         DoCast(me, SPELL_BLAST_WAVE);
-                        events.ScheduleEvent(EVENT_BLAST, 20 * IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_BLAST, 20s);
                         break;
                     case EVENT_IMMOLATION:
                         DoCastVictim(SPELL_IMMOLATION_STRIKE);
-                        events.ScheduleEvent(EVENT_BLAST, 5 * IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_BLAST, 5s);
                         break;
                     default:
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
 
             DoMeleeAttackIfReady();

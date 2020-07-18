@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,8 +16,8 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "blackrock_spire.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -39,7 +38,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_highlordomokkAI(creature);
+        return GetBlackrockSpireAI<boss_highlordomokkAI>(creature);
     }
 
     struct boss_highlordomokkAI : public BossAI
@@ -51,11 +50,11 @@ public:
             _Reset();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _EnterCombat();
-            events.ScheduleEvent(EVENT_FRENZY,      20000);
-            events.ScheduleEvent(EVENT_KNOCK_AWAY,  18000);
+            BossAI::JustEngagedWith(who);
+            events.ScheduleEvent(EVENT_FRENZY, 20s);
+            events.ScheduleEvent(EVENT_KNOCK_AWAY, 18s);
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -79,15 +78,18 @@ public:
                 {
                     case EVENT_FRENZY:
                         DoCastVictim(SPELL_FRENZY);
-                        events.ScheduleEvent(EVENT_FRENZY, 60000);
+                        events.ScheduleEvent(EVENT_FRENZY, 1min);
                         break;
                     case EVENT_KNOCK_AWAY:
                         DoCastVictim(SPELL_KNOCK_AWAY);
-                        events.ScheduleEvent(EVENT_KNOCK_AWAY, 12000);
+                        events.ScheduleEvent(EVENT_KNOCK_AWAY, 12s);
                         break;
                     default:
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
             DoMeleeAttackIfReady();
         }

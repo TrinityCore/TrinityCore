@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,40 +18,27 @@
 #ifndef TRINITYCORE_CHAT_H
 #define TRINITYCORE_CHAT_H
 
+#include "Common.h"
+#include "ChatCommand.h"
+#include "ObjectGuid.h"
 #include "SharedDefines.h"
 #include "StringFormat.h"
-#include "WorldSession.h"
-#include "RBAC.h"
-
+#include <string>
 #include <vector>
 
 class ChatHandler;
 class Creature;
+class GameObject;
 class Group;
 class Player;
 class Unit;
 class WorldSession;
 class WorldObject;
+class WorldPacket;
 
 struct GameTele;
 
-class ChatCommand
-{
-    typedef bool(*pHandler)(ChatHandler*, char const*);
-
-    public:
-        ChatCommand(char const* name, uint32 permission, bool allowConsole, pHandler handler, std::string help, std::vector<ChatCommand> childCommands = std::vector<ChatCommand>())
-            : Name(name), Permission(permission), AllowConsole(allowConsole), Handler(handler), Help(std::move(help)), ChildCommands(std::move(childCommands)) { }
-
-        char const* Name;
-        uint32 Permission;                   // function pointer required correct align (use uint32)
-        bool AllowConsole;
-        pHandler Handler;
-        std::string Help;
-        std::vector<ChatCommand> ChildCommands;
-};
-
-class ChatHandler
+class TC_GAME_API ChatHandler
 {
     public:
         WorldSession* GetSession() { return m_session; }
@@ -67,7 +53,7 @@ class ChatHandler
         // Builds chat packet and returns receiver guid position in the packet to substitute in whisper builders
         static size_t BuildChatPacket(WorldPacket& data, ChatMsg chatType, Language language, WorldObject const* sender, WorldObject const* receiver, std::string const& message, uint32 achievementId = 0, std::string const& channelName = "", LocaleConstant locale = DEFAULT_LOCALE);
 
-        static char* LineFromMessage(char*& pos) { char* start = strtok(pos, "\n"); pos = NULL; return start; }
+        static char* LineFromMessage(char*& pos) { char* start = strtok(pos, "\n"); pos = nullptr; return start; }
 
         // function with different implementation for chat/console
         virtual char const* GetTrinityString(uint32 entry) const;
@@ -76,7 +62,7 @@ class ChatHandler
         void SendSysMessage(uint32 entry);
 
         template<typename... Args>
-        void PSendSysMessage(const char* fmt, Args&&... args)
+        void PSendSysMessage(char const* fmt, Args&&... args)
         {
             SendSysMessage(Trinity::StringFormat(fmt, std::forward<Args>(args)...).c_str());
         }
@@ -93,19 +79,21 @@ class ChatHandler
             return Trinity::StringFormat(GetTrinityString(entry), std::forward<Args>(args)...);
         }
 
-        bool ParseCommands(const char* text);
+        bool _ParseCommands(char const* text);
+        virtual bool ParseCommands(char const* text);
 
         static std::vector<ChatCommand> const& getCommandTable();
+        static void invalidateCommandTable();
 
-        bool isValidChatMessage(const char* msg);
         void SendGlobalSysMessage(const char *str);
 
-        bool hasStringAbbr(const char* name, const char* part);
+        bool hasStringAbbr(char const* name, char const* part);
 
         // function with different implementation for chat/console
         virtual bool isAvailable(ChatCommand const& cmd) const;
-        virtual bool HasPermission(uint32 permission) const { return m_session->HasPermission(permission); }
-        virtual std::string GetNameLink() const { return GetNameLink(m_session->GetPlayer()); }
+        virtual bool IsHumanReadable() const { return true; }
+        virtual bool HasPermission(uint32 permission) const;
+        virtual std::string GetNameLink() const;
         virtual bool needReportToTarget(Player* chr) const;
         virtual LocaleConstant GetSessionDbcLocale() const;
         virtual int GetSessionDbLocaleIndex() const;
@@ -114,54 +102,52 @@ class ChatHandler
         bool HasLowerSecurityAccount(WorldSession* target, uint32 account, bool strong = false);
 
         void SendGlobalGMSysMessage(const char *str);
-        Player*   getSelectedPlayer();
+        Player* getSelectedPlayer();
         Creature* getSelectedCreature();
-        Unit*     getSelectedUnit();
+        Unit* getSelectedUnit();
         WorldObject* getSelectedObject();
         // Returns either the selected player or self if there is no selected player
-        Player*   getSelectedPlayerOrSelf();
+        Player* getSelectedPlayerOrSelf();
 
-        char*     extractKeyFromLink(char* text, char const* linkType, char** something1 = NULL);
-        char*     extractKeyFromLink(char* text, char const* const* linkTypes, int* found_idx, char** something1 = NULL);
+        char* extractKeyFromLink(char* text, char const* linkType, char** something1 = nullptr);
+        char* extractKeyFromLink(char* text, char const* const* linkTypes, int* found_idx, char** something1 = nullptr);
 
-        // if args have single value then it return in arg2 and arg1 == NULL
-        void      extractOptFirstArg(char* args, char** arg1, char** arg2);
-        char*     extractQuotedArg(char* args);
+        // if args have single value then it return in arg2 and arg1 == nullptr
+        void extractOptFirstArg(char* args, char** arg1, char** arg2);
+        char* extractQuotedArg(char* args);
 
-        uint32    extractSpellIdFromLink(char* text);
-        ObjectGuid extractGuidFromLink(char* text);
+        uint32 extractSpellIdFromLink(char* text);
+        ObjectGuid::LowType extractLowGuidFromLink(char* text, HighGuid& guidHigh);
         GameTele const* extractGameTeleFromLink(char* text);
-        bool GetPlayerGroupAndGUIDByName(const char* cname, Player*& player, Group*& group, ObjectGuid& guid, bool offline = false);
+        bool GetPlayerGroupAndGUIDByName(char const* cname, Player*& player, Group*& group, ObjectGuid& guid, bool offline = false);
         std::string extractPlayerNameFromLink(char* text);
         // select by arg (name/link) or in-game selection online/offline player or self if a creature is selected
-        bool extractPlayerTarget(char* args, Player** player, ObjectGuid* player_guid = NULL, std::string* player_name = NULL);
+        bool extractPlayerTarget(char* args, Player** player, ObjectGuid* player_guid = nullptr, std::string* player_name = nullptr);
 
         std::string playerLink(std::string const& name) const { return m_session ? "|cffffffff|Hplayer:"+name+"|h["+name+"]|h|r" : name; }
         std::string GetNameLink(Player* chr) const;
 
         GameObject* GetNearbyGameObject();
-        GameObject* GetObjectGlobalyWithGuidOrNearWithDbGuid(ObjectGuid::LowType lowguid, uint32 entry);
+        GameObject* GetObjectFromPlayerMapByDbGuid(ObjectGuid::LowType lowguid);
+        Creature* GetCreatureFromPlayerMapByDbGuid(ObjectGuid::LowType lowguid);
         bool HasSentErrorMessage() const { return sentErrorMessage; }
         void SetSentErrorMessage(bool val){ sentErrorMessage = val; }
-        static bool LoadCommandTable() { return load_command_table; }
-        static void SetLoadCommandTable(bool val) { load_command_table = val; }
 
-        bool ShowHelpForCommand(std::vector<ChatCommand> const& table, const char* cmd);
+        bool ShowHelpForCommand(std::vector<ChatCommand> const& table, char const* cmd);
     protected:
-        explicit ChatHandler() : m_session(NULL), sentErrorMessage(false) { }     // for CLI subclass
-        static bool SetDataForCommandInTable(std::vector<ChatCommand>& table, const char* text, uint32 permission, std::string const& help, std::string const& fullcommand);
-        bool ExecuteCommandInTable(std::vector<ChatCommand> const& table, const char* text, std::string const& fullcmd);
+        explicit ChatHandler() : m_session(nullptr), sentErrorMessage(false) { }     // for CLI subclass
+        static bool SetDataForCommandInTable(std::vector<ChatCommand>& table, char const* text, uint32 permission, std::string const& help, std::string const& fullcommand);
+        bool ExecuteCommandInTable(std::vector<ChatCommand> const& table, char const* text, std::string const& fullcmd);
         bool ShowHelpForSubCommands(std::vector<ChatCommand> const& table, char const* cmd, char const* subcmd);
 
     private:
-        WorldSession* m_session;                           // != NULL for chat command call and NULL for CLI command
+        WorldSession* m_session;                           // != nullptr for chat command call and nullptr for CLI command
 
         // common global flag
-        static bool load_command_table;
         bool sentErrorMessage;
 };
 
-class CliHandler : public ChatHandler
+class TC_GAME_API CliHandler : public ChatHandler
 {
     public:
         typedef void Print(void*, char const*);
@@ -172,6 +158,7 @@ class CliHandler : public ChatHandler
         bool isAvailable(ChatCommand const& cmd) const override;
         bool HasPermission(uint32 /*permission*/) const override { return true; }
         void SendSysMessage(const char *str, bool escapeCharacters) override;
+        bool ParseCommands(char const* str) override;
         std::string GetNameLink() const override;
         bool needReportToTarget(Player* chr) const override;
         LocaleConstant GetSessionDbcLocale() const override;
@@ -180,6 +167,26 @@ class CliHandler : public ChatHandler
     private:
         void* m_callbackArg;
         Print* m_print;
+};
+
+class TC_GAME_API AddonChannelCommandHandler : public ChatHandler
+{
+    public:
+        using ChatHandler::ChatHandler;
+        bool ParseCommands(char const* str) override;
+        void SendSysMessage(char const* str, bool escapeCharacters) override;
+        using ChatHandler::SendSysMessage;
+        bool IsHumanReadable() const override { return humanReadable; }
+
+    private:
+        void Send(std::string const& msg);
+        void SendAck();
+        void SendOK();
+        void SendFailed();
+
+        char const* echo = nullptr;
+        bool hadAck = false;
+        bool humanReadable = false;
 };
 
 #endif

@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,25 +15,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
-Name: The_Black_Morass
-%Complete: 30
-Comment: Misc NPC's and mobs for instance. Most here far from complete.
-Category: Caverns of Time, The Black Morass
-*/
-
-/* ContentData
-npc_medivh_bm
-npc_time_rift
-npc_saat
-EndContentData */
-
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "Log.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "the_black_morass.h"
-#include "Player.h"
 #include "SpellInfo.h"
+#include "the_black_morass.h"
 
 enum MedivhBm
 {
@@ -70,7 +60,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_medivh_bmAI>(creature);
+        return GetBlackMorassAI<npc_medivh_bmAI>(creature);
     }
 
     struct npc_medivh_bmAI : public ScriptedAI
@@ -107,8 +97,6 @@ public:
                 DoCast(me, SPELL_CHANNEL, true);
             else if (me->HasAura(SPELL_CHANNEL))
                 me->RemoveAura(SPELL_CHANNEL);
-
-            DoCast(me, SPELL_PORTAL_RUNE, true);
         }
 
         void MoveInLineOfSight(Unit* who) override
@@ -150,23 +138,23 @@ public:
             //ScriptedAI::AttackStart(who);
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
             if (SpellCorrupt_Timer)
                 return;
 
-            if (spell->Id == SPELL_CORRUPT_AEONUS)
+            if (spellInfo->Id == SPELL_CORRUPT_AEONUS)
                 SpellCorrupt_Timer = 1000;
 
-            if (spell->Id == SPELL_CORRUPT)
+            if (spellInfo->Id == SPELL_CORRUPT)
                 SpellCorrupt_Timer = 3000;
         }
 
         void JustDied(Unit* killer) override
         {
-            if (killer->GetEntry() == me->GetEntry())
+            if (killer && killer->GetEntry() == me->GetEntry())
                 return;
 
             Talk(SAY_DEATH);
@@ -216,8 +204,7 @@ public:
                     //if we reach this it means event was running but at some point reset.
                     if (instance->GetData(TYPE_MEDIVH) == NOT_STARTED)
                     {
-                        me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                        me->RemoveCorpse();
+                        me->DespawnOrUnsummon();
                         me->Respawn();
                         return;
                     }
@@ -264,7 +251,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_time_riftAI>(creature);
+        return GetBlackMorassAI<npc_time_riftAI>(creature);
     }
 
     struct npc_time_riftAI : public ScriptedAI
@@ -301,7 +288,7 @@ public:
             else mWaveId = 1;
 
         }
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void DoSummonAtRift(uint32 creature_entry)
         {
@@ -322,7 +309,7 @@ public:
 
             if (Unit* Summon = DoSummon(creature_entry, pos, 30000, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT))
                 if (Unit* temp = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_MEDIVH)))
-                    Summon->AddThreat(temp, 0.0f);
+                    AddThreat(temp, 0.0f, Summon);
         }
 
         void DoSelectSummon()
@@ -365,57 +352,8 @@ public:
 
 };
 
-enum Saat
-{
-    SPELL_CHRONO_BEACON     = 34975,
-    ITEM_CHRONO_BEACON      = 24289
-};
-
-#define GOSSIP_ITEM_OBTAIN      "[PH] Obtain Chrono-Beacon"
-
-class npc_saat : public CreatureScript
-{
-public:
-    npc_saat() : CreatureScript("npc_saat") { }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF+1)
-        {
-            player->CLOSE_GOSSIP_MENU();
-            creature->CastSpell(player, SPELL_CHRONO_BEACON, false);
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (player->GetQuestStatus(QUEST_OPENING_PORTAL) == QUEST_STATUS_INCOMPLETE && !player->HasItemCount(ITEM_CHRONO_BEACON))
-        {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_OBTAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-            player->SEND_GOSSIP_MENU(10000, creature->GetGUID());
-            return true;
-        }
-        else if (player->GetQuestRewardStatus(QUEST_OPENING_PORTAL) && !player->HasItemCount(ITEM_CHRONO_BEACON))
-        {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_OBTAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-            player->SEND_GOSSIP_MENU(10001, creature->GetGUID());
-            return true;
-        }
-
-        player->SEND_GOSSIP_MENU(10002, creature->GetGUID());
-        return true;
-    }
-
-};
-
 void AddSC_the_black_morass()
 {
     new npc_medivh_bm();
     new npc_time_rift();
-    new npc_saat();
 }

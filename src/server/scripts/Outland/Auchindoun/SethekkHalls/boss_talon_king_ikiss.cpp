@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -81,15 +81,15 @@ public:
             BossAI::MoveInLineOfSight(who);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _EnterCombat();
+            BossAI::JustEngagedWith(who);
             Talk(SAY_AGGRO);
-            events.ScheduleEvent(EVENT_ARCANE_VOLLEY, 5000);
-            events.ScheduleEvent(EVENT_POLYMORPH, 8000);
-            events.ScheduleEvent(EVENT_BLINK, 35000);
+            events.ScheduleEvent(EVENT_ARCANE_VOLLEY, 5s);
+            events.ScheduleEvent(EVENT_POLYMORPH, 8s);
+            events.ScheduleEvent(EVENT_BLINK, 35s);
             if (IsHeroic())
-                events.ScheduleEvent(EVENT_SLOW, urand(15000, 30000));
+                events.ScheduleEvent(EVENT_SLOW, 15s, 30s);
         }
 
         void ExecuteEvent(uint32 eventId) override
@@ -99,26 +99,26 @@ public:
                 case EVENT_POLYMORPH:
                     // Second top aggro in normal, random target in heroic.
                     if (IsHeroic())
-                        DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_POLYMORPH);
+                        DoCast(SelectTarget(SelectTargetMethod::Random, 0), SPELL_POLYMORPH);
                     else
-                        DoCast(SelectTarget(SELECT_TARGET_TOPAGGRO, 1), SPELL_POLYMORPH);
-                    events.ScheduleEvent(EVENT_POLYMORPH, urand(15000, 17500));
+                        DoCast(SelectTarget(SelectTargetMethod::MaxThreat, 1), SPELL_POLYMORPH);
+                    events.ScheduleEvent(EVENT_POLYMORPH, 15s, 17500ms);
                     break;
                 case EVENT_ARCANE_VOLLEY:
                     DoCast(me, SPELL_ARCANE_VOLLEY);
-                    events.ScheduleEvent(EVENT_ARCANE_VOLLEY, urand(7000, 12000));
+                    events.ScheduleEvent(EVENT_ARCANE_VOLLEY, 7s, 12s);
                     break;
                 case EVENT_SLOW:
                     DoCast(me, SPELL_SLOW);
-                    events.ScheduleEvent(EVENT_SLOW, urand(15000, 40000));
+                    events.ScheduleEvent(EVENT_SLOW, 15s, 40s);
                     break;
                 case EVENT_BLINK:
                     if (me->IsNonMeleeSpellCast(false))
                         me->InterruptNonMeleeSpells(false);
                     Talk(EMOTE_ARCANE_EXPLOSION);
                     DoCastAOE(SPELL_BLINK);
-                    events.ScheduleEvent(EVENT_BLINK, urand(35000, 40000));
-                    events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, 1000);
+                    events.ScheduleEvent(EVENT_BLINK, 35s, 40s);
+                    events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, 1s);
                     break;
                 case EVENT_ARCANE_EXPLOSION:
                     DoCast(me, SPELL_ARCANE_EXPLOSION);
@@ -173,13 +173,14 @@ class spell_talon_king_ikiss_blink : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_BLINK_TELEPORT))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_BLINK_TELEPORT });
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
+                if (targets.empty())
+                    return;
+
                 WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
                 targets.clear();
                 targets.push_back(target);

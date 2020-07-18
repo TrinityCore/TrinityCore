@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,62 +23,18 @@ SDCategory: Dustwallow Marsh
 EndScriptData */
 
 /* ContentData
-npc_lady_jaina_proudmoore
 npc_nat_pagle
-npc_private_hendel
 npc_cassa_crimsonwing - handled by npc_taxi
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedEscortAI.h"
-#include "ScriptedGossip.h"
-#include "SpellScript.h"
+#include "MotionMaster.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
 #include "WorldSession.h"
-
-/*######
-## npc_lady_jaina_proudmoore
-######*/
-
-enum LadyJaina
-{
-    QUEST_JAINAS_AUTOGRAPH = 558,
-    SPELL_JAINAS_AUTOGRAPH = 23122
-};
-
-#define GOSSIP_ITEM_JAINA "I know this is rather silly but i have a young ward who is a bit shy and would like your autograph."
-
-class npc_lady_jaina_proudmoore : public CreatureScript
-{
-public:
-    npc_lady_jaina_proudmoore() : CreatureScript("npc_lady_jaina_proudmoore") { }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_SENDER_INFO)
-        {
-            player->SEND_GOSSIP_MENU(7012, creature->GetGUID());
-            player->CastSpell(player, SPELL_JAINAS_AUTOGRAPH, false);
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (player->GetQuestStatus(QUEST_JAINAS_AUTOGRAPH) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_JAINA, GOSSIP_SENDER_MAIN, GOSSIP_SENDER_INFO);
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-
-        return true;
-    }
-
-};
 
 /*######
 ## npc_nat_pagle
@@ -95,186 +50,42 @@ class npc_nat_pagle : public CreatureScript
 public:
     npc_nat_pagle() : CreatureScript("npc_nat_pagle") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
+    struct npc_nat_pagleAI : public ScriptedAI
     {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_TRADE)
-            player->GetSession()->SendListInventory(creature->GetGUID());
+        npc_nat_pagleAI(Creature* creature) : ScriptedAI(creature) { }
 
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (creature->IsVendor() && player->GetQuestRewardStatus(QUEST_NATS_MEASURING_TAPE))
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
         {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-            player->SEND_GOSSIP_MENU(7640, creature->GetGUID());
-        }
-        else
-            player->SEND_GOSSIP_MENU(7638, creature->GetGUID());
+            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+            ClearGossipMenuFor(player);
+            if (action == GOSSIP_ACTION_TRADE)
+                player->GetSession()->SendListInventory(me->GetGUID());
 
-        return true;
-    }
-
-};
-
-/*######
-## npc_private_hendel
-######*/
-
-enum Hendel
-{
-    SAY_PROGRESS_1_TER          = 0,
-    SAY_PROGRESS_2_HEN          = 1,
-    SAY_PROGRESS_3_TER          = 2,
-    SAY_PROGRESS_4_TER          = 3,
-    EMOTE_SURRENDER             = 4,
-
-    QUEST_MISSING_DIPLO_PT16    = 1324,
-    FACTION_HOSTILE             = 168,                      //guessed, may be different
-
-    NPC_SENTRY                  = 5184,                     //helps hendel
-    NPC_JAINA                   = 4968,                     //appears once hendel gives up
-    NPC_TERVOSH                 = 4967
-};
-
-/// @todo develop this further, end event not created
-class npc_private_hendel : public CreatureScript
-{
-public:
-    npc_private_hendel() : CreatureScript("npc_private_hendel") { }
-
-    bool OnQuestAccept(Player* /*player*/, Creature* creature, const Quest* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_MISSING_DIPLO_PT16)
-            creature->setFaction(FACTION_HOSTILE);
-
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_private_hendelAI(creature);
-    }
-
-    struct npc_private_hendelAI : public ScriptedAI
-    {
-        npc_private_hendelAI(Creature* creature) : ScriptedAI(creature) { }
-
-        void Reset() override
-        {
-            me->RestoreFaction();
+            return true;
         }
 
-        void AttackedBy(Unit* pAttacker) override
+        bool GossipHello(Player* player) override
         {
-            if (me->GetVictim())
-                return;
+            if (me->IsQuestGiver())
+                player->PrepareQuestMenu(me->GetGUID());
 
-            if (me->IsFriendlyTo(pAttacker))
-                return;
-
-            AttackStart(pAttacker);
-        }
-
-        void DamageTaken(Unit* pDoneBy, uint32 &Damage) override
-        {
-            if (Damage > me->GetHealth() || me->HealthBelowPctDamaged(20, Damage))
+            if (me->IsVendor() && player->GetQuestRewardStatus(QUEST_NATS_MEASURING_TAPE))
             {
-                Damage = 0;
-
-                if (Player* player = pDoneBy->GetCharmerOrOwnerPlayerOrPlayerItself())
-                    player->GroupEventHappens(QUEST_MISSING_DIPLO_PT16, me);
-
-                Talk(EMOTE_SURRENDER);
-                EnterEvadeMode();
+                AddGossipItemFor(player, GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+                SendGossipMenuFor(player, 7640, me->GetGUID());
             }
+            else
+                SendGossipMenuFor(player, 7638, me->GetGUID());
+
+            return true;
         }
     };
 
-};
-
-/*######
-## npc_zelfrax
-######*/
-
-Position const MovePosition = {-2967.030f, -3872.1799f, 35.620f, 0.0f};
-
-enum Zelfrax
-{
-    SAY_ZELFRAX1     = 0,
-    SAY_ZELFRAX2     = 1
-};
-
-class npc_zelfrax : public CreatureScript
-{
-public:
-    npc_zelfrax() : CreatureScript("npc_zelfrax") { }
-
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_zelfraxAI(creature);
+        return new npc_nat_pagleAI(creature);
     }
-
-    struct npc_zelfraxAI : public ScriptedAI
-    {
-        npc_zelfraxAI(Creature* creature) : ScriptedAI(creature)
-        {
-            MoveToDock();
-        }
-
-        void AttackStart(Unit* who) override
-        {
-            if (!who)
-                return;
-
-            if (me->Attack(who, true))
-            {
-                me->SetInCombatWith(who);
-                who->SetInCombatWith(me);
-
-                if (IsCombatMovementAllowed())
-                    me->GetMotionMaster()->MoveChase(who);
-            }
-        }
-
-        void MovementInform(uint32 Type, uint32 /*Id*/) override
-        {
-            if (Type != POINT_MOTION_TYPE)
-                return;
-
-            me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-            SetCombatMovement(true);
-
-            if (me->IsInCombat())
-                if (Unit* unit = me->GetVictim())
-                    me->GetMotionMaster()->MoveChase(unit);
-        }
-
-        void MoveToDock()
-        {
-            SetCombatMovement(false);
-            me->GetMotionMaster()->MovePoint(0, MovePosition);
-            Talk(SAY_ZELFRAX1);
-            Talk(SAY_ZELFRAX2);
-        }
-
-        void UpdateAI(uint32 /*Diff*/) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            DoMeleeAttackIfReady();
-        }
-    };
-
 };
-
 
 enum SpellScripts
 {
@@ -295,9 +106,7 @@ class spell_ooze_zap : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_OOZE_ZAP))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_OOZE_ZAP });
             }
 
             SpellCastResult CheckRequirement()
@@ -342,9 +151,7 @@ class spell_ooze_zap_channel_end : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_OOZE_ZAP_CHANNEL_END))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_OOZE_ZAP_CHANNEL_END });
             }
 
             void HandleDummy(SpellEffIndex effIndex)
@@ -352,7 +159,7 @@ class spell_ooze_zap_channel_end : public SpellScriptLoader
                 PreventHitDefaultEffect(effIndex);
                 if (Player* player = GetCaster()->ToPlayer())
                     player->CastSpell(player, SPELL_OOZE_CHANNEL_CREDIT, true);
-                GetHitUnit()->Kill(GetHitUnit());
+                GetHitUnit()->KillSelf();
             }
 
             void Register() override
@@ -378,9 +185,7 @@ class spell_energize_aoe : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ENERGIZED))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_ENERGIZED });
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
@@ -417,10 +222,7 @@ class spell_energize_aoe : public SpellScriptLoader
 
 void AddSC_dustwallow_marsh()
 {
-    new npc_lady_jaina_proudmoore();
     new npc_nat_pagle();
-    new npc_private_hendel();
-    new npc_zelfrax();
     new spell_ooze_zap();
     new spell_ooze_zap_channel_end();
     new spell_energize_aoe();

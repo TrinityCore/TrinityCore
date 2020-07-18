@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,9 +23,12 @@ SDCategory: Utgarde Keep
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
+#include "SpellAuras.h"
 #include "SpellScript.h"
-#include "SpellAuraEffects.h"
 #include "utgarde_keep.h"
 
 enum KelsethEncounter
@@ -85,8 +88,11 @@ class npc_frost_tomb : public CreatureScript
                 _instance = creature->GetInstanceScript();
             }
 
-            void IsSummonedBy(Unit* summoner) override
+            void IsSummonedBy(WorldObject* summonerWO) override
             {
+                Unit* summoner = summonerWO->ToUnit();
+                if (!summoner)
+                    return;
                 DoCast(summoner, SPELL_FROST_TOMB, true);
             }
 
@@ -128,16 +134,16 @@ class boss_keleseth : public CreatureScript
             void Reset() override
             {
                 _Reset();
-                events.ScheduleEvent(EVENT_SHADOWBOLT, urand(2, 3)*IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_FROST_TOMB, urand(14, 19)*IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_SUMMON_SKELETONS, 6*IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_SHADOWBOLT, 2s, 3s);
+                events.ScheduleEvent(EVENT_FROST_TOMB, 14s, 19s);
+                events.ScheduleEvent(EVENT_SUMMON_SKELETONS, 6s);
 
                 Initialize();
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
-                _EnterCombat();
+                BossAI::JustEngagedWith(who);
                 Talk(SAY_START_COMBAT);
 
                 if (!who)
@@ -196,10 +202,10 @@ class boss_keleseth : public CreatureScript
                             break;
                         case EVENT_SHADOWBOLT:
                             DoCastVictim(SPELL_SHADOWBOLT);
-                            events.ScheduleEvent(EVENT_SHADOWBOLT, urand(2, 3) * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_SHADOWBOLT, 2s, 3s);
                             break;
                         case EVENT_FROST_TOMB:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, -SPELL_FROST_TOMB))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true, true, -SPELL_FROST_TOMB))
                             {
                                 Talk(SAY_FROST_TOMB);
                                 Talk(SAY_FROST_TOMB_EMOTE, target);
@@ -208,11 +214,14 @@ class boss_keleseth : public CreatureScript
                                 // checked from sniffs - the player casts the spell
                                 target->CastSpell(target, SPELL_FROST_TOMB_SUMMON, true);
                             }
-                            events.ScheduleEvent(EVENT_FROST_TOMB, urand(14, 19) * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_FROST_TOMB, 14s, 19s);
                             break;
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -247,10 +256,10 @@ class npc_vrykul_skeleton : public CreatureScript
             void Reset() override
             {
                 events.Reset();
-                events.ScheduleEvent(EVENT_DECREPIFY, urand(4, 6) * IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_DECREPIFY, 4s, 6s);
             }
 
-            void DamageTaken(Unit* /*doneBy*/, uint32& damage) override
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
                 if (damage >= me->GetHealth())
                 {
@@ -262,12 +271,12 @@ class npc_vrykul_skeleton : public CreatureScript
                     {
                         // from sniffs
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        me->SetFlag(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_DEAD);
+                        me->SetStandState(UNIT_STAND_STATE_DEAD);
 
                         events.Reset();
-                        events.ScheduleEvent(EVENT_RESURRECT, urand(18, 22) * IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_RESURRECT, 18s, 22s);
 
-                        me->GetMotionMaster()->MovementExpired(false);
+                        me->GetMotionMaster()->Clear();
                         me->GetMotionMaster()->MoveIdle();
                     }
                 }
@@ -288,13 +297,13 @@ class npc_vrykul_skeleton : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_DECREPIFY:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, -SPELL_DECREPIFY))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true, true, -SPELL_DECREPIFY))
                                 DoCast(target, SPELL_DECREPIFY);
-                            events.ScheduleEvent(EVENT_DECREPIFY, urand(1, 5)*IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_DECREPIFY, 1s, 5s);
                             break;
                         case EVENT_RESURRECT:
-                            events.ScheduleEvent(EVENT_FULL_HEAL, 1 * IN_MILLISECONDS);
-                            events.ScheduleEvent(EVENT_SHADOW_FISSURE, 1 * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_FULL_HEAL, 1s);
+                            events.ScheduleEvent(EVENT_SHADOW_FISSURE, 1s);
                             break;
                         case EVENT_FULL_HEAL:
                             DoCast(me, SPELL_FULL_HEAL, true);
@@ -303,13 +312,16 @@ class npc_vrykul_skeleton : public CreatureScript
                             DoCast(me, SPELL_SHADOW_FISSURE, true);
                             DoCastAOE(SPELL_BONE_ARMOR, true);
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            me->RemoveFlag(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_DEAD);
+                            me->SetStandState(UNIT_STAND_STATE_STAND);
                             me->GetMotionMaster()->MoveChase(me->GetVictim());
-                            events.ScheduleEvent(EVENT_DECREPIFY, urand(4, 6) * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_DECREPIFY, 4s, 6s);
                             break;
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
@@ -364,7 +376,7 @@ class achievement_on_the_rocks : public AchievementCriteriaScript
 
         bool OnCheck(Player* /*source*/, Unit* target) override
         {
-            return target && target->IsAIEnabled && target->GetAI()->GetData(DATA_ON_THE_ROCKS);
+            return target && target->GetAI() && target->GetAI()->GetData(DATA_ON_THE_ROCKS);
         }
 };
 

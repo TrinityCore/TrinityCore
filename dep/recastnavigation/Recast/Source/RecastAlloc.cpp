@@ -19,8 +19,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include "RecastAlloc.h"
+#include "RecastAssert.h"
 
-static void *rcAllocDefault(int size, rcAllocHint)
+static void *rcAllocDefault(size_t size, rcAllocHint)
 {
 	return malloc(size);
 }
@@ -41,7 +42,7 @@ void rcAllocSetCustom(rcAllocFunc *allocFunc, rcFreeFunc *freeFunc)
 }
 
 /// @see rcAllocSetCustom
-void* rcAlloc(int size, rcAllocHint hint)
+void* rcAlloc(size_t size, rcAllocHint hint)
 {
 	return sRecastAllocFunc(size, hint);
 }
@@ -57,32 +58,3 @@ void rcFree(void* ptr)
 	if (ptr)
 		sRecastFreeFunc(ptr);
 }
-
-/// @class rcIntArray
-///
-/// While it is possible to pre-allocate a specific array size during 
-/// construction or by using the #resize method, certain methods will 
-/// automatically resize the array as needed.
-///
-/// @warning The array memory is not initialized to zero when the size is 
-/// manually set during construction or when using #resize.
-
-/// @par
-///
-/// Using this method ensures the array is at least large enough to hold
-/// the specified number of elements.  This can improve performance by
-/// avoiding auto-resizing during use.
-void rcIntArray::resize(int n)
-{
-	if (n > m_cap)
-	{
-		if (!m_cap) m_cap = n;
-		while (m_cap < n) m_cap *= 2;
-		int* newData = (int*)rcAlloc(m_cap*sizeof(int), RC_ALLOC_TEMP);
-		if (m_size && newData) memcpy(newData, m_data, m_size*sizeof(int));
-		rcFree(m_data);
-		m_data = newData;
-	}
-	m_size = n;
-}
-

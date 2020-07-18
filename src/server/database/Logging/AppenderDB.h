@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,12 +20,12 @@
 
 #include "Appender.h"
 
-class AppenderDB: public Appender
+class TC_DATABASE_API AppenderDB: public Appender
 {
     public:
         typedef std::integral_constant<AppenderType, APPENDER_DB>::type TypeIndex;
 
-        AppenderDB(uint8 id, std::string const& name, LogLevel level, AppenderFlags flags, ExtraAppenderArgs extraArgs);
+        AppenderDB(uint8 id, std::string const& name, LogLevel level, AppenderFlags flags, std::vector<char const*> extraArgs);
         ~AppenderDB();
 
         void setRealmId(uint32 realmId) override;

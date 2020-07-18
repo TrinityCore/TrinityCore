@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,13 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "WorldSession.h"
+#include "Battlefield.h"
+#include "BattlefieldMgr.h"
+#include "GameTime.h"
+#include "Log.h"
 #include "Opcodes.h"
 #include "Player.h"
 #include "WorldPacket.h"
-#include "WorldSession.h"
-
-#include "Battlefield.h"
-#include "BattlefieldMgr.h"
 
 /**
  * @fn void WorldSession::SendBfInvitePlayerToWar(uint32 battleId, uint32 zoneId, uint32 acceptTime)
@@ -37,7 +38,7 @@ void WorldSession::SendBfInvitePlayerToWar(uint32 battleId, uint32 zoneId, uint3
     WorldPacket data(SMSG_BATTLEFIELD_MGR_ENTRY_INVITE, 12);
     data << uint32(battleId);
     data << uint32(zoneId);
-    data << uint32(time(NULL) + acceptTime);
+    data << uint32(GameTime::GetGameTime() + acceptTime);
     SendPacket(&data);
 }
 
@@ -165,17 +166,17 @@ void WorldSession::HandleBfEntryInviteResponse(WorldPacket& recvData)
 }
 
 /**
- * @fn void WorldSession::HandleBfExitRequest(WorldPacket& recvData)
+ * @fn void WorldSession::HandleBfQueueExitRequest(WorldPacket& recvData)
  *
  * @brief Send by client when exited battlefield
  */
-void WorldSession::HandleBfExitRequest(WorldPacket& recvData)
+void WorldSession::HandleBfQueueExitRequest(WorldPacket& recvData)
 {
     uint32 battleId;
 
     recvData >> battleId;
 
-    TC_LOG_DEBUG("misc", "HandleBfExitRequest: battleId: %u ", battleId);
+    TC_LOG_DEBUG("misc", "HandleBfQueueExitRequest: battleId: %u ", battleId);
 
     Battlefield* bf = sBattlefieldMgr->GetBattlefieldByBattleId(battleId);
     if (!bf)

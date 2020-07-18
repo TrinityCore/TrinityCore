@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,11 +18,14 @@
 #ifndef DEF_THEBLACKMORASS_H
 #define DEF_THEBLACKMORASS_H
 
+#include "CreatureAIImpl.h"
+
+#define TBMScriptName "instance_the_black_morass"
 #define DataHeader "TBM"
 
 uint32 const EncounterCount             = 2;
 
-enum DataTypes
+enum TBMDataTypes
 {
     TYPE_MEDIVH                         = 1,
     TYPE_RIFT                           = 2,
@@ -35,20 +37,20 @@ enum DataTypes
     DATA_SHIELD                         = 12
 };
 
-enum WorldStateIds
+enum TBMWorldStateIds
 {
     WORLD_STATE_BM                      = 2541,
     WORLD_STATE_BM_SHIELD               = 2540,
     WORLD_STATE_BM_RIFT                 = 2784
 };
 
-enum QuestIds
+enum TBMQuestIds
 {
     QUEST_OPENING_PORTAL                = 10297,
     QUEST_MASTER_TOUCH                  = 9836
 };
 
-enum CreatureIds
+enum TBMCreatureIds
 {
     NPC_MEDIVH                          = 15608,
     NPC_TIME_RIFT                       = 17838,
@@ -65,5 +67,10 @@ enum CreatureIds
     NPC_INFINITE_VANQUISHER             = 18995
 };
 
-#endif
+template <class AI, class T>
+inline AI* GetBlackMorassAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, TBMScriptName);
+}
 
+#endif

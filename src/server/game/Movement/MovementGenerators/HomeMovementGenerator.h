@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,27 +20,22 @@
 
 #include "MovementGenerator.h"
 
-class Creature;
-
-template < class T >
-class HomeMovementGenerator;
-
-template <>
-class HomeMovementGenerator<Creature> : public MovementGeneratorMedium< Creature, HomeMovementGenerator<Creature> >
+template <class T>
+class HomeMovementGenerator : public MovementGeneratorMedium< T, HomeMovementGenerator<T> >
 {
     public:
+        explicit HomeMovementGenerator();
 
-        HomeMovementGenerator() : arrived(false) { }
-        ~HomeMovementGenerator() { }
+        MovementGeneratorType GetMovementGeneratorType() const override;
 
-        void DoInitialize(Creature*);
-        void DoFinalize(Creature*);
-        void DoReset(Creature*);
-        bool DoUpdate(Creature*, const uint32);
-        MovementGeneratorType GetMovementGeneratorType() const override { return HOME_MOTION_TYPE; }
+        void DoInitialize(T*);
+        void DoReset(T*);
+        bool DoUpdate(T*, uint32);
+        void DoDeactivate(T*);
+        void DoFinalize(T*, bool, bool);
 
     private:
-        void _setTargetLocation(Creature*);
-        bool arrived;
+        void SetTargetLocation(T*);
 };
+
 #endif

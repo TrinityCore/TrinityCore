@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,12 +16,16 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "Player.h"
-#include "SpellInfo.h"
-#include "SpellAuraEffects.h"
-#include "SpellScript.h"
 #include "forge_of_souls.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 
 /*
  * @todo
@@ -144,25 +148,25 @@ class boss_devourer_of_souls : public CreatureScript
             void Reset() override
             {
                 _Reset();
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                me->SetControlled(false, UNIT_STATE_ROOT);
                 me->SetDisplayId(DISPLAY_ANGER);
                 me->SetReactState(REACT_AGGRESSIVE);
 
                 Initialize();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _EnterCombat();
+                BossAI::JustEngagedWith(who);
                 Talk(SAY_FACE_AGGRO);
 
                 if (!me->FindNearestCreature(NPC_CRUCIBLE_OF_SOULS, 60)) // Prevent double spawn
                     instance->instance->SummonCreature(NPC_CRUCIBLE_OF_SOULS, CrucibleSummonPos);
-                events.ScheduleEvent(EVENT_PHANTOM_BLAST, 5000);
-                events.ScheduleEvent(EVENT_MIRRORED_SOUL, 8000);
-                events.ScheduleEvent(EVENT_WELL_OF_SOULS, 30000);
-                events.ScheduleEvent(EVENT_UNLEASHED_SOULS, 20000);
-                events.ScheduleEvent(EVENT_WAILING_SOULS, urand(60000, 70000));
+                events.ScheduleEvent(EVENT_PHANTOM_BLAST, 5s);
+                events.ScheduleEvent(EVENT_MIRRORED_SOUL, 8s);
+                events.ScheduleEvent(EVENT_WELL_OF_SOULS, 30s);
+                events.ScheduleEvent(EVENT_UNLEASHED_SOULS, 20s);
+                events.ScheduleEvent(EVENT_WAILING_SOULS, 60s, 70s);
             }
 
             void KilledUnit(Unit* victim) override
@@ -206,8 +210,9 @@ class boss_devourer_of_souls : public CreatureScript
 
                 for (int8 i = 0; outroPositions[i].entry[entryIndex] != 0; ++i)
                 {
-                    if (Creature* summon = me->SummonCreature(outroPositions[i].entry[entryIndex], spawnPoint, TEMPSUMMON_DEAD_DESPAWN))
+                    if (TempSummon* summon = instance->instance->SummonCreature(outroPositions[i].entry[entryIndex], spawnPoint))
                     {
+                        summon->SetTempSummonType(TEMPSUMMON_DEAD_DESPAWN);
                         summon->GetMotionMaster()->MovePoint(0, outroPositions[i].movePosition);
                         if (summon->GetEntry() == NPC_JAINA_PART2)
                             summon->AI()->Talk(SAY_JAINA_OUTRO);
@@ -217,9 +222,9 @@ class boss_devourer_of_souls : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* /*target*/, const SpellInfo* spell) override
+            void SpellHitTarget(WorldObject* /*target*/, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == H_SPELL_PHANTOM_BLAST)
+                if (spellInfo->Id == H_SPELL_PHANTOM_BLAST)
                     threeFaced = false;
             }
 
@@ -248,26 +253,26 @@ class boss_devourer_of_souls : public CreatureScript
                     {
                         case EVENT_PHANTOM_BLAST:
                             DoCastVictim(SPELL_PHANTOM_BLAST);
-                            events.ScheduleEvent(EVENT_PHANTOM_BLAST, 5000);
+                            events.ScheduleEvent(EVENT_PHANTOM_BLAST, 5s);
                             break;
                         case EVENT_MIRRORED_SOUL:
                             DoCastAOE(SPELL_MIRRORED_SOUL_TARGET_SELECTOR);
                             Talk(EMOTE_MIRRORED_SOUL);
-                            events.ScheduleEvent(EVENT_MIRRORED_SOUL, urand(15000, 30000));
+                            events.ScheduleEvent(EVENT_MIRRORED_SOUL, 15s, 30s);
                             break;
                         case EVENT_WELL_OF_SOULS:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                                 DoCast(target, SPELL_WELL_OF_SOULS);
-                            events.ScheduleEvent(EVENT_WELL_OF_SOULS, 20000);
+                            events.ScheduleEvent(EVENT_WELL_OF_SOULS, 20s);
                             break;
                         case EVENT_UNLEASHED_SOULS:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                                 DoCast(target, SPELL_UNLEASHED_SOULS);
                             me->SetDisplayId(DISPLAY_SORROW);
                             Talk(SAY_FACE_UNLEASH_SOUL);
                             Talk(EMOTE_UNLEASH_SOUL);
-                            events.ScheduleEvent(EVENT_UNLEASHED_SOULS, 30000);
-                            events.ScheduleEvent(EVENT_FACE_ANGER, 5000);
+                            events.ScheduleEvent(EVENT_UNLEASHED_SOULS, 30s);
+                            events.ScheduleEvent(EVENT_FACE_ANGER, 5s);
                             break;
                         case EVENT_FACE_ANGER:
                             me->SetDisplayId(DISPLAY_ANGER);
@@ -278,7 +283,7 @@ class boss_devourer_of_souls : public CreatureScript
                             Talk(SAY_FACE_WAILING_SOUL);
                             Talk(EMOTE_WAILING_SOUL);
                             DoCast(me, SPELL_WAILING_SOULS_STARTING);
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                             {
                                 me->SetFacingToObject(target);
                                 DoCast(me, SPELL_WAILING_SOULS_BEAM);
@@ -297,32 +302,34 @@ class boss_devourer_of_souls : public CreatureScript
                             me->SetTarget(ObjectGuid::Empty);
 
                             me->GetMotionMaster()->Clear();
-                            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                            me->SetControlled(true, UNIT_STATE_ROOT);
 
                             wailingSoulTick = 15;
-                            events.DelayEvents(18000); // no other events during wailing souls
-                            events.ScheduleEvent(EVENT_WAILING_SOULS_TICK, 3000); // first one after 3 secs.
+                            events.DelayEvents(18s); // no other events during wailing souls
+                            events.ScheduleEvent(EVENT_WAILING_SOULS_TICK, 3s); // first one after 3 secs.
                             break;
 
                         case EVENT_WAILING_SOULS_TICK:
                             beamAngle += beamAngleDiff;
                             me->SetFacingTo(beamAngle);
-                            me->StopMoving();
 
                             DoCast(me, SPELL_WAILING_SOULS);
 
                             if (--wailingSoulTick)
-                                events.ScheduleEvent(EVENT_WAILING_SOULS_TICK, 1000);
+                                events.ScheduleEvent(EVENT_WAILING_SOULS_TICK, 1s);
                             else
                             {
                                 me->SetReactState(REACT_AGGRESSIVE);
                                 me->SetDisplayId(DISPLAY_ANGER);
-                                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                                me->SetControlled(false, UNIT_STATE_ROOT);
                                 me->GetMotionMaster()->MoveChase(me->GetVictim());
-                                events.ScheduleEvent(EVENT_WAILING_SOULS, urand(60000, 70000));
+                                events.ScheduleEvent(EVENT_WAILING_SOULS, 60s, 70s);
                             }
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -339,7 +346,7 @@ class boss_devourer_of_souls : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_devourer_of_soulsAI>(creature, FoSScriptName);
+            return GetForgeOfSoulsAI<boss_devourer_of_soulsAI>(creature);
         }
 };
 
@@ -355,9 +362,7 @@ class spell_devourer_of_souls_mirrored_soul : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MIRRORED_SOUL_PROC_AURA))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_MIRRORED_SOUL_PROC_AURA });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -390,9 +395,7 @@ class spell_devourer_of_souls_mirrored_soul_proc : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MIRRORED_SOUL_DAMAGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_MIRRORED_SOUL_DAMAGE });
             }
 
             bool CheckProc(ProcEventInfo& /*eventInfo*/)
@@ -403,8 +406,13 @@ class spell_devourer_of_souls_mirrored_soul_proc : public SpellScriptLoader
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                int32 damage = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), 45));
-                GetTarget()->CastCustomSpell(SPELL_MIRRORED_SOUL_DAMAGE, SPELLVALUE_BASE_POINT0, damage, GetCaster(), true);
+                DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+                if (!damageInfo || !damageInfo->GetDamage())
+                    return;
+
+                CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+                args.AddSpellBP0(CalculatePct(damageInfo->GetDamage(), 45));
+                GetTarget()->CastSpell(GetCaster(), SPELL_MIRRORED_SOUL_DAMAGE, args);
             }
 
             void Register() override
@@ -432,9 +440,7 @@ class spell_devourer_of_souls_mirrored_soul_target_selector : public SpellScript
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MIRRORED_SOUL_BUFF))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_MIRRORED_SOUL_BUFF });
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,12 +15,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
 #include "ScriptMgr.h"
+#include "icecrown_citadel.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellAuras.h"
-#include "icecrown_citadel.h"
-#include "Player.h"
+#include "SpellMgr.h"
+#include "SpellScript.h"
 
 enum ScriptTexts
 {
@@ -93,11 +97,10 @@ class boss_festergut : public CreatureScript
             void Reset() override
             {
                 _Reset();
-                me->SetReactState(REACT_DEFENSIVE);
-                events.ScheduleEvent(EVENT_BERSERK, 300000);
-                events.ScheduleEvent(EVENT_INHALE_BLIGHT, urand(25000, 30000));
-                events.ScheduleEvent(EVENT_GAS_SPORE, urand(20000, 25000));
-                events.ScheduleEvent(EVENT_GASTRIC_BLOAT, urand(12500, 15000));
+                events.ScheduleEvent(EVENT_BERSERK, 5min);
+                events.ScheduleEvent(EVENT_INHALE_BLIGHT, 25s, 30s);
+                events.ScheduleEvent(EVENT_GAS_SPORE, 20s, 25s);
+                events.ScheduleEvent(EVENT_GASTRIC_BLOAT, 12500ms, 15s);
                 _maxInoculatedStack = 0;
                 _inhaleCounter = 0;
                 me->RemoveAurasDueToSpell(SPELL_BERSERK2);
@@ -112,11 +115,11 @@ class boss_festergut : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (!instance->CheckRequiredBosses(DATA_FESTERGUT, who->ToPlayer()))
                 {
-                    EnterEvadeMode();
+                    EnterEvadeMode(EVADE_REASON_OTHER);
                     instance->DoCastSpellOnPlayers(LIGHT_S_HAMMER_TELEPORT);
                     return;
                 }
@@ -146,9 +149,9 @@ class boss_festergut : public CreatureScript
                 instance->SetBossState(DATA_FESTERGUT, FAIL);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why) override
             {
-                ScriptedAI::EnterEvadeMode();
+                ScriptedAI::EnterEvadeMode(why);
                 if (Creature* professor = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_PROFESSOR_PUTRICIDE)))
                     professor->AI()->EnterEvadeMode();
             }
@@ -159,15 +162,19 @@ class boss_festergut : public CreatureScript
                     Talk(SAY_KILL);
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == PUNGENT_BLIGHT_HELPER)
-                    target->RemoveAurasDueToSpell(INOCULATED_HELPER);
+                Unit* unitTarget = target->ToUnit();
+                if (!unitTarget)
+                    return;
+
+                if (spellInfo->Id == PUNGENT_BLIGHT_HELPER)
+                    unitTarget->RemoveAurasDueToSpell(INOCULATED_HELPER);
             }
 
             void UpdateAI(uint32 diff) override
             {
-                if (!UpdateVictim() || !CheckInRoom())
+                if (!UpdateVictim())
                     return;
 
                 events.Update(diff);
@@ -190,7 +197,7 @@ class boss_festergut : public CreatureScript
                                 _inhaleCounter = 0;
                                 if (Creature* professor = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_PROFESSOR_PUTRICIDE)))
                                     professor->AI()->DoAction(ACTION_FESTERGUT_GAS);
-                                events.RescheduleEvent(EVENT_GAS_SPORE, urand(20000, 25000));
+                                events.RescheduleEvent(EVENT_GAS_SPORE, 20s, 25s);
                             }
                             else
                             {
@@ -198,18 +205,18 @@ class boss_festergut : public CreatureScript
                                 // just cast and dont bother with target, conditions will handle it
                                 ++_inhaleCounter;
                                 if (_inhaleCounter < 3)
-                                    me->CastSpell(me, gaseousBlight[_inhaleCounter], true, NULL, NULL, me->GetGUID());
+                                    me->CastSpell(me, gaseousBlight[_inhaleCounter], me->GetGUID());
                             }
 
-                            events.ScheduleEvent(EVENT_INHALE_BLIGHT, urand(33500, 35000));
+                            events.ScheduleEvent(EVENT_INHALE_BLIGHT, 33500ms, 35s);
                             break;
                         }
                         case EVENT_VILE_GAS:
                         {
                             std::list<Unit*> ranged, melee;
                             uint32 minTargets = RAID_MODE<uint32>(3, 8, 3, 8);
-                            SelectTargetList(ranged, 25, SELECT_TARGET_RANDOM, -5.0f, true);
-                            SelectTargetList(melee, 25, SELECT_TARGET_RANDOM, 5.0f, true);
+                            SelectTargetList(ranged, 25, SelectTargetMethod::Random, 0, -5.0f, true);
+                            SelectTargetList(melee, 25, SelectTargetMethod::Random, 0, 5.0f, true);
                             while (ranged.size() < minTargets)
                             {
                                 if (melee.empty())
@@ -222,24 +229,24 @@ class boss_festergut : public CreatureScript
 
                             if (!ranged.empty())
                             {
-                                Trinity::Containers::RandomResizeList(ranged, RAID_MODE<uint32>(1, 3, 1, 3));
+                                Trinity::Containers::RandomResize(ranged, RAID_MODE<uint32>(1, 3, 1, 3));
                                 for (std::list<Unit*>::iterator itr = ranged.begin(); itr != ranged.end(); ++itr)
                                     DoCast(*itr, SPELL_VILE_GAS);
                             }
 
-                            events.ScheduleEvent(EVENT_VILE_GAS, urand(28000, 35000));
+                            events.ScheduleEvent(EVENT_VILE_GAS, 28s, 35s);
                             break;
                         }
                         case EVENT_GAS_SPORE:
                             Talk(EMOTE_WARN_GAS_SPORE);
                             Talk(EMOTE_GAS_SPORE);
-                            me->CastCustomSpell(SPELL_GAS_SPORE, SPELLVALUE_MAX_TARGETS, RAID_MODE<int32>(2, 3, 2, 3), me);
-                            events.ScheduleEvent(EVENT_GAS_SPORE, urand(40000, 45000));
-                            events.RescheduleEvent(EVENT_VILE_GAS, urand(28000, 35000));
+                            me->CastSpell(me, SPELL_GAS_SPORE, CastSpellExtraArgs().AddSpellMod(SPELLVALUE_MAX_TARGETS, RAID_MODE<int32>(2, 3, 2, 3)));
+                            events.ScheduleEvent(EVENT_GAS_SPORE, 40s, 45s);
+                            events.RescheduleEvent(EVENT_VILE_GAS, 28s, 35s);
                             break;
                         case EVENT_GASTRIC_BLOAT:
                             DoCastVictim(SPELL_GASTRIC_BLOAT);
-                            events.ScheduleEvent(EVENT_GASTRIC_BLOAT, urand(15000, 17500));
+                            events.ScheduleEvent(EVENT_GASTRIC_BLOAT, 15s, 17500ms);
                             break;
                         case EVENT_BERSERK:
                             DoCast(me, SPELL_BERSERK2);
@@ -248,6 +255,9 @@ class boss_festergut : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -304,11 +314,11 @@ class npc_stinky_icc : public CreatureScript
             void Reset() override
             {
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_DECIMATE, urand(20000, 25000));
-                _events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(3000, 7000));
+                _events.ScheduleEvent(EVENT_DECIMATE, 20s, 25s);
+                _events.ScheduleEvent(EVENT_MORTAL_WOUND, 3s, 7s);
             }
 
-            void EnterCombat(Unit* /*target*/) override
+            void JustEngagedWith(Unit* /*target*/) override
             {
                 DoCast(me, SPELL_PLAGUE_STENCH);
             }
@@ -329,11 +339,11 @@ class npc_stinky_icc : public CreatureScript
                     {
                         case EVENT_DECIMATE:
                             DoCastVictim(SPELL_DECIMATE);
-                            _events.ScheduleEvent(EVENT_DECIMATE, urand(20000, 25000));
+                            _events.ScheduleEvent(EVENT_DECIMATE, 20s, 25s);
                             break;
                         case EVENT_MORTAL_WOUND:
                             DoCastVictim(SPELL_MORTAL_WOUND);
-                            _events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(10000, 12500));
+                            _events.ScheduleEvent(EVENT_MORTAL_WOUND, 10s, 12500ms);
                             break;
                         default:
                             break;
@@ -408,9 +418,7 @@ class spell_festergut_gastric_bloat : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_GASTRIC_EXPLOSION))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_GASTRIC_EXPLOSION });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -446,9 +454,7 @@ class spell_festergut_blighted_spores : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_INOCULATED))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_INOCULATED });
             }
 
             void ExtraEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -470,26 +476,16 @@ class spell_festergut_blighted_spores : public SpellScriptLoader
                 if (target->HasAura(SPELL_ORANGE_BLIGHT_RESIDUE))
                     return;
 
-                if (target->GetMap() && !target->GetMap()->Is25ManRaid())
-                {
-                    if (target->GetQuestStatus(QUEST_RESIDUE_RENDEZVOUS_10) != QUEST_STATUS_INCOMPLETE)
-                        return;
+                uint32 questId = target->GetMap()->Is25ManRaid() ? QUEST_RESIDUE_RENDEZVOUS_25 : QUEST_RESIDUE_RENDEZVOUS_10;
+                if (target->GetQuestStatus(questId) != QUEST_STATUS_INCOMPLETE)
+                    return;
 
-                    target->CastSpell(target, SPELL_ORANGE_BLIGHT_RESIDUE, TRIGGERED_FULL_MASK);
-                }
-
-                if (target->GetMap() && target->GetMap()->Is25ManRaid())
-                {
-                    if (target->GetQuestStatus(QUEST_RESIDUE_RENDEZVOUS_25) != QUEST_STATUS_INCOMPLETE)
-                        return;
-
-                    target->CastSpell(target, SPELL_ORANGE_BLIGHT_RESIDUE, TRIGGERED_FULL_MASK);
-                }
+                target->CastSpell(target, SPELL_ORANGE_BLIGHT_RESIDUE, TRIGGERED_FULL_MASK);
             }
 
             void Register() override
             {
-                OnEffectRemove += AuraEffectApplyFn(spell_festergut_blighted_spores_AuraScript::ExtraEffect, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                OnEffectRemove += AuraEffectRemoveFn(spell_festergut_blighted_spores_AuraScript::ExtraEffect, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
             }
         };
 

@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,9 +18,14 @@
 #ifndef DEF_MOLTEN_CORE_H
 #define DEF_MOLTEN_CORE_H
 
+#include "CreatureAIImpl.h"
+
+struct Position;
+
+#define MCScriptName "instance_molten_core"
 #define DataHeader "MC"
 
-enum Encounters
+enum MCEncounters
 {
     BOSS_LUCIFRON                   = 0,
     BOSS_MAGMADAR                   = 1,
@@ -36,16 +40,16 @@ enum Encounters
     MAX_ENCOUNTER,
 };
 
-enum Actions
+enum MCActions
 {
     ACTION_START_RAGNAROS       = 0,
     ACTION_START_RAGNAROS_ALT   = 1,
 };
 
-Position const RagnarosTelePos   = {829.159f, -815.773f, -228.972f, 5.30500f};
-Position const RagnarosSummonPos = {838.510f, -829.840f, -232.000f, 2.00000f};
+extern Position const RagnarosTelePos;
+extern Position const RagnarosSummonPos;
 
-enum Creatures
+enum MCCreatures
 {
     NPC_LUCIFRON                    = 12118,
     NPC_MAGMADAR                    = 11982,
@@ -61,14 +65,22 @@ enum Creatures
     NPC_FLAMEWAKER_ELITE            = 11664,
 };
 
-enum GameObjects
+enum MCGameObjects
 {
     GO_CACHE_OF_THE_FIRELORD        = 179703,
 };
 
-enum Data
+enum MCData
 {
     DATA_RAGNAROS_ADDS  = 0,
 };
+
+template <class AI, class T>
+inline AI* GetMoltenCoreAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, MCScriptName);
+}
+
+#define RegisterMoltenCoreCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetMoltenCoreAI)
 
 #endif

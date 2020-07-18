@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,19 +15,27 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Cell.h"
-#include "CellImpl.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
-#include "InstanceScript.h"
-#include "Player.h"
-#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "blackrock_spire.h"
+#include "CellImpl.h"
+#include "GridNotifiersImpl.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
 
 //uint32 const DragonspireRunes[7] = { GO_HALL_RUNE_1, GO_HALL_RUNE_2, GO_HALL_RUNE_3, GO_HALL_RUNE_4, GO_HALL_RUNE_5, GO_HALL_RUNE_6, GO_HALL_RUNE_7 };
 
 uint32 const DragonspireMobs[3] = { NPC_BLACKHAND_DREADWEAVER, NPC_BLACKHAND_SUMMONER, NPC_BLACKHAND_VETERAN };
+
+DoorData const doorData[] =
+{
+    { GO_DOORS,                 DATA_PYROGAURD_EMBERSEER,   DOOR_TYPE_ROOM },
+    { GO_EMBERSEER_OUT,         DATA_PYROGAURD_EMBERSEER,   DOOR_TYPE_PASSAGE },
+    { GO_DRAKKISATH_DOOR_1,     DATA_GENERAL_DRAKKISATH,    DOOR_TYPE_PASSAGE },
+    { GO_DRAKKISATH_DOOR_2,     DATA_GENERAL_DRAKKISATH,    DOOR_TYPE_PASSAGE },
+    { 0,                        0,                          DOOR_TYPE_ROOM }
+};
 
 enum EventIds
 {
@@ -52,6 +60,7 @@ public:
         {
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
+            LoadDoorData(doorData);
         }
 
         void OnCreatureCreate(Creature* creature) override
@@ -88,12 +97,12 @@ public:
                 case NPC_PYROGAURD_EMBERSEER:
                     PyroguardEmberseer = creature->GetGUID();
                     if (GetBossState(DATA_PYROGAURD_EMBERSEER) == DONE)
-                        creature->DisappearAndDie();
+                        creature->DespawnOrUnsummon(0, 24h * 7);
                     break;
                 case NPC_WARCHIEF_REND_BLACKHAND:
                     WarchiefRendBlackhand = creature->GetGUID();
                     if (GetBossState(DATA_GYTH) == DONE)
-                        creature->DisappearAndDie();
+                        creature->DespawnOrUnsummon(0, 24h * 7);
                     break;
                 case NPC_GYTH:
                     Gyth = creature->GetGUID();
@@ -107,17 +116,28 @@ public:
                 case NPC_LORD_VICTOR_NEFARIUS:
                     LordVictorNefarius = creature->GetGUID();
                     if (GetBossState(DATA_GYTH) == DONE)
-                        creature->DisappearAndDie();
+                        creature->DespawnOrUnsummon(0, 24h * 7);
+                    break;
+                case NPC_SCARSHIELD_INFILTRATOR:
+                    ScarshieldInfiltrator = creature->GetGUID();
+                    break;
+                case NPC_FINKLE_EINHORN:
+                    creature->AI()->Talk(SAY_FINKLE_GANG);
+                    break;
+                case NPC_BLACKHAND_INCARCERATOR:
+                    _incarceratorList.push_back(creature->GetGUID());
                     break;
              }
          }
 
         void OnGameObjectCreate(GameObject* go) override
         {
+            InstanceScript::OnGameObjectCreate(go);
+
             switch (go->GetEntry())
             {
                 case GO_WHELP_SPAWNER:
-                    go->CastSpell(NULL, SPELL_SUMMON_ROOKERY_WHELP);
+                    go->CastSpell(nullptr, SPELL_SUMMON_ROOKERY_WHELP);
                     break;
                 case GO_EMBERSEER_IN:
                     go_emberseerin = go->GetGUID();
@@ -279,8 +299,13 @@ public:
                     if (data == AREATRIGGER_DRAGONSPIRE_HALL)
                     {
                         if (GetBossState(DATA_DRAGONSPIRE_ROOM) != DONE)
-                            Events.ScheduleEvent(EVENT_DARGONSPIRE_ROOM_STORE, 1000);
+                            Events.ScheduleEvent(EVENT_DARGONSPIRE_ROOM_STORE, 1s);
                     }
+                    break;
+                case DATA_BLACKHAND_INCARCERATOR:
+                    for (GuidList::const_iterator itr = _incarceratorList.begin(); itr != _incarceratorList.end(); ++itr)
+                        if (Creature* creature = instance->GetCreature(*itr))
+                            creature->Respawn();
                 default:
                     break;
             }
@@ -318,6 +343,8 @@ public:
                     return TheBeast;
                 case DATA_GENERAL_DRAKKISATH:
                     return GeneralDrakkisath;
+                case DATA_SCARSHIELD_INFILTRATOR:
+                    return ScarshieldInfiltrator;
                 case GO_EMBERSEER_IN:
                     return go_emberseerin;
                 case GO_DOORS:
@@ -372,12 +399,12 @@ public:
                 {
                     case EVENT_DARGONSPIRE_ROOM_STORE:
                         Dragonspireroomstore();
-                        Events.ScheduleEvent(EVENT_DARGONSPIRE_ROOM_CHECK, 3000);
+                        Events.ScheduleEvent(EVENT_DARGONSPIRE_ROOM_CHECK, 3s);
                         break;
                     case EVENT_DARGONSPIRE_ROOM_CHECK:
                         Dragonspireroomcheck();
                         if ((GetBossState(DATA_DRAGONSPIRE_ROOM) != DONE))
-                            Events.ScheduleEvent(EVENT_DARGONSPIRE_ROOM_CHECK, 3000);
+                            Events.ScheduleEvent(EVENT_DARGONSPIRE_ROOM_CHECK, 3s);
                         break;
                     default:
                          break;
@@ -414,8 +441,8 @@ public:
 
         void Dragonspireroomcheck()
         {
-            Creature* mob = NULL;
-            GameObject* rune = NULL;
+            Creature* mob = nullptr;
+            GameObject* rune = nullptr;
 
             for (uint8 i = 0; i < 7; ++i)
             {
@@ -496,6 +523,7 @@ public:
             ObjectGuid LordVictorNefarius;
             ObjectGuid TheBeast;
             ObjectGuid GeneralDrakkisath;
+            ObjectGuid ScarshieldInfiltrator;
             ObjectGuid go_emberseerin;
             ObjectGuid go_doors;
             ObjectGuid go_emberseerout;
@@ -505,6 +533,7 @@ public:
             ObjectGuid runecreaturelist[7][5];
             ObjectGuid go_portcullis_active;
             ObjectGuid go_portcullis_tobossrooms;
+            GuidList _incarceratorList;
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
@@ -522,7 +551,7 @@ class at_dragonspire_hall : public AreaTriggerScript
 public:
     at_dragonspire_hall() : AreaTriggerScript("at_dragonspire_hall") { }
 
-    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/) override
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*at*/) override
     {
         if (player && player->IsAlive())
         {
@@ -546,7 +575,7 @@ class at_blackrock_stadium : public AreaTriggerScript
 public:
     at_blackrock_stadium() : AreaTriggerScript("at_blackrock_stadium") { }
 
-    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/) override
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*at*/) override
     {
         if (player && player->IsAlive())
         {
@@ -565,9 +594,37 @@ public:
     }
 };
 
+class at_nearby_scarshield_infiltrator : public AreaTriggerScript
+{
+public:
+    at_nearby_scarshield_infiltrator() : AreaTriggerScript("at_nearby_scarshield_infiltrator") { }
+
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*at*/) override
+    {
+        if (player->IsAlive())
+        {
+            if (InstanceScript* instance = player->GetInstanceScript())
+            {
+                if (Creature* infiltrator = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_SCARSHIELD_INFILTRATOR)))
+                {
+                    if (player->GetLevel() >= 57)
+                        infiltrator->AI()->SetData(1, 1);
+                    else if (infiltrator->GetEntry() == NPC_SCARSHIELD_INFILTRATOR)
+                        infiltrator->AI()->Talk(0, player);
+
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+};
+
 void AddSC_instance_blackrock_spire()
 {
     new instance_blackrock_spire();
     new at_dragonspire_hall();
     new at_blackrock_stadium();
+    new at_nearby_scarshield_infiltrator();
 }

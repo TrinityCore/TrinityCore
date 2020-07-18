@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+# This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -8,22 +8,49 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-SET(zlib_STAT_SRCS
-  adler32.c                                                                                                                                           
-  compress.c                                                                                                                                          
-  crc32.c                                                                                                                                             
-  deflate.c                                                                                                                                           
-  infback.c                                                                                                                                           
-  inffast.c                                                                                                                                           
-  inflate.c                                                                                                                                           
-  inftrees.c                                                                                                                                          
-  trees.c                                                                                                                                             
-  uncompr.c                                                                                                                                           
-  zutil.c   
-)
+if(UNIX)
+  # Look for an installed zlib on unix
+  find_package(ZLIB REQUIRED)
 
-include_directories(
-  ${CMAKE_CURRENT_SOURCE_DIR}
-)
+  add_library(zlib SHARED IMPORTED GLOBAL)
 
-add_library(zlib STATIC ${zlib_STAT_SRCS})
+  set_target_properties(zlib
+    PROPERTIES
+      IMPORTED_LOCATION
+        "${ZLIB_LIBRARIES}"
+      INTERFACE_INCLUDE_DIRECTORIES
+        "${ZLIB_INCLUDE_DIRS}")
+else()
+  # Use the bundled source on windows
+  SET(zlib_STAT_SRCS
+    adler32.c
+    compress.c
+    crc32.c
+    deflate.c
+    infback.c
+    inffast.c
+    inflate.c
+    inftrees.c
+    trees.c
+    uncompr.c
+    zutil.c
+  )
+
+  add_library(zlib STATIC
+    ${zlib_STAT_SRCS})
+
+  set_target_properties(zlib PROPERTIES LINKER_LANGUAGE CXX)
+
+  target_include_directories(zlib
+    PUBLIC
+      ${CMAKE_CURRENT_SOURCE_DIR})
+
+  target_link_libraries(zlib
+    PRIVATE
+      trinity-dependency-interface)
+
+  set_target_properties(zlib
+      PROPERTIES
+        FOLDER
+          "dep")
+endif()

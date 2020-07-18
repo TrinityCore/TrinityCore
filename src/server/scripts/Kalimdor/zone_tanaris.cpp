@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,147 +18,24 @@
 /* ScriptData
 SDName: Tanaris
 SD%Complete: 80
-SDComment: Quest support: 648, 1560, 2954, 4005, 10277, 10279(Special flight path).
+SDComment: Quest support: 648, 1560, 4005, 10277
 SDCategory: Tanaris
 EndScriptData */
 
 /* ContentData
-npc_aquementas
 npc_custodian_of_time
-npc_steward_of_time
-npc_stone_watcher_of_norgannon
 npc_OOX17
 npc_tooga
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedFollowerAI.h"
-#include "Player.h"
+#include "ScriptedGossip.h"
 #include "WorldSession.h"
-
-/*######
-## npc_aquementas
-######*/
-
-enum Aquementas
-{
-    AGGRO_YELL_AQUE     = 0,
-
-    SPELL_AQUA_JET      = 13586,
-    SPELL_FROST_SHOCK   = 15089,
-
-    ITEM_BOOK_OF_AQUOR  = 11169,
-    ITEM_SILVERY_CLAWS  = 11172,
-    ITEM_IRONTREE_HEART = 11173,
-    ITEM_SILVER_TOTEM   = 11522
-};
-
-class npc_aquementas : public CreatureScript
-{
-public:
-    npc_aquementas() : CreatureScript("npc_aquementas") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_aquementasAI(creature);
-    }
-
-    struct npc_aquementasAI : public ScriptedAI
-    {
-        npc_aquementasAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-        }
-
-        void Initialize()
-        {
-            SendItemTimer = 0;
-            SwitchFactionTimer = 10000;
-
-            isFriendly = true;
-
-            AquaJetTimer = 5000;
-            FrostShockTimer = 1000;
-        }
-
-        uint32 SendItemTimer;
-        uint32 SwitchFactionTimer;
-        bool isFriendly;
-
-        uint32 FrostShockTimer;
-        uint32 AquaJetTimer;
-
-        void Reset() override
-        {
-            Initialize();
-            me->setFaction(35);
-        }
-
-        void SendItem(Unit* receiver)
-        {
-            Player* player = receiver->ToPlayer();
-
-            if (player && player->HasItemCount(ITEM_BOOK_OF_AQUOR, 1, false) &&
-                player->HasItemCount(ITEM_SILVERY_CLAWS, 11, false) &&
-                player->HasItemCount(ITEM_IRONTREE_HEART, 1, false) &&
-                !player->HasItemCount(ITEM_SILVER_TOTEM, 1, true))
-            {
-                ItemPosCountVec dest;
-                uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 11522, 1, NULL);
-                if (msg == EQUIP_ERR_OK)
-                    player->StoreNewItem(dest, ITEM_SILVER_TOTEM, true);
-            }
-        }
-
-        void EnterCombat(Unit* who) override
-        {
-            Talk(AGGRO_YELL_AQUE, who);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (isFriendly)
-            {
-                if (SwitchFactionTimer <= diff)
-                {
-                    me->setFaction(91);
-                    isFriendly = false;
-                } else SwitchFactionTimer -= diff;
-            }
-
-            if (!UpdateVictim())
-                return;
-
-            if (!isFriendly)
-            {
-                if (SendItemTimer <= diff)
-                {
-                    if (me->GetVictim() && me->EnsureVictim()->GetTypeId() == TYPEID_PLAYER)
-                        SendItem(me->GetVictim());
-                    SendItemTimer = 5000;
-                } else SendItemTimer -= diff;
-            }
-
-            if (FrostShockTimer <= diff)
-            {
-                DoCastVictim(SPELL_FROST_SHOCK);
-                FrostShockTimer = 15000;
-            } else FrostShockTimer -= diff;
-
-            if (AquaJetTimer <= diff)
-            {
-                DoCast(me, SPELL_AQUA_JET);
-                AquaJetTimer = 15000;
-            } else AquaJetTimer -= diff;
-
-            DoMeleeAttackIfReady();
-        }
-    };
-
-};
 
 /*######
 ## npc_custodian_of_time
@@ -196,11 +72,11 @@ public:
         return new npc_custodian_of_timeAI(creature);
     }
 
-    struct npc_custodian_of_timeAI : public npc_escortAI
+    struct npc_custodian_of_timeAI : public EscortAI
     {
-        npc_custodian_of_timeAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_custodian_of_timeAI(Creature* creature) : EscortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             if (Player* player = GetPlayerForEscort())
             {
@@ -286,124 +162,14 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
         void Reset() override { }
 
         void UpdateAI(uint32 diff) override
         {
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
         }
     };
-
-};
-
-/*######
-## npc_steward_of_time
-######*/
-
-#define GOSSIP_ITEM_FLIGHT  "Please take me to the master's lair."
-
-class npc_steward_of_time : public CreatureScript
-{
-public:
-    npc_steward_of_time() : CreatureScript("npc_steward_of_time") { }
-
-    bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const* quest) override
-    {
-        if (quest->GetQuestId() == 10279)                      //Quest: To The Master's Lair
-            player->CastSpell(player, 34891, true);               //(Flight through Caverns)
-
-        return false;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF + 1)
-            player->CastSpell(player, 34891, true);               //(Flight through Caverns)
-
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (player->GetQuestStatus(10279) == QUEST_STATUS_INCOMPLETE || player->GetQuestRewardStatus(10279))
-        {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_FLIGHT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            player->SEND_GOSSIP_MENU(9978, creature->GetGUID());
-        }
-        else
-            player->SEND_GOSSIP_MENU(9977, creature->GetGUID());
-
-        return true;
-    }
-
-};
-
-/*######
-## npc_stone_watcher_of_norgannon
-######*/
-
-#define GOSSIP_ITEM_NORGANNON_1     "What function do you serve?"
-#define GOSSIP_ITEM_NORGANNON_2     "What are the Plates of Uldum?"
-#define GOSSIP_ITEM_NORGANNON_3     "Where are the Plates of Uldum?"
-#define GOSSIP_ITEM_NORGANNON_4     "Excuse me? We've been \"reschedueled for visitations\"? What does that mean?!"
-#define GOSSIP_ITEM_NORGANNON_5     "So, what's inside Uldum?"
-#define GOSSIP_ITEM_NORGANNON_6     "I will return when i have the Plates of Uldum."
-
-class npc_stone_watcher_of_norgannon : public CreatureScript
-{
-public:
-    npc_stone_watcher_of_norgannon() : CreatureScript("npc_stone_watcher_of_norgannon") { }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        switch (action)
-        {
-            case GOSSIP_ACTION_INFO_DEF:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_NORGANNON_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-                player->SEND_GOSSIP_MENU(1675, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+1:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_NORGANNON_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-                player->SEND_GOSSIP_MENU(1676, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+2:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_NORGANNON_4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
-                player->SEND_GOSSIP_MENU(1677, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+3:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_NORGANNON_5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
-                player->SEND_GOSSIP_MENU(1678, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+4:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_NORGANNON_6, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
-                player->SEND_GOSSIP_MENU(1679, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+5:
-                player->CLOSE_GOSSIP_MENU();
-                player->AreaExploredOrEventHappens(2954);
-                break;
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (player->GetQuestStatus(2954) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_NORGANNON_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-
-        player->SEND_GOSSIP_MENU(1674, creature->GetGUID());
-
-        return true;
-    }
 
 };
 
@@ -430,32 +196,11 @@ class npc_OOX17 : public CreatureScript
 public:
     npc_OOX17() : CreatureScript("npc_OOX17") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
+    struct npc_OOX17AI : public EscortAI
     {
-        if (quest->GetQuestId() == Q_OOX17)
-        {
-            creature->setFaction(113);
-            creature->SetFullHealth();
-            creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
-            creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-            creature->AI()->Talk(SAY_OOX_START);
+        npc_OOX17AI(Creature* creature) : EscortAI(creature) { }
 
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_OOX17::npc_OOX17AI, creature->AI()))
-                pEscortAI->Start(true, false, player->GetGUID());
-        }
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_OOX17AI(creature);
-    }
-
-    struct npc_OOX17AI : public npc_escortAI
-    {
-        npc_OOX17AI(Creature* creature) : npc_escortAI(creature) { }
-
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             if (Player* player = GetPlayerForEscort())
             {
@@ -485,7 +230,7 @@ public:
 
         void Reset() override { }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(SAY_OOX_AGGRO);
         }
@@ -494,7 +239,26 @@ public:
         {
             summoned->AI()->AttackStart(me);
         }
+
+        void QuestAccept(Player* player, Quest const* quest) override
+        {
+            if (quest->GetQuestId() == Q_OOX17)
+            {
+                me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
+                me->SetFullHealth();
+                me->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
+                me->SetImmuneToPC(false);
+                Talk(SAY_OOX_START);
+
+                Start(true, false, player->GetGUID());
+            }
+        }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_OOX17AI(creature);
+    }
 };
 
 /*####
@@ -514,8 +278,7 @@ enum Tooga
     QUEST_TOOGA                 = 1560,
     NPC_TORTA                   = 6015,
 
-    POINT_ID_TO_WATER           = 1,
-    FACTION_TOOG_ESCORTEE       = 113
+    POINT_ID_TO_WATER           = 1
 };
 
 Position const ToWaterLoc = {-7032.664551f, -4906.199219f, -1.606446f, 0.0f};
@@ -524,22 +287,6 @@ class npc_tooga : public CreatureScript
 {
 public:
     npc_tooga() : CreatureScript("npc_tooga") { }
-
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_TOOGA)
-        {
-            if (npc_toogaAI* pToogaAI = CAST_AI(npc_tooga::npc_toogaAI, creature->AI()))
-                pToogaAI->StartFollow(player, FACTION_TOOG_ESCORTEE, quest);
-        }
-
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_toogaAI(creature);
-    }
 
     struct npc_toogaAI : public FollowerAI
     {
@@ -578,7 +325,7 @@ public:
                 if (me->IsWithinDistInMap(who, INTERACTION_DISTANCE))
                 {
                     Player* player = GetLeaderForFollower();
-                    if (player && player->GetQuestStatus(QUEST_TOOGA) == QUEST_STATUS_INCOMPLETE)
+                    if (player)
                         player->GroupEventHappens(QUEST_TOOGA, me);
 
                     TortaGUID = who->GetGUID();
@@ -591,10 +338,7 @@ public:
         {
             FollowerAI::MovementInform(MotionType, PointId);
 
-            if (MotionType != POINT_MOTION_TYPE)
-                return;
-
-            if (PointId == POINT_ID_TO_WATER)
+            if ((MotionType == POINT_MOTION_TYPE) && (PointId == POINT_ID_TO_WATER))
                 SetFollowComplete();
         }
 
@@ -664,16 +408,23 @@ public:
 
             DoMeleeAttackIfReady();
         }
+
+        void QuestAccept(Player* player, Quest const* quest) override
+        {
+            if (quest->GetQuestId() == QUEST_TOOGA)
+                StartFollow(player, FACTION_ESCORTEE_N_NEUTRAL_PASSIVE, QUEST_TOOGA);
+        }
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_toogaAI(creature);
+    }
 };
 
 void AddSC_tanaris()
 {
-    new npc_aquementas();
     new npc_custodian_of_time();
-    new npc_steward_of_time();
-    new npc_stone_watcher_of_norgannon();
     new npc_OOX17();
     new npc_tooga();
 }

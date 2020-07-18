@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -30,20 +29,20 @@ namespace CharacterDatabaseCleaner
         CLEANING_FLAG_QUESTSTATUS           = 0x10
     };
 
-    void CleanDatabase();
+    TC_GAME_API void CleanDatabase();
 
-    void CheckUnique(const char* column, const char* table, bool (*check)(uint32));
+    TC_GAME_API void CheckUnique(char const* column, char const* table, bool (*check)(uint32));
 
-    bool AchievementProgressCheck(uint32 criteria);
-    bool SkillCheck(uint32 skill);
-    bool SpellCheck(uint32 spell_id);
-    bool TalentCheck(uint32 talent_id);
+    TC_GAME_API bool AchievementProgressCheck(uint32 criteria);
+    TC_GAME_API bool SkillCheck(uint32 skill);
+    TC_GAME_API bool SpellCheck(uint32 spell_id);
+    TC_GAME_API bool TalentCheck(uint32 talent_id);
 
-    void CleanCharacterAchievementProgress();
-    void CleanCharacterSkills();
-    void CleanCharacterSpell();
-    void CleanCharacterTalent();
-    void CleanCharacterQuestStatus();
+    TC_GAME_API void CleanCharacterAchievementProgress();
+    TC_GAME_API void CleanCharacterSkills();
+    TC_GAME_API void CleanCharacterSpell();
+    TC_GAME_API void CleanCharacterTalent();
+    TC_GAME_API void CleanCharacterQuestStatus();
 }
 
 #endif

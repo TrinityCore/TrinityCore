@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,9 +22,14 @@ Category: Auchindoun, Shadow Labyrinth
 */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "shadow_labyrinth.h"
-#include "Player.h"
+#include "TemporarySummon.h"
 
 enum GrandmasterVorpil
 {
@@ -107,7 +111,7 @@ class boss_grandmaster_vorpil : public CreatureScript
                     if (Creature* portal = me->SummonCreature(NPC_VOID_PORTAL, VoidPortalCoords[i][0], VoidPortalCoords[i][1], VoidPortalCoords[i][2], 0, TEMPSUMMON_CORPSE_DESPAWN, 3000000))
                         portal->CastSpell(portal, SPELL_VOID_PORTAL_VISUAL, true);
 
-                events.ScheduleEvent(EVENT_SUMMON_TRAVELER, 5000);
+                events.ScheduleEvent(EVENT_SUMMON_TRAVELER, 5s);
             }
 
             void spawnVoidTraveler()
@@ -133,14 +137,14 @@ class boss_grandmaster_vorpil : public CreatureScript
                 Talk(SAY_DEATH);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _EnterCombat();
-                events.ScheduleEvent(EVENT_SHADOWBOLT_VOLLEY, urand(7000, 14000));
+                BossAI::JustEngagedWith(who);
+                events.ScheduleEvent(EVENT_SHADOWBOLT_VOLLEY, 7s, 14s);
                 if (IsHeroic())
-                    events.ScheduleEvent(EVENT_BANISH, 17000);
-                events.ScheduleEvent(EVENT_DRAW_SHADOWS, 45000);
-                events.ScheduleEvent(EVENT_SUMMON_TRAVELER, 90000);
+                    events.ScheduleEvent(EVENT_BANISH, 15s);
+                events.ScheduleEvent(EVENT_DRAW_SHADOWS, 45s);
+                events.ScheduleEvent(EVENT_SUMMON_TRAVELER, 90s);
 
                 Talk(SAY_AGGRO);
                 SummonPortals();
@@ -173,37 +177,39 @@ class boss_grandmaster_vorpil : public CreatureScript
                     {
                         case EVENT_SHADOWBOLT_VOLLEY:
                             DoCast(me, SPELL_SHADOWBOLT_VOLLEY);
-                            events.ScheduleEvent(EVENT_SHADOWBOLT_VOLLEY, urand(15000, 30000));
+                            events.ScheduleEvent(EVENT_SHADOWBOLT_VOLLEY, 15s, 30s);
                             break;
                         case EVENT_BANISH:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, false))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 30.0f, false))
                                  DoCast(target, SPELL_BANISH);
-                            events.ScheduleEvent(EVENT_BANISH, 16000);
+                            events.ScheduleEvent(EVENT_BANISH, 15s);
                             break;
                         case EVENT_DRAW_SHADOWS:
                             {
-                                Map* map = me->GetMap();
-                                Map::PlayerList const &PlayerList = map->GetPlayers();
+                                Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
                                 for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                                     if (Player* i_pl = i->GetSource())
                                         if (i_pl->IsAlive() && !i_pl->HasAura(SPELL_BANISH))
                                             i_pl->TeleportTo(me->GetMapId(), VorpilPosition.GetPositionX(), VorpilPosition.GetPositionY(), VorpilPosition.GetPositionZ(), VorpilPosition.GetOrientation(), TELE_TO_NOT_LEAVE_COMBAT);
 
-                                me->SetPosition(VorpilPosition);
+                                me->UpdatePosition(VorpilPosition);
                                 DoCast(me, SPELL_DRAW_SHADOWS, true);
                                 DoCast(me, SPELL_RAIN_OF_FIRE);
-                                events.ScheduleEvent(EVENT_SHADOWBOLT_VOLLEY, 6000);
-                                events.ScheduleEvent(EVENT_DRAW_SHADOWS, 30000);
+                                events.ScheduleEvent(EVENT_SHADOWBOLT_VOLLEY, 6s);
+                                events.ScheduleEvent(EVENT_DRAW_SHADOWS, 30s);
                                 break;
                             }
                         case EVENT_SUMMON_TRAVELER:
                             spawnVoidTraveler();
-                            events.ScheduleEvent(EVENT_SUMMON_TRAVELER, 10000);
+                            events.ScheduleEvent(EVENT_SUMMON_TRAVELER, 10s);
                             // enrage at 20%
                             if (HealthBelowPct(20))
-                                events.ScheduleEvent(EVENT_SUMMON_TRAVELER, 5000);
+                                events.ScheduleEvent(EVENT_SUMMON_TRAVELER, 5s);
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -244,7 +250,7 @@ class npc_voidtraveler : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
             void UpdateAI(uint32 diff) override
             {
@@ -258,7 +264,7 @@ class npc_voidtraveler : public CreatureScript
                     {
                         DoCastAOE(SPELL_EMPOWERING_SHADOWS, true);
                         DoCast(me, SPELL_SHADOW_NOVA, true);
-                        me->Kill(me);
+                        me->KillSelf();
                         return;
                     }
                     me->GetMotionMaster()->MoveFollow(Vorpil, 0, 0);

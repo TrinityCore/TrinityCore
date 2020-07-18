@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,18 +15,20 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "WorldPacket.h"
 #include "WorldSession.h"
-#include "Vehicle.h"
-#include "Player.h"
+#include "DBCStructure.h"
 #include "Log.h"
+#include "Map.h"
 #include "ObjectAccessor.h"
+#include "Player.h"
+#include "Vehicle.h"
+#include "WorldPacket.h"
 
 void WorldSession::HandleDismissControlledVehicle(WorldPacket &recvData)
 {
     TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_DISMISS_CONTROLLED_VEHICLE");
 
-    ObjectGuid vehicleGUID = _player->GetCharmGUID();
+    ObjectGuid vehicleGUID = _player->GetCharmedGUID();
 
     if (!vehicleGUID)                                       // something wrong here...
     {
@@ -62,8 +64,8 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket &recvData)
     if (!seat->CanSwitchFromSeat())
     {
         recvData.rfinish();                                // prevent warnings spam
-        TC_LOG_ERROR("network", "HandleChangeSeatsOnControlledVehicle, Opcode: %u, Player %u tried to switch seats but current seatflags %u don't permit that.",
-            recvData.GetOpcode(), GetPlayer()->GetGUID().GetCounter(), seat->m_flags);
+        TC_LOG_ERROR("network", "HandleChangeSeatsOnControlledVehicle, Opcode: %u, Player %s tried to switch seats but current seatflags %u don't permit that.",
+            recvData.GetOpcode(), GetPlayer()->GetGUID().ToString().c_str(), seat->Flags);
         return;
     }
 
@@ -130,13 +132,16 @@ void WorldSession::HandleEnterPlayerVehicle(WorldPacket &data)
     ObjectGuid guid;
     data >> guid;
 
-    if (Player* player = ObjectAccessor::FindPlayer(guid))
+    if (Player* player = ObjectAccessor::GetPlayer(*_player, guid))
     {
         if (!player->GetVehicleKit())
             return;
         if (!player->IsInRaidWith(_player))
             return;
         if (!player->IsWithinDistInMap(_player, INTERACTION_DISTANCE))
+            return;
+        // Dont' allow players to enter player vehicle on arena
+        if (!_player->FindMap() || _player->FindMap()->IsBattleArena())
             return;
 
         _player->EnterVehicle(player);
@@ -176,7 +181,7 @@ void WorldSession::HandleEjectPassenger(WorldPacket &data)
         if (seat->IsEjectable())
             unit->ExitVehicle();
         else
-            TC_LOG_ERROR("network", "Player %u attempted to eject %s from non-ejectable seat.", GetPlayer()->GetGUID().GetCounter(), guid.ToString().c_str());
+            TC_LOG_ERROR("network", "Player %s attempted to eject %s from non-ejectable seat.", GetPlayer()->GetGUID().ToString().c_str(), guid.ToString().c_str());
     }
     else
         TC_LOG_ERROR("network", "HandleEjectPassenger: %s tried to eject invalid %s ", GetPlayer()->GetGUID().ToString().c_str(), guid.ToString().c_str());
@@ -193,8 +198,8 @@ void WorldSession::HandleRequestVehicleExit(WorldPacket& /*recvData*/)
             if (seat->CanEnterOrExit())
                 GetPlayer()->ExitVehicle();
             else
-                TC_LOG_ERROR("network", "Player %u tried to exit vehicle, but seatflags %u (ID: %u) don't permit that.",
-                GetPlayer()->GetGUID().GetCounter(), seat->m_ID, seat->m_flags);
+                TC_LOG_ERROR("network", "Player %s tried to exit vehicle, but seatflags %u (ID: %u) don't permit that.",
+                GetPlayer()->GetGUID().ToString().c_str(), seat->ID, seat->Flags);
         }
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -68,12 +68,12 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _EnterCombat();
-            events.ScheduleEvent(EVENT_AMNENNARSWRATH, 8000);
-            events.ScheduleEvent(EVENT_FROSTBOLT, 1000);
-            events.ScheduleEvent(EVENT_FROST_NOVA, urand(10000, 15000));
+            BossAI::JustEngagedWith(who);
+            events.ScheduleEvent(EVENT_AMNENNARSWRATH, 8s);
+            events.ScheduleEvent(EVENT_FROSTBOLT, 1s);
+            events.ScheduleEvent(EVENT_FROST_NOVA, 10s, 15s);
             Talk(SAY_AGGRO);
         }
 
@@ -104,17 +104,20 @@ public:
                 {
                     case EVENT_AMNENNARSWRATH:
                         DoCastVictim(SPELL_AMNENNARSWRATH);
-                        events.ScheduleEvent(EVENT_AMNENNARSWRATH, 12000);
+                        events.ScheduleEvent(EVENT_AMNENNARSWRATH, 12s);
                         break;
                     case EVENT_FROSTBOLT:
                         DoCastVictim(SPELL_FROSTBOLT);
-                        events.ScheduleEvent(EVENT_FROSTBOLT, 8000);
+                        events.ScheduleEvent(EVENT_FROSTBOLT, 8s);
                         break;
                     case EVENT_FROST_NOVA:
                         DoCast(me, SPELL_FROST_NOVA);
-                        events.ScheduleEvent(EVENT_FROST_NOVA, 15000);
+                        events.ScheduleEvent(EVENT_FROST_NOVA, 15s);
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
 
             if (!hp60Spectrals && HealthBelowPct(60))
@@ -148,7 +151,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_amnennar_the_coldbringerAI(creature);
+        return GetRazorfenDownsAI<boss_amnennar_the_coldbringerAI>(creature);
     }
 };
 

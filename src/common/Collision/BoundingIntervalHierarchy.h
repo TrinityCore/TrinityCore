@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,9 +18,9 @@
 #ifndef _BIH_H
 #define _BIH_H
 
-#include "G3D/Vector3.h"
-#include "G3D/Ray.h"
-#include "G3D/AABox.h"
+#include <G3D/Vector3.h>
+#include <G3D/Ray.h>
+#include <G3D/AABox.h>
 
 #include "Define.h"
 
@@ -30,29 +29,26 @@
 #include <algorithm>
 #include <limits>
 #include <cmath>
+#include "string.h"
 
 #define MAX_STACK_SIZE 64
 
+// https://stackoverflow.com/a/4328396
+
 static inline uint32 floatToRawIntBits(float f)
 {
-    union
-    {
-        uint32 ival;
-        float fval;
-    } temp;
-    temp.fval=f;
-    return temp.ival;
+    static_assert(sizeof(float) == sizeof(uint32), "Size of uint32 and float must be equal for this to work");
+    uint32 ret;
+    memcpy(&ret, &f, sizeof(float));
+    return ret;
 }
 
 static inline float intBitsToFloat(uint32 i)
 {
-    union
-    {
-        uint32 ival;
-        float fval;
-    } temp;
-    temp.ival=i;
-    return temp.fval;
+    static_assert(sizeof(float) == sizeof(uint32), "Size of uint32 and float must be equal for this to work");
+    float ret;
+    memcpy(&ret, &i, sizeof(uint32));
+    return ret;
 }
 
 struct AABound
@@ -67,7 +63,7 @@ struct AABound
     Copyright (c) 2003-2007 Christopher Kulla
 */
 
-class BIH
+class TC_COMMON_API BIH
 {
     private:
         void init_empty()
@@ -80,8 +76,8 @@ class BIH
         }
     public:
         BIH() { init_empty(); }
-        template< class BoundsFunc, class PrimArray >
-        void build(const PrimArray &primitives, BoundsFunc &getBounds, uint32 leafSize = 3, bool printStats=false)
+        template <class BoundsFunc, class PrimArray>
+        void build(PrimArray const& primitives, BoundsFunc& getBounds, uint32 leafSize = 3, bool printStats = false)
         {
             if (primitives.size() == 0)
             {
@@ -91,7 +87,7 @@ class BIH
 
             buildData dat;
             dat.maxPrims = leafSize;
-            dat.numPrims = primitives.size();
+            dat.numPrims = uint32(primitives.size());
             dat.indices = new uint32[dat.numPrims];
             dat.primBound = new G3D::AABox[dat.numPrims];
             getBounds(primitives[0], bounds);
@@ -115,10 +111,10 @@ class BIH
             delete[] dat.primBound;
             delete[] dat.indices;
         }
-        uint32 primCount() const { return objects.size(); }
+        uint32 primCount() const { return uint32(objects.size()); }
 
         template<typename RayCallback>
-        void intersectRay(const G3D::Ray &r, RayCallback& intersectCallback, float &maxDist, bool stopAtFirst=false) const
+        void intersectRay(const G3D::Ray &r, RayCallback& intersectCallback, float &maxDist, bool stopAtFirst = false) const
         {
             float intervalMin = -1.f;
             float intervalMax = -1.f;

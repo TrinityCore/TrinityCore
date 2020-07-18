@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "ScriptedCreature.h"
 #include "violet_hold.h"
 
@@ -41,20 +42,15 @@ class boss_lavanthor : public CreatureScript
                 BossAI::Reset();
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
-                BossAI::EnterCombat(who);
+                BossAI::JustEngagedWith(who);
             }
 
             void JustReachedHome() override
             {
                 BossAI::JustReachedHome();
                 instance->SetData(DATA_HANDLE_CELLS, DATA_LAVANTHOR);
-            }
-
-            void JustDied(Unit* killer) override
-            {
-                BossAI::JustDied(killer);
             }
 
             void UpdateAI(uint32 diff) override
@@ -70,7 +66,7 @@ class boss_lavanthor : public CreatureScript
             {
                 scheduler.Schedule(Seconds(1), [this](TaskContext task)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40.0f, true))
                         DoCast(target, SPELL_FIREBOLT);
                     task.Repeat(Seconds(5), Seconds(13));
                 });
@@ -83,7 +79,7 @@ class boss_lavanthor : public CreatureScript
 
                 scheduler.Schedule(Seconds(10), [this](TaskContext task)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 50.0f))
                         DoCast(target, SPELL_LAVA_BURN);
                     task.Repeat(Seconds(15), Seconds(23));
                 });

@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,55 +18,23 @@
 /* ScriptData
 SDName: Feralas
 SD%Complete: 100
-SDComment: Quest support: 2767, Special vendor Gregan Brewspewer
+SDComment: Quest support: 2767, 2987
 SDCategory: Feralas
 EndScriptData */
 
+/* ContentData
+npc_oox22fe
+spell_gordunni_trap
+EndContentData */
+
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "GameObject.h"
+#include "Player.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
+#include "SpellInfo.h"
 #include "SpellScript.h"
-#include "Player.h"
 #include "WorldSession.h"
-
-/*######
-## npc_gregan_brewspewer
-######*/
-
-#define GOSSIP_HELLO "Buy somethin', will ya?"
-
-class npc_gregan_brewspewer : public CreatureScript
-{
-public:
-    npc_gregan_brewspewer() : CreatureScript("npc_gregan_brewspewer") { }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF+1)
-        {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-            player->SEND_GOSSIP_MENU(2434, creature->GetGUID());
-        }
-        if (action == GOSSIP_ACTION_TRADE)
-            player->GetSession()->SendListInventory(creature->GetGUID());
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (creature->IsVendor() && player->GetQuestStatus(3909) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
-        player->SEND_GOSSIP_MENU(2433, creature->GetGUID());
-        return true;
-    }
-
-};
 
 /*######
 ## npc_oox22fe
@@ -87,9 +54,7 @@ enum OOX
     NPC_WOODPAW_ALPHA       = 5258,
     NPC_WOODPAW_MYSTIC      = 5254,
 
-    QUEST_RESCUE_OOX22FE    = 2767,
-    FACTION_ESCORTEE_A      = 774,
-    FACTION_ESCORTEE_H      = 775
+    QUEST_RESCUE_OOX22FE    = 2767
 };
 
 class npc_oox22fe : public CreatureScript
@@ -97,37 +62,11 @@ class npc_oox22fe : public CreatureScript
 public:
     npc_oox22fe() : CreatureScript("npc_oox22fe") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) override
+    struct npc_oox22feAI : public EscortAI
     {
-        if (quest->GetQuestId() == QUEST_RESCUE_OOX22FE)
-        {
-            creature->AI()->Talk(SAY_OOX_START);
-            //change that the npc is not lying dead on the ground
-            creature->SetStandState(UNIT_STAND_STATE_STAND);
+        npc_oox22feAI(Creature* creature) : EscortAI(creature) { }
 
-            if (player->GetTeam() == ALLIANCE)
-                creature->setFaction(FACTION_ESCORTEE_A);
-
-            if (player->GetTeam() == HORDE)
-                creature->setFaction(FACTION_ESCORTEE_H);
-
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_oox22fe::npc_oox22feAI, creature->AI()))
-                pEscortAI->Start(true, false, player->GetGUID());
-
-        }
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_oox22feAI(creature);
-    }
-
-    struct npc_oox22feAI : public npc_escortAI
-    {
-        npc_oox22feAI(Creature* creature) : npc_escortAI(creature) { }
-
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             switch (waypointId)
             {
@@ -168,7 +107,7 @@ public:
                 me->SetStandState(UNIT_STAND_STATE_DEAD);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             //For an small probability the npc says something when he get aggro
             if (urand(0, 9) > 7)
@@ -179,13 +118,40 @@ public:
         {
             summoned->AI()->AttackStart(me);
         }
+
+        void QuestAccept(Player* player, Quest const* quest) override
+        {
+            if (quest->GetQuestId() == QUEST_RESCUE_OOX22FE)
+            {
+                Talk(SAY_OOX_START);
+                //change that the npc is not lying dead on the ground
+                me->SetStandState(UNIT_STAND_STATE_STAND);
+
+                if (player->GetTeam() == ALLIANCE)
+                    me->SetFaction(FACTION_ESCORTEE_A_PASSIVE);
+
+                if (player->GetTeam() == HORDE)
+                    me->SetFaction(FACTION_ESCORTEE_H_PASSIVE);
+
+                Start(true, false, player->GetGUID());
+            }
+        }
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_oox22feAI(creature);
+    }
 };
 
-enum GordunniTrap
+/*######
+## spell_gordunni_trap
+######*/
+
+enum GordunniTrapSpells
 {
-    GO_GORDUNNI_DIRT_MOUND = 144064,
+    SPELL_GORDUNNI_DIRT_MOUND_CHEST = 11756,
+    SPELL_GORDUNNI_DIRT_MOUND_JUNK = 19394
 };
 
 class spell_gordunni_trap : public SpellScriptLoader
@@ -199,12 +165,8 @@ class spell_gordunni_trap : public SpellScriptLoader
 
             void HandleDummy()
             {
-                if (Unit* caster = GetCaster())
-                    if (GameObject* chest = caster->SummonGameObject(GO_GORDUNNI_DIRT_MOUND, caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ(), 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0))
-                    {
-                        chest->SetSpellId(GetSpellInfo()->Id);
-                        caster->RemoveGameObject(chest, false);
-                    }
+                GameObject* caster = GetGObjCaster();
+                caster->CastSpell(caster, urand(0, 1) ? SPELL_GORDUNNI_DIRT_MOUND_CHEST : SPELL_GORDUNNI_DIRT_MOUND_JUNK);
             }
 
             void Register() override
@@ -225,7 +187,6 @@ class spell_gordunni_trap : public SpellScriptLoader
 
 void AddSC_feralas()
 {
-    new npc_gregan_brewspewer();
     new npc_oox22fe();
     new spell_gordunni_trap();
 }

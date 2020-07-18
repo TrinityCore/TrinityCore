@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,21 +20,22 @@
 */
 
 #include "Weather.h"
-#include "WorldPacket.h"
-#include "Player.h"
-#include "World.h"
+#include "GameTime.h"
 #include "Log.h"
-#include "Util.h"
+#include "MiscPackets.h"
+#include "Player.h"
+#include "Random.h"
 #include "ScriptMgr.h"
-#include "WorldSession.h"
+#include "Util.h"
+#include "World.h"
 
 /// Create the Weather object
-Weather::Weather(uint32 zone, WeatherData const* weatherChances)
-    : m_zone(zone), m_weatherChances(weatherChances)
+Weather::Weather(uint32 zoneId, WeatherData const* weatherChances)
+    : m_zone(zoneId), m_weatherChances(weatherChances)
 {
     m_timer.SetInterval(sWorld->getIntConfig(CONFIG_INTERVAL_CHANGEWEATHER));
     m_type = WEATHER_TYPE_FINE;
-    m_grade = 0;
+    m_intensity = 0;
 
     TC_LOG_INFO("misc", "WORLD: Starting weather system for zone %u (change every %u minutes).", m_zone, (uint32)(m_timer.GetInterval() / (MINUTE*IN_MILLISECONDS)));
 }
@@ -71,7 +71,7 @@ bool Weather::ReGenerate()
     if (!m_weatherChances)
     {
         m_type = WEATHER_TYPE_FINE;
-        m_grade = 0.0f;
+        m_intensity = 0.0f;
         return false;
     }
 
@@ -87,11 +87,11 @@ bool Weather::ReGenerate()
 
     // remember old values
     WeatherType old_type = m_type;
-    float old_grade = m_grade;
+    float old_intensity = m_intensity;
 
     //78 days between January 1st and March 20nd; 365/4=91 days by season
     // season source http://aa.usno.navy.mil/data/docs/EarthSeasons.html
-    time_t gtime = sWorld->GetGameTime();
+    time_t gtime = GameTime::GetGameTime();
     struct tm ltime;
     localtime_r(&gtime, &ltime);
     uint32 season = ((ltime.tm_yday - 78 + 365)/91)%4;
@@ -100,21 +100,21 @@ bool Weather::ReGenerate()
 
     TC_LOG_INFO("misc", "Generating a change in %s weather for zone %u.", seasonName[season], m_zone);
 
-    if ((u < 60) && (m_grade < 0.33333334f))                // Get fair
+    if ((u < 60) && (m_intensity < 0.33333334f))                // Get fair
     {
         m_type = WEATHER_TYPE_FINE;
-        m_grade = 0.0f;
+        m_intensity = 0.0f;
     }
 
     if ((u < 60) && (m_type != WEATHER_TYPE_FINE))          // Get better
     {
-        m_grade -= 0.33333334f;
+        m_intensity -= 0.33333334f;
         return true;
     }
 
     if ((u < 90) && (m_type != WEATHER_TYPE_FINE))          // Get worse
     {
-        m_grade += 0.33333334f;
+        m_intensity += 0.33333334f;
         return true;
     }
 
@@ -125,25 +125,25 @@ bool Weather::ReGenerate()
         ///- if medium -> change weather type
         ///- if heavy -> 50% light, 50% change weather type
 
-        if (m_grade < 0.33333334f)
+        if (m_intensity < 0.33333334f)
         {
-            m_grade = 0.9999f;                              // go nuts
+            m_intensity = 0.9999f;                              // go nuts
             return true;
         }
         else
         {
-            if (m_grade > 0.6666667f)
+            if (m_intensity > 0.6666667f)
             {
                                                             // Severe change, but how severe?
                 uint32 rnd = urand(0, 99);
                 if (rnd < 50)
                 {
-                    m_grade -= 0.6666667f;
+                    m_intensity -= 0.6666667f;
                     return true;
                 }
             }
             m_type = WEATHER_TYPE_FINE;                     // clear up
-            m_grade = 0;
+            m_intensity = 0;
         }
     }
 
@@ -152,7 +152,7 @@ bool Weather::ReGenerate()
     uint32 chance2 = chance1+ m_weatherChances->data[season].snowChance;
     uint32 chance3 = chance2+ m_weatherChances->data[season].stormChance;
 
-    uint32 rnd = urand(0, 99);
+    uint32 rnd = urand(1, 100);
     if (rnd <= chance1)
         m_type = WEATHER_TYPE_RAIN;
     else if (rnd <= chance2)
@@ -170,53 +170,53 @@ bool Weather::ReGenerate()
 
     if (m_type == WEATHER_TYPE_FINE)
     {
-        m_grade = 0.0f;
+        m_intensity = 0.0f;
     }
     else if (u < 90)
     {
-        m_grade = (float)rand_norm() * 0.3333f;
+        m_intensity = (float)rand_norm() * 0.3333f;
     }
     else
     {
         // Severe change, but how severe?
         rnd = urand(0, 99);
         if (rnd < 50)
-            m_grade = (float)rand_norm() * 0.3333f + 0.3334f;
+            m_intensity = (float)rand_norm() * 0.3333f + 0.3334f;
         else
-            m_grade = (float)rand_norm() * 0.3333f + 0.6667f;
+            m_intensity = (float)rand_norm() * 0.3333f + 0.6667f;
     }
 
     // return true only in case weather changes
-    return m_type != old_type || m_grade != old_grade;
+    return m_type != old_type || m_intensity != old_intensity;
 }
 
 void Weather::SendWeatherUpdateToPlayer(Player* player)
 {
-    WorldPacket data(SMSG_WEATHER, (4 + 4 + 1));
-    data << uint32(GetWeatherState());
-    data << (float)m_grade;
-    data << uint8(0);
-    player->GetSession()->SendPacket(&data);
+    WorldPackets::Misc::Weather weather(GetWeatherState(), m_intensity);
+    player->SendDirectMessage(weather.Write());
+}
+
+void Weather::SendFineWeatherUpdateToPlayer(Player* player)
+{
+    WorldPackets::Misc::Weather weather(WEATHER_STATE_FINE);
+    player->SendDirectMessage(weather.Write());
 }
 
 /// Send the new weather to all players in the zone
 bool Weather::UpdateWeather()
 {
     ///- Send the weather packet to all players in this zone
-    if (m_grade >= 1)
-        m_grade = 0.9999f;
-    else if (m_grade < 0)
-        m_grade = 0.0001f;
+    if (m_intensity >= 1)
+        m_intensity = 0.9999f;
+    else if (m_intensity < 0)
+        m_intensity = 0.0001f;
 
     WeatherState state = GetWeatherState();
 
-    WorldPacket data(SMSG_WEATHER, (4 + 4 + 1));
-    data << uint32(state);
-    data << (float)m_grade;
-    data << uint8(0);
+    WorldPackets::Misc::Weather weather(state, m_intensity);
 
     //- Returns false if there were no players found to update
-    if (!sWorld->SendZoneMessage(m_zone, &data))
+    if (!sWorld->SendZoneMessage(m_zone, weather.Write()))
         return false;
 
     ///- Log the event
@@ -266,47 +266,47 @@ bool Weather::UpdateWeather()
     }
 
     TC_LOG_INFO("misc", "Change the weather of zone %u to %s.", m_zone, wthstr);
-    sScriptMgr->OnWeatherChange(this, state, m_grade);
+    sScriptMgr->OnWeatherChange(this, state, m_intensity);
     return true;
 }
 
 /// Set the weather
-void Weather::SetWeather(WeatherType type, float grade)
+void Weather::SetWeather(WeatherType type, float intensity)
 {
-    if (m_type == type && m_grade == grade)
+    if (m_type == type && m_intensity == intensity)
         return;
 
     m_type = type;
-    m_grade = grade;
+    m_intensity = intensity;
     UpdateWeather();
 }
 
 /// Get the sound number associated with the current weather
 WeatherState Weather::GetWeatherState() const
 {
-    if (m_grade<0.27f)
+    if (m_intensity < 0.27f)
         return WEATHER_STATE_FINE;
 
     switch (m_type)
     {
         case WEATHER_TYPE_RAIN:
-            if (m_grade<0.40f)
+            if (m_intensity < 0.40f)
                 return WEATHER_STATE_LIGHT_RAIN;
-            else if (m_grade<0.70f)
+            else if (m_intensity < 0.70f)
                 return WEATHER_STATE_MEDIUM_RAIN;
             else
                 return WEATHER_STATE_HEAVY_RAIN;
         case WEATHER_TYPE_SNOW:
-            if (m_grade<0.40f)
+            if (m_intensity < 0.40f)
                 return WEATHER_STATE_LIGHT_SNOW;
-            else if (m_grade<0.70f)
+            else if (m_intensity < 0.70f)
                 return WEATHER_STATE_MEDIUM_SNOW;
             else
                 return WEATHER_STATE_HEAVY_SNOW;
         case WEATHER_TYPE_STORM:
-            if (m_grade<0.40f)
+            if (m_intensity < 0.40f)
                 return WEATHER_STATE_LIGHT_SANDSTORM;
-            else if (m_grade<0.70f)
+            else if (m_intensity < 0.70f)
                 return WEATHER_STATE_MEDIUM_SANDSTORM;
             else
                 return WEATHER_STATE_HEAVY_SANDSTORM;
@@ -319,4 +319,3 @@ WeatherState Weather::GetWeatherState() const
             return WEATHER_STATE_FINE;
     }
 }
-

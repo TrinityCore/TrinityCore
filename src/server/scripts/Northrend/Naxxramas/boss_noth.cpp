@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,8 +16,9 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "MotionMaster.h"
 #include "naxxramas.h"
+#include "ScriptedCreature.h"
 
 enum Phases
 {
@@ -88,35 +89,29 @@ public:
             events.SetPhase(PHASE_NONE);
         }
 
-        void EnterEvadeMode() override
+        void EnterEvadeMode(EvadeReason why) override
         {
-            Reset(); // teleport back first
-            _EnterEvadeMode();
+            // in case we reset during balcony phase
+            if (events.IsInPhase(PHASE_BALCONY))
+                DoCastAOE(SPELL_TELEPORT_BACK);
+            BossAI::EnterEvadeMode(why);
         }
 
         void Reset() override
         {
-            if (!me->IsAlive())
-                return;
+            _Reset();
 
-            // in case we reset during balcony phase
-            if (events.IsInPhase(PHASE_BALCONY))
-            {
-                DoCastAOE(SPELL_TELEPORT_BACK);
-                me->SetReactState(REACT_AGGRESSIVE);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
-            }
+            me->SetReactState(REACT_AGGRESSIVE);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
             balconyCount = 0;
             events.SetPhase(PHASE_NONE);
             justBlinked = false;
-
-            _Reset();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _EnterCombat();
+            BossAI::JustEngagedWith(who);
             Talk(SAY_AGGRO);
             EnterPhaseGround();
         }
@@ -127,35 +122,35 @@ public:
 
             DoZoneInCombat();
 
-            if (me->getThreatManager().isThreatListEmpty())
-                Reset();
+            if (!me->IsThreatened())
+                EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
             else
             {
-                uint8 secondsGround;
+                uint8 timeGround;
                 switch (balconyCount)
                 {
                     case 0:
-                        secondsGround =  90;
+                        timeGround =  90;
                         break;
                     case 1:
-                        secondsGround = 110;
+                        timeGround = 110;
                         break;
                     case 2:
                     default:
-                        secondsGround = 180;
+                        timeGround = 180;
                 }
-                events.ScheduleEvent(EVENT_GROUND_ATTACKABLE, 2 * IN_MILLISECONDS, 0, PHASE_GROUND);
-                events.ScheduleEvent(EVENT_BALCONY, secondsGround * IN_MILLISECONDS, 0, PHASE_GROUND);
-                events.ScheduleEvent(EVENT_CURSE, urand(10,25) * IN_MILLISECONDS, 0, PHASE_GROUND);
-                events.ScheduleEvent(EVENT_WARRIOR, urand(20,30) * IN_MILLISECONDS, 0, PHASE_GROUND);
+                events.ScheduleEvent(EVENT_GROUND_ATTACKABLE, Seconds(2), 0, PHASE_GROUND);
+                events.ScheduleEvent(EVENT_BALCONY, Seconds(timeGround), 0, PHASE_GROUND);
+                events.ScheduleEvent(EVENT_CURSE, randtime(Seconds(10), Seconds(25)), 0, PHASE_GROUND);
+                events.ScheduleEvent(EVENT_WARRIOR, randtime(Seconds(20), Seconds(30)), 0, PHASE_GROUND);
                 if (GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
-                    events.ScheduleEvent(EVENT_BLINK, urand(20,30) * IN_MILLISECONDS, 0, PHASE_GROUND);
+                    events.ScheduleEvent(EVENT_BLINK, randtime(Seconds(20), Seconds(30)), 0, PHASE_GROUND);
             }
         }
 
         void KilledUnit(Unit* victim) override
         {
-            if(victim->GetTypeId() == TYPEID_PLAYER)
+            if (victim->GetTypeId() == TYPEID_PLAYER)
                 Talk(SAY_SLAY);
         }
 
@@ -163,7 +158,8 @@ public:
         {
             summons.Summon(summon);
             summon->setActive(true);
-            summon->AI()->DoZoneInCombat(nullptr, 250.0f); // specify range to cover entire room - default 50yd is not enough
+            summon->SetFarVisible(true);
+            summon->AI()->DoZoneInCombat();
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -172,13 +168,13 @@ public:
             Talk(SAY_DEATH);
         }
 
-        void DamageTaken(Unit* /*who*/, uint32& damage) // prevent noth from somehow dying in the balcony phase
+        void DamageTaken(Unit* /*who*/, uint32& damage) override // prevent noth from somehow dying in the balcony phase
         {
             if (!events.IsInPhase(PHASE_BALCONY))
                 return;
             if (damage < me->GetHealth())
                 return;
-            
+
             me->SetHealth(1u);
             damage = 0u;
         }
@@ -205,7 +201,7 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            if (!UpdateVictim() || !CheckInRoom())
+            if (!UpdateVictim())
                 return;
 
             events.Update(diff);
@@ -220,51 +216,51 @@ public:
                     case EVENT_CURSE:
                     {
                         DoCastAOE(SPELL_CURSE);
-                        events.ScheduleEvent(EVENT_CURSE, urand(50, 70) * IN_MILLISECONDS, 0, PHASE_GROUND);
+                        events.Repeat(randtime(Seconds(50), Seconds(70)));
                         break;
                     }
                     case EVENT_WARRIOR:
                         Talk(SAY_SUMMON);
                         Talk(EMOTE_SUMMON);
-                        
+
                         CastSummon(RAID_MODE(2, 3), 0, 0);
 
-                        events.ScheduleEvent(EVENT_WARRIOR, 40 * IN_MILLISECONDS, 0, PHASE_GROUND);
+                        events.Repeat(Seconds(40));
                         break;
                     case EVENT_BLINK:
                         DoCastAOE(SPELL_CRIPPLE, true);
                         DoCastAOE(SPELL_BLINK);
-                        DoResetThreat();
+                        ResetThreatList();
                         justBlinked = true;
 
-                        events.ScheduleEvent(EVENT_BLINK, 40000, 0, PHASE_GROUND);
+                        events.Repeat(Seconds(40));
                         break;
                     case EVENT_BALCONY:
                         events.SetPhase(PHASE_BALCONY);
                         me->SetReactState(REACT_PASSIVE);
-                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
+                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         me->AttackStop();
                         me->StopMoving();
                         me->RemoveAllAuras();
 
-                        events.ScheduleEvent(EVENT_BALCONY_TELEPORT, 3 * IN_MILLISECONDS, 0, PHASE_BALCONY);
-                        events.ScheduleEvent(EVENT_WAVE, urand(5 * IN_MILLISECONDS, 8 * IN_MILLISECONDS), 0, PHASE_BALCONY);
+                        events.ScheduleEvent(EVENT_BALCONY_TELEPORT, Seconds(3), 0, PHASE_BALCONY);
+                        events.ScheduleEvent(EVENT_WAVE, randtime(Seconds(5), Seconds(8)), 0, PHASE_BALCONY);
 
-                        uint8 secondsBalcony;
+                        uint8 timeBalcony;
                         switch (balconyCount)
                         {
                             case 0:
-                                secondsBalcony = 70;
+                                timeBalcony = 70;
                                 break;
                             case 1:
-                                secondsBalcony = 97;
+                                timeBalcony = 97;
                                 break;
                             case 2:
                             default:
-                                secondsBalcony = 120;
+                                timeBalcony = 120;
                                 break;
                         }
-                        events.ScheduleEvent(EVENT_GROUND, secondsBalcony * IN_MILLISECONDS, 0, PHASE_BALCONY);
+                        events.ScheduleEvent(EVENT_GROUND, Seconds(timeBalcony), 0, PHASE_BALCONY);
                         break;
                     case EVENT_BALCONY_TELEPORT:
                         Talk(EMOTE_TELEPORT_1);
@@ -287,28 +283,31 @@ public:
                                 CastSummon(0, RAID_MODE(5, 10), RAID_MODE(5, 10));
                                 break;
                         }
-                        events.ScheduleEvent(EVENT_WAVE, urand(30, 45) * IN_MILLISECONDS, 0, PHASE_BALCONY);
+                        events.Repeat(randtime(Seconds(30), Seconds(45)));
                         break;
                     case EVENT_GROUND:
                         ++balconyCount;
-                        
+
                         DoCastAOE(SPELL_TELEPORT_BACK);
                         Talk(EMOTE_TELEPORT_2);
 
                         EnterPhaseGround();
                         break;
                     case EVENT_GROUND_ATTACKABLE:
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         me->SetReactState(REACT_AGGRESSIVE);
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
 
             if (events.IsInPhase(PHASE_GROUND))
             {
                 /* workaround for movechase breaking after blinking
                    without this noth would just stand there unless his current target moves */
-                if (justBlinked && me->GetVictim() && !me->IsWithinMeleeRange(me->EnsureVictim())) 
+                if (justBlinked && me->GetVictim() && !me->IsWithinMeleeRange(me->EnsureVictim()))
                 {
                     me->GetMotionMaster()->Clear();
                     me->GetMotionMaster()->MoveChase(me->EnsureVictim());
@@ -321,7 +320,7 @@ public:
 
         private:
             uint32 balconyCount;
-            
+
             bool justBlinked;
 
             uint32 _SummonWarriorSpells[N_WARRIOR_SPELLS];
@@ -331,7 +330,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_nothAI>(creature);
+        return GetNaxxramasAI<boss_nothAI>(creature);
     }
 };
 

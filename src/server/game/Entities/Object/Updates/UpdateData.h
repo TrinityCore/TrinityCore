@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,6 +18,7 @@
 #ifndef __UPDATEDATA_H
 #define __UPDATEDATA_H
 
+#include "Define.h"
 #include "ByteBuffer.h"
 #include "ObjectGuid.h"
 #include <set>
@@ -62,7 +62,7 @@ class UpdateData
 
         void AddOutOfRangeGUID(GuidSet& guids);
         void AddOutOfRangeGUID(ObjectGuid guid);
-        void AddUpdateBlock(const ByteBuffer &block);
+        void AddUpdateBlock(ByteBuffer const& block);
         bool BuildPacket(WorldPacket* packet);
         bool HasData() const { return m_blockCount > 0 || !m_outOfRangeGUIDs.empty(); }
         void Clear();
@@ -80,4 +80,3 @@ class UpdateData
         UpdateData& operator=(UpdateData const& right) = delete;
 };
 #endif
-

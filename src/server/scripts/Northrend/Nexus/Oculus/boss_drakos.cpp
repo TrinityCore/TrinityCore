@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,8 +16,10 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "oculus.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -71,16 +73,16 @@ class boss_drakos : public CreatureScript
             {
                 _Reset();
 
-                events.ScheduleEvent(EVENT_MAGIC_PULL, 15000);
-                events.ScheduleEvent(EVENT_STOMP, 17000);
-                events.ScheduleEvent(EVENT_BOMB_SUMMON, 2000);
+                events.ScheduleEvent(EVENT_MAGIC_PULL, 15s);
+                events.ScheduleEvent(EVENT_STOMP, 15s);
+                events.ScheduleEvent(EVENT_BOMB_SUMMON, 2s);
 
                 Initialize();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _EnterCombat();
+                BossAI::JustEngagedWith(who);
                 Talk(SAY_AGGRO);
             }
 
@@ -106,21 +108,24 @@ class boss_drakos : public CreatureScript
                                     me->SummonCreature(NPC_UNSTABLE_SPHERE, position);
                                 }
                             }
-                            events.ScheduleEvent(EVENT_BOMB_SUMMON, 2000);
+                            events.ScheduleEvent(EVENT_BOMB_SUMMON, 2s);
                             break;
                         case EVENT_MAGIC_PULL:
                             DoCast(SPELL_MAGIC_PULL);
                             postPull = true;
-                            events.ScheduleEvent(EVENT_MAGIC_PULL, 15000);
+                            events.ScheduleEvent(EVENT_MAGIC_PULL, 15s);
                             break;
                         case EVENT_STOMP:
                             Talk(SAY_STOMP);
                             DoCast(SPELL_THUNDERING_STOMP);
-                            events.ScheduleEvent(EVENT_STOMP, 17000);
+                            events.ScheduleEvent(EVENT_STOMP, 15s);
                             break;
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -198,7 +203,7 @@ class npc_unstable_sphere : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_unstable_sphereAI(creature);
+            return GetOculusAI<npc_unstable_sphereAI>(creature);
         }
 };
 

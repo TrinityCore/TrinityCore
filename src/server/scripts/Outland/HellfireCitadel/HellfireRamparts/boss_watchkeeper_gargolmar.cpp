@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,8 +23,8 @@ SDCategory: Hellfire Citadel, Hellfire Ramparts
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "hellfire_ramparts.h"
+#include "ScriptedCreature.h"
 
 enum Says
 {
@@ -76,12 +75,12 @@ class boss_watchkeeper_gargolmar : public CreatureScript
                 _Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
                 Talk(SAY_AGGRO);
-                events.ScheduleEvent(EVENT_MORTAL_WOUND, 5000);
-                events.ScheduleEvent(EVENT_SURGE, 4000);
-                _EnterCombat();
+                events.ScheduleEvent(EVENT_MORTAL_WOUND, 5s);
+                events.ScheduleEvent(EVENT_SURGE, 4s);
+                BossAI::JustEngagedWith(who);
             }
 
             void MoveInLineOfSight(Unit* who) override
@@ -129,17 +128,17 @@ class boss_watchkeeper_gargolmar : public CreatureScript
                     {
                         case EVENT_MORTAL_WOUND:
                             DoCastVictim(SPELL_MORTAL_WOUND);
-                            events.ScheduleEvent(EVENT_MORTAL_WOUND, urand (5000, 13000));
+                            events.ScheduleEvent(EVENT_MORTAL_WOUND, 5s, 13s);
                             break;
                         case EVENT_SURGE:
                             Talk(SAY_SURGE);
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                                 DoCast(target, SPELL_SURGE);
-                            events.ScheduleEvent(EVENT_SURGE, urand (5000, 13000));
+                            events.ScheduleEvent(EVENT_SURGE, 5s, 13s);
                             break;
                         case EVENT_RETALIATION:
                             DoCast(me, SPELL_RETALIATION);
-                            events.ScheduleEvent(EVENT_RETALIATION, 30000);
+                            events.ScheduleEvent(EVENT_RETALIATION, 30s);
                             break;
                         default:
                             break;
@@ -150,7 +149,7 @@ class boss_watchkeeper_gargolmar : public CreatureScript
                 {
                     if (HealthBelowPct(20))
                     {
-                        events.ScheduleEvent(EVENT_RETALIATION, 1000);
+                        events.ScheduleEvent(EVENT_RETALIATION, 1s);
                         retaliation = true;
                     }
                 }
@@ -175,7 +174,7 @@ class boss_watchkeeper_gargolmar : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_watchkeeper_gargolmarAI(creature);
+            return GetHellfireRampartsAI<boss_watchkeeper_gargolmarAI>(creature);
         }
 };
 
@@ -183,4 +182,3 @@ void AddSC_boss_watchkeeper_gargolmar()
 {
     new boss_watchkeeper_gargolmar();
 }
-

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,12 +18,22 @@
 #ifndef DBUpdater_h__
 #define DBUpdater_h__
 
-#include "DatabaseEnv.h"
-
+#include "Define.h"
+#include "DatabaseEnvFwd.h"
 #include <string>
-#include <boost/filesystem.hpp>
 
-class UpdateException : public std::exception
+template <class T>
+class DatabaseWorkerPool;
+
+namespace boost
+{
+    namespace filesystem
+    {
+        class path;
+    }
+}
+
+class TC_DATABASE_API UpdateException : public std::exception
 {
 public:
     UpdateException(std::string const& msg) : _msg(msg) { }
@@ -41,23 +51,10 @@ enum BaseLocation
     LOCATION_DOWNLOAD
 };
 
-struct UpdateResult
-{
-    UpdateResult()
-        : updated(0), recent(0), archived(0) { }
-
-    UpdateResult(size_t const updated_, size_t const recent_, size_t const archived_)
-        : updated(updated_), recent(recent_), archived(archived_) { }
-
-    size_t updated;
-    size_t recent;
-    size_t archived;
-};
-
 class DBUpdaterUtil
 {
 public:
-    static std::string GetMySqlCli();
+    static std::string GetCorrectedMySQLExecutable();
 
     static bool CheckExecutable();
 
@@ -66,12 +63,10 @@ private:
 };
 
 template <class T>
-class DBUpdater
+class TC_DATABASE_API DBUpdater
 {
 public:
     using Path = boost::filesystem::path;
-
-    static std::string GetSourceDirectory();
 
     static inline std::string GetConfigEntry();
 
@@ -94,7 +89,8 @@ private:
     static void Apply(DatabaseWorkerPool<T>& pool, std::string const& query);
     static void ApplyFile(DatabaseWorkerPool<T>& pool, Path const& path);
     static void ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& host, std::string const& user,
-        std::string const& password, std::string const& port_or_socket, std::string const& database, Path const& path);
+        std::string const& password, std::string const& port_or_socket, std::string const& database, std::string const& ssl,
+        Path const& path);
 };
 
 #endif // DBUpdater_h__

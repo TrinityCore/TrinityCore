@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,17 +16,21 @@
  */
 
 #include "MMapManager.h"
+#include "Errors.h"
 #include "Log.h"
 #include "Config.h"
 #include "MapDefines.h"
 
 namespace MMAP
 {
+    static char const* const MAP_FILE_NAME_FORMAT = "%s/mmaps/%03i.mmap";
+    static char const* const TILE_FILE_NAME_FORMAT = "%s/mmaps/%03i%02i%02i.mmtile";
+
     // ######################## MMapManager ########################
     MMapManager::~MMapManager()
     {
-        for (MMapDataSet::iterator i = loadedMMaps.begin(); i != loadedMMaps.end(); ++i)
-            delete i->second;
+        for (std::pair<uint32 const, MMapData*>& loadedMMap : loadedMMaps)
+            delete loadedMMap.second;
 
         // by now we should not have maps loaded
         // if we had, tiles in MMapData->mmapLoadedTiles, their actual data is lost!
@@ -36,7 +39,7 @@ namespace MMAP
     void MMapManager::InitializeThreadUnsafe(const std::vector<uint32>& mapIds)
     {
         // the caller must pass the list of all mapIds that will be used in the VMapManager2 lifetime
-        for (const uint32& mapId : mapIds)
+        for (uint32 const& mapId : mapIds)
             loadedMMaps.insert(MMapDataSet::value_type(mapId, nullptr));
 
         thread_safe_environment = false;
@@ -66,30 +69,24 @@ namespace MMAP
             if (thread_safe_environment)
                 itr = loadedMMaps.insert(MMapDataSet::value_type(mapId, nullptr)).first;
             else
-                ASSERT(false, "Invalid mapId %u passed to MMapManager after startup in thread unsafe environment", mapId);
+                ABORT_MSG("Invalid mapId %u passed to MMapManager after startup in thread unsafe environment", mapId);
         }
 
         // load and init dtNavMesh - read parameters from file
-        std::string dataDir = sConfigMgr->GetStringDefault("DataDir", "./");
-        uint32 pathLen = dataDir.length() + strlen("/mmaps/%03i.mmap") + 1;
-        char *fileName = new char[pathLen];
-        snprintf(fileName, pathLen, (dataDir + "/mmaps/%03i.mmap").c_str(), mapId);
-
-        FILE* file = fopen(fileName, "rb");
+        std::string fileName = Trinity::StringFormat(MAP_FILE_NAME_FORMAT, sConfigMgr->GetStringDefault("DataDir", ".").c_str(), mapId);
+        FILE* file = fopen(fileName.c_str(), "rb");
         if (!file)
         {
-            TC_LOG_DEBUG("maps", "MMAP:loadMapData: Error: Could not open mmap file '%s'", fileName);
-            delete [] fileName;
+            TC_LOG_DEBUG("maps", "MMAP:loadMapData: Error: Could not open mmap file '%s'", fileName.c_str());
             return false;
         }
 
         dtNavMeshParams params;
-        int count = fread(&params, sizeof(dtNavMeshParams), 1, file);
+        uint32 count = uint32(fread(&params, sizeof(dtNavMeshParams), 1, file));
         fclose(file);
         if (count != 1)
         {
-            TC_LOG_DEBUG("maps", "MMAP:loadMapData: Error: Could not read params from file '%s'", fileName);
-            delete [] fileName;
+            TC_LOG_DEBUG("maps", "MMAP:loadMapData: Error: Could not read params from file '%s'", fileName.c_str());
             return false;
         }
 
@@ -98,18 +95,14 @@ namespace MMAP
         if (dtStatusFailed(mesh->init(&params)))
         {
             dtFreeNavMesh(mesh);
-            TC_LOG_ERROR("maps", "MMAP:loadMapData: Failed to initialize dtNavMesh for mmap %03u from file %s", mapId, fileName);
-            delete [] fileName;
+            TC_LOG_ERROR("maps", "MMAP:loadMapData: Failed to initialize dtNavMesh for mmap %03u from file %s", mapId, fileName.c_str());
             return false;
         }
-
-        delete [] fileName;
 
         TC_LOG_DEBUG("maps", "MMAP:loadMapData: Loaded %03i.mmap", mapId);
 
         // store inside our map list
         MMapData* mmap_data = new MMapData(mesh);
-        mmap_data->mmapLoadedTiles.clear();
 
         itr->second = mmap_data;
         return true;
@@ -120,7 +113,7 @@ namespace MMAP
         return uint32(x << 16 | y);
     }
 
-    bool MMapManager::loadMap(const std::string& basePath, uint32 mapId, int32 x, int32 y)
+    bool MMapManager::loadMap(const std::string& /*basePath*/, uint32 mapId, int32 x, int32 y)
     {
         // make sure the mmap is loaded and ready to load tiles
         if (!loadMapData(mapId))
@@ -132,23 +125,17 @@ namespace MMAP
 
         // check if we already have this tile loaded
         uint32 packedGridPos = packTileID(x, y);
-        if (mmap->mmapLoadedTiles.find(packedGridPos) != mmap->mmapLoadedTiles.end())
+        if (mmap->loadedTileRefs.find(packedGridPos) != mmap->loadedTileRefs.end())
             return false;
 
         // load this tile :: mmaps/MMMXXYY.mmtile
-        uint32 pathLen = basePath.length() + strlen("/%03i%02i%02i.mmtile") + 1;
-        char *fileName = new char[pathLen];
-
-        snprintf(fileName, pathLen, (basePath + "/%03i%02i%02i.mmtile").c_str(), mapId, x, y);
-
-        FILE* file = fopen(fileName, "rb");
+        std::string fileName = Trinity::StringFormat(TILE_FILE_NAME_FORMAT, sConfigMgr->GetStringDefault("DataDir", ".").c_str(), mapId, x, y);
+        FILE* file = fopen(fileName.c_str(), "rb");
         if (!file)
         {
-            TC_LOG_DEBUG("maps", "MMAP:loadMap: Could not open mmtile file '%s'", fileName);
-            delete [] fileName;
+            TC_LOG_DEBUG("maps", "MMAP:loadMap: Could not open mmtile file '%s'", fileName.c_str());
             return false;
         }
-        delete [] fileName;
 
         // read header
         MmapTileHeader fileHeader;
@@ -166,6 +153,17 @@ namespace MMAP
             fclose(file);
             return false;
         }
+
+        long pos = ftell(file);
+        fseek(file, 0, SEEK_END);
+        if (pos < 0 || static_cast<int32>(fileHeader.size) > ftell(file) - pos)
+        {
+            TC_LOG_ERROR("maps", "MMAP:loadMap: %03u%02i%02i.mmtile has corrupted data size", mapId, x, y);
+            fclose(file);
+            return false;
+        }
+
+        fseek(file, pos, SEEK_SET);
 
         unsigned char* data = (unsigned char*)dtAlloc(fileHeader.size, DT_ALLOC_PERM);
         ASSERT(data);
@@ -186,7 +184,7 @@ namespace MMAP
         // memory allocated for data is now managed by detour, and will be deallocated when the tile is removed
         if (dtStatusSucceed(mmap->navMesh->addTile(data, fileHeader.size, DT_TILE_FREE_DATA, 0, &tileRef)))
         {
-            mmap->mmapLoadedTiles.insert(std::pair<uint32, dtTileRef>(packedGridPos, tileRef));
+            mmap->loadedTileRefs.insert(std::pair<uint32, dtTileRef>(packedGridPos, tileRef));
             ++loadedTiles;
             TC_LOG_DEBUG("maps", "MMAP:loadMap: Loaded mmtile %03i[%02i, %02i] into %03i[%02i, %02i]", mapId, x, y, mapId, header->x, header->y);
             return true;
@@ -214,17 +212,17 @@ namespace MMAP
 
         // check if we have this tile loaded
         uint32 packedGridPos = packTileID(x, y);
-        if (mmap->mmapLoadedTiles.find(packedGridPos) == mmap->mmapLoadedTiles.end())
+        if (mmap->loadedTileRefs.find(packedGridPos) == mmap->loadedTileRefs.end())
         {
             // file may not exist, therefore not loaded
             TC_LOG_DEBUG("maps", "MMAP:unloadMap: Asked to unload not loaded navmesh tile. %03u%02i%02i.mmtile", mapId, x, y);
             return false;
         }
 
-        dtTileRef tileRef = mmap->mmapLoadedTiles[packedGridPos];
+        dtTileRef tileRef = mmap->loadedTileRefs[packedGridPos];
 
         // unload, and mark as non loaded
-        if (dtStatusFailed(mmap->navMesh->removeTile(tileRef, NULL, NULL)))
+        if (dtStatusFailed(mmap->navMesh->removeTile(tileRef, nullptr, nullptr)))
         {
             // this is technically a memory leak
             // if the grid is later reloaded, dtNavMesh::addTile will return error but no extra memory is used
@@ -234,7 +232,7 @@ namespace MMAP
         }
         else
         {
-            mmap->mmapLoadedTiles.erase(packedGridPos);
+            mmap->loadedTileRefs.erase(packedGridPos);
             --loadedTiles;
             TC_LOG_DEBUG("maps", "MMAP:unloadMap: Unloaded mmtile %03i[%02i, %02i] from %03i", mapId, x, y, mapId);
             return true;
@@ -255,11 +253,11 @@ namespace MMAP
 
         // unload all tiles from given map
         MMapData* mmap = itr->second;
-        for (MMapTileSet::iterator i = mmap->mmapLoadedTiles.begin(); i != mmap->mmapLoadedTiles.end(); ++i)
+        for (MMapTileSet::iterator i = mmap->loadedTileRefs.begin(); i != mmap->loadedTileRefs.end(); ++i)
         {
             uint32 x = (i->first >> 16);
             uint32 y = (i->first & 0x0000FFFF);
-            if (dtStatusFailed(mmap->navMesh->removeTile(i->second, NULL, NULL)))
+            if (dtStatusFailed(mmap->navMesh->removeTile(i->second, nullptr, nullptr)))
                 TC_LOG_ERROR("maps", "MMAP:unloadMap: Could not unload %03u%02i%02i.mmtile from navmesh", mapId, x, y);
             else
             {
@@ -306,7 +304,7 @@ namespace MMAP
     {
         MMapDataSet::const_iterator itr = GetMMapData(mapId);
         if (itr == loadedMMaps.end())
-            return NULL;
+            return nullptr;
 
         return itr->second->navMesh;
     }
@@ -315,7 +313,7 @@ namespace MMAP
     {
         MMapDataSet::const_iterator itr = GetMMapData(mapId);
         if (itr == loadedMMaps.end())
-            return NULL;
+            return nullptr;
 
         MMapData* mmap = itr->second;
         if (mmap->navMeshQueries.find(instanceId) == mmap->navMeshQueries.end())
@@ -327,7 +325,7 @@ namespace MMAP
             {
                 dtFreeNavMeshQuery(query);
                 TC_LOG_ERROR("maps", "MMAP:GetNavMeshQuery: Failed to initialize dtNavMeshQuery for mapId %03u instanceId %u", mapId, instanceId);
-                return NULL;
+                return nullptr;
             }
 
             TC_LOG_DEBUG("maps", "MMAP:GetNavMeshQuery: created dtNavMeshQuery for mapId %03u instanceId %u", mapId, instanceId);

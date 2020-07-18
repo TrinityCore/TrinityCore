@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,8 +19,7 @@
 #define _WARDENCHECKMGR_H
 
 #include <map>
-#include <boost/thread/locks.hpp>
-#include <boost/thread/shared_mutex.hpp>
+#include <shared_mutex>
 #include "Cryptography/BigNumber.h"
 
 enum WardenActions
@@ -48,18 +46,14 @@ struct WardenCheckResult
     BigNumber Result;                                       // MEM_CHECK
 };
 
-class WardenCheckMgr
+class TC_GAME_API WardenCheckMgr
 {
     private:
         WardenCheckMgr();
         ~WardenCheckMgr();
 
     public:
-        static WardenCheckMgr* instance()
-        {
-            static WardenCheckMgr instance;
-            return &instance;
-        }
+        static WardenCheckMgr* instance();
 
         // We have a linear key without any gaps, so we use vector for fast access
         typedef std::vector<WardenCheck*> CheckContainer;
@@ -74,7 +68,7 @@ class WardenCheckMgr
         void LoadWardenChecks();
         void LoadWardenOverrides();
 
-        boost::shared_mutex _checkStoreLock;
+        std::shared_mutex _checkStoreLock;
 
     private:
         CheckContainer CheckStore;

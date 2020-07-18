@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -26,7 +26,7 @@ namespace lfg
 /**
     Stores all lfg data needed about the player.
 */
-class LfgPlayerData
+class TC_GAME_API LfgPlayerData
 {
     public:
         LfgPlayerData();
@@ -41,7 +41,7 @@ class LfgPlayerData
         // Queue
         void SetRoles(uint8 roles);
         void SetComment(std::string const& comment);
-        void SetSelectedDungeons(const LfgDungeonSet& dungeons);
+        void SetSelectedDungeons(LfgDungeonSet const& dungeons);
 
         // General
         LfgState GetState() const;
@@ -53,6 +53,10 @@ class LfgPlayerData
         uint8 GetRoles() const;
         std::string const& GetComment() const;
         LfgDungeonSet const& GetSelectedDungeons() const;
+
+        // Achievement-related
+        void SetNumberOfPartyMembersAtJoin(uint8 count);
+        uint8 GetNumberOfPartyMembersAtJoin();
 
     private:
         // General
@@ -66,6 +70,9 @@ class LfgPlayerData
         uint8 m_Roles;                                     ///< Roles the player selected when joined LFG
         std::string m_Comment;                             ///< Player comment used when joined LFG
         LfgDungeonSet m_SelectedDungeons;                  ///< Selected Dungeons when joined LFG
+
+        // Achievement-related
+        uint8 m_NumberOfPartyMembersAtJoin;
 };
 
 } // namespace lfg

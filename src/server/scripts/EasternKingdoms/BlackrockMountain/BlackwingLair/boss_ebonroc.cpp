@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,8 +16,8 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "blackwing_lair.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -43,13 +42,13 @@ public:
     {
         boss_ebonrocAI(Creature* creature) : BossAI(creature, DATA_EBONROC) { }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _EnterCombat();
+            BossAI::JustEngagedWith(who);
 
-            events.ScheduleEvent(EVENT_SHADOWFLAME, urand(10000, 20000));
-            events.ScheduleEvent(EVENT_WINGBUFFET, 30000);
-            events.ScheduleEvent(EVENT_SHADOWOFEBONROC, urand(8000, 10000));
+            events.ScheduleEvent(EVENT_SHADOWFLAME, 10s, 20s);
+            events.ScheduleEvent(EVENT_WINGBUFFET, 30s);
+            events.ScheduleEvent(EVENT_SHADOWOFEBONROC, 8s, 10s);
         }
 
         void UpdateAI(uint32 diff) override
@@ -68,17 +67,20 @@ public:
                 {
                     case EVENT_SHADOWFLAME:
                         DoCastVictim(SPELL_SHADOWFLAME);
-                        events.ScheduleEvent(EVENT_SHADOWFLAME, urand(10000, 20000));
+                        events.ScheduleEvent(EVENT_SHADOWFLAME, 10s, 20s);
                         break;
                     case EVENT_WINGBUFFET:
                         DoCastVictim(SPELL_WINGBUFFET);
-                        events.ScheduleEvent(EVENT_WINGBUFFET, 30000);
+                        events.ScheduleEvent(EVENT_WINGBUFFET, 30s);
                         break;
                     case EVENT_SHADOWOFEBONROC:
                         DoCastVictim(SPELL_SHADOWOFEBONROC);
-                        events.ScheduleEvent(EVENT_SHADOWOFEBONROC, urand(8000, 10000));
+                        events.ScheduleEvent(EVENT_SHADOWOFEBONROC, 8s, 10s);
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
 
             DoMeleeAttackIfReady();
@@ -87,7 +89,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_ebonrocAI>(creature);
+        return GetBlackwingLairAI<boss_ebonrocAI>(creature);
     }
 };
 

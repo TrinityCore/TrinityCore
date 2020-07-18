@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,8 +16,10 @@
  */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "ScriptedCreature.h"
-#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
 #include "SpellScript.h"
 #include "violet_hold.h"
 
@@ -98,9 +100,9 @@ class boss_ichoron : public CreatureScript
                 DoCast(me, SPELL_THREAT_PROC, true);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
-                BossAI::EnterCombat(who);
+                BossAI::JustEngagedWith(who);
                 Talk(SAY_AGGRO);
             }
 
@@ -162,10 +164,10 @@ class boss_ichoron : public CreatureScript
                     Talk(SAY_SLAY);
             }
 
-            void JustDied(Unit* killer) override
+            void JustDied(Unit* /*killer*/) override
             {
-                BossAI::JustDied(killer);
                 Talk(SAY_DEATH);
+                _JustDied();
             }
 
             void JustSummoned(Creature* summon) override
@@ -216,7 +218,7 @@ class boss_ichoron : public CreatureScript
 
                 scheduler.Schedule(Seconds(6), Seconds(9), [this](TaskContext task)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 50.0f))
                         DoCast(target, SPELL_WATER_BLAST);
                     task.Repeat(Seconds(6), Seconds(9));
                 });
@@ -240,19 +242,23 @@ class npc_ichor_globule : public CreatureScript
 
         struct npc_ichor_globuleAI : public ScriptedAI
         {
-            npc_ichor_globuleAI(Creature* creature) : ScriptedAI(creature)
+            npc_ichor_globuleAI(Creature* creature) : ScriptedAI(creature), _splashTriggered(false)
             {
                 _instance = creature->GetInstanceScript();
                 creature->SetReactState(REACT_PASSIVE);
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spellInfo) override
+            void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
             {
+                Unit* unitCaster = caster->ToUnit();
+                if (!unitCaster)
+                    return;
+
                 if (spellInfo->Id == SPELL_WATER_GLOBULE_VISUAL)
                 {
                     DoCast(me, SPELL_WATER_GLOBULE_TRANSFORM);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    me->GetMotionMaster()->MoveFollow(caster, 0.0f, 0.0f);
+                    me->GetMotionMaster()->MoveFollow(unitCaster, 0.0f, 0.0f);
                 }
             }
 
@@ -272,14 +278,21 @@ class npc_ichor_globule : public CreatureScript
             // this feature should be still implemented
             void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
+                if (_splashTriggered)
+                    return;
+
                 if (damage >= me->GetHealth())
+                {
+                    _splashTriggered = true;
                     DoCastAOE(SPELL_SPLASH);
+                }
             }
 
             void UpdateAI(uint32 /*diff*/) override { }
 
         private:
             InstanceScript* _instance;
+            bool _splashTriggered;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -305,18 +318,18 @@ class spell_ichoron_drained : public SpellScriptLoader
 
             void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                GetTarget()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_UNK_31);
+                GetTarget()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 GetTarget()->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
             }
 
             void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                GetTarget()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_UNK_31);
+                GetTarget()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 GetTarget()->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
 
                 if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
-                    if (GetTarget()->IsAIEnabled)
-                        GetTarget()->GetAI()->DoAction(ACTION_DRAINED);
+                    if (UnitAI* ai = GetTarget()->GetAI())
+                        ai->DoAction(ACTION_DRAINED);
             }
 
             void Register() override
@@ -344,9 +357,7 @@ class spell_ichoron_merge : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SHRINK))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SHRINK });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -391,8 +402,8 @@ class spell_ichoron_protective_bubble : public SpellScriptLoader
             {
                 //if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_ENEMY_SPELL)
                 if (GetAura()->GetCharges() <= 1)
-                    if (GetTarget()->IsAIEnabled)
-                        GetTarget()->GetAI()->DoAction(ACTION_PROTECTIVE_BUBBLE_SHATTERED);
+                    if (UnitAI* targetAI = GetTarget()->GetAI())
+                        targetAI->DoAction(ACTION_PROTECTIVE_BUBBLE_SHATTERED);
             }
 
             void Register() override
@@ -419,14 +430,15 @@ class spell_ichoron_splatter : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WATER_GLOBULE_SUMMON_1)
-                    || !sSpellMgr->GetSpellInfo(SPELL_WATER_GLOBULE_SUMMON_2)
-                    || !sSpellMgr->GetSpellInfo(SPELL_WATER_GLOBULE_SUMMON_3)
-                    || !sSpellMgr->GetSpellInfo(SPELL_WATER_GLOBULE_SUMMON_4)
-                    || !sSpellMgr->GetSpellInfo(SPELL_WATER_GLOBULE_SUMMON_5)
-                    || !sSpellMgr->GetSpellInfo(SPELL_SHRINK))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_WATER_GLOBULE_SUMMON_1,
+                    SPELL_WATER_GLOBULE_SUMMON_2,
+                    SPELL_WATER_GLOBULE_SUMMON_3,
+                    SPELL_WATER_GLOBULE_SUMMON_4,
+                    SPELL_WATER_GLOBULE_SUMMON_5,
+                    SPELL_SHRINK
+                });
             }
 
             void PeriodicTick(AuraEffect const* /*aurEff*/)

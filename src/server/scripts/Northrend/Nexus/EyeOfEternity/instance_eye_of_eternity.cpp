@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,15 +16,24 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "InstanceScript.h"
+#include "AreaBoundary.h"
+#include "Creature.h"
+#include "CreatureAI.h"
 #include "eye_of_eternity.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Map.h"
 #include "Player.h"
+
+BossBoundaryData const boundaries =
+{
+    { DATA_MALYGOS_EVENT, new CircleBoundary(Position(754.362f, 1301.609985f), 280.0) } // sanity check boundary
+};
 
 class instance_eye_of_eternity : public InstanceMapScript
 {
 public:
-    instance_eye_of_eternity() : InstanceMapScript("instance_eye_of_eternity", 616) { }
+    instance_eye_of_eternity() : InstanceMapScript(EoEScriptName, 616) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
@@ -37,6 +46,7 @@ public:
         {
             SetHeaders(DataHeader);
             SetBossNumber(MAX_ENCOUNTER);
+            LoadBossBoundaries(boundaries);
         }
 
         void OnPlayerEnter(Player* player) override
@@ -80,9 +90,7 @@ public:
         void SpawnGameObject(uint32 entry, Position const& pos)
         {
             GameObject* go = new GameObject();
-            if (!go->Create(instance->GenerateLowGuid<HighGuid::GameObject>(), entry, instance,
-                PHASEMASK_NORMAL, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(),
-                0, 0, 0, 0, 120, GO_STATE_READY))
+            if (!go->Create(instance->GenerateLowGuid<HighGuid::GameObject>(), entry, instance, PHASEMASK_NORMAL, pos, QuaternionData(), 255, GO_STATE_READY))
             {
                 delete go;
                 return;
@@ -173,26 +181,20 @@ public:
         {
             if (Creature* malygos = instance->GetCreature(malygosGUID))
             {
-                ThreatContainer::StorageType const& threatList = malygos->getThreatManager().getThreatList();
                 for (GuidList::const_iterator itr_vortex = vortexTriggers.begin(); itr_vortex != vortexTriggers.end(); ++itr_vortex)
                 {
-                    if (threatList.empty())
-                        return;
-
                     uint8 counter = 0;
                     if (Creature* trigger = instance->GetCreature(*itr_vortex))
                     {
                         // each trigger have to cast the spell to 5 players.
-                        for (ThreatContainer::StorageType::const_iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
+                        for (auto* ref : malygos->GetThreatManager().GetUnsortedThreatList())
                         {
                             if (counter >= 5)
                                 break;
 
-                            if (Unit* target = (*itr)->getTarget())
+                            if (Player* player = ref->GetVictim()->ToPlayer())
                             {
-                                Player* player = target->ToPlayer();
-
-                                if (!player || player->IsGameMaster() || player->HasAura(SPELL_VORTEX_4))
+                                if (player->IsGameMaster() || player->HasAura(SPELL_VORTEX_4))
                                     continue;
 
                                 player->CastSpell(trigger, SPELL_VORTEX_4, true);

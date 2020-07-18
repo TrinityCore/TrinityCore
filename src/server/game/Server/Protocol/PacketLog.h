@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -31,7 +31,7 @@ enum Direction
 
 class WorldPacket;
 
-class PacketLog
+class TC_GAME_API PacketLog
 {
     private:
         PacketLog();
@@ -40,14 +40,10 @@ class PacketLog
         std::once_flag _initializeFlag;
 
     public:
-        static PacketLog* instance()
-        {
-            static PacketLog instance;
-            return &instance;
-        }
+        static PacketLog* instance();
 
         void Initialize();
-        bool CanLogPacket() const { return (_file != NULL); }
+        bool CanLogPacket() const { return (_file != nullptr); }
         void LogPacket(WorldPacket const& packet, Direction direction, boost::asio::ip::address const& addr, uint16 port);
 
     private:

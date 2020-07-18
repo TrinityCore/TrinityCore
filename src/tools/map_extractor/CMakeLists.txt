@@ -1,5 +1,4 @@
-# Copyright (C) 2005-2009 MaNGOS project <http://getmangos.com/>
-# Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+# This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -9,36 +8,47 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-file(GLOB_RECURSE sources *.cpp *.h)
+CollectSourceFiles(
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  PRIVATE_SOURCES)
 
-set(include_Dirs
-    ${CMAKE_SOURCE_DIR}/src/server/shared
-    ${CMAKE_SOURCE_DIR}/dep/libmpq
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/loadlib
-)
-
-if( WIN32 )
-  set(include_Dirs
-    ${include_Dirs}
-    ${CMAKE_SOURCE_DIR}/dep/libmpq/win
-  )
+if(WIN32)
+  list(APPEND PRIVATE_SOURCES ${sources_windows})
 endif()
 
-include_directories(${include_Dirs})
-
 add_executable(mapextractor
-  ${sources}
+  ${PRIVATE_SOURCES}
 )
+
+target_include_directories(mapextractor
+  PUBLIC
+    ${CMAKE_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/loadlib)
 
 target_link_libraries(mapextractor
-  mpq
-  ${BZIP2_LIBRARIES}
-  ${ZLIB_LIBRARIES}
-)
+  PRIVATE
+    trinity-core-interface
+  PUBLIC
+    common
+    mpq)
 
-if( UNIX )
+CollectIncludeDirectories(
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  PUBLIC_INCLUDES)
+
+target_include_directories(mapextractor
+  PUBLIC
+    ${PUBLIC_INCLUDES}
+  PRIVATE
+    ${CMAKE_CURRENT_BINARY_DIR})
+
+set_target_properties(mapextractor
+    PROPERTIES
+      FOLDER
+        "tools")
+
+if(UNIX)
   install(TARGETS mapextractor DESTINATION bin)
-elseif( WIN32 )
+elseif(WIN32)
   install(TARGETS mapextractor DESTINATION "${CMAKE_INSTALL_PREFIX}")
 endif()

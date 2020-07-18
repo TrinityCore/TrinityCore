@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -32,8 +32,11 @@ typedef std::chrono::minutes Minutes;
 /// Hours shorthand typedef.
 typedef std::chrono::hours Hours;
 
+/// time_point shorthand typedefs
+typedef std::chrono::steady_clock::time_point TimePoint;
+typedef std::chrono::system_clock::time_point SystemTimePoint;
+
 /// Makes std::chrono_literals globally available.
-// ToDo: Enable this when TC supports C++14.
-// using namespace std::chrono_literals;
+using namespace std::chrono_literals;
 
 #endif // _DURATION_H_

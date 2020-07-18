@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -30,8 +29,10 @@ npc_zerekethvoidzone
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "arcatraz.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ScriptedCreature.h"
 
 /*#####
 # npc_millhouse_manastorm
@@ -73,7 +74,7 @@ class npc_millhouse_manastorm : public CreatureScript
 
         struct npc_millhouse_manastormAI : public ScriptedAI
         {
-            npc_millhouse_manastormAI(Creature* creature) : ScriptedAI(creature)
+            npc_millhouse_manastormAI(Creature* creature) : ScriptedAI(creature), Init(false)
             {
                 Initialize();
                 instance = creature->GetInstanceScript();
@@ -83,7 +84,6 @@ class npc_millhouse_manastorm : public CreatureScript
             {
                 EventProgress_Timer = 2000;
                 LowHp = false;
-                Init = false;
                 Phase = 1;
 
                 Pyroblast_Timer = 1000;
@@ -105,7 +105,10 @@ class npc_millhouse_manastorm : public CreatureScript
                 Initialize();
 
                 if (instance->GetData(DATA_WARDEN_2) == DONE)
+                {
                     Init = true;
+                    me->SetImmuneToNPC(false);
+                }
 
                 if (instance->GetBossState(DATA_HARBINGER_SKYRISS) == DONE)
                     Talk(SAY_COMPLETE);
@@ -115,7 +118,7 @@ class npc_millhouse_manastorm : public CreatureScript
             {
                 if (me->Attack(who, true))
                 {
-                    me->AddThreat(who, 0.0f);
+                    AddThreat(who, 0.0f);
                     me->SetInCombatWith(who);
                     who->SetInCombatWith(me);
                     me->GetMotionMaster()->MoveChase(who, 25.0f);
@@ -177,6 +180,7 @@ class npc_millhouse_manastorm : public CreatureScript
                             case 7:
                                 instance->SetData(DATA_WARDEN_2, DONE);
                                 Init = true;
+                                me->SetImmuneToNPC(false);
                                 break;
                             }
                             ++Phase;
@@ -324,11 +328,11 @@ class npc_warden_mellichar : public CreatureScript
 
                     float attackRadius = me->GetAttackDistance(who)/10;
                     if (me->IsWithinDistInMap(who, attackRadius) && me->IsWithinLOSInMap(who))
-                        EnterCombat(who);
+                        JustEngagedWith(who);
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(YELL_INTRO1);
                 DoCast(me, SPELL_BUBBLE_VISUAL);
@@ -341,7 +345,7 @@ class npc_warden_mellichar : public CreatureScript
             void JustSummoned(Creature* summon) override
             {
                 DoZoneInCombat(summon);
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                     summon->AI()->AttackStart(target);
             }
 
@@ -537,19 +541,19 @@ class npc_zerekethvoidzone : public CreatureScript
 
             void Reset() override
             {
-                me->SetUInt32Value(UNIT_NPC_FLAGS, 0);
-                me->setFaction(16);
+                me->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
+                me->SetFaction(FACTION_MONSTER_2);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
                 DoCast(me, SPELL_VOID_ZONE_DAMAGE);
             }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
         };
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_zerekethvoidzoneAI(creature);
+            return GetArcatrazAI<npc_zerekethvoidzoneAI>(creature);
         }
 };
 

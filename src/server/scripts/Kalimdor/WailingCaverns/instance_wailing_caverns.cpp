@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,7 +23,10 @@ SDCategory: Wailing Caverns
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "Creature.h"
 #include "InstanceScript.h"
+#include "Log.h"
+#include "Map.h"
 #include "wailing_caverns.h"
 
 #define MAX_ENCOUNTER   9
@@ -32,7 +34,7 @@ EndScriptData */
 class instance_wailing_caverns : public InstanceMapScript
 {
 public:
-    instance_wailing_caverns() : InstanceMapScript("instance_wailing_caverns", 43) { }
+    instance_wailing_caverns() : InstanceMapScript(WCScriptName, 43) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
@@ -115,7 +117,7 @@ public:
             return saveStream.str();
         }
 
-        void Load(const char* in) override
+        void Load(char const* in) override
         {
             if (!in)
             {

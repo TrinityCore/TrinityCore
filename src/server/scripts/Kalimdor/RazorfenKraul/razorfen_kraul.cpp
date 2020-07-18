@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2013 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,11 +16,10 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedEscortAI.h"
-#include "razorfen_kraul.h"
-#include "Player.h"
 #include "PetAI.h"
+#include "Player.h"
+#include "razorfen_kraul.h"
+#include "ScriptedEscortAI.h"
 #include "SpellScript.h"
 
 enum Willix
@@ -47,21 +45,21 @@ class npc_willix : public CreatureScript
 public:
     npc_willix() : CreatureScript("npc_willix") { }
 
-    struct npc_willixAI : public npc_escortAI
+    struct npc_willixAI : public EscortAI
     {
-        npc_willixAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_willixAI(Creature* creature) : EscortAI(creature) { }
 
-        void sQuestAccept(Player* player, Quest const* quest) override
+        void QuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_WILLIX_THE_IMPORTER)
             {
                 Start(true, false, player->GetGUID());
                 Talk(SAY_READY, player);
-                me->setFaction(113);
+                me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
             }
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -113,9 +111,9 @@ public:
 
         void Reset() override { }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            Talk(SAY_AGGRO1);
+            Talk(SAY_AGGRO1, who);
         }
 
         void JustSummoned(Creature* summoned) override
@@ -132,7 +130,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_willixAI(creature);
+        return GetRazorfenKraulAI<npc_willixAI>(creature);
     }
 };
 

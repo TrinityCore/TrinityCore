@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,7 +21,6 @@
 #include "Define.h"
 #include "DetourNavMesh.h"
 #include "DetourNavMeshQuery.h"
-
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -34,7 +32,7 @@ namespace MMAP
     typedef std::unordered_map<uint32, dtNavMeshQuery*> NavMeshQuerySet;
 
     // dummy struct to hold map's mmap data
-    struct MMapData
+    struct TC_COMMON_API MMapData
     {
         MMapData(dtNavMesh* mesh) : navMesh(mesh) { }
         ~MMapData()
@@ -46,11 +44,11 @@ namespace MMAP
                 dtFreeNavMesh(navMesh);
         }
 
-        dtNavMesh* navMesh;
-
         // we have to use single dtNavMeshQuery for every instance, since those are not thread safe
         NavMeshQuerySet navMeshQueries;     // instanceId to query
-        MMapTileSet mmapLoadedTiles;        // maps [map grid coords] to [dtTile]
+
+        dtNavMesh* navMesh;
+        MMapTileSet loadedTileRefs;        // maps [map grid coords] to [dtTile]
     };
 
 
@@ -58,7 +56,7 @@ namespace MMAP
 
     // singleton class
     // holds all all access to mmap loading unloading and meshes
-    class MMapManager
+    class TC_COMMON_API MMapManager
     {
         public:
             MMapManager() : loadedTiles(0), thread_safe_environment(true) {}
@@ -75,7 +73,7 @@ namespace MMAP
             dtNavMesh const* GetNavMesh(uint32 mapId);
 
             uint32 getLoadedTilesCount() const { return loadedTiles; }
-            uint32 getLoadedMapsCount() const { return loadedMMaps.size(); }
+            uint32 getLoadedMapsCount() const { return uint32(loadedMMaps.size()); }
         private:
             bool loadMapData(uint32 mapId);
             uint32 packTileID(int32 x, int32 y);

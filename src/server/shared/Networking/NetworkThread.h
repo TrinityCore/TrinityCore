@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,9 +19,12 @@
 #define NetworkThread_h__
 
 #include "Define.h"
+#include "DeadlineTimer.h"
 #include "Errors.h"
+#include "IoContext.h"
 #include "Log.h"
 #include "Timer.h"
+#include <boost/asio/ip/tcp.hpp>
 #include <atomic>
 #include <chrono>
 #include <memory>
@@ -29,11 +32,14 @@
 #include <set>
 #include <thread>
 
+using boost::asio::ip::tcp;
+
 template<class SocketType>
 class NetworkThread
 {
 public:
-    NetworkThread() : _connections(0), _stopped(false), _thread(nullptr)
+    NetworkThread() : _connections(0), _stopped(false), _thread(nullptr), _ioContext(1),
+        _acceptSocket(_ioContext), _updateTimer(_ioContext)
     {
     }
 
@@ -50,6 +56,7 @@ public:
     void Stop()
     {
         _stopped = true;
+        _ioContext.stop();
     }
 
     bool Start()
@@ -80,9 +87,11 @@ public:
         std::lock_guard<std::mutex> lock(_newSocketsLock);
 
         ++_connections;
-        _newSockets.insert(sock);
+        _newSockets.push_back(sock);
         SocketAdded(sock);
     }
+
+    tcp::socket* GetSocketForAccept() { return &_acceptSocket; }
 
 protected:
     virtual void SocketAdded(std::shared_ptr<SocketType> /*sock*/) { }
@@ -95,16 +104,15 @@ protected:
         if (_newSockets.empty())
             return;
 
-        for (typename SocketSet::const_iterator i = _newSockets.begin(); i != _newSockets.end(); ++i)
+        for (std::shared_ptr<SocketType> sock : _newSockets)
         {
-            if (!(*i)->IsOpen())
+            if (!sock->IsOpen())
             {
-                SocketRemoved(*i);
-
+                SocketRemoved(sock);
                 --_connections;
             }
             else
-                _Sockets.insert(*i);
+                _sockets.push_back(sock);
         }
 
         _newSockets.clear();
@@ -114,53 +122,58 @@ protected:
     {
         TC_LOG_DEBUG("misc", "Network Thread Starting");
 
-        typename SocketSet::iterator i, t;
-
-        uint32 sleepTime = 10;
-        uint32 tickStart = 0, diff = 0;
-        while (!_stopped)
-        {
-            std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
-
-            tickStart = getMSTime();
-
-            AddNewSockets();
-
-            for (i = _Sockets.begin(); i != _Sockets.end();)
-            {
-                if (!(*i)->Update())
-                {
-                    if ((*i)->IsOpen())
-                        (*i)->CloseSocket();
-
-                    SocketRemoved(*i);
-
-                    --_connections;
-                    _Sockets.erase(i++);
-                }
-                else
-                    ++i;
-            }
-
-            diff = GetMSTimeDiffToNow(tickStart);
-            sleepTime = diff > 10 ? 0 : 10 - diff;
-        }
+        _updateTimer.expires_from_now(boost::posix_time::milliseconds(10));
+        _updateTimer.async_wait(std::bind(&NetworkThread<SocketType>::Update, this));
+        _ioContext.run();
 
         TC_LOG_DEBUG("misc", "Network Thread exits");
+        _newSockets.clear();
+        _sockets.clear();
+    }
+
+    void Update()
+    {
+        if (_stopped)
+            return;
+
+        _updateTimer.expires_from_now(boost::posix_time::milliseconds(10));
+        _updateTimer.async_wait(std::bind(&NetworkThread<SocketType>::Update, this));
+
+        AddNewSockets();
+
+        _sockets.erase(std::remove_if(_sockets.begin(), _sockets.end(), [this](std::shared_ptr<SocketType> sock)
+        {
+            if (!sock->Update())
+            {
+                if (sock->IsOpen())
+                    sock->CloseSocket();
+
+                this->SocketRemoved(sock);
+
+                --this->_connections;
+                return true;
+            }
+
+            return false;
+        }), _sockets.end());
     }
 
 private:
-    typedef std::set<std::shared_ptr<SocketType> > SocketSet;
+    typedef std::vector<std::shared_ptr<SocketType>> SocketContainer;
 
     std::atomic<int32> _connections;
     std::atomic<bool> _stopped;
 
     std::thread* _thread;
 
-    SocketSet _Sockets;
+    SocketContainer _sockets;
 
     std::mutex _newSocketsLock;
-    SocketSet _newSockets;
+    SocketContainer _newSockets;
+
+    Trinity::Asio::IoContext _ioContext;
+    tcp::socket _acceptSocket;
+    Trinity::Asio::DeadlineTimer _updateTimer;
 };
 
 #endif // NetworkThread_h__

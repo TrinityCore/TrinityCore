@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,18 +20,14 @@
 
 #include "CreatureAI.h"
 
-class Unit;
-
-class ReactorAI : public CreatureAI
+class TC_GAME_API ReactorAI : public CreatureAI
 {
     public:
-
-        explicit ReactorAI(Creature* c) : CreatureAI(c) { }
+        explicit ReactorAI(Creature* creature) : CreatureAI(creature) { }
 
         void MoveInLineOfSight(Unit*) override { }
         void UpdateAI(uint32 diff) override;
 
-        static int Permissible(const Creature*);
+        static int32 Permissible(Creature const* creature);
 };
 #endif
-

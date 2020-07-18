@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,43 +18,43 @@
 #ifndef _QUERYHOLDER_H
 #define _QUERYHOLDER_H
 
-#include <future>
+#include "SQLOperation.h"
 
-class SQLQueryHolder
+class TC_DATABASE_API SQLQueryHolderBase
 {
     friend class SQLQueryHolderTask;
     private:
-        typedef std::pair<SQLElementData, SQLResultSetUnion> SQLResultPair;
-        std::vector<SQLResultPair> m_queries;
+        std::vector<std::pair<PreparedStatementBase*, PreparedQueryResult>> m_queries;
     public:
-        SQLQueryHolder() { }
-        ~SQLQueryHolder();
-        bool SetQuery(size_t index, const char* sql);
-        template<typename Format, typename... Args>
-        bool SetPQuery(size_t index, Format&& sql, Args&&... args)
-        {
-            return SetQuery(index, Trinity::StringFormat(std::forward<Format>(sql), std::forward<Args>(args)...).c_str());
-        }
-        bool SetPreparedQuery(size_t index, PreparedStatement* stmt);
+        SQLQueryHolderBase() { }
+        virtual ~SQLQueryHolderBase();
         void SetSize(size_t size);
-        QueryResult GetResult(size_t index);
         PreparedQueryResult GetPreparedResult(size_t index);
-        void SetResult(size_t index, ResultSet* result);
         void SetPreparedResult(size_t index, PreparedResultSet* result);
+
+    protected:
+        bool SetPreparedQueryImpl(size_t index, PreparedStatementBase* stmt);
 };
 
-typedef std::future<SQLQueryHolder*> QueryResultHolderFuture;
-typedef std::promise<SQLQueryHolder*> QueryResultHolderPromise;
+template<typename T>
+class SQLQueryHolder : public SQLQueryHolderBase
+{
+public:
+    bool SetPreparedQuery(size_t index, PreparedStatement<T>* stmt)
+    {
+        return SetPreparedQueryImpl(index, stmt);
+    }
+};
 
-class SQLQueryHolderTask : public SQLOperation
+class TC_DATABASE_API SQLQueryHolderTask : public SQLOperation
 {
     private:
-        SQLQueryHolder* m_holder;
+        SQLQueryHolderBase* m_holder;
         QueryResultHolderPromise m_result;
         bool m_executed;
 
     public:
-        SQLQueryHolderTask(SQLQueryHolder* holder)
+        SQLQueryHolderTask(SQLQueryHolderBase* holder)
             : m_holder(holder), m_executed(false) { }
 
         ~SQLQueryHolderTask();

@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,16 +23,19 @@ SDCategory: Razorfen Kraul
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
-#include "razorfen_kraul.h"
+#include "Log.h"
+#include "Map.h"
 #include "Player.h"
+#include "razorfen_kraul.h"
 
 #define WARD_KEEPERS_NR 2
 
 class instance_razorfen_kraul : public InstanceMapScript
 {
 public:
-    instance_razorfen_kraul() : InstanceMapScript("instance_razorfen_kraul", 47) { }
+    instance_razorfen_kraul() : InstanceMapScript(RFKScriptName, 47) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
@@ -54,17 +56,13 @@ public:
         Player* GetPlayerInMap()
         {
             Map::PlayerList const& players = instance->GetPlayers();
-
-            if (!players.isEmpty())
+            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
             {
-                for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                {
-                    if (Player* player = itr->GetSource())
-                        return player;
-                }
+                if (Player* player = itr->GetSource())
+                    return player;
             }
             TC_LOG_DEBUG("scripts", "Instance Razorfen Kraul: GetPlayerInMap, but PlayerList is empty!");
-            return NULL;
+            return nullptr;
         }
 
         void OnGameObjectCreate(GameObject* go) override
@@ -72,7 +70,7 @@ public:
             switch (go->GetEntry())
             {
                 case 21099: DoorWardGUID = go->GetGUID(); break;
-                case 20920: go->SetUInt32Value(GAMEOBJECT_FACTION, 0); break; // big fat fugly hack
+                case 20920: go->SetFaction(FACTION_NONE); break; // big fat fugly hack
             }
         }
 

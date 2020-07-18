@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,10 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "GameEventMgr.h"
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "GameEventMgr.h"
+#include "GameTime.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "nexus.h"
+#include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 
 enum Spells
 {
@@ -70,7 +73,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_magus_telestraAI>(creature);
+        return GetNexusAI<boss_magus_telestraAI>(creature);
     }
 
     struct boss_magus_telestraAI : public ScriptedAI
@@ -139,7 +142,7 @@ public:
                 me->AddAura(SPELL_WEAR_CHRISTMAS_HAT, me);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
 
@@ -149,7 +152,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_DEATH);
-
+            me->SetVisible(true);
             instance->SetBossState(DATA_MAGUS_TELESTRA, DONE);
         }
 
@@ -167,7 +170,7 @@ public:
                 while (time[i] != 0)
                     ++i;
 
-                time[i] = sWorld->GetGameTime();
+                time[i] = GameTime::GetGameTime();
                 if (i == 2 && (time[2] - time[1] < 5) && (time[1] - time[0] < 5))
                     ++splitPersonality;
             }
@@ -203,7 +206,7 @@ public:
                         break;
                     }
                 }
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     Summoned->AI()->AttackStart(target);
                 return Summoned->GetGUID();
             }
@@ -257,7 +260,7 @@ public:
                     for (uint8 n = 0; n < 3; ++n)
                         time[n] = 0;
                     me->GetMotionMaster()->Clear();
-                    me->SetPosition(CenterOfRoom.GetPositionX(), CenterOfRoom.GetPositionY(), CenterOfRoom.GetPositionZ(), CenterOfRoom.GetOrientation());
+                    me->UpdatePosition(CenterOfRoom.GetPositionX(), CenterOfRoom.GetPositionY(), CenterOfRoom.GetPositionZ(), CenterOfRoom.GetOrientation());
                     DoCast(me, SPELL_TELESTRA_BACK);
                     me->SetVisible(true);
                     if (Phase == 1)
@@ -322,7 +325,7 @@ public:
 
             if (uiIceNovaTimer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                 {
                     DoCast(target, SPELL_ICE_NOVA, false);
                     uiCooldown = 1500;
@@ -342,7 +345,7 @@ public:
 
             if (uiFireBombTimer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                 {
                     DoCast(target, SPELL_FIREBOMB, false);
                     uiCooldown = 2*IN_MILLISECONDS;

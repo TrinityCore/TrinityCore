@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,15 +16,18 @@
  */
 
 #include "ScriptMgr.h"
+#include "CombatAI.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "oculus.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "SpellScript.h"
+#include "Spell.h"
 #include "SpellAuraEffects.h"
-#include "SpellInfo.h"
-#include "CombatAI.h"
-#include "Player.h"
+#include "SpellScript.h"
 #include "Vehicle.h"
-#include "oculus.h"
 
 enum GossipNPCs
 {
@@ -141,7 +144,7 @@ class npc_verdisa_beglaristrasz_eternos : public CreatureScript
                 player->DestroyItemCount(itemId, 1, true, false);
             }
 
-            void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+            bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
             {
                 switch (menuId)
                 {
@@ -156,7 +159,7 @@ class npc_verdisa_beglaristrasz_eternos : public CreatureScript
                             StoreEssence(player, ITEM_EMERALD_ESSENCE);
                             break;
                         }
-                        return;
+                        return false;
                     case GOSSIP_MENU_ETERNOS:
                         if (gossipListId >= 1 && gossipListId <= 3)
                         {
@@ -168,7 +171,7 @@ class npc_verdisa_beglaristrasz_eternos : public CreatureScript
                             StoreEssence(player, ITEM_AMBER_ESSENCE);
                             break;
                         }
-                        return;
+                        return false;
                     case GOSSIP_MENU_BELGARISTRASZ:
                         if (gossipListId <= 2)
                         {
@@ -180,11 +183,12 @@ class npc_verdisa_beglaristrasz_eternos : public CreatureScript
                             StoreEssence(player, ITEM_RUBY_ESSENCE);
                             break;
                         }
-                        return;
+                        return false;
                     default:
-                        return;
+                        return false;
                 }
                 player->PlayerTalkClass->SendCloseGossip();
+                return false;
             }
 
             void MovementInform(uint32 /*type*/, uint32 id) override
@@ -216,7 +220,7 @@ class npc_image_belgaristrasz : public CreatureScript
         {
             npc_image_belgaristraszAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void IsSummonedBy(Unit* summoner) override
+            void IsSummonedBy(WorldObject* summoner) override
             {
                 if (summoner->GetEntry() == NPC_VAROS)
                 {
@@ -262,10 +266,10 @@ class npc_ruby_emerald_amber_drake : public CreatureScript
                 Initialize();
             }
 
-            void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
                 if (Unit* creator = ObjectAccessor::GetUnit(*me, me->GetCreatorGUID()))
-                    if (spell->Id == SPELL_GPS)
+                    if (spellInfo->Id == SPELL_GPS)
                     {
                         if (_instance->GetBossState(DATA_EREGOS) == DONE)
                             Talk(WHISPER_GPS_END, creator);
@@ -282,7 +286,7 @@ class npc_ruby_emerald_amber_drake : public CreatureScript
                     }
             }
 
-            void IsSummonedBy(Unit* summoner) override
+            void IsSummonedBy(WorldObject* summoner) override
             {
                 if (_instance->GetBossState(DATA_EREGOS) == IN_PROGRESS)
                     if (Creature* eregos = me->FindNearestCreature(NPC_EREGOS, 450.0f, true))
@@ -293,13 +297,13 @@ class npc_ruby_emerald_amber_drake : public CreatureScript
                 switch (me->GetEntry())
                 {
                     case NPC_RUBY_DRAKE_VEHICLE:
-                        me->CastSpell(summoner, SPELL_RIDE_RUBY_DRAKE_QUE);
+                        me->CastSpell(summoner, SPELL_RIDE_RUBY_DRAKE_QUE, true);
                         break;
                     case NPC_EMERALD_DRAKE_VEHICLE:
-                        me->CastSpell(summoner, SPELL_RIDE_EMERALD_DRAKE_QUE);
+                        me->CastSpell(summoner, SPELL_RIDE_EMERALD_DRAKE_QUE, true);
                         break;
                     case NPC_AMBER_DRAKE_VEHICLE:
-                        me->CastSpell(summoner, SPELL_RIDE_AMBER_DRAKE_QUE);
+                        me->CastSpell(summoner, SPELL_RIDE_AMBER_DRAKE_QUE, true);
                         break;
                     default:
                         return;
@@ -323,15 +327,15 @@ class npc_ruby_emerald_amber_drake : public CreatureScript
                 if (apply)
                 {
                     if (_instance->GetBossState(DATA_VAROS) != DONE)
-                        _events.ScheduleEvent(EVENT_WELCOME, 10 * IN_MILLISECONDS);
+                        _events.ScheduleEvent(EVENT_WELCOME, 10s);
 
                     else if (_instance->GetBossState(DATA_UROM) == DONE)
-                        _events.ScheduleEvent(EVENT_SPECIAL_ATTACK, 10 * IN_MILLISECONDS);
+                        _events.ScheduleEvent(EVENT_SPECIAL_ATTACK, 10s);
                 }
                 else
                 {
                     _events.Reset();
-                    _events.ScheduleEvent(EVENT_TAKE_OFF, 2 * IN_MILLISECONDS);
+                    _events.ScheduleEvent(EVENT_TAKE_OFF, 2s);
                 }
             }
 
@@ -340,7 +344,7 @@ class npc_ruby_emerald_amber_drake : public CreatureScript
                 if (_healthWarning)
                 {
                     if (me->GetHealthPct() <= 40.0f)
-                        _events.ScheduleEvent(EVENT_LOW_HEALTH, 0);
+                        _events.ScheduleEvent(EVENT_LOW_HEALTH, 0ms);
                 }
 
                 _events.Update(diff);
@@ -352,7 +356,7 @@ class npc_ruby_emerald_amber_drake : public CreatureScript
                         case EVENT_WELCOME:
                             if (Unit* creator = ObjectAccessor::GetUnit(*me, me->GetCreatorGUID()))
                                 Talk(WHISPER_DRAKES_WELCOME, creator);
-                            _events.ScheduleEvent(EVENT_ABILITIES, 5 * IN_MILLISECONDS);
+                            _events.ScheduleEvent(EVENT_ABILITIES, 5s);
                             break;
                         case EVENT_ABILITIES:
                             if (Unit* creator = ObjectAccessor::GetUnit(*me, me->GetCreatorGUID()))
@@ -366,7 +370,7 @@ class npc_ruby_emerald_amber_drake : public CreatureScript
                             if (Unit* creator = ObjectAccessor::GetUnit(*me, me->GetCreatorGUID()))
                                 Talk(WHISPER_DRAKES_LOWHEALTH, creator);
                             _healthWarning = false;
-                            _events.ScheduleEvent(EVENT_RESET_LOW_HEALTH, 25000);
+                            _events.ScheduleEvent(EVENT_RESET_LOW_HEALTH, 25s);
                             break;
                         case EVENT_RESET_LOW_HEALTH:
                             _healthWarning = true;
@@ -375,7 +379,7 @@ class npc_ruby_emerald_amber_drake : public CreatureScript
                         {
                             me->DespawnOrUnsummon(2050);
                             me->SetOrientation(2.5f);
-                            me->SetSpeed(MOVE_FLIGHT, 1.0f, true);
+                            me->SetSpeedRate(MOVE_FLIGHT, 1.0f);
                             Talk(SAY_DRAKES_TAKEOFF);
                             Position pos = me->GetPosition();
                             Position offset = { 10.0f, 10.0f, 12.0f, 0.0f };
@@ -477,9 +481,7 @@ class spell_oculus_evasive_maneuvers : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_RUBY_EVASIVE_CHARGES))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_RUBY_EVASIVE_CHARGES });
             }
 
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
@@ -514,27 +516,27 @@ class spell_oculus_shock_lance : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_AMBER_SHOCK_CHARGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_AMBER_SHOCK_CHARGE });
             }
 
-            void CalcDamage()
+            void CalcDamage(SpellEffIndex /*effIndex*/)
             {
-                int32 damage = GetHitDamage();
+                int32 damage = GetEffectValue();
                 if (Unit* target = GetHitUnit())
+                {
                     if (AuraEffect const* shockCharges = target->GetAuraEffect(SPELL_AMBER_SHOCK_CHARGE, EFFECT_0, GetCaster()->GetGUID()))
                     {
                         damage += shockCharges->GetAmount();
-                        shockCharges->GetBase()->Remove();
+                        shockCharges->GetBase()->Remove(AURA_REMOVE_BY_ENEMY_SPELL);
                     }
+                }
 
-                SetHitDamage(damage);
+                SetEffectValue(damage);
             }
 
             void Register() override
             {
-                OnHit += SpellHitFn(spell_oculus_shock_lance_SpellScript::CalcDamage);
+                OnEffectLaunchTarget += SpellEffectFn(spell_oculus_shock_lance_SpellScript::CalcDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
@@ -556,9 +558,7 @@ class spell_oculus_stop_time : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_AMBER_SHOCK_CHARGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_AMBER_SHOCK_CHARGE });
             }
 
             void Apply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -596,16 +596,17 @@ class spell_oculus_temporal_rift : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_AMBER_SHOCK_CHARGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_AMBER_SHOCK_CHARGE });
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                int32 amount = aurEff->GetAmount() + eventInfo.GetDamageInfo()->GetDamage();
+                DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+                if (!damageInfo || !damageInfo->GetDamage())
+                    return;
 
+                int32 amount = aurEff->GetAmount() + damageInfo->GetDamage();
                 if (amount >= 15000)
                 {
                     if (Unit* caster = GetCaster())

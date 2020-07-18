@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,11 +18,14 @@
 #ifndef DEF_HYJAL_H
 #define DEF_HYJAL_H
 
+#include "CreatureAIImpl.h"
+
+#define HyjalScriptName "instance_hyjal"
 #define DataHeader "HY"
 
 uint32 const EncounterCount     = 5;
 
-enum DataTypes
+enum HYDataTypes
 {
     DATA_ANETHERON              = 1,
     DATA_ANETHERONEVENT         = 2,
@@ -48,14 +50,14 @@ enum DataTypes
     DATA_CHANNEL_TARGET         = 21
 };
 
-enum WorldStateIds
+enum HYWorldStateIds
 {
     WORLD_STATE_WAVES           = 2842,
     WORLD_STATE_ENEMY           = 2453,
     WORLD_STATE_ENEMYCOUNT      = 2454
 };
 
-enum CreaturesIds
+enum HYCreaturesIds
 {
     // Trash Mobs summoned in waves
     NECROMANCER                 = 17899,
@@ -82,7 +84,7 @@ enum CreaturesIds
     NPC_CHANNEL_TARGET          = 22418
 };
 
-enum GameobjectIds
+enum HYGameobjectIds
 {
     GO_HORDE_ENCAMPMENT_PORTAL  = 182060,
     GO_NIGHT_ELF_VILLAGE_PORTAL = 182061,
@@ -92,5 +94,11 @@ enum GameobjectIds
 };
 
 #define MINRAIDDAMAGE 700000 // minimal damage before trash can drop loot and reputation, resets if faction leader dies
+
+template <class AI, class T>
+inline AI* GetHyjalAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, HyjalScriptName);
+}
 
 #endif

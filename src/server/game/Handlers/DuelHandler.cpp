@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,54 +18,55 @@
 #include "Common.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "GameTime.h"
 #include "Log.h"
 #include "Player.h"
 
 void WorldSession::HandleDuelAcceptedOpcode(WorldPacket& recvPacket)
 {
-    ObjectGuid guid;
-    Player* player;
-    Player* plTarget;
-
-    recvPacket >> guid;
-
-    if (!GetPlayer()->duel)                                  // ignore accept from duel-sender
+    Player* player = GetPlayer();
+    if (!player->duel || player == player->duel->Initiator || player->duel->State != DUEL_STATE_CHALLENGED)
         return;
 
-    player = GetPlayer();
-    plTarget = player->duel->opponent;
+    ObjectGuid guid;
+    recvPacket >> guid;
 
-    if (player == player->duel->initiator || !plTarget || player == plTarget || player->duel->startTime != 0 || plTarget->duel->startTime != 0)
+    Player* target = player->duel->Opponent;
+    if (target->GetGuidValue(PLAYER_DUEL_ARBITER) != guid)
         return;
 
     //TC_LOG_DEBUG("network", "WORLD: Received CMSG_DUEL_ACCEPTED");
-    TC_LOG_DEBUG("network", "Player 1 is: %u (%s)", player->GetGUID().GetCounter(), player->GetName().c_str());
-    TC_LOG_DEBUG("network", "Player 2 is: %u (%s)", plTarget->GetGUID().GetCounter(), plTarget->GetName().c_str());
+    TC_LOG_DEBUG("network", "Player 1 is: %s (%s)", player->GetGUID().ToString().c_str(), player->GetName().c_str());
+    TC_LOG_DEBUG("network", "Player 2 is: %s (%s)", target->GetGUID().ToString().c_str(), target->GetName().c_str());
 
-    time_t now = time(NULL);
-    player->duel->startTimer = now;
-    plTarget->duel->startTimer = now;
+    time_t now = GameTime::GetGameTime();
+    player->duel->StartTime = now + 3;
+    target->duel->StartTime = now + 3;
+
+    player->duel->State = DUEL_STATE_COUNTDOWN;
+    target->duel->State = DUEL_STATE_COUNTDOWN;
 
     player->SendDuelCountdown(3000);
-    plTarget->SendDuelCountdown(3000);
+    target->SendDuelCountdown(3000);
 }
 
 void WorldSession::HandleDuelCancelledOpcode(WorldPacket& recvPacket)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_DUEL_CANCELLED");
+    Player* player = GetPlayer();
+
     ObjectGuid guid;
     recvPacket >> guid;
 
     // no duel requested
-    if (!GetPlayer()->duel)
+    if (!player->duel || player->duel->State == DUEL_STATE_COMPLETED)
         return;
 
     // player surrendered in a duel using /forfeit
-    if (GetPlayer()->duel->startTime != 0)
+    if (GetPlayer()->duel->State == DUEL_STATE_IN_PROGRESS)
     {
         GetPlayer()->CombatStopWithPets(true);
-        if (GetPlayer()->duel->opponent)
-            GetPlayer()->duel->opponent->CombatStopWithPets(true);
+        GetPlayer()->duel->Opponent->CombatStopWithPets(true);
 
         GetPlayer()->CastSpell(GetPlayer(), 7267, true);    // beg
         GetPlayer()->DuelComplete(DUEL_WON);

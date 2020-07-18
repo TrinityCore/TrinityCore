@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,9 +16,11 @@
  */
 
 #include "AppenderDB.h"
-#include "Database/DatabaseEnv.h"
+#include "DatabaseEnv.h"
+#include "LogMessage.h"
+#include "PreparedStatement.h"
 
-AppenderDB::AppenderDB(uint8 id, std::string const& name, LogLevel level, AppenderFlags /*flags*/, ExtraAppenderArgs /*extraArgs*/)
+AppenderDB::AppenderDB(uint8 id, std::string const& name, LogLevel level, AppenderFlags /*flags*/, std::vector<char const*> /*extraArgs*/)
     : Appender(id, name, level), realmId(0), enabled(false) { }
 
 AppenderDB::~AppenderDB() { }
@@ -29,7 +31,7 @@ void AppenderDB::_write(LogMessage const* message)
     if (!enabled || (message->type.find("sql") != std::string::npos))
         return;
 
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_LOG);
+    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_LOG);
     stmt->setUInt64(0, message->mtime);
     stmt->setUInt32(1, realmId);
     stmt->setString(2, message->type);

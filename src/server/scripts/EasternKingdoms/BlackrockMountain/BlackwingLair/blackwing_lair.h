@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,9 +18,11 @@
 #ifndef DEF_BLACKWING_LAIR_H
 #define DEF_BLACKWING_LAIR_H
 
+#include "CreatureAIImpl.h"
+
 uint32 const EncounterCount     = 8;
 
-#define BRLScriptName "instance_blackwing_lair"
+#define BWLScriptName "instance_blackwing_lair"
 #define DataHeader    "BWL"
 
 enum BWLEncounter
@@ -36,10 +38,13 @@ enum BWLEncounter
     DATA_NEFARIAN               = 7,
 
     // Additional Data
-    DATA_LORD_VICTOR_NEFARIUS   = 8
+    DATA_LORD_VICTOR_NEFARIUS   = 8,
+
+    // Doors
+    DATA_GO_CHROMAGGUS_DOOR     = 9
 };
 
-enum CreatureIds
+enum BWLCreatureIds
 {
     NPC_RAZORGORE               = 12435,
     NPC_BLACKWING_DRAGON        = 12422,
@@ -56,14 +61,17 @@ enum CreatureIds
     NPC_NEFARIAN                = 11583
 };
 
-enum GameObjectIds
+enum BWLGameObjectIds
 {
     GO_BLACK_DRAGON_EGG         = 177807,
-    GO_BOSSGATE01               = 175946,
-    GO_DRAKE_RIDER_PORTCULLIS   = 175185,
-    GO_ALTERAC_VALLEY_GATE      = 180424,
-    GO_GATE                     = 185483,
-    GO_VACCUUM_EXIT_GATE        = 181125
+    GO_PORTCULLIS_RAZORGORE     = 176965,
+    GO_PORTCULLIS_VAELASTRASZ   = 179364,
+    GO_PORTCULLIS_BROODLORD     = 179365,
+    GO_PORTCULLIS_THREEDRAGONS  = 179115,
+    GO_PORTCULLIS_CHROMAGGUS    = 179117, //Door after you kill him, not the one for his room
+    GO_CHROMAGGUS_LEVER         = 179148,
+    GO_CHROMAGGUS_DOOR          = 179116,
+    GO_PORTCULLIS_NEFARIAN      = 176966
 };
 
 enum BWLEvents
@@ -79,5 +87,11 @@ enum BWLMisc
     ACTION_PHASE_TWO            = 1,
     DATA_EGG_EVENT
 };
+
+template <class AI, class T>
+inline AI* GetBlackwingLairAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, BWLScriptName);
+}
 
 #endif

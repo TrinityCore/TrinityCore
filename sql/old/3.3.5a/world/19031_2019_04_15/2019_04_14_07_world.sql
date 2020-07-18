@@ -1,0 +1,2 @@
+-- 
+UPDATE `creature` SET `id`= 17400 WHERE `id`=18894 AND `guid` IN (138249,  138250,  138252,  138253,  138247,  138248);

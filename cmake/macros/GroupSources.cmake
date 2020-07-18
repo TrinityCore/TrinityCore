@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+# This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -10,7 +10,7 @@
 
 macro(GroupSources dir)
   # Skip this if WITH_SOURCE_TREE is not set (empty string).
-  if (NOT ${_WITH_SOURCE_TREE} STREQUAL "")
+  if(NOT ${WITH_SOURCE_TREE} STREQUAL "")
     # Include all header and c files
     file(GLOB_RECURSE elements RELATIVE ${dir} *.h *.hpp *.c *.cpp *.cc)
 
@@ -19,12 +19,12 @@ macro(GroupSources dir)
       get_filename_component(element_name ${element} NAME)
       get_filename_component(element_dir ${element} DIRECTORY)
 
-      if (NOT ${element_dir} STREQUAL "")
+      if(NOT ${element_dir} STREQUAL "")
         # If the file is in a subdirectory use it as source group.
-        if (${_WITH_SOURCE_TREE} STREQUAL "flat")
+        if(${WITH_SOURCE_TREE} STREQUAL "flat")
           # Build flat structure by using only the first subdirectory.
           string(FIND ${element_dir} "/" delemiter_pos)
-          if (NOT ${delemiter_pos} EQUAL -1)
+          if(NOT ${delemiter_pos} EQUAL -1)
             string(SUBSTRING ${element_dir} 0 ${delemiter_pos} group_name)
             source_group("${group_name}" FILES ${dir}/${element})
           else()
@@ -44,3 +44,8 @@ macro(GroupSources dir)
     endforeach()
   endif()
 endmacro()
+
+if(WITH_SOURCE_TREE STREQUAL "hierarchical-folders")
+  # Use folders
+  set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+endif()

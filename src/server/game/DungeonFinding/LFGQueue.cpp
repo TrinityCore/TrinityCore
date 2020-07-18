@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,6 +19,7 @@
 #include "Containers.h"
 #include "DBCStructure.h"
 #include "DBCStores.h"
+#include "GameTime.h"
 #include "Group.h"
 #include "LFGQueue.h"
 #include "LFGMgr.h"
@@ -80,6 +81,10 @@ char const* GetCompatibleString(LfgCompatibility compatibles)
     }
 }
 
+LfgQueueData::LfgQueueData() : joinTime(GameTime::GetGameTime()), tanks(LFG_TANKS_NEEDED),
+healers(LFG_HEALERS_NEEDED), dps(LFG_DPS_NEEDED)
+{ }
+
 std::string LFGQueue::GetDetailedMatchRoles(GuidList const& check) const
 {
     if (check.empty())
@@ -117,7 +122,7 @@ std::string LFGQueue::GetDetailedMatchRoles(GuidList const& check) const
     return o.str();
 }
 
-void LFGQueue::AddToQueue(ObjectGuid guid)
+void LFGQueue::AddToQueue(ObjectGuid guid, bool reAdd)
 {
     LfgQueueDataContainer::iterator itQueue = QueueDataStore.find(guid);
     if (itQueue == QueueDataStore.end())
@@ -126,7 +131,10 @@ void LFGQueue::AddToQueue(ObjectGuid guid)
         return;
     }
 
-    AddToNewQueue(guid);
+    if (reAdd)
+        AddToFrontCurrentQueue(guid);
+    else
+        AddToNewQueue(guid);
 }
 
 void LFGQueue::RemoveFromQueue(ObjectGuid guid)
@@ -169,6 +177,11 @@ void LFGQueue::RemoveFromNewQueue(ObjectGuid guid)
 void LFGQueue::AddToCurrentQueue(ObjectGuid guid)
 {
     currentQueueStore.push_back(guid);
+}
+
+void LFGQueue::AddToFrontCurrentQueue(ObjectGuid guid)
+{
+    currentQueueStore.push_front(guid);
 }
 
 void LFGQueue::RemoveFromCurrentQueue(ObjectGuid guid)
@@ -275,7 +288,7 @@ LfgCompatibilityData* LFGQueue::GetCompatibilityData(std::string const& key)
     if (itr != CompatibleMapStore.end())
         return &(itr->second);
 
-    return NULL;
+    return nullptr;
 }
 
 uint8 LFGQueue::FindGroups()
@@ -500,7 +513,7 @@ LfgCompatibility LFGQueue::CheckCompatibility(GuidList check)
     else
     {
         ObjectGuid gguid = *check.begin();
-        const LfgQueueData &queue = QueueDataStore[gguid];
+        LfgQueueData const& queue = QueueDataStore[gguid];
         proposalDungeons = queue.dungeons;
         proposalRoles = queue.roles;
         LFGMgr::CheckGroupRoles(proposalRoles);          // assing new roles
@@ -532,7 +545,7 @@ LfgCompatibility LFGQueue::CheckCompatibility(GuidList check)
     }
 
     // Create a new proposal
-    proposal.cancelTime = time(NULL) + LFG_TIME_PROPOSAL;
+    proposal.cancelTime = GameTime::GetGameTime() + LFG_TIME_PROPOSAL;
     proposal.state = LFG_PROPOSAL_INITIATING;
     proposal.leader.Clear();
     proposal.dungeonId = Trinity::Containers::SelectRandomContainerElement(proposalDungeons);
@@ -666,7 +679,7 @@ std::string LFGQueue::DumpCompatibleInfo(bool full /* = false */) const
             {
                 o << " (";
                 bool first = true;
-                for (const auto& role : itr->second.roles)
+                for (auto const& role : itr->second.roles)
                 {
                     if (!first)
                         o << "|";

@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,6 +19,7 @@
 #define __BATTLEGROUNDDS_H
 
 #include "Arena.h"
+#include "EventMap.h"
 
 enum BattlegroundDSObjectTypes
 {
@@ -67,16 +67,17 @@ enum BattlegroundDSSpells
 enum BattlegroundDSData
 {
     // These values are NOT blizzlike... need the correct data!
-    BG_DS_WATERFALL_TIMER_MIN           = 30000,
-    BG_DS_WATERFALL_TIMER_MAX           = 60000,
-    BG_DS_WATERFALL_WARNING_DURATION    = 5000,
-    BG_DS_WATERFALL_DURATION            = 30000,
-    BG_DS_WATERFALL_KNOCKBACK_TIMER     = 1500,
-
     BG_DS_PIPE_KNOCKBACK_FIRST_DELAY    = 5000,
     BG_DS_PIPE_KNOCKBACK_DELAY          = 3000,
     BG_DS_PIPE_KNOCKBACK_TOTAL_COUNT    = 2,
 };
+
+// These values are NOT blizzlike... need the correct data!
+constexpr Seconds BG_DS_WATERFALL_TIMER_MIN = 30s;
+constexpr Seconds BG_DS_WATERFALL_TIMER_MAX = 60s;
+constexpr Seconds BG_DS_WATERFALL_WARNING_DURATION = 5s;
+constexpr Seconds BG_DS_WATERFALL_DURATION = 30s;
+constexpr Milliseconds BG_DS_WATERFALL_KNOCKBACK_TIMER = 1500ms;
 
 enum BattlegroundDSEvents
 {
@@ -99,7 +100,7 @@ class BattlegroundDS : public Arena
 
         void HandleAreaTrigger(Player* Source, uint32 Trigger) override;
         bool SetupBattleground() override;
-        void FillInitialWorldStates(WorldPacket &d) override;
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
 
     private:
         void PostUpdateImpl(uint32 diff) override;
@@ -109,4 +110,5 @@ class BattlegroundDS : public Arena
         uint32 _pipeKnockBackTimer;
         uint8 _pipeKnockBackCount;
 };
+
 #endif

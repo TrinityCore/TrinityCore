@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,10 +23,16 @@ SDCategory: The Lurker Below
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "serpent_shrine.h"
 #include "Spell.h"
-#include "Player.h"
+#include "TemporarySummon.h"
 
 enum Spells
 {
@@ -50,15 +55,17 @@ enum Spells
     SPELL_HAMSTRING         = 26211
 };
 
+enum Misc
+{
+    EMOTE_SPOUT             = 0,     // "The Lurker Below takes a deep breath."
+    SPOUT_DIST              = 100
+};
+
 enum Creatures
 {
     NPC_COILFANG_GUARDIAN   = 21873,
     NPC_COILFANG_AMBUSHER   = 21865
 };
-
-#define EMOTE_SPOUT "The Lurker Below takes a deep breath."
-
-#define SPOUT_DIST  100
 
 float AddPos[9][3] =
 {
@@ -81,7 +88,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_the_lurker_belowAI>(creature);
+        return GetSerpentshrineCavernAI<boss_the_lurker_belowAI>(creature);
     }
 
     struct boss_the_lurker_belowAI : public ScriptedAI
@@ -150,7 +157,7 @@ public:
             DoCast(me, SPELL_SUBMERGE); // submerge anim
             me->SetVisible(false); // we start invis under water, submerged
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+            me->SetImmuneToPC(true);
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -161,13 +168,12 @@ public:
             Summons.DespawnAll();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             instance->SetData(DATA_THELURKERBELOWEVENT, IN_PROGRESS);
         }
 
         void MoveInLineOfSight(Unit* who) override
-
         {
             if (!CanStartEvent) // boss is invisible, don't attack
                 return;
@@ -197,8 +203,7 @@ public:
                         Submerged = false;
                         WaitTimer2 = 500;
                     }
-
-                    if (!Submerged && WaitTimer2 <= diff) // wait 500ms before emerge anim
+                    else if (WaitTimer2 <= diff) // wait 500ms before emerge anim
                     {
                         me->RemoveAllAuras();
                         me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
@@ -213,7 +218,7 @@ public:
                     {
                         WaitTimer = 3000;
                         CanStartEvent = true; // fresh fished from pool
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                        me->SetImmuneToPC(false);
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     }
                     else
@@ -222,9 +227,9 @@ public:
                 return;
             }
 
-            if (me->getThreatManager().getThreatList().empty()) // check if should evade
+            if (!me->IsThreatened()) // check if should evade
             {
-                if (me->IsInCombat())
+                if (me->IsEngaged())
                     EnterEvadeMode();
                 return;
             }
@@ -236,31 +241,36 @@ public:
                     DoCast(me, SPELL_SUBMERGE);
                     PhaseTimer = 60000; // 60secs submerged
                     Submerged = true;
-                } else PhaseTimer-=diff;
+                }
+                else
+                    PhaseTimer -= diff;
 
                 if (SpoutTimer <= diff)
                 {
-                    me->TextEmote(EMOTE_SPOUT, nullptr, true);
+                    Talk(EMOTE_SPOUT);
                     me->SetReactState(REACT_PASSIVE);
-                    me->GetMotionMaster()->MoveRotate(20000, urand(0, 1) ? ROTATE_DIRECTION_LEFT : ROTATE_DIRECTION_RIGHT);
+                    me->GetMotionMaster()->MoveRotate(0, 20000, urand(0, 1) ? ROTATE_DIRECTION_LEFT : ROTATE_DIRECTION_RIGHT);
                     SpoutTimer = 45000;
                     WhirlTimer = 20000; // whirl directly after spout
                     RotTimer = 20000;
                     return;
-                } else SpoutTimer -= diff;
+                }
+                else
+                    SpoutTimer -= diff;
 
                 // Whirl directly after a Spout and at random times
                 if (WhirlTimer <= diff)
                 {
                     WhirlTimer = 18000;
                     DoCast(me, SPELL_WHIRL);
-                } else WhirlTimer -= diff;
+                }
+                else
+                    WhirlTimer -= diff;
 
-                if (CheckTimer <= diff)//check if there are players in melee range
+                if (CheckTimer <= diff) // check if there are players in melee range
                 {
                     InRange = false;
-                    Map* map = me->GetMap();
-                    Map::PlayerList const &PlayerList = map->GetPlayers();
+                    Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
                     if (!PlayerList.isEmpty())
                     {
                         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
@@ -270,19 +280,17 @@ public:
                         }
                     }
                     CheckTimer = 2000;
-                } else CheckTimer -= diff;
+                }
+                else
+                    CheckTimer -= diff;
 
                 if (RotTimer)
                 {
-                    Map* map = me->GetMap();
-                    if (map->IsDungeon())
+                    Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
+                    for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                     {
-                        Map::PlayerList const &PlayerList = map->GetPlayers();
-                        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                        {
-                            if (i->GetSource() && i->GetSource()->IsAlive() && me->HasInArc(diff/20000.f*float(M_PI)*2.f, i->GetSource()) && me->IsWithinDist(i->GetSource(), SPOUT_DIST) && !i->GetSource()->IsInWater())
-                                DoCast(i->GetSource(), SPELL_SPOUT, true); // only knock back players in arc, in 100yards, not in water
-                        }
+                        if (i->GetSource() && i->GetSource()->IsAlive() && me->HasInArc(diff/20000.f*float(M_PI)*2.f, i->GetSource()) && me->IsWithinDist(i->GetSource(), SPOUT_DIST) && !i->GetSource()->IsInWater())
+                            DoCast(i->GetSource(), SPELL_SPOUT, true); // only knock back players in arc, in 100yards, not in water
                     }
 
                     if (SpoutAnimTimer <= diff)
@@ -294,31 +302,37 @@ public:
                     if (RotTimer <= diff)
                     {
                         RotTimer = 0;
-                    } else RotTimer -= diff;
+                    }
+                    else
+                        RotTimer -= diff;
                     return;
                 }
 
                 if (GeyserTimer <= diff)
                 {
-                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
+                    Unit* target = SelectTarget(SelectTargetMethod::Random, 1);
                     if (!target && me->GetVictim())
                         target = me->GetVictim();
                     if (target)
                         DoCast(target, SPELL_GEYSER, true);
                     GeyserTimer = rand32() % 5000 + 15000;
-                } else GeyserTimer -= diff;
+                }
+                else
+                    GeyserTimer -= diff;
 
                 if (!InRange) // if on players in melee range cast Waterbolt
                 {
                     if (WaterboltTimer <= diff)
                     {
-                        Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                        Unit* target = SelectTarget(SelectTargetMethod::Random, 0);
                         if (!target && me->GetVictim())
                             target = me->GetVictim();
                         if (target)
                             DoCast(target, SPELL_WATERBOLT, true);
                         WaterboltTimer = 3000;
-                    } else WaterboltTimer -= diff;
+                    }
+                    else
+                        WaterboltTimer -= diff;
                 }
 
                 if (!UpdateVictim())
@@ -334,16 +348,18 @@ public:
                     Submerged = false;
                     me->InterruptNonMeleeSpells(false); // shouldn't be any
                     me->RemoveAllAuras();
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                    me->SetImmuneToPC(false);
                     me->RemoveFlag(UNIT_NPC_EMOTESTATE, EMOTE_STATE_SUBMERGED);
                     DoCast(me, SPELL_EMERGE, true);
                     Spawned = false;
                     SpoutTimer = 3000; // directly cast Spout after emerging!
                     PhaseTimer = 120000;
                     return;
-                } else PhaseTimer-=diff;
+                }
+                else
+                    PhaseTimer -= diff;
 
-                if (me->getThreatManager().getThreatList().empty()) // check if should evade
+                if (!me->IsThreatened()) // check if should evade
                 {
                     EnterEvadeMode();
                     return;
@@ -373,7 +389,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_coilfang_ambusherAI(creature);
+        return GetSerpentshrineCavernAI<npc_coilfang_ambusherAI>(creature);
     }
 
     struct npc_coilfang_ambusherAI : public ScriptedAI
@@ -421,9 +437,8 @@ public:
 
             if (ShootBowTimer <= diff)
             {
-                int bp0 = 1100;
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    me->CastCustomSpell(target, SPELL_SHOOT, &bp0, NULL, NULL, true);
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                    me->CastSpell(target, SPELL_SHOOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellBP0(1100));
                 ShootBowTimer = 4000 + rand32() % 5000;
                 MultiShotTimer += 1500; // add global cooldown
             } else ShootBowTimer -= diff;
@@ -437,21 +452,32 @@ class go_strange_pool : public GameObjectScript
     public:
         go_strange_pool() : GameObjectScript("go_strange_pool") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
+        struct go_strange_poolAI : public GameObjectAI
         {
-            // 25%
-            if (InstanceScript* instanceScript = go->GetInstanceScript())
+            go_strange_poolAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
+
+            InstanceScript* instance;
+
+            bool GossipHello(Player* player) override
+            {
+                // 25%
                 if (!urand(0, 3))
                 {
-                    if (instanceScript->GetData(DATA_STRANGE_POOL) == NOT_STARTED)
+                    if (instance->GetData(DATA_STRANGE_POOL) == NOT_STARTED)
                     {
-                        go->CastSpell(player, 54587);
-                        instanceScript->SetData(DATA_STRANGE_POOL, IN_PROGRESS);
+                        me->CastSpell(player, 54587);
+                        instance->SetData(DATA_STRANGE_POOL, IN_PROGRESS);
                     }
                     return true;
                 }
 
-            return false;
+                return false;
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return GetSerpentshrineCavernAI<go_strange_poolAI>(go);
         }
 };
 

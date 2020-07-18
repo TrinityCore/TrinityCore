@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -32,18 +31,18 @@ class LinkedListElement
 
         LinkedListElement* iNext;
         LinkedListElement* iPrev;
+
     public:
-        LinkedListElement() : iNext(NULL), iPrev(NULL) { }
-        virtual ~LinkedListElement() { delink(); }
+        LinkedListElement() : iNext(nullptr), iPrev(nullptr) { }
 
-        bool hasNext() const { return(iNext && iNext->iNext != NULL); }
-        bool hasPrev() const { return(iPrev && iPrev->iPrev != NULL); }
-        bool isInList() const { return(iNext != NULL && iPrev != NULL); }
+        bool hasNext() const  { return (iNext && iNext->iNext != nullptr); }
+        bool hasPrev() const  { return (iPrev && iPrev->iPrev != nullptr); }
+        bool isInList() const { return (iNext != nullptr && iPrev != nullptr); }
 
-        LinkedListElement      * next()       { return hasNext() ? iNext : NULL; }
-        LinkedListElement const* next() const { return hasNext() ? iNext : NULL; }
-        LinkedListElement      * prev()       { return hasPrev() ? iPrev : NULL; }
-        LinkedListElement const* prev() const { return hasPrev() ? iPrev : NULL; }
+        LinkedListElement      * next()       { return hasNext() ? iNext : nullptr; }
+        LinkedListElement const* next() const { return hasNext() ? iNext : nullptr; }
+        LinkedListElement      * prev()       { return hasPrev() ? iPrev : nullptr; }
+        LinkedListElement const* prev() const { return hasPrev() ? iPrev : nullptr; }
 
         LinkedListElement      * nocheck_next()       { return iNext; }
         LinkedListElement const* nocheck_next() const { return iNext; }
@@ -52,10 +51,13 @@ class LinkedListElement
 
         void delink()
         {
-            if (isInList())
-            {
-                iNext->iPrev = iPrev; iPrev->iNext = iNext; iNext = NULL; iPrev = NULL;
-            }
+            if (!isInList())
+                return;
+
+            iNext->iPrev = iPrev;
+            iPrev->iNext = iNext;
+            iNext = nullptr;
+            iPrev = nullptr;
         }
 
         void insertBefore(LinkedListElement* pElem)
@@ -75,8 +77,14 @@ class LinkedListElement
         }
 
     private:
-        LinkedListElement(LinkedListElement const&);
-        LinkedListElement& operator=(LinkedListElement const&);
+        LinkedListElement(LinkedListElement const&) = delete;
+        LinkedListElement& operator=(LinkedListElement const&) = delete;
+
+    protected:
+        ~LinkedListElement()
+        {
+            delink();
+        }
 };
 
 //============================================
@@ -97,15 +105,13 @@ class LinkedListHead
             iLast.iPrev = &iFirst;
         }
 
-        virtual ~LinkedListHead() { }
-
         bool isEmpty() const { return(!iFirst.iNext->isInList()); }
 
-        LinkedListElement      * getFirst()       { return(isEmpty() ? NULL : iFirst.iNext); }
-        LinkedListElement const* getFirst() const { return(isEmpty() ? NULL : iFirst.iNext); }
+        LinkedListElement      * getFirst()       { return (isEmpty() ? nullptr : iFirst.iNext); }
+        LinkedListElement const* getFirst() const { return (isEmpty() ? nullptr : iFirst.iNext); }
 
-        LinkedListElement      * getLast() { return(isEmpty() ? NULL : iLast.iPrev); }
-        LinkedListElement const* getLast() const  { return(isEmpty() ? NULL : iLast.iPrev); }
+        LinkedListElement      * getLast()       { return(isEmpty() ? nullptr : iLast.iPrev); }
+        LinkedListElement const* getLast() const { return(isEmpty() ? nullptr : iLast.iPrev); }
 
         void insertFirst(LinkedListElement* pElem)
         {
@@ -158,13 +164,7 @@ class LinkedListHead
                 {                                           // construct with node pointer _Pnode
                 }
 
-                Iterator& operator=(Iterator const &_Right)
-                {
-                    _Ptr = _Right._Ptr;
-                    return *this;
-                }
-
-                Iterator& operator=(const_pointer const &_Right)
+                Iterator& operator=(const_pointer const& _Right)
                 {
                     _Ptr = pointer(_Right);
                     return *this;
@@ -206,22 +206,22 @@ class LinkedListHead
                     return (_Tmp);
                 }
 
-                bool operator==(Iterator const &_Right) const
+                bool operator==(Iterator const& _Right) const
                 {                                           // test for iterator equality
                     return (_Ptr == _Right._Ptr);
                 }
 
-                bool operator!=(Iterator const &_Right) const
+                bool operator!=(Iterator const& _Right) const
                 {                                           // test for iterator inequality
                     return (!(*this == _Right));
                 }
 
-                bool operator==(pointer const &_Right) const
+                bool operator==(pointer const& _Right) const
                 {                                           // test for pointer equality
                     return (_Ptr != _Right);
                 }
 
-                bool operator!=(pointer const &_Right) const
+                bool operator!=(pointer const& _Right) const
                 {                                           // test for pointer equality
                     return (!(*this == _Right));
                 }
@@ -248,8 +248,11 @@ class LinkedListHead
         typedef Iterator<LinkedListElement> iterator;
 
     private:
-        LinkedListHead(LinkedListHead const&);
-        LinkedListHead& operator=(LinkedListHead const&);
+        LinkedListHead(LinkedListHead const&) = delete;
+        LinkedListHead& operator=(LinkedListHead const&) = delete;
+
+    protected:
+        ~LinkedListHead() { }
 };
 
 //============================================

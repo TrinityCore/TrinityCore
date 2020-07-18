@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,8 +23,8 @@ SDCategory: Tempest Keep, The Mechanar
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "mechanar.h"
+#include "ScriptedCreature.h"
 
 enum Say
 {
@@ -65,12 +65,12 @@ class boss_gatewatcher_gyrokill : public CreatureScript
                 Talk(SAY_DEATH);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _EnterCombat();
-                events.ScheduleEvent(EVENT_STREAM_OF_MACHINE_FLUID, 10000);
-                events.ScheduleEvent(EVENT_SAW_BLADE, 20000);
-                events.ScheduleEvent(EVENT_SHADOW_POWER, 25000);
+                BossAI::JustEngagedWith(who);
+                events.ScheduleEvent(EVENT_STREAM_OF_MACHINE_FLUID, 10s);
+                events.ScheduleEvent(EVENT_SAW_BLADE, 20s);
+                events.ScheduleEvent(EVENT_SHADOW_POWER, 25s);
                 Talk(SAY_AGGRO);
             }
 
@@ -95,20 +95,23 @@ class boss_gatewatcher_gyrokill : public CreatureScript
                     {
                         case EVENT_STREAM_OF_MACHINE_FLUID:
                             DoCastVictim(SPELL_STREAM_OF_MACHINE_FLUID, true);
-                            events.ScheduleEvent(EVENT_STREAM_OF_MACHINE_FLUID, urand(13000, 17000));
+                            events.ScheduleEvent(EVENT_STREAM_OF_MACHINE_FLUID, 13s, 17s);
                             break;
                         case EVENT_SAW_BLADE:
                             DoCast(me, SPELL_SAW_BLADE);
                             Talk(SAY_SAW_BLADEs);
-                            events.ScheduleEvent(EVENT_SAW_BLADE, urand(20000, 30000));
+                            events.ScheduleEvent(EVENT_SAW_BLADE, 20s, 30s);
                             break;
                         case EVENT_SHADOW_POWER:
                             DoCast(me, SPELL_SHADOW_POWER);
-                            events.ScheduleEvent(EVENT_SAW_BLADE, urand(25000, 35000));
+                            events.ScheduleEvent(EVENT_SAW_BLADE, 25s, 35s);
                             break;
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -117,7 +120,7 @@ class boss_gatewatcher_gyrokill : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_gatewatcher_gyrokillAI(creature);
+            return GetMechanarAI<boss_gatewatcher_gyrokillAI>(creature);
         }
 };
 

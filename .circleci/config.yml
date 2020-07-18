@@ -1,0 +1,100 @@
+version: 2
+jobs:
+  pch_and_sql:
+    docker:
+      - image: trinitycore/circle-ci:3.3.5-buildpacks-focal
+      - image: circleci/mysql:8
+        environment:
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+          MYSQL_ROOT_PASSWORD: ''
+          MYSQL_DATABASE: test_mysql
+    steps:
+      - run:
+          name: Checkout
+          command: |
+            /scripts/checkout.sh
+      - run:
+          name: Codestyle checks
+          command: |
+            chmod +x contrib/check_codestyle.sh
+            ./contrib/check_codestyle.sh
+      - run:
+          name: Setup
+          command: |
+            mkdir bin
+            cd bin
+            cmake ../ -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=1 -DSCRIPTS=dynamic -DSERVERS=1 -DNOJEM=0 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_FLAGS="-Werror" -DCMAKE_CXX_FLAGS="-Werror" -DCMAKE_C_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_CXX_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_INSTALL_PREFIX=check_install
+            cd ..
+      - run:
+          name: SQL checks
+          command: |
+            chmod +x contrib/check_updates.sh
+            dockerize -wait tcp://127.0.0.1:3306 -timeout 120s
+            mysql -h 127.0.0.1 -uroot < sql/create/create_mysql.sql
+            mysql -h 127.0.0.1 -uroot auth < sql/base/auth_database.sql
+            ./contrib/check_updates.sh auth 3.3.5 auth 127.0.0.1
+            mysql -h 127.0.0.1 -uroot characters < sql/base/characters_database.sql
+            ./contrib/check_updates.sh characters 3.3.5 characters 127.0.0.1
+            mysql -h 127.0.0.1 -uroot world < sql/base/dev/world_database.sql
+            cat sql/updates/world/3.3.5/*.sql | mysql -h 127.0.0.1 -uroot world
+      - run:
+          name: Build
+          command: |
+            cd bin
+            make -j 4 -k && make install
+            cd check_install/bin
+            ./authserver --version
+            ./worldserver --version
+  nopch:
+    docker:
+      - image: trinitycore/circle-ci:3.3.5-buildpacks-focal
+    steps:
+      - run:
+          name: Requirements
+          command: |
+            sudo mkdir -p /root/.ccache
+            sudo chown -Rv circleci:circleci /root
+      - run:
+          name: Checkout
+          command: |
+            /scripts/checkout.sh
+      - restore_cache:
+          keys:
+            - 3.3.5-nopch-{{ .Branch }}-{{ .Revision }}
+            - 3.3.5-nopch-{{ .Branch }}
+            - 3.3.5-nopch
+      - run:
+          name: Setup
+          command: |
+            export CCACHE_MAXSIZE="1G"
+            export CC="ccache clang"
+            export CXX="ccache clang++"
+            export CCACHE_CPP2=yes
+            export USE_CCACHE=1
+            export PATH=/usr/lib/ccache:$PATH
+            ccache -s
+            git config user.email "circleci@build.bot" && git config user.name "Circle CI"
+            $CXX --version
+            mkdir bin
+            cd bin
+            cmake ../ -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=0 -DUSE_SCRIPTPCH=0 -DTOOLS=1 -DSCRIPTS=dynamic -DSERVERS=1 -DNOJEM=0 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_FLAGS="-Werror" -DCMAKE_CXX_FLAGS="-Werror" -DCMAKE_C_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_CXX_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_INSTALL_PREFIX=check_install
+            cd ..
+      - run:
+          name: Build
+          command: |
+            cd bin
+            make -j 4 -k && make install
+            ccache -s
+            cd check_install/bin
+            ./authserver --version
+            ./worldserver --version
+      - save_cache:
+          key: 3.3.5-nopch-{{ .Branch }}-{{ .Revision }}
+          paths:
+            - /home/circleci/.ccache
+workflows:
+  version: 2
+  build_all:
+    jobs:
+      - pch_and_sql
+      - nopch

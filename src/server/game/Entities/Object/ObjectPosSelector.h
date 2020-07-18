@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,18 +18,18 @@
 #ifndef _OBJECT_POS_SELECTOR_H
 #define _OBJECT_POS_SELECTOR_H
 
-#include<Common.h>
-
-#include<map>
+#include "Common.h"
+#include <map>
+#include <cmath>
 
 enum UsedPosType { USED_POS_PLUS, USED_POS_MINUS };
 
-inline UsedPosType operator ~(UsedPosType uptype)
+inline UsedPosType operator~(UsedPosType uptype)
 {
-    return uptype==USED_POS_PLUS ? USED_POS_MINUS : USED_POS_PLUS;
+    return uptype == USED_POS_PLUS ? USED_POS_MINUS : USED_POS_PLUS;
 }
 
-struct ObjectPosSelector
+struct TC_GAME_API ObjectPosSelector
 {
     struct UsedPos
     {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,9 +16,11 @@
  */
 
 #include "ScriptMgr.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellAuras.h"
-#include "Player.h"
 
 enum Orphans
 {
@@ -639,6 +641,12 @@ class npc_elder_kekek : public CreatureScript
         }
 };
 
+enum TheEtymidian
+{
+    SAY_ACTIVATION            = 0,
+    QUEST_THE_ACTIVATION_RUNE = 12547
+};
+
 /*######
 ## npc_the_etymidian
 ## @todo A red crystal as a gift for the great one should be spawned during the event.
@@ -668,10 +676,20 @@ class npc_the_etymidian : public CreatureScript
                 Initialize();
             }
 
+            void QuestReward(Player* /*player*/, Quest const* quest, uint32 /*opt*/) override
+            {
+                if (quest->GetQuestId() != QUEST_THE_ACTIVATION_RUNE)
+                    return;
+
+                Talk(SAY_ACTIVATION);
+            }
+
             void MoveInLineOfSight(Unit* who) override
             {
                 if (!phase && who && who->GetDistance2d(me) < 10.0f)
+                {
                     if (Player* player = who->ToPlayer())
+                    {
                         if (player->GetQuestStatus(QUEST_MEETING_A_GREAT_ONE) == QUEST_STATUS_INCOMPLETE)
                         {
                             playerGUID = player->GetGUID();
@@ -679,6 +697,8 @@ class npc_the_etymidian : public CreatureScript
                             if (orphanGUID)
                                 phase = 1;
                         }
+                    }
+                }
             }
 
             void UpdateAI(uint32 diff) override
@@ -734,7 +754,6 @@ class npc_the_etymidian : public CreatureScript
             int8 phase;
             ObjectGuid playerGUID;
             ObjectGuid orphanGUID;
-
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -928,7 +947,7 @@ class at_bring_your_orphan_to : public AreaTriggerScript
             uint32 questId = 0;
             uint32 orphanId = 0;
 
-            switch (trigger->id)
+            switch (trigger->ID)
             {
                 case AT_DOWN_AT_THE_DOCKS:
                     questId = QUEST_DOWN_AT_THE_DOCKS;

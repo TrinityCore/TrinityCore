@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,9 +18,12 @@
 #ifndef DEF_OLD_HILLSBRAD_H
 #define DEF_OLD_HILLSBRAD_H
 
+#include "CreatureAIImpl.h"
+
+#define OHScriptName "instance_old_hillsbrad"
 #define DataHeader "OH"
 
-enum DataTypes
+enum OHDataTypes
 {
     TYPE_BARREL_DIVERSION   = 1,
     TYPE_THRALL_EVENT       = 2,
@@ -36,10 +38,15 @@ enum DataTypes
 
 };
 
-enum WorldStateIds
+enum OHWorldStateIds
 {
     WORLD_STATE_OH              = 2436
 };
 
-#endif
+template <class AI, class T>
+inline AI* GetOldHillsbradAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, OHScriptName);
+}
 
+#endif

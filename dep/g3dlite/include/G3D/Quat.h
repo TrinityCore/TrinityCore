@@ -335,8 +335,8 @@ public:
      Note that q.pow(a).pow(b) == q.pow(a + b)
      @cite Dam98 pg 21
      */
-    inline Quat pow(float x) const {
-        return (log() * x).exp();
+    inline Quat pow(float r) const {
+        return (log() * r).exp();
     }
 
     /** Make unit length in place */
@@ -349,9 +349,9 @@ public:
      the magnitude.
      */
     Quat toUnit() const {
-        Quat x = *this;
-        x.unitize();
-        return x;
+        Quat copyOfThis = *this;
+        copyOfThis.unitize();
+        return copyOfThis;
     }
 
     /**

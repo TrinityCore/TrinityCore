@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -51,11 +51,11 @@ public:
                 DoCast(me, SPELL_VIRULENT_POISON);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _EnterCombat();
-            events.ScheduleEvent(EVENT_WEB_SPRAY, urand(3000, 5000));
-            events.ScheduleEvent(EVENT_CURSE_OF_TUTENKASH, urand(9000, 14000));
+            BossAI::JustEngagedWith(who);
+            events.ScheduleEvent(EVENT_WEB_SPRAY, 3s, 5s);
+            events.ScheduleEvent(EVENT_CURSE_OF_TUTENKASH, 9s, 14s);
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -78,18 +78,21 @@ public:
                 switch (eventId)
                 {
                     case EVENT_WEB_SPRAY:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, false))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, false))
                         {
                             if (!target->HasAura(SPELL_WEB_SPRAY))
                                 DoCast(target, SPELL_WEB_SPRAY);
                         }
-                        events.ScheduleEvent(EVENT_WEB_SPRAY, urand(6000, 8000));
+                        events.ScheduleEvent(EVENT_WEB_SPRAY, 6s, 8s);
                         break;
                     case EVENT_CURSE_OF_TUTENKASH:
                         DoCast(me, SPELL_CURSE_OF_TUTENKASH);
-                        events.ScheduleEvent(EVENT_CURSE_OF_TUTENKASH, urand(15000, 25000));
+                        events.ScheduleEvent(EVENT_CURSE_OF_TUTENKASH, 15s, 25s);
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
             DoMeleeAttackIfReady();
         }
@@ -97,7 +100,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_tuten_kashAI(creature);
+        return GetRazorfenDownsAI<boss_tuten_kashAI>(creature);
     }
 };
 

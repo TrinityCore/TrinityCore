@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,7 +23,9 @@ SDCategory: Tempest Keep, The Eye
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "Creature.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "the_eye.h"
 
 /* The Eye encounters:
@@ -36,9 +37,9 @@ EndScriptData */
 
 DoorData const doorData[] =
 {
-    { GO_ARCANE_DOOR_LEFT,  DATA_KAELTHAS, DOOR_TYPE_ROOM, BOUNDARY_SW   },
-    { GO_ARCANE_DOOR_RIGHT, DATA_KAELTHAS, DOOR_TYPE_ROOM, BOUNDARY_SE   },
-    {                    0,             0, DOOR_TYPE_ROOM, BOUNDARY_NONE } // END
+    { GO_ARCANE_DOOR_LEFT,  DATA_KAELTHAS, DOOR_TYPE_ROOM/*, BOUNDARY_SW  */ },
+    { GO_ARCANE_DOOR_RIGHT, DATA_KAELTHAS, DOOR_TYPE_ROOM/*, BOUNDARY_SE  */ },
+    {                    0,             0, DOOR_TYPE_ROOM } // END
 };
 
 ObjectData const gameObjectData[] =
@@ -52,7 +53,7 @@ ObjectData const gameObjectData[] =
 class instance_the_eye : public InstanceMapScript
 {
     public:
-        instance_the_eye() : InstanceMapScript("instance_the_eye", 550) { }
+        instance_the_eye() : InstanceMapScript(TheEyeScriptName, 550) { }
 
         struct instance_the_eye_InstanceMapScript : public InstanceScript
         {
@@ -106,13 +107,13 @@ class instance_the_eye : public InstanceMapScript
             {
                 switch (identifier)
                 {
-                case DATA_THALADREDTHEDARKENER:         return ThaladredTheDarkener;
-                case DATA_LORDSANGUINAR:                return LordSanguinar;
-                case DATA_GRANDASTROMANCERCAPERNIAN:    return GrandAstromancerCapernian;
-                case DATA_MASTERENGINEERTELONICUS:      return MasterEngineerTelonicus;
-                case DATA_KAELTHAS:                     return Kaelthas;
-                case DATA_HIGH_ASTROMANCER_SOLARIAN:    return Astromancer;
-                case DATA_ALAR:                         return Alar;
+                    case DATA_THALADREDTHEDARKENER:         return ThaladredTheDarkener;
+                    case DATA_LORDSANGUINAR:                return LordSanguinar;
+                    case DATA_GRANDASTROMANCERCAPERNIAN:    return GrandAstromancerCapernian;
+                    case DATA_MASTERENGINEERTELONICUS:      return MasterEngineerTelonicus;
+                    case DATA_KAELTHAS:                     return Kaelthas;
+                    case DATA_HIGH_ASTROMANCER_SOLARIAN:    return Astromancer;
+                    case DATA_ALAR:                         return Alar;
                 }
                 return ObjectGuid::Empty;
             }
@@ -127,4 +128,3 @@ void AddSC_instance_the_eye()
 {
     new instance_the_eye;
 }
-

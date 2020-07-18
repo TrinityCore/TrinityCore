@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,15 +21,15 @@
 #include "hyjal.h"
 #include "ScriptedEscortAI.h"
 
-struct hyjal_trashAI : public npc_escortAI
+struct hyjal_trashAI : public EscortAI
 {
     hyjal_trashAI(Creature* creature);
 
-    void UpdateAI(uint32 diff);
+    void UpdateAI(uint32 diff) override;
 
-    void JustDied(Unit* /*killer*/);
+    void JustDied(Unit* /*killer*/) override;
 
-    void DamageTaken(Unit* done_by, uint32 &damage);
+    void DamageTaken(Unit* done_by, uint32 &damage) override;
 
     public:
         InstanceScript* instance;

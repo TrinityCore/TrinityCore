@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,20 +20,7 @@
 
 #include "Define.h"
 #include <string>
-#include <list>
-
-struct AddonInfo
-{
-    AddonInfo(const std::string& name, uint8 enabled, uint32 crc, uint8 state, bool crcOrPubKey)
-        : Name(name), Enabled(enabled), CRC(crc), State(state), UsePublicKeyOrCRC(crcOrPubKey)
-        { }
-
-    std::string Name;
-    uint8 Enabled;
-    uint32 CRC;
-    uint8 State;
-    bool UsePublicKeyOrCRC;
-};
+#include <vector>
 
 struct SavedAddon
 {
@@ -60,10 +46,10 @@ struct BannedAddon
 namespace AddonMgr
 {
     void LoadFromDB();
-    void SaveAddon(AddonInfo const& addon);
+    void SaveAddon(std::string const& name, uint32 publicKeyCrc);
     SavedAddon const* GetAddonInfo(const std::string& name);
 
-    typedef std::list<BannedAddon> BannedAddonList;
+    typedef std::vector<BannedAddon> BannedAddonList;
     BannedAddonList const* GetBannedAddons();
 }
 

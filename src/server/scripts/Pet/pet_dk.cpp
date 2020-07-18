@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,12 +21,12 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "CombatAI.h"
-#include "Cell.h"
 #include "CellImpl.h"
-#include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
+#include "MotionMaster.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
 
 enum DeathKnightSpells
 {
@@ -43,21 +43,10 @@ class npc_pet_dk_ebon_gargoyle : public CreatureScript
 
         struct npc_pet_dk_ebon_gargoyleAI : CasterAI
         {
-            npc_pet_dk_ebon_gargoyleAI(Creature* creature) : CasterAI(creature)
-            {
-                Initialize();
-            }
-
-            void Initialize()
-            {
-                // Not needed to be despawned now
-                _despawnTimer = 0;
-            }
+            npc_pet_dk_ebon_gargoyleAI(Creature* creature) : CasterAI(creature) { }
 
             void InitializeAI() override
             {
-                Initialize();
-
                 CasterAI::InitializeAI();
                 ObjectGuid ownerGuid = me->GetOwnerGUID();
                 if (!ownerGuid)
@@ -67,7 +56,7 @@ class npc_pet_dk_ebon_gargoyle : public CreatureScript
                 std::list<Unit*> targets;
                 Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(me, me, 30.0f);
                 Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(me, targets, u_check);
-                me->VisitNearbyObject(30.0f, searcher);
+                Cell::VisitAllObjects(me, searcher, 30.0f);
                 for (std::list<Unit*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
                     if ((*iter)->HasAura(SPELL_DK_SUMMON_GARGOYLE_1, ownerGuid))
                     {
@@ -84,13 +73,13 @@ class npc_pet_dk_ebon_gargoyle : public CreatureScript
             }
 
             // Fly away when dismissed
-            void SpellHit(Unit* source, SpellInfo const* spell) override
+            void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
             {
-                if (spell->Id != SPELL_DK_DISMISS_GARGOYLE || !me->IsAlive())
+                if (spellInfo->Id != SPELL_DK_DISMISS_GARGOYLE || !me->IsAlive())
                     return;
 
                 Unit* owner = me->GetOwner();
-                if (!owner || owner != source)
+                if (!owner || owner != caster)
                     return;
 
                 // Stop Fighting
@@ -103,34 +92,17 @@ class npc_pet_dk_ebon_gargoyle : public CreatureScript
                 //! HACK: Creature's can't have MOVEMENTFLAG_FLYING
                 // Fly Away
                 me->SetCanFly(true);
-                me->SetSpeed(MOVE_FLIGHT, 0.75f, true);
-                me->SetSpeed(MOVE_RUN, 0.75f, true);
+                me->SetSpeedRate(MOVE_FLIGHT, 0.75f);
+                me->SetSpeedRate(MOVE_RUN, 0.75f);
                 float x = me->GetPositionX() + 20 * std::cos(me->GetOrientation());
                 float y = me->GetPositionY() + 20 * std::sin(me->GetOrientation());
                 float z = me->GetPositionZ() + 40;
-                me->GetMotionMaster()->Clear(false);
+                me->GetMotionMaster()->Clear();
                 me->GetMotionMaster()->MovePoint(0, x, y, z);
 
                 // Despawn as soon as possible
-                _despawnTimer = 4 * IN_MILLISECONDS;
+                me->DespawnOrUnsummon(Seconds(4));
             }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (_despawnTimer > 0)
-                {
-                    if (_despawnTimer > diff)
-                        _despawnTimer -= diff;
-                    else
-                        me->DespawnOrUnsummon();
-                    return;
-                }
-
-                CasterAI::UpdateAI(diff);
-            }
-
-        private:
-           uint32 _despawnTimer;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -139,7 +111,57 @@ class npc_pet_dk_ebon_gargoyle : public CreatureScript
         }
 };
 
+class npc_pet_dk_guardian : public CreatureScript
+{
+    public:
+        npc_pet_dk_guardian() : CreatureScript("npc_pet_dk_guardian") { }
+
+        struct npc_pet_dk_guardianAI : public AggressorAI
+        {
+            npc_pet_dk_guardianAI(Creature* creature) : AggressorAI(creature) { }
+
+            bool CanAIAttack(Unit const* target) const override
+            {
+                if (!target)
+                    return false;
+                Unit* owner = me->GetOwner();
+                if (owner && !target->IsInCombatWith(owner))
+                    return false;
+                return AggressorAI::CanAIAttack(target);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_pet_dk_guardianAI(creature);
+        }
+};
+
+class spell_pet_dk_gargoyle_strike : public SpellScript
+{
+    PrepareSpellScript(spell_pet_dk_gargoyle_strike);
+
+    void HandleDamageCalc(SpellEffIndex /*effIndex*/)
+    {
+        int32 damage = 60;
+        if (Unit* caster = GetCaster())
+        {
+            if (caster->GetLevel() >= 60)
+                damage += (caster->GetLevel() - 60) * 4;
+        }
+
+        SetEffectValue(damage);
+    }
+
+    void Register() override
+    {
+        OnEffectLaunchTarget += SpellEffectFn(spell_pet_dk_gargoyle_strike::HandleDamageCalc, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
 void AddSC_deathknight_pet_scripts()
 {
     new npc_pet_dk_ebon_gargoyle();
+    new npc_pet_dk_guardian();
+    RegisterSpellScript(spell_pet_dk_gargoyle_strike);
 }

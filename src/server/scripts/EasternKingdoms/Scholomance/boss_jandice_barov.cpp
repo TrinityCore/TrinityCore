@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,12 +16,14 @@
  */
 
 #include "ScriptMgr.h"
+#include "scholomance.h"
 #include "ScriptedCreature.h"
 
 enum Spells
 {
     SPELL_CURSE_OF_BLOOD        = 24673,
-    SPELL_ILLUSION              = 17773
+    SPELL_ILLUSION              = 17773,
+    SPELL_DROP_JOURNAL          = 26096
 };
 
 enum Events
@@ -50,22 +52,23 @@ public:
         void JustSummoned(Creature* summoned) override
         {
             // Illusions should attack a random target.
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                 summoned->AI()->AttackStart(target);
 
             summoned->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, true); // Not sure if this is correct.
             Summons.Summon(summoned);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 15000);
-            events.ScheduleEvent(EVENT_ILLUSION, 30000);
+            events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 15s);
+            events.ScheduleEvent(EVENT_ILLUSION, 30s);
         }
 
         void JustDied(Unit* /*killer*/) override
         {
             Summons.DespawnAll();
+            DoCastSelf(SPELL_DROP_JOURNAL, true);
         }
 
         void UpdateAI(uint32 diff) override
@@ -84,15 +87,15 @@ public:
                 {
                     case EVENT_CURSE_OF_BLOOD:
                         DoCastVictim(SPELL_CURSE_OF_BLOOD);
-                        events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 30000);
+                        events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 30s);
                         break;
                     case EVENT_ILLUSION:
                         DoCast(SPELL_ILLUSION);
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         me->SetDisplayId(11686);  // Invisible Model
-                        DoModifyThreatPercent(me->GetVictim(), -99);
-                        events.ScheduleEvent(EVENT_SET_VISIBILITY, 3000);
-                        events.ScheduleEvent(EVENT_ILLUSION, 25000);
+                        ModifyThreatByPercent(me->GetVictim(), -99);
+                        events.ScheduleEvent(EVENT_SET_VISIBILITY, 3s);
+                        events.ScheduleEvent(EVENT_ILLUSION, 25s);
                         break;
                     case EVENT_SET_VISIBILITY:
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -101,6 +104,9 @@ public:
                     default:
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
 
             DoMeleeAttackIfReady();
@@ -113,7 +119,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_jandicebarovAI>(creature);
+        return GetScholomanceAI<boss_jandicebarovAI>(creature);
     }
 };
 

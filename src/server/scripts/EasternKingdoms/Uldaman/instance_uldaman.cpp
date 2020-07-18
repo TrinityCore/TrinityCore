@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2007 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,8 +23,14 @@ SDCategory: Uldaman
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "Creature.h"
+#include "CreatureAI.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
+#include "Log.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "uldaman.h"
 
 enum Spells
@@ -51,7 +56,7 @@ const Position IronayaPoint = { -231.228f, 246.6135f, -49.01617f, 0.0f };
 class instance_uldaman : public InstanceMapScript
 {
     public:
-        instance_uldaman() : InstanceMapScript("instance_uldaman", 70) { }
+        instance_uldaman() : InstanceMapScript(UldamanScriptName, 70) { }
 
         struct instance_uldaman_InstanceMapScript : public InstanceScript
         {
@@ -144,10 +149,10 @@ class instance_uldaman : public InstanceMapScript
 
             void SetFrozenState(Creature* creature)
             {
-                creature->setFaction(35);
+                creature->SetFaction(FACTION_FRIENDLY);
                 creature->RemoveAllAuras();
                 creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                creature->SetControlled(true, UNIT_STATE_ROOT);
                 creature->AddAura(SPELL_MINION_FREEZE_ANIM, creature);
             }
 
@@ -178,8 +183,8 @@ class instance_uldaman : public InstanceMapScript
                         Creature* target = instance->GetCreature(*i);
                         if (!target || !target->IsAlive())
                             continue;
-                        target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                        target->setFaction(14);
+                        target->SetControlled(false, UNIT_STATE_ROOT);
+                        target->SetFaction(FACTION_MONSTER);
                         target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         target->RemoveAura(SPELL_MINION_FREEZE_ANIM);
 
@@ -200,11 +205,11 @@ class instance_uldaman : public InstanceMapScript
                 for (GuidVector::const_iterator i = archaedasWallMinions.begin(); i != archaedasWallMinions.end(); ++i)
                 {
                     Creature* target = instance->GetCreature(*i);
-                    if (!target || !target->IsAlive() || target->getFaction() == 14)
+                    if (!target || !target->IsAlive() || target->GetFaction() == FACTION_MONSTER)
                         continue;
-                    target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                    target->SetControlled(false, UNIT_STATE_ROOT);
                     target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    target->setFaction(14);
+                    target->SetFaction(FACTION_MONSTER);
                     target->RemoveAura(SPELL_MINION_FREEZE_ANIM);
                     archaedas->CastSpell(target, SPELL_AWAKEN_VAULT_WALKER, true);
                     target->CastSpell(target, SPELL_ARCHAEDAS_AWAKEN, true);
@@ -220,30 +225,30 @@ class instance_uldaman : public InstanceMapScript
                 for (GuidVector::const_iterator i = archaedasWallMinions.begin(); i != archaedasWallMinions.end(); ++i)
                 {
                     Creature* target = instance->GetCreature(*i);
-                    if (!target || target->isDead() || target->getFaction() != 14)
+                    if (!target || target->isDead() || target->GetFaction() != FACTION_MONSTER)
                         continue;
-                    target->setDeathState(JUST_DIED);
-                    target->RemoveCorpse();
+
+                    target->DespawnOrUnsummon();
                 }
 
                 // Vault Walkers
                 for (GuidVector::const_iterator i = vaultWalkers.begin(); i != vaultWalkers.end(); ++i)
                 {
                     Creature* target = instance->GetCreature(*i);
-                    if (!target || target->isDead() || target->getFaction() != 14)
+                    if (!target || target->isDead() || target->GetFaction() != FACTION_MONSTER)
                         continue;
-                    target->setDeathState(JUST_DIED);
-                    target->RemoveCorpse();
+
+                    target->DespawnOrUnsummon();
                 }
 
                 // Earthen Guardians
                 for (GuidVector::const_iterator i = earthenGuardians.begin(); i != earthenGuardians.end(); ++i)
                 {
                     Creature* target = instance->GetCreature(*i);
-                    if (!target || target->isDead() || target->getFaction() != 14)
+                    if (!target || target->isDead() || target->GetFaction() != FACTION_MONSTER)
                         continue;
-                    target->setDeathState(JUST_DIED);
-                    target->RemoveCorpse();
+
+                    target->DespawnOrUnsummon();
                 }
             }
 
@@ -257,6 +262,8 @@ class instance_uldaman : public InstanceMapScript
                 {
                     archaedas->RemoveAura(SPELL_FREEZE_ANIM);
                     archaedas->CastSpell(archaedas, SPELL_ARCHAEDAS_AWAKEN, false);
+                    archaedas->SetFaction(FACTION_TITAN);
+                    archaedas->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     whoWokeuiArchaedasGUID = target;
                 }
             }
@@ -267,8 +274,8 @@ class instance_uldaman : public InstanceMapScript
                 if (!ironaya)
                     return;
 
-                ironaya->setFaction(415);
-                ironaya->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                ironaya->SetFaction(FACTION_TITAN);
+                ironaya->SetControlled(false, UNIT_STATE_ROOT);
                 ironaya->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
                 ironaya->GetMotionMaster()->Clear();
@@ -416,7 +423,7 @@ class instance_uldaman : public InstanceMapScript
                 return str_data;
             }
 
-            void Load(const char* in) override
+            void Load(char const* in) override
             {
                 if (!in)
                 {

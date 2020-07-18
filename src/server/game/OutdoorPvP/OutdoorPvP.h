@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,23 +18,23 @@
 #ifndef OUTDOOR_PVP_H_
 #define OUTDOOR_PVP_H_
 
-#include "Util.h"
+#include "GameObjectData.h"
+#include "Position.h"
 #include "SharedDefines.h"
 #include "ZoneScript.h"
-
-class GameObject;
+#include <map>
 
 enum OutdoorPvPTypes
 {
     OUTDOOR_PVP_HP = 1,
-    OUTDOOR_PVP_NA = 2,
-    OUTDOOR_PVP_TF = 3,
-    OUTDOOR_PVP_ZM = 4,
-    OUTDOOR_PVP_SI = 5,
-    OUTDOOR_PVP_EP = 6
-};
+    OUTDOOR_PVP_NA,
+    OUTDOOR_PVP_TF,
+    OUTDOOR_PVP_ZM,
+    OUTDOOR_PVP_SI,
+    OUTDOOR_PVP_EP,
 
-#define MAX_OUTDOORPVP_TYPES 7
+    MAX_OUTDOORPVP_TYPES
+};
 
 enum ObjectiveStates
 {
@@ -54,14 +54,8 @@ struct go_type
 {
     uint32 entry;
     uint32 map;
-    float x;
-    float y;
-    float z;
-    float o;
-    float rot0;
-    float rot1;
-    float rot2;
-    float rot3;
+    Position pos;
+    QuaternionData rot;
 };
 
 // struct for creature spawning
@@ -69,22 +63,27 @@ struct creature_type
 {
     uint32 entry;
     uint32 map;
-    float x;
-    float y;
-    float z;
-    float o;
+    Position pos;
 };
 
-// some class predefs
-class Player;
-class GameObject;
-class WorldPacket;
-class Creature;
-class Unit;
-struct GossipMenuItems;
-class OutdoorPvP;
+namespace WorldPackets
+{
+    namespace WorldState
+    {
+        class InitWorldStates;
+    }
+}
 
-class OPvPCapturePoint
+class Creature;
+class GameObject;
+class Map;
+class OutdoorPvP;
+class Player;
+class Unit;
+class WorldPacket;
+struct GossipMenuItems;
+
+class TC_GAME_API OPvPCapturePoint
 {
     public:
 
@@ -92,7 +91,7 @@ class OPvPCapturePoint
 
         virtual ~OPvPCapturePoint() { }
 
-        virtual void FillInitialWorldStates(WorldPacket & /*data*/) { }
+        virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*packet*/) { }
 
         // send world state update to all players present
         void SendUpdateWorldState(uint32 field, uint32 value);
@@ -135,17 +134,15 @@ class OPvPCapturePoint
         void AddGO(uint32 type, ObjectGuid::LowType guid, uint32 entry = 0);
         void AddCre(uint32 type, ObjectGuid::LowType guid, uint32 entry = 0);
 
-        bool SetCapturePointData(uint32 entry, uint32 map, float x, float y, float z, float o = 0,
-            float rotation0 = 0, float rotation1 = 0, float rotation2 = 0, float rotation3 = 0);
+        bool SetCapturePointData(uint32 entry, uint32 map, Position const& pos, QuaternionData const& rot);
 
     protected:
 
-        bool AddObject(uint32 type, uint32 entry, uint32 map, float x, float y, float z, float o,
-            float rotation0, float rotation1, float rotation2, float rotation3);
-        virtual bool AddCreature(uint32 type, uint32 entry, uint32 map, float x, float y, float z, float o, TeamId teamId = TEAM_NEUTRAL, uint32 spawntimedelay = 0);
+        bool AddObject(uint32 type, uint32 entry, uint32 map, Position const& pos, QuaternionData const& rot);
+        bool AddCreature(uint32 type, uint32 entry, uint32 map, Position const& pos, TeamId teamId = TEAM_NEUTRAL, uint32 spawntimedelay = 0);
 
-        bool DelCreature(uint32 type);
         bool DelObject(uint32 type);
+        bool DelCreature(uint32 type);
 
         bool DelCapturePoint();
 
@@ -185,7 +182,7 @@ class OPvPCapturePoint
 };
 
 // base class for specific outdoor pvp handlers
-class OutdoorPvP : public ZoneScript
+class TC_GAME_API OutdoorPvP : public ZoneScript
 {
     friend class OutdoorPvPMgr;
 
@@ -204,7 +201,7 @@ class OutdoorPvP : public ZoneScript
         typedef std::pair<ObjectGuid::LowType, GameObject*> GoScriptPair;
         typedef std::pair<ObjectGuid::LowType, Creature*> CreatureScriptPair;
 
-        virtual void FillInitialWorldStates(WorldPacket & /*data*/) { }
+        virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*packet*/) { }
 
         // called when a player triggers an areatrigger
         virtual bool HandleAreaTrigger(Player* player, uint32 trigger);
@@ -292,12 +289,12 @@ class OutdoorPvP : public ZoneScript
             m_capturePoints[cp->m_capturePointSpawnId] = cp;
         }
 
-        OPvPCapturePoint * GetCapturePoint(ObjectGuid::LowType guid) const
+        OPvPCapturePoint* GetCapturePoint(ObjectGuid::LowType guid) const
         {
             OutdoorPvP::OPvPCapturePointMap::const_iterator itr = m_capturePoints.find(guid);
             if (itr != m_capturePoints.end())
                 return itr->second;
-            return NULL;
+            return nullptr;
         }
 
         void RegisterZone(uint32 zoneid);
@@ -308,12 +305,12 @@ class OutdoorPvP : public ZoneScript
 
         template<class Worker>
         void BroadcastWorker(Worker& _worker, uint32 zoneId);
-        
+
         // Hack to store map because this code is just shit
         void SetMapFromZone(uint32 zone);
         std::map<ObjectGuid::LowType, GameObject*> m_GoScriptStore;
         std::map<ObjectGuid::LowType, Creature*> m_CreatureScriptStore;
-        
+
         Map* m_map;
 };
 

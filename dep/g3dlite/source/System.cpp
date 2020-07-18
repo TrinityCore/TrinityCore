@@ -45,6 +45,7 @@
 #   include <sys/timeb.h>
 #   include "G3D/RegistryUtil.h"
 #include <Ole2.h>
+#include <intrin.h>
 
 #elif defined(G3D_LINUX) 
 
@@ -78,8 +79,9 @@
 #endif
 
 // SIMM include
+#if !defined(__aarch64__)
 #include <xmmintrin.h>
-
+#endif
 
 namespace G3D {
     
@@ -1694,6 +1696,16 @@ void System::cpuid(CPUIDFunction func, uint32& eax, uint32& ebx, uint32& ecx, ui
 	ebx = regs[1];
 	ecx = regs[2];
 	edx = regs[3];
+}
+
+#elif defined(__aarch64__) || defined(G3D_OSX) && ! defined(G3D_OSX_INTEL)
+
+// non-x86 CPU; no CPUID
+void System::cpuid(CPUIDFunction func, uint32& eax, uint32& ebx, uint32& ecx, uint32& edx) {
+    eax = 0;
+    ebx = 0;
+    ecx = 0;
+    edx = 0;
 }
 
 #else

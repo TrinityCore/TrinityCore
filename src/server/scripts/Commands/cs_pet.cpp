@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,12 +15,31 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ScriptMgr.h"
 #include "Chat.h"
 #include "Language.h"
+#include "Log.h"
+#include "Map.h"
+#include "ObjectMgr.h"
 #include "Pet.h"
 #include "Player.h"
-#include "ObjectMgr.h"
-#include "ScriptMgr.h"
+#include "RBAC.h"
+#include "SpellMgr.h"
+#include "WorldSession.h"
+
+inline Pet* GetSelectedPlayerPetOrOwn(ChatHandler* handler)
+{
+    if (Unit* target = handler->getSelectedUnit())
+    {
+        if (target->GetTypeId() == TYPEID_PLAYER)
+            return target->ToPlayer()->GetPet();
+        if (target->IsPet())
+            return target->ToPet();
+        return nullptr;
+    }
+    Player* player = handler->GetSession()->GetPlayer();
+    return player ? player->GetPet() : nullptr;
+}
 
 class pet_commandscript : public CommandScript
 {
@@ -34,11 +53,12 @@ public:
             { "create",  rbac::RBAC_PERM_COMMAND_PET_CREATE,  false, &HandlePetCreateCommand,  "" },
             { "learn",   rbac::RBAC_PERM_COMMAND_PET_LEARN,   false, &HandlePetLearnCommand,   "" },
             { "unlearn", rbac::RBAC_PERM_COMMAND_PET_UNLEARN, false, &HandlePetUnlearnCommand, "" },
+            { "level",   rbac::RBAC_PERM_COMMAND_PET_LEVEL,   false, &HandlePetLevelCommand,   "" },
         };
 
         static std::vector<ChatCommand> commandTable =
         {
-            { "pet", rbac::RBAC_PERM_COMMAND_PET, false, NULL, "", petCommandTable },
+            { "pet", rbac::RBAC_PERM_COMMAND_PET, false, nullptr, "", petCommandTable },
         };
         return commandTable;
     }
@@ -54,11 +74,11 @@ public:
             return false;
         }
 
-        CreatureTemplate const* creatrueTemplate = creatureTarget->GetCreatureTemplate();
-        // Creatures with family 0 crashes the server
-        if (!creatrueTemplate->family)
+        CreatureTemplate const* creatureTemplate = creatureTarget->GetCreatureTemplate();
+        // Creatures with family CREATURE_FAMILY_NONE crashes the server
+        if (creatureTemplate->family == CREATURE_FAMILY_NONE)
         {
-            handler->PSendSysMessage("This creature cannot be tamed. (family id: 0).");
+            handler->PSendSysMessage("This creature cannot be tamed. Family id: 0 (CREATURE_FAMILY_NONE).");
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -79,14 +99,13 @@ public:
             return false;
         }
 
-        creatureTarget->setDeathState(JUST_DIED);
-        creatureTarget->RemoveCorpse();
+        creatureTarget->DespawnOrUnsummon();
         creatureTarget->SetHealth(0); // just for nice GM-mode view
 
         pet->SetGuidValue(UNIT_FIELD_CREATEDBY, player->GetGUID());
-        pet->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, player->getFaction());
+        pet->SetFaction(player->GetFaction());
 
-        if (!pet->InitStatsForLevel(creatureTarget->getLevel()))
+        if (!pet->InitStatsForLevel(creatureTarget->GetLevel()))
         {
             TC_LOG_ERROR("misc", "InitStatsForLevel() in EffectTameCreature failed! Pet deleted.");
             handler->PSendSysMessage("Error 2");
@@ -95,7 +114,7 @@ public:
         }
 
         // prepare visual effect for levelup
-        pet->SetUInt32Value(UNIT_FIELD_LEVEL, creatureTarget->getLevel()-1);
+        pet->SetUInt32Value(UNIT_FIELD_LEVEL, creatureTarget->GetLevel()-1);
 
         pet->GetCharmInfo()->SetPetNumber(sObjectMgr->GeneratePetNumber(), true);
         // this enables pet details window (Shift+P)
@@ -105,7 +124,7 @@ public:
         pet->GetMap()->AddToMap(pet->ToCreature());
 
         // visual effect for levelup
-        pet->SetUInt32Value(UNIT_FIELD_LEVEL, creatureTarget->getLevel());
+        pet->SetUInt32Value(UNIT_FIELD_LEVEL, creatureTarget->GetLevel());
 
         player->SetMinion(pet, true);
         pet->SavePetToDB(PET_SAVE_AS_CURRENT);
@@ -119,12 +138,11 @@ public:
         if (!*args)
             return false;
 
-        Player* player = handler->GetSession()->GetPlayer();
-        Pet* pet = player->GetPet();
+        Pet* pet = GetSelectedPlayerPetOrOwn(handler);
 
         if (!pet)
         {
-            handler->PSendSysMessage("You have no pet");
+            handler->SendSysMessage(LANG_SELECT_PLAYER_OR_PET);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -162,11 +180,10 @@ public:
         if (!*args)
             return false;
 
-        Player* player = handler->GetSession()->GetPlayer();
-        Pet* pet = player->GetPet();
+        Pet* pet = GetSelectedPlayerPetOrOwn(handler);
         if (!pet)
         {
-            handler->PSendSysMessage("You have no pet");
+            handler->SendSysMessage(LANG_SELECT_PLAYER_OR_PET);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -178,6 +195,37 @@ public:
         else
             handler->PSendSysMessage("Pet doesn't have that spell");
 
+        return true;
+    }
+
+    static bool HandlePetLevelCommand(ChatHandler* handler, char const* args)
+    {
+        Pet* pet = GetSelectedPlayerPetOrOwn(handler);
+        Player* owner = pet ? pet->GetOwner() : nullptr;
+        if (!pet || !owner)
+        {
+            handler->SendSysMessage(LANG_SELECT_PLAYER_OR_PET);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        int32 level = args ? atoi(args) : 0;
+        if (level == 0)
+            level = owner->GetLevel() - pet->GetLevel();
+        if (level == 0 || level < -STRONG_MAX_LEVEL || level > STRONG_MAX_LEVEL)
+        {
+            handler->SendSysMessage(LANG_BAD_VALUE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        int32 newLevel = pet->GetLevel() + level;
+        if (newLevel < 1)
+            newLevel = 1;
+        else if (newLevel > owner->GetLevel())
+            newLevel = owner->GetLevel();
+
+        pet->GivePetLevel(newLevel);
         return true;
     }
 };

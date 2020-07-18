@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+# This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -34,13 +34,13 @@ else()
   )
 
   # make sure we're using minimum the required version of git, so the "dirty-testing" will work properly
-  ensure_version( "${_REQUIRED_GIT_VERSION}" "${_GIT_VERSION}" _GIT_VERSION_OK)
+  ensure_version("${_REQUIRED_GIT_VERSION}" "${_GIT_VERSION}" _GIT_VERSION_OK)
 
   # throw an error if we don't have a recent enough version of git...
   if(NOT _GIT_VERSION_OK)
     message(STATUS "Git version too old : ${_GIT_VERSION}")
     message(FATAL_ERROR "
       Git was found but is OUTDATED - did you forget to install a recent version, or setting the path to it?
-      Observe that for revision hash/date to work you need at least version ${_REQUIRED_GIT_VERSION}")
+      Observe that for revision hash/date to work you need at least version ${_REQUIRED_GIT_VERSION}, found ${_GIT_VERSION}")
   endif()
 endif()

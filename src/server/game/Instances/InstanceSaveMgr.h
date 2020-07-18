@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -25,7 +24,7 @@
 #include <unordered_map>
 
 #include "Define.h"
-#include "DatabaseEnv.h"
+#include "DatabaseEnvFwd.h"
 #include "DBCEnums.h"
 #include "ObjectDefines.h"
 
@@ -41,7 +40,7 @@ class Group;
     - player-instance binds for permanent heroic/raid saves
     - group-instance binds (both solo and permanent) cache the player binds for the group leader
 */
-class InstanceSave
+class TC_GAME_API InstanceSave
 {
     friend class InstanceSaveManager;
     public:
@@ -147,7 +146,7 @@ class InstanceSave
 
 typedef std::unordered_map<uint32 /*PAIR32(map, difficulty)*/, time_t /*resetTime*/> ResetTimeByMapDifficultyMap;
 
-class InstanceSaveManager
+class TC_GAME_API InstanceSaveManager
 {
     friend class InstanceSave;
 
@@ -158,11 +157,7 @@ class InstanceSaveManager
     public:
         typedef std::unordered_map<uint32 /*InstanceId*/, InstanceSave*> InstanceSaveHashMap;
 
-        static InstanceSaveManager* instance()
-        {
-            static InstanceSaveManager instance;
-            return &instance;
-        }
+        static InstanceSaveManager* instance();
 
         void Unload();
 
@@ -178,7 +173,7 @@ class InstanceSaveManager
             InstResetEvent() : type(0), difficulty(DUNGEON_DIFFICULTY_NORMAL), mapid(0), instanceId(0) { }
             InstResetEvent(uint8 t, uint32 _mapid, Difficulty d, uint16 _instanceid)
                 : type(t), difficulty(d), mapid(_mapid), instanceId(_instanceid) { }
-            bool operator == (const InstResetEvent& e) const { return e.instanceId == instanceId; }
+            bool operator==(InstResetEvent const& e) const { return e.instanceId == instanceId; }
         };
         typedef std::multimap<time_t /*resetTime*/, InstResetEvent> ResetTimeQueue;
 
@@ -190,6 +185,7 @@ class InstanceSaveManager
             ResetTimeByMapDifficultyMap::const_iterator itr  = m_resetTimeByMapDifficulty.find(MAKE_PAIR32(mapid, d));
             return itr != m_resetTimeByMapDifficulty.end() ? itr->second : 0;
         }
+        time_t GetSubsequentResetTime(uint32 mapid, Difficulty difficulty, time_t resetTime) const;
 
         // Use this on startup when initializing reset times
         void InitializeResetTimeFor(uint32 mapid, Difficulty d, time_t t)
@@ -198,18 +194,14 @@ class InstanceSaveManager
         }
 
         // Use this only when updating existing reset times
-        void SetResetTimeFor(uint32 mapid, Difficulty d, time_t t)
-        {
-            ResetTimeByMapDifficultyMap::iterator itr = m_resetTimeByMapDifficulty.find(MAKE_PAIR32(mapid, d));
-            ASSERT(itr != m_resetTimeByMapDifficulty.end());
-            itr->second = t;
-        }
+        void SetResetTimeFor(uint32 mapid, Difficulty d, time_t t);
 
         ResetTimeByMapDifficultyMap const& GetResetTimeMap() const
         {
             return m_resetTimeByMapDifficulty;
         }
         void ScheduleReset(bool add, time_t time, InstResetEvent event);
+        void ForceGlobalReset(uint32 mapId, Difficulty difficulty);
 
         void Update();
 

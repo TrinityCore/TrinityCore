@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,6 +22,7 @@
 #include "Database/DatabaseEnv.h"
 #include "WardenCheckMgr.h"
 #include "Warden.h"
+#include "World.h"
 
 WardenCheckMgr::WardenCheckMgr() { }
 
@@ -37,6 +37,8 @@ WardenCheckMgr::~WardenCheckMgr()
 
 void WardenCheckMgr::LoadWardenChecks()
 {
+    uint32 oldMSTime = getMSTime();
+
     // Check if Warden is enabled by config before loading anything
     if (!sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED))
     {
@@ -140,11 +142,13 @@ void WardenCheckMgr::LoadWardenChecks()
     }
     while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u warden checks.", count);
+    TC_LOG_INFO("server.loading", ">> Loaded %u warden checks in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void WardenCheckMgr::LoadWardenOverrides()
 {
+    uint32 oldMSTime = getMSTime();
+
     // Check if Warden is enabled by config before loading anything
     if (!sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED))
     {
@@ -163,7 +167,7 @@ void WardenCheckMgr::LoadWardenOverrides()
 
     uint32 count = 0;
 
-    boost::unique_lock<boost::shared_mutex> lock(sWardenCheckMgr->_checkStoreLock);
+    std::unique_lock<std::shared_mutex> lock(sWardenCheckMgr->_checkStoreLock);
 
     do
     {
@@ -186,7 +190,13 @@ void WardenCheckMgr::LoadWardenOverrides()
     }
     while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u warden action overrides.", count);
+    TC_LOG_INFO("server.loading", ">> Loaded %u warden action overrides in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+WardenCheckMgr* WardenCheckMgr::instance()
+{
+    static WardenCheckMgr instance;
+    return &instance;
 }
 
 WardenCheck* WardenCheckMgr::GetWardenDataById(uint16 Id)
@@ -194,7 +204,7 @@ WardenCheck* WardenCheckMgr::GetWardenDataById(uint16 Id)
     if (Id < CheckStore.size())
         return CheckStore[Id];
 
-    return NULL;
+    return nullptr;
 }
 
 WardenCheckResult* WardenCheckMgr::GetWardenResultById(uint16 Id)
@@ -202,5 +212,5 @@ WardenCheckResult* WardenCheckMgr::GetWardenResultById(uint16 Id)
     CheckResultContainer::const_iterator itr = CheckResultStore.find(Id);
     if (itr != CheckResultStore.end())
         return itr->second;
-    return NULL;
+    return nullptr;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,10 +16,12 @@
  */
 
 #include "ScriptMgr.h"
+#include "gundrak.h"
+#include "MotionMaster.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellAuras.h"
-#include "gundrak.h"
-#include "Player.h"
+#include "TemporarySummon.h"
 
 enum Spells
 {
@@ -105,9 +107,9 @@ public:
             lWrappedPlayers.clear();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _EnterCombat();
+            BossAI::JustEngagedWith(who);
             Talk(SAY_AGGRO);
         }
 
@@ -168,8 +170,8 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             _JustDied();
-            Talk(SAY_DEATH);
             Talk(EMOTE_ACTIVATE_ALTAR);
+            Talk(SAY_DEATH);
         }
 
         void KilledUnit(Unit* who) override
@@ -184,9 +186,9 @@ public:
             summons.Summon(summon);
         }
 
-        void SetGUID(ObjectGuid guid, int32 type) override
+        void SetGUID(ObjectGuid const& guid, int32 id) override
         {
-            if (type == DATA_SNAKES_WHYD_IT_HAVE_TO_BE_SNAKES)
+            if (id == DATA_SNAKES_WHYD_IT_HAVE_TO_BE_SNAKES)
                 lWrappedPlayers.insert(guid);
         }
 
@@ -209,7 +211,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_slad_ran_constrictorAI(creature);
+        return GetGundrakAI<npc_slad_ran_constrictorAI>(creature);
     }
 
     struct npc_slad_ran_constrictorAI : public ScriptedAI
@@ -245,7 +247,7 @@ public:
                     target->CastSpell(target, SPELL_SNAKE_WRAP, true);
 
                     if (TempSummon* _me = me->ToTempSummon())
-                        if (Unit* summoner = _me->GetSummoner())
+                        if (Unit* summoner = _me->GetSummonerUnit())
                             if (Creature* sladran = summoner->ToCreature())
                                 sladran->AI()->SetGUID(target->GetGUID(), DATA_SNAKES_WHYD_IT_HAVE_TO_BE_SNAKES);
 
@@ -264,7 +266,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_slad_ran_viperAI(creature);
+        return GetGundrakAI<npc_slad_ran_viperAI>(creature);
     }
 
     struct npc_slad_ran_viperAI : public ScriptedAI

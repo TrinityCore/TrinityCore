@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,6 +22,8 @@ SDComment: Find a way to start the intro, best code for the intro
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "Log.h"
 #include "ScriptedCreature.h"
 #include "sunwell_plateau.h"
 
@@ -114,7 +115,7 @@ public:
             instance->SetBossState(DATA_BRUTALLUS, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(YELL_AGGRO);
 
@@ -136,10 +137,10 @@ public:
             me->SummonCreature(NPC_FELMYST, x, y, z + 30, me->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 0);
         }
 
-        void EnterEvadeMode() override
+        void EnterEvadeMode(EvadeReason why) override
         {
             if (!Intro)
-                ScriptedAI::EnterEvadeMode();
+                ScriptedAI::EnterEvadeMode(why);
         }
 
         void StartIntro()
@@ -147,10 +148,11 @@ public:
             if (!Intro || IsIntro)
                 return;
 
-            if (Creature* Madrigosa = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MADRIGOSA)))
+            if (Creature* Madrigosa = instance->GetCreature(DATA_MADRIGOSA))
             {
                 Madrigosa->Respawn();
                 Madrigosa->setActive(true);
+                Madrigosa->SetFarVisible(true);
                 IsIntro = true;
                 Madrigosa->SetMaxHealth(me->GetMaxHealth());
                 Madrigosa->SetHealth(me->GetMaxHealth());
@@ -182,7 +184,7 @@ public:
 
         void DoIntro()
         {
-            Creature* Madrigosa = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MADRIGOSA));
+            Creature* Madrigosa = instance->GetCreature(DATA_MADRIGOSA);
             if (!Madrigosa)
                 return;
 
@@ -194,8 +196,8 @@ public:
                     ++IntroPhase;
                     break;
                 case 1:
-                    me->SetInFront(Madrigosa);
-                    Madrigosa->SetInFront(me);
+                    me->SetFacingToObject(Madrigosa);
+                    Madrigosa->SetFacingToObject(me);
                     Madrigosa->AI()->Talk(YELL_MADR_INTRO, me);
                     IntroPhaseTimer = 9000;
                     ++IntroPhase;
@@ -232,7 +234,7 @@ public:
                     ++IntroPhase;
                     break;
                 case 7:
-                    me->Kill(Madrigosa);
+                    Unit::Kill(me, Madrigosa);
                     Madrigosa->AI()->Talk(YELL_MADR_DEATH);
                     me->SetFullHealth();
                     me->AttackStop();
@@ -285,7 +287,7 @@ public:
                 {
                     if (IntroFrostBoltTimer <= diff)
                     {
-                        if (Creature* Madrigosa = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MADRIGOSA)))
+                        if (Creature* Madrigosa = instance->GetCreature(DATA_MADRIGOSA))
                         {
                             Madrigosa->CastSpell(me, SPELL_INTRO_FROSTBOLT, true);
                             IntroFrostBoltTimer = 2000;
@@ -319,14 +321,8 @@ public:
 
             if (BurnTimer <= diff)
             {
-                std::list<Unit*> targets;
-                SelectTargetList(targets, 10, SELECT_TARGET_RANDOM, 100, true);
-                for (std::list<Unit*>::const_iterator i = targets.begin(); i != targets.end(); ++i)
-                    if (!(*i)->HasAura(SPELL_BURN))
-                    {
-                        (*i)->CastSpell((*i), SPELL_BURN, true);
-                        break;
-                    }
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true, true, -SPELL_BURN))
+                    target->CastSpell(target, SPELL_BURN, true);
                 BurnTimer = urand(60000, 180000);
             } else BurnTimer -= diff;
 

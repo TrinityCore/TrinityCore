@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,8 +16,10 @@
  */
 
 #include "DatabaseLoader.h"
-#include "DBUpdater.h"
 #include "Config.h"
+#include "DatabaseEnv.h"
+#include "DBUpdater.h"
+#include "Log.h"
 
 #include <mysqld_error.h>
 
@@ -32,19 +34,19 @@ DatabaseLoader& DatabaseLoader::AddDatabase(DatabaseWorkerPool<T>& pool, std::st
 {
     bool const updatesEnabledForThis = DBUpdater<T>::IsEnabled(_updateFlags);
 
-    _open.push(std::make_pair([this, name, updatesEnabledForThis, &pool]() -> bool
+    _open.push([this, name, updatesEnabledForThis, &pool]() -> bool
     {
         std::string const dbString = sConfigMgr->GetStringDefault(name + "DatabaseInfo", "");
         if (dbString.empty())
         {
-            TC_LOG_ERROR(_logger.c_str(), "Database %s not specified in configuration file!", name.c_str());
+            TC_LOG_ERROR(_logger, "Database %s not specified in configuration file!", name.c_str());
             return false;
         }
 
         uint8 const asyncThreads = uint8(sConfigMgr->GetIntDefault(name + "Database.WorkerThreads", 1));
         if (asyncThreads < 1 || asyncThreads > 32)
         {
-            TC_LOG_ERROR(_logger.c_str(), "%s database: invalid number of worker threads specified. "
+            TC_LOG_ERROR(_logger, "%s database: invalid number of worker threads specified. "
                 "Please pick a value between 1 and 32.", name.c_str());
             return false;
         }
@@ -66,17 +68,18 @@ DatabaseLoader& DatabaseLoader::AddDatabase(DatabaseWorkerPool<T>& pool, std::st
             if (error)
             {
                 TC_LOG_ERROR("sql.driver", "\nDatabasePool %s NOT opened. There were errors opening the MySQL connections. Check your SQLDriverLogFile "
-                    "for specific errors. Read wiki at http://collab.kpsn.org/display/tc/TrinityCore+Home", name.c_str());
+                    "for specific errors. Read wiki at http://www.trinitycore.info/display/tc/TrinityCore+Home", name.c_str());
 
                 return false;
             }
         }
+        // Add the close operation
+        _close.push([&pool]
+        {
+            pool.Close();
+        });
         return true;
-    },
-    [&pool]()
-    {
-        pool.Close();
-    }));
+    });
 
     // Populate and update only if updates are enabled for this pool
     if (updatesEnabledForThis)
@@ -85,7 +88,7 @@ DatabaseLoader& DatabaseLoader::AddDatabase(DatabaseWorkerPool<T>& pool, std::st
         {
             if (!DBUpdater<T>::Populate(pool))
             {
-                TC_LOG_ERROR(_logger.c_str(), "Could not populate the %s database, see log for details.", name.c_str());
+                TC_LOG_ERROR(_logger, "Could not populate the %s database, see log for details.", name.c_str());
                 return false;
             }
             return true;
@@ -95,7 +98,7 @@ DatabaseLoader& DatabaseLoader::AddDatabase(DatabaseWorkerPool<T>& pool, std::st
         {
             if (!DBUpdater<T>::Update(pool))
             {
-                TC_LOG_ERROR(_logger.c_str(), "Could not update the %s database, see log for details.", name.c_str());
+                TC_LOG_ERROR(_logger, "Could not update the %s database, see log for details.", name.c_str());
                 return false;
             }
             return true;
@@ -106,7 +109,7 @@ DatabaseLoader& DatabaseLoader::AddDatabase(DatabaseWorkerPool<T>& pool, std::st
     {
         if (!pool.PrepareStatements())
         {
-            TC_LOG_ERROR(_logger.c_str(), "Could not prepare statements of the %s database, see log for details.", name.c_str());
+            TC_LOG_ERROR(_logger, "Could not prepare statements of the %s database, see log for details.", name.c_str());
             return false;
         }
         return true;
@@ -137,38 +140,7 @@ bool DatabaseLoader::Load()
 
 bool DatabaseLoader::OpenDatabases()
 {
-    while (!_open.empty())
-    {
-        std::pair<Predicate, std::function<void()>> const load = _open.top();
-        if (load.first())
-            _close.push(load.second);
-        else
-        {
-            // Close all loaded databases
-            while (!_close.empty())
-            {
-                _close.top()();
-                _close.pop();
-            }
-            return false;
-        }
-
-        _open.pop();
-    }
-    return true;
-}
-
-// Processes the elements of the given stack until a predicate returned false.
-bool DatabaseLoader::Process(std::stack<Predicate>& stack)
-{
-    while (!stack.empty())
-    {
-        if (!stack.top()())
-            return false;
-
-        stack.pop();
-    }
-    return true;
+    return Process(_open);
 }
 
 bool DatabaseLoader::PopulateDatabases()
@@ -186,9 +158,30 @@ bool DatabaseLoader::PrepareStatements()
     return Process(_prepare);
 }
 
-template
-DatabaseLoader& DatabaseLoader::AddDatabase<LoginDatabaseConnection>(DatabaseWorkerPool<LoginDatabaseConnection>& pool, std::string const& name);
-template
-DatabaseLoader& DatabaseLoader::AddDatabase<WorldDatabaseConnection>(DatabaseWorkerPool<WorldDatabaseConnection>& pool, std::string const& name);
-template
-DatabaseLoader& DatabaseLoader::AddDatabase<CharacterDatabaseConnection>(DatabaseWorkerPool<CharacterDatabaseConnection>& pool, std::string const& name);
+bool DatabaseLoader::Process(std::queue<Predicate>& queue)
+{
+    while (!queue.empty())
+    {
+        if (!queue.front()())
+        {
+            // Close all open databases which have a registered close operation
+            while (!_close.empty())
+            {
+                _close.top()();
+                _close.pop();
+            }
+
+            return false;
+        }
+
+        queue.pop();
+    }
+    return true;
+}
+
+template TC_DATABASE_API
+DatabaseLoader& DatabaseLoader::AddDatabase<LoginDatabaseConnection>(DatabaseWorkerPool<LoginDatabaseConnection>&, std::string const&);
+template TC_DATABASE_API
+DatabaseLoader& DatabaseLoader::AddDatabase<CharacterDatabaseConnection>(DatabaseWorkerPool<CharacterDatabaseConnection>&, std::string const&);
+template TC_DATABASE_API
+DatabaseLoader& DatabaseLoader::AddDatabase<WorldDatabaseConnection>(DatabaseWorkerPool<WorldDatabaseConnection>&, std::string const&);

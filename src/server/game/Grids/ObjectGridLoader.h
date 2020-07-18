@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -27,12 +26,12 @@
 
 class ObjectWorldLoader;
 
-class ObjectGridLoader
+class TC_GAME_API ObjectGridLoader
 {
     friend class ObjectWorldLoader;
 
     public:
-        ObjectGridLoader(NGridType &grid, Map* map, const Cell &cell)
+        ObjectGridLoader(NGridType& grid, Map* map, Cell const& cell)
             : i_cell(cell), i_grid(grid), i_map(map), i_gameObjects(0), i_creatures(0), i_corpses (0)
             { }
 
@@ -55,7 +54,7 @@ class ObjectGridLoader
 };
 
 //Stop the creatures before unloading the NGrid
-class ObjectGridStoper
+class TC_GAME_API ObjectGridStoper
 {
     public:
         void Visit(CreatureMapType &m);
@@ -63,7 +62,7 @@ class ObjectGridStoper
 };
 
 //Move the foreign creatures back to respawn positions before unloading the NGrid
-class ObjectGridEvacuator
+class TC_GAME_API ObjectGridEvacuator
 {
     public:
         void Visit(CreatureMapType &m);

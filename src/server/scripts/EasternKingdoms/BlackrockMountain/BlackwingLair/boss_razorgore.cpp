@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,10 +16,13 @@
  */
 
 #include "ScriptMgr.h"
+#include "blackwing_lair.h"
+#include "InstanceScript.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "blackwing_lair.h"
-#include "Player.h"
 
 enum Say
 {
@@ -32,6 +34,7 @@ enum Say
 
 enum Spells
 {
+    // @todo orb uses the wrong spell, this needs sniffs
     SPELL_MINDCONTROL       = 42013,
     SPELL_CHANNEL           = 45537,
     SPELL_EGG_DESTROY       = 19873,
@@ -96,14 +99,14 @@ public:
 
         void DoChangePhase()
         {
-            events.ScheduleEvent(EVENT_CLEAVE, 15000);
-            events.ScheduleEvent(EVENT_STOMP, 35000);
-            events.ScheduleEvent(EVENT_FIREBALL, 7000);
-            events.ScheduleEvent(EVENT_CONFLAGRATION, 12000);
+            events.ScheduleEvent(EVENT_CLEAVE, 15s);
+            events.ScheduleEvent(EVENT_STOMP, 35s);
+            events.ScheduleEvent(EVENT_FIREBALL, 7s);
+            events.ScheduleEvent(EVENT_CONFLAGRATION, 12s);
 
             secondPhase = true;
             me->RemoveAllAuras();
-            me->SetHealth(me->GetMaxHealth());
+            me->SetFullHealth();
         }
 
         void DoAction(int32 action) override
@@ -114,6 +117,7 @@ public:
 
         void DamageTaken(Unit* /*who*/, uint32& damage) override
         {
+            // @todo this is wrong - razorgore should still take damage, he should just nuke the whole room and respawn if he dies during P1
             if (!secondPhase)
                 damage = 0;
         }
@@ -134,24 +138,24 @@ public:
                 {
                     case EVENT_CLEAVE:
                         DoCastVictim(SPELL_CLEAVE);
-                        events.ScheduleEvent(EVENT_CLEAVE, urand(7000, 10000));
+                        events.ScheduleEvent(EVENT_CLEAVE, 7s, 10s);
                         break;
                     case EVENT_STOMP:
                         DoCastVictim(SPELL_WARSTOMP);
-                        events.ScheduleEvent(EVENT_STOMP, urand(15000, 25000));
+                        events.ScheduleEvent(EVENT_STOMP, 15s, 25s);
                         break;
                     case EVENT_FIREBALL:
                         DoCastVictim(SPELL_FIREBALLVOLLEY);
-                        events.ScheduleEvent(EVENT_FIREBALL, urand(12000, 15000));
+                        events.ScheduleEvent(EVENT_FIREBALL, 12s, 15s);
                         break;
                     case EVENT_CONFLAGRATION:
                         DoCastVictim(SPELL_CONFLAGRATION);
-                        if (me->GetVictim() && me->EnsureVictim()->HasAura(SPELL_CONFLAGRATION))
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
-                                me->TauntApply(target);
-                        events.ScheduleEvent(EVENT_CONFLAGRATION, 30000);
+                        events.ScheduleEvent(EVENT_CONFLAGRATION, 30s);
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
             DoMeleeAttackIfReady();
         }
@@ -162,26 +166,39 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_razorgoreAI>(creature);
+        return GetBlackwingLairAI<boss_razorgoreAI>(creature);
     }
 };
 
 class go_orb_of_domination : public GameObjectScript
 {
-public:
-    go_orb_of_domination() : GameObjectScript("go_orb_of_domination") { }
+    public:
+        go_orb_of_domination() : GameObjectScript("go_orb_of_domination") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
-    {
-        if (InstanceScript* instance = go->GetInstanceScript())
-            if (instance->GetData(DATA_EGG_EVENT) != DONE)
-                if (Creature* razor = instance->GetCreature(DATA_RAZORGORE_THE_UNTAMED))
+        struct go_orb_of_dominationAI : public GameObjectAI
+        {
+            go_orb_of_dominationAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
+
+            InstanceScript* instance;
+
+            bool GossipHello(Player* player) override
+            {
+                if (instance->GetData(DATA_EGG_EVENT) != DONE)
                 {
-                    razor->Attack(player, true);
-                    player->CastSpell(razor, SPELL_MINDCONTROL);
+                    if (Creature* razorgore = instance->GetCreature(DATA_RAZORGORE_THE_UNTAMED))
+                    {
+                        razorgore->Attack(player, true);
+                        player->CastSpell(razorgore, SPELL_MINDCONTROL);
+                    }
                 }
-        return true;
-    }
+                return true;
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return GetBlackwingLairAI<go_orb_of_dominationAI>(go);
+        }
 };
 
 class spell_egg_event : public SpellScriptLoader

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,14 +16,10 @@
  */
 
 #include "Logger.h"
+#include "Appender.h"
+#include "LogMessage.h"
 
-Logger::Logger(): name(""), level(LOG_LEVEL_DISABLED) { }
-
-void Logger::Create(std::string const& _name, LogLevel _level)
-{
-    name = _name;
-    level = _level;
-}
+Logger::Logger(std::string const& _name, LogLevel _level): name(_name), level(_level) { }
 
 std::string const& Logger::getName() const
 {
@@ -58,7 +54,7 @@ void Logger::write(LogMessage* message) const
         return;
     }
 
-    for (AppenderMap::const_iterator it = appenders.begin(); it != appenders.end(); ++it)
-        if (it->second)
-            it->second->write(message);
+    for (std::pair<uint8 const, Appender*> const& appender : appenders)
+        if (appender.second)
+            appender.second->write(message);
 }

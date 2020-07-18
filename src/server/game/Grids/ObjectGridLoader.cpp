@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,15 +16,18 @@
  */
 
 #include "ObjectGridLoader.h"
+#include "CellImpl.h"
+#include "Corpse.h"
+#include "Creature.h"
+#include "CreatureAI.h"
+#include "DynamicObject.h"
+#include "Log.h"
+#include "GameObject.h"
+#include "GameTime.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
-#include "Creature.h"
-#include "GameObject.h"
-#include "DynamicObject.h"
-#include "Corpse.h"
 #include "World.h"
-#include "CellImpl.h"
-#include "CreatureAI.h"
+#include "ScriptMgr.h"
 
 void ObjectGridEvacuator::Visit(CreatureMapType &m)
 {
@@ -117,15 +119,18 @@ void LoadHelper(CellGuidSet const& guid_set, CellCoord &cell, GridRefManager<T> 
 {
     for (CellGuidSet::const_iterator i_guid = guid_set.begin(); i_guid != guid_set.end(); ++i_guid)
     {
-        T* obj = new T;
+        // Don't spawn at all if there's a respawn timer
         ObjectGuid::LowType guid = *i_guid;
+        if (!map->ShouldBeSpawnedOnGridLoad<T>(guid))
+            continue;
+
+        T* obj = new T;
         //TC_LOG_INFO("misc", "DEBUG: LoadHelper from table: %s for (guid: %u) Loading", table, guid);
-        if (!obj->LoadFromDB(guid, map))
+        if (!obj->LoadFromDB(guid, map, false, false))
         {
             delete obj;
             continue;
         }
-
         AddObjectHelper(cell, m, count, map, obj);
     }
 }
@@ -197,9 +202,6 @@ void ObjectGridUnloader::Visit(GridRefManager<T> &m)
     while (!m.isEmpty())
     {
         T *obj = m.getFirst()->GetSource();
-        // if option set then object already saved at this moment
-        if (!sWorld->getBoolConfig(CONFIG_SAVE_RESPAWN_TIME_IMMEDIATELY))
-            obj->SaveRespawnTime();
         //Some creatures may summon other temp summons in CleanupsBeforeDelete()
         //So we need this even after cleaner (maybe we can remove cleaner)
         //Example: Flame Leviathan Turret 33139 is summoned when a creature is deleted
@@ -217,11 +219,7 @@ void ObjectGridStoper::Visit(CreatureMapType &m)
     {
         iter->GetSource()->RemoveAllDynObjects();
         if (iter->GetSource()->IsInCombat())
-        {
             iter->GetSource()->CombatStop();
-            iter->GetSource()->DeleteThreatList();
-            iter->GetSource()->AI()->EnterEvadeMode();
-        }
     }
 }
 
