@@ -766,16 +766,8 @@ bool BfGraveyard::HasNpc(ObjectGuid guid)
 
 Creature* Battlefield::SpawnCreature(uint32 entry, Position const& pos)
 {
-    //Get map object
-    Map* map = sMapMgr->CreateBaseMap(m_MapId);
-    if (!map)
-    {
-        TC_LOG_ERROR("bg.battlefield", "Battlefield::SpawnCreature: Can't create creature entry: %u, map not found.", entry);
-        return nullptr;
-    }
-
     Creature* creature = new Creature();
-    if (!creature->Create(map->GenerateLowGuid<HighGuid::Unit>(), map, entry, pos))
+    if (!creature->Create(m_Map->GenerateLowGuid<HighGuid::Unit>(), m_Map, entry, pos))
     {
         TC_LOG_ERROR("bg.battlefield", "Battlefield::SpawnCreature: Can't create creature entry: %u", entry);
         delete creature;
@@ -784,7 +776,7 @@ Creature* Battlefield::SpawnCreature(uint32 entry, Position const& pos)
     creature->SetHomePosition(pos);
 
     // Set creature in world
-    map->AddToMap(creature);
+    m_Map->AddToMap(creature);
     creature->setActive(true);
     creature->SetFarVisible(true);
 
@@ -794,17 +786,12 @@ Creature* Battlefield::SpawnCreature(uint32 entry, Position const& pos)
 // Method for spawning gameobject on map
 GameObject* Battlefield::SpawnGameObject(uint32 entry, Position const& pos, QuaternionData const& rot)
 {
-    // Get map object
-    Map* map = sMapMgr->CreateBaseMap(m_MapId);
-    if (!map)
-        return nullptr;
-
     // Create gameobject
     GameObject* go = nullptr;
     if (sObjectMgr->GetGameObjectTypeByEntry(entry) == GAMEOBJECT_TYPE_TRANSPORT)
     {
         go = new Transport();
-        if (!go->Create(map->GenerateLowGuid<HighGuid::Transport>(), entry, map, pos, rot, 255, GO_STATE_READY))
+        if (!go->Create(m_Map->GenerateLowGuid<HighGuid::Transport>(), entry, m_Map, pos, rot, 255, GO_STATE_READY))
         {
             TC_LOG_ERROR("bg.battlefield", "Battlefield::SpawnGameObject: Gameobject template %u could not be found in the database! Battlefield has not been created!", entry);
             TC_LOG_ERROR("bg.battlefield", "Battlefield::SpawnGameObject: Could not create gameobject template %u! Battlefield has not been created!", entry);
@@ -815,7 +802,7 @@ GameObject* Battlefield::SpawnGameObject(uint32 entry, Position const& pos, Quat
     else
     {
         go = new GameObject();
-        if (!go->Create(map->GenerateLowGuid<HighGuid::GameObject>(), entry, map, pos, rot, 255, GO_STATE_READY))
+        if (!go->Create(m_Map->GenerateLowGuid<HighGuid::GameObject>(), entry, m_Map, pos, rot, 255, GO_STATE_READY))
         {
             TC_LOG_ERROR("bg.battlefield", "Battlefield::SpawnGameObject: Gameobject template %u could not be found in the database! Battlefield has not been created!", entry);
             TC_LOG_ERROR("bg.battlefield", "Battlefield::SpawnGameObject: Could not create gameobject template %u! Battlefield has not been created!", entry);
@@ -825,7 +812,7 @@ GameObject* Battlefield::SpawnGameObject(uint32 entry, Position const& pos, Quat
     }
 
     // Add to world
-    map->AddToMap(go);
+    m_Map->AddToMap(go);
     go->setActive(true);
     go->SetFarVisible(true);
 

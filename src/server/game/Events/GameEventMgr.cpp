@@ -1260,15 +1260,18 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
             sObjectMgr->AddCreatureToGrid(*itr, data);
 
             // Spawn if necessary (loaded grids only)
-            Map* map = sMapMgr->CreateBaseMap(data->mapId);
-            map->RemoveRespawnTime(SPAWN_TYPE_CREATURE, *itr);
-            // We use spawn coords to spawn
-            if (!map->Instanceable() && map->IsGridLoaded(data->spawnPoint))
+            Map* map = sMapMgr->FindMap(data->mapId, 0);
+            if (map)
             {
-                Creature* creature = new Creature();
-                //TC_LOG_DEBUG("misc", "Spawning creature %u", *itr);
-                if (!creature->LoadFromDB(*itr, map, true, false))
-                    delete creature;
+                map->RemoveRespawnTime(SPAWN_TYPE_CREATURE, *itr);
+                // We use spawn coords to spawn
+                if (!map->Instanceable() && map->IsGridLoaded(data->spawnPoint))
+                {
+                    Creature* creature = new Creature();
+                    //TC_LOG_DEBUG("misc", "Spawning creature %u", *itr);
+                    if (!creature->LoadFromDB(*itr, map, true, false))
+                        delete creature;
+                }
             }
         }
     }
@@ -1288,24 +1291,27 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
             sObjectMgr->AddGameobjectToGrid(*itr, data);
             // Spawn if necessary (loaded grids only)
             // this base map checked as non-instanced and then only existed
-            Map* map = sMapMgr->CreateBaseMap(data->mapId);
-            map->RemoveRespawnTime(SPAWN_TYPE_GAMEOBJECT, *itr);
-            // We use current coords to unspawn, not spawn coords since creature can have changed grid
-            if (!map->Instanceable() && map->IsGridLoaded(data->spawnPoint))
+            Map* map = sMapMgr->FindMap(data->mapId, 0);
+            if (map)
             {
-                GameObject* pGameobject = nullptr;
-                if (sObjectMgr->GetGameObjectTypeByEntry(data->id) == GAMEOBJECT_TYPE_TRANSPORT)
-                    pGameobject = new Transport();
-                else
-                    pGameobject = new GameObject();
-                //TC_LOG_DEBUG("misc", "Spawning gameobject %u", *itr);
-                /// @todo find out when it is add to map
-                if (!pGameobject->LoadFromDB(*itr, map, false))
-                    delete pGameobject;
-                else
+                map->RemoveRespawnTime(SPAWN_TYPE_GAMEOBJECT, *itr);
+                // We use current coords to unspawn, not spawn coords since creature can have changed grid
+                if (!map->Instanceable() && map->IsGridLoaded(data->spawnPoint))
                 {
-                    if (pGameobject->isSpawnedByDefault())
-                        map->AddToMap(pGameobject);
+                    GameObject* pGameobject = nullptr;
+                    if (sObjectMgr->GetGameObjectTypeByEntry(data->id) == GAMEOBJECT_TYPE_TRANSPORT)
+                        pGameobject = new Transport();
+                    else
+                        pGameobject = new GameObject();
+                    //TC_LOG_DEBUG("misc", "Spawning gameobject %u", *itr);
+                    /// @todo find out when it is add to map
+                    if (!pGameobject->LoadFromDB(*itr, map, false))
+                        delete pGameobject;
+                    else
+                    {
+                        if (pGameobject->isSpawnedByDefault())
+                            map->AddToMap(pGameobject);
+                    }
                 }
             }
         }

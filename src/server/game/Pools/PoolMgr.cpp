@@ -175,8 +175,8 @@ void PoolGroup<Creature>::Despawn1Object(ObjectGuid::LowType guid, bool alwaysDe
     {
         sObjectMgr->RemoveCreatureFromGrid(guid, data);
 
-        Map* map = sMapMgr->CreateBaseMap(data->mapId);
-        if (!map->Instanceable())
+        Map* map = sMapMgr->FindMap(data->mapId, 0);
+        if (map && !map->Instanceable())
         {
             auto creatureBounds = map->GetCreatureBySpawnIdStore().equal_range(guid);
             for (auto itr = creatureBounds.first; itr != creatureBounds.second; )
@@ -202,8 +202,8 @@ void PoolGroup<GameObject>::Despawn1Object(ObjectGuid::LowType guid, bool always
     {
         sObjectMgr->RemoveGameobjectFromGrid(guid, data);
 
-        Map* map = sMapMgr->CreateBaseMap(data->mapId);
-        if (!map->Instanceable())
+        Map* map = sMapMgr->FindMap(data->mapId, 0);
+        if (map && !map->Instanceable())
         {
             auto gameObjectBounds = map->GetGameObjectBySpawnIdStore().equal_range(guid);
             for (auto itr = gameObjectBounds.first; itr != gameObjectBounds.second; )
@@ -324,9 +324,9 @@ void PoolGroup<Creature>::Spawn1Object(PoolObject* obj)
         sObjectMgr->AddCreatureToGrid(obj->guid, data);
 
         // Spawn if necessary (loaded grids only)
-        Map* map = sMapMgr->CreateBaseMap(data->mapId);
+        Map* map = sMapMgr->FindMap(data->mapId, 0);
         // We use spawn coords to spawn
-        if (!map->Instanceable() && map->IsGridLoaded(data->spawnPoint))
+        if (map && !map->Instanceable() && map->IsGridLoaded(data->spawnPoint))
         {
             Creature* creature = new Creature();
             //TC_LOG_DEBUG("pool", "Spawning creature %u", guid);
@@ -348,9 +348,9 @@ void PoolGroup<GameObject>::Spawn1Object(PoolObject* obj)
         sObjectMgr->AddGameobjectToGrid(obj->guid, data);
         // Spawn if necessary (loaded grids only)
         // this base map checked as non-instanced and then only existed
-        Map* map = sMapMgr->CreateBaseMap(data->mapId);
+        Map* map = sMapMgr->FindMap(data->mapId, 0);
         // We use current coords to unspawn, not spawn coords since creature can have changed grid
-        if (!map->Instanceable() && map->IsGridLoaded(data->spawnPoint))
+        if (map && !map->Instanceable() && map->IsGridLoaded(data->spawnPoint))
         {
             GameObject* pGameobject = nullptr;
             if (sObjectMgr->GetGameObjectTypeByEntry(data->id) == GAMEOBJECT_TYPE_TRANSPORT)
