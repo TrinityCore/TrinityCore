@@ -676,6 +676,7 @@ void WorldSession::HandlePartyAssignmentOpcode(WorldPacket& recvData)
         case GROUP_ASSIGN_MAINTANK:
             group->RemoveUniqueGroupMemberFlag(MEMBER_FLAG_MAINTANK);           // Remove main assist flag from current if any.
             group->SetGroupMemberFlag(guid, apply, MEMBER_FLAG_MAINTANK);
+            break;
         default:
             break;
     }

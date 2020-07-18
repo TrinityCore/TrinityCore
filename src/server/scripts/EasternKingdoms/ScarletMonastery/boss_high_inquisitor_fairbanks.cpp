@@ -146,6 +146,7 @@ struct boss_high_inquisitor_fairbanks : public BossAI
                 if (Unit* target = SelectTarget(SelectTargetMethod::MaxThreat, 0, 30.f, true, false))
                     DoCast(target, SPELL_SLEEP);
                 events.Repeat(30s);
+                break;
             default:
                 break;
         }
