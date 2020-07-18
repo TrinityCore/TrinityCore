@@ -1294,7 +1294,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry " SI64FMTD " SourceType %u Event %u Action %u has invoker cast action, but event does not provide any invoker!", e.entryOrGuid, e.GetScriptType(), e.GetEventType(), e.GetActionType());
                 return false;
             }
-            /* fallthrough */
+            [[fallthrough]];
         case SMART_ACTION_SELF_CAST:
         case SMART_ACTION_ADD_AURA:
             if (!IsSpellValid(e, e.action.cast.spell))

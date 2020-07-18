@@ -2214,7 +2214,6 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             }
             break;
         }
-            /* fallthrough */
         case SMART_ACTION_SET_CORPSE_DELAY:
         {
             for (WorldObject* const target : targets)

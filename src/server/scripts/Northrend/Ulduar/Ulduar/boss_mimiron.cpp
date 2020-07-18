@@ -742,7 +742,7 @@ class boss_leviathan_mk_ii : public CreatureScript
                         DoCast(me, SPELL_EMERGENCY_MODE);
                         DoCastAOE(SPELL_EMERGENCY_MODE_TURRET);
                         events.ScheduleEvent(EVENT_FLAME_SUPPRESSANT_MK, 1min, 0, PHASE_LEVIATHAN_MK_II);
-                        /* fallthrough */
+                        [[fallthrough]];
                     case DO_START_MKII:
                         me->SetReactState(REACT_AGGRESSIVE);
                         events.SetPhase(PHASE_LEVIATHAN_MK_II);
@@ -987,7 +987,7 @@ class boss_vx_001 : public CreatureScript
                         DoCast(me, SPELL_EMERGENCY_MODE);
                         events.ScheduleEvent(EVENT_FROST_BOMB, 1s);
                         events.ScheduleEvent(EVENT_FLAME_SUPPRESSANT_VX, 6s);
-                        /* fallthrough */
+                        [[fallthrough]];
                     case DO_START_VX001:
                         me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
                         me->SetImmuneToPC(false);
@@ -1169,7 +1169,7 @@ class boss_aerial_command_unit : public CreatureScript
                         fireFigther = true;
                         DoCast(me, SPELL_EMERGENCY_MODE);
                         events.ScheduleEvent(EVENT_SUMMON_FIRE_BOTS, 1s, 0, PHASE_AERIAL_COMMAND_UNIT);
-                        /* fallthrough */
+                        [[fallthrough]];
                     case DO_START_AERIAL:
                         me->SetAnimTier(UNIT_BYTE1_FLAG_HOVER, true);
                         me->SetDisableGravity(false);

@@ -3375,7 +3375,7 @@ void Spell::cancel()
     {
         case SPELL_STATE_PREPARING:
             CancelGlobalCooldown();
-            /* fallthrough */
+            [[fallthrough]];
         case SPELL_STATE_DELAYED:
             SendInterrupted(0);
             SendCastResult(SPELL_FAILED_INTERRUPTED);
@@ -5953,7 +5953,7 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                     case SUMMON_CATEGORY_PET:
                         if (!m_spellInfo->HasAttribute(SPELL_ATTR1_DISMISS_PET) && !unitCaster->GetPetGUID().IsEmpty())
                             return SPELL_FAILED_ALREADY_HAVE_SUMMON;
-                        /* fallthrough - check both GetPetGUID() and GetCharmGUID for SUMMON_CATEGORY_PET*/
+                        [[fallthrough]]; // check both GetPetGUID() and GetCharmGUID for SUMMON_CATEGORY_PET
                     case SUMMON_CATEGORY_PUPPET:
                         if (!unitCaster->GetCharmedGUID().IsEmpty())
                             return SPELL_FAILED_ALREADY_HAVE_CHARM;
@@ -7144,7 +7144,7 @@ SpellCastResult Spell::CheckItems(int32* param1 /*= nullptr*/, int32* param2 /*=
                         return SPELL_FAILED_DONT_REPORT;
                     }
                 }
-                /* fallthrough */
+                [[fallthrough]];
             case SPELL_EFFECT_ENCHANT_ITEM_PRISMATIC:
             {
                 Item* targetItem = m_targets.GetItemTarget();
@@ -8577,7 +8577,7 @@ bool WorldObjectSpellTargetCheck::operator()(WorldObject* target) const
                     return false;
                 if (refUnit->GetClass() != unitTarget->GetClass())
                     return false;
-                /* fallthrough */
+                [[fallthrough]];
             case TARGET_CHECK_RAID:
                 if (!refUnit)
                     return false;

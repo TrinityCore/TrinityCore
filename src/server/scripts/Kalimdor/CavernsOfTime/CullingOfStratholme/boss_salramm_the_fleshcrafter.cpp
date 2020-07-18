@@ -110,7 +110,7 @@ class boss_salramm : public CreatureScript
                         break;
                     case EVENT_EXPLODE_GHOUL2:
                         events.ScheduleEvent(EVENT_SUMMON_GHOULS, Seconds(4));
-                        /* fallthrough */
+                        [[fallthrough]];
                     case EVENT_EXPLODE_GHOUL1:
                         Talk(SAY_EXPLODE_GHOUL);
                         DoCastAOE(SPELL_EXPLODE_GHOUL, true);

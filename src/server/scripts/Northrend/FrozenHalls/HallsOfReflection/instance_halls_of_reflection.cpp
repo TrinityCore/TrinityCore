@@ -161,7 +161,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                     case NPC_WORLD_TRIGGER:
                         if (!creature->GetTransport())
                             break;
-                        /* fallthrough */
+                        [[fallthrough]];
                     case NPC_GUNSHIP_CANNON_HORDE:
                         GunshipCannonGUIDs.insert(creature->GetGUID());
                         break;
