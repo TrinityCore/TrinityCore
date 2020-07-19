@@ -5016,7 +5016,7 @@ class spell_item_tipping_of_the_scales : public SpellScript
 
     SpellCastResult CheckCast()
     {
-        if (AuraEffect const* effect = GetCaster()->GetAuraEffect(SPELL_WEIGHT_OF_A_FEATHER, EFFECT_0, GetCaster()->GetGUID()))
+        if (GetCaster()->GetAuraEffect(SPELL_WEIGHT_OF_A_FEATHER, EFFECT_0, GetCaster()->GetGUID()))
             return SPELL_CAST_OK;
 
         return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
