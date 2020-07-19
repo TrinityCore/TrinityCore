@@ -179,6 +179,7 @@ public:
                     me->StopMoving();
                     me->SetFacingToObject(summon);
                     DoCast(summon, SPELL_SHIELD_OF_THE_PERFIDIOUS);
+                    break;
                 default:
                     break;
             }

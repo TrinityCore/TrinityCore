@@ -670,6 +670,7 @@ bool LinkExtractor::IsValidMessage()
             case 'r':
                 if (link)
                     link->SetBounds(startPos, _iss.tellg());
+                break;
             case '|':
                 // no further payload
                 break;

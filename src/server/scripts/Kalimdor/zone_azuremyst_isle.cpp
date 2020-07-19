@@ -562,7 +562,9 @@ public:
                     Spark->DisappearAndDie();
                     DespawnNagaFlag(false);
                     me->DisappearAndDie();
-                default: return 99999999;
+                    return 99999999;
+                default:
+                    return 99999999;
             }
         }
 

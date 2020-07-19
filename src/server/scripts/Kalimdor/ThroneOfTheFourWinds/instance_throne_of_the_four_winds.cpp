@@ -231,6 +231,7 @@ class instance_throne_of_the_four_winds : public InstanceMapScript
                                     vehicle->DespawnOrUnsummon(0);
                             }
                         }
+                        break;
                     default:
                         break;
                 }

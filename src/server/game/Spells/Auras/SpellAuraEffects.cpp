@@ -991,8 +991,9 @@ void AuraEffect::UpdatePeriodic(Unit* caster)
                     break;
                 default:
                     break;
-           }
-       default:
+            }
+            break;
+        default:
            break;
     }
     GetBase()->CallScriptEffectUpdatePeriodicHandlers(this);

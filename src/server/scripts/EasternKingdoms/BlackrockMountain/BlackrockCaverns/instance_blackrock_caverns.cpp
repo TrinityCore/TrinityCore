@@ -60,10 +60,6 @@ class instance_blackrock_caverns : public InstanceMapScript
                         if (state == DONE)
                             if (Creature* raz = GetCreature(DATA_RAZ_THE_CRAZED))
                                 raz->AI()->DoAction(ACTION_BREAK_OUT_OF_PRISON);
-                    case DATA_CORLA_HERALD_OF_TWILIGHT:
-                    case DATA_KARSH_STEELBENDER:
-                    case DATA_BEAUTY:
-                    case DATA_ASCENDANT_LORD_OBSIDIUS:
                         break;
                     default:
                         break;

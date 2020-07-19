@@ -324,6 +324,7 @@ struct boss_magmaw : public BossAI
                     return _pincer1->GetGUID();
                 else if (_pincer2->GetVehicleKit() && _pincer2->GetVehicleKit()->GetAvailableSeatCount())
                     return _pincer2->GetGUID();
+                break;
             default:
                 return ObjectGuid::Empty;
         }

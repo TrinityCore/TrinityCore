@@ -762,15 +762,12 @@ void BattlefieldWG::DoCompleteOrIncrementAchievement(uint32 achievement, Player*
     switch (achievement)
     {
         case ACHIEVEMENTS_WIN_WG_100:
-        {
             // player->UpdateAchievementCriteria();
-        }
+            break;
         default:
-        {
             if (player)
                 player->CompletedAchievement(achievementEntry);
             break;
-        }
     }
 
 }

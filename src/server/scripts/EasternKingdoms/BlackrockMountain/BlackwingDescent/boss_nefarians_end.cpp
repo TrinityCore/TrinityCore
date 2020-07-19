@@ -1121,6 +1121,7 @@ struct npc_nefarians_end_lord_victor_nefarius : public PassiveAI
                         stalker->CastSpell(stalker, SPELL_INTRO_1_TRANSFORM_VISUAL);
                         stalker->DespawnOrUnsummon(2s + 400ms);
                     }
+                    break;
                 default:
                     break;
             }

@@ -257,6 +257,7 @@ void HandleArgs(int argc, char* arg[])
                 }
                 else
                     Usage(arg[0]);
+                break;
             case 'f':
                 if (c + 1 < argc)                            // all ok
                     CONF_allow_float_to_int = atoi(arg[c++ + 1])!=0;

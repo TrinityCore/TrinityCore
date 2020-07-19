@@ -125,6 +125,7 @@ class instance_bastion_of_twilight : public InstanceMapScript
                     case NPC_TIME_WARDEN:
                         if (Creature* halfus = GetCreature(DATA_HALFUS_WYRMBREAKER))
                             halfus->AI()->JustSummoned(creature);
+                        [[fallthrough]];
                     case NPC_ORPHANED_EMERALD_WELP:
                     case NPC_SPIKE:
                         _halfusEncounterGUIDs.insert(creature->GetGUID());

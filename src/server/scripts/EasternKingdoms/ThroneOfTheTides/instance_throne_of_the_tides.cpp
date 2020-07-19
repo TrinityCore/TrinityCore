@@ -330,6 +330,7 @@ class instance_throne_of_the_tides : public InstanceMapScript
                     case GO_DOODAD_ABYSSAL_CORAL_CHUNK_CEILING:
                         if (_eventIndex == EVENT_INDEX_ULTHOK_ARRIVED)
                             go->DespawnOrUnsummon();
+                        break;
                     default:
                         break;
                 }

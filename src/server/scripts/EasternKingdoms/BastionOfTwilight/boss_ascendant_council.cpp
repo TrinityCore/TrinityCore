@@ -950,6 +950,7 @@ class npc_ignacious : public CreatureScript
                         case EVENT_FLAME_STRIKE:
                             DoCastAOE(SPELL_FLAME_STRIKE_TARGETING, true);
                             _events.Repeat(20s);
+                            break;
                         default:
                             break;
                     }
