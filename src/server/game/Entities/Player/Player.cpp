@@ -15119,7 +15119,6 @@ void Player::CompleteQuest(uint32 quest_id)
         if (Quest const* qInfo = sObjectMgr->GetQuestTemplate(quest_id))
             if (qInfo->HasFlag(QUEST_FLAGS_TRACKING))
                 RewardQuest(qInfo, 0, this, false);
-<<<<<<< HEAD
     }
 
     if (sWorld->getBoolConfig(CONFIG_QUEST_ENABLE_QUEST_TRACKER)) // check if Quest Tracker is enabled
@@ -15131,11 +15130,6 @@ void Player::CompleteQuest(uint32 quest_id)
 
         // add to Quest Tracker
         CharacterDatabase.Execute(stmt);
-=======
-            else
-                SendQuestComplete(qInfo);
-        }
->>>>>>> 770ff57101... Core/Quests: Implement SMSG_QUESTUPDATE_COMPLETE
     }
 }
 
@@ -16816,39 +16810,24 @@ bool Player::HasQuestForItem(uint32 itemid, uint32 excludeQuestId /* 0 */, bool 
     return false;
 }
 
-<<<<<<< HEAD
-void Player::SendQuestComplete(uint32 quest_id) const
-=======
-void Player::SendQuestComplete(Quest const* quest)
->>>>>>> 770ff57101... Core/Quests: Implement SMSG_QUESTUPDATE_COMPLETE
+void Player::SendQuestComplete(Quest const* quest) const
 {
     // SMSG_QUESTUPDATE_COMPLETE - whole new structure in 4.x
 
     std::string title      = quest->GetTitle();
     std::string completedText    = quest->GetCompletedText();
-    std::string questGiverTextWindow = quest->GetQuestGiverTextWindow();
-    std::string questGiverTargetName = quest->GetQuestGiverTargetName();
-    std::string questTurnTextWindow = quest->GetQuestTurnTextWindow();
-    std::string questTurnTargetName = quest->GetQuestTurnTargetName();
 
     int32 locale = GetSession()->GetSessionDbLocaleIndex();
     if (locale >= 0)
     {
-<<<<<<< HEAD
-        WorldPacket data(SMSG_QUESTUPDATE_COMPLETE, 4);
-        data << uint32(quest_id);
-        SendDirectMessage(&data);
-=======
+        //WorldPacket data(SMSG_QUESTUPDATE_COMPLETE, 4);
+        //data << uint32(quest_id);
+        //SendDirectMessage(&data);
         if (QuestLocale const* localeData = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
         {
             ObjectMgr::GetLocaleString(localeData->Title, locale, title);
             ObjectMgr::GetLocaleString(localeData->CompletedText, locale, completedText);
-            ObjectMgr::GetLocaleString(localeData->QuestGiverTextWindow, locale, questGiverTextWindow);
-            ObjectMgr::GetLocaleString(localeData->QuestGiverTargetName, locale, questGiverTargetName);
-            ObjectMgr::GetLocaleString(localeData->QuestTurnTextWindow, locale, questTurnTextWindow);
-            ObjectMgr::GetLocaleString(localeData->QuestTurnTargetName, locale, questTurnTargetName);
         }
->>>>>>> 770ff57101... Core/Quests: Implement SMSG_QUESTUPDATE_COMPLETE
     }
 
     WorldPacket data(SMSG_QUESTUPDATE_COMPLETE, 4);
@@ -16856,12 +16835,6 @@ void Player::SendQuestComplete(Quest const* quest)
     data << uint32(quest->GetQuestId());
     data << title;
     data << completedText;
-    data << questGiverTextWindow;
-    data << questGiverTargetName;
-    data << questTurnTextWindow;
-    data << questTurnTargetName;
-    data << uint32(quest->GetQuestGiverPortrait());
-    data << uint32(quest->GetQuestTurnInPortrait());
     data << int8(0);                                  // Unk
     data << uint32(quest->GetFlags());
     data << int32(0);                                 // Unk
