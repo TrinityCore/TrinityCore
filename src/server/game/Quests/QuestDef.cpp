@@ -235,7 +235,6 @@ uint32 Quest::GetXPReward(Player const* player) const
     return true;
 }
 
-<<<<<<< HEAD
 int32 Quest::GetRewOrReqMoney(Player const* player) const
 {
     // RequiredMoney: the amount is the negative copper sum.
@@ -266,17 +265,12 @@ bool Quest::IsAutoAccept() const
 
 void Quest::BuildExtraQuestInfo(WorldPacket& data, Player* player) const
 {
-    if (quest->HasFlag(QUEST_FLAGS_HIDDEN_REWARDS))
-=======
-void Quest::BuildExtraQuestInfo(WorldPacket& data, Player* player) const
-{
     data << uint32(GetRewChoiceItemsCount());
     for (uint8 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
         data << uint32(RewardChoiceItemId[i]);
     for (uint8 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
         data << uint32(RewardChoiceItemCount[i]);
     for (uint8 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
->>>>>>> 10c9c55700... Core/Quests: Fix and enable all quest related opcodes
     {
         if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(RewardChoiceItemId[i]))
             data << uint32(itemTemplate->DisplayInfoID);
@@ -291,61 +285,6 @@ void Quest::BuildExtraQuestInfo(WorldPacket& data, Player* player) const
         data << uint32(RewardItemIdCount[i]);
     for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
     {
-<<<<<<< HEAD
-        data << uint32(quest->GetRewChoiceItemsCount());
-        for (uint32 i=0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
-        {
-            if (!quest->RewardChoiceItemId[i])
-                continue;
-
-            data << uint32(quest->RewardChoiceItemId[i]);
-            data << uint32(quest->RewardChoiceItemCount[i]);
-
-            if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RewardChoiceItemId[i]))
-                data << uint32(itemTemplate->DisplayInfoID);
-            else
-                data << uint32(0x00);
-        }
-
-        data << uint32(quest->GetRewItemsCount());
-
-        for (uint32 i=0; i < QUEST_REWARDS_COUNT; ++i)
-        {
-            if (!quest->RewardItemId[i])
-                continue;
-
-            data << uint32(quest->RewardItemId[i]);
-            data << uint32(quest->RewardItemIdCount[i]);
-
-            if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RewardItemId[i]))
-                data << uint32(itemTemplate->DisplayInfoID);
-            else
-                data << uint32(0);
-        }
-
-        data << uint32(quest->GetRewOrReqMoney(_session->GetPlayer()));
-        data << uint32(quest->GetXPReward(_session->GetPlayer()) * sWorld->getRate(RATE_XP_QUEST));
-    }
-
-    // rewarded honor points. Multiply with 10 to satisfy client
-    data << uint32(10 * quest->CalculateHonorGain(_session->GetPlayer()->GetQuestLevel(quest)));
-    data << float(0.0f);                                    // unk, honor multiplier?
-    data << uint32(quest->GetRewSpell());                   // reward spell, this spell will display (icon) (cast if RewSpellCast == 0)
-    data << int32(quest->GetRewSpellCast());                // cast spell
-    data << uint32(quest->GetCharTitleId());                // CharTitleId, new 2.4.0, player gets this title (id from CharTitles)
-    data << uint32(quest->GetBonusTalents());               // bonus talents
-    data << uint32(quest->GetRewArenaPoints());             // reward arena points
-    data << uint32(0);                                      // unk
-
-    for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
-        data << uint32(quest->RewardFactionId[i]);
-
-    for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
-        data << int32(quest->RewardFactionValueId[i]);
-
-    for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
-        data << int32(quest->RewardFactionValueIdOverride[i]);
-=======
         if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(RewardItemId[i]))
             data << uint32(itemTemplate->DisplayInfoID);
         else
@@ -353,49 +292,26 @@ void Quest::BuildExtraQuestInfo(WorldPacket& data, Player* player) const
     }
 
     data << uint32(GetRewOrReqMoney());
-    data << uint32(XPValue(player) * sWorld->getRate(RATE_XP_QUEST));
+    data << uint32(GetXPReward(player) * sWorld->getRate(RATE_XP_QUEST));
 
-    data << uint32(GetCharTitleId());
-    data << uint32(0);                                      // unk
-    data << float(0.0f);                                    // unk
-    data << uint32(GetBonusTalents());
-    data << uint32(0);                                      // unk
-    data << uint32(GetRewardReputationMask());
-
-    /* Pre cata struct, some of these unks might be the missing values in cata:
     // rewarded honor points. Multiply with 10 to satisfy client
-    data << 10 * Trinity::Honor::hk_honor_at_level(_session->GetPlayer()->getLevel(), quest->GetRewHonorMultiplier());
-    data << float(0);                                       // unk, honor multiplier?
-    data << uint32(0x08);                                   // unused by client?
-    data << uint32(quest->GetRewSpell());                   // reward spell, this spell will display (icon) (casted if RewSpellCast == 0)
-    data << int32(quest->GetRewSpellCast());                // casted spell
-    data << uint32(0);                                      // unknown
-    data << uint32(quest->GetBonusTalents());               // bonus talents
-    data << uint32(quest->GetRewArenaPoints());             // arena points
-    data << uint32(0);
-    */
+    data << uint32(10 * CalculateHonorGain(player->GetQuestLevel(this)));
+    data << float(0.0f);                                    // unk, honor multiplier?
+    data << uint32(GetRewSpell());                          // reward spell, this spell will display (icon) (cast if RewSpellCast == 0)
+    data << int32(GetRewSpellCast());                       // cast spell
+    data << uint32(GetCharTitleId());                       // CharTitleId, new 2.4.0, player gets this title (id from CharTitles)
+    data << uint32(GetBonusTalents());                      // bonus talents
+    data << uint32(GetRewArenaPoints());                    // reward arena points
+    data << uint32(0);                                      // unk
 
-    for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)    // reward factions ids
+    for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)    // reward factions ids
         data << uint32(RewardFactionId[i]);
 
-    for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)    // columnid in QuestFactionReward.dbc (zero based)?
+    for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)    // columnid in QuestFactionReward.dbc (zero based)?
         data << int32(RewardFactionValueId[i]);
 
-    for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)    // reward reputation override?
-        data << uint32(RewardFactionValueIdOverride[i]);
-
-    data << uint32(GetRewSpell());
-    data << uint32(GetRewSpellCast());
-
-    for (uint8 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
-        data << uint32(RewardCurrencyId[i]);
-
-    for (uint8 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
-        data << uint32(RewardCurrencyCount[i]);
-
-    data << uint32(GetRewardSkillId());
-    data << uint32(GetRewardSkillPoints());
->>>>>>> 10c9c55700... Core/Quests: Fix and enable all quest related opcodes
+    for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)    // reward reputation override?
+        data << int32(RewardFactionValueIdOverride[i]);
 }
 
 bool Quest::IsAutoComplete() const

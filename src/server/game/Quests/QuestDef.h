@@ -292,7 +292,6 @@ class TC_GAME_API Quest
         // multiple values
 
         std::string ObjectiveText[QUEST_OBJECTIVES_COUNT];
-<<<<<<< HEAD
 
         uint32 RequiredItemId[QUEST_ITEM_OBJECTIVES_COUNT] = { };
         uint32 RequiredItemCount[QUEST_ITEM_OBJECTIVES_COUNT] = { };
@@ -317,7 +316,7 @@ class TC_GAME_API Quest
         uint32 GetRewChoiceItemsCount() const { return _rewChoiceItemsCount; }
         uint32 GetRewItemsCount() const { return _rewItemsCount; }
 
-        void BuildExtraQuestInfo(WorldPacket& data, Player* player) const
+        void BuildExtraQuestInfo(WorldPacket& data, Player* player) const;
 
         void SetEventIdForQuest(uint16 eventId) { _eventIdForQuest = eventId; }
         uint16 GetEventIdForQuest() const { return _eventIdForQuest; }
@@ -329,45 +328,6 @@ class TC_GAME_API Quest
         std::vector<uint32> DependentPreviousQuests;
         std::vector<uint32> DependentBreadcrumbQuests;
         WorldPacket QueryData[TOTAL_LOCALES];
-=======
-        uint32 RequiredItemId[QUEST_ITEM_OBJECTIVES_COUNT];
-        uint32 RequiredItemCount[QUEST_ITEM_OBJECTIVES_COUNT];
-        uint32 RequiredSourceItemId[QUEST_SOURCE_ITEM_IDS_COUNT];
-        uint32 RequiredSourceItemCount[QUEST_SOURCE_ITEM_IDS_COUNT];
-        int32  RequiredNpcOrGo[QUEST_OBJECTIVES_COUNT];   // >0 Creature <0 Gameobject
-        uint32 RequiredNpcOrGoCount[QUEST_OBJECTIVES_COUNT];
-        uint32 RequiredSpellCast[QUEST_OBJECTIVES_COUNT];
-        uint32 RewardChoiceItemId[QUEST_REWARD_CHOICES_COUNT];
-        uint32 RewardChoiceItemCount[QUEST_REWARD_CHOICES_COUNT];
-        uint32 RewardItemId[QUEST_REWARDS_COUNT];
-        uint32 RewardItemIdCount[QUEST_REWARDS_COUNT];
-        uint32 RewardFactionId[QUEST_REPUTATIONS_COUNT];
-        int32  RewardFactionValueId[QUEST_REPUTATIONS_COUNT];
-        int32  RewardFactionValueIdOverride[QUEST_REPUTATIONS_COUNT];
-        uint32 DetailsEmote[QUEST_EMOTE_COUNT];
-        uint32 DetailsEmoteDelay[QUEST_EMOTE_COUNT];
-        uint32 OfferRewardEmote[QUEST_EMOTE_COUNT];
-        uint32 OfferRewardEmoteDelay[QUEST_EMOTE_COUNT];
-        // 4.x
-        uint32 RewardCurrencyId[QUEST_REWARD_CURRENCY_COUNT];
-        uint32 RewardCurrencyCount[QUEST_REWARD_CURRENCY_COUNT];
-        uint32 RequiredCurrencyId[QUEST_REQUIRED_CURRENCY_COUNT];
-        uint32 RequiredCurrencyCount[QUEST_REQUIRED_CURRENCY_COUNT];
-
-        uint32 GetReqItemsCount() const { return m_reqItemsCount; }
-        uint32 GetReqCreatureOrGOcount() const { return m_reqNpcOrGoCount; }
-        uint32 GetRewChoiceItemsCount() const { return m_rewChoiceItemsCount; }
-        uint32 GetRewItemsCount() const { return m_rewItemsCount; }
-        uint32 GetRewCurrencyCount() const { return m_rewCurrencyCount; }
-        uint32 GetReqCurrencyCount() const { return m_reqCurrencyCount; }
-
-        void BuildExtraQuestInfo(WorldPacket& data, Player* player) const;
-
-        typedef std::vector<int32> PrevQuests;
-        PrevQuests prevQuests;
-        typedef std::vector<uint32> PrevChainQuests;
-        PrevChainQuests prevChainQuests;
->>>>>>> 10c9c55700... Core/Quests: Fix and enable all quest related opcodes
 
         // cached data
     private:

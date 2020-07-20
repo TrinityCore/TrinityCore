@@ -16314,22 +16314,25 @@ void Player::AreaExploredOrEventHappens(uint32 questId)
 {
     if (questId)
     {
-        uint16 log_slot = FindQuestSlot(questId);
-        if (log_slot < MAX_QUEST_LOG_SIZE)
+        if (Quest const* qInfo = sObjectMgr->GetQuestTemplate(questId))
         {
-            QuestStatusData& q_status = m_QuestStatus[questId];
-
-            // Dont complete failed quest
-            if (!q_status.Explored && q_status.Status != QUEST_STATUS_FAILED)
+            uint16 log_slot = FindQuestSlot(questId);
+            if (log_slot < MAX_QUEST_LOG_SIZE)
             {
-                q_status.Explored = true;
-                m_QuestStatusSave[questId] = QUEST_DEFAULT_SAVE_TYPE;
+                QuestStatusData& q_status = m_QuestStatus[questId];
 
-                SendQuestComplete(questId);
+                // Dont complete failed quest
+                if (!q_status.Explored && q_status.Status != QUEST_STATUS_FAILED)
+                {
+                    q_status.Explored = true;
+                    m_QuestStatusSave[questId] = QUEST_DEFAULT_SAVE_TYPE;
+
+                    SendQuestComplete(qInfo);
+                }
             }
+            if (CanCompleteQuest(questId))
+                CompleteQuest(questId);
         }
-        if (CanCompleteQuest(questId))
-            CompleteQuest(questId);
     }
 }
 
@@ -16377,18 +16380,8 @@ void Player::ItemAddedQuestCheck(uint32 entry, uint32 count)
                 uint16 curitemcount = q_status.ItemCount[j];
                 if (curitemcount < reqitemcount)
                 {
-<<<<<<< HEAD
                     q_status.ItemCount[j] = std::min<uint16>(q_status.ItemCount[j] + count, reqitemcount);
                     m_QuestStatusSave[questid] = QUEST_DEFAULT_SAVE_TYPE;
-=======
-                    uint16 additemcount = curitemcount + count <= reqitemcount ? count : reqitemcount - curitemcount;
-                    q_status.ItemCount[j] += additemcount;
-
-                    m_QuestStatusSave[questid] = true;
-
-                    //SendQuestUpdateAddItem(qInfo, j, additemcount);
-                    // FIXME: verify if there's any packet sent updating item
->>>>>>> 10c9c55700... Core/Quests: Fix and enable all quest related opcodes
                 }
                 if (CanCompleteQuest(questid))
                     CompleteQuest(questid);
@@ -16822,58 +16815,16 @@ bool Player::HasQuestForItem(uint32 itemid, uint32 excludeQuestId /* 0 */, bool 
 
 void Player::SendQuestComplete(Quest const* quest) const
 {
-<<<<<<< HEAD
-    // SMSG_QUESTUPDATE_COMPLETE - whole new structure in 4.x
-
-    std::string title      = quest->GetTitle();
-    std::string completedText    = quest->GetCompletedText();
-
-    int32 locale = GetSession()->GetSessionDbLocaleIndex();
-    if (locale >= 0)
-    {
-        //WorldPacket data(SMSG_QUESTUPDATE_COMPLETE, 4);
-        //data << uint32(quest_id);
-        //SendDirectMessage(&data);
-        if (QuestLocale const* localeData = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
-        {
-            ObjectMgr::GetLocaleString(localeData->Title, locale, title);
-            ObjectMgr::GetLocaleString(localeData->CompletedText, locale, completedText);
-        }
-    }
-
-    WorldPacket data(SMSG_QUESTUPDATE_COMPLETE, 4);
-    data << uint64(this->GetGUID());
-    data << uint32(quest->GetQuestId());
-    data << title;
-    data << completedText;
-    data << int8(0);                                  // Unk
-    data << uint32(quest->GetFlags());
-    data << int32(0);                                 // Unk
-    data << uint32(QUEST_EMOTE_COUNT);
-    for (uint8 i = 0; i < QUEST_EMOTE_COUNT; ++i)
-    {
-        data << uint32(quest->DetailsEmote[i]);
-        data << uint32(quest->DetailsEmoteDelay[i]);       // DetailsEmoteDelay (in ms)
-    }
-
-    quest->BuildExtraQuestInfo(data, this);
-
-    GetSession()->SendPacket(&data);
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTUPDATE_COMPLETE quest = %u", quest->GetQuestId());
-=======
     if (quest)
     {
         WorldPacket data(SMSG_QUESTUPDATE_COMPLETE, 4);
         data << uint32(quest->GetQuestId());
-        GetSession()->SendPacket(&data);
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTUPDATE_COMPLETE quest = %u", quest->GetQuestId());
+        SendDirectMessage(&data);
     }
->>>>>>> 10c9c55700... Core/Quests: Fix and enable all quest related opcodes
 }
 
 void Player::SendQuestReward(Quest const* quest, uint32 XP) const
 {
-<<<<<<< HEAD
     uint32 questid = quest->GetQuestId();
     sGameEventMgr->HandleQuestComplete(questid);
     WorldPacket data(SMSG_QUESTGIVER_QUEST_COMPLETE, (4+4+4+4+4));
@@ -16889,42 +16840,6 @@ void Player::SendQuestReward(Quest const* quest, uint32 XP) const
     data << uint32(quest->GetBonusTalents());              // bonus talents
     data << uint32(quest->GetRewArenaPoints());
     SendDirectMessage(&data);
-=======
-    uint32 questId = quest->GetQuestId();
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_QUEST_COMPLETE quest = %u", questId);
-    sGameEventMgr->HandleQuestComplete(questId);
-
-    uint32 xp;
-    uint32 moneyReward;
-
-    if (getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
-    {
-        xp = XP;
-        moneyReward = quest->GetRewOrReqMoney();
-    }
-    else // At max level, increase gold reward
-    {
-        xp = 0;
-        moneyReward = uint32(quest->GetRewOrReqMoney() + int32(quest->GetRewMoneyMaxLevel() * sWorld->getRate(RATE_DROP_MONEY)));
-    }
-
-    WorldPacket data(SMSG_QUESTGIVER_QUEST_COMPLETE, (4+4+4+4+4));
-
-    data << uint32(quest->GetBonusTalents());              // bonus talents (not verified for 4.x)
-    data << uint32(quest->GetRewardSkillPoints());         // 4.x bonus skill points
-    data << uint32(moneyReward);
-    data << uint32(xp);
-    data << uint32(questId);
-    data << uint32(quest->GetRewardSkillId());             // 4.x bonus skill id
-
-    data.WriteBit(0);                                      // FIXME: unknown bits, common values sent
-    data.WriteBit(1);
-
-    GetSession()->SendPacket(&data);
-
-    if (quest->GetQuestCompleteScript() != 0)
-        GetMap()->ScriptsStart(sQuestEndScripts, quest->GetQuestCompleteScript(), questGiver, this);
->>>>>>> 10c9c55700... Core/Quests: Fix and enable all quest related opcodes
 }
 
 void Player::SendQuestFailed(uint32 questId, InventoryResult reason) const
@@ -16990,7 +16905,6 @@ void Player::SendPushToPartyResponse(Player const* player, uint8 msg) const
     }
 }
 
-<<<<<<< HEAD
 void Player::SendQuestUpdateAddItem(Quest const* /*quest*/, uint32 /*item_idx*/, uint16 /*count*/) const
 {
     WorldPacket data(SMSG_QUESTUPDATE_ADD_ITEM, 0);
@@ -17001,9 +16915,6 @@ void Player::SendQuestUpdateAddItem(Quest const* /*quest*/, uint32 /*item_idx*/,
 }
 
 void Player::SendQuestUpdateAddCreatureOrGo(Quest const* quest, ObjectGuid guid, uint32 creatureOrGO_idx, uint16 old_count, uint16 add_count)
-=======
-void Player::SendQuestUpdateAddCreatureOrGo(Quest const* quest, uint64 guid, uint32 creatureOrGO_idx, uint16 old_count, uint16 add_count)
->>>>>>> 10c9c55700... Core/Quests: Fix and enable all quest related opcodes
 {
     ASSERT(old_count + add_count < 65536 && "mob/GO count store in 16 bits 2^16 = 65536 (0..65536)");
 
