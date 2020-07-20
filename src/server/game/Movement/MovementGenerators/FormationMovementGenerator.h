@@ -19,9 +19,12 @@
 #define TRINITY_FORMATIONMOVEMENTGENERATOR_H
 
 #include "MovementGenerator.h"
+#include "AbstractPursuer.h"
 #include "Timer.h"
 
-class FormationMovementGenerator : public MovementGeneratorMedium<Creature, FormationMovementGenerator>
+class Creature;
+
+class FormationMovementGenerator : public MovementGeneratorMedium<Creature, FormationMovementGenerator>, public AbstractPursuer
 {
     public:
         explicit FormationMovementGenerator(Unit* leader, float range, float angle, uint32 point1, uint32 point2);
@@ -39,7 +42,6 @@ class FormationMovementGenerator : public MovementGeneratorMedium<Creature, Form
         void LaunchMovement(Creature* owner, Unit* target);
 
         static constexpr uint32 FORMATION_MOVEMENT_INTERVAL = 1200; // sniffed (3 batch update cycles)
-        Unit* _leader;
         float const _range;
         float _angle;
         uint32 const _point1;

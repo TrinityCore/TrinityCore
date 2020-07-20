@@ -4329,6 +4329,14 @@ enum class MountResult : uint32
     Ok             = 10 // never sent
 };
 
+enum class PursuingType : uint8
+{
+    Follow      = 0,
+    Chase       = 1,
+    Formation   = 2,
+    Max         = 3
+};
+
 #define MAX_CREATURE_SPELL_DATA_SLOT 4
 
 #endif

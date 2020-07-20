@@ -27,6 +27,7 @@
 #include "Timer.h"
 #include "UnitDefines.h"
 #include "Util.h"
+#include <array>
 #include <map>
 
 #define WORLD_TRIGGER   12999
@@ -226,6 +227,7 @@ enum InventorySlot
     NULL_SLOT                  = 255
 };
 
+struct AbstractPursuer;
 struct FactionTemplateEntry;
 struct LiquidData;
 struct LiquidTypeEntry;
@@ -1792,6 +1794,12 @@ class TC_GAME_API Unit : public WorldObject
         void RemoveFormationFollower(Unit* follower);
         bool HasFormationFollower(Unit* follower) const;
 
+        void PursuerAdded(PursuingType type, AbstractPursuer* pursuer) { _unitsPursuingMe[AsUnderlyingType(type)].insert(pursuer); };
+        void PursuerRemoved(PursuingType type, AbstractPursuer* pursuer) { _unitsPursuingMe[AsUnderlyingType(type)].erase(pursuer); };
+
+        // Sets the target of all stored AbstractPursuers to nullptr, allowing the involved movement generators to do safe nullptr checks
+        void RemoveAllPursuers();
+
         MotionMaster* GetMotionMaster() { return i_motionMaster; }
         MotionMaster const* GetMotionMaster() const { return i_motionMaster; }
 
@@ -2065,6 +2073,8 @@ class TC_GAME_API Unit : public WorldObject
         PositionUpdateInfo _positionUpdateInfo;
 
         FormationFollowerGUIDContainer _formationFollowers;
+
+        std::array<std::unordered_set<AbstractPursuer*>, AsUnderlyingType(PursuingType::Max)> _unitsPursuingMe;
 };
 
 namespace Trinity

@@ -16,6 +16,7 @@
  */
 
 #include "ChaseMovementGenerator.h"
+#include "AbstractPursuer.h"
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "G3DPosition.hpp"
@@ -72,7 +73,7 @@ inline float GetChaseRange(Unit const* owner, Unit const* target)
     return hitboxSum;
 }
 
-ChaseMovementGenerator::ChaseMovementGenerator(Unit* target, float range, Optional<ChaseAngle> angle) : _target(target), _range(range), _angle(angle) { }
+ChaseMovementGenerator::ChaseMovementGenerator(Unit* target, float range, Optional<ChaseAngle> angle) : AbstractPursuer(PursuingType::Chase, ASSERT_NOTNULL(target)), _range(range), _angle(angle) { }
 ChaseMovementGenerator::~ChaseMovementGenerator() = default;
 
 void ChaseMovementGenerator::Initialize(Unit* owner)
@@ -90,12 +91,14 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
     if (!owner || !owner->IsAlive())
         return false;
 
+    Unit* target = GetTarget();
+
     // our target might have gone away
-    if (!_target || !_target->IsInWorld())
+    if (!target || !target->IsInWorld())
         return false;
 
     // the owner might've selected a different target (feels like we shouldn't check this here...)
-    if (owner->GetVictim() != _target)
+    if (owner->GetVictim() != target)
         return false;
 
     // the owner might be unable to move (rooted or casting), pause movement
@@ -114,9 +117,9 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
         if (Creature* cOwner = owner->ToCreature())
             cOwner->SetCannotReachTarget(false);
 
-        owner->SetInFront(_target);
+        owner->SetInFront(target);
         owner->ClearUnitState(UNIT_STATE_CHASE_MOVE);
-        DoMovementInform(owner, _target);
+        DoMovementInform(owner, target);
         return true;
     }
 
@@ -124,21 +127,21 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
     Creature* creature = owner->ToCreature();
     if (owner->HasUnitState(UNIT_STATE_CHASE_MOVE) && creature)
     {
-        if (!_target->isInAccessiblePlaceFor(creature))
+        if (!target->isInAccessiblePlaceFor(creature))
         {
             creature->SetCannotReachTarget(true);
             creature->StopMoving();
             return true;
         }
     }
-    else if (creature && !_target->isInAccessiblePlaceFor(creature))
+    else if (creature && !target->isInAccessiblePlaceFor(creature))
     {
         creature->SetCannotReachTarget(true);
         return true;
     }
 
-    bool  const mutualChase         = IsMutualChase(owner, _target);
-    float const chaseRange          = GetChaseRange(owner, _target);
+    bool  const mutualChase         = IsMutualChase(owner, target);
+    float const chaseRange          = GetChaseRange(owner, target);
     float const rangeTolerance      = _range > 0.f ? _range : chaseRange;
     Optional<ChaseAngle> chaseAngle = mutualChase ? Optional<ChaseAngle>() : _angle;
 
@@ -151,10 +154,10 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
     {
         _nextRepositioningTimer.Reset(REPOSITION_MOVEMENT_INTERVAL);
 
-        if (!owner->HasUnitState(UNIT_STATE_CHASE_MOVE) && owner->IsCreature() && !_target->isMoving())
+        if (!owner->HasUnitState(UNIT_STATE_CHASE_MOVE) && owner->IsCreature() && !target->isMoving())
         {
             // Owner is too close to its target. Step back.
-            if (owner->GetBoundaryRadius() <= 5.f && owner->GetExactDist2d(_target) < owner->GetBoundaryRadius())
+            if (owner->GetBoundaryRadius() <= 5.f && owner->GetExactDist2d(target) < owner->GetBoundaryRadius())
             {
                 LaunchMovement(owner, chaseRange, true, mutualChase);
                 return true;
@@ -167,21 +170,21 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
         _nextMovementTimer.Reset(CHASE_MOVEMENT_INTERVAL);
 
         // Target has moved since we last checked its position. Handle new cases
-        if (!_lastTargetPosition || _target->GetPosition() != _lastTargetPosition.get())
+        if (!_lastTargetPosition || target->GetPosition() != _lastTargetPosition.get())
         {
             // Create new snapshot of our target's position
-            _lastTargetPosition = _target->GetPosition();
+            _lastTargetPosition = target->GetPosition();
 
-            if (PositionOkay(owner, _target, rangeTolerance, chaseAngle))
+            if (PositionOkay(owner, target, rangeTolerance, chaseAngle))
             {
-                if (owner->HasUnitState(UNIT_STATE_CHASE_MOVE) && !_target->isMoving() && !mutualChase)
+                if (owner->HasUnitState(UNIT_STATE_CHASE_MOVE) && !target->isMoving() && !mutualChase)
                 {
                     // Our current position is fine. Stop movement.
                     owner->StopMoving();
                     return true;
                 }
             }
-            else if (owner->GetExactDist2d(_target) > rangeTolerance + 0.1f) // 0.1f here to avoid edge cases when the owner has stepped back before
+            else if (owner->GetExactDist2d(target) > rangeTolerance + 0.1f) // 0.1f here to avoid edge cases when the owner has stepped back before
                 LaunchMovement(owner, chaseRange, false, mutualChase);
         }
     }
@@ -198,35 +201,37 @@ void ChaseMovementGenerator::Finalize(Unit* owner)
 
 void ChaseMovementGenerator::LaunchMovement(Unit* owner, float chaseRange, bool backward /*= false*/, bool mutualChase /*= false*/)
 {
+    Unit* target = GetTarget();
+
     // Owner may launch a new spline
-    Position dest = _target->GetVehicle() ? _target->GetVehicle()->GetBase()->GetPosition() : _target->GetPosition();
+    Position dest = target->GetVehicle() ? target->GetVehicle()->GetBase()->GetPosition() : target->GetPosition();
 
     // Predict chase destination to keep up with chase target
-    bool predictDestination = !backward && !mutualChase && _target->isMoving();
+    bool predictDestination = !backward && !mutualChase && target->isMoving();
     if (predictDestination)
     {
         UnitMoveType moveType = MOVE_RUN;
-        if (_target->CanFly())
-            moveType = _target->HasUnitMovementFlag(MOVEMENTFLAG_BACKWARD) ? MOVE_FLIGHT_BACK : MOVE_FLIGHT;
+        if (target->CanFly())
+            moveType = target->HasUnitMovementFlag(MOVEMENTFLAG_BACKWARD) ? MOVE_FLIGHT_BACK : MOVE_FLIGHT;
         else
         {
-            if (_target->IsWalking())
+            if (target->IsWalking())
                 moveType = MOVE_WALK;
             else
-                moveType = _target->HasUnitMovementFlag(MOVEMENTFLAG_BACKWARD) ? MOVE_RUN_BACK : MOVE_RUN;
+                moveType = target->HasUnitMovementFlag(MOVEMENTFLAG_BACKWARD) ? MOVE_RUN_BACK : MOVE_RUN;
         }
 
-        float additionalRange = _target->GetSpeed(moveType) * 0.5f;
+        float additionalRange = target->GetSpeed(moveType) * 0.5f;
 
         if (!owner->HasUnitState(UNIT_STATE_IGNORE_PATHFINDING))
-            _target->MovePositionToFirstCollision(dest, additionalRange, _angle ? Position::NormalizeOrientation(_target->GetOrientation() - _angle->RelativeAngle + float(M_PI)) : _target->GetRelativeAngle(owner) + float(M_PI));
+            target->MovePositionToFirstCollision(dest, additionalRange, _angle ? Position::NormalizeOrientation(target->GetOrientation() - _angle->RelativeAngle + float(M_PI)) : target->GetRelativeAngle(owner) + float(M_PI));
         else
-            _target->GetNearPoint(owner, dest.m_positionX, dest.m_positionY, dest.m_positionZ, additionalRange - _target->GetCombatReach() - owner->GetCombatReach(), Position::NormalizeOrientation(_target->GetOrientation() + float(M_PI) + (_angle ? _angle->RelativeAngle : 0.f)));
+            target->GetNearPoint(owner, dest.m_positionX, dest.m_positionY, dest.m_positionZ, additionalRange - target->GetCombatReach() - owner->GetCombatReach(), Position::NormalizeOrientation(target->GetOrientation() + float(M_PI) + (_angle ? _angle->RelativeAngle : 0.f)));
     }
     else if (!owner->HasUnitState(UNIT_STATE_IGNORE_PATHFINDING))
-        _target->MovePositionToFirstCollision(dest, chaseRange, _angle ? _target->NormalizeOrientation(_target->GetOrientation() - _angle->RelativeAngle) : _target->GetRelativeAngle(owner));
+        target->MovePositionToFirstCollision(dest, chaseRange, _angle ? target->NormalizeOrientation(target->GetOrientation() - _angle->RelativeAngle) : target->GetRelativeAngle(owner));
     else
-        _target->GetNearPoint(owner, dest.m_positionX, dest.m_positionY, dest.m_positionZ, chaseRange - _target->GetCombatReach() - owner->GetCombatReach(), Position::NormalizeOrientation(_target->GetOrientation() + (_angle ? _angle->RelativeAngle : 0.f)));
+        target->GetNearPoint(owner, dest.m_positionX, dest.m_positionY, dest.m_positionZ, chaseRange - target->GetCombatReach() - owner->GetCombatReach(), Position::NormalizeOrientation(target->GetOrientation() + (_angle ? _angle->RelativeAngle : 0.f)));
 
     owner->UpdateAllowedPositionZ(dest.GetPositionX(), dest.GetPositionY(), dest.m_positionZ);
 
@@ -249,7 +254,7 @@ void ChaseMovementGenerator::LaunchMovement(Unit* owner, float chaseRange, bool 
     if (backward)
         init.SetBackward();
     else
-        init.SetFacing(_target);
+        init.SetFacing(target);
 
     init.Launch();
 

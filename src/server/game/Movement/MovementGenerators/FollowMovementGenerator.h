@@ -19,11 +19,11 @@
 #define TRINITY_FOLLOWMOVEMENTGENERATOR_H
 
 #include "MovementGenerator.h"
+#include "AbstractPursuer.h"
 #include "EventMap.h"
 #include "Optional.h"
 #include "Timer.h"
 
-class PathGenerator;
 class Unit;
 
 enum Events
@@ -37,7 +37,7 @@ constexpr uint8 DEFAULT_ROW_FOLLOWERS = 2;
 constexpr float STRAIGHT_FOLLOW_DISTANCE = 3.f;
 constexpr float SIDE_FOLLOW_DISTANCE = 3.3541f;
 
-class FollowMovementGenerator : public MovementGenerator
+class FollowMovementGenerator : public MovementGenerator, public AbstractPursuer
 {
 public:
     MovementGeneratorType GetMovementGeneratorType() const override { return FOLLOW_MOTION_TYPE; }
@@ -50,8 +50,6 @@ public:
     void Reset(Unit* /*owner*/) override;
     bool Update(Unit* owner, uint32 diff) override;
 
-    Unit const* GetTarget() { return _target; }
-
 private:
     void UpdateFollowFormation();
     void UpdateFormationFollowOffsets(uint32 slot);
@@ -60,7 +58,6 @@ private:
     static constexpr uint32 FOLLOW_MOVEMENT_INTERVAL = 400; // sniffed (1 batch update cycle)
     static constexpr uint32 ALLIGN_MOVEMENT_INTERVAL = 2000; // sniffed (5 batch update cycles)
 
-    Unit* _target;
     float _distance;
     float _angle;
     bool const _joinFormation;

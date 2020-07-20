@@ -19,13 +19,13 @@
 #define TRINITY_CHASEMOVEMENTGENERATOR_H
 
 #include "MovementGenerator.h"
+#include "AbstractPursuer.h"
 #include "Optional.h"
 #include "Timer.h"
 
-class PathGenerator;
 class Unit;
 
-class ChaseMovementGenerator : public MovementGenerator
+class ChaseMovementGenerator : public MovementGenerator, public AbstractPursuer
 {
     public:
         MovementGeneratorType GetMovementGeneratorType() const override { return CHASE_MOTION_TYPE; }
@@ -40,7 +40,6 @@ class ChaseMovementGenerator : public MovementGenerator
 
         void UnitSpeedChanged() override { _lastTargetPosition.reset(); }
 
-        Unit const* GetTarget() { return _target; }
     private:
         void LaunchMovement(Unit* owner, float chaseRange, bool backward = false, bool mutualChase = false);
 
@@ -51,7 +50,6 @@ class ChaseMovementGenerator : public MovementGenerator
         TimeTrackerSmall _nextRepositioningTimer;
 
         Optional<Position> _lastTargetPosition;
-        Unit* _target;
         float const _range;
         Optional<ChaseAngle> const _angle;
 };
