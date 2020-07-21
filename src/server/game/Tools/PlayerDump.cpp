@@ -925,17 +925,17 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
                 level = uint8(atoul(GetColumn(ts, line, "level").c_str()));
                 if (name.empty())
                 {
-                    // check if the original name already exists
-                    name = GetColumn(ts, line, "name");
+                    // generate a temporary name
+                    std::string guidPart = Trinity::StringFormat("%X", guid);
+                    std::size_t maxCharsFromOriginalName = MAX_PLAYER_NAME - guidPart.length();
 
-                    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHECK_NAME);
-                    stmt->setString(0, name);
-                    PreparedQueryResult result = CharacterDatabase.Query(stmt);
+                    name = GetColumn(ts, line, "name").substr(0, maxCharsFromOriginalName) + guidPart;
 
                     // characters.at_login set to "rename on login"
-                    if (result)
-                        if (!ChangeColumn(ts, line, "at_login", "1"))
-                            return DUMP_FILE_BROKEN;
+                    if (!ChangeColumn(ts, line, "name", name))
+                        return DUMP_FILE_BROKEN;
+                    if (!ChangeColumn(ts, line, "at_login", "1"))
+                        return DUMP_FILE_BROKEN;
                 }
                 else if (!ChangeColumn(ts, line, "name", name)) // characters.name
                     return DUMP_FILE_BROKEN;
