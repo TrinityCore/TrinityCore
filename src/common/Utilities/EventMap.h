@@ -57,15 +57,6 @@ public:
     }
 
     /**
-    * @name GetTimer
-    * @return Current timer value in ms.
-    */
-    uint32 GetTimer() const
-    {
-        return _time;
-    }
-
-    /**
     * @name GetPhaseMask
     * @return Active phases as mask.
     */
