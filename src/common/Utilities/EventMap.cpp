@@ -21,7 +21,7 @@
 void EventMap::Reset()
 {
     _eventMap.clear();
-    _time = 0;
+    _time = TimePoint::min();
     _phase = 0;
 }
 
@@ -41,7 +41,7 @@ void EventMap::ScheduleEvent(uint32 eventId, Milliseconds time, uint32 group /*=
     if (phase && phase <= 8)
         eventId |= (1 << (phase + 23));
 
-    _eventMap.insert(EventStore::value_type(_time + time.count(), eventId));
+    _eventMap.insert(EventStore::value_type(_time + time, eventId));
 }
 
 void EventMap::ScheduleEvent(uint32 eventId, Milliseconds minTime, Milliseconds maxTime, uint32 group /*= 0*/, uint32 phase /*= 0*/)
@@ -62,7 +62,7 @@ void EventMap::RescheduleEvent(uint32 eventId, Milliseconds minTime, Millisecond
 
 void EventMap::Repeat(Milliseconds time)
 {
-    _eventMap.insert(EventStore::value_type(_time + time.count(), _lastEvent));
+    _eventMap.insert(EventStore::value_type(_time + time, _lastEvent));
 }
 
 void EventMap::Repeat(Milliseconds minTime, Milliseconds maxTime)
@@ -94,7 +94,7 @@ uint32 EventMap::ExecuteEvent()
 
 void EventMap::DelayEvents(Milliseconds delay)
 {
-    _time = delay.count() < _time ? _time - delay.count() : 0;
+    _time = delay < _time - _time.min() ? _time - delay : TimePoint::min();
 }
 
 void EventMap::DelayEvents(Milliseconds delay, uint32 group)
@@ -108,7 +108,7 @@ void EventMap::DelayEvents(Milliseconds delay, uint32 group)
     {
         if (itr->second & (1 << (group + 15)))
         {
-            delayed.insert(EventStore::value_type(itr->first + delay.count(), itr->second));
+            delayed.insert(EventStore::value_type(itr->first + delay, itr->second));
             _eventMap.erase(itr++);
         }
         else
@@ -148,9 +148,9 @@ void EventMap::CancelEventGroup(uint32 group)
 
 uint32 EventMap::GetTimeUntilEvent(uint32 eventId) const
 {
-    for (std::pair<uint32 const, uint32> const& itr : _eventMap)
+    for (std::pair<TimePoint const, uint32> const& itr : _eventMap)
         if (eventId == (itr.second & 0x0000FFFF))
-            return itr.first - _time;
+            return std::chrono::duration_cast<Milliseconds>((itr.first - _time)).count();
 
     return std::numeric_limits<uint32>::max();
 }
