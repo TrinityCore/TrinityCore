@@ -1548,10 +1548,6 @@ void World::SetInitialWorldSettings()
         exit(1);
     }
 
-    ///- Initialize PlayerDump
-    TC_LOG_INFO("server.loading", "Initialize PlayerDump...");
-    PlayerDump::InitializeColumnDefinition();
-
     ///- Initialize pool manager
     sPoolMgr->Initialize();
 
@@ -1624,6 +1620,9 @@ void World::SetInitialWorldSettings()
 
     ///- Initialize static helper structures
     AIRegistry::Initialize();
+
+    TC_LOG_INFO("server.loading", "Initializing PlayerDump tables...");
+    PlayerDump::InitializeTables();
 
     TC_LOG_INFO("server.loading", "Loading SpellInfo store...");
     sSpellMgr->LoadSpellInfoStore();
