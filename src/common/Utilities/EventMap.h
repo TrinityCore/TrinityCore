@@ -206,23 +206,6 @@ public:
     void CancelEventGroup(uint32 group);
 
     /**
-    * @name GetNextEventTime
-    * @brief Returns closest occurrence of specified event.
-    * @param eventId Wanted event id.
-    * @return Time of found event.
-    */
-    uint32 GetNextEventTime(uint32 eventId) const;
-
-    /**
-    * @name GetNextEventTime
-    * @return Time of next event.
-    */
-    uint32 GetNextEventTime() const
-    {
-        return Empty() ? 0 : _eventMap.begin()->first;
-    }
-
-    /**
     * @name IsInPhase
     * @brief Returns whether event map is in specified phase or not.
     * @param phase Wanted phase.

@@ -146,18 +146,6 @@ void EventMap::CancelEventGroup(uint32 group)
     }
 }
 
-uint32 EventMap::GetNextEventTime(uint32 eventId) const
-{
-    if (Empty())
-        return 0;
-
-    for (std::pair<uint32 const, uint32> const& itr : _eventMap)
-        if (eventId == (itr.second & 0x0000FFFF))
-            return itr.first;
-
-    return 0;
-}
-
 uint32 EventMap::GetTimeUntilEvent(uint32 eventId) const
 {
     for (std::pair<uint32 const, uint32> const& itr : _eventMap)
