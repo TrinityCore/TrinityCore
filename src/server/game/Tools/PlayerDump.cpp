@@ -711,7 +711,7 @@ void PlayerDumpWriter::PopulateGuids(ObjectGuid::LowType guid)
                         _mails.insert(guid);
                     break;
                 case GUID_TYPE_PET:
-                    if (ObjectGuid::LowType guid = (*result)[0].GetUInt64())
+                    if (uint32 guid = (*result)[0].GetUInt32())
                         _pets.insert(guid);
                     break;
                 case GUID_TYPE_EQUIPMENT_SET:
