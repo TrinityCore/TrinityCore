@@ -915,7 +915,7 @@ struct boss_illidan_stormrage : public BossAI
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 150.0f, true))
                         DoCast(target, SPELL_DARK_BARRAGE);
                     events.RescheduleEvent(EVENT_EYE_BLAST, Seconds(5), GROUP_PHASE_2);
-                    uint32 currentTime = events.GetNextEventTime(EVENT_FLY_TO_RANDOM_PILLAR);
+                    uint32 currentTime = events.GetTimeUntilEvent(EVENT_FLY_TO_RANDOM_PILLAR);
                     events.RescheduleEvent(EVENT_FLY_TO_RANDOM_PILLAR, Seconds(currentTime) + Seconds(30), GROUP_PHASE_2);
                     break;
                 }
