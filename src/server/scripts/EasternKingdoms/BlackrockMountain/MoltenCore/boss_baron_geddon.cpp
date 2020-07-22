@@ -97,7 +97,7 @@ class boss_baron_geddon : public CreatureScript
                             events.ScheduleEvent(EVENT_INFERNO, 45000);
                             break;
                         case EVENT_IGNITE_MANA:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, -SPELL_IGNITE_MANA))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, true, -SPELL_IGNITE_MANA))
                                 DoCast(target, SPELL_IGNITE_MANA);
                             events.ScheduleEvent(EVENT_IGNITE_MANA, 30000);
                             break;

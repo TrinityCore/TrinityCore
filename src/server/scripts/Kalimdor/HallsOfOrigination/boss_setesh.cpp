@@ -178,7 +178,7 @@ class boss_setesh : public CreatureScript
                 switch (pointId)
                 {
                     case POINT_CHANNEL_CHAOS_PORTAL:
-                        if (Unit* npcChaosPortal = SelectTarget(SELECT_TARGET_NEAREST, 0, 0.0f, false, SPELL_DUMMY_AURA))
+                        if (Unit* npcChaosPortal = SelectTarget(SELECT_TARGET_MINDISTANCE, 0, 0.0f, false, true, SPELL_DUMMY_AURA))
                             DoCast(npcChaosPortal, SPELL_CHANNEL_CHAOS_PORTAL);
                         events.ScheduleEvent(EVENT_CONTINUE_FIGHT, Seconds(5));
                         break;
@@ -248,7 +248,7 @@ class boss_setesh : public CreatureScript
         private:
             void StartChaosPortalPhase()
             {
-                Unit* npcChaosPortal = SelectTarget(SELECT_TARGET_FARTHEST, 0, NPCEntryPred(NPC_SETESH_CHAOS_PORTAL));
+                Unit* npcChaosPortal = SelectTarget(SELECT_TARGET_MAXDISTANCE, 0, NPCEntryPred(NPC_SETESH_CHAOS_PORTAL));
                 if (!npcChaosPortal)
                     return;
 

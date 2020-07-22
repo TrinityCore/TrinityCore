@@ -439,7 +439,7 @@ public:
                 switch (eventId)
                 {
                     case EVENT_SPECTRAL_RUSH:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 0.0f, true))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_MAXDISTANCE, 0, 50.0f, true))
                         {
                             _events.ScheduleEvent(EVENT_SPECTRAL_RAVAGING, Milliseconds(500));
                             DoCast(target, SPELL_SPECTRAL_RUSH);
@@ -519,7 +519,7 @@ public:
                 switch (eventId)
                 {
                     case EVENT_SOUL_DRAIN:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
                             DoCast(target, SPELL_SOUL_DRAIN);
                         break;
                     default:

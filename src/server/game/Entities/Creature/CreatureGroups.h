@@ -91,7 +91,7 @@ class TC_GAME_API CreatureGroup
         void FormationReset(bool dismiss);
 
         void LeaderStartedMoving();
-        void MemberAttackStart(Creature* member, Unit* target);
+        void MemberEngagingTarget(Creature* member, Unit* target);
         bool CanLeaderStartMoving() const;
 };
 

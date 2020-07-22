@@ -326,7 +326,7 @@ struct boss_high_priest_venoxis : public BossAI
                     }
                     break;
                 case EVENT_WHISPERS_OF_HETHISS:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true, 0))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
                     {
                         me->StopMoving();
                         DoCast(target, SPELL_WHISPERS_OF_HETHISS);
@@ -347,7 +347,7 @@ struct boss_high_priest_venoxis : public BossAI
                     events.ScheduleEvent(EVENT_PREPARE_BLOODVENOM, 24s);
                     break;
                 case EVENT_POOL_OF_ACRID_TEARS:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 50.0f, true, 0))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_MAXDISTANCE, 0, 50.0f, true))
                         DoCast(target, SPELL_POOL_OF_ACRID_TEARS);
                     events.Repeat(3s + 500ms);
                     break;

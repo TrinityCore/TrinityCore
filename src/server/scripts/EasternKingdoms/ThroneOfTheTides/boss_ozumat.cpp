@@ -626,7 +626,7 @@ struct npc_ozumat_vicious_mindlasher : public ScriptedAI
                     DoCastAOE(SPELL_BRAIN_SPIKE);
                     break;
                 case EVENT_VEIL_OF_SHADOW:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true, 0))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
                         DoCast(target, SPELL_VEIL_OF_SHADOW);
                     break;
                 case EVENT_SHADOW_BOLT:

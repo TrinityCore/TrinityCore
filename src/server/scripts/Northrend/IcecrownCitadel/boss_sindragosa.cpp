@@ -1537,7 +1537,7 @@ class spell_frostwarden_handler_focus_fire : public SpellScriptLoader
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
-                GetCaster()->AddThreat(GetHitUnit(), float(GetEffectValue()));
+                GetCaster()->GetThreatManager().AddThreat(GetHitUnit(), float(GetEffectValue()));
                 GetCaster()->GetAI()->SetData(DATA_WHELP_MARKER, 1);
             }
 
@@ -1556,7 +1556,7 @@ class spell_frostwarden_handler_focus_fire : public SpellScriptLoader
                 PreventDefaultAction();
                 if (Unit* caster = GetCaster())
                 {
-                    caster->AddThreat(GetTarget(), -float(GetSpellInfo()->Effects[EFFECT_1].CalcValue()));
+                    caster->GetThreatManager().AddThreat(GetTarget(), -float(GetSpellInfo()->Effects[EFFECT_1].CalcValue()));
                     caster->GetAI()->SetData(DATA_WHELP_MARKER, 0);
                 }
             }

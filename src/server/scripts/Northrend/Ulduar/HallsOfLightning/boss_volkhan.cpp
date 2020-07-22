@@ -134,7 +134,7 @@ public:
         {
             if (me->Attack(who, true))
             {
-                me->AddThreat(who, 0.0f);
+                AddThreat(who, 0.0f);
                 me->SetInCombatWith(who);
                 who->SetInCombatWith(me);
 
@@ -327,7 +327,7 @@ public:
                     // 4 - Wait for delay to expire
                     if (m_uiDelay_Timer <= diff)
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, 0))
                         {
                             me->SetReactState(REACT_AGGRESSIVE);
                             me->SetInCombatWith(target);
@@ -409,7 +409,7 @@ public:
         {
             if (me->Attack(who, true))
             {
-                me->AddThreat(who, 0.0f);
+                AddThreat(who, 0.0f);
                 me->SetInCombatWith(who);
                 who->SetInCombatWith(me);
 

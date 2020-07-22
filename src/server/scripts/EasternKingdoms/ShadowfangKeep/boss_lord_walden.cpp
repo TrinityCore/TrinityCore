@@ -197,7 +197,7 @@ struct boss_lord_walden : public BossAI
                         events.Repeat(45s);
                     break;
                 case EVENT_CONJURE_POISONOUS_MIXTURE:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
                         DoCast(target, SPELL_CONJURE_POISONOUS_MIXTURE);
                     events.Repeat(31s);
                     break;
@@ -270,7 +270,7 @@ class spell_walden_ice_shards : public AuraScript
             return;
 
         if (caster->IsAIEnabled)
-            if (Unit* target = caster->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true, 0))
+            if (Unit* target = caster->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
                 caster->CastSpell(target, GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, true);
     }
 

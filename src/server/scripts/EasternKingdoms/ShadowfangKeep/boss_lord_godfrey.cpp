@@ -197,7 +197,7 @@ struct boss_lord_godfrey : public BossAI
             {
                 case EVENT_CURSED_BULLETS:
                     me->MakeInterruptable(true);
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
                         DoCast(target, SPELL_CURSED_BULLETS);
                     events.Repeat(12s);
                     break;

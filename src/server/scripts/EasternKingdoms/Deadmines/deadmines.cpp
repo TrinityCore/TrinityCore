@@ -60,7 +60,7 @@ struct npc_deadmines_defias_watcher : public ScriptedAI
     {
         if (!_isOnFire && me->HealthBelowPctDamaged(30, damage))
         {
-            me->DeleteThreatList();
+            me->GetThreatManager().ClearAllThreat();
             me->CombatStop();
             me->SetFaction(FACTION_CONTROLLABLE);
             DoCastSelf(SPELL_ON_FIRE);

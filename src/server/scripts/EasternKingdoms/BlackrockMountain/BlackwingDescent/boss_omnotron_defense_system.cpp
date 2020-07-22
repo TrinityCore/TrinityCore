@@ -527,7 +527,7 @@ struct npc_omnotron_electron : public ScriptedAI
             switch (eventId)
             {
                 case EVENT_LIGHTNING_CONDUCTOR:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true, 0))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
                     {
                         Talk(SAY_ANNOUNCE_ABILITY_1, target);
                         DoCast(target, SPELL_LIGHTNING_CONDUCTOR);
@@ -827,7 +827,7 @@ struct npc_omnotron_toxitron : public ScriptedAI
             switch (eventId)
             {
                 case EVENT_CHEMICAL_BOMB:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true, 0))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
                         DoCast(target, SPELL_CHEMICAL_BOMB);
                     _events.Repeat(30s);
                     break;
@@ -981,7 +981,7 @@ struct npc_omnotron_arcanotron : public ScriptedAI
                     me->MakeInterruptable(true);
                     if (!Is25ManRaid())
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, 0))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                             DoCast(target, SPELL_ARCANE_ANNIHILATION);
                     }
                     else
@@ -1161,7 +1161,7 @@ struct npc_omnotron_poison_bomb : public ScriptedAI
 
         // Blizzard has a AOE target spell for this but for some reason they doesn't use it so we wont do so as well.
         std::list<Unit*> targets;
-        SelectTargetList(targets, 25, SELECT_TARGET_RANDOM, 100.0f, true);
+        SelectTargetList(targets, 25, SELECT_TARGET_RANDOM, 0, 100.0f, true);
 
         if (targets.empty())
             return;
@@ -1178,7 +1178,7 @@ struct npc_omnotron_poison_bomb : public ScriptedAI
         {
             DoCast(target, SPELL_FIXATE_DUMMY, true);
             me->ClearUnitState(UNIT_STATE_CASTING);
-            me->AddThreat(target, 500000.0f);
+            AddThreat(target, 500000.0f);
         }
     }
 

@@ -276,12 +276,12 @@ struct boss_zanzil : public BossAI
             {
                 case EVENT_ZANZILI_FIRE:
                     _zanziliFireCount = 0;
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, true, 0))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, true))
                         DoCast(target, SPELL_ZANZILI_FIRE);
                     events.Repeat(13s, 14s);
                     break;
                 case EVENT_TERRIBLE_TONIC:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, 0))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                         DoCast(target, SPELL_TERRIBLE_TONIC);
                     events.Repeat(10s, 11s);
                     break;
@@ -433,8 +433,8 @@ struct npc_zanzil_zanzili_berserker : public ScriptedAI
 
         if (spellInfo->Id == SPELL_PURSUIT)
         {
-            me->getThreatManager().resetAllAggro();
-            me->AddThreat(victim, spellInfo->Effects[EFFECT_1].BasePoints);
+            me->GetThreatManager().resetAllAggro();
+            AddThreat(victim, spellInfo->Effects[EFFECT_1].BasePoints);
             Talk(SAY_WHISPER_PURSUIT_PLAYER, victim);
             Talk(SAY_ANNOUNCE_PURSUIT_PLAYER, victim);
         }

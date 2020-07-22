@@ -647,7 +647,7 @@ struct npc_chogall_corrupting_adherent : public ScriptedAI
                         AttackStart(target);
                     break;
                 case EVENT_CORRUPTING_CRASH:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, 0))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                         DoCast(target, SPELL_CORRUPTING_CRASH);
                     _events.Repeat(6s);
                     break;
@@ -706,9 +706,9 @@ struct npc_chogall_blood_of_the_old_god : public ScriptedAI
             {
                 case EVENT_ENGAGE_PLAYERS:
                     me->SetReactState(REACT_AGGRESSIVE);
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, 0))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                     {
-                        me->AddThreat(target, 100000000.0f); // sniffed value
+                        AddThreat(target, 100000000.0f); // sniffed value
                         AttackStart(target);
                     }
                     break;
@@ -893,7 +893,7 @@ struct npc_chogall_darkened_creation : public ScriptedAI
                     _events.ScheduleEvent(EVENT_DEBILITATING_BEAM, 1s + 300ms);
                     break;
                 case EVENT_DEBILITATING_BEAM:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, -SPELL_DEBILITATING_BEAM))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, true, -SPELL_DEBILITATING_BEAM))
                     {
                         me->SetFacingToObject(target);
                         DoCast(target, SPELL_DEBILITATING_BEAM);

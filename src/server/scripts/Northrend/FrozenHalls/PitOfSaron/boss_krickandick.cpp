@@ -197,16 +197,16 @@ class boss_ick : public CreatureScript
 
             void _ResetThreat(Unit* target)
             {
-                DoModifyThreatPercent(target, -100);
-                me->AddThreat(target, _tempThreat);
+                ModifyThreatByPercent(target, -100);
+                AddThreat(target, _tempThreat);
             }
 
             void UpdateAI(uint32 diff) override
             {
-                if (!me->IsInCombat())
+                if (!me->IsEngaged())
                     return;
 
-                if (!me->GetVictim() && me->getThreatManager().isThreatListEmpty())
+                if (!me->GetVictim() && me->GetThreatManager().IsThreatListEmpty())
                 {
                     EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
                     return;
@@ -638,9 +638,9 @@ class spell_krick_pursuit : public SpellScriptLoader
                         {
                             ick->AI()->Talk(SAY_ICK_CHASE_1, target);
                             ick->AddAura(GetSpellInfo()->Id, target);
-                            ENSURE_AI(boss_ick::boss_ickAI, ick->AI())->SetTempThreat(ick->getThreatManager().getThreat(target));
-                            ick->AddThreat(target, float(GetEffectValue()));
-                            target->AddThreat(ick, float(GetEffectValue()));
+                            ENSURE_AI(boss_ick::boss_ickAI, ick->AI())->SetTempThreat(ick->GetThreatManager().GetThreat(target));
+                            ick->GetThreatManager().AddThreat(target, float(GetEffectValue()), GetSpellInfo(), true, true);
+                            target->GetThreatManager().AddThreat(ick, float(GetEffectValue()), GetSpellInfo(), true, true);
                         }
                     }
             }

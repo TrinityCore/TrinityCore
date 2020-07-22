@@ -319,7 +319,7 @@ public:
                                         DoCast(target, SPELL_SHADOWBOLT);
                                     break;
                             }
-                            DoResetThreat();
+                            ResetThreatList();
                             events.ScheduleEvent(EVENT_SHADOW_BOLT, urand(3000, 10000));
                             break;
                         case EVENT_FEAR:

@@ -610,20 +610,9 @@ struct boss_faction_championsAI : public BossAI
 
     void UpdateThreat()
     {
-        std::list<HostileReference*> const& tList = me->getThreatManager().getThreatList();
-        for (std::list<HostileReference*>::const_iterator itr = tList.begin(); itr != tList.end(); ++itr)
-        {
-            Unit* unit = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid());
-            if (unit && me->getThreatManager().getThreat(unit))
-            {
-                if (unit->GetTypeId() == TYPEID_PLAYER)
-                {
-                    float threat = CalculateThreat(me->GetDistance2d(unit), (float)unit->GetArmor(), unit->GetHealth());
-                    me->getThreatManager().modifyThreatPercent(unit, -100);
-                    me->AddThreat(unit, 1000000.0f * threat);
-                }
-            }
-        }
+        for (ThreatReference* ref : me->GetThreatManager().GetUnsortedThreatList())
+            if (Player* victim = ref->GetVictim()->ToPlayer())
+                ref->SetThreat(1000000.0f * CalculateThreat(me->GetDistance2d(victim), victim->GetArmor(), victim->GetHealth()));
     }
 
     void UpdatePower()
@@ -692,7 +681,7 @@ struct boss_faction_championsAI : public BossAI
 
     Unit* SelectEnemyCaster(bool /*casting*/)
     {
-        std::list<HostileReference*> const& tList = me->getThreatManager().getThreatList();
+        std::list<HostileReference*> const& tList = me->GetThreatManager().getThreatList();
         std::list<HostileReference*>::const_iterator iter;
         for (iter = tList.begin(); iter!=tList.end(); ++iter)
         {
@@ -705,15 +694,10 @@ struct boss_faction_championsAI : public BossAI
 
     uint32 EnemiesInRange(float distance)
     {
-        std::list<HostileReference*> const& tList = me->getThreatManager().getThreatList();
-        std::list<HostileReference*>::const_iterator iter;
         uint32 count = 0;
-        for (iter = tList.begin(); iter != tList.end(); ++iter)
-        {
-            Unit* target = ObjectAccessor::GetUnit(*me, (*iter)->getUnitGuid());
-                if (target && me->GetDistance2d(target) < distance)
-                    ++count;
-        }
+        for (ThreatReference* ref : me->GetThreatManager().GetUnsortedThreatList())
+            if (me->GetDistance2d(ref->GetVictim()) < distance)
+                ++count;
         return count;
     }
 
@@ -724,9 +708,7 @@ struct boss_faction_championsAI : public BossAI
 
         if (me->Attack(who, true))
         {
-            me->AddThreat(who, 10.0f);
-            me->SetInCombatWith(who);
-            who->SetInCombatWith(me);
+            AddThreat(who, 10.0f);
 
             if (_aiType == AI_MELEE || _aiType == AI_PET)
                 DoStartMovement(who);

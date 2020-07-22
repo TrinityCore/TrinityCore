@@ -309,7 +309,7 @@ struct npc_corla_twilight_zealot : public ScriptedAI
                     DoCastAOE(SPELL_INVISIBILITY_AND_STEALTH_DETECTION, true);
                     break;
                 case EVENT_FORCE_BLAST:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, 0))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, true, 0))
                         DoCast(target, SPELL_FORCE_BLAST);
                     _events.Repeat(14s, 17s);
                     break;

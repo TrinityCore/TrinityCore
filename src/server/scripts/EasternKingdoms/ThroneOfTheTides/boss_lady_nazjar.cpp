@@ -306,12 +306,12 @@ struct boss_lady_nazjar : public BossAI
             switch (eventId)
             {
                 case EVENT_SUMMON_GEYSER:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true, 0))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
                         DoCast(target, SPELL_SUMMON_GEYSER);
                     events.Repeat(11s, 16s);
                     break;
                 case EVENT_FUNGAL_SPORES:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true, 0))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
                         DoCast(target, SPELL_FUNGAL_SPORES);
                     events.Repeat(13s, 19s);
                     break;
@@ -440,7 +440,7 @@ struct npc_nazjar_nazjar_tempest_witch : public ScriptedAI
             switch (eventId)
             {
                 case EVENT_CHAIN_LIGHTNING:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true, 0))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
                     {
                         me->MakeInterruptable(true);
                         DoCast(target, SPELL_CHAIN_LIGHTNING);

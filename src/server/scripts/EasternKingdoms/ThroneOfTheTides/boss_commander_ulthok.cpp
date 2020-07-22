@@ -182,7 +182,7 @@ struct boss_commander_ulthok : public BossAI
                     events.Repeat(32s, 33s);
                     break;
                 case EVENT_CURSE_OF_FATIGUE:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true, 0))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
                         DoCast(target, SPELL_CURSE_OF_FATIGUE);
                     events.Repeat(18s, 23s);
                     break;

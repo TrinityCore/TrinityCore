@@ -194,7 +194,7 @@ public:
                 case NPC_AVENGING_SPIRIT:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     {
-                        summon->AddThreat(target, 0.0f);
+                        AddThreat(target, 0.0f, summon);
                         summon->AI()->AttackStart(target);
                     }
                     break;

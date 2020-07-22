@@ -169,7 +169,7 @@ class boss_ayamiss : public CreatureScript
                         Position VictimPos = me->EnsureVictim()->GetPosition();
                         me->GetMotionMaster()->MovePoint(POINT_GROUND, VictimPos);
                     }
-                    DoResetThreat();
+                    ResetThreatList();
                     events.ScheduleEvent(EVENT_LASH, urand(5000, 8000));
                     events.ScheduleEvent(EVENT_TRASH, urand(3000, 6000));
                     events.CancelEvent(EVENT_POISON_STINGER);

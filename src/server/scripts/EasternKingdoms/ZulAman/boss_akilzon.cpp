@@ -460,7 +460,7 @@ struct npc_akilzon_soaring_eagle : public PassiveAI
                     _events.Repeat(3s + 500ms, 10s);
                     break;
                 case EVENT_EAGLE_SWOOP:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.f, true, 0))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.f, true))
                         DoCast(target, SPELL_EAGLE_SWOOP);
                     _events.Repeat(5s, 6s);
 

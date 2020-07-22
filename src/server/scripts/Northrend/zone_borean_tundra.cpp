@@ -720,7 +720,7 @@ public:
             Creature* owner = GetOwner()->ToCreature();
             owner->RemoveAllAurasExceptType(SPELL_AURA_DUMMY);
             owner->CombatStop(true);
-            owner->DeleteThreatList();
+            owner->GetThreatManager().ClearAllThreat();
             owner->GetMotionMaster()->Clear(false);
             owner->GetMotionMaster()->MoveFollow(GetCaster(), 4.0f, 0.0f);
             owner->CastSpell(owner, SPELL_SUBDUED, true);
@@ -1453,7 +1453,7 @@ struct npc_beryl_sorcerer : public FollowerAI
 
         me->AttackStop();
         me->SetReactState(REACT_PASSIVE);
-        me->DeleteThreatList();
+        me->GetThreatManager().ClearAllThreat();
         me->CombatStop(true);
         StartFollow(player);
         me->UpdateEntry(NPC_CAPTURED_BERLY_SORCERER);

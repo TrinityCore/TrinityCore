@@ -248,7 +248,7 @@ class boss_ragnaros : public CreatureScript
                                     //is not very well supported in the core //no it really isnt
                                     //so added normaly spawning and banish workaround and attack again after 90 secs.
                                     me->AttackStop();
-                                    DoResetThreat();
+                                    ResetThreatList();
                                     me->SetReactState(REACT_PASSIVE);
                                     me->InterruptNonMeleeSpells(false);
                                     //Root self

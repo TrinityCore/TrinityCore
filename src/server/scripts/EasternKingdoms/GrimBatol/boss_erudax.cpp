@@ -226,7 +226,7 @@ class boss_erudax : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_BINDING_SHADOWS:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, true, 0, 0))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.f, true))
                                 DoCast(target, SPELL_BINDING_SHADOWS);
                             break;
                         case EVENT_ENFEEBLING_BLOW:
@@ -375,7 +375,7 @@ class npc_erudax_faceless_corruptor : public CreatureScript
                                 me->AI()->AttackStart(player);
                             break;
                         case EVENT_SIPHON_ESSENCE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true, 0))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
                                 DoCast(target, SPELL_SIPHON_ESSENCE);
                             _events.Repeat(Seconds(11));
                             break;

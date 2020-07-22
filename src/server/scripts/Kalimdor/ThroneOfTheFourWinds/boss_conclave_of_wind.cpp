@@ -667,7 +667,7 @@ struct boss_nezir : public BossAI
                     events.Repeat(12s);
                     break;
                 case EVENT_ICE_PATCH:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, MAX_HOME_POSITION_DISTANCE, true, 0))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, MAX_HOME_POSITION_DISTANCE, true))
                         if (ConclaveHandler::IsTargetOnPlatform(me->GetHomePosition(), target))
                             DoCast(target, SPELL_ICE_PATCH);
                     events.Repeat(14s);
@@ -910,7 +910,7 @@ struct boss_rohash : public BossAI
                     events.Repeat(2s + 500ms);
                     break;
                 case EVENT_SLICING_GALE:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, MAX_HOME_POSITION_DISTANCE, true, 0))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, MAX_HOME_POSITION_DISTANCE, true))
                         DoCast(target, SPELL_SLICING_GALE);
                     events.Repeat(2s + 100ms);
                     break;
@@ -1035,7 +1035,7 @@ struct npc_conclave_of_wind_ravenous_creeper : public ScriptedAI
     void SpellHitTarget(Unit* target, SpellInfo const* spell) override
     {
         if (spell->Id == SPELL_AI_CLEAR_TARGET)
-            DoModifyThreatPercent(target, -100);
+            ModifyThreatByPercent(target, -100);
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override

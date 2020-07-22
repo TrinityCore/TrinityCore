@@ -284,7 +284,7 @@ struct boss_high_priestess_kilnara : public BossAI
                     events.ScheduleEvent(EVENT_PREPARE_RAVAGE, 2s);
                     break;
                 case EVENT_PREPARE_RAVAGE:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, 0))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                         AttackStart(target);
                     events.ScheduleEvent(EVENT_RAVAGE_CAMOUFLAGE, 4s);
                     break;

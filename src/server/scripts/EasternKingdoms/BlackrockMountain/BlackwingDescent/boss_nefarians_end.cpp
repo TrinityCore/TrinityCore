@@ -385,7 +385,7 @@ struct boss_nefarians_end : public BossAI
         // Attacking Nefarian while Onyxia is not engaged is not suposed to trigger anything
         if (instance->GetBossState(DATA_NEFARIANS_END) != IN_PROGRESS)
         {
-            me->DeleteThreatList();
+            me->GetThreatManager().ClearAllThreat();
             me->CombatStop();
             return;
         }
@@ -1212,7 +1212,7 @@ struct npc_nefarians_end_chromatic_prototype : public PassiveAI
             case ACTION_DISENGAGE_PLAYERS:
                 me->InterruptNonMeleeSpells(true);
                 me->SetHomePosition(me->GetPosition());
-                me->DeleteThreatList();
+                me->GetThreatManager().ClearAllThreat();
                 me->CombatStop();
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_DISENGAGE_PLAYERS, 3s + 700ms);
@@ -1578,7 +1578,7 @@ class spell_nefarians_end_animate_bones_dummy : public SpellScript
         target->RemoveAurasDueToSpell(sSpellMgr->GetSpellIdForDifficulty(SPELL_EMPOWER, target));
         target->CastSpell(target, SPELL_CLEAR_ALL_DEBUFFS, true);
         target->AttackStop();
-        target->DeleteThreatList();
+        target->GetThreatManager().ClearAllThreat();
         target->SetReactState(REACT_PASSIVE);
         target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         target->CastSpell(target, SPELL_PERMANENT_FEIGN_DEATH_2);

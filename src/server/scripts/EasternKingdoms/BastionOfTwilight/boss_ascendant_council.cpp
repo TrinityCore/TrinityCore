@@ -687,7 +687,7 @@ class npc_feludius : public CreatureScript
                             me->GetMotionMaster()->MovePoint(POINT_NONE, feludiusMiddlePosition, true);
                             break;
                         case EVENT_FROZEN_ORB:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, 0))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                                 DoCast(target, SPELL_FROZEN_ORB);
                             _events.Repeat(20s);
                             break;
@@ -909,7 +909,7 @@ class npc_ignacious : public CreatureScript
                                 break;
                             }
 
-                            if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 60.0f, true, 0))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_MAXDISTANCE, 0, 60.0f, true))
                             {
                                 if (Unit* victim = me->GetVictim())
                                     _lastVictimGuid = victim->GetGUID();
@@ -1268,7 +1268,7 @@ class npc_terrastra : public CreatureScript
                             DoZoneInCombat();
                             break;
                         case EVENT_GRAVITY_WELL:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, 0))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                                 DoCast(target, SPELL_GRAVITY_WELL);
                             _events.Repeat(17s);
                             break;

@@ -397,7 +397,7 @@ class boss_gothik : public CreatureScript
                 switch (action)
                 {
                     case ACTION_MINION_EVADE:
-                        if (_gateIsOpen || me->getThreatManager().isThreatListEmpty())
+                        if (_gateIsOpen || me->GetThreatManager().IsThreatListEmpty())
                             return EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
                         if (_gateCanOpen)
                             OpenGate();
@@ -423,8 +423,8 @@ class boss_gothik : public CreatureScript
                     // thus we only do a cursory check to make sure (edge cases?)
                     if (Player* newTarget = FindEligibleTarget(me, _gateIsOpen))
                     {
-                        me->getThreatManager().resetAllAggro();
-                        me->AddThreat(newTarget, 1.0f);
+                        ResetThreatList();
+                        AddThreat(newTarget, 1.0f);
                         AttackStart(newTarget);
                     }
                     else
@@ -506,7 +506,7 @@ class boss_gothik : public CreatureScript
                             Talk(SAY_PHASE_TWO);
                             Talk(EMOTE_PHASE_TWO);
                             me->SetReactState(REACT_PASSIVE);
-                            me->getThreatManager().resetAllAggro();
+                            ResetThreatList();
                             DoCastAOE(SPELL_TELEPORT_LIVE);
                             break;
                         case EVENT_TELEPORT:
@@ -516,7 +516,7 @@ class boss_gothik : public CreatureScript
                                 me->AttackStop();
                                 me->StopMoving();
                                 me->SetReactState(REACT_PASSIVE);
-                                me->getThreatManager().resetAllAggro();
+                                ResetThreatList();
                                 DoCastAOE(_lastTeleportDead ? SPELL_TELEPORT_LIVE : SPELL_TELEPORT_DEAD);
                                 _lastTeleportDead = !_lastTeleportDead;
 
@@ -597,7 +597,7 @@ struct npc_gothik_minion_baseAI : public ScriptedAI
                 case ACTION_ACQUIRE_TARGET:
                     if (Player* target = FindEligibleTarget(me, _gateIsOpen))
                     {
-                        me->AddThreat(target, 1.0f);
+                        AddThreat(target, 1.0f);
                         AttackStart(target);
                     }
                     else
@@ -625,8 +625,8 @@ struct npc_gothik_minion_baseAI : public ScriptedAI
                 if (Player* newTarget = FindEligibleTarget(me, _gateIsOpen))
                 {
                     me->RemoveAurasByType(SPELL_AURA_MOD_TAUNT);
-                    me->getThreatManager().resetAllAggro();
-                    me->AddThreat(newTarget, 1.0f);
+                    ResetThreatList();
+                    AddThreat(newTarget, 1.0f);
                     AttackStart(newTarget);
                 }
                 else

@@ -265,7 +265,7 @@ public:
                     case EVENT_WORD_OF_SHAME:
                         me->RemoveAurasDueToSpell(SPELL_UNHOLY_POWER);
                         me->RemoveAurasDueToSpell(SPELL_UNHOLY_POWER_HC);
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, -SPELL_WORD_OF_SHAME))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, true, -SPELL_WORD_OF_SHAME))
                             DoCast(target, SPELL_WORD_OF_SHAME, true);
                         else
                             events.ScheduleEvent(EVENT_SHIELD_OF_THE_PERFIDIOUS, Milliseconds(1));
@@ -376,7 +376,7 @@ public:
                 switch (eventId)
                 {
                     case EVENT_FORSAKEN_ABILITY:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
                             DoCast(target, SPELL_FORSAKEN_ABILITY);
                         break;
                     case EVENT_UNHOLY_EMPOWERMENT:

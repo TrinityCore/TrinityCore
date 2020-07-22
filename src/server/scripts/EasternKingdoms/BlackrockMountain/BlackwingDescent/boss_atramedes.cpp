@@ -668,8 +668,8 @@ struct npc_atramedes_obnoxious_fiend : public ScriptedAI
                     Talk(SAY_INTRO);
                     break;
                 case EVENT_FOCUS_PLAYER:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, -SPELL_PESTERED))
-                        me->AddThreat(target, 50000000.0f);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, true, -SPELL_PESTERED))
+                        AddThreat(target, 50000000.0f);
                     _events.ScheduleEvent(EVENT_CHASE_PLAYER, 1s);
                     break;
                 case EVENT_CHASE_PLAYER:

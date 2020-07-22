@@ -312,7 +312,7 @@ struct npc_zulgurub_venomguard_destroyer : public ScriptedAI
                     me->SetReactState(REACT_AGGRESSIVE);
                     break;
                 case EVENT_POOL_OF_ACRID_TEARS:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 50.0f, true))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_MAXDISTANCE, 0, 50.0f, true))
                         DoCast(target, SPELL_POOL_OF_ACRID_TEARS);
                     _events.Repeat(13s, 14s);
                     break;
@@ -599,8 +599,8 @@ struct npc_zulgurub_gurubashi_berserker: public ScriptedAI
 
         if (spellInfo->Id == SPELL_PURSUIT)
         {
-            me->getThreatManager().resetAllAggro();
-            me->AddThreat(victim, spellInfo->Effects[EFFECT_1].BasePoints);
+            me->GetThreatManager().resetAllAggro();
+            AddThreat(victim, spellInfo->Effects[EFFECT_1].BasePoints);
             Talk(SAY_WHISPER_PURSUIT_PLAYER, victim);
             Talk(SAY_ANNOUNCE_PURSUIT_PLAYER, victim);
         }
@@ -619,7 +619,7 @@ struct npc_zulgurub_gurubashi_berserker: public ScriptedAI
             {
                 case EVENT_PURSUIT:
                     me->SetReactState(REACT_AGGRESSIVE);
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true, 0))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true))
                         DoCast(target, SPELL_PURSUIT);
 
                     _events.ScheduleEvent(EVENT_THUNDERCLAP, 7s);

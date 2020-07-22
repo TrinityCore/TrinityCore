@@ -243,12 +243,12 @@ public:
                         events.Repeat(Seconds(40));
                         break;
                     case EVENT_PLAGUE_OF_AGES:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.f, true))
                             DoCast(target, SPELL_PLAGUE_OF_AGES);
                         events.Repeat(Seconds(25));
                         break;
                     case EVENT_HEAVENS_FURY:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.f, true))
                             DoCast(target, SPELL_HEAVENS_FURY);
                         events.Repeat(Seconds(22));
                         break;
@@ -416,7 +416,7 @@ public:
                         _events.Repeat(Seconds(2) + Milliseconds(500));
                         break;
                     case EVENT_SOUL_SEVER:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true, 0))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.f, true))
                             DoCast(target, SPELL_SOUL_SEVER);
                         _events.Repeat(Seconds(11));
                         break;

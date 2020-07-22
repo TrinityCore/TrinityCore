@@ -202,7 +202,7 @@ class boss_keleseth : public CreatureScript
                             events.ScheduleEvent(EVENT_SHADOWBOLT, urand(2, 3) * IN_MILLISECONDS);
                             break;
                         case EVENT_FROST_TOMB:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, -SPELL_FROST_TOMB))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, true, -SPELL_FROST_TOMB))
                             {
                                 Talk(SAY_FROST_TOMB);
                                 Talk(SAY_FROST_TOMB_EMOTE, target);
@@ -294,7 +294,7 @@ class npc_vrykul_skeleton : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_DECREPIFY:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, -SPELL_DECREPIFY))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, true, -SPELL_DECREPIFY))
                                 DoCast(target, SPELL_DECREPIFY);
                             events.ScheduleEvent(EVENT_DECREPIFY, urand(1, 5)*IN_MILLISECONDS);
                             break;

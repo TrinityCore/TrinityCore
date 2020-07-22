@@ -86,8 +86,8 @@ struct npc_pet_mage_mirror_image : ScriptedAI
 
             if (target->IsInCombatWith(summoner))
             {
-                target->AddThreat(me, target->getThreatManager().getThreat(summoner));
-                me->SetInCombatWith(target);
+                AddThreat(me, target->GetThreatManager().GetThreat(summoner), target);
+                me->EngageWithTarget(target);
             }
         }
     }

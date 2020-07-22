@@ -760,7 +760,7 @@ class spell_helix_ride_face_targeting : public SpellScript
 
         if (Unit* target = GetHitUnit())
         {
-            caster->getThreatManager().resetAllAggro();
+            caster->GetThreatManager().ResetAllThreat();
             caster->CastSpell(caster, SPELL_HELIX_RIDE_FACE_TIMER_AURA);
             caster->CastSpell(target, GetSpellInfo()->Effects[effIndex].BasePoints, true);
         }

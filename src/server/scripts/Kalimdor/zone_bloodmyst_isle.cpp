@@ -681,7 +681,7 @@ public:
                                 if (!target)
                                     target = me;
 
-                                target->AddThreat(sironas, 0.001f);
+                                AddThreat(sironas, 0.001f, target);
                                 sironas->Attack(target, true);
                                 sironas->GetMotionMaster()->MoveChase(target);
                             }

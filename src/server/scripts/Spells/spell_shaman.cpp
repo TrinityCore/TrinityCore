@@ -1125,7 +1125,7 @@ class spell_sha_nature_guardian : public SpellScriptLoader
                 GetTarget()->CastCustomSpell(GetTarget(), SPELL_SHAMAN_NATURE_GUARDIAN, &basePoints0, nullptr, nullptr, true);
 
                 if (eventInfo.GetProcTarget() && eventInfo.GetProcTarget()->IsAlive())
-                    eventInfo.GetProcTarget()->getThreatManager().modifyThreatPercent(GetTarget(), -10);
+                    eventInfo.GetProcTarget()->GetThreatManager().ModifyThreatByPercent(GetTarget(), -10);
 
                 if (Player* player = GetTarget()->ToPlayer())
                     player->GetSpellHistory()->AddCooldown(GetSpellInfo()->Id, 0, std::chrono::seconds(GetSpellInfo()->Effects[EFFECT_1].CalcValue()));

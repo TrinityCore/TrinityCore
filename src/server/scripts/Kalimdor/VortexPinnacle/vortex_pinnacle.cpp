@@ -130,7 +130,7 @@ struct npc_vp_howling_gale : public NullCreatureAI
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        me->DeleteThreatList();
+        me->GetThreatManager().ClearAllThreat();
         me->CombatStop(false);
     }
 };
@@ -500,7 +500,7 @@ class spell_vp_lurk_search_periodic : public AuraScript
         else
             target->CastSpell(target, SPELL_LURK_SEARCH_DEATH_CHECK, true);
 
-        target->DeleteThreatList();
+        target->GetThreatManager().ClearAllThreat();
         target->ClearInCombat();
     }
 

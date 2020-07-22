@@ -181,7 +181,7 @@ class spell_pet_guard_dog : public SpellScriptLoader
                 Unit* caster = eventInfo.GetActor();
 
                 float addThreat = CalculatePct(ASSERT_NOTNULL(eventInfo.GetSpellInfo())->Effects[EFFECT_0].CalcValue(caster), aurEff->GetAmount());
-                eventInfo.GetProcTarget()->AddThreat(caster, addThreat);
+                eventInfo.GetProcTarget()->GetThreatManager().AddThreat(caster, addThreat, GetSpellInfo(), false, true);
             }
 
             void Register() override

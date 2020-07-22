@@ -151,7 +151,7 @@ class boss_majordomo : public CreatureScript
                         me->AttackStop();
                         me->SetReactState(REACT_PASSIVE);
                         me->GetMotionMaster()->MoveTargetedHome();
-                        me->DeleteThreatList();
+                        me->GetThreatManager().ClearAllThreat();
                         me->CombatStop(true);
                         events.ScheduleEvent(EVENT_OUTRO_1, 32000);
                         return;

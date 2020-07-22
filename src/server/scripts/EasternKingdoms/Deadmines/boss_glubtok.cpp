@@ -241,11 +241,11 @@ struct boss_glubtok : public BossAI
             switch (eventId)
             {
                 case EVENT_BLINK:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true, 0))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true, true))
                     {
                         DoCast(target, SPELL_BLINK);
                         if (IsHeroic())
-                            me->getThreatManager().resetAllAggro();
+                            me->GetThreatManager().resetAllAggro();
 
                         events.ScheduleEvent(EVENT_ELEMENTAL_FISTS, 800ms, 0, PHASE_1);
                         events.Repeat(13s, 14s);

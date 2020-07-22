@@ -90,7 +90,7 @@ struct boss_interrogator_vishas : public BossAI
             switch (eventId)
             {
                 case EVENT_SHADOW_WORD_PAIN:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.f, true, -SPELL_SHADOW_WORD_PAIN))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.f, true, true, -SPELL_SHADOW_WORD_PAIN))
                         DoCast(target, SPELL_SHADOW_WORD_PAIN);
                     events.Repeat(7s, 11s);
                     break;

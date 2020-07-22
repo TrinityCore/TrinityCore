@@ -4653,9 +4653,9 @@ class spell_gen_blink : public SpellScriptLoader
                 {
                     if (Creature* caster = GetCaster()->ToCreature())
                     {
-                        if (HostileReference* ref = caster->getThreatManager().getCurrentVictim())
+                        if (Unit* target = caster->GetThreatManager().GetCurrentVictim())
                         {
-                            ref->setThreat(0.0f);
+                            caster->GetThreatManager().ResetThreat(target);
                             if (caster->IsAIEnabled)
                             {
                                 caster->CastSpell(target, SPELL_BLINK_TARGET, true);

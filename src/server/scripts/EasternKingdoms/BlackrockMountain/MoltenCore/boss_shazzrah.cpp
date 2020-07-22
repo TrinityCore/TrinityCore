@@ -82,7 +82,7 @@ class boss_shazzrah : public CreatureScript
                             DoCastVictim(SPELL_ARCANE_EXPLOSION);
                             break;
                         case EVENT_SHAZZRAH_CURSE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, -SPELL_SHAZZRAH_CURSE))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, true, -SPELL_SHAZZRAH_CURSE))
                                 DoCast(target, SPELL_SHAZZRAH_CURSE);
                             events.ScheduleEvent(EVENT_SHAZZRAH_CURSE, urand(25000, 30000));
                             break;
@@ -95,7 +95,7 @@ class boss_shazzrah : public CreatureScript
                             events.ScheduleEvent(EVENT_COUNTERSPELL, urand(16000, 20000));
                             break;
                         case EVENT_SHAZZRAH_GATE:
-                            DoResetThreat();
+                            ResetThreatList();
                             DoCastAOE(SPELL_SHAZZRAH_GATE_DUMMY);
                             events.ScheduleEvent(EVENT_ARCANE_EXPLOSION_TRIGGERED, 2000);
                             events.RescheduleEvent(EVENT_ARCANE_EXPLOSION, urand(3000, 6000));

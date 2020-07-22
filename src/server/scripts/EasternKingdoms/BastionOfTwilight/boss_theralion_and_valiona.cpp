@@ -400,7 +400,7 @@ class boss_theralion : public CreatureScript
                                 me->GetMotionMaster()->MovePoint(POINT_TAKEOFF_DESTINATION, stalker->GetPosition(), false);
                             break;
                         case EVENT_TWILIGHT_BLAST:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, 0))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                                 DoCast(target, SPELL_TWILIGHT_BLAST);
                             events.Repeat(Seconds(2) + Milliseconds(400));
                             break;

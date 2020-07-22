@@ -418,7 +418,7 @@ class npc_drahga_valiona : public CreatureScript
                                 DoCast(SPELL_DEVOURING_FLAMES_AOE);
                                 _events.ScheduleEvent(EVENT_DEVOURING_FLAMES_CAST, Milliseconds(400));
                             }
-                            else if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, 0))
+                            else if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                                 DoCast(target, SPELL_VALIONAS_FLAME);
 
                             _events.Repeat(Seconds(25));
@@ -503,11 +503,11 @@ class npc_drahga_invoked_flaming_spirit : public CreatureScript
                     {
                         case EVENT_CHASE_PLAYER:
                             me->SetReactState(REACT_AGGRESSIVE);
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, 0))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                             {
                                 DoCast(target, SPELL_FLAMING_FIXATE, true);
                                 AttackStart(target);
-                                me->AddThreat(target, 1500500.0f);
+                                AddThreat(target, 1500500.0f);
                                 me->ClearUnitState(UNIT_STATE_CASTING);
                                 me->GetMotionMaster()->MovePoint(0, target->GetPosition(), true);
                                 _events.ScheduleEvent(EVENT_REPEAT_MOVEMENT, Seconds(1));

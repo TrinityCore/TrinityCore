@@ -217,7 +217,7 @@ struct boss_ascendant_lord_obsidius : public BossAI
                     events.Repeat(12s);
                     break;
                 case EVENT_TWILIGHT_CORRUPTION:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, -SPELL_TWILIGHT_CORRUPTION))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, true, -SPELL_TWILIGHT_CORRUPTION))
                         DoCast(target, SPELL_TWILIGHT_CORRUPTION);
                     events.Repeat(12s);
                     break;
@@ -252,8 +252,8 @@ class spell_obsidius_twitchy : public AuraScript
             if (Unit* attacker = damage->GetAttacker())
             {
                 target->SendPlaySpellVisualKit(SPELL_VISUAL_SPOTTED, 0, 0);
-                target->getThreatManager().resetAllAggro();
-                target->AddThreat(attacker, 100000000.0f);
+                target->GetThreatManager().resetAllAggro();
+                target->GetThreatManager().AddThreat(attacker, 100000000.0f);
             }
         }
     }

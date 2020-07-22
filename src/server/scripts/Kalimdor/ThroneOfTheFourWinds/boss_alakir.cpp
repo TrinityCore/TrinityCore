@@ -558,7 +558,7 @@ struct boss_alakir : public BossAI
                     events.Repeat(8s);
                     break;
                 case EVENT_ICE_STORM:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 70.0f, true, 0))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 70.0f, true))
                         DoCast(target, SPELL_ICE_STORM);
                     events.Repeat(16s);
                     break;
