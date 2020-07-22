@@ -36,12 +36,10 @@ class TC_COMMON_API SHA1Hash
         void UpdateData(const uint8 *dta, int len);
         void UpdateData(const std::string &str);
 
-        template <size_t SIZE, size_t... SIZES, typename... Ts> void UpdateBigNumbers(BigNumber const& bn, Ts&&... tail)
+        template <size_t... SIZES, typename... Ts> auto UpdateBigNumbers(Ts&&... ts) -> std::enable_if_t<(std::is_same_v<BigNumber, std::decay_t<Ts>>&& ...)>
         {
-            static_assert(sizeof...(SIZES) == sizeof...(Ts));
-            UpdateBigNumber<SIZE>(bn);
-            if constexpr (sizeof...(Ts) > 0)
-                UpdateBigNumbers<SIZES...>(std::forward<Ts>(tail)...);
+            static_assert(sizeof...(SIZES) == sizeof...(Ts), "Size count needs to equal argument count");
+            (UpdateBigNumber<SIZES>(std::forward<Ts>(ts)), ...);
         }
 
         void Initialize();
