@@ -50,7 +50,7 @@ class npc_pet_pri_lightwell : public CreatureScript
                     return;
 
                 me->CombatStop(true);
-                me->GetThreatManager().NotifyDisengaged();
+                EngagementOver();
                 me->ResetPlayerDamageReq();
             }
         };
