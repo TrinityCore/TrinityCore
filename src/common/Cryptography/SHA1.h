@@ -45,7 +45,7 @@ class TC_COMMON_API SHA1Hash
         void Initialize();
         void Finalize();
 
-        uint8 const* GetDigest(void) const { return _mDigest; }
+        uint8 const* GetDigest(void) const { return _digest; }
 
     private:
         static void _CheckedBNToBytes(BigNumber const& bn, uint8* arena, size_t sz);
@@ -56,8 +56,8 @@ class TC_COMMON_API SHA1Hash
             UpdateData(arena.data(), SIZE);
         }
 
-        SHA_CTX _mC;
-        uint8 _mDigest[SHA_DIGEST_LENGTH];
+        SHA_CTX _ctx;
+        uint8 _digest[SHA_DIGEST_LENGTH];
 };
 
 /// Returns the SHA1 hash of the given content as hex string.

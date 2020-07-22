@@ -23,18 +23,18 @@
 
 SHA1Hash::SHA1Hash()
 {
-    SHA1_Init(&_mC);
-    memset(_mDigest, 0, SHA_DIGEST_LENGTH * sizeof(uint8));
+    SHA1_Init(&_ctx);
+    memset(_digest, 0, SHA_DIGEST_LENGTH * sizeof(uint8));
 }
 
 SHA1Hash::~SHA1Hash()
 {
-    SHA1_Init(&_mC);
+    SHA1_Init(&_ctx);
 }
 
 void SHA1Hash::UpdateData(const uint8 *dta, int len)
 {
-    SHA1_Update(&_mC, dta, len);
+    SHA1_Update(&_ctx, dta, len);
 }
 
 void SHA1Hash::UpdateData(const std::string& str)
@@ -44,12 +44,12 @@ void SHA1Hash::UpdateData(const std::string& str)
 
 void SHA1Hash::Initialize()
 {
-    SHA1_Init(&_mC);
+    SHA1_Init(&_ctx);
 }
 
 void SHA1Hash::Finalize(void)
 {
-    SHA1_Final(_mDigest, &_mC);
+    SHA1_Final(_digest, &_ctx);
 }
 
 std::string CalculateSHA1Hash(std::string const& content)
