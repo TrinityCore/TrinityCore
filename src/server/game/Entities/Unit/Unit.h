@@ -2005,6 +2005,9 @@ class TC_GAME_API Unit : public WorldObject
         virtual void AtEnterCombat() { }
         virtual void AtExitCombat();
 
+        virtual void AtEngage(Unit* /*target*/) { m_isEngaged = true; }
+        virtual void AtDisengage() { m_isEngaged = false; }
+
         void InterruptMovementBasedAuras();
     private:
 
@@ -2033,6 +2036,9 @@ class TC_GAME_API Unit : public WorldObject
         TimeTrackerSmall m_splineSyncTimer;
 
         DiminishingReturn m_Diminishing[DIMINISHING_MAX];
+
+        // Threat+combat management
+        bool m_isEngaged;
         // Manage all Units that are threatened by us
         friend class CombatManager;
         CombatManager m_combatManager;
