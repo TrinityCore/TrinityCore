@@ -809,7 +809,7 @@ class spell_skyfall : public SpellScript
             return;
 
         if (Creature* creature = GetHitCreature())
-            creature->CombatStart(caster->GetVictim());
+            creature->EngageWithTarget(caster->GetVictim());
     }
 
     void Register() override

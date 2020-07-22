@@ -180,6 +180,7 @@ class TC_GAME_API AuraEffect
         void HandleModThreat(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModTotalThreat(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModTaunt(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleModDetaunt(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraFixate(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //  control
         void HandleModConfuse(AuraApplication const* aurApp, uint8 mode, bool apply) const;

@@ -122,7 +122,7 @@ public:
                     me->RemoveAllAuras();
                     DoCastSelf(SPELL_VANISH);
                     me->SetReactState(REACT_PASSIVE);
-                    me->SetInCombatState(true); // Prevents the boss from resetting
+                    // me->SetInCombatState(true); // Prevents the boss from resetting
                     events.ScheduleEvent(EVENT_JUST_VANISHED, Seconds(2));
                     break;
                 case EVENT_JUST_VANISHED:

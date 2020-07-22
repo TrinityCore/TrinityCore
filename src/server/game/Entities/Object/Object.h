@@ -308,10 +308,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         uint32 GetInstanceId() const { return m_InstanceId; }
 
-        bool IsInPhase(WorldObject const* obj) const
-        {
-            return GetPhaseShift().CanSee(obj->GetPhaseShift());
-        }
+        bool IsInPhase(WorldObject const* obj) const { return obj ? GetPhaseShift().CanSee(obj->GetPhaseShift()) : false; }
 
         PhaseShift& GetPhaseShift() { return _phaseShift; }
         PhaseShift const& GetPhaseShift() const { return _phaseShift; }

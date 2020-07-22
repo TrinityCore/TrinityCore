@@ -213,7 +213,7 @@ struct boss_felblood_kaelthas : public BossAI
             if (!events.IsInPhase(PHASE_INTRO))
                 return;
 
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+            me->SetImmuneToPC(true);
             events.ScheduleEvent(EVENT_TALK_INTRO_1, 6s, 0, PHASE_INTRO);
         }
     }

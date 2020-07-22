@@ -245,7 +245,7 @@ struct boss_glubtok : public BossAI
                     {
                         DoCast(target, SPELL_BLINK);
                         if (IsHeroic())
-                            me->GetThreatManager().resetAllAggro();
+                            me->GetThreatManager().ResetAllThreat();
 
                         events.ScheduleEvent(EVENT_ELEMENTAL_FISTS, 800ms, 0, PHASE_1);
                         events.Repeat(13s, 14s);

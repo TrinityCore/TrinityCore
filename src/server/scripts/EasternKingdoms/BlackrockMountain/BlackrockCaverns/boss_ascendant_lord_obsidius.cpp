@@ -252,7 +252,7 @@ class spell_obsidius_twitchy : public AuraScript
             if (Unit* attacker = damage->GetAttacker())
             {
                 target->SendPlaySpellVisualKit(SPELL_VISUAL_SPOTTED, 0, 0);
-                target->GetThreatManager().resetAllAggro();
+                target->GetThreatManager().ResetAllThreat();
                 target->GetThreatManager().AddThreat(attacker, 100000000.0f);
             }
         }

@@ -433,7 +433,7 @@ struct npc_zanzil_zanzili_berserker : public ScriptedAI
 
         if (spellInfo->Id == SPELL_PURSUIT)
         {
-            me->GetThreatManager().resetAllAggro();
+            me->GetThreatManager().ResetAllThreat();
             AddThreat(victim, spellInfo->Effects[EFFECT_1].BasePoints);
             Talk(SAY_WHISPER_PURSUIT_PLAYER, victim);
             Talk(SAY_ANNOUNCE_PURSUIT_PLAYER, victim);

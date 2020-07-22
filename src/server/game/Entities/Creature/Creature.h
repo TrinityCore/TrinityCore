@@ -102,10 +102,22 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool IsDungeonBoss() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_DUNGEON_BOSS) != 0; }
         bool IsAffectedByDiminishingReturns() const override { return Unit::IsAffectedByDiminishingReturns() || (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_ALL_DIMINISH) != 0; }
 
+        Unit* SelectVictim();
+
         void SetReactState(ReactStates st) { m_reactState = st; }
         ReactStates GetReactState() const { return m_reactState; }
         bool HasReactState(ReactStates state) const { return (m_reactState == state); }
         void InitializeReactState();
+
+        using Unit::IsImmuneToAll;
+        using Unit::SetImmuneToAll;
+        void SetImmuneToAll(bool apply) override { Unit::SetImmuneToAll(apply, HasReactState(REACT_PASSIVE)); }
+        using Unit::IsImmuneToPC;
+        using Unit::SetImmuneToPC;
+        void SetImmuneToPC(bool apply) override { Unit::SetImmuneToPC(apply, HasReactState(REACT_PASSIVE)); }
+        using Unit::IsImmuneToNPC;
+        using Unit::SetImmuneToNPC;
+        void SetImmuneToNPC(bool apply) override { Unit::SetImmuneToNPC(apply, HasReactState(REACT_PASSIVE)); }
 
         /// @todo Rename these properly
         bool isCanInteractWithBattleMaster(Player* player, bool msg) const;
@@ -305,8 +317,6 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void SignalFormationMovement();
         bool IsFormationLeaderMoveAllowed() const;
 
-        Unit* SelectVictim();
-
         void SetDisableReputationGain(bool disable) { DisableReputationGain = disable; }
         bool IsReputationGainDisabled() const { return DisableReputationGain; }
         bool IsDamageEnoughForLootingAndReward() const { return (m_creatureInfo->flags_extra & CREATURE_FLAG_EXTRA_NO_PLAYER_DAMAGE_REQ) || (m_PlayerDamageReq == 0); }
@@ -347,6 +357,9 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool IsAllowedToRepostionAgainst(Unit* target) const;
 
         void MakeInterruptable(bool apply);
+
+        void AtEnterCombat() override;
+        void AtExitCombat() override;
 
     protected:
         bool CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, CreatureData const* data = nullptr, uint32 vehId = 0);

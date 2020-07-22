@@ -2403,7 +2403,6 @@ public:
             return false;
 
         target->CombatStop();
-        target->getHostileRefManager().deleteReferences();
         return true;
     }
 

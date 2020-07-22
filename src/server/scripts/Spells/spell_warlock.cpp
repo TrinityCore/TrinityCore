@@ -99,7 +99,7 @@ enum WarlockSpells
     SPELL_WARLOCK_SOUL_HARVEST_ENERGIZE             = 101977,
     SPELL_WARLOCK_SOUL_SHARD                        = 87388,
     SPELL_WARLOCK_SOUL_SHARD_ENERGIZE               = 95810,
-    SPELL_WARLOCK_SOULSHATTER                       = 32835,
+    SPELL_WARLOCK_SOULSHATTER_EFFECT                = 32835,
     SPELL_WARLOCK_SOUL_SWAP_CD_MARKER               = 94229,
     SPELL_WARLOCK_SOUL_SWAP_OVERRIDE                = 86211,
     SPELL_WARLOCK_SOUL_SWAP_MOD_COST                = 92794,
@@ -1454,15 +1454,15 @@ class spell_warl_soulshatter : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                return ValidateSpellInfo({ SPELL_WARLOCK_SOULSHATTER });
+                return ValidateSpellInfo({ SPELL_WARLOCK_SOULSHATTER_EFFECT });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 Unit* caster = GetCaster();
                 if (Unit* target = GetHitUnit())
-                    if (target->CanHaveThreatList() && target->GetThreatManager().IsThreatenedBy(caster, true))
-                        caster->CastSpell(target, SPELL_WARLOCK_SOULSHATTER, true);
+                    if (target->GetThreatManager().IsThreatenedBy(caster, true))
+                        caster->CastSpell(target, SPELL_WARLOCK_SOULSHATTER_EFFECT, true);
             }
 
             void Register() override
