@@ -2006,8 +2006,8 @@ void GameObject::CastSpell(Unit* target, uint32 spellId, TriggerCastFlags trigge
     if (Unit* owner = GetOwner())
     {
         trigger->SetFaction(owner->GetFaction());
-        if (owner->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE))
-            trigger->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
+        if (owner->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED))
+            trigger->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
         // copy pvp state flags from owner
         trigger->SetByteValue(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PVP_FLAG, owner->GetByteValue(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PVP_FLAG));
         // needed for GO casts for proper target validation checks
