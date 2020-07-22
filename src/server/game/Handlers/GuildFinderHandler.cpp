@@ -119,6 +119,8 @@ void WorldSession::HandleGuildFinderBrowse(WorldPacket& recvPacket)
     {
         LFGuildSettings guildSettings = itr->second;
         Guild* guild = sGuildMgr->GetGuildById(itr->first);
+        if (!guild)
+            continue;
 
         ObjectGuid guildGUID = ObjectGuid(guild->GetGUID());
 
