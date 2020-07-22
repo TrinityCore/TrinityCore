@@ -76,3 +76,7 @@ zmqpp (C++ binding for 0mq/zmq is a 'high-level' library that hides most of the 
 rapidjson (A fast JSON parser/generator for C++ with both SAX/DOM style API http://rapidjson.org/)
   https://github.com/miloyip/rapidjson
   Version: v1.1.0
+
+catch2
+  https://github.com/catchorg/Catch2
+  Version: v2.13.0
