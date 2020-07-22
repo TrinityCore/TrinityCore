@@ -19,7 +19,6 @@
 #define _AUTH_SHA1_H
 
 #include "Define.h"
-#include "Errors.h"
 #include <string>
 #include <openssl/sha.h>
 
@@ -51,11 +50,11 @@ class TC_COMMON_API SHA1Hash
         int GetLength(void) const { return HASH_LEN; }
 
     private:
+        static void _CheckedBNToBytes(BigNumber const& bn, uint8* arena, size_t sz);
         template <size_t SIZE> void UpdateBigNumber(BigNumber const& bn)
         {
             std::array<uint8, SIZE> arena;
-            bool success = bn.AsByteArray(arena.data(), SIZE);
-            ASSERT(success, "UpdateBigNumber size %d too small for %d bytes in bn", SIZE, bn.GetNumBytes());
+            _CheckedBNToBytes(bn, arena.data(), SIZE);
             UpdateData(arena.data(), SIZE);
         }
 

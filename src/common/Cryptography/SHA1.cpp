@@ -59,3 +59,9 @@ std::string CalculateSHA1Hash(std::string const& content)
     hash.Finalize();
     return ByteArrayToHexStr(hash.GetDigest(), SHA1Hash::HASH_LEN);
 }
+
+/*static*/ void SHA1Hash::_CheckedBNToBytes(BigNumber const& bn, uint8* arena, size_t sz)
+{
+    bool success = bn.AsByteArray(arena, sz);
+    ASSERT(success, "UpdateBigNumber size %d too small for %d bytes in bn", sz, bn.GetNumBytes());
+}
