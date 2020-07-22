@@ -798,11 +798,7 @@ void Creature::RegenerateHealth()
     if (!isRegeneratingHealth())
         return;
 
-    bool isInCombat = IsInCombat() && (!GetVictim() ||                             // if IsInCombat() is true and this has no victim
-        !EnsureVictim()->GetCharmerOrOwnerPlayerOrPlayerItself() ||                // or the victim/owner/charmer is not a player
-        !EnsureVictim()->GetCharmerOrOwnerPlayerOrPlayerItself()->IsGameMaster()); // or the victim/owner/charmer is not a GameMaster
-
-    if (IsInEvadeMode() || (isInCombat && !IsPolymorphed() && !CanNotReachTarget())) // regenerate health if not in combat or if polymorphed
+    if (IsInEvadeMode() || (IsEngaged() && !IsPolymorphed() && !CanNotReachTarget())) // regenerate health if not in combat or if polymorphed
         return;
 
     uint32 curValue = GetHealth();
@@ -3213,7 +3209,7 @@ void Creature::AtEngage(Unit* target)
         Dismount();
 
     MovementGeneratorType const movetype = GetMotionMaster()->GetCurrentMovementGeneratorType();
-    if (movetype == WAYPOINT_MOTION_TYPE || movetype == POINT_MOTION_TYPE || (IsAIEnabled() && AI()->IsEscorted()))
+    if (movetype == WAYPOINT_MOTION_TYPE || movetype == POINT_MOTION_TYPE || (IsAIEnabled && AI()->IsEscorted()))
         SetHomePosition(GetPosition());
 
     if (CreatureAI* ai = AI())
