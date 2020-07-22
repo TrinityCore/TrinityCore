@@ -30,13 +30,16 @@ class TC_COMMON_API BigNumber
     public:
         BigNumber();
         BigNumber(BigNumber const& bn);
-        BigNumber(uint32);
+        BigNumber(uint32 v) : BigNumber() { SetDword(v); }
+        BigNumber(std::string const& v) : BigNumber() { SetHexStr(v); }
         ~BigNumber();
 
         void SetDword(uint32);
         void SetQword(uint64);
         void SetBinary(uint8 const* bytes, int32 len);
+        template <typename C> void SetBinary(C const& container) { SetBinary(std::data(container), std::size(container)); }
         bool SetHexStr(char const* str);
+        bool SetHexStr(std::string const& str) { return SetHexStr(str.c_str()); }
 
         void SetRand(int32 numbits);
 

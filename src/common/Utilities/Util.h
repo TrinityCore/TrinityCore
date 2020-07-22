@@ -304,7 +304,8 @@ TC_COMMON_API bool IsIPAddress(char const* ipaddress);
 TC_COMMON_API uint32 CreatePIDFile(std::string const& filename);
 TC_COMMON_API uint32 GetPID();
 
-TC_COMMON_API std::string ByteArrayToHexStr(uint8 const* bytes, uint32 length, bool reverse = false);
+TC_COMMON_API std::string ByteArrayToHexStr(uint8 const* bytes, size_t length, bool reverse = false);
+template <typename C> std::string ByteArrayToHexStr(C const& container, bool reverse = false) { return ByteArrayToHexStr(std::data(container), std::size(container), reverse); }
 TC_COMMON_API void HexStrToByteArray(std::string const& str, uint8* out, bool reverse = false);
 
 TC_COMMON_API bool StringToBool(std::string const& str);

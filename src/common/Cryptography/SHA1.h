@@ -29,17 +29,25 @@ class TC_COMMON_API SHA1Hash
     public:
         SHA1Hash();
         ~SHA1Hash();
+        static constexpr size_t HASH_LEN = SHA_DIGEST_LENGTH;
 
-        void UpdateBigNumbers(BigNumber* bn0, ...);
 
         void UpdateData(const uint8 *dta, int len);
         void UpdateData(const std::string &str);
+        void UpdateData(BigNumber const& bn);
+
+        template <typename... Ts> void UpdateBigNumbers(BigNumber const& bn, Ts&&... tail)
+        {
+            UpdateData(bn);
+            if constexpr (sizeof...(Ts) > 0)
+                UpdateBigNumbers(std::forward<Ts>(tail)...);
+        }
 
         void Initialize();
         void Finalize();
 
-        uint8 *GetDigest(void) { return mDigest; }
-        int GetLength(void) const { return SHA_DIGEST_LENGTH; }
+        uint8 const* GetDigest(void) const { return mDigest; }
+        int GetLength(void) const { return HASH_LEN; }
 
     private:
         SHA_CTX mC;

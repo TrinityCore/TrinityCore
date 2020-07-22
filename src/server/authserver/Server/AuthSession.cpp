@@ -501,7 +501,7 @@ bool AuthSession::HandleLogonProof()
         return false;
 
     SHA1Hash sha;
-    sha.UpdateBigNumbers(&A, &B, nullptr);
+    sha.UpdateBigNumbers(A, B);
     sha.Finalize();
     BigNumber u;
     u.SetBinary(sha.GetDigest(), 20);
@@ -537,11 +537,11 @@ bool AuthSession::HandleLogonProof()
     uint8 hash[20];
 
     sha.Initialize();
-    sha.UpdateBigNumbers(&N, nullptr);
+    sha.UpdateData(N);
     sha.Finalize();
     memcpy(hash, sha.GetDigest(), 20);
     sha.Initialize();
-    sha.UpdateBigNumbers(&g, nullptr);
+    sha.UpdateData(g);
     sha.Finalize();
 
     for (int i = 0; i < 20; ++i)
@@ -557,9 +557,9 @@ bool AuthSession::HandleLogonProof()
     memcpy(t4, sha.GetDigest(), SHA_DIGEST_LENGTH);
 
     sha.Initialize();
-    sha.UpdateBigNumbers(&t3, nullptr);
+    sha.UpdateData(t3);
     sha.UpdateData(t4, SHA_DIGEST_LENGTH);
-    sha.UpdateBigNumbers(&s, &A, &B, &K, nullptr);
+    sha.UpdateBigNumbers(s, A, B, K);
     sha.Finalize();
     BigNumber M;
     M.SetBinary(sha.GetDigest(), sha.GetLength());
@@ -617,7 +617,7 @@ bool AuthSession::HandleLogonProof()
 
         // Finish SRP6 and send the final result to the client
         sha.Initialize();
-        sha.UpdateBigNumbers(&A, &M, &K, nullptr);
+        sha.UpdateBigNumbers(A, M, K);
         sha.Finalize();
 
         ByteBuffer packet;
@@ -787,7 +787,7 @@ bool AuthSession::HandleReconnectProof()
     SHA1Hash sha;
     sha.Initialize();
     sha.UpdateData(_accountInfo.Login);
-    sha.UpdateBigNumbers(&t1, &_reconnectProof, &K, nullptr);
+    sha.UpdateBigNumbers(t1, _reconnectProof, K);
     sha.Finalize();
 
     if (!memcmp(sha.GetDigest(), reconnectProof->R2, SHA_DIGEST_LENGTH))

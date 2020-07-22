@@ -37,24 +37,14 @@ void SHA1Hash::UpdateData(const uint8 *dta, int len)
     SHA1_Update(&mC, dta, len);
 }
 
-void SHA1Hash::UpdateData(const std::string &str)
+void SHA1Hash::UpdateData(BigNumber const& bn)
 {
-    UpdateData((uint8 const*)str.c_str(), str.length());
+    UpdateData(bn.AsByteArray().get(), bn.GetNumBytes());
 }
 
-void SHA1Hash::UpdateBigNumbers(BigNumber* bn0, ...)
+void SHA1Hash::UpdateData(const std::string& str)
 {
-    va_list v;
-    BigNumber* bn;
-
-    va_start(v, bn0);
-    bn = bn0;
-    while (bn)
-    {
-        UpdateData(bn->AsByteArray().get(), bn->GetNumBytes());
-        bn = va_arg(v, BigNumber*);
-    }
-    va_end(v);
+    UpdateData((uint8 const*)str.c_str(), str.length());
 }
 
 void SHA1Hash::Initialize()
@@ -69,8 +59,8 @@ void SHA1Hash::Finalize(void)
 
 std::string CalculateSHA1Hash(std::string const& content)
 {
-    unsigned char digest[SHA_DIGEST_LENGTH];
-    SHA1((unsigned char*)content.c_str(), content.length(), (unsigned char*)&digest);
-
-    return ByteArrayToHexStr(digest, SHA_DIGEST_LENGTH);
+    SHA1Hash hash;
+    hash.UpdateData(content);
+    hash.Finalize();
+    return ByteArrayToHexStr(hash.GetDigest(), SHA1Hash::HASH_LEN);
 }
