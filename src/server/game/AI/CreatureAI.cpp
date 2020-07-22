@@ -285,7 +285,7 @@ void CreatureAI::EngagementOver()
 
 bool CreatureAI::_EnterEvadeMode(EvadeReason /*why*/)
 {
-    if (!IsEngaged())
+    if (me->IsInEvadeMode())
         return false;
 
     if (!me->IsAlive())
@@ -305,7 +305,6 @@ bool CreatureAI::_EnterEvadeMode(EvadeReason /*why*/)
     me->DoNotReacquireSpellFocusTarget();
     me->GetSpellHistory()->ResetAllCooldowns();
     me->SetTarget(ObjectGuid::Empty);
-
     EngagementOver();
 
     return true;

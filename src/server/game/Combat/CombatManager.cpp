@@ -71,10 +71,12 @@ void CombatReference::EndCombat()
     bool const needSecondAI = second->GetCombatManager().UpdateOwnerCombatState();
 
     // ...and if that happened, also notify the AI of it...
-    if (needFirstAI && first->IsAIEnabled)
-        first->GetAI()->JustExitedCombat();
-    if (needSecondAI && second->IsAIEnabled)
-        second->GetAI()->JustExitedCombat();
+    if (needFirstAI)
+        if (UnitAI* firstAI = first->GetAI())
+            firstAI->JustExitedCombat();
+    if (needSecondAI)
+        if (UnitAI* secondAI = second->GetAI())
+            secondAI->JustExitedCombat();
 
     // ...and finally clean up the reference object
     delete this;
@@ -114,8 +116,8 @@ void PvPCombatReference::SuppressFor(Unit* who)
 {
     Suppress(who);
     if (who->GetCombatManager().UpdateOwnerCombatState())
-        if (who->IsAIEnabled)
-            who->GetAI()->JustExitedCombat();
+        if (UnitAI* ai = who->GetAI())
+            ai->JustExitedCombat();
 }
 
 CombatManager::~CombatManager()
@@ -138,6 +140,15 @@ void CombatManager::Update(uint32 tdiff)
         else
             ++it;
     }
+}
+
+bool CombatManager::HasPvECombatWithPlayers() const
+{
+    for (std::pair<ObjectGuid const, CombatReference*> const& reference : _pveRefs)
+        if (reference.second->GetOther(_owner)->GetTypeId() == TYPEID_PLAYER)
+            return true;
+
+    return false;
 }
 
 bool CombatManager::HasPvPCombat() const
@@ -271,8 +282,8 @@ void CombatManager::SuppressPvPCombat()
     for (auto const& pair : _pvpRefs)
         pair.second->Suppress(_owner);
     if (UpdateOwnerCombatState())
-        if (_owner->IsAIEnabled)
-            _owner->GetAI()->JustExitedCombat();
+        if (UnitAI* ownerAI = _owner->GetAI())
+            ownerAI->JustExitedCombat();
 }
 
 void CombatManager::EndAllPvECombat()
@@ -330,14 +341,14 @@ bool CombatManager::UpdateOwnerCombatState() const
     {
         _owner->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
         _owner->AtEnterCombat();
-        if (_owner->GetTypeId() == TYPEID_UNIT)
+        if (_owner->GetTypeId() != TYPEID_UNIT)
             _owner->AtEngage(GetAnyTarget());
     }
     else
     {
         _owner->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
         _owner->AtExitCombat();
-        if (_owner->GetTypeId() == TYPEID_UNIT)
+        if (_owner->GetTypeId() != TYPEID_UNIT)
             _owner->AtDisengage();
     }
 

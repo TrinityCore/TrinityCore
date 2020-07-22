@@ -7671,8 +7671,8 @@ void Spell::DoAllEffectOnLaunchTarget(TargetInfo& targetInfo, float* multiplier)
         return;
 
     // This will only cause combat - the target will engage once the projectile hits (in DoAllEffectOnTarget)
-    if (targetInfo.missCondition != SPELL_MISS_EVADE && !m_caster->IsFriendlyTo(unit) && (!m_spellInfo->IsPositive() || m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL)) && (m_spellInfo->HasInitialAggro() || unit->IsEngaged()))
-        m_caster->SetInCombatWith(unit);
+    if (m_originalCaster  && targetInfo.missCondition != SPELL_MISS_EVADE && !m_originalCaster->IsFriendlyTo(unit) && (!m_spellInfo->IsPositive() || m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL)) && (m_spellInfo->HasInitialAggro() || unit->IsEngaged()))
+        m_originalCaster->SetInCombatWith(unit);
 
     for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {

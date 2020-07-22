@@ -700,7 +700,6 @@ void Creature::Update(uint32 diff)
                 break;
 
             GetThreatManager().Update(diff);
-
             if (_spellFocusInfo.delay)
             {
                 if (_spellFocusInfo.delay <= diff)
@@ -753,7 +752,7 @@ void Creature::Update(uint32 diff)
                                 if (player->IsGameMaster())
                                     continue;
 
-                                if (player->IsAlive() && this->IsHostileTo(player))
+                                if (player->IsAlive() && IsHostileTo(player))
                                     EngageWithTarget(player);
                             }
                         }
@@ -762,9 +761,8 @@ void Creature::Update(uint32 diff)
                 }
             }
 
-            if (!IsInEvadeMode() && IsAIEnabled)
+            if (IsAIEnabled)
             {
-                // do not allow the AI to be changed during update
                 m_AI_locked = true;
                 i_AI->UpdateAI(diff);
                 m_AI_locked = false;
