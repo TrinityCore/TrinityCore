@@ -19,6 +19,7 @@
 #define _AUTH_SHA1_H
 
 #include "Define.h"
+#include <array>
 #include <string>
 #include <openssl/sha.h>
 
