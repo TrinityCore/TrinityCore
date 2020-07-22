@@ -57,15 +57,6 @@ public:
     }
 
     /**
-    * @name GetTimer
-    * @return Current timer value in ms.
-    */
-    uint32 GetTimer() const
-    {
-        return _time;
-    }
-
-    /**
     * @name GetPhaseMask
     * @return Active phases as mask.
     */
@@ -204,23 +195,6 @@ public:
     * @param group Group to cancel.
     */
     void CancelEventGroup(uint32 group);
-
-    /**
-    * @name GetNextEventTime
-    * @brief Returns closest occurrence of specified event.
-    * @param eventId Wanted event id.
-    * @return Time of found event.
-    */
-    uint32 GetNextEventTime(uint32 eventId) const;
-
-    /**
-    * @name GetNextEventTime
-    * @return Time of next event.
-    */
-    uint32 GetNextEventTime() const
-    {
-        return Empty() ? 0 : _eventMap.begin()->first;
-    }
 
     /**
     * @name IsInPhase
