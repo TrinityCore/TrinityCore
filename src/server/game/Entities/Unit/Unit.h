@@ -1232,10 +1232,10 @@ class TC_GAME_API Unit : public WorldObject
 
         /// ====================== THREAT & COMBAT ====================
         bool CanHaveThreatList() const { return m_threatManager.CanHaveThreatList(); }
-        // This value can be different from IsInCombat:
+        // This value can be different from IsInCombat, for example:
         // - when a projectile spell is midair against a creature (combat on launch - threat+aggro on impact)
         // - when the creature has no targets left, but the AI has not yet ceased engaged logic
-        bool IsEngaged() const { return m_isEngaged; }
+        virtual bool IsEngaged() const { return IsInCombat(); }
         bool IsEngagedBy(Unit const* who) const { return CanHaveThreatList() ? IsThreatenedBy(who) : IsInCombatWith(who); }
         void EngageWithTarget(Unit* who); // Adds target to threat list if applicable, otherwise just sets combat state
         // Combat handling
@@ -2002,11 +2002,12 @@ class TC_GAME_API Unit : public WorldObject
         void ProcessPositionDataChanged(PositionFullTerrainStatus const& data) override;
         virtual void ProcessTerrainStatusUpdate(ZLiquidStatus status, Optional<LiquidData> const& liquidData);
 
+        // notifiers
         virtual void AtEnterCombat() { }
         virtual void AtExitCombat();
 
-        virtual void AtEngage(Unit* /*target*/) { m_isEngaged = true; }
-        virtual void AtDisengage() { m_isEngaged = false; }
+        virtual void AtEngage(Unit* /*target*/) {}
+        virtual void AtDisengage() {}
 
         void InterruptMovementBasedAuras();
     private:

@@ -220,9 +220,11 @@ public:
         {
             me->RemoveAllAuras();
             me->CombatStop(true);
-            me->GetThreatManager().NotifyDisengaged();
 
             me->StopMoving();
+
+            EngagementOver();
+
             me->GetMotionMaster()->MoveIdle();
 
             me->SetFaction(FACTION_FRIENDLY_F);

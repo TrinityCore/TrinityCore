@@ -85,8 +85,10 @@ public:
 
                     me->UpdateEntry(NPC_TAMED_KODO);
                     me->CombatStop();
-                    me->GetThreatManager().ClearAllThreat();
                     me->SetSpeedRate(MOVE_RUN, 0.6f);
+
+                    EngagementOver();
+
                     me->FollowTarget(caster);
                     me->setActive(true);
                 }

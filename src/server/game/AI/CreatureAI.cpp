@@ -46,7 +46,7 @@ void CreatureAI::OnCharmed(bool apply)
 AISpellInfoType* UnitAI::AISpellInfo;
 AISpellInfoType* GetAISpellInfo(uint32 i) { return &UnitAI::AISpellInfo[i]; }
 
-CreatureAI::CreatureAI(Creature* creature) : UnitAI(creature), me(creature), _boundary(nullptr), _negateBoundary(false), m_MoveInLineOfSight_locked(false)
+CreatureAI::CreatureAI(Creature* creature) : UnitAI(creature), me(creature), _boundary(nullptr), _negateBoundary(false), _isEngaged(false), _moveInLOSLocked(false)
 {
 }
 
@@ -96,11 +96,11 @@ void CreatureAI::DoZoneInCombat(Creature* creature /*= nullptr*/)
 // MoveInLineOfSight can be called inside another MoveInLineOfSight and cause stack overflow
 void CreatureAI::MoveInLineOfSight_Safe(Unit* who)
 {
-    if (m_MoveInLineOfSight_locked == true)
+    if (_moveInLOSLocked == true)
         return;
-    m_MoveInLineOfSight_locked = true;
+    _moveInLOSLocked = true;
     MoveInLineOfSight(who);
-    m_MoveInLineOfSight_locked = false;
+    _moveInLOSLocked = false;
 }
 
 void CreatureAI::MoveInLineOfSight(Unit* who)
@@ -183,7 +183,7 @@ static bool ShouldFollowOnSpawn(SummonPropertiesEntry const* properties)
 }
 void CreatureAI::JustAppeared()
 {
-    if (!me->IsInCombat())
+    if (!IsEngaged())
     {
         if (TempSummon* summon = me->ToTempSummon())
         {
@@ -198,6 +198,12 @@ void CreatureAI::JustAppeared()
             }
         }
     }
+}
+
+void CreatureAI::JustEnteredCombat(Unit* who)
+{
+    if (!IsEngaged() && !me->CanHaveThreatList())
+        EngagementStart(who);
 }
 
 void CreatureAI::EnterEvadeMode(EvadeReason why)
@@ -225,7 +231,7 @@ void CreatureAI::EnterEvadeMode(EvadeReason why)
 
 bool CreatureAI::UpdateVictim()
 {
-    if (!me->IsEngaged())
+    if (!IsEngaged())
         return false;
 
     if (!me->HasReactState(REACT_PASSIVE))
@@ -247,15 +253,44 @@ bool CreatureAI::UpdateVictim()
     return true;
 }
 
+void CreatureAI::EngagementStart(Unit* who)
+{
+    if (_isEngaged)
+    {
+        TC_LOG_ERROR("scripts.ai", "CreatureAI::EngagementStart called even though creature is already engaged.");
+        return;
+    }
+    _isEngaged = true;
+
+    me->AtEngage(who);
+}
+
+void CreatureAI::EngagementOver()
+{
+    if (!_isEngaged)
+    {
+        TC_LOG_ERROR("scripts.ai", "CreatureAI::EngagementOver called even though creature is not currently engaged.");
+        return;
+    }
+    _isEngaged = false;
+
+    me->AtDisengage();
+}
+
 bool CreatureAI::_EnterEvadeMode(EvadeReason /*why*/)
 {
-    if (!me->IsAlive())
+    if (me->IsInEvadeMode())
         return false;
+
+    if (!me->IsAlive())
+    {
+        EngagementOver();
+        return false;
+    }
 
     me->RemoveAurasOnEvade();
 
     me->CombatStop(true);
-    me->GetThreatManager().NotifyDisengaged();
     me->LoadCreaturesAddon();
     me->SetLootRecipient(nullptr);
     me->ResetPlayerDamageReq();
@@ -265,7 +300,9 @@ bool CreatureAI::_EnterEvadeMode(EvadeReason /*why*/)
     me->GetSpellHistory()->ResetAllCooldowns();
     me->SetTarget(ObjectGuid::Empty);
 
-    return !me->IsInEvadeMode();
+    EngagementOver();
+
+    return true;
 }
 
 const uint32 BOUNDARY_VISUALIZE_CREATURE = 15425;

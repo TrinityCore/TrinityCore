@@ -423,8 +423,9 @@ void hyjalAI::EnterEvadeMode(EvadeReason /*why*/)
     if (me->GetEntry() != JAINA)
         me->RemoveAllAuras();
     me->CombatStop(true);
-    me->GetThreatManager().NotifyDisengaged();
     me->LoadCreaturesAddon();
+
+    EngagementOver();
 
     if (me->IsAlive())
         me->GetMotionMaster()->MoveTargetedHome();

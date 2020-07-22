@@ -579,7 +579,7 @@ struct gunship_npc_AI : public ScriptedAI
             return;
 
         me->CombatStop(true);
-        me->GetThreatManager().NotifyDisengaged();
+        EngagementOver();
         me->GetMotionMaster()->MoveTargetedHome();
     }
 
@@ -724,7 +724,6 @@ class npc_gunship : public CreatureScript
                     Creature* stalker = *itr;
                     stalker->RemoveAllAuras();
                     stalker->CombatStop(true);
-                    stalker->GetThreatManager().NotifyDisengaged();
                 }
 
                 uint32 explosionSpell = isVictory ? SPELL_EXPLOSION_VICTORY : SPELL_EXPLOSION_WIPE;
@@ -883,7 +882,7 @@ class npc_high_overlord_saurfang_igb : public CreatureScript
                     return;
 
                 me->CombatStop(true);
-                me->GetThreatManager().NotifyDisengaged();
+                EngagementOver();
                 me->GetMotionMaster()->MoveTargetedHome();
 
                 Reset();
@@ -1147,7 +1146,7 @@ class npc_muradin_bronzebeard_igb : public CreatureScript
                     return;
 
                 me->CombatStop(true);
-                me->GetThreatManager().NotifyDisengaged();
+                EngagementOver();
                 me->GetMotionMaster()->MoveTargetedHome();
 
                 Reset();
