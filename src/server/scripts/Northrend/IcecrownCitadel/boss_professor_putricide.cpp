@@ -254,6 +254,14 @@ class boss_professor_putricide : public CreatureScript
                 }
             }
 
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
+            {
+                if (why == EVADE_REASON_BOUNDARY && (events.IsInPhase(PHASE_ROTFACE) || events.IsInPhase(PHASE_FESTERGUT)))
+                    return;
+
+                BossAI::EnterEvadeMode(why);
+            }
+
             void JustEngagedWith(Unit* who) override
             {
                 if (events.IsInPhase(PHASE_ROTFACE) || events.IsInPhase(PHASE_FESTERGUT))

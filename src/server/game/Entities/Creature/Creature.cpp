@@ -664,6 +664,13 @@ void Creature::Update(uint32 diff)
             if (m_deathState != CORPSE)
                 break;
 
+            if (IsEngaged())
+            {
+                m_AI_locked = true;
+                i_AI->UpdateAI(diff);
+                m_AI_locked = false;
+            }
+
             if (m_groupLootTimer && lootingGroupLowGUID)
             {
                 if (m_groupLootTimer <= diff)
@@ -759,7 +766,6 @@ void Creature::Update(uint32 diff)
             {
                 // do not allow the AI to be changed during update
                 m_AI_locked = true;
-
                 i_AI->UpdateAI(diff);
                 m_AI_locked = false;
             }
@@ -2448,8 +2454,9 @@ bool Creature::CanCreatureAttack(Unit const* victim, bool /*force*/) const
     if (!victim->isInAccessiblePlaceFor(this))
         return false;
 
-    if (IsAIEnabled && !AI()->CanAIAttack(victim))
-        return false;
+    if (CreatureAI* ai = AI())
+        if (!ai->CanAIAttack(victim))
+            return false;
 
     if (GetMap()->IsDungeon())
         return true;
@@ -3230,7 +3237,7 @@ void Creature::AtDisengage()
     Unit::AtDisengage();
 
     ClearUnitState(UNIT_STATE_ATTACK_PLAYER);
-    if (HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_TAPPED))
+    if (IsAlive() && HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_TAPPED))
         SetUInt32Value(UNIT_DYNAMIC_FLAGS, GetCreatureTemplate()->dynamicflags);
 }
 
