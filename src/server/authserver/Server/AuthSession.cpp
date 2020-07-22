@@ -519,7 +519,7 @@ bool AuthSession::HandleLogonProof()
     sha.UpdateData(t1, 16);
     sha.Finalize();
 
-    for (int i = 0; i < SHA1Hash::HASH_LEN; ++i)
+    for (size_t i = 0; i < SHA1Hash::HASH_LEN; ++i)
         vK[i * 2] = sha.GetDigest()[i];
 
     for (int i = 0; i < 16; ++i)
@@ -529,7 +529,7 @@ bool AuthSession::HandleLogonProof()
     sha.UpdateData(t1, 16);
     sha.Finalize();
 
-    for (int i = 0; i < SHA1Hash::HASH_LEN; ++i)
+    for (size_t i = 0; i < SHA1Hash::HASH_LEN; ++i)
         vK[i * 2 + 1] = sha.GetDigest()[i];
 
     K.SetBinary(vK, 40);
@@ -544,7 +544,7 @@ bool AuthSession::HandleLogonProof()
     sha.UpdateBigNumbers<1>(g);
     sha.Finalize();
 
-    for (int i = 0; i < SHA1Hash::HASH_LEN; ++i)
+    for (size_t i = 0; i < SHA1Hash::HASH_LEN; ++i)
         hash[i] ^= sha.GetDigest()[i];
 
     BigNumber t3;
@@ -949,7 +949,7 @@ void AuthSession::SetVSFields(const std::string& rI)
     sha.UpdateData(mDigest, SHA_DIGEST_LENGTH);
     sha.Finalize();
     BigNumber x;
-    x.SetBinary(sha.GetDigest(), sha.GetLength());
+    x.SetBinary(sha.GetDigest(), SHA1Hash::HASH_LEN);
     v = g.ModExp(x, N);
 
     // No SQL injection (username escaped)
@@ -992,5 +992,5 @@ bool AuthSession::VerifyVersion(uint8 const* a, int32 aLength, uint8 const* vers
     version.UpdateData(versionHash->data(), versionHash->size());
     version.Finalize();
 
-    return memcmp(versionProof, version.GetDigest(), version.GetLength()) == 0;
+    return memcmp(versionProof, version.GetDigest(), SHA1Hash::HASH_LEN) == 0;
 }

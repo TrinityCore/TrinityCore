@@ -47,7 +47,6 @@ class TC_COMMON_API SHA1Hash
         void Finalize();
 
         uint8 const* GetDigest(void) const { return _mDigest; }
-        int GetLength(void) const { return HASH_LEN; }
 
     private:
         static void _CheckedBNToBytes(BigNumber const& bn, uint8* arena, size_t sz);

@@ -386,7 +386,7 @@ std::string AccountMgr::CalculateShaPassHash(std::string const& name, std::strin
     sha.UpdateData(password);
     sha.Finalize();
 
-    return ByteArrayToHexStr(sha.GetDigest(), sha.GetLength());
+    return ByteArrayToHexStr(sha.GetDigest(), SHA1Hash::HASH_LEN);
 }
 
 bool AccountMgr::IsBannedAccount(std::string const& name)
