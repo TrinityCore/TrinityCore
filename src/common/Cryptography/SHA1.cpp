@@ -63,5 +63,5 @@ std::string CalculateSHA1Hash(std::string const& content)
 /*static*/ void SHA1Hash::_CheckedBNToBytes(BigNumber const& bn, uint8* arena, size_t sz)
 {
     bool success = bn.AsByteArray(arena, sz);
-    ASSERT(success, "UpdateBigNumber size %d too small for %d bytes in bn", sz, bn.GetNumBytes());
+    ASSERT(success, "UpdateBigNumber size %zu too small for %d bytes in bn", sz, bn.GetNumBytes());
 }
