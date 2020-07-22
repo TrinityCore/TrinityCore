@@ -501,7 +501,8 @@ bool AuthSession::HandleLogonProof()
         return false;
 
     SHA1Hash sha;
-    sha.UpdateBigNumbers<32,32>(A, B);
+    sha.UpdateData(A.AsByteArray<32>());
+    sha.UpdateData(B.AsByteArray<32>());
     sha.Finalize();
     BigNumber u;
     u.SetBinary(sha.GetDigest(), SHA1Hash::HASH_LEN);
@@ -537,18 +538,15 @@ bool AuthSession::HandleLogonProof()
     uint8 hash[SHA1Hash::HASH_LEN];
 
     sha.Initialize();
-    sha.UpdateBigNumbers<32>(N);
+    sha.UpdateData(N.AsByteArray<32>());
     sha.Finalize();
     memcpy(hash, sha.GetDigest(), SHA1Hash::HASH_LEN);
     sha.Initialize();
-    sha.UpdateBigNumbers<1>(g);
+    sha.UpdateData(g.AsByteArray<1>());
     sha.Finalize();
 
     for (size_t i = 0; i < SHA1Hash::HASH_LEN; ++i)
         hash[i] ^= sha.GetDigest()[i];
-
-    BigNumber t3;
-    t3.SetBinary(hash, SHA1Hash::HASH_LEN);
 
     sha.Initialize();
     sha.UpdateData(_accountInfo.Login);
@@ -557,9 +555,12 @@ bool AuthSession::HandleLogonProof()
     memcpy(t4, sha.GetDigest(), SHA_DIGEST_LENGTH);
 
     sha.Initialize();
-    sha.UpdateBigNumbers<SHA1Hash::HASH_LEN>(t3);
+    sha.UpdateData(hash, SHA1Hash::HASH_LEN);
     sha.UpdateData(t4, SHA_DIGEST_LENGTH);
-    sha.UpdateBigNumbers<BufferSizes::SRP_6_S, 32, 32, 40>(s, A, B, K);
+    sha.UpdateData(s.AsByteArray<BufferSizes::SRP_6_S>());
+    sha.UpdateData(A.AsByteArray<32>());
+    sha.UpdateData(B.AsByteArray<32>());
+    sha.UpdateData(K.AsByteArray<40>());
     sha.Finalize();
     BigNumber M;
     M.SetBinary(sha.GetDigest(), SHA1Hash::HASH_LEN);
@@ -617,7 +618,9 @@ bool AuthSession::HandleLogonProof()
 
         // Finish SRP6 and send the final result to the client
         sha.Initialize();
-        sha.UpdateBigNumbers<32, SHA1Hash::HASH_LEN, 40>(A, M, K);
+        sha.UpdateData(A.AsByteArray<32>());
+        sha.UpdateData(M.AsByteArray<SHA1Hash::HASH_LEN>());
+        sha.UpdateData(K.AsByteArray<40>());
         sha.Finalize();
 
         ByteBuffer packet;
@@ -787,7 +790,9 @@ bool AuthSession::HandleReconnectProof()
     SHA1Hash sha;
     sha.Initialize();
     sha.UpdateData(_accountInfo.Login);
-    sha.UpdateBigNumbers<16, 16, 40>(t1, _reconnectProof, K);
+    sha.UpdateData(t1.AsByteArray<16>());
+    sha.UpdateData(_reconnectProof.AsByteArray<16>());
+    sha.UpdateData(K.AsByteArray<40>());
     sha.Finalize();
 
     if (!memcmp(sha.GetDigest(), reconnectProof->R2, SHA_DIGEST_LENGTH))

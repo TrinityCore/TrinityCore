@@ -35,12 +35,8 @@ class TC_COMMON_API SHA1Hash
 
         void UpdateData(const uint8 *dta, int len);
         void UpdateData(const std::string &str);
-
-        template <size_t... SIZES, typename... Ts> auto UpdateBigNumbers(Ts&&... ts) -> std::enable_if_t<(std::is_same_v<BigNumber, std::decay_t<Ts>>&& ...)>
-        {
-            static_assert(sizeof...(SIZES) == sizeof...(Ts), "Size count needs to equal argument count");
-            (UpdateBigNumber<SIZES>(std::forward<Ts>(ts)), ...);
-        }
+        void UpdateData(char const* str) { UpdateData(std::string(str)); } /* explicit overload to avoid using the container template */
+        template <typename C> void UpdateData(C const& container) { UpdateData(std::data(container), std::size(container)); }
 
         void Initialize();
         void Finalize();
@@ -48,14 +44,6 @@ class TC_COMMON_API SHA1Hash
         uint8 const* GetDigest(void) const { return _digest; }
 
     private:
-        static void _CheckedBNToBytes(BigNumber const& bn, uint8* arena, size_t sz);
-        template <size_t SIZE> void UpdateBigNumber(BigNumber const& bn)
-        {
-            std::array<uint8, SIZE> arena;
-            _CheckedBNToBytes(bn, arena.data(), SIZE);
-            UpdateData(arena.data(), SIZE);
-        }
-
         SHA_CTX _ctx;
         uint8 _digest[SHA_DIGEST_LENGTH];
 };
