@@ -131,10 +131,10 @@ class boss_selin_fireheart : public CreatureScript
                     crystal->KillSelf();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
-                _EnterCombat();
+                _JustEngagedWith();
 
                 events.SetPhase(PHASE_NORMAL);
                 events.ScheduleEvent(EVENT_FEL_EXPLOSION, 2100, 0, PHASE_NORMAL);
@@ -267,7 +267,7 @@ class npc_fel_crystal : public CreatureScript
             {
                 if (InstanceScript* instance = me->GetInstanceScript())
                 {
-                    Creature* Selin = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SELIN));
+                    Creature* Selin = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SELIN_FIREHEART));
                     if (Selin && Selin->IsAlive())
                         Selin->AI()->DoAction(ACTION_SWITCH_PHASE);
                 }

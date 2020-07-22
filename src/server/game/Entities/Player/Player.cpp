@@ -10944,7 +10944,7 @@ InventoryResult Player::CanEquipItem(uint8 slot, uint16 &dest, Item* pItem, bool
                     return EQUIP_ERR_GENERIC_STUNNED;
 
                 if (IsCharmed())
-                    return EQUIP_ERR_CANT_DO_RIGHT_NOW; // @todo is this the correct error?
+                    return EQUIP_ERR_CLIENT_LOCKED_OUT; // @todo is this the correct error?
 
                 // do not allow equipping gear except weapons, offhands, projectiles, relics in
                 // - combat
@@ -11103,7 +11103,7 @@ InventoryResult Player::CanUnequipItem(uint16 pos, bool swap) const
         return EQUIP_ERR_LOOT_GONE;
 
     if (IsCharmed())
-        return EQUIP_ERR_CANT_DO_RIGHT_NOW; // @todo is this the correct error?
+        return EQUIP_ERR_CLIENT_LOCKED_OUT; // @todo is this the correct error?
 
     // do not allow unequipping gear except weapons, offhands, projectiles, relics in
     // - combat
