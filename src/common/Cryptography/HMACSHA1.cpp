@@ -64,9 +64,11 @@ void HmacHash::Finalize()
     ASSERT(length == SHA_DIGEST_LENGTH);
 }
 
-uint8* HmacHash::ComputeHash(BigNumber* bn)
+uint8* HmacHash::ComputeHash(BigNumber const& bn, size_t nBytes)
 {
-    HMAC_Update(m_ctx, bn->AsByteArray().get(), bn->GetNumBytes());
+    std::vector<uint8> data = bn.ToByteVector(nBytes);
+    ASSERT(nBytes == data.size(), "bignum of size %zu exceeds intended size of %zu bytes", data.size(), nBytes);
+    HMAC_Update(m_ctx, data.data(), nBytes);
     Finalize();
     return m_digest;
 }

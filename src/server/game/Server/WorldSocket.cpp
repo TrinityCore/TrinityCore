@@ -130,11 +130,11 @@ void WorldSocket::HandleSendAuthSession()
 
     BigNumber seed1;
     seed1.SetRand(16 * 8);
-    packet.append(seed1.AsByteArray(16).get(), 16);               // new encryption seeds
+    packet.append(seed1.ToByteArray<16>());               // new encryption seeds
 
     BigNumber seed2;
     seed2.SetRand(16 * 8);
-    packet.append(seed2.AsByteArray(16).get(), 16);               // new encryption seeds
+    packet.append(seed2.ToByteArray<16>());               // new encryption seeds
 
     SendPacketAndLogOpcode(packet);
 }
@@ -470,7 +470,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSes
     // This also allows to check for possible "hack" attempts on account
 
     // even if auth credentials are bad, try using the session key we have - client cannot read auth response error without it
-    _authCrypt.Init(&account.SessionKey);
+    _authCrypt.Init(account.SessionKey);
 
     // First reject the connection if packet contains invalid data or realm state doesn't allow logging in
     if (sWorld->IsClosed())
@@ -508,7 +508,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSes
     sha.UpdateData((uint8*)&t, 4);
     sha.UpdateData((uint8*)&authSession->LocalChallenge, 4);
     sha.UpdateData((uint8*)&_authSeed, 4);
-    sha.UpdateData(account.SessionKey.AsByteArray<40>());
+    sha.UpdateData(account.SessionKey.ToByteArray<40>());
     sha.Finalize();
 
     if (memcmp(sha.GetDigest(), authSession->Digest, SHA_DIGEST_LENGTH) != 0)
@@ -601,7 +601,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSes
 
     // Initialize Warden system only if it is enabled by config
     if (wardenActive)
-        _worldSession->InitWarden(&account.SessionKey, account.OS);
+        _worldSession->InitWarden(account.SessionKey, account.OS);
 
     _queryProcessor.AddCallback(_worldSession->LoadPermissionsAsync().WithPreparedCallback(std::bind(&WorldSocket::LoadSessionPermissionsCallback, this, std::placeholders::_1)));
     AsyncRead();

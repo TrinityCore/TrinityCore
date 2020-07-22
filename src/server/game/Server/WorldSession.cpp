@@ -1209,7 +1209,7 @@ TransactionCallback& WorldSession::AddTransactionCallback(TransactionCallback&& 
     return _transactionCallbacks.AddCallback(std::move(callback));
 }
 
-void WorldSession::InitWarden(BigNumber* k, std::string const& os)
+void WorldSession::InitWarden(BigNumber const& k, std::string const& os)
 {
     if (os == "Win")
     {

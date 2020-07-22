@@ -436,12 +436,12 @@ void AuthSession::LogonChallengeCallback(PreparedQueryResult result)
         pkt << uint8(WOW_SUCCESS);
 
         // B may be calculated < 32B so we force minimal length to 32B
-        pkt.append(B.AsByteArray(32).get(), 32);      // 32 bytes
+        pkt.append(B.ToByteArray<32>());      // 32 bytes
         pkt << uint8(1);
-        pkt.append(g.AsByteArray(1).get(), 1);
+        pkt.append(g.ToByteArray<1>());
         pkt << uint8(32);
-        pkt.append(N.AsByteArray(32).get(), 32);
-        pkt.append(s.AsByteArray(int32(BufferSizes::SRP_6_S)).get(), size_t(BufferSizes::SRP_6_S));   // 32 bytes
+        pkt.append(N.ToByteArray<32>());
+        pkt.append(s.ToByteArray<BufferSizes::SRP_6_S>());   // 32 bytes
         pkt.append(VersionChallenge.data(), VersionChallenge.size());
         pkt << uint8(securityFlags);            // security flags (0x0...0x04)
 
@@ -501,8 +501,8 @@ bool AuthSession::HandleLogonProof()
         return false;
 
     SHA1Hash sha;
-    sha.UpdateData(A.AsByteArray<32>());
-    sha.UpdateData(B.AsByteArray<32>());
+    sha.UpdateData(A.ToByteArray<32>());
+    sha.UpdateData(B.ToByteArray<32>());
     sha.Finalize();
     BigNumber u;
     u.SetBinary(sha.GetDigest(), SHA1Hash::HASH_LEN);
@@ -511,7 +511,7 @@ bool AuthSession::HandleLogonProof()
     uint8 t[32];
     uint8 t1[16];
     uint8 vK[SHA1Hash::HASH_LEN * 2];
-    memcpy(t, S.AsByteArray(32).get(), 32);
+    memcpy(t, S.ToByteArray<32>().data(), 32);
 
     for (int i = 0; i < 16; ++i)
         t1[i] = t[i * 2];
@@ -538,11 +538,11 @@ bool AuthSession::HandleLogonProof()
     uint8 hash[SHA1Hash::HASH_LEN];
 
     sha.Initialize();
-    sha.UpdateData(N.AsByteArray<32>());
+    sha.UpdateData(N.ToByteArray<32>());
     sha.Finalize();
     memcpy(hash, sha.GetDigest(), SHA1Hash::HASH_LEN);
     sha.Initialize();
-    sha.UpdateData(g.AsByteArray<1>());
+    sha.UpdateData(g.ToByteArray<1>());
     sha.Finalize();
 
     for (size_t i = 0; i < SHA1Hash::HASH_LEN; ++i)
@@ -557,16 +557,16 @@ bool AuthSession::HandleLogonProof()
     sha.Initialize();
     sha.UpdateData(hash, SHA1Hash::HASH_LEN);
     sha.UpdateData(t4, SHA_DIGEST_LENGTH);
-    sha.UpdateData(s.AsByteArray<BufferSizes::SRP_6_S>());
-    sha.UpdateData(A.AsByteArray<32>());
-    sha.UpdateData(B.AsByteArray<32>());
-    sha.UpdateData(K.AsByteArray<40>());
+    sha.UpdateData(s.ToByteArray<BufferSizes::SRP_6_S>());
+    sha.UpdateData(A.ToByteArray<32>());
+    sha.UpdateData(B.ToByteArray<32>());
+    sha.UpdateData(K.ToByteArray<40>());
     sha.Finalize();
     BigNumber M;
     M.SetBinary(sha.GetDigest(), SHA1Hash::HASH_LEN);
 
     // Check if SRP6 results match (password is correct), else send an error
-    if (!memcmp(M.AsByteArray(SHA1Hash::HASH_LEN).get(), logonProof->M1, SHA1Hash::HASH_LEN))
+    if (!memcmp(M.ToByteArray<SHA1Hash::HASH_LEN>().data(), logonProof->M1, SHA1Hash::HASH_LEN))
     {
         // Check auth token
         bool tokenSuccess = false;
@@ -618,9 +618,9 @@ bool AuthSession::HandleLogonProof()
 
         // Finish SRP6 and send the final result to the client
         sha.Initialize();
-        sha.UpdateData(A.AsByteArray<32>());
-        sha.UpdateData(M.AsByteArray<SHA1Hash::HASH_LEN>());
-        sha.UpdateData(K.AsByteArray<40>());
+        sha.UpdateData(A.ToByteArray<32>());
+        sha.UpdateData(M.ToByteArray<SHA1Hash::HASH_LEN>());
+        sha.UpdateData(K.ToByteArray<40>());
         sha.Finalize();
 
         ByteBuffer packet;
@@ -768,7 +768,7 @@ void AuthSession::ReconnectChallengeCallback(PreparedQueryResult result)
     _status = STATUS_RECONNECT_PROOF;
 
     pkt << uint8(WOW_SUCCESS);
-    pkt.append(_reconnectProof.AsByteArray(16).get(), 16);  // 16 bytes random
+    pkt.append(_reconnectProof.ToByteArray<16>());  // 16 bytes random
     pkt.append(VersionChallenge.data(), VersionChallenge.size());
 
     SendPacket(pkt);
@@ -790,9 +790,9 @@ bool AuthSession::HandleReconnectProof()
     SHA1Hash sha;
     sha.Initialize();
     sha.UpdateData(_accountInfo.Login);
-    sha.UpdateData(t1.AsByteArray<16>());
-    sha.UpdateData(_reconnectProof.AsByteArray<16>());
-    sha.UpdateData(K.AsByteArray<40>());
+    sha.UpdateData(t1.ToByteArray<16>());
+    sha.UpdateData(_reconnectProof.ToByteArray<16>());
+    sha.UpdateData(K.ToByteArray<40>());
     sha.Finalize();
 
     if (!memcmp(sha.GetDigest(), reconnectProof->R2, SHA_DIGEST_LENGTH))
@@ -944,14 +944,11 @@ void AuthSession::SetVSFields(const std::string& rI)
     I.SetHexStr(rI.c_str());
 
     // In case of leading zeros in the rI hash, restore them
-    uint8 mDigest[SHA_DIGEST_LENGTH];
-    memcpy(mDigest, I.AsByteArray(SHA_DIGEST_LENGTH).get(), SHA_DIGEST_LENGTH);
-
-    std::reverse(mDigest, mDigest + SHA_DIGEST_LENGTH);
+    std::array<uint8, SHA1Hash::HASH_LEN> mDigest = I.ToByteArray<SHA1Hash::HASH_LEN>(false);
 
     SHA1Hash sha;
-    sha.UpdateData(s.AsByteArray(uint32(BufferSizes::SRP_6_S)).get(), (uint32(BufferSizes::SRP_6_S)));
-    sha.UpdateData(mDigest, SHA_DIGEST_LENGTH);
+    sha.UpdateData(s.ToByteArray<BufferSizes::SRP_6_S>());
+    sha.UpdateData(mDigest);
     sha.Finalize();
     BigNumber x;
     x.SetBinary(sha.GetDigest(), SHA1Hash::HASH_LEN);

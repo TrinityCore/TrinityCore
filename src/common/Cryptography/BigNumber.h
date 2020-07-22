@@ -22,6 +22,7 @@
 #include <array>
 #include <memory>
 #include <string>
+#include <vector>
 
 struct bignum_st;
 
@@ -106,12 +107,12 @@ class TC_COMMON_API BigNumber
 
         uint32 AsDword() const;
 
-        bool AsByteArray(uint8* buf, std::size_t bufsize, bool littleEndian = true) const;
-        std::unique_ptr<uint8[]> AsByteArray(int32 minSize = 0, bool littleEndian = true) const;
-        template <std::size_t N> std::array<uint8, N> AsByteArray(bool littleEndian = true) const
+        void GetBytes(uint8* buf, size_t bufsize, bool littleEndian = true) const;
+        std::vector<uint8> ToByteVector(int32 minSize = 0, bool littleEndian = true) const;
+        template <std::size_t N> std::array<uint8, N> ToByteArray(bool littleEndian = true) const
         {
             std::array<uint8, N> buf;
-            AsByteArray(buf.data(), N, littleEndian);
+            GetBytes(buf.data(), N, littleEndian);
             return buf;
         }
 

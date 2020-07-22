@@ -25,18 +25,16 @@
 class SHA1Randx
 {
 public:
-    SHA1Randx(uint8* buff, uint32 size)
+    SHA1Randx(std::array<uint8, 40> const& buf)
     {
-        uint32 halfSize = size / 2;
-
         sh.Initialize();
-        sh.UpdateData(buff, halfSize);
+        sh.UpdateData(buf.data(), 20);
         sh.Finalize();
 
         memcpy(o1, sh.GetDigest(), 20);
 
         sh.Initialize();
-        sh.UpdateData(buff + halfSize, size - halfSize);
+        sh.UpdateData(buf.data() + 20, 20);
         sh.Finalize();
 
         memcpy(o2, sh.GetDigest(), 20);
@@ -54,7 +52,7 @@ public:
                 FillUp();
 
             buf[i] = o0[taken];
-            taken++;
+            ++taken;
         }
     }
 

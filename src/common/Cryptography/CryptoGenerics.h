@@ -84,7 +84,7 @@ namespace Trinity
         template <typename Cipher>
         void AEEncryptWithRandomIV(std::vector<uint8>& data, BigNumber const& key)
         {
-            AEEncryptWithRandomIV<Cipher>(data, key.AsByteArray<Cipher::KEY_SIZE_BYTES>());
+            AEEncryptWithRandomIV<Cipher>(data, key.ToByteArray<Cipher::KEY_SIZE_BYTES>());
         }
 
         template <typename Cipher>
@@ -107,7 +107,7 @@ namespace Trinity
         template <typename Cipher>
         bool AEDecrypt(std::vector<uint8>& data, BigNumber const& key)
         {
-            return AEDecrypt<Cipher>(data, key.AsByteArray<Cipher::KEY_SIZE_BYTES>());
+            return AEDecrypt<Cipher>(data, key.ToByteArray<Cipher::KEY_SIZE_BYTES>());
         }
     }
 }

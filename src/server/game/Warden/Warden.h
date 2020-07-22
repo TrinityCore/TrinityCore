@@ -100,7 +100,7 @@ class TC_GAME_API Warden
         Warden();
         virtual ~Warden();
 
-        virtual void Init(WorldSession* session, BigNumber* k) = 0;
+        virtual void Init(WorldSession* session, BigNumber const& k) = 0;
         virtual ClientWardenModule* GetModuleForClient() = 0;
         virtual void InitializeModule() = 0;
         virtual void RequestHash() = 0;

@@ -423,7 +423,7 @@ class TC_GAME_API WorldSession
         void SetPlayer(Player* player);
         uint8 Expansion() const { return m_expansion; }
 
-        void InitWarden(BigNumber* k, std::string const& os);
+        void InitWarden(BigNumber const& k, std::string const& os);
 
         /// Session in auth.queue currently
         void SetInQueue(bool state) { m_inQueue = state; }

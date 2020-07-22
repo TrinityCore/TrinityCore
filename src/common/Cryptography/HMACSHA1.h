@@ -35,7 +35,7 @@ class TC_COMMON_API HmacHash
         void UpdateData(std::string const& str);
         void UpdateData(uint8 const* data, size_t len);
         void Finalize();
-        uint8* ComputeHash(BigNumber* bn);
+        uint8* ComputeHash(BigNumber const& bn, size_t nBytes);
         uint8* GetDigest() { return m_digest; }
         int GetLength() const { return SHA_DIGEST_LENGTH; }
     private:

@@ -33,7 +33,7 @@ class TC_GAME_API WardenMac : public Warden
         WardenMac();
         ~WardenMac();
 
-        void Init(WorldSession* session, BigNumber* k) override;
+        void Init(WorldSession* session, BigNumber const& k) override;
         ClientWardenModule* GetModuleForClient() override;
         void InitializeModule() override;
         void RequestHash() override;

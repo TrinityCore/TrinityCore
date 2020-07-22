@@ -27,7 +27,7 @@ class TC_COMMON_API AuthCrypt
     public:
         AuthCrypt();
 
-        void Init(BigNumber* K);
+        void Init(BigNumber const& K);
         void DecryptRecv(uint8 *, size_t);
         void EncryptSend(uint8 *, size_t);
 
