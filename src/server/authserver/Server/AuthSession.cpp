@@ -68,6 +68,7 @@ typedef struct AUTH_LOGON_CHALLENGE_C
     uint8   I_len;
     uint8   I[1];
 } sAuthLogonChallenge_C;
+static_assert(sizeof(sAuthLogonChallenge_C) == (1 + 1 + 2 + 4 + 1 + 1 + 1 + 2 + 4 + 4 + 4 + 4 + 4 + 1 + 1));
 
 typedef struct AUTH_LOGON_PROOF_C
 {
@@ -78,6 +79,7 @@ typedef struct AUTH_LOGON_PROOF_C
     uint8   number_of_keys;
     uint8   securityFlags;
 } sAuthLogonProof_C;
+static_assert(sizeof(sAuthLogonProof_C) == (1 + 32 + 20 + 20 + 1 + 1));
 
 typedef struct AUTH_LOGON_PROOF_S
 {
@@ -88,6 +90,7 @@ typedef struct AUTH_LOGON_PROOF_S
     uint32  SurveyId;
     uint16  LoginFlags;
 } sAuthLogonProof_S;
+static_assert(sizeof(sAuthLogonProof_S) == (1 + 1 + 20 + 4 + 4 + 2));
 
 typedef struct AUTH_LOGON_PROOF_S_OLD
 {
@@ -96,6 +99,7 @@ typedef struct AUTH_LOGON_PROOF_S_OLD
     uint8   M2[20];
     uint32  unk2;
 } sAuthLogonProof_S_Old;
+static_assert(sizeof(sAuthLogonProof_S_Old) == (1 + 1 + 20 + 4));
 
 typedef struct AUTH_RECONNECT_PROOF_C
 {
@@ -105,6 +109,7 @@ typedef struct AUTH_RECONNECT_PROOF_C
     uint8   R3[20];
     uint8   number_of_keys;
 } sAuthReconnectProof_C;
+static_assert(sizeof(sAuthReconnectProof_C) == (1 + 16 + 20 + 20 + 1));
 
 #pragma pack(pop)
 
