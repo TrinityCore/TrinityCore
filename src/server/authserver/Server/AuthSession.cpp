@@ -115,10 +115,10 @@ static_assert(sizeof(sAuthReconnectProof_C) == (1 + 16 + 20 + 20 + 1));
 
 std::array<uint8, 16> VersionChallenge = { { 0xBA, 0xA3, 0x1E, 0x99, 0xA0, 0x0B, 0x21, 0x57, 0xFC, 0x37, 0x3F, 0xB3, 0x69, 0xCD, 0xD2, 0xF1 } };
 
-enum class BufferSizes : uint32
+struct BufferSizes
 {
-    SRP_6_V = 0x20,
-    SRP_6_S = 0x20,
+    static constexpr size_t SRP_6_V = 0x20;
+    static constexpr size_t SRP_6_S = 0x20;
 };
 
 #define MAX_ACCEPTED_CHALLENGE_SIZE (sizeof(AUTH_LOGON_CHALLENGE_C) + 16)
@@ -501,15 +501,15 @@ bool AuthSession::HandleLogonProof()
         return false;
 
     SHA1Hash sha;
-    sha.UpdateBigNumbers(A, B);
+    sha.UpdateBigNumbers<32,32>(A, B);
     sha.Finalize();
     BigNumber u;
-    u.SetBinary(sha.GetDigest(), 20);
+    u.SetBinary(sha.GetDigest(), SHA1Hash::HASH_LEN);
     BigNumber S = (A * (v.ModExp(u, N))).ModExp(b, N);
 
     uint8 t[32];
     uint8 t1[16];
-    uint8 vK[40];
+    uint8 vK[SHA1Hash::HASH_LEN * 2];
     memcpy(t, S.AsByteArray(32).get(), 32);
 
     for (int i = 0; i < 16; ++i)
@@ -519,7 +519,7 @@ bool AuthSession::HandleLogonProof()
     sha.UpdateData(t1, 16);
     sha.Finalize();
 
-    for (int i = 0; i < 20; ++i)
+    for (int i = 0; i < SHA1Hash::HASH_LEN; ++i)
         vK[i * 2] = sha.GetDigest()[i];
 
     for (int i = 0; i < 16; ++i)
@@ -529,26 +529,26 @@ bool AuthSession::HandleLogonProof()
     sha.UpdateData(t1, 16);
     sha.Finalize();
 
-    for (int i = 0; i < 20; ++i)
+    for (int i = 0; i < SHA1Hash::HASH_LEN; ++i)
         vK[i * 2 + 1] = sha.GetDigest()[i];
 
     K.SetBinary(vK, 40);
 
-    uint8 hash[20];
+    uint8 hash[SHA1Hash::HASH_LEN];
 
     sha.Initialize();
-    sha.UpdateData(N);
+    sha.UpdateBigNumbers<32>(N);
     sha.Finalize();
-    memcpy(hash, sha.GetDigest(), 20);
+    memcpy(hash, sha.GetDigest(), SHA1Hash::HASH_LEN);
     sha.Initialize();
-    sha.UpdateData(g);
+    sha.UpdateBigNumbers<1>(g);
     sha.Finalize();
 
-    for (int i = 0; i < 20; ++i)
+    for (int i = 0; i < SHA1Hash::HASH_LEN; ++i)
         hash[i] ^= sha.GetDigest()[i];
 
     BigNumber t3;
-    t3.SetBinary(hash, 20);
+    t3.SetBinary(hash, SHA1Hash::HASH_LEN);
 
     sha.Initialize();
     sha.UpdateData(_accountInfo.Login);
@@ -557,15 +557,15 @@ bool AuthSession::HandleLogonProof()
     memcpy(t4, sha.GetDigest(), SHA_DIGEST_LENGTH);
 
     sha.Initialize();
-    sha.UpdateData(t3);
+    sha.UpdateBigNumbers<SHA1Hash::HASH_LEN>(t3);
     sha.UpdateData(t4, SHA_DIGEST_LENGTH);
-    sha.UpdateBigNumbers(s, A, B, K);
+    sha.UpdateBigNumbers<BufferSizes::SRP_6_S, 32, 32, 40>(s, A, B, K);
     sha.Finalize();
     BigNumber M;
-    M.SetBinary(sha.GetDigest(), sha.GetLength());
+    M.SetBinary(sha.GetDigest(), SHA1Hash::HASH_LEN);
 
     // Check if SRP6 results match (password is correct), else send an error
-    if (!memcmp(M.AsByteArray(sha.GetLength()).get(), logonProof->M1, 20))
+    if (!memcmp(M.AsByteArray(SHA1Hash::HASH_LEN).get(), logonProof->M1, SHA1Hash::HASH_LEN))
     {
         // Check auth token
         bool tokenSuccess = false;
@@ -617,7 +617,7 @@ bool AuthSession::HandleLogonProof()
 
         // Finish SRP6 and send the final result to the client
         sha.Initialize();
-        sha.UpdateBigNumbers(A, M, K);
+        sha.UpdateBigNumbers<32, SHA1Hash::HASH_LEN, 40>(A, M, K);
         sha.Finalize();
 
         ByteBuffer packet;
@@ -787,7 +787,7 @@ bool AuthSession::HandleReconnectProof()
     SHA1Hash sha;
     sha.Initialize();
     sha.UpdateData(_accountInfo.Login);
-    sha.UpdateBigNumbers(t1, _reconnectProof, K);
+    sha.UpdateBigNumbers<16, 16, 40>(t1, _reconnectProof, K);
     sha.Finalize();
 
     if (!memcmp(sha.GetDigest(), reconnectProof->R2, SHA_DIGEST_LENGTH))

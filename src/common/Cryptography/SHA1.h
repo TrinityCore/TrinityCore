@@ -19,6 +19,7 @@
 #define _AUTH_SHA1_H
 
 #include "Define.h"
+#include "Errors.h"
 #include <string>
 #include <openssl/sha.h>
 
@@ -34,24 +35,32 @@ class TC_COMMON_API SHA1Hash
 
         void UpdateData(const uint8 *dta, int len);
         void UpdateData(const std::string &str);
-        void UpdateData(BigNumber const& bn);
 
-        template <typename... Ts> void UpdateBigNumbers(BigNumber const& bn, Ts&&... tail)
+        template <size_t SIZE, size_t... SIZES, typename... Ts> void UpdateBigNumbers(BigNumber const& bn, Ts&&... tail)
         {
-            UpdateData(bn);
+            static_assert(sizeof...(SIZES) == sizeof...(Ts));
+            UpdateBigNumber<SIZE>(bn);
             if constexpr (sizeof...(Ts) > 0)
-                UpdateBigNumbers(std::forward<Ts>(tail)...);
+                UpdateBigNumbers<SIZES...>(std::forward<Ts>(tail)...);
         }
 
         void Initialize();
         void Finalize();
 
-        uint8 const* GetDigest(void) const { return mDigest; }
+        uint8 const* GetDigest(void) const { return _mDigest; }
         int GetLength(void) const { return HASH_LEN; }
 
     private:
-        SHA_CTX mC;
-        uint8 mDigest[SHA_DIGEST_LENGTH];
+        template <size_t SIZE> void UpdateBigNumber(BigNumber const& bn)
+        {
+            std::array<uint8, SIZE> arena;
+            bool success = bn.AsByteArray(arena.data(), SIZE);
+            ASSERT(success, "UpdateBigNumber size %d too small for %d bytes in bn", SIZE, bn.GetNumBytes());
+            UpdateData(arena.data(), SIZE);
+        }
+
+        SHA_CTX _mC;
+        uint8 _mDigest[SHA_DIGEST_LENGTH];
 };
 
 /// Returns the SHA1 hash of the given content as hex string.

@@ -508,7 +508,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSes
     sha.UpdateData((uint8*)&t, 4);
     sha.UpdateData((uint8*)&authSession->LocalChallenge, 4);
     sha.UpdateData((uint8*)&_authSeed, 4);
-    sha.UpdateBigNumbers(account.SessionKey);
+    sha.UpdateBigNumbers<40>(account.SessionKey);
     sha.Finalize();
 
     if (memcmp(sha.GetDigest(), authSession->Digest, SHA_DIGEST_LENGTH) != 0)
