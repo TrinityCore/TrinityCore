@@ -30,7 +30,7 @@ class DelayedAttackStartEvent : public BasicEvent
 
         bool Execute(uint64 /*e_time*/, uint32 /*p_time*/) override
         {
-            _owner->AI()->DoZoneInCombat(_owner, 200.0f);
+            _owner->AI()->DoZoneInCombat(_owner);
             return true;
         }
 

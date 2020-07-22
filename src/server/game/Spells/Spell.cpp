@@ -2700,8 +2700,8 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
     // spellHitTarget can be null if spell is missed in DoSpellHitOnUnit
     if (missInfo != SPELL_MISS_EVADE && spellHitTarget && !m_caster->IsFriendlyTo(unit) && (!m_spellInfo->IsPositive() || m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL)))
     {
-        if (Unit* unitCaster = spell->m_caster->ToUnit())
-            unitCaster->AtTargetAttacked(unit, spell->m_spellInfo->HasInitialAggro());
+        if (Unit* unitCaster = m_caster->ToUnit())
+            unitCaster->AtTargetAttacked(unit, m_spellInfo->HasInitialAggro());
 
         if (!unit->IsStandState())
             unit->SetStandState(UNIT_STAND_STATE_STAND);

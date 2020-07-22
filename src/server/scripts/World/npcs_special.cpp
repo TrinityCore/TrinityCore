@@ -1713,7 +1713,15 @@ class npc_brewfest_reveler : public CreatureScript
 enum TrainingDummy
 {
     NPC_ADVANCED_TARGET_DUMMY                  = 2674,
-    NPC_TARGET_DUMMY                           = 2673
+    NPC_TARGET_DUMMY                           = 2673,
+    NPC_SPELL_PRACTICE_CREDIT                  = 44175,
+    SPELL_CHARGE                               = 100,
+    SPELL_JUDGEMENT                            = 29271,
+    SPELL_STEADY_SHOT                          = 56641,
+    SPELL_EVISCERATE                           = 2098,
+    SPELL_PRIMAL_STRIKE                        = 73899,
+    SPELL_IMMOLATE                             = 348,
+    SPELL_ARCANE_MISSILES                      = 5143,
 };
 
 class npc_training_dummy : public CreatureScript

@@ -207,8 +207,14 @@ public:
     }
 
     //Teleport group to given game_tele.entry
-    static bool HandleTeleGroupCommand(ChatHandler* handler, GameTele const* tele)
+    static bool HandleTeleGroupCommand(ChatHandler* handler, char const* args)
     {
+        if (!*args)
+            return false;
+
+        // id, or string, or [name] Shift-click form |color|Htele:id|h[name]|h|r
+        GameTele const* tele = handler->extractGameTeleFromLink((char*)args);
+
         if (!tele)
         {
             handler->SendSysMessage(LANG_COMMAND_TELE_NOTFOUND);
@@ -285,7 +291,7 @@ public:
         return true;
     }
 
-    static bool HandleTeleCommand(ChatHandler* handler, GameTele const* tele)
+    static bool HandleTeleCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
             return false;

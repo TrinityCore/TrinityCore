@@ -292,13 +292,6 @@ void ThreatManager::EvaluateSuppressed(bool canExpire)
     }
 }
 
-static void SaveCreatureHomePositionIfNeed(Creature* c)
-{
-    MovementGeneratorType const movetype = c->GetMotionMaster()->GetCurrentMovementGeneratorType();
-    if (movetype == WAYPOINT_MOTION_TYPE || movetype == POINT_MOTION_TYPE || (c->IsAIEnabled && c->AI()->IsEscorted()))
-        c->SetHomePosition(c->GetPosition());
-}
-
 void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell, bool ignoreModifiers, bool ignoreRedirects)
 {
     // step 1: we can shortcut if the spell has one of the NO_THREAT attrs set - nothing will happen
@@ -402,12 +395,6 @@ void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell
     {
         _owner->AtEngage(target);
         UpdateVictim();
-
-        SaveCreatureHomePositionIfNeed(cOwner);
-        if (cOwner->IsAIEnabled)
-            cOwner->AI()->JustEngagedWith(target);
-        if (CreatureGroup* formation = cOwner->GetFormation())
-            formation->MemberEngagingTarget(cOwner, target);
     }
 }
 

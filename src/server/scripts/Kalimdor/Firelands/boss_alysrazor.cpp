@@ -182,7 +182,7 @@ class npc_harbinger_of_flame : public CreatureScript
             void JustEngagedWith(Unit* /*target*/) override
             {
                 if (Creature* bird = ObjectAccessor::GetCreature(*me, me->GetChannelObjectGuid()))
-                    DoZoneInCombat(bird, 200.0f);
+                    DoZoneInCombat(bird);
 
                 me->InterruptSpell(CURRENT_CHANNELED_SPELL);
                 _events.Reset();

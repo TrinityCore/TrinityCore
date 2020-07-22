@@ -997,7 +997,7 @@ public:
                 for (auto const& outerPair : redirectRegistry) // (spellId, (guid, pct))
                 {
                     SpellInfo const* const spell = sSpellMgr->GetSpellInfo(outerPair.first);
-                    handler->PSendSysMessage(" |-- #%06u %s (%zu entries):", outerPair.first, spell ? spell->SpellName[0] : "<unknown>", outerPair.second.size());
+                    handler->PSendSysMessage(" |-- #%06u %s (%zu entries):", outerPair.first, spell ? spell->SpellName : "<unknown>", outerPair.second.size());
                     for (auto const& innerPair : outerPair.second) // (guid, pct)
                     {
                         Unit* unit = ObjectAccessor::GetUnit(*target, innerPair.first);

@@ -103,7 +103,6 @@ class TC_GAME_API CombatManager
         ~CombatManager();
         void Update(uint32 tdiff); // called from Unit::Update
 
-        Unit* GetOwner() const { return _owner; }
     Unit* GetOwner() const { return _owner; }
     bool HasCombat() const { return HasPvECombat() || HasPvPCombat(); }
     bool HasPvECombat() const { return !_pveRefs.empty(); }
