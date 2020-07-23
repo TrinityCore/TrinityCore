@@ -59,9 +59,7 @@ void TotemAI::UpdateAI(uint32 /*diff*/)
     Unit* victim = _victimGUID ? ObjectAccessor::GetUnit(*me, _victimGUID) : nullptr;
 
     // Search victim if no, not attackable, or out of range, or friendly (possible in case duel end)
-    if (!victim ||
-        !victim->isTargetableForAttack() || !me->IsWithinDistInMap(victim, max_range) ||
-        me->IsFriendlyTo(victim) || !me->CanSeeOrDetect(victim))
+    if (!victim || !victim->isTargetableForAttack() || !me->IsWithinDistInMap(victim, max_range) || me->IsFriendlyTo(victim) || !me->CanSeeOrDetect(victim))
     {
         victim = nullptr;
         Trinity::NearestAttackableUnitInObjectRangeCheck u_check(me, me->GetCharmerOrOwnerOrSelf(), max_range);
@@ -76,8 +74,7 @@ void TotemAI::UpdateAI(uint32 /*diff*/)
         _victimGUID = victim->GetGUID();
 
         // attack
-        me->SetInFront(victim);                         // client change orientation by self
-        me->CastSpell(victim, me->ToTotem()->GetSpell(), false);
+        me->CastSpell(victim, me->ToTotem()->GetSpell());
     }
     else
         _victimGUID.Clear();
