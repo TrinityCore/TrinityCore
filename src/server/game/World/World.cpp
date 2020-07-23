@@ -2284,6 +2284,7 @@ void World::LoadAutobroadcasts()
 /// Update the World !
 void World::Update(uint32 diff)
 {
+    TC_METRIC_TIMER("world_update_time_total");
     ///- Update the game time and check for shutdown time
     _UpdateGameTime();
     time_t currentGameTime = GameTime::GetGameTime();
@@ -2305,6 +2306,7 @@ void World::Update(uint32 diff)
     ///- Update Who List Storage
     if (m_timers[WUPDATE_WHO_LIST].Passed())
     {
+        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update who list"));
         m_timers[WUPDATE_WHO_LIST].Reset();
         sWhoListStorageMgr->Update();
     }
@@ -2315,6 +2317,7 @@ void World::Update(uint32 diff)
 
         if (sWorld->getBoolConfig(CONFIG_PRESERVE_CUSTOM_CHANNELS))
         {
+            TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Save custom channels"));
             ChannelMgr* mgr1 = ASSERT_NOTNULL(ChannelMgr::forTeam(ALLIANCE));
             mgr1->SaveToDB();
             ChannelMgr* mgr2 = ASSERT_NOTNULL(ChannelMgr::forTeam(HORDE));
@@ -2326,17 +2329,27 @@ void World::Update(uint32 diff)
     CheckQuestResetTimes();
 
     if (currentGameTime > m_NextRandomBGReset)
+    {
+        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Reset random BG"));
         ResetRandomBG();
+    }
 
     if (currentGameTime > m_NextCalendarOldEventsDeletionTime)
+    {
+        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Delete old calendar events"));
         CalendarDeleteOldEvents();
+    }
 
     if (currentGameTime > m_NextGuildReset)
+    {
+        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Reset guild cap"));
         ResetGuildCap();
+    }
 
     /// <ul><li> Handle auctions when the timer has passed
     if (m_timers[WUPDATE_AUCTIONS].Passed())
     {
+        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update expired auctions"));
         m_timers[WUPDATE_AUCTIONS].Reset();
 
         ///- Update mails (return old mails with item, or delete them)
@@ -2353,6 +2366,7 @@ void World::Update(uint32 diff)
 
     if (m_timers[WUPDATE_AUCTIONS_PENDING].Passed())
     {
+        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update pending auctions"));
         m_timers[WUPDATE_AUCTIONS_PENDING].Reset();
 
         sAuctionMgr->UpdatePendingAuctions();
@@ -2361,6 +2375,7 @@ void World::Update(uint32 diff)
     /// <li> Handle AHBot operations
     if (m_timers[WUPDATE_AHBOT].Passed())
     {
+        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update AHBot"));
         sAuctionBot->Update();
         m_timers[WUPDATE_AHBOT].Reset();
     }
@@ -2368,18 +2383,23 @@ void World::Update(uint32 diff)
     /// <li> Handle file changes
     if (m_timers[WUPDATE_CHECK_FILECHANGES].Passed())
     {
+        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update HotSwap"));
         sScriptReloadMgr->Update();
         m_timers[WUPDATE_CHECK_FILECHANGES].Reset();
     }
 
-    /// <li> Handle session updates when the timer has passed
-    sWorldUpdateTime.RecordUpdateTimeReset();
-    UpdateSessions(diff);
-    sWorldUpdateTime.RecordUpdateTimeDuration("UpdateSessions");
+    {
+        /// <li> Handle session updates when the timer has passed
+        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update sessions"));
+        sWorldUpdateTime.RecordUpdateTimeReset();
+        UpdateSessions(diff);
+        sWorldUpdateTime.RecordUpdateTimeDuration("UpdateSessions");
+    }
 
     /// <li> Update uptime table
     if (m_timers[WUPDATE_UPTIME].Passed())
     {
+        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update uptime"));
         uint32 tmpDiff = GameTime::GetUptime();
         uint32 maxOnlinePlayers = GetMaxPlayerCount();
 
@@ -2400,6 +2420,7 @@ void World::Update(uint32 diff)
     {
         if (m_timers[WUPDATE_CLEANDB].Passed())
         {
+            TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Clean logs table"));
             m_timers[WUPDATE_CLEANDB].Reset();
 
             LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_OLD_LOGS);
@@ -2414,31 +2435,45 @@ void World::Update(uint32 diff)
 
     /// <li> Handle all other objects
     ///- Update objects when the timer has passed (maps, transport, creatures, ...)
-    sWorldUpdateTime.RecordUpdateTimeReset();
-    sMapMgr->Update(diff);
-    sWorldUpdateTime.RecordUpdateTimeDuration("UpdateMapMgr");
+    {
+        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update maps"));
+        sWorldUpdateTime.RecordUpdateTimeReset();
+        sMapMgr->Update(diff);
+        sWorldUpdateTime.RecordUpdateTimeDuration("UpdateMapMgr");
+    }
 
     if (sWorld->getBoolConfig(CONFIG_AUTOBROADCAST))
     {
         if (m_timers[WUPDATE_AUTOBROADCAST].Passed())
         {
+            TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Send autobroadcast"));
             m_timers[WUPDATE_AUTOBROADCAST].Reset();
             SendAutoBroadcast();
         }
     }
 
-    sBattlegroundMgr->Update(diff);
-    sWorldUpdateTime.RecordUpdateTimeDuration("UpdateBattlegroundMgr");
+    {
+        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update battlegrounds"));
+        sBattlegroundMgr->Update(diff);
+        sWorldUpdateTime.RecordUpdateTimeDuration("UpdateBattlegroundMgr");
+    }
 
-    sOutdoorPvPMgr->Update(diff);
-    sWorldUpdateTime.RecordUpdateTimeDuration("UpdateOutdoorPvPMgr");
+    {
+        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update outdoor pvp"));
+        sOutdoorPvPMgr->Update(diff);
+        sWorldUpdateTime.RecordUpdateTimeDuration("UpdateOutdoorPvPMgr");
+    }
 
-    sBattlefieldMgr->Update(diff);
-    sWorldUpdateTime.RecordUpdateTimeDuration("BattlefieldMgr");
+    {
+        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update battlefields"));
+        sBattlefieldMgr->Update(diff);
+        sWorldUpdateTime.RecordUpdateTimeDuration("BattlefieldMgr");
+    }
 
     ///- Delete all characters which have been deleted X days before
     if (m_timers[WUPDATE_DELETECHARS].Passed())
     {
+        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Delete old characters"));
         m_timers[WUPDATE_DELETECHARS].Reset();
         Player::DeleteOldCharacters();
     }
