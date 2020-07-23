@@ -21,6 +21,7 @@
 #include "Define.h"
 #include <array>
 #include <string>
+#include <string_view>
 #include <openssl/sha.h>
 
 class BigNumber;
@@ -33,9 +34,10 @@ class TC_COMMON_API SHA1Hash
         static constexpr size_t HASH_LEN = SHA_DIGEST_LENGTH;
 
 
-        void UpdateData(const uint8 *dta, int len);
-        void UpdateData(const std::string &str);
-        void UpdateData(char const* str) { UpdateData(std::string(str)); } /* explicit overload to avoid using the container template */
+        void UpdateData(uint8 const* dta, int len);
+        void UpdateData(std::string_view const& str);
+        void UpdateData(std::string const& str) { UpdateData(std::string_view(str)); } /* explicit overload to avoid using the container template */
+        void UpdateData(char const* str) { UpdateData(std::string_view(str)); } /* explicit overload to avoid using the container template */
         template <typename C> void UpdateData(C const& container) { UpdateData(std::data(container), std::size(container)); }
 
         void Initialize();

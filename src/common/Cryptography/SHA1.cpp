@@ -37,9 +37,9 @@ void SHA1Hash::UpdateData(const uint8 *dta, int len)
     SHA1_Update(&_ctx, dta, len);
 }
 
-void SHA1Hash::UpdateData(const std::string& str)
+void SHA1Hash::UpdateData(const std::string_view& str)
 {
-    UpdateData((uint8 const*)str.c_str(), str.length());
+    UpdateData(reinterpret_cast<uint8 const*>(str.data()), str.length());
 }
 
 void SHA1Hash::Initialize()
