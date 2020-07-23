@@ -37,12 +37,8 @@ class TC_GAME_API UpdateTime
 
         void UpdateWithDiff(uint32 diff);
 
-        void RecordUpdateTimeReset();
-
     protected:
         UpdateTime();
-
-        void _RecordUpdateTimeDuration(std::string const& text, uint32 minUpdateTime);
 
     private:
         DiffTableArray _updateTimeDataTable;
@@ -52,23 +48,12 @@ class TC_GAME_API UpdateTime
         uint32 _maxUpdateTime;
         uint32 _maxUpdateTimeOfLastTable;
         uint32 _maxUpdateTimeOfCurrentTable;
-
-        uint32 _recordedTime;
 };
 
 class TC_GAME_API WorldUpdateTime : public UpdateTime
 {
     public:
-        WorldUpdateTime() : UpdateTime(), _recordUpdateTimeInverval(0), _recordUpdateTimeMin(0), _lastRecordTime(0) { }
-        void LoadFromConfig();
-        void SetRecordUpdateTimeInterval(uint32 t);
-        void RecordUpdateTime(uint32 gameTimeMs, uint32 diff, uint32 sessionCount);
-        void RecordUpdateTimeDuration(std::string const& text);
-
-    private:
-        uint32 _recordUpdateTimeInverval;
-        uint32 _recordUpdateTimeMin;
-        uint32 _lastRecordTime;
+        WorldUpdateTime() : UpdateTime() { }
 };
 
 TC_GAME_API extern WorldUpdateTime sWorldUpdateTime;

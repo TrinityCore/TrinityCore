@@ -481,9 +481,6 @@ void World::LoadConfigSettings(bool reload)
         sMetric->LoadFromConfigs();
     }
 
-    // load update time related configs
-    sWorldUpdateTime.LoadFromConfig();
-
     ///- Read the player limit and the Message of the day from the config file
     SetPlayerAmountLimit(sConfigMgr->GetIntDefault("PlayerLimit", 100));
     Motd::SetMotd(sConfigMgr->GetStringDefault("Motd", "Welcome to a Trinity Core Server."));
@@ -2291,9 +2288,6 @@ void World::Update(uint32 diff)
 
     sWorldUpdateTime.UpdateWithDiff(diff);
 
-    // Record update if recording set in log and diff is greater then minimum set in log
-    sWorldUpdateTime.RecordUpdateTime(GameTime::GetGameTimeMS(), diff, GetActiveSessionCount());
-
     ///- Update the different timers
     for (int i = 0; i < WUPDATE_COUNT; ++i)
     {
@@ -2394,9 +2388,7 @@ void World::Update(uint32 diff)
     {
         /// <li> Handle session updates when the timer has passed
         TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update sessions"));
-        sWorldUpdateTime.RecordUpdateTimeReset();
         UpdateSessions(diff);
-        sWorldUpdateTime.RecordUpdateTimeDuration("UpdateSessions");
     }
 
     /// <li> Update uptime table
@@ -2440,9 +2432,7 @@ void World::Update(uint32 diff)
     ///- Update objects when the timer has passed (maps, transport, creatures, ...)
     {
         TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update maps"));
-        sWorldUpdateTime.RecordUpdateTimeReset();
         sMapMgr->Update(diff);
-        sWorldUpdateTime.RecordUpdateTimeDuration("UpdateMapMgr");
     }
 
     if (sWorld->getBoolConfig(CONFIG_AUTOBROADCAST))
@@ -2458,19 +2448,16 @@ void World::Update(uint32 diff)
     {
         TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update battlegrounds"));
         sBattlegroundMgr->Update(diff);
-        sWorldUpdateTime.RecordUpdateTimeDuration("UpdateBattlegroundMgr");
     }
 
     {
         TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update outdoor pvp"));
         sOutdoorPvPMgr->Update(diff);
-        sWorldUpdateTime.RecordUpdateTimeDuration("UpdateOutdoorPvPMgr");
     }
 
     {
         TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update battlefields"));
         sBattlefieldMgr->Update(diff);
-        sWorldUpdateTime.RecordUpdateTimeDuration("BattlefieldMgr");
     }
 
     ///- Delete all characters which have been deleted X days before
@@ -2484,20 +2471,17 @@ void World::Update(uint32 diff)
     {
         TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update groups"));
         sGroupMgr->Update(diff);
-        sWorldUpdateTime.RecordUpdateTimeDuration("UpdateGroupMgr");
     }
 
     {
         TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update LFG"));
         sLFGMgr->Update(diff);
-        sWorldUpdateTime.RecordUpdateTimeDuration("UpdateLFGMgr");
     }
 
     {
         TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Process query callbacks"));
         // execute callbacks from sql queries that were queued recently
         ProcessQueryCallbacks();
-        sWorldUpdateTime.RecordUpdateTimeDuration("ProcessQueryCallbacks");
     }
 
     ///- Erase corpses once every 20 minutes
