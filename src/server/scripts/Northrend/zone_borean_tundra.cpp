@@ -1762,7 +1762,7 @@ public:
 };
 
 /*######
-## Help Those That Cannot Help Themselves, Quest 11876
+## Valiance Keep Cannoneer script to activate cannons
 ######*/
 
 enum Valiancekeepcannons
