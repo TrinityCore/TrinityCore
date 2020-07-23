@@ -794,6 +794,9 @@ class spell_dk_presence : public AuraScript
         // Improved Blood Presence and Blood Presence triggered effect
         if (spellId == SPELL_DK_BLOOD_PRESENCE)
         {
+            // Apply defense state to permanently enable Rune Strike
+            target->ModifyAuraState(AURA_STATE_DEFENSE, true);
+
             if (Aura const* improvedBloodPresenceAura = target->GetAuraOfRankedSpell(SPELL_DK_IMPROVED_BLOOD_PRESENCE_R1, target->GetGUID()))
             {
                 // Rune Regeneration bonus effect
@@ -823,6 +826,9 @@ class spell_dk_presence : public AuraScript
         target->RemoveAura(SPELL_DK_IMPROVED_FROST_PRESENCE);
         target->RemoveAura(SPELL_DK_IMPROVED_UNHOLY_PRESENCE);
         target->RemoveAura(SPELL_DK_IMPROVED_BLOOD_PRESENCE);
+
+        if (GetId() == SPELL_DK_BLOOD_PRESENCE)
+            target->ModifyAuraState(AURA_STATE_DEFENSE, false);
     }
 
     void Register() override

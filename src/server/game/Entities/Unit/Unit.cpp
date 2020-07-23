@@ -10689,6 +10689,11 @@ void Unit::ProcSkillsAndReactives(bool isVictim, Unit* procTarget, uint32 typeMa
             // for victim
             if (isVictim)
             {
+                // Skip checks for Death Knights when in Blood Presence (Rune Strike)
+                if (getClass() == CLASS_DEATH_KNIGHT && hitMask & (PROC_HIT_DODGE | PROC_HIT_PARRY | PROC_HIT_BLOCK))
+                    if (GetAuraEffect(SPELL_AURA_MOD_BASE_RESISTANCE_PCT, SPELLFAMILY_DEATHKNIGHT, 0x800000, 0, 0, GetGUID()))
+                        return;
+
                 // if victim and dodge attack
                 if (hitMask & PROC_HIT_DODGE)
                 {
