@@ -123,6 +123,13 @@ if(PERFORMANCE_PROFILING)
   add_definitions(-DPERFORMANCE_PROFILING)
 endif()
 
+if(WITHOUT_METRICS)
+  message("")
+  message(" *** WITHOUT_METRICS - WARNING!")
+  message(" *** Please note that this will disable all metrics output (i.e. InfluxDB and Grafana)")
+  add_definitions(-DWITHOUT_METRICS)
+endif()
+
 if(WITH_STRICT_DATABASE_TYPE_CHECKS)
   message("")
   message(" *** WITH_STRICT_DATABASE_TYPE_CHECKS - WARNING!")
