@@ -42,6 +42,7 @@ enum ICSharedSpells
 {
     SPELL_BERSERK                       = 26662,
     SPELL_BERSERK2                      = 47008,
+    SPELL_REPUTATION_BOSS_KILL          = 73843,
 
     // Deathbound Ward
     SPELL_STONEFORM                     = 70733,
