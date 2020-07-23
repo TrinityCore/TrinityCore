@@ -158,21 +158,27 @@ MetricStopWatch<LoggerType> MakeMetricStopWatch(LoggerType&& loggerFunc)
 
 #define TC_METRIC_TAG(name, value) { name, value }
 
-#ifdef PERFORMANCE_PROFILING
+#define TC_METRIC_DO_CONCAT(a, b) a##b
+#define TC_METRIC_CONCAT(a, b) TC_METRIC_DO_CONCAT(a, b)
+#define TC_METRIC_UNIQUE_NAME(name) TC_METRIC_CONCAT(name, __LINE__)
+
+#if defined PERFORMANCE_PROFILING || defined WITHOUT_METRICS
 #define TC_METRIC_EVENT(category, title, description) ((void)0)
 #define TC_METRIC_VALUE(category, value) ((void)0)
-#elif TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
-#define TC_METRIC_EVENT(category, title, description)                  \
-        do {                                                           \
-            if (sMetric->IsEnabled())                                  \
-                sMetric->LogEvent(category, title, description);       \
-        } while (0)
-#define TC_METRIC_VALUE(category, value, ...)                          \
-        do {                                                           \
-            if (sMetric->IsEnabled())                                  \
-                sMetric->LogValue(category, value, { __VA_ARGS__ });   \
-        } while (0)
+#define TC_METRIC_TIMER(category, ...) ((void)0)
 #else
+#  if TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
+#define TC_METRIC_EVENT(category, title, description)                  \
+        do {                                                           \
+            if (sMetric->IsEnabled())                                  \
+                sMetric->LogEvent(category, title, description);       \
+        } while (0)
+#define TC_METRIC_VALUE(category, value, ...)                          \
+        do {                                                           \
+            if (sMetric->IsEnabled())                                  \
+                sMetric->LogValue(category, value, { __VA_ARGS__ });   \
+        } while (0)
+#  else
 #define TC_METRIC_EVENT(category, title, description)                  \
         __pragma(warning(push))                                        \
         __pragma(warning(disable:4127))                                \
@@ -189,11 +195,12 @@ MetricStopWatch<LoggerType> MakeMetricStopWatch(LoggerType&& loggerFunc)
                 sMetric->LogValue(category, value, { __VA_ARGS__ });   \
         } while (0)                                                    \
         __pragma(warning(pop))
-#endif
+#  endif
 #define TC_METRIC_TIMER(category, ...)                           \
-        MetricStopWatch __tc_metric_stop_watch = MakeMetricStopWatch([&](TimePoint start) \
+        MetricStopWatch TC_METRIC_UNIQUE_NAME(__tc_metric_stop_watch) = MakeMetricStopWatch([&](TimePoint start) \
         {                                                                                                             \
             sMetric->LogValue(category, std::chrono::steady_clock::now() - start, { __VA_ARGS__ });               \
         });
+#endif
 
 #endif // METRIC_H__

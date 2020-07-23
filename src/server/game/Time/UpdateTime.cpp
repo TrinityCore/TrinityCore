@@ -31,7 +31,6 @@ UpdateTime::UpdateTime()
     _maxUpdateTime = 0;
     _maxUpdateTimeOfLastTable = 0;
     _maxUpdateTimeOfCurrentTable = 0;
-    _recordedTime = 0;
 
     _updateTimeDataTable = { };
 }
@@ -91,48 +90,4 @@ void UpdateTime::UpdateWithDiff(uint32 diff)
         _averageUpdateTime = _totalUpdateTime / _updateTimeDataTable.size();
     else if (_updateTimeTableIndex)
         _averageUpdateTime = _totalUpdateTime / _updateTimeTableIndex;
-}
-
-void UpdateTime::RecordUpdateTimeReset()
-{
-    _recordedTime = getMSTime();
-}
-
-void UpdateTime::_RecordUpdateTimeDuration(std::string const& text, uint32 minUpdateTime)
-{
-    uint32 thisTime = getMSTime();
-    uint32 diff = getMSTimeDiff(_recordedTime, thisTime);
-
-    if (diff > minUpdateTime)
-        TC_LOG_INFO("misc", "Recored Update Time of %s: %u.", text.c_str(), diff);
-
-    _recordedTime = thisTime;
-}
-
-void WorldUpdateTime::LoadFromConfig()
-{
-    _recordUpdateTimeInverval = sConfigMgr->GetIntDefault("RecordUpdateTimeDiffInterval", 60000);
-    _recordUpdateTimeMin = sConfigMgr->GetIntDefault("MinRecordUpdateTimeDiff", 100);
-}
-
-void WorldUpdateTime::SetRecordUpdateTimeInterval(uint32 t)
-{
-    _recordUpdateTimeInverval = t;
-}
-
-void WorldUpdateTime::RecordUpdateTime(uint32 gameTimeMs, uint32 diff, uint32 sessionCount)
-{
-    if (_recordUpdateTimeInverval > 0 && diff > _recordUpdateTimeMin)
-    {
-        if (getMSTimeDiff(_lastRecordTime, gameTimeMs) > _recordUpdateTimeInverval)
-        {
-            TC_LOG_DEBUG("misc", "Update time diff: %u. Players online: %u.", GetAverageUpdateTime(), sessionCount);
-            _lastRecordTime = gameTimeMs;
-        }
-    }
-}
-
-void WorldUpdateTime::RecordUpdateTimeDuration(std::string const& text)
-{
-    _RecordUpdateTimeDuration(text, _recordUpdateTimeMin);
 }
