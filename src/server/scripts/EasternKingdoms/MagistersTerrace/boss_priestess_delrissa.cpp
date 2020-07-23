@@ -399,9 +399,9 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
                     AddThreat(who, 0.0f, pAdd);
 
 
-        if (Creature* pDelrissa = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_PRIESTESS_DELRISSA)))
-            if (pDelrissa->IsAlive() && !pDelrissa->IsEngaged())
-                AddThreat(who, 0.0f, pDelrissa);
+        if (Creature* delrissa = instance->GetCreature(DATA_PRIESTESS_DELRISSA))
+            if (delrissa->IsAlive() && !delrissa->IsEngaged())
+                AddThreat(who, 0.0f, delrissa);
     }
 
     void JustDied(Unit* /*killer*/) override
