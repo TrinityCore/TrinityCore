@@ -3226,23 +3226,6 @@ ShowMuteInWorld = 0
 ShowBanInWorld = 0
 
 #
-#     RecordUpdateTimeDiffInterval
-#        Description: Time (in milliseconds) update time diff is written to the log file.
-#                     Update diff can be used as a performance indicator. Diff < 300: good
-#                     performance. Diff > 600 bad performance, may be caused by high CPU usage.
-#        Default:     60000 - (Enabled, 1 minute)
-#                     0     - (Disabled)
-
-RecordUpdateTimeDiffInterval = 60000
-
-#
-#     MinRecordUpdateTimeDiff
-#        Description: Only record update time diff which is greater than this value.
-#        Default:     100
-
-MinRecordUpdateTimeDiff = 100
-
-#
 #     PlayerStart.String
 #        Description: String to be displayed at first login of newly created characters.
 #         Default:    "" - (Disabled)
