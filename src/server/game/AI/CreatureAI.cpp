@@ -64,9 +64,6 @@ void CreatureAI::DoZoneInCombat(Creature* creature /*= nullptr*/)
     if (!creature)
         creature = me;
 
-    if (!creature->CanHaveThreatList())
-        return;
-
     Map* map = creature->GetMap();
     if (!map->IsDungeon())                                  //use IsDungeon instead of Instanceable, in case battlegrounds will be instantiated
     {
@@ -74,22 +71,25 @@ void CreatureAI::DoZoneInCombat(Creature* creature /*= nullptr*/)
         return;
     }
 
-    Map::PlayerList const& playerList = map->GetPlayers();
-    if (playerList.isEmpty())
+    if (!map->HavePlayers())
         return;
 
-    for (auto const& ref : playerList)
+    for (MapReference const& ref : map->GetPlayers())
+    {
         if (Player* player = ref.GetSource())
         {
             if (!player->IsAlive() || !CombatManager::CanBeginCombat(creature, player))
                 continue;
 
             creature->EngageWithTarget(player);
+
             for (Unit* pet : player->m_Controlled)
                 creature->EngageWithTarget(pet);
+
             if (Unit* vehicle = player->GetVehicleBase())
                 creature->EngageWithTarget(vehicle);
         }
+    }
 }
 
 // scripts does not take care about MoveInLineOfSight loops

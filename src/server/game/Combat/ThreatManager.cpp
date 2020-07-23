@@ -28,6 +28,7 @@
 #include "SpellAuraEffects.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
+#include "CombatPackets.h"
 #include "ObjectAccessor.h"
 #include "WorldPacket.h"
 #include <algorithm>
@@ -746,38 +747,61 @@ void ThreatManager::UnregisterRedirectThreat(uint32 spellId, ObjectGuid const& v
 
 void ThreatManager::SendClearAllThreatToClients() const
 {
-    WorldPacket data(SMSG_THREAT_CLEAR, 8);
-    data << _owner->GetPackGUID();
-    _owner->SendMessageToSet(&data, false);
+    WorldPackets::Combat::ThreatClear packet;
+    packet.UnitGUID = _owner->GetGUID();
+    _owner->SendMessageToSet(packet.Write(), false);
 }
 
 void ThreatManager::SendRemoveToClients(Unit const* victim) const
 {
-    WorldPacket data(SMSG_THREAT_REMOVE, 16);
-    data << _owner->GetPackGUID();
-    data << victim->GetPackGUID();
-    _owner->SendMessageToSet(&data, false);
+    WorldPackets::Combat::ThreatRemove packet;
+    packet.UnitGUID = _owner->GetGUID();
+    packet.AboutGUID = victim->GetGUID();
+    _owner->SendMessageToSet(packet.Write(), false);
 }
 
 void ThreatManager::SendThreatListToClients(bool newHighest) const
 {
-    WorldPacket data(newHighest ? SMSG_HIGHEST_THREAT_UPDATE : SMSG_THREAT_UPDATE, (_sortedThreatList.size() + 2) * 8); // guess
-    data << _owner->GetPackGUID();
-    if (newHighest)
-        data << _currentVictimRef->GetVictim()->GetPackGUID();
-    size_t countPos = data.wpos();
-    data << uint32(0); // placeholder
-    uint32 count = 0;
+    uint32 availableReferences = 0;
     for (ThreatReference const* ref : _sortedThreatList)
+        if (ref->IsAvailable())
+            ++availableReferences;
+
+    if (newHighest)
     {
-        if (!ref->IsAvailable())
-            continue;
-        data << ref->GetVictim()->GetPackGUID();
-        data << uint32(ref->GetThreat() * 100);
-        ++count;
+        WorldPackets::Combat::HighestThreatUpdate packet;
+        packet.UnitGUID = _owner->GetGUID();
+        packet.HighestThreatGUID = _currentVictimRef->GetVictim()->GetGUID();
+        packet.ThreatList.reserve(availableReferences);
+        for (ThreatReference const* ref : _sortedThreatList)
+        {
+            if (!ref->IsAvailable())
+                continue;
+
+            WorldPackets::Combat::ThreatInfo info;
+            info.UnitGUID = ref->GetVictim()->GetGUID();
+            info.Threat = uint32(ref->GetThreat());
+            packet.ThreatList.push_back(info);
+        }
+        _owner->SendMessageToSet(packet.Write(), false);
     }
-    data.put<uint32>(countPos, count);
-    _owner->SendMessageToSet(&data, false);
+    else
+    {
+        WorldPackets::Combat::ThreatUpdate packet;
+        packet.UnitGUID = _owner->GetGUID();
+        packet.ThreatList.reserve(availableReferences);
+        for (ThreatReference const* ref : _sortedThreatList)
+        {
+            if (!ref->IsAvailable())
+                continue;
+
+            WorldPackets::Combat::ThreatInfo info;
+            info.UnitGUID = ref->GetVictim()->GetGUID();
+            info.Threat = uint32(ref->GetThreat());
+            packet.ThreatList.push_back(info);
+        }
+        _owner->SendMessageToSet(packet.Write(), false);
+    }
 }
 
 void ThreatManager::PutThreatListRef(ObjectGuid const& guid, ThreatReference* ref)
