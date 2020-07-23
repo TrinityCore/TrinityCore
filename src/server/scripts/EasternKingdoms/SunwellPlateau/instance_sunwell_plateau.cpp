@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "AreaBoundary.h"
+#include "Creature.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Log.h"

@@ -325,9 +325,9 @@ Unit::Unit(bool isWorldObject) :
     IsAIEnabled(false), NeedChangeAI(false), LastCharmerGUID(),
     m_ControlledByPlayer(false), movespline(new Movement::MoveSpline()),
     i_AI(nullptr), i_disabledAI(nullptr), m_AutoRepeatFirstCast(false), m_procDeep(0),
-    m_removedAurasCount(0), i_motionMaster(new MotionMaster(this)), m_combatManager(this),
-    m_vehicle(nullptr), m_vehicleKit(nullptr), m_unitTypeMask(UNIT_MASK_NONE),
-     m_Diminishing(), m_isEngaged(false), m_threatManager(this), _lastDamagedTime(0),
+    m_removedAurasCount(0), i_motionMaster(new MotionMaster(this)), m_vehicle(nullptr),
+    m_vehicleKit(nullptr), m_unitTypeMask(UNIT_MASK_NONE), m_Diminishing(),
+    m_isEngaged(false), m_combatManager(this), m_threatManager(this), _lastDamagedTime(0),
     m_spellHistory(new SpellHistory(this))
 {
     m_objectType |= TYPEMASK_UNIT;

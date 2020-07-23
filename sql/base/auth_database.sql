@@ -1848,7 +1848,7 @@ INSERT INTO `rbac_permissions` VALUES
 (865,'Command: npc showloot'),
 (866,'Command: list spawnpoints'),
 (867,'Command: reload quest_greeting_locale'),
-(870,'Command: debug threatinfo');
+(870,'Command: debug threatinfo'),
 (872,'Command: server debug'),
 (873,'Command: reload creature_movement_override');
 /*!40000 ALTER TABLE `rbac_permissions` ENABLE KEYS */;

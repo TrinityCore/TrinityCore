@@ -49,7 +49,7 @@ class TC_COMMON_API DBCFileLoader
                 }
                 int32 getInt(size_t field) const
                 {
-                    assert(field < file.fieldCount);
+                    ASSERT(field < file.fieldCount);
                     int32 val = *reinterpret_cast<int32*>(offset + file.GetOffset(field));
                     EndianConvert(val);
                     return val;
@@ -61,7 +61,7 @@ class TC_COMMON_API DBCFileLoader
                 }
                 uint64 getUInt64(size_t field) const
                 {
-                    assert(field < file.fieldCount);
+                    ASSERT(field < file.fieldCount);
                     return *reinterpret_cast<uint64*>(offset + file.GetOffset(field));
                 }
 
