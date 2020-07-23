@@ -1,5 +1,5 @@
 -- Deathbringer & Valithria
-DELETE FROM `creature_onkill_reputation` WHERE `creature_id` IN (37813,38402,38582,38583,36789,38174);
+DELETE FROM `creature_onkill_reward` WHERE `creature_id` IN (37813,38402,38582,38583,36789,38174);
 -- 
 UPDATE `creature_template_addon` SET `auras`=""  WHERE `entry` IN (37918,30682,20089,38068);
 -- Valithria Dreamwalker fixes
