@@ -585,7 +585,7 @@ bool AuthSession::HandleLogonProof()
         LoginDatabase.DirectExecute(stmt);
 
         // Finish SRP6 and send the final result to the client
-        auto M2 = Trinity::Crypto::SHA1::GetDigestOf(A.ToByteArray<32>(), M, sessionKey);
+        Trinity::Crypto::SHA1::Digest M2 = Trinity::Crypto::SHA1::GetDigestOf(A.ToByteArray<32>(), M, sessionKey);
 
         ByteBuffer packet;
         if (_expversion & POST_BC_EXP_FLAG)                 // 2.x and 3.x clients
