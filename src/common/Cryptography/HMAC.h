@@ -18,6 +18,7 @@
 #ifndef TRINITY_HMAC_H
 #define TRINITY_HMAC_H
 
+#include "CryptoConstants.h"
 #include "Define.h"
 #include "Errors.h"
 #include <array>
@@ -27,8 +28,10 @@
 
 class BigNumber;
 
-namespace Trinity {
-    namespace Impl {
+namespace Trinity
+{
+    namespace Impl
+    {
         struct HMACImpl
         {
             typedef EVP_MD const* (*HashCreator)();
@@ -50,12 +53,9 @@ namespace Trinity {
             static void DestroyCTX(HMAC_CTX* ctx) { HMAC_CTX_free(ctx); }
 #endif
         };
-    }
 
-    namespace Crypto
-    {
-        template <Trinity::Impl::HMACImpl::HashCreator HashCreator, size_t DigestLength>
-        class HMAC
+        template <HMACImpl::HashCreator HashCreator, size_t DigestLength>
+        class GenericHMAC
         {
             public:
                 static constexpr size_t DIGEST_LENGTH = DigestLength;
@@ -63,7 +63,7 @@ namespace Trinity {
 
                 static Digest GetDigestOf(uint8 const* seed, size_t seedlen, uint8 const* data, size_t datalen)
                 {
-                    HMAC hash(seed, seedlen);
+                    GenericHMAC hash(seed, seedlen);
                     hash.UpdateData(data, datalen);
                     hash.Finalize();
                     return hash.GetDigest();
@@ -72,7 +72,7 @@ namespace Trinity {
                 template <typename C>
                 static Digest GetDigestOf(C const& seed, uint8 const* data, size_t len)
                 {
-                    HMAC hash(seed);
+                    GenericHMAC hash(seed);
                     hash.UpdateData(data, len);
                     hash.Finalize();
                     return hash.GetDigest();
@@ -81,7 +81,7 @@ namespace Trinity {
                 template <typename... Ts>
                 static auto GetDigestOf(uint8 const* seed, size_t len, Ts&&... pack) -> std::enable_if_t<!(std::is_integral_v<std::decay_t<Ts>> || ...), Digest>
                 {
-                    HMAC hash(seed, len);
+                    GenericHMAC hash(seed, len);
                     (hash.UpdateData(std::forward<Ts>(pack)), ...);
                     hash.Finalize();
                     return hash.GetDigest();
@@ -90,24 +90,23 @@ namespace Trinity {
                 template <typename C, typename... Ts>
                 static auto GetDigestOf(C const& seed, Ts&&... pack) -> std::enable_if_t<!(std::is_integral_v<std::decay_t<Ts>> || ...), Digest>
                 {
-                    HMAC hash(seed);
+                    GenericHMAC hash(seed);
                     (hash.UpdateData(std::forward<Ts>(pack)), ...);
                     hash.Finalize();
                     return hash.GetDigest();
                 }
 
-                HMAC(uint8 const* seed, size_t len)
+                GenericHMAC(uint8 const* seed, size_t len) : _ctx(HMACImpl::MakeCTX())
                 {
-                    _ctx = Trinity::Impl::HMACImpl::MakeCTX();
                     int result = HMAC_Init_ex(_ctx, seed, len, HashCreator(), nullptr);
                     ASSERT(result == 1);
                 }
                 template <typename C>
-                HMAC(C const& container) : HMAC(std::data(container), std::size(container)) {}
+                GenericHMAC(C const& container) : GenericHMAC(std::data(container), std::size(container)) {}
 
-                ~HMAC()
+                ~GenericHMAC()
                 {
-                    Trinity::Impl::HMACImpl::DestroyCTX(_ctx);
+                    HMACImpl::DestroyCTX(_ctx);
                 }
 
                 void UpdateData(uint8 const* data, size_t len)
@@ -133,6 +132,12 @@ namespace Trinity {
                 HMAC_CTX* _ctx;
                 Digest _digest;
         };
+    }
+
+    namespace Crypto
+    {
+        using HMAC_SHA1 = Trinity::Impl::GenericHMAC<EVP_sha1, Constants::SHA1_DIGEST_LENGTH_BYTES>;
+        using HMAC_SHA256 = Trinity::Impl::GenericHMAC<EVP_sha256, Constants::SHA256_DIGEST_LENGTH_BYTES>;
     }
 }
 #endif

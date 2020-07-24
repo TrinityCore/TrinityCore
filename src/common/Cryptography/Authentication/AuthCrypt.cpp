@@ -18,7 +18,7 @@
 #include "AuthCrypt.h"
 #include "BigNumber.h"
 #include "Errors.h"
-#include "HMAC_SHA1.h"
+#include "HMAC.h"
 
 #include <cstring>
 

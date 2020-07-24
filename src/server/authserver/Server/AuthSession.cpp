@@ -23,11 +23,11 @@
 #include "CryptoRandom.h"
 #include "DatabaseEnv.h"
 #include "Errors.h"
+#include "Hash.h"
 #include "IPLocation.h"
 #include "Log.h"
 #include "RealmList.h"
 #include "SecretMgr.h"
-#include "SHA1.h"
 #include "TOTP.h"
 #include "Util.h"
 #include <boost/lexical_cast.hpp>

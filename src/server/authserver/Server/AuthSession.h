@@ -22,8 +22,8 @@
 #include "BigNumber.h"
 #include "ByteBuffer.h"
 #include "Common.h"
+#include "Hash.h"
 #include "Optional.h"
-#include "SHA1.h"
 #include "Socket.h"
 #include "QueryResult.h"
 #include <memory>

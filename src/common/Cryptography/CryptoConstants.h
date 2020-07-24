@@ -15,17 +15,20 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_SHA1_H
-#define TRINITY_SHA1_H
+#ifndef TRINITY_CRYPTO_CONSTANTS_H
+#define TRINITY_CRYPTO_CONSTANTS_H
 
-#include "GenericHash.h"
-#include <openssl/sha.h>
+#include "Define.h"
 
 namespace Trinity
 {
     namespace Crypto
     {
-        using SHA1 = GenericHash<EVP_sha1, SHA_DIGEST_LENGTH>;
+        struct Constants
+        {
+            static constexpr size_t SHA1_DIGEST_LENGTH_BYTES = 20;
+            static constexpr size_t SHA256_DIGEST_LENGTH_BYTES = 32;
+        };
     }
 }
 

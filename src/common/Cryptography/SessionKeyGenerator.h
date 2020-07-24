@@ -16,7 +16,7 @@
  */
 
 #include <cstring>
-#include "SHA1.h"
+#include "Hash.h"
 
 #ifndef TRINITY_SESSIONKEYGENERATOR_HPP
 #define TRINITY_SESSIONKEYGENERATOR_HPP

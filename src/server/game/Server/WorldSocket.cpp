@@ -19,6 +19,7 @@
 #include "BigNumber.h"
 #include "DatabaseEnv.h"
 #include "GameTime.h"
+#include "Hash.h"
 #include "IPLocation.h"
 #include "Opcodes.h"
 #include "PacketLog.h"
@@ -26,7 +27,6 @@
 #include "RBAC.h"
 #include "Realm.h"
 #include "ScriptMgr.h"
-#include "SHA1.h"
 #include "World.h"
 #include "WorldSession.h"
 #include <memory>

@@ -21,7 +21,7 @@
 #include "CryptoRandom.h"
 #include "DatabaseEnv.h"
 #include "GameTime.h"
-#include "HMAC_SHA1.h"
+#include "HMAC.h"
 #include "Log.h"
 #include "Opcodes.h"
 #include "Player.h"

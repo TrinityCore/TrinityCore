@@ -15,9 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_GENERIC_HASH_H
-#define TRINITY_GENERIC_HASH_H
+#ifndef TRINITY_HASH_H
+#define TRINITY_HASH_H
 
+#include "CryptoConstants.h"
 #include "Define.h"
 #include "Errors.h"
 #include <array>
@@ -43,11 +44,8 @@ namespace Trinity
             static void DestroyCTX(EVP_MD_CTX* ctx) { EVP_MD_CTX_free(ctx); }
 #endif
         };
-    }
 
-    namespace Crypto
-    {
-        template <Trinity::Impl::GenericHashImpl::HashCreator HashCreator, size_t DigestLength>
+        template <GenericHashImpl::HashCreator HashCreator, size_t DigestLength>
         class GenericHash
         {
             public:
@@ -70,7 +68,7 @@ namespace Trinity
                     return hash.GetDigest();
                 }
 
-                GenericHash() : _ctx(Trinity::Impl::GenericHashImpl::MakeCTX())
+                GenericHash() : _ctx(GenericHashImpl::MakeCTX())
                 {
                     int result = EVP_DigestInit_ex(_ctx, HashCreator(), nullptr);
                     ASSERT(result == 1);
@@ -101,6 +99,12 @@ namespace Trinity
                 EVP_MD_CTX* _ctx;
                 Digest _digest;
         };
+    }
+
+    namespace Crypto
+    {
+        using SHA1 = Trinity::Impl::GenericHash<EVP_sha1, Constants::SHA1_DIGEST_LENGTH_BYTES>;
+        using SHA256 = Trinity::Impl::GenericHash<EVP_sha256, Constants::SHA256_DIGEST_LENGTH_BYTES>;
     }
 }
 
