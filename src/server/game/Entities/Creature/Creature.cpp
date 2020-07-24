@@ -664,7 +664,7 @@ void Creature::Update(uint32 diff)
             if (m_deathState != CORPSE)
                 break;
 
-            if (IsEngaged())
+            if (IsEngaged() && IsAIEnabled)
             {
                 m_AI_locked = true;
                 i_AI->UpdateAI(diff);
