@@ -19,7 +19,7 @@
 #include "Common.h"
 #include "DBUpdater.h"
 #include "Field.h"
-#include "Hash.h"
+#include "CryptoHash.h"
 #include "Log.h"
 #include "QueryResult.h"
 #include "Util.h"

@@ -16,7 +16,7 @@
  */
 
 #include <cstring>
-#include "Hash.h"
+#include "CryptoHash.h"
 
 #ifndef TRINITY_SESSIONKEYGENERATOR_HPP
 #define TRINITY_SESSIONKEYGENERATOR_HPP

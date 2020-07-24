@@ -40,7 +40,7 @@ ScriptReloadMgr* ScriptReloadMgr::instance()
 #include "BuiltInConfig.h"
 #include "Config.h"
 #include "GitRevision.h"
-#include "Hash.h"
+#include "CryptoHash.h"
 #include "Log.h"
 #include "MPSCQueue.h"
 #include "Regex.h"

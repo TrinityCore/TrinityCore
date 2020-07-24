@@ -22,7 +22,7 @@
 #include "BigNumber.h"
 #include "ByteBuffer.h"
 #include "Common.h"
-#include "Hash.h"
+#include "CryptoHash.h"
 #include "Optional.h"
 #include "Socket.h"
 #include "QueryResult.h"

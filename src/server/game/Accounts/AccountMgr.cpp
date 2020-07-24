@@ -18,7 +18,7 @@
 #include "AccountMgr.h"
 #include "Config.h"
 #include "DatabaseEnv.h"
-#include "Hash.h"
+#include "CryptoHash.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "Player.h"

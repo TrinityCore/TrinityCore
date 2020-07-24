@@ -19,7 +19,7 @@
 #include "BigNumber.h"
 #include "DatabaseEnv.h"
 #include "GameTime.h"
-#include "Hash.h"
+#include "CryptoHash.h"
 #include "IPLocation.h"
 #include "Opcodes.h"
 #include "PacketLog.h"

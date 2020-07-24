@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_HASH_H
-#define TRINITY_HASH_H
+#ifndef TRINITY_CRYPTOHASH_H
+#define TRINITY_CRYPTOHASH_H
 
 #include "CryptoConstants.h"
 #include "Define.h"
