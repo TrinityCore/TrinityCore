@@ -34,7 +34,7 @@ class SessionKeyGenerator
             size_t const halflen = (len / 2);
 
             o1 = Hash::GetDigestOf(data, halflen);
-            o2 = Hash::GetDigestOf(data + halflen, halflen);
+            o2 = Hash::GetDigestOf(data + halflen, len - halflen);
             o0 = Hash::GetDigestOf(o1, o0, o2);
         }
 
