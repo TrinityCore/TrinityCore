@@ -9,6 +9,7 @@ DROP VIEW IF EXISTS `vw_smart_scripts_with_labels`;
 DELIMITER $$
 CREATE FUNCTION `fn_smart_scripts_event_type`(event_type TINYINT(3))
     RETURNS CHAR(50) DETERMINISTIC
+	SQL SECURITY INVOKER
     BEGIN
 	RETURN CASE event_type
 		WHEN 0 THEN 'SMART_EVENT_UPDATE_IC'
@@ -100,6 +101,7 @@ CREATE FUNCTION `fn_smart_scripts_event_type`(event_type TINYINT(3))
 
 CREATE FUNCTION `fn_smart_scripts_action_type`(action_type TINYINT(3))
     RETURNS CHAR(50) DETERMINISTIC
+	SQL SECURITY INVOKER
     BEGIN
 	RETURN CASE action_type
 		WHEN 0 THEN 'SMART_ACTION_NONE'
@@ -248,6 +250,7 @@ CREATE FUNCTION `fn_smart_scripts_action_type`(action_type TINYINT(3))
 
 CREATE FUNCTION `fn_smart_scripts_target_type`(target_type TINYINT(3))
     RETURNS CHAR(50) DETERMINISTIC
+	SQL SECURITY INVOKER
     BEGIN
 	RETURN CASE target_type
 		WHEN 0 THEN 'SMART_TARGET_NONE'
@@ -288,7 +291,7 @@ CREATE FUNCTION `fn_smart_scripts_target_type`(target_type TINYINT(3))
 DELIMITER ;
 
 -- Create the view
-CREATE VIEW `vw_smart_scripts_with_labels` AS
+CREATE SQL SECURITY INVOKER VIEW `vw_smart_scripts_with_labels` AS
 (SELECT `entryorguid`,
     `source_type`,
     `id`,
