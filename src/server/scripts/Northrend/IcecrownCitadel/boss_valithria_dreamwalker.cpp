@@ -508,7 +508,7 @@ class npc_green_dragon_combat_trigger : public CreatureScript
                 summons.DoAction(ACTION_SETUP_ARCHMAGES, pred);
             }
 
-            void JustEngagedWith(Unit* who) override { } // JustEnteredCombat is already doing all of this hook's default actions so no need to execute it twice
+            void JustEngagedWith(Unit* /*who*/) override { } // JustEnteredCombat is already doing all of this hook's default actions so no need to execute it twice
 
             void JustEnteredCombat(Unit* target) override
             {
