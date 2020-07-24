@@ -40,7 +40,8 @@ namespace Trinity
             static HMAC_CTX* MakeCTX()
             {
                 HMAC_CTX* ctx = new HMAC_CTX();
-                HMAC_CTX_init(ctx);
+                int result = HMAC_CTX_init(ctx);
+                ASSERT(result == 1);
                 return ctx;
             }
             static void DestroyCTX(HMAC_CTX* ctx)
@@ -90,6 +91,7 @@ namespace Trinity
                 ~GenericHMAC()
                 {
                     HMACImpl::DestroyCTX(_ctx);
+                    _ctx = nullptr;
                 }
 
                 void UpdateData(uint8 const* data, size_t len)

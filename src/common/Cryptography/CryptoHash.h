@@ -74,6 +74,12 @@ namespace Trinity
                     ASSERT(result == 1);
                 }
 
+                ~GenericHash()
+                {
+                    GenericHashImpl::DestroyCTX(_ctx);
+                    _ctx = nullptr;
+                }
+
                 void UpdateData(uint8 const* dta, size_t len)
                 {
                     int result = EVP_DigestUpdate(_ctx, dta, len);

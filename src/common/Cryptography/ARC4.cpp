@@ -20,7 +20,8 @@
 Trinity::Crypto::ARC4::ARC4() : _ctx(EVP_CIPHER_CTX_new())
 {
     EVP_CIPHER_CTX_init(_ctx);
-    EVP_EncryptInit_ex(_ctx, EVP_rc4(), nullptr, nullptr, nullptr);
+    int result = EVP_EncryptInit_ex(_ctx, EVP_rc4(), nullptr, nullptr, nullptr);
+    ASSERT(result == 1);
 }
 
 Trinity::Crypto::ARC4::~ARC4()
@@ -30,13 +31,17 @@ Trinity::Crypto::ARC4::~ARC4()
 
 void Trinity::Crypto::ARC4::Init(uint8 const* seed, size_t len)
 {
-    EVP_CIPHER_CTX_set_key_length(_ctx, len);
-    EVP_EncryptInit_ex(_ctx, nullptr, nullptr, seed, nullptr);
+    int result1 = EVP_CIPHER_CTX_set_key_length(_ctx, len);
+    ASSERT(result1 == 1);
+    int result2 = EVP_EncryptInit_ex(_ctx, nullptr, nullptr, seed, nullptr);
+    ASSERT(result2 == 1);
 }
 
 void Trinity::Crypto::ARC4::UpdateData(uint8* data, size_t len)
 {
     int outlen = 0;
-    EVP_EncryptUpdate(_ctx, data, &outlen, data, len);
-    EVP_EncryptFinal_ex(_ctx, data, &outlen);
+    int result1 = EVP_EncryptUpdate(_ctx, data, &outlen, data, len);
+    ASSERT(result1 == 1);
+    int result2 = EVP_EncryptFinal_ex(_ctx, data, &outlen);
+    ASSERT(result2 == 1);
 }
