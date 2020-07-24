@@ -15,23 +15,18 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SHA1.h"
-#include "BigNumber.h"
-#include "Util.h"
-#include <cstring>
-#include <stdarg.h>
+#ifndef TRINITY_HMAC_SHA1_H
+#define TRINITY_HMAC_SHA1_H
 
-Trinity::Crypto::SHA1::SHA1()
+#include "HMAC.h"
+#include <openssl/sha.h>
+
+namespace Trinity
 {
-    SHA1_Init(&_ctx);
+    namespace Crypto
+    {
+        using HMAC_SHA1 = HMAC<EVP_sha1, SHA_DIGEST_LENGTH>;
+    }
 }
 
-void Trinity::Crypto::SHA1::UpdateData(const uint8 *dta, int len)
-{
-    SHA1_Update(&_ctx, dta, len);
-}
-
-void Trinity::Crypto::SHA1::Finalize(void)
-{
-    SHA1_Final(_digest.data(), &_ctx);
-}
+#endif
