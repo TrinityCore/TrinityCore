@@ -76,6 +76,8 @@ namespace Trinity
 
                 ~GenericHash()
                 {
+                    if (!_ctx)
+                        return;
                     GenericHashImpl::DestroyCTX(_ctx);
                     _ctx = nullptr;
                 }
@@ -96,6 +98,7 @@ namespace Trinity
                     int result = EVP_DigestFinal_ex(_ctx, _digest.data(), &length);
                     ASSERT(result == 1);
                     ASSERT(length == DIGEST_LENGTH);
+                    GenericHashImpl::DestroyCTX(_ctx);
                     _ctx = nullptr;
                 }
 

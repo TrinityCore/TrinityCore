@@ -90,6 +90,8 @@ namespace Trinity
 
                 ~GenericHMAC()
                 {
+                    if (!_ctx)
+                        return;
                     HMACImpl::DestroyCTX(_ctx);
                     _ctx = nullptr;
                 }
@@ -110,6 +112,8 @@ namespace Trinity
                     int result = HMAC_Final(_ctx, _digest.data(), &length);
                     ASSERT(result == 1);
                     ASSERT(length == DIGEST_LENGTH);
+                    HMACImpl::DestroyCTX(_ctx);
+                    _ctx = nullptr;
                 }
 
                 Digest const& GetDigest() const { return _digest; }
