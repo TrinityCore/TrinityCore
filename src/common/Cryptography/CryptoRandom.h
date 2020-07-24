@@ -21,25 +21,22 @@
 #include "Define.h"
 #include <array>
 
-namespace Trinity
+namespace Trinity::Crypto
 {
-    namespace Crypto
+    void TC_COMMON_API GetRandomBytes(uint8* buf, size_t len);
+
+    template <typename Container>
+    void GetRandomBytes(Container& c)
     {
-        void TC_COMMON_API GetRandomBytes(uint8* buf, size_t len);
+        GetRandomBytes(std::data(c), std::size(c));
+    }
 
-        template <typename Container>
-        void GetRandomBytes(Container& c)
-        {
-            GetRandomBytes(std::data(c), std::size(c));
-        }
-
-        template <size_t S>
-        std::array<uint8, S> GetRandomBytes()
-        {
-            std::array<uint8, S> arr;
-            GetRandomBytes(arr);
-            return arr;
-        }
+    template <size_t S>
+    std::array<uint8, S> GetRandomBytes()
+    {
+        std::array<uint8, S> arr;
+        GetRandomBytes(arr);
+        return arr;
     }
 }
 

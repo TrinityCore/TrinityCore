@@ -182,7 +182,7 @@ bool BigNumber::IsNegative() const
 void BigNumber::GetBytes(uint8* buf, std::size_t bufsize, bool littleEndian) const
 {
     int nBytes = GetNumBytes();
-    ASSERT(!(nBytes < 0), "Bignum has negative number of bytes (%d).", nBytes);
+    ASSERT(nBytes >= 0, "Bignum has negative number of bytes (%d).", nBytes);
     std::size_t numBytes = static_cast<std::size_t>(nBytes);
 
     // too large to store
