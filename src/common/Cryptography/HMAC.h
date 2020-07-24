@@ -61,28 +61,11 @@ namespace Trinity
                 static constexpr size_t DIGEST_LENGTH = DigestLength;
                 using Digest = std::array<uint8, DIGEST_LENGTH>;
 
-                static Digest GetDigestOf(uint8 const* seed, size_t seedlen, uint8 const* data, size_t datalen)
-                {
-                    GenericHMAC hash(seed, seedlen);
-                    hash.UpdateData(data, datalen);
-                    hash.Finalize();
-                    return hash.GetDigest();
-                }
-
                 template <typename C>
                 static Digest GetDigestOf(C const& seed, uint8 const* data, size_t len)
                 {
                     GenericHMAC hash(seed);
                     hash.UpdateData(data, len);
-                    hash.Finalize();
-                    return hash.GetDigest();
-                }
-
-                template <typename... Ts>
-                static auto GetDigestOf(uint8 const* seed, size_t len, Ts&&... pack) -> std::enable_if_t<!(std::is_integral_v<std::decay_t<Ts>> || ...), Digest>
-                {
-                    GenericHMAC hash(seed, len);
-                    (hash.UpdateData(std::forward<Ts>(pack)), ...);
                     hash.Finalize();
                     return hash.GetDigest();
                 }
