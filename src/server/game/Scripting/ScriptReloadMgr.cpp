@@ -47,6 +47,7 @@ ScriptReloadMgr* ScriptReloadMgr::instance()
 #include "SHA1.h"
 #include "StartProcess.h"
 #include "Timer.h"
+#include "Util.h"
 #include "World.h"
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/filesystem.hpp>
