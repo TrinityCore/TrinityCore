@@ -64,6 +64,8 @@ class instance_deadmines : public InstanceMapScript
             }
 
             ObjectGuid FactoryDoorGUID;
+            ObjectGuid MastRoomDoorGUID;
+            ObjectGuid FoundryDoorGUID;
             ObjectGuid IronCladDoorGUID;
             ObjectGuid DefiasCannonGUID;
             ObjectGuid DoorLeverGUID;
@@ -197,7 +199,9 @@ class instance_deadmines : public InstanceMapScript
             {
                 switch (go->GetEntry())
                 {
-                    case GO_FACTORY_DOOR:   FactoryDoorGUID = go->GetGUID(); break;
+                    case GO_FACTORY_DOOR:   FactoryDoorGUID = go->GetGUID();   break;
+                    case GO_MAST_ROOM_DOOR: MastRoomDoorGUID = go->GetGUID();  break;
+                    case GO_FOUNDRY_DOOR:   FoundryDoorGUID = go->GetGUID();   break;
                     case GO_IRONCLAD_DOOR:  IronCladDoorGUID = go->GetGUID();  break;
                     case GO_DEFIAS_CANNON:  DefiasCannonGUID = go->GetGUID();  break;
                     case GO_DOOR_LEVER:     DoorLeverGUID = go->GetGUID();     break;
@@ -216,6 +220,16 @@ class instance_deadmines : public InstanceMapScript
                     case EVENT_RHAHKZOR:
                         if (data == DONE)
                             if (GameObject* go = instance->GetGameObject(FactoryDoorGUID))
+                                go->SetGoState(GO_STATE_ACTIVE);
+                        break;
+                    case EVENT_SNEED:
+                        if (data == DONE)
+                            if (GameObject* go = instance->GetGameObject(MastRoomDoorGUID))
+                                go->SetGoState(GO_STATE_ACTIVE);
+                        break;
+                    case EVENT_GILNID:
+                        if (data == DONE)
+                            if (GameObject* go = instance->GetGameObject(FoundryDoorGUID))
                                 go->SetGoState(GO_STATE_ACTIVE);
                         break;
                 }
