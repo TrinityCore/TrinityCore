@@ -60,7 +60,6 @@ class TC_COMMON_API SHA1
         void UpdateData(char const* str) { UpdateData(std::string_view(str)); } /* explicit overload to avoid using the container template */
         template <typename Container> void UpdateData(Container const& c) { UpdateData(std::data(c), std::size(c)); }
 
-        void Initialize();
         void Finalize();
 
         Digest const& GetDigest() const { return _digest; }

@@ -274,7 +274,7 @@ struct AccountInfo
         // LEFT JOIN account r ON a.id = r.recruiter
         // WHERE a.username = ? ORDER BY aa.RealmID DESC LIMIT 1
         Id = fields[0].GetUInt32();
-        SessionKey = BigNumber(fields[1].GetCString()).ToByteArray<40>();
+        HexStrToByteArray(fields[1].GetCString(), SessionKey.data());
         LastIP = fields[2].GetString();
         IsLockedToIP = fields[3].GetBool();
         LockCountry = fields[4].GetString();

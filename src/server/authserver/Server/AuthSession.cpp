@@ -20,6 +20,7 @@
 #include "AuthCodes.h"
 #include "Config.h"
 #include "CryptoGenerics.h"
+#include "CryptoRandom.h"
 #include "DatabaseEnv.h"
 #include "Errors.h"
 #include "IPLocation.h"
@@ -74,8 +75,7 @@ typedef struct AUTH_LOGON_PROOF_C
 {
     uint8   cmd;
     uint8   A[32];
-    uint8   M1[20];
-    Trinity::Crypto::SHA1::Digest crc_hash;
+    Trinity::Crypto::SHA1::Digest M1, crc_hash;
     uint8   number_of_keys;
     uint8   securityFlags;
 } sAuthLogonProof_C;
@@ -499,70 +499,42 @@ bool AuthSession::HandleLogonProof()
     if ((A % N).IsZero())
         return false;
 
-    Trinity::Crypto::SHA1 sha;
-    sha.UpdateData(A.ToByteArray<32>());
-    sha.UpdateData(B.ToByteArray<32>());
-    sha.Finalize();
-    BigNumber u;
-    u.SetBinary(sha.GetDigest());
+    BigNumber u(Trinity::Crypto::SHA1::GetDigestOf(A.ToByteArray<32>(), B.ToByteArray<32>()));
     BigNumber S = (A * (v.ModExp(u, N))).ModExp(b, N);
 
-    uint8 t[32];
-    uint8 t1[16];
-    uint8 vK[Trinity::Crypto::SHA1::DIGEST_LENGTH * 2];
-    memcpy(t, S.ToByteArray<32>().data(), 32);
+    std::array<uint8, 32> t = S.ToByteArray<32>();
+    std::array<uint8, 16> buf;
+    Trinity::Crypto::SHA1::Digest part;
+    std::array<uint8, 40> sessionKey;
 
-    for (int i = 0; i < 16; ++i)
-        t1[i] = t[i * 2];
-
-    sha.Initialize();
-    sha.UpdateData(t1, 16);
-    sha.Finalize();
-
+    for (size_t i = 0; i < 16; ++i)
+        buf[i] = t[i * 2];
+    part = Trinity::Crypto::SHA1::GetDigestOf(buf);
     for (size_t i = 0; i < Trinity::Crypto::SHA1::DIGEST_LENGTH; ++i)
-        vK[i * 2] = sha.GetDigest()[i];
+        sessionKey[i * 2] = part[i];
 
-    for (int i = 0; i < 16; ++i)
-        t1[i] = t[i * 2 + 1];
-
-    sha.Initialize();
-    sha.UpdateData(t1, 16);
-    sha.Finalize();
-
+    for (size_t i = 0; i < 16; ++i)
+        buf[i] = t[i * 2 + 1];
+    part = Trinity::Crypto::SHA1::GetDigestOf(buf);
     for (size_t i = 0; i < Trinity::Crypto::SHA1::DIGEST_LENGTH; ++i)
-        vK[i * 2 + 1] = sha.GetDigest()[i];
+        sessionKey[i * 2 + 1] = part[i];
 
-    K.SetBinary(vK, 40);
+    Trinity::Crypto::SHA1::Digest hash  = Trinity::Crypto::SHA1::GetDigestOf(N.ToByteArray<32>());
+    Trinity::Crypto::SHA1::Digest hash2 = Trinity::Crypto::SHA1::GetDigestOf(g.ToByteArray<1>());
+    std::transform(hash.begin(), hash.end(), hash2.begin(), hash.begin(), std::bit_xor<>()); // hash = H(N) xor H(g)
 
-    sha.Initialize();
-    sha.UpdateData(N.ToByteArray<32>());
-    sha.Finalize();
-    Trinity::Crypto::SHA1::Digest hash = sha.GetDigest();
-    sha.Initialize();
-    sha.UpdateData(g.ToByteArray<1>());
-    sha.Finalize();
-
-    for (size_t i = 0; i < Trinity::Crypto::SHA1::DIGEST_LENGTH; ++i)
-        hash[i] ^= sha.GetDigest()[i];
-
-    sha.Initialize();
-    sha.UpdateData(_accountInfo.Login);
-    sha.Finalize();
-    Trinity::Crypto::SHA1::Digest t4 = sha.GetDigest();
-
-    sha.Initialize();
+    Trinity::Crypto::SHA1 sha;
     sha.UpdateData(hash);
-    sha.UpdateData(t4);
+    sha.UpdateData(Trinity::Crypto::SHA1::GetDigestOf(_accountInfo.Login));
     sha.UpdateData(s.ToByteArray<BufferSizes::SRP_6_S>());
     sha.UpdateData(A.ToByteArray<32>());
     sha.UpdateData(B.ToByteArray<32>());
-    sha.UpdateData(K.ToByteArray<40>());
+    sha.UpdateData(sessionKey);
     sha.Finalize();
-    BigNumber M;
-    M.SetBinary(sha.GetDigest());
+    Trinity::Crypto::SHA1::Digest M = sha.GetDigest();
 
     // Check if SRP6 results match (password is correct), else send an error
-    if (!memcmp(M.ToByteArray<Trinity::Crypto::SHA1::DIGEST_LENGTH>().data(), logonProof->M1, Trinity::Crypto::SHA1::DIGEST_LENGTH))
+    if (M == logonProof->M1)
     {
         // Check auth token
         bool tokenSuccess = false;
@@ -604,8 +576,8 @@ bool AuthSession::HandleLogonProof()
         // Update the sessionkey, last_ip, last login time and reset number of failed logins in the account table for this account
         // No SQL injection (escaped user name) and IP address as received by socket
 
-        LoginDatabasePreparedStatement*stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGONPROOF);
-        stmt->setString(0, K.AsHexStr());
+        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGONPROOF);
+        stmt->setString(0, ByteArrayToHexStr(sessionKey));
         stmt->setString(1, GetRemoteIpAddress().to_string());
         stmt->setUInt32(2, GetLocaleByName(_localizationName));
         stmt->setString(3, _os);
@@ -613,17 +585,13 @@ bool AuthSession::HandleLogonProof()
         LoginDatabase.DirectExecute(stmt);
 
         // Finish SRP6 and send the final result to the client
-        sha.Initialize();
-        sha.UpdateData(A.ToByteArray<32>());
-        sha.UpdateData(M.ToByteArray<Trinity::Crypto::SHA1::DIGEST_LENGTH>());
-        sha.UpdateData(K.ToByteArray<40>());
-        sha.Finalize();
+        auto M2 = Trinity::Crypto::SHA1::GetDigestOf(A.ToByteArray<32>(), M, sessionKey);
 
         ByteBuffer packet;
         if (_expversion & POST_BC_EXP_FLAG)                 // 2.x and 3.x clients
         {
             sAuthLogonProof_S proof;
-            proof.M2 = sha.GetDigest();
+            proof.M2 = M2;
             proof.cmd = AUTH_LOGON_PROOF;
             proof.error = 0;
             proof.AccountFlags = 0x00800000;    // 0x01 = GM, 0x08 = Trial, 0x00800000 = Pro pass (arena tournament)
@@ -636,7 +604,7 @@ bool AuthSession::HandleLogonProof()
         else
         {
             sAuthLogonProof_S_Old proof;
-            proof.M2 = sha.GetDigest();
+            proof.M2 = M2;
             proof.cmd = AUTH_LOGON_PROOF;
             proof.error = 0;
             proof.unk2 = 0x00;
@@ -759,12 +727,12 @@ void AuthSession::ReconnectChallengeCallback(PreparedQueryResult result)
     Field* fields = result->Fetch();
 
     _accountInfo.LoadResult(fields);
-    K.SetHexStr(fields[9].GetCString());
-    _reconnectProof.SetRand(16 * 8);
+    HexStrToByteArray(fields[9].GetCString(), sessionKey.data());
+    Trinity::Crypto::GetRandomBytes(_reconnectProof);
     _status = STATUS_RECONNECT_PROOF;
 
     pkt << uint8(WOW_SUCCESS);
-    pkt.append(_reconnectProof.ToByteArray<16>());  // 16 bytes random
+    pkt.append(_reconnectProof);
     pkt.append(VersionChallenge.data(), VersionChallenge.size());
 
     SendPacket(pkt);
@@ -777,18 +745,17 @@ bool AuthSession::HandleReconnectProof()
 
     sAuthReconnectProof_C *reconnectProof = reinterpret_cast<sAuthReconnectProof_C*>(GetReadBuffer().GetReadPointer());
 
-    if (_accountInfo.Login.empty() || !_reconnectProof.GetNumBytes() || !K.GetNumBytes())
+    if (_accountInfo.Login.empty())
         return false;
 
     BigNumber t1;
     t1.SetBinary(reconnectProof->R1, 16);
 
     Trinity::Crypto::SHA1 sha;
-    sha.Initialize();
     sha.UpdateData(_accountInfo.Login);
     sha.UpdateData(t1.ToByteArray<16>());
-    sha.UpdateData(_reconnectProof.ToByteArray<16>());
-    sha.UpdateData(K.ToByteArray<40>());
+    sha.UpdateData(_reconnectProof);
+    sha.UpdateData(sessionKey);
     sha.Finalize();
 
     if (sha.GetDigest() == reconnectProof->R2)

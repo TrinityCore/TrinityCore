@@ -31,11 +31,6 @@ void Trinity::Crypto::SHA1::UpdateData(const uint8 *dta, int len)
     SHA1_Update(&_ctx, dta, len);
 }
 
-void Trinity::Crypto::SHA1::Initialize()
-{
-    SHA1_Init(&_ctx);
-}
-
 void Trinity::Crypto::SHA1::Finalize(void)
 {
     SHA1_Final(_digest.data(), &_ctx);

@@ -26,7 +26,8 @@ class SessionKeyGenerator
 {
     public:
         template <typename C>
-        SessionKeyGenerator(C const& buf)
+        SessionKeyGenerator(C const& buf) :
+            o0it(o0.begin())
         {
             uint8 const* data = std::data(buf);
             size_t const len = std::size(buf);
@@ -34,8 +35,7 @@ class SessionKeyGenerator
 
             o1 = Hash::GetDigestOf(buf.data(), halflen);
             o2 = Hash::GetDigestOf(buf.data() + halflen, halflen);
-
-            FillUp();
+            o0 = Hash::GetDigestOf(o1, o0, o2);
         }
 
         void Generate(uint8* buf, uint32 sz)
@@ -43,7 +43,10 @@ class SessionKeyGenerator
             for (uint32 i = 0; i < sz; ++i)
             {
                 if (o0it == o0.end())
-                    FillUp();
+                {
+                    o0 = Hash::GetDigestOf(o1, o0, o2);
+                    o0it = o0.begin();
+                }
 
                 buf[i] = *(o0it++);
             }
@@ -52,17 +55,10 @@ class SessionKeyGenerator
     private:
         void FillUp()
         {
-            sh.Initialize();
-            sh.UpdateData(o1);
-            sh.UpdateData(o0);
-            sh.UpdateData(o2);
-            sh.Finalize();
-
-            o0 = sh.GetDigest();
+            o0 = Hash::GetDigestOf(o1, o0, o2);
             o0it = o0.begin();
         }
 
-        Hash sh;
         typename Hash::Digest o0, o1, o2;
         typename Hash::Digest::const_iterator o0it;
     };

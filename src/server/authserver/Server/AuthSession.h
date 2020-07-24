@@ -94,8 +94,8 @@ private:
 
     BigNumber N, s, g, v;
     BigNumber b, B;
-    BigNumber K;
-    BigNumber _reconnectProof;
+    std::array<uint8, 40> sessionKey;
+    std::array<uint8, 16> _reconnectProof;
 
     AuthStatus _status;
     AccountInfo _accountInfo;

@@ -19,6 +19,7 @@
 #define _AUTH_SARC4_H
 
 #include "Define.h"
+#include <array>
 #include <openssl/evp.h>
 
 namespace Trinity

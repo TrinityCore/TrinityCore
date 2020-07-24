@@ -33,6 +33,7 @@ class TC_COMMON_API BigNumber
         BigNumber(BigNumber const& bn);
         BigNumber(uint32 v) : BigNumber() { SetDword(v); }
         BigNumber(std::string const& v) : BigNumber() { SetHexStr(v); }
+        template <size_t S> BigNumber(std::array<uint8, S> const& v) : BigNumber() { SetBinary(v.data(), S); }
         ~BigNumber();
 
         void SetDword(uint32);
