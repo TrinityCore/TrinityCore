@@ -19,7 +19,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 SET @ENTRY := 101832;
 SET @GUID := (SELECT `guid` FROM `gameobject` WHERE `id` = 17153 AND `map` = 36 AND `position_x` > -295 AND `position_x` < -285 AND `position_y` > -540 AND `position_y` < -530 AND `position_z` > 45 AND `position_z` < 55);
 SET @DOORENTRY := 16400;
-UPDATE gameobject SET `id` = @DOORENTRY WHERE guid = @GUID AND `id` = 17153;
+UPDATE `gameobject` SET `id` = @DOORENTRY WHERE `guid` = @GUID AND `id` = 17153;
 UPDATE `gameobject_template` SET `AIName`="SmartGameObjectAI" WHERE `entry`= @ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=1;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
@@ -29,7 +29,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 SET @ENTRY := 101834;
 SET @GUID := (SELECT `guid` FROM `gameobject` WHERE `id` = 17153 AND `map` = 36 AND `position_x` > -175 AND `position_x` < -160 AND `position_y` > -585 AND `position_y` < -575 AND `position_z` > 10 AND `position_z` < 20);
 SET @DOORENTRY := 16399;
-UPDATE gameobject SET `id` = @DOORENTRY WHERE guid = @GUID AND `id` = 17153;
+UPDATE `gameobject` SET `id` = @DOORENTRY WHERE `guid` = @GUID AND `id` = 17153;
 UPDATE `gameobject_template` SET `AIName`="SmartGameObjectAI" WHERE `entry`= @ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=1;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
