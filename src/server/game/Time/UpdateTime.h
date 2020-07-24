@@ -19,20 +19,10 @@
 #define __UPDATETIME_H
 
 #include "Define.h"
-#include <array>
-#include <string>
-
-#define AVG_DIFF_COUNT 500
 
 class TC_GAME_API UpdateTime
 {
-    using DiffTableArray = std::array<uint32, AVG_DIFF_COUNT>;
-
     public:
-        uint32 GetAverageUpdateTime() const;
-        uint32 GetTimeWeightedAverageUpdateTime() const;
-        uint32 GetMaxUpdateTime() const;
-        uint32 GetMaxUpdateTimeOfCurrentTable() const;
         uint32 GetLastUpdateTime() const;
 
         void UpdateWithDiff(uint32 diff);
@@ -41,13 +31,7 @@ class TC_GAME_API UpdateTime
         UpdateTime();
 
     private:
-        DiffTableArray _updateTimeDataTable;
-        uint32 _averageUpdateTime;
-        uint32 _totalUpdateTime;
-        uint32 _updateTimeTableIndex;
-        uint32 _maxUpdateTime;
-        uint32 _maxUpdateTimeOfLastTable;
-        uint32 _maxUpdateTimeOfCurrentTable;
+        uint32 _lastUpdateTime;
 };
 
 class TC_GAME_API WorldUpdateTime : public UpdateTime
