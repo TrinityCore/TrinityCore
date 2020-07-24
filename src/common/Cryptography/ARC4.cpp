@@ -16,6 +16,7 @@
  */
 
 #include "ARC4.h"
+#include "Errors.h"
 
 Trinity::Crypto::ARC4::ARC4() : _ctx(EVP_CIPHER_CTX_new())
 {
