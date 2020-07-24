@@ -35,40 +35,25 @@ void HMAC_CTX_free(HMAC_CTX* ctx)
 }
 #endif
 
-HmacHash::HmacHash(uint32 len, uint8* seed)
+Trinity::Crypto::HMAC_SHA1::HMAC_SHA1(uint8 const* seed, size_t len)
 {
-    m_ctx = HMAC_CTX_new();
-    HMAC_Init_ex(m_ctx, seed, len, EVP_sha1(), nullptr);
-    memset(m_digest, 0, sizeof(m_digest));
+    _ctx = HMAC_CTX_new();
+    HMAC_Init_ex(_ctx, seed, len, EVP_sha1(), nullptr);
 }
 
-HmacHash::~HmacHash()
+Trinity::Crypto::HMAC_SHA1::~HMAC_SHA1()
 {
-    HMAC_CTX_free(m_ctx);
+    HMAC_CTX_free(_ctx);
 }
 
-void HmacHash::UpdateData(std::string const& str)
+void Trinity::Crypto::HMAC_SHA1::UpdateData(uint8 const* data, size_t len)
 {
-    HMAC_Update(m_ctx, reinterpret_cast<uint8 const*>(str.c_str()), str.length());
+    HMAC_Update(_ctx, data, len);
 }
 
-void HmacHash::UpdateData(uint8 const* data, size_t len)
-{
-    HMAC_Update(m_ctx, data, len);
-}
-
-void HmacHash::Finalize()
+void Trinity::Crypto::HMAC_SHA1::Finalize()
 {
     uint32 length = 0;
-    HMAC_Final(m_ctx, m_digest, &length);
-    ASSERT(length == SHA_DIGEST_LENGTH);
-}
-
-uint8* HmacHash::ComputeHash(BigNumber const& bn, size_t nBytes)
-{
-    std::vector<uint8> data = bn.ToByteVector(nBytes);
-    ASSERT(nBytes == data.size(), "bignum of size %zu exceeds intended size of %zu bytes", data.size(), nBytes);
-    HMAC_Update(m_ctx, data.data(), nBytes);
-    Finalize();
-    return m_digest;
+    HMAC_Final(_ctx, _digest.data(), &length);
+    ASSERT(length == DIGEST_LENGTH);
 }

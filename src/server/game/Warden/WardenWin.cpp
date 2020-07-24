@@ -15,34 +15,35 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Cryptography/HMACSHA1.h"
-#include "Cryptography/WardenKeyGeneration.h"
+#include "WardenWin.h"
 #include "Common.h"
-#include "WorldPacket.h"
-#include "WorldSession.h"
+#include "ByteBuffer.h"
+#include "CryptoRandom.h"
+#include "DatabaseEnv.h"
+#include "GameTime.h"
+#include "HMACSHA1.h"
 #include "Log.h"
 #include "Opcodes.h"
-#include "ByteBuffer.h"
-#include "Database/DatabaseEnv.h"
-#include "GameTime.h"
-#include "World.h"
 #include "Player.h"
+#include "Random.h"
+#include "SessionKeyGenerator.h"
 #include "Util.h"
-#include "WardenWin.h"
 #include "WardenModuleWin.h"
 #include "WardenCheckMgr.h"
-#include "Random.h"
+#include "World.h"
+#include "WorldPacket.h"
+#include "WorldSession.h"
 #include <openssl/md5.h>
 
 WardenWin::WardenWin() : Warden(), _serverTicks(0) {}
 
 WardenWin::~WardenWin() { }
 
-void WardenWin::Init(WorldSession* session, BigNumber const& k)
+void WardenWin::Init(WorldSession* session, std::array<uint8,40> const& K)
 {
     _session = session;
     // Generate Warden Key
-    SHA1Randx WK(k.ToByteArray<40>());
+    SessionKeyGenerator<Trinity::Crypto::SHA1> WK(K);
     WK.Generate(_inputKey, 16);
     WK.Generate(_outputKey, 16);
 
@@ -283,12 +284,9 @@ void WardenWin::RequestData()
             }
             case MODULE_CHECK:
             {
-                uint32 seed = rand32();
-                buff << uint32(seed);
-                HmacHash hmac(4, (uint8*)&seed);
-                hmac.UpdateData(wd->Str);
-                hmac.Finalize();
-                buff.append(hmac.GetDigest(), hmac.GetLength());
+                std::array<uint8, 4> seed = Trinity::Crypto::GetRandomBytes<4>();
+                buff.append(seed);
+                buff.append(Trinity::Crypto::HMAC_SHA1::GetDigestOf(seed, wd->Str));
                 break;
             }
             /*case PROC_CHECK:

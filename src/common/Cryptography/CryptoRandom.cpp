@@ -15,28 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ARC4.h"
+#include "CryptoRandom.h"
+#include "Errors.h"
+#include <openssl/rand.h>
 
-Trinity::Crypto::ARC4::ARC4() : _ctx(EVP_CIPHER_CTX_new())
+void Trinity::Crypto::GetRandomBytes(uint8* buf, size_t len)
 {
-    EVP_CIPHER_CTX_init(_ctx);
-    EVP_EncryptInit_ex(_ctx, EVP_rc4(), nullptr, nullptr, nullptr);
-}
-
-Trinity::Crypto::ARC4::~ARC4()
-{
-    EVP_CIPHER_CTX_free(_ctx);
-}
-
-void Trinity::Crypto::ARC4::Init(uint8 const* seed, size_t len)
-{
-    EVP_CIPHER_CTX_set_key_length(_ctx, len);
-    EVP_EncryptInit_ex(_ctx, nullptr, nullptr, seed, nullptr);
-}
-
-void Trinity::Crypto::ARC4::UpdateData(uint8* data, size_t len)
-{
-    int outlen = 0;
-    EVP_EncryptUpdate(_ctx, data, &outlen, data, len);
-    EVP_EncryptFinal_ex(_ctx, data, &outlen);
+    int result = RAND_bytes(buf, len);
+    ASSERT(result == 1, "Not enough randomness in OpenSSL's entropy pool. What in the world are you running on?");
 }

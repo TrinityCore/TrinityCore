@@ -37,7 +37,7 @@ void Trinity::Crypto::AES::Init(Key const& key)
     ASSERT(status);
 }
 
-bool Trinity::Crypto::AES::Process(IV const& iv, uint8* data, std::size_t length, Tag& tag)
+bool Trinity::Crypto::AES::Process(IV const& iv, uint8* data, size_t length, Tag& tag)
 {
     ASSERT(length <= std::numeric_limits<int>::max());
     int len = static_cast<int>(length);

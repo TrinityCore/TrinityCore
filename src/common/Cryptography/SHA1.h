@@ -26,31 +26,50 @@
 
 class BigNumber;
 
-class TC_COMMON_API SHA1Hash
+namespace Trinity
+{
+namespace Crypto
+{
+class TC_COMMON_API SHA1
 {
     public:
-        SHA1Hash();
-        ~SHA1Hash();
-        static constexpr size_t HASH_LEN = SHA_DIGEST_LENGTH;
+        static constexpr size_t DIGEST_LENGTH = SHA_DIGEST_LENGTH;
+        using Digest = std::array<uint8, DIGEST_LENGTH>;
 
+        static Digest GetDigestOf(uint8 const* dta, int len)
+        {
+            SHA1 hash;
+            hash.UpdateData(dta, len);
+            hash.Finalize();
+            return hash.GetDigest();
+        }
+        template <typename... Ts>
+        static auto GetDigestOf(Ts&&... pack) -> std::enable_if_t<!(std::is_integral_v<std::decay_t<Ts>> || ...), Digest>
+        {
+            SHA1 hash;
+            (hash.UpdateData(std::forward<Ts>(pack)), ...);
+            hash.Finalize();
+            return hash.GetDigest();
+        }
+
+        SHA1();
 
         void UpdateData(uint8 const* dta, int len);
-        void UpdateData(std::string_view const& str);
+        void UpdateData(std::string_view const& str) { UpdateData(reinterpret_cast<uint8 const*>(str.data()), str.size()); }
         void UpdateData(std::string const& str) { UpdateData(std::string_view(str)); } /* explicit overload to avoid using the container template */
         void UpdateData(char const* str) { UpdateData(std::string_view(str)); } /* explicit overload to avoid using the container template */
-        template <typename C> void UpdateData(C const& container) { UpdateData(std::data(container), std::size(container)); }
+        template <typename Container> void UpdateData(Container const& c) { UpdateData(std::data(c), std::size(c)); }
 
         void Initialize();
         void Finalize();
 
-        uint8 const* GetDigest(void) const { return _digest; }
+        Digest const& GetDigest() const { return _digest; }
 
     private:
         SHA_CTX _ctx;
-        uint8 _digest[SHA_DIGEST_LENGTH];
+        Digest _digest;
 };
-
-/// Returns the SHA1 hash of the given content as hex string.
-TC_COMMON_API std::string CalculateSHA1Hash(std::string const& content);
+}
+}
 
 #endif

@@ -23,6 +23,7 @@
 #include "ByteBuffer.h"
 #include "Common.h"
 #include "Optional.h"
+#include "SHA1.h"
 #include "Socket.h"
 #include "QueryResult.h"
 #include <memory>
@@ -89,7 +90,7 @@ private:
 
     void SetVSFields(const std::string& rI);
 
-    bool VerifyVersion(uint8 const* a, int32 aLength, uint8 const* versionProof, bool isReconnect);
+    bool VerifyVersion(uint8 const* a, int32 aLength, Trinity::Crypto::SHA1::Digest const& versionProof, bool isReconnect);
 
     BigNumber N, s, g, v;
     BigNumber b, B;

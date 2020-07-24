@@ -21,41 +21,22 @@
 #include <cstring>
 #include <stdarg.h>
 
-SHA1Hash::SHA1Hash()
-{
-    SHA1_Init(&_ctx);
-    memset(_digest, 0, SHA_DIGEST_LENGTH * sizeof(uint8));
-}
-
-SHA1Hash::~SHA1Hash()
+Trinity::Crypto::SHA1::SHA1()
 {
     SHA1_Init(&_ctx);
 }
 
-void SHA1Hash::UpdateData(const uint8 *dta, int len)
+void Trinity::Crypto::SHA1::UpdateData(const uint8 *dta, int len)
 {
     SHA1_Update(&_ctx, dta, len);
 }
 
-void SHA1Hash::UpdateData(const std::string_view& str)
-{
-    UpdateData(reinterpret_cast<uint8 const*>(str.data()), str.length());
-}
-
-void SHA1Hash::Initialize()
+void Trinity::Crypto::SHA1::Initialize()
 {
     SHA1_Init(&_ctx);
 }
 
-void SHA1Hash::Finalize(void)
+void Trinity::Crypto::SHA1::Finalize(void)
 {
-    SHA1_Final(_digest, &_ctx);
-}
-
-std::string CalculateSHA1Hash(std::string const& content)
-{
-    SHA1Hash hash;
-    hash.UpdateData(content);
-    hash.Finalize();
-    return ByteArrayToHexStr(hash.GetDigest(), SHA1Hash::HASH_LEN);
+    SHA1_Final(_digest.data(), &_ctx);
 }

@@ -212,7 +212,8 @@ bool WorldSocket::ReadHeaderHandler()
 {
     ASSERT(_headerBuffer.GetActiveSize() == sizeof(ClientPktHeader));
 
-    _authCrypt.DecryptRecv(_headerBuffer.GetReadPointer(), sizeof(ClientPktHeader));
+    if (_authCrypt.IsInitialized())
+        _authCrypt.DecryptRecv(_headerBuffer.GetReadPointer(), sizeof(ClientPktHeader));
 
     ClientPktHeader* header = reinterpret_cast<ClientPktHeader*>(_headerBuffer.GetReadPointer());
     EndianConvertReverse(header->size);
@@ -240,7 +241,7 @@ struct AuthSession
     uint32 LoginServerID = 0;
     uint32 RegionID = 0;
     uint64 DosResponse = 0;
-    uint8 Digest[SHA_DIGEST_LENGTH] = {};
+    Trinity::Crypto::SHA1::Digest Digest;
     std::string Account;
     ByteBuffer AddonInfo;
 };
@@ -248,7 +249,7 @@ struct AuthSession
 struct AccountInfo
 {
     uint32 Id;
-    BigNumber SessionKey;
+    std::array<uint8, 40> SessionKey;
     std::string LastIP;
     bool IsLockedToIP;
     std::string LockCountry;
@@ -273,7 +274,7 @@ struct AccountInfo
         // LEFT JOIN account r ON a.id = r.recruiter
         // WHERE a.username = ? ORDER BY aa.RealmID DESC LIMIT 1
         Id = fields[0].GetUInt32();
-        SessionKey.SetHexStr(fields[1].GetCString());
+        SessionKey = BigNumber(fields[1].GetCString()).ToByteArray<40>();
         LastIP = fields[2].GetString();
         IsLockedToIP = fields[3].GetBool();
         LockCountry = fields[4].GetString();
@@ -433,7 +434,7 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     recvPacket >> authSession->BattlegroupID;
     recvPacket >> authSession->RealmID;               // realmId from auth_database.realmlist table
     recvPacket >> authSession->DosResponse;
-    recvPacket.read(authSession->Digest, 20);
+    recvPacket.read(authSession->Digest.data(), Trinity::Crypto::SHA1::DIGEST_LENGTH);
     authSession->AddonInfo.resize(recvPacket.size() - recvPacket.rpos());
     recvPacket.read(authSession->AddonInfo.contents(), authSession->AddonInfo.size()); // .contents will throw if empty, thats what we want
 
@@ -503,15 +504,15 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSes
     // Check that Key and account name are the same on client and server
     uint32 t = 0;
 
-    SHA1Hash sha;
+    Trinity::Crypto::SHA1 sha;
     sha.UpdateData(authSession->Account);
     sha.UpdateData((uint8*)&t, 4);
     sha.UpdateData((uint8*)&authSession->LocalChallenge, 4);
     sha.UpdateData((uint8*)&_authSeed, 4);
-    sha.UpdateData(account.SessionKey.ToByteArray<40>());
+    sha.UpdateData(account.SessionKey);
     sha.Finalize();
 
-    if (memcmp(sha.GetDigest(), authSession->Digest, SHA_DIGEST_LENGTH) != 0)
+    if (sha.GetDigest() != authSession->Digest)
     {
         SendAuthResponseError(AUTH_FAILED);
         TC_LOG_ERROR("network", "WorldSocket::HandleAuthSession: Authentication failed for account: %u ('%s') address: %s", account.Id, authSession->Account.c_str(), address.c_str());

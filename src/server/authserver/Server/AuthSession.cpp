@@ -75,7 +75,7 @@ typedef struct AUTH_LOGON_PROOF_C
     uint8   cmd;
     uint8   A[32];
     uint8   M1[20];
-    uint8   crc_hash[20];
+    Trinity::Crypto::SHA1::Digest crc_hash;
     uint8   number_of_keys;
     uint8   securityFlags;
 } sAuthLogonProof_C;
@@ -85,7 +85,7 @@ typedef struct AUTH_LOGON_PROOF_S
 {
     uint8   cmd;
     uint8   error;
-    uint8   M2[20];
+    Trinity::Crypto::SHA1::Digest M2;
     uint32  AccountFlags;
     uint32  SurveyId;
     uint16  LoginFlags;
@@ -96,7 +96,7 @@ typedef struct AUTH_LOGON_PROOF_S_OLD
 {
     uint8   cmd;
     uint8   error;
-    uint8   M2[20];
+    Trinity::Crypto::SHA1::Digest M2;
     uint32  unk2;
 } sAuthLogonProof_S_Old;
 static_assert(sizeof(sAuthLogonProof_S_Old) == (1 + 1 + 20 + 4));
@@ -105,8 +105,7 @@ typedef struct AUTH_RECONNECT_PROOF_C
 {
     uint8   cmd;
     uint8   R1[16];
-    uint8   R2[20];
-    uint8   R3[20];
+    Trinity::Crypto::SHA1::Digest R2, R3;
     uint8   number_of_keys;
 } sAuthReconnectProof_C;
 static_assert(sizeof(sAuthReconnectProof_C) == (1 + 16 + 20 + 20 + 1));
@@ -500,17 +499,17 @@ bool AuthSession::HandleLogonProof()
     if ((A % N).IsZero())
         return false;
 
-    SHA1Hash sha;
+    Trinity::Crypto::SHA1 sha;
     sha.UpdateData(A.ToByteArray<32>());
     sha.UpdateData(B.ToByteArray<32>());
     sha.Finalize();
     BigNumber u;
-    u.SetBinary(sha.GetDigest(), SHA1Hash::HASH_LEN);
+    u.SetBinary(sha.GetDigest());
     BigNumber S = (A * (v.ModExp(u, N))).ModExp(b, N);
 
     uint8 t[32];
     uint8 t1[16];
-    uint8 vK[SHA1Hash::HASH_LEN * 2];
+    uint8 vK[Trinity::Crypto::SHA1::DIGEST_LENGTH * 2];
     memcpy(t, S.ToByteArray<32>().data(), 32);
 
     for (int i = 0; i < 16; ++i)
@@ -520,7 +519,7 @@ bool AuthSession::HandleLogonProof()
     sha.UpdateData(t1, 16);
     sha.Finalize();
 
-    for (size_t i = 0; i < SHA1Hash::HASH_LEN; ++i)
+    for (size_t i = 0; i < Trinity::Crypto::SHA1::DIGEST_LENGTH; ++i)
         vK[i * 2] = sha.GetDigest()[i];
 
     for (int i = 0; i < 16; ++i)
@@ -530,43 +529,40 @@ bool AuthSession::HandleLogonProof()
     sha.UpdateData(t1, 16);
     sha.Finalize();
 
-    for (size_t i = 0; i < SHA1Hash::HASH_LEN; ++i)
+    for (size_t i = 0; i < Trinity::Crypto::SHA1::DIGEST_LENGTH; ++i)
         vK[i * 2 + 1] = sha.GetDigest()[i];
 
     K.SetBinary(vK, 40);
 
-    uint8 hash[SHA1Hash::HASH_LEN];
-
     sha.Initialize();
     sha.UpdateData(N.ToByteArray<32>());
     sha.Finalize();
-    memcpy(hash, sha.GetDigest(), SHA1Hash::HASH_LEN);
+    Trinity::Crypto::SHA1::Digest hash = sha.GetDigest();
     sha.Initialize();
     sha.UpdateData(g.ToByteArray<1>());
     sha.Finalize();
 
-    for (size_t i = 0; i < SHA1Hash::HASH_LEN; ++i)
+    for (size_t i = 0; i < Trinity::Crypto::SHA1::DIGEST_LENGTH; ++i)
         hash[i] ^= sha.GetDigest()[i];
 
     sha.Initialize();
     sha.UpdateData(_accountInfo.Login);
     sha.Finalize();
-    uint8 t4[SHA_DIGEST_LENGTH];
-    memcpy(t4, sha.GetDigest(), SHA_DIGEST_LENGTH);
+    Trinity::Crypto::SHA1::Digest t4 = sha.GetDigest();
 
     sha.Initialize();
-    sha.UpdateData(hash, SHA1Hash::HASH_LEN);
-    sha.UpdateData(t4, SHA_DIGEST_LENGTH);
+    sha.UpdateData(hash);
+    sha.UpdateData(t4);
     sha.UpdateData(s.ToByteArray<BufferSizes::SRP_6_S>());
     sha.UpdateData(A.ToByteArray<32>());
     sha.UpdateData(B.ToByteArray<32>());
     sha.UpdateData(K.ToByteArray<40>());
     sha.Finalize();
     BigNumber M;
-    M.SetBinary(sha.GetDigest(), SHA1Hash::HASH_LEN);
+    M.SetBinary(sha.GetDigest());
 
     // Check if SRP6 results match (password is correct), else send an error
-    if (!memcmp(M.ToByteArray<SHA1Hash::HASH_LEN>().data(), logonProof->M1, SHA1Hash::HASH_LEN))
+    if (!memcmp(M.ToByteArray<Trinity::Crypto::SHA1::DIGEST_LENGTH>().data(), logonProof->M1, Trinity::Crypto::SHA1::DIGEST_LENGTH))
     {
         // Check auth token
         bool tokenSuccess = false;
@@ -619,7 +615,7 @@ bool AuthSession::HandleLogonProof()
         // Finish SRP6 and send the final result to the client
         sha.Initialize();
         sha.UpdateData(A.ToByteArray<32>());
-        sha.UpdateData(M.ToByteArray<SHA1Hash::HASH_LEN>());
+        sha.UpdateData(M.ToByteArray<Trinity::Crypto::SHA1::DIGEST_LENGTH>());
         sha.UpdateData(K.ToByteArray<40>());
         sha.Finalize();
 
@@ -627,7 +623,7 @@ bool AuthSession::HandleLogonProof()
         if (_expversion & POST_BC_EXP_FLAG)                 // 2.x and 3.x clients
         {
             sAuthLogonProof_S proof;
-            memcpy(proof.M2, sha.GetDigest(), 20);
+            proof.M2 = sha.GetDigest();
             proof.cmd = AUTH_LOGON_PROOF;
             proof.error = 0;
             proof.AccountFlags = 0x00800000;    // 0x01 = GM, 0x08 = Trial, 0x00800000 = Pro pass (arena tournament)
@@ -640,7 +636,7 @@ bool AuthSession::HandleLogonProof()
         else
         {
             sAuthLogonProof_S_Old proof;
-            memcpy(proof.M2, sha.GetDigest(), 20);
+            proof.M2 = sha.GetDigest();
             proof.cmd = AUTH_LOGON_PROOF;
             proof.error = 0;
             proof.unk2 = 0x00;
@@ -787,7 +783,7 @@ bool AuthSession::HandleReconnectProof()
     BigNumber t1;
     t1.SetBinary(reconnectProof->R1, 16);
 
-    SHA1Hash sha;
+    Trinity::Crypto::SHA1 sha;
     sha.Initialize();
     sha.UpdateData(_accountInfo.Login);
     sha.UpdateData(t1.ToByteArray<16>());
@@ -795,7 +791,7 @@ bool AuthSession::HandleReconnectProof()
     sha.UpdateData(K.ToByteArray<40>());
     sha.Finalize();
 
-    if (!memcmp(sha.GetDigest(), reconnectProof->R2, SHA_DIGEST_LENGTH))
+    if (sha.GetDigest() == reconnectProof->R2)
     {
         if (!VerifyVersion(reconnectProof->R1, sizeof(reconnectProof->R1), reconnectProof->R3, true))
         {
@@ -944,14 +940,14 @@ void AuthSession::SetVSFields(const std::string& rI)
     I.SetHexStr(rI.c_str());
 
     // In case of leading zeros in the rI hash, restore them
-    std::array<uint8, SHA1Hash::HASH_LEN> mDigest = I.ToByteArray<SHA1Hash::HASH_LEN>(false);
+    std::array<uint8, Trinity::Crypto::SHA1::DIGEST_LENGTH> mDigest = I.ToByteArray<Trinity::Crypto::SHA1::DIGEST_LENGTH>(false);
 
-    SHA1Hash sha;
+    Trinity::Crypto::SHA1 sha;
     sha.UpdateData(s.ToByteArray<BufferSizes::SRP_6_S>());
     sha.UpdateData(mDigest);
     sha.Finalize();
     BigNumber x;
-    x.SetBinary(sha.GetDigest(), SHA1Hash::HASH_LEN);
+    x.SetBinary(sha.GetDigest());
     v = g.ModExp(x, N);
 
     // No SQL injection (username escaped)
@@ -962,13 +958,13 @@ void AuthSession::SetVSFields(const std::string& rI)
     LoginDatabase.Execute(stmt);
 }
 
-bool AuthSession::VerifyVersion(uint8 const* a, int32 aLength, uint8 const* versionProof, bool isReconnect)
+bool AuthSession::VerifyVersion(uint8 const* a, int32 aLength, Trinity::Crypto::SHA1::Digest const& versionProof, bool isReconnect)
 {
     if (!sConfigMgr->GetBoolDefault("StrictVersionCheck", false))
         return true;
 
-    std::array<uint8, 20> zeros = { {} };
-    std::array<uint8, 20> const* versionHash = nullptr;
+    Trinity::Crypto::SHA1::Digest zeros;
+    Trinity::Crypto::SHA1::Digest const* versionHash = nullptr;
     if (!isReconnect)
     {
         RealmBuildInfo const* buildInfo = sRealmList->GetBuildInfo(_build);
@@ -983,16 +979,16 @@ bool AuthSession::VerifyVersion(uint8 const* a, int32 aLength, uint8 const* vers
         if (!versionHash)
             return false;
 
-        if (!memcmp(versionHash->data(), zeros.data(), zeros.size()))
+        if (zeros == *versionHash)
             return true;                                                            // not filled serverside
     }
     else
         versionHash = &zeros;
 
-    SHA1Hash version;
+    Trinity::Crypto::SHA1 version;
     version.UpdateData(a, aLength);
-    version.UpdateData(versionHash->data(), versionHash->size());
+    version.UpdateData(*versionHash);
     version.Finalize();
 
-    return memcmp(versionProof, version.GetDigest(), SHA1Hash::HASH_LEN) == 0;
+    return (versionProof == version.GetDigest());
 }

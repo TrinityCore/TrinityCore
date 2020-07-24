@@ -379,14 +379,14 @@ uint32 AccountMgr::GetCharactersCount(uint32 accountId)
 
 std::string AccountMgr::CalculateShaPassHash(std::string const& name, std::string const& password)
 {
-    SHA1Hash sha;
+    Trinity::Crypto::SHA1 sha;
     sha.Initialize();
     sha.UpdateData(name);
     sha.UpdateData(":");
     sha.UpdateData(password);
     sha.Finalize();
 
-    return ByteArrayToHexStr(sha.GetDigest(), SHA1Hash::HASH_LEN);
+    return ByteArrayToHexStr(sha.GetDigest());
 }
 
 bool AccountMgr::IsBannedAccount(std::string const& name)

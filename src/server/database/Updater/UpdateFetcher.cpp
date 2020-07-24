@@ -222,7 +222,7 @@ UpdateResult UpdateFetcher::Update(bool const redundancyChecks,
         }
 
         // Calculate a Sha1 hash based on query content.
-        std::string const hash = CalculateSHA1Hash(ReadSQLUpdate(availableQuery.first));
+        std::string const hash = ByteArrayToHexStr(Trinity::Crypto::SHA1::GetDigestOf(ReadSQLUpdate(availableQuery.first)));
 
         UpdateMode mode = MODE_APPLY;
 

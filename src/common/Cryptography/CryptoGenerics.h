@@ -19,11 +19,11 @@
 #define TRINITY_CRYPTO_GENERICS_HPP
 
 #include "BigNumber.h"
+#include "CryptoRandom.h"
 #include "Define.h"
 #include "Errors.h"
 #include <iterator>
 #include <vector>
-#include <openssl/rand.h>
 
 namespace Trinity
 {
@@ -35,8 +35,7 @@ namespace Trinity
             static typename Cipher::IV GenerateRandomIV()
             {
                 typename Cipher::IV iv;
-                int status = RAND_bytes(std::data(iv), std::size(iv));
-                ASSERT(status);
+                Trinity::Crypto::GetRandomBytes(iv);
                 return iv;
             }
 
