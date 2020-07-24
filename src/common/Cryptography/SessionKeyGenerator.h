@@ -33,8 +33,8 @@ class SessionKeyGenerator
             size_t const len = std::size(buf);
             size_t const halflen = (len / 2);
 
-            o1 = Hash::GetDigestOf(buf.data(), halflen);
-            o2 = Hash::GetDigestOf(buf.data() + halflen, halflen);
+            o1 = Hash::GetDigestOf(data, halflen);
+            o2 = Hash::GetDigestOf(data + halflen, halflen);
             o0 = Hash::GetDigestOf(o1, o0, o2);
         }
 
@@ -53,12 +53,6 @@ class SessionKeyGenerator
         }
 
     private:
-        void FillUp()
-        {
-            o0 = Hash::GetDigestOf(o1, o0, o2);
-            o0it = o0.begin();
-        }
-
         typename Hash::Digest o0, o1, o2;
         typename Hash::Digest::const_iterator o0it;
     };

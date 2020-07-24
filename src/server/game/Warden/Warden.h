@@ -21,8 +21,7 @@
 #include "ARC4.h"
 #include "ByteBuffer.h"
 #include "WardenCheckMgr.h"
-
-#include <map>
+#include <array>
 
 enum WardenOpcodes
 {

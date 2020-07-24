@@ -21,7 +21,6 @@
 #include "ARC4.h"
 #include "ByteBuffer.h"
 #include "Warden.h"
-#include <map>
 
 class WorldSession;
 class Warden;
