@@ -123,7 +123,6 @@ enum Spells
 };
 
 #define SPELL_DEPRAVITY         RAID_MODE<uint32>(81713, 93175, 93176, 93177)
-#define SPELL_DEBILITATING_BEAM RAID_MODE<int32>(82411, 93132, 93133, 93134)
 
 enum Events
 {
@@ -855,11 +854,6 @@ struct npc_chogall_darkened_creation : public ScriptedAI
 {
     npc_chogall_darkened_creation(Creature* creature) : ScriptedAI(creature), _instance(me->GetInstanceScript())
     {
-        Initialize();
-    }
-
-    void Initialize()
-    {
         me->SetReactState(REACT_PASSIVE);
     }
 
@@ -868,7 +862,6 @@ struct npc_chogall_darkened_creation : public ScriptedAI
         if (Creature* chogall = _instance->GetCreature(DATA_CHOGALL))
             chogall->AI()->JustSummoned(me);
 
-        DoZoneInCombat();
         DoCastSelf(SPELL_DARKENED_CREATION_SUMMON_VISUAL);
 
         _events.ScheduleEvent(EVENT_TRANSFORM, 3s + 500ms);
@@ -890,10 +883,12 @@ struct npc_chogall_darkened_creation : public ScriptedAI
                     DoCastSelf(SPELL_TRANSFORM_EYE_TENTACLE);
                     DoCastSelf(SPELL_VOID_ZONE_VISUAL);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    _events.ScheduleEvent(EVENT_DEBILITATING_BEAM, 1s + 300ms);
+
+                    if (me->IsSummon())
+                        _events.ScheduleEvent(EVENT_DEBILITATING_BEAM, 1s + 300ms);
                     break;
                 case EVENT_DEBILITATING_BEAM:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, true, -SPELL_DEBILITATING_BEAM))
+                    if (Unit* target = me->ToTempSummon()->GetSummoner())
                     {
                         me->SetFacingToObject(target);
                         DoCast(target, SPELL_DEBILITATING_BEAM);
