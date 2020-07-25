@@ -174,6 +174,41 @@ TEST_CASE("Reschedule a non-scheduled event", "[EventMap]")
     REQUIRE(id == EVENT_1);
 }
 
+TEST_CASE("Repeat an event (empty map)", "[EventMap]")
+{
+    EventMap eventMap;
+
+    eventMap.Repeat(1s);
+    eventMap.Update(1s);
+
+    uint32 id = eventMap.ExecuteEvent();
+    REQUIRE(id == 0);
+}
+
+TEST_CASE("Repeat an event (populated map)", "[EventMap]")
+{
+    EventMap eventMap;
+    eventMap.ScheduleEvent(EVENT_1, 1s);
+
+    SECTION("Scheduled event with delay not reached")
+    {
+        eventMap.Update(500ms);
+        eventMap.Repeat(1s);
+
+        uint32 id = eventMap.ExecuteEvent();
+        REQUIRE(id == 0);
+    }
+
+    SECTION("Scheduled event with delay not reached")
+    {
+        eventMap.Update(1s);
+        eventMap.Repeat(1s);
+
+        uint32 id = eventMap.ExecuteEvent();
+        REQUIRE(id == EVENT_1);
+    }
+}
+
 TEST_CASE("Schedule event with phase", "[EventMap]")
 {
     EventMap eventMap;
