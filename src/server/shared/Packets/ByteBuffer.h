@@ -352,6 +352,12 @@ class TC_SHARED_API ByteBuffer
             _rpos += len;
         }
 
+        template <size_t S>
+        void read(std::array<uint8, S>& arr)
+        {
+            read(arr.data(), S);
+        }
+
         void readPackGUID(uint64& guid)
         {
             if (rpos() + 1 > size())

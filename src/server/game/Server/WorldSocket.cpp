@@ -20,6 +20,7 @@
 #include "DatabaseEnv.h"
 #include "GameTime.h"
 #include "CryptoHash.h"
+#include "CryptoRandom.h"
 #include "IPLocation.h"
 #include "Opcodes.h"
 #include "PacketLog.h"
@@ -34,8 +35,9 @@
 using boost::asio::ip::tcp;
 
 WorldSocket::WorldSocket(tcp::socket&& socket)
-    : Socket(std::move(socket)), _authSeed(rand32()), _OverSpeedPings(0), _worldSession(nullptr), _authed(false), _sendBufferSize(4096)
+    : Socket(std::move(socket)), _OverSpeedPings(0), _worldSession(nullptr), _authed(false), _sendBufferSize(4096)
 {
+    Trinity::Crypto::GetRandomBytes(_authSeed);
     _headerBuffer.Resize(sizeof(ClientPktHeader));
 }
 
@@ -126,15 +128,9 @@ void WorldSocket::HandleSendAuthSession()
 {
     WorldPacket packet(SMSG_AUTH_CHALLENGE, 37);
     packet << uint32(1);                                    // 1...31
-    packet << uint32(_authSeed);
+    packet.append(_authSeed);
 
-    BigNumber seed1;
-    seed1.SetRand(16 * 8);
-    packet.append(seed1.ToByteArray<16>());               // new encryption seeds
-
-    BigNumber seed2;
-    seed2.SetRand(16 * 8);
-    packet.append(seed2.ToByteArray<16>());               // new encryption seeds
+    packet.append(Trinity::Crypto::GetRandomBytes<32>());               // new encryption seeds
 
     SendPacketAndLogOpcode(packet);
 }
@@ -237,7 +233,7 @@ struct AuthSession
     uint32 LoginServerType = 0;
     uint32 RealmID = 0;
     uint32 Build = 0;
-    uint32 LocalChallenge = 0;
+    std::array<uint8, 4> LocalChallenge;
     uint32 LoginServerID = 0;
     uint32 RegionID = 0;
     uint64 DosResponse = 0;
@@ -429,12 +425,12 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     recvPacket >> authSession->LoginServerID;
     recvPacket >> authSession->Account;
     recvPacket >> authSession->LoginServerType;
-    recvPacket >> authSession->LocalChallenge;
+    recvPacket.read(authSession->LocalChallenge);
     recvPacket >> authSession->RegionID;
     recvPacket >> authSession->BattlegroupID;
     recvPacket >> authSession->RealmID;               // realmId from auth_database.realmlist table
     recvPacket >> authSession->DosResponse;
-    recvPacket.read(authSession->Digest.data(), Trinity::Crypto::SHA1::DIGEST_LENGTH);
+    recvPacket.read(authSession->Digest);
     authSession->AddonInfo.resize(recvPacket.size() - recvPacket.rpos());
     recvPacket.read(authSession->AddonInfo.contents(), authSession->AddonInfo.size()); // .contents will throw if empty, thats what we want
 
@@ -502,13 +498,13 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSes
     }
 
     // Check that Key and account name are the same on client and server
-    uint32 t = 0;
+    uint8 t[4] = { 0x00,0x00,0x00,0x00 };
 
     Trinity::Crypto::SHA1 sha;
     sha.UpdateData(authSession->Account);
-    sha.UpdateData((uint8*)&t, 4);
-    sha.UpdateData((uint8*)&authSession->LocalChallenge, 4);
-    sha.UpdateData((uint8*)&_authSeed, 4);
+    sha.UpdateData(t);
+    sha.UpdateData(authSession->LocalChallenge);
+    sha.UpdateData(_authSeed);
     sha.UpdateData(account.SessionKey);
     sha.Finalize();
 
