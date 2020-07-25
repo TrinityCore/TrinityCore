@@ -70,7 +70,7 @@ class instance_deadmines : public InstanceMapScript
                 PiratesDelay_Timer = 0;
                 SmiteAlarmDelay_Timer = 0;
             }
-            
+
             ObjectGuid IronCladDoorGUID;
             ObjectGuid DefiasCannonGUID;
             ObjectGuid DoorLeverGUID;
