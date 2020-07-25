@@ -254,7 +254,7 @@ void EscortAI::UpdateEscortAI(uint32 /*diff*/)
     DoMeleeAttackIfReady();
 }
 
-void EscortAI::AddWaypoint(uint32 id, float x, float y, float z, float orientation/* = 0*/, uint32 waitTime/* = 0*/)
+void EscortAI::AddWaypoint(uint32 id, float x, float y, float z, float orientation/* = 0*/, Milliseconds waitTime/* = 0s*/)
 {
     Trinity::NormalizeMapCoord(x);
     Trinity::NormalizeMapCoord(y);
@@ -266,7 +266,7 @@ void EscortAI::AddWaypoint(uint32 id, float x, float y, float z, float orientati
     waypoint.z = z;
     waypoint.orientation = orientation;
     waypoint.moveType = _running ? WAYPOINT_MOVE_TYPE_RUN : WAYPOINT_MOVE_TYPE_WALK;
-    waypoint.delay = waitTime;
+    waypoint.delay = waitTime.count();
     waypoint.eventId = 0;
     waypoint.eventChance = 100;
     _path.nodes.push_back(std::move(waypoint));
