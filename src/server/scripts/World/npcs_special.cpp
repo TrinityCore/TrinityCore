@@ -2334,7 +2334,7 @@ class npc_train_wrecker : public CreatureScript
                 if (GameObject* target = ObjectAccessor::GetGameObject(*me, _target))
                     return target;
                 me->HandleEmoteCommand(EMOTE_ONESHOT_RUDE);
-                me->DespawnOrUnsummon(3 * IN_MILLISECONDS);
+                me->DespawnOrUnsummon(3s);
                 return nullptr;
             }
 
@@ -2400,7 +2400,7 @@ class npc_train_wrecker : public CreatureScript
                                 break;
                             }
                             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_DANCE);
-                            me->DespawnOrUnsummon(5 * IN_MILLISECONDS);
+                            me->DespawnOrUnsummon(5s);
                             _nextAction = 0;
                             break;
                         default:
