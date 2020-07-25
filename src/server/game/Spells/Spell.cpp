@@ -828,7 +828,7 @@ uint64 Spell::CalculateDelayMomentForDst(float launchDelay) const
 void Spell::RecalculateDelayMomentForDst()
 {
     m_delayMoment = CalculateDelayMomentForDst(0.0f);
-    m_caster->m_Events.ModifyEventTime(_spellEvent, GetDelayStart() + m_delayMoment);
+    m_caster->m_Events.ModifyEventTime(_spellEvent, Milliseconds(GetDelayStart() + m_delayMoment));
 }
 
 void Spell::SelectEffectImplicitTargets(SpellEffectInfo const& spellEffectInfo, SpellImplicitTargetInfo const& targetType, uint32& processedEffectMask)
@@ -7838,7 +7838,7 @@ bool SpellEvent::Execute(uint64 e_time, uint32 p_time)
                     if (n_offset)
                     {
                         // re-add us to the queue
-                        m_Spell->GetCaster()->m_Events.AddEvent(this, m_Spell->GetDelayStart() + n_offset, false);
+                        m_Spell->GetCaster()->m_Events.AddEvent(this, Milliseconds(m_Spell->GetDelayStart() + n_offset), false);
                         return false;                       // event not complete
                     }
                     // event complete
@@ -7856,7 +7856,7 @@ bool SpellEvent::Execute(uint64 e_time, uint32 p_time)
                 else
                     ASSERT(n_offset == m_Spell->GetDelayMoment());
                 // re-plan the event for the delay moment
-                m_Spell->GetCaster()->m_Events.AddEvent(this, e_time + m_Spell->GetDelayMoment(), false);
+                m_Spell->GetCaster()->m_Events.AddEvent(this, Milliseconds(e_time + m_Spell->GetDelayMoment()), false);
                 return false;                               // event not complete
             }
             break;
@@ -7870,7 +7870,7 @@ bool SpellEvent::Execute(uint64 e_time, uint32 p_time)
     }
 
     // spell processing not complete, plan event on the next update interval
-    m_Spell->GetCaster()->m_Events.AddEvent(this, e_time + 1, false);
+    m_Spell->GetCaster()->m_Events.AddEvent(this, Milliseconds(e_time + 1), false);
     return false;                                           // event not complete
 }
 

@@ -392,7 +392,7 @@ class TrashJumpEvent : public BasicEvent
                 case 0:
                     _owner->CastSpell(nullptr, SPELL_LEAP);
                     ++_stage;
-                    _owner->m_Events.AddEvent(this, eventTime + 2000);
+                    _owner->m_Events.AddEvent(this, Milliseconds(eventTime) + 2s);
                     return false;
                 case 1:
                     _owner->SetReactState(REACT_AGGRESSIVE);
@@ -423,7 +423,7 @@ class LightningFieldEvent : public BasicEvent
                 if (instance->GetBossState(BOSS_THORIM) == IN_PROGRESS)
                 {
                     _owner->CastSpell(nullptr, SPELL_LIGHTNING_FIELD);
-                    _owner->m_Events.AddEvent(this, eventTime + 1000);
+                    _owner->m_Events.AddEvent(this, Milliseconds(eventTime) + 1s);
                     return false;
                 }
             }

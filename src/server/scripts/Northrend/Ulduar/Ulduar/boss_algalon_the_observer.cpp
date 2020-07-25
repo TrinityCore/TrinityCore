@@ -243,7 +243,7 @@ class ActivateLivingConstellation : public BasicEvent
                 return true;    // delete event
 
             _owner->CastSpell(nullptr, SPELL_TRIGGER_3_ADDS, TRIGGERED_FULL_MASK);
-            _owner->m_Events.AddEvent(this, execTime + urand(45000, 50000));
+            _owner->m_Events.AddEvent(this, Milliseconds(execTime) + randtime(45s, 50s));
             return false;
         }
 
@@ -275,7 +275,7 @@ class SummonUnleashedDarkMatter : public BasicEvent
         bool Execute(uint64 execTime, uint32 /*diff*/) override
         {
             _caster->CastSpell(nullptr, SPELL_SUMMON_UNLEASHED_DARK_MATTER, TRIGGERED_FULL_MASK);
-            _caster->m_Events.AddEvent(this, execTime + 30000);
+            _caster->m_Events.AddEvent(this, Milliseconds(execTime) + 30s);
             return false;
         }
 
