@@ -295,7 +295,7 @@ public:
                     me->SetImmuneToPC(false);
                     DoZoneInCombat();
                     if (Creature* orb = ObjectAccessor::GetCreature(*me, _orb))
-                        orb->DespawnOrUnsummon(1000);
+                        orb->DespawnOrUnsummon(1s);
                     break;
                 case ACTION_START_ENCOUNTER:
                     if (Creature* orb = ObjectAccessor::GetCreature(*me, _orb))

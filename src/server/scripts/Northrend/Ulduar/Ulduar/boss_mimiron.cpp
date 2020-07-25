@@ -371,9 +371,9 @@ static bool IsEncounterFinished(Unit* who)
         Unit::Kill(who, mkii);
         Unit::Kill(who, vx001);
         Unit::Kill(who, aerial);
-        mkii->DespawnOrUnsummon(120000);
-        vx001->DespawnOrUnsummon(120000);
-        aerial->DespawnOrUnsummon(120000);
+        mkii->DespawnOrUnsummon(120s);
+        vx001->DespawnOrUnsummon(120s);
+        aerial->DespawnOrUnsummon(120s);
         if (Creature* mimiron = instance->GetCreature(BOSS_MIMIRON))
             mimiron->AI()->JustDied(who);
         return true;
@@ -660,7 +660,7 @@ class boss_mimiron : public CreatureScript
                         case EVENT_OUTTRO_3:
                             DoCast(me, SPELL_TELEPORT_VISUAL);
                             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            me->DespawnOrUnsummon(1000); // sniffs say 6 sec after, but it doesnt matter.
+                            me->DespawnOrUnsummon(1s); // sniffs say 6 sec after, but it doesnt matter.
                             break;
                         default:
                             break;
@@ -1594,7 +1594,7 @@ class npc_mimiron_frost_bomb : public CreatureScript
                             break;
                         case EVENT_FROST_BOMB_CLEAR_FIRES:
                             DoCastAOE(SPELL_CLEAR_FIRES);
-                            me->DespawnOrUnsummon(3000);
+                            me->DespawnOrUnsummon(3s);
                             break;
                         default:
                             break;
@@ -1643,7 +1643,7 @@ class npc_mimiron_proximity_mine : public CreatureScript
                         case EVENT_PROXIMITY_MINE_DETONATION:
                             if (me->HasAura(SPELL_PROXIMITY_MINE_PERIODIC_TRIGGER))
                                 DoCastAOE(SPELL_PROXIMITY_MINE_EXPLOSION);
-                            me->DespawnOrUnsummon(1000);
+                            me->DespawnOrUnsummon(1s);
                             break;
                         default:
                             break;
@@ -1726,7 +1726,7 @@ class spell_mimiron_bomb_bot : public SpellScriptLoader
                 if (Creature* target = GetHitCreature())
                 {
                     target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
-                    target->DespawnOrUnsummon(1000);
+                    target->DespawnOrUnsummon(1s);
                 }
             }
 

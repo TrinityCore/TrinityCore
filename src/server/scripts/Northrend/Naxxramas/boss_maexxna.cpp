@@ -245,7 +245,7 @@ public:
                 if (Unit* victim = ObjectAccessor::GetUnit(*me, victimGUID))
                     victim->RemoveAurasDueToSpell(SPELL_WEB_WRAP, me->GetGUID());
 
-            me->DespawnOrUnsummon(5 * IN_MILLISECONDS);
+            me->DespawnOrUnsummon(5s);
         }
     };
 

@@ -353,7 +353,7 @@ class spell_frost_tomb : public SpellScriptLoader
                     if (Unit* caster = GetCaster())
                         if (caster->IsAlive())
                             if (Creature* creature = caster->ToCreature())
-                                creature->DespawnOrUnsummon(1000);
+                                creature->DespawnOrUnsummon(1s);
             }
 
             void Register() override

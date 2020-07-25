@@ -528,7 +528,7 @@ public:
             GetCaster()->CastSpell(GetCaster(), SPELL_DRAKE_HATCHLING_SUBDUED, true);
             owner->SetFaction(FACTION_FRIENDLY);
             owner->SetImmuneToAll(true);
-            owner->DespawnOrUnsummon(3 * MINUTE*IN_MILLISECONDS);
+            owner->DespawnOrUnsummon(3min);
         }
 
         void Register()

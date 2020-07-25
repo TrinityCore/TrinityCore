@@ -515,7 +515,7 @@ class boss_freya : public CreatureScript
                                         for (uint8 n = 0; n < 3; ++n)
                                         {
                                             summons.Despawn(Elemental[n][i]);
-                                            Elemental[n][i]->DespawnOrUnsummon(5000);
+                                            Elemental[n][i]->DespawnOrUnsummon(5s);
                                             trioDefeated[i] = true;
                                             Elemental[n][i]->CastSpell(me, SPELL_REMOVE_10STACK, true);
                                         }
@@ -623,7 +623,7 @@ class boss_freya : public CreatureScript
                 me->RemoveAllAttackers();
                 me->AttackStop();
                 me->SetFaction(FACTION_FRIENDLY);
-                me->DespawnOrUnsummon(7500);
+                me->DespawnOrUnsummon(7500ms);
                 me->CastSpell(me, SPELL_KNOCK_ON_WOOD_CREDIT, true);
                 _JustDied();
 
@@ -677,12 +677,12 @@ class boss_freya : public CreatureScript
                     case NPC_DETONATING_LASHER:
                         summoned->CastSpell(me, SPELL_REMOVE_2STACK, true);
                         summoned->CastSpell(who, SPELL_DETONATE, true);
-                        summoned->DespawnOrUnsummon(5000);
+                        summoned->DespawnOrUnsummon(5s);
                         summons.Despawn(summoned);
                         break;
                     case NPC_ANCIENT_CONSERVATOR:
                         summoned->CastSpell(me, SPELL_REMOVE_25STACK, true);
-                        summoned->DespawnOrUnsummon(5000);
+                        summoned->DespawnOrUnsummon(5s);
                         summons.Despawn(summoned);
                         break;
                 }
@@ -785,7 +785,7 @@ class boss_elder_brightleaf : public CreatureScript
                 switch (action)
                 {
                     case ACTION_ELDER_FREYA_KILLED:
-                        me->DespawnOrUnsummon(10000);
+                        me->DespawnOrUnsummon(10s);
                         _JustDied();
                         break;
                 }
@@ -894,7 +894,7 @@ class boss_elder_stonebark : public CreatureScript
                 switch (action)
                 {
                     case ACTION_ELDER_FREYA_KILLED:
-                        me->DespawnOrUnsummon(10000);
+                        me->DespawnOrUnsummon(10s);
                         _JustDied();
                         break;
                 }
@@ -988,7 +988,7 @@ class boss_elder_ironbranch : public CreatureScript
                 switch (action)
                 {
                     case ACTION_ELDER_FREYA_KILLED:
-                        me->DespawnOrUnsummon(10000);
+                        me->DespawnOrUnsummon(10s);
                         _JustDied();
                         break;
                 }
@@ -1378,7 +1378,7 @@ class npc_healthy_spore : public CreatureScript
                 if (lifeTimer <= diff)
                 {
                     me->RemoveAurasDueToSpell(SPELL_GROW);
-                    me->DespawnOrUnsummon(2200);
+                    me->DespawnOrUnsummon(2200ms);
                     lifeTimer = urand(22000, 30000);
                 }
                 else
@@ -1418,7 +1418,7 @@ class npc_eonars_gift : public CreatureScript
                 {
                     me->RemoveAurasDueToSpell(SPELL_GROW);
                     DoCast(SPELL_LIFEBINDERS_GIFT);
-                    me->DespawnOrUnsummon(2500);
+                    me->DespawnOrUnsummon(2500ms);
                     lifeBindersGiftTimer = 12000;
                 }
                 else
