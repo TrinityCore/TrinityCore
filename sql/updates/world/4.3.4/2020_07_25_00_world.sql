@@ -2,7 +2,7 @@
 UPDATE `creature_template` SET `unit_flags`= 64 WHERE `entry`= 15263;
 
 -- Ouro
-UPDATE `creature` SET `spawndist`= 0 WHERE `guid`= 88073;
+UPDATE `creature` SET `spawndist`= 0, `MovementType`= 0 WHERE `guid`= 88073;
 UPDATE `creature_template` SET `ScriptName`= 'npc_ouro_spawner' WHERE `entry`= 15957;
 
 DELETE FROM `creature_template_movement` WHERE `CreatureId`= 15517;
