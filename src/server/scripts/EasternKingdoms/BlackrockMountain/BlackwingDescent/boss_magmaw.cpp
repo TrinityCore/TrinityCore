@@ -226,9 +226,6 @@ struct boss_magmaw : public BossAI
         events.ScheduleEvent(EVENT_LAVA_SPEW, 19s, 0, PHASE_COMBAT);
         events.ScheduleEvent(EVENT_MANGLE, 1min + 30s, 0, PHASE_COMBAT);
 
-        _exposedHead1->SetInCombatWithZone();
-        _exposedHead2->SetInCombatWithZone();
-
         if (IsHeroic())
             DoSummon(NPC_NEFARIAN_MAGMAW, NefarianIntroSummonPos, 0, TEMPSUMMON_MANUAL_DESPAWN);
     }
