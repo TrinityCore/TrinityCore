@@ -75,7 +75,7 @@ void EventProcessor::Update(uint32 p_time)
 
         // Reschedule non deletable events to be checked at
         // the next update tick
-        AddEvent(event, CalculateTime(1), false);
+        AddEvent(event, CalculateTime(1ms), false);
     }
 }
 

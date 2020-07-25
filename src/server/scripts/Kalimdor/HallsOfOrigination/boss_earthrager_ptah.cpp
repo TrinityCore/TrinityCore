@@ -150,7 +150,7 @@ public:
                     stalkers.remove((*itr)); // Remove it to prevent a single trigger from spawning multiple npcs.
                     (*itr)->CastSpell((*itr), SPELL_BEETLE_BURROW); // Cast visual
                     // Summon after 5 seconds.
-                    (*itr)->m_Events.AddEvent(new SummonScarab((*itr), instance), (*itr)->m_Events.CalculateTime(5000));
+                    (*itr)->m_Events.AddEventAtOffset(new SummonScarab((*itr), instance), 5s);
                 }
 
                 Trinity::Containers::RandomResize(stalkers, 2); // Holds the summoners of Dustbone Horror

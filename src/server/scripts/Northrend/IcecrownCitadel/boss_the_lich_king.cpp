@@ -476,7 +476,7 @@ class TriggerWickedSpirit : public BasicEvent
 
             if (--_counter)
             {
-                _owner->m_Events.AddEvent(this, _owner->m_Events.CalculateTime(3000));
+                _owner->m_Events.AddEvent(this, _owner->m_Events.CalculateTime(3s));
                 return false;
             }
 
@@ -720,7 +720,7 @@ class boss_the_lich_king : public CreatureScript
                         summon->CastSpell(summon, SPELL_RISEN_WITCH_DOCTOR_SPAWN, true);
                         summon->SetReactState(REACT_PASSIVE);
                         summon->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
-                        summon->m_Events.AddEvent(new LichKingStartMovementEvent(me, summon), summon->m_Events.CalculateTime(5000));
+                        summon->m_Events.AddEvent(new LichKingStartMovementEvent(me, summon), summon->m_Events.CalculateTime(5s));
                         break;
                     case NPC_SHADOW_TRAP:
                         summon->CastSpell(summon, SPELL_SHADOW_TRAP_VISUAL, true);
@@ -760,7 +760,7 @@ class boss_the_lich_king : public CreatureScript
                         summon->SetSpeedRate(MOVE_FLIGHT, 0.5f);
                         summon->GetMotionMaster()->MoveRandom(10.0f);
                         if (!events.IsInPhase(PHASE_FROSTMOURNE))
-                            summon->m_Events.AddEvent(new VileSpiritActivateEvent(summon), summon->m_Events.CalculateTime(15000));
+                            summon->m_Events.AddEvent(new VileSpiritActivateEvent(summon), summon->m_Events.CalculateTime(15s));
                         return;
                     }
                     case NPC_STRANGULATE_VEHICLE:
@@ -1036,7 +1036,7 @@ class boss_the_lich_king : public CreatureScript
                                     if (summon->GetEntry() == NPC_VILE_SPIRIT)
                                     {
                                         summon->m_Events.KillAllEvents(true);
-                                        summon->m_Events.AddEvent(new VileSpiritActivateEvent(summon), summon->m_Events.CalculateTime(56500));
+                                        summon->m_Events.AddEvent(new VileSpiritActivateEvent(summon), summon->m_Events.CalculateTime(56500ms));
                                         summon->SetReactState(REACT_PASSIVE);
                                         summon->CombatStop(true);
                                         summon->RemoveAurasDueToSpell(SPELL_VILE_SPIRIT_MOVE_SEARCH);
@@ -1062,7 +1062,7 @@ class boss_the_lich_king : public CreatureScript
                                     spawner->SetFarVisible(true);
                                     spawner->CastSpell(spawner, SPELL_SUMMON_SPIRIT_BOMB_1, true);  // summons bombs randomly
                                     spawner->CastSpell(spawner, SPELL_SUMMON_SPIRIT_BOMB_2, true);  // summons bombs on players
-                                    spawner->m_Events.AddEvent(new TriggerWickedSpirit(spawner), spawner->m_Events.CalculateTime(3000));
+                                    spawner->m_Events.AddEvent(new TriggerWickedSpirit(spawner), spawner->m_Events.CalculateTime(3s));
                                 }
                             }
                             break;

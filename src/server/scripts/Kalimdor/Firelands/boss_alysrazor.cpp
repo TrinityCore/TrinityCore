@@ -469,7 +469,7 @@ class npc_egg_pile : public CreatureScript
                                 Creature* egg = Trinity::Containers::SelectRandomContainerElement(eggs);
                                 egg->CastSpell(egg, SPELL_SUMMON_SMOULDERING_HATCHLING, TRIGGERED_FULL_MASK);
                                 egg->SetDisplayId(MODEL_INVISIBLE_STALKER);
-                                egg->m_Events.AddEvent(new RespawnEggEvent(egg), egg->m_Events.CalculateTime(5000));
+                                egg->m_Events.AddEventAtOffset(new RespawnEggEvent(egg), 5s);
                             }
 
                             if (_callHatchlingSpell)

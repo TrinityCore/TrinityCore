@@ -323,7 +323,7 @@ struct boss_sister_svalna : public BossAI
         _JustDied();
         Talk(SAY_SVALNA_DEATH);
 
-        uint64 delay = 1;
+        Milliseconds delay = 1ms;
         for (uint8 itr = 0; itr < 4; ++itr)
         {
             if (Creature* crusader = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_CAPTAIN_ARNATH + itr)))
@@ -331,7 +331,7 @@ struct boss_sister_svalna : public BossAI
                 if (crusader->IsAlive() && crusader->GetEntry() == crusader->GetCreatureData()->id)
                 {
                     crusader->m_Events.AddEvent(new CaptainSurviveTalk(crusader), crusader->m_Events.CalculateTime(delay));
-                    delay += 6000;
+                    delay += 6s;
                 }
             }
         }

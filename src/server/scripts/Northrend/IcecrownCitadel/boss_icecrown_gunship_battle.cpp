@@ -512,7 +512,7 @@ class BattleExperienceEvent : public BasicEvent
 {
 public:
     static uint32 const ExperiencedSpells[5];
-    static uint32 const ExperiencedTimes[5];
+    static Milliseconds const ExperiencedTimes[5];
 
     BattleExperienceEvent(Creature* creature) : _creature(creature), _level(0) { }
 
@@ -527,7 +527,7 @@ public:
         _creature->CastSpell(_creature, ExperiencedSpells[_level], TRIGGERED_FULL_MASK);
         if (_level < (_creature->GetMap()->IsHeroic() ? 4 : 3))
         {
-            _creature->m_Events.AddEvent(this, timer + ExperiencedTimes[_level]);
+            _creature->m_Events.AddEvent(this, Milliseconds(timer) + ExperiencedTimes[_level]);
             return false;
         }
 
@@ -540,7 +540,7 @@ private:
 };
 
 uint32 const BattleExperienceEvent::ExperiencedSpells[5] = { 0, SPELL_EXPERIENCED, SPELL_VETERAN, SPELL_ELITE, SPELL_ADDS_BERSERK };
-uint32 const BattleExperienceEvent::ExperiencedTimes[5] = { 100000, 70000, 60000, 90000, 0 };
+Milliseconds const BattleExperienceEvent::ExperiencedTimes[5] = { 100s, 70s, 60s, 90s, 0s };
 
 struct gunship_npc_AI : public ScriptedAI
 {
@@ -790,7 +790,7 @@ class npc_gunship : public CreatureScript
                 {
                     uint32 teleportSpellId = _teamInInstance == HORDE ? SPELL_TELEPORT_PLAYERS_ON_RESET_H : SPELL_TELEPORT_PLAYERS_ON_RESET_A;
                     me->m_Events.AddEvent(new ResetEncounterEvent(me, teleportSpellId, me->GetInstanceScript()->GetGuidData(DATA_ENEMY_GUNSHIP)),
-                        me->m_Events.CalculateTime(8000));
+                        me->m_Events.CalculateTime(8s));
                 }
             }
 
@@ -1418,7 +1418,7 @@ struct npc_gunship_boarding_addAI : public gunship_npc_AI
 
             me->SetReactState(REACT_PASSIVE);
 
-            me->m_Events.AddEvent(new DelayedMovementEvent(me, Slot->TargetPosition), me->m_Events.CalculateTime(3000 * (Index - SLOT_MARINE_1)));
+            me->m_Events.AddEvent(new DelayedMovementEvent(me, Slot->TargetPosition), me->m_Events.CalculateTime(3s * (Index - SLOT_MARINE_1)));
 
             if (Creature* captain = me->FindNearestCreature(Instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE ? NPC_IGB_MURADIN_BRONZEBEARD : NPC_IGB_HIGH_OVERLORD_SAURFANG, 200.0f))
                 captain->AI()->SetData(ACTION_CLEAR_SLOT, Index);

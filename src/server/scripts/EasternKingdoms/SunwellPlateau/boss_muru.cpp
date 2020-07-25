@@ -350,7 +350,7 @@ public:
         {
             DoCast(summon, SPELL_SUMMON_VOID_SENTINEL_SUMMONER_VISUAL, true);
 
-            summon->m_Events.AddEvent(new VoidSpawnSummon(summon), summon->m_Events.CalculateTime(1500));
+            summon->m_Events.AddEvent(new VoidSpawnSummon(summon), summon->m_Events.CalculateTime(1500ms));
         }
 
         void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
