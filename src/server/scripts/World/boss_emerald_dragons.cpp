@@ -441,7 +441,7 @@ class npc_spirit_shade : public CreatureScript
                 if (moveType == FOLLOW_MOTION_TYPE && data == _summonerGuid.GetCounter())
                 {
                     me->CastSpell(nullptr, SPELL_DARK_OFFERING, false);
-                    me->DespawnOrUnsummon(1000);
+                    me->DespawnOrUnsummon(1s);
                 }
             }
 

@@ -840,7 +840,7 @@ class go_veil_skith_cage : public GameObjectScript
                    for (Creature* creature : childrenList)
                    {
                        player->KilledMonsterCredit(NPC_CAPTIVE_CHILD, creature->GetGUID());
-                       creature->DespawnOrUnsummon(5000);
+                       creature->DespawnOrUnsummon(5s);
                        creature->GetMotionMaster()->MovePoint(1, me->GetPositionX() + 5, me->GetPositionY(), me->GetPositionZ());
                        creature->AI()->Talk(SAY_FREE_0);
                        creature->GetMotionMaster()->Clear();
