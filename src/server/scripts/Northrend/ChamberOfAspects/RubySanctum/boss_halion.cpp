@@ -636,7 +636,7 @@ class npc_halion_controller : public CreatureScript
                 _instance->SetBossState(DATA_HALION, FAIL);
                 _summons.DespawnAll();
 
-                me->DespawnOrUnsummon(0, 30s);
+                me->DespawnOrUnsummon(0s, 30s);
             }
 
             void DoAction(int32 action) override
@@ -1297,7 +1297,7 @@ class npc_living_inferno : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                me->DespawnOrUnsummon(1);
+                me->DespawnOrUnsummon(1ms);
             }
 
             void UpdateAI(uint32 diff) override
@@ -1334,7 +1334,7 @@ class npc_living_ember : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                me->DespawnOrUnsummon(1);
+                me->DespawnOrUnsummon(1ms);
             }
         };
 

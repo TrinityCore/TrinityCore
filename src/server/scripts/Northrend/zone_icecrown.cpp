@@ -79,7 +79,7 @@ public:
                 uiDamage = 0;
                 pDoneBy->CastSpell(pDoneBy, SPELL_KILL_CREDIT, true);
                 me->SetFaction(FACTION_FRIENDLY);
-                me->DespawnOrUnsummon(5000);
+                me->DespawnOrUnsummon(5s);
                 me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
                 EnterEvadeMode();
             }

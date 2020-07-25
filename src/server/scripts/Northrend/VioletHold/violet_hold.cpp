@@ -598,7 +598,7 @@ class npc_azure_saboteur : public CreatureScript
                             {
                                 _instance->SetData(DATA_START_BOSS_ENCOUNTER, 1);
                                 me->CastSpell(me, SPELL_TELEPORT_VISUAL, false);
-                                me->DespawnOrUnsummon(1000);
+                                me->DespawnOrUnsummon(1s);
                             });
                         }
                     });
@@ -1268,7 +1268,7 @@ class npc_violet_hold_defense_system : public CreatureScript
             void Reset() override
             {
                 ScheduledTasks();
-                me->DespawnOrUnsummon(7000);
+                me->DespawnOrUnsummon(7s);
             }
 
             void ScheduledTasks()

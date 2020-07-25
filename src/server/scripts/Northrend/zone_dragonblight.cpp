@@ -407,7 +407,7 @@ public:
             {
                 tree->CastSpell(player, SPELL_CREATE_ITEM_BARK);
                 tree->AI()->Talk(SAY_WALKER_FRIENDLY, player);
-                tree->DespawnOrUnsummon(1000);
+                tree->DespawnOrUnsummon(1s);
             }
             else // enemy version
             {
@@ -446,7 +446,7 @@ public:
 
             lothalor->AI()->Talk(SAY_LOTHALOR);
             lothalor->RemoveAura(SPELL_CONFUSED);
-            lothalor->DespawnOrUnsummon(4000);
+            lothalor->DespawnOrUnsummon(4s);
         }
 
         void Register() override

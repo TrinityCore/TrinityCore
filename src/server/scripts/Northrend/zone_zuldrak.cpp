@@ -153,7 +153,7 @@ public:
                 DoCast(me, SPELL_UNSHACKLED, true);
                 Talk(SAY_RAGECLAW);
                 me->GetMotionMaster()->MoveRandom(10);
-                me->DespawnOrUnsummon(10000);
+                me->DespawnOrUnsummon(10s);
             }
         }
     };
@@ -257,7 +257,7 @@ public:
                     case EVENT_RECRUIT_2:
                         me->SetWalk(true);
                         me->GetMotionMaster()->MovePoint(0, me->GetPositionX() + (std::cos(_heading) * 10), me->GetPositionY() + (std::sin(_heading) * 10), me->GetPositionZ());
-                        me->DespawnOrUnsummon(5000);
+                        me->DespawnOrUnsummon(5s);
                         break;
                     default:
                         break;
@@ -318,7 +318,7 @@ public:
                 {
                     player->KilledMonsterCredit(gymerDummy->GetEntry(), gymerDummy->GetGUID());
                     gymerDummy->CastSpell(gymerDummy, SPELL_GYMER_LOCK_EXPLOSION, true);
-                    gymerDummy->DespawnOrUnsummon(4 * IN_MILLISECONDS);
+                    gymerDummy->DespawnOrUnsummon(4s);
                 }
             }
             return true;

@@ -1058,7 +1058,7 @@ class npc_kinetic_bomb : public CreatureScript
                 DoCastSelf(SPELL_KINETIC_BOMB_VISUAL, true);
                 me->SetReactState(REACT_PASSIVE);
                 me->GetPosition(_x, _y, _groundZ);
-                me->DespawnOrUnsummon(60000);
+                me->DespawnOrUnsummon(60s);
                 _groundZ = me->GetMap()->GetHeight(me->GetPhaseShift(), _x, _y, _groundZ, true, 500.0f);
             }
 
@@ -1088,7 +1088,7 @@ class npc_kinetic_bomb : public CreatureScript
                     {
                         case EVENT_BOMB_DESPAWN:
                             me->SetVisible(false);
-                            me->DespawnOrUnsummon(5000);
+                            me->DespawnOrUnsummon(5s);
                             break;
                         case EVENT_CONTINUE_FALLING:
                             me->GetMotionMaster()->Clear();

@@ -1535,7 +1535,7 @@ class npc_valkyr_shadowguard : public CreatureScript
                         if (IsHeroic())
                             ScheduleHeroicEvents();
                         else
-                            me->DespawnOrUnsummon(1000);
+                            me->DespawnOrUnsummon(1s);
                         break;
                     case POINT_CHARGE:
                         if (Player* target = ObjectAccessor::GetPlayer(*me, _grabbedPlayer))
@@ -1720,7 +1720,7 @@ class npc_strangulate_vehicle : public CreatureScript
                         case EVENT_DESPAWN_SELF:
                             if (Creature* lichKing = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_THE_LICH_KING)))
                                 lichKing->AI()->SummonedCreatureDespawn(me);
-                            me->DespawnOrUnsummon(1);
+                            me->DespawnOrUnsummon(1ms);
                             break;
                         default:
                             break;
@@ -1777,7 +1777,7 @@ class npc_terenas_menethil : public CreatureScript
                         break;
                     case ACTION_TELEPORT_BACK:
                         me->CastSpell(nullptr, SPELL_RESTORE_SOUL, TRIGGERED_NONE);
-                        me->DespawnOrUnsummon(3000);
+                        me->DespawnOrUnsummon(3s);
                         break;
                     default:
                         break;
@@ -1807,10 +1807,10 @@ class npc_terenas_menethil : public CreatureScript
                         if (Creature* warden = me->FindNearestCreature(NPC_SPIRIT_WARDEN, 20.0f))
                         {
                             warden->CastSpell(nullptr, SPELL_DESTROY_SOUL, TRIGGERED_NONE);
-                            warden->DespawnOrUnsummon(2000);
+                            warden->DespawnOrUnsummon(2s);
                         }
 
-                        me->DespawnOrUnsummon(2000);
+                        me->DespawnOrUnsummon(2s);
                     }
                 }
             }
@@ -1994,7 +1994,7 @@ class npc_spirit_bomb : public CreatureScript
                 {
                     me->RemoveAllAuras();
                     DoCastAOE(SPELL_EXPLOSION);
-                    me->DespawnOrUnsummon(1000);
+                    me->DespawnOrUnsummon(1s);
                 }
             }
 
@@ -2405,7 +2405,7 @@ class spell_the_lich_king_ice_burst_target_search : public SpellScriptLoader
                 {
                     GetCaster()->ToCreature()->SetReactState(REACT_PASSIVE);
                     GetCaster()->AttackStop();
-                    GetCaster()->ToCreature()->DespawnOrUnsummon(500);
+                    GetCaster()->ToCreature()->DespawnOrUnsummon(500ms);
                 }
             }
 
@@ -2836,7 +2836,7 @@ class spell_the_lich_king_vile_spirit_damage_target_search : public SpellScriptL
                     if (Unit* summoner = summon->GetSummonerUnit())
                         summoner->GetAI()->SetData(DATA_VILE, 1);
                 GetCaster()->CastSpell(nullptr, SPELL_SPIRIT_BURST, true);
-                GetCaster()->ToCreature()->DespawnOrUnsummon(3000);
+                GetCaster()->ToCreature()->DespawnOrUnsummon(3s);
                 GetCaster()->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
             }
 

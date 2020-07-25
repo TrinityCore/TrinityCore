@@ -649,7 +649,7 @@ class npc_jaina_or_sylvanas_intro_hor : public CreatureScript
                         if (Creature* uther = ObjectAccessor::GetCreature(*me, _utherGUID))
                         {
                             uther->CastSpell(uther, SPELL_UTHER_DESPAWN, true);
-                            uther->DespawnOrUnsummon(5000);
+                            uther->DespawnOrUnsummon(5s);
                             _utherGUID.Clear();
                         }
                         _events.ScheduleEvent(EVENT_INTRO_LK_4, 9s);
@@ -741,10 +741,10 @@ class npc_jaina_or_sylvanas_intro_hor : public CreatureScript
                         _events.ScheduleEvent(EVENT_KORELN_LORALEN_DEATH, 8s);
                         if (Creature* lichking = ObjectAccessor::GetCreature(*me, _lichkingGUID))
                         {
-                            lichking->DespawnOrUnsummon(5000);
+                            lichking->DespawnOrUnsummon(5s);
                             _lichkingGUID.Clear();
                         }
-                        me->DespawnOrUnsummon(10000);
+                        me->DespawnOrUnsummon(10s);
                         _events.ScheduleEvent(EVENT_CLOSE_IMPENETRABLE_DOOR, 7s);
                         break;
                     case EVENT_SKIP_INTRO:
@@ -1311,7 +1311,7 @@ class npc_the_lich_king_escape_hor : public CreatureScript
                 me->StopMoving();
                 DoPlaySoundToSet(me, SOUND_LK_FURY_OF_FROSTMOURNE);
                 DoCastAOE(SPELL_FURY_OF_FROSTMOURNE);
-                me->DespawnOrUnsummon(12000);
+                me->DespawnOrUnsummon(12s);
                 _despawn = true;
             }
 
@@ -2566,7 +2566,7 @@ class npc_uther_quel_delar : public CreatureScript
                             break;
                         case EVENT_UTHER_11:
                             DoCast(me, SPELL_ESSENCE_OF_CAPTURED_1, true);
-                            me->DespawnOrUnsummon(3000);
+                            me->DespawnOrUnsummon(3s);
                             _instance->SetData(DATA_QUEL_DELAR_EVENT, DONE);
                             break;
                         case EVENT_UTHER_FACING:

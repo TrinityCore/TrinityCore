@@ -834,7 +834,7 @@ struct npc_black_hole : public ScriptedAI
         if (spellInfo->Id == SPELL_DESPAWN_BLACK_HOLE)
         {
             _summons.DespawnAll();
-            me->DespawnOrUnsummon(1);
+            me->DespawnOrUnsummon(1ms);
         }
     }
 
@@ -856,7 +856,7 @@ struct npc_collapsing_star : public PassiveAI
         if (Creature* algalon = _instance->GetCreature(BOSS_ALGALON))
             algalon->AI()->JustSummoned(summon);
 
-        me->DespawnOrUnsummon(1);
+        me->DespawnOrUnsummon(1ms);
     }
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage) override

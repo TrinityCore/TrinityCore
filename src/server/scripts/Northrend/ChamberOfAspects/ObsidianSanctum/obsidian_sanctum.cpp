@@ -631,7 +631,7 @@ class npc_acolyte_of_shadron : public CreatureScript
             void Reset() override
             {
                 // Despawn the NPC automatically after 28 seconds
-                me->DespawnOrUnsummon(28000);
+                me->DespawnOrUnsummon(28s);
 
                 //if not solo fight, buff main boss, else place debuff on mini-boss. both spells TARGET_SCRIPT
                 if (instance->GetBossState(DATA_SARTHARION) == IN_PROGRESS)
@@ -717,7 +717,7 @@ class npc_acolyte_of_vesperon : public CreatureScript
             void Reset() override
             {
                 // Despawn the NPC automatically after 28 seconds
-                me->DespawnOrUnsummon(28000);
+                me->DespawnOrUnsummon(28s);
 
                 me->AddAura(SPELL_TWILIGHT_SHIFT_ENTER, me);
 

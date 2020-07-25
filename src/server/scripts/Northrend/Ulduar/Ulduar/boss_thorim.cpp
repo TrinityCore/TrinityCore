@@ -531,7 +531,7 @@ class boss_thorim : public CreatureScript
                     if (Creature* sif = instance->GetCreature(DATA_SIF))
                     {
                         sif->AI()->Talk(SAY_SIF_DESPAWN);
-                        sif->DespawnOrUnsummon(6000);
+                        sif->DespawnOrUnsummon(6s);
                         _hardMode = false;
                     }
                 }
@@ -569,7 +569,7 @@ class boss_thorim : public CreatureScript
                     if (Creature* sif = instance->GetCreature(DATA_SIF))
                     {
                         summons.Despawn(sif);
-                        sif->DespawnOrUnsummon(10000);
+                        sif->DespawnOrUnsummon(10s);
                     }
                 }
 

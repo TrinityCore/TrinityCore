@@ -841,7 +841,7 @@ class spell_rotface_unstable_ooze_explosion_suicide : public SpellScriptLoader
 
                 target->RemoveAllAuras();
                 target->SetVisible(false);
-                target->ToCreature()->DespawnOrUnsummon(60000);
+                target->ToCreature()->DespawnOrUnsummon(60s);
             }
 
             void Register() override

@@ -183,7 +183,7 @@ class npc_unstable_sphere : public CreatureScript
 
                 Initialize();
 
-                me->DespawnOrUnsummon(19000);
+                me->DespawnOrUnsummon(19s);
             }
 
             void UpdateAI(uint32 diff) override

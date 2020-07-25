@@ -747,7 +747,7 @@ class spell_assembly_rune_of_summoning : public SpellScriptLoader
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (TempSummon* summ = GetTarget()->ToTempSummon())
-                    summ->DespawnOrUnsummon(1);
+                    summ->DespawnOrUnsummon(1ms);
             }
 
             void Register() override

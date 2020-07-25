@@ -1553,7 +1553,7 @@ class npc_observation_ring_keeper : public CreatureScript
                     return false;
 
                 me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
-                me->DespawnOrUnsummon(2000);
+                me->DespawnOrUnsummon(2s);
                 DoCast(SPELL_TELEPORT);
                 Talk(SAY_KEEPER_CHOSEN_1, player);
                 Talk(SAY_KEEPER_CHOSEN_2, player);

@@ -378,7 +378,7 @@ class npc_prince_taldaram_flame_sphere : public CreatureScript
                         }
                         case EVENT_DESPAWN:
                             DoCast(me, SPELL_FLAME_SPHERE_DEATH_EFFECT, true);
-                            me->DespawnOrUnsummon(1000);
+                            me->DespawnOrUnsummon(1s);
                             break;
                         default:
                             break;

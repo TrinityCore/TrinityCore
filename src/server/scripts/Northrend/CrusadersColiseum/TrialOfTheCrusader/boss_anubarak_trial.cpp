@@ -476,7 +476,7 @@ class npc_swarm_scarab : public CreatureScript
                 {
                     case ACTION_SCARAB_SUBMERGE:
                         DoCast(SPELL_SUBMERGE_EFFECT);
-                        me->DespawnOrUnsummon(1*IN_MILLISECONDS);
+                        me->DespawnOrUnsummon(1s);
                         break;
                     default:
                         break;
@@ -804,7 +804,7 @@ class npc_anubarak_spike : public CreatureScript
 
                     me->CastSpell(me, SPELL_SPIKE_FAIL, true);
 
-                    pWho->ToCreature()->DespawnOrUnsummon(3*IN_MILLISECONDS);
+                    pWho->ToCreature()->DespawnOrUnsummon(3s);
 
                     // After the spikes hit the icy surface they can't move for about ~5 seconds
                     _phase = PHASE_NO_MOVEMENT;
@@ -865,7 +865,7 @@ class spell_pursuing_spikes : public AuraScript
             PreventDefaultAction();
 
             if (Creature* permafrostCasterCreature = permafrostCaster->ToCreature())
-                permafrostCasterCreature->DespawnOrUnsummon(3000);
+                permafrostCasterCreature->DespawnOrUnsummon(3s);
 
             GetTarget()->CastSpell(nullptr, SPELL_SPIKE_FAIL);
             GetTarget()->RemoveAllAuras();

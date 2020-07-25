@@ -387,7 +387,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                 {
                     if (target->GetTransport())
                     {
-                        summon->DespawnOrUnsummon(1);
+                        summon->DespawnOrUnsummon(1ms);
                         EnterEvadeMode(EVADE_REASON_OTHER);
                         return;
                     }
@@ -909,7 +909,7 @@ class npc_muradin_bronzebeard_icc : public CreatureScript
 
                         // temp until outro fully done - to put deathbringer on respawn timer (until next reset)
                         if (Creature* deathbringer = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_DEATHBRINGER_SAURFANG)))
-                            deathbringer->DespawnOrUnsummon(5000);
+                            deathbringer->DespawnOrUnsummon(5s);
                         break;
                     }
                     case ACTION_INTERRUPT_INTRO:

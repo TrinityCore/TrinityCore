@@ -485,7 +485,7 @@ public:
 
         void Initialize()
         {
-            _despawnTimer = 5000;
+            _despawnTimer = 5s;
         }
 
         void Reset() override
@@ -527,7 +527,7 @@ public:
             DoMeleeAttackIfReady();
         }
         private:
-            uint32 _despawnTimer;
+            Milliseconds _despawnTimer;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -709,7 +709,7 @@ public:
             {
                 if (_following)
                     if (!me->HasAura(SPELL_FROG_LOVE))
-                        me->DespawnOrUnsummon(1000);
+                        me->DespawnOrUnsummon(1s);
 
                 _events.Update(diff);
 
@@ -736,7 +736,7 @@ public:
                             break;
                         case EVENT_LAKEFROG_5:
                             Talk(SAY_MAIDEN_1);
-                            me->DespawnOrUnsummon(4000);
+                            me->DespawnOrUnsummon(4s);
                             break;
                         default:
                             break;
