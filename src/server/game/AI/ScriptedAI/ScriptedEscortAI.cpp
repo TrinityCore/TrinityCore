@@ -33,7 +33,7 @@ enum Points
     POINT_HOME          = 0xFFFFFE
 };
 
-EscortAI::EscortAI(Creature* creature) : ScriptedAI(creature), _pauseTimer(2500), _playerCheckTimer(1000), _escortState(STATE_ESCORT_NONE), _maxPlayerDistance(DEFAULT_MAX_PLAYER_DISTANCE),
+EscortAI::EscortAI(Creature* creature) : ScriptedAI(creature), _pauseTimer(2500ms), _playerCheckTimer(1000), _escortState(STATE_ESCORT_NONE), _maxPlayerDistance(DEFAULT_MAX_PLAYER_DISTANCE),
     _escortQuest(nullptr), _activeAttacker(true), _running(false), _instantRespawn(false), _returnToStart(false), _despawnAtEnd(true), _despawnAtFar(true), _manualPath(false),
     _hasImmuneToNPCFlags(false), _started(false), _ended(false), _resume(false)
 {
@@ -79,7 +79,7 @@ void EscortAI::InitializeAI()
         SetCombatMovement(true);
 
     // add a small delay before going to first waypoint, normal in near all cases
-    _pauseTimer = 2000;
+    _pauseTimer = 2s;
 
     if (me->GetFaction() != me->GetCreatureTemplate()->faction)
         me->RestoreFaction();
@@ -123,8 +123,8 @@ void EscortAI::MovementInform(uint32 type, uint32 id)
 
     if (type == POINT_MOTION_TYPE)
     {
-        if (!_pauseTimer)
-            _pauseTimer = 2000;
+        if (_pauseTimer == 0s)
+            _pauseTimer = 2s;
 
         // continue waypoint movement
         if (id == POINT_LAST_POINT)
@@ -151,7 +151,7 @@ void EscortAI::MovementInform(uint32 type, uint32 id)
         {
             _started = false;
             _ended = true;
-            _pauseTimer = 1000;
+            _pauseTimer = 1s;
         }
     }
 }
@@ -161,11 +161,11 @@ void EscortAI::UpdateAI(uint32 diff)
     // Waypoint Updating
     if (HasEscortState(STATE_ESCORT_ESCORTING) && !me->IsEngaged() && !HasEscortState(STATE_ESCORT_RETURNING))
     {
-        if (_pauseTimer <= diff)
+        if (_pauseTimer.count() <= diff)
         {
             if (!HasEscortState(STATE_ESCORT_PAUSED))
             {
-                _pauseTimer = 0;
+                _pauseTimer = 0s;
 
                 if (_ended)
                 {
@@ -208,7 +208,7 @@ void EscortAI::UpdateAI(uint32 diff)
             }
         }
         else
-            _pauseTimer -= diff;
+            _pauseTimer -= Milliseconds(diff);
     }
 
     // Check if player or any member of his group is within range
