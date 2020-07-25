@@ -877,7 +877,7 @@ class boss_leviathan_mk_ii : public CreatureScript
                             DoCastVictim(SPELL_SCRIPT_EFFECT_PLASMA_BLAST);
                             events.RescheduleEvent(EVENT_PLASMA_BLAST, 30s, 45s, 0, PHASE_LEVIATHAN_MK_II);
 
-                            if (events.GetTimeUntilEvent(EVENT_NAPALM_SHELL) < 9000)
+                            if (events.GetTimeUntilEvent(EVENT_NAPALM_SHELL) < 9s)
                                 events.RescheduleEvent(EVENT_NAPALM_SHELL, 9s, 0, PHASE_LEVIATHAN_MK_II); // The actual spell is cast by the turret, we should not let it interrupt itself.
                             break;
                         case EVENT_SHOCK_BLAST:
@@ -892,7 +892,7 @@ class boss_leviathan_mk_ii : public CreatureScript
                             DoCastAOE(SPELL_FORCE_CAST_NAPALM_SHELL);
                             events.RescheduleEvent(EVENT_NAPALM_SHELL, 6s, 15s, 0, PHASE_LEVIATHAN_MK_II);
 
-                            if (events.GetTimeUntilEvent(EVENT_PLASMA_BLAST) < 2000)
+                            if (events.GetTimeUntilEvent(EVENT_PLASMA_BLAST) < 2s)
                                 events.RescheduleEvent(EVENT_PLASMA_BLAST, 2s, 0, PHASE_LEVIATHAN_MK_II);  // The actual spell is cast by the turret, we should not let it interrupt itself.
                             break;
                         case EVENT_MOVE_POINT_2:
