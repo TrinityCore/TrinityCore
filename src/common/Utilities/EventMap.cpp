@@ -94,7 +94,16 @@ uint32 EventMap::ExecuteEvent()
 
 void EventMap::DelayEvents(Milliseconds delay)
 {
-    _time = delay < _time - _time.min() ? _time - delay : TimePoint::min();
+    if (Empty())
+        return;
+
+    EventStore delayed = std::move(_eventMap);
+    for (EventStore::iterator itr = delayed.begin(); itr != delayed.end();)
+    {
+        EventStore::node_type node = delayed.extract(itr++);
+        node.key() = node.key() + delay;
+        _eventMap.insert(_eventMap.end(), std::move(node));
+    }
 }
 
 void EventMap::DelayEvents(Milliseconds delay, uint32 group)

@@ -179,7 +179,7 @@ public:
 
     /**
     * @name DelayEvents
-    * @brief Delays all events. If delay is greater than or equal internal timer, delay will be 0.
+    * @brief Delays all events.
     * @param delay Amount of delay as std::chrono type.
     */
     void DelayEvents(Milliseconds delay);
