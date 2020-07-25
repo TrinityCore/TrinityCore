@@ -23,6 +23,8 @@
 #define DMScriptName "instance_deadmines"
 #define DataHeader "DM"
 
+uint32 const EncounterCount     = 7;
+
 enum DMCannonState
 {
     CANNON_NOT_USED,
@@ -35,13 +37,17 @@ enum DMCannonState
 
 enum DMData
 {
-    EVENT_STATE,
-    EVENT_RHAHKZOR,
-    EVENT_SNEED,
-    EVENT_GILNID,
+    // Encounters
+    BOSS_RHAHKZOR   = 0,
+    BOSS_SNEED      = 1,
+    BOSS_GILNID     = 2,
+    BOSS_MR_SMITE   = 3,
+    BOSS_GREENSKIN  = 4,
+    BOSS_VANCLEEF   = 5,
+    BOSS_COOKIE     = 6,
 
-    DATA_MR_SMITE = 0,  // not currently used
-    DATA_VANCLEEF = 1
+    // Additional
+    EVENT_STATE             = 7
 };
 
 enum DMData64
@@ -49,7 +55,7 @@ enum DMData64
     DATA_SMITE_CHEST
 };
 
-enum DMGameObjects
+enum DMGameObjectsIds
 {
     GO_FACTORY_DOOR                                        = 13965,
     GO_MAST_ROOM_DOOR                                      = 16400,
@@ -62,7 +68,13 @@ enum DMGameObjects
 
 enum DMCreaturesIds
 {
+    NPC_RHAHKZOR   = 644,
+    NPC_SNEED      = 643,
+    NPC_GILNID     = 1763,
     NPC_MR_SMITE   = 646,
+    NPC_GREENSKIN  = 647,
+    NPC_VANCLEEF   = 639,
+    NPC_COOKIE     = 645,
     NPC_BLACKGUARD = 636
 };
 
