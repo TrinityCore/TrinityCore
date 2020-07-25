@@ -27,6 +27,7 @@ uint32 const EncounterCount = 9;
 
 enum AQTDataTypes
 {
+    // Boss States
     DATA_SKERAM             = 0,
     DATA_SARTURA            = 1,
     DATA_FRANKRIS           = 2,
@@ -54,7 +55,19 @@ enum AQTDataTypes
 
 enum AQTCreatures
 {
+    // Bosses
     BOSS_EYE_OF_CTHUN       = 15589,
+    BOSS_SKERAM             = 15263,
+    BOSS_VEM                = 15544,
+    BOSS_KRI                = 15511,
+    BOSS_VEKLOR             = 15276,
+    BOSS_VEKNILASH          = 15275,
+    BOSS_SARTURA            = 15516,
+    BOSS_OURO               = 15517,
+    BOSS_VISCIDUS           = 15299,
+
+    // Encounter Related Creatures
+    /*C'Thun*/
     NPC_CTHUN_PORTAL        = 15896,
     NPC_CLAW_TENTACLE       = 15725,
     NPC_EYE_TENTACLE        = 15726,
@@ -65,21 +78,17 @@ enum AQTCreatures
     NPC_FLESH_TENTACLE      = 15802,
     NPC_GIANT_PORTAL        = 15910,
 
-    NPC_VISCIDUS            = 15299,
-    NPC_GLOB_OF_VISCIDUS    = 15667,
-
-    NPC_SKERAM              = 15263,
-    NPC_VEM                 = 15544,
-    NPC_KRI                 = 15511,
-    NPC_VEKLOR              = 15276,
-    NPC_VEKNILASH           = 15275
+    /*Viscidus*/
+    NPC_GLOB_OF_VISCIDUS    = 15667
 };
 
-enum ObjectsAQ40
+enum AQ40GameObjects
 {
-    AQ40_DOOR_1 = 180634,
-    AQ40_DOOR_2 = 180635,
-    AQ40_DOOR_3 = 180636
+    AQ40_DOOR_1         = 180634,
+    AQ40_DOOR_2         = 180635,
+    AQ40_DOOR_3         = 180636,
+
+    GO_SANDWORM_BASE    = 180795
 };
 
 template <class AI, class T>
@@ -87,5 +96,7 @@ inline AI* GetAQ40AI(T* obj)
 {
     return GetInstanceAI<AI>(obj, AQ40ScriptName);
 }
+
+#define RegisterTempleOfAhnqirajhCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetAQ40AI)
 
 #endif

@@ -22,6 +22,7 @@ SDComment:
 SDCategory: Temple of Ahn'Qiraj
 EndScriptData */
 
+#include "temple_of_ahnqiraj.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 
@@ -35,7 +36,7 @@ enum Sartura
     SPELL_ENRAGE        = 28747,            //Not sure if right ID.
     SPELL_ENRAGEHARD    = 28798,
 
-//Guard Spell
+    //Guard Spell
     SPELL_WHIRLWINDADD  = 26038,
     SPELL_KNOCKBACK     = 26027
 };
@@ -90,10 +91,10 @@ public:
             _Reset();
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
             Talk(SAY_AGGRO);
-            _JustEngagedWith();
+            _JustEngagedWith(who);
         }
 
          void JustDied(Unit* /*killer*/) override

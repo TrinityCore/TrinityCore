@@ -22,6 +22,7 @@ SDComment:
 SDCategory: Temple of Ahn'Qiraj
 EndScriptData */
 
+#include "temple_of_ahnqiraj.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 
