@@ -115,7 +115,7 @@ public:
 
     /**
     * @name ScheduleEvent
-    * @brief Schedules a new event.
+    * @brief Schedules a new event. An existing event is not canceled.
     * @param eventId The id of the new event.
     * @param time The time until the event occurs as std::chrono type.
     * @param group The group which the event is associated to. Has to be between 1 and 8. 0 means it has no group.
@@ -125,7 +125,7 @@ public:
 
     /**
     * @name ScheduleEvent
-    * @brief Schedules a new event.
+    * @brief Schedules a new event. An existing event is not canceled.
     * @param eventId The id of the new event.
     * @param minTime The minimum time until the event occurs as std::chrono type.
     * @param maxTime The maximum time until the event occurs as std::chrono type.
