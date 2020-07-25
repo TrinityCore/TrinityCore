@@ -387,7 +387,7 @@ public:
                     events.ScheduleEvent(EVENT_DISTANCE_CHECK, 5s);
                     break;
                 case EVENT_SUMMON_WHISP:
-                    DoSpawnCreature(NPC_ANCIENT_WISP, float(rand32() % 40), float(rand32() % 40), 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                    DoSpawnCreature(NPC_ANCIENT_WISP, float(rand32() % 40), float(rand32() % 40), 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15s);
                     ++WispCount;
                     if (WispCount >= 30)
                         me->KillSelf();

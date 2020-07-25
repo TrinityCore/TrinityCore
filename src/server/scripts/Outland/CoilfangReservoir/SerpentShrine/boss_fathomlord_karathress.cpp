@@ -432,7 +432,7 @@ public:
                 //DoCast(me, spell_id, true);
                 if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                 {
-                    if (Creature* Pet = DoSpawnCreature(pet_id, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000))
+                    if (Creature* Pet = DoSpawnCreature(pet_id, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15s))
                     {
                         Pet->AI()->AttackStart(target);
                         SummonedPet = Pet->GetGUID();

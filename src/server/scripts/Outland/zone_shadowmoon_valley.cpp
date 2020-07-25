@@ -1570,7 +1570,7 @@ public:
             Unit* totemOspirits = nullptr;
 
             if (entry != 0)
-                Summoned = DoSpawnCreature(entry, 0, 0, 1, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 5000);
+                Summoned = DoSpawnCreature(entry, 0, 0, 1, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 5s);
 
             // FIND TOTEM, PROCESS QUEST
             if (Summoned)
