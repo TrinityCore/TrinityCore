@@ -15,23 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_TOTP_H
-#define TRINITY_TOTP_H
+#include "CryptoRandom.h"
+#include "Errors.h"
+#include <openssl/rand.h>
 
-#include "Define.h"
-#include <ctime>
-#include <vector>
-
-namespace Trinity::Crypto
+void Trinity::Crypto::GetRandomBytes(uint8* buf, size_t len)
 {
-    struct TC_COMMON_API TOTP
-    {
-        static constexpr size_t RECOMMENDED_SECRET_LENGTH = 20;
-        using Secret = std::vector<uint8>;
-
-        static uint32 GenerateToken(Secret const& key, time_t timestamp);
-        static bool ValidateToken(Secret const& key, uint32 token);
-    };
+    int result = RAND_bytes(buf, len);
+    ASSERT(result == 1, "Not enough randomness in OpenSSL's entropy pool. What in the world are you running on?");
 }
-
-#endif

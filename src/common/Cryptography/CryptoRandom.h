@@ -15,38 +15,29 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _AUTH_SHA1_H
-#define _AUTH_SHA1_H
+#ifndef TRINITY_CRYPTORANDOM_H
+#define TRINITY_CRYPTORANDOM_H
 
 #include "Define.h"
-#include <string>
-#include <openssl/sha.h>
+#include <array>
 
-class BigNumber;
-
-class TC_COMMON_API SHA1Hash
+namespace Trinity::Crypto
 {
-    public:
-        SHA1Hash();
-        ~SHA1Hash();
+    void TC_COMMON_API GetRandomBytes(uint8* buf, size_t len);
 
-        void UpdateBigNumbers(BigNumber* bn0, ...);
+    template <typename Container>
+    void GetRandomBytes(Container& c)
+    {
+        GetRandomBytes(std::data(c), std::size(c));
+    }
 
-        void UpdateData(const uint8 *dta, int len);
-        void UpdateData(const std::string &str);
-
-        void Initialize();
-        void Finalize();
-
-        uint8 *GetDigest(void) { return mDigest; }
-        int GetLength(void) const { return SHA_DIGEST_LENGTH; }
-
-    private:
-        SHA_CTX mC;
-        uint8 mDigest[SHA_DIGEST_LENGTH];
-};
-
-/// Returns the SHA1 hash of the given content as hex string.
-TC_COMMON_API std::string CalculateSHA1Hash(std::string const& content);
+    template <size_t S>
+    std::array<uint8, S> GetRandomBytes()
+    {
+        std::array<uint8, S> arr;
+        GetRandomBytes(arr);
+        return arr;
+    }
+}
 
 #endif

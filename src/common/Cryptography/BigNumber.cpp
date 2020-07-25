@@ -30,12 +30,6 @@ BigNumber::BigNumber(BigNumber const& bn)
     : _bn(BN_dup(bn._bn))
 { }
 
-BigNumber::BigNumber(uint32 val)
-    : _bn(BN_new())
-{
-    BN_set_word(_bn, val);
-}
-
 BigNumber::~BigNumber()
 {
     BN_free(_bn);
@@ -185,15 +179,14 @@ bool BigNumber::IsNegative() const
     return BN_is_negative(_bn);
 }
 
-bool BigNumber::AsByteArray(uint8* buf, std::size_t bufsize, bool littleEndian) const
+void BigNumber::GetBytes(uint8* buf, std::size_t bufsize, bool littleEndian) const
 {
     int nBytes = GetNumBytes();
-    ASSERT(!(nBytes < 0));
+    ASSERT(nBytes >= 0, "Bignum has negative number of bytes (%d).", nBytes);
     std::size_t numBytes = static_cast<std::size_t>(nBytes);
 
     // too large to store
-    if (bufsize < numBytes)
-        return false;
+    ASSERT(numBytes <= bufsize, "Buffer of size %zu is too small to hold bignum with %zu bytes.\n", bufsize, numBytes);
 
     // If we need more bytes than length of BigNumber set the rest to 0
     if (numBytes < bufsize)
@@ -204,18 +197,15 @@ bool BigNumber::AsByteArray(uint8* buf, std::size_t bufsize, bool littleEndian) 
     // openssl's BN stores data internally in big endian format, reverse if little endian desired
     if (littleEndian)
         std::reverse(buf, buf + bufsize);
-
-    return true;
 }
 
-std::unique_ptr<uint8[]> BigNumber::AsByteArray(int32 minSize, bool littleEndian) const
+std::vector<uint8> BigNumber::ToByteVector(int32 minSize, bool littleEndian) const
 {
     std::size_t length = std::max(GetNumBytes(), minSize);
-    uint8* array = new uint8[length];
-    bool success = AsByteArray(array, length, littleEndian);
-    ASSERT(success);
-
-    return std::unique_ptr<uint8[]>(array);
+    std::vector<uint8> v;
+    v.resize(length);
+    GetBytes(v.data(), length, littleEndian);
+    return v;
 }
 
 std::string BigNumber::AsHexStr() const

@@ -22,6 +22,7 @@
 #include "BigNumber.h"
 #include "ByteBuffer.h"
 #include "Common.h"
+#include "CryptoHash.h"
 #include "Optional.h"
 #include "Socket.h"
 #include "QueryResult.h"
@@ -89,12 +90,12 @@ private:
 
     void SetVSFields(const std::string& rI);
 
-    bool VerifyVersion(uint8 const* a, int32 aLength, uint8 const* versionProof, bool isReconnect);
+    bool VerifyVersion(uint8 const* a, int32 aLength, Trinity::Crypto::SHA1::Digest const& versionProof, bool isReconnect);
 
     BigNumber N, s, g, v;
     BigNumber b, B;
-    BigNumber K;
-    BigNumber _reconnectProof;
+    std::array<uint8, 40> sessionKey;
+    std::array<uint8, 16> _reconnectProof;
 
     AuthStatus _status;
     AccountInfo _accountInfo;

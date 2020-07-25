@@ -15,31 +15,18 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _AUTH_HMAC_H
-#define _AUTH_HMAC_H
+#ifndef TRINITY_CRYPTO_CONSTANTS_H
+#define TRINITY_CRYPTO_CONSTANTS_H
 
 #include "Define.h"
-#include <string>
-#include <openssl/hmac.h>
-#include <openssl/sha.h>
 
-class BigNumber;
-
-#define SEED_KEY_SIZE 16
-
-class TC_COMMON_API HmacHash
+namespace Trinity::Crypto
 {
-    public:
-        HmacHash(uint32 len, uint8* seed);
-        ~HmacHash();
-        void UpdateData(std::string const& str);
-        void UpdateData(uint8 const* data, size_t len);
-        void Finalize();
-        uint8* ComputeHash(BigNumber* bn);
-        uint8* GetDigest() { return m_digest; }
-        int GetLength() const { return SHA_DIGEST_LENGTH; }
-    private:
-        HMAC_CTX* m_ctx;
-        uint8 m_digest[SHA_DIGEST_LENGTH];
-};
+    struct Constants
+    {
+        static constexpr size_t SHA1_DIGEST_LENGTH_BYTES = 20;
+        static constexpr size_t SHA256_DIGEST_LENGTH_BYTES = 32;
+    };
+}
+
 #endif
