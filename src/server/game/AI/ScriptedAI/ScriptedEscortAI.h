@@ -53,7 +53,7 @@ struct TC_GAME_API EscortAI : public ScriptedAI
 
         void SetRun(bool on = true);
         void SetEscortPaused(bool on);
-        void SetPauseTimer(uint32 Timer) { _pauseTimer = Timer; }
+        void SetPauseTimer(Milliseconds timer) { _pauseTimer = timer; }
         bool HasEscortState(uint32 escortState) { return (_escortState & escortState) != 0; }
         bool IsEscorted() const override { return !_playerGUID.IsEmpty(); }
         void SetMaxPlayerDistance(float newMax) { _maxPlayerDistance = newMax; }
@@ -76,7 +76,7 @@ struct TC_GAME_API EscortAI : public ScriptedAI
         void RemoveEscortState(uint32 escortState) { _escortState &= ~escortState; }
 
         ObjectGuid _playerGUID;
-        uint32 _pauseTimer;
+        Milliseconds _pauseTimer;
         uint32 _playerCheckTimer;
         uint32 _escortState;
         float _maxPlayerDistance;
