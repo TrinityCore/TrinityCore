@@ -422,7 +422,7 @@ public:
                     PlayerGUID.Clear();
                 }
 
-                me->DespawnOrUnsummon(1);
+                me->DespawnOrUnsummon(1ms);
             }
         }
 
