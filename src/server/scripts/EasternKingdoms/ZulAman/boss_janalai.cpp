@@ -224,7 +224,7 @@ class boss_janalai : public CreatureScript
                     dx = float(irand(-area_dx/2, area_dx/2));
                     dy = float(irand(-area_dy/2, area_dy/2));
 
-                    Creature* bomb = DoSpawnCreature(NPC_FIRE_BOMB, dx, dy, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 15000);
+                    Creature* bomb = DoSpawnCreature(NPC_FIRE_BOMB, dx, dy, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 15s);
                     if (bomb)
                         FireBombGUIDs[i] = bomb->GetGUID();
                 }

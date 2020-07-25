@@ -98,7 +98,7 @@ public:
                 case 1: RandY = 0.0f + Rand; break;
             }
             Rand = 0;
-            Creature* Spawn = DoSpawnCreature(15630, RandX, RandY, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
+            Creature* Spawn = DoSpawnCreature(15630, RandX, RandY, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30s);
             if (Spawn)
                 Spawn->AI()->AttackStart(victim);
         }
