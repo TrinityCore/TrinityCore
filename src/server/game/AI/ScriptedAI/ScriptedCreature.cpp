@@ -599,10 +599,10 @@ bool BossAI::CanAIAttack(Unit const* target) const
 
 void BossAI::_DespawnAtEvade(Seconds delayToRespawn /*= 30s*/, Creature* who /*= nullptr*/)
 {
-    if (delayToRespawn < Seconds(2))
+    if (delayToRespawn < 2s)
     {
         TC_LOG_ERROR("scripts.ai", "BossAI::_DespawnAtEvade: called with delay of " SI64FMTD " seconds, defaulting to 2 (me: %s)", delayToRespawn.count(), me->GetGUID().ToString().c_str());
-        delayToRespawn = Seconds(2);
+        delayToRespawn = 2s;
     }
 
     if (!who)
