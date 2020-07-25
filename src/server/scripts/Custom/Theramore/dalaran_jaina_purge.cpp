@@ -169,14 +169,12 @@ class npc_displaced_sunreaver : public CreatureScript
 
         void OnSpellCastInterrupt(SpellInfo const* /*spell*/) override
         {
-            if (me->IsInCombat() && me->GetVictim())
-            {
-                me->GetMotionMaster()->Clear();
-                me->GetMotionMaster()->MoveFleeing(me->GetVictim(), 5);
-            }
+            me->StopMoving();
+            me->GetMotionMaster()->Clear();
+            me->GetMotionMaster()->MoveFleeing(me->GetVictim(), 5);
         }
 
-        void DamageTaken(Unit* attacker, uint32& /*damage*/) override
+        void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
         {
             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
             me->SetReactState(REACT_AGGRESSIVE);
@@ -220,7 +218,7 @@ class npc_displaced_sunreaver : public CreatureScript
         {
             if (!UpdateVictim())
             {
-                Creature* jaina = GetClosestCreatureWithEntry(me, NPC_JAINA_PROUDMOORE, 30.f);
+                jaina = GetClosestCreatureWithEntry(me, NPC_JAINA_PROUDMOORE, 30.f);
                 if (jaina)
                 {
                     if (!IsFleeing)
@@ -273,6 +271,7 @@ class npc_displaced_sunreaver : public CreatureScript
 
         private:
         EventMap events;
+        Creature* jaina;
 
         void CallAssistance(Unit* who, float radius)
         {
@@ -360,7 +359,7 @@ class dalaran_jaina_purge : public CreatureScript
             {
                 if (teleportTimer <= diff)
                 {
-                    if (Creature * sunreaver = GetClosestCreatureWithEntry(me, NPC_DISPLACED_SUNREAVER, 20.f))
+                    if (Creature* sunreaver = GetClosestCreatureWithEntry(me, NPC_DISPLACED_SUNREAVER, 20.f))
                     {
                         if (sunreaver->IsEngaged())
                         {
@@ -391,13 +390,21 @@ class dalaran_jaina_purge : public CreatureScript
                     switch (eventId)
                     {
                         case CASTING_BLIZZARD:
-                            if (Unit * target = SelectTarget(SelectTargetMethod::Random, 0))
+                        {
+                            if (me->GetThreatManager().GetThreatenedByMeList().size() < 3)
+                            {
+                                events.RescheduleEvent(CASTING_BLIZZARD, 1s);
+                                break;
+                            }
+
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                                 DoCast(target, SPELL_BLIZZARD);
                             events.RescheduleEvent(CASTING_BLIZZARD, 14s, 25s);
                             break;
+                        }
 
                         case CASTING_FIREBALL:
-                            if (Unit * target = SelectTarget(SelectTargetMethod::Random, 0))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                                 DoCast(target, SPELL_FIREBALL);
                             events.RescheduleEvent(CASTING_FIREBALL, 5s, 8s);
                             break;

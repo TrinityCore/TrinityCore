@@ -16,48 +16,23 @@
 #define SPECTATORS_MAX_NUMBER        8
 #define FIRES_MAX_NUMBER            12
 
-enum Events
-{
-    // Events
-    START_AFFRAY_ISLE           = 1,
-
-    // Affray Isle
-    EVENT_AFFRAY_ISLE_1,
-    EVENT_AFFRAY_ISLE_2,
-    EVENT_AFFRAY_ISLE_3,
-    EVENT_AFFRAY_ISLE_4,
-    EVENT_AFFRAY_ISLE_5,
-    EVENT_AFFRAY_ISLE_6,
-    EVENT_AFFRAY_ISLE_7,
-    EVENT_AFFRAY_ISLE_8,
-    EVENT_AFFRAY_ISLE_9,
-    EVENT_AFFRAY_ISLE_10,
-    EVENT_AFFRAY_ISLE_11,
-    EVENT_AFFRAY_ISLE_12,
-    EVENT_AFFRAY_ISLE_13,
-    EVENT_AFFRAY_ISLE_14,
-    EVENT_AFFRAY_ISLE_15,
-    EVENT_AFFRAY_ISLE_16,
-    EVENT_AFFRAY_ISLE_17,
-    EVENT_AFFRAY_ISLE_18,
-    EVENT_AFFRAY_ISLE_19,
-    EVENT_AFFRAY_ISLE_20,
-};
-
 enum Talks
 {
-    TALK_SPECTATOR_FLEE         = 0,
+    TALK_SPECTATOR_FLEE         =  0,
 
-    TALK_JAINA_01               = 0,
-    TALK_JAINA_02               = 1,
-    TALK_KLANNOC_03             = 0,
-    TALK_JAINA_04               = 2,
-    TALK_JAINA_05               = 3,
-    TALK_JAINA_06               = 4,
+    TALK_JAINA_01               =  8,
+    TALK_JAINA_02               =  9,
+    TALK_KLANNOC_03             =  0,
+    TALK_JAINA_04               = 10,
+    TALK_JAINA_05               = 11,
+    TALK_JAINA_06               = 12,
 };
 
 enum Misc
 {
+    // Event
+    START_AFFRAY_ISLE           = 1,
+
     // Map ID
     MAPID_KALIMDOR              = 1,
 
@@ -95,7 +70,6 @@ enum Spells
     SPELL_ARCANE_CANALISATION   = 100064,
     SPELL_CANALISATION          = 100062,
     SPELL_ARCANE_CLOUD          = 39952,
-    SPELL_LIGHTING_STRIKES      = 100065,
     SPELL_STUNNED               = 100066,
 };
 
@@ -265,37 +239,6 @@ class WaveGrowing : public BasicEvent
     Creature* owner;
 };
 
-class LightingStrikes : public BasicEvent
-{
-    public:
-    LightingStrikes(Creature* owner) : owner(owner), stage(0), lighting(nullptr) { }
-
-    bool Execute(uint64 eventTime, uint32 /*updateTime*/) override
-    {
-        switch (stage)
-        {
-            case 0:
-                lighting = owner->SummonCreature(NPC_INVISIBLE_STALKER, owner->GetRandomNearPosition(50.f), TEMPSUMMON_TIMED_DESPAWN, 2s);
-                stage++;
-                owner->m_Events.AddEvent(this, eventTime + 1000);
-                return false;
-            case 1:
-                lighting->CastSpell(lighting, SPELL_LIGHTING_STRIKES);
-                stage = 0;
-                owner->m_Events.AddEvent(this, eventTime + urand(100, 500));
-                return false;
-            default:
-                break;
-        }
-        return true;
-    }
-
-    private:
-    Creature* owner;
-    Creature* lighting;
-    uint8 stage;
-};
-
 class jaina_affray_isle : public CreatureScript
 {
     public:
@@ -320,15 +263,8 @@ class jaina_affray_isle : public CreatureScript
                 case START_AFFRAY_ISLE:
                 {
                     player = me->SelectNearestPlayer(25.f);
-
                     me->GetMap()->SetZoneWeather(17, WEATHER_STATE_FOG, 1.f);
-
-                    debug = value == 2 ? true : false;
-                    if (debug)
-                        events.ScheduleEvent(EVENT_AFFRAY_ISLE_3, 2s);
-                    else
-                        events.ScheduleEvent(EVENT_AFFRAY_ISLE_1, 3s);
-
+                    DoAction(START_AFFRAY_ISLE);
                     break;
                 }
 
@@ -337,71 +273,48 @@ class jaina_affray_isle : public CreatureScript
             }
         }
 
-        void Reset() override
+        void DoAction(int32 param) override
         {
-            events.Reset();
-            Initialize();
-        }
+            if (param != START_AFFRAY_ISLE)
+                return;
 
-        void UpdateAI(uint32 diff) override
-        {
-            events.Update(diff);
-
-            while (uint32 eventId = events.ExecuteEvent())
+            Talk(TALK_JAINA_01);
+            scheduler.Schedule(3s, [this](TaskContext context)
             {
-                switch (eventId)
+                switch (context.GetRepeatCounter())
                 {
-                    case EVENT_AFFRAY_ISLE_1:
-                        me->AI()->Talk(TALK_JAINA_01);
-                        events.ScheduleEvent(EVENT_AFFRAY_ISLE_2, 3s);
-                        break;
-
-                    case EVENT_AFFRAY_ISLE_2:
+                    case 0:
                         DoCast(SPELL_SIMPLE_TELEPORT);
-                        events.ScheduleEvent(EVENT_AFFRAY_ISLE_3, 1s);
+                        context.Repeat(1s);
                         break;
 
-                    case EVENT_AFFRAY_ISLE_3:
+                    case 1:
                         me->NearTeleportTo(-1710.29f, -4377.18f, 4.56f, 4.83f);
                         me->SetVisible(false);
-                        if (!debug)
-                        {
-                            SetPlayerTeleportMode(player, true);
-                            player->GetMotionMaster()->MoveSmoothPath(0, PlayerTeleportPath, PLAYER_TELEPORT_PATH_SIZE, false);
-                            events.ScheduleEvent(EVENT_AFFRAY_ISLE_4, 11s);
-                        }
-                        else
-                        {
-                            player->NearTeleportTo(PlayerTeleportPath[PLAYER_TELEPORT_PATH_SIZE - 1]);
-                            events.ScheduleEvent(EVENT_AFFRAY_ISLE_4, 2s);
-                        }
+                        SetPlayerTeleportMode(player, true);
+                        player->GetMotionMaster()->MoveSmoothPath(0, PlayerTeleportPath, PLAYER_TELEPORT_PATH_SIZE, false);
+                        context.Repeat(11s);
                         break;
 
-                    case EVENT_AFFRAY_ISLE_4:
-                        if (!debug)
-                        {
-                            SetPlayerTeleportMode(player, false);
-                            player->GetMotionMaster()->Clear();
-                        }
+                    case 2:
+                        player->GetMotionMaster()->Clear();
+                        SetPlayerTeleportMode(player, false);
                         me->SetVisible(true);
                         DoCast(SPELL_VISUAL_TELEPORT);
-                        events.ScheduleEvent(EVENT_AFFRAY_ISLE_5, 2s);
+                        context.Repeat(2s);
                         break;
 
-                    case EVENT_AFFRAY_ISLE_5:
-                        me->AI()->Talk(TALK_JAINA_02);
-                        events.ScheduleEvent(EVENT_AFFRAY_ISLE_6, 3s);
+                    case 3:
+                        Talk(TALK_JAINA_02);
+                        context.Repeat(3s);
                         break;
 
-                    case EVENT_AFFRAY_ISLE_6:
+                    case 4:
                         me->GetMotionMaster()->MoveSmoothPath(0, JainaPath01, JAINA_PATH_01_SIZE, false);
-                        if (!debug)
-                            events.ScheduleEvent(EVENT_AFFRAY_ISLE_7, 9s);
-                        else
-                            events.ScheduleEvent(EVENT_AFFRAY_ISLE_13, 9s);
+                        context.Repeat(9s);
                         break;
 
-                    case EVENT_AFFRAY_ISLE_7:
+                    case 5:
                     {
                         if (klannoc = me->SummonCreature(NPC_KLANNOC_MACLEOD, KlannocPath01[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10min))
                         {
@@ -448,28 +361,28 @@ class jaina_affray_isle : public CreatureScript
                             angle += 45.f;
                         }
 
-                        events.ScheduleEvent(EVENT_AFFRAY_ISLE_8, 8s);
+                        context.Repeat(8s);
                         break;
                     }
 
-                    case EVENT_AFFRAY_ISLE_8:
+                    case 6:
                         me->SetFacingToObject(klannoc);
                         klannoc->SetFacingToObject(me);
                         klannoc->AI()->Talk(TALK_KLANNOC_03);
-                        events.ScheduleEvent(EVENT_AFFRAY_ISLE_9, 3s);
+                        context.Repeat(3s);
                         break;
 
-                    case EVENT_AFFRAY_ISLE_9:
-                        me->AI()->Talk(TALK_JAINA_04);
-                        events.ScheduleEvent(EVENT_AFFRAY_ISLE_10, 3s);
+                    case 7:
+                        Talk(TALK_JAINA_04);
+                        context.Repeat(3s);
                         break;
 
-                    case EVENT_AFFRAY_ISLE_10:
+                    case 8:
                         klannoc->m_Events.AddEvent(new KlannocBurning(klannoc, me), klannoc->m_Events.CalculateTime(100));
-                        events.ScheduleEvent(EVENT_AFFRAY_ISLE_11, 3s);
+                        context.Repeat(3s);
                         break;
 
-                    case EVENT_AFFRAY_ISLE_11:
+                    case 9:
                     {
                         for (Creature* spectator : spectators)
                         {
@@ -495,13 +408,13 @@ class jaina_affray_isle : public CreatureScript
                             DoCast(victim, SPELL_ARCANE_BARRAGE, args);
                         }
 
-                        events.ScheduleEvent(EVENT_AFFRAY_ISLE_12, 5s);
+                        context.Repeat(5s);
                         break;
                     }
 
-                    case EVENT_AFFRAY_ISLE_12:
+                    case 10:
                     {
-                        me->AI()->Talk(TALK_JAINA_05);
+                        Talk(TALK_JAINA_05);
                         for (Creature* spectator : spectators)
                         {
                             spectator->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -518,24 +431,24 @@ class jaina_affray_isle : public CreatureScript
 
                         DoCastAOE(SPELL_ICE_NOVA, args);
 
-                        events.ScheduleEvent(EVENT_AFFRAY_ISLE_13, 5s);
+                        context.Repeat(5s);
                         break;
                     }
 
-                    case EVENT_AFFRAY_ISLE_13:
-                        me->AI()->Talk(TALK_JAINA_06);
+                    case 11:
+                        Talk(TALK_JAINA_06);
                         me->GetMotionMaster()->Clear();
                         me->GetMotionMaster()->MoveSmoothPath(0, JainaPath02, JAINA_PATH_02_SIZE, false);
-                        events.ScheduleEvent(EVENT_AFFRAY_ISLE_14, 13s);
+                        context.Repeat(13s);
                         break;
 
-                    case EVENT_AFFRAY_ISLE_14:
+                    case 12:
                         me->SetWalk(true);
                         me->GetMotionMaster()->MovePoint(0, -1655.44f, -4246.56f, 1.77f, true, 6.13f);
-                        events.ScheduleEvent(EVENT_AFFRAY_ISLE_15, me->GetMotionMaster()->GetTime());
+                        context.Repeat(Milliseconds((int)me->GetMotionMaster()->GetTime()));
                         break;
 
-                    case EVENT_AFFRAY_ISLE_15:
+                    case 13:
                     {
                         if (focusingIrisFx = me->SummonCreature(NPC_FOCUSING_IRIS, -1654.17f, -4246.51f, 3.51f, 3.08f, TEMPSUMMON_MANUAL_DESPAWN))
                         {
@@ -548,30 +461,25 @@ class jaina_affray_isle : public CreatureScript
                             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_SPELL_CHANNEL_DIRECTED);
                             me->SummonGameObject(GOB_ANTONIDAS_BOOK, -1653.03f, -4243.82f, 3.11f, 3.99f, QuaternionData(0.f, 0.f, -0.9101f, 0.4143f), 0);
                         }
-
-                        events.ScheduleEvent(EVENT_AFFRAY_ISLE_16, 3s);
                         break;
                     }
-
-                    case EVENT_AFFRAY_ISLE_16:
-                        lightingStrikesEvent = new LightingStrikes(me);
-                        me->m_Events.AddEvent(lightingStrikesEvent, me->m_Events.CalculateTime(3000));
-                        //events.ScheduleEvent(EVENT_AFFRAY_ISLE_17, 15s);
-                        break;
-
-                        //case EVENT_AFFRAY_ISLE_17:
-                        //    lightingStrikesEvent->ScheduleAbort();
-                        //    break;
-
-                    default:
-                        break;
                 }
-            }
+            });
+        }
+
+        void Reset() override
+        {
+            scheduler.CancelAll();
+            Initialize();
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            scheduler.Update(diff);
         }
 
         private:
-        EventMap events;
-        LightingStrikes* lightingStrikesEvent;
+        TaskScheduler scheduler;
         Player* player;
         Creature* klannoc;
         Creature* playerSpectator;
@@ -587,6 +495,7 @@ class jaina_affray_isle : public CreatureScript
         void SetPlayerTeleportMode(Player* player, bool value)
         {
             player->Lock(value);
+            player->SetSheath(SHEATH_STATE_UNARMED);
 
             float speed = value ? 20.f : 1.f;
             player->SetSpeedRate(MOVE_WALK, speed);

@@ -42,6 +42,19 @@ class npc_paladin : public CreatureScript
                     DoCast(SPELL_DIVINE_STORM);
                     divine_storm.Repeat(18s, 25s);
                 })
+                .Schedule(5ms, GROUP_FIGHT, [this](TaskContext rejuvenation)
+                {
+                    if (Unit* target = DoSelectBelowHpPctFriendly(30.0f, 30, true))
+                    {
+                        me->InterruptNonMeleeSpells(true);
+                        DoCast(target, SPELL_SACRED_LIGHT);
+                        rejuvenation.Repeat(24s);
+                    }
+                    else
+                    {
+                        rejuvenation.Repeat(1ms);
+                    }
+                })
                 .Schedule(8s, GROUP_FIGHT, [this](TaskContext divine_storm)
                 {
                     if (Unit* target = DoSelectCastingUnit(SPELL_HAMMER_OF_JUSTICE, 35.f))

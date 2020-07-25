@@ -37,7 +37,15 @@ enum Spells
 
 enum Misc
 {
-    NPC_RHONIN                  = 100005
+    // NPCs
+    NPC_RHONIN                  = 100005,
+
+    // Zones
+    ZONE_THERAMORE              = 726,
+
+    // Phases
+    PHASE_COMBAT                = 1,
+    PHASE_ICE_BLOCKED
 };
 
 class npc_archmage_fire : public CreatureScript
@@ -286,12 +294,12 @@ class npc_archmage_frost : public CreatureScript
             DoCast(SPELL_ICE_BARRIER);
 
             scheduler
-                .Schedule(5ms, [this](TaskContext frostbotl)
+                .Schedule(5ms, PHASE_COMBAT, [this](TaskContext frostbotl)
                 {
                     DoCastVictim(SPELL_FROSTBOLT);
                     frostbotl.Repeat(2s);
                 })
-                .Schedule(5ms, [this](TaskContext counterspell)
+                .Schedule(5ms, PHASE_COMBAT, [this](TaskContext counterspell)
                 {
                     if (Unit* target = DoSelectCastingUnit(SPELL_COUNTERSPELL, 35.f))
                     {
@@ -304,14 +312,14 @@ class npc_archmage_frost : public CreatureScript
                         counterspell.Repeat(1s);
                     }
                 })
-                .Schedule(3s, [this](TaskContext ice_lance)
+                .Schedule(3s, PHASE_COMBAT, [this](TaskContext ice_lance)
                 {
                     me->InterruptNonMeleeSpells(false);
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         DoCast(target, SPELL_ICE_LANCE);
                     ice_lance.Repeat(8s, 14s);
                 })
-                .Schedule(30s, [this](TaskContext ice_barrier)
+                .Schedule(30s, PHASE_COMBAT, [this](TaskContext ice_barrier)
                 {
                     if (!me->HasAura(SPELL_ICE_BARRIER))
                     {
@@ -348,20 +356,28 @@ class npc_archmage_frost : public CreatureScript
             {
                 damage = 0;
 
-                me->InterruptNonMeleeSpells(false);
+                scheduler.DelayGroup(PHASE_COMBAT, 6s);
 
-                DoCastSelf(SPELL_HYPOTHERMIA);
+                me->InterruptNonMeleeSpells(true);
                 DoCastSelf(SPELL_ICE_BLOCK);
+                DoCastSelf(SPELL_HYPOTHERMIA, true);
 
-                scheduler
-                    .Schedule(6s, [this](TaskContext /*context*/)
+                scheduler.Schedule(5s, PHASE_ICE_BLOCKED, [this](TaskContext context)
+                {
+                    switch (context.GetRepeatCounter())
                     {
-                        DoCast(SPELL_FROT_NOVA);
-                    })
-                    .Schedule(7s, [this](TaskContext /*context*/)
-                    {
-                        DoCast(SPELL_BLINK);
-                    });
+                        case 0:
+                            me->InterruptNonMeleeSpells(true);
+                            DoCastSelf(SPELL_FROT_NOVA, true);
+                            context.Repeat(1s);
+                            break;
+
+                        case 1:
+                            scheduler.DelayAll(2s);
+                            DoCastSelf(SPELL_BLINK, true);
+                            break;
+                    }
+                });
             }
         }
     };

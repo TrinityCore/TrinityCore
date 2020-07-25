@@ -162,25 +162,40 @@ class npc_priest : public CreatureScript
         void SetInCombatPhase()
         {
             scheduler
+                .Schedule(5ms, PHASE_HEALING, [this](TaskContext rejuvenation)
+                {
+                    if (Unit* target = DoSelectBelowHpPctFriendly(30.0f, 80, false))
+                    {
+                        me->InterruptNonMeleeSpells(true);
+                        DoCast(target, SPELL_REJUVENATION);
+                        rejuvenation.Repeat(4s);
+                    }
+                    else
+                    {
+                        rejuvenation.Repeat(1s);
+                    }
+                })
                 .Schedule(5ms, PHASE_HEALING, [this](TaskContext heal)
                 {
-                    if (Unit* target = DoSelectLowestHpFriendly(30.0f, 50))
+                    if (Unit* target = DoSelectBelowHpPctFriendly(30.0f, 50, false))
                     {
-                        DoCast(target, RAND(SPELL_FLASH_HEAL, SPELL_REJUVENATION, SPELL_PRAYER_OF_MENDING));
+                        me->InterruptNonMeleeSpells(true);
+                        DoCast(target, SPELL_FLASH_HEAL);
                         heal.Repeat(4s);
                     }
                     else
                     {
-                        heal.Repeat(5ms);
+                        heal.Repeat(1s);
                     }
                 })
                 .Schedule(5ms, PHASE_HEALING, [this](TaskContext prayer_of_mending)
                 {
-                    if (Unit* target = DoSelectLowestHpFriendly(30.0f, 50))
+                    if (Unit* target = DoSelectBelowHpPctFriendly(30.0f, 40, false))
                     {
                         CastSpellExtraArgs args;
                         args.AddSpellBP0(3000);
 
+                        me->InterruptNonMeleeSpells(true);
                         DoCast(target, SPELL_PRAYER_OF_MENDING, args);
                         prayer_of_mending.Repeat(10s, 14s);
                     }
@@ -194,6 +209,7 @@ class npc_priest : public CreatureScript
                     Unit* target = DoSelectBelowHpPctFriendly(30.0f, 20, false);
                     if (target && !target->HasAura(SPELL_WEAKENED_SOUL))
                     {
+                        me->InterruptNonMeleeSpells(true);
                         DoCast(target, SPELL_POWER_WORD_SHIELD);
                         DoCast(target, SPELL_WEAKENED_SOUL);
                         power_word_shield.Repeat(3s);
@@ -221,6 +237,7 @@ class npc_priest : public CreatureScript
                     {
                         if (Unit* victim = me->GetVictim())
                         {
+                            me->InterruptNonMeleeSpells(true);
                             me->CastSpell(victim->GetPosition(), SPELL_MASS_DISPEL);
                             mass_dispel.Repeat(25s, 30s);
                         }

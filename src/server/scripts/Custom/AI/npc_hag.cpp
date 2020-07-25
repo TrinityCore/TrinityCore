@@ -7,7 +7,7 @@ enum Spells
 	SPELL_FIREBALL              = 100003,
 	SPELL_ICE_LANCE             = 100007,
 	SPELL_ICE_BLOCK             = 100008,
-	SPELL_BLINK                 = 57869,
+	SPELL_BLINK                 = 14514,
 	SPELL_ARCANE_BLAST          = 100010,
     SPELL_PRISMATIC_BARRIER     = 100069,
     SPELL_IMMOLATE              = 100079
@@ -47,7 +47,7 @@ class npc_hag : public CreatureScript
                 .Schedule(1s, [this](TaskContext fireball)
                 {
                     DoCastVictim(SPELL_FIREBALL);
-                    fireball.Repeat(1800ms);
+                    fireball.Repeat(2s);
                 })
                 .Schedule(5s, [this](TaskContext ice_lance)
                 {
@@ -58,9 +58,10 @@ class npc_hag : public CreatureScript
                 })
                 .Schedule(10s, [this](TaskContext blink)
                 {
+                    scheduler.DelayAll(2s);
+
                     me->InterruptNonMeleeSpells(true);
-                    if (Unit* target = SelectTarget(SelectTargetMethod::MaxDistance))
-                        DoCast(target, SPELL_BLINK);
+                    DoCastSelf(SPELL_BLINK);
                     blink.Repeat(20s, 30s);
                 })
                 .Schedule(3s, [this](TaskContext arcane_blast)

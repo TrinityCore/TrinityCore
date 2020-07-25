@@ -52,12 +52,16 @@ class npc_shaman : public CreatureScript
                 })
                 .Schedule(3s, [this](TaskContext healing_wave)
                 {
-                    if (Unit * target = DoSelectLowestHpFriendly(40.0f))
+                    if (Unit * target = DoSelectBelowHpPctFriendly(40.0f, 50, false))
                     {
                         me->InterruptNonMeleeSpells(true);
                         DoCast(target, SPELL_HEALING_WAVE);
+                        healing_wave.Repeat(8s);
                     }
-                    healing_wave.Repeat(8s);
+                    else
+                    {
+                        healing_wave.Repeat(1s);
+                    }
                 })
                 .Schedule(6s, [this](TaskContext healing_totem)
                 {
