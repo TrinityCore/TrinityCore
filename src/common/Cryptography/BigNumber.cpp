@@ -16,6 +16,7 @@
  */
 
 #include "Cryptography/BigNumber.h"
+#include "Errors.h"
 #include <openssl/bn.h>
 #include <cstring>
 #include <algorithm>
@@ -28,12 +29,6 @@ BigNumber::BigNumber()
 BigNumber::BigNumber(BigNumber const& bn)
     : _bn(BN_dup(bn._bn))
 { }
-
-BigNumber::BigNumber(uint32 val)
-    : _bn(BN_new())
-{
-    BN_set_word(_bn, val);
-}
 
 BigNumber::~BigNumber()
 {
@@ -64,9 +59,10 @@ void BigNumber::SetBinary(uint8 const* bytes, int32 len)
     delete[] array;
 }
 
-void BigNumber::SetHexStr(char const* str)
+bool BigNumber::SetHexStr(char const* str)
 {
-    BN_hex2bn(&_bn, str);
+    int n = BN_hex2bn(&_bn, str);
+    return (n > 0);
 }
 
 void BigNumber::SetRand(int32 numbits)
@@ -152,7 +148,7 @@ BigNumber BigNumber::ModExp(BigNumber const& bn1, BigNumber const& bn2)
     return ret;
 }
 
-int32 BigNumber::GetNumBytes(void)
+int32 BigNumber::GetNumBytes(void) const
 {
     return BN_num_bytes(_bn);
 }
@@ -172,25 +168,33 @@ bool BigNumber::IsNegative() const
     return BN_is_negative(_bn);
 }
 
-std::unique_ptr<uint8[]> BigNumber::AsByteArray(int32 minSize, bool littleEndian)
+void BigNumber::GetBytes(uint8* buf, std::size_t bufsize, bool littleEndian) const
 {
-    int numBytes = GetNumBytes();
-    int length = (minSize >= numBytes) ? minSize : numBytes;
+    int nBytes = GetNumBytes();
+    ASSERT(nBytes >= 0, "Bignum has negative number of bytes (%d).", nBytes);
+    std::size_t numBytes = static_cast<std::size_t>(nBytes);
 
-    uint8* array = new uint8[length];
+    // too large to store
+    ASSERT(numBytes <= bufsize, "Buffer of size %zu is too small to hold bignum with %zu bytes.\n", bufsize, numBytes);
 
     // If we need more bytes than length of BigNumber set the rest to 0
-    if (length > numBytes)
-        memset((void*)array, 0, length);
+    if (numBytes < bufsize)
+        memset((void*)buf, 0, bufsize);
 
-    BN_bn2bin(_bn, (unsigned char *)array);
+    BN_bn2bin(_bn, buf + (bufsize - numBytes));
 
     // openssl's BN stores data internally in big endian format, reverse if little endian desired
     if (littleEndian)
-        std::reverse(array, array + numBytes);
+        std::reverse(buf, buf + bufsize);
+}
 
-    std::unique_ptr<uint8[]> ret(array);
-    return ret;
+std::vector<uint8> BigNumber::ToByteVector(int32 minSize, bool littleEndian) const
+{
+    std::size_t length = std::max(GetNumBytes(), minSize);
+    std::vector<uint8> v;
+    v.resize(length);
+    GetBytes(v.data(), length, littleEndian);
+    return v;
 }
 
 std::string BigNumber::AsHexStr() const

@@ -15,35 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _AUTH_SARC4_H
-#define _AUTH_SARC4_H
+#include "CryptoRandom.h"
+#include "Errors.h"
+#include <openssl/rand.h>
 
-#include "Define.h"
-#include <array>
-#include <openssl/evp.h>
-#include "advstd.h" // data/size
-
-namespace Trinity
+void Trinity::Crypto::GetRandomBytes(uint8* buf, size_t len)
 {
-namespace Crypto
-{
-    class TC_COMMON_API ARC4
-    {
-        public:
-            ARC4();
-            ~ARC4();
-
-            void Init(uint8 const* seed, size_t len);
-            template <typename Container>
-            void Init(Container const& c) { Init(advstd::data(c), advstd::size(c)); }
-
-            void UpdateData(uint8* data, size_t len);
-            template <typename Container>
-            void UpdateData(Container& c) { UpdateData(advstd::data(c), advstd::size(c)); }
-        private:
-            EVP_CIPHER_CTX* _ctx;
-    };
+    int result = RAND_bytes(buf, len);
+    ASSERT(result == 1, "Not enough randomness in OpenSSL's entropy pool. What in the world are you running on?");
 }
-}
-
-#endif

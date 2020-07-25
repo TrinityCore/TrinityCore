@@ -15,34 +15,32 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _AUTH_SARC4_H
-#define _AUTH_SARC4_H
+#ifndef TRINITY_CRYPTORANDOM_H
+#define TRINITY_CRYPTORANDOM_H
 
 #include "Define.h"
 #include <array>
-#include <openssl/evp.h>
-#include "advstd.h" // data/size
+#include "advstd.h"
 
 namespace Trinity
 {
 namespace Crypto
 {
-    class TC_COMMON_API ARC4
+    void TC_COMMON_API GetRandomBytes(uint8* buf, size_t len);
+
+    template <typename Container>
+    void GetRandomBytes(Container& c)
     {
-        public:
-            ARC4();
-            ~ARC4();
+        GetRandomBytes(advstd::data(c), advstd::size(c));
+    }
 
-            void Init(uint8 const* seed, size_t len);
-            template <typename Container>
-            void Init(Container const& c) { Init(advstd::data(c), advstd::size(c)); }
-
-            void UpdateData(uint8* data, size_t len);
-            template <typename Container>
-            void UpdateData(Container& c) { UpdateData(advstd::data(c), advstd::size(c)); }
-        private:
-            EVP_CIPHER_CTX* _ctx;
-    };
+    template <size_t S>
+    std::array<uint8, S> GetRandomBytes()
+    {
+        std::array<uint8, S> arr;
+        GetRandomBytes(arr);
+        return arr;
+    }
 }
 }
 

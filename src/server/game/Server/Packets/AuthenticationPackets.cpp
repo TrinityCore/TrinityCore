@@ -18,10 +18,10 @@
 #include "AuthenticationPackets.h"
 #include "BigNumber.h"
 #include "CharacterTemplateDataStore.h"
-#include "HmacHash.h"
+#include "CryptoHash.h"
+#include "HMAC.h"
 #include "ObjectMgr.h"
 #include "RSA.h"
-#include "SHA256.h"
 #include "Util.h"
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Auth::VirtualRealmNameInfo const& virtualRealmInfo)
@@ -272,13 +272,13 @@ WorldPacket const* WorldPackets::Auth::ConnectTo::Write()
     }
 
     uint32 type = Payload.Where.Type;
-    SHA256Hash hash;
+    Trinity::Crypto::SHA256 hash;
     hash.UpdateData(whereBuffer.contents(), whereBuffer.size());
     hash.UpdateData(reinterpret_cast<uint8 const*>(&type), 4);
     hash.UpdateData(reinterpret_cast<uint8 const*>(&Payload.Port), 2);
     hash.Finalize();
 
-    ConnectToRSA->Sign(hash.GetDigest(), hash.GetLength(), Payload.Signature.data(), Trinity::Crypto::RSA::SHA256{});
+    ConnectToRSA->Sign(hash.GetDigest(), Payload.Signature.data(), Trinity::Crypto::RSA::SHA256{});
 
     _worldPacket.append(Payload.Signature.data(), Payload.Signature.size());
     _worldPacket.append(whereBuffer);
@@ -308,14 +308,14 @@ uint8 constexpr EnableEncryptionSeed[16] = { 0x90, 0x9C, 0xD0, 0x50, 0x5A, 0x2C,
 
 WorldPacket const* WorldPackets::Auth::EnableEncryption::Write()
 {
-    HmacSha256 hash(16, EncryptionKey);
+    Trinity::Crypto::HMAC_SHA256 hash(EncryptionKey, 16);
     hash.UpdateData(reinterpret_cast<uint8 const*>(&Enabled), 1);
     hash.UpdateData(EnableEncryptionSeed, 16);
     hash.Finalize();
 
     _worldPacket.resize(_worldPacket.size() + ConnectToRSA->GetOutputSize());
 
-    ConnectToRSA->Sign(hash.GetDigest(), hash.GetLength(), _worldPacket.contents(), Trinity::Crypto::RSA::SHA256{});
+    ConnectToRSA->Sign(hash.GetDigest(), _worldPacket.contents(), Trinity::Crypto::RSA::SHA256{});
 
     _worldPacket.WriteBit(Enabled);
     _worldPacket.FlushBits();

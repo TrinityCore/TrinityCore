@@ -21,6 +21,8 @@
 #include "Define.h"
 #include <memory>
 #include <string>
+#include <vector>
+#include "advstd.h" // data/size
 
 struct bignum_st;
 
@@ -29,13 +31,20 @@ class TC_COMMON_API BigNumber
     public:
         BigNumber();
         BigNumber(BigNumber const& bn);
-        BigNumber(uint32);
+        BigNumber(uint32 v) : BigNumber() { SetDword(v); }
+        BigNumber(std::string const& v) : BigNumber() { SetHexStr(v); }
+        template <size_t Size>
+        BigNumber(std::array<uint8, Size> const& v) : BigNumber() { SetBinary(v.data(), Size); }
+
         ~BigNumber();
 
         void SetDword(uint32);
         void SetQword(uint64);
         void SetBinary(uint8 const* bytes, int32 len);
-        void SetHexStr(char const* str);
+        template <typename Container>
+        void SetBinary(Container const& c) { SetBinary(advstd::data(c), advstd::size(c)); }
+        bool SetHexStr(char const* str);
+        bool SetHexStr(std::string const& str) { return SetHexStr(str.c_str()); }
 
         void SetRand(int32 numbits);
 
@@ -82,13 +91,22 @@ class TC_COMMON_API BigNumber
         BigNumber ModExp(BigNumber const& bn1, BigNumber const& bn2);
         BigNumber Exp(BigNumber const&);
 
-        int32 GetNumBytes(void);
+        int32 GetNumBytes(void) const;
 
         struct bignum_st *BN() { return _bn; }
 
         uint32 AsDword();
 
-        std::unique_ptr<uint8[]> AsByteArray(int32 minSize = 0, bool littleEndian = true);
+        void GetBytes(uint8* buf, size_t bufsize, bool littleEndian = true) const;
+        std::vector<uint8> ToByteVector(int32 minSize = 0, bool littleEndian = true) const;
+
+        template <std::size_t Size>
+        std::array<uint8, Size> ToByteArray(bool littleEndian = true) const
+        {
+            std::array<uint8, Size> buf;
+            GetBytes(buf.data(), Size, littleEndian);
+            return buf;
+        }
 
         std::string AsHexStr() const;
         std::string AsDecStr() const;

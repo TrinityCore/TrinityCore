@@ -19,16 +19,17 @@
 #include "AuthenticationPackets.h"
 #include "BattlenetRpcErrorCodes.h"
 #include "CharacterPackets.h"
+#include "CryptoHash.h"
+#include "CryptoRandom.h"
 #include "DatabaseEnv.h"
 #include "Errors.h"
-#include "HmacHash.h"
+#include "HMAC.h"
 #include "IPLocation.h"
 #include "PacketLog.h"
 #include "RealmList.h"
 #include "RBAC.h"
 #include "ScriptMgr.h"
-#include "SessionKeyGeneration.h"
-#include "SHA256.h"
+#include "SessionKeyGenerator.h"
 #include "Util.h"
 #include "World.h"
 #include "WorldPacket.h"
@@ -72,8 +73,8 @@ WorldSocket::WorldSocket(tcp::socket&& socket) : Socket(std::move(socket)),
     _type(CONNECTION_TYPE_REALM), _key(0), _OverSpeedPings(0),
     _worldSession(nullptr), _authed(false), _sendBufferSize(4096), _compressionStream(nullptr)
 {
-    _serverChallenge.SetRand(8 * 16);
-    memset(_encryptKey, 0, sizeof(_encryptKey));
+    Trinity::Crypto::GetRandomBytes(_serverChallenge);
+    _encryptKey.fill(0);
     _headerBuffer.Resize(sizeof(PacketHeader));
 }
 
@@ -237,12 +238,9 @@ bool WorldSocket::Update()
 
 void WorldSocket::HandleSendAuthSession()
 {
-    BigNumber dosChallenge;
-    dosChallenge.SetRand(32 * 8);
-
     WorldPackets::Auth::AuthChallenge challenge;
-    memcpy(challenge.Challenge.data(), _serverChallenge.AsByteArray(16).get(), 16);
-    memcpy(challenge.DosChallenge.data(), dosChallenge.AsByteArray(32).get(), 32);
+    challenge.Challenge = _serverChallenge;
+    memcpy(challenge.DosChallenge.data(), Trinity::Crypto::GetRandomBytes<32>().data(), 32);
     challenge.DosZeroBits = 1;
 
     SendPacketAndLogOpcode(*challenge.Write());
@@ -683,7 +681,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
     // For hook purposes, we get Remoteaddress at this point.
     std::string address = GetRemoteIpAddress().to_string();
 
-    SHA256Hash digestKeyHash;
+    Trinity::Crypto::SHA256 digestKeyHash;
     digestKeyHash.UpdateData(account.Game.KeyData.data(), account.Game.KeyData.size());
     if (account.Game.OS == "Wn64")
         digestKeyHash.UpdateData(buildInfo->Win64AuthSeed.data(), buildInfo->Win64AuthSeed.size());
@@ -692,44 +690,41 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
 
     digestKeyHash.Finalize();
 
-    HmacSha256 hmac(digestKeyHash.GetLength(), digestKeyHash.GetDigest());
-    hmac.UpdateData(authSession->LocalChallenge.data(), authSession->LocalChallenge.size());
-    hmac.UpdateData(_serverChallenge.AsByteArray(16).get(), 16);
+    Trinity::Crypto::HMAC_SHA256 hmac(digestKeyHash.GetDigest());
+    hmac.UpdateData(authSession->LocalChallenge);
+    hmac.UpdateData(_serverChallenge);
     hmac.UpdateData(AuthCheckSeed, 16);
     hmac.Finalize();
 
     // Check that Key and account name are the same on client and server
-    if (memcmp(hmac.GetDigest(), authSession->Digest.data(), authSession->Digest.size()) != 0)
+    if (memcmp(hmac.GetDigest().data(), authSession->Digest.data(), authSession->Digest.size()) != 0)
     {
         TC_LOG_ERROR("network", "WorldSocket::HandleAuthSession: Authentication failed for account: %u ('%s') address: %s", account.Game.Id, authSession->RealmJoinTicket.c_str(), address.c_str());
         DelayedCloseSocket();
         return;
     }
 
-    SHA256Hash keyData;
+    Trinity::Crypto::SHA256 keyData;
     keyData.UpdateData(account.Game.KeyData.data(), account.Game.KeyData.size());
     keyData.Finalize();
 
-    HmacSha256 sessionKeyHmac(keyData.GetLength(), keyData.GetDigest());
-    sessionKeyHmac.UpdateData(_serverChallenge.AsByteArray(16).get(), 16);
-    sessionKeyHmac.UpdateData(authSession->LocalChallenge.data(), authSession->LocalChallenge.size());
+    Trinity::Crypto::HMAC_SHA256 sessionKeyHmac(keyData.GetDigest());
+    sessionKeyHmac.UpdateData(_serverChallenge);
+    sessionKeyHmac.UpdateData(authSession->LocalChallenge);
     sessionKeyHmac.UpdateData(SessionKeySeed, 16);
     sessionKeyHmac.Finalize();
 
-    uint8 sessionKey[40];
-    SessionKeyGenerator<SHA256Hash> sessionKeyGenerator(sessionKeyHmac.GetDigest(), sessionKeyHmac.GetLength());
-    sessionKeyGenerator.Generate(sessionKey, 40);
+    SessionKeyGenerator<Trinity::Crypto::SHA256> sessionKeyGenerator(sessionKeyHmac.GetDigest());
+    sessionKeyGenerator.Generate(_sessionKey.data(), 40);
 
-    _sessionKey.SetBinary(sessionKey, 40);
-
-    HmacSha256 encryptKeyGen(40, sessionKey);
-    encryptKeyGen.UpdateData(authSession->LocalChallenge.data(), authSession->LocalChallenge.size());
-    encryptKeyGen.UpdateData(_serverChallenge.AsByteArray(16).get(), 16);
+    Trinity::Crypto::HMAC_SHA256 encryptKeyGen(_sessionKey);
+    encryptKeyGen.UpdateData(authSession->LocalChallenge);
+    encryptKeyGen.UpdateData(_serverChallenge);
     encryptKeyGen.UpdateData(EncryptionKeySeed, 16);
     encryptKeyGen.Finalize();
 
     // only first 16 bytes of the hmac are used
-    memcpy(_encryptKey, encryptKeyGen.GetDigest(), 16);
+    memcpy(_encryptKey.data(), encryptKeyGen.GetDigest().data(), 16);
 
     // As we don't know if attempted login process by ip works, we update last_attempt_ip right away
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LAST_ATTEMPT_IP);
@@ -739,7 +734,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
     // This also allows to check for possible "hack" attempts on account
 
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_INFO_CONTINUED_SESSION);
-    stmt->setString(0, _sessionKey.AsHexStr());
+    stmt->setString(0, ByteArrayToHexStr(_sessionKey));
     stmt->setUInt32(1, account.Game.Id);
     LoginDatabase.Execute(stmt);
 
@@ -852,7 +847,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
 
     // Initialize Warden system only if it is enabled by config
     if (wardenActive)
-        _worldSession->InitWarden(&_sessionKey);
+        _worldSession->InitWarden(_sessionKey);
 
     _queryProcessor.AddCallback(_worldSession->LoadPermissionsAsync().WithPreparedCallback(std::bind(&WorldSocket::LoadSessionPermissionsCallback, this, std::placeholders::_1)));
     AsyncRead();
@@ -863,7 +858,7 @@ void WorldSocket::LoadSessionPermissionsCallback(PreparedQueryResult result)
     // RBAC must be loaded before adding session to check for skip queue permission
     _worldSession->GetRBACData()->LoadFromDBCallback(result);
 
-    SendPacketAndLogOpcode(*WorldPackets::Auth::EnableEncryption(_encryptKey, true).Write());
+    SendPacketAndLogOpcode(*WorldPackets::Auth::EnableEncryption(_encryptKey.data(), true).Write());
 }
 
 void WorldSocket::HandleAuthContinuedSession(std::shared_ptr<WorldPackets::Auth::AuthContinuedSession> authSession)
@@ -901,32 +896,32 @@ void WorldSocket::HandleAuthContinuedSessionCallback(std::shared_ptr<WorldPacket
     uint32 accountId = uint32(key.Fields.AccountId);
     Field* fields = result->Fetch();
     std::string login = fields[0].GetString();
-    _sessionKey.SetHexStr(fields[1].GetCString());
+    HexStrToByteArray(fields[1].GetString(), _sessionKey.data());
 
-    HmacSha256 hmac(40, _sessionKey.AsByteArray(40).get());
+    Trinity::Crypto::HMAC_SHA256 hmac(_sessionKey);
     hmac.UpdateData(reinterpret_cast<uint8 const*>(&authSession->Key), sizeof(authSession->Key));
-    hmac.UpdateData(authSession->LocalChallenge.data(), authSession->LocalChallenge.size());
-    hmac.UpdateData(_serverChallenge.AsByteArray(16).get(), 16);
+    hmac.UpdateData(authSession->LocalChallenge);
+    hmac.UpdateData(_serverChallenge);
     hmac.UpdateData(ContinuedSessionSeed, 16);
     hmac.Finalize();
 
-    if (memcmp(hmac.GetDigest(), authSession->Digest.data(), authSession->Digest.size()))
+    if (memcmp(hmac.GetDigest().data(), authSession->Digest.data(), authSession->Digest.size()))
     {
         TC_LOG_ERROR("network", "WorldSocket::HandleAuthContinuedSession: Authentication failed for account: %u ('%s') address: %s", accountId, login.c_str(), GetRemoteIpAddress().to_string().c_str());
         DelayedCloseSocket();
         return;
     }
 
-    HmacSha256 encryptKeyGen(40, _sessionKey.AsByteArray(40).get());
-    encryptKeyGen.UpdateData(authSession->LocalChallenge.data(), authSession->LocalChallenge.size());
-    encryptKeyGen.UpdateData(_serverChallenge.AsByteArray(16).get(), 16);
+    Trinity::Crypto::HMAC_SHA256 encryptKeyGen(_sessionKey);
+    encryptKeyGen.UpdateData(authSession->LocalChallenge);
+    encryptKeyGen.UpdateData(_serverChallenge);
     encryptKeyGen.UpdateData(EncryptionKeySeed, 16);
     encryptKeyGen.Finalize();
 
     // only first 16 bytes of the hmac are used
-    memcpy(_encryptKey, encryptKeyGen.GetDigest(), 16);
+    memcpy(_encryptKey.data(), encryptKeyGen.GetDigest().data(), 16);
 
-    SendPacketAndLogOpcode(*WorldPackets::Auth::EnableEncryption(_encryptKey, true).Write());
+    SendPacketAndLogOpcode(*WorldPackets::Auth::EnableEncryption(_encryptKey.data(), true).Write());
     AsyncRead();
 }
 
