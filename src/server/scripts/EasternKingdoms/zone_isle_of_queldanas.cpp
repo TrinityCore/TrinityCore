@@ -373,7 +373,7 @@ struct npc_thalorien_dawnseeker : public ScriptedAI
                     if (Creature* thalorien = ObjectAccessor::GetCreature(*me, _thalorienGUID))
                     {
                         thalorien->SetStandState(UNIT_STAND_STATE_KNEEL);
-                        thalorien->DespawnOrUnsummon(5 * IN_MILLISECONDS);
+                        thalorien->DespawnOrUnsummon(5s);
                     }
 
                     me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
