@@ -320,7 +320,7 @@ class boss_zuljin : public CreatureScript
                             DoCast(me, SPELL_ENERGY_STORM, true); // enemy aura
                             for (uint8 i = 0; i < 4; ++i)
                             {
-                                Creature* Vortex = DoSpawnCreature(CREATURE_FEATHER_VORTEX, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                                Creature* Vortex = DoSpawnCreature(CREATURE_FEATHER_VORTEX, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0s);
                                 if (Vortex)
                                 {
                                     Vortex->CastSpell(Vortex, SPELL_CYCLONE_PASSIVE, true);

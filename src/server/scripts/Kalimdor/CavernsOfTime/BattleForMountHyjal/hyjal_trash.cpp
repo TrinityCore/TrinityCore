@@ -790,15 +790,15 @@ public:
             switch (urand(0, 2))
             {
                 case 0:
-                    DoSpawnCreature(17902, 3, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 60000);
-                    DoSpawnCreature(17902, -3, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 60000);
+                    DoSpawnCreature(17902, 3, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 60s);
+                    DoSpawnCreature(17902, -3, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 60s);
                     break;
                 case 1:
-                    DoSpawnCreature(17903, 3, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 60000);
-                    DoSpawnCreature(17903, -3, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 60000);
+                    DoSpawnCreature(17903, 3, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 60s);
+                    DoSpawnCreature(17903, -3, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 60s);
                     break;
                 case 2:
-                    DoSpawnCreature(RAND(17902, 17903), 3, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 60000);
+                    DoSpawnCreature(RAND(17902, 17903), 3, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 60s);
                     break;
             }
         }

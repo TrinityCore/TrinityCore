@@ -174,7 +174,7 @@ class boss_halazzi : public CreatureScript
                         break;
                     case PHASE_HUMAN:
                         //DoCast(me, SPELL_SUMMON_LYNX, true);
-                        DoSpawnCreature(NPC_SPIRIT_LYNX, 5, 5, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                        DoSpawnCreature(NPC_SPIRIT_LYNX, 5, 5, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0s);
                         me->SetMaxHealth(400000);
                         me->SetHealth(400000);
                         ShockTimer = 10000;
