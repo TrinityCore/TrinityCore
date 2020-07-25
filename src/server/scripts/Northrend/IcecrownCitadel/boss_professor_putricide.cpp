@@ -919,7 +919,7 @@ class spell_putricide_ooze_channel : public SpellScriptLoader
                 if (targets.empty())
                 {
                     FinishCast(SPELL_FAILED_NO_VALID_TARGETS);
-                    GetCaster()->ToCreature()->DespawnOrUnsummon(1);    // despawn next update
+                    GetCaster()->ToCreature()->DespawnOrUnsummon(1ms);    // despawn next update
                     return;
                 }
 
@@ -1289,7 +1289,7 @@ class spell_putricide_eat_ooze : public SpellScriptLoader
                     {
                         target->RemoveAurasDueToSpell(SPELL_GROW_STACKER);
                         target->RemoveAura(grow);
-                        target->DespawnOrUnsummon(1);
+                        target->DespawnOrUnsummon(1ms);
                     }
                     else
                         grow->ModStackAmount(-3);

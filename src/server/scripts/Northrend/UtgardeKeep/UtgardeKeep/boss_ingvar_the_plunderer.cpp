@@ -398,7 +398,7 @@ class npc_ingvar_throw_dummy : public CreatureScript
                 if (type == EFFECT_MOTION_TYPE && id == EVENT_CHARGE)
                 {
                     me->CastSpell(me, SPELL_SHADOW_AXE_PERIODIC_DAMAGE, true);
-                    me->DespawnOrUnsummon(10000);
+                    me->DespawnOrUnsummon(10s);
                 }
             }
         };

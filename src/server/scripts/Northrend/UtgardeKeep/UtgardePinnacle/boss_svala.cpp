@@ -473,7 +473,7 @@ class npc_spectator : public CreatureScript
                     if (pointId == 1)
                         me->GetMotionMaster()->MovePoint(2, spectatorWP[1]);
                     else if (pointId == 2)
-                        me->DespawnOrUnsummon(1000);
+                        me->DespawnOrUnsummon(1s);
                 }
             }
         };

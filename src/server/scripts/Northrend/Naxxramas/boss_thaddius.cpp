@@ -315,7 +315,7 @@ struct boss_thaddius : public BossAI
             instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_POSITIVE_CHARGE_APPLY);
             instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_NEGATIVE_CHARGE_APPLY);
 
-            me->DespawnOrUnsummon(0, Seconds(30));
+            me->DespawnOrUnsummon(0s, 30s);
 
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
             me->SetImmuneToPC(true);
@@ -497,7 +497,7 @@ public:
             {
                 if (GameObject* coil = myCoilGO())
                     coil->SetGoState(GO_STATE_READY);
-                me->DespawnOrUnsummon(0, Hours(24*7)); // will be force respawned by thaddius
+                me->DespawnOrUnsummon(0s, 7_days); // will be force respawned by thaddius
             }
 
             void DoAction(int32 action) override
@@ -544,7 +544,7 @@ public:
                     case ACTION_TRANSITION_3:
                         if (GameObject* coil = myCoilGO())
                             coil->SetGoState(GO_STATE_READY);
-                        me->DespawnOrUnsummon(0, Hours(24 * 7));
+                        me->DespawnOrUnsummon(0s, 7_days);
                         break;
                     default:
                         break;
@@ -743,7 +743,7 @@ public:
             {
                 if (GameObject* coil = myCoilGO())
                     coil->SetGoState(GO_STATE_READY);
-                me->DespawnOrUnsummon(0, Hours(24*7)); // will be force respawned by thaddius
+                me->DespawnOrUnsummon(0s, 7_days); // will be force respawned by thaddius
             }
 
             void DoAction(int32 action) override
@@ -795,7 +795,7 @@ public:
                     case ACTION_TRANSITION_3:
                         if (GameObject* coil = myCoilGO())
                             coil->SetGoState(GO_STATE_READY);
-                        me->DespawnOrUnsummon(0, Hours(24 * 7));
+                        me->DespawnOrUnsummon(0s, 7_days);
                         break;
                     default:
                         break;

@@ -790,7 +790,7 @@ class npc_gunship : public CreatureScript
                     GetCreatureListWithEntryInGrid(creatures, me, NPC_KOR_KRON_REAVER, 200.0f);
                     GetCreatureListWithEntryInGrid(creatures, me, NPC_KOR_KRON_SERGEANT, 200.0f);
                     for (std::list<Creature*>::iterator itr = creatures.begin(); itr != creatures.end(); ++itr)
-                        (*itr)->DespawnOrUnsummon(1);
+                        (*itr)->DespawnOrUnsummon(1ms);
                 }
                 else
                 {
@@ -944,7 +944,7 @@ class npc_high_overlord_saurfang_igb : public CreatureScript
                     init.MovebyPath(path, 0);
                     me->GetMotionMaster()->LaunchMoveSpline(std::move(init), 0, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
 
-                    me->DespawnOrUnsummon(18000);
+                    me->DespawnOrUnsummon(18s);
                 }
             }
 
@@ -1208,7 +1208,7 @@ class npc_muradin_bronzebeard_igb : public CreatureScript
                     init.MovebyPath(path, 0);
                     me->GetMotionMaster()->LaunchMoveSpline(std::move(init), 0, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
 
-                    me->DespawnOrUnsummon(18000);
+                    me->DespawnOrUnsummon(18s);
                 }
             }
 

@@ -430,7 +430,7 @@ class npc_saronite_vapors : public CreatureScript
                     me->SetHealth(me->GetMaxHealth());
                     me->RemoveAllAuras();
                     DoCast(me, SPELL_SARONITE_VAPORS);
-                    me->DespawnOrUnsummon(30000);
+                    me->DespawnOrUnsummon(30s);
 
                     if (Creature* vezax = instance->GetCreature(BOSS_VEZAX))
                         vezax->AI()->DoAction(ACTION_VAPORS_DIE);

@@ -391,7 +391,7 @@ class boss_sapphiron : public CreatureScript
                                     CastDrain();
                                 if (Creature* cBuffet = ObjectAccessor::GetCreature(*me, _buffet))
                                 {
-                                    cBuffet->DespawnOrUnsummon(1 * IN_MILLISECONDS);
+                                    cBuffet->DespawnOrUnsummon(1s);
                                     _buffet.Clear();
                                 }
                                 me->HandleEmoteCommand(EMOTE_ONESHOT_LAND);
