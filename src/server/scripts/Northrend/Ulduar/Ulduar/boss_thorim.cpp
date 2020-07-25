@@ -599,7 +599,7 @@ class boss_thorim : public CreatureScript
                 events.ScheduleEvent(EVENT_OUTRO_2, _hardMode ? 8s : 11s);
                 events.ScheduleEvent(EVENT_OUTRO_3, _hardMode ? 19s : 21s);
 
-                me->m_Events.AddEvent(new UlduarKeeperDespawnEvent(me), me->m_Events.CalculateTime(35000));
+                me->m_Events.AddEvent(new UlduarKeeperDespawnEvent(me), me->m_Events.CalculateTime(35s));
             }
 
             void MovementInform(uint32 type, uint32 id) override
@@ -668,7 +668,7 @@ class boss_thorim : public CreatureScript
                     case NPC_DARK_RUNE_EVOKER:
                     case NPC_DARK_RUNE_COMMONER:
                         summon->SetReactState(REACT_PASSIVE);
-                        summon->m_Events.AddEvent(new TrashJumpEvent(summon), summon->m_Events.CalculateTime(3000));
+                        summon->m_Events.AddEvent(new TrashJumpEvent(summon), summon->m_Events.CalculateTime(3s));
                         break;
                     case NPC_SIF:
                         summon->SetReactState(REACT_PASSIVE);
@@ -771,9 +771,9 @@ class boss_thorim : public CreatureScript
                                 return LightningFieldCenter.GetExactDist2dSq(bunny) > 1296.0f;
                             });
 
-                            uint64 timer = 1000;
+                            Milliseconds timer = 1s;
                             for (Creature* bunny : triggers)
-                                bunny->m_Events.AddEvent(new LightningFieldEvent(bunny), bunny->m_Events.CalculateTime(timer += 100));
+                                bunny->m_Events.AddEvent(new LightningFieldEvent(bunny), bunny->m_Events.CalculateTime(timer += 100ms));
 
                             triggers.remove_if([](Creature* bunny)
                             {
@@ -2044,8 +2044,8 @@ class spell_thorim_runic_smash : public SpellScriptLoader
                 GetCaster()->GetCreatureListWithEntryInGrid(triggers, GetSpellInfo()->Id == SPELL_RUNIC_SMASH_LEFT ? NPC_GOLEM_LEFT_HAND_BUNNY : NPC_GOLEM_RIGHT_HAND_BUNNY, 150.0f);
                 for (Creature* trigger : triggers)
                 {
-                    float dist = GetCaster()->GetExactDist(trigger);
-                    trigger->m_Events.AddEvent(new RunicSmashExplosionEvent(trigger), trigger->m_Events.CalculateTime(uint64(dist * 30.f)));
+                    Milliseconds time = Milliseconds(uint64(GetCaster()->GetExactDist(trigger) * 30.f));
+                    trigger->m_Events.AddEvent(new RunicSmashExplosionEvent(trigger), trigger->m_Events.CalculateTime(time));
                 };
             }
 

@@ -442,7 +442,7 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
     // asynchronously, so it can be cancelled easily in case the vehicle is uninstalled meanwhile.
     SeatMap::iterator seat;
     VehicleJoinEvent* e = new VehicleJoinEvent(this, unit);
-    unit->m_Events.AddEvent(e, unit->m_Events.CalculateTime(0));
+    unit->m_Events.AddEvent(e, unit->m_Events.CalculateTime(0s));
 
     if (seatId < 0) // no specific seat requirement
     {
