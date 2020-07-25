@@ -66,6 +66,13 @@ TEST_CASE("Schedule an event", "[EventMap]")
         REQUIRE(eventMap.Empty());
         REQUIRE(eventMap.GetTimeUntilEvent(EVENT_1) == Milliseconds::max());
     }
+
+    SECTION("Event is past it's execution time")
+    {
+        eventMap.Update(2000);
+
+        REQUIRE(eventMap.GetTimeUntilEvent(EVENT_1) == -1s);
+    }
 }
 
 // TODO: The semantics of this case are not well defined.
