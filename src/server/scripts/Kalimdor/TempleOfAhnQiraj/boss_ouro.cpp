@@ -94,7 +94,7 @@ struct npc_ouro_spawner : public ScriptedAI
     }
 
     void AttackStart(Unit* /*victim*/) override { }
-    void UpdateAI(uint32 diff) override { }
+    void UpdateAI(uint32 /*diff*/) override { }
 };
 
 void AddSC_boss_ouro()
