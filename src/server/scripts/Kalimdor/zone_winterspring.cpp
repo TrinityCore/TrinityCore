@@ -454,7 +454,7 @@ public:
                     if (Creature* guard = ObjectAccessor::GetCreature(*me, _guardEluneGUID))
                     {
                         guard->GetMotionMaster()->MovePoint(0, wingThicketLocations[2]);
-                        guard->DespawnOrUnsummon(4000);
+                        guard->DespawnOrUnsummon(4s);
                     }
                     break;
                 case SAY_PRIESTESS_ALTAR_20:
@@ -462,7 +462,7 @@ public:
                     if (Creature* priestess = ObjectAccessor::GetCreature(*me, _firstPriestessGUID))
                     {
                         priestess->GetMotionMaster()->MovePoint(0, wingThicketLocations[0]);
-                        priestess->DespawnOrUnsummon(4000);
+                        priestess->DespawnOrUnsummon(4s);
                     }
                     break;
                 case SAY_PRIESTESS_ALTAR_21:
@@ -470,7 +470,7 @@ public:
                     if (Creature* priestess = ObjectAccessor::GetCreature(*me, _secondPriestessGUID))
                     {
                         priestess->GetMotionMaster()->MovePoint(0, wingThicketLocations[1]);
-                        priestess->DespawnOrUnsummon(4000);
+                        priestess->DespawnOrUnsummon(4s);
                     }
                     break;
                 case DATA_EVENT_END:
@@ -494,7 +494,7 @@ public:
                         player->GroupEventHappens(QUEST_GUARDIANS_ALTAR, me);
                         Talk(SAY_RANSHALLA_END_2, player);
                     }
-                    me->DespawnOrUnsummon(4000);
+                    me->DespawnOrUnsummon(4s);
                     break;
             }
         }
