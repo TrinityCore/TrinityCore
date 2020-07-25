@@ -54,7 +54,7 @@ TEST_CASE("Schedule an event", "[EventMap]")
 
         REQUIRE(id == 0);
         REQUIRE_FALSE(eventMap.Empty());
-        REQUIRE(eventMap.GetTimeUntilEvent(EVENT_1) == 900);
+        REQUIRE(eventMap.GetTimeUntilEvent(EVENT_1) == 900ms);
     }
 
     SECTION("Event has reached its delay")
@@ -64,7 +64,7 @@ TEST_CASE("Schedule an event", "[EventMap]")
 
         REQUIRE(id == EVENT_1);
         REQUIRE(eventMap.Empty());
-        REQUIRE(eventMap.GetTimeUntilEvent(EVENT_1) == std::numeric_limits<uint32>::max());
+        REQUIRE(eventMap.GetTimeUntilEvent(EVENT_1) == Milliseconds::max());
     }
 }
 
@@ -269,14 +269,14 @@ TEST_CASE("Delay all events", "[EventMap]")
     EventMap eventMap;
     eventMap.ScheduleEvent(EVENT_1, 1s);
 
-    REQUIRE(eventMap.GetTimeUntilEvent(EVENT_1) == 1000);
+    REQUIRE(eventMap.GetTimeUntilEvent(EVENT_1) == 1s);
 
     SECTION("Without timer update")
     {
         eventMap.DelayEvents(1s);
 
-        // Timer hasn't ticked yet, so maximum delay is 0ms
-        REQUIRE(eventMap.GetTimeUntilEvent(EVENT_1) == 1000);
+        // Timer hasn't ticked yet, so maximum delay is 0ms: 1s (init) + 0s (delay) = 1s
+        REQUIRE(eventMap.GetTimeUntilEvent(EVENT_1) == 1s);
     }
 
     SECTION("With timer update smaller than delay")
@@ -284,7 +284,7 @@ TEST_CASE("Delay all events", "[EventMap]")
         eventMap.Update(500);
         eventMap.DelayEvents(1s);
 
-        REQUIRE(eventMap.GetTimeUntilEvent(EVENT_1) == 1000);
+        REQUIRE(eventMap.GetTimeUntilEvent(EVENT_1) == 1s);
     }
 
     SECTION("With timer update larger than delay")
@@ -293,7 +293,7 @@ TEST_CASE("Delay all events", "[EventMap]")
         eventMap.DelayEvents(1s);
 
         // 1s (init) + 1s (delay) - 2s (tick) = 0s
-        REQUIRE(eventMap.GetTimeUntilEvent(EVENT_1) == 0);
+        REQUIRE(eventMap.GetTimeUntilEvent(EVENT_1) == 0s);
     }
 }
 
@@ -307,9 +307,9 @@ TEST_CASE("Delay grouped events", "[EventMap]")
     eventMap.Update(2000);
     eventMap.DelayEvents(3s, GROUP_1);
 
-    REQUIRE(eventMap.GetTimeUntilEvent(EVENT_1) == 2000);
-    REQUIRE(eventMap.GetTimeUntilEvent(EVENT_2) == 0);
-    REQUIRE(eventMap.GetTimeUntilEvent(EVENT_3) == 4000);
+    REQUIRE(eventMap.GetTimeUntilEvent(EVENT_1) == 2s);
+    REQUIRE(eventMap.GetTimeUntilEvent(EVENT_2) == 0s);
+    REQUIRE(eventMap.GetTimeUntilEvent(EVENT_3) == 4s);
 }
 
 TEST_CASE("Reset map", "[EventMap]")

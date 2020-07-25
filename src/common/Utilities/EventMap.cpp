@@ -146,11 +146,11 @@ void EventMap::CancelEventGroup(uint32 group)
     }
 }
 
-uint32 EventMap::GetTimeUntilEvent(uint32 eventId) const
+Milliseconds EventMap::GetTimeUntilEvent(uint32 eventId) const
 {
     for (std::pair<TimePoint const, uint32> const& itr : _eventMap)
         if (eventId == (itr.second & 0x0000FFFF))
-            return std::chrono::duration_cast<Milliseconds>((itr.first - _time)).count();
+            return std::chrono::duration_cast<Milliseconds>(itr.first - _time);
 
-    return std::numeric_limits<uint32>::max();
+    return Milliseconds::max();
 }
