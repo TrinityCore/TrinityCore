@@ -41,6 +41,7 @@ namespace Trinity::Impl
             HMAC_CTX_init(ctx);
             return ctx;
         }
+
         static void DestroyCTX(HMAC_CTX* ctx)
         {
             HMAC_CTX_cleanup(ctx);
@@ -82,8 +83,7 @@ namespace Trinity::Impl
                 int result = HMAC_Init_ex(_ctx, seed, len, HashCreator(), nullptr);
                 ASSERT(result == 1);
             }
-            template <typename C>
-            GenericHMAC(C const& container) : GenericHMAC(std::data(container), std::size(container)) {}
+            template <typename C> GenericHMAC(C const& container) : GenericHMAC(std::data(container), std::size(container)) {}
 
             ~GenericHMAC()
             {

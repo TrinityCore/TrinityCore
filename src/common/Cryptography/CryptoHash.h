@@ -57,6 +57,7 @@ namespace Trinity::Impl
                 hash.Finalize();
                 return hash.GetDigest();
             }
+
             template <typename... Ts>
             static auto GetDigestOf(Ts&&... pack) -> std::enable_if_t<!(std::is_integral_v<std::decay_t<Ts>> || ...), Digest>
             {
