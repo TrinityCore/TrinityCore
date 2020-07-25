@@ -77,21 +77,40 @@ TEST_CASE("Schedule an event", "[EventMap]")
     }
 }
 
-// TODO: The semantics of this case are not well defined.
-//       Document them first, check consumers and adapt test
-//       accordingly.
-TEST_CASE("Schedule existing event", "[EventMap][!mayfail]")
+TEST_CASE("Schedule existing event", "[EventMap]")
 {
     EventMap eventMap;
 
-    eventMap.ScheduleEvent(EVENT_1, 1s);
-    eventMap.ScheduleEvent(EVENT_1, 1s);
+    SECTION("Same time")
+    {
+        eventMap.ScheduleEvent(EVENT_1, 1s);
+        eventMap.ScheduleEvent(EVENT_1, 1s);
 
-    eventMap.Update(1000);
-    uint32 id = eventMap.ExecuteEvent();
+        eventMap.Update(1000);
+        uint32 id = eventMap.ExecuteEvent();
+        REQUIRE(id == EVENT_1);
 
-    REQUIRE(id == EVENT_1);
-    REQUIRE(eventMap.Empty());
+        id = eventMap.ExecuteEvent();
+        REQUIRE(id == EVENT_1);
+
+        REQUIRE(eventMap.Empty());
+    }
+
+    SECTION("Different time")
+    {
+        eventMap.ScheduleEvent(EVENT_1, 1s);
+        eventMap.ScheduleEvent(EVENT_1, 2s);
+
+        eventMap.Update(1000);
+        uint32 id = eventMap.ExecuteEvent();
+        REQUIRE(id == EVENT_1);
+
+        eventMap.Update(1000);
+        id = eventMap.ExecuteEvent();
+        REQUIRE(id == EVENT_1);
+
+        REQUIRE(eventMap.Empty());
+    }
 }
 
 TEST_CASE("Cancel a scheduled event", "[EventMap]")
