@@ -125,7 +125,10 @@ class boss_skeram : public CreatureScript
             void JustDied(Unit* /*killer*/) override
             {
                 if (!me->IsSummon())
+                {
+                    _JustDied();
                     Talk(SAY_DEATH);
+                }
                 else
                     me->RemoveCorpse();
             }
