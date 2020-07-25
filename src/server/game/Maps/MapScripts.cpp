@@ -742,7 +742,7 @@ void Map::ScriptsProcess()
             case SCRIPT_COMMAND_DESPAWN_SELF:
                 // First try with target or source creature, then with target or source gameobject
                 if (Creature* cSource = _GetScriptCreatureSourceOrTarget(source, target, step.script, true))
-                    cSource->DespawnOrUnsummon(step.script->DespawnSelf.DespawnDelay);
+                    cSource->DespawnOrUnsummon(Milliseconds(step.script->DespawnSelf.DespawnDelay));
                 else if (GameObject* goSource = _GetScriptGameObjectSourceOrTarget(source, target, step.script, true))
                     goSource->DespawnOrUnsummon(Milliseconds(step.script->DespawnSelf.DespawnDelay));
                 break;
