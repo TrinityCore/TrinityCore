@@ -656,7 +656,7 @@ class spell_dark_fiend_skin : public SpellScriptLoader
                     target->AttackStop();
                     target->StopMoving();
                     target->CastSpell(target, SPELL_DARKFIEND_VISUAL, true);
-                    target->DespawnOrUnsummon(3000);
+                    target->DespawnOrUnsummon(3s);
                 }
             }
 
