@@ -112,7 +112,7 @@ private:
 
     bool HandlePing(WorldPacket& recvPacket);
 
-    std::array<uint8,4> _authSeed;
+    std::array<uint8, 4> _authSeed;
     AuthCrypt _authCrypt;
 
     TimePoint _LastPingTime;

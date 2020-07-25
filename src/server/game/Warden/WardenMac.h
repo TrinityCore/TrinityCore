@@ -31,7 +31,7 @@ class TC_GAME_API WardenMac : public Warden
         WardenMac();
         ~WardenMac();
 
-        void Init(WorldSession* session, std::array<uint8,40> const& k) override;
+        void Init(WorldSession* session, std::array<uint8, 40> const& k) override;
         ClientWardenModule* GetModuleForClient() override;
         void InitializeModule() override;
         void RequestHash() override;
