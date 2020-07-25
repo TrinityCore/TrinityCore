@@ -268,7 +268,7 @@ class instance_pit_of_saron : public InstanceMapScript
                     if (Creature* trigger = instance->GetCreature(guid))
                     {
                         if (activate)
-                            trigger->m_Events.AddEvent(new ScheduledIcicleSummons(trigger), trigger->m_Events.CalculateTime(1000));
+                            trigger->m_Events.AddEvent(new ScheduledIcicleSummons(trigger), trigger->m_Events.CalculateTime(1s));
                         else
                             trigger->m_Events.KillAllEvents(false);
                     }

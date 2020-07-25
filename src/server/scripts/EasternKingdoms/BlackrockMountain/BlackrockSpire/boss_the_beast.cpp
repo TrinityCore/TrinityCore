@@ -131,7 +131,7 @@ struct boss_the_beast : public BossAI
                         if (Creature* orc = ObjectAccessor::GetCreature(*me, guid))
                         {
                             orc->GetMotionMaster()->MovePoint(1, orc->GetRandomPoint(OrcsRunawayPosition, 5.0f));
-                            orc->m_Events.AddEvent(new OrcDeathEvent(orc), me->m_Events.CalculateTime(6 * IN_MILLISECONDS));
+                            orc->m_Events.AddEvent(new OrcDeathEvent(orc), me->m_Events.CalculateTime(6s));
                             orc->SetReactState(REACT_PASSIVE);
                         }
                     }

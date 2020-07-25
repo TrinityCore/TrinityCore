@@ -366,7 +366,7 @@ class boss_lady_deathwhisper : public CreatureScript
                         darnavan->CombatStop(true);
                         darnavan->GetMotionMaster()->MoveIdle();
                         darnavan->SetReactState(REACT_PASSIVE);
-                        darnavan->m_Events.AddEvent(new DaranavanMoveEvent(*darnavan), darnavan->m_Events.CalculateTime(10000));
+                        darnavan->m_Events.AddEvent(new DaranavanMoveEvent(*darnavan), darnavan->m_Events.CalculateTime(10s));
                         darnavan->AI()->Talk(SAY_DARNAVAN_RESCUED);
 
                         if (!killer)
