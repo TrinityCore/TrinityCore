@@ -15,7 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#define CATCH_CONFIG_ENABLE_CHRONO_STRINGMAKER
 #include "catch2/catch.hpp"
+
 #include "EventMap.h"
 
 enum EVENTS
@@ -282,8 +284,8 @@ TEST_CASE("Delay all events", "[EventMap]")
     {
         eventMap.DelayEvents(1s);
 
-        // Timer hasn't ticked yet, so maximum delay is 0ms: 1s (init) + 0s (delay) = 1s
-        REQUIRE(eventMap.GetTimeUntilEvent(EVENT_1) == 1s);
+        // 1s (init) + 1s (delay) = 2s
+        REQUIRE(eventMap.GetTimeUntilEvent(EVENT_1) == 2s);
     }
 
     SECTION("With timer update smaller than delay")
@@ -291,7 +293,8 @@ TEST_CASE("Delay all events", "[EventMap]")
         eventMap.Update(500);
         eventMap.DelayEvents(1s);
 
-        REQUIRE(eventMap.GetTimeUntilEvent(EVENT_1) == 1s);
+        // 1s (init) + 1s (delay) - 500ms (tick) = 1500ms
+        REQUIRE(eventMap.GetTimeUntilEvent(EVENT_1) == 1500ms);
     }
 
     SECTION("With timer update larger than delay")
