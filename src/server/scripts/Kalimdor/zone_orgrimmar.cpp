@@ -761,7 +761,7 @@ public:
                             jaina->AI()->Talk(SAY_JAINA_4);
                             jaina->SetWalk(true);
                             jaina->GetMotionMaster()->MovePoint(2, jaina->GetHomePosition());
-                            jaina->DespawnOrUnsummon(5000);
+                            jaina->DespawnOrUnsummon(5s);
                         }
                         events.ScheduleEvent(EVENT_HERALD_SCENE15, 7s);
                         break;

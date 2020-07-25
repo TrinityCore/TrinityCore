@@ -125,7 +125,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             instance->SetBossState(DATA_EXTINGUISHING_THE_IDOL, DONE);
-            me->DespawnOrUnsummon(5000);
+            me->DespawnOrUnsummon(5s);
         }
 
         void QuestAccept(Player* /*player*/, Quest const* quest) override
