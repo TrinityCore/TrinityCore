@@ -121,7 +121,7 @@ class boss_kirtonos_the_herald : public CreatureScript
                     brazier->ResetDoorOrButton();
                     brazier->SetGoState(GO_STATE_READY);
                 }
-                me->DespawnOrUnsummon(5000);
+                me->DespawnOrUnsummon(5s);
             }
 
             void IsSummonedBy(WorldObject* /*summoner*/) override
