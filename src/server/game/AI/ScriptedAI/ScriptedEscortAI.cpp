@@ -227,7 +227,7 @@ void EscortAI::UpdateAI(uint32 diff)
                 if (_instantRespawn)
                 {
                     if (!isEscort)
-                      me->DespawnOrUnsummon(0, 1s);
+                      me->DespawnOrUnsummon(0s, 1s);
                     else
                       me->GetMap()->Respawn(SPAWN_TYPE_CREATURE, me->GetSpawnId());
                 }
