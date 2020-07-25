@@ -352,10 +352,10 @@ class TC_SHARED_API ByteBuffer
             _rpos += len;
         }
 
-        template <size_t S>
-        void read(std::array<uint8, S>& arr)
+        template <size_t Size>
+        void read(std::array<uint8, Size>& arr)
         {
-            read(arr.data(), S);
+            read(arr.data(), Size);
         }
 
         void readPackGUID(uint64& guid)
@@ -445,10 +445,10 @@ class TC_SHARED_API ByteBuffer
                 append(buffer.contents(), buffer.wpos());
         }
 
-        template <size_t S>
-        void append(std::array<uint8, S> const& arr)
+        template <size_t Size>
+        void append(std::array<uint8, Size> const& arr)
         {
-            append(arr.data(), S);
+            append(arr.data(), Size);
         }
 
         // can be used in SMSG_MONSTER_MOVE opcode

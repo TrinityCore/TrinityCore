@@ -37,14 +37,14 @@ namespace Trinity::Impl
             return iv;
         }
 
-        template <typename C>
-        static void AppendToBack(std::vector<uint8>& data, C const& tail)
+        template <typename Container>
+        static void AppendToBack(std::vector<uint8>& data, Container const& tail)
         {
             data.insert(data.end(), std::begin(tail), std::end(tail));
         }
 
-        template <typename C>
-        static void SplitFromBack(std::vector<uint8>& data, C& tail)
+        template <typename Container>
+        static void SplitFromBack(std::vector<uint8>& data, Container& tail)
         {
             ASSERT(data.size() >= std::size(tail));
             for (size_t i = 1, N = std::size(tail); i <= N; ++i)

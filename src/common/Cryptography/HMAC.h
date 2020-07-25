@@ -60,8 +60,8 @@ namespace Trinity::Impl
             static constexpr size_t DIGEST_LENGTH = DigestLength;
             using Digest = std::array<uint8, DIGEST_LENGTH>;
 
-            template <typename C>
-            static Digest GetDigestOf(C const& seed, uint8 const* data, size_t len)
+            template <typename Container>
+            static Digest GetDigestOf(Container const& seed, uint8 const* data, size_t len)
             {
                 GenericHMAC hash(seed);
                 hash.UpdateData(data, len);
@@ -69,8 +69,8 @@ namespace Trinity::Impl
                 return hash.GetDigest();
             }
 
-            template <typename C, typename... Ts>
-            static auto GetDigestOf(C const& seed, Ts&&... pack) -> std::enable_if_t<!(std::is_integral_v<std::decay_t<Ts>> || ...), Digest>
+            template <typename Container, typename... Ts>
+            static auto GetDigestOf(Container const& seed, Ts&&... pack) -> std::enable_if_t<!(std::is_integral_v<std::decay_t<Ts>> || ...), Digest>
             {
                 GenericHMAC hash(seed);
                 (hash.UpdateData(std::forward<Ts>(pack)), ...);
@@ -83,7 +83,8 @@ namespace Trinity::Impl
                 int result = HMAC_Init_ex(_ctx, seed, len, HashCreator(), nullptr);
                 ASSERT(result == 1);
             }
-            template <typename C> GenericHMAC(C const& container) : GenericHMAC(std::data(container), std::size(container)) {}
+            template <typename Container>
+            GenericHMAC(Container const& container) : GenericHMAC(std::data(container), std::size(container)) {}
 
             ~GenericHMAC()
             {
@@ -101,7 +102,8 @@ namespace Trinity::Impl
             void UpdateData(std::string_view str) { UpdateData(reinterpret_cast<uint8 const*>(str.data()), str.size()); }
             void UpdateData(std::string const& str) { UpdateData(std::string_view(str)); } /* explicit overload to avoid using the container template */
             void UpdateData(char const* str) { UpdateData(std::string_view(str)); } /* explicit overload to avoid using the container template */
-            template <typename Container> void UpdateData(Container const& c) { UpdateData(std::data(c), std::size(c)); }
+            template <typename Container>
+            void UpdateData(Container const& c) { UpdateData(std::data(c), std::size(c)); }
 
             void Finalize()
             {
