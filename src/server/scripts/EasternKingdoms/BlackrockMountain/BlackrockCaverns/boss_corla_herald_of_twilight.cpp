@@ -100,7 +100,8 @@ enum Data
 
 enum Misc
 {
-    GAME_EVENT_WINTER_VEIL = 2
+    GAME_EVENT_WINTER_VEIL              = 2,
+    SPELL_VISUAL_KIT_EVOLUTION_WARNING  = 16957
 };
 
 Position const TwilightZealotSummonPositions[] =
@@ -395,8 +396,17 @@ class spell_corla_nether_beam : public SpellScript
         return ValidateSpellInfo(
             {
                 SPELL_NETHER_BEAM_VISUAL,
-                SPELL_EVOLUTION_STACKS_N
+                SPELL_EVOLUTION_STACKS_N,
+                SPELL_EVOLUTION_STACKS_HC,
             });
+    }
+
+    bool Load() override
+    {
+        if (GetCaster()->GetMap()->IsHeroic())
+            _evolutionSpellId = SPELL_EVOLUTION_STACKS_HC;
+
+        return true;
     }
 
     void FilterTargets(std::list<WorldObject*>& targets)
@@ -406,12 +416,18 @@ class spell_corla_nether_beam : public SpellScript
             if (Unit* caster = GetCaster())
             {
                 caster->CastSpell(caster, SPELL_NETHER_BEAM_VISUAL, true);
-                caster->CastSpell(caster, SPELL_EVOLUTION_STACKS_N, true);
+                caster->CastSpell(caster, _evolutionSpellId, true);
+
+                if (_evolutionSpellId == SPELL_EVOLUTION_STACKS_HC)
+                    caster->CastSpell(caster, _evolutionSpellId, true);
+
+                if (Aura const* aura = caster->GetAura(_evolutionSpellId))
+                    if (aura->GetStackAmount() >= 75)
+                        caster->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_EVOLUTION_WARNING, 0, 0);
             }
             return;
         }
-
-        if (targets.size() > 1)
+        else if (targets.size() > 1)
         {
             if (Unit* caster = GetCaster())
             {
@@ -425,7 +441,14 @@ class spell_corla_nether_beam : public SpellScript
     {
         Unit* target = GetHitUnit();
         target->CastSpell(target, SPELL_NETHER_BEAM_VISUAL, true);
-        target->CastSpell(target, SPELL_EVOLUTION_STACKS_N, true);
+        target->CastSpell(target, _evolutionSpellId, true);
+
+        if (_evolutionSpellId == SPELL_EVOLUTION_STACKS_HC)
+            target->CastSpell(target, _evolutionSpellId, true);
+
+        if (Aura const* aura = target->GetAura(_evolutionSpellId))
+            if (aura->GetStackAmount() >= 75)
+                target->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_EVOLUTION_WARNING, 0, 0);
     }
 
     void Register() override
@@ -433,6 +456,8 @@ class spell_corla_nether_beam : public SpellScript
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_corla_nether_beam::FilterTargets, EFFECT_0, TARGET_UNIT_CONE_ENTRY);
         OnEffectHitTarget += SpellEffectFn(spell_corla_nether_beam::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
+private:
+    uint32 _evolutionSpellId = SPELL_EVOLUTION_STACKS_N;
 };
 
 class spell_corla_evolution : public SpellScript
