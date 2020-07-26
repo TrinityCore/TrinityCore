@@ -436,18 +436,18 @@ void CreatureAI::SetBoundary(CreatureBoundary const* boundary, bool negateBounda
 
 Creature* CreatureAI::DoSummon(uint32 entry, Position const& pos, uint32 despawnTime, TempSummonType summonType)
 {
-    return me->SummonCreature(entry, pos, summonType, despawnTime);
+    return me->SummonCreature(entry, pos, summonType, Milliseconds(despawnTime));
 }
 
 Creature* CreatureAI::DoSummon(uint32 entry, WorldObject* obj, float radius, uint32 despawnTime, TempSummonType summonType)
 {
     Position pos = obj->GetRandomNearPosition(radius);
-    return me->SummonCreature(entry, pos, summonType, despawnTime);
+    return me->SummonCreature(entry, pos, summonType, Milliseconds(despawnTime));
 }
 
 Creature* CreatureAI::DoSummonFlyer(uint32 entry, WorldObject* obj, float flightZ, float radius, uint32 despawnTime, TempSummonType summonType)
 {
     Position pos = obj->GetRandomNearPosition(radius);
     pos.m_positionZ += flightZ;
-    return me->SummonCreature(entry, pos, summonType, despawnTime);
+    return me->SummonCreature(entry, pos, summonType, Milliseconds(despawnTime));
 }

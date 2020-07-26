@@ -916,7 +916,7 @@ void npc_doctor::npc_doctorAI::UpdateAI(uint32 diff)
             std::vector<Position const*>::iterator point = Coordinates.begin();
             std::advance(point, urand(0, Coordinates.size() - 1));
 
-            if (Creature* Patient = me->SummonCreature(patientEntry, **point, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000))
+            if (Creature* Patient = me->SummonCreature(patientEntry, **point, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s))
             {
                 //303, this flag appear to be required for client side item->spell to work (TARGET_SINGLE_FRIEND)
                 Patient->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);

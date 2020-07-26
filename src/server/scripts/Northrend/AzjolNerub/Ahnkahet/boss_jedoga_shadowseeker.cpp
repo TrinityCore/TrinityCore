@@ -171,7 +171,7 @@ struct boss_jedoga_shadowseeker : public BossAI
 
         for (VolunteerPositionPair posPair : VolunteerSpotPositions)
         {
-            if (TempSummon* volunteer = me->SummonCreature(NPC_TWILIGHT_VOLUNTEER, posPair.first, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000))
+            if (TempSummon* volunteer = me->SummonCreature(NPC_TWILIGHT_VOLUNTEER, posPair.first, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3s))
             {
                 volunteer->GetMotionMaster()->MovePoint(POINT_INITIAL_POSITION, posPair.second);
                 _volunteerGUIDS.push_back(volunteer->GetGUID());
@@ -355,7 +355,7 @@ struct boss_jedoga_shadowseeker : public BossAI
                     if (pos < VolunteerSpotPositions.size())
                     {
                         VolunteerPositionPair posPair = VolunteerSpotPositions.at(pos);
-                        if (TempSummon* volunteer = me->SummonCreature(NPC_TWILIGHT_VOLUNTEER, posPair.first, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000))
+                        if (TempSummon* volunteer = me->SummonCreature(NPC_TWILIGHT_VOLUNTEER, posPair.first, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3s))
                             volunteer->GetMotionMaster()->MovePoint(POINT_INITIAL_POSITION, posPair.second);
                     }
                     break;

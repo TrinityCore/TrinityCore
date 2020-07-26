@@ -88,7 +88,7 @@ class boss_hazzarah : public CreatureScript
                             for (uint8 i = 0; i < 3; ++i)
                             {
                                 if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.f, true))
-                                    if (TempSummon* illusion = me->SummonCreature(NPC_NIGHTMARE_ILLUSION, target->GetPosition(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000))
+                                    if (TempSummon* illusion = me->SummonCreature(NPC_NIGHTMARE_ILLUSION, target->GetPosition(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30s))
                                         illusion->AI()->AttackStart(target);
                             }
                             events.ScheduleEvent(EVENT_ILLUSIONS, 15s, 25s);
