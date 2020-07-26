@@ -1149,7 +1149,7 @@ public:
                         break;
                     case RP2_EVENT_MALGANIS_LEAVE2:
                         if (Creature* malganis = me->FindNearestCreature(NPC_MALGANIS, 80.0f, true))
-                            malganis->DespawnOrUnsummon(0);
+                            malganis->DespawnOrUnsummon();
                         if (Creature* bunny = me->FindNearestCreature(NPC_MALGANIS_BUNNY, 80.0f, true))
                             bunny->CastSpell(bunny, SPELL_SHADOWSTEP_VISUAL);
                         break;
