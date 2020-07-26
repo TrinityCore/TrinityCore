@@ -147,7 +147,7 @@ class boss_king_dred : public CreatureScript
                             float x, y, z;
 
                             me->GetClosePoint(x, y, z, me->GetCombatReach() / 3, 10.0f);
-                            me->SummonCreature(RAND(NPC_DRAKKARI_GUTRIPPER, NPC_DRAKKARI_SCYTHECLAW), x, y, z, 0, TEMPSUMMON_DEAD_DESPAWN, 1000);
+                            me->SummonCreature(RAND(NPC_DRAKKARI_GUTRIPPER, NPC_DRAKKARI_SCYTHECLAW), x, y, z, 0, TEMPSUMMON_DEAD_DESPAWN, 1s);
                             events.ScheduleEvent(EVENT_RAPTOR_CALL, 20s, 25s);
                             break;
                         default:

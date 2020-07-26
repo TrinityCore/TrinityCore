@@ -185,7 +185,7 @@ class boss_jeklik : public CreatureScript
                             break;
                         case EVENT_SPAWN_FLYING_BATS:
                             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.f, true))
-                                if (TempSummon* flyingBat = me->SummonCreature(NPC_FRENZIED_BAT, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ() + 15.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000))
+                                if (TempSummon* flyingBat = me->SummonCreature(NPC_FRENZIED_BAT, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ() + 15.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15s))
                                     flyingBat->AI()->AttackStart(target);
                             events.ScheduleEvent(EVENT_SPAWN_FLYING_BATS, 10s, 15s, 0, PHASE_TWO);
                             break;

@@ -350,7 +350,7 @@ class boss_hexlord_malacrass : public CreatureScript
                     {
                         if (creature)
                             creature->setDeathState(DEAD);
-                        creature = me->SummonCreature(AddEntry[i], Pos_X[i], POS_Y, POS_Z, ORIENT, TEMPSUMMON_DEAD_DESPAWN, 0);
+                        creature = me->SummonCreature(AddEntry[i], Pos_X[i], POS_Y, POS_Z, ORIENT, TEMPSUMMON_DEAD_DESPAWN);
                         if (creature)
                             AddGUID[i] = creature->GetGUID();
                     }

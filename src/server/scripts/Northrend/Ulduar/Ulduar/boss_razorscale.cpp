@@ -545,7 +545,7 @@ struct boss_razorscale : public BossAI
         float x = frand(540.0f, 640.0f);       // Safe range is between 500 and 650
         float y = frand(-230.0f, -195.0f);     // Safe range is between -235 and -145
         float z = 391.517f;                     // Ground level
-        me->SummonCreature(NPC_RAZORSCALE_SPAWNER, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN, 15000);
+        me->SummonCreature(NPC_RAZORSCALE_SPAWNER, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN, 15s);
     }
 
     void DamageTaken(Unit* /*done_by*/, uint32 &damage) override

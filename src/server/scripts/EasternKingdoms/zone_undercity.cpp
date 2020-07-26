@@ -143,7 +143,7 @@ public:
                 LamentEvent = true;
 
                 for (uint8 i = 0; i < 4; ++i)
-                    me->SummonCreature(NPC_HIGHBORNE_LAMENTER, HighborneLoc[i][0], HighborneLoc[i][1], HIGHBORNE_LOC_Y, HighborneLoc[i][2], TEMPSUMMON_TIMED_DESPAWN, 160000);
+                    me->SummonCreature(NPC_HIGHBORNE_LAMENTER, HighborneLoc[i][0], HighborneLoc[i][1], HIGHBORNE_LOC_Y, HighborneLoc[i][2], TEMPSUMMON_TIMED_DESPAWN, 160s);
 
                 _events.ScheduleEvent(EVENT_LAMENT_OF_THE_HIGHBORN, 2s);
                 _events.ScheduleEvent(EVENT_SUNSORROW_WHISPER, 10s);
