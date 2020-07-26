@@ -290,7 +290,7 @@ class go_brazier_of_the_herald : public GameObjectScript
             {
                 me->UseDoorOrButton();
                 me->PlayDirectSound(SOUND_SCREECH, nullptr);
-                player->SummonCreature(NPC_KIRTONOS, PosSummon[0], TEMPSUMMON_DEAD_DESPAWN, 900000);
+                player->SummonCreature(NPC_KIRTONOS, PosSummon[0], TEMPSUMMON_DEAD_DESPAWN, 15min);
                 return true;
             }
         };

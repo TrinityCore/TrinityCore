@@ -117,7 +117,7 @@ public:
                     {
                         const Position src = {-141.151581f, -4291.213867f, 120.130f, 0};
                         Position dst = me->GetRandomPoint(src, 7.0f);
-                        me->SummonCreature(NPC_VILE_AMBUSHER, dst, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 25000);
+                        me->SummonCreature(NPC_VILE_AMBUSHER, dst, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 25s);
                     }
                     break;
             }

@@ -200,14 +200,14 @@ public:
         void SpawnFirstWave()
         {
             for (uint8 i = 0; i < FIRST_WAVE_MAX_WARRIORS; i++)
-                if (Creature* summon = me->SummonCreature(NPC_YMIRJAR_WARRIOR, SpawnLoc, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000))
+                if (Creature* summon = me->SummonCreature(NPC_YMIRJAR_WARRIOR, SpawnLoc, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5s))
                     summon->GetMotionMaster()->MovePoint(POINT_0, FirstWaveLocations[i]);
 
-            if (Creature* crea = me->SummonCreature(NPC_YMIRJAR_WITCH_DOCTOR, SpawnLoc, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000))
+            if (Creature* crea = me->SummonCreature(NPC_YMIRJAR_WITCH_DOCTOR, SpawnLoc, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5s))
                 crea->GetMotionMaster()->MovePoint(POINT_0, FirstWaveLocations[10]);
-            if (Creature* crea = me->SummonCreature(NPC_YMIRJAR_HARPOONER, SpawnLoc, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000))
+            if (Creature* crea = me->SummonCreature(NPC_YMIRJAR_HARPOONER, SpawnLoc, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5s))
                 crea->GetMotionMaster()->MovePoint(POINT_0, FirstWaveLocations[11]);
-            if (Creature* crea = me->SummonCreature(NPC_YMIRJAR_HARPOONER, SpawnLoc, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000))
+            if (Creature* crea = me->SummonCreature(NPC_YMIRJAR_HARPOONER, SpawnLoc, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5s))
                 crea->GetMotionMaster()->MovePoint(POINT_0, FirstWaveLocations[12]);
 
             firstWaveSummoned = true;

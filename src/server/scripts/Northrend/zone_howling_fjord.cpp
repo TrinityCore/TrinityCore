@@ -413,7 +413,7 @@ struct npc_daegarn : public ScriptedAI
 private:
     void SummonGladiator(uint32 entry)
     {
-        me->SummonCreature(entry, daegarnSummonPosition, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30 * IN_MILLISECONDS);
+        me->SummonCreature(entry, daegarnSummonPosition, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30s);
     }
 
     bool _eventInProgress;

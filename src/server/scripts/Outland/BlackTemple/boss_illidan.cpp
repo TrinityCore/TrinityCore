@@ -706,7 +706,7 @@ struct boss_illidan_stormrage : public BossAI
         for (uint8 i = 0; i < needSummon; ++i)
         {
             _minionsCount++;
-            me->SummonCreature(NPC_ILLIDARI_ELITE, MinionsSpawnPositions[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 6000);
+            me->SummonCreature(NPC_ILLIDARI_ELITE, MinionsSpawnPositions[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 6s);
         }
     }
 

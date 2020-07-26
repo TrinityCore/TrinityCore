@@ -932,7 +932,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                     if (Creature* lichking = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_THE_LICH_KING_ESCAPE)))
                     {
                         lichking->StopMoving();
-                        if (Creature* wallTarget = me->SummonCreature(NPC_ICE_WALL_TARGET, IceWallTargetPosition[_icewall], TEMPSUMMON_MANUAL_DESPAWN, 720000))
+                        if (Creature* wallTarget = me->SummonCreature(NPC_ICE_WALL_TARGET, IceWallTargetPosition[_icewall], TEMPSUMMON_MANUAL_DESPAWN, 12min))
                             lichking->CastSpell(wallTarget, SPELL_SUMMON_ICE_WALL);
 
                         lichking->AI()->SetData(DATA_ICEWALL, _icewall);
@@ -1953,7 +1953,7 @@ class npc_frostsworn_general : public CreatureScript
                 SelectTargetList(playerList, 5, SelectTargetMethod::MaxThreat, 0, 0.0f, true);
                 for (Unit* target : playerList)
                 {
-                    if (Creature* reflection = me->SummonCreature(NPC_REFLECTION, *target, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 3000))
+                    if (Creature* reflection = me->SummonCreature(NPC_REFLECTION, *target, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 3s))
                     {
                         reflection->SetImmuneToPC(false);
                         target->CastSpell(reflection, SPELL_CLONE, true);

@@ -524,7 +524,7 @@ class spell_tyrannus_rimefang_icy_blast : public SpellScriptLoader
             {
                 PreventHitDefaultEffect(effIndex);
                 if (Position const* pos = GetHitDest())
-                    if (TempSummon* summon = GetCaster()->SummonCreature(NPC_ICY_BLAST, *pos, TEMPSUMMON_TIMED_DESPAWN, 60000))
+                    if (TempSummon* summon = GetCaster()->SummonCreature(NPC_ICY_BLAST, *pos, TEMPSUMMON_TIMED_DESPAWN, 1min))
                         summon->CastSpell(summon, SPELL_ICY_BLAST_AURA, true);
             }
 

@@ -423,19 +423,19 @@ public:
                         {
                             case 0:
                             {
-                                if (Creature* right1 = me->SummonCreature(NPC_FLAME_TSUNAMI, FlameRight1Spawn, TEMPSUMMON_TIMED_DESPAWN, 12000))
+                                if (Creature* right1 = me->SummonCreature(NPC_FLAME_TSUNAMI, FlameRight1Spawn, TEMPSUMMON_TIMED_DESPAWN, 12s))
                                     right1->GetMotionMaster()->MovePoint(0, FlameRight1Direction);
-                                if (Creature* right2 = me->SummonCreature(NPC_FLAME_TSUNAMI, FlameRight2Spawn, TEMPSUMMON_TIMED_DESPAWN, 12000))
+                                if (Creature* right2 = me->SummonCreature(NPC_FLAME_TSUNAMI, FlameRight2Spawn, TEMPSUMMON_TIMED_DESPAWN, 12s))
                                     right2->GetMotionMaster()->MovePoint(0, FlameRight2Direction);
-                                if (Creature* right3 = me->SummonCreature(NPC_FLAME_TSUNAMI, FlameRight3Spawn, TEMPSUMMON_TIMED_DESPAWN, 12000))
+                                if (Creature* right3 = me->SummonCreature(NPC_FLAME_TSUNAMI, FlameRight3Spawn, TEMPSUMMON_TIMED_DESPAWN, 12s))
                                     right3->GetMotionMaster()->MovePoint(0, FlameRight3Direction);
                                 break;
                             }
                             case 1:
                             {
-                                if (Creature* left1 = me->SummonCreature(NPC_FLAME_TSUNAMI, FlameLeft1Spawn, TEMPSUMMON_TIMED_DESPAWN, 12000))
+                                if (Creature* left1 = me->SummonCreature(NPC_FLAME_TSUNAMI, FlameLeft1Spawn, TEMPSUMMON_TIMED_DESPAWN, 12s))
                                     left1->GetMotionMaster()->MovePoint(0, FlameLeft1Direction);
-                                if (Creature* left2 = me->SummonCreature(NPC_FLAME_TSUNAMI, FlameLeft2Spawn, TEMPSUMMON_TIMED_DESPAWN, 12000))
+                                if (Creature* left2 = me->SummonCreature(NPC_FLAME_TSUNAMI, FlameLeft2Spawn, TEMPSUMMON_TIMED_DESPAWN, 12s))
                                     left2->GetMotionMaster()->MovePoint(0, FlameLeft2Direction);
                                 break;
                             }
