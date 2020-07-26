@@ -5640,6 +5640,18 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_4_YARDS);
     });
 
+    // Mangle (Hotfix: 2011-03-16: Magmaw overall damage and health was a little too high on all difficulties and has been reduced slightly)
+    // For some reason this didn't seem to have found its way into the dbc as sniffs confirm 100% melee damage instead of 150%.
+    ApplySpellFix({
+        89773,
+        91912,
+        94616,
+        94617
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_2].BasePoints = 100;
+    });
+
     // ENDOF BLACKWING DESCENT SPELLS
 
     // Living Bomb
