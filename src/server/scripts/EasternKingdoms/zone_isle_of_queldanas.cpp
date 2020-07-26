@@ -143,7 +143,7 @@ struct npc_thalorien_dawnseeker : public ScriptedAI
         {
             me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
 
-            if (Creature* thalorien = me->SummonCreature(NPC_THALORIEN_DAWNSEEKER, thalorienSummon, TEMPSUMMON_CORPSE_DESPAWN, 0))
+            if (Creature* thalorien = me->SummonCreature(NPC_THALORIEN_DAWNSEEKER, thalorienSummon, TEMPSUMMON_CORPSE_DESPAWN))
                 _thalorienGUID = thalorien->GetGUID();
             me->SummonCreatureGroup(SUMMON_SUNWELL_DEFENDER);
 
@@ -276,7 +276,7 @@ struct npc_thalorien_dawnseeker : public ScriptedAI
                     _events.ScheduleEvent(EVENT_MORLEN_1, 6s);
                     break;
                 case EVENT_SUMMON_MORLEN:
-                    if (Creature* morlen = me->SummonCreature(NPC_MORLEN_GOLDGRIP, morlenSummon, TEMPSUMMON_CORPSE_DESPAWN, 0))
+                    if (Creature* morlen = me->SummonCreature(NPC_MORLEN_GOLDGRIP, morlenSummon, TEMPSUMMON_CORPSE_DESPAWN))
                     {
                         _morlenGUID = morlen->GetGUID();
                         morlen->AI()->DoCastSelf(SPELL_BLOOD_PRESENCE);

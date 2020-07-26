@@ -603,7 +603,7 @@ void Map::ScriptsProcess()
                         float z = step.script->TempSummonCreature.PosZ;
                         float o = step.script->TempSummonCreature.Orientation;
 
-                        if (!pSummoner->SummonCreature(step.script->TempSummonCreature.CreatureEntry, x, y, z, o, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, step.script->TempSummonCreature.DespawnDelay))
+                        if (!pSummoner->SummonCreature(step.script->TempSummonCreature.CreatureEntry, x, y, z, o, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, Milliseconds(step.script->TempSummonCreature.DespawnDelay)))
                             TC_LOG_ERROR("scripts", "%s creature was not spawned (entry: %u).", step.script->GetDebugInfo().c_str(), step.script->TempSummonCreature.CreatureEntry);
                     }
                 }

@@ -433,7 +433,7 @@ class boss_alar : public CreatureScript
                     {
                         if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         {
-                            Creature* Summoned = me->SummonCreature(CREATURE_FLAME_PATCH_ALAR, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 120000);
+                            Creature* Summoned = me->SummonCreature(CREATURE_FLAME_PATCH_ALAR, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 2min);
                             if (Summoned)
                             {
                                 Summoned->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
