@@ -307,7 +307,7 @@ public:
                         switch (Step)
                         {
                             case 0:
-                                if (Creature* mob = me->SummonCreature(ASPECT_RAVEN, AspectRavenSummon, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000))
+                                if (Creature* mob = me->SummonCreature(ASPECT_RAVEN, AspectRavenSummon, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2s))
                                 {
                                     AddThreat(me, 10000.0f, mob);
                                     mob->AI()->AttackStart(me);

@@ -132,41 +132,41 @@ public:
                         case 1:
                             if (GameObject* go = instance->GetGameObject(shrine1GUID))
                             {
-                                go->SummonCreature(NPC_AKU_MAI_SNAPJAW, SpawnsLocation[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
-                                go->SummonCreature(NPC_AKU_MAI_SNAPJAW, SpawnsLocation[2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
-                                go->SummonCreature(NPC_AKU_MAI_SNAPJAW, SpawnsLocation[5], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
-                                go->SummonCreature(NPC_AKU_MAI_SNAPJAW, SpawnsLocation[7], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
+                                go->SummonCreature(NPC_AKU_MAI_SNAPJAW, SpawnsLocation[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5min);
+                                go->SummonCreature(NPC_AKU_MAI_SNAPJAW, SpawnsLocation[2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5min);
+                                go->SummonCreature(NPC_AKU_MAI_SNAPJAW, SpawnsLocation[5], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5min);
+                                go->SummonCreature(NPC_AKU_MAI_SNAPJAW, SpawnsLocation[7], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5min);
                             }
                             break;
                         case 2:
                             if (GameObject* go = instance->GetGameObject(shrine1GUID))
                             {
-                                go->SummonCreature(NPC_MURKSHALLOW_SOFTSHELL, SpawnsLocation[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
-                                go->SummonCreature(NPC_MURKSHALLOW_SOFTSHELL, SpawnsLocation[1], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
-                                go->SummonCreature(NPC_MURKSHALLOW_SOFTSHELL, SpawnsLocation[2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
-                                go->SummonCreature(NPC_MURKSHALLOW_SOFTSHELL, SpawnsLocation[3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
-                                go->SummonCreature(NPC_MURKSHALLOW_SOFTSHELL, SpawnsLocation[4], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
-                                go->SummonCreature(NPC_MURKSHALLOW_SOFTSHELL, SpawnsLocation[5], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
-                                go->SummonCreature(NPC_MURKSHALLOW_SOFTSHELL, SpawnsLocation[6], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
-                                go->SummonCreature(NPC_MURKSHALLOW_SOFTSHELL, SpawnsLocation[7], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
-                                go->SummonCreature(NPC_MURKSHALLOW_SOFTSHELL, SpawnsLocation[8], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
-                                go->SummonCreature(NPC_MURKSHALLOW_SOFTSHELL, SpawnsLocation[9], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
+                                go->SummonCreature(NPC_MURKSHALLOW_SOFTSHELL, SpawnsLocation[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5min);
+                                go->SummonCreature(NPC_MURKSHALLOW_SOFTSHELL, SpawnsLocation[1], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5min);
+                                go->SummonCreature(NPC_MURKSHALLOW_SOFTSHELL, SpawnsLocation[2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5min);
+                                go->SummonCreature(NPC_MURKSHALLOW_SOFTSHELL, SpawnsLocation[3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5min);
+                                go->SummonCreature(NPC_MURKSHALLOW_SOFTSHELL, SpawnsLocation[4], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5min);
+                                go->SummonCreature(NPC_MURKSHALLOW_SOFTSHELL, SpawnsLocation[5], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5min);
+                                go->SummonCreature(NPC_MURKSHALLOW_SOFTSHELL, SpawnsLocation[6], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5min);
+                                go->SummonCreature(NPC_MURKSHALLOW_SOFTSHELL, SpawnsLocation[7], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5min);
+                                go->SummonCreature(NPC_MURKSHALLOW_SOFTSHELL, SpawnsLocation[8], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5min);
+                                go->SummonCreature(NPC_MURKSHALLOW_SOFTSHELL, SpawnsLocation[9], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5min);
                             }
                             break;
                         case 3:
                             if (GameObject* go = instance->GetGameObject(shrine1GUID))
                             {
-                                go->SummonCreature(NPC_AKU_MAI_SERVANT, SpawnsLocation[1], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
-                                go->SummonCreature(NPC_AKU_MAI_SERVANT, SpawnsLocation[6], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
+                                go->SummonCreature(NPC_AKU_MAI_SERVANT, SpawnsLocation[1], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5min);
+                                go->SummonCreature(NPC_AKU_MAI_SERVANT, SpawnsLocation[6], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5min);
                             }
                             break;
                         case 4:
                             if (GameObject* go = instance->GetGameObject(shrine1GUID))
                             {
-                                go->SummonCreature(NPC_BARBED_CRUSTACEAN, SpawnsLocation[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
-                                go->SummonCreature(NPC_BARBED_CRUSTACEAN, SpawnsLocation[2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
-                                go->SummonCreature(NPC_BARBED_CRUSTACEAN, SpawnsLocation[5], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
-                                go->SummonCreature(NPC_BARBED_CRUSTACEAN, SpawnsLocation[7], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
+                                go->SummonCreature(NPC_BARBED_CRUSTACEAN, SpawnsLocation[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5min);
+                                go->SummonCreature(NPC_BARBED_CRUSTACEAN, SpawnsLocation[2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5min);
+                                go->SummonCreature(NPC_BARBED_CRUSTACEAN, SpawnsLocation[5], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5min);
+                                go->SummonCreature(NPC_BARBED_CRUSTACEAN, SpawnsLocation[7], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5min);
                             }
                             break;
                     }
@@ -196,7 +196,7 @@ public:
                         if (GameObject* go = instance->GetGameObject(altarOfTheDeepsGUID))
                         {
                             go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-                            go->SummonCreature(NPC_MORRIDUNE, SpawnsLocation[10], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
+                            go->SummonCreature(NPC_MORRIDUNE, SpawnsLocation[10], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5min);
                         }
                     break;
                 default:

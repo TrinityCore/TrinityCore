@@ -166,7 +166,7 @@ class boss_anomalus : public CreatureScript
                     Phase = 1;
                     Talk(SAY_SHIELD);
                     DoCast(me, SPELL_RIFT_SHIELD);
-                    if (Creature* Rift = me->SummonCreature(NPC_CHAOTIC_RIFT, RiftLocation[urand(0, 5)], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000))
+                    if (Creature* Rift = me->SummonCreature(NPC_CHAOTIC_RIFT, RiftLocation[urand(0, 5)], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1s))
                     {
                         //DoCast(Rift, SPELL_CHARGE_RIFT);
                         if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))

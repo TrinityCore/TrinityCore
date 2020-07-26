@@ -160,7 +160,7 @@ class boss_jeklik : public CreatureScript
                         case EVENT_SPAWN_BATS:
                             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.f, true))
                                 for (uint8 i = 0; i < 6; ++i)
-                                    if (TempSummon* bat = me->SummonCreature(NPC_BLOODSEEKER_BAT, SpawnBat[i], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000))
+                                    if (TempSummon* bat = me->SummonCreature(NPC_BLOODSEEKER_BAT, SpawnBat[i], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15s))
                                         bat->AI()->AttackStart(target);
                             events.ScheduleEvent(EVENT_SPAWN_BATS, 1min, 0, PHASE_ONE);
                             break;

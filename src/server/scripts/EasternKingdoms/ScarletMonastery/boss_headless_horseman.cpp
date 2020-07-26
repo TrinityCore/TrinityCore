@@ -555,7 +555,7 @@ struct boss_headless_horseman : public ScriptedAI
                 me->SetVisible(true);
                 break;
             case POINT_HORSEMAN_1:
-                if (Creature* smoke = me->SummonCreature(NPC_HELPER, HeadlessHorsemanSpawnPoints[1], TEMPSUMMON_TIMED_DESPAWN, 20 * IN_MILLISECONDS))
+                if (Creature* smoke = me->SummonCreature(NPC_HELPER, HeadlessHorsemanSpawnPoints[1], TEMPSUMMON_TIMED_DESPAWN, 20s))
                     smoke->AI()->SetData(DATA_INVIS_WISP_CREATURE_TYPE, INVIS_WISP_CREATURE_TYPE_SMOKE);
                 DoCast(SPELL_HEADLESS_HORSEMAN_CLIMAX___SUMMONING_RHYME_SHAKE_MEDIUM);
                 break;
@@ -592,7 +592,7 @@ struct boss_headless_horseman : public ScriptedAI
             cleaveContext.Repeat(2s, 6s);
         }).Schedule(6s, uint32(TASK_GROUP_COMBAT), [this](TaskContext /*burnContext*/)
         {
-            if (Creature* flame = me->SummonCreature(NPC_HELPER, HeadlessHorsemanSpawnPoints[0], TEMPSUMMON_TIMED_DESPAWN, 17 * IN_MILLISECONDS))
+            if (Creature* flame = me->SummonCreature(NPC_HELPER, HeadlessHorsemanSpawnPoints[0], TEMPSUMMON_TIMED_DESPAWN, 17s))
                 flame->AI()->SetData(DATA_INVIS_WISP_CREATURE_TYPE, INVIS_WISP_CREATURE_TYPE_FLAME);
         });
     }
@@ -677,7 +677,7 @@ struct boss_headless_horseman : public ScriptedAI
                     cleaveContext.Repeat(2s, 6s);
                 }).Schedule(6s, uint32(TASK_GROUP_COMBAT), [this](TaskContext /*burnContext*/)
                 {
-                    if (Creature* flame = me->SummonCreature(NPC_HELPER, HeadlessHorsemanSpawnPoints[0], TEMPSUMMON_TIMED_DESPAWN, 17 * IN_MILLISECONDS))
+                    if (Creature* flame = me->SummonCreature(NPC_HELPER, HeadlessHorsemanSpawnPoints[0], TEMPSUMMON_TIMED_DESPAWN, 17s))
                         flame->AI()->SetData(DATA_INVIS_WISP_CREATURE_TYPE, INVIS_WISP_CREATURE_TYPE_FLAME);
                 });
                 break;

@@ -367,16 +367,16 @@ public:
                {
                    uint32 uiSpawnNumber = DUNGEON_MODE(2, 3);
                    for (uint8 i = 0; i < uiSpawnNumber; ++i)
-                       me->SummonCreature(NPC_DARK_RUNE_PROTECTOR, SpawnLocations[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
-                   me->SummonCreature(NPC_DARK_RUNE_STORMCALLER, SpawnLocations[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
+                       me->SummonCreature(NPC_DARK_RUNE_PROTECTOR, SpawnLocations[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30s);
+                   me->SummonCreature(NPC_DARK_RUNE_STORMCALLER, SpawnLocations[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30s);
                    break;
                }
                case 2:
                    for (uint8 i = 0; i < 2; ++i)
-                       me->SummonCreature(NPC_DARK_RUNE_STORMCALLER, SpawnLocations[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
+                       me->SummonCreature(NPC_DARK_RUNE_STORMCALLER, SpawnLocations[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30s);
                    break;
                case 3:
-                   me->SummonCreature(NPC_IRON_GOLEM_CUSTODIAN, SpawnLocations[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
+                   me->SummonCreature(NPC_IRON_GOLEM_CUSTODIAN, SpawnLocations[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30s);
                    break;
            }
          }

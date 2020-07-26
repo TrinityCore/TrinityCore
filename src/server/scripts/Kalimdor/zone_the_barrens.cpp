@@ -378,7 +378,7 @@ public:
 
                         for (uint8 i = 0; i < 6; ++i)
                         {
-                            Creature* creature = me->SummonCreature(NPC_AFFRAY_CHALLENGER, AffrayChallengerLoc[i], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
+                            Creature* creature = me->SummonCreature(NPC_AFFRAY_CHALLENGER, AffrayChallengerLoc[i], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 10min);
                             if (!creature)
                                 continue;
                             creature->SetFaction(35);

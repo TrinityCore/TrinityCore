@@ -485,7 +485,7 @@ class boss_thorim : public CreatureScript
 
                 // Spawn Pre Phase Adds
                 for (SummonLocation const& s : PreAddLocations)
-                    me->SummonCreature(s.entry, s.pos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
+                    me->SummonCreature(s.entry, s.pos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3s);
 
                 if (GameObject* lever = instance->GetGameObject(DATA_THORIM_LEVER))
                     lever->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
@@ -879,7 +879,7 @@ class boss_thorim : public CreatureScript
                         GetTrashSpawnTriggers(triggers, urand(5, 6));
 
                         for (Creature* bunny : triggers)
-                            me->SummonCreature(StaticThorimTrashInfo[6 + 3].Entry, *bunny, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
+                            me->SummonCreature(StaticThorimTrashInfo[6 + 3].Entry, *bunny, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3s);
 
                         ++_waveType;
                         break;
@@ -892,7 +892,7 @@ class boss_thorim : public CreatureScript
                             GetTrashSpawnTriggers(triggers, urand(2, 4));
 
                             for (Creature* bunny : triggers)
-                                me->SummonCreature(StaticThorimTrashInfo[6 + RAND(0, 2)].Entry, *bunny, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
+                                me->SummonCreature(StaticThorimTrashInfo[6 + RAND(0, 2)].Entry, *bunny, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3s);
                         }
                         else
                         {
@@ -901,7 +901,7 @@ class boss_thorim : public CreatureScript
                             GetTrashSpawnTriggers(triggers);
 
                             for (Creature* bunny : triggers)
-                                me->SummonCreature(StaticThorimTrashInfo[6 + 1].Entry, *bunny, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
+                                me->SummonCreature(StaticThorimTrashInfo[6 + 1].Entry, *bunny, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3s);
                         }
                         --_waveType;
                         break;
@@ -1403,7 +1403,7 @@ class npc_runic_colossus : public CreatureScript
                 // Spawn trashes
                 _summons.DespawnAll();
                 for (SummonLocation const& s : ColossusAddLocations)
-                    me->SummonCreature(s.entry, s.pos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
+                    me->SummonCreature(s.entry, s.pos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3s);
             }
 
             void MoveInLineOfSight(Unit* /*who*/) override
@@ -1524,7 +1524,7 @@ class npc_ancient_rune_giant : public CreatureScript
                 // Spawn trashes
                 _summons.DespawnAll();
                 for (SummonLocation const& s : GiantAddLocations)
-                    me->SummonCreature(s.entry, s.pos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
+                    me->SummonCreature(s.entry, s.pos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3s);
             }
 
             void JustEngagedWith(Unit* /*who*/) override

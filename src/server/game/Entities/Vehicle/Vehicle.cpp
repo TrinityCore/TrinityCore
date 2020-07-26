@@ -397,7 +397,7 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 typ
     TC_LOG_DEBUG("entities.vehicle", "Vehicle (%s, Entry %u): installing accessory (Entry: %u) on seat: %d",
         _me->GetGUID().ToString().c_str(), GetCreatureEntry(), entry, (int32)seatId);
 
-    TempSummon* accessory = _me->SummonCreature(entry, *_me, TempSummonType(type), summonTime);
+    TempSummon* accessory = _me->SummonCreature(entry, *_me, TempSummonType(type), Milliseconds(summonTime));
     ASSERT(accessory);
 
     if (minion)

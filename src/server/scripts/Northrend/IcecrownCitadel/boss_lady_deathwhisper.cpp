@@ -549,7 +549,7 @@ class boss_lady_deathwhisper : public CreatureScript
             // helper for summoning wave mobs
             void Summon(uint32 entry, Position const& pos)
             {
-                if (TempSummon* summon = me->SummonCreature(entry, pos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000))
+                if (TempSummon* summon = me->SummonCreature(entry, pos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10s))
                     summon->CastSpell(summon, SPELL_TELEPORT_VISUAL);
             }
 

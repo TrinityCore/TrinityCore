@@ -186,7 +186,7 @@ public:
             for (uint8 i = 0; i < nStatues; ++i)
                 go->SummonGameObject(GO_ATALAI_LIGHT2, statuePositions[i], QuaternionData(), 0);
 
-            go->SummonCreature(NPC_ATALALARION, atalalarianPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 600000);
+            go->SummonCreature(NPC_ATALALARION, atalalarianPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10min);
         }
 
          void SetData(uint32 type, uint32 data) override

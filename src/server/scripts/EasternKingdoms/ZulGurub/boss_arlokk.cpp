@@ -453,7 +453,7 @@ class go_gong_of_bethekk : public GameObjectScript
             {
                 me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                 me->SendCustomAnim(0);
-                me->SummonCreature(NPC_ARLOKK, PosSummonArlokk[0], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 600000);
+                me->SummonCreature(NPC_ARLOKK, PosSummonArlokk[0], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10min);
                 return true;
             }
         };
