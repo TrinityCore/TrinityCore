@@ -605,7 +605,7 @@ class spell_sapphiron_summon_blizzard : public SpellScriptLoader
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* target = GetHitUnit())
-                    if (Creature* blizzard = GetCaster()->SummonCreature(NPC_BLIZZARD, *target, TEMPSUMMON_TIMED_DESPAWN, urandms(25, 30)))
+                    if (Creature* blizzard = GetCaster()->SummonCreature(NPC_BLIZZARD, *target, TEMPSUMMON_TIMED_DESPAWN, randtime(25s, 30s)))
                     {
                         blizzard->CastSpell(nullptr, blizzard->m_spells[0], TRIGGERED_NONE);
                         if (Creature* creatureCaster = GetCaster()->ToCreature())

@@ -339,7 +339,7 @@ class boss_akilzon : public CreatureScript
                                         if (z > 95)
                                             z = 95.0f - urand(0, 5);
                                     }
-                                    Creature* creature = me->SummonCreature(NPC_SOARING_EAGLE, x, y, z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                                    Creature* creature = me->SummonCreature(NPC_SOARING_EAGLE, x, y, z, 0, TEMPSUMMON_CORPSE_DESPAWN);
                                     if (creature)
                                     {
                                         AddThreat(me->GetVictim(), 1.0f, creature);

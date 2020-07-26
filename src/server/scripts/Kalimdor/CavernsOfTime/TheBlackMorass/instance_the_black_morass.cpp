@@ -295,7 +295,7 @@ public:
 
                 Creature* temp = medivh->SummonCreature(NPC_TIME_RIFT,
                     PortalLocation[tmp][0], PortalLocation[tmp][1], PortalLocation[tmp][2], PortalLocation[tmp][3],
-                    TEMPSUMMON_CORPSE_DESPAWN, 0);
+                    TEMPSUMMON_CORPSE_DESPAWN);
                 if (temp)
                 {
                     temp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);

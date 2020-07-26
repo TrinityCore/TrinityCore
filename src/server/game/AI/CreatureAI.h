@@ -234,7 +234,7 @@ class TC_GAME_API CreatureAI : public UnitAI
         virtual PlayerAI* GetAIForCharmedPlayer(Player* /*who*/) { return nullptr; }
 
         // intended for encounter design/debugging. do not use for other purposes. expensive.
-        int32 VisualizeBoundary(uint32 duration, Unit* owner = nullptr, bool fill = false) const;
+        int32 VisualizeBoundary(Seconds duration, Unit* owner = nullptr, bool fill = false) const;
 
         // boundary system methods
         virtual bool CheckInRoom();

@@ -199,7 +199,7 @@ public:
                     for (uint8 i = 0; i < 10; ++i)
                     {
                         if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                            if (Creature* Murloc = me->SummonCreature(NPC_TIDEWALKER_LURKER, MurlocCords[i][0], MurlocCords[i][1], MurlocCords[i][2], MurlocCords[i][3], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000))
+                            if (Creature* Murloc = me->SummonCreature(NPC_TIDEWALKER_LURKER, MurlocCords[i][0], MurlocCords[i][1], MurlocCords[i][2], MurlocCords[i][3], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10s))
                                 Murloc->AI()->AttackStart(target);
                     }
                     Talk(EMOTE_EARTHQUAKE);
