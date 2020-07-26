@@ -4777,7 +4777,7 @@ enum Vengeance
     SPELL_VENGEANCE_TRIGGERED = 76691
 };
 
-// 93098 - 93099 - 84839 - Vengeance
+// 93098 - 93099 - 84839 - 84840 - Vengeance
 class spell_gen_vengeance : public AuraScript
 {
     PrepareAuraScript(spell_gen_vengeance);
