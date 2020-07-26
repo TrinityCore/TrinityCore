@@ -198,7 +198,7 @@ void BigNumber::GetBytes(uint8* buf, size_t bufsize, bool littleEndian) const
         std::reverse(buf, buf + bufsize);
 #else
     int res = littleEndian ? BN_bn2lebinpad(_bn, buf, bufsize) : BN_bn2binpad(_bn, buf, bufsize);
-    ASSERT(res > 0, "Buffer of size %zu is too small to hold bignum with %zu bytes.\n", bufsize, BN_num_bytes(_bn));
+    ASSERT(res > 0, "Buffer of size %zu is too small to hold bignum with %d bytes.\n", bufsize, BN_num_bytes(_bn));
 #endif
 }
 
