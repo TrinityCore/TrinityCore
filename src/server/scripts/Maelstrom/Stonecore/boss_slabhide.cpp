@@ -346,7 +346,7 @@ public:
                     case EVENT_LAVA_FISSURE_ERUPTION:
                         me->RemoveAurasDueToSpell(SPELL_LAVA_FISSURE_CRACK);
                         DoCast(me, SPELL_LAVA_FISSURE_ERUPTION, true);
-                        me->DespawnOrUnsummon(14000);
+                        me->DespawnOrUnsummon(14s);
                         break;
                     default:
                         break;
@@ -392,7 +392,7 @@ public:
                 {
                     case EVENT_STALACTITE_MISSLE:
                         DoCast(me, SPELL_STALACTITE_MISSLE);
-                        me->DespawnOrUnsummon(11000);
+                        me->DespawnOrUnsummon(11s);
                         break;
                     default:
                         break;

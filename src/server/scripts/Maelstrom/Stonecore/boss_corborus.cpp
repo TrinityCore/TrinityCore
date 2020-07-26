@@ -238,7 +238,7 @@ class boss_corborus : public CreatureScript
                 {
                     summon->SetReactState(REACT_PASSIVE);
                     summon->CastSpell(summon, SPELL_TRASHING_CHARGE_EFFECT);
-                    summon->DespawnOrUnsummon(6000);
+                    summon->DespawnOrUnsummon(6s);
                 }
 
                 BossAI::JustSummoned(summon);

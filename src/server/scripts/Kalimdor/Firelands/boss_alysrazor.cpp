@@ -517,7 +517,7 @@ class spell_alysrazor_cosmetic_egg_xplosion : public SpellScriptLoader
                 PreventHitDefaultEffect(effIndex);
                 GetHitUnit()->SetDisplayId(MODEL_INVISIBLE_STALKER);
                 if (Creature* creature = GetHitCreature())
-                    creature->DespawnOrUnsummon(4000);
+                    creature->DespawnOrUnsummon(4s);
             }
 
             void Register() override

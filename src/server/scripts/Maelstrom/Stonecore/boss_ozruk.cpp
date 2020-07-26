@@ -104,7 +104,7 @@ class boss_ozruk : public CreatureScript
                 if (summon->GetEntry() == NPC_RUPTURE_CONTROLLER)
                 {
                     summon->CastSpell(summon, SPELL_RUPTURE, true);
-                    summon->DespawnOrUnsummon(10000);
+                    summon->DespawnOrUnsummon(10s);
                 }
 
                 BossAI::JustSummoned(summon);

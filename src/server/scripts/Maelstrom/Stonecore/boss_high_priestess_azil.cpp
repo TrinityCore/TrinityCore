@@ -354,7 +354,7 @@ public:
             events.ScheduleEvent(EVENT_GRAVITY_WELL_AURA_DAMAGE, 3200ms);
             events.ScheduleEvent(EVENT_GRAVITY_WELL_AURA_PULL, 4500ms);
             if (!IsHeroic())
-                me->DespawnOrUnsummon(23200);
+                me->DespawnOrUnsummon(23200ms);
         }
 
         void KilledUnit(Unit* victim) override
@@ -364,7 +364,7 @@ public:
 
             me->SetObjectScale(me->GetObjectScale() - 0.25f);
             if (me->GetObjectScale() <= 0.0f)
-                me->DespawnOrUnsummon(1000);
+                me->DespawnOrUnsummon(1s);
         }
 
         void UpdateAI(uint32 diff) override
