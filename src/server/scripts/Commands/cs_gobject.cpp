@@ -207,10 +207,10 @@ public:
         Player* player = handler->GetSession()->GetPlayer();
 
         char* spawntime = strtok(nullptr, " ");
-        uint32 spawntm = 300;
+        Seconds spawntm = 300s;
 
         if (spawntime)
-            spawntm = atoul(spawntime);
+            spawntm = Seconds(atoul(spawntime));
 
         QuaternionData rotation = QuaternionData::fromEulerAnglesZYX(player->GetOrientation(), 0.f, 0.f);
         uint32 objectId = atoul(id);

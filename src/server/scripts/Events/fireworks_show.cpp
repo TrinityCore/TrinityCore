@@ -860,7 +860,7 @@ public:
 
                             if (_big)
                             {
-                                if (GameObject* firework = me->SummonGameObject(FireworksBIGOnlyPicker(), rndpos, QuaternionData(0.f, 0.f, rndrot, rndrot2), 300))
+                                if (GameObject* firework = me->SummonGameObject(FireworksBIGOnlyPicker(), rndpos, QuaternionData(0.f, 0.f, rndrot, rndrot2), 5min))
                                 {
                                     firework->SetRespawnTime(0);
                                     firework->Delete();
@@ -868,7 +868,7 @@ public:
                             }
                             else
                             {
-                                if (GameObject* firework = me->SummonGameObject(FireworksPicker(), rndpos, QuaternionData(0.f, 0.f, rndrot, rndrot2), 300))
+                                if (GameObject* firework = me->SummonGameObject(FireworksPicker(), rndpos, QuaternionData(0.f, 0.f, rndrot, rndrot2), 5min))
                                 {
                                     firework->SetRespawnTime(0);
                                     firework->Delete();

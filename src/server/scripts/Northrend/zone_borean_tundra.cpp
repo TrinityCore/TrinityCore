@@ -220,7 +220,7 @@ class spell_q11865_place_fake_fur : public SpellScript
         float x, y, z;
         go->GetClosePoint(x, y, z, go->GetCombatReach() / 3, 7.0f);
 
-        go->SummonGameObject(GO_HIGH_QUALITY_FUR, go->GetPosition(), QuaternionData(), 20);
+        go->SummonGameObject(GO_HIGH_QUALITY_FUR, go->GetPosition(), QuaternionData(), 20s);
         if (TempSummon* summon = player->SummonCreature(NPC_NESINGWARY_TRAPPER, x, y, z, go->GetOrientation(), TEMPSUMMON_DEAD_DESPAWN, 1s))
         {
             summon->SetVisible(false);
