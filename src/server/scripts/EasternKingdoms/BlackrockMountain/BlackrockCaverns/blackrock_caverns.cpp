@@ -635,13 +635,13 @@ struct npc_raz_the_crazed : public EscortAI
     void BuildRomoggPath()
     {
         for (uint8 i = 0; i < 12; i++)
-            AddWaypoint(i, RazPathRomogg[i].GetPositionX(), RazPathRomogg[i].GetPositionY(), RazPathRomogg[i].GetPositionZ());
+            AddWaypoint(i, RazPathRomogg[i].GetPositionX(), RazPathRomogg[i].GetPositionY(), RazPathRomogg[i].GetPositionZ(), 0.f, 0, true);
     }
 
     void BuildCorlaPath()
     {
         for (uint8 i = 0; i < 2; i++)
-            AddWaypoint(i, RazPathCorla[i].GetPositionX(), RazPathCorla[i].GetPositionY(), RazPathCorla[i].GetPositionZ());
+            AddWaypoint(i, RazPathCorla[i].GetPositionX(), RazPathCorla[i].GetPositionY(), RazPathCorla[i].GetPositionZ(), 0.f, 0, true);
     }
 
     void WaypointReached(uint32 id, uint32 /*pathId*/) override
