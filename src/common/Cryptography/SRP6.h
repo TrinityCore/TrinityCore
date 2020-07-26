@@ -59,7 +59,7 @@ namespace Trinity::Crypto
 
             SRP6(std::string const& username, Seed const& seed, Verifier const& verifier);
             std::optional<SessionKey> VerifyChallengeResponse(EphemeralKey const& A, SHA1::Digest const& clientM);
-            
+
         private:
             bool _used = false; // a single instance can only be used to verify once
 
