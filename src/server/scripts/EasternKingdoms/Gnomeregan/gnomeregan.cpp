@@ -303,7 +303,7 @@ public:
                     me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[9], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30min);
                     break;
                 case 2:
-                    if (GameObject* go = me->SummonGameObject(183410, -533.140f, -105.322f, -156.016f, 0.f, QuaternionData(), 1))
+                    if (GameObject* go = me->SummonGameObject(183410, -533.140f, -105.322f, -156.016f, 0.f, QuaternionData(), 1s))
                     {
                         GoSummonList.push_back(go->GetGUID());
                         go->AddFlag(GO_FLAG_NOT_SELECTABLE); //We can't use it!
@@ -318,7 +318,7 @@ public:
                     Talk(SAY_BLASTMASTER_7);
                     break;
                 case 4:
-                    if (GameObject* go = me->SummonGameObject(183410, -542.199f, -96.854f, -155.790f, 0.f, QuaternionData(), 1))
+                    if (GameObject* go = me->SummonGameObject(183410, -542.199f, -96.854f, -155.790f, 0.f, QuaternionData(), 1s))
                     {
                         GoSummonList.push_back(go->GetGUID());
                         go->AddFlag(GO_FLAG_NOT_SELECTABLE);
@@ -332,7 +332,7 @@ public:
                     me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[14], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30min);
                     break;
                 case 6:
-                    if (GameObject* go = me->SummonGameObject(183410, -507.820f, -103.333f, -151.353f, 0.f, QuaternionData(), 1))
+                    if (GameObject* go = me->SummonGameObject(183410, -507.820f, -103.333f, -151.353f, 0.f, QuaternionData(), 1s))
                     {
                         GoSummonList.push_back(go->GetGUID());
                         go->AddFlag(GO_FLAG_NOT_SELECTABLE); //We can't use it!
@@ -340,7 +340,7 @@ public:
                     }
                     break;
                 case 7:
-                    if (GameObject* go = me->SummonGameObject(183410, -511.829f, -86.249f, -151.431f, 0.f, QuaternionData(), 1))
+                    if (GameObject* go = me->SummonGameObject(183410, -511.829f, -86.249f, -151.431f, 0.f, QuaternionData(), 1s))
                     {
                         GoSummonList.push_back(go->GetGUID());
                         go->AddFlag(GO_FLAG_NOT_SELECTABLE); //We can't use it!
@@ -352,9 +352,9 @@ public:
                     me->SummonCreature(NPC_CHOMPER, SpawnPosition[16], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30min);
                     break;
                 case 9:
-                    me->SummonGameObject(GO_RED_ROCKET, SpawnPosition[17], QuaternionData::fromEulerAnglesZYX(SpawnPosition[17].GetOrientation(), 0.0f, 0.0f), 7200);
-                    me->SummonGameObject(GO_RED_ROCKET, SpawnPosition[18], QuaternionData::fromEulerAnglesZYX(SpawnPosition[18].GetOrientation(), 0.0f, 0.0f), 7200);
-                    me->SummonGameObject(GO_RED_ROCKET, SpawnPosition[19], QuaternionData::fromEulerAnglesZYX(SpawnPosition[19].GetOrientation(), 0.0f, 0.0f), 7200);
+                    me->SummonGameObject(GO_RED_ROCKET, SpawnPosition[17], QuaternionData::fromEulerAnglesZYX(SpawnPosition[17].GetOrientation(), 0.0f, 0.0f), 2h);
+                    me->SummonGameObject(GO_RED_ROCKET, SpawnPosition[18], QuaternionData::fromEulerAnglesZYX(SpawnPosition[18].GetOrientation(), 0.0f, 0.0f), 2h);
+                    me->SummonGameObject(GO_RED_ROCKET, SpawnPosition[19], QuaternionData::fromEulerAnglesZYX(SpawnPosition[19].GetOrientation(), 0.0f, 0.0f), 2h);
                     break;
             }
         }

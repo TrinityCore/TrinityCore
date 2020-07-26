@@ -946,7 +946,7 @@ public:
             {
                 // Spell 37392 does not exist in dbc, manually spawning
                 me->SummonCreature(NPC_OSCILLATING_FREQUENCY_SCANNER_TOP_BUNNY, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 0.5f, me->GetOrientation(), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 50s);
-                me->SummonGameObject(GO_OSCILLATING_FREQUENCY_SCANNER, *me, QuaternionData::fromEulerAnglesZYX(me->GetOrientation(), 0.0f, 0.0f), 50);
+                me->SummonGameObject(GO_OSCILLATING_FREQUENCY_SCANNER, *me, QuaternionData::fromEulerAnglesZYX(me->GetOrientation(), 0.0f, 0.0f), 50s);
                 me->DespawnOrUnsummon(50s);
             }
 

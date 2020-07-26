@@ -317,7 +317,7 @@ class spell_sc_twilight_documents : public SpellScriptLoader
             void SpawnGameObject(SpellEffIndex /*effIndex*/)
             {
                 if (WorldLocation* loc = GetHitDest())
-                    GetCaster()->SummonGameObject(GAMEOBJECT_TWILIGHT_DOCUMENTS, *loc, QuaternionData::fromEulerAnglesZYX(loc->GetOrientation(), 0.0f, 0.0f), 7200);
+                    GetCaster()->SummonGameObject(GAMEOBJECT_TWILIGHT_DOCUMENTS, *loc, QuaternionData::fromEulerAnglesZYX(loc->GetOrientation(), 0.0f, 0.0f), 2h);
             }
 
             void Register() override
