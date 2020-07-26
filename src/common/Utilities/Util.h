@@ -21,6 +21,7 @@
 #include "Define.h"
 #include "Errors.h"
 
+#include <array>
 #include <string>
 #include <sstream>
 #include <utility>
@@ -308,6 +309,19 @@ TC_COMMON_API std::string ByteArrayToHexStr(uint8 const* bytes, size_t length, b
 template <typename Container>
 std::string ByteArrayToHexStr(Container const& c, bool reverse = false) { return ByteArrayToHexStr(std::data(c), std::size(c), reverse); }
 TC_COMMON_API void HexStrToByteArray(std::string const& str, uint8* out, bool reverse = false);
+template <size_t Size>
+void HexStrToByteArray(std::string const& str, std::array<uint8, Size>& buf, bool reverse = false)
+{
+    ASSERT(str.size() == (2 * Size));
+    HexStrToByteArray(str, buf.data(), reverse);
+}
+template <size_t Size>
+std::array<uint8, Size> HexStrToByteArray(std::string const& str, bool reverse = false)
+{
+    std::array<uint8, Size> arr;
+    HexStrToByteArray(str, arr, reverse);
+    return arr;
+}
 
 TC_COMMON_API bool StringToBool(std::string const& str);
 
