@@ -19,6 +19,7 @@
 #define TRINITYCORE_COMMON_H
 
 #include "Define.h"
+#include <array>
 #include <memory>
 #include <string>
 #include <utility>
@@ -120,5 +121,8 @@ TC_COMMON_API LocaleConstant GetLocaleByName(std::string const& name);
 #endif
 
 #define MAX_QUERY_LEN 32*1024
+
+constexpr size_t SESSION_KEY_LENGTH = 40;
+using SessionKey = std::array<uint8, SESSION_KEY_LENGTH>;
 
 #endif

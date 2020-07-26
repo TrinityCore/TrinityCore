@@ -23,10 +23,11 @@
 #include "ByteBuffer.h"
 #include "Common.h"
 #include "CryptoHash.h"
-#include "Optional.h"
 #include "Socket.h"
+#include "SRP6.h"
 #include "QueryResult.h"
 #include <memory>
+#include <optional>
 #include <boost/asio/ip/tcp.hpp>
 
 using boost::asio::ip::tcp;
@@ -92,14 +93,13 @@ private:
 
     bool VerifyVersion(uint8 const* a, int32 aLength, Trinity::Crypto::SHA1::Digest const& versionProof, bool isReconnect);
 
-    BigNumber N, s, g, v;
-    BigNumber b, B;
-    std::array<uint8, 40> sessionKey;
+    std::optional<Trinity::Crypto::SRP6> _srp6;
+    SessionKey _sessionKey;
     std::array<uint8, 16> _reconnectProof;
 
     AuthStatus _status;
     AccountInfo _accountInfo;
-    Optional<std::vector<uint8>> _totpSecret;
+    std::optional<std::vector<uint8>> _totpSecret;
     std::string _localizationName;
     std::string _os;
     std::string _ipCountry;
