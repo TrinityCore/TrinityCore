@@ -926,6 +926,26 @@ struct GameObjectTemplate
         }
     }
 
+    uint32 GetSpellFocusType() const
+    {
+        switch (type)
+        {
+            case GAMEOBJECT_TYPE_SPELL_FOCUS:   return spellFocus.spellFocusType;
+            case GAMEOBJECT_TYPE_UI_LINK:       return UILink.spellFocusType;
+            default: return 0;
+        }
+    }
+
+    uint32 GetSpellFocusRadius() const
+    {
+        switch (type)
+        {
+            case GAMEOBJECT_TYPE_SPELL_FOCUS:   return spellFocus.radius;
+            case GAMEOBJECT_TYPE_UI_LINK:       return UILink.radius;
+            default: return 0;
+        }
+    }
+
     void InitializeQueryData();
     WorldPacket BuildQueryData(LocaleConstant loc) const;
 };
