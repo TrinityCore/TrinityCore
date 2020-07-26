@@ -120,6 +120,11 @@ std::array<uint8, 16> VersionChallenge = { { 0xBA, 0xA3, 0x1E, 0x99, 0xA0, 0x0B,
 #define AUTH_LOGON_CHALLENGE_INITIAL_SIZE 4
 #define REALM_LIST_PACKET_SIZE 5
 
+/*static*/ void AuthSession::ServerStartup()
+{
+    LoginDatabase.DirectExecute("UPDATE account SET session_key = null");
+}
+
 std::unordered_map<uint8, AuthHandler> AuthSession::InitHandlers()
 {
     std::unordered_map<uint8, AuthHandler> handlers;
@@ -398,14 +403,13 @@ void AuthSession::LogonChallengeCallback(PreparedQueryResult result)
 
     if (!fields[10].IsNull())
     {
-        // if this is reached, s/v are empty and we need to recalculate them
+        // if this is reached, s/v were reset and we need to recalculate from sha_pass_hash
         Trinity::Crypto::SHA1::Digest sha_pass_hash;
         HexStrToByteArray(fields[10].GetString(), sha_pass_hash);
-
         auto [salt, verifier] = Trinity::Crypto::SRP6::MakeRegistrationDataFromHash_DEPRECATED_DONOTUSE(sha_pass_hash);
-        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_SV);
-        stmt->setString(0, ByteArrayToHexStr(salt, true)); /* this is actually flipped in the DB right now, old core did hexstr (big endian) -> bignum -> byte array (little-endian) */
-        stmt->setString(1, ByteArrayToHexStr(verifier));
+        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGON);
+        stmt->setBinary(0, salt);
+        stmt->setBinary(1, verifier);
         stmt->setUInt32(2, _accountInfo.Id);
         LoginDatabase.Execute(stmt);
 
@@ -415,8 +419,8 @@ void AuthSession::LogonChallengeCallback(PreparedQueryResult result)
     {
         Trinity::Crypto::SRP6::Salt salt;
         Trinity::Crypto::SRP6::Verifier verifier;
-        HexStrToByteArray(fields[11].GetString(), salt, true); /* this is actually flipped in the DB right now, old core did hexstr (big endian) -> bignum -> byte array (little-endian) */
-        HexStrToByteArray(fields[12].GetString(), verifier);
+        fields[11].GetBinary(salt);
+        fields[12].GetBinary(verifier);
         _srp6.emplace(_accountInfo.Login, salt, verifier);
     }
 
@@ -525,7 +529,7 @@ bool AuthSession::HandleLogonProof()
         // No SQL injection (escaped user name) and IP address as received by socket
 
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGONPROOF);
-        stmt->setString(0, ByteArrayToHexStr(_sessionKey));
+        stmt->setBinary(0, _sessionKey);
         stmt->setString(1, GetRemoteIpAddress().to_string());
         stmt->setUInt32(2, GetLocaleByName(_localizationName));
         stmt->setString(3, _os);
@@ -675,7 +679,7 @@ void AuthSession::ReconnectChallengeCallback(PreparedQueryResult result)
     Field* fields = result->Fetch();
 
     _accountInfo.LoadResult(fields);
-    HexStrToByteArray(fields[9].GetString(), _sessionKey);
+    fields[9].GetBinary(_sessionKey);
     Trinity::Crypto::GetRandomBytes(_reconnectProof);
     _status = STATUS_RECONNECT_PROOF;
 
