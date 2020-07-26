@@ -138,7 +138,7 @@ elseif (WITH_DETAILED_METRICS)
   message("")
   message(" *** WITH_DETAILED_METRICS - WARNING!")
   message(" *** Please note that this will enable detailed metrics output (i.e. time each session takes to update)")
-  add_definitions(-DWITHOUT_METRICS)
+  add_definitions(-DWITH_DETAILED_METRICS)
 endif()
 
 if(WITH_STRICT_DATABASE_TYPE_CHECKS)
