@@ -690,16 +690,13 @@ namespace Trinity
 
             bool operator()(GameObject* go) const
             {
-                if (go->GetGOInfo()->type != GAMEOBJECT_TYPE_SPELL_FOCUS)
-                    return false;
-
-                if (go->GetGOInfo()->spellFocus.spellFocusType != i_focusId)
+                if (go->GetGOInfo()->GetSpellFocusType() != i_focusId)
                     return false;
 
                 if (!go->isSpawned())
                     return false;
 
-                float dist = go->GetGOInfo()->spellFocus.radius / 2.f;
+                float dist = go->GetGOInfo()->GetSpellFocusRadius() / 2.f;
 
                 return go->IsWithinDistInMap(i_unit, dist);
             }
