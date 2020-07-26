@@ -157,7 +157,7 @@ public:
             {
                 if (GameObject* go = ObjectAccessor::GetGameObject(*me, *itr))
                 {
-                    if (Creature* trigger = go->SummonTrigger(go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), 0, 1))
+                    if (Creature* trigger = go->SummonTrigger(go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), 0, 1ms))
                     {
                         //visual effects are not working!
                         trigger->CastSpell(trigger, 11542, true);

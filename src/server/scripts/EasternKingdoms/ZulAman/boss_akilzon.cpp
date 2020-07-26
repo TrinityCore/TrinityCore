@@ -186,7 +186,7 @@ class boss_akilzon : public CreatureScript
                     {
                         x = 343.0f + rand32() % 60;
                         y = 1380.0f + rand32() % 60;
-                        if (Unit* trigger = me->SummonTrigger(x, y, z, 0, 2000))
+                        if (Unit* trigger = me->SummonTrigger(x, y, z, 0, 2s))
                         {
                             trigger->SetFaction(FACTION_FRIENDLY);
                             trigger->SetMaxHealth(100000);
@@ -281,7 +281,7 @@ class boss_akilzon : public CreatureScript
                                 }
                                 */
 
-                                Unit* Cloud = me->SummonTrigger(x, y, me->GetPositionZ()+16, 0, 15000);
+                                Unit* Cloud = me->SummonTrigger(x, y, me->GetPositionZ()+16, 0, 15s);
                                 if (Cloud)
                                     {
                                         CloudGUID = Cloud->GetGUID();
