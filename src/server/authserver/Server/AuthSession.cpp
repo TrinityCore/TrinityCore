@@ -409,13 +409,14 @@ void AuthSession::LogonChallengeCallback(PreparedQueryResult result)
     if (databaseV.empty() || databaseS.empty())
     {
 
+#ifndef _MSC_VER
 #pragma GCC diagnostic push
-#pragma clang diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#endif
         auto [seed, verifier] = Trinity::Crypto::SRP6::MakeRegistrationDataFromHash(TERRIBLE_VERY_BAD_NO_GOOD_HASH);
+#ifndef _MSC_VER
 #pragma GCC diagnostic pop
-#pragma clang diagnostic pop
+#endif
 
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_SV);
         stmt->setString(0, ByteArrayToHexStr(seed, true)); /* this is actually flipped in the DB right now, old core did hexstr (big endian) -> bignum -> byte array (little-endian) */
