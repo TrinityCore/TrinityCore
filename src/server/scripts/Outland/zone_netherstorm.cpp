@@ -503,7 +503,7 @@ class go_captain_tyralius_prison : public GameObjectScript
                 }
 
                 if (Creature* prisoner = me->FindNearestCreature(NPC_ETHEREUM_PRISONER, 1.0f))
-                    prisoner->DespawnOrUnsummon(0);
+                    prisoner->DespawnOrUnsummon();
 
                 return true;
             }
