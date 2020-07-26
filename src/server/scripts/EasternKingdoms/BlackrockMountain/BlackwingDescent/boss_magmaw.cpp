@@ -236,6 +236,9 @@ struct boss_magmaw : public BossAI
         {
             if (apply)
             {
+                passenger->CastSpell(passenger, SPELL_MANGLE_2, true);
+                passenger->CastSpell(passenger, SPELL_SWELTERING_ARMOR, true);
+
                 if (Player* player = passenger->ToPlayer())
                     player->Whisper(BROADCAST_TEXT_WHISPER_MANGLE, player, true);
             }
@@ -855,12 +858,7 @@ class spell_magmaw_mangle : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo(
-            {
-                SPELL_MANGLE_1,
-                SPELL_MANGLE_2,
-                SPELL_SWELTERING_ARMOR
-            });
+        return ValidateSpellInfo({ SPELL_MANGLE_1 });
     }
 
     void FilterTargets(std::list<WorldObject*>& targets)
@@ -879,8 +877,6 @@ class spell_magmaw_mangle : public SpellScript
 
         Unit* target = GetHitUnit();
         caster->CastSpell(target, SPELL_MANGLE_1, true);
-        target->CastSpell(target, SPELL_MANGLE_2, true);
-        target->CastSpell(target, SPELL_SWELTERING_ARMOR, true);
     }
 
     void Register() override
