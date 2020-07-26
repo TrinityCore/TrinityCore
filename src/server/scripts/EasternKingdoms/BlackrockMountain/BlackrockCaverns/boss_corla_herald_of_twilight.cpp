@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "blackrock_caverns.h"
 #include "GameEventMgr.h"
+#include "Map.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "Spell.h"
