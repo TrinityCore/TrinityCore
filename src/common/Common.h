@@ -122,7 +122,4 @@ TC_COMMON_API LocaleConstant GetLocaleByName(std::string const& name);
 
 #define MAX_QUERY_LEN 32*1024
 
-constexpr size_t SESSION_KEY_LENGTH = 40;
-using SessionKey = std::array<uint8, SESSION_KEY_LENGTH>;
-
 #endif

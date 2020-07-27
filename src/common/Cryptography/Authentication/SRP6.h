@@ -18,6 +18,7 @@
 #ifndef TRINITY_SRP6_H
 #define TRINITY_SRP6_H
 
+#include "AuthDefines.h"
 #include "BigNumber.h"
 #include "Define.h"
 #include "Common.h"

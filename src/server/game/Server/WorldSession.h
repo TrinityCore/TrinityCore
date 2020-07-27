@@ -24,6 +24,7 @@
 
 #include "Common.h"
 #include "AsyncCallbackProcessor.h"
+#include "AuthDefines.h"
 #include "DatabaseEnvFwd.h"
 #include "LockedQueue.h"
 #include "ObjectGuid.h"

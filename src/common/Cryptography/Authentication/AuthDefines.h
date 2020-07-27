@@ -15,27 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _AUTHCRYPT_H
-#define _AUTHCRYPT_H
+#ifndef TRINITY_AUTHDEFINES_H
+#define TRINITY_AUTHDEFINES_H
 
-#include "ARC4.h"
-#include "AuthDefines.h"
+#include "Define.h"
 #include <array>
 
-class TC_COMMON_API AuthCrypt
-{
-    public:
-        AuthCrypt();
+constexpr size_t SESSION_KEY_LENGTH = 40;
+using SessionKey = std::array<uint8, SESSION_KEY_LENGTH>;
 
-        void Init(SessionKey const& K);
-        void DecryptRecv(uint8* data, size_t len);
-        void EncryptSend(uint8* data, size_t len);
-
-        bool IsInitialized() const { return _initialized; }
-
-    private:
-        Trinity::Crypto::ARC4 _clientDecrypt;
-        Trinity::Crypto::ARC4 _serverEncrypt;
-        bool _initialized;
-};
 #endif
