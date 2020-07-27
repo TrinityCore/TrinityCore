@@ -757,7 +757,16 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
             continue;
 
         if (inventoryType != 0xffffffff && proto->InventoryType != inventoryType)
-            continue;
+        {
+            // Cloth chests can have 2 inventory type: INVTYPE_CHEST and INVTYPE_ROBE. We need show both because AH always send as INVTYPE_CHEST
+            if (itemClass == ITEM_CLASS_ARMOR && itemSubClass == ITEM_SUBCLASS_ARMOR_CLOTH && inventoryType == INVTYPE_CHEST)
+            {
+                if (proto->InventoryType != INVTYPE_CHEST && proto->InventoryType != INVTYPE_ROBE)
+                    continue;
+            }
+            else
+                continue;
+        }
 
         if (quality != 0xffffffff && proto->Quality != quality)
             continue;
