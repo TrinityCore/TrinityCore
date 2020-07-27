@@ -37,7 +37,7 @@ using SRP6 = Trinity::Crypto::SRP6;
     return res;
 }
 
-/*static*/ std::pair<SRP6::Seed, SRP6::Verifier> SRP6::MakeRegistrationDataFromHash(SHA1::Digest const& hash)
+/*static*/ std::pair<SRP6::Seed, SRP6::Verifier> SRP6::MakeRegistrationDataFromHash_DEPRECATED_DONOTUSE(SHA1::Digest const& hash)
 {
     std::pair<SRP6::Seed, SRP6::Verifier> res;
     Crypto::GetRandomBytes(res.first);

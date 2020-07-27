@@ -41,8 +41,9 @@ namespace Trinity::Crypto
             static const std::array<uint8, 32> N;
 
             // this is the old sha_pass_hash hack
-            [[deprecated("No. Bad. You shouldn't even HAVE that. Stop right now and use MakeRegistrationData instead.")]]
-            static std::pair<Seed, Verifier> MakeRegistrationDataFromHash(SHA1::Digest const& hash);
+            // YOU SHOULD NEVER STORE THIS HASH, if you do you are breaking SRP6 guarantees
+            // use MakeRegistrationData instead
+            static std::pair<Seed, Verifier> MakeRegistrationDataFromHash_DEPRECATED_DONOTUSE(SHA1::Digest const& hash);
 
             // username + password must be passed through Utf8ToUpperOnlyLatin FIRST!
             static std::pair<Seed, Verifier> MakeRegistrationData(std::string const& username, std::string const& password);

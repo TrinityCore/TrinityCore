@@ -75,7 +75,8 @@ typedef struct AUTH_LOGON_PROOF_C
 {
     uint8   cmd;
     Trinity::Crypto::SRP6::EphemeralKey A;
-    Trinity::Crypto::SHA1::Digest clientM, crc_hash;
+    Trinity::Crypto::SHA1::Digest clientM;
+    Trinity::Crypto::SHA1::Digest crc_hash;
     uint8   number_of_keys;
     uint8   securityFlags;
 } sAuthLogonProof_C;
@@ -395,43 +396,28 @@ void AuthSession::LogonChallengeCallback(PreparedQueryResult result)
         }
     }
 
-    // Get the password from the account table, upper it, and make the SRP6 calculation
-    Trinity::Crypto::SHA1::Digest TERRIBLE_VERY_BAD_NO_GOOD_HASH;
-    HexStrToByteArray(fields[10].GetString(), TERRIBLE_VERY_BAD_NO_GOOD_HASH);
-
-    // Don't calculate (v, s) if there are already some in the database
-    std::string databaseV = fields[11].GetString();
-    std::string databaseS = fields[12].GetString();
-
-    TC_LOG_DEBUG("network", "database authentication values: v='%s' s='%s'", databaseV.c_str(), databaseS.c_str());
-
-    // multiply with 2 since bytes are stored as hexstring
-    if (databaseV.empty() || databaseS.empty())
+    if (!fields[10].IsNull())
     {
+        // if this is reached, s/v are empty and we need to recalculate them
+        Trinity::Crypto::SHA1::Digest sha_pass_hash;
+        HexStrToByteArray(fields[10].GetString(), sha_pass_hash);
 
-#ifndef _MSC_VER
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
-        auto [seed, verifier] = Trinity::Crypto::SRP6::MakeRegistrationDataFromHash(TERRIBLE_VERY_BAD_NO_GOOD_HASH);
-#ifndef _MSC_VER
-#pragma GCC diagnostic pop
-#endif
-
+        auto [seed, verifier] = Trinity::Crypto::SRP6::MakeRegistrationDataFromHash_DEPRECATED_DONOTUSE(sha_pass_hash);
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_SV);
         stmt->setString(0, ByteArrayToHexStr(seed, true)); /* this is actually flipped in the DB right now, old core did hexstr (big endian) -> bignum -> byte array (little-endian) */
         stmt->setString(1, ByteArrayToHexStr(verifier));
         stmt->setUInt32(2, _accountInfo.Id);
         LoginDatabase.Execute(stmt);
+
         _srp6.emplace(_accountInfo.Login, seed, verifier);
     }
     else
     {
-        Trinity::Crypto::SRP6::Seed s;
-        Trinity::Crypto::SRP6::Verifier v;
-        HexStrToByteArray(databaseS, s, true); /* this is actually flipped in the DB right now, old core did hexstr (big endian) -> bignum -> byte array (little-endian) */
-        HexStrToByteArray(databaseV, v);
-        _srp6.emplace(_accountInfo.Login, s, v);
+        Trinity::Crypto::SRP6::Seed seed;
+        Trinity::Crypto::SRP6::Verifier verifier;
+        HexStrToByteArray(fields[11].GetString(), seed, true); /* this is actually flipped in the DB right now, old core did hexstr (big endian) -> bignum -> byte array (little-endian) */
+        HexStrToByteArray(fields[12].GetString(), verifier);
+        _srp6.emplace(_accountInfo.Login, seed, verifier);
     }
 
     // Fill the response packet with the result
@@ -690,7 +676,7 @@ void AuthSession::ReconnectChallengeCallback(PreparedQueryResult result)
     Field* fields = result->Fetch();
 
     _accountInfo.LoadResult(fields);
-    HexStrToByteArray(fields[9].GetCString(), _sessionKey);
+    HexStrToByteArray(fields[9].GetString(), _sessionKey);
     Trinity::Crypto::GetRandomBytes(_reconnectProof);
     _status = STATUS_RECONNECT_PROOF;
 
