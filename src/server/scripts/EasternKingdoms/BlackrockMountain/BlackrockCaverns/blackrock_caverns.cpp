@@ -588,6 +588,7 @@ struct npc_raz_the_crazed : public EscortAI
 
     void JustAppeared() override
     {
+        SetRun(true);
         if (_instance->GetData(DATA_RAZ_LAST_AREA_INDEX) == RAZ_AREA_INDEX_ROMOGG)
         {
             me->SetDisableGravity(true);
@@ -635,13 +636,13 @@ struct npc_raz_the_crazed : public EscortAI
     void BuildRomoggPath()
     {
         for (uint8 i = 0; i < 12; i++)
-            AddWaypoint(i, RazPathRomogg[i].GetPositionX(), RazPathRomogg[i].GetPositionY(), RazPathRomogg[i].GetPositionZ(), 0.f, 0, true);
+            AddWaypoint(i, RazPathRomogg[i].GetPositionX(), RazPathRomogg[i].GetPositionY(), RazPathRomogg[i].GetPositionZ());
     }
 
     void BuildCorlaPath()
     {
         for (uint8 i = 0; i < 2; i++)
-            AddWaypoint(i, RazPathCorla[i].GetPositionX(), RazPathCorla[i].GetPositionY(), RazPathCorla[i].GetPositionZ(), 0.f, 0, true);
+            AddWaypoint(i, RazPathCorla[i].GetPositionX(), RazPathCorla[i].GetPositionY(), RazPathCorla[i].GetPositionZ());
     }
 
     void WaypointReached(uint32 id, uint32 /*pathId*/) override

@@ -314,7 +314,7 @@ void EscortAI::OnCharmed(bool apply)
 }
 */
 
-void EscortAI::AddWaypoint(uint32 id, float x, float y, float z, float orientation /*= 0.f*/, uint32 waitTime /*= 0*/, bool run /*= false*/)
+void EscortAI::AddWaypoint(uint32 id, float x, float y, float z, float orientation/* = 0*/, uint32 waitTime/* = 0*/)
 {
     Trinity::NormalizeMapCoord(x);
     Trinity::NormalizeMapCoord(y);
@@ -325,7 +325,7 @@ void EscortAI::AddWaypoint(uint32 id, float x, float y, float z, float orientati
     waypoint.y = y;
     waypoint.z = z;
     waypoint.orientation = orientation;
-    waypoint.moveType = run ? WAYPOINT_MOVE_TYPE_RUN : WAYPOINT_MOVE_TYPE_WALK;
+    waypoint.moveType = _running ? WAYPOINT_MOVE_TYPE_RUN : WAYPOINT_MOVE_TYPE_WALK;
     waypoint.delay = waitTime;
     waypoint.eventId = 0;
     waypoint.eventChance = 100;
