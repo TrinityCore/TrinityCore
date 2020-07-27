@@ -29,7 +29,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 15,
-  "iteration": 1595862792076,
+  "iteration": 1595882804610,
   "links": [],
   "panels": [
     {
@@ -1121,7 +1121,7 @@
         "alignAsTable": true,
         "avg": false,
         "current": false,
-        "hideEmpty": false,
+        "hideEmpty": true,
         "hideZero": true,
         "max": true,
         "min": false,
@@ -1205,7 +1205,7 @@
       "timeShift": null,
       "title": "Opcode handlers - Split",
       "tooltip": {
-        "shared": true,
+        "shared": false,
         "sort": 2,
         "value_type": "individual"
       },
