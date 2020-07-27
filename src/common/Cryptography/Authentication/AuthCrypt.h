@@ -19,6 +19,7 @@
 #define _AUTHCRYPT_H
 
 #include "ARC4.h"
+#include "Common.h"
 #include <array>
 
 class TC_COMMON_API AuthCrypt
