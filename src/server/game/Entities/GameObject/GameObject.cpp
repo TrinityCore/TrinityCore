@@ -330,9 +330,7 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
 
     SetDisplayId(goInfo->displayId);
 
-    m_model = CreateModel();
-    if (m_model && m_model->isMapObject())
-        AddFlag(GO_FLAG_MAP_OBJECT);
+    CreateModel();
     // GAMEOBJECT_BYTES_1, index at 0, 1, 2 and 3
     SetGoType(GameobjectTypes(goInfo->type));
     m_prevGoState = goState;
@@ -2504,15 +2502,12 @@ void GameObject::UpdateModel()
     if (m_model)
         if (GetMap()->ContainsGameObjectModel(*m_model))
             GetMap()->RemoveGameObjectModel(*m_model);
+    RemoveFlag(GO_FLAG_MAP_OBJECT);
     delete m_model;
-    m_model = CreateModel();
+    m_model = nullptr;
+    CreateModel();
     if (m_model)
         GetMap()->InsertGameObjectModel(*m_model);
-
-    if (m_model && m_model->isMapObject())
-        AddFlag(GO_FLAG_MAP_OBJECT);
-    else
-        RemoveFlag(GO_FLAG_MAP_OBJECT);
 }
 
 Player* GameObject::GetLootRecipient() const
@@ -2728,7 +2723,9 @@ private:
     GameObject* _owner;
 };
 
-GameObjectModel* GameObject::CreateModel()
+void GameObject::CreateModel()
 {
-    return GameObjectModel::Create(std::make_unique<GameObjectModelOwnerImpl>(this), sWorld->GetDataPath());
+    m_model = GameObjectModel::Create(std::make_unique<GameObjectModelOwnerImpl>(this), sWorld->GetDataPath());
+    if (m_model && m_model->isMapObject())
+        AddFlag(GO_FLAG_MAP_OBJECT);
 }

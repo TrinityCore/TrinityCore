@@ -104,7 +104,7 @@ bool Transport::Create(ObjectGuid::LowType guidlow, uint32 entry, uint32 mapid, 
     SetWorldRotation(0.0f, 0.0f, 0.0f, 1.0f);
     SetParentRotation(QuaternionData());
 
-    m_model = CreateModel();
+    CreateModel();
     return true;
 }
 
