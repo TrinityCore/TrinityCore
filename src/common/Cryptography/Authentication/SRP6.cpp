@@ -47,6 +47,7 @@ using SRP6 = Trinity::Crypto::SRP6;
 
 /*static*/ SRP6::Verifier SRP6::CalculateVerifier(std::string const& username, std::string const& password, SRP6::Seed const& seed)
 {
+    // v = g ^ H(s || H(u || ':' || p)) mod N
     return CalculateVerifierFromHash(SHA1::GetDigestOf(username, ":", password), seed);
 }
 
@@ -76,6 +77,7 @@ using SRP6 = Trinity::Crypto::SRP6;
     SHA1::Digest const hash0 = SHA1::GetDigestOf(buf0.data() + p, EPHEMERAL_KEY_LENGTH/2 - p);
     SHA1::Digest const hash1 = SHA1::GetDigestOf(buf1.data() + p, EPHEMERAL_KEY_LENGTH/2 - p);
 
+    // stick the two hashes back together
     SessionKey K;
     for (size_t i = 0; i < SHA1::DIGEST_LENGTH; ++i)
     {
@@ -92,13 +94,14 @@ std::optional<SessionKey> SRP6::VerifyChallengeResponse(EphemeralKey const& A, S
 {
     ASSERT(!_used, "A single SRP6 object must only ever be used to verify ONCE!");
     _used = true;
+
     BigNumber const _A(A);
     if ((_A % _N).IsZero())
         return std::nullopt;
+
     BigNumber const u(SHA1::GetDigestOf(A, B));
     EphemeralKey const S = (_A * (_v.ModExp(u, _N))).ModExp(_b, N).ToByteArray<32>();
 
-    // derive K from S
     SessionKey K = SHA1Interleave(S);
 
     // NgHash = H(N) xor H(g)
