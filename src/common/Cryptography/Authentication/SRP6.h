@@ -67,6 +67,7 @@ namespace Trinity::Crypto
 
             static Verifier CalculateVerifier(std::string const& username, std::string const& password, Seed const& seed);
             static Verifier CalculateVerifierFromHash(SHA1::Digest const& hash, Seed const& seed);
+            static SessionKey SHA1Interleave(EphemeralKey const& S);
 
             /* global algorithm parameters */
             static const BigNumber _g; // a [g]enerator for the ring of integers mod N, algorithm parameter

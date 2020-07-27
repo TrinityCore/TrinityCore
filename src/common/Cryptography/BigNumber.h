@@ -32,12 +32,17 @@ class TC_COMMON_API BigNumber
         BigNumber();
         BigNumber(BigNumber const& bn);
         BigNumber(uint32 v) : BigNumber() { SetDword(v); }
+        BigNumber(int32 v) : BigNumber() { SetDword(v); }
         BigNumber(std::string const& v) : BigNumber() { SetHexStr(v); }
         template <size_t Size>
         BigNumber(std::array<uint8, Size> const& v, bool littleEndian = true) : BigNumber() { SetBinary(v.data(), Size, littleEndian); }
 
+        // This constructor takes ownership of the bignum_st - call BN_dup first if that is not intended
+        BigNumber(struct bignum_st* bn) : _bn(bn) { }
+
         ~BigNumber();
 
+        void SetDword(int32);
         void SetDword(uint32);
         void SetQword(uint64);
         void SetBinary(uint8 const* bytes, int32 len, bool littleEndian = true);
@@ -107,7 +112,8 @@ class TC_COMMON_API BigNumber
 
         int32 GetNumBytes() const;
 
-        struct bignum_st *BN() { return _bn; }
+        struct bignum_st* BN() { return _bn; }
+        struct bignum_st const* BN() const { return _bn; }
 
         uint32 AsDword() const;
 
@@ -126,7 +132,7 @@ class TC_COMMON_API BigNumber
         std::string AsDecStr() const;
 
     private:
-        struct bignum_st *_bn;
+        struct bignum_st* _bn;
 
 };
 #endif

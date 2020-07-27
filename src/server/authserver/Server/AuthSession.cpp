@@ -425,7 +425,6 @@ void AuthSession::LogonChallengeCallback(PreparedQueryResult result)
     {
         pkt << uint8(WOW_SUCCESS);
 
-        // B may be calculated < 32B so we force minimal length to 32B
         pkt.append(_srp6->B);
         pkt << uint8(1);
         pkt.append(_srp6->g);
