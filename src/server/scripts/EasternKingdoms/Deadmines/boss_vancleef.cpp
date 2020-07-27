@@ -86,7 +86,7 @@ struct boss_vancleef : public BossAI
         void SummonBlackguards()
         {
             for (Position BlackguardPosition : BlackguardPositions)
-                DoSummon(NPC_BLACKGUARD, BlackguardPosition, 60000, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+                DoSummon(NPC_BLACKGUARD, BlackguardPosition, 1min, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
         }
 
         void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
