@@ -111,7 +111,7 @@ public:
                     {
                         const Position src = {147.927444f, -3851.513428f, 130.893f, 0};
                         Position dst = me->GetRandomPoint(src, 7.0f);
-                        DoSummon(NPC_MARAUDING_OWL, dst, 25000, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+                        DoSummon(NPC_MARAUDING_OWL, dst, 25s, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
                     }
                     break;
                 case 44:

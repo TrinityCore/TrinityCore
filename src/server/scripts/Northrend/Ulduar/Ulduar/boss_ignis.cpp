@@ -269,7 +269,7 @@ class boss_ignis : public CreatureScript
                             break;
                         case EVENT_CONSTRUCT:
                             Talk(SAY_SUMMON);
-                            DoSummon(NPC_IRON_CONSTRUCT, ConstructSpawnPosition[urand(0, CONSTRUCT_SPAWN_POINTS - 1)], 30000, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT);
+                            DoSummon(NPC_IRON_CONSTRUCT, ConstructSpawnPosition[urand(0, CONSTRUCT_SPAWN_POINTS - 1)], 30s, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT);
                             DoCast(SPELL_STRENGHT);
                             DoCast(me, SPELL_ACTIVATE_CONSTRUCT);
                             events.ScheduleEvent(EVENT_CONSTRUCT, RAID_MODE(40s, 30s));

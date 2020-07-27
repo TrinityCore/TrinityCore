@@ -683,7 +683,7 @@ public:
         void DoSpawnAssassin()
         {
             //unknown where they actually appear
-            DoSummon(NPC_COILSKAR_ASSASSIN, me, 15.0f, 5000, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT);
+            DoSummon(NPC_COILSKAR_ASSASSIN, me, 15.0f, 5s, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT);
         }
 
         void JustEngagedWith(Unit* who) override

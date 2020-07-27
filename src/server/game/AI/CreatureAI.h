@@ -82,9 +82,9 @@ class TC_GAME_API CreatureAI : public UnitAI
 
         bool UpdateVictim();
 
-        Creature* DoSummon(uint32 entry, Position const& pos, uint32 despawnTime = 30000, TempSummonType summonType = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
-        Creature* DoSummon(uint32 entry, WorldObject* obj, float radius = 5.0f, uint32 despawnTime = 30000, TempSummonType summonType = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
-        Creature* DoSummonFlyer(uint32 entry, WorldObject* obj, float flightZ, float radius = 5.0f, uint32 despawnTime = 30000, TempSummonType summonType = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+        Creature* DoSummon(uint32 entry, Position const& pos, Milliseconds despawnTime = 30s, TempSummonType summonType = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+        Creature* DoSummon(uint32 entry, WorldObject* obj, float radius = 5.0f, Milliseconds despawnTime = 30s, TempSummonType summonType = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+        Creature* DoSummonFlyer(uint32 entry, WorldObject* obj, float flightZ, float radius = 5.0f, Milliseconds despawnTime = 30s, TempSummonType summonType = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
 
     public:
         enum EvadeReason
