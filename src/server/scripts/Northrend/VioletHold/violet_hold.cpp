@@ -698,7 +698,7 @@ class npc_violet_hold_teleportation_portal : public CreatureScript
                     if (data == 1)
                     {
                         uint32 entry = RAND(NPC_PORTAL_GUARDIAN, NPC_PORTAL_KEEPER);
-                        if (Creature* portalKeeper = DoSummon(entry, me, 2.0f, 0, TEMPSUMMON_DEAD_DESPAWN))
+                        if (Creature* portalKeeper = DoSummon(entry, me, 2.0f, 0s, TEMPSUMMON_DEAD_DESPAWN))
                             me->CastSpell(portalKeeper, SPELL_PORTAL_CHANNEL, false);
 
                         if (Creature* sinclariTrigger = _instance->GetCreature(DATA_SINCLARI_TRIGGER))
@@ -715,7 +715,7 @@ class npc_violet_hold_teleportation_portal : public CreatureScript
                         while (k--)
                         {
                             uint32 entry = RAND(NPC_AZURE_INVADER_1, NPC_AZURE_INVADER_2, NPC_AZURE_SPELLBREAKER_1, NPC_AZURE_SPELLBREAKER_2, NPC_AZURE_MAGE_SLAYER_1, NPC_AZURE_MAGE_SLAYER_2, NPC_AZURE_BINDER_1, NPC_AZURE_BINDER_2);
-                            DoSummon(entry, me, 2.0f, 20000, TEMPSUMMON_DEAD_DESPAWN);
+                            DoSummon(entry, me, 2.0f, 20s, TEMPSUMMON_DEAD_DESPAWN);
                         }
                     }
                 }
@@ -758,7 +758,7 @@ class npc_violet_hold_teleportation_portal_elite : public CreatureScript
                     while (k--)
                     {
                         uint32 entry = RAND(NPC_AZURE_CAPTAIN_1, NPC_AZURE_RAIDER_1, NPC_AZURE_STALKER_1, NPC_AZURE_SORCEROR_1);
-                        DoSummon(entry, me, 2.0f, 20000, TEMPSUMMON_DEAD_DESPAWN);
+                        DoSummon(entry, me, 2.0f, 20s, TEMPSUMMON_DEAD_DESPAWN);
                     }
 
                     if (Creature* sinclariTrigger = _instance->GetCreature(DATA_SINCLARI_TRIGGER))
@@ -811,7 +811,7 @@ class npc_violet_hold_teleportation_portal_intro : public CreatureScript
                     if (_summons.size() < 3)
                     {
                         uint32 entry = RAND(NPC_AZURE_INVADER_1, NPC_AZURE_MAGE_SLAYER_1, NPC_AZURE_BINDER_1);
-                        DoSummon(entry, me, 2.0f, 20000, TEMPSUMMON_DEAD_DESPAWN);
+                        DoSummon(entry, me, 2.0f, 20s, TEMPSUMMON_DEAD_DESPAWN);
                     }
 
                     task.Repeat();

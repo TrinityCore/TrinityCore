@@ -340,7 +340,7 @@ class boss_sapphiron : public CreatureScript
                             case EVENT_LIFTOFF:
                             {
                                 Talk(EMOTE_AIR_PHASE);
-                                if (Creature* buffet = DoSummon(NPC_WING_BUFFET, me, 0.0f, 0, TEMPSUMMON_MANUAL_DESPAWN))
+                                if (Creature* buffet = DoSummon(NPC_WING_BUFFET, me, 0.0f, 0s, TEMPSUMMON_MANUAL_DESPAWN))
                                     _buffet = buffet->GetGUID();
                                 me->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
                                 me->SetHover(true);

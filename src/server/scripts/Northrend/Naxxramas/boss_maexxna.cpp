@@ -152,7 +152,7 @@ public:
                                     wrapPos = (wrapPos + urand(1, MAX_WRAP_POSITION - 1)) % MAX_WRAP_POSITION;
 
                                 target->RemoveAura(RAID_MODE(SPELL_WEB_SPRAY_10, SPELL_WEB_SPRAY_25));
-                                if (Creature* wrap = DoSummon(NPC_WEB_WRAP, WrapPositions[wrapPos], 70 * IN_MILLISECONDS, TEMPSUMMON_TIMED_DESPAWN))
+                                if (Creature* wrap = DoSummon(NPC_WEB_WRAP, WrapPositions[wrapPos], 70s, TEMPSUMMON_TIMED_DESPAWN))
                                 {
                                     wrap->AI()->SetGUID(target->GetGUID()); // handles application of debuff
                                     target->GetMotionMaster()->MoveJump(WrapPositions[wrapPos], WEB_WRAP_MOVE_SPEED, WEB_WRAP_MOVE_SPEED); // move after stun to avoid stun cancelling move
@@ -179,7 +179,7 @@ public:
                         Talk(EMOTE_SPIDERS);
                         uint8 amount = urand(8, 10);
                         for (uint8 i = 0; i < amount; ++i)
-                            DoSummon(NPC_SPIDERLING, me, 4.0f, 5 * IN_MILLISECONDS, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+                            DoSummon(NPC_SPIDERLING, me, 4.0f, 5s, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
                         events.Repeat(Seconds(40));
                         break;
                 }

@@ -476,7 +476,7 @@ struct boss_algalon_the_observer : public BossAI
             for (std::list<Creature*>::iterator itr = stalkers.begin(); itr != stalkers.end(); ++itr)
                 (*itr)->m_Events.KillAllEvents(true);
             for (uint8 i = 0; i < COLLAPSING_STAR_COUNT; ++i)
-                if (Creature* wormHole = DoSummon(NPC_WORM_HOLE, CollapsingStarPos[i], TEMPSUMMON_MANUAL_DESPAWN))
+                if (Creature* wormHole = DoSummon(NPC_WORM_HOLE, CollapsingStarPos[i], 0s, TEMPSUMMON_MANUAL_DESPAWN))
                     wormHole->m_Events.AddEventAtOffset(new SummonUnleashedDarkMatter(wormHole), i >= 2 ? 8s : 6s);
         }
         else if ((int32(me->GetHealth()) - int32(damage)) < CalculatePct<int32>(int32(me->GetMaxHealth()), 2.5f) && !_fightWon)
@@ -571,7 +571,7 @@ struct boss_algalon_the_observer : public BossAI
                     if (!me->GetThreatManager().IsThreatListEmpty())
                         AttackStart(me->GetThreatManager().GetCurrentVictim());
                     for (uint8 i = 0; i < LIVING_CONSTELLATION_COUNT; ++i)
-                        if (Creature* summon = DoSummon(NPC_LIVING_CONSTELLATION, ConstellationPos[i], 0, TEMPSUMMON_DEAD_DESPAWN))
+                        if (Creature* summon = DoSummon(NPC_LIVING_CONSTELLATION, ConstellationPos[i], 0s, TEMPSUMMON_DEAD_DESPAWN))
                             summon->SetReactState(REACT_PASSIVE);
 
                     std::list<Creature*> stalkers;
