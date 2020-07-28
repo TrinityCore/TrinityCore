@@ -153,7 +153,7 @@ struct boss_high_inquisitor_fairbanks : public BossAI
     }
 
 private:
-    TimeTrackerSmall _healTimer;
+    TimeTracker _healTimer;
     bool _powerWordShield;
 };
 
