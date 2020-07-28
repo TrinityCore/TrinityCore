@@ -402,22 +402,22 @@ void AuthSession::LogonChallengeCallback(PreparedQueryResult result)
         Trinity::Crypto::SHA1::Digest sha_pass_hash;
         HexStrToByteArray(fields[10].GetString(), sha_pass_hash);
 
-        auto [seed, verifier] = Trinity::Crypto::SRP6::MakeRegistrationDataFromHash_DEPRECATED_DONOTUSE(sha_pass_hash);
+        auto [salt, verifier] = Trinity::Crypto::SRP6::MakeRegistrationDataFromHash_DEPRECATED_DONOTUSE(sha_pass_hash);
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_SV);
-        stmt->setString(0, ByteArrayToHexStr(seed, true)); /* this is actually flipped in the DB right now, old core did hexstr (big endian) -> bignum -> byte array (little-endian) */
+        stmt->setString(0, ByteArrayToHexStr(salt, true)); /* this is actually flipped in the DB right now, old core did hexstr (big endian) -> bignum -> byte array (little-endian) */
         stmt->setString(1, ByteArrayToHexStr(verifier));
         stmt->setUInt32(2, _accountInfo.Id);
         LoginDatabase.Execute(stmt);
 
-        _srp6.emplace(_accountInfo.Login, seed, verifier);
+        _srp6.emplace(_accountInfo.Login, salt, verifier);
     }
     else
     {
-        Trinity::Crypto::SRP6::Seed seed;
+        Trinity::Crypto::SRP6::Salt salt;
         Trinity::Crypto::SRP6::Verifier verifier;
-        HexStrToByteArray(fields[11].GetString(), seed, true); /* this is actually flipped in the DB right now, old core did hexstr (big endian) -> bignum -> byte array (little-endian) */
+        HexStrToByteArray(fields[11].GetString(), salt, true); /* this is actually flipped in the DB right now, old core did hexstr (big endian) -> bignum -> byte array (little-endian) */
         HexStrToByteArray(fields[12].GetString(), verifier);
-        _srp6.emplace(_accountInfo.Login, seed, verifier);
+        _srp6.emplace(_accountInfo.Login, salt, verifier);
     }
 
     // Fill the response packet with the result

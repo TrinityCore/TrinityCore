@@ -31,8 +31,8 @@ namespace Trinity::Crypto
     class TC_COMMON_API SRP6
     {
         public:
-            static constexpr size_t SEED_LENGTH = 32;
-            using Seed = std::array<uint8, SEED_LENGTH>;
+            static constexpr size_t SALT_LENGTH = 32;
+            using Salt = std::array<uint8, SALT_LENGTH>;
             static constexpr size_t VERIFIER_LENGTH = 32;
             using Verifier = std::array<uint8, VERIFIER_LENGTH>;
             static constexpr size_t EPHEMERAL_KEY_LENGTH = 32;
@@ -44,14 +44,14 @@ namespace Trinity::Crypto
             // this is the old sha_pass_hash hack
             // YOU SHOULD NEVER STORE THIS HASH, if you do you are breaking SRP6 guarantees
             // use MakeRegistrationData instead
-            static std::pair<Seed, Verifier> MakeRegistrationDataFromHash_DEPRECATED_DONOTUSE(SHA1::Digest const& hash);
+            static std::pair<Salt, Verifier> MakeRegistrationDataFromHash_DEPRECATED_DONOTUSE(SHA1::Digest const& hash);
 
             // username + password must be passed through Utf8ToUpperOnlyLatin FIRST!
-            static std::pair<Seed, Verifier> MakeRegistrationData(std::string const& username, std::string const& password);
+            static std::pair<Salt, Verifier> MakeRegistrationData(std::string const& username, std::string const& password);
             // username + password must be passed through Utf8ToUpperOnlyLatin FIRST!
-            static bool CheckLogin(std::string const& username, std::string const& password, Seed const& seed, Verifier const& verifier)
+            static bool CheckLogin(std::string const& username, std::string const& password, Salt const& salt, Verifier const& verifier)
             {
-                return (verifier == CalculateVerifier(username, password, seed));
+                return (verifier == CalculateVerifier(username, password, salt));
             }
 
             static SHA1::Digest GetSessionVerifier(EphemeralKey const& A, SHA1::Digest const& clientM, SessionKey const& K)
@@ -59,14 +59,14 @@ namespace Trinity::Crypto
                 return SHA1::GetDigestOf(A, clientM, K);
             }
 
-            SRP6(std::string const& username, Seed const& seed, Verifier const& verifier);
+            SRP6(std::string const& username, Salt const& salt, Verifier const& verifier);
             std::optional<SessionKey> VerifyChallengeResponse(EphemeralKey const& A, SHA1::Digest const& clientM);
 
         private:
             bool _used = false; // a single instance can only be used to verify once
 
-            static Verifier CalculateVerifier(std::string const& username, std::string const& password, Seed const& seed);
-            static Verifier CalculateVerifierFromHash(SHA1::Digest const& hash, Seed const& seed);
+            static Verifier CalculateVerifier(std::string const& username, std::string const& password, Salt const& salt);
+            static Verifier CalculateVerifierFromHash(SHA1::Digest const& hash, Salt const& salt);
             static SessionKey SHA1Interleave(EphemeralKey const& S);
 
             /* global algorithm parameters */
@@ -81,7 +81,7 @@ namespace Trinity::Crypto
             BigNumber const _v; // v - the user's password verifier, derived from s + H(USERNAME || ":" || PASSWORD)
 
         public:
-            Seed const s; // s - the user's password seed, random, used to calculate v on registration
+            Salt const s; // s - the user's password salt, random, used to calculate v on registration
             EphemeralKey const B; // B = 3v + g^b
     };
 }

@@ -29,32 +29,32 @@ using SRP6 = Trinity::Crypto::SRP6;
 /*static*/ const BigNumber SRP6::_g(SRP6::g);
 /*static*/ const BigNumber SRP6::_N(N);
 
-/*static*/ std::pair<SRP6::Seed, SRP6::Verifier> SRP6::MakeRegistrationData(std::string const& username, std::string const& password)
+/*static*/ std::pair<SRP6::Salt, SRP6::Verifier> SRP6::MakeRegistrationData(std::string const& username, std::string const& password)
 {
-    std::pair<SRP6::Seed, SRP6::Verifier> res;
-    Crypto::GetRandomBytes(res.first); // random seed
+    std::pair<SRP6::Salt, SRP6::Verifier> res;
+    Crypto::GetRandomBytes(res.first); // random salt
     res.second = CalculateVerifier(username, password, res.first);
     return res;
 }
 
-/*static*/ std::pair<SRP6::Seed, SRP6::Verifier> SRP6::MakeRegistrationDataFromHash_DEPRECATED_DONOTUSE(SHA1::Digest const& hash)
+/*static*/ std::pair<SRP6::Salt, SRP6::Verifier> SRP6::MakeRegistrationDataFromHash_DEPRECATED_DONOTUSE(SHA1::Digest const& hash)
 {
-    std::pair<SRP6::Seed, SRP6::Verifier> res;
+    std::pair<SRP6::Salt, SRP6::Verifier> res;
     Crypto::GetRandomBytes(res.first);
     res.second = CalculateVerifierFromHash(hash, res.first);
     return res;
 }
 
-/*static*/ SRP6::Verifier SRP6::CalculateVerifier(std::string const& username, std::string const& password, SRP6::Seed const& seed)
+/*static*/ SRP6::Verifier SRP6::CalculateVerifier(std::string const& username, std::string const& password, SRP6::Salt const& salt)
 {
     // v = g ^ H(s || H(u || ':' || p)) mod N
-    return CalculateVerifierFromHash(SHA1::GetDigestOf(username, ":", password), seed);
+    return CalculateVerifierFromHash(SHA1::GetDigestOf(username, ":", password), salt);
 }
 
 // merge this into CalculateVerifier once the sha_pass hack finally gets nuked from orbit
-/*static*/ SRP6::Verifier SRP6::CalculateVerifierFromHash(SHA1::Digest const& hash, SRP6::Seed const& seed)
+/*static*/ SRP6::Verifier SRP6::CalculateVerifierFromHash(SHA1::Digest const& hash, SRP6::Salt const& salt)
 {
-    return _g.ModExp(SHA1::GetDigestOf(seed, hash), _N).ToByteArray<32>(false);
+    return _g.ModExp(SHA1::GetDigestOf(salt, hash), _N).ToByteArray<32>(false);
 }
 
 /*static*/ SessionKey SRP6::SHA1Interleave(SRP6::EphemeralKey const& S)
@@ -87,8 +87,8 @@ using SRP6 = Trinity::Crypto::SRP6;
     return K;
 }
 
-SRP6::SRP6(std::string const& username, Seed const& seed, Verifier const& verifier)
-    : _I(SHA1::GetDigestOf(username)), _b(Crypto::GetRandomBytes<19>()), _v(verifier, false), s(seed), B(_B(_b, _v)) {}
+SRP6::SRP6(std::string const& username, Salt const& salt, Verifier const& verifier)
+    : _I(SHA1::GetDigestOf(username)), _b(Crypto::GetRandomBytes<19>()), _v(verifier, false), s(salt), B(_B(_b, _v)) {}
 
 std::optional<SessionKey> SRP6::VerifyChallengeResponse(EphemeralKey const& A, SHA1::Digest const& clientM)
 {
