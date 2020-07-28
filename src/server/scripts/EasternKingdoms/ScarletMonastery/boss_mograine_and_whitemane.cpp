@@ -232,7 +232,7 @@ public:
     }
 
 private:
-    TimeTrackerSmall _killYellTimer;
+    TimeTracker _killYellTimer;
     bool _fakeDeath;
     bool _canDie;
 };
@@ -427,7 +427,7 @@ private:
     InstanceScript* _instance;
     EventMap _events;
     TaskScheduler _scheduler;
-    TimeTrackerSmall _killYellTimer;
+    TimeTracker _killYellTimer;
     bool _ressurectionInProgress;
     bool _canDie;
 };
