@@ -209,7 +209,7 @@ MetricStopWatch<LoggerType> MakeMetricStopWatch(LoggerType&& loggerFunc)
 #define TC_METRIC_DETAILED_TIMER(category, ...)                                                                  \
         MetricStopWatch TC_METRIC_UNIQUE_NAME(__tc_metric_stop_watch) = MakeMetricStopWatch([&](TimePoint start) \
         {                                                                                                        \
-            int64 duration = int64(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count()); \
+            int64 duration = int64(std::chrono::duration_cast<Milliseconds>(std::chrono::steady_clock::now() - start).count()); \
             if (sMetric->ShouldLog(category, duration))                                                          \
                 sMetric->LogValue(category, duration, { __VA_ARGS__ });                                          \
         });

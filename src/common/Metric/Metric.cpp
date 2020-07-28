@@ -298,7 +298,7 @@ std::string Metric::FormatInfluxDBTagValue(std::string const& value)
 
 std::string Metric::FormatInfluxDBValue(std::chrono::nanoseconds value)
 {
-    return FormatInfluxDBValue(std::chrono::duration_cast<std::chrono::milliseconds>(value).count());
+    return FormatInfluxDBValue(std::chrono::duration_cast<Milliseconds>(value).count());
 }
 
 Metric::Metric()
