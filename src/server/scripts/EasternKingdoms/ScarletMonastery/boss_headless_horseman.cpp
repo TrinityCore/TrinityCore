@@ -237,7 +237,7 @@ struct npc_wisp_invis : public ScriptedAI
     }
 
 private:
-    TimeTrackerSmall _timer;
+    TimeTracker _timer;
     uint32 _creatureType;
     uint32 _firstSpell;
     uint32 _secondSpell;
@@ -429,7 +429,7 @@ private:
     }
 
     TaskScheduler _scheduler;
-    TimeTrackerSmall _laughTimer;
+    TimeTracker _laughTimer;
     ObjectGuid _bodyGUID;
     uint32 _phase;
     bool _withBody;
@@ -808,7 +808,7 @@ private:
 
     InstanceScript* _instance;
     TaskScheduler _scheduler;
-    TimeTrackerSmall _laughTimer;
+    TimeTracker _laughTimer;
     ObjectGuid _headGUID;
     uint32 _phase;
     uint32 _id;

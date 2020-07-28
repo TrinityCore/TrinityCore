@@ -20,9 +20,9 @@
 
 #include "Timer.h"
 
-TEST_CASE("TimerTrackerSmall: Check if time passed")
+TEST_CASE("TimeTracker: Check if time passed")
 {
-    TimeTrackerSmall tracker(1000 /*ms*/);
+    TimeTracker tracker(1000 /*ms*/);
     REQUIRE_FALSE(tracker.Passed());
     REQUIRE(tracker.GetExpiry() == 1s);
 
@@ -39,9 +39,9 @@ TEST_CASE("TimerTrackerSmall: Check if time passed")
     REQUIRE(tracker.GetExpiry() == -500ms);
 }
 
-TEST_CASE("TimerTrackerSmall: Reset timer")
+TEST_CASE("TimeTracker: Reset timer")
 {
-    TimeTrackerSmall tracker(1000 /*ms*/);
+    TimeTracker tracker(1000 /*ms*/);
     REQUIRE_FALSE(tracker.Passed());
     REQUIRE(tracker.GetExpiry() == 1s);
 
