@@ -25,6 +25,7 @@
 #include <iosfwd>
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <vector>
 #include <utility>
 
@@ -77,6 +78,7 @@ private:
     std::string _databaseName;
     std::function<void()> _overallStatusLogger;
     std::string _realmName;
+    std::unordered_map<std::string, int64> _thresholds;
 
     bool Connect();
     void SendBatch();
@@ -104,6 +106,7 @@ public:
     void Initialize(std::string const& realmName, Trinity::Asio::IoContext& ioContext, std::function<void()> overallStatusLogger);
     void LoadFromConfigs();
     void Update();
+    bool ShouldLog(std::string const& category, int64 value) const;
 
     template<class T>
     void LogValue(std::string const& category, T value, std::vector<MetricTag> tags)
@@ -206,7 +209,9 @@ MetricStopWatch<LoggerType> MakeMetricStopWatch(LoggerType&& loggerFunc)
 #define TC_METRIC_DETAILED_TIMER(category, ...)                                                                  \
         MetricStopWatch TC_METRIC_UNIQUE_NAME(__tc_metric_stop_watch) = MakeMetricStopWatch([&](TimePoint start) \
         {                                                                                                        \
-            sMetric->LogValue(category, std::chrono::steady_clock::now() - start, { __VA_ARGS__ });              \
+            int64 duration = int64(std::chrono::duration_cast<Milliseconds>(std::chrono::steady_clock::now() - start).count()); \
+            if (sMetric->ShouldLog(category, duration))                                                          \
+                sMetric->LogValue(category, duration, { __VA_ARGS__ });                                          \
         });
 #  else
 #define TC_METRIC_DETAILED_TIMER(category, ...) ((void)0)
