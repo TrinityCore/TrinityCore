@@ -19,8 +19,11 @@
 #define QueryPackets_h__
 
 #include "Packet.h"
+#include "CreatureData.h"
+#include "GameObjectData.h"
 #include "DB2Stores.h"
 #include "ObjectGuid.h"
+#include "QuestDef.h"
 #include "SharedDefines.h"
 
 class Player;
@@ -29,6 +32,97 @@ namespace WorldPackets
 {
     namespace Query
     {
+        class QueryCreature final : public ClientPacket
+        {
+        public:
+            QueryCreature(WorldPacket&& packet) : ClientPacket(CMSG_CREATURE_QUERY, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 CreatureID = 0;
+            ObjectGuid GUID;
+        };
+
+        struct CreatureStats
+        {
+            std::array<std::string, 4> Name;
+            std::array<std::string, 4> NameAlt;
+            std::string Title;
+            std::string CursorName;
+            std::array<uint32, 2> Flags;
+            uint32 CreatureType = 0;
+            uint32 CreatureFamily = 0;
+            uint32 Classification = 0;
+            std::array<uint32, MAX_KILL_CREDIT> ProxyCreatureID;
+            std::array<uint32, MAX_CREATURE_MODELS> CreatureDisplayID;
+            float HpMulti = 0.0f;
+            float EnergyMulti = 0.0f;
+            bool Leader = false;
+            std::array<uint32, MAX_CREATURE_QUEST_ITEMS> QuestItems;
+            uint32 CreatureMovementInfoID = 0;
+            uint32 RequiredExpansion = 0;
+        };
+
+        class QueryCreatureResponse final : public ServerPacket
+        {
+        public:
+            QueryCreatureResponse() : ServerPacket(SMSG_CREATURE_QUERY_RESPONSE, 100) { }
+
+            WorldPacket const* Write() override;
+
+            bool Allow = false;
+            CreatureStats Stats;
+            uint32 CreatureID = 0;
+        };
+
+        class QueryGameObject final : public ClientPacket
+        {
+        public:
+            QueryGameObject(WorldPacket&& packet) : ClientPacket(CMSG_GAMEOBJECT_QUERY, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 GameObjectID = 0;
+            ObjectGuid GUID;
+        };
+
+        struct GameObjectStats
+        {
+            std::array<std::string, 4> Name;
+            std::string IconName;
+            std::string CastBarCaption;
+            std::string UnkString;
+            uint32 Type = 0;
+            uint32 DisplayID = 0;
+            std::array<uint32, MAX_GAMEOBJECT_DATA> Data;
+            float Size = 0.0f;
+            std::array<uint32, MAX_GAMEOBJECT_QUEST_ITEMS> QuestItems;
+            int32 RequiredLevel = 0;
+        };
+
+        class QueryGameObjectResponse final : public ServerPacket
+        {
+        public:
+            QueryGameObjectResponse() : ServerPacket(SMSG_GAMEOBJECT_QUERY_RESPONSE, 150) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 GameObjectID = 0;
+            bool Allow = false;
+            GameObjectStats Stats;
+        };
+
+        class QuestPOIQuery final : public ClientPacket
+        {
+        public:
+            QuestPOIQuery(WorldPacket&& packet) : ClientPacket(CMSG_QUEST_POI_QUERY, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 MissingQuestCount = 0;
+            std::array<uint32, MAX_QUEST_LOG_SIZE> MissingQuestPOIs;
+        };
+
         struct DBQueryRecord
         {
             ObjectGuid GUID;

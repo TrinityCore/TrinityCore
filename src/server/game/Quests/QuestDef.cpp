@@ -20,6 +20,7 @@
 #include "Field.h"
 #include "Log.h"
 #include "ObjectMgr.h"
+#include "Opcodes.h"
 #include "Player.h"
 #include "QuestPackets.h"
 #include "QuestPools.h"
@@ -417,4 +418,175 @@ uint32 Quest::RoundXPValue(uint32 xp)
         return 25 * ((xp + 12) / 25);
     else
         return 50 * ((xp + 25) / 50);
+}
+
+void Quest::InitializeQueryData()
+{
+    WorldPacket queryTemp;
+    for (uint8 loc = LOCALE_enUS; loc < TOTAL_LOCALES; ++loc)
+    {
+        queryTemp = BuildQueryData(static_cast<LocaleConstant>(loc));
+        QueryData[loc] = queryTemp;
+    }
+}
+
+WorldPacket Quest::BuildQueryData(LocaleConstant loc) const
+{
+    WorldPackets::Quest::QueryQuestInfoResponse response;
+
+    response.Info.QuestID = GetQuestId();
+
+    std::string locQuestTitle = GetTitle();
+    std::string locQuestDetails = GetDetails();
+    std::string locQuestObjectives = GetObjectives();
+    std::string locQuestAreaDescription = GetAreaDescription();
+    std::string locQuestCompletedText = GetCompletedText();
+    std::string locQuestGiverTextWindow = GetQuestGiverTextWindow();
+    std::string locQuestGiverTargetName = GetQuestGiverTargetName();
+    std::string locQuestTurnTextWindow = GetQuestTurnTextWindow();
+    std::string locQuestTurnTargetName = GetQuestTurnTargetName();
+
+    std::string locQuestObjectiveText[QUEST_OBJECTIVES_COUNT];
+    for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
+        locQuestObjectiveText[i] = ObjectiveText[i];
+
+    if (QuestLocale const* localeData = sObjectMgr->GetQuestLocale(GetQuestId()))
+    {
+        ObjectMgr::GetLocaleString(localeData->Title, loc, locQuestTitle);
+        ObjectMgr::GetLocaleString(localeData->Details, loc, locQuestDetails);
+        ObjectMgr::GetLocaleString(localeData->Objectives, loc, locQuestObjectives);
+        ObjectMgr::GetLocaleString(localeData->AreaDescription, loc, locQuestAreaDescription);
+        ObjectMgr::GetLocaleString(localeData->CompletedText, loc, locQuestCompletedText);
+        ObjectMgr::GetLocaleString(localeData->QuestGiverTextWindow, loc, locQuestGiverTextWindow);
+        ObjectMgr::GetLocaleString(localeData->QuestGiverTargetName, loc, locQuestGiverTargetName);
+        ObjectMgr::GetLocaleString(localeData->QuestTurnTextWindow, loc, locQuestTurnTextWindow);
+        ObjectMgr::GetLocaleString(localeData->QuestTurnTargetName, loc, locQuestTurnTargetName);
+
+        for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
+            ObjectMgr::GetLocaleString(localeData->ObjectiveText[i], loc, locQuestObjectiveText[i]);
+    }
+
+    response.Info.QuestType = GetQuestMethod();
+    response.Info.QuestLevel = GetQuestLevel();
+    response.Info.QuestMinLevel = GetMinLevel();
+    response.Info.QuestSortID = GetZoneOrSort();
+    response.Info.QuestInfoID = GetType();
+
+    response.Info.SuggestedGroupNum = GetSuggestedPlayers();
+
+    response.Info.RequiredFactionId[0] = GetRepObjectiveFaction();
+    response.Info.RequiredFactionValue[0] = GetRepObjectiveValue();
+
+    response.Info.RequiredFactionId[1] = GetRepObjectiveFaction2();
+    response.Info.RequiredFactionValue[1] = GetRepObjectiveValue2();
+
+    response.Info.RewardNextQuest = GetNextQuestInChain();
+    response.Info.RewardXPDifficulty = GetXPId();
+
+    response.Info.RewardMoney = GetRewOrReqMoney();
+    response.Info.RewardBonusMoney = GetRewMoneyMaxLevel();
+    response.Info.RewardDisplaySpell = GetRewSpell();
+    response.Info.RewardSpell = GetRewSpellCast();
+
+    response.Info.RewardHonor = GetRewHonorAddition();
+    response.Info.RewardKillHonor = GetRewHonorMultiplier();
+
+    response.Info.StartItem = GetSrcItemId();
+    response.Info.Flags = GetFlags();
+    response.Info.MinimapTargetMark = GetMinimapTargetMark();
+
+    response.Info.RewardTitle = GetCharTitleId();
+    response.Info.RequiredPlayerKills = GetPlayersSlain();
+    response.Info.RewardTalents = GetBonusTalents();
+    response.Info.RewardArenaPoints = GetRewArenaPoints();
+    response.Info.PortraitGiver = GetQuestGiverPortrait();
+    response.Info.PortraitTurnIn = GetQuestTurnInPortrait();
+
+    for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
+    {
+        response.Info.RewardItems[i] = RewardItemId[i];
+        response.Info.RewardAmount[i] = RewardItemIdCount[i];
+    }
+
+    for (uint8 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
+    {
+        response.Info.UnfilteredChoiceItems[i].ItemID = RewardChoiceItemId[i];
+        response.Info.UnfilteredChoiceItems[i].Quantity = RewardChoiceItemCount[i];
+    }
+
+    for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)             // reward factions ids
+        response.Info.RewardFactionID[i] = RewardFactionId[i];
+
+    for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)             // columnid+1 QuestFactionReward.dbc?
+        response.Info.RewardFactionValue[i] = RewardFactionValueId[i];
+
+    for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)             // unknown usage
+        response.Info.RewardFactionValueOverride[i] = RewardFactionValueIdOverride[i];
+
+    response.Info.POIContinent = GetPOIContinent();
+    response.Info.POIx = GetPOIx();
+    response.Info.POIy = GetPOIy();
+    response.Info.POIPriority = GetPointOpt();
+
+    if (sWorld->getBoolConfig(CONFIG_UI_QUESTLEVELS_IN_DIALOGS))
+        Quest::AddQuestLevelToTitle(locQuestTitle, GetQuestLevel());
+
+    response.Info.LogTitle = locQuestTitle;
+    response.Info.LogDescription = locQuestObjectives;
+    response.Info.QuestDescription = locQuestDetails;
+    response.Info.AreaDescription = locQuestAreaDescription;
+    response.Info.QuestCompletionLog = locQuestCompletedText;
+
+    for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
+    {
+        response.Info.RequiredNpcOrGo[i] = RequiredNpcOrGo[i];
+        response.Info.RequiredNpcOrGoCount[i] = RequiredNpcOrGoCount[i];
+        response.Info.ItemDrop[i] = ItemDrop[i];
+        response.Info.ItemDropQuantity[i] = ItemDropQuantity[i];
+    }
+
+    for (uint8 i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
+    {
+        response.Info.RequiredItemId[i] = RequiredItemId[i];
+        response.Info.RequiredItemCount[i] = RequiredItemCount[i];
+    }
+
+    response.Info.RequiredSpell = GetRequiredSpell();
+
+    for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
+        response.Info.ObjectiveText[i] = locQuestObjectiveText[i];
+
+    for (uint8 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
+    {
+        response.Info.RewardCurrencyID[i] = RewardCurrencyId[i];
+        response.Info.RewardCurrencyQty[i] = RewardCurrencyCount[i];
+    }
+
+    for (uint8 i = 0; i < QUEST_REQUIRED_CURRENCY_COUNT; ++i)
+    {
+        response.Info.RequiredCurrencyID[i] = RequiredCurrencyId[i];
+        response.Info.RequiredCurrencyQty[i] = RequiredCurrencyCount[i];
+    }
+
+    response.Info.PortraitGiverText = locQuestGiverTextWindow;
+    response.Info.PortraitGiverName = locQuestGiverTargetName;
+    response.Info.PortraitTurnintext = locQuestTurnTextWindow;
+    response.Info.PortraitTurnInName = locQuestTurnTargetName;
+
+    response.Info.AcceptedSoundKitID = GetSoundAccept();
+    response.Info.CompleteSoundKitID = GetSoundTurnIn();
+
+    response.Write();
+    response.ShrinkToFit();
+    return response.Move();
+}
+
+void Quest::AddQuestLevelToTitle(std::string& title, int32 level)
+{
+    // Adds the quest level to the front of the quest title
+    // example: [13] Westfall Stew
+
+    std::stringstream questTitlePretty;
+    questTitlePretty << "[" << level << "] " << title;
+    title = questTitlePretty.str();
 }

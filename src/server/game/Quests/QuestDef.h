@@ -26,6 +26,7 @@
 #include <vector>
 
 class Player;
+class WorldPacket;
 
 namespace WorldPackets
 {
@@ -371,8 +372,13 @@ class TC_GAME_API Quest
 
         void BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player* player) const;
 
+        static void AddQuestLevelToTitle(std::string& title, int32 level);
+        void InitializeQueryData();
+        WorldPacket BuildQueryData(LocaleConstant loc) const;
+
         std::vector<uint32> DependentPreviousQuests;
         std::vector<uint32> DependentBreadcrumbQuests;
+        WorldPacket QueryData[TOTAL_LOCALES];
 
         // cached data
     private:

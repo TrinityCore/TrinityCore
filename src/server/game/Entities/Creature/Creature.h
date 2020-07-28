@@ -25,6 +25,7 @@
 #include "Duration.h"
 #include "Loot.h"
 #include "MapObject.h"
+
 #include <list>
 
 class CreatureAI;

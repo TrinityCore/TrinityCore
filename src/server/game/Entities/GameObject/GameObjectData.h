@@ -29,6 +29,8 @@
 
 #define MAX_GAMEOBJECT_QUEST_ITEMS 6
 
+class WorldPacket;
+
 // from `gameobject_template`
 struct GameObjectTemplate
 {
@@ -426,6 +428,7 @@ struct GameObjectTemplate
 
     std::string AIName;
     uint32 ScriptId;
+    WorldPacket QueryData[TOTAL_LOCALES];
 
     // helpers
     bool IsDespawnAtAction() const
@@ -594,6 +597,9 @@ struct GameObjectTemplate
             default: return false;
         }
     }
+
+    void InitializeQueryData();
+    WorldPacket BuildQueryData(LocaleConstant loc) const;
 };
 
 // From `gameobject_template_addon`
