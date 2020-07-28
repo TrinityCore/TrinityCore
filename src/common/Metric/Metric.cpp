@@ -69,6 +69,15 @@ void Metric::LoadFromConfigs()
         _overallStatusTimerInterval = 1;
     }
 
+    _thresholds.clear();
+    std::vector<std::string> thresholdSettings = sConfigMgr->GetKeysByString("Metric.Threshold.");
+    for (std::string const& thresholdSetting : thresholdSettings)
+    {
+        int thresholdValue = sConfigMgr->GetIntDefault(thresholdSetting, 0);
+        std::string thresholdName = thresholdSetting.substr(strlen("Metric.Threshold."));
+        _thresholds[thresholdName] = thresholdValue;
+    }
+
     // Schedule a send at this point only if the config changed from Disabled to Enabled.
     // Cancel any scheduled operation if the config changed from Enabled to Disabled.
     if (_enabled && !previousValue)
@@ -104,6 +113,14 @@ void Metric::Update()
         _overallStatusTimerTriggered = false;
         _overallStatusLogger();
     }
+}
+
+bool Metric::ShouldLog(std::string const& category, int64 value) const
+{
+    auto threshold = _thresholds.find(category);
+    if (threshold == _thresholds.end())
+        return false;
+    return value >= threshold->second;
 }
 
 void Metric::LogEvent(std::string const& category, std::string const& title, std::string const& description)
@@ -281,7 +298,7 @@ std::string Metric::FormatInfluxDBTagValue(std::string const& value)
 
 std::string Metric::FormatInfluxDBValue(std::chrono::nanoseconds value)
 {
-    return FormatInfluxDBValue(std::chrono::duration_cast<std::chrono::milliseconds>(value).count());
+    return FormatInfluxDBValue(std::chrono::duration_cast<Milliseconds>(value).count());
 }
 
 Metric::Metric()
