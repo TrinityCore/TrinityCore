@@ -170,6 +170,7 @@ MetricStopWatch<LoggerType> MakeMetricStopWatch(LoggerType&& loggerFunc)
 #define TC_METRIC_VALUE(category, value) ((void)0)
 #define TC_METRIC_TIMER(category, ...) ((void)0)
 #define TC_METRIC_DETAILED_TIMER(category, ...) ((void)0)
+#define TC_METRIC_DETAILED_NO_THRESHOLD_TIMER(category, ...) ((void)0)
 #else
 #  if TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
 #define TC_METRIC_EVENT(category, title, description)                  \
@@ -213,8 +214,10 @@ MetricStopWatch<LoggerType> MakeMetricStopWatch(LoggerType&& loggerFunc)
             if (sMetric->ShouldLog(category, duration))                                                          \
                 sMetric->LogValue(category, duration, { __VA_ARGS__ });                                          \
         });
+#define TC_METRIC_DETAILED_NO_THRESHOLD_TIMER(category, ...) TC_METRIC_TIMER(category, __VA_ARGS__)
 #  else
 #define TC_METRIC_DETAILED_TIMER(category, ...) ((void)0)
+#define TC_METRIC_DETAILED_NO_THRESHOLD_TIMER(category, ...) ((void)0)
 #  endif
 
 #endif
