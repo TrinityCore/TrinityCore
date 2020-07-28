@@ -37,9 +37,6 @@ class TC_COMMON_API BigNumber
         template <size_t Size>
         BigNumber(std::array<uint8, Size> const& v, bool littleEndian = true) : BigNumber() { SetBinary(v.data(), Size, littleEndian); }
 
-        // This constructor takes ownership of the bignum_st - call BN_dup first if that is not intended
-        BigNumber(struct bignum_st* bn) : _bn(bn) { }
-
         ~BigNumber();
 
         void SetDword(int32);
