@@ -212,11 +212,11 @@ AccountOpResult AccountMgr::ChangePassword(uint32 accountId, std::string newPass
 
     LoginDatabase.Execute(stmt);
 
-    stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_VS);
+    stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_SV);
 
     stmt->setString(0, "");
     stmt->setString(1, "");
-    stmt->setString(2, username);
+    stmt->setUInt32(2, accountId);
 
     LoginDatabase.Execute(stmt);
 

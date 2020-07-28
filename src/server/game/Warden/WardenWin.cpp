@@ -41,7 +41,7 @@ WardenWin::WardenWin() : Warden(), _serverTicks(0) {}
 
 WardenWin::~WardenWin() { }
 
-void WardenWin::Init(WorldSession* session, std::array<uint8, 40> const& K)
+void WardenWin::Init(WorldSession* session, SessionKey const& K)
 {
     _session = session;
     // Generate Warden Key

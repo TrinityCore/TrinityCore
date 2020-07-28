@@ -78,7 +78,7 @@ namespace Impl
 
         public:
             template <typename... Ts>
-            static auto GetDigestOf(Ts&&... pack) -> /*std::enable_if_t<!(std::is_integral_v<std::decay_t<Ts>> || ...),*/ Digest/*>*/
+            static auto GetDigestOf(Ts&&... pack) -> std::enable_if_t<advstd::conjunction<advstd::negation<std::is_integral<Ts>>...>::value, Digest>
             {
                 GenericHash hash;
                 UpdateData_OLDCPP(hash, std::forward<Ts>(pack)...);

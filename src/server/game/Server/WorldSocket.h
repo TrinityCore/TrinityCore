@@ -20,6 +20,7 @@
 
 #include "Common.h"
 #include "AsyncCallbackProcessor.h"
+#include "AuthDefines.h"
 #include "DatabaseEnvFwd.h"
 #include "MessageBuffer.h"
 #include "Socket.h"
@@ -132,7 +133,7 @@ private:
 
     std::array<uint8, 16> _serverChallenge;
     WorldPacketCrypt _authCrypt;
-    std::array<uint8, 40> _sessionKey;
+    SessionKey _sessionKey;
     std::array<uint8, 16> _encryptKey;
 
     std::chrono::steady_clock::time_point _LastPingTime;

@@ -27,12 +27,19 @@ BigNumber::BigNumber()
 { }
 
 BigNumber::BigNumber(BigNumber const& bn)
-    : _bn(BN_dup(bn._bn))
+    : _bn(BN_dup(bn.BN()))
 { }
 
 BigNumber::~BigNumber()
 {
     BN_free(_bn);
+}
+
+void BigNumber::SetDword(int32 val)
+{
+    SetDword(uint32(abs(val)));
+    if (val < 0)
+        BN_set_negative(_bn, 1);
 }
 
 void BigNumber::SetDword(uint32 val)
@@ -88,19 +95,19 @@ BigNumber& BigNumber::operator=(BigNumber const& bn)
     return *this;
 }
 
-BigNumber BigNumber::operator+=(BigNumber const& bn)
+BigNumber& BigNumber::operator+=(BigNumber const& bn)
 {
     BN_add(_bn, _bn, bn._bn);
     return *this;
 }
 
-BigNumber BigNumber::operator-=(BigNumber const& bn)
+BigNumber& BigNumber::operator-=(BigNumber const& bn)
 {
     BN_sub(_bn, _bn, bn._bn);
     return *this;
 }
 
-BigNumber BigNumber::operator*=(BigNumber const& bn)
+BigNumber& BigNumber::operator*=(BigNumber const& bn)
 {
     BN_CTX *bnctx;
 
@@ -111,18 +118,18 @@ BigNumber BigNumber::operator*=(BigNumber const& bn)
     return *this;
 }
 
-BigNumber BigNumber::operator/=(BigNumber const& bn)
+BigNumber& BigNumber::operator/=(BigNumber const& bn)
 {
     BN_CTX *bnctx;
 
     bnctx = BN_CTX_new();
-    BN_div(_bn, NULL, _bn, bn._bn, bnctx);
+    BN_div(_bn, nullptr, _bn, bn._bn, bnctx);
     BN_CTX_free(bnctx);
 
     return *this;
 }
 
-BigNumber BigNumber::operator%=(BigNumber const& bn)
+BigNumber& BigNumber::operator%=(BigNumber const& bn)
 {
     BN_CTX *bnctx;
 
@@ -133,7 +140,18 @@ BigNumber BigNumber::operator%=(BigNumber const& bn)
     return *this;
 }
 
-BigNumber BigNumber::Exp(BigNumber const& bn)
+BigNumber& BigNumber::operator<<=(int n)
+{
+    BN_lshift(_bn, _bn, n);
+    return *this;
+}
+
+int BigNumber::CompareTo(BigNumber const& bn) const
+{
+    return BN_cmp(_bn, bn._bn);
+}
+
+BigNumber BigNumber::Exp(BigNumber const& bn) const
 {
     BigNumber ret;
     BN_CTX *bnctx;
@@ -145,7 +163,7 @@ BigNumber BigNumber::Exp(BigNumber const& bn)
     return ret;
 }
 
-BigNumber BigNumber::ModExp(BigNumber const& bn1, BigNumber const& bn2)
+BigNumber BigNumber::ModExp(BigNumber const& bn1, BigNumber const& bn2) const
 {
     BigNumber ret;
     BN_CTX *bnctx;
@@ -157,12 +175,12 @@ BigNumber BigNumber::ModExp(BigNumber const& bn1, BigNumber const& bn2)
     return ret;
 }
 
-int32 BigNumber::GetNumBytes(void) const
+int32 BigNumber::GetNumBytes() const
 {
     return BN_num_bytes(_bn);
 }
 
-uint32 BigNumber::AsDword()
+uint32 BigNumber::AsDword() const
 {
     return (uint32)BN_get_word(_bn);
 }

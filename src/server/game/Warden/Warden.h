@@ -19,6 +19,7 @@
 #define _WARDEN_BASE_H
 
 #include "ARC4.h"
+#include "AuthDefines.h"
 #include "ByteBuffer.h"
 #include "WardenCheckMgr.h"
 #include <array>
@@ -99,7 +100,7 @@ class TC_GAME_API Warden
         Warden();
         virtual ~Warden();
 
-        virtual void Init(WorldSession* session, std::array<uint8, 40> const& K) = 0;
+        virtual void Init(WorldSession* session, SessionKey const& K) = 0;
         virtual ClientWardenModule* GetModuleForClient() = 0;
         virtual void InitializeModule() = 0;
         virtual void RequestHash() = 0;

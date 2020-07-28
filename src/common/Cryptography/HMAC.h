@@ -88,7 +88,7 @@ namespace Impl
 
         public:
             template <typename Container, typename... Ts>
-            static auto GetDigestOf(Container const& seed, Ts&&... pack) -> /*std::enable_if_t<!(std::is_integral_v<std::decay_t<Ts>> || ...),*/ Digest/*>*/
+            static auto GetDigestOf(Container const& seed, Ts&&... pack) -> std::enable_if_t<advstd::conjunction<advstd::negation<std::is_integral<Ts>>...>::value, Digest>
             {
                 GenericHMAC hash(seed);
                 UpdateData_OLDCPP(hash, std::forward<Ts>(pack)...);
