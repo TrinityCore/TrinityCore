@@ -7791,8 +7791,8 @@ void ObjectMgr::LoadQuestPOI()
         uint32 mapId              = fields[3].GetUInt32();
         uint32 WorldMapAreaId     = fields[4].GetUInt32();
         uint32 FloorId            = fields[5].GetUInt32();
-        uint32 unk3               = fields[6].GetUInt32();
-        uint32 unk4               = fields[7].GetUInt32();
+        uint32 Priority           = fields[6].GetUInt32();
+        uint32 Flags              = fields[7].GetUInt32();
 
         QuestPOIBlobData POI;
         POI.BlobIndex = id;
@@ -7800,8 +7800,8 @@ void ObjectMgr::LoadQuestPOI()
         POI.MapID = mapId;
         POI.WorldMapAreaID = WorldMapAreaId;
         POI.Floor = FloorId;
-        POI.Unk3 = unk3;
-        POI.Unk4 = unk4;
+        POI.Priority = Priority;
+        POI.Flags = Flags;
 
         if (questId < POIs.size() && id < POIs[questId].size())
         {
@@ -10174,8 +10174,8 @@ ByteBuffer QuestPOIWrapper::BuildQueryData() const
         tempBuffer << uint32(questPOIBlobData.MapID);                           // mapid
         tempBuffer << uint32(questPOIBlobData.WorldMapAreaID);                  // areaid
         tempBuffer << uint32(questPOIBlobData.Floor);                           // floorid
-        tempBuffer << uint32(questPOIBlobData.Unk3);                            // unknown
-        tempBuffer << uint32(questPOIBlobData.Unk4);                            // unknown
+        tempBuffer << uint32(questPOIBlobData.Priority);                        // priority
+        tempBuffer << uint32(questPOIBlobData.Flags);                           // flags
         tempBuffer << uint32(questPOIBlobData.QuestPOIBlobPointStats.size());   // POI points count
 
         for (QuestPOIBlobPoint const& questPOIBlobPoint : questPOIBlobData.QuestPOIBlobPointStats)

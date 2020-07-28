@@ -822,8 +822,8 @@ struct QuestPOIBlobData
     uint32 MapID = 0;
     uint32 WorldMapAreaID = 0;
     uint32 Floor = 0;
-    uint32 Unk3 = 0;
-    uint32 Unk4 = 0;
+    uint32 Priority = 0;
+    uint32 Flags = 0;
     std::vector<QuestPOIBlobPoint> QuestPOIBlobPointStats;
 };
 
