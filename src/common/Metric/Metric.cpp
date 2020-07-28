@@ -69,6 +69,7 @@ void Metric::LoadFromConfigs()
         _overallStatusTimerInterval = 1;
     }
 
+    _thresholds.clear();
     std::vector<std::string> thresholdSettings = sConfigMgr->GetKeysByString("Metric.Threshold.");
     for (std::string const& thresholdSetting : thresholdSettings)
     {
@@ -118,7 +119,7 @@ bool Metric::ShouldLog(std::string const& category, int64 value) const
 {
     auto threshold = _thresholds.find(category);
     if (threshold == _thresholds.end())
-        return true;
+        return false;
     return value >= threshold->second;
 }
 
