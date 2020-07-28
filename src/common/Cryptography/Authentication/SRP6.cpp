@@ -24,10 +24,10 @@
 using SHA1 = Trinity::Crypto::SHA1;
 using SRP6 = Trinity::Crypto::SRP6;
 
-/*static*/ const std::array<uint8, 1> SRP6::g = { 7 };
-/*static*/ const std::array<uint8, 32> SRP6::N = HexStrToByteArray<32>("894B645E89E1535BBDAD5B8B290650530801B18EBFBF5E8FAB3C82872A3E9BB7", true);
-/*static*/ const BigNumber SRP6::_g(SRP6::g);
-/*static*/ const BigNumber SRP6::_N(N);
+/*static*/ std::array<uint8, 1> const SRP6::g = { 7 };
+/*static*/ std::array<uint8, 32> const SRP6::N = HexStrToByteArray<32>("894B645E89E1535BBDAD5B8B290650530801B18EBFBF5E8FAB3C82872A3E9BB7", true);
+/*static*/ BigNumber const SRP6::_g(SRP6::g);
+/*static*/ BigNumber const SRP6::_N(N);
 
 /*static*/ std::pair<SRP6::Salt, SRP6::Verifier> SRP6::MakeRegistrationData(std::string const& username, std::string const& password)
 {

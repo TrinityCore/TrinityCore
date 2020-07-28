@@ -38,8 +38,8 @@ namespace Trinity::Crypto
             static constexpr size_t EPHEMERAL_KEY_LENGTH = 32;
             using EphemeralKey = std::array<uint8, EPHEMERAL_KEY_LENGTH>;
 
-            static const std::array<uint8, 1> g;
-            static const std::array<uint8, 32> N;
+            static std::array<uint8, 1> const g;
+            static std::array<uint8, 32> const N;
 
             // this is the old sha_pass_hash hack
             // YOU SHOULD NEVER STORE THIS HASH, if you do you are breaking SRP6 guarantees
@@ -70,8 +70,8 @@ namespace Trinity::Crypto
             static SessionKey SHA1Interleave(EphemeralKey const& S);
 
             /* global algorithm parameters */
-            static const BigNumber _g; // a [g]enerator for the ring of integers mod N, algorithm parameter
-            static const BigNumber _N; // the modulus, an algorithm parameter; all operations are mod this
+            static BigNumber const _g; // a [g]enerator for the ring of integers mod N, algorithm parameter
+            static BigNumber const _N; // the modulus, an algorithm parameter; all operations are mod this
 
             static EphemeralKey _B(BigNumber const& b, BigNumber const& v) { return ((_g.ModExp(b,_N) + (v * 3)) % N).ToByteArray<EPHEMERAL_KEY_LENGTH>(); }
 
