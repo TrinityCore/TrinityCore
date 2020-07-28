@@ -19,7 +19,7 @@
 #define TRINITY_TIMER_H
 
 #include "Define.h"
-#include <chrono>
+#include "Duration.h"
 
 inline std::chrono::steady_clock::time_point GetApplicationStartTime()
 {
@@ -155,9 +155,16 @@ public:
     {
     }
 
+    TimeTrackerSmall(Milliseconds expiry) : i_expiryTime(expiry.count()) { }
+
     void Update(int32 diff)
     {
         i_expiryTime -= diff;
+    }
+
+    void Update(Milliseconds diff)
+    {
+        Update(diff.count());
     }
 
     bool Passed() const
@@ -170,9 +177,14 @@ public:
         i_expiryTime = interval;
     }
 
-    int32 GetExpiry() const
+    void Reset(Milliseconds expiry)
     {
-        return i_expiryTime;
+        Reset(expiry.count());
+    }
+
+    Milliseconds GetExpiry() const
+    {
+        return Milliseconds(i_expiryTime);
     }
 
 private:
