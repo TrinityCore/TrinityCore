@@ -245,7 +245,7 @@ struct AuthSession
 struct AccountInfo
 {
     uint32 Id;
-    std::array<uint8, 40> SessionKey;
+    SessionKey SessionKey;
     std::string LastIP;
     bool IsLockedToIP;
     std::string LockCountry;

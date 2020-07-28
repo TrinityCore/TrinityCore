@@ -26,7 +26,7 @@ AuthCrypt::AuthCrypt() :
     _initialized(false)
 { }
 
-void AuthCrypt::Init(std::array<uint8, 40> const& K)
+void AuthCrypt::Init(SessionKey const& K)
 {
     uint8 ServerEncryptionKey[] = { 0xCC, 0x98, 0xAE, 0x04, 0xE8, 0x97, 0xEA, 0xCA, 0x12, 0xDD, 0xC0, 0x93, 0x42, 0x91, 0x53, 0x57 };
     _serverEncrypt.Init(Trinity::Crypto::HMAC_SHA1::GetDigestOf(ServerEncryptionKey, K));

@@ -19,6 +19,7 @@
 #define _AUTHCRYPT_H
 
 #include "ARC4.h"
+#include "AuthDefines.h"
 #include <array>
 
 class TC_COMMON_API AuthCrypt
@@ -26,7 +27,7 @@ class TC_COMMON_API AuthCrypt
     public:
         AuthCrypt();
 
-        void Init(std::array<uint8, 40> const& K);
+        void Init(SessionKey const& K);
         void DecryptRecv(uint8* data, size_t len);
         void EncryptSend(uint8* data, size_t len);
 

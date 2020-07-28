@@ -27,12 +27,19 @@ BigNumber::BigNumber()
 { }
 
 BigNumber::BigNumber(BigNumber const& bn)
-    : _bn(BN_dup(bn._bn))
+    : _bn(BN_dup(bn.BN()))
 { }
 
 BigNumber::~BigNumber()
 {
     BN_free(_bn);
+}
+
+void BigNumber::SetDword(int32 val)
+{
+    SetDword(uint32(abs(val)));
+    if (val < 0)
+        BN_set_negative(_bn, 1);
 }
 
 void BigNumber::SetDword(uint32 val)
