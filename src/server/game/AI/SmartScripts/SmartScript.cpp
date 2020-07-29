@@ -3946,6 +3946,9 @@ void SmartScript::OnUpdate(uint32 const diff)
         && !GetBaseObject())
         return;
 
+    if (me && me->IsInEvadeMode())
+        return;
+
     InstallEvents();//before UpdateTimers
 
     for (SmartScriptHolder& mEvent : mEvents)
