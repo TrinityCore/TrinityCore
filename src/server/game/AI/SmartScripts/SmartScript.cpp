@@ -3630,6 +3630,9 @@ void SmartScript::OnUpdate(uint32 const diff)
     if ((mScriptType == SMART_SCRIPT_TYPE_CREATURE || mScriptType == SMART_SCRIPT_TYPE_GAMEOBJECT) && !GetBaseObject())
         return;
 
+    if (me && me->IsInEvadeMode())
+        return;
+
     InstallEvents();//before UpdateTimers
 
     for (SmartScriptHolder& mEvent : mEvents)
