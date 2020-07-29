@@ -141,8 +141,6 @@ int main(int argc, char** argv)
     if (!StartDB())
         return 1;
 
-    AuthSession::ServerStartup();
-
     sSecretMgr->Initialize();
 
     // Load IP Location Database
