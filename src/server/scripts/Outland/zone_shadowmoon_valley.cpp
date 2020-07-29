@@ -346,19 +346,19 @@ enum EnshlavedNetherwingDrake
 
     // Creatures
     NPC_DRAGONMAW_SUBJUGATOR        = 21718,
-    NPC_ESCAPE_DUMMY                = 22317
+    NPC_ESCAPE_DUMMY                = 22317,
 
+    // Quests
+    QUEST_THE_FORCE_OF_NELTHARAKU   = 10854,
+
+    // Movement
+    POINT_MOVE_UP                   = 1
 };
 
 class npc_enslaved_netherwing_drake : public CreatureScript
 {
 public:
     npc_enslaved_netherwing_drake() : CreatureScript("npc_enslaved_netherwing_drake") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_enslaved_netherwing_drakeAI(creature);
-    }
 
     struct npc_enslaved_netherwing_drakeAI : public ScriptedAI
     {
@@ -368,16 +368,11 @@ public:
             Reset();
         }
 
-        ObjectGuid PlayerGUID;
-        uint32 FlyTimer;
-        bool Tapped;
-
         void Reset() override
         {
             if (!Tapped)
                 me->SetFaction(FACTION_ORC_DRAGONMAW);
 
-            FlyTimer = 10000;
             me->SetDisableGravity(false);
         }
 
@@ -393,7 +388,6 @@ public:
                 PlayerGUID = playerCaster->GetGUID();
 
                 me->SetFaction(FACTION_FLAYER_HUNTER);
-                DoCast(playerCaster, SPELL_FORCE_OF_NELTHARAKU, true);
 
                 Unit* Dragonmaw = me->FindNearestCreature(NPC_DRAGONMAW_SUBJUGATOR, 50);
                 if (Dragonmaw)
@@ -402,6 +396,7 @@ public:
                     AttackStart(Dragonmaw);
                 }
 
+                FlyTimer = 10 * IN_MILLISECONDS;
                 me->GetThreatManager().ClearThreat(playerCaster);
             }
         }
@@ -414,13 +409,7 @@ public:
             if (id == 1)
             {
                 if (PlayerGUID)
-                {
-                    Unit* player = ObjectAccessor::GetUnit(*me, PlayerGUID);
-                    if (player)
-                        DoCast(player, SPELL_FORCE_OF_NELTHARAKU, true);
-
                     PlayerGUID.Clear();
-                }
 
                 me->DespawnOrUnsummon(1ms);
             }
@@ -438,16 +427,9 @@ public:
                         if (PlayerGUID)
                         {
                             Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID);
-                            if (player && player->GetQuestStatus(10854) == QUEST_STATUS_INCOMPLETE)
+                            if (player && player->GetQuestStatus(QUEST_THE_FORCE_OF_NELTHARAKU) == QUEST_STATUS_INCOMPLETE)
                             {
                                 DoCast(player, SPELL_FORCE_OF_NELTHARAKU, true);
-                                /*
-                                float x, y, z;
-                                me->GetPosition(x, y, z);
-
-                                float dx, dy, dz;
-                                me->GetRandomPoint(x, y, z, 20, dx, dy, dz);
-                                dz += 20; // so it's in the air, not ground*/
 
                                 Position pos;
                                 if (Unit* EscapeDummy = me->FindNearestCreature(NPC_ESCAPE_DUMMY, 30))
@@ -458,8 +440,10 @@ public:
                                     pos.m_positionZ += 25;
                                 }
 
+                                me->SetCanFly(true);
                                 me->SetDisableGravity(true);
-                                me->GetMotionMaster()->MovePoint(1, pos);
+                                me->SetByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                                me->GetMotionMaster()->MoveTakeoff(POINT_MOVE_UP, pos);
                             }
                         }
                     } else FlyTimer -= diff;
@@ -469,7 +453,17 @@ public:
 
             DoMeleeAttackIfReady();
         }
+
+    private:
+        ObjectGuid PlayerGUID;
+        uint32 FlyTimer;
+        bool Tapped;
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_enslaved_netherwing_drakeAI(creature);
+    }
 };
 
 /*#####
