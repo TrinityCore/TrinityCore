@@ -647,6 +647,9 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
     if (GetMovementTemplate().IsRooted())
         SetControlled(true, UNIT_STATE_ROOT);
 
+    if (cInfo->flags_extra & CREATURE_FLAG_EXTRA_NO_COMBAT)
+        SetIgnoringCombat(true);
+
     UpdateMovementFlags();
     LoadCreaturesAddon();
     LoadTemplateImmunities();

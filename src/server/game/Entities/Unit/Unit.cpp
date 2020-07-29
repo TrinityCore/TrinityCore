@@ -328,7 +328,7 @@ Unit::Unit(bool isWorldObject) :
     m_removedAurasCount(0), i_motionMaster(new MotionMaster(this)), m_vehicle(nullptr),
     m_vehicleKit(nullptr), m_unitTypeMask(UNIT_MASK_NONE), m_Diminishing(),
     m_isEngaged(false), m_combatManager(this), m_threatManager(this), _lastDamagedTime(0),
-    m_spellHistory(new SpellHistory(this))
+    m_spellHistory(new SpellHistory(this)), _isIgnoringCombat(false)
 {
     m_objectType |= TYPEMASK_UNIT;
     m_objectTypeId = TYPEID_UNIT;
