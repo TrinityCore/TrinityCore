@@ -382,7 +382,7 @@ Unit::Unit(bool isWorldObject) :
     _oldFactionId = 0;
     _isWalkingBeforeCharm = false;
     _instantCast = false;
-    _isIgnoringCombat(false);
+    _isIgnoringCombat = false;
 }
 
 ////////////////////////////////////////////////////////////
