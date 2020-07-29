@@ -281,6 +281,7 @@ WorldPacket const* WorldPackets::Guild::GuildRosterUpdate::Write()
 
     for (GuildRosterMemberData const& member : MemberData)
     {
+        _worldPacket.WriteBits(member.Name.length(), 7);
         _worldPacket.WriteBit(member.Guid[3]);
         _worldPacket.WriteBit(member.Guid[4]);
         _worldPacket.WriteBit(member.Authenticated);
@@ -288,7 +289,6 @@ WorldPacket const* WorldPackets::Guild::GuildRosterUpdate::Write()
         _worldPacket.WriteBits(member.Note.length(), 8);
         _worldPacket.WriteBits(member.OfficerNote.length(), 8);
         _worldPacket.WriteBit(member.Guid[0]);
-        _worldPacket.WriteBits(member.Name.length(), 7);
         _worldPacket.WriteBit(member.Guid[1]);
         _worldPacket.WriteBit(member.Guid[2]);
         _worldPacket.WriteBit(member.Guid[6]);
@@ -298,8 +298,41 @@ WorldPacket const* WorldPackets::Guild::GuildRosterUpdate::Write()
 
     _worldPacket.FlushBits();
 
-    for (GuildRosterMemberData const& member : MemberData)
-        _worldPacket << member;
+    for (GuildRosterMemberData const& rosterMemberData : MemberData)
+    {
+        _worldPacket << uint8(rosterMemberData.Gender);
+        _worldPacket << uint32(rosterMemberData.GuildRepToCap);
+        _worldPacket.WriteByteSeq(rosterMemberData.Guid[1]);
+        _worldPacket << uint64(rosterMemberData.TotalXP);
+        _worldPacket.WriteByteSeq(rosterMemberData.Guid[2]);
+
+        for (uint8 i = 0; i < 2; i++)
+        {
+            _worldPacket << uint32(rosterMemberData.Profession[i].Rank);
+            _worldPacket << uint32(rosterMemberData.Profession[i].DbID);
+            _worldPacket << uint32(rosterMemberData.Profession[i].Step);
+        }
+
+        _worldPacket.WriteByteSeq(rosterMemberData.Guid[0]);
+        _worldPacket.WriteByteSeq(rosterMemberData.Guid[6]);
+        _worldPacket.WriteByteSeq(rosterMemberData.Guid[7]);
+        _worldPacket << uint32(rosterMemberData.RankID);
+        _worldPacket.WriteString(rosterMemberData.Note);
+        _worldPacket.WriteString(rosterMemberData.OfficerNote);
+        _worldPacket.WriteByteSeq(rosterMemberData.Guid[4]);
+        _worldPacket.WriteByteSeq(rosterMemberData.Guid[5]);
+        _worldPacket << uint32(rosterMemberData.GuildReputation);
+        _worldPacket << uint32(rosterMemberData.PersonalAchievementPoints);
+        _worldPacket << float(rosterMemberData.LastSave);
+        _worldPacket << uint64(rosterMemberData.WeeklyXP);
+        _worldPacket << uint8(rosterMemberData.Level);
+        _worldPacket << uint8(rosterMemberData.ClassID);
+        _worldPacket.WriteByteSeq(rosterMemberData.Guid[3]);
+        _worldPacket << uint8(rosterMemberData.Status);
+        _worldPacket << uint32(rosterMemberData.AreaID);
+        _worldPacket.WriteString(rosterMemberData.Name);
+        _worldPacket << int32(rosterMemberData.VirtualRealmAddress); // Todo: Validate
+    }
 
     return &_worldPacket;
 }
