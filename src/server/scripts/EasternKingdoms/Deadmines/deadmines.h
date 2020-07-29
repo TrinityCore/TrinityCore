@@ -23,7 +23,7 @@
 #define DMScriptName "instance_deadmines"
 #define DataHeader "DM"
 
-uint32 const EncounterCount     = 7;
+uint32 constexpr EncounterCount     = 7;
 
 enum DMCannonState
 {
