@@ -417,10 +417,8 @@ void AuthSession::LogonChallengeCallback(PreparedQueryResult result)
     }
     else
     {
-        Trinity::Crypto::SRP6::Salt salt;
-        Trinity::Crypto::SRP6::Verifier verifier;
-        fields[11].GetBinary(salt);
-        fields[12].GetBinary(verifier);
+        Trinity::Crypto::SRP6::Salt salt = fields[11].GetBinary<Trinity::Crypto::SRP6::SALT_LENGTH>();
+        Trinity::Crypto::SRP6::Verifier verifier = fields[12].GetBinary<Trinity::Crypto::SRP6::VERIFIER_LENGTH>();
         _srp6.emplace(_accountInfo.Login, salt, verifier);
     }
 
@@ -679,7 +677,7 @@ void AuthSession::ReconnectChallengeCallback(PreparedQueryResult result)
     Field* fields = result->Fetch();
 
     _accountInfo.LoadResult(fields);
-    fields[9].GetBinary(_sessionKey);
+    _sessionKey = fields[9].GetBinary<SESSION_KEY_LENGTH>();
     Trinity::Crypto::GetRandomBytes(_reconnectProof);
     _status = STATUS_RECONNECT_PROOF;
 

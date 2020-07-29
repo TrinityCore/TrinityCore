@@ -166,10 +166,8 @@ bool RASession::CheckPassword(const std::string& user, const std::string& pass)
 
     if (PreparedQueryResult result = LoginDatabase.Query(stmt))
     {
-        Trinity::Crypto::SRP6::Salt salt;
-        Trinity::Crypto::SRP6::Verifier verifier;
-        (*result)[0].GetBinary(salt);
-        (*result)[1].GetBinary(verifier);
+        Trinity::Crypto::SRP6::Salt salt = (*result)[0].GetBinary<Trinity::Crypto::SRP6::SALT_LENGTH>();
+        Trinity::Crypto::SRP6::Verifier verifier = (*result)[1].GetBinary<Trinity::Crypto::SRP6::VERIFIER_LENGTH>();
 
         if (Trinity::Crypto::SRP6::CheckLogin(safe_user, safe_pass, salt, verifier))
             return true;

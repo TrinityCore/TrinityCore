@@ -369,10 +369,8 @@ bool AccountMgr::CheckPassword(uint32 accountId, std::string password)
 
     if (PreparedQueryResult result = LoginDatabase.Query(stmt))
     {
-        Trinity::Crypto::SRP6::Salt salt;
-        Trinity::Crypto::SRP6::Verifier verifier;
-        (*result)[0].GetBinary(salt);
-        (*result)[1].GetBinary(verifier);
+        Trinity::Crypto::SRP6::Salt salt = (*result)[0].GetBinary<Trinity::Crypto::SRP6::SALT_LENGTH>();
+        Trinity::Crypto::SRP6::Verifier verifier = (*result)[0].GetBinary<Trinity::Crypto::SRP6::VERIFIER_LENGTH>();
         return Trinity::Crypto::SRP6::CheckLogin(username, password, salt, verifier);
     }
     else
