@@ -206,98 +206,79 @@ private:
     GuidSet _wrappedPlayers;
 };
 
-class npc_slad_ran_constrictor : public CreatureScript
+struct npc_slad_ran_constrictor : public ScriptedAI
 {
-public:
-    npc_slad_ran_constrictor() : CreatureScript("npc_slad_ran_constrictor") { }
+    npc_slad_ran_constrictor(Creature* creature) : ScriptedAI(creature) { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    void Reset() override
     {
-        return GetGundrakAI<npc_slad_ran_constrictorAI>(creature);
+        _scheduler.CancelAll();
     }
 
-    struct npc_slad_ran_constrictorAI : public ScriptedAI
+    void JustEngagedWith(Unit* /*who*/) override
     {
-        npc_slad_ran_constrictorAI(Creature* creature) : ScriptedAI(creature)
+        _scheduler.Schedule(2s, [this](TaskContext task)
         {
-            uiGripOfSladRanTimer = 1 * IN_MILLISECONDS;
-        }
+            Unit* target = me->GetVictim();
 
-        uint32 uiGripOfSladRanTimer;
+            DoCast(target, SPELL_GRIP_OF_SLAD_RAN);
 
-        void Reset() override
-        {
-            uiGripOfSladRanTimer = 1*IN_MILLISECONDS;
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            if (uiGripOfSladRanTimer <= diff)
+            Aura* grip = target->GetAura(SPELL_GRIP_OF_SLAD_RAN, me->GetGUID());
+            if (grip && grip->GetStackAmount() == 5)
             {
-                Unit* target = me->GetVictim();
+                target->RemoveAurasDueToSpell(SPELL_GRIP_OF_SLAD_RAN, me->GetGUID());
+                target->CastSpell(target, SPELL_SNAKE_WRAP, true);
 
-                DoCast(target, SPELL_GRIP_OF_SLAD_RAN);
-                uiGripOfSladRanTimer = urand(3, 6)*IN_MILLISECONDS;
+                if (TempSummon* _me = me->ToTempSummon())
+                    if (Unit* summoner = _me->GetSummonerUnit())
+                        if (Creature* sladran = summoner->ToCreature())
+                            sladran->AI()->SetGUID(target->GetGUID(), DATA_SNAKES_WHYD_IT_HAVE_TO_BE_SNAKES);
 
-                Aura* grip = target->GetAura(SPELL_GRIP_OF_SLAD_RAN, me->GetGUID());
-                if (grip && grip->GetStackAmount() == 5)
-                {
-                    target->RemoveAurasDueToSpell(SPELL_GRIP_OF_SLAD_RAN, me->GetGUID());
-                    target->CastSpell(target, SPELL_SNAKE_WRAP, true);
+                me->DespawnOrUnsummon();
+            }
 
-                    if (TempSummon* _me = me->ToTempSummon())
-                        if (Unit* summoner = _me->GetSummonerUnit())
-                            if (Creature* sladran = summoner->ToCreature())
-                                sladran->AI()->SetGUID(target->GetGUID(), DATA_SNAKES_WHYD_IT_HAVE_TO_BE_SNAKES);
+            task.Repeat(3s, 6s);
+        });
+    }
 
-                    me->DespawnOrUnsummon();
-                }
-            } else uiGripOfSladRanTimer -= diff;
-        }
-    };
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
 
+        _scheduler.Update(diff);
+    }
+private:
+    TaskScheduler _scheduler;
 };
 
-class npc_slad_ran_viper : public CreatureScript
+struct npc_slad_ran_viper : public ScriptedAI
 {
-public:
-    npc_slad_ran_viper() : CreatureScript("npc_slad_ran_viper") { }
+    npc_slad_ran_viper(Creature* creature) : ScriptedAI(creature) { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    void Reset() override
     {
-        return GetGundrakAI<npc_slad_ran_viperAI>(creature);
+        _scheduler.CancelAll();
     }
 
-    struct npc_slad_ran_viperAI : public ScriptedAI
+    void JustEngagedWith(Unit* /*who*/) override
     {
-        npc_slad_ran_viperAI(Creature* creature) : ScriptedAI(creature)
+        _scheduler.Schedule(2s, [this](TaskContext task)
         {
-            uiVenomousBiteTimer = 2 * IN_MILLISECONDS;
-        }
+            DoCastVictim(SPELL_VENOMOUS_BITE);
+            task.Repeat(10s);
+        });
+    }
 
-        uint32 uiVenomousBiteTimer;
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
 
-        void Reset() override
-        {
-            uiVenomousBiteTimer = 2*IN_MILLISECONDS;
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            if (uiVenomousBiteTimer <= diff)
-            {
-                DoCastVictim(SPELL_VENOMOUS_BITE);
-                uiVenomousBiteTimer = 10*IN_MILLISECONDS;
-            } else uiVenomousBiteTimer -= diff;
-        }
-    };
-
+        _scheduler.Update(diff);
+    }
+private:
+    TaskScheduler _scheduler;
 };
 
 class achievement_snakes_whyd_it_have_to_be_snakes : public AchievementCriteriaScript
@@ -319,7 +300,7 @@ class achievement_snakes_whyd_it_have_to_be_snakes : public AchievementCriteriaS
 void AddSC_boss_slad_ran()
 {
     RegisterCreatureAIWithFactory(boss_slad_ran, GetGundrakAI);
-    new npc_slad_ran_constrictor();
-    new npc_slad_ran_viper();
+    RegisterCreatureAIWithFactory(npc_slad_ran_constrictor, GetGundrakAI);
+    RegisterCreatureAIWithFactory(npc_slad_ran_viper, GetGundrakAI);
     new achievement_snakes_whyd_it_have_to_be_snakes();
 }
