@@ -47,7 +47,7 @@ enum DMData
     BOSS_COOKIE     = 6,
 
     // Additional
-    EVENT_STATE             = 7
+    EVENT_STATE     = 7
 };
 
 enum DMData64
