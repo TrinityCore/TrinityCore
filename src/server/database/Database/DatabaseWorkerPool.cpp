@@ -360,10 +360,10 @@ void DatabaseWorkerPool<T>::KeepAlive()
 }
 
 template <class T>
-void DatabaseWorkerPool<T>::SetOnCriticalPath(bool value)
+void DatabaseWorkerPool<T>::WarnAboutSyncQueries(bool warn)
 {
 #ifdef TRINITY_DEBUG
-    _isOnCriticalPath = value;
+    _warnSyncQueries = warn;
 #endif
 }
 
@@ -425,11 +425,11 @@ template <class T>
 T* DatabaseWorkerPool<T>::GetFreeConnection()
 {
 #ifdef TRINITY_DEBUG
-    if (_isOnCriticalPath)
+    if (_warnSyncQueries)
     {
         std::ostringstream ss;
         ss << boost::stacktrace::stacktrace();
-        TC_LOG_WARN("sql", "Blocking query on critical path. Stacktrace:\n%s", ss.str().c_str());
+        TC_LOG_WARN("sql.performances", "Sync query at:\n%s", ss.str().c_str());
     }
 #endif
 

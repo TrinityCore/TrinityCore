@@ -206,7 +206,7 @@ class DatabaseWorkerPool
         //! Keeps all our MySQL connections alive, prevent the server from disconnecting us.
         void KeepAlive();
 
-        void SetOnCriticalPath(bool value);
+        void WarnAboutSyncQueries(bool warn);
 
     private:
         uint32 OpenConnections(InternalIndex type, uint8 numConnections);
@@ -228,7 +228,7 @@ class DatabaseWorkerPool
         std::vector<uint8> _preparedStatementSize;
         uint8 _async_threads, _synch_threads;
 #ifdef TRINITY_DEBUG
-        static inline thread_local bool _isOnCriticalPath = false;
+        static inline thread_local bool _warnSyncQueries = false;
 #endif
 };
 

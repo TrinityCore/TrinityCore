@@ -102,9 +102,9 @@ void MapUpdater::update_finished()
 
 void MapUpdater::WorkerThread()
 {
-    LoginDatabase.SetOnCriticalPath(true);
-    CharacterDatabase.SetOnCriticalPath(true);
-    WorldDatabase.SetOnCriticalPath(true);
+    LoginDatabase.WarnAboutSyncQueries(true);
+    CharacterDatabase.WarnAboutSyncQueries(true);
+    WorldDatabase.WarnAboutSyncQueries(true);
 
     while (1)
     {
