@@ -2229,7 +2229,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void _LoadInventory(PreparedQueryResult result, uint32 timeDiff);
         void _LoadMailInit(PreparedQueryResult resultUnread, PreparedQueryResult resultDelivery);
         void _LoadMail();
-        void _LoadMailedItems(Mail* mail);
+        static Item* _LoadMailedItem(ObjectGuid const& playerGuid, Player* player, uint32 mailId, Mail* mail, Field* fields);
         void _LoadQuestStatus(PreparedQueryResult result);
         void _LoadQuestStatusRewarded(PreparedQueryResult result);
         void _LoadDailyQuestStatus(PreparedQueryResult result);

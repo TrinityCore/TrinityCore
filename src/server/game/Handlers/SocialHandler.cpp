@@ -22,6 +22,7 @@
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "QueryCallback.h"
 #include "RBAC.h"
 #include "Realm.h"
 #include "SocialMgr.h"
