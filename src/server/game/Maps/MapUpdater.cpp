@@ -102,6 +102,10 @@ void MapUpdater::update_finished()
 
 void MapUpdater::WorkerThread()
 {
+    LoginDatabase.SetOnCriticalPath(true);
+    CharacterDatabase.SetOnCriticalPath(true);
+    WorldDatabase.SetOnCriticalPath(true);
+
     while (1)
     {
         MapUpdateRequest* request = nullptr;

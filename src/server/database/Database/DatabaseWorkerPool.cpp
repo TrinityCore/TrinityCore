@@ -33,6 +33,9 @@
 #include "Transaction.h"
 #include "MySQLWorkaround.h"
 #include <mysqld_error.h>
+#ifdef TRINITY_DEBUG
+#include <boost/stacktrace.hpp>
+#endif
 
 #define MIN_MYSQL_SERVER_VERSION 50100u
 #define MIN_MYSQL_CLIENT_VERSION 50100u
@@ -356,6 +359,14 @@ void DatabaseWorkerPool<T>::KeepAlive()
 }
 
 template <class T>
+void DatabaseWorkerPool<T>::SetOnCriticalPath(bool value)
+{
+#ifdef TRINITY_DEBUG
+    _isOnCriticalPath = value;
+#endif
+}
+
+template <class T>
 uint32 DatabaseWorkerPool<T>::OpenConnections(InternalIndex type, uint8 numConnections)
 {
     for (uint8 i = 0; i < numConnections; ++i)
@@ -412,6 +423,15 @@ void DatabaseWorkerPool<T>::Enqueue(SQLOperation* op)
 template <class T>
 T* DatabaseWorkerPool<T>::GetFreeConnection()
 {
+#ifdef TRINITY_DEBUG
+    if (_isOnCriticalPath)
+    {
+        std::ostringstream ss;
+        ss << boost::stacktrace::stacktrace();
+        TC_LOG_WARNING("sql", "Blocking query on critical path. Stacktrace:\n%s", ss.str().c_str());
+    }
+#endif
+
     uint8 i = 0;
     auto const num_cons = _connections[IDX_SYNCH].size();
     T* connection = nullptr;

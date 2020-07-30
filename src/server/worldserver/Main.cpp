@@ -426,6 +426,10 @@ void WorldUpdateLoop()
     uint32 realCurrTime = 0;
     uint32 realPrevTime = getMSTime();
 
+    LoginDatabase.SetOnCriticalPath(true);
+    CharacterDatabase.SetOnCriticalPath(true);
+    WorldDatabase.SetOnCriticalPath(true);
+
     ///- While we have not World::m_stopEvent, update the world
     while (!World::IsStopped())
     {
@@ -451,6 +455,10 @@ void WorldUpdateLoop()
             Sleep(1000);
 #endif
     }
+
+    LoginDatabase.SetOnCriticalPath(false);
+    CharacterDatabase.SetOnCriticalPath(false);
+    WorldDatabase.SetOnCriticalPath(false);
 }
 
 void SignalHandler(boost::system::error_code const& error, int /*signalNumber*/)
