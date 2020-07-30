@@ -206,7 +206,12 @@ class DatabaseWorkerPool
         //! Keeps all our MySQL connections alive, prevent the server from disconnecting us.
         void KeepAlive();
 
-        void WarnAboutSyncQueries(bool warn);
+        void WarnAboutSyncQueries([[maybe_unused]] bool warn)
+        {
+#ifdef TRINITY_DEBUG
+            _warnSyncQueries = warn;
+#endif
+        }
 
     private:
         uint32 OpenConnections(InternalIndex type, uint8 numConnections);

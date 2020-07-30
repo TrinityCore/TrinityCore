@@ -360,14 +360,6 @@ void DatabaseWorkerPool<T>::KeepAlive()
 }
 
 template <class T>
-void DatabaseWorkerPool<T>::WarnAboutSyncQueries([[maybe_unused]] bool warn)
-{
-#ifdef TRINITY_DEBUG
-    _warnSyncQueries = warn;
-#endif
-}
-
-template <class T>
 uint32 DatabaseWorkerPool<T>::OpenConnections(InternalIndex type, uint8 numConnections)
 {
     for (uint8 i = 0; i < numConnections; ++i)
