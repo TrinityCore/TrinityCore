@@ -16,6 +16,7 @@
  */
 
 #include "MapUpdater.h"
+#include "DatabaseEnv.h"
 #include "Map.h"
 #include "Metric.h"
 
