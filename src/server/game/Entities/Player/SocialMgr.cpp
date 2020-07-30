@@ -164,7 +164,7 @@ void PlayerSocial::SendSocialList(Player* player, uint32 flags)
             if (++ignoredCount > SOCIALMGR_IGNORE_LIMIT)
                 continue;
 
-        sSocialMgr->GetFriendInfo(player, v.first, v.second);
+        SocialMgr::GetFriendInfo(player, v.first, v.second);
 
         contactList.Contacts.emplace_back(v.first, v.second);
     }
