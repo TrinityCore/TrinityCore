@@ -34,6 +34,7 @@
 #include "MySQLWorkaround.h"
 #include <mysqld_error.h>
 #ifdef TRINITY_DEBUG
+#include <sstream>
 #include <boost/stacktrace.hpp>
 #endif
 
@@ -428,7 +429,7 @@ T* DatabaseWorkerPool<T>::GetFreeConnection()
     {
         std::ostringstream ss;
         ss << boost::stacktrace::stacktrace();
-        TC_LOG_WARNING("sql", "Blocking query on critical path. Stacktrace:\n%s", ss.str().c_str());
+        TC_LOG_WARN("sql", "Blocking query on critical path. Stacktrace:\n%s", ss.str().c_str());
     }
 #endif
 

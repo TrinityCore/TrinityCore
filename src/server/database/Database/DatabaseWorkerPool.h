@@ -228,7 +228,7 @@ class DatabaseWorkerPool
         std::vector<uint8> _preparedStatementSize;
         uint8 _async_threads, _synch_threads;
 #ifdef TRINITY_DEBUG
-        thread_local bool _isOnCriticalPath = false;
+        static inline thread_local bool _isOnCriticalPath = false;
 #endif
 };
 
