@@ -6274,28 +6274,21 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
     do
     {
         Field* fields = result->Fetch();
+        ObjectGuid::LowType receiver = fields[3].GetUInt32();
+        if (serverUp && ObjectAccessor::FindConnectedPlayer(ObjectGuid(HighGuid::Player, receiver)))
+            continue;
+
         Mail* m = new Mail;
         m->messageID      = fields[0].GetUInt32();
         m->messageType    = fields[1].GetUInt8();
         m->sender         = fields[2].GetUInt32();
-        m->receiver       = fields[3].GetUInt32();
+        m->receiver       = receiver;
         bool has_items    = fields[4].GetBool();
         m->expire_time    = time_t(fields[5].GetUInt32());
         m->deliver_time   = 0;
         m->COD            = fields[6].GetUInt32();
         m->checked        = fields[7].GetUInt8();
         m->mailTemplateId = fields[8].GetInt16();
-
-        Player* player = nullptr;
-        if (serverUp)
-            player = ObjectAccessor::FindConnectedPlayer(ObjectGuid(HighGuid::Player, m->receiver));
-
-        if (player && player->m_mailsLoaded)
-        {                                                   // this code will run very improbably (the time is between 4 and 5 am, in game is online a player, who has old mail
-            // his in mailbox and he has already listed his mails)
-            delete m;
-            continue;
-        }
 
         // Delete or return mail
         if (has_items)

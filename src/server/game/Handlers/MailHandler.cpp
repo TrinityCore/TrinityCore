@@ -604,10 +604,6 @@ void WorldSession::HandleGetMailList(WorldPacket& recvData)
 
     Player* player = _player;
 
-    //load players mails, and mailed items
-    if (!player->m_mailsLoaded)
-        player->_LoadMail();
-
     // client can't work with packets > max int16 value
     const uint32 maxPacketSize = 32767;
 
@@ -776,13 +772,9 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket& recvData)
     }
 }
 
-/// @todo Fix me! ... this void has probably bad condition, but good data are sent
 void WorldSession::HandleQueryNextMailTime(WorldPacket & /*recvData*/)
 {
     WorldPacket data(MSG_QUERY_NEXT_MAIL_TIME, 8);
-
-    if (!_player->m_mailsLoaded)
-        _player->_LoadMail();
 
     if (_player->unReadMails > 0)
     {
