@@ -2309,6 +2309,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Initialize query data...");
     sObjectMgr->InitializeQueriesData(QUERY_DATA_ALL);
 
+    TC_LOG_INFO("server.loading", "Initialize commands...");
+    ChatHandler::InitializeCommandTable();
+
     ///- Initialize game time and timers
     TC_LOG_INFO("server.loading", "Initialize game time and timers");
     GameTime::UpdateGameTimers();
