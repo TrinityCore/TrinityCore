@@ -360,7 +360,7 @@ void DatabaseWorkerPool<T>::KeepAlive()
 }
 
 template <class T>
-void DatabaseWorkerPool<T>::WarnAboutSyncQueries(bool warn)
+void DatabaseWorkerPool<T>::WarnAboutSyncQueries([[maybe_unused]] bool warn)
 {
 #ifdef TRINITY_DEBUG
     _warnSyncQueries = warn;
