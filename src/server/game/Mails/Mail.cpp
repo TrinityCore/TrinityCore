@@ -252,43 +252,35 @@ void MailDraft::SendMailTo(CharacterDatabaseTransaction& trans, MailReceiver con
     {
         pReceiver->AddNewMailDeliverTime(deliver_time);
 
-        if (pReceiver->IsMailsLoaded())
+        Mail* m = new Mail;
+        m->messageID = mailId;
+        m->mailTemplateId = GetMailTemplateId();
+        m->subject = GetSubject();
+        m->body = GetBody();
+        m->money = GetMoney();
+        m->COD = GetCOD();
+
+        for (MailItemMap::const_iterator mailItemIter = m_items.begin(); mailItemIter != m_items.end(); ++mailItemIter)
         {
-            Mail* m = new Mail;
-            m->messageID = mailId;
-            m->mailTemplateId = GetMailTemplateId();
-            m->subject = GetSubject();
-            m->body = GetBody();
-            m->money = GetMoney();
-            m->COD = GetCOD();
-
-            for (MailItemMap::const_iterator mailItemIter = m_items.begin(); mailItemIter != m_items.end(); ++mailItemIter)
-            {
-                Item* item = mailItemIter->second;
-                m->AddItem(item->GetGUID().GetCounter(), item->GetEntry());
-            }
-
-            m->messageType = sender.GetMailMessageType();
-            m->stationery = sender.GetStationery();
-            m->sender = sender.GetSenderId();
-            m->receiver = receiver.GetPlayerGUIDLow();
-            m->expire_time = expire_time;
-            m->deliver_time = deliver_time;
-            m->checked = checked;
-            m->state = MAIL_STATE_UNCHANGED;
-
-            pReceiver->AddMail(m);                           // to insert new mail to beginning of maillist
-
-            if (!m_items.empty())
-            {
-                for (MailItemMap::iterator mailItemIter = m_items.begin(); mailItemIter != m_items.end(); ++mailItemIter)
-                    pReceiver->AddMItem(mailItemIter->second);
-            }
+            Item* item = mailItemIter->second;
+            m->AddItem(item->GetGUID().GetCounter(), item->GetEntry());
         }
-        else if (!m_items.empty())
+
+        m->messageType = sender.GetMailMessageType();
+        m->stationery = sender.GetStationery();
+        m->sender = sender.GetSenderId();
+        m->receiver = receiver.GetPlayerGUIDLow();
+        m->expire_time = expire_time;
+        m->deliver_time = deliver_time;
+        m->checked = checked;
+        m->state = MAIL_STATE_UNCHANGED;
+
+        pReceiver->AddMail(m);                           // to insert new mail to beginning of maillist
+
+        if (!m_items.empty())
         {
-            CharacterDatabaseTransaction temp = CharacterDatabaseTransaction(nullptr);
-            deleteIncludedItems(temp);
+            for (MailItemMap::iterator mailItemIter = m_items.begin(); mailItemIter != m_items.end(); ++mailItemIter)
+                pReceiver->AddMItem(mailItemIter->second);
         }
     }
     else if (!m_items.empty())

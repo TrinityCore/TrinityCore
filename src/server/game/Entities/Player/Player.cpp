@@ -247,7 +247,6 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
     m_oldpetspell = 0;
     m_lastpetnumber = 0;
 
-    m_mailsLoaded = false;
     m_mailsUpdated = false;
     unReadMails = 0;
     m_nextMailDelivereTime = 0;
@@ -18525,7 +18524,13 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder* holder)
     _LoadActions(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ACTIONS));
 
     // unread mails and next delivery time, actual mails not loaded
-    _LoadMailInit(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_MAIL_COUNT), holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_MAIL_DATE));
+    _LoadMail(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_MAILS),
+        holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_MAIL_ITEMS),
+        holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_MAIL_ITEMS_ARTIFACT),
+        holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_MAIL_ITEMS_AZERITE),
+        holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_MAIL_ITEMS_AZERITE_MILESTONE_POWER),
+        holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_MAIL_ITEMS_AZERITE_UNLOCKED_ESSENCE),
+        holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_MAIL_ITEMS_AZERITE_EMPOWERED));
 
     m_social = sSocialMgr->LoadFromDB(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_SOCIAL_LIST), GetGUID());
 
@@ -19399,34 +19404,18 @@ Item* Player::_LoadMailedItem(ObjectGuid const& playerGuid, Player* player, uint
     return item;
 }
 
-void Player::_LoadMailInit(PreparedQueryResult resultUnread, PreparedQueryResult resultDelivery)
-{
-    //set a count of unread mails
-    //QueryResult* resultMails = CharacterDatabase.PQuery("SELECT COUNT(id) FROM mail WHERE receiver = '%u' AND (checked & 1)=0 AND deliver_time <= '" UI64FMTD "'", GUID_LOPART(playerGuid), (uint64)cTime);
-    if (resultUnread)
-        unReadMails = uint8((*resultUnread)[0].GetUInt64());
-
-    // store nearest delivery time (it > 0 and if it < current then at next player update SendNewMaill will be called)
-    //resultMails = CharacterDatabase.PQuery("SELECT MIN(deliver_time) FROM mail WHERE receiver = '%u' AND (checked & 1)=0", GUID_LOPART(playerGuid));
-    if (resultDelivery)
-        m_nextMailDelivereTime = time_t((*resultDelivery)[0].GetUInt32());
-}
-
-void Player::_LoadMail()
+void Player::_LoadMail(PreparedQueryResult mailsResult, PreparedQueryResult mailItemsResult, PreparedQueryResult artifactResult, PreparedQueryResult azeriteItemResult,
+    PreparedQueryResult azeriteItemMilestonePowersResult, PreparedQueryResult azeriteItemUnlockedEssencesResult, PreparedQueryResult azeriteEmpoweredItemResult)
 {
     m_mail.clear();
 
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL);
-    stmt->setUInt64(0, GetGUID().GetCounter());
-    PreparedQueryResult result = CharacterDatabase.Query(stmt);
-
     std::unordered_map<uint32, Mail*> mailById;
 
-    if (result)
+    if (mailsResult)
     {
         do
         {
-            Field* fields = result->Fetch();
+            Field* fields = mailsResult->Fetch();
             Mail* m = new Mail();
 
             m->messageID      = fields[0].GetUInt32();
@@ -19454,49 +19443,24 @@ void Player::_LoadMail()
             m_mail.push_back(m);
             mailById[m->messageID] = m;
         }
-        while (result->NextRow());
+        while (mailsResult->NextRow());
     }
 
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAILITEMS);
-    stmt->setUInt64(0, GetGUID().GetCounter());
-    result = CharacterDatabase.Query(stmt);
-
-    if (result)
+    if (mailItemsResult)
     {
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAILITEMS_ARTIFACT);
-        stmt->setUInt64(0, GetGUID().GetCounter());
-        PreparedQueryResult artifactResult = CharacterDatabase.Query(stmt);
-
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAILITEMS_AZERITE);
-        stmt->setUInt64(0, GetGUID().GetCounter());
-        PreparedQueryResult azeriteResult = CharacterDatabase.Query(stmt);
-
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAILITEMS_AZERITE_MILESTONE_POWER);
-        stmt->setUInt64(0, GetGUID().GetCounter());
-        PreparedQueryResult azeriteItemMilestonePowersResult = CharacterDatabase.Query(stmt);
-
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAILITEMS_AZERITE_UNLOCKED_ESSENCE);
-        stmt->setUInt64(0, GetGUID().GetCounter());
-        PreparedQueryResult azeriteItemUnlockedEssencesResult = CharacterDatabase.Query(stmt);
-
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAILITEMS_AZERITE_EMPOWERED);
-        stmt->setUInt64(0, GetGUID().GetCounter());
-        PreparedQueryResult azeriteEmpoweredItemResult = CharacterDatabase.Query(stmt);
-
         std::unordered_map<ObjectGuid::LowType, ItemAdditionalLoadInfo> additionalData;
-        ItemAdditionalLoadInfo::Init(&additionalData, artifactResult, azeriteResult, azeriteItemMilestonePowersResult,
+        ItemAdditionalLoadInfo::Init(&additionalData, artifactResult, azeriteItemResult, azeriteItemMilestonePowersResult,
             azeriteItemUnlockedEssencesResult, azeriteEmpoweredItemResult);
 
         do
         {
-            Field* fields = result->Fetch();
+            Field* fields = mailItemsResult->Fetch();
             uint32 mailId = fields[52].GetUInt32();
             _LoadMailedItem(GetGUID(), this, mailId, mailById[mailId], fields, Trinity::Containers::MapGetValuePtr(additionalData, fields[0].GetUInt64()));
-        }
-        while (result->NextRow());
+        } while (mailItemsResult->NextRow());
     }
 
-    m_mailsLoaded = true;
+    UpdateNextMailTimeAndUnreads();
 }
 
 void Player::LoadPet()
@@ -21190,9 +21154,6 @@ void Player::_SaveCUFProfiles(CharacterDatabaseTransaction& trans)
 
 void Player::_SaveMail(CharacterDatabaseTransaction& trans)
 {
-    if (!m_mailsLoaded)
-        return;
-
     CharacterDatabasePreparedStatement* stmt;
 
     for (PlayerMails::iterator itr = m_mail.begin(); itr != m_mail.end(); ++itr)

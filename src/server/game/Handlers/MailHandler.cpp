@@ -572,10 +572,6 @@ void WorldSession::HandleGetMailList(WorldPackets::Mail::MailGetList& packet)
 
     Player* player = _player;
 
-    //load players mails, and mailed items
-    if (!player->m_mailsLoaded)
-        player->_LoadMail();
-
     WorldPackets::Mail::MailListResult response;
     time_t curTime = GameTime::GetGameTime();
 
@@ -655,13 +651,9 @@ void WorldSession::HandleMailCreateTextItem(WorldPackets::Mail::MailCreateTextIt
     }
 }
 
-/// @todo Fix me! ... this void has probably bad condition, but good data are sent
 void WorldSession::HandleQueryNextMailTime(WorldPackets::Mail::MailQueryNextMailTime& /*packet*/)
 {
     WorldPackets::Mail::MailQueryNextTimeResult result;
-
-    if (!_player->m_mailsLoaded)
-        _player->_LoadMail();
 
     if (_player->unReadMails > 0)
     {
