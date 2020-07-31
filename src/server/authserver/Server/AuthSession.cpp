@@ -125,13 +125,18 @@ std::array<uint8, 16> VersionChallenge = { { 0xBA, 0xA3, 0x1E, 0x99, 0xA0, 0x0B,
 {
     TC_LOG_INFO("server.authserver", "Updating password hashes...");
     uint32 const start = getMSTime();
-    uint32 c = 0;
-
-    bool hadWarning = false;
     // the auth update query nulls salt/verifier if they cannot be converted
     // if they are non-null but s/v have been cleared, that means a legacy tool touched our auth DB (otherwise, the core might've done it itself, it used to use those hacks too)
     QueryResult result = LoginDatabase.Query("SELECT id, sha_pass_hash, IF((salt IS null) AND (verifier IS null), 0, 1) AS shouldWarn FROM account WHERE s != DEFAULT(s) OR v != DEFAULT(v)");
-    if (result) do
+    if (!result)
+    {
+        TC_LOG_INFO("server.authserver", ">> No password hashes to update - this took us %u ms to realize", GetMSTimeDiffToNow(start));
+        return;
+    }
+
+    bool hadWarning = false;
+    uint32 c = 0;
+    do
     {
         uint32 const id = (*result)[0].GetUInt32();
         auto [salt, verifier] = Trinity::Crypto::SRP6::MakeRegistrationDataFromHash_DEPRECATED_DONOTUSE(
@@ -443,6 +448,8 @@ void AuthSession::LogonChallengeCallback(PreparedQueryResult result)
         stmt->setBinary(1, verifier);
         stmt->setUInt32(2, _accountInfo.Id);
         LoginDatabase.Execute(stmt);
+
+        TC_LOG_WARN("server.authserver", "(!) You appear to be using an outdated external account management tool.\n(!!) This is INSECURE, has been deprecated, and will cease to function entirely in the near future.\n(!) Update your external tool.\n(!!) If no update is available, refer your tool's developer to https://github.com/TrinityCore/TrinityCore/issues/25157 for details.");
 
         _srp6.emplace(_accountInfo.Login, salt, verifier);
     }
