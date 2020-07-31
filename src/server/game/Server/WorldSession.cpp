@@ -975,23 +975,17 @@ void WorldSession::ProcessQueryCallbacks()
 {
     _queryProcessor.ProcessReadyCallbacks();
     _transactionCallbacks.ProcessReadyCallbacks();
-
-    if (_realmAccountLoginCallback.valid() && _realmAccountLoginCallback.wait_for(0s) == std::future_status::ready &&
-        _accountLoginCallback.valid() && _accountLoginCallback.wait_for(0s) == std::future_status::ready)
-        InitializeSessionCallback(static_cast<LoginDatabaseQueryHolder*>(_realmAccountLoginCallback.get()),
-            static_cast<CharacterDatabaseQueryHolder*>(_accountLoginCallback.get()));
-
-    //! HandlePlayerLoginOpcode
-    if (_charLoginCallback.valid() && _charLoginCallback.wait_for(0s) == std::future_status::ready)
-        HandlePlayerLogin(reinterpret_cast<LoginQueryHolder*>(_charLoginCallback.get()));
-
-    if (_charEnumCallback.valid() && _charEnumCallback.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
-        HandleCharEnum(static_cast<CharacterDatabaseQueryHolder*>(_charEnumCallback.get()));
+    _queryHolderProcessor.ProcessReadyCallbacks();
 }
 
 TransactionCallback& WorldSession::AddTransactionCallback(TransactionCallback&& callback)
 {
     return _transactionCallbacks.AddCallback(std::move(callback));
+}
+
+SQLQueryHolderCallback& WorldSession::AddQueryHolderCallback(SQLQueryHolderCallback&& callback)
+{
+    return _queryHolderProcessor.AddCallback(std::move(callback));
 }
 
 bool WorldSession::CanAccessAlliedRaces() const
@@ -1148,11 +1142,30 @@ void WorldSession::InitializeSession()
         return;
     }
 
-    _realmAccountLoginCallback = CharacterDatabase.DelayQueryHolder(realmHolder);
-    _accountLoginCallback = LoginDatabase.DelayQueryHolder(holder);
+    struct ForkJoinState
+    {
+        AccountInfoQueryHolderPerRealm* Character = nullptr;
+        AccountInfoQueryHolder* Login = nullptr;
+    };
+
+    std::shared_ptr<ForkJoinState> state = std::make_shared<ForkJoinState>();
+
+    AddQueryHolderCallback(CharacterDatabase.DelayQueryHolder(realmHolder)).AfterComplete([this, state](SQLQueryHolderBase* result)
+    {
+        state->Character = static_cast<AccountInfoQueryHolderPerRealm*>(result);
+        if (state->Login && state->Character)
+            InitializeSessionCallback(state->Login, state->Character);
+    });
+
+    AddQueryHolderCallback(LoginDatabase.DelayQueryHolder(holder)).AfterComplete([this, state](SQLQueryHolderBase* result)
+    {
+        state->Login = static_cast<AccountInfoQueryHolder*>(result);
+        if (state->Login && state->Character)
+            InitializeSessionCallback(state->Login, state->Character);
+    });
 }
 
-void WorldSession::InitializeSessionCallback(LoginDatabaseQueryHolder* realmHolder, CharacterDatabaseQueryHolder* holder)
+void WorldSession::InitializeSessionCallback(LoginDatabaseQueryHolder* holder, CharacterDatabaseQueryHolder* realmHolder)
 {
     LoadAccountData(realmHolder->GetPreparedResult(AccountInfoQueryHolderPerRealm::GLOBAL_ACCOUNT_DATA), GLOBAL_CACHE_MASK);
     LoadTutorialsData(realmHolder->GetPreparedResult(AccountInfoQueryHolderPerRealm::TUTORIALS));

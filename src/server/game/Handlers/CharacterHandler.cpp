@@ -480,7 +480,10 @@ void WorldSession::HandleCharEnumOpcode(WorldPackets::Character::EnumCharacters&
         return;
     }
 
-    _charEnumCallback = CharacterDatabase.DelayQueryHolder(holder);
+    AddQueryHolderCallback(CharacterDatabase.DelayQueryHolder(holder)).AfterComplete([this](SQLQueryHolderBase* result)
+    {
+        HandleCharEnum(static_cast<EnumCharactersQueryHolder*>(result));
+    });
 }
 
 void WorldSession::HandleCharUndeleteEnumOpcode(WorldPackets::Character::EnumCharacters& /*enumCharacters*/)
@@ -493,7 +496,10 @@ void WorldSession::HandleCharUndeleteEnumOpcode(WorldPackets::Character::EnumCha
         return;
     }
 
-    _charEnumCallback = CharacterDatabase.DelayQueryHolder(holder);
+    AddQueryHolderCallback(CharacterDatabase.DelayQueryHolder(holder)).AfterComplete([this](SQLQueryHolderBase* result)
+    {
+        HandleCharEnum(static_cast<EnumCharactersQueryHolder*>(result));
+    });
 }
 
 bool WorldSession::MeetsChrCustomizationReq(ChrCustomizationReqEntry const* req, Classes playerClass,
@@ -1034,7 +1040,10 @@ void WorldSession::HandleContinuePlayerLogin()
 
     SendPacket(WorldPackets::Auth::ResumeComms(CONNECTION_TYPE_INSTANCE).Write());
 
-    _charLoginCallback = CharacterDatabase.DelayQueryHolder(holder);
+    AddQueryHolderCallback(CharacterDatabase.DelayQueryHolder(holder)).AfterComplete([this](SQLQueryHolderBase* holder)
+    {
+        HandlePlayerLogin(static_cast<LoginQueryHolder*>(holder));
+    });
 }
 
 void WorldSession::AbortLogin(WorldPackets::Character::LoginFailureReason reason)
