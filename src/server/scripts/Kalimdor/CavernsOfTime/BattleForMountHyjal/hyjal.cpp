@@ -57,8 +57,6 @@ class npc_jaina_proudmoore : public CreatureScript
         {
             npc_jaina_proudmooreAI(Creature* creature) : hyjalAI(creature)
             {
-                Reset();
-
                 Spells[0].SpellId = SPELL_BLIZZARD;
                 Spells[0].Cooldown = urand(15000, 35000);
                 Spells[0].TargetType = TARGETTYPE_RANDOM;
@@ -134,8 +132,6 @@ class npc_thrall : public CreatureScript
         {
             npc_thrallAI(Creature* creature) : hyjalAI(creature)
             {
-                Reset();
-
                 Spells[0].SpellId = SPELL_CHAIN_LIGHTNING;
                 Spells[0].Cooldown = urand(3000, 8000);
                 Spells[0].TargetType = TARGETTYPE_VICTIM;
@@ -213,7 +209,6 @@ class npc_tyrande_whisperwind : public CreatureScript
         {
             npc_tyrande_whisperwindAI(Creature* creature) : hyjalAI(creature)
             {
-                Reset();
             }
 
             bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override

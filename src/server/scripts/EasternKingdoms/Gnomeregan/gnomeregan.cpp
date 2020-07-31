@@ -99,7 +99,13 @@ public:
         {
             instance = creature->GetInstanceScript();
             creature->RestoreFaction();
-            Reset();
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            uiTimer = 0;
+            uiPhase = 0;
         }
 
         InstanceScript* instance;
@@ -114,8 +120,7 @@ public:
         {
             if (!HasEscortState(STATE_ESCORT_ESCORTING))
             {
-                uiTimer = 0;
-                uiPhase = 0;
+                Initialize();
 
                 RestoreAll();
 

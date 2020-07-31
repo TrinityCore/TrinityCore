@@ -162,11 +162,6 @@ class TC_GAME_API InstanceScript : public ZoneScript
 
         InstanceMap* instance;
 
-        // On creation, NOT load.
-        // PLEASE INITIALIZE FIELDS IN THE CONSTRUCTOR INSTEAD !!!
-        // KEEPING THIS METHOD ONLY FOR BACKWARD COMPATIBILITY !!!
-        virtual void Initialize() { }
-
         // On instance load, exactly ONE of these methods will ALWAYS be called:
         // if we're starting without any saved instance data
         virtual void Create();

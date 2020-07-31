@@ -112,7 +112,6 @@ class boss_kologarn : public CreatureScript
 
                 DoCast(SPELL_KOLOGARN_REDUCE_PARRY);
                 SetCombatMovement(false);
-                Reset();
             }
 
             bool left, right;

@@ -160,7 +160,7 @@ void WardenCheckMgr::LoadWardenOverrides()
         if (action > WARDEN_ACTION_BAN)
             TC_LOG_ERROR("warden", "Warden check override action out of range (ID: %u, action: %u)", checkId, action);
         // Check if check actually exists before accessing the CheckStore vector
-        else if (checkId > CheckStore.size())
+        else if (checkId >= CheckStore.size())
             TC_LOG_ERROR("warden", "Warden check action override for non-existing check (ID: %u, action: %u), skipped", checkId, action);
         else
         {

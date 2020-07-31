@@ -993,7 +993,15 @@ public:
                     break;
             }
 
-            Reset();
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            IsHealed = false;
+            CanRun = false;
+
+            RunAwayTimer = 5000;
         }
 
         ObjectGuid CasterGUID;
@@ -1008,10 +1016,7 @@ public:
         {
             CasterGUID.Clear();
 
-            IsHealed = false;
-            CanRun = false;
-
-            RunAwayTimer = 5000;
+            Initialize();
 
             me->SetStandState(UNIT_STAND_STATE_KNEEL);
             // expect database to have RegenHealth=0
