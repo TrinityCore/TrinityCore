@@ -1095,15 +1095,14 @@ class TC_GAME_API WorldSession
     public:
         QueryCallbackProcessor& GetQueryProcessor() { return _queryProcessor; }
         TransactionCallback& AddTransactionCallback(TransactionCallback&& callback);
+        SQLQueryHolderCallback& AddQueryHolderCallback(SQLQueryHolderCallback&& callback);
 
     private:
         void ProcessQueryCallbacks();
 
-        QueryResultHolderFuture _realmAccountLoginCallback;
-        QueryResultHolderFuture _charLoginCallback;
-
         QueryCallbackProcessor _queryProcessor;
         AsyncCallbackProcessor<TransactionCallback> _transactionCallbacks;
+        AsyncCallbackProcessor<SQLQueryHolderCallback> _queryHolderProcessor;
 
     friend class World;
     protected:

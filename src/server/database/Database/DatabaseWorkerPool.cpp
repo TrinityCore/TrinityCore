@@ -226,7 +226,7 @@ QueryCallback DatabaseWorkerPool<T>::AsyncQuery(PreparedStatement<T>* stmt)
 }
 
 template <class T>
-QueryResultHolderFuture DatabaseWorkerPool<T>::DelayQueryHolder(SQLQueryHolder<T>* holder)
+SQLQueryHolderCallback DatabaseWorkerPool<T>::DelayQueryHolder(SQLQueryHolder<T>* holder)
 {
     SQLQueryHolderTask* task = new SQLQueryHolderTask(holder);
     // Store future result before enqueueing - task might get already processed and deleted before returning from this method

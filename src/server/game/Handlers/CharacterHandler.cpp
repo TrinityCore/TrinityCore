@@ -728,7 +728,10 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& recvData)
         return;
     }
 
-    _charLoginCallback = CharacterDatabase.DelayQueryHolder(holder);
+    AddQueryHolderCallback(CharacterDatabase.DelayQueryHolder(holder)).AfterComplete([this](SQLQueryHolderBase* holder)
+    {
+        HandlePlayerLogin(static_cast<LoginQueryHolder*>(holder));
+    });
 }
 
 void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
