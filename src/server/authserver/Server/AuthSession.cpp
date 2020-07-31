@@ -28,6 +28,7 @@
 #include "Log.h"
 #include "RealmList.h"
 #include "SecretMgr.h"
+#include "Timer.h"
 #include "TOTP.h"
 #include "Util.h"
 #include <boost/lexical_cast.hpp>
@@ -119,6 +120,41 @@ std::array<uint8, 16> VersionChallenge = { { 0xBA, 0xA3, 0x1E, 0x99, 0xA0, 0x0B,
 
 #define AUTH_LOGON_CHALLENGE_INITIAL_SIZE 4
 #define REALM_LIST_PACKET_SIZE 5
+
+/*static*/ void AuthSession::ServerStartup()
+{
+    TC_LOG_INFO("server.authserver", "Updating password hashes...");
+    uint32 const start = getMSTime();
+    uint32 c = 0;
+
+    bool hadWarning = false;
+    // the auth update query nulls salt/verifier if they cannot be converted
+    // if they are non-null but s/v have been cleared, that means a legacy tool touched our auth DB (otherwise, the core might've done it itself, it used to use those hacks too)
+    QueryResult result = LoginDatabase.Query("SELECT id, sha_pass_hash, IF((salt IS null) AND (verifier IS null), 0, 1) AS shouldWarn FROM account WHERE s != DEFAULT(s) OR v != DEFAULT(v)");
+    if (result) do
+    {
+        uint32 const id = (*result)[0].GetUInt32();
+        auto [salt, verifier] = Trinity::Crypto::SRP6::MakeRegistrationDataFromHash_DEPRECATED_DONOTUSE(
+            HexStrToByteArray<Trinity::Crypto::SHA1::DIGEST_LENGTH>((*result)[1].GetString())
+        );
+
+        if ((*result)[2].GetBool() && !hadWarning)
+        {
+            hadWarning = true;
+            TC_LOG_WARN("server.authserver", "(!) You appear to be using an outdated external account management tool.\n(!!) This is INSECURE, has been deprecated, and will cease to function entirely in the near future.\n(!) Update your external tool.\n(!!) If no update is available, refer your tool's developer to https://github.com/TrinityCore/TrinityCore/issues/25157 for details.");
+        }
+
+        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGON);
+        stmt->setBinary(0, salt);
+        stmt->setBinary(1, verifier);
+        stmt->setUInt32(2, id);
+        LoginDatabase.Execute(stmt);
+
+        ++c;
+    } while (result->NextRow());
+
+    TC_LOG_INFO("server.authserver", ">> %u password hashes updated in %u ms", c, GetMSTimeDiffToNow(start));
+}
 
 std::unordered_map<uint8, AuthHandler> AuthSession::InitHandlers()
 {

@@ -3,8 +3,8 @@
 -- sha_pass_hash/s/v kept around for now, for backwards compatibility
 ALTER TABLE `account`
     DROP COLUMN `sessionkey`,
-    ADD COLUMN `salt` BINARY(32) NOT NULL AFTER `username`,
-    ADD COLUMN `verifier` BINARY(32) NOT NULL AFTER `salt`,
+    ADD COLUMN `salt` BINARY(32) AFTER `username`,
+    ADD COLUMN `verifier` BINARY(32) AFTER `salt`,
     ADD COLUMN `session_key` BINARY(40) AFTER `verifier`,
     MODIFY COLUMN `s` VARCHAR(64) NOT NULL DEFAULT 'dummy value, use `salt` instead',
     MODIFY COLUMN `v` VARCHAR(64) NOT NULL DEFAULT 'dummy value, use `verifier` instead';
