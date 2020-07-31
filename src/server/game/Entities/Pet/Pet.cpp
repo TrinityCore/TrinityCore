@@ -1630,7 +1630,7 @@ bool Pet::resetTalents()
             continue;
 
         // unlearn only talents for pets family talent type
-        if (!((1 << pet_family->PetTalentType) & talentTabInfo->CategoryEnumID))
+        if (!((1 << pet_family->PetTalentType) & talentTabInfo->PetTalentMask))
             continue;
 
         for (uint8 j = 0; j < MAX_TALENT_RANK; ++j)

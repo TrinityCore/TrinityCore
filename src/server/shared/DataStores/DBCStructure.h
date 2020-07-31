@@ -1682,7 +1682,7 @@ struct TalentTabEntry
     //unit32 SpellIconID;                                   // 18
     //uint32 RaceMask;                                      // 19
     uint32 ClassMask;                                       // 20
-    uint32 CategoryEnumID;                                  // 21
+    uint32 PetTalentMask;                                   // 21
     uint32 OrderIndex;                                      // 22
     //char* BackgroundFile;                                 // 23
 };
