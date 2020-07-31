@@ -280,7 +280,28 @@ public:
     {
         npc_highlord_darion_mograineAI(Creature* creature) : EscortAI(creature)
         {
-            Reset();
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            bIsBattle = false;
+            uiStep = 0;
+            uiPhase_timer = 3000;
+            uiFight_duration = 300000; // 5 minutes
+            uiTotal_dawn = ENCOUNTER_TOTAL_DAWN;
+            uiTotal_scourge = ENCOUNTER_TOTAL_SCOURGE;
+            uiSummon_counter = 0;
+
+            uiAnti_magic_zone = urand(1000, 6000);
+            uiDeath_strike = urand(5000, 10000);
+            uiDeath_embrace = urand(5000, 10000);
+            uiIcy_touch = urand(5000, 10000);
+            uiUnholy_blight = urand(5000, 10000);
+
+            uiFight_speech = 15000;
+            uiSpawncheck = 1000;
+            uiTargetcheck = 10000;
         }
 
         bool bIsBattle;
@@ -326,23 +347,7 @@ public:
         {
             if (!HasEscortState(STATE_ESCORT_ESCORTING))
             {
-                bIsBattle = false;
-                uiStep = 0;
-                uiPhase_timer = 3000;
-                uiFight_duration = 300000; // 5 minutes
-                uiTotal_dawn = ENCOUNTER_TOTAL_DAWN;
-                uiTotal_scourge = ENCOUNTER_TOTAL_SCOURGE;
-                uiSummon_counter = 0;
-
-                uiAnti_magic_zone = urand(1000, 6000);
-                uiDeath_strike = urand(5000, 10000);
-                uiDeath_embrace = urand(5000, 10000);
-                uiIcy_touch = urand(5000, 10000);
-                uiUnholy_blight = urand(5000, 10000);
-
-                uiFight_speech = 15000;
-                uiSpawncheck = 1000;
-                uiTargetcheck = 10000;
+                Initialize();
 
                 me->SetStandState(UNIT_STAND_STATE_STAND);
                 me->Mount(25279);
@@ -1657,9 +1662,9 @@ public:
 
     struct npc_the_lich_king_tirion_dawnAI : public ScriptedAI
     {
-        npc_the_lich_king_tirion_dawnAI(Creature* creature) : ScriptedAI(creature) { Reset(); }
+        npc_the_lich_king_tirion_dawnAI(Creature* creature) : ScriptedAI(creature) { }
         void Reset() override { }
-        void AttackStart(Unit* /*who*/) override { } // very sample, just don't make them aggreesive
+        void AttackStart(Unit* /*who*/) override { } // very simple, just don't make them aggreesive
         void UpdateAI(uint32 /*diff*/) override { }
         void JustDied(Unit* /*killer*/) override { }
     };
