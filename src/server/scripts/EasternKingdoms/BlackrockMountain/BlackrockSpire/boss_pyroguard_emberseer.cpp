@@ -353,7 +353,7 @@ public:
                         _events.Repeat(Seconds(14), Seconds(23));
                         break;
                     case EVENT_ENCAGE:
-                        DoCast(SelectTarget(SelectTargetMethod::Random, 0, 100, true), EVENT_ENCAGE, true);
+                        DoCast(SelectTarget(SelectTargetMethod::Random, 0, 100, true), SPELL_ENCAGE, true);
                         _events.Repeat(Seconds(6), Seconds(12));
                         break;
                     default:
