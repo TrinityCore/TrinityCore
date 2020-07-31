@@ -365,7 +365,7 @@ public:
         npc_enslaved_netherwing_drakeAI(Creature* creature) : ScriptedAI(creature)
         {
             Tapped = false;
-            Reset();
+            FlyTimer = 10 * IN_MILLISECONDS;
         }
 
         void Reset() override
