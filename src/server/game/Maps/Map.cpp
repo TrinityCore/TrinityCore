@@ -3967,8 +3967,6 @@ void InstanceMap::CreateInstanceData(bool load)
     if (!i_data)
         return;
 
-    i_data->Initialize();
-
     if (load)
     {
         /// @todo make a global storage for this
