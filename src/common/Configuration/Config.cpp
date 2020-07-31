@@ -79,7 +79,7 @@ bool ConfigMgr::Reload(std::string& error)
 }
 
 template<class T>
-T ConfigMgr::GetValueDefault(std::string const& name, T def) const
+T ConfigMgr::GetValueDefault(std::string const& name, T def, bool quiet) const
 {
     try
     {
@@ -87,8 +87,11 @@ T ConfigMgr::GetValueDefault(std::string const& name, T def) const
     }
     catch (bpt::ptree_bad_path const&)
     {
-        TC_LOG_WARN("server.loading", "Missing name %s in config file %s, add \"%s = %s\" to this file",
-            name.c_str(), _filename.c_str(), name.c_str(), std::to_string(def).c_str());
+        if (!quiet)
+        {
+            TC_LOG_WARN("server.loading", "Missing name %s in config file %s, add \"%s = %s\" to this file",
+                name.c_str(), _filename.c_str(), name.c_str(), std::to_string(def).c_str());
+        }
     }
     catch (bpt::ptree_bad_data const&)
     {
@@ -100,7 +103,7 @@ T ConfigMgr::GetValueDefault(std::string const& name, T def) const
 }
 
 template<>
-std::string ConfigMgr::GetValueDefault<std::string>(std::string const& name, std::string def) const
+std::string ConfigMgr::GetValueDefault<std::string>(std::string const& name, std::string def, bool quiet) const
 {
     try
     {
@@ -108,8 +111,11 @@ std::string ConfigMgr::GetValueDefault<std::string>(std::string const& name, std
     }
     catch (bpt::ptree_bad_path const&)
     {
-        TC_LOG_WARN("server.loading", "Missing name %s in config file %s, add \"%s = %s\" to this file",
-            name.c_str(), _filename.c_str(), name.c_str(), def.c_str());
+        if (!quiet)
+        {
+            TC_LOG_WARN("server.loading", "Missing name %s in config file %s, add \"%s = %s\" to this file",
+                name.c_str(), _filename.c_str(), name.c_str(), def.c_str());
+        }
     }
     catch (bpt::ptree_bad_data const&)
     {
@@ -120,33 +126,33 @@ std::string ConfigMgr::GetValueDefault<std::string>(std::string const& name, std
     return def;
 }
 
-std::string ConfigMgr::GetStringDefault(std::string const& name, const std::string& def) const
+std::string ConfigMgr::GetStringDefault(std::string const& name, const std::string& def, bool quiet) const
 {
-    std::string val = GetValueDefault(name, def);
+    std::string val = GetValueDefault(name, def, quiet);
     val.erase(std::remove(val.begin(), val.end(), '"'), val.end());
     return val;
 }
 
-bool ConfigMgr::GetBoolDefault(std::string const& name, bool def) const
+bool ConfigMgr::GetBoolDefault(std::string const& name, bool def, bool quiet) const
 {
-    std::string val = GetValueDefault(name, std::string(def ? "1" : "0"));
+    std::string val = GetValueDefault(name, std::string(def ? "1" : "0"), quiet);
     val.erase(std::remove(val.begin(), val.end(), '"'), val.end());
     return StringToBool(val);
 }
 
-int32 ConfigMgr::GetIntDefault(std::string const& name, int32 def) const
+int32 ConfigMgr::GetIntDefault(std::string const& name, int32 def, bool quiet) const
 {
-    return GetValueDefault(name, def);
+    return GetValueDefault(name, def, quiet);
 }
 
-int64 ConfigMgr::GetInt64Default(std::string const& name, int64 def) const
+int64 ConfigMgr::GetInt64Default(std::string const& name, int64 def, bool quiet) const
 {
-    return GetValueDefault(name, def);
+    return GetValueDefault(name, def, quiet);
 }
 
-float ConfigMgr::GetFloatDefault(std::string const& name, float def) const
+float ConfigMgr::GetFloatDefault(std::string const& name, float def, bool quiet) const
 {
-    return GetValueDefault(name, def);
+    return GetValueDefault(name, def, quiet);
 }
 
 std::string const& ConfigMgr::GetFilename()
