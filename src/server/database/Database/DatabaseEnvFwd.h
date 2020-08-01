@@ -86,6 +86,8 @@ using HotfixDatabaseQueryHolder = SQLQueryHolder<HotfixDatabaseConnection>;
 using LoginDatabaseQueryHolder = SQLQueryHolder<LoginDatabaseConnection>;
 using WorldDatabaseQueryHolder = SQLQueryHolder<WorldDatabaseConnection>;
 
+class SQLQueryHolderCallback;
+
 // mysql
 struct MySQLHandle;
 struct MySQLResult;
