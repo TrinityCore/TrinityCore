@@ -138,7 +138,7 @@ void PlayerSocial::SendSocialList(Player* player, uint32 flags)
             continue;
 
         ++count;
-        sSocialMgr->GetFriendInfo(player, v.first, v.second);
+        SocialMgr::GetFriendInfo(player, v.first, v.second);
 
         data << uint64(v.first);                              // player guid
         data << uint32(v.second.Flags);                       // player flag (0x1 = Friend, 0x2 = Ignored, 0x4 = Muted)
