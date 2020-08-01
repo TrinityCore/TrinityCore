@@ -583,32 +583,21 @@ private:
     TaskScheduler _scheduler;
 };
 
-class npc_anubarak_impale_target : public CreatureScript
+struct npc_anubarak_impale_target : public NullCreatureAI
 {
-    public:
-        npc_anubarak_impale_target() : CreatureScript("npc_anubarak_impale_target") { }
+    npc_anubarak_impale_target(Creature* creature) : NullCreatureAI(creature) { }
 
-        struct npc_anubarak_impale_targetAI : public NullCreatureAI
+    void InitializeAI() override
+    {
+        if (Creature* anubarak = me->GetInstanceScript()->GetCreature(DATA_ANUBARAK))
         {
-            npc_anubarak_impale_targetAI(Creature* creature) : NullCreatureAI(creature) { }
-
-            void InitializeAI() override
-            {
-                if (Creature* anubarak = me->GetInstanceScript()->GetCreature(DATA_ANUBARAK))
-                {
-                    DoCastSelf(SPELL_IMPALE_VISUAL);
-                    me->DespawnOrUnsummon(Seconds(6));
-                    anubarak->AI()->SetGUID(me->GetGUID(), GUID_TYPE_IMPALE);
-                }
-                else
-                    me->DespawnOrUnsummon();
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetAzjolNerubAI<npc_anubarak_impale_targetAI>(creature);
+            DoCastSelf(SPELL_IMPALE_VISUAL);
+            me->DespawnOrUnsummon(6s);
+            anubarak->AI()->SetGUID(me->GetGUID(), GUID_TYPE_IMPALE);
         }
+        else
+            me->DespawnOrUnsummon();
+    }
 };
 
 class spell_anubarak_pound : public SpellScriptLoader
@@ -684,7 +673,7 @@ void AddSC_boss_anub_arak()
     RegisterCreatureAIWithFactory(npc_anubarak_anub_ar_assassin, GetAzjolNerubAI);
     RegisterCreatureAIWithFactory(npc_anubarak_anub_ar_guardian, GetAzjolNerubAI);
     RegisterCreatureAIWithFactory(npc_anubarak_anub_ar_venomancer, GetAzjolNerubAI);
-    new npc_anubarak_impale_target();
+    RegisterCreatureAIWithFactory(npc_anubarak_impale_target, GetAzjolNerubAI);
 
     new spell_anubarak_pound();
     new spell_anubarak_carrion_beetles();
