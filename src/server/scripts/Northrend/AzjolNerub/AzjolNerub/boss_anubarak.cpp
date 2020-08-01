@@ -600,24 +600,24 @@ struct npc_anubarak_impale_target : public NullCreatureAI
     }
 };
 
-class spell_anubarak_pound : public SpellScript
+class spell_anubarak_pound : public AuraScript
 {
-    PrepareSpellScript(spell_anubarak_pound);
+    PrepareAuraScript(spell_anubarak_pound);
 
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_POUND_DAMAGE });
     }
 
-    void HandleDummy(SpellEffIndex /*effIndex*/)
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        if (Unit* target = GetHitUnit())
+        if (Unit* target = GetTarget())
             GetCaster()->CastSpell(target, SPELL_POUND_DAMAGE, true);
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_anubarak_pound::HandleDummy, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+        AfterEffectApply += AuraEffectApplyFn(spell_anubarak_pound::AfterApply, EFFECT_2, SPELL_AURA_FLY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -652,6 +652,6 @@ void AddSC_boss_anub_arak()
     RegisterCreatureAIWithFactory(npc_anubarak_anub_ar_venomancer, GetAzjolNerubAI);
     RegisterCreatureAIWithFactory(npc_anubarak_impale_target, GetAzjolNerubAI);
 
-    RegisterSpellScript(spell_anubarak_pound);
+    RegisterAuraScript(spell_anubarak_pound);
     RegisterAuraScript(spell_anubarak_carrion_beetles);
 }
