@@ -450,71 +450,71 @@ struct npc_anubarak_anub_ar_darter : public npc_anubarak_pet_template
     }
 };
 
-class npc_anubarak_anub_ar_assassin : public CreatureScript
+struct npc_anubarak_anub_ar_assassin : public npc_anubarak_pet_template
 {
-    public:
-        npc_anubarak_anub_ar_assassin() : CreatureScript("npc_anubarak_anub_ar_assassin") { }
+    npc_anubarak_anub_ar_assassin(Creature* creature) : npc_anubarak_pet_template(creature, false){ }
 
-        struct npc_anubarak_anub_ar_assassinAI : public npc_anubarak_pet_template
+    Position GetRandomPositionAround(Creature* anubarak)
+    {
+        static float DISTANCE_MIN = 10.0f;
+        static float DISTANCE_MAX = 30.0f;
+        double angle = rand_norm() * 2.0 * M_PI;
+        return { anubarak->GetPositionX() + (float)(frand(DISTANCE_MIN, DISTANCE_MAX)*std::sin(angle)), anubarak->GetPositionY() + (float)(frand(DISTANCE_MIN, DISTANCE_MAX)*std::cos(angle)), anubarak->GetPositionZ() };
+    }
+
+    void InitializeAI() override
+    {
+        npc_anubarak_pet_template::InitializeAI();
+        CreatureBoundary const* boundary = _instance->GetBossBoundary(DATA_ANUBARAK);
+        if (Creature* anubarak = _instance->GetCreature(DATA_ANUBARAK))
         {
-            npc_anubarak_anub_ar_assassinAI(Creature* creature) : npc_anubarak_pet_template(creature, false), _backstabTimer(6 * IN_MILLISECONDS) { }
-
-            Position GetRandomPositionAround(Creature* anubarak)
-            {
-                static float DISTANCE_MIN = 10.0f;
-                static float DISTANCE_MAX = 30.0f;
-                double angle = rand_norm() * 2.0 * M_PI;
-                return { anubarak->GetPositionX() + (float)(frand(DISTANCE_MIN, DISTANCE_MAX)*std::sin(angle)), anubarak->GetPositionY() + (float)(frand(DISTANCE_MIN, DISTANCE_MAX)*std::cos(angle)), anubarak->GetPositionZ() };
-            }
-            void InitializeAI() override
-            {
-                npc_anubarak_pet_template::InitializeAI();
-                CreatureBoundary const* boundary = _instance->GetBossBoundary(DATA_ANUBARAK);
-                if (Creature* anubarak = _instance->GetCreature(DATA_ANUBARAK))
-                {
-                    Position jumpTo;
-                    do
-                        jumpTo = GetRandomPositionAround(anubarak);
-                    while (!CreatureAI::IsInBounds(*boundary, &jumpTo));
-                    me->GetMotionMaster()->MoveJump(jumpTo, 40.0f, 40.0f);
-                    DoCastSelf(SPELL_ASSASSIN_VISUAL, true);
-                }
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                if (diff >= _backstabTimer)
-                {
-                    if (me->GetVictim() && me->GetVictim()->isInBack(me))
-                        DoCastVictim(SPELL_BACKSTAB);
-                    _backstabTimer = 6 * IN_MILLISECONDS;
-                }
-                else
-                    _backstabTimer -= diff;
-
-                DoMeleeAttackIfReady();
-            }
-
-            void MovementInform(uint32 /*type*/, uint32 id) override
-            {
-                if (id == EVENT_JUMP)
-                {
-                    me->RemoveAurasDueToSpell(SPELL_ASSASSIN_VISUAL);
-                    DoZoneInCombat();
-                }
-            }
-
-            private:
-                uint32 _backstabTimer;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetAzjolNerubAI<npc_anubarak_anub_ar_assassinAI>(creature);
+            Position jumpTo;
+            do
+                jumpTo = GetRandomPositionAround(anubarak);
+            while (!CreatureAI::IsInBounds(*boundary, &jumpTo));
+            me->GetMotionMaster()->MoveJump(jumpTo, 40.0f, 40.0f);
+            DoCastSelf(SPELL_ASSASSIN_VISUAL, true);
         }
+    }
+
+    void Reset() override
+    {
+        _scheduler.CancelAll();
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _scheduler.Schedule(6s, [this](TaskContext task)
+        {
+            if (me->GetVictim() && me->GetVictim()->isInBack(me))
+                DoCastVictim(SPELL_BACKSTAB);
+
+            task.Repeat();
+        });
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _scheduler.Update(diff, [this]
+        {
+            DoMeleeAttackIfReady();
+        });
+    }
+
+    void MovementInform(uint32 /*type*/, uint32 id) override
+    {
+        if (id == EVENT_JUMP)
+        {
+            me->RemoveAurasDueToSpell(SPELL_ASSASSIN_VISUAL);
+            DoZoneInCombat();
+        }
+    }
+
+private:
+    TaskScheduler _scheduler;
 };
 
 class npc_anubarak_anub_ar_guardian : public CreatureScript
@@ -685,7 +685,7 @@ void AddSC_boss_anub_arak()
     RegisterCreatureAIWithFactory(boss_anub_arak, GetAzjolNerubAI);
 
     RegisterCreatureAIWithFactory(npc_anubarak_anub_ar_darter, GetAzjolNerubAI);
-    new npc_anubarak_anub_ar_assassin();
+    RegisterCreatureAIWithFactory(npc_anubarak_anub_ar_assassin, GetAzjolNerubAI);
     new npc_anubarak_anub_ar_guardian();
     new npc_anubarak_anub_ar_venomancer();
     new npc_anubarak_impale_target();
