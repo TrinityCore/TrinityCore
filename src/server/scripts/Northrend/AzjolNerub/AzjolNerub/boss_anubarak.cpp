@@ -439,26 +439,15 @@ class npc_anubarak_pet_template : public ScriptedAI
         bool const _isLarge;
 };
 
-class npc_anubarak_anub_ar_darter : public CreatureScript
+struct npc_anubarak_anub_ar_darter : public npc_anubarak_pet_template
 {
-    public:
-        npc_anubarak_anub_ar_darter() : CreatureScript("npc_anubarak_anub_ar_darter") { }
+    npc_anubarak_anub_ar_darter(Creature* creature) : npc_anubarak_pet_template(creature, false) { }
 
-        struct npc_anubarak_anub_ar_darterAI : public npc_anubarak_pet_template
-        {
-            npc_anubarak_anub_ar_darterAI(Creature* creature) : npc_anubarak_pet_template(creature, false) { }
-
-            void InitializeAI() override
-            {
-                npc_anubarak_pet_template::InitializeAI();
-                DoCastAOE(SPELL_DART);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetAzjolNerubAI<npc_anubarak_anub_ar_darterAI>(creature);
-        }
+    void InitializeAI() override
+    {
+        npc_anubarak_pet_template::InitializeAI();
+        DoCastAOE(SPELL_DART);
+    }
 };
 
 class npc_anubarak_anub_ar_assassin : public CreatureScript
@@ -695,7 +684,7 @@ void AddSC_boss_anub_arak()
 {
     RegisterCreatureAIWithFactory(boss_anub_arak, GetAzjolNerubAI);
 
-    new npc_anubarak_anub_ar_darter();
+    RegisterCreatureAIWithFactory(npc_anubarak_anub_ar_darter, GetAzjolNerubAI);
     new npc_anubarak_anub_ar_assassin();
     new npc_anubarak_anub_ar_guardian();
     new npc_anubarak_anub_ar_venomancer();
