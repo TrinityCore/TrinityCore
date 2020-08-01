@@ -347,120 +347,106 @@ private:
     InstanceScript* instance;
 };
 
-class npc_living_mojo : public CreatureScript
+struct npc_living_mojo : public ScriptedAI
 {
-public:
-    npc_living_mojo() : CreatureScript("npc_living_mojo") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
+    npc_living_mojo(Creature* creature) : ScriptedAI(creature)
     {
-        return GetGundrakAI<npc_living_mojoAI>(creature);
+        instance = creature->GetInstanceScript();
     }
 
-    struct npc_living_mojoAI : public ScriptedAI
+    void Reset() override
     {
-        npc_living_mojoAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-            instance = creature->GetInstanceScript();
-        }
+        _scheduler.CancelAll();
+    }
 
-        void Initialize()
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _scheduler.Schedule(2s, [this](TaskContext task)
         {
-            mojoWaveTimer = 2 * IN_MILLISECONDS;
-            mojoPuddleTimer = 7 * IN_MILLISECONDS;
-        }
+            DoCastVictim(SPELL_MOJO_WAVE);
+            task.Repeat(15s);
+        })
+        .Schedule(7s, [this](TaskContext task)
+        {
+            DoCastVictim(SPELL_MOJO_PUDDLE);
+            task.Repeat(18s);
+        });
+    }
 
-        void Reset() override
+    void MoveMojos(Creature* boss)
+    {
+        std::list<Creature*> mojosList;
+        boss->GetCreatureListWithEntryInGrid(mojosList, me->GetEntry(), 12.0f);
+        if (!mojosList.empty())
         {
-            Initialize();
-        }
-
-        void MoveMojos(Creature* boss)
-        {
-            std::list<Creature*> mojosList;
-            boss->GetCreatureListWithEntryInGrid(mojosList, me->GetEntry(), 12.0f);
-            if (!mojosList.empty())
+            for (std::list<Creature*>::const_iterator itr = mojosList.begin(); itr != mojosList.end(); ++itr)
             {
-                for (std::list<Creature*>::const_iterator itr = mojosList.begin(); itr != mojosList.end(); ++itr)
-                {
-                    if (Creature* mojo = *itr)
-                        mojo->GetMotionMaster()->MovePoint(1, boss->GetHomePosition().GetPositionX(), boss->GetHomePosition().GetPositionY(), boss->GetHomePosition().GetPositionZ());
-                }
+                if (Creature* mojo = *itr)
+                    mojo->GetMotionMaster()->MovePoint(1, boss->GetHomePosition().GetPositionX(), boss->GetHomePosition().GetPositionY(), boss->GetHomePosition().GetPositionZ());
             }
         }
+    }
 
-        void MovementInform(uint32 type, uint32 id) override
+    void MovementInform(uint32 type, uint32 id) override
+    {
+        if (type != POINT_MOTION_TYPE)
+            return;
+
+        if (id == 1)
         {
-            if (type != POINT_MOTION_TYPE)
-                return;
-
-            if (id == 1)
-            {
-                if (Creature* colossus = instance->GetCreature(DATA_DRAKKARI_COLOSSUS))
-                {
-                    colossus->AI()->DoAction(ACTION_UNFREEZE_COLOSSUS);
-                    if (!colossus->AI()->GetData(DATA_INTRO_DONE))
-                        colossus->AI()->SetData(DATA_INTRO_DONE, true);
-                    DoZoneInCombat(colossus);
-                    me->DespawnOrUnsummon();
-                }
-            }
-        }
-
-        void AttackStart(Unit* attacker) override
-        {
-            if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
-                return;
-
-            // we do this checks to see if the creature is one of the creatures that sorround the boss
             if (Creature* colossus = instance->GetCreature(DATA_DRAKKARI_COLOSSUS))
             {
-                Position homePosition = me->GetHomePosition();
-
-                float distance = homePosition.GetExactDist(&colossus->GetHomePosition());
-
-                if (distance < 12.0f)
-                {
-                    MoveMojos(colossus);
-                    me->SetReactState(REACT_PASSIVE);
-                }
-                else
-                    ScriptedAI::AttackStart(attacker);
+                colossus->AI()->DoAction(ACTION_UNFREEZE_COLOSSUS);
+                if (!colossus->AI()->GetData(DATA_INTRO_DONE))
+                    colossus->AI()->SetData(DATA_INTRO_DONE, true);
+                DoZoneInCombat(colossus);
+                me->DespawnOrUnsummon();
             }
         }
+    }
 
-        void UpdateAI(uint32 diff) override
+    void AttackStart(Unit* attacker) override
+    {
+        if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
+            return;
+
+        // we do this checks to see if the creature is one of the creatures that sorround the boss
+        if (Creature* colossus = instance->GetCreature(DATA_DRAKKARI_COLOSSUS))
         {
-            //Return since we have no target
-            if (!UpdateVictim())
-                return;
+            Position homePosition = me->GetHomePosition();
 
-            if (mojoWaveTimer <= diff)
+            float distance = homePosition.GetExactDist(&colossus->GetHomePosition());
+
+            if (distance < 12.0f)
             {
-                DoCastVictim(SPELL_MOJO_WAVE);
-                mojoWaveTimer = 15*IN_MILLISECONDS;
-            } else mojoWaveTimer -= diff;
-
-            if (mojoPuddleTimer <= diff)
-            {
-                DoCastVictim(SPELL_MOJO_PUDDLE);
-                mojoPuddleTimer = 18*IN_MILLISECONDS;
-            } else mojoPuddleTimer -= diff;
-
-            DoMeleeAttackIfReady();
+                MoveMojos(colossus);
+                me->SetReactState(REACT_PASSIVE);
+            }
+            else
+                ScriptedAI::AttackStart(attacker);
         }
+    }
 
-    private:
-        InstanceScript* instance;
-        uint32 mojoWaveTimer;
-        uint32 mojoPuddleTimer;
-    };
+    void UpdateAI(uint32 diff) override
+    {
+        //Return since we have no target
+        if (!UpdateVictim())
+            return;
+
+        _scheduler.Update(diff, [this]
+        {
+            DoMeleeAttackIfReady();
+        });
+    }
+
+private:
+    InstanceScript* instance;
+    TaskScheduler _scheduler;
 };
 
 void AddSC_boss_drakkari_colossus()
 {
     RegisterCreatureAIWithFactory(boss_drakkari_colossus, GetGundrakAI);
     RegisterCreatureAIWithFactory(boss_drakkari_elemental, GetGundrakAI);
-    new npc_living_mojo();
+    RegisterCreatureAIWithFactory(npc_living_mojo, GetGundrakAI);
 }
