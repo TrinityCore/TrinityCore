@@ -53,77 +53,64 @@ enum Events
     EVENT_EARTHQUAKE    = 2,
 };
 
-class boss_golemagg : public CreatureScript
+struct boss_golemagg : public BossAI
 {
-    public:
-        boss_golemagg() : CreatureScript("boss_golemagg") { }
+    boss_golemagg(Creature* creature) : BossAI(creature, BOSS_GOLEMAGG_THE_INCINERATOR) { }
 
-        struct boss_golemaggAI : public BossAI
+    void Reset() override
+    {
+        BossAI::Reset();
+        DoCast(me, SPELL_MAGMASPLASH, true);
+    }
+
+    void JustEngagedWith(Unit* victim) override
+    {
+        BossAI::JustEngagedWith(victim);
+        events.ScheduleEvent(EVENT_PYROBLAST, 7s);
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+    {
+        if (!HealthBelowPct(10) || me->HasAura(SPELL_ENRAGE))
+            return;
+
+        DoCast(me, SPELL_ENRAGE, true);
+        events.ScheduleEvent(EVENT_EARTHQUAKE, 3s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            boss_golemaggAI(Creature* creature) : BossAI(creature, BOSS_GOLEMAGG_THE_INCINERATOR)
+            switch (eventId)
             {
+                case EVENT_PYROBLAST:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                        DoCast(target, SPELL_PYROBLAST);
+                    events.ScheduleEvent(EVENT_PYROBLAST, 7s);
+                    break;
+                case EVENT_EARTHQUAKE:
+                    DoCastVictim(SPELL_EARTHQUAKE);
+                    events.ScheduleEvent(EVENT_EARTHQUAKE, 3s);
+                    break;
+                default:
+                    break;
             }
 
-            void Reset() override
-            {
-                BossAI::Reset();
-                DoCast(me, SPELL_MAGMASPLASH, true);
-            }
-
-            void JustEngagedWith(Unit* victim) override
-            {
-                BossAI::JustEngagedWith(victim);
-                events.ScheduleEvent(EVENT_PYROBLAST, 7s);
-            }
-
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
-            {
-                if (!HealthBelowPct(10) || me->HasAura(SPELL_ENRAGE))
-                    return;
-
-                DoCast(me, SPELL_ENRAGE, true);
-                events.ScheduleEvent(EVENT_EARTHQUAKE, 3s);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_PYROBLAST:
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                                DoCast(target, SPELL_PYROBLAST);
-                            events.ScheduleEvent(EVENT_PYROBLAST, 7s);
-                            break;
-                        case EVENT_EARTHQUAKE:
-                            DoCastVictim(SPELL_EARTHQUAKE);
-                            events.ScheduleEvent(EVENT_EARTHQUAKE, 3s);
-                            break;
-                        default:
-                            break;
-                    }
-
-                    if (me->HasUnitState(UNIT_STATE_CASTING))
-                        return;
-                }
-
-                DoMeleeAttackIfReady();
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetMoltenCoreAI<boss_golemaggAI>(creature);
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
         }
+
+        DoMeleeAttackIfReady();
+    }
 };
 
 class npc_core_rager : public CreatureScript
@@ -195,6 +182,6 @@ class npc_core_rager : public CreatureScript
 
 void AddSC_boss_golemagg()
 {
-    new boss_golemagg();
+    RegisterMoltenCoreCreatureAI(boss_golemagg);
     new npc_core_rager();
 }
