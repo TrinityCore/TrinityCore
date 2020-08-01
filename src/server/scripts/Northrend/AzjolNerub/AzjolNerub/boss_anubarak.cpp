@@ -600,36 +600,25 @@ struct npc_anubarak_impale_target : public NullCreatureAI
     }
 };
 
-class spell_anubarak_pound : public SpellScriptLoader
+class spell_anubarak_pound : public SpellScript
 {
-    public:
-        spell_anubarak_pound() : SpellScriptLoader("spell_anubarak_pound") { }
+    PrepareSpellScript(spell_anubarak_pound);
 
-        class spell_anubarak_pound_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_anubarak_pound_SpellScript);
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_POUND_DAMAGE });
+    }
 
-            bool Validate(SpellInfo const* /*spell*/) override
-            {
-                return ValidateSpellInfo({ SPELL_POUND_DAMAGE });
-            }
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* target = GetHitUnit())
+            GetCaster()->CastSpell(target, SPELL_POUND_DAMAGE, true);
+    }
 
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                if (Unit* target = GetHitUnit())
-                    GetCaster()->CastSpell(target, SPELL_POUND_DAMAGE, true);
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_anubarak_pound_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_anubarak_pound_SpellScript();
-        }
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_anubarak_pound::HandleDummy, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+    }
 };
 
 class spell_anubarak_carrion_beetles : public SpellScriptLoader
@@ -675,6 +664,6 @@ void AddSC_boss_anub_arak()
     RegisterCreatureAIWithFactory(npc_anubarak_anub_ar_venomancer, GetAzjolNerubAI);
     RegisterCreatureAIWithFactory(npc_anubarak_impale_target, GetAzjolNerubAI);
 
-    new spell_anubarak_pound();
+    RegisterSpellScript(spell_anubarak_pound);
     new spell_anubarak_carrion_beetles();
 }
