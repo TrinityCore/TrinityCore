@@ -83,6 +83,7 @@ class TC_GAME_API ChatHandler
         virtual bool ParseCommands(char const* text);
 
         static std::vector<ChatCommand> const& getCommandTable();
+        static void InitializeCommandTable();
         static void invalidateCommandTable();
 
         bool isValidChatMessage(char const* msg);

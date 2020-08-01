@@ -43,27 +43,29 @@ static Optional<std::vector<ChatCommand>> commandTableCache;
 std::vector<ChatCommand> const& ChatHandler::getCommandTable()
 {
     if (!commandTableCache)
-    {
-        // We need to initialize this at top since SetDataForCommandInTable
-        // calls getCommandTable() recursively.
-        commandTableCache = sScriptMgr->GetChatCommands();
-
-        WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_COMMANDS);
-        PreparedQueryResult result = WorldDatabase.Query(stmt);
-        if (result)
-        {
-            do
-            {
-                Field* fields = result->Fetch();
-                std::string name = fields[0].GetString();
-
-                SetDataForCommandInTable(*commandTableCache, name.c_str(), fields[1].GetUInt16(), fields[2].GetString(), name);
-            }
-            while (result->NextRow());
-        }
-    }
+        InitializeCommandTable();
 
     return *commandTableCache;
+}
+
+void ChatHandler::InitializeCommandTable()
+{
+    // We need to initialize this at top since SetDataForCommandInTable
+    // calls getCommandTable() recursively.
+    commandTableCache = sScriptMgr->GetChatCommands();
+
+    WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_COMMANDS);
+    PreparedQueryResult result = WorldDatabase.Query(stmt);
+    if (result)
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+            std::string name = fields[0].GetString();
+
+            SetDataForCommandInTable(*commandTableCache, name.c_str(), fields[1].GetUInt16(), fields[2].GetString(), name);
+        } while (result->NextRow());
+    }
 }
 
 void ChatHandler::invalidateCommandTable()
