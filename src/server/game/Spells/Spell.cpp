@@ -5758,6 +5758,36 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
 
                 if (unitCaster->GetCharmedGUID())
                     return SPELL_FAILED_ALREADY_HAVE_CHARM;
+
+                Player* playerCaster = unitCaster->ToPlayer();
+                if (playerCaster && playerCaster->GetPetStable())
+                {
+                    std::pair<PetStable::PetInfo const*, PetSaveMode> info = Pet::GetLoadPetInfo(*playerCaster->GetPetStable(), m_spellInfo->Effects[i].MiscValue, 0, false);
+                    if (!info.first)
+                    {
+                        playerCaster->SendTameFailure(PETTAME_NOPETAVAILABLE);
+                        return SPELL_FAILED_DONT_REPORT;
+                    }
+
+                    if (info.first->Type == HUNTER_PET && !info.first->Health)
+                    {
+                        playerCaster->SendTameFailure(PETTAME_DEAD);
+                        return SPELL_FAILED_DONT_REPORT;
+                    }
+
+                    CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(info.first->CreatureId);
+                    if (!creatureInfo || !creatureInfo->IsTameable(playerCaster->CanTameExoticPets()))
+                    {
+                        // if problem in exotic pet
+                        if (creatureInfo && creatureInfo->IsTameable(true))
+                            playerCaster->SendTameFailure(PETTAME_CANTCONTROLEXOTIC);
+                        else
+                            playerCaster->SendTameFailure(PETTAME_NOPETAVAILABLE);
+
+                        return SPELL_FAILED_DONT_REPORT;
+                    }
+                }
+
                 break;
             }
             case SPELL_EFFECT_SUMMON_PLAYER:
