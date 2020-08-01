@@ -621,37 +621,25 @@ class spell_anubarak_pound : public SpellScript
     }
 };
 
-class spell_anubarak_carrion_beetles : public SpellScriptLoader
+class spell_anubarak_carrion_beetles : public AuraScript
 {
-    public:
-        spell_anubarak_carrion_beetles() : SpellScriptLoader("spell_anubarak_carrion_beetles") { }
+    PrepareAuraScript(spell_anubarak_carrion_beetles);
 
-        class spell_anubarak_carrion_beetles_AuraScript : public AuraScript
-        {
-            public:
-                PrepareAuraScript(spell_anubarak_carrion_beetles_AuraScript);
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_CARRION_BEETLE });
+    }
 
-                bool Validate(SpellInfo const* /*spell*/) override
-                {
-                    return ValidateSpellInfo({ SPELL_CARRION_BEETLE });
-                }
+    void HandlePeriodic(AuraEffect const* /*eff*/)
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_CARRION_BEETLE, true);
+        GetCaster()->CastSpell(GetCaster(), SPELL_CARRION_BEETLE, true);
+    }
 
-                void HandlePeriodic(AuraEffect const* /*eff*/)
-                {
-                    GetCaster()->CastSpell(GetCaster(), SPELL_CARRION_BEETLE, true);
-                    GetCaster()->CastSpell(GetCaster(), SPELL_CARRION_BEETLE, true);
-                }
-
-                void Register() override
-                {
-                    OnEffectPeriodic += AuraEffectPeriodicFn(spell_anubarak_carrion_beetles_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-                }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_anubarak_carrion_beetles_AuraScript();
-        }
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_anubarak_carrion_beetles::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
 };
 
 void AddSC_boss_anub_arak()
@@ -665,5 +653,5 @@ void AddSC_boss_anub_arak()
     RegisterCreatureAIWithFactory(npc_anubarak_impale_target, GetAzjolNerubAI);
 
     RegisterSpellScript(spell_anubarak_pound);
-    new spell_anubarak_carrion_beetles();
+    RegisterAuraScript(spell_anubarak_carrion_beetles);
 }
