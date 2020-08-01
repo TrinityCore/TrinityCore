@@ -228,134 +228,123 @@ private:
     bool introDone;
 };
 
-class boss_drakkari_elemental : public CreatureScript
+struct boss_drakkari_elemental : public ScriptedAI
 {
-    public:
-        boss_drakkari_elemental() : CreatureScript("boss_drakkari_elemental") { }
+    boss_drakkari_elemental(Creature* creature) : ScriptedAI(creature)
+    {
+        DoCast(me, SPELL_ELEMENTAL_SPAWN_EFFECT);
+        instance = creature->GetInstanceScript();
+    }
 
-        struct boss_drakkari_elementalAI : public ScriptedAI
+    void Reset() override
+    {
+        events.Reset();
+        events.ScheduleEvent(EVENT_SURGE, 5s, 15s);
+
+        me->AddAura(SPELL_MOJO_VOLLEY, me);
+    }
+
+    void JustDied(Unit* killer) override
+    {
+        Talk(EMOTE_ACTIVATE_ALTAR);
+
+        if (Creature* colossus = instance->GetCreature(DATA_DRAKKARI_COLOSSUS))
+            Unit::Kill(killer, colossus);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            boss_drakkari_elementalAI(Creature* creature) : ScriptedAI(creature)
+            switch (eventId)
             {
-                DoCast(me, SPELL_ELEMENTAL_SPAWN_EFFECT);
-                instance = creature->GetInstanceScript();
+                case EVENT_SURGE:
+                    DoCast(SPELL_SURGE_VISUAL);
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true))
+                        DoCast(target, SPELL_SURGE);
+                    events.ScheduleEvent(EVENT_SURGE, 5s, 15s);
+                    break;
             }
 
-            void Reset() override
-            {
-                events.Reset();
-                events.ScheduleEvent(EVENT_SURGE, 5s, 15s);
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+        }
 
-                me->AddAura(SPELL_MOJO_VOLLEY, me);
-            }
+        DoMeleeAttackIfReady();
+    }
 
-            void JustDied(Unit* killer) override
-            {
-                Talk(EMOTE_ACTIVATE_ALTAR);
-
+   void DoAction(int32 action) override
+    {
+        switch (action)
+        {
+            case ACTION_RETURN_TO_COLOSSUS:
+                Talk(EMOTE_MOJO);
+                DoCast(SPELL_SURGE_VISUAL);
                 if (Creature* colossus = instance->GetCreature(DATA_DRAKKARI_COLOSSUS))
-                    Unit::Kill(killer, colossus);
-            }
+                    // what if the elemental is more than 80 yards from drakkari colossus ?
+                    DoCast(colossus, SPELL_MERGE, true);
+                break;
+        }
+   }
 
-            void UpdateAI(uint32 diff) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    {
+        if (HealthBelowPct(50))
+        {
+            if (Creature* colossus = instance->GetCreature(DATA_DRAKKARI_COLOSSUS))
             {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
+                if (colossus->AI()->GetData(DATA_COLOSSUS_PHASE) == COLOSSUS_PHASE_FIRST_ELEMENTAL_SUMMON)
                 {
-                    switch (eventId)
-                    {
-                        case EVENT_SURGE:
-                            DoCast(SPELL_SURGE_VISUAL);
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true))
-                                DoCast(target, SPELL_SURGE);
-                            events.ScheduleEvent(EVENT_SURGE, 5s, 15s);
-                            break;
-                    }
+                    damage = 0;
 
-                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                    // to prevent spell spaming
+                    if (me->HasUnitState(UNIT_STATE_CHARGING))
                         return;
-                }
 
-                DoMeleeAttackIfReady();
-            }
-
-           void DoAction(int32 action) override
-            {
-                switch (action)
-                {
-                    case ACTION_RETURN_TO_COLOSSUS:
-                        Talk(EMOTE_MOJO);
-                        DoCast(SPELL_SURGE_VISUAL);
-                        if (Creature* colossus = instance->GetCreature(DATA_DRAKKARI_COLOSSUS))
-                            // what if the elemental is more than 80 yards from drakkari colossus ?
-                            DoCast(colossus, SPELL_MERGE, true);
-                        break;
-                }
-           }
-
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
-            {
-                if (HealthBelowPct(50))
-                {
-                    if (Creature* colossus = instance->GetCreature(DATA_DRAKKARI_COLOSSUS))
+                    // not sure about this, the idea of this code is to prevent bug the elemental
+                    // if it is not in a acceptable distance to cast the charge spell.
+                    /*if (me->GetDistance(colossus) > 80.0f)
                     {
-                        if (colossus->AI()->GetData(DATA_COLOSSUS_PHASE) == COLOSSUS_PHASE_FIRST_ELEMENTAL_SUMMON)
-                        {
-                            damage = 0;
+                        if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
+                            return;
 
-                            // to prevent spell spaming
-                            if (me->HasUnitState(UNIT_STATE_CHARGING))
-                                return;
-
-                            // not sure about this, the idea of this code is to prevent bug the elemental
-                            // if it is not in a acceptable distance to cast the charge spell.
-                            /*if (me->GetDistance(colossus) > 80.0f)
-                            {
-                                if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
-                                    return;
-
-                                me->GetMotionMaster()->MovePoint(0, colossus->GetPositionX(), colossus->GetPositionY(), colossus->GetPositionZ());
-                                return;
-                            }*/
-                            DoAction(ACTION_RETURN_TO_COLOSSUS);
-                        }
-                    }
+                        me->GetMotionMaster()->MovePoint(0, colossus->GetPositionX(), colossus->GetPositionY(), colossus->GetPositionZ());
+                        return;
+                    }*/
+                    DoAction(ACTION_RETURN_TO_COLOSSUS);
                 }
             }
+        }
+    }
 
-            void EnterEvadeMode(EvadeReason /*why*/) override
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        me->DespawnOrUnsummon();
+    }
+
+    void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id == SPELL_MERGE)
+        {
+            if (Creature* colossus = target->ToCreature())
             {
+                colossus->AI()->DoAction(ACTION_UNFREEZE_COLOSSUS);
                 me->DespawnOrUnsummon();
             }
-
-            void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
-            {
-                if (spellInfo->Id == SPELL_MERGE)
-                {
-                    if (Creature* colossus = target->ToCreature())
-                    {
-                        colossus->AI()->DoAction(ACTION_UNFREEZE_COLOSSUS);
-                        me->DespawnOrUnsummon();
-                    }
-                }
-            }
-
-        private:
-            EventMap events;
-            InstanceScript* instance;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetGundrakAI<boss_drakkari_elementalAI>(creature);
         }
+    }
+
+private:
+    EventMap events;
+    InstanceScript* instance;
 };
 
 class npc_living_mojo : public CreatureScript
@@ -472,6 +461,6 @@ public:
 void AddSC_boss_drakkari_colossus()
 {
     RegisterCreatureAIWithFactory(boss_drakkari_colossus, GetGundrakAI);
-    new boss_drakkari_elemental();
+    RegisterCreatureAIWithFactory(boss_drakkari_elemental, GetGundrakAI);
     new npc_living_mojo();
 }
