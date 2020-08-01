@@ -517,39 +517,37 @@ private:
     TaskScheduler _scheduler;
 };
 
-class npc_anubarak_anub_ar_guardian : public CreatureScript
+struct npc_anubarak_anub_ar_guardian : public npc_anubarak_pet_template
 {
-    public:
-    npc_anubarak_anub_ar_guardian() : CreatureScript("npc_anubarak_anub_ar_guardian") { }
+    npc_anubarak_anub_ar_guardian(Creature* creature) : npc_anubarak_pet_template(creature, true) { }
 
-    struct npc_anubarak_anub_ar_guardianAI : public npc_anubarak_pet_template
+    void Reset() override
     {
-        npc_anubarak_anub_ar_guardianAI(Creature* creature) : npc_anubarak_pet_template(creature, true), _sunderTimer(6 * IN_MILLISECONDS) { }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            if (diff >= _sunderTimer)
-            {
-                DoCastVictim(SPELL_SUNDER_ARMOR);
-                _sunderTimer = 12 * IN_MILLISECONDS;
-            }
-            else
-                _sunderTimer -= diff;
-
-            DoMeleeAttackIfReady();
-        }
-
-        private:
-            uint32 _sunderTimer;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetAzjolNerubAI<npc_anubarak_anub_ar_guardianAI>(creature);
+        _scheduler.CancelAll();
     }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _scheduler.Schedule(6s, [this](TaskContext task)
+        {
+            DoCastVictim(SPELL_SUNDER_ARMOR);
+            task.Repeat(12s);
+        });
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _scheduler.Update(diff, [this]
+        {
+            DoMeleeAttackIfReady();
+        });
+    }
+
+private:
+    TaskScheduler _scheduler;
 };
 
 class npc_anubarak_anub_ar_venomancer : public CreatureScript
@@ -686,7 +684,7 @@ void AddSC_boss_anub_arak()
 
     RegisterCreatureAIWithFactory(npc_anubarak_anub_ar_darter, GetAzjolNerubAI);
     RegisterCreatureAIWithFactory(npc_anubarak_anub_ar_assassin, GetAzjolNerubAI);
-    new npc_anubarak_anub_ar_guardian();
+    RegisterCreatureAIWithFactory(npc_anubarak_anub_ar_guardian, GetAzjolNerubAI);
     new npc_anubarak_anub_ar_venomancer();
     new npc_anubarak_impale_target();
 
