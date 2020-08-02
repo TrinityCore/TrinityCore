@@ -39,7 +39,7 @@ void LoginDatabaseConnection::DoPrepareStatements()
     PrepareStatement(LOGIN_UPD_LOGON_LEGACY, "UPDATE account SET sha_pass_hash = ? WHERE id = ?", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_UPD_LOGONPROOF, "UPDATE account SET session_key = ?, last_ip = ?, last_login = NOW(), locale = ?, failed_logins = 0, os = ? WHERE username = ?", CONNECTION_SYNCH);
     PrepareStatement(LOGIN_SEL_LOGONCHALLENGE, "SELECT a.id, a.username, a.locked, a.lock_country, a.last_ip, a.failed_logins, ab.unbandate > UNIX_TIMESTAMP() OR ab.unbandate = ab.bandate, "
-        "ab.unbandate = ab.bandate, aa.SecurityLevel, a.totp_secret, IF(a.s != DEFAULT(a.s) OR a.v != DEFAULT(a.v), a.sha_pass_hash, NULL), a.salt, a.verifier "
+        "ab.unbandate = ab.bandate, aa.SecurityLevel, a.totp_secret, IF(a.s != DEFAULT(a.s) OR a.v != DEFAULT(a.v) OR a.salt IS NULL OR a.verifier IS NULL, a.sha_pass_hash, NULL), a.salt, a.verifier "
         "FROM account a LEFT JOIN account_access aa ON a.id = aa.AccountID LEFT JOIN account_banned ab ON ab.id = a.id AND ab.active = 1 WHERE a.username = ?", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_SEL_RECONNECTCHALLENGE, "SELECT a.id, UPPER(a.username), a.locked, a.lock_country, a.last_ip, a.failed_logins, ab.unbandate > UNIX_TIMESTAMP() OR ab.unbandate = ab.bandate, "
         "ab.unbandate = ab.bandate, aa.SecurityLevel, a.session_key "

@@ -127,7 +127,7 @@ std::array<uint8, 16> VersionChallenge = { { 0xBA, 0xA3, 0x1E, 0x99, 0xA0, 0x0B,
     uint32 const start = getMSTime();
     // the auth update query nulls salt/verifier if they cannot be converted
     // if they are non-null but s/v have been cleared, that means a legacy tool touched our auth DB (otherwise, the core might've done it itself, it used to use those hacks too)
-    QueryResult result = LoginDatabase.Query("SELECT id, sha_pass_hash, IF((salt IS null) AND (verifier IS null), 0, 1) AS shouldWarn FROM account WHERE s != DEFAULT(s) OR v != DEFAULT(v)");
+    QueryResult result = LoginDatabase.Query("SELECT id, sha_pass_hash, IF((salt IS null) AND (verifier IS null), 0, 1) AS shouldWarn FROM account WHERE s != DEFAULT(s) OR v != DEFAULT(v) OR salt IS NULL OR verifier IS NULL");
     if (!result)
     {
         TC_LOG_INFO("server.authserver", ">> No password hashes to update - this took us %u ms to realize", GetMSTimeDiffToNow(start));
