@@ -15,18 +15,22 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
-#include "InstanceScript.h"
 #include "end_time.h"
+#include "Creature.h"
+#include "CreatureAI.h"
+#include "InstanceScript.h"
+#include "ScriptMgr.h"
 
 ObjectData const creatureData[] =
 {
-    { 0, 0  } // END
+    { BOSS_MUROZOND,                        DATA_MUROZOND                       },
+    { NPC_NOZDORMU_BRONZE_DRAGON_SHRINE,    DATA_NOZDORMU_BRONZE_DRAGON_SHRINE  },
+    { 0,                                    0                                   } // END
 };
 
 ObjectData const gameobjectData[] =
 {
-    { 0, 0 } // END
+    { GO_HOURGLASS_OF_TIME, DATA_HOURGLASS_OF_TIME } // END
 };
 
 DoorData const doorData[] =
@@ -41,13 +45,35 @@ public:
 
     struct instance_end_time_InstanceMapScript : public InstanceScript
     {
-        instance_end_time_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
+        instance_end_time_InstanceMapScript(InstanceMap* map) : InstanceScript(map), _killedInfiniteDragonkins(0)
         {
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
             LoadDoorData(doorData);
             LoadObjectData(creatureData, gameobjectData);
         }
+
+        void OnUnitDeath(Unit* unit) override
+        {
+            if (!unit->IsCreature())
+                return;
+
+            switch (unit->GetEntry())
+            {
+                case NPC_INFINITE_SUPRESSOR:
+                case NPC_INFINITE_WARDEN:
+                    ++_killedInfiniteDragonkins;
+                    if (_killedInfiniteDragonkins == 4 || _killedInfiniteDragonkins == 8)
+                        if (Creature* murozond = GetCreature(DATA_MUROZOND))
+                            if (murozond->IsAIEnabled)
+                                murozond->AI()->SetData(DATA_MUROZOND_INTRO, _killedInfiniteDragonkins == 4 ? IN_PROGRESS : DONE);
+                    break;
+                default:
+                    break;
+            }
+        }
+    private:
+        uint8 _killedInfiniteDragonkins;
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override

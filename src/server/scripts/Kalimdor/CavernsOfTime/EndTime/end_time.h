@@ -21,6 +21,8 @@
 #include "CreatureAIImpl.h"
 #include "Define.h"
 
+class Creature;
+
 #define DataHeader "ET"
 #define ETScriptName "instance_end_time"
 
@@ -33,15 +35,29 @@ enum ETDataTypes
     DATA_ECHO_OF_JANA       = 1,
     DATA_ECHO_OF_SYLVANAS   = 2,
     DATA_ECHO_OF_TYRANDE    = 3,
-    DATA_MUROZOND           = 4
+    DATA_MUROZOND           = 4,
+
+    // Additional Data
+    DATA_HOURGLASS_OF_TIME,
+    DATA_MUROZOND_INTRO,
+    DATA_NOZDORMU_BRONZE_DRAGON_SHRINE
 };
 
 enum ETCreatures
 {
+    // Bosses
+    BOSS_MUROZOND                       = 54432,
+
+    // Encounter Related Creatures
+    /*Murozond*/
+    NPC_INFINITE_WARDEN                 = 54923,
+    NPC_INFINITE_SUPRESSOR              = 54920,
+    NPC_NOZDORMU_BRONZE_DRAGON_SHRINE   = 54751
 };
 
 enum ETGameObjectIds
 {
+    GO_HOURGLASS_OF_TIME = 209249
 };
 
 template<class AI>
