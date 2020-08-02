@@ -24,7 +24,12 @@
 using SHA1 = Trinity::Crypto::SHA1;
 using SRP6 = Trinity::Crypto::SRP6;
 
-/*static*/ std::array<uint8, 1> const SRP6::g = { 7 };
+/*static*/ std::array<uint8, 1> const SRP6::g = []()
+{
+    std::array<uint8, 1> g_temp;
+    g_temp[0] = 7;
+    return g_temp;
+}();
 /*static*/ std::array<uint8, 32> const SRP6::N = HexStrToByteArray<32>("894B645E89E1535BBDAD5B8B290650530801B18EBFBF5E8FAB3C82872A3E9BB7", true);
 /*static*/ BigNumber const SRP6::_g(SRP6::g);
 /*static*/ BigNumber const SRP6::_N(N);
@@ -54,7 +59,7 @@ using SRP6 = Trinity::Crypto::SRP6;
 // merge this into CalculateVerifier once the sha_pass hack finally gets nuked from orbit
 /*static*/ SRP6::Verifier SRP6::CalculateVerifierFromHash(SHA1::Digest const& hash, SRP6::Salt const& salt)
 {
-    return _g.ModExp(SHA1::GetDigestOf(salt, hash), _N).ToByteArray<32>(false);
+    return _g.ModExp(SHA1::GetDigestOf(salt, hash), _N).ToByteArray<32>();
 }
 
 /*static*/ SessionKey SRP6::SHA1Interleave(SRP6::EphemeralKey const& S)
@@ -88,7 +93,7 @@ using SRP6 = Trinity::Crypto::SRP6;
 }
 
 SRP6::SRP6(std::string const& username, Salt const& salt, Verifier const& verifier)
-    : _I(SHA1::GetDigestOf(username)), _b(Crypto::GetRandomBytes<19>()), _v(verifier, false), s(salt), B(_B(_b, _v)) {}
+    : _I(SHA1::GetDigestOf(username)), _b(Crypto::GetRandomBytes<32>()), _v(verifier), s(salt), B(_B(_b, _v)) {}
 
 Optional<SessionKey> SRP6::VerifyChallengeResponse(EphemeralKey const& A, SHA1::Digest const& clientM)
 {

@@ -154,6 +154,8 @@ int main(int argc, char** argv)
     if (!StartDB())
         return 1;
 
+    sSessionMgr.FixLegacyAuthHashes();
+
     // Load IP Location Database
     sIPLocation->Load();
 

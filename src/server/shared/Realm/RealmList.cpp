@@ -411,7 +411,7 @@ uint32 RealmList::JoinRealm(uint32 realmAddress, uint32 build, boost::asio::ip::
         memcpy(&keyData[32], serverSecret.data(), 32);
 
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_GAME_ACCOUNT_LOGIN_INFO);
-        stmt->setString(0, ByteArrayToHexStr(keyData));
+        stmt->setBinary(0, keyData);
         stmt->setString(1, clientAddress.to_string());
         stmt->setUInt8(2, locale);
         stmt->setString(3, os);
