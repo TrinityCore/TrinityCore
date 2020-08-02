@@ -374,7 +374,7 @@ bool AccountMgr::CheckPassword(uint32 accountId, std::string password)
         if (Trinity::Crypto::SRP6::CheckLogin(username, password, salt, verifier))
             return true;
     }
-    
+
     return false;
 }
 
