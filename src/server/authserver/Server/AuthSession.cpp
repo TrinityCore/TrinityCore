@@ -136,6 +136,7 @@ std::array<uint8, 16> VersionChallenge = { { 0xBA, 0xA3, 0x1E, 0x99, 0xA0, 0x0B,
 
     bool hadWarning = false;
     uint32 c = 0;
+    LoginDatabaseTransaction tx = LoginDatabase.BeginTransaction();
     do
     {
         uint32 const id = (*result)[0].GetUInt32();
@@ -143,7 +144,7 @@ std::array<uint8, 16> VersionChallenge = { { 0xBA, 0xA3, 0x1E, 0x99, 0xA0, 0x0B,
             HexStrToByteArray<Trinity::Crypto::SHA1::DIGEST_LENGTH>((*result)[1].GetString())
         );
 
-        if ((*result)[2].GetBool() && !hadWarning)
+        if ((*result)[2].GetInt64() && !hadWarning)
         {
             hadWarning = true;
             TC_LOG_WARN("server.authserver", "(!) You appear to be using an outdated external account management tool.\n(!!) This is INSECURE, has been deprecated, and will cease to function entirely in the near future.\n(!) Update your external tool.\n(!!) If no update is available, refer your tool's developer to https://github.com/TrinityCore/TrinityCore/issues/25157.");
@@ -153,10 +154,11 @@ std::array<uint8, 16> VersionChallenge = { { 0xBA, 0xA3, 0x1E, 0x99, 0xA0, 0x0B,
         stmt->setBinary(0, salt);
         stmt->setBinary(1, verifier);
         stmt->setUInt32(2, id);
-        LoginDatabase.Execute(stmt);
+        tx->Append(stmt);
 
         ++c;
     } while (result->NextRow());
+    LoginDatabase.CommitTransaction(tx);
 
     TC_LOG_INFO("server.authserver", ">> %u password hashes updated in %u ms", c, GetMSTimeDiffToNow(start));
 }
