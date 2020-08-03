@@ -183,19 +183,19 @@ class instance_blood_furnace : public InstanceMapScript
             void ResetPrisons()
             {
                 ResetPrisoners(PrisonersCell5);
-                PrisonerCounter5 = PrisonersCell5.size();
+                PrisonerCounter5 = uint8(PrisonersCell5.size());
                 HandleGameObject(PrisonCellGUIDs[DATA_PRISON_CELL5 - DATA_PRISON_CELL1], false);
 
                 ResetPrisoners(PrisonersCell6);
-                PrisonerCounter6 = PrisonersCell6.size();
+                PrisonerCounter6 = uint8(PrisonersCell6.size());
                 HandleGameObject(PrisonCellGUIDs[DATA_PRISON_CELL6 - DATA_PRISON_CELL1], false);
 
                 ResetPrisoners(PrisonersCell7);
-                PrisonerCounter7 = PrisonersCell7.size();
+                PrisonerCounter7 = uint8(PrisonersCell7.size());
                 HandleGameObject(PrisonCellGUIDs[DATA_PRISON_CELL7 - DATA_PRISON_CELL1], false);
 
                 ResetPrisoners(PrisonersCell8);
-                PrisonerCounter8 = PrisonersCell8.size();
+                PrisonerCounter8 = uint8(PrisonersCell8.size());
                 HandleGameObject(PrisonCellGUIDs[DATA_PRISON_CELL8 - DATA_PRISON_CELL1], false);
             }
 

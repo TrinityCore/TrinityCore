@@ -204,7 +204,7 @@ void SpellHistory::WritePacket<Pet>(WorldPacket& packet) const
 {
     Clock::time_point now = GameTime::GetSystemTime();
 
-    uint8 cooldownsCount = _spellCooldowns.size();
+    uint8 cooldownsCount = uint8(_spellCooldowns.size());
     packet << uint8(cooldownsCount);
 
     for (auto const& spellCooldown : _spellCooldowns)

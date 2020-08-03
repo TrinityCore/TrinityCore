@@ -289,7 +289,6 @@ class boss_nalorakk : public CreatureScript
                         case 6:
                             ++MovePhase;
                             waitTimer = 1;
-                            inMove = true;
                             return;
                         case 5:
                             me->SetOrientation(3.1415f*0.5f);
