@@ -168,7 +168,7 @@ std::array<uint8, 16> VersionChallenge = { { 0xBA, 0xA3, 0x1E, 0x99, 0xA0, 0x0B,
                         "(!!) This is INSECURE, and the account(s) in question will not be able to log in.\n"
                         "(!) Update your external tool.\n"
                         "(!!) If no update is available, refer your tool's developer to https://github.com/TrinityCore/TrinityCore/issues/25157.\n"
-                        "(!) You can override this behavior by adding \"AllowDeprecatedExternalPasswords = 0\" to your authserver.conf file.\n"
+                        "(!) You can override this behavior by adding \"AllowDeprecatedExternalPasswords = 1\" to your authserver.conf file.\n"
                         "(!!) Note that this override will cease to function entirely on September 6, 2020.\n"
                         "       ========");
                 }
@@ -477,7 +477,7 @@ void AuthSession::LogonChallengeCallback(PreparedQueryResult result)
                 "(!!) This is INSECURE, and the login attempt from account '%s' was BLOCKED.\n"
                 "(!) Update your external tool.\n"
                 "(!!) If no update is available, refer your tool's developer to https://github.com/TrinityCore/TrinityCore/issues/25157.\n"
-                "(!) You can override this behavior by adding \"AllowDeprecatedExternalPasswords = 0\" to your authserver.conf file.\n"
+                "(!) You can override this behavior by adding \"AllowDeprecatedExternalPasswords = 1\" to your authserver.conf file.\n"
                 "(!!) Note that this override will cease to function entirely on September 6, 2020.\n"
                 "       ========", _accountInfo.Login.c_str());
 
