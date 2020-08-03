@@ -343,6 +343,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         bool IsSelfOrInSameMap(WorldObject const* obj) const;
         bool IsInMap(WorldObject const* obj) const;
+        bool IsInWorldAndInMap() const;
         bool IsWithinDist3d(float x, float y, float z, float dist) const;
         bool IsWithinDist3d(Position const* pos, float dist) const;
         bool IsWithinDist2d(float x, float y, float dist) const;

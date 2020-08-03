@@ -1180,6 +1180,11 @@ bool WorldObject::IsInMap(WorldObject const* obj) const
     return false;
 }
 
+bool WorldObject::IsInWorldAndInMap() const
+{
+    return IsInWorld() && GetMap();
+}
+
 bool WorldObject::IsWithinDist3d(float x, float y, float z, float dist) const
 {
     return IsInDist(x, y, z, dist + GetCombatReach());
