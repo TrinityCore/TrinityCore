@@ -514,7 +514,7 @@ void AccountMgr::LoadRBAC()
 
 void AccountMgr::UpdateAccountAccess(rbac::RBACData* rbac, uint32 accountId, uint8 securityLevel, int32 realmId)
 {
-    if (rbac && securityLevel == rbac->GetSecurityLevel())
+    if (rbac && securityLevel != rbac->GetSecurityLevel())
         rbac->SetSecurityLevel(securityLevel);
 
     LoginDatabaseTransaction trans = LoginDatabase.BeginTransaction();
