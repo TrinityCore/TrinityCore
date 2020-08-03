@@ -96,6 +96,12 @@ class TC_DATABASE_API PreparedStatementBase
         void setDouble(const uint8 index, const double value);
         void setString(const uint8 index, const std::string& value);
         void setBinary(const uint8 index, const std::vector<uint8>& value);
+        template <size_t Size>
+        void setBinary(const uint8 index, std::array<uint8, Size> const& value)
+        {
+            std::vector<uint8> vec(value.begin(), value.end());
+            setBinary(index, vec);
+        }
         void setNull(const uint8 index);
 
         uint32 GetIndex() const { return m_index; }

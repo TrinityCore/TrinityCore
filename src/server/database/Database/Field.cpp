@@ -16,6 +16,7 @@
  */
 
 #include "Field.h"
+#include "Errors.h"
 #include "Log.h"
 #include "MySQLHacks.h"
 
@@ -245,6 +246,12 @@ std::vector<uint8> Field::GetBinary() const
     result.resize(data.length);
     memcpy(result.data(), data.value, data.length);
     return result;
+}
+
+void Field::GetBinarySizeChecked(uint8* buf, size_t length) const
+{
+    ASSERT(data.value && (data.length == length), "Expected %zu-byte binary blob, got %sdata (%u bytes) instead", length, data.value ? "" : "no ", data.length);
+    memcpy(buf, data.value, length);
 }
 
 void Field::SetByteValue(char const* newValue, uint32 length)

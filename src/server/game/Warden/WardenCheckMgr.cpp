@@ -89,19 +89,7 @@ void WardenCheckMgr::LoadWardenChecks()
         wardenCheck->Action = WardenActions(sWorld->getIntConfig(CONFIG_WARDEN_CLIENT_FAIL_ACTION));
 
         if (checkType == PAGE_CHECK_A || checkType == PAGE_CHECK_B || checkType == DRIVER_CHECK)
-        {
             wardenCheck->Data.SetHexStr(data.c_str());
-            int len = data.size() / 2;
-
-            if (wardenCheck->Data.GetNumBytes() < len)
-            {
-                uint8 temp[24];
-                memset(temp, 0, len);
-                memcpy(temp, wardenCheck->Data.AsByteArray().get(), wardenCheck->Data.GetNumBytes());
-                std::reverse(temp, temp + len);
-                wardenCheck->Data.SetBinary((uint8*)temp, len);
-            }
-        }
 
         if (checkType == MEM_CHECK || checkType == MODULE_CHECK)
             MemChecksIdPool.push_back(id);
@@ -124,16 +112,6 @@ void WardenCheckMgr::LoadWardenChecks()
         {
             WardenCheckResult* wr = new WardenCheckResult();
             wr->Result.SetHexStr(checkResult.c_str());
-            int len = checkResult.size() / 2;
-            if (wr->Result.GetNumBytes() < len)
-            {
-                uint8 *temp = new uint8[len];
-                memset(temp, 0, len);
-                memcpy(temp, wr->Result.AsByteArray().get(), wr->Result.GetNumBytes());
-                std::reverse(temp, temp + len);
-                wr->Result.SetBinary((uint8*)temp, len);
-                delete [] temp;
-            }
             CheckResultStore[id] = wr;
         }
 

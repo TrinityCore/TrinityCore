@@ -16,35 +16,33 @@
  */
 
 #include "ARC4.h"
+#include "Errors.h"
 
-ARC4::ARC4(uint32 len) : m_ctx(EVP_CIPHER_CTX_new())
+Trinity::Crypto::ARC4::ARC4() : _ctx(EVP_CIPHER_CTX_new())
 {
-    EVP_CIPHER_CTX_init(m_ctx);
-    EVP_EncryptInit_ex(m_ctx, EVP_rc4(), nullptr, nullptr, nullptr);
-    EVP_CIPHER_CTX_set_key_length(m_ctx, len);
+    EVP_CIPHER_CTX_init(_ctx);
+    int result = EVP_EncryptInit_ex(_ctx, EVP_rc4(), nullptr, nullptr, nullptr);
+    ASSERT(result == 1);
 }
 
-ARC4::ARC4(uint8* seed, uint32 len) : m_ctx(EVP_CIPHER_CTX_new())
+Trinity::Crypto::ARC4::~ARC4()
 {
-    EVP_CIPHER_CTX_init(m_ctx);
-    EVP_EncryptInit_ex(m_ctx, EVP_rc4(), nullptr, nullptr, nullptr);
-    EVP_CIPHER_CTX_set_key_length(m_ctx, len);
-    EVP_EncryptInit_ex(m_ctx, nullptr, nullptr, seed, nullptr);
+    EVP_CIPHER_CTX_free(_ctx);
 }
 
-ARC4::~ARC4()
+void Trinity::Crypto::ARC4::Init(uint8 const* seed, size_t len)
 {
-    EVP_CIPHER_CTX_free(m_ctx);
+    int result1 = EVP_CIPHER_CTX_set_key_length(_ctx, len);
+    ASSERT(result1 == 1);
+    int result2 = EVP_EncryptInit_ex(_ctx, nullptr, nullptr, seed, nullptr);
+    ASSERT(result2 == 1);
 }
 
-void ARC4::Init(uint8* seed)
-{
-    EVP_EncryptInit_ex(m_ctx, nullptr, nullptr, seed, nullptr);
-}
-
-void ARC4::UpdateData(int len, uint8* data)
+void Trinity::Crypto::ARC4::UpdateData(uint8* data, size_t len)
 {
     int outlen = 0;
-    EVP_EncryptUpdate(m_ctx, data, &outlen, data, len);
-    EVP_EncryptFinal_ex(m_ctx, data, &outlen);
+    int result1 = EVP_EncryptUpdate(_ctx, data, &outlen, data, len);
+    ASSERT(result1 == 1);
+    int result2 = EVP_EncryptFinal_ex(_ctx, data, &outlen);
+    ASSERT(result2 == 1);
 }

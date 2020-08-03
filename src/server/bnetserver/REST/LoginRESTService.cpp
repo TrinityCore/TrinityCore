@@ -17,6 +17,8 @@
 
 #include "LoginRESTService.h"
 #include "Configuration/Config.h"
+#include "CryptoHash.h"
+#include "CryptoRandom.h"
 #include "DatabaseEnv.h"
 #include "Errors.h"
 #include "IpNetwork.h"
@@ -24,8 +26,6 @@
 #include "Realm.h"
 #include "Resolver.h"
 #include "SessionManager.h"
-#include "SHA1.h"
-#include "SHA256.h"
 #include "SslContext.h"
 #include "Util.h"
 #include "httpget.h"
@@ -362,10 +362,9 @@ int32 LoginRESTService::HandlePostLogin(std::shared_ptr<AsyncRequest> request)
             {
                 if (loginTicket.empty() || loginTicketExpiry < time(nullptr))
                 {
-                    BigNumber ticket;
-                    ticket.SetRand(20 * 8);
+                    std::array<uint8, 20> ticket = Trinity::Crypto::GetRandomBytes<20>();
 
-                    loginTicket = "TC-" + ByteArrayToHexStr(ticket.AsByteArray(20).get(), 20);
+                    loginTicket = "TC-" + ByteArrayToHexStr(ticket);
                 }
 
                 LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_AUTHENTICATION);
@@ -503,17 +502,17 @@ void LoginRESTService::HandleAsyncRequest(std::shared_ptr<AsyncRequest> request)
 
 std::string LoginRESTService::CalculateShaPassHash(std::string const& name, std::string const& password)
 {
-    SHA256Hash email;
+    Trinity::Crypto::SHA256 email;
     email.UpdateData(name);
     email.Finalize();
 
-    SHA256Hash sha;
-    sha.UpdateData(ByteArrayToHexStr(email.GetDigest(), email.GetLength()));
+    Trinity::Crypto::SHA256 sha;
+    sha.UpdateData(ByteArrayToHexStr(email.GetDigest()));
     sha.UpdateData(":");
     sha.UpdateData(password);
     sha.Finalize();
 
-    return ByteArrayToHexStr(sha.GetDigest(), sha.GetLength(), true);
+    return ByteArrayToHexStr(sha.GetDigest(), true);
 }
 
 Namespace namespaces[] =

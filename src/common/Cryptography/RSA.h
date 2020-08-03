@@ -18,6 +18,7 @@
 #include "Define.h"
 #include <openssl/objects.h>
 #include <openssl/rsa.h>
+#include <array>
 #include <string>
 #include <type_traits>
 
@@ -57,10 +58,22 @@ public:
         return Encrypt<KeyTag>(data, dataLength, output, PaddingTag::value);
     }
 
+    template <std::size_t N, typename KeyTag, typename PaddingTag>
+    bool Encrypt(std::array<uint8, N> const& data, uint8* output, KeyTag, PaddingTag)
+    {
+        return Encrypt<KeyTag>(data.data(), data.size(), output, PaddingTag::value);
+    }
+
     template <typename HashTag>
     bool Sign(uint8 const* dataHash, std::size_t dataHashLength, uint8* output, HashTag)
     {
         return Sign(HashTag::value, dataHash, dataHashLength, output);
+    }
+
+    template <std::size_t N, typename HashTag>
+    bool Sign(std::array<uint8, N> const& dataHash, uint8* output, HashTag)
+    {
+        return Sign(HashTag::value, dataHash.data(), dataHash.size(), output);
     }
 
 private:
