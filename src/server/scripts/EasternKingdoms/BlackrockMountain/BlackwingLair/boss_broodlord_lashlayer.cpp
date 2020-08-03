@@ -129,7 +129,7 @@ class go_suppression_device : public GameObjectScript
 
         struct go_suppression_deviceAI : public GameObjectAI
         {
-            go_suppression_deviceAI(GameObject* go) : GameObjectAI(go), _instance(go->GetInstanceScript()) 
+            go_suppression_deviceAI(GameObject* go) : GameObjectAI(go), _instance(go->GetInstanceScript())
             {
                 _events.ScheduleEvent(EVENT_SUPPRESSION_AURA, Seconds(6));
                 _events.ScheduleEvent(EVENT_SUPPRESSION_ANIM, Seconds(2));
@@ -179,7 +179,7 @@ class go_suppression_device : public GameObjectScript
                 }
             }
 
-            void OnLootStateChanged(uint32 state, Unit* who) override
+            void OnLootStateChanged(uint32 state, Unit* /*unit*/) override
             {
                 if (state == GO_ACTIVATED)
                 {
