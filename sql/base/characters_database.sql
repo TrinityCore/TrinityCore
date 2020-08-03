@@ -252,12 +252,12 @@ CREATE TABLE `auctionhouse` (
   `houseid` tinyint(3) unsigned NOT NULL DEFAULT '7',
   `itemguid` int(10) unsigned NOT NULL DEFAULT '0',
   `itemowner` int(10) unsigned NOT NULL DEFAULT '0',
-  `buyoutprice` int(10) unsigned NOT NULL DEFAULT '0',
+  `buyoutprice` bigint(20) unsigned NOT NULL DEFAULT '0',
   `time` int(10) unsigned NOT NULL DEFAULT '0',
   `buyguid` int(10) unsigned NOT NULL DEFAULT '0',
-  `lastbid` int(10) unsigned NOT NULL DEFAULT '0',
-  `startbid` int(10) unsigned NOT NULL DEFAULT '0',
-  `deposit` int(10) unsigned NOT NULL DEFAULT '0',
+  `lastbid` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `startbid` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `deposit` bigint(20) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `item_guid` (`itemguid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -2021,7 +2021,7 @@ CREATE TABLE `guild_bank_eventlog` (
   `TabId` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT 'Guild bank TabId',
   `EventType` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT 'Event type',
   `PlayerGuid` int(10) unsigned NOT NULL DEFAULT '0',
-  `ItemOrMoney` int(10) unsigned NOT NULL DEFAULT '0',
+  `ItemOrMoney` bigint(20) unsigned NOT NULL DEFAULT '0',
   `ItemStackCount` smallint(5) unsigned NOT NULL DEFAULT '0',
   `DestTabId` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT 'Destination Tab Id',
   `TimeStamp` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Event UNIX time',
@@ -2257,7 +2257,7 @@ CREATE TABLE `guild_member_withdraw` (
   `tab5` int(10) unsigned NOT NULL DEFAULT '0',
   `tab6` int(10) unsigned NOT NULL DEFAULT '0',
   `tab7` int(10) unsigned NOT NULL DEFAULT '0',
-  `money` int(10) unsigned NOT NULL DEFAULT '0',
+  `money` bigint(20) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Guild Member Daily Withdraws';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3047,7 +3047,8 @@ INSERT INTO `updates` VALUES
 ('custom_2019_08_20_00_characters.sql','09DC2B6A0E602E377F240CB29F6E1E3209FD346B','ARCHIVED','2019-11-06 00:17:45',0),
 ('custom_2020_01_05_00_character.sql','DEC981779DA0311FA1E20FF0424BE5F997D21BEE','ARCHIVED','2020-01-06 10:44:59',0),
 ('2020_05_19_00_characters.sql','5FFAB4D7060E872AB6221D759EC1BCF461F1E9E3','ARCHIVED','2020-05-19 01:44:34',0),
-('2020_06_15_00_characters.sql','4422FE31AABBA352C473E33B56927F6695492BCB','RELEASED','2020-06-15 10:23:44',0);
+('2020_06_15_00_characters.sql','4422FE31AABBA352C473E33B56927F6695492BCB','RELEASED','2020-06-15 10:23:44',0),
+('2020_08_02_00_characters.sql','D304C702A83D5C22DF060B98DDE119EEFC92CF52','RELEASED','2020-08-02 03:19:22',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 

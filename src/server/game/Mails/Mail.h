@@ -135,7 +135,7 @@ class TC_GAME_API MailDraft
     public:                                                 // modifiers
         MailDraft& AddItem(Item* item);
         MailDraft& AddMoney(uint64 money) { m_money = money; return *this; }
-        MailDraft& AddCOD(uint32 COD) { m_COD = COD; return *this; }
+        MailDraft& AddCOD(uint64 COD) { m_COD = COD; return *this; }
 
     public:                                                 // finishers
         void SendReturnToSender(uint32 sender_acc, ObjectGuid::LowType sender_guid, ObjectGuid::LowType receiver_guid, CharacterDatabaseTransaction& trans);

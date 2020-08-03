@@ -226,7 +226,7 @@ void ProcessCastaction(Player* player, Creature* creature, uint32 spellId, uint3
     if (!(spellId && player->HasSpell(spellId)) && player->HasEnoughMoney((int64)cost))
     {
         player->CastSpell(player, triggeredSpellId, true);
-        player->ModifyMoney(-cost);
+        player->ModifyMoney(-int64(cost));
     }
     else
         player->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, creature, 0, 0);

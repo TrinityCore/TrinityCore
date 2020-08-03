@@ -258,7 +258,7 @@ public:
         // If the quest requires money
         int32 ReqOrRewMoney = quest->GetRewOrReqMoney(player);
         if (ReqOrRewMoney < 0)
-            player->ModifyMoney(-ReqOrRewMoney);
+            player->ModifyMoney(-int64(ReqOrRewMoney));
 
         if (sWorld->getBoolConfig(CONFIG_QUEST_ENABLE_QUEST_TRACKER)) // check if Quest Tracker is enabled
         {
