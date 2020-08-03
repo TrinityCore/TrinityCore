@@ -18,12 +18,13 @@
 #include "AccountMgr.h"
 #include "Config.h"
 #include "DatabaseEnv.h"
+#include "CryptoHash.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "Realm.h"
 #include "ScriptMgr.h"
-#include "SHA1.h"
+#include "SRP6.h"
 #include "Util.h"
 #include "World.h"
 #include "WorldSession.h"
@@ -59,18 +60,21 @@ AccountOpResult AccountMgr::CreateAccount(std::string username, std::string pass
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT);
 
     stmt->setString(0, username);
-    stmt->setString(1, CalculateShaPassHash(username, password));
-    stmt->setString(2, email);
+    std::pair<Trinity::Crypto::SRP6::Salt, Trinity::Crypto::SRP6::Verifier> registrationData = Trinity::Crypto::SRP6::MakeRegistrationData(username, password);
+    stmt->setBinary(1, registrationData.first);
+    stmt->setBinary(2, registrationData.second);
     stmt->setString(3, email);
+    stmt->setString(4, email);
+
     if (bnetAccountId && bnetIndex)
     {
-        stmt->setUInt32(4, bnetAccountId);
-        stmt->setUInt8(5, bnetIndex);
+        stmt->setUInt32(5, bnetAccountId);
+        stmt->setUInt8(6, bnetIndex);
     }
     else
     {
-        stmt->setNull(4);
         stmt->setNull(5);
+        stmt->setNull(6);
     }
 
     LoginDatabase.DirectExecute(stmt); // Enforce saving, otherwise AddGroup can fail
@@ -156,6 +160,13 @@ AccountOpResult AccountMgr::DeleteAccount(uint32 accountId)
     return AccountOpResult::AOR_OK;
 }
 
+// Do not use this. Use the appropriate methods on Trinity::Crypto::SRP6 to do whatever you are trying to do.
+// See issue #25157.
+static std::string CalculateShaPassHash_DEPRECATED_DONOTUSE(std::string const& name, std::string const& password)
+{
+    return ByteArrayToHexStr(Trinity::Crypto::SHA1::GetDigestOf(name, ":", password));
+}
+
 AccountOpResult AccountMgr::ChangeUsername(uint32 accountId, std::string newUsername, std::string newPassword)
 {
     // Check if accounts exists
@@ -176,12 +187,23 @@ AccountOpResult AccountMgr::ChangeUsername(uint32 accountId, std::string newUser
     Utf8ToUpperOnlyLatin(newPassword);
 
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_USERNAME);
-
     stmt->setString(0, newUsername);
-    stmt->setString(1, CalculateShaPassHash(newUsername, newPassword));
-    stmt->setUInt32(2, accountId);
-
+    stmt->setUInt32(1, accountId);
     LoginDatabase.Execute(stmt);
+
+    std::pair<Trinity::Crypto::SRP6::Salt, Trinity::Crypto::SRP6::Verifier> registrationData = Trinity::Crypto::SRP6::MakeRegistrationData(newUsername, newPassword);
+    stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGON);
+    stmt->setBinary(0, registrationData.first);
+    stmt->setBinary(1, registrationData.second);
+    stmt->setUInt32(2, accountId);
+    LoginDatabase.Execute(stmt);
+
+    {
+        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGON_LEGACY);
+        stmt->setString(0, CalculateShaPassHash_DEPRECATED_DONOTUSE(newUsername, newPassword));
+        stmt->setUInt32(1, accountId);
+        LoginDatabase.Execute(stmt);
+    }
 
     return AccountOpResult::AOR_OK;
 }
@@ -204,21 +226,20 @@ AccountOpResult AccountMgr::ChangePassword(uint32 accountId, std::string newPass
 
     Utf8ToUpperOnlyLatin(username);
     Utf8ToUpperOnlyLatin(newPassword);
+    std::pair<Trinity::Crypto::SRP6::Salt, Trinity::Crypto::SRP6::Verifier> registrationData = Trinity::Crypto::SRP6::MakeRegistrationData(username, newPassword);
 
-    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_PASSWORD);
-
-    stmt->setString(0, CalculateShaPassHash(username, newPassword));
-    stmt->setUInt32(1, accountId);
-
+    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGON);
+    stmt->setBinary(0, registrationData.first);
+    stmt->setBinary(1, registrationData.second);
+    stmt->setUInt32(2, accountId);
     LoginDatabase.Execute(stmt);
 
-    stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_VS);
-
-    stmt->setString(0, "");
-    stmt->setString(1, "");
-    stmt->setString(2, username);
-
-    LoginDatabase.Execute(stmt);
+    {
+        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGON_LEGACY);
+        stmt->setString(0, CalculateShaPassHash_DEPRECATED_DONOTUSE(username, newPassword));
+        stmt->setUInt32(1, accountId);
+        LoginDatabase.Execute(stmt);
+    }
 
     sScriptMgr->OnPasswordChange(accountId);
     return AccountOpResult::AOR_OK;
@@ -354,10 +375,16 @@ bool AccountMgr::CheckPassword(uint32 accountId, std::string password)
 
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_CHECK_PASSWORD);
     stmt->setUInt32(0, accountId);
-    stmt->setString(1, CalculateShaPassHash(username, password));
-    PreparedQueryResult result = LoginDatabase.Query(stmt);
 
-    return (result) ? true : false;
+    if (PreparedQueryResult result = LoginDatabase.Query(stmt))
+    {
+        Trinity::Crypto::SRP6::Salt salt = (*result)[0].GetBinary<Trinity::Crypto::SRP6::SALT_LENGTH>();
+        Trinity::Crypto::SRP6::Verifier verifier = (*result)[1].GetBinary<Trinity::Crypto::SRP6::VERIFIER_LENGTH>();
+        if (Trinity::Crypto::SRP6::CheckLogin(username, password, salt, verifier))
+            return true;
+    }
+
+    return false;
 }
 
 bool AccountMgr::CheckEmail(uint32 accountId, std::string newEmail)
@@ -385,18 +412,6 @@ uint32 AccountMgr::GetCharactersCount(uint32 accountId)
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
     return (result) ? (*result)[0].GetUInt64() : 0;
-}
-
-std::string AccountMgr::CalculateShaPassHash(std::string const& name, std::string const& password)
-{
-    SHA1Hash sha;
-    sha.Initialize();
-    sha.UpdateData(name);
-    sha.UpdateData(":");
-    sha.UpdateData(password);
-    sha.Finalize();
-
-    return ByteArrayToHexStr(sha.GetDigest(), sha.GetLength());
 }
 
 bool AccountMgr::IsBannedAccount(std::string const& name)

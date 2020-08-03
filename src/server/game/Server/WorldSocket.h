@@ -20,12 +20,13 @@
 
 #include "Common.h"
 #include "AsyncCallbackProcessor.h"
-#include "BigNumber.h"
+#include "AuthDefines.h"
 #include "DatabaseEnvFwd.h"
 #include "MessageBuffer.h"
 #include "Socket.h"
 #include "WorldPacketCrypt.h"
 #include "MPSCQueue.h"
+#include <array>
 #include <chrono>
 #include <functional>
 #include <mutex>
@@ -130,10 +131,10 @@ private:
     ConnectionType _type;
     uint64 _key;
 
-    BigNumber _serverChallenge;
+    std::array<uint8, 16> _serverChallenge;
     WorldPacketCrypt _authCrypt;
-    BigNumber _sessionKey;
-    uint8 _encryptKey[16];
+    SessionKey _sessionKey;
+    std::array<uint8, 16> _encryptKey;
 
     std::chrono::steady_clock::time_point _LastPingTime;
     uint32 _OverSpeedPings;

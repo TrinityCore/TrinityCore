@@ -23,7 +23,6 @@
 #include "SslContext.h"
 #include "SslSocket.h"
 #include "Socket.h"
-#include "BigNumber.h"
 #include "QueryResult.h"
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/ssl.hpp>

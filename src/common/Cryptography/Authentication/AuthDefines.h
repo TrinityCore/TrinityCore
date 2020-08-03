@@ -15,29 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _WARDEN_MAC_H
-#define _WARDEN_MAC_H
+#ifndef TRINITY_AUTHDEFINES_H
+#define TRINITY_AUTHDEFINES_H
 
-#include "ARC4.h"
-#include "ByteBuffer.h"
-#include "Warden.h"
+#include "Define.h"
+#include <array>
 
-class WorldSession;
-class Warden;
-
-class TC_GAME_API WardenMac : public Warden
-{
-    public:
-        WardenMac();
-        ~WardenMac();
-
-        void Init(WorldSession* session, SessionKey const& k) override;
-        ClientWardenModule* GetModuleForClient() override;
-        void InitializeModule() override;
-        void RequestHash() override;
-        void HandleHashResult(ByteBuffer& buff) override;
-        void RequestData() override;
-        void HandleData(ByteBuffer& buff) override;
-};
+constexpr size_t SESSION_KEY_LENGTH = 40;
+using SessionKey = std::array<uint8, SESSION_KEY_LENGTH>;
 
 #endif

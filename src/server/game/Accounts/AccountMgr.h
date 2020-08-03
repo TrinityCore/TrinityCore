@@ -74,7 +74,6 @@ class TC_GAME_API AccountMgr
         static bool GetEmail(uint32 accountId, std::string& email);
         static uint32 GetCharactersCount(uint32 accountId);
 
-        static std::string CalculateShaPassHash(std::string const& name, std::string const& password);
         static bool IsBannedAccount(std::string const& name);
         static bool IsPlayerAccount(uint32 gmlevel);
         static bool IsAdminAccount(uint32 gmlevel);
