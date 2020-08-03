@@ -1089,6 +1089,7 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_WEATHER] = sConfigMgr->GetBoolDefault("ActivateWeather", true);
 
     m_int_configs[CONFIG_DISABLE_BREATHING] = sConfigMgr->GetIntDefault("DisableWaterBreath", SEC_CONSOLE);
+    m_int_configs[CONFIG_WATER_BREATH_DURATION] = sConfigMgr->GetIntDefault("WaterBreathDuration", 180);
 
     m_bool_configs[CONFIG_ALWAYS_MAX_SKILL_FOR_LEVEL] = sConfigMgr->GetBoolDefault("AlwaysMaxSkillForLevel", false);
 
@@ -1311,6 +1312,8 @@ void World::LoadConfigSettings(bool reload)
     // Respawn Settings
     m_int_configs[CONFIG_RESPAWN_MINCHECKINTERVALMS] = sConfigMgr->GetIntDefault("Respawn.MinCheckIntervalMS", 5000);
     m_int_configs[CONFIG_RESPAWN_DYNAMICMODE] = sConfigMgr->GetIntDefault("Respawn.DynamicMode", 0);
+    m_int_configs[CONFIG_MIN_SPAWN_TIME_SECS_MULTIPLIER_APPLY] = sConfigMgr->GetIntDefault("Respawn.MinSpawnTimeSecsMultiplierApply", 150);
+    m_float_configs[CONFIG_RESPAWN_MULTIPLIER] = sConfigMgr->GetFloatDefault("Respawn.Multiplier", 1.0f);
     if (m_int_configs[CONFIG_RESPAWN_DYNAMICMODE] > 1)
     {
         TC_LOG_ERROR("server.loading", "Invalid value for Respawn.DynamicMode (%u). Set to 0.", m_int_configs[CONFIG_RESPAWN_DYNAMICMODE]);
