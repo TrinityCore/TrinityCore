@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Transmogrification.h"
 #include "Player.h"
 #include "AccountMgr.h"
 #include "AchievementMgr.h"
@@ -805,7 +806,7 @@ int32 Player::getMaxTimer(MirrorTimerType timer) const
             if (!IsAlive() || HasAuraType(SPELL_AURA_WATER_BREATHING) || GetSession()->GetSecurity() >= AccountTypes(sWorld->getIntConfig(CONFIG_DISABLE_BREATHING)))
                 return DISABLED_MIRROR_TIMER;
 
-            int32 UnderWaterTime = 3 * MINUTE * IN_MILLISECONDS;
+            int32 UnderWaterTime = sWorld->getIntConfig(CONFIG_WATER_BREATH_DURATION) * IN_MILLISECONDS;
             UnderWaterTime *= GetTotalAuraMultiplier(SPELL_AURA_MOD_WATER_BREATHING);
             return UnderWaterTime;
         }
@@ -3829,32 +3830,34 @@ void Player::RemoveArenaSpellCooldowns(bool removeActivePetCooldowns)
 
 uint32 Player::ResetTalentsCost() const
 {
+    auto TEN_SILVER = 10*SILVER;
+
     // The first time reset costs 1 gold
-    if (m_resetTalentsCost < 1*GOLD)
-        return 1*GOLD;
+    if (m_resetTalentsCost < 1*TEN_SILVER)
+        return 1*TEN_SILVER;
     // then 5 gold
-    else if (m_resetTalentsCost < 5*GOLD)
-        return 5*GOLD;
+    else if (m_resetTalentsCost < 5*TEN_SILVER)
+        return 5*TEN_SILVER;
     // After that it increases in increments of 5 gold
-    else if (m_resetTalentsCost < 10*GOLD)
-        return 10*GOLD;
+    else if (m_resetTalentsCost < 10*TEN_SILVER)
+        return 10*TEN_SILVER;
     else
     {
         uint64 months = (GameTime::GetGameTime() - m_resetTalentsTime)/MONTH;
         if (months > 0)
         {
             // This cost will be reduced by a rate of 5 gold per month
-            int32 new_cost = int32(m_resetTalentsCost - 5*GOLD*months);
+            int32 new_cost = int32(m_resetTalentsCost - 5*TEN_SILVER*months);
             // to a minimum of 10 gold.
-            return (new_cost < 10*GOLD ? 10*GOLD : new_cost);
+            return (new_cost < 10*TEN_SILVER ? 10*TEN_SILVER : new_cost);
         }
         else
         {
             // After that it increases in increments of 5 gold
-            int32 new_cost = m_resetTalentsCost + 5*GOLD;
+            int32 new_cost = m_resetTalentsCost + 5*TEN_SILVER;
             // until it hits a cap of 50 gold.
-            if (new_cost > 50*GOLD)
-                new_cost = 50*GOLD;
+            if (new_cost > 50*TEN_SILVER)
+                new_cost = 50*TEN_SILVER;
             return new_cost;
         }
     }
@@ -4246,6 +4249,9 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER);
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
+#ifdef PRESETS
+            trans->PAppend("DELETE FROM `custom_transmogrification_sets` WHERE `Owner` = %u", guid);
+#endif
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_ACCOUNT_DATA);
             stmt->setUInt32(0, guid);
@@ -12196,7 +12202,10 @@ void Player::SetVisibleItemSlot(uint8 slot, Item* pItem)
 {
     if (pItem)
     {
-        SetUInt32Value(PLAYER_VISIBLE_ITEM_1_ENTRYID + (slot * 2), pItem->GetEntry());
+        if (uint32 entry = pItem->transmog)
+            SetUInt32Value(PLAYER_VISIBLE_ITEM_1_ENTRYID + (slot * 2), entry);
+        else
+            SetUInt32Value(PLAYER_VISIBLE_ITEM_1_ENTRYID + (slot * 2), pItem->GetEntry());
         SetUInt16Value(PLAYER_VISIBLE_ITEM_1_ENCHANTMENT + (slot * 2), 0, pItem->GetEnchantmentId(PERM_ENCHANTMENT_SLOT));
         SetUInt16Value(PLAYER_VISIBLE_ITEM_1_ENCHANTMENT + (slot * 2), 1, pItem->GetEnchantmentId(TEMP_ENCHANTMENT_SLOT));
     }
@@ -12325,6 +12334,7 @@ void Player::MoveItemFromInventory(uint8 bag, uint8 slot, bool update)
 {
     if (Item* it = GetItemByPos(bag, slot))
     {
+        it->transmog = 0;
         ItemRemovedQuestCheck(it->GetEntry(), it->GetCount());
         RemoveItem(bag, slot, update);
         it->SetNotRefundable(this, false);
@@ -23594,7 +23604,10 @@ void Player::AutoUnequipOffhandIfNeed(bool force /*= false*/)
     }
     else
     {
+        uint32 transmog = offItem->transmog;
         MoveItemFromInventory(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND, true);
+        offItem->transmog = transmog;
+
         CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
         offItem->DeleteFromInventoryDB(trans);                   // deletes item from character's inventory
         offItem->SaveToDB(trans);                                // recursive and not have transaction guard into self, item not in inventory and can be save standalone
@@ -24836,17 +24849,9 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
 
 uint32 Player::CalculateTalentsPoints() const
 {
-    uint32 base_talent = GetLevel() < 10 ? 0 : GetLevel()-9;
-
-    if (GetClass() != CLASS_DEATH_KNIGHT || GetMapId() != 609)
-        return uint32(base_talent * sWorld->getRate(RATE_TALENT));
-
-    uint32 talentPointsForLevel = GetLevel() < 56 ? 0 : GetLevel() - 55;
-    talentPointsForLevel += m_questRewardTalentCount;
-
-    if (talentPointsForLevel > base_talent)
-        talentPointsForLevel = base_talent;
-
+    uint32 base_talent = static_cast<uint32>(GetLevel() < 10 ? 0 : GetLevel() - 9 + 5);
+    base_talent = static_cast<uint32>((sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) - 5) < GetLevel() ? sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) - 9 : base_talent);
+    uint32 talentPointsForLevel = (m_questRewardTalentCount > base_talent) ? base_talent : m_questRewardTalentCount;
     return uint32(talentPointsForLevel * sWorld->getRate(RATE_TALENT));
 }
 
