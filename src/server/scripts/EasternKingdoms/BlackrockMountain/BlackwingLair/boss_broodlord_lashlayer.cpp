@@ -129,7 +129,9 @@ class go_suppression_device : public GameObjectScript
 
         struct go_suppression_deviceAI : public GameObjectAI
         {
-            go_suppression_deviceAI(GameObject* go) : GameObjectAI(go), _instance(go->GetInstanceScript())
+            go_suppression_deviceAI(GameObject* go) : GameObjectAI(go), _instance(go->GetInstanceScript()) { }
+
+            void InitializeAI() override
             {
                 _events.ScheduleEvent(EVENT_SUPPRESSION_AURA, Seconds(6));
                 _events.ScheduleEvent(EVENT_SUPPRESSION_ANIM, Seconds(2));
@@ -140,11 +142,8 @@ class go_suppression_device : public GameObjectScript
                 if (_instance->GetBossState(DATA_VAELASTRAZ_THE_CORRUPT) != DONE)
                     return;
 
-                if (_instance->GetBossState(DATA_VAELASTRAZ_THE_CORRUPT) == DONE)
-                {
-                    if (me->GetGoState() == GO_STATE_DESTROYED)
-                        me->SetLootState(GO_READY); // NOT doing this will despawn the gameobject after using Disarm Trap
-                }
+                if (me->GetGoState() == GO_STATE_DESTROYED)
+                    me->SetLootState(GO_READY); // NOT doing this will despawn the gameobject after using Disarm Trap
 
                 if (_instance->GetBossState(DATA_BROODLORD_LASHLAYER) == DONE)
                 {
