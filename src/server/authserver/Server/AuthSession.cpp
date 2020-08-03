@@ -28,6 +28,7 @@
 #include "Log.h"
 #include "RealmList.h"
 #include "SecretMgr.h"
+#include "Timer.h"
 #include "TOTP.h"
 #include "Util.h"
 #include <boost/lexical_cast.hpp>
@@ -119,6 +120,48 @@ std::array<uint8, 16> VersionChallenge = { { 0xBA, 0xA3, 0x1E, 0x99, 0xA0, 0x0B,
 
 #define AUTH_LOGON_CHALLENGE_INITIAL_SIZE 4
 #define REALM_LIST_PACKET_SIZE 5
+
+/*static*/ void AuthSession::ServerStartup()
+{
+    TC_LOG_INFO("server.authserver", "Updating password hashes...");
+    uint32 const start = getMSTime();
+    // the auth update query nulls salt/verifier if they cannot be converted
+    // if they are non-null but s/v have been cleared, that means a legacy tool touched our auth DB (otherwise, the core might've done it itself, it used to use those hacks too)
+    QueryResult result = LoginDatabase.Query("SELECT id, sha_pass_hash, IF((salt IS null) AND (verifier IS null), 0, 1) AS shouldWarn FROM account WHERE s != DEFAULT(s) OR v != DEFAULT(v) OR salt IS NULL OR verifier IS NULL");
+    if (!result)
+    {
+        TC_LOG_INFO("server.authserver", ">> No password hashes to update - this took us %u ms to realize", GetMSTimeDiffToNow(start));
+        return;
+    }
+
+    bool hadWarning = false;
+    uint32 c = 0;
+    LoginDatabaseTransaction tx = LoginDatabase.BeginTransaction();
+    do
+    {
+        uint32 const id = (*result)[0].GetUInt32();
+        auto [salt, verifier] = Trinity::Crypto::SRP6::MakeRegistrationDataFromHash_DEPRECATED_DONOTUSE(
+            HexStrToByteArray<Trinity::Crypto::SHA1::DIGEST_LENGTH>((*result)[1].GetString())
+        );
+
+        if ((*result)[2].GetInt64() && !hadWarning)
+        {
+            hadWarning = true;
+            TC_LOG_WARN("server.authserver", "(!) You appear to be using an outdated external account management tool.\n(!!) This is INSECURE, has been deprecated, and will cease to function entirely in the near future.\n(!) Update your external tool.\n(!!) If no update is available, refer your tool's developer to https://github.com/TrinityCore/TrinityCore/issues/25157.");
+        }
+
+        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGON);
+        stmt->setBinary(0, salt);
+        stmt->setBinary(1, verifier);
+        stmt->setUInt32(2, id);
+        tx->Append(stmt);
+
+        ++c;
+    } while (result->NextRow());
+    LoginDatabase.CommitTransaction(tx);
+
+    TC_LOG_INFO("server.authserver", ">> %u password hashes updated in %u ms", c, GetMSTimeDiffToNow(start));
+}
 
 std::unordered_map<uint8, AuthHandler> AuthSession::InitHandlers()
 {
@@ -398,25 +441,24 @@ void AuthSession::LogonChallengeCallback(PreparedQueryResult result)
 
     if (!fields[10].IsNull())
     {
-        // if this is reached, s/v are empty and we need to recalculate them
+        // if this is reached, s/v were reset and we need to recalculate from sha_pass_hash
         Trinity::Crypto::SHA1::Digest sha_pass_hash;
         HexStrToByteArray(fields[10].GetString(), sha_pass_hash);
-
         auto [salt, verifier] = Trinity::Crypto::SRP6::MakeRegistrationDataFromHash_DEPRECATED_DONOTUSE(sha_pass_hash);
-        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_SV);
-        stmt->setString(0, ByteArrayToHexStr(salt, true)); /* this is actually flipped in the DB right now, old core did hexstr (big endian) -> bignum -> byte array (little-endian) */
-        stmt->setString(1, ByteArrayToHexStr(verifier));
+        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGON);
+        stmt->setBinary(0, salt);
+        stmt->setBinary(1, verifier);
         stmt->setUInt32(2, _accountInfo.Id);
         LoginDatabase.Execute(stmt);
+
+        TC_LOG_WARN("server.authserver", "(!) You appear to be using an outdated external account management tool.\n(!!) This is INSECURE, has been deprecated, and will cease to function entirely in the near future.\n(!) Update your external tool.\n(!!) If no update is available, refer your tool's developer to https://github.com/TrinityCore/TrinityCore/issues/25157.");
 
         _srp6.emplace(_accountInfo.Login, salt, verifier);
     }
     else
     {
-        Trinity::Crypto::SRP6::Salt salt;
-        Trinity::Crypto::SRP6::Verifier verifier;
-        HexStrToByteArray(fields[11].GetString(), salt, true); /* this is actually flipped in the DB right now, old core did hexstr (big endian) -> bignum -> byte array (little-endian) */
-        HexStrToByteArray(fields[12].GetString(), verifier);
+        Trinity::Crypto::SRP6::Salt salt = fields[11].GetBinary<Trinity::Crypto::SRP6::SALT_LENGTH>();
+        Trinity::Crypto::SRP6::Verifier verifier = fields[12].GetBinary<Trinity::Crypto::SRP6::VERIFIER_LENGTH>();
         _srp6.emplace(_accountInfo.Login, salt, verifier);
     }
 
@@ -525,7 +567,7 @@ bool AuthSession::HandleLogonProof()
         // No SQL injection (escaped user name) and IP address as received by socket
 
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGONPROOF);
-        stmt->setString(0, ByteArrayToHexStr(_sessionKey));
+        stmt->setBinary(0, _sessionKey);
         stmt->setString(1, GetRemoteIpAddress().to_string());
         stmt->setUInt32(2, GetLocaleByName(_localizationName));
         stmt->setString(3, _os);
@@ -675,7 +717,7 @@ void AuthSession::ReconnectChallengeCallback(PreparedQueryResult result)
     Field* fields = result->Fetch();
 
     _accountInfo.LoadResult(fields);
-    HexStrToByteArray(fields[9].GetString(), _sessionKey);
+    _sessionKey = fields[9].GetBinary<SESSION_KEY_LENGTH>();
     Trinity::Crypto::GetRandomBytes(_reconnectProof);
     _status = STATUS_RECONNECT_PROOF;
 

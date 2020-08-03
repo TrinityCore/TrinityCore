@@ -1,0 +1,16 @@
+on:
+  push:
+    branches:
+      - 3.3.5
+
+jobs:
+  issue_closer:
+    if: github.repository == 'TrinityCore/TrinityCore'
+    runs-on: ubuntu-latest
+    name: Issue Closer
+    steps:
+    - name: Issue Closer
+      id: issue-closer
+      uses: TrinityCore/GitHub-Actions@issue-closer-prod
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
