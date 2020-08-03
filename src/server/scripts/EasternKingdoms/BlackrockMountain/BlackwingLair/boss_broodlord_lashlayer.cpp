@@ -141,17 +141,17 @@ class go_suppression_device : public GameObjectScript
                     return;
 
                 if (_instance->GetBossState(DATA_VAELASTRAZ_THE_CORRUPT) == DONE)
-                    {
-                        if (me->GetGoState() == GO_STATE_DESTROYED)
+                {
+                    if (me->GetGoState() == GO_STATE_DESTROYED)
                         me->SetLootState(GO_READY); // NOT doing this will despawn the gameobject after using Disarm Trap
-                    }
+                }
 
                 if (_instance->GetBossState(DATA_BROODLORD_LASHLAYER) == DONE)
-                    {
-                        me->SetGoState(GO_STATE_DESTROYED);
-                        me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-                        return;
-                    };
+                {
+                    me->SetGoState(GO_STATE_DESTROYED);
+                    me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                    return;
+                };
 
                 _events.Update(diff);
 
@@ -161,17 +161,17 @@ class go_suppression_device : public GameObjectScript
                     {
                         case EVENT_SUPPRESSION_AURA:
                             if (me->GetGoState() == GO_STATE_READY)
-                            me->CastSpell(nullptr,SPELL_SUPPRESSION_AURA,true);
+                                me->CastSpell(nullptr,SPELL_SUPPRESSION_AURA,true);
                             _events.ScheduleEvent(EVENT_SUPPRESSION_AURA, Seconds(6)); //I couldnt find out if there is a time between the aura effect and the recast - this results in constantly being under effect of the aura
                             break;
                         case EVENT_SUPPRESSION_ANIM:
                             if (me->GetGoState() == GO_STATE_READY)
-                            me->SendCustomAnim(0);
+                                me->SendCustomAnim(0);
                             _events.ScheduleEvent(EVENT_SUPPRESSION_ANIM, Seconds(1), Seconds(2)); //in current retail Videos,there is a ~7 Seconds timer for the animation loop but they arent fully synched.
                             break;
                         case EVENT_SUPPRESSION_RESET:
                             if (me->GetGoState() == GO_STATE_DESTROYED)
-                            me->SetGoState(GO_STATE_READY);
+                                me->SetGoState(GO_STATE_READY);
                             me->SetLootState(GO_READY);
                             me->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                             break;
