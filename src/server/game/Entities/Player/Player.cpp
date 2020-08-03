@@ -20597,7 +20597,7 @@ void Player::UpdatePvPFlag(time_t currTime)
     if (!pvpInfo.EndTimer || (currTime < pvpInfo.EndTimer +300) || pvpInfo.IsHostile)
         return;
 
-    if (pvpInfo.EndTimer && pvpInfo.EndTimer <= currTime)
+    if (pvpInfo.EndTimer <= currTime)
     {
         pvpInfo.EndTimer = 0;
         RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_PVP_TIMER);
