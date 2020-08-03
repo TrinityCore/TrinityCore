@@ -699,7 +699,7 @@ bool Utf8ToUpperOnlyLatin(std::string& utf8String)
     return WStrToUtf8(wstr, utf8String);
 }
 
-std::string ByteArrayToHexStr(uint8 const* bytes, uint32 arrayLen, bool reverse /* = false */)
+std::string ByteArrayToHexStr(uint8 const* bytes, size_t arrayLen, bool reverse /* = false */)
 {
     int32 init = 0;
     int32 end = arrayLen;

@@ -15,38 +15,21 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SHA256_h__
-#define SHA256_h__
+#ifndef TRINITY_CRYPTO_CONSTANTS_H
+#define TRINITY_CRYPTO_CONSTANTS_H
 
 #include "Define.h"
-#include <string>
-#include <type_traits>
-#include <openssl/sha.h>
 
-class BigNumber;
-
-class TC_COMMON_API SHA256Hash
+namespace Trinity
 {
-    public:
-        typedef std::integral_constant<uint32, SHA256_DIGEST_LENGTH> DigestLength;
+namespace Crypto
+{
+    struct Constants
+    {
+        static constexpr size_t SHA1_DIGEST_LENGTH_BYTES = 20;
+        static constexpr size_t SHA256_DIGEST_LENGTH_BYTES = 32;
+    };
+}
+}
 
-        SHA256Hash();
-        ~SHA256Hash();
-
-        void UpdateBigNumbers(BigNumber* bn0, ...);
-
-        void UpdateData(uint8 const* data, size_t len);
-        void UpdateData(std::string const& str);
-
-        void Initialize();
-        void Finalize();
-
-        uint8 *GetDigest() { return mDigest; }
-        uint32 GetLength() const { return SHA256_DIGEST_LENGTH; }
-
-    private:
-        SHA256_CTX mC;
-        uint8 mDigest[SHA256_DIGEST_LENGTH];
-};
-
-#endif // SHA256_h__
+#endif

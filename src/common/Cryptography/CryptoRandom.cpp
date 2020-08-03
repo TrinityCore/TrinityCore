@@ -15,29 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _WARDEN_MAC_H
-#define _WARDEN_MAC_H
+#include "CryptoRandom.h"
+#include "Errors.h"
+#include <openssl/rand.h>
 
-#include "ARC4.h"
-#include "ByteBuffer.h"
-#include "Warden.h"
-
-class WorldSession;
-class Warden;
-
-class TC_GAME_API WardenMac : public Warden
+void Trinity::Crypto::GetRandomBytes(uint8* buf, size_t len)
 {
-    public:
-        WardenMac();
-        ~WardenMac();
-
-        void Init(WorldSession* session, SessionKey const& k) override;
-        ClientWardenModule* GetModuleForClient() override;
-        void InitializeModule() override;
-        void RequestHash() override;
-        void HandleHashResult(ByteBuffer& buff) override;
-        void RequestData() override;
-        void HandleData(ByteBuffer& buff) override;
-};
-
-#endif
+    int result = RAND_bytes(buf, len);
+    ASSERT(result == 1, "Not enough randomness in OpenSSL's entropy pool. What in the world are you running on?");
+}

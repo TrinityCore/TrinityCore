@@ -17,8 +17,8 @@
 
 #include "AccountMgr.h"
 #include "BattlenetAccountMgr.h"
-#include "BigNumber.h"
 #include "Chat.h"
+#include "CryptoRandom.h"
 #include "DatabaseEnv.h"
 #include "IpAddress.h"
 #include "IPLocation.h"
@@ -425,10 +425,9 @@ public:
         std::string accountName = std::to_string(accountId) + '#' + std::to_string(uint32(index));
 
         // Generate random hex string for password, these accounts must not be logged on with GRUNT
-        BigNumber randPassword;
-        randPassword.SetRand(8 * 16);
+        std::array<uint8, 16> randPassword = Trinity::Crypto::GetRandomBytes<16>();
 
-        switch (sAccountMgr->CreateAccount(accountName, ByteArrayToHexStr(randPassword.AsByteArray().get(), randPassword.GetNumBytes()), bnetAccountName, accountId, index))
+        switch (sAccountMgr->CreateAccount(accountName, ByteArrayToHexStr(randPassword), bnetAccountName, accountId, index))
         {
             case AccountOpResult::AOR_OK:
                 handler->PSendSysMessage(LANG_ACCOUNT_CREATED, accountName.c_str());

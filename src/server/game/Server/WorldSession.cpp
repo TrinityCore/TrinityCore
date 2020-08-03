@@ -906,7 +906,7 @@ TransactionCallback& WorldSession::AddTransactionCallback(TransactionCallback&& 
     return _transactionCallbacks.AddCallback(std::move(callback));
 }
 
-void WorldSession::InitWarden(BigNumber* k)
+void WorldSession::InitWarden(SessionKey const& k)
 {
     if (_os == "Win")
     {

@@ -15,29 +15,33 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _WARDEN_MAC_H
-#define _WARDEN_MAC_H
+#ifndef TRINITY_CRYPTORANDOM_H
+#define TRINITY_CRYPTORANDOM_H
 
-#include "ARC4.h"
-#include "ByteBuffer.h"
-#include "Warden.h"
+#include "Define.h"
+#include <array>
+#include "advstd.h"
 
-class WorldSession;
-class Warden;
-
-class TC_GAME_API WardenMac : public Warden
+namespace Trinity
 {
-    public:
-        WardenMac();
-        ~WardenMac();
+namespace Crypto
+{
+    void TC_COMMON_API GetRandomBytes(uint8* buf, size_t len);
 
-        void Init(WorldSession* session, SessionKey const& k) override;
-        ClientWardenModule* GetModuleForClient() override;
-        void InitializeModule() override;
-        void RequestHash() override;
-        void HandleHashResult(ByteBuffer& buff) override;
-        void RequestData() override;
-        void HandleData(ByteBuffer& buff) override;
-};
+    template <typename Container>
+    void GetRandomBytes(Container& c)
+    {
+        GetRandomBytes(advstd::data(c), advstd::size(c));
+    }
+
+    template <size_t S>
+    std::array<uint8, S> GetRandomBytes()
+    {
+        std::array<uint8, S> arr;
+        GetRandomBytes(arr);
+        return arr;
+    }
+}
+}
 
 #endif
