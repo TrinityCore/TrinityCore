@@ -53,7 +53,9 @@ class SessionKeyGenerator
         }
 
     private:
-        typename Hash::Digest o0, o1, o2;
+        typename Hash::Digest o0 = { };
+        typename Hash::Digest o1 = { };
+        typename Hash::Digest o2 = { };
         typename Hash::Digest::const_iterator o0it;
     };
 

@@ -118,7 +118,7 @@ namespace Trinity::Impl
             Digest const& GetDigest() const { return _digest; }
         private:
             HMAC_CTX* _ctx;
-            Digest _digest;
+            Digest _digest = { };
     };
 }
 

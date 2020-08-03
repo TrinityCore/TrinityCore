@@ -106,7 +106,7 @@ namespace Trinity::Impl
 
         private:
             EVP_MD_CTX* _ctx;
-            Digest _digest;
+            Digest _digest = { };
     };
 }
 
