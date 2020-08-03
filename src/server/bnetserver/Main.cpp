@@ -25,6 +25,7 @@
 
 #include "AppenderDB.h"
 #include "Banner.h"
+#include "BigNumber.h"
 #include "Config.h"
 #include "DatabaseEnv.h"
 #include "DatabaseLoader.h"
@@ -152,6 +153,8 @@ int main(int argc, char** argv)
     // Initialize the database connection
     if (!StartDB())
         return 1;
+
+    sSessionMgr.FixLegacyAuthHashes();
 
     // Load IP Location Database
     sIPLocation->Load();

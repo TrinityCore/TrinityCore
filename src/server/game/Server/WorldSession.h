@@ -24,6 +24,7 @@
 
 #include "Common.h"
 #include "AsyncCallbackProcessor.h"
+#include "AuthDefines.h"
 #include "DatabaseEnvFwd.h"
 #include "Duration.h"
 #include "LockedQueue.h"
@@ -35,7 +36,6 @@
 #include <unordered_set>
 
 class BattlePetMgr;
-class BigNumber;
 class BlackMarketEntry;
 class CollectionMgr;
 class Creature;
@@ -958,7 +958,7 @@ class TC_GAME_API WorldSession
         uint8 GetExpansion() const { return m_expansion; }
         std::string const& GetOS() const { return _os; }
 
-        void InitWarden(BigNumber* k);
+        void InitWarden(SessionKey const& k);
 
         /// Session in auth.queue currently
         void SetInQueue(bool state) { m_inQueue = state; }
