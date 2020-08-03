@@ -160,12 +160,12 @@ class go_suppression_device : public GameObjectScript
                     switch (eventId)
                     {
                         case EVENT_SUPPRESSION_AURA:
-                            if (me->GetGoState() == GO_READY)
+                            if (me->GetGoState() == GO_STATE_READY)
                             me->CastSpell(nullptr,SPELL_SUPPRESSION_AURA,true);
                             _events.ScheduleEvent(EVENT_SUPPRESSION_AURA, Seconds(6)); //I couldnt find out if there is a time between the aura effect and the recast - this results in constantly being under effect of the aura
                             break;
                         case EVENT_SUPPRESSION_ANIM:
-                            if (me->GetGoState() == GO_READY)
+                            if (me->GetGoState() == GO_STATE_READY)
                             me->SendCustomAnim(0);
                             _events.ScheduleEvent(EVENT_SUPPRESSION_ANIM, Seconds(1), Seconds(2)); //in current retail Videos,there is a ~7 Seconds timer for the animation loop but they arent fully synched.
                             break;
