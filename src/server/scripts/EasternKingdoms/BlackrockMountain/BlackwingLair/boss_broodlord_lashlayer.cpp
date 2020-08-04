@@ -17,9 +17,9 @@
 
 #include "ScriptMgr.h"
 #include "blackwing_lair.h"
-#include "InstanceScript.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
+#include "InstanceScript.h"
 #include "ScriptedCreature.h"
 
 enum Say
@@ -34,8 +34,7 @@ enum Spells
     SPELL_BLASTWAVE         = 23331,
     SPELL_MORTALSTRIKE      = 24573,
     SPELL_KNOCKBACK         = 25778,
-    //Suppression Device Spell
-    SPELL_SUPPRESSION_AURA  = 22247
+    SPELL_SUPPRESSION_AURA  = 22247 // Suppression Device Spell
 };
 
 enum Events
@@ -45,7 +44,7 @@ enum Events
     EVENT_MORTALSTRIKE      = 3,
     EVENT_KNOCKBACK         = 4,
     EVENT_CHECK             = 5,
-    //Suppression Device Events
+    // Suppression Device Events
     EVENT_SUPPRESSION_CAST  = 6,
     EVENT_SUPPRESSION_RESET = 7
 };
@@ -132,7 +131,7 @@ class go_suppression_device : public GameObjectScript
 
             void InitializeAI() override
             {
-                _events.ScheduleEvent(EVENT_SUPPRESSION_CAST, Seconds(0), Seconds(5));
+                _events.ScheduleEvent(EVENT_SUPPRESSION_CAST, 0s, 5s));
             }
 
             void UpdateAI(uint32 diff) override
@@ -142,9 +141,9 @@ class go_suppression_device : public GameObjectScript
 
                 if (_instance->GetBossState(DATA_BROODLORD_LASHLAYER) == DONE)
                 {
-                    if (me->GetGoState() != GO_STATE_DESTROYED)
+                    if (me->GetGoState() != GO_STATE_ACTIVE)
                     {
-                        me->SetGoState(GO_STATE_DESTROYED);
+                        me->SetGoState(GO_STATE_ACTIVE);
                         me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     }
                     return;
@@ -162,13 +161,13 @@ class go_suppression_device : public GameObjectScript
                         case EVENT_SUPPRESSION_CAST:
                             if (me->GetGoState() == GO_STATE_READY)
                             {
-                                me->CastSpell(nullptr,SPELL_SUPPRESSION_AURA,true);
+                                me->CastSpell(nullptr, SPELL_SUPPRESSION_AURA, true);
                                 me->SendCustomAnim(0);
                             }
-                            _events.ScheduleEvent(EVENT_SUPPRESSION_CAST, Seconds(5));
+                            _events.ScheduleEvent(EVENT_SUPPRESSION_CAST, 5s);
                             break;
                         case EVENT_SUPPRESSION_RESET:
-                            if (me->GetGoState() == GO_STATE_DESTROYED)
+                            if (me->GetGoState() == GO_STATE_ACTIVE)
                                 me->SetGoState(GO_STATE_READY);
                             me->SetLootState(GO_READY);
                             me->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
@@ -181,9 +180,9 @@ class go_suppression_device : public GameObjectScript
             {
                 if (state == GO_ACTIVATED)
                 {
-                    me->SetGoState(GO_STATE_DESTROYED);
+                    me->SetGoState(GO_STATE_ACTIVE);
                     me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-                    _events.ScheduleEvent(EVENT_SUPPRESSION_RESET, Seconds(30), Seconds(120));
+                    _events.ScheduleEvent(EVENT_SUPPRESSION_RESET, 30s, 120s);
                 }
             }
 
