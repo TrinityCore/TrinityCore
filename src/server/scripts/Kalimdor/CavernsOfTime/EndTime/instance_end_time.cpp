@@ -16,16 +16,19 @@
  */
 
 #include "end_time.h"
+#include "EventMap.h"
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "ScriptMgr.h"
+
+#include <array>
 
 ObjectData const creatureData[] =
 {
-    { BOSS_MUROZOND,                        DATA_MUROZOND                       },
-    { NPC_NOZDORMU_BRONZE_DRAGON_SHRINE,    DATA_NOZDORMU_BRONZE_DRAGON_SHRINE  },
-    { 0,                                    0                                   } // END
+    { BOSS_MUROZOND,    DATA_MUROZOND   },
+    { 0,                0               } // END
 };
 
 ObjectData const gameobjectData[] =
@@ -36,6 +39,27 @@ ObjectData const gameobjectData[] =
 DoorData const doorData[] =
 {
     { 0, 0, DOOR_TYPE_ROOM } // END
+};
+
+enum Events
+{
+    EVENT_RESPAWN_MUROZOND = 1
+};
+
+enum SpawnGroups
+{
+    SPAWN_GROUP_ID_MUROZOND_CHEST   = 437
+};
+
+enum AreaIds
+{
+    AREA_ID_BRONZE_DRAGON_SHRINE = 5795
+};
+
+std::array<Position const, 2> MurozondSpawnPositions =
+{
+    Position(4288.125f, -456.40277f, 160.4989f,  2.98451f), // Initial spawn position
+    Position(4181.117f, -420.21933f, 138.38057f, 3.10668f)  // Respawn position
 };
 
 class instance_end_time : public InstanceMapScript
@@ -51,6 +75,23 @@ public:
             SetBossNumber(EncounterCount);
             LoadDoorData(doorData);
             LoadObjectData(creatureData, gameobjectData);
+        }
+
+        void Create() override
+        {
+            InstanceScript::Create();
+
+            // The instance has been created without save data, just spawn Murozond at his initial position.
+            instance->SummonCreature(BOSS_MUROZOND, MurozondSpawnPositions[0]);
+        }
+
+        void Load(char const* data) override
+        {
+            InstanceScript::Load(data);
+
+            // The instance has been created from existing save data, but Murozond has not been defeated yet. Spawn him at his initial position.
+            if (GetBossState(DATA_MUROZOND) != DONE)
+                instance->SummonCreature(BOSS_MUROZOND, MurozondSpawnPositions[0]);
         }
 
         void OnUnitDeath(Unit* unit) override
@@ -72,7 +113,76 @@ public:
                     break;
             }
         }
+
+        void OnCreatureCreate(Creature* creature) override
+        {
+            InstanceScript::OnCreatureCreate(creature);
+
+            switch (creature->GetEntry())
+            {
+                case NPC_NOZDORMU_DRAGON_SHRINES:
+                    if (creature->GetAreaId() == AREA_ID_BRONZE_DRAGON_SHRINE)
+                        AddObject(creature, DATA_NOZDORMU_BRONZE_DRAGON_SHRINE, true);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        void OnCreatureRemove(Creature* creature) override
+        {
+            InstanceScript::OnCreatureRemove(creature);
+
+            switch (creature->GetEntry())
+            {
+                case NPC_NOZDORMU_DRAGON_SHRINES:
+                    if (creature->GetAreaId() == AREA_ID_BRONZE_DRAGON_SHRINE)
+                        AddObject(creature, DATA_NOZDORMU_BRONZE_DRAGON_SHRINE, false);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        bool SetBossState(uint32 type, EncounterState state) override
+        {
+            if (!InstanceScript::SetBossState(type, state))
+                return false;
+
+            switch (type)
+            {
+                case DATA_MUROZOND:
+                    if (state == FAIL)
+                        _events.ScheduleEvent(EVENT_RESPAWN_MUROZOND, 30s);
+                    else if (state == DONE)
+                        instance->SpawnGroupSpawn(SPAWN_GROUP_ID_MUROZOND_CHEST);
+                    break;
+                default:
+                    break;
+            }
+
+            return true;
+        }
+
+        void Update(uint32 diff) override
+        {
+            _events.Update(diff);
+
+            while (uint32 eventId = _events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_RESPAWN_MUROZOND:
+                        instance->SummonCreature(BOSS_MUROZOND, MurozondSpawnPositions[1]);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
     private:
+        EventMap _events;
         uint8 _killedInfiniteDragonkins;
     };
 

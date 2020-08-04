@@ -79,14 +79,7 @@ enum Events
     // Mirror Image
     EVENT_UNROOT_SUMMONER,
     EVENT_MOVE_SUMMONER_BACK,
-    EVENT_TELEPORT_SUMMONER,
-
-    // Nozdormu
-    EVENT_TALK_ENCOUNTER_INTRO,
-    EVENT_TALK_ENCOUNTER_OUTRO_1,
-    EVENT_TALK_ENCOUNTER_OUTRO_2,
-    EVENT_TALK_ENCOUNTER_OUTRO_3,
-    EVENT_TALK_ENCOUNTER_OUTRO_4
+    EVENT_TELEPORT_SUMMONER
 };
 
 enum Actions
@@ -106,14 +99,7 @@ enum Texts
     SAY_INTRO_2             = 1,
     SAY_AGGRO               = 2,
     SAY_REWIND_TIME         = 3, // offset until group Id 7
-    SAY_DEATH               = 8,
-
-    // Nozdormu
-    SAY_ENCOUNTER_INTRO     = 0,
-    SAY_ENCOUNTER_OUTRO_1   = 1,
-    SAY_ENCOUNTER_OUTRO_2   = 2,
-    SAY_ENCOUNTER_OUTRO_3   = 3,
-    SAY_ENCOUNTER_OUTRO_4   = 4
+    SAY_DEATH               = 8
 };
 
 enum MovePoints
@@ -131,8 +117,6 @@ enum Misc
 
 Position const ArenaFlightPosition                  = { 4181.117f, -420.21933f, 138.38057f };
 Position const ArenaLandPosition                    = { 4181.117f, -420.21933f, 119.77462f };
-Position const NozdormuEncounterTeleportPosition    = { 4033.37f,  -294.457f,   181.613f, 5.8119464f };
-Position const NozdormuDefeatTeleportPosition       = { 4138.48f,  -429.436f,   122.259f, 5.8119464f };
 constexpr float FlightPreFightOrientation           = 3.1066861f;
 
 std::array<Milliseconds, 4> DistortionBombIntervals =
@@ -145,15 +129,21 @@ std::array<Milliseconds, 4> DistortionBombIntervals =
 
 struct boss_murozond : public BossAI
 {
-    boss_murozond(Creature* creature) : BossAI(creature, DATA_MUROZOND), _rewindTimeCount(0), _defeated(false)
-    {
-        me->SetReactState(REACT_PASSIVE);
-    }
+    boss_murozond(Creature* creature) : BossAI(creature, DATA_MUROZOND), _rewindTimeCount(0), _defeated(false) { }
 
     void InitializeAI() override
     {
+        me->SetReactState(REACT_PASSIVE);
         me->SetDisableGravity(true);
         me->SetHover(true);
+    }
+
+    void JustAppeared() override
+    {
+        if (instance->GetBossState(DATA_MUROZOND) == FAIL)
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+
+        _Reset();
     }
 
     void JustEngagedWith(Unit* who) override
@@ -178,9 +168,9 @@ struct boss_murozond : public BossAI
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SANDS_OF_THE_HOURGLASS);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TEMPORAL_BLAST);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-        _EnterEvadeMode();
+        instance->SetBossState(DATA_MUROZOND, FAIL);
         summons.DespawnAll();
-        _DespawnAtEvade();
+        me->DespawnOrUnsummon();
     }
 
     void MovementInform(uint32 type, uint32 pointId) override
@@ -191,6 +181,7 @@ struct boss_murozond : public BossAI
         switch (pointId)
         {
             case POINT_ARENA:
+                me->setActive(false);
                 me->SetFacingTo(FlightPreFightOrientation);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 break;
@@ -228,6 +219,7 @@ struct boss_murozond : public BossAI
                 else if (data == DONE)
                 {
                     Talk(SAY_INTRO_2);
+                    me->setActive(true);
                     me->GetMotionMaster()->MovePoint(POINT_ARENA, ArenaFlightPosition, false);
                 }
                 break;
@@ -473,72 +465,6 @@ private:
     EventMap _events;
 };
 
-struct npc_murozond_nozdormu : public NullCreatureAI
-{
-    npc_murozond_nozdormu(Creature* creature) : NullCreatureAI(creature), _introDone(false)
-    {
-        me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
-    }
-
-    void DoAction(int32 action) override
-    {
-        switch (action)
-        {
-            case ACTION_ENCOUNTER_INTRO:
-                if (!_introDone)
-                {
-                    _events.ScheduleEvent(EVENT_TALK_ENCOUNTER_INTRO, 8s + 400ms);
-                    _introDone = true;
-                }
-                break;
-            case ACTION_ENCOUNTER_OUTRO:
-                me->NearTeleportTo(NozdormuDefeatTeleportPosition);
-                _events.ScheduleEvent(EVENT_TALK_ENCOUNTER_OUTRO_1, 8s + 700ms);
-                break;
-            default:
-                break;
-        }
-    }
-
-    void UpdateAI(uint32 diff) override
-    {
-        _events.Update(diff);
-
-        while (uint32 eventId = _events.ExecuteEvent())
-        {
-            switch (eventId)
-            {
-                case EVENT_TALK_ENCOUNTER_INTRO:
-                    Talk(SAY_ENCOUNTER_INTRO);
-                    me->NearTeleportTo(NozdormuEncounterTeleportPosition);
-                    break;
-                case EVENT_TALK_ENCOUNTER_OUTRO_1:
-                    Talk(SAY_ENCOUNTER_OUTRO_1);
-                    _events.ScheduleEvent(EVENT_TALK_ENCOUNTER_OUTRO_2, 17s);
-                    break;
-                case EVENT_TALK_ENCOUNTER_OUTRO_2:
-                    Talk(SAY_ENCOUNTER_OUTRO_2);
-                    _events.ScheduleEvent(EVENT_TALK_ENCOUNTER_OUTRO_3, 17s);
-                    break;
-                case EVENT_TALK_ENCOUNTER_OUTRO_3:
-                    Talk(SAY_ENCOUNTER_OUTRO_3);
-                    _events.ScheduleEvent(EVENT_TALK_ENCOUNTER_OUTRO_4, 14s);
-                    break;
-                case EVENT_TALK_ENCOUNTER_OUTRO_4:
-                    Talk(SAY_ENCOUNTER_OUTRO_4);
-                    me->SetFacingTo(3.1765f);
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-
-private:
-    EventMap _events;
-    bool _introDone;
-};
-
 // 101590 - Rewind Time
 class spell_murozond_rewind_time_forcecast : public SpellScript
 {
@@ -608,7 +534,6 @@ void AddSC_boss_murozond()
 {
     RegisterEndTimeCreatureAI(boss_murozond);
     RegisterEndTimeCreatureAI(npc_murozond_mirror_image);
-    RegisterEndTimeCreatureAI(npc_murozond_nozdormu);
     RegisterSpellScript(spell_murozond_rewind_time_forcecast);
     RegisterSpellScript(spell_murozond_rewind_time);
     RegisterSpellScript(spell_murozond_clone_master_health);

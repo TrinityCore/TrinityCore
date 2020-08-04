@@ -52,7 +52,7 @@ enum ETCreatures
     /*Murozond*/
     NPC_INFINITE_WARDEN                 = 54923,
     NPC_INFINITE_SUPRESSOR              = 54920,
-    NPC_NOZDORMU_BRONZE_DRAGON_SHRINE   = 54751
+    NPC_NOZDORMU_DRAGON_SHRINES         = 54751
 };
 
 enum ETGameObjectIds
