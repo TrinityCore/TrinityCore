@@ -420,6 +420,9 @@ class instance_naxxramas : public InstanceMapScript
 
             void Update(uint32 diff) override
             {
+                if (!instance->HavePlayers())
+                    return;
+
                 events.Update(diff);
 
                 while (uint32 eventId = events.ExecuteEvent())
