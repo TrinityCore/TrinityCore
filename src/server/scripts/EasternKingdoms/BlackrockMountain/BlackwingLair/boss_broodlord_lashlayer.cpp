@@ -150,7 +150,7 @@ class go_suppression_device : public GameObjectScript
                     return;
                 };
 
-                if (me->GetGoState() == GO_STATE_DESTROYED)
+                if (me->getLootState() == GO_JUST_DEACTIVATED)
                     me->SetLootState(GO_READY); // NOT doing this will despawn the gameobject after using Disarm Trap
 
                 _events.Update(diff);
@@ -162,8 +162,8 @@ class go_suppression_device : public GameObjectScript
                         case EVENT_SUPPRESSION_CAST:
                             if (me->GetGoState() == GO_STATE_READY)
                             {
-                                me->SendCustomAnim(0);
                                 me->CastSpell(nullptr,SPELL_SUPPRESSION_AURA,true);
+                                me->SendCustomAnim(0);
                             }
                             _events.ScheduleEvent(EVENT_SUPPRESSION_CAST, Seconds(5));
                             break;
