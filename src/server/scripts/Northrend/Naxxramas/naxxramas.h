@@ -98,6 +98,7 @@ enum NAXCreaturesIds
     NPC_THADDIUS                = 15928,
     NPC_FEUGEN                  = 15930,
     NPC_STALAGG                 = 15929,
+    NPC_FROGGER_TRIGGER         = 16082,
     NPC_TESLA                   = 16218,
     NPC_SAPPHIRON               = 15989,
     NPC_KEL_THUZAD              = 15990,

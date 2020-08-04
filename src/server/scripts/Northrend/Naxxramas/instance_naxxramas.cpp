@@ -19,6 +19,7 @@
 #include "AreaBoundary.h"
 #include "CreatureAI.h"
 #include "GameObject.h"
+#include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
 #include "Map.h"
 #include "MotionMaster.h"
@@ -172,6 +173,9 @@ class instance_naxxramas : public InstanceMapScript
                         break;
                     case NPC_STALAGG:
                         StalaggGUID = creature->GetGUID();
+                        break;
+                    case NPC_FROGGER_TRIGGER:
+                        FroggerTriggerGUID = creature->GetGUID();
                         break;
                     case NPC_SAPPHIRON:
                         SapphironGUID = creature->GetGUID();
@@ -477,10 +481,20 @@ class instance_naxxramas : public InstanceMapScript
                             break;
                         case EVENT_SUMMON_FROGGER_WAVE:
                         {
-                            std::list<TempSummon*> spawns;
-                            instance->SummonCreatureGroup(nextFroggerWave, &spawns);
-                            if (!spawns.empty())
-                                spawns.front()->GetMotionMaster()->MovePath(10 * NPC_FROGGER + nextFroggerWave, false);
+                            Player* player = nullptr;
+                            if (Creature* FroggerTrigger = instance->GetCreature(FroggerTriggerGUID))
+                            {
+                                Trinity::AnyPlayerInObjectRangeCheck check(FroggerTrigger, FroggerTrigger->GetVisibilityRange());
+                                Trinity::PlayerSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(FroggerTrigger, player, check);
+                                Cell::VisitWorldObjects(FroggerTrigger, searcher, FroggerTrigger->GetVisibilityRange());
+                            }
+                            if (player)
+                            {
+                                std::list<TempSummon*> spawns;
+                                instance->SummonCreatureGroup(nextFroggerWave, &spawns);
+                                if (!spawns.empty())
+                                    spawns.front()->GetMotionMaster()->MovePath(10 * NPC_FROGGER + nextFroggerWave, false);
+                            }
                             events.Repeat(Seconds(1) + Milliseconds(666));
                             nextFroggerWave = (nextFroggerWave+1) % 3;
                             break;
@@ -600,6 +614,8 @@ class instance_naxxramas : public InstanceMapScript
             ObjectGuid ThaddiusGUID;
             ObjectGuid FeugenGUID;
             ObjectGuid StalaggGUID;
+            // Frogger Event
+            ObjectGuid FroggerTriggerGUID;
 
             /* Frostwyrm Lair */
             // Sapphiron
