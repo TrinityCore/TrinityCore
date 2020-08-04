@@ -151,7 +151,7 @@ class go_suppression_device : public GameObjectScript
 
                 if (me->GetGoState() == GO_STATE_DESTROYED)
                     me->SetLootState(GO_READY); // NOT doing this will despawn the gameobject after using Disarm Trap
-                    
+
                 _events.Update(diff);
 
                 while (uint32 eventId = _events.ExecuteEvent())
