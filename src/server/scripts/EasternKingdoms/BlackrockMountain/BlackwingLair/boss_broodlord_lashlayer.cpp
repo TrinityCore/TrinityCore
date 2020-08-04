@@ -46,9 +46,8 @@ enum Events
     EVENT_KNOCKBACK         = 4,
     EVENT_CHECK             = 5,
     //Suppression Device Events
-    EVENT_SUPPRESSION_AURA  = 6,
-    EVENT_SUPPRESSION_ANIM  = 7,
-    EVENT_SUPPRESSION_RESET = 8
+    EVENT_SUPPRESSION_CAST  = 6,
+    EVENT_SUPPRESSION_RESET = 7
 };
 
 class boss_broodlord : public CreatureScript
@@ -133,8 +132,7 @@ class go_suppression_device : public GameObjectScript
 
             void InitializeAI() override
             {
-                _events.ScheduleEvent(EVENT_SUPPRESSION_AURA, Seconds(5));
-                _events.ScheduleEvent(EVENT_SUPPRESSION_ANIM, Seconds(2));
+                _events.ScheduleEvent(EVENT_SUPPRESSION_CAST, Seconds(0), Seconds(5));
             }
 
             void UpdateAI(uint32 diff) override
@@ -161,15 +159,11 @@ class go_suppression_device : public GameObjectScript
                 {
                     switch (eventId)
                     {
-                        case EVENT_SUPPRESSION_AURA:
-                            if (me->GetGoState() == GO_STATE_READY)
-                                me->CastSpell(nullptr,SPELL_SUPPRESSION_AURA,true);
-                            _events.ScheduleEvent(EVENT_SUPPRESSION_AURA, Seconds(5));
-                            break;
-                        case EVENT_SUPPRESSION_ANIM:
+                        case EVENT_SUPPRESSION_CAST:
                             if (me->GetGoState() == GO_STATE_READY)
                                 me->SendCustomAnim(0);
-                            _events.ScheduleEvent(EVENT_SUPPRESSION_ANIM, Seconds(1), Seconds(2)); //in current retail Videos,there is a ~7 Seconds timer for the animation loop but they arent fully synched.
+                                me->CastSpell(nullptr,SPELL_SUPPRESSION_AURA,true);
+                            _events.ScheduleEvent(EVENT_SUPPRESSION_CAST, Seconds(5));
                             break;
                         case EVENT_SUPPRESSION_RESET:
                             if (me->GetGoState() == GO_STATE_DESTROYED)
