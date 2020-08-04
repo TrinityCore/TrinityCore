@@ -738,7 +738,7 @@ void Map::ScriptsProcess()
                     InventoryResult msg = pReceiver->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, step.script->CreateItem.ItemEntry, step.script->CreateItem.Amount);
                     if (msg == EQUIP_ERR_OK)
                     {
-                        if (Item* item = pReceiver->StoreNewItem(dest, step.script->CreateItem.ItemEntry, true))
+                        if (Item* item = pReceiver->StoreNewItem(dest, step.script->CreateItem.ItemEntry, true, GenerateItemRandomPropertyId(step.script->CreateItem.ItemEntry)))
                             pReceiver->SendNewItem(item, step.script->CreateItem.Amount, false, true);
                     }
                     else

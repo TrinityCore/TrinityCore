@@ -208,7 +208,7 @@ public:
             uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, id, count-curItemCount);
             if (msg == EQUIP_ERR_OK)
             {
-                Item* item = player->StoreNewItem(dest, id, true);
+                Item* item = player->StoreNewItem(dest, id, true, GenerateItemRandomPropertyId(id));
                 player->SendNewItem(item, count-curItemCount, true, false);
             }
         }

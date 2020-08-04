@@ -1363,7 +1363,7 @@ public:
                 InventoryResult msg = playerTarget->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itr->second.GetId(), 1);
                 if (msg == EQUIP_ERR_OK)
                 {
-                    Item* item = playerTarget->StoreNewItem(dest, itr->second.GetId(), true);
+                    Item* item = playerTarget->StoreNewItem(dest, itr->second.GetId(), true, GenerateItemRandomPropertyId(itr->second.GetId()));
 
                     // remove binding (let GM give it to another player later)
                     if (player == playerTarget)
