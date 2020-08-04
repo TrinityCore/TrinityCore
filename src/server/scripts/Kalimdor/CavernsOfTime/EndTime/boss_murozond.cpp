@@ -17,7 +17,6 @@
 
 /*
 TODO List:
-- Spell missile canceling needs to be implemented for rewinding already launched Distortion Bomb missiles.
 - This whole rewinding process is one big mess at the moment. Need to check for more serverside spells to clean this up.
 - Distortion Bomb timers are quite inconsistent after two and more rewinds in sniffs. Need clearer data.
 */
@@ -253,8 +252,9 @@ struct boss_murozond : public BossAI
                 me->AttackStop();
                 me->StopMoving();
                 me->SetReactState(REACT_PASSIVE);
+                me->CancelSpellMissiles(SPELL_DISTORTION_BOMB_1, true);
+                me->CancelSpellMissiles(SPELL_DISTORTION_BOMB_2, true);
                 me->RemoveAllDynObjects();
-                // Todo: implement missile canceling
 
                 for (auto& itr : instance->instance->GetPlayers())
                 {
@@ -300,6 +300,8 @@ struct boss_murozond : public BossAI
                 me->AttackStop();
                 me->SetReactState(REACT_PASSIVE);
                 me->SetAIAnimKitId(AI_ANIM_KIT_MUROZOND_DEATH);
+                me->CancelSpellMissiles(SPELL_DISTORTION_BOMB_1, true);
+                me->CancelSpellMissiles(SPELL_DISTORTION_BOMB_2, true);
                 me->RemoveAllDynObjects();
                 DoCastSelf(SPELL_FADING);
                 DoCastAOE(SPELL_ACHIEVEMENT_CREDIT);

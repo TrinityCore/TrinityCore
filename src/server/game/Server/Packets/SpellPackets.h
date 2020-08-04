@@ -218,6 +218,18 @@ namespace WorldPackets
             ObjectGuid UnitGUID;
             std::vector<AuraInfo> Auras;
         };
+
+        class MissileCancel final : public ServerPacket
+        {
+        public:
+            MissileCancel() : ServerPacket(SMSG_MISSILE_CANCEL, 13) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid OwnerGUID;
+            bool Reverse = false;
+            int32 SpellID = 0;
+        };
     }
 }
 

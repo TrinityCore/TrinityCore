@@ -259,3 +259,30 @@ WorldPacket const* WorldPackets::Spells::AuraUpdateAll::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Spells::MissileCancel::Write()
+{
+    _worldPacket.WriteBit(OwnerGUID[7]);
+    _worldPacket.WriteBit(OwnerGUID[2]);
+    _worldPacket.WriteBit(OwnerGUID[4]);
+    _worldPacket.WriteBit(OwnerGUID[6]);
+    _worldPacket.WriteBit(Reverse);
+    _worldPacket.WriteBit(OwnerGUID[1]);
+    _worldPacket.WriteBit(OwnerGUID[0]);
+    _worldPacket.WriteBit(OwnerGUID[3]);
+    _worldPacket.WriteBit(OwnerGUID[5]);
+
+    _worldPacket.FlushBits();
+
+    _worldPacket.WriteByteSeq(OwnerGUID[6]);
+    _worldPacket.WriteByteSeq(OwnerGUID[1]);
+    _worldPacket.WriteByteSeq(OwnerGUID[4]);
+    _worldPacket.WriteByteSeq(OwnerGUID[2]);
+    _worldPacket.WriteByteSeq(OwnerGUID[5]);
+    _worldPacket.WriteByteSeq(OwnerGUID[7]);
+    _worldPacket << uint32(SpellID);
+    _worldPacket.WriteByteSeq(OwnerGUID[0]);
+    _worldPacket.WriteByteSeq(OwnerGUID[3]);
+
+    return &_worldPacket;
+}

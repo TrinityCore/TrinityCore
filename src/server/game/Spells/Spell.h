@@ -37,6 +37,7 @@ namespace WorldPackets
 
 class Aura;
 class AuraEffect;
+class BasicEvent;
 class ByteBuffer;
 class Corpse;
 class DynamicObject;
@@ -47,7 +48,6 @@ class PathGenerator;
 class Player;
 class SpellImplicitTargetInfo;
 class SpellInfo;
-class SpellEvent;
 class SpellScript;
 class Unit;
 class WorldObject;
@@ -512,6 +512,7 @@ class TC_GAME_API Spell
         void HandleHolyPower(Player* caster);
         void HandleEffects(Unit* pUnitTarget, Item* pItemTarget, GameObject* pGoTarget, Corpse* pCorpseTarget, uint32 i, SpellEffectHandleMode mode);
         void HandleThreatSpells();
+        static Spell const* ExtractSpellFromEvent(BasicEvent* event);
 
         SpellInfo const* const m_spellInfo;
         Item* m_CastItem;

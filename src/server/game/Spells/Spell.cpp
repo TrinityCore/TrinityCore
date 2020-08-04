@@ -525,16 +525,17 @@ SpellValue::SpellValue(SpellInfo const* proto)
 
 class TC_GAME_API SpellEvent : public BasicEvent
 {
-    public:
-        SpellEvent(Spell* spell);
-        ~SpellEvent();
+public:
+    SpellEvent(Spell* spell);
+    ~SpellEvent();
 
-        virtual bool Execute(uint64 e_time, uint32 p_time) override;
-        virtual void Abort(uint64 e_time) override;
-        virtual bool IsDeletable() const override;
+    bool Execute(uint64 e_time, uint32 p_time) override;
+    void Abort(uint64 e_time) override;
+    bool IsDeletable() const override;
+    Spell const* GetSpell() const { return m_Spell; }
 
-    protected:
-        Spell* m_Spell;
+protected:
+    Spell* m_Spell;
 };
 
 Spell::Spell(Unit* caster, SpellInfo const* info, TriggerCastFlags triggerFlags, ObjectGuid originalCasterGUID, bool skipCheck) :
@@ -5369,6 +5370,14 @@ void Spell::HandleEffects(Unit* pUnitTarget, Item* pItemTarget, GameObject* pGoT
     {
         (this->*SpellEffects[eff])((SpellEffIndex)i);
     }
+}
+
+/*static*/ Spell const* Spell::ExtractSpellFromEvent(BasicEvent* event)
+{
+    if (SpellEvent* spellEvent = dynamic_cast<SpellEvent*>(event))
+        return spellEvent->GetSpell();
+
+    return nullptr;
 }
 
 SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint32* param2 /*= nullptr*/, MountResult* mountResult /*= nullptr*/)
