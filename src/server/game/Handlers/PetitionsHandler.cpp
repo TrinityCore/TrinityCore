@@ -398,7 +398,7 @@ void WorldSession::HandleSignPetition(WorldPacket& recvData)
 
     ObjectGuid ownerGuid = petition->OwnerGuid;
     CharterTypes type = petition->PetitionType;
-    uint8 signs = petition->Signatures.size();
+    uint8 signs = uint8(petition->Signatures.size());
 
     ObjectGuid playerGuid = _player->GetGUID();
     if (ownerGuid == playerGuid)

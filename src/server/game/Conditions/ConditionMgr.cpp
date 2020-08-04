@@ -1456,7 +1456,10 @@ bool ConditionMgr::addToSpellImplicitTargetConditions(Condition* cond) const
                 }
 
                 if (!assigned)
+                {
                     delete sharedList;
+                    return false;
+                }
             }
             sharedList->push_back(cond);
             break;

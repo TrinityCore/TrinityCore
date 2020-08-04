@@ -142,7 +142,7 @@ public:
                     handler->SendSysMessage("========================");
                 }
                 std::string const& name = itr->second->GetName();
-                uint8 size = name.size();
+                uint8 size = uint8(name.size());
                 uint8 security = itrSec;
                 uint8 max = ((16 - size) / 2);
                 uint8 max2 = max;

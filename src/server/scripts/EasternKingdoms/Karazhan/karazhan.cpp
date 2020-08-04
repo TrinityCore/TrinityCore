@@ -329,7 +329,6 @@ public:
 
                         if (RaidWiped)
                         {
-                            RaidWiped = true;
                             EnterEvadeMode();
                             return;
                         }

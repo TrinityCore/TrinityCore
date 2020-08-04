@@ -389,7 +389,7 @@ void AuthSession::LogonChallengeCallback(PreparedQueryResult result)
         TC_LOG_DEBUG("server.authserver", "[AuthChallenge] Account '%s' is not locked to ip", _accountInfo.Login.c_str());
         if (_accountInfo.LockCountry.empty() || _accountInfo.LockCountry == "00")
             TC_LOG_DEBUG("server.authserver", "[AuthChallenge] Account '%s' is not locked to country", _accountInfo.Login.c_str());
-        else if (!_accountInfo.LockCountry.empty() && !_ipCountry.empty())
+        else if (!_ipCountry.empty())
         {
             TC_LOG_DEBUG("server.authserver", "[AuthChallenge] Account '%s' is locked to country: '%s' Player country is '%s'", _accountInfo.Login.c_str(), _accountInfo.LockCountry.c_str(), _ipCountry.c_str());
             if (_ipCountry != _accountInfo.LockCountry)
