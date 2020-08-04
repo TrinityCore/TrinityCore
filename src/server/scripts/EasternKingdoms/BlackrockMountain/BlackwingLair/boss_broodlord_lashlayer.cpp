@@ -133,7 +133,7 @@ class go_suppression_device : public GameObjectScript
 
             void InitializeAI() override
             {
-                _events.ScheduleEvent(EVENT_SUPPRESSION_AURA, Seconds(6));
+                _events.ScheduleEvent(EVENT_SUPPRESSION_AURA, Seconds(5));
                 _events.ScheduleEvent(EVENT_SUPPRESSION_ANIM, Seconds(2));
             }
 
@@ -161,7 +161,7 @@ class go_suppression_device : public GameObjectScript
                         case EVENT_SUPPRESSION_AURA:
                             if (me->GetGoState() == GO_STATE_READY)
                                 me->CastSpell(nullptr,SPELL_SUPPRESSION_AURA,true);
-                            _events.ScheduleEvent(EVENT_SUPPRESSION_AURA, Seconds(6)); //I couldnt find out if there is a time between the aura effect and the recast - this results in constantly being under effect of the aura
+                            _events.ScheduleEvent(EVENT_SUPPRESSION_AURA, Seconds(5));
                             break;
                         case EVENT_SUPPRESSION_ANIM:
                             if (me->GetGoState() == GO_STATE_READY)
