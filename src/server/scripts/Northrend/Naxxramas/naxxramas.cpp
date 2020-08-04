@@ -19,7 +19,6 @@
 #include "InstanceScript.h"
 #include "Map.h"
 #include "MotionMaster.h"
-#include "Player.h"
 #include "ScriptedCreature.h"
 #include "TemporarySummon.h"
 #include "naxxramas.h"
@@ -31,13 +30,22 @@ enum NaxxEvents
 
 struct npc_frogger_trigger_naxx : public ScriptedAI
 {
-    npc_frogger_trigger_naxx(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
+    npc_frogger_trigger_naxx(Creature* creature) : ScriptedAI(creature)
+    {
+        _instance = creature->GetInstanceScript();
+        Initialize();
+    }
+
+    void Initialize()
+    {
+        _nextFroggerWave = 0;
+    }
 
     void Reset() override
     {
         _events.Reset();
         _events.ScheduleEvent(EVENT_SUMMON_FROGGER_WAVE, 1s);
-        nextFroggerWave = 0;
+        Initialize();
     }
 
     void UpdateAI(uint32 diff) override
@@ -51,11 +59,11 @@ struct npc_frogger_trigger_naxx : public ScriptedAI
                 case EVENT_SUMMON_FROGGER_WAVE:
                 {
                     std::list<TempSummon*> spawns;
-                    me->SummonCreatureGroup(nextFroggerWave, &spawns);
+                    me->SummonCreatureGroup(_nextFroggerWave, &spawns);
                     if (!spawns.empty())
-                        spawns.front()->GetMotionMaster()->MovePath(10 * NPC_FROGGER + nextFroggerWave, false);
+                        spawns.front()->GetMotionMaster()->MovePath(10 * NPC_FROGGER + _nextFroggerWave, false);
                     _events.Repeat(1666ms);
-                    nextFroggerWave = (nextFroggerWave+1) % 3;
+                    _nextFroggerWave = (_nextFroggerWave+1) % 3;
                     break;
                 }
                 default:
@@ -67,7 +75,7 @@ struct npc_frogger_trigger_naxx : public ScriptedAI
 private:
     InstanceScript* _instance;
     EventMap _events;
-    int8 nextFroggerWave;
+    int8 _nextFroggerWave;
 };
 
 void AddSC_naxxramas()
