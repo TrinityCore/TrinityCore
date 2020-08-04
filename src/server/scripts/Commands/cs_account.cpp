@@ -596,7 +596,10 @@ public:
             return false;
         }
 
-        sAccountMgr->UpdateAccountAccess(nullptr, accountId, gmLevel, realmId);
+        if (WorldSession* session = sWorld->FindSession(accountId))
+            sAccountMgr->UpdateAccountAccess(session->GetRBACData(), accountId, gmLevel, realmId);
+        else
+            sAccountMgr->UpdateAccountAccess(nullptr, accountId, gmLevel, realmId);
 
 
         handler->PSendSysMessage(LANG_YOU_CHANGE_SECURITY, accountName->c_str(), gmLevel);
