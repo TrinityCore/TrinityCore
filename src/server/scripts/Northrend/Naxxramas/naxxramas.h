@@ -98,7 +98,6 @@ enum NAXCreaturesIds
     NPC_THADDIUS                = 15928,
     NPC_FEUGEN                  = 15930,
     NPC_STALAGG                 = 15929,
-    NPC_FROGGER_TRIGGER         = 16082,
     NPC_TESLA                   = 16218,
     NPC_SAPPHIRON               = 15989,
     NPC_KEL_THUZAD              = 15990,
@@ -183,9 +182,6 @@ enum NAXInstanceEvents
 
     // Dialogue that happens after each wing.
     EVENT_KELTHUZAD_WING_TAUNT,
-
-    // Periodic Frogger summon
-    EVENT_SUMMON_FROGGER_WAVE,
 
     // Dialogue that happens after Sapphiron's death.
     EVENT_DIALOGUE_SAPPHIRON_KELTHUZAD,
