@@ -131,7 +131,7 @@ class go_suppression_device : public GameObjectScript
 
             void InitializeAI() override
             {
-                _events.ScheduleEvent(EVENT_SUPPRESSION_CAST, 0s, 5s));
+                _events.ScheduleEvent(EVENT_SUPPRESSION_CAST, 0s, 5s);
             }
 
             void UpdateAI(uint32 diff) override
