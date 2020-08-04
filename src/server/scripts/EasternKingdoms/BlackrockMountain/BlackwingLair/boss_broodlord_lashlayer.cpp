@@ -142,9 +142,6 @@ class go_suppression_device : public GameObjectScript
                 if (_instance->GetBossState(DATA_VAELASTRAZ_THE_CORRUPT) != DONE)
                     return;
 
-                if (me->GetGoState() == GO_STATE_DESTROYED)
-                    me->SetLootState(GO_READY); // NOT doing this will despawn the gameobject after using Disarm Trap
-
                 if (_instance->GetBossState(DATA_BROODLORD_LASHLAYER) == DONE)
                 {
                     me->SetGoState(GO_STATE_DESTROYED);
@@ -152,6 +149,9 @@ class go_suppression_device : public GameObjectScript
                     return;
                 };
 
+                if (me->GetGoState() == GO_STATE_DESTROYED)
+                    me->SetLootState(GO_READY); // NOT doing this will despawn the gameobject after using Disarm Trap
+                    
                 _events.Update(diff);
 
                 while (uint32 eventId = _events.ExecuteEvent())
