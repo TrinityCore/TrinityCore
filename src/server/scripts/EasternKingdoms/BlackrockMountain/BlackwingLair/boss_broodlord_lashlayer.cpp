@@ -144,8 +144,11 @@ class go_suppression_device : public GameObjectScript
 
                 if (_instance->GetBossState(DATA_BROODLORD_LASHLAYER) == DONE)
                 {
-                    me->SetGoState(GO_STATE_DESTROYED);
-                    me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                    if (me->GetGoState() != GO_STATE_DESTROYED)
+                    {
+                        me->SetGoState(GO_STATE_DESTROYED);
+                        me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                    }
                     return;
                 };
 
