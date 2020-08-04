@@ -161,8 +161,10 @@ class go_suppression_device : public GameObjectScript
                     {
                         case EVENT_SUPPRESSION_CAST:
                             if (me->GetGoState() == GO_STATE_READY)
+                            {
                                 me->SendCustomAnim(0);
                                 me->CastSpell(nullptr,SPELL_SUPPRESSION_AURA,true);
+                            }
                             _events.ScheduleEvent(EVENT_SUPPRESSION_CAST, Seconds(5));
                             break;
                         case EVENT_SUPPRESSION_RESET:
