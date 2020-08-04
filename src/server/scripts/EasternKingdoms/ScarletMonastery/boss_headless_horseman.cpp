@@ -305,7 +305,7 @@ struct npc_head : public ScriptedAI
                     ReturnToBody(true);
                 break;
             case PHASE_HEAD_3:
-                if (!_die && damage >= me->GetHealth())
+                if (damage >= me->GetHealth())
                 {
                     _die = true;
                     damage = 0;

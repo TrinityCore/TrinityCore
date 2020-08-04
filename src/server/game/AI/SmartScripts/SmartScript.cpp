@@ -67,9 +67,7 @@ SmartScript::~SmartScript()
 {
 }
 
-// @todo this is an utter clusterfuck in terms of design - why in the world does this thing side effect?
-// seriously, WHO WRITES THIS SHIT
-bool SmartScript::IsSmart(Creature* c, bool silent)
+bool SmartScript::IsSmart(Creature* c, bool silent) const
 {
     if (!c)
         return false;
@@ -79,13 +77,12 @@ bool SmartScript::IsSmart(Creature* c, bool silent)
         smart = false;
 
     if (!smart && !silent)
-        TC_LOG_ERROR("sql.sql", "SmartScript: Action target Creature (GUID: " UI64FMTD " Entry: %u) is not using SmartAI, action called by Creature (GUID: " UI64FMTD " Entry: %u) skipped to prevent crash.", uint64(c ? c->GetSpawnId() : UI64LIT(0)), c ? c->GetEntry() : 0, uint64(me ? me->GetSpawnId() : UI64LIT(0)), me ? me->GetEntry() : 0);
+        TC_LOG_ERROR("sql.sql", "SmartScript: Action target Creature (GUID: " UI64FMTD " Entry: %u) is not using SmartAI, action called by Creature (GUID: " UI64FMTD " Entry: %u) skipped to prevent crash.", c->GetSpawnId(), c->GetEntry(), uint64(me ? me->GetSpawnId() : UI64LIT(0)), me ? me->GetEntry() : 0);
 
     return smart;
 }
 
-// @todo this, too
-bool SmartScript::IsSmart(GameObject* g, bool silent)
+bool SmartScript::IsSmart(GameObject* g, bool silent) const
 {
     if (!g)
         return false;
@@ -95,12 +92,12 @@ bool SmartScript::IsSmart(GameObject* g, bool silent)
         smart = false;
 
     if (!smart && !silent)
-        TC_LOG_ERROR("sql.sql", "SmartScript: Action target GameObject (GUID: " UI64FMTD " Entry: %u) is not using SmartGameObjectAI, action called by GameObject (GUID: " UI64FMTD " Entry: %u) skipped to prevent crash.", uint64(g ? g->GetSpawnId() : UI64LIT(0)), g ? g->GetEntry() : 0, uint64(go ? go->GetSpawnId() : UI64LIT(0)), go ? go->GetEntry() : 0);
+        TC_LOG_ERROR("sql.sql", "SmartScript: Action target GameObject (GUID: " UI64FMTD " Entry: %u) is not using SmartGameObjectAI, action called by GameObject (GUID: " UI64FMTD " Entry: %u) skipped to prevent crash.", g->GetSpawnId(), g->GetEntry(), uint64(go ? go->GetSpawnId() : UI64LIT(0)), go ? go->GetEntry() : 0);
 
     return smart;
 }
 
-bool SmartScript::IsSmart(bool silent)
+bool SmartScript::IsSmart(bool silent) const
 {
     if (me)
         return IsSmart(me, silent);
