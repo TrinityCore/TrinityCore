@@ -3192,7 +3192,7 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
 ByteBuffer HexToBytes(const std::string& hex)
 {
     ByteBuffer buffer(hex.length() / 2, ByteBuffer::Resize{});
-    HexStrToByteArray(hex, buffer.contents());
+    Trinity::Impl::HexStrToByteArray(hex, buffer.contents(), buffer.size());
     return buffer;
 }
 
