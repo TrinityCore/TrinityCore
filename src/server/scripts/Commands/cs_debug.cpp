@@ -2007,9 +2007,9 @@ public:
                 };
                 auto set = std::set<std::pair<uint32, uint32>, decltype(comp)>(creatureIds.begin(), creatureIds.end(), comp);
 
-                std::vector<std::pair<uint32, uint32>> result;
-                for (auto itr = set.begin(); itr != set.end() && result.size() < count; ++itr)
-                    result.push_back(std::make_pair(itr->first, itr->second));
+                count = std::min(count, uint32(set.size()));
+                auto result = std::vector<std::pair<uint32, uint32>>(count);
+                std::copy_n(set.begin(), count, result.begin());
 
                 return result;
             }
