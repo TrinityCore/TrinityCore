@@ -1991,13 +1991,13 @@ public:
                 }
             }
 
-            void Visit(std::unordered_map<ObjectGuid, GameObject*>& map) { }
+            void Visit(std::unordered_map<ObjectGuid, GameObject*>& /*map*/) { }
 
-            void Visit(std::unordered_map<ObjectGuid, DynamicObject*>& map) { }
+            void Visit(std::unordered_map<ObjectGuid, DynamicObject*>& /*map*/) { }
 
-            void Visit(std::unordered_map<ObjectGuid, Pet*>& map) { }
+            void Visit(std::unordered_map<ObjectGuid, Pet*>& /*map*/) { }
 
-            void Visit(std::unordered_map<ObjectGuid, Corpse*>& map) { }
+            void Visit(std::unordered_map<ObjectGuid, Corpse*>& /*map*/) { }
 
             std::vector<std::pair<uint32, uint32>> GetTopCreatureCount(uint32 count)
             {
