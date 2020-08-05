@@ -183,9 +183,6 @@ enum NAXInstanceEvents
     // Dialogue that happens after each wing.
     EVENT_KELTHUZAD_WING_TAUNT,
 
-    // Periodic Frogger summon
-    EVENT_SUMMON_FROGGER_WAVE,
-
     // Dialogue that happens after Sapphiron's death.
     EVENT_DIALOGUE_SAPPHIRON_KELTHUZAD,
     EVENT_DIALOGUE_SAPPHIRON_LICHKING,
