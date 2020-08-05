@@ -815,6 +815,7 @@ void GameEventMgr::LoadFromDB()
                 Field* fields = result->Fetch();
 
                 uint8 event_id  = fields[0].GetUInt8();
+                ObjectGuid::LowType guid = fields[1].GetUInt32();
 
                 if (event_id >= mGameEventVendors.size())
                 {
@@ -822,14 +823,6 @@ void GameEventMgr::LoadFromDB()
                     continue;
                 }
 
-                NPCVendorList& vendors = mGameEventVendors[event_id];
-                NPCVendorEntry newEntry;
-                ObjectGuid::LowType guid = fields[1].GetUInt32();
-                newEntry.item = fields[2].GetUInt32();
-                newEntry.maxcount = fields[3].GetUInt32();
-                newEntry.incrtime = fields[4].GetUInt32();
-                newEntry.ExtendedCost = fields[5].GetUInt32();
-                newEntry.Type = fields[6].GetUInt8();
                 // get the event npc flag for checking if the npc will be vendor during the event or not
                 uint32 event_npc_flag = 0;
                 NPCFlagList& flist = mGameEventNPCFlags[event_id];
@@ -841,17 +834,25 @@ void GameEventMgr::LoadFromDB()
                         break;
                     }
                 }
-                // get creature entry
-                newEntry.entry = 0;
+
+                uint32 entry = 0;
 
                 if (CreatureData const* data = sObjectMgr->GetCreatureData(guid))
-                    newEntry.entry = data->id;
+                    entry = data->id;
+
+                VendorItem vItem;
+                vItem.item = fields[2].GetUInt32();
+                vItem.maxcount = fields[3].GetUInt32();
+                vItem.incrtime = fields[4].GetUInt32();
+                vItem.ExtendedCost = fields[5].GetUInt32();
+                vItem.Type = fields[6].GetUInt8();
 
                 // check validity with event's npcflag
-                if (!sObjectMgr->IsVendorItemValid(newEntry.entry, newEntry.item, newEntry.maxcount, newEntry.incrtime, newEntry.ExtendedCost, newEntry.Type, nullptr, nullptr, event_npc_flag))
+                if (!sObjectMgr->IsVendorItemValid(entry, vItem, nullptr, nullptr, event_npc_flag))
                     continue;
 
-                vendors.push_back(newEntry);
+                NPCVendorMap& vendors = mGameEventVendors[event_id];
+                vendors[entry].emplace_back(std::move(vItem));
 
                 ++count;
             }
@@ -1232,12 +1233,15 @@ void GameEventMgr::UpdateBattlegroundSettings()
 
 void GameEventMgr::UpdateEventNPCVendor(uint16 event_id, bool activate)
 {
-    for (NPCVendorList::iterator itr = mGameEventVendors[event_id].begin(); itr != mGameEventVendors[event_id].end(); ++itr)
+    for (NPCVendorMap::iterator itr = mGameEventVendors[event_id].begin(); itr != mGameEventVendors[event_id].end(); ++itr)
     {
-        if (activate)
-            sObjectMgr->AddVendorItem(itr->entry, itr->item, itr->maxcount, itr->incrtime, itr->ExtendedCost, itr->Type, false);
-        else
-            sObjectMgr->RemoveVendorItem(itr->entry, itr->item, itr->Type, false);
+        for (VendorItem const& vItem : itr->second)
+        {
+            if (activate)
+                sObjectMgr->AddVendorItem(itr->first, vItem, false);
+            else
+                sObjectMgr->RemoveVendorItem(itr->first, vItem.item, vItem.Type, false);
+        }
     }
 }
 
@@ -1597,7 +1601,13 @@ void GameEventMgr::UpdateWorldStates(uint16 event_id, bool Activate)
     }
 }
 
-GameEventMgr::GameEventMgr() : isSystemInit(false) { }
+GameEventMgr::GameEventMgr() : isSystemInit(false)
+{
+}
+
+GameEventMgr::~GameEventMgr()
+{
+}
 
 void GameEventMgr::HandleQuestComplete(uint32 quest_id)
 {

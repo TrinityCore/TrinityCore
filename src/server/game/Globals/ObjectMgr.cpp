@@ -8835,12 +8835,11 @@ void ObjectMgr::LoadCreatureDefaultTrainers()
     TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " default trainers in %u ms", _creatureDefaultTrainers.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
-int ObjectMgr::LoadReferenceVendor(int32 vendor, int32 item, uint8 type, std::set<uint32> *skip_vendors)
+int ObjectMgr::LoadReferenceVendor(int32 vendor, int32 item, std::set<uint32>* skip_vendors)
 {
     // find all items from the reference vendor
     WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_NPC_VENDOR_REF);
     stmt->setUInt32(0, uint32(item));
-    stmt->setUInt8(1, type);
     PreparedQueryResult result = WorldDatabase.Query(stmt);
 
     if (!result)
@@ -8855,20 +8854,22 @@ int ObjectMgr::LoadReferenceVendor(int32 vendor, int32 item, uint8 type, std::se
 
         // if item is a negative, its a reference
         if (item_id < 0)
-            count += LoadReferenceVendor(vendor, -item_id, type, skip_vendors);
+            count += LoadReferenceVendor(vendor, -item_id, skip_vendors);
         else
         {
-            int32  maxcount     = fields[1].GetUInt32();
-            uint32 incrtime     = fields[2].GetUInt32();
-            uint32 ExtendedCost = fields[3].GetUInt32();
-            uint8  type         = fields[4].GetUInt8();
+            VendorItem vItem;
+            vItem.item = item_id;
+            vItem.maxcount = fields[1].GetUInt32();
+            vItem.incrtime = fields[2].GetUInt32();
+            vItem.ExtendedCost = fields[3].GetUInt32();
+            vItem.Type = fields[4].GetUInt8();
 
-            if (!IsVendorItemValid(vendor, item_id, maxcount, incrtime, ExtendedCost, type, nullptr, skip_vendors))
+            if (!IsVendorItemValid(vendor, vItem, nullptr, skip_vendors))
                 continue;
 
             VendorItemData& vList = _cacheVendorItemStore[vendor];
 
-            vList.AddItem(item_id, maxcount, incrtime, ExtendedCost, type);
+            vList.AddItem(std::move(vItem));
             ++count;
         }
     } while (result->NextRow());
@@ -8906,20 +8907,21 @@ void ObjectMgr::LoadVendors()
 
         // if item is a negative, its a reference
         if (item_id < 0)
-            count += LoadReferenceVendor(entry, -item_id, 0, &skip_vendors);
+            count += LoadReferenceVendor(entry, -item_id, &skip_vendors);
         else
         {
-            uint32 maxcount     = fields[2].GetUInt32();
-            uint32 incrtime     = fields[3].GetUInt32();
-            uint32 ExtendedCost = fields[4].GetUInt32();
-            uint8  type         = fields[5].GetUInt8();
+            VendorItem vItem;
+            vItem.item = item_id;
+            vItem.maxcount = fields[2].GetUInt32();
+            vItem.incrtime = fields[3].GetUInt32();
+            vItem.ExtendedCost = fields[4].GetUInt32();
+            vItem.Type = fields[5].GetUInt8();
 
-            if (!IsVendorItemValid(entry, item_id, maxcount, incrtime, ExtendedCost, type, nullptr, &skip_vendors))
+            if (!IsVendorItemValid(entry, vItem, nullptr, &skip_vendors))
                 continue;
 
             VendorItemData& vList = _cacheVendorItemStore[entry];
-
-            vList.AddItem(item_id, maxcount, incrtime, ExtendedCost, type);
+            vList.AddItem(std::move(vItem));
             ++count;
         }
     }
@@ -9071,21 +9073,21 @@ uint32 ObjectMgr::GetCreatureDefaultTrainer(uint32 creatureId) const
     return 0;
 }
 
-void ObjectMgr::AddVendorItem(uint32 entry, uint32 item, int32 maxcount, uint32 incrtime, uint32 extendedCost, uint8 type, bool persist /*= true*/)
+void ObjectMgr::AddVendorItem(uint32 entry, VendorItem const& vItem, bool persist /*= true*/)
 {
     VendorItemData& vList = _cacheVendorItemStore[entry];
-    vList.AddItem(item, maxcount, incrtime, extendedCost, type);
+    vList.AddItem(vItem);
 
     if (persist)
     {
         WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_NPC_VENDOR);
 
         stmt->setUInt32(0, entry);
-        stmt->setUInt32(1, item);
-        stmt->setUInt8(2, maxcount);
-        stmt->setUInt32(3, incrtime);
-        stmt->setUInt32(4, extendedCost);
-        stmt->setUInt8(5, type);
+        stmt->setUInt32(1, vItem.item);
+        stmt->setUInt8(2, vItem.maxcount);
+        stmt->setUInt32(3, vItem.incrtime);
+        stmt->setUInt32(4, vItem.ExtendedCost);
+        stmt->setUInt8(5, vItem.Type);
 
         WorldDatabase.Execute(stmt);
     }
@@ -9114,7 +9116,7 @@ bool ObjectMgr::RemoveVendorItem(uint32 entry, uint32 item, uint8 type, bool per
     return true;
 }
 
-bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, uint32 id, int32 maxcount, uint32 incrtime, uint32 ExtendedCost, uint8 type, Player* player, std::set<uint32>* skip_vendors, uint32 ORnpcflag) const
+bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, VendorItem const& vItem, Player* player, std::set<uint32>* skip_vendors, uint32 ORnpcflag) const
 {
     CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(vendor_entry);
     if (!cInfo)
@@ -9141,41 +9143,41 @@ bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, uint32 id, int32 maxcount
         return false;
     }
 
-    if ((type == ITEM_VENDOR_TYPE_ITEM && !sObjectMgr->GetItemTemplate(id)) ||
-        (type == ITEM_VENDOR_TYPE_CURRENCY && !sCurrencyTypesStore.LookupEntry(id)))
+    if ((vItem.Type == ITEM_VENDOR_TYPE_ITEM && !sObjectMgr->GetItemTemplate(vItem.item)) ||
+        (vItem.Type == ITEM_VENDOR_TYPE_CURRENCY && !sCurrencyTypesStore.LookupEntry(vItem.item)))
     {
         if (player)
-            ChatHandler(player->GetSession()).PSendSysMessage(LANG_ITEM_NOT_FOUND, id, type);
+            ChatHandler(player->GetSession()).PSendSysMessage(LANG_ITEM_NOT_FOUND, vItem.item, vItem.Type);
         else
-            TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` for Vendor (Entry: %u) have in item list non-existed item (%u, type %u), ignore", vendor_entry, id, type);
+            TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` for Vendor (Entry: %u) have in item list non-existed item (%u, type %u), ignore", vendor_entry, vItem.item, vItem.Type);
         return false;
     }
 
-    if (ExtendedCost && !sItemExtendedCostStore.LookupEntry(ExtendedCost))
+    if (vItem.ExtendedCost && !sItemExtendedCostStore.LookupEntry(vItem.ExtendedCost))
     {
         if (player)
-            ChatHandler(player->GetSession()).PSendSysMessage(LANG_EXTENDED_COST_NOT_EXIST, ExtendedCost);
+            ChatHandler(player->GetSession()).PSendSysMessage(LANG_EXTENDED_COST_NOT_EXIST, vItem.ExtendedCost);
         else
-            TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` has Item (Entry: %u) with wrong ExtendedCost (%u) for vendor (%u), ignore", id, ExtendedCost, vendor_entry);
+            TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` has Item (Entry: %u) with wrong ExtendedCost (%u) for vendor (%u), ignore", vItem.item, vItem.ExtendedCost, vendor_entry);
         return false;
     }
 
-    if (type == ITEM_VENDOR_TYPE_ITEM) // not applicable to currencies
+    if (vItem.Type == ITEM_VENDOR_TYPE_ITEM) // not applicable to currencies
     {
-        if (maxcount > 0 && incrtime == 0)
+        if (vItem.maxcount > 0 && vItem.incrtime == 0)
         {
             if (player)
-                ChatHandler(player->GetSession()).PSendSysMessage("MaxCount != 0 (%u) but IncrTime == 0", maxcount);
+                ChatHandler(player->GetSession()).PSendSysMessage("MaxCount != 0 (%u) but IncrTime == 0", vItem.maxcount);
             else
-                TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` has `maxcount` (%u) for item %u of vendor (Entry: %u) but `incrtime`=0, ignore", maxcount, id, vendor_entry);
+                TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` has `maxcount` (%u) for item %u of vendor (Entry: %u) but `incrtime`=0, ignore", vItem.maxcount, vItem.item, vendor_entry);
             return false;
         }
-        else if (maxcount == 0 && incrtime > 0)
+        else if (vItem.maxcount == 0 && vItem.incrtime > 0)
         {
             if (player)
                 ChatHandler(player->GetSession()).PSendSysMessage("MaxCount == 0 but IncrTime<>= 0");
             else
-                TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` has `maxcount`=0 for item %u of vendor (Entry: %u) but `incrtime`<>0, ignore", id, vendor_entry);
+                TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` has `maxcount`=0 for item %u of vendor (Entry: %u) but `incrtime`<>0, ignore", vItem.item, vendor_entry);
             return false;
         }
     }
@@ -9184,18 +9186,18 @@ bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, uint32 id, int32 maxcount
     if (!vItems)
         return true;                                        // later checks for non-empty lists
 
-    if (vItems->FindItemCostPair(id, ExtendedCost, type))
+    if (vItems->FindItemCostPair(vItem.item, vItem.ExtendedCost, vItem.Type))
     {
         if (player)
-            ChatHandler(player->GetSession()).PSendSysMessage(LANG_ITEM_ALREADY_IN_LIST, id, ExtendedCost, type);
+            ChatHandler(player->GetSession()).PSendSysMessage(LANG_ITEM_ALREADY_IN_LIST, vItem.item, vItem.ExtendedCost, vItem.Type);
         else
-            TC_LOG_ERROR("sql.sql", "Table `npc_vendor` has duplicate items %u (with extended cost %u, type %u) for vendor (Entry: %u), ignoring", id, ExtendedCost, type, vendor_entry);
+            TC_LOG_ERROR("sql.sql", "Table `npc_vendor` has duplicate items %u (with extended cost %u, type %u) for vendor (Entry: %u), ignoring", vItem.item, vItem.ExtendedCost, vItem.Type, vendor_entry);
         return false;
     }
 
-    if (type == ITEM_VENDOR_TYPE_CURRENCY && maxcount == 0)
+    if (vItem.Type == ITEM_VENDOR_TYPE_CURRENCY && vItem.maxcount == 0)
     {
-        TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` have Item (Entry: %u, type: %u) with missing maxcount for vendor (%u), ignore", id, type, vendor_entry);
+        TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` have Item (Entry: %u, type: %u) with missing maxcount for vendor (%u), ignore", vItem.item, vItem.Type, vendor_entry);
         return false;
     }
 

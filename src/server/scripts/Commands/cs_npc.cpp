@@ -437,13 +437,20 @@ public:
 
         uint32 vendor_entry = vendor->GetEntry();
 
-        if (!sObjectMgr->IsVendorItemValid(vendor_entry, itemId, maxcount, incrtime, extendedcost, type, handler->GetSession()->GetPlayer()))
+        VendorItem vItem;
+        vItem.item = itemId;
+        vItem.maxcount = maxcount;
+        vItem.incrtime = incrtime;
+        vItem.ExtendedCost = extendedcost;
+        vItem.Type = type;
+
+        if (!sObjectMgr->IsVendorItemValid(vendor_entry, vItem, handler->GetSession()->GetPlayer()))
         {
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        sObjectMgr->AddVendorItem(vendor_entry, itemId, maxcount, incrtime, extendedcost, type);
+        sObjectMgr->AddVendorItem(vendor_entry, vItem);
 
         ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
 

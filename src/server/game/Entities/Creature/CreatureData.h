@@ -342,8 +342,7 @@ struct CreatureAddon
 // Vendors
 struct VendorItem
 {
-    VendorItem(uint32 _item, int32 _maxcount, uint32 _incrtime, uint32 _ExtendedCost, uint8 _Type)
-        : item(_item), maxcount(_maxcount), incrtime(_incrtime), ExtendedCost(_ExtendedCost), Type(_Type) { }
+    VendorItem() : item(0), maxcount(0), incrtime(0), ExtendedCost(0), Type(0) { }
 
     uint32 item;
     uint32 maxcount;                                        // 0 for infinity item amount
@@ -368,9 +367,9 @@ struct VendorItemData
     }
     bool Empty() const { return m_items.empty(); }
     uint32 GetItemCount() const { return m_items.size(); }
-    void AddItem(uint32 item, int32 maxcount, uint32 ptime, uint32 ExtendedCost, uint8 type)
+    void AddItem(VendorItem vItem)
     {
-        m_items.emplace_back(item, maxcount, ptime, ExtendedCost, type);
+        m_items.emplace_back(std::move(vItem));
     }
     bool RemoveItem(uint32 item_id, uint8 type);
     VendorItem const* FindItemCostPair(uint32 item_id, uint32 extendedCost, uint8 type) const;
