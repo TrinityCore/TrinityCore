@@ -424,6 +424,9 @@ struct npc_helix_lumbering_oaf : public ScriptedAI
 
     void UpdateAI(uint32 diff) override
     {
+        if (!UpdateVictim())
+            return;
+
         _events.Update(diff);
 
         if (me->HasUnitState(UNIT_STATE_CASTING))
