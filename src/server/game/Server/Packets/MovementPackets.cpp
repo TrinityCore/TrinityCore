@@ -418,19 +418,9 @@ void WorldPackets::Movement::MonsterMove::InitializeSplineData(::Movement::MoveS
 
     if (splineFlags & ::Movement::MoveSplineFlag::UncompressedPath)
     {
-        if (!splineFlags.cyclic)
-        {
-            uint32 count = spline.getPointCount() - 3;
-            for (uint32 i = 0; i < count; ++i)
-                movementSpline.Points.emplace_back(array[i + 2].x, array[i + 2].y, array[i + 2].z);
-        }
-        else
-        {
-            uint32 count = spline.getPointCount() - 3;
-            movementSpline.Points.emplace_back(array[1].x, array[1].y, array[1].z);
-            for (uint32 i = 0; i < count; ++i)
-                movementSpline.Points.emplace_back(array[i + 1].x, array[i + 1].y, array[i + 1].z);
-        }
+        uint32 count = spline.getPointCount() - (!splineFlags.cyclic ? 3 : 4);
+        for (uint32 i = 0; i < count; ++i)
+            movementSpline.Points.emplace_back(array[i + 2].x, array[i + 2].y, array[i + 2].z);
     }
     else
     {
