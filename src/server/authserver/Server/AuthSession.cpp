@@ -134,6 +134,7 @@ std::array<uint8, 16> VersionChallenge = { { 0xBA, 0xA3, 0x1E, 0x99, 0xA0, 0x0B,
         return;
     }
 
+    bool const shouldUpdate = sConfigMgr->GetBoolDefault("AllowDeprecatedExternalPasswords", false, true);
     bool hadWarning = false;
     uint32 c = 0;
     LoginDatabaseTransaction tx = LoginDatabase.BeginTransaction();
@@ -144,10 +145,37 @@ std::array<uint8, 16> VersionChallenge = { { 0xBA, 0xA3, 0x1E, 0x99, 0xA0, 0x0B,
             HexStrToByteArray<Trinity::Crypto::SHA1::DIGEST_LENGTH>((*result)[1].GetString())
         );
 
-        if ((*result)[2].GetInt64() && !hadWarning)
+        if ((*result)[2].GetInt64())
         {
-            hadWarning = true;
-            TC_LOG_WARN("server.authserver", "(!) You appear to be using an outdated external account management tool.\n(!!) This is INSECURE, has been deprecated, and will cease to function entirely in the near future.\n(!) Update your external tool.\n(!!) If no update is available, refer your tool's developer to https://github.com/TrinityCore/TrinityCore/issues/25157.");
+            if (!hadWarning)
+            {
+                hadWarning = true;
+                if (shouldUpdate)
+                {
+                    TC_LOG_WARN("server.authserver",
+                        "       ========\n"
+                        "(!) You appear to be using an outdated external account management tool.\n"
+                        "(!!) This is INSECURE, has been deprecated, and will cease to function entirely on September 6, 2020.\n"
+                        "(!) Update your external tool.\n"
+                        "(!!) If no update is available, refer your tool's developer to https://github.com/TrinityCore/TrinityCore/issues/25157.\n"
+                        "       ========");
+                }
+                else
+                {
+                    TC_LOG_ERROR("server.authserver",
+                        "       ========\n"
+                        "(!) You appear to be using an outdated external account management tool.\n"
+                        "(!!) This is INSECURE, and the account(s) in question will not be able to log in.\n"
+                        "(!) Update your external tool.\n"
+                        "(!!) If no update is available, refer your tool's developer to https://github.com/TrinityCore/TrinityCore/issues/25157.\n"
+                        "(!) You can override this behavior by adding \"AllowDeprecatedExternalPasswords = 1\" to your authserver.conf file.\n"
+                        "(!!) Note that this override will cease to function entirely on September 6, 2020.\n"
+                        "       ========");
+                }
+            }
+
+            if (!shouldUpdate)
+                continue;
         }
 
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGON);
@@ -441,6 +469,23 @@ void AuthSession::LogonChallengeCallback(PreparedQueryResult result)
 
     if (!fields[10].IsNull())
     {
+        if (!sConfigMgr->GetBoolDefault("AllowDeprecatedExternalPasswords", false, true))
+        {
+            TC_LOG_ERROR("server.authserver",
+                "       ========\n"
+                "(!) You appear to be using an outdated external account management tool.\n"
+                "(!!) This is INSECURE, and the login attempt from account '%s' was BLOCKED.\n"
+                "(!) Update your external tool.\n"
+                "(!!) If no update is available, refer your tool's developer to https://github.com/TrinityCore/TrinityCore/issues/25157.\n"
+                "(!) You can override this behavior by adding \"AllowDeprecatedExternalPasswords = 1\" to your authserver.conf file.\n"
+                "(!!) Note that this override will cease to function entirely on September 6, 2020.\n"
+                "       ========", _accountInfo.Login.c_str());
+
+            pkt << uint8(WOW_FAIL_UNLOCKABLE_LOCK);
+            SendPacket(pkt);
+            return;
+        }
+
         // if this is reached, s/v were reset and we need to recalculate from sha_pass_hash
         Trinity::Crypto::SHA1::Digest sha_pass_hash;
         HexStrToByteArray(fields[10].GetString(), sha_pass_hash);
@@ -451,7 +496,13 @@ void AuthSession::LogonChallengeCallback(PreparedQueryResult result)
         stmt->setUInt32(2, _accountInfo.Id);
         LoginDatabase.Execute(stmt);
 
-        TC_LOG_WARN("server.authserver", "(!) You appear to be using an outdated external account management tool.\n(!!) This is INSECURE, has been deprecated, and will cease to function entirely in the near future.\n(!) Update your external tool.\n(!!) If no update is available, refer your tool's developer to https://github.com/TrinityCore/TrinityCore/issues/25157.");
+        TC_LOG_WARN("server.authserver",
+            "       ========\n"
+            "(!) You appear to be using an outdated external account management tool.\n"
+            "(!!) This is INSECURE, has been deprecated, and will cease to function entirely on September 6, 2020.\n"
+            "(!) Update your external tool.\n"
+            "(!!) If no update is available, refer your tool's developer to https://github.com/TrinityCore/TrinityCore/issues/25157.\n"
+            "       ========");
 
         _srp6.emplace(_accountInfo.Login, salt, verifier);
     }
