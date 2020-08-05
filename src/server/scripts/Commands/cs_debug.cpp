@@ -1976,6 +1976,59 @@ public:
             map->GetId(), map->GetMapName(), map->GetInstanceId(),
             uint64(map->GetObjectsStore().Size<Creature>()),
             uint64(map->GetObjectsStore().Size<GameObject>()));
+
+        class CreatureCountWorker
+        {
+        public:
+            CreatureCountWorker() { }
+
+            void Visit(std::unordered_map<ObjectGuid, Creature*>& creatureMap)
+            {
+                for (auto const& p : creatureMap)
+                {
+                    uint32& count = creatureIds[p.second->GetEntry()];
+                    ++count;
+                }
+            }
+
+            void Visit(std::unordered_map<ObjectGuid, GameObject*>& map) { }
+
+            void Visit(std::unordered_map<ObjectGuid, DynamicObject*>& map) { }
+
+            void Visit(std::unordered_map<ObjectGuid, Pet*>& map) { }
+
+            void Visit(std::unordered_map<ObjectGuid, Corpse*>& map) { }
+
+            std::vector<std::pair<uint32, uint32>> GetTopCreatureCount(uint32 count)
+            {
+                auto comp = [](const std::pair<uint32, uint32>& a, const std::pair<uint32, uint32>& b)
+                {
+                    return a.second > b.second;
+                };
+                auto set = std::set<std::pair<uint32, uint32>, decltype(comp)>(creatureIds.begin(), creatureIds.end(), comp);
+
+                std::vector<std::pair<uint32, uint32>> result;
+                for (auto itr = set.begin(); itr != set.end() && result.size() < count; ++itr)
+                    result.push_back(std::make_pair(itr->first, itr->second));
+
+                return result;
+            }
+
+        private:
+            std::unordered_map<uint32, uint32> creatureIds;
+        };
+
+        CreatureCountWorker worker;
+        TypeContainerVisitor<CreatureCountWorker, MapStoredObjectTypesContainer> visitor(worker);
+        visitor.Visit(map->GetObjectsStore());
+
+        std::ostringstream topCreatureCount;
+        topCreatureCount << "Top Creatures count:";
+
+        for (auto&& p : worker.GetTopCreatureCount(5))
+            topCreatureCount << "\nEntry: " << std::to_string(p.first) << " Count: " << std::to_string(p.second);
+
+        handler->PSendSysMessage("%s", topCreatureCount.str().c_str());
     }
 
     static bool HandleDebugDummyCommand(ChatHandler* handler, CommandArgs* /*args*/)
