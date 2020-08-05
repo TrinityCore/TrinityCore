@@ -23,24 +23,25 @@
 
 namespace Movement{
 
-Location MoveSpline::ComputePosition() const
+Location MoveSpline::computePosition(int32 time_point, int32 point_index) const
 {
     ASSERT(Initialized());
 
-    float u = 1.f;
-    int32 seg_time = spline.length(point_Idx, point_Idx+1);
+    float u = 1.0f;
+    int32 seg_time = spline.length(point_index, point_index + 1);
     if (seg_time > 0)
-        u = (time_passed - spline.length(point_Idx)) / (float)seg_time;
+        u = (time_point - spline.length(point_index)) / (float)seg_time;
+
     Location c;
     c.orientation = initialOrientation;
-    spline.evaluate_percent(point_Idx, u, c);
+    spline.evaluate_percent(point_index, u, c);
 
     if (splineflags.animation)
         ;// MoveSplineFlag::Animation disables falling or parabolic movement
     else if (splineflags.parabolic)
-        computeParabolicElevation(c.z);
+        computeParabolicElevation(time_point, c.z);
     else if (splineflags.falling)
-        computeFallElevation(c.z);
+        computeFallElevation(time_point, c.z);
 
     if (splineflags.done && splineflags.isFacing())
     {
@@ -65,11 +66,35 @@ Location MoveSpline::ComputePosition() const
     return c;
 }
 
-void MoveSpline::computeParabolicElevation(float& el) const
+Location MoveSpline::ComputePosition() const
 {
-    if (time_passed > effect_start_time)
+    return computePosition(time_passed, point_Idx);
+}
+
+Location MoveSpline::ComputePosition(int32 time_offset) const
+{
+    int32 time_point = time_passed + time_offset;
+    if (time_point >= Duration())
+        return computePosition(Duration(), spline.last() - 1);
+    if (time_point <= 0)
+        return computePosition(0, spline.first());
+
+    // find point_index where spline.length(point_index) < time_point < spline.length(point_index + 1)
+    int32 point_index = point_Idx;
+    while (time_point >= spline.length(point_index + 1))
+        ++point_index;
+
+    while (time_point < spline.length(point_index))
+        --point_index;
+
+    return computePosition(time_point, point_index);
+}
+
+void MoveSpline::computeParabolicElevation(int32 time_point, float& el) const
+{
+    if (time_point > effect_start_time)
     {
-        float t_passedf = MSToSec(time_passed - effect_start_time);
+        float t_passedf = MSToSec(time_point - effect_start_time);
         float t_durationf = MSToSec(Duration() - effect_start_time); //client use not modified duration here
 
         // -a*x*x + bx + c:
@@ -78,9 +103,9 @@ void MoveSpline::computeParabolicElevation(float& el) const
     }
 }
 
-void MoveSpline::computeFallElevation(float& el) const
+void MoveSpline::computeFallElevation(int32 time_point, float& el) const
 {
-    float z_now = spline.getPoint(spline.first()).z - Movement::computeFallElevation(MSToSec(time_passed), false);
+    float z_now = spline.getPoint(spline.first()).z - Movement::computeFallElevation(MSToSec(time_point), false);
     float final_z = FinalDestination().z;
     el = std::max(z_now, final_z);
 }
@@ -161,7 +186,7 @@ void MoveSpline::Initialize(MoveSplineInitArgs const& args)
     time_passed = 0;
     vertical_acceleration = 0.f;
     effect_start_time = 0;
-
+    splineIsFacingOnly = args.path.size() == 2 && args.flags & MoveSplineFlag::Mask_Final_Facing && ((args.path[1] - args.path[0]).length() < 0.1f);
     velocity = args.velocity;
 
     // Check if its a stop spline
@@ -188,7 +213,7 @@ void MoveSpline::Initialize(MoveSplineInitArgs const& args)
 
 MoveSpline::MoveSpline() : m_Id(0), time_passed(0),
     vertical_acceleration(0.f), initialOrientation(0.f), effect_start_time(0), point_Idx(0), point_Idx_offset(0), velocity(0.f),
-    onTransport(false)
+    onTransport(false), splineIsFacingOnly(false)
 {
     splineflags.done = true;
 }
@@ -220,32 +245,18 @@ bool MoveSplineInitArgs::Validate(Unit* unit) const
     CHECK(path.size() > 1);
     CHECK(velocity >= 0.01f);
     CHECK(time_perc >= 0.f && time_perc <= 1.f);
-    //CHECK(_checkPathBounds());
+    CHECK(_checkPathLengths());
     return true;
 #undef CHECK
 }
 
-// MONSTER_MOVE packet format limitation for not CatmullRom movement:
-// each vertex offset packed into 11 bytes
-bool MoveSplineInitArgs::_checkPathBounds() const
+// check path lengths - why are we even starting such short movement?
+bool MoveSplineInitArgs::_checkPathLengths() const
 {
-    if (!(flags & MoveSplineFlag::Catmullrom) && path.size() > 2)
-    {
-        enum{
-            MAX_OFFSET = (1 << 11) / 2
-        };
-        Vector3 middle = (path.front()+path.back()) / 2;
-        Vector3 offset;
-        for (uint32 i = 1; i < path.size()-1; ++i)
-        {
-            offset = path[i] - middle;
-            if (std::fabs(offset.x) >= MAX_OFFSET || std::fabs(offset.y) >= MAX_OFFSET || std::fabs(offset.z) >= MAX_OFFSET)
-            {
-                TC_LOG_ERROR("misc", "MoveSplineInitArgs::_checkPathBounds check failed");
+    if (path.size() > 2 || !(flags & MoveSplineFlag::Mask_Final_Facing))
+        for (uint32 i = 0; i < path.size() - 1; ++i)
+            if ((path[i + 1] - path[i]).length() < 0.1f)
                 return false;
-            }
-        }
-    }
     return true;
 }
 
