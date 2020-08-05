@@ -17,7 +17,6 @@
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
-#include "Map.h"
 #include "MotionMaster.h"
 #include "ScriptedCreature.h"
 #include "TemporarySummon.h"
@@ -30,22 +29,13 @@ enum NaxxEvents
 
 struct npc_frogger_trigger_naxx : public ScriptedAI
 {
-    npc_frogger_trigger_naxx(Creature* creature) : ScriptedAI(creature)
-    {
-        _instance = creature->GetInstanceScript();
-        Initialize();
-    }
-
-    void Initialize()
-    {
-        _nextFroggerWave = 0;
-    }
+    npc_frogger_trigger_naxx(Creature* creature) : ScriptedAI(creature), _nextFroggerWave(0) { }
 
     void Reset() override
     {
         _events.Reset();
         _events.ScheduleEvent(EVENT_SUMMON_FROGGER_WAVE, 1s);
-        Initialize();
+        _nextFroggerWave = 0;
     }
 
     void UpdateAI(uint32 diff) override
@@ -73,9 +63,8 @@ struct npc_frogger_trigger_naxx : public ScriptedAI
     }
 
 private:
-    InstanceScript* _instance;
     EventMap _events;
-    int8 _nextFroggerWave;
+    uint8 _nextFroggerWave;
 };
 
 void AddSC_naxxramas()
