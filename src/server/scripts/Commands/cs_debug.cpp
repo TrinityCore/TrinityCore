@@ -2001,7 +2001,7 @@ public:
 
             std::vector<std::pair<uint32, uint32>> GetTopCreatureCount(uint32 count)
             {
-                auto comp = [](const std::pair<uint32, uint32>& a, const std::pair<uint32, uint32>& b)
+                auto comp = [](std::pair<uint32, uint32> const& a, std::pair<uint32, uint32> const& b)
                 {
                     return a.second > b.second;
                 };
