@@ -456,7 +456,7 @@ void MotionMaster::MoveJump(float x, float y, float z, float o, float speedXY, f
     Mutate(new GenericMovementGenerator(std::move(init), EFFECT_MOTION_TYPE, id), MOTION_SLOT_CONTROLLED);
 }
 
-void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool clockwise, uint8 stepCount)
+void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool clockwise, uint8 stepCount, float velocity /*= 0.f*/)
 {
     float step = 2 * float(M_PI) / stepCount * (clockwise ? -1.0f : 1.0f);
     Position const& pos = { x, y, z, 0.0f };
@@ -495,6 +495,9 @@ void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool 
     }
 
     init.SetSmooth();
+    if (velocity > 0.f)
+        init.SetVelocity(velocity);
+
     Mutate(new GenericMovementGenerator(std::move(init), EFFECT_MOTION_TYPE, 0), MOTION_SLOT_ACTIVE);
 }
 
