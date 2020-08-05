@@ -757,8 +757,7 @@ class instance_deadmines : public InstanceMapScript
                                 if (Creature* platter = instance->SummonCreature(NPC_VANESSA_LIGHTNING_PLATTER, LightningPlatterPos[i]))
                                 {
                                     bool clockwise = RAND(0, 1) == 1;
-                                    platter->SetSpeed(MOVE_RUN, 0.25f);
-                                    platter->GetMotionMaster()->MoveCirclePath(platter->GetPositionX(), platter->GetPositionY(), LightningPlatterCirclePathHeight[i], 0.95f, clockwise, 10);
+                                    platter->GetMotionMaster()->MoveCirclePath(platter->GetPositionX(), platter->GetPositionY(), LightningPlatterCirclePathHeight[i], 1.f, clockwise, 9, 0.4f);
                                 }
                             }
                             events.ScheduleEvent(EVENT_SUMMON_FOE_REAPER, Seconds(9) + Milliseconds(500));
