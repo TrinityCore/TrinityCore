@@ -2008,7 +2008,7 @@ public:
                 std::set<std::pair<uint32, uint32>, decltype(comp)> set(creatureIds.begin(), creatureIds.end(), comp);
 
                 count = std::min(count, uint32(set.size()));
-                auto result = std::vector<std::pair<uint32, uint32>>(count);
+                std::vector<std::pair<uint32, uint32>> result(count);
                 std::copy_n(set.begin(), count, result.begin());
 
                 return result;
