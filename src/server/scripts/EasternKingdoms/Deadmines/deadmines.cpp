@@ -417,7 +417,6 @@ class npc_deadmines_vanessa_van_cleef_nightmare : public CreatureScript
         }
 };
 
-
 enum HelixNightmare
 {
     SAY_ANNOUNCE_HELIX_NIGHTMARE    = 0,
@@ -447,7 +446,7 @@ class npc_deadmines_helix_nightmare : public CreatureScript
         {
             npc_deadmines_helix_nightmareAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
 
-            void Reset() override
+            void JustAppeared() override
             {
                 _events.ScheduleEvent(EVENT_MAKE_ATTACKABLE, Seconds(7) + Milliseconds(700));
                 _events.ScheduleEvent(EVENT_TALK_NIGHTMARE, Seconds(17) + Milliseconds(800));
@@ -461,6 +460,8 @@ class npc_deadmines_helix_nightmare : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
+                UpdateVictim();
+
                 _events.Update(diff);
 
                 while (uint32 eventId = _events.ExecuteEvent())
