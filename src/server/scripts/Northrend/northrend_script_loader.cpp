@@ -71,6 +71,7 @@ void AddSC_boss_faerlina();
 void AddSC_boss_heigan();
 void AddSC_boss_gothik();
 void AddSC_boss_thaddius();
+void AddSC_naxxramas();
 void AddSC_instance_naxxramas();
 void AddSC_boss_nexus_commanders();     // The Nexus Nexus
 void AddSC_boss_magus_telestra();
@@ -253,6 +254,7 @@ void AddNorthrendScripts()
     AddSC_boss_heigan();
     AddSC_boss_gothik();
     AddSC_boss_thaddius();
+    AddSC_naxxramas();
     AddSC_instance_naxxramas();
     AddSC_boss_nexus_commanders();      // The Nexus Nexus
     AddSC_boss_magus_telestra();

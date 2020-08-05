@@ -22,7 +22,6 @@
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
-#include "MotionMaster.h"
 #include "naxxramas.h"
 #include "TemporarySummon.h"
 
@@ -126,9 +125,6 @@ class instance_naxxramas : public InstanceMapScript
                 CurrentWingTaunt        = SAY_KELTHUZAD_FIRST_WING_TAUNT;
 
                 playerDied              = 0;
-
-                nextFroggerWave         = 0;
-                events.ScheduleEvent(EVENT_SUMMON_FROGGER_WAVE, Seconds(1));
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -473,16 +469,6 @@ class instance_naxxramas : public InstanceMapScript
                                 kelthuzad->AI()->Talk(CurrentWingTaunt);
                             ++CurrentWingTaunt;
                             break;
-                        case EVENT_SUMMON_FROGGER_WAVE:
-                        {
-                            std::list<TempSummon*> spawns;
-                            instance->SummonCreatureGroup(nextFroggerWave, &spawns);
-                            if (!spawns.empty())
-                                (*spawns.begin())->GetMotionMaster()->MovePath(10 * NPC_FROGGER + nextFroggerWave, false);
-                            events.Repeat(Seconds(1) + Milliseconds(666));
-                            nextFroggerWave = (nextFroggerWave+1) % 3;
-                            break;
-                        }
                         case EVENT_DIALOGUE_SAPPHIRON_KELTHUZAD:
                             if (Creature* kelthuzad = instance->GetCreature(KelthuzadGUID))
                                 kelthuzad->AI()->Talk(SAY_DIALOGUE_SAPPHIRON_KELTHUZAD);
@@ -613,8 +599,6 @@ class instance_naxxramas : public InstanceMapScript
 
             /* The Immortal / The Undying */
             uint32 playerDied;
-
-            int8 nextFroggerWave;
 
             EventMap events;
         };
