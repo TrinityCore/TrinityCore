@@ -22,6 +22,15 @@
 #include "MoveSplineInitArgs.h"
 #include <G3D/Vector3.h>
 
+namespace WorldPackets
+{
+    namespace Movement
+    {
+        class CommonMovement;
+        class MonsterMove;
+    }
+}
+
 enum class AnimationTier : uint8;
 
 namespace Movement
@@ -41,6 +50,8 @@ namespace Movement
     // point can have vertical acceleration motion componemt(used in fall, parabolic movement)
     class TC_GAME_API MoveSpline
     {
+        friend class WorldPackets::Movement::MonsterMove;
+
     public:
         typedef Spline<int32> MySpline;
         enum UpdateResult

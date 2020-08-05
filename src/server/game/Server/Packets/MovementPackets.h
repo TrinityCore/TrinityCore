@@ -22,6 +22,13 @@
 #include "Object.h"
 #include "Optional.h"
 
+namespace Movement
+{
+    template<class index_type>
+    class Spline;
+    class MoveSpline;
+}
+
 namespace WorldPackets
 {
     namespace Movement
@@ -167,7 +174,61 @@ namespace WorldPackets
 
             MovementInfo* Status = nullptr;
         };
+
+        struct MonsterSplineJumpExtraData
+        {
+            float JumpGravity = 0.0f;
+            uint32 StartTime = 0;
+        };
+
+        struct MonsterSplineAnimationExtraData
+        {
+            uint8 AnimTier = 0;
+            uint32 TierTransStartTime = 0;
+        };
+
+        struct MovementSpline
+        {
+            uint32 Flags                = 0;    // Spline flags
+            uint8 Face                  = 0;    // Movement direction (see MonsterMoveType enum)
+            uint32 MoveTime             = 0;
+            std::vector<TaggedPosition<Position::XYZ>> Points;   // Spline path
+            int8 VehicleExitVoluntary   = 0;
+            ObjectGuid TransportGUID;
+            int8 VehicleSeat            = -1;
+            std::vector<TaggedPosition<Position::PackedXYZ>> PackedDeltas;
+            Optional<MonsterSplineJumpExtraData> JumpExtraData;
+            Optional<MonsterSplineAnimationExtraData> Animation;
+            float FaceDirection         = 0.0f;
+            ObjectGuid FaceGUID;
+            TaggedPosition<Position::XYZ> FaceSpot;
+        };
+
+        struct MovementMonsterSpline
+        {
+            uint32 ID = 0;
+            TaggedPosition<Position::XYZ> Destination;
+            bool CrzTeleport = false;
+            MovementSpline Move;
+        };
+
+        class MonsterMove final : public ServerPacket
+        {
+        public:
+            MonsterMove(bool onTransport) : ServerPacket(onTransport ? SMSG_ON_MONSTER_MOVE_TRANSPORT : SMSG_ON_MONSTER_MOVE) { }
+
+            void InitializeSplineData(::Movement::MoveSpline const& moveSpline);
+
+            WorldPacket const* Write() override;
+
+            MovementMonsterSpline SplineData;
+            ObjectGuid MoverGUID;
+            TaggedPosition<Position::XYZ> Pos;
+        };
     }
+
+    ByteBuffer& operator<<(ByteBuffer& data, Movement::MovementSpline const& movementSpline);
+    ByteBuffer& operator<<(ByteBuffer& data, Movement::MovementMonsterSpline const& movementMonsterSpline);
 }
 
 #endif // MovementPackets_h__

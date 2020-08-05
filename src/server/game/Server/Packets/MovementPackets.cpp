@@ -368,3 +368,167 @@ WorldPacket const* WorldPackets::Movement::MoveUpdateTeleport::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Movement::MonsterMove::InitializeSplineData(::Movement::MoveSpline const& moveSpline)
+{
+    SplineData.ID = moveSpline.m_Id;
+    WorldPackets::Movement::MovementSpline& movementSpline = SplineData.Move;
+
+    ::Movement::MoveSplineFlag splineFlags = moveSpline.splineflags;
+    splineFlags.enter_cycle = moveSpline.isCyclic();
+    movementSpline.Flags = uint32(splineFlags & uint32(~::Movement::MoveSplineFlag::Mask_No_Monster_Move));
+
+    switch (moveSpline.splineflags & ::Movement::MoveSplineFlag::Mask_Final_Facing)
+    {
+        case ::Movement::MoveSplineFlag::Final_Point:
+            movementSpline.Face = ::Movement::MONSTER_MOVE_FACING_SPOT;
+            movementSpline.FaceSpot = Position(moveSpline.facing.f.x, moveSpline.facing.f.y, moveSpline.facing.f.z);
+            break;
+        case ::Movement::MoveSplineFlag::Final_Target:
+            movementSpline.Face = ::Movement::MONSTER_MOVE_FACING_TARGET;
+            movementSpline.FaceGUID = moveSpline.facing.target;
+            break;
+        case ::Movement::MoveSplineFlag::Final_Angle:
+            movementSpline.Face = ::Movement::MONSTER_MOVE_FACING_ANGLE;
+            movementSpline.FaceDirection = moveSpline.facing.angle;
+            break;
+        default:
+            movementSpline.Face = ::Movement::MONSTER_MOVE_NORMAL;
+            break;
+    }
+
+    if (splineFlags.animation)
+    {
+        movementSpline.Animation = boost::in_place();
+        movementSpline.Animation->AnimTier = splineFlags.getAnimationId();
+        movementSpline.Animation->TierTransStartTime = moveSpline.effect_start_time;
+    }
+
+    movementSpline.MoveTime = moveSpline.Duration();
+
+    if (splineFlags.parabolic)
+    {
+        movementSpline.JumpExtraData = boost::in_place();
+        movementSpline.JumpExtraData->JumpGravity = moveSpline.vertical_acceleration;
+        movementSpline.JumpExtraData->StartTime = moveSpline.effect_start_time;
+    }
+
+    ::Movement::Spline<int32> const& spline = moveSpline.spline;
+    std::vector<G3D::Vector3> const& array = spline.getPoints();
+
+    if (splineFlags & ::Movement::MoveSplineFlag::UncompressedPath)
+    {
+        if (!splineFlags.cyclic)
+        {
+            uint32 count = spline.getPointCount() - 3;
+            for (uint32 i = 0; i < count; ++i)
+                movementSpline.Points.emplace_back(array[i + 2].x, array[i + 2].y, array[i + 2].z);
+        }
+        else
+        {
+            uint32 count = spline.getPointCount() - 3;
+            movementSpline.Points.emplace_back(array[1].x, array[1].y, array[1].z);
+            for (uint32 i = 0; i < count; ++i)
+                movementSpline.Points.emplace_back(array[i + 1].x, array[i + 1].y, array[i + 1].z);
+        }
+    }
+    else
+    {
+        uint32 lastIdx = spline.getPointCount() - 3;
+        G3D::Vector3 const* realPath = &spline.getPoint(1);
+
+        movementSpline.Points.emplace_back(realPath[lastIdx].x, realPath[lastIdx].y, realPath[lastIdx].z);
+
+        if (lastIdx > 1)
+        {
+            G3D::Vector3 middle = (realPath[0] + realPath[lastIdx]) / 2.f;
+
+            // first and last points already appended
+            for (uint32 i = 1; i < lastIdx; ++i)
+            {
+                G3D::Vector3 delta = middle - realPath[i];
+                movementSpline.PackedDeltas.emplace_back(delta.x, delta.y, delta.z);
+            }
+        }
+    }
+}
+
+WorldPacket const* WorldPackets::Movement::MonsterMove::Write()
+{
+    _worldPacket << MoverGUID.WriteAsPacked();
+
+    if (_worldPacket.GetOpcode() == SMSG_ON_MONSTER_MOVE_TRANSPORT)
+    {
+        _worldPacket << SplineData.Move.TransportGUID.WriteAsPacked();
+        _worldPacket << int8(SplineData.Move.VehicleSeat);
+    }
+
+    _worldPacket << int8(SplineData.Move.VehicleExitVoluntary);
+    _worldPacket << Pos;
+    _worldPacket << SplineData;
+    return &_worldPacket;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MonsterSplineJumpExtraData const& jumpExtraData)
+{
+    data << float(jumpExtraData.JumpGravity);
+    data << int32(jumpExtraData.StartTime);
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MonsterSplineAnimationExtraData const& animationExtraData)
+{
+    data << int8(animationExtraData.AnimTier);
+    data << int32(animationExtraData.TierTransStartTime);
+
+    return data;
+}
+
+ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MovementSpline const& movementSpline)
+{
+    data << int8(movementSpline.Face);
+
+    switch (movementSpline.Face)
+    {
+        case ::Movement::MONSTER_MOVE_NORMAL:
+            break;
+        case ::Movement::MONSTER_MOVE_FACING_SPOT:
+            data << movementSpline.FaceSpot;
+            break;
+        case ::Movement::MONSTER_MOVE_FACING_TARGET:
+            data << movementSpline.FaceGUID;
+            break;
+        case ::Movement::MONSTER_MOVE_FACING_ANGLE:
+            data << float(movementSpline.FaceDirection);
+            break;
+        default:
+            return data;
+    }
+
+    data << int32(movementSpline.Flags);
+
+    if (movementSpline.Animation)
+        data << *movementSpline.Animation;
+
+    data << int32(movementSpline.MoveTime);
+
+    if (movementSpline.JumpExtraData)
+        data << *movementSpline.JumpExtraData;
+
+    data << int32(movementSpline.Points.size() + movementSpline.PackedDeltas.size());
+    for (TaggedPosition<Position::XYZ> const& pos : movementSpline.Points)
+        data << pos;
+    for (TaggedPosition<Position::PackedXYZ> const& pos : movementSpline.PackedDeltas)
+        data << pos;
+
+    return data;
+}
+
+ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MovementMonsterSpline const& movementMonsterSpline)
+{
+    data << int32(movementMonsterSpline.ID);
+    data << movementMonsterSpline.Move;
+
+    return data;
+}
