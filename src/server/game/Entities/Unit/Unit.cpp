@@ -687,20 +687,17 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
     // Hook for OnDamage Event
     sScriptMgr->OnDamage(attacker, victim, damage);
 
-    if (victim->GetTypeId() == TYPEID_PLAYER)
+    // Signal to pets that their owner was attacked - except when DOT.
+    if (attacker != victim && damagetype != DOT)
     {
-        // Signal to pets that their owner was attacked - except when DOT.
-        if (attacker != victim && damagetype != DOT)
-        {
-            for (Unit* controlled : victim->m_Controlled)
-                if (Creature* cControlled = controlled->ToCreature())
-                    if (CreatureAI* controlledAI = cControlled->AI())
-                        controlledAI->OwnerAttackedBy(attacker);
-        }
-
-        if (victim->ToPlayer()->GetCommandStatus(CHEAT_GOD))
-            return 0;
+        for (Unit* controlled : victim->m_Controlled)
+            if (Creature* cControlled = controlled->ToCreature())
+                if (CreatureAI* controlledAI = cControlled->AI())
+                    controlledAI->OwnerAttackedBy(attacker);
     }
+
+    if (Player* player = victim->ToPlayer(); player && player->GetCommandStatus(CHEAT_GOD))
+        return 0;
 
     if (damagetype != NODAMAGE)
     {
