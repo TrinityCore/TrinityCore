@@ -696,8 +696,9 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
                     controlledAI->OwnerAttackedBy(attacker);
     }
 
-    if (Player* player = victim->ToPlayer(); player && player->GetCommandStatus(CHEAT_GOD))
-        return 0;
+    if (Player* player = victim->ToPlayer())
+        if (player->GetCommandStatus(CHEAT_GOD))
+            return 0;
 
     if (damagetype != NODAMAGE)
     {
