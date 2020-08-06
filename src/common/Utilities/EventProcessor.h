@@ -70,8 +70,6 @@ class TC_COMMON_API BasicEvent
         uint64 m_execTime;                                  // planned time of next execution, filled by event handler
 };
 
-typedef std::multimap<uint64, BasicEvent*> EventList;
-
 template<typename T>
 class LambdaBasicEvent : public BasicEvent
 {
@@ -111,11 +109,11 @@ class TC_COMMON_API EventProcessor
         is_lambda_event<T> AddEventAtOffset(T&& event, Milliseconds offset, Milliseconds offset2) { AddEventAtOffset(new LambdaBasicEvent<T>(std::move(event)), offset, offset2); }
         void ModifyEventTime(BasicEvent* event, uint64 newTime);
         uint64 CalculateTime(uint64 t_offset) const { return m_time + t_offset; }
-        EventList& GetEventList() { return m_events; }
+        std::multimap<uint64, BasicEvent*>& GetEvents() { return m_events; }
 
     protected:
         uint64 m_time;
-        EventList m_events;
+        std::multimap<uint64, BasicEvent*> m_events;
 };
 
 #endif

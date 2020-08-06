@@ -12517,10 +12517,8 @@ void Unit::SendPlaySpellVisualKit(uint32 id, uint32 type, uint32 duration) const
 
 void Unit::CancelSpellMissiles(uint32 spellId, bool reverseMissile /*= false*/)
 {
-    EventList& eventList = m_Events.GetEventList();
     bool hasMissile = false;
-
-    for (auto itr : eventList)
+    for (auto itr : m_Events.GetEvents())
     {
         if (Spell const* spell = Spell::ExtractSpellFromEvent(itr.second))
         {
