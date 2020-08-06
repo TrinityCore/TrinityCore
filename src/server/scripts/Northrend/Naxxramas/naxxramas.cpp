@@ -51,9 +51,12 @@ struct npc_frogger_trigger_naxx : public ScriptedAI
                     std::list<TempSummon*> spawns;
                     me->SummonCreatureGroup(_nextFroggerWave, &spawns);
                     if (!spawns.empty())
+                    {
                         spawns.front()->GetMotionMaster()->MovePath(10 * NPC_FROGGER + _nextFroggerWave, false);
-                    _events.Repeat(1666ms);
+                        spawns.front()->UpdateSpeed(MOVE_SWIM); // We need update swim speed because spawn in "water"
+                    }
                     _nextFroggerWave = (_nextFroggerWave+1) % 3;
+                    _events.Repeat(_nextFroggerWave == 0 ? 6980ms : 10ms);
                     break;
                 }
                 default:
