@@ -22,8 +22,8 @@
 void WorldPackets::LFG::LFGJoin::Read()
 {
     _worldPacket >> Roles;
-    for (uint8 i = 0; i < 3; ++i)
-        _worldPacket.read_skip<uint32>();
+    for (uint32& needs : Needs) // Needs count, hardcoded to 3 in client
+        _worldPacket >> needs;
 
     uint32 commentLength = _worldPacket.ReadBits(9);
     Slots.resize(_worldPacket.ReadBits(24));
@@ -35,31 +35,30 @@ void WorldPackets::LFG::LFGJoin::Read()
 
 void WorldPackets::LFG::LFGLeave::Read()
 {
-    _worldPacket.read_skip<uint32>();
+    _worldPacket >> Roles;
     _worldPacket >> Ticket.Time;
     uint32 type = 0;
     _worldPacket >> type;
     Ticket.Type = RideType(type);
     _worldPacket >> Ticket.Id;
 
-    ObjectGuid& requesterGuid = Ticket.RequesterGuid;
-    requesterGuid[4] = _worldPacket.ReadBit();
-    requesterGuid[5] = _worldPacket.ReadBit();
-    requesterGuid[0] = _worldPacket.ReadBit();
-    requesterGuid[6] = _worldPacket.ReadBit();
-    requesterGuid[2] = _worldPacket.ReadBit();
-    requesterGuid[7] = _worldPacket.ReadBit();
-    requesterGuid[1] = _worldPacket.ReadBit();
-    requesterGuid[3] = _worldPacket.ReadBit();
+    Ticket.RequesterGuid[4] = _worldPacket.ReadBit();
+    Ticket.RequesterGuid[5] = _worldPacket.ReadBit();
+    Ticket.RequesterGuid[0] = _worldPacket.ReadBit();
+    Ticket.RequesterGuid[6] = _worldPacket.ReadBit();
+    Ticket.RequesterGuid[2] = _worldPacket.ReadBit();
+    Ticket.RequesterGuid[7] = _worldPacket.ReadBit();
+    Ticket.RequesterGuid[1] = _worldPacket.ReadBit();
+    Ticket.RequesterGuid[3] = _worldPacket.ReadBit();
 
-    _worldPacket.ReadByteSeq(requesterGuid[7]);
-    _worldPacket.ReadByteSeq(requesterGuid[4]);
-    _worldPacket.ReadByteSeq(requesterGuid[3]);
-    _worldPacket.ReadByteSeq(requesterGuid[2]);
-    _worldPacket.ReadByteSeq(requesterGuid[6]);
-    _worldPacket.ReadByteSeq(requesterGuid[0]);
-    _worldPacket.ReadByteSeq(requesterGuid[1]);
-    _worldPacket.ReadByteSeq(requesterGuid[5]);
+    _worldPacket.ReadByteSeq(Ticket.RequesterGuid[7]);
+    _worldPacket.ReadByteSeq(Ticket.RequesterGuid[4]);
+    _worldPacket.ReadByteSeq(Ticket.RequesterGuid[3]);
+    _worldPacket.ReadByteSeq(Ticket.RequesterGuid[2]);
+    _worldPacket.ReadByteSeq(Ticket.RequesterGuid[6]);
+    _worldPacket.ReadByteSeq(Ticket.RequesterGuid[0]);
+    _worldPacket.ReadByteSeq(Ticket.RequesterGuid[1]);
+    _worldPacket.ReadByteSeq(Ticket.RequesterGuid[5]);
 }
 
 void WorldPackets::LFG::LFGProposalResponse::Read()
@@ -71,24 +70,23 @@ void WorldPackets::LFG::LFGProposalResponse::Read()
     Ticket.Type = RideType(type);
     _worldPacket >> Ticket.Id;
 
-    ObjectGuid& requesterGuid = Ticket.RequesterGuid;
-    requesterGuid[4] = _worldPacket.ReadBit();
-    requesterGuid[5] = _worldPacket.ReadBit();
-    requesterGuid[0] = _worldPacket.ReadBit();
-    requesterGuid[6] = _worldPacket.ReadBit();
-    requesterGuid[2] = _worldPacket.ReadBit();
-    requesterGuid[7] = _worldPacket.ReadBit();
-    requesterGuid[1] = _worldPacket.ReadBit();
-    requesterGuid[3] = _worldPacket.ReadBit();
+    Ticket.RequesterGuid[4] = _worldPacket.ReadBit();
+    Ticket.RequesterGuid[5] = _worldPacket.ReadBit();
+    Ticket.RequesterGuid[0] = _worldPacket.ReadBit();
+    Ticket.RequesterGuid[6] = _worldPacket.ReadBit();
+    Ticket.RequesterGuid[2] = _worldPacket.ReadBit();
+    Ticket.RequesterGuid[7] = _worldPacket.ReadBit();
+    Ticket.RequesterGuid[1] = _worldPacket.ReadBit();
+    Ticket.RequesterGuid[3] = _worldPacket.ReadBit();
 
-    _worldPacket.ReadByteSeq(requesterGuid[7]);
-    _worldPacket.ReadByteSeq(requesterGuid[4]);
-    _worldPacket.ReadByteSeq(requesterGuid[3]);
-    _worldPacket.ReadByteSeq(requesterGuid[2]);
-    _worldPacket.ReadByteSeq(requesterGuid[6]);
-    _worldPacket.ReadByteSeq(requesterGuid[0]);
-    _worldPacket.ReadByteSeq(requesterGuid[1]);
-    _worldPacket.ReadByteSeq(requesterGuid[5]);
+    _worldPacket.ReadByteSeq(Ticket.RequesterGuid[7]);
+    _worldPacket.ReadByteSeq(Ticket.RequesterGuid[4]);
+    _worldPacket.ReadByteSeq(Ticket.RequesterGuid[3]);
+    _worldPacket.ReadByteSeq(Ticket.RequesterGuid[2]);
+    _worldPacket.ReadByteSeq(Ticket.RequesterGuid[6]);
+    _worldPacket.ReadByteSeq(Ticket.RequesterGuid[0]);
+    _worldPacket.ReadByteSeq(Ticket.RequesterGuid[1]);
+    _worldPacket.ReadByteSeq(Ticket.RequesterGuid[5]);
 
     ObjectGuid instaceId;
     instaceId[7] = _worldPacket.ReadBit();

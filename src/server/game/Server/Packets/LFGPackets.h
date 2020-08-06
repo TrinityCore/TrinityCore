@@ -41,6 +41,7 @@ namespace WorldPackets
             uint32 Roles = 0;
             std::string Comment;
             Array<uint32, 50> Slots;
+            std::array<uint32, 3> Needs = { };
         };
 
         class LFGLeave final : public ClientPacket
@@ -50,6 +51,7 @@ namespace WorldPackets
 
             void Read() override;
 
+            uint32 Roles = 0;
             RideTicket Ticket;
         };
 
