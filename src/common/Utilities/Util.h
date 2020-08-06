@@ -305,15 +305,22 @@ TC_COMMON_API bool IsIPAddress(char const* ipaddress);
 TC_COMMON_API uint32 CreatePIDFile(std::string const& filename);
 TC_COMMON_API uint32 GetPID();
 
-TC_COMMON_API std::string ByteArrayToHexStr(uint8 const* bytes, size_t length, bool reverse = false);
+namespace Trinity::Impl
+{
+    TC_COMMON_API std::string ByteArrayToHexStr(uint8 const* bytes, size_t length, bool reverse = false);
+    TC_COMMON_API void HexStrToByteArray(std::string const& str, uint8* out, size_t outlen, bool reverse = false);
+}
+
 template <typename Container>
-std::string ByteArrayToHexStr(Container const& c, bool reverse = false) { return ByteArrayToHexStr(std::data(c), std::size(c), reverse); }
-TC_COMMON_API void HexStrToByteArray(std::string const& str, uint8* out, bool reverse = false);
+std::string ByteArrayToHexStr(Container const& c, bool reverse = false)
+{
+    return Trinity::Impl::ByteArrayToHexStr(std::data(c), std::size(c), reverse);
+}
+
 template <size_t Size>
 void HexStrToByteArray(std::string const& str, std::array<uint8, Size>& buf, bool reverse = false)
 {
-    ASSERT(str.size() == (2 * Size));
-    HexStrToByteArray(str, buf.data(), reverse);
+    Trinity::Impl::HexStrToByteArray(str, buf.data(), Size, reverse);
 }
 template <size_t Size>
 std::array<uint8, Size> HexStrToByteArray(std::string const& str, bool reverse = false)
