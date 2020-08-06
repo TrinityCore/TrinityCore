@@ -38,6 +38,7 @@ namespace WorldPackets
 
 class Aura;
 class AuraEffect;
+class BasicEvent;
 class Corpse;
 class DynamicObject;
 class GameObject;
@@ -598,6 +599,7 @@ class TC_GAME_API Spell
 
         void HandleEffects(Unit* pUnitTarget, Item* pItemTarget, GameObject* pGOTarget, uint32 i, SpellEffectHandleMode mode);
         void HandleThreatSpells();
+        static Spell const* ExtractSpellFromEvent(BasicEvent* event);
 
         SpellInfo const* const m_spellInfo;
         Item* m_CastItem;

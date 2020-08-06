@@ -12397,6 +12397,33 @@ void Unit::SendPlaySpellVisualKit(uint32 id, uint32 type, uint32 duration) const
     SendMessageToSet(playSpellVisualKit.Write(), true);
 }
 
+void Unit::CancelSpellMissiles(uint32 spellId, bool reverseMissile /*= false*/)
+{
+    EventList& eventList = m_Events.GetEventList();
+    bool hasMissile = false;
+
+    for (auto itr : eventList)
+    {
+        if (Spell const* spell = Spell::ExtractSpellFromEvent(itr.second))
+        {
+            if (spell->GetSpellInfo()->Id == spellId)
+            {
+                itr.second->ScheduleAbort();
+                hasMissile = true;
+            }
+        }
+    }
+
+    if (hasMissile)
+    {
+        WorldPackets::Spells::MissileCancel packet;
+        packet.OwnerGUID = GetGUID();
+        packet.SpellID = spellId;
+        packet.Reverse = reverseMissile;
+        SendMessageToSet(packet.Write(), false);
+    }
+}
+
 void Unit::ApplyResilience(Unit const* victim, int32* damage) const
 {
     // player mounted on multi-passenger mount is also classified as vehicle
