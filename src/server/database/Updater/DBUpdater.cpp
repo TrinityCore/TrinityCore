@@ -40,10 +40,10 @@ std::string DBUpdaterUtil::GetCorrectedMySQLExecutable()
 bool DBUpdaterUtil::CheckExecutable()
 {
     boost::filesystem::path exe(GetCorrectedMySQLExecutable());
-    if (!exists(exe))
+    if (!is_regular_file(exe))
     {
         exe = Trinity::SearchExecutableInPath("mysql");
-        if (!exe.empty() && exists(exe))
+        if (!exe.empty() && is_regular_file(exe))
         {
             // Correct the path to the cli
             corrected_path() = absolute(exe).generic_string();
