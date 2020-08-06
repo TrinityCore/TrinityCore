@@ -67,6 +67,8 @@ class TC_COMMON_API BasicEvent
         uint64 m_execTime;                                  // planned time of next execution, filled by event handler
 };
 
+typedef std::multimap<uint64, BasicEvent*> EventList;
+
 class TC_COMMON_API EventProcessor
 {
     public:
@@ -82,7 +84,7 @@ class TC_COMMON_API EventProcessor
 
     protected:
         uint64 m_time;
-        std::multimap<uint64, BasicEvent*> m_events;
+        EventList m_events;
 };
 
 #endif
