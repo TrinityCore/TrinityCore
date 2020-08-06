@@ -2017,13 +2017,10 @@ public:
         TypeContainerVisitor<CreatureCountWorker, MapStoredObjectTypesContainer> visitor(worker);
         visitor.Visit(map->GetObjectsStore());
 
-        std::ostringstream topCreatureCount;
-        topCreatureCount << "Top Creatures count:";
+        handler->PSendSysMessage("Top Creatures count:");
 
         for (auto&& p : worker.GetTopCreatureCount(5))
-            topCreatureCount << "\nEntry: " << std::to_string(p.first) << " Count: " << std::to_string(p.second);
-
-        handler->PSendSysMessage("%s", topCreatureCount.str().c_str());
+            handler->PSendSysMessage("Entry: %u Count: %u", p.first, p.second);
     }
 
     static bool HandleDebugDummyCommand(ChatHandler* handler, CommandArgs* /*args*/)
