@@ -317,12 +317,12 @@ void WorldSession::SendLfgUpdatePlayer(lfg::LfgUpdateData const& updateData)
         GetPlayerInfo().c_str(), updateData.updateType);
     WorldPacket data(SMSG_LFG_UPDATE_PLAYER, 1 + 1 + (size > 0 ? 1 : 0) * (1 + 1 + 1 + 1 + size * 4 + updateData.comment.length()));
     data << uint8(updateData.updateType);                  // Lfg Update type
-    data << uint8(size > 0);                               // Extra info
+    data << uint8(size > 0);                               // Is joined in LFG
     if (size)
     {
         data << uint8(queued);                             // Join the queue
-        data << uint8(0);                                  // unk - Always 0
-        data << uint8(0);                                  // unk - Always 0
+        data << uint8(0);                                  // NoPartialClear
+        data << uint8(0);                                  // Achievements
 
         data << uint8(size);
         for (lfg::LfgDungeonSet::const_iterator it = updateData.dungeons.begin(); it != updateData.dungeons.end(); ++it)
@@ -358,15 +358,15 @@ void WorldSession::SendLfgUpdateParty(const lfg::LfgUpdateData& updateData)
         GetPlayerInfo().c_str(), updateData.updateType);
     WorldPacket data(SMSG_LFG_UPDATE_PARTY, 1 + 1 + (size > 0 ? 1 : 0) * (1 + 1 + 1 + 1 + 1 + size * 4 + updateData.comment.length()));
     data << uint8(updateData.updateType);                  // Lfg Update type
-    data << uint8(size > 0);                               // Extra info
+    data << uint8(size > 0);                               // Is joined in LFG
     if (size)
     {
         data << uint8(join);                               // LFG Join
         data << uint8(queued);                             // Join the queue
-        data << uint8(0);                                  // unk - Always 0
-        data << uint8(0);                                  // unk - Always 0
+        data << uint8(0);                                  // NoPartialClear
+        data << uint8(0);                                  // Achievements
         for (uint8 i = 0; i < 3; ++i)
-            data << uint8(0);                              // unk - Always 0
+            data << uint8(0);                              // Needs
 
         data << uint8(size);
         for (lfg::LfgDungeonSet::const_iterator it = updateData.dungeons.begin(); it != updateData.dungeons.end(); ++it)

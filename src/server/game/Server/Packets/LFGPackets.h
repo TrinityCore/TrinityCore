@@ -33,6 +33,9 @@ namespace WorldPackets::LFG
         uint32 Roles = 0;
         Array<uint32, 50> Slots;
         std::string Comment;
+        bool NoPartialClear = false;
+        bool Achievements = false;
+        std::array<uint8, 3> Needs = { };
     };
 
     class LFGLeave final : public ClientPacket
