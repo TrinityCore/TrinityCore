@@ -971,7 +971,7 @@ WorldPacket const* WorldPackets::Spells::MountResult::Write()
 WorldPacket const* WorldPackets::Spells::MissileCancel::Write()
 {
     _worldPacket << OwnerGUID;
-    _worldPacket << uint32(SpellID);
+    _worldPacket << int32(SpellID);
     _worldPacket.WriteBit(Reverse);
     _worldPacket.FlushBits();
 
