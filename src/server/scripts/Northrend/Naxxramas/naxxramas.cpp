@@ -92,7 +92,7 @@ struct npc_frogger_trigger_naxx : public NullCreatureAI
                 case EVENT_SUMMON_LIVING_POISON:
                     for (uint8 i = 0; i < MaxLivingPoisons; ++i)
                     {
-                        if (Creature* slime = DoSummon(NPC_LIVING_POISON, LivingPoisonSpawnPositions[i], 8500/*8s + 500ms*/, TEMPSUMMON_CORPSE_TIMED_DESPAWN))
+                        if (Creature* slime = DoSummon(NPC_LIVING_POISON, LivingPoisonSpawnPositions[i], 8s + 500ms, TEMPSUMMON_CORPSE_TIMED_DESPAWN))
                         {
                             LaunchSpline(slime, LivingPoisonInitialSplineDestinations[i]);
                             slime->m_Events.AddEventAtOffset([i, slime, this]()
