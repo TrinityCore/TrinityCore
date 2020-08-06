@@ -599,7 +599,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                                 me->HasUnitFlag(UNIT_FLAG_SILENCED))
                                 allowMove = true;
 
-                            ENSURE_AI(SmartAI, me->AI())->SetCombatMove(allowMove);
+                            ENSURE_AI(SmartAI, me->AI())->SetCombatMove(allowMove, true);
                         }
 
                         me->CastSpell(target->ToUnit(), e.action.cast.spell, triggerFlag);
