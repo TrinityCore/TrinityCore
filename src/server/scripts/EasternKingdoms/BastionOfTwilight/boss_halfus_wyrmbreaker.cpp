@@ -507,6 +507,8 @@ class npc_halfus_enslaved_dragon : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
+                UpdateVictim();
+
                 _events.Update(diff);
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
