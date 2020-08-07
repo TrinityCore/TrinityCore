@@ -83,7 +83,7 @@ public:
             GetGameObjectListWithEntryInGrid(_goList, me, GO_SUPPRESSION_DEVICE, 200.0f);
             for (std::list<GameObject*>::const_iterator itr = _goList.begin(); itr != _goList.end(); itr++)
                 ((*itr)->AI()->DoAction(ACTION_DEACTIVATE));
-        } 
+        }
 
         void UpdateAI(uint32 diff) override
         {
@@ -216,7 +216,7 @@ class go_suppression_device : public GameObjectScript
 
             void Deactivate()
             {
-                if (!_active) 
+                if (!_active)
                     return;
                 _active = false;
                 me->SetGoState(GO_STATE_ACTIVE);
