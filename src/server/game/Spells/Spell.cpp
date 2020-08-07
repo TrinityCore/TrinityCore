@@ -2193,33 +2193,33 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
     ObjectGuid targetGUID = target->GetGUID();
 
     // Lookup target in already in list
-    for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
+    auto const& ihit = std::find_if(std::begin(m_UniqueTargetInfo), std::end(m_UniqueTargetInfo), [targetGUID](TargetInfo const& target) { return target.targetGUID == targetGUID; });
+    bool hasTargetInfo = ihit != std::end(m_UniqueTargetInfo);
+    if (hasTargetInfo) // Found in list
     {
-        if (targetGUID == ihit->targetGUID)             // Found in list
-        {
-            ihit->effectMask |= effectMask;             // Immune effects removed from mask
-            ihit->scaleAura = false;
-            if (m_auraScaleMask && ihit->effectMask == m_auraScaleMask && m_caster != target)
-            {
-                SpellInfo const* auraSpell = m_spellInfo->GetFirstRankSpell();
-                if (uint32(target->getLevel() + 10) >= auraSpell->SpellLevel)
-                    ihit->scaleAura = true;
-            }
-            return;
-        }
+        ihit->effectMask |= effectMask;             // Immune effects removed from mask
+        ihit->scaleAura = false;
     }
 
     // This is new target calculate data for him
 
     // Get spell hit result on target
     TargetInfo targetInfo;
-    targetInfo.targetGUID = targetGUID;                         // Store target GUID
-    targetInfo.effectMask = effectMask;                         // Store all effects not immune
-    targetInfo.processed  = false;                              // Effects not apply on target
-    targetInfo.alive      = target->IsAlive();
-    targetInfo.damage     = 0;
-    targetInfo.crit       = false;
-    targetInfo.scaleAura  = false;
+    if (hasTargetInfo)
+        targetInfo = *ihit;
+    else
+    {
+        targetInfo.targetGUID = targetGUID;                         // Store target GUID
+        targetInfo.effectMask = effectMask;                         // Store all effects not immune
+        targetInfo.processed  = false;                              // Effects not apply on target
+        targetInfo.alive      = target->IsAlive();
+        targetInfo.damage     = 0;
+        targetInfo.crit       = false;
+        targetInfo.scaleAura  = false;
+    }
+
+    bool hasReflectData = targetInfo.missCondition == SPELL_MISS_REFLECT;
+
     if (m_auraScaleMask && targetInfo.effectMask == m_auraScaleMask && m_caster != target)
     {
         SpellInfo const* auraSpell = m_spellInfo->GetFirstRankSpell();
@@ -2237,12 +2237,16 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
             if (Unit* owner = m_originalCaster->GetOwner())
                 caster = owner;
 
-        targetInfo.missCondition = caster->SpellHitResult(target, m_spellInfo, m_canReflect && !(m_spellInfo->IsPositive() && m_caster->IsFriendlyTo(target)), effectMask);
+        if (!hasTargetInfo || targetInfo.missCondition == SPELL_MISS_IMMUNE)
+            targetInfo.missCondition = caster->SpellHitResult(target, m_spellInfo, m_canReflect && !(m_spellInfo->IsPositive() && m_caster->IsFriendlyTo(target)), effectMask);
         if (m_skipCheck && targetInfo.missCondition != SPELL_MISS_IMMUNE)
             targetInfo.missCondition = SPELL_MISS_NONE;
     }
     else
         targetInfo.missCondition = SPELL_MISS_EVADE; //SPELL_MISS_NONE;
+
+    if (hasTargetInfo && hasReflectData && targetInfo.missCondition == SPELL_MISS_REFLECT)
+        return;
 
     // Spell have speed - need calculate incoming time
     // Incoming time is zero for self casts. At least I think so.
@@ -2283,7 +2287,10 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
         targetInfo.reflectResult = SPELL_MISS_NONE;
 
     // Add target to list
-    m_UniqueTargetInfo.push_back(targetInfo);
+    if (!hasTargetInfo)
+        m_UniqueTargetInfo.push_back(targetInfo);
+    else
+        *ihit = targetInfo;
 }
 
 void Spell::AddGOTarget(GameObject* go, uint32 effectMask)
