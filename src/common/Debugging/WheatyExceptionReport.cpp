@@ -425,6 +425,7 @@ void WheatyExceptionReport::printTracesForAllThreads(bool bWriteVariables)
   THREADENTRY32 te32;
 
   DWORD dwOwnerPID = GetCurrentProcessId();
+  DWORD dwCurrentTID = GetCurrentThreadId();
   m_hProcess = GetCurrentProcess();
   // Take a snapshot of all running threads
   HANDLE hThreadSnap = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0);
@@ -448,7 +449,7 @@ void WheatyExceptionReport::printTracesForAllThreads(bool bWriteVariables)
   // associated with the specified process
   do
   {
-    if (te32.th32OwnerProcessID == dwOwnerPID)
+    if (te32.th32OwnerProcessID == dwOwnerPID && te32.th32ThreadID != dwCurrentTID)
     {
         CONTEXT context;
         context.ContextFlags = 0xffffffff;
