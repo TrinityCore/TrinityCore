@@ -3,30 +3,16 @@
 // MSDN Magazine, 2002
 // FILE: WheatyExceptionReport.CPP
 //==========================================
-#include "CompilerDefs.h"
-
-#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS && !defined(__MINGW32__)
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-#pragma warning(disable:4996)
-#pragma warning(disable:4312)
-#pragma warning(disable:4311)
-#include <windows.h>
-#include <tlhelp32.h>
-#include <cstdio>
-#include <tchar.h>
-#define _NO_CVCONST_H
-#include <dbghelp.h>
-
 #include "WheatyExceptionReport.h"
-
 #include "Common.h"
 #include "Errors.h"
 #include "GitRevision.h"
 #include <algorithm>
 #include <ehdata.h>
 #include <rttidata.h>
+#include <cstdio>
+#include <tlhelp32.h>
+#include <tchar.h>
 
 #define CrashFolder _T("Crashes")
 #pragma comment(linker, "/DEFAULTLIB:dbghelp.lib")
@@ -434,14 +420,14 @@ void WheatyExceptionReport::PrintSystemInfo()
     ::GlobalMemoryStatus(&MemoryStatus);
     TCHAR sString[1024];
     Log(_T("//=====================================================\r\n"));
-    if (_GetProcessorName(sString, countof(sString)))
+    if (_GetProcessorName(sString, std::size(sString)))
         Log(_T("*** Hardware ***\r\nProcessor: %s\r\nNumber Of Processors: %d\r\nPhysical Memory: %d KB (Available: %d KB)\r\nCommit Charge Limit: %d KB\r\n"),
             sString, SystemInfo.dwNumberOfProcessors, MemoryStatus.dwTotalPhys/0x400, MemoryStatus.dwAvailPhys/0x400, MemoryStatus.dwTotalPageFile/0x400);
     else
         Log(_T("*** Hardware ***\r\nProcessor: <unknown>\r\nNumber Of Processors: %d\r\nPhysical Memory: %d KB (Available: %d KB)\r\nCommit Charge Limit: %d KB\r\n"),
             SystemInfo.dwNumberOfProcessors, MemoryStatus.dwTotalPhys/0x400, MemoryStatus.dwAvailPhys/0x400, MemoryStatus.dwTotalPageFile/0x400);
 
-    if (_GetWindowsVersion(sString, countof(sString)))
+    if (_GetWindowsVersion(sString, std::size(sString)))
         Log(_T("\r\n*** Operation System ***\r\n%s\r\n"), sString);
     else
         Log(_T("\r\n*** Operation System:\r\n<unknown>\r\n"));
@@ -1585,5 +1571,3 @@ std::string SymbolDetail::ToString()
     }
     return formatted;
 }
-
-#endif  // _WIN32
