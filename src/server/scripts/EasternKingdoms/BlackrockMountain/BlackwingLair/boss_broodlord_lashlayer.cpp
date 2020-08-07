@@ -49,6 +49,11 @@ enum Events
     EVENT_SUPPRESSION_RESET = 7
 };
 
+enum Actions
+{
+    ACTION_DEACTIVATE = 0
+};
+
 class boss_broodlord : public CreatureScript
 {
 public:
@@ -69,6 +74,16 @@ public:
             events.ScheduleEvent(EVENT_KNOCKBACK, 30s);
             events.ScheduleEvent(EVENT_CHECK, 1s);
         }
+
+        void JustDied(Unit* /*killer*/) override
+        {
+            _JustDied();
+
+            std::list<GameObject*> _goList;
+            GetGameObjectListWithEntryInGrid(_goList, me, GO_SUPPRESSION_DEVICE, 200.0f);
+            for (std::list<GameObject*>::const_iterator itr = _goList.begin(); itr != _goList.end(); itr++)
+                ((*itr)->AI()->DoAction(ACTION_DEACTIVATE));
+        } 
 
         void UpdateAI(uint32 diff) override
         {
@@ -127,31 +142,21 @@ class go_suppression_device : public GameObjectScript
 
         struct go_suppression_deviceAI : public GameObjectAI
         {
-            go_suppression_deviceAI(GameObject* go) : GameObjectAI(go), _instance(go->GetInstanceScript()) { }
+            go_suppression_deviceAI(GameObject* go) : GameObjectAI(go), _instance(go->GetInstanceScript()), _active(true) { }
 
             void InitializeAI() override
             {
+                if (_instance->GetBossState(DATA_BROODLORD_LASHLAYER) == DONE)
+                {
+                    Deactivate();
+                    return;
+                }
+
                 _events.ScheduleEvent(EVENT_SUPPRESSION_CAST, 0s, 5s);
             }
 
             void UpdateAI(uint32 diff) override
             {
-                if (_instance->GetBossState(DATA_VAELASTRAZ_THE_CORRUPT) != DONE)
-                    return;
-
-                if (_instance->GetBossState(DATA_BROODLORD_LASHLAYER) == DONE)
-                {
-                    if (me->GetGoState() != GO_STATE_ACTIVE)
-                    {
-                        me->SetGoState(GO_STATE_ACTIVE);
-                        me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-                    }
-                    return;
-                };
-
-                if (me->getLootState() == GO_JUST_DEACTIVATED)
-                    me->SetLootState(GO_READY); // NOT doing this will despawn the gameobject after using Disarm Trap
-
                 _events.Update(diff);
 
                 while (uint32 eventId = _events.ExecuteEvent())
@@ -167,10 +172,7 @@ class go_suppression_device : public GameObjectScript
                             _events.ScheduleEvent(EVENT_SUPPRESSION_CAST, 5s);
                             break;
                         case EVENT_SUPPRESSION_RESET:
-                            if (me->GetGoState() == GO_STATE_ACTIVE)
-                                me->SetGoState(GO_STATE_READY);
-                            me->SetLootState(GO_READY);
-                            me->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                            Activate();
                             break;
                     }
                 }
@@ -178,17 +180,54 @@ class go_suppression_device : public GameObjectScript
 
             void OnLootStateChanged(uint32 state, Unit* /*unit*/) override
             {
-                if (state == GO_ACTIVATED)
+                switch (state)
                 {
-                    me->SetGoState(GO_STATE_ACTIVE);
-                    me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-                    _events.ScheduleEvent(EVENT_SUPPRESSION_RESET, 30s, 120s);
+                    case GO_ACTIVATED:
+                        Deactivate();
+                        _events.CancelEvent(EVENT_SUPPRESSION_CAST);
+                        _events.ScheduleEvent(EVENT_SUPPRESSION_RESET, 30s, 120s);
+                        break;
+                    case GO_JUST_DEACTIVATED: // This case prevents the Gameobject despawn by Disarm Trap
+                        me->SetLootState(GO_READY);
+                        break;
                 }
+            }
+
+            void DoAction(int32 action) override
+            {
+                if (action == ACTION_DEACTIVATE)
+                {
+                    Deactivate();
+                    _events.CancelEvent(EVENT_SUPPRESSION_RESET);
+                }
+            }
+
+            void Activate()
+            {
+                if (_active)
+                    return;
+                _active = true;
+                if (me->GetGoState() == GO_STATE_ACTIVE)
+                    me->SetGoState(GO_STATE_READY);
+                me->SetLootState(GO_READY);
+                me->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                _events.ScheduleEvent(EVENT_SUPPRESSION_CAST, 0s);
+            }
+
+            void Deactivate()
+            {
+                if (!_active) 
+                    return;
+                _active = false;
+                me->SetGoState(GO_STATE_ACTIVE);
+                me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                _events.CancelEvent(EVENT_SUPPRESSION_CAST);
             }
 
         private:
             InstanceScript* _instance;
             EventMap _events;
+            bool _active;
         };
 
         GameObjectAI* GetAI(GameObject* go) const override
