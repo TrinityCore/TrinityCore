@@ -17,6 +17,9 @@
 
 #include "ScriptMgr.h"
 #include "blackwing_lair.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
+#include "InstanceScript.h"
 #include "ScriptedCreature.h"
 
 enum Say
@@ -30,7 +33,8 @@ enum Spells
     SPELL_CLEAVE            = 26350,
     SPELL_BLASTWAVE         = 23331,
     SPELL_MORTALSTRIKE      = 24573,
-    SPELL_KNOCKBACK         = 25778
+    SPELL_KNOCKBACK         = 25778,
+    SPELL_SUPPRESSION_AURA  = 22247 // Suppression Device Spell
 };
 
 enum Events
@@ -39,7 +43,15 @@ enum Events
     EVENT_BLASTWAVE         = 2,
     EVENT_MORTALSTRIKE      = 3,
     EVENT_KNOCKBACK         = 4,
-    EVENT_CHECK             = 5
+    EVENT_CHECK             = 5,
+    // Suppression Device Events
+    EVENT_SUPPRESSION_CAST  = 6,
+    EVENT_SUPPRESSION_RESET = 7
+};
+
+enum Actions
+{
+    ACTION_DEACTIVATE = 0
 };
 
 class boss_broodlord : public CreatureScript
@@ -61,6 +73,16 @@ public:
             events.ScheduleEvent(EVENT_MORTALSTRIKE, 20s);
             events.ScheduleEvent(EVENT_KNOCKBACK, 30s);
             events.ScheduleEvent(EVENT_CHECK, 1s);
+        }
+
+        void JustDied(Unit* /*killer*/) override
+        {
+            _JustDied();
+
+            std::list<GameObject*> _goList;
+            GetGameObjectListWithEntryInGrid(_goList, me, GO_SUPPRESSION_DEVICE, 200.0f);
+            for (std::list<GameObject*>::const_iterator itr = _goList.begin(); itr != _goList.end(); itr++)
+                ((*itr)->AI()->DoAction(ACTION_DEACTIVATE));
         }
 
         void UpdateAI(uint32 diff) override
@@ -113,7 +135,109 @@ public:
     }
 };
 
+class go_suppression_device : public GameObjectScript
+{
+    public:
+        go_suppression_device() : GameObjectScript("go_suppression_device") { }
+
+        struct go_suppression_deviceAI : public GameObjectAI
+        {
+            go_suppression_deviceAI(GameObject* go) : GameObjectAI(go), _instance(go->GetInstanceScript()), _active(true) { }
+
+            void InitializeAI() override
+            {
+                if (_instance->GetBossState(DATA_BROODLORD_LASHLAYER) == DONE)
+                {
+                    Deactivate();
+                    return;
+                }
+
+                _events.ScheduleEvent(EVENT_SUPPRESSION_CAST, 0s, 5s);
+            }
+
+            void UpdateAI(uint32 diff) override
+            {
+                _events.Update(diff);
+
+                while (uint32 eventId = _events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_SUPPRESSION_CAST:
+                            if (me->GetGoState() == GO_STATE_READY)
+                            {
+                                me->CastSpell(nullptr, SPELL_SUPPRESSION_AURA, true);
+                                me->SendCustomAnim(0);
+                            }
+                            _events.ScheduleEvent(EVENT_SUPPRESSION_CAST, 5s);
+                            break;
+                        case EVENT_SUPPRESSION_RESET:
+                            Activate();
+                            break;
+                    }
+                }
+            }
+
+            void OnLootStateChanged(uint32 state, Unit* /*unit*/) override
+            {
+                switch (state)
+                {
+                    case GO_ACTIVATED:
+                        Deactivate();
+                        _events.CancelEvent(EVENT_SUPPRESSION_CAST);
+                        _events.ScheduleEvent(EVENT_SUPPRESSION_RESET, 30s, 120s);
+                        break;
+                    case GO_JUST_DEACTIVATED: // This case prevents the Gameobject despawn by Disarm Trap
+                        me->SetLootState(GO_READY);
+                        break;
+                }
+            }
+
+            void DoAction(int32 action) override
+            {
+                if (action == ACTION_DEACTIVATE)
+                {
+                    Deactivate();
+                    _events.CancelEvent(EVENT_SUPPRESSION_RESET);
+                }
+            }
+
+            void Activate()
+            {
+                if (_active)
+                    return;
+                _active = true;
+                if (me->GetGoState() == GO_STATE_ACTIVE)
+                    me->SetGoState(GO_STATE_READY);
+                me->SetLootState(GO_READY);
+                me->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                _events.ScheduleEvent(EVENT_SUPPRESSION_CAST, 0s);
+            }
+
+            void Deactivate()
+            {
+                if (!_active)
+                    return;
+                _active = false;
+                me->SetGoState(GO_STATE_ACTIVE);
+                me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                _events.CancelEvent(EVENT_SUPPRESSION_CAST);
+            }
+
+        private:
+            InstanceScript* _instance;
+            EventMap _events;
+            bool _active;
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return GetBlackwingLairAI<go_suppression_deviceAI>(go);
+        }
+};
+
 void AddSC_boss_broodlord()
 {
     new boss_broodlord();
+    new go_suppression_device();
 }
