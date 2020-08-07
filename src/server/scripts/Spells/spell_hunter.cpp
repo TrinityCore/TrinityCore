@@ -1437,11 +1437,7 @@ class spell_hun_tame_beast : public SpellScriptLoader
                         if (petStable->CurrentPet)
                             return SPELL_FAILED_ALREADY_HAVE_SUMMON;
 
-                        auto unslottedHunterPet = std::find_if(petStable->UnslottedPets.begin(), petStable->UnslottedPets.end(), [](PetStable::PetInfo const& pet)
-                        {
-                            return pet.Type == HUNTER_PET;
-                        });
-                        if (unslottedHunterPet != petStable->UnslottedPets.end())
+                        if (petStable->GetUnslottedHunterPet())
                         {
                             caster->SendTameFailure(PETTAME_TOOMANY);
                             return SPELL_FAILED_DONT_REPORT;

@@ -322,7 +322,6 @@ void WorldSession::SendStablePet(ObjectGuid guid)
 
     uint8 num = 0;                                          // counter for place holder
 
-    // not let move dead pet in slot
     if (petStable->CurrentPet)
     {
         PetStable::PetInfo const& pet = *petStable->CurrentPet;
@@ -335,17 +334,12 @@ void WorldSession::SendStablePet(ObjectGuid guid)
     }
     else
     {
-        auto itr = std::find_if(petStable->UnslottedPets.begin(), petStable->UnslottedPets.end(), [](PetStable::PetInfo const& pet)
+        if (PetStable::PetInfo const* pet = petStable->GetUnslottedHunterPet())
         {
-            return pet.Type == HUNTER_PET;
-        });
-        if (itr != petStable->UnslottedPets.end())
-        {
-            PetStable::PetInfo const& pet = *itr;
-            data << uint32(pet.PetNumber);
-            data << uint32(pet.CreatureId);
-            data << uint32(pet.Level);
-            data << pet.Name;                                   // petname
+            data << uint32(pet->PetNumber);
+            data << uint32(pet->CreatureId);
+            data << uint32(pet->Level);
+            data << pet->Name;                                   // petname
             data << uint8(1);                                   // flags: 1 active, 2 inactive
             ++num;
         }
@@ -531,7 +525,6 @@ void WorldSession::HandleUnstablePet(WorldPacket& recvData)
     if (!newPet->LoadPetFromDB(_player, 0, petnumber, false))
     {
         delete newPet;
-        SendPetStableResult(STABLE_ERR_STABLE);
 
         petStable->UnslottedPets.push_back(std::move(*petStable->CurrentPet));
         petStable->CurrentPet.reset();
@@ -542,6 +535,8 @@ void WorldSession::HandleUnstablePet(WorldPacket& recvData)
         stmt->setUInt32(1, _player->GetGUID().GetCounter());
         stmt->setUInt32(2, petnumber);
         CharacterDatabase.Execute(stmt);
+
+        SendPetStableResult(STABLE_ERR_STABLE);
     }
     else
     {
@@ -575,13 +570,13 @@ void WorldSession::HandleBuyStableSlot(WorldPacket& recvData)
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    PetStable* petStable = GetPlayer()->GetOrInitPetStable();
-    if (petStable->MaxStabledPets < MAX_PET_STABLES)
+    PetStable& petStable = GetPlayer()->GetOrInitPetStable();
+    if (petStable.MaxStabledPets < MAX_PET_STABLES)
     {
-        StableSlotPricesEntry const* SlotPrice = sStableSlotPricesStore.LookupEntry(petStable->MaxStabledPets + 1);
+        StableSlotPricesEntry const* SlotPrice = sStableSlotPricesStore.LookupEntry(petStable.MaxStabledPets + 1);
         if (_player->HasEnoughMoney(SlotPrice->Cost))
         {
-            ++petStable->MaxStabledPets;
+            ++petStable.MaxStabledPets;
             _player->ModifyMoney(-int32(SlotPrice->Cost));
             SendPetStableResult(STABLE_SUCCESS_BUY_SLOT);
         }

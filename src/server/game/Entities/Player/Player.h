@@ -1015,7 +1015,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 GetInnTriggerId() const { return inn_triggerId; }
 
         PetStable* GetPetStable() { return m_petStable.get(); }
-        PetStable* GetOrInitPetStable();
+        PetStable& GetOrInitPetStable();
         PetStable const* GetPetStable() const { return m_petStable.get(); }
 
         Pet* GetPet() const;

@@ -26318,12 +26318,12 @@ bool Player::AddItem(uint32 itemId, uint32 count)
     return true;
 }
 
-PetStable* Player::GetOrInitPetStable()
+PetStable& Player::GetOrInitPetStable()
 {
     if (!m_petStable)
         m_petStable = std::make_unique<PetStable>();
 
-    return GetPetStable();
+    return *m_petStable;
 }
 
 void Player::RefundItem(Item* item)
@@ -26716,7 +26716,7 @@ Guild* Player::GetGuild()
 
 Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetType petType, uint32 duration)
 {
-    PetStable* petStable = GetOrInitPetStable();
+    PetStable& petStable = GetOrInitPetStable();
 
     Pet* pet = new Pet(this, petType);
 
@@ -26800,10 +26800,8 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
 
     map->AddToMap(pet->ToCreature());
 
-    ASSERT(!petStable->CurrentPet
-        && (petType != HUNTER_PET || std::find_if(petStable->UnslottedPets.begin(), petStable->UnslottedPets.end(),
-            [](PetStable::PetInfo const& pet) { return pet.Type == HUNTER_PET; }) == petStable->UnslottedPets.end()));
-    pet->FillPetInfo(&petStable->CurrentPet.emplace());
+    ASSERT(!petStable.CurrentPet && (petType != HUNTER_PET || !petStable.GetUnslottedHunterPet()));
+    pet->FillPetInfo(&petStable.CurrentPet.emplace());
 
     switch (petType)
     {

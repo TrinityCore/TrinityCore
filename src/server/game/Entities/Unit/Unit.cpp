@@ -10802,12 +10802,8 @@ Pet* Unit::CreateTamedPetFrom(uint32 creatureEntry, uint32 spell_id)
 bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
 {
     Player* player = ToPlayer();
-    PetStable* petStable = player->GetOrInitPetStable();
-    auto unslottedHunterPet = std::find_if(petStable->UnslottedPets.begin(), petStable->UnslottedPets.end(), [](PetStable::PetInfo const& pet)
-    {
-        return pet.Type == HUNTER_PET;
-    });
-    if (petStable->CurrentPet || unslottedHunterPet != petStable->UnslottedPets.end())
+    PetStable& petStable = player->GetOrInitPetStable();
+    if (petStable.CurrentPet || petStable.GetUnslottedHunterPet())
         return false;
 
     pet->SetCreatorGUID(GetGUID());
@@ -10829,7 +10825,7 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
     //pet->InitLevelupSpellsForLevel();
     pet->SetFullHealth();
 
-    pet->FillPetInfo(&petStable->CurrentPet.emplace());
+    pet->FillPetInfo(&petStable.CurrentPet.emplace());
     return true;
 }
 
