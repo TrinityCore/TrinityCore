@@ -144,7 +144,6 @@ namespace Movement
         AnimationTier GetAnimation() const { return static_cast<AnimationTier>(splineflags.animId); }
 
         bool onTransport;
-        bool splineIsFacingOnly;
         std::string ToString() const;
     };
 }

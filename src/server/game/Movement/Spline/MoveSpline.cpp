@@ -186,7 +186,6 @@ void MoveSpline::Initialize(MoveSplineInitArgs const& args)
     time_passed = 0;
     vertical_acceleration = 0.f;
     effect_start_time = 0;
-    splineIsFacingOnly = args.path.size() == 2 && args.flags & MoveSplineFlag::Mask_Final_Facing && ((args.path[1] - args.path[0]).length() < 0.1f);
     velocity = args.velocity;
 
     // Check if its a stop spline
@@ -213,7 +212,7 @@ void MoveSpline::Initialize(MoveSplineInitArgs const& args)
 
 MoveSpline::MoveSpline() : m_Id(0), time_passed(0),
     vertical_acceleration(0.f), initialOrientation(0.f), effect_start_time(0), point_Idx(0), point_Idx_offset(0), velocity(0.f),
-    onTransport(false), splineIsFacingOnly(false)
+    onTransport(false)
 {
     splineflags.done = true;
 }
@@ -245,21 +244,34 @@ bool MoveSplineInitArgs::Validate(Unit* unit) const
     CHECK(path.size() > 1);
     CHECK(velocity >= 0.01f);
     CHECK(time_perc >= 0.f && time_perc <= 1.f);
-    CHECK(_checkPathLengths());
+    //CHECK(_checkPathLengths());
     return true;
 #undef CHECK
 }
 
-// check path lengths - why are we even starting such short movement?
-bool MoveSplineInitArgs::_checkPathLengths() const
+// MONSTER_MOVE packet format limitation for not CatmullRom movement:
+// each vertex offset packed into 11 bytes
+bool MoveSplineInitArgs::_checkPathBounds() const
 {
-    if (path.size() > 2 || !(flags & MoveSplineFlag::Mask_Final_Facing))
-        for (uint32 i = 0; i < path.size() - 1; ++i)
-            if ((path[i + 1] - path[i]).length() < 0.1f)
+    if (!(flags & MoveSplineFlag::Catmullrom) && path.size() > 2)
+    {
+        enum{
+            MAX_OFFSET = (1 << 11) / 2
+        };
+        Vector3 middle = (path.front()+path.back()) / 2;
+        Vector3 offset;
+        for (uint32 i = 1; i < path.size()-1; ++i)
+        {
+            offset = path[i] - middle;
+            if (std::fabs(offset.x) >= MAX_OFFSET || std::fabs(offset.y) >= MAX_OFFSET || std::fabs(offset.z) >= MAX_OFFSET)
+            {
+                TC_LOG_ERROR("misc", "MoveSplineInitArgs::_checkPathBounds check failed");
                 return false;
+            }
+        }
+    }
     return true;
 }
-
 /// ============================================================================================
 
 MoveSpline::UpdateResult MoveSpline::_updateState(int32& ms_time_diff)
