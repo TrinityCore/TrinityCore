@@ -10,7 +10,6 @@
 #include <algorithm>
 #include <ehdata.h>
 #include <rttidata.h>
-#include <cstdio>
 #include <tlhelp32.h>
 #include <tchar.h>
 
@@ -48,12 +47,11 @@ TCHAR WheatyExceptionReport::m_szLogFileName[MAX_PATH];
 TCHAR WheatyExceptionReport::m_szDumpFileName[MAX_PATH];
 LPTOP_LEVEL_EXCEPTION_FILTER WheatyExceptionReport::m_previousFilter;
 _invalid_parameter_handler WheatyExceptionReport::m_previousCrtHandler;
-HANDLE WheatyExceptionReport::m_hReportFile;
+FILE* WheatyExceptionReport::m_hReportFile;
 HANDLE WheatyExceptionReport::m_hDumpFile;
 HANDLE WheatyExceptionReport::m_hProcess;
 SymbolPairs WheatyExceptionReport::symbols;
 std::stack<SymbolDetail> WheatyExceptionReport::symbolDetails;
-bool WheatyExceptionReport::stackOverflowException;
 bool WheatyExceptionReport::alreadyCrashed;
 std::mutex WheatyExceptionReport::alreadyCrashedLock;
 WheatyExceptionReport::pRtlGetVersion WheatyExceptionReport::RtlGetVersion;
@@ -70,7 +68,6 @@ WheatyExceptionReport::WheatyExceptionReport()             // Constructor
     m_previousFilter = SetUnhandledExceptionFilter(WheatyUnhandledExceptionFilter);
     m_previousCrtHandler = _set_invalid_parameter_handler(WheatyCrtHandler);
     m_hProcess = GetCurrentProcess();
-    stackOverflowException = false;
     alreadyCrashed = false;
     RtlGetVersion = (pRtlGetVersion)GetProcAddress(GetModuleHandle(_T("ntdll.dll")), "RtlGetVersion");
     if (!IsDebuggerPresent())
@@ -107,9 +104,6 @@ PEXCEPTION_POINTERS pExceptionInfo)
 
     alreadyCrashed = true;
 
-    if (pExceptionInfo->ExceptionRecord->ExceptionCode == STATUS_STACK_OVERFLOW)
-        stackOverflowException = true;
-
     TCHAR module_folder_name[MAX_PATH];
     GetModuleFileName(nullptr, module_folder_name, MAX_PATH);
     TCHAR* pos = _tcsrchr(module_folder_name, '\\');
@@ -131,18 +125,10 @@ PEXCEPTION_POINTERS pExceptionInfo)
     sprintf(m_szDumpFileName, "%s\\%s_%s_[%u-%u_%u-%u-%u].dmp",
         crash_folder_path, GitRevision::GetHash(), pos, systime.wDay, systime.wMonth, systime.wHour, systime.wMinute, systime.wSecond);
 
-    sprintf(m_szLogFileName, "%s\\%s_%s_[%u-%u_%u-%u-%u].txt",
+    _stprintf(m_szLogFileName, _T("%s\\%s_%s_[%u-%u_%u-%u-%u].txt"),
         crash_folder_path, GitRevision::GetHash(), pos, systime.wDay, systime.wMonth, systime.wHour, systime.wMinute, systime.wSecond);
 
     m_hDumpFile = CreateFile(m_szDumpFileName,
-        GENERIC_WRITE,
-        0,
-        nullptr,
-        OPEN_ALWAYS,
-        FILE_FLAG_WRITE_THROUGH,
-        nullptr);
-
-    m_hReportFile = CreateFile(m_szLogFileName,
         GENERIC_WRITE,
         0,
         nullptr,
@@ -176,13 +162,13 @@ PEXCEPTION_POINTERS pExceptionInfo)
         CloseHandle(m_hDumpFile);
     }
 
+    m_hReportFile = _tfopen(m_szLogFileName, _T("wb"));
+
     if (m_hReportFile)
     {
-        SetFilePointer(m_hReportFile, 0, nullptr, FILE_END);
-
         GenerateExceptionReport(pExceptionInfo);
 
-        CloseHandle(m_hReportFile);
+        fclose(m_hReportFile);
         m_hReportFile = nullptr;
     }
 
@@ -1465,47 +1451,10 @@ DWORD_PTR WheatyExceptionReport::DereferenceUnsafePointer(DWORD_PTR address)
 //============================================================================
 int __cdecl WheatyExceptionReport::Log(const TCHAR * format, ...)
 {
-    int retValue;
     va_list argptr;
     va_start(argptr, format);
-    if (stackOverflowException)
-    {
-        retValue = HeapLog(format, argptr);
-        va_end(argptr);
-    }
-    else
-    {
-        retValue = StackLog(format, argptr);
-        va_end(argptr);
-    }
-
-    return retValue;
-}
-
-int __cdecl WheatyExceptionReport::StackLog(const TCHAR * format, va_list argptr)
-{
-    int retValue;
-    DWORD cbWritten;
-
-    TCHAR szBuff[WER_LARGE_BUFFER_SIZE];
-    retValue = vsprintf(szBuff, format, argptr);
-    WriteFile(m_hReportFile, szBuff, retValue * sizeof(TCHAR), &cbWritten, nullptr);
-
-    return retValue;
-}
-
-int __cdecl WheatyExceptionReport::HeapLog(const TCHAR * format, va_list argptr)
-{
-    int retValue = 0;
-    DWORD cbWritten;
-    TCHAR* szBuff = (TCHAR*)malloc(sizeof(TCHAR) * WER_LARGE_BUFFER_SIZE);
-    if (szBuff != nullptr)
-    {
-        retValue = vsprintf(szBuff, format, argptr);
-        WriteFile(m_hReportFile, szBuff, retValue * sizeof(TCHAR), &cbWritten, nullptr);
-        free(szBuff);
-    }
-
+    int retValue = _vftprintf(m_hReportFile, format, argptr);
+    va_end(argptr);
     return retValue;
 }
 

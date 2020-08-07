@@ -9,6 +9,7 @@
 #include <dbghelp.h>
 #include <set>
 #include <cstdlib>
+#include <cstdio>
 #include <stack>
 #include <mutex>
 
@@ -171,8 +172,6 @@ class WheatyExceptionReport
         static DWORD_PTR DereferenceUnsafePointer(DWORD_PTR address);
 
         static int __cdecl Log(const TCHAR * format, ...);
-        static int __cdecl StackLog(const TCHAR * format, va_list argptr);
-        static int __cdecl HeapLog(const TCHAR * format, va_list argptr);
 
         static bool StoreSymbol(DWORD type , DWORD_PTR offset);
         static void ClearSymbols();
@@ -182,12 +181,11 @@ class WheatyExceptionReport
         static TCHAR m_szDumpFileName[MAX_PATH];
         static LPTOP_LEVEL_EXCEPTION_FILTER m_previousFilter;
         static _invalid_parameter_handler m_previousCrtHandler;
-        static HANDLE m_hReportFile;
+        static FILE* m_hReportFile;
         static HANDLE m_hDumpFile;
         static HANDLE m_hProcess;
         static SymbolPairs symbols;
         static std::stack<SymbolDetail> symbolDetails;
-        static bool stackOverflowException;
         static bool alreadyCrashed;
         static std::mutex alreadyCrashedLock;
         typedef NTSTATUS(NTAPI* pRtlGetVersion)(PRTL_OSVERSIONINFOW lpVersionInformation);
