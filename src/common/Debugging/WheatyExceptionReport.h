@@ -1,16 +1,16 @@
 #ifndef _WHEATYEXCEPTIONREPORT_
 #define _WHEATYEXCEPTIONREPORT_
 
-#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS && !defined(__MINGW32__)
+#define _NO_CVCONST_H
 
+#include <windows.h>
 #include <winnt.h>
 #include <winternl.h>
 #include <dbghelp.h>
 #include <set>
-#include <stdlib.h>
+#include <cstdlib>
 #include <stack>
 #include <mutex>
-#define countof  _countof
 
 #define WER_MAX_ARRAY_ELEMENTS_COUNT 10
 #define WER_MAX_NESTING_LEVEL 4
@@ -200,5 +200,4 @@ class WheatyExceptionReport
 };
 
 extern WheatyExceptionReport g_WheatyExceptionReport;       //  global instance of class
-#endif                                                      // _WIN32
 #endif                                                      // _WHEATYEXCEPTIONREPORT_
