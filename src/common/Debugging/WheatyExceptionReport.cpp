@@ -1345,7 +1345,6 @@ bool logChildren)
     }
 
     bHandled = true;
-    return;
 }
 
 void WheatyExceptionReport::FormatOutputValue(char * pszCurrBuffer,
@@ -1552,8 +1551,6 @@ void WheatyExceptionReport::PrintSymbolDetail()
         Log(_T("\t"));
 
     Log(_T("%s\r\n"), symbolDetails.top().ToString().c_str());
-
-    return;
 }
 
 std::string SymbolDetail::ToString()
