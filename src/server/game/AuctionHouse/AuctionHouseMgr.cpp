@@ -757,7 +757,11 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
             continue;
 
         if (inventoryType != 0xffffffff && proto->InventoryType != inventoryType)
-            continue;
+        {
+            // Cloth items can have INVTYPE_CHEST or INVTYPE_ROBE
+            if (!(inventoryType == INVTYPE_CHEST && proto->InventoryType == INVTYPE_ROBE))
+                continue;
+        }
 
         if (quality != 0xffffffff && proto->Quality != quality)
             continue;
