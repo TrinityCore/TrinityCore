@@ -176,7 +176,7 @@ public:
                 if (tile)
                 {
                     handler->PSendSysMessage("Dt     [%02i,%02i]", tile->header->x, tile->header->y);
-                    return false;
+                    return true;
                 }
             }
 
