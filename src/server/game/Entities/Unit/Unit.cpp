@@ -13679,12 +13679,6 @@ void Unit::SendTeleportPacket(Position const& pos)
 {
     // SMSG_MOVE_UPDATE_TELEPORT is sent to nearby players to signal the teleport
     // MSG_MOVE_TELEPORT is sent to self in order to trigger MSG_MOVE_TELEPORT_ACK and update the position server side
-
-    WorldPackets::Movement::MoveUpdateTeleport moveUpdateTeleport;
-    moveUpdateTeleport.Status = &m_movementInfo;
-
-    Unit* broadcastSource = this;
-
     if (Player* playerMover = GetPlayerBeingMoved())
     {
         float x, y, z, o;
@@ -13700,20 +13694,18 @@ void Unit::SendTeleportPacket(Position const& pos)
         moveTeleport.Facing = o;
         moveTeleport.SequenceIndex = m_movementCounter++;
         playerMover->SendDirectMessage(moveTeleport.Write());
-
-        broadcastSource = playerMover;
     }
     else
     {
         // This is the only packet sent for creatures which contains MovementInfo structure
         // we do not update m_movementInfo for creatures so it needs to be done manually here
+        WorldPackets::Movement::MoveUpdateTeleport moveUpdateTeleport;
+        moveUpdateTeleport.Status = &m_movementInfo;
         moveUpdateTeleport.Status->guid = GetGUID();
         moveUpdateTeleport.Status->pos.Relocate(pos);
         moveUpdateTeleport.Status->time = GameTime::GetGameTimeMS();
+        SendMessageToSet(moveUpdateTeleport.Write(), false);
     }
-
-    // Broadcast the packet to everyone except self.
-    broadcastSource->SendMessageToSet(moveUpdateTeleport.Write(), false);
 }
 
 bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool teleport)
