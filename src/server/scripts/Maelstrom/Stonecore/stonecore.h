@@ -125,4 +125,6 @@ inline AI* GetStonecoreAI(T* obj)
     return GetInstanceAI<AI>(obj, SCScriptName);
 }
 
+#define RegisterStonecoreCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetStonecoreAI)
+
 #endif // DEF_STONECORE

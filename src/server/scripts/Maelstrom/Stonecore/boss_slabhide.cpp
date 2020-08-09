@@ -15,15 +15,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "stonecore.h"
 #include "ScriptMgr.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
 #include "MotionMaster.h"
+#include "PassiveAI.h"
 #include "ScriptedCreature.h"
 #include "Spell.h"
 #include "SpellScript.h"
-#include "stonecore.h"
 
 enum Spells
 {
@@ -51,23 +52,16 @@ enum Spells
 
 enum Actions
 {
-    ACTION_STALACTITE_MISSLE
+    ACTION_STALACTITE_MISSLE = 0
 };
 
 enum Events
 {
-    EVENT_NONE,
-
-    // Intro events
-    EVENT_LAND_INTRO,
-    EVENT_ROAR_EMOTE,
-
-    // Slabhide combat
-    EVENT_HANDLE_ROCK_WALLS,
+    // Slabhide
+    EVENT_HANDLE_ROCK_WALLS = 1,
     EVENT_LAVA_FISSURE,
     EVENT_SAND_BLAST,
     EVENT_AIR_PHASE,
-    EVENT_STALACTITE,
     EVENT_LAND,
     EVENT_ATTACK,
 
@@ -86,9 +80,7 @@ enum Phases
 
 enum MovementPoints
 {
-    POINT_NONE,
-
-    POINT_SLABHIDE_INTRO,
+    POINT_SLABHIDE_INTRO = 1,
     POINT_SLABHIDE_INTRO_LAND,
 
     POINT_SLABHIDE_MIDDLE,
@@ -103,302 +95,250 @@ Position const SlabhideMiddlePos = { 1280.73f, 1212.31f, 247.3837f };
 Position const SlabhideInAirPos = { 1280.73f, 1212.31f, 257.3837f };
 Position const SlabhideLandPos = { 1282.7f, 1229.77f, 247.155f, 3.82227f };
 
-class boss_slabhide : public CreatureScript
+struct boss_slabhide : public BossAI
 {
-    public:
-        boss_slabhide() : CreatureScript("boss_slabhide") { }
+    boss_slabhide(Creature* creature) : BossAI(creature, DATA_SLABHIDE), _isFlying(false) { }
 
-        struct boss_slabhideAI : public BossAI
-        {
-            boss_slabhideAI(Creature* creature) : BossAI(creature, DATA_SLABHIDE)
-            {
-                Initialize();
-            }
-
-            void Initialize()
-            {
-                _isFlying = false;
-            }
-
-            void Reset() override
-            {
-                _Reset();
-                Initialize();
-
-                if (instance->GetData(DATA_EVENT_PROGRESS) == EVENT_INDEX_SLABHIDE_INTRO)
-                {
-                    me->SetCanFly(false);
-                    me->SetDisableGravity(false);
-                }
-                else
-                {
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    me->setActive(true);
-                    me->SetCanFly(true);
-                    me->SetDisableGravity(true);
-                    me->SetReactState(REACT_PASSIVE);
-                    events.SetPhase(PHASE_INTRO);
-                }
-            }
-
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
-            {
-                if (_isFlying && damage >= me->GetHealth())
-                    damage = me->GetHealth() - 1; // Let creature health fall to 1 hp but prevent it from dying during air phase.
-            }
-
-            void JustEngagedWith(Unit* who) override
-            {
-                BossAI::JustEngagedWith(who);
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-
-                events.SetPhase(PHASE_COMBAT);
-                events.ScheduleEvent(EVENT_HANDLE_ROCK_WALLS, Seconds(4));
-                events.ScheduleEvent(EVENT_LAVA_FISSURE, Seconds(6), Seconds(8));
-                events.ScheduleEvent(EVENT_SAND_BLAST, Seconds(8), Seconds(10));
-                events.ScheduleEvent(EVENT_AIR_PHASE, Seconds(10));
-            }
-
-            void EnterEvadeMode(EvadeReason /*why*/) override
-            {
-                _EnterEvadeMode();
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                instance->SetBossState(DATA_SLABHIDE, FAIL);
-                DespawnAll();
-                summons.DespawnAll();
-                me->DespawnOrUnsummon();
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                _JustDied();
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                DespawnAll();
-            }
-
-            void DoAction(int32 action) override
-            {
-                switch (action)
-                {
-                    case ACTION_SLABHIDE_INTRO:
-                        me->GetMotionMaster()->MovePoint(POINT_SLABHIDE_INTRO, SlabhideIntroPos, false);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void MovementInform(uint32 type, uint32 id) override
-            {
-                if (type != POINT_MOTION_TYPE && type != EFFECT_MOTION_TYPE)
-                    return;
-
-                switch (id)
-                {
-                    case POINT_SLABHIDE_INTRO:
-                        me->SetFacingTo(SlabhideIntroLandPos.GetOrientation());
-                        events.ScheduleEvent(EVENT_LAND_INTRO, Milliseconds(200));
-                        break;
-                    case POINT_SLABHIDE_INTRO_LAND:
-                        me->SetCanFly(false);
-                        me->SetDisableGravity(false);
-                        me->SetHover(false);
-                        me->SetHomePosition(SlabhideIntroLandPos);
-                        me->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        me->SetReactState(REACT_AGGRESSIVE);
-                        break;
-                    case POINT_SLABHIDE_MIDDLE:
-                        _isFlying = true;
-                        me->SetCanFly(true);
-                        me->SetDisableGravity(true);
-                        me->SetHover(true);
-                        me->GetMotionMaster()->MoveTakeoff(POINT_SLABHIDE_IN_AIR, SlabhideInAirPos);
-                        break;
-                    case POINT_SLABHIDE_IN_AIR:
-                        events.ScheduleEvent(EVENT_STALACTITE, Milliseconds(400));
-                        break;
-                    case POINT_SLABHIDE_LAND:
-                        _isFlying = false;
-                        me->SetCanFly(false);
-                        me->SetDisableGravity(false);
-                        me->SetHover(false);
-                        DoCast(me, SPELL_COOLDOWN_5S);
-                        events.ScheduleEvent(EVENT_ATTACK, Seconds(1) + Milliseconds(200));
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim() && !events.IsInPhase(PHASE_INTRO))
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_LAND_INTRO:
-                            me->GetMotionMaster()->MoveLand(POINT_SLABHIDE_INTRO_LAND, SlabhideIntroLandPos);
-                            break;
-                        case EVENT_HANDLE_ROCK_WALLS:
-                            instance->SetData(DATA_SLABHIDE_ROCK_WALL, false);
-                            break;
-                        case EVENT_LAVA_FISSURE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                                DoCast(target, SPELL_LAVA_FISSURE);
-                            events.Repeat(Seconds(6), Seconds(8));
-                            break;
-                        case EVENT_SAND_BLAST:
-                            DoCast(me, SPELL_SAND_BLAST);
-                            events.Repeat(Seconds(8), Seconds(11));
-                            break;
-                        case EVENT_AIR_PHASE:
-                            events.Reset();
-                            me->SetReactState(REACT_PASSIVE);
-                            me->AttackStop();
-                            me->GetMotionMaster()->MovePoint(POINT_SLABHIDE_MIDDLE, SlabhideMiddlePos);
-                            events.Repeat(Seconds(60));
-                            break;
-                        case EVENT_STALACTITE:
-                            DoCast(me, SPELL_STALACTITE_SUMMON);
-                            events.ScheduleEvent(EVENT_LAND, Seconds(8));
-                            break;
-                        case EVENT_LAND:
-                            me->GetMotionMaster()->MoveLand(POINT_SLABHIDE_LAND, SlabhideMiddlePos);
-                            break;
-                        case EVENT_ATTACK:
-                            events.ScheduleEvent(EVENT_LAVA_FISSURE, Seconds(6), Seconds(8));
-                            events.ScheduleEvent(EVENT_SAND_BLAST, Seconds(8), Seconds(10));
-                            me->SetReactState(REACT_AGGRESSIVE);
-                            if (IsHeroic())
-                                DoCast(me, SPELL_CRYSTAL_STORM_PERIODIC);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-
-                DoMeleeAttackIfReady();
-            }
-
-        private:
-            void DespawnAll()
-            {
-                // Despawn stalactite triggers npcs
-                std::vector<Creature*> listStalactiteTrigger;
-                me->GetCreatureListWithEntryInGrid(listStalactiteTrigger, NPC_STALACTITE_TRIGGER, 200.0f);
-                for (Creature* creature : listStalactiteTrigger)
-                    creature->DespawnOrUnsummon();
-
-                // Despawn stalactite objects
-                std::vector<GameObject*> listStalactite;
-                me->GetGameObjectListWithEntryInGrid(listStalactite, GO_STALACTITE, 200.0f);
-                for (GameObject* go : listStalactite)
-                    go->Delete();
-            }
-
-            bool _isFlying;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetStonecoreAI<boss_slabhideAI>(creature);
-        }
-};
-
-class npc_slabhide_lava_fissure : public CreatureScript
-{
-    public:
-        npc_slabhide_lava_fissure() : CreatureScript("npc_slabhide_lava_fissure") { }
-
-        struct npc_slabhide_lava_fissureAI : public ScriptedAI
-        {
-            npc_slabhide_lava_fissureAI(Creature* creature) : ScriptedAI(creature) { }
-
-            void IsSummonedBy(Unit* /*summoner*/) override
-            {
-                DoCast(me, SPELL_LAVA_FISSURE_CRACK, true);
-                _events.ScheduleEvent(EVENT_LAVA_FISSURE_ERUPTION, IsHeroic() ? Seconds(3) : Seconds(5));
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                _events.Update(diff);
-
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_LAVA_FISSURE_ERUPTION:
-                            me->RemoveAurasDueToSpell(SPELL_LAVA_FISSURE_CRACK);
-                            DoCast(me, SPELL_LAVA_FISSURE_ERUPTION, true);
-                            me->DespawnOrUnsummon(IsHeroic() ? Seconds(30) : Seconds(10));
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            }
-
-        private:
-            EventMap _events;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetStonecoreAI<npc_slabhide_lava_fissureAI>(creature);
-        }
-};
-
-class npc_slabhide_stalactite_trigger : public CreatureScript
-{
-    public:
-        npc_slabhide_stalactite_trigger() : CreatureScript("npc_slabhide_stalactite_trigger") { }
-
-        struct npc_slabhide_stalactite_triggerAI : public ScriptedAI
-        {
-            npc_slabhide_stalactite_triggerAI(Creature* creature) : ScriptedAI(creature) { }
-
-            void IsSummonedBy(Unit* /*summoner*/) override
-            {
-                DoCast(me, SPELL_STALACTITE_SHADE, true);
-                _events.ScheduleEvent(EVENT_STALACTITE_MISSLE, Seconds(1) + Milliseconds(300));
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                _events.Update(diff);
-
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_STALACTITE_MISSLE:
-                            DoCast(me, SPELL_STALACTITE_MISSILE);
-                            me->DespawnOrUnsummon(Seconds(11));
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            }
-
-        private:
-            EventMap _events;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
+    void InitializeAI() override
     {
-        return GetStonecoreAI<npc_slabhide_stalactite_triggerAI>(creature);
+        if (instance->GetData(DATA_EVENT_PROGRESS) == EVENT_INDEX_SLABHIDE_INTRO)
+        {
+            me->SetDisableGravity(false);
+            me->SetHover(false);
+        }
+        else
+        {
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->SetDisableGravity(true);
+            me->SetHover(true);
+            me->SetReactState(REACT_PASSIVE);
+            events.SetPhase(PHASE_INTRO);
+        }
     }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    {
+        if (_isFlying && damage >= me->GetHealth())
+            damage = me->GetHealth() - 1; // Let creature health fall to 1 hp but prevent it from dying during air phase.
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
+
+        events.SetPhase(PHASE_COMBAT);
+        events.ScheduleEvent(EVENT_HANDLE_ROCK_WALLS, 4s);
+        events.ScheduleEvent(EVENT_LAVA_FISSURE, 6s, 8s);
+        events.ScheduleEvent(EVENT_SAND_BLAST, 8s, 10s);
+        events.ScheduleEvent(EVENT_AIR_PHASE, 10s);
+    }
+
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        _EnterEvadeMode();
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        instance->SetBossState(DATA_SLABHIDE, FAIL);
+        DespawnAll();
+        summons.DespawnAll();
+        me->DespawnOrUnsummon();
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        DespawnAll();
+    }
+
+    void DoAction(int32 action) override
+    {
+        switch (action)
+        {
+            case ACTION_SLABHIDE_INTRO:
+                me->setActive(true);
+                me->GetMotionMaster()->MovePoint(POINT_SLABHIDE_INTRO, SlabhideIntroPos, false);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void MovementInform(uint32 type, uint32 id) override
+    {
+        if (type != POINT_MOTION_TYPE && type != EFFECT_MOTION_TYPE)
+            return;
+
+        switch (id)
+        {
+            case POINT_SLABHIDE_INTRO:
+                me->SetFacingTo(SlabhideIntroLandPos.GetOrientation());
+                me->GetMotionMaster()->MoveLand(POINT_SLABHIDE_INTRO_LAND, SlabhideIntroLandPos);
+                break;
+            case POINT_SLABHIDE_INTRO_LAND:
+                me->SetDisableGravity(false);
+                me->SetHover(false);
+                me->SetHomePosition(SlabhideIntroLandPos);
+                me->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetReactState(REACT_AGGRESSIVE);
+                break;
+            case POINT_SLABHIDE_MIDDLE:
+                _isFlying = true;
+                me->GetMotionMaster()->MoveTakeoff(POINT_SLABHIDE_IN_AIR, SlabhideInAirPos);
+                break;
+            case POINT_SLABHIDE_IN_AIR:
+                me->SetDisableGravity(true);
+                me->SetHover(true);
+                DoCastSelf(SPELL_STALACTITE_SUMMON);
+                events.ScheduleEvent(EVENT_LAND, 8s);
+                break;
+            case POINT_SLABHIDE_LAND:
+                _isFlying = false;
+                me->SetDisableGravity(false);
+                me->SetHover(false);
+                DoCastSelf(SPELL_COOLDOWN_5S);
+                events.ScheduleEvent(EVENT_ATTACK, 1s + 200ms);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim() && !events.IsInPhase(PHASE_INTRO))
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_HANDLE_ROCK_WALLS:
+                    instance->SetData(DATA_SLABHIDE_ROCK_WALL, false);
+                    break;
+                case EVENT_LAVA_FISSURE:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                        DoCast(target, SPELL_LAVA_FISSURE);
+                    events.Repeat(6s, 8s);
+                    break;
+                case EVENT_SAND_BLAST:
+                    DoCast(me, SPELL_SAND_BLAST);
+                    events.Repeat(8s, 11s);
+                    break;
+                case EVENT_AIR_PHASE:
+                    events.Reset();
+                    me->SetReactState(REACT_PASSIVE);
+                    me->AttackStop();
+                    me->GetMotionMaster()->MovePoint(POINT_SLABHIDE_MIDDLE, SlabhideMiddlePos);
+                    events.Repeat(60s);
+                    break;
+                case EVENT_LAND:
+                    me->GetMotionMaster()->MoveLand(POINT_SLABHIDE_LAND, SlabhideMiddlePos);
+                    break;
+                case EVENT_ATTACK:
+                    events.ScheduleEvent(EVENT_LAVA_FISSURE, 6s, 8s);
+                    events.ScheduleEvent(EVENT_SAND_BLAST, 8s, 10s);
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    if (IsHeroic())
+                        DoCast(me, SPELL_CRYSTAL_STORM_PERIODIC);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    void DespawnAll()
+    {
+        // Despawn stalactite triggers npcs
+        std::vector<Creature*> listStalactiteTrigger;
+        me->GetCreatureListWithEntryInGrid(listStalactiteTrigger, NPC_STALACTITE_TRIGGER, 200.0f);
+        for (Creature* creature : listStalactiteTrigger)
+            creature->DespawnOrUnsummon();
+
+        // Despawn stalactite objects
+        std::vector<GameObject*> listStalactite;
+        me->GetGameObjectListWithEntryInGrid(listStalactite, GO_STALACTITE, 200.0f);
+        for (GameObject* go : listStalactite)
+            go->Delete();
+    }
+
+    bool _isFlying;
+};
+
+struct npc_slabhide_lava_fissure : public NullCreatureAI
+{
+    npc_slabhide_lava_fissure(Creature* creature) : NullCreatureAI(creature) { }
+
+    void JustAppeared() override
+    {
+        DoCast(me, SPELL_LAVA_FISSURE_CRACK);
+        bool isHeroic = me->GetMap()->IsHeroic();
+        _events.ScheduleEvent(EVENT_LAVA_FISSURE_ERUPTION, isHeroic ? 3s : 5s);
+        me->DespawnOrUnsummon(isHeroic ? 33s : 15s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_LAVA_FISSURE_ERUPTION:
+                    me->RemoveAurasDueToSpell(SPELL_LAVA_FISSURE_CRACK);
+                    DoCast(me, SPELL_LAVA_FISSURE_ERUPTION);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+};
+
+struct npc_slabhide_stalactite_trigger : public NullCreatureAI
+{
+    npc_slabhide_stalactite_trigger(Creature* creature) : NullCreatureAI(creature) { }
+
+    void IsSummonedBy(Unit* /*summoner*/) override
+    {
+        DoCast(me, SPELL_STALACTITE_SHADE, true);
+        _events.ScheduleEvent(EVENT_STALACTITE_MISSLE, 1s + 300ms);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_STALACTITE_MISSLE:
+                    DoCastSelf(SPELL_STALACTITE_MISSILE);
+                    me->DespawnOrUnsummon(11s);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
 };
 
 class spell_slabhide_stalactite : public SpellScript
@@ -483,9 +423,9 @@ class spell_slabhide_crystal_storm_periodic : public SpellScript
 
 void AddSC_boss_slabhide()
 {
-    new boss_slabhide();
-    new npc_slabhide_lava_fissure();
-    new npc_slabhide_stalactite_trigger();
+    RegisterStonecoreCreatureAI(boss_slabhide);
+    RegisterStonecoreCreatureAI(npc_slabhide_lava_fissure);
+    RegisterStonecoreCreatureAI(npc_slabhide_stalactite_trigger);
     RegisterSpellScript(spell_slabhide_stalactite);
     RegisterSpellScript(spell_slabhide_stalactite_summon);
     RegisterSpellScript(spell_slabhide_stalactite_dest_relocation);
