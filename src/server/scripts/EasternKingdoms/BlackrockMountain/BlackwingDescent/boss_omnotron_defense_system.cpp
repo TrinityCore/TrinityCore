@@ -1179,6 +1179,7 @@ struct npc_omnotron_poison_bomb : public ScriptedAI
             DoCast(target, SPELL_FIXATE_DUMMY, true);
             me->ClearUnitState(UNIT_STATE_CASTING);
             AddThreat(target, 500000.0f);
+            me->GetThreatManager().FixateTarget(target);
         }
     }
 
