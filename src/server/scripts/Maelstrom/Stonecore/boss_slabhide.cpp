@@ -58,7 +58,8 @@ enum Actions
 enum Events
 {
     // Slabhide
-    EVENT_HANDLE_ROCK_WALLS = 1,
+    EVENT_LAND_INTRO = 1,
+    EVENT_HANDLE_ROCK_WALLS,
     EVENT_LAVA_FISSURE,
     EVENT_SAND_BLAST,
     EVENT_AIR_PHASE,
@@ -173,9 +174,10 @@ struct boss_slabhide : public BossAI
         {
             case POINT_SLABHIDE_INTRO:
                 me->SetFacingTo(SlabhideIntroLandPos.GetOrientation());
-                me->GetMotionMaster()->MoveLand(POINT_SLABHIDE_INTRO_LAND, SlabhideIntroLandPos);
+                events.ScheduleEvent(EVENT_LAND_INTRO, 200ms, 0, PHASE_INTRO);
                 break;
             case POINT_SLABHIDE_INTRO_LAND:
+                me->setActive(false);
                 me->SetDisableGravity(false);
                 me->SetHover(false);
                 me->SetHomePosition(SlabhideIntroLandPos);
@@ -219,6 +221,9 @@ struct boss_slabhide : public BossAI
         {
             switch (eventId)
             {
+                case EVENT_LAND_INTRO:
+                    me->GetMotionMaster()->MoveLand(POINT_SLABHIDE_INTRO_LAND, SlabhideIntroLandPos);
+                    break;
                 case EVENT_HANDLE_ROCK_WALLS:
                     instance->SetData(DATA_SLABHIDE_ROCK_WALL, false);
                     break;
