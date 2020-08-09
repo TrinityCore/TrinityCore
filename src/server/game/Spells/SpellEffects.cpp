@@ -2618,7 +2618,7 @@ void Spell::EffectTaunt(SpellEffIndex /*effIndex*/)
     // Hand of Reckoning can hit some entities that can't have a threat list (including players' pets)
     if (m_spellInfo->Id == 62124)
         if (unitTarget->GetTypeId() != TYPEID_PLAYER && unitTarget->GetTarget() != m_caster->GetGUID())
-            unitCaster->CastSpell(unitTarget, 67485, true);
+            m_caster->CastSpell(unitTarget, 67485, true);
 
     if (!unitTarget->CanHaveThreatList())
     {
