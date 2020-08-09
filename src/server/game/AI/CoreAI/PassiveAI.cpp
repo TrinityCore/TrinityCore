@@ -67,19 +67,6 @@ void PossessedAI::UpdateAI(uint32 /*diff*/)
     }
 }
 
-void PossessedAI::JustDied(Unit* /*u*/)
-{
-    // We died while possessed, disable our loot
-    me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
-}
-
-void PossessedAI::KilledUnit(Unit* victim)
-{
-    // We killed a creature, disable victim's loot
-    if (victim->GetTypeId() == TYPEID_UNIT)
-        victim->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
-}
-
 void CritterAI::JustEngagedWith(Unit* /*who*/)
 {
     if (!me->HasUnitState(UNIT_STATE_FLEEING))
