@@ -2186,7 +2186,7 @@ class spell_madness_of_deathwing_concentration : public AuraScript
 
     void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        GetTarget()->SetDisableGravity(false);
+        GetTarget()->SetAnimationTier(AnimationTier::Ground);
     }
 
     void Register() override
