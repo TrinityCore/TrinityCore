@@ -2527,6 +2527,10 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
             spellHitTarget = m_caster;
     }
 
+    // Ensure that a player target is put in combat by a taunt, even if they result immune clientside
+    if ((missInfo == SPELL_MISS_IMMUNE || missInfo == SPELL_MISS_IMMUNE2) && m_caster->IsPlayer() && unit->IsPlayer() && m_caster->IsValidAttackTarget(unit))
+        unit->SetInCombatWith(m_caster->ToPlayer());
+
     bool enablePvP = false; // need to check PvP state before spell effects, but act on it afterwards
 
     if (spellHitTarget)
