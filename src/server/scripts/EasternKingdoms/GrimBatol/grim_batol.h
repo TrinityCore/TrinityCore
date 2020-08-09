@@ -39,11 +39,7 @@ enum GBDataTypes
 
     // Encounter Data
     DATA_VALIONA,
-    DATA_FACELESS_PORTAL_STALKER,
-    DATA_SHADOW_GALE_STALKER,
-    DATA_SHADOW_GALE_CONTROLLER_STALKER,
-    DATA_FACELESS_CORRUPTOR_1,
-    DATA_FACELESS_CORRUPTOR_2,
+    DATA_FACELESS_PORTAL_STALKER
 };
 
 enum GBCreatureIds
@@ -75,7 +71,6 @@ enum GBCreatureIds
     NPC_FACELESS_PORTAL_STALKER         = 44314,
     NPC_ALEXSTRASZAS_EGG                = 40486,
     NPC_SHADOW_GALE_STALKER             = 40567,
-    NPC_SHADOW_GALE_CONTROLLER_STALKER  = 40566,
     NPC_FACELESS_CORRUPTOR_1            = 40600,
     NPC_FACELESS_CORRUPTOR_2            = 48844,
     NPC_TWILIGHT_HATCHLING              = 39388,
@@ -97,8 +92,8 @@ enum GBSummonGroups
     SUMMON_GROUP_BATTERED_DRAKES = 0
 };
 
-template<class AI>
-AI* GetGrimBatolAI(Creature* creature)
+template<class AI, class T>
+AI* GetGrimBatolAI(T* creature)
 {
     return GetInstanceAI<AI>(creature, GBScriptName);
 }

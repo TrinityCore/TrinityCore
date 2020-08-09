@@ -33,10 +33,6 @@ ObjectData const creatureData[] =
     { BOSS_ERUDAX,                          DATA_ERUDAX                         },
     { NPC_VALIONA,                          DATA_VALIONA                        },
     { NPC_FACELESS_PORTAL_STALKER,          DATA_FACELESS_PORTAL_STALKER        },
-    { NPC_SHADOW_GALE_STALKER,              DATA_SHADOW_GALE_STALKER            },
-    { NPC_SHADOW_GALE_CONTROLLER_STALKER,   DATA_SHADOW_GALE_CONTROLLER_STALKER },
-    { NPC_FACELESS_CORRUPTOR_1,             DATA_FACELESS_CORRUPTOR_1           },
-    { NPC_FACELESS_CORRUPTOR_2,             DATA_FACELESS_CORRUPTOR_2           },
     { 0,                                    0                                   } // End
 };
 
@@ -104,16 +100,9 @@ class instance_grim_batol : public InstanceMapScript
                         break;
                     case NPC_SHADOW_GALE_STALKER:
                     case NPC_HATCHED_TWILIGHT_EGG:
-                        if (Creature* erudax = GetCreature(DATA_ERUDAX))
-                            erudax->AI()->JustSummoned(creature);
-                        break;
                     case NPC_TWILIGHT_HATCHLING:
-                        creature->SetReactState(REACT_PASSIVE);
                         if (Creature* erudax = GetCreature(DATA_ERUDAX))
                             erudax->AI()->JustSummoned(creature);
-
-                        if (Creature* stalker = GetCreature(DATA_SHADOW_GALE_CONTROLLER_STALKER))
-                            creature->GetMotionMaster()->MoveCirclePath(stalker->GetPositionX(), stalker->GetPositionY(), 253.845f, 30.0f, true, 8);
                         break;
                     case NPC_ALEXSTRASZAS_EGG:
                         creature->SetCorpseDelay(DAY);
@@ -139,7 +128,7 @@ class instance_grim_batol : public InstanceMapScript
                         if (Creature* portal = GetCreature(DATA_FACELESS_PORTAL_STALKER))
                         {
                             if (state == IN_PROGRESS)
-                                portal->CastSpell(portal, SPELL_PORTAL_VISUAL, true);
+                                portal->CastSpell(portal, SPELL_PORTAL_VISUAL);
                             else
                                 portal->RemoveAurasDueToSpell(SPELL_PORTAL_VISUAL);
                         }

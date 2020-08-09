@@ -15,24 +15,23 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "ScriptMgr.h"
 #include "grim_batol.h"
-#include "ObjectMgr.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
-#include "Player.h"
-#include "InstanceScript.h"
-#include "ObjectAccessor.h"
-#include "MotionMaster.h"
+#include "Spell.h"
 #include "Map.h"
 
 enum Spells
 {
     // Erudax
     SPELL_BINDING_SHADOWS                       = 79466,
-    SPELL_ENFEEBLING_BLOW                       = 75789,
     SPELL_SHADOW_GALE_TRIGGER                   = 75656,
     SPELL_SHADOW_GALE                           = 75664,
     SPELL_SUMMON_FACELESS_CORRUPTOR             = 75704,
@@ -54,6 +53,8 @@ enum Spells
     SPELL_SUMMON_TWILIGHT_HATCHLING             = 91058
 };
 
+#define SPELL_ENFEEBLING_BLOW RAID_MODE<uint32>(75789, 91091)
+
 enum Texts
 {
     SAY_AGGRO                           = 0,
@@ -71,8 +72,8 @@ enum Events
     // Erudax
     EVENT_BINDING_SHADOWS = 1,
     EVENT_ENFEEBLING_BLOW,
-    EVENT_SUMMON_SHADOW_GALE_STALKER,
     EVENT_SHADOW_GALE,
+    EVENT_CAST_SHADOW_GALE,
     EVENT_SUMMON_FACELESS_CORRUPTOR,
     EVENT_SHIELD_OF_NIGHTMARES,
 
@@ -86,8 +87,9 @@ enum Events
 
 enum Actions
 {
-    ACTION_FINISH_CORRUPTION    = 1,
-    ACTION_FAIL_ACHIEVEMENT     = 1
+    ACTION_FINISH_CORRUPTION    = 0,
+    ACTION_DESPAWN              = 1,
+    ACTION_FAIL_ACHIEVEMENT     = 0
 };
 
 enum Data
@@ -109,6 +111,21 @@ Position const facelessCorruptorPositions2[] =
     { -728.7292f, -791.1129f, 232.4201f }
 };
 
+static constexpr uint32 const CyclicPathPoints = 10;
+Position const TwilightHatchingCyclicPath[CyclicPathPoints] =
+{
+    { 0.f,          0.f,            0.f         },
+    { -763.168f,    -826.411f,      253.845f    },
+    { -767.03644f,  -845.07465f,    259.70566f  },
+    { -742.458f,    -862.333f,      248.956f    },
+    { -714.226f,    -853.693f,      251.872f    },
+    { -706.016f,    -835.816f,      254.206f    },
+    { -705.422f,    -815.714f,      251.15f     },
+    { -718.08f,     -792.307f,      249.345f    },
+    { -738.84894f,  -792.05554f,    259.70566f  },
+    { -763.168f,    -826.411f,      253.845f    }
+};
+
 enum Points
 {
     POINT_PATH_1,
@@ -121,465 +138,423 @@ enum ModelIds
     MODEL_ID_INVISIBLE = 11686
 };
 
-class boss_erudax : public CreatureScript
+struct boss_erudax : public BossAI
 {
-    public:
-        boss_erudax() : CreatureScript("boss_erudax") { }
+    boss_erudax(Creature* creature) : BossAI(creature, DATA_ERUDAX), _achievementEnligible(true) { }
 
-        struct boss_erudaxAI : public BossAI
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+        Talk(SAY_AGGRO);
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
+        events.ScheduleEvent(EVENT_BINDING_SHADOWS, 10s + 500ms);
+        events.ScheduleEvent(EVENT_ENFEEBLING_BLOW, 19s);
+        events.ScheduleEvent(EVENT_SHADOW_GALE, 26s);
+    }
+
+    void KilledUnit(Unit* who) override
+    {
+        if (who->IsPlayer())
+            Talk(SAY_SLAY);
+    }
+
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        _EnterEvadeMode();
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        DespawnFacelessCorruptors();
+        summons.DespawnAll();
+        _DespawnAtEvade();
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+        Talk(SAY_DEATH);
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        DespawnFacelessCorruptors();
+        summons.DespawnAll();
+    }
+
+
+    void DoAction(int32 action) override
+    {
+        if (action == ACTION_FAIL_ACHIEVEMENT)
+            _achievementEnligible = false;
+    }
+
+    void JustSummoned(Creature* summon) override
+    {
+        summons.RemoveNotExisting(); // keeping the summon container clean
+        summons.Summon(summon);
+
+        switch (summon->GetEntry())
         {
-            boss_erudaxAI(Creature* creature) : BossAI(creature, DATA_ERUDAX), _achievementEnligible(true) { }
+            case NPC_SHADOW_GALE_STALKER:
+                _shadowGaleStalkerGUID = summon->GetGUID();
+                events.ScheduleEvent(EVENT_CAST_SHADOW_GALE, 1ms); // Cast the Shadow gale on the next update tick so update_object had a chance to spawn in the trigger clientside
+                break;
+            case NPC_TWILIGHT_HATCHLING:
+                summon->GetMotionMaster()->MoveCyclicPath(TwilightHatchingCyclicPath, CyclicPathPoints, false, true, 14.f);
+                break;
+            default:
+                break;
+        }
+    }
 
-            void JustEngagedWith(Unit* who) override
-            {
-                BossAI::JustEngagedWith(who);
-                Talk(SAY_AGGRO);
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-                events.ScheduleEvent(EVENT_BINDING_SHADOWS, Seconds(10) + Milliseconds(500));
-                events.ScheduleEvent(EVENT_ENFEEBLING_BLOW, Seconds(19));
-                events.ScheduleEvent(EVENT_SUMMON_SHADOW_GALE_STALKER, Seconds(21) + Milliseconds(500));
-            }
+    uint32 GetData(uint32 type) const override
+    {
+        if (type == DATA_ACHIEVEMT_ENLIGIBLE)
+            return _achievementEnligible;
 
-            void KilledUnit(Unit* killed) override
-            {
-                if (killed->GetTypeId() == TYPEID_PLAYER)
-                    Talk(SAY_SLAY);
-            }
+        return 0;
+    }
 
-            void EnterEvadeMode(EvadeReason /*why*/) override
-            {
-                _EnterEvadeMode();
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                DespawnFacelessCorruptors();
-                summons.DespawnAll();
-                _DespawnAtEvade();
-            }
+    void OnSpellCastFinished(SpellInfo const* spell, SpellFinishReason reason) override
+    {
+        if (spell->Id == SPELL_ENFEEBLING_BLOW && reason == SPELL_FINISHED_SUCCESSFUL_CAST)
+            events.CancelEvent(EVENT_ENFEEBLING_BLOW); // Enfeebling blow has been casted successfully so no need to repeat it for this cycle
+    }
 
-            void JustDied(Unit* /*killer*/) override
-            {
-                _JustDied();
-                Talk(SAY_DEATH);
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                DespawnFacelessCorruptors();
-                summons.DespawnAll();
-            }
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
 
-            void DespawnFacelessCorruptors()
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
             {
-                for (auto itr = _corruptorGUIDList.begin(); itr != _corruptorGUIDList.end(); itr++)
-                {
-                    if (Creature* corruptor = ObjectAccessor::GetCreature(*me, *itr))
+                case EVENT_BINDING_SHADOWS:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.f, true))
+                        DoCast(target, SPELL_BINDING_SHADOWS);
+                    events.Repeat(23s);
+                    break;
+                case EVENT_ENFEEBLING_BLOW:
+                    events.Repeat(10s); // repeat the blow after 10 seconds if the cast has not been successful
+                    DoCastVictim(SPELL_ENFEEBLING_BLOW);
+                    break;
+                case EVENT_SHADOW_GALE:
+                    DoCastSelf(SPELL_SHADOW_GALE_TRIGGER);
+                    events.ScheduleEvent(EVENT_SUMMON_FACELESS_CORRUPTOR, 18s);
+                    events.RescheduleEvent(EVENT_BINDING_SHADOWS, 20s, 22s);
+                    events.RescheduleEvent(EVENT_ENFEEBLING_BLOW, 21s);
+                    events.Repeat(55s);
+                    break;
+                case EVENT_CAST_SHADOW_GALE:
+                    Talk(SAY_SHADOW_GALE);
+                    Talk(SAY_ANNOUNCE_SHADOW_GALE);
+                    if (Creature* stalker = ObjectAccessor::GetCreature(*me, _shadowGaleStalkerGUID))
                     {
-                        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, corruptor);
-                        corruptor->DespawnOrUnsummon(Milliseconds(100));
+                        stalker->CastSpell(stalker, SPELL_SHADOW_GALE_TRIGGER_RUN_SPEED_TRIGGER);
+                        DoCast(stalker, SPELL_SHADOW_GALE);
                     }
-                }
-            }
-
-            void DoAction(int32 action) override
-            {
-                if (action == ACTION_FAIL_ACHIEVEMENT)
-                    _achievementEnligible = false;
-            }
-
-            void JustSummoned(Creature* summon) override
-            {
-                switch (summon->GetEntry())
-                {
-                    case NPC_SHADOW_GALE_STALKER:
-                        Talk(SAY_SHADOW_GALE);
-                        Talk(SAY_ANNOUNCE_SHADOW_GALE);
-                        // needed because the summons visual effect of the following spell cast gets lost else
-                        events.ScheduleEvent(EVENT_SHADOW_GALE, Milliseconds(1));
-                        summons.Summon(summon);
-                        break;
-                    case NPC_FACELESS_CORRUPTOR_1:
-                    case NPC_FACELESS_CORRUPTOR_2:
-                        _corruptorGUIDList.insert(summon->GetGUID());
-                        break;
-                    default:
-                        summons.Summon(summon);
-                        break;
-                }
-            }
-
-            uint32 GetData(uint32 type) const override
-            {
-                if (type == DATA_ACHIEVEMT_ENLIGIBLE)
-                    return _achievementEnligible;
-
-                return 0;
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
+                    break;
+                case EVENT_SUMMON_FACELESS_CORRUPTOR:
+                    Talk(SAY_FACELESS_CORRUPTORS);
+                    Talk(SAY_ANNOUNCE_GUARDIANS);
+                    DoCastSelf(SPELL_SUMMON_FACELESS_CORRUPTOR);
+                    if (IsHeroic())
+                        events.ScheduleEvent(EVENT_SHIELD_OF_NIGHTMARES, 19s);
+                    break;
+                case EVENT_SHIELD_OF_NIGHTMARES:
+                    for (ObjectGuid guid : summons)
                     {
-                        case EVENT_BINDING_SHADOWS:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.f, true))
-                                DoCast(target, SPELL_BINDING_SHADOWS);
-                            break;
-                        case EVENT_ENFEEBLING_BLOW:
-                            DoCastVictim(SPELL_ENFEEBLING_BLOW);
-                            break;
-                        case EVENT_SUMMON_SHADOW_GALE_STALKER:
-                            DoCastSelf(SPELL_SHADOW_GALE_TRIGGER, true);
-                            break;
-                        case EVENT_SHADOW_GALE:
-                            if (Creature* shadowGale = instance->GetCreature(DATA_SHADOW_GALE_STALKER))
-                                shadowGale->CastSpell(shadowGale, SPELL_SHADOW_GALE_TRIGGER_RUN_SPEED_TRIGGER);
-                            DoCastAOE(SPELL_SHADOW_GALE);
-                            events.ScheduleEvent(EVENT_BINDING_SHADOWS, Seconds(21));
-                            events.ScheduleEvent(EVENT_ENFEEBLING_BLOW, Seconds(20));
-                            events.ScheduleEvent(EVENT_SUMMON_FACELESS_CORRUPTOR, Seconds(18));
-                            events.ScheduleEvent(EVENT_SUMMON_SHADOW_GALE_STALKER, Seconds(55));
-                            break;
-                        case EVENT_SUMMON_FACELESS_CORRUPTOR:
-                            Talk(SAY_FACELESS_CORRUPTORS);
-                            Talk(SAY_ANNOUNCE_GUARDIANS);
-                            DoCastSelf(SPELL_SUMMON_FACELESS_CORRUPTOR, true);
-                            if (IsHeroic())
-                                events.ScheduleEvent(EVENT_SHIELD_OF_NIGHTMARES, Seconds(19));
-                            break;
-                        case EVENT_SHIELD_OF_NIGHTMARES:
-                            if (instance->GetCreature(DATA_FACELESS_CORRUPTOR_1) || instance->GetCreature(DATA_FACELESS_CORRUPTOR_2))
-                            {
-                                Talk(SAY_ANNOUNCE_SHIELD_OF_NIGHTMARES);
-                                DoCastAOE(SPELL_SHIELD_OF_NIGHTMARES);
-                            }
-                            break;
-                        default:
-                            break;
-                    }
-                }
-                DoMeleeAttackIfReady();
-            }
-        private:
-            bool _achievementEnligible;
-            GuidSet _corruptorGUIDList;
-        };
+                        if (guid.GetEntry() != NPC_FACELESS_CORRUPTOR_1 && guid.GetEntry() != NPC_FACELESS_CORRUPTOR_2)
+                            continue;
 
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetGrimBatolAI<boss_erudaxAI>(creature);
-        }
-};
-
-class npc_erudax_faceless_corruptor : public CreatureScript
-{
-    public:
-        npc_erudax_faceless_corruptor() : CreatureScript("npc_erudax_faceless_corruptor") { }
-
-        struct npc_erudax_faceless_corruptorAI : public ScriptedAI
-        {
-            npc_erudax_faceless_corruptorAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()){ }
-
-            void IsSummonedBy(Unit* /*summoner*/) override
-            {
-                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_INTERRUPT, true);
-                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, true);
-                me->SetReactState(REACT_PASSIVE);
-                if (me->GetEntry() == NPC_FACELESS_CORRUPTOR_1)
-                    me->GetMotionMaster()->MovePoint(POINT_PATH_1, facelessCorruptorPositions1[0], true);
-                else
-                    me->GetMotionMaster()->MovePoint(POINT_PATH_1, facelessCorruptorPositions2[0], true);
-                _events.ScheduleEvent(EVENT_SEND_ENCOUNTER_FRAME, Seconds(7) + Milliseconds(500));
-            }
-
-            void EnterEvadeMode(EvadeReason /*why*/) override
-            {
-                _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                me->DespawnOrUnsummon(Milliseconds(100));
-            }
-
-            void MovementInform(uint32 type, uint32 point) override
-            {
-                if (type != POINT_MOTION_TYPE && type != EFFECT_MOTION_TYPE)
-                    return;
-
-                switch (point)
-                {
-                    case POINT_PATH_1:
-                        if (me->GetEntry() == NPC_FACELESS_CORRUPTOR_1)
-                            me->GetMotionMaster()->MovePoint(POINT_PATH_2, facelessCorruptorPositions1[1], true);
-                        else
-                            me->GetMotionMaster()->MovePoint(POINT_PATH_2, facelessCorruptorPositions2[1], true);
-                        break;
-                    case POINT_PATH_2:
-                        if (me->GetEntry() == NPC_FACELESS_CORRUPTOR_1)
-                            me->GetMotionMaster()->MovePoint(POINT_PATH_3, facelessCorruptorPositions1[2], true);
-                        else
-                            me->GetMotionMaster()->MovePoint(POINT_PATH_3, facelessCorruptorPositions2[2], true);
-                        break;
-                    case POINT_PATH_3:
-                        _events.ScheduleEvent(EVENT_TWILIGHT_CORRUPTION, Seconds(1));
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void DoAction(int32 action) override
-            {
-                if (action == ACTION_FINISH_CORRUPTION)
-                    _events.ScheduleEvent(EVENT_UMBRAL_MENDING, Milliseconds(400));
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                me->DespawnOrUnsummon(Seconds(5));
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                _events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_SEND_ENCOUNTER_FRAME:
-                            _instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-                            break;
-                        case EVENT_TWILIGHT_CORRUPTION:
-                            if (Creature* erudax = _instance->GetCreature(DATA_ERUDAX))
-                                erudax->AI()->DoAction(ACTION_FAIL_ACHIEVEMENT);
-                            DoCastAOE(SPELL_TWILIGHT_CORRUPTION);
-                            break;
-                        case EVENT_UMBRAL_MENDING:
-                            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_INTERRUPT, false);
-                            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, false);
-                            DoCastAOE(SPELL_UMBRAL_MENDING);
-                            _events.ScheduleEvent(EVENT_ATTACK_PLAYER, Seconds(3));
-                            _events.ScheduleEvent(EVENT_SIPHON_ESSENCE, Seconds(55));
-                            break;
-                        case EVENT_ATTACK_PLAYER:
-                            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_INTERRUPT, true);
-                            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, true);
-                            me->SetReactState(REACT_AGGRESSIVE);
-                            if (Player* player = me->SelectNearestPlayer(100.0f))
-                                me->AI()->AttackStart(player);
-                            break;
-                        case EVENT_SIPHON_ESSENCE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                                DoCast(target, SPELL_SIPHON_ESSENCE);
-                            _events.Repeat(Seconds(11));
-                            break;
-                        default:
-                            break;
-                    }
-                }
-                DoMeleeAttackIfReady();
-            }
-        private:
-            EventMap _events;
-            InstanceScript* _instance;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetGrimBatolAI<npc_erudax_faceless_corruptorAI>(creature);
-        }
-};
-
-class spell_erudax_shadow_gale_trigger : public SpellScriptLoader
-{
-    public:
-        spell_erudax_shadow_gale_trigger() : SpellScriptLoader("spell_erudax_shadow_gale_trigger") { }
-
-        class spell_erudax_shadow_gale_trigger_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_erudax_shadow_gale_trigger_SpellScript);
-
-            bool Validate(SpellInfo const* /*spell*/) override
-            {
-                return ValidateSpellInfo({ SPELL_SUMMON_SHADOW_GALE_STALKER });
-            }
-
-            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
-            {
-                GetHitUnit()->CastSpell(GetHitUnit(), SPELL_SUMMON_SHADOW_GALE_STALKER, true);
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_erudax_shadow_gale_trigger_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_erudax_shadow_gale_trigger_SpellScript();
-        }
-};
-
-class ShadowGaleDistanceCheck
-{
-    public:
-        ShadowGaleDistanceCheck(Position pos) : _pos(pos) { }
-
-        bool operator()(WorldObject* object)
-        {
-            return (object->GetDistance2d(_pos.GetPositionX(), _pos.GetPositionY()) <= 4.0f);
-        }
-    private:
-        Position _pos;
-};
-
-class spell_erudax_shadow_gale : public SpellScriptLoader
-{
-    public:
-        spell_erudax_shadow_gale() : SpellScriptLoader("spell_erudax_shadow_gale") { }
-
-        class spell_erudax_shadow_gale_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_erudax_shadow_gale_SpellScript);
-
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                if (targets.empty())
-                    return;
-
-                if (Unit* caster = GetCaster())
-                    if (InstanceScript* instance = caster->GetInstanceScript())
-                        if (Creature* shadowGale = instance->GetCreature(DATA_SHADOW_GALE_STALKER))
-                            targets.remove_if(ShadowGaleDistanceCheck(shadowGale->GetPosition()));
-            }
-
-            void Register() override
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_erudax_shadow_gale_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_erudax_shadow_gale_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_erudax_shadow_gale_SpellScript();
-        }
-};
-
-class spell_erudax_shadow_gale_aura : public SpellScriptLoader
-{
-    public:
-        spell_erudax_shadow_gale_aura() : SpellScriptLoader("spell_erudax_shadow_gale_aura") { }
-
-        class spell_erudax_shadow_gale_aura_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_erudax_shadow_gale_aura_SpellScript);
-
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                if (targets.empty())
-                    return;
-
-                targets.remove_if(ShadowGaleDistanceCheck(GetCaster()->GetPosition()));
-            }
-
-            void Register() override
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_erudax_shadow_gale_aura_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_erudax_shadow_gale_aura_SpellScript();
-        }
-};
-
-class spell_erudax_twilight_corruption: public SpellScriptLoader
-{
-    public:
-        spell_erudax_twilight_corruption() : SpellScriptLoader("spell_erudax_twilight_corruption") { }
-
-        class spell_erudax_twilight_corruption_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_erudax_twilight_corruption_SpellScript);
-
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                if (targets.empty())
-                    return;
-
-                targets.sort(Trinity::ObjectDistanceOrderPred(GetCaster(), true));
-                targets.resize(1);
-            }
-
-            void Register() override
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_erudax_twilight_corruption_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_erudax_twilight_corruption_SpellScript();
-        }
-
-        class spell_erudax_twilight_corruption_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_erudax_twilight_corruption_AuraScript);
-
-            void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
-            {
-                PreventDefaultAction();
-                if (Unit* target = GetOwner()->ToUnit())
-                {
-                    if (uint32 spellId = sSpellMgr->GetSpellIdForDifficulty(GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, target))
-                    {
-                        if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(spellId))
+                        if (Creature* corruptor = ObjectAccessor::GetCreature(*me, guid))
                         {
-                            int32 damage = CalculatePct(target->GetMaxHealth(), spell->Effects[EFFECT_0].BasePoints);
-                            target->CastCustomSpell(target, spellId, &damage, 0, 0, true);
+                            if (corruptor->IsAlive())
+                            {
+                                Talk(SAY_ANNOUNCE_SHIELD_OF_NIGHTMARES, corruptor);
+                                DoCastAOE(SPELL_SHIELD_OF_NIGHTMARES);
+                                break;
+                            }
                         }
                     }
-                }
+                    break;
+                default:
+                    break;
             }
-
-            void OnAuraRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::ByDeath))
-                {
-                    if (Unit* caster = GetCaster())
-                        if (Creature* creature = caster->ToCreature())
-                            if (creature->IsAIEnabled)
-                                creature->AI()->DoAction(ACTION_FINISH_CORRUPTION);
-
-                    if (Unit* owner = GetOwner()->ToUnit())
-                    {
-                        owner->CastSpell(owner, SPELL_SUMMON_TWILIGHT_EGG, true);
-                        owner->CastSpell(owner, SPELL_SUMMON_TWILIGHT_HATCHLING, true);
-                        owner->SetDisplayId(MODEL_ID_INVISIBLE);
-                    }
-                }
-            }
-
-            void Register() override
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_erudax_twilight_corruption_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-                OnEffectRemove += AuraEffectRemoveFn(spell_erudax_twilight_corruption_AuraScript::OnAuraRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_erudax_twilight_corruption_AuraScript();
         }
+        DoMeleeAttackIfReady();
+    }
+private:
+    void DespawnFacelessCorruptors()
+    {
+        EntryCheckPredicate pred1(NPC_FACELESS_CORRUPTOR_1);
+        EntryCheckPredicate pred2(NPC_FACELESS_CORRUPTOR_2);
+        summons.DoAction(ACTION_DESPAWN, pred1);
+        summons.DoAction(ACTION_DESPAWN, pred2);
+    }
+
+    bool _achievementEnligible;
+    ObjectGuid _shadowGaleStalkerGUID;
+};
+
+struct npc_erudax_faceless_corruptor : public ScriptedAI
+{
+    npc_erudax_faceless_corruptor(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
+    {
+        me->SetReactState(REACT_PASSIVE);
+        me->SetCorpseDelay(5);
+    }
+
+    void IsSummonedBy(Unit* /*summoner*/) override
+    {
+        me->MakeInterruptable(false);
+        if (me->GetEntry() == NPC_FACELESS_CORRUPTOR_1)
+            me->GetMotionMaster()->MovePoint(POINT_PATH_1, facelessCorruptorPositions1[0], true);
+        else
+            me->GetMotionMaster()->MovePoint(POINT_PATH_1, facelessCorruptorPositions2[0], true);
+        _events.ScheduleEvent(EVENT_SEND_ENCOUNTER_FRAME, 7s + 500ms);
+    }
+
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        me->DespawnOrUnsummon();
+    }
+
+    void MovementInform(uint32 type, uint32 point) override
+    {
+        if (type != POINT_MOTION_TYPE && type != EFFECT_MOTION_TYPE)
+            return;
+
+        switch (point)
+        {
+            case POINT_PATH_1:
+                if (me->GetEntry() == NPC_FACELESS_CORRUPTOR_1)
+                    me->GetMotionMaster()->MovePoint(POINT_PATH_2, facelessCorruptorPositions1[1]);
+                else
+                    me->GetMotionMaster()->MovePoint(POINT_PATH_2, facelessCorruptorPositions2[1]);
+                break;
+            case POINT_PATH_2:
+                if (me->GetEntry() == NPC_FACELESS_CORRUPTOR_1)
+                    me->GetMotionMaster()->MovePoint(POINT_PATH_3, facelessCorruptorPositions1[2]);
+                else
+                    me->GetMotionMaster()->MovePoint(POINT_PATH_3, facelessCorruptorPositions2[2]);
+                break;
+            case POINT_PATH_3:
+                _events.ScheduleEvent(EVENT_TWILIGHT_CORRUPTION, 1s);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void DoAction(int32 action) override
+    {
+        switch (action)
+        {
+            case ACTION_FINISH_CORRUPTION:
+                _events.ScheduleEvent(EVENT_UMBRAL_MENDING, 400ms);
+                break;
+            case ACTION_DESPAWN:
+                _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                me->DespawnOrUnsummon();
+                break;
+            default:
+                break;
+        }
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        UpdateVictim();
+
+        _events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_SEND_ENCOUNTER_FRAME:
+                    _instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
+                    break;
+                case EVENT_TWILIGHT_CORRUPTION:
+                    if (Creature* erudax = _instance->GetCreature(DATA_ERUDAX))
+                        erudax->AI()->DoAction(ACTION_FAIL_ACHIEVEMENT);
+                    DoCastAOE(SPELL_TWILIGHT_CORRUPTION);
+                    break;
+                case EVENT_UMBRAL_MENDING:
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_INTERRUPT, false);
+                    me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, false);
+                    DoCastAOE(SPELL_UMBRAL_MENDING);
+                    _events.ScheduleEvent(EVENT_ATTACK_PLAYER, 3s);
+                    _events.ScheduleEvent(EVENT_SIPHON_ESSENCE, 55s);
+                    break;
+                case EVENT_ATTACK_PLAYER:
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_INTERRUPT, true);
+                    me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, true);
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    if (Player* player = me->SelectNearestPlayer(100.0f))
+                        me->EngageWithTarget(player);
+                    break;
+                case EVENT_SIPHON_ESSENCE:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                        DoCast(target, SPELL_SIPHON_ESSENCE);
+                    _events.Repeat(11s);
+                    break;
+                default:
+                    break;
+            }
+        }
+        DoMeleeAttackIfReady();
+    }
+private:
+    EventMap _events;
+    InstanceScript* _instance;
+};
+
+class spell_erudax_shadow_gale_trigger : public SpellScript
+{
+    PrepareSpellScript(spell_erudax_shadow_gale_trigger);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SUMMON_SHADOW_GALE_STALKER });
+    }
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_SUMMON_SHADOW_GALE_STALKER, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_erudax_shadow_gale_trigger::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+class spell_erudax_shadow_gale : public SpellScript
+{
+    PrepareSpellScript(spell_erudax_shadow_gale);
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.empty())
+            return;
+
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        if (Unit* channelTarget = ObjectAccessor::GetUnit(*caster, caster->GetChannelObjectGuid()))
+        {
+            targets.remove_if([channelTarget](WorldObject const* target)
+            {
+                return target->GetExactDist2d(channelTarget) <= 5.f;
+            });
+        }
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_erudax_shadow_gale::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_erudax_shadow_gale::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+    }
+};
+
+class spell_erudax_shadow_gale_aura : public SpellScript
+{
+    PrepareSpellScript(spell_erudax_shadow_gale_aura);
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.empty())
+            return;
+
+        targets.remove_if([this](WorldObject const* target)
+        {
+            return target->GetExactDist2d(GetCaster()) <= 5.f;
+        });
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_erudax_shadow_gale_aura::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+    }
+};
+
+class spell_erudax_twilight_corruption : public SpellScript
+{
+    PrepareSpellScript(spell_erudax_twilight_corruption);
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.empty())
+            return;
+
+        targets.sort(Trinity::ObjectDistanceOrderPred(GetCaster(), true));
+
+        if (targets.size() > 1)
+            targets.resize(1);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_erudax_twilight_corruption::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+    }
+};
+
+class spell_erudax_twilight_corruption_AuraScript : public AuraScript
+{
+    PrepareAuraScript(spell_erudax_twilight_corruption_AuraScript);
+
+    void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
+    {
+        PreventDefaultAction();
+        if (Unit* target = GetOwner()->ToUnit())
+        {
+            if (uint32 spellId = sSpellMgr->GetSpellIdForDifficulty(GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, target))
+            {
+                if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(spellId))
+                {
+                    int32 damage = CalculatePct(target->GetMaxHealth(), spell->Effects[EFFECT_0].BasePoints);
+                    target->CastCustomSpell(target, spellId, &damage, 0, 0, true);
+                }
+            }
+        }
+    }
+
+    void OnAuraRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::ByDeath))
+        {
+            if (Unit* caster = GetCaster())
+                if (Creature* creature = caster->ToCreature())
+                    if (creature->IsAIEnabled)
+                        creature->AI()->DoAction(ACTION_FINISH_CORRUPTION);
+
+            if (Unit* owner = GetOwner()->ToUnit())
+            {
+                owner->CastSpell(owner, SPELL_SUMMON_TWILIGHT_EGG, true);
+                owner->CastSpell(owner, SPELL_SUMMON_TWILIGHT_HATCHLING, true);
+                owner->SetDisplayId(MODEL_ID_INVISIBLE);
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_erudax_twilight_corruption_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+        OnEffectRemove += AuraEffectRemoveFn(spell_erudax_twilight_corruption_AuraScript::OnAuraRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+    }
 };
 
 class achievement_dont_need_to_break_eggs : public AchievementCriteriaScript
@@ -601,11 +576,11 @@ class achievement_dont_need_to_break_eggs : public AchievementCriteriaScript
 
 void AddSC_boss_erudax()
 {
-    new boss_erudax();
-    new npc_erudax_faceless_corruptor();
-    new spell_erudax_shadow_gale_trigger();
-    new spell_erudax_shadow_gale();
-    new spell_erudax_shadow_gale_aura();
-    new spell_erudax_twilight_corruption();
+    RegisterGrimBatolCreatureAI(boss_erudax);
+    RegisterGrimBatolCreatureAI(npc_erudax_faceless_corruptor);
+    RegisterSpellScript(spell_erudax_shadow_gale_trigger);
+    RegisterSpellScript(spell_erudax_shadow_gale);
+    RegisterSpellScript(spell_erudax_shadow_gale_aura);
+    RegisterSpellAndAuraScriptPair(spell_erudax_twilight_corruption, spell_erudax_twilight_corruption_AuraScript);
     new achievement_dont_need_to_break_eggs();
 }
