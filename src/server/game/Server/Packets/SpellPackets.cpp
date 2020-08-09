@@ -286,3 +286,19 @@ WorldPacket const* WorldPackets::Spells::MissileCancel::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Spells::CategoryCooldown::Write()
+{
+    _worldPacket.reserve(4 + 8 * CategoryCooldowns.size());
+
+    _worldPacket.WriteBits(CategoryCooldowns.size(), 23);
+    _worldPacket.FlushBits();
+
+    for (CategoryCooldownInfo const& cooldown : CategoryCooldowns)
+    {
+        _worldPacket << uint32(cooldown.Category);
+        _worldPacket << int32(cooldown.ModCooldown);
+    }
+
+    return &_worldPacket;
+}

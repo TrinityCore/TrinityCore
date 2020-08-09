@@ -1189,7 +1189,7 @@ enum OpcodeServer
     SMSG_SPELLNONMELEEDAMAGELOG                       = 0x4315,
     SMSG_SPELLORDAMAGE_IMMUNE                         = 0x4507,
     SMSG_SPELLSTEALLOG                                = 0x4E26,
-    SMSG_SPELL_CATEGORY_COOLDOWN                      = 0x71B6,
+    SMSG_CATEGORY_COOLDOWN                            = 0x71B6,
     SMSG_SPELL_COOLDOWN                               = 0x4B16,
     SMSG_SPELL_DELAYED                                = 0x0715,
     SMSG_SPELL_FAILED_OTHER                           = 0x0C34,

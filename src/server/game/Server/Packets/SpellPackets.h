@@ -230,6 +230,25 @@ namespace WorldPackets
             bool Reverse = false;
             int32 SpellID = 0;
         };
+
+        class CategoryCooldown final : public ServerPacket
+        {
+        public:
+            struct CategoryCooldownInfo
+            {
+                CategoryCooldownInfo(uint32 category, int32 cooldown)
+                    : Category(category), ModCooldown(cooldown) { }
+
+                uint32 Category   = 0; ///< SpellCategory Id
+                int32 ModCooldown = 0; ///< Reduced Cooldown in ms
+            };
+
+            CategoryCooldown() : ServerPacket(SMSG_CATEGORY_COOLDOWN, 4) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<CategoryCooldownInfo> CategoryCooldowns;
+        };
     }
 }
 
