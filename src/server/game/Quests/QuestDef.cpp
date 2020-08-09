@@ -265,34 +265,44 @@ bool Quest::IsAutoAccept() const
 
 void Quest::BuildExtraQuestInfo(WorldPacket& data, Player* player) const
 {
-    data << uint32(GetRewChoiceItemsCount());
-    for (uint8 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
-        data << uint32(RewardChoiceItemId[i]);
-    for (uint8 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
-        data << uint32(RewardChoiceItemCount[i]);
-    for (uint8 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
+    if (HasFlag(QUEST_FLAGS_HIDDEN_REWARDS))
     {
-        if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(RewardChoiceItemId[i]))
-            data << uint32(itemTemplate->DisplayInfoID);
-        else
-            data << uint32(0);
+        data << uint32(0);                                  // Rewarded chosen items hidden
+        data << uint32(0);                                  // Rewarded items hidden
+        data << uint32(0);                                  // Rewarded money hidden
+        data << uint32(0);                                  // Rewarded XP hidden
     }
-
-    data << uint32(GetReqItemsCount());
-    for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
-        data << uint32(RewardItemId[i]);
-    for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
-        data << uint32(RewardItemIdCount[i]);
-    for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
+    else
     {
-        if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(RewardItemId[i]))
-            data << uint32(itemTemplate->DisplayInfoID);
-        else
-            data << uint32(0);
-    }
+        data << uint32(GetRewChoiceItemsCount());
+        for (uint8 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
+            data << uint32(RewardChoiceItemId[i]);
+        for (uint8 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
+            data << uint32(RewardChoiceItemCount[i]);
+        for (uint8 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
+        {
+            if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(RewardChoiceItemId[i]))
+                data << uint32(itemTemplate->DisplayInfoID);
+            else
+                data << uint32(0);
+        }
 
-    data << uint32(GetRewOrReqMoney());
-    data << uint32(GetXPReward(player) * sWorld->getRate(RATE_XP_QUEST));
+        data << uint32(GetReqItemsCount());
+        for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
+            data << uint32(RewardItemId[i]);
+        for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
+            data << uint32(RewardItemIdCount[i]);
+        for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
+        {
+            if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(RewardItemId[i]))
+                data << uint32(itemTemplate->DisplayInfoID);
+            else
+                data << uint32(0);
+        }
+
+        data << uint32(GetRewOrReqMoney());
+        data << uint32(GetXPReward(player) * sWorld->getRate(RATE_XP_QUEST));
+    }
 
     // rewarded honor points. Multiply with 10 to satisfy client
     data << uint32(10 * CalculateHonorGain(player->GetQuestLevel(this)));
