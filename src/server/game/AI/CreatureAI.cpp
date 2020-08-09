@@ -108,7 +108,7 @@ void CreatureAI::MoveInLineOfSight(Unit* who)
     if (me->IsEngaged())
         return;
 
-    if (me->HasReactState(REACT_AGGRESSIVE) && me->CanStartAttack(who, false))
+    if (me->HasReactState(REACT_AGGRESSIVE) && !me->IsIgnoringCombat() && me->CanStartAttack(who, false))
         me->EngageWithTarget(who);
 }
 
