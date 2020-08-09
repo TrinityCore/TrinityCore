@@ -553,24 +553,16 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                             me->InterruptNonMeleeSpells(false);
 
                         SpellCastResult result = me->CastSpell(target->ToUnit(), e.action.cast.spell, triggerFlag);
+                        bool spellCastFailed = (result != SPELL_CAST_OK && result != SPELL_FAILED_SPELL_IN_PROGRESS);
 
                         if (e.action.cast.castFlags & SMARTCAST_COMBAT_MOVE)
                         {
                             // If cast flag SMARTCAST_COMBAT_MOVE is set combat movement will not be allowed unless target is outside spell range, out of mana, or LOS.
-                            bool allowMove = false;
-                            switch (result)
-                            {
-                                // In these cases there's nothing to do
-                                case SPELL_CAST_OK:
-                                case SPELL_FAILED_SPELL_IN_PROGRESS:
-                                    break;
-                                default:
-                                    allowMove = true;
-                                    break;
-                            }
-
-                            ENSURE_AI(SmartAI, me->AI())->SetCombatMove(allowMove, true);
+                            ENSURE_AI(SmartAI, me->AI())->SetCombatMove(spellCastFailed, true);
                         }
+
+                        if (spellCastFailed)
+                            RecalcTimer(e, 500, 500);
                     }
                     else if (go)
                         go->CastSpell(target->ToUnit(), e.action.cast.spell, triggerFlag);
