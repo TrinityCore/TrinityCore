@@ -51,9 +51,9 @@ struct boss_lord_overheat : public BossAI
 
             Talk(SAY_PULL);
 
-            events.ScheduleEvent(EVENT_FIREBALL, Seconds(2));
-            events.ScheduleEvent(EVENT_OVERHEAT, Seconds(9), Seconds(11));
-            events.ScheduleEvent(EVENT_RAIN_OF_FIRE, Seconds(10), Seconds(13));
+            events.ScheduleEvent(EVENT_FIREBALL, 2s);
+            events.ScheduleEvent(EVENT_OVERHEAT, 9s, 11s);
+            events.ScheduleEvent(EVENT_RAIN_OF_FIRE, 10s, 13s);
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -79,16 +79,16 @@ struct boss_lord_overheat : public BossAI
                 {
                     case EVENT_FIREBALL:
                         DoCastVictim(SPELL_FIREBALL);
-                        events.Repeat(Seconds(2));
+                        events.Repeat(2s);
                         break;
                     case EVENT_OVERHEAT:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                             DoCast(target, SPELL_OVERHEAT);
-                        events.Repeat(Seconds(9), Seconds(10));
+                        events.Repeat(9s, 10s);
                         break;
                     case EVENT_RAIN_OF_FIRE:
                         DoCastAOE(SPELL_RAIN_OF_FIRE);
-                        events.Repeat(Seconds(15), Seconds(20));
+                        events.Repeat(15s, 20s);
                         break;
                     default:
                         break;

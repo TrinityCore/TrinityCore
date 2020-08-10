@@ -73,8 +73,8 @@ struct boss_randolph_moloch : public BossAI
 
             Talk(SAY_PULL);
 
-            events.ScheduleEvent(EVENT_WILDLY_STABBING, Seconds(4), Seconds(5));
-            events.ScheduleEvent(EVENT_SWEEP, Seconds(2), Seconds(3));
+            events.ScheduleEvent(EVENT_WILDLY_STABBING, 4s, 5s);
+            events.ScheduleEvent(EVENT_SWEEP, 2s, 3s);
         }
 
         void JustSummoned(Creature* summon) override
@@ -113,11 +113,11 @@ struct boss_randolph_moloch : public BossAI
                 {
                     case EVENT_WILDLY_STABBING:
                         DoCastVictim(SPELL_WILDLY_STABBING);
-                        events.Repeat(Seconds(8), Seconds(12));
+                        events.Repeat(8s, 12s);
                         break;
                     case EVENT_SWEEP:
                         DoCastVictim(SPELL_SWEEP);
-                        events.ScheduleEvent(EVENT_SWEEP, Seconds(6), Seconds(7));
+                        events.ScheduleEvent(EVENT_SWEEP, 6s, 7s);
                         break;
                     case EVENT_VANISH:
                         Talk(SAY_VANISH);
@@ -125,7 +125,7 @@ struct boss_randolph_moloch : public BossAI
                         DoCastSelf(SPELL_VANISH);
                         me->SetReactState(REACT_PASSIVE);
                         me->SetInCombatState(true); // Prevents the boss from resetting
-                        events.ScheduleEvent(EVENT_JUST_VANISHED, Seconds(2));
+                        events.ScheduleEvent(EVENT_JUST_VANISHED, 2s);
                         break;
                     case EVENT_JUST_VANISHED:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
@@ -145,13 +145,13 @@ struct boss_randolph_moloch : public BossAI
             if (me->HealthBelowPctDamaged(71, damage) && me->HealthAbovePct(59) && !firstVanish)
             {
                 firstVanish = true;
-                events.ScheduleEvent(EVENT_VANISH, Seconds(1));
+                events.ScheduleEvent(EVENT_VANISH, 1s);
             }
 
             if (me->HealthBelowPctDamaged(41, damage) && me->HealthAbovePct(29) && !secondVanish)
             {
                 secondVanish = true;
-                events.ScheduleEvent(EVENT_VANISH, Seconds(1));
+                events.ScheduleEvent(EVENT_VANISH, 1s);
             }
         }
 
@@ -177,12 +177,12 @@ struct npc_mortimer_moloch : public ScriptedAI
 
             if (id == POINT_FINISH)
             {
-                scheduler.Schedule(Seconds(4), [this](TaskContext /*context*/)
+                scheduler.Schedule(4s, [this](TaskContext /*context*/)
                 {
                     Talk(MORTIMER_MOLOCH_EMOTE);
                 });
 
-                scheduler.Schedule(Seconds(7), [this](TaskContext /*context*/)
+                scheduler.Schedule(7s, [this](TaskContext /*context*/)
                 {
                     Talk(MORTIMER_MOLOCH_DEATH);
                     me->KillSelf();

@@ -69,8 +69,8 @@ struct boss_hogger : public BossAI
 
             Talk(SAY_PULL);
 
-            events.ScheduleEvent(EVENT_VICIOUS_SLICE, Seconds(3), Seconds(4));
-            events.ScheduleEvent(EVENT_MADDENING_CALL, Seconds(1), Seconds(2));
+            events.ScheduleEvent(EVENT_VICIOUS_SLICE, 3s, 4s);
+            events.ScheduleEvent(EVENT_MADDENING_CALL, 1s, 2s);
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -106,11 +106,11 @@ struct boss_hogger : public BossAI
                 {
                     case EVENT_VICIOUS_SLICE:
                         DoCastVictim(SPELL_VICIOUS_SLICE);
-                        events.Repeat(Seconds(10), Seconds(14));
+                        events.Repeat(10s, 14s);
                         break;
                     case EVENT_MADDENING_CALL:
                         DoCast(SPELL_MADDENING_CALL);
-                        events.Repeat(Seconds(15), Seconds(20));
+                        events.Repeat(15s, 20s);
                         break;
                 }
 
@@ -149,17 +149,17 @@ struct npc_warden_thelwater : public ScriptedAI
 
             if (id == POINT_FINISH)
             {
-                scheduler.Schedule(Seconds(1), [this](TaskContext /*context*/)
+                scheduler.Schedule(1s, [this](TaskContext /*context*/)
                 {
                     Talk(SAY_WARDEN_1);
                 });
 
-                scheduler.Schedule(Seconds(5), [this](TaskContext /*context*/)
+                scheduler.Schedule(5s, [this](TaskContext /*context*/)
                 {
                     Talk(SAY_WARDEN_2);
                 });
 
-                scheduler.Schedule(Seconds(8), [this](TaskContext /*context*/)
+                scheduler.Schedule(8s, [this](TaskContext /*context*/)
                 {
                     Talk(SAY_WARDEN_3);
                 });
