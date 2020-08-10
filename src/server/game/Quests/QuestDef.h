@@ -27,6 +27,11 @@
 
 class Player;
 
+namespace WorldPackets::Quest
+{
+    struct QuestRewards;
+}
+
 #define MAX_QUEST_LOG_SIZE 25
 
 #define QUEST_OBJECTIVES_COUNT 4
@@ -322,6 +327,8 @@ class TC_GAME_API Quest
         static void AddQuestLevelToTitle(std::string& title, int32 level);
         void InitializeQueryData();
         WorldPacket BuildQueryData(LocaleConstant loc) const;
+
+        void BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player* player) const;
 
         std::vector<uint32> DependentPreviousQuests;
         std::vector<uint32> DependentBreadcrumbQuests;

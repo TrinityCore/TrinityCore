@@ -126,3 +126,61 @@ WorldPacket const* WorldPackets::Quest::QueryQuestInfoResponse::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Quest::QuestGiverQuestDetails::Write()
+{
+    _worldPacket << QuestGiverGUID;
+    _worldPacket << InformUnit;
+    _worldPacket << uint32(QuestID);
+    _worldPacket << Title;
+    _worldPacket << Details;
+    _worldPacket << Objectives;
+    _worldPacket << uint8(AutoLaunched);
+    _worldPacket << uint32(Flags);
+    _worldPacket << uint32(SuggestedGroupNum);
+    _worldPacket << uint8(StartCheat);
+
+    _worldPacket << uint32(Rewards.UnfilteredChoiceItems.size());
+    for (WorldPackets::Quest::QuestChoiceItem const& item : Rewards.UnfilteredChoiceItems)
+    {
+        _worldPacket << uint32(item.ItemID);
+        _worldPacket << uint32(item.Quantity);
+        _worldPacket << uint32(item.DisplayID);
+    }
+
+    _worldPacket << uint32(Rewards.RewardItems.size());
+    for (WorldPackets::Quest::QuestChoiceItem const& item : Rewards.RewardItems)
+    {
+        _worldPacket << uint32(item.ItemID);
+        _worldPacket << uint32(item.Quantity);
+        _worldPacket << uint32(item.DisplayID);
+    }
+
+    _worldPacket << uint32(Rewards.RewardMoney);
+    _worldPacket << uint32(Rewards.RewardXPDifficulty);
+    _worldPacket << uint32(Rewards.RewardHonor);
+    _worldPacket << float(Rewards.RewardKillHonor);
+    _worldPacket << uint32(Rewards.RewardDisplaySpell);
+    _worldPacket << int32(Rewards.RewardSpell);
+    _worldPacket << uint32(Rewards.RewardTitleId);
+    _worldPacket << uint32(Rewards.RewardTalents);
+    _worldPacket << uint32(Rewards.RewardArenaPoints);
+    _worldPacket << uint32(Rewards.RewardFactionFlags);
+
+    for (uint32 id : Rewards.RewardFactionID)
+        _worldPacket << uint32(id);
+
+    for (uint32 id : Rewards.RewardFactionValue)
+        _worldPacket << int32(id);
+
+    for (uint32 id : Rewards.RewardFactionValueOverride)
+        _worldPacket << int32(id);
+
+    for (QuestDescEmote const& emote : DescEmotes)
+    {
+        _worldPacket << uint32(emote.Type);
+        _worldPacket << uint32(emote.Delay);
+    }
+
+    return &_worldPacket;
+}
