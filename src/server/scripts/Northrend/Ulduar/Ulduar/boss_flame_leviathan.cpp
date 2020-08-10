@@ -276,8 +276,8 @@ class boss_flame_leviathan : public CreatureScript
             {
                 BossAI::JustEngagedWith(who);
                 me->SetReactState(REACT_PASSIVE);
-                events.ScheduleEvent(EVENT_PURSUE, 1);
-                events.ScheduleEvent(EVENT_MISSILE, urand(1500, 4*IN_MILLISECONDS));
+                events.ScheduleEvent(EVENT_PURSUE, 1ms);
+                events.ScheduleEvent(EVENT_MISSILE, 1500ms, 4s);
                 events.ScheduleEvent(EVENT_VENT, 20s);
                 events.ScheduleEvent(EVENT_SHUTDOWN, 150s);
                 events.ScheduleEvent(EVENT_SPEED, 15s);
@@ -355,6 +355,7 @@ class boss_flame_leviathan : public CreatureScript
                     case DATA_ORBIT_ACHIEVEMENTS:
                         if (ActiveTowers) // Only on HardMode
                             return ActiveTowersCount;
+                        break;
                     default:
                         break;
                 }
@@ -416,7 +417,7 @@ class boss_flame_leviathan : public CreatureScript
                             break;
                         case EVENT_SUMMON:
                             if (summons.size() < 15)
-                                if (Creature* lift = DoSummonFlyer(NPC_MECHANOLIFT, me, 30.0f, 50.0f, 0))
+                                if (Creature* lift = DoSummonFlyer(NPC_MECHANOLIFT, me, 30.0f, 50.0f, 0s))
                                     lift->GetMotionMaster()->MoveRandom(100);
                             events.ScheduleEvent(EVENT_SUMMON, 2s);
                             break;
@@ -427,7 +428,7 @@ class boss_flame_leviathan : public CreatureScript
                             if (Shutout)
                                 Shutout = false;
                             events.ScheduleEvent(EVENT_REPAIR, 4s);
-                            events.DelayEvents(20 * IN_MILLISECONDS, 0);
+                            events.DelayEvents(20s, 0);
                             break;
                         case EVENT_REPAIR:
                             Talk(EMOTE_REPAIR);
@@ -438,7 +439,7 @@ class boss_flame_leviathan : public CreatureScript
                         case EVENT_THORIM_S_HAMMER: // Tower of Storms
                             for (uint8 i = 0; i < 7; ++i)
                             {
-                                if (Creature* thorim = DoSummon(NPC_THORIM_BEACON, me, float(urand(20, 60)), 20000, TEMPSUMMON_TIMED_DESPAWN))
+                                if (Creature* thorim = DoSummon(NPC_THORIM_BEACON, me, float(urand(20, 60)), 20s, TEMPSUMMON_TIMED_DESPAWN))
                                     thorim->GetMotionMaster()->MoveRandom(100);
                             }
                             Talk(SAY_TOWER_STORM);
@@ -452,7 +453,7 @@ class boss_flame_leviathan : public CreatureScript
                         case EVENT_HODIR_S_FURY:      // Tower of Frost
                             for (uint8 i = 0; i < 7; ++i)
                             {
-                                if (Creature* hodir = DoSummon(NPC_HODIR_BEACON, me, 50, 0))
+                                if (Creature* hodir = DoSummon(NPC_HODIR_BEACON, me, 50, 0s))
                                     hodir->GetMotionMaster()->MoveRandom(100);
                             }
                             Talk(SAY_TOWER_FROST);
@@ -584,7 +585,7 @@ class boss_flame_leviathan : public CreatureScript
 
                         if (!target)
                         {
-                            events.RescheduleEvent(EVENT_PURSUE, 0);
+                            events.RescheduleEvent(EVENT_PURSUE, 0s);
                             return;
                         }
 
@@ -978,7 +979,7 @@ class npc_thorims_hammer : public CreatureScript
             {
                 if (who->GetTypeId() == TYPEID_PLAYER && who->IsVehicle() && me->IsInRange(who, 0, 10, false))
                 {
-                    if (Creature* trigger = DoSummonFlyer(NPC_THORIM_TARGET_BEACON, me, 20, 0, 1000, TEMPSUMMON_TIMED_DESPAWN))
+                    if (Creature* trigger = DoSummonFlyer(NPC_THORIM_TARGET_BEACON, me, 20, 0, 1s, TEMPSUMMON_TIMED_DESPAWN))
                         trigger->CastSpell(who, SPELL_THORIM_S_HAMMER, true);
                 }
             }
@@ -1035,7 +1036,7 @@ public:
             {
                 if (infernoTimer <= diff)
                 {
-                    if (Creature* trigger = DoSummonFlyer(NPC_MIMIRON_TARGET_BEACON, me, 20, 0, 1000, TEMPSUMMON_TIMED_DESPAWN))
+                    if (Creature* trigger = DoSummonFlyer(NPC_MIMIRON_TARGET_BEACON, me, 20, 0, 1s, TEMPSUMMON_TIMED_DESPAWN))
                     {
                         trigger->CastSpell(me->GetPosition(), SPELL_MIMIRON_S_INFERNO, true);
                         infernoTimer = 2000;
@@ -1074,7 +1075,7 @@ class npc_hodirs_fury : public CreatureScript
             {
                 if (who->GetTypeId() == TYPEID_PLAYER && who->IsVehicle() && me->IsInRange(who, 0, 5, false))
                 {
-                    if (Creature* trigger = DoSummonFlyer(NPC_HODIR_TARGET_BEACON, me, 20, 0, 1000, TEMPSUMMON_TIMED_DESPAWN))
+                    if (Creature* trigger = DoSummonFlyer(NPC_HODIR_TARGET_BEACON, me, 20, 0, 1s, TEMPSUMMON_TIMED_DESPAWN))
                         trigger->CastSpell(who, SPELL_HODIR_S_FURY, true);
                 }
             }
@@ -1255,11 +1256,11 @@ class npc_lorekeeper : public CreatureScript
                 if (action == ACTION_SPAWN_VEHICLES)
                 {
                     for (uint8 i = 0; i < RAID_MODE(2, 5); ++i)
-                        DoSummon(VEHICLE_SIEGE, PosSiege[i], 3000, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+                        DoSummon(VEHICLE_SIEGE, PosSiege[i], 3s, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
                     for (uint8 i = 0; i < RAID_MODE(2, 5); ++i)
-                        DoSummon(VEHICLE_CHOPPER, PosChopper[i], 3000, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+                        DoSummon(VEHICLE_CHOPPER, PosChopper[i], 3s, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
                     for (uint8 i = 0; i < RAID_MODE(2, 5); ++i)
-                        DoSummon(VEHICLE_DEMOLISHER, PosDemolisher[i], 3000, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+                        DoSummon(VEHICLE_DEMOLISHER, PosDemolisher[i], 3s, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
                 }
             }
 

@@ -51,7 +51,7 @@ class FormationMovementGenerator : public MovementGeneratorMedium<Creature, Form
         bool _hasPredictedDestination;
 
         Position _lastLeaderPosition;
-        TimeTrackerSmall _nextMoveTimer;
+        TimeTracker _nextMoveTimer;
 };
 
 #endif // TRINITY_FORMATIONMOVEMENTGENERATOR_H

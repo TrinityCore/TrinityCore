@@ -216,7 +216,7 @@ public:
                             for (GuidList::const_iterator itr = m_uiAncientGemGUID.begin(); itr != m_uiAncientGemGUID.end(); ++itr)
                             {
                                 //don't know how long it expected
-                                DoRespawnGameObject(*itr, DAY);
+                                DoRespawnGameObject(*itr, 24h);
                             }
                         }
                     }

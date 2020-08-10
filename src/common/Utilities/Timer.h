@@ -19,7 +19,7 @@
 #define TRINITY_TIMER_H
 
 #include "Define.h"
-#include <chrono>
+#include "Duration.h"
 
 inline std::chrono::steady_clock::time_point GetApplicationStartTime()
 {
@@ -115,69 +115,41 @@ private:
 struct TimeTracker
 {
 public:
-
-    TimeTracker(time_t expiry)
-        : i_expiryTime(expiry)
-    {
-    }
-
-    void Update(time_t diff)
-    {
-        i_expiryTime -= diff;
-    }
-
-    bool Passed() const
-    {
-        return i_expiryTime <= 0;
-    }
-
-    void Reset(time_t interval)
-    {
-        i_expiryTime = interval;
-    }
-
-    time_t GetExpiry() const
-    {
-        return i_expiryTime;
-    }
-
-private:
-
-    time_t i_expiryTime;
-};
-
-struct TimeTrackerSmall
-{
-public:
-
-    TimeTrackerSmall(int32 expiry = 0)
-        : i_expiryTime(expiry)
-    {
-    }
+    TimeTracker(int32 expiry = 0) : _expiryTime(expiry) { }
+    TimeTracker(Milliseconds expiry) : _expiryTime(expiry) { }
 
     void Update(int32 diff)
     {
-        i_expiryTime -= diff;
+        Update(Milliseconds(diff));
+    }
+
+    void Update(Milliseconds diff)
+    {
+        _expiryTime -= diff;
     }
 
     bool Passed() const
     {
-        return i_expiryTime <= 0;
+        return _expiryTime <= 0s;
     }
 
-    void Reset(int32 interval)
+    void Reset(int32 expiry)
     {
-        i_expiryTime = interval;
+        Reset(Milliseconds(expiry));
     }
 
-    int32 GetExpiry() const
+    void Reset(Milliseconds expiry)
     {
-        return i_expiryTime;
+        _expiryTime = expiry;
+    }
+
+    Milliseconds GetExpiry() const
+    {
+        return _expiryTime;
     }
 
 private:
-
-    int32 i_expiryTime;
+    Milliseconds _expiryTime;
 };
 
 struct PeriodicTimer

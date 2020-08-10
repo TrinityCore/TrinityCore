@@ -44,6 +44,9 @@
         return false;
     if (a->HasUnitState(UNIT_STATE_IN_FLIGHT) || b->HasUnitState(UNIT_STATE_IN_FLIGHT))
         return false;
+    // ... both units must not be ignoring combat
+    if (a->IsIgnoringCombat() || b->IsIgnoringCombat())
+        return false;
     if (a->IsFriendlyTo(b) || b->IsFriendlyTo(a))
         return false;
     Player const* playerA = a->GetCharmerOrOwnerPlayerOrPlayerItself();

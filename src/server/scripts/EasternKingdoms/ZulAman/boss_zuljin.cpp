@@ -264,7 +264,7 @@ class boss_zuljin : public CreatureScript
             {
                 for (uint8 i = 0; i < 4; ++i)
                 {
-                    if (Creature* creature = me->SummonCreature(SpiritInfo[i].entry, SpiritInfo[i].pos, TEMPSUMMON_DEAD_DESPAWN, 0))
+                    if (Creature* creature = me->SummonCreature(SpiritInfo[i].entry, SpiritInfo[i].pos, TEMPSUMMON_DEAD_DESPAWN))
                     {
                         creature->CastSpell(creature, SPELL_SPIRIT_AURA, true);
                         creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -320,7 +320,7 @@ class boss_zuljin : public CreatureScript
                             DoCast(me, SPELL_ENERGY_STORM, true); // enemy aura
                             for (uint8 i = 0; i < 4; ++i)
                             {
-                                Creature* Vortex = DoSpawnCreature(CREATURE_FEATHER_VORTEX, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                                Creature* Vortex = DoSpawnCreature(CREATURE_FEATHER_VORTEX, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0s);
                                 if (Vortex)
                                 {
                                     Vortex->CastSpell(Vortex, SPELL_CYCLONE_PASSIVE, true);

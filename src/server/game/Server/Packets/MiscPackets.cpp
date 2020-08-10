@@ -201,3 +201,41 @@ void WorldPackets::Misc::WorldTeleport::Read()
     _worldPacket >> Pos;
     _worldPacket >> Facing;
 }
+
+WorldPacket const* WorldPackets::Misc::CorpseReclaimDelay::Write()
+{
+    _worldPacket << uint32(Remaining);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::DeathReleaseLoc::Write()
+{
+    _worldPacket << int32(MapID);
+    _worldPacket << Loc;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::PreRessurect::Write()
+{
+    _worldPacket << PlayerGUID.WriteAsPacked();
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Misc::ReclaimCorpse::Read()
+{
+    _worldPacket >> CorpseGUID;
+}
+
+void WorldPackets::Misc::RepopRequest::Read()
+{
+    _worldPacket >> CheckInstance;
+}
+
+void WorldPackets::Misc::ResurrectResponse::Read()
+{
+    _worldPacket >> Resurrecter;
+    _worldPacket >> Response;
+}

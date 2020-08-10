@@ -18,9 +18,7 @@
 #ifndef _WARDEN_MAC_H
 #define _WARDEN_MAC_H
 
-#include "Cryptography/ARC4.h"
-#include <map>
-#include "Cryptography/BigNumber.h"
+#include "ARC4.h"
 #include "ByteBuffer.h"
 #include "Warden.h"
 
@@ -33,7 +31,7 @@ class TC_GAME_API WardenMac : public Warden
         WardenMac();
         ~WardenMac();
 
-        void Init(WorldSession* session, BigNumber* k) override;
+        void Init(WorldSession* session, SessionKey const& k) override;
         ClientWardenModule* GetModuleForClient() override;
         void InitializeModule() override;
         void RequestHash() override;

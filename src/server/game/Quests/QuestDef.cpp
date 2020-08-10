@@ -214,10 +214,10 @@ uint32 Quest::GetXPReward(Player const* player) const
         else if (diffFactor > 10)
             diffFactor = 10;
 
-        uint32 xp = RoundXPValue(diffFactor * xpentry->Exp[_rewardXPDifficulty] / 10);
+        uint32 xp = RoundXPValue(diffFactor * xpentry->Difficulty[_rewardXPDifficulty] / 10);
         if (sWorld->getIntConfig(CONFIG_MIN_QUEST_SCALED_XP_RATIO))
         {
-            uint32 minScaledXP = RoundXPValue(xpentry->Exp[_rewardXPDifficulty]) * sWorld->getIntConfig(CONFIG_MIN_QUEST_SCALED_XP_RATIO) / 100;
+            uint32 minScaledXP = RoundXPValue(xpentry->Difficulty[_rewardXPDifficulty]) * sWorld->getIntConfig(CONFIG_MIN_QUEST_SCALED_XP_RATIO) / 100;
             xp = std::max(minScaledXP, xp);
         }
 
@@ -310,7 +310,7 @@ uint32 Quest::CalculateHonorGain(uint8 level) const
         if (!tc)
             return 0;
 
-        honor = uint32(tc->value * GetRewHonorMultiplier() * 0.1f);
+        honor = uint32(tc->Data * GetRewHonorMultiplier() * 0.1f);
         honor += GetRewHonorAddition();
     }
 

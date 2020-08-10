@@ -12,9 +12,7 @@ CollectSourceFiles(
   ${CMAKE_CURRENT_SOURCE_DIR}
   PRIVATE_SOURCES)
 
-if(WIN32)
-  list(APPEND PRIVATE_SOURCES ${sources_windows})
-endif()
+list(APPEND PRIVATE_SOURCES ${sources_windows})
 
 add_executable(mapextractor
   ${PRIVATE_SOURCES}

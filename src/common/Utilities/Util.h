@@ -21,6 +21,7 @@
 #include "Define.h"
 #include "Errors.h"
 
+#include <array>
 #include <string>
 #include <sstream>
 #include <utility>
@@ -114,7 +115,7 @@ inline bool Utf8toWStr(const std::string& utf8str, wchar_t* wstr, size_t& wsize)
 
 TC_COMMON_API bool WStrToUtf8(std::wstring const& wstr, std::string& utf8str);
 // size==real string size
-TC_COMMON_API bool WStrToUtf8(wchar_t* wstr, size_t size, std::string& utf8str);
+TC_COMMON_API bool WStrToUtf8(wchar_t const* wstr, size_t size, std::string& utf8str);
 
 // set string to "" if invalid utf8 sequence
 TC_COMMON_API size_t utf8length(std::string& utf8str);
@@ -304,8 +305,30 @@ TC_COMMON_API bool IsIPAddress(char const* ipaddress);
 TC_COMMON_API uint32 CreatePIDFile(std::string const& filename);
 TC_COMMON_API uint32 GetPID();
 
-TC_COMMON_API std::string ByteArrayToHexStr(uint8 const* bytes, uint32 length, bool reverse = false);
-TC_COMMON_API void HexStrToByteArray(std::string const& str, uint8* out, bool reverse = false);
+namespace Trinity::Impl
+{
+    TC_COMMON_API std::string ByteArrayToHexStr(uint8 const* bytes, size_t length, bool reverse = false);
+    TC_COMMON_API void HexStrToByteArray(std::string const& str, uint8* out, size_t outlen, bool reverse = false);
+}
+
+template <typename Container>
+std::string ByteArrayToHexStr(Container const& c, bool reverse = false)
+{
+    return Trinity::Impl::ByteArrayToHexStr(std::data(c), std::size(c), reverse);
+}
+
+template <size_t Size>
+void HexStrToByteArray(std::string const& str, std::array<uint8, Size>& buf, bool reverse = false)
+{
+    Trinity::Impl::HexStrToByteArray(str, buf.data(), Size, reverse);
+}
+template <size_t Size>
+std::array<uint8, Size> HexStrToByteArray(std::string const& str, bool reverse = false)
+{
+    std::array<uint8, Size> arr;
+    HexStrToByteArray(str, arr, reverse);
+    return arr;
+}
 
 TC_COMMON_API bool StringToBool(std::string const& str);
 

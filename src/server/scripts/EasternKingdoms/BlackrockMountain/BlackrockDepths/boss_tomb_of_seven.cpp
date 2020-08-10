@@ -81,7 +81,7 @@ class boss_gloomrel : public CreatureScript
                     case GOSSIP_ACTION_INFO_DEF + 22:
                         CloseGossipMenuFor(player);
                         //are 5 minutes expected? go template may have data to despawn when used at quest
-                        instance->DoRespawnGameObject(instance->GetGuidData(DATA_GO_CHALICE), MINUTE * 5);
+                        instance->DoRespawnGameObject(instance->GetGuidData(DATA_GO_CHALICE), 5min);
                         break;
                 }
                 return true;

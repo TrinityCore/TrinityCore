@@ -33,8 +33,6 @@ EndScriptData */
 #include "Realm.h"
 #include "World.h"
 #include "WorldSession.h"
-#include <boost/thread/locks.hpp>
-#include <boost/thread/shared_mutex.hpp>
 
 class gm_commandscript : public CommandScript
 {
@@ -126,7 +124,7 @@ public:
         bool first = true;
         bool footer = false;
 
-        boost::shared_lock<boost::shared_mutex> lock(*HashMapHolder<Player>::GetLock());
+        std::shared_lock<std::shared_mutex> lock(*HashMapHolder<Player>::GetLock());
         HashMapHolder<Player>::MapType const& m = ObjectAccessor::GetPlayers();
         for (HashMapHolder<Player>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)
         {
@@ -144,7 +142,7 @@ public:
                     handler->SendSysMessage("========================");
                 }
                 std::string const& name = itr->second->GetName();
-                uint8 size = name.size();
+                uint8 size = uint8(name.size());
                 uint8 security = itrSec;
                 uint8 max = ((16 - size) / 2);
                 uint8 max2 = max;
@@ -255,10 +253,6 @@ public:
             _player->SetGameMaster(true);
             handler->GetSession()->SendNotification(LANG_GM_ON);
             _player->UpdateTriggerVisibility();
-#ifdef _DEBUG_VMAPS
-            VMAP::IVMapManager* vMapManager = VMAP::VMapFactory::createOrGetVMapManager();
-            vMapManager->processCommand("stoplog");
-#endif
             return true;
         }
 
@@ -267,10 +261,6 @@ public:
             _player->SetGameMaster(false);
             handler->GetSession()->SendNotification(LANG_GM_OFF);
             _player->UpdateTriggerVisibility();
-#ifdef _DEBUG_VMAPS
-            VMAP::IVMapManager* vMapManager = VMAP::VMapFactory::createOrGetVMapManager();
-            vMapManager->processCommand("startlog");
-#endif
             return true;
         }
 

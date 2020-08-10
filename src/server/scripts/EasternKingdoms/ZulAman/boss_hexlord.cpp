@@ -350,7 +350,7 @@ class boss_hexlord_malacrass : public CreatureScript
                     {
                         if (creature)
                             creature->setDeathState(DEAD);
-                        creature = me->SummonCreature(AddEntry[i], Pos_X[i], POS_Y, POS_Z, ORIENT, TEMPSUMMON_DEAD_DESPAWN, 0);
+                        creature = me->SummonCreature(AddEntry[i], Pos_X[i], POS_Y, POS_Z, ORIENT, TEMPSUMMON_DEAD_DESPAWN);
                         if (creature)
                             AddGUID[i] = creature->GetGUID();
                     }
@@ -420,7 +420,7 @@ class boss_hexlord_malacrass : public CreatureScript
                 if (SiphonSoul_Timer <= diff)
                 {
                     Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 70, true);
-                    Unit* trigger = DoSpawnCreature(NPC_TEMP_TRIGGER, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 30000);
+                    Unit* trigger = DoSpawnCreature(NPC_TEMP_TRIGGER, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 30s);
                     if (!target || !trigger)
                     {
                         EnterEvadeMode();

@@ -196,7 +196,7 @@ public:
 
         if (Creature* hakkar = instance->GetCreature(DATA_HAKKAR))
         {
-            switch (areaTrigger->id)
+            switch (areaTrigger->ID)
             {
                 case AREA_TRIGGER_1:
                     hakkar->AI()->Talk(SAY_ENTRANCE);

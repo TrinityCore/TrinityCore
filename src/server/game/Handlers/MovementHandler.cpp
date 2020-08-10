@@ -149,7 +149,7 @@ void WorldSession::HandleMoveWorldportAck()
     // resurrect character at enter into instance where his corpse exist after add to map
     if (mEntry->IsDungeon() && !player->IsAlive())
     {
-        if (player->GetCorpseLocation().GetMapId() == mEntry->MapID)
+        if (player->GetCorpseLocation().GetMapId() == mEntry->ID)
         {
             player->ResurrectPlayer(0.5f);
             player->SpawnCorpseBones();
@@ -161,14 +161,14 @@ void WorldSession::HandleMoveWorldportAck()
     {
         // check if this instance has a reset time and send it to player if so
         Difficulty diff = player->GetDifficulty(mEntry->IsRaid());
-        if (MapDifficulty const* mapDiff = GetMapDifficultyData(mEntry->MapID, diff))
+        if (MapDifficulty const* mapDiff = GetMapDifficultyData(mEntry->ID, diff))
         {
             if (mapDiff->resetTime)
             {
-                if (time_t timeReset = sInstanceSaveMgr->GetResetTimeFor(mEntry->MapID, diff))
+                if (time_t timeReset = sInstanceSaveMgr->GetResetTimeFor(mEntry->ID, diff))
                 {
                     uint32 timeleft = uint32(timeReset - GameTime::GetGameTime());
-                    player->SendInstanceResetWarning(mEntry->MapID, diff, timeleft, true);
+                    player->SendInstanceResetWarning(mEntry->ID, diff, timeleft, true);
                 }
             }
         }
@@ -393,7 +393,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
     {
         if (VehicleSeatEntry const* seat = vehicle->GetSeatForPassenger(mover))
         {
-            if (seat->m_flags & VEHICLE_SEAT_FLAG_ALLOW_TURNING)
+            if (seat->Flags & VEHICLE_SEAT_FLAG_ALLOW_TURNING)
             {
                 if (movementInfo.pos.GetOrientation() != mover->GetOrientation())
                 {

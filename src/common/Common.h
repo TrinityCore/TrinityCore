@@ -19,6 +19,7 @@
 #define TRINITYCORE_COMMON_H
 
 #include "Define.h"
+#include <array>
 #include <memory>
 #include <string>
 #include <utility>

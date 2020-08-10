@@ -65,7 +65,7 @@ class boss_magmus : public CreatureScript
                 if (me->HealthBelowPctDamaged(50, damage) && _events.IsInPhase(PHASE_ONE))
                 {
                     _events.SetPhase(PHASE_TWO);
-                    _events.ScheduleEvent(EVENT_WARSTOMP, 0, 0, PHASE_TWO);
+                    _events.ScheduleEvent(EVENT_WARSTOMP, 0s, 0, PHASE_TWO);
                 }
             }
 

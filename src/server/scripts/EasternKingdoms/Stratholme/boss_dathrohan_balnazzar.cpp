@@ -124,7 +124,7 @@ public:
             for (uint8 i=0; i<uiCount; ++i)
                 me->SummonCreature(NPC_ZOMBIE,
                 m_aSummonPoint[i].m_fX, m_aSummonPoint[i].m_fY, m_aSummonPoint[i].m_fZ, m_aSummonPoint[i].m_fOrient,
-                TEMPSUMMON_TIMED_DESPAWN, HOUR*IN_MILLISECONDS);
+                TEMPSUMMON_TIMED_DESPAWN, 1h);
         }
 
         void JustEngagedWith(Unit* /*who*/) override

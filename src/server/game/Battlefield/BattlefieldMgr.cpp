@@ -53,7 +53,7 @@ void BattlefieldMgr::InitBattlefield()
         {
             Field* fields = result->Fetch();
 
-            uint32 typeId = fields[0].GetUInt32();
+            uint32 typeId = fields[0].GetUInt8();
 
             if (typeId >= BATTLEFIELD_MAX)
             {
@@ -64,6 +64,8 @@ void BattlefieldMgr::InitBattlefield()
             uint32 scriptId = sObjectMgr->GetScriptId(fields[1].GetString());
 
             Battlefield* bf = sScriptMgr->CreateBattlefield(scriptId);
+            if (!bf)
+                continue;
 
             if (!bf->SetupBattlefield())
             {

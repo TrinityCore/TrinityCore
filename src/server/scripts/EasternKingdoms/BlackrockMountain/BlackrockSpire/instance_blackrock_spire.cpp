@@ -97,12 +97,12 @@ public:
                 case NPC_PYROGAURD_EMBERSEER:
                     PyroguardEmberseer = creature->GetGUID();
                     if (GetBossState(DATA_PYROGAURD_EMBERSEER) == DONE)
-                        creature->DespawnOrUnsummon(0, 24h * 7);
+                        creature->DespawnOrUnsummon(0s, 7_days);
                     break;
                 case NPC_WARCHIEF_REND_BLACKHAND:
                     WarchiefRendBlackhand = creature->GetGUID();
                     if (GetBossState(DATA_GYTH) == DONE)
-                        creature->DespawnOrUnsummon(0, 24h * 7);
+                        creature->DespawnOrUnsummon(0s, 7_days);
                     break;
                 case NPC_GYTH:
                     Gyth = creature->GetGUID();
@@ -116,7 +116,7 @@ public:
                 case NPC_LORD_VICTOR_NEFARIUS:
                     LordVictorNefarius = creature->GetGUID();
                     if (GetBossState(DATA_GYTH) == DONE)
-                        creature->DespawnOrUnsummon(0, 24h * 7);
+                        creature->DespawnOrUnsummon(0s, 7_days);
                     break;
                 case NPC_SCARSHIELD_INFILTRATOR:
                     ScarshieldInfiltrator = creature->GetGUID();
@@ -306,6 +306,7 @@ public:
                     for (GuidList::const_iterator itr = _incarceratorList.begin(); itr != _incarceratorList.end(); ++itr)
                         if (Creature* creature = instance->GetCreature(*itr))
                             creature->Respawn();
+                    break;
                 default:
                     break;
             }

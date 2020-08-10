@@ -61,7 +61,7 @@ public:
             Timed(Player* player, Creature* creature, uint32 sender, uint32 action) : guid(creature->GetGUID()), player(player), sender(sender), action(action), triggered(false)
             {
                 CloseGossipMenuFor(player);
-                player->m_Events.AddEvent(this, player->m_Events.CalculateTime(1));
+                player->m_Events.AddEvent(this, player->m_Events.CalculateTime(Milliseconds(1)));
             }
 
             bool Execute(uint64, uint32) override
@@ -69,7 +69,7 @@ public:
                 if (!triggered)
                 {
                     triggered = true;
-                    player->m_Events.AddEvent(this, player->m_Events.CalculateTime(1));
+                    player->m_Events.AddEvent(this, player->m_Events.CalculateTime(Milliseconds(1)));
                     return false;
                 }
                 if (Creature* creature = player->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_GOSSIP))
