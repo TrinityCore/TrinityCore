@@ -21,22 +21,22 @@
 
 class instance_the_stockade : public InstanceMapScript
 {
-    public:
-        instance_the_stockade() : InstanceMapScript("instance_the_stockade", 34) { }
+public:
+    instance_the_stockade() : InstanceMapScript("instance_the_stockade", 34) { }
 
-        struct instance_the_stockade_InstanceMapScript : public InstanceScript
+    struct instance_the_stockade_InstanceMapScript : public InstanceScript
+    {
+        instance_the_stockade_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
         {
-            instance_the_stockade_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
-            {
-                SetHeaders(DataHeader);
-                SetBossNumber(EncounterCount);
-            }
-        };
-
-        InstanceScript* GetInstanceScript(InstanceMap* map) const override
-        {
-            return new instance_the_stockade_InstanceMapScript(map);
+            SetHeaders(DataHeader);
+            SetBossNumber(EncounterCount);
         }
+    };
+
+    InstanceScript* GetInstanceScript(InstanceMap* map) const override
+    {
+        return new instance_the_stockade_InstanceMapScript(map);
+    }
 };
 
 void AddSC_instance_the_stockade()
