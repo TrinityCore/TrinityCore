@@ -70,6 +70,7 @@ namespace WorldPackets
             uint32 RequiredPlayerKills      = 0;
             uint32 RewardTalents            = 0;
             int32  RewardArenaPoints        = 0;
+            uint32 RewardFactionFlags       = 0;
 
             uint32 RewardItems[QUEST_REWARDS_COUNT] = { };
             uint32 RewardAmount[QUEST_REWARDS_COUNT] = { };
@@ -148,7 +149,7 @@ namespace WorldPackets
         class QuestGiverQuestDetails final : public ServerPacket
         {
         public:
-            QuestGiverQuestDetails() : ServerPacket(SMSG_QUESTGIVER_QUEST_DETAILS) { }
+            QuestGiverQuestDetails() : ServerPacket(SMSG_QUEST_GIVER_QUEST_DETAILS, 1000) { }
 
             WorldPacket const* Write() override;
 

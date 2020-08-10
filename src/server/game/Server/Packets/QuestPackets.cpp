@@ -59,7 +59,7 @@ WorldPacket const* WorldPackets::Quest::QueryQuestInfoResponse::Write()
     _worldPacket << uint32(Info.RequiredPlayerKills);
     _worldPacket << uint32(Info.RewardTalents);
     _worldPacket << uint32(Info.RewardArenaPoints);
-    _worldPacket << uint32(0);                                    // review rep show mask
+    _worldPacket << uint32(Info.RewardFactionFlags);
 
     if ((Info.Flags & QUEST_FLAGS_HIDDEN_REWARDS) != 0)
     {
@@ -167,14 +167,14 @@ WorldPacket const* WorldPackets::Quest::QuestGiverQuestDetails::Write()
     _worldPacket << uint32(Rewards.RewardArenaPoints);
     _worldPacket << uint32(Rewards.RewardFactionFlags);
 
-    for (uint32 id : Rewards.RewardFactionID)
-        _worldPacket << uint32(id);
+    for (uint32 factionId : Rewards.RewardFactionID)
+        _worldPacket << uint32(factionId);
 
-    for (uint32 id : Rewards.RewardFactionValue)
-        _worldPacket << int32(id);
+    for (uint32 value : Rewards.RewardFactionValue)
+        _worldPacket << int32(value);
 
-    for (uint32 id : Rewards.RewardFactionValueOverride)
-        _worldPacket << int32(id);
+    for (uint32 valueOverride : Rewards.RewardFactionValueOverride)
+        _worldPacket << int32(valueOverride);
 
     for (QuestDescEmote const& emote : DescEmotes)
     {

@@ -239,7 +239,7 @@ void Quest::BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player
 {
     if (!HasFlag(QUEST_FLAGS_HIDDEN_REWARDS))
     {
-        for (uint32 i=0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
+        for (uint32 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
         {
             if (!RewardChoiceItemId[i])
                 continue;
@@ -251,7 +251,7 @@ void Quest::BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player
             rewards.UnfilteredChoiceItems.emplace_back(RewardChoiceItemId[i], RewardChoiceItemCount[i], displayID);
         }
 
-        for (uint32 i=0; i < QUEST_REWARDS_COUNT; ++i)
+        for (uint32 i = 0; i < QUEST_REWARDS_COUNT; ++i)
         {
             if (!RewardItemId[i])
                 continue;
