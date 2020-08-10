@@ -209,6 +209,9 @@ class TC_GAME_API InstanceScript : public ZoneScript
         // Respawns a GO having negative spawntimesecs in gameobject-table
         void DoRespawnGameObject(ObjectGuid guid, uint32 timeToDespawn = MINUTE);
 
+        // Execute the parameter function for all players in instance
+        void DoOnPlayers(std::function<void(Player*)>&& function);
+
         // Sends world state update to all players in instance
         void DoUpdateWorldState(uint32 worldstateId, uint32 worldstateValue);
 
