@@ -60,16 +60,17 @@ Position const mortimerMolochPos = { 145.5811f, 0.7059f, -25.606f, 6.2f };
 // Randolph Moloch - 46383
 struct boss_randolph_moloch : public BossAI
 {
-public:
-    boss_randolph_moloch(Creature* creature) : BossAI(creature, DATA_RANDOLPH_MOLOCH)
-    {
-        firstVanish = false;
-        secondVanish = false;
-    }
+    boss_randolph_moloch(Creature* creature) : BossAI(creature, DATA_RANDOLPH_MOLOCH), _firstVanish(false),
+        _secondVanish(false) { }
 
-    void EnterCombat(Unit* /*who*/) override
+    void Reset() override
     {
-        _EnterCombat();
+        _firstVanish = false;
+        _secondVanish = false;
+    }
+    void EnterCombat(Unit* who) override
+    {
+        BossAI::EnterCombat(who);
 
         Talk(SAY_PULL);
 
@@ -88,81 +89,68 @@ public:
         }
     }
 
-    void JustDied(Unit* /*killer*/) override
+    void JustDied(Unit* killer) override
     {
-        _JustDied();
+        BossAI::JustDied(killer);
 
         Talk(SAY_DEATH);
 
         me->SummonCreature(NPC_MORTIMER_MOLOCH, mortimerMolochPos);
     }
 
-    void UpdateAI(uint32 diff) override
+    void ExecuteEvent(uint32 eventId) override
     {
-        if (!UpdateVictim())
-            return;
-
-        events.Update(diff);
-
-        if (me->HasUnitState(UNIT_STATE_CASTING))
-            return;
-
-        if (uint32 eventId = events.ExecuteEvent())
+        switch (eventId)
         {
-            switch (eventId)
-            {
-                case EVENT_WILDLY_STABBING:
-                    DoCastVictim(SPELL_WILDLY_STABBING);
-                    events.Repeat(8s, 12s);
-                    break;
-                case EVENT_SWEEP:
-                    DoCastVictim(SPELL_SWEEP);
-                    events.ScheduleEvent(EVENT_SWEEP, 6s, 7s);
-                    break;
-                case EVENT_VANISH:
-                    Talk(SAY_VANISH);
-                    me->RemoveAllAuras();
-                    DoCastSelf(SPELL_VANISH);
-                    me->SetReactState(REACT_PASSIVE);
-                    me->SetInCombatState(true); // Prevents the boss from resetting
-                    events.ScheduleEvent(EVENT_JUST_VANISHED, 2s);
-                    break;
-                case EVENT_JUST_VANISHED:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                        DoCast(target, SPELL_SHADOWSTEP, true);
-                    me->SetReactState(REACT_AGGRESSIVE);
-                    break;
-                default:
-                    break;
-            }
+            case EVENT_WILDLY_STABBING:
+                DoCastVictim(SPELL_WILDLY_STABBING);
+                events.Repeat(8s, 12s);
+                break;
+            case EVENT_SWEEP:
+                DoCastVictim(SPELL_SWEEP);
+                events.ScheduleEvent(EVENT_SWEEP, 6s, 7s);
+                break;
+            case EVENT_VANISH:
+                Talk(SAY_VANISH);
+                me->RemoveAllAuras();
+                DoCastSelf(SPELL_VANISH);
+                me->SetReactState(REACT_PASSIVE);
+                me->SetInCombatState(true); // Prevents the boss from resetting
+                events.ScheduleEvent(EVENT_JUST_VANISHED, 2s);
+                break;
+            case EVENT_JUST_VANISHED:
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                    DoCast(target, SPELL_SHADOWSTEP, true);
+                me->SetReactState(REACT_AGGRESSIVE);
+                break;
+            default:
+                break;
         }
-
-        DoMeleeAttackIfReady();
     }
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage) override
     {
-        if (me->HealthBelowPctDamaged(71, damage) && me->HealthAbovePct(59) && !firstVanish)
+        if (me->HealthBelowPctDamaged(71, damage) && me->HealthAbovePct(59) && !_firstVanish)
         {
-            firstVanish = true;
+            _firstVanish = true;
             events.ScheduleEvent(EVENT_VANISH, 1s);
         }
 
-        if (me->HealthBelowPctDamaged(41, damage) && me->HealthAbovePct(29) && !secondVanish)
+        if (me->HealthBelowPctDamaged(41, damage) && me->HealthAbovePct(29) && !_secondVanish)
         {
-            secondVanish = true;
+            _secondVanish = true;
             events.ScheduleEvent(EVENT_VANISH, 1s);
         }
     }
 
 private:
-    bool firstVanish, secondVanish;
+    bool _firstVanish;
+    bool _secondVanish;
 };
 
 // Mortimer Moloch - 46482
 struct npc_mortimer_moloch : public ScriptedAI
 {
-public:
     npc_mortimer_moloch(Creature* creature) : ScriptedAI(creature) { }
 
     void Reset() override

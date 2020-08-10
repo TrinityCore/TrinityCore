@@ -42,12 +42,11 @@ enum Says
 // Lord Overheat - 46264
 struct boss_lord_overheat : public BossAI
 {
-public:
     boss_lord_overheat(Creature* creature) : BossAI(creature, DATA_LORD_OVERHEAT) { }
 
-    void EnterCombat(Unit* /*who*/) override
+    void EnterCombat(Unit* who) override
     {
-        _EnterCombat();
+        BossAI::EnterCombat(who);
 
         Talk(SAY_PULL);
 
@@ -56,49 +55,33 @@ public:
         events.ScheduleEvent(EVENT_RAIN_OF_FIRE, 10s, 13s);
     }
 
-    void JustDied(Unit* /*killer*/) override
+    void JustDied(Unit* killer) override
     {
-        _JustDied();
+        BossAI::JustDied(killer);
 
         Talk(SAY_DEATH);
     }
 
-    void UpdateAI(uint32 diff) override
+    void ExecuteEvent(uint32 eventId) override
     {
-        if (!UpdateVictim())
-            return;
-
-        events.Update(diff);
-
-        if (me->HasUnitState(UNIT_STATE_CASTING))
-            return;
-
-        while (uint32 eventId = events.ExecuteEvent())
+        switch (eventId)
         {
-            switch (eventId)
-            {
-                case EVENT_FIREBALL:
-                    DoCastVictim(SPELL_FIREBALL);
-                    events.Repeat(2s);
-                    break;
-                case EVENT_OVERHEAT:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                        DoCast(target, SPELL_OVERHEAT);
-                    events.Repeat(9s, 10s);
-                    break;
-                case EVENT_RAIN_OF_FIRE:
-                    DoCastAOE(SPELL_RAIN_OF_FIRE);
-                    events.Repeat(15s, 20s);
-                    break;
-                default:
-                    break;
-            }
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
+            case EVENT_FIREBALL:
+                DoCastVictim(SPELL_FIREBALL);
+                events.Repeat(2s);
+                break;
+            case EVENT_OVERHEAT:
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                    DoCast(target, SPELL_OVERHEAT);
+                events.Repeat(9s, 10s);
+                break;
+            case EVENT_RAIN_OF_FIRE:
+                DoCastAOE(SPELL_RAIN_OF_FIRE);
+                events.Repeat(15s, 20s);
+                break;
+            default:
+                break;
         }
-
-        DoMeleeAttackIfReady();
     }
 };
 

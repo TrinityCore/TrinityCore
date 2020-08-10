@@ -60,12 +60,16 @@ Position const wardenThelwaterSpawnPosition = { 138.369f, 78.2932f, -33.85627f, 
 // Hogger - 46254
 struct boss_hogger : public BossAI
 {
-public:
     boss_hogger(Creature* creature) : BossAI(creature, DATA_HOGGER), _hasEnraged(false) { }
 
-    void EnterCombat(Unit* /*who*/) override
+    void Reset() override
     {
-        _EnterCombat();
+        _hasEnraged = false;
+    }
+
+    void EnterCombat(Unit* who) override
+    {
+        BossAI::EnterCombat(who);
 
         Talk(SAY_PULL);
 
@@ -73,9 +77,9 @@ public:
         events.ScheduleEvent(EVENT_MADDENING_CALL, 1s, 2s);
     }
 
-    void JustDied(Unit* /*killer*/) override
+    void JustDied(Unit* killer) override
     {
-        _JustDied();
+        BossAI::JustDied(killer);
 
         Talk(SAY_DEATH);
 
@@ -90,35 +94,21 @@ public:
             summon->GetMotionMaster()->MovePoint(POINT_FINISH, wardenThelwaterMovePoint);
     }
 
-    void UpdateAI(uint32 diff) override
+    void ExecuteEvent(uint32 eventId) override
     {
-        if (!UpdateVictim())
-            return;
-
-        events.Update(diff);
-
-        if (me->HasUnitState(UNIT_STATE_CASTING))
-            return;
-
-        if (uint32 eventId = events.ExecuteEvent())
+        switch (eventId)
         {
-            switch (eventId)
-            {
-                case EVENT_VICIOUS_SLICE:
-                    DoCastVictim(SPELL_VICIOUS_SLICE);
-                    events.Repeat(10s, 14s);
-                    break;
-                case EVENT_MADDENING_CALL:
-                    DoCast(SPELL_MADDENING_CALL);
-                    events.Repeat(15s, 20s);
-                    break;
-            }
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
+            case EVENT_VICIOUS_SLICE:
+                DoCastVictim(SPELL_VICIOUS_SLICE);
+                events.Repeat(10s, 14s);
+                break;
+            case EVENT_MADDENING_CALL:
+                DoCast(SPELL_MADDENING_CALL);
+                events.Repeat(15s, 20s);
+                break;
+            default:
+                break;
         }
-
-        DoMeleeAttackIfReady();
     }
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage) override
@@ -139,7 +129,6 @@ private:
 // Warden Thelwater - 46409
 struct npc_warden_thelwater : public ScriptedAI
 {
-public:
     npc_warden_thelwater(Creature* creature) : ScriptedAI(creature) { }
 
     void MovementInform(uint32 type, uint32 id) override
