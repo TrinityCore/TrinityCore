@@ -63,8 +63,8 @@ public:
         void JustEngagedWith(Unit* /*who*/) override
         {
             _events.ScheduleEvent(EVENT_BRUTAL_STRIKE, 5s);
-            _events.ScheduleEvent(EVENT_DAGGER_THROW,  7 * IN_MILLISECONDS);
-            _events.ScheduleEvent(EVENT_CHECK_RANGE,   1 * IN_MILLISECONDS);
+            _events.ScheduleEvent(EVENT_DAGGER_THROW, 7s);
+            _events.ScheduleEvent(EVENT_CHECK_RANGE, 1s);
             _events.ScheduleEvent(EVENT_CRUSHING_LEAP, 15s);
         }
 

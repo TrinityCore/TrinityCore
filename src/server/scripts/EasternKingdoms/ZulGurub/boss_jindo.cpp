@@ -147,7 +147,7 @@ class boss_jindo : public CreatureScript
 
                                 // Summon a formation of trolls
                                 for (uint8 i = 0; i < 10; ++i)
-                                    if (TempSummon* sacrificedTroll = me->SummonCreature(NPC_SACRIFICED_TROLL, Formation[i], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000))
+                                    if (TempSummon* sacrificedTroll = me->SummonCreature(NPC_SACRIFICED_TROLL, Formation[i], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15s))
                                         sacrificedTroll->AI()->AttackStart(target);
                             }
                             events.ScheduleEvent(EVENT_TELEPORT, 15s, 23s);

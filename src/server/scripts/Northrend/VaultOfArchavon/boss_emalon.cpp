@@ -87,7 +87,7 @@ class boss_emalon : public CreatureScript
                 _Reset();
 
                 for (uint8 i = 0; i < MAX_TEMPEST_MINIONS; ++i)
-                    me->SummonCreature(NPC_TEMPEST_MINION, TempestMinions[i], TEMPSUMMON_CORPSE_DESPAWN, 0);
+                    me->SummonCreature(NPC_TEMPEST_MINION, TempestMinions[i], TEMPSUMMON_CORPSE_DESPAWN);
             }
 
             void JustSummoned(Creature* summoned) override
@@ -210,7 +210,7 @@ class npc_tempest_minion : public CreatureScript
                 {
                     if (emalon->IsAlive())
                     {
-                        emalon->SummonCreature(NPC_TEMPEST_MINION, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                        emalon->SummonCreature(NPC_TEMPEST_MINION, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN);
                         Talk(EMOTE_MINION_RESPAWN);
                     }
                 }

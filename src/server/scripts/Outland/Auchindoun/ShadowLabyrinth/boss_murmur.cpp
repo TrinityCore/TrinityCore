@@ -73,7 +73,7 @@ class boss_murmur : public CreatureScript
                 events.ScheduleEvent(EVENT_MAGNETIC_PULL, 15s, 30s);
                 if (IsHeroic())
                 {
-                    events.ScheduleEvent(EVENT_THUNDERING_STORM, 15000);
+                    events.ScheduleEvent(EVENT_THUNDERING_STORM, 15s);
                     events.ScheduleEvent(EVENT_SONIC_SHOCK, 10s);
                 }
 
@@ -127,7 +127,7 @@ class boss_murmur : public CreatureScript
                             break;
                         case EVENT_THUNDERING_STORM:
                             DoCastAOE(SPELL_THUNDERING_STORM, true);
-                            events.ScheduleEvent(EVENT_THUNDERING_STORM, 15000);
+                            events.ScheduleEvent(EVENT_THUNDERING_STORM, 15s);
                             break;
                         case EVENT_SONIC_SHOCK:
                             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 20.0f, false))

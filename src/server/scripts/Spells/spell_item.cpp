@@ -2710,7 +2710,7 @@ class spell_item_crystal_prison_dummy_dnd : public SpellScript
         if (Creature* target = GetHitCreature())
             if (target->isDead() && !target->IsPet())
             {
-                GetCaster()->SummonGameObject(OBJECT_IMPRISONED_DOOMGUARD, *target, QuaternionData(), uint32(target->GetRespawnTime() - GameTime::GetGameTime()));
+                GetCaster()->SummonGameObject(OBJECT_IMPRISONED_DOOMGUARD, *target, QuaternionData(), Seconds(target->GetRespawnTime() - GameTime::GetGameTime()));
                 target->DespawnOrUnsummon();
             }
     }
@@ -3604,7 +3604,7 @@ class spell_item_toy_train_set_pulse : public SpellScript
         {
             target->HandleEmoteCommand(EMOTE_ONESHOT_TRAIN);
             if (EmotesTextSoundEntry const* soundEntry = FindTextSoundEmoteFor(TEXT_EMOTE_TRAIN, target->GetRace(), target->GetNativeGender()))
-                target->PlayDistanceSound(soundEntry->SoundId);
+                target->PlayDistanceSound(soundEntry->SoundID);
         }
     }
 

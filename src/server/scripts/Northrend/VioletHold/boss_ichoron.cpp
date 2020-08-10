@@ -271,7 +271,7 @@ class npc_ichor_globule : public CreatureScript
                     return;
 
                 me->CastSpell(me, SPELL_MERGE);
-                me->DespawnOrUnsummon(1);
+                me->DespawnOrUnsummon(1ms);
             }
 
             // on retail spell casted on a creature's death are not casted after death but keeping mob at 1 health, casting it and then letting the mob die.

@@ -128,14 +128,14 @@ struct LinkValidator<LinkTags::item>
         if (data.RandomPropertyId < 0)
         {
             if (ItemRandomSuffixEntry const* suffixEntry = sItemRandomSuffixStore.LookupEntry(-data.RandomPropertyId))
-                randomSuffix = suffixEntry->nameSuffix;
+                randomSuffix = suffixEntry->Name;
             else
                 return false;
         }
         else if (data.RandomPropertyId > 0)
         {
             if (ItemRandomPropertiesEntry const* propEntry = sItemRandomPropertiesStore.LookupEntry(data.RandomPropertyId))
-                randomSuffix = propEntry->nameSuffix;
+                randomSuffix = propEntry->Name;
             else
                 return false;
         }
@@ -227,13 +227,13 @@ struct LinkValidator<LinkTags::enchant>
 
         for (auto pair = bounds.first; pair != bounds.second; ++pair)
         {
-            SkillLineEntry const* skill = sSkillLineStore.LookupEntry(pair->second->skillId);
+            SkillLineEntry const* skill = sSkillLineStore.LookupEntry(pair->second->SkillLine);
             if (!skill)
                 return false;
 
             for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
             {
-                char const* skillName = skill->name[i];
+                char const* skillName = skill->DisplayName[i];
                 size_t skillLen = strlen(skillName);
                 if (len > skillLen + 2 &&                         // or of form [Skill Name: Spell Name]
                     !strncmp(pos, skillName, skillLen) && !strncmp(pos + skillLen, ": ", 2) &&
@@ -255,7 +255,7 @@ struct LinkValidator<LinkTags::glyph>
 {
     static bool IsTextValid(GlyphLinkData const& data, char const* pos, size_t len)
     {
-        if (SpellInfo const* info = sSpellMgr->GetSpellInfo(data.Glyph->SpellId))
+        if (SpellInfo const* info = sSpellMgr->GetSpellInfo(data.Glyph->SpellID))
             return LinkValidator<LinkTags::spell>::IsTextValid(info, pos, len);
         return false;
     }
@@ -271,7 +271,7 @@ struct LinkValidator<LinkTags::talent>
 {
     static bool IsTextValid(TalentLinkData const& data, char const* pos, size_t len)
     {
-        if (SpellInfo const* info = sSpellMgr->GetSpellInfo(data.Talent->RankID[0]))
+        if (SpellInfo const* info = sSpellMgr->GetSpellInfo(data.Talent->SpellRank[0]))
             return LinkValidator<LinkTags::spell>::IsTextValid(info, pos, len);
         return false;
     }

@@ -46,7 +46,7 @@ TC_API_EXPORT EnumText EnumUtils<CreatureFlagsExtra>::ToString(CreatureFlagsExtr
         case CREATURE_FLAG_EXTRA_GHOST_VISIBILITY: return { "CREATURE_FLAG_EXTRA_GHOST_VISIBILITY", "CREATURE_FLAG_EXTRA_GHOST_VISIBILITY", "creature will be only visible for dead players" };
         case CREATURE_FLAG_EXTRA_USE_OFFHAND_ATTACK: return { "CREATURE_FLAG_EXTRA_USE_OFFHAND_ATTACK", "CREATURE_FLAG_EXTRA_USE_OFFHAND_ATTACK", "creature will use offhand attacks" };
         case CREATURE_FLAG_EXTRA_NO_SELL_VENDOR: return { "CREATURE_FLAG_EXTRA_NO_SELL_VENDOR", "CREATURE_FLAG_EXTRA_NO_SELL_VENDOR", "players can't sell items to this vendor" };
-        case CREATURE_FLAG_EXTRA_UNUSED_13: return { "CREATURE_FLAG_EXTRA_UNUSED_13", "CREATURE_FLAG_EXTRA_UNUSED_13", "" };
+        case CREATURE_FLAG_EXTRA_NO_COMBAT: return { "CREATURE_FLAG_EXTRA_NO_COMBAT", "CREATURE_FLAG_EXTRA_NO_COMBAT", "creature is not allowed to enter combat" };
         case CREATURE_FLAG_EXTRA_WORLDEVENT: return { "CREATURE_FLAG_EXTRA_WORLDEVENT", "CREATURE_FLAG_EXTRA_WORLDEVENT", "custom flag for world event creatures (left room for merging)" };
         case CREATURE_FLAG_EXTRA_GUARD: return { "CREATURE_FLAG_EXTRA_GUARD", "CREATURE_FLAG_EXTRA_GUARD", "Creature is guard" };
         case CREATURE_FLAG_EXTRA_UNUSED_16: return { "CREATURE_FLAG_EXTRA_UNUSED_16", "CREATURE_FLAG_EXTRA_UNUSED_16", "" };
@@ -90,7 +90,7 @@ TC_API_EXPORT CreatureFlagsExtra EnumUtils<CreatureFlagsExtra>::FromIndex(size_t
         case 10: return CREATURE_FLAG_EXTRA_GHOST_VISIBILITY;
         case 11: return CREATURE_FLAG_EXTRA_USE_OFFHAND_ATTACK;
         case 12: return CREATURE_FLAG_EXTRA_NO_SELL_VENDOR;
-        case 13: return CREATURE_FLAG_EXTRA_UNUSED_13;
+        case 13: return CREATURE_FLAG_EXTRA_NO_COMBAT;
         case 14: return CREATURE_FLAG_EXTRA_WORLDEVENT;
         case 15: return CREATURE_FLAG_EXTRA_GUARD;
         case 16: return CREATURE_FLAG_EXTRA_UNUSED_16;

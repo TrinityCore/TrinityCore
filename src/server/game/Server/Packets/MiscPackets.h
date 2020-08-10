@@ -333,6 +333,68 @@ namespace WorldPackets
             TaggedPosition<Position::XYZ> Pos;
             float Facing = 0.0f;
         };
+
+        class CorpseReclaimDelay : public ServerPacket
+        {
+        public:
+            CorpseReclaimDelay() : ServerPacket(SMSG_CORPSE_RECLAIM_DELAY, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Remaining = 0;
+        };
+
+        class DeathReleaseLoc : public ServerPacket
+        {
+        public:
+            DeathReleaseLoc() : ServerPacket(SMSG_DEATH_RELEASE_LOC, 4 + (3 * 4)) { }
+
+            WorldPacket const* Write() override;
+
+            int32 MapID = 0;
+            TaggedPosition<Position::XYZ> Loc;
+        };
+
+        class PreRessurect : public ServerPacket
+        {
+        public:
+            PreRessurect() : ServerPacket(SMSG_PRE_RESURRECT, 8) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid PlayerGUID;
+        };
+
+        class ReclaimCorpse final : public ClientPacket
+        {
+        public:
+            ReclaimCorpse(WorldPacket&& packet) : ClientPacket(CMSG_RECLAIM_CORPSE, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid CorpseGUID;
+        };
+
+        class RepopRequest final : public ClientPacket
+        {
+        public:
+            RepopRequest(WorldPacket&& packet) : ClientPacket(CMSG_REPOP_REQUEST, std::move(packet)) { }
+
+            void Read() override;
+
+            bool CheckInstance = false;
+        };
+
+        class ResurrectResponse final : public ClientPacket
+        {
+        public:
+            ResurrectResponse(WorldPacket&& packet) : ClientPacket(CMSG_RESURRECT_RESPONSE, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Resurrecter;
+            uint8 Response = 0;
+        };
     }
 }
 

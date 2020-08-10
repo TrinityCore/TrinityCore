@@ -188,7 +188,7 @@ TaskContext& TaskContext::SetGroup(TaskScheduler::group_t const group)
 
 TaskContext& TaskContext::ClearGroup()
 {
-    _task->_group = boost::none;
+    _task->_group = std::nullopt;
     return *this;
 }
 

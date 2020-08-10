@@ -18,23 +18,18 @@
 #include "Random.h"
 #include "Errors.h"
 #include "SFMTRand.h"
-#include <boost/thread/tss.hpp>
+#include <memory>
 #include <random>
 
-static boost::thread_specific_ptr<SFMTRand> sfmtRand;
+static thread_local std::unique_ptr<SFMTRand> sfmtRand;
 static RandomEngine engine;
 
 static SFMTRand* GetRng()
 {
-    SFMTRand* rand = sfmtRand.get();
+    if (!sfmtRand)
+        sfmtRand = std::make_unique<SFMTRand>();
 
-    if (!rand)
-    {
-        rand = new SFMTRand();
-        sfmtRand.reset(rand);
-    }
-
-    return rand;
+    return sfmtRand.get();
 }
 
 int32 irand(int32 min, int32 max)

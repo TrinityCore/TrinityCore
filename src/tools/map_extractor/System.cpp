@@ -34,7 +34,6 @@
 
 #include <G3D/Plane.h>
 #include <boost/filesystem.hpp>
-#include <unordered_map>
 
 extern ArchiveSet gOpenArchives;
 
@@ -101,7 +100,7 @@ void CreateDir(boost::filesystem::path const& path)
         return;
 
     if (!fs::create_directory(path))
-        throw new std::runtime_error("Unable to create directory" + path.string());
+        throw std::runtime_error("Unable to create directory" + path.string());
 }
 
 void Usage(char* prg)

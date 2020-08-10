@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include "ByteConverter.h"
+#include <array>
 #include <string>
 #include <vector>
 #include <cstring>
@@ -351,6 +352,12 @@ class TC_SHARED_API ByteBuffer
             _rpos += len;
         }
 
+        template <size_t Size>
+        void read(std::array<uint8, Size>& arr)
+        {
+            read(arr.data(), Size);
+        }
+
         void readPackGUID(uint64& guid)
         {
             if (rpos() + 1 > size())
@@ -436,6 +443,12 @@ class TC_SHARED_API ByteBuffer
         {
             if (buffer.wpos())
                 append(buffer.contents(), buffer.wpos());
+        }
+
+        template <size_t Size>
+        void append(std::array<uint8, Size> const& arr)
+        {
+            append(arr.data(), Size);
         }
 
         // can be used in SMSG_MONSTER_MOVE opcode
