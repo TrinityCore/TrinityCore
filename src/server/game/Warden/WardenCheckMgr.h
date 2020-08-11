@@ -18,6 +18,7 @@
 #ifndef _WARDENCHECKMGR_H
 #define _WARDENCHECKMGR_H
 
+#include "Define.h"
 #include <shared_mutex>
 #include <unordered_map>
 #include <vector>
