@@ -52,8 +52,8 @@ void WardenWin::Init(WorldSession* session, SessionKey const& K)
     _session = session;
     // Generate Warden Key
     SessionKeyGenerator<Trinity::Crypto::SHA1> WK(K);
-    WK.Generate(_inputKey.data(), 16);
-    WK.Generate(_outputKey.data(), 16);
+    WK.Generate(_inputKey.data(), _inputKey.size());
+    WK.Generate(_outputKey.data(), _outputKey.size());
 
     _seed = Module.Seed;
 

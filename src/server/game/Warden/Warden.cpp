@@ -42,6 +42,7 @@ Warden::~Warden()
 
 void Warden::MakeModuleForClient()
 {
+    TC_LOG_DEBUG("warden", "Make module for client");
     InitializeModuleForClient(_module.emplace());
 
     MD5_CTX ctx;
@@ -98,38 +99,36 @@ void Warden::RequestModule()
 
 void Warden::Update()
 {
-    if (_initialized)
+    if (!_initialized)
+        return;
+    
+    uint32 currentTimestamp = GameTime::GetGameTimeMS();
+    uint32 diff = currentTimestamp - _previousTimestamp;
+    _previousTimestamp = currentTimestamp;
+
+    if (_dataSent)
     {
-        uint32 currentTimestamp = GameTime::GetGameTimeMS();
-        uint32 diff = currentTimestamp - _previousTimestamp;
-        _previousTimestamp = currentTimestamp;
+        uint32 maxClientResponseDelay = sWorld->getIntConfig(CONFIG_WARDEN_CLIENT_RESPONSE_DELAY);
 
-        if (_dataSent)
+        if (maxClientResponseDelay > 0)
         {
-            uint32 maxClientResponseDelay = sWorld->getIntConfig(CONFIG_WARDEN_CLIENT_RESPONSE_DELAY);
-
-            if (maxClientResponseDelay > 0)
+            // Kick player if client response delays more than set in config
+            if (_clientResponseTimer > maxClientResponseDelay * IN_MILLISECONDS)
             {
-                // Kick player if client response delays more than set in config
-                if (_clientResponseTimer > maxClientResponseDelay * IN_MILLISECONDS)
-                {
-                    TC_LOG_WARN("warden", "%s (latency: %u, IP: %s) exceeded Warden module response delay (%s) - disconnecting client",
-                                   _session->GetPlayerInfo().c_str(), _session->GetLatency(), _session->GetRemoteAddress().c_str(), secsToTimeString(maxClientResponseDelay, TimeFormat::ShortText).c_str());
-                    _session->KickPlayer("Warden::Update Warden module response delay exceeded");
-                }
-                else
-                    _clientResponseTimer += diff;
-            }
-        }
-        else
-        {
-            if (diff >= _checkTimer)
-            {
-                RequestData();
+                TC_LOG_WARN("warden", "%s (latency: %u, IP: %s) exceeded Warden module response delay (%s) - disconnecting client",
+                                _session->GetPlayerInfo().c_str(), _session->GetLatency(), _session->GetRemoteAddress().c_str(), secsToTimeString(maxClientResponseDelay, TimeFormat::ShortText).c_str());
+                _session->KickPlayer("Warden::Update Warden module response delay exceeded");
             }
             else
-                _checkTimer -= diff;
+                _clientResponseTimer += diff;
         }
+    }
+    else
+    {
+        if (diff >= _checkTimer)
+            RequestData();
+        else
+            _checkTimer -= diff;
     }
 }
 
