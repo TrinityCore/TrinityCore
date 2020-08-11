@@ -334,7 +334,7 @@ inline std::vector<uint8> HexStrToByteVector(std::string const& str, bool revers
 {
     std::vector<uint8> buf;
     size_t const sz = (str.size() / 2);
-    buf.reserve(sz);
+    buf.resize(sz);
     Trinity::Impl::HexStrToByteArray(str, buf.data(), sz, reverse);
     return buf;
 }
