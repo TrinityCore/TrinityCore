@@ -168,7 +168,7 @@ void WardenMac::HandleHashResult(ByteBuffer &buff)
     _initialized = true;
 }
 
-void WardenMac::RequestData()
+void WardenMac::RequestChecks()
 {
     TC_LOG_DEBUG("warden", "Request data");
 
@@ -192,7 +192,7 @@ void WardenMac::RequestData()
     _dataSent = true;
 }
 
-void WardenMac::HandleData(ByteBuffer &buff)
+void WardenMac::HandleCheckResult(ByteBuffer &buff)
 {
     TC_LOG_DEBUG("warden", "Handle data");
 
@@ -246,5 +246,5 @@ void WardenMac::HandleData(ByteBuffer &buff)
         //found = true;
     }
 
-    _session->KickPlayer("WardenMac::HandleData");
+    _session->KickPlayer("WardenMac::HandleCheckResult");
 }

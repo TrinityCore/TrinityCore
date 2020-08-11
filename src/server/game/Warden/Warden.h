@@ -90,22 +90,21 @@ class TC_GAME_API Warden
 
         virtual void Init(WorldSession* session, SessionKey const& K) = 0;
         void Update(uint32 diff);
+        void HandleData(ByteBuffer& buff);
 
+    protected:
         void DecryptData(uint8* buffer, uint32 length);
         void EncryptData(uint8* buffer, uint32 length);
-
-        void SendModuleToClient();
 
         virtual void InitializeModule() = 0;
         virtual void RequestHash() = 0;
         virtual void HandleHashResult(ByteBuffer& buff) = 0;
-        virtual void HandleData(ByteBuffer& buff) = 0;
-
-    protected:
+        virtual void HandleCheckResult(ByteBuffer& buff) = 0;
         virtual void InitializeModuleForClient(ClientWardenModule& module) = 0;
-        virtual void RequestData() = 0;
+        virtual void RequestChecks() = 0;
 
         void MakeModuleForClient();
+        void SendModuleToClient();
         void RequestModule();
 
         static bool IsValidCheckSum(uint32 checksum, const uint8 *data, const uint16 length);

@@ -36,8 +36,8 @@ class TC_GAME_API WardenMac : public Warden
         void InitializeModule() override;
         void RequestHash() override;
         void HandleHashResult(ByteBuffer& buff) override;
-        void RequestData() override;
-        void HandleData(ByteBuffer& buff) override;
+        void RequestChecks() override;
+        void HandleCheckResult(ByteBuffer& buff) override;
 };
 
 #endif

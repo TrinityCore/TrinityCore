@@ -126,7 +126,7 @@ void Warden::Update(uint32 diff)
     else
     {
         if (diff >= _checkTimer)
-            RequestData();
+            RequestChecks();
         else
             _checkTimer -= diff;
     }
@@ -219,40 +219,45 @@ char const* Warden::ApplyPenalty(WardenCheck const* check)
     return EnumUtils::ToTitle(action);
 }
 
+void Warden::HandleData(ByteBuffer& buff)
+{
+    DecryptData(buff.contents(), buff.size());
+    uint8 opcode;
+    buff >> opcode;
+    TC_LOG_DEBUG("warden", "Got packet, opcode %02X, size %u", opcode, uint32(buff.size() - 1));
+    buff.hexlike();
+
+    switch (opcode)
+    {
+    case WARDEN_CMSG_MODULE_MISSING:
+        SendModuleToClient();
+        break;
+    case WARDEN_CMSG_MODULE_OK:
+        RequestHash();
+        break;
+    case WARDEN_CMSG_CHEAT_CHECKS_RESULT:
+        HandleCheckResult(buff);
+        break;
+    case WARDEN_CMSG_MEM_CHECKS_RESULT:
+        TC_LOG_DEBUG("warden", "NYI WARDEN_CMSG_MEM_CHECKS_RESULT received!");
+        break;
+    case WARDEN_CMSG_HASH_RESULT:
+        HandleHashResult(buff);
+        InitializeModule();
+        break;
+    case WARDEN_CMSG_MODULE_FAILED:
+        TC_LOG_DEBUG("warden", "NYI WARDEN_CMSG_MODULE_FAILED received!");
+        break;
+    default:
+        TC_LOG_WARN("warden", "Got unknown warden opcode %02X of size %u.", opcode, uint32(buff.size() - 1));
+        break;
+    }
+}
+
 void WorldSession::HandleWardenDataOpcode(WorldPacket& recvData)
 {
     if (!_warden || recvData.empty())
         return;
 
-    _warden->DecryptData(recvData.contents(), recvData.size());
-    uint8 opcode;
-    recvData >> opcode;
-    TC_LOG_DEBUG("warden", "Got packet, opcode %02X, size %u", opcode, uint32(recvData.size()));
-    recvData.hexlike();
-
-    switch (opcode)
-    {
-        case WARDEN_CMSG_MODULE_MISSING:
-            _warden->SendModuleToClient();
-            break;
-        case WARDEN_CMSG_MODULE_OK:
-            _warden->RequestHash();
-            break;
-        case WARDEN_CMSG_CHEAT_CHECKS_RESULT:
-            _warden->HandleData(recvData);
-            break;
-        case WARDEN_CMSG_MEM_CHECKS_RESULT:
-            TC_LOG_DEBUG("warden", "NYI WARDEN_CMSG_MEM_CHECKS_RESULT received!");
-            break;
-        case WARDEN_CMSG_HASH_RESULT:
-            _warden->HandleHashResult(recvData);
-            _warden->InitializeModule();
-            break;
-        case WARDEN_CMSG_MODULE_FAILED:
-            TC_LOG_DEBUG("warden", "NYI WARDEN_CMSG_MODULE_FAILED received!");
-            break;
-        default:
-            TC_LOG_WARN("warden", "Got unknown warden opcode %02X of size %u.", opcode, uint32(recvData.size() - 1));
-            break;
-    }
+    _warden->HandleData(recvData);
 }

@@ -178,7 +178,7 @@ void WardenWin::HandleHashResult(ByteBuffer &buff)
     _initialized = true;
 }
 
-void WardenWin::RequestData()
+void WardenWin::RequestChecks()
 {
     TC_LOG_DEBUG("warden", "Request data");
 
@@ -314,7 +314,7 @@ void WardenWin::RequestData()
     TC_LOG_DEBUG("warden", "%s", stream.str().c_str());
 }
 
-void WardenWin::HandleData(ByteBuffer &buff)
+void WardenWin::HandleCheckResult(ByteBuffer &buff)
 {
     TC_LOG_DEBUG("warden", "Handle data");
 
