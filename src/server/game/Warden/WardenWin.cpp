@@ -319,7 +319,7 @@ void WardenWin::HandleData(ByteBuffer &buff)
 
     if (!IsValidCheckSum(Checksum, buff.contents() + buff.rpos(), Length))
     {
-        buff.rpos(buff.wpos());
+        buff.rfinish();
         char const* penalty = ApplyPenalty(nullptr);
         TC_LOG_WARN("warden", "%s failed checksum. Action: %s", _session->GetPlayerInfo().c_str(), penalty);
         return;
@@ -372,7 +372,7 @@ void WardenWin::HandleData(ByteBuffer &buff)
 
                 std::vector<uint8> response;
                 response.resize(check.Length);
-                buff.read(response.data(), check.Length);
+                buff.read(response.data(), response.size());
                 if (response != sWardenCheckMgr->GetWardenResultById(id))
                 {
                     TC_LOG_DEBUG("warden", "RESULT MEM_CHECK fail CheckId %u account Id %u", id, _session->GetAccountId());
