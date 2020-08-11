@@ -117,10 +117,10 @@ void WardenWin::InitializeModule()
     Request.CheckSumm3 = BuildChecksum(&Request.Unk5, 8);
 
     // Encrypt with warden RC4 key.
-    EncryptData((uint8*)&Request, sizeof(WardenInitModuleRequest));
+    EncryptData(reinterpret_cast<uint8*>(&Request), sizeof(WardenInitModuleRequest));
 
     WorldPacket pkt(SMSG_WARDEN_DATA, sizeof(WardenInitModuleRequest));
-    pkt.append((uint8*)&Request, sizeof(WardenInitModuleRequest));
+    pkt.append(reinterpret_cast<uint8*>(&Request), sizeof(WardenInitModuleRequest));
     _session->SendPacket(&pkt);
 }
 
@@ -134,10 +134,10 @@ void WardenWin::RequestHash()
     Request.Seed = _seed;
 
     // Encrypt with warden RC4 key.
-    EncryptData((uint8*)&Request, sizeof(WardenHashRequest));
+    EncryptData(reinterpret_cast<uint8*>(&Request), sizeof(WardenHashRequest));
 
     WorldPacket pkt(SMSG_WARDEN_DATA, sizeof(WardenHashRequest));
-    pkt.append((uint8*)&Request, sizeof(WardenHashRequest));
+    pkt.append(reinterpret_cast<uint8*>(&Request), sizeof(WardenHashRequest));
     _session->SendPacket(&pkt);
 }
 
@@ -343,10 +343,10 @@ void WardenWin::HandleData(ByteBuffer &buff)
         uint32 ticksNow = GameTime::GetGameTimeMS();
         uint32 ourTicks = newClientTicks + (ticksNow - _serverTicks);
 
-        TC_LOG_DEBUG("warden", "Server tick count now:    %u", ticksNow);         // Now
-        TC_LOG_DEBUG("warden", "Server tick count at req: %u", _serverTicks);    // At request
-        TC_LOG_DEBUG("warden", "Client ticks in response: %u", newClientTicks);         // At response
-        TC_LOG_DEBUG("warden", "Round trip response time: %u ms", ticksNow - _serverTicks);
+        TC_LOG_DEBUG("warden", "Server tick count now:    %u", ticksNow);
+        TC_LOG_DEBUG("warden", "Server tick count at req: %u", _serverTicks);
+        TC_LOG_DEBUG("warden", "Client ticks in response: %u", newClientTicks);
+        TC_LOG_DEBUG("warden", "Round trip response time: %u ms", ourTicks - newClientTicks);
     }
 
     uint16 checkFailed = 0;

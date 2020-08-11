@@ -42,8 +42,7 @@ Warden::~Warden()
 
 void Warden::MakeModuleForClient()
 {
-    _module.emplace();
-    InitializeModuleForClient(*_module);
+    InitializeModuleForClient(_module.emplace());
 
     MD5_CTX ctx;
     MD5_Init(&ctx);
@@ -70,9 +69,9 @@ void Warden::SendModuleToClient()
         sizeLeft -= burstSize;
         pos += burstSize;
 
-        EncryptData((uint8*)&packet, burstSize + 3);
+        EncryptData(reinterpret_cast<uint8*>(&packet), burstSize + 3);
         WorldPacket pkt1(SMSG_WARDEN_DATA, burstSize + 3);
-        pkt1.append((uint8*)&packet, burstSize + 3);
+        pkt1.append(reinterpret_cast<uint8*>(&packet), burstSize + 3);
         _session->SendPacket(&pkt1);
     }
 }
@@ -90,10 +89,10 @@ void Warden::RequestModule()
     request.Size = _module->CompressedSize;
 
     // Encrypt with warden RC4 key.
-    EncryptData((uint8*)&request, sizeof(WardenModuleUse));
+    EncryptData(reinterpret_cast<uint8*>(&request), sizeof(WardenModuleUse));
 
     WorldPacket pkt(SMSG_WARDEN_DATA, sizeof(WardenModuleUse));
-    pkt.append((uint8*)&request, sizeof(WardenModuleUse));
+    pkt.append(reinterpret_cast<uint8*>(&request), sizeof(WardenModuleUse));
     _session->SendPacket(&pkt);
 }
 

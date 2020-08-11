@@ -55,6 +55,7 @@ struct WardenInitModuleRequest
     uint32 Function3;
     uint8 Function3_set;
 };
+static_assert(sizeof(WardenInitModuleRequest) == (1 + 2 + 4 + 1 + 1 + 1 + 1 + (4 * 4) + 1 + 2 + 4 + 1 + 1 + 1 + 4 + 1 + 1 + 2 + 4 + 1 + 1 + 1 + 4 + 1));
 
 #pragma pack(pop)
 

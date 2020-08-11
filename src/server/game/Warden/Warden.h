@@ -53,6 +53,7 @@ struct WardenModuleUse
     std::array<uint8, 16> ModuleKey;
     uint32 Size;
 };
+static_assert(sizeof(WardenModuleUse) == (1 + 16 + 16 + 4));
 
 struct WardenModuleTransfer
 {
@@ -60,12 +61,14 @@ struct WardenModuleTransfer
     uint16 DataSize;
     uint8 Data[500];
 };
+static_assert(sizeof(WardenModuleTransfer) == (1 + 2 + 500));
 
 struct WardenHashRequest
 {
     uint8 Command;
     std::array<uint8, 16> Seed;
 };
+static_assert(sizeof(WardenHashRequest) == (1 + 16));
 
 #pragma pack(pop)
 
