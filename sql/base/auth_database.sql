@@ -842,7 +842,6 @@ INSERT INTO `rbac_linked_permissions` VALUES
 (196,702),
 (196,703),
 (196,704),
-(196,705),
 (196,706),
 (196,707),
 (196,708),
@@ -1665,7 +1664,6 @@ INSERT INTO `rbac_permissions` VALUES
 (702,'Command: reload spell_threats'),
 (703,'Command: reload spell_group_stack_rules'),
 (704,'Command: reload trinity_string'),
-(705,'Command: reload warden_action'),
 (706,'Command: reload waypoint_scripts'),
 (707,'Command: reload waypoint_data'),
 (708,'Command: reload vehicle_accessory'),
@@ -1972,7 +1970,8 @@ INSERT INTO `updates` VALUES
 ('2020_07_15_00_auth.sql','56748440894EA78C3BE72C4A3F2E97E256E6EE40','RELEASED','2020-07-15 00:00:00',0),
 ('2020_08_02_00_auth.sql','B0290F6558C59262D9DDD8071060A8803DD56930','RELEASED','2020-08-02 00:00:00',0),
 ('2020_08_03_00_auth.sql','492CA77C0FAEEEF3E0492121B3A92689373ECFA3','RELEASED','2020-08-03 00:00:00',0),
-('2020_08_03_01_auth.sql','EC1063396CA20A2303D83238470D41EF4439EC72','RELEASED','2020-08-03 00:00:01',0);
+('2020_08_03_01_auth.sql','EC1063396CA20A2303D83238470D41EF4439EC72','RELEASED','2020-08-03 00:00:01',0),
+('2020_08_11_00_auth.sql','14C99177E43003D83A4D6F2227722F15FC15A1D0','RELEASED','2020-08-11 00:00:00',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
