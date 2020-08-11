@@ -125,7 +125,6 @@ void WardenCheckMgr::LoadWardenOverrides()
 
     uint32 count = 0;
 
-    std::unique_lock<std::shared_mutex> lock(sWardenCheckMgr->_checkStoreLock);
     do
     {
         Field* fields = result->Fetch();
@@ -156,15 +155,15 @@ WardenCheckMgr* WardenCheckMgr::instance()
     return &instance;
 }
 
-WardenCheck const& WardenCheckMgr::GetWardenDataById(uint16 Id) const
+WardenCheck const& WardenCheckMgr::GetCheckDataById(uint16 Id) const
 {
     ASSERT(Id < CheckStore.size(), "Requested Warden data for invalid check ID %u", uint32(Id));
     return CheckStore[Id];
 }
 
-WardenCheckResult const& WardenCheckMgr::GetWardenResultById(uint16 Id) const
+WardenCheckResult const& WardenCheckMgr::GetCheckResultById(uint16 Id) const
 {
-    CheckResultContainer::const_iterator itr = CheckResultStore.find(Id);
-    ASSERT(itr != CheckResultStore.end(), "Requested Warden result for invalid check ID %u", uint32(Id));
-    return itr->second;
+    auto it = CheckResultStore.find(Id);
+    ASSERT(it != CheckResultStore.end(), "Requested Warden result for invalid check ID %u", uint32(Id));
+    return it->second;
 }

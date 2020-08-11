@@ -11,3 +11,5 @@ UPDATE `warden_checks` SET `result`=UNHEX(`oldResult`) WHERE `type` IN (152,243)
 ALTER TABLE `warden_checks`
     DROP COLUMN `oldData`,
     DROP COLUMN `oldResult`;
+
+DELETE FROM `command` WHERE `name`='reload warden_action';

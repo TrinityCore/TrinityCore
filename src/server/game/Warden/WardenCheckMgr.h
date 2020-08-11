@@ -67,24 +67,20 @@ class TC_GAME_API WardenCheckMgr
     public:
         static WardenCheckMgr* instance();
 
-        // We have a linear key without any gaps, so we use vector for fast access
-        typedef std::vector<WardenCheck> CheckContainer;
-        typedef std::map<uint32, WardenCheckResult> CheckResultContainer;
+        WardenCheck const& GetCheckDataById(uint16 Id) const;
+        WardenCheckResult const& GetCheckResultById(uint16 Id) const;
 
-        WardenCheck const& GetWardenDataById(uint16 Id) const;
-        WardenCheckResult const& GetWardenResultById(uint16 Id) const;
-
-        std::vector<uint16> MemChecksIdPool;
-        std::vector<uint16> OtherChecksIdPool;
+        std::vector<uint16> const& GetAvailableMemoryChecks() const { return MemChecksIdPool; }
+        std::vector<uint16> const& GetAvailableOtherChecks() const { return OtherChecksIdPool; }
 
         void LoadWardenChecks();
         void LoadWardenOverrides();
 
-        std::shared_mutex _checkStoreLock;
-
     private:
-        CheckContainer CheckStore;
-        CheckResultContainer CheckResultStore;
+        std::vector<WardenCheck> CheckStore;
+        std::unordered_map<uint32, WardenCheckResult> CheckResultStore;
+        std::vector<uint16> MemChecksIdPool;
+        std::vector<uint16> OtherChecksIdPool;
 };
 
 #define sWardenCheckMgr WardenCheckMgr::instance()

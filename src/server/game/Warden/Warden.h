@@ -84,15 +84,19 @@ class WorldSession;
 
 class TC_GAME_API Warden
 {
-    friend class WardenWin;
-    friend class WardenMac;
+    friend void WorldSession::InitWarden(SessionKey const&, std::string const&);
+    friend void WorldSession::HandleWardenDataOpcode(WorldPacket&);
 
     public:
         Warden();
         virtual ~Warden();
 
+        void Update(uint32 diff);
+
+    protected:
         virtual void Init(WorldSession* session, SessionKey const& K) = 0;
         virtual void InitializeModule() = 0;
+        virtual void InitializeModuleForClient(ClientWardenModule& module) = 0;
         virtual void RequestHash() = 0;
         virtual void HandleHashResult(ByteBuffer &buff) = 0;
         virtual void RequestData() = 0;
@@ -101,20 +105,16 @@ class TC_GAME_API Warden
         void MakeModuleForClient();
         void SendModuleToClient();
         void RequestModule();
-        void Update();
-        void DecryptData(uint8* buffer, uint32 length);
-        void EncryptData(uint8* buffer, uint32 length);
 
         static bool IsValidCheckSum(uint32 checksum, const uint8 *data, const uint16 length);
         static uint32 BuildChecksum(const uint8 *data, uint32 length);
 
-        // If no check is passed, the default action from config is executed
+        void DecryptData(uint8* buffer, uint32 length);
+        void EncryptData(uint8* buffer, uint32 length);
+
+        // If nullptr is passed, the default action from config is executed
         char const* ApplyPenalty(WardenCheck const* check);
 
-    protected:
-        virtual void InitializeModuleForClient(ClientWardenModule& module) = 0;
-
-    private:
         WorldSession* _session;
         std::array<uint8, 16> _inputKey = {};
         std::array<uint8, 16> _outputKey = {};
@@ -124,7 +124,6 @@ class TC_GAME_API Warden
         uint32 _checkTimer;                          // Timer for sending check requests
         uint32 _clientResponseTimer;                 // Timer for client response delay
         bool _dataSent;
-        uint32 _previousTimestamp;
         Optional<ClientWardenModule> _module;
         bool _initialized;
 };

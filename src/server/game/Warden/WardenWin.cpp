@@ -38,13 +38,13 @@
 
 WardenWin::WardenWin() : Warden(), _serverTicks(0)
 {
-    _otherChecks = sWardenCheckMgr->OtherChecksIdPool;
-    Trinity::Containers::RandomShuffle(_otherChecks);
-    _otherChecksIt = _otherChecks.begin();
-
-    _memChecks = sWardenCheckMgr->MemChecksIdPool;
+    _memChecks = sWardenCheckMgr->GetAvailableMemoryChecks();
     Trinity::Containers::RandomShuffle(_memChecks);
     _memChecksIt = _memChecks.begin();
+
+    _otherChecks = sWardenCheckMgr->GetAvailableOtherChecks();
+    Trinity::Containers::RandomShuffle(_otherChecks);
+    _otherChecksIt = _otherChecks.begin();
 }
 
 void WardenWin::Init(WorldSession* session, SessionKey const& K)
@@ -116,6 +116,19 @@ void WardenWin::InitializeModule()
     Request.Function3_set = 1;
     Request.CheckSumm3 = BuildChecksum(&Request.Unk5, 8);
 
+    EndianConvert(Request.Size1);
+    EndianConvert(Request.CheckSumm1);
+    EndianConvert(Request.Function1[0]);
+    EndianConvert(Request.Function1[1]);
+    EndianConvert(Request.Function1[2]);
+    EndianConvert(Request.Function1[3]);
+    EndianConvert(Request.Size2);
+    EndianConvert(Request.CheckSumm2);
+    EndianConvert(Request.Function2);
+    EndianConvert(Request.Size3);
+    EndianConvert(Request.CheckSumm3);
+    EndianConvert(Request.Function3);
+
     // Encrypt with warden RC4 key.
     EncryptData(reinterpret_cast<uint8*>(&Request), sizeof(WardenInitModuleRequest));
 
@@ -163,8 +176,6 @@ void WardenWin::HandleHashResult(ByteBuffer &buff)
     _outputCrypto.Init(_outputKey);
 
     _initialized = true;
-
-    _previousTimestamp = GameTime::GetGameTimeMS();
 }
 
 void WardenWin::RequestData()
@@ -203,8 +214,6 @@ void WardenWin::RequestData()
         _currentChecks.push_back(*(_memChecksIt++));
     }
 
-    std::shared_lock<std::shared_mutex> lock(sWardenCheckMgr->_checkStoreLock);
-
     for (uint32 i = 0; i < sWorld->getIntConfig(CONFIG_WARDEN_NUM_OTHER_CHECKS); ++i)
     {
         // If todo list is done break loop (will be filled on next Update() run)
@@ -213,11 +222,11 @@ void WardenWin::RequestData()
 
         uint16 const id = *(_otherChecksIt++);
 
-        WardenCheck const& wd = sWardenCheckMgr->GetWardenDataById(id);
-        if (!wd.Str.empty())
+        WardenCheck const& check = sWardenCheckMgr->GetCheckDataById(id);
+        if (!check.Str.empty())
         {
-            buff << uint8(wd.Str.size());
-            buff.append(wd.Str.data(), wd.Str.size());
+            buff << uint8(check.Str.size());
+            buff.append(check.Str.data(), check.Str.size());
         }
         _currentChecks.push_back(id);
     }
@@ -232,25 +241,25 @@ void WardenWin::RequestData()
 
     for (uint16 const id : _currentChecks)
     {
-        WardenCheck const& wd = sWardenCheckMgr->GetWardenDataById(id);
+        WardenCheck const& check = sWardenCheckMgr->GetCheckDataById(id);
 
-        WardenCheckType const type = wd.Type;
+        WardenCheckType const type = check.Type;
         buff << uint8(type ^ xorByte);
         switch (type)
         {
             case MEM_CHECK:
             {
                 buff << uint8(0x00);
-                buff << uint32(wd.Address);
-                buff << uint8(wd.Length);
+                buff << uint32(check.Address);
+                buff << uint8(check.Length);
                 break;
             }
             case PAGE_CHECK_A:
             case PAGE_CHECK_B:
             {
-                buff.append(wd.Data.data(), wd.Data.size());
-                buff << uint32(wd.Address);
-                buff << uint8(wd.Length);
+                buff.append(check.Data.data(), check.Data.size());
+                buff << uint32(check.Address);
+                buff << uint8(check.Length);
                 break;
             }
             case MPQ_CHECK:
@@ -261,7 +270,7 @@ void WardenWin::RequestData()
             }
             case DRIVER_CHECK:
             {
-                buff.append(wd.Data.data(), wd.Data.size());
+                buff.append(check.Data.data(), check.Data.size());
                 buff << uint8(index++);
                 break;
             }
@@ -269,16 +278,16 @@ void WardenWin::RequestData()
             {
                 std::array<uint8, 4> seed = Trinity::Crypto::GetRandomBytes<4>();
                 buff.append(seed);
-                buff.append(Trinity::Crypto::HMAC_SHA1::GetDigestOf(seed, wd.Str));
+                buff.append(Trinity::Crypto::HMAC_SHA1::GetDigestOf(seed, check.Str));
                 break;
             }
             /*case PROC_CHECK:
             {
-                buff.append(wd->i.AsByteArray(0, false).get(), wd->i.GetNumBytes());
+                buff.append(check->i.AsByteArray(0, false).get(), check->i.GetNumBytes());
                 buff << uint8(index++);
                 buff << uint8(index++);
-                buff << uint32(wd->Address);
-                buff << uint8(wd->Length);
+                buff << uint32(check->Address);
+                buff << uint8(check->Length);
                 break;
             }*/
             default:
@@ -317,6 +326,14 @@ void WardenWin::HandleData(ByteBuffer &buff)
     uint32 Checksum;
     buff >> Checksum;
 
+    if (Length != (buff.size() - buff.rpos()))
+    {
+        buff.rfinish();
+        char const* penalty = ApplyPenalty(nullptr);
+        TC_LOG_WARN("warden", "%s sends manipulated warden packet. Action: %s", _session->GetPlayerInfo().c_str(), penalty);
+        return;
+    }
+
     if (!IsValidCheckSum(Checksum, buff.contents() + buff.rpos(), Length))
     {
         buff.rfinish();
@@ -350,11 +367,9 @@ void WardenWin::HandleData(ByteBuffer &buff)
     }
 
     uint16 checkFailed = 0;
-    std::shared_lock<std::shared_mutex> lock(sWardenCheckMgr->_checkStoreLock);
-
     for (uint16 const id : _currentChecks)
     {
-        WardenCheck const& check = sWardenCheckMgr->GetWardenDataById(id);
+        WardenCheck const& check = sWardenCheckMgr->GetCheckDataById(id);
 
         switch (check.Type)
         {
@@ -373,7 +388,7 @@ void WardenWin::HandleData(ByteBuffer &buff)
                 std::vector<uint8> response;
                 response.resize(check.Length);
                 buff.read(response.data(), response.size());
-                if (response != sWardenCheckMgr->GetWardenResultById(id))
+                if (response != sWardenCheckMgr->GetCheckResultById(id))
                 {
                     TC_LOG_DEBUG("warden", "RESULT MEM_CHECK fail CheckId %u account Id %u", id, _session->GetAccountId());
                     checkFailed = id;
@@ -436,7 +451,7 @@ void WardenWin::HandleData(ByteBuffer &buff)
                 std::vector<uint8> result;
                 result.resize(Trinity::Crypto::SHA1::DIGEST_LENGTH);
                 buff.read(result.data(), result.size());
-                if (result != sWardenCheckMgr->GetWardenResultById(id)) // SHA1
+                if (result != sWardenCheckMgr->GetCheckResultById(id)) // SHA1
                 {
                     TC_LOG_DEBUG("warden", "RESULT MPQ_CHECK fail, CheckId %u account Id %u", id, _session->GetAccountId());
                     checkFailed = id;
@@ -453,7 +468,7 @@ void WardenWin::HandleData(ByteBuffer &buff)
 
     if (checkFailed > 0)
     {
-        WardenCheck const& check = sWardenCheckMgr->GetWardenDataById(checkFailed);
+        WardenCheck const& check = sWardenCheckMgr->GetCheckDataById(checkFailed);
         char const* penalty = ApplyPenalty(&check);
         TC_LOG_WARN("warden", "%s failed Warden check %u (%s). Action: %s", _session->GetPlayerInfo().c_str(), checkFailed, EnumUtils::ToConstant(check.Type), penalty);
     }

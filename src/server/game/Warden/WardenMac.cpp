@@ -166,8 +166,6 @@ void WardenMac::HandleHashResult(ByteBuffer &buff)
     _outputCrypto.Init(_outputKey);
 
     _initialized = true;
-
-    _previousTimestamp = GameTime::GetGameTimeMS();
 }
 
 void WardenMac::RequestData()

@@ -31,7 +31,7 @@
 #include <openssl/md5.h>
 
 Warden::Warden() : _session(nullptr), _checkTimer(10 * IN_MILLISECONDS), _clientResponseTimer(0),
-                   _dataSent(false), _previousTimestamp(0), _initialized(false)
+                   _dataSent(false), _initialized(false)
 {
 }
 
@@ -70,6 +70,8 @@ void Warden::SendModuleToClient()
         sizeLeft -= burstSize;
         pos += burstSize;
 
+        EndianConvert(packet.DataSize);
+
         EncryptData(reinterpret_cast<uint8*>(&packet), burstSize + 3);
         WorldPacket pkt1(SMSG_WARDEN_DATA, burstSize + 3);
         pkt1.append(reinterpret_cast<uint8*>(&packet), burstSize + 3);
@@ -89,6 +91,8 @@ void Warden::RequestModule()
     request.ModuleKey = _module->Key;
     request.Size = _module->CompressedSize;
 
+    EndianConvert(request.Size);
+
     // Encrypt with warden RC4 key.
     EncryptData(reinterpret_cast<uint8*>(&request), sizeof(WardenModuleUse));
 
@@ -97,14 +101,10 @@ void Warden::RequestModule()
     _session->SendPacket(&pkt);
 }
 
-void Warden::Update()
+void Warden::Update(uint32 diff)
 {
     if (!_initialized)
         return;
-
-    uint32 currentTimestamp = GameTime::GetGameTimeMS();
-    uint32 diff = currentTimestamp - _previousTimestamp;
-    _previousTimestamp = currentTimestamp;
 
     if (_dataSent)
     {
@@ -252,7 +252,7 @@ void WorldSession::HandleWardenDataOpcode(WorldPacket& recvData)
             TC_LOG_DEBUG("warden", "NYI WARDEN_CMSG_MODULE_FAILED received!");
             break;
         default:
-            TC_LOG_DEBUG("warden", "Got unknown warden opcode %02X of size %u.", opcode, uint32(recvData.size() - 1));
+            TC_LOG_WARN("warden", "Got unknown warden opcode %02X of size %u.", opcode, uint32(recvData.size() - 1));
             break;
     }
 }
