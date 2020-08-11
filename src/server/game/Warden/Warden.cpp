@@ -28,21 +28,27 @@
 #include "AccountMgr.h"
 
 #include <openssl/sha.h>
+#include <openssl/md5.h>
 
-Warden::Warden() : _session(nullptr), _checkTimer(10000/*10 sec*/), _clientResponseTimer(0),
-                   _dataSent(false), _previousTimestamp(0), _module(nullptr), _initialized(false)
+Warden::Warden() : _session(nullptr), _checkTimer(10 * IN_MILLISECONDS), _clientResponseTimer(0),
+                   _dataSent(false), _previousTimestamp(0), _initialized(false)
 {
-    memset(_inputKey, 0, sizeof(_inputKey));
-    memset(_outputKey, 0, sizeof(_outputKey));
-    memset(_seed, 0, sizeof(_seed));
 }
 
 Warden::~Warden()
 {
-    delete[] _module->CompressedData;
-    delete _module;
-    _module = nullptr;
     _initialized = false;
+}
+
+void Warden::MakeModuleForClient()
+{
+    _module.emplace();
+    InitializeModuleForClient(*_module);
+
+    MD5_CTX ctx;
+    MD5_Init(&ctx);
+    MD5_Update(&ctx, _module->CompressedData, _module->CompressedSize);
+    MD5_Final(_module->Id.data(), &ctx);
 }
 
 void Warden::SendModuleToClient()
@@ -60,7 +66,7 @@ void Warden::SendModuleToClient()
         burstSize = sizeLeft < 500 ? sizeLeft : 500;
         packet.Command = WARDEN_SMSG_MODULE_CACHE;
         packet.DataSize = burstSize;
-        memcpy(packet.Data, &_module->CompressedData[pos], burstSize);
+        memcpy(packet.Data, _module->CompressedData + pos, burstSize);
         sizeLeft -= burstSize;
         pos += burstSize;
 
@@ -79,8 +85,8 @@ void Warden::RequestModule()
     WardenModuleUse request;
     request.Command = WARDEN_SMSG_MODULE_USE;
 
-    memcpy(request.ModuleId, _module->Id, 16);
-    memcpy(request.ModuleKey, _module->Key, 16);
+    request.ModuleId = _module->Id;
+    request.ModuleKey = _module->Key;
     request.Size = _module->CompressedSize;
 
     // Encrypt with warden RC4 key.
@@ -108,7 +114,7 @@ void Warden::Update()
                 // Kick player if client response delays more than set in config
                 if (_clientResponseTimer > maxClientResponseDelay * IN_MILLISECONDS)
                 {
-                    TC_LOG_WARN("warden", "%s (latency: %u, IP: %s) exceeded Warden module response delay for more than %s - disconnecting client",
+                    TC_LOG_WARN("warden", "%s (latency: %u, IP: %s) exceeded Warden module response delay (%s) - disconnecting client",
                                    _session->GetPlayerInfo().c_str(), _session->GetLatency(), _session->GetRemoteAddress().c_str(), secsToTimeString(maxClientResponseDelay, TimeFormat::ShortText).c_str());
                     _session->KickPlayer("Warden::Update Warden module response delay exceeded");
                 }
@@ -180,7 +186,7 @@ uint32 Warden::BuildChecksum(uint8 const* data, uint32 length)
     return checkSum;
 }
 
-std::string Warden::Penalty(WardenCheck* check /*= nullptr*/)
+char const* Warden::ApplyPenalty(WardenCheck const* check)
 {
     WardenActions action;
 
@@ -191,17 +197,11 @@ std::string Warden::Penalty(WardenCheck* check /*= nullptr*/)
 
     switch (action)
     {
-    case WARDEN_ACTION_LOG:
-        return "None";
-        break;
-    case WARDEN_ACTION_KICK:
-        _session->KickPlayer("Warden::Penalty");
-        return "Kick";
-        break;
-    case WARDEN_ACTION_BAN:
+        case WARDEN_ACTION_KICK:
+            _session->KickPlayer("Warden::Penalty");
+            break;
+        case WARDEN_ACTION_BAN:
         {
-            std::stringstream duration;
-            duration << sWorld->getIntConfig(CONFIG_WARDEN_CLIENT_BAN_DURATION) << "s";
             std::string accountName;
             AccountMgr::GetName(_session->GetAccountId(), accountName);
             std::stringstream banReason;
@@ -210,14 +210,15 @@ std::string Warden::Penalty(WardenCheck* check /*= nullptr*/)
             if (check)
                 banReason << ": " << check->Comment << " (CheckId: " << check->CheckId << ")";
 
-            sWorld->BanAccount(BAN_ACCOUNT, accountName, duration.str(), banReason.str(),"Server");
+            sWorld->BanAccount(BAN_ACCOUNT, accountName, sWorld->getIntConfig(CONFIG_WARDEN_CLIENT_BAN_DURATION), banReason.str(),"Server");
 
-            return "Ban";
+            break;
         }
-    default:
-        break;
+        case WARDEN_ACTION_LOG:
+        default:
+            return "None";
     }
-    return "Undefined";
+    return EnumUtils::ToTitle(action);
 }
 
 void WorldSession::HandleWardenDataOpcode(WorldPacket& recvData)

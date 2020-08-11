@@ -65,10 +65,9 @@ class TC_GAME_API WardenWin : public Warden
 {
     public:
         WardenWin();
-        ~WardenWin();
 
         void Init(WorldSession* session, SessionKey const& K) override;
-        ClientWardenModule* GetModuleForClient() override;
+        void InitializeModuleForClient(ClientWardenModule& module) override;
         void InitializeModule() override;
         void RequestHash() override;
         void HandleHashResult(ByteBuffer &buff) override;
@@ -77,9 +76,11 @@ class TC_GAME_API WardenWin : public Warden
 
     private:
         uint32 _serverTicks;
-        std::list<uint16> _otherChecksTodo;
-        std::list<uint16> _memChecksTodo;
-        std::list<uint16> _currentChecks;
+        std::vector<uint16> _otherChecks;
+        std::vector<uint16>::const_iterator _otherChecksIt;
+        std::vector<uint16> _memChecks;
+        std::vector<uint16>::const_iterator _memChecksIt;
+        std::vector<uint16> _currentChecks;
 };
 
 #endif

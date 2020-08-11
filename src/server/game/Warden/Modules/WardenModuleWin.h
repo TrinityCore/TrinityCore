@@ -18,22 +18,25 @@
 #ifndef _WARDEN_MODULE_WIN_H
 #define _WARDEN_MODULE_WIN_H
 
+#include "CryptoHash.h"
+#include <array>
+
 /*
 Seed: 4D808D2C77D905C41A6380EC08586AFE (0x05 packet)
 Hash: 568C054C781A972A6037A2290C22B52571A06F4E (0x04 packet)
 Module MD5: 79C0768D657977D697E10BAD956CCED1
 New Client Key: 7F 96 EE FD A5 B6 3D 20 A4 DF 8E 00 CB F4 83 04
-New Cerver Key: C2 B7 AD ED FC CC A9 C2 BF B3 F8 56 02 BA 80 9B
+New Server Key: C2 B7 AD ED FC CC A9 C2 BF B3 F8 56 02 BA 80 9B
 */
 
 struct Module_79C0768D657977D697E10BAD956CCED1
 {
-    uint8 Module[18756];
-    uint8 ModuleKey[16];
-    uint8 Seed[16];
-    uint8 ServerKeySeed[16];
-    uint8 ClientKeySeed[16];
-    uint8 ClientKeySeedHash[20];
+    std::array<uint8, 18756> Module;
+    std::array<uint8, 16> ModuleKey;
+    std::array<uint8, 16> Seed;
+    std::array<uint8, 16> ServerKeySeed;
+    std::array<uint8, 16> ClientKeySeed;
+    Trinity::Crypto::SHA1::Digest ClientKeySeedHash;
 } Module =
 {
     {
