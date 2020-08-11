@@ -1543,7 +1543,7 @@ enum SmartCastFlags
 struct SmartScriptHolder
 {
     SmartScriptHolder() : entryOrGuid(0), source_type(SMART_SCRIPT_TYPE_CREATURE)
-        , event_id(0), link(0), event(), action(), target(), timer(0), active(false), runOnce(false)
+        , event_id(0), link(0), event(), action(), target(), timer(0), priority(uint32(-1)), active(false), runOnce(false)
         , enableTimed(false) { }
 
     int32 entryOrGuid;
@@ -1561,6 +1561,7 @@ struct SmartScriptHolder
     uint32 GetTargetType() const { return (uint32)target.type; }
 
     uint32 timer;
+    uint32 priority;
     bool active;
     bool runOnce;
     bool enableTimed;

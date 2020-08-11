@@ -100,6 +100,8 @@ class TC_GAME_API SmartScript
         void SetPhase(uint32 p);
         bool IsInPhase(uint32 p) const;
 
+        void SortEventsByPriority(SmartAIEventList& events);
+
         SmartAIEventList mEvents;
         SmartAIEventList mInstallEvents;
         SmartAIEventList mTimedActionList;
@@ -122,6 +124,7 @@ class TC_GAME_API SmartScript
         uint32 mLastTextID;
         uint32 mTalkerEntry;
         bool mUseTextTimer;
+        uint32 mCurrentPriority;
 
         ObjectVectorMap _storedTargets;
 
