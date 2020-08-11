@@ -101,7 +101,7 @@ void Warden::Update()
 {
     if (!_initialized)
         return;
-    
+
     uint32 currentTimestamp = GameTime::GetGameTimeMS();
     uint32 diff = currentTimestamp - _previousTimestamp;
     _previousTimestamp = currentTimestamp;
