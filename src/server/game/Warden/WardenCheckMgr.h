@@ -18,10 +18,9 @@
 #ifndef _WARDENCHECKMGR_H
 #define _WARDENCHECKMGR_H
 
-#include <map>
 #include <shared_mutex>
+#include <unordered_map>
 #include <vector>
-#include "Cryptography/BigNumber.h"
 
 // EnumUtils: DESCRIBE THIS
 enum WardenActions : uint8

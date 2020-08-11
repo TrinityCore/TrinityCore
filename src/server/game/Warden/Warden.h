@@ -84,33 +84,32 @@ class WorldSession;
 
 class TC_GAME_API Warden
 {
-    friend void WorldSession::InitWarden(SessionKey const&, std::string const&);
-    friend void WorldSession::HandleWardenDataOpcode(WorldPacket&);
-
     public:
         Warden();
         virtual ~Warden();
 
+        virtual void Init(WorldSession* session, SessionKey const& K) = 0;
         void Update(uint32 diff);
 
-    protected:
-        virtual void Init(WorldSession* session, SessionKey const& K) = 0;
+        void DecryptData(uint8* buffer, uint32 length);
+        void EncryptData(uint8* buffer, uint32 length);
+
+        void SendModuleToClient();
+
         virtual void InitializeModule() = 0;
-        virtual void InitializeModuleForClient(ClientWardenModule& module) = 0;
         virtual void RequestHash() = 0;
-        virtual void HandleHashResult(ByteBuffer &buff) = 0;
+        virtual void HandleHashResult(ByteBuffer& buff) = 0;
+        virtual void HandleData(ByteBuffer& buff) = 0;
+
+    protected:
+        virtual void InitializeModuleForClient(ClientWardenModule& module) = 0;
         virtual void RequestData() = 0;
-        virtual void HandleData(ByteBuffer &buff) = 0;
 
         void MakeModuleForClient();
-        void SendModuleToClient();
         void RequestModule();
 
         static bool IsValidCheckSum(uint32 checksum, const uint8 *data, const uint16 length);
         static uint32 BuildChecksum(const uint8 *data, uint32 length);
-
-        void DecryptData(uint8* buffer, uint32 length);
-        void EncryptData(uint8* buffer, uint32 length);
 
         // If nullptr is passed, the default action from config is executed
         char const* ApplyPenalty(WardenCheck const* check);
