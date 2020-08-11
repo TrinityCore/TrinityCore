@@ -18,61 +18,69 @@
 #ifndef _WARDENCHECKMGR_H
 #define _WARDENCHECKMGR_H
 
-#include "Cryptography/BigNumber.h"
-#include <map>
+#include "Define.h"
 #include <shared_mutex>
+#include <unordered_map>
+#include <vector>
 
-enum WardenActions
+// EnumUtils: DESCRIBE THIS
+enum WardenActions : uint8
 {
-    WARDEN_ACTION_LOG,
-    WARDEN_ACTION_KICK,
-    WARDEN_ACTION_BAN
+    WARDEN_ACTION_LOG, // TITLE Log
+    WARDEN_ACTION_KICK, // TITLE Kick
+    WARDEN_ACTION_BAN // TITLE Ban
+};
+
+// EnumUtils: DESCRIBE THIS
+enum WardenCheckType : uint8
+{
+    MEM_CHECK = 0xF3, // 243: byte moduleNameIndex + uint Offset + byte Len (check to ensure memory isn't modified)
+    PAGE_CHECK_A = 0xB2, // 178: uint Seed + byte[20] SHA1 + uint Addr + byte Len (scans all pages for specified hash)
+    PAGE_CHECK_B = 0xBF, // 191: uint Seed + byte[20] SHA1 + uint Addr + byte Len (scans only pages starts with MZ+PE headers for specified hash)
+    MPQ_CHECK = 0x98, // 152: byte fileNameIndex (check to ensure MPQ file isn't modified)
+    LUA_STR_CHECK = 0x8B, // 139: byte luaNameIndex (check to ensure LUA string isn't used)
+    DRIVER_CHECK = 0x71, // 113: uint Seed + byte[20] SHA1 + byte driverNameIndex (check to ensure driver isn't loaded)
+    TIMING_CHECK = 0x57, //  87: empty (check to ensure GetTickCount() isn't detoured)
+    PROC_CHECK = 0x7E, // 126: uint Seed + byte[20] SHA1 + byte moluleNameIndex + byte procNameIndex + uint Offset + byte Len (check to ensure proc isn't detoured)
+    MODULE_CHECK = 0xD9  // 217: uint Seed + byte[20] SHA1 (check to ensure module isn't injected)
 };
 
 struct WardenCheck
 {
-    uint8 Type;
-    BigNumber Data;
+    WardenCheckType Type;
+    std::vector<uint8> Data;
     uint32 Address;                                         // PROC_CHECK, MEM_CHECK, PAGE_CHECK
     uint8 Length;                                           // PROC_CHECK, MEM_CHECK, PAGE_CHECK
     std::string Str;                                        // LUA, MPQ, DRIVER
     std::string Comment;
     uint16 CheckId;
-    enum WardenActions Action;
+    WardenActions Action;
 };
 
-struct WardenCheckResult
-{
-    BigNumber Result;                                       // MEM_CHECK
-};
+using WardenCheckResult = std::vector<uint8>;
 
 class TC_GAME_API WardenCheckMgr
 {
     private:
         WardenCheckMgr();
-        ~WardenCheckMgr();
 
     public:
         static WardenCheckMgr* instance();
 
-        // We have a linear key without any gaps, so we use vector for fast access
-        typedef std::vector<WardenCheck*> CheckContainer;
-        typedef std::map<uint32, WardenCheckResult*> CheckResultContainer;
+        WardenCheck const& GetCheckDataById(uint16 Id) const;
+        WardenCheckResult const& GetCheckResultById(uint16 Id) const;
 
-        WardenCheck* GetWardenDataById(uint16 Id);
-        WardenCheckResult* GetWardenResultById(uint16 Id);
-
-        std::vector<uint16> MemChecksIdPool;
-        std::vector<uint16> OtherChecksIdPool;
+        std::vector<uint16> const& GetAvailableMemoryChecks() const { return MemChecksIdPool; }
+        std::vector<uint16> const& GetAvailableOtherChecks() const { return OtherChecksIdPool; }
 
         void LoadWardenChecks();
         void LoadWardenOverrides();
 
-        std::shared_mutex _checkStoreLock;
-
     private:
-        CheckContainer CheckStore;
-        CheckResultContainer CheckResultStore;
+        std::vector<WardenCheck> CheckStore;
+        std::unordered_map<uint32, WardenCheckResult> CheckResultStore;
+        std::vector<uint16> MemChecksIdPool;
+        std::vector<uint16> OtherChecksIdPool;
 };
 
 #define sWardenCheckMgr WardenCheckMgr::instance()
