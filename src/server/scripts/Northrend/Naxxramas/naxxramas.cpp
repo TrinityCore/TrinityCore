@@ -43,33 +43,35 @@ enum NaxxEvents
     EVENT_SUMMON_LIVING_POISON = 1
 };
 
-constexpr uint8 const MaxLivingPoisons = 3;
-std::array<Position, MaxLivingPoisons> LivingPoisonSpawnPositions =
+struct LivingPoisonData
 {
-    Position(3175.399f, -3134.5156f, 293.37762f, 4.4535513f),
-    Position(3154.5203f, -3125.6458f, 293.44492f, 4.6543846f),
-    Position(3128.609f,  -3119.2295f, 293.42194f, 4.7248187f),
+    Position SpawnPos;
+    Position FirstSplineDest;
+    Position SecondSplineDest;
+    Milliseconds NextSplineTimer;
 };
 
-std::array<Position, MaxLivingPoisons> LivingPoisonInitialSplineDestinations =
-{
-    Position(3167.0532f, -3150.3875f, 294.0628f),
-    Position(3149.712f, -3142.9995f, 294.0628f),
-    Position(3128.868f, -3140.0342f, 294.0628f),
-};
-
-std::array<Position, MaxLivingPoisons> LivingPoisonSecondSplineDestinations =
-{
-    Position(3158.178f,  -3163.7876f, 293.3122f),
-    Position(3145.9402f, -3158.5762f, 293.32156f),
-    Position(3129.5356f, -3156.7466f, 293.32394f),
-};
-
-std::array<Milliseconds, MaxLivingPoisons> LivingPoisonNextSplineTimer =
-{
-    5s + 500ms,
-    6s,
-    7s
+std::array<LivingPoisonData, 3> const LivingPoisons = {
+    {
+        {
+            { 3175.399f, -3134.5156f, 293.37762f, 4.4535513f },
+            { 3167.0532f, -3150.3875f, 294.0628f },
+            { 3158.178f, -3163.7876f, 293.3122f },
+            5s + 500ms
+        },
+        {
+            { 3154.5203f, -3125.6458f, 293.44492f, 4.6543846f },
+            { 3149.712f, -3142.9995f, 294.0628f },
+            { 3145.9402f, -3158.5762f, 293.32156f },
+            6s
+        },
+        {
+            { 3128.609f, -3119.2295f, 293.42194f, 4.7248187f },
+            { 3128.868f, -3140.0342f, 294.0628f },
+            { 3129.5356f, -3156.7466f, 293.32394f },
+            7s
+        }
+    }
 };
 
 struct npc_frogger_trigger_naxx : public NullCreatureAI
@@ -78,7 +80,7 @@ struct npc_frogger_trigger_naxx : public NullCreatureAI
 
     void Reset() override
     {
-        _events.ScheduleEvent(EVENT_SUMMON_LIVING_POISON, 1ms);
+        _events.ScheduleEvent(EVENT_SUMMON_LIVING_POISON, 0s);
     }
 
     void UpdateAI(uint32 diff) override
@@ -90,21 +92,20 @@ struct npc_frogger_trigger_naxx : public NullCreatureAI
             switch (eventId)
             {
                 case EVENT_SUMMON_LIVING_POISON:
-                    for (uint8 i = 0; i < MaxLivingPoisons; ++i)
+                    for (LivingPoisonData const& poisonData : LivingPoisons)
                     {
-                        if (Creature* slime = DoSummon(NPC_LIVING_POISON, LivingPoisonSpawnPositions[i], 8s + 500ms, TEMPSUMMON_CORPSE_TIMED_DESPAWN))
+                        if (Creature* slime = DoSummon(NPC_LIVING_POISON, poisonData.SpawnPos, 8s + 500ms, TEMPSUMMON_CORPSE_TIMED_DESPAWN))
                         {
-                            LaunchSpline(slime, LivingPoisonInitialSplineDestinations[i]);
-                            slime->m_Events.AddEventAtOffset([i, slime, this]()
+                            LaunchSpline(slime, poisonData.FirstSplineDest);
+                            slime->m_Events.AddEventAtOffset([poisonData, slime]()
                             {
                                 if (slime->isDead())
                                     return;
 
-                                LaunchSpline(slime, LivingPoisonSecondSplineDestinations[i]);
+                                LaunchSpline(slime, poisonData.SecondSplineDest);
                                 if (!slime->movespline->Finalized())
                                     slime->DespawnOrUnsummon(Milliseconds(slime->movespline->Duration()) + 500ms);
-
-                            }, LivingPoisonNextSplineTimer[i]);
+                            }, poisonData.NextSplineTimer);
                         }
                     }
                     _events.Repeat(6s);
@@ -118,7 +119,7 @@ struct npc_frogger_trigger_naxx : public NullCreatureAI
 private:
     EventMap _events;
 
-    void LaunchSpline(Creature* slime, Position const dest)
+    static void LaunchSpline(Creature* slime, Position const dest)
     {
         Movement::MoveSplineInit init(slime);
         init.MoveTo(dest.GetPositionX(), dest.GetPositionY(), dest.GetPositionZ());
