@@ -330,6 +330,15 @@ std::array<uint8, Size> HexStrToByteArray(std::string const& str, bool reverse =
     return arr;
 }
 
+inline std::vector<uint8> HexStrToByteVector(std::string const& str, bool reverse = false)
+{
+    std::vector<uint8> buf;
+    size_t const sz = (str.size() / 2);
+    buf.resize(sz);
+    Trinity::Impl::HexStrToByteArray(str, buf.data(), sz, reverse);
+    return buf;
+}
+
 TC_COMMON_API bool StringToBool(std::string const& str);
 
 TC_COMMON_API bool StringContainsStringI(std::string const& haystack, std::string const& needle);
