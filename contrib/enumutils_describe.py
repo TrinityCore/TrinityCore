@@ -19,7 +19,7 @@ notice = ('''/*
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-''' % datetime.now().year)
+''')
 
 if not getcwd().endswith('src'):
     print('Run this from the src directory!')

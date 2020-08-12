@@ -422,7 +422,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     _recvQueue.readd(requeuePackets.begin(), requeuePackets.end());
 
     if (m_Socket && m_Socket->IsOpen() && _warden)
-        _warden->Update();
+        _warden->Update(diff);
 
     if (!updater.ProcessUnsafe()) // <=> updater is of type MapSessionFilter
     {
@@ -446,12 +446,12 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
         if (ShouldLogOut(currentTime) && !m_playerLoading)
             LogoutPlayer(true);
 
-        if (m_Socket && GetPlayer() && _warden)
-            _warden->Update();
-
         ///- Cleanup socket pointer if need
         if (m_Socket && !m_Socket->IsOpen())
         {
+            if (GetPlayer() && _warden)
+                _warden->Update(diff);
+
             expireTime -= expireTime > diff ? diff : expireTime;
             if (expireTime < diff || forceExit || !GetPlayer())
             {
