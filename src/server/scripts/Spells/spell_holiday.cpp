@@ -1841,8 +1841,11 @@ class spell_midsummer_fling_torch_catch : public SpellScript
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({
-            SPELL_FLING_TORCH_TRIGGERED, SPELL_TORCH_CATCHING_SUCCESS_ALLIANCE, SPELL_TORCH_CATCHING_SUCCESS_HORDE,
-            SPELL_TORCH_CATCHING_REMOVE_TORCHES, SPELL_FLING_TORCH_SHADOW
+            SPELL_FLING_TORCH_TRIGGERED,
+            SPELL_TORCH_CATCHING_SUCCESS_ALLIANCE,
+            SPELL_TORCH_CATCHING_SUCCESS_HORDE,
+            SPELL_TORCH_CATCHING_REMOVE_TORCHES,
+            SPELL_FLING_TORCH_SHADOW
         });
     }
 
@@ -1865,6 +1868,10 @@ class spell_midsummer_fling_torch_catch : public SpellScript
             requiredCatches = 3;
         else if (player->GetQuestStatus(QUEST_MORE_TORCH_CATCHING_A) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_MORE_TORCH_CATCHING_H) == QUEST_STATUS_INCOMPLETE)
             requiredCatches = 9;
+
+        // Used quest item without being on quest - do nothing
+        if (requiredCatches == 0)
+            return;
 
         if (player->GetAuraCount(SPELL_TORCHES_CAUGHT) >= requiredCatches)
         {
