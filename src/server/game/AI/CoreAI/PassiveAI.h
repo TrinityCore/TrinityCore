@@ -45,6 +45,8 @@ class TC_GAME_API PossessedAI : public CreatureAI
         void UpdateAI(uint32) override;
         void EnterEvadeMode(EvadeReason /*why*/) override { }
 
+        void JustDied(Unit*) override;
+
         static int32 Permissible(Creature const* /*creature*/) { return PERMIT_BASE_NO; }
 };
 
