@@ -10305,6 +10305,9 @@ bool Unit::IsPolymorphed() const
 
 void Unit::SetAnimationTier(AnimationTier tier)
 {
+    if (!IsCreature())
+        return;
+
     SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, static_cast<uint8>(tier));
 }
 
@@ -13107,7 +13110,7 @@ bool Unit::SetWalk(bool enable)
     return true;
 }
 
-bool Unit::SetDisableGravity(bool disable, bool /*packetOnly = false*/, bool updateAnimationTier /*= true*/)
+bool Unit::SetDisableGravity(bool disable, bool /*packetOnly = false*/, bool /*updateAnimationTier = true*/)
 {
     if (disable == IsGravityDisabled())
         return false;
@@ -13120,15 +13123,6 @@ bool Unit::SetDisableGravity(bool disable, bool /*packetOnly = false*/, bool upd
     else
         RemoveUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
 
-    if (updateAnimationTier && IsAlive())
-    {
-        if (IsGravityDisabled())
-            SetAnimationTier(AnimationTier::Fly);
-        else if (IsHovering())
-            SetAnimationTier(AnimationTier::Hover);
-        else
-            SetAnimationTier(AnimationTier::Ground);
-    }
     return true;
 }
 
@@ -13183,7 +13177,7 @@ bool Unit::SetFeatherFall(bool enable, bool /*packetOnly = false */)
     return true;
 }
 
-bool Unit::SetHover(bool enable, bool /*packetOnly = false*/, bool updateAnimationTier /*= true*/)
+bool Unit::SetHover(bool enable, bool /*packetOnly = false*/, bool /*updateAnimationTier = true*/)
 {
     if (enable == HasUnitMovementFlag(MOVEMENTFLAG_HOVER))
         return false;
@@ -13207,16 +13201,6 @@ bool Unit::SetHover(bool enable, bool /*packetOnly = false*/, bool updateAnimati
             UpdateAllowedPositionZ(GetPositionX(), GetPositionY(), newZ);
             UpdateHeight(newZ);
         }
-    }
-
-    if (updateAnimationTier && IsAlive())
-    {
-        if (IsGravityDisabled())
-            SetAnimationTier(AnimationTier::Fly);
-        else if (IsHovering())
-            SetAnimationTier(AnimationTier::Hover);
-        else
-            SetAnimationTier(AnimationTier::Ground);
     }
     return true;
 }
