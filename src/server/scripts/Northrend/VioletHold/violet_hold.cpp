@@ -1123,7 +1123,7 @@ class npc_azure_stalker : public CreatureScript
 
                     task.Schedule(Milliseconds(1300), [this](TaskContext /*task*/)
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0, 5.0f))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_MINDISTANCE, 0, 5.0f))
                             DoCast(target, SPELL_BACKSTAB);
                     });
 

@@ -109,15 +109,11 @@ class boss_blackheart_the_inciter : public CreatureScript
                         {
                             DoCast(me, SPELL_INCITE_CHAOS);
 
-                            std::list<HostileReference*> t_list = me->getThreatManager().getThreatList();
-                            for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
-                            {
-                                if (Unit* target = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid()))
-                                    if (target->GetTypeId() == TYPEID_PLAYER)
-                                        me->CastSpell(target, SPELL_INCITE_CHAOS_B, true);
-                            }
+                            for (ThreatReference* ref : me->GetThreatManager().GetUnsortedThreatList())
+                                if (ref->GetVictim()->GetTypeId() == TYPEID_PLAYER)
+                                    me->CastSpell(ref->GetVictim(), SPELL_INCITE_CHAOS_B, true);
 
-                            DoResetThreat();
+                            ResetThreatList();
                             events.ScheduleEvent(EVENT_INCITE_CHAOS, 40000);
                             break;
                         }

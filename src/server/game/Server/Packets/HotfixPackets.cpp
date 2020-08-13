@@ -63,7 +63,7 @@ WorldPacket const* DBReply::Write()
 
 WorldPacket const* AvailableHotfixes::Write()
 {
-    _worldPacket << int32(HotfixCacheVersion);
+    _worldPacket << int32(VirtualRealmAddress);
     _worldPacket << uint32(HotfixCount);
     for (DB2Manager::HotfixRecord const& hotfixRecord : Hotfixes)
         _worldPacket << hotfixRecord;
