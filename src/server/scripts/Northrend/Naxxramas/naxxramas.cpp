@@ -18,24 +18,69 @@
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
+#include "MoveSpline.h"
+#include "MoveSplineInit.h"
 #include "ScriptedCreature.h"
+#include "PassiveAI.h"
 #include "TemporarySummon.h"
 #include "naxxramas.h"
 
+/*
+    According to sniffs there are multiple spawn groups (5 to be precise) since Living Poisons with the same initial spline
+    destination are only getting spawned in 31 seconds intervals. For the sake of readability we will stick
+    with one and increase the interval.
+
+    Here are some values:
+    - The "Frogger" spawner spawns the same group in 31 second intervals. Since we are lazy and wanna keep the values readable
+      we stick with one timer set at 6s.
+    - The slime moves with a spline velocity of 2.5f which equals the walk speed of it.
+    - If a slime explodes it will despawn 8.5s after its death.
+    - If a slime reaches its final spline destination it will despawn after 500 milliseconds -+ 100 depending on Blizzard's packet interval
+*/
+
 enum NaxxEvents
 {
-    EVENT_SUMMON_FROGGER_WAVE = 1
+    EVENT_SUMMON_LIVING_POISON = 1
 };
 
-struct npc_frogger_trigger_naxx : public ScriptedAI
+struct LivingPoisonData
 {
-    npc_frogger_trigger_naxx(Creature* creature) : ScriptedAI(creature), _nextFroggerWave(0) { }
+    Position SpawnPos;
+    Position FirstSplineDest;
+    Position SecondSplineDest;
+    Milliseconds NextSplineTimer;
+};
+
+std::array<LivingPoisonData, 3> const LivingPoisons = {
+    {
+        {
+            { 3175.399f, -3134.5156f, 293.37762f, 4.4535513f },
+            { 3167.0532f, -3150.3875f, 294.0628f },
+            { 3158.178f, -3163.7876f, 293.3122f },
+            5s + 500ms
+        },
+        {
+            { 3154.5203f, -3125.6458f, 293.44492f, 4.6543846f },
+            { 3149.712f, -3142.9995f, 294.0628f },
+            { 3145.9402f, -3158.5762f, 293.32156f },
+            6s
+        },
+        {
+            { 3128.609f, -3119.2295f, 293.42194f, 4.7248187f },
+            { 3128.868f, -3140.0342f, 294.0628f },
+            { 3129.5356f, -3156.7466f, 293.32394f },
+            7s
+        }
+    }
+};
+
+struct npc_frogger_trigger_naxx : public NullCreatureAI
+{
+    npc_frogger_trigger_naxx(Creature* creature) : NullCreatureAI(creature) { }
 
     void Reset() override
     {
-        _events.Reset();
-        _events.ScheduleEvent(EVENT_SUMMON_FROGGER_WAVE, 1s);
-        _nextFroggerWave = 0;
+        _events.ScheduleEvent(EVENT_SUMMON_LIVING_POISON, 0s);
     }
 
     void UpdateAI(uint32 diff) override
@@ -46,16 +91,25 @@ struct npc_frogger_trigger_naxx : public ScriptedAI
         {
             switch (eventId)
             {
-                case EVENT_SUMMON_FROGGER_WAVE:
-                {
-                    std::list<TempSummon*> spawns;
-                    me->SummonCreatureGroup(_nextFroggerWave, &spawns);
-                    if (!spawns.empty())
-                        spawns.front()->GetMotionMaster()->MovePath(10 * NPC_FROGGER + _nextFroggerWave, false);
-                    _events.Repeat(1666ms);
-                    _nextFroggerWave = (_nextFroggerWave+1) % 3;
+                case EVENT_SUMMON_LIVING_POISON:
+                    for (LivingPoisonData const& poisonData : LivingPoisons)
+                    {
+                        if (Creature* slime = DoSummon(NPC_LIVING_POISON, poisonData.SpawnPos, 8s + 500ms, TEMPSUMMON_CORPSE_TIMED_DESPAWN))
+                        {
+                            LaunchSpline(slime, poisonData.FirstSplineDest);
+                            slime->m_Events.AddEventAtOffset([poisonData, slime]()
+                            {
+                                if (slime->isDead())
+                                    return;
+
+                                LaunchSpline(slime, poisonData.SecondSplineDest);
+                                if (!slime->movespline->Finalized())
+                                    slime->DespawnOrUnsummon(Milliseconds(slime->movespline->Duration()) + 500ms);
+                            }, poisonData.NextSplineTimer);
+                        }
+                    }
+                    _events.Repeat(6s);
                     break;
-                }
                 default:
                     break;
             }
@@ -64,7 +118,14 @@ struct npc_frogger_trigger_naxx : public ScriptedAI
 
 private:
     EventMap _events;
-    uint8 _nextFroggerWave;
+
+    static void LaunchSpline(Creature* slime, Position const dest)
+    {
+        Movement::MoveSplineInit init(slime);
+        init.MoveTo(dest.GetPositionX(), dest.GetPositionY(), dest.GetPositionZ());
+        init.SetWalk(true);
+        slime->GetMotionMaster()->LaunchMoveSpline(std::move(init));
+    }
 };
 
 void AddSC_naxxramas()
