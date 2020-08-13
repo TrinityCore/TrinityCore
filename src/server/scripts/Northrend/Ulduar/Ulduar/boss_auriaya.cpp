@@ -152,7 +152,7 @@ class boss_auriaya : public CreatureScript
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                 {
                     summoned->AI()->AttackStart(target);
-                    summoned->AddThreat(target, 250.0f);
+                    AddThreat(target, 250.0f, summoned);
                     DoZoneInCombat(summoned);
                 }
 
@@ -374,7 +374,7 @@ class npc_sanctum_sentry : public CreatureScript
                         case EVENT_POUNCE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                             {
-                                me->AddThreat(target, 100.0f);
+                                AddThreat(target, 100.0f);
                                 AttackStart(target);
                                 DoCast(target, SPELL_SAVAGE_POUNCE);
                             }
@@ -443,7 +443,7 @@ class npc_feral_defender : public CreatureScript
                         case EVENT_FERAL_POUNCE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                             {
-                                me->AddThreat(target, 100.0f);
+                                AddThreat(target, 100.0f);
                                 AttackStart(target);
                                 DoCast(target, SPELL_FERAL_POUNCE);
                             }
@@ -452,7 +452,7 @@ class npc_feral_defender : public CreatureScript
                         case EVENT_RUSH:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                             {
-                                me->AddThreat(target, 100.0f);
+                                AddThreat(target, 100.0f);
                                 AttackStart(target);
                                 DoCast(target, SPELL_FERAL_RUSH);
                             }

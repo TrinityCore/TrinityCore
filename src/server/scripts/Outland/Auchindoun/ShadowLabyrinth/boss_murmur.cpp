@@ -155,16 +155,7 @@ class boss_murmur : public CreatureScript
                     return;
 
                 if (!me->IsWithinMeleeRange(me->GetVictim()))
-                {
-                    ThreatContainer::StorageType threatlist = me->getThreatManager().getThreatList();
-                    for (ThreatContainer::StorageType::const_iterator i = threatlist.begin(); i != threatlist.end(); ++i)
-                        if (Unit* target = ObjectAccessor::GetUnit(*me, (*i)->getUnitGuid()))
-                            if (me->IsWithinMeleeRange(target))
-                            {
-                                me->TauntApply(target);
-                                break;
-                            }
-                }
+                    me->GetThreatManager().ResetThreat(me->GetVictim());
 
                 DoMeleeAttackIfReady();
             }

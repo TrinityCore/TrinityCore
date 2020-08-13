@@ -558,18 +558,8 @@ bool SmartAI::AssistPlayerInCombatAgainst(Unit* who)
     //too far away and no free sight?
     if (me->IsWithinDistInMap(who, SMART_MAX_AID_DIST) && me->IsWithinLOSInMap(who))
     {
-        //already fighting someone?
-        if (!me->GetVictim())
-        {
-            AttackStart(who);
-            return true;
-        }
-        else
-        {
-            who->SetInCombatWith(me);
-            me->AddThreat(who, 0.0f);
-            return true;
-        }
+        me->EngageWithTarget(who);
+        return true;
     }
 
     return false;

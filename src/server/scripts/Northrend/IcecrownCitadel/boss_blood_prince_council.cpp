@@ -505,7 +505,7 @@ struct BloodPrincesBossAI : public BossAI
     {
         if (!_isEmpowered)
         {
-            me->AddThreat(attacker, float(damage));
+            AddThreat(attacker, float(damage));
             damage = 0;
         }
     }
@@ -1150,8 +1150,8 @@ class npc_dark_nucleus : public CreatureScript
                 if (attacker == me)
                     return;
 
-                me->DeleteThreatList();
-                me->AddThreat(attacker, 500000000.0f);
+                me->GetThreatManager().ClearAllThreat();
+                AddThreat(attacker, 500000000.0f);
             }
 
             void UpdateAI(uint32 diff) override

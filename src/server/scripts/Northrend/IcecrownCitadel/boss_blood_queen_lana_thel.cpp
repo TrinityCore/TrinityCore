@@ -485,15 +485,14 @@ class boss_blood_queen_lana_thel : public CreatureScript
             // offtank for this encounter is the player standing closest to main tank
             Player* SelectRandomTarget(bool includeOfftank, std::list<Player*>* targetList = NULL)
             {
-                std::list<HostileReference*> const& threatlist = me->getThreatManager().getThreatList();
-                std::list<Player*> tempTargets;
-
-                if (threatlist.empty())
+                if (me->GetThreatManager().IsThreatListEmpty(true))
                     return NULL;
 
-                for (std::list<HostileReference*>::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
-                    if (Unit* refTarget = (*itr)->getTarget())
-                        if (refTarget != me->GetVictim() && refTarget->GetTypeId() == TYPEID_PLAYER && (includeOfftank || (refTarget->GetGUID() != _offtankGUID)))
+                std::list<Player*> tempTargets;
+                Unit* maintank = me->GetThreatManager().GetCurrentVictim();
+                for (ThreatReference* ref : me->GetThreatManager().GetUnsortedThreatList())
+                    if (Player* refTarget = ref->GetVictim()->ToPlayer())
+                        if (refTarget != maintank && (includeOfftank || (refTarget->GetGUID() != _offtankGUID)))
                             tempTargets.push_back(refTarget->ToPlayer());
 
                 if (tempTargets.empty())

@@ -227,7 +227,7 @@ class npc_harbinger_of_flame : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_FIEROBLAST:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, false, -SPELL_RIDE_MONSTROSITY))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, false, true, -SPELL_RIDE_MONSTROSITY))
                                 DoCast(target, SPELL_FIEROBLAST_TRASH);
                             _events.RescheduleEvent(EVENT_FIEROBLAST, 500);  // cast time is longer, but thanks to UNIT_STATE_CASTING check it won't trigger more often (need this because this creature gets a stacking haste aura)
                             break;
@@ -330,7 +330,7 @@ class npc_blazing_monstrosity : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_START_SPITTING:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, false, -SPELL_RIDE_MONSTROSITY))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, false, true, -SPELL_RIDE_MONSTROSITY))
                                 DoCast(target, SPELL_MOLTEN_BARRAGE);
                             break;
                         case EVENT_CONTINUE_SPITTING:
@@ -635,8 +635,8 @@ class spell_alysrazor_aggro_closest : public SpellScriptLoader
             void HandleEffect(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
-                float curThreat = GetCaster()->getThreatManager().getThreat(GetHitUnit(), true);
-                GetCaster()->getThreatManager().addThreat(GetHitUnit(), -curThreat + 50000.0f / std::min(1.0f, GetCaster()->GetDistance(GetHitUnit())));
+                float curThreat = GetCaster()->GetThreatManager().getThreat(GetHitUnit(), true);
+                GetCaster()->GetThreatManager().AddThreat(GetHitUnit(), -curThreat + 50000.0f / std::min(1.0f, GetCaster()->GetDistance(GetHitUnit())));
             }
 
             void UpdateThreat()

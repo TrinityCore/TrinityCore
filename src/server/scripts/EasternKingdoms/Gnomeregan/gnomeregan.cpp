@@ -213,11 +213,7 @@ public:
                         continue;
 
                     if (player->IsAlive())
-                    {
-                        temp->SetInCombatWith(player);
-                        player->SetInCombatWith(temp);
-                        temp->AddThreat(player, 0.0f);
-                    }
+                        AddThreat(player, 0.0f, temp);
                 }
             }
         }

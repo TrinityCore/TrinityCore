@@ -1347,7 +1347,7 @@ class spell_warl_soulshatter : public SpellScriptLoader
             {
                 Unit* caster = GetCaster();
                 if (Unit* target = GetHitUnit())
-                    if (target->CanHaveThreatList() && target->getThreatManager().getThreat(caster) > 0.0f)
+                    if (target->CanHaveThreatList() && target->GetThreatManager().IsThreatenedBy(caster, true))
                         caster->CastSpell(target, SPELL_WARLOCK_SOULSHATTER, true);
             }
 

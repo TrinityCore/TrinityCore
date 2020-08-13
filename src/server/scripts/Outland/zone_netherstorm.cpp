@@ -431,21 +431,14 @@ public:
             // some code to cast spell Mana Burn on random target which has mana
             if (ManaBurnTimer <= diff)
             {
-                std::list<HostileReference*> AggroList = me->getThreatManager().getThreatList();
                 std::list<Unit*> UnitsWithMana;
-
-                for (std::list<HostileReference*>::const_iterator itr = AggroList.begin(); itr != AggroList.end(); ++itr)
-                {
-                    if (Unit* unit = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid()))
-                    {
-                        if (unit->GetCreateMana() > 0)
-                            UnitsWithMana.push_back(unit);
-                    }
-                }
+                for (auto* ref : me->GetThreatManager().GetUnsortedThreatList())
+                    if (ref->GetVictim()->GetPower(POWER_MANA))
+                        UnitsWithMana.push_back(ref->GetVictim());
                 if (!UnitsWithMana.empty())
                 {
                     DoCast(Trinity::Containers::SelectRandomContainerElement(UnitsWithMana), SPELL_MANA_BURN);
-                    ManaBurnTimer = 8000 + (rand32() % 10 * 1000); // 8-18 sec cd
+                    ManaBurnTimer = urand(8000, 18000); // 8-18 sec cd
                 }
                 else
                     ManaBurnTimer = 3500;

@@ -98,7 +98,7 @@ public:
                 me->SetFaction(FACTION_FRIENDLY);
                 me->AddNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
                 me->RemoveAllAuras();
-                me->DeleteThreatList();
+                me->GetThreatManager().ClearAllThreat();
                 me->CombatStop(true);
                 Talk(SAY_FREE);
                 return;
@@ -971,7 +971,7 @@ public:
                 _events.Reset();
                 me->RestoreFaction();
                 me->RemoveAllAuras();
-                me->DeleteThreatList();
+                me->GetThreatManager().ClearAllThreat();
                 me->CombatStop(true);
                 me->AddNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
                 me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
@@ -997,7 +997,7 @@ public:
                     me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
                     me->SetFaction(FACTION_MONSTER_2);
                     if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        me->CombatStart(player);
+                        me->EngageWithTarget(player);
                     _events.ScheduleEvent(EVENT_FIREBALL, 1);
                     _events.ScheduleEvent(EVENT_FROSTNOVA, Seconds(5));
                     break;

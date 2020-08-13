@@ -326,7 +326,7 @@ public:
                     me->GetMotionMaster()->MoveAlongSplineChain(POINT_INTRO_END, SPLINE_CHAIN_INTRO_END, false);
                     break;
                 case EVENT_RAIN_OF_BONES:
-                    DoResetThreat();
+                    ResetThreatList();
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                     {
                         me->SetFacingToObject(target);

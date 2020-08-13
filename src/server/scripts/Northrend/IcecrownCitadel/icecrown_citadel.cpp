@@ -926,7 +926,7 @@ class boss_sister_svalna : public CreatureScript
                             Talk(SAY_SVALNA_AGGRO);
                             break;
                         case EVENT_IMPALING_SPEAR:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, -SPELL_IMPALING_SPEAR))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, true, -SPELL_IMPALING_SPEAR))
                             {
                                 DoCast(me, SPELL_AETHER_SHIELD);
                                 DoCast(target, SPELL_IMPALING_SPEAR);

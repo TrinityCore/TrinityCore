@@ -219,11 +219,10 @@ void ObjectGridStoper::Visit(CreatureMapType &m)
     {
         iter->GetSource()->RemoveAllDynObjects();
         iter->GetSource()->RemoveAllAreaTriggers();
-
-        if (iter->GetSource()->IsInCombat() || !iter->GetSource()->getThreatManager().areThreatListsEmpty())
+        if (iter->GetSource()->IsInCombat() || !iter->GetSource()->GetThreatManager().areThreatListsEmpty())
         {
             iter->GetSource()->CombatStop();
-            iter->GetSource()->DeleteThreatList();
+            iter->GetSource()->GetThreatManager().ClearAllThreat();
             iter->GetSource()->AI()->EnterEvadeMode();
         }
     }

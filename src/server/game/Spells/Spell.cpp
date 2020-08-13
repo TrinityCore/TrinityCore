@@ -2453,7 +2453,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
 
         HealInfo healInfo(caster, unitTarget, addhealth, m_spellInfo, m_spellInfo->GetSchoolMask());
         caster->HealBySpell(healInfo, crit);
-        unitTarget->getHostileRefManager().threatAssist(caster, float(healInfo.GetEffectiveHeal()) * 0.5f, m_spellInfo);
+        unitTarget->GetThreatManager().ForwardThreatForAssistingMe(caster, float(healInfo.GetEffectiveHeal())*0.5f, m_spellInfo);
         m_healing = healInfo.GetEffectiveHeal();
 
         // Do triggers for unit
@@ -2523,8 +2523,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         if (missInfo == SPELL_MISS_RESIST && m_spellInfo->HasAttribute(SPELL_ATTR0_CU_PICKPOCKET) && unitTarget->GetTypeId() == TYPEID_UNIT)
         {
             m_caster->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TALK);
-            if (unitTarget->ToCreature()->IsAIEnabled)
-                unitTarget->ToCreature()->AI()->AttackStart(m_caster);
+            unitTarget->ToCreature()->EngageWithTarget(m_caster);
         }
     }
 
@@ -2620,14 +2619,16 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask)
             // assisting case, healing and resurrection
             if (unit->HasUnitState(UNIT_STATE_ATTACK_PLAYER))
             {
-                m_caster->SetContestedPvP();
-                if (m_caster->GetTypeId() == TYPEID_PLAYER)
-                    m_caster->ToPlayer()->UpdatePvP(true);
+                if (Player* playerOwner = m_caster->GetCharmerOrOwnerPlayerOrPlayerItself())
+                {
+                    playerOwner->SetContestedPvP();
+                    playerOwner->UpdatePvP(true);
+                }
             }
             if (unit->IsInCombat() && m_spellInfo->HasInitialAggro())
             {
                 m_caster->SetInCombatState(unit->GetCombatTimer() > 0, unit);
-                unit->getHostileRefManager().threatAssist(m_caster, 0.0f);
+                unit->GetThreatManager().ForwardThreatForAssistingMe(m_caster, 0.0f, nullptr, true);
             }
         }
     }
@@ -4838,14 +4839,14 @@ void Spell::HandleThreatSpells()
 
         // positive spells distribute threat among all units that are in combat with target, like healing
         if (m_spellInfo->IsPositive())
-            target->getHostileRefManager().threatAssist(m_caster, threatToAdd, m_spellInfo);
+            target->GetThreatManager().ForwardThreatForAssistingMe(m_caster, threatToAdd, m_spellInfo);
         // for negative spells threat gets distributed among affected targets
         else
         {
             if (!target->CanHaveThreatList())
                 continue;
 
-            target->AddThreat(m_caster, threatToAdd, m_spellInfo->GetSchoolMask(), m_spellInfo);
+            target->GetThreatManager().AddThreat(m_caster, threatToAdd, m_spellInfo, true);
         }
     }
     TC_LOG_DEBUG("spells", "Spell %u, added an additional %f threat for %s %u target(s)", m_spellInfo->Id, threat, m_spellInfo->IsPositive() ? "assisting" : "harming", uint32(m_UniqueTargetInfo.size()));
@@ -7937,7 +7938,7 @@ bool WorldObjectSpellTargetCheck::operator()(WorldObject* target)
                     return false;
                 break;
             case TARGET_CHECK_THREAT:
-                if (_referer->getThreatManager().getThreat(unitTarget, true) <= 0.0f)
+                if (_referer->GetThreatManager().getThreat(unitTarget, true) <= 0.0f)
                     return false;
                 break;
             case TARGET_CHECK_TAP:

@@ -445,16 +445,11 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (!me)
                 break;
 
-            ThreatContainer::StorageType threatList = me->getThreatManager().getThreatList();
-            for (auto i = threatList.begin(); i != threatList.end(); ++i)
+            for (auto* ref : me->GetThreatManager().GetUnsortedThreatList())
             {
-                if (Unit* target = ObjectAccessor::GetUnit(*me, (*i)->getUnitGuid()))
-                {
-                    me->getThreatManager().modifyThreatPercent(target, e.action.threatPCT.threatINC ? (int32)e.action.threatPCT.threatINC : -(int32)e.action.threatPCT.threatDEC);
-                    TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_THREAT_ALL_PCT: Creature %s modify threat for %s, value %i",
-                        me->GetGUID().ToString().c_str(), target->GetGUID().ToString().c_str(),
-                        e.action.threatPCT.threatINC ? (int32)e.action.threatPCT.threatINC : -(int32)e.action.threatPCT.threatDEC);
-                }
+                ref->ModifyThreatByPercent(std::max<int32>(-100,int32(e.action.threatPCT.threatINC) - int32(e.action.threatPCT.threatDEC)));
+                TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_THREAT_ALL_PCT: Creature %s modify threat for %s, value %i",
+                    me->GetGUID().ToString().c_str(), ref->GetVictim()->GetGUID().ToString().c_str(), int32(e.action.threatPCT.threatINC)-int32(e.action.threatPCT.threatDEC));
             }
             break;
         }
@@ -467,10 +462,9 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             {
                 if (IsUnit(target))
                 {
-                    me->getThreatManager().modifyThreatPercent(target->ToUnit(), e.action.threatPCT.threatINC ? (int32)e.action.threatPCT.threatINC : -(int32)e.action.threatPCT.threatDEC);
+                    me->GetThreatManager().ModifyThreatByPercent(target->ToUnit(), std::max<int32>(-100, int32(e.action.threatPCT.threatINC) - int32(e.action.threatPCT.threatDEC)));
                     TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_THREAT_SINGLE_PCT: Creature %s modify threat for %s, value %i",
-                        me->GetGUID().ToString().c_str(), target->GetGUID().ToString().c_str(),
-                        e.action.threatPCT.threatINC ? (int32)e.action.threatPCT.threatINC : -(int32)e.action.threatPCT.threatDEC);
+                        me->GetGUID().ToString().c_str(), target->GetGUID().ToString().c_str(), int32(e.action.threatPCT.threatINC) - int32(e.action.threatPCT.threatDEC));
                 }
             }
             break;
@@ -2148,7 +2142,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         {
             for (WorldObject* const target : targets)
                 if (IsUnit(target))
-                    me->AddThreat(target->ToUnit(), float(e.action.threatPCT.threatINC) - float(e.action.threatPCT.threatDEC));
+                    me->GetThreatManager().AddThreat(target->ToUnit(), float(e.action.threatPCT.threatINC) - float(e.action.threatPCT.threatDEC), nullptr, true, true);
             break;
         }
         case SMART_ACTION_LOAD_EQUIPMENT:
@@ -2421,10 +2415,10 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
             {
                 if (e.target.hostilRandom.powerType)
                 {
-                    if (Unit* u = me->AI()->SelectTarget(SELECT_TARGET_TOPAGGRO, 1, PowerUsersSelector(me, Powers(e.target.hostilRandom.powerType - 1), float(e.target.hostilRandom.maxDist), e.target.hostilRandom.playerOnly != 0)))
+                    if (Unit* u = me->AI()->SelectTarget(SELECT_TARGET_MAXTHREAT, 1, PowerUsersSelector(me, Powers(e.target.hostilRandom.powerType - 1), float(e.target.hostilRandom.maxDist), e.target.hostilRandom.playerOnly != 0)))
                         targets.push_back(u);
                 }
-                else if (Unit* u = me->AI()->SelectTarget(SELECT_TARGET_TOPAGGRO, 1, float(e.target.hostilRandom.maxDist), e.target.hostilRandom.playerOnly != 0))
+                else if (Unit* u = me->AI()->SelectTarget(SELECT_TARGET_MAXTHREAT, 1, float(e.target.hostilRandom.maxDist), e.target.hostilRandom.playerOnly != 0))
                     targets.push_back(u);
             }
             break;
@@ -2433,10 +2427,10 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
             {
                 if (e.target.hostilRandom.powerType)
                 {
-                    if (Unit* u = me->AI()->SelectTarget(SELECT_TARGET_BOTTOMAGGRO, 0, PowerUsersSelector(me, Powers(e.target.hostilRandom.powerType - 1), float(e.target.hostilRandom.maxDist), e.target.hostilRandom.playerOnly != 0)))
+                    if (Unit* u = me->AI()->SelectTarget(SELECT_TARGET_MINTHREAT, 0, PowerUsersSelector(me, Powers(e.target.hostilRandom.powerType - 1), float(e.target.hostilRandom.maxDist), e.target.hostilRandom.playerOnly != 0)))
                         targets.push_back(u);
                 }
-                else if (Unit* u = me->AI()->SelectTarget(SELECT_TARGET_BOTTOMAGGRO, 0, float(e.target.hostilRandom.maxDist), e.target.hostilRandom.playerOnly != 0))
+                else if (Unit* u = me->AI()->SelectTarget(SELECT_TARGET_MINTHREAT, 0, float(e.target.hostilRandom.maxDist), e.target.hostilRandom.playerOnly != 0))
                     targets.push_back(u);
             }
             break;
@@ -2467,7 +2461,7 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
         case SMART_TARGET_FARTHEST:
             if (me)
             {
-                if (Unit* u = me->AI()->SelectTarget(SELECT_TARGET_FARTHEST, 0, FarthestTargetSelector(me, float(e.target.farthest.maxDist), e.target.farthest.playerOnly != 0, e.target.farthest.isInLos != 0)))
+                if (Unit* u = me->AI()->SelectTarget(SELECT_TARGET_MAXDISTANCE, 0, FarthestTargetSelector(me, float(e.target.farthest.maxDist), e.target.farthest.playerOnly != 0, e.target.farthest.isInLos != 0)))
                     targets.push_back(u);
             }
             break;
@@ -2684,14 +2678,10 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
         }
         case SMART_TARGET_THREAT_LIST:
         {
-            if (me)
-            {
-                ThreatContainer::StorageType const& threatList = me->getThreatManager().getThreatList();
-                for (HostileReference const* ref : threatList)
-                    if (Unit* temp = ObjectAccessor::GetUnit(*me, ref->getUnitGuid()))
-                        if (e.target.hostilRandom.maxDist == 0 || me->IsWithinCombatRange(temp, float(e.target.hostilRandom.maxDist)))
-                            targets.push_back(temp);
-            }
+            if (me && me->CanHaveThreatList())
+                for (auto* ref : me->GetThreatManager().GetUnsortedThreatList())
+                    if (!e.target.hostilRandom.maxDist || me->IsWithinCombatRange(ref->GetVictim(), float(e.target.hostilRandom.maxDist)))
+                        targets.push_back(ref->GetVictim());
             break;
         }
         case SMART_TARGET_CLOSEST_ENEMY:
@@ -2775,18 +2765,18 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
             ProcessTimedAction(e, e.event.minMaxRepeat.repeatMin, e.event.minMaxRepeat.repeatMax);
             break;
         case SMART_EVENT_UPDATE_OOC:
-            if (me && me->IsInCombat())
+            if (me && me->IsEngaged())
                 return;
             ProcessTimedAction(e, e.event.minMaxRepeat.repeatMin, e.event.minMaxRepeat.repeatMax);
             break;
         case SMART_EVENT_UPDATE_IC:
-            if (!me || !me->IsInCombat())
+            if (!me || !me->IsEngaged())
                 return;
             ProcessTimedAction(e, e.event.minMaxRepeat.repeatMin, e.event.minMaxRepeat.repeatMax);
             break;
         case SMART_EVENT_HEALT_PCT:
         {
-            if (!me || !me->IsInCombat() || !me->GetMaxHealth())
+            if (!me || !me->IsEngaged() || !me->GetMaxHealth())
                 return;
             uint32 perc = (uint32)me->GetHealthPct();
             if (perc > e.event.minMaxRepeat.max || perc < e.event.minMaxRepeat.min)
@@ -2796,7 +2786,7 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
         }
         case SMART_EVENT_TARGET_HEALTH_PCT:
         {
-            if (!me || !me->IsInCombat() || !me->GetVictim() || !me->EnsureVictim()->GetMaxHealth())
+            if (!me || !me->IsEngaged() || !me->GetVictim() || !me->EnsureVictim()->GetMaxHealth())
                 return;
             uint32 perc = (uint32)me->EnsureVictim()->GetHealthPct();
             if (perc > e.event.minMaxRepeat.max || perc < e.event.minMaxRepeat.min)
@@ -2806,7 +2796,7 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
         }
         case SMART_EVENT_MANA_PCT:
         {
-            if (!me || !me->IsInCombat() || !me->GetMaxPower(POWER_MANA))
+            if (!me || !me->IsEngaged() || !me->GetMaxPower(POWER_MANA))
                 return;
             uint32 perc = uint32(me->GetPowerPct(POWER_MANA));
             if (perc > e.event.minMaxRepeat.max || perc < e.event.minMaxRepeat.min)
@@ -2816,7 +2806,7 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
         }
         case SMART_EVENT_TARGET_MANA_PCT:
         {
-            if (!me || !me->IsInCombat() || !me->GetVictim() || !me->EnsureVictim()->GetMaxPower(POWER_MANA))
+            if (!me || !me->IsEngaged() || !me->GetVictim() || !me->EnsureVictim()->GetMaxPower(POWER_MANA))
                 return;
             uint32 perc = uint32(me->EnsureVictim()->GetPowerPct(POWER_MANA));
             if (perc > e.event.minMaxRepeat.max || perc < e.event.minMaxRepeat.min)
@@ -2826,7 +2816,7 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
         }
         case SMART_EVENT_RANGE:
         {
-            if (!me || !me->IsInCombat() || !me->GetVictim())
+            if (!me || !me->IsEngaged() || !me->GetVictim())
                 return;
 
             if (me->IsInRange(me->GetVictim(), (float)e.event.minMaxRepeat.min, (float)e.event.minMaxRepeat.max))
@@ -2837,7 +2827,7 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
         }
         case SMART_EVENT_VICTIM_CASTING:
         {
-            if (!me || !me->IsInCombat())
+            if (!me || !me->IsEngaged())
                 return;
 
             Unit* victim = me->GetVictim();
@@ -2855,7 +2845,7 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
         }
         case SMART_EVENT_FRIENDLY_HEALTH:
         {
-            if (!me || !me->IsInCombat())
+            if (!me || !me->IsEngaged())
                 return;
 
             Unit* target = DoSelectLowestHpFriendly((float)e.event.friendlyHealth.radius, e.event.friendlyHealth.hpDeficit);
@@ -2871,7 +2861,7 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
         }
         case SMART_EVENT_FRIENDLY_IS_CC:
         {
-            if (!me || !me->IsInCombat())
+            if (!me || !me->IsEngaged())
                 return;
 
             std::vector<Creature*> creatures;
@@ -2994,7 +2984,7 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
         }
         case SMART_EVENT_OOC_LOS:
         {
-            if (!me || me->IsInCombat())
+            if (!me || me->IsEngaged())
                 return;
             //can trigger if closer than fMaxAllowedRange
             float range = (float)e.event.los.maxDist;
@@ -3014,7 +3004,7 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
         }
         case SMART_EVENT_IC_LOS:
         {
-            if (!me || !me->IsInCombat())
+            if (!me || !me->IsEngaged())
                 return;
             //can trigger if closer than fMaxAllowedRange
             float range = (float)e.event.los.maxDist;
@@ -3204,7 +3194,7 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
         }
         case SMART_EVENT_FRIENDLY_HEALTH_PCT:
         {
-            if (!me || !me->IsInCombat())
+            if (!me || !me->IsEngaged())
                 return;
 
             ObjectVector targets;
@@ -3364,10 +3354,10 @@ void SmartScript::UpdateTimer(SmartScriptHolder& e, uint32 const diff)
     if (e.event.event_phase_mask && !IsInPhase(e.event.event_phase_mask))
         return;
 
-    if (e.GetEventType() == SMART_EVENT_UPDATE_IC && (!me || !me->IsInCombat()))
+    if (e.GetEventType() == SMART_EVENT_UPDATE_IC && (!me || !me->IsEngaged()))
         return;
 
-    if (e.GetEventType() == SMART_EVENT_UPDATE_OOC && (me && me->IsInCombat())) //can be used with me=nullptr (go script)
+    if (e.GetEventType() == SMART_EVENT_UPDATE_OOC && (me && me->IsEngaged())) //can be used with me=nullptr (go script)
         return;
 
     if (e.timer < diff)
@@ -3719,7 +3709,7 @@ void SmartScript::OnMoveInLineOfSight(Unit* who)
     if (!me)
         return;
 
-    ProcessEventsFor(me->IsInCombat() ? SMART_EVENT_IC_LOS : SMART_EVENT_OOC_LOS, who);
+    ProcessEventsFor(me->IsEngaged() ? SMART_EVENT_IC_LOS : SMART_EVENT_OOC_LOS, who);
 }
 // SmartScript end
 
