@@ -464,11 +464,7 @@ class spell_baleroc_countdown_aoe_dummy : public SpellScript
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
-        Creature* caster = GetCaster()->ToCreature();
-        if (!caster)
-            return;
-
-        if (WorldObject* tank = caster->AI()->SelectTarget(SELECT_TARGET_TOPAGGRO))
+        if (WorldObject* tank = GetCaster()->GetVictim())
             targets.remove(tank);
 
         if (targets.size() < 2)
@@ -583,11 +579,8 @@ class spell_baleroc_shards_of_torment_target_search : public SpellScript
             return;
         }
 
-        Creature* caster = GetCaster()->ToCreature();
-        if (!caster || !caster->IsAIEnabled)
-            return;
-
-        if (WorldObject* tank = caster->AI()->SelectTarget(SELECT_TARGET_TOPAGGRO))
+        Unit* caster = GetCaster();
+        if (WorldObject* tank = caster->GetVictim())
             targets.remove(tank);
 
         std::list<WorldObject*> melee, ranged;

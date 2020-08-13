@@ -219,7 +219,7 @@ struct dummy_dragonAI : public ScriptedAI
             me->SetInCombatWithZone();
             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
             {
-                me->AddThreat(target, 1.0f);
+                me->GetThreatManager().AddThreat(target, 1.0f);
                 me->Attack(target, true);
                 me->GetMotionMaster()->MoveChase(target);
             }

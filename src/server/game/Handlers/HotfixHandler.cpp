@@ -22,6 +22,7 @@
 #include "HotfixPackets.h"
 #include "Log.h"
 #include "ObjectDefines.h"
+#include "Realm.h"
 #include "World.h"
 
 void WorldSession::HandleDBQueryBulk(WorldPackets::Hotfix::DBQueryBulk& dbQuery)
@@ -55,9 +56,9 @@ void WorldSession::HandleDBQueryBulk(WorldPackets::Hotfix::DBQueryBulk& dbQuery)
     }
 }
 
-void WorldSession::SendAvailableHotfixes(int32 version)
+void WorldSession::SendAvailableHotfixes()
 {
-    SendPacket(WorldPackets::Hotfix::AvailableHotfixes(version, sDB2Manager.GetHotfixCount(), sDB2Manager.GetHotfixData()).Write());
+    SendPacket(WorldPackets::Hotfix::AvailableHotfixes(realm.Id.GetAddress(), sDB2Manager.GetHotfixCount(), sDB2Manager.GetHotfixData()).Write());
 }
 
 void WorldSession::HandleHotfixRequest(WorldPackets::Hotfix::HotfixRequest& hotfixQuery)

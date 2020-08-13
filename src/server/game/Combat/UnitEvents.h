@@ -115,7 +115,7 @@ class TC_GAME_API ThreatRefStatusChangeEvent : public UnitBaseEvent
 
         void setThreatManager(ThreatManager* pThreatManager) { iThreatManager = pThreatManager; }
 
-        ThreatManager* getThreatManager() const { return iThreatManager; }
+        ThreatManager* GetThreatManager() const { return iThreatManager; }
 };
 
 #endif

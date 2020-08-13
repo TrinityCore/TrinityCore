@@ -1805,7 +1805,7 @@ public:
 
         void DamageTaken(Unit* doneBy, uint32& damage) override
         {
-            me->AddThreat(doneBy, float(damage));    // just to create threat reference
+            AddThreat(doneBy, float(damage));    // just to create threat reference
             _damageTimes[doneBy->GetGUID()] = time(NULL);
             damage = 0;
         }

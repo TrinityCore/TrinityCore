@@ -193,6 +193,49 @@ void ScriptedAI::DoPlaySoundToSet(WorldObject* source, uint32 soundId)
     source->PlayDirectSound(soundId);
 }
 
+void ScriptedAI::AddThreat(Unit* victim, float amount, Unit* who)
+{
+    if (!victim)
+        return;
+    if (!who)
+        who = me;
+    who->GetThreatManager().AddThreat(victim, amount, nullptr, true, true);
+}
+
+void ScriptedAI::ModifyThreatByPercent(Unit* victim, int32 pct, Unit* who)
+{
+    if (!victim)
+        return;
+    if (!who)
+        who = me;
+    who->GetThreatManager().ModifyThreatByPercent(victim, pct);
+}
+
+void ScriptedAI::ResetThreat(Unit* victim, Unit* who)
+{
+    if (!victim)
+        return;
+    if (!who)
+        who = me;
+    who->GetThreatManager().ResetThreat(victim);
+}
+
+void ScriptedAI::ResetThreatList(Unit* who)
+{
+    if (!who)
+        who = me;
+    who->GetThreatManager().ResetAllThreat();
+}
+
+float ScriptedAI::GetThreat(Unit const* victim, Unit const* who)
+{
+    if (!victim)
+        return 0.0f;
+    if (!who)
+        who = me;
+    return who->GetThreatManager().GetThreat(victim);
+}
+
 Creature* ScriptedAI::DoSpawnCreature(uint32 entry, float offsetX, float offsetY, float offsetZ, float angle, uint32 type, uint32 despawntime)
 {
     return me->SummonCreature(entry, me->GetPositionX() + offsetX, me->GetPositionY() + offsetY, me->GetPositionZ() + offsetZ, angle, TempSummonType(type), despawntime);
@@ -274,38 +317,6 @@ SpellInfo const* ScriptedAI::SelectSpell(Unit* target, uint32 school, uint32 mec
         return nullptr;
 
     return apSpell[urand(0, spellCount - 1)];
-}
-
-void ScriptedAI::DoResetThreat()
-{
-    if (!me->CanHaveThreatList() || me->getThreatManager().isThreatListEmpty())
-    {
-        TC_LOG_ERROR("scripts", "DoResetThreat called for creature that either cannot have threat list or has empty threat list (me entry = %d)", me->GetEntry());
-        return;
-    }
-
-    ThreatContainer::StorageType threatlist = me->getThreatManager().getThreatList();
-
-    for (ThreatContainer::StorageType::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
-    {
-        Unit* unit = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid());
-        if (unit && DoGetThreat(unit))
-            DoModifyThreatPercent(unit, -100);
-    }
-}
-
-float ScriptedAI::DoGetThreat(Unit* unit)
-{
-    if (!unit)
-        return 0.0f;
-    return me->getThreatManager().getThreat(unit);
-}
-
-void ScriptedAI::DoModifyThreatPercent(Unit* unit, int32 pct)
-{
-    if (!unit)
-        return;
-    me->getThreatManager().modifyThreatPercent(unit, pct);
 }
 
 void ScriptedAI::DoTeleportTo(float x, float y, float z, uint32 time)
@@ -493,7 +504,7 @@ void BossAI::TeleportCheaters()
     float x, y, z;
     me->GetPosition(x, y, z);
 
-    ThreatContainer::StorageType threatList = me->getThreatManager().getThreatList();
+    ThreatContainer::StorageType threatList = me->GetThreatManager().getThreatList();
     for (ThreatContainer::StorageType::const_iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
         if (Unit* target = (*itr)->getTarget())
             if (target->GetTypeId() == TYPEID_PLAYER && !CheckBoundary(target))
@@ -503,7 +514,7 @@ void BossAI::TeleportCheaters()
 void BossAI::JustSummoned(Creature* summon)
 {
     summons.Summon(summon);
-    if (me->IsInCombat())
+    if (me->IsEngaged())
         DoZoneInCombat(summon);
 }
 

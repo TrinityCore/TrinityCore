@@ -83,21 +83,13 @@ class npc_pet_mage_mirror_image : public CreatureScript
                             continue;
                         }
                         // else compare best fit unit with current unit
-                        ThreatContainer::StorageType triggers = (*iter)->getThreatManager().getThreatList();
-                        for (ThreatContainer::StorageType::const_iterator trig_citr = triggers.begin(); trig_citr != triggers.end(); ++trig_citr)
+                        float threat = (*iter)->GetThreatManager().GetThreat(owner);
+                        // Check if best fit hostile unit hs lower threat than this current unit
+                        if (highestThreat < threat)
                         {
-                            // Try to find threat referenced to owner
-                            if ((*trig_citr)->getTarget() == owner)
-                            {
-                                // Check if best fit hostile unit hs lower threat than this current unit
-                                if (highestThreat < (*trig_citr)->getThreat())
-                                {
-                                    // If so, update best fit unit
-                                    highestThreat = (*trig_citr)->getThreat();
-                                    highestThreatUnit = (*iter);
-                                    break;
-                                }
-                            }
+                            // If so, update best fit unit
+                            highestThreat = threat;
+                            highestThreatUnit = (*iter);
                         }
                         // In case no unit with threat was found so far, always check for nearest unit (only for players)
                         if ((*iter)->GetTypeId() == TYPEID_PLAYER)
@@ -119,30 +111,7 @@ class npc_pet_mage_mirror_image : public CreatureScript
             bool IsInThreatList(Unit* target)
             {
                 Unit* owner = me->GetCharmerOrOwner();
-
-                std::list<Unit*> targets;
-                Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(me, me, 30.0f);
-                Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(me, targets, u_check);
-                Cell::VisitAllObjects(me, searcher, 40.0f);
-
-                for (std::list<Unit*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
-                {
-                    if ((*iter) == target)
-                    {
-                        // Consider only units without CC
-                        if (!(*iter)->HasBreakableByDamageCrowdControlAura((*iter)))
-                        {
-                            ThreatContainer::StorageType triggers = (*iter)->getThreatManager().getThreatList();
-                            for (ThreatContainer::StorageType::const_iterator trig_citr = triggers.begin(); trig_citr != triggers.end(); ++trig_citr)
-                            {
-                                // Try to find threat referenced to owner
-                                if ((*trig_citr)->getTarget() == owner)
-                                    return true;
-                            }
-                        }
-                    }
-                }
-                return false;
+                return owner && target->IsThreatenedBy(owner);
             }
 
             void InitializeAI() override

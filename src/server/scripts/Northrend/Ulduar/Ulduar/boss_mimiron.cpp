@@ -1292,9 +1292,9 @@ class npc_mimiron_assault_bot : public CreatureScript
 
                 if (me->HasUnitState(UNIT_STATE_ROOT))
                 {
-                    if (Unit* newTarget = SelectTarget(SELECT_TARGET_NEAREST, 0, 30.0f, true))
+                    if (Unit* newTarget = SelectTarget(SELECT_TARGET_MINDISTANCE, 0, 30.0f, true))
                     {
-                        me->DeleteThreatList();
+                        me->GetThreatManager().ClearAllThreat();
                         AttackStart(newTarget);
                     }
                 }
