@@ -605,7 +605,7 @@ public:
             _scheduler
                 .Schedule(Seconds(13), [this](TaskContext net)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 30, true))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_MAXDISTANCE, 0, 30, true))
                         DoCast(target, SPELL_NET);
                     net.Repeat();
                 })

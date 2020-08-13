@@ -193,7 +193,7 @@ public:
                         events.Repeat(Seconds(30), Seconds(40));
                         break;
                     case EVENT_SHADOW_DEATH:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true, -SPELL_SPIRITUAL_VENGEANCE))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true, true, -SPELL_SPIRITUAL_VENGEANCE))
                             DoCast(target, SPELL_SHADOW_OF_DEATH);
                         events.Repeat(Seconds(30), Seconds(35));
                         break;
@@ -338,16 +338,16 @@ public:
         {
             if (Creature* teron = _instance->GetCreature(DATA_TERON_GOREFIEND))
             {
-                Unit* target = teron->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, -SPELL_SPIRITUAL_VENGEANCE);
+                Unit* target = teron->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, true, -SPELL_SPIRITUAL_VENGEANCE);
                 // He should target Vengeful Spirits only if has no other player available
                 if (!target)
                     target = teron->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0);
 
                 if (target)
                 {
-                    DoResetThreat();
+                    ResetThreatList();
                     AttackStart(target);
-                    me->AddThreat(target, 1000000.0f);
+                    AddThreat(target, 1000000.0f);
                     targetGUID = target->GetGUID();
                 }
             }

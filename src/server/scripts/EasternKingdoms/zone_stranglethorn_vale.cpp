@@ -83,9 +83,9 @@ public:
                 if (player->GetQuestStatus(QUEST_SAVING_YENNIKU) == QUEST_STATUS_INCOMPLETE) // Yenniku's Release
                 {
                     me->SetEmoteState(EMOTE_STATE_STUN);
-                    me->CombatStop();                      // stop combat
-                    me->DeleteThreatList();                // unsure of this
-                    me->SetFaction(FACTION_HORDE_GENERIC); // horde generic
+                    me->CombatStop();                   //stop combat
+                    me->GetThreatManager().ClearAllThreat();             //unsure of this
+                    me->SetFaction(FACTION_HORDE_GENERIC);
 
                     bReset = true;
                     Reset_Timer = 60000;
@@ -116,7 +116,7 @@ public:
                         if (player->GetTeam() == HORDE)
                         {
                             me->CombatStop();
-                            me->DeleteThreatList();
+                            me->GetThreatManager().ClearAllThreat();
                         }
                     }
                 }

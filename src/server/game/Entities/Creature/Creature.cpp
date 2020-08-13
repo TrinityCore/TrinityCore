@@ -263,9 +263,7 @@ bool AssistDelayEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
             if (assistant && assistant->CanAssistTo(&m_owner, victim))
             {
                 assistant->SetNoCallAssistance(true);
-                assistant->CombatStart(victim);
-                if (assistant->IsAIEnabled)
-                    assistant->AI()->AttackStart(victim);
+                assistant->EngageWithTarget(victim);
             }
         }
     }
@@ -739,7 +737,7 @@ void Creature::Update(uint32 diff)
             }
 
             // periodic check to see if the creature has passed an evade boundary
-            if (IsAIEnabled && !IsInEvadeMode() && IsInCombat())
+            if (IsAIEnabled && !IsInEvadeMode() && IsEngaged())
             {
                 if (diff >= m_boundaryCheckTime)
                 {
@@ -750,7 +748,7 @@ void Creature::Update(uint32 diff)
             }
 
             // if periodic combat pulse is enabled and we are both in combat and in a dungeon, do this now
-            if (m_combatPulseDelay > 0 && IsInCombat() && GetMap()->IsDungeon())
+            if (m_combatPulseDelay > 0 && IsEngaged() && GetMap()->IsDungeon())
             {
                 if (diff > m_combatPulseTime)
                     m_combatPulseTime = 0;
@@ -768,13 +766,8 @@ void Creature::Update(uint32 diff)
                                 if (player->IsGameMaster())
                                     continue;
 
-                                if (player->IsAlive() && this->IsHostileTo(player))
-                                {
-                                    if (CanHaveThreatList())
-                                        AddThreat(player, 0.0f);
-                                    this->SetInCombatWith(player);
-                                    player->SetInCombatWith(this);
-                                }
+                                if (player->IsAlive() && IsHostileTo(player))
+                                    EngageWithTarget(player);
                             }
                         }
 
@@ -1817,7 +1810,7 @@ bool Creature::CanStartAttack(Unit const* who, bool force) const
         if (!_IsTargetAcceptable(who))
             return false;
 
-        if (who->IsInCombat() && IsWithinDist(who, ATTACK_DISTANCE))
+        if (who->IsEngaged() && IsWithinDist(who, ATTACK_DISTANCE))
             if (Unit* victim = who->getAttackerForHelper())
                 if (IsWithinDistInMap(victim, sWorld->getFloatConfig(CONFIG_CREATURE_FAMILY_ASSISTANCE_RADIUS)))
                     force = true;
@@ -2375,7 +2368,7 @@ bool Creature::CanAssistTo(const Unit* u, const Unit* enemy, bool checkfaction /
         return false;
 
     // skip fighting creature
-    if (IsInCombat())
+    if (IsEngaged())
         return false;
 
     // only free creature
@@ -2425,7 +2418,7 @@ bool Creature::_IsTargetAcceptable(Unit const* target) const
     Unit const* targetVictim = target->getAttackerForHelper();
 
     // if I'm already fighting target, or I'm hostile towards the target, the target is acceptable
-    if (IsInCombatWith(target) || IsHostileTo(target))
+    if (IsEngagedBy(target) || IsHostileTo(target))
         return true;
 
     // if the target's victim is friendly, and the target is neutral, the target is acceptable
@@ -2626,11 +2619,7 @@ void Creature::SetInCombatWithZone()
                 continue;
 
             if (player->IsAlive())
-            {
-                this->SetInCombatWith(player);
-                player->SetInCombatWith(this);
-                AddThreat(player, 0.0f);
-            }
+                EngageWithTarget(player);
         }
     }
 }

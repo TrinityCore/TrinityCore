@@ -517,8 +517,8 @@ class spell_marrowgar_coldflame : public SpellScriptLoader
             void SelectTarget(std::list<WorldObject*>& targets)
             {
                 targets.clear();
-                // select any unit but not the tank (by owners threatlist)
-                Unit* target = GetCaster()->GetAI()->SelectTarget(SELECT_TARGET_RANDOM, 1, -GetCaster()->GetCombatReach(), true, -SPELL_IMPALED);
+                // select any unit but not the tank
+                Unit* target = GetCaster()->GetAI()->SelectTarget(SELECT_TARGET_RANDOM, 0, -GetCaster()->GetCombatReach(), true, false, -SPELL_IMPALED);
                 if (!target)
                     target = GetCaster()->GetAI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true); // or the tank if its solo
                 if (!target)
@@ -645,7 +645,7 @@ class spell_marrowgar_bone_spike_graveyard : public SpellScriptLoader
                     uint8 boneSpikeCount = uint8(GetCaster()->GetMap()->Is25ManRaid() ? 3 : 1);
 
                     std::list<Unit*> targets;
-                    marrowgarAI->SelectTargetList(targets, BoneSpikeTargetSelector(marrowgarAI), boneSpikeCount, SELECT_TARGET_RANDOM);
+                    marrowgarAI->SelectTargetList(targets, boneSpikeCount, SELECT_TARGET_RANDOM, 1, BoneSpikeTargetSelector(marrowgarAI));
                     if (targets.empty())
                         return;
 
