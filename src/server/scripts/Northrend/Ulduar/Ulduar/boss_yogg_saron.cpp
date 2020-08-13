@@ -3027,7 +3027,7 @@ class spell_yogg_saron_hate_to_zero : public SpellScriptLoader    // 63984
             {
                 if (Unit* target = GetHitUnit())
                     if (target->CanHaveThreatList())
-                        target->getThreatManager().modifyThreatPercent(GetCaster(), -100);
+                        target->GetThreatManager().ModifyThreatByPercent(GetCaster(), -100);
             }
 
             void Register() override

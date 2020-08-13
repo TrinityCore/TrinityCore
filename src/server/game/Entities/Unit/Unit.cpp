@@ -468,7 +468,7 @@ void Unit::Update(uint32 p_time)
     // Having this would prevent spells from being proced, so let's crash
     ASSERT(!m_procDeep);
 
-    if (CanHaveThreatList() && getThreatManager().isNeedUpdateToClient(p_time))
+    if (CanHaveThreatList() && GetThreatManager().isNeedUpdateToClient(p_time))
         SendThreatListUpdate();
 
     // update combat timer only for players and pets (only pets with PetAI)
@@ -883,7 +883,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
             if (damagetype != DOT && damage > 0 && !victim->GetOwnerGUID().IsPlayer() && (!spellProto || !spellProto->HasAura(SPELL_AURA_DAMAGE_SHIELD)))
                 victim->ToCreature()->SetLastDamagedTime(GameTime::GetGameTime() + MAX_AGGRO_RESET_TIME);
 
-            victim->AddThreat(this, float(damage), damageSchoolMask, spellProto);
+            victim->GetThreatManager().AddThreat(this, float(damage), spellProto);
         }
         else                                                // victim is a player
         {
@@ -5617,6 +5617,9 @@ void Unit::_removeAttacker(Unit* pAttacker)
 
 Unit* Unit::getAttackerForHelper() const                 // If someone wants to help, who to give them
 {
+    if (!IsEngaged())
+        return nullptr;
+
     if (Unit* victim = GetVictim())
         if ((!IsPet() && !GetPlayerMovingMe()) || IsInCombatWith(victim) || victim->IsInCombatWith(this))
             return victim;
@@ -5720,14 +5723,14 @@ bool Unit::Attack(Unit* victim, bool meleeAttack)
     if (creature && !IsPet())
     {
         // should not let player enter combat by right clicking target - doesn't helps
-        AddThreat(victim, 0.0f);
+        GetThreatManager().AddThreat(victim, 0.0f);
         SetInCombatWith(victim);
         if (victim->GetTypeId() == TYPEID_PLAYER)
             victim->SetInCombatWith(this);
 
         if (Unit* owner = victim->GetOwner())
         {
-            AddThreat(owner, 0.0f);
+            GetThreatManager().AddThreat(owner, 0.0f);
             SetInCombatWith(owner);
             if (owner->GetTypeId() == TYPEID_PLAYER)
                 owner->SetInCombatWith(this);
@@ -6636,13 +6639,16 @@ void Unit::SendEnergizeSpellLog(Unit* victim, uint32 spellID, int32 damage, int3
 
 void Unit::EnergizeBySpell(Unit* victim, uint32 spellId, int32 damage, Powers powerType)
 {
+    if (SpellInfo const* info = sSpellMgr->GetSpellInfo(spellId, GetMap()->GetDifficultyID()))
+        EnergizeBySpell(victim, info, damage, powerType);
+}
+
+void Unit::EnergizeBySpell(Unit* victim, SpellInfo const* spellInfo, int32 damage, Powers powerType)
+{
     int32 gain = victim->ModifyPower(powerType, damage);
     int32 overEnergize = damage - gain;
-
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId, GetMap()->GetDifficultyID());
-    victim->getHostileRefManager().threatAssist(this, float(damage) * 0.5f, spellInfo);
-
-    SendEnergizeSpellLog(victim, spellId, damage, overEnergize, powerType);
+    victim->GetThreatManager().ForwardThreatForAssistingMe(this, float(damage)/2, spellInfo, true);
+    SendEnergizeSpellLog(victim, spellInfo->Id, damage, overEnergize, powerType);
 }
 
 uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uint32 pdamage, DamageEffectType damagetype, SpellEffectInfo const* effect, uint32 stack) const
@@ -7995,11 +8001,11 @@ void Unit::CombatStart(Unit* target, bool initialAggro)
         SetInCombatWith(target);
         target->SetInCombatWith(this);
     }
-    Unit* who = target->GetCharmerOrOwnerOrSelf();
-    if (who->GetTypeId() == TYPEID_PLAYER)
-      SetContestedPvP(who->ToPlayer());
 
     Player* me = GetCharmerOrOwnerPlayerOrPlayerItself();
+    Unit* who = target->GetCharmerOrOwnerOrSelf();
+    if (me && who->GetTypeId() == TYPEID_PLAYER)
+        me->SetContestedPvP(who->ToPlayer());
     if (me && who->IsPvP()
         && (who->GetTypeId() != TYPEID_PLAYER
         || !me->duel || me->duel->opponent != who))
@@ -8041,7 +8047,7 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy)
                 creature->AI()->EnterCombat(enemy);
 
             if (creature->GetFormation())
-                creature->GetFormation()->MemberAttackStart(creature, enemy);
+                creature->GetFormation()->MemberEngagingTarget(creature, enemy);
         }
 
         if (IsPet())
@@ -8726,7 +8732,7 @@ void Unit::setDeathState(DeathState s)
     if (s != ALIVE && s != JUST_RESPAWNED)
     {
         CombatStop();
-        DeleteThreatList();
+        GetThreatManager().ClearAllThreat();
         getHostileRefManager().deleteReferences();
 
         if (IsNonMeleeSpellCast(false))
@@ -8795,7 +8801,7 @@ bool Unit::CanHaveThreatList(bool skipAliveCheck) const
     //    return false;
 
     // summons can not have a threat list, unless they are controlled by a creature
-    if (HasUnitTypeMask(UNIT_MASK_MINION | UNIT_MASK_GUARDIAN | UNIT_MASK_CONTROLABLE_GUARDIAN) && ((Pet*)this)->GetOwnerGUID().IsPlayer())
+    if (HasUnitTypeMask(UNIT_MASK_MINION | UNIT_MASK_GUARDIAN | UNIT_MASK_CONTROLABLE_GUARDIAN) && GetOwnerGUID().IsPlayer())
         return false;
 
     return true;
@@ -8811,24 +8817,6 @@ float Unit::ApplyTotalThreatModifier(float fThreat, SpellSchoolMask schoolMask)
     SpellSchools school = GetFirstSchoolInMask(schoolMask);
 
     return fThreat * m_threatModifier[school];
-}
-
-//======================================================================
-
-void Unit::AddThreat(Unit* victim, float fThreat, SpellSchoolMask schoolMask, SpellInfo const* threatSpell)
-{
-    // Only mobs can manage threat lists
-    if (CanHaveThreatList() && !HasUnitState(UNIT_STATE_EVADE))
-        m_ThreatManager.addThreat(victim, fThreat, schoolMask, threatSpell);
-}
-
-//======================================================================
-
-void Unit::DeleteThreatList()
-{
-    if (CanHaveThreatList(true) && !m_ThreatManager.isThreatListEmpty())
-        SendClearThreatListOpcode();
-    m_ThreatManager.clearReferences();
 }
 
 //======================================================================
@@ -9987,7 +9975,7 @@ void Unit::CleanupBeforeRemoveFromMap(bool finalCleanup)
 
     m_Events.KillAllEvents(false);                      // non-delatable (currently cast spells) will not deleted now but it will deleted at call in Map::RemoveAllObjectsInRemoveList
     CombatStop();
-    DeleteThreatList();
+    GetThreatManager().ClearAllThreat();
     getHostileRefManager().deleteReferences();
 }
 
@@ -10633,8 +10621,7 @@ Player* Unit::GetSpellModOwner() const
     if (HasUnitTypeMask(UNIT_MASK_PET | UNIT_MASK_TOTEM | UNIT_MASK_GUARDIAN))
     {
         if (Unit* owner = GetOwner())
-            if (Player* player = owner->ToPlayer())
-                return player;
+            return owner->ToPlayer();
     }
     return nullptr;
 }
@@ -11153,29 +11140,6 @@ float Unit::GetAPMultiplier(WeaponAttackType attType, bool normalized) const
     }
 }
 
-void Unit::SetContestedPvP(Player* attackedPlayer)
-{
-    Player* player = GetCharmerOrOwnerPlayerOrPlayerItself();
-
-    if (!player || (attackedPlayer && (attackedPlayer == player || (player->duel && player->duel->opponent == attackedPlayer))))
-        return;
-
-    player->SetContestedPvPTimer(30000);
-    if (!player->HasUnitState(UNIT_STATE_ATTACK_PLAYER))
-    {
-        player->AddUnitState(UNIT_STATE_ATTACK_PLAYER);
-        player->AddPlayerFlag(PLAYER_FLAGS_CONTESTED_PVP);
-        // call MoveInLineOfSight for nearby contested guards
-        UpdateObjectVisibility();
-    }
-    if (!HasUnitState(UNIT_STATE_ATTACK_PLAYER))
-    {
-        AddUnitState(UNIT_STATE_ATTACK_PLAYER);
-        // call MoveInLineOfSight for nearby contested guards
-        UpdateObjectVisibility();
-    }
-}
-
 Pet* Unit::CreateTamedPetFrom(Creature* creatureTarget, uint32 spell_id)
 {
     if (GetTypeId() != TYPEID_PLAYER)
@@ -11475,7 +11439,7 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
 
         if (!creature->IsPet())
         {
-            creature->DeleteThreatList();
+            creature->GetThreatManager().ClearAllThreat();
 
             // must be after setDeathState which resets dynamic flags
             if (!creature->loot.isLooted())
@@ -11845,7 +11809,7 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
 
     CastStop();
     CombatStop(); /// @todo CombatStop(true) may cause crash (interrupt spells)
-    DeleteThreatList();
+    GetThreatManager().ClearAllThreat();
 
     Player* playerCharmer = charmer->ToPlayer();
 
@@ -11988,7 +11952,7 @@ void Unit::RemoveCharmedBy(Unit* charmer)
     CastStop();
     CombatStop(); /// @todo CombatStop(true) may cause crash (interrupt spells)
     getHostileRefManager().deleteReferences();
-    DeleteThreatList();
+    GetThreatManager().ClearAllThreat();
 
     if (_oldFactionId)
     {
@@ -12471,8 +12435,8 @@ void Unit::OnPhaseChange()
         // modify threat lists for new phasemask
         if (GetTypeId() != TYPEID_PLAYER)
         {
-            std::list<HostileReference*> threatList = getThreatManager().getThreatList();
-            std::list<HostileReference*> offlineThreatList = getThreatManager().getOfflineThreatList();
+            std::list<HostileReference*> threatList = GetThreatManager().getThreatList();
+            std::list<HostileReference*> offlineThreatList = GetThreatManager().getOfflineThreatList();
 
             // merge expects sorted lists
             threatList.sort();
@@ -13385,11 +13349,11 @@ void Unit::UpdateHeight(float newZ)
 
 void Unit::SendThreatListUpdate()
 {
-    if (!getThreatManager().isThreatListEmpty())
+    if (!GetThreatManager().isThreatListEmpty())
     {
         WorldPackets::Combat::ThreatUpdate packet;
         packet.UnitGUID = GetGUID();
-        ThreatContainer::StorageType const &tlist = getThreatManager().getThreatList();
+        ThreatContainer::StorageType const& tlist = GetThreatManager().getThreatList();
         packet.ThreatList.reserve(tlist.size());
         for (ThreatContainer::StorageType::const_iterator itr = tlist.begin(); itr != tlist.end(); ++itr)
         {
@@ -13404,12 +13368,12 @@ void Unit::SendThreatListUpdate()
 
 void Unit::SendChangeCurrentVictimOpcode(HostileReference* pHostileReference)
 {
-    if (!getThreatManager().isThreatListEmpty())
+    if (!GetThreatManager().isThreatListEmpty())
     {
         WorldPackets::Combat::HighestThreatUpdate packet;
         packet.UnitGUID = GetGUID();
         packet.HighestThreatGUID = pHostileReference->getUnitGuid();
-        ThreatContainer::StorageType const &tlist = getThreatManager().getThreatList();
+        ThreatContainer::StorageType const& tlist = GetThreatManager().getThreatList();
         packet.ThreatList.reserve(tlist.size());
         for (ThreatContainer::StorageType::const_iterator itr = tlist.begin(); itr != tlist.end(); ++itr)
         {

@@ -150,10 +150,6 @@ public:
                         break;
                     case EVENT_CONFLAGRATION:
                         DoCastVictim(SPELL_CONFLAGRATION);
-                        // @todo is this even necessary? pretty sure AI ignores targets with disorient by default
-                        if (me->GetVictim() && me->EnsureVictim()->HasAura(SPELL_CONFLAGRATION))
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
-                                me->TauntApply(target);
                         events.ScheduleEvent(EVENT_CONFLAGRATION, 30000);
                         break;
                 }

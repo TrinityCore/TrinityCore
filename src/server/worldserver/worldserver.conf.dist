@@ -1194,14 +1194,6 @@ OffhandCheckAtSpellUnlearn = 1
 ClientCacheVersion = 0
 
 #
-#    HotfixCacheVersion
-#        Description: Hotfix cache version for hotfix cache data reset. Use any value different
-#                     from DB and not recently been used to trigger client side cache reset.
-#        Default:     0 - (Use DB value from world DB version.hotfix_id field)
-
-HotfixCacheVersion = 0
-
-#
 #    Event.Announce
 #        Description: Announce events.
 #        Default:     0 - (Disabled)

@@ -86,7 +86,7 @@ public:
 
                     me->UpdateEntry(NPC_TAMED_KODO);
                     me->CombatStop();
-                    me->DeleteThreatList();
+                    me->GetThreatManager().ClearAllThreat();
                     me->SetSpeedRate(MOVE_RUN, 0.6f);
                     me->GetMotionMaster()->MoveFollow(caster, PET_FOLLOW_DIST, me->GetFollowAngle());
                     me->setActive(true);

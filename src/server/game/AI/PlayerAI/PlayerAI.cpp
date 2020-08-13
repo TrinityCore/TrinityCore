@@ -1216,7 +1216,7 @@ void SimpleCharmedPlayerAI::UpdateAI(const uint32 diff)
         }
     }
 
-    if (charmer->IsInCombat())
+    if (charmer->IsEngaged())
     {
         Unit* target = me->GetVictim();
         if (!target || !charmer->IsValidAttackTarget(target) || target->HasBreakableByDamageCrowdControlAura())

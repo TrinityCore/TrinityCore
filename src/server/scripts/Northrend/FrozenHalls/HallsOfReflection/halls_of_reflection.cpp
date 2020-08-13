@@ -960,14 +960,12 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
 
             void DeleteAllFromThreatList(Unit* target, ObjectGuid except)
             {
-                ThreatContainer::StorageType threatlist = target->getThreatManager().getThreatList();
-                for (auto i : threatlist)
-                {
-                    if (i->getUnitGuid() == except)
-                        continue;
-
-                    i->removeReference();
-                }
+                std::vector<ThreatReference*> toClear;
+                for (ThreatReference* ref : target->GetThreatManager().GetUnsortedThreatList())
+                  if (ref->GetVictim()->GetGUID() != except)
+                    toClear.push_back(ref);
+                for (ThreatReference* ref : toClear)
+                  ref->ClearThreat();
             }
 
             void UpdateAI(uint32 diff) override
@@ -1346,7 +1344,7 @@ class npc_the_lich_king_escape_hor : public CreatureScript
                             AttackStart(victim);
                     return me->GetVictim() != nullptr;
                 }
-                else if (me->getThreatManager().getThreatList().size() < 2 && me->HasAura(SPELL_REMORSELESS_WINTER))
+                else if (me->GetThreatManager().GetThreatListSize() < 2 && me->HasAura(SPELL_REMORSELESS_WINTER))
                 {
                     EnterEvadeMode(EVADE_REASON_OTHER);
                     return false;
@@ -1929,7 +1927,7 @@ class npc_frostsworn_general : public CreatureScript
             void SummonClones()
             {
                 std::list<Unit*> playerList;
-                SelectTargetList(playerList, 5, SELECT_TARGET_TOPAGGRO, 0.0f, true);
+                SelectTargetList(playerList, 5, SELECT_TARGET_MAXTHREAT, 0, 0.0f, true);
                 for (Unit* target : playerList)
                 {
                     if (Creature* reflection = me->SummonCreature(NPC_REFLECTION, *target, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 3000))
@@ -2172,7 +2170,7 @@ struct npc_escape_event_trash : public ScriptedAI
             me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
             me->SetInCombatWith(leader);
             leader->SetInCombatWith(me);
-            me->AddThreat(leader, 0.0f);
+            AddThreat(leader, 0.0f);
         }
     }
 
@@ -2292,7 +2290,7 @@ class npc_risen_witch_doctor : public CreatureScript
                         _events.ScheduleEvent(EVENT_RISEN_WITCH_DOCTOR_CURSE, urand(10000, 15000));
                         break;
                     case EVENT_RISEN_WITCH_DOCTOR_SHADOW_BOLT:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 20.0f, true))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, 0, 20.0f, true))
                             DoCast(target, SPELL_SHADOW_BOLT);
                         _events.ScheduleEvent(EVENT_RISEN_WITCH_DOCTOR_SHADOW_BOLT, urand(2000, 3000));
                         break;
