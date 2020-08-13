@@ -525,7 +525,7 @@ struct boss_headless_horseman : public ScriptedAI
                             if (Player* player = it->GetSource())
                             {
                                 player->Say(HeadlessHorsemanInitialPlayerTexts[talkContext.GetRepeatCounter()], LANG_UNIVERSAL);
-                                player->HandleEmoteCommand(ANIM_EMOTE_SHOUT);
+                                player->HandleEmoteCommand(EMOTE_ONESHOT_SHOUT);
                             }
                         }
 
