@@ -61,12 +61,12 @@ namespace WorldPackets
         class AvailableHotfixes final : public ServerPacket
         {
         public:
-            AvailableHotfixes(int32 hotfixCacheVersion, uint32 hotfixCount, DB2Manager::HotfixContainer const& hotfixes)
-                : ServerPacket(SMSG_AVAILABLE_HOTFIXES), HotfixCacheVersion(hotfixCacheVersion), HotfixCount(hotfixCount), Hotfixes(hotfixes) { }
+            AvailableHotfixes(int32 virtualRealmAddress, uint32 hotfixCount, DB2Manager::HotfixContainer const& hotfixes)
+                : ServerPacket(SMSG_AVAILABLE_HOTFIXES), VirtualRealmAddress(virtualRealmAddress), HotfixCount(hotfixCount), Hotfixes(hotfixes) { }
 
             WorldPacket const* Write() override;
 
-            int32 HotfixCacheVersion;
+            int32 VirtualRealmAddress;
             uint32 HotfixCount;
             DB2Manager::HotfixContainer const& Hotfixes;
         };
