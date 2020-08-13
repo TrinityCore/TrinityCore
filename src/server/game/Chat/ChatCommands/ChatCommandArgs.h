@@ -99,6 +99,24 @@ struct ArgInfo<std::string, void>
     }
 };
 
+// enum
+template <typename T>
+struct ArgInfo<T, std::enable_if_t<std::is_enum_v<T>>>
+{
+    typedef typename std::underlying_type<T>::type uType;
+
+    static char const* TryConsume(T& val, char const* args)
+    {
+        uType uVal = 0;
+
+        char const* retVal = ArgInfo<uType>::TryConsume(uVal, args);
+        if (retVal)
+            val = static_cast<T>(uVal);
+
+        return retVal;
+    }
+};
+
 // a container tag
 template <typename T>
 struct ArgInfo<T, std::enable_if_t<std::is_base_of_v<ContainerTag, T>>>
