@@ -54,7 +54,7 @@ class MySQLConnection;
 class TC_DATABASE_API SQLOperation
 {
     public:
-        SQLOperation(): m_conn(NULL) { }
+        SQLOperation(): m_conn(nullptr) { }
         virtual ~SQLOperation() { }
 
         virtual int call()

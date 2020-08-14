@@ -260,7 +260,7 @@ class boss_prince_taldaram : public CreatureScript
                 if (!_embraceTargetGUID.IsEmpty())
                     return ObjectAccessor::GetUnit(*me, _embraceTargetGUID);
 
-                return NULL;
+                return nullptr;
             }
 
             void RemovePrison()

@@ -41,7 +41,7 @@ uint32 GroupMgr::GenerateNewGroupDbStoreId()
 
     for (uint32 i = ++NextGroupDbStoreId; i < 0xFFFFFFFF; ++i)
     {
-        if ((i < GroupDbStore.size() && GroupDbStore[i] == NULL) || i >= GroupDbStore.size())
+        if ((i < GroupDbStore.size() && GroupDbStore[i] == nullptr) || i >= GroupDbStore.size())
         {
             NextGroupDbStoreId = i;
             break;
@@ -73,7 +73,7 @@ void GroupMgr::FreeGroupDbStoreId(Group* group)
     if (storageId < NextGroupDbStoreId)
         NextGroupDbStoreId = storageId;
 
-    GroupDbStore[storageId] = NULL;
+    GroupDbStore[storageId] = nullptr;
 }
 
 Group* GroupMgr::GetGroupByDbStoreId(uint32 storageId) const
@@ -81,7 +81,7 @@ Group* GroupMgr::GetGroupByDbStoreId(uint32 storageId) const
     if (storageId < GroupDbStore.size())
         return GroupDbStore[storageId];
 
-    return NULL;
+    return nullptr;
 }
 
 ObjectGuid::LowType GroupMgr::GenerateGroupId()
@@ -106,7 +106,7 @@ Group* GroupMgr::GetGroupByGUID(ObjectGuid const& groupId) const
     if (itr != GroupStore.end())
         return itr->second;
 
-    return NULL;
+    return nullptr;
 }
 
 void GroupMgr::AddGroup(Group* group)

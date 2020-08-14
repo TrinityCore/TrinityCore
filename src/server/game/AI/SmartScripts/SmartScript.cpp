@@ -63,7 +63,7 @@ SmartScript::~SmartScript()
 {
 }
 
-bool SmartScript::IsSmart(Creature* c /*= NULL*/)
+bool SmartScript::IsSmart(Creature* c /*= nullptr*/)
 {
     bool smart = true;
     if (c && c->GetAIName() != "SmartAI")
@@ -78,7 +78,7 @@ bool SmartScript::IsSmart(Creature* c /*= NULL*/)
     return smart;
 }
 
-bool SmartScript::IsSmartGO(GameObject* g /*= NULL*/)
+bool SmartScript::IsSmartGO(GameObject* g /*= nullptr*/)
 {
     bool smart = true;
     if (g && g->GetAIName() != "SmartGameObjectAI")
@@ -168,14 +168,14 @@ void SmartScript::ResetBaseObject()
             if (Creature* m = ObjectAccessor::GetCreature(*lookupRoot, meOrigGUID))
             {
                 me = m;
-                go = NULL;
+                go = nullptr;
             }
         }
         if (!goOrigGUID.IsEmpty())
         {
             if (GameObject* o = ObjectAccessor::GetGameObject(*lookupRoot, goOrigGUID))
             {
-                me = NULL;
+                me = nullptr;
                 go = o;
             }
         }
@@ -265,11 +265,11 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             for (WorldObject* target : targets)
             {
                 if (IsCreature(target))
-                    sCreatureTextMgr->SendChat(target->ToCreature(), uint8(e.action.talk.textGroupID), IsPlayer(GetLastInvoker()) ? GetLastInvoker() : 0);
+                    sCreatureTextMgr->SendChat(target->ToCreature(), uint8(e.action.talk.textGroupID), IsPlayer(GetLastInvoker()) ? GetLastInvoker() : nullptr);
                 else if (IsPlayer(target) && me)
                 {
                     Unit* templastInvoker = GetLastInvoker();
-                    sCreatureTextMgr->SendChat(me, uint8(e.action.talk.textGroupID), IsPlayer(templastInvoker) ? templastInvoker : 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, target->ToPlayer());
+                    sCreatureTextMgr->SendChat(me, uint8(e.action.talk.textGroupID), IsPlayer(templastInvoker) ? templastInvoker : nullptr, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, target->ToPlayer());
                 }
                 TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_SIMPLE_TALK: talker: %s (%s), textGroupId: %u",
                     target->GetName().c_str(), target->GetGUID().ToString().c_str(), uint8(e.action.talk.textGroupID));
@@ -2155,7 +2155,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         case SMART_ACTION_TRIGGER_RANDOM_TIMED_EVENT:
         {
             uint32 eventId = urand(e.action.randomTimedEvent.minId, e.action.randomTimedEvent.maxId);
-            ProcessEventsFor((SMART_EVENT)SMART_EVENT_TIMED_EVENT_TRIGGERED, NULL, eventId);
+            ProcessEventsFor((SMART_EVENT)SMART_EVENT_TIMED_EVENT_TRIGGERED, nullptr, eventId);
             break;
         }
 
