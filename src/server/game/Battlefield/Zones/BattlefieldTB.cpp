@@ -346,8 +346,8 @@ void BattlefieldTB::FillInitialWorldStates(WorldPackets::WorldState::InitWorldSt
     packet.Worldstates.emplace_back(uint32(TB_WS_ALLIANCE_CONTROLS_SHOW), int32(!IsWarTime() && GetDefenderTeam() == TEAM_ALLIANCE ? 1 : 0));
     packet.Worldstates.emplace_back(uint32(TB_WS_HORDE_CONTROLS_SHOW), int32(!IsWarTime() && GetDefenderTeam() == TEAM_HORDE ? 1 : 0));
 
-    packet.Worldstates.emplace_back(uint32(TB_WS_TIME_BATTLE_END), int32(IsWarTime() ? time(NULL) + (m_Timer / 1000) : 0));
-    packet.Worldstates.emplace_back(uint32(TB_WS_TIME_NEXT_BATTLE), int32(!IsWarTime() ? time(NULL) + (m_Timer / 1000) : 0));
+    packet.Worldstates.emplace_back(uint32(TB_WS_TIME_BATTLE_END), int32(IsWarTime() ? time(nullptr) + (m_Timer / 1000) : 0));
+    packet.Worldstates.emplace_back(uint32(TB_WS_TIME_NEXT_BATTLE), int32(!IsWarTime() ? time(nullptr) + (m_Timer / 1000) : 0));
 
     // Not sure if TB
     //packet.Worldstates.emplace_back(uint32(TB_WS_65_UNKNOWN), int32(0));
@@ -745,7 +745,7 @@ void BattlefieldTB::TowerDestroyed(TBTowerId tbTowerId)
     // Add 5 minute bonus time
     m_Timer += m_BonusTime;
 
-    SendUpdateWorldState(TB_WS_TIME_BATTLE_END, uint32(time(NULL) + (m_Timer / 1000)));
+    SendUpdateWorldState(TB_WS_TIME_BATTLE_END, uint32(time(nullptr) + (m_Timer / 1000)));
 
     SendWarning(TBTowers[tbTowerId].textDamaged);
 
@@ -867,5 +867,5 @@ void TolBaradCapturePoint::ChangeTeam(TeamId /*oldTeam*/)
     }
 
     // Update counter
-    m_Bf->ProcessEvent(NULL, EVENT_COUNT_CAPTURED_BASE);
+    m_Bf->ProcessEvent(nullptr, EVENT_COUNT_CAPTURED_BASE);
 }

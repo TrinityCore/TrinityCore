@@ -90,7 +90,7 @@ class TC_GAME_API ReputationMgr
         FactionState const* GetState(RepListID id) const
         {
             FactionStateList::const_iterator repItr = _factions.find (id);
-            return repItr != _factions.end() ? &repItr->second : NULL;
+            return repItr != _factions.end() ? &repItr->second : nullptr;
         }
 
         bool IsAtWar(uint32 faction_id) const;
@@ -112,7 +112,7 @@ class TC_GAME_API ReputationMgr
         ReputationRank const* GetForcedRankIfAny(uint32 factionId) const
         {
             ForcedReactions::const_iterator forceItr = _forcedReactions.find(factionId);
-            return forceItr != _forcedReactions.end() ? &forceItr->second : NULL;
+            return forceItr != _forcedReactions.end() ? &forceItr->second : nullptr;
         }
 
     public:                                                 // modifiers

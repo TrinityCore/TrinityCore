@@ -139,7 +139,7 @@ public:
                                 thirdThreat = *it;
                         }
 
-                        Unit* pHatefulTarget = NULL;
+                        Unit* pHatefulTarget = nullptr;
                         if (!thirdThreat)
                             pHatefulTarget = secondThreat->GetVictim();
                         else if (secondThreat)

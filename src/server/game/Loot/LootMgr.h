@@ -72,7 +72,7 @@ class TC_GAME_API LootStore
         void Verify() const;
 
         uint32 LoadAndCollectLootIds(LootIdSet& ids_set);
-        void CheckLootRefs(LootIdSet* ref_set = NULL) const; // check existence reference and remove it from ref_set
+        void CheckLootRefs(LootIdSet* ref_set = nullptr) const; // check existence reference and remove it from ref_set
         void ReportUnusedIds(LootIdSet const& ids_set) const;
         void ReportNonExistingId(uint32 lootId) const;
         void ReportNonExistingId(uint32 lootId, const char* ownerType, uint32 ownerId) const;

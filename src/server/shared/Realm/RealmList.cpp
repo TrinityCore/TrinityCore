@@ -233,7 +233,7 @@ Realm const* RealmList::GetRealm(Battlenet::RealmHandle const& id) const
     if (itr != _realms.end())
         return &itr->second;
 
-    return NULL;
+    return nullptr;
 }
 
 RealmBuildInfo const* RealmList::GetBuildInfo(uint32 build) const

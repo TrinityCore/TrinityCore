@@ -138,11 +138,11 @@ public:
                         {
                             for (ObjectGuid guid : _bloodmageList)
                                 if (Creature* bloodmage = ObjectAccessor::GetCreature(*me, guid))
-                                    bloodmage->CastSpell((Unit*)NULL, SPELL_SUMMON_CHANNEL);
+                                    bloodmage->CastSpell(nullptr, SPELL_SUMMON_CHANNEL);
 
                             for (ObjectGuid guid : _deathshaperList)
                                 if (Creature* deathshaper = ObjectAccessor::GetCreature(*me, guid))
-                                    deathshaper->CastSpell((Unit*)NULL, SPELL_SUMMON_CHANNEL);
+                                    deathshaper->CastSpell(nullptr, SPELL_SUMMON_CHANNEL);
 
                             _events.ScheduleEvent(EVENT_SET_CHANNELERS, 12000);
 

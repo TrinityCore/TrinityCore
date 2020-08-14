@@ -58,8 +58,8 @@ public:
 
         static std::vector<ChatCommand> ahbotCommandTable =
         {
-            { "items",          rbac::RBAC_PERM_COMMAND_AHBOT_ITEMS,    true,   NULL,                       "", ahbotItemsAmountCommandTable },
-            { "ratio",          rbac::RBAC_PERM_COMMAND_AHBOT_RATIO,    true,   NULL,                       "", ahbotItemsRatioCommandTable },
+            { "items",          rbac::RBAC_PERM_COMMAND_AHBOT_ITEMS,    true,   nullptr,                    "", ahbotItemsAmountCommandTable },
+            { "ratio",          rbac::RBAC_PERM_COMMAND_AHBOT_RATIO,    true,   nullptr,                    "", ahbotItemsRatioCommandTable },
             { "rebuild",        rbac::RBAC_PERM_COMMAND_AHBOT_REBUILD,  true,   &HandleAHBotRebuildCommand, "" },
             { "reload",         rbac::RBAC_PERM_COMMAND_AHBOT_RELOAD,   true,   &HandleAHBotReloadCommand,  "" },
             { "status",         rbac::RBAC_PERM_COMMAND_AHBOT_STATUS,   true,   &HandleAHBotStatusCommand,  "" },
@@ -67,7 +67,7 @@ public:
 
         static std::vector<ChatCommand> commandTable =
         {
-            { "ahbot",          rbac::RBAC_PERM_COMMAND_AHBOT,  false, NULL,    "", ahbotCommandTable },
+            { "ahbot",          rbac::RBAC_PERM_COMMAND_AHBOT,  false, nullptr,    "", ahbotCommandTable },
         };
 
         return commandTable;
@@ -82,7 +82,7 @@ public:
             if (!arg)
                 return false;
             qVals[i] = atoi(arg);
-            arg = strtok(NULL, " ");
+            arg = strtok(nullptr, " ");
         }
 
         sAuctionBot->SetItemsAmount(qVals);
@@ -117,7 +117,7 @@ public:
             if (!arg)
                 return false;
             rVal[i] = atoi(arg);
-            arg = strtok(NULL, " ");
+            arg = strtok(nullptr, " ");
         }
 
         sAuctionBot->SetItemsRatio(rVal[0], rVal[1], rVal[2]);

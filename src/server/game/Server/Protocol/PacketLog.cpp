@@ -59,7 +59,7 @@ struct PacketHeader
 
 #pragma pack(pop)
 
-PacketLog::PacketLog() : _file(NULL)
+PacketLog::PacketLog() : _file(nullptr)
 {
     std::call_once(_initializeFlag, &PacketLog::Initialize, this);
 }
@@ -69,7 +69,7 @@ PacketLog::~PacketLog()
     if (_file)
         fclose(_file);
 
-    _file = NULL;
+    _file = nullptr;
 }
 
 PacketLog* PacketLog::instance()
@@ -100,7 +100,7 @@ void PacketLog::Initialize()
             header.Build = realm.Build;
             header.Locale[0] = 'e'; header.Locale[1] = 'n'; header.Locale[2] = 'U'; header.Locale[3] = 'S';
             std::memset(header.SessionKey, 0, sizeof(header.SessionKey));
-            header.SniffStartUnixtime = time(NULL);
+            header.SniffStartUnixtime = time(nullptr);
             header.SniffStartTicks = getMSTime();
             header.OptionalDataSize = 0;
 

@@ -247,7 +247,7 @@ class TC_GAME_API ThreatManager
 
         void clearReferences();
 
-        void addThreat(Unit* victim, float threat, SpellSchoolMask schoolMask = SPELL_SCHOOL_MASK_NORMAL, SpellInfo const* threatSpell = NULL);
+        void addThreat(Unit* victim, float threat, SpellSchoolMask schoolMask = SPELL_SCHOOL_MASK_NORMAL, SpellInfo const* threatSpell = nullptr);
 
         void doAddThreat(Unit* victim, float threat);
 
