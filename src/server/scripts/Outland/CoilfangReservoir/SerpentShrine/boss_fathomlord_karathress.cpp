@@ -348,7 +348,7 @@ public:
 
             Creature* Pet = ObjectAccessor::GetCreature(*me, SummonedPet);
             if (Pet && Pet->IsAlive())
-                Pet->DealDamage(Pet, Pet->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                Pet->DealDamage(Pet, Pet->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
 
             SummonedPet.Clear();
 
@@ -681,9 +681,9 @@ public:
             if (Heal_Timer <= diff)
             {
                 // It can be cast on any of the mobs
-                Unit* unit = NULL;
+                Unit* unit = nullptr;
 
-                while (unit == NULL || !unit->IsAlive())
+                while (unit == nullptr || !unit->IsAlive())
                     unit = selectAdvisorUnit();
 
                 if (unit && unit->IsAlive())
@@ -698,7 +698,7 @@ public:
 
         Unit* selectAdvisorUnit()
         {
-            Unit* unit = NULL;
+            Unit* unit = nullptr;
             switch (rand32() % 4)
             {
             case 0:

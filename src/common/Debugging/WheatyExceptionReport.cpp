@@ -34,11 +34,11 @@ inline LPTSTR ErrorMessage(DWORD dw)
     DWORD formatResult = FormatMessage(
                             FORMAT_MESSAGE_ALLOCATE_BUFFER |
                             FORMAT_MESSAGE_FROM_SYSTEM,
-                            NULL,
+                            nullptr,
                             dw,
                             MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
                             (LPTSTR) &lpMsgBuf,
-                            0, NULL);
+                            0, nullptr);
     if (formatResult != 0)
         return (LPTSTR)lpMsgBuf;
     else
@@ -125,7 +125,7 @@ PEXCEPTION_POINTERS pExceptionInfo)
         stackOverflowException = true;
 
     TCHAR module_folder_name[MAX_PATH];
-    GetModuleFileName(0, module_folder_name, MAX_PATH);
+    GetModuleFileName(nullptr, module_folder_name, MAX_PATH);
     TCHAR* pos = _tcsrchr(module_folder_name, '\\');
     if (!pos)
         return 0;
@@ -134,7 +134,7 @@ PEXCEPTION_POINTERS pExceptionInfo)
 
     TCHAR crash_folder_path[MAX_PATH];
     sprintf_s(crash_folder_path, "%s\\%s", module_folder_name, CrashFolder);
-    if (!CreateDirectory(crash_folder_path, NULL))
+    if (!CreateDirectory(crash_folder_path, nullptr))
     {
         if (GetLastError() != ERROR_ALREADY_EXISTS)
             return 0;
@@ -151,18 +151,18 @@ PEXCEPTION_POINTERS pExceptionInfo)
     m_hDumpFile = CreateFile(m_szDumpFileName,
         GENERIC_WRITE,
         0,
-        0,
+        nullptr,
         OPEN_ALWAYS,
         FILE_FLAG_WRITE_THROUGH,
-        0);
+        nullptr);
 
     m_hReportFile = CreateFile(m_szLogFileName,
         GENERIC_WRITE,
         0,
-        0,
+        nullptr,
         OPEN_ALWAYS,
         FILE_FLAG_WRITE_THROUGH,
-        0);
+        nullptr);
 
     if (m_hDumpFile)
     {
@@ -172,19 +172,19 @@ PEXCEPTION_POINTERS pExceptionInfo)
         info.ThreadId = GetCurrentThreadId();
 
         MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(),
-            m_hDumpFile, MiniDumpWithIndirectlyReferencedMemory, &info, 0, 0);
+            m_hDumpFile, MiniDumpWithIndirectlyReferencedMemory, &info, nullptr, nullptr);
 
         CloseHandle(m_hDumpFile);
     }
 
     if (m_hReportFile)
     {
-        SetFilePointer(m_hReportFile, 0, 0, FILE_END);
+        SetFilePointer(m_hReportFile, 0, nullptr, FILE_END);
 
         GenerateExceptionReport(pExceptionInfo);
 
         CloseHandle(m_hReportFile);
-        m_hReportFile = 0;
+        m_hReportFile = nullptr;
     }
 
     if (m_previousFilter)
@@ -211,7 +211,7 @@ BOOL WheatyExceptionReport::_GetProcessorName(TCHAR* sProcessorName, DWORD maxco
         return FALSE;
     TCHAR szTmp[2048];
     DWORD cntBytes = sizeof(szTmp);
-    lRet = ::RegQueryValueEx(hKey, _T("ProcessorNameString"), NULL, NULL,
+    lRet = ::RegQueryValueEx(hKey, _T("ProcessorNameString"), nullptr, nullptr,
         (LPBYTE)szTmp, &cntBytes);
     if (lRet != ERROR_SUCCESS)
         return FALSE;
@@ -560,7 +560,7 @@ PEXCEPTION_POINTERS pExceptionInfo)
         SymSetOptions(SYMOPT_DEFERRED_LOADS);
 
         // Initialize DbgHelp
-        if (!SymInitialize(GetCurrentProcess(), 0, TRUE))
+        if (!SymInitialize(GetCurrentProcess(), nullptr, TRUE))
         {
             Log(_T("\n\rCRITICAL ERROR.\n\r Couldn't initialize the symbol handler for process.\n\rError [%s].\n\r\n\r"),
                 ErrorMessage(GetLastError()));
@@ -568,7 +568,7 @@ PEXCEPTION_POINTERS pExceptionInfo)
 
         CONTEXT trashableContext = *pCtx;
 
-        WriteStackDetails(&trashableContext, false, NULL);
+        WriteStackDetails(&trashableContext, false, nullptr);
         printTracesForAllThreads(false);
 
         //    #ifdef _M_IX86                                          // X86 Only!
@@ -577,7 +577,7 @@ PEXCEPTION_POINTERS pExceptionInfo)
         Log(_T("Local Variables And Parameters\r\n"));
 
         trashableContext = *pCtx;
-        WriteStackDetails(&trashableContext, true, NULL);
+        WriteStackDetails(&trashableContext, true, nullptr);
         printTracesForAllThreads(true);
 
         SymCleanup(GetCurrentProcess());
@@ -631,7 +631,7 @@ LPTSTR WheatyExceptionReport::GetExceptionString(DWORD dwCode)
 
     FormatMessage(FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_FROM_HMODULE,
         GetModuleHandle(_T("NTDLL.DLL")),
-        dwCode, 0, szBuffer, sizeof(szBuffer), 0);
+        dwCode, 0, szBuffer, sizeof(szBuffer), nullptr);
 
     return szBuffer;
 }
@@ -750,13 +750,13 @@ bool bWriteVariables, HANDLE pThreadHandle)                                     
         // Get the next stack frame
         if (! StackWalk64(dwMachineType,
             m_hProcess,
-            pThreadHandle != NULL ? pThreadHandle : GetCurrentThread(),
+            pThreadHandle != nullptr ? pThreadHandle : GetCurrentThread(),
             &sf,
             pContext,
-            0,
+            nullptr,
             SymFunctionTableAccess64,
             SymGetModuleBase64,
-            0))
+            nullptr))
             break;
         if (0 == sf.AddrFrame.Offset)                     // Basic sanity check to make sure
             break;                                          // the frame is OK.  Bail if not.
@@ -814,10 +814,10 @@ bool bWriteVariables, HANDLE pThreadHandle)                                     
             // Use SymSetContext to get just the locals/params for this frame
             IMAGEHLP_STACK_FRAME imagehlpStackFrame;
             imagehlpStackFrame.InstructionOffset = sf.AddrPC.Offset;
-            SymSetContext(m_hProcess, &imagehlpStackFrame, 0);
+            SymSetContext(m_hProcess, &imagehlpStackFrame, nullptr);
 
             // Enumerate the locals/parameters
-            SymEnumSymbols(m_hProcess, 0, 0, EnumerateSymbolsCallback, &sf);
+            SymEnumSymbols(m_hProcess, 0, nullptr, EnumerateSymbolsCallback, &sf);
 
             Log(_T("\r\n"));
         }
@@ -839,7 +839,7 @@ PVOID         UserContext)
     {
         ClearSymbols();
         FormatSymbolValue(pSymInfo, (STACKFRAME64*)UserContext);
-            
+
     }
     __except (EXCEPTION_EXECUTE_HANDLER)
     {
@@ -958,7 +958,7 @@ bool logChildren)
             char buffer[50];
             FormatOutputValue(buffer, btStdString, 0, (PVOID)offset, sizeof(buffer));
             symbolDetails.top().Value = buffer;
-            if (Name != NULL && Name[0] != '\0')
+            if (Name != nullptr && Name[0] != '\0')
                 symbolDetails.top().Name = Name;
             bHandled = true;
             return;
@@ -967,7 +967,7 @@ bool logChildren)
         char buffer[WER_SMALL_BUFFER_SIZE];
         wcstombs(buffer, pwszTypeName, sizeof(buffer));
         buffer[WER_SMALL_BUFFER_SIZE - 1] = '\0';
-        if (Name != NULL && Name[0] != '\0')
+        if (Name != nullptr && Name[0] != '\0')
         {
             symbolDetails.top().Type = buffer;
             symbolDetails.top().Name = Name;
@@ -977,7 +977,7 @@ bool logChildren)
 
         LocalFree(pwszTypeName);
     }
-    else if (Name != NULL && Name[0] != '\0')
+    else if (Name != nullptr && Name[0] != '\0')
         symbolDetails.top().Name = Name;
 
     if (!StoreSymbol(dwTypeIndex, offset))
@@ -994,7 +994,7 @@ bool logChildren)
         case SymTagPointerType:
             if (SymGetTypeInfo(m_hProcess, modBase, dwTypeIndex, TI_GET_TYPEID, &innerTypeID))
             {
-                if (Name != NULL && Name[0] != '\0')
+                if (Name != nullptr && Name[0] != '\0')
                     symbolDetails.top().Name = Name;
 
                 BOOL isReference;
@@ -1019,7 +1019,7 @@ bool logChildren)
                     logChildren = false;
 
                 // no need to log any children since the address is invalid anyway
-                if (address == NULL || address == DWORD_PTR(-1))
+                if (address == 0 || address == DWORD_PTR(-1))
                     logChildren = false;
 
                 DumpTypeIndex(modBase, innerTypeID, address, bHandled, Name, addressStr, false, logChildren);
@@ -1030,7 +1030,7 @@ bool logChildren)
                     if (symbolDetails.top().Type.empty())
                         symbolDetails.top().Type = rgBaseType[basicType];
 
-                    if (address == NULL)
+                    if (address == 0)
                         symbolDetails.top().Value = "NULL";
                     else if (address == DWORD_PTR(-1))
                         symbolDetails.top().Value = "<Unable to read memory>";
@@ -1046,7 +1046,7 @@ bool logChildren)
                     bHandled = true;
                     return;
                 }
-                else if (address == NULL)
+                else if (address == 0)
                     symbolDetails.top().Value = "NULL";
                 else if (address == DWORD_PTR(-1))
                 {
@@ -1072,7 +1072,7 @@ bool logChildren)
                             offset, bHandled, symbolDetails.top().Name.c_str(), "", false, logChildren);
                         break;
                     case SymTagPointerType:
-                        if (Name != NULL && Name[0] != '\0')
+                        if (Name != nullptr && Name[0] != '\0')
                             symbolDetails.top().Name = Name;
                         DumpTypeIndex(modBase, innerTypeID,
                             offset, bHandled, symbolDetails.top().Name.c_str(), "", false, logChildren);
@@ -1390,7 +1390,7 @@ int __cdecl WheatyExceptionReport::StackLog(const TCHAR * format, va_list argptr
 
     TCHAR szBuff[WER_LARGE_BUFFER_SIZE];
     retValue = vsprintf(szBuff, format, argptr);
-    WriteFile(m_hReportFile, szBuff, retValue * sizeof(TCHAR), &cbWritten, 0);
+    WriteFile(m_hReportFile, szBuff, retValue * sizeof(TCHAR), &cbWritten, nullptr);
 
     return retValue;
 }
@@ -1403,7 +1403,7 @@ int __cdecl WheatyExceptionReport::HeapLog(const TCHAR * format, va_list argptr)
     if (szBuff != nullptr)
     {
         retValue = vsprintf(szBuff, format, argptr);
-        WriteFile(m_hReportFile, szBuff, retValue * sizeof(TCHAR), &cbWritten, 0);
+        WriteFile(m_hReportFile, szBuff, retValue * sizeof(TCHAR), &cbWritten, nullptr);
         free(szBuff);
     }
 

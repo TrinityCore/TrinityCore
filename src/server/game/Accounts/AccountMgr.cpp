@@ -477,7 +477,7 @@ void AccountMgr::LoadRBAC()
     }
 
     uint32 permissionId = 0;
-    rbac::RBACPermission* permission = NULL;
+    rbac::RBACPermission* permission = nullptr;
 
     do
     {
@@ -509,12 +509,12 @@ void AccountMgr::LoadRBAC()
     }
 
     uint8 secId = 255;
-    rbac::RBACPermissionContainer* permissions = NULL;
+    rbac::RBACPermissionContainer* permissions = nullptr;
     do
     {
         Field* field = result->Fetch();
         uint32 newId = field[0].GetUInt32();
-        if (secId != newId || permissions == NULL)
+        if (secId != newId || permissions == nullptr)
         {
             secId = newId;
             permissions = &_defaultPermissions[secId];
@@ -569,7 +569,7 @@ rbac::RBACPermission const* AccountMgr::GetRBACPermission(uint32 permissionId) c
     if (it != _permissions.end())
         return it->second;
 
-    return NULL;
+    return nullptr;
 }
 
 bool AccountMgr::HasPermission(uint32 accountId, uint32 permissionId, uint32 realmId)

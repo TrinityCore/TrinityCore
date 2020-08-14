@@ -111,6 +111,6 @@ void CASCFile::seekRelative(int offset)
 void CASCFile::close()
 {
     delete[] buffer;
-    buffer = 0;
+    buffer = nullptr;
     eof = true;
 }

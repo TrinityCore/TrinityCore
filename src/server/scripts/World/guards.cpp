@@ -121,7 +121,7 @@ public:
                 if (me->IsWithinMeleeRange(me->GetVictim()))
                 {
                     bool healing = false;
-                    SpellInfo const* info = NULL;
+                    SpellInfo const* info = nullptr;
 
                     //Select a healing spell if less than 30% hp
                     if (me->HealthBelowPct(30))
@@ -157,7 +157,7 @@ public:
                 if (!me->IsNonMeleeSpellCast(false))
                 {
                     bool healing = false;
-                    SpellInfo const* info = NULL;
+                    SpellInfo const* info = nullptr;
 
                     //Select a healing spell if less than 30% hp ONLY 33% of the time
                     if (me->HealthBelowPct(30) && 33 > urand(0, 99))

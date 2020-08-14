@@ -734,7 +734,7 @@ public:
         uint32 nativeid = target->GetNativeDisplayId();
         uint32 Entry = target->GetEntry();
 
-        int64 curRespawnDelay = target->GetRespawnTimeEx()-time(NULL);
+        int64 curRespawnDelay = target->GetRespawnTimeEx()-time(nullptr);
         if (curRespawnDelay < 0)
             curRespawnDelay = 0;
         std::string curRespawnDelayStr = secsToTimeString(uint64(curRespawnDelay), true);
@@ -1603,13 +1603,13 @@ public:
                 handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_LABEL_2, "Per-player quest items");
                 _IterateNotNormalLootMap(handler, loot.GetPlayerQuestItems(), loot.quest_items);
             }
-            
+
             if (!loot.GetPlayerFFAItems().empty())
             {
                 handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_LABEL_2, "FFA items per allowed player");
                 _IterateNotNormalLootMap(handler, loot.GetPlayerFFAItems(), loot.items);
             }
-            
+
             if (!loot.GetPlayerNonQuestNonFFAConditionalItems().empty())
             {
                 handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_LABEL_2, "Per-player conditional items");

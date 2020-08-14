@@ -502,8 +502,8 @@ class spell_mandokir_bloodletting : public SpellScriptLoader
 
                 int32 damage = std::max<int32>(7500, target->CountPctFromCurHealth(aurEff->GetAmount()));
 
-                caster->CastCustomSpell(target, SPELL_BLOODLETTING_DAMAGE, &damage, 0, 0, true);
-                target->CastCustomSpell(caster, SPELL_BLOODLETTING_HEAL, &damage, 0, 0, true);
+                caster->CastCustomSpell(target, SPELL_BLOODLETTING_DAMAGE, &damage, nullptr, nullptr, true);
+                target->CastCustomSpell(caster, SPELL_BLOODLETTING_HEAL, &damage, nullptr, nullptr, true);
             }
 
             void Register() override
@@ -713,7 +713,7 @@ class spell_mandokir_reanimate_ohgan : public SpellScriptLoader
                 {
                     target->RemoveAura(SPELL_PERMANENT_FEIGN_DEATH);
                     target->CastSpell(target, SPELL_OHGAN_HEART_VISUAL, true);
-                    target->CastSpell((Unit*)NULL, SPELL_OHGAN_ORDERS, true);
+                    target->CastSpell(nullptr, SPELL_OHGAN_ORDERS, true);
                 }
             }
 

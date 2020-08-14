@@ -80,7 +80,7 @@ void OpcodeTable::ValidateAndSetClientOpcode(OpcodeClient opcode, char const* na
         return;
     }
 
-    if (_internalTableClient[opcode] != NULL)
+    if (_internalTableClient[opcode] != nullptr)
     {
         TC_LOG_ERROR("network", "Tried to override client handler of %s with %s (opcode %u)", opcodeTable[opcode]->Name, name, opcode);
         return;
@@ -115,7 +115,7 @@ void OpcodeTable::ValidateAndSetServerOpcode(OpcodeServer opcode, char const* na
         return;
     }
 
-    if (_internalTableServer[opcode] != NULL)
+    if (_internalTableServer[opcode] != nullptr)
     {
         TC_LOG_ERROR("network", "Tried to override server handler of %s with %s (opcode %u)", opcodeTable[opcode]->Name, name, opcode);
         return;

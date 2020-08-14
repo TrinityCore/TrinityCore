@@ -307,7 +307,7 @@ public:
 
             if (DispelTimer <= diff)
             {
-                Unit* target = NULL;
+                Unit* target = nullptr;
 
                 if (urand(0, 1))
                     target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);

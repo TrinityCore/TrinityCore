@@ -126,7 +126,7 @@ class boss_void_reaver : public CreatureScript
                                 target = me->GetVictim();
 
                             if (target)
-                                me->CastSpell(target, SPELL_ARCANE_ORB, false, NULL, NULL);
+                                me->CastSpell(target, SPELL_ARCANE_ORB, false, nullptr, nullptr);
 
                             events.ScheduleEvent(EVENT_ARCANE_ORB, 3000);
                             break;

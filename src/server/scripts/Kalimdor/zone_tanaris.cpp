@@ -103,7 +103,7 @@ public:
                 !player->HasItemCount(ITEM_SILVER_TOTEM, 1, true))
             {
                 ItemPosCountVec dest;
-                uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 11522, 1, NULL);
+                uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 11522, 1, nullptr);
                 if (msg == EQUIP_ERR_OK)
                     player->StoreNewItem(dest, ITEM_SILVER_TOTEM, true);
             }

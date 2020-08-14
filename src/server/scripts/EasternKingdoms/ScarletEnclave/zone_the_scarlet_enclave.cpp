@@ -85,7 +85,7 @@ public:
         {
             if (FlyBackTimer <= diff)
             {
-                Player* player = NULL;
+                Player* player = nullptr;
                 if (me->IsSummon())
                     if (Unit* summoner = me->ToTempSummon()->GetSummoner())
                         player = summoner->ToPlayer();

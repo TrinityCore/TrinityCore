@@ -113,7 +113,7 @@ class TC_GAME_API PathGenerator
         float Dist3DSqr(G3D::Vector3 const& p1, G3D::Vector3 const& p2) const;
         bool InRangeYZX(float const* v1, float const* v2, float r, float h) const;
 
-        dtPolyRef GetPathPolyByPosition(dtPolyRef const* polyPath, uint32 polyPathSize, float const* Point, float* Distance = NULL) const;
+        dtPolyRef GetPathPolyByPosition(dtPolyRef const* polyPath, uint32 polyPathSize, float const* Point, float* Distance = nullptr) const;
         dtPolyRef GetPolyByLocation(float const* Point, float* Distance) const;
         bool HaveTile(G3D::Vector3 const& p) const;
 

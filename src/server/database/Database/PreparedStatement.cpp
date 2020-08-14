@@ -225,7 +225,7 @@ bool PreparedStatementTask::Execute()
         if (!result || !result->GetRowCount())
         {
             delete result;
-            m_result->set_value(PreparedQueryResult(NULL));
+            m_result->set_value(PreparedQueryResult(nullptr));
             return false;
         }
         m_result->set_value(PreparedQueryResult(result));

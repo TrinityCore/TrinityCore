@@ -284,13 +284,13 @@ public:
                     {
                         ItemPosCountVec dest;
                         uint32 itemId = 24573;
-                        InventoryResult msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, 1, NULL);
+                        InventoryResult msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, 1, nullptr);
                         if (msg == EQUIP_ERR_OK)
                         {
                             player->StoreNewItem(dest, itemId, true);
                         }
                         else
-                            player->SendEquipError(msg, NULL, NULL, itemId);
+                            player->SendEquipError(msg, nullptr, nullptr, itemId);
                     }
                     SendGossipMenuFor(player, 9231, me->GetGUID());
                     break;

@@ -41,7 +41,7 @@ enum Points
 FollowerAI::FollowerAI(Creature* creature) : ScriptedAI(creature),
     m_uiUpdateFollowTimer(2500),
     m_uiFollowState(STATE_FOLLOW_NONE),
-    m_pQuestForFollow(NULL)
+    m_pQuestForFollow(nullptr)
 { }
 
 void FollowerAI::AttackStart(Unit* who)
@@ -134,7 +134,7 @@ void FollowerAI::JustDied(Unit* /*killer*/)
     {
         if (Group* group = player->GetGroup())
         {
-            for (GroupReference* groupRef = group->GetFirstMember(); groupRef != NULL; groupRef = groupRef->next())
+            for (GroupReference* groupRef = group->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
                 if (Player* member = groupRef->GetSource())
                     if (member->IsInMap(player))
                         member->FailQuest(m_pQuestForFollow->GetQuestId());
@@ -162,7 +162,7 @@ void FollowerAI::EnterEvadeMode(EvadeReason /*why*/)
     me->RemoveAllAuras();
     me->GetThreatManager().ClearAllThreat();
     me->CombatStop(true);
-    me->SetLootRecipient(NULL);
+    me->SetLootRecipient(nullptr);
 
     if (HasFollowState(STATE_FOLLOW_INPROGRESS))
     {
@@ -212,7 +212,7 @@ void FollowerAI::UpdateAI(uint32 uiDiff)
 
                 if (Group* group = player->GetGroup())
                 {
-                    for (GroupReference* groupRef = group->GetFirstMember(); groupRef != NULL; groupRef = groupRef->next())
+                    for (GroupReference* groupRef = group->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
                     {
                         Player* member = groupRef->GetSource();
                         if (member && me->IsWithinDistInMap(member, MAX_PLAYER_DISTANCE))
@@ -319,7 +319,7 @@ Player* FollowerAI::GetLeaderForFollower()
         {
             if (Group* group = player->GetGroup())
             {
-                for (GroupReference* groupRef = group->GetFirstMember(); groupRef != NULL; groupRef = groupRef->next())
+                for (GroupReference* groupRef = group->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
                 {
                     Player* member = groupRef->GetSource();
                     if (member && me->IsWithinDistInMap(member, MAX_PLAYER_DISTANCE) && member->IsAlive())
@@ -334,7 +334,7 @@ Player* FollowerAI::GetLeaderForFollower()
     }
 
     TC_LOG_DEBUG("scripts", "FollowerAI GetLeader can not find suitable leader.");
-    return NULL;
+    return nullptr;
 }
 
 void FollowerAI::SetFollowComplete(bool bWithEndEvent)
