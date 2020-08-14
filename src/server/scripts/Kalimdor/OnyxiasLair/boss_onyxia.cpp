@@ -304,7 +304,7 @@ public:
                     return &MoveData[i];
             }
 
-            return NULL;
+            return nullptr;
         }
 
         void SetNextRandomPoint()
@@ -356,7 +356,7 @@ public:
                         {
                             DoCastVictim(SPELL_BELLOWING_ROAR);
                             // Eruption
-                            GameObject* Floor = NULL;
+                            GameObject* Floor = nullptr;
                             Trinity::GameObjectInRangeCheck check(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 15);
                             Trinity::GameObjectLastSearcher<Trinity::GameObjectInRangeCheck> searcher(me, Floor, check);
                             Cell::VisitGridObjects(me, searcher, 30.0f);

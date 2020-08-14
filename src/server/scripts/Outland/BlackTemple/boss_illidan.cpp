@@ -1251,9 +1251,9 @@ public:
                     case EVENT_AKAMA_DOOR_SUCCESS:
                         DoCastSelf(SPELL_AKAMA_DOOR_CHANNEL);
                         if (Creature* undalo = ObjectAccessor::GetCreature(*me, _spiritOfUdaloGUID))
-                            undalo->CastSpell((Unit*) nullptr, SPELL_DEATHSWORN_DOOR_CHANNEL);
+                            undalo->CastSpell(nullptr, SPELL_DEATHSWORN_DOOR_CHANNEL);
                         if (Creature* olum = ObjectAccessor::GetCreature(*me, _spiritOfOlumGUID))
-                            olum->CastSpell((Unit*) nullptr, SPELL_DEATHSWORN_DOOR_CHANNEL);
+                            olum->CastSpell(nullptr, SPELL_DEATHSWORN_DOOR_CHANNEL);
                         _events.ScheduleEvent(EVENT_AKAMA_START_SOUND, Seconds(5));
                         break;
                     case EVENT_AKAMA_START_SOUND:

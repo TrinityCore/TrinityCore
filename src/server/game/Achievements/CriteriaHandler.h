@@ -358,7 +358,7 @@ public:
     CriteriaDataSet const* GetCriteriaDataSet(Criteria const* Criteria) const
     {
         CriteriaDataMap::const_iterator iter = _criteriaDataMap.find(Criteria->ID);
-        return iter != _criteriaDataMap.end() ? &iter->second : NULL;
+        return iter != _criteriaDataMap.end() ? &iter->second : nullptr;
     }
 
     static bool IsGroupCriteriaType(CriteriaTypes type)

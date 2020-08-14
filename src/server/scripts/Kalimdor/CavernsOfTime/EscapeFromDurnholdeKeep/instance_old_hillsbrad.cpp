@@ -79,7 +79,7 @@ public:
                     return player;
 
             TC_LOG_DEBUG("scripts", "Instance Old Hillsbrad: GetPlayerInMap, but PlayerList is empty!");
-            return NULL;
+            return nullptr;
         }
 
         void UpdateQuestCredit()

@@ -174,11 +174,11 @@ void WorldSocket::InitializeHandler(boost::system::error_code error, std::size_t
             }
 
             _compressionStream = new z_stream();
-            _compressionStream->zalloc = (alloc_func)NULL;
-            _compressionStream->zfree = (free_func)NULL;
-            _compressionStream->opaque = (voidpf)NULL;
+            _compressionStream->zalloc = (alloc_func)nullptr;
+            _compressionStream->zfree = (free_func)nullptr;
+            _compressionStream->opaque = (voidpf)nullptr;
             _compressionStream->avail_in = 0;
-            _compressionStream->next_in = NULL;
+            _compressionStream->next_in = nullptr;
             int32 z_res = deflateInit2(_compressionStream, sWorld->getIntConfig(CONFIG_COMPRESSION), Z_DEFLATED, -15, 8, Z_DEFAULT_STRATEGY);
             if (z_res != Z_OK)
             {
@@ -799,7 +799,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
     //! Negative mutetime indicates amount of seconds to be muted effective on next login - which is now.
     if (mutetime < 0)
     {
-        mutetime = time(NULL) + llabs(mutetime);
+        mutetime = time(nullptr) + llabs(mutetime);
 
         stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME_LOGIN);
         stmt->setInt64(0, mutetime);
