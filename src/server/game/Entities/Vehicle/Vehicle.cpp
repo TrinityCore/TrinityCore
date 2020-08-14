@@ -234,7 +234,7 @@ void Vehicle::RemoveAllPassengers()
     /// This will properly "reset" the pending join process for the passenger.
     {
         /// Update vehicle pointer in every pending join event - Abort may be called after vehicle is deleted
-        Vehicle* eventVehicle = _status != STATUS_UNINSTALLING ? this : NULL;
+        Vehicle* eventVehicle = _status != STATUS_UNINSTALLING ? this : nullptr;
 
         while (!_pendingJoinEvents.empty())
         {
@@ -295,7 +295,7 @@ Unit* Vehicle::GetPassenger(int8 seatId) const
 {
     SeatMap::const_iterator seat = Seats.find(seatId);
     if (seat == Seats.end())
-        return NULL;
+        return nullptr;
 
     return ObjectAccessor::GetUnit(*GetBase(), seat->second.Passenger.Guid);
 }
@@ -473,7 +473,7 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
 Vehicle* Vehicle::RemovePassenger(Unit* unit)
 {
     if (unit->GetVehicle() != this)
-        return NULL;
+        return nullptr;
 
     SeatMap::iterator seat = GetSeatIteratorForPassenger(unit);
     ASSERT(seat != Seats.end());
@@ -515,7 +515,7 @@ Vehicle* Vehicle::RemovePassenger(Unit* unit)
     if (GetBase()->GetTypeId() == TYPEID_UNIT)
         sScriptMgr->OnRemovePassenger(this, unit);
 
-    unit->SetVehicle(NULL);
+    unit->SetVehicle(nullptr);
     return this;
 }
 
@@ -618,7 +618,7 @@ VehicleSeatEntry const* Vehicle::GetSeatForPassenger(Unit const* passenger) cons
         if (itr->second.Passenger.Guid == passenger->GetGUID())
             return itr->second.SeatInfo;
 
-    return NULL;
+    return nullptr;
 }
 
 /**

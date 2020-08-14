@@ -194,7 +194,7 @@ void MailDraft::SendMailTo(CharacterDatabaseTransaction& trans, MailReceiver con
 
     uint32 mailId = sObjectMgr->GenerateMailID();
 
-    time_t deliver_time = time(NULL) + deliver_delay;
+    time_t deliver_time = time(nullptr) + deliver_delay;
 
     //expire time if COD 3 days, if no COD 30 days, if auction sale pending 1 hour
     uint32 expire_delay;
@@ -282,13 +282,13 @@ void MailDraft::SendMailTo(CharacterDatabaseTransaction& trans, MailReceiver con
         }
         else if (!m_items.empty())
         {
-            CharacterDatabaseTransaction temp = CharacterDatabaseTransaction(NULL);
+            CharacterDatabaseTransaction temp = CharacterDatabaseTransaction(nullptr);
             deleteIncludedItems(temp);
         }
     }
     else if (!m_items.empty())
     {
-        CharacterDatabaseTransaction temp = CharacterDatabaseTransaction(NULL);
+        CharacterDatabaseTransaction temp = CharacterDatabaseTransaction(nullptr);
         deleteIncludedItems(temp);
     }
 }

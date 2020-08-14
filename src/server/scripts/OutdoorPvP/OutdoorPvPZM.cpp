@@ -199,7 +199,7 @@ void OutdoorPvPZM::HandlePlayerLeaveZone(Player* player, uint32 zone)
 OutdoorPvPZM::OutdoorPvPZM()
 {
     m_TypeId = OUTDOOR_PVP_ZM;
-    m_GraveYard = NULL;
+    m_GraveYard = nullptr;
     m_AllianceTowersControlled = 0;
     m_HordeTowersControlled = 0;
 }

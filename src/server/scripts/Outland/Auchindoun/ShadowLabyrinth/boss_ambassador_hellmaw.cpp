@@ -114,7 +114,7 @@ class boss_ambassador_hellmaw : public CreatureScript
                     me->RemoveAurasDueToSpell(SPELL_BANISH);
 
                 Talk(SAY_INTRO);
-                Start(true, false, ObjectGuid::Empty, NULL, false, true);
+                Start(true, false, ObjectGuid::Empty, nullptr, false, true);
             }
 
             void EnterCombat(Unit* /*who*/) override

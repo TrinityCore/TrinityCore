@@ -1150,7 +1150,7 @@ public:
             switch (action)
             {
                 case GOSSIP_ACTION_INFO_DEF:
-                    Start(true, true, player->GetGUID(), 0, false, false);
+                    Start(true, true, player->GetGUID(), nullptr, false, false);
                     SetDespawnAtEnd(false);
                     bStepping = false;
                     step = 1;

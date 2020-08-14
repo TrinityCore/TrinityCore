@@ -291,7 +291,7 @@ class go_brazier_of_the_herald : public GameObjectScript
             bool GossipHello(Player* player) override
             {
                 me->UseDoorOrButton();
-                me->PlayDirectSound(SOUND_SCREECH, 0);
+                me->PlayDirectSound(SOUND_SCREECH, nullptr);
                 player->SummonCreature(NPC_KIRTONOS, PosSummon[0], TEMPSUMMON_DEAD_DESPAWN, 900000);
                 return true;
             }

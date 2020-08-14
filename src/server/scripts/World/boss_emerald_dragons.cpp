@@ -396,7 +396,7 @@ class boss_lethon : public CreatureScript
                 switch (eventId)
                 {
                     case EVENT_SHADOW_BOLT_WHIRL:
-                        me->CastSpell((Unit*)NULL, SPELL_SHADOW_BOLT_WHIRL, false);
+                        me->CastSpell(nullptr, SPELL_SHADOW_BOLT_WHIRL, false);
                         events.ScheduleEvent(EVENT_SHADOW_BOLT_WHIRL, urand(15000, 30000));
                         break;
                     default:
@@ -436,7 +436,7 @@ class npc_spirit_shade : public CreatureScript
             {
                 if (moveType == FOLLOW_MOTION_TYPE && data == _summonerGuid.GetCounter())
                 {
-                    me->CastSpell((Unit*)NULL, SPELL_DARK_OFFERING, false);
+                    me->CastSpell(nullptr, SPELL_DARK_OFFERING, false);
                     me->DespawnOrUnsummon(1000);
                 }
             }

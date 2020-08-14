@@ -478,9 +478,9 @@ public:
                 return true;
 
             if (Creature* trigger = player->FindNearestCreature(NPC_HELFIRE_RAID_TRIGGER, 10.0f))
-                trigger->CastSpell((Unit*)nullptr, SPELL_SHADOW_GRASP_VISUAL);
+                trigger->CastSpell(nullptr, SPELL_SHADOW_GRASP_VISUAL);
 
-            player->CastSpell((Unit*)nullptr, SPELL_SHADOW_GRASP, true);
+            player->CastSpell(nullptr, SPELL_SHADOW_GRASP, true);
             return true;
         }
     };

@@ -674,7 +674,7 @@ struct boss_faction_championsAI : public BossAI
         std::list<Creature*> lst = DoFindFriendlyMissingBuff(40.0f, spell);
         std::list<Creature*>::const_iterator itr = lst.begin();
         if (lst.empty())
-            return NULL;
+            return nullptr;
         advance(itr, rand32() % lst.size());
         return (*itr);
     }
@@ -689,7 +689,7 @@ struct boss_faction_championsAI : public BossAI
             if (target && target->GetPowerType() == POWER_MANA)
                 return target;
         }
-        return NULL;
+        return nullptr;
     }
 
     uint32 EnemiesInRange(float distance)
@@ -2272,7 +2272,7 @@ class spell_faction_champion_warl_unstable_affliction : public SpellScriptLoader
             void HandleDispel(DispelInfo* dispelInfo)
             {
                 if (Unit* caster = GetCaster())
-                    caster->CastSpell(dispelInfo->GetDispeller(), SPELL_UNSTABLE_AFFLICTION_DISPEL, true, NULL, GetEffect(EFFECT_0));
+                    caster->CastSpell(dispelInfo->GetDispeller(), SPELL_UNSTABLE_AFFLICTION_DISPEL, true, nullptr, GetEffect(EFFECT_0));
             }
 
             void Register() override

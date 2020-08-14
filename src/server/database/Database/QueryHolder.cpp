@@ -47,7 +47,7 @@ void SQLQueryHolderBase::SetPreparedResult(size_t index, PreparedResultSet* resu
     if (result && !result->GetRowCount())
     {
         delete result;
-        result = NULL;
+        result = nullptr;
     }
 
     /// store the result in the holder

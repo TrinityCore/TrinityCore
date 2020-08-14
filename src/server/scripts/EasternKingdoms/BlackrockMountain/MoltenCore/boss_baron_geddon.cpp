@@ -137,7 +137,7 @@ class spell_baron_geddon_inferno : public SpellScriptLoader
             {
                 PreventDefaultAction();
                 int32 damageForTick[8] = { 500, 500, 1000, 1000, 2000, 2000, 3000, 5000 };
-                GetTarget()->CastCustomSpell(SPELL_INFERNO_DMG, SPELLVALUE_BASE_POINT0, damageForTick[aurEff->GetTickNumber() - 1], (Unit*)nullptr, TRIGGERED_FULL_MASK, nullptr, aurEff);
+                GetTarget()->CastCustomSpell(SPELL_INFERNO_DMG, SPELLVALUE_BASE_POINT0, damageForTick[aurEff->GetTickNumber() - 1], nullptr, TRIGGERED_FULL_MASK, nullptr, aurEff);
             }
 
             void Register() override

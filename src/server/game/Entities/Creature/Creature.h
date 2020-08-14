@@ -40,7 +40,7 @@ enum MovementGeneratorType : uint8;
 struct VendorItemCount
 {
     VendorItemCount(uint32 _item, uint32 _count)
-        : itemId(_item), count(_count), lastIncrementTime(time(NULL)) { }
+        : itemId(_item), count(_count), lastIncrementTime(time(nullptr)) { }
 
     uint32 itemId;
     uint32 count;
@@ -244,7 +244,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         time_t const& GetRespawnTime() const { return m_respawnTime; }
         time_t GetRespawnTimeEx() const;
-        void SetRespawnTime(uint32 respawn) { m_respawnTime = respawn ? time(NULL) + respawn : 0; }
+        void SetRespawnTime(uint32 respawn) { m_respawnTime = respawn ? time(nullptr) + respawn : 0; }
         void Respawn(bool force = false);
         void SaveRespawnTime() override;
 
