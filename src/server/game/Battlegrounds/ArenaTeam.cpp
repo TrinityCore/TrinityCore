@@ -693,7 +693,7 @@ void ArenaTeam::OfflineMemberLost(ObjectGuid guid, uint32 againstMatchmakerRatin
         {
             // update personal rating
             int32 mod = GetRatingMod(itr->PersonalRating, againstMatchmakerRating, false);
-            itr->ModifyPersonalRating(NULL, mod, GetType());
+            itr->ModifyPersonalRating(nullptr, mod, GetType());
 
             // update matchmaker rating
             itr->ModifyMatchmakerRating(MatchmakerRatingChange, GetSlot());
@@ -812,7 +812,7 @@ ArenaTeamMember* ArenaTeam::GetMember(const std::string& name)
         if (itr->Name == name)
             return &(*itr);
 
-    return NULL;
+    return nullptr;
 }
 
 ArenaTeamMember* ArenaTeam::GetMember(ObjectGuid guid)
@@ -821,5 +821,5 @@ ArenaTeamMember* ArenaTeam::GetMember(ObjectGuid guid)
         if (itr->Guid == guid)
             return &(*itr);
 
-    return NULL;
+    return nullptr;
 }

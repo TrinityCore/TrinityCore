@@ -185,7 +185,7 @@ class TC_GAME_API GossipMenu
             if (itr != _menuItems.end())
                 return &itr->second;
 
-            return NULL;
+            return nullptr;
         }
 
         GossipMenuItemData const* GetItemData(uint32 indexId) const
@@ -194,7 +194,7 @@ class TC_GAME_API GossipMenu
             if (itr != _menuItemData.end())
                 return &itr->second;
 
-            return NULL;
+            return nullptr;
         }
 
         uint32 GetMenuItemSender(uint32 menuItemId) const;

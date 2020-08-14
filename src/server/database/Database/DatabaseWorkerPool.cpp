@@ -177,7 +177,7 @@ QueryResult DatabaseWorkerPool<T>::Query(const char* sql, T* connection /*= null
     if (!result || !result->GetRowCount() || !result->NextRow())
     {
         delete result;
-        return QueryResult(NULL);
+        return QueryResult(nullptr);
     }
 
     return QueryResult(result);
@@ -196,7 +196,7 @@ PreparedQueryResult DatabaseWorkerPool<T>::Query(PreparedStatement<T>* stmt)
     if (!ret || !ret->GetRowCount())
     {
         delete ret;
-        return PreparedQueryResult(NULL);
+        return PreparedQueryResult(nullptr);
     }
 
     return PreparedQueryResult(ret);

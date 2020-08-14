@@ -183,7 +183,7 @@ PreparedResultSet::PreparedResultSet(MySQLStmt* stmt, MySQLResult* result, uint6
 m_rowCount(rowCount),
 m_rowPosition(0),
 m_fieldCount(fieldCount),
-m_rBind(NULL),
+m_rBind(nullptr),
 m_stmt(stmt),
 m_metadataResult(result)
 {
@@ -235,7 +235,7 @@ m_metadataResult(result)
         m_rBind[i].buffer_length = size;
         m_rBind[i].length = &m_length[i];
         m_rBind[i].is_null = &m_isNull[i];
-        m_rBind[i].error = NULL;
+        m_rBind[i].error = nullptr;
         m_rBind[i].is_unsigned = field[i].flags & UNSIGNED_FLAG;
     }
 
@@ -375,13 +375,13 @@ void ResultSet::CleanUp()
     if (_currentRow)
     {
         delete [] _currentRow;
-        _currentRow = NULL;
+        _currentRow = nullptr;
     }
 
     if (_result)
     {
         mysql_free_result(_result);
-        _result = NULL;
+        _result = nullptr;
     }
 }
 

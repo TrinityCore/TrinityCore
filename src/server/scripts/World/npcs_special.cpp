@@ -106,7 +106,7 @@ public:
     {
         npc_air_force_botsAI(Creature* creature) : ScriptedAI(creature)
         {
-            SpawnAssoc = NULL;
+            SpawnAssoc = nullptr;
             SpawnedGUID.Clear();
 
             // find the correct spawnhandling
@@ -130,7 +130,7 @@ public:
                 if (!spawnedTemplate)
                 {
                     TC_LOG_ERROR("sql.sql", "TCSR: Creature template entry %u does not exist in DB, which is required by npc_air_force_bots", SpawnAssoc->spawnedCreatureEntry);
-                    SpawnAssoc = NULL;
+                    SpawnAssoc = nullptr;
                     return;
                 }
             }
@@ -150,7 +150,7 @@ public:
             else
             {
                 TC_LOG_ERROR("sql.sql", "TCSR: npc_air_force_bots: wasn't able to spawn Creature %u", SpawnAssoc->spawnedCreatureEntry);
-                SpawnAssoc = NULL;
+                SpawnAssoc = nullptr;
             }
 
             return summoned;
@@ -163,7 +163,7 @@ public:
             if (creature && creature->IsAlive())
                 return creature;
 
-            return NULL;
+            return nullptr;
         }
 
         void MoveInLineOfSight(Unit* who) override
@@ -179,7 +179,7 @@ public:
                 if (!playerTarget)
                     return;
 
-                Creature* lastSpawnedGuard = SpawnedGUID.IsEmpty() ? NULL : GetSummonedGuard();
+                Creature* lastSpawnedGuard = SpawnedGUID.IsEmpty() ? nullptr : GetSummonedGuard();
 
                 // prevent calling Unit::GetUnit at next MoveInLineOfSight call - speedup
                 if (!lastSpawnedGuard)
@@ -842,7 +842,7 @@ public:
         void Initialize()
         {
             DoctorGUID.Clear();
-            Coord = NULL;
+            Coord = nullptr;
         }
 
         ObjectGuid DoctorGUID;
@@ -1598,7 +1598,7 @@ enum TournamentPennantSpells
                  if (apply)
                 {
                     _pennantSpellId = GetPennantSpellId(player);
-                    player->CastSpell((Unit*)nullptr, _pennantSpellId, true);
+                    player->CastSpell(nullptr, _pennantSpellId, true);
                 }
                 else
                     player->RemoveAurasDueToSpell(_pennantSpellId);
@@ -1806,7 +1806,7 @@ public:
         void DamageTaken(Unit* doneBy, uint32& damage) override
         {
             AddThreat(doneBy, float(damage));    // just to create threat reference
-            _damageTimes[doneBy->GetGUID()] = time(NULL);
+            _damageTimes[doneBy->GetGUID()] = time(nullptr);
             damage = 0;
         }
 
@@ -1826,7 +1826,7 @@ public:
                 {
                     case EVENT_TD_CHECK_COMBAT:
                     {
-                        time_t now = time(NULL);
+                        time_t now = time(nullptr);
                         for (std::unordered_map<ObjectGuid, time_t>::iterator itr = _damageTimes.begin(); itr != _damageTimes.end();)
                         {
                             // If unit has not dealt damage to training dummy for 5 seconds, remove him from combat
@@ -2140,7 +2140,7 @@ public:
 
         GameObject* FindNearestLauncher()
         {
-            GameObject* launcher = NULL;
+            GameObject* launcher = nullptr;
 
             if (isCluster())
             {

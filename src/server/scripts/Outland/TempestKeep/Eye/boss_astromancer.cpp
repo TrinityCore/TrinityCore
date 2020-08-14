@@ -458,7 +458,7 @@ class npc_solarium_priest : public CreatureScript
 
                 if (healTimer <= diff)
                 {
-                    Unit* target = NULL;
+                    Unit* target = nullptr;
                     switch (urand(0, 1))
                     {
                         case 0:

@@ -51,7 +51,7 @@ public:
 
         static std::vector<ChatCommand> commandTable =
         {
-            { "cheat",          rbac::RBAC_PERM_COMMAND_CHEAT, false, NULL, "", cheatCommandTable },
+            { "cheat",          rbac::RBAC_PERM_COMMAND_CHEAT, false, nullptr, "", cheatCommandTable },
         };
         return commandTable;
     }

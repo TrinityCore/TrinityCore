@@ -36,12 +36,12 @@ m_timer(0), m_lifetime(0), m_visibleBySummonerOnly(false)
 
 Unit* TempSummon::GetSummoner() const
 {
-    return !m_summonerGUID.IsEmpty() ? ObjectAccessor::GetUnit(*this, m_summonerGUID) : NULL;
+    return !m_summonerGUID.IsEmpty() ? ObjectAccessor::GetUnit(*this, m_summonerGUID) : nullptr;
 }
 
 Creature* TempSummon::GetSummonerCreatureBase() const
 {
-    return !m_summonerGUID.IsEmpty() ? ObjectAccessor::GetCreature(*this, m_summonerGUID) : NULL;
+    return !m_summonerGUID.IsEmpty() ? ObjectAccessor::GetCreature(*this, m_summonerGUID) : nullptr;
 }
 
 void TempSummon::Update(uint32 diff)
@@ -402,6 +402,6 @@ void Puppet::RemoveFromWorld()
     if (!IsInWorld())
         return;
 
-    RemoveCharmedBy(NULL);
+    RemoveCharmedBy(nullptr);
     Minion::RemoveFromWorld();
 }

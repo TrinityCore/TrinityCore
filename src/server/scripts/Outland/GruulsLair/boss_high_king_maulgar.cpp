@@ -180,7 +180,7 @@ public:
                 //Charging_Timer
                 if (Charging_Timer <= diff)
                 {
-                    Unit* target = NULL;
+                    Unit* target = nullptr;
                     target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                     if (target)
                     {
@@ -292,7 +292,7 @@ public:
             //DeathCoil Timer /need correct timer
             if (DeathCoil_Timer <= diff)
             {
-                Unit* target = NULL;
+                Unit* target = nullptr;
                 target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                 if (target)
                     DoCast(target, SPELL_DEATH_COIL);

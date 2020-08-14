@@ -118,7 +118,7 @@ class TC_GAME_API Warden
         static uint32 BuildChecksum(const uint8 *data, uint32 length);
 
         // If no check is passed, the default action from config is executed
-        std::string Penalty(WardenCheck* check = NULL);
+        std::string Penalty(WardenCheck* check = nullptr);
 
     private:
         WorldSession* _session;

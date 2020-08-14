@@ -59,8 +59,8 @@ void OpenSSLCrypto::threadsSetup()
 
 void OpenSSLCrypto::threadsCleanup()
 {
-    CRYPTO_set_locking_callback(NULL);
-    CRYPTO_THREADID_set_callback(NULL);
+    CRYPTO_set_locking_callback(nullptr);
+    CRYPTO_THREADID_set_callback(nullptr);
     for(int i = 0 ; i < CRYPTO_num_locks(); ++i)
     {
         delete cryptoLocks[i];

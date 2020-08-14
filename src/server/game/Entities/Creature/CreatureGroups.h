@@ -76,7 +76,7 @@ class TC_GAME_API CreatureGroup
 
     public:
         //Group cannot be created empty
-        explicit CreatureGroup(ObjectGuid::LowType id) : m_leader(NULL), m_groupID(id), m_Formed(false) { }
+        explicit CreatureGroup(ObjectGuid::LowType id) : m_leader(nullptr), m_groupID(id), m_Formed(false) { }
         ~CreatureGroup() { }
 
         Creature* getLeader() const { return m_leader; }

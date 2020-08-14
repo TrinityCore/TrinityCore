@@ -181,7 +181,7 @@ class npc_voljin_zulaman : public CreatureScript
                             break;
                         case EVENT_START_DOOR_OPENING_7:
                             if (Creature* hexLordTrigger = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_HEXLORD_TRIGGER)))
-                                sCreatureTextMgr->SendChat(hexLordTrigger, SAY_HEXLOR_INTRO, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
+                                sCreatureTextMgr->SendChat(hexLordTrigger, SAY_HEXLOR_INTRO, nullptr, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
                             break;
                         default:
                             break;

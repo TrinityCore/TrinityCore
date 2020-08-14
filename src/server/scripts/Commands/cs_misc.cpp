@@ -435,7 +435,7 @@ public:
                 {
                     Group* group = _player->GetGroup();
                     // if no bind exists, create a solo bind
-                    InstanceGroupBind* gBind = group ? group->GetBoundInstance(target) : NULL;                // if no bind exists, create a solo bind
+                    InstanceGroupBind* gBind = group ? group->GetBoundInstance(target) : nullptr;                // if no bind exists, create a solo bind
                     if (!gBind)
                         if (InstanceSave* save = sInstanceSaveMgr->GetInstanceSave(target->GetInstanceId()))
                             _player->BindToInstance(save, !save->CanReset());
@@ -473,7 +473,7 @@ public:
         else
         {
             // check offline security
-            if (handler->HasLowerSecurity(NULL, targetGuid))
+            if (handler->HasLowerSecurity(nullptr, targetGuid))
                 return false;
 
             std::string nameLink = handler->playerLink(targetName);
@@ -603,7 +603,7 @@ public:
         else
         {
             // check offline security
-            if (handler->HasLowerSecurity(NULL, targetGuid))
+            if (handler->HasLowerSecurity(nullptr, targetGuid))
                 return false;
 
             std::string nameLink = handler->playerLink(targetName);
@@ -650,7 +650,7 @@ public:
             if (sWorld->getBoolConfig(CONFIG_DIE_COMMAND_MODE))
                 handler->GetSession()->GetPlayer()->Kill(target);
             else
-                handler->GetSession()->GetPlayer()->DealDamage(target, target->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                handler->GetSession()->GetPlayer()->DealDamage(target, target->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
         }
 
         return true;
@@ -743,7 +743,7 @@ public:
         if (!param1)
             return false;
 
-        char const* param2 = strtok(NULL, " ");
+        char const* param2 = strtok(nullptr, " ");
         if (!param2)
             return false;
 
@@ -938,9 +938,9 @@ public:
     // kick player
     static bool HandleKickPlayerCommand(ChatHandler* handler, char const* args)
     {
-        Player* target = NULL;
+        Player* target = nullptr;
         std::string playerName;
-        if (!handler->extractPlayerTarget((char*)args, &target, NULL, &playerName))
+        if (!handler->extractPlayerTarget((char*)args, &target, nullptr, &playerName))
             return false;
 
         if (handler->GetSession() && target == handler->GetSession()->GetPlayer())
@@ -957,8 +957,8 @@ public:
         std::string kickReasonStr = handler->GetTrinityString(LANG_NO_REASON);
         if (*args != '\0')
         {
-            char const* kickReason = strtok(NULL, "\r");
-            if (kickReason != NULL)
+            char const* kickReason = strtok(nullptr, "\r");
+            if (kickReason != nullptr)
                 kickReasonStr = kickReason;
         }
 
@@ -994,7 +994,7 @@ public:
             return false;
 
         std::string location_str = "inn";
-        if (char const* loc = strtok(NULL, " "))
+        if (char const* loc = strtok(nullptr, " "))
             location_str = loc;
 
         Player* player = nullptr;
@@ -1070,7 +1070,7 @@ public:
 
         uint32 team;
 
-        char* px2 = strtok(NULL, " ");
+        char* px2 = strtok(nullptr, " ");
 
         if (!px2)
             team = 0;
@@ -1300,18 +1300,18 @@ public:
             itemId = atoul(id);
         }
 
-        char const* ccount = strtok(NULL, " ");
+        char const* ccount = strtok(nullptr, " ");
 
         int32 count = 1;
 
         if (ccount)
-            count = strtol(ccount, NULL, 10);
+            count = strtol(ccount, nullptr, 10);
 
         if (count == 0)
             count = 1;
 
         std::vector<int32> bonusListIDs;
-        char const* bonuses = strtok(NULL, " ");
+        char const* bonuses = strtok(nullptr, " ");
 
         // semicolon separated bonuslist ids (parse them after all arguments are extracted by strtok!)
         if (bonuses)
@@ -1401,7 +1401,7 @@ public:
         }
 
         std::vector<int32> bonusListIDs;
-        char const* bonuses = strtok(NULL, " ");
+        char const* bonuses = strtok(nullptr, " ");
 
         // semicolon separated bonuslist ids (parse them after all arguments are extracted by strtok!)
         if (bonuses)
@@ -1441,7 +1441,7 @@ public:
                 }
                 else
                 {
-                    player->SendEquipError(msg, NULL, NULL, itr->second.GetId());
+                    player->SendEquipError(msg, nullptr, nullptr, itr->second.GetId());
                     handler->PSendSysMessage(LANG_ITEM_CANNOT_CREATE, itr->second.GetId(), 1);
                 }
             }
@@ -1478,7 +1478,7 @@ public:
 
         // *Change the weather of a cell
         char const* px = strtok((char*)args, " ");
-        char const* py = strtok(NULL, " ");
+        char const* py = strtok(nullptr, " ");
 
         if (!px || !py)
             return false;
@@ -1509,11 +1509,11 @@ public:
         if (!skillStr)
             return false;
 
-        char const* levelStr = strtok(NULL, " ");
+        char const* levelStr = strtok(nullptr, " ");
         if (!levelStr)
             return false;
 
-        char const* maxPureSkill = strtok(NULL, " ");
+        char const* maxPureSkill = strtok(nullptr, " ");
 
         uint32 skill = atoul(skillStr);
         if (skill == 0)
@@ -1582,7 +1582,7 @@ public:
         Player* target;
         ObjectGuid targetGuid;
         std::string targetName;
-        CharacterDatabasePreparedStatement* stmt = NULL;
+        CharacterDatabasePreparedStatement* stmt = nullptr;
 
         // To make sure we get a target, we convert our guid to an omniversal...
         ObjectGuid parseGUID = ObjectGuid::Create<HighGuid::Player>(strtoull(args, nullptr, 10));
@@ -1705,7 +1705,7 @@ public:
         else
         {
             // check offline security
-            if (handler->HasLowerSecurity(NULL, targetGuid))
+            if (handler->HasLowerSecurity(nullptr, targetGuid))
                 return false;
 
             // Query informations from the DB
@@ -1842,7 +1842,7 @@ public:
 
         // Output III. LANG_PINFO_BANNED if ban exists and is applied
         if (banTime >= 0)
-            handler->PSendSysMessage(LANG_PINFO_BANNED, banType.c_str(), banReason.c_str(), banTime > 0 ? secsToTimeString(banTime - time(NULL), true).c_str() : handler->GetTrinityString(LANG_PERMANENTLY), bannedBy.c_str());
+            handler->PSendSysMessage(LANG_PINFO_BANNED, banType.c_str(), banReason.c_str(), banTime > 0 ? secsToTimeString(banTime - time(nullptr), true).c_str() : handler->GetTrinityString(LANG_PERMANENTLY), bannedBy.c_str());
 
         // Output IV. LANG_PINFO_MUTED if mute is applied
         if (muteTime > 0)
@@ -1973,9 +1973,9 @@ public:
         if (!delayStr)
             return false;
 
-        char const* muteReason = strtok(NULL, "\r");
+        char const* muteReason = strtok(nullptr, "\r");
         std::string muteReasonStr = handler->GetTrinityString(LANG_NO_REASON);
-        if (muteReason != NULL)
+        if (muteReason != nullptr)
             muteReasonStr = muteReason;
 
         Player* target;
@@ -2007,7 +2007,7 @@ public:
         if (target)
         {
             // Target is online, mute will be in effect right away.
-            int64 muteTime = time(NULL) + notSpeakTime * MINUTE;
+            int64 muteTime = time(nullptr) + notSpeakTime * MINUTE;
             target->GetSession()->m_muteTime = muteTime;
             stmt->setInt64(0, muteTime);
             std::string nameLink = handler->playerLink(targetName);
@@ -2194,7 +2194,7 @@ public:
                     break;
                 case CHASE_MOTION_TYPE:
                 {
-                    Unit* target = NULL;
+                    Unit* target = nullptr;
                     if (unit->GetTypeId() == TYPEID_PLAYER)
                         target = static_cast<ChaseMovementGenerator<Player> const*>(movementGenerator)->GetTarget();
                     else
@@ -2210,7 +2210,7 @@ public:
                 }
                 case FOLLOW_MOTION_TYPE:
                 {
-                    Unit* target = NULL;
+                    Unit* target = nullptr;
                     if (unit->GetTypeId() == TYPEID_PLAYER)
                         target = static_cast<FollowMovementGenerator<Player> const*>(movementGenerator)->GetTarget();
                     else
@@ -2283,7 +2283,7 @@ public:
 
         if (strcmp(str, "go") == 0)
         {
-            char* guidStr = strtok(NULL, " ");
+            char* guidStr = strtok(nullptr, " ");
             if (!guidStr)
             {
                 handler->SendSysMessage(LANG_BAD_VALUE);
@@ -2299,7 +2299,7 @@ public:
                 return false;
             }
 
-            char* damageStr = strtok(NULL, " ");
+            char* damageStr = strtok(nullptr, " ");
             if (!damageStr)
             {
                 handler->SendSysMessage(LANG_BAD_VALUE);
@@ -2364,12 +2364,12 @@ public:
 
         uint32 damage = damage_int;
 
-        char* schoolStr = strtok((char*)NULL, " ");
+        char* schoolStr = strtok((char*)nullptr, " ");
 
         // flat melee damage without resistence/etc reduction
         if (!schoolStr)
         {
-            handler->GetSession()->GetPlayer()->DealDamage(target, damage, NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+            handler->GetSession()->GetPlayer()->DealDamage(target, damage, nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
             if (target != handler->GetSession()->GetPlayer())
                 handler->GetSession()->GetPlayer()->SendAttackStateUpdate (HITINFO_AFFECTS_VICTIM, target, 1, SPELL_SCHOOL_MASK_NORMAL, damage, 0, 0, VICTIMSTATE_HIT, 0);
             return true;
@@ -2382,9 +2382,9 @@ public:
         SpellSchoolMask schoolmask = SpellSchoolMask(1 << school);
 
         if (handler->GetSession()->GetPlayer()->IsDamageReducedByArmor(schoolmask))
-            damage = handler->GetSession()->GetPlayer()->CalcArmorReducedDamage(handler->GetSession()->GetPlayer(), target, damage, NULL, BASE_ATTACK);
+            damage = handler->GetSession()->GetPlayer()->CalcArmorReducedDamage(handler->GetSession()->GetPlayer(), target, damage, nullptr, BASE_ATTACK);
 
-        char* spellStr = strtok((char*)NULL, " ");
+        char* spellStr = strtok((char*)nullptr, " ");
 
         Player* attacker = handler->GetSession()->GetPlayer();
 
@@ -2428,7 +2428,7 @@ public:
 
     static bool HandleCombatStopCommand(ChatHandler* handler, char const* args)
     {
-        Player* target = NULL;
+        Player* target = nullptr;
 
         if (args && args[0] != '\0')
         {
@@ -2502,7 +2502,7 @@ public:
         {
             // Get the args that we might have (up to 2)
             char const* arg1 = strtok((char*)args, " ");
-            char const* arg2 = strtok(NULL, " ");
+            char const* arg2 = strtok(nullptr, " ");
 
             // Analyze them to see if we got either a playerName or duration or both
             if (arg1)

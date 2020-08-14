@@ -191,7 +191,7 @@ Map* MapInstanced::CreateInstanceForPlayer(const uint32 mapId, Player* player, u
             //ASSERT(!FindInstanceMap(NewInstanceId));
             map = FindInstanceMap(newInstanceId);
             if (!map)
-                map = CreateInstance(newInstanceId, NULL, diff, player->GetTeamId());
+                map = CreateInstance(newInstanceId, nullptr, diff, player->GetTeamId());
         }
     }
     else
@@ -235,7 +235,7 @@ InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave* save,
     map->LoadRespawnTimes();
     map->LoadCorpseData();
 
-    bool load_data = save != NULL;
+    bool load_data = save != nullptr;
     map->CreateInstanceData(load_data);
     if (InstanceScenario* instanceScenario = sScenarioMgr->CreateInstanceScenario(map, team))
         map->SetInstanceScenario(instanceScenario);

@@ -48,7 +48,7 @@ ReputationRank ReputationMgr::ReputationToRank(int32 standing)
 
 FactionState const* ReputationMgr::GetState(FactionEntry const* factionEntry) const
 {
-    return factionEntry->CanHaveReputation() ? GetState(factionEntry->ReputationIndex) : NULL;
+    return factionEntry->CanHaveReputation() ? GetState(factionEntry->ReputationIndex) : nullptr;
 }
 
 bool ReputationMgr::IsAtWar(uint32 faction_id) const

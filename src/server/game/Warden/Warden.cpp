@@ -30,8 +30,8 @@
 
 #include <openssl/sha.h>
 
-Warden::Warden() : _session(NULL), _checkTimer(10000/*10 sec*/), _clientResponseTimer(0),
-                   _dataSent(false), _previousTimestamp(0), _module(NULL), _initialized(false)
+Warden::Warden() : _session(nullptr), _checkTimer(10000/*10 sec*/), _clientResponseTimer(0),
+                   _dataSent(false), _previousTimestamp(0), _module(nullptr), _initialized(false)
 {
     memset(_inputKey, 0, sizeof(_inputKey));
     memset(_outputKey, 0, sizeof(_outputKey));
@@ -42,7 +42,7 @@ Warden::~Warden()
 {
     delete[] _module->CompressedData;
     delete _module;
-    _module = NULL;
+    _module = nullptr;
     _initialized = false;
 }
 
@@ -181,7 +181,7 @@ uint32 Warden::BuildChecksum(const uint8* data, uint32 length)
     return checkSum;
 }
 
-std::string Warden::Penalty(WardenCheck* check /*= NULL*/)
+std::string Warden::Penalty(WardenCheck* check /*= nullptr*/)
 {
     WardenActions action;
 

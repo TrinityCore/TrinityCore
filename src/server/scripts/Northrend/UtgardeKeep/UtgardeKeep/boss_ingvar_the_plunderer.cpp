@@ -469,7 +469,7 @@ class spell_ingvar_woe_strike : public SpellScriptLoader
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                GetTarget()->CastSpell(eventInfo.GetActor(), SPELL_WOE_STRIKE_EFFECT, true, NULL, aurEff);
+                GetTarget()->CastSpell(eventInfo.GetActor(), SPELL_WOE_STRIKE_EFFECT, true, nullptr, aurEff);
             }
 
             void Register() override

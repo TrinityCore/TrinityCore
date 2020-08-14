@@ -637,7 +637,7 @@ class TC_GAME_API SpellMgr
         static SpellMgr* instance();
 
         // Spell correctness for client using
-        static bool IsSpellValid(SpellInfo const* spellInfo, Player* player = NULL, bool msg = true);
+        static bool IsSpellValid(SpellInfo const* spellInfo, Player* player = nullptr, bool msg = true);
 
         // Spell Ranks table
         SpellChainNode const* GetSpellChainNode(uint32 spell_id) const;

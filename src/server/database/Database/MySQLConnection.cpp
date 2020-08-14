@@ -49,8 +49,8 @@ MySQLConnectionInfo::MySQLConnectionInfo(std::string const& infoString)
 MySQLConnection::MySQLConnection(MySQLConnectionInfo& connInfo) :
 m_reconnecting(false),
 m_prepareError(false),
-m_queue(NULL),
-m_Mysql(NULL),
+m_queue(nullptr),
+m_Mysql(nullptr),
 m_connectionInfo(connInfo),
 m_connectionFlags(CONNECTION_SYNCH) { }
 
@@ -58,7 +58,7 @@ MySQLConnection::MySQLConnection(ProducerConsumerQueue<SQLOperation*>* queue, My
 m_reconnecting(false),
 m_prepareError(false),
 m_queue(queue),
-m_Mysql(NULL),
+m_Mysql(nullptr),
 m_connectionInfo(connInfo),
 m_connectionFlags(CONNECTION_ASYNC)
 {
@@ -87,7 +87,7 @@ void MySQLConnection::Close()
 uint32 MySQLConnection::Open()
 {
     MYSQL *mysqlInit;
-    mysqlInit = mysql_init(NULL);
+    mysqlInit = mysql_init(nullptr);
     if (!mysqlInit)
     {
         TC_LOG_ERROR("sql.sql", "Could not initialize Mysql connection to database `%s`", m_connectionInfo.database.c_str());
@@ -106,12 +106,12 @@ uint32 MySQLConnection::Open()
         unsigned int opt = MYSQL_PROTOCOL_PIPE;
         mysql_options(mysqlInit, MYSQL_OPT_PROTOCOL, (char const*)&opt);
         port = 0;
-        unix_socket = 0;
+        unix_socket = nullptr;
     }
     else                                                    // generic case
     {
         port = atoi(m_connectionInfo.port_or_socket.c_str());
-        unix_socket = 0;
+        unix_socket = nullptr;
     }
     #else
     if (m_connectionInfo.host == ".")                                           // socket use option (Unix/Linux)
@@ -297,15 +297,15 @@ bool MySQLConnection::_Query(PreparedStatementBase* stmt, MySQLResult** pResult,
 ResultSet* MySQLConnection::Query(const char* sql)
 {
     if (!sql)
-        return NULL;
+        return nullptr;
 
-    MySQLResult* result = NULL;
-    MySQLField* fields = NULL;
+    MySQLResult* result = nullptr;
+    MySQLField* fields = nullptr;
     uint64 rowCount = 0;
     uint32 fieldCount = 0;
 
     if (!_Query(sql, &result, &fields, &rowCount, &fieldCount))
-        return NULL;
+        return nullptr;
 
     return new ResultSet(result, fields, rowCount, fieldCount);
 }
@@ -492,12 +492,12 @@ void MySQLConnection::PrepareStatement(uint32 index, std::string const& sql, Con
 
 PreparedResultSet* MySQLConnection::Query(PreparedStatementBase* stmt)
 {
-    MySQLResult* result = NULL;
+    MySQLResult* result = nullptr;
     uint64 rowCount = 0;
     uint32 fieldCount = 0;
 
     if (!_Query(stmt, &result, &rowCount, &fieldCount))
-        return NULL;
+        return nullptr;
 
     if (mysql_more_results(m_Mysql))
     {

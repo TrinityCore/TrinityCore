@@ -734,7 +734,7 @@ class npc_halion_controller : public CreatureScript
                         case EVENT_TWILIGHT_MENDING:
                             if (_instance->GetCreature(DATA_HALION)) // Just check if physical Halion is spawned
                                 if (Creature* twilightHalion = _instance->GetCreature(DATA_TWILIGHT_HALION))
-                                    twilightHalion->CastSpell((Unit*)nullptr, SPELL_TWILIGHT_MENDING, true);
+                                    twilightHalion->CastSpell(nullptr, SPELL_TWILIGHT_MENDING, true);
                             break;
                         case EVENT_TRIGGER_BERSERK:
                             for (uint8 i = DATA_HALION; i <= DATA_TWILIGHT_HALION; i++)
@@ -922,7 +922,7 @@ class npc_orb_carrier : public CreatureScript
                 /// However, refreshing it looks bad, so just cast the spell if
                 /// we are not channeling it.
                 if (!me->HasUnitState(UNIT_STATE_CASTING))
-                    me->CastSpell((Unit*)nullptr, SPELL_TRACK_ROTATION, false);
+                    me->CastSpell(nullptr, SPELL_TRACK_ROTATION, false);
 
                 scheduler.Update(diff);
 
@@ -1514,7 +1514,7 @@ class spell_halion_combustion_consumption_periodic : public SpellScriptLoader
                 uint32 triggerSpell = GetSpellInfo()->GetEffect(aurEff->GetEffIndex())->TriggerSpell;
                 int32 radius = caster->GetObjectScale() * M_PI * 10000 / 3;
 
-                caster->CastCustomSpell(triggerSpell, SPELLVALUE_RADIUS_MOD, radius, (Unit*)nullptr, TRIGGERED_FULL_MASK, nullptr, aurEff, caster->GetGUID());
+                caster->CastCustomSpell(triggerSpell, SPELLVALUE_RADIUS_MOD, radius, nullptr, TRIGGERED_FULL_MASK, nullptr, aurEff, caster->GetGUID());
             }
 
             void Register() override

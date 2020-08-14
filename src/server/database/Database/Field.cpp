@@ -219,7 +219,7 @@ char const* Field::GetCString() const
     if (IsNumeric() && data.raw)
     {
         LogWrongType(__FUNCTION__);
-        return NULL;
+        return nullptr;
     }
 #endif
     return static_cast<char const*>(data.value);

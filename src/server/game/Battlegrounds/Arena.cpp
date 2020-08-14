@@ -261,7 +261,7 @@ void Arena::EndBattleground(uint32 winner)
                         guildAwarded = true;
                         if (ObjectGuid::LowType guildId = GetBgMap()->GetOwnerGuildId(player->GetBGTeam()))
                             if (Guild* guild = sGuildMgr->GetGuildById(guildId))
-                                guild->UpdateCriteria(CRITERIA_TYPE_WIN_RATED_ARENA, std::max<uint32>(winnerArenaTeam->GetRating(), 1), 0, 0, NULL, player);
+                                guild->UpdateCriteria(CRITERIA_TYPE_WIN_RATED_ARENA, std::max<uint32>(winnerArenaTeam->GetRating(), 1), 0, 0, nullptr, player);
                     }
 
                     winnerArenaTeam->MemberWon(player, loserMatchmakerRating, winnerMatchmakerChange);
