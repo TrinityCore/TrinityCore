@@ -1527,7 +1527,7 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
     }
 }
 
-void Unit::HandleEmoteCommand(uint32 emoteId)
+void Unit::HandleEmoteCommand(Emote emoteId)
 {
     WorldPackets::Chat::Emote packet;
     packet.EmoteID = emoteId;

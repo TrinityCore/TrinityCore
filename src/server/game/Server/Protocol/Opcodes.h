@@ -418,7 +418,7 @@ enum Opcodes : uint16
     SMSG_QUESTGIVER_QUEST_LIST                      = 0x185,
     CMSG_QUESTGIVER_QUERY_QUEST                     = 0x186,
     CMSG_QUESTGIVER_QUEST_AUTOLAUNCH                = 0x187,
-    SMSG_QUESTGIVER_QUEST_DETAILS                   = 0x188,
+    SMSG_QUEST_GIVER_QUEST_DETAILS                  = 0x188,
     CMSG_QUESTGIVER_ACCEPT_QUEST                    = 0x189,
     CMSG_QUESTGIVER_COMPLETE_QUEST                  = 0x18A,
     SMSG_QUESTGIVER_REQUEST_ITEMS                   = 0x18B,

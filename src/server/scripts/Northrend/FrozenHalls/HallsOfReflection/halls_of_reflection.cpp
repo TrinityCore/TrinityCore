@@ -1091,7 +1091,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                             break;
                         case EVENT_ESCAPE_7:
                             if (Creature* lichking = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_THE_LICH_KING_ESCAPE)))
-                                lichking->HandleEmoteCommand(TEXT_EMOTE_ROAR);
+                                lichking->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
                             me->GetMotionMaster()->MovePoint(0, NpcJainaOrSylvanasEscapeRoute[0]);
                             _events.ScheduleEvent(EVENT_ESCAPE_8, 3s);
                             break;
