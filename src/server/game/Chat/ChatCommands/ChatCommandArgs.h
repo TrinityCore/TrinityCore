@@ -116,7 +116,7 @@ struct ArgInfo<T, std::enable_if_t<std::is_enum_v<T>>>
 
         auto itr = std::find_if(EnumUtils::Begin<T>(), EnumUtils::End<T>(), [strVal](T val)
         {
-            return EnumUtils::ToConstant(val) == strVal;
+            return StringEqualI(EnumUtils::ToConstant(val), strVal);
         });
 
         if (itr != EnumUtils::End<T>())

@@ -665,6 +665,15 @@ bool StringToBool(std::string const& str)
     return lowerStr == "1" || lowerStr == "true" || lowerStr == "yes";
 }
 
+bool StringEqualI(std::string const& str1, std::string const& str2)
+{
+    return std::equal(str1.begin(), str1.end(), str2.begin(), str2.end(),
+                      [](char a, char b)
+                      {
+                          return std::tolower(a) == std::tolower(b);
+                      });
+}
+
 bool StringContainsStringI(std::string const& haystack, std::string const& needle)
 {
     return haystack.end() !=
