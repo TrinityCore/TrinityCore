@@ -20,6 +20,7 @@
 
 #include "ChatCommandHelpers.h"
 #include "ChatCommandTags.h"
+#include "SmartEnum.h"
 
 struct GameTele;
 
@@ -107,13 +108,30 @@ struct ArgInfo<T, std::enable_if_t<std::is_enum_v<T>>>
 
     static char const* TryConsume(T& val, char const* args)
     {
-        uType uVal = 0;
+        std::string strVal;
+        char const* ret = ArgInfo<std::string>::TryConsume(strVal, args);
 
-        char const* retVal = ArgInfo<uType>::TryConsume(uVal, args);
-        if (retVal)
+        if (!ret)
+            return nullptr;
+
+        auto itr = std::find_if(EnumUtils::Begin<T>(), EnumUtils::End<T>(), [strVal](T val)
+        {
+            return EnumUtils::ToConstant(val) == strVal;
+        });
+
+        if (itr != EnumUtils::End<T>())
+        {
+            val = static_cast<T>(*itr);
+            return ret;
+        }
+
+        // Value not found. Try to parse arg as underlying type and cast it to enum type
+        uType uVal = 0;
+        ret = ArgInfo<uType>::TryConsume(uVal, args);
+        if (ret)
             val = static_cast<T>(uVal);
 
-        return retVal;
+        return ret;
     }
 };
 
