@@ -101,6 +101,7 @@ class TC_GAME_API SmartScript
         bool IsInPhase(uint32 p) const;
 
         void SortEvents(SmartAIEventList& events);
+        void RaisePriority(SmartScriptHolder& e);
 
         SmartAIEventList mEvents;
         SmartAIEventList mInstallEvents;

@@ -177,9 +177,9 @@ void SmartScript::OnReset()
             event.runOnce = false;
         }
 
-        if (event.priority != uint32(-1))
+        if (event.priority != SmartScriptHolder::DEFAULT_PRIORITY)
         {
-            event.priority = uint32(-1);
+            event.priority = SmartScriptHolder::DEFAULT_PRIORITY;
             mEventSortingRequired = true;
         }
     }
@@ -570,7 +570,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         }
 
                         if (spellCastFailed)
-                            RecalcTimer(e, 500, 500);
+                            RaisePriority(e);
                     }
                     else if (go)
                         go->CastSpell(target->ToUnit(), e.action.cast.spell, triggerFlag);
@@ -3482,13 +3482,7 @@ void SmartScript::UpdateTimer(SmartScriptHolder& e, uint32 const diff)
             {
                 if (me && me->HasUnitState(UNIT_STATE_CASTING))
                 {
-                    e.timer = 1;
-                    // Change priority only if it's set to default, otherwise keep the current order of events
-                    if (e.priority == SmartScriptHolder::DEFAULT_PRIORITY)
-                    {
-                        e.priority = mCurrentPriority++;
-                        mEventSortingRequired = true;
-                    }
+                    RaisePriority(e);
                     return;
                 }
             }
@@ -3712,6 +3706,17 @@ void SmartScript::OnUpdate(uint32 const diff)
 void SmartScript::SortEvents(SmartAIEventList& events)
 {
     std::sort(events.begin(), events.end());
+}
+
+void SmartScript::RaisePriority(SmartScriptHolder& e)
+{
+    e.timer = 1;
+    // Change priority only if it's set to default, otherwise keep the current order of events
+    if (e.priority == SmartScriptHolder::DEFAULT_PRIORITY)
+    {
+        e.priority = mCurrentPriority++;
+        mEventSortingRequired = true;
+    }
 }
 
 void SmartScript::FillScript(SmartAIEventList e, WorldObject* obj, AreaTriggerEntry const* at)
