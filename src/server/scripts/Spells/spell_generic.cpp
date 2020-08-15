@@ -3094,14 +3094,7 @@ class spell_gen_seaforium_blast : public SpellScript
     }
 };
 
-enum SpectatorCheerTrigger
-{
-    EMOTE_ONE_SHOT_CHEER        = 4,
-    EMOTE_ONE_SHOT_EXCLAMATION  = 5,
-    EMOTE_ONE_SHOT_APPLAUD      = 21
-};
-
-uint8 const EmoteArray[3] = { EMOTE_ONE_SHOT_CHEER, EMOTE_ONE_SHOT_EXCLAMATION, EMOTE_ONE_SHOT_APPLAUD };
+static Emote const EmoteArray[] = { EMOTE_ONESHOT_CHEER, EMOTE_ONESHOT_EXCLAMATION, EMOTE_ONESHOT_APPLAUD };
 
 class spell_gen_spectator_cheer_trigger : public SpellScript
 {
@@ -3110,7 +3103,7 @@ class spell_gen_spectator_cheer_trigger : public SpellScript
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         if (roll_chance_i(40))
-            GetCaster()->HandleEmoteCommand(EmoteArray[urand(0, 2)]);
+            GetCaster()->HandleEmoteCommand(Trinity::Containers::SelectRandomContainerElement(EmoteArray));
     }
 
     void Register() override

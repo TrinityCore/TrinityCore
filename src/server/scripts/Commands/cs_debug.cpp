@@ -1256,14 +1256,10 @@ public:
     }
 
     //show animation
-    static bool HandleDebugAnimCommand(ChatHandler* handler, char const* args)
+    static bool HandleDebugAnimCommand(ChatHandler* handler, uint32 emoteId)
     {
-        if (!*args)
-            return false;
-
-        uint32 animId = atoi((char*)args);
         if (Unit* unit = handler->getSelectedUnit())
-            unit->HandleEmoteCommand(animId);
+            unit->HandleEmoteCommand(static_cast<Emote>(emoteId));
         return true;
     }
 

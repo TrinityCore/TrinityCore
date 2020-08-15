@@ -127,7 +127,7 @@ public:
                     break;
                 case 20:
                     if (Creature* RWORG = ObjectAccessor::GetCreature(*me, _RavenousworgGUID))
-                        RWORG->HandleEmoteCommand(34);
+                        RWORG->HandleEmoteCommand(EMOTE_ONESHOT_WOUND_CRITICAL);
                     break;
                 case 21:
                     if (Creature* Mrfloppy = ObjectAccessor::GetCreature(*me, _mrfloppyGUID))
