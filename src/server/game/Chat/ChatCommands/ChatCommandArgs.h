@@ -21,6 +21,8 @@
 #include "ChatCommandHelpers.h"
 #include "ChatCommandTags.h"
 #include "SmartEnum.h"
+#include "Util.h"
+#include <map>
 
 struct GameTele;
 
@@ -106,6 +108,54 @@ struct ArgInfo<T, std::enable_if_t<std::is_enum_v<T>>>
 {
     typedef typename std::underlying_type<T>::type uType;
 
+    static inline std::map<std::string, Optional<T>> MakeSearchMap()
+    {
+        std::map<std::string, Optional<T>> map;
+        for (T val : EnumUtils::Iterate<T>())
+        {
+            EnumText text = EnumUtils::ToString(val);
+
+            std::string title = std::string(text.Title);
+            strToLower(title);
+            std::string constant = std::string(text.Constant);
+            strToLower(constant);
+
+            auto [constantIt, constantNew] = map.try_emplace(constant, val);
+            if (!constantNew)
+                constantIt->second = std::nullopt;
+
+            if (title != constant)
+            {
+                auto [titleIt, titleNew] = map.try_emplace(title, val);
+                if (!titleNew)
+                    titleIt->second = std::nullopt;
+            }
+        }
+        return map;
+    }
+
+    static inline std::map<std::string, Optional<T>> const SearchMap = MakeSearchMap();
+
+    static T const* Match(std::string const& str)
+    {
+        std::string s(str);
+        strToLower(s);
+
+        auto it = SearchMap.lower_bound(s);
+        if (it == SearchMap.end() || !StringStartsWith(s, it->first)) // not a match
+            return nullptr;
+
+        auto it2 = it;
+        ++it2;
+        if (it2 != SearchMap.end() && StringStartsWith(s, it2->first)) // not unique
+            return nullptr;
+
+        if (it->second)
+            return &*it->second;
+        else
+            return nullptr;
+    }
+
     static char const* TryConsume(T& val, char const* args)
     {
         std::string strVal;
@@ -114,14 +164,9 @@ struct ArgInfo<T, std::enable_if_t<std::is_enum_v<T>>>
         if (!ret)
             return nullptr;
 
-        auto itr = std::find_if(EnumUtils::Begin<T>(), EnumUtils::End<T>(), [strVal](T val)
+        if (T const* tmpVal = Match(strVal))
         {
-            return StringEqualI(EnumUtils::ToConstant(val), strVal);
-        });
-
-        if (itr != EnumUtils::End<T>())
-        {
-            val = static_cast<T>(*itr);
+            val = *tmpVal;
             return ret;
         }
 

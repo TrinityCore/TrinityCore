@@ -469,6 +469,11 @@ void wstrToUpper(std::wstring& str)
     std::transform(str.begin(), str.end(), str.begin(), wcharToUpper);
 }
 
+void strToLower(std::string& str)
+{
+    std::transform(str.begin(), str.end(), str.begin(), [](char c) { return std::tolower(c); });
+}
+
 void wstrToLower(std::wstring& str)
 {
     std::transform(str.begin(), str.end(), str.begin(), wcharToLower);
@@ -672,6 +677,11 @@ bool StringEqualI(std::string const& str1, std::string const& str2)
                       {
                           return std::tolower(a) == std::tolower(b);
                       });
+}
+
+bool StringStartsWith(std::string const& needle, std::string const& haystack)
+{
+    return (haystack.rfind(needle, 0) == 0);
 }
 
 bool StringContainsStringI(std::string const& haystack, std::string const& needle)
