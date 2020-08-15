@@ -562,7 +562,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleEmoteOpcode(WorldPackets::Chat::EmoteClient& packet)
 {
-    uint32 emoteId = packet.EmoteID;
+    Emote emoteId = static_cast<Emote>(packet.EmoteID);
 
     // restrict to the only emotes hardcoded in client
     if (emoteId != EMOTE_ONESHOT_NONE && emoteId != EMOTE_ONESHOT_WAVE)
@@ -632,9 +632,9 @@ void WorldSession::HandleTextEmoteOpcode(WorldPacket& recvData)
     if (!em)
         return;
 
-    uint32 emote_anim = em->EmoteID;
+    Emote emote = static_cast<Emote>(em->EmoteID);
 
-    switch (emote_anim)
+    switch (emote)
     {
         case EMOTE_STATE_SLEEP:
         case EMOTE_STATE_SIT:
@@ -645,7 +645,7 @@ void WorldSession::HandleTextEmoteOpcode(WorldPacket& recvData)
             // Only allow text-emotes for "dead" entities (feign death included)
             if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
                 break;
-            GetPlayer()->HandleEmoteCommand(emote_anim);
+            GetPlayer()->HandleEmoteCommand(emote);
             break;
     }
 

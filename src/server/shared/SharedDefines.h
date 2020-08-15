@@ -1922,7 +1922,7 @@ enum TextEmotes
 };
 
 // Emotes.dbc
-enum Emote
+enum Emote : uint32
 {
     EMOTE_ONESHOT_NONE                  = 0,
     EMOTE_ONESHOT_TALK                  = 1,
