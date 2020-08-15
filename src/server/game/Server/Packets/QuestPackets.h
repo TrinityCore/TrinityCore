@@ -40,6 +40,7 @@ namespace WorldPackets
         {
             uint32 ItemID = 0;
             uint32 Quantity = 0;
+            uint32 DisplayID = 0;
         };
 
         struct QuestInfo
@@ -122,6 +123,8 @@ namespace WorldPackets
 
         struct QuestRewards
         {
+            uint32 ChoiceItemCount = 0;
+            uint32 ItemCount = 0;
             std::vector<QuestChoiceItem> UnfilteredChoiceItems;
             std::vector<QuestChoiceItem> RewardItems;
             uint32 RewardMoney = 0;
@@ -134,6 +137,10 @@ namespace WorldPackets
             uint32 RewardTalents = 0;
             uint32 RewardArenaPoints = 0;
             uint32 RewardFactionFlags = 0;
+            QuestInfoChoiceItem ChoiceItems[QUEST_REWARD_CHOICES_COUNT];
+            uint32 ItemID[QUEST_REWARDS_COUNT] = { };
+            uint32 ItemQty[QUEST_REWARDS_COUNT] = { };
+            uint32 ItemDisplayID[QUEST_REWARDS_COUNT] = { };
             std::array<uint32, QUEST_REPUTATIONS_COUNT> RewardFactionID = { };
             std::array<int32, QUEST_REPUTATIONS_COUNT> RewardFactionValue = { };
             std::array<int32, QUEST_REPUTATIONS_COUNT> RewardFactionValueOverride = { };
@@ -166,7 +173,31 @@ namespace WorldPackets
             QuestRewards Rewards;
             std::vector<QuestDescEmote> DescEmotes;
         };
+
+        struct QuestGiverOfferReward
+        {
+            ObjectGuid QuestGiverGUID;
+            uint32 QuestID = 0;
+            uint32 QuestFlags = 0;
+            uint32 SuggestedPartyMembers = 0;
+            QuestRewards Rewards;
+            std::vector<QuestDescEmote> Emotes;
+            bool AutoLaunched = false;
+        };
+
+        class QuestGiverOfferRewardMessage final : public ServerPacket
+        {
+        public:
+            QuestGiverOfferRewardMessage() : ServerPacket(SMSG_QUEST_GIVER_OFFER_REWARD_MESSAGE, 600) { }
+
+            WorldPacket const* Write() override;
+
+            QuestGiverOfferReward QuestData;
+            std::string QuestTitle;
+            std::string RewardText;
+        };
     }
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Quest::QuestRewards const& questRewards);
 #endif // QuestPackets_h__
