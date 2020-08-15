@@ -176,6 +176,12 @@ void SmartScript::OnReset()
             InitTimer(event);
             event.runOnce = false;
         }
+
+        if (event.priority != uint32(-1))
+        {
+            event.priority = uint32(-1);
+            mEventSortingRequired = true;
+        }
     }
     ProcessEventsFor(SMART_EVENT_RESET);
     mLastInvoker.Clear();
@@ -3477,8 +3483,12 @@ void SmartScript::UpdateTimer(SmartScriptHolder& e, uint32 const diff)
                 if (me && me->HasUnitState(UNIT_STATE_CASTING))
                 {
                     e.timer = 1;
-                    e.priority = mCurrentPriority++;
-                    mEventSortingRequired = true;
+                    // Change priority only if it's set to default, otherwise keep the current order of events
+                    if (e.priority == uint32(-1))
+                    {
+                        e.priority = mCurrentPriority++;
+                        mEventSortingRequired = true;
+                    }
                     return;
                 }
             }
@@ -3497,7 +3507,8 @@ void SmartScript::UpdateTimer(SmartScriptHolder& e, uint32 const diff)
         e.active = true;//activate events with cooldown
 
         // Re-sort events if this was moved to the top of the queue
-        mEventSortingRequired = e.priority != uint32(-1);
+        if (e.priority != uint32(-1))
+            mEventSortingRequired = true;
         // Reset priority to default one as we are executing the event
         e.priority = uint32(-1);
 
