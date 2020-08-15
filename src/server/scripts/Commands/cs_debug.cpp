@@ -1242,11 +1242,19 @@ public:
         return true;
     }
 
-    //show animation
-    static bool HandleDebugAnimCommand(ChatHandler* handler, uint32 emoteId)
+    // Play emote animation
+    static bool HandleDebugAnimCommand(ChatHandler* handler, Emote emote)
     {
         if (Unit* unit = handler->getSelectedUnit())
-            unit->HandleEmoteCommand(static_cast<Emote>(emoteId));
+            unit->HandleEmoteCommand(emote);
+
+        try
+        {
+            handler->PSendSysMessage("Playing emote %s", EnumUtils::ToConstant(emote));
+        } catch (...)
+        {
+            handler->PSendSysMessage("Playing unknown emote");
+        }
         return true;
     }
 
