@@ -27,6 +27,11 @@
 
 class Player;
 
+namespace WorldPackets::Quest
+{
+    struct QuestRewards;
+}
+
 #define MAX_QUEST_LOG_SIZE 25
 
 #define QUEST_OBJECTIVES_COUNT 4
@@ -131,7 +136,7 @@ enum QuestFlags
     QUEST_FLAGS_RAID                    = 0x00000040,   // Can be completed while in raid
     QUEST_FLAGS_TBC                     = 0x00000080,   // Not used currently: Available if TBC expansion enabled only
     QUEST_FLAGS_NO_MONEY_FROM_XP        = 0x00000100,   // Not used currently: Experience is not converted to gold at max level
-    QUEST_FLAGS_HIDDEN_REWARDS          = 0x00000200,   // Items and money rewarded only sent in SMSG_QUESTGIVER_OFFER_REWARD (not in SMSG_QUESTGIVER_QUEST_DETAILS or in client quest log(SMSG_QUEST_QUERY_RESPONSE))
+    QUEST_FLAGS_HIDDEN_REWARDS          = 0x00000200,   // Items and money rewarded only sent in SMSG_QUESTGIVER_OFFER_REWARD (not in SMSG_QUEST_GIVER_QUEST_DETAILS or in client quest log(SMSG_QUEST_QUERY_RESPONSE))
     QUEST_FLAGS_TRACKING                = 0x00000400,   // These quests are automatically rewarded on quest complete and they will never appear in quest log client side.
     QUEST_FLAGS_DEPRECATE_REPUTATION    = 0x00000800,   // Not used currently
     QUEST_FLAGS_DAILY                   = 0x00001000,   // Used to know quest is Daily one
@@ -322,6 +327,8 @@ class TC_GAME_API Quest
         static void AddQuestLevelToTitle(std::string& title, int32 level);
         void InitializeQueryData();
         WorldPacket BuildQueryData(LocaleConstant loc) const;
+
+        void BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player* player) const;
 
         std::vector<uint32> DependentPreviousQuests;
         std::vector<uint32> DependentBreadcrumbQuests;

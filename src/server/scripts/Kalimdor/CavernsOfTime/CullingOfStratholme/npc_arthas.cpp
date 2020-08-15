@@ -1074,7 +1074,7 @@ public:
                             DoCast(citizen, SPELL_CRUSADER_STRIKE, TRIGGERED_IGNORE_SET_FACING);
                         if (Creature* resident = me->FindNearestCreature(NPC_RESIDENT, 100.0f, true))
                         {
-                            resident->SetFlag(UNIT_NPC_EMOTESTATE, EMOTE_STATE_COWER);
+                            resident->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_COWER);
                             resident->AI()->Talk(RP2_LINE_RESIDENT1, ObjectAccessor::GetUnit(*me, _eventStarterGuid));
                         }
                         break;
