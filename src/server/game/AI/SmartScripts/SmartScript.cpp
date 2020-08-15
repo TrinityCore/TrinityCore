@@ -3500,12 +3500,6 @@ void SmartScript::UpdateTimer(SmartScriptHolder& e, uint32 const diff)
 
         e.active = true;//activate events with cooldown
 
-        // Re-sort events if this was moved to the top of the queue
-        if (e.priority != SmartScriptHolder::DEFAULT_PRIORITY)
-            mEventSortingRequired = true;
-        // Reset priority to default one as we are executing the event
-        e.priority = SmartScriptHolder::DEFAULT_PRIORITY;
-
         switch (e.GetEventType())//process ONLY timed events
         {
             case SMART_EVENT_UPDATE:
@@ -3547,6 +3541,18 @@ void SmartScript::UpdateTimer(SmartScriptHolder& e, uint32 const diff)
                 else
                     ProcessEvent(e);
                 break;
+            }
+        }
+
+        if (e.priority != SmartScriptHolder::DEFAULT_PRIORITY)
+        {
+            // Reset priority to default one only if the event hasn't been rescheduled again to next loop
+            if (e.timer > 1)
+            {
+                // Re-sort events if this was moved to the top of the queue
+                 mEventSortingRequired = true;
+                // Reset priority to default one
+                e.priority = SmartScriptHolder::DEFAULT_PRIORITY;
             }
         }
     }
@@ -3644,8 +3650,6 @@ void SmartScript::OnUpdate(uint32 const diff)
     if (mEventSortingRequired)
     {
         SortEvents(mEvents);
-        //SortEvents(mStoredEvents);
-        //SortEvents(mTimedActionList);
         mEventSortingRequired = false;
     }
 
