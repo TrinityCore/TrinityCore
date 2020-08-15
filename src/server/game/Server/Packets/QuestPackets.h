@@ -40,7 +40,6 @@ namespace WorldPackets
         {
             uint32 ItemID = 0;
             uint32 Quantity = 0;
-            uint32 DisplayID = 0;
         };
 
         struct QuestInfo
@@ -123,24 +122,19 @@ namespace WorldPackets
 
         struct QuestRewards
         {
-            uint32 ChoiceItemCount = 0;
-            uint32 ItemCount = 0;
             std::vector<QuestChoiceItem> UnfilteredChoiceItems;
             std::vector<QuestChoiceItem> RewardItems;
             uint32 RewardMoney = 0;
             uint32 RewardXPDifficulty = 0;
             uint32 RewardHonor = 0;
             float RewardKillHonor = 0.f;
+            uint32 Unk = 0x8;
             uint32 RewardDisplaySpell = 0;
             int32 RewardSpell = 0;
             uint32 RewardTitleId = 0;
             uint32 RewardTalents = 0;
             uint32 RewardArenaPoints = 0;
             uint32 RewardFactionFlags = 0;
-            QuestInfoChoiceItem ChoiceItems[QUEST_REWARD_CHOICES_COUNT];
-            uint32 ItemID[QUEST_REWARDS_COUNT] = { };
-            uint32 ItemQty[QUEST_REWARDS_COUNT] = { };
-            uint32 ItemDisplayID[QUEST_REWARDS_COUNT] = { };
             std::array<uint32, QUEST_REPUTATIONS_COUNT> RewardFactionID = { };
             std::array<int32, QUEST_REPUTATIONS_COUNT> RewardFactionValue = { };
             std::array<int32, QUEST_REPUTATIONS_COUNT> RewardFactionValueOverride = { };
@@ -174,17 +168,6 @@ namespace WorldPackets
             std::vector<QuestDescEmote> DescEmotes;
         };
 
-        struct QuestGiverOfferReward
-        {
-            ObjectGuid QuestGiverGUID;
-            uint32 QuestID = 0;
-            uint32 QuestFlags = 0;
-            uint32 SuggestedPartyMembers = 0;
-            QuestRewards Rewards;
-            std::vector<QuestDescEmote> Emotes;
-            bool AutoLaunched = false;
-        };
-
         class QuestGiverOfferRewardMessage final : public ServerPacket
         {
         public:
@@ -192,12 +175,17 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            QuestGiverOfferReward QuestData;
-            std::string QuestTitle;
+            ObjectGuid QuestGiverGUID;
+            uint32 QuestID = 0;
+            std::string Title;
             std::string RewardText;
+            bool AutoLaunched = false;
+            uint32 Flags = 0;
+            uint32 SuggestedGroupNum = 0;
+            std::vector<QuestDescEmote> Emotes;
+            QuestRewards Rewards;
         };
     }
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Quest::QuestRewards const& questRewards);
 #endif // QuestPackets_h__

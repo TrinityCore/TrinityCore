@@ -187,67 +187,60 @@ WorldPacket const* WorldPackets::Quest::QuestGiverQuestDetails::Write()
 
 WorldPacket const* WorldPackets::Quest::QuestGiverOfferRewardMessage::Write()
 {
-    _worldPacket << QuestData.QuestGiverGUID;
-    _worldPacket << uint32(QuestData.QuestID);
+    _worldPacket << QuestGiverGUID;
+    _worldPacket << uint32(QuestID);
 
-    _worldPacket << QuestTitle;
+    _worldPacket << Title;
     _worldPacket << RewardText;
 
-    _worldPacket << uint8(QuestData.AutoLaunched);
-    _worldPacket << uint32(QuestData.QuestFlags);
-    _worldPacket << uint32(QuestData.SuggestedPartyMembers);
+    _worldPacket << uint8(AutoLaunched);
+    _worldPacket << uint32(Flags);
+    _worldPacket << uint32(SuggestedGroupNum);
 
-    _worldPacket << uint32(QuestData.Emotes.size());
-    for (WorldPackets::Quest::QuestDescEmote const& emote : QuestData.Emotes)
+    _worldPacket << uint32(Emotes.size());
+    for (WorldPackets::Quest::QuestDescEmote const& emote : Emotes)
     {
         _worldPacket << uint32(emote.Delay);
         _worldPacket << uint32(emote.Type);
     }
 
-    _worldPacket << QuestData.Rewards;
+    _worldPacket << uint32(Rewards.UnfilteredChoiceItems.size());
+    for (WorldPackets::Quest::QuestChoiceItem const& item : Rewards.UnfilteredChoiceItems)
+    {
+        _worldPacket << uint32(item.ItemID);
+        _worldPacket << uint32(item.Quantity);
+        _worldPacket << uint32(item.DisplayID);
+    }
+
+    _worldPacket << uint32(Rewards.RewardItems.size());
+    for (WorldPackets::Quest::QuestChoiceItem const& item : Rewards.RewardItems)
+    {
+        _worldPacket << uint32(item.ItemID);
+        _worldPacket << uint32(item.Quantity);
+        _worldPacket << uint32(item.DisplayID);
+    }
+
+    _worldPacket << uint32(Rewards.RewardMoney);
+    _worldPacket << uint32(Rewards.RewardXPDifficulty);
+
+    _worldPacket << uint32(Rewards.RewardHonor);
+    _worldPacket << float(Rewards.RewardKillHonor);
+    _worldPacket << uint32(Rewards.Unk);
+    _worldPacket << uint32(Rewards.RewardDisplaySpell);
+    _worldPacket << int32(Rewards.RewardSpell);
+    _worldPacket << uint32(Rewards.RewardTitleId);
+    _worldPacket << uint32(Rewards.RewardTalents);
+    _worldPacket << uint32(Rewards.RewardArenaPoints);
+    _worldPacket << uint32(Rewards.RewardFactionFlags);
+
+    for (uint32 factionId : Rewards.RewardFactionID)
+        _worldPacket << uint32(factionId);
+
+    for (uint32 value : Rewards.RewardFactionValue)
+        _worldPacket << int32(value);
+
+    for (uint32 valueOverride : Rewards.RewardFactionValueOverride)
+        _worldPacket << int32(valueOverride);
 
     return &_worldPacket;
-}
-
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Quest::QuestRewards const& questRewards)
-{
-    data << uint32(questRewards.ChoiceItemCount);
-    for (uint8 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
-        data << uint32(questRewards.ChoiceItems[i].ItemID);
-    for (uint8 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
-        data << uint32(questRewards.ChoiceItems[i].Quantity);
-    for (uint8 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
-        data << uint32(questRewards.ChoiceItems[i].DisplayID);
-
-    data << uint32(questRewards.ItemCount);
-    for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
-        data << uint32(questRewards.ItemID[i]);
-    for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
-        data << uint32(questRewards.ItemQty[i]);
-    for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
-        data << uint32(questRewards.ItemDisplayID[i]);
-
-    data << uint32(questRewards.RewardMoney);
-    data << uint32(questRewards.RewardXPDifficulty);
-
-    // rewarded honor points. Multiply with 10 to satisfy client
-    data << uint32(questRewards.RewardHonor);
-    data << float(0.0f); // honor multiplier
-    data << uint32(questRewards.RewardDisplaySpell);
-    data << int32(questRewards.RewardSpell);
-    data << uint32(questRewards.RewardTitleId);
-    data << uint32(questRewards.RewardTalents);
-    data << uint32(questRewards.RewardArenaPoints);
-    data << uint32(questRewards.RewardFactionFlags);
-
-    for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
-        data << uint32(questRewards.RewardFactionID[i]);
-
-    for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
-        data << int32(questRewards.RewardFactionValue[i]);
-
-    for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
-        data << int32(questRewards.RewardFactionValueOverride[i]);
-
-    return data;
 }

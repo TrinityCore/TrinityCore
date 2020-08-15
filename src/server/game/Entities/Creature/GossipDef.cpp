@@ -456,33 +456,32 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
 {
     WorldPackets::Quest::QuestGiverOfferRewardMessage packet;
 
-    packet.QuestTitle = quest->GetTitle();
+    packet.Title = quest->GetTitle();
     packet.RewardText = quest->GetOfferRewardText();
 
     LocaleConstant localeConstant = _session->GetSessionDbLocaleIndex();
     if (localeConstant != LOCALE_enUS)
     {
         if (QuestLocale const* localeData = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
-            ObjectMgr::GetLocaleString(localeData->Title, localeConstant, packet.QuestTitle);
+            ObjectMgr::GetLocaleString(localeData->Title, localeConstant, packet.Title);
 
         if (QuestOfferRewardLocale const* questOfferRewardLocale = sObjectMgr->GetQuestOfferRewardLocale(quest->GetQuestId()))
             ObjectMgr::GetLocaleString(questOfferRewardLocale->RewardText, localeConstant, packet.RewardText);
     }
 
     if (sWorld->getBoolConfig(CONFIG_UI_QUESTLEVELS_IN_DIALOGS))
-        Quest::AddQuestLevelToTitle(packet.QuestTitle, quest->GetQuestLevel());
+        Quest::AddQuestLevelToTitle(packet.Title, quest->GetQuestLevel());
 
-    WorldPackets::Quest::QuestGiverOfferReward& offer = packet.QuestData;
-
-    quest->BuildQuestRewards(offer.Rewards, _session->GetPlayer());
-    offer.QuestGiverGUID = npcGUID;
-    offer.QuestID = quest->GetQuestId();
-    offer.AutoLaunched = autoLaunched;
-    offer.QuestFlags = quest->GetFlags();
-    offer.SuggestedPartyMembers = quest->GetSuggestedPlayers();
+    packet.QuestGiverGUID = npcGUID;
+    packet.QuestID = quest->GetQuestId();
+    packet.AutoLaunched = autoLaunched;
+    packet.Flags = quest->GetFlags();
+    packet.SuggestedGroupNum = quest->GetSuggestedPlayers();
 
     for (uint32 i = 0; i < QUEST_EMOTE_COUNT && quest->OfferRewardEmote[i]; ++i)
-        offer.Emotes.emplace_back(quest->OfferRewardEmote[i], quest->OfferRewardEmoteDelay[i]);
+        packet.Emotes.emplace_back(quest->OfferRewardEmote[i], quest->OfferRewardEmoteDelay[i]);
+
+    quest->BuildQuestRewards(packet.Rewards, _session->GetPlayer(), true);
 
     _session->SendPacket(packet.Write());
 
