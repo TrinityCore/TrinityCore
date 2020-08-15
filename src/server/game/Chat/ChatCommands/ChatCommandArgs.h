@@ -106,18 +106,16 @@ struct ArgInfo<std::string, void>
 template <typename T>
 struct ArgInfo<T, std::enable_if_t<std::is_enum_v<T>>>
 {
-    typedef typename std::underlying_type<T>::type uType;
-
-    static inline std::map<std::string, Optional<T>> MakeSearchMap()
+    static std::map<std::string, Optional<T>> MakeSearchMap()
     {
         std::map<std::string, Optional<T>> map;
         for (T val : EnumUtils::Iterate<T>())
         {
             EnumText text = EnumUtils::ToString(val);
 
-            std::string title = std::string(text.Title);
+            std::string title(text.Title);
             strToLower(title);
-            std::string constant = std::string(text.Constant);
+            std::string constant(text.Constant);
             strToLower(constant);
 
             auto [constantIt, constantNew] = map.try_emplace(constant, val);
@@ -136,18 +134,17 @@ struct ArgInfo<T, std::enable_if_t<std::is_enum_v<T>>>
 
     static inline std::map<std::string, Optional<T>> const SearchMap = MakeSearchMap();
 
-    static T const* Match(std::string const& str)
+    static T const* Match(std::string s)
     {
-        std::string s(str);
         strToLower(s);
 
         auto it = SearchMap.lower_bound(s);
-        if (it == SearchMap.end() || !StringStartsWith(s, it->first)) // not a match
+        if (it == SearchMap.end() || !StringStartsWith(it->first, s)) // not a match
             return nullptr;
 
         auto it2 = it;
         ++it2;
-        if (it2 != SearchMap.end() && StringStartsWith(s, it2->first)) // not unique
+        if (it2 != SearchMap.end() && StringStartsWith(it2->first, s)) // not unique
             return nullptr;
 
         if (it->second)
@@ -171,8 +168,9 @@ struct ArgInfo<T, std::enable_if_t<std::is_enum_v<T>>>
         }
 
         // Value not found. Try to parse arg as underlying type and cast it to enum type
-        uType uVal = 0;
-        ret = ArgInfo<uType>::TryConsume(uVal, args);
+        using U = std::underlying_type_t<T>;
+        U uVal = 0;
+        ret = ArgInfo<U>::TryConsume(uVal, args);
         if (ret)
             val = static_cast<T>(uVal);
 

@@ -679,7 +679,7 @@ bool StringEqualI(std::string const& str1, std::string const& str2)
                       });
 }
 
-bool StringStartsWith(std::string const& needle, std::string const& haystack)
+bool StringStartsWith(std::string const& haystack, std::string const& needle)
 {
     return (haystack.rfind(needle, 0) == 0);
 }
