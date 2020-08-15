@@ -125,6 +125,7 @@ class TC_GAME_API SmartScript
         uint32 mTalkerEntry;
         bool mUseTextTimer;
         uint32 mCurrentPriority;
+        bool mEventSortingRequired;
 
         ObjectVectorMap _storedTargets;
 

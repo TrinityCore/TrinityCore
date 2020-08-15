@@ -58,6 +58,7 @@ SmartScript::SmartScript()
     mScriptType = SMART_SCRIPT_TYPE_CREATURE;
     isProcessingTimedActionList = false;
     mCurrentPriority = 0;
+    mEventSortingRequired = false;
 }
 
 SmartScript::~SmartScript()
@@ -3477,6 +3478,7 @@ void SmartScript::UpdateTimer(SmartScriptHolder& e, uint32 const diff)
                 {
                     e.timer = 1;
                     e.priority = mCurrentPriority++;
+                    mEventSortingRequired = true;
                     return;
                 }
             }
@@ -3493,7 +3495,12 @@ void SmartScript::UpdateTimer(SmartScriptHolder& e, uint32 const diff)
         }
 
         e.active = true;//activate events with cooldown
-        e.priority = uint32(-1); //reset priority to default one
+
+        // Re-sort events if this was moved to the top of the queue
+        mEventSortingRequired = e.priority != uint32(-1);
+        // Reset priority to default one as we are executing the event
+        e.priority = uint32(-1);
+
         switch (e.GetEventType())//process ONLY timed events
         {
             case SMART_EVENT_UPDATE:
@@ -3629,14 +3636,19 @@ void SmartScript::OnUpdate(uint32 const diff)
 
     InstallEvents();//before UpdateTimers
 
-    SortEventsByPriority(mEvents);
+    if (mEventSortingRequired)
+    {
+        SortEventsByPriority(mEvents);
+        SortEventsByPriority(mStoredEvents);
+        SortEventsByPriority(mTimedActionList);
+        mEventSortingRequired = false;
+    }
 
     for (SmartScriptHolder& mEvent : mEvents)
         UpdateTimer(mEvent, diff);
 
     if (!mStoredEvents.empty())
     {
-        SortEventsByPriority(mStoredEvents);
         SmartAIEventStoredList::iterator i, icurr;
         for (i = mStoredEvents.begin(); i != mStoredEvents.end();)
         {
@@ -3649,7 +3661,6 @@ void SmartScript::OnUpdate(uint32 const diff)
     if (!mTimedActionList.empty())
     {
         isProcessingTimedActionList = true;
-        SortEventsByPriority(mTimedActionList);
         for (SmartScriptHolder& scriptholder : mTimedActionList)
         {
             if (scriptholder.enableTimed)
@@ -3691,7 +3702,10 @@ void SmartScript::SortEventsByPriority(SmartAIEventList& events)
 {
     std::stable_sort(events.begin(), events.end(), [](SmartScriptHolder const& lhs, SmartScriptHolder const& rhs)
     {
-        return lhs.priority < rhs.priority;
+        if (lhs.priority == rhs.priority)
+            return lhs.event_id < rhs.event_id;
+        else
+            return lhs.priority < rhs.priority;
     });
 }
 
