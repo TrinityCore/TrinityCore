@@ -100,7 +100,7 @@ class TC_GAME_API SmartScript
         void SetPhase(uint32 p);
         bool IsInPhase(uint32 p) const;
 
-        void SortEventsByPriority(SmartAIEventList& events);
+        void SortEvents(SmartAIEventList& events);
 
         SmartAIEventList mEvents;
         SmartAIEventList mInstallEvents;

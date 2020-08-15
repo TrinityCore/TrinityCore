@@ -3484,7 +3484,7 @@ void SmartScript::UpdateTimer(SmartScriptHolder& e, uint32 const diff)
                 {
                     e.timer = 1;
                     // Change priority only if it's set to default, otherwise keep the current order of events
-                    if (e.priority == uint32(-1))
+                    if (e.priority == SmartScriptHolder::DEFAULT_PRIORITY)
                     {
                         e.priority = mCurrentPriority++;
                         mEventSortingRequired = true;
@@ -3507,10 +3507,10 @@ void SmartScript::UpdateTimer(SmartScriptHolder& e, uint32 const diff)
         e.active = true;//activate events with cooldown
 
         // Re-sort events if this was moved to the top of the queue
-        if (e.priority != uint32(-1))
+        if (e.priority != SmartScriptHolder::DEFAULT_PRIORITY)
             mEventSortingRequired = true;
         // Reset priority to default one as we are executing the event
-        e.priority = uint32(-1);
+        e.priority = SmartScriptHolder::DEFAULT_PRIORITY;
 
         switch (e.GetEventType())//process ONLY timed events
         {
@@ -3649,9 +3649,9 @@ void SmartScript::OnUpdate(uint32 const diff)
 
     if (mEventSortingRequired)
     {
-        SortEventsByPriority(mEvents);
-        SortEventsByPriority(mStoredEvents);
-        SortEventsByPriority(mTimedActionList);
+        SortEvents(mEvents);
+        //SortEvents(mStoredEvents);
+        //SortEvents(mTimedActionList);
         mEventSortingRequired = false;
     }
 
@@ -3709,15 +3709,9 @@ void SmartScript::OnUpdate(uint32 const diff)
     }
 }
 
-void SmartScript::SortEventsByPriority(SmartAIEventList& events)
+void SmartScript::SortEvents(SmartAIEventList& events)
 {
-    std::stable_sort(events.begin(), events.end(), [](SmartScriptHolder const& lhs, SmartScriptHolder const& rhs)
-    {
-        if (lhs.priority == rhs.priority)
-            return lhs.event_id < rhs.event_id;
-        else
-            return lhs.priority < rhs.priority;
-    });
+    std::sort(events.begin(), events.end());
 }
 
 void SmartScript::FillScript(SmartAIEventList e, WorldObject* obj, AreaTriggerEntry const* at)
