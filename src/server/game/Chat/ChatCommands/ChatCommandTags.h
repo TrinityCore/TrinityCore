@@ -77,7 +77,7 @@ namespace Trinity::ChatCommands
     struct Hyperlink : public ContainerTag
     {
         using value_type = typename linktag::value_type;
-        using storage_type = typedef advstd::remove_cvref_t<value_type>;
+        using storage_type = advstd::remove_cvref_t<value_type>;
 
         public:
             operator value_type() const { return val; }
