@@ -50,7 +50,7 @@ struct ArgInfo<T, std::enable_if_t<std::is_integral_v<T> && std::is_signed_v<T>>
     static char const* TryConsume(T& val, char const* args)
     {
         char const* next = args;
-        std::string token(args, Trinity::Impl::ChatCommands::tokenize(next));
+        std::string token(args, tokenize(next));
         try
         {
             size_t processedChars = 0;
@@ -70,7 +70,7 @@ struct ArgInfo<T, std::enable_if_t<std::is_integral_v<T> && std::is_unsigned_v<T
     static char const* TryConsume(T& val, char const* args)
     {
         char const* next = args;
-        std::string token(args, Trinity::Impl::ChatCommands::tokenize(next));
+        std::string token(args, tokenize(next));
         try
         {
             size_t processedChars = 0;
@@ -90,7 +90,7 @@ struct ArgInfo<T, std::enable_if_t<std::is_floating_point_v<T>>>
     static char const* TryConsume(T& val, char const* args)
     {
         char const* next = args;
-        std::string token(args, Trinity::Impl::ChatCommands::tokenize(next));
+        std::string token(args, tokenize(next));
         try
         {
             size_t processedChars = 0;
@@ -110,7 +110,7 @@ struct ArgInfo<std::string, void>
     static char const* TryConsume(std::string& val, char const* args)
     {
         char const* next = args;
-        if (size_t len = Trinity::Impl::ChatCommands::tokenize(next))
+        if (size_t len = tokenize(next))
         {
             val.assign(args, len);
             return next;

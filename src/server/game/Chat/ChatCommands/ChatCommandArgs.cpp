@@ -31,9 +31,9 @@ struct AchievementVisitor
 };
 char const* Trinity::ChatCommands::ArgInfo<AchievementEntry const*>::TryConsume(AchievementEntry const*& data, char const* args)
 {
-    Variant<Hyperlink<achievement>, uint32> val;
+    Variant <Hyperlink<achievement>, uint32> val;
     if ((args = CommandArgsConsumerSingle<decltype(val)>::TryConsumeTo(val, args)))
-        data = val.visit(AchievementVisitor());
+        data = boost::apply_visitor(AchievementVisitor(), val);
     return args;
 }
 
@@ -47,7 +47,7 @@ char const* Trinity::ChatCommands::ArgInfo<GameTele const*>::TryConsume(GameTele
 {
     Variant<Hyperlink<tele>, std::string> val;
     if ((args = CommandArgsConsumerSingle<decltype(val)>::TryConsumeTo(val, args)))
-        data = val.visit(GameTeleVisitor());
+        data = boost::apply_visitor(GameTeleVisitor(), val);
     return args;
 }
 
@@ -61,22 +61,21 @@ char const* Trinity::ChatCommands::ArgInfo<SpellInfo const*>::TryConsume(SpellIn
 {
     Variant<Hyperlink<spell>, uint32> val;
     if ((args = CommandArgsConsumerSingle<decltype(val)>::TryConsumeTo(val, args)))
-        data = val.visit(SpellInfoVisitor());
+        data = boost::apply_visitor(SpellInfoVisitor(), val);
     return args;
 }
 
+struct BoolVisitor
+{
+    using value_type = bool;
+    value_type operator()(uint32 i) const { return !!i; }
+    value_type operator()(ExactSequence<'o', 'n'>) const { return true; }
+    value_type operator()(ExactSequence<'o', 'f', 'f'>) const { return false; }
+};
 char const* Trinity::ChatCommands::ArgInfo<bool>::TryConsume(bool& data, char const* args)
 {
-    std::string val;
-    if ((args = CommandArgsConsumerSingle<std::string>::TryConsumeTo(val, args)))
-    {
-        strToLower(val);
-        if (val == "on" || val == "yes" || val == "true" || val == "1" || val == "y")
-            data = true;
-        else if (val == "off" || val == "no" || val == "false" || val == "0" || val == "n")
-            data = false;
-        else
-            return nullptr;
-    }
+    Variant<uint32, ExactSequence<'o', 'n'>, ExactSequence<'o', 'f', 'f'>> val;
+    if ((args = CommandArgsConsumerSingle<decltype(val)>::TryConsumeTo(val, args)))
+        data = boost::apply_visitor(BoolVisitor(), val);
     return args;
 }

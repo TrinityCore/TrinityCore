@@ -20,50 +20,58 @@
 
 #include <type_traits>
 
-namespace Trinity::ChatCommands
+namespace Trinity
 {
-    static constexpr char COMMAND_DELIMITER = ' ';
+namespace ChatCommands
+{
 
-    template <typename T, typename = void>
-    struct tag_base
-    {
-        using type = T;
-    };
+static constexpr char COMMAND_DELIMITER = ' ';
 
-    template <typename T>
-    using tag_base_t = typename tag_base<T>::type;
+/***************** HELPERS *************************\
+|* These really aren't for outside use...          *|
+\***************************************************/
+inline std::size_t tokenize(char const*& end)
+{
+    std::size_t len = 0;
+    for (; *end && *end != COMMAND_DELIMITER; ++end, ++len);
+    for (; *end && *end == COMMAND_DELIMITER; ++end);
+    return len;
 }
 
-namespace Trinity::Impl::ChatCommands
+template <typename T, typename = void>
+struct tag_base
 {
-    /***************** HELPERS *************************\
-    |* These really aren't for outside use...          *|
-    \***************************************************/
-    inline std::size_t tokenize(char const*& end)
-    {
-        std::size_t len = 0;
-        for (; *end && *end != Trinity::ChatCommands::COMMAND_DELIMITER; ++end, ++len);
-        for (; *end && *end == Trinity::ChatCommands::COMMAND_DELIMITER; ++end);
-        return len;
-    }
+    using type = T;
+};
 
-    template <typename T, typename... Ts>
-    struct are_all_assignable
-    {
-        static constexpr bool value = (std::is_assignable_v<T&, Ts> && ...);
-    };
+template <typename T>
+using tag_base_t = typename tag_base<T>::type;
 
-    template <std::size_t index, typename T1, typename... Ts>
-    struct get_nth : get_nth<index-1, Ts...> { };
+template <typename...>
+struct are_all_assignable
+{
+    static constexpr bool value = true;
+};
 
-    template <typename T1, typename... Ts>
-    struct get_nth<0, T1, Ts...>
-    {
-        using type = T1;
-    };
+template <typename T1, typename T2, typename... Ts>
+struct are_all_assignable<T1, T2, Ts...>
+{
+    static constexpr bool value = std::is_assignable_v<T1&, T2> && are_all_assignable<T1, Ts...>::value;
+};
 
-    template <std::size_t index, typename... Ts>
-    using get_nth_t = typename get_nth<index, Ts...>::type;
+template <std::size_t index, typename T1, typename... Ts>
+struct get_nth : get_nth<index-1, Ts...> { };
+
+template <typename T1, typename... Ts>
+struct get_nth<0, T1, Ts...>
+{
+    using type = T1;
+};
+
+template <std::size_t index, typename... Ts>
+using get_nth_t = typename get_nth<index, Ts...>::type;
+
+}
 }
 
 #endif
