@@ -308,8 +308,6 @@ Player::Player(WorldSession* session): Unit(true)
     for (uint8 i = 0; i < MAX_MOVE_TYPE; ++i)
         m_forced_speed_changes[i] = 0;
 
-    m_stableSlots = 0;
-
     /////////////////// Instance System /////////////////////
 
     m_HomebindTimer = 0;
@@ -4213,7 +4211,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
 
             // Unsummon and delete for pets in world is not required: player deleted from CLI or character list with not loaded pet.
             // NOW we can finally clear other DB data related to character
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PETS);
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PET_IDS);
             stmt->setUInt32(0, guid);
             PreparedQueryResult resultPets = CharacterDatabase.Query(stmt);
 
@@ -17671,13 +17669,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder* holder)
 
     uint32 extraflags = fields[36].GetUInt16();
 
-    m_stableSlots = fields[37].GetUInt8();
-    if (m_stableSlots > MAX_PET_STABLES)
-    {
-        TC_LOG_ERROR("entities.player", "Player::LoadFromDB: Player (%s) can't have more stable slots than %u, but has %u in DB",
-            GetGUID().ToString().c_str(), MAX_PET_STABLES, uint32(m_stableSlots));
-        m_stableSlots = MAX_PET_STABLES;
-    }
+    _LoadPetStable(fields[37].GetUInt8(), holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_PET_SLOTS));
 
     m_atLoginFlags = fields[38].GetUInt16();
 
@@ -18495,7 +18487,7 @@ void Player::LoadPet()
 {
     //fixme: the pet should still be loaded if the player is not in world
     // just not added to the map
-    if (IsInWorld())
+    if (m_petStable && IsInWorld())
     {
         Pet* pet = new Pet(this);
         if (!pet->LoadPetFromDB(this, 0, 0, true))
@@ -19394,7 +19386,7 @@ void Player::SaveToDB(CharacterDatabaseTransaction trans, bool create /* = false
         stmt->setUInt32(index++, m_resetTalentsCost);
         stmt->setUInt32(index++, uint32(m_resetTalentsTime));
         stmt->setUInt16(index++, (uint16)m_ExtraFlags);
-        stmt->setUInt8(index++,  m_stableSlots);
+        stmt->setUInt8(index++,  m_petStable ? m_petStable->MaxStabledPets : 0);
         stmt->setUInt16(index++, (uint16)m_atLoginFlags);
         stmt->setUInt16(index++, GetZoneId());
         stmt->setUInt32(index++, uint32(m_deathExpireTime));
@@ -19519,7 +19511,7 @@ void Player::SaveToDB(CharacterDatabaseTransaction trans, bool create /* = false
         stmt->setUInt32(index++, m_resetTalentsCost);
         stmt->setUInt32(index++, uint32(m_resetTalentsTime));
         stmt->setUInt16(index++, (uint16)m_ExtraFlags);
-        stmt->setUInt8(index++,  m_stableSlots);
+        stmt->setUInt8(index++,  m_petStable ? m_petStable->MaxStabledPets : 0);
         stmt->setUInt16(index++, (uint16)m_atLoginFlags);
         stmt->setUInt16(index++, GetZoneId());
         stmt->setUInt32(index++, uint32(m_deathExpireTime));
@@ -20698,6 +20690,17 @@ void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
 
     // only if current pet in slot
     pet->SavePetToDB(mode);
+
+    ASSERT(m_petStable->CurrentPet && m_petStable->CurrentPet->PetNumber == pet->GetCharmInfo()->GetPetNumber());
+    if (mode == PET_SAVE_NOT_IN_SLOT)
+    {
+        m_petStable->UnslottedPets.push_back(std::move(*m_petStable->CurrentPet));
+        m_petStable->CurrentPet.reset();
+    }
+    else if (mode == PET_SAVE_AS_DELETED)
+        m_petStable->CurrentPet.reset();
+    // else if (stable slots) handled in opcode handlers due to required swaps
+    // else (current pet) doesnt need to do anything
 
     SetMinion(pet, false);
 
@@ -26315,6 +26318,14 @@ bool Player::AddItem(uint32 itemId, uint32 count)
     return true;
 }
 
+PetStable& Player::GetOrInitPetStable()
+{
+    if (!m_petStable)
+        m_petStable = std::make_unique<PetStable>();
+
+    return *m_petStable;
+}
+
 void Player::RefundItem(Item* item)
 {
     if (!item->IsRefundable())
@@ -26499,6 +26510,55 @@ void Player::_LoadInstanceTimeRestrictions(PreparedQueryResult result)
     } while (result->NextRow());
 }
 
+void Player::_LoadPetStable(uint8 petStableSlots, PreparedQueryResult result)
+{
+    if (!petStableSlots && !result)
+        return;
+
+    m_petStable = std::make_unique<PetStable>();
+    m_petStable->MaxStabledPets = petStableSlots;
+    if (m_petStable->MaxStabledPets > MAX_PET_STABLES)
+    {
+        TC_LOG_ERROR("entities.player", "Player::LoadFromDB: Player (%s) can't have more stable slots than %u, but has %u in DB",
+            GetGUID().ToString().c_str(), MAX_PET_STABLES, m_petStable->MaxStabledPets);
+        m_petStable->MaxStabledPets = MAX_PET_STABLES;
+    }
+
+    //         0      1        2      3    4           5     6     7        8          9       10            11      12        13              14       15
+    // SELECT id, entry, modelid, level, exp, Reactstate, slot, name, renamed, curhealth, curmana, curhappiness, abdata, savetime, CreatedBySpell, PetType FROM character_pet WHERE owner = ?
+    if (result)
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+            PetStable::PetInfo petInfo;
+            petInfo.PetNumber = fields[0].GetUInt32();
+            petInfo.CreatureId = fields[1].GetUInt32();
+            petInfo.DisplayId = fields[2].GetUInt32();
+            petInfo.Level = fields[3].GetUInt16();
+            petInfo.Experience = fields[4].GetUInt32();
+            petInfo.ReactState = ReactStates(fields[5].GetUInt8());
+            PetSaveMode slot = PetSaveMode(fields[6].GetUInt8());
+            petInfo.Name = fields[7].GetString();
+            petInfo.WasRenamed = fields[8].GetBool();
+            petInfo.Health = fields[9].GetUInt32();
+            petInfo.Mana = fields[10].GetUInt32();
+            petInfo.Happiness = fields[11].GetUInt32();
+            petInfo.ActionBar = fields[12].GetString();
+            petInfo.LastSaveTime = fields[13].GetUInt32();
+            petInfo.CreatedBySpellId = fields[14].GetUInt32();
+            petInfo.Type = PetType(fields[15].GetUInt8());
+            if (slot == PET_SAVE_AS_CURRENT)
+                m_petStable->CurrentPet = std::move(petInfo);
+            else if (slot >= PET_SAVE_FIRST_STABLE_SLOT && slot <= PET_SAVE_LAST_STABLE_SLOT)
+                m_petStable->StabledPets[slot - 1] = std::move(petInfo);
+            else if (slot == PET_SAVE_NOT_IN_SLOT)
+                m_petStable->UnslottedPets.push_back(std::move(petInfo));
+
+        } while (result->NextRow());
+    }
+}
+
 void Player::_SaveInstanceTimeRestrictions(CharacterDatabaseTransaction& trans)
 {
     if (_instanceResetTimes.empty())
@@ -26654,19 +26714,14 @@ Guild* Player::GetGuild()
     return guildId ? sGuildMgr->GetGuildById(guildId) : nullptr;
 }
 
-Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetType petType, uint32 duration, bool aliveOnly)
+Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetType petType, uint32 duration)
 {
+    PetStable& petStable = GetOrInitPetStable();
+
     Pet* pet = new Pet(this, petType);
 
-    if (petType == SUMMON_PET && pet->LoadPetFromDB(this, entry))
+    if (petType == SUMMON_PET && pet->LoadPetFromDB(this, entry, 0, false))
     {
-        if (aliveOnly && !pet->IsAlive())
-        {
-            pet->DespawnOrUnsummon();
-            SendTameFailure(PETTAME_DEAD);
-            return nullptr;
-        }
-
         // Remove Demonic Sacrifice auras (known pet)
         Unit::AuraEffectList const& auraClassScripts = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
         for (Unit::AuraEffectList::const_iterator itr = auraClassScripts.begin(); itr != auraClassScripts.end();)
@@ -26744,6 +26799,9 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     }
 
     map->AddToMap(pet->ToCreature());
+
+    ASSERT(!petStable.CurrentPet && (petType != HUNTER_PET || !petStable.GetUnslottedHunterPet()));
+    pet->FillPetInfo(&petStable.CurrentPet.emplace());
 
     switch (petType)
     {

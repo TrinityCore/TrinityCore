@@ -492,7 +492,6 @@ class TC_GAME_API WorldSession
         // Pet
         void SendQueryPetNameResponse(ObjectGuid guid, uint32 petnumber);
         void SendStablePet(ObjectGuid guid);
-        void SendStablePetCallback(ObjectGuid guid, PreparedQueryResult result);
         void SendPetStableResult(uint8 guid);
         bool CheckStableMaster(ObjectGuid guid);
 
@@ -780,13 +779,10 @@ class TC_GAME_API WorldSession
         void HandleBinderActivateOpcode(WorldPacket& recvPacket);
         void HandleRequestStabledPets(WorldPacket& recvPacket);
         void HandleStablePet(WorldPacket& recvPacket);
-        void HandleStablePetCallback(PreparedQueryResult result);
         void HandleUnstablePet(WorldPacket& recvPacket);
-        void HandleUnstablePetCallback(uint32 petId, PreparedQueryResult result);
         void HandleBuyStableSlot(WorldPacket& recvPacket);
         void HandleStableRevivePet(WorldPacket& recvPacket);
         void HandleStableSwapPet(WorldPacket& recvPacket);
-        void HandleStableSwapPetCallback(uint32 petId, PreparedQueryResult result);
 
         void HandleDuelAcceptedOpcode(WorldPacket& recvPacket);
         void HandleDuelCancelledOpcode(WorldPacket& recvPacket);
