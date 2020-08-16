@@ -19,8 +19,14 @@
 #define TRINITYCORE_PET_DEFINES_H
 
 #include "Define.h"
+#include "Optional.h"
+#include <array>
+#include <string>
+#include <vector>
 
-enum PetType
+enum ReactStates : uint8;
+
+enum PetType : uint8
 {
     SUMMON_PET              = 0,
     HUNTER_PET              = 1,
@@ -30,7 +36,7 @@ enum PetType
 #define MAX_PET_STABLES         4
 
 // stored in character_pet.slot
-enum PetSaveMode
+enum PetSaveMode : int8
 {
     PET_SAVE_AS_DELETED        = -1,                        // not saved in fact
     PET_SAVE_AS_CURRENT        =  0,                        // in current slot (with player)
@@ -96,6 +102,41 @@ enum class PetTameResult : uint8
     CantControlExotic       = 12,
     InvalidSlot             = 13,
     EliteTooHighLevel       = 14
+};
+
+class PetStable
+{
+public:
+    struct PetInfo
+    {
+        PetInfo() { }
+
+        std::string Name;
+        std::string ActionBar;
+        uint32 PetNumber = 0;
+        uint32 CreatureId = 0;
+        uint32 DisplayId = 0;
+        uint32 Experience = 0;
+        uint32 Health = 0;
+        uint32 Mana = 0;
+        uint32 LastSaveTime = 0;
+        uint32 CreatedBySpellId = 0;
+        uint16 SpecializationId = 0;
+        uint8 Level = 0;
+        ReactStates ReactState = ReactStates(0);
+        PetType Type = MAX_PET_TYPE;
+        bool WasRenamed = false;
+    };
+
+    Optional<PetInfo> CurrentPet;                                   // PET_SAVE_AS_CURRENT
+    std::array<Optional<PetInfo>, MAX_PET_STABLES> StabledPets;     // PET_SAVE_FIRST_STABLE_SLOT - PET_SAVE_LAST_STABLE_SLOT
+    uint32 MaxStabledPets = 0;
+    std::vector<PetInfo> UnslottedPets;                             // PET_SAVE_NOT_IN_SLOT
+
+    PetInfo const* GetUnslottedHunterPet() const
+    {
+        return UnslottedPets.size() == 1 && UnslottedPets[0].Type == HUNTER_PET ? &UnslottedPets[0] : nullptr;
+    }
 };
 
 #endif

@@ -5994,6 +5994,36 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
 
                 if (!unitCaster->GetCharmedGUID().IsEmpty())
                     return SPELL_FAILED_ALREADY_HAVE_CHARM;
+
+                Player* playerCaster = unitCaster->ToPlayer();
+                if (playerCaster && playerCaster->GetPetStable())
+                {
+                    std::pair<PetStable::PetInfo const*, PetSaveMode> info = Pet::GetLoadPetInfo(*playerCaster->GetPetStable(), spellEffectInfo.MiscValue, 0, false);
+                    if (!info.first)
+                    {
+                        playerCaster->SendTameFailure(PetTameResult::NoPetAvailable);
+                        return SPELL_FAILED_DONT_REPORT;
+                    }
+
+                    if (info.first->Type == HUNTER_PET && !info.first->Health)
+                    {
+                        playerCaster->SendTameFailure(PetTameResult::Dead);
+                        return SPELL_FAILED_DONT_REPORT;
+                    }
+
+                    CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(info.first->CreatureId);
+                    if (!creatureInfo || !creatureInfo->IsTameable(playerCaster->CanTameExoticPets()))
+                    {
+                        // if problem in exotic pet
+                        if (creatureInfo && creatureInfo->IsTameable(true))
+                            playerCaster->SendTameFailure(PetTameResult::CantControlExotic);
+                        else
+                            playerCaster->SendTameFailure(PetTameResult::NoPetAvailable);
+
+                        return SPELL_FAILED_DONT_REPORT;
+                    }
+                }
+
                 break;
             }
             case SPELL_EFFECT_SUMMON_PLAYER:

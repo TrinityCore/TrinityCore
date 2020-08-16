@@ -380,7 +380,7 @@ enum ActiveStates
     ACT_DECIDE   = 0x00                                     // custom
 };
 
-enum ReactStates
+enum ReactStates : uint8
 {
     REACT_PASSIVE    = 0,
     REACT_DEFENSIVE  = 1,
