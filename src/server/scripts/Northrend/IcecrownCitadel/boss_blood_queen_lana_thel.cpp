@@ -215,6 +215,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                     if (Creature* minchar = me->FindNearestCreature(NPC_INFILTRATOR_MINCHAR_BQ, 200.0f))
                     {
                         minchar->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
+                        minchar->SetAnimationTier(AnimationTier::Ground);
                         minchar->SetCanFly(false);
                         minchar->RemoveAllAuras();
                         minchar->GetMotionMaster()->MoveCharge(4629.3711f, 2782.6089f, 401.5301f, SPEED_CHARGE / 3.0f);
