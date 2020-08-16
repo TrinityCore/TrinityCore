@@ -135,6 +135,8 @@ namespace Trinity::ChatCommands
     template <typename T1, typename... Ts>
     struct Variant : public std::variant<T1, Ts...>
     {
+        using base = std::variant<T1, Ts...>;
+
         using first_type = tag_base_t<T1>;
         static constexpr bool have_operators = Trinity::Impl::ChatCommands::are_all_assignable<first_type, tag_base_t<Ts>...>::value;
 
@@ -151,18 +153,18 @@ namespace Trinity::ChatCommands
         }
 
         template <typename T>
-        Variant& operator=(T&& arg) { std::variant<T1, Ts...>::operator=(std::forward<T>(arg)); return *this; }
+        Variant& operator=(T&& arg) { base::operator=(std::forward<T>(arg)); return *this; }
 
         template <size_t index>
-        constexpr decltype(auto) get() { return std::get<index>(*this); }
+        constexpr decltype(auto) get() { return std::get<index>(static_cast<base const&>(*this)); }
         template <size_t index>
-        constexpr decltype(auto) get() const { return std::get<index>(*this); }
+        constexpr decltype(auto) get() const { return std::get<index>(static_cast<base const&>(*this)); }
 
         template <typename T>
-        constexpr decltype(auto) visit(T&& arg) const { return std::visit(std::forward<T>(arg), *this); }
+        constexpr decltype(auto) visit(T&& arg) const { return std::visit(std::forward<T>(arg), static_cast<base const&>(*this)); }
 
         template <typename T>
-        constexpr bool holds_alternative() const { return std::holds_alternative<T>(*this); }
+        constexpr bool holds_alternative() const { return std::holds_alternative<T>(static_cast<base const&>(*this)); }
     };
 }
 
