@@ -105,7 +105,7 @@ void WardenWin::InitializeModule()
     Request.String_library2 = 0;
     Request.Function2 = 0x00419D40;                         // 0x00400000 + 0x00419D40 FrameScript::GetText
     Request.Function2_set = 1;
-    Request.CheckSumm2 = BuildChecksum(&Request.Unk2, 8);
+    Request.CheckSumm2 = BuildChecksum(&Request.Unk3, 8);
 
     Request.Command3 = WARDEN_SMSG_MODULE_INITIALIZE;
     Request.Size3 = 8;
@@ -420,18 +420,17 @@ void WardenWin::HandleCheckResult(ByteBuffer &buff)
 
                 if (Lua_Result != 0)
                 {
-                    TC_LOG_DEBUG("warden", "RESULT LUA_STR_CHECK fail, CheckId %u account Id %u", id, _session->GetAccountId());
-                    checkFailed = id;
-                    continue;
-                }
-
-                uint8 luaStrLen = buff.read<uint8>();
-                if (luaStrLen != 0)
-                {
-                    std::string str;
-                    str.resize(luaStrLen);
-                    buff.read(reinterpret_cast<uint8*>(str.data()), luaStrLen);
-                    TC_LOG_DEBUG("warden", "Lua string: %s", str.c_str());
+                    uint8 luaStrLen = buff.read<uint8>();
+                    if (luaStrLen != 0)
+                    {
+                        std::string str;
+                        str.resize(luaStrLen);
+                        buff.read(reinterpret_cast<uint8*>(str.data()), luaStrLen);
+                        TC_LOG_DEBUG("warden", "Lua string: %s", str.c_str());
+                        TC_LOG_DEBUG("warden", "RESULT LUA_STR_CHECK fail, CheckId %u account Id %u", id, _session->GetAccountId());
+                        checkFailed = id;
+                        continue;
+                    }
                 }
                 TC_LOG_DEBUG("warden", "RESULT LUA_STR_CHECK passed, CheckId %u account Id %u", id, _session->GetAccountId());
                 break;
