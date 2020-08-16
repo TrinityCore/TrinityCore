@@ -533,13 +533,8 @@ public:
     }
 
     //set npcflag of creature
-    static bool HandleNpcSetFlagCommand(ChatHandler* handler, char const* args)
+    static bool HandleNpcSetFlagCommand(ChatHandler* handler, NPCFlags npcFlags)
     {
-        if (!*args)
-            return false;
-
-        uint32 npcFlags = (uint32) atoi(args);
-
         Creature* creature = handler->getSelectedCreature();
 
         if (!creature)
