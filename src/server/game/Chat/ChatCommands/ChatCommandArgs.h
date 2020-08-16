@@ -142,7 +142,7 @@ struct ArgInfo<T, std::enable_if_t<std::is_enum_v<T>>>
         if (it == SearchMap.end() || !StringStartsWith(it->first, s)) // not a match
             return nullptr;
 
-        if (it->first != s) // we don't have an exact match. Continue looking for matching values
+        if (it->first != s) // we don't have an exact match - check if it is unique
         {
             auto it2 = it;
             ++it2;
