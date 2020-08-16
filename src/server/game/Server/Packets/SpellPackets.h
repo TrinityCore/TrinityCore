@@ -1009,6 +1009,18 @@ namespace WorldPackets
 
             uint32 Result = 0;
         };
+
+        class MissileCancel final : public ServerPacket
+        {
+        public:
+            MissileCancel() : ServerPacket(SMSG_MISSILE_CANCEL, 21) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid OwnerGUID;
+            bool Reverse = false;
+            int32 SpellID = 0;
+        };
     }
 }
 
