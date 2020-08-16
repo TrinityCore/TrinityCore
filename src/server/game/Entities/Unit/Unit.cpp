@@ -12400,7 +12400,7 @@ void Unit::SendPlaySpellVisualKit(uint32 id, uint32 type, uint32 duration) const
 void Unit::CancelSpellMissiles(uint32 spellId, bool reverseMissile /*= false*/)
 {
     bool hasMissile = false;
-    for (auto itr : m_Events.GetEvents())
+    for (std::pair<uint64 const, BasicEvent*> const& itr : m_Events.GetEvents())
     {
         if (Spell const* spell = Spell::ExtractSpellFromEvent(itr.second))
         {
