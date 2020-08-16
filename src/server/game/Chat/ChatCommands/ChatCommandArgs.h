@@ -51,7 +51,13 @@ struct ArgInfo<T, std::enable_if_t<std::is_integral_v<T> && std::is_signed_v<T>>
     {
         char const* next = args;
         std::string token(args, tokenize(next));
-        try { val = std::stoll(token); }
+        try
+        {
+            size_t processedChars = 0;
+            val = std::stoll(token, &processedChars, 0);
+            if (processedChars != token.length())
+                return nullptr;
+        }
         catch (...) { return nullptr; }
         return next;
     }
@@ -65,7 +71,13 @@ struct ArgInfo<T, std::enable_if_t<std::is_integral_v<T> && std::is_unsigned_v<T
     {
         char const* next = args;
         std::string token(args, tokenize(next));
-        try { val = std::stoull(token); }
+        try
+        {
+            size_t processedChars = 0;
+            val = std::stoull(token, &processedChars, 0);
+            if (processedChars != token.length())
+                return nullptr;
+        }
         catch (...) { return nullptr; }
         return next;
     }
@@ -79,7 +91,13 @@ struct ArgInfo<T, std::enable_if_t<std::is_floating_point_v<T>>>
     {
         char const* next = args;
         std::string token(args, tokenize(next));
-        try { val = std::stold(token); }
+        try
+        {
+            size_t processedChars = 0;
+            val = std::stold(token, &processedChars);
+            if (processedChars != token.length())
+                return nullptr;
+        }
         catch (...) { return nullptr; }
         return std::isfinite(val) ? next : nullptr;
     }
