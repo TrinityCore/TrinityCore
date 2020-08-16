@@ -3093,9 +3093,10 @@ enum TextEmotes
 };
 
 // Emotes.db2 (9.0.2.37176)
+// EnumUtils: DESCRIBE THIS
 enum Emote : uint32
 {
-    EMOTE_ONESHOT_NONE                           = 0,
+    EMOTE_ONESHOT_NONE                           = 0, // SKIP
     EMOTE_ONESHOT_TALK                           = 1,
     EMOTE_ONESHOT_BOW                            = 2,
     EMOTE_ONESHOT_WAVE                           = 3,
