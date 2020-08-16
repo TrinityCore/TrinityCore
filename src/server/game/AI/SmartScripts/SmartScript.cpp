@@ -535,6 +535,8 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (e.action.cast.targetsLimit > 0 && targets.size() > e.action.cast.targetsLimit)
                 Trinity::Containers::RandomResize(targets, e.action.cast.targetsLimit);
 
+            bool failedSpellCast = false, successfulSpellCast = false;
+
             for (WorldObject* target : targets)
             {
                 // may be nullptr
@@ -570,7 +572,9 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         }
 
                         if (spellCastFailed)
-                            RaisePriority(e);
+                            failedSpellCast = true;
+                        else
+                            successfulSpellCast = true;
                     }
                     else if (go)
                         go->CastSpell(target->ToUnit(), e.action.cast.spell, triggerFlag);
@@ -581,6 +585,10 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 else
                     TC_LOG_DEBUG("scripts.ai", "Spell %u not cast because it has flag SMARTCAST_AURA_NOT_PRESENT and the target (%s) already has the aura", e.action.cast.spell, target->GetGUID().ToString().c_str());
             }
+
+            // If there is at least 1 failed cast and no successful casts at all, retry again on next loop
+            if (failedSpellCast && !successfulSpellCast)
+                RaisePriority(e);
             break;
         }
         case SMART_ACTION_SELF_CAST:
