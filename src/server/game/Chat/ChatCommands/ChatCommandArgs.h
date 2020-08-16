@@ -54,7 +54,7 @@ struct ArgInfo<T, std::enable_if_t<std::is_integral_v<T> && std::is_signed_v<T>>
         try
         {
             size_t processedChars = 0;
-            val = std::stoll(token, &processedChars);
+            val = std::stoll(token, &processedChars, 0);
             if (processedChars != token.length())
                 return nullptr;
         }
@@ -74,7 +74,7 @@ struct ArgInfo<T, std::enable_if_t<std::is_integral_v<T> && std::is_unsigned_v<T
         try
         {
             size_t processedChars = 0;
-            val = std::stoull(token, &processedChars);
+            val = std::stoull(token, &processedChars, 0);
             if (processedChars != token.length())
                 return nullptr;
         }
