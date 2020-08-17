@@ -59,7 +59,7 @@ namespace Trinity::ChatCommands
         {
             if (*(pos++) == c1)
             {
-                if constexpr (sizeof...(chars))
+                if constexpr (sizeof...(chars) > 0)
                     return ExactSequence<chars...>::_TryConsume(pos);
                 else if (Trinity::Impl::ChatCommands::tokenize(pos)) /* we did not consume the entire token */
                     return nullptr;
