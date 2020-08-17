@@ -165,7 +165,7 @@ public:
         // alliance    Set faction balance to alliance.
         // horde       Set faction balance to horde.
         // off         Reset the faction balance and use the calculated value of it
-        switch (command.which())
+        switch (command.index())
         {
             case 0: // workaround for Variant of only ExactSequences not being supported
                 handler->SendSysMessage(LANG_BAD_VALUE);
