@@ -81,7 +81,6 @@ public:
         static std::vector<ChatCommand> debugAsanCommandTable =
         {
             { "memoryleak",    rbac::RBAC_PERM_COMMAND_DEBUG_ASAN,               true,  &HandleDebugMemoryLeak,         "" },
-            { "outofbounds",   rbac::RBAC_PERM_COMMAND_DEBUG_ASAN,               true,  &HandleDebugOutOfBounds,        "" },
         };
         static std::vector<ChatCommand> debugCommandTable =
         {
@@ -1897,15 +1896,6 @@ public:
             else
                 handler->PSendSysMessage(" - '%s' (%u) is %sactive", groupData->name, pair.first, map->IsSpawnGroupActive(pair.first) ? "" : "not ");
         }
-        return true;
-    }
-
-    static bool HandleDebugOutOfBounds(ChatHandler* handler, CommandArgs* /*args*/)
-    {
-        uint8 stack_array[10] = {};
-        int size = 10;
-
-        handler->PSendSysMessage("Triggered an array out of bounds read at address %p, value %u", stack_array + size, stack_array[size]);
         return true;
     }
 
