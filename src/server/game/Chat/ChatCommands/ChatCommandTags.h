@@ -165,7 +165,7 @@ namespace Trinity::ChatCommands
         constexpr decltype(auto) get() const { return std::get<type>(static_cast<base const&>(*this)); }
 
         template <typename T>
-        constexpr decltype(auto) visit(T&& arg) const { return std::visit(std::forward<T>(arg), static_cast<base&>(*this)); }
+        constexpr decltype(auto) visit(T&& arg) { return std::visit(std::forward<T>(arg), static_cast<base&>(*this)); }
         template <typename T>
         constexpr decltype(auto) visit(T&& arg) const { return std::visit(std::forward<T>(arg), static_cast<base const&>(*this)); }
 
