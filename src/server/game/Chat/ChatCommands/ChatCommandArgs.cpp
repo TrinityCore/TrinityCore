@@ -54,12 +54,20 @@ char const* Trinity::ChatCommands::ArgInfo<GameTele const*>::TryConsume(GameTele
 struct SpellInfoVisitor
 {
     using value_type = SpellInfo const*;
+    value_type operator()(Hyperlink<enchant> enchant) const { return enchant; };
+    value_type operator()(Hyperlink<glyph> glyph) const { return operator()(glyph->Glyph->SpellID); };
     value_type operator()(Hyperlink<spell> spell) const { return *spell; }
+    value_type operator()(Hyperlink<talent> talent) const
+    {
+        return operator()(talent->Talent->SpellRank[talent->Rank - 1]);
+    };
+    value_type operator()(Hyperlink<trade> trade) const { return trade->Spell; };
+
     value_type operator()(uint32 spellId) const { return sSpellMgr->GetSpellInfo(spellId); }
 };
 char const* Trinity::ChatCommands::ArgInfo<SpellInfo const*>::TryConsume(SpellInfo const*& data, char const* args)
 {
-    Variant<Hyperlink<spell>, uint32> val;
+    Variant<Hyperlink<enchant>, Hyperlink<glyph>, Hyperlink<spell>, Hyperlink<talent>, Hyperlink<trade>, uint32> val;
     if ((args = CommandArgsConsumerSingle<decltype(val)>::TryConsumeTo(val, args)))
         data = val.visit(SpellInfoVisitor());
     return args;

@@ -125,7 +125,7 @@ bool Trinity::Hyperlinks::LinkTags::talent::StoreTo(TalentLinkData& val, char co
     int8 rank; // talent links contain <learned rank>-1, we store <learned rank>
     if (!(t.TryConsumeTo(talentId) && t.TryConsumeTo(rank) && t.IsEmpty()))
         return false;
-    if (rank < -1 || rank > 4)
+    if (rank < -1 || rank >= MAX_TALENT_RANK)
         return false;
     val.Rank = rank+1;
     if (!(val.Talent = sTalentStore.LookupEntry(talentId)))
