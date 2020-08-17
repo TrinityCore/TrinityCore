@@ -50,8 +50,14 @@ struct ArgInfo<T, std::enable_if_t<std::is_integral_v<T> && std::is_signed_v<T>>
     static char const* TryConsume(T& val, char const* args)
     {
         char const* next = args;
-        std::string token(args, tokenize(next));
-        try { val = std::stoll(token); }
+        std::string token(args, Trinity::Impl::ChatCommands::tokenize(next));
+        try
+        {
+            size_t processedChars = 0;
+            val = std::stoll(token, &processedChars, 0);
+            if (processedChars != token.length())
+                return nullptr;
+        }
         catch (...) { return nullptr; }
         return next;
     }
@@ -64,8 +70,14 @@ struct ArgInfo<T, std::enable_if_t<std::is_integral_v<T> && std::is_unsigned_v<T
     static char const* TryConsume(T& val, char const* args)
     {
         char const* next = args;
-        std::string token(args, tokenize(next));
-        try { val = std::stoull(token); }
+        std::string token(args, Trinity::Impl::ChatCommands::tokenize(next));
+        try
+        {
+            size_t processedChars = 0;
+            val = std::stoull(token, &processedChars, 0);
+            if (processedChars != token.length())
+                return nullptr;
+        }
         catch (...) { return nullptr; }
         return next;
     }
@@ -78,8 +90,14 @@ struct ArgInfo<T, std::enable_if_t<std::is_floating_point_v<T>>>
     static char const* TryConsume(T& val, char const* args)
     {
         char const* next = args;
-        std::string token(args, tokenize(next));
-        try { val = std::stold(token); }
+        std::string token(args, Trinity::Impl::ChatCommands::tokenize(next));
+        try
+        {
+            size_t processedChars = 0;
+            val = std::stold(token, &processedChars);
+            if (processedChars != token.length())
+                return nullptr;
+        }
         catch (...) { return nullptr; }
         return std::isfinite(val) ? next : nullptr;
     }
@@ -92,7 +110,7 @@ struct ArgInfo<std::string, void>
     static char const* TryConsume(std::string& val, char const* args)
     {
         char const* next = args;
-        if (size_t len = tokenize(next))
+        if (size_t len = Trinity::Impl::ChatCommands::tokenize(next))
         {
             val.assign(args, len);
             return next;

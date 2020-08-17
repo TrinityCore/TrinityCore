@@ -86,6 +86,23 @@ struct CommandArgsConsumerSingle<std::vector<T>>
     }
 };
 
+template <typename T, std::size_t C>
+struct CommandArgsConsumerSingle<std::array<T, C>>
+{
+    static char const* TryConsumeTo(std::array<T, C>& val, char const* args)
+    {
+        for (T& t : val)
+        {
+            args = CommandArgsConsumerSingle<T>::TryConsumeTo(t, args);
+
+            if (!args)
+                return nullptr;
+        }
+
+        return args;
+    }
+};
+
 template <>
 struct CommandArgsConsumerSingle<CommandArgs*>
 {

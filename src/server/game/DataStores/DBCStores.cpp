@@ -180,6 +180,7 @@ DBCStorage <StableSlotPricesEntry> sStableSlotPricesStore(StableSlotPricesfmt);
 DBCStorage <SummonPropertiesEntry> sSummonPropertiesStore(SummonPropertiesfmt);
 DBCStorage <TalentEntry> sTalentStore(TalentEntryfmt);
 TalentSpellPosMap sTalentSpellPosMap;
+std::unordered_set<uint32> sPetTalentSpells;
 DBCStorage <TalentTabEntry> sTalentTabStore(TalentTabEntryfmt);
 
 // store absolute bit position for first rank for talent inspect
@@ -525,11 +526,17 @@ void LoadDBCStores(const std::string& dataPath)
     // create talent spells set
     for (TalentEntry const* talentInfo : sTalentStore)
     {
+        TalentTabEntry const* talentTab = sTalentTabStore.LookupEntry(talentInfo->TabID);
         for (uint8 j = 0; j < MAX_TALENT_RANK; ++j)
+        {
             if (talentInfo->SpellRank[j])
+            {
                 sTalentSpellPosMap[talentInfo->SpellRank[j]] = TalentSpellPos(talentInfo->ID, j);
+                if (talentTab && talentTab->PetTalentMask)
+                    sPetTalentSpells.insert(talentInfo->SpellRank[j]);
+            }
+        }
     }
-
 
     // prepare fast data access to bit pos of talent ranks for use at inspecting
     {
