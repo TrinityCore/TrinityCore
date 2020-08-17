@@ -5763,31 +5763,33 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                 if (playerCaster && playerCaster->GetPetStable())
                 {
                     std::pair<PetStable::PetInfo const*, PetSaveMode> info = Pet::GetLoadPetInfo(*playerCaster->GetPetStable(), m_spellInfo->Effects[i].MiscValue, 0, false);
-                    if (!info.first)
+                    if (info.first)
+                    {
+                        if (info.first->Type == HUNTER_PET)
+                        {
+                            if (!info.first->Health)
+                            {
+                                playerCaster->SendTameFailure(PETTAME_DEAD);
+                                return SPELL_FAILED_DONT_REPORT;
+                            }
+
+                            CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(info.first->CreatureId);
+                            if (!creatureInfo || !creatureInfo->IsTameable(playerCaster->CanTameExoticPets()))
+                            {
+                                // if problem in exotic pet
+                                if (creatureInfo && creatureInfo->IsTameable(true))
+                                    playerCaster->SendTameFailure(PETTAME_CANTCONTROLEXOTIC);
+                                else
+                                    playerCaster->SendTameFailure(PETTAME_NOPETAVAILABLE);
+
+                                return SPELL_FAILED_DONT_REPORT;
+                            }
+                        }
+                    }
+                    else if (!m_spellInfo->Effects[i].MiscValue) // when miscvalue is present it is allowed to create new pets
                     {
                         playerCaster->SendTameFailure(PETTAME_NOPETAVAILABLE);
                         return SPELL_FAILED_DONT_REPORT;
-                    }
-
-                    if (info.first->Type == HUNTER_PET)
-                    {
-                        if (!info.first->Health)
-                        {
-                            playerCaster->SendTameFailure(PETTAME_DEAD);
-                            return SPELL_FAILED_DONT_REPORT;
-                        }
-
-                        CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(info.first->CreatureId);
-                        if (!creatureInfo || !creatureInfo->IsTameable(playerCaster->CanTameExoticPets()))
-                        {
-                            // if problem in exotic pet
-                            if (creatureInfo && creatureInfo->IsTameable(true))
-                                playerCaster->SendTameFailure(PETTAME_CANTCONTROLEXOTIC);
-                            else
-                                playerCaster->SendTameFailure(PETTAME_NOPETAVAILABLE);
-
-                            return SPELL_FAILED_DONT_REPORT;
-                        }
                     }
                 }
 
