@@ -5769,22 +5769,25 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                         return SPELL_FAILED_DONT_REPORT;
                     }
 
-                    if (info.first->Type == HUNTER_PET && !info.first->Health)
+                    if (info.first->Type == HUNTER_PET)
                     {
-                        playerCaster->SendTameFailure(PETTAME_DEAD);
-                        return SPELL_FAILED_DONT_REPORT;
-                    }
+                        if (!info.first->Health)
+                        {
+                            playerCaster->SendTameFailure(PETTAME_DEAD);
+                            return SPELL_FAILED_DONT_REPORT;
+                        }
 
-                    CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(info.first->CreatureId);
-                    if (!creatureInfo || !creatureInfo->IsTameable(playerCaster->CanTameExoticPets()))
-                    {
-                        // if problem in exotic pet
-                        if (creatureInfo && creatureInfo->IsTameable(true))
-                            playerCaster->SendTameFailure(PETTAME_CANTCONTROLEXOTIC);
-                        else
-                            playerCaster->SendTameFailure(PETTAME_NOPETAVAILABLE);
+                        CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(info.first->CreatureId);
+                        if (!creatureInfo || !creatureInfo->IsTameable(playerCaster->CanTameExoticPets()))
+                        {
+                            // if problem in exotic pet
+                            if (creatureInfo && creatureInfo->IsTameable(true))
+                                playerCaster->SendTameFailure(PETTAME_CANTCONTROLEXOTIC);
+                            else
+                                playerCaster->SendTameFailure(PETTAME_NOPETAVAILABLE);
 
-                        return SPELL_FAILED_DONT_REPORT;
+                            return SPELL_FAILED_DONT_REPORT;
+                        }
                     }
                 }
 
