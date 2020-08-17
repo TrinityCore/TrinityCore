@@ -280,8 +280,6 @@ struct AuctionHouseBotStatusInfoPerType
     std::unordered_map<AuctionQuality, uint32> QualityInfo;
 };
 
-typedef std::unordered_map<AuctionHouseType, AuctionHouseBotStatusInfoPerType> AuctionHouseBotStatusInfo;
-
 // This class handle both Selling and Buying method
 // (holder of AuctionBotBuyer and AuctionBotSeller objects)
 class TC_GAME_API AuctionHouseBot
@@ -306,7 +304,7 @@ public:
     void ReloadAllConfig();
     void Rebuild(bool all);
 
-    void PrepareStatusInfos(AuctionHouseBotStatusInfo& statusInfo);
+    void PrepareStatusInfos(std::unordered_map<AuctionHouseType, AuctionHouseBotStatusInfoPerType>& statusInfo);
 private:
     void InitializeAgents();
 

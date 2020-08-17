@@ -473,7 +473,7 @@ void AuctionHouseBot::ReloadAllConfig()
     InitializeAgents();
 }
 
-void AuctionHouseBot::PrepareStatusInfos(AuctionHouseBotStatusInfo& statusInfo)
+void AuctionHouseBot::PrepareStatusInfos(std::unordered_map<AuctionHouseType, AuctionHouseBotStatusInfoPerType>& statusInfo)
 {
     for (AuctionHouseType ahType : EnumUtils::Iterate<AuctionHouseType>())
     {

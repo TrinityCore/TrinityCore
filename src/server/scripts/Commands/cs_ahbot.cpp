@@ -130,7 +130,7 @@ public:
 
     static bool HandleAHBotStatusCommand(ChatHandler* handler, Optional<ExactSequence<'a', 'l', 'l'>> all)
     {
-        AuctionHouseBotStatusInfo statusInfo;
+        std::unordered_map<AuctionHouseType, AuctionHouseBotStatusInfoPerType> statusInfo;
         sAuctionBot->PrepareStatusInfos(statusInfo);
 
         WorldSession* session = handler->GetSession();
@@ -154,7 +154,7 @@ public:
             statusInfo[AUCTION_HOUSE_HORDE].ItemsCount +
             statusInfo[AUCTION_HOUSE_NEUTRAL].ItemsCount);
 
-        if (all.has_value())
+        if (all)
         {
             handler->PSendSysMessage(fmtId, handler->GetTrinityString(LANG_AHBOT_STATUS_ITEM_RATIO),
                 sAuctionBotConfig->GetConfig(CONFIG_AHBOT_ALLIANCE_ITEM_AMOUNT_RATIO),
