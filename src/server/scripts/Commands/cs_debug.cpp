@@ -1705,7 +1705,7 @@ public:
         return true;
     }
 
-    static bool HandleDebugOutOfBounds(ChatHandler* handler, CommandArgs* /*args*/)
+    static bool HandleDebugOutOfBounds([[maybe_unused]] ChatHandler* handler, CommandArgs* /*args*/)
     {
 #ifdef ASAN
         uint8 stack_array[10] = {};
@@ -1716,7 +1716,7 @@ public:
         return true;
     }
 
-    static bool HandleDebugMemoryLeak(ChatHandler* handler)
+    static bool HandleDebugMemoryLeak([[maybe_unused]] ChatHandler* handler)
     {
 #ifdef ASAN
         uint8* leak = new uint8();
