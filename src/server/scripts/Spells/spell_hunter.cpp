@@ -1415,8 +1415,8 @@ class spell_hun_tame_beast : public SpellScriptLoader
 
             SpellCastResult CheckCast()
             {
-                Unit* caster = GetCaster();
-                if (caster->GetTypeId() != TYPEID_PLAYER)
+                Player* caster = GetCaster()->ToPlayer();
+                if (!caster)
                     return SPELL_FAILED_DONT_REPORT;
 
                 if (!GetExplTargetUnit())
@@ -1428,11 +1428,21 @@ class spell_hun_tame_beast : public SpellScriptLoader
                         return SPELL_FAILED_HIGHLEVEL;
 
                     // use SMSG_PET_TAME_FAILURE?
-                    if (!target->GetCreatureTemplate()->IsTameable(caster->ToPlayer()->CanTameExoticPets()))
+                    if (!target->GetCreatureTemplate()->IsTameable(caster->CanTameExoticPets()))
                         return SPELL_FAILED_BAD_TARGETS;
 
-                    if (caster->GetPetGUID())
-                        return SPELL_FAILED_ALREADY_HAVE_SUMMON;
+                    PetStable const* petStable = caster->GetPetStable();
+                    if (petStable)
+                    {
+                        if (petStable->CurrentPet)
+                            return SPELL_FAILED_ALREADY_HAVE_SUMMON;
+
+                        if (petStable->GetUnslottedHunterPet())
+                        {
+                            caster->SendTameFailure(PETTAME_TOOMANY);
+                            return SPELL_FAILED_DONT_REPORT;
+                        }
+                    }
 
                     if (caster->GetCharmedGUID())
                         return SPELL_FAILED_ALREADY_HAVE_CHARM;
