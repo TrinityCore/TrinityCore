@@ -1799,19 +1799,23 @@ public:
         return true;
     };
 
-    static bool HandleDebugOutOfBounds(ChatHandler* handler, CommandArgs* /*args*/)
+    static bool HandleDebugOutOfBounds([[maybe_unused]] ChatHandler* handler, CommandArgs* /*args*/)
     {
+#ifdef ASAN
         uint8 stack_array[10] = {};
         int size = 10;
 
         handler->PSendSysMessage("Triggered an array out of bounds read at address %p, value %u", stack_array + size, stack_array[size]);
+#endif
         return true;
     }
 
-    static bool HandleDebugMemoryLeak(ChatHandler* handler, CommandArgs* /*args*/)
+    static bool HandleDebugMemoryLeak([[maybe_unused]] ChatHandler* handler)
     {
+#ifdef ASAN
         uint8* leak = new uint8();
         handler->PSendSysMessage("Leaked 1 uint8 object at address %p", leak);
+#endif
         return true;
     }
 
