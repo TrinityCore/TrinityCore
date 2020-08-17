@@ -219,16 +219,33 @@ public:
         return true;
     }
 
-    static bool HandleDebugSendSpellFailCommand(ChatHandler* handler, uint8 reason, Optional<uint8> failedArg1, Optional<uint8> failedArg2)
+    static bool HandleDebugSendSpellFailCommand(ChatHandler* handler, char const* args)
     {
+        if (!*args)
+            return false;
+
+        char* result = strtok((char*)args, " ");
+        if (!result)
+            return false;
+
+        uint8 failNum = (uint8)atoi(result);
+        if (failNum == 0 && *result != '0')
+            return false;
+
+        char* fail1 = strtok(nullptr, " ");
+        uint8 failArg1 = fail1 ? (uint8)atoi(fail1) : 0;
+
+        char* fail2 = strtok(nullptr, " ");
+        uint8 failArg2 = fail2 ? (uint8)atoi(fail2) : 0;
+
         WorldPacket data(SMSG_CAST_FAILED, 5);
         data << uint8(0);
         data << uint32(133);
-        data << uint8(reason);
-        if (failedArg1)
-            data << uint32(*failedArg1);
-        if (failedArg2)
-            data << uint32(*failedArg2);
+        data << uint8(failNum);
+        if (fail1 || fail2)
+            data << uint32(failArg1);
+        if (fail2)
+            data << uint32(failArg2);
 
         handler->GetSession()->SendPacket(&data);
         return true;
@@ -990,14 +1007,17 @@ public:
         return true;
     }
 
-    static bool HandleDebugEnterVehicleCommand(ChatHandler* handler, uint32 entry, int8 seatId)
+    static bool HandleDebugEnterVehicleCommand(ChatHandler* handler, uint32 entry, Optional<int8> seatId)
     {
         Unit* target = handler->getSelectedUnit();
         if (!target || !target->IsVehicle())
             return false;
 
+        if (!seatId)
+            seatId = -1;
+
         if (!entry)
-            handler->GetSession()->GetPlayer()->EnterVehicle(target, seatId);
+            handler->GetSession()->GetPlayer()->EnterVehicle(target, *seatId);
         else
         {
             Creature* passenger = nullptr;
@@ -1006,10 +1026,10 @@ public:
             Cell::VisitAllObjects(handler->GetSession()->GetPlayer(), searcher, 30.0f);
             if (!passenger || passenger == target)
                 return false;
-            passenger->EnterVehicle(target, seatId);
+            passenger->EnterVehicle(target, *seatId);
         }
 
-        handler->PSendSysMessage("Unit %u entered vehicle %d", entry, (int32)seatId);
+        handler->PSendSysMessage("Unit %u entered vehicle %hhd", entry, *seatId);
         return true;
     }
 
@@ -1404,13 +1424,15 @@ public:
         return true;
     }
 
-    static bool HandleDebugLoadCellsCommand(ChatHandler* handler, uint32 mapId)
+    static bool HandleDebugLoadCellsCommand(ChatHandler* handler, Optional<uint32> mapId)
     {
         Player* player = handler->GetSession()->GetPlayer();
         if (!player)
             return false;
 
-        Map* map = sMapMgr->FindBaseNonInstanceMap(mapId);
+        Map* map = nullptr;
+        if (mapId)
+            map = sMapMgr->FindBaseNonInstanceMap(*mapId);
 
         if (!map)
             map = player->GetMap();
