@@ -6005,22 +6005,25 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                         return SPELL_FAILED_DONT_REPORT;
                     }
 
-                    if (info.first->Type == HUNTER_PET && !info.first->Health)
+                    if (info.first->Type == HUNTER_PET)
                     {
-                        playerCaster->SendTameFailure(PetTameResult::Dead);
-                        return SPELL_FAILED_DONT_REPORT;
-                    }
+                        if (!info.first->Health)
+                        {
+                            playerCaster->SendTameFailure(PetTameResult::Dead);
+                            return SPELL_FAILED_DONT_REPORT;
+                        }
 
-                    CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(info.first->CreatureId);
-                    if (!creatureInfo || !creatureInfo->IsTameable(playerCaster->CanTameExoticPets()))
-                    {
-                        // if problem in exotic pet
-                        if (creatureInfo && creatureInfo->IsTameable(true))
-                            playerCaster->SendTameFailure(PetTameResult::CantControlExotic);
-                        else
-                            playerCaster->SendTameFailure(PetTameResult::NoPetAvailable);
+                        CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(info.first->CreatureId);
+                        if (!creatureInfo || !creatureInfo->IsTameable(playerCaster->CanTameExoticPets()))
+                        {
+                            // if problem in exotic pet
+                            if (creatureInfo && creatureInfo->IsTameable(true))
+                                playerCaster->SendTameFailure(PetTameResult::CantControlExotic);
+                            else
+                                playerCaster->SendTameFailure(PetTameResult::NoPetAvailable);
 
-                        return SPELL_FAILED_DONT_REPORT;
+                            return SPELL_FAILED_DONT_REPORT;
+                        }
                     }
                 }
 
