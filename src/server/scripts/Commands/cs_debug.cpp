@@ -50,6 +50,7 @@ EndScriptData */
 #include "SpellMgr.h"
 #include "SpellPackets.h"
 #include "Transport.h"
+#include "Warden.h"
 #include "World.h"
 #include "WorldSession.h"
 #include <fstream>
@@ -97,6 +98,10 @@ public:
             { "memoryleak",    rbac::RBAC_PERM_COMMAND_DEBUG_ASAN,               true,  &HandleDebugMemoryLeak,         "" },
             { "outofbounds",   rbac::RBAC_PERM_COMMAND_DEBUG_ASAN,               true,  &HandleDebugOutOfBounds,        "" },
         };
+        static std::vector<ChatCommand> debugWardenCommandTable =
+        {
+            { "force",         rbac::RBAC_PERM_COMMAND_DEBUG,                    true,  &HandleDebugWardenForce,        "" }
+        };
         static std::vector<ChatCommand> debugCommandTable =
         {
             { "threat",        rbac::RBAC_PERM_COMMAND_DEBUG_THREAT,        false, &HandleDebugThreatListCommand,       "" },
@@ -134,6 +139,7 @@ public:
             { "guidlimits",    rbac::RBAC_PERM_COMMAND_DEBUG,               true,  &HandleDebugGuidLimitsCommand,       "" },
             { "objectcount",   rbac::RBAC_PERM_COMMAND_DEBUG,               true,  &HandleDebugObjectCountCommand,      "" },
             { "questreset",    rbac::RBAC_PERM_COMMAND_DEBUG_QUESTRESET,    true,  &HandleDebugQuestResetCommand,       "" },
+            { "warden",        rbac::RBAC_PERM_COMMAND_DEBUG,               true,  nullptr,                             "", debugWardenCommandTable },
             { "personalclone", rbac::RBAC_PERM_COMMAND_DEBUG,               false, &HandleDebugBecomePersonalClone,     "" }
         };
         static std::vector<ChatCommand> commandTable =
@@ -1698,6 +1704,23 @@ public:
         uint8* leak = new uint8();
         handler->PSendSysMessage("Leaked 1 uint8 object at address %p", leak);
 #endif
+        return true;
+    }
+
+    static bool HandleDebugWardenForce(ChatHandler* handler, std::vector<uint16> checkIds)
+    {
+        if (checkIds.empty())
+            return false;
+
+        Warden* const warden = handler->GetSession()->GetWarden();
+        if (!warden)
+        {
+            handler->SendSysMessage("Warden system is not enabled");
+            return true;
+        }
+
+        size_t const nQueued = warden->DEBUG_ForceSpecificChecks(checkIds);
+        handler->PSendSysMessage("%zu/%zu checks queued for your Warden, they should be sent over the next few minutes (depending on settings)", nQueued, checkIds.size());
         return true;
     }
 

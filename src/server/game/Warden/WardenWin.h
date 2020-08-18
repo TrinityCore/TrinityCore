@@ -75,6 +75,8 @@ class TC_GAME_API WardenWin : public Warden
         void RequestChecks() override;
         void HandleCheckResult(ByteBuffer &buff) override;
 
+        size_t DEBUG_ForceSpecificChecks(std::vector<uint16> const& checks) override;
+
     private:
         uint32 _serverTicks;
         std::vector<uint16> _memChecks;
