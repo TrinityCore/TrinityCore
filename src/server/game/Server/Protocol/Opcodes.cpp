@@ -474,9 +474,9 @@ void OpcodeTable::Initialize()
     /*0x157*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_BINDZONEREPLY,             STATUS_NEVER);
     /*0x158*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_PLAYER_BOUND,              STATUS_NEVER);
     /*0x159*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_CLIENT_CONTROL_UPDATE,     STATUS_NEVER);
-    /*0x15A*/ DEFINE_HANDLER(CMSG_REPOP_REQUEST,                           STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleRepopRequestOpcode        );
+    /*0x15A*/ DEFINE_HANDLER(CMSG_REPOP_REQUEST,                           STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleRepopRequest              );
     /*0x15B*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_RESURRECT_REQUEST,         STATUS_NEVER);
-    /*0x15C*/ DEFINE_HANDLER(CMSG_RESURRECT_RESPONSE,                      STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleResurrectResponseOpcode   );
+    /*0x15C*/ DEFINE_HANDLER(CMSG_RESURRECT_RESPONSE,                      STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleResurrectResponse         );
     /*0x15D*/ DEFINE_HANDLER(CMSG_LOOT,                                    STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleLootOpcode                );
     /*0x15E*/ DEFINE_HANDLER(CMSG_LOOT_MONEY,                              STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleLootMoneyOpcode           );
     /*0x15F*/ DEFINE_HANDLER(CMSG_LOOT_RELEASE,                            STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleLootReleaseOpcode         );
@@ -520,7 +520,7 @@ void OpcodeTable::Initialize()
     /*0x185*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_QUESTGIVER_QUEST_LIST,     STATUS_NEVER);
     /*0x186*/ DEFINE_HANDLER(CMSG_QUESTGIVER_QUERY_QUEST,                  STATUS_LOGGEDIN, PROCESS_INPLACE,      &WorldSession::HandleQuestgiverQueryQuestOpcode);
     /*0x187*/ DEFINE_HANDLER(CMSG_QUESTGIVER_QUEST_AUTOLAUNCH,             STATUS_LOGGEDIN, PROCESS_INPLACE,      &WorldSession::HandleQuestgiverQuestAutoLaunch );
-    /*0x188*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_QUESTGIVER_QUEST_DETAILS,  STATUS_NEVER);
+    /*0x188*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_QUEST_GIVER_QUEST_DETAILS,  STATUS_NEVER);
     /*0x189*/ DEFINE_HANDLER(CMSG_QUESTGIVER_ACCEPT_QUEST,                 STATUS_LOGGEDIN, PROCESS_INPLACE,      &WorldSession::HandleQuestgiverAcceptQuestOpcode);
     /*0x18A*/ DEFINE_HANDLER(CMSG_QUESTGIVER_COMPLETE_QUEST,               STATUS_LOGGEDIN, PROCESS_INPLACE,      &WorldSession::HandleQuestgiverCompleteQuest   );
     /*0x18B*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_QUESTGIVER_REQUEST_ITEMS,  STATUS_NEVER);
@@ -594,7 +594,7 @@ void OpcodeTable::Initialize()
     /*0x1CF*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_QUERY_TIME_RESPONSE,       STATUS_NEVER);
     /*0x1D0*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_LOG_XPGAIN,                STATUS_NEVER);
     /*0x1D1*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_AURACASTLOG,               STATUS_NEVER);
-    /*0x1D2*/ DEFINE_HANDLER(CMSG_RECLAIM_CORPSE,                          STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleReclaimCorpseOpcode       );
+    /*0x1D2*/ DEFINE_HANDLER(CMSG_RECLAIM_CORPSE,                          STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleReclaimCorpse             );
     /*0x1D3*/ DEFINE_HANDLER(CMSG_WRAP_ITEM,                               STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleWrapItemOpcode            );
     /*0x1D4*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_LEVELUP_INFO,              STATUS_NEVER);
     /*0x1D5*/ DEFINE_HANDLER(MSG_MINIMAP_PING,                             STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleMinimapPingOpcode         );

@@ -22,8 +22,10 @@
 #include "BigNumber.h"
 #include "ByteBuffer.h"
 #include "Common.h"
+#include "CryptoHash.h"
 #include "Optional.h"
 #include "Socket.h"
+#include "SRP6.h"
 #include "QueryResult.h"
 #include <memory>
 #include <boost/asio/ip/tcp.hpp>
@@ -63,6 +65,7 @@ class AuthSession : public Socket<AuthSession>
     typedef Socket<AuthSession> AuthSocket;
 
 public:
+    static void ServerStartup();
     static std::unordered_map<uint8, AuthHandler> InitHandlers();
 
     AuthSession(tcp::socket&& socket);
@@ -89,12 +92,11 @@ private:
 
     void SetVSFields(const std::string& rI);
 
-    bool VerifyVersion(uint8 const* a, int32 aLength, uint8 const* versionProof, bool isReconnect);
+    bool VerifyVersion(uint8 const* a, int32 aLength, Trinity::Crypto::SHA1::Digest const& versionProof, bool isReconnect);
 
-    BigNumber N, s, g, v;
-    BigNumber b, B;
-    BigNumber K;
-    BigNumber _reconnectProof;
+    Optional<Trinity::Crypto::SRP6> _srp6;
+    SessionKey _sessionKey;
+    std::array<uint8, 16> _reconnectProof;
 
     AuthStatus _status;
     AccountInfo _accountInfo;

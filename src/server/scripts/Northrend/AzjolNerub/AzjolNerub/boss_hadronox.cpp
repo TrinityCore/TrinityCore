@@ -261,8 +261,8 @@ public:
             me->GetCreatureListWithEntryInGrid(triggers, NPC_WORLDTRIGGER_LARGE);
             for (Creature* trigger : triggers)
                 if (trigger->HasAura(SPELL_SUMMON_CHAMPION_PERIODIC) || trigger->HasAura(SPELL_WEB_FRONT_DOORS) || trigger->HasAura(SPELL_WEB_SIDE_DOORS))
-                    _DespawnAtEvade(25, trigger);
-            _DespawnAtEvade(25);
+                    _DespawnAtEvade(25s, trigger);
+            _DespawnAtEvade(25s);
             summons.DespawnAll();
             for (ObjectGuid gNerubian : _anubar)
                 if (Creature* nerubian = ObjectAccessor::GetCreature(*me, gNerubian))
@@ -769,7 +769,7 @@ struct npc_hadronox_foeAI : public ScriptedAI
                         me->GetMotionMaster()->MovePoint(MOVE_DOWNSTAIRS_2, downstairsMoves2[_mySpawn]);
                         break;
                     }
-                    /* fallthrough */
+                    [[fallthrough]];
                 case MOVE_HADRONOX:
                 case MOVE_HADRONOX_REAL:
                 {

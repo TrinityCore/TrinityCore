@@ -17,8 +17,8 @@ CreatureOutfit::CreatureOutfit(uint8 race, Gender gender) : race(race), gender(g
     }
     switch (gender)
     {
-        case GENDER_FEMALE: displayId = rEntry->model_f; break;
-        default: displayId = rEntry->model_m; break;
+        case GENDER_FEMALE: displayId = rEntry->FemaleDisplayID; break;
+        default: displayId = rEntry->MaleDisplayID; break;
     }
 }
 

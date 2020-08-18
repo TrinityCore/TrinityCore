@@ -78,7 +78,7 @@ class boss_eck : public CreatureScript
             {
                 if (!_berserk && me->HealthBelowPctDamaged(20, damage))
                 {
-                    events.RescheduleEvent(EVENT_BERSERK, 1000);
+                    events.RescheduleEvent(EVENT_BERSERK, 1s);
                     _berserk = true;
                 }
             }

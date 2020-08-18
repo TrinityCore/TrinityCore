@@ -74,8 +74,6 @@ bool WorldSocketMgr::StartWorldNetwork(Trinity::Asio::IoContext& ioContext, std:
     if (!BaseSocketMgr::StartNetwork(ioContext, bindIp, port, threadCount))
         return false;
 
-    _acceptor->SetSocketFactory(std::bind(&BaseSocketMgr::GetSocketForAccept, this));
-
     _acceptor->AsyncAcceptWithCallback<&OnSocketAccept>();
 
     sScriptMgr->OnNetworkStart();

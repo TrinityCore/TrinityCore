@@ -71,8 +71,8 @@ class boss_commander_sarannis : public CreatureScript
             {
                 BossAI::JustEngagedWith(who);
                 Talk(SAY_AGGRO);
-                events.ScheduleEvent(EVENT_ARCANE_RESONANCE, 42700);
-                events.ScheduleEvent(EVENT_ARCANE_DEVASTATION, 15200);
+                events.ScheduleEvent(EVENT_ARCANE_RESONANCE, 42700ms);
+                events.ScheduleEvent(EVENT_ARCANE_DEVASTATION, 15200ms);
             }
 
             void KilledUnit(Unit* /*victim*/) override
@@ -119,12 +119,12 @@ class boss_commander_sarannis : public CreatureScript
                         case EVENT_ARCANE_RESONANCE:
                             Talk(SAY_ARCANE_RESONANCE);
                             DoCastVictim(SPELL_ARCANE_RESONANCE, true);
-                            events.ScheduleEvent(EVENT_ARCANE_RESONANCE, 42700);
+                            events.ScheduleEvent(EVENT_ARCANE_RESONANCE, 42700ms);
                             break;
                         case EVENT_ARCANE_DEVASTATION:
                             Talk(SAY_ARCANE_DEVASTATION);
                             DoCastVictim(SPELL_ARCANE_DEVASTATION, true);
-                            events.ScheduleEvent(EVENT_ARCANE_DEVASTATION, urand(11000, 19200));
+                            events.ScheduleEvent(EVENT_ARCANE_DEVASTATION, 11s, 19200ms);
                             break;
                         default:
                             break;

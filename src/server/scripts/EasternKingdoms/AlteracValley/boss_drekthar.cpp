@@ -65,10 +65,10 @@ public:
         {
             Talk(SAY_AGGRO);
             events.ScheduleEvent(EVENT_WHIRLWIND, 1s, 20s);
-            events.ScheduleEvent(EVENT_WHIRLWIND2, urand(1 * IN_MILLISECONDS, 20 * IN_MILLISECONDS));
+            events.ScheduleEvent(EVENT_WHIRLWIND2, 1s, 20s);
             events.ScheduleEvent(EVENT_KNOCKDOWN, 12s);
             events.ScheduleEvent(EVENT_FRENZY, 6s);
-            events.ScheduleEvent(EVENT_RANDOM_YELL, 20s, 30s); //20 to 30 seconds
+            events.ScheduleEvent(EVENT_RANDOM_YELL, 20s, 30s);
         }
 
         void JustAppeared() override
@@ -109,7 +109,7 @@ public:
                         break;
                     case EVENT_WHIRLWIND2:
                         DoCastVictim(SPELL_WHIRLWIND2);
-                        events.ScheduleEvent(EVENT_WHIRLWIND2, urand(7 * IN_MILLISECONDS, 25 * IN_MILLISECONDS));
+                        events.ScheduleEvent(EVENT_WHIRLWIND2, 7s, 25s);
                         break;
                     case EVENT_KNOCKDOWN:
                         DoCastVictim(SPELL_KNOCKDOWN);

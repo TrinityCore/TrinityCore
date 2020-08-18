@@ -64,8 +64,8 @@ class boss_zereketh_the_unbound : public CreatureScript
             void JustEngagedWith(Unit* who) override
             {
                 BossAI::JustEngagedWith(who);
-                events.ScheduleEvent(EVENT_VOID_ZONE, urand (6000, 10000));
-                events.ScheduleEvent(EVENT_SHADOW_NOVA, urand (6000, 10000));
+                events.ScheduleEvent(EVENT_VOID_ZONE, 6s, 10s);
+                events.ScheduleEvent(EVENT_SHADOW_NOVA, 6s, 10s);
                 events.ScheduleEvent(EVENT_SEED_OF_CORRUPTION, 12s, 20s);
                 Talk(SAY_AGGRO);
             }
@@ -92,12 +92,12 @@ class boss_zereketh_the_unbound : public CreatureScript
                         case EVENT_VOID_ZONE:
                             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 100, true))
                                 DoCast(target, SPELL_VOID_ZONE);
-                            events.ScheduleEvent(EVENT_VOID_ZONE, urand (6000, 10000));
+                            events.ScheduleEvent(EVENT_VOID_ZONE, 6s, 10s);
                             break;
                         case EVENT_SHADOW_NOVA:
                             DoCastVictim(SPELL_SHADOW_NOVA, true);
                             Talk(SAY_SHADOW_NOVA);
-                            events.ScheduleEvent(EVENT_SHADOW_NOVA, urand (6000, 10000));
+                            events.ScheduleEvent(EVENT_SHADOW_NOVA, 6s, 10s);
                             break;
                         case EVENT_SEED_OF_CORRUPTION:
                             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 100, true))

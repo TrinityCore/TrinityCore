@@ -27,18 +27,19 @@ BigNumber::BigNumber()
 { }
 
 BigNumber::BigNumber(BigNumber const& bn)
-    : _bn(BN_dup(bn._bn))
+    : _bn(BN_dup(bn.BN()))
 { }
-
-BigNumber::BigNumber(uint32 val)
-    : _bn(BN_new())
-{
-    BN_set_word(_bn, val);
-}
 
 BigNumber::~BigNumber()
 {
     BN_free(_bn);
+}
+
+void BigNumber::SetDword(int32 val)
+{
+    SetDword(uint32(abs(val)));
+    if (val < 0)
+        BN_set_negative(_bn, 1);
 }
 
 void BigNumber::SetDword(uint32 val)
@@ -53,16 +54,25 @@ void BigNumber::SetQword(uint64 val)
     BN_add_word(_bn, (uint32)(val & 0xFFFFFFFF));
 }
 
-void BigNumber::SetBinary(uint8 const* bytes, int32 len)
+void BigNumber::SetBinary(uint8 const* bytes, int32 len, bool littleEndian)
 {
-    uint8* array = new uint8[len];
+    if (littleEndian)
+    {
+#if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER < 0x10100000L
+        uint8* array = new uint8[len];
 
-    for (int i = 0; i < len; i++)
-        array[i] = bytes[len - 1 - i];
+        for (int i = 0; i < len; i++)
+            array[i] = bytes[len - 1 - i];
 
-    BN_bin2bn(array, len, _bn);
+        BN_bin2bn(array, len, _bn);
 
-    delete[] array;
+        delete[] array;
+#else
+        BN_lebin2bn(bytes, len, _bn);
+#endif
+    }
+    else
+        BN_bin2bn(bytes, len, _bn);
 }
 
 bool BigNumber::SetHexStr(char const* str)
@@ -185,15 +195,15 @@ bool BigNumber::IsNegative() const
     return BN_is_negative(_bn);
 }
 
-bool BigNumber::AsByteArray(uint8* buf, std::size_t bufsize, bool littleEndian) const
+void BigNumber::GetBytes(uint8* buf, size_t bufsize, bool littleEndian) const
 {
+#if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER < 0x10100000L
     int nBytes = GetNumBytes();
-    ASSERT(!(nBytes < 0));
+    ASSERT(nBytes >= 0, "Bignum has negative number of bytes (%d).", nBytes);
     std::size_t numBytes = static_cast<std::size_t>(nBytes);
 
     // too large to store
-    if (bufsize < numBytes)
-        return false;
+    ASSERT(numBytes <= bufsize, "Buffer of size %zu is too small to hold bignum with %zu bytes.\n", bufsize, numBytes);
 
     // If we need more bytes than length of BigNumber set the rest to 0
     if (numBytes < bufsize)
@@ -204,18 +214,19 @@ bool BigNumber::AsByteArray(uint8* buf, std::size_t bufsize, bool littleEndian) 
     // openssl's BN stores data internally in big endian format, reverse if little endian desired
     if (littleEndian)
         std::reverse(buf, buf + bufsize);
-
-    return true;
+#else
+    int res = littleEndian ? BN_bn2lebinpad(_bn, buf, bufsize) : BN_bn2binpad(_bn, buf, bufsize);
+    ASSERT(res > 0, "Buffer of size %zu is too small to hold bignum with %d bytes.\n", bufsize, BN_num_bytes(_bn));
+#endif
 }
 
-std::unique_ptr<uint8[]> BigNumber::AsByteArray(int32 minSize, bool littleEndian) const
+std::vector<uint8> BigNumber::ToByteVector(int32 minSize, bool littleEndian) const
 {
     std::size_t length = std::max(GetNumBytes(), minSize);
-    uint8* array = new uint8[length];
-    bool success = AsByteArray(array, length, littleEndian);
-    ASSERT(success);
-
-    return std::unique_ptr<uint8[]>(array);
+    std::vector<uint8> v;
+    v.resize(length);
+    GetBytes(v.data(), length, littleEndian);
+    return v;
 }
 
 std::string BigNumber::AsHexStr() const

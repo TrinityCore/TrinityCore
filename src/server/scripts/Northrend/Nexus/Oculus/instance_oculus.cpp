@@ -184,7 +184,7 @@ class instance_oculus : public InstanceMapScript
                             FreeDragons();
                             if (Creature* varos = instance->GetCreature(VarosGUID))
                                 varos->SetPhaseMask(1, true);
-                            events.ScheduleEvent(EVENT_VAROS_INTRO, 15000);
+                            events.ScheduleEvent(EVENT_VAROS_INTRO, 15s);
                         }
                         break;
                     case DATA_VAROS:

@@ -28,7 +28,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 6,
-  "iteration": 1592337831334,
+  "iteration": 1595939001794,
   "links": [],
   "panels": [
     {
@@ -643,7 +643,7 @@
         "name": "realm",
         "options": [],
         "query": "show tag values from events with key = realm",
-        "refresh": true,
+        "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
         "sort": 0,
@@ -687,5 +687,5 @@
   "timezone": "browser",
   "title": "Maps, vmaps and mmaps",
   "uid": "6IhqWiWGz",
-  "version": 1
+  "version": 2
 }

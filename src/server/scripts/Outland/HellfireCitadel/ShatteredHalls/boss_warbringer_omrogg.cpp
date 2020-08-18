@@ -199,8 +199,8 @@ class boss_warbringer_omrogg : public CreatureScript
 
             void JustEngagedWith(Unit* /*who*/) override
             {
-                me->SummonCreature(NPC_LEFT_HEAD, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_DEAD_DESPAWN, 0);
-                me->SummonCreature(NPC_RIGHT_HEAD, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_DEAD_DESPAWN, 0);
+                me->SummonCreature(NPC_LEFT_HEAD, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_DEAD_DESPAWN);
+                me->SummonCreature(NPC_RIGHT_HEAD, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_DEAD_DESPAWN);
 
                 if (Creature* LeftHead = ObjectAccessor::GetCreature(*me, LeftHeadGUID))
                 {

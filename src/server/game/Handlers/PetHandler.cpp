@@ -262,7 +262,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
             {
                 case REACT_PASSIVE: // passive
                     pet->AttackStop();
-                    /* fallthrough */
+                    [[fallthrough]];
                 case REACT_DEFENSIVE: // recovery
                 case REACT_AGGRESSIVE: // activete
                     if (pet->GetTypeId() == TYPEID_UNIT)
@@ -596,9 +596,11 @@ void WorldSession::HandlePetRename(WorldPacket& recvData)
     recvData >> name;
     recvData >> isdeclined;
 
+    PetStable* petStable = _player->GetPetStable();
     Pet* pet = ObjectAccessor::GetPet(*_player, petguid);
     if (!pet || !pet->IsPet() || ((Pet*)pet)->getPetType() != HUNTER_PET || !pet->HasByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PET_FLAGS, UNIT_CAN_BE_RENAMED) ||
-        pet->GetOwnerGUID() != _player->GetGUID() || !pet->GetCharmInfo())
+        pet->GetOwnerGUID() != _player->GetGUID() || !pet->GetCharmInfo() ||
+        !petStable || !petStable->CurrentPet || petStable->CurrentPet->PetNumber != pet->GetCharmInfo()->GetPetNumber())
         return;
 
     PetNameInvalidReason res = ObjectMgr::CheckPetName(name, GetSessionDbcLocale());
@@ -620,6 +622,9 @@ void WorldSession::HandlePetRename(WorldPacket& recvData)
         pet->GetOwner()->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET_NAME);
 
     pet->RemoveByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PET_FLAGS, UNIT_CAN_BE_RENAMED);
+
+    petStable->CurrentPet->Name = name;
+    petStable->CurrentPet->WasRenamed = true;
 
     if (isdeclined)
     {

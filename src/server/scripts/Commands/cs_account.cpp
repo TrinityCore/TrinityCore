@@ -27,6 +27,7 @@ EndScriptData */
 #include "Base32.h"
 #include "Chat.h"
 #include "CryptoGenerics.h"
+#include "CryptoRandom.h"
 #include "DatabaseEnv.h"
 #include "IpAddress.h"
 #include "IPLocation.h"
@@ -39,7 +40,6 @@ EndScriptData */
 #include "World.h"
 #include "WorldSession.h"
 #include <unordered_map>
-#include <openssl/rand.h>
 
 using namespace Trinity::ChatCommands;
 
@@ -131,7 +131,7 @@ public:
         static std::unordered_map<uint32, Trinity::Crypto::TOTP::Secret> suggestions;
         auto pair = suggestions.emplace(std::piecewise_construct, std::make_tuple(accountId), std::make_tuple(Trinity::Crypto::TOTP::RECOMMENDED_SECRET_LENGTH)); // std::vector 1-argument size_t constructor invokes resize
         if (pair.second) // no suggestion yet, generate random secret
-            RAND_bytes(pair.first->second.data(), pair.first->second.size());
+            Trinity::Crypto::GetRandomBytes(pair.first->second);
 
         if (!pair.second && token) // suggestion already existed and token specified - validate
         {
@@ -256,7 +256,7 @@ public:
             return false;
         }
 
-        switch (sAccountMgr->CreateAccount(accountName, password, email.get_value_or("")))
+        switch (sAccountMgr->CreateAccount(accountName, password, email.value_or("")))
         {
             case AccountOpResult::AOR_OK:
                 handler->PSendSysMessage(LANG_ACCOUNT_CREATED, accountName);
@@ -265,7 +265,7 @@ public:
                     TC_LOG_INFO("entities.player.character", "Account: %d (IP: %s) Character:[%s] %s) created Account %s (Email: '%s')",
                         handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
                         handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID().ToString().c_str(),
-                        accountName.c_str(), email.get_value_or("").c_str());
+                        accountName.c_str(), email.value_or("").c_str());
                 }
                 break;
             case AccountOpResult::AOR_NAME_TOO_LONG:
@@ -527,7 +527,7 @@ public:
 
         // This compares the old, current email to the entered email - however, only...
         if ((pwConfig == PW_EMAIL || (pwConfig == PW_RBAC && handler->HasPermission(rbac::RBAC_PERM_EMAIL_CONFIRM_FOR_PASS_CHANGE))) // ...if either PW_EMAIL or PW_RBAC with the Permission is active...
-            && !AccountMgr::CheckEmail(handler->GetSession()->GetAccountId(), confirmEmail.get_value_or(""))) // ... and returns false if the comparison fails.
+            && !AccountMgr::CheckEmail(handler->GetSession()->GetAccountId(), confirmEmail.value_or(""))) // ... and returns false if the comparison fails.
         {
             handler->SendSysMessage(LANG_COMMAND_WRONGEMAIL);
             sScriptMgr->OnFailedPasswordChange(handler->GetSession()->GetAccountId());
@@ -535,7 +535,7 @@ public:
             TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Character:[%s] %s Tried to change password, but the entered email [%s] is wrong.",
                 handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
                 handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID().ToString().c_str(),
-                confirmEmail.get_value_or("").c_str());
+                confirmEmail.value_or("").c_str());
             return false;
         }
 

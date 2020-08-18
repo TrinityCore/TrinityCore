@@ -1543,7 +1543,7 @@ enum SmartCastFlags
 struct SmartScriptHolder
 {
     SmartScriptHolder() : entryOrGuid(0), source_type(SMART_SCRIPT_TYPE_CREATURE)
-        , event_id(0), link(0), event(), action(), target(), timer(0), active(false), runOnce(false)
+        , event_id(0), link(0), event(), action(), target(), timer(0), priority(DEFAULT_PRIORITY), active(false), runOnce(false)
         , enableTimed(false) { }
 
     int32 entryOrGuid;
@@ -1561,11 +1561,19 @@ struct SmartScriptHolder
     uint32 GetTargetType() const { return (uint32)target.type; }
 
     uint32 timer;
+    uint32 priority;
     bool active;
     bool runOnce;
     bool enableTimed;
 
     operator bool() const { return entryOrGuid != 0; }
+    // Default comparision operator using priority field as first ordering field
+    bool operator<(SmartScriptHolder const& other) const
+    {
+        return std::tie(priority, entryOrGuid, source_type, event_id, link) < std::tie(other.priority, other.entryOrGuid, other.source_type, other.event_id, other.link);
+    }
+
+    static constexpr uint32 DEFAULT_PRIORITY = std::numeric_limits<uint32>::max();
 };
 
 typedef std::vector<WorldObject*> ObjectVector;

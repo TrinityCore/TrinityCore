@@ -1281,7 +1281,7 @@ void Battleground::RelocateDeadPlayers(ObjectGuid guideGuid)
                 closestGrave = GetClosestGraveyard(player);
 
             if (closestGrave)
-                player->TeleportTo(GetMapId(), closestGrave->x, closestGrave->y, closestGrave->z, player->GetOrientation());
+                player->TeleportTo(GetMapId(), closestGrave->Loc.X, closestGrave->Loc.Y, closestGrave->Loc.Z, player->GetOrientation());
         }
         ghostList.clear();
     }
@@ -1537,6 +1537,22 @@ bool Battleground::DelObject(uint32 type)
     return false;
 }
 
+bool Battleground::RemoveObjectFromWorld(uint32 type)
+{
+    if (!BgObjects[type])
+        return true;
+
+    if (GameObject* obj = GetBgMap()->GetGameObject(BgObjects[type]))
+    {
+        obj->RemoveFromWorld();
+        BgObjects[type].Clear();
+        return true;
+    }
+    TC_LOG_INFO("bg.battleground", "Battleground::RemoveObjectFromWorld: gameobject (type: %u, %s) not found for BG (map: %u, instance id: %u)!",
+        type, BgObjects[type].ToString().c_str(), m_MapId, m_InstanceID);
+    return false;
+}
+
 bool Battleground::AddSpiritGuide(uint32 type, float x, float y, float z, float o, TeamId teamId /*= TEAM_NEUTRAL*/)
 {
     uint32 entry = (teamId == TEAM_ALLIANCE) ? BG_CREATURE_ENTRY_A_SPIRITGUIDE : BG_CREATURE_ENTRY_H_SPIRITGUIDE;
@@ -1773,7 +1789,7 @@ void Battleground::StartTimedAchievement(AchievementCriteriaTimedTypes type, uin
 void Battleground::SetBracket(PvPDifficultyEntry const* bracketEntry)
 {
     m_BracketId = bracketEntry->GetBracketId();
-    SetLevelRange(bracketEntry->minLevel, bracketEntry->maxLevel);
+    SetLevelRange(bracketEntry->MinLevel, bracketEntry->MaxLevel);
 }
 
 void Battleground::RewardXPAtKill(Player* killer, Player* victim)

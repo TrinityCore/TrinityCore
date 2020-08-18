@@ -291,7 +291,10 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 
     while (m_Socket && _recvQueue.next(packet, updater))
     {
-        ClientOpcodeHandler const* opHandle = opcodeTable[static_cast<OpcodeClient>(packet->GetOpcode())];
+        OpcodeClient opcode = static_cast<OpcodeClient>(packet->GetOpcode());
+        ClientOpcodeHandler const* opHandle = opcodeTable[opcode];
+        TC_METRIC_DETAILED_TIMER("worldsession_update_opcode_time", TC_METRIC_TAG("opcode", opHandle->Name));
+
         try
         {
             switch (opHandle->Status)
@@ -419,7 +422,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     _recvQueue.readd(requeuePackets.begin(), requeuePackets.end());
 
     if (m_Socket && m_Socket->IsOpen() && _warden)
-        _warden->Update();
+        _warden->Update(diff);
 
     if (!updater.ProcessUnsafe()) // <=> updater is of type MapSessionFilter
     {
@@ -443,12 +446,12 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
         if (ShouldLogOut(currentTime) && !m_playerLoading)
             LogoutPlayer(true);
 
-        if (m_Socket && GetPlayer() && _warden)
-            _warden->Update();
-
         ///- Cleanup socket pointer if need
         if (m_Socket && !m_Socket->IsOpen())
         {
+            if (GetPlayer() && _warden)
+                _warden->Update(diff);
+
             expireTime -= expireTime > diff ? diff : expireTime;
             if (expireTime < diff || forceExit || !GetPlayer())
             {
@@ -920,7 +923,7 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
             mi->RemoveMovementFlag((maskToRemove));
     #endif
 
-    if (!GetPlayer()->GetVehicleBase() || !(GetPlayer()->GetVehicle()->GetVehicleInfo()->m_flags & VEHICLE_FLAG_FIXED_POSITION))
+    if (!GetPlayer()->GetVehicleBase() || !(GetPlayer()->GetVehicle()->GetVehicleInfo()->Flags & VEHICLE_FLAG_FIXED_POSITION))
         REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_ROOT), MOVEMENTFLAG_ROOT);
 
     /*! This must be a packet spoofing attempt. MOVEMENTFLAG_ROOT sent from the client is not valid
@@ -1195,13 +1198,7 @@ void WorldSession::ProcessQueryCallbacks()
 {
     _queryProcessor.ProcessReadyCallbacks();
     _transactionCallbacks.ProcessReadyCallbacks();
-
-    if (_realmAccountLoginCallback.valid() && _realmAccountLoginCallback.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
-        InitializeSessionCallback(static_cast<CharacterDatabaseQueryHolder*>(_realmAccountLoginCallback.get()));
-
-    //! HandlePlayerLoginOpcode
-    if (_charLoginCallback.valid() && _charLoginCallback.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
-        HandlePlayerLogin(reinterpret_cast<LoginQueryHolder*>(_charLoginCallback.get()));
+    _queryHolderProcessor.ProcessReadyCallbacks();
 }
 
 TransactionCallback& WorldSession::AddTransactionCallback(TransactionCallback&& callback)
@@ -1209,7 +1206,12 @@ TransactionCallback& WorldSession::AddTransactionCallback(TransactionCallback&& 
     return _transactionCallbacks.AddCallback(std::move(callback));
 }
 
-void WorldSession::InitWarden(BigNumber* k, std::string const& os)
+SQLQueryHolderCallback& WorldSession::AddQueryHolderCallback(SQLQueryHolderCallback&& callback)
+{
+    return _queryHolderProcessor.AddCallback(std::move(callback));
+}
+
+void WorldSession::InitWarden(SessionKey const& k, std::string const& os)
 {
     if (os == "Win")
     {
@@ -1284,7 +1286,10 @@ void WorldSession::InitializeSession()
         return;
     }
 
-    _realmAccountLoginCallback = CharacterDatabase.DelayQueryHolder(realmHolder);
+    AddQueryHolderCallback(CharacterDatabase.DelayQueryHolder(realmHolder)).AfterComplete([this](SQLQueryHolderBase* holder)
+    {
+        InitializeSessionCallback(static_cast<AccountInfoQueryHolderPerRealm*>(holder));
+    });
 }
 
 void WorldSession::InitializeSessionCallback(CharacterDatabaseQueryHolder* realmHolder)

@@ -90,7 +90,7 @@ enum SHActions
     ACTION_EXECUTIONER_TAUNT = 1
 };
 
-Position const Executioner = { 152.8524f, -83.63912f, 2.021005f, 0.06981317f };
+extern Position const Executioner;
 
 struct FactionSpawnerHelper
 {

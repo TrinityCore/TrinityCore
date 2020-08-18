@@ -455,10 +455,10 @@ void AuctionHouseBot::SetItemsRatioForHouse(AuctionHouseType house, uint32 val)
         _seller->SetItemsRatioForHouse(house, val);
 }
 
-void AuctionHouseBot::SetItemsAmount(uint32(&vals)[MAX_AUCTION_QUALITY])
+void AuctionHouseBot::SetItemsAmount(std::array<uint32, MAX_AUCTION_QUALITY> const& amounts)
 {
     if (_seller)
-        _seller->SetItemsAmount(vals);
+        _seller->SetItemsAmount(amounts);
 }
 
 void AuctionHouseBot::SetItemsAmountForQuality(AuctionQuality quality, uint32 val)
@@ -473,16 +473,16 @@ void AuctionHouseBot::ReloadAllConfig()
     InitializeAgents();
 }
 
-void AuctionHouseBot::PrepareStatusInfos(AuctionHouseBotStatusInfo& statusInfo)
+void AuctionHouseBot::PrepareStatusInfos(std::unordered_map<AuctionHouseType, AuctionHouseBotStatusInfoPerType>& statusInfo)
 {
-    for (uint32 i = 0; i < MAX_AUCTION_HOUSE_TYPE; ++i)
+    for (AuctionHouseType ahType : EnumUtils::Iterate<AuctionHouseType>())
     {
-        statusInfo[i].ItemsCount = 0;
+        statusInfo[ahType].ItemsCount = 0;
 
-        for (int j = 0; j < MAX_AUCTION_QUALITY; ++j)
-            statusInfo[i].QualityInfo[j] = 0;
+        for (AuctionQuality quality : EnumUtils::Iterate<AuctionQuality>())
+            statusInfo[ahType].QualityInfo[quality] = 0;
 
-        AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(AuctionHouseType(i));
+        AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(ahType);
         for (AuctionHouseObject::AuctionEntryMap::const_iterator itr = auctionHouse->GetAuctionsBegin(); itr != auctionHouse->GetAuctionsEnd(); ++itr)
         {
             AuctionEntry* auctionEntry = itr->second;
@@ -492,9 +492,9 @@ void AuctionHouseBot::PrepareStatusInfos(AuctionHouseBotStatusInfo& statusInfo)
                 if (!auctionEntry->owner || sAuctionBotConfig->IsBotChar(auctionEntry->owner)) // Add only ahbot items
                 {
                     if (prototype->Quality < MAX_AUCTION_QUALITY)
-                        ++statusInfo[i].QualityInfo[prototype->Quality];
+                        ++statusInfo[ahType].QualityInfo[AuctionQuality(prototype->Quality)];
 
-                    ++statusInfo[i].ItemsCount;
+                    ++statusInfo[ahType].ItemsCount;
                 }
             }
         }

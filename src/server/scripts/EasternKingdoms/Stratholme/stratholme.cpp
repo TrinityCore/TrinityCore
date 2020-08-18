@@ -170,7 +170,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             if (Tagged)
-                me->SummonCreature(NPC_FREED, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 300000);
+                me->SummonCreature(NPC_FREED, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 5min);
         }
 
         void UpdateAI(uint32 diff) override
@@ -256,7 +256,7 @@ public:
                 {
                      //100%, 50%, 33%, 25% chance to spawn
                      if (urand(1, i) == 1)
-                         DoSummon(NPC_RESTLESS, me, 20.0f, 600000);
+                         DoSummon(NPC_RESTLESS, me, 20.0f, 10min);
                 }
             }
         }

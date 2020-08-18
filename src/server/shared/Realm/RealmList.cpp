@@ -77,11 +77,11 @@ void RealmList::LoadBuildInfo()
             build.Build = fields[4].GetUInt32();
             std::string windowsHash = fields[5].GetString();
             if (windowsHash.length() == build.WindowsHash.size() * 2)
-                HexStrToByteArray(windowsHash, build.WindowsHash.data());
+                HexStrToByteArray(windowsHash, build.WindowsHash);
 
             std::string macHash = fields[6].GetString();
             if (macHash.length() == build.MacHash.size() * 2)
-                HexStrToByteArray(macHash, build.MacHash.data());
+                HexStrToByteArray(macHash, build.MacHash);
 
         } while (result->NextRow());
     }

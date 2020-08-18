@@ -20,9 +20,10 @@
 #include "Config.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
+#include "ServerMotd.h"
+#include "SRP6.h"
 #include "Util.h"
 #include "World.h"
-#include "ServerMotd.h"
 #include <boost/asio/buffer.hpp>
 #include <boost/asio/read_until.hpp>
 #include <memory>
@@ -159,22 +160,21 @@ bool RASession::CheckPassword(const std::string& user, const std::string& pass)
     Utf8ToUpperOnlyLatin(safe_pass);
     std::transform(safe_pass.begin(), safe_pass.end(), safe_pass.begin(), ::toupper);
 
-    std::string hash = AccountMgr::CalculateShaPassHash(safe_user, safe_pass);
-
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_CHECK_PASSWORD_BY_NAME);
 
     stmt->setString(0, safe_user);
-    stmt->setString(1, hash);
 
-    PreparedQueryResult result = LoginDatabase.Query(stmt);
-
-    if (!result)
+    if (PreparedQueryResult result = LoginDatabase.Query(stmt))
     {
-        TC_LOG_INFO("commands.ra", "Wrong password for user: %s", user.c_str());
-        return false;
+        Trinity::Crypto::SRP6::Salt salt = (*result)[0].GetBinary<Trinity::Crypto::SRP6::SALT_LENGTH>();
+        Trinity::Crypto::SRP6::Verifier verifier = (*result)[1].GetBinary<Trinity::Crypto::SRP6::VERIFIER_LENGTH>();
+
+        if (Trinity::Crypto::SRP6::CheckLogin(safe_user, safe_pass, salt, verifier))
+            return true;
     }
 
-    return true;
+    TC_LOG_INFO("commands.ra", "Wrong password for user: %s", user.c_str());
+    return false;
 }
 
 bool RASession::ProcessCommand(std::string& command)

@@ -355,7 +355,7 @@ class npc_fel_orc_convert : public CreatureScript
                 if (events.ExecuteEvent() == EVENT_HEMORRHAGE)
                 {
                     DoCastVictim(SPELL_HEMORRHAGE);
-                    events.ScheduleEvent(EVENT_HEMORRHAGE, 15000);
+                    events.ScheduleEvent(EVENT_HEMORRHAGE, 15s);
                 }
 
                 DoMeleeAttackIfReady();

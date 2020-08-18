@@ -393,7 +393,7 @@ struct boss_krick : public ScriptedAI
                         jainaOrSylvanas->GetMotionMaster()->MovePoint(0, outroPos[3]);
                         _outroNpcGUID = jainaOrSylvanas->GetGUID();
                     }
-                    _events.ScheduleEvent(EVENT_OUTRO_2, 6000);
+                    _events.ScheduleEvent(EVENT_OUTRO_2, 6s);
                     break;
                 }
                 case EVENT_OUTRO_2:
@@ -406,11 +406,11 @@ struct boss_krick : public ScriptedAI
                         else
                             jainaOrSylvanas->AI()->Talk(SAY_SYLVANAS_OUTRO_2);
                     }
-                    _events.ScheduleEvent(EVENT_OUTRO_3, 5000);
+                    _events.ScheduleEvent(EVENT_OUTRO_3, 5s);
                     break;
                 case EVENT_OUTRO_3:
                     Talk(SAY_KRICK_OUTRO_3);
-                    _events.ScheduleEvent(EVENT_OUTRO_4, 18000);
+                    _events.ScheduleEvent(EVENT_OUTRO_4, 18s);
                     break;
                 case EVENT_OUTRO_4:
                     if (Creature* jainaOrSylvanas = ObjectAccessor::GetCreature(*me, _outroNpcGUID))
@@ -420,11 +420,11 @@ struct boss_krick : public ScriptedAI
                         else
                             jainaOrSylvanas->AI()->Talk(SAY_SYLVANAS_OUTRO_4);
                     }
-                    _events.ScheduleEvent(EVENT_OUTRO_5, 5000);
+                    _events.ScheduleEvent(EVENT_OUTRO_5, 5s);
                     break;
                 case EVENT_OUTRO_5:
                     Talk(SAY_KRICK_OUTRO_5);
-                    _events.ScheduleEvent(EVENT_OUTRO_6, 1000);
+                    _events.ScheduleEvent(EVENT_OUTRO_6, 1s);
                     break;
                 case EVENT_OUTRO_6:
                     if (Creature* tyrannus = ObjectAccessor::GetCreature(*me, _instanceScript->GetGuidData(DATA_TYRANNUS_EVENT)))
@@ -433,19 +433,19 @@ struct boss_krick : public ScriptedAI
                         tyrannus->GetMotionMaster()->MovePoint(1, outroPos[4]);
                         _tyrannusGUID = tyrannus->GetGUID();
                     }
-                    _events.ScheduleEvent(EVENT_OUTRO_7, 5000);
+                    _events.ScheduleEvent(EVENT_OUTRO_7, 5s);
                     break;
                 case EVENT_OUTRO_7:
                     if (Creature* tyrannus = ObjectAccessor::GetCreature(*me, _tyrannusGUID))
                         tyrannus->AI()->Talk(SAY_TYRANNUS_OUTRO_7);
-                    _events.ScheduleEvent(EVENT_OUTRO_8, 5000);
+                    _events.ScheduleEvent(EVENT_OUTRO_8, 5s);
                     break;
                 case EVENT_OUTRO_8:
                     //! HACK: Creature's can't have MOVEMENTFLAG_FLYING
                     me->AddUnitMovementFlag(MOVEMENTFLAG_FLYING);
                     me->GetMotionMaster()->MovePoint(0, outroPos[5]);
                     DoCast(me, SPELL_STRANGULATING);
-                    _events.ScheduleEvent(EVENT_OUTRO_9, 2000);
+                    _events.ScheduleEvent(EVENT_OUTRO_9, 2s);
                     break;
                 case EVENT_OUTRO_9:
                     Talk(SAY_KRICK_OUTRO_8);
@@ -453,25 +453,25 @@ struct boss_krick : public ScriptedAI
                     // there shall be some visual spell effect
                     if (Creature* tyrannus = ObjectAccessor::GetCreature(*me, _tyrannusGUID))
                         tyrannus->CastSpell(me, SPELL_NECROMANTIC_POWER, true);  //not sure if it's the right spell :/
-                    _events.ScheduleEvent(EVENT_OUTRO_10, 1000);
+                    _events.ScheduleEvent(EVENT_OUTRO_10, 1s);
                     break;
                 case EVENT_OUTRO_10:
                     //! HACK: Creature's can't have MOVEMENTFLAG_FLYING
                     me->RemoveUnitMovementFlag(MOVEMENTFLAG_FLYING);
                     me->AddUnitMovementFlag(MOVEMENTFLAG_FALLING_FAR);
                     me->GetMotionMaster()->MovePoint(0, outroPos[6]);
-                    _events.ScheduleEvent(EVENT_OUTRO_11, 2000);
+                    _events.ScheduleEvent(EVENT_OUTRO_11, 2s);
                     break;
                 case EVENT_OUTRO_11:
                     DoCast(me, SPELL_KRICK_KILL_CREDIT); // don't really know if we need it
                     me->SetStandState(UNIT_STAND_STATE_DEAD);
                     me->SetHealth(0);
-                    _events.ScheduleEvent(EVENT_OUTRO_12, 3000);
+                    _events.ScheduleEvent(EVENT_OUTRO_12, 3s);
                     break;
                 case EVENT_OUTRO_12:
                     if (Creature* tyrannus = ObjectAccessor::GetCreature(*me, _tyrannusGUID))
                         tyrannus->AI()->Talk(SAY_TYRANNUS_OUTRO_9);
-                    _events.ScheduleEvent(EVENT_OUTRO_13, 2000);
+                    _events.ScheduleEvent(EVENT_OUTRO_13, 2s);
                     break;
                 case EVENT_OUTRO_13:
                     if (Creature* jainaOrSylvanas = ObjectAccessor::GetCreature(*me, _outroNpcGUID))

@@ -157,7 +157,7 @@ class boss_mandokir : public CreatureScript
                 me->Dismount();
 
                 // Summon Ohgan (Spell missing) TEMP HACK
-                me->SummonCreature(NPC_OHGAN, me->GetPositionX() - 3, me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 35000);
+                me->SummonCreature(NPC_OHGAN, me->GetPositionX() - 3, me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 35s);
                 // Summon Chained Spirits
                 for (int i = 0; i < CHAINED_SPIRT_COUNT; ++i)
                     me->SummonCreature(NPC_CHAINED_SPIRT, PosSummonChainedSpirits[i], TEMPSUMMON_CORPSE_DESPAWN);

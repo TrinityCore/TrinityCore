@@ -1922,9 +1922,10 @@ enum TextEmotes
 };
 
 // Emotes.dbc
-enum Emote
+// EnumUtils: DESCRIBE THIS
+enum Emote : uint32
 {
-    EMOTE_ONESHOT_NONE                  = 0,
+    EMOTE_ONESHOT_NONE                  = 0, // SKIP
     EMOTE_ONESHOT_TALK                  = 1,
     EMOTE_ONESHOT_BOW                   = 2,
     EMOTE_ONESHOT_WAVE                  = 3,
@@ -3213,7 +3214,7 @@ enum ChatLinkColors : uint32
     CHAT_LINK_COLOR_GLYPH       = 0xff66bbff
 };
 
-// Values from ItemPetFood (power of (value-1) used for compare with CreatureFamilyEntry.petDietMask
+// Values from ItemPetFood (power of (value-1) used for compare with CreatureFamilyEntry.PetFoodMask
 enum PetDiet
 {
     PET_DIET_MEAT     = 1,

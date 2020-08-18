@@ -69,6 +69,15 @@ void Metric::LoadFromConfigs()
         _overallStatusTimerInterval = 1;
     }
 
+    _thresholds.clear();
+    std::vector<std::string> thresholdSettings = sConfigMgr->GetKeysByString("Metric.Threshold.");
+    for (std::string const& thresholdSetting : thresholdSettings)
+    {
+        int thresholdValue = sConfigMgr->GetIntDefault(thresholdSetting, 0);
+        std::string thresholdName = thresholdSetting.substr(strlen("Metric.Threshold."));
+        _thresholds[thresholdName] = thresholdValue;
+    }
+
     // Schedule a send at this point only if the config changed from Disabled to Enabled.
     // Cancel any scheduled operation if the config changed from Enabled to Disabled.
     if (_enabled && !previousValue)
@@ -106,6 +115,14 @@ void Metric::Update()
     }
 }
 
+bool Metric::ShouldLog(std::string const& category, int64 value) const
+{
+    auto threshold = _thresholds.find(category);
+    if (threshold == _thresholds.end())
+        return false;
+    return value >= threshold->second;
+}
+
 void Metric::LogEvent(std::string const& category, std::string const& title, std::string const& description)
 {
     using namespace std::chrono;
@@ -137,7 +154,7 @@ void Metric::SendBatch()
             batchedData << ",realm=" << _realmName;
 
         for (MetricTag const& tag : data->Tags)
-            batchedData << "," << tag.first << "=" << tag.second;
+            batchedData << "," << tag.first << "=" << FormatInfluxDBTagValue(tag.second);
 
         batchedData << " ";
 
@@ -277,6 +294,11 @@ std::string Metric::FormatInfluxDBTagValue(std::string const& value)
 {
     // ToDo: should handle '=' and ',' characters too
     return boost::replace_all_copy(value, " ", "\\ ");
+}
+
+std::string Metric::FormatInfluxDBValue(std::chrono::nanoseconds value)
+{
+    return FormatInfluxDBValue(std::chrono::duration_cast<Milliseconds>(value).count());
 }
 
 Metric::Metric()

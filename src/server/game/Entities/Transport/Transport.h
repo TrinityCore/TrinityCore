@@ -117,7 +117,7 @@ class TC_GAME_API Transport : public GameObject, public TransportBase
 
         KeyFrameVec::const_iterator _currentFrame;
         KeyFrameVec::const_iterator _nextFrame;
-        TimeTrackerSmall _positionChangeTimer;
+        TimeTracker _positionChangeTimer;
         bool _isMoving;
         bool _pendingStop;
 

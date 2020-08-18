@@ -82,6 +82,8 @@ using CharacterDatabaseQueryHolder = SQLQueryHolder<CharacterDatabaseConnection>
 using LoginDatabaseQueryHolder = SQLQueryHolder<LoginDatabaseConnection>;
 using WorldDatabaseQueryHolder = SQLQueryHolder<WorldDatabaseConnection>;
 
+class SQLQueryHolderCallback;
+
 // mysql
 struct MySQLHandle;
 struct MySQLResult;

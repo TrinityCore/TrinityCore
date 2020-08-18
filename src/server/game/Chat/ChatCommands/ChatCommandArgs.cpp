@@ -31,9 +31,9 @@ struct AchievementVisitor
 };
 char const* Trinity::ChatCommands::ArgInfo<AchievementEntry const*>::TryConsume(AchievementEntry const*& data, char const* args)
 {
-    Variant <Hyperlink<achievement>, uint32> val;
+    Variant<Hyperlink<achievement>, uint32> val;
     if ((args = CommandArgsConsumerSingle<decltype(val)>::TryConsumeTo(val, args)))
-        data = boost::apply_visitor(AchievementVisitor(), val);
+        data = val.visit(AchievementVisitor());
     return args;
 }
 
@@ -47,35 +47,44 @@ char const* Trinity::ChatCommands::ArgInfo<GameTele const*>::TryConsume(GameTele
 {
     Variant<Hyperlink<tele>, std::string> val;
     if ((args = CommandArgsConsumerSingle<decltype(val)>::TryConsumeTo(val, args)))
-        data = boost::apply_visitor(GameTeleVisitor(), val);
+        data = val.visit(GameTeleVisitor());
     return args;
 }
 
 struct SpellInfoVisitor
 {
     using value_type = SpellInfo const*;
+    value_type operator()(Hyperlink<enchant> enchant) const { return enchant; };
+    value_type operator()(Hyperlink<glyph> glyph) const { return operator()(glyph->Glyph->SpellID); };
     value_type operator()(Hyperlink<spell> spell) const { return *spell; }
+    value_type operator()(Hyperlink<talent> talent) const
+    {
+        return operator()(talent->Talent->SpellRank[talent->Rank - 1]);
+    };
+    value_type operator()(Hyperlink<trade> trade) const { return trade->Spell; };
+
     value_type operator()(uint32 spellId) const { return sSpellMgr->GetSpellInfo(spellId); }
 };
 char const* Trinity::ChatCommands::ArgInfo<SpellInfo const*>::TryConsume(SpellInfo const*& data, char const* args)
 {
-    Variant<Hyperlink<spell>, uint32> val;
+    Variant<Hyperlink<enchant>, Hyperlink<glyph>, Hyperlink<spell>, Hyperlink<talent>, Hyperlink<trade>, uint32> val;
     if ((args = CommandArgsConsumerSingle<decltype(val)>::TryConsumeTo(val, args)))
-        data = boost::apply_visitor(SpellInfoVisitor(), val);
+        data = val.visit(SpellInfoVisitor());
     return args;
 }
 
-struct BoolVisitor
-{
-    using value_type = bool;
-    value_type operator()(uint32 i) const { return !!i; }
-    value_type operator()(ExactSequence<'o', 'n'>) const { return true; }
-    value_type operator()(ExactSequence<'o', 'f', 'f'>) const { return false; }
-};
 char const* Trinity::ChatCommands::ArgInfo<bool>::TryConsume(bool& data, char const* args)
 {
-    Variant<uint32, ExactSequence<'o', 'n'>, ExactSequence<'o', 'f', 'f'>> val;
-    if ((args = CommandArgsConsumerSingle<decltype(val)>::TryConsumeTo(val, args)))
-        data = boost::apply_visitor(BoolVisitor(), val);
+    std::string val;
+    if ((args = CommandArgsConsumerSingle<std::string>::TryConsumeTo(val, args)))
+    {
+        strToLower(val);
+        if (val == "on" || val == "yes" || val == "true" || val == "1" || val == "y")
+            data = true;
+        else if (val == "off" || val == "no" || val == "false" || val == "0" || val == "n")
+            data = false;
+        else
+            return nullptr;
+    }
     return args;
 }

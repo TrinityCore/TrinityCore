@@ -534,13 +534,8 @@ public:
     }
 
     //set npcflag of creature
-    static bool HandleNpcSetFlagCommand(ChatHandler* handler, char const* args)
+    static bool HandleNpcSetFlagCommand(ChatHandler* handler, NPCFlags npcFlags)
     {
-        if (!*args)
-            return false;
-
-        uint32 npcFlags = (uint32) atoi(args);
-
         Creature* creature = handler->getSelectedCreature();
 
         if (!creature)
@@ -1311,7 +1306,7 @@ public:
         if (!sObjectMgr->GetCreatureTemplate(id))
             return false;
 
-        chr->SummonCreature(id, *chr, loot ? TEMPSUMMON_CORPSE_TIMED_DESPAWN : TEMPSUMMON_CORPSE_DESPAWN, 30 * IN_MILLISECONDS);
+        chr->SummonCreature(id, *chr, loot ? TEMPSUMMON_CORPSE_TIMED_DESPAWN : TEMPSUMMON_CORPSE_DESPAWN, 30s);
 
         return true;
     }
