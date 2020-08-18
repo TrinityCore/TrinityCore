@@ -328,6 +328,9 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
 
         petStable->CurrentPet = std::move(*unslottedPetItr);
         petStable->UnslottedPets.erase(unslottedPetItr);
+
+        // old petInfo pointer is no longer valid, refresh it
+        petInfo = &petStable->CurrentPet.value();
     }
 
     // Send fake summon spell cast - this is needed for correct cooldown application for spells
