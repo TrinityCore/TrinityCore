@@ -128,7 +128,6 @@ namespace WorldPackets
             uint32 RewardXPDifficulty = 0;
             uint32 RewardHonor = 0;
             float RewardKillHonor = 0.f;
-            uint32 Unk = 0x8;
             uint32 RewardDisplaySpell = 0;
             int32 RewardSpell = 0;
             uint32 RewardTitleId = 0;

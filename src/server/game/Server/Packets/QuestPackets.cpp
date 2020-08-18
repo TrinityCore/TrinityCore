@@ -225,7 +225,7 @@ WorldPacket const* WorldPackets::Quest::QuestGiverOfferRewardMessage::Write()
 
     _worldPacket << uint32(Rewards.RewardHonor);
     _worldPacket << float(Rewards.RewardKillHonor);
-    _worldPacket << uint32(Rewards.Unk);
+    _worldPacket << uint32(0); // Unknown value. Read in the packet handler but unused
     _worldPacket << uint32(Rewards.RewardDisplaySpell);
     _worldPacket << int32(Rewards.RewardSpell);
     _worldPacket << uint32(Rewards.RewardTitleId);
