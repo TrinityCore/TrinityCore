@@ -32,6 +32,7 @@
 #include "SharedDefines.h"
 #include <string>
 #include <map>
+#include <memory>
 #include <unordered_map>
 #include <boost/circular_buffer.hpp>
 
@@ -429,6 +430,8 @@ class TC_GAME_API WorldSession
         uint8 Expansion() const { return m_expansion; }
 
         void InitWarden(SessionKey const& k, std::string const& os);
+        Warden* GetWarden() { return _warden.get(); }
+        Warden const* GetWarden() const { return _warden.get(); }
 
         /// Session in auth.queue currently
         void SetInQueue(bool state) { m_inQueue = state; }
@@ -1167,7 +1170,7 @@ class TC_GAME_API WorldSession
         uint8 m_expansion;
 
         // Warden
-        Warden* _warden;                                    // Remains NULL if Warden system is not enabled by config
+        std::unique_ptr<Warden> _warden;                                    // Remains NULL if Warden system is not enabled by config
 
         time_t _logoutTime;
         bool m_inQueue;                                     // session wait in auth.queue
