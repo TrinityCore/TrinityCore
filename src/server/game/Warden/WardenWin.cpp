@@ -45,6 +45,10 @@ WardenWin::WardenWin() : Warden(), _serverTicks(0)
     _otherChecks = sWardenCheckMgr->GetAvailableOtherChecks();
     Trinity::Containers::RandomShuffle(_otherChecks);
     _otherChecksIt = _otherChecks.begin();
+
+    _strChecks = sWardenCheckMgr->GetAvailableStrChecks();
+    Trinity::Containers::RandomShuffle(_strChecks);
+    _strChecksIt = _strChecks.begin();
 }
 
 void WardenWin::Init(WorldSession* session, SessionKey const& K)
@@ -103,7 +107,7 @@ void WardenWin::InitializeModule()
     Request.Unk3 = 4;
     Request.Unk4 = 0;
     Request.String_library2 = 0;
-    Request.Function2 = 0x00419D40;                         // 0x00400000 + 0x00419D40 FrameScript::GetText
+    Request.Function2 = 0x00419210;                         // 0x00400000 + 0x00419210 FrameScript::Execute
     Request.Function2_set = 1;
     Request.CheckSumm2 = BuildChecksum(&Request.Unk3, 8);
 
@@ -197,6 +201,14 @@ void WardenWin::RequestChecks()
         _otherChecksIt = _otherChecks.begin();
     }
 
+    if (_strChecksIt == _strChecks.end())
+    {
+        TC_LOG_DEBUG("warden", "Finished all other checks, re-shuffling");
+        Trinity::Containers::RandomShuffle(_strChecks);
+        _strChecksIt = _strChecks.begin();
+    }
+
+
     _serverTicks = GameTime::GetGameTimeMS();
 
     _currentChecks.clear();
@@ -212,6 +224,23 @@ void WardenWin::RequestChecks()
             break;
 
         _currentChecks.push_back(*(_memChecksIt++));
+    }
+
+    for (uint32 i = 0; i < 1; ++i) //I'm just doing 1 check per iteration
+    {
+        // If todo list is done break loop (will be filled on next Update() run)
+        if (_strChecksIt == _strChecks.end())
+            break;
+
+        uint16 const id = *(_strChecksIt++);
+
+        WardenCheck const& check = sWardenCheckMgr->GetCheckDataById(id);
+        if (!check.Str.empty())
+        {
+            buff << uint8(check.Str.size());
+            buff.append(check.Str.data(), check.Str.size());
+        }
+        _currentChecks.push_back(id);
     }
 
     for (uint32 i = 0; i < sWorld->getIntConfig(CONFIG_WARDEN_NUM_OTHER_CHECKS); ++i)
@@ -420,17 +449,8 @@ void WardenWin::HandleCheckResult(ByteBuffer &buff)
 
                 if (Lua_Result != 0)
                 {
-                    uint8 luaStrLen = buff.read<uint8>();
-                    if (luaStrLen != 0)
-                    {
-                        std::string str;
-                        str.resize(luaStrLen);
-                        buff.read(reinterpret_cast<uint8*>(str.data()), luaStrLen);
-                        TC_LOG_DEBUG("warden", "Lua string: %s", str.c_str());
-                        TC_LOG_DEBUG("warden", "RESULT LUA_STR_CHECK fail, CheckId %u account Id %u", id, _session->GetAccountId());
-                        checkFailed = id;
-                        continue;
-                    }
+                    //Result won't be 0, and we don't want to mess up the buffer for the other checks so let's continue
+                    continue;
                 }
                 TC_LOG_DEBUG("warden", "RESULT LUA_STR_CHECK passed, CheckId %u account Id %u", id, _session->GetAccountId());
                 break;

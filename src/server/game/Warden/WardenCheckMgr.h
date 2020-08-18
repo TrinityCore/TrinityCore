@@ -72,6 +72,7 @@ class TC_GAME_API WardenCheckMgr
 
         std::vector<uint16> const& GetAvailableMemoryChecks() const { return MemChecksIdPool; }
         std::vector<uint16> const& GetAvailableOtherChecks() const { return OtherChecksIdPool; }
+        std::vector<uint16> const& GetAvailableStrChecks() const { return StrChecksIdPool; }
 
         void LoadWardenChecks();
         void LoadWardenOverrides();
@@ -81,6 +82,7 @@ class TC_GAME_API WardenCheckMgr
         std::unordered_map<uint32, WardenCheckResult> CheckResultStore;
         std::vector<uint16> MemChecksIdPool;
         std::vector<uint16> OtherChecksIdPool;
+        std::vector<uint16> StrChecksIdPool;
 };
 
 #define sWardenCheckMgr WardenCheckMgr::instance()

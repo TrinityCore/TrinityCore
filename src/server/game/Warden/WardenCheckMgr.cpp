@@ -93,6 +93,8 @@ void WardenCheckMgr::LoadWardenChecks()
 
         if (type == MEM_CHECK || type == MODULE_CHECK)
             MemChecksIdPool.push_back(id);
+        else if (type == LUA_STR_CHECK)
+            StrChecksIdPool.push_back(id);
         else
             OtherChecksIdPool.push_back(id);
 

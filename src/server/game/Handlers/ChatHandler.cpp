@@ -221,6 +221,18 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
     if (msg.size() > 255)
         return;
 
+    // Handle the warden SendAddonMessage here
+    if (lang == LANG_ADDON)
+    {
+        if (to == sender->GetName())
+        {
+            if (msg.find("Warden") != std::string::npos)
+            {
+                TC_LOG_INFO("addon", "[%d] %s: %s", sender->GetSession()->GetAccountId(), sender->GetName().c_str(), msg.c_str());
+                return;
+            }
+        }
+    }
 
     // no chat commands in AFK/DND autoreply, and it can be empty
     if (!(type == CHAT_MSG_AFK || type == CHAT_MSG_DND))

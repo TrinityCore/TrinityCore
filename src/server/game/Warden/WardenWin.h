@@ -81,6 +81,8 @@ class TC_GAME_API WardenWin : public Warden
         std::vector<uint16>::const_iterator _memChecksIt;
         std::vector<uint16> _otherChecks;
         std::vector<uint16>::const_iterator _otherChecksIt;
+        std::vector<uint16> _strChecks;
+        std::vector<uint16>::const_iterator _strChecksIt;
         std::vector<uint16> _currentChecks;
 };
 
