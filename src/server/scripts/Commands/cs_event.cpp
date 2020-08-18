@@ -81,7 +81,7 @@ public:
         return true;
     }
 
-    static bool HandleEventInfoCommand(ChatHandler* handler, Variant<Hyperlink<gameevent>, uint32> const eventId)
+    static bool HandleEventInfoCommand(ChatHandler* handler, Variant<Hyperlink<gameevent>, uint16> const eventId)
     {
         GameEventMgr::GameEventDataMap const& events = sGameEventMgr->GetEventMap();
 
@@ -107,7 +107,7 @@ public:
         std::string startTimeStr = TimeToTimestampStr(eventData.start);
         std::string endTimeStr = TimeToTimestampStr(eventData.end);
 
-        uint32 delay = sGameEventMgr->NextCheck(*eventId);
+        uint32 delay = sGameEventMgr->NextCheck(eventId);
         time_t nextTime = GameTime::GetGameTime() + delay;
         std::string nextStr = nextTime >= eventData.start && nextTime < eventData.end ? TimeToTimestampStr(GameTime::GetGameTime() + delay) : "-";
 
@@ -120,7 +120,7 @@ public:
         return true;
     }
 
-    static bool HandleEventStartCommand(ChatHandler* handler, Variant<Hyperlink<gameevent>, uint32> const eventId)
+    static bool HandleEventStartCommand(ChatHandler* handler, Variant<Hyperlink<gameevent>, uint16> const eventId)
     {
         GameEventMgr::GameEventDataMap const& events = sGameEventMgr->GetEventMap();
 
@@ -147,11 +147,11 @@ public:
             return false;
         }
 
-        sGameEventMgr->StartEvent(*eventId, true);
+        sGameEventMgr->StartEvent(eventId, true);
         return true;
     }
 
-    static bool HandleEventStopCommand(ChatHandler* handler, Variant<Hyperlink<gameevent>, uint32> const eventId)
+    static bool HandleEventStopCommand(ChatHandler* handler, Variant<Hyperlink<gameevent>, uint16> const eventId)
     {
         GameEventMgr::GameEventDataMap const& events = sGameEventMgr->GetEventMap();
 
@@ -179,7 +179,7 @@ public:
             return false;
         }
 
-        sGameEventMgr->StopEvent(*eventId, true);
+        sGameEventMgr->StopEvent(eventId, true);
         return true;
     }
 };
