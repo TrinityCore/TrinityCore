@@ -156,7 +156,7 @@ public:
             DoCast(me, SPELL_SUBMERGE); // submerge anim
             me->SetVisible(false); // we start invis under water, submerged
             me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
-            me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+            me->SetImmuneToPC(true);
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -219,7 +219,7 @@ public:
                     {
                         WaitTimer = 3000;
                         CanStartEvent = true; // fresh fished from pool
-                        me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                        me->SetImmuneToPC(false);
                         me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                     }
                     else
@@ -335,7 +335,7 @@ public:
                     Submerged = false;
                     me->InterruptNonMeleeSpells(false); // shouldn't be any
                     me->RemoveAllAuras();
-                    me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                    me->SetImmuneToPC(false);
                     me->SetEmoteState(EMOTE_ONESHOT_NONE);
                     DoCast(me, SPELL_EMERGE, true);
                     Spawned = false;
