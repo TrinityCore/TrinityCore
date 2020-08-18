@@ -117,10 +117,10 @@ public:
         std::shared_lock<std::shared_mutex> lock(*HashMapHolder<Player>::GetLock());
         for (auto const [playerGuid, player] : ObjectAccessor::GetPlayers())
         {
-            AccountTypes itrSec = player->GetSession()->GetSecurity();
+            AccountTypes playerSec = player->GetSession()->GetSecurity();
             if ((player->IsGameMaster() ||
                 (player->GetSession()->HasPermission(rbac::RBAC_PERM_COMMANDS_APPEAR_IN_GM_LIST) &&
-                 itrSec <= AccountTypes(sWorld->getIntConfig(CONFIG_GM_LEVEL_IN_GM_LIST)))) &&
+                    playerSec <= AccountTypes(sWorld->getIntConfig(CONFIG_GM_LEVEL_IN_GM_LIST)))) &&
                 (!handler->GetSession() || player->IsVisibleGloballyFor(handler->GetSession()->GetPlayer())))
             {
                 if (first)
@@ -132,7 +132,7 @@ public:
                 }
                 std::string const& name = player->GetName();
                 uint8 size = uint8(name.size());
-                uint8 security = itrSec;
+                uint8 security = playerSec;
                 uint8 max = ((16 - size) / 2);
                 uint8 max2 = max;
                 if ((max + max2 + size) == 16)
