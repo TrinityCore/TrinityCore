@@ -59,6 +59,22 @@ class EnumUtils
         template <typename Enum>
         static uint32 ToIndex(Enum value) { return Trinity::Impl::EnumUtils<Enum>::ToIndex(value);}
 
+        template<typename Enum>
+        static bool IsValid(Enum value)
+        {
+            try
+            {
+                Trinity::Impl::EnumUtils<Enum>::ToIndex(value);
+                return true;
+            } catch (...)
+            {
+                return false;
+            }
+        }
+
+        template<typename Enum>
+        static bool IsValid(std::underlying_type_t<Enum> value) { return IsValid(static_cast<Enum>(value)); }
+
         template <typename Enum>
         class Iterator
         {
