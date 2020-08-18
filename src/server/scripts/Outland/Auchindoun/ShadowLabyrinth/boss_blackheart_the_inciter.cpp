@@ -109,7 +109,7 @@ class boss_blackheart_the_inciter : public CreatureScript
                         {
                             DoCast(me, SPELL_INCITE_CHAOS);
 
-                            for (ThreatReference* ref : me->GetThreatManager().GetUnsortedThreatList())
+                            for (ThreatReference const* ref : me->GetThreatManager().GetUnsortedThreatList())
                                 if (ref->GetVictim()->GetTypeId() == TYPEID_PLAYER)
                                     me->CastSpell(ref->GetVictim(), SPELL_INCITE_CHAOS_B, true);
 

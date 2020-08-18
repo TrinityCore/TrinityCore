@@ -240,7 +240,8 @@ class npc_announcer_toc10 : public CreatureScript
                     if (Creature* jaraxxus = ObjectAccessor::GetCreature(*player, instance->GetGuidData(NPC_JARAXXUS)))
                     {
                         jaraxxus->RemoveAurasDueToSpell(SPELL_JARAXXUS_CHAINS);
-                        jaraxxus->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC));
+                        jaraxxus->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                        jaraxxus->SetImmuneToPC(false);
                         jaraxxus->SetReactState(REACT_DEFENSIVE);
                         jaraxxus->SetInCombatWithZone();
                     }
@@ -429,7 +430,8 @@ class npc_fizzlebang_toc : public CreatureScript
                 _instance->SetData(TYPE_EVENT, 1180);
                 if (Creature* jaraxxus = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(NPC_JARAXXUS)))
                 {
-                    jaraxxus->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC));
+                    jaraxxus->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                    jaraxxus->SetImmuneToPC(false);
                     jaraxxus->SetReactState(REACT_AGGRESSIVE);
                     jaraxxus->SetInCombatWithZone();
                 }
@@ -526,7 +528,8 @@ class npc_fizzlebang_toc : public CreatureScript
                             Talk(SAY_STAGE_1_04);
                             if (Creature* jaraxxus = me->SummonCreature(NPC_JARAXXUS, ToCCommonLoc[1].GetPositionX(), ToCCommonLoc[1].GetPositionY(), ToCCommonLoc[1].GetPositionZ(), 5.0f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME))
                             {
-                                jaraxxus->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC));
+                                jaraxxus->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                                jaraxxus->SetImmuneToPC(true);
                                 jaraxxus->SetReactState(REACT_PASSIVE);
                                 jaraxxus->GetMotionMaster()->MovePoint(0, ToCCommonLoc[1].GetPositionX(), ToCCommonLoc[1].GetPositionY()-10, ToCCommonLoc[1].GetPositionZ());
                             }

@@ -472,7 +472,7 @@ class boss_thorim : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
                 me->SetDisableGravity(true);
                 me->SetControlled(true, UNIT_STATE_ROOT);
-                me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                me->SetImmuneToPC(true);
 
                 events.SetPhase(PHASE_NULL);
 
@@ -613,7 +613,7 @@ class boss_thorim : public CreatureScript
 
                 if (Creature* runicColossus = instance->GetCreature(DATA_RUNIC_COLOSSUS))
                 {
-                    runicColossus->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                    runicColossus->SetImmuneToPC(false);
                     runicColossus->AI()->DoAction(ACTION_ACTIVATE_ADDS);
                 }
 
@@ -815,7 +815,7 @@ class boss_thorim : public CreatureScript
                         if (++_killedCount >= 6)
                         {
                             // Event starts
-                            me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                            me->SetImmuneToPC(false);
                             DoZoneInCombat(me);
                         }
                         break;
@@ -1333,7 +1333,7 @@ struct npc_thorim_minibossAI : public ScriptedAI
         {
             for (ObjectGuid const& guid : _summons)
                 if (Creature* summon = ObjectAccessor::GetCreature(*me, guid))
-                    summon->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                    summon->SetImmuneToPC(false);
         }
     }
 
@@ -1403,7 +1403,7 @@ class npc_runic_colossus : public CreatureScript
 
                 if (Creature* giant = _instance->GetCreature(DATA_RUNE_GIANT))
                 {
-                    giant->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                    giant->SetImmuneToPC(false);
                     giant->AI()->DoAction(ACTION_ACTIVATE_ADDS);
                 }
             }

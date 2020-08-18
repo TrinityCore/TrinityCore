@@ -89,7 +89,7 @@ public:
             currentEvent = 0;
             eventProgress = 0;
             me->setActive(true);
-            me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+            me->SetImmuneToPC(false);
         }
 
         uint32 eventTimer;
@@ -330,7 +330,7 @@ public:
                 Talk(SAY_MAKE_PREPARATIONS);
 
                 me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_ACTIVE);
-                me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                me->SetImmuneToPC(false);
 
                 Start(false, false, player->GetGUID());
                 SetDespawnAtFar(false);

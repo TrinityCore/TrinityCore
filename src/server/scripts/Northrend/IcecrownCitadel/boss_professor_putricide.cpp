@@ -251,7 +251,10 @@ class boss_professor_putricide : public CreatureScript
                     me->GetMotionMaster()->MovementExpired();
 
                 if (instance->GetBossState(DATA_ROTFACE) == DONE && instance->GetBossState(DATA_FESTERGUT) == DONE)
-                    me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE));
+                {
+                    me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                    me->SetImmuneToPC(false);
+                }
             }
 
             void EnterCombat(Unit* who) override
@@ -505,7 +508,7 @@ class boss_professor_putricide : public CreatureScript
                             {
                                 std::list<Unit*> targetList;
                                 {
-                                    for (ThreatReference* ref : me->GetThreatManager().GetUnsortedThreatList())
+                                    for (ThreatReference const* ref : me->GetThreatManager().GetUnsortedThreatList())
                                         if (Player* target = ref->GetVictim()->ToPlayer())
                                             targetList.push_back(target);
                                 }

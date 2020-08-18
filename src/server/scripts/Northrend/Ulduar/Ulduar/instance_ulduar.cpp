@@ -228,7 +228,7 @@ class instance_ulduar : public InstanceMapScript
                     if (_algalonTimer && _algalonTimer <= 60)
                         algalon->AI()->DoAction(ACTION_INIT_ALGALON);
                     else
-                        algalon->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                        algalon->SetImmuneToPC(false);
                 }
 
                 // Keepers at Observation Ring
