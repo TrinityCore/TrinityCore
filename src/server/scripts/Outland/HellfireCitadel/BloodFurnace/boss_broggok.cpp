@@ -108,14 +108,16 @@ class boss_broggok : public CreatureScript
                         break;
                     case ACTION_ACTIVATE_BROGGOK:
                         me->SetReactState(REACT_AGGRESSIVE);
-                        me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NON_ATTACKABLE));
+                        me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                        me->SetImmuneToAll(false);
                         events.ScheduleEvent(EVENT_SLIME_SPRAY, 10000);
                         events.ScheduleEvent(EVENT_POISON_BOLT, 7000);
                         events.ScheduleEvent(EVENT_POISON_CLOUD, 5000);
                         break;
                     case ACTION_RESET_BROGGOK:
                         me->SetReactState(REACT_PASSIVE);
-                        me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NON_ATTACKABLE));
+                        me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                        me->SetImmuneToAll(true);
                         break;
                 }
             }

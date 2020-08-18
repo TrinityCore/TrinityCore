@@ -172,54 +172,7 @@ class TC_GAME_API UnitAI
                 return nullptr;
 
             std::list<Unit*> targetList;
-            if (targetType == SELECT_TARGET_MAXDISTANCE || targetType == SELECT_TARGET_MINDISTANCE)
-            {
-                for (ThreatReference* ref : mgr.GetUnsortedThreatList())
-                {
-                    if (ref->IsOffline())
-                        continue;
-
-                    targetList.push_back(ref->GetVictim());
-                }
-            }
-            else
-            {
-                Unit* currentVictim = mgr.GetCurrentVictim();
-                if (currentVictim)
-                    targetList.push_back(currentVictim);
-
-                for (ThreatReference* ref : mgr.GetSortedThreatList())
-                {
-                    if (ref->IsOffline())
-                        continue;
-
-                    Unit* thisTarget = ref->GetVictim();
-                    if (thisTarget != currentVictim)
-                        targetList.push_back(thisTarget);
-                }
-            }
-
-            // filter by predicate
-            targetList.remove_if([&predicate](Unit* target) { return !predicate(target); });
-
-            // shortcut: the list certainly isn't gonna get any larger after this point
-            if (targetList.size() <= offset)
-                return nullptr;
-
-            // right now, list is unsorted for DISTANCE types - re-sort by MAXDISTANCE
-            if (targetType == SELECT_TARGET_MAXDISTANCE || targetType == SELECT_TARGET_MINDISTANCE)
-                SortByDistance(targetList, targetType == SELECT_TARGET_MINDISTANCE);
-
-            // then reverse the sorting for MIN sortings
-            if (targetType == SELECT_TARGET_MINTHREAT)
-                targetList.reverse();
-
-            // now pop the first <offset> elements
-            while (offset)
-            {
-                targetList.pop_front();
-                --offset;
-            }
+            SelectTargetList(targetList, mgr.GetThreatListSize(), targetType, offset, predicate);
 
             // maybe nothing fulfills the predicate
             if (targetList.empty())
@@ -263,7 +216,7 @@ class TC_GAME_API UnitAI
 
             if (targetType == SELECT_TARGET_MAXDISTANCE || targetType == SELECT_TARGET_MINDISTANCE)
             {
-                for (ThreatReference* ref : mgr.GetUnsortedThreatList())
+                for (ThreatReference const* ref : mgr.GetUnsortedThreatList())
                 {
                     if (ref->IsOffline())
                         continue;
@@ -277,7 +230,7 @@ class TC_GAME_API UnitAI
                 if (currentVictim)
                     targetList.push_back(currentVictim);
 
-                for (ThreatReference* ref : mgr.GetSortedThreatList())
+                for (ThreatReference const* ref : mgr.GetSortedThreatList())
                 {
                     if (ref->IsOffline())
                         continue;
@@ -287,9 +240,6 @@ class TC_GAME_API UnitAI
                         targetList.push_back(thisTarget);
                 }
             }
-
-            // filter by predicate
-            targetList.remove_if([&predicate](Unit* target) { return !predicate(target); });
 
             // shortcut: the list isn't gonna get any larger
             if (targetList.size() <= offset)
@@ -312,6 +262,9 @@ class TC_GAME_API UnitAI
                 targetList.pop_front();
                 --offset;
             }
+
+            // then finally filter by predicate
+            targetList.remove_if([&predicate](Unit* target) { return !predicate(target); });
 
             if (targetList.size() <= num)
                 return;

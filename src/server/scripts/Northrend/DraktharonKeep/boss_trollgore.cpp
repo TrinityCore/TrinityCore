@@ -213,7 +213,7 @@ class npc_drakkari_invader : public CreatureScript
                 if (type == POINT_MOTION_TYPE && pointId == POINT_LANDING)
                 {
                     me->Dismount();
-                    me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+                    me->SetImmuneToAll(false);
                     DoCastAOE(SPELL_INVADER_TAUNT);
                 }
             }

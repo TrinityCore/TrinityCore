@@ -188,7 +188,7 @@ void npc_escortAI::EnterEvadeMode(EvadeReason /*why*/)
     {
         me->GetMotionMaster()->MoveTargetedHome();
         if (HasImmuneToNPCFlags)
-            me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+            me->SetImmuneToNPC(true);
         Reset();
     }
 }
@@ -472,10 +472,10 @@ void npc_escortAI::Start(bool isActiveAttacker /* = true*/, bool run /* = false 
     //disable npcflags
     me->SetNpcFlags(UNIT_NPC_FLAG_NONE);
     me->SetNpcFlags2(UNIT_NPC_FLAG_2_NONE);
-    if (me->HasUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC))
+    if (me->IsImmuneToNPC())
     {
         HasImmuneToNPCFlags = true;
-        me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+        me->SetImmuneToNPC(false);
     }
 
     TC_LOG_DEBUG("scripts", "EscortAI started with " UI64FMTD " waypoints. ActiveAttacker = %d, Run = %d, %s", uint64(WaypointList.size()), m_bIsActiveAttacker, m_bIsRunning, m_uiPlayerGUID.ToString().c_str());

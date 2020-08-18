@@ -320,7 +320,8 @@ struct boss_thaddius : public BossAI
             me->DespawnOrUnsummon();
             me->SetRespawnTime(initial ? 5 : 30);
 
-            me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED));
+            me->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED));
+            me->SetImmuneToPC(true);
             events.SetPhase(PHASE_RESETTING);
             if (Creature* feugen = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_FEUGEN)))
                 feugen->AI()->DoAction(ACTION_BEGIN_RESET_ENCOUNTER);
@@ -385,7 +386,7 @@ struct boss_thaddius : public BossAI
                         ballLightningUnlocked = false;
                         me->RemoveAura(SPELL_THADDIUS_INACTIVE_VISUAL);
                         me->RemoveUnitFlag(UNIT_FLAG_STUNNED);
-                        me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                        me->SetImmuneToPC(false);
                         me->SetReactState(REACT_AGGRESSIVE);
 
                             DoZoneInCombat();
@@ -640,7 +641,7 @@ public:
                     if (!isOverloading)
                     {
                         isOverloading = true;
-                        caster->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                        caster->SetImmuneToPC(false);
                         if (Creature* creatureCaster = caster->ToCreature())
                             creatureCaster->AI()->Talk(EMOTE_TESLA_LINK_BREAKS);
                         me->RemoveAura(SPELL_STALAGG_CHAIN_VISUAL);
@@ -657,7 +658,7 @@ public:
                     refreshBeam = false;
                     caster->CastStop();
                     caster->CastSpell(me, SPELL_STALAGG_CHAIN_VISUAL, true);
-                    caster->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                    caster->SetImmuneToPC(true);
                 }
             }
 
@@ -907,7 +908,7 @@ public:
                     if (!isOverloading)
                     {
                         isOverloading = true;
-                        caster->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                        caster->SetImmuneToPC(false);
                         if (Creature* creatureCaster = caster->ToCreature())
                             creatureCaster->AI()->Talk(EMOTE_TESLA_LINK_BREAKS);
                         me->RemoveAura(SPELL_STALAGG_CHAIN_VISUAL);
@@ -924,7 +925,7 @@ public:
                     refreshBeam = false;
                     caster->CastStop();
                     caster->CastSpell(me, SPELL_FEUGEN_CHAIN_VISUAL, true);
-                    caster->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                    caster->SetImmuneToPC(true);
                 }
             }
 
@@ -1091,7 +1092,7 @@ class spell_thaddius_polarity_charge : public SpellScriptLoader
                     }
 
                     // this guy will get hit - achievement failure trigger
-                    if (Creature* thaddius = (*it)->FindNearestCreature(NPC_THADDIUS,200.0f))
+                    if (Creature* thaddius = (*it)->FindNearestCreature(NPC_THADDIUS, 200.0f))
                         thaddius->AI()->DoAction(ACTION_POLARITY_CROSSED);
 
                     ++it;
@@ -1221,8 +1222,8 @@ class spell_thaddius_magnetic_pull : public SpellScriptLoader
                     float stalaggOtherThreat = stalaggThreat.GetThreat(feugenTank);
 
                     // set the two entries in feugen's threat table to be equal to the ones in stalagg's
-                    stalagg->GetThreatManager().AddThreat(stalaggTank, stalaggTankThreat - feugenOtherThreat, nullptr, true, true);
-                    stalagg->GetThreatManager().AddThreat(feugenTank, stalaggOtherThreat - feugenTankThreat, nullptr, true, true);
+                    feugen->GetThreatManager().AddThreat(stalaggTank, stalaggTankThreat - feugenOtherThreat, nullptr, true, true);
+                    feugen->GetThreatManager().AddThreat(feugenTank, stalaggOtherThreat - feugenTankThreat, nullptr, true, true);
 
                     // set the two entries in stalagg's threat table to be equal to the ones in feugen's
                     stalagg->GetThreatManager().AddThreat(feugenTank, feugenTankThreat - stalaggOtherThreat, nullptr, true, true);

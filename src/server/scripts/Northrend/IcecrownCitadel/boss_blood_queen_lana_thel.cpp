@@ -490,7 +490,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
 
                 std::list<Player*> tempTargets;
                 Unit* maintank = me->GetThreatManager().GetCurrentVictim();
-                for (ThreatReference* ref : me->GetThreatManager().GetUnsortedThreatList())
+                for (ThreatReference const* ref : me->GetThreatManager().GetUnsortedThreatList())
                     if (Player* refTarget = ref->GetVictim()->ToPlayer())
                         if (refTarget != maintank && (includeOfftank || (refTarget->GetGUID() != _offtankGUID)))
                             tempTargets.push_back(refTarget->ToPlayer());

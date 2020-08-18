@@ -53,17 +53,29 @@ namespace Trinity
             return size;
         }
 
+        // resizes <container> to have at most <requestedSize> elements
+        // if it has more than <requestedSize> elements, the elements to keep are selected randomly
         template<class C>
         void RandomResize(C& container, std::size_t requestedSize)
         {
-            uint32 currentSize = uint32(Size(container));
-            while (currentSize > requestedSize)
+            static_assert(std::is_base_of<std::forward_iterator_tag, typename std::iterator_traits<typename C::iterator>::iterator_category>::value, "Invalid container passed to Trinity::Containers::RandomResize");
+            if (Size(container) <= requestedSize)
+                return;
+            auto keepIt = std::begin(container), curIt = std::begin(container);
+            uint32 elementsToKeep = requestedSize, elementsToProcess = Size(container);
+            while (elementsToProcess)
             {
-                auto itr = std::begin(container);
-                std::advance(itr, urand(0, currentSize - 1));
-                container.erase(itr);
-                --currentSize;
+                // this element has chance (elementsToKeep / elementsToProcess) of being kept
+                if (urand(1, elementsToProcess) <= elementsToKeep)
+                {
+                    *keepIt = std::move(*curIt);
+                    ++keepIt;
+                    --elementsToKeep;
+                }
+                ++curIt;
+                --elementsToProcess;
             }
+            container.erase(keepIt, std::end(container));
         }
 
         template<class C, class Predicate>

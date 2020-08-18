@@ -557,9 +557,10 @@ public:
             }
             else if (map->Instanceable())
             {
-                Group* targetGroup = target->GetGroup();
                 Map* targetMap = target->GetMap();
-                Player* targetGroupLeader = ObjectAccessor::GetPlayer(map, targetGroup->GetLeaderGUID());
+                Player* targetGroupLeader = nullptr;
+                if (Group* targetGroup = target->GetGroup())
+                    targetGroupLeader = ObjectAccessor::GetPlayer(map, targetGroup->GetLeaderGUID());
 
                 // check if far teleport is allowed
                 if (!targetGroupLeader || (targetGroupLeader->GetMapId() != map->GetId()) || (targetGroupLeader->GetInstanceId() != map->GetInstanceId()))
