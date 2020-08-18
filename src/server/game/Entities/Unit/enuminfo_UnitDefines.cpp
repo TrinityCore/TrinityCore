@@ -20,9 +20,7 @@
 #include "SmartEnum.h"
 #include <stdexcept>
 
-namespace Trinity
-{
-namespace Impl
+namespace Trinity::Impl
 {
 
 /***************************************************************\
@@ -189,6 +187,5 @@ TC_API_EXPORT NPCFlags EnumUtils<NPCFlags>::FromIndex(size_t index)
         case 26: return UNIT_NPC_FLAG_MAILBOX;
         default: throw std::out_of_range("index");
     }
-}
 }
 }

@@ -20,9 +20,7 @@
 #include "SmartEnum.h"
 #include <stdexcept>
 
-namespace Trinity
-{
-namespace Impl
+namespace Trinity::Impl
 {
 
 /*************************************************************\
@@ -1469,6 +1467,5 @@ TC_API_EXPORT SpellFamilyNames EnumUtils<SpellFamilyNames>::FromIndex(size_t ind
         case 14: return SPELLFAMILY_PET;
         default: throw std::out_of_range("index");
     }
-}
 }
 }

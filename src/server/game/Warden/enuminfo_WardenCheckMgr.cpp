@@ -20,9 +20,7 @@
 #include "SmartEnum.h"
 #include <stdexcept>
 
-namespace Trinity
-{
-namespace Impl
+namespace Trinity::Impl
 {
 
 /**********************************************************************\
@@ -95,6 +93,5 @@ TC_API_EXPORT WardenCheckType EnumUtils<WardenCheckType>::FromIndex(size_t index
         case 8: return MODULE_CHECK;
         default: throw std::out_of_range("index");
     }
-}
 }
 }

@@ -20,9 +20,7 @@
 #include "SmartEnum.h"
 #include <stdexcept>
 
-namespace Trinity
-{
-namespace Impl
+namespace Trinity::Impl
 {
 
 /************************************************************************\
@@ -91,6 +89,5 @@ TC_API_EXPORT AuctionHouseType EnumUtils<AuctionHouseType>::FromIndex(size_t ind
         case 2: return AUCTION_HOUSE_HORDE;
         default: throw std::out_of_range("index");
     }
-}
 }
 }

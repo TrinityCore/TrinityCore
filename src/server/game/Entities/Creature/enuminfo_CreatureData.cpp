@@ -20,9 +20,7 @@
 #include "SmartEnum.h"
 #include <stdexcept>
 
-namespace Trinity
-{
-namespace Impl
+namespace Trinity::Impl
 {
 
 /*************************************************************************\
@@ -111,6 +109,5 @@ TC_API_EXPORT CreatureFlagsExtra EnumUtils<CreatureFlagsExtra>::FromIndex(size_t
         case 31: return CREATURE_FLAG_EXTRA_UNUSED_31;
         default: throw std::out_of_range("index");
     }
-}
 }
 }
