@@ -219,7 +219,8 @@ class instance_blood_furnace : public InstanceMapScript
             {
                 if (!prisoner->IsAlive())
                     prisoner->Respawn(true);
-                prisoner->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NON_ATTACKABLE));
+                prisoner->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                prisoner->SetImmuneToAll(true);
             }
 
             void StorePrisoner(Creature* creature)
@@ -307,7 +308,8 @@ class instance_blood_furnace : public InstanceMapScript
                 for (GuidSet::const_iterator i = prisoners.begin(); i != prisoners.end(); ++i)
                     if (Creature* prisoner = instance->GetCreature(*i))
                     {
-                        prisoner->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NON_ATTACKABLE));
+                        prisoner->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                        prisoner->SetImmuneToAll(false);
                         prisoner->SetInCombatWithZone();
                     }
             }

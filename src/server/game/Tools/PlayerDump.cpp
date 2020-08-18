@@ -1031,7 +1031,7 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
                     if (!ChangeColumn(ts, line, "at_login", "1"))
                         return DUMP_FILE_BROKEN;
                 }
-                else if (!ChangeColumn(ts, line, "name", name.c_str())) // characters.name
+                else if (!ChangeColumn(ts, line, "name", name)) // characters.name
                     return DUMP_FILE_BROKEN;
                 break;
             }

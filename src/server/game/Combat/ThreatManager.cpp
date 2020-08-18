@@ -407,6 +407,15 @@ void ThreatManager::AddThreat(Unit* victim, float amount, SpellInfo const* spell
     (void)ignoreModifiers; (void)ignoreRedirection;
     if (!iOwner->CanHaveThreatList() || iOwner->HasUnitState(UNIT_STATE_EVADE))
         return;
+
+    if (iOwner->IsControlledByPlayer() || victim->IsControlledByPlayer())
+    {
+        if (iOwner->IsFriendlyTo(victim) || victim->IsFriendlyTo(iOwner))
+            return;
+    }
+    else if (!iOwner->IsHostileTo(victim) && !victim->IsHostileTo(iOwner))
+        return;
+
     iOwner->SetInCombatWith(victim);
     victim->SetInCombatWith(iOwner);
     addThreat(victim, amount, spell ? spell->GetSchoolMask() : victim->GetMeleeDamageSchoolMask(), spell);
