@@ -851,7 +851,7 @@ class npc_rimefang : public CreatureScript
 
                     me->setActive(true);
                     me->SetSpeedRate(MOVE_FLIGHT, 2.0f);
-                    me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                    me->SetImmuneToPC(true);
                     float moveTime = me->GetExactDist(&RimefangFlyPos) / (me->GetSpeed(MOVE_FLIGHT) * 0.001f);
                     me->m_Events.AddEvent(new FrostwyrmLandEvent(*me, RimefangLandPos), me->m_Events.CalculateTime(uint64(moveTime) + 250));
                     me->SetDefaultMovementType(IDLE_MOTION_TYPE);
@@ -873,7 +873,7 @@ class npc_rimefang : public CreatureScript
                 me->SetAnimTier(UNIT_BYTE1_FLAG_NONE, false);
                 me->SetHomePosition(RimefangLandPos);
                 me->SetFacingTo(RimefangLandPos.GetOrientation());
-                me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                me->SetImmuneToPC(false);
                 me->SetReactState(REACT_AGGRESSIVE);
             }
 
@@ -1542,7 +1542,7 @@ class spell_frostwarden_handler_focus_fire : public SpellScriptLoader
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
-                GetCaster()->GetThreatManager().AddThreat(GetHitUnit(), float(GetEffectValue()));
+                GetCaster()->GetThreatManager().AddThreat(GetHitUnit(), float(GetEffectValue()), GetSpellInfo(), true, true);
                 GetCaster()->GetAI()->SetData(DATA_WHELP_MARKER, 1);
             }
 
@@ -1562,7 +1562,8 @@ class spell_frostwarden_handler_focus_fire : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                 {
                     if (SpellEffectInfo const* effect = GetSpellInfo()->GetEffect(EFFECT_1))
-                        caster->GetThreatManager().AddThreat(GetTarget(), -float(effect->CalcValue()));
+                        caster->GetThreatManager().AddThreat(GetTarget(), -float(effect->CalcValue()), GetSpellInfo(), true, true);
+
                     caster->GetAI()->SetData(DATA_WHELP_MARKER, 0);
                 }
             }

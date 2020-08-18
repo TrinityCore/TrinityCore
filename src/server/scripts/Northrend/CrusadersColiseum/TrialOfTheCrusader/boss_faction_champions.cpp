@@ -487,7 +487,8 @@ class boss_toc_champion_controller : public CreatureScript
                     {
                         _summons.Summon(champion);
                         champion->SetReactState(REACT_PASSIVE);
-                        champion->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC));
+                        champion->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                        champion->SetImmuneToPC(false);
                         if (playerTeam == ALLIANCE)
                         {
                             champion->SetHomePosition(vChampionJumpTarget[pos].GetPositionX(), vChampionJumpTarget[pos].GetPositionY(), vChampionJumpTarget[pos].GetPositionZ(), 0);
@@ -518,7 +519,8 @@ class boss_toc_champion_controller : public CreatureScript
                             if (Creature* summon = ObjectAccessor::GetCreature(*me, *i))
                             {
                                 summon->SetReactState(REACT_AGGRESSIVE);
-                                summon->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC));
+                                summon->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                                summon->SetImmuneToPC(false);
                             }
                         }
                         break;
@@ -610,7 +612,7 @@ struct boss_faction_championsAI : public BossAI
 
     void UpdateThreat()
     {
-        for (ThreatReference* ref : me->GetThreatManager().GetUnsortedThreatList())
+        for (ThreatReference* ref : me->GetThreatManager().GetModifiableThreatList())
             if (Player* victim = ref->GetVictim()->ToPlayer())
                 ref->SetThreat(1000000.0f * CalculateThreat(me->GetDistance2d(victim), victim->GetArmor(), victim->GetHealth()));
     }
@@ -695,7 +697,7 @@ struct boss_faction_championsAI : public BossAI
     uint32 EnemiesInRange(float distance)
     {
         uint32 count = 0;
-        for (ThreatReference* ref : me->GetThreatManager().GetUnsortedThreatList())
+        for (ThreatReference const* ref : me->GetThreatManager().GetUnsortedThreatList())
             if (me->GetDistance2d(ref->GetVictim()) < distance)
                 ++count;
         return count;

@@ -446,7 +446,7 @@ public:
                 headGUID.Clear();
             }
 
-            me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+            me->SetImmuneToPC(false);
             //instance->SetBossState(DATA_HORSEMAN_EVENT, NOT_STARTED);
         }
 

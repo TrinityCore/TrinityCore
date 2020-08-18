@@ -649,7 +649,7 @@ public:
                         //Place all units in threat list on outside of stomach
                         Stomach_Map.clear();
 
-                        for (ThreatReference* ref : me->GetThreatManager().GetUnsortedThreatList())
+                        for (ThreatReference const* ref : me->GetThreatManager().GetUnsortedThreatList())
                             Stomach_Map[ref->GetVictim()->GetGUID()] = false;   //Outside stomach
 
                         //Spawn 2 flesh tentacles

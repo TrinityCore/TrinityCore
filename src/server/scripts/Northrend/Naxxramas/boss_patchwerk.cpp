@@ -124,8 +124,8 @@ public:
 
                         ThreatManager const& mgr = me->GetThreatManager();
                         Unit* currentVictim = mgr.GetCurrentVictim();
-                        auto const& pair = mgr.GetSortedThreatList();
-                        auto it = pair.begin(), end = pair.end();
+                        auto list = mgr.GetModifiableThreatList();
+                        auto it = list.begin(), end = list.end();
                         if (it == end)
                             EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
 
@@ -151,8 +151,7 @@ public:
                         DoCast(pHatefulTarget, SPELL_HATEFUL_STRIKE, true);
 
                         // add threat to highest threat targets
-                        if (me->GetVictim() && me->IsWithinMeleeRange(me->GetVictim()))
-                            AddThreat(me->GetVictim(), HATEFUL_THREAT_AMT);
+                        AddThreat(currentVictim, HATEFUL_THREAT_AMT);
                         if (secondThreat)
                             secondThreat->AddThreat(HATEFUL_THREAT_AMT);
                         if (thirdThreat)

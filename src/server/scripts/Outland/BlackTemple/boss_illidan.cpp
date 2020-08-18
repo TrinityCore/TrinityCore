@@ -805,7 +805,7 @@ public:
                         events.ScheduleEvent(EVENT_ENCOUNTER_START, Seconds(3), GROUP_PHASE_ALL);
                         break;
                     case EVENT_ENCOUNTER_START:
-                        me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+                        me->SetImmuneToAll(false);
                         DoZoneInCombat();
                         if (Creature* akama = instance->GetCreature(DATA_AKAMA))
                             akama->AI()->DoAction(ACTION_START_ENCOUNTER);
@@ -1179,7 +1179,7 @@ public:
                     break;
                 case POINT_MINIONS:
                     _events.SetPhase(PHASE_MINIONS);
-                    me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+                    me->SetImmuneToNPC(false);
                     me->SetReactState(REACT_AGGRESSIVE);
                     if (Creature* illidan = _instance->GetCreature(DATA_ILLIDAN_STORMRAGE))
                         illidan->AI()->DoAction(ACTION_START_MINIONS_WEAVE);
@@ -1312,7 +1312,7 @@ public:
                         me->SetReactState(REACT_PASSIVE);
                         me->AttackStop();
                         me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
-                        me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+                        me->SetImmuneToNPC(true);
                         _events.ScheduleEvent(EVENT_AKAMA_MINIONS_MOVE, Seconds(4));
                         break;
                     case EVENT_AKAMA_MINIONS_MOVE:
