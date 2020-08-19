@@ -92,7 +92,7 @@ public:
             return false;
         }
 
-        GameEventData const& eventData = events[*eventId];
+        GameEventData const& eventData = events[eventId];
         if (!eventData.isValid())
         {
             handler->SendSysMessage(LANG_EVENT_NOT_EXIST);
@@ -101,7 +101,7 @@ public:
         }
 
         GameEventMgr::ActiveEvents const& activeEvents = sGameEventMgr->GetActiveEventList();
-        bool active = activeEvents.find(*eventId) != activeEvents.end();
+        bool active = activeEvents.find(eventId) != activeEvents.end();
         char const* activeStr = active ? handler->GetTrinityString(LANG_ACTIVE) : "";
 
         std::string startTimeStr = TimeToTimestampStr(eventData.start);
@@ -131,7 +131,7 @@ public:
             return false;
         }
 
-        GameEventData const& eventData = events[*eventId];
+        GameEventData const& eventData = events[eventId];
         if (!eventData.isValid())
         {
             handler->SendSysMessage(LANG_EVENT_NOT_EXIST);
@@ -140,7 +140,7 @@ public:
         }
 
         GameEventMgr::ActiveEvents const& activeEvents = sGameEventMgr->GetActiveEventList();
-        if (activeEvents.find(*eventId) != activeEvents.end())
+        if (activeEvents.find(eventId) != activeEvents.end())
         {
             handler->PSendSysMessage(LANG_EVENT_ALREADY_ACTIVE, eventId);
             handler->SetSentErrorMessage(true);
@@ -162,7 +162,7 @@ public:
             return false;
         }
 
-        GameEventData const& eventData = events[*eventId];
+        GameEventData const& eventData = events[eventId];
         if (!eventData.isValid())
         {
             handler->SendSysMessage(LANG_EVENT_NOT_EXIST);
@@ -172,7 +172,7 @@ public:
 
         GameEventMgr::ActiveEvents const& activeEvents = sGameEventMgr->GetActiveEventList();
 
-        if (activeEvents.find(*eventId) == activeEvents.end())
+        if (activeEvents.find(eventId) == activeEvents.end())
         {
             handler->PSendSysMessage(LANG_EVENT_NOT_ACTIVE, eventId);
             handler->SetSentErrorMessage(true);
