@@ -103,6 +103,17 @@ struct AreaTableEntry
             return true;
         return (Flags[0] & AREA_FLAG_SANCTUARY) != 0;
     }
+
+    bool IsFlyable() const
+    {
+        if (Flags[0] & AREA_FLAG_OUTLAND)
+        {
+            if (!(Flags[0] & AREA_FLAG_NO_FLY_ZONE))
+                return true;
+        }
+
+        return false;
+    }
 };
 
 struct AreaTriggerEntry
