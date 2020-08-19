@@ -277,7 +277,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_HONOR_ADD                              = 409,
     RBAC_PERM_COMMAND_HONOR_ADD_KILL                         = 410,
     RBAC_PERM_COMMAND_HONOR_UPDATE                           = 411,
-    RBAC_PERM_COMMAND_INSTANCE                               = 412,
+    // 412 previously used, do not reuse
     RBAC_PERM_COMMAND_INSTANCE_LISTBINDS                     = 413,
     RBAC_PERM_COMMAND_INSTANCE_UNBIND                        = 414,
     RBAC_PERM_COMMAND_INSTANCE_STATS                         = 415,
