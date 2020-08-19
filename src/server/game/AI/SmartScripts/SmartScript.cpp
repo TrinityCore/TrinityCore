@@ -1045,8 +1045,8 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     else
                         creature->DespawnOrUnsummon(respawnDelay);
                 }
-                else if (GameObject* go = target->ToGameObject())
-                    go->SetRespawnTime(respawnDelay);
+                else if (GameObject* goTarget = target->ToGameObject())
+                    goTarget->SetRespawnTime(respawnDelay);
             }
             break;
         }
@@ -1607,10 +1607,10 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     if (IsSmart(creature))
                         ENSURE_AI(SmartAI, creature->AI())->SetScript9(e, e.action.timedActionList.id, GetLastInvoker());
                 }
-                else if (GameObject* go = target->ToGameObject())
+                else if (GameObject* goTarget = target->ToGameObject())
                 {
-                    if (IsSmartGO(go))
-                        ENSURE_AI(SmartGameObjectAI, go->AI())->SetScript9(e, e.action.timedActionList.id, GetLastInvoker());
+                    if (IsSmartGO(goTarget))
+                        ENSURE_AI(SmartGameObjectAI, goTarget->AI())->SetScript9(e, e.action.timedActionList.id, GetLastInvoker());
                 }
             }
             break;
@@ -1694,10 +1694,10 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     if (IsSmart(creature))
                         ENSURE_AI(SmartAI, creature->AI())->SetScript9(e, id, GetLastInvoker());
                 }
-                else if (GameObject* go = target->ToGameObject())
+                else if (GameObject* goTarget = target->ToGameObject())
                 {
-                    if (IsSmartGO(go))
-                        ENSURE_AI(SmartGameObjectAI, go->AI())->SetScript9(e, id, GetLastInvoker());
+                    if (IsSmartGO(goTarget))
+                        ENSURE_AI(SmartGameObjectAI, goTarget->AI())->SetScript9(e, id, GetLastInvoker());
                 }
             }
             break;
@@ -1718,10 +1718,10 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     if (IsSmart(creature))
                         ENSURE_AI(SmartAI, creature->AI())->SetScript9(e, id, GetLastInvoker());
                 }
-                else if (GameObject* go = target->ToGameObject())
+                else if (GameObject* goTarget = target->ToGameObject())
                 {
-                    if (IsSmartGO(go))
-                        ENSURE_AI(SmartGameObjectAI, go->AI())->SetScript9(e, id, GetLastInvoker());
+                    if (IsSmartGO(goTarget))
+                        ENSURE_AI(SmartGameObjectAI, goTarget->AI())->SetScript9(e, id, GetLastInvoker());
                 }
             }
             break;
