@@ -1140,13 +1140,8 @@ public:
         if (Unit* unit = handler->getSelectedUnit())
             unit->HandleEmoteCommand(emote);
 
-        try
-        {
-            handler->PSendSysMessage("Playing emote %s", EnumUtils::ToConstant(emote));
-        } catch (...)
-        {
-            handler->PSendSysMessage("Playing unknown emote");
-        }
+        handler->PSendSysMessage("Playing emote %s", EnumUtils::ToConstant(emote));
+
         return true;
     }
 
