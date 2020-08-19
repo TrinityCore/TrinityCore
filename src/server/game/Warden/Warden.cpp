@@ -254,6 +254,24 @@ void Warden::HandleData(ByteBuffer& buff)
     }
 }
 
+void Warden::NotifyLuaCheckFail(uint16 id)
+{
+    if (id < sWardenCheckMgr->GetMaxValidCheckId())
+    {
+        WardenCheck const& check = sWardenCheckMgr->GetCheckData(id);
+        if (check.Type == LUA_EVAL_CHECK)
+        {
+            char const* penalty = ApplyPenalty(&check);
+            TC_LOG_WARN("warden", "%s failed Warden check %u (%s). Action: %s", _session->GetPlayerInfo().c_str(), id, EnumUtils::ToConstant(check.Type), penalty);
+            return;
+        }
+    }
+
+    char const* penalty = ApplyPenalty(nullptr);
+    TC_LOG_WARN("warden", "%s sent bogus Lua check response for Warden. Action: %s", _session->GetPlayerInfo().c_str(), penalty);
+    return;
+}
+
 void WorldSession::HandleWardenDataOpcode(WorldPacket& recvData)
 {
     if (!_warden || recvData.empty())

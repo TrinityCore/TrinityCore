@@ -71,6 +71,12 @@ void WardenCheckMgr::LoadWardenChecks()
             continue;
         }
 
+        if ((type == LUA_EVAL_CHECK) && (id > 9999))
+        {
+            TC_LOG_ERROR("sql.sql", "Warden Lua check with id %u found in `warden_checks`. Lua checks may have four-digit IDs at most. Skipped.", id);
+            continue;
+        }
+
         WardenCheck& wardenCheck = _checks[id];
         wardenCheck.CheckId = id;
         wardenCheck.Type = type;
@@ -88,12 +94,25 @@ void WardenCheckMgr::LoadWardenChecks()
             wardenCheck.Length = fields[5].GetUInt8();
 
         // PROC_CHECK support missing
-        if (type == MEM_CHECK || type == MPQ_CHECK || type == LUA_STR_CHECK || type == DRIVER_CHECK || type == MODULE_CHECK)
+        if (type == MEM_CHECK || type == MPQ_CHECK || type == LUA_EVAL_CHECK || type == DRIVER_CHECK || type == MODULE_CHECK)
             wardenCheck.Str = fields[6].GetString();
 
         wardenCheck.Comment = fields[7].GetString();
         if (wardenCheck.Comment.empty())
             wardenCheck.Comment = "Undocumented Check";
+
+        if (type == LUA_EVAL_CHECK)
+        {
+            if (wardenCheck.Str.size() > WARDEN_MAX_LUA_CHECK_LENGTH)
+            {
+                TC_LOG_ERROR("sql.sql", "Found over-long Lua check for Warden check with id %u in `warden_checks`. Max length is %u. Skipped.", id, WARDEN_MAX_LUA_CHECK_LENGTH);
+                continue;
+            }
+
+            std::string str = fmt::sprintf("%04u", id);
+            ASSERT(str.size() == 4);
+            std::copy(str.begin(), str.end(), wardenCheck.IdStr.begin());
+        }
 
         // initialize action with default action from config, this may be overridden later
         wardenCheck.Action = WardenActions(sWorld->getIntConfig(CONFIG_WARDEN_CLIENT_FAIL_ACTION));

@@ -91,6 +91,7 @@ class TC_GAME_API Warden
         virtual void Init(WorldSession* session, SessionKey const& K) = 0;
         void Update(uint32 diff);
         void HandleData(ByteBuffer& buff);
+        void NotifyLuaCheckFail(uint16 checkId);
 
         virtual size_t DEBUG_ForceSpecificChecks(std::vector<uint16> const& checks) = 0;
 

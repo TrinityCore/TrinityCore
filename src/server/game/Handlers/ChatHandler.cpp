@@ -39,9 +39,11 @@
 #include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
 #include "Util.h"
+#include "Warden.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include <algorithm>
+#include <charconv>
 
 inline bool isNasty(uint8 c)
 {
@@ -221,6 +223,20 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
     if (msg.size() > 255)
         return;
 
+    // Our Warden module also uses SendAddonMessage as a way to communicate Lua check failure to the server, see if this is that
+    {
+        static constexpr char WARDEN_TOKEN[] = "_TW\t";
+        if ((type == CHAT_MSG_GUILD) && (lang == LANG_ADDON) && StringStartsWith(msg, WARDEN_TOKEN))
+        {
+            if (_warden)
+            {
+                uint16 id = 0;
+                std::from_chars(msg.data() + sizeof(WARDEN_TOKEN)-1, msg.data() + msg.size(), id, 10);
+                _warden->NotifyLuaCheckFail(id);
+            }
+            return;
+        }
+    }
 
     // no chat commands in AFK/DND autoreply, and it can be empty
     if (!(type == CHAT_MSG_AFK || type == CHAT_MSG_DND))

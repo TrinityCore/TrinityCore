@@ -45,11 +45,11 @@ enum WardenCheckCategory : uint8
 // EnumUtils: DESCRIBE THIS
 enum WardenCheckType : uint8
 {
-    LUA_STR_CHECK = 0x8B, // 139: byte luaNameIndex (check to ensure LUA string isn't used)
     NONE_CHECK     =   0, // SKIP
     TIMING_CHECK   =  87, // nyi
     DRIVER_CHECK   = 113, // uint Seed + byte[20] SHA1 + byte driverNameIndex (check to ensure driver isn't loaded)
     PROC_CHECK     = 126, // nyi
+    LUA_EVAL_CHECK = 139, // evaluate arbitrary Lua check
     MPQ_CHECK      = 152, // get hash of MPQ file (to check it is not modified)
     PAGE_CHECK_A   = 178, // scans all pages for specified SHA1 hash
     PAGE_CHECK_B   = 191, // scans only pages starts with MZ+PE headers for specified hash
@@ -64,6 +64,7 @@ constexpr WardenCheckCategory GetWardenCheckCategory(WardenCheckType type)
         case TIMING_CHECK:   return NUM_CHECK_CATEGORIES;
         case DRIVER_CHECK:   return INJECT_CHECK_CATEGORY;
         case PROC_CHECK:     return NUM_CHECK_CATEGORIES;
+        case LUA_EVAL_CHECK: return LUA_CHECK_CATEGORY;
         case MPQ_CHECK:      return MODDED_CHECK_CATEGORY;
         case PAGE_CHECK_A:   return INJECT_CHECK_CATEGORY;
         case PAGE_CHECK_B:   return INJECT_CHECK_CATEGORY;
@@ -93,8 +94,11 @@ struct WardenCheck
     uint8 Length;                                           // PROC_CHECK, MEM_CHECK, PAGE_CHECK
     std::string Str;                                        // LUA, MPQ, DRIVER
     std::string Comment;
+    std::array<char, 4> IdStr = {};                         // LUA
     WardenActions Action;
 };
+
+constexpr uint8 WARDEN_MAX_LUA_CHECK_LENGTH = 170;
 
 using WardenCheckResult = std::vector<uint8>;
 

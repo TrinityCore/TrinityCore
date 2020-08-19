@@ -36,6 +36,14 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 
+ // GUILD is the shortest string that has no client validation (RAID only sends if in a raid group)
+static constexpr char _luaEvalPrefix[] = "local S,T,R=SendAddonMessage,function()";
+static constexpr char _luaEvalMidfix[] = " end R=S and T()if R then S('_TW',";
+static constexpr char _luaEvalPostfix[] = ",'GUILD')end";
+
+static_assert((sizeof(_luaEvalPrefix)-1 + sizeof(_luaEvalMidfix)-1 + sizeof(_luaEvalPostfix)-1 + WARDEN_MAX_LUA_CHECK_LENGTH) == 255);
+
+
 WardenWin::WardenWin() : Warden(), _serverTicks(0)
 {
     for (WardenCheckCategory category : EnumUtils::Iterate<WardenCheckCategory>())
@@ -103,7 +111,7 @@ void WardenWin::InitializeModule()
     Request.Unk3 = 4;
     Request.Unk4 = 0;
     Request.String_library2 = 0;
-    Request.Function2 = 0x00419D40;                         // 0x00400000 + 0x00419D40 FrameScript::GetText
+    Request.Function2 = 0x00419210;                         // 0x00400000 + 0x00419210 FrameScript::Execute
     Request.Function2_set = 1;
     Request.CheckSumm2 = BuildChecksum(&Request.Unk3, 8);
 
@@ -212,7 +220,16 @@ void WardenWin::RequestChecks()
             uint16 const id = *(checksIt++);
 
             WardenCheck const& check = sWardenCheckMgr->GetCheckData(id);
-            if (!check.Str.empty())
+            if (check.Type == LUA_EVAL_CHECK)
+            {
+                buff << uint8(sizeof(_luaEvalPrefix)-1 + check.Str.size() + sizeof(_luaEvalMidfix)-1 + check.IdStr.size() + sizeof(_luaEvalPostfix)-1);
+                buff.append(_luaEvalPrefix, sizeof(_luaEvalPrefix)-1);
+                buff.append(check.Str.data(), check.Str.size());
+                buff.append(_luaEvalMidfix, sizeof(_luaEvalMidfix)-1);
+                buff.append(check.IdStr.data(), check.IdStr.size());
+                buff.append(_luaEvalPostfix, sizeof(_luaEvalPostfix)-1);
+            }
+            else if (!check.Str.empty())
             {
                 buff << uint8(check.Str.size());
                 buff.append(check.Str.data(), check.Str.size());
@@ -254,7 +271,7 @@ void WardenWin::RequestChecks()
                 break;
             }
             case MPQ_CHECK:
-            case LUA_STR_CHECK:
+            case LUA_EVAL_CHECK:
             {
                 buff << uint8(index++);
                 break;
@@ -409,26 +426,13 @@ void WardenWin::HandleCheckResult(ByteBuffer &buff)
                 TC_LOG_DEBUG("warden", "RESULT %s passed CheckId %u account Id %u", EnumUtils::ToConstant(check.Type), id, _session->GetAccountId());
                 break;
             }
-            case LUA_STR_CHECK:
+            case LUA_EVAL_CHECK:
             {
-                uint8 Lua_Result;
-                buff >> Lua_Result;
+                uint8 const result = buff.read<uint8>();
+                if (result == 0)
+                    buff.read_skip(buff.read<uint8>()); // discard attached string
 
-                if (Lua_Result == 0)
-                {
-                    uint8 luaStrLen = buff.read<uint8>();
-                    if (luaStrLen != 0)
-                    {
-                        std::string str;
-                        str.resize(luaStrLen);
-                        buff.read(reinterpret_cast<uint8*>(str.data()), luaStrLen);
-                        TC_LOG_DEBUG("warden", "Lua string: %s", str.c_str());
-                        TC_LOG_DEBUG("warden", "RESULT LUA_STR_CHECK fail, CheckId %u account Id %u", id, _session->GetAccountId());
-                        checkFailed = id;
-                        continue;
-                    }
-                }
-                TC_LOG_DEBUG("warden", "RESULT LUA_STR_CHECK passed, CheckId %u account Id %u", id, _session->GetAccountId());
+                TC_LOG_DEBUG("warden", "LUA_EVAL_CHECK CheckId %u account Id %u got in-warden dummy response (%u)", id, _session->GetAccountId(), result);
                 break;
             }
             case MPQ_CHECK:
