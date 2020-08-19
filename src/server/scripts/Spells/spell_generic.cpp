@@ -1072,7 +1072,7 @@ class spell_gen_despawn_self : public SpellScript
         return GetCaster()->GetTypeId() == TYPEID_UNIT;
     }
 
-    void HandleDummy(SpellEffIndex effIndex)
+    void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         if (GetEffectInfo()->IsEffect(SPELL_EFFECT_DUMMY) || GetEffectInfo()->IsEffect(SPELL_EFFECT_SCRIPT_EFFECT))
             GetCaster()->ToCreature()->DespawnOrUnsummon();
