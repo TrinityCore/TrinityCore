@@ -193,7 +193,11 @@ struct ArgInfo<T, std::enable_if_t<std::is_enum_v<T>>>
         U uVal = 0;
         ret = ArgInfo<U>::TryConsume(uVal, args);
         if (ret)
+        {
             val = static_cast<T>(uVal);
+            if (!EnumUtils::IsValid(val))
+                return nullptr;
+        }
 
         return ret;
     }

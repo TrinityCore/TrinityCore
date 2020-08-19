@@ -20,9 +20,7 @@
 #include "SmartEnum.h"
 #include <stdexcept>
 
-namespace Trinity
-{
-namespace Impl
+namespace Trinity::Impl
 {
 
 /***************************************************************\
@@ -70,6 +68,27 @@ TC_API_EXPORT Classes EnumUtils<Classes>::FromIndex(size_t index)
         case 10: return CLASS_DRUID;
         case 11: return CLASS_DEMON_HUNTER;
         default: throw std::out_of_range("index");
+    }
+}
+
+template <>
+TC_API_EXPORT size_t EnumUtils<Classes>::ToIndex(Classes value)
+{
+    switch (value)
+    {
+        case CLASS_WARRIOR: return 0;
+        case CLASS_PALADIN: return 1;
+        case CLASS_HUNTER: return 2;
+        case CLASS_ROGUE: return 3;
+        case CLASS_PRIEST: return 4;
+        case CLASS_DEATH_KNIGHT: return 5;
+        case CLASS_SHAMAN: return 6;
+        case CLASS_MAGE: return 7;
+        case CLASS_WARLOCK: return 8;
+        case CLASS_MONK: return 9;
+        case CLASS_DRUID: return 10;
+        case CLASS_DEMON_HUNTER: return 11;
+        default: throw std::out_of_range("value");
     }
 }
 
@@ -137,6 +156,35 @@ TC_API_EXPORT Powers EnumUtils<Powers>::FromIndex(size_t index)
     }
 }
 
+template <>
+TC_API_EXPORT size_t EnumUtils<Powers>::ToIndex(Powers value)
+{
+    switch (value)
+    {
+        case POWER_HEALTH: return 0;
+        case POWER_MANA: return 1;
+        case POWER_RAGE: return 2;
+        case POWER_FOCUS: return 3;
+        case POWER_ENERGY: return 4;
+        case POWER_COMBO_POINTS: return 5;
+        case POWER_RUNES: return 6;
+        case POWER_RUNIC_POWER: return 7;
+        case POWER_SOUL_SHARDS: return 8;
+        case POWER_LUNAR_POWER: return 9;
+        case POWER_HOLY_POWER: return 10;
+        case POWER_ALTERNATE_POWER: return 11;
+        case POWER_MAELSTROM: return 12;
+        case POWER_CHI: return 13;
+        case POWER_INSANITY: return 14;
+        case POWER_BURNING_EMBERS: return 15;
+        case POWER_DEMONIC_FURY: return 16;
+        case POWER_ARCANE_CHARGES: return 17;
+        case POWER_FURY: return 18;
+        case POWER_PAIN: return 19;
+        default: throw std::out_of_range("value");
+    }
+}
+
 /********************************************************************\
 |* data for enum 'SpellSchools' in 'SharedDefines.h' auto-generated *|
 \********************************************************************/
@@ -172,6 +220,22 @@ TC_API_EXPORT SpellSchools EnumUtils<SpellSchools>::FromIndex(size_t index)
         case 5: return SPELL_SCHOOL_SHADOW;
         case 6: return SPELL_SCHOOL_ARCANE;
         default: throw std::out_of_range("index");
+    }
+}
+
+template <>
+TC_API_EXPORT size_t EnumUtils<SpellSchools>::ToIndex(SpellSchools value)
+{
+    switch (value)
+    {
+        case SPELL_SCHOOL_NORMAL: return 0;
+        case SPELL_SCHOOL_HOLY: return 1;
+        case SPELL_SCHOOL_FIRE: return 2;
+        case SPELL_SCHOOL_NATURE: return 3;
+        case SPELL_SCHOOL_FROST: return 4;
+        case SPELL_SCHOOL_SHADOW: return 5;
+        case SPELL_SCHOOL_ARCANE: return 6;
+        default: throw std::out_of_range("value");
     }
 }
 
@@ -263,6 +327,47 @@ TC_API_EXPORT SpellAttr0 EnumUtils<SpellAttr0>::FromIndex(size_t index)
     }
 }
 
+template <>
+TC_API_EXPORT size_t EnumUtils<SpellAttr0>::ToIndex(SpellAttr0 value)
+{
+    switch (value)
+    {
+        case SPELL_ATTR0_UNK0: return 0;
+        case SPELL_ATTR0_REQ_AMMO: return 1;
+        case SPELL_ATTR0_ON_NEXT_SWING: return 2;
+        case SPELL_ATTR0_IS_REPLENISHMENT: return 3;
+        case SPELL_ATTR0_ABILITY: return 4;
+        case SPELL_ATTR0_TRADESPELL: return 5;
+        case SPELL_ATTR0_PASSIVE: return 6;
+        case SPELL_ATTR0_HIDDEN_CLIENTSIDE: return 7;
+        case SPELL_ATTR0_HIDE_IN_COMBAT_LOG: return 8;
+        case SPELL_ATTR0_TARGET_MAINHAND_ITEM: return 9;
+        case SPELL_ATTR0_ON_NEXT_SWING_2: return 10;
+        case SPELL_ATTR0_UNK11: return 11;
+        case SPELL_ATTR0_DAYTIME_ONLY: return 12;
+        case SPELL_ATTR0_NIGHT_ONLY: return 13;
+        case SPELL_ATTR0_INDOORS_ONLY: return 14;
+        case SPELL_ATTR0_OUTDOORS_ONLY: return 15;
+        case SPELL_ATTR0_NOT_SHAPESHIFT: return 16;
+        case SPELL_ATTR0_ONLY_STEALTHED: return 17;
+        case SPELL_ATTR0_DONT_AFFECT_SHEATH_STATE: return 18;
+        case SPELL_ATTR0_LEVEL_DAMAGE_CALCULATION: return 19;
+        case SPELL_ATTR0_STOP_ATTACK_TARGET: return 20;
+        case SPELL_ATTR0_IMPOSSIBLE_DODGE_PARRY_BLOCK: return 21;
+        case SPELL_ATTR0_CAST_TRACK_TARGET: return 22;
+        case SPELL_ATTR0_CASTABLE_WHILE_DEAD: return 23;
+        case SPELL_ATTR0_CASTABLE_WHILE_MOUNTED: return 24;
+        case SPELL_ATTR0_DISABLED_WHILE_ACTIVE: return 25;
+        case SPELL_ATTR0_NEGATIVE_1: return 26;
+        case SPELL_ATTR0_CASTABLE_WHILE_SITTING: return 27;
+        case SPELL_ATTR0_CANT_USED_IN_COMBAT: return 28;
+        case SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY: return 29;
+        case SPELL_ATTR0_HEARTBEAT_RESIST_CHECK: return 30;
+        case SPELL_ATTR0_CANT_CANCEL: return 31;
+        default: throw std::out_of_range("value");
+    }
+}
+
 /******************************************************************\
 |* data for enum 'SpellAttr1' in 'SharedDefines.h' auto-generated *|
 \******************************************************************/
@@ -348,6 +453,47 @@ TC_API_EXPORT SpellAttr1 EnumUtils<SpellAttr1>::FromIndex(size_t index)
         case 30: return SPELL_ATTR1_ENABLE_AT_DODGE;
         case 31: return SPELL_ATTR1_CAST_WHEN_LEARNED;
         default: throw std::out_of_range("index");
+    }
+}
+
+template <>
+TC_API_EXPORT size_t EnumUtils<SpellAttr1>::ToIndex(SpellAttr1 value)
+{
+    switch (value)
+    {
+        case SPELL_ATTR1_DISMISS_PET: return 0;
+        case SPELL_ATTR1_DRAIN_ALL_POWER: return 1;
+        case SPELL_ATTR1_CHANNELED_1: return 2;
+        case SPELL_ATTR1_CANT_BE_REDIRECTED: return 3;
+        case SPELL_ATTR1_UNK4: return 4;
+        case SPELL_ATTR1_NOT_BREAK_STEALTH: return 5;
+        case SPELL_ATTR1_CHANNELED_2: return 6;
+        case SPELL_ATTR1_CANT_BE_REFLECTED: return 7;
+        case SPELL_ATTR1_CANT_TARGET_IN_COMBAT: return 8;
+        case SPELL_ATTR1_MELEE_COMBAT_START: return 9;
+        case SPELL_ATTR1_NO_THREAT: return 10;
+        case SPELL_ATTR1_DONT_REFRESH_DURATION_ON_RECAST: return 11;
+        case SPELL_ATTR1_IS_PICKPOCKET: return 12;
+        case SPELL_ATTR1_FARSIGHT: return 13;
+        case SPELL_ATTR1_CHANNEL_TRACK_TARGET: return 14;
+        case SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY: return 15;
+        case SPELL_ATTR1_UNAFFECTED_BY_SCHOOL_IMMUNE: return 16;
+        case SPELL_ATTR1_UNAUTOCASTABLE_BY_PET: return 17;
+        case SPELL_ATTR1_UNK18: return 18;
+        case SPELL_ATTR1_CANT_TARGET_SELF: return 19;
+        case SPELL_ATTR1_REQ_COMBO_POINTS1: return 20;
+        case SPELL_ATTR1_UNK21: return 21;
+        case SPELL_ATTR1_REQ_COMBO_POINTS2: return 22;
+        case SPELL_ATTR1_UNK23: return 23;
+        case SPELL_ATTR1_IS_FISHING: return 24;
+        case SPELL_ATTR1_UNK25: return 25;
+        case SPELL_ATTR1_UNK26: return 26;
+        case SPELL_ATTR1_UNK27: return 27;
+        case SPELL_ATTR1_DONT_DISPLAY_IN_AURA_BAR: return 28;
+        case SPELL_ATTR1_CHANNEL_DISPLAY_SPELL_NAME: return 29;
+        case SPELL_ATTR1_ENABLE_AT_DODGE: return 30;
+        case SPELL_ATTR1_CAST_WHEN_LEARNED: return 31;
+        default: throw std::out_of_range("value");
     }
 }
 
@@ -439,6 +585,47 @@ TC_API_EXPORT SpellAttr2 EnumUtils<SpellAttr2>::FromIndex(size_t index)
     }
 }
 
+template <>
+TC_API_EXPORT size_t EnumUtils<SpellAttr2>::ToIndex(SpellAttr2 value)
+{
+    switch (value)
+    {
+        case SPELL_ATTR2_CAN_TARGET_DEAD: return 0;
+        case SPELL_ATTR2_UNK1: return 1;
+        case SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS: return 2;
+        case SPELL_ATTR2_UNK3: return 3;
+        case SPELL_ATTR2_DISPLAY_IN_STANCE_BAR: return 4;
+        case SPELL_ATTR2_AUTOREPEAT_FLAG: return 5;
+        case SPELL_ATTR2_CANT_TARGET_TAPPED: return 6;
+        case SPELL_ATTR2_UNK7: return 7;
+        case SPELL_ATTR2_UNK8: return 8;
+        case SPELL_ATTR2_UNK9: return 9;
+        case SPELL_ATTR2_UNK10: return 10;
+        case SPELL_ATTR2_HEALTH_FUNNEL: return 11;
+        case SPELL_ATTR2_UNK12: return 12;
+        case SPELL_ATTR2_PRESERVE_ENCHANT_IN_ARENA: return 13;
+        case SPELL_ATTR2_UNK14: return 14;
+        case SPELL_ATTR2_UNK15: return 15;
+        case SPELL_ATTR2_TAME_BEAST: return 16;
+        case SPELL_ATTR2_NOT_RESET_AUTO_ACTIONS: return 17;
+        case SPELL_ATTR2_REQ_DEAD_PET: return 18;
+        case SPELL_ATTR2_NOT_NEED_SHAPESHIFT: return 19;
+        case SPELL_ATTR2_UNK20: return 20;
+        case SPELL_ATTR2_DAMAGE_REDUCED_SHIELD: return 21;
+        case SPELL_ATTR2_UNK22: return 22;
+        case SPELL_ATTR2_IS_ARCANE_CONCENTRATION: return 23;
+        case SPELL_ATTR2_UNK24: return 24;
+        case SPELL_ATTR2_UNK25: return 25;
+        case SPELL_ATTR2_UNAFFECTED_BY_AURA_SCHOOL_IMMUNE: return 26;
+        case SPELL_ATTR2_UNK27: return 27;
+        case SPELL_ATTR2_IGNORE_ACTION_AURA_INTERRUPT_FLAGS: return 28;
+        case SPELL_ATTR2_CANT_CRIT: return 29;
+        case SPELL_ATTR2_ACTIVE_THREAT: return 30;
+        case SPELL_ATTR2_FOOD_BUFF: return 31;
+        default: throw std::out_of_range("value");
+    }
+}
+
 /******************************************************************\
 |* data for enum 'SpellAttr3' in 'SharedDefines.h' auto-generated *|
 \******************************************************************/
@@ -524,6 +711,47 @@ TC_API_EXPORT SpellAttr3 EnumUtils<SpellAttr3>::FromIndex(size_t index)
         case 30: return SPELL_ATTR3_DONT_DISPLAY_RANGE;
         case 31: return SPELL_ATTR3_UNK31;
         default: throw std::out_of_range("index");
+    }
+}
+
+template <>
+TC_API_EXPORT size_t EnumUtils<SpellAttr3>::ToIndex(SpellAttr3 value)
+{
+    switch (value)
+    {
+        case SPELL_ATTR3_UNK0: return 0;
+        case SPELL_ATTR3_NO_PROC_EQUIP_REQUIREMENT: return 1;
+        case SPELL_ATTR3_UNK2: return 2;
+        case SPELL_ATTR3_BLOCKABLE_SPELL: return 3;
+        case SPELL_ATTR3_IGNORE_RESURRECTION_TIMER: return 4;
+        case SPELL_ATTR3_UNK5: return 5;
+        case SPELL_ATTR3_UNK6: return 6;
+        case SPELL_ATTR3_STACK_FOR_DIFF_CASTERS: return 7;
+        case SPELL_ATTR3_ONLY_TARGET_PLAYERS: return 8;
+        case SPELL_ATTR3_NOT_A_PROC: return 9;
+        case SPELL_ATTR3_MAIN_HAND: return 10;
+        case SPELL_ATTR3_BATTLEGROUND: return 11;
+        case SPELL_ATTR3_ONLY_TARGET_GHOSTS: return 12;
+        case SPELL_ATTR3_DONT_DISPLAY_CHANNEL_BAR: return 13;
+        case SPELL_ATTR3_IS_HONORLESS_TARGET: return 14;
+        case SPELL_ATTR3_UNK15: return 15;
+        case SPELL_ATTR3_CANT_TRIGGER_PROC: return 16;
+        case SPELL_ATTR3_NO_INITIAL_AGGRO: return 17;
+        case SPELL_ATTR3_IGNORE_HIT_RESULT: return 18;
+        case SPELL_ATTR3_DISABLE_PROC: return 19;
+        case SPELL_ATTR3_DEATH_PERSISTENT: return 20;
+        case SPELL_ATTR3_UNK21: return 21;
+        case SPELL_ATTR3_REQ_WAND: return 22;
+        case SPELL_ATTR3_UNK23: return 23;
+        case SPELL_ATTR3_REQ_OFFHAND: return 24;
+        case SPELL_ATTR3_TREAT_AS_PERIODIC: return 25;
+        case SPELL_ATTR3_CAN_PROC_FROM_PROCS: return 26;
+        case SPELL_ATTR3_DRAIN_SOUL: return 27;
+        case SPELL_ATTR3_UNK28: return 28;
+        case SPELL_ATTR3_NO_DONE_BONUS: return 29;
+        case SPELL_ATTR3_DONT_DISPLAY_RANGE: return 30;
+        case SPELL_ATTR3_UNK31: return 31;
+        default: throw std::out_of_range("value");
     }
 }
 
@@ -615,6 +843,47 @@ TC_API_EXPORT SpellAttr4 EnumUtils<SpellAttr4>::FromIndex(size_t index)
     }
 }
 
+template <>
+TC_API_EXPORT size_t EnumUtils<SpellAttr4>::ToIndex(SpellAttr4 value)
+{
+    switch (value)
+    {
+        case SPELL_ATTR4_IGNORE_RESISTANCES: return 0;
+        case SPELL_ATTR4_PROC_ONLY_ON_CASTER: return 1;
+        case SPELL_ATTR4_AURA_EXPIRES_OFFLINE: return 2;
+        case SPELL_ATTR4_UNK3: return 3;
+        case SPELL_ATTR4_UNK4: return 4;
+        case SPELL_ATTR4_UNK5: return 5;
+        case SPELL_ATTR4_NOT_STEALABLE: return 6;
+        case SPELL_ATTR4_CAN_CAST_WHILE_CASTING: return 7;
+        case SPELL_ATTR4_FIXED_DAMAGE: return 8;
+        case SPELL_ATTR4_TRIGGER_ACTIVATE: return 9;
+        case SPELL_ATTR4_SPELL_VS_EXTEND_COST: return 10;
+        case SPELL_ATTR4_UNK11: return 11;
+        case SPELL_ATTR4_UNK12: return 12;
+        case SPELL_ATTR4_COMBAT_LOG_NO_CASTER: return 13;
+        case SPELL_ATTR4_DAMAGE_DOESNT_BREAK_AURAS: return 14;
+        case SPELL_ATTR4_HIDDEN_IN_SPELLBOOK: return 15;
+        case SPELL_ATTR4_NOT_USABLE_IN_ARENA_OR_RATED_BG: return 16;
+        case SPELL_ATTR4_USABLE_IN_ARENA: return 17;
+        case SPELL_ATTR4_AREA_TARGET_CHAIN: return 18;
+        case SPELL_ATTR4_UNK19: return 19;
+        case SPELL_ATTR4_NOT_CHECK_SELFCAST_POWER: return 20;
+        case SPELL_ATTR4_DONT_REMOVE_IN_ARENA: return 21;
+        case SPELL_ATTR4_UNK22: return 22;
+        case SPELL_ATTR4_SUPPRESS_WEAPON_PROCS: return 23;
+        case SPELL_ATTR4_UNK24: return 24;
+        case SPELL_ATTR4_IS_PET_SCALING: return 25;
+        case SPELL_ATTR4_CAST_ONLY_IN_OUTLAND: return 26;
+        case SPELL_ATTR4_UNK27: return 27;
+        case SPELL_ATTR4_UNK28: return 28;
+        case SPELL_ATTR4_UNK29: return 29;
+        case SPELL_ATTR4_UNK30: return 30;
+        case SPELL_ATTR4_UNK31: return 31;
+        default: throw std::out_of_range("value");
+    }
+}
+
 /******************************************************************\
 |* data for enum 'SpellAttr5' in 'SharedDefines.h' auto-generated *|
 \******************************************************************/
@@ -700,6 +969,47 @@ TC_API_EXPORT SpellAttr5 EnumUtils<SpellAttr5>::FromIndex(size_t index)
         case 30: return SPELL_ATTR5_UNK30;
         case 31: return SPELL_ATTR5_UNK31;
         default: throw std::out_of_range("index");
+    }
+}
+
+template <>
+TC_API_EXPORT size_t EnumUtils<SpellAttr5>::ToIndex(SpellAttr5 value)
+{
+    switch (value)
+    {
+        case SPELL_ATTR5_CAN_CHANNEL_WHEN_MOVING: return 0;
+        case SPELL_ATTR5_NO_REAGENT_WHILE_PREP: return 1;
+        case SPELL_ATTR5_REMOVE_ENTERING_ARENA: return 2;
+        case SPELL_ATTR5_USABLE_WHILE_STUNNED: return 3;
+        case SPELL_ATTR5_UNK4: return 4;
+        case SPELL_ATTR5_SINGLE_TARGET_SPELL: return 5;
+        case SPELL_ATTR5_UNK6: return 6;
+        case SPELL_ATTR5_UNK7: return 7;
+        case SPELL_ATTR5_CANT_TARGET_PLAYER_CONTROLLED: return 8;
+        case SPELL_ATTR5_START_PERIODIC_AT_APPLY: return 9;
+        case SPELL_ATTR5_HIDE_DURATION: return 10;
+        case SPELL_ATTR5_ALLOW_TARGET_OF_TARGET_AS_TARGET: return 11;
+        case SPELL_ATTR5_UNK12: return 12;
+        case SPELL_ATTR5_HASTE_AFFECT_DURATION: return 13;
+        case SPELL_ATTR5_NOT_USABLE_WHILE_CHARMED: return 14;
+        case SPELL_ATTR5_UNK15: return 15;
+        case SPELL_ATTR5_UNK16: return 16;
+        case SPELL_ATTR5_USABLE_WHILE_FEARED: return 17;
+        case SPELL_ATTR5_USABLE_WHILE_CONFUSED: return 18;
+        case SPELL_ATTR5_DONT_TURN_DURING_CAST: return 19;
+        case SPELL_ATTR5_UNK20: return 20;
+        case SPELL_ATTR5_UNK21: return 21;
+        case SPELL_ATTR5_UNK22: return 22;
+        case SPELL_ATTR5_UNK23: return 23;
+        case SPELL_ATTR5_UNK24: return 24;
+        case SPELL_ATTR5_UNK25: return 25;
+        case SPELL_ATTR5_ALWAYS_AOE_LINE_OF_SIGHT: return 26;
+        case SPELL_ATTR5_DONT_SHOW_AURA_IF_SELF_CAST: return 27;
+        case SPELL_ATTR5_DONT_SHOW_AURA_IF_NOT_SELF_CAST: return 28;
+        case SPELL_ATTR5_UNK29: return 29;
+        case SPELL_ATTR5_UNK30: return 30;
+        case SPELL_ATTR5_UNK31: return 31;
+        default: throw std::out_of_range("value");
     }
 }
 
@@ -791,6 +1101,47 @@ TC_API_EXPORT SpellAttr6 EnumUtils<SpellAttr6>::FromIndex(size_t index)
     }
 }
 
+template <>
+TC_API_EXPORT size_t EnumUtils<SpellAttr6>::ToIndex(SpellAttr6 value)
+{
+    switch (value)
+    {
+        case SPELL_ATTR6_DONT_DISPLAY_COOLDOWN: return 0;
+        case SPELL_ATTR6_ONLY_IN_ARENA: return 1;
+        case SPELL_ATTR6_IGNORE_CASTER_AURAS: return 2;
+        case SPELL_ATTR6_ASSIST_IGNORE_IMMUNE_FLAG: return 3;
+        case SPELL_ATTR6_UNK4: return 4;
+        case SPELL_ATTR6_DO_NOT_CONSUME_RESOURCES: return 5;
+        case SPELL_ATTR6_USE_SPELL_CAST_EVENT: return 6;
+        case SPELL_ATTR6_UNK7: return 7;
+        case SPELL_ATTR6_CANT_TARGET_CROWD_CONTROLLED: return 8;
+        case SPELL_ATTR6_UNK9: return 9;
+        case SPELL_ATTR6_CAN_TARGET_POSSESSED_FRIENDS: return 10;
+        case SPELL_ATTR6_NOT_IN_RAID_INSTANCE: return 11;
+        case SPELL_ATTR6_CASTABLE_WHILE_ON_VEHICLE: return 12;
+        case SPELL_ATTR6_CAN_TARGET_INVISIBLE: return 13;
+        case SPELL_ATTR6_UNK14: return 14;
+        case SPELL_ATTR6_UNK15: return 15;
+        case SPELL_ATTR6_UNK16: return 16;
+        case SPELL_ATTR6_UNK17: return 17;
+        case SPELL_ATTR6_CAST_BY_CHARMER: return 18;
+        case SPELL_ATTR6_UNK19: return 19;
+        case SPELL_ATTR6_ONLY_VISIBLE_TO_CASTER: return 20;
+        case SPELL_ATTR6_CLIENT_UI_TARGET_EFFECTS: return 21;
+        case SPELL_ATTR6_UNK22: return 22;
+        case SPELL_ATTR6_UNK23: return 23;
+        case SPELL_ATTR6_CAN_TARGET_UNTARGETABLE: return 24;
+        case SPELL_ATTR6_NOT_RESET_SWING_IF_INSTANT: return 25;
+        case SPELL_ATTR6_UNK26: return 26;
+        case SPELL_ATTR6_IGNORE_HEALING_MODIFIERS: return 27;
+        case SPELL_ATTR6_UNK28: return 28;
+        case SPELL_ATTR6_IGNORE_CASTER_DAMAGE_MODIFIERS: return 29;
+        case SPELL_ATTR6_UNK30: return 30;
+        case SPELL_ATTR6_IGNORE_CATEGORY_COOLDOWN_MODS: return 31;
+        default: throw std::out_of_range("value");
+    }
+}
+
 /******************************************************************\
 |* data for enum 'SpellAttr7' in 'SharedDefines.h' auto-generated *|
 \******************************************************************/
@@ -876,6 +1227,47 @@ TC_API_EXPORT SpellAttr7 EnumUtils<SpellAttr7>::FromIndex(size_t index)
         case 30: return SPELL_ATTR7_UNK30;
         case 31: return SPELL_ATTR7_CLIENT_INDICATOR;
         default: throw std::out_of_range("index");
+    }
+}
+
+template <>
+TC_API_EXPORT size_t EnumUtils<SpellAttr7>::ToIndex(SpellAttr7 value)
+{
+    switch (value)
+    {
+        case SPELL_ATTR7_UNK0: return 0;
+        case SPELL_ATTR7_IGNORE_DURATION_MODS: return 1;
+        case SPELL_ATTR7_REACTIVATE_AT_RESURRECT: return 2;
+        case SPELL_ATTR7_IS_CHEAT_SPELL: return 3;
+        case SPELL_ATTR7_UNK4: return 4;
+        case SPELL_ATTR7_SUMMON_TOTEM: return 5;
+        case SPELL_ATTR7_NO_PUSHBACK_ON_DAMAGE: return 6;
+        case SPELL_ATTR7_UNK7: return 7;
+        case SPELL_ATTR7_HORDE_ONLY: return 8;
+        case SPELL_ATTR7_ALLIANCE_ONLY: return 9;
+        case SPELL_ATTR7_DISPEL_CHARGES: return 10;
+        case SPELL_ATTR7_INTERRUPT_ONLY_NONPLAYER: return 11;
+        case SPELL_ATTR7_SILENCE_ONLY_NONPLAYER: return 12;
+        case SPELL_ATTR7_CAN_ALWAYS_BE_INTERRUPTED: return 13;
+        case SPELL_ATTR7_UNK14: return 14;
+        case SPELL_ATTR7_UNK15: return 15;
+        case SPELL_ATTR7_HIDDEN_IN_SPELLBOOK_WHEN_LEARNED: return 16;
+        case SPELL_ATTR7_UNK17: return 17;
+        case SPELL_ATTR7_HAS_CHARGE_EFFECT: return 18;
+        case SPELL_ATTR7_ZONE_TELEPORT: return 19;
+        case SPELL_ATTR7_UNK20: return 20;
+        case SPELL_ATTR7_UNK21: return 21;
+        case SPELL_ATTR7_IGNORES_COLD_WEATHER_FLYING_REQUIREMENT: return 22;
+        case SPELL_ATTR7_UNK23: return 23;
+        case SPELL_ATTR7_UNK24: return 24;
+        case SPELL_ATTR7_UNK25: return 25;
+        case SPELL_ATTR7_UNK26: return 26;
+        case SPELL_ATTR7_UNK27: return 27;
+        case SPELL_ATTR7_CONSOLIDATED_RAID_BUFF: return 28;
+        case SPELL_ATTR7_UNK29: return 29;
+        case SPELL_ATTR7_UNK30: return 30;
+        case SPELL_ATTR7_CLIENT_INDICATOR: return 31;
+        default: throw std::out_of_range("value");
     }
 }
 
@@ -967,6 +1359,47 @@ TC_API_EXPORT SpellAttr8 EnumUtils<SpellAttr8>::FromIndex(size_t index)
     }
 }
 
+template <>
+TC_API_EXPORT size_t EnumUtils<SpellAttr8>::ToIndex(SpellAttr8 value)
+{
+    switch (value)
+    {
+        case SPELL_ATTR8_CANT_MISS: return 0;
+        case SPELL_ATTR8_UNK1: return 1;
+        case SPELL_ATTR8_UNK2: return 2;
+        case SPELL_ATTR8_UNK3: return 3;
+        case SPELL_ATTR8_UNK4: return 4;
+        case SPELL_ATTR8_UNK5: return 5;
+        case SPELL_ATTR8_UNK6: return 6;
+        case SPELL_ATTR8_UNK7: return 7;
+        case SPELL_ATTR8_AFFECT_PARTY_AND_RAID: return 8;
+        case SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER: return 9;
+        case SPELL_ATTR8_NAME_CHANGED_DURING_TRANSFORM: return 10;
+        case SPELL_ATTR8_UNK11: return 11;
+        case SPELL_ATTR8_AURA_SEND_AMOUNT: return 12;
+        case SPELL_ATTR8_UNK13: return 13;
+        case SPELL_ATTR8_UNK14: return 14;
+        case SPELL_ATTR8_WATER_MOUNT: return 15;
+        case SPELL_ATTR8_UNK16: return 16;
+        case SPELL_ATTR8_UNK17: return 17;
+        case SPELL_ATTR8_REMEMBER_SPELLS: return 18;
+        case SPELL_ATTR8_USE_COMBO_POINTS_ON_ANY_TARGET: return 19;
+        case SPELL_ATTR8_ARMOR_SPECIALIZATION: return 20;
+        case SPELL_ATTR8_UNK21: return 21;
+        case SPELL_ATTR8_UNK22: return 22;
+        case SPELL_ATTR8_BATTLE_RESURRECTION: return 23;
+        case SPELL_ATTR8_HEALING_SPELL: return 24;
+        case SPELL_ATTR8_UNK25: return 25;
+        case SPELL_ATTR8_RAID_MARKER: return 26;
+        case SPELL_ATTR8_UNK27: return 27;
+        case SPELL_ATTR8_NOT_IN_BG_OR_ARENA: return 28;
+        case SPELL_ATTR8_MASTERY_AFFECTS_POINTS: return 29;
+        case SPELL_ATTR8_UNK30: return 30;
+        case SPELL_ATTR8_ATTACK_IGNORE_IMMUNE_TO_PC_FLAG: return 31;
+        default: throw std::out_of_range("value");
+    }
+}
+
 /******************************************************************\
 |* data for enum 'SpellAttr9' in 'SharedDefines.h' auto-generated *|
 \******************************************************************/
@@ -1052,6 +1485,47 @@ TC_API_EXPORT SpellAttr9 EnumUtils<SpellAttr9>::FromIndex(size_t index)
         case 30: return SPELL_ATTR9_UNK30;
         case 31: return SPELL_ATTR9_UNK31;
         default: throw std::out_of_range("index");
+    }
+}
+
+template <>
+TC_API_EXPORT size_t EnumUtils<SpellAttr9>::ToIndex(SpellAttr9 value)
+{
+    switch (value)
+    {
+        case SPELL_ATTR9_UNK0: return 0;
+        case SPELL_ATTR9_UNK1: return 1;
+        case SPELL_ATTR9_RESTRICTED_FLIGHT_AREA: return 2;
+        case SPELL_ATTR9_UNK3: return 3;
+        case SPELL_ATTR9_SPECIAL_DELAY_CALCULATION: return 4;
+        case SPELL_ATTR9_SUMMON_PLAYER_TOTEM: return 5;
+        case SPELL_ATTR9_UNK6: return 6;
+        case SPELL_ATTR9_UNK7: return 7;
+        case SPELL_ATTR9_AIMED_SHOT: return 8;
+        case SPELL_ATTR9_NOT_USABLE_IN_ARENA: return 9;
+        case SPELL_ATTR9_UNK10: return 10;
+        case SPELL_ATTR9_UNK11: return 11;
+        case SPELL_ATTR9_UNK12: return 12;
+        case SPELL_ATTR9_SLAM: return 13;
+        case SPELL_ATTR9_USABLE_IN_RATED_BATTLEGROUNDS: return 14;
+        case SPELL_ATTR9_UNK15: return 15;
+        case SPELL_ATTR9_UNK16: return 16;
+        case SPELL_ATTR9_UNK17: return 17;
+        case SPELL_ATTR9_UNK18: return 18;
+        case SPELL_ATTR9_UNK19: return 19;
+        case SPELL_ATTR9_UNK20: return 20;
+        case SPELL_ATTR9_UNK21: return 21;
+        case SPELL_ATTR9_UNK22: return 22;
+        case SPELL_ATTR9_UNK23: return 23;
+        case SPELL_ATTR9_UNK24: return 24;
+        case SPELL_ATTR9_UNK25: return 25;
+        case SPELL_ATTR9_UNK26: return 26;
+        case SPELL_ATTR9_UNK27: return 27;
+        case SPELL_ATTR9_UNK28: return 28;
+        case SPELL_ATTR9_UNK29: return 29;
+        case SPELL_ATTR9_UNK30: return 30;
+        case SPELL_ATTR9_UNK31: return 31;
+        default: throw std::out_of_range("value");
     }
 }
 
@@ -1143,6 +1617,47 @@ TC_API_EXPORT SpellAttr10 EnumUtils<SpellAttr10>::FromIndex(size_t index)
     }
 }
 
+template <>
+TC_API_EXPORT size_t EnumUtils<SpellAttr10>::ToIndex(SpellAttr10 value)
+{
+    switch (value)
+    {
+        case SPELL_ATTR10_UNK0: return 0;
+        case SPELL_ATTR10_UNK1: return 1;
+        case SPELL_ATTR10_USES_RANGED_SLOT_COSMETIC_ONLY: return 2;
+        case SPELL_ATTR10_UNK3: return 3;
+        case SPELL_ATTR10_WATER_SPOUT: return 4;
+        case SPELL_ATTR10_UNK5: return 5;
+        case SPELL_ATTR10_UNK6: return 6;
+        case SPELL_ATTR10_TELEPORT_PLAYER: return 7;
+        case SPELL_ATTR10_UNK8: return 8;
+        case SPELL_ATTR10_UNK9: return 9;
+        case SPELL_ATTR10_UNK10: return 10;
+        case SPELL_ATTR10_HERB_GATHERING_MINING: return 11;
+        case SPELL_ATTR10_USE_SPELL_BASE_LEVEL_FOR_SCALING: return 12;
+        case SPELL_ATTR10_RESET_COOLDOWN_ON_ENCOUNTER_END: return 13;
+        case SPELL_ATTR10_ROLLING_PERIODIC: return 14;
+        case SPELL_ATTR10_UNK15: return 15;
+        case SPELL_ATTR10_UNK16: return 16;
+        case SPELL_ATTR10_CAN_DODGE_PARRY_WHILE_CASTING: return 17;
+        case SPELL_ATTR10_UNK18: return 18;
+        case SPELL_ATTR10_UNK19: return 19;
+        case SPELL_ATTR10_UNK20: return 20;
+        case SPELL_ATTR10_UNK21: return 21;
+        case SPELL_ATTR10_UNK22: return 22;
+        case SPELL_ATTR10_UNK23: return 23;
+        case SPELL_ATTR10_UNK24: return 24;
+        case SPELL_ATTR10_UNK25: return 25;
+        case SPELL_ATTR10_UNK26: return 26;
+        case SPELL_ATTR10_UNK27: return 27;
+        case SPELL_ATTR10_UNK28: return 28;
+        case SPELL_ATTR10_MOUNT_IS_NOT_ACCOUNT_WIDE: return 29;
+        case SPELL_ATTR10_UNK30: return 30;
+        case SPELL_ATTR10_UNK31: return 31;
+        default: throw std::out_of_range("value");
+    }
+}
+
 /*******************************************************************\
 |* data for enum 'SpellAttr11' in 'SharedDefines.h' auto-generated *|
 \*******************************************************************/
@@ -1228,6 +1743,47 @@ TC_API_EXPORT SpellAttr11 EnumUtils<SpellAttr11>::FromIndex(size_t index)
         case 30: return SPELL_ATTR11_UNK30;
         case 31: return SPELL_ATTR11_UNK31;
         default: throw std::out_of_range("index");
+    }
+}
+
+template <>
+TC_API_EXPORT size_t EnumUtils<SpellAttr11>::ToIndex(SpellAttr11 value)
+{
+    switch (value)
+    {
+        case SPELL_ATTR11_UNK0: return 0;
+        case SPELL_ATTR11_UNK1: return 1;
+        case SPELL_ATTR11_SCALES_WITH_ITEM_LEVEL: return 2;
+        case SPELL_ATTR11_UNK3: return 3;
+        case SPELL_ATTR11_UNK4: return 4;
+        case SPELL_ATTR11_ABSORB_ENVIRONMENTAL_DAMAGE: return 5;
+        case SPELL_ATTR11_UNK6: return 6;
+        case SPELL_ATTR11_RANK_IGNORES_CASTER_LEVEL: return 7;
+        case SPELL_ATTR11_UNK8: return 8;
+        case SPELL_ATTR11_UNK9: return 9;
+        case SPELL_ATTR11_UNK10: return 10;
+        case SPELL_ATTR11_NOT_USABLE_IN_INSTANCES: return 11;
+        case SPELL_ATTR11_UNK12: return 12;
+        case SPELL_ATTR11_UNK13: return 13;
+        case SPELL_ATTR11_UNK14: return 14;
+        case SPELL_ATTR11_UNK15: return 15;
+        case SPELL_ATTR11_NOT_USABLE_IN_CHALLENGE_MODE: return 16;
+        case SPELL_ATTR11_UNK17: return 17;
+        case SPELL_ATTR11_UNK18: return 18;
+        case SPELL_ATTR11_UNK19: return 19;
+        case SPELL_ATTR11_UNK20: return 20;
+        case SPELL_ATTR11_UNK21: return 21;
+        case SPELL_ATTR11_UNK22: return 22;
+        case SPELL_ATTR11_UNK23: return 23;
+        case SPELL_ATTR11_UNK24: return 24;
+        case SPELL_ATTR11_UNK25: return 25;
+        case SPELL_ATTR11_UNK26: return 26;
+        case SPELL_ATTR11_UNK27: return 27;
+        case SPELL_ATTR11_UNK28: return 28;
+        case SPELL_ATTR11_UNK29: return 29;
+        case SPELL_ATTR11_UNK30: return 30;
+        case SPELL_ATTR11_UNK31: return 31;
+        default: throw std::out_of_range("value");
     }
 }
 
@@ -1319,6 +1875,47 @@ TC_API_EXPORT SpellAttr12 EnumUtils<SpellAttr12>::FromIndex(size_t index)
     }
 }
 
+template <>
+TC_API_EXPORT size_t EnumUtils<SpellAttr12>::ToIndex(SpellAttr12 value)
+{
+    switch (value)
+    {
+        case SPELL_ATTR12_UNK0: return 0;
+        case SPELL_ATTR12_UNK1: return 1;
+        case SPELL_ATTR12_UNK2: return 2;
+        case SPELL_ATTR12_UNK3: return 3;
+        case SPELL_ATTR12_UNK4: return 4;
+        case SPELL_ATTR12_UNK5: return 5;
+        case SPELL_ATTR12_UNK6: return 6;
+        case SPELL_ATTR12_UNK7: return 7;
+        case SPELL_ATTR12_UNK8: return 8;
+        case SPELL_ATTR12_IGNORE_CASTING_DISABLED: return 9;
+        case SPELL_ATTR12_UNK10: return 10;
+        case SPELL_ATTR12_UNK11: return 11;
+        case SPELL_ATTR12_UNK12: return 12;
+        case SPELL_ATTR12_UNK13: return 13;
+        case SPELL_ATTR12_UNK14: return 14;
+        case SPELL_ATTR12_UNK15: return 15;
+        case SPELL_ATTR12_UNK16: return 16;
+        case SPELL_ATTR12_UNK17: return 17;
+        case SPELL_ATTR12_UNK18: return 18;
+        case SPELL_ATTR12_UNK19: return 19;
+        case SPELL_ATTR12_UNK20: return 20;
+        case SPELL_ATTR12_UNK21: return 21;
+        case SPELL_ATTR12_UNK22: return 22;
+        case SPELL_ATTR12_START_COOLDOWN_ON_CAST_START: return 23;
+        case SPELL_ATTR12_IS_GARRISON_BUFF: return 24;
+        case SPELL_ATTR12_UNK25: return 25;
+        case SPELL_ATTR12_UNK26: return 26;
+        case SPELL_ATTR12_IS_READINESS_SPELL: return 27;
+        case SPELL_ATTR12_UNK28: return 28;
+        case SPELL_ATTR12_UNK29: return 29;
+        case SPELL_ATTR12_UNK30: return 30;
+        case SPELL_ATTR12_UNK31: return 31;
+        default: throw std::out_of_range("value");
+    }
+}
+
 /*******************************************************************\
 |* data for enum 'SpellAttr13' in 'SharedDefines.h' auto-generated *|
 \*******************************************************************/
@@ -1407,6 +2004,47 @@ TC_API_EXPORT SpellAttr13 EnumUtils<SpellAttr13>::FromIndex(size_t index)
     }
 }
 
+template <>
+TC_API_EXPORT size_t EnumUtils<SpellAttr13>::ToIndex(SpellAttr13 value)
+{
+    switch (value)
+    {
+        case SPELL_ATTR13_UNK0: return 0;
+        case SPELL_ATTR13_UNK1: return 1;
+        case SPELL_ATTR13_PASSIVE_IS_UPGRADE: return 2;
+        case SPELL_ATTR13_UNK3: return 3;
+        case SPELL_ATTR13_UNK4: return 4;
+        case SPELL_ATTR13_UNK5: return 5;
+        case SPELL_ATTR13_UNK6: return 6;
+        case SPELL_ATTR13_UNK7: return 7;
+        case SPELL_ATTR13_UNK8: return 8;
+        case SPELL_ATTR13_UNK9: return 9;
+        case SPELL_ATTR13_UNK10: return 10;
+        case SPELL_ATTR13_UNK11: return 11;
+        case SPELL_ATTR13_UNK12: return 12;
+        case SPELL_ATTR13_UNK13: return 13;
+        case SPELL_ATTR13_UNK14: return 14;
+        case SPELL_ATTR13_UNK15: return 15;
+        case SPELL_ATTR13_UNK16: return 16;
+        case SPELL_ATTR13_UNK17: return 17;
+        case SPELL_ATTR13_ACTIVATES_REQUIRED_SHAPESHIFT: return 18;
+        case SPELL_ATTR13_UNK19: return 19;
+        case SPELL_ATTR13_UNK20: return 20;
+        case SPELL_ATTR13_UNK21: return 21;
+        case SPELL_ATTR13_UNK22: return 22;
+        case SPELL_ATTR13_UNK23: return 23;
+        case SPELL_ATTR13_UNK24: return 24;
+        case SPELL_ATTR13_UNK25: return 25;
+        case SPELL_ATTR13_UNK26: return 26;
+        case SPELL_ATTR13_UNK27: return 27;
+        case SPELL_ATTR13_UNK28: return 28;
+        case SPELL_ATTR13_UNK29: return 29;
+        case SPELL_ATTR13_UNK30: return 30;
+        case SPELL_ATTR13_UNK31: return 31;
+        default: throw std::out_of_range("value");
+    }
+}
+
 /*******************************************************************\
 |* data for enum 'SpellAttr14' in 'SharedDefines.h' auto-generated *|
 \*******************************************************************/
@@ -1492,6 +2130,47 @@ TC_API_EXPORT SpellAttr14 EnumUtils<SpellAttr14>::FromIndex(size_t index)
         case 30: return SPELL_ATTR14_UNK30;
         case 31: return SPELL_ATTR14_UNK31;
         default: throw std::out_of_range("index");
+    }
+}
+
+template <>
+TC_API_EXPORT size_t EnumUtils<SpellAttr14>::ToIndex(SpellAttr14 value)
+{
+    switch (value)
+    {
+        case SPELL_ATTR14_UNK0: return 0;
+        case SPELL_ATTR14_REAGENT_COST_CONSUMES_CHARGES: return 1;
+        case SPELL_ATTR14_UNK2: return 2;
+        case SPELL_ATTR14_HIDE_PASSIVE_FROM_TOOLTIP: return 3;
+        case SPELL_ATTR14_UNK4: return 4;
+        case SPELL_ATTR14_UNK5: return 5;
+        case SPELL_ATTR14_UNK6: return 6;
+        case SPELL_ATTR14_UNK7: return 7;
+        case SPELL_ATTR14_UNK8: return 8;
+        case SPELL_ATTR14_UNK9: return 9;
+        case SPELL_ATTR14_UNK10: return 10;
+        case SPELL_ATTR14_UNK11: return 11;
+        case SPELL_ATTR14_UNK12: return 12;
+        case SPELL_ATTR14_UNK13: return 13;
+        case SPELL_ATTR14_UNK14: return 14;
+        case SPELL_ATTR14_UNK15: return 15;
+        case SPELL_ATTR14_UNK16: return 16;
+        case SPELL_ATTR14_UNK17: return 17;
+        case SPELL_ATTR14_UNK18: return 18;
+        case SPELL_ATTR14_UNK19: return 19;
+        case SPELL_ATTR14_UNK20: return 20;
+        case SPELL_ATTR14_UNK21: return 21;
+        case SPELL_ATTR14_UNK22: return 22;
+        case SPELL_ATTR14_UNK23: return 23;
+        case SPELL_ATTR14_UNK24: return 24;
+        case SPELL_ATTR14_UNK25: return 25;
+        case SPELL_ATTR14_UNK26: return 26;
+        case SPELL_ATTR14_UNK27: return 27;
+        case SPELL_ATTR14_UNK28: return 28;
+        case SPELL_ATTR14_UNK29: return 29;
+        case SPELL_ATTR14_UNK30: return 30;
+        case SPELL_ATTR14_UNK31: return 31;
+        default: throw std::out_of_range("value");
     }
 }
 
@@ -1585,6 +2264,48 @@ TC_API_EXPORT Mechanics EnumUtils<Mechanics>::FromIndex(size_t index)
     }
 }
 
+template <>
+TC_API_EXPORT size_t EnumUtils<Mechanics>::ToIndex(Mechanics value)
+{
+    switch (value)
+    {
+        case MECHANIC_NONE: return 0;
+        case MECHANIC_CHARM: return 1;
+        case MECHANIC_DISORIENTED: return 2;
+        case MECHANIC_DISARM: return 3;
+        case MECHANIC_DISTRACT: return 4;
+        case MECHANIC_FEAR: return 5;
+        case MECHANIC_GRIP: return 6;
+        case MECHANIC_ROOT: return 7;
+        case MECHANIC_SLOW_ATTACK: return 8;
+        case MECHANIC_SILENCE: return 9;
+        case MECHANIC_SLEEP: return 10;
+        case MECHANIC_SNARE: return 11;
+        case MECHANIC_STUN: return 12;
+        case MECHANIC_FREEZE: return 13;
+        case MECHANIC_KNOCKOUT: return 14;
+        case MECHANIC_BLEED: return 15;
+        case MECHANIC_BANDAGE: return 16;
+        case MECHANIC_POLYMORPH: return 17;
+        case MECHANIC_BANISH: return 18;
+        case MECHANIC_SHIELD: return 19;
+        case MECHANIC_SHACKLE: return 20;
+        case MECHANIC_MOUNT: return 21;
+        case MECHANIC_INFECTED: return 22;
+        case MECHANIC_TURN: return 23;
+        case MECHANIC_HORROR: return 24;
+        case MECHANIC_INVULNERABILITY: return 25;
+        case MECHANIC_INTERRUPT: return 26;
+        case MECHANIC_DAZE: return 27;
+        case MECHANIC_DISCOVERY: return 28;
+        case MECHANIC_IMMUNE_SHIELD: return 29;
+        case MECHANIC_SAPPED: return 30;
+        case MECHANIC_ENRAGED: return 31;
+        case MECHANIC_WOUNDED: return 32;
+        default: throw std::out_of_range("value");
+    }
+}
+
 /*********************************************************************\
 |* data for enum 'SpellDmgClass' in 'SharedDefines.h' auto-generated *|
 \*********************************************************************/
@@ -1617,6 +2338,19 @@ TC_API_EXPORT SpellDmgClass EnumUtils<SpellDmgClass>::FromIndex(size_t index)
     }
 }
 
+template <>
+TC_API_EXPORT size_t EnumUtils<SpellDmgClass>::ToIndex(SpellDmgClass value)
+{
+    switch (value)
+    {
+        case SPELL_DAMAGE_CLASS_NONE: return 0;
+        case SPELL_DAMAGE_CLASS_MAGIC: return 1;
+        case SPELL_DAMAGE_CLASS_MELEE: return 2;
+        case SPELL_DAMAGE_CLASS_RANGED: return 3;
+        default: throw std::out_of_range("value");
+    }
+}
+
 /***************************************************************************\
 |* data for enum 'SpellPreventionType' in 'SharedDefines.h' auto-generated *|
 \***************************************************************************/
@@ -1646,6 +2380,19 @@ TC_API_EXPORT SpellPreventionType EnumUtils<SpellPreventionType>::FromIndex(size
         case 2: return SPELL_PREVENTION_TYPE_PACIFY;
         case 3: return SPELL_PREVENTION_TYPE_NO_ACTIONS;
         default: throw std::out_of_range("index");
+    }
+}
+
+template <>
+TC_API_EXPORT size_t EnumUtils<SpellPreventionType>::ToIndex(SpellPreventionType value)
+{
+    switch (value)
+    {
+        case SPELL_PREVENTION_TYPE_NONE: return 0;
+        case SPELL_PREVENTION_TYPE_SILENCE: return 1;
+        case SPELL_PREVENTION_TYPE_PACIFY: return 2;
+        case SPELL_PREVENTION_TYPE_NO_ACTIONS: return 3;
+        default: throw std::out_of_range("value");
     }
 }
 
@@ -2481,6 +3228,419 @@ TC_API_EXPORT Emote EnumUtils<Emote>::FromIndex(size_t index)
     }
 }
 
+template <>
+TC_API_EXPORT size_t EnumUtils<Emote>::ToIndex(Emote value)
+{
+    switch (value)
+    {
+        case EMOTE_ONESHOT_TALK: return 0;
+        case EMOTE_ONESHOT_BOW: return 1;
+        case EMOTE_ONESHOT_WAVE: return 2;
+        case EMOTE_ONESHOT_CHEER: return 3;
+        case EMOTE_ONESHOT_EXCLAMATION: return 4;
+        case EMOTE_ONESHOT_QUESTION: return 5;
+        case EMOTE_ONESHOT_EAT: return 6;
+        case EMOTE_STATE_DANCE: return 7;
+        case EMOTE_ONESHOT_LAUGH: return 8;
+        case EMOTE_STATE_SLEEP: return 9;
+        case EMOTE_STATE_SIT: return 10;
+        case EMOTE_ONESHOT_RUDE: return 11;
+        case EMOTE_ONESHOT_ROAR: return 12;
+        case EMOTE_ONESHOT_KNEEL: return 13;
+        case EMOTE_ONESHOT_KISS: return 14;
+        case EMOTE_ONESHOT_CRY: return 15;
+        case EMOTE_ONESHOT_CHICKEN: return 16;
+        case EMOTE_ONESHOT_BEG: return 17;
+        case EMOTE_ONESHOT_APPLAUD: return 18;
+        case EMOTE_ONESHOT_SHOUT: return 19;
+        case EMOTE_ONESHOT_FLEX: return 20;
+        case EMOTE_ONESHOT_SHY: return 21;
+        case EMOTE_ONESHOT_POINT: return 22;
+        case EMOTE_STATE_STAND: return 23;
+        case EMOTE_STATE_READY_UNARMED: return 24;
+        case EMOTE_STATE_WORK_SHEATHED: return 25;
+        case EMOTE_STATE_POINT: return 26;
+        case EMOTE_STATE_NONE: return 27;
+        case EMOTE_ONESHOT_WOUND: return 28;
+        case EMOTE_ONESHOT_WOUND_CRITICAL: return 29;
+        case EMOTE_ONESHOT_ATTACK_UNARMED: return 30;
+        case EMOTE_ONESHOT_ATTACK1H: return 31;
+        case EMOTE_ONESHOT_ATTACK2HTIGHT: return 32;
+        case EMOTE_ONESHOT_ATTACK2H_LOOSE: return 33;
+        case EMOTE_ONESHOT_PARRY_UNARMED: return 34;
+        case EMOTE_ONESHOT_PARRY_SHIELD: return 35;
+        case EMOTE_ONESHOT_READY_UNARMED: return 36;
+        case EMOTE_ONESHOT_READY1H: return 37;
+        case EMOTE_ONESHOT_READY_BOW: return 38;
+        case EMOTE_ONESHOT_SPELL_PRECAST: return 39;
+        case EMOTE_ONESHOT_SPELL_CAST: return 40;
+        case EMOTE_ONESHOT_BATTLE_ROAR: return 41;
+        case EMOTE_ONESHOT_SPECIALATTACK1H: return 42;
+        case EMOTE_ONESHOT_KICK: return 43;
+        case EMOTE_ONESHOT_ATTACK_THROWN: return 44;
+        case EMOTE_STATE_STUN: return 45;
+        case EMOTE_STATE_DEAD: return 46;
+        case EMOTE_ONESHOT_SALUTE: return 47;
+        case EMOTE_STATE_KNEEL: return 48;
+        case EMOTE_STATE_USE_STANDING: return 49;
+        case EMOTE_ONESHOT_WAVE_NO_SHEATHE: return 50;
+        case EMOTE_ONESHOT_CHEER_NO_SHEATHE: return 51;
+        case EMOTE_ONESHOT_EAT_NO_SHEATHE: return 52;
+        case EMOTE_STATE_STUN_NO_SHEATHE: return 53;
+        case EMOTE_ONESHOT_DANCE: return 54;
+        case EMOTE_ONESHOT_SALUTE_NO_SHEATH: return 55;
+        case EMOTE_STATE_USE_STANDING_NO_SHEATHE: return 56;
+        case EMOTE_ONESHOT_LAUGH_NO_SHEATHE: return 57;
+        case EMOTE_STATE_WORK: return 58;
+        case EMOTE_STATE_SPELL_PRECAST: return 59;
+        case EMOTE_ONESHOT_READY_RIFLE: return 60;
+        case EMOTE_STATE_READY_RIFLE: return 61;
+        case EMOTE_STATE_WORK_MINING: return 62;
+        case EMOTE_STATE_WORK_CHOPWOOD: return 63;
+        case EMOTE_STATE_APPLAUD: return 64;
+        case EMOTE_ONESHOT_LIFTOFF: return 65;
+        case EMOTE_ONESHOT_YES: return 66;
+        case EMOTE_ONESHOT_NO: return 67;
+        case EMOTE_ONESHOT_TRAIN: return 68;
+        case EMOTE_ONESHOT_LAND: return 69;
+        case EMOTE_STATE_AT_EASE: return 70;
+        case EMOTE_STATE_READY1H: return 71;
+        case EMOTE_STATE_SPELL_KNEEL_START: return 72;
+        case EMOTE_STATE_SUBMERGED: return 73;
+        case EMOTE_ONESHOT_SUBMERGE: return 74;
+        case EMOTE_STATE_READY2H: return 75;
+        case EMOTE_STATE_READY_BOW: return 76;
+        case EMOTE_ONESHOT_MOUNT_SPECIAL: return 77;
+        case EMOTE_STATE_TALK: return 78;
+        case EMOTE_STATE_FISHING: return 79;
+        case EMOTE_ONESHOT_FISHING: return 80;
+        case EMOTE_ONESHOT_LOOT: return 81;
+        case EMOTE_STATE_WHIRLWIND: return 82;
+        case EMOTE_STATE_DROWNED: return 83;
+        case EMOTE_STATE_HOLD_BOW: return 84;
+        case EMOTE_STATE_HOLD_RIFLE: return 85;
+        case EMOTE_STATE_HOLD_THROWN: return 86;
+        case EMOTE_ONESHOT_DROWN: return 87;
+        case EMOTE_ONESHOT_STOMP: return 88;
+        case EMOTE_ONESHOT_ATTACK_OFF: return 89;
+        case EMOTE_ONESHOT_ATTACK_OFF_PIERCE: return 90;
+        case EMOTE_STATE_ROAR: return 91;
+        case EMOTE_STATE_LAUGH: return 92;
+        case EMOTE_ONESHOT_CREATURE_SPECIAL: return 93;
+        case EMOTE_ONESHOT_JUMPLANDRUN: return 94;
+        case EMOTE_ONESHOT_JUMPEND: return 95;
+        case EMOTE_ONESHOT_TALK_NO_SHEATHE: return 96;
+        case EMOTE_ONESHOT_POINT_NO_SHEATHE: return 97;
+        case EMOTE_STATE_CANNIBALIZE: return 98;
+        case EMOTE_ONESHOT_JUMPSTART: return 99;
+        case EMOTE_STATE_DANCESPECIAL: return 100;
+        case EMOTE_ONESHOT_DANCESPECIAL: return 101;
+        case EMOTE_ONESHOT_CUSTOM_SPELL_01: return 102;
+        case EMOTE_ONESHOT_CUSTOM_SPELL_02: return 103;
+        case EMOTE_ONESHOT_CUSTOM_SPELL_03: return 104;
+        case EMOTE_ONESHOT_CUSTOM_SPELL_04: return 105;
+        case EMOTE_ONESHOT_CUSTOM_SPELL_05: return 106;
+        case EMOTE_ONESHOT_CUSTOM_SPELL_06: return 107;
+        case EMOTE_ONESHOT_CUSTOM_SPELL_07: return 108;
+        case EMOTE_ONESHOT_CUSTOM_SPELL_08: return 109;
+        case EMOTE_ONESHOT_CUSTOM_SPELL_09: return 110;
+        case EMOTE_ONESHOT_CUSTOM_SPELL_10: return 111;
+        case EMOTE_STATE_EXCLAIM: return 112;
+        case EMOTE_STATE_DANCE_CUSTOM: return 113;
+        case EMOTE_STATE_SIT_CHAIR_MED: return 114;
+        case EMOTE_STATE_CUSTOM_SPELL_01: return 115;
+        case EMOTE_STATE_CUSTOM_SPELL_02: return 116;
+        case EMOTE_STATE_EAT: return 117;
+        case EMOTE_STATE_CUSTOM_SPELL_04: return 118;
+        case EMOTE_STATE_CUSTOM_SPELL_03: return 119;
+        case EMOTE_STATE_CUSTOM_SPELL_05: return 120;
+        case EMOTE_STATE_SPELLEFFECT_HOLD: return 121;
+        case EMOTE_STATE_EAT_NO_SHEATHE: return 122;
+        case EMOTE_STATE_MOUNT: return 123;
+        case EMOTE_STATE_READY2HL: return 124;
+        case EMOTE_STATE_SIT_CHAIR_HIGH: return 125;
+        case EMOTE_STATE_FALL: return 126;
+        case EMOTE_STATE_LOOT: return 127;
+        case EMOTE_STATE_SUBMERGED_NEW: return 128;
+        case EMOTE_ONESHOT_COWER: return 129;
+        case EMOTE_STATE_COWER: return 130;
+        case EMOTE_ONESHOT_USE_STANDING: return 131;
+        case EMOTE_STATE_STEALTH_STAND: return 132;
+        case EMOTE_ONESHOT_OMNICAST_GHOUL: return 133;
+        case EMOTE_ONESHOT_ATTACK_BOW: return 134;
+        case EMOTE_ONESHOT_ATTACK_RIFLE: return 135;
+        case EMOTE_STATE_SWIM_IDLE: return 136;
+        case EMOTE_STATE_ATTACK_UNARMED: return 137;
+        case EMOTE_ONESHOT_SPELL_CAST_W_SOUND: return 138;
+        case EMOTE_ONESHOT_DODGE: return 139;
+        case EMOTE_ONESHOT_PARRY1H: return 140;
+        case EMOTE_ONESHOT_PARRY2H: return 141;
+        case EMOTE_ONESHOT_PARRY2HL: return 142;
+        case EMOTE_STATE_FLYFALL: return 143;
+        case EMOTE_ONESHOT_FLYDEATH: return 144;
+        case EMOTE_STATE_FLY_FALL: return 145;
+        case EMOTE_ONESHOT_FLY_SIT_GROUND_DOWN: return 146;
+        case EMOTE_ONESHOT_FLY_SIT_GROUND_UP: return 147;
+        case EMOTE_ONESHOT_EMERGE: return 148;
+        case EMOTE_ONESHOT_DRAGON_SPIT: return 149;
+        case EMOTE_STATE_SPECIAL_UNARMED: return 150;
+        case EMOTE_ONESHOT_FLYGRAB: return 151;
+        case EMOTE_STATE_FLYGRABCLOSED: return 152;
+        case EMOTE_ONESHOT_FLYGRABTHROWN: return 153;
+        case EMOTE_STATE_FLY_SIT_GROUND: return 154;
+        case EMOTE_STATE_WALK_BACKWARDS: return 155;
+        case EMOTE_ONESHOT_FLYTALK: return 156;
+        case EMOTE_ONESHOT_FLYATTACK1H: return 157;
+        case EMOTE_STATE_CUSTOM_SPELL_08: return 158;
+        case EMOTE_ONESHOT_FLY_DRAGON_SPIT: return 159;
+        case EMOTE_STATE_SIT_CHAIR_LOW: return 160;
+        case EMOTE_ONESHOT_STUN: return 161;
+        case EMOTE_ONESHOT_SPELL_CAST_OMNI: return 162;
+        case EMOTE_STATE_READY_THROWN: return 163;
+        case EMOTE_ONESHOT_WORK_CHOPWOOD: return 164;
+        case EMOTE_ONESHOT_WORK_MINING: return 165;
+        case EMOTE_STATE_SPELL_CHANNEL_OMNI: return 166;
+        case EMOTE_STATE_SPELL_CHANNEL_DIRECTED: return 167;
+        case EMOTE_STAND_STATE_NONE: return 168;
+        case EMOTE_STATE_READYJOUST: return 169;
+        case EMOTE_STATE_STRANGULATE: return 170;
+        case EMOTE_STATE_STRANGULATE2: return 171;
+        case EMOTE_STATE_READY_SPELL_OMNI: return 172;
+        case EMOTE_STATE_HOLD_JOUST: return 173;
+        case EMOTE_ONESHOT_CRY_JAINA: return 174;
+        case EMOTE_ONESHOT_SPECIAL_UNARMED: return 175;
+        case EMOTE_STATE_DANCE_NOSHEATHE: return 176;
+        case EMOTE_ONESHOT_SNIFF: return 177;
+        case EMOTE_ONESHOT_DRAGONSTOMP: return 178;
+        case EMOTE_ONESHOT_KNOCKDOWN: return 179;
+        case EMOTE_STATE_READ: return 180;
+        case EMOTE_ONESHOT_FLYEMOTETALK: return 181;
+        case EMOTE_STATE_READ_ALLOWMOVEMENT: return 182;
+        case EMOTE_STATE_CUSTOM_SPELL_06: return 183;
+        case EMOTE_STATE_CUSTOM_SPELL_07: return 184;
+        case EMOTE_STATE_CUSTOM_SPELL_08_2: return 185;
+        case EMOTE_STATE_CUSTOM_SPELL_09: return 186;
+        case EMOTE_STATE_CUSTOM_SPELL_10: return 187;
+        case EMOTE_STATE_READY1H_ALLOW_MOVEMENT: return 188;
+        case EMOTE_STATE_READY2H_ALLOW_MOVEMENT: return 189;
+        case EMOTE_ONESHOT_MONKOFFENSE_ATTACKUNARMED: return 190;
+        case EMOTE_ONESHOT_MONKOFFENSE_SPECIALUNARMED: return 191;
+        case EMOTE_ONESHOT_MONKOFFENSE_PARRYUNARMED: return 192;
+        case EMOTE_STATE_MONKOFFENSE_READYUNARMED: return 193;
+        case EMOTE_ONESHOT_PALMSTRIKE: return 194;
+        case EMOTE_STATE_CRANE: return 195;
+        case EMOTE_ONESHOT_OPEN: return 196;
+        case EMOTE_STATE_READ_CHRISTMAS: return 197;
+        case EMOTE_ONESHOT_FLYATTACK2HL: return 198;
+        case EMOTE_ONESHOT_FLYATTACKTHROWN: return 199;
+        case EMOTE_STATE_FLYREADYSPELLDIRECTED: return 200;
+        case EMOTE_STATE_FLY_READY_1H: return 201;
+        case EMOTE_STATE_MEDITATE: return 202;
+        case EMOTE_STATE_FLY_READY_2HL: return 203;
+        case EMOTE_ONESHOT_TOGROUND: return 204;
+        case EMOTE_ONESHOT_TOFLY: return 205;
+        case EMOTE_STATE_ATTACKTHROWN: return 206;
+        case EMOTE_STATE_SPELL_CHANNEL_DIRECTED_NOSOUND: return 207;
+        case EMOTE_ONESHOT_WORK: return 208;
+        case EMOTE_STATE_READYUNARMED_NOSOUND: return 209;
+        case EMOTE_ONESHOT_MONKOFFENSE_ATTACKUNARMEDOFF: return 210;
+        case EMOTE_RECLINED_MOUNT_PASSENGER: return 211;
+        case EMOTE_ONESHOT_QUESTION_2: return 212;
+        case EMOTE_ONESHOT_SPELL_CHANNEL_DIRECTED_NOSOUND: return 213;
+        case EMOTE_STATE_KNEEL_2: return 214;
+        case EMOTE_ONESHOT_FLYATTACKUNARMED: return 215;
+        case EMOTE_ONESHOT_FLYCOMBATWOUND: return 216;
+        case EMOTE_ONESHOT_MOUNTSELFSPECIAL: return 217;
+        case EMOTE_ONESHOT_ATTACKUNARMED_NOSOUND: return 218;
+        case EMOTE_STATE_WOUNDCRITICAL_DOESNT_WORK: return 219;
+        case EMOTE_ONESHOT_ATTACK1H_NO_SOUND: return 220;
+        case EMOTE_STATE_MOUNT_SELF_IDLE: return 221;
+        case EMOTE_ONESHOT_WALK: return 222;
+        case EMOTE_STATE_OPENED: return 223;
+        case EMOTE_STATE_CUSTOMSPELL03: return 224;
+        case EMOTE_ONESHOT_BREATHOFFIRE: return 225;
+        case EMOTE_STATE_ATTACK1H: return 226;
+        case EMOTE_STATE_WORK_CHOPWOOD_2: return 227;
+        case EMOTE_STATE_USESTANDING_LOOP: return 228;
+        case EMOTE_STATE_USESTANDING: return 229;
+        case EMOTE_ONESHOT_SHEATH: return 230;
+        case EMOTE_ONESHOT_LAUGH_NO_SOUND: return 231;
+        case EMOTE_RECLINED_MOUNT: return 232;
+        case EMOTE_ONESHOT_ATTACK1H_2: return 233;
+        case EMOTE_STATE_CRY_NOSOUND: return 234;
+        case EMOTE_ONESHOT_CRY_NOSOUND: return 235;
+        case EMOTE_ONESHOT_COMBATCRITICAL: return 236;
+        case EMOTE_STATE_TRAIN: return 237;
+        case EMOTE_STATE_WORK_CHOPWOOD_LUMBER_AXE: return 238;
+        case EMOTE_ONESHOT_SPECIALATTACK2H: return 239;
+        case EMOTE_STATE_READ_AND_TALK: return 240;
+        case EMOTE_ONESHOT_STAND_VAR1: return 241;
+        case EMOTE_REXXAR_STRANGLES_GOBLIN: return 242;
+        case EMOTE_ONESHOT_STAND_VAR2: return 243;
+        case EMOTE_ONESHOT_DEATH: return 244;
+        case EMOTE_STATE_TALKONCE: return 245;
+        case EMOTE_STATE_ATTACK2H: return 246;
+        case EMOTE_STATE_SIT_GROUND: return 247;
+        case EMOTE_STATE_WORK_CHOPWOOD3: return 248;
+        case EMOTE_STATE_CUSTOMSPELL01: return 249;
+        case EMOTE_ONESHOT_COMBATWOUND: return 250;
+        case EMOTE_ONESHOT_TALK_EXCLAMATION: return 251;
+        case EMOTE_ONESHOT_QUESTION2: return 252;
+        case EMOTE_STATE_CRY: return 253;
+        case EMOTE_STATE_USESTANDING_LOOP2: return 254;
+        case EMOTE_STATE_WORK_SMITH: return 255;
+        case EMOTE_STATE_WORK_CHOPWOOD4: return 256;
+        case EMOTE_STATE_CUSTOMSPELL02: return 257;
+        case EMOTE_STATE_READ_AND_SIT: return 258;
+        case EMOTE_STATE_PARRY_UNARMED: return 259;
+        case EMOTE_STATE_BLOCK_SHIELD: return 260;
+        case EMOTE_STATE_SIT_GROUND_2: return 261;
+        case EMOTE_ONESHOT_MOUNTSPECIAL: return 262;
+        case EMOTE_ONESHOT_SETTLE: return 263;
+        case EMOTE_STATE_ATTACK_UNARMED_STILL: return 264;
+        case EMOTE_STATE_READ_BOOK_AND_TALK: return 265;
+        case EMOTE_ONESHOT_SLAM: return 266;
+        case EMOTE_ONESHOT_GRABTHROWN: return 267;
+        case EMOTE_ONESHOT_READYSPELLDIRECTED_NOSOUND: return 268;
+        case EMOTE_STATE_READYSPELLOMNI_WITH_SOUND: return 269;
+        case EMOTE_ONESHOT_TALK_BARSERVER: return 270;
+        case EMOTE_ONESHOT_WAVE_BARSERVER: return 271;
+        case EMOTE_STATE_WORK_MINING2: return 272;
+        case EMOTE_STATE_READY2HL_ALLOW_MOVEMENT: return 273;
+        case EMOTE_STATE_USESTANDING_NOSHEATHE_STILL: return 274;
+        case EMOTE_ONESHOT_WORK_STILL: return 275;
+        case EMOTE_STATE_HOLD_THROWN_INTERRUPTS: return 276;
+        case EMOTE_ONESHOT_CANNIBALIZE: return 277;
+        case EMOTE_ONESHOT_NO_NOT_SWIMMING: return 278;
+        case EMOTE_STATE_READYGLV: return 279;
+        case EMOTE_ONESHOT_COMBATABILITYGLV01: return 280;
+        case EMOTE_ONESHOT_COMBATABILITYGLVOFF01: return 281;
+        case EMOTE_ONESHOT_COMBATABILITYGLVBIG02: return 282;
+        case EMOTE_ONESHOT_PARRYGLV: return 283;
+        case EMOTE_STATE_WORK_MINING3: return 284;
+        case EMOTE_ONESHOT_TALK_NOSHEATHE: return 285;
+        case EMOTE_ONESHOT_STAND_VAR3: return 286;
+        case EMOTE_STATE_KNEEL2: return 287;
+        case EMOTE_ONESHOT_CUSTOM0: return 288;
+        case EMOTE_ONESHOT_CUSTOM1: return 289;
+        case EMOTE_ONESHOT_CUSTOM2: return 290;
+        case EMOTE_ONESHOT_CUSTOM3: return 291;
+        case EMOTE_STATE_FLY_READY_UNARMED: return 292;
+        case EMOTE_ONESHOT_CHEER_FORTHEALLIANCE: return 293;
+        case EMOTE_ONESHOT_CHEER_FORTHEHORDE: return 294;
+        case EMOTE_ONESHOT_STAND_VAR4: return 295;
+        case EMOTE_ONESHOT_FLYEMOTEEXCLAMATION: return 296;
+        case EMOTE_STATE_EMOTEEAT: return 297;
+        case EMOTE_STATE_MONKHEAL_CHANNELOMNI: return 298;
+        case EMOTE_STATE_MONKDEFENSE_READYUNARMED: return 299;
+        case EMOTE_ONESHOT_STAND: return 300;
+        case EMOTE_STATE_WAPOURHOLD: return 301;
+        case EMOTE_STATE_READYBLOWDART: return 302;
+        case EMOTE_STATE_WORK_CHOPMEAT: return 303;
+        case EMOTE_STATE_MONK2HLIDLE: return 304;
+        case EMOTE_STATE_WAPERCH: return 305;
+        case EMOTE_STATE_WAGUARDSTAND01: return 306;
+        case EMOTE_STATE_READ_AND_SIT_CHAIR_MED: return 307;
+        case EMOTE_STATE_WAGUARDSTAND02: return 308;
+        case EMOTE_STATE_WAGUARDSTAND03: return 309;
+        case EMOTE_STATE_WAGUARDSTAND04: return 310;
+        case EMOTE_STATE_WACHANT02: return 311;
+        case EMOTE_STATE_WALEAN01: return 312;
+        case EMOTE_STATE_DRUNKWALK: return 313;
+        case EMOTE_STATE_WASCRUBBING: return 314;
+        case EMOTE_STATE_WACHANT01: return 315;
+        case EMOTE_STATE_WACHANT03: return 316;
+        case EMOTE_STATE_WASUMMON01: return 317;
+        case EMOTE_STATE_WATRANCE01: return 318;
+        case EMOTE_STATE_CUSTOMSPELL05: return 319;
+        case EMOTE_STATE_WAHAMMERLOOP: return 320;
+        case EMOTE_STATE_WABOUND01: return 321;
+        case EMOTE_STATE_WABOUND02: return 322;
+        case EMOTE_STATE_WASACKHOLD: return 323;
+        case EMOTE_STATE_WASIT01: return 324;
+        case EMOTE_STATE_WAROWINGSTANDLEFT: return 325;
+        case EMOTE_STATE_WAROWINGSTANDRIGHT: return 326;
+        case EMOTE_STATE_LOOT_BITE_SOUND: return 327;
+        case EMOTE_ONESHOT_WASUMMON01: return 328;
+        case EMOTE_ONESHOT_STAND_VAR2_2: return 329;
+        case EMOTE_ONESHOT_FALCONEER_START: return 330;
+        case EMOTE_STATE_FALCONEER_LOOP: return 331;
+        case EMOTE_ONESHOT_FALCONEER_END: return 332;
+        case EMOTE_STATE_WAPERCH_NOINTERACT: return 333;
+        case EMOTE_ONESHOT_WASTANDDRINK: return 334;
+        case EMOTE_STATE_WALEAN02: return 335;
+        case EMOTE_ONESHOT_READ_END: return 336;
+        case EMOTE_STATE_WAGUARDSTAND04_ALLOW_MOVEMENT: return 337;
+        case EMOTE_STATE_READYCROSSBOW: return 338;
+        case EMOTE_ONESHOT_WASTANDDRINK_NOSHEATH: return 339;
+        case EMOTE_STATE_WAHANG01: return 340;
+        case EMOTE_STATE_WABEGGARSTAND: return 341;
+        case EMOTE_STATE_WADRUNKSTAND: return 342;
+        case EMOTE_ONESHOT_WACRIERTALK: return 343;
+        case EMOTE_STATE_HOLD_CROSSBOW: return 344;
+        case EMOTE_STATE_WASIT02: return 345;
+        case EMOTE_STATE_WACRANKSTAND: return 346;
+        case EMOTE_ONESHOT_READ_START: return 347;
+        case EMOTE_ONESHOT_READ_LOOP: return 348;
+        case EMOTE_ONESHOT_WADRUNKDRINK: return 349;
+        case EMOTE_STATE_SIT_CHAIR_MED_EAT: return 350;
+        case EMOTE_STATE_KNEEL_COPY: return 351;
+        case EMOTE_STATE_WORK_CHOPMEAT_NOSHEATHE: return 352;
+        case EMOTE_ONESHOT_BARPATRON_POINT: return 353;
+        case EMOTE_STATE_STAND_NOSOUND: return 354;
+        case EMOTE_STATE_MOUNT_FLIGHT_IDLE_NOSOUND: return 355;
+        case EMOTE_STATE_USESTANDING_LOOP3: return 356;
+        case EMOTE_ONESHOT_VEHICLEGRAB: return 357;
+        case EMOTE_STATE_USESTANDING_LOOP4: return 358;
+        case EMOTE_STATE_BARPATRON_STAND: return 359;
+        case EMOTE_ONESHOT_WABEGGARPOINT: return 360;
+        case EMOTE_STATE_WACRIERSTAND01: return 361;
+        case EMOTE_ONESHOT_WABEGGARBEG: return 362;
+        case EMOTE_STATE_WABOATWHEELSTAND: return 363;
+        case EMOTE_STATE_WASIT03: return 364;
+        case EMOTE_STATE_BARSWEEP_STAND: return 365;
+        case EMOTE_STATE_WAGUARDSTAND05: return 366;
+        case EMOTE_STATE_WAGUARDSTAND06: return 367;
+        case EMOTE_STATE_BARTENDSTAND: return 368;
+        case EMOTE_STATE_WAHAMMERLOOP2: return 369;
+        case EMOTE_STATE_WORK_MINING_NO_COMBAT: return 370;
+        case EMOTE_ONESHOT_CASTSTRONG: return 371;
+        case EMOTE_STATE_CUSTOMSPELL07: return 372;
+        case EMOTE_STATE_WALK: return 373;
+        case EMOTE_ONESHOT_CLOSE: return 374;
+        case EMOTE_STATE_WACRATEHOLD: return 375;
+        case EMOTE_STATE_FLYCUSTOMSPELL02: return 376;
+        case EMOTE_ONESHOT_SLEEP: return 377;
+        case EMOTE_STATE_STAND_SETEMOTESTATE: return 378;
+        case EMOTE_ONESHOT_WAWALKTALK: return 379;
+        case EMOTE_ONESHOT_TAKE_OFF_FINISH: return 380;
+        case EMOTE_ONESHOT_ATTACK2H: return 381;
+        case EMOTE_STATE_WA_BARREL_HOLD: return 382;
+        case EMOTE_STATE_WA_BARREL_WALK: return 383;
+        case EMOTE_STATE_CUSTOMSPELL04: return 384;
+        case EMOTE_STATE_FLYWAPERCH01: return 385;
+        case EMOTE_ONESHOT_PALSPELLCAST1HUP: return 386;
+        case EMOTE_ONESHOT_READYSPELLOMNI: return 387;
+        case EMOTE_ONESHOT_SPELLCAST_DIRECTED: return 388;
+        case EMOTE_STATE_FLYCUSTOMSPELL07: return 389;
+        case EMOTE_STATE_FLYCHANNELCASTOMNI: return 390;
+        case EMOTE_STATE_CLOSED: return 391;
+        case EMOTE_STATE_CUSTOMSPELL10: return 392;
+        case EMOTE_STATE_WAWHEELBARROWSTAND: return 393;
+        case EMOTE_STATE_CUSTOMSPELL06: return 394;
+        case EMOTE_STATE_CUSTOM1: return 395;
+        case EMOTE_STATE_WASIT04: return 396;
+        case EMOTE_ONESHOT_BARSWEEP_STAND: return 397;
+        case EMOTE_TORGHAST_TALKING_HEAD_MAW_CAST_SOUND: return 398;
+        case EMOTE_TORGHAST_TALKING_HEAD_MAW_CAST_SOUND2: return 399;
+        case EMOTE_ONESHOT_STAND_VAR0: return 400;
+        case EMOTE_ONESHOT_FLYCUSTOMSPELL01: return 401;
+        case EMOTE_ONESHOT_SPELLEFFECT_DECAY: return 402;
+        case EMOTE_STATE_CREATURE_SPECIAL: return 403;
+        default: throw std::out_of_range("value");
+    }
+}
+
 /************************************************************************\
 |* data for enum 'SpellFamilyNames' in 'SharedDefines.h' auto-generated *|
 \************************************************************************/
@@ -2552,5 +3712,37 @@ TC_API_EXPORT SpellFamilyNames EnumUtils<SpellFamilyNames>::FromIndex(size_t ind
         default: throw std::out_of_range("index");
     }
 }
+
+template <>
+TC_API_EXPORT size_t EnumUtils<SpellFamilyNames>::ToIndex(SpellFamilyNames value)
+{
+    switch (value)
+    {
+        case SPELLFAMILY_GENERIC: return 0;
+        case SPELLFAMILY_UNK1: return 1;
+        case SPELLFAMILY_MAGE: return 2;
+        case SPELLFAMILY_WARRIOR: return 3;
+        case SPELLFAMILY_WARLOCK: return 4;
+        case SPELLFAMILY_PRIEST: return 5;
+        case SPELLFAMILY_DRUID: return 6;
+        case SPELLFAMILY_ROGUE: return 7;
+        case SPELLFAMILY_HUNTER: return 8;
+        case SPELLFAMILY_PALADIN: return 9;
+        case SPELLFAMILY_SHAMAN: return 10;
+        case SPELLFAMILY_UNK2: return 11;
+        case SPELLFAMILY_POTION: return 12;
+        case SPELLFAMILY_DEATHKNIGHT: return 13;
+        case SPELLFAMILY_PET: return 14;
+        case SPELLFAMILY_TOTEMS: return 15;
+        case SPELLFAMILY_MONK: return 16;
+        case SPELLFAMILY_WARLOCK_PET: return 17;
+        case SPELLFAMILY_UNK66: return 18;
+        case SPELLFAMILY_UNK71: return 19;
+        case SPELLFAMILY_UNK78: return 20;
+        case SPELLFAMILY_UNK91: return 21;
+        case SPELLFAMILY_UNK100: return 22;
+        case SPELLFAMILY_DEMON_HUNTER: return 23;
+        default: throw std::out_of_range("value");
+    }
 }
 }
