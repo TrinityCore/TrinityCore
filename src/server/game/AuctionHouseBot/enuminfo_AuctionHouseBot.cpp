@@ -61,6 +61,22 @@ TC_API_EXPORT AuctionQuality EnumUtils<AuctionQuality>::FromIndex(size_t index)
     }
 }
 
+template <>
+TC_API_EXPORT size_t EnumUtils<AuctionQuality>::ToIndex(AuctionQuality value)
+{
+    switch (value)
+    {
+        case AUCTION_QUALITY_GRAY: return 0;
+        case AUCTION_QUALITY_WHITE: return 1;
+        case AUCTION_QUALITY_GREEN: return 2;
+        case AUCTION_QUALITY_BLUE: return 3;
+        case AUCTION_QUALITY_PURPLE: return 4;
+        case AUCTION_QUALITY_ORANGE: return 5;
+        case AUCTION_QUALITY_YELLOW: return 6;
+        default: throw std::out_of_range("value");
+    }
+}
+
 /**************************************************************************\
 |* data for enum 'AuctionHouseType' in 'AuctionHouseBot.h' auto-generated *|
 \**************************************************************************/
@@ -88,6 +104,18 @@ TC_API_EXPORT AuctionHouseType EnumUtils<AuctionHouseType>::FromIndex(size_t ind
         case 1: return AUCTION_HOUSE_ALLIANCE;
         case 2: return AUCTION_HOUSE_HORDE;
         default: throw std::out_of_range("index");
+    }
+}
+
+template <>
+TC_API_EXPORT size_t EnumUtils<AuctionHouseType>::ToIndex(AuctionHouseType value)
+{
+    switch (value)
+    {
+        case AUCTION_HOUSE_NEUTRAL: return 0;
+        case AUCTION_HOUSE_ALLIANCE: return 1;
+        case AUCTION_HOUSE_HORDE: return 2;
+        default: throw std::out_of_range("value");
     }
 }
 }

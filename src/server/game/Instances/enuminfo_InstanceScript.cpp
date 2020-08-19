@@ -58,4 +58,19 @@ TC_API_EXPORT EncounterState EnumUtils<EncounterState>::FromIndex(size_t index)
         default: throw std::out_of_range("index");
     }
 }
+
+template <>
+TC_API_EXPORT size_t EnumUtils<EncounterState>::ToIndex(EncounterState value)
+{
+    switch (value)
+    {
+        case NOT_STARTED: return 0;
+        case IN_PROGRESS: return 1;
+        case FAIL: return 2;
+        case DONE: return 3;
+        case SPECIAL: return 4;
+        case TO_BE_DECIDED: return 5;
+        default: throw std::out_of_range("value");
+    }
+}
 }
