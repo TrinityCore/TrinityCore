@@ -42,23 +42,24 @@ void WorldSession::HandleTaxiNodeStatusQueryOpcode(WorldPackets::Taxi::TaxiNodeS
 
 void WorldSession::SendTaxiStatus(ObjectGuid guid)
 {
-    // cheating checks
-    Creature* unit = ObjectAccessor::GetCreature(*GetPlayer(), guid);
-    if (!unit)
+    Player* const player = GetPlayer();
+    Creature* unit = ObjectAccessor::GetCreature(*player, guid);
+    if (!unit || unit->IsHostileTo(player) || !unit->HasNpcFlag(UNIT_NPC_FLAG_FLIGHTMASTER))
     {
         TC_LOG_DEBUG("network", "WorldSession::SendTaxiStatus - %s not found.", guid.ToString().c_str());
         return;
     }
 
-    uint32 curloc = sObjectMgr->GetNearestTaxiNode(unit->GetPositionX(), unit->GetPositionY(), unit->GetPositionZ(), unit->GetMapId(), GetPlayer()->GetTeam());
+    // find taxi node
+    uint32 nearest = sObjectMgr->GetNearestTaxiNode(unit->GetPositionX(), unit->GetPositionY(), unit->GetPositionZ(), unit->GetMapId(), player->GetTeam());
 
     WorldPackets::Taxi::TaxiNodeStatus data;
     data.Unit = guid;
 
-    if (!curloc)
+    if (!nearest)
         data.Status = TAXISTATUS_NONE;
     else if (unit->GetReactionTo(GetPlayer()) >= REP_NEUTRAL)
-        data.Status = GetPlayer()->m_taxi.IsTaximaskNodeKnown(curloc) ? TAXISTATUS_LEARNED : TAXISTATUS_UNLEARNED;
+        data.Status = GetPlayer()->m_taxi.IsTaximaskNodeKnown(nearest) ? TAXISTATUS_LEARNED : TAXISTATUS_UNLEARNED;
     else
         data.Status = TAXISTATUS_NOT_ELIGIBLE;
 
