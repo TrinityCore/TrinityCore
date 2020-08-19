@@ -265,30 +265,11 @@ public:
     }
 
     //teleport at coordinates
-    static bool HandleGoZoneXYCommand(ChatHandler* handler, char const* args)
+    static bool HandleGoZoneXYCommand(ChatHandler* handler, float x, float y, Optional<Variant<Hyperlink<area>, uint32>> areaIdArg)
     {
-        if (!*args)
-            return false;
-
         Player* player = handler->GetSession()->GetPlayer();
 
-        char* zoneX = strtok((char*)args, " ");
-        char* zoneY = strtok(nullptr, " ");
-        char* tail = strtok(nullptr, "");
-
-        char* id = handler->extractKeyFromLink(tail, "Harea");       // string or [name] Shift-click form |color|Harea:area_id|h[name]|h|r
-
-        if (!zoneX || !zoneY)
-            return false;
-
-        float x = (float)atof(zoneX);
-        float y = (float)atof(zoneY);
-
-        // prevent accept wrong numeric args
-        if ((x == 0.0f && *zoneX != '0') || (y == 0.0f && *zoneY != '0'))
-            return false;
-
-        uint32 areaId = id ? atoul(id) : player->GetZoneId();
+        uint32 areaId = areaIdArg ? *areaIdArg : player->GetZoneId();
 
         AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(areaId);
 
