@@ -19,8 +19,8 @@
 #define TRINITYCORE_QUEST_H
 
 #include "Common.h"
-#include "DBCEnums.h"
 #include "DatabaseEnvFwd.h"
+#include "DBCEnums.h"
 #include "SharedDefines.h"
 #include "WorldPacket.h"
 #include <vector>
@@ -328,7 +328,7 @@ class TC_GAME_API Quest
         void InitializeQueryData();
         WorldPacket BuildQueryData(LocaleConstant loc) const;
 
-        void BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player* player) const;
+        void BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player* player, bool sendHiddenRewards = false) const;
 
         std::vector<uint32> DependentPreviousQuests;
         std::vector<uint32> DependentBreadcrumbQuests;

@@ -43,6 +43,7 @@ EndScriptData */
 #include "RBAC.h"
 #include "SpellMgr.h"
 #include "Transport.h"
+#include "Warden.h"
 #include "World.h"
 #include <fstream>
 #include <limits>
@@ -83,6 +84,10 @@ public:
             { "memoryleak",    rbac::RBAC_PERM_COMMAND_DEBUG_ASAN,               true,  &HandleDebugMemoryLeak,         "" },
             { "outofbounds",   rbac::RBAC_PERM_COMMAND_DEBUG_ASAN,               true,  &HandleDebugOutOfBounds,        "" },
         };
+        static std::vector<ChatCommand> debugWardenCommandTable =
+        {
+            { "force",         rbac::RBAC_PERM_COMMAND_DEBUG,                    true,  &HandleDebugWardenForce,        "" }
+        };
         static std::vector<ChatCommand> debugCommandTable =
         {
             { "setbit",        rbac::RBAC_PERM_COMMAND_DEBUG_SETBIT,        false, &HandleDebugSet32BitCommand,         "" },
@@ -121,7 +126,8 @@ public:
             { "asan",          rbac::RBAC_PERM_COMMAND_DEBUG_ASAN,          true,  nullptr,                             "", debugAsanCommandTable },
             { "guidlimits",    rbac::RBAC_PERM_COMMAND_DEBUG,               true,  &HandleDebugGuidLimitsCommand,       "" },
             { "objectcount",   rbac::RBAC_PERM_COMMAND_DEBUG,               true,  &HandleDebugObjectCountCommand,      "" },
-            { "questreset",    rbac::RBAC_PERM_COMMAND_DEBUG_QUESTRESET,    true,  &HandleDebugQuestResetCommand,       "" }
+            { "questreset",    rbac::RBAC_PERM_COMMAND_DEBUG_QUESTRESET,    true,  &HandleDebugQuestResetCommand,       "" },
+            { "warden",        rbac::RBAC_PERM_COMMAND_DEBUG,               true,  nullptr,                             "", debugWardenCommandTable }
         };
         static std::vector<ChatCommand> commandTable =
         {
@@ -1722,6 +1728,23 @@ public:
         uint8* leak = new uint8();
         handler->PSendSysMessage("Leaked 1 uint8 object at address %p", leak);
 #endif
+        return true;
+    }
+
+    static bool HandleDebugWardenForce(ChatHandler* handler, std::vector<uint16> checkIds)
+    {
+        if (checkIds.empty())
+            return false;
+
+        Warden* const warden = handler->GetSession()->GetWarden();
+        if (!warden)
+        {
+            handler->SendSysMessage("Warden system is not enabled");
+            return true;
+        }
+
+        size_t const nQueued = warden->DEBUG_ForceSpecificChecks(checkIds);
+        handler->PSendSysMessage("%zu/%zu checks queued for your Warden, they should be sent over the next few minutes (depending on settings)", nQueued, checkIds.size());
         return true;
     }
 

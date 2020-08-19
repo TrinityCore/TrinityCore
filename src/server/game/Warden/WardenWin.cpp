@@ -476,3 +476,31 @@ void WardenWin::HandleCheckResult(ByteBuffer &buff)
     uint32 holdOff = sWorld->getIntConfig(CONFIG_WARDEN_CLIENT_CHECK_HOLDOFF);
     _checkTimer = (holdOff < 1 ? 1 : holdOff) * IN_MILLISECONDS;
 }
+
+size_t WardenWin::DEBUG_ForceSpecificChecks(std::vector<uint16> const& checks)
+{
+    std::vector<uint16>::iterator memChecksIt = _memChecks.begin();
+    std::vector<uint16>::iterator otherChecksIt = _otherChecks.begin();
+
+    size_t n = 0;
+    for (uint16 check : checks)
+    {
+        if (auto it = std::find(memChecksIt, _memChecks.end(), check); it != _memChecks.end())
+        {
+            std::iter_swap(it, memChecksIt);
+            ++memChecksIt;
+            ++n;
+        }
+        else if (auto it = std::find(otherChecksIt, _otherChecks.end(), check); it != _otherChecks.end())
+        {
+            std::iter_swap(it, otherChecksIt);
+            ++otherChecksIt;
+            ++n;
+        }
+    }
+
+    _memChecksIt = _memChecks.begin();
+    _otherChecksIt = _otherChecks.begin();
+
+    return n;
+}

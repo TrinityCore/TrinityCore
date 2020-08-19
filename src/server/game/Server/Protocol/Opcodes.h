@@ -423,7 +423,7 @@ enum Opcodes : uint16
     CMSG_QUESTGIVER_COMPLETE_QUEST                  = 0x18A,
     SMSG_QUESTGIVER_REQUEST_ITEMS                   = 0x18B,
     CMSG_QUESTGIVER_REQUEST_REWARD                  = 0x18C,
-    SMSG_QUESTGIVER_OFFER_REWARD                    = 0x18D,
+    SMSG_QUEST_GIVER_OFFER_REWARD_MESSAGE           = 0x18D,
     CMSG_QUESTGIVER_CHOOSE_REWARD                   = 0x18E,
     SMSG_QUESTGIVER_QUEST_INVALID                   = 0x18F,
     CMSG_QUESTGIVER_CANCEL                          = 0x190,
