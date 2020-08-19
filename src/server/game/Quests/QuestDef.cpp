@@ -235,9 +235,9 @@ uint32 Quest::GetXPReward(Player const* player) const
     return true;
 }
 
-void Quest::BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player* player) const
+void Quest::BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player* player, bool sendHiddenRewards) const
 {
-    if (!HasFlag(QUEST_FLAGS_HIDDEN_REWARDS))
+    if (!HasFlag(QUEST_FLAGS_HIDDEN_REWARDS) || sendHiddenRewards)
     {
         for (uint32 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
         {

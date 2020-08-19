@@ -166,6 +166,24 @@ namespace WorldPackets
             QuestRewards Rewards;
             std::vector<QuestDescEmote> DescEmotes;
         };
+
+        class QuestGiverOfferRewardMessage final : public ServerPacket
+        {
+        public:
+            QuestGiverOfferRewardMessage() : ServerPacket(SMSG_QUEST_GIVER_OFFER_REWARD_MESSAGE, 600) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid QuestGiverGUID;
+            uint32 QuestID = 0;
+            std::string Title;
+            std::string RewardText;
+            bool AutoLaunched = false;
+            uint32 Flags = 0;
+            uint32 SuggestedGroupNum = 0;
+            std::vector<QuestDescEmote> Emotes;
+            QuestRewards Rewards;
+        };
     }
 }
 
