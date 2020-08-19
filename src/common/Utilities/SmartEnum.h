@@ -23,7 +23,7 @@
 
 struct EnumText
 {
-    EnumText(char const* c, char const* t, char const* d) : Constant(c), Title(t), Description(d) {}
+    EnumText(char const* c, char const* t, char const* d) : Constant(c), Title(t), Description(d) { }
     // Enum constant of the value
     char const* const Constant;
     // Human-readable title of the value
@@ -42,6 +42,7 @@ namespace Trinity
             static size_t Count();
             static EnumText ToString(Enum value);
             static Enum FromIndex(size_t index);
+            static size_t ToIndex(Enum index);
         };
     }
 }
@@ -55,6 +56,24 @@ class EnumUtils
         static EnumText ToString(Enum value) { return Trinity::Impl::EnumUtils<Enum>::ToString(value); }
         template <typename Enum>
         static Enum FromIndex(size_t index) { return Trinity::Impl::EnumUtils<Enum>::FromIndex(index); }
+        template <typename Enum>
+        static uint32 ToIndex(Enum value) { return Trinity::Impl::EnumUtils<Enum>::ToIndex(value);}
+
+        template<typename Enum>
+        static bool IsValid(Enum value)
+        {
+            try
+            {
+                Trinity::Impl::EnumUtils<Enum>::ToIndex(value);
+                return true;
+            } catch (...)
+            {
+                return false;
+            }
+        }
+
+        template<typename Enum>
+        static bool IsValid(std::underlying_type_t<Enum> value) { return IsValid(static_cast<Enum>(value)); }
 
         template <typename Enum>
         class Iterator
