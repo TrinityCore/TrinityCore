@@ -654,6 +654,15 @@ class spell_marrowgar_bone_spike_graveyard : public SpellScriptLoader
                     {
                         Unit* target = *itr;
                         target->CastSpell(target, BoneSpikeSummonId[i], true);
+                        if (!target->IsAlive()) // make sure we don't get any stuck spikes on dead targets
+                        {
+                            if (Aura* aura = target->GetAura(SPELL_IMPALED))
+                            {
+                                if (Creature* spike = ObjectAccessor::GetCreature(*target, aura->GetCasterGUID()))
+                                    spike->DespawnOrUnsummon();
+                                aura->Remove();
+                            }
+                        }
                     }
 
                     marrowgarAI->Talk(SAY_BONESPIKE);
