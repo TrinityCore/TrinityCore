@@ -2424,11 +2424,11 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_aura_mastery();
     new spell_pal_aura_mastery_immune();
     new spell_pal_avenging_wrath();
-    RegisterAuraScript(spell_pal_beacon_of_light);
+    RegisterSpellScript(spell_pal_beacon_of_light);
     new spell_pal_blessing_of_faith();
     new spell_pal_blessing_of_sanctuary();
     new spell_pal_divine_purpose();
-    RegisterAuraScript(spell_pal_divine_sacrifice);
+    RegisterSpellScript(spell_pal_divine_sacrifice);
     new spell_pal_divine_storm();
     new spell_pal_divine_storm_dummy();
     new spell_pal_exorcism_and_holy_wrath_damage();
@@ -2437,7 +2437,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_glyph_of_holy_light();
     new spell_pal_glyph_of_holy_light_dummy();
     new spell_pal_guarded_by_the_light();
-    RegisterAuraScript(spell_pal_hand_of_sacrifice);
+    RegisterSpellScript(spell_pal_hand_of_sacrifice);
     new spell_pal_hand_of_salvation();
     new spell_pal_heart_of_the_crusader();
     new spell_pal_holy_shock();

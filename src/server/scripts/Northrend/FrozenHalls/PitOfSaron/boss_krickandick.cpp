@@ -663,9 +663,9 @@ void AddSC_boss_ick()
 {
     RegisterPitOfSaronCreatureAI(boss_ick);
     RegisterPitOfSaronCreatureAI(boss_krick);
-    RegisterAuraScript(spell_krick_explosive_barrage);
-    RegisterAuraScript(spell_ick_explosive_barrage);
-    RegisterAuraScript(spell_exploding_orb_hasty_grow);
+    RegisterSpellScript(spell_krick_explosive_barrage);
+    RegisterSpellScript(spell_ick_explosive_barrage);
+    RegisterSpellScript(spell_exploding_orb_hasty_grow);
     RegisterSpellAndAuraScriptPair(spell_krick_pursuit, spell_krick_pursuit_AuraScript);
-    RegisterAuraScript(spell_krick_pursuit_confusion);
+    RegisterSpellScript(spell_krick_pursuit_confusion);
 }

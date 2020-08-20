@@ -3214,8 +3214,8 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_glyph_of_death_grip();
     new spell_dk_glyph_of_scourge_strike();
     RegisterSpellScript(spell_dk_glyph_of_scourge_strike_script);
-    RegisterAuraScript(spell_dk_hysteria);
-    RegisterAuraScript(spell_dk_frost_fever);
+    RegisterSpellScript(spell_dk_hysteria);
+    RegisterSpellScript(spell_dk_frost_fever);
     new spell_dk_hungering_cold();
     new spell_dk_icebound_fortitude();
     new spell_dk_improved_blood_presence();
