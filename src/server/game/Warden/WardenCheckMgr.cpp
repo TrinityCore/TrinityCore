@@ -51,7 +51,7 @@ void WardenCheckMgr::LoadWardenChecks()
 
     uint16 maxCheckId = fields[0].GetUInt16();
 
-    CheckStore.resize(maxCheckId + 1);
+    _checks.resize(maxCheckId + 1);
 
     //                                    0    1     2     3        4       5      6      7
     result = WorldDatabase.Query("SELECT id, type, data, result, address, length, str, comment FROM warden_checks ORDER BY id ASC");
@@ -62,11 +62,11 @@ void WardenCheckMgr::LoadWardenChecks()
         fields = result->Fetch();
 
         uint16 const id  = fields[0].GetUInt16();
-        uint8 const type = fields[1].GetUInt8();
+        WardenCheckType const type = static_cast<WardenCheckType>(fields[1].GetUInt8());
 
-        WardenCheck& wardenCheck = CheckStore[id];
+        WardenCheck& wardenCheck = _checks[id];
         wardenCheck.CheckId = id;
-        wardenCheck.Type = WardenCheckType(type);
+        wardenCheck.Type = type;
 
         // Initialize action with default action from config
         wardenCheck.Action = WardenActions(sWorld->getIntConfig(CONFIG_WARDEN_CLIENT_FAIL_ACTION));
@@ -75,7 +75,7 @@ void WardenCheckMgr::LoadWardenChecks()
             wardenCheck.Data = fields[2].GetBinary();
 
         if (type == MPQ_CHECK || type == MEM_CHECK)
-            CheckResultStore.emplace(id, fields[3].GetBinary());
+            _checkResults.emplace(id, fields[3].GetBinary());
 
         if (type == MEM_CHECK || type == PAGE_CHECK_A || type == PAGE_CHECK_B || type == PROC_CHECK)
         {
@@ -135,12 +135,12 @@ void WardenCheckMgr::LoadWardenOverrides()
         // Check if action value is in range (0-2, see WardenActions enum)
         if (action > WARDEN_ACTION_BAN)
             TC_LOG_ERROR("warden", "Warden check override action out of range (ID: %u, action: %u)", checkId, action);
-        // Check if check actually exists before accessing the CheckStore vector
-        else if (checkId >= CheckStore.size())
+        // Check if check actually exists before accessing the _checks vector
+        else if (checkId >= _checks.size())
             TC_LOG_ERROR("warden", "Warden check action override for non-existing check (ID: %u, action: %u), skipped", checkId, action);
         else
         {
-            CheckStore[checkId].Action = WardenActions(action);
+            _checks[checkId].Action = WardenActions(action);
             ++count;
         }
     }
@@ -155,15 +155,15 @@ WardenCheckMgr* WardenCheckMgr::instance()
     return &instance;
 }
 
-WardenCheck const& WardenCheckMgr::GetCheckDataById(uint16 Id) const
+WardenCheck const& WardenCheckMgr::GetCheckData(uint16 Id) const
 {
-    ASSERT(Id < CheckStore.size(), "Requested Warden data for invalid check ID %u", uint32(Id));
-    return CheckStore[Id];
+    ASSERT(Id < _checks.size(), "Requested Warden data for invalid check ID %u", uint32(Id));
+    return _checks[Id];
 }
 
-WardenCheckResult const& WardenCheckMgr::GetCheckResultById(uint16 Id) const
+WardenCheckResult const& WardenCheckMgr::GetCheckResult(uint16 Id) const
 {
-    auto it = CheckResultStore.find(Id);
-    ASSERT(it != CheckResultStore.end(), "Requested Warden result for invalid check ID %u", uint32(Id));
+    auto it = _checkResults.find(Id);
+    ASSERT(it != _checkResults.end(), "Requested Warden result for invalid check ID %u", uint32(Id));
     return it->second;
 }

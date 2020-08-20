@@ -222,7 +222,7 @@ void WardenWin::RequestChecks()
 
         uint16 const id = *(_otherChecksIt++);
 
-        WardenCheck const& check = sWardenCheckMgr->GetCheckDataById(id);
+        WardenCheck const& check = sWardenCheckMgr->GetCheckData(id);
         if (!check.Str.empty())
         {
             buff << uint8(check.Str.size());
@@ -241,7 +241,7 @@ void WardenWin::RequestChecks()
 
     for (uint16 const id : _currentChecks)
     {
-        WardenCheck const& check = sWardenCheckMgr->GetCheckDataById(id);
+        WardenCheck const& check = sWardenCheckMgr->GetCheckData(id);
 
         WardenCheckType const type = check.Type;
         buff << uint8(type ^ xorByte);
@@ -369,7 +369,7 @@ void WardenWin::HandleCheckResult(ByteBuffer &buff)
     uint16 checkFailed = 0;
     for (uint16 const id : _currentChecks)
     {
-        WardenCheck const& check = sWardenCheckMgr->GetCheckDataById(id);
+        WardenCheck const& check = sWardenCheckMgr->GetCheckData(id);
 
         switch (check.Type)
         {
@@ -388,9 +388,12 @@ void WardenWin::HandleCheckResult(ByteBuffer &buff)
                 std::vector<uint8> response;
                 response.resize(check.Length);
                 buff.read(response.data(), response.size());
-                if (response != sWardenCheckMgr->GetCheckResultById(id))
+                WardenCheckResult const& expected = sWardenCheckMgr->GetCheckResult(id);
+                if (response != expected)
                 {
                     TC_LOG_DEBUG("warden", "RESULT MEM_CHECK fail CheckId %u account Id %u", id, _session->GetAccountId());
+                    TC_LOG_DEBUG("warden", "Expected: %s", ByteArrayToHexStr(expected).c_str());
+                    TC_LOG_DEBUG("warden", "Got:      %s", ByteArrayToHexStr(response).c_str());
                     checkFailed = id;
                     continue;
                 }
@@ -421,7 +424,7 @@ void WardenWin::HandleCheckResult(ByteBuffer &buff)
                 if (Lua_Result != 0)
                 {
                     uint8 luaStrLen = buff.read<uint8>();
-                    if (luaStrLen != 0)
+                    if (luaStrLen == 0)
                     {
                         std::string str;
                         str.resize(luaStrLen);
@@ -450,7 +453,7 @@ void WardenWin::HandleCheckResult(ByteBuffer &buff)
                 std::vector<uint8> result;
                 result.resize(Trinity::Crypto::SHA1::DIGEST_LENGTH);
                 buff.read(result.data(), result.size());
-                if (result != sWardenCheckMgr->GetCheckResultById(id)) // SHA1
+                if (result != sWardenCheckMgr->GetCheckResult(id)) // SHA1
                 {
                     TC_LOG_DEBUG("warden", "RESULT MPQ_CHECK fail, CheckId %u account Id %u", id, _session->GetAccountId());
                     checkFailed = id;
@@ -467,7 +470,7 @@ void WardenWin::HandleCheckResult(ByteBuffer &buff)
 
     if (checkFailed > 0)
     {
-        WardenCheck const& check = sWardenCheckMgr->GetCheckDataById(checkFailed);
+        WardenCheck const& check = sWardenCheckMgr->GetCheckData(checkFailed);
         char const* penalty = ApplyPenalty(&check);
         TC_LOG_WARN("warden", "%s failed Warden check %u (%s). Action: %s", _session->GetPlayerInfo().c_str(), checkFailed, EnumUtils::ToConstant(check.Type), penalty);
     }
