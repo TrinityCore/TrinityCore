@@ -152,6 +152,12 @@ namespace Trinity::ChatCommands
             return operator*();
         }
 
+        template<bool C = have_operators>
+        operator std::enable_if_t<C && std::is_convertible<first_type, size_t>::value, size_t>() const
+        {
+            return operator*();
+        }
+
         template <typename T>
         Variant& operator=(T&& arg) { base::operator=(std::forward<T>(arg)); return *this; }
 
