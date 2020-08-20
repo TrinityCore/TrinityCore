@@ -321,8 +321,8 @@ ResultSet* MySQLConnection::Query(char const* sql)
     if (!sql)
         return nullptr;
 
-    MySQLResult* result = NULL;
-    MySQLField* fields = NULL;
+    MySQLResult* result = nullptr;
+    MySQLField* fields = nullptr;
     uint64 rowCount = 0;
     uint32 fieldCount = 0;
 

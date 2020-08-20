@@ -1060,8 +1060,8 @@ void AddSC_zuldrak()
     new spell_pot_check();
     new spell_fetch_ingredient_aura();
     new npc_storm_cloud();
-    RegisterAuraScript(spell_scourge_disguise);
-    RegisterAuraScript(spell_scourge_disguise_instability);
-    RegisterAuraScript(spell_scourge_disguise_expiring);
+    RegisterSpellScript(spell_scourge_disguise);
+    RegisterSpellScript(spell_scourge_disguise_instability);
+    RegisterSpellScript(spell_scourge_disguise_expiring);
     RegisterSpellScript(spell_drop_disguise);
 }

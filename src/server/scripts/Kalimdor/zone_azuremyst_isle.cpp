@@ -643,5 +643,5 @@ void AddSC_azuremyst_isle()
     new npc_injured_draenei();
     new npc_magwin();
     new npc_geezle();
-    RegisterAuraScript(spell_inoculate_nestlewood);
+    RegisterSpellScript(spell_inoculate_nestlewood);
 }

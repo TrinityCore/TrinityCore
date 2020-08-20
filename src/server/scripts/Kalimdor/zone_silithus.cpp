@@ -1439,5 +1439,5 @@ void AddSC_silithus()
     new npc_anachronos_the_ancient();
     new npc_qiraj_war_spawn();
     new go_wind_stone();
-    RegisterAuraScript(spell_silithus_summon_cultist_periodic);
+    RegisterSpellScript(spell_silithus_summon_cultist_periodic);
 }
