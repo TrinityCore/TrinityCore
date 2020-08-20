@@ -1586,9 +1586,9 @@ void AddSC_icecrown_citadel()
     RegisterIcecrownCitadelCreatureAI(npc_darkfallen_advisor);
     RegisterIcecrownCitadelCreatureAI(npc_darkfallen_tactician);
     RegisterGameObjectAI(go_empowering_blood_orb);
-    RegisterAuraScript(spell_icc_empowered_blood);
-    RegisterAuraScript(spell_icc_empowered_blood_3);
-    RegisterAuraScript(spell_icc_siphon_essence);
+    RegisterSpellScript(spell_icc_empowered_blood);
+    RegisterSpellScript(spell_icc_empowered_blood_3);
+    RegisterSpellScript(spell_icc_siphon_essence);
     RegisterSpellScript(spell_darkfallen_blood_mirror);
     RegisterSpellScript(spell_generic_remove_empowered_blood);
     new spell_icc_stoneform();

@@ -1,6 +1,5 @@
 from re import compile, MULTILINE
 from os import walk, getcwd
-from datetime import datetime
 
 notice = ('''/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
@@ -109,9 +108,7 @@ def processFile(path, filename):
     output.write('#include "SmartEnum.h"\n')
     output.write('#include <stdexcept>\n')
     output.write('\n')
-    output.write('namespace Trinity\n')
-    output.write('{\n')
-    output.write('namespace Impl\n')
+    output.write('namespace Trinity::Impl\n')
     output.write('{\n')
     for name, values in enums:
         tag = ('data for enum \'%s\' in \'%s.h\' auto-generated' % (name, filename))
@@ -130,10 +127,10 @@ def processFile(path, filename):
         output.write('    }\n')
         output.write('}\n')
         output.write('\n')
-        output.write('template <>\n');
+        output.write('template <>\n')
         output.write('TC_API_EXPORT size_t EnumUtils<%s>::Count() { return %d; }\n' % (name, len(values)))
         output.write('\n')
-        output.write('template <>\n');
+        output.write('template <>\n')
         output.write('TC_API_EXPORT %s EnumUtils<%s>::FromIndex(size_t index)\n' % (name, name))
         output.write('{\n')
         output.write('    switch (index)\n')
@@ -143,8 +140,18 @@ def processFile(path, filename):
         output.write('        default: throw std::out_of_range("index");\n')
         output.write('    }\n')
         output.write('}\n')
+        output.write('\n')
+        output.write('template <>\n')
+        output.write('TC_API_EXPORT size_t EnumUtils<%s>::ToIndex(%s value)\n' % (name, name))
+        output.write('{\n')
+        output.write('    switch (value)\n')
+        output.write('    {\n')
+        for i in range(len(values)):
+            output.write('        case %s: return %d;\n' % (values[i][0], i))
+        output.write('        default: throw std::out_of_range("value");\n')
+        output.write('    }\n')
+        output.write('}\n')
 
-    output.write('}\n')
     output.write('}\n')
 
 FilenamePattern = compile(r'^(.+).h$')

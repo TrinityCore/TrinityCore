@@ -64,6 +64,7 @@ enum EncounterFrameType
     ENCOUNTER_FRAME_UNK7                = 7 // Seems to have something to do with sorting the encounter units
 };
 
+// EnumUtils: DESCRIBE THIS
 enum EncounterState
 {
     NOT_STARTED   = 0,
