@@ -2391,7 +2391,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_ancestral_awakening_proc();
     new spell_sha_astral_shift();
     new spell_sha_astral_shift_aura();
-    RegisterAuraScript(spell_sha_astral_shift_visual_dummy);
+    RegisterSpellScript(spell_sha_astral_shift_visual_dummy);
     new spell_sha_bloodlust();
     new spell_sha_chain_heal();
     new spell_sha_cleansing_totem_pulse();
@@ -2419,7 +2419,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_lightning_shield();
     new spell_sha_maelstrom_weapon();
     new spell_sha_mana_spring_totem();
-    RegisterAuraScript(spell_sha_mana_tide);
+    RegisterSpellScript(spell_sha_mana_tide);
     new spell_sha_mana_tide_totem();
     new spell_sha_nature_guardian();
     new spell_sha_sentry_totem();
@@ -2431,7 +2431,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_thunderstorm();
     new spell_sha_totemic_mastery();
     new spell_sha_t3_6p_bonus();
-    RegisterAuraScript(spell_sha_t3_8p_bonus);
+    RegisterSpellScript(spell_sha_t3_8p_bonus);
     new spell_sha_t8_elemental_4p_bonus();
     new spell_sha_t9_elemental_4p_bonus();
     new spell_sha_t10_elemental_4p_bonus();

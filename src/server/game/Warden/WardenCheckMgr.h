@@ -78,7 +78,7 @@ class TC_GAME_API WardenCheckMgr
 
     private:
         std::vector<WardenCheck> CheckStore;
-        std::unordered_map<uint32, WardenCheckResult> CheckResultStore;
+        std::unordered_map<uint16, WardenCheckResult> CheckResultStore;
         std::vector<uint16> MemChecksIdPool;
         std::vector<uint16> OtherChecksIdPool;
 };

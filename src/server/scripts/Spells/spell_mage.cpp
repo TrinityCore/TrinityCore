@@ -1474,7 +1474,7 @@ class spell_mage_summon_water_elemental : public SpellScriptLoader
 void AddSC_mage_spell_scripts()
 {
     new spell_mage_arcane_potency();
-    RegisterAuraScript(spell_mage_arcane_missiles);
+    RegisterSpellScript(spell_mage_arcane_missiles);
     new spell_mage_blast_wave();
     new spell_mage_blazing_speed();
     new spell_mage_burning_determination();
@@ -1482,13 +1482,13 @@ void AddSC_mage_spell_scripts()
     new spell_mage_cold_snap();
     new spell_mage_combustion();
     new spell_mage_combustion_proc();
-    RegisterAuraScript(spell_mage_dragon_breath);
+    RegisterSpellScript(spell_mage_dragon_breath);
     new spell_mage_imp_blizzard();
     new spell_mage_imp_mana_gems();
     new spell_mage_empowered_fire();
     new spell_mage_fingers_of_frost();
     new spell_mage_fire_frost_ward();
-    RegisterAuraScript(spell_mage_frostfire_bolt);
+    RegisterSpellScript(spell_mage_frostfire_bolt);
     new spell_mage_focus_magic();
     new spell_mage_gen_extra_effects();
     new spell_mage_glyph_of_polymorph();
@@ -1502,9 +1502,9 @@ void AddSC_mage_spell_scripts()
     new spell_mage_magic_absorption();
     new spell_mage_mana_shield();
     new spell_mage_master_of_elements();
-    RegisterAuraScript(spell_mage_mirror_image);
+    RegisterSpellScript(spell_mage_mirror_image);
     new spell_mage_missile_barrage();
-    RegisterAuraScript(spell_mage_missile_barrage_proc);
+    RegisterSpellScript(spell_mage_missile_barrage_proc);
     new spell_mage_polymorph_cast_visual();
     new spell_mage_summon_water_elemental();
 }

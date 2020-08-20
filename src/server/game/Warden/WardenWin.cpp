@@ -105,7 +105,7 @@ void WardenWin::InitializeModule()
     Request.String_library2 = 0;
     Request.Function2 = 0x00419D40;                         // 0x00400000 + 0x00419D40 FrameScript::GetText
     Request.Function2_set = 1;
-    Request.CheckSumm2 = BuildChecksum(&Request.Unk2, 8);
+    Request.CheckSumm2 = BuildChecksum(&Request.Unk3, 8);
 
     Request.Command3 = WARDEN_SMSG_MODULE_INITIALIZE;
     Request.Size3 = 8;
@@ -420,18 +420,17 @@ void WardenWin::HandleCheckResult(ByteBuffer &buff)
 
                 if (Lua_Result != 0)
                 {
-                    TC_LOG_DEBUG("warden", "RESULT LUA_STR_CHECK fail, CheckId %u account Id %u", id, _session->GetAccountId());
-                    checkFailed = id;
-                    continue;
-                }
-
-                uint8 luaStrLen = buff.read<uint8>();
-                if (luaStrLen != 0)
-                {
-                    std::string str;
-                    str.resize(luaStrLen);
-                    buff.read(reinterpret_cast<uint8*>(str.data()), luaStrLen);
-                    TC_LOG_DEBUG("warden", "Lua string: %s", str.c_str());
+                    uint8 luaStrLen = buff.read<uint8>();
+                    if (luaStrLen != 0)
+                    {
+                        std::string str;
+                        str.resize(luaStrLen);
+                        buff.read(reinterpret_cast<uint8*>(str.data()), luaStrLen);
+                        TC_LOG_DEBUG("warden", "Lua string: %s", str.c_str());
+                        TC_LOG_DEBUG("warden", "RESULT LUA_STR_CHECK fail, CheckId %u account Id %u", id, _session->GetAccountId());
+                        checkFailed = id;
+                        continue;
+                    }
                 }
                 TC_LOG_DEBUG("warden", "RESULT LUA_STR_CHECK passed, CheckId %u account Id %u", id, _session->GetAccountId());
                 break;
@@ -476,4 +475,32 @@ void WardenWin::HandleCheckResult(ByteBuffer &buff)
     // Set hold off timer, minimum timer should at least be 1 second
     uint32 holdOff = sWorld->getIntConfig(CONFIG_WARDEN_CLIENT_CHECK_HOLDOFF);
     _checkTimer = (holdOff < 1 ? 1 : holdOff) * IN_MILLISECONDS;
+}
+
+size_t WardenWin::DEBUG_ForceSpecificChecks(std::vector<uint16> const& checks)
+{
+    std::vector<uint16>::iterator memChecksIt = _memChecks.begin();
+    std::vector<uint16>::iterator otherChecksIt = _otherChecks.begin();
+
+    size_t n = 0;
+    for (uint16 check : checks)
+    {
+        if (auto it = std::find(memChecksIt, _memChecks.end(), check); it != _memChecks.end())
+        {
+            std::iter_swap(it, memChecksIt);
+            ++memChecksIt;
+            ++n;
+        }
+        else if (auto it = std::find(otherChecksIt, _otherChecks.end(), check); it != _otherChecks.end())
+        {
+            std::iter_swap(it, otherChecksIt);
+            ++otherChecksIt;
+            ++n;
+        }
+    }
+
+    _memChecksIt = _memChecks.begin();
+    _otherChecksIt = _otherChecks.begin();
+
+    return n;
 }

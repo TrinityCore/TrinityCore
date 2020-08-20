@@ -172,5 +172,5 @@ class spell_combined_toxins : public AuraScript
 void AddSC_instance_ahnkahet()
 {
     new instance_ahnkahet();
-    RegisterAuraScript(spell_combined_toxins);
+    RegisterSpellScript(spell_combined_toxins);
 }

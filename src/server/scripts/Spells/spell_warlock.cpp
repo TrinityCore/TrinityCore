@@ -1574,7 +1574,7 @@ class spell_warl_unstable_affliction : public SpellScriptLoader
 
 void AddSC_warlock_spell_scripts()
 {
-    RegisterAuraScript(spell_warl_curse_of_agony);
+    RegisterSpellScript(spell_warl_curse_of_agony);
     new spell_warl_banish();
     new spell_warl_create_healthstone();
     new spell_warl_curse_of_doom();

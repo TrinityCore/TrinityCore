@@ -20,9 +20,7 @@
 #include "SmartEnum.h"
 #include <stdexcept>
 
-namespace Trinity
-{
-namespace Impl
+namespace Trinity::Impl
 {
 
 /**********************************************************************\
@@ -52,6 +50,18 @@ TC_API_EXPORT WardenActions EnumUtils<WardenActions>::FromIndex(size_t index)
         case 1: return WARDEN_ACTION_KICK;
         case 2: return WARDEN_ACTION_BAN;
         default: throw std::out_of_range("index");
+    }
+}
+
+template <>
+TC_API_EXPORT size_t EnumUtils<WardenActions>::ToIndex(WardenActions value)
+{
+    switch (value)
+    {
+        case WARDEN_ACTION_LOG: return 0;
+        case WARDEN_ACTION_KICK: return 1;
+        case WARDEN_ACTION_BAN: return 2;
+        default: throw std::out_of_range("value");
     }
 }
 
@@ -96,5 +106,22 @@ TC_API_EXPORT WardenCheckType EnumUtils<WardenCheckType>::FromIndex(size_t index
         default: throw std::out_of_range("index");
     }
 }
+
+template <>
+TC_API_EXPORT size_t EnumUtils<WardenCheckType>::ToIndex(WardenCheckType value)
+{
+    switch (value)
+    {
+        case MEM_CHECK: return 0;
+        case PAGE_CHECK_A: return 1;
+        case PAGE_CHECK_B: return 2;
+        case MPQ_CHECK: return 3;
+        case LUA_STR_CHECK: return 4;
+        case DRIVER_CHECK: return 5;
+        case TIMING_CHECK: return 6;
+        case PROC_CHECK: return 7;
+        case MODULE_CHECK: return 8;
+        default: throw std::out_of_range("value");
+    }
 }
 }

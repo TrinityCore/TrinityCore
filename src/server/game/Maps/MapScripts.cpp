@@ -450,7 +450,7 @@ void Map::ScriptsProcess()
                     if (step.script->Emote.Flags & SF_EMOTE_USE_STATE)
                         cSource->SetUInt32Value(UNIT_NPC_EMOTESTATE, step.script->Emote.EmoteID);
                     else
-                        cSource->HandleEmoteCommand(step.script->Emote.EmoteID);
+                        cSource->HandleEmoteCommand(static_cast<Emote>(step.script->Emote.EmoteID));
                 }
                 break;
 
