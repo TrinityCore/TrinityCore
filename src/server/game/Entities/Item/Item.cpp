@@ -486,7 +486,7 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fi
         CharacterDatabase.Execute(stmt);
     }
 
-    transmog = fields[16].GetUInt32();
+    transmog = fields[15].GetUInt32();
 
     return true;
 }
