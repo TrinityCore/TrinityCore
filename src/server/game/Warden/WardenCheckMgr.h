@@ -47,13 +47,13 @@ enum WardenCheckType : uint8
 
 struct WardenCheck
 {
+    uint16 CheckId;
     WardenCheckType Type;
     std::vector<uint8> Data;
     uint32 Address;                                         // PROC_CHECK, MEM_CHECK, PAGE_CHECK
     uint8 Length;                                           // PROC_CHECK, MEM_CHECK, PAGE_CHECK
     std::string Str;                                        // LUA, MPQ, DRIVER
     std::string Comment;
-    uint16 CheckId;
     WardenActions Action;
 };
 
@@ -67,8 +67,8 @@ class TC_GAME_API WardenCheckMgr
     public:
         static WardenCheckMgr* instance();
 
-        WardenCheck const& GetCheckDataById(uint16 Id) const;
-        WardenCheckResult const& GetCheckResultById(uint16 Id) const;
+        WardenCheck const& GetCheckData(uint16 Id) const;
+        WardenCheckResult const& GetCheckResult(uint16 Id) const;
 
         std::vector<uint16> const& GetAvailableMemoryChecks() const { return MemChecksIdPool; }
         std::vector<uint16> const& GetAvailableOtherChecks() const { return OtherChecksIdPool; }
@@ -77,8 +77,8 @@ class TC_GAME_API WardenCheckMgr
         void LoadWardenOverrides();
 
     private:
-        std::vector<WardenCheck> CheckStore;
-        std::unordered_map<uint16, WardenCheckResult> CheckResultStore;
+        std::vector<WardenCheck> _checks;
+        std::unordered_map<uint16, WardenCheckResult> _checkResults;
         std::vector<uint16> MemChecksIdPool;
         std::vector<uint16> OtherChecksIdPool;
 };
