@@ -23,6 +23,7 @@
 #include "wmo.h"
 #include "mpq_libmpq04.h"
 #include <boost/filesystem/operations.hpp>
+#include <fmt/printf.h>
 #include <fstream>
 #include <iostream>
 #include <list>
@@ -151,12 +152,8 @@ bool ExtractSingleWmo(std::string& fname)
             char temp[1024];
             strncpy(temp, fname.c_str(), 1024);
             temp[fname.length()-4] = 0;
-            char groupFileName[1024];
-            sprintf(groupFileName, "%s_%03u.wmo", temp, i);
-            //printf("Trying to open groupfile %s\n",groupFileName);
 
-            std::string s = groupFileName;
-            WMOGroup fgroup(s);
+            WMOGroup fgroup(fmt::sprintf("%s_%03u.wmo", temp, i));
             if (!fgroup.open(&froot))
             {
                 printf("Could not open all Group file for: %s\n", plain_name);
@@ -228,7 +225,7 @@ void getGamePath()
 #endif
 }
 
-bool scan_patches(char* scanmatch, std::vector<std::string>& pArchiveNames)
+bool scan_patches(char const* scanmatch, std::vector<std::string>& pArchiveNames)
 {
     int i;
     char path[512];
@@ -265,7 +262,6 @@ bool fillArchiveNameVector(std::vector<std::string>& pArchiveNames)
 
     printf("\nGame path: %s\n", input_path);
 
-    char path[512];
     std::string in_path(input_path);
     std::vector<std::string> locales, searchLocales;
 
@@ -313,18 +309,16 @@ bool fillArchiveNameVector(std::vector<std::string>& pArchiveNames)
 
     // now, scan for the patch levels in the core dir
     printf("Scanning patch levels from data directory.\n");
-    sprintf(path, "%spatch", input_path);
-    if (!scan_patches(path, pArchiveNames))
+    if (!scan_patches(fmt::sprintf("%spatch", input_path).c_str(), pArchiveNames))
         return(false);
 
     // now, scan for the patch levels in locale dirs
     printf("Scanning patch levels from locale directories.\n");
     bool foundOne = false;
-    for (std::vector<std::string>::iterator i = locales.begin(); i != locales.end(); ++i)
+    for (std::string locale : locales)
     {
-        printf("Locale: %s\n", i->c_str());
-        sprintf(path, "%s%s/patch-%s", input_path, i->c_str(), i->c_str());
-        if(scan_patches(path, pArchiveNames))
+        printf("Locale: %s\n", locale.c_str());
+        if(scan_patches(fmt::sprintf("%s%s/patch-%s", input_path, locale.c_str(), locale.c_str()).c_str(), pArchiveNames))
             foundOne = true;
     }
 
