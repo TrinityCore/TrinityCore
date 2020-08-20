@@ -186,7 +186,7 @@ void WardenWin::RequestChecks()
     for (WardenCheckCategory category : EnumUtils::Iterate<WardenCheckCategory>())
     {
         auto& [checks, checksIt] = _checks[category];
-        if (checksIt == checks.end())
+        if ((checksIt == checks.end()) && !checks.empty())
         {
             TC_LOG_DEBUG("warden", "Finished all %s checks, re-shuffling", EnumUtils::ToConstant(category));
             Trinity::Containers::RandomShuffle(checks);
@@ -242,7 +242,7 @@ void WardenWin::RequestChecks()
             {
                 buff << uint8(0x00);
                 buff << uint32(check.Address);
-                buff << uint8(check.Length);
+                buff << uint8(sWardenCheckMgr->GetCheckResult(id).size());
                 break;
             }
             case PAGE_CHECK_A:
@@ -376,11 +376,12 @@ void WardenWin::HandleCheckResult(ByteBuffer &buff)
                     continue;
                 }
 
+                WardenCheckResult const& expected = sWardenCheckMgr->GetCheckResult(id);
+
                 std::vector<uint8> response;
-                response.resize(check.Length);
+                response.resize(expected.size());
                 buff.read(response.data(), response.size());
 
-                WardenCheckResult const& expected = sWardenCheckMgr->GetCheckResult(id);
                 if (response != expected)
                 {
                     TC_LOG_DEBUG("warden", "RESULT MEM_CHECK fail CheckId %u account Id %u", id, _session->GetAccountId());

@@ -82,10 +82,10 @@ void WardenCheckMgr::LoadWardenChecks()
             _checkResults.emplace(id, fields[3].GetBinary());
 
         if (type == MEM_CHECK || type == PAGE_CHECK_A || type == PAGE_CHECK_B || type == PROC_CHECK)
-        {
             wardenCheck.Address = fields[4].GetUInt32();
+
+        if (type == PAGE_CHECK_A || type == PAGE_CHECK_B || type == PROC_CHECK)
             wardenCheck.Length = fields[5].GetUInt8();
-        }
 
         // PROC_CHECK support missing
         if (type == MEM_CHECK || type == MPQ_CHECK || type == LUA_STR_CHECK || type == DRIVER_CHECK || type == MODULE_CHECK)
