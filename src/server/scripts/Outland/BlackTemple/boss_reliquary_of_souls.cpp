@@ -810,8 +810,8 @@ void AddSC_boss_reliquary_of_souls()
     RegisterBlackTempleCreatureAI(boss_essence_of_anger);
     RegisterBlackTempleCreatureAI(npc_enslaved_soul);
     RegisterBlackTempleCreatureAI(npc_reliquary_combat_trigger);
-    RegisterAuraScript(spell_reliquary_of_souls_aura_of_desire);
-    RegisterAuraScript(spell_reliquary_of_souls_submerge);
-    RegisterAuraScript(spell_reliquary_of_souls_spite);
+    RegisterSpellScript(spell_reliquary_of_souls_aura_of_desire);
+    RegisterSpellScript(spell_reliquary_of_souls_submerge);
+    RegisterSpellScript(spell_reliquary_of_souls_spite);
     RegisterSpellScript(spell_reliquary_of_souls_frenzy);
 }

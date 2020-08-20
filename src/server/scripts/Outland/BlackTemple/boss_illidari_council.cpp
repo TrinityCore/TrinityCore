@@ -812,12 +812,12 @@ void AddSC_boss_illidari_council()
     RegisterBlackTempleCreatureAI(npc_veras_vanish_effect);
     RegisterSpellScript(spell_illidari_council_empyreal_balance);
     RegisterSpellScript(spell_illidari_council_empyreal_equivalency);
-    RegisterAuraScript(spell_illidari_council_balance_of_power);
-    RegisterAuraScript(spell_illidari_council_deadly_strike);
-    RegisterAuraScript(spell_illidari_council_deadly_poison);
-    RegisterAuraScript(spell_illidari_council_vanish);
-    RegisterAuraScript(spell_illidari_council_reflective_shield);
+    RegisterSpellScript(spell_illidari_council_balance_of_power);
+    RegisterSpellScript(spell_illidari_council_deadly_strike);
+    RegisterSpellScript(spell_illidari_council_deadly_poison);
+    RegisterSpellScript(spell_illidari_council_vanish);
+    RegisterSpellScript(spell_illidari_council_reflective_shield);
     RegisterSpellScript(spell_illidari_council_judgement);
-    RegisterAuraScript(spell_illidari_council_seal);
-    RegisterAuraScript(spell_illidari_dampen_magic);
+    RegisterSpellScript(spell_illidari_council_seal);
+    RegisterSpellScript(spell_illidari_dampen_magic);
 }
