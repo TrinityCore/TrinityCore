@@ -258,6 +258,8 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
         return false;
     }
 
+    UpdatePositionData();
+
     SetZoneScript();
     if (m_zoneScript)
     {
