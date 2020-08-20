@@ -120,6 +120,25 @@ struct ArgInfo<std::string, void>
     }
 };
 
+// wstring
+template <>
+struct ArgInfo<std::wstring, void>
+{
+    static char const* TryConsume(std::wstring& val, char const* args)
+    {
+        std::string utf8Str;
+        char const* ret = ArgInfo<std::string>::TryConsume(utf8Str, args);
+
+        if (!ret)
+            return nullptr;
+
+        if (!Utf8toWStr(utf8Str, val))
+            return nullptr;
+
+        return ret;
+    }
+};
+
 // enum
 template <typename T>
 struct ArgInfo<T, std::enable_if_t<std::is_enum_v<T>>>
