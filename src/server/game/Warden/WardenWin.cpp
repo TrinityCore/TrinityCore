@@ -38,13 +38,13 @@
 
 WardenWin::WardenWin() : Warden(), _serverTicks(0)
 {
-    _memChecks = sWardenCheckMgr->GetAvailableMemoryChecks();
-    Trinity::Containers::RandomShuffle(_memChecks);
-    _memChecksIt = _memChecks.begin();
-
-    _otherChecks = sWardenCheckMgr->GetAvailableOtherChecks();
-    Trinity::Containers::RandomShuffle(_otherChecks);
-    _otherChecksIt = _otherChecks.begin();
+    for (WardenCheckCategory category : EnumUtils::Iterate<WardenCheckCategory>())
+    {
+        auto& [checks, checksIt] = _checks[category];
+        checks = sWardenCheckMgr->GetAvailableChecks(category);
+        Trinity::Containers::RandomShuffle(checks);
+        checksIt = checks.begin();
+    }
 }
 
 void WardenWin::Init(WorldSession* session, SessionKey const& K)
@@ -183,52 +183,43 @@ void WardenWin::RequestChecks()
     TC_LOG_DEBUG("warden", "Request data");
 
     // If all checks were done, fill the todo list again
-    if (_memChecksIt == _memChecks.end())
+    for (WardenCheckCategory category : EnumUtils::Iterate<WardenCheckCategory>())
     {
-        TC_LOG_DEBUG("warden", "Finished all mem checks, re-shuffling");
-        Trinity::Containers::RandomShuffle(_memChecks);
-        _memChecksIt = _memChecks.begin();
-    }
-
-    if (_otherChecksIt == _otherChecks.end())
-    {
-        TC_LOG_DEBUG("warden", "Finished all other checks, re-shuffling");
-        Trinity::Containers::RandomShuffle(_otherChecks);
-        _otherChecksIt = _otherChecks.begin();
+        auto& [checks, checksIt] = _checks[category];
+        if (checksIt == checks.end())
+        {
+            TC_LOG_DEBUG("warden", "Finished all %s checks, re-shuffling", EnumUtils::ToConstant(category));
+            Trinity::Containers::RandomShuffle(checks);
+            checksIt = checks.begin();
+        }
     }
 
     _serverTicks = GameTime::GetGameTimeMS();
-
     _currentChecks.clear();
 
     // Build check request
     ByteBuffer buff;
     buff << uint8(WARDEN_SMSG_CHEAT_CHECKS_REQUEST);
 
-    for (uint32 i = 0; i < sWorld->getIntConfig(CONFIG_WARDEN_NUM_MEM_CHECKS); ++i)
+    for (WardenCheckCategory category : EnumUtils::Iterate<WardenCheckCategory>())
     {
-        // If todo list is done break loop (will be filled on next Update() run)
-        if (_memChecksIt == _memChecks.end())
-            break;
-
-        _currentChecks.push_back(*(_memChecksIt++));
-    }
-
-    for (uint32 i = 0; i < sWorld->getIntConfig(CONFIG_WARDEN_NUM_OTHER_CHECKS); ++i)
-    {
-        // If todo list is done break loop (will be filled on next Update() run)
-        if (_otherChecksIt == _otherChecks.end())
-            break;
-
-        uint16 const id = *(_otherChecksIt++);
-
-        WardenCheck const& check = sWardenCheckMgr->GetCheckData(id);
-        if (!check.Str.empty())
+        auto& [checks, checksIt] = _checks[category];
+        for (uint32 i = 0, n = sWorld->getIntConfig(GetWardenCategoryCountConfig(category)); i < n; ++i)
         {
-            buff << uint8(check.Str.size());
-            buff.append(check.Str.data(), check.Str.size());
+            if (checksIt == checks.end()) // all checks were already sent, list will be re-filled on next Update() run
+                break;
+
+            uint16 const id = *(checksIt++);
+
+            WardenCheck const& check = sWardenCheckMgr->GetCheckData(id);
+            if (!check.Str.empty())
+            {
+                buff << uint8(check.Str.size());
+                buff.append(check.Str.data(), check.Str.size());
+            }
+
+            _currentChecks.push_back(id);
         }
-        _currentChecks.push_back(id);
     }
 
     uint8 xorByte = _inputKey[0];
@@ -388,6 +379,7 @@ void WardenWin::HandleCheckResult(ByteBuffer &buff)
                 std::vector<uint8> response;
                 response.resize(check.Length);
                 buff.read(response.data(), response.size());
+
                 WardenCheckResult const& expected = sWardenCheckMgr->GetCheckResult(id);
                 if (response != expected)
                 {
@@ -421,10 +413,10 @@ void WardenWin::HandleCheckResult(ByteBuffer &buff)
                 uint8 Lua_Result;
                 buff >> Lua_Result;
 
-                if (Lua_Result != 0)
+                if (Lua_Result == 0)
                 {
                     uint8 luaStrLen = buff.read<uint8>();
-                    if (luaStrLen == 0)
+                    if (luaStrLen != 0)
                     {
                         std::string str;
                         str.resize(luaStrLen);
@@ -482,28 +474,29 @@ void WardenWin::HandleCheckResult(ByteBuffer &buff)
 
 size_t WardenWin::DEBUG_ForceSpecificChecks(std::vector<uint16> const& checks)
 {
-    std::vector<uint16>::iterator memChecksIt = _memChecks.begin();
-    std::vector<uint16>::iterator otherChecksIt = _otherChecks.begin();
+    std::array<std::vector<uint16>::iterator, NUM_CHECK_CATEGORIES> swapPositions;
+    for (WardenCheckCategory category : EnumUtils::Iterate<WardenCheckCategory>())
+        swapPositions[category] = _checks[category].first.begin();
 
     size_t n = 0;
     for (uint16 check : checks)
     {
-        if (auto it = std::find(memChecksIt, _memChecks.end(), check); it != _memChecks.end())
+        for (WardenCheckCategory category : EnumUtils::Iterate<WardenCheckCategory>())
         {
-            std::iter_swap(it, memChecksIt);
-            ++memChecksIt;
-            ++n;
-        }
-        else if (auto it = std::find(otherChecksIt, _otherChecks.end(), check); it != _otherChecks.end())
-        {
-            std::iter_swap(it, otherChecksIt);
-            ++otherChecksIt;
-            ++n;
+            std::vector<uint16>& checks = _checks[category].first;
+            std::vector<uint16>::iterator& swapPos = swapPositions[category];
+            if (auto it = std::find(swapPos, checks.end(), check); it != checks.end())
+            {
+                std::iter_swap(swapPos, it);
+                ++swapPos;
+                ++n;
+                break;
+            }
         }
     }
 
-    _memChecksIt = _memChecks.begin();
-    _otherChecksIt = _otherChecks.begin();
+    for (WardenCheckCategory category : EnumUtils::Iterate<WardenCheckCategory>())
+        _checks[category].second = _checks[category].first.begin();
 
     return n;
 }

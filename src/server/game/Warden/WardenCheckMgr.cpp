@@ -51,7 +51,7 @@ void WardenCheckMgr::LoadWardenChecks()
 
     uint16 maxCheckId = fields[0].GetUInt16();
 
-    _checks.resize(maxCheckId + 1);
+    _checks.resize(maxCheckId+1);
 
     //                                    0    1     2     3        4       5      6      7
     result = WorldDatabase.Query("SELECT id, type, data, result, address, length, str, comment FROM warden_checks ORDER BY id ASC");
@@ -63,13 +63,17 @@ void WardenCheckMgr::LoadWardenChecks()
 
         uint16 const id  = fields[0].GetUInt16();
         WardenCheckType const type = static_cast<WardenCheckType>(fields[1].GetUInt8());
+        WardenCheckCategory const category = GetWardenCheckCategory(type);
+
+        if (category == NUM_CHECK_CATEGORIES)
+        {
+            TC_LOG_ERROR("sql.sql", "Warden check with id %u lists check type %u in `warden_checks`, which is not supported. Skipped.", id, type);
+            continue;
+        }
 
         WardenCheck& wardenCheck = _checks[id];
         wardenCheck.CheckId = id;
         wardenCheck.Type = type;
-
-        // Initialize action with default action from config
-        wardenCheck.Action = WardenActions(sWorld->getIntConfig(CONFIG_WARDEN_CLIENT_FAIL_ACTION));
 
         if (type == PAGE_CHECK_A || type == PAGE_CHECK_B || type == DRIVER_CHECK)
             wardenCheck.Data = fields[2].GetBinary();
@@ -91,11 +95,10 @@ void WardenCheckMgr::LoadWardenChecks()
         if (wardenCheck.Comment.empty())
             wardenCheck.Comment = "Undocumented Check";
 
-        if (type == MEM_CHECK || type == MODULE_CHECK)
-            MemChecksIdPool.push_back(id);
-        else
-            OtherChecksIdPool.push_back(id);
+        // initialize action with default action from config, this may be overridden later
+        wardenCheck.Action = WardenActions(sWorld->getIntConfig(CONFIG_WARDEN_CLIENT_FAIL_ACTION));
 
+        _pools[category].push_back(id);
         ++count;
     }
     while (result->NextRow());

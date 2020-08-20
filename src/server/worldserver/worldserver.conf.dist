@@ -1474,21 +1474,18 @@ HotSwap.ReCompilerBuildType = ""
 Warden.Enabled = 0
 
 #
-#    Warden.NumMemChecks
-#        Description: Number of Warden memory checks that are sent to the client each cycle.
-#        Default:     3 - (Enabled)
-#                     0 - (Disabled)
+#    Warden.NumInjectionChecks
+#    Warden.NumLuaSandboxChecks
+#    Warden.NumClientModChecks
+#        Description: Number of Warden checks of the respective category that are sent per cycle.
+#        Default:     7 - (Warden.NumInjectionChecks)
+#        Default:     1 - (Warden.NumLuaSandboxChecks)
+#        Default:     1 - (Warden.NumClientModChecks)
+#                     0 - (Disable category)
 
-Warden.NumMemChecks = 3
-
-#
-#    Warden.NumOtherChecks
-#        Description: Number of Warden checks other than memory checks that are added to request
-#                     each checking cycle.
-#        Default:     7 - (Enabled)
-#                     0 - (Disabled)
-
-Warden.NumOtherChecks = 7
+Warden.NumInjectionChecks = 7
+Warden.NumLuaSandboxChecks = 1
+Warden.NumClientModChecks = 1
 
 #
 #    Warden.ClientResponseDelay

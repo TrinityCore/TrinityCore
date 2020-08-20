@@ -22,7 +22,9 @@
 #include "Cryptography/BigNumber.h"
 #include "ByteBuffer.h"
 #include "Warden.h"
+#include <array>
 #include <list>
+#include <utility>
 
 #pragma pack(push, 1)
 
@@ -79,10 +81,7 @@ class TC_GAME_API WardenWin : public Warden
 
     private:
         uint32 _serverTicks;
-        std::vector<uint16> _memChecks;
-        std::vector<uint16>::const_iterator _memChecksIt;
-        std::vector<uint16> _otherChecks;
-        std::vector<uint16>::const_iterator _otherChecksIt;
+        std::array<std::pair<std::vector<uint16>, std::vector<uint16>::const_iterator>, NUM_CHECK_CATEGORIES> _checks;
         std::vector<uint16> _currentChecks;
 };
 
