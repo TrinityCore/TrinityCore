@@ -260,7 +260,7 @@ void Quest::BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player
             if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(RewardItemId[i]))
                 displayID = itemTemplate->DisplayInfoID;
 
-            rewards.UnfilteredChoiceItems.emplace_back(RewardItemId[i], RewardItemIdCount[i], displayID);
+            rewards.RewardItems.emplace_back(RewardItemId[i], RewardItemIdCount[i], displayID);
         }
 
         rewards.RewardMoney = GetRewOrReqMoney(player);
