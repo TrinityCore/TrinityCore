@@ -30,6 +30,8 @@
 #include <openssl/sha.h>
 #include <openssl/md5.h>
 
+#include <charconv>
+
 Warden::Warden() : _session(nullptr), _checkTimer(10 * IN_MILLISECONDS), _clientResponseTimer(0),
                    _dataSent(false), _initialized(false)
 {
@@ -254,8 +256,14 @@ void Warden::HandleData(ByteBuffer& buff)
     }
 }
 
-void Warden::NotifyLuaCheckFail(uint16 id)
+bool Warden::ProcessLuaCheckResponse(std::string const& msg)
 {
+    static constexpr char WARDEN_TOKEN[] = "_TW\t";
+    if (!StringStartsWith(msg, WARDEN_TOKEN))
+        return false;
+
+    uint16 id = 0;
+    std::from_chars(msg.data() + sizeof(WARDEN_TOKEN) - 1, msg.data() + msg.size(), id, 10);
     if (id < sWardenCheckMgr->GetMaxValidCheckId())
     {
         WardenCheck const& check = sWardenCheckMgr->GetCheckData(id);
@@ -263,13 +271,13 @@ void Warden::NotifyLuaCheckFail(uint16 id)
         {
             char const* penalty = ApplyPenalty(&check);
             TC_LOG_WARN("warden", "%s failed Warden check %u (%s). Action: %s", _session->GetPlayerInfo().c_str(), id, EnumUtils::ToConstant(check.Type), penalty);
-            return;
+            return true;
         }
     }
 
     char const* penalty = ApplyPenalty(nullptr);
     TC_LOG_WARN("warden", "%s sent bogus Lua check response for Warden. Action: %s", _session->GetPlayerInfo().c_str(), penalty);
-    return;
+    return true;
 }
 
 void WorldSession::HandleWardenDataOpcode(WorldPacket& recvData)
