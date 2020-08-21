@@ -110,7 +110,7 @@ std::pair<PetStable::PetInfo const*, PetSaveMode> Pet::GetLoadPetInfo(PetStable 
                 return { &stable.StabledPets[stableSlot].value(), PetSaveMode(PET_SAVE_FIRST_STABLE_SLOT + stableSlot) };
 
         for (PetStable::PetInfo const& pet : stable.UnslottedPets)
-            if (pet.CreatureId == petEntry)
+            if (pet.PetNumber == petnumber)
                 return { &pet, PET_SAVE_NOT_IN_SLOT };
     }
     else if (current)

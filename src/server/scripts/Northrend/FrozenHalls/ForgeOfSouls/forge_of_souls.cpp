@@ -312,5 +312,5 @@ void AddSC_forge_of_souls()
 {
     new npc_sylvanas_fos();
     new npc_jaina_fos();
-    RegisterAuraScript(spell_forge_of_souls_soul_sickness);
+    RegisterSpellScript(spell_forge_of_souls_soul_sickness);
 }

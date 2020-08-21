@@ -1116,7 +1116,7 @@ void AddSC_the_scarlet_enclave_c1()
     new npc_death_knight_initiate();
     RegisterCreatureAI(npc_dark_rider_of_acherus);
     new npc_salanar_the_horseman();
-    RegisterAuraScript(spell_stable_master_repo);
+    RegisterSpellScript(spell_stable_master_repo);
     RegisterSpellScript(spell_deliver_stolen_horse);
     new npc_ros_dark_rider();
     new npc_dkc1_gothik();

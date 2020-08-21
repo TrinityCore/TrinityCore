@@ -593,7 +593,7 @@ void AddSC_boss_coren_direbrew()
     RegisterSpellScript(spell_direbrew_summon_mole_machine_target_picker);
     RegisterSpellScript(spell_send_mug_target_picker);
     RegisterSpellScript(spell_request_second_mug);
-    RegisterAuraScript(spell_send_mug_control_aura);
-    RegisterAuraScript(spell_barreled_control_aura);
-    RegisterAuraScript(spell_direbrew_disarm);
+    RegisterSpellScript(spell_send_mug_control_aura);
+    RegisterSpellScript(spell_barreled_control_aura);
+    RegisterSpellScript(spell_direbrew_disarm);
 }
