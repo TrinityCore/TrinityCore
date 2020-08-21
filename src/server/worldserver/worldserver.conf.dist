@@ -1478,12 +1478,12 @@ Warden.Enabled = 0
 #    Warden.NumLuaSandboxChecks
 #    Warden.NumClientModChecks
 #        Description: Number of Warden checks of the respective category that are sent per cycle.
-#        Default:     7 - (Warden.NumInjectionChecks)
+#        Default:     9 - (Warden.NumInjectionChecks)
 #        Default:     1 - (Warden.NumLuaSandboxChecks)
 #        Default:     1 - (Warden.NumClientModChecks)
 #                     0 - (Disable category)
 
-Warden.NumInjectionChecks = 7
+Warden.NumInjectionChecks = 9
 Warden.NumLuaSandboxChecks = 1
 Warden.NumClientModChecks = 1
 
