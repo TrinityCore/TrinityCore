@@ -37,7 +37,14 @@ target_compile_features(trinity-feature-interface
 # Check additional platform features that are not handled in target_compile_features
 check_cxx_source_compiles("
   #include <charconv>
-  int main() { return 0; }"
+  int main()
+  {
+      char C[3] = "42";
+      int v = 0;
+      std::from_chars(C, C+2, v, 10);
+      std::to_chars(C, C+2, v, 10);
+      return v;
+  }"
   TRINITY_HAS_CHARCONV)
 
 if (NOT TRINITY_HAS_CHARCONV)
