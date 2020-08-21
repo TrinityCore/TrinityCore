@@ -53,6 +53,7 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "RelWithDebInfo")
 endif()
 
+include(CheckCXXSourceCompiles)
 include(CheckCXXSourceRuns)
 include(CheckIncludeFile)
 include(ConfigureScripts)
