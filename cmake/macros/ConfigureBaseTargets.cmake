@@ -34,7 +34,12 @@ target_compile_features(trinity-feature-interface
     cxx_trailing_return_types
     cxx_return_type_deduction)
 
-CHECK_INCLUDE_FILE("charconv" TRINITY_HAS_CHARCONV)
+# Check additional platform features that are not handled in target_compile_features
+check_cxx_source_compiles("
+  #include <charconv>
+  int main() { return 0; }"
+  TRINITY_HAS_CHARCONV)
+
 if (NOT TRINITY_HAS_CHARCONV)
   message(STATUS "File <charconv> cannot be found")
   message(FATAL_ERROR "File <charconv> cannot be found. Please update your c++ Standard Library")
