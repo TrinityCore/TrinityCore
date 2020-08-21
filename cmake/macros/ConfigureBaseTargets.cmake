@@ -34,6 +34,12 @@ target_compile_features(trinity-feature-interface
     cxx_trailing_return_types
     cxx_return_type_deduction)
 
+CHECK_INCLUDE_FILE("charconv" TRINITY_HAS_CHARCONV)
+if (NOT TRINITY_HAS_CHARCONV)
+  message(STATUS "File <charconv> cannot be found")
+  message(FATAL_ERROR "File <charconv> cannot be found. Please update your c++ Standard Library")
+endif()
+
 # An interface library to make the warnings level available to other targets
 # This interface taget is set-up through the platform specific script
 add_library(trinity-warning-interface INTERFACE)

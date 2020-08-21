@@ -54,7 +54,7 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 include(CheckCXXSourceRuns)
-include(CheckIncludeFiles)
+include(CheckIncludeFile)
 include(ConfigureScripts)
 
 # set default buildoptions and print them
