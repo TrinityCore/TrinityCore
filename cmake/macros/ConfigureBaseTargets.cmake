@@ -39,7 +39,7 @@ check_cxx_source_compiles("
   #include <charconv>
   int main()
   {
-      char C[3] = "42";
+      char C[3] = \"42\";
       int v = 0;
       std::from_chars(C, C+2, v, 10);
       std::to_chars(C, C+2, v, 10);
