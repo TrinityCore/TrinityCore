@@ -1898,7 +1898,7 @@ class spell_dru_nurturing_instinct : public AuraScript
 {
     PrepareAuraScript(spell_dru_nurturing_instinct);
 
-    void AfterApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Player* player = GetTarget()->ToPlayer())
             player->AddAura(GetSpellInfo()->GetRank() == 1 ? SPELL_DRUID_NURTURING_INSTINCT_R1 : SPELL_DRUID_NURTURING_INSTINCT_R2, player);
