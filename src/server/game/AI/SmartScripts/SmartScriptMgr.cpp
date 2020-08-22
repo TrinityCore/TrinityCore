@@ -29,6 +29,7 @@
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "Timer.h"
+#include "Unit.h"
 #include "UnitDefines.h"
 #include "WaypointDefines.h"
 
