@@ -310,7 +310,7 @@ class TC_GAME_API SpellScript : public _SpellScript
         };
 
         #define SPELLSCRIPT_FUNCTION_CAST_DEFINES(CLASSNAME) \
-        class OnTriggerCastFlagsDefitinionHandlerFunction : public SpellScript::OnTriggerCastFlagsDefitinionHandler { public: explicit OnTriggerCastFlagsDefitinionHandlerFunction(SpellOnTriggerCastDefinitionFnType _onTriggerCastFlagsDefitinionScript) : SpellScript::OnTriggerCastFlagsDefitinionHandler((SpellScript::SpellOnTriggerCastDefinitionFnType)_onTriggerCastFlagsDefitinionScript) { } }; \
+        class OnTriggerCastFlagsDefinitionHandlerFunction : public SpellScript::OnTriggerCastFlagsDefinitionHandler { public: explicit OnTriggerCastFlagsDefinitionHandlerFunction(SpellOnTriggerCastDefinitionFnType _onTriggerCastFlagsDefitinionScript) : SpellScript::OnTriggerCastFlagsDefinitionHandler((SpellScript::SpellOnTriggerCastDefinitionFnType)_onTriggerCastFlagsDefitinionScript) { } }; \
         class CastHandlerFunction : public SpellScript::CastHandler { public: explicit CastHandlerFunction(SpellCastFnType _pCastHandlerScript) : SpellScript::CastHandler((SpellScript::SpellCastFnType)_pCastHandlerScript) { } }; \
         class CheckCastHandlerFunction : public SpellScript::CheckCastHandler { public: explicit CheckCastHandlerFunction(SpellCheckCastFnType _checkCastHandlerScript) : SpellScript::CheckCastHandler((SpellScript::SpellCheckCastFnType)_checkCastHandlerScript) { } }; \
         class EffectHandlerFunction : public SpellScript::EffectHandler { public: explicit EffectHandlerFunction(SpellEffectFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName) : SpellScript::EffectHandler((SpellScript::SpellEffectFnType)_pEffectHandlerScript, _effIndex, _effName) { } }; \
