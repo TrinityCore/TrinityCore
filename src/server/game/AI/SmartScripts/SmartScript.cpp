@@ -3650,8 +3650,26 @@ void SmartScript::OnUpdate(uint32 const diff)
     if ((mScriptType == SMART_SCRIPT_TYPE_CREATURE || mScriptType == SMART_SCRIPT_TYPE_GAMEOBJECT) && !GetBaseObject())
         return;
 
+    // Don't run any action while evading
     if (me && me->IsInEvadeMode())
+    {
+        // Check if the timed action list finished and clear it if so.
+        // This is required by SMART_ACTION_CALL_TIMED_ACTIONLIST failing if mTimedActionList is not empty.
+        if (!mTimedActionList.empty())
+        {
+            bool needCleanup = true;
+            for (SmartScriptHolder& scriptholder : mTimedActionList)
+            {
+                if (scriptholder.enableTimed)
+                    needCleanup = false;
+            }
+
+            if (needCleanup)
+                mTimedActionList.clear();
+        }
+        
         return;
+    }
 
     InstallEvents();//before UpdateTimers
 
