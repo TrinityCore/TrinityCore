@@ -79,7 +79,7 @@ Position const ColumnOfLightPosition            = { 231.3559f, -224.3038f, 74.95
 Position const AtramedesIntroSummonPosition     = { 288.325f,  -222.438f,  96.61964f, 3.089233f };
 Position const AtramedesRespawnPosition         = { 220.0347f, -224.3125f, 74.88777f, 3.141593f };
 Position const LordVictorNefariusIntroPosition  = { -290.4809f, -224.5955f, 191.6532f, 3.124139f };
-Position const NefarianRespawnPosition          = { -181.9734f, -228.3499f, 96.76361f, 5.217541f };
+Position const NefarianRespawnPosition          = { -184.12674f, -224.5573f, 97.70717f, 5.217541f };
 
 enum Events
 {
