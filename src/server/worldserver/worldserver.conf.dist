@@ -16,6 +16,7 @@
 #    WARDEN SETTINGS
 #    PLAYER INTERACTION
 #    CREATURE SETTINGS
+#    SPAWN/RESPAWN SETTINGS
 #    CHAT SETTINGS
 #    GAME MASTER SETTINGS
 #    SUPPORT SETTINGS
@@ -1771,6 +1772,122 @@ Creature.MovingStopTimeForPlayer = 180000
 #        Default:     50.000000
 
 MonsterSight = 50.000000
+
+#
+###################################################################################################
+
+###################################################################################################
+# SPAWN/RESPAWN SETTINGS
+#
+#    Respawn.MinCheckIntervalMS
+#        Description: Minimum time that needs to pass between respawn checks for any given map.
+#        Default:     5000 - 5 seconds
+
+Respawn.MinCheckIntervalMS = 5000
+
+#
+#    Respawn.GuidWarnLevel
+#        Description: The point at which the highest guid for creatures or gameobjects in any map must reach
+#                     before the warning logic is enabled. A restart will then be queued at the next quiet time
+#                     The maximum guid per map is 16,777,216. So, it must be less than this value.
+#        Default:     12000000 - 12 million
+
+Respawn.GuidWarnLevel = 12000000
+
+#
+#    Respawn.WarningMessage
+#        Description: This message will be periodically shown (Frequency specified by Respawn.WarningFrequency) to
+#                     all users of the server, once the Respawn.GuidWarnLevel has been passed, and a restart scheduled.
+#                     It's used to warn users that there will be an out of schedule server restart soon.
+#        Default:     "There will be an unscheduled server restart at 03:00 server time. The server will be available again shortly after."
+
+Respawn.WarningMessage = "There will be an unscheduled server restart at 03:00. The server will be available again shortly after."
+
+#
+#    Respawn.WarningFrequency
+#        Description: The frequency (in seconds) that the warning message will be sent to users after a quiet time restart is triggered.
+#                     The message will repeat each time this many seconds passed until the server is restarted.
+#                     If set to 0, no warnings will be sent.
+#        Default:     1800 - (30 minutes)
+
+Respawn.WarningFrequency = 1800
+
+#
+#    Respawn.GuidAlertLevel
+#        Description: The point at which the highest guid for creatures or gameobjects in any map must reach
+#                     before the alert logic is enabled. A restart will then be triggered for 30 mins from that
+#                     point. The maximum guid per map is 16,777,216. So, it must be less than this value.
+#        Default:     16000000 - 16 million
+
+Respawn.GuidAlertLevel = 16000000
+
+#
+#    Respawn.AlertRestartReason
+#        Description: The shutdown reason given when the alert level is reached. The server will use a fixed time of
+#                     5 minutes and the reason for shutdown will be this message
+#        Default:     "Urgent Maintenance"
+
+Respawn.AlertRestartReason = "Urgent Maintenance"
+
+#
+#    Respawn.RestartQuietTime
+#        Description: The hour at which the server will be restarted after the Respawn.GuidWarnLevel
+#                     threshold has been reached. This can be between 0 and 23. 20 will be 8pm server time
+#        Default:     3 - 3am
+
+Respawn.RestartQuietTime = 3
+
+#
+#    Respawn.DynamicMode
+#        Description: Select which mode (if any) should be used to adjust respawn of creatures.
+#                     This will only affect creatures that have dynamic spawn rate scaling enabled in
+#                     the spawn group table (by default, gathering nodes and quest targets with respawn time <30min
+#                     1 - Use number of players in zone
+#        Default:     0 - No dynamic respawn function
+
+Respawn.DynamicMode = 0
+
+#
+#    Respawn.DynamicEscortNPC
+#        Description: This switch controls the dynamic respawn system for escort NPCs not in instancable maps (base maps only).
+#                     This will cause the respawn timer to begin when an escort event begins, and potentially
+#                     allow multiple instances of the NPC to be alive at the same time (when combined with Respawn.DynamicMode > 0)
+#                     1 - Enabled
+#        Default:     0 - Disabled
+
+Respawn.DynamicEscortNPC = 1
+
+#
+#    Respawn.DynamicRateCreature
+#        Description: The rate at which the respawn time is adjusted for high player counts in a zone (for creatures).
+#                     Up to this number of players, the respawn rate is unchanged.
+#                     At double this number in players, you get twice as many respawns, at three times this number, three times the respawns, and so forth.
+#        Default:     10
+
+Respawn.DynamicRateCreature = 10
+
+#
+#    Respawn.DynamicMinimumCreature
+#        Description: The minimum respawn time for a creature under dynamic scaling.
+#        Default:     10 - (10 seconds)
+
+Respawn.DynamicMinimumCreature = 10
+
+#
+#    Respawn.DynamicRateGameObject
+#        Description: The rate at which the respawn time is adjusted for high player counts in a zone (for gameobjects).
+#                     Up to this number of players, the respawn rate is unchanged.
+#                     At double this number in players, you get twice as many respawns, at three times this number, three times the respawns, and so forth.
+#        Default:     10
+
+Respawn.DynamicRateGameObject = 10
+
+#
+#    Respawn.DynamicMinimumGameObject
+#        Description: The minimum respawn time for a gameobject under dynamic scaling.
+#        Default:     10 - (10 seconds)
+
+Respawn.DynamicMinimumGameObject = 10
 
 #
 ###################################################################################################
