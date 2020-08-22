@@ -48,8 +48,8 @@ check_cxx_source_compiles("
   TRINITY_HAS_CHARCONV)
 
 if (NOT TRINITY_HAS_CHARCONV)
-  message(STATUS "File <charconv> cannot be found")
-  message(FATAL_ERROR "File <charconv> cannot be found. Please update your c++ Standard Library")
+  message(STATUS "File <charconv> not found or not supported")
+  message(FATAL_ERROR "File <charconv> was not found or is not supported. Please update your c++ Standard Library")
 endif()
 
 # An interface library to make the warnings level available to other targets
