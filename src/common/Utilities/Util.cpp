@@ -35,10 +35,10 @@
   #include <arpa/inet.h>
 #endif
 
-Tokenizer::Tokenizer(const std::string &src, const char sep, uint32 vectorReserve /*= 0*/, bool keepEmptyStrings /*= true*/)
+Tokenizer::Tokenizer(std::string_view const& src, const char sep, uint32 vectorReserve /*= 0*/, bool keepEmptyStrings /*= true*/)
 {
     m_str = new char[src.length() + 1];
-    memcpy(m_str, src.c_str(), src.length() + 1);
+    memcpy(m_str, src.data(), src.length() + 1);
 
     if (vectorReserve)
         m_storage.reserve(vectorReserve);
@@ -400,7 +400,7 @@ bool Utf8toWStr(char const* utf8str, size_t csize, wchar_t* wstr, size_t& wsize)
     return true;
 }
 
-bool Utf8toWStr(const std::string_view& utf8str, std::wstring& wstr)
+bool Utf8toWStr(std::string_view const& utf8str, std::wstring& wstr)
 {
     wstr.clear();
     try
@@ -513,7 +513,7 @@ std::wstring GetMainPartOfName(std::wstring const& wname, uint32 declension)
     return wname;
 }
 
-bool utf8ToConsole(const std::string& utf8str, std::string& conStr)
+bool utf8ToConsole(std::string_view const& utf8str, std::string& conStr)
 {
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
     std::wstring wstr;
@@ -530,7 +530,7 @@ bool utf8ToConsole(const std::string& utf8str, std::string& conStr)
     return true;
 }
 
-bool consoleToUtf8(const std::string& conStr, std::string& utf8str)
+bool consoleToUtf8(std::string_view const& conStr, std::string& utf8str)
 {
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
     std::wstring wstr;
@@ -545,7 +545,7 @@ bool consoleToUtf8(const std::string& conStr, std::string& utf8str)
 #endif
 }
 
-bool Utf8FitTo(const std::string& str, std::wstring const& search)
+bool Utf8FitTo(std::string_view const& str, std::wstring_view const& search)
 {
     std::wstring temp;
 

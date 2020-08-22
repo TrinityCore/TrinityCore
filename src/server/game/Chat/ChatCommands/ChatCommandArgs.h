@@ -63,7 +63,7 @@ struct ArgInfo<T, std::enable_if_t<std::is_integral_v<T>>>
         else
             result = std::from_chars(token.data(), token.data() + token.length(), val, 10);
 
-        if ((result.ptr - token.data()) != token.length())
+        if ((token.data() + token.length()) != result.ptr)
             return nullptr;
 
         return next;

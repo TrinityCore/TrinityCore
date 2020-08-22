@@ -46,7 +46,7 @@ public:
     typedef StorageType::const_reference const_reference;
 
 public:
-    Tokenizer(const std::string &src, char const sep, uint32 vectorReserve = 0, bool keepEmptyStrings = true);
+    Tokenizer(std::string_view const& src, char const sep, uint32 vectorReserve = 0, bool keepEmptyStrings = true);
     ~Tokenizer() { delete[] m_str; }
 
     const_iterator begin() const { return m_storage.begin(); }
@@ -103,12 +103,12 @@ template <class T>
 inline T square(T x) { return x*x; }
 
 // UTF8 handling
-TC_COMMON_API bool Utf8toWStr(const std::string_view& utf8str, std::wstring& wstr);
+TC_COMMON_API bool Utf8toWStr(std::string_view const& utf8str, std::wstring& wstr);
 
 // in wsize==max size of buffer, out wsize==real string size
 TC_COMMON_API bool Utf8toWStr(char const* utf8str, size_t csize, wchar_t* wstr, size_t& wsize);
 
-inline bool Utf8toWStr(const std::string_view& utf8str, wchar_t* wstr, size_t& wsize)
+inline bool Utf8toWStr(std::string_view const& utf8str, wchar_t* wstr, size_t& wsize)
 {
     return Utf8toWStr(utf8str.data(), utf8str.size(), wstr, wsize);
 }
@@ -205,34 +205,34 @@ inline bool isNumericOrSpace(wchar_t wchar)
     return isNumeric(wchar) || wchar == L' ';
 }
 
-inline bool isBasicLatinString(const std::wstring &wstr, bool numericOrSpace)
+inline bool isBasicLatinString(std::wstring_view const& wstr, bool numericOrSpace)
 {
-    for (size_t i = 0; i < wstr.size(); ++i)
-        if (!isBasicLatinCharacter(wstr[i]) && (!numericOrSpace || !isNumericOrSpace(wstr[i])))
+    for (wchar_t c : wstr)
+        if (!isBasicLatinCharacter(c) && (!numericOrSpace || !isNumericOrSpace(c)))
             return false;
     return true;
 }
 
-inline bool isExtendedLatinString(const std::wstring &wstr, bool numericOrSpace)
+inline bool isExtendedLatinString(std::wstring_view const& wstr, bool numericOrSpace)
 {
-    for (size_t i = 0; i < wstr.size(); ++i)
-        if (!isExtendedLatinCharacter(wstr[i]) && (!numericOrSpace || !isNumericOrSpace(wstr[i])))
+    for (wchar_t c : wstr)
+        if (!isExtendedLatinCharacter(c) && (!numericOrSpace || !isNumericOrSpace(c)))
             return false;
     return true;
 }
 
-inline bool isCyrillicString(const std::wstring &wstr, bool numericOrSpace)
+inline bool isCyrillicString(std::wstring_view const& wstr, bool numericOrSpace)
 {
-    for (size_t i = 0; i < wstr.size(); ++i)
-        if (!isCyrillicCharacter(wstr[i]) && (!numericOrSpace || !isNumericOrSpace(wstr[i])))
+    for (wchar_t c : wstr)
+        if (!isCyrillicCharacter(c) && (!numericOrSpace || !isNumericOrSpace(c)))
             return false;
     return true;
 }
 
-inline bool isEastAsianString(const std::wstring &wstr, bool numericOrSpace)
+inline bool isEastAsianString(std::wstring_view const& wstr, bool numericOrSpace)
 {
-    for (size_t i = 0; i < wstr.size(); ++i)
-        if (!isEastAsianCharacter(wstr[i]) && (!numericOrSpace || !isNumericOrSpace(wstr[i])))
+    for (wchar_t c : wstr)
+        if (!isEastAsianCharacter(c) && (!numericOrSpace || !isNumericOrSpace(c)))
             return false;
     return true;
 }
@@ -305,9 +305,9 @@ void strToLower(T& str) { std::transform(std::begin(str), std::end(str), std::be
 
 TC_COMMON_API std::wstring GetMainPartOfName(std::wstring const& wname, uint32 declension);
 
-TC_COMMON_API bool utf8ToConsole(const std::string& utf8str, std::string& conStr);
-TC_COMMON_API bool consoleToUtf8(const std::string& conStr, std::string& utf8str);
-TC_COMMON_API bool Utf8FitTo(const std::string& str, std::wstring const& search);
+TC_COMMON_API bool utf8ToConsole(std::string_view const& utf8str, std::string& conStr);
+TC_COMMON_API bool consoleToUtf8(std::string_view const& conStr, std::string& utf8str);
+TC_COMMON_API bool Utf8FitTo(std::string_view const& str, std::wstring_view const& search);
 TC_COMMON_API void utf8printf(FILE* out, const char *str, ...);
 TC_COMMON_API void vutf8printf(FILE* out, const char *str, va_list* ap);
 TC_COMMON_API bool Utf8ToUpperOnlyLatin(std::string& utf8String);
