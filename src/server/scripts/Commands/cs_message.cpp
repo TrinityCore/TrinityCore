@@ -136,7 +136,7 @@ public:
         if (WorldSession* session = handler->GetSession())
             name = session->GetPlayer()->GetName();
 
-        sWorld->SendWorldText(LANG_ANNOUNCE_COLOR, name.c_str(), args->GetFullArgs());
+        sWorld->SendWorldText(LANG_ANNOUNCE_COLOR, name.c_str(), args->GetRemainingArgs());
         return true;
     }
 
@@ -149,7 +149,7 @@ public:
         if (WorldSession* session = handler->GetSession())
             name = session->GetPlayer()->GetName();
 
-        sWorld->SendGMText(LANG_GM_ANNOUNCE_COLOR, name.c_str(), args->GetFullArgs());
+        sWorld->SendGMText(LANG_GM_ANNOUNCE_COLOR, name.c_str(), args->GetRemainingArgs());
         return true;
     }
 
@@ -169,18 +169,18 @@ public:
         if (!*args)
             return false;
 
-        sWorld->SendGMText(LANG_GM_BROADCAST, args->GetFullArgs());
+        sWorld->SendGMText(LANG_GM_BROADCAST, args->GetRemainingArgs());
         return true;
     }
 
     // send on-screen notification to players
-    static bool HandleNotifyCommand(ChatHandler* handler, CommandArgs* args)
+    static bool HandleNotifyCommand(ChatHandler* handler, RemainingArgString msg)
     {
-        if (!*args)
+        if (!msg)
             return false;
 
         std::string str = handler->GetTrinityString(LANG_GLOBAL_NOTIFY);
-        str += args->GetFullArgs();
+        str += msg;
 
         WorldPacket data(SMSG_NOTIFICATION, (str.size() + 1));
         data << str;
@@ -190,13 +190,13 @@ public:
     }
 
     // send on-screen notification to GMs
-    static bool HandleGMNotifyCommand(ChatHandler* handler, CommandArgs* args)
+    static bool HandleGMNotifyCommand(ChatHandler* handler, RemainingArgString msg)
     {
-        if (!*args)
+        if (!msg)
             return false;
 
         std::string str = handler->GetTrinityString(LANG_GM_NOTIFY);
-        str += args->GetFullArgs();
+        str += msg;
 
         WorldPacket data(SMSG_NOTIFICATION, (str.size() + 1));
         data << str;
