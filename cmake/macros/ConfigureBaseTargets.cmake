@@ -34,6 +34,10 @@ target_compile_features(trinity-feature-interface
     cxx_trailing_return_types
     cxx_return_type_deduction)
 
+cmake_push_check_state()
+if (WIN32)
+  set(CMAKE_REQUIRED_FLAGS /std:c++17)
+endif()
 # Check additional platform features that are not handled in target_compile_features
 check_cxx_source_compiles("
   #include <charconv>
@@ -46,6 +50,7 @@ check_cxx_source_compiles("
       return v;
   }"
   TRINITY_HAS_CHARCONV)
+cmake_pop_check_state()
 
 if (NOT TRINITY_HAS_CHARCONV)
   message(STATUS "File <charconv> not found or not supported")

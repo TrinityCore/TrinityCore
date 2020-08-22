@@ -57,6 +57,7 @@ include(CheckCXXSourceCompiles)
 include(CheckCXXSourceRuns)
 include(CheckIncludeFile)
 include(ConfigureScripts)
+include(CMakePushCheckState)
 
 # set default buildoptions and print them
 include(cmake/options.cmake)
