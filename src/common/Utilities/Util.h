@@ -21,8 +21,10 @@
 #include "Define.h"
 #include "Errors.h"
 
+#include <algorithm>
 #include <array>
 #include <string>
+#include <string_view>
 #include <sstream>
 #include <utility>
 #include <vector>
