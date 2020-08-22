@@ -35,7 +35,7 @@
   #include <arpa/inet.h>
 #endif
 
-Tokenizer::Tokenizer(std::string_view const& src, const char sep, uint32 vectorReserve /*= 0*/, bool keepEmptyStrings /*= true*/)
+Tokenizer::Tokenizer(std::string_view src, const char sep, uint32 vectorReserve /*= 0*/, bool keepEmptyStrings /*= true*/)
 {
     m_str = new char[src.length() + 1];
     memcpy(m_str, src.data(), src.length() + 1);
@@ -400,7 +400,7 @@ bool Utf8toWStr(char const* utf8str, size_t csize, wchar_t* wstr, size_t& wsize)
     return true;
 }
 
-bool Utf8toWStr(std::string_view const& utf8str, std::wstring& wstr)
+bool Utf8toWStr(std::string_view utf8str, std::wstring& wstr)
 {
     wstr.clear();
     try
@@ -439,7 +439,7 @@ bool WStrToUtf8(wchar_t const* wstr, size_t size, std::string& utf8str)
     return true;
 }
 
-bool WStrToUtf8(std::wstring_view const& wstr, std::string& utf8str)
+bool WStrToUtf8(std::wstring_view wstr, std::string& utf8str)
 {
     try
     {
@@ -513,7 +513,7 @@ std::wstring GetMainPartOfName(std::wstring const& wname, uint32 declension)
     return wname;
 }
 
-bool utf8ToConsole(std::string_view const& utf8str, std::string& conStr)
+bool utf8ToConsole(std::string_view utf8str, std::string& conStr)
 {
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
     std::wstring wstr;
@@ -530,7 +530,7 @@ bool utf8ToConsole(std::string_view const& utf8str, std::string& conStr)
     return true;
 }
 
-bool consoleToUtf8(std::string_view const& conStr, std::string& utf8str)
+bool consoleToUtf8(std::string_view conStr, std::string& utf8str)
 {
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
     std::wstring wstr;
@@ -545,7 +545,7 @@ bool consoleToUtf8(std::string_view const& conStr, std::string& utf8str)
 #endif
 }
 
-bool Utf8FitTo(std::string_view const& str, std::wstring_view const& search)
+bool Utf8FitTo(std::string_view str, std::wstring_view search)
 {
     std::wstring temp;
 
@@ -625,7 +625,7 @@ std::string Trinity::Impl::ByteArrayToHexStr(uint8 const* bytes, size_t arrayLen
     return ss.str();
 }
 
-void Trinity::Impl::HexStrToByteArray(std::string_view const& str, uint8* out, size_t outlen, bool reverse /*= false*/)
+void Trinity::Impl::HexStrToByteArray(std::string_view str, uint8* out, size_t outlen, bool reverse /*= false*/)
 {
     ASSERT(str.size() == (2 * outlen));
 
@@ -648,12 +648,12 @@ void Trinity::Impl::HexStrToByteArray(std::string_view const& str, uint8* out, s
     }
 }
 
-bool StringToBool(std::string_view const& str)
+bool StringToBool(std::string_view str)
 {
     return ((str == "1") || StringEqualI(str, "true") || StringEqualI(str, "yes"));
 }
 
-bool StringEqualI(std::string_view const& str1, std::string_view const& str2)
+bool StringEqualI(std::string_view str1, std::string_view str2)
 {
     return std::equal(str1.begin(), str1.end(), str2.begin(), str2.end(),
                       [](char a, char b)
@@ -662,12 +662,12 @@ bool StringEqualI(std::string_view const& str1, std::string_view const& str2)
                       });
 }
 
-bool StringStartsWith(std::string_view const& haystack, std::string_view const& needle)
+bool StringStartsWith(std::string_view haystack, std::string_view needle)
 {
     return (haystack.rfind(needle, 0) == 0);
 }
 
-bool StringContainsStringI(std::string_view const& haystack, std::string_view const& needle)
+bool StringContainsStringI(std::string_view haystack, std::string_view needle)
 {
     return haystack.end() !=
         std::search(haystack.begin(), haystack.end(), needle.begin(), needle.end(), [](char c1, char c2) { return std::toupper(c1) == std::toupper(c2); });
