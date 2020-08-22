@@ -2063,6 +2063,57 @@ TC_API_EXPORT size_t EnumUtils<Emote>::ToIndex(Emote value)
     }
 }
 
+/*******************************************************************\
+|* data for enum 'WeatherType' in 'SharedDefines.h' auto-generated *|
+\*******************************************************************/
+template <>
+TC_API_EXPORT EnumText EnumUtils<WeatherType>::ToString(WeatherType value)
+{
+    switch (value)
+    {
+        case WEATHER_TYPE_FINE: return { "WEATHER_TYPE_FINE", "WEATHER_TYPE_FINE", "" };
+        case WEATHER_TYPE_RAIN: return { "WEATHER_TYPE_RAIN", "WEATHER_TYPE_RAIN", "" };
+        case WEATHER_TYPE_SNOW: return { "WEATHER_TYPE_SNOW", "WEATHER_TYPE_SNOW", "" };
+        case WEATHER_TYPE_STORM: return { "WEATHER_TYPE_STORM", "WEATHER_TYPE_STORM", "" };
+        case WEATHER_TYPE_THUNDERS: return { "WEATHER_TYPE_THUNDERS", "WEATHER_TYPE_THUNDERS", "" };
+        case WEATHER_TYPE_BLACKRAIN: return { "WEATHER_TYPE_BLACKRAIN", "WEATHER_TYPE_BLACKRAIN", "" };
+        default: throw std::out_of_range("value");
+    }
+}
+
+template <>
+TC_API_EXPORT size_t EnumUtils<WeatherType>::Count() { return 6; }
+
+template <>
+TC_API_EXPORT WeatherType EnumUtils<WeatherType>::FromIndex(size_t index)
+{
+    switch (index)
+    {
+        case 0: return WEATHER_TYPE_FINE;
+        case 1: return WEATHER_TYPE_RAIN;
+        case 2: return WEATHER_TYPE_SNOW;
+        case 3: return WEATHER_TYPE_STORM;
+        case 4: return WEATHER_TYPE_THUNDERS;
+        case 5: return WEATHER_TYPE_BLACKRAIN;
+        default: throw std::out_of_range("index");
+    }
+}
+
+template <>
+TC_API_EXPORT size_t EnumUtils<WeatherType>::ToIndex(WeatherType value)
+{
+    switch (value)
+    {
+        case WEATHER_TYPE_FINE: return 0;
+        case WEATHER_TYPE_RAIN: return 1;
+        case WEATHER_TYPE_SNOW: return 2;
+        case WEATHER_TYPE_STORM: return 3;
+        case WEATHER_TYPE_THUNDERS: return 4;
+        case WEATHER_TYPE_BLACKRAIN: return 5;
+        default: throw std::out_of_range("value");
+    }
+}
+
 /************************************************************************\
 |* data for enum 'SpellFamilyNames' in 'SharedDefines.h' auto-generated *|
 \************************************************************************/
