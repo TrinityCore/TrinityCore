@@ -384,7 +384,7 @@ public:
             uint32 count = 0;
             std::string const& scriptName = sObjectMgr->GetScriptName(pair.second.ScriptId);
             char const* mapName = ASSERT_NOTNULL(sMapStore.LookupEntry(pair.first))->MapName[handler->GetSessionDbcLocale()];
-            for (auto label : labels)
+            for (std::string_view label : labels)
                 if (StringContainsStringI(scriptName, label))
                     ++count;
 
@@ -474,7 +474,7 @@ public:
 
             uint32 count = 0;
             std::string const& scriptName = sObjectMgr->GetScriptName(data.ScriptID);
-            for (auto label : needles)
+            for (std::string_view label : needles)
                 if (StringContainsStringI(scriptName, label) || StringContainsStringI(data.Name, label))
                     ++count;
 
