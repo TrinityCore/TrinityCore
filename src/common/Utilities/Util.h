@@ -23,6 +23,7 @@
 
 #include <array>
 #include <string>
+#include <string_view>
 #include <sstream>
 #include <utility>
 #include <vector>
@@ -46,7 +47,7 @@ public:
     typedef StorageType::const_reference const_reference;
 
 public:
-    Tokenizer(const std::string &src, char const sep, uint32 vectorReserve = 0, bool keepEmptyStrings = true);
+    Tokenizer(std::string_view src, char const sep, uint32 vectorReserve = 0, bool keepEmptyStrings = true);
     ~Tokenizer() { delete[] m_str; }
 
     const_iterator begin() const { return m_storage.begin(); }
@@ -103,17 +104,17 @@ template <class T>
 inline T square(T x) { return x*x; }
 
 // UTF8 handling
-TC_COMMON_API bool Utf8toWStr(const std::string& utf8str, std::wstring& wstr);
+TC_COMMON_API bool Utf8toWStr(std::string_view utf8str, std::wstring& wstr);
 
 // in wsize==max size of buffer, out wsize==real string size
 TC_COMMON_API bool Utf8toWStr(char const* utf8str, size_t csize, wchar_t* wstr, size_t& wsize);
 
-inline bool Utf8toWStr(const std::string& utf8str, wchar_t* wstr, size_t& wsize)
+inline bool Utf8toWStr(std::string_view utf8str, wchar_t* wstr, size_t& wsize)
 {
-    return Utf8toWStr(utf8str.c_str(), utf8str.size(), wstr, wsize);
+    return Utf8toWStr(utf8str.data(), utf8str.size(), wstr, wsize);
 }
 
-TC_COMMON_API bool WStrToUtf8(std::wstring const& wstr, std::string& utf8str);
+TC_COMMON_API bool WStrToUtf8(std::wstring_view wstr, std::string& utf8str);
 // size==real string size
 TC_COMMON_API bool WStrToUtf8(wchar_t const* wstr, size_t size, std::string& utf8str);
 
@@ -205,34 +206,34 @@ inline bool isNumericOrSpace(wchar_t wchar)
     return isNumeric(wchar) || wchar == L' ';
 }
 
-inline bool isBasicLatinString(const std::wstring &wstr, bool numericOrSpace)
+inline bool isBasicLatinString(std::wstring_view wstr, bool numericOrSpace)
 {
-    for (size_t i = 0; i < wstr.size(); ++i)
-        if (!isBasicLatinCharacter(wstr[i]) && (!numericOrSpace || !isNumericOrSpace(wstr[i])))
+    for (wchar_t c : wstr)
+        if (!isBasicLatinCharacter(c) && (!numericOrSpace || !isNumericOrSpace(c)))
             return false;
     return true;
 }
 
-inline bool isExtendedLatinString(const std::wstring &wstr, bool numericOrSpace)
+inline bool isExtendedLatinString(std::wstring_view wstr, bool numericOrSpace)
 {
-    for (size_t i = 0; i < wstr.size(); ++i)
-        if (!isExtendedLatinCharacter(wstr[i]) && (!numericOrSpace || !isNumericOrSpace(wstr[i])))
+    for (wchar_t c : wstr)
+        if (!isExtendedLatinCharacter(c) && (!numericOrSpace || !isNumericOrSpace(c)))
             return false;
     return true;
 }
 
-inline bool isCyrillicString(const std::wstring &wstr, bool numericOrSpace)
+inline bool isCyrillicString(std::wstring_view wstr, bool numericOrSpace)
 {
-    for (size_t i = 0; i < wstr.size(); ++i)
-        if (!isCyrillicCharacter(wstr[i]) && (!numericOrSpace || !isNumericOrSpace(wstr[i])))
+    for (wchar_t c : wstr)
+        if (!isCyrillicCharacter(c) && (!numericOrSpace || !isNumericOrSpace(c)))
             return false;
     return true;
 }
 
-inline bool isEastAsianString(const std::wstring &wstr, bool numericOrSpace)
+inline bool isEastAsianString(std::wstring_view wstr, bool numericOrSpace)
 {
-    for (size_t i = 0; i < wstr.size(); ++i)
-        if (!isEastAsianCharacter(wstr[i]) && (!numericOrSpace || !isNumericOrSpace(wstr[i])))
+    for (wchar_t c : wstr)
+        if (!isEastAsianCharacter(c) && (!numericOrSpace || !isNumericOrSpace(c)))
             return false;
     return true;
 }
@@ -288,15 +289,19 @@ inline wchar_t wcharToLower(wchar_t wchar)
     return wchar;
 }
 
+inline char charToUpper(char c) { return std::toupper(c); }
+inline char charToLower(char c) { return std::tolower(c); }
+
 TC_COMMON_API void wstrToUpper(std::wstring& str);
-TC_COMMON_API void strToLower(std::string& str);
 TC_COMMON_API void wstrToLower(std::wstring& str);
+TC_COMMON_API void strToUpper(std::string& str);
+TC_COMMON_API void strToLower(std::string& str);
 
 TC_COMMON_API std::wstring GetMainPartOfName(std::wstring const& wname, uint32 declension);
 
-TC_COMMON_API bool utf8ToConsole(const std::string& utf8str, std::string& conStr);
-TC_COMMON_API bool consoleToUtf8(const std::string& conStr, std::string& utf8str);
-TC_COMMON_API bool Utf8FitTo(const std::string& str, std::wstring const& search);
+TC_COMMON_API bool utf8ToConsole(std::string_view utf8str, std::string& conStr);
+TC_COMMON_API bool consoleToUtf8(std::string_view conStr, std::string& utf8str);
+TC_COMMON_API bool Utf8FitTo(std::string_view str, std::wstring_view search);
 TC_COMMON_API void utf8printf(FILE* out, const char *str, ...);
 TC_COMMON_API void vutf8printf(FILE* out, const char *str, va_list* ap);
 TC_COMMON_API bool Utf8ToUpperOnlyLatin(std::string& utf8String);
@@ -309,7 +314,7 @@ TC_COMMON_API uint32 GetPID();
 namespace Trinity::Impl
 {
     TC_COMMON_API std::string ByteArrayToHexStr(uint8 const* bytes, size_t length, bool reverse = false);
-    TC_COMMON_API void HexStrToByteArray(std::string const& str, uint8* out, size_t outlen, bool reverse = false);
+    TC_COMMON_API void HexStrToByteArray(std::string_view str, uint8* out, size_t outlen, bool reverse = false);
 }
 
 template <typename Container>
@@ -319,19 +324,19 @@ std::string ByteArrayToHexStr(Container const& c, bool reverse = false)
 }
 
 template <size_t Size>
-void HexStrToByteArray(std::string const& str, std::array<uint8, Size>& buf, bool reverse = false)
+void HexStrToByteArray(std::string_view str, std::array<uint8, Size>& buf, bool reverse = false)
 {
     Trinity::Impl::HexStrToByteArray(str, buf.data(), Size, reverse);
 }
 template <size_t Size>
-std::array<uint8, Size> HexStrToByteArray(std::string const& str, bool reverse = false)
+std::array<uint8, Size> HexStrToByteArray(std::string_view str, bool reverse = false)
 {
     std::array<uint8, Size> arr;
     HexStrToByteArray(str, arr, reverse);
     return arr;
 }
 
-inline std::vector<uint8> HexStrToByteVector(std::string const& str, bool reverse = false)
+inline std::vector<uint8> HexStrToByteVector(std::string_view str, bool reverse = false)
 {
     std::vector<uint8> buf;
     size_t const sz = (str.size() / 2);
@@ -340,13 +345,13 @@ inline std::vector<uint8> HexStrToByteVector(std::string const& str, bool revers
     return buf;
 }
 
-TC_COMMON_API bool StringToBool(std::string const& str);
+TC_COMMON_API bool StringToBool(std::string_view str);
 
-TC_COMMON_API bool StringEqualI(std::string const& str1, std::string const& str2);
-TC_COMMON_API bool StringStartsWith(std::string const& haystack, std::string const& needle);
-TC_COMMON_API bool StringContainsStringI(std::string const& haystack, std::string const& needle);
+TC_COMMON_API bool StringEqualI(std::string_view str1, std::string_view str2);
+TC_COMMON_API bool StringStartsWith(std::string_view haystack, std::string_view needle);
+TC_COMMON_API bool StringContainsStringI(std::string_view haystack, std::string_view needle);
 template <typename T>
-inline bool ValueContainsStringI(std::pair<T, std::string> const& haystack, std::string const& needle)
+inline bool ValueContainsStringI(std::pair<T, std::string_view> const& haystack, std::string_view needle)
 {
     return StringContainsStringI(haystack.second, needle);
 }
@@ -546,16 +551,13 @@ constexpr typename std::underlying_type<E>::type AsUnderlyingType(E enumValue)
     return static_cast<typename std::underlying_type<E>::type>(enumValue);
 }
 
-template<typename Ret, typename Only>
-Ret* Coalesce(Only* arg)
-{
-    return arg;
-}
-
 template<typename Ret, typename T1, typename... T>
 Ret* Coalesce(T1* first, T*... rest)
 {
-    return static_cast<Ret*>(first ? static_cast<Ret*>(first) : Coalesce<Ret>(rest...));
+    if constexpr (sizeof...(T) > 0)
+        return (first ? static_cast<Ret*>(first) : Coalesce<Ret>(rest...));
+    else
+        return static_cast<Ret*>(first);
 }
 
 #endif
