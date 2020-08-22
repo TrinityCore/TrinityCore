@@ -45,6 +45,9 @@ enum HunterSpells
     SPELL_HUNTER_CAMOUFLAGE_PERIODIC_TRIGGERED      = 80325,
     SPELL_HUNTER_CHIMERA_SHOT                       = 53209,
     SPELL_HUNTER_CHIMERA_SHOT_HEAL                  = 53353,
+    SPELL_HUNTER_DISENGAGE                          = 781,
+    SPELL_HUNTER_DETERRENCE                         = 19263,
+    SPELL_HUNTER_FERVOR_PET_ENERGIZE                = 82728,
     SPELL_HUNTER_FIRE                               = 82926,
     SPELL_HUNTER_FRENZY_EFFECT                      = 19615,
     SPELL_HUNTER_FOCUS_FIRE_ENERGIZE                = 83468,
@@ -56,6 +59,8 @@ enum HunterSpells
     SPELL_HUNTER_INSANITY                           = 95809,
     SPELL_HUNTER_INVIGORATION_TRIGGERED             = 53398,
     SPELL_HUNTER_GLYPH_OF_KILL_SHOT_COOLDOWN        = 90967,
+    SPELL_HUNTER_KILLING_STREAK_TRIGGERED_R1        = 94006,
+    SPELL_HUNTER_KILLING_STREAK_TRIGGERED_R2        = 94007,
     SPELL_HUNTER_LOCK_AND_LOAD                      = 56453,
     SPELL_HUNTER_MARKED_FOR_DEATH_TRIGGERED         = 88691,
     SPELL_HUNTER_MASTERS_CALL_TRIGGERED             = 62305,
@@ -1717,6 +1722,135 @@ class spell_hun_kill_command: public SpellScript
     }
 };
 
+// 82726 - Fervor
+class spell_hun_fervor : public SpellScript
+{
+    PrepareSpellScript(spell_hun_fervor);
+
+    bool Load() override
+    {
+        return GetCaster()->IsPlayer();
+    }
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_FERVOR_PET_ENERGIZE });
+    }
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        Player* player = caster->ToPlayer();
+        if (Pet* pet = player->GetPet())
+            player->CastSpell(pet, SPELL_HUNTER_FERVOR_PET_ENERGIZE, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_hun_fervor::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_ENERGIZE);
+    }
+};
+
+std::array<uint32, 2> const KillingStreakTriggerSpells =
+{
+    SPELL_HUNTER_KILLING_STREAK_TRIGGERED_R1,
+    SPELL_HUNTER_KILLING_STREAK_TRIGGERED_R2
+};
+
+// -82748 - Killing Streak
+class spell_hun_killing_streak : public AuraScript
+{
+    PrepareAuraScript(spell_hun_killing_streak);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_HUNTER_KILLING_STREAK_TRIGGERED_R1,
+                SPELL_HUNTER_KILLING_STREAK_TRIGGERED_R2
+            });
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+
+        if (!(eventInfo.GetHitMask() & PROC_HIT_CRITICAL))
+            _firstCrit = false;
+        else
+        {
+            if (_firstCrit)
+            {
+                GetTarget()->CastSpell(GetTarget(), KillingStreakTriggerSpells[GetSpellInfo()->GetRank() - 1], true, nullptr, aurEff);
+                _firstCrit = false;
+            }
+            else
+                _firstCrit = true;
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_hun_killing_streak::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+
+private:
+    bool _firstCrit = false;
+};
+
+// -82898 - Crouching Tiger, Hidden Chimera
+class spell_hun_crouching_tiger_hidden_chimera : public AuraScript
+{
+    PrepareAuraScript(spell_hun_crouching_tiger_hidden_chimera);
+
+    bool Load() override
+    {
+        return GetCaster()->IsPlayer();
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        return eventInfo.GetDamageInfo();
+    }
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_HUNTER_DISENGAGE,
+                SPELL_HUNTER_DETERRENCE
+            });
+    }
+
+    void HandleDisengageProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        if (eventInfo.GetDamageInfo()->GetAttackType() != BASE_ATTACK && eventInfo.GetDamageInfo()->GetAttackType() != OFF_ATTACK)
+            return;
+
+        GetTarget()->GetSpellHistory()->ModifyCooldown(SPELL_HUNTER_DISENGAGE, -aurEff->GetAmount());
+    }
+
+    void HandleDeterrenceProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        if (eventInfo.GetDamageInfo()->GetAttackType() != RANGED_ATTACK)
+            return;
+
+        GetTarget()->GetSpellHistory()->ModifyCooldown(SPELL_HUNTER_DETERRENCE, -aurEff->GetAmount());
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_hun_crouching_tiger_hidden_chimera::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_hun_crouching_tiger_hidden_chimera::HandleDisengageProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_hun_crouching_tiger_hidden_chimera::HandleDeterrenceProc, EFFECT_1, SPELL_AURA_DUMMY);
+    }
+};
+
 void AddSC_hunter_spell_scripts()
 {
     new spell_hun_ancient_hysteria();
@@ -1726,13 +1860,16 @@ void AddSC_hunter_spell_scripts()
     RegisterAuraScript(spell_hun_camouflage_triggered);
     new spell_hun_chimera_shot();
     new spell_hun_cobra_shot();
+    RegisterAuraScript(spell_hun_crouching_tiger_hidden_chimera);
     new spell_hun_disengage();
+    RegisterSpellScript(spell_hun_fervor);
     new spell_hun_fire();
     RegisterAuraScript(spell_hun_focus_fire);
     RegisterAuraScript(spell_hun_frenzy_effect);
     RegisterAuraScript(spell_hun_glyph_of_kill_shot);
     new spell_hun_improved_mend_pet();
     RegisterSpellScript(spell_hun_invigoration);
+    RegisterAuraScript(spell_hun_killing_streak);
     RegisterSpellScript(spell_hun_kill_command);
     new spell_hun_last_stand_pet();
     new spell_hun_lock_and_load();

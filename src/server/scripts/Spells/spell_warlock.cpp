@@ -1868,9 +1868,6 @@ class spell_warl_burning_embers : public AuraScript
     {
         PreventDefaultAction();
         Unit* target = GetTarget();
-        if (target->IsCreature() && target->GetOwner())
-            target = GetTarget()->GetOwner();
-
         uint8 maxTicks = sSpellMgr->AssertSpellInfo(SPELL_WARLOCK_BURNING_EMBERS_DAMAGE)->GetMaxTicks();
         int32 damageBp = CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount()) / maxTicks;
         float coefficient = GetSpellInfo()->GetRank() * 0.7f;
