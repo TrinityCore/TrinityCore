@@ -133,7 +133,8 @@ TC_GAME_API extern DBCStorage <MountTypeEntry>               sMountTypeStore;
 //TC_GAME_API extern DBCStorage <NameGenEntry>                 sNameGenStore; -- use GetRandomCharacterName instead
 TC_GAME_API extern DBCStorage <NumTalentsAtLevelEntry>       sNumTalentsAtLevelStore;
 TC_GAME_API extern DBCStorage <PhaseEntry>                   sPhaseStore;
-TC_GAME_API extern DBCStorage <PhaseGroupEntry> sPhaseGroupStore;
+TC_GAME_API extern DBCStorage <PhaseGroupEntry>              sPhaseGroupStore;
+TC_GAME_API extern DBCStorage <LightEntry>                   sLightStore;
 //TC_GAME_API extern DBCStorage <MapDifficultyEntry>           sMapDifficultyStore; -- use GetMapDifficultyData insteed
 TC_GAME_API extern MapDifficultyMap                          sMapDifficultyMap;
 TC_GAME_API extern DBCStorage <MovieEntry>                   sMovieStore;

@@ -344,6 +344,7 @@ enum EncounterActions
 
 enum MiscData
 {
+    LIGHT_DEFAULT               = 2488,
     LIGHT_SNOWSTORM             = 2490,
     LIGHT_SOULSTORM             = 2508,
     LIGHT_FOG                   = 2509,
@@ -518,7 +519,7 @@ class boss_the_lich_king : public CreatureScript
                 Cell::VisitGridObjects(me, worker, 333.0f);
 
                 // Reset any light override
-                me->GetMap()->SetZoneOverrideLight(AREA_ICECROWN_CITADEL, 0, 5000);
+                me->GetMap()->SetZoneOverrideLight(AREA_ICECROWN_CITADEL, LIGHT_DEFAULT, 0, 5000);
 
                 if (!ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_HIGHLORD_TIRION_FORDRING)))
                     me->SummonCreature(NPC_HIGHLORD_TIRION_FORDRING_LK, TirionSpawn, TEMPSUMMON_MANUAL_DESPAWN);
@@ -532,7 +533,7 @@ class boss_the_lich_king : public CreatureScript
                 me->GetMotionMaster()->MoveFall();
                 if (Creature* frostmourne = me->FindNearestCreature(NPC_FROSTMOURNE_TRIGGER, 50.0f))
                     frostmourne->DespawnOrUnsummon();
-                me->GetMap()->SetZoneOverrideLight(AREA_ICECROWN_CITADEL, LIGHT_FOG, 5000);
+                me->GetMap()->SetZoneOverrideLight(AREA_ICECROWN_CITADEL, LIGHT_DEFAULT, LIGHT_FOG, 5000);
                 me->GetMap()->SetZoneWeather(AREA_ICECROWN_CITADEL, WEATHER_STATE_FOG, 0.0f);
             }
 
@@ -601,7 +602,7 @@ class boss_the_lich_king : public CreatureScript
                         me->GetMap()->SetZoneMusic(AREA_ICECROWN_CITADEL, MUSIC_FINAL);
                         break;
                     case ACTION_RESTORE_LIGHT:
-                        me->GetMap()->SetZoneOverrideLight(AREA_ICECROWN_CITADEL, 0, 5000);
+                        me->GetMap()->SetZoneOverrideLight(AREA_ICECROWN_CITADEL, LIGHT_DEFAULT, 0, 5000);
                         break;
                     case ACTION_BREAK_FROSTMOURNE:
                         me->CastSpell((Unit*)nullptr, SPELL_SUMMON_BROKEN_FROSTMOURNE, TRIGGERED_IGNORE_CAST_IN_PROGRESS);
@@ -736,7 +737,7 @@ class boss_the_lich_king : public CreatureScript
                     {
                         summon->CastSpell((Unit*)nullptr, SPELL_BROKEN_FROSTMOURNE, true);
 
-                        me->GetMap()->SetZoneOverrideLight(AREA_ICECROWN_CITADEL, LIGHT_SOULSTORM, 10000);
+                        me->GetMap()->SetZoneOverrideLight(AREA_ICECROWN_CITADEL, LIGHT_DEFAULT, LIGHT_SOULSTORM, 10000);
                         me->GetMap()->SetZoneWeather(AREA_ICECROWN_CITADEL, WEATHER_STATE_BLACKSNOW, 0.5f);
 
                         events.ScheduleEvent(EVENT_OUTRO_SOUL_BARRAGE, 5000, 0, PHASE_OUTRO);
@@ -791,7 +792,7 @@ class boss_the_lich_king : public CreatureScript
             {
                 if (spell->Id == REMORSELESS_WINTER_1 || spell->Id == REMORSELESS_WINTER_2)
                 {
-                    me->GetMap()->SetZoneOverrideLight(AREA_ICECROWN_CITADEL, LIGHT_SNOWSTORM, 5000);
+                    me->GetMap()->SetZoneOverrideLight(AREA_ICECROWN_CITADEL, LIGHT_DEFAULT, LIGHT_SNOWSTORM, 5000);
                     me->GetMap()->SetZoneWeather(AREA_ICECROWN_CITADEL, WEATHER_STATE_LIGHT_SNOW, 0.5f);
                     summons.DespawnEntry(NPC_SHADOW_TRAP);
                 }
