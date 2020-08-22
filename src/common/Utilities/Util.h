@@ -21,7 +21,6 @@
 #include "Define.h"
 #include "Errors.h"
 
-#include <algorithm>
 #include <array>
 #include <string>
 #include <string_view>
@@ -293,17 +292,10 @@ inline wchar_t wcharToLower(wchar_t wchar)
 inline char charToUpper(char c) { return std::toupper(c); }
 inline char charToLower(char c) { return std::tolower(c); }
 
-template <typename T>
-void wstrToUpper(T& str) { std::transform(std::begin(str), std::end(str), std::begin(str), wcharToUpper); }
-
-template <typename T>
-void wstrToLower(T& str) { std::transform(std::begin(str), std::end(str), std::begin(str), wcharToLower); }
-
-template <typename T>
-void strToUpper(T& str) { std::transform(std::begin(str), std::end(str), std::begin(str), charToUpper); }
-
-template <typename T>
-void strToLower(T& str) { std::transform(std::begin(str), std::end(str), std::begin(str), charToLower); }
+TC_COMMON_API void wstrToUpper(std::wstring& str);
+TC_COMMON_API void wstrToLower(std::wstring& str);
+TC_COMMON_API void strToUpper(std::string& str);
+TC_COMMON_API void strToLower(std::string& str);
 
 TC_COMMON_API std::wstring GetMainPartOfName(std::wstring const& wname, uint32 declension);
 
@@ -559,16 +551,13 @@ constexpr typename std::underlying_type<E>::type AsUnderlyingType(E enumValue)
     return static_cast<typename std::underlying_type<E>::type>(enumValue);
 }
 
-template<typename Ret, typename Only>
-Ret* Coalesce(Only* arg)
-{
-    return arg;
-}
-
 template<typename Ret, typename T1, typename... T>
 Ret* Coalesce(T1* first, T*... rest)
 {
-    return static_cast<Ret*>(first ? static_cast<Ret*>(first) : Coalesce<Ret>(rest...));
+    if constexpr (sizeof...(T) > 0)
+        return (first ? static_cast<Ret*>(first) : Coalesce<Ret>(rest...));
+    else
+        return static_cast<Ret*>(first);
 }
 
 #endif
