@@ -44,16 +44,22 @@ class TC_GAME_API MapManager
             Map* m = CreateBaseMap(mapid);
             return m->GetAreaId(phaseShift, x, y, z);
         }
+        uint32 GetAreaId(PhaseShift const& phaseShift, uint32 mapid, Position const& pos) { return GetAreaId(phaseShift, mapid, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ()); }
+        uint32 GetAreaId(PhaseShift const& phaseShift, WorldLocation const& loc) { return GetAreaId(phaseShift, loc.GetMapId(), loc); }
         uint32 GetZoneId(PhaseShift const& phaseShift, uint32 mapid, float x, float y, float z)
         {
             Map* m = CreateBaseMap(mapid);
             return m->GetZoneId(phaseShift, x, y, z);
         }
+        uint32 GetZoneId(PhaseShift const& phaseShift, uint32 mapid, Position const& pos) { return GetZoneId(phaseShift, mapid, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ()); }
+        uint32 GetZoneId(PhaseShift const& phaseShift, WorldLocation const& loc) { return GetZoneId(phaseShift, loc.GetMapId(), loc); }
         void GetZoneAndAreaId(PhaseShift const& phaseShift, uint32& zoneid, uint32& areaid, uint32 mapid, float x, float y, float z)
         {
             Map* m = CreateBaseMap(mapid);
             m->GetZoneAndAreaId(phaseShift, zoneid, areaid, x, y, z);
         }
+        void GetZoneAndAreaId(PhaseShift const& phaseShift, uint32& zoneid, uint32& areaid, uint32 mapid, Position const& pos) { GetZoneAndAreaId(phaseShift, zoneid, areaid, mapid, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ()); }
+        void GetZoneAndAreaId(PhaseShift const& phaseShift, uint32& zoneid, uint32& areaid, WorldLocation const& loc) { GetZoneAndAreaId(phaseShift, zoneid, areaid, loc.GetMapId(), loc); }
 
         void Initialize();
         void InitializeParentMapData(std::unordered_map<uint32, std::vector<uint32>> const& mapData);

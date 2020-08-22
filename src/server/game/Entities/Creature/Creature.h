@@ -73,7 +73,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         void DisappearAndDie();
 
-        bool Create(ObjectGuid::LowType guidlow, Map* map, uint32 entry, float x, float y, float z, float ang, CreatureData const* data, uint32 vehId);
+        bool Create(ObjectGuid::LowType guidlow, Map* map, uint32 entry, Position const& pos, CreatureData const* data, uint32 vehId, bool dynamic = false);
 
         static Creature* CreateCreature(uint32 entry, Map* map, Position const& pos, uint32 vehId = 0);
         static Creature* CreateCreatureFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap = true, bool allowDuplicate = false);
@@ -88,7 +88,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         void Update(uint32 time) override;                         // overwrited Unit::Update
         void GetRespawnPosition(float &x, float &y, float &z, float* ori = nullptr, float* dist = nullptr) const;
-        bool IsSpawnedOnTransport() const { return m_creatureData && m_creatureData->mapid != GetMapId(); }
+        bool IsSpawnedOnTransport() const { return m_creatureData && m_creatureData->spawnPoint.GetMapId() != GetMapId(); }
 
         void SetCorpseDelay(uint32 delay) { m_corpseDelay = delay; }
         uint32 GetCorpseDelay() const { return m_corpseDelay; }
@@ -181,10 +181,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         void setDeathState(DeathState s) override;                   // override virtual Unit::setDeathState
 
-        bool LoadFromDB(ObjectGuid::LowType spawnId, Map* map) { return LoadCreatureFromDB(spawnId, map, false, false); }
-    private:
-        bool LoadCreatureFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap, bool allowDuplicate);
-    public:
+        bool LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap, bool allowDuplicate);
         void SaveToDB();
                                                             // overriden in Pet
         virtual void SaveToDB(uint32 mapid, std::vector<Difficulty> const& spawnDifficulties);
@@ -246,7 +243,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         time_t GetRespawnTimeEx() const;
         void SetRespawnTime(uint32 respawn) { m_respawnTime = respawn ? time(nullptr) + respawn : 0; }
         void Respawn(bool force = false);
-        void SaveRespawnTime() override;
+        void SaveRespawnTime(uint32 forceDelay = 0, bool savetodb = true) override;
 
         uint32 GetRespawnDelay() const { return m_respawnDelay; }
         void SetRespawnDelay(uint32 delay) { m_respawnDelay = delay; }
@@ -314,6 +311,10 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         uint32 GetOriginalEntry() const { return m_originalEntry; }
         void SetOriginalEntry(uint32 entry) { m_originalEntry = entry; }
 
+        // There's many places not ready for dynamic spawns. This allows them to live on for now.
+        void SetRespawnCompatibilityMode(bool mode = true) { m_respawnCompatibilityMode = mode; }
+        bool GetRespawnCompatibilityMode() { return m_respawnCompatibilityMode; }
+
         static float _GetDamageMod(int32 Rank);
 
         float m_SightDistance, m_CombatDistance;
@@ -337,6 +338,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         CreatureTextRepeatIds GetTextRepeatGroup(uint8 textGroup);
         void SetTextRepeatId(uint8 textGroup, uint8 id);
         void ClearTextRepeatGroup(uint8 textGroup);
+        bool IsEscortNPC(bool onlyIfActive = true);
 
         bool CanGiveExperience() const;
 
@@ -405,6 +407,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         //Formation var
         CreatureGroup* m_formation;
         bool m_TriggerJustRespawned;
+        bool m_respawnCompatibilityMode;
 
         /* Spell focus system */
         Spell const* m_focusSpell;   // Locks the target during spell cast for proper facing

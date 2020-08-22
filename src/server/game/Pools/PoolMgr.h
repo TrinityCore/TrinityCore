@@ -19,6 +19,7 @@
 #define TRINITY_POOLHANDLER_H
 
 #include "Define.h"
+#include "SpawnData.h"
 #include <map>
 #include <set>
 #include <unordered_map>
@@ -122,6 +123,7 @@ class TC_GAME_API PoolMgr
 
         template<typename T>
         uint32 IsPartOfAPool(uint64 db_guid_or_pool_id) const;
+        uint32 IsPartOfAPool(SpawnObjectType type, uint64 spawnId) const;
 
         template<typename T>
         bool IsSpawnedObject(uint64 db_guid_or_pool_id) const { return mSpawnedData.IsActiveObject<T>(db_guid_or_pool_id); }

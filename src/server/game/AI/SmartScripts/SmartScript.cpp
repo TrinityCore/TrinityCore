@@ -2107,6 +2107,92 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 if (IsCreature(target))
                     target->ToCreature()->SetCorpseDelay(e.action.corpseDelay.timer);
             }
+
+            break;
+        }
+        case SMART_ACTION_SPAWN_SPAWNGROUP:
+        {
+            if (e.action.groupSpawn.minDelay == 0 && e.action.groupSpawn.maxDelay == 0)
+            {
+                bool const ignoreRespawn = ((e.action.groupSpawn.spawnflags & SMARTAI_SPAWN_FLAGS::SMARTAI_SPAWN_FLAG_IGNORE_RESPAWN) != 0);
+                bool const force = ((e.action.groupSpawn.spawnflags & SMARTAI_SPAWN_FLAGS::SMARTAI_SPAWN_FLAG_FORCE_SPAWN) != 0);
+
+                // Instant spawn
+                sObjectMgr->SpawnGroupSpawn(e.action.groupSpawn.groupId, GetBaseObject()->GetMap(), ignoreRespawn, force);
+            }
+            else
+            {
+                // Delayed spawn (use values from parameter to schedule event to call us back
+                SmartEvent ne = SmartEvent();
+                ne.type = (SMART_EVENT)SMART_EVENT_UPDATE;
+                ne.event_chance = 100;
+
+                ne.minMaxRepeat.min = e.action.groupSpawn.minDelay;
+                ne.minMaxRepeat.max = e.action.groupSpawn.maxDelay;
+                ne.minMaxRepeat.repeatMin = 0;
+                ne.minMaxRepeat.repeatMax = 0;
+
+                ne.event_flags = 0;
+                ne.event_flags |= SMART_EVENT_FLAG_NOT_REPEATABLE;
+
+                SmartAction ac = SmartAction();
+                ac.type = (SMART_ACTION)SMART_ACTION_SPAWN_SPAWNGROUP;
+                ac.groupSpawn.groupId = e.action.groupSpawn.groupId;
+                ac.groupSpawn.minDelay = 0;
+                ac.groupSpawn.maxDelay = 0;
+                ac.groupSpawn.spawnflags = e.action.groupSpawn.spawnflags;
+                ac.timeEvent.id = e.action.timeEvent.id;
+
+                SmartScriptHolder ev = SmartScriptHolder();
+                ev.event = ne;
+                ev.event_id = e.event_id;
+                ev.target = e.target;
+                ev.action = ac;
+                InitTimer(ev);
+                mStoredEvents.push_back(ev);
+            }
+            break;
+        }
+        case SMART_ACTION_DESPAWN_SPAWNGROUP:
+        {
+            if (e.action.groupSpawn.minDelay == 0 && e.action.groupSpawn.maxDelay == 0)
+            {
+                bool const deleteRespawnTimes = ((e.action.groupSpawn.spawnflags & SMARTAI_SPAWN_FLAGS::SMARTAI_SPAWN_FLAG_NOSAVE_RESPAWN) != 0);
+
+                // Instant spawn
+                sObjectMgr->SpawnGroupDespawn(e.action.groupSpawn.groupId, GetBaseObject()->GetMap(), deleteRespawnTimes);
+            }
+            else
+            {
+                // Delayed spawn (use values from parameter to schedule event to call us back
+                SmartEvent ne = SmartEvent();
+                ne.type = (SMART_EVENT)SMART_EVENT_UPDATE;
+                ne.event_chance = 100;
+
+                ne.minMaxRepeat.min = e.action.groupSpawn.minDelay;
+                ne.minMaxRepeat.max = e.action.groupSpawn.maxDelay;
+                ne.minMaxRepeat.repeatMin = 0;
+                ne.minMaxRepeat.repeatMax = 0;
+
+                ne.event_flags = 0;
+                ne.event_flags |= SMART_EVENT_FLAG_NOT_REPEATABLE;
+
+                SmartAction ac = SmartAction();
+                ac.type = (SMART_ACTION)SMART_ACTION_DESPAWN_SPAWNGROUP;
+                ac.groupSpawn.groupId = e.action.groupSpawn.groupId;
+                ac.groupSpawn.minDelay = 0;
+                ac.groupSpawn.maxDelay = 0;
+                ac.groupSpawn.spawnflags = e.action.groupSpawn.spawnflags;
+                ac.timeEvent.id = e.action.timeEvent.id;
+
+                SmartScriptHolder ev = SmartScriptHolder();
+                ev.event = ne;
+                ev.event_id = e.event_id;
+                ev.target = e.target;
+                ev.action = ac;
+                InitTimer(ev);
+                mStoredEvents.push_back(ev);
+            }
             break;
         }
         case SMART_ACTION_DISABLE_EVADE:
