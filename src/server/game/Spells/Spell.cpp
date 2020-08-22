@@ -3001,6 +3001,10 @@ SpellCastResult Spell::prepare(SpellCastTargets const& targets, AuraEffect const
         m_castItemEntry = 0;
     }
 
+    LoadScripts();
+
+    CallScriptOnTriggerCastFlagsDefinition(_triggeredCastFlags);
+
     InitExplicitTargets(targets);
 
     // Fill aura scaling information
@@ -3051,8 +3055,6 @@ SpellCastResult Spell::prepare(SpellCastTargets const& targets, AuraEffect const
         finish(false);
         return SPELL_FAILED_SPELL_IN_PROGRESS;
     }
-
-    LoadScripts();
 
     // Fill cost data (do not use power for item casts)
     m_powerCost = m_CastItem ? 0 : m_spellInfo->CalcPowerCost(m_caster, m_spellSchoolMask, this);
@@ -8036,6 +8038,19 @@ bool Spell::CheckScriptEffectImplicitTargets(uint32 effIndex, uint32 effIndexToC
                 return false;
     }
     return true;
+}
+
+void Spell::CallScriptOnTriggerCastFlagsDefinition(TriggerCastFlags& triggeredCastFlags)
+{
+    for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
+    {
+        (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_ON_TRIGGERCAST_DEFINITION);
+        auto hookItrEnd = (*scritr)->OnTriggerCastFlagsDefinition.end(), hookItr = (*scritr)->OnTriggerCastFlagsDefinition.begin();
+        for (; hookItr != hookItrEnd; ++hookItr)
+            hookItr->Call(*scritr, triggeredCastFlags);
+
+        (*scritr)->_FinishScriptCall();
+    }
 }
 
 bool Spell::CanExecuteTriggersOnHit(uint8 effMask, SpellInfo const* triggeredByAura) const

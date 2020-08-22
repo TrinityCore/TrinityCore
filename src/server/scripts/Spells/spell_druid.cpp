@@ -767,6 +767,22 @@ class spell_dru_insect_swarm : public AuraScript
     }
 };
 
+// -33745 - Lacerate
+class spell_dru_lacerate : public SpellScript
+{
+    PrepareSpellScript(spell_dru_lacerate);
+
+    void ChangeTriggerFlag(TriggerCastFlags& triggeredCastFlags)
+    {
+        triggeredCastFlags = TriggerCastFlags(uint32(triggeredCastFlags) | TRIGGERED_DONT_RESET_PERIODIC_TIMER);
+    }
+
+    void Register() override
+    {
+        OnTriggerCastFlagsDefinition += OnTriggerCastFlagsDefinitionFn(spell_dru_lacerate::ChangeTriggerFlag);
+    }
+};
+
 // 24932 - Leader of the Pack
 class spell_dru_leader_of_the_pack : public AuraScript
 {
@@ -1913,6 +1929,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_idol_lifebloom);
     RegisterSpellScript(spell_dru_innervate);
     RegisterSpellScript(spell_dru_insect_swarm);
+    RegisterSpellScript(spell_dru_lacerate);
     RegisterSpellScript(spell_dru_leader_of_the_pack);
     RegisterSpellScript(spell_dru_lifebloom);
     RegisterSpellScript(spell_dru_living_seed);

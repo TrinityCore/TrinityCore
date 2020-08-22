@@ -21,6 +21,7 @@
 #include "ObjectGuid.h"
 #include "SharedDefines.h"
 #include "SpellAuraDefines.h"
+#include "SpellDefines.h"
 #include "Util.h"
 #include <memory>
 #include <stack>
@@ -160,6 +161,7 @@ class TC_GAME_API _SpellScript
 enum SpellScriptHookType
 {
     SPELL_SCRIPT_HOOK_EFFECT_LAUNCH = SPELL_SCRIPT_STATE_END,
+    SPELL_SCRIPT_HOOK_ON_TRIGGERCAST_DEFINITION,
     SPELL_SCRIPT_HOOK_EFFECT_LAUNCH_TARGET,
     SPELL_SCRIPT_HOOK_EFFECT_HIT,
     SPELL_SCRIPT_HOOK_EFFECT_HIT_TARGET,
@@ -189,6 +191,7 @@ class TC_GAME_API SpellScript : public _SpellScript
     // DO NOT OVERRIDE THESE IN SCRIPTS
     public:
         #define SPELLSCRIPT_FUNCTION_TYPE_DEFINES(CLASSNAME) \
+            typedef void(CLASSNAME::*SpellOnTriggerCastDefinitionFnType)(TriggerCastFlags& triggeredCastFlags); \
             typedef SpellCastResult(CLASSNAME::*SpellCheckCastFnType)(); \
             typedef void(CLASSNAME::*SpellEffectFnType)(SpellEffIndex); \
             typedef void(CLASSNAME::*SpellBeforeHitFnType)(SpellMissInfo missInfo); \
@@ -200,6 +203,15 @@ class TC_GAME_API SpellScript : public _SpellScript
             typedef void(CLASSNAME::*SpellDestinationTargetSelectFnType)(SpellDestination&);
 
         SPELLSCRIPT_FUNCTION_TYPE_DEFINES(SpellScript)
+
+        class TC_GAME_API OnTriggerCastFlagsDefinitionHandler
+        {
+            public:
+                OnTriggerCastFlagsDefinitionHandler(SpellOnTriggerCastDefinitionFnType _pOnTriggerCastFlagsDefinitionHandlerScript);
+                void Call(SpellScript* spellScript, TriggerCastFlags& triggeredCastFlags);
+            private:
+                SpellOnTriggerCastDefinitionFnType pOnTriggerCastFlagsDefinitionHandlerScript;
+        };
 
         class TC_GAME_API CastHandler
         {
@@ -298,6 +310,7 @@ class TC_GAME_API SpellScript : public _SpellScript
         };
 
         #define SPELLSCRIPT_FUNCTION_CAST_DEFINES(CLASSNAME) \
+        class OnTriggerCastFlagsDefitinionHandlerFunction : public SpellScript::OnTriggerCastFlagsDefitinionHandler { public: explicit OnTriggerCastFlagsDefitinionHandlerFunction(SpellOnTriggerCastDefinitionFnType _onTriggerCastFlagsDefitinionScript) : SpellScript::OnTriggerCastFlagsDefitinionHandler((SpellScript::SpellOnTriggerCastDefinitionFnType)_onTriggerCastFlagsDefitinionScript) { } }; \
         class CastHandlerFunction : public SpellScript::CastHandler { public: explicit CastHandlerFunction(SpellCastFnType _pCastHandlerScript) : SpellScript::CastHandler((SpellScript::SpellCastFnType)_pCastHandlerScript) { } }; \
         class CheckCastHandlerFunction : public SpellScript::CheckCastHandler { public: explicit CheckCastHandlerFunction(SpellCheckCastFnType _checkCastHandlerScript) : SpellScript::CheckCastHandler((SpellScript::SpellCheckCastFnType)_checkCastHandlerScript) { } }; \
         class EffectHandlerFunction : public SpellScript::EffectHandler { public: explicit EffectHandlerFunction(SpellEffectFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName) : SpellScript::EffectHandler((SpellScript::SpellEffectFnType)_pEffectHandlerScript, _effIndex, _effName) { } }; \
@@ -331,6 +344,11 @@ class TC_GAME_API SpellScript : public _SpellScript
         // SpellScript interface
         // hooks to which you can attach your functions
         //
+        // example: OnTriggerCastFlagsDefinition += OnTriggerCastFlagsDefinitionFn(class::function);
+        // where function is void function(TriggerCastFlags& triggeredCastFlags)
+        HookList<OnTriggerCastFlagsDefinitionHandler> OnTriggerCastFlagsDefinition;
+        #define OnTriggerCastFlagsDefinitionFn(F) OnTriggerCastFlagsDefinitionHandlerFunction(&F)
+
         // example: BeforeCast += SpellCastFn(class::function);
         HookList<CastHandler> BeforeCast;
         // example: OnCast += SpellCastFn(class::function);
@@ -386,21 +404,22 @@ class TC_GAME_API SpellScript : public _SpellScript
         #define SpellDestinationTargetSelectFn(F, I, N) DestinationTargetSelectHandlerFunction(&F, I, N)
 
         // hooks are executed in following order, at specified event of spell:
-        // 1. BeforeCast - executed when spell preparation is finished (when cast bar becomes full) before cast is handled
-        // 2. OnCheckCast - allows to override result of CheckCast function
-        // 3a. OnObjectAreaTargetSelect - executed just before adding selected targets to final target list (for area targets)
-        // 3b. OnObjectTargetSelect - executed just before adding selected target to final target list (for single unit targets)
-        // 3c. OnDestinationTargetSelect - executed just before adding selected target to final target list (for destination targets)
-        // 4. OnCast - executed just before spell is launched (creates missile) or executed
-        // 5. AfterCast - executed after spell missile is launched and immediate spell actions are done
-        // 6. OnEffectLaunch - executed just before specified effect handler call - when spell missile is launched
-        // 7. OnEffectLaunchTarget - executed just before specified effect handler call - when spell missile is launched - called for each target from spell target map
-        // 8. OnCalculateResistAbsorb - executed when damage resist/absorbs is calculated - before spell hit target
-        // 9. OnEffectHit - executed just before specified effect handler call - when spell missile hits dest
-        // 10. BeforeHit - executed just before spell hits a target - called for each target from spell target map
-        // 11. OnEffectHitTarget - executed just before specified effect handler call - called for each target from spell target map
-        // 12. OnHit - executed just before spell deals damage and procs auras - when spell hits target - called for each target from spell target map
-        // 13. AfterHit - executed just after spell finishes all it's jobs for target - called for each target from spell target map
+        // 1. OnTriggerCastFlagsDefinition - executed in spell preparation to allow override TriggerCastFlags
+        // 2. BeforeCast - executed when spell preparation is finished (when cast bar becomes full) before cast is handled
+        // 3. OnCheckCast - allows to override result of CheckCast function
+        // 4a. OnObjectAreaTargetSelect - executed just before adding selected targets to final target list (for area targets)
+        // 4b. OnObjectTargetSelect - executed just before adding selected target to final target list (for single unit targets)
+        // 4c. OnDestinationTargetSelect - executed just before adding selected target to final target list (for destination targets)
+        // 5. OnCast - executed just before spell is launched (creates missile) or executed
+        // 6. AfterCast - executed after spell missile is launched and immediate spell actions are done
+        // 7. OnEffectLaunch - executed just before specified effect handler call - when spell missile is launched
+        // 8. OnEffectLaunchTarget - executed just before specified effect handler call - when spell missile is launched - called for each target from spell target map
+        // 9. OnCalculateResistAbsorb - executed when damage resist/absorbs is calculated - before spell hit target
+        // 10. OnEffectHit - executed just before specified effect handler call - when spell missile hits dest
+        // 11. BeforeHit - executed just before spell hits a target - called for each target from spell target map
+        // 12. OnEffectHitTarget - executed just before specified effect handler call - called for each target from spell target map
+        // 13. OnHit - executed just before spell deals damage and procs auras - when spell hits target - called for each target from spell target map
+        // 14. AfterHit - executed just after spell finishes all it's jobs for target - called for each target from spell target map
 
         // this hook is only executed after a successful dispel of any aura
         // OnEffectSuccessfulDispel - executed just after effect successfully dispelled aura(s)

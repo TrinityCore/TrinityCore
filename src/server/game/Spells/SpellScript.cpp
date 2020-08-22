@@ -208,6 +208,16 @@ void SpellScript::OnCalculateResistAbsorbHandler::Call(SpellScript* spellScript,
     return (spellScript->*pOnCalculateResistAbsorbHandlerScript)(damageInfo, resistAmount, absorbAmount);
 }
 
+SpellScript::OnTriggerCastFlagsDefinitionHandler::OnTriggerCastFlagsDefinitionHandler(SpellOnTriggerCastDefinitionFnType onTriggerCastFlagsDefinitionHandlerScript)
+{
+    pOnTriggerCastFlagsDefinitionHandlerScript = onTriggerCastFlagsDefinitionHandlerScript;
+}
+
+void SpellScript::OnTriggerCastFlagsDefinitionHandler::Call(SpellScript* spellScript, TriggerCastFlags& triggeredCastFlags)
+{
+    return (spellScript->*pOnTriggerCastFlagsDefinitionHandlerScript)(triggeredCastFlags);
+}
+
 SpellScript::EffectHandler::EffectHandler(SpellEffectFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName)
     : _SpellScript::EffectNameCheck(_effName), _SpellScript::EffectHook(_effIndex)
 {
