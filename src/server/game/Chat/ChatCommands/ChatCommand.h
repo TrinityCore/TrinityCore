@@ -25,6 +25,7 @@
 #include "Errors.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
+#include "Util.h"
 #include <cstddef>
 #include <tuple>
 #include <type_traits>
@@ -32,6 +33,8 @@
 
 class ChatHandler;
 class CommandArgs;
+struct RemainingArgString;
+struct RemainingArgWString;
 
 template <typename T>
 struct CommandArgsConsumerSingle
@@ -113,6 +116,18 @@ template <>
 struct CommandArgsConsumerSingle<char const*>
 {
     static char const* TryConsumeTo(char const*&, char const* args) { return args; }
+};
+
+template <>
+struct CommandArgsConsumerSingle<RemainingArgString>
+{
+    static char const* TryConsumeTo(RemainingArgString&, char const* args) { return args; }
+};
+
+template <>
+struct CommandArgsConsumerSingle<RemainingArgWString>
+{
+    static char const* TryConsumeTo(RemainingArgWString&, char const* args) { return args; }
 };
 
 template <typename T, size_t offset>
@@ -220,12 +235,55 @@ class TC_GAME_API CommandArgs
         char const* _args;
 };
 
+struct TC_GAME_API RemainingArgString
+{
+    RemainingArgString() = default;
+    RemainingArgString(std::string arg) : arg(std::move(arg)) { }
+
+    operator std::string const&() const { return arg; }
+
+    explicit operator bool() const { return !arg.empty(); }
+
+private:
+    std::string arg;
+};
+
+struct TC_GAME_API RemainingArgWString
+{
+    RemainingArgWString() = default;
+    RemainingArgWString(std::wstring arg) : arg(std::move(arg)) { }
+
+    operator std::wstring const&() const { return arg; }
+
+    explicit operator bool() const { return !arg.empty(); }
+
+private:
+    std::wstring arg;
+};
+
 template <typename T> struct ChatCommandHandlerToTuple { static_assert(!std::is_same_v<T,T>, "Invalid command handler signature"); };
 template <typename... Ts> struct ChatCommandHandlerToTuple<bool(*)(ChatHandler*, Ts...)> { using type = std::tuple<ChatHandler*, advstd::remove_cvref_t<Ts>...>; };
 
 template <typename T> struct ChatCommandStoreLastArg { static void store(T&, CommandArgs&) {} };
 template <> struct ChatCommandStoreLastArg<char const*> { static void store(char const*& arg, CommandArgs& args) { arg = args.GetRemainingArgs(); } };
 template <> struct ChatCommandStoreLastArg<CommandArgs*> { static void store(CommandArgs*& arg, CommandArgs& args) { arg = &args; } };
+
+template<>
+struct ChatCommandStoreLastArg<RemainingArgString>
+{
+    static void store(RemainingArgString& arg, CommandArgs& args) { arg = std::string(args.GetRemainingArgs()); }
+};
+
+template<>
+struct ChatCommandStoreLastArg<RemainingArgWString>
+{
+    static void store(RemainingArgWString& arg, CommandArgs& args)
+    {
+        std::wstring wArg;
+        Utf8toWStr(std::string(args.GetRemainingArgs()), wArg);
+        arg = wArg;
+    }
+};
 
 class TC_GAME_API ChatCommand
 {
