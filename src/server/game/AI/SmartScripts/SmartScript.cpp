@@ -3667,7 +3667,7 @@ void SmartScript::OnUpdate(uint32 const diff)
             if (needCleanup)
                 mTimedActionList.clear();
         }
-        
+
         return;
     }
 
