@@ -24,7 +24,6 @@ go_tablet_of_the_seven
 go_tele_to_dalaran_crystal
 go_tele_to_violet_stand
 go_scourge_cage
-go_jotunheim_cage
 go_table_theka
 go_soulwell
 go_amberpine_outhouse
@@ -546,76 +545,6 @@ public:
     GameObjectAI* GetAI(GameObject* go) const override
     {
         return new go_blood_filled_orbAI(go);
-    }
-};
-
-/*######
-## go_jotunheim_cage
-######*/
-
-enum JotunheimCage
-{
-    NPC_EBON_BLADE_PRISONER_HUMAN   = 30186,
-    NPC_EBON_BLADE_PRISONER_NE      = 30194,
-    NPC_EBON_BLADE_PRISONER_TROLL   = 30196,
-    NPC_EBON_BLADE_PRISONER_ORC     = 30195,
-
-    SPELL_SUMMON_BLADE_KNIGHT_H     = 56207,
-    SPELL_SUMMON_BLADE_KNIGHT_NE    = 56209,
-    SPELL_SUMMON_BLADE_KNIGHT_ORC   = 56212,
-    SPELL_SUMMON_BLADE_KNIGHT_TROLL = 56214
-};
-
-class go_jotunheim_cage : public GameObjectScript
-{
-public:
-    go_jotunheim_cage() : GameObjectScript("go_jotunheim_cage") { }
-
-    struct go_jotunheim_cageAI : public GameObjectAI
-    {
-        go_jotunheim_cageAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool GossipHello(Player* player) override
-        {
-            me->UseDoorOrButton();
-            Creature* pPrisoner = me->FindNearestCreature(NPC_EBON_BLADE_PRISONER_HUMAN, 5.0f, true);
-            if (!pPrisoner)
-            {
-                pPrisoner = me->FindNearestCreature(NPC_EBON_BLADE_PRISONER_TROLL, 5.0f, true);
-                if (!pPrisoner)
-                {
-                    pPrisoner = me->FindNearestCreature(NPC_EBON_BLADE_PRISONER_ORC, 5.0f, true);
-                    if (!pPrisoner)
-                        pPrisoner = me->FindNearestCreature(NPC_EBON_BLADE_PRISONER_NE, 5.0f, true);
-                }
-            }
-            if (!pPrisoner || !pPrisoner->IsAlive())
-                return false;
-
-            pPrisoner->DisappearAndDie();
-            player->KilledMonsterCredit(NPC_EBON_BLADE_PRISONER_HUMAN);
-            switch (pPrisoner->GetEntry())
-            {
-                case NPC_EBON_BLADE_PRISONER_HUMAN:
-                    player->CastSpell(player, SPELL_SUMMON_BLADE_KNIGHT_H, true);
-                    break;
-                case NPC_EBON_BLADE_PRISONER_NE:
-                    player->CastSpell(player, SPELL_SUMMON_BLADE_KNIGHT_NE, true);
-                    break;
-                case NPC_EBON_BLADE_PRISONER_TROLL:
-                    player->CastSpell(player, SPELL_SUMMON_BLADE_KNIGHT_TROLL, true);
-                    break;
-                case NPC_EBON_BLADE_PRISONER_ORC:
-                    player->CastSpell(player, SPELL_SUMMON_BLADE_KNIGHT_ORC, true);
-                    break;
-            }
-            return true;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_jotunheim_cageAI(go);
     }
 };
 
@@ -1601,7 +1530,6 @@ void AddSC_go_scripts()
     new go_scourge_cage();
     new go_arcane_prison();
     new go_blood_filled_orb();
-    new go_jotunheim_cage();
     new go_table_theka();
     new go_soulwell();
     new go_amberpine_outhouse();
