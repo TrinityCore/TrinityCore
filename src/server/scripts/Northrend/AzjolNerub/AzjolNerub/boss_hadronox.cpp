@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "azjol_nerub.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
@@ -278,29 +279,22 @@ public:
             _anubar.push_back(guid);
         }
 
-        void Initialize()
+        void InitializeAI() override
         {
+            BossAI::InitializeAI();
             me->SetBoundingRadius(9.0f);
             me->SetCombatReach(9.0f);
             _enteredCombat = false;
             _doorsWebbed = false;
             _lastPlayerCombatState = false;
             SetStep(0);
-            SetCombatMovement(true);
-            SummonCrusherPack(SUMMON_GROUP_CRUSHER_1);
-        }
-
-        void InitializeAI() override
-        {
-            BossAI::InitializeAI();
-            if (me->IsAlive())
-                Initialize();
         }
 
         void JustAppeared() override
         {
             BossAI::JustAppeared();
-            Initialize();
+            SetCombatMovement(true);
+            SummonCrusherPack(SUMMON_GROUP_CRUSHER_1);
         }
 
         void UpdateAI(uint32 diff) override
@@ -973,6 +967,8 @@ class spell_hadronox_periodic_summon_template_AuraScript : public AuraScript
                 return;
             InstanceScript* instance = caster->GetInstanceScript();
             if (!instance)
+                return;
+            if (!instance->instance->HavePlayers())
                 return;
             if (instance->GetBossState(DATA_HADRONOX) == DONE)
                 GetAura()->Remove();

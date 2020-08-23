@@ -504,6 +504,8 @@ enum YoggSaronIllusions
     STORMWIND_ILLUSION          = 2,
 };
 
+#define RegisterUlduarCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetUlduarAI)
+
 class KeeperDespawnEvent : public BasicEvent
 {
 public:

@@ -135,13 +135,18 @@ void LoadHelper(CellGuidSet const& guid_set, CellCoord &cell, GridRefManager<T> 
                 ASSERT(cdata, "Tried to load creature with spawnId " UI64FMTD ", but no such creature exists.", guid);
                 SpawnGroupTemplateData const* const group = cdata->spawnGroupData;
                 // If creature in manual spawn group, don't spawn here, unless group is already active.
-                if ((group->flags & SPAWNGROUP_FLAG_MANUAL_SPAWN) && !group->isActive)
-                    continue;
+                if (!(group->flags & SPAWNGROUP_FLAG_SYSTEM))
+                    if (!map->IsSpawnGroupActive(group->groupId))
+                    {
+                        delete obj;
+                        continue;
+                    }
 
                 // If script is blocking spawn, don't spawn but queue for a re-check in a little bit
                 if (!(group->flags & SPAWNGROUP_FLAG_COMPATIBILITY_MODE) && !sScriptMgr->CanSpawn(guid, cdata->id, cdata, map))
                 {
                     map->SaveRespawnTime(SPAWN_TYPE_CREATURE, guid, cdata->id, time(NULL) + urand(4,7), map->GetZoneId(PhasingHandler::GetEmptyPhaseShift(), cdata->spawnPoint), Trinity::ComputeGridCoord(cdata->spawnPoint.GetPositionX(), cdata->spawnPoint.GetPositionY()).GetId(), false);
+                    delete obj;
                     continue;
                 }
             }
@@ -150,8 +155,12 @@ void LoadHelper(CellGuidSet const& guid_set, CellCoord &cell, GridRefManager<T> 
                 // If gameobject in manual spawn group, don't spawn here, unless group is already active.
                 GameObjectData const* godata = sObjectMgr->GetGameObjectData(guid);
                 ASSERT(godata, "Tried to load gameobject with spawnId " UI64FMTD ", but no such object exists.", guid);
-                if ((godata->spawnGroupData->flags & SPAWNGROUP_FLAG_MANUAL_SPAWN) && !godata->spawnGroupData->isActive)
-                    continue;
+                if (!(godata->spawnGroupData->flags & SPAWNGROUP_FLAG_SYSTEM))
+                    if (!map->IsSpawnGroupActive(godata->spawnGroupData->groupId))
+                    {
+                        delete obj;
+                        continue;
+                    }
             }
 
             if (!obj->LoadFromDB(guid, map, false, false))
