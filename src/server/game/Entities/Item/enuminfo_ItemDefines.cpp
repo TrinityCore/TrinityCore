@@ -320,6 +320,66 @@ TC_API_EXPORT size_t EnumUtils<InventoryResult>::ToIndex(InventoryResult value)
     }
 }
 
+/***************************************************************\
+|* data for enum 'BuyResult' in 'ItemDefines.h' auto-generated *|
+\***************************************************************/
+template <>
+TC_API_EXPORT EnumText EnumUtils<BuyResult>::ToString(BuyResult value)
+{
+    switch (value)
+    {
+        case BUY_ERR_CANT_FIND_ITEM: return { "BUY_ERR_CANT_FIND_ITEM", "BUY_ERR_CANT_FIND_ITEM", "" };
+        case BUY_ERR_ITEM_ALREADY_SOLD: return { "BUY_ERR_ITEM_ALREADY_SOLD", "BUY_ERR_ITEM_ALREADY_SOLD", "" };
+        case BUY_ERR_NOT_ENOUGHT_MONEY: return { "BUY_ERR_NOT_ENOUGHT_MONEY", "BUY_ERR_NOT_ENOUGHT_MONEY", "" };
+        case BUY_ERR_SELLER_DONT_LIKE_YOU: return { "BUY_ERR_SELLER_DONT_LIKE_YOU", "BUY_ERR_SELLER_DONT_LIKE_YOU", "" };
+        case BUY_ERR_DISTANCE_TOO_FAR: return { "BUY_ERR_DISTANCE_TOO_FAR", "BUY_ERR_DISTANCE_TOO_FAR", "" };
+        case BUY_ERR_ITEM_SOLD_OUT: return { "BUY_ERR_ITEM_SOLD_OUT", "BUY_ERR_ITEM_SOLD_OUT", "" };
+        case BUY_ERR_CANT_CARRY_MORE: return { "BUY_ERR_CANT_CARRY_MORE", "BUY_ERR_CANT_CARRY_MORE", "" };
+        case BUY_ERR_RANK_REQUIRE: return { "BUY_ERR_RANK_REQUIRE", "BUY_ERR_RANK_REQUIRE", "" };
+        case BUY_ERR_REPUTATION_REQUIRE: return { "BUY_ERR_REPUTATION_REQUIRE", "BUY_ERR_REPUTATION_REQUIRE", "" };
+        default: throw std::out_of_range("value");
+    }
+}
+
+template <>
+TC_API_EXPORT size_t EnumUtils<BuyResult>::Count() { return 9; }
+
+template <>
+TC_API_EXPORT BuyResult EnumUtils<BuyResult>::FromIndex(size_t index)
+{
+    switch (index)
+    {
+        case 0: return BUY_ERR_CANT_FIND_ITEM;
+        case 1: return BUY_ERR_ITEM_ALREADY_SOLD;
+        case 2: return BUY_ERR_NOT_ENOUGHT_MONEY;
+        case 3: return BUY_ERR_SELLER_DONT_LIKE_YOU;
+        case 4: return BUY_ERR_DISTANCE_TOO_FAR;
+        case 5: return BUY_ERR_ITEM_SOLD_OUT;
+        case 6: return BUY_ERR_CANT_CARRY_MORE;
+        case 7: return BUY_ERR_RANK_REQUIRE;
+        case 8: return BUY_ERR_REPUTATION_REQUIRE;
+        default: throw std::out_of_range("index");
+    }
+}
+
+template <>
+TC_API_EXPORT size_t EnumUtils<BuyResult>::ToIndex(BuyResult value)
+{
+    switch (value)
+    {
+        case BUY_ERR_CANT_FIND_ITEM: return 0;
+        case BUY_ERR_ITEM_ALREADY_SOLD: return 1;
+        case BUY_ERR_NOT_ENOUGHT_MONEY: return 2;
+        case BUY_ERR_SELLER_DONT_LIKE_YOU: return 3;
+        case BUY_ERR_DISTANCE_TOO_FAR: return 4;
+        case BUY_ERR_ITEM_SOLD_OUT: return 5;
+        case BUY_ERR_CANT_CARRY_MORE: return 6;
+        case BUY_ERR_RANK_REQUIRE: return 7;
+        case BUY_ERR_REPUTATION_REQUIRE: return 8;
+        default: throw std::out_of_range("value");
+    }
+}
+
 /****************************************************************\
 |* data for enum 'SellResult' in 'ItemDefines.h' auto-generated *|
 \****************************************************************/
