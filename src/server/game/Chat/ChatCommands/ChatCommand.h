@@ -118,54 +118,11 @@ namespace Trinity::Impl::ChatCommands
     {
         if constexpr (offset < std::tuple_size_v<Tuple>)
             return MultiConsumer<Tuple, std::tuple_element_t<offset, Tuple>, offset>::TryConsumeTo(tuple, args);
+        else if (*args) /* the entire string must be consumed */
+            return nullptr;
         else
             return args;
     }
-
-    class TC_GAME_API CommandArgs
-    {
-        public:
-            CommandArgs(char const* args) : _original(args), _args(args) {}
-
-            template <typename T1, typename T2, typename... Ts>
-            auto TryConsume()
-            {
-                Optional<std::tuple<advstd::remove_cvref_t<T1>, advstd::remove_cvref_t<T2>, advstd::remove_cvref_t<Ts>...>> rv;
-                rv.emplace();
-                if (!TryConsumeToTuple<0>(rv.value()))
-                    rv = std::nullopt;
-                return rv;
-            }
-
-            template <typename T1>
-            auto TryConsume()
-            {
-                using T = advstd::remove_cvref_t<T1>;
-                Optional<T> rv;
-                rv.emplace();
-                if (char const* next = SingleConsumer<T>::TryConsumeTo(rv.value(), _args))
-                    _args = next;
-                else
-                    rv = std::nullopt;
-                return rv;
-            }
-
-            template <size_t offset = 0, typename Tuple>
-            bool TryConsumeToTuple(Tuple& tuple)
-            {
-                if (char const* next = ConsumeFromOffset<Tuple, offset>(tuple, _args))
-                {
-                    _args = next;
-                    return true;
-                }
-                else
-                    return false;
-            }
-
-        private:
-            char const* const _original;
-            char const* _args;
-    };
 
     template <typename T> struct HandlerToTuple { static_assert(!std::is_same_v<T, T>, "Invalid command handler signature"); };
     template <typename... Ts> struct HandlerToTuple<bool(*)(ChatHandler*, Ts...)> { using type = std::tuple<ChatHandler*, advstd::remove_cvref_t<Ts>...>; };
@@ -184,11 +141,11 @@ class TC_GAME_API ChatCommand
         {
             _wrapper = [](void* handler, ChatHandler* chatHandler, char const* argsStr)
             {
-                Trinity::Impl::ChatCommands::TupleType<TypedHandler> arguments;
-                std::get<0>(arguments) = chatHandler;
+                using Tuple = Trinity::Impl::ChatCommands::TupleType<TypedHandler>;
 
-                Trinity::Impl::ChatCommands::CommandArgs args(argsStr);
-                if (args.TryConsumeToTuple<1>(arguments))
+                Tuple arguments;
+                std::get<0>(arguments) = chatHandler;
+                if (Trinity::Impl::ChatCommands::ConsumeFromOffset<Tuple, 1>(arguments, argsStr))
                     return std::apply(reinterpret_cast<TypedHandler>(handler), std::move(arguments));
                 else
                     return false;
