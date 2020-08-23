@@ -310,7 +310,7 @@ struct boss_kalecgos : public BossAI
                 case EVENT_OUTRO_START:
                     events.Reset();
                     events.SetPhase(PHASE_OUTRO);
-                    me->setRegeneratingHealth(false);
+                    me->SetRegenerateHealth(false);
                     me->SetReactState(REACT_PASSIVE);
                     me->InterruptNonMeleeSpells(true);
                     me->RemoveAllAttackers();

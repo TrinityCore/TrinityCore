@@ -102,6 +102,7 @@ class FlightPathMovementGenerator : public MovementGeneratorMedium<Player, Fligh
 {
     public:
         explicit FlightPathMovementGenerator();
+
         void LoadPath(Player* player, uint32 startNode = 0);
         void DoInitialize(Player*);
         void DoReset(Player*);
