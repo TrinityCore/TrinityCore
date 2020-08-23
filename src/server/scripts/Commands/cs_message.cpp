@@ -127,60 +127,60 @@ public:
         return true;
     }
 
-    static bool HandleNameAnnounceCommand(ChatHandler* handler, CommandArgs* args)
+    static bool HandleNameAnnounceCommand(ChatHandler* handler, Tail message)
     {
-        if (!*args)
+        if (message.empty())
             return false;
 
         std::string name("Console");
         if (WorldSession* session = handler->GetSession())
             name = session->GetPlayer()->GetName();
 
-        sWorld->SendWorldText(LANG_ANNOUNCE_COLOR, name.c_str(), args->GetFullArgs());
+        sWorld->SendWorldText(LANG_ANNOUNCE_COLOR, name.c_str(), message.data());
         return true;
     }
 
-    static bool HandleGMNameAnnounceCommand(ChatHandler* handler, CommandArgs* args)
+    static bool HandleGMNameAnnounceCommand(ChatHandler* handler, Tail message)
     {
-        if (!*args)
+        if (message.empty())
             return false;
 
         std::string name("Console");
         if (WorldSession* session = handler->GetSession())
             name = session->GetPlayer()->GetName();
 
-        sWorld->SendGMText(LANG_GM_ANNOUNCE_COLOR, name.c_str(), args->GetFullArgs());
+        sWorld->SendGMText(LANG_GM_ANNOUNCE_COLOR, name.c_str(), message.data());
         return true;
     }
 
     // global announce
-    static bool HandleAnnounceCommand(ChatHandler* handler, char const* args)
+    static bool HandleAnnounceCommand(ChatHandler* handler, Tail message)
     {
-        if (!*args)
+        if (message.empty())
             return false;
 
-        sWorld->SendServerMessage(SERVER_MSG_STRING, Trinity::StringFormat(handler->GetTrinityString(LANG_SYSTEMMESSAGE), args).c_str());
+        sWorld->SendServerMessage(SERVER_MSG_STRING, Trinity::StringFormat(handler->GetTrinityString(LANG_SYSTEMMESSAGE), message.data()).c_str());
         return true;
     }
 
     // announce to logged in GMs
-    static bool HandleGMAnnounceCommand(ChatHandler* /*handler*/, CommandArgs* args)
+    static bool HandleGMAnnounceCommand(ChatHandler* /*handler*/, Tail message)
     {
-        if (!*args)
+        if (message.empty())
             return false;
 
-        sWorld->SendGMText(LANG_GM_BROADCAST, args->GetFullArgs());
+        sWorld->SendGMText(LANG_GM_BROADCAST, message.data());
         return true;
     }
 
     // send on-screen notification to players
-    static bool HandleNotifyCommand(ChatHandler* handler, CommandArgs* args)
+    static bool HandleNotifyCommand(ChatHandler* handler, Tail message)
     {
-        if (!*args)
+        if (message.empty())
             return false;
 
         std::string str = handler->GetTrinityString(LANG_GLOBAL_NOTIFY);
-        str += args->GetFullArgs();
+        str += message;
 
         WorldPacket data(SMSG_NOTIFICATION, (str.size() + 1));
         data << str;
@@ -190,13 +190,13 @@ public:
     }
 
     // send on-screen notification to GMs
-    static bool HandleGMNotifyCommand(ChatHandler* handler, CommandArgs* args)
+    static bool HandleGMNotifyCommand(ChatHandler* handler, Tail message)
     {
-        if (!*args)
+        if (message.empty())
             return false;
 
         std::string str = handler->GetTrinityString(LANG_GM_NOTIFY);
-        str += args->GetFullArgs();
+        str += message;
 
         WorldPacket data(SMSG_NOTIFICATION, (str.size() + 1));
         data << str;

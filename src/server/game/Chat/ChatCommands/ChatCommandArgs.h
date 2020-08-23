@@ -29,9 +29,7 @@
 
 struct GameTele;
 
-namespace Trinity
-{
-namespace ChatCommands
+namespace Trinity::Impl::ChatCommands
 {
 
 /************************** ARGUMENT HANDLERS *******************************************\
@@ -234,6 +232,34 @@ struct ArgInfo<T, std::enable_if_t<std::is_base_of_v<ContainerTag, T>>>
     }
 };
 
+template <typename T>
+struct ArgInfo<std::vector<T>, void>
+{
+    static char const* TryConsume(std::vector<T>& val, char const* args)
+    {
+        char const* last = nullptr;
+        val.clear();
+
+        while ((args = ArgInfo<T>::TryConsume(val.emplace_back(), args)))
+            last = args;
+
+        val.pop_back();
+        return last;
+    }
+};
+
+template <typename T, size_t N>
+struct ArgInfo<std::array<T, N>, void>
+{
+    static char const* TryConsume(std::array<T, N>& val, char const* args)
+    {
+        for (T& t : val)
+            if (!(args = ArgInfo<T>::TryConsume(t, args)))
+                return nullptr;
+        return args;
+    }
+};
+
 // AchievementEntry* from numeric id or link
 template <>
 struct TC_GAME_API ArgInfo<AchievementEntry const*>
@@ -262,7 +288,6 @@ struct TC_GAME_API ArgInfo<bool>
     static char const* TryConsume(bool&, char const*);
 };
 
-}
 }
 
 #endif

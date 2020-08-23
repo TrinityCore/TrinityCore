@@ -20,8 +20,12 @@
 
 #include <type_traits>
 
-namespace Trinity::ChatCommands
+namespace Trinity::Impl::ChatCommands
 {
+    /***************** HELPERS *************************\
+    |* These really aren't for outside use...          *|
+    \***************************************************/
+
     static constexpr char COMMAND_DELIMITER = ' ';
 
     template <typename T, typename = void>
@@ -32,18 +36,12 @@ namespace Trinity::ChatCommands
 
     template <typename T>
     using tag_base_t = typename tag_base<T>::type;
-}
 
-namespace Trinity::Impl::ChatCommands
-{
-    /***************** HELPERS *************************\
-    |* These really aren't for outside use...          *|
-    \***************************************************/
     inline std::size_t tokenize(char const*& end)
     {
         std::size_t len = 0;
-        for (; *end && *end != Trinity::ChatCommands::COMMAND_DELIMITER; ++end, ++len);
-        for (; *end && *end == Trinity::ChatCommands::COMMAND_DELIMITER; ++end);
+        for (; *end && *end != COMMAND_DELIMITER; ++end, ++len);
+        for (; *end && *end == COMMAND_DELIMITER; ++end);
         return len;
     }
 

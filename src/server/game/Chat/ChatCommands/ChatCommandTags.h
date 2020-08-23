@@ -26,16 +26,27 @@
 #include <cstring>
 #include <iostream>
 #include <string>
+#include <string_view>
 #include <tuple>
 #include <type_traits>
 #include <utility>
 #include <variant>
 
+namespace Trinity::Impl::ChatCommands
+{
+    struct ContainerTag {};
+    template <typename T>
+    struct tag_base<T, std::enable_if_t<std::is_base_of_v<ContainerTag, T>>>
+    {
+        using type = typename T::value_type;
+    };
+}
+
 namespace Trinity::ChatCommands
 {
     /************************** CONTAINER TAGS **********************************************\
     |* Simple holder classes to differentiate between extraction methods                    *|
-    |* Should inherit from ContainerTag for template identification                         *|
+    |* Must inherit from Trinity::Impl::ChatCommands::ContainerTag                          *|
     |* Must implement the following:                                                        *|
     |* - TryConsume: char const* -> char const*                                             *|
     |*   returns nullptr if no match, otherwise pointer to first character of next token    *|
@@ -43,15 +54,9 @@ namespace Trinity::ChatCommands
     |* - cast operator to value_type                                                        *|
     |*                                                                                      *|
     \****************************************************************************************/
-    struct ContainerTag {};
-    template <typename T>
-    struct tag_base<T, std::enable_if_t<std::is_base_of_v<ContainerTag, T>>>
-    {
-        using type = typename T::value_type;
-    };
 
     template <char c1, char... chars>
-    struct ExactSequence : public ContainerTag
+    struct ExactSequence : Trinity::Impl::ChatCommands::ContainerTag
     {
         using value_type = void;
 
@@ -73,8 +78,39 @@ namespace Trinity::ChatCommands
         char const* TryConsume(char const* pos) const { return ExactSequence::_TryConsume(pos); }
     };
 
+    struct Tail : std::string_view, Trinity::Impl::ChatCommands::ContainerTag
+    {
+        using value_type = std::string_view;
+
+        char const* TryConsume(char const* pos)
+        {
+            std::string_view::operator=(pos);
+            if (!std::string_view::empty())
+                return pos + std::string_view::length();
+            else
+                return nullptr;
+        }
+    };
+
+    struct WTail : std::wstring, Trinity::Impl::ChatCommands::ContainerTag
+    {
+        using value_type = std::wstring;
+
+        char const* TryConsume(char const* pos)
+        {
+            std::string_view view(pos);
+            if (view.empty())
+                return nullptr;
+
+            if (Utf8toWStr(view, *this))
+                return pos + view.length();
+            else
+                return nullptr;
+        }
+    };
+
     template <typename linktag>
-    struct Hyperlink : public ContainerTag
+    struct Hyperlink : Trinity::Impl::ChatCommands::ContainerTag
     {
         using value_type = typename linktag::value_type;
         using storage_type = advstd::remove_cvref_t<value_type>;
@@ -137,8 +173,8 @@ namespace Trinity::ChatCommands
     {
         using base = std::variant<T1, Ts...>;
 
-        using first_type = tag_base_t<T1>;
-        static constexpr bool have_operators = Trinity::Impl::ChatCommands::are_all_assignable<first_type, tag_base_t<Ts>...>::value;
+        using first_type = Trinity::Impl::ChatCommands::tag_base_t<T1>;
+        static constexpr bool have_operators = Trinity::Impl::ChatCommands::are_all_assignable<first_type, Trinity::Impl::ChatCommands::tag_base_t<Ts>...>::value;
 
         template <bool C = have_operators>
         std::enable_if_t<C, first_type> operator*() const
