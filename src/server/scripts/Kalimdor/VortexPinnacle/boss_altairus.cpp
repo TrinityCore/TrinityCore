@@ -373,5 +373,5 @@ void AddSC_boss_altairus()
     RegisterSpellScript(spell_altairus_upwind_of_altairus);
     RegisterSpellScript(spell_altairus_call_the_wind_channel);
     RegisterSpellScript(spell_altairus_chilling_breath);
-    RegisterAuraScript(spell_altairus_safe_area);
+    RegisterSpellScript(spell_altairus_safe_area);
 }

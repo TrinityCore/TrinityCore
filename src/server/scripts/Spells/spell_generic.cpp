@@ -5563,7 +5563,7 @@ void AddSC_generic_spell_scripts()
     new spell_gen_ds_flush_knockback();
     new spell_gen_dungeon_credit();
     new spell_gen_elune_candle();
-    RegisterAuraScript(spell_gen_flurry_of_claws);
+    RegisterSpellScript(spell_gen_flurry_of_claws);
     new spell_gen_gadgetzan_transporter_backfire();
     new spell_gen_gift_of_naaru();
     new spell_gen_gnomish_transporter();
@@ -5621,7 +5621,7 @@ void AddSC_generic_spell_scripts()
     new spell_gen_upper_deck_create_foam_sword();
     new spell_gen_vampiric_touch();
     RegisterSpellScript(spell_gen_vehicle_scaling_trigger);
-    RegisterAuraScript(spell_gen_vehicle_scaling);
+    RegisterSpellScript(spell_gen_vehicle_scaling);
     new spell_gen_vendor_bark_trigger();
     new spell_gen_wg_water();
     new spell_gen_whisper_gulch_yogg_saron_whisper();
@@ -5638,8 +5638,8 @@ void AddSC_generic_spell_scripts()
     new spell_gen_blink();
     new spell_gen_toxic_blow_dart();
     new spell_gen_projectile_goods();
-    RegisterAuraScript(spell_gen_vengeance);
-    RegisterAuraScript(spell_gen_vengeance_triggered);
+    RegisterSpellScript(spell_gen_vengeance);
+    RegisterSpellScript(spell_gen_vengeance_triggered);
     new spell_gen_gilneas_prison_periodic_dummy();
     new spell_gen_throw_torch();
     RegisterSpellScript(spell_gen_revserse_cast_mirror_image);
@@ -5647,12 +5647,12 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_reverse_cast_ride_vehicle);
     RegisterSpellScript(spell_gen_launch_quest);
     RegisterSpellScript(spell_gen_charmed_unit_spell_cooldown);
-    RegisterAuraScript(spell_gen_sunflower_dnd);
-    RegisterAuraScript(spell_gen_guild_battle_standard);
+    RegisterSpellScript(spell_gen_sunflower_dnd);
+    RegisterSpellScript(spell_gen_guild_battle_standard);
     RegisterSpellScript(spell_gen_guild_battle_standard_buff);
     RegisterSpellScript(spell_gen_mobile_banking);
     RegisterSpellScript(spell_gen_cauldron_of_battle);
     RegisterSpellScript(spell_gen_flask_of_battle);
-    RegisterAuraScript(spell_gen_ghost);
-    RegisterAuraScript(spell_gen_zero_energy_zero_regen);
+    RegisterSpellScript(spell_gen_ghost);
+    RegisterSpellScript(spell_gen_zero_energy_zero_regen);
 }

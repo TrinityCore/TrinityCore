@@ -735,10 +735,10 @@ void AddSC_boss_chimaeron()
     RegisterBlackwingDescentCreatureAI(npc_chimaeron_bile_o_tron);
     RegisterSpellScript(spell_chimaeron_caustic_slime_targeting);
     RegisterSpellScript(spell_chimaeron_caustic_slime);
-    RegisterAuraScript(spell_chimaeron_double_attack);
-    RegisterAuraScript(spell_chimaeron_finkles_mixture);
-    RegisterAuraScript(spell_chimaeron_reroute_power);
-    RegisterAuraScript(spell_chimaeron_feud);
+    RegisterSpellScript(spell_chimaeron_double_attack);
+    RegisterSpellScript(spell_chimaeron_finkles_mixture);
+    RegisterSpellScript(spell_chimaeron_reroute_power);
+    RegisterSpellScript(spell_chimaeron_feud);
     RegisterSpellScript(spell_chimaeron_shadow_whip);
     new achievement_full_of_sound_and_fury();
 }

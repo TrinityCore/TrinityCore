@@ -324,8 +324,8 @@ class achievement_pardon_denied : public AchievementCriteriaScript
 void AddSC_boss_baron_ashbury()
 {
     RegisterShadowfangKeepCreatureAI(boss_baron_ashbury);
-    RegisterAuraScript(spell_ashbury_asphyxiate);
-    RegisterAuraScript(spell_ashbury_pain_and_suffering);
-    RegisterAuraScript(spell_ashbury_dark_archangel_form);
+    RegisterSpellScript(spell_ashbury_asphyxiate);
+    RegisterSpellScript(spell_ashbury_pain_and_suffering);
+    RegisterSpellScript(spell_ashbury_dark_archangel_form);
     new achievement_pardon_denied();
 }

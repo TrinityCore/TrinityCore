@@ -1122,29 +1122,29 @@ class spell_mage_water_elemental_scaling_02 : public AuraScript
 
 void AddSC_pet_spell_scripts()
 {
-    RegisterAuraScript(spell_warl_pet_scaling_01);
-    RegisterAuraScript(spell_warl_pet_scaling_02);
-    RegisterAuraScript(spell_warl_pet_scaling_03);
-    RegisterAuraScript(spell_warl_pet_scaling_04);
-    RegisterAuraScript(spell_warl_pet_scaling_05);
-    RegisterAuraScript(spell_warl_pet_scaling_06);
-    RegisterAuraScript(spell_warl_pet_passive);
+    RegisterSpellScript(spell_warl_pet_scaling_01);
+    RegisterSpellScript(spell_warl_pet_scaling_02);
+    RegisterSpellScript(spell_warl_pet_scaling_03);
+    RegisterSpellScript(spell_warl_pet_scaling_04);
+    RegisterSpellScript(spell_warl_pet_scaling_05);
+    RegisterSpellScript(spell_warl_pet_scaling_06);
+    RegisterSpellScript(spell_warl_pet_passive);
 
-    RegisterAuraScript(spell_hun_pet_scaling_01);
-    RegisterAuraScript(spell_hun_pet_scaling_02);
-    RegisterAuraScript(spell_hun_pet_scaling_03);
-    RegisterAuraScript(spell_hun_pet_scaling_04);
-    RegisterAuraScript(spell_hun_pet_scaling_05);
-    RegisterAuraScript(spell_hun_pet_passive_crit);
+    RegisterSpellScript(spell_hun_pet_scaling_01);
+    RegisterSpellScript(spell_hun_pet_scaling_02);
+    RegisterSpellScript(spell_hun_pet_scaling_03);
+    RegisterSpellScript(spell_hun_pet_scaling_04);
+    RegisterSpellScript(spell_hun_pet_scaling_05);
+    RegisterSpellScript(spell_hun_pet_passive_crit);
 
-    RegisterAuraScript(spell_dk_avoidance_passive);
-    RegisterAuraScript(spell_dk_pet_scaling_01);
-    RegisterAuraScript(spell_dk_pet_scaling_02);
-    RegisterAuraScript(spell_dk_pet_scaling_03);
-    RegisterAuraScript(spell_dk_pet_scaling_05);
+    RegisterSpellScript(spell_dk_avoidance_passive);
+    RegisterSpellScript(spell_dk_pet_scaling_01);
+    RegisterSpellScript(spell_dk_pet_scaling_02);
+    RegisterSpellScript(spell_dk_pet_scaling_03);
+    RegisterSpellScript(spell_dk_pet_scaling_05);
 
-    RegisterAuraScript(spell_dk_rune_weapon_scaling_02);
+    RegisterSpellScript(spell_dk_rune_weapon_scaling_02);
 
-    RegisterAuraScript(spell_mage_water_elemental_scaling_01);
-    RegisterAuraScript(spell_mage_water_elemental_scaling_02);
+    RegisterSpellScript(spell_mage_water_elemental_scaling_01);
+    RegisterSpellScript(spell_mage_water_elemental_scaling_02);
 }

@@ -1280,14 +1280,14 @@ void AddSC_boss_magmaw()
     RegisterSpellScript(spell_magmaw_pillar_of_flame_dummy);
     RegisterSpellScript(spell_magmaw_pillar_of_flame_forcecast);
     RegisterSpellScript(spell_magmaw_ride_vehicle);
-    RegisterAuraScript(spell_magmaw_launch_hook);
+    RegisterSpellScript(spell_magmaw_launch_hook);
     RegisterSpellScript(spell_magmaw_eject_passenger);
-    RegisterAuraScript(spell_magmaw_lava_parasite);
+    RegisterSpellScript(spell_magmaw_lava_parasite);
     RegisterSpellScript(spell_magmaw_lava_parasite_summon);
     RegisterSpellScript(spell_magmaw_blazing_inferno_targeting);
     RegisterSpellScript(spell_magmaw_shadow_breath_targeting);
-    RegisterAuraScript(spell_magmaw_massive_crash);
-    RegisterAuraScript(spell_magmaw_impale_self);
-    RegisterAuraScript(spell_magmaw_captured);
+    RegisterSpellScript(spell_magmaw_massive_crash);
+    RegisterSpellScript(spell_magmaw_impale_self);
+    RegisterSpellScript(spell_magmaw_captured);
     new achievement_parasite_evening();
 }

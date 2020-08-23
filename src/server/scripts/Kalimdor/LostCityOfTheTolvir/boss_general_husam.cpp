@@ -510,7 +510,7 @@ void AddSC_boss_general_husam()
     RegisterLostCityOfTheTolvirAI(npc_husam_tolvir_land_mine);
     RegisterLostCityOfTheTolvirAI(npc_husam_bad_intentions_target);
     RegisterLostCityOfTheTolvirAI(npc_husam_shockwave_visual);
-    RegisterAuraScript(spell_husam_hammer_fist);
+    RegisterSpellScript(spell_husam_hammer_fist);
     RegisterSpellScript(spell_husam_shockwave);
     RegisterSpellScript(spell_husam_shockwave_summon_search);
     RegisterSpellScript(spell_husam_mystic_trap);

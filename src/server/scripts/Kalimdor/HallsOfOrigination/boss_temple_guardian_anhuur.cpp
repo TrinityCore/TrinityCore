@@ -465,9 +465,9 @@ void AddSC_boss_temple_guardian_anhuur()
 {
     RegisterHallsOfOriginationCreatureAI(boss_temple_guardian_anhuur);
     RegisterGameObjectAI(go_anhuur_beacon_of_light);
-    RegisterAuraScript(spell_anhuur_divine_reckoning);
+    RegisterSpellScript(spell_anhuur_divine_reckoning);
     RegisterSpellScript(spell_anhuur_shield_of_light),
-    RegisterAuraScript(spell_anhuur_reverberating_hymn);
+    RegisterSpellScript(spell_anhuur_reverberating_hymn);
     RegisterSpellScript(spell_anhuur_disable_beacon_beams);
     RegisterSpellScript(spell_anhuur_burning_light_forcecast);
     new achievement_i_hate_that_song();

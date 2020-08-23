@@ -5163,7 +5163,7 @@ void AddSC_item_spell_scripts()
     new spell_item_aura_of_madness();
     new spell_item_dementia();
     new spell_item_blessing_of_ancient_kings();
-    RegisterAuraScript(spell_item_valanyr_hammer_of_ancient_kings);
+    RegisterSpellScript(spell_item_valanyr_hammer_of_ancient_kings);
     new spell_item_deadly_precision();
     new spell_item_deadly_precision_dummy();
     new spell_item_deathbringers_will<SPELL_STRENGTH_OF_THE_TAUNKA, SPELL_AGILITY_OF_THE_VRYKUL, SPELL_POWER_OF_THE_TAUNKA, SPELL_AIM_OF_THE_IRON_DWARVES, SPELL_SPEED_OF_THE_VRYKUL>("spell_item_deathbringers_will_normal");
@@ -5194,7 +5194,7 @@ void AddSC_item_spell_scripts()
     new spell_item_persistent_shield();
     new spell_item_pet_healing();
     new spell_item_piccolo_of_the_flaming_fire();
-    RegisterAuraScript(spell_item_power_circle);
+    RegisterSpellScript(spell_item_power_circle);
     new spell_item_savory_deviate_delight();
     new spell_item_scroll_of_recall();
     new spell_item_unsated_craving();
@@ -5263,14 +5263,14 @@ void AddSC_item_spell_scripts()
 
     new spell_item_mad_alchemists_potion();
     new spell_item_crazy_alchemists_potion();
-    RegisterAuraScript(spell_item_egg_shell);
-    RegisterAuraScript(spell_item_song_of_sorrow);
-    RegisterAuraScript(spell_item_crescendo_of_suffering);
+    RegisterSpellScript(spell_item_egg_shell);
+    RegisterSpellScript(spell_item_song_of_sorrow);
+    RegisterSpellScript(spell_item_crescendo_of_suffering);
     new spell_item_consume_charges("spell_item_forged_fury", SPELL_RAW_FURY);
     RegisterSpellAndAuraScriptPair(spell_item_hearts_judgement, spell_item_hearts_judgement_AuraScript);
     RegisterSpellScript(spell_item_blessing_of_khazgoroth);
-    RegisterAuraScript(spell_item_weight_of_a_feather);
+    RegisterSpellScript(spell_item_weight_of_a_feather);
     RegisterSpellScript(spell_item_tipping_of_the_scales);
     RegisterSpellScript(spell_item_blind_spot);
-    RegisterAuraScript(spell_item_variable_pulse_lightning_capacitor);
+    RegisterSpellScript(spell_item_variable_pulse_lightning_capacitor);
 }

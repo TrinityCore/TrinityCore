@@ -889,12 +889,12 @@ void AddSC_vortex_pinnacle()
     RegisterVortexPinnacleCreatureAI(npc_grounding_field);
     RegisterVortexPinnacleCreatureAI(npc_skyfall);
     RegisterVortexPinnacleCreatureAI(npc_skyfall_star);
-    RegisterAuraScript(spell_vp_lurk_search_periodic);
+    RegisterSpellScript(spell_vp_lurk_search_periodic);
     RegisterSpellScript(spell_vp_lurk_search);
     RegisterSpellAndAuraScriptPair(spell_vp_feign_death, spell_vp_feign_death_AuraScript);
-    RegisterAuraScript(spell_vp_lurk_ressurect);
-    RegisterAuraScript(spell_vp_howling_gale);
-    RegisterAuraScript(spell_vp_howling_gale_knockback);
+    RegisterSpellScript(spell_vp_lurk_ressurect);
+    RegisterSpellScript(spell_vp_howling_gale);
+    RegisterSpellScript(spell_vp_howling_gale_knockback);
     RegisterSpellScript(spell_slipstream);
     RegisterSpellScript(spell_grounding_field);
     RegisterSpellScript(spell_skyfall);

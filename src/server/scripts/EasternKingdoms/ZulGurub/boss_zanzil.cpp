@@ -681,9 +681,9 @@ void AddSC_boss_zanzil()
 {
     RegisterZulGurubCreatureAI(boss_zanzil);
     RegisterZulGurubCreatureAI(npc_zanzil_zanzili_berserker);
-    RegisterAuraScript(spell_zanzil_zanzili_fire);
-    RegisterAuraScript(spell_zanzil_zanzils_resurrection_elixir);
+    RegisterSpellScript(spell_zanzil_zanzili_fire);
+    RegisterSpellScript(spell_zanzil_zanzils_resurrection_elixir);
     RegisterSpellScript(spell_zanzil_zanzils_resurrection_elixir_red_script);
     RegisterSpellScript(spell_zanzil_zanzils_graveyard_gas);
-    RegisterAuraScript(spell_zanzil_frostburn_formula);
+    RegisterSpellScript(spell_zanzil_frostburn_formula);
 }

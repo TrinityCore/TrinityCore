@@ -311,9 +311,9 @@ class spell_ozruk_paralyze_stun : public AuraScript
 void AddSC_boss_ozruk()
 {
     new boss_ozruk();
-    RegisterAuraScript(spell_ozruk_rupture);
+    RegisterSpellScript(spell_ozruk_rupture);
     RegisterSpellScript(spell_ozuruk_rupture_summon);
     RegisterSpellScript(spell_ozruk_elementium_spike_shield);
     RegisterSpellScript(spell_ozruk_paralyze);
-    RegisterAuraScript(spell_ozruk_paralyze_stun);
+    RegisterSpellScript(spell_ozruk_paralyze_stun);
 }

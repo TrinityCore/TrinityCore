@@ -694,7 +694,7 @@ void AddSC_boss_mandokir()
     RegisterZulGurubCreatureAI(npc_mandokir_ohgan);
     RegisterZulGurubCreatureAI(npc_mandokir_chained_spirit);
     RegisterSpellScript(spell_mandokir_decapitate);
-    RegisterAuraScript(spell_mandokir_bloodletting);
+    RegisterSpellScript(spell_mandokir_bloodletting);
     RegisterSpellScript(spell_mandokir_spirit_vengeance_cancel);
     RegisterSpellScript(spell_mandokir_devastating_slam);
     RegisterSpellScript(spell_mandokir_ohgan_orders);

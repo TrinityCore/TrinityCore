@@ -665,7 +665,7 @@ void AddSC_boss_anraphet()
     RegisterHallsOfOriginationCreatureAI(npc_omega_stance);
     RegisterSpellScript(spell_anraphet_destruction_protocol);
     RegisterSpellScript(spell_anraphet_alpha_beams);
-    RegisterAuraScript(spell_anraphet_omega_stance);
+    RegisterSpellScript(spell_anraphet_omega_stance);
     RegisterSpellScript(spell_anraphet_omega_stance_summon);
     RegisterSpellScript(spell_anraphet_omega_stance_spider_effect);
     new at_hoo_brann_idle_emote();

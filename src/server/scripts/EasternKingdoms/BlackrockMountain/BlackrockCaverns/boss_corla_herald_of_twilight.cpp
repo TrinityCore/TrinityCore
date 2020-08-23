@@ -549,10 +549,10 @@ void AddSC_boss_corla()
 {
     RegisterBlackrockCavernsCreatureAI(boss_corla_herald_of_twilight);
     RegisterBlackrockCavernsCreatureAI(npc_corla_twilight_zealot);
-    RegisterAuraScript(spell_corla_nether_dragon_essence);
+    RegisterSpellScript(spell_corla_nether_dragon_essence);
     RegisterSpellScript(spell_corla_nether_dragon_essence_visual);
     RegisterSpellScript(spell_corla_nether_beam);
     RegisterSpellScript(spell_corla_evolution);
-    RegisterAuraScript(spell_corla_grievous_whirl);
+    RegisterSpellScript(spell_corla_grievous_whirl);
     new achievement_arrested_development();
 }

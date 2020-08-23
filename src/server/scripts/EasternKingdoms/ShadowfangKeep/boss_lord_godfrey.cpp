@@ -364,8 +364,8 @@ private:
 void AddSC_boss_lord_godfrey()
 {
     RegisterShadowfangKeepCreatureAI(boss_lord_godfrey);
-    RegisterAuraScript(spell_godfrey_summon_bloodthirsty_ghouls);
-    RegisterAuraScript(spell_godfrey_pistol_barrage);
+    RegisterSpellScript(spell_godfrey_summon_bloodthirsty_ghouls);
+    RegisterSpellScript(spell_godfrey_pistol_barrage);
     RegisterSpellScript(spell_godfrey_pistol_barrage_aoe);
-    RegisterAuraScript(spell_godfrey_cursed_bullets);
+    RegisterSpellScript(spell_godfrey_cursed_bullets);
 }

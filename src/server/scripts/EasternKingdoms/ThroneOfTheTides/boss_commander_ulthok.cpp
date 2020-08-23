@@ -222,5 +222,5 @@ class spell_ulthok_dark_fissure : public AuraScript
 void AddSC_boss_commander_ulthok()
 {
     RegisterThroneOfTheTidesCreatureAI(boss_commander_ulthok);
-    RegisterAuraScript(spell_ulthok_dark_fissure);
+    RegisterSpellScript(spell_ulthok_dark_fissure);
 }

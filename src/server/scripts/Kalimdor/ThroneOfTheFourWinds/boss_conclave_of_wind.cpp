@@ -1300,9 +1300,9 @@ void AddSC_boss_conclave_of_wind()
     RegisterThroneOfTheFourWindsCreatureAI(boss_rohash);
     RegisterThroneOfTheFourWindsCreatureAI(npc_conclave_of_wind_ravenous_creeper_trigger);
     RegisterThroneOfTheFourWindsCreatureAI(npc_conclave_of_wind_ravenous_creeper);
-    RegisterAuraScript(spell_conclave_of_wind_winds_pre_effect_warning);
+    RegisterSpellScript(spell_conclave_of_wind_winds_pre_effect_warning);
     RegisterSpellScript(spell_conclave_of_wind_teleport_to_center);
-    RegisterAuraScript(spell_conclave_of_wind_winds);
+    RegisterSpellScript(spell_conclave_of_wind_winds);
     RegisterSpellAndAuraScriptPair(spell_conclave_of_wind_wind_blast, spell_conclave_of_wind_wind_blast_AuraScript);
     RegisterSpellScript(spell_conclave_of_wind_wind_blast_triggered);
     RegisterSpellScript(spell_conclave_of_wind_hurricane);

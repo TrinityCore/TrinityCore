@@ -385,5 +385,5 @@ void AddSC_boss_general_umbriss()
     RegisterGrimBatolCreatureAI(npc_umbriss_skardyn);
     RegisterSpellScript(spell_umbriss_summon_blitz_trigger);
     RegisterSpellScript(spell_umbriss_summon_ground_siege_trigger);
-    RegisterAuraScript(spell_umbriss_bleeding_wound);
+    RegisterSpellScript(spell_umbriss_bleeding_wound);
 }

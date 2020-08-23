@@ -610,11 +610,11 @@ void AddSC_boss_high_priest_venoxis()
 {
     RegisterZulGurubCreatureAI(boss_high_priest_venoxis);
     RegisterSpellScript(spell_venoxis_venomous_effusion);
-    RegisterAuraScript(spell_venoxis_whispers_of_hethiss);
+    RegisterSpellScript(spell_venoxis_whispers_of_hethiss);
     RegisterSpellScript(spell_venoxis_toxic_link_targeting);
-    RegisterAuraScript(spell_venoxis_toxic_link);
+    RegisterSpellScript(spell_venoxis_toxic_link);
     RegisterSpellScript(spell_venoxis_toxic_link_ally);
-    RegisterAuraScript(spell_venoxis_pool_of_acrid_tears);
+    RegisterSpellScript(spell_venoxis_pool_of_acrid_tears);
     RegisterSpellScript(spell_venoxis_blood_venom_forcecast);
     RegisterSpellScript(spell_venom_withdrawal);
 }

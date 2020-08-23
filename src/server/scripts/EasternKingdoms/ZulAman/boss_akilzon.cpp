@@ -687,7 +687,7 @@ void AddSC_boss_akilzon()
     RegisterZulAamanCreatureAI(boss_akilzon);
     RegisterZulAamanCreatureAI(npc_akilzon_soaring_eagle);
     RegisterZulAamanCreatureAI(npc_akilzon_amani_kidnapper);
-    RegisterAuraScript(spell_akilzon_electrical_storm);
+    RegisterSpellScript(spell_akilzon_electrical_storm);
     RegisterSpellScript(spell_akilzon_electrical_storm_damage);
     RegisterSpellScript(spell_akilzon_electrical_overloard_graphic_pulse);
     RegisterSpellScript(spell_akilzon_teleport_self);

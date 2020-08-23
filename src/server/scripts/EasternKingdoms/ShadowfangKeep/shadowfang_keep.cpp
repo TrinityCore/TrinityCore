@@ -152,7 +152,7 @@ public:
 
 void AddSC_shadowfang_keep()
 {
-    RegisterAuraScript(spell_sfk_shield_of_bones);
+    RegisterSpellScript(spell_sfk_shield_of_bones);
     new at_sfk_outside_troups();
     new at_sfk_outside_ivar_bloodfang();
     new at_sfk_godfrey_intro();

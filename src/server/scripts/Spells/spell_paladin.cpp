@@ -2052,17 +2052,17 @@ class spell_pal_divine_shield : public SpellScript
 
 void AddSC_paladin_spell_scripts()
 {
-    RegisterAuraScript(spell_pal_ardent_defender);
-    RegisterAuraScript(spell_pal_ancient_healer);
-    RegisterAuraScript(spell_pal_ancient_crusader);
+    RegisterSpellScript(spell_pal_ardent_defender);
+    RegisterSpellScript(spell_pal_ancient_healer);
+    RegisterSpellScript(spell_pal_ancient_crusader);
     RegisterSpellScript(spell_pal_ancient_fury);
     new spell_pal_aura_mastery();
     new spell_pal_aura_mastery_immune();
-    RegisterAuraScript(spell_pal_avenging_wrath);
+    RegisterSpellScript(spell_pal_avenging_wrath);
     new spell_pal_blessing_of_faith();
-    RegisterAuraScript(spell_pal_communion);
+    RegisterSpellScript(spell_pal_communion);
     new spell_pal_consecration();
-    RegisterAuraScript(spell_pal_divine_purpose);
+    RegisterSpellScript(spell_pal_divine_purpose);
     new spell_pal_divine_sacrifice();
     RegisterSpellScript(spell_pal_divine_shield);
     RegisterSpellScript(spell_pal_divine_storm);
@@ -2078,24 +2078,24 @@ void AddSC_paladin_spell_scripts()
     RegisterSpellScript(spell_pal_hand_of_protection);
     new spell_pal_hand_of_sacrifice();
     new spell_pal_holy_shock();
-    RegisterAuraScript(spell_pal_illuminated_healing);
+    RegisterSpellScript(spell_pal_illuminated_healing);
     new spell_pal_improved_aura_effect("spell_pal_improved_concentraction_aura_effect");
     new spell_pal_improved_aura_effect("spell_pal_improved_devotion_aura_effect");
     new spell_pal_improved_aura_effect("spell_pal_sanctified_retribution_effect");
     RegisterSpellScript(spell_pal_inquisition);
     new spell_pal_item_healing_discount();
     RegisterSpellScript(spell_pal_judgement);
-    RegisterAuraScript(spell_pal_judgements);
+    RegisterSpellScript(spell_pal_judgements);
     new spell_pal_lay_on_hands();
-    RegisterAuraScript(spell_pal_lights_beacon);
+    RegisterSpellScript(spell_pal_lights_beacon);
     RegisterSpellScript(spell_pal_light_of_dawn);
-    RegisterAuraScript(spell_pal_long_arm_of_the_law);
+    RegisterSpellScript(spell_pal_long_arm_of_the_law);
     new spell_pal_righteous_defense();
-    RegisterAuraScript(spell_pal_sacred_shield);
-    RegisterAuraScript(spell_pal_seal_of_righteousness);
-    RegisterAuraScript(spell_pal_seal_of_truth);
+    RegisterSpellScript(spell_pal_sacred_shield);
+    RegisterSpellScript(spell_pal_seal_of_righteousness);
+    RegisterSpellScript(spell_pal_seal_of_truth);
     new spell_pal_shield_of_the_righteous();
-    RegisterAuraScript(spell_pal_selfless_healer);
+    RegisterSpellScript(spell_pal_selfless_healer);
     RegisterSpellScript(spell_pal_templar_s_verdict);
     RegisterSpellAndAuraScriptPair(spell_pal_word_of_glory, spell_pal_word_of_glory_AuraScript);
 }

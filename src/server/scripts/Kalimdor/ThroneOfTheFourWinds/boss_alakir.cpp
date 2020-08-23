@@ -1218,13 +1218,13 @@ void AddSC_boss_alakir()
     RegisterSpellScript(spell_alakir_lightning_strike_script);
     RegisterSpellScript(spell_alakir_lightning_strike_periodic);
     RegisterSpellScript(spell_alakir_lightning_strike_damage);
-    RegisterAuraScript(spell_alakir_electrocute);
+    RegisterSpellScript(spell_alakir_electrocute);
     RegisterSpellScript(spell_alakir_squall_line_pre_aura);
     RegisterSpellScript(spell_alakir_squall_line_script);
     RegisterSpellScript(spell_alakir_relentless_storm_initial_vehicle_ride_trigger);
     RegisterSpellScript(spell_alakir_relentless_storm_initial_vehicle_ride);
-    RegisterAuraScript(spell_alakir_wind_burst);
-    RegisterAuraScript(spell_alakir_lightning_clouds_periodic);
+    RegisterSpellScript(spell_alakir_wind_burst);
+    RegisterSpellScript(spell_alakir_lightning_clouds_periodic);
     RegisterSpellScript(spell_alakir_lightning_clouds_damage);
     RegisterSpellScript(spell_alakir_lightning_clouds_targeting);
     RegisterSpellScript(spell_alakir_lightning_clouds_dummy);

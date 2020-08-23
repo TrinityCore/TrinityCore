@@ -1290,14 +1290,14 @@ void AddSC_boss_maloriak()
     RegisterBlackwingDescentCreatureAI(npc_maloriak_vile_swill);
     RegisterSpellScript(spell_maloriak_throw_bottle);
     RegisterSpellScript(spell_maloriak_throw_bottle_triggered);
-    RegisterAuraScript(spell_maloriak_consuming_flames);
+    RegisterSpellScript(spell_maloriak_consuming_flames);
     RegisterSpellScript(spell_maloriak_flash_freeze_targeting);
     RegisterSpellScript(spell_maloriak_flash_freeze_dummy);
     RegisterSpellScript(spell_maloriak_release_experiments);
     RegisterSpellScript(spell_maloriak_magma_jets_script);
-    RegisterAuraScript(spell_maloriak_magma_jets_periodic);
+    RegisterSpellScript(spell_maloriak_magma_jets_periodic);
     RegisterSpellScript(spell_maloriak_absolute_zero);
-    RegisterAuraScript(spell_maloriak_vile_swill);
-    RegisterAuraScript(spell_maloriak_vile_swill_summon);
-    RegisterAuraScript(spell_maloriak_master_adventurer_award);
+    RegisterSpellScript(spell_maloriak_vile_swill);
+    RegisterSpellScript(spell_maloriak_vile_swill_summon);
+    RegisterSpellScript(spell_maloriak_master_adventurer_award);
 }

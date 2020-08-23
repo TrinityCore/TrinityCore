@@ -882,14 +882,14 @@ void AddSC_boss_helix_gearbreaker()
     RegisterDeadminesCreatureAI(npc_helix_sticky_bomb);
     RegisterDeadminesCreatureAI(npc_helix_crew);
     RegisterSpellScript(spell_helix_throw_bomb_targeting);
-    RegisterAuraScript(spell_helix_sticky_bomb_periodic_trigger);
+    RegisterSpellScript(spell_helix_sticky_bomb_periodic_trigger);
     RegisterSpellScript(spell_helix_oaf_grab_targeting);
     RegisterSpellScript(spell_helix_force_player_to_ride_oaf);
     RegisterSpellScript(spell_helix_oaf_smash);
-    RegisterAuraScript(spell_helix_helix_ride);
+    RegisterSpellScript(spell_helix_helix_ride);
     RegisterSpellScript(spell_helix_ride_face_targeting);
-    RegisterAuraScript(spell_helix_helix_ride_face_timer_aura);
+    RegisterSpellScript(spell_helix_helix_ride_face_timer_aura);
     RegisterSpellScript(spell_helix_chest_bomb_emote);
-    RegisterAuraScript(spell_helix_chest_bomb);
-    RegisterAuraScript(spell_helix_ride_vehicle);
+    RegisterSpellScript(spell_helix_chest_bomb);
+    RegisterSpellScript(spell_helix_ride_vehicle);
 }

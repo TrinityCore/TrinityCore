@@ -675,8 +675,8 @@ void AddSC_zulgurub()
     RegisterZulGurubCreatureAI(npc_zulgurub_tiki_lord_mu_loa);
     RegisterZulGurubCreatureAI(npc_zulgurub_tiki_lord_zim_wae);
     RegisterZulGurubCreatureAI(npc_zulgurub_gurubashi_berserker);
-    RegisterAuraScript(spell_zulgurub_rolling_boulders);
+    RegisterSpellScript(spell_zulgurub_rolling_boulders);
     RegisterSpellScript(spell_zulgurub_sigil_shatter);
-    RegisterAuraScript(spell_zulgurub_ancient_guardian);
+    RegisterSpellScript(spell_zulgurub_ancient_guardian);
     RegisterSpellScript(spell_zulgurub_toad_explode);
 }

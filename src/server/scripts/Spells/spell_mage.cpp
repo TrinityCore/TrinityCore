@@ -2311,8 +2311,8 @@ class spell_mage_frostfire_bolt : public SpellScript
 
 void AddSC_mage_spell_scripts()
 {
-    RegisterAuraScript(spell_mage_arcane_missiles_trigger);
-    RegisterAuraScript(spell_mage_arcane_potency);
+    RegisterSpellScript(spell_mage_arcane_missiles_trigger);
+    RegisterSpellScript(spell_mage_arcane_potency);
     new spell_mage_blast_wave();
     new spell_mage_blazing_speed();
     new spell_mage_blizzard();
@@ -2321,36 +2321,36 @@ void AddSC_mage_spell_scripts()
     new spell_mage_cone_of_cold();
     new spell_mage_conjure_refreshment();
     RegisterSpellScript(spell_mage_deep_freeze);
-    RegisterAuraScript(spell_mage_dragon_breath);
+    RegisterSpellScript(spell_mage_dragon_breath);
     new spell_mage_early_frost();
     new spell_mage_fire_frost_ward();
     new spell_mage_flame_orb();
     new spell_mage_flame_orb_aoe_dummy();
     new spell_mage_focus_magic();
-    RegisterAuraScript(spell_mage_fingers_of_frost_charges);
+    RegisterSpellScript(spell_mage_fingers_of_frost_charges);
     RegisterSpellScript(spell_mage_frostbolt);
     RegisterSpellScript(spell_mage_frostfire_bolt);
     new spell_mage_hot_streak();
     new spell_mage_ice_barrier();
-    RegisterAuraScript(spell_mage_ignite);
-    RegisterAuraScript(spell_mage_impact);
+    RegisterSpellScript(spell_mage_ignite);
+    RegisterSpellScript(spell_mage_impact);
     RegisterSpellScript(spell_mage_impact_triggered);
     new spell_mage_improved_hot_streak();
     RegisterSpellScript(spell_mage_initialize_images);
     new spell_mage_glyph_of_ice_block();
     new spell_mage_glyph_of_icy_veins();
     new spell_mage_glyph_of_polymorph();
-    RegisterAuraScript(spell_mage_living_bomb);
+    RegisterSpellScript(spell_mage_living_bomb);
     new spell_mage_mage_ward();
     new spell_mage_mana_shield();
-    RegisterAuraScript(spell_mage_master_of_elements);
+    RegisterSpellScript(spell_mage_master_of_elements);
     RegisterSpellAndAuraScriptPair(spell_mage_mirror_image, spell_mage_mirror_image_AurasScript);
-    RegisterAuraScript(spell_mage_nether_vortex);
-    RegisterAuraScript(spell_mage_offensive_state_dnd);
-    RegisterAuraScript(spell_mage_permafrost);
+    RegisterSpellScript(spell_mage_nether_vortex);
+    RegisterSpellScript(spell_mage_offensive_state_dnd);
+    RegisterSpellScript(spell_mage_permafrost);
     new spell_mage_polymorph();
     new spell_mage_polymorph_cast_visual();
-    RegisterAuraScript(spell_mage_pyromaniac);
+    RegisterSpellScript(spell_mage_pyromaniac);
     new spell_mage_replenish_mana();
     new spell_mage_ring_of_frost();
     new spell_mage_ring_of_frost_freeze();

@@ -701,10 +701,10 @@ void AddSC_blackwing_descent()
     RegisterBlackwingDescentCreatureAI(npc_bwd_dwarven_spirit);
     RegisterGameObjectAI(go_bwd_ancient_bell);
     RegisterSpellScript(spell_bwd_dragon_orb);
-    RegisterAuraScript(spell_bwd_grievous_wound);
+    RegisterSpellScript(spell_bwd_grievous_wound);
     RegisterSpellScript(spell_bwd_execution_sentence_visual);
     RegisterSpellScript(spell_bwd_execution_sentence_dummy);
-    RegisterAuraScript(spell_bwd_execution_sentence);
+    RegisterSpellScript(spell_bwd_execution_sentence);
     RegisterSpellScript(spell_bwd_stoneblood);
     new at_bwd_intro();
 }

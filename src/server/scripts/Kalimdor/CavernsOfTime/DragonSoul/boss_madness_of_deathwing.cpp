@@ -2696,14 +2696,14 @@ void AddSC_boss_madness_of_deathwing()
     RegisterSpellScript(spell_madness_of_deathwing_hemorrhage);
     RegisterSpellScript(spell_madness_of_deathwing_hemorrhage_script);
     RegisterSpellScript(spell_madness_of_deathwing_regenerative_blood_script);
-    RegisterAuraScript(spell_madness_of_deathwing_regenerative_blood_periodic);
+    RegisterSpellScript(spell_madness_of_deathwing_regenerative_blood_periodic);
     RegisterSpellScript(spell_madness_of_deathwing_elementium_meteor_script);
     RegisterSpellScript(spell_madness_of_deathwing_elementium_meteor_visual);
-    RegisterAuraScript(spell_madness_of_deathwing_burning_blood);
+    RegisterSpellScript(spell_madness_of_deathwing_burning_blood);
     RegisterSpellScript(spell_madness_of_deathwing_spawn_blistering_tentacles);
     RegisterSpellScript(spell_madness_of_deathwing_time_zone);
     RegisterSpellScript(spell_madness_of_deathwing_trigger_concentration);
-    RegisterAuraScript(spell_madness_of_deathwing_concentration);
+    RegisterSpellScript(spell_madness_of_deathwing_concentration);
     RegisterSpellScript(spell_madness_of_deathwing_trigger_aspect_buffs);
     RegisterSpellScript(spell_madness_of_deathwing_share_health);
     RegisterSpellScript(spell_madness_of_deathwing_summon_elementium_terror);
@@ -2712,8 +2712,8 @@ void AddSC_boss_madness_of_deathwing()
     RegisterSpellScript(spell_madness_of_deathwing_fire_dragon_soul);
     RegisterSpellScript(spell_madness_of_deathwing_fire_dragon_soul_aspects);
     RegisterSpellScript(spell_madness_of_deathwing_trigger_aspect_yell);
-    RegisterAuraScript(spell_madness_of_deathwing_corrupted_blood_stacker);
-    RegisterAuraScript(spell_madness_of_deathwing_corrupted_blood);
+    RegisterSpellScript(spell_madness_of_deathwing_corrupted_blood_stacker);
+    RegisterSpellScript(spell_madness_of_deathwing_corrupted_blood);
     RegisterSpellScript(spell_madness_of_deathwing_spellweave);
     RegisterSpellScript(spell_madness_of_deathwing_elementium_blast);
     RegisterSpellScript(spell_madness_of_deathwing_cataclysm);

@@ -398,11 +398,11 @@ class achievement_ascendant_descending : public AchievementCriteriaScript
 void AddSC_boss_ascendant_lord_obsidius()
 {
     RegisterBlackrockCavernsCreatureAI(boss_ascendant_lord_obsidius);
-    RegisterAuraScript(spell_obsidius_twitchy);
+    RegisterSpellScript(spell_obsidius_twitchy);
     RegisterSpellScript(spell_obsidius_transformation);
-    RegisterAuraScript(spell_obsidius_transformation_not_selectable);
-    RegisterAuraScript(spell_obsidius_transformation_scale);
+    RegisterSpellScript(spell_obsidius_transformation_not_selectable);
+    RegisterSpellScript(spell_obsidius_transformation_scale);
     RegisterSpellScript(spell_obsidius_crepuscular_veil);
-    RegisterAuraScript(spell_obsidius_shadow_of_obsidius);
+    RegisterSpellScript(spell_obsidius_shadow_of_obsidius);
     new achievement_ascendant_descending();
 }

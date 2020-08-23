@@ -1542,35 +1542,35 @@ private:
 
 void AddSC_rogue_spell_scripts()
 {
-    RegisterAuraScript(spell_rog_bandits_guile);
+    RegisterSpellScript(spell_rog_bandits_guile);
     new spell_rog_blade_flurry();
     new spell_rog_cheat_death();
     new spell_rog_crippling_poison();
     new spell_rog_cut_to_the_chase();
-    RegisterAuraScript(spell_rog_combat_potency);
-    RegisterAuraScript(spell_rog_deadly_momentum);
+    RegisterSpellScript(spell_rog_combat_potency);
+    RegisterSpellScript(spell_rog_deadly_momentum);
     new spell_rog_deadly_poison();
     RegisterSpellScript(spell_rog_envenom);
     RegisterSpellScript(spell_rog_eviscerate);
-    RegisterAuraScript(spell_rog_glyph_of_hemorrhage);
-    RegisterAuraScript(spell_rog_improved_expose_armor);
+    RegisterSpellScript(spell_rog_glyph_of_hemorrhage);
+    RegisterSpellScript(spell_rog_improved_expose_armor);
     new spell_rog_killing_spree();
-    RegisterAuraScript(spell_rog_main_gauche);
+    RegisterSpellScript(spell_rog_main_gauche);
     new spell_rog_master_of_subtlety();
-    RegisterAuraScript(spell_rog_murderous_intent);
+    RegisterSpellScript(spell_rog_murderous_intent);
     new spell_rog_nerves_of_steel();
     new spell_rog_overkill();
     new spell_rog_preparation();
     new spell_rog_prey_on_the_weak();
-    RegisterAuraScript(spell_rog_recuperate);
-    RegisterAuraScript(spell_rog_restless_blades);
-    RegisterAuraScript(spell_rog_rupture);
+    RegisterSpellScript(spell_rog_recuperate);
+    RegisterSpellScript(spell_rog_restless_blades);
+    RegisterSpellScript(spell_rog_rupture);
     new spell_rog_glyph_of_backstab_triggered();
-    RegisterAuraScript(spell_rog_sap);
+    RegisterSpellScript(spell_rog_sap);
     new spell_rog_shiv();
-    RegisterAuraScript(spell_rog_slice_and_dice);
+    RegisterSpellScript(spell_rog_slice_and_dice);
     new spell_rog_stealth();
     RegisterSpellAndAuraScriptPair(spell_rog_tricks_of_the_trade, spell_rog_tricks_of_the_trade_aura);
-    RegisterAuraScript(spell_rog_tricks_of_the_trade_proc);
-    RegisterAuraScript(spell_rog_honor_among_thieves);
+    RegisterSpellScript(spell_rog_tricks_of_the_trade_proc);
+    RegisterSpellScript(spell_rog_honor_among_thieves);
 }

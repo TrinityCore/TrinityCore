@@ -480,9 +480,9 @@ void AddSC_boss_high_priestess_kilnara()
     RegisterZulGurubCreatureAI(boss_high_priestess_kilnara);
     RegisterZulGurubCreatureAI(npc_kilnara_pride_of_bethekk);
 
-    RegisterAuraScript(spell_kilnara_tears_of_blood);
+    RegisterSpellScript(spell_kilnara_tears_of_blood);
     RegisterSpellScript(spell_kilnara_wave_of_agony);
-    RegisterAuraScript(spell_kilnara_wave_of_agony_dummy);
-    RegisterAuraScript(spell_kilnara_primal_awakening);
+    RegisterSpellScript(spell_kilnara_wave_of_agony_dummy);
+    RegisterSpellScript(spell_kilnara_primal_awakening);
     RegisterSpellScript(spell_kilnara_gaping_wound);
 }

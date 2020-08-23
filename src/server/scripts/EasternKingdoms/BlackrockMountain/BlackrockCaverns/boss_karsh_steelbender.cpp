@@ -330,8 +330,8 @@ class achievement_too_hot_to_handle : public AchievementCriteriaScript
 void AddSC_boss_karsh_steelbender()
 {
     RegisterBlackrockCavernsCreatureAI(boss_karsh_steelbender);
-    RegisterAuraScript(spell_karsh_quicksilver_armor);
+    RegisterSpellScript(spell_karsh_quicksilver_armor);
     RegisterSpellAndAuraScriptPair(spell_karsh_superheated_quicksilver_armor, spell_karsh_superheated_quicksilver_armor_AuraScript);
-    RegisterAuraScript(spell_karsh_superheated_quicksilver_armor_proc);
+    RegisterSpellScript(spell_karsh_superheated_quicksilver_armor_proc);
     new achievement_too_hot_to_handle();
 }

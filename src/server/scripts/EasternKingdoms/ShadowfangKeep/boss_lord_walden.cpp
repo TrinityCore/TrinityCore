@@ -317,9 +317,9 @@ class spell_walden_toxic_catalyst : public SpellScript
 void AddSC_boss_lord_walden()
 {
     RegisterShadowfangKeepCreatureAI(boss_lord_walden);
-    RegisterAuraScript(spell_walden_toxic_coagulent);
+    RegisterSpellScript(spell_walden_toxic_coagulent);
     RegisterSpellScript(spell_walden_conjure_poisonous_mixture);
-    RegisterAuraScript(spell_walden_ice_shards);
+    RegisterSpellScript(spell_walden_ice_shards);
     RegisterSpellScript(spell_walden_conjure_mystery_toxin);
     RegisterSpellScript(spell_walden_toxic_catalyst);
 }

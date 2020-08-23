@@ -2013,10 +2013,10 @@ void AddSC_holiday_spell_scripts()
     // Darkmoon Island
     RegisterSpellScript(spell_darkmoon_island_deathmatch);
     RegisterSpellScript(spell_darkmoon_island_ring_toss);
-    RegisterAuraScript(spell_darkmoon_island_whack_summon_aura);
+    RegisterSpellScript(spell_darkmoon_island_whack_summon_aura);
     RegisterSpellScript(spell_darkmoon_island_gnoll_aura_okay_to_hit);
     RegisterSpellScript(spell_darkmoon_island_whack_dummy);
     RegisterSpellScript(spell_darkmoon_island_whack);
-    RegisterAuraScript(spell_darkmoon_island_whack_a_gnoll);
+    RegisterSpellScript(spell_darkmoon_island_whack_a_gnoll);
     RegisterSpellScript(spell_darkmoon_island_whack_a_gnoll_player_action_bar_removed);
 }

@@ -672,7 +672,7 @@ void AddSC_deadmines()
     new npc_deadmines_vanessa_van_cleef_nightmare();
     new npc_deadmines_helix_nightmare();
     new go_deadmines_defias_cannon();
-    RegisterAuraScript(spell_deadmines_on_fire);
+    RegisterSpellScript(spell_deadmines_on_fire);
     new spell_deadmines_ride_magma_vehicle();
     new spell_deadmines_magma_trap_throw_to_location();
     new spell_deadmines_bloodbath();

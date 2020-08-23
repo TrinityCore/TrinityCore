@@ -417,7 +417,7 @@ void AddSC_boss_earthrager_ptah()
     RegisterHallsOfOriginationCreatureAI(npc_ptah_beetle_stalker);
     RegisterSpellScript(spell_earthrager_ptah_flame_bolt);
     RegisterSpellScript(spell_earthrager_ptah_sandstorm);
-    RegisterAuraScript(spell_earthrager_ptah_explosion);
+    RegisterSpellScript(spell_earthrager_ptah_explosion);
     RegisterSpellScript(spell_earthrager_ptah_consume);
     new achievement_straw_broke_camels_back();
 }

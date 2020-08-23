@@ -1052,37 +1052,37 @@ class spell_warr_heroic_leap : public SpellScript
 
 void AddSC_warrior_spell_scripts()
 {
-    RegisterAuraScript(spell_warr_blood_craze);
+    RegisterSpellScript(spell_warr_blood_craze);
     RegisterSpellScript(spell_warr_bloodthirst);
     RegisterSpellScript(spell_warr_bloodthirst_heal);
     RegisterSpellScript(spell_warr_charge);
     RegisterSpellScript(spell_warr_concussion_blow);
-    RegisterAuraScript(spell_warr_deep_wounds);
+    RegisterSpellScript(spell_warr_deep_wounds);
     RegisterSpellScript(spell_warr_devastate);
     RegisterSpellScript(spell_warr_execute);
-    RegisterAuraScript(spell_warr_glyph_of_sunder_armor);
+    RegisterSpellScript(spell_warr_glyph_of_sunder_armor);
     RegisterSpellScript(spell_warr_heroic_leap);
     RegisterSpellScript(spell_warr_intimidating_shout);
-    RegisterAuraScript(spell_warr_lambs_to_the_slaughter);
+    RegisterSpellScript(spell_warr_lambs_to_the_slaughter);
     RegisterSpellScript(spell_warr_last_stand);
     RegisterSpellScript(spell_warr_overpower);
     RegisterSpellScript(spell_warr_rallying_cry);
-    RegisterAuraScript(spell_warr_rend);
-    RegisterAuraScript(spell_warr_retaliation);
-    RegisterAuraScript(spell_warr_second_wind_proc);
-    RegisterAuraScript(spell_warr_second_wind_trigger);
+    RegisterSpellScript(spell_warr_rend);
+    RegisterSpellScript(spell_warr_retaliation);
+    RegisterSpellScript(spell_warr_second_wind_proc);
+    RegisterSpellScript(spell_warr_second_wind_trigger);
     RegisterSpellScript(spell_warr_shattering_throw);
-    RegisterAuraScript(spell_warr_shield_specialization);
+    RegisterSpellScript(spell_warr_shield_specialization);
     RegisterSpellScript(spell_warr_shockwave);
     RegisterSpellScript(spell_warr_slam);
     RegisterSpellScript(spell_warr_slam_triggered);
-    RegisterAuraScript(spell_warr_strikes_of_opportunity);
-    RegisterAuraScript(spell_warr_sudden_death);
-    RegisterAuraScript(spell_warr_sweeping_strikes);
-    RegisterAuraScript(spell_warr_sword_and_board);
+    RegisterSpellScript(spell_warr_strikes_of_opportunity);
+    RegisterSpellScript(spell_warr_sudden_death);
+    RegisterSpellScript(spell_warr_sweeping_strikes);
+    RegisterSpellScript(spell_warr_sword_and_board);
     RegisterSpellScript(spell_warr_thunder_clap);
     RegisterSpellScript(spell_warr_victory_rush);
-    RegisterAuraScript(spell_warr_vigilance);
+    RegisterSpellScript(spell_warr_vigilance);
     RegisterSpellScript(spell_warr_vigilance_trigger);
     RegisterSpellScript(spell_warr_whirlwind);
 }

@@ -752,9 +752,9 @@ void AddSC_mount_hyjal()
     RegisterCreatureAI(npc_mh_arch_druid_fandral_staghelm);
     RegisterSpellScript(spell_mh_summon_emerald_flameweaver);
     RegisterSpellScript(spell_mh_ragnaros);
-    RegisterAuraScript(spell_mh_flamebreaker);
-    RegisterAuraScript(spell_mh_weakening);
-    RegisterAuraScript(spell_mh_inferno);
-    RegisterAuraScript(spell_mh_fandral_creator_aura);
+    RegisterSpellScript(spell_mh_flamebreaker);
+    RegisterSpellScript(spell_mh_weakening);
+    RegisterSpellScript(spell_mh_inferno);
+    RegisterSpellScript(spell_mh_fandral_creator_aura);
     new at_mh_hyjal_barrow_dens();
 }

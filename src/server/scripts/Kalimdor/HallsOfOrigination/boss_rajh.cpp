@@ -450,6 +450,6 @@ void AddSC_boss_rajh()
     RegisterHallsOfOriginationCreatureAI(npc_rajh_orb_of_the_sun);
     RegisterSpellScript(spell_rajh_summon_meteor);
     RegisterSpellScript(spell_rajh_summon_sun_orb);
-    RegisterAuraScript(spell_rajh_summon_sun_orb_power_cost);
+    RegisterSpellScript(spell_rajh_summon_sun_orb_power_cost);
     new achievement_sun_of_a();
 }

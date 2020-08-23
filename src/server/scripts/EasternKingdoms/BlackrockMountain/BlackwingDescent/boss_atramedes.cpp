@@ -1098,19 +1098,19 @@ void AddSC_boss_atramedes()
     RegisterBlackwingDescentCreatureAI(npc_atramedes_obnoxious_fiend);
     RegisterSpellScript(spell_atramedes_modulation);
     RegisterSpellScript(spell_atramedes_roaring_flame_breath_reverse_cast);
-    RegisterAuraScript(spell_atramedes_roaring_flame_breath);
+    RegisterSpellScript(spell_atramedes_roaring_flame_breath);
     RegisterSpellScript(spell_atramedes_roaring_flame_breath_fire_periodic);
     RegisterSpellScript(spell_atramedes_resonating_clash_ground);
     RegisterSpellScript(spell_atramedes_resonating_clash_air);
     RegisterSpellScript(spell_atramedes_resonating_clash);
-    RegisterAuraScript(spell_atramedes_sound_bar);
-    RegisterAuraScript(spell_atramedes_noisy);
-    RegisterAuraScript(spell_atramedes_vertigo);
+    RegisterSpellScript(spell_atramedes_sound_bar);
+    RegisterSpellScript(spell_atramedes_noisy);
+    RegisterSpellScript(spell_atramedes_vertigo);
     RegisterSpellAndAuraScriptPair(spell_atramedes_sonic_flames, spell_atramedes_sonic_flames_AuraScript);
-    RegisterAuraScript(spell_atramedes_devastation_trigger);
+    RegisterSpellScript(spell_atramedes_devastation_trigger);
     RegisterSpellScript(spell_atramedes_sonic_breath);
     RegisterSpellScript(spell_atramedes_destroy_shield);
-    RegisterAuraScript(spell_atramedes_pestered);
-    RegisterAuraScript(spell_atramedes_apply_vehicle_periodic);
+    RegisterSpellScript(spell_atramedes_pestered);
+    RegisterSpellScript(spell_atramedes_apply_vehicle_periodic);
     new achievement_silence_is_golden();
 }
