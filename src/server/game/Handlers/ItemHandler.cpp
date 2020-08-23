@@ -29,6 +29,7 @@
 #include "Opcodes.h"
 #include "Player.h"
 #include "SpellMgr.h"
+#include "World.h"
 #include "WorldSession.h"
 #include "GossipDef.h"
 
@@ -600,8 +601,8 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid, uint32 vendorEntry)
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
     // Stop the npc if moving
-    if (vendor->HasUnitState(UNIT_STATE_MOVING))
-        vendor->StopMoving();
+    vendor->PauseMovement(sWorld->getIntConfig(CONFIG_CREATURE_STOP_FOR_PLAYER));
+    vendor->SetHomePosition(vendor->GetPosition());
 
     GetPlayer()->PlayerTalkClass->GetInteractionData().Reset();
     GetPlayer()->PlayerTalkClass->GetInteractionData().SourceGuid = vendorGuid;

@@ -498,10 +498,6 @@ class instance_ulduar : public InstanceMapScript
                         if (GetBossState(BOSS_LEVIATHAN) == DONE)
                             gameObject->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
                         break;
-                    case GO_MOLE_MACHINE:
-                        if (GetBossState(BOSS_RAZORSCALE) == IN_PROGRESS)
-                            gameObject->SetGoState(GO_STATE_ACTIVE);
-                        break;
                     case GO_BRAIN_ROOM_DOOR_1:
                         BrainRoomDoorGUIDs[0] = gameObject->GetGUID();
                         break;

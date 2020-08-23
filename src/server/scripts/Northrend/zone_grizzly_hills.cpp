@@ -62,9 +62,9 @@ class npc_emily : public CreatureScript
 public:
     npc_emily() : CreatureScript("npc_emily") { }
 
-    struct npc_emilyAI : public npc_escortAI
+    struct npc_emilyAI : public EscortAI
     {
-        npc_emilyAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_emilyAI(Creature* creature) : EscortAI(creature) { }
 
         void JustSummoned(Creature* summoned) override
         {
@@ -74,7 +74,7 @@ public:
                 summoned->AI()->AttackStart(me->GetVictim());
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)

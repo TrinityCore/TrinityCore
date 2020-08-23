@@ -191,11 +191,11 @@ public:
         return new npc_custodian_of_timeAI(creature);
     }
 
-    struct npc_custodian_of_timeAI : public npc_escortAI
+    struct npc_custodian_of_timeAI : public EscortAI
     {
-        npc_custodian_of_timeAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_custodian_of_timeAI(Creature* creature) : EscortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             if (Player* player = GetPlayerForEscort())
             {
@@ -285,7 +285,7 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
         }
     };
 
@@ -314,11 +314,11 @@ class npc_OOX17 : public CreatureScript
 public:
     npc_OOX17() : CreatureScript("npc_OOX17") { }
 
-    struct npc_OOX17AI : public npc_escortAI
+    struct npc_OOX17AI : public EscortAI
     {
-        npc_OOX17AI(Creature* creature) : npc_escortAI(creature) { }
+        npc_OOX17AI(Creature* creature) : EscortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             if (Player* player = GetPlayerForEscort())
             {

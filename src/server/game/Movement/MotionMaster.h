@@ -31,6 +31,7 @@ class PathGenerator;
 struct Position;
 struct SplineChainLink;
 struct SplineChainResumeInfo;
+struct WaypointPath;
 
 namespace G3D
 {
@@ -70,9 +71,9 @@ enum MovementGeneratorType : uint8
     MAX_MOTION_TYPE                                       // limit
 };
 
-enum MovementSlot
+enum MovementSlot : uint8
 {
-    MOTION_SLOT_IDLE,
+    MOTION_SLOT_IDLE = 0,
     MOTION_SLOT_ACTIVE,
     MOTION_SLOT_CONTROLLED,
     MAX_MOTION_SLOT
@@ -120,6 +121,7 @@ class TC_GAME_API MotionMaster
         void UpdateMotion(uint32 diff);
 
         void Clear(bool reset = true);
+        void Clear(MovementSlot slot);
         void MovementExpired(bool reset = true);
 
         MovementGeneratorType GetCurrentMovementGeneratorType() const;
@@ -174,7 +176,8 @@ class TC_GAME_API MotionMaster
         void MoveSeekAssistanceDistract(uint32 timer);
         void MoveTaxiFlight(uint32 path, uint32 pathnode);
         void MoveDistract(uint32 time);
-        void MovePath(uint32 path_id, bool repeatable);
+        void MovePath(uint32 pathId, bool repeatable);
+        void MovePath(WaypointPath& path, bool repeatable);
         void MoveRotate(uint32 time, RotateDirection direction);
 
         void MoveFormation(uint32 id, Position destination, uint32 moveType, bool forceRun = false, bool forceOrientation = false);
@@ -187,10 +190,12 @@ class TC_GAME_API MotionMaster
         bool NeedInitTop() const;
         void InitTop();
 
-        void Mutate(MovementGenerator *m, MovementSlot slot);
+        void Mutate(MovementGenerator* m, MovementSlot slot);
 
         void DirectClean(bool reset);
         void DelayedClean();
+        void DirectClean(MovementSlot slot);
+        void DelayedClean(MovementSlot slot);
         void DirectExpire(bool reset);
         void DelayedExpire();
         void DirectDelete(MovementGenerator* curr);
