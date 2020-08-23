@@ -49,8 +49,8 @@ namespace Trinity::ChatCommands
     |* Simple holder classes to differentiate between extraction methods                    *|
     |* Must inherit from Trinity::Impl::ChatCommands::ContainerTag                          *|
     |* Must implement the following:                                                        *|
-    |* - TryConsume: char const* -> char const*                                             *|
-    |*   returns nullptr if no match, otherwise pointer to first character of next token    *|
+    |* - TryConsume: std::string_view -> Optional<std::string_view>                         *|
+    |*   returns nullopt if no match, otherwise the tail of the provided argument string    *|
     |* - typedef value_type of type that is contained within the tag                        *|
     |* - cast operator to value_type                                                        *|
     |*                                                                                      *|
@@ -61,35 +61,38 @@ namespace Trinity::ChatCommands
     {
         using value_type = void;
 
-        static char const* _TryConsume(char const* pos)
+        static constexpr size_t N = (sizeof...(chars) + 1);
+
+        static bool Match(char const* pos)
         {
-            if (*(pos++) == c1)
-            {
-                if constexpr (sizeof...(chars) > 0)
-                    return ExactSequence<chars...>::_TryConsume(pos);
-                else if (Trinity::Impl::ChatCommands::tokenize(pos)) /* we did not consume the entire token */
-                    return nullptr;
-                else
-                    return pos;
-            }
+            if (*(pos++) != c1)
+                return false;
+            else if constexpr (sizeof...(chars) > 0)
+                return ExactSequence<chars...>::Match(pos);
             else
-                return nullptr;
+                return true;
         }
 
-        char const* TryConsume(char const* pos) const { return ExactSequence::_TryConsume(pos); }
+        Optional<std::string_view> TryConsume(std::string_view args) const
+        {
+            if ((N <= args.length()) && ExactSequence::Match(args.data()))
+            {
+                auto [remainingToken, tail] = Trinity::Impl::ChatCommands::tokenize(args.substr(N));
+                if (remainingToken.empty()) // if this is not empty, then we did not consume the full token
+                    return tail;
+            }
+            return std::nullopt;
+        }
     };
 
     struct Tail : std::string_view, Trinity::Impl::ChatCommands::ContainerTag
     {
         using value_type = std::string_view;
 
-        char const* TryConsume(char const* pos)
+        Optional<std::string_view> TryConsume(std::string_view args)
         {
-            std::string_view::operator=(pos);
-            if (!std::string_view::empty())
-                return pos + std::string_view::length();
-            else
-                return nullptr;
+            std::string_view::operator=(args);
+            return std::string_view();
         }
     };
 
@@ -97,14 +100,10 @@ namespace Trinity::ChatCommands
     {
         using value_type = std::wstring;
 
-        char const* TryConsume(char const* pos)
+        Optional<std::string_view> TryConsume(std::string_view args)
         {
-            std::string_view view(pos);
-            if (view.empty())
-                return nullptr;
-
-            if (Utf8toWStr(view, *this))
-                return pos + view.length();
+            if (Utf8toWStr(args, *this))
+                return std::string_view();
             else
                 return nullptr;
         }
@@ -121,29 +120,27 @@ namespace Trinity::ChatCommands
             value_type operator*() const { return val; }
             storage_type const* operator->() const { return &val; }
 
-            char const* TryConsume(char const* pos)
+            Optional<std::string_view> TryConsume(std::string_view args)
             {
-                Trinity::Hyperlinks::HyperlinkInfo info = Trinity::Hyperlinks::ParseHyperlink(pos);
+                Trinity::Hyperlinks::HyperlinkInfo info = Trinity::Hyperlinks::ParseSingleHyperlink(args);
                 // invalid hyperlinks cannot be consumed
                 if (!info)
-                    return nullptr;
+                    return std::nullopt;
 
                 // check if we got the right tag
-                if (info.tag.second != strlen(linktag::tag()))
-                    return nullptr;
-                if (strncmp(info.tag.first, linktag::tag(), strlen(linktag::tag())) != 0)
-                    return nullptr;
+                if (info.tag != linktag::tag())
+                    return std::nullopt;
 
                 // store value
-                if (!linktag::StoreTo(val, info.data.first, info.data.second))
+                if (!linktag::StoreTo(val, info.data))
                     return nullptr;
 
-                // finally, skip to end of token
-                pos = info.next;
-                Trinity::Impl::ChatCommands::tokenize(pos);
-
-                // return final pos
-                return pos;
+                // finally, skip any potential delimiters
+                auto [token, next] = Trinity::Impl::ChatCommands::tokenize(info.tail);
+                if (token.empty()) /* empty token = first character is delimiter, skip past it */
+                    return next;
+                else
+                    return info.tail;
             }
 
         private:

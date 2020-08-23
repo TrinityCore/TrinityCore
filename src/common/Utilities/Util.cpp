@@ -651,9 +651,13 @@ void Trinity::Impl::HexStrToByteArray(std::string_view str, uint8* out, size_t o
     }
 }
 
-bool StringToBool(std::string_view str)
+Optional<bool> StringToBool(std::string_view str)
 {
-    return ((str == "1") || StringEqualI(str, "true") || StringEqualI(str, "yes"));
+    if (str == "1" || StringEqualI(str, "y") || StringEqualI(str, "on")  || StringEqualI(str, "yes") || StringEqualI(str, "true"))
+        return true;
+    if (str == "0" || StringEqualI(str, "n") || StringEqualI(str, "off") || StringEqualI(str, "no") || StringEqualI(str, "false"))
+        return false;
+    return std::nullopt;
 }
 
 bool StringEqualI(std::string_view str1, std::string_view str2)

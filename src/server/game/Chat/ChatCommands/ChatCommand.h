@@ -38,36 +38,35 @@ namespace Trinity::Impl::ChatCommands
     template <typename T>
     struct SingleConsumer
     {
-        static char const* TryConsumeTo(T& val, char const* args)
+        static Optional<std::string_view> TryConsumeTo(T& val, std::string_view args)
         {
             return ArgInfo<T>::TryConsume(val, args);
-        }
-    };
-
-    struct VariantConsumer
-    {
-        template <typename V, typename T1, typename... Ts>
-        static char const* TryConsumeTo(V& val, char const* args)
-        {
-            T1 v;
-            if (char const* next = SingleConsumer<T1>::TryConsumeTo(v, args))
-            {
-                val = std::move(v);
-                return next;
-            }
-            else if constexpr (sizeof...(Ts) > 0)
-                return TryConsumeTo<V, Ts...>(val, args);
-            else
-                return nullptr;
         }
     };
 
     template <typename... Ts>
     struct SingleConsumer<Trinity::ChatCommands::Variant<Ts...>>
     {
-        static char const* TryConsumeTo(Trinity::ChatCommands::Variant<Ts...>& val, char const* args)
+        using V = std::variant<Ts...>;
+        static constexpr size_t N = std::variant_size_v<V>;
+
+        template <size_t I>
+        static Optional<std::string_view> TryAtIndex(Trinity::ChatCommands::Variant<Ts...>& val, std::string_view args)
         {
-            return VariantConsumer::TryConsumeTo<Trinity::ChatCommands::Variant<Ts...>, Ts...>(val, args);
+            if constexpr (I < N)
+            {
+                if (Optional<std::string_view> next = ArgInfo<std::variant_alternative_t<I, V>>::TryConsume(val.emplace<I>(), args))
+                    return next;
+                else
+                    return TryAtIndex<I+1>(val, args);
+            }
+            else
+                return std::nullopt;
+        }
+
+        static Optional<std::string_view> TryConsumeTo(Trinity::ChatCommands::Variant<Ts...>& val, std::string_view args)
+        {
+            return TryAtIndex<0>(val, args);
         }
     };
 
@@ -78,34 +77,39 @@ namespace Trinity::Impl::ChatCommands
     template <>
     struct SingleConsumer<char const*>
     {
-        static char const* TryConsumeTo(char const*& arg, char const* args) { arg = args; while (*args) ++args; return args; }
+        static Optional<std::string_view> TryConsumeTo(char const*& arg, std::string_view args) { arg = args.data(); return std::string_view(); }
     };
 
+
+    // forward declaration
+    // ConsumeFromOffset contains the bounds check for offset, then hands off to MultiConsumer
+    // the call stack is MultiConsumer -> ConsumeFromOffset -> MultiConsumer -> ConsumeFromOffset etc
+    // MultiConsumer calls SingleConsumer in each iteration
     template <typename Tuple, size_t offset>
-    char const* ConsumeFromOffset(Tuple&, char const* args);
+    Optional<std::string_view> ConsumeFromOffset(Tuple&, std::string_view args);
 
     template <typename Tuple, typename NextType, size_t offset>
     struct MultiConsumer
     {
-        static char const* TryConsumeTo(Tuple& tuple, char const* args)
+        static Optional<std::string_view> TryConsumeTo(Tuple& tuple, std::string_view args)
         {
-            if (char const* next = SingleConsumer<NextType>::TryConsumeTo(std::get<offset>(tuple), args))
-                return ConsumeFromOffset<Tuple, offset + 1>(tuple, next);
+            if (Optional<std::string_view> next = SingleConsumer<NextType>::TryConsumeTo(std::get<offset>(tuple), args))
+                return ConsumeFromOffset<Tuple, offset + 1>(tuple, *next);
             else
-                return nullptr;
+                return std::nullopt;
         }
     };
 
     template <typename Tuple, typename NestedNextType, size_t offset>
     struct MultiConsumer<Tuple, Optional<NestedNextType>, offset>
     {
-        static char const* TryConsumeTo(Tuple& tuple, char const* args)
+        static Optional<std::string_view> TryConsumeTo(Tuple& tuple, std::string_view args)
         {
             // try with the argument
             auto& myArg = std::get<offset>(tuple);
             myArg.emplace();
-            if (char const* next = SingleConsumer<NestedNextType>::TryConsumeTo(myArg.value(), args))
-                if ((next = ConsumeFromOffset<Tuple, offset + 1>(tuple, next)))
+            if (Optional<std::string_view> next = SingleConsumer<NestedNextType>::TryConsumeTo(myArg.value(), args))
+                if ((next = ConsumeFromOffset<Tuple, offset + 1>(tuple, *next)))
                     return next;
             // try again omitting the argument
             myArg = std::nullopt;
@@ -114,12 +118,12 @@ namespace Trinity::Impl::ChatCommands
     };
 
     template <typename Tuple, size_t offset>
-    char const* ConsumeFromOffset(Tuple& tuple, char const* args)
+    Optional<std::string_view> ConsumeFromOffset(Tuple& tuple, std::string_view args)
     {
         if constexpr (offset < std::tuple_size_v<Tuple>)
             return MultiConsumer<Tuple, std::tuple_element_t<offset, Tuple>, offset>::TryConsumeTo(tuple, args);
-        else if (*args) /* the entire string must be consumed */
-            return nullptr;
+        else if (!args.empty()) /* the entire string must be consumed */
+            return std::nullopt;
         else
             return args;
     }
