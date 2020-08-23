@@ -319,4 +319,58 @@ TC_API_EXPORT size_t EnumUtils<InventoryResult>::ToIndex(InventoryResult value)
         default: throw std::out_of_range("value");
     }
 }
+
+/****************************************************************\
+|* data for enum 'SellResult' in 'ItemDefines.h' auto-generated *|
+\****************************************************************/
+template <>
+TC_API_EXPORT EnumText EnumUtils<SellResult>::ToString(SellResult value)
+{
+    switch (value)
+    {
+        case SELL_ERR_CANT_FIND_ITEM: return { "SELL_ERR_CANT_FIND_ITEM", "SELL_ERR_CANT_FIND_ITEM", "The item was not found." };
+        case SELL_ERR_CANT_SELL_ITEM: return { "SELL_ERR_CANT_SELL_ITEM", "SELL_ERR_CANT_SELL_ITEM", "The merchant doesn't want that item." };
+        case SELL_ERR_CANT_FIND_VENDOR: return { "SELL_ERR_CANT_FIND_VENDOR", "SELL_ERR_CANT_FIND_VENDOR", "The merchant doesn't like you." };
+        case SELL_ERR_YOU_DONT_OWN_THAT_ITEM: return { "SELL_ERR_YOU_DONT_OWN_THAT_ITEM", "SELL_ERR_YOU_DONT_OWN_THAT_ITEM", "You don't own that item." };
+        case SELL_ERR_UNK: return { "SELL_ERR_UNK", "SELL_ERR_UNK", "nothing appears..." };
+        case SELL_ERR_ONLY_EMPTY_BAG: return { "SELL_ERR_ONLY_EMPTY_BAG", "SELL_ERR_ONLY_EMPTY_BAG", "You can only do that with empty bags." };
+        case SELL_ERR_CANT_SELL_TO_THIS_MERCHANT: return { "SELL_ERR_CANT_SELL_TO_THIS_MERCHANT", "SELL_ERR_CANT_SELL_TO_THIS_MERCHANT", "You cannot sell items to this merchant." };
+        default: throw std::out_of_range("value");
+    }
+}
+
+template <>
+TC_API_EXPORT size_t EnumUtils<SellResult>::Count() { return 7; }
+
+template <>
+TC_API_EXPORT SellResult EnumUtils<SellResult>::FromIndex(size_t index)
+{
+    switch (index)
+    {
+        case 0: return SELL_ERR_CANT_FIND_ITEM;
+        case 1: return SELL_ERR_CANT_SELL_ITEM;
+        case 2: return SELL_ERR_CANT_FIND_VENDOR;
+        case 3: return SELL_ERR_YOU_DONT_OWN_THAT_ITEM;
+        case 4: return SELL_ERR_UNK;
+        case 5: return SELL_ERR_ONLY_EMPTY_BAG;
+        case 6: return SELL_ERR_CANT_SELL_TO_THIS_MERCHANT;
+        default: throw std::out_of_range("index");
+    }
+}
+
+template <>
+TC_API_EXPORT size_t EnumUtils<SellResult>::ToIndex(SellResult value)
+{
+    switch (value)
+    {
+        case SELL_ERR_CANT_FIND_ITEM: return 0;
+        case SELL_ERR_CANT_SELL_ITEM: return 1;
+        case SELL_ERR_CANT_FIND_VENDOR: return 2;
+        case SELL_ERR_YOU_DONT_OWN_THAT_ITEM: return 3;
+        case SELL_ERR_UNK: return 4;
+        case SELL_ERR_ONLY_EMPTY_BAG: return 5;
+        case SELL_ERR_CANT_SELL_TO_THIS_MERCHANT: return 6;
+        default: throw std::out_of_range("value");
+    }
+}
 }
