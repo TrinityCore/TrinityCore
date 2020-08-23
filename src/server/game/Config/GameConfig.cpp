@@ -17,6 +17,7 @@
 
 #include "DatabaseEnv.h"
 #include "GameConfig.h"
+#include "Log.h"
 
 GameConfig* GameConfig::instance()
 {
