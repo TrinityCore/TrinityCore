@@ -22,6 +22,7 @@
 #include "ChatCommandHelpers.h"
 #include "Hyperlinks.h"
 #include "Optional.h"
+#include "Util.h"
 #include <cmath>
 #include <cstring>
 #include <iostream>
