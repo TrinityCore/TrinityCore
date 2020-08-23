@@ -108,7 +108,6 @@ public:
             { "setitemvalue",  rbac::RBAC_PERM_COMMAND_DEBUG_SETITEMVALUE,  false, &HandleDebugSetItemValueCommand,     "" },
             { "setvalue",      rbac::RBAC_PERM_COMMAND_DEBUG_SETVALUE,      false, &HandleDebugSetValueCommand,         "" },
             { "spawnvehicle",  rbac::RBAC_PERM_COMMAND_DEBUG_SPAWNVEHICLE,  false, &HandleDebugSpawnVehicleCommand,     "" },
-            { "setvid",        rbac::RBAC_PERM_COMMAND_DEBUG_SETVID,        false, &HandleDebugSetVehicleIdCommand,     "" },
             { "entervehicle",  rbac::RBAC_PERM_COMMAND_DEBUG_ENTERVEHICLE,  false, &HandleDebugEnterVehicleCommand,     "" },
             { "worldstate",    rbac::RBAC_PERM_COMMAND_DEBUG_WORLDSTATE,    false, &HandleDebugUpdateWorldStateCommand, "" },
             { "update",        rbac::RBAC_PERM_COMMAND_DEBUG_UPDATE,        false, &HandleDebugUpdateCommand,           "" },
@@ -992,25 +991,6 @@ public:
             Unit* unit = ref.second->GetOther(target);
             handler->PSendSysMessage("[PvE] %s (SpawnID %u)", unit->GetName().c_str(), unit->GetTypeId() == TYPEID_UNIT ? unit->ToCreature()->GetSpawnId() : 0);
         }
-        return true;
-    }
-
-    static bool HandleDebugSetVehicleIdCommand(ChatHandler* handler, char const* args)
-    {
-        Unit* target = handler->getSelectedUnit();
-        if (!target || target->IsVehicle())
-            return false;
-
-        if (!args)
-            return false;
-
-        char* i = strtok((char*)args, " ");
-        if (!i)
-            return false;
-
-        uint32 id = (uint32)atoi(i);
-        //target->SetVehicleId(id);
-        handler->PSendSysMessage("Vehicle id set to %u", id);
         return true;
     }
 
