@@ -2677,7 +2677,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
             caster->ProcSkillsAndAuras(unitTarget, procAttacker, procVictim, PROC_SPELL_TYPE_DAMAGE, PROC_SPELL_PHASE_HIT, hitMask, this, &spellDamageInfo, nullptr);
 
             // Pets and Guardians units should trigger procs for their owner as well
-            if (caster->IsSummon() || (caster->IsGuardian() || caster->IsPet()))
+            if (caster->IsSummon() && (caster->IsGuardian() || caster->IsPet()))
                 if (Unit* summoner = caster->ToTempSummon()->GetSummoner())
                     summoner->ProcSkillsAndAuras(unitTarget, procAttacker, procVictim, PROC_SPELL_TYPE_DAMAGE, PROC_SPELL_PHASE_HIT, hitMask, this, &spellDamageInfo, nullptr);
 
