@@ -1292,6 +1292,90 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr7>::ToIndex(SpellAttr7 value)
     }
 }
 
+/*********************************************************************\
+|* data for enum 'AuraStateType' in 'SharedDefines.h' auto-generated *|
+\*********************************************************************/
+template <>
+TC_API_EXPORT EnumText EnumUtils<AuraStateType>::ToString(AuraStateType value)
+{
+    switch (value)
+    {
+        case AURA_STATE_DEFENSE: return { "AURA_STATE_DEFENSE", "AURA_STATE_DEFENSE", "C   |" };
+        case AURA_STATE_HEALTHLESS_20_PERCENT: return { "AURA_STATE_HEALTHLESS_20_PERCENT", "AURA_STATE_HEALTHLESS_20_PERCENT", "CcT |" };
+        case AURA_STATE_BERSERKING: return { "AURA_STATE_BERSERKING", "AURA_STATE_BERSERKING", "C T |" };
+        case AURA_STATE_FROZEN: return { "AURA_STATE_FROZEN", "AURA_STATE_FROZEN", "c t| frozen target" };
+        case AURA_STATE_JUDGEMENT: return { "AURA_STATE_JUDGEMENT", "AURA_STATE_JUDGEMENT", "C   |" };
+        case AURA_STATE_HUNTER_PARRY: return { "AURA_STATE_HUNTER_PARRY", "AURA_STATE_HUNTER_PARRY", "C   |" };
+        case AURA_STATE_WARRIOR_VICTORY_RUSH: return { "AURA_STATE_WARRIOR_VICTORY_RUSH", "AURA_STATE_WARRIOR_VICTORY_RUSH", "C   | warrior victory rush" };
+        case AURA_STATE_FAERIE_FIRE: return { "AURA_STATE_FAERIE_FIRE", "AURA_STATE_FAERIE_FIRE", "c t|" };
+        case AURA_STATE_HEALTHLESS_35_PERCENT: return { "AURA_STATE_HEALTHLESS_35_PERCENT", "AURA_STATE_HEALTHLESS_35_PERCENT", "C T |" };
+        case AURA_STATE_CONFLAGRATE: return { "AURA_STATE_CONFLAGRATE", "AURA_STATE_CONFLAGRATE", "T |" };
+        case AURA_STATE_SWIFTMEND: return { "AURA_STATE_SWIFTMEND", "AURA_STATE_SWIFTMEND", "T |" };
+        case AURA_STATE_DEADLY_POISON: return { "AURA_STATE_DEADLY_POISON", "AURA_STATE_DEADLY_POISON", "T |" };
+        case AURA_STATE_ENRAGE: return { "AURA_STATE_ENRAGE", "AURA_STATE_ENRAGE", "C   |" };
+        case AURA_STATE_BLEEDING: return { "AURA_STATE_BLEEDING", "AURA_STATE_BLEEDING", "T|" };
+        case AURA_STATE_UNKNOWN19: return { "AURA_STATE_UNKNOWN19", "AURA_STATE_UNKNOWN19", "|" };
+        case AURA_STATE_UNKNOWN22: return { "AURA_STATE_UNKNOWN22", "AURA_STATE_UNKNOWN22", "C  t| varius spells (63884, 50240)" };
+        case AURA_STATE_HEALTH_ABOVE_75_PERCENT: return { "AURA_STATE_HEALTH_ABOVE_75_PERCENT", "AURA_STATE_HEALTH_ABOVE_75_PERCENT", "C   |" };
+        default: throw std::out_of_range("value");
+    }
+}
+
+template <>
+TC_API_EXPORT size_t EnumUtils<AuraStateType>::Count() { return 17; }
+
+template <>
+TC_API_EXPORT AuraStateType EnumUtils<AuraStateType>::FromIndex(size_t index)
+{
+    switch (index)
+    {
+        case 0: return AURA_STATE_DEFENSE;
+        case 1: return AURA_STATE_HEALTHLESS_20_PERCENT;
+        case 2: return AURA_STATE_BERSERKING;
+        case 3: return AURA_STATE_FROZEN;
+        case 4: return AURA_STATE_JUDGEMENT;
+        case 5: return AURA_STATE_HUNTER_PARRY;
+        case 6: return AURA_STATE_WARRIOR_VICTORY_RUSH;
+        case 7: return AURA_STATE_FAERIE_FIRE;
+        case 8: return AURA_STATE_HEALTHLESS_35_PERCENT;
+        case 9: return AURA_STATE_CONFLAGRATE;
+        case 10: return AURA_STATE_SWIFTMEND;
+        case 11: return AURA_STATE_DEADLY_POISON;
+        case 12: return AURA_STATE_ENRAGE;
+        case 13: return AURA_STATE_BLEEDING;
+        case 14: return AURA_STATE_UNKNOWN19;
+        case 15: return AURA_STATE_UNKNOWN22;
+        case 16: return AURA_STATE_HEALTH_ABOVE_75_PERCENT;
+        default: throw std::out_of_range("index");
+    }
+}
+
+template <>
+TC_API_EXPORT size_t EnumUtils<AuraStateType>::ToIndex(AuraStateType value)
+{
+    switch (value)
+    {
+        case AURA_STATE_DEFENSE: return 0;
+        case AURA_STATE_HEALTHLESS_20_PERCENT: return 1;
+        case AURA_STATE_BERSERKING: return 2;
+        case AURA_STATE_FROZEN: return 3;
+        case AURA_STATE_JUDGEMENT: return 4;
+        case AURA_STATE_HUNTER_PARRY: return 5;
+        case AURA_STATE_WARRIOR_VICTORY_RUSH: return 6;
+        case AURA_STATE_FAERIE_FIRE: return 7;
+        case AURA_STATE_HEALTHLESS_35_PERCENT: return 8;
+        case AURA_STATE_CONFLAGRATE: return 9;
+        case AURA_STATE_SWIFTMEND: return 10;
+        case AURA_STATE_DEADLY_POISON: return 11;
+        case AURA_STATE_ENRAGE: return 12;
+        case AURA_STATE_BLEEDING: return 13;
+        case AURA_STATE_UNKNOWN19: return 14;
+        case AURA_STATE_UNKNOWN22: return 15;
+        case AURA_STATE_HEALTH_ABOVE_75_PERCENT: return 16;
+        default: throw std::out_of_range("value");
+    }
+}
+
 /*****************************************************************\
 |* data for enum 'Mechanics' in 'SharedDefines.h' auto-generated *|
 \*****************************************************************/
