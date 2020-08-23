@@ -333,7 +333,10 @@ struct boss_maloriak : public BossAI
             case SPELL_RELEASE_ABERRATIONS:
                 me->MakeInterruptable(false);
                 if (reason == SPELL_FINISHED_SUCCESSFUL_CAST)
+                {
                     Talk(SAY_RELEASE_ABERRATIONS);
+                    ++_releasedAberrationsCount;
+                }
                 break;
             default:
                 break;
@@ -444,7 +447,6 @@ struct boss_maloriak : public BossAI
                         me->MakeInterruptable(true);
                         DoCastAOE(SPELL_RELEASE_ABERRATIONS);
                         events.Repeat(17s, 18s);
-                        _releasedAberrationsCount++;
                     }
                     break;
                 case EVENT_FACE_TO_CAULDRON:
