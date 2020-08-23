@@ -637,7 +637,7 @@ void WorldSession::HandleQuestPushResult(WorldPacket& recvPacket)
     {
         Player* player = ObjectAccessor::FindPlayer(guid);
         if (player)
-            player->SendPushToPartyResponse(_player, msg);
+            player->SendPushToPartyResponse(_player, QuestShareMessages(msg));
     }
 
     _player->ClearQuestSharingInfo();

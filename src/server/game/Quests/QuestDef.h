@@ -61,6 +61,7 @@ enum QuestFailedReason
     INVALIDREASON_DAILY_QUEST_COMPLETED_TODAY   = 29        // You have completed that daily quest today.
 };
 
+// EnumUtils: DESCRIBE THIS
 enum QuestShareMessages : uint8
 {
     QUEST_PARTY_MSG_SHARING_QUEST           = 0,
