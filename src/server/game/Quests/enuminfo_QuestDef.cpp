@@ -23,6 +23,78 @@
 namespace Trinity::Impl::EnumUtilsImpl
 {
 
+/********************************************************************\
+|* data for enum 'QuestFailedReason' in 'QuestDef.h' auto-generated *|
+\********************************************************************/
+template <>
+TC_API_EXPORT EnumText EnumUtils<QuestFailedReason>::ToString(QuestFailedReason value)
+{
+    switch (value)
+    {
+        case INVALIDREASON_DONT_HAVE_REQ: return { "INVALIDREASON_DONT_HAVE_REQ", "INVALIDREASON_DONT_HAVE_REQ", "" };
+        case INVALIDREASON_QUEST_FAILED_LOW_LEVEL: return { "INVALIDREASON_QUEST_FAILED_LOW_LEVEL", "INVALIDREASON_QUEST_FAILED_LOW_LEVEL", "You are not high enough level for that quest." };
+        case INVALIDREASON_QUEST_FAILED_WRONG_RACE: return { "INVALIDREASON_QUEST_FAILED_WRONG_RACE", "INVALIDREASON_QUEST_FAILED_WRONG_RACE", "That quest is not available to your race." };
+        case INVALIDREASON_QUEST_ALREADY_DONE: return { "INVALIDREASON_QUEST_ALREADY_DONE", "INVALIDREASON_QUEST_ALREADY_DONE", "You have completed that quest." };
+        case INVALIDREASON_QUEST_ONLY_ONE_TIMED: return { "INVALIDREASON_QUEST_ONLY_ONE_TIMED", "INVALIDREASON_QUEST_ONLY_ONE_TIMED", "You can only be on one timed quest at a time." };
+        case INVALIDREASON_QUEST_ALREADY_ON: return { "INVALIDREASON_QUEST_ALREADY_ON", "INVALIDREASON_QUEST_ALREADY_ON", "You are already on that quest." };
+        case INVALIDREASON_QUEST_FAILED_EXPANSION: return { "INVALIDREASON_QUEST_FAILED_EXPANSION", "INVALIDREASON_QUEST_FAILED_EXPANSION", "This quest requires an expansion enabled account." };
+        case INVALIDREASON_QUEST_ALREADY_ON2: return { "INVALIDREASON_QUEST_ALREADY_ON2", "INVALIDREASON_QUEST_ALREADY_ON2", "You are already on that quest." };
+        case INVALIDREASON_QUEST_FAILED_MISSING_ITEMS: return { "INVALIDREASON_QUEST_FAILED_MISSING_ITEMS", "INVALIDREASON_QUEST_FAILED_MISSING_ITEMS", "You don't have the required items with you. Check storage." };
+        case INVALIDREASON_QUEST_FAILED_NOT_ENOUGH_MONEY: return { "INVALIDREASON_QUEST_FAILED_NOT_ENOUGH_MONEY", "INVALIDREASON_QUEST_FAILED_NOT_ENOUGH_MONEY", "You don't have enough money for that quest." };
+        case INVALIDREASON_DAILY_QUESTS_REMAINING: return { "INVALIDREASON_DAILY_QUESTS_REMAINING", "INVALIDREASON_DAILY_QUESTS_REMAINING", "You have already completed 25 daily quests today." };
+        case INVALIDREASON_QUEST_FAILED_CAIS: return { "INVALIDREASON_QUEST_FAILED_CAIS", "INVALIDREASON_QUEST_FAILED_CAIS", "You cannot complete quests once you have reached tired time." };
+        case INVALIDREASON_DAILY_QUEST_COMPLETED_TODAY: return { "INVALIDREASON_DAILY_QUEST_COMPLETED_TODAY", "INVALIDREASON_DAILY_QUEST_COMPLETED_TODAY", "You have completed that daily quest today." };
+        default: throw std::out_of_range("value");
+    }
+}
+
+template <>
+TC_API_EXPORT size_t EnumUtils<QuestFailedReason>::Count() { return 13; }
+
+template <>
+TC_API_EXPORT QuestFailedReason EnumUtils<QuestFailedReason>::FromIndex(size_t index)
+{
+    switch (index)
+    {
+        case 0: return INVALIDREASON_DONT_HAVE_REQ;
+        case 1: return INVALIDREASON_QUEST_FAILED_LOW_LEVEL;
+        case 2: return INVALIDREASON_QUEST_FAILED_WRONG_RACE;
+        case 3: return INVALIDREASON_QUEST_ALREADY_DONE;
+        case 4: return INVALIDREASON_QUEST_ONLY_ONE_TIMED;
+        case 5: return INVALIDREASON_QUEST_ALREADY_ON;
+        case 6: return INVALIDREASON_QUEST_FAILED_EXPANSION;
+        case 7: return INVALIDREASON_QUEST_ALREADY_ON2;
+        case 8: return INVALIDREASON_QUEST_FAILED_MISSING_ITEMS;
+        case 9: return INVALIDREASON_QUEST_FAILED_NOT_ENOUGH_MONEY;
+        case 10: return INVALIDREASON_DAILY_QUESTS_REMAINING;
+        case 11: return INVALIDREASON_QUEST_FAILED_CAIS;
+        case 12: return INVALIDREASON_DAILY_QUEST_COMPLETED_TODAY;
+        default: throw std::out_of_range("index");
+    }
+}
+
+template <>
+TC_API_EXPORT size_t EnumUtils<QuestFailedReason>::ToIndex(QuestFailedReason value)
+{
+    switch (value)
+    {
+        case INVALIDREASON_DONT_HAVE_REQ: return 0;
+        case INVALIDREASON_QUEST_FAILED_LOW_LEVEL: return 1;
+        case INVALIDREASON_QUEST_FAILED_WRONG_RACE: return 2;
+        case INVALIDREASON_QUEST_ALREADY_DONE: return 3;
+        case INVALIDREASON_QUEST_ONLY_ONE_TIMED: return 4;
+        case INVALIDREASON_QUEST_ALREADY_ON: return 5;
+        case INVALIDREASON_QUEST_FAILED_EXPANSION: return 6;
+        case INVALIDREASON_QUEST_ALREADY_ON2: return 7;
+        case INVALIDREASON_QUEST_FAILED_MISSING_ITEMS: return 8;
+        case INVALIDREASON_QUEST_FAILED_NOT_ENOUGH_MONEY: return 9;
+        case INVALIDREASON_DAILY_QUESTS_REMAINING: return 10;
+        case INVALIDREASON_QUEST_FAILED_CAIS: return 11;
+        case INVALIDREASON_DAILY_QUEST_COMPLETED_TODAY: return 12;
+        default: throw std::out_of_range("value");
+    }
+}
+
 /*********************************************************************\
 |* data for enum 'QuestShareMessages' in 'QuestDef.h' auto-generated *|
 \*********************************************************************/
