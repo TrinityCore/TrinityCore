@@ -20,6 +20,7 @@
 
 #include "Define.h"
 
+// EnumUtils: DESCRIBE THIS
 enum InventoryResult : uint8
 {
     EQUIP_ERR_OK                                 = 0,
