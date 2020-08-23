@@ -969,9 +969,10 @@ enum SpellEffects
     TOTAL_SPELL_EFFECTS                             = 165
 };
 
-enum SpellCastResult
+// EnumUtils: DESCRIBE THIS
+enum SpellCastResult : uint8
 {
-    SPELL_FAILED_SUCCESS = 0,
+    SPELL_FAILED_SUCCESS = 0, // SKIP
     SPELL_FAILED_AFFECTING_COMBAT = 1,
     SPELL_FAILED_ALREADY_AT_FULL_HEALTH = 2,
     SPELL_FAILED_ALREADY_AT_FULL_MANA = 3,
