@@ -2795,7 +2795,7 @@ float Unit::GetUnitParryChance(WeaponAttackType attType, Unit const* victim) con
     else
     {
         // Allow parries for creatures only if it's not a totem, does not have a virtual item equipped and does not have CREATURE_FLAG_EXTRA_NO_PARRY
-        if (!victim->IsTotem() && (GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0) || GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1)) &&
+        if (!victim->IsTotem() && (victim->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0) || victim->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1)) &&
             !(victim->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_PARRY))
         {
             int8 levelDifference = victim->getLevel() - getLevel();
