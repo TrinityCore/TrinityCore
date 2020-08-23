@@ -829,6 +829,27 @@ namespace Trinity
             uint32 i_hp;
     };
 
+    class MostHPPercentMissingInRange
+    {
+    public:
+        MostHPPercentMissingInRange(Unit const* obj, float range, uint32 minHpPct, uint32 maxHpPct) : i_obj(obj), i_range(range), i_minHpPct(minHpPct), i_maxHpPct(maxHpPct), i_hpPct(101.f) { }
+
+        bool operator()(Unit* u)
+        {
+            if (u->IsAlive() && u->IsInCombat() && !i_obj->IsHostileTo(u) && i_obj->IsWithinDistInMap(u, i_range) && i_minHpPct <= u->GetHealthPct() && u->GetHealthPct() <= i_maxHpPct && u->GetHealthPct() < i_hpPct)
+            {
+                i_hpPct = u->GetHealthPct();
+                return true;
+            }
+            return false;
+        }
+
+    private:
+        Unit const* i_obj;
+        float i_range;
+        float i_minHpPct, i_maxHpPct, i_hpPct;
+    };
+
     class FriendlyBelowHpPctEntryInRange
     {
         public:
