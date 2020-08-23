@@ -55,6 +55,9 @@ struct ArgInfo<T, std::enable_if_t<std::is_integral_v<T>>>
         char const* next = args;
         std::string_view token(args, Trinity::Impl::ChatCommands::tokenize(next));
 
+        if (!token.length())
+            return nullptr;
+
         std::from_chars_result result;
         if (StringStartsWith(token, "0x"))
             result = std::from_chars(token.data() + 2, token.data() + token.length(), val, 16);
