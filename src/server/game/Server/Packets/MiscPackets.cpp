@@ -241,3 +241,11 @@ WorldPacket const* WorldPackets::Misc::StartTimer::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Misc::DestroyObject::Write()
+{
+    _worldPacket << Guid;
+    _worldPacket << uint8(IsDead);
+
+    return &_worldPacket;
+}

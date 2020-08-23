@@ -263,16 +263,16 @@ void Object::BuildOutOfRangeUpdateBlock(UpdateData* data) const
     data->AddOutOfRangeGUID(GetGUID());
 }
 
-void Object::DestroyForPlayer(Player* target, bool onDeath /*= false*/) const
+void Object::DestroyForPlayer(Player* target, bool isDead /*= false*/) const
 {
     ASSERT(target);
 
-    WorldPacket data(SMSG_DESTROY_OBJECT, 8 + 1);
-    data << uint64(GetGUID());
+    WorldPackets::Misc::DestroyObject packet;
+    packet.Guid = GetGUID();
     //! If the following bool is true, the client will call "void CGUnit_C::OnDeath()" for this object.
     //! OnDeath() does for eg trigger death animation and interrupts certain spells/missiles/auras/sounds...
-    data << uint8(onDeath ? 1 : 0);
-    target->SendDirectMessage(&data);
+    packet.IsDead = isDead;
+    target->SendDirectMessage(packet.Write());
 }
 
 int32 Object::GetInt32Value(uint16 index) const

@@ -295,6 +295,17 @@ namespace WorldPackets
             int32 TimeLeft = 0;
             int32 TotalTime = 0;
         };
+
+        class DestroyObject final : public ServerPacket
+        {
+        public:
+            DestroyObject() : ServerPacket(SMSG_DESTROY_OBJECT, 9) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
+            bool IsDead = false;
+        };
     }
 }
 
