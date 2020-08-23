@@ -1194,7 +1194,7 @@ class TC_GAME_API Unit : public WorldObject
 
         float GetUnitDodgeChance(WeaponAttackType attType, Unit const* victim) const;
         float GetUnitParryChance(WeaponAttackType attType, Unit const* victim) const;
-        float GetUnitBlockChance(WeaponAttackType attType, Unit const* victim) const;
+        float GetUnitBlockChance(Unit const* victim) const;
         float GetUnitMissChance(Unit const* victim) const;
         float GetUnitCriticalChanceDone(WeaponAttackType attackType) const;
         float GetUnitCriticalChanceTaken(Unit const* attacker, WeaponAttackType attackType, float critDone) const;

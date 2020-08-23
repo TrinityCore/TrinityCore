@@ -2236,7 +2236,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(const Unit* victim, WeaponAttackTy
 
     // stunned target cannot dodge and this is check in GetUnitDodgeChance() (returned 0 in this case)
     int32 dodge_chance = int32(GetUnitDodgeChance(attType, victim) * 100.0f);
-    int32 block_chance = int32(GetUnitBlockChance(attType, victim) * 100.0f);
+    int32 block_chance = int32(GetUnitBlockChance(victim) * 100.0f);
     int32 parry_chance = int32(GetUnitParryChance(attType, victim) * 100.0f);
 
 
@@ -2423,7 +2423,7 @@ bool Unit::isSpellBlocked(Unit* victim, SpellInfo const* spellProto, WeaponAttac
 
     if (victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION) || victim->HasInArc(float(M_PI), this))
     {
-        float blockChance = GetUnitBlockChance(attackType, victim);
+        float blockChance = GetUnitBlockChance(victim);
         if (blockChance && roll_chance_f(blockChance))
             return true;
     }
@@ -2601,7 +2601,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spellInfo
 
     if (canBlock)
     {
-        int32 blockChance = int32(GetUnitBlockChance(attType, victim) * 100.0f);
+        int32 blockChance = int32(GetUnitBlockChance(victim) * 100.0f);
         if (blockChance < 0)
             blockChance = 0;
         tmp += blockChance;
@@ -2832,7 +2832,7 @@ float Unit::GetUnitMissChance(Unit const* victim) const
     return chance;
 }
 
-float Unit::GetUnitBlockChance(WeaponAttackType attType, Unit const* victim) const
+float Unit::GetUnitBlockChance(Unit const* victim) const
 {
     float chance = 0.f;
 
