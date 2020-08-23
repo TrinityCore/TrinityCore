@@ -35,6 +35,7 @@ class Quest;
 class Player;
 class SpellInfo;
 class WorldSession;
+
 enum MovementGeneratorType : uint8;
 
 struct VendorItemCount
@@ -295,9 +296,14 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         uint32 GetCurrentWaypointID() const { return m_waypointID; }
         void UpdateWaypointID(uint32 wpID) { m_waypointID = wpID; }
 
+        bool IsReturningHome() const;
+
         void SearchFormation();
         CreatureGroup* GetFormation() { return m_formation; }
         void SetFormation(CreatureGroup* formation) { m_formation = formation; }
+        bool IsFormationLeader() const;
+        void SignalFormationMovement(Position const& destination, uint32 id = 0, uint32 moveType = 0, bool orientation = false);
+        bool IsFormationLeaderMoveAllowed() const;
 
         Unit* SelectVictim();
 
@@ -406,7 +412,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         //Formation var
         CreatureGroup* m_formation;
-        bool m_TriggerJustRespawned;
+        bool m_triggerJustAppeared;
         bool m_respawnCompatibilityMode;
 
         /* Spell focus system */

@@ -257,3 +257,17 @@ void CreatureGroup::LeaderMoveTo(Position destination, uint32 id /*= 0*/, uint32
         member->SetHomePosition(dx, dy, dz, pathangle);
     }
 }
+
+bool CreatureGroup::CanLeaderStartMoving() const
+{
+    for (auto itr = m_members.begin(); itr != m_members.end(); ++itr)
+    {
+        if (itr->first != m_leader && itr->first->IsAlive())
+        {
+            if (itr->first->IsEngaged() || itr->first->IsReturningHome())
+                return false;
+        }
+    }
+
+    return true;
+}

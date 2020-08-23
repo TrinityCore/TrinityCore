@@ -3467,6 +3467,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
     });
 
+    // Coldflame (Lord Marrowgar)
+    ApplySpellFix({ 69146, 70823, 70824, 70825 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx4 &= ~SPELL_ATTR4_IGNORE_RESISTANCES;
+    });
+
     // Shadow's Fate
     ApplySpellFix({ 71169 }, [](SpellInfo* spellInfo)
     {
@@ -3628,13 +3634,13 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Summon Shadow Trap
     ApplySpellFix({ 73540 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(23); // 90 seconds
+        spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(3); // 60 seconds
     });
 
     // Shadow Trap (visual)
     ApplySpellFix({ 73530 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(28); // 5 seconds
+        spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(27); // 3 seconds
     });
 
     // Summon Spirit Bomb

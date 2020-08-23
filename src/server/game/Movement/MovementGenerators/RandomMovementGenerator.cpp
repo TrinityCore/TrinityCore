@@ -16,7 +16,6 @@
  */
 
 #include "Creature.h"
-#include "CreatureGroups.h"
 #include "Map.h"
 #include "MoveSplineInit.h"
 #include "MoveSpline.h"
@@ -115,8 +114,7 @@ void RandomMovementGenerator<Creature>::SetRandomLocation(Creature* owner)
     _timer.Reset(traveltime + resetTimer);
 
     // Call for creature group update
-    if (owner->GetFormation() && owner->GetFormation()->getLeader() == owner)
-        owner->GetFormation()->LeaderMoveTo(position);
+    owner->SignalFormationMovement(position);
 }
 
 template<class T>
