@@ -3368,7 +3368,7 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
                     return;
             }
 
-            if (!unitTarget || !unitTarget->IsInCombat())
+            if (!unitTarget)
                 return;
 
             ProcessTimedAction(e, e.event.friendlyHealthPct.repeatMin, e.event.friendlyHealthPct.repeatMax, unitTarget);
