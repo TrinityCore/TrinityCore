@@ -108,7 +108,7 @@ def processFile(path, filename):
     output.write('#include "SmartEnum.h"\n')
     output.write('#include <stdexcept>\n')
     output.write('\n')
-    output.write('namespace Trinity::Impl\n')
+    output.write('namespace Trinity::Impl::EnumUtilsImpl\n')
     output.write('{\n')
     for name, values in enums:
         tag = ('data for enum \'%s\' in \'%s.h\' auto-generated' % (name, filename))
