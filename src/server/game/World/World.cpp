@@ -39,6 +39,7 @@
 #include "CreatureTextMgr.h"
 #include "DatabaseEnv.h"
 #include "DisableMgr.h"
+#include "GameConfig.h"
 #include "GameEventMgr.h"
 #include "GameObjectModel.h"
 #include "GameTime.h"
@@ -1519,6 +1520,9 @@ void World::LoadConfigSettings(bool reload)
 
     // Whether to use LoS from game objects
     m_bool_configs[CONFIG_CHECK_GOBJECT_LOS] = sConfigMgr->GetBoolDefault("CheckGameObjectLoS", true);
+
+    LOG_INFO("server.loading", "Loading game config...");
+    sGameConfig->Load();
 
     // call ScriptMgr if we're reloading the configuration
     if (reload)
