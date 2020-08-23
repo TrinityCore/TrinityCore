@@ -840,8 +840,7 @@ void Creature::Update(uint32 diff)
             if (!IsAlive())
                 break;
 
-            if (HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER))
-                Regenerate(GetPowerType(), diff);
+            Regenerate(GetPowerType(), diff);
 
             // Update serverside orientation of channeled spells that are suposed to track the channel target
             if (Spell const* spell = m_currentSpells[CURRENT_CHANNELED_SPELL])
@@ -881,24 +880,16 @@ void Creature::RegenerateHealth()
     uint32 addvalue = 0;
 
     // Not only pet, but any controlled creature
-    if (GetCharmerOrOwnerGUID())
+    if (!GetCharmerOrOwnerGUID().IsEmpty())
     {
-        float HealthIncreaseRate = sWorld->getRate(RATE_HEALTH);
-        float Spirit = GetStat(STAT_SPIRIT);
-
-        if (GetPower(POWER_MANA) > 0)
-            addvalue = uint32(Spirit * 0.25 * HealthIncreaseRate);
-        else
-            addvalue = uint32(Spirit * 0.80 * HealthIncreaseRate);
+        float healthIncreaseRate = sWorld->getRate(RATE_HEALTH);
+        addvalue = 0.015f * ((float)GetMaxHealth()) * healthIncreaseRate;
     }
     else
         addvalue = maxValue / 3;
 
     // Apply modifiers (if any).
-    AuraEffectList const& ModPowerRegenPCTAuras = GetAuraEffectsByType(SPELL_AURA_MOD_HEALTH_REGEN_PERCENT);
-    for (AuraEffectList::const_iterator i = ModPowerRegenPCTAuras.begin(); i != ModPowerRegenPCTAuras.end(); ++i)
-        AddPct(addvalue, (*i)->GetAmount());
-
+    addvalue *= GetTotalAuraMultiplier(SPELL_AURA_MOD_HEALTH_REGEN_PERCENT);
     addvalue += GetTotalAuraModifier(SPELL_AURA_MOD_REGEN) * UNIT_HEALTH_REGENERATION_INTERVAL / (5 * IN_MILLISECONDS);
 
     ModifyHealth(addvalue);

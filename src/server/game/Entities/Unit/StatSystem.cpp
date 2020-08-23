@@ -922,7 +922,7 @@ void Creature::UpdatePowerRegeneration(Powers powerType)
     {
         case POWER_MANA:
             // Regeneration for controlled units
-            if (GetCharmerGUID() || GetOwnerGUID())
+            if (!GetCharmerGUID().IsEmpty() || !GetOwnerGUID().IsEmpty())
             {
                 float spiritRegen = (GetStat(STAT_SPIRIT) / 5.f + 17.f);
                 SetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, spiritRegen + powerRegenMod);
