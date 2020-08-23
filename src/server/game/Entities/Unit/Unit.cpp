@@ -1227,7 +1227,7 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
                 if (damageSchoolMask & SPELL_SCHOOL_MASK_NORMAL)
                 {
                     // Get blocked status
-                    blocked = isSpellBlocked(victim, spellInfo, attackType);
+                    blocked = isSpellBlocked(victim, spellInfo);
                 }
 
                 if (crit)
@@ -2411,7 +2411,7 @@ void Unit::SendMeleeAttackStop(Unit* victim)
         TC_LOG_DEBUG("entities.unit", "%s %u stopped attacking", (GetTypeId() == TYPEID_PLAYER ? "Player" : "Creature"), GetGUID().GetCounter());
 }
 
-bool Unit::isSpellBlocked(Unit* victim, SpellInfo const* spellProto, WeaponAttackType attackType)
+bool Unit::isSpellBlocked(Unit* victim, SpellInfo const* spellProto)
 {
     // These spells can't be blocked
     if (spellProto && (spellProto->HasAttribute(SPELL_ATTR0_IMPOSSIBLE_DODGE_PARRY_BLOCK) || spellProto->HasAttribute(SPELL_ATTR3_IGNORE_HIT_RESULT)))
@@ -2794,7 +2794,7 @@ float Unit::GetUnitParryChance(WeaponAttackType attType, Unit const* victim) con
     }
     else
     {
-        // Allow parries for creatures only if it's not a totem, does not have a virtual item equipped and does not have CREATURE_FLAG_EXTRA_NO_PARRY
+        // Allow parries for creatures only if it's not a totem, does have a virtual item equipped and does not have CREATURE_FLAG_EXTRA_NO_PARRY
         if (!victim->IsTotem() && (victim->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0) || victim->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1)) &&
             !(victim->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_PARRY))
         {
