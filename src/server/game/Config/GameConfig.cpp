@@ -37,7 +37,7 @@ void GameConfig::AddBoolOption(std::string const& optionName, bool value /*= fal
     auto const& itr = _boolOptions.find(optionName);
     if (itr != _boolOptions.end())
     {
-        LOG_FATAL("server.loading", "> Bool option (%s) is exist!", optionName.c_str());
+        TC_LOG_FATAL("server.loading", "> Bool option (%s) is exist!", optionName.c_str());
         return;
     }
 
@@ -49,7 +49,7 @@ void GameConfig::AddIntOption(std::string const& optionName, int32 value /*= 0*/
     auto const& itr = _intOptions.find(optionName);
     if (itr != _intOptions.end())
     {
-        LOG_FATAL("server.loading", "> Int option (%s) is exist!", optionName.c_str());
+        TC_LOG_FATAL("server.loading", "> Int option (%s) is exist!", optionName.c_str());
         return;
     }
 
@@ -61,7 +61,7 @@ void GameConfig::AddFloatOption(std::string const& optionName, float value /*= 1
     auto const& itr = _floatOptions.find(optionName);
     if (itr != _floatOptions.end())
     {
-        LOG_FATAL("server.loading", "> Float option (%s) is exist!", optionName.c_str());
+        TC_LOG_FATAL("server.loading", "> Float option (%s) is exist!", optionName.c_str());
         return;
     }
 
@@ -73,7 +73,7 @@ void GameConfig::AddStringOption(std::string const& optionName, std::string cons
     auto const& itr = _stringOptions.find(optionName);
     if (itr != _stringOptions.end())
     {
-        LOG_FATAL("server.loading", "> Int option (%s) is exist!", optionName.c_str());
+        TC_LOG_FATAL("server.loading", "> Int option (%s) is exist!", optionName.c_str());
         return;
     }
 
@@ -112,8 +112,7 @@ void GameConfig::Load()
     PreparedQueryResult result = WorldDatabase.Query(stmt);
     if (!result)
     {
-        LOG_WARN("server.loading", ">> Loaded 0 game config options. DB table `game_config` is empty.");
-        LOG_WARN("server.loading", "");
+        TC_LOG_WARN("server.loading", ">> Loaded 0 game config options. DB table `game_config` is empty.");
         return;
     }
 
@@ -146,7 +145,7 @@ void GameConfig::Load()
 
         if (_type == GameConfigType::GAME_CONFIG_TYPE_UNKNOWN)
         {
-            LOG_FATAL("server.loading", "> Don't support type (%s) for option (%s)", optionType.c_str(), optionName.c_str());
+            TC_LOG_FATAL("server.loading", "> Don't support type (%s) for option (%s)", optionType.c_str(), optionName.c_str());
             continue;
         }
 
@@ -156,8 +155,7 @@ void GameConfig::Load()
 
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded %u game config option in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-    LOG_INFO("server.loading", "");
+    TC_LOG_INFO("server.loading", ">> Loaded %u game config option in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 bool GameConfig::GetBoolConfig(std::string const& optionName)
@@ -165,7 +163,7 @@ bool GameConfig::GetBoolConfig(std::string const& optionName)
     auto const& itr = _boolOptions.find(optionName);
     if (itr == _boolOptions.end())
     {
-        LOG_FATAL("server.loading", "> Bool option (%s) not found!", optionName.c_str());
+        TC_LOG_FATAL("server.loading", "> Bool option (%s) not found!", optionName.c_str());
         return false;
     }
 
@@ -177,7 +175,7 @@ int32 GameConfig::GetIntConfig(std::string const& optionName)
     auto const& itr = _intOptions.find(optionName);
     if (itr == _intOptions.end())
     {
-        LOG_FATAL("server.loading", "> Int option (%s) not found!", optionName.c_str());
+        TC_LOG_FATAL("server.loading", "> Int option (%s) not found!", optionName.c_str());
         return 0;
     }
 
@@ -189,7 +187,7 @@ float GameConfig::GetFloatConfig(std::string const& optionName)
     auto const& itr = _floatOptions.find(optionName);
     if (itr == _floatOptions.end())
     {
-        LOG_FATAL("server.loading", "> Float option (%s) not found!", optionName.c_str());
+        TC_LOG_FATAL("server.loading", "> Float option (%s) not found!", optionName.c_str());
         return 1.0f;
     }
 
@@ -201,7 +199,7 @@ std::string GameConfig::GetStringConfig(std::string const& optionName)
     auto const& itr = _stringOptions.find(optionName);
     if (itr == _stringOptions.end())
     {
-        LOG_FATAL("server.loading", "> String option (%s) not found!", optionName.c_str());
+        TC_LOG_FATAL("server.loading", "> String option (%s) not found!", optionName.c_str());
         return "";
     }
 
