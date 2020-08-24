@@ -131,6 +131,8 @@ namespace WorldPackets
         class GuildQueryMemberRecipes;
         class GuildChallengeUpdateRequest;
         class RequestGuildRewardsList;
+        class ReplaceGuildMaster;
+        class SetGuildMaster;
     }
 
     namespace Misc
@@ -785,7 +787,8 @@ class TC_GAME_API WorldSession
         void HandleGuildLeaveOpcode(WorldPacket& recvPacket);
         void HandleGuildDisbandOpcode(WorldPacket& recvPacket);
         void HandleGuildSetAchievementTracking(WorldPacket& recvPacket);
-        void HandleGuildSetGuildMaster(WorldPacket& recvPacket);
+        void HandleGuildReplaceGuildMaster(WorldPackets::Guild::ReplaceGuildMaster& packet);
+        void HandleGuildSetGuildMaster(WorldPackets::Guild::SetGuildMaster& packet);
         void HandleGuildMOTDOpcode(WorldPacket& recvPacket);
         void HandleGuildNewsUpdateStickyOpcode(WorldPacket& recvPacket);
         void HandleGuildSetNoteOpcode(WorldPacket& recvPacket);

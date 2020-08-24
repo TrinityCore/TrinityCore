@@ -552,6 +552,25 @@ namespace WorldPackets
 
             std::vector<GuildRankData> Ranks;
         };
+
+        class ReplaceGuildMaster final : public ClientPacket
+        {
+        public:
+            ReplaceGuildMaster(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_REPLACE_GUILD_MASTER, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class SetGuildMaster final : public ClientPacket
+        {
+        public:
+            SetGuildMaster(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_SET_GUILD_MASTER, std::move(packet)) { }
+
+            void Read() override;
+
+            bool IsDethrone = false;
+            std::string NewMasterName;
+        };
     }
 }
 

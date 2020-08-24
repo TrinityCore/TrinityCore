@@ -367,7 +367,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_GUILD_QUERY_MEMBER_RECIPES,                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGuildQueryMemberRecipe    );
     DEFINE_HANDLER(CMSG_GUILD_QUERY_MEMBERS_FOR_RECIPE,                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGuildQueryMembersForRecipe);
     DEFINE_HANDLER(CMSG_GUILD_REMOVE,                                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGuildRemoveOpcode         );
-    DEFINE_HANDLER(CMSG_GUILD_REPLACE_GUILD_MASTER,                       STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
+    DEFINE_HANDLER(CMSG_GUILD_REPLACE_GUILD_MASTER,                       STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleGuildReplaceGuildMaster   );
     DEFINE_HANDLER(CMSG_GUILD_REQUEST_CHALLENGE_UPDATE,                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGuildRequestChallengeUpdate);
     DEFINE_HANDLER(CMSG_GUILD_REQUEST_MAX_DAILY_XP,                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGuildRequestMaxDailyXP    );
     DEFINE_HANDLER(CMSG_GUILD_REQUEST_PARTY_STATE,                        STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGuildRequestPartyState    );

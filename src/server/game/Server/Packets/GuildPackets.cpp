@@ -690,3 +690,11 @@ WorldPacket const* WorldPackets::Guild::GuildRanks::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Guild::SetGuildMaster::Read()
+{
+    uint8 nameLen = _worldPacket.ReadBits(7);
+
+    IsDethrone = _worldPacket.ReadBit();
+    NewMasterName = _worldPacket.ReadString(nameLen);
+}

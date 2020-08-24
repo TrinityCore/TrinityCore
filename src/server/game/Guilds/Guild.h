@@ -44,6 +44,7 @@ enum GuildMisc
     GUILD_BANK_MAX_TABS                 = 8,                    // send by client for money log also
     GUILD_BANK_MAX_SLOTS                = 98,
     GUILD_BANK_MONEY_LOGS_TAB           = 100,                  // used for money log in DB
+    GUILD_MASTER_DETHRONE_INACTIVE_DAYS = 90,
     GUILD_RANKS_MIN_COUNT               = 2,
     GUILD_RANKS_MAX_COUNT               = 10,
     GUILD_RANK_NONE                     = 0xFF,
@@ -794,7 +795,7 @@ public:
     void HandleSetMOTD(WorldSession* session, std::string const& motd);
     void HandleSetInfo(WorldSession* session, std::string const& info);
     void HandleSetEmblem(WorldSession* session, EmblemInfo const& emblemInfo);
-    void HandleSetNewGuildMaster(WorldSession* session, std::string const& name);
+    void HandleSetNewGuildMaster(WorldSession* session, std::string const& name, bool isSelfPromote);
     void HandleSetBankTabInfo(WorldSession* session, uint8 tabId, std::string const& name, std::string const& icon);
     void HandleSetMemberNote(WorldSession* session, std::string const& note, ObjectGuid guid, bool isPublic);
     void HandleSetRankInfo(WorldSession* session, uint8 rankId, std::string const& name, uint32 rights, uint32 moneyPerDay, GuildBankRightsAndSlotsVec const& rightsAndSlots);
@@ -988,7 +989,7 @@ private:
     bool _IsLeader(Player* player) const;
     void _DeleteBankItems(CharacterDatabaseTransaction& trans, bool removeItemsFromDB = false);
     bool _ModifyBankMoney(CharacterDatabaseTransaction& trans, uint64 amount, bool add);
-    void _SetLeaderGUID(Member* pLeader);
+    void _SetLeader(CharacterDatabaseTransaction& trans, Member* pLeader);
 
     void _SetRankBankMoneyPerDay(uint8 rankId, uint32 moneyPerDay);
     void _SetRankBankTabRightsAndSlots(uint8 rankId, GuildBankRightsAndSlots rightsAndSlots, bool saveToDB = true);
