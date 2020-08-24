@@ -162,7 +162,7 @@ bool Totem::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index, Wor
     if (spellInfo->Effects[index].Effect != SPELL_EFFECT_DUMMY && 
         spellInfo->Effects[index].Effect != SPELL_EFFECT_SCRIPT_EFFECT && 
         spellInfo->IsPositive() && spellInfo->Effects[index].TargetA.GetTarget() != TARGET_UNIT_CASTER &&
-        spellInfo->Effects[index].TargetA.GetCheckType() != TARGET_CHECK_ENTRY && spellInfo->Id != 55277 && spellInfo->Id != 6277)
+        spellInfo->Effects[index].TargetA.GetCheckType() != TARGET_CHECK_ENTRY && spellInfo->Id != SENTRY_STONECLAW_SPELLID && spellInfo->Id != SENTRY_BIND_SIGHT_SPELLID)
         return true;
 
     switch (spellInfo->Effects[index].ApplyAuraName)
