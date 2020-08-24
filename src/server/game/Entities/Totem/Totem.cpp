@@ -158,7 +158,7 @@ void Totem::UnSummon(uint32 msTime)
 bool Totem::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index, WorldObject const* caster) const
 {
     // immune to all positive spells, except of stoneclaw totem absorb and sentry totem bind sight
-	// totems positive spells have unit_caster target
+    // totems positive spells have unit_caster target
     if (spellInfo->Effects[index].Effect != SPELL_EFFECT_DUMMY && 
         spellInfo->Effects[index].Effect != SPELL_EFFECT_SCRIPT_EFFECT && 
         spellInfo->IsPositive() && spellInfo->Effects[index].TargetA.GetTarget() != TARGET_UNIT_CASTER &&
