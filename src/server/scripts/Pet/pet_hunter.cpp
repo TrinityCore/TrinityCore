@@ -96,21 +96,21 @@ class npc_pet_hunter_snake_trap : public CreatureScript
 
                     std::vector<Unit*> targets;
 
-                    auto check = [&](auto const& pair) mutable
+                    auto check = [&](auto pair) mutable
                     {
                         Unit* enemy = pair.second->GetOther(summoner);
                         if (!enemy->HasBreakableByDamageCrowdControlAura() && me->CanCreatureAttack(enemy) && me->IsWithinDistInMap(enemy, me->GetAttackDistance(enemy)))
                             targets.push_back(enemy);
                     };
 
-                    for (auto const& pair : summoner->GetCombatManager().GetPvPCombatRefs())
+                    for (std::pair<ObjectGuid const, PvPCombatReference*> const& pair : summoner->GetCombatManager().GetPvPCombatRefs())
                         check(pair);
 
                     if (targets.empty())
-                        for (auto const& pair : summoner->GetCombatManager().GetPvECombatRefs())
+                        for (std::pair<ObjectGuid const, CombatReference*> const& pair : summoner->GetCombatManager().GetPvECombatRefs())
                             check(pair);
 
-                    for (auto target : targets)
+                    for (Unit* target : targets)
                         me->EngageWithTarget(target);
 
                     if (!targets.empty())
