@@ -48,6 +48,7 @@
 #include "ScriptMgr.h"
 #include "ServerMotd.h"
 #include "SocialMgr.h"
+#include "StringConvert.h"
 #include "SystemPackets.h"
 #include "QueryHolder.h"
 #include "World.h"
@@ -2068,18 +2069,27 @@ void WorldSession::HandleCharFactionOrRaceChangeCallback(std::shared_ptr<Charact
             // Title conversion
             if (!knownTitlesStr.empty())
             {
-                uint32 const ktcount = KNOWN_TITLES_SIZE * 2;
-                uint32 knownTitles[ktcount];
-                Tokenizer tokens(knownTitlesStr, ' ', ktcount);
+                std::vector<std::string_view> tokens = Trinity::Tokenize(knownTitlesStr, ' ', false);
+                std::array<uint32, KNOWN_TITLES_SIZE * 2> knownTitles;
 
-                if (tokens.size() != ktcount)
+                if (tokens.size() != knownTitles.size())
                 {
+                    TC_LOG_ERROR("entities.player", "%s has invalid title data for faction change (expected %zu tokens, got %zu tokens)", GetPlayerInfo().c_str(), knownTitles.size(), tokens.size());
                     SendCharFactionChange(CHAR_CREATE_ERROR, factionChangeInfo.get());
                     return;
                 }
 
-                for (uint32 index = 0; index < ktcount; ++index)
-                    knownTitles[index] = atoul(tokens[index]);
+                for (uint32 index = 0; index < knownTitles.size(); ++index)
+                {
+                    if (Optional<uint32> thisMask = Trinity::StringTo<uint32>(tokens[index]))
+                        knownTitles[index] = *thisMask;
+                    else
+                    {
+                        TC_LOG_ERROR("entities.player", "%s has invalid title data '%s' at index %u - faction change aborted", GetPlayerInfo().c_str(), std::string(tokens[index]).c_str(), index);
+                        SendCharFactionChange(CHAR_CREATE_ERROR, factionChangeInfo.get());
+                        return;
+                    }
+                }
 
                 for (std::map<uint32, uint32>::const_iterator it = sObjectMgr->FactionChangeTitles.begin(); it != sObjectMgr->FactionChangeTitles.end(); ++it)
                 {
@@ -2117,8 +2127,8 @@ void WorldSession::HandleCharFactionOrRaceChangeCallback(std::shared_ptr<Charact
                     }
 
                     std::ostringstream ss;
-                    for (uint32 index = 0; index < ktcount; ++index)
-                        ss << knownTitles[index] << ' ';
+                    for (uint32 mask : knownTitles)
+                        ss << mask << ' ';
 
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_TITLES_FACTION_CHANGE);
                     stmt->setString(0, ss.str());

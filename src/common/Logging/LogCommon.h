@@ -18,7 +18,7 @@
 #ifndef LogCommon_h__
 #define LogCommon_h__
 
-enum LogLevel
+enum LogLevel : uint8
 {
     LOG_LEVEL_DISABLED                           = 0,
     LOG_LEVEL_TRACE                              = 1,
@@ -28,7 +28,8 @@ enum LogLevel
     LOG_LEVEL_ERROR                              = 5,
     LOG_LEVEL_FATAL                              = 6,
 
-    NUM_ENABLED_LOG_LEVELS                       = 6
+    NUM_ENABLED_LOG_LEVELS = LOG_LEVEL_FATAL, // SKIP
+    LOG_LEVEL_INVALID = 0xFF // SKIP
 };
 
 enum AppenderType : uint8
@@ -36,10 +37,12 @@ enum AppenderType : uint8
     APPENDER_NONE,
     APPENDER_CONSOLE,
     APPENDER_FILE,
-    APPENDER_DB
+    APPENDER_DB,
+
+    APPENDER_INVALID = 0xFF // SKIP
 };
 
-enum AppenderFlags
+enum AppenderFlags : uint8
 {
     APPENDER_FLAGS_NONE                          = 0x00,
     APPENDER_FLAGS_PREFIX_TIMESTAMP              = 0x01,

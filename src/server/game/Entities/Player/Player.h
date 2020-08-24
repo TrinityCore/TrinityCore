@@ -1324,8 +1324,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool IsLoading() const override;
 
         void Initialize(ObjectGuid::LowType guid);
-        static uint32 GetUInt32ValueFromArray(Tokenizer const& data, uint16 index);
-        static float  GetFloatValueFromArray(Tokenizer const& data, uint16 index);
         static uint32 GetZoneIdFromDB(ObjectGuid guid);
         static bool   LoadPositionFromDB(uint32& mapid, float& x, float& y, float& z, float& o, bool& in_flight, ObjectGuid guid);
 
@@ -1341,7 +1339,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SaveInventoryAndGoldToDB(CharacterDatabaseTransaction& trans);                    // fast save function for item/money cheating preventing
         void SaveGoldToDB(CharacterDatabaseTransaction& trans) const;
 
-        static void SetUInt32ValueInArray(Tokenizer& data, uint16 index, uint32 value);
         static void Customize(CharacterCustomizeInfo const* customizeInfo, CharacterDatabaseTransaction& trans);
         static void SavePositionInDB(WorldLocation const& loc, uint16 zoneId, ObjectGuid guid, CharacterDatabaseTransaction& trans);
 

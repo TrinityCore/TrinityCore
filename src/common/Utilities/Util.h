@@ -36,35 +36,29 @@ enum class TimeFormat : uint8
     Numeric         // 1:2:3:4
 };
 
-class TC_COMMON_API Tokenizer
+namespace Trinity
 {
-public:
-    typedef std::vector<char const*> StorageType;
+    class TC_COMMON_API NullTerminatedStrings
+    {
+        public:
+            NullTerminatedStrings(std::vector<std::string_view> const& strs, size_t offset = 0);
 
-    typedef StorageType::size_type size_type;
+            operator std::vector<std::string> const&() const { return _strings; }
+            operator std::vector<char const*> const&() const { return _cStrings; }
 
-    typedef StorageType::const_iterator const_iterator;
-    typedef StorageType::reference reference;
-    typedef StorageType::const_reference const_reference;
+            std::vector<std::string> const& str() const { return *this; }
+            std::vector<char const*> const& c_str() const { return *this; }
 
-public:
-    Tokenizer(std::string_view src, char const sep, uint32 vectorReserve = 0, bool keepEmptyStrings = true);
-    ~Tokenizer() { delete[] m_str; }
+        private:
+            std::vector<std::string> _strings;
+            std::vector<char const*> _cStrings;
+    };
+    inline NullTerminatedStrings NullTerminate(std::vector<std::string_view> const& vec, size_t offset = 0) { return { vec, offset }; }
 
-    const_iterator begin() const { return m_storage.begin(); }
-    const_iterator end() const { return m_storage.end(); }
+    TC_COMMON_API std::vector<std::string_view> Tokenize(std::string_view str, char sep, bool keepEmpty);
+}
 
-    size_type size() const { return m_storage.size(); }
-
-    reference operator [] (size_type i) { return m_storage[i]; }
-    const_reference operator [] (size_type i) const { return m_storage[i]; }
-
-private:
-    char* m_str;
-    StorageType m_storage;
-};
-
-TC_COMMON_API int32 MoneyStringToMoney(std::string const& moneyString);
+TC_COMMON_API Optional<int32> MoneyStringToMoney(std::string const& moneyString);
 
 TC_COMMON_API struct tm* localtime_r(time_t const* time, struct tm *result);
 TC_COMMON_API time_t LocalTimeToUTCTime(time_t time);

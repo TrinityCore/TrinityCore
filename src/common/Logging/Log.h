@@ -41,12 +41,12 @@ namespace Trinity
 
 #define LOGGER_ROOT "root"
 
-typedef Appender*(*AppenderCreatorFn)(uint8 id, std::string const& name, LogLevel level, AppenderFlags flags, std::vector<char const*>&& extraArgs);
+typedef Appender*(*AppenderCreatorFn)(uint8 id, std::string const& name, LogLevel level, AppenderFlags flags, std::vector<char const*> const& extraArgs);
 
 template <class AppenderImpl>
-Appender* CreateAppender(uint8 id, std::string const& name, LogLevel level, AppenderFlags flags, std::vector<char const*>&& extraArgs)
+Appender* CreateAppender(uint8 id, std::string const& name, LogLevel level, AppenderFlags flags, std::vector<char const*> const& extraArgs)
 {
-    return new AppenderImpl(id, name, level, flags, std::forward<std::vector<char const*>>(extraArgs));
+    return new AppenderImpl(id, name, level, flags, extraArgs);
 }
 
 class TC_COMMON_API Log
@@ -105,7 +105,7 @@ class TC_COMMON_API Log
         void write(std::unique_ptr<LogMessage>&& msg) const;
 
         Logger const* GetLoggerByType(std::string const& type) const;
-        Appender* GetAppenderByName(std::string const& name);
+        Appender* GetAppenderByName(std::string_view name);
         uint8 NextAppenderId();
         void CreateAppenderFromConfig(std::string const& name);
         void CreateLoggerFromConfig(std::string const& name);
