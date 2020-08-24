@@ -132,7 +132,7 @@ struct LinkValidator<LinkTags::item>
     {
         ItemLocale const* locale = sObjectMgr->GetItemLocale(data.Item->ItemId);
 
-        char* const* randomSuffixes = nullptr; // this is a c-style array (and i don't want to touch DBCStructure.h right now)
+        char const* const* randomSuffixes = nullptr; // this is a c-style array of c strings (and i don't want to touch DBCStructure.h right now)
         if (data.RandomPropertyId < 0)
         {
             if (ItemRandomSuffixEntry const* suffixEntry = sItemRandomSuffixStore.LookupEntry(-data.RandomPropertyId))

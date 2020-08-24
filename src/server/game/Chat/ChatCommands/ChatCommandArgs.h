@@ -85,7 +85,7 @@ struct ArgInfo<T, std::enable_if_t<std::is_floating_point_v<T>>>
             size_t processedChars = 0;
             val = std::stold(std::string(token), &processedChars);
             if (processedChars != token.length())
-                return nullptr;
+                return std::nullopt;
         }
         catch (...) { return std::nullopt; }
 

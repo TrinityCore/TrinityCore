@@ -33,7 +33,7 @@ struct AchievementVisitor
 Optional<std::string_view> Trinity::Impl::ChatCommands::ArgInfo<AchievementEntry const*>::TryConsume(AchievementEntry const*& data, std::string_view args)
 {
     Variant<Hyperlink<achievement>, uint32> val;
-    auto next = SingleConsumer<decltype(val)>::TryConsumeTo(val, args);
+    Optional<std::string_view> next = SingleConsumer<decltype(val)>::TryConsumeTo(val, args);
     if (next)
         data = val.visit(AchievementVisitor());
     return next;
@@ -48,7 +48,7 @@ struct GameTeleVisitor
 Optional<std::string_view> Trinity::Impl::ChatCommands::ArgInfo<GameTele const*>::TryConsume(GameTele const*& data, std::string_view args)
 {
     Variant<Hyperlink<tele>, std::string> val;
-    auto next = SingleConsumer<decltype(val)>::TryConsumeTo(val, args);
+    Optional<std::string_view> next = SingleConsumer<decltype(val)>::TryConsumeTo(val, args);
     if (next)
         data = val.visit(GameTeleVisitor());
     return next;
@@ -71,7 +71,7 @@ struct SpellInfoVisitor
 Optional<std::string_view> Trinity::Impl::ChatCommands::ArgInfo<SpellInfo const*>::TryConsume(SpellInfo const*& data, std::string_view args)
 {
     Variant<Hyperlink<enchant>, Hyperlink<glyph>, Hyperlink<spell>, Hyperlink<talent>, Hyperlink<trade>, uint32> val;
-    auto next = SingleConsumer<decltype(val)>::TryConsumeTo(val, args);
+    Optional<std::string_view> next = SingleConsumer<decltype(val)>::TryConsumeTo(val, args);
     if (next)
         data = val.visit(SpellInfoVisitor());
     return next;
@@ -80,8 +80,13 @@ Optional<std::string_view> Trinity::Impl::ChatCommands::ArgInfo<SpellInfo const*
 Optional<std::string_view> Trinity::Impl::ChatCommands::ArgInfo<bool>::TryConsume(bool& data, std::string_view args)
 {
     std::string_view str;
-    if (auto next = SingleConsumer<std::string_view>::TryConsumeTo(str, args))
+    if (Optional<std::string_view> next = SingleConsumer<std::string_view>::TryConsumeTo(str, args))
+    {
         if (Optional<bool> strBool = StringToBool(str))
+        {
             data = *strBool;
+            return next;
+        }
+    }
     return std::nullopt;
 }

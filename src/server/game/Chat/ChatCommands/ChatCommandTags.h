@@ -105,7 +105,7 @@ namespace Trinity::ChatCommands
             if (Utf8toWStr(args, *this))
                 return std::string_view();
             else
-                return nullptr;
+                return std::nullopt;
         }
     };
 
@@ -133,7 +133,7 @@ namespace Trinity::ChatCommands
 
                 // store value
                 if (!linktag::StoreTo(val, info.data))
-                    return nullptr;
+                    return std::nullopt;
 
                 // finally, skip any potential delimiters
                 auto [token, next] = Trinity::Impl::ChatCommands::tokenize(info.tail);
