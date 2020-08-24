@@ -29,17 +29,15 @@
 
 struct GameTele;
 
-namespace Trinity
-{
-namespace ChatCommands
+namespace Trinity::Impl::ChatCommands
 {
 
 /************************** ARGUMENT HANDLERS *******************************************\
 |* Define how to extract contents of a certain requested type from a string             *|
 |* Must implement the following:                                                        *|
-|* - TryConsume: T&, char const* -> char const*                                         *|
-|*   returns nullptr if no match, otherwise pointer to first character of next token    *|
-|*     - if nullptr is returned, state of T& is indeterminate                           *|
+|* - TryConsume: T&, std::string_view -> Optional<std::string_view>                     *|
+|*   returns nullopt if no match, otherwise tail of argument string                     *|
+|*     - if nullopt is returned, state of T& is indeterminate                           *|
 |*     - otherwise, T& should be initialized to the intended return value               *|
 |*                                                                                      *|
 \****************************************************************************************/
@@ -50,26 +48,27 @@ struct ArgInfo { static_assert(!std::is_same_v<T,T>, "Invalid command parameter 
 template <typename T>
 struct ArgInfo<T, std::enable_if_t<std::is_integral_v<T>>>
 {
-    static char const* TryConsume(T& val, char const* args)
+    static Optional<std::string_view> TryConsume(T& val, std::string_view args)
     {
-        char const* next = args;
-        std::string_view token(args, Trinity::Impl::ChatCommands::tokenize(next));
+        auto [token, tail] = tokenize(args);
+        if (token.empty())
+            return std::nullopt;
 
         if (!token.length())
             return nullptr;
 
         std::from_chars_result result;
-        if (StringStartsWith(token, "0x"))
+        if (StringEqualI(token.substr(0,2), "0x"))
             result = std::from_chars(token.data() + 2, token.data() + token.length(), val, 16);
-        else if (StringStartsWith(token, "0b"))
+        else if (StringEqualI(token.substr(0,2), "0b"))
             result = std::from_chars(token.data() + 2, token.data() + token.length(), val, 2);
         else
             result = std::from_chars(token.data(), token.data() + token.length(), val, 10);
 
         if ((token.data() + token.length()) != result.ptr)
-            return nullptr;
+            return std::nullopt;
 
-        return next;
+        return tail;
     }
 };
 
@@ -77,20 +76,26 @@ struct ArgInfo<T, std::enable_if_t<std::is_integral_v<T>>>
 template <typename T>
 struct ArgInfo<T, std::enable_if_t<std::is_floating_point_v<T>>>
 {
-    static char const* TryConsume(T& val, char const* args)
+    static Optional<std::string_view> TryConsume(T& val, std::string_view args)
     {
-        char const* next = args;
-        std::string token(args, Trinity::Impl::ChatCommands::tokenize(next));
+        auto [token, tail] = tokenize(args);
+        if (token.empty())
+            return std::nullopt;
+
         try
         {
             // @todo replace this once libc++ supports double args to from_chars for required minimum
             size_t processedChars = 0;
-            val = std::stold(token, &processedChars);
+            val = std::stold(std::string(token), &processedChars);
             if (processedChars != token.length())
-                return nullptr;
+                return std::nullopt;
         }
-        catch (...) { return nullptr; }
-        return std::isfinite(val) ? next : nullptr;
+        catch (...) { return std::nullopt; }
+
+        if (std::isfinite(val))
+            return tail;
+        else
+            return std::nullopt;
     }
 };
 
@@ -98,16 +103,13 @@ struct ArgInfo<T, std::enable_if_t<std::is_floating_point_v<T>>>
 template <>
 struct ArgInfo<std::string_view, void>
 {
-    static char const* TryConsume(std::string_view& val, char const* args)
+    static Optional<std::string_view> TryConsume(std::string_view& val, std::string_view args)
     {
-        char const* next = args;
-        if (size_t len = Trinity::Impl::ChatCommands::tokenize(next))
-        {
-            val = std::string_view(args, len);
-            return next;
-        }
-        else
-            return nullptr;
+        auto [token, next] = tokenize(args);
+        if (token.empty())
+            return std::nullopt;
+        val = token;
+        return next;
     }
 };
 
@@ -115,13 +117,13 @@ struct ArgInfo<std::string_view, void>
 template <>
 struct ArgInfo<std::string, void>
 {
-    static char const* TryConsume(std::string& val, char const* args)
+    static Optional<std::string_view> TryConsume(std::string& val, std::string_view args)
     {
         std::string_view view;
-        args = ArgInfo<std::string_view>::TryConsume(view, args);
-        if (args)
+        Optional<std::string_view> next = ArgInfo<std::string_view>::TryConsume(view, args);
+        if (next)
             val.assign(view);
-        return args;
+        return next;
     }
 };
 
@@ -129,18 +131,15 @@ struct ArgInfo<std::string, void>
 template <>
 struct ArgInfo<std::wstring, void>
 {
-    static char const* TryConsume(std::wstring& val, char const* args)
+    static Optional<std::string_view> TryConsume(std::wstring& val, std::string_view args)
     {
         std::string_view utf8view;
-        char const* ret = ArgInfo<std::string_view>::TryConsume(utf8view, args);
+        Optional<std::string_view> next = ArgInfo<std::string_view>::TryConsume(utf8view, args);
 
-        if (!ret)
-            return nullptr;
-
-        if (!Utf8toWStr(utf8view, val))
-            return nullptr;
-
-        return ret;
+        if (next && Utf8toWStr(utf8view, val))
+            return next;
+        else
+            return std::nullopt;
     }
 };
 
@@ -198,32 +197,31 @@ struct ArgInfo<T, std::enable_if_t<std::is_enum_v<T>>>
             return nullptr;
     }
 
-    static char const* TryConsume(T& val, char const* args)
+    static Optional<std::string_view> TryConsume(T& val, std::string_view args)
     {
         std::string strVal;
-        char const* ret = ArgInfo<std::string>::TryConsume(strVal, args);
+        Optional<std::string_view> next = ArgInfo<std::string>::TryConsume(strVal, args);
 
-        if (!ret)
-            return nullptr;
-
-        if (T const* tmpVal = Match(strVal))
+        if (next)
         {
-            val = *tmpVal;
-            return ret;
+            if (T const* match = Match(strVal))
+            {
+                val = *match;
+                return next;
+            }
         }
 
         // Value not found. Try to parse arg as underlying type and cast it to enum type
         using U = std::underlying_type_t<T>;
         U uVal = 0;
-        ret = ArgInfo<U>::TryConsume(uVal, args);
-        if (ret)
+        next = ArgInfo<U>::TryConsume(uVal, args);
+        if (next && EnumUtils::IsValid<T>(uVal))
         {
             val = static_cast<T>(uVal);
-            if (!EnumUtils::IsValid(val))
-                return nullptr;
+            return next;
         }
 
-        return ret;
+        return std::nullopt;
     }
 };
 
@@ -231,9 +229,39 @@ struct ArgInfo<T, std::enable_if_t<std::is_enum_v<T>>>
 template <typename T>
 struct ArgInfo<T, std::enable_if_t<std::is_base_of_v<ContainerTag, T>>>
 {
-    static char const* TryConsume(T& tag, char const* args)
+    static Optional<std::string_view> TryConsume(T& tag, std::string_view args)
     {
         return tag.TryConsume(args);
+    }
+};
+
+template <typename T>
+struct ArgInfo<std::vector<T>, void>
+{
+    static Optional<std::string_view> TryConsume(std::vector<T>& val, std::string_view args)
+    {
+        val.clear();
+        Optional<std::string_view> next = ArgInfo<T>::TryConsume(val.emplace_back(), args);
+
+        if (!next)
+            return std::nullopt;
+
+        while (Optional<std::string_view> next2 = ArgInfo<T>::TryConsume(val.emplace_back(), *next))
+            next = next2;
+        return next;
+    }
+};
+
+template <typename T, size_t N>
+struct ArgInfo<std::array<T, N>, void>
+{
+    static Optional<std::string_view> TryConsume(std::array<T, N>& val, std::string_view args)
+    {
+        Optional<std::string_view> next = args;
+        for (T& t : val)
+            if (!(next = ArgInfo<T>::TryConsume(t, *next)))
+                return std::nullopt;
+        return next;
     }
 };
 
@@ -241,31 +269,30 @@ struct ArgInfo<T, std::enable_if_t<std::is_base_of_v<ContainerTag, T>>>
 template <>
 struct TC_GAME_API ArgInfo<AchievementEntry const*>
 {
-    static char const* TryConsume(AchievementEntry const*&, char const*);
+    static Optional<std::string_view> TryConsume(AchievementEntry const*&, std::string_view);
 };
 
 // GameTele* from string name or link
 template <>
 struct TC_GAME_API ArgInfo<GameTele const*>
 {
-    static char const* TryConsume(GameTele const*&, char const*);
+    static Optional<std::string_view> TryConsume(GameTele const*&, std::string_view);
 };
 
 // SpellInfo const* from spell id or link
 template <>
 struct TC_GAME_API ArgInfo<SpellInfo const*>
 {
-    static char const* TryConsume(SpellInfo const*&, char const*);
+    static Optional<std::string_view> TryConsume(SpellInfo const*&, std::string_view);
 };
 
-// bool from 1/0 or on/off
+// bool from string
 template <>
 struct TC_GAME_API ArgInfo<bool>
 {
-    static char const* TryConsume(bool&, char const*);
+    static Optional<std::string_view> TryConsume(bool&, std::string_view);
 };
 
-}
 }
 
 #endif
