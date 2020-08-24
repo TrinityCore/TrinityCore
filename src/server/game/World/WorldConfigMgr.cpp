@@ -64,7 +64,6 @@ void WorldConfig::Load()
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 game config options. DB table `game_config` is empty.");
-        TC_LOG_INFO("server.loading", "");
         return;
     }
 
@@ -111,7 +110,6 @@ void WorldConfig::Load()
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u game config option in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-    TC_LOG_INFO("server.loading", "");
 }
 
 void WorldConfig::RecheckAndFixDependancy()
@@ -762,7 +760,6 @@ void WorldConfig::RecheckAndFixDependancy()
     }
 
     TC_LOG_INFO("server.loading", ">> RecheckAndFixDependancy handled in %u ms", GetMSTimeDiffToNow(oldMSTime));
-    TC_LOG_INFO("server.loading", "");
 }
 
 void WorldConfig::AddBoolOption(uint32 IDinTypeGroup, bool value /*= false*/)
