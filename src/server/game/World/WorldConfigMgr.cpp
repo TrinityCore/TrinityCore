@@ -17,8 +17,13 @@
 
 #include "WorldConfigMgr.h"
 #include "DatabaseEnv.h"
+#include "GridDefines.h"
+#include "ObjectDefines.h"
+#include "ObjectMgr.h"
 #include "Log.h"
+#include "Player.h"
 #include "World.h"
+#include "Util.h"
 
 WorldConfig* WorldConfig::instance()
 {
@@ -26,7 +31,7 @@ WorldConfig* WorldConfig::instance()
     return &instance;
 }
 
-void WorldConfig::AddOption(std::string const& optionName, WorldConfigType type, uint32 IDinTypeGroup, std::string const& defaultValue, std::string const& value)
+void WorldConfig::AddOption(std::string const& /*optionName*/, WorldConfigType type, uint32 IDinTypeGroup, std::string const& defaultValue, std::string const& value)
 {
     switch (type)
     {
@@ -179,6 +184,8 @@ void WorldConfig::RecheckAndFixDependancy()
                 }
                 break;
             }
+            default:
+                break;
         }
     }
 
@@ -320,13 +327,15 @@ void WorldConfig::RecheckAndFixDependancy()
                 }
                 break;
             }
-        }        
+            default:
+                break;
+        }
     }
 
     // for int
     for (uint32 i = 0; i < WorldIntConfigs::INT_CONFIG_VALUE_COUNT; i++)
     {
-        float value = sWorld->getIntConfig(WorldIntConfigs(i));
+        uint32 value = sWorld->getIntConfig(WorldIntConfigs(i));
         switch (WorldIntConfigs(i))
         {
             case WorldIntConfigs::CONFIG_COMPRESSION:
@@ -706,13 +715,15 @@ void WorldConfig::RecheckAndFixDependancy()
                 }
                 break;
             }
+            default:
+                break;
         }
     }
 
     // for bool
     for (uint32 i = 0; i < WorldBoolConfigs::BOOL_CONFIG_VALUE_COUNT; i++)
     {
-        float value = sWorld->getBoolConfig(WorldBoolConfigs(i));
+        bool value = sWorld->getBoolConfig(WorldBoolConfigs(i));
         switch (WorldBoolConfigs(i))
         {
             case WorldBoolConfigs::CONFIG_BASEMAP_LOAD_GRIDS:
@@ -745,8 +756,10 @@ void WorldConfig::RecheckAndFixDependancy()
                 }
                 break;
             }
+            default:
+                break;
         }
-    }    
+    }
 
     TC_LOG_INFO("server.loading", ">> RecheckAndFixDependancy handled in %u ms", GetMSTimeDiffToNow(oldMSTime));
     TC_LOG_INFO("server.loading", "");

@@ -544,7 +544,7 @@ void World::LoadConfigSettings(bool reload)
     ///- Get string for new MOTD
     Motd::SetMotd(m_string_configs[CONFIG_MOTD]);
     ///- Get string for new logins (newly created characters)
-    SetNewCharString(m_string_configs[CONFIG_PLAYER_START_STRING]);    
+    SetNewCharString(m_string_configs[CONFIG_PLAYER_START_STRING]);
     //###      End
 
     //###               BOOL configs:
