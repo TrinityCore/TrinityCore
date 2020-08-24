@@ -1,0 +1,16 @@
+UPDATE `gossip_menu_option` SET `VerifiedBuild`=15005 WHERE (`MenuId`=12579 AND `OptionIndex`=0);
+UPDATE `gossip_menu_option` SET `VerifiedBuild`=15005 WHERE (`MenuId`=10817 AND `OptionIndex`=0);
+UPDATE `gossip_menu_option` SET `VerifiedBuild`=15005 WHERE (`MenuId`=10552 AND `OptionIndex`=0);
+UPDATE `gossip_menu_option` SET `VerifiedBuild`=15005 WHERE (`MenuId`=2783 AND `OptionIndex`=0);
+UPDATE `gossip_menu_option` SET `VerifiedBuild`=15005 WHERE (`MenuId`=10684 AND `OptionIndex`=0);
+UPDATE `gossip_menu_option` SET `VerifiedBuild`=15005 WHERE (`MenuId`=10026 AND `OptionIndex`=1);
+UPDATE `gossip_menu_option` SET `VerifiedBuild`=15005 WHERE (`MenuId`=10111 AND `OptionIndex`=0);
+UPDATE `gossip_menu_option` SET `VerifiedBuild`=15005 WHERE (`MenuId`=10110 AND `OptionIndex`=0);
+UPDATE `gossip_menu_option` SET `VerifiedBuild`=15005 WHERE (`MenuId`=10028 AND `OptionIndex`=0);
+UPDATE `gossip_menu_option` SET `VerifiedBuild`=15005 WHERE (`MenuId`=10226 AND `OptionIndex`=0);
+UPDATE `gossip_menu_option` SET `VerifiedBuild`=15005 WHERE (`MenuId`=10026 AND `OptionIndex`=1);
+UPDATE `gossip_menu_option` SET `VerifiedBuild`=15005 WHERE (`MenuId`=11268 AND `OptionIndex`=1);
+UPDATE `gossip_menu_option` SET `VerifiedBuild`=15005 WHERE (`MenuId`=11268 AND `OptionIndex`=0);
+UPDATE `gossip_menu_option` SET `VerifiedBuild`=15005 WHERE (`MenuId`=11172 AND `OptionIndex`=1);
+UPDATE `gossip_menu_option` SET `VerifiedBuild`=15005 WHERE (`MenuId`=11172 AND `OptionIndex`=0);
+UPDATE `gossip_menu_option` SET `VerifiedBuild`=15005 WHERE (`MenuId`=12580 AND `OptionIndex`=0);
