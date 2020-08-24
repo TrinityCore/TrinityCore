@@ -780,7 +780,7 @@ void ThreatManager::SendThreatListToClients(bool newHighest) const
 
             WorldPackets::Combat::ThreatInfo info;
             info.UnitGUID = ref->GetVictim()->GetGUID();
-            info.Threat = uint32(ref->GetThreat());
+            info.Threat = uint32(ref->GetThreat() * 100);
             packet.ThreatList.push_back(info);
         }
         _owner->SendMessageToSet(packet.Write(), false);
@@ -797,7 +797,7 @@ void ThreatManager::SendThreatListToClients(bool newHighest) const
 
             WorldPackets::Combat::ThreatInfo info;
             info.UnitGUID = ref->GetVictim()->GetGUID();
-            info.Threat = uint32(ref->GetThreat());
+            info.Threat = uint32(ref->GetThreat() * 100);
             packet.ThreatList.push_back(info);
         }
         _owner->SendMessageToSet(packet.Write(), false);
