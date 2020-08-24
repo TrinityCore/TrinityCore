@@ -77,6 +77,7 @@ enum WarriorSpells
 
 enum WarriorSpellIcons
 {
+    WARRIOR_ICON_ID_GLYPH_OF_COLOSSUS_SMASH         = 5288,
     WARRIOR_ICON_ID_SUDDEN_DEATH                    = 1989,
     WARRIOR_ICON_ID_BLOOD_AND_THUNDER               = 5057,
     WARRIOR_ICON_ID_SINGLE_MINDED_FURY              = 4975
@@ -198,6 +199,24 @@ class spell_warr_concussion_blow : public SpellScript
     void Register() override
     {
         OnEffectLaunchTarget += SpellEffectFn(spell_warr_concussion_blow::HandleDummy, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
+// 86346 - Colossus Smash
+class spell_warr_colossus_smash : public SpellScript
+{
+    PrepareSpellScript(spell_warr_colossus_smash);
+
+    void HandleGlyphEffect(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* caster = GetCaster())
+            if (AuraEffect const* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_WARRIOR, WARRIOR_ICON_ID_GLYPH_OF_COLOSSUS_SMASH, EFFECT_0))
+                caster->CastSpell(GetHitUnit(), SPELL_WARRIOR_SUNDER_ARMOR, true, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_warr_colossus_smash::HandleGlyphEffect, EFFECT_0, SPELL_EFFECT_NORMALIZED_WEAPON_DMG);
     }
 };
 
@@ -1056,6 +1075,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_bloodthirst);
     RegisterSpellScript(spell_warr_bloodthirst_heal);
     RegisterSpellScript(spell_warr_charge);
+    RegisterSpellScript(spell_warr_colossus_smash);
     RegisterSpellScript(spell_warr_concussion_blow);
     RegisterSpellScript(spell_warr_deep_wounds);
     RegisterSpellScript(spell_warr_devastate);

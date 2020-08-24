@@ -60,6 +60,7 @@ enum PaladinSpells
     SPELL_PALADIN_EYE_FOR_AN_EYE_RANK_1                 = 9799,
     SPELL_PALADIN_EYE_FOR_AN_EYE_DAMAGE                 = 25997,
     SPELL_PALADIN_FORBEARANCE                           = 25771,
+    SPELL_PALADIN_GLYPH_OF_DIVINITY                     = 54986,
     SPELL_PALADIN_GLYPH_OF_SALVATION                    = 63225,
     SPELL_PALADIN_GUARDIAN_OF_ANCIENT_KINGS_HOLY        = 86669,
     SPELL_PALADIN_GUARDIAN_OF_ANCIENT_KINGS_PROTECTION  = 86659,
@@ -111,6 +112,7 @@ enum PaladinSpellIcons
     PALADIN_ICON_ID_RETRIBUTION_AURA             = 555,
     PALADIN_ICOM_ID_SELFLESS_HEALER              = 3924,
     PALADIN_ICON_ID_ETERNAL_GLORY                = 2944,
+    PALADIN_ICON_ID_GLYPH_OF_DIVINITY            = 79,
     PALADIN_ICON_ID_GLYPH_OF_THE_LONG_WORD       = 4127,
     PALADIN_ICON_ID_GLYPH_OF_LIGHT_OF_DAWN       = 5154,
     PALADIN_ICON_ID_GLYPH_OF_EXORCISM            = 292,
@@ -899,55 +901,52 @@ class spell_pal_judgement : public SpellScript
 };
 
 // 633 - Lay on Hands
-class spell_pal_lay_on_hands : public SpellScriptLoader
+class spell_pal_lay_on_hands : public SpellScript
 {
-    public:
-        spell_pal_lay_on_hands() : SpellScriptLoader("spell_pal_lay_on_hands") { }
+    PrepareSpellScript(spell_pal_lay_on_hands);
 
-        class spell_pal_lay_on_hands_SpellScript : public SpellScript
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_PALADIN_FORBEARANCE,
+                SPELL_PALADIN_IMMUNE_SHIELD_MARKER
+            });
+    }
+
+    SpellCastResult CheckCast()
+    {
+        Unit* caster = GetCaster();
+        if (Unit* target = GetExplTargetUnit())
+            if (caster == target)
+                if (target->HasAura(SPELL_PALADIN_FORBEARANCE) || target->HasAura(SPELL_PALADIN_IMMUNE_SHIELD_MARKER))
+                    return SPELL_FAILED_TARGET_AURASTATE;
+
+        return SPELL_CAST_OK;
+    }
+
+    void HandleExtraEffects(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        if (caster == GetHitUnit())
         {
-            PrepareSpellScript(spell_pal_lay_on_hands_SpellScript);
-
-            bool Validate(SpellInfo const* /*spell*/) override
-            {
-                return ValidateSpellInfo({ SPELL_PALADIN_FORBEARANCE, SPELL_PALADIN_IMMUNE_SHIELD_MARKER });
-            }
-
-            SpellCastResult CheckCast()
-            {
-                Unit* caster = GetCaster();
-                if (Unit* target = GetExplTargetUnit())
-                    if (caster == target)
-                        if (target->HasAura(SPELL_PALADIN_FORBEARANCE) ||
-                            target->HasAura(SPELL_PALADIN_IMMUNE_SHIELD_MARKER))
-                        {
-                            return SPELL_FAILED_TARGET_AURASTATE;
-                        }
-
-                return SPELL_CAST_OK;
-            }
-
-            void HandleScript()
-            {
-                Unit* caster = GetCaster();
-                if (caster == GetHitUnit())
-                {
-                    caster->CastSpell(caster, SPELL_PALADIN_FORBEARANCE, true);
-                    caster->CastSpell(caster, SPELL_PALADIN_IMMUNE_SHIELD_MARKER, true);
-                }
-            }
-
-            void Register() override
-            {
-                OnCheckCast += SpellCheckCastFn(spell_pal_lay_on_hands_SpellScript::CheckCast);
-                AfterHit += SpellHitFn(spell_pal_lay_on_hands_SpellScript::HandleScript);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_pal_lay_on_hands_SpellScript();
+            caster->CastSpell(caster, SPELL_PALADIN_FORBEARANCE, true);
+            caster->CastSpell(caster, SPELL_PALADIN_IMMUNE_SHIELD_MARKER, true);
         }
+
+        // Glyph of Divinity
+        if (AuraEffect const* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_PALADIN, PALADIN_ICON_ID_GLYPH_OF_DIVINITY, EFFECT_0))
+            caster->CastSpell(caster, SPELL_PALADIN_GLYPH_OF_DIVINITY, true, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_pal_lay_on_hands::CheckCast);
+        OnEffectHitTarget += SpellEffectFn(spell_pal_lay_on_hands::HandleExtraEffects, EFFECT_0, SPELL_EFFECT_HEAL_MAX_HEALTH);
+    }
 };
 
 // 31789 - Righteous Defense
@@ -2086,7 +2085,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_item_healing_discount();
     RegisterSpellScript(spell_pal_judgement);
     RegisterSpellScript(spell_pal_judgements);
-    new spell_pal_lay_on_hands();
+    RegisterSpellScript(spell_pal_lay_on_hands);
     RegisterSpellScript(spell_pal_lights_beacon);
     RegisterSpellScript(spell_pal_light_of_dawn);
     RegisterSpellScript(spell_pal_long_arm_of_the_law);
