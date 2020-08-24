@@ -3,6 +3,12 @@ target_compile_definitions(trinity-compile-option-interface
   INTERFACE
     -D_BUILD_DIRECTIVE="$<CONFIG>")
 
+set(CLANG_EXPECTED_VERSION 7.0.0)
+
+if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS GCC_EXPECTED_VERSION)
+  message(FATAL_ERROR "Clang: TrinityCore requires version ${CLANG_EXPECTED_VERSION} to build but found ${CMAKE_CXX_COMPILER_VERSION}")
+endif()
+
 if(WITH_WARNINGS)
   target_compile_options(trinity-warning-interface
     INTERFACE
