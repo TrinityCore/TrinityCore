@@ -776,7 +776,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         SendPacket(Motd::GetMotdPacket());
 
         // send server info
-        if (sWorld->getIntConfig(CONFIG_ENABLE_SINFO_LOGIN) == 1)
+        if (sWorld->getBoolConfig(CONFIG_ENABLE_SINFO_LOGIN))
             chH.PSendSysMessage(GitRevision::GetFullVersion());
     }
 

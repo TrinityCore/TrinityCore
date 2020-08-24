@@ -179,6 +179,10 @@ enum WorldBoolConfigs
     CONFIG_CHECK_GOBJECT_LOS,
     CONFIG_RESPAWN_DYNAMIC_ESCORTNPC,
     CONFIG_REGEN_HP_CANNOT_REACH_TARGET_IN_RAID,
+    CONFIG_GUILD_MULTIPLE_GUILD_MASTERS,
+    CONFIG_VMAP_ENABLE_LOS,
+    CONFIG_VMAP_ENABLE_HEIGHT_CALCULATION,
+    CONFIG_ENABLE_SINFO_LOGIN,
     BOOL_CONFIG_VALUE_COUNT
 };
 
@@ -204,7 +208,19 @@ enum WorldFloatConfigs
     CONFIG_ARENA_MATCHMAKER_RATING_MODIFIER,
     CONFIG_RESPAWN_DYNAMICRATE_CREATURE,
     CONFIG_RESPAWN_DYNAMICRATE_GAMEOBJECT,
+    CONFIG_VISIBLITY_DISTANCE_CONTINENTS,
+    CONFIG_VISIBILITY_DISTANCE_INSTANCES,
+    CONFIG_VISIBILITY_DISTANCE_BGARENAS,
     FLOAT_CONFIG_VALUE_COUNT
+};
+
+enum WorldStringConfigs
+{
+    CONFIG_RESPAWN_WARNING_MESSAGE = 0,
+    CONFIG_RESPAWN_ALERT_RESTART_REASON,
+    CONFIG_MOTD,
+    CONFIG_PLAYER_START_STRING,
+    STRING_CONFIG_VALUE_COUNT
 };
 
 enum WorldIntConfigs
@@ -217,6 +233,7 @@ enum WorldIntConfigs
     CONFIG_INTERVAL_DISCONNECT_TOLERANCE,
     CONFIG_PORT_WORLD,
     CONFIG_SOCKET_TIMEOUTTIME,
+    CONFIG_SOCKET_TIMEOUTTIME_ACTIVE,
     CONFIG_SESSION_ADD_DELAY,
     CONFIG_GAME_TYPE,
     CONFIG_REALM_ZONE,
@@ -229,8 +246,8 @@ enum WorldIntConfigs
     CONFIG_CHARACTER_CREATING_DISABLED,
     CONFIG_CHARACTER_CREATING_DISABLED_RACEMASK,
     CONFIG_CHARACTER_CREATING_DISABLED_CLASSMASK,
-    CONFIG_CHARACTERS_PER_ACCOUNT,
     CONFIG_CHARACTERS_PER_REALM,
+    CONFIG_CHARACTERS_PER_ACCOUNT,
     CONFIG_DEATH_KNIGHTS_PER_REALM,
     CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_DEATH_KNIGHT,
     CONFIG_SKIP_CINEMATICS,
@@ -238,6 +255,7 @@ enum WorldIntConfigs
     CONFIG_MIN_DUALSPEC_LEVEL,
     CONFIG_START_PLAYER_LEVEL,
     CONFIG_START_DEATH_KNIGHT_PLAYER_LEVEL,
+    CONFIG_START_GM_LEVEL,
     CONFIG_START_PLAYER_MONEY,
     CONFIG_MAX_HONOR_POINTS,
     CONFIG_START_HONOR_POINTS,
@@ -256,13 +274,11 @@ enum WorldIntConfigs
     CONFIG_MIN_DISCOVERED_SCALED_XP_RATIO,
     CONFIG_GM_LOGIN_STATE,
     CONFIG_GM_VISIBLE_STATE,
-    CONFIG_GM_ACCEPT_TICKETS,
     CONFIG_GM_CHAT,
     CONFIG_GM_WHISPERING_TO,
     CONFIG_GM_FREEZE_DURATION,
     CONFIG_GM_LEVEL_IN_GM_LIST,
     CONFIG_GM_LEVEL_IN_WHO_LIST,
-    CONFIG_START_GM_LEVEL,
     CONFIG_FORCE_SHUTDOWN_THRESHOLD,
     CONFIG_GROUP_VISIBILITY,
     CONFIG_MAIL_DELIVERY_DELAY,
@@ -306,7 +322,6 @@ enum WorldIntConfigs
     CONFIG_CORPSE_DECAY_RAREELITE,
     CONFIG_CORPSE_DECAY_WORLDBOSS,
     CONFIG_DEATH_SICKNESS_LEVEL,
-    CONFIG_INSTANT_LOGOUT,
     CONFIG_DISABLE_BREATHING,
     CONFIG_BATTLEGROUND_INVITATION_TYPE,
     CONFIG_BATTLEGROUND_PREMATURE_FINISH_TIMER,
@@ -326,8 +341,6 @@ enum WorldIntConfigs
     CONFIG_PVP_TOKEN_MAP_TYPE,
     CONFIG_PVP_TOKEN_ID,
     CONFIG_PVP_TOKEN_COUNT,
-    CONFIG_ENABLE_SINFO_LOGIN,
-    CONFIG_PLAYER_ALLOW_COMMANDS,
     CONFIG_NUMTHREADS,
     CONFIG_LOGDB_CLEARINTERVAL,
     CONFIG_LOGDB_CLEARTIME,
@@ -396,7 +409,10 @@ enum WorldIntConfigs
     CONFIG_RESPAWN_DYNAMICMINIMUM_CREATURE,
     CONFIG_RESPAWN_DYNAMICMINIMUM_GAMEOBJECT,
     CONFIG_RESPAWN_GUIDWARNING_FREQUENCY,
-    CONFIG_SOCKET_TIMEOUTTIME_ACTIVE,
+    CONFIG_VISIBILITY_NOTIFY_PERIOD_ONCONTINENTS,
+    CONFIG_VISIBILITY_NOTIFY_PERIOD_ININSTANCES,
+    CONFIG_VISIBILITY_NOTIFY_PERIOD_INBGARENAS,
+    CONFIG_MAX_PLAYERS_ON_REALM,
     INT_CONFIG_VALUE_COUNT
 };
 
@@ -670,15 +686,32 @@ class TC_GAME_API World
 
         void UpdateSessions(uint32 diff);
         /// Set a server rate (see #Rates)
-        void setRate(Rates rate, float value) { rate_values[rate]=value; }
+        bool setRate(Rates rate, float value)
+        {
+            bool result = false;
+            if (rate < MAX_RATES)
+            {
+                rate_values[rate] = value;
+                result = true;
+            }
+
+            return result;
+        }
+
         /// Get a server rate (see #Rates)
         float getRate(Rates rate) const { return rate_values[rate]; }
 
         /// Set a server configuration element (see #WorldConfigs)
-        void setBoolConfig(WorldBoolConfigs index, bool value)
+        bool setBoolConfig(WorldBoolConfigs index, bool value)
         {
+            bool result = false;
             if (index < BOOL_CONFIG_VALUE_COUNT)
+            {
                 m_bool_configs[index] = value;
+                result = true;
+            }
+
+            return result;
         }
 
         /// Get a server configuration element (see #WorldConfigs)
@@ -688,10 +721,16 @@ class TC_GAME_API World
         }
 
         /// Set a server configuration element (see #WorldConfigs)
-        void setFloatConfig(WorldFloatConfigs index, float value)
+        bool setFloatConfig(WorldFloatConfigs index, float value)
         {
+            bool result = false;
             if (index < FLOAT_CONFIG_VALUE_COUNT)
+            {
                 m_float_configs[index] = value;
+                result = true;
+            }
+
+            return result;
         }
 
         /// Get a server configuration element (see #WorldConfigs)
@@ -701,16 +740,40 @@ class TC_GAME_API World
         }
 
         /// Set a server configuration element (see #WorldConfigs)
-        void setIntConfig(WorldIntConfigs index, uint32 value)
+        bool setIntConfig(WorldIntConfigs index, uint32 value)
         {
+            bool result = false;
             if (index < INT_CONFIG_VALUE_COUNT)
+            {
                 m_int_configs[index] = value;
+                result = true;
+            }
+
+            return result;
         }
 
         /// Get a server configuration element (see #WorldConfigs)
         uint32 getIntConfig(WorldIntConfigs index) const
         {
             return index < INT_CONFIG_VALUE_COUNT ? m_int_configs[index] : 0;
+        }
+
+        bool setStringConfig(WorldStringConfigs index, std::string const& value)
+        {
+            bool result = false;
+            if (index < STRING_CONFIG_VALUE_COUNT)
+            {
+                m_string_configs[index] = value;
+                result = true;
+            }
+
+            return result;
+        }
+
+        /// Get a server configuration element (see #WorldConfigs)
+        std::string getStringConfig(WorldStringConfigs index) const
+        {
+            return index < STRING_CONFIG_VALUE_COUNT ? m_string_configs[index] : "";
         }
 
         void setWorldState(uint32 index, uint64 value);
@@ -816,6 +879,8 @@ class TC_GAME_API World
         uint32 m_int_configs[INT_CONFIG_VALUE_COUNT];
         bool m_bool_configs[BOOL_CONFIG_VALUE_COUNT];
         float m_float_configs[FLOAT_CONFIG_VALUE_COUNT];
+        std::string m_string_configs[STRING_CONFIG_VALUE_COUNT];
+
         typedef std::map<uint32, uint64> WorldStatesMap;
         WorldStatesMap m_worldstates;
         uint32 m_playerLimit;
