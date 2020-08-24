@@ -37,7 +37,7 @@ enum DeathKnightSpells
 {
     SPELL_DK_ANTI_MAGIC_SHELL_TALENT            = 51052,
     SPELL_DK_BLOOD_BOIL_TRIGGERED               = 65658,
-    SPELL_DK_BLOOD_GORGED_HEAL                  = 50454,
+    SPELL_DK_BLOOD_BURST                        = 81280,
     SPELL_DK_BLOOD_PLAGUE                       = 55078,
     SPELL_DK_BLOOD_PRESENCE                     = 48263,
     SPELL_DK_BLOOD_PRESENCE_TRIGGERED           = 61261,
@@ -211,43 +211,31 @@ private:
     bool _executed;
 };
 
-
-// 50453 - Bloodworms Health Leech
+// 81277 - Blood Gorged
 class spell_dk_blood_gorged : public AuraScript
 {
     PrepareAuraScript(spell_dk_blood_gorged);
 
-    bool Load() override
-    {
-        _procTarget = nullptr;
-        return true;
-    }
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DK_BLOOD_GORGED_HEAL });
+        return ValidateSpellInfo({ SPELL_DK_BLOOD_BURST });
     }
 
-    bool CheckProc(ProcEventInfo& /*eventInfo*/)
+    void HandleBloodBurst(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
-        _procTarget = GetTarget()->GetOwner();
-        return _procTarget != nullptr;
-    }
-
-    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
-    {
-        int32 heal = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), 150));
-        GetTarget()->CastCustomSpell(SPELL_DK_BLOOD_GORGED_HEAL, SPELLVALUE_BASE_POINT0, heal, _procTarget, true, nullptr, aurEff);
+        if ((GetStackAmount() > 5 && roll_chance_i(34)) || GetStackAmount() == 10)
+        {
+            Unit* target = GetTarget();
+            // The tooltip states that it is 10% per stack but sniffs say 5% instead
+            int32 bp = CalculatePct(target->GetMaxHealth(), 5 * GetStackAmount());
+            target->CastCustomSpell(SPELL_DK_BLOOD_BURST, SPELLVALUE_BASE_POINT0, bp, target, true, nullptr, aurEff);
+        }
     }
 
     void Register() override
     {
-        DoCheckProc += AuraCheckProcFn(spell_dk_blood_gorged::CheckProc);
-        OnEffectProc += AuraEffectProcFn(spell_dk_blood_gorged::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        AfterEffectApply += AuraEffectApplyFn(spell_dk_blood_gorged::HandleBloodBurst, EFFECT_0, SPELL_AURA_MOD_SCALE, AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK);
     }
-
-private:
-    Unit * _procTarget;
 };
 
 // -48979 - Butchery

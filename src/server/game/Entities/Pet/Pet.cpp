@@ -972,6 +972,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                 case ENTRY_BLOODWORM:
                 {
                     SetCreateHealth(m_owner->CountPctFromMaxHealth(18));
+                    SetAttackTime(BASE_ATTACK, 1400);
                     SetBonusDamage(int32(m_owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.006f));
                     float minDamage = m_owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.05f;
                     float maxDamage = m_owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.05f;
