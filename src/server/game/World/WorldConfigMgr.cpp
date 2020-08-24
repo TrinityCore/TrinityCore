@@ -411,7 +411,7 @@ void WorldConfig::RecheckAndFixDependancy()
             }
             case WorldIntConfigs::CONFIG_DEATH_KNIGHTS_PER_REALM:
             {
-                if (value < 0 || value > 10)
+                if (value > 10)
                 {
                     TC_LOG_ERROR("config", "DeathKnightsPerRealm (%i) must be in range 0..10. Set to 1.", value);
                     sWorld->setIntConfig(WorldIntConfigs(i), 1);
@@ -420,7 +420,7 @@ void WorldConfig::RecheckAndFixDependancy()
             }
             case WorldIntConfigs::CONFIG_SKIP_CINEMATICS:
             {
-                if (value < 0 || value > 2)
+                if (value > 2)
                 {
                     TC_LOG_ERROR("config", "SkipCinematics (%i) must be in range 0..2. Set to 0.", value);
                     sWorld->setIntConfig(WorldIntConfigs(i), 0);
@@ -464,60 +464,27 @@ void WorldConfig::RecheckAndFixDependancy()
             }
             case WorldIntConfigs::CONFIG_START_PLAYER_MONEY:
             {
-                if (value < 0)
-                {
-                    TC_LOG_ERROR("config", "StartPlayerMoney (%i) must be in range 0..%u. Set to 0.", value, MAX_MONEY_AMOUNT);
-                    sWorld->setIntConfig(WorldIntConfigs(i), 0);
-                }
-                else if (value > MAX_MONEY_AMOUNT)
+                if (value > MAX_MONEY_AMOUNT)
                 {
                     TC_LOG_ERROR("config", "StartPlayerMoney (%i) must be in range 0..%u. Set to max.", value, MAX_MONEY_AMOUNT);
                     sWorld->setIntConfig(WorldIntConfigs(i), MAX_MONEY_AMOUNT);
                 }
                 break;
             }
-            case WorldIntConfigs::CONFIG_MAX_HONOR_POINTS:
-            {
-                if (value < 0)
-                {
-                    TC_LOG_ERROR("config", "MaxHonorPoints (%i) can't be negative. Set to 0.", value);
-                    sWorld->setIntConfig(WorldIntConfigs(i), 0);
-                }
-                break;
-            }
             case WorldIntConfigs::CONFIG_START_HONOR_POINTS:
             {
                 uint32 maxHonor = sWorld->getIntConfig(CONFIG_MAX_HONOR_POINTS);
-                if (value < 0)
-                {
-                    TC_LOG_ERROR("config", "MaxHonorPoints (%i) can't be negative. Set to 0.", value);
-                    sWorld->setIntConfig(WorldIntConfigs(i), 0);
-                }
-                else if (value > maxHonor)
+                if (value > maxHonor)
                 {
                     TC_LOG_ERROR("config", "StartHonorPoints (%i) must be in range 0..MaxHonorPoints(%u). Set to %u.", value, maxHonor, maxHonor);
                     sWorld->setIntConfig(WorldIntConfigs(i), maxHonor);
                 }
                 break;
             }
-            case WorldIntConfigs::CONFIG_MAX_ARENA_POINTS:
-            {
-                if (value < 0)
-                {
-                    TC_LOG_ERROR("config", "MaxArenaPoints (%i) can't be negative. Set to 0.", value);
-                    sWorld->setIntConfig(WorldIntConfigs(i), 0);
-                }
-                break;
-            }
             case WorldIntConfigs::CONFIG_START_ARENA_POINTS:
             {
                 uint32 maxAP = sWorld->getIntConfig(CONFIG_MAX_ARENA_POINTS);
-                if (value < 0)
-                {
-                    TC_LOG_ERROR("config", "StartArenaPoints (%i) can't be negative. Set to 0.", value);
-                    sWorld->setIntConfig(WorldIntConfigs(i), 0);
-                }
-                else if (value > maxAP)
+                if (value > maxAP)
                 {
                     TC_LOG_ERROR("config", "StartArenaPoints (%i) must be in range 0..MaxArenaPoints(%u). Set to %u.", value, maxAP, maxAP);
                     sWorld->setIntConfig(WorldIntConfigs(i), maxAP);
@@ -527,12 +494,7 @@ void WorldConfig::RecheckAndFixDependancy()
             case WorldIntConfigs::CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL:
             {
                 uint32 maxLVL = sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL);
-                if (value < 0)
-                {
-                    TC_LOG_ERROR("config", "RecruitAFriend.MaxLevel (%i) can't be negative. Set to 0.", value);
-                    sWorld->setIntConfig(WorldIntConfigs(i), 0);
-                }
-                else if (value > maxLVL)
+                if (value > maxLVL)
                 {
                     TC_LOG_ERROR("config", "RecruitAFriend.MaxLevel (%i) must be in range 0..MaxPlayerLevel(%u). Set to %u.", value, maxLVL, maxLVL);
                     sWorld->setIntConfig(WorldIntConfigs(i), maxLVL);
@@ -566,23 +528,9 @@ void WorldConfig::RecheckAndFixDependancy()
                 }
                 break;
             }
-            case WorldIntConfigs::CONFIG_UPTIME_UPDATE:
-            {
-                if (value < 0)
-                {
-                    TC_LOG_ERROR("config", "UpdateUptimeInterval (%i) must be > 0, set to default 10.", value);
-                    sWorld->setIntConfig(WorldIntConfigs(i), 0);
-                }
-                break;
-            }
             case WorldIntConfigs::CONFIG_MAX_OVERSPEED_PINGS:
             {
-                if (value < 0)
-                {
-                    TC_LOG_ERROR("config", "MaxOverspeedPings (%i) must be > 0, set to default 0.", value);
-                    sWorld->setIntConfig(WorldIntConfigs(i), 0);
-                }
-                else if (value != 0 && value < 2)
+                if (value != 0 && value < 2)
                 {
                     TC_LOG_ERROR("config", "MaxOverspeedPings (%i) must be in range 2..infinity (or 0 to disable check). Set to 2.", value);
                     sWorld->setIntConfig(WorldIntConfigs(i), 2);
@@ -599,15 +547,6 @@ void WorldConfig::RecheckAndFixDependancy()
                 else if (value > 9)
                 {
                     TC_LOG_ERROR("config", "Battleground.ReportAFK (%i) must be < 10. Set max (10).", value);
-                    sWorld->setIntConfig(WorldIntConfigs(i), 10);
-                }
-                break;
-            }
-            case WorldIntConfigs::CONFIG_LOGDB_CLEARINTERVAL:
-            {
-                if (value <= 0)
-                {
-                    TC_LOG_ERROR("config", "LogDB.Opt.ClearInterval (%i) must be > 0, set to default 10.", value);
                     sWorld->setIntConfig(WorldIntConfigs(i), 10);
                 }
                 break;
