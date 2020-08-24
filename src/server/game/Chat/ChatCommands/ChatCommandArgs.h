@@ -117,7 +117,7 @@ struct ArgInfo<std::string, void>
     static Optional<std::string_view> TryConsume(std::string& val, std::string_view args)
     {
         std::string_view view;
-        auto next = ArgInfo<std::string_view>::TryConsume(view, args);
+        Optional<std::string_view> next = ArgInfo<std::string_view>::TryConsume(view, args);
         if (next)
             val.assign(view);
         return next;
@@ -131,7 +131,7 @@ struct ArgInfo<std::wstring, void>
     static Optional<std::string_view> TryConsume(std::wstring& val, std::string_view args)
     {
         std::string_view utf8view;
-        auto next = ArgInfo<std::string_view>::TryConsume(utf8view, args);
+        Optional<std::string_view> next = ArgInfo<std::string_view>::TryConsume(utf8view, args);
 
         if (next && Utf8toWStr(utf8view, val))
             return next;
@@ -197,7 +197,7 @@ struct ArgInfo<T, std::enable_if_t<std::is_enum_v<T>>>
     static Optional<std::string_view> TryConsume(T& val, std::string_view args)
     {
         std::string strVal;
-        auto next = ArgInfo<std::string>::TryConsume(strVal, args);
+        Optional<std::string_view> next = ArgInfo<std::string>::TryConsume(strVal, args);
 
         if (next)
         {
@@ -238,12 +238,12 @@ struct ArgInfo<std::vector<T>, void>
     static Optional<std::string_view> TryConsume(std::vector<T>& val, std::string_view args)
     {
         val.clear();
-        auto next = ArgInfo<T>::TryConsume(val.emplace_back(), args);
+        Optional<std::string_view> next = ArgInfo<T>::TryConsume(val.emplace_back(), args);
 
         if (!next)
             return std::nullopt;
 
-        while (auto next2 = ArgInfo<T>::TryConsume(val.emplace_back(), *next))
+        while (Optional<std::string_view> next2 = ArgInfo<T>::TryConsume(val.emplace_back(), *next))
             next = next2;
         return next;
     }
