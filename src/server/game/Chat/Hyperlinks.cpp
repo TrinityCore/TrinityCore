@@ -31,90 +31,82 @@ using namespace Trinity::Hyperlinks;
 
 inline uint8 toHex(char c) { return (c >= '0' && c <= '9') ? c - '0' + 0x10 : (c >= 'a' && c <= 'f') ? c - 'a' + 0x1a : 0x00; }
 // Validates a single hyperlink
-HyperlinkInfo Trinity::Hyperlinks::ParseSingleHyperlink(std::string_view str)
+HyperlinkInfo Trinity::Hyperlinks::ParseHyperlink(char const* pos)
 {
-    uint32 color = 0;
-    std::string_view tag;
-    std::string_view data;
-    std::string_view text;
-
     //color tag
-    if (str.substr(0, 2) != "|c")
-        return {};
-    str.remove_prefix(2);
-
-    if (str.length() < 8)
-        return {};
-
+    if (*(pos++) != '|' || *(pos++) != 'c')
+        return nullptr;
+    uint32 color = 0;
     for (uint8 i = 0; i < 8; ++i)
     {
-        if (uint8 hex = toHex(str[i]))
+        if (uint8 hex = toHex(*(pos++)))
             color = (color << 4) | (hex & 0xf);
         else
-            return {};
+            return nullptr;
     }
-    str.remove_prefix(8);
-
-    if (str.substr(0, 2) != "|H")
-        return {};
-    str.remove_prefix(2);
-
-    // tag+data part follows
-    if (size_t delimPos = str.find('|'); delimPos != std::string_view::npos)
-    {
-        tag = str.substr(0, delimPos);
-        str.remove_prefix(delimPos+1);
-    }
-    else
-        return {};
-
-    // split tag if : is present (data separator)
-    if (size_t dataStart = tag.find(':'); dataStart != std::string_view::npos)
-    {
-        data = tag.substr(dataStart+1);
-        tag = tag.substr(0, dataStart);
-    }
-
+    // link data start tag
+    if (*(pos++) != '|' || *(pos++) != 'H')
+        return nullptr;
+    // link tag, find next : or |
+    char const* tagStart = pos;
+    size_t tagLength = 0;
+    while (*pos && *pos != '|' && *(pos++) != ':') // we only advance pointer to one past if the last thing is : (not for |), this is intentional!
+        ++tagLength;
+    // ok, link data, skip to next |
+    char const* dataStart = pos;
+    size_t dataLength = 0;
+    while (*pos && *(pos++) != '|')
+        ++dataLength;
     // ok, next should be link data end tag...
-    if (str.substr(0, 1) != "h")
-        return {};
-    str.remove_prefix(1);
-    // skip to final |
-    if (size_t end = str.find('|'); end != std::string_view::npos)
+    if (*(pos++) != 'h')
+        return nullptr;
+    // then visible link text, starts with [
+    if (*(pos++) != '[')
+        return nullptr;
+    // skip until we hit the next ], abort on unexpected |
+    char const* textStart = pos;
+    size_t textLength = 0;
+    while (*pos)
     {
-        // check end tag
-        if (str.substr(end, 4) != "|h|r")
-            return {};
-        // check text brackets
-        if ((str[0] != '[') || (str[end - 1] != ']'))
-            return {};
-        text = str.substr(1, end - 2);
-        // tail
-        str = str.substr(end + 4);
+        if (*pos == '|')
+            return nullptr;
+        if (*(pos++) == ']')
+            break;
+        ++textLength;
     }
-    else
-        return {};
-
+    // link end tag
+    if (*(pos++) != '|' || *(pos++) != 'h' || *(pos++) != '|' || *(pos++) != 'r')
+        return nullptr;
     // ok, valid hyperlink, return info
-    return { str, color, tag, data, text };
+    return { pos, color, tagStart, tagLength, dataStart, dataLength, textStart, textLength };
 }
 
 template <typename T>
 struct LinkValidator
 {
-    static bool IsTextValid(typename T::value_type, std::string_view) { return true; }
+    static bool IsTextValid(typename T::value_type, char const*, size_t) { return true; }
     static bool IsColorValid(typename T::value_type, HyperlinkColor) { return true; }
 };
+
+// str1 is null-terminated, str2 is length-terminated, check if they are exactly equal
+static bool equal_with_len(char const* str1, char const* str2, size_t len)
+{
+    if (!*str1)
+        return false;
+    while (len && *str1 && *(str1++) == *(str2++))
+        --len;
+    return !len && !*str1;
+}
 
 template <>
 struct LinkValidator<LinkTags::achievement>
 {
-    static bool IsTextValid(AchievementLinkData const& data, std::string_view text)
+    static bool IsTextValid(AchievementLinkData const& data, char const* pos, size_t len)
     {
-        if (text.empty())
+        if (!len)
             return false;
         for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
-            if (text == data.Achievement->Title[i])
+            if (equal_with_len(data.Achievement->Title[i], pos, len))
                 return true;
         return false;
     }
@@ -128,22 +120,22 @@ struct LinkValidator<LinkTags::achievement>
 template <>
 struct LinkValidator<LinkTags::item>
 {
-    static bool IsTextValid(ItemLinkData const& data, std::string_view text)
+    static bool IsTextValid(ItemLinkData const& data, char const* pos, size_t len)
     {
         ItemLocale const* locale = sObjectMgr->GetItemLocale(data.Item->ItemId);
 
-        char const* const* randomSuffixes = nullptr; // this is a c-style array of c strings (and i don't want to touch DBCStructure.h right now)
+        char const* const* randomSuffix = nullptr;
         if (data.RandomPropertyId < 0)
         {
             if (ItemRandomSuffixEntry const* suffixEntry = sItemRandomSuffixStore.LookupEntry(-data.RandomPropertyId))
-                randomSuffixes = suffixEntry->Name;
+                randomSuffix = suffixEntry->Name;
             else
                 return false;
         }
         else if (data.RandomPropertyId > 0)
         {
             if (ItemRandomPropertiesEntry const* propEntry = sItemRandomPropertiesStore.LookupEntry(data.RandomPropertyId))
-                randomSuffixes = propEntry->Name;
+                randomSuffix = propEntry->Name;
             else
                 return false;
         }
@@ -155,18 +147,15 @@ struct LinkValidator<LinkTags::item>
             std::string const& name = (i == DEFAULT_LOCALE) ? data.Item->Name1 : locale->Name[i];
             if (name.empty())
                 continue;
-            if (randomSuffixes)
+            if (randomSuffix)
             {
-                std::string_view randomSuffix(randomSuffixes[i]);
-                if (
-                  (text.length() == (name.length() + 1 + randomSuffix.length())) &&
-                  (text.substr(0, name.length()) == name) &&
-                  (text[name.length()] == ' ') &&
-                  (text.substr(name.length() + 1) == randomSuffix)
-                )
+                if (len > name.length() + 1 &&
+                  (strncmp(name.c_str(), pos, name.length()) == 0) &&
+                  (*(pos + name.length()) == ' ') &&
+                  equal_with_len(randomSuffix[i], pos + name.length() + 1, len - name.length() - 1))
                     return true;
             }
-            else if (text == name)
+            else if (equal_with_len(name.c_str(), pos, len))
                 return true;
         }
         return false;
@@ -181,18 +170,18 @@ struct LinkValidator<LinkTags::item>
 template <>
 struct LinkValidator<LinkTags::quest>
 {
-    static bool IsTextValid(QuestLinkData const& data, std::string_view text)
+    static bool IsTextValid(QuestLinkData const& data, char const* pos, size_t len)
     {
         QuestLocale const* locale = sObjectMgr->GetQuestLocale(data.Quest->GetQuestId());
         if (!locale)
-            return text == data.Quest->GetTitle();
+            return equal_with_len(data.Quest->GetTitle().c_str(), pos, len);
 
         for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
         {
             std::string const& name = (i == DEFAULT_LOCALE) ? data.Quest->GetTitle() : locale->Title[i];
             if (name.empty())
                 continue;
-            if (text == name)
+            if (equal_with_len(name.c_str(), pos, len))
                 return true;
         }
 
@@ -211,10 +200,10 @@ struct LinkValidator<LinkTags::quest>
 template <>
 struct LinkValidator<LinkTags::spell>
 {
-    static bool IsTextValid(SpellInfo const* info, std::string_view text)
+    static bool IsTextValid(SpellInfo const* info, char const* pos, size_t len)
     {
         for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
-            if (text == info->SpellName[i])
+            if (equal_with_len(info->SpellName[i], pos, len))
                 return true;
         return false;
     }
@@ -228,9 +217,9 @@ struct LinkValidator<LinkTags::spell>
 template <>
 struct LinkValidator<LinkTags::enchant>
 {
-    static bool IsTextValid(SpellInfo const* info, std::string_view text)
+    static bool IsTextValid(SpellInfo const* info, char const* pos, size_t len)
     {
-        if (LinkValidator<LinkTags::spell>::IsTextValid(info, text))
+        if (LinkValidator<LinkTags::spell>::IsTextValid(info, pos, len))
             return true;
         SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(info->Id);
         if (bounds.first == bounds.second)
@@ -244,15 +233,12 @@ struct LinkValidator<LinkTags::enchant>
 
             for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
             {
-                std::string_view spellName = info->SpellName[i];
-                std::string_view skillName = skill->DisplayName[i];
-                // alternate form [Skill Name: Spell Name]
-                return (
-                    (text.length() == (spellName.length() + 2 + skillName.length())) &&
-                    (text.substr(0, spellName.length()) == spellName) &&
-                    (text.substr(spellName.length(), 2) == ": ") &&
-                    (text.substr(spellName.length() + 2) == skillName)
-                );
+                char const* skillName = skill->DisplayName[i];
+                size_t skillLen = strlen(skillName);
+                if (len > skillLen + 2 &&                         // or of form [Skill Name: Spell Name]
+                    !strncmp(pos, skillName, skillLen) && !strncmp(pos + skillLen, ": ", 2) &&
+                    equal_with_len(info->SpellName[i], pos + (skillLen + 2), len - (skillLen + 2)))
+                    return true;
             }
         }
         return false;
@@ -267,10 +253,10 @@ struct LinkValidator<LinkTags::enchant>
 template <>
 struct LinkValidator<LinkTags::glyph>
 {
-    static bool IsTextValid(GlyphLinkData const& data, std::string_view text)
+    static bool IsTextValid(GlyphLinkData const& data, char const* pos, size_t len)
     {
         if (SpellInfo const* info = sSpellMgr->GetSpellInfo(data.Glyph->SpellID))
-            return LinkValidator<LinkTags::spell>::IsTextValid(info, text);
+            return LinkValidator<LinkTags::spell>::IsTextValid(info, pos, len);
         return false;
     }
 
@@ -283,10 +269,10 @@ struct LinkValidator<LinkTags::glyph>
 template <>
 struct LinkValidator<LinkTags::talent>
 {
-    static bool IsTextValid(TalentLinkData const& data, std::string_view text)
+    static bool IsTextValid(TalentLinkData const& data, char const* pos, size_t len)
     {
         if (SpellInfo const* info = sSpellMgr->GetSpellInfo(data.Talent->SpellRank[0]))
-            return LinkValidator<LinkTags::spell>::IsTextValid(info, text);
+            return LinkValidator<LinkTags::spell>::IsTextValid(info, pos, len);
         return false;
     }
 
@@ -299,9 +285,9 @@ struct LinkValidator<LinkTags::talent>
 template <>
 struct LinkValidator<LinkTags::trade>
 {
-    static bool IsTextValid(TradeskillLinkData const& data, std::string_view text)
+    static bool IsTextValid(TradeskillLinkData const& data, char const* pos, size_t len)
     {
-        return LinkValidator<LinkTags::spell>::IsTextValid(data.Spell, text);
+        return LinkValidator<LinkTags::spell>::IsTextValid(data.Spell, pos, len);
     }
 
     static bool IsColorValid(TradeskillLinkData const&, HyperlinkColor c)
@@ -312,16 +298,17 @@ struct LinkValidator<LinkTags::trade>
 
 #define TryValidateAs(tagname)                                                                          \
 {                                                                                                       \
-    static_assert(LinkTags::tagname::tag() == #tagname);                                                \
-    if (info.tag == LinkTags::tagname::tag())                                                           \
+    ASSERT(!strcmp(LinkTags::tagname::tag(), #tagname));                                                \
+    if (info.tag.second == strlen(LinkTags::tagname::tag()) &&                                          \
+        !strncmp(info.tag.first, LinkTags::tagname::tag(), strlen(LinkTags::tagname::tag())))           \
     {                                                                                                   \
         advstd::remove_cvref_t<typename LinkTags::tagname::value_type> t;                               \
-        if (!LinkTags::tagname::StoreTo(t, info.data))                                                  \
+        if (!LinkTags::tagname::StoreTo(t, info.data.first, info.data.second))                          \
             return false;                                                                               \
         if (!LinkValidator<LinkTags::tagname>::IsColorValid(t, info.color))                             \
             return false;                                                                               \
         if (sWorld->getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_SEVERITY))                            \
-            if (!LinkValidator<LinkTags::tagname>::IsTextValid(t, info.text))                           \
+            if (!LinkValidator<LinkTags::tagname>::IsTextValid(t, info.text.first, info.text.second))   \
                 return false;                                                                           \
         return true;                                                                                    \
     }                                                                                                   \
@@ -354,19 +341,16 @@ static bool ValidateLinkInfo(HyperlinkInfo const& info)
 }
 
 // Validates all hyperlinks and control sequences contained in str
-bool Trinity::Hyperlinks::CheckAllLinks(std::string_view str)
+bool Trinity::Hyperlinks::CheckAllLinks(std::string const& str)
 {
     // Step 1: Disallow all control sequences except ||, |H, |h, |c and |r
     {
-        std::string_view::size_type pos = 0;
+        std::string::size_type pos = 0;
         while ((pos = str.find('|', pos)) != std::string::npos)
         {
-            ++pos;
-            if (pos == str.length())
-                return false;
-            char next = str[pos];
+            char next = str[pos + 1];
             if (next == 'H' || next == 'h' || next == 'c' || next == 'r' || next == '|')
-                ++pos;
+                pos += 2;
             else
                 return false;
         }
@@ -379,21 +363,21 @@ bool Trinity::Hyperlinks::CheckAllLinks(std::string_view str)
     // - <linkdata> is arbitrary length, no | contained
     // - <linktext> is printable
     {
-        std::string::size_type pos;
-        while ((pos = str.find('|')) != std::string::npos)
+        std::string::size_type pos = 0;
+        while ((pos = str.find('|', pos)) != std::string::npos)
         {
             if (str[pos + 1] == '|') // this is an escaped pipe character (||)
             {
-                str = str.substr(pos + 2);
+                pos += 2;
                 continue;
             }
 
-            HyperlinkInfo info = ParseSingleHyperlink(str.substr(pos));
+            HyperlinkInfo info = ParseHyperlink(str.c_str() + pos);
             if (!info || !ValidateLinkInfo(info))
                 return false;
 
             // tag is fine, find the next one
-            str = info.tail;
+            pos = info.next - str.c_str();
         }
     }
 

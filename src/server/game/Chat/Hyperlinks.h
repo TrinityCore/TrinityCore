@@ -19,9 +19,7 @@
 #define TRINITY_HYPERLINKS_H
 
 #include "ObjectGuid.h"
-#include <charconv>
 #include <string>
-#include <string_view>
 #include <type_traits>
 #include <utility>
 
@@ -90,62 +88,47 @@ namespace Trinity::Hyperlinks
         |* Link tags must abide by the following:                                               *|
         |* - MUST expose ::value_type typedef                                                   *|
         |*   - storage type is remove_cvref_t<value_type>                                       *|
-        |* - MUST expose static ::tag method, void -> std::string_view                          *|
+        |* - MUST expose static ::tag method, void -> const char*                               *|
         |*   - this method SHOULD be constexpr                                                  *|
         |*   - returns identifier string for the link ("creature", "creature_entry", "item")    *|
-        |* - MUST expose static ::StoreTo method, (storage&, std::string_view)                  *|
-        |*   - assign value_type& based on content of std::string_view                          *|
+        |* - MUST expose static ::StoreTo method, (storage&, char const*, size_t)               *|
+        |*   - assign value_type& based on content of std::string(char const*, size_t)          *|
         |*   - return value indicates success/failure                                           *|
         |*   - for integral/string types this can be achieved by extending base_tag             *|
         \****************************************************************************************/
         struct base_tag
         {
-            static bool StoreTo(std::string_view& val, std::string_view data)
+            static bool StoreTo(std::string& val, char const* pos, size_t len)
             {
-                val = data;
-                return true;
-            }
-
-            static bool StoreTo(std::string& val, std::string_view data)
-            {
-                val = data;
+                val.assign(pos, len);
                 return true;
             }
 
             template <typename T>
-            static std::enable_if_t<std::is_integral_v<T> && !std::is_same_v<T, bool>, bool> StoreTo(T& val, std::string_view data)
+            static std::enable_if_t<std::is_integral_v<T> && std::is_unsigned_v<T>, bool> StoreTo(T& val, char const* pos, size_t len)
             {
-                if (data.empty())
-                    return false;
-                char const* end = (data.data() + data.length());
-                std::from_chars_result result = std::from_chars(data.data(), end, val, 10);
-                return (result.ptr == end);
-            }
-
-            static bool StoreTo(bool& val, std::string_view data)
-            {
-                if (data == "1")
-                    val = true;
-                else if (data == "0")
-                    val = false;
-                else
-                    return false;
+                try { val = std::stoull(std::string(pos, len)); }
+                catch (...) { return false; }
                 return true;
             }
 
-            static bool StoreTo(ObjectGuid& val, std::string_view data)
+            template <typename T>
+            static std::enable_if_t<std::is_integral_v<T> && std::is_signed_v<T>, bool> StoreTo(T& val, char const* pos, size_t len)
             {
-                if (data.empty())
-                    return false;
-                uint64 guid;
-                char const* const end = (data.data() + data.length());
-                std::from_chars_result result = std::from_chars(data.data(), end, guid, 16);
-                val.Set(guid);
-                return (result.ptr == end);
+                try { val = std::stoll(std::string(pos, len)); }
+                catch (...) { return false; }
+                return true;
+            }
+
+            static bool StoreTo(ObjectGuid& val, char const* pos, size_t len)
+            {
+                try { val.Set(std::stoul(std::string(pos, len), nullptr, 16)); }
+                catch (...) { return false; }
+                return true;
             }
         };
 
-    #define make_base_tag(ltag, type) struct ltag : public base_tag { using value_type = type; static constexpr std::string_view tag() { return #ltag; } }
+    #define make_base_tag(ltag, type) struct ltag : public base_tag { using value_type = type; static constexpr char const* tag() { return #ltag; } }
         make_base_tag(area, uint32);
         make_base_tag(areatrigger, uint32);
         make_base_tag(creature, ObjectGuid::LowType);
@@ -164,64 +147,64 @@ namespace Trinity::Hyperlinks
         struct TC_GAME_API achievement
         {
             using value_type = AchievementLinkData const&;
-            static constexpr std::string_view tag() { return "achievement"; }
-            static bool StoreTo(AchievementLinkData& val, std::string_view data);
+            static constexpr char const* tag() { return "achievement"; }
+            static bool StoreTo(AchievementLinkData& val, char const* pos, size_t len);
         };
 
         struct TC_GAME_API enchant
         {
             using value_type = SpellInfo const*;
-            static constexpr std::string_view tag() { return "enchant"; }
-            static bool StoreTo(SpellInfo const*& val, std::string_view data);
+            static constexpr char const* tag() { return "enchant"; }
+            static bool StoreTo(SpellInfo const*& val, char const* pos, size_t len);
         };
 
         struct TC_GAME_API glyph
         {
             using value_type = GlyphLinkData const&;
-            static constexpr std::string_view tag() { return "glyph"; };
-            static bool StoreTo(GlyphLinkData& val, std::string_view data);
+            static constexpr char const* tag() { return "glyph"; };
+            static bool StoreTo(GlyphLinkData& val, char const* pos, size_t len);
         };
 
         struct TC_GAME_API item
         {
             using value_type = ItemLinkData const&;
-            static constexpr std::string_view tag() { return "item"; }
-            static bool StoreTo(ItemLinkData& val, std::string_view data);
+            static constexpr char const* tag() { return "item"; }
+            static bool StoreTo(ItemLinkData& val, char const* pos, size_t len);
         };
 
         struct TC_GAME_API quest
         {
             using value_type = QuestLinkData const&;
-            static constexpr std::string_view tag() { return "quest"; }
-            static bool StoreTo(QuestLinkData& val, std::string_view data);
+            static constexpr char const* tag() { return "quest"; }
+            static bool StoreTo(QuestLinkData& val, char const* pos, size_t len);
         };
 
         struct TC_GAME_API spell
         {
             using value_type = SpellInfo const*;
-            static constexpr std::string_view tag() { return "spell"; }
-            static bool StoreTo(SpellInfo const*& val, std::string_view data);
+            static constexpr char const* tag() { return "spell"; }
+            static bool StoreTo(SpellInfo const*& val, char const* pos, size_t len);
         };
 
         struct TC_GAME_API talent
         {
             using value_type = TalentLinkData const&;
-            static constexpr std::string_view tag() { return "talent"; }
-            static bool StoreTo(TalentLinkData& val, std::string_view data);
+            static constexpr char const* tag() { return "talent"; }
+            static bool StoreTo(TalentLinkData& val, char const* pos, size_t len);
         };
 
         struct TC_GAME_API trade
         {
             using value_type = TradeskillLinkData const&;
-            static constexpr std::string_view tag() { return "trade"; }
-            static bool StoreTo(TradeskillLinkData& val, std::string_view data);
+            static constexpr char const* tag() { return "trade"; }
+            static bool StoreTo(TradeskillLinkData& val, char const* pos, size_t len);
         };
     }
 
     struct HyperlinkColor
     {
         HyperlinkColor(uint32 c) : r(c >> 16), g(c >> 8), b(c), a(c >> 24) {}
-        uint8 const r, g, b, a;
+        uint8 r, g, b, a;
         bool operator==(uint32 c) const
         {
             if ((c & 0xff) ^ b)
@@ -238,20 +221,18 @@ namespace Trinity::Hyperlinks
 
     struct HyperlinkInfo
     {
-        HyperlinkInfo() : ok(false), color(0) {}
-        HyperlinkInfo(std::string_view t, uint32 c, std::string_view ta, std::string_view d, std::string_view te) :
-            ok(true), tail(t), color(c), tag(ta), data(d), text(te) {}
+        HyperlinkInfo(char const* n = nullptr, uint32 c = 0, char const* tS = nullptr, size_t tL = 0, char const* dS = nullptr, size_t dL = 0, char const* cS = nullptr, size_t cL = 0) :
+            next(n), color(c), tag(tS, tL), data(dS, dL), text(cS, cL) {}
 
-        explicit operator bool() { return ok; }
-        bool const ok;
-        std::string_view const tail;
+        explicit operator bool() { return next; }
+        char const* const next;
         HyperlinkColor const color;
-        std::string_view const tag;
-        std::string_view const data;
-        std::string_view const text;
+        std::pair<char const*, size_t> const tag;
+        std::pair<char const*, size_t> const data;
+        std::pair<char const*, size_t> const text;
     };
-    HyperlinkInfo TC_GAME_API ParseSingleHyperlink(std::string_view str);
-    bool TC_GAME_API CheckAllLinks(std::string_view str);
+    HyperlinkInfo TC_GAME_API ParseHyperlink(char const* pos);
+    bool TC_GAME_API CheckAllLinks(std::string const&);
 
 }
 

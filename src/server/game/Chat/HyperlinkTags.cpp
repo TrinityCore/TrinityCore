@@ -26,38 +26,37 @@ static constexpr char HYPERLINK_DATA_DELIMITER = ':';
 class HyperlinkDataTokenizer
 {
     public:
-        HyperlinkDataTokenizer(std::string_view str) : _str(str) {}
+    HyperlinkDataTokenizer(char const* pos, size_t len) : _pos(pos), _len(len), _empty(false) {}
 
-        template <typename T>
-        bool TryConsumeTo(T& val)
-        {
-            if (IsEmpty())
-                return false;
+    template <typename T>
+    bool TryConsumeTo(T& val)
+    {
+        if (_empty)
+            return false;
 
-            if (size_t off = _str.find(HYPERLINK_DATA_DELIMITER); off != std::string_view::npos)
-            {
-                if (!Trinity::Hyperlinks::LinkTags::base_tag::StoreTo(val, _str.substr(0, off)))
-                    return false;
-                _str = _str.substr(off+1);
-            }
-            else
-            {
-                if (!Trinity::Hyperlinks::LinkTags::base_tag::StoreTo(val, _str))
-                    return false;
-                _str = std::string_view();
-            }
-            return true;
-        }
+        char const* firstPos = _pos;
+        size_t thisLen = 0;
+        // find next delimiter
+        for (; _len && *_pos != HYPERLINK_DATA_DELIMITER; --_len, ++_pos, ++thisLen);
+        if (_len)
+            --_len, ++_pos; // skip the delimiter
+        else
+            _empty = true;
 
-        bool IsEmpty() { return _str.empty(); }
+        return Trinity::Hyperlinks::LinkTags::base_tag::StoreTo(val, firstPos, thisLen);
+    }
+
+    bool IsEmpty() { return _empty; }
 
     private:
-        std::string_view _str;
+    char const* _pos;
+    size_t _len;
+    bool _empty;
 };
 
-bool Trinity::Hyperlinks::LinkTags::achievement::StoreTo(AchievementLinkData& val, std::string_view text)
+bool Trinity::Hyperlinks::LinkTags::achievement::StoreTo(AchievementLinkData& val, char const* pos, size_t len)
 {
-    HyperlinkDataTokenizer t(text);
+    HyperlinkDataTokenizer t(pos, len);
     uint32 achievementId;
     if (!t.TryConsumeTo(achievementId))
         return false;
@@ -67,18 +66,18 @@ bool Trinity::Hyperlinks::LinkTags::achievement::StoreTo(AchievementLinkData& va
         t.TryConsumeTo(val.Criteria[1]) && t.TryConsumeTo(val.Criteria[2]) && t.TryConsumeTo(val.Criteria[3]) && t.IsEmpty();
 }
 
-bool Trinity::Hyperlinks::LinkTags::enchant::StoreTo(SpellInfo const*& val, std::string_view text)
+bool Trinity::Hyperlinks::LinkTags::enchant::StoreTo(SpellInfo const*& val, char const* pos, size_t len)
 {
-    HyperlinkDataTokenizer t(text);
+    HyperlinkDataTokenizer t(pos, len);
     uint32 spellId;
     if (!(t.TryConsumeTo(spellId) && t.IsEmpty()))
         return false;
     return (val = sSpellMgr->GetSpellInfo(spellId)) && val->HasAttribute(SPELL_ATTR0_TRADESPELL);
 }
 
-bool Trinity::Hyperlinks::LinkTags::glyph::StoreTo(GlyphLinkData& val, std::string_view text)
+bool Trinity::Hyperlinks::LinkTags::glyph::StoreTo(GlyphLinkData& val, char const* pos, size_t len)
 {
-    HyperlinkDataTokenizer t(text);
+    HyperlinkDataTokenizer t(pos, len);
     uint32 slot, prop;
     if (!(t.TryConsumeTo(slot) && t.TryConsumeTo(prop) && t.IsEmpty()))
         return false;
@@ -89,9 +88,9 @@ bool Trinity::Hyperlinks::LinkTags::glyph::StoreTo(GlyphLinkData& val, std::stri
     return true;
 }
 
-bool Trinity::Hyperlinks::LinkTags::item::StoreTo(ItemLinkData& val, std::string_view text)
+bool Trinity::Hyperlinks::LinkTags::item::StoreTo(ItemLinkData& val, char const* pos, size_t len)
 {
-    HyperlinkDataTokenizer t(text);
+    HyperlinkDataTokenizer t(pos, len);
     uint32 itemId, dummy;
     if (!t.TryConsumeTo(itemId))
         return false;
@@ -101,27 +100,27 @@ bool Trinity::Hyperlinks::LinkTags::item::StoreTo(ItemLinkData& val, std::string
         t.TryConsumeTo(val.RenderLevel) && t.IsEmpty() && !dummy;
 }
 
-bool Trinity::Hyperlinks::LinkTags::quest::StoreTo(QuestLinkData& val, std::string_view text)
+bool Trinity::Hyperlinks::LinkTags::quest::StoreTo(QuestLinkData& val, char const* pos, size_t len)
 {
-    HyperlinkDataTokenizer t(text);
+    HyperlinkDataTokenizer t(pos, len);
     uint32 questId;
     if (!t.TryConsumeTo(questId))
         return false;
     return (val.Quest = sObjectMgr->GetQuestTemplate(questId)) && t.TryConsumeTo(val.QuestLevel) && t.IsEmpty();
 }
 
-bool Trinity::Hyperlinks::LinkTags::spell::StoreTo(SpellInfo const*& val, std::string_view text)
+bool Trinity::Hyperlinks::LinkTags::spell::StoreTo(SpellInfo const*& val, char const* pos, size_t len)
 {
-    HyperlinkDataTokenizer t(text);
+    HyperlinkDataTokenizer t(pos, len);
     uint32 spellId;
     if (!(t.TryConsumeTo(spellId) && t.IsEmpty()))
         return false;
     return !!(val = sSpellMgr->GetSpellInfo(spellId));
 }
 
-bool Trinity::Hyperlinks::LinkTags::talent::StoreTo(TalentLinkData& val, std::string_view text)
+bool Trinity::Hyperlinks::LinkTags::talent::StoreTo(TalentLinkData& val, char const* pos, size_t len)
 {
-    HyperlinkDataTokenizer t(text);
+    HyperlinkDataTokenizer t(pos, len);
     uint32 talentId;
     int8 rank; // talent links contain <learned rank>-1, we store <learned rank>
     if (!(t.TryConsumeTo(talentId) && t.TryConsumeTo(rank) && t.IsEmpty()))
@@ -136,9 +135,9 @@ bool Trinity::Hyperlinks::LinkTags::talent::StoreTo(TalentLinkData& val, std::st
     return true;
 }
 
-bool Trinity::Hyperlinks::LinkTags::trade::StoreTo(TradeskillLinkData& val, std::string_view text)
+bool Trinity::Hyperlinks::LinkTags::trade::StoreTo(TradeskillLinkData& val, char const* pos, size_t len)
 {
-    HyperlinkDataTokenizer t(text);
+    HyperlinkDataTokenizer t(pos, len);
     uint32 spellId;
     if (!t.TryConsumeTo(spellId))
         return false;

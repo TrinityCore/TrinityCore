@@ -18,15 +18,10 @@
 #ifndef TRINITY_CHATCOMMANDHELPERS_H
 #define TRINITY_CHATCOMMANDHELPERS_H
 
-#include <string_view>
 #include <type_traits>
 
-namespace Trinity::Impl::ChatCommands
+namespace Trinity::ChatCommands
 {
-    /***************** HELPERS *************************\
-    |* These really aren't for outside use...          *|
-    \***************************************************/
-
     static constexpr char COMMAND_DELIMITER = ' ';
 
     template <typename T, typename = void>
@@ -37,26 +32,19 @@ namespace Trinity::Impl::ChatCommands
 
     template <typename T>
     using tag_base_t = typename tag_base<T>::type;
+}
 
-    struct TokenizeResult {
-        explicit operator bool() { return !token.empty(); }
-        std::string_view token;
-        std::string_view tail;
-    };
-
-    inline TokenizeResult tokenize(std::string_view args)
+namespace Trinity::Impl::ChatCommands
+{
+    /***************** HELPERS *************************\
+    |* These really aren't for outside use...          *|
+    \***************************************************/
+    inline std::size_t tokenize(char const*& end)
     {
-        TokenizeResult result;
-        if (size_t delimPos = args.find(COMMAND_DELIMITER); delimPos != std::string_view::npos)
-        {
-            result.token = args.substr(0, delimPos);
-            if (size_t tailPos = args.find_first_not_of(COMMAND_DELIMITER, delimPos); tailPos != std::string_view::npos)
-                result.tail = args.substr(tailPos);
-        }
-        else
-            result.token = args;
-
-        return result;
+        std::size_t len = 0;
+        for (; *end && *end != Trinity::ChatCommands::COMMAND_DELIMITER; ++end, ++len);
+        for (; *end && *end == Trinity::ChatCommands::COMMAND_DELIMITER; ++end);
+        return len;
     }
 
     template <typename T, typename... Ts>
