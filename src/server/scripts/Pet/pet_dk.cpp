@@ -57,10 +57,10 @@ class npc_pet_dk_ebon_gargoyle : public CreatureScript
                 Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(me, me, 30.0f);
                 Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(me, targets, u_check);
                 Cell::VisitAllObjects(me, searcher, 30.0f);
-                for (auto iter = targets.begin(); iter != targets.end(); ++iter)
-                    if ((*iter)->HasAura(SPELL_DK_SUMMON_GARGOYLE_1, ownerGuid))
+                for (Unit* target : targets)
+                    if (target->HasAura(SPELL_DK_SUMMON_GARGOYLE_1, ownerGuid))
                     {
-                        me->Attack((*iter), false);
+                        me->Attack(target, false);
                         break;
                     }
             }
