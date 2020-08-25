@@ -235,7 +235,7 @@ class spell_warr_deep_wounds : public AuraScript
     {
         if (Player* player = GetTarget()->ToPlayer())
         {
-            int32 damage = player->CalculateDamage(eventInfo.GetDamageInfo()->GetAttackType(), false, false);
+            int32 damage = player->CalculateDamage(BASE_ATTACK, true, false);
             damage = CalculatePct(damage, 16 * GetSpellInfo()->GetRank());
 
             if (damage)
