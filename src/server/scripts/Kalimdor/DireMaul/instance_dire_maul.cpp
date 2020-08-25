@@ -104,22 +104,22 @@ public:
             switch (go->GetEntry())
             {
                 case GO_CRYSTAL_01:
-                    _go_crystals[0] = go->GetGUID();
+                    _crystalGUIDs[0] = go->GetGUID();
                     break;
                 case GO_CRYSTAL_02:
-                    _go_crystals[1] = go->GetGUID();
+                    _crystalGUIDs[1] = go->GetGUID();
                     break;
                 case GO_CRYSTAL_03:
-                    _go_crystals[2] = go->GetGUID();
+                    _crystalGUIDs[2] = go->GetGUID();
                     break;
                 case GO_CRYSTAL_04:
-                    _go_crystals[3] = go->GetGUID();
+                    _crystalGUIDs[3] = go->GetGUID();
                     break;
                 case GO_CRYSTAL_05:
-                    _go_crystals[4] = go->GetGUID();
+                    _crystalGUIDs[4] = go->GetGUID();
                     break;
                 case GO_FORCEFIELD:
-                    _forcefield = go->GetGUID();
+                    _forcefieldGUID = go->GetGUID();
                     if (GetBossState(DATA_FORCEFIELD) != DONE)
                         _events.ScheduleEvent(EVENT_CRYSTAL_CREATURE_STORE, 1s);
                     break;
@@ -133,17 +133,17 @@ public:
             switch (type)
             {
                 case GO_CRYSTAL_01:
-                    return _go_crystals[0];
+                    return _crystalGUIDs[0];
                 case GO_CRYSTAL_02:
-                    return _go_crystals[1];
+                    return _crystalGUIDs[1];
                 case GO_CRYSTAL_03:
-                    return _go_crystals[2];
+                    return _crystalGUIDs[2];
                 case GO_CRYSTAL_04:
-                    return _go_crystals[3];
+                    return _crystalGUIDs[3];
                 case GO_CRYSTAL_05:
-                    return _go_crystals[4];
+                    return _crystalGUIDs[4];
                 case GO_FORCEFIELD:
-                    return _forcefield;
+                    return _forcefieldGUID;
                 case NPC_IMMOLTHAR:
                     return _immoGUID;
                 default:
@@ -183,7 +183,7 @@ public:
             {
                 creatureCount = 0;
 
-                if (GameObject* crystal = instance->GetGameObject(_go_crystals[i]))
+                if (GameObject* crystal = instance->GetGameObject(_crystalGUIDs[i]))
                 {
                     for (uint8 j = 0; j < 2; ++j)  // once per creature type from CrystalMobs
                     {
@@ -193,7 +193,7 @@ public:
                         {
                             if (Creature* creature = *itr)
                             {
-                                _crystalcreaturelist[i][creatureCount] = creature->GetGUID();
+                                _crystalCreatureGUIDs[i][creatureCount] = creature->GetGUID();
                                 ++creatureCount;
                             }
                         }
@@ -210,7 +210,7 @@ public:
             for (uint8 i = 0; i < 5; ++i)
             {
                 bool _mobAlive = false;
-                go = instance->GetGameObject(_go_crystals[i]);
+                go = instance->GetGameObject(_crystalGUIDs[i]);
                 if (!go)
                     continue;
 
@@ -218,7 +218,7 @@ public:
                 {
                     for (uint8 j = 0; j < 4; ++j)
                     {
-                        mob = instance->GetCreature(_crystalcreaturelist[i][j]);
+                        mob = instance->GetCreature(_crystalCreatureGUIDs[i][j]);
                         if (mob && mob->IsAlive())
                             _mobAlive = true;
                     }
@@ -262,7 +262,7 @@ public:
                 // if all crystals are done, we set encounter forcefield to done
                 SetBossState(DATA_FORCEFIELD, DONE);
                 // activate forcefield to make it disappear
-                if (GameObject* ffield = instance->GetGameObject(_forcefield))
+                if (GameObject* ffield = instance->GetGameObject(_forcefieldGUID))
                     ffield->SetGoState(GO_STATE_ACTIVE);
                 // remove previously set non attackable flag
                 if (Creature* Immo = instance->GetCreature(_immoGUID))
@@ -273,9 +273,9 @@ public:
 protected:
         InstanceScript* _instance;
         EventMap _events;
-        ObjectGuid _go_crystals[5];
-        ObjectGuid _crystalcreaturelist[5][4]; // 5 different Crystals, maximum of 4 Creatures
-        ObjectGuid _forcefield;
+        std::array<ObjectGuid, 5> _crystalGUIDs;
+        std::array<std::array<ObjectGuid, 4>, 5> _crystalCreatureGUIDs; // 5 different Crystals, maximum of 4 Creatures
+        ObjectGuid _forcefieldGUID;
         ObjectGuid _immoGUID;
     };
 
