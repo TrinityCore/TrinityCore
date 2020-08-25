@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include "Errors.h"
+#include "Optional.h"
 
 #include <array>
 #include <string>
@@ -344,8 +345,6 @@ inline std::vector<uint8> HexStrToByteVector(std::string_view str, bool reverse 
     Trinity::Impl::HexStrToByteArray(str, buf.data(), sz, reverse);
     return buf;
 }
-
-TC_COMMON_API bool StringToBool(std::string_view str);
 
 TC_COMMON_API bool StringEqualI(std::string_view str1, std::string_view str2);
 TC_COMMON_API bool StringStartsWith(std::string_view haystack, std::string_view needle);

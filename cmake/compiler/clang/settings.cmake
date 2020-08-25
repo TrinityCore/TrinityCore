@@ -11,6 +11,28 @@ else()
   message(STATUS "Clang: Minimum version required is ${CLANG_EXPECTED_VERSION}, found ${CMAKE_CXX_COMPILER_VERSION} - ok!")
 endif()
 
+include(CheckCXXSourceCompiles)
+
+check_cxx_source_compiles("
+#include <charconv>
+#include <cstdint>
+
+int main()
+{
+    uint64_t n;
+    char const c[] = \"0\";
+    std::from_chars(c, c+1, n);
+    return static_cast<int>(n);
+}
+" CLANG_HAVE_PROPER_CHARCONV)
+
+if (NOT CLANG_HAVE_PROPER_CHARCONV)
+  message(STATUS "Clang: Detected from_chars bug for 64-bit integers, workaround enabled")
+  target_compile_definitions(trinity-compile-option-interface
+  INTERFACE
+    -DTRINITY_NEED_CHARCONV_WORKAROUND)
+endif()
+
 if(WITH_WARNINGS)
   target_compile_options(trinity-warning-interface
     INTERFACE
