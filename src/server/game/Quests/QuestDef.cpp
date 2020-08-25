@@ -227,7 +227,7 @@ uint32 Quest::GetXPReward(Player const* player) const
     return 0;
 }
 
-/*static*/ bool Quest::IsTakingQuestEnabled(uint32 questId)
+bool Quest::IsTakingQuestEnabled(uint32 questId)
 {
     if (!sQuestPoolMgr->IsQuestActive(questId))
         return false;
