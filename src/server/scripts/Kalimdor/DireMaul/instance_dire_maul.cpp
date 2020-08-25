@@ -216,7 +216,7 @@ public:
 
                 if (go->GetGoState() == GO_STATE_READY)
                 {
-                    for (uint8 ii = 0; ii < 4; ++ii)
+                    for (uint8 j = 0; j < 4; ++j)
                     {
                         mob = instance->GetCreature(crystalcreaturelist[i][ii]);
                         if (mob && mob->IsAlive())
@@ -265,12 +265,12 @@ public:
                 if (GameObject* ffield = instance->GetGameObject(forcefield))
                     ffield->SetGoState(GO_STATE_ACTIVE);
                 // remove previously set non attackable flag
-                if (Creature* Immo =  instance->GetCreature(immoGUID))
+                if (Creature* Immo = instance->GetCreature(immoGUID))
                     Immo->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
         }
 
-        protected:
+protected:
         InstanceScript* _instance;
         EventMap _events;
         ObjectGuid go_crystals[5];
