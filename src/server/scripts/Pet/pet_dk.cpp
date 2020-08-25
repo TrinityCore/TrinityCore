@@ -58,11 +58,13 @@ class npc_pet_dk_ebon_gargoyle : public CreatureScript
                 Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(me, targets, u_check);
                 Cell::VisitAllObjects(me, searcher, 30.0f);
                 for (Unit* target : targets)
+                {
                     if (target->HasAura(SPELL_DK_SUMMON_GARGOYLE_1, ownerGuid))
                     {
                         me->Attack(target, false);
                         break;
                     }
+                }
             }
 
             void JustDied(Unit* /*killer*/) override
