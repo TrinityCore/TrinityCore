@@ -218,7 +218,7 @@ public:
                 {
                     for (uint8 j = 0; j < 4; ++j)
                     {
-                        mob = instance->GetCreature(crystalcreaturelist[i][ii]);
+                        mob = instance->GetCreature(crystalcreaturelist[i][j]);
                         if (mob && mob->IsAlive())
                             _mobAlive = true;
                     }
