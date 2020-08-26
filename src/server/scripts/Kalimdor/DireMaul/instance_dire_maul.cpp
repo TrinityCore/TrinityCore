@@ -207,7 +207,7 @@ public:
             Creature* mob = nullptr;
             GameObject* go = nullptr;
 
-            for (uint8 i = 0; i < 5; ++i)
+            for (uint8 i = 0; i < _crystalGUIDs.size(); ++i)
             {
                 bool _mobAlive = false;
                 go = instance->GetGameObject(_crystalGUIDs[i]);
@@ -216,7 +216,7 @@ public:
 
                 if (go->GetGoState() == GO_STATE_READY)
                 {
-                    for (uint8 j = 0; j < 4; ++j)
+                    for (uint8 j = 0; j < _crystalCreatureGUIDs[i].size(); ++j)
                     {
                         mob = instance->GetCreature(_crystalCreatureGUIDs[i][j]);
                         if (mob && mob->IsAlive())
