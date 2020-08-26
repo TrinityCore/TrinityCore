@@ -142,6 +142,9 @@ bool normalizePlayerName(std::string& name)
     if (name.empty())
         return false;
 
+    if (name.find(" ") != std::string::npos)
+        return false;
+
     std::wstring tmp;
     if (!Utf8toWStr(name, tmp))
         return false;
