@@ -31,7 +31,7 @@ namespace Trinity::Impl::StringConvertImpl
 {
     template <typename T, typename = void> struct For
     {
-        static_assert(!std::is_same_v<T,T>, "Unsupported type used for ToString or StringTo");
+        static_assert(Trinity::dependant_false_v<T>, "Unsupported type used for ToString or StringTo");
         /*
         static Optional<T> FromString(std::string_view str, ...);
         static std::string ToString(T&& val, ...);
@@ -76,7 +76,7 @@ namespace Trinity::Impl::StringConvertImpl
 
         static std::string ToString(T val)
         {
-            std::string buf(20,0); /* 2^64 is 20 decimal characters, -(2^63) is 20 including the sign */
+            std::string buf(20,'\0'); /* 2^64 is 20 decimal characters, -(2^63) is 20 including the sign */
             char* const start = buf.data();
             char* const end = (start + buf.length());
             std::to_chars_result const res = std::to_chars(start, end, val);
