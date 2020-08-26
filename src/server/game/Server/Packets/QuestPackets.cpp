@@ -127,6 +127,26 @@ WorldPacket const* WorldPackets::Quest::QueryQuestInfoResponse::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Quest::QuestGiverStatus::Write()
+{
+    _worldPacket << uint64(QuestGiver.Guid);
+    _worldPacket << uint8(QuestGiver.Status);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Quest::QuestGiverStatusMultiple::Write()
+{
+    _worldPacket << uint32(QuestGiver.size());
+    for (QuestGiverInfo const& questGiver : QuestGiver)
+    {
+        _worldPacket << uint64(questGiver.Guid);
+        _worldPacket << uint8(questGiver.Status);
+    }
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Quest::QuestGiverQuestDetails::Write()
 {
     _worldPacket << QuestGiverGUID;

@@ -391,12 +391,12 @@ void PlayerMenu::SendQuestGiverQuestList(QEmote const& eEmote, const std::string
 
 void PlayerMenu::SendQuestGiverStatus(uint8 questStatus, ObjectGuid npcGUID) const
 {
-    WorldPacket data(SMSG_QUESTGIVER_STATUS, 9);
-    data << uint64(npcGUID);
-    data << uint8(questStatus);
+    WorldPackets::Quest::QuestGiverStatus packet;
+    packet.QuestGiver.Guid = npcGUID;
+    packet.QuestGiver.Status = questStatus;
 
-    _session->SendPacket(&data);
-    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_STATUS NPC=%s, status=%u", npcGUID.ToString().c_str(), questStatus);
+    _session->SendPacket(packet.Write());
+    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUEST_GIVER_STATUS Guid = %s, Status = %u", npcGUID.ToString().c_str(), questStatus);
 }
 
 void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGUID, bool activateAccept) const

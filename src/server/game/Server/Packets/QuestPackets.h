@@ -111,6 +111,36 @@ namespace WorldPackets
                 QuestInfo Info;
         };
 
+        struct QuestGiverInfo
+        {
+            QuestGiverInfo() { }
+            QuestGiverInfo(ObjectGuid const& guid, uint8 status)
+                : Guid(guid), Status(status) { }
+
+            ObjectGuid Guid;
+            uint32 Status = DIALOG_STATUS_NONE;
+        };
+
+        class QuestGiverStatus final : public ServerPacket
+        {
+        public:
+            QuestGiverStatus() : ServerPacket(SMSG_QUEST_GIVER_STATUS, 9) { }
+
+            WorldPacket const* Write() override;
+
+            QuestGiverInfo QuestGiver;
+        };
+
+        class QuestGiverStatusMultiple final : public ServerPacket
+        {
+        public:
+            QuestGiverStatusMultiple() : ServerPacket(SMSG_QUEST_GIVER_STATUS_MULTIPLE, 18) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<QuestGiverInfo> QuestGiver;
+        };
+
         struct QuestChoiceItem
         {
             QuestChoiceItem(uint32 itemID, uint32 quantity, uint32 displayID) : ItemID(itemID), Quantity(quantity),
