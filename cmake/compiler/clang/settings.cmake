@@ -11,6 +11,9 @@ else()
   message(STATUS "Clang: Minimum version required is ${CLANG_EXPECTED_VERSION}, found ${CMAKE_CXX_COMPILER_VERSION} - ok!")
 endif()
 
+# This tests for a bug in clang-7 that causes linkage to fail for 64-bit from_chars (in some configurations)
+# If the clang requirement is bumped to >= clang-8, you can remove this check, as well as
+# the associated ifdef block in src/common/Utilities/StringConvert.h
 include(CheckCXXSourceCompiles)
 
 check_cxx_source_compiles("

@@ -92,6 +92,13 @@ namespace Trinity::Impl::StringConvertImpl
     };
 
 #ifdef TRINITY_NEED_CHARCONV_WORKAROUND
+    /*
+        If this is defined, std::from_chars will cause linkage errors for 64-bit types.
+        (This is a bug in clang-7.)
+
+        If the clang requirement is bumped to >= clang-8, remove this ifdef block and its
+        associated check in cmake/compiler/clang/settings.cmake
+    */
     template <>
     struct For<uint64, void>
     {
