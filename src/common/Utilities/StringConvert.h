@@ -31,7 +31,7 @@ namespace Trinity::Impl::StringConvertImpl
 {
     template <typename T, typename = void> struct For
     {
-        static_assert("Unsupported type used for ToString or StringTo");
+        static_assert(!std::is_same_v<T,T>, "Unsupported type used for ToString or StringTo");
         /*
         static Optional<T> FromString(std::string_view str, ...);
         static std::string ToString(T&& val, ...);
@@ -56,11 +56,6 @@ namespace Trinity::Impl::StringConvertImpl
                     base = 2;
                     str.remove_prefix(2);
                 }
-                else if (str.substr(0, 1) == "0")
-                {
-                    base = 8;
-                    str.remove_prefix(1);
-                }
                 else
                     base = 10;
 
@@ -81,7 +76,7 @@ namespace Trinity::Impl::StringConvertImpl
 
         static std::string ToString(T val)
         {
-            std::string buf(20,0); /* largest unsigned 64-bit value is 20 decimal characters, largest signed 64-bit value is 19 */
+            std::string buf(20,0); /* 2^64 is 20 decimal characters, -(2^63) is 20 including the sign */
             char* const start = buf.data();
             char* const end = (start + buf.length());
             std::to_chars_result const res = std::to_chars(start, end, val);
@@ -169,10 +164,16 @@ namespace Trinity::Impl::StringConvertImpl
 namespace Trinity
 {
     template <typename Result, typename... Params>
-    Optional<Result> StringTo(std::string_view str, Params&&... params) { return Trinity::Impl::StringConvertImpl::For<Result>::FromString(str, std::forward<Params>(params)...); }
+    Optional<Result> StringTo(std::string_view str, Params&&... params)
+    {
+        return Trinity::Impl::StringConvertImpl::For<Result>::FromString(str, std::forward<Params>(params)...);
+    }
 
     template <typename Type, typename... Params>
-    std::string ToString(Type&& val, Params&&... params) { return Trinity::Impl::StringConvertImpl::For<std::decay_t<Type>>::ToString(std::forward<Type>(val), std::forward<Params>(params)...); }
+    std::string ToString(Type&& val, Params&&... params)
+    {
+        return Trinity::Impl::StringConvertImpl::For<std::decay_t<Type>>::ToString(std::forward<Type>(val), std::forward<Params>(params)...);
+    }
 }
 
 #endif

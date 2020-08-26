@@ -119,9 +119,13 @@ namespace Trinity::Hyperlinks
 
             static bool StoreTo(ObjectGuid& val, char const* pos, size_t len)
             {
-                try { val.Set(std::stoul(std::string(pos, len), nullptr, 16)); }
-                catch (...) { return false; }
-                return true;
+                if (Optional<uint64> res = Trinity::StringTo<uint64>(std::string_view(pos, len), 16))
+                {
+                    val.Set(*res);
+                    return true;
+                }
+                else
+                    return false;
             }
         };
 
