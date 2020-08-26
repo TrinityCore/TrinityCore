@@ -123,7 +123,6 @@ void Log::CreateLoggerFromConfig(std::string const& appenderName)
         return;
 
     LogLevel level = LOG_LEVEL_DISABLED;
-    uint8 type = uint8(-1);
 
     std::string options = sConfigMgr->GetStringDefault(appenderName, "");
     std::string name = appenderName.substr(7);
