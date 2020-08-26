@@ -186,11 +186,36 @@ void WardenWin::HandleHashResult(ByteBuffer &buff)
     _initialized = true;
 }
 
+static constexpr uint8 GetCheckPacketBaseSize(WardenCheckType type)
+{
+    switch (type)
+    {
+        case DRIVER_CHECK: return 1;
+        case LUA_EVAL_CHECK: return 1 + sizeof(_luaEvalPrefix)-1 + sizeof(_luaEvalMidfix)-1 + 4 + sizeof(_luaEvalPostfix)-1;
+        case MPQ_CHECK: return 1;
+        case PAGE_CHECK_A: return (4 + 1);
+        case PAGE_CHECK_B: return (4 + 1);
+        case MODULE_CHECK: return (4 + Trinity::Crypto::HMAC_SHA1::DIGEST_LENGTH);
+        case MEM_CHECK: return (1 + 4 + 1);
+        default: return 0;
+    }
+}
+
+static uint16 GetCheckPacketSize(WardenCheck const& check)
+{
+    uint16 size = 1 + GetCheckPacketBaseSize(check.Type); // 1 byte check type
+    if (!check.Str.empty())
+        size += (check.Str.length() + 1); // 1 byte string length
+    if (!check.Data.empty())
+        size += check.Data.size();
+    return size;
+}
+
 void WardenWin::RequestChecks()
 {
-    TC_LOG_DEBUG("warden", "Request data");
+    TC_LOG_DEBUG("warden", "Request data from %s (account %u) - loaded: %u", _session->GetPlayerName().c_str(), _session->GetAccountId(), _session->GetPlayer() && !_session->PlayerLoading());
 
-    // If all checks were done, fill the todo list again
+    // If all checks for a category are done, fill its todo list again
     for (WardenCheckCategory category : EnumUtils::Iterate<WardenCheckCategory>())
     {
         auto& [checks, checksIt] = _checks[category];
@@ -216,26 +241,40 @@ void WardenWin::RequestChecks()
         {
             if (checksIt == checks.end()) // all checks were already sent, list will be re-filled on next Update() run
                 break;
+            _currentChecks.push_back(*(checksIt++));
+        }
+    }
 
-            uint16 const id = *(checksIt++);
+    Trinity::Containers::RandomShuffle(_currentChecks);
 
-            WardenCheck const& check = sWardenCheckMgr->GetCheckData(id);
-            if (check.Type == LUA_EVAL_CHECK)
-            {
-                buff << uint8(sizeof(_luaEvalPrefix)-1 + check.Str.size() + sizeof(_luaEvalMidfix)-1 + check.IdStr.size() + sizeof(_luaEvalPostfix)-1);
-                buff.append(_luaEvalPrefix, sizeof(_luaEvalPrefix)-1);
-                buff.append(check.Str.data(), check.Str.size());
-                buff.append(_luaEvalMidfix, sizeof(_luaEvalMidfix)-1);
-                buff.append(check.IdStr.data(), check.IdStr.size());
-                buff.append(_luaEvalPostfix, sizeof(_luaEvalPostfix)-1);
-            }
-            else if (!check.Str.empty())
-            {
-                buff << uint8(check.Str.size());
-                buff.append(check.Str.data(), check.Str.size());
-            }
+    uint16 expectedSize = 4;
+    Trinity::Containers::EraseIf(_currentChecks,
+        [&expectedSize](uint16 id)
+        {
+            uint8 const thisSize = GetCheckPacketSize(sWardenCheckMgr->GetCheckData(id));
+            if ((expectedSize + thisSize) > 512) // warden packets are truncated to 512 bytes clientside
+                return true;
+            expectedSize += thisSize;
+            return false;
+        }
+    );
 
-            _currentChecks.push_back(id);
+    for (uint16 const id : _currentChecks)
+    {
+        WardenCheck const& check = sWardenCheckMgr->GetCheckData(id);
+        if (check.Type == LUA_EVAL_CHECK)
+        {
+            buff << uint8(sizeof(_luaEvalPrefix) - 1 + check.Str.size() + sizeof(_luaEvalMidfix) - 1 + check.IdStr.size() + sizeof(_luaEvalPostfix) - 1);
+            buff.append(_luaEvalPrefix, sizeof(_luaEvalPrefix) - 1);
+            buff.append(check.Str.data(), check.Str.size());
+            buff.append(_luaEvalMidfix, sizeof(_luaEvalMidfix) - 1);
+            buff.append(check.IdStr.data(), check.IdStr.size());
+            buff.append(_luaEvalPostfix, sizeof(_luaEvalPostfix) - 1);
+        }
+        else if (!check.Str.empty())
+        {
+            buff << uint8(check.Str.size());
+            buff.append(check.Str.data(), check.Str.size());
         }
     }
 
@@ -305,6 +344,25 @@ void WardenWin::RequestChecks()
     buff << uint8(xorByte);
     buff.hexlike();
 
+    auto idstring = [this]() -> std::string
+    {
+        std::stringstream stream;
+        for (uint16 const id : _currentChecks)
+            stream << id << " ";
+        return stream.str();
+    };
+
+    if (buff.size() == expectedSize)
+    {
+        TC_LOG_DEBUG("warden", "Finished building warden packet, size is %zu bytes", buff.size());
+        TC_LOG_DEBUG("warden", "Sent checks: %s", idstring().c_str());
+    }
+    else
+    {
+        TC_LOG_WARN("warden", "Finished building warden packet, size is %zu bytes, but expected %u bytes!", buff.size(), expectedSize);
+        TC_LOG_WARN("warden", "Sent checks: %s", idstring().c_str());
+    }
+
     // Encrypt with warden RC4 key
     EncryptData(buff.contents(), buff.size());
 
@@ -313,13 +371,6 @@ void WardenWin::RequestChecks()
     _session->SendPacket(&pkt);
 
     _dataSent = true;
-
-    std::stringstream stream;
-    stream << "Sent check id's: ";
-    for (uint16 const id : _currentChecks)
-        stream << id << " ";
-
-    TC_LOG_DEBUG("warden", "%s", stream.str().c_str());
 }
 
 void WardenWin::HandleCheckResult(ByteBuffer &buff)
