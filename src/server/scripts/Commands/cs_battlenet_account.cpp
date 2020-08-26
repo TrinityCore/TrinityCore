@@ -68,45 +68,31 @@ public:
     }
 
     /// Create an account
-    static bool HandleAccountCreateCommand(ChatHandler* handler, char const* args)
+    static bool HandleAccountCreateCommand(ChatHandler* handler, std::string const& accountName, std::string const& password, Optional<bool> createGameAccount)
     {
-        if (!*args)
-            return false;
-
-        ///- %Parse the command line arguments
-        char* accountName = strtok((char*)args, " ");
-        char* password = strtok(nullptr, " ");
-        if (!accountName || !password)
-            return false;
-
-        if (!strchr(accountName, '@'))
+        if (accountName.find('@') == std::string::npos)
         {
             handler->SendSysMessage(LANG_ACCOUNT_INVALID_BNET_NAME);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        char* createGameAccountParam = strtok(nullptr, " ");
-        bool createGameAccount = true;
-        if (createGameAccountParam)
-            createGameAccount = StringToBool(createGameAccountParam);
-
         std::string gameAccountName;
-        switch (Battlenet::AccountMgr::CreateBattlenetAccount(std::string(accountName), std::string(password), createGameAccount, &gameAccountName))
+        switch (Battlenet::AccountMgr::CreateBattlenetAccount(accountName, password, createGameAccount.value_or(true), &gameAccountName))
         {
             case AccountOpResult::AOR_OK:
             {
-                if (createGameAccount)
-                    handler->PSendSysMessage(LANG_ACCOUNT_CREATED_BNET_WITH_GAME, accountName, gameAccountName.c_str());
+                if (createGameAccount == true)
+                    handler->PSendSysMessage(LANG_ACCOUNT_CREATED_BNET_WITH_GAME, accountName.c_str(), gameAccountName.c_str());
                 else
-                    handler->PSendSysMessage(LANG_ACCOUNT_CREATED_BNET, accountName);
+                    handler->PSendSysMessage(LANG_ACCOUNT_CREATED_BNET, accountName.c_str());
 
                 if (handler->GetSession())
                 {
                     TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Character:[%s] (%s) created Battle.net account %s%s%s",
                         handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
                         handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID().ToString().c_str(),
-                        accountName, createGameAccount ? " with game account " : "", createGameAccount ? gameAccountName.c_str() : "");
+                        accountName.c_str(), createGameAccount == true ? " with game account " : "", createGameAccount == true ? gameAccountName.c_str() : "");
                 }
                 break;
             }

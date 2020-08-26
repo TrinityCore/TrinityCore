@@ -20,6 +20,8 @@
 
 #include "Define.h"
 #include "Errors.h"
+#include "Optional.h"
+
 #include <array>
 #include <string>
 #include <string_view>
@@ -380,7 +382,6 @@ inline std::vector<uint8> HexStrToByteVector(std::string_view str, bool reverse 
     return buf;
 }
 
-TC_COMMON_API bool StringToBool(std::string_view str);
 TC_COMMON_API float DegToRad(float degrees);
 
 TC_COMMON_API bool StringEqualI(std::string_view str1, std::string_view str2);
