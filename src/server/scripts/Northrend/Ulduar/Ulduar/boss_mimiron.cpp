@@ -1131,8 +1131,8 @@ class boss_aerial_command_unit : public CreatureScript
                     damage = me->GetHealth() - 1; // Let creature fall to 1 hp, but do not let it die or damage itself with SetHealth().
                     me->SetReactState(REACT_PASSIVE);
                     me->AttackStop();
-                    me->SetHover(false);
                     me->SetDisableGravity(true);
+                    me->SetAnimationTier(AnimationTier::Ground);
 
                     DoCastSelf(SPELL_VEHICLE_DAMAGED, true);
 
