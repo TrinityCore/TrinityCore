@@ -559,13 +559,4 @@ Ret* Coalesce(T1* first, T*... rest)
         return static_cast<Ret*>(first);
 }
 
-namespace Trinity
-{
-    template <typename T>
-    struct dependant_false { static constexpr bool value = false; };
-
-    template <typename T>
-    constexpr bool dependant_false_v = dependant_false<T>::value;
-}
-
 #endif

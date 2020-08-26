@@ -21,6 +21,7 @@
 #include "Define.h"
 #include "Errors.h"
 #include "Optional.h"
+#include "Types.h"
 #include "Util.h"
 #include <charconv>
 #include <string>
