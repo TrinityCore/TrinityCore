@@ -43,7 +43,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (15, 8540, 2, 0, 1, 25, 0, 28675, 0, 0, 1, 0, 0, '', 'Gossip option requires player to have the spell \'Potion Master\' NOT learned'),
 (15, 8540, 2, 0, 1, 8, 0, 10902, 0, 0, 0, 0, 0, '', 'Gossip option requires player to have the quest \'Master of Elixirs\' rewarded OR'),
 (15, 8540, 2, 0, 2, 27, 0, 68, 3, 0, 0, 0, 0, '', 'Gossip option requires level 68 or higher'),
-(15, 8540, 2, 0, 2, 7, 0, 171, 350, 0, 0, 0, 0, '', 'Gossip option requires an Alchemy skill of 350 or higher');
+(15, 8540, 2, 0, 2, 7, 0, 171, 350, 0, 0, 0, 0, '', 'Gossip option requires an Alchemy skill of 350 or higher'),
 (15, 8540, 2, 0, 2, 25, 0, 28672, 0, 0, 1, 0, 0, '', 'Gossip option requires player to have the spell \'Transmutation Master\' NOT learned'),
 (15, 8540, 2, 0, 2, 25, 0, 28677, 0, 0, 1, 0, 0, '', 'Gossip option requires player to have the spell \'Elixir Master\' NOT learned'),
 (15, 8540, 2, 0, 2, 25, 0, 28675, 0, 0, 1, 0, 0, '', 'Gossip option requires player to have the spell \'Potion Master\' NOT learned'),
