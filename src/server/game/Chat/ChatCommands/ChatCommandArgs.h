@@ -21,6 +21,7 @@
 #include "ChatCommandHelpers.h"
 #include "ChatCommandTags.h"
 #include "SmartEnum.h"
+#include "StringConvert.h"
 #include "Util.h"
 #include <charconv>
 #include <map>
@@ -55,20 +56,10 @@ struct ArgInfo<T, std::enable_if_t<std::is_integral_v<T>>>
         char const* next = args;
         std::string_view token(args, Trinity::Impl::ChatCommands::tokenize(next));
 
-        if (!token.length())
-            return nullptr;
-
-        std::from_chars_result result;
-        if (StringStartsWith(token, "0x"))
-            result = std::from_chars(token.data() + 2, token.data() + token.length(), val, 16);
-        else if (StringStartsWith(token, "0b"))
-            result = std::from_chars(token.data() + 2, token.data() + token.length(), val, 2);
+        if (Optional<T> v = StringTo<T>(token, 0))
+            val = *v;
         else
-            result = std::from_chars(token.data(), token.data() + token.length(), val, 10);
-
-        if ((token.data() + token.length()) != result.ptr)
             return nullptr;
-
         return next;
     }
 };

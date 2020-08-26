@@ -17,6 +17,7 @@
 
 #include "Config.h"
 #include "Log.h"
+#include "StringConvert.h"
 #include "Util.h"
 #include <boost/property_tree/ini_parser.hpp>
 #include <algorithm>
@@ -137,7 +138,15 @@ bool ConfigMgr::GetBoolDefault(std::string const& name, bool def, bool quiet) co
 {
     std::string val = GetValueDefault(name, std::string(def ? "1" : "0"), quiet);
     val.erase(std::remove(val.begin(), val.end(), '"'), val.end());
-    return StringToBool(val);
+    Optional<bool> boolVal = Trinity::StringTo<bool>(val);
+    if (boolVal)
+        return *boolVal;
+    else
+    {
+        TC_LOG_ERROR("server.loading", "Bad value defined for name %s in config file %s, going to use '%s' instead",
+            name.c_str(), _filename.c_str(), def ? "true" : "false");
+        return def;
+    }
 }
 
 int ConfigMgr::GetIntDefault(std::string const& name, int def, bool quiet) const

@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include "Errors.h"
+#include "Optional.h"
 
 #include <array>
 #include <string>
@@ -345,8 +346,6 @@ inline std::vector<uint8> HexStrToByteVector(std::string_view str, bool reverse 
     return buf;
 }
 
-TC_COMMON_API bool StringToBool(std::string_view str);
-
 TC_COMMON_API bool StringEqualI(std::string_view str1, std::string_view str2);
 TC_COMMON_API bool StringStartsWith(std::string_view haystack, std::string_view needle);
 TC_COMMON_API bool StringContainsStringI(std::string_view haystack, std::string_view needle);
@@ -558,6 +557,15 @@ Ret* Coalesce(T1* first, T*... rest)
         return (first ? static_cast<Ret*>(first) : Coalesce<Ret>(rest...));
     else
         return static_cast<Ret*>(first);
+}
+
+namespace Trinity
+{
+    template <typename T>
+    struct dependant_false { static constexpr bool value = false; };
+
+    template <typename T>
+    constexpr bool dependant_false_v = dependant_false<T>::value;
 }
 
 #endif
