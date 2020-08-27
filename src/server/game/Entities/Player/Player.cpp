@@ -17674,7 +17674,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder* holder)
     m_resetTalentsTime = time_t(fields[30].GetUInt32());
 
     if (!m_taxi.LoadTaxiMask(fields[22].GetString()))                // must be before InitTaxiNodesForLevel
-        TC_LOG_WARN("entities.player.loading", "Player::LoadFromDB: Player (%s) has invalid taximask (%s) in DB. Forced partial load.", GetGUID().ToString().c_str(), fields[22].GetCString());
+        TC_LOG_WARN("entities.player.loading", "Player::LoadFromDB: Player (%s) has invalid taximask (%s) in DB. Forced partial load.", GetGUID().ToString().c_str(), fields[22].GetString().c_str());
 
     uint32 extraflags = fields[36].GetUInt16();
 
@@ -18327,7 +18327,7 @@ Item* Player::_LoadItem(CharacterDatabaseTransaction& trans, uint32 zoneId, uint
                 if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
                 {
                     GuidSet looters;
-                    for (std::string_view guidStr : Trinity::Tokenize((*result)[0].GetCString(), ' ', false))
+                    for (std::string_view guidStr : Trinity::Tokenize((*result)[0].GetStringView(), ' ', false))
                     {
                         if (Optional<ObjectGuid::LowType> guid = Trinity::StringTo<ObjectGuid::LowType>(guidStr))
                             looters.insert(ObjectGuid::Create<HighGuid::Player>(*guid));
