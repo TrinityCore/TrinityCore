@@ -4910,59 +4910,59 @@ void Player::GetDodgeFromAgility(float &diminishing, float &nondiminishing) cons
     */
     if (getClass() == CLASS_WARRIOR || getClass() == CLASS_PALADIN || getClass() == CLASS_DEATH_KNIGHT)
     {
-        diminishing += 5.f;
+        nondiminishing += 5.f;
         return;
     }
 
     // Table for base dodge values
-    const float dodge_base[MAX_CLASSES] =
+    std::array<float, MAX_CLASSES> const baseDodge =
     {
-         0.037580f, // Warrior
-         0.036520f, // Paladin
+         0.037580f, // Warrior  (obsolete since 4.2)
+         0.036520f, // Paladin  (obsolete since 4.2)
         -0.054500f, // Hunter
         -0.005900f, // Rogue
          0.031830f, // Priest
-         0.036640f, // DK
+         0.036640f, // Death Knight  (obsolete since 4.2)
          0.016750f, // Shaman
          0.034575f, // Mage
          0.020350f, // Warlock
          0.0f,      // ??
          0.049510f  // Druid
     };
-    // Crit/agility to dodge/agility coefficient multipliers; 3.2.0 increased required agility by 15%
-    const float crit_to_dodge[MAX_CLASSES] =
+
+    // Crit to dodge coefficient (Todo: these coefficients are based on previous author's code so they still need to be validated)
+    std::array<float, MAX_CLASSES> const critToDodge =
     {
-         0.85f/1.15f,    // Warrior
-         1.00f/1.15f,    // Paladin
-         1.11f/1.15f,    // Hunter
-         2.00f/1.15f,    // Rogue
-         1.00f/1.15f,    // Priest
-         0.85f/1.15f,    // DK
-         1.60f/1.15f,    // Shaman
-         1.00f/1.15f,    // Mage
-         0.97f/1.15f,    // Warlock (?)
-         0.0f,           // ??
-         2.00f/1.15f     // Druid
+         0.f,       // Warrior (obsolete since 4.2)
+         0.f,       // Paladin (obsolete since 4.2)
+         0.74f,     // Hunter
+         1.33f,     // Rogue
+         0.67f,     // Priest
+         0.f,       // Death Knight (absolete since 4.2)
+         1.07f,     // Shaman
+         0.66f,     // Mage
+         0.65f,     // Warlock
+         0.f,       // ??
+         1.32f      // Druid
     };
 
     uint8 level = getLevel();
-    uint32 pclass = getClass();
+    uint32 playerClass = getClass();
 
     if (level > GT_MAX_LEVEL)
         level = GT_MAX_LEVEL;
 
     // Dodge per agility is proportional to crit per agility, which is available from DBC files
-    GtChanceToMeleeCritEntry  const* dodgeRatio = sGtChanceToMeleeCritStore.LookupEntry((pclass-1)*GT_MAX_LEVEL + level-1);
-    if (dodgeRatio == nullptr || pclass > MAX_CLASSES)
+    GtChanceToMeleeCritEntry  const* dodgeRatio = sGtChanceToMeleeCritStore.LookupEntry((playerClass - 1) * GT_MAX_LEVEL + level - 1);
+    if (!dodgeRatio || playerClass > MAX_CLASSES)
         return;
 
-    /// @todo research if talents/effects that increase total agility by x% should increase non-diminishing part
-    float base_agility = GetCreateStat(STAT_AGILITY) * m_auraModifiersGroup[UNIT_MOD_STAT_START + STAT_AGILITY][BASE_PCT];
-    float bonus_agility = GetStat(STAT_AGILITY) - base_agility;
+    float baseAgility = GetCreateStat(STAT_AGILITY) * m_auraModifiersGroup[UNIT_MOD_STAT_START + STAT_AGILITY][BASE_PCT];
+    float bonusAgility = GetStat(STAT_AGILITY) - baseAgility;
 
     // calculate diminishing (green in char screen) and non-diminishing (white) contribution
-    diminishing = 100.0f * bonus_agility * dodgeRatio->ratio * crit_to_dodge[pclass-1];
-    nondiminishing = 100.0f * (dodge_base[pclass-1] + base_agility * dodgeRatio->ratio * crit_to_dodge[pclass-1]);
+    diminishing = 100.0f * bonusAgility * dodgeRatio->ratio * critToDodge[playerClass -1 ];
+    nondiminishing = 100.0f * (baseDodge[playerClass - 1] + baseAgility * dodgeRatio->ratio * critToDodge[playerClass -1 ]);
 }
 
 float Player::GetSpellCritFromIntellect() const
