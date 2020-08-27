@@ -18,6 +18,8 @@
 #ifndef LogCommon_h__
 #define LogCommon_h__
 
+#include "Define.h"
+
 // EnumUtils: DESCRIBE THIS
 enum LogLevel : uint8
 {
