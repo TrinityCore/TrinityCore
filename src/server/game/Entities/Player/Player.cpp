@@ -1541,7 +1541,7 @@ bool Player::BuildEnumData(PreparedQueryResult result, WorldPacket* data)
     *data << uint32(petLevel);
     *data << uint32(petFamily);
 
-    std::vector<std::string_view> equipment = Trinity::Tokenize(fields[22].GetString(), ' ', false);
+    std::vector<std::string_view> equipment = Trinity::Tokenize(fields[22].GetStringView(), ' ', false);
     for (uint8 slot = 0; slot < INVENTORY_SLOT_BAG_END; ++slot)
     {
         uint32 const visualBase = slot * 2;
@@ -1555,8 +1555,11 @@ bool Player::BuildEnumData(PreparedQueryResult result, WorldPacket* data)
 
         if (!proto)
         {
-            TC_LOG_WARN("entities.player.loading", "Player %u has invalid equipment '%s' in `equipmentcache` at index %u. Skipped.",
-                guid, (visualBase < equipment.size()) ? std::string(equipment[visualBase]).c_str() : "<none>", visualBase);
+            if (!itemId || *itemId)
+            {
+                TC_LOG_WARN("entities.player.loading", "Player %u has invalid equipment '%s' in `equipmentcache` at index %u. Skipped.",
+                    guid, (visualBase < equipment.size()) ? std::string(equipment[visualBase]).c_str() : "<none>", visualBase);
+            }
 
             *data << uint32(0);
             *data << uint8(0);
