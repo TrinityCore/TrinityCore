@@ -18,6 +18,7 @@
 #ifndef LogCommon_h__
 #define LogCommon_h__
 
+// EnumUtils: DESCRIBE THIS
 enum LogLevel : uint8
 {
     LOG_LEVEL_DISABLED                           = 0,
@@ -32,6 +33,7 @@ enum LogLevel : uint8
     LOG_LEVEL_INVALID = 0xFF // SKIP
 };
 
+// EnumUtils: DESCRIBE THIS
 enum AppenderType : uint8
 {
     APPENDER_NONE,

@@ -36,23 +36,6 @@
   #include <arpa/inet.h>
 #endif
 
-Trinity::NullTerminatedStrings::NullTerminatedStrings(std::vector<std::string_view> const& strs, size_t offset)
-{
-    size_t const N = strs.size();
-    if (strs.size() <= offset)
-        return;
-
-    size_t const dN = (N - offset);
-    _strings.reserve(dN);
-    _cStrings.reserve(dN);
-
-    for (size_t i = offset; i < N; ++i)
-    {
-        std::string const& s = _strings.emplace_back(strs[i]);
-        _cStrings.push_back(s.c_str());
-    }
-}
-
 std::vector<std::string_view> Trinity::Tokenize(std::string_view str, char sep, bool keepEmpty)
 {
     std::vector<std::string_view> tokens;

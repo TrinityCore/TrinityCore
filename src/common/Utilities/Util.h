@@ -38,23 +38,6 @@ enum class TimeFormat : uint8
 
 namespace Trinity
 {
-    class TC_COMMON_API NullTerminatedStrings
-    {
-        public:
-            NullTerminatedStrings(std::vector<std::string_view> const& strs, size_t offset = 0);
-
-            operator std::vector<std::string> const&() const { return _strings; }
-            operator std::vector<char const*> const&() const { return _cStrings; }
-
-            std::vector<std::string> const& str() const { return *this; }
-            std::vector<char const*> const& c_str() const { return *this; }
-
-        private:
-            std::vector<std::string> _strings;
-            std::vector<char const*> _cStrings;
-    };
-    inline NullTerminatedStrings NullTerminate(std::vector<std::string_view> const& vec, size_t offset = 0) { return { vec, offset }; }
-
     TC_COMMON_API std::vector<std::string_view> Tokenize(std::string_view str, char sep, bool keepEmpty);
 
     /* this would return string_view into temporary otherwise */
@@ -62,7 +45,7 @@ namespace Trinity
     std::vector<std::string_view> Tokenize(std::string const&&, char, bool) = delete;
 
     /* the delete overload means we need to make this explicit */
-    inline std::vector<std::string_view> Tokenize(char const* s, char c, bool b) { return Tokenize(std::string_view(s ? s : ""), c, b); }
+    inline std::vector<std::string_view> Tokenize(char const* str, char sep, bool keepEmpty) { return Tokenize(std::string_view(str ? str : ""), sep, keepEmpty); }
 }
 
 TC_COMMON_API Optional<int32> MoneyStringToMoney(std::string const& moneyString);

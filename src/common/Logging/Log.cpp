@@ -108,7 +108,7 @@ void Log::CreateAppenderFromConfig(std::string const& appenderName)
 
     try
     {
-        Appender* appender = factoryFunction->second(NextAppenderId(), name, level, flags, Trinity::NullTerminate(tokens, 3));
+        Appender* appender = factoryFunction->second(NextAppenderId(), name, level, flags, tokens);
         appenders[appender->getId()].reset(appender);
     }
     catch (InvalidAppenderArgsException const& iaae)
@@ -194,7 +194,7 @@ void Log::ReadLoggersFromConfig()
 
         Close(); // Clean any Logger or Appender created
 
-        AppenderConsole* appender = new AppenderConsole(NextAppenderId(), "Console", LOG_LEVEL_DEBUG, APPENDER_FLAGS_NONE, std::vector<char const*>());
+        AppenderConsole* appender = new AppenderConsole(NextAppenderId(), "Console", LOG_LEVEL_DEBUG, APPENDER_FLAGS_NONE, {});
         appenders[appender->getId()].reset(appender);
 
         Logger* rootLogger = new Logger(LOGGER_ROOT, LOG_LEVEL_ERROR);
