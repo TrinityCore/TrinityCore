@@ -56,6 +56,9 @@ namespace Trinity
     inline NullTerminatedStrings NullTerminate(std::vector<std::string_view> const& vec, size_t offset = 0) { return { vec, offset }; }
 
     TC_COMMON_API std::vector<std::string_view> Tokenize(std::string_view str, char sep, bool keepEmpty);
+
+    /* this would return string_view into temporary otherwise */
+    std::vector<std::string_view> Tokenize(std::string&&, char, bool) = delete;
 }
 
 TC_COMMON_API Optional<int32> MoneyStringToMoney(std::string const& moneyString);
