@@ -16629,7 +16629,7 @@ void Player::SendQuestReward(Quest const* quest, Creature const* questGiver, uin
 
     if (questGiver)
     {
-        if (questGiver->IsGossip())
+        if (questGiver->IsGossip() && quest->HasFlag(QUEST_FLAGS_LAUNCH_GOSSIP_COMPLETE))
             packet.LaunchGossip = true;
         else if (quest->GetNextQuestInChain() && !quest->HasFlag(QUEST_FLAGS_AUTOCOMPLETE))
             packet.UseQuestReward = true;

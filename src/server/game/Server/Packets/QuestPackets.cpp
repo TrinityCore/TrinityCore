@@ -157,7 +157,7 @@ WorldPacket const* WorldPackets::Quest::QuestGiverQuestDetails::Write()
     _worldPacket << uint8(AutoLaunched);
     _worldPacket << uint32(QuestFlags);
     _worldPacket << uint32(SuggestedPartyMembers);
-    _worldPacket << uint8(StartCheat); // to-do: validate
+    _worldPacket << uint8(StartCheat);
     _worldPacket << uint8(DisplayPopup);
     _worldPacket << uint32(RequiredSpellID);
 
