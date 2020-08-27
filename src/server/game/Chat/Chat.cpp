@@ -180,7 +180,7 @@ void ChatHandler::SendSysMessage(const char *str, bool escapeCharacters)
     // Replace every "|" with "||" in msg
     if (escapeCharacters && msg.find('|') != std::string::npos)
     {
-        Tokenizer tokens{msg, '|'};
+        std::vector<std::string_view> tokens = Trinity::Tokenize(msg, '|', true);
         std::ostringstream stream;
         for (size_t i = 0; i < tokens.size() - 1; ++i)
             stream << tokens[i] << "||";
@@ -190,7 +190,7 @@ void ChatHandler::SendSysMessage(const char *str, bool escapeCharacters)
     }
 
     WorldPackets::Chat::Chat packet;
-    for (const auto& line : Tokenizer{msg, '\n'})
+    for (std::string_view line : Trinity::Tokenize(str, '\n', true))
     {
         packet.Initialize(CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
         m_session->SendPacket(packet.Write());
@@ -200,7 +200,7 @@ void ChatHandler::SendSysMessage(const char *str, bool escapeCharacters)
 void ChatHandler::SendGlobalSysMessage(const char *str)
 {
     WorldPackets::Chat::Chat packet;
-    for (const auto& line : Tokenizer{str, '\n'})
+    for (std::string_view line : Trinity::Tokenize(str, '\n', true))
     {
         packet.Initialize(CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
         sWorld->SendGlobalMessage(packet.Write());
@@ -210,7 +210,7 @@ void ChatHandler::SendGlobalSysMessage(const char *str)
 void ChatHandler::SendGlobalGMSysMessage(const char *str)
 {
     WorldPackets::Chat::Chat packet;
-    for (const auto& line : Tokenizer{str, '\n'})
+    for (std::string_view line : Trinity::Tokenize(str, '\n', true))
     {
         packet.Initialize(CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
         sWorld->SendGlobalGMMessage(packet.Write());

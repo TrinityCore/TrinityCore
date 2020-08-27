@@ -1250,12 +1250,9 @@ public:
 
         // semicolon separated bonuslist ids (parse them after all arguments are extracted by strtok!)
         if (bonuses)
-        {
-            Tokenizer tokens(bonuses, ';');
-            for (char const* token : tokens)
-                if (int32 bonusListId = atoi(token))
-                    bonusListIDs.push_back(bonusListId);
-        }
+            for (std::string_view token : Trinity::Tokenize(bonuses, ';', false))
+                if (Optional<int32> bonusListId = Trinity::StringTo<int32>(token))
+                    bonusListIDs.push_back(*bonusListId);
 
         ItemContext itemContext = ItemContext::NONE;
         if (context)
@@ -1364,11 +1361,9 @@ public:
 
         // semicolon separated bonuslist ids (parse them after all arguments are extracted by strtok!)
         if (bonuses)
-        {
-            Tokenizer tokens(bonuses, ';');
-            for (char const* token : tokens)
-                bonusListIDs.push_back(atoul(token));
-        }
+            for (std::string_view token : Trinity::Tokenize(bonuses, ';', false))
+                if (Optional<int32> bonusListId = Trinity::StringTo<int32>(token))
+                    bonusListIDs.push_back(*bonusListId);
 
         ItemContext itemContext = ItemContext::NONE;
         if (context)

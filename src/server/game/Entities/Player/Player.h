@@ -1664,8 +1664,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder* holder);
         bool IsLoading() const override;
 
-        static uint32 GetUInt32ValueFromArray(Tokenizer const& data, uint16 index);
-        static float  GetFloatValueFromArray(Tokenizer const& data, uint16 index);
         static uint32 GetZoneIdFromDB(ObjectGuid guid);
         static bool   LoadPositionFromDB(uint32& mapid, float& x, float& y, float& z, float& o, bool& in_flight, ObjectGuid guid);
 
@@ -1684,7 +1682,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         static void SaveCustomizations(CharacterDatabaseTransaction trans, ObjectGuid::LowType guid,
             Trinity::IteratorPair<UF::ChrCustomizationChoice const*> customizations);
-        static void SetUInt32ValueInArray(Tokenizer& data, uint16 index, uint32 value);
         static void SavePositionInDB(WorldLocation const& loc, uint16 zoneId, ObjectGuid guid, CharacterDatabaseTransaction& trans);
 
         static void DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRealmChars = true, bool deleteFinally = false);

@@ -26,6 +26,7 @@
 #include "ObjectAccessor.h"
 #include "PhasingHandler.h"
 #include "Player.h"
+#include "StringConvert.h"
 #include "UpdateData.h"
 #include "World.h"
 #include <sstream>
@@ -185,10 +186,10 @@ bool Corpse::LoadCorpseFromDB(ObjectGuid::LowType guid, Field* fields)
 
     SetObjectScale(1.0f);
     SetDisplayId(fields[5].GetUInt32());
-    Tokenizer items(fields[6].GetString(), ' ', EQUIPMENT_SLOT_END);
+    std::vector<std::string_view> items = Trinity::Tokenize(fields[6].GetStringView(), ' ', EQUIPMENT_SLOT_END);
     if (items.size() == EQUIPMENT_SLOT_END)
         for (uint32 index = 0; index < EQUIPMENT_SLOT_END; ++index)
-            SetItem(index, atoul(items[index]));
+            SetItem(index, Trinity::StringTo<uint32>(items[index]).value_or(0));
 
     SetRace(fields[7].GetUInt8());
     SetClass(fields[8].GetUInt8());

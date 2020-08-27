@@ -325,19 +325,8 @@ public:
         return true;
     }
 
-    static bool HandleAccountLinkCommand(ChatHandler* handler, char const* args)
+    static bool HandleAccountLinkCommand(ChatHandler* handler, std::string const& bnetAccountName, std::string const& gameAccountName)
     {
-        Tokenizer tokens(args, ' ', 2);
-        if (tokens.size() != 2)
-        {
-            handler->SendSysMessage(LANG_CMD_SYNTAX);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        std::string bnetAccountName = tokens[0];
-        std::string gameAccountName = tokens[1];
-
         switch (Battlenet::AccountMgr::LinkWithGameAccount(bnetAccountName, gameAccountName))
         {
             case AccountOpResult::AOR_OK:

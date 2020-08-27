@@ -58,6 +58,7 @@
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
+#include "StringConvert.h"
 #include "TemporarySummon.h"
 #include "Timer.h"
 #include "TransportMgr.h"
@@ -675,34 +676,34 @@ void ObjectMgr::LoadCreatureTemplateAddons()
         creatureAddon.meleeAnimKit              = fields[8].GetUInt16();
         creatureAddon.visibilityDistanceType    = VisibilityDistanceType(fields[9].GetUInt8());
 
-        Tokenizer tokens(fields[10].GetString(), ' ');
-        creatureAddon.auras.reserve(tokens.size());
-        for (Tokenizer::const_iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
+        for (std::string_view aura : Trinity::Tokenize(fields[10].GetStringView(), ' ', false))
         {
-            uint32 spellId = uint32(atoul(*itr));
-            SpellInfo const* AdditionalSpellInfo = sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE);
-            if (!AdditionalSpellInfo)
+            SpellInfo const* spellInfo = nullptr;
+            if (Optional<uint32> spellId = Trinity::StringTo<uint32>(aura))
+                spellInfo = sSpellMgr->GetSpellInfo(*spellId, DIFFICULTY_NONE);
+
+            if (!spellInfo)
             {
-                TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has wrong spell %u defined in `auras` field in `creature_template_addon`.", entry, spellId);
+                TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has wrong spell '%s' defined in `auras` field in `creature_template_addon`.", entry, std::string(aura).c_str());
                 continue;
             }
 
-            if (AdditionalSpellInfo->HasAura(SPELL_AURA_CONTROL_VEHICLE))
-                TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has SPELL_AURA_CONTROL_VEHICLE aura %u defined in `auras` field in `creature_template_addon`.", entry, spellId);
+            if (spellInfo->HasAura(SPELL_AURA_CONTROL_VEHICLE))
+                TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has SPELL_AURA_CONTROL_VEHICLE aura %u defined in `auras` field in `creature_template_addon`.", entry, spellInfo->Id);
 
-            if (std::find(creatureAddon.auras.begin(), creatureAddon.auras.end(), spellId) != creatureAddon.auras.end())
+            if (std::find(creatureAddon.auras.begin(), creatureAddon.auras.end(), spellInfo->Id) != creatureAddon.auras.end())
             {
-                TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has duplicate aura (spell %u) in `auras` field in `creature_template_addon`.", entry, spellId);
+                TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has duplicate aura (spell %u) in `auras` field in `creature_template_addon`.", entry, spellInfo->Id);
                 continue;
             }
 
-            if (AdditionalSpellInfo->GetDuration() > 0)
+            if (spellInfo->GetDuration() > 0)
             {
-                TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has temporary aura (spell %u) in `auras` field in `creature_template_addon`.", entry, spellId);
+                TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has temporary aura (spell %u) in `auras` field in `creature_template_addon`.", entry, spellInfo->Id);
                 continue;
             }
 
-            creatureAddon.auras.push_back(spellId);
+            creatureAddon.auras.push_back(spellInfo->Id);
         }
 
         if (creatureAddon.mount)
@@ -1220,34 +1221,34 @@ void ObjectMgr::LoadCreatureAddons()
         creatureAddon.meleeAnimKit              = fields[8].GetUInt16();
         creatureAddon.visibilityDistanceType    = VisibilityDistanceType(fields[9].GetUInt8());
 
-        Tokenizer tokens(fields[10].GetString(), ' ');
-        creatureAddon.auras.reserve(tokens.size());
-        for (Tokenizer::const_iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
+        for (std::string_view aura : Trinity::Tokenize(fields[10].GetStringView(), ' ', false))
         {
-            uint32 spellId = uint32(atoul(*itr));
-            SpellInfo const* AdditionalSpellInfo = sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE);
-            if (!AdditionalSpellInfo)
+            SpellInfo const* spellInfo = nullptr;
+            if (Optional<uint32> spellId = Trinity::StringTo<uint32>(aura))
+                spellInfo = sSpellMgr->GetSpellInfo(*spellId, DIFFICULTY_NONE);
+
+            if (!spellInfo)
             {
-                TC_LOG_ERROR("sql.sql", "Creature (GUID: " UI64FMTD ") has wrong spell %u defined in `auras` field in `creature_addon`.", guid, spellId);
+                TC_LOG_ERROR("sql.sql", "Creature (GUID: " UI64FMTD ") has wrong spell '%s' defined in `auras` field in `creature_addon`.", guid, std::string(aura).c_str());
                 continue;
             }
 
-            if (AdditionalSpellInfo->HasAura(SPELL_AURA_CONTROL_VEHICLE))
-                TC_LOG_ERROR("sql.sql", "Creature (GUID: " UI64FMTD ") has SPELL_AURA_CONTROL_VEHICLE aura %u defined in `auras` field in `creature_addon`.", guid, spellId);
+            if (spellInfo->HasAura(SPELL_AURA_CONTROL_VEHICLE))
+                TC_LOG_ERROR("sql.sql", "Creature (GUID: " UI64FMTD ") has SPELL_AURA_CONTROL_VEHICLE aura %u defined in `auras` field in `creature_addon`.", guid, spellInfo->Id);
 
-            if (std::find(creatureAddon.auras.begin(), creatureAddon.auras.end(), spellId) != creatureAddon.auras.end())
+            if (std::find(creatureAddon.auras.begin(), creatureAddon.auras.end(), spellInfo->Id) != creatureAddon.auras.end())
             {
-                TC_LOG_ERROR("sql.sql", "Creature (GUID: " UI64FMTD ") has duplicate aura (spell %u) in `auras` field in `creature_addon`.", guid, spellId);
+                TC_LOG_ERROR("sql.sql", "Creature (GUID: " UI64FMTD ") has duplicate aura (spell %u) in `auras` field in `creature_addon`.", guid, spellInfo->Id);
                 continue;
             }
 
-            if (AdditionalSpellInfo->GetDuration() > 0)
+            if (spellInfo->GetDuration() > 0)
             {
-                TC_LOG_ERROR("sql.sql", "Creature (GUID: " UI64FMTD ") has temporary aura (spell %u) in `auras` field in `creature_addon`.", guid, spellId);
+                TC_LOG_ERROR("sql.sql", "Creature (GUID: " UI64FMTD ") has temporary aura (spell %u) in `auras` field in `creature_addon`.", guid, spellInfo->Id);
                 continue;
             }
 
-            creatureAddon.auras.push_back(spellId);
+            creatureAddon.auras.push_back(spellInfo->Id);
         }
 
         if (creatureAddon.mount)
@@ -2048,12 +2049,11 @@ void ObjectMgr::LoadTempSummons()
 inline std::vector<Difficulty> ParseSpawnDifficulties(std::string const& difficultyString, std::string const& table, ObjectGuid::LowType spawnId, uint32 mapId,
     std::set<Difficulty> const& mapDifficulties)
 {
-    Tokenizer tokens(difficultyString, ',', 0, false);
     std::vector<Difficulty> difficulties;
     bool isTransportMap = sObjectMgr->IsTransportMap(mapId);
-    for (char const* token : tokens)
+    for (std::string_view token : Trinity::Tokenize(difficultyString, ',', false))
     {
-        Difficulty difficultyId = Difficulty(strtoul(token, nullptr, 10));
+        Difficulty difficultyId = Difficulty(Trinity::StringTo<std::underlying_type_t<Difficulty>>(token).value_or(DIFFICULTY_NONE));
         if (difficultyId && !sDifficultyStore.LookupEntry(difficultyId))
         {
             TC_LOG_ERROR("sql.sql", "Table `%s` has %s (GUID: " UI64FMTD ") with non invalid difficulty id %u, skipped.",
@@ -9439,9 +9439,9 @@ uint32 ObjectMgr::LoadReferenceVendor(int32 vendor, int32 item, std::set<uint32>
             vItem.PlayerConditionId = fields[6].GetUInt32();
             vItem.IgnoreFiltering   = fields[7].GetBool();
 
-            Tokenizer bonusListIDsTok(fields[5].GetString(), ' ');
-            for (char const* token : bonusListIDsTok)
-                vItem.BonusListIDs.push_back(int32(atol(token)));
+            for (std::string_view token : Trinity::Tokenize(fields[5].GetStringView(), ' ', false))
+                if (Optional<int32> bonusListID = Trinity::StringTo<int32>(token))
+                    vItem.BonusListIDs.push_back(*bonusListID);
 
             if (!IsVendorItemValid(vendor, vItem, nullptr, skip_vendors))
                 continue;
@@ -9496,9 +9496,9 @@ void ObjectMgr::LoadVendors()
             vItem.PlayerConditionId = fields[7].GetUInt32();
             vItem.IgnoreFiltering   = fields[8].GetBool();
 
-            Tokenizer bonusListIDsTok(fields[6].GetString(), ' ');
-            for (char const* token : bonusListIDsTok)
-                vItem.BonusListIDs.push_back(int32(atol(token)));
+            for (std::string_view token : Trinity::Tokenize(fields[6].GetStringView(), ' ', false))
+                if (Optional<int32> bonusListID = Trinity::StringTo<int32>(token))
+                    vItem.BonusListIDs.push_back(*bonusListID);
 
             if (!IsVendorItemValid(entry, vItem, nullptr, &skip_vendors))
                 continue;
@@ -10960,10 +10960,10 @@ void ObjectMgr::LoadPlayerChoices()
             int32 choiceId = fields[0].GetInt32();
             int32 responseId = fields[1].GetInt32();
             uint32 itemId = fields[2].GetUInt32();
-            Tokenizer bonusListIDsTok(fields[3].GetString(), ' ');
             std::vector<int32> bonusListIds;
-            for (char const* token : bonusListIDsTok)
-                bonusListIds.push_back(int32(atol(token)));
+            for (std::string_view token : Trinity::Tokenize(fields[3].GetStringView(), ' ', false))
+                if (Optional<int32> bonusListID = Trinity::StringTo<int32>(token))
+                    bonusListIds.push_back(*bonusListID);
             int32 quantity = fields[4].GetInt32();
 
             PlayerChoice* choice = Trinity::Containers::MapGetValuePtr(_playerChoices, choiceId);
@@ -11102,10 +11102,10 @@ void ObjectMgr::LoadPlayerChoices()
             int32 choiceId = fields[0].GetInt32();
             int32 responseId = fields[1].GetInt32();
             uint32 itemId = fields[2].GetUInt32();
-            Tokenizer bonusListIDsTok(fields[3].GetString(), ' ');
             std::vector<int32> bonusListIds;
-            for (char const* token : bonusListIDsTok)
-                bonusListIds.push_back(int32(atol(token)));
+            for (std::string_view token : Trinity::Tokenize(fields[3].GetStringView(), ' ', false))
+                if (Optional<int32> bonusListID = Trinity::StringTo<int32>(token))
+                    bonusListIds.push_back(*bonusListID);
             int32 quantity = fields[4].GetInt32();
 
             PlayerChoice* choice = Trinity::Containers::MapGetValuePtr(_playerChoices, choiceId);

@@ -304,11 +304,9 @@ public:
         vItem.Type = type;
 
         if (fbonuslist)
-        {
-            Tokenizer bonusListIDsTok(fbonuslist, ';');
-            for (char const* token : bonusListIDsTok)
-                vItem.BonusListIDs.push_back(int32(atol(token)));
-        }
+            for (std::string_view token : Trinity::Tokenize(fbonuslist, ';', false))
+                if (Optional<int32> bonusListID = Trinity::StringTo<int32>(token))
+                    vItem.BonusListIDs.push_back(*bonusListID);
 
         if (!sObjectMgr->IsVendorItemValid(vendor_entry, vItem, handler->GetSession()->GetPlayer()))
         {
