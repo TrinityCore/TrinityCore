@@ -562,10 +562,10 @@ public:
             moneyToAddO = MoneyStringToMoney(std::string(args));
         else
             moneyToAddO = Trinity::StringTo<int32>(args);
-        
+
         if (!moneyToAddO)
             return false;
-        
+
         int32 moneyToAdd = *moneyToAddO;
 
         uint32 targetMoney = target->GetMoney();

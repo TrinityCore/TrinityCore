@@ -64,7 +64,6 @@ void PlayerTaxi::InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level
 
 bool PlayerTaxi::LoadTaxiMask(std::string const& data)
 {
-    uint8 index = 0;
     bool warn = false;
     std::vector<std::string_view> tokens = Trinity::Tokenize(data, ' ', false);
     for (uint8 index = 0; (index < TaxiMaskSize) && (index < tokens.size()); ++index)

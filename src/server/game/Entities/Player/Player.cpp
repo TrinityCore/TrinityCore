@@ -17260,7 +17260,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder* holder)
         TC_LOG_WARN("entities.player.loading", "Player::LoadFromDB: Player (%s) has invalid exploredzones data (%s). Forcing partial load.", guid.ToString().c_str(), fields[66].GetCString());
 
     if (!_LoadIntoDataField(fields[69].GetString(), PLAYER__FIELD_KNOWN_TITLES, KNOWN_TITLES_SIZE * 2))
-        TC_LOG_WARN("entities.player.loading", "Player::LoadFromDB: Player (%s) has invalid knowntitles mask (%s). Forcing partial load.", fields[69].GetCString());
+        TC_LOG_WARN("entities.player.loading", "Player::LoadFromDB: Player (%s) has invalid knowntitles mask (%s). Forcing partial load.", guid.ToString().c_str(), fields[69].GetCString());
 
     SetObjectScale(1.0f);
     SetFloatValue(UNIT_FIELD_HOVERHEIGHT, 1.0f);
