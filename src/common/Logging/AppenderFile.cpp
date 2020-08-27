@@ -18,23 +18,25 @@
 #include "AppenderFile.h"
 #include "Log.h"
 #include "LogMessage.h"
+#include "StringConvert.h"
+#include "Util.h"
 #include <algorithm>
 
-AppenderFile::AppenderFile(uint8 id, std::string const& name, LogLevel level, AppenderFlags flags, std::vector<char const*> extraArgs) :
+AppenderFile::AppenderFile(uint8 id, std::string const& name, LogLevel level, AppenderFlags flags, std::vector<std::string_view> const& args) :
     Appender(id, name, level, flags),
     logfile(nullptr),
     _logDir(sLog->GetLogsDir()),
     _maxFileSize(0),
     _fileSize(0)
 {
-    if (extraArgs.empty())
-        throw InvalidAppenderArgsException(Trinity::StringFormat("Log::CreateAppenderFromConfig: Missing file name for appender %s\n", name.c_str()));
+    if (args.size() < 4)
+        throw InvalidAppenderArgsException(Trinity::StringFormat("Log::CreateAppenderFromConfig: Missing file name for appender %s", name.c_str()));
 
-    _fileName = extraArgs[0];
+    _fileName.assign(args[3]);
 
-    char const* mode = "a";
-    if (extraArgs.size() > 1)
-        mode = extraArgs[1];
+    std::string mode = "a";
+    if (4 < args.size())
+        mode.assign(args[4]);
 
     if (flags & APPENDER_FLAGS_USE_TIMESTAMP)
     {
@@ -45,14 +47,19 @@ AppenderFile::AppenderFile(uint8 id, std::string const& name, LogLevel level, Ap
             _fileName += sLog->GetLogsTimestamp();
     }
 
-    if (extraArgs.size() > 2)
-        _maxFileSize = atoi(extraArgs[2]);
+    if (5 < args.size())
+    {
+        if (Optional<uint32> size = Trinity::StringTo<uint32>(args[5]))
+            _maxFileSize = *size;
+        else
+            throw InvalidAppenderArgsException(Trinity::StringFormat("Log::CreateAppenderFromConfig: Invalid size '%s' for appender %s", std::string(args[5]).c_str(), name.c_str()));
+    }
 
     _dynamicName = std::string::npos != _fileName.find("%s");
     _backup = (flags & APPENDER_FLAGS_MAKE_FILE_BACKUP) != 0;
 
     if (!_dynamicName)
-        logfile = OpenFile(_fileName, mode, !strcmp(mode, "w") && _backup);
+        logfile = OpenFile(_fileName, mode, (mode == "w") && _backup);
 }
 
 AppenderFile::~AppenderFile()

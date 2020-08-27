@@ -19,6 +19,7 @@
 #include "Common.h"
 #include "Containers.h"
 #include "IpAddress.h"
+#include "StringConvert.h"
 #include "StringFormat.h"
 #include <utf8.h>
 #include <algorithm>
@@ -35,39 +36,22 @@
   #include <arpa/inet.h>
 #endif
 
-Tokenizer::Tokenizer(std::string_view src, const char sep, uint32 vectorReserve /*= 0*/, bool keepEmptyStrings /*= true*/)
+std::vector<std::string_view> Trinity::Tokenize(std::string_view str, char sep, bool keepEmpty)
 {
-    m_str = new char[src.length() + 1];
-    memcpy(m_str, src.data(), src.length() + 1);
+    std::vector<std::string_view> tokens;
 
-    if (vectorReserve)
-        m_storage.reserve(vectorReserve);
-
-    char* posold = m_str;
-    char* posnew = m_str;
-
-    for (;;)
+    size_t start = 0;
+    for (size_t end = str.find(sep); end != std::string_view::npos; end = str.find(sep, start))
     {
-        if (*posnew == sep)
-        {
-            if (keepEmptyStrings || posold != posnew)
-                m_storage.push_back(posold);
-
-            posold = posnew + 1;
-            *posnew = '\0';
-        }
-        else if (*posnew == '\0')
-        {
-            // Hack like, but the old code accepted these kind of broken strings,
-            // so changing it would break other things
-            if (posold != posnew)
-                m_storage.push_back(posold);
-
-            break;
-        }
-
-        ++posnew;
+        if (keepEmpty || (start < end))
+            tokens.push_back(str.substr(start, end - start));
+        start = end+1;
     }
+
+    if (keepEmpty || (start < str.length()))
+        tokens.push_back(str.substr(start));
+
+    return tokens;
 }
 
 #if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__))
@@ -210,32 +194,43 @@ std::string secsToTimeString(uint64 timeInSecs, TimeFormat timeFormat, bool hour
     return ss.str();
 }
 
-int32 MoneyStringToMoney(std::string const& moneyString)
+Optional<int32> MoneyStringToMoney(std::string const& moneyString)
 {
     int32 money = 0;
 
-    if (!(std::count(moneyString.begin(), moneyString.end(), 'g') == 1 ||
-        std::count(moneyString.begin(), moneyString.end(), 's') == 1 ||
-        std::count(moneyString.begin(), moneyString.end(), 'c') == 1))
-        return 0; // Bad format
+    bool hadG = false;
+    bool hadS = false;
+    bool hadC = false;
 
-    Tokenizer tokens(moneyString, ' ');
-    for (char const* token : tokens)
+    for (std::string_view token : Trinity::Tokenize(moneyString, ' ', false))
     {
-        std::string tokenString(token);
-        size_t gCount = std::count(tokenString.begin(), tokenString.end(), 'g');
-        size_t sCount = std::count(tokenString.begin(), tokenString.end(), 's');
-        size_t cCount = std::count(tokenString.begin(), tokenString.end(), 'c');
-        if (gCount + sCount + cCount != 1)
-            return 0;
+        uint32 unit;
+        switch (token[token.length() - 1])
+        {
+            case 'g':
+                if (hadG) return std::nullopt;
+                hadG = true;
+                unit = 100 * 100;
+                break;
+            case 's':
+                if (hadS) return std::nullopt;
+                hadS = true;
+                unit = 100;
+                break;
+            case 'c':
+                if (hadC) return std::nullopt;
+                hadC = true;
+                unit = 1;
+                break;
+            default:
+                return std::nullopt;
+        }
 
-        uint32 amount = strtoul(token, nullptr, 10);
-        if (gCount == 1)
-            money += amount * 100 * 100;
-        else if (sCount == 1)
-            money += amount * 100;
-        else if (cCount == 1)
-            money += amount;
+        Optional<uint32> amount = Trinity::StringTo<uint32>(token.substr(0, token.length() - 1));
+        if (amount)
+            money += (unit * *amount);
+        else
+            return std::nullopt;
     }
 
     return money;
