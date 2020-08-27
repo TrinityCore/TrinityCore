@@ -33,7 +33,7 @@ class TC_GAME_API PlayerTaxi
         ~PlayerTaxi() { }
         // Nodes
         void InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level);
-        [[nodiscard]] bool LoadTaxiMask(std::string const& data);
+        bool LoadTaxiMask(std::string const& data);
 
         bool IsTaximaskNodeKnown(uint32 nodeidx) const
         {

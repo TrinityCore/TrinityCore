@@ -134,7 +134,6 @@ void Log::CreateLoggerFromConfig(std::string const& appenderName)
     }
 
     std::vector<std::string_view> tokens = Trinity::Tokenize(options, ',', true);
-    auto iter = tokens.begin();
 
     if (tokens.size() != 2)
     {

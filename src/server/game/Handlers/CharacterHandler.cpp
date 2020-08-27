@@ -2072,22 +2072,19 @@ void WorldSession::HandleCharFactionOrRaceChangeCallback(std::shared_ptr<Charact
                 std::vector<std::string_view> tokens = Trinity::Tokenize(knownTitlesStr, ' ', false);
                 std::array<uint32, KNOWN_TITLES_SIZE * 2> knownTitles;
 
-                if (tokens.size() != knownTitles.size())
-                {
-                    TC_LOG_ERROR("entities.player", "%s has invalid title data for faction change (expected %zu tokens, got %zu tokens)", GetPlayerInfo().c_str(), knownTitles.size(), tokens.size());
-                    SendCharFactionChange(CHAR_CREATE_ERROR, factionChangeInfo.get());
-                    return;
-                }
-
                 for (uint32 index = 0; index < knownTitles.size(); ++index)
                 {
-                    if (Optional<uint32> thisMask = Trinity::StringTo<uint32>(tokens[index]))
+                    Optional<uint32> thisMask;
+                    if (index < tokens.size())
+                        thisMask = Trinity::StringTo<uint32>(tokens[index]);
+
+                    if (thisMask)
                         knownTitles[index] = *thisMask;
                     else
                     {
-                        TC_LOG_ERROR("entities.player", "%s has invalid title data '%s' at index %u - faction change aborted", GetPlayerInfo().c_str(), std::string(tokens[index]).c_str(), index);
-                        SendCharFactionChange(CHAR_CREATE_ERROR, factionChangeInfo.get());
-                        return;
+                        TC_LOG_WARN("entities.player", "%s has invalid title data '%s' at index %u - skipped, this may result in titles being lost",
+                            GetPlayerInfo().c_str(), (index < tokens.size()) ? std::string(tokens[index]).c_str() : "<none>", index);
+                        knownTitles[index] = 0;
                     }
                 }
 

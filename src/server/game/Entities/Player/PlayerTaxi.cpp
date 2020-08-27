@@ -65,6 +65,7 @@ void PlayerTaxi::InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level
 bool PlayerTaxi::LoadTaxiMask(std::string const& data)
 {
     uint8 index = 0;
+    bool warn = false;
     std::vector<std::string_view> tokens = Trinity::Tokenize(data, ' ', false);
     for (uint8 index = 0; (index < TaxiMaskSize) && (index < tokens.size()); ++index)
     {
@@ -72,11 +73,16 @@ bool PlayerTaxi::LoadTaxiMask(std::string const& data)
         {
             // load and set bits only for existing taxi nodes
             m_taximask[index] = sTaxiNodesMask[index] & *mask;
+            if (m_taximask[index] != *mask)
+                warn = true;
         }
         else
-            return false;
+        {
+            m_taximask[index] = 0;
+            warn = true;
+        }
     }
-    return true;
+    return !warn;
 }
 
 void PlayerTaxi::AppendTaximaskTo(ByteBuffer& data, bool all)
@@ -101,13 +107,13 @@ bool PlayerTaxi::LoadTaxiDestinationsFromString(const std::string& values, uint3
     auto itr = tokens.begin();
     if (itr != tokens.end())
     {
-        if (Optional<uint32> faction = Trinity::StringTo<uint32>(*(itr++)))
+        if (Optional<uint32> faction = Trinity::StringTo<uint32>(*itr))
             m_flightMasterFactionId = *faction;
         else
             return false;
     }
 
-    for (; itr != tokens.end(); ++itr)
+    while ((++itr) != tokens.end())
     {
         if (Optional<uint32> node = Trinity::StringTo<uint32>(*itr))
             AddTaxiDestination(*node);
