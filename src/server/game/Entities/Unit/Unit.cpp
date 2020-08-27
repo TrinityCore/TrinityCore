@@ -2896,6 +2896,11 @@ float Unit::GetUnitCriticalChanceTaken(Unit const* attacker, WeaponAttackType at
 {
     float chance = critDone;
 
+    // crit chance supression (-1% of the base crit chance per level difference according to bluepost. Fan-made tests seem to be more moving arround 0.7% but that has yet to be confirmed.)
+    int8 levelDifference = getLevel() - attacker->getLevel();
+    if (levelDifference > 0)
+        chance -= levelDifference;
+
     // flat aura mods
     if (attackType == RANGED_ATTACK)
         chance += GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_RANGED_CRIT_CHANCE);
