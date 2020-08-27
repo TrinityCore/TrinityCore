@@ -445,7 +445,7 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fi
         need_save = true;
     }
 
-    std::vector<std::string_view> tokens = Trinity::Tokenize(fields[4].GetCString(), ' ', false);
+    std::vector<std::string_view> tokens = Trinity::Tokenize(fields[4].GetStringView(), ' ', false);
     if (tokens.size() == MAX_ITEM_PROTO_SPELLS)
     {
         for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
@@ -466,7 +466,7 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fi
     }
 
     if (!_LoadIntoDataField(fields[6].GetString(), ITEM_FIELD_ENCHANTMENT_1_1, MAX_ENCHANTMENT_SLOT * MAX_ENCHANTMENT_OFFSET))
-        TC_LOG_WARN("entities.item", "Invalid enchantment data '%s' for item %s. Forcing partial load.", fields[6].GetCString(), GetGUID().ToString().c_str());
+        TC_LOG_WARN("entities.item", "Invalid enchantment data '%s' for item %s. Forcing partial load.", fields[6].GetString().c_str(), GetGUID().ToString().c_str());
 
     SetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID, fields[7].GetInt16());
     // recalculate suffix factor
