@@ -61,7 +61,7 @@ std::vector<std::string_view> Trinity::Tokenize(std::string_view str, char sep, 
     for (size_t end = str.find(sep); end != std::string_view::npos; end = str.find(sep, start))
     {
         if (keepEmpty || (start < end))
-            tokens.push_back(str.substr(start, end));
+            tokens.push_back(str.substr(start, end - start));
         start = end+1;
     }
 

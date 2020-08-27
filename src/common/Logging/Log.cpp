@@ -113,7 +113,7 @@ void Log::CreateAppenderFromConfig(std::string const& appenderName)
     }
     catch (InvalidAppenderArgsException const& iaae)
     {
-        fprintf(stderr, "%s", iaae.what());
+        fprintf(stderr, "%s\n", iaae.what());
     }
 }
 
@@ -169,7 +169,7 @@ void Log::CreateLoggerFromConfig(std::string const& appenderName)
             //fprintf(stdout, "Log::CreateLoggerFromConfig: Added Appender %s to Logger %s\n", appender->getName().c_str(), name.c_str());
         }
         else
-            fprintf(stderr, "Error while configuring Appender %s in Logger %s. Appender does not exist", std::string(appenderName).c_str(), name.c_str());
+            fprintf(stderr, "Error while configuring Appender %s in Logger %s. Appender does not exist\n", std::string(appenderName).c_str(), name.c_str());
     }
 }
 
