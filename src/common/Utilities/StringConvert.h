@@ -69,7 +69,7 @@ namespace Trinity::Impl::StringConvertImpl
 
             T val;
             std::from_chars_result const res = std::from_chars(start, end, val, base);
-            if (res.ptr == end)
+            if ((res.ptr == end) && (res.ec == std::errc()))
                 return val;
             else
                 return std::nullopt;
