@@ -1843,12 +1843,27 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
 
         if (PowerType != POWER_MANA)
         {
+            int32 oldPower = target->GetPower(PowerType);
             // reset power to default values only at power change
             if (target->GetPowerType() != PowerType)
                 target->SetPowerType(PowerType);
 
-            if (form == FORM_CAT)
-                target->SetPower(POWER_ENERGY, 0);
+            if (form == FORM_CAT || form == FORM_BEAR)
+            {
+                AuraEffect const* furorEffect = target->GetDummyAuraEffect(SPELLFAMILY_DRUID, 238, 0);
+                if (form == FORM_CAT)
+                {
+                    target->SetPower(POWER_ENERGY, 0);
+                    if (furorEffect)
+                    {
+                        // Allow to retain up to x% of the caster's energy when shape shifting into cat form
+                        int32 basePoints = std::min<int32>(oldPower, furorEffect->GetAmount());
+                        target->CastCustomSpell(target, 17099, &basePoints, nullptr, nullptr, true, nullptr, this);
+                    }
+                }
+                else if (furorEffect && roll_chance_i(furorEffect->GetAmount())) // x% chance to gain 10 rage when shape shifting into bear form
+                    target->CastSpell(target, 17057, true);
+            }
         }
         // stop handling the effect if it was removed by linked event
         if (aurApp->GetRemoveMode().HasAnyFlag())

@@ -65,8 +65,6 @@ enum DruidSpells
     SPELL_DRUID_FUNGAL_GROWTH_R2            = 78789,
     SPELL_DRUID_FUNGAL_GROWTH_SUMMON_R1     = 81291,
     SPELL_DRUID_FUNGAL_GROWTH_SUMMON_R2     = 81283,
-    SPELL_DRUID_FUROR_ENERGIZE_RAGE         = 17057,
-    SPELL_DRUID_FUROR_ENERGIZE_ENERGY       = 17099,
     SPELL_DRUID_FRENZIED_REGENERATION_HEAL  = 22845,
     SPELL_DRUID_EMPOWERED_TOUCH_SCRIPT      = 88433,
     SPELL_DRUID_FURY_OF_STORMRAGE           = 81093,
@@ -1535,43 +1533,6 @@ class spell_dru_moonfire : public AuraScript
     }
 };
 
-class spell_dru_furor : public AuraScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo(
-            {
-                SPELL_DRUID_FUROR_ENERGIZE_ENERGY,
-                SPELL_DRUID_FUROR_ENERGIZE_RAGE
-            });
-    }
-
-    bool CheckProc(ProcEventInfo& /*eventInfo*/)
-    {
-        return roll_chance_i(GetEffect(EFFECT_0)->GetAmount());
-    }
-
-    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
-    {
-        PreventDefaultAction();
-        Unit* target = GetTarget();
-
-        if (target->GetShapeshiftForm() == FORM_BEAR)
-            target->CastSpell(target, SPELL_DRUID_FUROR_ENERGIZE_RAGE, true, nullptr, aurEff);
-        else if (target->GetShapeshiftForm() == FORM_CAT)
-        {
-            int32 amount = CalculatePct(100, aurEff->GetAmount());
-            target->CastCustomSpell(SPELL_DRUID_FUROR_ENERGIZE_ENERGY, SPELLVALUE_BASE_POINT0, amount, target, true, nullptr, aurEff);
-        }
-    }
-
-    void Register() override
-    {
-        DoCheckProc.Register(&spell_dru_furor::CheckProc);
-        OnEffectProc.Register(&spell_dru_furor::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
-    }
-};
-
 // 22568 - Ferocious Bite
 class spell_dru_ferocious_bite : public SpellScript
 {
@@ -1952,7 +1913,6 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_enrage);
     RegisterSpellScript(spell_dru_ferocious_bite);
     RegisterSpellScript(spell_dru_frenzied_regeneration);
-    RegisterSpellScript(spell_dru_furor);
     RegisterSpellScript(spell_dru_glyph_of_starfire);
     RegisterSpellScript(spell_dru_glyph_of_starfire_proc);
     RegisterSpellScript(spell_dru_harmony);
