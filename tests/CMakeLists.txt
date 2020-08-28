@@ -21,3 +21,8 @@ target_link_libraries(tests-common
     Catch2::Catch2)
 
 catch_discover_tests(tests-common)
+
+set_target_properties(tests-common
+    PROPERTIES
+      FOLDER
+        "tests")
