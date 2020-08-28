@@ -38,7 +38,7 @@ class Unit;
 
 struct FormationInfo
 {
-    uint32 LeaderGUID;
+    uint32 LeaderGUID       = 0;
     float FollowDistance    = 0.f;
     float FollowAngle       = 0.f;
     uint32 GroupAI          = 0;
