@@ -29,12 +29,6 @@
 
 #define MAX_DESYNC 5.0f
 
-FormationMgr::~FormationMgr()
-{
-    for (CreatureGroupInfoType::iterator itr = CreatureGroupMap.begin(); itr != CreatureGroupMap.end(); ++itr)
-        delete itr->second;
-}
-
 FormationMgr* FormationMgr::instance()
 {
     static FormationMgr instance;
@@ -86,12 +80,10 @@ void FormationMgr::LoadCreatureFormations()
 {
     uint32 oldMSTime = getMSTime();
 
-    for (CreatureGroupInfoType::iterator itr = CreatureGroupMap.begin(); itr != CreatureGroupMap.end(); ++itr) // for reload case
-        delete itr->second;
     CreatureGroupMap.clear();
 
     //Get group data
-    QueryResult result = WorldDatabase.Query("SELECT leaderGUID, memberGUID, dist, angle, groupAI, point_1, point_2 FROM creature_formations ORDER BY leaderGUID");
+    QueryResult result = WorldDatabase.Query("SELECT LeaderGUID, MemberGUID, FollowDistance, FollowAngle, GroupAI, InversionPoint1, InversionPoint2 FROM creature_formations ORDER BY LeaderGUID");
 
     if (!result)
     {
@@ -101,44 +93,41 @@ void FormationMgr::LoadCreatureFormations()
 
     uint32 count = 0;
     Field* fields;
-    FormationInfo* group_member;
+    FormationInfo group_member;
 
     do
     {
         fields = result->Fetch();
 
-        //Load group member data
-        group_member                        = new FormationInfo();
-        group_member->leaderGUID            = fields[0].GetUInt32();
-        uint32 memberGUID                   = fields[1].GetUInt32();
-        group_member->groupAI               = fields[4].GetUInt32();
-        group_member->point_1               = fields[5].GetUInt16();
-        group_member->point_2               = fields[6].GetUInt16();
-        //If creature is group leader we may skip loading of dist/angle
-        if (group_member->leaderGUID != memberGUID)
+        // Load group member data
+        group_member.LeaderGUID            = fields[0].GetUInt32();
+        uint32 memberGUID                  = fields[1].GetUInt32();
+        group_member.GroupAI               = fields[4].GetUInt32();
+        group_member.InversionPoint1       = fields[5].GetInt32();
+        group_member.InversionPoint2       = fields[6].GetInt32();
+        // If creature is group leader we may skip loading of dist/angle
+        if (group_member.LeaderGUID != memberGUID)
         {
-            group_member->follow_dist       = fields[2].GetFloat();
-            group_member->follow_angle      = fields[3].GetFloat() * float(M_PI) / 180;
+            group_member.FollowDistance    = fields[2].GetFloat();
+            group_member.FollowAngle       = fields[3].GetFloat() * float(M_PI) / 180;
         }
         else
         {
-            group_member->follow_dist       = 0;
-            group_member->follow_angle      = 0;
+            group_member.FollowDistance    = 0;
+            group_member.FollowAngle       = 0;
         }
 
         // check data correctness
         {
-            if (!sObjectMgr->GetCreatureData(group_member->leaderGUID))
+            if (!sObjectMgr->GetCreatureData(group_member.LeaderGUID))
             {
-                TC_LOG_ERROR("sql.sql", "creature_formations table leader guid %u incorrect (not exist)", group_member->leaderGUID);
-                delete group_member;
+                TC_LOG_ERROR("sql.sql", "creature_formations table leader guid %u incorrect (not exist)", group_member.LeaderGUID);
                 continue;
             }
 
             if (!sObjectMgr->GetCreatureData(memberGUID))
             {
                 TC_LOG_ERROR("sql.sql", "creature_formations table member guid %u incorrect (not exist)", memberGUID);
-                delete group_member;
                 continue;
             }
         }
@@ -177,7 +166,7 @@ void CreatureGroup::RemoveMember(Creature* member)
 
 void CreatureGroup::MemberEngagingTarget(Creature* member, Unit* target)
 {
-    uint8 groupAI = sFormationMgr->CreatureGroupMap[member->GetSpawnId()]->groupAI;
+    uint8 groupAI = sFormationMgr->CreatureGroupMap[member->GetSpawnId()].GroupAI;
     if (!groupAI)
         return;
 
@@ -229,15 +218,15 @@ void CreatureGroup::LeaderStartedMoving()
     for (CreatureGroupMemberType::iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
     {
         Creature* member = itr->first;
-        if (member == m_leader || !member->IsAlive() || member->GetVictim() || !(itr->second->groupAI & FLAG_IDLE_IN_FORMATION))
+        if (member == m_leader || !member->IsAlive() || member->GetVictim() || !(itr->second.GroupAI & FLAG_IDLE_IN_FORMATION))
             continue;
 
-        float angle = itr->second->follow_angle + float(M_PI);
-        float dist = itr->second->follow_dist;
+        float angle = itr->second.FollowAngle + float(M_PI);
+        float dist = itr->second.FollowDistance;
 
         MovementGenerator const* moveGen = member->GetMotionMaster()->GetMotionSlot(MOTION_SLOT_IDLE);
         if (!moveGen || moveGen->GetMovementGeneratorType() != FORMATION_MOTION_TYPE)
-            member->GetMotionMaster()->MoveFormation(m_leader, dist, angle, itr->second->point_1, itr->second->point_2);
+            member->GetMotionMaster()->MoveFormation(m_leader, dist, angle, itr->second.InversionPoint1, itr->second.InversionPoint2);
     }
 }
 

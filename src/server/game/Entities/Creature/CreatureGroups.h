@@ -38,21 +38,21 @@ class Unit;
 
 struct FormationInfo
 {
-    uint32 leaderGUID;
-    float follow_dist;
-    float follow_angle;
-    uint32 groupAI;
-    uint32 point_1;
-    uint32 point_2;
+    uint32 LeaderGUID;
+    float FollowDistance    = 0.f;
+    float FollowAngle       = 0.f;
+    uint32 GroupAI          = 0;
+    int32 InversionPoint1   = 0;
+    int32 InversionPoint2   = 0;
 };
 
-typedef std::unordered_map<uint32/*memberDBGUID*/, FormationInfo*>   CreatureGroupInfoType;
+typedef std::unordered_map<uint32 /*memberDBGUID*/, FormationInfo>   CreatureGroupInfoType;
 
 class TC_GAME_API FormationMgr
 {
     private:
         FormationMgr() { }
-        ~FormationMgr();
+        ~FormationMgr() { }
 
     public:
         static FormationMgr* instance();
@@ -69,7 +69,7 @@ class TC_GAME_API CreatureGroup
 {
     private:
         Creature* m_leader; //Important do not forget sometimes to work with pointers instead synonims :D:D
-        typedef std::map<Creature*, FormationInfo*>  CreatureGroupMemberType;
+        typedef std::map<Creature*, FormationInfo>  CreatureGroupMemberType;
         CreatureGroupMemberType m_members;
 
         uint32 m_groupID;

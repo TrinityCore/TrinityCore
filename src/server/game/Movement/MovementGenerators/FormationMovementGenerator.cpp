@@ -23,7 +23,7 @@
 #include "MoveSplineInit.h"
 #include "MoveSpline.h"
 
-FormationMovementGenerator::FormationMovementGenerator(Unit* leader, float range, float angle, uint32 point1, uint32 point2) :
+FormationMovementGenerator::FormationMovementGenerator(Unit* leader, float range, float angle, int32 point1, int32 point2) :
     AbstractPursuer(PursuingType::Formation, leader), _range(range), _angle(angle), _point1(point1), _point2(point2), _lastLeaderSplineID(0), _hasPredictedDestination(false) { }
 
 void FormationMovementGenerator::DoInitialize(Creature* owner)
@@ -66,7 +66,7 @@ bool FormationMovementGenerator::DoUpdate(Creature* owner, uint32 diff)
     if (!target->movespline->Finalized() && target->movespline->GetId() != _lastLeaderSplineID)
     {
         // Update formation angle
-        if (_point1 && target->IsCreature())
+        if ((_point1 >= 0 || _point2 >= 0) && target->IsCreature())
         {
             if (CreatureGroup* formation = target->ToCreature()->GetFormation())
             {
@@ -97,7 +97,7 @@ bool FormationMovementGenerator::DoUpdate(Creature* owner, uint32 diff)
         }
     }
 
-    // We have reached our destination before launching a new movement. Alling facing with leader
+    // We have reached our destination before launching a new movement. Allign facing with leader
     if (owner->HasUnitState(UNIT_STATE_ROAMING_MOVE) && owner->movespline->Finalized())
     {
         owner->ClearUnitState(UNIT_STATE_ROAMING_MOVE);

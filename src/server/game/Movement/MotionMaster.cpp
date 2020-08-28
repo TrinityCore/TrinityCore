@@ -716,7 +716,7 @@ void MotionMaster::MoveRotate(uint32 time, RotateDirection direction)
     Mutate(new RotateMovementGenerator(time, direction), MOTION_SLOT_ACTIVE);
 }
 
-void MotionMaster::MoveFormation(Unit* leader, float range, float angle, uint32 point1, uint32 point2)
+void MotionMaster::MoveFormation(Unit* leader, float range, float angle, int32 point1, int32 point2)
 {
     if (_owner->GetTypeId() == TYPEID_UNIT && leader)
     {

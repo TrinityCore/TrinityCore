@@ -27,7 +27,7 @@ class Creature;
 class FormationMovementGenerator : public MovementGeneratorMedium<Creature, FormationMovementGenerator>, public AbstractPursuer
 {
     public:
-        explicit FormationMovementGenerator(Unit* leader, float range, float angle, uint32 point1, uint32 point2);
+        explicit FormationMovementGenerator(Unit* leader, float range, float angle, int32 point1, int32 point2);
 
         MovementGeneratorType GetMovementGeneratorType() const override { return FORMATION_MOTION_TYPE; }
 
@@ -44,8 +44,8 @@ class FormationMovementGenerator : public MovementGeneratorMedium<Creature, Form
         static constexpr uint32 FORMATION_MOVEMENT_INTERVAL = 1200; // sniffed (3 batch update cycles)
         float const _range;
         float _angle;
-        uint32 const _point1;
-        uint32 const _point2;
+        int32 const _point1;
+        int32 const _point2;
         uint32 _lastLeaderSplineID;
         bool _hasPredictedDestination;
 

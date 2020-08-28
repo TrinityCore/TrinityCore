@@ -1697,13 +1697,12 @@ public:
             return false;
 
         Player* chr = handler->GetSession()->GetPlayer();
-        FormationInfo* group_member;
+        FormationInfo group_member;
 
-        group_member                 = new FormationInfo;
-        group_member->follow_angle   = (creature->GetAngle(chr) - chr->GetOrientation()) * 180 / float(M_PI);
-        group_member->follow_dist    = std::sqrt(std::pow(chr->GetPositionX() - creature->GetPositionX(), 2.f) + std::pow(chr->GetPositionY() - creature->GetPositionY(), 2.f));
-        group_member->leaderGUID     = leaderGUID;
-        group_member->groupAI        = 0;
+        group_member.FollowAngle   = (creature->GetAngle(chr) - chr->GetOrientation()) * 180 / float(M_PI);
+        group_member.FollowDistance    = std::sqrt(std::pow(chr->GetPositionX() - creature->GetPositionX(), 2.f) + std::pow(chr->GetPositionY() - creature->GetPositionY(), 2.f));
+        group_member.LeaderGUID     = leaderGUID;
+        group_member.GroupAI        = 0;
 
         sFormationMgr->CreatureGroupMap[lowguid] = group_member;
         creature->SearchFormation();
@@ -1712,9 +1711,9 @@ public:
 
         stmt->setUInt32(0, leaderGUID);
         stmt->setUInt32(1, lowguid);
-        stmt->setFloat(2, group_member->follow_dist);
-        stmt->setFloat(3, group_member->follow_angle);
-        stmt->setUInt32(4, uint32(group_member->groupAI));
+        stmt->setFloat(2, group_member.FollowAngle);
+        stmt->setFloat(3, group_member.FollowDistance);
+        stmt->setUInt32(4, uint32(group_member.GroupAI));
 
         WorldDatabase.Execute(stmt);
 

@@ -363,7 +363,7 @@ void Creature::SearchFormation()
 
     CreatureGroupInfoType::iterator frmdata = sFormationMgr->CreatureGroupMap.find(lowguid);
     if (frmdata != sFormationMgr->CreatureGroupMap.end())
-        sFormationMgr->AddCreatureToGroup(frmdata->second->leaderGUID, this);
+        sFormationMgr->AddCreatureToGroup(frmdata->second.LeaderGUID, this);
 }
 
 bool Creature::IsFormationLeader() const
