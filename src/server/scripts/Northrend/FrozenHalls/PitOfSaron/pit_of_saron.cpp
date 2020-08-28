@@ -240,8 +240,6 @@ class spell_trash_npc_glacial_strike : public SpellScriptLoader
 
         class spell_trash_npc_glacial_strike_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_trash_npc_glacial_strike_AuraScript);
-
             void PeriodicTick(AuraEffect const* /*aurEff*/)
             {
                 if (GetTarget()->IsFullHealth())
@@ -253,7 +251,7 @@ class spell_trash_npc_glacial_strike : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_trash_npc_glacial_strike_AuraScript::PeriodicTick, EFFECT_2, SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
+                OnEffectPeriodic.Register(&spell_trash_npc_glacial_strike_AuraScript::PeriodicTick, EFFECT_2, SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
             }
         };
 
@@ -313,8 +311,6 @@ class spell_pos_ice_shards : public SpellScriptLoader
 
         class spell_pos_ice_shards_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_pos_ice_shards_SpellScript);
-
             bool Load() override
             {
                 // This script should execute only in Pit of Saron
@@ -329,7 +325,7 @@ class spell_pos_ice_shards : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_pos_ice_shards_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                OnEffectHitTarget.Register(&spell_pos_ice_shards_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 

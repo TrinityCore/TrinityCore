@@ -342,8 +342,6 @@ class spell_frost_tomb : public SpellScriptLoader
 
         class spell_frost_tomb_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_frost_tomb_AuraScript);
-
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (!GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::ByDeath))
@@ -355,7 +353,7 @@ class spell_frost_tomb : public SpellScriptLoader
 
             void Register() override
             {
-                 AfterEffectRemove += AuraEffectRemoveFn(spell_frost_tomb_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+                 AfterEffectRemove.Register(&spell_frost_tomb_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
             }
         };
 

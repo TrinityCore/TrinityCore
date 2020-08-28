@@ -1033,8 +1033,6 @@ class spell_oscillating_field : public SpellScriptLoader
 
         class spell_oscillating_field_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_oscillating_field_SpellScript);
-
             void HandleEffect(SpellEffIndex /*effIndex*/)
             {
                 if (Player* player = GetHitPlayer())
@@ -1044,7 +1042,7 @@ class spell_oscillating_field : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_oscillating_field_SpellScript::HandleEffect, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+                OnEffectHitTarget.Register(&spell_oscillating_field_SpellScript::HandleEffect, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
             }
         };
 

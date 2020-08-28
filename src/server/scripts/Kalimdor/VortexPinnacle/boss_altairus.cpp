@@ -227,8 +227,6 @@ private:
 // 88276 - Call The Wind
 class spell_altairus_call_the_wind : public SpellScript
 {
-    PrepareSpellScript(spell_altairus_call_the_wind);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_CALL_THE_WIND_AURA });
@@ -256,16 +254,14 @@ class spell_altairus_call_the_wind : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_altairus_call_the_wind::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
-        OnEffectHitTarget += SpellEffectFn(spell_altairus_call_the_wind::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnObjectAreaTargetSelect.Register(&spell_altairus_call_the_wind::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+        OnEffectHitTarget.Register(&spell_altairus_call_the_wind::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
 // 88282 - Upwind of Altairus
 class spell_altairus_upwind_of_altairus : public SpellScript
 {
-    PrepareSpellScript(spell_altairus_upwind_of_altairus);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -296,15 +292,13 @@ class spell_altairus_upwind_of_altairus : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_altairus_upwind_of_altairus::HandleUpwind, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+        OnEffectHitTarget.Register(&spell_altairus_upwind_of_altairus::HandleUpwind, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
     }
 };
 
 // 88772 - Call the Wind
 class spell_altairus_call_the_wind_channel : public SpellScript
 {
-    PrepareSpellScript(spell_altairus_call_the_wind_channel);
-
     void SetTarget(WorldObject*& target)
     {
         if (InstanceScript* instance = GetCaster()->GetInstanceScript())
@@ -315,15 +309,13 @@ class spell_altairus_call_the_wind_channel : public SpellScript
 
     void Register() override
     {
-        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_altairus_call_the_wind_channel::SetTarget, EFFECT_0, TARGET_UNIT_NEARBY_ENTRY);
+        OnObjectTargetSelect.Register(&spell_altairus_call_the_wind_channel::SetTarget, EFFECT_0, TARGET_UNIT_NEARBY_ENTRY);
     }
 };
 
 // 88322 - Chilling Breath
 class spell_altairus_chilling_breath : public SpellScript
 {
-    PrepareSpellScript(spell_altairus_chilling_breath);
-
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         GetCaster()->CastSpell(GetHitUnit(), uint32(GetEffectValue()));
@@ -331,13 +323,11 @@ class spell_altairus_chilling_breath : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_altairus_chilling_breath::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_altairus_chilling_breath::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 class spell_altairus_safe_area : public AuraScript
 {
-    PrepareAuraScript(spell_altairus_safe_area);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_LIGHTNING_BLAST });
@@ -362,7 +352,7 @@ class spell_altairus_safe_area : public AuraScript
 
     void Register() override
     {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_altairus_safe_area::HandleLightningBlast, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove.Register(&spell_altairus_safe_area::HandleLightningBlast, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 

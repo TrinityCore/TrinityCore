@@ -229,8 +229,6 @@ class spell_skeram_arcane_explosion : public SpellScriptLoader
 
         class spell_skeram_arcane_explosion_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_skeram_arcane_explosion_SpellScript);
-
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 targets.remove_if(PlayerOrPetCheck());
@@ -238,7 +236,7 @@ class spell_skeram_arcane_explosion : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_skeram_arcane_explosion_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect.Register(&spell_skeram_arcane_explosion_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
@@ -256,8 +254,6 @@ public:
 
     class spell_skeram_true_fulfillment_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_skeram_true_fulfillment_SpellScript);
-
         bool Validate(SpellInfo const* /*spell*/) override
         {
             return ValidateSpellInfo({ SPELL_TRUE_FULFILLMENT_2, SPELL_GENERIC_DISMOUNT });
@@ -271,7 +267,7 @@ public:
 
         void Register() override
         {
-            OnEffectHitTarget += SpellEffectFn(spell_skeram_true_fulfillment_SpellScript::HandleEffect, EFFECT_0, SPELL_AURA_MOD_CHARM);
+            OnEffectHitTarget.Register(&spell_skeram_true_fulfillment_SpellScript::HandleEffect, EFFECT_0, SPELL_AURA_MOD_CHARM);
         }
     };
 

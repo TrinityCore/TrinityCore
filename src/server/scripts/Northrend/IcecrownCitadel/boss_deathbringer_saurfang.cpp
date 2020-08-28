@@ -1037,8 +1037,6 @@ class spell_deathbringer_blood_link : public SpellScriptLoader
 
         class spell_deathbringer_blood_link_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_deathbringer_blood_link_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_BLOOD_LINK_POWER, SPELL_BLOOD_POWER });
@@ -1052,7 +1050,7 @@ class spell_deathbringer_blood_link : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_deathbringer_blood_link_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget.Register(&spell_deathbringer_blood_link_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -1069,8 +1067,6 @@ class spell_deathbringer_blood_link_aura : public SpellScriptLoader
 
         class spell_deathbringer_blood_link_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_deathbringer_blood_link_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_MARK_OF_THE_FALLEN_CHAMPION });
@@ -1086,7 +1082,7 @@ class spell_deathbringer_blood_link_aura : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_deathbringer_blood_link_AuraScript::HandlePeriodicTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectPeriodic.Register(&spell_deathbringer_blood_link_AuraScript::HandlePeriodicTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
@@ -1103,8 +1099,6 @@ class spell_deathbringer_blood_power : public SpellScriptLoader
 
         class spell_deathbringer_blood_power_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_deathbringer_blood_power_SpellScript);
-
             void ModAuraValue()
             {
                 if (Aura* aura = GetHitAura())
@@ -1113,14 +1107,12 @@ class spell_deathbringer_blood_power : public SpellScriptLoader
 
             void Register() override
             {
-                AfterHit += SpellHitFn(spell_deathbringer_blood_power_SpellScript::ModAuraValue);
+                AfterHit.Register(&spell_deathbringer_blood_power_SpellScript::ModAuraValue);
             }
         };
 
         class spell_deathbringer_blood_power_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_deathbringer_blood_power_AuraScript);
-
             void RecalculateHook(AuraEffect const* /*aurEffect*/, int32& amount, bool& canBeRecalculated)
             {
                 amount = int32(GetUnitOwner()->GetPower(POWER_ENERGY));
@@ -1129,8 +1121,8 @@ class spell_deathbringer_blood_power : public SpellScriptLoader
 
             void Register() override
             {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_deathbringer_blood_power_AuraScript::RecalculateHook, EFFECT_0, SPELL_AURA_MOD_SCALE);
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_deathbringer_blood_power_AuraScript::RecalculateHook, EFFECT_1, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
+                DoEffectCalcAmount.Register(&spell_deathbringer_blood_power_AuraScript::RecalculateHook, EFFECT_0, SPELL_AURA_MOD_SCALE);
+                DoEffectCalcAmount.Register(&spell_deathbringer_blood_power_AuraScript::RecalculateHook, EFFECT_1, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
             }
         };
 
@@ -1152,8 +1144,6 @@ class spell_deathbringer_rune_of_blood : public SpellScriptLoader
 
         class spell_deathbringer_rune_of_blood_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_deathbringer_rune_of_blood_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_BLOOD_LINK_DUMMY });
@@ -1167,7 +1157,7 @@ class spell_deathbringer_rune_of_blood : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_deathbringer_rune_of_blood_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_deathbringer_rune_of_blood_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -1185,8 +1175,6 @@ class spell_deathbringer_blood_beast_blood_link : public SpellScriptLoader
 
         class spell_deathbringer_blood_beast_blood_link_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_deathbringer_blood_beast_blood_link_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_BLOOD_LINK_DUMMY });
@@ -1200,7 +1188,7 @@ class spell_deathbringer_blood_beast_blood_link : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectProc += AuraEffectProcFn(spell_deathbringer_blood_beast_blood_link_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+                OnEffectProc.Register(&spell_deathbringer_blood_beast_blood_link_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
             }
         };
 
@@ -1217,8 +1205,6 @@ class spell_deathbringer_blood_nova : public SpellScriptLoader
 
         class spell_deathbringer_blood_nova_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_deathbringer_blood_nova_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_BLOOD_LINK_DUMMY });
@@ -1232,7 +1218,7 @@ class spell_deathbringer_blood_nova : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_deathbringer_blood_nova_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_deathbringer_blood_nova_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -1249,8 +1235,6 @@ class spell_deathbringer_blood_nova_targeting : public SpellScriptLoader
 
         class spell_deathbringer_blood_nova_targeting_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_deathbringer_blood_nova_targeting_SpellScript);
-
             void FilterTargetsInitial(std::list<WorldObject*>& targets)
             {
                 if (targets.empty())
@@ -1294,9 +1278,9 @@ class spell_deathbringer_blood_nova_targeting : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_deathbringer_blood_nova_targeting_SpellScript::FilterTargetsInitial, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_deathbringer_blood_nova_targeting_SpellScript::FilterTargetsSubsequent, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnEffectHitTarget += SpellEffectFn(spell_deathbringer_blood_nova_targeting_SpellScript::HandleForceCast, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
+                OnObjectAreaTargetSelect.Register(&spell_deathbringer_blood_nova_targeting_SpellScript::FilterTargetsInitial, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect.Register(&spell_deathbringer_blood_nova_targeting_SpellScript::FilterTargetsSubsequent, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnEffectHitTarget.Register(&spell_deathbringer_blood_nova_targeting_SpellScript::HandleForceCast, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
             }
 
             WorldObject* target = nullptr;
@@ -1315,8 +1299,6 @@ class spell_deathbringer_boiling_blood : public SpellScriptLoader
 
         class spell_deathbringer_boiling_blood_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_deathbringer_boiling_blood_SpellScript);
-
             bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
@@ -1335,7 +1317,7 @@ class spell_deathbringer_boiling_blood : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_deathbringer_boiling_blood_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect.Register(&spell_deathbringer_boiling_blood_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
@@ -1352,8 +1334,6 @@ class spell_deathbringer_remove_marks : public SpellScriptLoader
 
         class spell_deathbringer_remove_marks_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_deathbringer_remove_marks_SpellScript);
-
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
@@ -1362,7 +1342,7 @@ class spell_deathbringer_remove_marks : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_deathbringer_remove_marks_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_deathbringer_remove_marks_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 

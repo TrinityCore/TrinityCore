@@ -221,8 +221,6 @@ class spell_moorabi_mojo_frenzy : public SpellScriptLoader
 
         class spell_moorabi_mojo_frenzy_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_moorabi_mojo_frenzy_AuraScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_MOJO_FRENZY_CAST_SPEED });
@@ -239,7 +237,7 @@ class spell_moorabi_mojo_frenzy : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_moorabi_mojo_frenzy_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectPeriodic.Register(&spell_moorabi_mojo_frenzy_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 

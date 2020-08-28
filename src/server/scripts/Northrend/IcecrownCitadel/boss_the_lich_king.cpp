@@ -2058,8 +2058,6 @@ class spell_the_lich_king_infest : public SpellScriptLoader
 
         class spell_the_lich_king_infest_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_the_lich_king_infest_AuraScript);
-
             void OnPeriodic(AuraEffect const* /*aurEff*/)
             {
                 if (GetUnitOwner()->HealthAbovePct(90))
@@ -2080,8 +2078,8 @@ class spell_the_lich_king_infest : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_the_lich_king_infest_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
-                OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_the_lich_king_infest_AuraScript::OnUpdate, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+                OnEffectPeriodic.Register(&spell_the_lich_king_infest_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+                OnEffectUpdatePeriodic.Register(&spell_the_lich_king_infest_AuraScript::OnUpdate, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
             }
         };
 
@@ -2098,8 +2096,6 @@ class spell_the_lich_king_necrotic_plague : public SpellScriptLoader
 
         class spell_the_lich_king_necrotic_plague_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_the_lich_king_necrotic_plague_AuraScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_NECROTIC_PLAGUE_JUMP });
@@ -2120,7 +2116,7 @@ class spell_the_lich_king_necrotic_plague : public SpellScriptLoader
 
             void Register() override
             {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_the_lich_king_necrotic_plague_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove.Register(&spell_the_lich_king_necrotic_plague_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -2136,10 +2132,8 @@ class spell_the_lich_king_necrotic_plague_jump : public SpellScriptLoader
         spell_the_lich_king_necrotic_plague_jump() :  SpellScriptLoader("spell_the_lich_king_necrotic_plague_jump") { }
 
         class spell_the_lich_king_necrotic_plague_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_the_lich_king_necrotic_plague_SpellScript);
-
-        public:
+    {
+                 public:
             spell_the_lich_king_necrotic_plague_SpellScript()
             {
                 _hadAura = false;
@@ -2169,9 +2163,9 @@ class spell_the_lich_king_necrotic_plague_jump : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_the_lich_king_necrotic_plague_SpellScript::SelectTarget, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
-                BeforeHit += SpellHitFn(spell_the_lich_king_necrotic_plague_SpellScript::CheckAura);
-                OnHit += SpellHitFn(spell_the_lich_king_necrotic_plague_SpellScript::AddMissingStack);
+                OnObjectAreaTargetSelect.Register(&spell_the_lich_king_necrotic_plague_SpellScript::SelectTarget, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+                BeforeHit.Register(&spell_the_lich_king_necrotic_plague_SpellScript::CheckAura);
+                OnHit.Register(&spell_the_lich_king_necrotic_plague_SpellScript::AddMissingStack);
             }
 
             bool _hadAura;
@@ -2179,8 +2173,6 @@ class spell_the_lich_king_necrotic_plague_jump : public SpellScriptLoader
 
         class spell_the_lich_king_necrotic_plague_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_the_lich_king_necrotic_plague_AuraScript);
-
         public:
             spell_the_lich_king_necrotic_plague_AuraScript()
             {
@@ -2232,10 +2224,10 @@ class spell_the_lich_king_necrotic_plague_jump : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectApply += AuraEffectApplyFn(spell_the_lich_king_necrotic_plague_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_the_lich_king_necrotic_plague_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_the_lich_king_necrotic_plague_AuraScript::OnDispel, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAPPLY);
-                AfterEffectApply += AuraEffectRemoveFn(spell_the_lich_king_necrotic_plague_AuraScript::AfterDispel, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAPPLY);
+                OnEffectApply.Register(&spell_the_lich_king_necrotic_plague_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                AfterEffectRemove.Register(&spell_the_lich_king_necrotic_plague_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove.Register(&spell_the_lich_king_necrotic_plague_AuraScript::OnDispel, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAPPLY);
+                AfterEffectApply.Register(&spell_the_lich_king_necrotic_plague_AuraScript::AfterDispel, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAPPLY);
             }
 
             int32 _lastAmount;
@@ -2259,8 +2251,6 @@ class spell_the_lich_king_shadow_trap_visual : public SpellScriptLoader
 
         class spell_the_lich_king_shadow_trap_visual_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_the_lich_king_shadow_trap_visual_AuraScript);
-
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::Expired))
@@ -2269,7 +2259,7 @@ class spell_the_lich_king_shadow_trap_visual : public SpellScriptLoader
 
             void Register() override
             {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_the_lich_king_shadow_trap_visual_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove.Register(&spell_the_lich_king_shadow_trap_visual_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -2286,8 +2276,6 @@ class spell_the_lich_king_shadow_trap_periodic : public SpellScriptLoader
 
         class spell_the_lich_king_shadow_trap_periodic_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_the_lich_king_shadow_trap_periodic_SpellScript);
-
             void CheckTargetCount(std::list<WorldObject*>& targets)
             {
                 if (targets.empty())
@@ -2298,7 +2286,7 @@ class spell_the_lich_king_shadow_trap_periodic : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_the_lich_king_shadow_trap_periodic_SpellScript::CheckTargetCount, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect.Register(&spell_the_lich_king_shadow_trap_periodic_SpellScript::CheckTargetCount, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
@@ -2315,8 +2303,6 @@ class spell_the_lich_king_quake : public SpellScriptLoader
 
         class spell_the_lich_king_quake_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_the_lich_king_quake_SpellScript);
-
             bool Load() override
             {
                 return GetCaster()->GetInstanceScript() != nullptr;
@@ -2336,8 +2322,8 @@ class spell_the_lich_king_quake : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_the_lich_king_quake_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
-                OnEffectHit += SpellEffectFn(spell_the_lich_king_quake_SpellScript::HandleSendEvent, EFFECT_1, SPELL_EFFECT_SEND_EVENT);
+                OnObjectAreaTargetSelect.Register(&spell_the_lich_king_quake_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+                OnEffectHit.Register(&spell_the_lich_king_quake_SpellScript::HandleSendEvent, EFFECT_1, SPELL_EFFECT_SEND_EVENT);
             }
         };
 
@@ -2354,8 +2340,6 @@ class spell_the_lich_king_ice_burst_target_search : public SpellScriptLoader
 
         class spell_the_lich_king_ice_burst_target_search_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_the_lich_king_ice_burst_target_search_SpellScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_ICE_BURST });
@@ -2378,7 +2362,7 @@ class spell_the_lich_king_ice_burst_target_search : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_the_lich_king_ice_burst_target_search_SpellScript::CheckTargetCount, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect.Register(&spell_the_lich_king_ice_burst_target_search_SpellScript::CheckTargetCount, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
@@ -2395,8 +2379,6 @@ class spell_the_lich_king_raging_spirit : public SpellScriptLoader
 
         class spell_the_lich_king_raging_spirit_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_the_lich_king_raging_spirit_SpellScript);
-
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
@@ -2405,7 +2387,7 @@ class spell_the_lich_king_raging_spirit : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_the_lich_king_raging_spirit_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_the_lich_king_raging_spirit_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -2437,8 +2419,6 @@ class spell_the_lich_king_defile : public SpellScriptLoader
 
         class spell_the_lich_king_defile_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_the_lich_king_defile_SpellScript);
-
             void CorrectRange(std::list<WorldObject*>& targets)
             {
                 targets.remove_if(ExactDistanceCheck(GetCaster(), 10.0f * GetCaster()->GetObjectScale()));
@@ -2456,9 +2436,9 @@ class spell_the_lich_king_defile : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_the_lich_king_defile_SpellScript::CorrectRange, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_the_lich_king_defile_SpellScript::CorrectRange, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnHit += SpellHitFn(spell_the_lich_king_defile_SpellScript::ChangeDamageAndGrow);
+                OnObjectAreaTargetSelect.Register(&spell_the_lich_king_defile_SpellScript::CorrectRange, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect.Register(&spell_the_lich_king_defile_SpellScript::CorrectRange, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnHit.Register(&spell_the_lich_king_defile_SpellScript::ChangeDamageAndGrow);
             }
         };
 
@@ -2475,8 +2455,6 @@ class spell_the_lich_king_summon_into_air : public SpellScriptLoader
 
         class spell_the_lich_king_summon_into_air_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_the_lich_king_summon_into_air_SpellScript);
-
             void ModDestHeight(SpellEffIndex effIndex)
             {
                 static Position const offset = {0.0f, 0.0f, 15.0f, 0.0f};
@@ -2494,7 +2472,7 @@ class spell_the_lich_king_summon_into_air : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHit += SpellEffectFn(spell_the_lich_king_summon_into_air_SpellScript::ModDestHeight, EFFECT_0, SPELL_EFFECT_SUMMON);
+                OnEffectHit.Register(&spell_the_lich_king_summon_into_air_SpellScript::ModDestHeight, EFFECT_0, SPELL_EFFECT_SUMMON);
             }
         };
 
@@ -2511,8 +2489,6 @@ class spell_the_lich_king_soul_reaper : public SpellScriptLoader
 
         class spell_the_lich_king_soul_reaper_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_the_lich_king_soul_reaper_AuraScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_SOUL_REAPER_BUFF });
@@ -2526,7 +2502,7 @@ class spell_the_lich_king_soul_reaper : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_the_lich_king_soul_reaper_AuraScript::OnPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
+                OnEffectPeriodic.Register(&spell_the_lich_king_soul_reaper_AuraScript::OnPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
             }
         };
 
@@ -2543,8 +2519,6 @@ class spell_the_lich_king_valkyr_target_search : public SpellScriptLoader
 
         class spell_the_lich_king_valkyr_target_search_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_the_lich_king_valkyr_target_search_SpellScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_CHARGE });
@@ -2580,9 +2554,9 @@ class spell_the_lich_king_valkyr_target_search : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_the_lich_king_valkyr_target_search_SpellScript::SelectTarget, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_the_lich_king_valkyr_target_search_SpellScript::ReplaceTarget, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnEffectHitTarget += SpellEffectFn(spell_the_lich_king_valkyr_target_search_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnObjectAreaTargetSelect.Register(&spell_the_lich_king_valkyr_target_search_SpellScript::SelectTarget, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect.Register(&spell_the_lich_king_valkyr_target_search_SpellScript::ReplaceTarget, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnEffectHitTarget.Register(&spell_the_lich_king_valkyr_target_search_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
 
             WorldObject* _target = nullptr;
@@ -2601,8 +2575,6 @@ class spell_the_lich_king_cast_back_to_caster : public SpellScriptLoader
 
         class spell_the_lich_king_cast_back_to_caster_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_the_lich_king_cast_back_to_caster_SpellScript);
-
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 GetHitUnit()->CastSpell(GetCaster(), uint32(GetEffectValue()), true);
@@ -2610,7 +2582,7 @@ class spell_the_lich_king_cast_back_to_caster : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_the_lich_king_cast_back_to_caster_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_the_lich_king_cast_back_to_caster_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -2627,8 +2599,6 @@ class spell_the_lich_king_life_siphon : public SpellScriptLoader
 
         class spell_the_lich_king_life_siphon_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_the_lich_king_life_siphon_SpellScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_LIFE_SIPHON_HEAL });
@@ -2641,7 +2611,7 @@ class spell_the_lich_king_life_siphon : public SpellScriptLoader
 
             void Register() override
             {
-                AfterHit += SpellHitFn(spell_the_lich_king_life_siphon_SpellScript::TriggerHeal);
+                AfterHit.Register(&spell_the_lich_king_life_siphon_SpellScript::TriggerHeal);
             }
         };
 
@@ -2658,8 +2628,6 @@ class spell_the_lich_king_vile_spirits : public SpellScriptLoader
 
         class spell_the_lich_king_vile_spirits_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_the_lich_king_vile_spirits_AuraScript);
-
         public:
             spell_the_lich_king_vile_spirits_AuraScript()
             {
@@ -2681,7 +2649,7 @@ class spell_the_lich_king_vile_spirits : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_the_lich_king_vile_spirits_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectPeriodic.Register(&spell_the_lich_king_vile_spirits_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
 
             bool _is25Man;
@@ -2700,8 +2668,6 @@ class spell_the_lich_king_vile_spirits_visual : public SpellScriptLoader
 
         class spell_the_lich_king_vile_spirits_visual_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_the_lich_king_vile_spirits_visual_SpellScript);
-
             void ModDestHeight(SpellEffIndex /*effIndex*/)
             {
                 Position offset = {0.0f, 0.0f, 15.0f, 0.0f};
@@ -2710,7 +2676,7 @@ class spell_the_lich_king_vile_spirits_visual : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectLaunch += SpellEffectFn(spell_the_lich_king_vile_spirits_visual_SpellScript::ModDestHeight, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectLaunch.Register(&spell_the_lich_king_vile_spirits_visual_SpellScript::ModDestHeight, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -2726,10 +2692,8 @@ class spell_the_lich_king_vile_spirit_move_target_search : public SpellScriptLoa
         spell_the_lich_king_vile_spirit_move_target_search() : SpellScriptLoader("spell_the_lich_king_vile_spirit_move_target_search") { }
 
         class spell_the_lich_king_vile_spirit_move_target_search_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_the_lich_king_vile_spirit_move_target_search_SpellScript);
-
-        public:
+    {
+                 public:
             spell_the_lich_king_vile_spirit_move_target_search_SpellScript()
             {
                 _target = nullptr;
@@ -2762,8 +2726,8 @@ class spell_the_lich_king_vile_spirit_move_target_search : public SpellScriptLoa
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_the_lich_king_vile_spirit_move_target_search_SpellScript::SelectTarget, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnEffectHitTarget += SpellEffectFn(spell_the_lich_king_vile_spirit_move_target_search_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnObjectAreaTargetSelect.Register(&spell_the_lich_king_vile_spirit_move_target_search_SpellScript::SelectTarget, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnEffectHitTarget.Register(&spell_the_lich_king_vile_spirit_move_target_search_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
 
             WorldObject* _target;
@@ -2782,8 +2746,6 @@ class spell_the_lich_king_vile_spirit_damage_target_search : public SpellScriptL
 
         class spell_the_lich_king_vile_spirit_damage_target_search_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_the_lich_king_vile_spirit_damage_target_search_SpellScript);
-
             bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
@@ -2806,7 +2768,7 @@ class spell_the_lich_king_vile_spirit_damage_target_search : public SpellScriptL
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_the_lich_king_vile_spirit_damage_target_search_SpellScript::CheckTargetCount, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect.Register(&spell_the_lich_king_vile_spirit_damage_target_search_SpellScript::CheckTargetCount, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
@@ -2823,8 +2785,6 @@ class spell_the_lich_king_harvest_soul : public SpellScriptLoader
 
         class spell_the_lich_king_harvest_soul_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_the_lich_king_harvest_soul_AuraScript);
-
             bool Load() override
             {
                 return GetOwner()->GetInstanceScript() != nullptr;
@@ -2839,7 +2799,7 @@ class spell_the_lich_king_harvest_soul : public SpellScriptLoader
 
             void Register() override
             {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_the_lich_king_harvest_soul_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove.Register(&spell_the_lich_king_harvest_soul_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -2856,8 +2816,6 @@ class spell_the_lich_king_lights_favor : public SpellScriptLoader
 
         class spell_the_lich_king_lights_favor_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_the_lich_king_lights_favor_AuraScript);
-
             void OnPeriodic(AuraEffect const* /*aurEff*/)
             {
                 if (Unit* caster = GetCaster())
@@ -2875,8 +2833,8 @@ class spell_the_lich_king_lights_favor : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_the_lich_king_lights_favor_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_the_lich_king_lights_favor_AuraScript::CalculateBonus, EFFECT_1, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
+                OnEffectPeriodic.Register(&spell_the_lich_king_lights_favor_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+                DoEffectCalcAmount.Register(&spell_the_lich_king_lights_favor_AuraScript::CalculateBonus, EFFECT_1, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
             }
         };
 
@@ -2893,8 +2851,6 @@ class spell_the_lich_king_soul_rip : public SpellScriptLoader
 
         class spell_the_lich_king_soul_rip_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_the_lich_king_soul_rip_AuraScript);
-
             void OnPeriodic(AuraEffect const* aurEff)
             {
                 PreventDefaultAction();
@@ -2905,7 +2861,7 @@ class spell_the_lich_king_soul_rip : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_the_lich_king_soul_rip_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectPeriodic.Register(&spell_the_lich_king_soul_rip_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
@@ -2921,10 +2877,8 @@ class spell_the_lich_king_restore_soul : public SpellScriptLoader
         spell_the_lich_king_restore_soul() : SpellScriptLoader("spell_the_lich_king_restore_soul") { }
 
         class spell_the_lich_king_restore_soul_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_the_lich_king_restore_soul_SpellScript);
-
-        public:
+    {
+                 public:
             spell_the_lich_king_restore_soul_SpellScript()
             {
                 _instance = nullptr;
@@ -2962,8 +2916,8 @@ class spell_the_lich_king_restore_soul : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHit += SpellEffectFn(spell_the_lich_king_restore_soul_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
-                BeforeHit += SpellHitFn(spell_the_lich_king_restore_soul_SpellScript::RemoveAura);
+                OnEffectHit.Register(&spell_the_lich_king_restore_soul_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+                BeforeHit.Register(&spell_the_lich_king_restore_soul_SpellScript::RemoveAura);
             }
 
             InstanceScript* _instance;
@@ -2982,8 +2936,6 @@ class spell_the_lich_king_dark_hunger : public SpellScriptLoader
 
         class spell_the_lich_king_dark_hunger_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_the_lich_king_dark_hunger_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_DARK_HUNGER_HEAL });
@@ -3002,7 +2954,7 @@ class spell_the_lich_king_dark_hunger : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectProc += AuraEffectProcFn(spell_the_lich_king_dark_hunger_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+                OnEffectProc.Register(&spell_the_lich_king_dark_hunger_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 
@@ -3019,8 +2971,6 @@ class spell_the_lich_king_in_frostmourne_room : public SpellScriptLoader
 
         class spell_the_lich_king_in_frostmourne_room_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_the_lich_king_in_frostmourne_room_AuraScript);
-
             bool Load() override
             {
                 return GetOwner()->GetInstanceScript() != nullptr;
@@ -3035,7 +2985,7 @@ class spell_the_lich_king_in_frostmourne_room : public SpellScriptLoader
 
             void Register() override
             {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_the_lich_king_in_frostmourne_room_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove.Register(&spell_the_lich_king_in_frostmourne_room_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -3052,8 +3002,6 @@ class spell_the_lich_king_summon_spirit_bomb : public SpellScriptLoader
 
         class spell_the_lich_king_summon_spirit_bomb_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_the_lich_king_summon_spirit_bomb_SpellScript);
-
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
@@ -3062,7 +3010,7 @@ class spell_the_lich_king_summon_spirit_bomb : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_the_lich_king_summon_spirit_bomb_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_the_lich_king_summon_spirit_bomb_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -3079,8 +3027,6 @@ class spell_the_lich_king_trigger_vile_spirit : public SpellScriptLoader
 
         class spell_the_lich_king_trigger_vile_spirit_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_the_lich_king_trigger_vile_spirit_SpellScript);
-
             void ActivateSpirit()
             {
                 Creature* target = GetHitCreature();
@@ -3092,7 +3038,7 @@ class spell_the_lich_king_trigger_vile_spirit : public SpellScriptLoader
 
             void Register() override
             {
-                OnHit += SpellHitFn(spell_the_lich_king_trigger_vile_spirit_SpellScript::ActivateSpirit);
+                OnHit.Register(&spell_the_lich_king_trigger_vile_spirit_SpellScript::ActivateSpirit);
             }
         };
 
@@ -3109,8 +3055,6 @@ class spell_the_lich_king_jump : public SpellScriptLoader
 
         class spell_the_lich_king_jump_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_the_lich_king_jump_SpellScript);
-
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
@@ -3127,7 +3071,7 @@ class spell_the_lich_king_jump : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_the_lich_king_jump_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_the_lich_king_jump_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -3144,8 +3088,6 @@ class spell_the_lich_king_jump_remove_aura : public SpellScriptLoader
 
         class spell_the_lich_king_jump_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_the_lich_king_jump_SpellScript);
-
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
@@ -3154,7 +3096,7 @@ class spell_the_lich_king_jump_remove_aura : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_the_lich_king_jump_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_the_lich_king_jump_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -3171,8 +3113,6 @@ class spell_the_lich_king_harvest_souls_teleport : public SpellScriptLoader
 
         class spell_the_lich_king_harvest_souls_teleport_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_the_lich_king_harvest_souls_teleport_SpellScript);
-
             void RelocateTransportOffset(SpellEffIndex /*effIndex*/)
             {
                 float randCoordX = frand(-18.0f, 18.0f);
@@ -3182,7 +3122,7 @@ class spell_the_lich_king_harvest_souls_teleport : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_the_lich_king_harvest_souls_teleport_SpellScript::RelocateTransportOffset, EFFECT_1, SPELL_EFFECT_TELEPORT_UNITS);
+                OnEffectHitTarget.Register(&spell_the_lich_king_harvest_souls_teleport_SpellScript::RelocateTransportOffset, EFFECT_1, SPELL_EFFECT_TELEPORT_UNITS);
             }
         };
 

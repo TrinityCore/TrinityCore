@@ -1891,8 +1891,6 @@ class npc_ascendant_council_flame_strike : public CreatureScript
 
 class spell_feludius_water_bomb_targeting : public SpellScript
 {
-    PrepareSpellScript(spell_feludius_water_bomb_targeting);
-
     void HandleHit(SpellEffIndex effIndex)
     {
         if (Unit* caster = GetCaster())
@@ -1902,14 +1900,12 @@ class spell_feludius_water_bomb_targeting : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_feludius_water_bomb_targeting::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget.Register(&spell_feludius_water_bomb_targeting::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
 class spell_feludius_water_bomb : public SpellScript
 {
-    PrepareSpellScript(spell_feludius_water_bomb);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_WATER_BOMB_TRIGGERED });
@@ -1926,14 +1922,12 @@ class spell_feludius_water_bomb : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_feludius_water_bomb::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget.Register(&spell_feludius_water_bomb::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
 class spell_feludius_glaciate : public SpellScript
 {
-    PrepareSpellScript(spell_feludius_glaciate);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -1971,15 +1965,13 @@ class spell_feludius_glaciate : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_feludius_glaciate::ChangeDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-        OnEffectHitTarget += SpellEffectFn(spell_feludius_glaciate::FreezeTarget, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_feludius_glaciate::ChangeDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnEffectHitTarget.Register(&spell_feludius_glaciate::FreezeTarget, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 class spell_feludius_heart_of_ice : public AuraScript
 {
-    PrepareAuraScript(spell_feludius_heart_of_ice);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -2008,15 +2000,13 @@ class spell_feludius_heart_of_ice : public AuraScript
 
     void Register() override
     {
-        AfterEffectApply += AuraEffectApplyFn(spell_feludius_heart_of_ice::AfterApply, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE, AURA_EFFECT_HANDLE_REAL);
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_feludius_heart_of_ice::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE);
+        AfterEffectApply.Register(&spell_feludius_heart_of_ice::AfterApply, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE, AURA_EFFECT_HANDLE_REAL);
+        OnEffectPeriodic.Register(&spell_feludius_heart_of_ice::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE);
     }
 };
 
 class spell_feludius_frost_imbued : public SpellScript
 {
-    PrepareSpellScript(spell_feludius_frost_imbued);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         if (targets.empty())
@@ -2027,14 +2017,12 @@ class spell_feludius_frost_imbued : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_feludius_frost_imbued::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+        OnObjectAreaTargetSelect.Register(&spell_feludius_frost_imbued::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
     }
 };
 
 class spell_feludius_frost_imbued_AuraScript : public AuraScript
 {
-    PrepareAuraScript(spell_feludius_frost_imbued_AuraScript);
-
     bool CheckProc(ProcEventInfo& /*eventInfo*/)
     {
         if (Unit* caster = GetCaster())
@@ -2051,15 +2039,13 @@ class spell_feludius_frost_imbued_AuraScript : public AuraScript
 
     void Register() override
     {
-        DoCheckProc += AuraCheckProcFn(spell_feludius_frost_imbued_AuraScript::CheckProc);
-        OnEffectProc += AuraEffectProcFn(spell_feludius_frost_imbued_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+        DoCheckProc.Register(&spell_feludius_frost_imbued_AuraScript::CheckProc);
+        OnEffectProc.Register(&spell_feludius_frost_imbued_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
 class spell_feludius_frozen_orb_targeting : public SpellScript
 {
-    PrepareSpellScript(spell_feludius_frozen_orb_targeting);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         if (targets.empty())
@@ -2070,14 +2056,12 @@ class spell_feludius_frozen_orb_targeting : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_feludius_frozen_orb_targeting::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnObjectAreaTargetSelect.Register(&spell_feludius_frozen_orb_targeting::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
     }
 };
 
 class spell_ignacious_rising_flames : public AuraScript
 {
-    PrepareAuraScript(spell_ignacious_rising_flames);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_RISING_FLAMES_BUFF });
@@ -2100,15 +2084,13 @@ class spell_ignacious_rising_flames : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_ignacious_rising_flames::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-        AfterEffectRemove += AuraEffectRemoveFn(spell_ignacious_rising_flames::HandleAuraRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+        OnEffectPeriodic.Register(&spell_ignacious_rising_flames::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+        AfterEffectRemove.Register(&spell_ignacious_rising_flames::HandleAuraRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
 class spell_ignacious_burning_blood : public AuraScript
 {
-    PrepareAuraScript(spell_ignacious_burning_blood);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -2137,15 +2119,13 @@ class spell_ignacious_burning_blood : public AuraScript
 
     void Register() override
     {
-        AfterEffectApply += AuraEffectApplyFn(spell_ignacious_burning_blood::AfterApply, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE, AURA_EFFECT_HANDLE_REAL);
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_ignacious_burning_blood::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE);
+        AfterEffectApply.Register(&spell_ignacious_burning_blood::AfterApply, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE, AURA_EFFECT_HANDLE_REAL);
+        OnEffectPeriodic.Register(&spell_ignacious_burning_blood::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE);
     }
 };
 
 class spell_ignacious_flame_imbued : public SpellScript
 {
-    PrepareSpellScript(spell_ignacious_flame_imbued);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         if (targets.empty())
@@ -2156,14 +2136,12 @@ class spell_ignacious_flame_imbued : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ignacious_flame_imbued::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+        OnObjectAreaTargetSelect.Register(&spell_ignacious_flame_imbued::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
     }
 };
 
 class spell_ignacious_flame_imbued_AuraScript : public AuraScript
 {
-    PrepareAuraScript(spell_ignacious_flame_imbued_AuraScript);
-
     bool CheckProc(ProcEventInfo& /*eventInfo*/)
     {
         if (Unit* caster = GetCaster())
@@ -2180,15 +2158,13 @@ class spell_ignacious_flame_imbued_AuraScript : public AuraScript
 
     void Register() override
     {
-        DoCheckProc += AuraCheckProcFn(spell_ignacious_flame_imbued_AuraScript::CheckProc);
-        OnEffectProc += AuraEffectProcFn(spell_ignacious_flame_imbued_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+        DoCheckProc.Register(&spell_ignacious_flame_imbued_AuraScript::CheckProc);
+        OnEffectProc.Register(&spell_ignacious_flame_imbued_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
 class spell_ignacious_inferno_leap : public SpellScript
 {
-    PrepareSpellScript(spell_ignacious_inferno_leap);
-
     void HandleInfernoRush()
     {
         if (Unit* caster = GetCaster())
@@ -2199,14 +2175,12 @@ class spell_ignacious_inferno_leap : public SpellScript
 
     void Register()
     {
-        AfterCast += SpellCastFn(spell_ignacious_inferno_leap::HandleInfernoRush);
+        AfterCast.Register(&spell_ignacious_inferno_leap::HandleInfernoRush);
     }
 };
 
 class spell_ignacious_inferno_rush : public SpellScript
 {
-    PrepareSpellScript(spell_ignacious_inferno_rush);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -2225,14 +2199,12 @@ class spell_ignacious_inferno_rush : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_ignacious_inferno_rush::HandleAuraRemoval, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnEffectHitTarget.Register(&spell_ignacious_inferno_rush::HandleAuraRemoval, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
 class spell_ignacious_flame_strike : public SpellScript
 {
-    PrepareSpellScript(spell_ignacious_flame_strike);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         if (targets.empty())
@@ -2249,15 +2221,13 @@ class spell_ignacious_flame_strike : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ignacious_flame_strike::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-        OnEffectHitTarget += SpellEffectFn(spell_ignacious_flame_strike::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnObjectAreaTargetSelect.Register(&spell_ignacious_flame_strike::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnEffectHitTarget.Register(&spell_ignacious_flame_strike::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
 class spell_arion_lashing_winds : public SpellScript
 {
-    PrepareSpellScript(spell_arion_lashing_winds);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -2281,14 +2251,12 @@ class spell_arion_lashing_winds : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_arion_lashing_winds::HandleHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnEffectHitTarget.Register(&spell_arion_lashing_winds::HandleHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
 class spell_arion_thundershock : public SpellScript
 {
-    PrepareSpellScript(spell_arion_thundershock);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_GROUNDED });
@@ -2302,14 +2270,12 @@ class spell_arion_thundershock : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_arion_thundershock::ChangeDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnEffectHitTarget.Register(&spell_arion_thundershock::ChangeDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
 class spell_arion_lightning_rod : public SpellScript
 {
-    PrepareSpellScript(spell_arion_lightning_rod);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         if (targets.empty())
@@ -2321,14 +2287,12 @@ class spell_arion_lightning_rod : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_arion_lightning_rod::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnObjectAreaTargetSelect.Register(&spell_arion_lightning_rod::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
     }
 };
 
 class spell_arion_chain_lightning_targeting : public SpellScript
 {
-    PrepareSpellScript(spell_arion_chain_lightning_targeting);
-
     void HandleHit(SpellEffIndex effIndex)
     {
         if (Unit* caster = GetCaster())
@@ -2346,7 +2310,7 @@ class spell_arion_chain_lightning_targeting : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_arion_chain_lightning_targeting::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget.Register(&spell_arion_chain_lightning_targeting::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -2366,8 +2330,6 @@ class ArionDisperseDistanceCheck
 
 class spell_arion_disperse : public SpellScript
 {
-    PrepareSpellScript(spell_arion_disperse);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         if (targets.empty())
@@ -2395,15 +2357,13 @@ class spell_arion_disperse : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_arion_disperse::HandleHit, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_arion_disperse::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+        OnEffectHitTarget.Register(&spell_arion_disperse::HandleHit, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnObjectAreaTargetSelect.Register(&spell_arion_disperse::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
     }
 };
 
 class spell_arion_lightning_blast : public SpellScript
 {
-    PrepareSpellScript(spell_arion_lightning_blast);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         if (targets.empty())
@@ -2414,15 +2374,13 @@ class spell_arion_lightning_blast : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_arion_lightning_blast::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_arion_lightning_blast::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnObjectAreaTargetSelect.Register(&spell_arion_lightning_blast::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnObjectAreaTargetSelect.Register(&spell_arion_lightning_blast::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
     }
 };
 
 class spell_arion_lightning_blast_dummy : public SpellScript
 {
-    PrepareSpellScript(spell_arion_lightning_blast_dummy);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         if (targets.empty())
@@ -2433,14 +2391,12 @@ class spell_arion_lightning_blast_dummy : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_arion_lightning_blast_dummy::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnObjectAreaTargetSelect.Register(&spell_arion_lightning_blast_dummy::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
     }
 };
 
 class spell_arion_static_overload : public SpellScript
 {
-    PrepareSpellScript(spell_arion_static_overload);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_GRAVITY_CORE });
@@ -2461,14 +2417,12 @@ class spell_arion_static_overload : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_arion_static_overload::FilterTargets, EFFECT_ALL, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnObjectAreaTargetSelect.Register(&spell_arion_static_overload::FilterTargets, EFFECT_ALL, TARGET_UNIT_SRC_AREA_ENEMY);
     }
 };
 
 class spell_arion_static_overload_triggered : public SpellScript
 {
-    PrepareSpellScript(spell_arion_static_overload_triggered);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -2488,14 +2442,12 @@ class spell_arion_static_overload_triggered : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_arion_static_overload_triggered::HandleHit, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+        OnEffectHitTarget.Register(&spell_arion_static_overload_triggered::HandleHit, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
     }
 };
 
 class spell_terrastra_gravity_well : public SpellScript
 {
-    PrepareSpellScript(spell_terrastra_gravity_well);
-
     void HandleHit(SpellEffIndex /*effIndex*/)
     {
         if (Unit* caster = GetCaster())
@@ -2512,14 +2464,12 @@ class spell_terrastra_gravity_well : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_terrastra_gravity_well::HandleHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnEffectHitTarget.Register(&spell_terrastra_gravity_well::HandleHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
 class spell_terrastra_harden_skin : public AuraScript
 {
-    PrepareAuraScript(spell_terrastra_harden_skin);
-
     bool Load() override
     {
         _absorbedDamage = 0;
@@ -2548,15 +2498,13 @@ private:
 
     void Register() override
     {
-        OnEffectAbsorb += AuraEffectAbsorbFn(spell_terrastra_harden_skin::OnAbsorb, EFFECT_1);
-        AfterEffectRemove += AuraEffectRemoveFn(spell_terrastra_harden_skin::OnAuraRemoveHandler, EFFECT_1, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
+        OnEffectAbsorb.Register(&spell_terrastra_harden_skin::OnAbsorb, EFFECT_1);
+        AfterEffectRemove.Register(&spell_terrastra_harden_skin::OnAuraRemoveHandler, EFFECT_1, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
 class spell_terrastra_quake : public SpellScript
 {
-    PrepareSpellScript(spell_terrastra_quake);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SWIRLING_WINDS });
@@ -2572,14 +2520,12 @@ class spell_terrastra_quake : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_terrastra_quake::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnObjectAreaTargetSelect.Register(&spell_terrastra_quake::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
     }
 };
 
 class spell_terrastra_eruption : public SpellScript
 {
-    PrepareSpellScript(spell_terrastra_eruption);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_ERUPTION_SUMMON });
@@ -2605,14 +2551,12 @@ class spell_terrastra_eruption : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_terrastra_eruption::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget.Register(&spell_terrastra_eruption::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
 class spell_terrastra_gravity_core : public SpellScript
 {
-    PrepareSpellScript(spell_terrastra_gravity_core);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_STATIC_OVERLOAD });
@@ -2633,14 +2577,12 @@ class spell_terrastra_gravity_core : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_terrastra_gravity_core::FilterTargets, EFFECT_ALL, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnObjectAreaTargetSelect.Register(&spell_terrastra_gravity_core::FilterTargets, EFFECT_ALL, TARGET_UNIT_SRC_AREA_ENEMY);
     }
 };
 
 class spell_terrastra_gravity_core_triggered : public SpellScript
 {
-    PrepareSpellScript(spell_terrastra_gravity_core_triggered);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -2660,14 +2602,12 @@ class spell_terrastra_gravity_core_triggered : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_terrastra_gravity_core_triggered::HandleHit, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+        OnEffectHitTarget.Register(&spell_terrastra_gravity_core_triggered::HandleHit, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
     }
 };
 
 class spell_elementium_monstrosity_lava_seed : public SpellScript
 {
-    PrepareSpellScript(spell_elementium_monstrosity_lava_seed);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_LAVA_SEED_DUMMY });
@@ -2681,14 +2621,12 @@ class spell_elementium_monstrosity_lava_seed : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_elementium_monstrosity_lava_seed::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget.Register(&spell_elementium_monstrosity_lava_seed::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
 class spell_elementium_monstrosity_cryogenic_aura : public AuraScript
 {
-    PrepareAuraScript(spell_elementium_monstrosity_cryogenic_aura);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -2715,14 +2653,12 @@ class spell_elementium_monstrosity_cryogenic_aura : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_elementium_monstrosity_cryogenic_aura::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectPeriodic.Register(&spell_elementium_monstrosity_cryogenic_aura::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
 class spell_elementium_monstrosity_liquid_ice : public AuraScript
 {
-    PrepareAuraScript(spell_elementium_monstrosity_liquid_ice);
-
     void HandlePeriodic(AuraEffect const* aurEff)
     {
         PreventDefaultAction();
@@ -2736,14 +2672,12 @@ class spell_elementium_monstrosity_liquid_ice : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_elementium_monstrosity_liquid_ice::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+        OnEffectPeriodic.Register(&spell_elementium_monstrosity_liquid_ice::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
     }
 };
 
 class spell_elementium_monstrosity_electric_instability : public SpellScript
 {
-    PrepareSpellScript(spell_elementium_monstrosity_electric_instability);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -2776,15 +2710,13 @@ class spell_elementium_monstrosity_electric_instability : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_elementium_monstrosity_electric_instability::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-        OnEffectHitTarget += SpellEffectFn(spell_elementium_monstrosity_electric_instability::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnObjectAreaTargetSelect.Register(&spell_elementium_monstrosity_electric_instability::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnEffectHitTarget.Register(&spell_elementium_monstrosity_electric_instability::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
 class spell_elementium_monstrosity_gravity_crush : public SpellScript
 {
-    PrepareSpellScript(spell_elementium_monstrosity_gravity_crush);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         if (targets.empty())
@@ -2800,7 +2732,7 @@ class spell_elementium_monstrosity_gravity_crush : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_elementium_monstrosity_gravity_crush::FilterTargets, EFFECT_ALL, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnObjectAreaTargetSelect.Register(&spell_elementium_monstrosity_gravity_crush::FilterTargets, EFFECT_ALL, TARGET_UNIT_SRC_AREA_ENEMY);
     }
 };
 

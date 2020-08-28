@@ -128,8 +128,6 @@ public:
 
     class spell_swipe_honey_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_swipe_honey_SpellScript);
-
         SpellCastResult CheckTarget()
         {
             if (GetCaster()->FindNearestCreature(NPC_HONEY_BUNNY, 5.0f, true))
@@ -155,8 +153,8 @@ public:
 
         void Register() override
         {
-            OnCheckCast += SpellCheckCastFn(spell_swipe_honey_SpellScript::CheckTarget);
-            OnEffectHitTarget += SpellEffectFn(spell_swipe_honey_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnCheckCast.Register(&spell_swipe_honey_SpellScript::CheckTarget);
+            OnEffectHitTarget.Register(&spell_swipe_honey_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
@@ -178,12 +176,11 @@ enum BeesBEES
 
 class spell_beesbees : public SpellScriptLoader
 {
-public: spell_beesbees() : SpellScriptLoader("spell_beesbees") { }
+    public:
+        spell_beesbees() : SpellScriptLoader("spell_beesbees") { }
 
         class spell_beesbees_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_beesbees_SpellScript);
-
             void HandleScriptEffect(SpellEffIndex /* effIndex */)
             {
                 if (Creature* honey = GetCaster()->ToCreature())
@@ -199,7 +196,7 @@ public: spell_beesbees() : SpellScriptLoader("spell_beesbees") { }
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_beesbees_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_beesbees_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -225,12 +222,11 @@ Position const FerliSpawnPos = { 3850.44f, -1323.34f, 213.2113f, 5.637414f };
 
 class spell_ruumbos_silly_dance : public SpellScriptLoader
 {
-public: spell_ruumbos_silly_dance() : SpellScriptLoader("spell_ruumbos_silly_dance") { }
+    public:
+        spell_ruumbos_silly_dance() : SpellScriptLoader("spell_ruumbos_silly_dance") { }
 
         class spell_ruumbos_silly_dance_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_ruumbos_silly_dance_SpellScript);
-
             void HandleScriptEffect(SpellEffIndex /* effIndex */)
             {
                 if (Player* player = GetHitPlayer())
@@ -247,7 +243,7 @@ public: spell_ruumbos_silly_dance() : SpellScriptLoader("spell_ruumbos_silly_dan
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_ruumbos_silly_dance_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_ruumbos_silly_dance_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 

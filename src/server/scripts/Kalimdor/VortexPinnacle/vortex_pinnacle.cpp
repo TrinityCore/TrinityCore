@@ -477,8 +477,6 @@ struct npc_vp_catch_fall : public NullCreatureAI
 // 85294 - Lurk Search
 class spell_vp_lurk_search_periodic : public AuraScript
 {
-    PrepareAuraScript(spell_vp_lurk_search_periodic);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -506,14 +504,12 @@ class spell_vp_lurk_search_periodic : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_vp_lurk_search_periodic::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectPeriodic.Register(&spell_vp_lurk_search_periodic::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
 class spell_vp_lurk_search : public SpellScript
 {
-    PrepareSpellScript(spell_vp_lurk_search);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -582,16 +578,14 @@ class spell_vp_lurk_search : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_vp_lurk_search::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-        OnEffectHitTarget += SpellEffectFn(spell_vp_lurk_search::HandleLightningBolt, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnObjectAreaTargetSelect.Register(&spell_vp_lurk_search::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnEffectHitTarget.Register(&spell_vp_lurk_search::HandleLightningBolt, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
 // 85267 - Feign Death
 class spell_vp_feign_death : public SpellScript
 {
-    PrepareSpellScript(spell_vp_feign_death);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_LURK });
@@ -604,14 +598,12 @@ class spell_vp_feign_death : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_vp_feign_death::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_vp_feign_death::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 class spell_vp_feign_death_AuraScript : public AuraScript
 {
-    PrepareAuraScript(spell_vp_feign_death_AuraScript);
-
     void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         GetTarget()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
@@ -624,16 +616,14 @@ class spell_vp_feign_death_AuraScript : public AuraScript
 
     void Register() override
     {
-        AfterEffectApply += AuraEffectRemoveFn(spell_vp_feign_death_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
-        AfterEffectRemove += AuraEffectRemoveFn(spell_vp_feign_death_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectApply.Register(&spell_vp_feign_death_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove.Register(&spell_vp_feign_death_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
 // 85281 - Lurk Ressurect
 class spell_vp_lurk_ressurect : public AuraScript
 {
-    PrepareAuraScript(spell_vp_lurk_ressurect);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_LURK });
@@ -648,15 +638,13 @@ class spell_vp_lurk_ressurect : public AuraScript
 
     void Register() override
     {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_vp_lurk_ressurect::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove.Register(&spell_vp_lurk_ressurect::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
 // 85084 - Howling Gale
 class spell_vp_howling_gale : public AuraScript
 {
-    PrepareAuraScript(spell_vp_howling_gale);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -678,15 +666,13 @@ class spell_vp_howling_gale : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_vp_howling_gale::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+        OnEffectPeriodic.Register(&spell_vp_howling_gale::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
     }
 };
 
 // 85159, 85085 - Howling Gale
 class spell_vp_howling_gale_knockback : public AuraScript
 {
-    PrepareAuraScript(spell_vp_howling_gale_knockback);
-
     void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         GetTarget()->ModifyAuraState(AURA_STATE_UNKNOWN22, true);
@@ -699,16 +685,14 @@ class spell_vp_howling_gale_knockback : public AuraScript
 
     void Register() override
     {
-        OnEffectApply += AuraEffectApplyFn(spell_vp_howling_gale_knockback::AfterApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        AfterEffectRemove += AuraEffectRemoveFn(spell_vp_howling_gale_knockback::AfterRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        OnEffectApply.Register(&spell_vp_howling_gale_knockback::AfterApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove.Register(&spell_vp_howling_gale_knockback::AfterRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
 // 84978, 84989, 85395, 85396, 85017 - Slipstream
 class spell_slipstream : public SpellScript
 {
-    PrepareSpellScript(spell_slipstream);
-
     void SetTarget(WorldObject*& target)
     {
         InstanceScript* instance = GetCaster()->GetInstanceScript();
@@ -749,15 +733,13 @@ class spell_slipstream : public SpellScript
     }
     void Register() override
     {
-        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_slipstream::SetTarget, EFFECT_0, TARGET_UNIT_NEARBY_ENTRY);
+        OnObjectTargetSelect.Register(&spell_slipstream::SetTarget, EFFECT_0, TARGET_UNIT_NEARBY_ENTRY);
     }
 };
 
 // 87726 - Grounding Field
 class spell_grounding_field : public SpellScript
 {
-    PrepareSpellScript(spell_grounding_field);
-
     void GetNearbyGroundFields()
     {
         std::list<Creature*> groundingFields;
@@ -789,8 +771,8 @@ class spell_grounding_field : public SpellScript
 
     void Register() override
     {
-        BeforeCast += SpellCastFn(spell_grounding_field::GetNearbyGroundFields);
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_grounding_field::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+        BeforeCast.Register(&spell_grounding_field::GetNearbyGroundFields);
+        OnObjectAreaTargetSelect.Register(&spell_grounding_field::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
     }
 private:
     bool prevent = false;
@@ -800,8 +782,6 @@ private:
 // 87850 - Skyfall
 class spell_skyfall : public SpellScript
 {
-    PrepareSpellScript(spell_skyfall);
-
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
@@ -814,15 +794,13 @@ class spell_skyfall : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_skyfall::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget.Register(&spell_skyfall::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
 // 88201 - Healing Well
 class spell_vp_healing_well : public SpellScript
 {
-    PrepareSpellScript(spell_vp_healing_well);
-
     void SetDest(SpellDestination& dest)
     {
         float offset = GetCaster()->GetFloorZ() - GetCaster()->GetPositionZ();
@@ -831,7 +809,7 @@ class spell_vp_healing_well : public SpellScript
 
     void Register()
     {
-        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_vp_healing_well::SetDest, EFFECT_0, TARGET_DEST_CASTER);
+        OnDestinationTargetSelect.Register(&spell_vp_healing_well::SetDest, EFFECT_0, TARGET_DEST_CASTER);
     }
 };
 
@@ -841,8 +819,6 @@ Position const AsaadTeleportPos = { -1193.67f,   472.835f,   634.8653f, 0.0f };
 
 class spell_vp_catch_fall : public SpellScript
 {
-    PrepareSpellScript(spell_vp_catch_fall);
-
     void SetDest(SpellDestination& dest)
     {
         float z = GetCaster()->GetPositionZ();
@@ -858,7 +834,7 @@ class spell_vp_catch_fall : public SpellScript
 
     void Register()
     {
-        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_vp_catch_fall::SetDest, EFFECT_0, TARGET_DEST_CASTER);
+        OnDestinationTargetSelect.Register(&spell_vp_catch_fall::SetDest, EFFECT_0, TARGET_DEST_CASTER);
     }
 };
 

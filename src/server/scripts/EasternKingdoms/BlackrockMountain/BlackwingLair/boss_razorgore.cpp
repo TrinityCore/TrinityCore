@@ -208,8 +208,6 @@ class spell_egg_event : public SpellScriptLoader
 
         class spell_egg_eventSpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_egg_eventSpellScript);
-
             void HandleOnHit()
             {
                 if (InstanceScript* instance = GetCaster()->GetInstanceScript())
@@ -218,7 +216,7 @@ class spell_egg_event : public SpellScriptLoader
 
             void Register() override
             {
-                OnHit += SpellHitFn(spell_egg_eventSpellScript::HandleOnHit);
+                OnHit.Register(&spell_egg_eventSpellScript::HandleOnHit);
             }
         };
 

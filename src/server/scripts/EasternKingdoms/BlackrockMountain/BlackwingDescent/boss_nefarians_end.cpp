@@ -1380,8 +1380,6 @@ private:
 
 class spell_nefarians_end_electrical_charge : public AuraScript
 {
-    PrepareAuraScript(spell_nefarians_end_electrical_charge);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_ELECTRICAL_CHARGE_ONYXIA });
@@ -1418,14 +1416,12 @@ class spell_nefarians_end_electrical_charge : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_nefarians_end_electrical_charge::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectPeriodic.Register(&spell_nefarians_end_electrical_charge::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
 class spell_nefarians_end_lightning_discharge_triggered_periodic_aura : public AuraScript
 {
-    PrepareAuraScript(spell_nefarians_end_lightning_discharge_triggered_periodic_aura);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -1454,14 +1450,12 @@ class spell_nefarians_end_lightning_discharge_triggered_periodic_aura : public A
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_nefarians_end_lightning_discharge_triggered_periodic_aura::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+        OnEffectPeriodic.Register(&spell_nefarians_end_lightning_discharge_triggered_periodic_aura::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
     }
 };
 
 class spell_nefarians_end_lightning_discharge_cone : public SpellScript
 {
-    PrepareSpellScript(spell_nefarians_end_lightning_discharge_cone);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_LIGHTNING_DISCHARGE_DAMAGE });
@@ -1485,14 +1479,12 @@ class spell_nefarians_end_lightning_discharge_cone : public SpellScript
 
     void Register() override
     {
-        OnEffectLaunchTarget += SpellEffectFn(spell_nefarians_end_lightning_discharge_cone::HandleImmunity, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectLaunchTarget.Register(&spell_nefarians_end_lightning_discharge_cone::HandleImmunity, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
 class spell_nefarians_end_lightning_discharge_damage : public SpellScript
 {
-    PrepareSpellScript(spell_nefarians_end_lightning_discharge_damage);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         SpellInfo const* spell = GetSpellInfo();
@@ -1507,14 +1499,12 @@ class spell_nefarians_end_lightning_discharge_damage : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_nefarians_end_lightning_discharge_damage::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnObjectAreaTargetSelect.Register(&spell_nefarians_end_lightning_discharge_damage::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
     }
 };
 
 class spell_nefarians_end_children_of_deathwing : public AuraScript
 {
-    PrepareAuraScript(spell_nefarians_end_children_of_deathwing);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_CHILDREN_OF_DEATHWING_NEFARIAN });
@@ -1532,14 +1522,12 @@ class spell_nefarians_end_children_of_deathwing : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_nefarians_end_children_of_deathwing::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectPeriodic.Register(&spell_nefarians_end_children_of_deathwing::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
 class spell_nefarians_end_animate_bones : public AuraScript
 {
-    PrepareAuraScript(spell_nefarians_end_animate_bones);
-
     void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
     {
         PreventDefaultAction();
@@ -1548,14 +1536,12 @@ class spell_nefarians_end_animate_bones : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_nefarians_end_animate_bones::HandlePeriodicTick, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+        OnEffectPeriodic.Register(&spell_nefarians_end_animate_bones::HandlePeriodicTick, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
     }
 };
 
 class spell_nefarians_end_animate_bones_dummy : public SpellScript
 {
-    PrepareSpellScript(spell_nefarians_end_animate_bones_dummy);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -1585,14 +1571,12 @@ class spell_nefarians_end_animate_bones_dummy : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_nefarians_end_animate_bones_dummy::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget.Register(&spell_nefarians_end_animate_bones_dummy::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
 class spell_nefarians_end_shadowflame_breath : public SpellScript
 {
-    PrepareSpellScript(spell_nefarians_end_shadowflame_breath);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -1624,14 +1608,12 @@ class spell_nefarians_end_shadowflame_breath : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_nefarians_end_shadowflame_breath::HandleHit, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_nefarians_end_shadowflame_breath::HandleHit, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 class spell_nefarians_end_jump_down_to_platform : public SpellScript
 {
-    PrepareSpellScript(spell_nefarians_end_jump_down_to_platform);
-
     void SetDest(SpellDestination& dest)
     {
         Position positions[MaxChromaticPrototypes];
@@ -1664,14 +1646,12 @@ class spell_nefarians_end_jump_down_to_platform : public SpellScript
 
     void Register()
     {
-        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_nefarians_end_jump_down_to_platform::SetDest, EFFECT_0, TARGET_DEST_NEARBY_ENTRY);
+        OnDestinationTargetSelect.Register(&spell_nefarians_end_jump_down_to_platform::SetDest, EFFECT_0, TARGET_DEST_NEARBY_ENTRY);
     }
 };
 
 class spell_nefarians_end_shadow_of_cowardice : public SpellScript
 {
-    PrepareSpellScript(spell_nefarians_end_shadow_of_cowardice);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SHADOW_OF_COWARDICE_DAMAGE });
@@ -1690,14 +1670,12 @@ class spell_nefarians_end_shadow_of_cowardice : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_nefarians_end_shadow_of_cowardice::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget.Register(&spell_nefarians_end_shadow_of_cowardice::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
 class spell_nefarians_end_onyxia_start_fight_2_effect : public SpellScript
 {
-    PrepareSpellScript(spell_nefarians_end_onyxia_start_fight_2_effect);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SHADOW_OF_COWARDICE_DAMAGE });
@@ -1727,15 +1705,13 @@ class spell_nefarians_end_onyxia_start_fight_2_effect : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_nefarians_end_onyxia_start_fight_2_effect::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_nefarians_end_onyxia_start_fight_2_effect::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnEffectHitTarget.Register(&spell_nefarians_end_onyxia_start_fight_2_effect::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnObjectAreaTargetSelect.Register(&spell_nefarians_end_onyxia_start_fight_2_effect::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
     }
 };
 
 class spell_nefarians_end_empowering_strikes : public AuraScript
 {
-    PrepareAuraScript(spell_nefarians_end_empowering_strikes);
-
     void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
     {
         PreventDefaultAction();
@@ -1744,14 +1720,12 @@ class spell_nefarians_end_empowering_strikes : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_nefarians_end_empowering_strikes::HandlePeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+        OnEffectPeriodic.Register(&spell_nefarians_end_empowering_strikes::HandlePeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
     }
 };
 
 class spell_nefarians_end_brushfire_pre_start_periodic : public AuraScript
 {
-    PrepareAuraScript(spell_nefarians_end_brushfire_pre_start_periodic);
-
     bool Load() override
     {
         _nextTriggerTickNumber = 1;
@@ -1781,7 +1755,7 @@ class spell_nefarians_end_brushfire_pre_start_periodic : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_nefarians_end_brushfire_pre_start_periodic::HandlePeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectPeriodic.Register(&spell_nefarians_end_brushfire_pre_start_periodic::HandlePeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 
 private:
@@ -1791,8 +1765,6 @@ private:
 
 class spell_nefarians_end_brushfire_start : public SpellScript
 {
-    PrepareSpellScript(spell_nefarians_end_brushfire_start);
-
     void HandleDummyEffect(SpellEffIndex effIndex)
     {
         if (Unit* caster = GetCaster())
@@ -1801,14 +1773,12 @@ class spell_nefarians_end_brushfire_start : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_nefarians_end_brushfire_start::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget.Register(&spell_nefarians_end_brushfire_start::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
 class spell_nefarians_end_brushfire_growth : public AuraScript
 {
-    PrepareAuraScript(spell_nefarians_end_brushfire_growth);
-
     void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
     {
         if (Creature* creature = GetTarget()->ToCreature())
@@ -1818,14 +1788,12 @@ class spell_nefarians_end_brushfire_growth : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_nefarians_end_brushfire_growth::HandlePeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectPeriodic.Register(&spell_nefarians_end_brushfire_growth::HandlePeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
 class spell_nefarians_end_shadowblaze : public SpellScript
 {
-    PrepareSpellScript(spell_nefarians_end_shadowblaze);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -1859,14 +1827,12 @@ class spell_nefarians_end_shadowblaze : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_nefarians_end_shadowblaze::HandleHit, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_nefarians_end_shadowblaze::HandleHit, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 class spell_nefarians_end_dominion_dummy : public SpellScript
 {
-    PrepareSpellScript(spell_nefarians_end_dominion_dummy);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DOMINION_OVERRIDE_ACTION_BAR });
@@ -1882,14 +1848,12 @@ class spell_nefarians_end_dominion_dummy : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_nefarians_end_dominion_dummy::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnObjectAreaTargetSelect.Register(&spell_nefarians_end_dominion_dummy::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
     }
 };
 
 class spell_nefarians_end_dominion : public AuraScript
 {
-    PrepareAuraScript(spell_nefarians_end_dominion);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -1922,15 +1886,13 @@ class spell_nefarians_end_dominion : public AuraScript
 
     void Register() override
     {
-        AfterEffectApply += AuraEffectApplyFn(spell_nefarians_end_dominion::AfterApply, EFFECT_0, SPELL_AURA_OVERRIDE_SPELLS, AURA_EFFECT_HANDLE_REAL);
-        AfterEffectRemove += AuraEffectRemoveFn(spell_nefarians_end_dominion::AfterRemove, EFFECT_0, SPELL_AURA_OVERRIDE_SPELLS, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectApply.Register(&spell_nefarians_end_dominion::AfterApply, EFFECT_0, SPELL_AURA_OVERRIDE_SPELLS, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove.Register(&spell_nefarians_end_dominion::AfterRemove, EFFECT_0, SPELL_AURA_OVERRIDE_SPELLS, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
 class spell_nefarians_end_determine_farthest_portal_stalker : public AuraScript
 {
-    PrepareAuraScript(spell_nefarians_end_determine_farthest_portal_stalker);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DOMINION_PORTAL_TRIGGER });
@@ -1971,14 +1933,12 @@ class spell_nefarians_end_determine_farthest_portal_stalker : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_nefarians_end_determine_farthest_portal_stalker::HandlePeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectPeriodic.Register(&spell_nefarians_end_determine_farthest_portal_stalker::HandlePeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
 class spell_nefarians_end_dominion_portal_trigger : public SpellScript
 {
-    PrepareSpellScript(spell_nefarians_end_dominion_portal_trigger);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -2012,14 +1972,12 @@ class spell_nefarians_end_dominion_portal_trigger : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_nefarians_end_dominion_portal_trigger::HandleHit, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_nefarians_end_dominion_portal_trigger::HandleHit, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 class spell_nefarians_end_free_your_mind : public AuraScript
 {
-    PrepareAuraScript(spell_nefarians_end_free_your_mind);
-
     void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
         Unit* target = GetTarget();
@@ -2029,14 +1987,12 @@ class spell_nefarians_end_free_your_mind : public AuraScript
 
     void Register() override
     {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_nefarians_end_free_your_mind::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove.Register(&spell_nefarians_end_free_your_mind::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
 class spell_nefarians_end_siphon_power : public SpellScript
 {
-    PrepareSpellScript(spell_nefarians_end_siphon_power);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_STOLEN_POWER });
@@ -2049,14 +2005,12 @@ class spell_nefarians_end_siphon_power : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_nefarians_end_siphon_power::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget.Register(&spell_nefarians_end_siphon_power::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
 class spell_nefarians_end_explosive_cinders : public AuraScript
 {
-    PrepareAuraScript(spell_nefarians_end_explosive_cinders);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_EXPLOSIVE_CINDERS_EXPLOSION });
@@ -2070,7 +2024,7 @@ class spell_nefarians_end_explosive_cinders : public AuraScript
 
     void Register() override
     {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_nefarians_end_explosive_cinders::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove.Register(&spell_nefarians_end_explosive_cinders::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
     }
 };
 

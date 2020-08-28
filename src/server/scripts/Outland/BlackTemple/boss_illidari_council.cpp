@@ -626,8 +626,6 @@ class spell_illidari_council_empyreal_balance : public SpellScriptLoader
 
         class spell_illidari_council_empyreal_balance_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_illidari_council_empyreal_balance_SpellScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_BALANCE_OF_POWER });
@@ -641,7 +639,7 @@ class spell_illidari_council_empyreal_balance : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_illidari_council_empyreal_balance_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget.Register(&spell_illidari_council_empyreal_balance_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -659,8 +657,6 @@ class spell_illidari_council_empyreal_equivalency : public SpellScriptLoader
 
         class spell_illidari_council_empyreal_equivalency_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_illidari_council_empyreal_equivalency_SpellScript);
-
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 Unit* target = GetHitUnit();
@@ -673,7 +669,7 @@ class spell_illidari_council_empyreal_equivalency : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_illidari_council_empyreal_equivalency_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget.Register(&spell_illidari_council_empyreal_equivalency_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -691,8 +687,6 @@ class spell_illidari_council_balance_of_power : public SpellScriptLoader
 
         class spell_illidari_council_balance_of_power_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_illidari_council_balance_of_power_AuraScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_SHARED_RULE });
@@ -707,7 +701,7 @@ class spell_illidari_council_balance_of_power : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectAbsorb += AuraEffectAbsorbFn(spell_illidari_council_balance_of_power_AuraScript::Absorb, EFFECT_0);
+                OnEffectAbsorb.Register(&spell_illidari_council_balance_of_power_AuraScript::Absorb, EFFECT_0);
             }
         };
 
@@ -725,8 +719,6 @@ class spell_illidari_council_deadly_strike : public SpellScriptLoader
 
         class spell_illidari_council_deadly_strike_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_illidari_council_deadly_strike_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_DEADLY_POISON });
@@ -742,7 +734,7 @@ class spell_illidari_council_deadly_strike : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_illidari_council_deadly_strike_AuraScript::OnTrigger, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+                OnEffectPeriodic.Register(&spell_illidari_council_deadly_strike_AuraScript::OnTrigger, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
         };
 
@@ -760,8 +752,6 @@ class spell_illidari_council_deadly_poison : public SpellScriptLoader
 
         class spell_illidari_council_deadly_poison_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_illidari_council_deadly_poison_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_ENVENOM });
@@ -775,7 +765,7 @@ class spell_illidari_council_deadly_poison : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectRemove += AuraEffectRemoveFn(spell_illidari_council_deadly_poison_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove.Register(&spell_illidari_council_deadly_poison_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -793,8 +783,6 @@ class spell_illidari_council_reflective_shield : public SpellScriptLoader
 
         class spell_illidari_council_reflective_shield_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_illidari_council_reflective_shield_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_REFLECTIVE_SHIELD_DAMAGE });
@@ -812,7 +800,7 @@ class spell_illidari_council_reflective_shield : public SpellScriptLoader
 
             void Register() override
             {
-                 AfterEffectAbsorb += AuraEffectAbsorbFn(spell_illidari_council_reflective_shield_AuraScript::OnAbsorb, EFFECT_0);
+                 AfterEffectAbsorb.Register(&spell_illidari_council_reflective_shield_AuraScript::OnAbsorb, EFFECT_0);
             }
         };
 
@@ -830,8 +818,6 @@ class spell_illidari_council_judgement : public SpellScriptLoader
 
         class spell_illidari_council_judgement_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_illidari_council_judgement_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_JUDGEMENT_OF_BLOOD, SPELL_JUDGEMENT_OF_COMMAND, SPELL_JUDGEMENT_PRIMER });
@@ -854,8 +840,8 @@ class spell_illidari_council_judgement : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_illidari_council_judgement_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-                AfterCast += SpellCastFn(spell_illidari_council_judgement_SpellScript::OnFinishCast);
+                OnEffectHitTarget.Register(&spell_illidari_council_judgement_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                AfterCast.Register(&spell_illidari_council_judgement_SpellScript::OnFinishCast);
             }
         };
 
@@ -874,8 +860,6 @@ class spell_illidari_council_seal : public SpellScriptLoader
 
         class spell_illidari_council_seal_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_illidari_council_seal_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_SEAL_OF_COMMAND, SPELL_SEAL_OF_BLOOD });
@@ -893,7 +877,7 @@ class spell_illidari_council_seal : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectRemove += AuraEffectRemoveFn(spell_illidari_council_seal_AuraScript::OnRemove, EFFECT_2, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove.Register(&spell_illidari_council_seal_AuraScript::OnRemove, EFFECT_2, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -911,8 +895,6 @@ class spell_illidari_dampen_magic : public SpellScriptLoader
 
         class spell_illidari_dampen_magic_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_illidari_dampen_magic_AuraScript);
-
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Creature* target = GetTarget()->ToCreature())
@@ -924,7 +906,7 @@ class spell_illidari_dampen_magic : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectRemove += AuraEffectRemoveFn(spell_illidari_dampen_magic_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove.Register(&spell_illidari_dampen_magic_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
             }
         };
 

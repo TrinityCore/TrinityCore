@@ -345,8 +345,6 @@ private:
 
 class spell_glubtok_blossom_targeting : public SpellScript
 {
-    PrepareSpellScript(spell_glubtok_blossom_targeting);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         if (targets.empty())
@@ -385,8 +383,8 @@ class spell_glubtok_blossom_targeting : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_glubtok_blossom_targeting::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
-        OnEffectHitTarget += SpellEffectFn(spell_glubtok_blossom_targeting::HandleBlossomEffect, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+        OnObjectAreaTargetSelect.Register(&spell_glubtok_blossom_targeting::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+        OnEffectHitTarget.Register(&spell_glubtok_blossom_targeting::HandleBlossomEffect, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
     }
 };
 

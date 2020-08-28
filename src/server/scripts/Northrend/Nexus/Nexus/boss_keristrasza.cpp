@@ -262,8 +262,6 @@ class spell_intense_cold : public SpellScriptLoader
 
         class spell_intense_cold_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_intense_cold_AuraScript);
-
             void HandlePeriodicTick(AuraEffect const* aurEff)
             {
                 if (aurEff->GetBase()->GetStackAmount() < 2)
@@ -277,7 +275,7 @@ class spell_intense_cold : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_intense_cold_AuraScript::HandlePeriodicTick, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
+                OnEffectPeriodic.Register(&spell_intense_cold_AuraScript::HandlePeriodicTick, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
             }
         };
 

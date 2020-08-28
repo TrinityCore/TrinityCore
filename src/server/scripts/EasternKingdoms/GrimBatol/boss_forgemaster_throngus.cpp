@@ -334,8 +334,6 @@ class spell_throngus_mighty_stomp : public SpellScriptLoader
 
         class spell_throngus_mighty_stomp_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_throngus_mighty_stomp_SpellScript);
-
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 if (targets.empty())
@@ -353,8 +351,8 @@ class spell_throngus_mighty_stomp : public SpellScriptLoader
 
             void Register()
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_throngus_mighty_stomp_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnEffectHitTarget += SpellEffectFn(spell_throngus_mighty_stomp_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
+                OnObjectAreaTargetSelect.Register(&spell_throngus_mighty_stomp_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnEffectHitTarget.Register(&spell_throngus_mighty_stomp_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
             }
         };
 
@@ -371,8 +369,6 @@ class spell_throngus_pick_weapon : public SpellScriptLoader
 
         class spell_throngus_pick_weapon_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_throngus_pick_weapon_SpellScript);
-
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
                 if (GetCaster()->GetEntry() == BOSS_FORGEMASTER_THRONGUS)
@@ -381,7 +377,7 @@ class spell_throngus_pick_weapon : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_throngus_pick_weapon_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_throngus_pick_weapon_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -398,8 +394,6 @@ class spell_throngus_flame_arrow_barrage : public SpellScriptLoader
 
         class spell_throngus_flame_arrow_barrage_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_throngus_flame_arrow_barrage_SpellScript);
-
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 if (targets.empty())
@@ -417,8 +411,8 @@ class spell_throngus_flame_arrow_barrage : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_throngus_flame_arrow_barrage_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
-                OnEffectHitTarget += SpellEffectFn(spell_throngus_flame_arrow_barrage_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
+                OnObjectAreaTargetSelect.Register(&spell_throngus_flame_arrow_barrage_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+                OnEffectHitTarget.Register(&spell_throngus_flame_arrow_barrage_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
             }
         };
 
@@ -435,8 +429,6 @@ class spell_throngus_flaming_arrow : public SpellScriptLoader
 
         class spell_throngus_flaming_arrow_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_throngus_flaming_arrow_SpellScript);
-
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 if (targets.empty())
@@ -447,7 +439,7 @@ class spell_throngus_flaming_arrow : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_throngus_flaming_arrow_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect.Register(&spell_throngus_flaming_arrow_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
@@ -464,8 +456,6 @@ class spell_throngus_personal_phalanx : public SpellScriptLoader
 
         class spell_throngus_personal_phalanx_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_throngus_personal_phalanx_AuraScript);
-
             void AfterApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 Unit* target = GetTarget();
@@ -490,8 +480,8 @@ class spell_throngus_personal_phalanx : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectApply += AuraEffectApplyFn(spell_throngus_personal_phalanx_AuraScript::AfterApply, EFFECT_2, SPELL_AURA_MOD_PACIFY, AURA_EFFECT_HANDLE_REAL);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_throngus_personal_phalanx_AuraScript::AfterRemove, EFFECT_2, SPELL_AURA_MOD_PACIFY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectApply.Register(&spell_throngus_personal_phalanx_AuraScript::AfterApply, EFFECT_2, SPELL_AURA_MOD_PACIFY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove.Register(&spell_throngus_personal_phalanx_AuraScript::AfterRemove, EFFECT_2, SPELL_AURA_MOD_PACIFY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -508,8 +498,6 @@ class spell_throngus_personal_phalanx_aoe : public SpellScriptLoader
 
         class spell_throngus_personal_phalanx_aoe_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_throngus_personal_phalanx_aoe_SpellScript);
-
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 if (targets.empty())
@@ -526,8 +514,8 @@ class spell_throngus_personal_phalanx_aoe : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_throngus_personal_phalanx_aoe_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnEffectHitTarget += SpellEffectFn(spell_throngus_personal_phalanx_aoe_SpellScript::HandleSummon, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
+                OnObjectAreaTargetSelect.Register(&spell_throngus_personal_phalanx_aoe_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnEffectHitTarget.Register(&spell_throngus_personal_phalanx_aoe_SpellScript::HandleSummon, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
             }
         };
 
@@ -544,8 +532,6 @@ class spell_throngus_fixate_effect : public SpellScriptLoader
 
         class spell_throngus_fixate_effect_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_throngus_fixate_effect_SpellScript);
-
             void HandleHit(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* caster = GetCaster())
@@ -554,7 +540,7 @@ class spell_throngus_fixate_effect : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_throngus_fixate_effect_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+                OnEffectHitTarget.Register(&spell_throngus_fixate_effect_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
             }
         };
 
@@ -571,8 +557,6 @@ class spell_throngus_burning_dual_blades : public SpellScriptLoader
 
         class spell_throngus_burning_dual_blades_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_throngus_burning_dual_blades_AuraScript);
-
             void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* target = GetTarget();
@@ -591,8 +575,8 @@ class spell_throngus_burning_dual_blades : public SpellScriptLoader
 
             void Register() override
             {
-                AfterEffectApply += AuraEffectApplyFn(spell_throngus_burning_dual_blades_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_MOD_HIT_CHANCE, AURA_EFFECT_HANDLE_REAL);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_throngus_burning_dual_blades_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_MOD_HIT_CHANCE, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectApply.Register(&spell_throngus_burning_dual_blades_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_MOD_HIT_CHANCE, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove.Register(&spell_throngus_burning_dual_blades_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_MOD_HIT_CHANCE, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -609,8 +593,6 @@ class spell_throngus_disorienting_roar : public SpellScriptLoader
 
         class spell_throngus_disorienting_roar_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_throngus_disorienting_roar_SpellScript);
-
             void HandleHeroicDifficulty()
             {
                 if (Unit* target = GetHitUnit())
@@ -621,7 +603,7 @@ class spell_throngus_disorienting_roar : public SpellScriptLoader
 
             void Register() override
             {
-                AfterHit += SpellHitFn(spell_throngus_disorienting_roar_SpellScript::HandleHeroicDifficulty);
+                AfterHit.Register(&spell_throngus_disorienting_roar_SpellScript::HandleHeroicDifficulty);
             }
         };
 
@@ -632,8 +614,6 @@ class spell_throngus_disorienting_roar : public SpellScriptLoader
 
         class spell_throngus_disorienting_roar_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_throngus_disorienting_roar_AuraScript);
-
             bool CheckProc(ProcEventInfo& /*eventInfo*/)
             {
                 if (Aura* aura = GetAura())
@@ -652,7 +632,7 @@ class spell_throngus_disorienting_roar : public SpellScriptLoader
 
             void Register() override
             {
-                DoCheckProc += AuraCheckProcFn(spell_throngus_disorienting_roar_AuraScript::CheckProc);
+                DoCheckProc.Register(&spell_throngus_disorienting_roar_AuraScript::CheckProc);
             }
         };
 
@@ -669,8 +649,6 @@ class spell_throngus_encumbered : public SpellScriptLoader
 
         class spell_throngus_encumbered_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_throngus_encumbered_AuraScript);
-
             void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 GetTarget()->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, WEAPON_MODEL_MACE);
@@ -683,8 +661,8 @@ class spell_throngus_encumbered : public SpellScriptLoader
 
             void Register() override
             {
-                AfterEffectApply += AuraEffectApplyFn(spell_throngus_encumbered_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_throngus_encumbered_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectApply.Register(&spell_throngus_encumbered_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove.Register(&spell_throngus_encumbered_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -701,8 +679,6 @@ class spell_throngus_impaling_slam : public SpellScriptLoader
 
         class spell_throngus_impaling_slam_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_throngus_impaling_slam_AuraScript);
-
             void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
@@ -719,8 +695,8 @@ class spell_throngus_impaling_slam : public SpellScriptLoader
 
             void Register() override
             {
-                AfterEffectApply += AuraEffectApplyFn(spell_throngus_impaling_slam_AuraScript::AfterApply, EFFECT_2, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_throngus_impaling_slam_AuraScript::AfterRemove, EFFECT_2, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectApply.Register(&spell_throngus_impaling_slam_AuraScript::AfterApply, EFFECT_2, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove.Register(&spell_throngus_impaling_slam_AuraScript::AfterRemove, EFFECT_2, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
             }
         };
 

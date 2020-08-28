@@ -308,8 +308,6 @@ class InCombatCheck
 
 class spell_tott_trigger_murloc : public SpellScript
 {
-    PrepareSpellScript(spell_tott_trigger_murloc);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_TRIGGER_MURLOC_END });
@@ -331,7 +329,7 @@ class spell_tott_trigger_murloc : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_tott_trigger_murloc::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+        OnObjectAreaTargetSelect.Register(&spell_tott_trigger_murloc::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
     }
 };
 
@@ -370,8 +368,6 @@ private:
 
 class spell_tott_camera: public SpellScript
 {
-    PrepareSpellScript(spell_tott_camera);
-
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
         if (Player* player = GetHitPlayer())
@@ -380,7 +376,7 @@ class spell_tott_camera: public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_tott_camera::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_tott_camera::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -391,8 +387,6 @@ enum ShockDefense
 
 class spell_tott_shock_defense_script : public SpellScript
 {
-    PrepareSpellScript(spell_tott_shock_defense_script);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SHOCK_DEFENSE_DEST });
@@ -406,14 +400,12 @@ class spell_tott_shock_defense_script : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_tott_shock_defense_script::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_tott_shock_defense_script::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 class spell_tott_ulthok_intro_visual_impact: public SpellScript
 {
-    PrepareSpellScript(spell_tott_ulthok_intro_visual_impact);
-
     void HandleScriptEffect(SpellEffIndex effIndex)
     {
         if (Unit* caster = GetCaster())
@@ -422,14 +414,12 @@ class spell_tott_ulthok_intro_visual_impact: public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_tott_ulthok_intro_visual_impact::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_tott_ulthok_intro_visual_impact::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 class spell_tott_shock_defense : public SpellScript
 {
-    PrepareSpellScript(spell_tott_shock_defense);
-
     void SetDest(SpellDestination& dest)
     {
         Unit* caster = GetCaster();
@@ -445,7 +435,7 @@ class spell_tott_shock_defense : public SpellScript
 
     void Register()
     {
-        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_tott_shock_defense::SetDest, EFFECT_0, TARGET_DEST_CASTER_RANDOM);
+        OnDestinationTargetSelect.Register(&spell_tott_shock_defense::SetDest, EFFECT_0, TARGET_DEST_CASTER_RANDOM);
     }
 };
 

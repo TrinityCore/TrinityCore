@@ -724,8 +724,6 @@ class spell_reliquary_of_souls_aura_of_desire : public SpellScriptLoader
 
         class spell_reliquary_of_souls_aura_of_desire_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_reliquary_of_souls_aura_of_desire_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_AURA_OF_DESIRE_DAMAGE });
@@ -751,8 +749,8 @@ class spell_reliquary_of_souls_aura_of_desire : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectProc += AuraEffectProcFn(spell_reliquary_of_souls_aura_of_desire_AuraScript::OnProcSpell, EFFECT_0, SPELL_AURA_MOD_HEALING_PCT);
-                OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_reliquary_of_souls_aura_of_desire_AuraScript::UpdateAmount, EFFECT_2, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+                OnEffectProc.Register(&spell_reliquary_of_souls_aura_of_desire_AuraScript::OnProcSpell, EFFECT_0, SPELL_AURA_MOD_HEALING_PCT);
+                OnEffectUpdatePeriodic.Register(&spell_reliquary_of_souls_aura_of_desire_AuraScript::UpdateAmount, EFFECT_2, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
         };
 
@@ -770,8 +768,6 @@ class spell_reliquary_of_souls_submerge : public SpellScriptLoader
 
         class spell_reliquary_of_souls_submerge_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_reliquary_of_souls_submerge_AuraScript);
-
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 GetTarget()->SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_STAND_STATE, UNIT_STAND_STATE_SUBMERGED);
@@ -785,8 +781,8 @@ class spell_reliquary_of_souls_submerge : public SpellScriptLoader
 
             void Register() override
             {
-                AfterEffectApply += AuraEffectApplyFn(spell_reliquary_of_souls_submerge_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_reliquary_of_souls_submerge_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectApply.Register(&spell_reliquary_of_souls_submerge_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove.Register(&spell_reliquary_of_souls_submerge_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -804,8 +800,6 @@ class spell_reliquary_of_souls_spite : public SpellScriptLoader
 
         class spell_reliquary_of_souls_spite_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_reliquary_of_souls_spite_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_SPITE_DAMAGE });
@@ -819,7 +813,7 @@ class spell_reliquary_of_souls_spite : public SpellScriptLoader
 
             void Register() override
             {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_reliquary_of_souls_spite_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DAMAGE_IMMUNITY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove.Register(&spell_reliquary_of_souls_spite_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DAMAGE_IMMUNITY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -837,8 +831,6 @@ class spell_reliquary_of_souls_frenzy : public SpellScriptLoader
 
         class spell_reliquary_of_souls_frenzy_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_reliquary_of_souls_frenzy_SpellScript);
-
             void HandleAfterCast()
             {
                 if (Creature* caster = GetCaster()->ToCreature())
@@ -847,7 +839,7 @@ class spell_reliquary_of_souls_frenzy : public SpellScriptLoader
 
             void Register() override
             {
-                AfterCast += SpellCastFn(spell_reliquary_of_souls_frenzy_SpellScript::HandleAfterCast);
+                AfterCast.Register(&spell_reliquary_of_souls_frenzy_SpellScript::HandleAfterCast);
             }
         };
 

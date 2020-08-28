@@ -482,8 +482,6 @@ public:
 
     class spell_isiset_astral_rain_controller_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_isiset_astral_rain_controller_SpellScript);
-
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             return ValidateSpellInfo({
@@ -510,7 +508,7 @@ public:
 
         void Register() override
         {
-            OnEffectLaunch += SpellEffectFn(spell_isiset_astral_rain_controller_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            OnEffectLaunch.Register(&spell_isiset_astral_rain_controller_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
         }
     };
 
@@ -528,8 +526,6 @@ public:
 
     class spell_isiset_mana_shield_controller_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_isiset_mana_shield_controller_SpellScript);
-
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             return ValidateSpellInfo({
@@ -556,7 +552,7 @@ public:
 
         void Register() override
         {
-            OnEffectLaunch += SpellEffectFn(spell_isiset_mana_shield_controller_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            OnEffectLaunch.Register(&spell_isiset_mana_shield_controller_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
         }
     };
 
@@ -574,8 +570,6 @@ public:
 
     class spell_isiset_astral_familiar_controller_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_isiset_astral_familiar_controller_SpellScript);
-
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             return ValidateSpellInfo({
@@ -602,7 +596,7 @@ public:
 
         void Register() override
         {
-            OnEffectLaunch += SpellEffectFn(spell_isiset_astral_familiar_controller_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            OnEffectLaunch.Register(&spell_isiset_astral_familiar_controller_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
         }
     };
 
@@ -620,8 +614,6 @@ public:
 
     class spell_isiset_veil_of_sky_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_isiset_veil_of_sky_AuraScript);
-
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             return ValidateSpellInfo({ SPELL_VEIL_OF_SKY_DAMAGE });
@@ -644,7 +636,7 @@ public:
 
         void Register() override
         {
-            AfterEffectManaShield += AuraEffectManaShieldFn(spell_isiset_veil_of_sky_AuraScript::Trigger, EFFECT_0);
+            AfterEffectManaShield.Register(&spell_isiset_veil_of_sky_AuraScript::Trigger, EFFECT_0);
         }
 
     private:
@@ -666,8 +658,6 @@ public:
 
     class spell_isiset_supernova_filter_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_isiset_supernova_filter_SpellScript);
-
         void FilterTargets(std::list<WorldObject*>& targets)
         {
             Unit* caster = GetCaster();
@@ -676,7 +666,7 @@ public:
 
         void Register() override
         {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_isiset_supernova_filter_SpellScript::FilterTargets, m_scriptSpellId == SPELL_SUPERNOVA_EFFECT ? EFFECT_1 : EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+            OnObjectAreaTargetSelect.Register(&spell_isiset_supernova_filter_SpellScript::FilterTargets, m_scriptSpellId == SPELL_SUPERNOVA_EFFECT ? EFFECT_1 : EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
         }
     };
 
@@ -694,8 +684,6 @@ public:
 
     class spell_isiset_mirror_image_starry_sky_spawner_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_isiset_mirror_image_starry_sky_spawner_SpellScript);
-
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             return ValidateSpellInfo({ SPELL_MIRROR_IMAGE_STARRY_SKY_N, SPELL_MIRROR_IMAGE_STARRY_SKY_E, SPELL_MIRROR_IMAGE_STARRY_SKY_W });
@@ -717,7 +705,7 @@ public:
 
         void Register() override
         {
-            OnEffectLaunch += SpellEffectFn(spell_isiset_mirror_image_starry_sky_spawner_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            OnEffectLaunch.Register(&spell_isiset_mirror_image_starry_sky_spawner_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
         }
     };
 
@@ -735,8 +723,6 @@ public:
 
     class spell_isiset_mirror_image_spawner_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_isiset_mirror_image_spawner_SpellScript);
-
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             return ValidateSpellInfo({ SPELL_MIRROR_IMAGE_N, SPELL_MIRROR_IMAGE_E, SPELL_MIRROR_IMAGE_W });
@@ -758,7 +744,7 @@ public:
 
         void Register() override
         {
-            OnEffectLaunch += SpellEffectFn(spell_isiset_mirror_image_spawner_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            OnEffectLaunch.Register(&spell_isiset_mirror_image_spawner_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
         }
 
     };
@@ -777,8 +763,6 @@ public:
 
     class spell_isiset_image_explosion_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_isiset_image_explosion_SpellScript);
-
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
             InstanceScript* const instance = GetCaster()->GetInstanceScript();
@@ -804,7 +788,7 @@ public:
 
         void Register() override
         {
-            OnEffectLaunch += SpellEffectFn(spell_isiset_image_explosion_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffectLaunch.Register(&spell_isiset_image_explosion_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
@@ -822,8 +806,6 @@ public:
 
     class spell_isiset_call_of_sky_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_isiset_call_of_sky_SpellScript);
-
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
             if (InstanceScript* instance = GetCaster()->GetInstanceScript())
@@ -833,7 +815,7 @@ public:
 
         void Register() override
         {
-            OnEffectLaunch += SpellEffectFn(spell_isiset_call_of_sky_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffectLaunch.Register(&spell_isiset_call_of_sky_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 

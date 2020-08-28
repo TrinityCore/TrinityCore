@@ -987,8 +987,6 @@ class spell_thaddius_polarity_charge : public SpellScriptLoader
 
         class spell_thaddius_polarity_charge_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_thaddius_polarity_charge_SpellScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo(
@@ -1070,7 +1068,7 @@ class spell_thaddius_polarity_charge : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_thaddius_polarity_charge_SpellScript::HandleTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+                OnObjectAreaTargetSelect.Register(&spell_thaddius_polarity_charge_SpellScript::HandleTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
             }
         };
 
@@ -1087,8 +1085,6 @@ class spell_thaddius_polarity_shift : public SpellScriptLoader
 
         class spell_thaddius_polarity_shift_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_thaddius_polarity_shift_SpellScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo(
@@ -1123,7 +1119,7 @@ class spell_thaddius_polarity_shift : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_thaddius_polarity_shift_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget.Register(&spell_thaddius_polarity_shift_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -1140,8 +1136,6 @@ class spell_thaddius_magnetic_pull : public SpellScriptLoader
 
         class spell_thaddius_magnetic_pull_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_thaddius_magnetic_pull_SpellScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_MAGNETIC_PULL });
@@ -1209,7 +1203,7 @@ class spell_thaddius_magnetic_pull : public SpellScriptLoader
 
             void Register() override
             {
-                OnCast += SpellCastFn(spell_thaddius_magnetic_pull_SpellScript::HandleCast);
+                OnCast.Register(&spell_thaddius_magnetic_pull_SpellScript::HandleCast);
             }
         };
 

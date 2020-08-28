@@ -231,8 +231,6 @@ private:
 
 class spell_ertan_storms_edge : public SpellScript
 {
-    PrepareSpellScript(spell_ertan_storms_edge);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -260,14 +258,12 @@ class spell_ertan_storms_edge : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_ertan_storms_edge::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_ertan_storms_edge::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 class spell_ertan_storms_edge_script : public SpellScript
 {
-    PrepareSpellScript(spell_ertan_storms_edge_script);
-
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         if (Unit* caster = GetCaster())
@@ -276,7 +272,7 @@ class spell_ertan_storms_edge_script : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_ertan_storms_edge_script::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_ertan_storms_edge_script::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 

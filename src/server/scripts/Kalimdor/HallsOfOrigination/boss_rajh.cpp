@@ -382,8 +382,6 @@ private:
 
 class spell_rajh_summon_meteor : public SpellScript
 {
-    PrepareSpellScript(spell_rajh_summon_meteor);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         Trinity::Containers::RandomResize(targets, 1);
@@ -391,14 +389,12 @@ class spell_rajh_summon_meteor : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_rajh_summon_meteor::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnObjectAreaTargetSelect.Register(&spell_rajh_summon_meteor::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
     }
 };
 
 class spell_rajh_summon_sun_orb : public SpellScript
 {
-    PrepareSpellScript(spell_rajh_summon_sun_orb);
-
     void SetDest(SpellDestination& dest)
     {
         dest.RelocateOffset({ 0.0f, 0.0f, 15.0f, 0.0f });
@@ -406,14 +402,12 @@ class spell_rajh_summon_sun_orb : public SpellScript
 
     void Register()
     {
-        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_rajh_summon_sun_orb::SetDest, EFFECT_0, TARGET_DEST_CASTER_FRONT_RIGHT);
+        OnDestinationTargetSelect.Register(&spell_rajh_summon_sun_orb::SetDest, EFFECT_0, TARGET_DEST_CASTER_FRONT_RIGHT);
     }
 };
 
 class spell_rajh_summon_sun_orb_power_cost : public AuraScript
 {
-    PrepareAuraScript(spell_rajh_summon_sun_orb_power_cost);
-
     void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
     {
         PreventDefaultAction();
@@ -422,7 +416,7 @@ class spell_rajh_summon_sun_orb_power_cost : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_rajh_summon_sun_orb_power_cost::HandlePeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+        OnEffectPeriodic.Register(&spell_rajh_summon_sun_orb_power_cost::HandlePeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
     }
 };
 

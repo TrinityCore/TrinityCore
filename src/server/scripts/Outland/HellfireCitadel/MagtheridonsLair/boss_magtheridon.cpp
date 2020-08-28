@@ -501,8 +501,6 @@ class spell_magtheridon_blaze_target : public SpellScriptLoader
 
         class spell_magtheridon_blaze_target_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_magtheridon_blaze_target_SpellScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_BLAZE });
@@ -515,7 +513,7 @@ class spell_magtheridon_blaze_target : public SpellScriptLoader
 
             void Register() override
             {
-                OnHit += SpellHitFn(spell_magtheridon_blaze_target_SpellScript::HandleAura);
+                OnHit.Register(&spell_magtheridon_blaze_target_SpellScript::HandleAura);
             }
 
         };
@@ -534,8 +532,6 @@ class spell_magtheridon_shadow_grasp : public SpellScriptLoader
 
         class spell_magtheridon_shadow_grasp_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_magtheridon_shadow_grasp_AuraScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_MIND_EXHAUSTION });
@@ -550,7 +546,7 @@ class spell_magtheridon_shadow_grasp : public SpellScriptLoader
 
             void Register() override
             {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_magtheridon_shadow_grasp_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove.Register(&spell_magtheridon_shadow_grasp_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -568,8 +564,6 @@ class spell_magtheridon_shadow_grasp_visual : public SpellScriptLoader
 
         class spell_magtheridon_shadow_grasp_visual_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_magtheridon_shadow_grasp_visual_AuraScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_SHADOW_CAGE, SPELL_SHADOW_GRASP_VISUAL });
@@ -590,8 +584,8 @@ class spell_magtheridon_shadow_grasp_visual : public SpellScriptLoader
 
             void Register() override
             {
-                AfterEffectApply += AuraEffectApplyFn(spell_magtheridon_shadow_grasp_visual_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_magtheridon_shadow_grasp_visual_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectApply.Register(&spell_magtheridon_shadow_grasp_visual_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove.Register(&spell_magtheridon_shadow_grasp_visual_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 

@@ -483,8 +483,6 @@ private:
 
 class spell_felblood_kaelthas_flame_strike : public AuraScript
 {
-    PrepareAuraScript(spell_felblood_kaelthas_flame_strike);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_FLAME_STRIKE_DAMAGE });
@@ -498,7 +496,7 @@ class spell_felblood_kaelthas_flame_strike : public AuraScript
 
     void Register() override
     {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_felblood_kaelthas_flame_strike::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove.Register(&spell_felblood_kaelthas_flame_strike::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 

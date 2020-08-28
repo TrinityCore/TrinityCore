@@ -975,8 +975,6 @@ class spell_gothik_shadow_bolt_volley : public SpellScriptLoader
 
         class spell_gothik_shadow_bolt_volley_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gothik_shadow_bolt_volley_SpellScript);
-
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 targets.remove_if(Trinity::UnitAuraCheck(false, SPELL_SHADOW_MARK));
@@ -984,7 +982,7 @@ class spell_gothik_shadow_bolt_volley : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_gothik_shadow_bolt_volley_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect.Register(&spell_gothik_shadow_bolt_volley_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 

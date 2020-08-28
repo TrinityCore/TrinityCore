@@ -131,8 +131,6 @@ class spell_eadric_radiance : public SpellScriptLoader
         spell_eadric_radiance() : SpellScriptLoader("spell_eadric_radiance") { }
         class spell_eadric_radiance_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_eadric_radiance_SpellScript);
-
             void FilterTargets(std::list<WorldObject*>& unitList)
             {
                 unitList.remove_if(OrientationCheck(GetCaster()));
@@ -140,8 +138,8 @@ class spell_eadric_radiance : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_eadric_radiance_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_eadric_radiance_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect.Register(&spell_eadric_radiance_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect.Register(&spell_eadric_radiance_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
@@ -649,8 +647,6 @@ class spell_paletress_summon_memory : public SpellScriptLoader
 
         class spell_paletress_summon_memory_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_paletress_summon_memory_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo(memorySpellId);
@@ -673,8 +669,8 @@ class spell_paletress_summon_memory : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_paletress_summon_memory_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnEffectHitTarget += SpellEffectFn(spell_paletress_summon_memory_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnObjectAreaTargetSelect.Register(&spell_paletress_summon_memory_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnEffectHitTarget.Register(&spell_paletress_summon_memory_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 

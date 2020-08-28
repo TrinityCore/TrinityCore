@@ -213,8 +213,6 @@ class spell_tharon_ja_clear_gift_of_tharon_ja : public SpellScriptLoader
 
         class spell_tharon_ja_clear_gift_of_tharon_ja_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_tharon_ja_clear_gift_of_tharon_ja_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_GIFT_OF_THARON_JA });
@@ -228,7 +226,7 @@ class spell_tharon_ja_clear_gift_of_tharon_ja : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_tharon_ja_clear_gift_of_tharon_ja_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_tharon_ja_clear_gift_of_tharon_ja_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 

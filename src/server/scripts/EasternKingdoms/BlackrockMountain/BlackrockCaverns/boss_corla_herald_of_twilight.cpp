@@ -332,8 +332,6 @@ private:
 
 class spell_corla_nether_dragon_essence : public AuraScript
 {
-    PrepareAuraScript(spell_corla_nether_dragon_essence);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -352,14 +350,12 @@ class spell_corla_nether_dragon_essence : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_corla_nether_dragon_essence::HandleTriggerSpell, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+        OnEffectPeriodic.Register(&spell_corla_nether_dragon_essence::HandleTriggerSpell, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
     }
 };
 
 class spell_corla_nether_dragon_essence_visual : public SpellScript
 {
-    PrepareSpellScript(spell_corla_nether_dragon_essence_visual);
-
     void ModDestHeight(SpellDestination& dest)
     {
         Position offset = { frand(-35.0f, 35.0f), frand(-25.0f, 25.0f), 0.0f, 0.0f };
@@ -384,14 +380,12 @@ class spell_corla_nether_dragon_essence_visual : public SpellScript
 
     void Register() override
     {
-        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_corla_nether_dragon_essence_visual::ModDestHeight, EFFECT_0, TARGET_DEST_CASTER_RANDOM);
+        OnDestinationTargetSelect.Register(&spell_corla_nether_dragon_essence_visual::ModDestHeight, EFFECT_0, TARGET_DEST_CASTER_RANDOM);
     }
 };
 
 class spell_corla_nether_beam : public SpellScript
 {
-    PrepareSpellScript(spell_corla_nether_beam);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -454,8 +448,8 @@ class spell_corla_nether_beam : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_corla_nether_beam::FilterTargets, EFFECT_0, TARGET_UNIT_CONE_ENTRY);
-        OnEffectHitTarget += SpellEffectFn(spell_corla_nether_beam::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnObjectAreaTargetSelect.Register(&spell_corla_nether_beam::FilterTargets, EFFECT_0, TARGET_UNIT_CONE_ENTRY);
+        OnEffectHitTarget.Register(&spell_corla_nether_beam::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 private:
     uint32 _evolutionSpellId = SPELL_EVOLUTION_STACKS_N;
@@ -463,8 +457,6 @@ private:
 
 class spell_corla_evolution : public SpellScript
 {
-    PrepareSpellScript(spell_corla_evolution);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_TWILIGHT_EVOLUTION });
@@ -507,14 +499,12 @@ class spell_corla_evolution : public SpellScript
 
     void Register() override
     {
-        AfterHit += SpellHitFn(spell_corla_evolution::HandleEvolve);
+        AfterHit.Register(&spell_corla_evolution::HandleEvolve);
     }
 };
 
 class spell_corla_grievous_whirl : public AuraScript
 {
-    PrepareAuraScript(spell_corla_grievous_whirl);
-
     void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
     {
         if (GetTarget()->GetHealth() == GetTarget()->GetMaxHealth())
@@ -523,7 +513,7 @@ class spell_corla_grievous_whirl : public AuraScript
 
     void Register() override
     {
-        OnEffectProc += AuraEffectProcFn(spell_corla_grievous_whirl::HandleProc, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
+        OnEffectProc.Register(&spell_corla_grievous_whirl::HandleProc, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
     }
 };
 

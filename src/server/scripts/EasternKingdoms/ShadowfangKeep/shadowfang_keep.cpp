@@ -54,8 +54,6 @@ enum SKShieldOfBones
 
 class spell_sfk_shield_of_bones : public AuraScript
 {
-    PrepareAuraScript(spell_sfk_shield_of_bones);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SHIELD_OF_BONES_TRIGGERED });
@@ -70,7 +68,7 @@ class spell_sfk_shield_of_bones : public AuraScript
 
     void Register() override
     {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_sfk_shield_of_bones::OnAuraRemoveHandler, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove.Register(&spell_sfk_shield_of_bones::OnAuraRemoveHandler, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
     }
 };
 

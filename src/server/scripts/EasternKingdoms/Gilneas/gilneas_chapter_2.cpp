@@ -198,8 +198,6 @@ Position const CynthiaEscapePos[] =
 
 class spell_gilneas_quest_save_the_children : public SpellScript
 {
-    PrepareSpellScript(spell_gilneas_quest_save_the_children);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_GILNEAS_QUEST_SAVE_JAMES });
@@ -221,9 +219,9 @@ class spell_gilneas_quest_save_the_children : public SpellScript
     void Register() override
     {
         if (m_scriptSpellId == SPELL_GILNEAS_QUEST_SAVE_JAMES)
-            OnEffectHitTarget += SpellEffectFn(spell_gilneas_quest_save_the_children::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffectHitTarget.Register(&spell_gilneas_quest_save_the_children::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         else
-            OnEffectHitTarget += SpellEffectFn(spell_gilneas_quest_save_the_children::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+            OnEffectHitTarget.Register(&spell_gilneas_quest_save_the_children::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -482,8 +480,6 @@ private:
 
 class spell_gilneas_launch : public SpellScript
 {
-    PrepareSpellScript(spell_gilneas_launch);
-
     void TransferDestination(SpellEffIndex /*effIndex*/)
     {
         if (Unit* caster = GetCaster())
@@ -494,7 +490,7 @@ class spell_gilneas_launch : public SpellScript
 
     void Register()
     {
-        OnEffectLaunch += SpellEffectFn(spell_gilneas_launch::TransferDestination, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectLaunch.Register(&spell_gilneas_launch::TransferDestination, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -517,8 +513,6 @@ class FireBoulderInFrontCheck
 
 class spell_gilneas_fiery_boulder : public SpellScript
 {
-    PrepareSpellScript(spell_gilneas_fiery_boulder);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         if (targets.empty())
@@ -534,7 +528,7 @@ class spell_gilneas_fiery_boulder : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_gilneas_fiery_boulder::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+        OnObjectAreaTargetSelect.Register(&spell_gilneas_fiery_boulder::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
     }
 };
 
@@ -559,8 +553,6 @@ Position const AttackMastiffSummonPositions[] =
 
 class spell_gilneas_call_attack_mastiff : public SpellScript
 {
-    PrepareSpellScript(spell_gilneas_call_attack_mastiff);
-
     void HandleHit(SpellEffIndex /*effIndex*/)
     {
         if (Unit* caster = GetCaster())
@@ -573,14 +565,12 @@ class spell_gilneas_call_attack_mastiff : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_gilneas_call_attack_mastiff::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget.Register(&spell_gilneas_call_attack_mastiff::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
 class spell_gilneas_forcecast_cataclysm_1 : public SpellScript
 {
-    PrepareSpellScript(spell_gilneas_forcecast_cataclysm_1);
-
     void HandleForcecast(SpellEffIndex effIndex)
     {
         PreventHitDefaultEffect(effIndex);
@@ -590,7 +580,7 @@ class spell_gilneas_forcecast_cataclysm_1 : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_gilneas_forcecast_cataclysm_1::HandleForcecast, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
+        OnEffectHitTarget.Register(&spell_gilneas_forcecast_cataclysm_1::HandleForcecast, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
     }
 };
 
@@ -617,8 +607,6 @@ private:
 
 class spell_gilneas_worgen_intro_completion : public SpellScript
 {
-    PrepareSpellScript(spell_gilneas_worgen_intro_completion);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         if (targets.empty())
@@ -629,7 +617,7 @@ class spell_gilneas_worgen_intro_completion : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_gilneas_worgen_intro_completion::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENTRY);
+        OnObjectAreaTargetSelect.Register(&spell_gilneas_worgen_intro_completion::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENTRY);
     }
 };
 

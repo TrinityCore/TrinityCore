@@ -226,8 +226,6 @@ class spell_archavon_rock_shards : public SpellScriptLoader
 
         class spell_archavon_rock_shards_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_archavon_rock_shards_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo(
@@ -255,7 +253,7 @@ class spell_archavon_rock_shards : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHit += SpellEffectFn(spell_archavon_rock_shards_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHit.Register(&spell_archavon_rock_shards_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 

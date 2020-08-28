@@ -1508,8 +1508,6 @@ class spell_load_into_catapult : public SpellScriptLoader
 
         class spell_load_into_catapult_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_load_into_catapult_AuraScript);
-
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* owner = GetOwner()->ToUnit();
@@ -1530,8 +1528,8 @@ class spell_load_into_catapult : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectApply += AuraEffectApplyFn(spell_load_into_catapult_AuraScript::OnApply, EFFECT_0, SPELL_AURA_CONTROL_VEHICLE, AURA_EFFECT_HANDLE_REAL);
-                OnEffectRemove += AuraEffectRemoveFn(spell_load_into_catapult_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_CONTROL_VEHICLE, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                OnEffectApply.Register(&spell_load_into_catapult_AuraScript::OnApply, EFFECT_0, SPELL_AURA_CONTROL_VEHICLE, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove.Register(&spell_load_into_catapult_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_CONTROL_VEHICLE, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
             }
         };
 
@@ -1553,8 +1551,6 @@ class spell_auto_repair : public SpellScriptLoader
 
         class spell_auto_repair_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_auto_repair_SpellScript);
-
             void CheckCooldownForTarget()
             {
                 if (GetHitUnit()->HasAuraEffect(SPELL_AUTO_REPAIR, EFFECT_2))   // Check presence of dummy aura indicating cooldown
@@ -1596,8 +1592,8 @@ class spell_auto_repair : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_auto_repair_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-                BeforeHit += SpellHitFn(spell_auto_repair_SpellScript::CheckCooldownForTarget);
+                OnEffectHitTarget.Register(&spell_auto_repair_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                BeforeHit.Register(&spell_auto_repair_SpellScript::CheckCooldownForTarget);
             }
         };
 
@@ -1614,8 +1610,6 @@ class spell_systems_shutdown : public SpellScriptLoader
 
         class spell_systems_shutdown_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_systems_shutdown_AuraScript);
-
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Creature* owner = GetOwner()->ToCreature();
@@ -1639,8 +1633,8 @@ class spell_systems_shutdown : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectApply += AuraEffectApplyFn(spell_systems_shutdown_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
-                OnEffectRemove += AuraEffectRemoveFn(spell_systems_shutdown_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
+                OnEffectApply.Register(&spell_systems_shutdown_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove.Register(&spell_systems_shutdown_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -1695,10 +1689,8 @@ class spell_pursue : public SpellScriptLoader
         spell_pursue() : SpellScriptLoader("spell_pursue") { }
 
         class spell_pursue_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_pursue_SpellScript);
-
-        private:
+    {
+                 private:
             // EFFECT #0 - select target
             void FilterTargets(std::list<WorldObject*>& targets)
             {
@@ -1723,8 +1715,8 @@ class spell_pursue : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pursue_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pursue_SpellScript::FilterTargetsSubsequently, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect.Register(&spell_pursue_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect.Register(&spell_pursue_SpellScript::FilterTargetsSubsequently, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
             }
 
             WorldObject* _target = nullptr;
@@ -1743,7 +1735,6 @@ class spell_vehicle_throw_passenger : public SpellScriptLoader
 
         class spell_vehicle_throw_passenger_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_vehicle_throw_passenger_SpellScript);
             void HandleScript(SpellEffIndex effIndex)
             {
                 Spell* baseSpell = GetSpell();
@@ -1789,7 +1780,7 @@ class spell_vehicle_throw_passenger : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_vehicle_throw_passenger_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget.Register(&spell_vehicle_throw_passenger_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 

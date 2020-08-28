@@ -422,8 +422,6 @@ class spell_ingvar_summon_banshee : public SpellScriptLoader
 
         class spell_ingvar_summon_banshee_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_ingvar_summon_banshee_SpellScript);
-
             void SetDest(SpellDestination& dest)
             {
                 dest.RelocateOffset({ 0.0f, 0.0f, 30.0f, 0.0f });
@@ -431,7 +429,7 @@ class spell_ingvar_summon_banshee : public SpellScriptLoader
 
             void Register() override
             {
-                OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_ingvar_summon_banshee_SpellScript::SetDest, EFFECT_0, TARGET_DEST_CASTER_BACK);
+                OnDestinationTargetSelect.Register(&spell_ingvar_summon_banshee_SpellScript::SetDest, EFFECT_0, TARGET_DEST_CASTER_BACK);
             }
         };
 
@@ -449,8 +447,6 @@ class spell_ingvar_woe_strike : public SpellScriptLoader
 
         class spell_ingvar_woe_strike_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_ingvar_woe_strike_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_WOE_STRIKE_EFFECT });
@@ -473,8 +469,8 @@ class spell_ingvar_woe_strike : public SpellScriptLoader
 
             void Register() override
             {
-                DoCheckProc += AuraCheckProcFn(spell_ingvar_woe_strike_AuraScript::CheckProc);
-                OnEffectProc += AuraEffectProcFn(spell_ingvar_woe_strike_AuraScript::HandleProc, EFFECT_1, SPELL_AURA_PROC_TRIGGER_SPELL);
+                DoCheckProc.Register(&spell_ingvar_woe_strike_AuraScript::CheckProc);
+                OnEffectProc.Register(&spell_ingvar_woe_strike_AuraScript::HandleProc, EFFECT_1, SPELL_AURA_PROC_TRIGGER_SPELL);
             }
         };
 

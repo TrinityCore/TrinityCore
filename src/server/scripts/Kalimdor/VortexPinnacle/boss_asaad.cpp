@@ -559,8 +559,6 @@ private:
 // 86632 - SOTS Targeting
 class spell_asaad_sots_targeting : public SpellScript
 {
-    PrepareSpellScript(spell_asaad_sots_targeting);
-
     void SelectRandom(std::list<WorldObject*>& targets)
     {
         Trinity::Containers::RandomResize(targets, 1);
@@ -574,16 +572,14 @@ class spell_asaad_sots_targeting : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_asaad_sots_targeting::SelectRandom, EFFECT_0, TARGET_UNIT_DEST_AREA_ENTRY);
-        OnEffectHitTarget += SpellEffectFn(spell_asaad_sots_targeting::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnObjectAreaTargetSelect.Register(&spell_asaad_sots_targeting::SelectRandom, EFFECT_0, TARGET_UNIT_DEST_AREA_ENTRY);
+        OnEffectHitTarget.Register(&spell_asaad_sots_targeting::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
 // 86926  - SOTS Trigger (makes Asaad channel Unstable Grounding Field)
 class spell_asaad_sots_trigger : public SpellScript
 {
-    PrepareSpellScript(spell_asaad_sots_trigger);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_UNSTABLE_GROUNDING_FIELD });
@@ -596,7 +592,7 @@ class spell_asaad_sots_trigger : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_asaad_sots_trigger::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_asaad_sots_trigger::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -606,8 +602,6 @@ class spell_asaad_sots_trigger : public SpellScript
 // 86925 - Storm Rune Beam C
 class spell_asaad_storm_rune_beam : public SpellScript
 {
-    PrepareSpellScript(spell_asaad_storm_rune_beam);
-
     void SetTarget(WorldObject*& target)
     {
         InstanceScript* instance = GetCaster()->GetInstanceScript();
@@ -637,15 +631,13 @@ class spell_asaad_storm_rune_beam : public SpellScript
 
     void Register() override
     {
-        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_asaad_storm_rune_beam::SetTarget, EFFECT_0, TARGET_UNIT_NEARBY_ENTRY);
+        OnObjectTargetSelect.Register(&spell_asaad_storm_rune_beam::SetTarget, EFFECT_0, TARGET_UNIT_NEARBY_ENTRY);
     }
 };
 
 // 87517 - Grounding Field Visual Beams
 class spell_asaad_grounding_field_visual_beams : public SpellScript
 {
-    PrepareSpellScript(spell_asaad_grounding_field_visual_beams);
-
     void SetTargetA(WorldObject*& target)
     {
         target = GetStormTarget(POINT_STORM_A);
@@ -663,9 +655,9 @@ class spell_asaad_grounding_field_visual_beams : public SpellScript
 
     void Register() override
     {
-        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_asaad_grounding_field_visual_beams::SetTargetA, EFFECT_0, TARGET_UNIT_NEARBY_ENTRY);
-        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_asaad_grounding_field_visual_beams::SetTargetB, EFFECT_1, TARGET_UNIT_NEARBY_ENTRY);
-        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_asaad_grounding_field_visual_beams::SetTargetC, EFFECT_2, TARGET_UNIT_NEARBY_ENTRY);
+        OnObjectTargetSelect.Register(&spell_asaad_grounding_field_visual_beams::SetTargetA, EFFECT_0, TARGET_UNIT_NEARBY_ENTRY);
+        OnObjectTargetSelect.Register(&spell_asaad_grounding_field_visual_beams::SetTargetB, EFFECT_1, TARGET_UNIT_NEARBY_ENTRY);
+        OnObjectTargetSelect.Register(&spell_asaad_grounding_field_visual_beams::SetTargetC, EFFECT_2, TARGET_UNIT_NEARBY_ENTRY);
     }
 private:
     Creature * GetStormTarget(uint32 point)
@@ -681,8 +673,6 @@ private:
 // 87553/93994 - Supremacy of the Storm (massive aoe damage)
 class spell_asaad_supremacy_of_the_storm : public SpellScript
 {
-    PrepareSpellScript(spell_asaad_supremacy_of_the_storm);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         InstanceScript* instance = GetCaster()->GetInstanceScript();
@@ -709,7 +699,7 @@ class spell_asaad_supremacy_of_the_storm : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_asaad_supremacy_of_the_storm::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnObjectAreaTargetSelect.Register(&spell_asaad_supremacy_of_the_storm::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
     }
 };
 
@@ -731,8 +721,6 @@ class AboveGroundCheck
 
 class spell_asaad_supremacy_of_the_storm_visual : public SpellScript
 {
-    PrepareSpellScript(spell_asaad_supremacy_of_the_storm_visual);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         InstanceScript* instance = GetCaster()->GetInstanceScript();
@@ -763,14 +751,12 @@ class spell_asaad_supremacy_of_the_storm_visual : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_asaad_supremacy_of_the_storm_visual::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+        OnObjectAreaTargetSelect.Register(&spell_asaad_supremacy_of_the_storm_visual::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
     }
 };
 
 class spell_asaad_static_cling : public SpellScript
 {
-    PrepareSpellScript(spell_asaad_static_cling);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         targets.remove_if(AboveGroundCheck());
@@ -778,15 +764,13 @@ class spell_asaad_static_cling : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_asaad_static_cling::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_asaad_static_cling::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnObjectAreaTargetSelect.Register(&spell_asaad_static_cling::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnObjectAreaTargetSelect.Register(&spell_asaad_static_cling::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
     }
 };
 
 class spell_asaad_summon_skyfall_star : public SpellScript
 {
-    PrepareSpellScript(spell_asaad_summon_skyfall_star);
-
     void SetDest(SpellDestination& dest)
     {
         Creature* caster = GetCaster()->ToCreature();
@@ -805,7 +789,7 @@ class spell_asaad_summon_skyfall_star : public SpellScript
 
     void Register()
     {
-        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_asaad_summon_skyfall_star::SetDest, EFFECT_0, TARGET_DEST_DEST_RADIUS);
+        OnDestinationTargetSelect.Register(&spell_asaad_summon_skyfall_star::SetDest, EFFECT_0, TARGET_DEST_DEST_RADIUS);
     }
 };
 

@@ -96,8 +96,6 @@ struct go_hoo_the_makers_lift_controller : public GameObjectAI
 
 class spell_hoo_flame_ring_visual : public SpellScript
 {
-    PrepareSpellScript(spell_hoo_flame_ring_visual);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         if (targets.empty())
@@ -123,8 +121,8 @@ class spell_hoo_flame_ring_visual : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hoo_flame_ring_visual::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
-        OnEffectHitTarget += SpellEffectFn(spell_hoo_flame_ring_visual::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnObjectAreaTargetSelect.Register(&spell_hoo_flame_ring_visual::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+        OnEffectHitTarget.Register(&spell_hoo_flame_ring_visual::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 

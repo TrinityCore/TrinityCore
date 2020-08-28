@@ -422,8 +422,6 @@ class npc_crystal_shard : public CreatureScript
 
 class spell_corborus_crystal_barrage_targeting : public SpellScript
 {
-    PrepareSpellScript(spell_corborus_crystal_barrage_targeting);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_CRYSTAL_BARRAGE });
@@ -448,15 +446,13 @@ class spell_corborus_crystal_barrage_targeting : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_corborus_crystal_barrage_targeting::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-        OnEffectHitTarget += SpellEffectFn(spell_corborus_crystal_barrage_targeting::HandleEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnObjectAreaTargetSelect.Register(&spell_corborus_crystal_barrage_targeting::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnEffectHitTarget.Register(&spell_corborus_crystal_barrage_targeting::HandleEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 class spell_corborus_crystal_barrage : public AuraScript
 {
-    PrepareAuraScript(spell_corborus_crystal_barrage);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_CRYSTAL_BARRAGE_SHARD });
@@ -472,7 +468,7 @@ class spell_corborus_crystal_barrage : public AuraScript
 
     void Register() override
     {
-        OnEffectRemove += AuraEffectRemoveFn(spell_corborus_crystal_barrage::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+        OnEffectRemove.Register(&spell_corborus_crystal_barrage::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
     }
 };
 

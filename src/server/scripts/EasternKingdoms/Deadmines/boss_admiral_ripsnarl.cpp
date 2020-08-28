@@ -377,8 +377,6 @@ class spell_ripsnarl_go_for_the_throat_targeting : public SpellScriptLoader
 
         class spell_ripsnarl_go_for_the_throat_targeting_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_ripsnarl_go_for_the_throat_targeting_SpellScript);
-
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 if (targets.empty())
@@ -400,8 +398,8 @@ class spell_ripsnarl_go_for_the_throat_targeting : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ripsnarl_go_for_the_throat_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnEffectHitTarget += SpellEffectFn(spell_ripsnarl_go_for_the_throat_targeting_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnObjectAreaTargetSelect.Register(&spell_ripsnarl_go_for_the_throat_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnEffectHitTarget.Register(&spell_ripsnarl_go_for_the_throat_targeting_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -418,8 +416,6 @@ class spell_ripsnarl_summon_vapor_targeting : public SpellScriptLoader
 
         class spell_ripsnarl_summon_vapor_targeting_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_ripsnarl_summon_vapor_targeting_SpellScript);
-
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 if (targets.empty())
@@ -448,8 +444,8 @@ class spell_ripsnarl_summon_vapor_targeting : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ripsnarl_summon_vapor_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnEffectHitTarget += SpellEffectFn(spell_ripsnarl_summon_vapor_targeting_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnObjectAreaTargetSelect.Register(&spell_ripsnarl_summon_vapor_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnEffectHitTarget.Register(&spell_ripsnarl_summon_vapor_targeting_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 

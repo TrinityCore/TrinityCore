@@ -140,8 +140,6 @@ class spell_marwyn_shared_suffering : public SpellScriptLoader
 
         class spell_marwyn_shared_suffering_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_marwyn_shared_suffering_AuraScript);
-
             void HandleEffectRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 if (!GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::ByEnemySpell))
@@ -157,7 +155,7 @@ class spell_marwyn_shared_suffering : public SpellScriptLoader
 
             void Register() override
             {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_marwyn_shared_suffering_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove.Register(&spell_marwyn_shared_suffering_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
             }
         };
 

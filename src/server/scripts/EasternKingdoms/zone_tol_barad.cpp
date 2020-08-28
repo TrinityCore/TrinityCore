@@ -99,8 +99,6 @@ public:
 
     class spell_siege_cannon_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_siege_cannon_SpellScript);
-
         void SelectRandomTarget(std::list<WorldObject*>& targets)
         {
             if (targets.empty())
@@ -113,7 +111,7 @@ public:
 
         void Register() override
         {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_siege_cannon_SpellScript::SelectRandomTarget, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+            OnObjectAreaTargetSelect.Register(&spell_siege_cannon_SpellScript::SelectRandomTarget, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
         }
     };
 

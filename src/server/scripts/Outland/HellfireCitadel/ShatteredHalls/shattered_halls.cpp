@@ -188,8 +188,6 @@ class spell_kargath_executioner : public SpellScriptLoader
 
         class spell_kargath_executioner_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_kargath_executioner_AuraScript);
-
             bool AreaCheck(Unit* target)
             {
                 if (target->GetMap()->GetId() != 540)
@@ -205,7 +203,7 @@ class spell_kargath_executioner : public SpellScriptLoader
 
             void Register() override
             {
-                DoCheckAreaTarget += AuraCheckAreaTargetFn(spell_kargath_executioner_AuraScript::AreaCheck);
+                DoCheckAreaTarget.Register(&spell_kargath_executioner_AuraScript::AreaCheck);
             }
         };
 
@@ -222,8 +220,6 @@ class spell_remove_kargath_executioner : public SpellScriptLoader
 
         class spell_remove_kargath_executioner_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_remove_kargath_executioner_SpellScript);
-
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 Unit* target = GetCaster();
@@ -240,7 +236,7 @@ class spell_remove_kargath_executioner : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_remove_kargath_executioner_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_remove_kargath_executioner_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 

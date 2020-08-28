@@ -91,8 +91,6 @@ class spell_rog_blade_flurry : public SpellScriptLoader
 
         class spell_rog_blade_flurry_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_rog_blade_flurry_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_ROGUE_BLADE_FLURRY_EXTRA_ATTACK });
@@ -110,9 +108,9 @@ class spell_rog_blade_flurry : public SpellScriptLoader
             void Register() override
             {
                 if (m_scriptSpellId == SPELL_ROGUE_BLADE_FLURRY)
-                    OnEffectProc += AuraEffectProcFn(spell_rog_blade_flurry_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_MOD_POWER_REGEN_PERCENT);
+                    OnEffectProc.Register(&spell_rog_blade_flurry_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_MOD_POWER_REGEN_PERCENT);
                 else
-                    OnEffectProc += AuraEffectProcFn(spell_rog_blade_flurry_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_MOD_MELEE_HASTE);
+                    OnEffectProc.Register(&spell_rog_blade_flurry_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_MOD_MELEE_HASTE);
             }
         };
 
@@ -130,8 +128,6 @@ class spell_rog_cheat_death : public SpellScriptLoader
 
         class spell_rog_cheat_death_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_rog_cheat_death_AuraScript);
-
             uint32 absorbChance = 0;
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
@@ -172,8 +168,8 @@ class spell_rog_cheat_death : public SpellScriptLoader
 
             void Register() override
             {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_rog_cheat_death_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-                OnEffectAbsorb += AuraEffectAbsorbFn(spell_rog_cheat_death_AuraScript::Absorb, EFFECT_0);
+                DoEffectCalcAmount.Register(&spell_rog_cheat_death_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+                OnEffectAbsorb.Register(&spell_rog_cheat_death_AuraScript::Absorb, EFFECT_0);
             }
         };
 
@@ -191,8 +187,6 @@ class spell_rog_crippling_poison : public SpellScriptLoader
 
         class spell_rog_crippling_poison_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_rog_crippling_poison_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_ROGUE_CRIPPLING_POISON });
@@ -206,7 +200,7 @@ class spell_rog_crippling_poison : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectProc += AuraEffectProcFn(spell_rog_crippling_poison_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+                OnEffectProc.Register(&spell_rog_crippling_poison_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 
@@ -224,8 +218,6 @@ class spell_rog_cut_to_the_chase : public SpellScriptLoader
 
         class spell_rog_cut_to_the_chase_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_rog_cut_to_the_chase_AuraScript);
-
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
@@ -235,7 +227,7 @@ class spell_rog_cut_to_the_chase : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectProc += AuraEffectProcFn(spell_rog_cut_to_the_chase_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+                OnEffectProc.Register(&spell_rog_cut_to_the_chase_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 
@@ -253,8 +245,6 @@ class spell_rog_deadly_poison : public SpellScriptLoader
 
         class spell_rog_deadly_poison_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_rog_deadly_poison_SpellScript);
-
             bool Load() override
             {
                 // at this point CastItem must already be initialized
@@ -328,8 +318,8 @@ class spell_rog_deadly_poison : public SpellScriptLoader
 
             void Register() override
             {
-                BeforeHit += SpellHitFn(spell_rog_deadly_poison_SpellScript::HandleBeforeHit);
-                AfterHit += SpellHitFn(spell_rog_deadly_poison_SpellScript::HandleAfterHit);
+                BeforeHit.Register(&spell_rog_deadly_poison_SpellScript::HandleBeforeHit);
+                AfterHit.Register(&spell_rog_deadly_poison_SpellScript::HandleAfterHit);
             }
 
             uint8 _stackAmount = 0;
@@ -351,8 +341,6 @@ class spell_rog_killing_spree : public SpellScriptLoader
 
         class spell_rog_killing_spree_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_rog_killing_spree_SpellScript);
-
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 if (targets.empty() || GetCaster()->GetVehicleBase())
@@ -368,8 +356,8 @@ class spell_rog_killing_spree : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_rog_killing_spree_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
-                OnEffectHitTarget += SpellEffectFn(spell_rog_killing_spree_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+                OnObjectAreaTargetSelect.Register(&spell_rog_killing_spree_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
+                OnEffectHitTarget.Register(&spell_rog_killing_spree_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -380,8 +368,6 @@ class spell_rog_killing_spree : public SpellScriptLoader
 
         class spell_rog_killing_spree_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_rog_killing_spree_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo(
@@ -420,9 +406,9 @@ class spell_rog_killing_spree : public SpellScriptLoader
 
             void Register() override
             {
-                AfterEffectApply += AuraEffectApplyFn(spell_rog_killing_spree_AuraScript::HandleApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_rog_killing_spree_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_rog_killing_spree_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectApply.Register(&spell_rog_killing_spree_AuraScript::HandleApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectPeriodic.Register(&spell_rog_killing_spree_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                AfterEffectRemove.Register(&spell_rog_killing_spree_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
 
         public:
@@ -450,8 +436,6 @@ class spell_rog_master_of_subtlety : public SpellScriptLoader
 
         class spell_rog_master_of_subtlety_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_rog_master_of_subtlety_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT });
@@ -467,7 +451,7 @@ class spell_rog_master_of_subtlety : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_rog_master_of_subtlety_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectPeriodic.Register(&spell_rog_master_of_subtlety_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
@@ -485,8 +469,6 @@ class spell_rog_nerves_of_steel : public SpellScriptLoader
 
         class spell_rog_nerves_of_steel_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_rog_nerves_of_steel_AuraScript);
-
         public:
             spell_rog_nerves_of_steel_AuraScript()
             {
@@ -517,8 +499,8 @@ class spell_rog_nerves_of_steel : public SpellScriptLoader
 
             void Register() override
             {
-                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_rog_nerves_of_steel_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-                 OnEffectAbsorb += AuraEffectAbsorbFn(spell_rog_nerves_of_steel_AuraScript::Absorb, EFFECT_0);
+                 DoEffectCalcAmount.Register(&spell_rog_nerves_of_steel_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+                 OnEffectAbsorb.Register(&spell_rog_nerves_of_steel_AuraScript::Absorb, EFFECT_0);
             }
         };
 
@@ -536,8 +518,6 @@ class spell_rog_overkill : public SpellScriptLoader
 
         class spell_rog_overkill_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_rog_overkill_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_ROGUE_OVERKILL_POWER_REGEN });
@@ -553,7 +533,7 @@ class spell_rog_overkill : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_rog_overkill_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectPeriodic.Register(&spell_rog_overkill_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
@@ -571,8 +551,6 @@ class spell_rog_preparation : public SpellScriptLoader
 
         class spell_rog_preparation_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_rog_preparation_SpellScript);
-
             bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
@@ -602,7 +580,7 @@ class spell_rog_preparation : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_rog_preparation_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget.Register(&spell_rog_preparation_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -620,8 +598,6 @@ class spell_rog_prey_on_the_weak : public SpellScriptLoader
 
         class spell_rog_prey_on_the_weak_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_rog_prey_on_the_weak_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_ROGUE_PREY_ON_THE_WEAK });
@@ -645,7 +621,7 @@ class spell_rog_prey_on_the_weak : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_rog_prey_on_the_weak_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectPeriodic.Register(&spell_rog_prey_on_the_weak_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
@@ -658,8 +634,6 @@ class spell_rog_prey_on_the_weak : public SpellScriptLoader
 // 73651 - Recuperate
 class spell_rog_recuperate : public AuraScript
 {
-    PrepareAuraScript(spell_rog_recuperate);
-
     bool Load() override
     {
         return GetCaster()->GetTypeId() == TYPEID_PLAYER;
@@ -693,9 +667,9 @@ class spell_rog_recuperate : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_rog_recuperate::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_rog_recuperate::CalculateBonus, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
-        AfterEffectApply += AuraEffectApplyFn(spell_rog_recuperate::HandleEffectApply, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        OnEffectPeriodic.Register(&spell_rog_recuperate::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+        DoEffectCalcAmount.Register(&spell_rog_recuperate::CalculateBonus, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+        AfterEffectApply.Register(&spell_rog_recuperate::HandleEffectApply, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
     }
 public:
     int32 Duration = 0;
@@ -704,8 +678,6 @@ public:
 // -1943 - Rupture
 class spell_rog_rupture : public AuraScript
 {
-    PrepareAuraScript(spell_rog_rupture);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_ROGUE_REVEALING_STRIKE });
@@ -756,11 +728,10 @@ class spell_rog_rupture : public AuraScript
 
     void Register() override
     {
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_rog_rupture::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
-        AfterEffectApply += AuraEffectApplyFn(spell_rog_rupture::ResetDuration, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAPPLY);
-        AfterEffectApply += AuraEffectApplyFn(spell_rog_rupture::StoreOriginalDuration, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        DoEffectCalcAmount.Register(&spell_rog_rupture::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+        AfterEffectApply.Register(&spell_rog_rupture::ResetDuration, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAPPLY);
+        AfterEffectApply.Register(&spell_rog_rupture::StoreOriginalDuration, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
     }
-
 public:
     // For Glyph of Backstab use
     uint32 BonusDuration = 0;
@@ -775,8 +746,6 @@ class spell_rog_glyph_of_backstab_triggered : public SpellScriptLoader
 
         class spell_rog_glyph_of_backstab_triggered_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_rog_glyph_of_backstab_triggered_SpellScript);
-
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
@@ -811,7 +780,7 @@ class spell_rog_glyph_of_backstab_triggered : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_rog_glyph_of_backstab_triggered_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_rog_glyph_of_backstab_triggered_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -829,8 +798,6 @@ class spell_rog_shiv : public SpellScriptLoader
 
         class spell_rog_shiv_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_rog_shiv_SpellScript);
-
             bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
@@ -850,7 +817,7 @@ class spell_rog_shiv : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_rog_shiv_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget.Register(&spell_rog_shiv_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -868,8 +835,6 @@ class spell_rog_stealth : public SpellScriptLoader
 
         class spell_rog_stealth_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_rog_stealth_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo(
@@ -914,8 +879,8 @@ class spell_rog_stealth : public SpellScriptLoader
 
             void Register() override
             {
-                AfterEffectApply += AuraEffectApplyFn(spell_rog_stealth_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_rog_stealth_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                AfterEffectApply.Register(&spell_rog_stealth_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                AfterEffectRemove.Register(&spell_rog_stealth_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
             }
         };
 
@@ -928,8 +893,6 @@ class spell_rog_stealth : public SpellScriptLoader
 // 57934 - Tricks of the Trade
 class spell_rog_tricks_of_the_trade_aura : public AuraScript
 {
-    PrepareAuraScript(spell_rog_tricks_of_the_trade_aura);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -961,8 +924,8 @@ class spell_rog_tricks_of_the_trade_aura : public AuraScript
 
     void Register() override
     {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_rog_tricks_of_the_trade_aura::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        OnEffectProc += AuraEffectProcFn(spell_rog_tricks_of_the_trade_aura::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
+        AfterEffectRemove.Register(&spell_rog_tricks_of_the_trade_aura::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        OnEffectProc.Register(&spell_rog_tricks_of_the_trade_aura::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
     }
 
     ObjectGuid _redirectTarget;
@@ -972,8 +935,6 @@ public:
 
 class spell_rog_tricks_of_the_trade : public SpellScript
 {
-    PrepareSpellScript(spell_rog_tricks_of_the_trade);
-
     void DoAfterHit()
     {
         if (Aura* aura = GetHitAura())
@@ -988,15 +949,13 @@ class spell_rog_tricks_of_the_trade : public SpellScript
 
     void Register() override
     {
-        AfterHit += SpellHitFn(spell_rog_tricks_of_the_trade::DoAfterHit);
+        AfterHit.Register(&spell_rog_tricks_of_the_trade::DoAfterHit);
     }
 };
 
 // 59628 - Tricks of the Trade (Proc)
 class spell_rog_tricks_of_the_trade_proc : public AuraScript
 {
-    PrepareAuraScript(spell_rog_tricks_of_the_trade_proc);
-
     void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         GetTarget()->GetThreatManager().UnregisterRedirectThreat(SPELL_ROGUE_TRICKS_OF_THE_TRADE);
@@ -1004,15 +963,13 @@ class spell_rog_tricks_of_the_trade_proc : public AuraScript
 
     void Register() override
     {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_rog_tricks_of_the_trade_proc::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove.Register(&spell_rog_tricks_of_the_trade_proc::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
 // -51698 - Honor Among Thieves
 class spell_rog_honor_among_thieves : public AuraScript
 {
-    PrepareAuraScript(spell_rog_honor_among_thieves);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_ROGUE_HONOR_AMONG_THIEVES_TRIGGERED });
@@ -1033,15 +990,13 @@ class spell_rog_honor_among_thieves : public AuraScript
 
     void Register() override
     {
-        OnEffectProc += AuraEffectProcFn(spell_rog_honor_among_thieves::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc.Register(&spell_rog_honor_among_thieves::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
 // 76806 - Main Gauche
 class spell_rog_main_gauche : public AuraScript
 {
-    PrepareAuraScript(spell_rog_main_gauche);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_ROGUE_MAIN_GAUCHE });
@@ -1076,15 +1031,13 @@ class spell_rog_main_gauche : public AuraScript
 
     void Register() override
     {
-        DoCheckProc += AuraCheckProcFn(spell_rog_main_gauche::CheckProc);
-        OnEffectProc += AuraEffectProcFn(spell_rog_main_gauche::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+        DoCheckProc.Register(&spell_rog_main_gauche::CheckProc);
+        OnEffectProc.Register(&spell_rog_main_gauche::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
 class spell_rog_glyph_of_hemorrhage : public AuraScript
 {
-    PrepareAuraScript(spell_rog_glyph_of_hemorrhage);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_ROGUE_GLYPH_HEMORRHAGE_TRIGGERED });
@@ -1108,15 +1061,13 @@ class spell_rog_glyph_of_hemorrhage : public AuraScript
 
     void Register() override
     {
-        OnEffectProc += AuraEffectProcFn(spell_rog_glyph_of_hemorrhage::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc.Register(&spell_rog_glyph_of_hemorrhage::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
 // 2098 - Eviscerate
 class spell_rog_eviscerate : public SpellScript
 {
-    PrepareSpellScript(spell_rog_eviscerate);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -1181,16 +1132,14 @@ class spell_rog_eviscerate : public SpellScript
 
     void Register() override
     {
-        OnEffectLaunchTarget += SpellEffectFn(spell_rog_eviscerate::ChangeDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-        OnEffectHitTarget += SpellEffectFn(spell_rog_eviscerate::HandleSerratedBlades, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnEffectLaunchTarget.Register(&spell_rog_eviscerate::ChangeDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnEffectHitTarget.Register(&spell_rog_eviscerate::HandleSerratedBlades, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
 // 32645 - Envenom
 class spell_rog_envenom : public SpellScript
 {
-    PrepareSpellScript(spell_rog_envenom);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_ROGUE_REVEALING_STRIKE });
@@ -1269,15 +1218,13 @@ class spell_rog_envenom : public SpellScript
 
     void Register() override
     {
-        OnEffectLaunchTarget += SpellEffectFn(spell_rog_envenom::ChangeDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnEffectLaunchTarget.Register(&spell_rog_envenom::ChangeDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
 // 5171 - Slice and Dice
 class spell_rog_slice_and_dice : public AuraScript
 {
-    PrepareAuraScript(spell_rog_slice_and_dice);
-
     void HandleEffectApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
         Duration = aurEff->GetBase()->GetDuration();
@@ -1285,7 +1232,7 @@ class spell_rog_slice_and_dice : public AuraScript
 
     void Register() override
     {
-        AfterEffectApply += AuraEffectApplyFn(spell_rog_slice_and_dice::HandleEffectApply, EFFECT_0, SPELL_AURA_MOD_MELEE_HASTE_3, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        AfterEffectApply.Register(&spell_rog_slice_and_dice::HandleEffectApply, EFFECT_0, SPELL_AURA_MOD_MELEE_HASTE_3, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
     }
 public:
     int32 Duration = 0;
@@ -1294,8 +1241,6 @@ public:
 // -79121 - Deadly Momentum
 class spell_rog_deadly_momentum : public AuraScript
 {
-    PrepareAuraScript(spell_rog_deadly_momentum);
-
     void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
     {
         Unit* target = GetTarget();
@@ -1313,15 +1258,13 @@ class spell_rog_deadly_momentum : public AuraScript
 
     void Register() override
     {
-        OnEffectProc += AuraEffectProcFn(spell_rog_deadly_momentum::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL_WITH_VALUE);
+        OnEffectProc.Register(&spell_rog_deadly_momentum::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL_WITH_VALUE);
     }
 };
 
 // 6770 - Sap
 class spell_rog_sap: public AuraScript
 {
-    PrepareAuraScript(spell_rog_sap);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_ROGUE_BLACKJACK_R1 });
@@ -1339,15 +1282,13 @@ class spell_rog_sap: public AuraScript
 
     void Register() override
     {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_rog_sap::HandleBlackJack, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove.Register(&spell_rog_sap::HandleBlackJack, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
 // -14168 - Improved Expose Armor
 class spell_rog_improved_expose_armor : public AuraScript
 {
-    PrepareAuraScript(spell_rog_improved_expose_armor);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -1380,16 +1321,14 @@ class spell_rog_improved_expose_armor : public AuraScript
 
     void Register() override
     {
-        DoCheckProc += AuraCheckProcFn(spell_rog_improved_expose_armor::CheckProc);
-        OnEffectProc += AuraEffectProcFn(spell_rog_improved_expose_armor::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+        DoCheckProc.Register(&spell_rog_improved_expose_armor::CheckProc);
+        OnEffectProc.Register(&spell_rog_improved_expose_armor::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
 // -14158 - Murderous Intent
 class spell_rog_murderous_intent : public AuraScript
 {
-    PrepareAuraScript(spell_rog_murderous_intent);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_ROGUE_MURDEROUS_INTENT });
@@ -1408,16 +1347,14 @@ class spell_rog_murderous_intent : public AuraScript
 
     void Register() override
     {
-        DoCheckProc += AuraCheckProcFn(spell_rog_murderous_intent::CheckProc);
-        OnEffectProc += AuraEffectProcFn(spell_rog_murderous_intent::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+        DoCheckProc.Register(&spell_rog_murderous_intent::CheckProc);
+        OnEffectProc.Register(&spell_rog_murderous_intent::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
 // -35541 - Combat Potency
 class spell_rog_combat_potency : public AuraScript
 {
-    PrepareAuraScript(spell_rog_combat_potency);
-
     bool CheckProc(ProcEventInfo& eventInfo)
     {
         if (eventInfo.GetSpellInfo())
@@ -1430,15 +1367,13 @@ class spell_rog_combat_potency : public AuraScript
 
     void Register() override
     {
-        DoCheckProc += AuraCheckProcFn(spell_rog_combat_potency::CheckProc);
+        DoCheckProc.Register(&spell_rog_combat_potency::CheckProc);
     }
 };
 
 // -79095 - Restless Blades
 class spell_rog_restless_blades : public AuraScript
 {
-    PrepareAuraScript(spell_rog_restless_blades);
-
     bool Load() override
     {
         return GetUnitOwner()->IsPlayer();
@@ -1469,15 +1404,13 @@ class spell_rog_restless_blades : public AuraScript
 
     void Register() override
     {
-        OnEffectProc += AuraEffectProcFn(spell_rog_restless_blades::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc.Register(&spell_rog_restless_blades::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
 // -84652 - Bandit's Guile
 class spell_rog_bandits_guile : public AuraScript
 {
-    PrepareAuraScript(spell_rog_bandits_guile);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -1533,8 +1466,8 @@ class spell_rog_bandits_guile : public AuraScript
 
     void Register() override
     {
-        DoCheckProc += AuraCheckProcFn(spell_rog_bandits_guile::CheckProc);
-        OnEffectProc += AuraEffectProcFn(spell_rog_bandits_guile::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+        DoCheckProc.Register(&spell_rog_bandits_guile::CheckProc);
+        OnEffectProc.Register(&spell_rog_bandits_guile::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 private:
     ObjectGuid _recentTargetGUID;

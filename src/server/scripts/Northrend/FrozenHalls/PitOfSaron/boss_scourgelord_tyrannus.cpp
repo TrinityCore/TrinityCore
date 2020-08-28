@@ -425,8 +425,6 @@ class spell_tyrannus_overlord_brand : public SpellScriptLoader
 
         class spell_tyrannus_overlord_brand_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_tyrannus_overlord_brand_AuraScript);
-
         public:
             spell_tyrannus_overlord_brand_AuraScript()
             {
@@ -465,8 +463,8 @@ class spell_tyrannus_overlord_brand : public SpellScriptLoader
 
             void Register() override
             {
-                AfterEffectApply += AuraEffectApplyFn(spell_tyrannus_overlord_brand_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_tyrannus_overlord_brand_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectApply.Register(&spell_tyrannus_overlord_brand_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove.Register(&spell_tyrannus_overlord_brand_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
 
             PlayerAI* oldAI;
@@ -486,8 +484,6 @@ class spell_tyrannus_mark_of_rimefang : public SpellScriptLoader
 
         class spell_tyrannus_mark_of_rimefang_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_tyrannus_mark_of_rimefang_AuraScript);
-
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* caster = GetCaster();
@@ -501,7 +497,7 @@ class spell_tyrannus_mark_of_rimefang : public SpellScriptLoader
 
             void Register() override
             {
-                AfterEffectApply += AuraEffectApplyFn(spell_tyrannus_mark_of_rimefang_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectApply.Register(&spell_tyrannus_mark_of_rimefang_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -519,8 +515,6 @@ class spell_tyrannus_rimefang_icy_blast : public SpellScriptLoader
 
         class spell_tyrannus_rimefang_icy_blast_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_tyrannus_rimefang_icy_blast_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_ICY_BLAST_AURA });
@@ -536,7 +530,7 @@ class spell_tyrannus_rimefang_icy_blast : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHit += SpellEffectFn(spell_tyrannus_rimefang_icy_blast_SpellScript::HandleTriggerMissile, EFFECT_1, SPELL_EFFECT_TRIGGER_MISSILE);
+                OnEffectHit.Register(&spell_tyrannus_rimefang_icy_blast_SpellScript::HandleTriggerMissile, EFFECT_1, SPELL_EFFECT_TRIGGER_MISSILE);
             }
         };
 

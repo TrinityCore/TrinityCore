@@ -165,8 +165,6 @@ class spell_murmur_sonic_boom : public SpellScriptLoader
 
         class spell_murmur_sonic_boom_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_murmur_sonic_boom_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_SONIC_BOOM_EFFECT });
@@ -179,7 +177,7 @@ class spell_murmur_sonic_boom : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHit += SpellEffectFn(spell_murmur_sonic_boom_SpellScript::HandleEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHit.Register(&spell_murmur_sonic_boom_SpellScript::HandleEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -197,8 +195,6 @@ class spell_murmur_sonic_boom_effect : public SpellScriptLoader
 
         class spell_murmur_sonic_boom_effect_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_murmur_sonic_boom_effect_SpellScript);
-
             void CalcDamage()
             {
                 if (Unit* target = GetHitUnit())
@@ -207,7 +203,7 @@ class spell_murmur_sonic_boom_effect : public SpellScriptLoader
 
             void Register() override
             {
-                OnHit += SpellHitFn(spell_murmur_sonic_boom_effect_SpellScript::CalcDamage);
+                OnHit.Register(&spell_murmur_sonic_boom_effect_SpellScript::CalcDamage);
             }
         };
 
@@ -240,8 +236,6 @@ class spell_murmur_thundering_storm : public SpellScriptLoader
 
         class spell_murmur_thundering_storm_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_murmur_thundering_storm_SpellScript);
-
             void FilterTarget(std::list<WorldObject*>& targets)
             {
                 targets.remove_if(ThunderingStormCheck(GetCaster()));
@@ -249,7 +243,7 @@ class spell_murmur_thundering_storm : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_murmur_thundering_storm_SpellScript::FilterTarget, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect.Register(&spell_murmur_thundering_storm_SpellScript::FilterTarget, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 

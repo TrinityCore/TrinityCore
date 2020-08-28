@@ -394,8 +394,6 @@ public:
 
     class spell_q12620_the_lifewarden_wrath_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_q12620_the_lifewarden_wrath_SpellScript);
-
         void HandleSendEvent(SpellEffIndex effIndex)
         {
             PreventHitDefaultEffect(effIndex);
@@ -438,7 +436,7 @@ public:
 
         void Register() override
         {
-            OnEffectHit += SpellEffectFn(spell_q12620_the_lifewarden_wrath_SpellScript::HandleSendEvent, EFFECT_0, SPELL_EFFECT_SEND_EVENT);
+            OnEffectHit.Register(&spell_q12620_the_lifewarden_wrath_SpellScript::HandleSendEvent, EFFECT_0, SPELL_EFFECT_SEND_EVENT);
         }
     };
 
@@ -482,9 +480,7 @@ public:
 
     class spell_q12589_shoot_rjr_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_q12589_shoot_rjr_SpellScript);
-
-        SpellCastResult CheckCast()
+             SpellCastResult CheckCast()
         {
             if (Unit* target = GetExplTargetUnit())
                 if (target->GetEntry() == NPC_LUCKY_WILHELM)
@@ -557,8 +553,8 @@ public:
 
         void Register() override
         {
-            OnCheckCast += SpellCheckCastFn(spell_q12589_shoot_rjr_SpellScript::CheckCast);
-            OnEffectHitTarget += SpellEffectFn(spell_q12589_shoot_rjr_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnCheckCast.Register(&spell_q12589_shoot_rjr_SpellScript::CheckCast);
+            OnEffectHitTarget.Register(&spell_q12589_shoot_rjr_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
@@ -737,8 +733,6 @@ public:
 
     class spell_shango_tracks_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_shango_tracks_SpellScript);
-
         void HandleScript(SpellEffIndex /*effIndex*/)
         {
             if (Unit* target = GetHitUnit())
@@ -759,7 +753,7 @@ public:
 
         void Register() override
         {
-            OnEffectHitTarget += SpellEffectFn(spell_shango_tracks_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            OnEffectHitTarget.Register(&spell_shango_tracks_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
         }
     };
 

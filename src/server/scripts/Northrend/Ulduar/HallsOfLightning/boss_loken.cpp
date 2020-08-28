@@ -217,8 +217,6 @@ class spell_loken_pulsing_shockwave : public SpellScriptLoader
 
         class spell_loken_pulsing_shockwave_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_loken_pulsing_shockwave_SpellScript);
-
             void CalculateDamage(SpellEffIndex /*effIndex*/)
             {
                 if (!GetHitUnit())
@@ -231,7 +229,7 @@ class spell_loken_pulsing_shockwave : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_loken_pulsing_shockwave_SpellScript::CalculateDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                OnEffectHitTarget.Register(&spell_loken_pulsing_shockwave_SpellScript::CalculateDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 

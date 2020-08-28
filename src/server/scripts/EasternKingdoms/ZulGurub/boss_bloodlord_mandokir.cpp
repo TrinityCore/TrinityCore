@@ -483,8 +483,6 @@ class NonVictimTargetSelector
 
 class spell_mandokir_decapitate : public SpellScript
 {
-    PrepareSpellScript(spell_mandokir_decapitate);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         if (targets.empty())
@@ -507,15 +505,13 @@ class spell_mandokir_decapitate : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mandokir_decapitate::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-        OnEffectHitTarget += SpellEffectFn(spell_mandokir_decapitate::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnObjectAreaTargetSelect.Register(&spell_mandokir_decapitate::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnEffectHitTarget.Register(&spell_mandokir_decapitate::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
 class spell_mandokir_bloodletting : public AuraScript
 {
-    PrepareAuraScript(spell_mandokir_bloodletting);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo(
@@ -540,14 +536,12 @@ class spell_mandokir_bloodletting : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_mandokir_bloodletting::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectPeriodic.Register(&spell_mandokir_bloodletting::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
 class spell_mandokir_spirit_vengeance_cancel : public SpellScript
 {
-    PrepareSpellScript(spell_mandokir_spirit_vengeance_cancel);
-
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         if (Player* target = GetHitPlayer())
@@ -556,15 +550,13 @@ class spell_mandokir_spirit_vengeance_cancel : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_mandokir_spirit_vengeance_cancel::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-        OnEffectHitTarget += SpellEffectFn(spell_mandokir_spirit_vengeance_cancel::HandleScript, EFFECT_1, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget.Register(&spell_mandokir_spirit_vengeance_cancel::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_mandokir_spirit_vengeance_cancel::HandleScript, EFFECT_1, SPELL_EFFECT_DUMMY);
     }
 };
 
 class spell_mandokir_devastating_slam : public SpellScript
 {
-    PrepareSpellScript(spell_mandokir_devastating_slam);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         if (targets.empty())
@@ -586,15 +578,13 @@ class spell_mandokir_devastating_slam : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mandokir_devastating_slam::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-        OnEffectHitTarget += SpellEffectFn(spell_mandokir_devastating_slam::HandleSummon, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
+        OnObjectAreaTargetSelect.Register(&spell_mandokir_devastating_slam::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnEffectHitTarget.Register(&spell_mandokir_devastating_slam::HandleSummon, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
     }
 };
 
 class spell_mandokir_ohgan_orders : public SpellScript
 {
-    PrepareSpellScript(spell_mandokir_ohgan_orders);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         if (targets.empty())
@@ -612,15 +602,13 @@ class spell_mandokir_ohgan_orders : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mandokir_ohgan_orders::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
-        OnEffectHitTarget += SpellEffectFn(spell_mandokir_ohgan_orders::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnObjectAreaTargetSelect.Register(&spell_mandokir_ohgan_orders::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+        OnEffectHitTarget.Register(&spell_mandokir_ohgan_orders::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
 class spell_mandokir_ohgan_orders_trigger : public SpellScript
 {
-    PrepareSpellScript(spell_mandokir_ohgan_orders_trigger);
-
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
@@ -637,14 +625,12 @@ class spell_mandokir_ohgan_orders_trigger : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_mandokir_ohgan_orders_trigger::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_mandokir_ohgan_orders_trigger::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 class spell_mandokir_reanimate_ohgan : public SpellScript
 {
-    PrepareSpellScript(spell_mandokir_reanimate_ohgan);
-
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         if (Unit* target = GetHitUnit())
@@ -657,14 +643,12 @@ class spell_mandokir_reanimate_ohgan : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_mandokir_reanimate_ohgan::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_mandokir_reanimate_ohgan::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 class spell_clear_all : public SpellScript
 {
-    PrepareSpellScript(spell_clear_all);
-
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
@@ -673,7 +657,7 @@ class spell_clear_all : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_clear_all::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_clear_all::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 

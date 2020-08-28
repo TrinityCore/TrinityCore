@@ -506,8 +506,6 @@ class spell_paralyze_pinnacle : public SpellScriptLoader
 
         class spell_paralyze_pinnacle_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_paralyze_pinnacle_SpellScript);
-
             void FilterTargets(std::list<WorldObject*>& unitList)
             {
                 unitList.remove_if(RitualTargetCheck());
@@ -515,7 +513,7 @@ class spell_paralyze_pinnacle : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_paralyze_pinnacle_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect.Register(&spell_paralyze_pinnacle_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 

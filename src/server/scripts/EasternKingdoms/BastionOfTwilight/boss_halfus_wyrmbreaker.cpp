@@ -633,8 +633,6 @@ class spell_halfus_bind_will : public SpellScriptLoader
 
         class spell_halfus_bind_will_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_halfus_bind_will_SpellScript);
-
             void HandleHit(SpellEffIndex effIndex)
             {
                 if (Unit* caster = GetCaster())
@@ -644,7 +642,7 @@ class spell_halfus_bind_will : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_halfus_bind_will_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_halfus_bind_will_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -661,8 +659,6 @@ class spell_halfus_fireball : public SpellScriptLoader
 
         class spell_halfus_fireball_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_halfus_fireball_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo(
@@ -693,8 +689,8 @@ class spell_halfus_fireball : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_halfus_fireball_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
-                OnEffectHitTarget += SpellEffectFn(spell_halfus_fireball_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnObjectAreaTargetSelect.Register(&spell_halfus_fireball_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+                OnEffectHitTarget.Register(&spell_halfus_fireball_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -711,8 +707,6 @@ class spell_halfus_stone_touch : public SpellScriptLoader
 
         class spell_halfus_stone_touch_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_halfus_stone_touch_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_PARALYSIS });
@@ -726,7 +720,7 @@ class spell_halfus_stone_touch : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_halfus_stone_touch_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectPeriodic.Register(&spell_halfus_stone_touch_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
@@ -743,8 +737,6 @@ class spell_halfus_cyclone_winds : public SpellScriptLoader
 
         class spell_halfus_cyclone_winds_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_halfus_cyclone_winds_SpellScript);
-
             void SetDestPosition(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* caster = GetCaster())
@@ -761,7 +753,7 @@ class spell_halfus_cyclone_winds : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectLaunch += SpellEffectFn(spell_halfus_cyclone_winds_SpellScript::SetDestPosition, EFFECT_0, SPELL_EFFECT_SUMMON);
+                OnEffectLaunch.Register(&spell_halfus_cyclone_winds_SpellScript::SetDestPosition, EFFECT_0, SPELL_EFFECT_SUMMON);
             }
         };
 
@@ -791,8 +783,6 @@ class spell_halfus_dancing_flames : public SpellScriptLoader
 
         class spell_halfus_dancing_flames_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_halfus_dancing_flames_SpellScript);
-
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 if (targets.empty())
@@ -809,7 +799,7 @@ class spell_halfus_dancing_flames : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_halfus_dancing_flames_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+                OnObjectAreaTargetSelect.Register(&spell_halfus_dancing_flames_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
             }
         };
 

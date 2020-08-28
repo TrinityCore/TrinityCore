@@ -967,8 +967,6 @@ class spell_jokkum_scriptcast : public SpellScriptLoader
 
         class spell_jokkum_scriptcast_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_jokkum_scriptcast_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_JOKKUM_SUMMON });
@@ -982,7 +980,7 @@ class spell_jokkum_scriptcast : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectApply += AuraEffectApplyFn(spell_jokkum_scriptcast_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectApply.Register(&spell_jokkum_scriptcast_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -998,8 +996,6 @@ class spell_veranus_summon : public SpellScriptLoader
 
         class spell_veranus_summon_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_veranus_summon_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_SUMMON_VERANUS_AND_THORIM });
@@ -1013,7 +1009,7 @@ class spell_veranus_summon : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectApply += AuraEffectApplyFn(spell_veranus_summon_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectApply.Register(&spell_veranus_summon_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -1035,8 +1031,6 @@ class spell_close_rift : public SpellScriptLoader
 
         class spell_close_rift_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_close_rift_AuraScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_DESPAWN_RIFT });
@@ -1050,7 +1044,7 @@ class spell_close_rift : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_close_rift_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+                OnEffectPeriodic.Register(&spell_close_rift_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
 
             uint8 _counter = 0;
@@ -1071,8 +1065,6 @@ class spell_eject_passenger_wild_wyrm : public SpellScriptLoader
 
         class spell_eject_passenger_wild_wyrm_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_eject_passenger_wild_wyrm_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_FIGHT_WYRM });
@@ -1085,7 +1077,7 @@ class spell_eject_passenger_wild_wyrm : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_eject_passenger_wild_wyrm_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_eject_passenger_wild_wyrm_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -1103,8 +1095,6 @@ class spell_grip : public SpellScriptLoader
 
         class spell_grip_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_grip_AuraScript);
-
             void DummyTick(AuraEffect const* /*aurEff*/)
             {
                 ++_tickNumber;
@@ -1147,9 +1137,9 @@ class spell_grip : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_grip_AuraScript::DummyTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectPeriodic.Register(&spell_grip_AuraScript::DummyTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
 
-                AfterEffectRemove += AuraEffectRemoveFn(spell_grip_AuraScript::HandleDrop, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove.Register(&spell_grip_AuraScript::HandleDrop, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
 
             // tick number in the AuraEffect gets reset each time we stack the aura, so keep track of it locally
@@ -1172,8 +1162,6 @@ class spell_grab_on : public SpellScriptLoader
 
         class spell_grab_on_SpellScript : public SpellScript
         {
-           PrepareSpellScript(spell_grab_on_SpellScript);
-
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (Aura* grip = GetCaster()->GetAura(SPELL_GRIP, GetCaster()->GetGUID()))
@@ -1182,7 +1170,7 @@ class spell_grab_on : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_grab_on_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_grab_on_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -1203,8 +1191,6 @@ class spell_loosen_grip : public SpellScriptLoader
         template <int8 StacksLost>
         class spell_loosen_grip_SpellScript : public SpellScript
         {
-           PrepareSpellScript(spell_loosen_grip_SpellScript);
-
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (Aura* grip = GetCaster()->GetAura(SPELL_GRIP))
@@ -1213,7 +1199,7 @@ class spell_loosen_grip : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_loosen_grip_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_loosen_grip_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -1231,8 +1217,6 @@ class spell_low_health_trigger : public SpellScriptLoader
 
         class spell_low_health_trigger_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_low_health_trigger_SpellScript);
-
             bool Validate(SpellInfo const* spellInfo) override
             {
                 return ValidateSpellInfo({ uint32(spellInfo->Effects[EFFECT_0].CalcValue()) });
@@ -1245,7 +1229,7 @@ class spell_low_health_trigger : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_low_health_trigger_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_low_health_trigger_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -1264,8 +1248,6 @@ class spell_jaws_of_death_claw_swipe_pct_damage : public SpellScriptLoader
 
         class spell_jaws_of_death_claw_swipe_pct_damage_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_jaws_of_death_claw_swipe_pct_damage_SpellScript);
-
             void HandleDamage(SpellEffIndex /*effIndex*/)
             {
                 SetEffectValue(static_cast<int32>(GetHitUnit()->CountPctFromMaxHealth(GetEffectValue())));
@@ -1273,7 +1255,7 @@ class spell_jaws_of_death_claw_swipe_pct_damage : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectLaunchTarget += SpellEffectFn(spell_jaws_of_death_claw_swipe_pct_damage_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                OnEffectLaunchTarget.Register(&spell_jaws_of_death_claw_swipe_pct_damage_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
@@ -1290,8 +1272,6 @@ class spell_claw_swipe_check : public SpellScriptLoader
 
         class spell_claw_swipe_check_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_claw_swipe_check_AuraScript);
-
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 GetTarget()->GetAI()->DoAction(ACTION_CLAW_SWIPE_WARN);
@@ -1316,8 +1296,8 @@ class spell_claw_swipe_check : public SpellScriptLoader
 
             void Register() override
             {
-                AfterEffectApply += AuraEffectApplyFn(spell_claw_swipe_check_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-                AfterEffectRemove += AuraEffectApplyFn(spell_claw_swipe_check_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectApply.Register(&spell_claw_swipe_check_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove.Register(&spell_claw_swipe_check_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -1335,8 +1315,6 @@ class spell_fatal_strike : public SpellScriptLoader
 
         class spell_fatal_strike_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_fatal_strike_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_FATAL_STRIKE_DAMAGE });
@@ -1359,7 +1337,7 @@ class spell_fatal_strike : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_fatal_strike_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget.Register(&spell_fatal_strike_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -1377,8 +1355,6 @@ class spell_falling_dragon_feign_death : public SpellScriptLoader
 
         class spell_falling_dragon_feign_death_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_falling_dragon_feign_death_AuraScript);
-
             void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 GetTarget()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
@@ -1393,8 +1369,8 @@ class spell_falling_dragon_feign_death : public SpellScriptLoader
 
             void Register() override
             {
-                AfterEffectApply += AuraEffectApplyFn(spell_falling_dragon_feign_death_AuraScript::HandleApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-                AfterEffectRemove += AuraEffectApplyFn(spell_falling_dragon_feign_death_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectApply.Register(&spell_falling_dragon_feign_death_AuraScript::HandleApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove.Register(&spell_falling_dragon_feign_death_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -1412,8 +1388,6 @@ class spell_player_mount_wyrm : public SpellScriptLoader
 
         class spell_player_mount_wyrm_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_player_mount_wyrm_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_FIGHT_WYRM });
@@ -1426,7 +1400,7 @@ class spell_player_mount_wyrm : public SpellScriptLoader
 
             void Register() override
             {
-                AfterEffectRemove += AuraEffectApplyFn(spell_player_mount_wyrm_AuraScript::HandleDummy, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove.Register(&spell_player_mount_wyrm_AuraScript::HandleDummy, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 

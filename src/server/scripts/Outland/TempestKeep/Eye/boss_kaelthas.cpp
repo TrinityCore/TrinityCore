@@ -1451,8 +1451,6 @@ class spell_kael_gravity_lapse : public SpellScriptLoader
 
         class spell_kael_gravity_lapse_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_kael_gravity_lapse_SpellScript);
-
         public:
             spell_kael_gravity_lapse_SpellScript()
             {
@@ -1474,7 +1472,7 @@ class spell_kael_gravity_lapse : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_kael_gravity_lapse_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_kael_gravity_lapse_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
 
             private:

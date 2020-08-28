@@ -531,8 +531,6 @@ class spell_siamat_thunder_crash : public SpellScriptLoader
 
         class spell_siamat_thunder_crash_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_siamat_thunder_crash_AuraScript);
-
             void HandleTick(AuraEffect const* /*aurEff*/)
             {
                 PreventDefaultAction();
@@ -543,7 +541,7 @@ class spell_siamat_thunder_crash : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_siamat_thunder_crash_AuraScript::HandleTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+                OnEffectPeriodic.Register(&spell_siamat_thunder_crash_AuraScript::HandleTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
         };
 
@@ -560,8 +558,6 @@ class spell_siamat_wailing_winds : public SpellScriptLoader
 
         class spell_siamat_wailing_winds_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_siamat_wailing_winds_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_WAILING_WINDS_DAMAGE });
@@ -575,7 +571,7 @@ class spell_siamat_wailing_winds : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_siamat_wailing_winds_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectPeriodic.Register(&spell_siamat_wailing_winds_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
@@ -592,8 +588,6 @@ public:
 
     class spell_siamat_wailing_winds_player_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_siamat_wailing_winds_player_AuraScript);
-
         void OnPeriodic(AuraEffect const* /*aurEff*/)
         {
             PreventDefaultAction();
@@ -605,7 +599,7 @@ public:
 
         void Register() override
         {
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_siamat_wailing_winds_player_AuraScript::OnPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+            OnEffectPeriodic.Register(&spell_siamat_wailing_winds_player_AuraScript::OnPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
         }
     };
 
@@ -622,9 +616,7 @@ public:
 
     class spell_siamat_wailing_winds_knockback_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_siamat_wailing_winds_knockback_SpellScript);
-
-        void EffectScriptEffect(SpellEffIndex /*effIndex*/)
+             void EffectScriptEffect(SpellEffIndex /*effIndex*/)
         {
             if (Unit* caster = GetCaster())
                 if (Unit* victim = GetHitUnit())
@@ -641,7 +633,7 @@ public:
 
         void Register()
         {
-            OnEffectHitTarget += SpellEffectFn(spell_siamat_wailing_winds_knockback_SpellScript::EffectScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            OnEffectHitTarget.Register(&spell_siamat_wailing_winds_knockback_SpellScript::EffectScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
         }
     };
 
@@ -658,9 +650,7 @@ public:
 
     class spell_siamat_cloud_burst_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_siamat_cloud_burst_SpellScript);
-
-        void FilterTargets(std::list<WorldObject*>& targets)
+             void FilterTargets(std::list<WorldObject*>& targets)
         {
             if (targets.empty())
                 return;
@@ -670,7 +660,7 @@ public:
 
         void Register() override
         {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_siamat_cloud_burst_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+            OnObjectAreaTargetSelect.Register(&spell_siamat_cloud_burst_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
         }
     };
 
@@ -687,9 +677,7 @@ public:
 
     class spell_siamat_gathered_storms_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_siamat_gathered_storms_SpellScript);
-
-        void FilterTargets(std::list<WorldObject*>& targets)
+             void FilterTargets(std::list<WorldObject*>& targets)
         {
             if (targets.empty())
                 return;
@@ -699,7 +687,7 @@ public:
 
         void Register() override
         {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_siamat_gathered_storms_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+            OnObjectAreaTargetSelect.Register(&spell_siamat_gathered_storms_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
         }
     };
 
@@ -716,8 +704,6 @@ class spell_siamat_absorb_storms : public SpellScriptLoader
 
         class spell_siamat_absorb_storms_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_siamat_absorb_storms_AuraScript);
-
             void OnPeriodic(AuraEffect const* /*aurEff*/)
             {
                 PreventDefaultAction();
@@ -727,14 +713,12 @@ class spell_siamat_absorb_storms : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_siamat_absorb_storms_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+                OnEffectPeriodic.Register(&spell_siamat_absorb_storms_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
         };
 
         class spell_siamat_absorb_storms_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_siamat_absorb_storms_SpellScript);
-
             void HandleHit(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* caster = GetCaster())
@@ -756,8 +740,8 @@ class spell_siamat_absorb_storms : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_siamat_absorb_storms_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_siamat_absorb_storms_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+                OnEffectHitTarget.Register(&spell_siamat_absorb_storms_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+                OnObjectAreaTargetSelect.Register(&spell_siamat_absorb_storms_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
             }
         };
 

@@ -704,8 +704,6 @@ class spell_vanessa_backslash_targeting : public SpellScriptLoader
 
         class spell_vanessa_backslash_targeting_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_vanessa_backslash_targeting_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_BACKSLASH });
@@ -727,8 +725,8 @@ class spell_vanessa_backslash_targeting : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_vanessa_backslash_targeting_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_vanessa_backslash_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnEffectHitTarget.Register(&spell_vanessa_backslash_targeting_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnObjectAreaTargetSelect.Register(&spell_vanessa_backslash_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 

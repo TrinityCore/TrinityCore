@@ -209,8 +209,6 @@ class spell_najentus_needle_spine : public SpellScriptLoader
 
         class spell_najentus_needle_spine_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_najentus_needle_spine_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_NEEDLE_SPINE });
@@ -228,8 +226,8 @@ class spell_najentus_needle_spine : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_najentus_needle_spine_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnEffectHitTarget += SpellEffectFn(spell_najentus_needle_spine_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnObjectAreaTargetSelect.Register(&spell_najentus_needle_spine_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnEffectHitTarget.Register(&spell_najentus_needle_spine_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 

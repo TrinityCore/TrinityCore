@@ -350,8 +350,6 @@ struct npc_husam_shockwave_visual : public NullCreatureAI
 
 class spell_husam_hammer_fist : public AuraScript
 {
-    PrepareAuraScript(spell_husam_hammer_fist);
-
     void HandleTick(AuraEffect const* /*aurEff*/)
     {
         PreventDefaultAction();
@@ -362,14 +360,12 @@ class spell_husam_hammer_fist : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_husam_hammer_fist::HandleTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+        OnEffectPeriodic.Register(&spell_husam_hammer_fist::HandleTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
     }
 };
 
 class spell_husam_shockwave : public SpellScript
 {
-    PrepareSpellScript(spell_husam_shockwave);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SHOCKWAVE_VISUAL });
@@ -382,14 +378,12 @@ class spell_husam_shockwave : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_husam_shockwave::EffectScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_husam_shockwave::EffectScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 class spell_husam_shockwave_summon_search : public SpellScript
 {
-    PrepareSpellScript(spell_husam_shockwave_summon_search);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SHOCKWAVE_SUMMON_EFFECT });
@@ -403,14 +397,12 @@ class spell_husam_shockwave_summon_search : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_husam_shockwave_summon_search::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+        OnObjectAreaTargetSelect.Register(&spell_husam_shockwave_summon_search::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
     }
 };
 
 class spell_husam_mystic_trap : public SpellScript
 {
-    PrepareSpellScript(spell_husam_mystic_trap);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         if (targets.size() < 3)
@@ -421,14 +413,12 @@ class spell_husam_mystic_trap : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_husam_mystic_trap::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnObjectAreaTargetSelect.Register(&spell_husam_mystic_trap::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
     }
 };
 
 class spell_husam_detonate_traps : public SpellScript
 {
-    PrepareSpellScript(spell_husam_detonate_traps);
-
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
         if (Creature* target = GetHitCreature())
@@ -438,14 +428,12 @@ class spell_husam_detonate_traps : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_husam_detonate_traps::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_husam_detonate_traps::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 class spell_husam_bad_intentions : public SpellScript
 {
-    PrepareSpellScript(spell_husam_bad_intentions);
-
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
         if (Unit* caster = GetCaster())
@@ -458,14 +446,12 @@ class spell_husam_bad_intentions : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_husam_bad_intentions::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_husam_bad_intentions::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 class spell_husam_hurl : public SpellScript
 {
-    PrepareSpellScript(spell_husam_hurl);
-
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
         if (Vehicle* vehicle = GetCaster()->GetVehicleKit())
@@ -482,14 +468,12 @@ class spell_husam_hurl : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_husam_hurl::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_husam_hurl::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 class spell_husam_land_mine_player_search_effect : public SpellScript
 {
-    PrepareSpellScript(spell_husam_land_mine_player_search_effect);
-
     void HandleDummyEffect(SpellEffIndex /*effIndex*/)
     {
         if (Unit* caster = GetCaster())
@@ -500,7 +484,7 @@ class spell_husam_land_mine_player_search_effect : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_husam_land_mine_player_search_effect::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget.Register(&spell_husam_land_mine_player_search_effect::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 

@@ -150,8 +150,6 @@ class spell_kormok_summon_bone_mages : SpellScriptLoader
 
         class spell_kormok_summon_bone_magesSpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_kormok_summon_bone_magesSpellScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo(SummonMageSpells);
@@ -166,7 +164,7 @@ class spell_kormok_summon_bone_mages : SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_kormok_summon_bone_magesSpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_kormok_summon_bone_magesSpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -184,9 +182,7 @@ class spell_kormok_summon_bone_minions : SpellScriptLoader
 
     class spell_kormok_summon_bone_minionsSpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_kormok_summon_bone_minionsSpellScript);
-
-        bool Validate(SpellInfo const* /*spell*/) override
+             bool Validate(SpellInfo const* /*spell*/) override
         {
             return ValidateSpellInfo({ SPELL_SUMMON_BONE_MINIONS });
         }
@@ -202,7 +198,7 @@ class spell_kormok_summon_bone_minions : SpellScriptLoader
 
         void Register() override
         {
-            OnEffectHitTarget += SpellEffectFn(spell_kormok_summon_bone_minionsSpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            OnEffectHitTarget.Register(&spell_kormok_summon_bone_minionsSpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
         }
     };
 

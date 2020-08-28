@@ -916,8 +916,6 @@ class spell_gatewatcher_subboss_trigger : public SpellScriptLoader
 
         class spell_gatewatcher_subboss_trigger_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gatewatcher_subboss_trigger_SpellScript);
-
             void HandleTargets(std::list<WorldObject*>& targetList)
             {
                 // Remove any Watchers that are already in combat
@@ -951,7 +949,7 @@ class spell_gatewatcher_subboss_trigger : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_gatewatcher_subboss_trigger_SpellScript::HandleTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+                OnObjectAreaTargetSelect.Register(&spell_gatewatcher_subboss_trigger_SpellScript::HandleTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
             }
         };
 
@@ -968,8 +966,6 @@ class spell_anub_ar_skirmisher_fixate : public SpellScriptLoader
 
         class spell_anub_ar_skirmisher_fixate_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_anub_ar_skirmisher_fixate_SpellScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_FIXATE_TRIGGERED });
@@ -983,7 +979,7 @@ class spell_anub_ar_skirmisher_fixate : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_anub_ar_skirmisher_fixate_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_anub_ar_skirmisher_fixate_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -1000,8 +996,6 @@ class spell_gatewatcher_web_wrap : public SpellScriptLoader
 
         class spell_gatewatcher_web_wrap_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gatewatcher_web_wrap_AuraScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_WEB_WRAP_WRAPPED });
@@ -1018,7 +1012,7 @@ class spell_gatewatcher_web_wrap : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectRemove += AuraEffectRemoveFn(spell_gatewatcher_web_wrap_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_MOD_ROOT, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove.Register(&spell_gatewatcher_web_wrap_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_MOD_ROOT, AURA_EFFECT_HANDLE_REAL);
             }
         };
 

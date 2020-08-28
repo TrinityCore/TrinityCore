@@ -309,8 +309,6 @@ private:
 
 class spell_umbriss_summon_blitz_trigger : public SpellScript
 {
-    PrepareSpellScript(spell_umbriss_summon_blitz_trigger);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         if (targets.empty())
@@ -332,15 +330,13 @@ class spell_umbriss_summon_blitz_trigger : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_umbriss_summon_blitz_trigger::FilterTargets, EFFECT_ALL, TARGET_UNIT_SRC_AREA_ENEMY);
-        OnEffectHitTarget += SpellEffectFn(spell_umbriss_summon_blitz_trigger::HandleSummon, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
+        OnObjectAreaTargetSelect.Register(&spell_umbriss_summon_blitz_trigger::FilterTargets, EFFECT_ALL, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnEffectHitTarget.Register(&spell_umbriss_summon_blitz_trigger::HandleSummon, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
     }
 };
 
 class spell_umbriss_summon_ground_siege_trigger : public SpellScript
 {
-    PrepareSpellScript(spell_umbriss_summon_ground_siege_trigger);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         if (targets.empty())
@@ -357,15 +353,13 @@ class spell_umbriss_summon_ground_siege_trigger : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_umbriss_summon_ground_siege_trigger::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-        OnEffectHitTarget += SpellEffectFn(spell_umbriss_summon_ground_siege_trigger::HandleSummon, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
+        OnObjectAreaTargetSelect.Register(&spell_umbriss_summon_ground_siege_trigger::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnEffectHitTarget.Register(&spell_umbriss_summon_ground_siege_trigger::HandleSummon, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
     }
 };
 
 class spell_umbriss_bleeding_wound : public AuraScript
 {
-    PrepareAuraScript(spell_umbriss_bleeding_wound);
-
     void HandleRemoval(AuraEffect const* aurEff)
     {
         if (Unit* owner = GetOwner()->ToUnit())
@@ -375,7 +369,7 @@ class spell_umbriss_bleeding_wound : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_umbriss_bleeding_wound::HandleRemoval, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
+        OnEffectPeriodic.Register(&spell_umbriss_bleeding_wound::HandleRemoval, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
     }
 };
 

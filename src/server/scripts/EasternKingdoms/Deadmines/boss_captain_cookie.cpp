@@ -284,8 +284,6 @@ class spell_cookie_throw_food_targeting : public SpellScriptLoader
 
         class spell_cookie_throw_food_targeting_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_cookie_throw_food_targeting_SpellScript);
-
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 if (targets.empty())
@@ -302,8 +300,8 @@ class spell_cookie_throw_food_targeting : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_cookie_throw_food_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnEffectHitTarget += SpellEffectFn(spell_cookie_throw_food_targeting_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnObjectAreaTargetSelect.Register(&spell_cookie_throw_food_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnEffectHitTarget.Register(&spell_cookie_throw_food_targeting_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -320,8 +318,6 @@ class spell_cookie_satiated : public SpellScriptLoader
 
         class spell_cookie_satiated_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_cookie_satiated_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo(
@@ -340,7 +336,7 @@ class spell_cookie_satiated : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_cookie_satiated_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_cookie_satiated_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 

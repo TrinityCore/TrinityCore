@@ -221,8 +221,6 @@ private:
 
 class spell_ashbury_asphyxiate : public AuraScript
 {
-    PrepareAuraScript(spell_ashbury_asphyxiate);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_ASPHYXIATE_ROOT });
@@ -251,14 +249,12 @@ class spell_ashbury_asphyxiate : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_ashbury_asphyxiate::HandleTriggerSpell, EFFECT_2, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+        OnEffectPeriodic.Register(&spell_ashbury_asphyxiate::HandleTriggerSpell, EFFECT_2, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
     }
 };
 
 class spell_ashbury_pain_and_suffering : public AuraScript
 {
-    PrepareAuraScript(spell_ashbury_pain_and_suffering);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PAIN_AND_SUFFERING_DUMMY });
@@ -276,14 +272,12 @@ class spell_ashbury_pain_and_suffering : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_ashbury_pain_and_suffering::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+        OnEffectPeriodic.Register(&spell_ashbury_pain_and_suffering::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
     }
 };
 
 class spell_ashbury_dark_archangel_form : public AuraScript
 {
-    PrepareAuraScript(spell_ashbury_dark_archangel_form);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_CALAMITY });
@@ -300,7 +294,7 @@ class spell_ashbury_dark_archangel_form : public AuraScript
 
     void Register() override
     {
-        AfterEffectApply += AuraEffectApplyFn(spell_ashbury_dark_archangel_form::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectApply.Register(&spell_ashbury_dark_archangel_form::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 

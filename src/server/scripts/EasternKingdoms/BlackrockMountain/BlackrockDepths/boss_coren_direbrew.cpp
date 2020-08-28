@@ -471,8 +471,6 @@ class spell_direbrew_disarm : public SpellScriptLoader
 
         class spell_direbrew_disarm_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_direbrew_disarm_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_DIREBREW_DISARM, SPELL_DIREBREW_DISARM_GROW });
@@ -495,8 +493,8 @@ class spell_direbrew_disarm : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_direbrew_disarm_AuraScript::PeriodicTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
-                OnEffectApply += AuraEffectRemoveFn(spell_direbrew_disarm_AuraScript::OnApply, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectPeriodic.Register(&spell_direbrew_disarm_AuraScript::PeriodicTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectApply.Register(&spell_direbrew_disarm_AuraScript::OnApply, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -514,8 +512,6 @@ class spell_direbrew_summon_mole_machine_target_picker : public SpellScriptLoade
 
         class spell_direbrew_summon_mole_machine_target_picker_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_direbrew_summon_mole_machine_target_picker_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_MOLE_MACHINE_MINION_SUMMONER });
@@ -528,7 +524,7 @@ class spell_direbrew_summon_mole_machine_target_picker : public SpellScriptLoade
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_direbrew_summon_mole_machine_target_picker_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_direbrew_summon_mole_machine_target_picker_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -546,8 +542,6 @@ class spell_send_mug_target_picker : public SpellScriptLoader
 
         class spell_send_mug_target_picker_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_send_mug_target_picker_SpellScript);
-
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 Unit* caster = GetCaster();
@@ -579,8 +573,8 @@ class spell_send_mug_target_picker : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_send_mug_target_picker_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
-                OnEffectHitTarget += SpellEffectFn(spell_send_mug_target_picker_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnObjectAreaTargetSelect.Register(&spell_send_mug_target_picker_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+                OnEffectHitTarget.Register(&spell_send_mug_target_picker_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -598,8 +592,6 @@ class spell_request_second_mug : public SpellScriptLoader
 
         class spell_request_second_mug_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_request_second_mug_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_SEND_SECOND_MUG });
@@ -612,7 +604,7 @@ class spell_request_second_mug : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_request_second_mug_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_request_second_mug_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -630,8 +622,6 @@ class spell_send_mug_control_aura : public SpellScriptLoader
 
         class spell_send_mug_control_aura_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_send_mug_control_aura_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_SEND_MUG_TARGET_PICKER });
@@ -644,7 +634,7 @@ class spell_send_mug_control_aura : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_send_mug_control_aura_AuraScript::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectPeriodic.Register(&spell_send_mug_control_aura_AuraScript::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
@@ -662,8 +652,6 @@ class spell_barreled_control_aura : public SpellScriptLoader
 
         class spell_barreled_control_aura_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_barreled_control_aura_AuraScript);
-
             void PeriodicTick(AuraEffect const* /*aurEff*/)
             {
                 PreventDefaultAction();
@@ -672,7 +660,7 @@ class spell_barreled_control_aura : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_barreled_control_aura_AuraScript::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+                OnEffectPeriodic.Register(&spell_barreled_control_aura_AuraScript::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
         };
 

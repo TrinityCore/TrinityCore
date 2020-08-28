@@ -546,8 +546,6 @@ Position const DragonOrb2Offset = { -28.80208f, -232.4497f, 71.34686f };
 
 class spell_bwd_dragon_orb : public SpellScript
 {
-    PrepareSpellScript(spell_bwd_dragon_orb);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DRAGON_ORB_1 });
@@ -566,14 +564,12 @@ class spell_bwd_dragon_orb : public SpellScript
 
     void Register() override
     {
-        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_bwd_dragon_orb::SetDest, EFFECT_0, TARGET_DEST_CASTER_RANDOM);
+        OnDestinationTargetSelect.Register(&spell_bwd_dragon_orb::SetDest, EFFECT_0, TARGET_DEST_CASTER_RANDOM);
     }
 };
 
 class spell_bwd_grievous_wound : public AuraScript
 {
-    PrepareAuraScript(spell_bwd_grievous_wound);
-
     void OnPeriodic(AuraEffect const* /*aurEff*/)
     {
         if (GetUnitOwner()->HealthAbovePct(90))
@@ -585,14 +581,12 @@ class spell_bwd_grievous_wound : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_bwd_grievous_wound::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+        OnEffectPeriodic.Register(&spell_bwd_grievous_wound::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
     }
 };
 
 class spell_bwd_execution_sentence_visual : public SpellScript
 {
-    PrepareSpellScript(spell_bwd_execution_sentence_visual);
-
     void SetDest(SpellDestination& dest)
     {
         dest.RelocateOffset({ 0.0f, 0.0f, 15.0f, 0.0f });
@@ -600,14 +594,12 @@ class spell_bwd_execution_sentence_visual : public SpellScript
 
     void Register()
     {
-        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_bwd_execution_sentence_visual::SetDest, EFFECT_0, TARGET_DEST_TARGET_ENEMY);
+        OnDestinationTargetSelect.Register(&spell_bwd_execution_sentence_visual::SetDest, EFFECT_0, TARGET_DEST_TARGET_ENEMY);
     }
 };
 
 class spell_bwd_execution_sentence_dummy : public SpellScript
 {
-    PrepareSpellScript(spell_bwd_execution_sentence_dummy);
-
     void HandleDummyEffect(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
@@ -622,14 +614,12 @@ class spell_bwd_execution_sentence_dummy : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_bwd_execution_sentence_dummy::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget.Register(&spell_bwd_execution_sentence_dummy::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
 class spell_bwd_execution_sentence : public AuraScript
 {
-    PrepareAuraScript(spell_bwd_execution_sentence);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_EXECUTION_SENTENCE_DUMMY });
@@ -644,14 +634,12 @@ class spell_bwd_execution_sentence : public AuraScript
 
     void Register() override
     {
-        OnEffectRemove += AuraEffectRemoveFn(spell_bwd_execution_sentence::HandleRemove, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+        OnEffectRemove.Register(&spell_bwd_execution_sentence::HandleRemove, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
 class spell_bwd_stoneblood : public SpellScript
 {
-    PrepareSpellScript(spell_bwd_stoneblood);
-
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
         std::unordered_set<Aura*> aurasToRemove;
@@ -677,7 +665,7 @@ class spell_bwd_stoneblood : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_bwd_stoneblood::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_bwd_stoneblood::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 

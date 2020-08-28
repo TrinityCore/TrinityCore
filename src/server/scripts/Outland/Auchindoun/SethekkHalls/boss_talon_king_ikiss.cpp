@@ -169,8 +169,6 @@ class spell_talon_king_ikiss_blink : public SpellScriptLoader
 
         class spell_talon_king_ikiss_blink_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_talon_king_ikiss_blink_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_BLINK_TELEPORT });
@@ -194,8 +192,8 @@ class spell_talon_king_ikiss_blink : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_talon_king_ikiss_blink_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnEffectHitTarget += SpellEffectFn(spell_talon_king_ikiss_blink_SpellScript::HandleDummyHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnObjectAreaTargetSelect.Register(&spell_talon_king_ikiss_blink_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnEffectHitTarget.Register(&spell_talon_king_ikiss_blink_SpellScript::HandleDummyHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 

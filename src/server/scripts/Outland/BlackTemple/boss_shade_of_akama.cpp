@@ -1200,8 +1200,6 @@ public:
 
     class spell_shade_soul_channel_serverside_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_shade_soul_channel_serverside_AuraScript);
-
         bool Validate(SpellInfo const* /*spell*/) override
         {
             return ValidateSpellInfo({ SPELL_SHADE_SOUL_CHANNEL_2 });
@@ -1214,7 +1212,7 @@ public:
 
         void Register() override
         {
-            AfterEffectRemove += AuraEffectRemoveFn(spell_shade_soul_channel_serverside_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            AfterEffectRemove.Register(&spell_shade_soul_channel_serverside_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
         }
     };
 
@@ -1232,8 +1230,6 @@ public:
 
     class spell_shade_soul_channel_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_shade_soul_channel_AuraScript);
-
         void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
         {
             int32 const maxSlowEff = -99;
@@ -1244,7 +1240,7 @@ public:
 
         void Register() override
         {
-            AfterEffectApply += AuraEffectApplyFn(spell_shade_soul_channel_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_DECREASE_SPEED, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+            AfterEffectApply.Register(&spell_shade_soul_channel_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_DECREASE_SPEED, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
         }
     };
 

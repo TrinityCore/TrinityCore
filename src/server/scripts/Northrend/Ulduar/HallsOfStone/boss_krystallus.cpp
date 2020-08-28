@@ -149,8 +149,6 @@ class spell_krystallus_shatter : public SpellScriptLoader
 
         class spell_krystallus_shatter_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_krystallus_shatter_SpellScript);
-
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* target = GetHitUnit())
@@ -162,7 +160,7 @@ class spell_krystallus_shatter : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_krystallus_shatter_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_krystallus_shatter_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -179,8 +177,6 @@ class spell_krystallus_shatter_effect : public SpellScriptLoader
 
         class spell_krystallus_shatter_effect_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_krystallus_shatter_effect_SpellScript);
-
             void CalculateDamage()
             {
                 if (!GetHitUnit())
@@ -197,7 +193,7 @@ class spell_krystallus_shatter_effect : public SpellScriptLoader
 
             void Register() override
             {
-                OnHit += SpellHitFn(spell_krystallus_shatter_effect_SpellScript::CalculateDamage);
+                OnHit.Register(&spell_krystallus_shatter_effect_SpellScript::CalculateDamage);
             }
         };
 

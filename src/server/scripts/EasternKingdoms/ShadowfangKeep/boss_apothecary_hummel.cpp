@@ -402,8 +402,6 @@ class spell_apothecary_lingering_fumes : public SpellScriptLoader
 
         class spell_apothecary_lingering_fumes_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_apothecary_lingering_fumes_SpellScript);
-
             void HandleAfterCast()
             {
                 Unit* caster = GetCaster();
@@ -425,8 +423,8 @@ class spell_apothecary_lingering_fumes : public SpellScriptLoader
 
             void Register() override
             {
-                AfterCast += SpellCastFn(spell_apothecary_lingering_fumes_SpellScript::HandleAfterCast);
-                OnEffectHitTarget += SpellEffectFn(spell_apothecary_lingering_fumes_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+                AfterCast.Register(&spell_apothecary_lingering_fumes_SpellScript::HandleAfterCast);
+                OnEffectHitTarget.Register(&spell_apothecary_lingering_fumes_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -444,8 +442,6 @@ class spell_apothecary_validate_area : public SpellScriptLoader
 
         class spell_apothecary_validate_area_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_apothecary_validate_area_SpellScript);
-
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_BUNNY_LOCKDOWN));
@@ -466,8 +462,8 @@ class spell_apothecary_validate_area : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_apothecary_validate_area_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENTRY);
-                OnEffectHitTarget += SpellEffectFn(spell_apothecary_validate_area_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnObjectAreaTargetSelect.Register(&spell_apothecary_validate_area_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENTRY);
+                OnEffectHitTarget.Register(&spell_apothecary_validate_area_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -485,8 +481,6 @@ class spell_apothecary_throw_cologne : public SpellScriptLoader
 
         class spell_apothecary_throw_cologne_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_apothecary_throw_cologne_SpellScript);
-
             void HandleScript(SpellEffIndex /*effindex*/)
             {
                 GetHitUnit()->CastSpell(GetHitUnit(), SPELL_COLOGNE_SPILL, true);
@@ -494,7 +488,7 @@ class spell_apothecary_throw_cologne : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_apothecary_throw_cologne_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget.Register(&spell_apothecary_throw_cologne_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -512,8 +506,6 @@ class spell_apothecary_throw_perfume : public SpellScriptLoader
 
         class spell_apothecary_throw_perfume_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_apothecary_throw_perfume_SpellScript);
-
             void HandleScript(SpellEffIndex /*effindex*/)
             {
                 GetHitUnit()->CastSpell(GetHitUnit(), SPELL_PERFUME_SPILL, true);
@@ -521,7 +513,7 @@ class spell_apothecary_throw_perfume : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_apothecary_throw_perfume_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget.Register(&spell_apothecary_throw_perfume_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -539,8 +531,6 @@ class spell_apothecary_perfume_spill : public SpellScriptLoader
 
         class spell_apothecary_perfume_spill_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_apothecary_perfume_spill_AuraScript);
-
             void OnPeriodic(AuraEffect const* /*aurEff*/)
             {
                 GetTarget()->CastSpell(GetTarget(), SPELL_PERFUME_SPILL_DAMAGE, true);
@@ -548,7 +538,7 @@ class spell_apothecary_perfume_spill : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_apothecary_perfume_spill_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectPeriodic.Register(&spell_apothecary_perfume_spill_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
@@ -566,8 +556,6 @@ class spell_apothecary_cologne_spill : public SpellScriptLoader
 
         class spell_apothecary_cologne_spill_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_apothecary_cologne_spill_AuraScript);
-
             void OnPeriodic(AuraEffect const* /*aurEff*/)
             {
                 GetTarget()->CastSpell(GetTarget(), SPELL_COLOGNE_SPILL_DAMAGE, true);
@@ -575,7 +563,7 @@ class spell_apothecary_cologne_spill : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_apothecary_cologne_spill_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectPeriodic.Register(&spell_apothecary_cologne_spill_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 

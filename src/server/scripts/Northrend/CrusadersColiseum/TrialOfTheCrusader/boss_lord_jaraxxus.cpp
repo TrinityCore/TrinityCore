@@ -493,8 +493,6 @@ class spell_mistress_kiss : public SpellScriptLoader
 
         class spell_mistress_kiss_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_mistress_kiss_AuraScript);
-
             bool Load() override
             {
                 if (GetCaster())
@@ -519,7 +517,7 @@ class spell_mistress_kiss : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_mistress_kiss_AuraScript::HandleDummyTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectPeriodic.Register(&spell_mistress_kiss_AuraScript::HandleDummyTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
@@ -551,8 +549,6 @@ class spell_mistress_kiss_area : public SpellScriptLoader
 
         class spell_mistress_kiss_area_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_mistress_kiss_area_SpellScript);
-
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 // get a list of players with mana
@@ -572,8 +568,8 @@ class spell_mistress_kiss_area : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mistress_kiss_area_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnEffectHitTarget += SpellEffectFn(spell_mistress_kiss_area_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnObjectAreaTargetSelect.Register(&spell_mistress_kiss_area_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnEffectHitTarget.Register(&spell_mistress_kiss_area_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -590,9 +586,7 @@ public:
 
     class spell_fel_streak_visual_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_fel_streak_visual_SpellScript);
-
-        bool Validate(SpellInfo const* /*spellInfo*/) override
+             bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             return ValidateSpellInfo({ SPELL_FEL_STREAK });
 }
@@ -604,7 +598,7 @@ public:
 
         void Register() override
         {
-            OnEffectHitTarget += SpellEffectFn(spell_fel_streak_visual_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            OnEffectHitTarget.Register(&spell_fel_streak_visual_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
         }
     };
 

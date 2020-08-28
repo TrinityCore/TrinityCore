@@ -1525,8 +1525,6 @@ class spell_freya_attuned_to_nature_dose_reduction : public SpellScriptLoader
 
         class spell_freya_attuned_to_nature_dose_reduction_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_freya_attuned_to_nature_dose_reduction_SpellScript);
-
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 Unit* target = GetHitUnit();
@@ -1555,7 +1553,7 @@ class spell_freya_attuned_to_nature_dose_reduction : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_freya_attuned_to_nature_dose_reduction_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_freya_attuned_to_nature_dose_reduction_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -1572,8 +1570,6 @@ class spell_freya_iron_roots : public SpellScriptLoader
 
         class spell_freya_iron_roots_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_freya_iron_roots_SpellScript);
-
             void HandleSummon(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
@@ -1587,7 +1583,7 @@ class spell_freya_iron_roots : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHit += SpellEffectFn(spell_freya_iron_roots_SpellScript::HandleSummon, EFFECT_0, SPELL_EFFECT_SUMMON);
+                OnEffectHit.Register(&spell_freya_iron_roots_SpellScript::HandleSummon, EFFECT_0, SPELL_EFFECT_SUMMON);
             }
         };
 

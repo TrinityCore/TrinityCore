@@ -157,8 +157,6 @@ class RaidCheck
 
 class spell_pri_body_and_soul : public AuraScript
 {
-    PrepareAuraScript(spell_pri_body_and_soul);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -191,16 +189,14 @@ class spell_pri_body_and_soul : public AuraScript
 
     void Register() override
     {
-        OnEffectProc += AuraEffectProcFn(spell_pri_body_and_soul::HandleEffectSpeedProc, EFFECT_0, SPELL_AURA_DUMMY);
-        OnEffectProc += AuraEffectProcFn(spell_pri_body_and_soul::HandleEffectDispelProc, EFFECT_1, SPELL_AURA_DUMMY);
+        OnEffectProc.Register(&spell_pri_body_and_soul::HandleEffectSpeedProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc.Register(&spell_pri_body_and_soul::HandleEffectDispelProc, EFFECT_1, SPELL_AURA_DUMMY);
     }
 };
 
 // 34861 - Circle of Healing
 class spell_pri_circle_of_healing : public SpellScript
 {
-    PrepareSpellScript(spell_pri_circle_of_healing);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_GLYPH_OF_CIRCLE_OF_HEALING });
@@ -221,15 +217,13 @@ class spell_pri_circle_of_healing : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_circle_of_healing::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+        OnObjectAreaTargetSelect.Register(&spell_pri_circle_of_healing::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
     }
 };
 
 // 527 - Dispel magic
 class spell_pri_dispel_magic : public SpellScript
 {
-    PrepareSpellScript(spell_pri_dispel_magic);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -267,16 +261,14 @@ class spell_pri_dispel_magic : public SpellScript
 
     void Register() override
     {
-        OnCheckCast += SpellCheckCastFn(spell_pri_dispel_magic::CheckCast);
-        OnEffectHitTarget += SpellEffectFn(spell_pri_dispel_magic::AfterEffectHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnCheckCast.Register(&spell_pri_dispel_magic::CheckCast);
+        OnEffectHitTarget.Register(&spell_pri_dispel_magic::AfterEffectHit, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
 // -47509 - Divine Aegis
 class spell_pri_divine_aegis : public AuraScript
 {
-    PrepareAuraScript(spell_pri_divine_aegis);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_DIVINE_AEGIS });
@@ -307,16 +299,14 @@ class spell_pri_divine_aegis : public AuraScript
 
     void Register() override
     {
-        DoCheckProc += AuraCheckProcFn(spell_pri_divine_aegis::CheckProc);
-        OnEffectProc += AuraEffectProcFn(spell_pri_divine_aegis::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+        DoCheckProc.Register(&spell_pri_divine_aegis::CheckProc);
+        OnEffectProc.Register(&spell_pri_divine_aegis::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
 // 64844 - Divine Hymn
 class spell_pri_divine_hymn : public SpellScript
 {
-    PrepareSpellScript(spell_pri_divine_hymn);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         targets.remove_if(RaidCheck(GetCaster()));
@@ -332,15 +322,13 @@ class spell_pri_divine_hymn : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_divine_hymn::FilterTargets, EFFECT_ALL, TARGET_UNIT_SRC_AREA_ALLY);
+        OnObjectAreaTargetSelect.Register(&spell_pri_divine_hymn::FilterTargets, EFFECT_ALL, TARGET_UNIT_SRC_AREA_ALLY);
     }
 };
 
 // 55680 - Glyph of Prayer of Healing
 class spell_pri_glyph_of_prayer_of_healing : public AuraScript
 {
-    PrepareAuraScript(spell_pri_glyph_of_prayer_of_healing);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_GLYPH_OF_PRAYER_OF_HEALING_HEAL });
@@ -357,14 +345,12 @@ class spell_pri_glyph_of_prayer_of_healing : public AuraScript
 
     void Register() override
     {
-        OnEffectProc += AuraEffectProcFn(spell_pri_glyph_of_prayer_of_healing::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc.Register(&spell_pri_glyph_of_prayer_of_healing::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
 class spell_pri_improved_power_word_shield : public AuraScript
 {
-    PrepareAuraScript(spell_pri_improved_power_word_shield);
-
     void HandleEffectCalcSpellMod(AuraEffect const* aurEff, SpellModifier*& spellMod)
     {
         if (!spellMod)
@@ -381,15 +367,13 @@ class spell_pri_improved_power_word_shield : public AuraScript
 
     void Register() override
     {
-        DoEffectCalcSpellMod += AuraEffectCalcSpellModFn(spell_pri_improved_power_word_shield::HandleEffectCalcSpellMod, EFFECT_0, SPELL_AURA_DUMMY);
+        DoEffectCalcSpellMod.Register(&spell_pri_improved_power_word_shield::HandleEffectCalcSpellMod, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
 // 37594 - Greater Heal Refund
 class spell_pri_item_greater_heal_refund : public AuraScript
 {
-    PrepareAuraScript(spell_pri_item_greater_heal_refund);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_ITEM_EFFICIENCY });
@@ -403,15 +387,13 @@ class spell_pri_item_greater_heal_refund : public AuraScript
 
     void Register() override
     {
-        OnEffectProc += AuraEffectProcFn(spell_pri_item_greater_heal_refund::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        OnEffectProc.Register(&spell_pri_item_greater_heal_refund::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
     }
 };
 
 // 47788 - Guardian Spirit
 class spell_pri_guardian_spirit : public AuraScript
 {
-    PrepareAuraScript(spell_pri_guardian_spirit);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_GUARDIAN_SPIRIT_HEAL });
@@ -446,8 +428,8 @@ class spell_pri_guardian_spirit : public AuraScript
 
     void Register() override
     {
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_guardian_spirit::CalculateAmount, EFFECT_1, SPELL_AURA_SCHOOL_ABSORB);
-        OnEffectAbsorb += AuraEffectAbsorbFn(spell_pri_guardian_spirit::Absorb, EFFECT_1);
+        DoEffectCalcAmount.Register(&spell_pri_guardian_spirit::CalculateAmount, EFFECT_1, SPELL_AURA_SCHOOL_ABSORB);
+        OnEffectAbsorb.Register(&spell_pri_guardian_spirit::Absorb, EFFECT_1);
     }
 
 private:
@@ -457,8 +439,6 @@ private:
 // 64904 - Hymn of Hope
 class spell_pri_hymn_of_hope : public SpellScript
 {
-    PrepareSpellScript(spell_pri_hymn_of_hope);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         targets.remove_if(PowerCheck(POWER_MANA));
@@ -475,15 +455,13 @@ class spell_pri_hymn_of_hope : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_hymn_of_hope::FilterTargets, EFFECT_ALL, TARGET_UNIT_SRC_AREA_ALLY);
+        OnObjectAreaTargetSelect.Register(&spell_pri_hymn_of_hope::FilterTargets, EFFECT_ALL, TARGET_UNIT_SRC_AREA_ALLY);
     }
 };
 
 // 92833 - Leap of Faith
 class spell_pri_leap_of_faith_effect_trigger : public SpellScript
 {
-    PrepareSpellScript(spell_pri_leap_of_faith_effect_trigger);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_LEAP_OF_FAITH_EFFECT });
@@ -501,15 +479,13 @@ class spell_pri_leap_of_faith_effect_trigger : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_pri_leap_of_faith_effect_trigger::HandleEffectDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget.Register(&spell_pri_leap_of_faith_effect_trigger::HandleEffectDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
 // 7001 - Lightwell Renew
 class spell_pri_lightwell_renew : public AuraScript
 {
-    PrepareAuraScript(spell_pri_lightwell_renew);
-
     void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
     {
         if (Unit* caster = GetCaster())
@@ -522,15 +498,13 @@ class spell_pri_lightwell_renew : public AuraScript
 
     void Register() override
     {
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_lightwell_renew::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+        DoEffectCalcAmount.Register(&spell_pri_lightwell_renew::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
     }
 };
 
 // 28305 - Mana Leech (Passive) (Priest Pet Aura)
 class spell_pri_mana_leech : public AuraScript
 {
-    PrepareAuraScript(spell_pri_mana_leech);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_MANA_LEECH_PROC });
@@ -550,8 +524,8 @@ class spell_pri_mana_leech : public AuraScript
 
     void Register() override
     {
-        DoCheckProc += AuraCheckProcFn(spell_pri_mana_leech::CheckProc);
-        OnEffectProc += AuraEffectProcFn(spell_pri_mana_leech::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+        DoCheckProc.Register(&spell_pri_mana_leech::CheckProc);
+        OnEffectProc.Register(&spell_pri_mana_leech::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 
     Unit* _procTarget = nullptr;
@@ -560,8 +534,6 @@ class spell_pri_mana_leech : public AuraScript
 // 49821 - Mind Sear
 class spell_pri_mind_sear : public SpellScript
 {
-    PrepareSpellScript(spell_pri_mind_sear);
-
     void FilterTargets(std::list<WorldObject*>& unitList)
     {
         unitList.remove_if(Trinity::ObjectGUIDCheck(GetCaster()->GetChannelObjectGuid()));
@@ -569,15 +541,13 @@ class spell_pri_mind_sear : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_mind_sear::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+        OnObjectAreaTargetSelect.Register(&spell_pri_mind_sear::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
     }
 };
 
 // 47948 - Pain and Suffering (Proc)
 class spell_pri_pain_and_suffering_proc : public SpellScript
 {
-    PrepareSpellScript(spell_pri_pain_and_suffering_proc);
-
     void HandleEffectScriptEffect(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
@@ -591,15 +561,13 @@ class spell_pri_pain_and_suffering_proc : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_pri_pain_and_suffering_proc::HandleEffectScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_pri_pain_and_suffering_proc::HandleEffectScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 // 47540 - Penance
 class spell_pri_penance : public SpellScript
 {
-    PrepareSpellScript(spell_pri_penance);
-
     bool Load() override
     {
         return GetCaster()->GetTypeId() == TYPEID_PLAYER;
@@ -655,16 +623,14 @@ class spell_pri_penance : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_pri_penance::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-        OnCheckCast += SpellCheckCastFn(spell_pri_penance::CheckCast);
+        OnEffectHitTarget.Register(&spell_pri_penance::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnCheckCast.Register(&spell_pri_penance::CheckCast);
     }
 };
 
 // -47569 - Phantasm
 class spell_pri_phantasm : public AuraScript
 {
-    PrepareAuraScript(spell_pri_phantasm);
-
     bool CheckProc(ProcEventInfo& /*eventInfo*/)
     {
         return roll_chance_i(GetEffect(EFFECT_0)->GetAmount());
@@ -678,16 +644,14 @@ class spell_pri_phantasm : public AuraScript
 
     void Register() override
     {
-        DoCheckProc += AuraCheckProcFn(spell_pri_phantasm::CheckProc);
-        OnEffectProc += AuraEffectProcFn(spell_pri_phantasm::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+        DoCheckProc.Register(&spell_pri_phantasm::CheckProc);
+        OnEffectProc.Register(&spell_pri_phantasm::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
 // 17 - Power Word: Shield
 class spell_pri_power_word_shield : public SpellScript
 {
-    PrepareSpellScript(spell_pri_power_word_shield);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_WEAKENED_SOUL });
@@ -701,14 +665,12 @@ class spell_pri_power_word_shield : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_pri_power_word_shield::HandleWeakenedSoul, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+        OnEffectHitTarget.Register(&spell_pri_power_word_shield::HandleWeakenedSoul, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
     }
 };
 
 class spell_pri_power_word_shield_AuraScript : public AuraScript
 {
-    PrepareAuraScript(spell_pri_power_word_shield_AuraScript);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -778,16 +740,14 @@ class spell_pri_power_word_shield_AuraScript : public AuraScript
 
     void Register() override
     {
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_power_word_shield_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-        AfterEffectAbsorb += AuraEffectAbsorbFn(spell_pri_power_word_shield_AuraScript::ReflectDamage, EFFECT_0);
+        DoEffectCalcAmount.Register(&spell_pri_power_word_shield_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+        AfterEffectAbsorb.Register(&spell_pri_power_word_shield_AuraScript::ReflectDamage, EFFECT_0);
     }
 };
 
 // 33110 - Prayer of Mending Heal
 class spell_pri_prayer_of_mending_heal : public SpellScript
 {
-    PrepareSpellScript(spell_pri_prayer_of_mending_heal);
-
     void HandleHeal(SpellEffIndex /*effIndex*/)
     {
         if (Unit* caster = GetOriginalCaster())
@@ -803,15 +763,13 @@ class spell_pri_prayer_of_mending_heal : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_pri_prayer_of_mending_heal::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+        OnEffectHitTarget.Register(&spell_pri_prayer_of_mending_heal::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
     }
 };
 
 // 139 - Renew
 class spell_pri_renew : public AuraScript
 {
-    PrepareAuraScript(spell_pri_renew);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_DIVINE_TOUCH });
@@ -839,15 +797,13 @@ class spell_pri_renew : public AuraScript
 
     void Register() override
     {
-        OnEffectApply += AuraEffectApplyFn(spell_pri_renew::HandleApplyEffect, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        OnEffectApply.Register(&spell_pri_renew::HandleApplyEffect, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
     }
 };
 
 // 32379 - Shadow Word: Death
 class spell_pri_shadow_word_death : public SpellScript
 {
-    PrepareSpellScript(spell_pri_shadow_word_death);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_SHADOW_WORD_DEATH });
@@ -889,16 +845,14 @@ class spell_pri_shadow_word_death : public SpellScript
 
     void Register() override
     {
-        OnEffectLaunchTarget += SpellEffectFn(spell_pri_shadow_word_death::HandleDamageBonus, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-        OnEffectHitTarget += SpellEffectFn(spell_pri_shadow_word_death::HandleSelfDamagingEffect, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnEffectLaunchTarget.Register(&spell_pri_shadow_word_death::HandleDamageBonus, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnEffectHitTarget.Register(&spell_pri_shadow_word_death::HandleSelfDamagingEffect, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
 // 15473 - Shadowform
 class spell_pri_shadowform : public AuraScript
 {
-    PrepareAuraScript(spell_pri_shadowform);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -921,16 +875,14 @@ class spell_pri_shadowform : public AuraScript
 
     void Register() override
     {
-        AfterEffectApply += AuraEffectApplyFn(spell_pri_shadowform::HandleEffectApply, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-        AfterEffectRemove += AuraEffectRemoveFn(spell_pri_shadowform::HandleEffectRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        AfterEffectApply.Register(&spell_pri_shadowform::HandleEffectApply, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        AfterEffectRemove.Register(&spell_pri_shadowform::HandleEffectRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
     }
 };
 
 // 15286 - Vampiric Embrace
 class spell_pri_vampiric_embrace : public AuraScript
 {
-    PrepareAuraScript(spell_pri_vampiric_embrace);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_VAMPIRIC_EMBRACE_HEAL });
@@ -953,16 +905,14 @@ class spell_pri_vampiric_embrace : public AuraScript
 
     void Register() override
     {
-        DoCheckProc += AuraCheckProcFn(spell_pri_vampiric_embrace::CheckProc);
-        OnEffectProc += AuraEffectProcFn(spell_pri_vampiric_embrace::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+        DoCheckProc.Register(&spell_pri_vampiric_embrace::CheckProc);
+        OnEffectProc.Register(&spell_pri_vampiric_embrace::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
 // 15290 - Vampiric Embrace (heal)
 class spell_pri_vampiric_embrace_target : public SpellScript
 {
-    PrepareSpellScript(spell_pri_vampiric_embrace_target);
-
     void FilterTargets(std::list<WorldObject*>& unitList)
     {
         unitList.remove(GetCaster());
@@ -970,15 +920,13 @@ class spell_pri_vampiric_embrace_target : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_vampiric_embrace_target::FilterTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_PARTY);
+        OnObjectAreaTargetSelect.Register(&spell_pri_vampiric_embrace_target::FilterTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_PARTY);
     }
 };
 
 // 34914 - Vampiric Touch
 class spell_pri_vampiric_touch : public AuraScript
 {
-    PrepareAuraScript(spell_pri_vampiric_touch);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -1012,16 +960,14 @@ class spell_pri_vampiric_touch : public AuraScript
 
     void Register() override
     {
-        AfterDispel += AuraDispelFn(spell_pri_vampiric_touch::HandleDispel);
-        DoCheckProc += AuraCheckProcFn(spell_pri_vampiric_touch::CheckProc);
-        OnEffectProc += AuraEffectProcFn(spell_pri_vampiric_touch::HandleEffectProc, EFFECT_2, SPELL_AURA_DUMMY);
+        AfterDispel.Register(&spell_pri_vampiric_touch::HandleDispel);
+        DoCheckProc.Register(&spell_pri_vampiric_touch::CheckProc);
+        OnEffectProc.Register(&spell_pri_vampiric_touch::HandleEffectProc, EFFECT_2, SPELL_AURA_DUMMY);
     }
 };
 
 class spell_pri_echo_of_light : public AuraScript
 {
-    PrepareAuraScript(spell_pri_echo_of_light);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -1054,16 +1000,14 @@ class spell_pri_echo_of_light : public AuraScript
 
     void Register() override
     {
-        DoCheckProc += AuraCheckProcFn(spell_pri_echo_of_light::CheckProc);
-        OnEffectProc += AuraEffectProcFn(spell_pri_echo_of_light::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+        DoCheckProc.Register(&spell_pri_echo_of_light::CheckProc);
+        OnEffectProc.Register(&spell_pri_echo_of_light::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
 // 95740 - Shadow Orbs (Passive)
 class spell_pri_shadow_orbs : public AuraScript
 {
-    PrepareAuraScript(spell_pri_shadow_orbs);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo(
@@ -1096,16 +1040,14 @@ class spell_pri_shadow_orbs : public AuraScript
 
     void Register() override
     {
-        DoCheckProc += AuraCheckProcFn(spell_pri_shadow_orbs::CheckProc);
-        OnEffectProc += AuraEffectProcFn(spell_pri_shadow_orbs::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+        DoCheckProc.Register(&spell_pri_shadow_orbs::CheckProc);
+        OnEffectProc.Register(&spell_pri_shadow_orbs::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
 // 77486 - Shadow Orb Power (Passive)
 class spell_pri_shadow_orb_power : public AuraScript
 {
-    PrepareAuraScript(spell_pri_shadow_orb_power);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo({ spellInfo->Effects[EFFECT_0].TriggerSpell });
@@ -1120,15 +1062,13 @@ class spell_pri_shadow_orb_power : public AuraScript
 
     void Register() override
     {
-        OnEffectProc += AuraEffectProcFn(spell_pri_shadow_orb_power::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        OnEffectProc.Register(&spell_pri_shadow_orb_power::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
     }
 };
 
 // 77487 - Shadow Orb
 class spell_pri_shadow_orb : public AuraScript
 {
-    PrepareAuraScript(spell_pri_shadow_orb);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -1162,17 +1102,15 @@ class spell_pri_shadow_orb : public AuraScript
 
     void Register() override
     {
-        AfterEffectApply += AuraEffectApplyFn(spell_pri_shadow_orb::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-        AfterEffectRemove += AuraEffectRemoveFn(spell_pri_shadow_orb::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-        OnEffectProc += AuraEffectProcFn(spell_pri_shadow_orb::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+        AfterEffectApply.Register(&spell_pri_shadow_orb::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        AfterEffectRemove.Register(&spell_pri_shadow_orb::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        OnEffectProc.Register(&spell_pri_shadow_orb::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
 // 14751 - Chakra
 class spell_pri_chakra : public AuraScript
 {
-    PrepareAuraScript(spell_pri_chakra);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -1236,16 +1174,14 @@ class spell_pri_chakra : public AuraScript
 
     void Register() override
     {
-        AfterEffectApply += AuraEffectApplyFn(spell_pri_chakra::HandleEffectApply, EFFECT_0, SPELL_AURA_ADD_FLAT_MODIFIER, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-        OnEffectProc += AuraEffectProcFn(spell_pri_chakra::HandleProc, EFFECT_0, SPELL_AURA_ADD_FLAT_MODIFIER);
+        AfterEffectApply.Register(&spell_pri_chakra::HandleEffectApply, EFFECT_0, SPELL_AURA_ADD_FLAT_MODIFIER, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        OnEffectProc.Register(&spell_pri_chakra::HandleProc, EFFECT_0, SPELL_AURA_ADD_FLAT_MODIFIER);
     }
 };
 
 // 81206 - Chakra: Sanctuary
 class spell_pri_chakra_sanctuary : public AuraScript
 {
-    PrepareAuraScript(spell_pri_chakra_sanctuary);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -1264,7 +1200,7 @@ class spell_pri_chakra_sanctuary : public AuraScript
 
     void Register() override
     {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_pri_chakra_sanctuary::HandleEffectRemove, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        AfterEffectRemove.Register(&spell_pri_chakra_sanctuary::HandleEffectRemove, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
     }
 };
 
@@ -1272,8 +1208,6 @@ class spell_pri_chakra_sanctuary : public AuraScript
 // 81209 - Chakra: Chastise
 class spell_pri_chakra_flow_removal: public AuraScript
 {
-    PrepareAuraScript(spell_pri_chakra_flow_removal);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -1292,17 +1226,15 @@ class spell_pri_chakra_flow_removal: public AuraScript
     void Register() override
     {
         if (m_scriptSpellId == SPELL_PRIEST_CHAKRA_SERENITY)
-            AfterEffectRemove += AuraEffectRemoveFn(spell_pri_chakra_flow_removal::HandleEffectRemove, EFFECT_0, SPELL_AURA_ADD_FLAT_MODIFIER, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+            AfterEffectRemove.Register(&spell_pri_chakra_flow_removal::HandleEffectRemove, EFFECT_0, SPELL_AURA_ADD_FLAT_MODIFIER, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
         else if (m_scriptSpellId == SPELL_PRIEST_CHAKRA_CHASTISE)
-            AfterEffectRemove += AuraEffectRemoveFn(spell_pri_chakra_flow_removal::HandleEffectRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+            AfterEffectRemove.Register(&spell_pri_chakra_flow_removal::HandleEffectRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
     }
 };
 
 // 81585 - Chakra: Serenity
 class spell_pri_chakra_serenity_script : public SpellScript
 {
-    PrepareSpellScript(spell_pri_chakra_serenity_script);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_RENEW });
@@ -1316,15 +1248,13 @@ class spell_pri_chakra_serenity_script : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_pri_chakra_serenity_script::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_pri_chakra_serenity_script::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 // 88685 - Holy Word: Sanctuary
 class spell_pri_holy_word_sanctuary : public AuraScript
 {
-    PrepareAuraScript(spell_pri_holy_word_sanctuary);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_HOLY_WORD_SANCTUARY });
@@ -1338,15 +1268,13 @@ class spell_pri_holy_word_sanctuary : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_pri_holy_word_sanctuary::HandleDummyTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectPeriodic.Register(&spell_pri_holy_word_sanctuary::HandleDummyTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
 // 88686 - Holy Word: Sanctuary
 class spell_pri_holy_word_sanctuary_triggered : public SpellScript
 {
-    PrepareSpellScript(spell_pri_holy_word_sanctuary_triggered);
-
     void HandleHeal(SpellEffIndex /*effIndex*/)
     {
         if (GetHitHeal() && _targets > 6)
@@ -1360,8 +1288,8 @@ class spell_pri_holy_word_sanctuary_triggered : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_holy_word_sanctuary_triggered::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
-        OnEffectHitTarget += SpellEffectFn(spell_pri_holy_word_sanctuary_triggered::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+        OnObjectAreaTargetSelect.Register(&spell_pri_holy_word_sanctuary_triggered::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+        OnEffectHitTarget.Register(&spell_pri_holy_word_sanctuary_triggered::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
     }
 
 private:
@@ -1371,8 +1299,6 @@ private:
 // -81659 - Evangelism
 class spell_pri_evangelism : public AuraScript
 {
-    PrepareAuraScript(spell_pri_evangelism);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -1411,15 +1337,13 @@ class spell_pri_evangelism : public AuraScript
 
     void Register() override
     {
-        OnEffectProc += AuraEffectProcFn(spell_pri_evangelism::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc.Register(&spell_pri_evangelism::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
 // 81660, 81661 - Evangelism (Triggered Effect) / 87117, 87118 - Dark Evangelism (Triggered Effect)
 class spell_pri_evangelism_triggered : public AuraScript
 {
-    PrepareAuraScript(spell_pri_evangelism_triggered);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -1439,15 +1363,13 @@ class spell_pri_evangelism_triggered : public AuraScript
 
     void Register() override
     {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_pri_evangelism_triggered::AfterRemove, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove.Register(&spell_pri_evangelism_triggered::AfterRemove, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
 // 87151 - Archangel
 class spell_pri_archangel : public SpellScript
 {
-    PrepareSpellScript(spell_pri_archangel);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -1506,14 +1428,12 @@ class spell_pri_archangel : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_pri_archangel::HandleHit, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_pri_archangel::HandleHit, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 class spell_power_word_barrier : public AuraScript
 {
-    PrepareAuraScript(spell_power_word_barrier);
-
     bool Load() override
     {
         TempSummon* summon = GetCaster()->ToTempSummon();
@@ -1537,7 +1457,7 @@ class spell_power_word_barrier : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_power_word_barrier::HandleGlyph, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+        OnEffectPeriodic.Register(&spell_power_word_barrier::HandleGlyph, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
     }
 
 private:
@@ -1547,8 +1467,6 @@ private:
 // -89488 - Strength of Soul
 class spell_pri_strength_of_soul : public AuraScript
 {
-    PrepareAuraScript(spell_pri_strength_of_soul);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -1582,14 +1500,12 @@ class spell_pri_strength_of_soul : public AuraScript
 
     void Register() override
     {
-        OnEffectProc += AuraEffectProcFn(spell_pri_strength_of_soul::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        OnEffectProc.Register(&spell_pri_strength_of_soul::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
     }
 };
 
 class spell_pri_strength_of_soul_script : public SpellScript
 {
-    PrepareSpellScript(spell_pri_strength_of_soul_script);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_WEAKENED_SOUL });
@@ -1603,15 +1519,13 @@ class spell_pri_strength_of_soul_script : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_pri_strength_of_soul_script::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_pri_strength_of_soul_script::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 // -14523 - Atonement
 class spell_pri_atonement : public AuraScript
 {
-    PrepareAuraScript(spell_pri_atonement);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -1645,15 +1559,13 @@ class spell_pri_atonement : public AuraScript
 
     void Register() override
     {
-        OnEffectProc += AuraEffectProcFn(spell_pri_atonement::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc.Register(&spell_pri_atonement::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
 // Atonement (Healing)
 class spell_pri_atonement_heal : public SpellScript
 {
-    PrepareSpellScript(spell_pri_atonement_heal);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         targets.remove_if(RaidCheck(GetCaster()));
@@ -1667,14 +1579,12 @@ class spell_pri_atonement_heal : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_atonement_heal::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+        OnObjectAreaTargetSelect.Register(&spell_pri_atonement_heal::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
     }
 };
 
 class spell_pri_spirit_of_redemption : public AuraScript
 {
-    PrepareAuraScript(spell_pri_spirit_of_redemption);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_SPIRIT_OF_REDEMPTION_TRIGGERED });
@@ -1699,16 +1609,14 @@ class spell_pri_spirit_of_redemption : public AuraScript
 
     void Register() override
     {
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_spirit_of_redemption::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-        OnEffectAbsorb += AuraEffectAbsorbFn(spell_pri_spirit_of_redemption::Absorb, EFFECT_0);
+        DoEffectCalcAmount.Register(&spell_pri_spirit_of_redemption::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+        OnEffectAbsorb.Register(&spell_pri_spirit_of_redemption::Absorb, EFFECT_0);
     }
 };
 
 // 8092 - Mind Blast
 class spell_pri_mind_blast : public SpellScript
 {
-    PrepareSpellScript(spell_pri_mind_blast);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -1746,16 +1654,14 @@ class spell_pri_mind_blast : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_pri_mind_blast::HandleDamageBonus, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-        OnEffectHitTarget += SpellEffectFn(spell_pri_mind_blast::HandleImprovedMindBlast, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnEffectHitTarget.Register(&spell_pri_mind_blast::HandleDamageBonus, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnEffectHitTarget.Register(&spell_pri_mind_blast::HandleImprovedMindBlast, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
 // 73510 - Mind Spike
 class spell_pri_mind_spike : public SpellScript
 {
-    PrepareSpellScript(spell_pri_mind_spike);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_EMPOWERED_SHADOW });
@@ -1778,15 +1684,13 @@ class spell_pri_mind_spike : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_pri_mind_spike::HandleDamageBonus, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnEffectHitTarget.Register(&spell_pri_mind_spike::HandleDamageBonus, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
 // -88994 - Masochism
 class spell_pri_masochism : public AuraScript
 {
-    PrepareAuraScript(spell_pri_masochism);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_SHADOW_WORD_DEATH });
@@ -1811,14 +1715,12 @@ class spell_pri_masochism : public AuraScript
 
     void Register() override
     {
-        DoCheckProc += AuraCheckProcFn(spell_pri_masochism::CheckProc);
+        DoCheckProc.Register(&spell_pri_masochism::CheckProc);
     }
 };
 
 class spell_pri_harnessed_shadows : public AuraScript
 {
-    PrepareAuraScript(spell_pri_harnessed_shadows);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo({ spellInfo->Effects[EFFECT_1].TriggerSpell });
@@ -1837,7 +1739,7 @@ class spell_pri_harnessed_shadows : public AuraScript
 
     void Register() override
     {
-        OnEffectProc += AuraEffectProcFn(spell_pri_harnessed_shadows::HandleProc, EFFECT_1, SPELL_AURA_PROC_TRIGGER_SPELL);
+        OnEffectProc.Register(&spell_pri_harnessed_shadows::HandleProc, EFFECT_1, SPELL_AURA_PROC_TRIGGER_SPELL);
     }
 };
 

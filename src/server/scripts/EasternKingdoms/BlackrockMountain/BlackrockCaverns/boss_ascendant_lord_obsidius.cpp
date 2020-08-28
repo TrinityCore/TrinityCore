@@ -240,8 +240,6 @@ private:
 
 class spell_obsidius_twitchy : public AuraScript
 {
-    PrepareAuraScript(spell_obsidius_twitchy);
-
     void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
@@ -260,14 +258,12 @@ class spell_obsidius_twitchy : public AuraScript
 
     void Register() override
     {
-        OnEffectProc += AuraEffectProcFn(spell_obsidius_twitchy::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc.Register(&spell_obsidius_twitchy::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
 class spell_obsidius_transformation : public SpellScript
 {
-    PrepareSpellScript(spell_obsidius_transformation);
-
     void HandleEffect(SpellEffIndex /*effIndex*/)
     {
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; i++)
@@ -278,14 +274,12 @@ class spell_obsidius_transformation : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_obsidius_transformation::HandleEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget.Register(&spell_obsidius_transformation::HandleEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
 class spell_obsidius_transformation_not_selectable : public AuraScript
 {
-    PrepareAuraScript(spell_obsidius_transformation_not_selectable);
-
     void AfterRemmove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Unit* caster = GetCaster();
@@ -304,14 +298,12 @@ class spell_obsidius_transformation_not_selectable : public AuraScript
 
     void Register() override
     {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_obsidius_transformation_not_selectable::AfterRemmove, EFFECT_0, SPELL_AURA_MOD_UNATTACKABLE, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove.Register(&spell_obsidius_transformation_not_selectable::AfterRemmove, EFFECT_0, SPELL_AURA_MOD_UNATTACKABLE, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
 class spell_obsidius_transformation_scale : public AuraScript
 {
-    PrepareAuraScript(spell_obsidius_transformation_scale);
-
     void HandlePeriodic(AuraEffect const* aurEff)
     {
         if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(GetSpellInfo()->Effects[aurEff->GetEffIndex()].BasePoints))
@@ -322,14 +314,12 @@ class spell_obsidius_transformation_scale : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_obsidius_transformation_scale::HandlePeriodic, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectPeriodic.Register(&spell_obsidius_transformation_scale::HandlePeriodic, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
 class spell_obsidius_crepuscular_veil : public SpellScript
 {
-    PrepareSpellScript(spell_obsidius_crepuscular_veil);
-
     void HandleAchievement()
     {
         Unit* target = GetHitUnit();
@@ -353,14 +343,12 @@ class spell_obsidius_crepuscular_veil : public SpellScript
 
     void Register() override
     {
-        AfterHit += SpellHitFn(spell_obsidius_crepuscular_veil::HandleAchievement);
+        AfterHit.Register(&spell_obsidius_crepuscular_veil::HandleAchievement);
     }
 };
 
 class spell_obsidius_shadow_of_obsidius : public AuraScript
 {
-    PrepareAuraScript(spell_obsidius_shadow_of_obsidius);
-
     void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
     {
         amount = -1;
@@ -373,8 +361,8 @@ class spell_obsidius_shadow_of_obsidius : public AuraScript
 
     void Register() override
     {
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_obsidius_shadow_of_obsidius::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-        OnEffectAbsorb += AuraEffectAbsorbFn(spell_obsidius_shadow_of_obsidius::Absorb, EFFECT_0);
+        DoEffectCalcAmount.Register(&spell_obsidius_shadow_of_obsidius::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+        OnEffectAbsorb.Register(&spell_obsidius_shadow_of_obsidius::Absorb, EFFECT_0);
     }
 };
 

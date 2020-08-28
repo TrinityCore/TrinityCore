@@ -269,8 +269,6 @@ class spell_crystal_spike : public SpellScriptLoader
 
         class spell_crystal_spike_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_crystal_spike_AuraScript);
-
             void HandlePeriodic(AuraEffect const* /*aurEff*/)
             {
                 Unit* target = GetTarget();
@@ -285,7 +283,7 @@ class spell_crystal_spike : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_crystal_spike_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectPeriodic.Register(&spell_crystal_spike_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 

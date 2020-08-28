@@ -546,9 +546,7 @@ public:
 
     class spell_sfk_summon_worgen_spirit_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_sfk_summon_worgen_spirit_SpellScript);
-
-        bool Validate(SpellInfo const* /*spellInfo*/) override
+             bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             return ValidateSpellInfo(
             {
@@ -583,7 +581,7 @@ public:
 
         void Register() override
         {
-            OnEffectLaunch += SpellEffectFn(spell_sfk_summon_worgen_spirit_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            OnEffectLaunch.Register(&spell_sfk_summon_worgen_spirit_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
         }
     };
 

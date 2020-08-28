@@ -468,8 +468,6 @@ private:
 // 101590 - Rewind Time
 class spell_murozond_rewind_time_forcecast : public SpellScript
 {
-    PrepareSpellScript(spell_murozond_rewind_time_forcecast);
-
     void HandleSummon(SpellEffIndex effIndex)
     {
         PreventHitDefaultEffect(effIndex);
@@ -480,15 +478,13 @@ class spell_murozond_rewind_time_forcecast : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_murozond_rewind_time_forcecast::HandleSummon, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
+        OnEffectHitTarget.Register(&spell_murozond_rewind_time_forcecast::HandleSummon, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
     }
 };
 
 // 108026 - (Serverside/Non-DB2) Rewind Time
 class spell_murozond_rewind_time : public SpellScript
 {
-    PrepareSpellScript(spell_murozond_rewind_time);
-
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
         Creature* target = GetHitCreature();
@@ -501,15 +497,13 @@ class spell_murozond_rewind_time : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_murozond_rewind_time::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_murozond_rewind_time::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 // 102571 - Clone Master Health
 class spell_murozond_clone_master_health : public SpellScript
 {
-    PrepareSpellScript(spell_murozond_clone_master_health);
-
     void HandleDummyEffect(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
@@ -526,7 +520,7 @@ class spell_murozond_clone_master_health : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_murozond_clone_master_health::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget.Register(&spell_murozond_clone_master_health::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 

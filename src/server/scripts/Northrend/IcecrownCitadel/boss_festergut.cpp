@@ -374,8 +374,6 @@ class spell_festergut_pungent_blight : public SpellScriptLoader
 
         class spell_festergut_pungent_blight_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_festergut_pungent_blight_SpellScript);
-
             bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
@@ -393,7 +391,7 @@ class spell_festergut_pungent_blight : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_festergut_pungent_blight_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_festergut_pungent_blight_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -410,8 +408,6 @@ class spell_festergut_gastric_bloat : public SpellScriptLoader
 
         class spell_festergut_gastric_bloat_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_festergut_gastric_bloat_SpellScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_GASTRIC_EXPLOSION });
@@ -429,7 +425,7 @@ class spell_festergut_gastric_bloat : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_festergut_gastric_bloat_SpellScript::HandleScript, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_festergut_gastric_bloat_SpellScript::HandleScript, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -446,8 +442,6 @@ class spell_festergut_blighted_spores : public SpellScriptLoader
 
         class spell_festergut_blighted_spores_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_festergut_blighted_spores_AuraScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_INOCULATED });
@@ -463,7 +457,7 @@ class spell_festergut_blighted_spores : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectRemove += AuraEffectRemoveFn(spell_festergut_blighted_spores_AuraScript::ExtraEffect, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove.Register(&spell_festergut_blighted_spores_AuraScript::ExtraEffect, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
             }
         };
 

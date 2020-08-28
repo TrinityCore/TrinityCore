@@ -566,8 +566,6 @@ class npc_azil_seismic_shard : public CreatureScript
 
 class spell_azil_summon_wave_south : public SpellScript
 {
-    PrepareSpellScript(spell_azil_summon_wave_south);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SUMMON_ADD_SOUTH });
@@ -582,14 +580,12 @@ class spell_azil_summon_wave_south : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_azil_summon_wave_south::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_azil_summon_wave_south::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 class spell_azil_summon_wave_west : public SpellScript
 {
-    PrepareSpellScript(spell_azil_summon_wave_west);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SUMMON_ADD_WEST });
@@ -604,14 +600,12 @@ class spell_azil_summon_wave_west : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_azil_summon_wave_west::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_azil_summon_wave_west::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 class spell_azil_summon_follower : public SpellScript
 {
-    PrepareSpellScript(spell_azil_summon_follower);
-
     void SetDestPosition(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
@@ -627,7 +621,7 @@ class spell_azil_summon_follower : public SpellScript
 
     void Register()
     {
-        OnEffectLaunch += SpellEffectFn(spell_azil_summon_follower::SetDestPosition, EFFECT_0, SPELL_EFFECT_SUMMON);
+        OnEffectLaunch.Register(&spell_azil_summon_follower::SetDestPosition, EFFECT_0, SPELL_EFFECT_SUMMON);
     }
 };
 
@@ -645,8 +639,6 @@ public:
 
 class spell_azil_gravity_well_damage_nearby : public SpellScript
 {
-    PrepareSpellScript(spell_azil_gravity_well_damage_nearby);
-
     void SetRadiusMod()
     {
         GetSpell()->SetSpellValue(SPELLVALUE_RADIUS_MOD, int32(GetCaster()->GetObjectScale() * 10000 * 2 / 3));
@@ -664,16 +656,14 @@ class spell_azil_gravity_well_damage_nearby : public SpellScript
 
     void Register() override
     {
-        BeforeCast += SpellCastFn(spell_azil_gravity_well_damage_nearby::SetRadiusMod);
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_azil_gravity_well_damage_nearby::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-        OnEffectHitTarget += SpellEffectFn(spell_azil_gravity_well_damage_nearby::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        BeforeCast.Register(&spell_azil_gravity_well_damage_nearby::SetRadiusMod);
+        OnObjectAreaTargetSelect.Register(&spell_azil_gravity_well_damage_nearby::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnEffectHitTarget.Register(&spell_azil_gravity_well_damage_nearby::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 class spell_azil_gravity_well_damage : public SpellScript
 {
-    PrepareSpellScript(spell_azil_gravity_well_damage);
-
     void CalculateDamage(SpellEffIndex /*effIndex*/)
     {
         Unit* target = GetHitUnit();
@@ -690,14 +680,12 @@ class spell_azil_gravity_well_damage : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_azil_gravity_well_damage::CalculateDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnEffectHitTarget.Register(&spell_azil_gravity_well_damage::CalculateDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
 class spell_azil_gravity_well_pull : public SpellScript
 {
-    PrepareSpellScript(spell_azil_gravity_well_pull);
-
     void SetRadiusMod()
     {
         GetSpell()->SetSpellValue(SPELLVALUE_RADIUS_MOD, int32(GetCaster()->GetObjectScale() * 10000 * 2 / 3));
@@ -705,14 +693,12 @@ class spell_azil_gravity_well_pull : public SpellScript
 
     void Register() override
     {
-        BeforeCast += SpellCastFn(spell_azil_gravity_well_pull::SetRadiusMod);
+        BeforeCast.Register(&spell_azil_gravity_well_pull::SetRadiusMod);
     }
 };
 
 class spell_azil_seismic_shard_change_seat : public SpellScript
 {
-    PrepareSpellScript(spell_azil_seismic_shard_change_seat);
-
     void ExitVehicle()
     {
         GetCaster()->ExitVehicle();
@@ -720,14 +706,12 @@ class spell_azil_seismic_shard_change_seat : public SpellScript
 
     void Register() override
     {
-        BeforeCast += SpellCastFn(spell_azil_seismic_shard_change_seat::ExitVehicle);
+        BeforeCast.Register(&spell_azil_seismic_shard_change_seat::ExitVehicle);
     }
 };
 
 class spell_azil_seismic_shard : public SpellScript
 {
-    PrepareSpellScript(spell_azil_seismic_shard);
-
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         Creature* target = GetHitUnit()->ToCreature();
@@ -741,14 +725,12 @@ class spell_azil_seismic_shard : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_azil_seismic_shard::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_azil_seismic_shard::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 class spell_azil_force_grip : public SpellScript
 {
-    PrepareSpellScript(spell_azil_force_grip);
-
     void HandleScript(SpellEffIndex effIndex)
     {
         if (Unit* caster = GetCaster())
@@ -763,14 +745,12 @@ class spell_azil_force_grip : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_azil_force_grip::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_azil_force_grip::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 class spell_azil_force_grip_AuraScript : public AuraScript
 {
-    PrepareAuraScript(spell_azil_force_grip_AuraScript);
-
     void OnAuraRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Unit* target = GetTarget())
@@ -784,14 +764,12 @@ class spell_azil_force_grip_AuraScript : public AuraScript
 
     void Register() override
     {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_azil_force_grip_AuraScript::OnAuraRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove.Register(&spell_azil_force_grip_AuraScript::OnAuraRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
 class spell_azil_force_grip_change_seat : public SpellScript
 {
-    PrepareSpellScript(spell_azil_force_grip_change_seat);
-
     void HandleScript(SpellEffIndex effIndex)
     {
         if (Unit* caster = GetCaster())
@@ -801,7 +779,7 @@ class spell_azil_force_grip_change_seat : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_azil_force_grip_change_seat::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_azil_force_grip_change_seat::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 

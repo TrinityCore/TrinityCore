@@ -506,8 +506,6 @@ private:
 
 class spell_drahga_burning_shadowbolt : public SpellScript
 {
-    PrepareSpellScript(spell_drahga_burning_shadowbolt);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_BURNING_SHADOWBOLT_DUMMY });
@@ -521,14 +519,12 @@ class spell_drahga_burning_shadowbolt : public SpellScript
 
     void Register() override
     {
-        OnEffectLaunchTarget += SpellEffectFn(spell_drahga_burning_shadowbolt::CastDummySpell, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnEffectLaunchTarget.Register(&spell_drahga_burning_shadowbolt::CastDummySpell, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
 class spell_drahga_devouring_flames : public SpellScript
 {
-    PrepareSpellScript(spell_drahga_devouring_flames);
-
     void ChangeDamage()
     {
         if (Unit* caster = GetCaster())
@@ -542,7 +538,7 @@ class spell_drahga_devouring_flames : public SpellScript
 
     void Register() override
     {
-        OnHit += SpellHitFn(spell_drahga_devouring_flames::ChangeDamage);
+        OnHit.Register(&spell_drahga_devouring_flames::ChangeDamage);
     }
 };
 

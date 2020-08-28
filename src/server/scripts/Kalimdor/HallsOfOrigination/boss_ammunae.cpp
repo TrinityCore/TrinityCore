@@ -440,8 +440,6 @@ private:
 
 class spell_ammunae_consume_life_energy : public SpellScript
 {
-    PrepareSpellScript(spell_ammunae_consume_life_energy);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -502,15 +500,13 @@ class spell_ammunae_consume_life_energy : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ammunae_consume_life_energy::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-        OnEffectHitTarget += SpellEffectFn(spell_ammunae_consume_life_energy::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnObjectAreaTargetSelect.Register(&spell_ammunae_consume_life_energy::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnEffectHitTarget.Register(&spell_ammunae_consume_life_energy::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 class spell_ammunae_summon_bloodpetal_blossom : public SpellScript
 {
-    PrepareSpellScript(spell_ammunae_summon_bloodpetal_blossom);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         if (targets.empty())
@@ -527,15 +523,13 @@ class spell_ammunae_summon_bloodpetal_blossom : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ammunae_summon_bloodpetal_blossom::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
-        OnEffectHitTarget += SpellEffectFn(spell_ammunae_summon_bloodpetal_blossom::HandleDespawn, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
+        OnObjectAreaTargetSelect.Register(&spell_ammunae_summon_bloodpetal_blossom::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+        OnEffectHitTarget.Register(&spell_ammunae_summon_bloodpetal_blossom::HandleDespawn, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
     }
 };
 
 class spell_ammunae_rampant_growth : public SpellScript
 {
-    PrepareSpellScript(spell_ammunae_rampant_growth);
-
     void HandleDespawn(SpellEffIndex /*effIndex*/)
     {
         if (Creature* target = GetHitCreature())
@@ -544,14 +538,12 @@ class spell_ammunae_rampant_growth : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_ammunae_rampant_growth::HandleDespawn, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
+        OnEffectHitTarget.Register(&spell_ammunae_rampant_growth::HandleDespawn, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
     }
 };
 
 class spell_ammunae_fixate : public SpellScript
 {
-    PrepareSpellScript(spell_ammunae_fixate);
-
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
         if (Unit* caster = GetCaster())
@@ -560,7 +552,7 @@ class spell_ammunae_fixate : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_ammunae_fixate::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_ammunae_fixate::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 

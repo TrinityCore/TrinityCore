@@ -1064,8 +1064,6 @@ class spell_sindragosa_s_fury : public SpellScriptLoader
 
         class spell_sindragosa_s_fury_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_sindragosa_s_fury_SpellScript);
-
             bool Load() override
             {
                 // This script should execute only in Icecrown Citadel
@@ -1126,9 +1124,9 @@ class spell_sindragosa_s_fury : public SpellScriptLoader
 
             void Register() override
             {
-                BeforeCast += SpellCastFn(spell_sindragosa_s_fury_SpellScript::SelectDest);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sindragosa_s_fury_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENTRY);
-                OnEffectHitTarget += SpellEffectFn(spell_sindragosa_s_fury_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+                BeforeCast.Register(&spell_sindragosa_s_fury_SpellScript::SelectDest);
+                OnObjectAreaTargetSelect.Register(&spell_sindragosa_s_fury_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENTRY);
+                OnEffectHitTarget.Register(&spell_sindragosa_s_fury_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
             }
 
             uint32 _targetCount = 0;
@@ -1160,8 +1158,6 @@ class spell_sindragosa_unchained_magic : public SpellScriptLoader
 
         class spell_sindragosa_unchained_magic_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_sindragosa_unchained_magic_SpellScript);
-
             void FilterTargets(std::list<WorldObject*>& unitList)
             {
                 unitList.remove_if(UnchainedMagicTargetSelector());
@@ -1172,7 +1168,7 @@ class spell_sindragosa_unchained_magic : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sindragosa_unchained_magic_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect.Register(&spell_sindragosa_unchained_magic_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
@@ -1189,8 +1185,6 @@ class spell_sindragosa_frost_breath : public SpellScriptLoader
 
         class spell_sindragosa_frost_breath_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_sindragosa_frost_breath_SpellScript);
-
             void HandleInfusion()
             {
                 Player* target = GetHitPlayer();
@@ -1217,7 +1211,7 @@ class spell_sindragosa_frost_breath : public SpellScriptLoader
 
             void Register() override
             {
-                AfterHit += SpellHitFn(spell_sindragosa_frost_breath_SpellScript::HandleInfusion);
+                AfterHit.Register(&spell_sindragosa_frost_breath_SpellScript::HandleInfusion);
             }
         };
 
@@ -1234,8 +1228,6 @@ class spell_sindragosa_instability : public SpellScriptLoader
 
         class spell_sindragosa_instability_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_sindragosa_instability_AuraScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_BACKLASH });
@@ -1249,7 +1241,7 @@ class spell_sindragosa_instability : public SpellScriptLoader
 
             void Register() override
             {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_sindragosa_instability_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove.Register(&spell_sindragosa_instability_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -1266,8 +1258,6 @@ class spell_sindragosa_frost_beacon : public SpellScriptLoader
 
         class spell_sindragosa_frost_beacon_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_sindragosa_frost_beacon_AuraScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_ICE_TOMB_DAMAGE });
@@ -1282,7 +1272,7 @@ class spell_sindragosa_frost_beacon : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_sindragosa_frost_beacon_AuraScript::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+                OnEffectPeriodic.Register(&spell_sindragosa_frost_beacon_AuraScript::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
         };
 
@@ -1299,8 +1289,6 @@ class spell_sindragosa_ice_tomb : public SpellScriptLoader
 
         class spell_sindragosa_ice_tomb_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_sindragosa_ice_tomb_AuraScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sObjectMgr->GetCreatureTemplate(NPC_ICE_TOMB))
@@ -1341,8 +1329,8 @@ class spell_sindragosa_ice_tomb : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_sindragosa_ice_tomb_AuraScript::PeriodicTick, EFFECT_2, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_sindragosa_ice_tomb_AuraScript::HandleRemove, EFFECT_2, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+                OnEffectPeriodic.Register(&spell_sindragosa_ice_tomb_AuraScript::PeriodicTick, EFFECT_2, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+                AfterEffectRemove.Register(&spell_sindragosa_ice_tomb_AuraScript::HandleRemove, EFFECT_2, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -1359,8 +1347,6 @@ class spell_sindragosa_icy_grip : public SpellScriptLoader
 
         class spell_sindragosa_icy_grip_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_sindragosa_icy_grip_SpellScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_ICY_GRIP_JUMP });
@@ -1374,7 +1360,7 @@ class spell_sindragosa_icy_grip : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_sindragosa_icy_grip_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_sindragosa_icy_grip_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -1405,8 +1391,6 @@ class spell_sindragosa_mystic_buffet : public SpellScriptLoader
 
         class spell_sindragosa_mystic_buffet_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_sindragosa_mystic_buffet_SpellScript);
-
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 targets.remove_if(MysticBuffetTargetFilter(GetCaster()));
@@ -1414,7 +1398,7 @@ class spell_sindragosa_mystic_buffet : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sindragosa_mystic_buffet_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect.Register(&spell_sindragosa_mystic_buffet_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
@@ -1431,8 +1415,6 @@ class spell_rimefang_icy_blast : public SpellScriptLoader
 
         class spell_rimefang_icy_blast_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_rimefang_icy_blast_SpellScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_ICY_BLAST_AREA });
@@ -1448,7 +1430,7 @@ class spell_rimefang_icy_blast : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHit += SpellEffectFn(spell_rimefang_icy_blast_SpellScript::HandleTriggerMissile, EFFECT_1, SPELL_EFFECT_TRIGGER_MISSILE);
+                OnEffectHit.Register(&spell_rimefang_icy_blast_SpellScript::HandleTriggerMissile, EFFECT_1, SPELL_EFFECT_TRIGGER_MISSILE);
             }
         };
 
@@ -1481,8 +1463,6 @@ class spell_frostwarden_handler_order_whelp : public SpellScriptLoader
 
         class spell_frostwarden_handler_order_whelp_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_frostwarden_handler_order_whelp_SpellScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_FOCUS_FIRE });
@@ -1516,8 +1496,8 @@ class spell_frostwarden_handler_order_whelp : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_frostwarden_handler_order_whelp_SpellScript::HandleForcedCast, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_frostwarden_handler_order_whelp_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+                OnEffectHitTarget.Register(&spell_frostwarden_handler_order_whelp_SpellScript::HandleForcedCast, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
+                OnObjectAreaTargetSelect.Register(&spell_frostwarden_handler_order_whelp_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
             }
         };
 
@@ -1534,8 +1514,6 @@ class spell_frostwarden_handler_focus_fire : public SpellScriptLoader
 
         class spell_frostwarden_handler_focus_fire_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_frostwarden_handler_focus_fire_SpellScript);
-
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
@@ -1545,14 +1523,12 @@ class spell_frostwarden_handler_focus_fire : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_frostwarden_handler_focus_fire_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_frostwarden_handler_focus_fire_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
         class spell_frostwarden_handler_focus_fire_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_frostwarden_handler_focus_fire_AuraScript);
-
             void PeriodicTick(AuraEffect const* /*aurEff*/)
             {
                 PreventDefaultAction();
@@ -1565,7 +1541,7 @@ class spell_frostwarden_handler_focus_fire : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_frostwarden_handler_focus_fire_AuraScript::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectPeriodic.Register(&spell_frostwarden_handler_focus_fire_AuraScript::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
@@ -1587,9 +1563,7 @@ public:
 
     class spell_sindragosa_ice_tomb_target_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_sindragosa_ice_tomb_target_SpellScript);
-
-        void FilterTargets(std::list<WorldObject*>& unitList)
+             void FilterTargets(std::list<WorldObject*>& unitList)
         {
             Unit* caster = GetCaster();
             unitList.remove_if(FrostBeaconSelector(caster));
@@ -1604,8 +1578,8 @@ public:
 
         void Register() override
         {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sindragosa_ice_tomb_target_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-            OnEffectLaunchTarget += SpellEffectFn(spell_sindragosa_ice_tomb_target_SpellScript::HandleSindragosaTalk, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnObjectAreaTargetSelect.Register(&spell_sindragosa_ice_tomb_target_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+            OnEffectLaunchTarget.Register(&spell_sindragosa_ice_tomb_target_SpellScript::HandleSindragosaTalk, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 

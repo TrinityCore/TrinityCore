@@ -463,8 +463,6 @@ private:
 
 class spell_nazjar_waterspout : public SpellScript
 {
-    PrepareSpellScript(spell_nazjar_waterspout);
-
     void HandleScriptEffect(SpellEffIndex effIndex)
     {
         if (Unit* caster = GetCaster())
@@ -473,14 +471,12 @@ class spell_nazjar_waterspout : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_nazjar_waterspout::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_nazjar_waterspout::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 class spell_nazjar_waterspout_targeting : public SpellScript
 {
-    PrepareSpellScript(spell_nazjar_waterspout_targeting);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         if (targets.empty())
@@ -510,8 +506,8 @@ class spell_nazjar_waterspout_targeting : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_nazjar_waterspout_targeting::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-        OnEffectHitTarget += SpellEffectFn(spell_nazjar_waterspout_targeting::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnObjectAreaTargetSelect.Register(&spell_nazjar_waterspout_targeting::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnEffectHitTarget.Register(&spell_nazjar_waterspout_targeting::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 

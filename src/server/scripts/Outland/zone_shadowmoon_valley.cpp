@@ -1605,8 +1605,6 @@ class spell_unlocking_zuluheds_chains : public SpellScriptLoader
 
         class spell_unlocking_zuluheds_chains_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_unlocking_zuluheds_chains_SpellScript);
-
             void HandleAfterHit()
             {
                 if (Player* caster = GetCaster()->ToPlayer())
@@ -1616,7 +1614,7 @@ class spell_unlocking_zuluheds_chains : public SpellScriptLoader
 
             void Register() override
             {
-                AfterHit += SpellHitFn(spell_unlocking_zuluheds_chains_SpellScript::HandleAfterHit);
+                AfterHit.Register(&spell_unlocking_zuluheds_chains_SpellScript::HandleAfterHit);
             }
         };
 

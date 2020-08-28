@@ -105,8 +105,6 @@ class spell_moragg_ray : public SpellScriptLoader
 
         class spell_moragg_ray_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_moragg_ray_AuraScript);
-
             void OnPeriodic(AuraEffect const* aurEff)
             {
                 PreventDefaultAction();
@@ -123,7 +121,7 @@ class spell_moragg_ray : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_moragg_ray_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+                OnEffectPeriodic.Register(&spell_moragg_ray_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
         };
 
@@ -140,8 +138,6 @@ public:
 
     class spell_moragg_optic_link_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_moragg_optic_link_AuraScript);
-
         void OnPeriodic(AuraEffect const* aurEff)
         {
             if (Unit* caster = GetCaster())
@@ -176,8 +172,8 @@ public:
 
         void Register() override
         {
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_moragg_optic_link_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
-            OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_moragg_optic_link_AuraScript::OnUpdate, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+            OnEffectPeriodic.Register(&spell_moragg_optic_link_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+            OnEffectUpdatePeriodic.Register(&spell_moragg_optic_link_AuraScript::OnUpdate, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
         }
     };
 

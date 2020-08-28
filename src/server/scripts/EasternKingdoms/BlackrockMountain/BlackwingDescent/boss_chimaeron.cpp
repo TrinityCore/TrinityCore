@@ -528,8 +528,6 @@ private:
 
 class spell_chimaeron_caustic_slime_targeting : public SpellScript
 {
-    PrepareSpellScript(spell_chimaeron_caustic_slime_targeting);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         if (targets.empty())
@@ -550,15 +548,13 @@ class spell_chimaeron_caustic_slime_targeting : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_chimaeron_caustic_slime_targeting::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
-        OnEffectHitTarget += SpellEffectFn(spell_chimaeron_caustic_slime_targeting::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnObjectAreaTargetSelect.Register(&spell_chimaeron_caustic_slime_targeting::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+        OnEffectHitTarget.Register(&spell_chimaeron_caustic_slime_targeting::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
 class spell_chimaeron_caustic_slime: public SpellScript
 {
-    PrepareSpellScript(spell_chimaeron_caustic_slime);
-
     void CountTargets(std::list<WorldObject*>& targets)
     {
         _targetCount = targets.size();
@@ -574,8 +570,8 @@ class spell_chimaeron_caustic_slime: public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_chimaeron_caustic_slime::CountTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
-        BeforeHit += SpellHitFn(spell_chimaeron_caustic_slime::SplitDamage);
+        OnObjectAreaTargetSelect.Register(&spell_chimaeron_caustic_slime::CountTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+        BeforeHit.Register(&spell_chimaeron_caustic_slime::SplitDamage);
     }
 
 private:
@@ -584,8 +580,6 @@ private:
 
 class spell_chimaeron_double_attack : public AuraScript
 {
-    PrepareAuraScript(spell_chimaeron_double_attack);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DOUBLE_ATTACK_TRIGGERED });
@@ -600,14 +594,12 @@ class spell_chimaeron_double_attack : public AuraScript
 
     void Register() override
     {
-        OnEffectProc += AuraEffectProcFn(spell_chimaeron_double_attack::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc.Register(&spell_chimaeron_double_attack::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
 class spell_chimaeron_finkles_mixture : public AuraScript
 {
-    PrepareAuraScript(spell_chimaeron_finkles_mixture);
-
     bool Load() override
     {
         healthThreshold = GetSpellInfo()->Effects[EFFECT_0].BasePoints;
@@ -645,9 +637,9 @@ class spell_chimaeron_finkles_mixture : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_chimaeron_finkles_mixture::HandleMixtureDuration, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_chimaeron_finkles_mixture::CalculateAmount, EFFECT_1, SPELL_AURA_SCHOOL_ABSORB);
-        OnEffectAbsorb += AuraEffectAbsorbFn(spell_chimaeron_finkles_mixture::Absorb, EFFECT_1);
+        OnEffectPeriodic.Register(&spell_chimaeron_finkles_mixture::HandleMixtureDuration, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        DoEffectCalcAmount.Register(&spell_chimaeron_finkles_mixture::CalculateAmount, EFFECT_1, SPELL_AURA_SCHOOL_ABSORB);
+        OnEffectAbsorb.Register(&spell_chimaeron_finkles_mixture::Absorb, EFFECT_1);
     }
 
 private:
@@ -656,8 +648,6 @@ private:
 
 class spell_chimaeron_reroute_power : public AuraScript
 {
-    PrepareAuraScript(spell_chimaeron_reroute_power);
-
     void HandleActivation(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Creature* target = GetTarget()->ToCreature())
@@ -667,14 +657,12 @@ class spell_chimaeron_reroute_power : public AuraScript
 
     void Register() override
     {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_chimaeron_reroute_power::HandleActivation, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove.Register(&spell_chimaeron_reroute_power::HandleActivation, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
 class spell_chimaeron_feud : public AuraScript
 {
-    PrepareAuraScript(spell_chimaeron_feud);
-
     void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Creature* target = GetTarget()->ToCreature())
@@ -691,15 +679,13 @@ class spell_chimaeron_feud : public AuraScript
 
     void Register() override
     {
-        AfterEffectApply += AuraEffectApplyFn(spell_chimaeron_feud::HandleApply, EFFECT_0, SPELL_AURA_MOD_PACIFY, AURA_EFFECT_HANDLE_REAL);
-        AfterEffectRemove += AuraEffectRemoveFn(spell_chimaeron_feud::HandleRemove, EFFECT_0, SPELL_AURA_MOD_PACIFY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectApply.Register(&spell_chimaeron_feud::HandleApply, EFFECT_0, SPELL_AURA_MOD_PACIFY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove.Register(&spell_chimaeron_feud::HandleRemove, EFFECT_0, SPELL_AURA_MOD_PACIFY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
 class spell_chimaeron_shadow_whip : public SpellScript
 {
-    PrepareSpellScript(spell_chimaeron_shadow_whip);
-
     void HandleDummyEffect(SpellEffIndex /*effIndex*/)
     {
         GetHitUnit()->InterruptNonMeleeSpells(true);
@@ -707,7 +693,7 @@ class spell_chimaeron_shadow_whip : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_chimaeron_shadow_whip::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget.Register(&spell_chimaeron_shadow_whip::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 

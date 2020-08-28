@@ -506,8 +506,6 @@ class spell_auriaya_strenght_of_the_pack : public SpellScriptLoader
 
         class spell_auriaya_strenght_of_the_pack_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_auriaya_strenght_of_the_pack_SpellScript);
-
             void FilterTargets(std::list<WorldObject*>& unitList)
             {
                 unitList.remove_if(SanctumSentryCheck());
@@ -515,7 +513,7 @@ class spell_auriaya_strenght_of_the_pack : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_auriaya_strenght_of_the_pack_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+                OnObjectAreaTargetSelect.Register(&spell_auriaya_strenght_of_the_pack_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
             }
         };
 
@@ -532,8 +530,6 @@ class spell_auriaya_sentinel_blast : public SpellScriptLoader
 
         class spell_auriaya_sentinel_blast_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_auriaya_sentinel_blast_SpellScript);
-
             void FilterTargets(std::list<WorldObject*>& unitList)
             {
                 unitList.remove_if(PlayerOrPetCheck());
@@ -541,8 +537,8 @@ class spell_auriaya_sentinel_blast : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_auriaya_sentinel_blast_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_auriaya_sentinel_blast_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect.Register(&spell_auriaya_sentinel_blast_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect.Register(&spell_auriaya_sentinel_blast_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 

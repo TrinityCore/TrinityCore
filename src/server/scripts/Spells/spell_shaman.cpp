@@ -141,8 +141,6 @@ class spell_sha_ancestral_awakening : public SpellScriptLoader
 
         class spell_sha_ancestral_awakening_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_sha_ancestral_awakening_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_SHAMAN_TIDAL_WAVES });
@@ -158,7 +156,7 @@ class spell_sha_ancestral_awakening : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectProc += AuraEffectProcFn(spell_sha_ancestral_awakening_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+                OnEffectProc.Register(&spell_sha_ancestral_awakening_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 
@@ -177,8 +175,6 @@ class spell_sha_ancestral_awakening_proc : public SpellScriptLoader
 
         class spell_sha_ancestral_awakening_proc_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_sha_ancestral_awakening_proc_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_SHAMAN_ANCESTRAL_AWAKENING_PROC });
@@ -203,8 +199,8 @@ class spell_sha_ancestral_awakening_proc : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_ancestral_awakening_proc_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
-                OnEffectHitTarget += SpellEffectFn(spell_sha_ancestral_awakening_proc_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnObjectAreaTargetSelect.Register(&spell_sha_ancestral_awakening_proc_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
+                OnEffectHitTarget.Register(&spell_sha_ancestral_awakening_proc_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -223,8 +219,6 @@ class spell_sha_bloodlust : public SpellScriptLoader
 
         class spell_sha_bloodlust_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_sha_bloodlust_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo(
@@ -250,10 +244,10 @@ class spell_sha_bloodlust : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_bloodlust_SpellScript::RemoveInvalidTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_bloodlust_SpellScript::RemoveInvalidTargets, EFFECT_1, TARGET_UNIT_CASTER_AREA_RAID);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_bloodlust_SpellScript::RemoveInvalidTargets, EFFECT_2, TARGET_UNIT_CASTER_AREA_RAID);
-                AfterHit += SpellHitFn(spell_sha_bloodlust_SpellScript::ApplyDebuff);
+                OnObjectAreaTargetSelect.Register(&spell_sha_bloodlust_SpellScript::RemoveInvalidTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
+                OnObjectAreaTargetSelect.Register(&spell_sha_bloodlust_SpellScript::RemoveInvalidTargets, EFFECT_1, TARGET_UNIT_CASTER_AREA_RAID);
+                OnObjectAreaTargetSelect.Register(&spell_sha_bloodlust_SpellScript::RemoveInvalidTargets, EFFECT_2, TARGET_UNIT_CASTER_AREA_RAID);
+                AfterHit.Register(&spell_sha_bloodlust_SpellScript::ApplyDebuff);
             }
         };
 
@@ -272,8 +266,6 @@ class spell_sha_chain_heal : public SpellScriptLoader
 
         class spell_sha_chain_heal_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_sha_chain_heal_SpellScript);
-
         public:
             spell_sha_chain_heal_SpellScript()
             {
@@ -307,7 +299,7 @@ class spell_sha_chain_heal : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_sha_chain_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+                OnEffectHitTarget.Register(&spell_sha_chain_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
             }
 
             bool firstHeal;
@@ -324,8 +316,6 @@ class spell_sha_chain_heal : public SpellScriptLoader
 // 974 - Earth Shield
 class spell_sha_earth_shield : public AuraScript
 {
-    PrepareAuraScript(spell_sha_earth_shield);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SHAMAN_EARTH_SHIELD_HEAL });
@@ -350,7 +340,7 @@ class spell_sha_earth_shield : public AuraScript
 
     void Register() override
     {
-        OnEffectProc += AuraEffectProcFn(spell_sha_earth_shield::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc.Register(&spell_sha_earth_shield::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
@@ -363,8 +353,6 @@ class spell_sha_earthbind_totem : public SpellScriptLoader
 
         class spell_sha_earthbind_totem_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_sha_earthbind_totem_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_SHAMAN_TOTEM_EARTHBIND_TOTEM, SPELL_SHAMAN_TOTEM_EARTHEN_POWER });
@@ -397,8 +385,8 @@ class spell_sha_earthbind_totem : public SpellScriptLoader
 
             void Register() override
             {
-                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_sha_earthbind_totem_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-                 OnEffectApply += AuraEffectApplyFn(spell_sha_earthbind_totem_AuraScript::Apply, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+                 OnEffectPeriodic.Register(&spell_sha_earthbind_totem_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+                 OnEffectApply.Register(&spell_sha_earthbind_totem_AuraScript::Apply, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -433,8 +421,6 @@ class spell_sha_earthen_power : public SpellScriptLoader
 
         class spell_sha_earthen_power_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_sha_earthen_power_SpellScript);
-
             void FilterTargets(std::list<WorldObject*>& unitList)
             {
                 unitList.remove_if(EarthenPowerTargetSelector());
@@ -442,7 +428,7 @@ class spell_sha_earthen_power : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_earthen_power_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+                OnObjectAreaTargetSelect.Register(&spell_sha_earthen_power_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
             }
         };
 
@@ -460,8 +446,6 @@ class spell_sha_feedback : public SpellScriptLoader
 
         class spell_sha_feedback_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_sha_feedback_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_SHAMAN_ELEMENTAL_MASTERY });
@@ -476,7 +460,7 @@ class spell_sha_feedback : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectProc += AuraEffectProcFn(spell_sha_feedback_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+                OnEffectProc.Register(&spell_sha_feedback_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 
@@ -490,8 +474,6 @@ class spell_sha_feedback : public SpellScriptLoader
 /// Updated 4.3.4
 class spell_sha_fire_nova : public SpellScript
 {
-    PrepareSpellScript(spell_sha_fire_nova);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SHAMAN_ELEMENTAL_MASTERY });
@@ -507,15 +489,13 @@ class spell_sha_fire_nova : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_sha_fire_nova::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget.Register(&spell_sha_fire_nova::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
 // 8349 - Fire Nova
 class spell_sha_fire_nova_damage : public SpellScript
 {
-    PrepareSpellScript(spell_sha_fire_nova_damage);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         if (targets.empty())
@@ -531,8 +511,8 @@ class spell_sha_fire_nova_damage : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_fire_nova_damage::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_fire_nova_damage::FilterTargets, EFFECT_2, TARGET_UNIT_DEST_AREA_ENEMY);
+        OnObjectAreaTargetSelect.Register(&spell_sha_fire_nova_damage::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
+        OnObjectAreaTargetSelect.Register(&spell_sha_fire_nova_damage::FilterTargets, EFFECT_2, TARGET_UNIT_DEST_AREA_ENEMY);
     }
 };
 
@@ -545,8 +525,6 @@ class spell_sha_flame_shock : public SpellScriptLoader
 
         class spell_sha_flame_shock_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_sha_flame_shock_AuraScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_SHAMAN_LAVA_FLOWS_R1, SPELL_SHAMAN_LAVA_FLOWS_TRIGGERED_R1 });
@@ -571,7 +549,7 @@ class spell_sha_flame_shock : public SpellScriptLoader
 
             void Register() override
             {
-                AfterDispel += AuraDispelFn(spell_sha_flame_shock_AuraScript::HandleDispel);
+                AfterDispel.Register(&spell_sha_flame_shock_AuraScript::HandleDispel);
             }
         };
 
@@ -590,8 +568,6 @@ class spell_sha_focused_insight : public SpellScriptLoader
 
         class spell_sha_focused_insight_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_sha_focused_insight_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_SHAMAN_FOCUSED_INSIGHT });
@@ -614,8 +590,8 @@ class spell_sha_focused_insight : public SpellScriptLoader
 
             void Register() override
             {
-                DoCheckProc += AuraCheckProcFn(spell_sha_focused_insight_AuraScript::CheckProc);
-                OnEffectProc += AuraEffectProcFn(spell_sha_focused_insight_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+                DoCheckProc.Register(&spell_sha_focused_insight_AuraScript::CheckProc);
+                OnEffectProc.Register(&spell_sha_focused_insight_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 
@@ -633,8 +609,6 @@ class spell_sha_glyph_of_healing_wave : public SpellScriptLoader
 
         class spell_sha_glyph_of_healing_wave_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_sha_glyph_of_healing_wave_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_SHAMAN_GLYPH_OF_HEALING_WAVE });
@@ -656,8 +630,8 @@ class spell_sha_glyph_of_healing_wave : public SpellScriptLoader
 
             void Register() override
             {
-                DoCheckProc += AuraCheckProcFn(spell_sha_glyph_of_healing_wave_AuraScript::CheckProc);
-                OnEffectProc += AuraEffectProcFn(spell_sha_glyph_of_healing_wave_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+                DoCheckProc.Register(&spell_sha_glyph_of_healing_wave_AuraScript::CheckProc);
+                OnEffectProc.Register(&spell_sha_glyph_of_healing_wave_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 
@@ -671,8 +645,6 @@ class spell_sha_glyph_of_healing_wave : public SpellScriptLoader
 /// Updated 4.3.4
 class spell_sha_healing_stream_totem : public SpellScript
 {
-    PrepareSpellScript(spell_sha_healing_stream_totem);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SHAMAN_TOTEM_HEALING_STREAM_HEAL });
@@ -697,7 +669,7 @@ class spell_sha_healing_stream_totem : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_sha_healing_stream_totem::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget.Register(&spell_sha_healing_stream_totem::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -710,8 +682,6 @@ class spell_sha_heroism : public SpellScriptLoader
 
         class spell_sha_heroism_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_sha_heroism_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo(
@@ -737,10 +707,10 @@ class spell_sha_heroism : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_heroism_SpellScript::RemoveInvalidTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_heroism_SpellScript::RemoveInvalidTargets, EFFECT_1, TARGET_UNIT_CASTER_AREA_RAID);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_heroism_SpellScript::RemoveInvalidTargets, EFFECT_2, TARGET_UNIT_CASTER_AREA_RAID);
-                AfterHit += SpellHitFn(spell_sha_heroism_SpellScript::ApplyDebuff);
+                OnObjectAreaTargetSelect.Register(&spell_sha_heroism_SpellScript::RemoveInvalidTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
+                OnObjectAreaTargetSelect.Register(&spell_sha_heroism_SpellScript::RemoveInvalidTargets, EFFECT_1, TARGET_UNIT_CASTER_AREA_RAID);
+                OnObjectAreaTargetSelect.Register(&spell_sha_heroism_SpellScript::RemoveInvalidTargets, EFFECT_2, TARGET_UNIT_CASTER_AREA_RAID);
+                AfterHit.Register(&spell_sha_heroism_SpellScript::ApplyDebuff);
             }
         };
 
@@ -758,8 +728,6 @@ class spell_sha_item_lightning_shield : public SpellScriptLoader
 
         class spell_sha_item_lightning_shield_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_sha_item_lightning_shield_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD });
@@ -773,7 +741,7 @@ class spell_sha_item_lightning_shield : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectProc += AuraEffectProcFn(spell_sha_item_lightning_shield_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+                OnEffectProc.Register(&spell_sha_item_lightning_shield_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
             }
         };
 
@@ -791,8 +759,6 @@ class spell_sha_item_lightning_shield_trigger : public SpellScriptLoader
 
         class spell_sha_item_lightning_shield_trigger_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_sha_item_lightning_shield_trigger_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_SHAMAN_ITEM_MANA_SURGE });
@@ -806,7 +772,7 @@ class spell_sha_item_lightning_shield_trigger : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectProc += AuraEffectProcFn(spell_sha_item_lightning_shield_trigger_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+                OnEffectProc.Register(&spell_sha_item_lightning_shield_trigger_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
             }
         };
 
@@ -824,8 +790,6 @@ class spell_sha_item_mana_surge : public SpellScriptLoader
 
         class spell_sha_item_mana_surge_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_sha_item_mana_surge_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD_DAMAGE });
@@ -842,7 +806,7 @@ class spell_sha_item_mana_surge : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectProc += AuraEffectProcFn(spell_sha_item_mana_surge_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+                OnEffectProc.Register(&spell_sha_item_mana_surge_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
             }
         };
 
@@ -860,8 +824,6 @@ class spell_sha_item_t10_elemental_2p_bonus : public SpellScriptLoader
 
         class spell_sha_item_t10_elemental_2p_bonus_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_sha_item_t10_elemental_2p_bonus_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_SHAMAN_ELEMENTAL_MASTERY });
@@ -876,7 +838,7 @@ class spell_sha_item_t10_elemental_2p_bonus : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectProc += AuraEffectProcFn(spell_sha_item_t10_elemental_2p_bonus_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+                OnEffectProc.Register(&spell_sha_item_t10_elemental_2p_bonus_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 
@@ -890,8 +852,6 @@ class spell_sha_item_t10_elemental_2p_bonus : public SpellScriptLoader
 /// Updated 4.3.4
 class spell_sha_lava_lash : public SpellScript
 {
-    PrepareSpellScript(spell_sha_lava_lash);
-
     bool Load() override
     {
         return GetCaster()->GetTypeId() == TYPEID_PLAYER;
@@ -938,14 +898,12 @@ class spell_sha_lava_lash : public SpellScript
 
     void Register() override
     {
-        OnEffectLaunchTarget += SpellEffectFn(spell_sha_lava_lash::HandleDamageBonus, EFFECT_0, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
+        OnEffectLaunchTarget.Register(&spell_sha_lava_lash::HandleDamageBonus, EFFECT_0, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
     }
 };
 
 class spell_sha_lava_lash_script : public SpellScript
 {
-    PrepareSpellScript(spell_sha_lava_lash_script);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SHAMAN_FLAME_SHOCK });
@@ -987,8 +945,8 @@ class spell_sha_lava_lash_script : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_lava_lash_script::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
-        OnEffectHitTarget += SpellEffectFn(spell_sha_lava_lash_script::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnObjectAreaTargetSelect.Register(&spell_sha_lava_lash_script::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+        OnEffectHitTarget.Register(&spell_sha_lava_lash_script::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -999,8 +957,6 @@ class spell_sha_lava_surge : public SpellScriptLoader
 
         class spell_sha_lava_surge_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_sha_lava_surge_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_SHAMAN_LAVA_SURGE });
@@ -1014,7 +970,7 @@ class spell_sha_lava_surge : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectProc += AuraEffectProcFn(spell_sha_lava_surge_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+                OnEffectProc.Register(&spell_sha_lava_surge_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 
@@ -1031,8 +987,6 @@ class spell_sha_lava_surge_proc : public SpellScriptLoader
 
         class spell_sha_lava_surge_proc_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_sha_lava_surge_proc_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_SHAMAN_LAVA_BURST });
@@ -1050,7 +1004,7 @@ class spell_sha_lava_surge_proc : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_sha_lava_surge_proc_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget.Register(&spell_sha_lava_surge_proc_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
 
         };
@@ -1070,8 +1024,6 @@ class spell_sha_mana_tide_totem : public SpellScriptLoader
 
         class spell_sha_mana_tide_totem_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_sha_mana_tide_totem_AuraScript);
-
             void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
             {
                 // @TODO: Exclude the "short term" buffs from the stat value
@@ -1082,7 +1034,7 @@ class spell_sha_mana_tide_totem : public SpellScriptLoader
 
             void Register() override
             {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_sha_mana_tide_totem_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_STAT);
+                DoEffectCalcAmount.Register(&spell_sha_mana_tide_totem_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_STAT);
             }
         };
 
@@ -1100,8 +1052,6 @@ class spell_sha_nature_guardian : public SpellScriptLoader
 
         class spell_sha_nature_guardian_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_sha_nature_guardian_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_SHAMAN_NATURE_GUARDIAN });
@@ -1133,8 +1083,8 @@ class spell_sha_nature_guardian : public SpellScriptLoader
 
             void Register() override
             {
-                DoCheckProc += AuraCheckProcFn(spell_sha_nature_guardian_AuraScript::CheckProc);
-                OnEffectProc += AuraEffectProcFn(spell_sha_nature_guardian_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+                DoCheckProc.Register(&spell_sha_nature_guardian_AuraScript::CheckProc);
+                OnEffectProc.Register(&spell_sha_nature_guardian_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
             }
         };
 
@@ -1147,8 +1097,6 @@ class spell_sha_nature_guardian : public SpellScriptLoader
 // -88756 - Rolling Thunder
 class spell_sha_rolling_thunder : public AuraScript
 {
-    PrepareAuraScript(spell_sha_rolling_thunder);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -1182,8 +1130,8 @@ class spell_sha_rolling_thunder : public AuraScript
 
     void Register() override
     {
-        DoCheckProc += AuraCheckProcFn(spell_sha_rolling_thunder::CheckProc);
-        OnEffectProc += AuraEffectProcFn(spell_sha_rolling_thunder::HandleEffectProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        DoCheckProc.Register(&spell_sha_rolling_thunder::CheckProc);
+        OnEffectProc.Register(&spell_sha_rolling_thunder::HandleEffectProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
     }
 };
 
@@ -1195,8 +1143,6 @@ class spell_sha_telluric_currents : public SpellScriptLoader
 
         class spell_sha_telluric_currents_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_sha_telluric_currents_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_SHAMAN_TELLURIC_CURRENTS });
@@ -1212,7 +1158,7 @@ class spell_sha_telluric_currents : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectProc += AuraEffectProcFn(spell_sha_telluric_currents_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+                OnEffectProc.Register(&spell_sha_telluric_currents_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 
@@ -1225,8 +1171,6 @@ class spell_sha_telluric_currents : public SpellScriptLoader
 // 51490 - Thunderstorm
 class spell_sha_thunderstorm : public SpellScript
 {
-    PrepareSpellScript(spell_sha_thunderstorm);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SHAMAN_THUNDERSTORM_SLOW });
@@ -1250,7 +1194,7 @@ class spell_sha_thunderstorm : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_sha_thunderstorm::HandleKnockBack, EFFECT_2, SPELL_EFFECT_KNOCK_BACK);
+        OnEffectHitTarget.Register(&spell_sha_thunderstorm::HandleKnockBack, EFFECT_2, SPELL_EFFECT_KNOCK_BACK);
     }
 };
 
@@ -1262,8 +1206,6 @@ class spell_sha_tidal_waves : public SpellScriptLoader
 
         class spell_sha_tidal_waves_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_sha_tidal_waves_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_SHAMAN_TIDAL_WAVES });
@@ -1280,7 +1222,7 @@ class spell_sha_tidal_waves : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectProc += AuraEffectProcFn(spell_sha_tidal_waves_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+                OnEffectProc.Register(&spell_sha_tidal_waves_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 
@@ -1298,8 +1240,6 @@ public:
 
     class spell_sha_totemic_mastery_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_sha_totemic_mastery_AuraScript);
-
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             return ValidateSpellInfo({ SPELL_SHAMAN_TOTEMIC_MASTERY });
@@ -1318,7 +1258,7 @@ public:
 
         void Register() override
         {
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_sha_totemic_mastery_AuraScript::HandleDummy, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+            OnEffectPeriodic.Register(&spell_sha_totemic_mastery_AuraScript::HandleDummy, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
         }
     };
 
@@ -1331,8 +1271,6 @@ public:
 // 77222 - Elemental Overload
 class spell_sha_elemental_overload : public AuraScript
 {
-    PrepareAuraScript(spell_sha_elemental_overload);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -1385,8 +1323,8 @@ class spell_sha_elemental_overload : public AuraScript
 
     void Register() override
     {
-        DoCheckProc += AuraCheckProcFn(spell_sha_elemental_overload::CheckProc);
-        OnEffectProc += AuraEffectProcFn(spell_sha_elemental_overload::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+        DoCheckProc.Register(&spell_sha_elemental_overload::CheckProc);
+        OnEffectProc.Register(&spell_sha_elemental_overload::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
@@ -1398,8 +1336,6 @@ class spell_sha_ancestral_resolve : public SpellScriptLoader
 
         class sspell_sha_ancestral_resolve_AuraScript : public AuraScript
         {
-            PrepareAuraScript(sspell_sha_ancestral_resolve_AuraScript);
-
             void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
             {
                 amount = -1;
@@ -1418,8 +1354,8 @@ class spell_sha_ancestral_resolve : public SpellScriptLoader
 
             void Register() override
             {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(sspell_sha_ancestral_resolve_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-                OnEffectAbsorb += AuraEffectAbsorbFn(sspell_sha_ancestral_resolve_AuraScript::Absorb, EFFECT_0);
+                DoEffectCalcAmount.Register(&sspell_sha_ancestral_resolve_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+                OnEffectAbsorb.Register(&sspell_sha_ancestral_resolve_AuraScript::Absorb, EFFECT_0);
             }
         };
 
@@ -1437,8 +1373,6 @@ class spell_sha_resurgence : public SpellScriptLoader
 
         class spell_sha_resurgence_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_sha_resurgence_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo(
@@ -1487,8 +1421,8 @@ class spell_sha_resurgence : public SpellScriptLoader
 
             void Register() override
             {
-                DoCheckProc += AuraCheckProcFn(spell_sha_resurgence_AuraScript::CheckProc);
-                OnEffectProc += AuraEffectProcFn(spell_sha_resurgence_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+                DoCheckProc.Register(&spell_sha_resurgence_AuraScript::CheckProc);
+                OnEffectProc.Register(&spell_sha_resurgence_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 
@@ -1506,8 +1440,6 @@ class spell_sha_ancestral_healing : public SpellScriptLoader
 
         class spell_sha_ancestral_healing_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_sha_ancestral_healing_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_SHAMAN_ANCESTRAL_VIGOR });
@@ -1537,8 +1469,8 @@ class spell_sha_ancestral_healing : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectProc += AuraEffectProcFn(spell_sha_ancestral_healing_AuraScript::HandleAncestralFortitude, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
-                OnEffectProc += AuraEffectProcFn(spell_sha_ancestral_healing_AuraScript::HandleAncestralVigor, EFFECT_1, SPELL_AURA_DUMMY);
+                OnEffectProc.Register(&spell_sha_ancestral_healing_AuraScript::HandleAncestralFortitude, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+                OnEffectProc.Register(&spell_sha_ancestral_healing_AuraScript::HandleAncestralVigor, EFFECT_1, SPELL_AURA_DUMMY);
             }
         };
 
@@ -1556,8 +1488,6 @@ class spell_sha_cleanse_spirit : public SpellScriptLoader
 
         class spell_sha_cleanse_spirit_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_sha_cleanse_spirit_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo(
@@ -1600,7 +1530,7 @@ class spell_sha_cleanse_spirit : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectSuccessfulDispel += SpellEffectFn(spell_sha_cleanse_spirit_SpellScript::HandleDispel, EFFECT_0, SPELL_EFFECT_DISPEL);
+                OnEffectSuccessfulDispel.Register(&spell_sha_cleanse_spirit_SpellScript::HandleDispel, EFFECT_0, SPELL_EFFECT_DISPEL);
             }
         };
 
@@ -1613,8 +1543,6 @@ class spell_sha_cleanse_spirit : public SpellScriptLoader
 // 8042 - Earth Shock
 class spell_sha_earth_shock : public SpellScript
 {
-    PrepareSpellScript(spell_sha_earth_shock);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -1656,7 +1584,7 @@ class spell_sha_earth_shock : public SpellScript
 
     void Register() override
     {
-        OnEffectLaunchTarget += SpellEffectFn(spell_sha_earth_shock::HandleFulmination, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnEffectLaunchTarget.Register(&spell_sha_earth_shock::HandleFulmination, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
@@ -1668,8 +1596,6 @@ class spell_sha_healing_rain : public SpellScriptLoader
 
         class spell_sha_healing_rain_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_sha_healing_rain_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_SHAMAN_HEALING_RAIN_TRIGGERED });
@@ -1683,7 +1609,7 @@ class spell_sha_healing_rain : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_sha_healing_rain_AuraScript::HandleEffectPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectPeriodic.Register(&spell_sha_healing_rain_AuraScript::HandleEffectPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
@@ -1696,8 +1622,6 @@ class spell_sha_healing_rain : public SpellScriptLoader
 // 73921 - Healing Rain Triggered
 class spell_sha_healing_rain_triggered : public SpellScript
 {
-    PrepareSpellScript(spell_sha_healing_rain_triggered);
-
     void FilterTargets(std::list<WorldObject*>& unitList)
     {
         _targets = unitList.size();
@@ -1711,8 +1635,8 @@ class spell_sha_healing_rain_triggered : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_healing_rain_triggered::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
-        OnEffectHitTarget += SpellEffectFn(spell_sha_healing_rain_triggered::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+        OnObjectAreaTargetSelect.Register(&spell_sha_healing_rain_triggered::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+        OnEffectHitTarget.Register(&spell_sha_healing_rain_triggered::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
     }
 private:
     uint8 _targets = 0;
@@ -1725,8 +1649,6 @@ class spell_sha_earthliving_weapon : public SpellScriptLoader
 
         class spell_sha_earthliving_weapon_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_sha_earthliving_weapon_AuraScript);
-
             bool CheckProc(ProcEventInfo& eventInfo)
             {
                 // Blessing of the Eternals
@@ -1741,7 +1663,7 @@ class spell_sha_earthliving_weapon : public SpellScriptLoader
 
             void Register() override
             {
-                DoCheckProc += AuraCheckProcFn(spell_sha_earthliving_weapon_AuraScript::CheckProc);
+                DoCheckProc.Register(&spell_sha_earthliving_weapon_AuraScript::CheckProc);
             }
         };
 
@@ -1754,8 +1676,6 @@ class spell_sha_earthliving_weapon : public SpellScriptLoader
 // 10400 - Flametongue Weapon (Passive)
 class spell_sha_flametongue_weapon : public AuraScript
 {
-    PrepareAuraScript(spell_sha_flametongue_weapon);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -1821,16 +1741,14 @@ class spell_sha_flametongue_weapon : public AuraScript
 
     void Register() override
     {
-        DoCheckProc += AuraCheckProcFn(spell_sha_flametongue_weapon::CheckProc);
-        OnEffectProc += AuraEffectProcFn(spell_sha_flametongue_weapon::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+        DoCheckProc.Register(&spell_sha_flametongue_weapon::CheckProc);
+        OnEffectProc.Register(&spell_sha_flametongue_weapon::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
 // 33757 - Windfury Weapon (Passive)
 class spell_sha_windfury_weapon : public AuraScript
 {
-    PrepareAuraScript(spell_sha_windfury_weapon);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -1888,15 +1806,13 @@ class spell_sha_windfury_weapon : public AuraScript
 
     void Register() override
     {
-        DoCheckProc += AuraCheckProcFn(spell_sha_windfury_weapon::CheckProc);
-        OnEffectProc += AuraEffectProcFn(spell_sha_windfury_weapon::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+        DoCheckProc.Register(&spell_sha_windfury_weapon::CheckProc);
+        OnEffectProc.Register(&spell_sha_windfury_weapon::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
 class spell_sha_unleash_elements : public SpellScript
 {
-    PrepareSpellScript(spell_sha_unleash_elements);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -1965,15 +1881,13 @@ class spell_sha_unleash_elements : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_sha_unleash_elements::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget.Register(&spell_sha_unleash_elements::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
 // -51525 - Static Shock
 class spell_sha_static_shock : public AuraScript
 {
-    PrepareAuraScript(spell_sha_static_shock);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SHAMAN_LIGHTNING_SHIELD_DAMAGE });
@@ -1996,16 +1910,14 @@ class spell_sha_static_shock : public AuraScript
 
     void Register() override
     {
-        DoCheckProc += AuraCheckProcFn(spell_sha_static_shock::CheckProc);
-        OnEffectProc += AuraEffectProcFn(spell_sha_static_shock::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+        DoCheckProc.Register(&spell_sha_static_shock::CheckProc);
+        OnEffectProc.Register(&spell_sha_static_shock::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
 // -63373 - Frozen Power
 class spell_sha_frozen_power : public AuraScript
 {
-    PrepareAuraScript(spell_sha_frozen_power);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SHAMAN_FREEZE });
@@ -2031,15 +1943,13 @@ class spell_sha_frozen_power : public AuraScript
 
     void Register() override
     {
-        OnEffectProc += AuraEffectProcFn(spell_sha_frozen_power::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
+        OnEffectProc.Register(&spell_sha_frozen_power::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
     }
 };
 
 // 61882 - Earthquake
 class spell_sha_earthquake : public AuraScript
 {
-    PrepareAuraScript(spell_sha_earthquake);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SHAMAN_EARTHQUAKE_DAMAGE });
@@ -2053,15 +1963,13 @@ class spell_sha_earthquake : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_sha_earthquake::HandleDummyTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectPeriodic.Register(&spell_sha_earthquake::HandleDummyTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
 // 77478 - Earthquake
 class spell_sha_earthquake_damage : public SpellScript
 {
-    PrepareSpellScript(spell_sha_earthquake_damage);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SHAMAN_EARTHQUAKE_STUN });
@@ -2076,15 +1984,13 @@ class spell_sha_earthquake_damage : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_sha_earthquake_damage::HandleKnockdown, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_sha_earthquake_damage::HandleKnockdown, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 // 324 - Lightning Shield
 class spell_sha_lightning_shield : public AuraScript
 {
-    PrepareAuraScript(spell_sha_lightning_shield);
-
     void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
     {
         if (GetTarget()->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, SHAMAN_ICON_ID_GLYPH_OF_LIGHTNING_SHIELD, EFFECT_0))
@@ -2094,14 +2000,12 @@ class spell_sha_lightning_shield : public AuraScript
 
     void Register() override
     {
-        AfterEffectProc += AuraEffectProcFn(spell_sha_lightning_shield::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        AfterEffectProc.Register(&spell_sha_lightning_shield::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
     }
 };
 
 class spell_sha_searing_bolt : public SpellScript
 {
-    PrepareSpellScript(spell_sha_searing_bolt);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SHAMAN_SEARING_FLAMES_DAMAGE });
@@ -2121,7 +2025,7 @@ class spell_sha_searing_bolt : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_sha_searing_bolt::HandleSearingFlames, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnEffectHitTarget.Register(&spell_sha_searing_bolt::HandleSearingFlames, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 

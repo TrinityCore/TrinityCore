@@ -607,8 +607,6 @@ private:
 
 struct spell_jindo_shadow_spike : public SpellScript
 {
-    PrepareSpellScript(spell_jindo_shadow_spike);
-
     void HandleDummyEffect(SpellEffIndex effIndex)
     {
         if (Unit* caster = GetCaster())
@@ -617,14 +615,12 @@ struct spell_jindo_shadow_spike : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_jindo_shadow_spike::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget.Register(&spell_jindo_shadow_spike::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
 struct spell_jindo_call_spirit : public SpellScript
 {
-    PrepareSpellScript(spell_jindo_call_spirit);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SUMMON_SPIRIT });
@@ -637,14 +633,12 @@ struct spell_jindo_call_spirit : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_jindo_call_spirit::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget.Register(&spell_jindo_call_spirit::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
 struct spell_jindo_spirit_warriors_gaze : public SpellScript
 {
-    PrepareSpellScript(spell_jindo_spirit_warriors_gaze);
-
     void HandleDummyEffect(SpellEffIndex effIndex)
     {
         if (Unit* caster = GetCaster())
@@ -653,14 +647,12 @@ struct spell_jindo_spirit_warriors_gaze : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_jindo_spirit_warriors_gaze::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+        OnEffectHitTarget.Register(&spell_jindo_spirit_warriors_gaze::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
     }
 };
 
 struct spell_jindo_body_slam : public SpellScript
 {
-    PrepareSpellScript(spell_jindo_body_slam);
-
     void HandleShieldBreakEffect(SpellEffIndex /*effIndex*/)
     {
         Unit* target = GetHitCreature();
@@ -676,7 +668,7 @@ struct spell_jindo_body_slam : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_jindo_body_slam::HandleShieldBreakEffect, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnEffectHitTarget.Register(&spell_jindo_body_slam::HandleShieldBreakEffect, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 

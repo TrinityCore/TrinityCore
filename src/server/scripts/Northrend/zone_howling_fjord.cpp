@@ -555,8 +555,6 @@ class spell_mindless_abomination_explosion_fx_master : public SpellScriptLoader
 
         class spell_mindless_abomination_explosion_fx_master_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_mindless_abomination_explosion_fx_master_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_RANDOM_CIRCUMFERENCE_POINT_POISON, SPELL_COSMETIC_BLOOD_EXPLOSION_GREEN_LARGE });
@@ -578,7 +576,7 @@ class spell_mindless_abomination_explosion_fx_master : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_mindless_abomination_explosion_fx_master_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_mindless_abomination_explosion_fx_master_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 

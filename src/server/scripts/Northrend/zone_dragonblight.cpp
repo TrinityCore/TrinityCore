@@ -389,8 +389,6 @@ public:
 
     class spell_q12096_q12092_dummy_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_q12096_q12092_dummy_SpellScript);
-
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
             uint32 roll = rand32() % 2;
@@ -419,7 +417,7 @@ public:
 
         void Register() override
         {
-            OnEffectHitTarget += SpellEffectFn(spell_q12096_q12092_dummy_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffectHitTarget.Register(&spell_q12096_q12092_dummy_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
@@ -436,8 +434,6 @@ public:
 
     class spell_q12096_q12092_bark_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_q12096_q12092_bark_SpellScript);
-
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
             Creature* lothalor = GetHitCreature();
@@ -451,7 +447,7 @@ public:
 
         void Register() override
         {
-            OnEffectHitTarget += SpellEffectFn(spell_q12096_q12092_bark_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffectHitTarget.Register(&spell_q12096_q12092_bark_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 

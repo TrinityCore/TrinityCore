@@ -659,8 +659,6 @@ class spell_shield_of_runes : public SpellScriptLoader
 
         class spell_shield_of_runes_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_shield_of_runes_AuraScript);
-
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
@@ -670,7 +668,7 @@ class spell_shield_of_runes : public SpellScriptLoader
 
             void Register() override
             {
-                 AfterEffectRemove += AuraEffectRemoveFn(spell_shield_of_runes_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
+                 AfterEffectRemove.Register(&spell_shield_of_runes_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -687,8 +685,6 @@ class spell_assembly_meltdown : public SpellScriptLoader
 
         class spell_assembly_meltdown_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_assembly_meltdown_SpellScript);
-
             void HandleInstaKill(SpellEffIndex /*effIndex*/)
             {
                 if (InstanceScript* instance = GetCaster()->GetInstanceScript())
@@ -698,7 +694,7 @@ class spell_assembly_meltdown : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_assembly_meltdown_SpellScript::HandleInstaKill, EFFECT_1, SPELL_EFFECT_INSTAKILL);
+                OnEffectHitTarget.Register(&spell_assembly_meltdown_SpellScript::HandleInstaKill, EFFECT_1, SPELL_EFFECT_INSTAKILL);
             }
         };
 
@@ -715,8 +711,6 @@ class spell_assembly_rune_of_summoning : public SpellScriptLoader
 
         class spell_assembly_rune_of_summoning_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_assembly_rune_of_summoning_AuraScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_RUNE_OF_SUMMONING_SUMMON });
@@ -736,8 +730,8 @@ class spell_assembly_rune_of_summoning : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_assembly_rune_of_summoning_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-                OnEffectRemove += AuraEffectRemoveFn(spell_assembly_rune_of_summoning_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectPeriodic.Register(&spell_assembly_rune_of_summoning_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectRemove.Register(&spell_assembly_rune_of_summoning_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 

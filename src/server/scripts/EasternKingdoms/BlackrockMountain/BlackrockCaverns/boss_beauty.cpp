@@ -223,8 +223,6 @@ private:
 
 class spell_beauty_magma_spit : public AuraScript
 {
-    PrepareAuraScript(spell_beauty_magma_spit);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -247,7 +245,7 @@ class spell_beauty_magma_spit : public AuraScript
 
     void Register() override
     {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_beauty_magma_spit::AfterRemove, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove.Register(&spell_beauty_magma_spit::AfterRemove, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
     }
 };
 

@@ -248,8 +248,6 @@ class spell_gal_darah_impaling_charge : public SpellScriptLoader
 
         class spell_gal_darah_impaling_charge_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gal_darah_impaling_charge_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_IMPALING_CHARGE_CONTROL_VEHICLE });
@@ -272,7 +270,7 @@ class spell_gal_darah_impaling_charge : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_gal_darah_impaling_charge_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_CHARGE);
+                OnEffectHitTarget.Register(&spell_gal_darah_impaling_charge_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_CHARGE);
             }
         };
 
@@ -290,8 +288,6 @@ public:
 
     class spell_gal_darah_stampede_charge_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_gal_darah_stampede_charge_SpellScript);
-
         void OnHit(SpellEffIndex /*effIndex*/)
         {
             if (Creature* caster = GetCaster()->ToCreature())
@@ -300,7 +296,7 @@ public:
 
         void Register() override
         {
-            OnEffectHitTarget += SpellEffectFn(spell_gal_darah_stampede_charge_SpellScript::OnHit, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+            OnEffectHitTarget.Register(&spell_gal_darah_stampede_charge_SpellScript::OnHit, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
         }
     };
 

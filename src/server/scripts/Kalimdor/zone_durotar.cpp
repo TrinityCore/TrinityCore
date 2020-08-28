@@ -41,8 +41,6 @@ class spell_voodoo : public SpellScriptLoader
 
         class spell_voodoo_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_voodoo_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_BREW, SPELL_GHOSTLY, SPELL_HEX1, SPELL_HEX2, SPELL_HEX3, SPELL_GROW, SPELL_LAUNCH });
@@ -57,7 +55,7 @@ class spell_voodoo : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_voodoo_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget.Register(&spell_voodoo_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -69,8 +67,6 @@ class spell_voodoo : public SpellScriptLoader
 
 class spell_zuni_lvl_1_trigger_aura : public SpellScript
 {
-    PrepareSpellScript(spell_zuni_lvl_1_trigger_aura);
-
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         GetCaster()->CastSpell(GetCaster(), GetSpellInfo()->Effects[EFFECT_0].BasePoints, true);
@@ -78,7 +74,7 @@ class spell_zuni_lvl_1_trigger_aura : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_zuni_lvl_1_trigger_aura::HandleDummy, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+        OnEffectHitTarget.Register(&spell_zuni_lvl_1_trigger_aura::HandleDummy, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
     }
 };
 

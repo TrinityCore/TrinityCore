@@ -200,8 +200,6 @@ struct boss_commander_ulthok : public BossAI
 
 class spell_ulthok_dark_fissure : public AuraScript
 {
-    PrepareAuraScript(spell_ulthok_dark_fissure);
-
     void HandlePeriodic(AuraEffect const* aurEff)
     {
         PreventDefaultAction();
@@ -215,7 +213,7 @@ class spell_ulthok_dark_fissure : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_ulthok_dark_fissure::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+        OnEffectPeriodic.Register(&spell_ulthok_dark_fissure::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
     }
 };
 

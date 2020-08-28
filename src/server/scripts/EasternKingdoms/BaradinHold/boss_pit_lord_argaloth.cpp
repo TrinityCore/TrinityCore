@@ -219,8 +219,6 @@ private:
 // 88954 / 95173 - Consuming Darkness
 class spell_argaloth_consuming_darkness : public SpellScript
 {
-    PrepareSpellScript(spell_argaloth_consuming_darkness);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         Trinity::Containers::RandomResize(targets, GetCaster()->GetMap()->Is25ManRaid() ? 8 : 3);
@@ -228,15 +226,12 @@ class spell_argaloth_consuming_darkness : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_argaloth_consuming_darkness::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnObjectAreaTargetSelect.Register(&spell_argaloth_consuming_darkness::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
     }
 };
 
 class spell_argaloth_consuming_darkness_AuraScript : public AuraScript
 {
-    PrepareAuraScript(spell_argaloth_consuming_darkness_AuraScript);
-
-
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
         if (AuraEffect* aurEff = GetEffect(EFFECT_0))
@@ -248,15 +243,13 @@ class spell_argaloth_consuming_darkness_AuraScript : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_argaloth_consuming_darkness_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+        OnEffectPeriodic.Register(&spell_argaloth_consuming_darkness_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
     }
 };
 
 // 88942 / 95172 - Meteor Slash
 class spell_argaloth_meteor_slash : public SpellScript
 {
-    PrepareSpellScript(spell_argaloth_meteor_slash);
-
     bool Load() override
     {
         _targetCount = 0;
@@ -278,8 +271,8 @@ class spell_argaloth_meteor_slash : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_argaloth_meteor_slash::CountTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_104);
-        BeforeHit += SpellHitFn(spell_argaloth_meteor_slash::SplitDamage);
+        OnObjectAreaTargetSelect.Register(&spell_argaloth_meteor_slash::CountTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_104);
+        BeforeHit.Register(&spell_argaloth_meteor_slash::SplitDamage);
     }
 
 private:
@@ -289,8 +282,6 @@ private:
 // 88987 / 95176 - Fel Firestorm
 class spell_argaloth_fel_firestorm : public SpellScript
 {
-    PrepareSpellScript(spell_argaloth_fel_firestorm);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         Trinity::Containers::RandomResize(targets, GetCaster()->GetMap()->Is25ManRaid() ? 8 : 3);
@@ -298,7 +289,7 @@ class spell_argaloth_fel_firestorm : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_argaloth_fel_firestorm::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnObjectAreaTargetSelect.Register(&spell_argaloth_fel_firestorm::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
     }
 };
 

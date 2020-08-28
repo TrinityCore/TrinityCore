@@ -301,8 +301,6 @@ private:
 
 class spell_earthrager_ptah_flame_bolt : public SpellScript
 {
-    PrepareSpellScript(spell_earthrager_ptah_flame_bolt);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         if (targets.empty())
@@ -316,14 +314,12 @@ class spell_earthrager_ptah_flame_bolt : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_earthrager_ptah_flame_bolt::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnObjectAreaTargetSelect.Register(&spell_earthrager_ptah_flame_bolt::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
     }
 };
 
 class spell_earthrager_ptah_sandstorm : public SpellScript
 {
-    PrepareSpellScript(spell_earthrager_ptah_sandstorm);
-
     void PlaySoundID(SpellEffIndex /*effIndex*/)
     {
         if (Player* player = GetHitUnit()->ToPlayer())
@@ -332,14 +328,12 @@ class spell_earthrager_ptah_sandstorm : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_earthrager_ptah_sandstorm::PlaySoundID, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+        OnEffectHitTarget.Register(&spell_earthrager_ptah_sandstorm::PlaySoundID, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
     }
 };
 
 class spell_earthrager_ptah_explosion : public AuraScript
 {
-    PrepareAuraScript(spell_earthrager_ptah_explosion);
-
     void SetFlags(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Unit* target = GetTarget();
@@ -349,7 +343,6 @@ class spell_earthrager_ptah_explosion : public AuraScript
 
     void RemoveFlags(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-
         Unit* target = GetTarget();
         target->RemoveFlag(UNIT_FIELD_FLAGS, uint32(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_UNK_29 | UNIT_FLAG_UNK_31));
         target->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
@@ -357,15 +350,13 @@ class spell_earthrager_ptah_explosion : public AuraScript
 
     void Register() override
     {
-        AfterEffectApply += AuraEffectApplyFn(spell_earthrager_ptah_explosion::SetFlags, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        AfterEffectRemove += AuraEffectRemoveFn(spell_earthrager_ptah_explosion::RemoveFlags, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectApply.Register(&spell_earthrager_ptah_explosion::SetFlags, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove.Register(&spell_earthrager_ptah_explosion::RemoveFlags, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
 class spell_earthrager_ptah_consume : public SpellScript
 {
-    PrepareSpellScript(spell_earthrager_ptah_consume);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         if (targets.empty())
@@ -393,7 +384,7 @@ class spell_earthrager_ptah_consume : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_earthrager_ptah_consume::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnObjectAreaTargetSelect.Register(&spell_earthrager_ptah_consume::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
     }
 };
 

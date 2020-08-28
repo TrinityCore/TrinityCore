@@ -269,8 +269,6 @@ class spell_varos_centrifuge_shield : public SpellScriptLoader
 
         class spell_varos_centrifuge_shield_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_varos_centrifuge_shield_AuraScript);
-
             bool Load() override
             {
                 Unit* caster = GetCaster();
@@ -303,8 +301,8 @@ class spell_varos_centrifuge_shield : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectRemove += AuraEffectRemoveFn(spell_varos_centrifuge_shield_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-                OnEffectApply += AuraEffectApplyFn(spell_varos_centrifuge_shield_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove.Register(&spell_varos_centrifuge_shield_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectApply.Register(&spell_varos_centrifuge_shield_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -321,8 +319,6 @@ class spell_varos_energize_core_area_enemy : public SpellScriptLoader
 
         class spell_varos_energize_core_area_enemySpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_varos_energize_core_area_enemySpellScript);
-
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 Creature* varos = GetCaster()->ToCreature();
@@ -348,7 +344,7 @@ class spell_varos_energize_core_area_enemy : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_varos_energize_core_area_enemySpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect.Register(&spell_varos_energize_core_area_enemySpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
@@ -365,8 +361,6 @@ class spell_varos_energize_core_area_entry : public SpellScriptLoader
 
         class spell_varos_energize_core_area_entrySpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_varos_energize_core_area_entrySpellScript);
-
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 Creature* varos = GetCaster()->ToCreature();
@@ -392,7 +386,7 @@ class spell_varos_energize_core_area_entry : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_varos_energize_core_area_entrySpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+                OnObjectAreaTargetSelect.Register(&spell_varos_energize_core_area_entrySpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
             }
         };
 

@@ -267,8 +267,6 @@ class spell_soul_fragment_anger : public SpellScriptLoader
 
         class spell_soul_fragment_anger_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_soul_fragment_anger_SpellScript);
-
             void HandleKill()
             {
                 if (Creature* caster = GetCaster()->ToCreature())
@@ -277,7 +275,7 @@ class spell_soul_fragment_anger : public SpellScriptLoader
 
             void Register() override
             {
-                AfterCast += SpellCastFn(spell_soul_fragment_anger_SpellScript::HandleKill);
+                AfterCast.Register(&spell_soul_fragment_anger_SpellScript::HandleKill);
             }
         };
 
@@ -295,8 +293,6 @@ class spell_illidari_nightlord_shadow_inferno : public SpellScriptLoader
 
         class spell_illidari_nightlord_shadow_inferno_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_illidari_nightlord_shadow_inferno_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_SHADOW_INFERNO_DAMAGE });
@@ -311,7 +307,7 @@ class spell_illidari_nightlord_shadow_inferno : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_illidari_nightlord_shadow_inferno_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+                OnEffectPeriodic.Register(&spell_illidari_nightlord_shadow_inferno_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
         };
 

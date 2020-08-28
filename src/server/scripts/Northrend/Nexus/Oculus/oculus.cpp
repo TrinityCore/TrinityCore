@@ -416,8 +416,6 @@ class spell_oculus_call_ruby_emerald_amber_drake : public SpellScriptLoader
 
         class spell_oculus_call_ruby_emerald_amber_drake_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_oculus_call_ruby_emerald_amber_drake_SpellScript);
-
             void SetDest(SpellDestination& dest)
             {
                 // Adjust effect summon position
@@ -427,7 +425,7 @@ class spell_oculus_call_ruby_emerald_amber_drake : public SpellScriptLoader
 
             void Register() override
             {
-                OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_oculus_call_ruby_emerald_amber_drake_SpellScript::SetDest, EFFECT_0, TARGET_DEST_CASTER_FRONT);
+                OnDestinationTargetSelect.Register(&spell_oculus_call_ruby_emerald_amber_drake_SpellScript::SetDest, EFFECT_0, TARGET_DEST_CASTER_FRONT);
             }
         };
 
@@ -447,8 +445,6 @@ class spell_oculus_ride_ruby_emerald_amber_drake_que : public SpellScriptLoader
 
         class spell_oculus_ride_ruby_emerald_amber_drake_que_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_oculus_ride_ruby_emerald_amber_drake_que_AuraScript);
-
             void HandlePeriodic(AuraEffect const* aurEff)
             {
                 // caster of the triggered spell is wrong for an unknown reason, handle it here correctly
@@ -459,7 +455,7 @@ class spell_oculus_ride_ruby_emerald_amber_drake_que : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_oculus_ride_ruby_emerald_amber_drake_que_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+                OnEffectPeriodic.Register(&spell_oculus_ride_ruby_emerald_amber_drake_que_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
         };
 
@@ -477,8 +473,6 @@ class spell_oculus_evasive_maneuvers : public SpellScriptLoader
 
         class spell_oculus_evasive_maneuvers_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_oculus_evasive_maneuvers_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_RUBY_EVASIVE_CHARGES });
@@ -494,7 +488,7 @@ class spell_oculus_evasive_maneuvers : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectProc += AuraEffectProcFn(spell_oculus_evasive_maneuvers_AuraScript::HandleProc, EFFECT_2, SPELL_AURA_PROC_TRIGGER_SPELL);
+                OnEffectProc.Register(&spell_oculus_evasive_maneuvers_AuraScript::HandleProc, EFFECT_2, SPELL_AURA_PROC_TRIGGER_SPELL);
             }
         };
 
@@ -512,8 +506,6 @@ class spell_oculus_shock_lance : public SpellScriptLoader
 
         class spell_oculus_shock_lance_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_oculus_shock_lance_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_AMBER_SHOCK_CHARGE });
@@ -536,7 +528,7 @@ class spell_oculus_shock_lance : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectLaunchTarget += SpellEffectFn(spell_oculus_shock_lance_SpellScript::CalcDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                OnEffectLaunchTarget.Register(&spell_oculus_shock_lance_SpellScript::CalcDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
@@ -554,8 +546,6 @@ class spell_oculus_stop_time : public SpellScriptLoader
 
         class spell_oculus_stop_time_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_oculus_stop_time_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_AMBER_SHOCK_CHARGE });
@@ -574,7 +564,7 @@ class spell_oculus_stop_time : public SpellScriptLoader
 
             void Register() override
             {
-                AfterEffectApply += AuraEffectApplyFn(spell_oculus_stop_time_AuraScript::Apply, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectApply.Register(&spell_oculus_stop_time_AuraScript::Apply, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -592,8 +582,6 @@ class spell_oculus_temporal_rift : public SpellScriptLoader
 
         class spell_oculus_temporal_rift_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_oculus_temporal_rift_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_AMBER_SHOCK_CHARGE });
@@ -619,7 +607,7 @@ class spell_oculus_temporal_rift : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectProc += AuraEffectProcFn(spell_oculus_temporal_rift_AuraScript::HandleProc, EFFECT_2, SPELL_AURA_DUMMY);
+                OnEffectProc.Register(&spell_oculus_temporal_rift_AuraScript::HandleProc, EFFECT_2, SPELL_AURA_DUMMY);
             }
         };
 
@@ -637,8 +625,6 @@ class spell_oculus_touch_the_nightmare : public SpellScriptLoader
 
         class spell_oculus_touch_the_nightmare_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_oculus_touch_the_nightmare_SpellScript);
-
             void HandleDamageCalc(SpellEffIndex /*effIndex*/)
             {
                 SetHitDamage(int32(GetCaster()->CountPctFromMaxHealth(30)));
@@ -646,7 +632,7 @@ class spell_oculus_touch_the_nightmare : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_oculus_touch_the_nightmare_SpellScript::HandleDamageCalc, EFFECT_2, SPELL_EFFECT_SCHOOL_DAMAGE);
+                OnEffectHitTarget.Register(&spell_oculus_touch_the_nightmare_SpellScript::HandleDamageCalc, EFFECT_2, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
@@ -664,8 +650,6 @@ class spell_oculus_dream_funnel : public SpellScriptLoader
 
         class spell_oculus_dream_funnel_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_oculus_dream_funnel_AuraScript);
-
             void HandleEffectCalcAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
             {
                 if (Unit* caster = GetCaster())
@@ -676,8 +660,8 @@ class spell_oculus_dream_funnel : public SpellScriptLoader
 
             void Register() override
             {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_oculus_dream_funnel_AuraScript::HandleEffectCalcAmount, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_oculus_dream_funnel_AuraScript::HandleEffectCalcAmount, EFFECT_2, SPELL_AURA_PERIODIC_DAMAGE);
+                DoEffectCalcAmount.Register(&spell_oculus_dream_funnel_AuraScript::HandleEffectCalcAmount, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+                DoEffectCalcAmount.Register(&spell_oculus_dream_funnel_AuraScript::HandleEffectCalcAmount, EFFECT_2, SPELL_AURA_PERIODIC_DAMAGE);
             }
         };
 

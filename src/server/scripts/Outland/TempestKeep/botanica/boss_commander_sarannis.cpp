@@ -168,8 +168,6 @@ class spell_commander_sarannis_summon_reinforcements : public SpellScriptLoader
 
         class spell_commander_sarannis_summon_reinforcements_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_commander_sarannis_summon_reinforcements_SpellScript);
-
             void HandleCast(SpellEffIndex /*effIndex*/)
             {
                 GetCaster()->SummonCreature(NPC_SUMMONED_BLOODWARDER_MENDER, PosSummonReinforcements[0], TEMPSUMMON_CORPSE_DESPAWN);
@@ -181,7 +179,7 @@ class spell_commander_sarannis_summon_reinforcements : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_commander_sarannis_summon_reinforcements_SpellScript::HandleCast, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget.Register(&spell_commander_sarannis_summon_reinforcements_SpellScript::HandleCast, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 

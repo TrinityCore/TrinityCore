@@ -169,8 +169,6 @@ class spell_shadow_portal : public SpellScriptLoader
 
         class spell_shadow_portal_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_shadow_portal_SpellScript);
-
         public:
             spell_shadow_portal_SpellScript()
             {
@@ -235,7 +233,7 @@ class spell_shadow_portal : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_shadow_portal_SpellScript::HandleCast, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget.Register(&spell_shadow_portal_SpellScript::HandleCast, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
 
             InstanceScript* _instance;
@@ -298,8 +296,6 @@ class spell_shadow_portal_rooms : public SpellScriptLoader
 
         class spell_shadow_portal_rooms_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_shadow_portal_rooms_SpellScript);
-
             bool Load() override
             {
                 _instance = GetCaster()->GetInstanceScript();
@@ -370,7 +366,7 @@ class spell_shadow_portal_rooms : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHit += SpellEffectFn(spell_shadow_portal_rooms_SpellScript::HandleSendEvent, EFFECT_1, SPELL_EFFECT_SEND_EVENT);
+                OnEffectHit.Register(&spell_shadow_portal_rooms_SpellScript::HandleSendEvent, EFFECT_1, SPELL_EFFECT_SEND_EVENT);
             }
 
             InstanceScript* _instance = nullptr;

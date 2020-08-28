@@ -221,8 +221,6 @@ struct boss_lord_walden : public BossAI
 
 class spell_walden_toxic_coagulent : public AuraScript
 {
-    PrepareAuraScript(spell_walden_toxic_coagulent);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_FULLY_COAGULATED });
@@ -239,14 +237,12 @@ class spell_walden_toxic_coagulent : public AuraScript
 
     void Register() override
     {
-        AfterEffectApply += AuraEffectApplyFn(spell_walden_toxic_coagulent::AfterApply, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        AfterEffectApply.Register(&spell_walden_toxic_coagulent::AfterApply, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
     }
 };
 
 class spell_walden_conjure_poisonous_mixture : public SpellScript
 {
-    PrepareSpellScript(spell_walden_conjure_poisonous_mixture);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         Trinity::Containers::RandomResize(targets, 1);
@@ -254,14 +250,12 @@ class spell_walden_conjure_poisonous_mixture : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_walden_conjure_poisonous_mixture::FilterTargets, EFFECT_ALL, TARGET_UNIT_DEST_AREA_ENEMY);
+        OnObjectAreaTargetSelect.Register(&spell_walden_conjure_poisonous_mixture::FilterTargets, EFFECT_ALL, TARGET_UNIT_DEST_AREA_ENEMY);
     }
 };
 
 class spell_walden_ice_shards : public AuraScript
 {
-    PrepareAuraScript(spell_walden_ice_shards);
-
     void HandleEffectPeriodic(AuraEffect const* aurEff)
     {
         PreventDefaultAction();
@@ -276,14 +270,12 @@ class spell_walden_ice_shards : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_walden_ice_shards::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+        OnEffectPeriodic.Register(&spell_walden_ice_shards::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
     }
 };
 
 class spell_walden_conjure_mystery_toxin : public SpellScript
 {
-    PrepareSpellScript(spell_walden_conjure_mystery_toxin);
-
     void SetDest(SpellDestination& dest)
     {
         dest.RelocateOffset({ 0.0f, 0.0f, 4.58f, 0.0f });
@@ -291,14 +283,12 @@ class spell_walden_conjure_mystery_toxin : public SpellScript
 
     void Register()
     {
-        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_walden_conjure_mystery_toxin::SetDest, EFFECT_0, TARGET_DEST_CASTER);
+        OnDestinationTargetSelect.Register(&spell_walden_conjure_mystery_toxin::SetDest, EFFECT_0, TARGET_DEST_CASTER);
     }
 };
 
 class spell_walden_toxic_catalyst : public SpellScript
 {
-    PrepareSpellScript(spell_walden_toxic_catalyst);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         targets.remove_if([](WorldObject* obj)->bool
@@ -310,7 +300,7 @@ class spell_walden_toxic_catalyst : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_walden_toxic_catalyst::FilterTargets, EFFECT_ALL, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnObjectAreaTargetSelect.Register(&spell_walden_toxic_catalyst::FilterTargets, EFFECT_ALL, TARGET_UNIT_SRC_AREA_ENEMY);
     }
 };
 

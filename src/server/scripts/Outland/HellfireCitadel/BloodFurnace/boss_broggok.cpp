@@ -167,8 +167,6 @@ class spell_broggok_poison_cloud : public SpellScriptLoader
 
         class spell_broggok_poison_cloud_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_broggok_poison_cloud_AuraScript);
-
             bool Validate(SpellInfo const* spellInfo) override
             {
                 return ValidateSpellInfo({ spellInfo->Effects[EFFECT_0].TriggerSpell });
@@ -187,7 +185,7 @@ class spell_broggok_poison_cloud : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_broggok_poison_cloud_AuraScript::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+                OnEffectPeriodic.Register(&spell_broggok_poison_cloud_AuraScript::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
         };
 

@@ -579,8 +579,6 @@ class spell_summon_blood_elves_script : SpellScriptLoader
 
         class spell_summon_blood_elves_script_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_summon_blood_elves_script_SpellScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo(SummonBloodElvesSpells);
@@ -594,7 +592,7 @@ class spell_summon_blood_elves_script : SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_summon_blood_elves_script_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_summon_blood_elves_script_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -611,8 +609,6 @@ class spell_muru_darkness : SpellScriptLoader
 
         class spell_muru_darkness_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_muru_darkness_SpellScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo(SummonDarkFiendSpells);
@@ -626,7 +622,7 @@ class spell_muru_darkness : SpellScriptLoader
 
             void Register() override
             {
-                AfterCast += SpellCastFn(spell_muru_darkness_SpellScript::HandleAfterCast);
+                AfterCast.Register(&spell_muru_darkness_SpellScript::HandleAfterCast);
             }
         };
 
@@ -643,8 +639,6 @@ class spell_dark_fiend_skin : public SpellScriptLoader
 
         class spell_dark_fiend_skin_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_dark_fiend_skin_AuraScript);
-
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (!GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::ByEnemySpell))
@@ -662,7 +656,7 @@ class spell_dark_fiend_skin : public SpellScriptLoader
 
             void Register() override
             {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_dark_fiend_skin_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove.Register(&spell_dark_fiend_skin_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -679,8 +673,6 @@ class spell_transform_visual_missile_periodic : public SpellScriptLoader
 
         class spell_transform_visual_missile_periodic_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_transform_visual_missile_periodic_AuraScript);
-
             void OnPeriodic(AuraEffect const* /*aurEff*/)
             {
                 GetTarget()->CastSpell(nullptr, RAND(TRANSFORM_VISUAL_MISSILE_1, TRANSFORM_VISUAL_MISSILE_2), true);
@@ -688,7 +680,7 @@ class spell_transform_visual_missile_periodic : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_transform_visual_missile_periodic_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectPeriodic.Register(&spell_transform_visual_missile_periodic_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
@@ -705,8 +697,6 @@ class spell_summon_blood_elves_periodic : public SpellScriptLoader
 
         class spell_summon_blood_elves_periodic_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_summon_blood_elves_periodic_AuraScript);
-
             void OnPeriodic(AuraEffect const* /*aurEff*/)
             {
                 GetTarget()->CastSpell(nullptr, SPELL_SUMMON_BLOOD_ELVES_SCRIPT, true);
@@ -714,7 +704,7 @@ class spell_summon_blood_elves_periodic : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_summon_blood_elves_periodic_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectPeriodic.Register(&spell_summon_blood_elves_periodic_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 

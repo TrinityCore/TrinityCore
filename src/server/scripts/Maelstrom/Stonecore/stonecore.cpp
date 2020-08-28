@@ -258,8 +258,6 @@ class spell_force_of_earth : public SpellScriptLoader
 
         class spell_force_of_earth_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_force_of_earth_SpellScript);
-
             void DummyEffect(SpellEffIndex /*effIndex*/)
             {
                 GetCaster()->SetDisplayId(26693); // can be moved to SAI part, need sniffs to see what this dummy does (note: npc 43552)
@@ -267,7 +265,7 @@ class spell_force_of_earth : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectLaunch += SpellEffectFn(spell_force_of_earth_SpellScript::DummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectLaunch.Register(&spell_force_of_earth_SpellScript::DummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -285,9 +283,7 @@ public:
 
     class spell_sc_anchor_here_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_sc_anchor_here_SpellScript);
-
-        void HandleScript(SpellEffIndex /*effIndex*/)
+             void HandleScript(SpellEffIndex /*effIndex*/)
         {
             if (Creature* creature = GetHitUnit()->ToCreature())
                 creature->SetHomePosition(creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), creature->GetOrientation());
@@ -295,7 +291,7 @@ public:
 
         void Register() override
         {
-            OnEffectHitTarget += SpellEffectFn(spell_sc_anchor_here_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            OnEffectHitTarget.Register(&spell_sc_anchor_here_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
         }
     };
 
@@ -313,8 +309,6 @@ class spell_sc_twilight_documents : public SpellScriptLoader
 
         class spell_sc_twilight_documents_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_sc_twilight_documents_SpellScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sObjectMgr->GetGameObjectTemplate(GAMEOBJECT_TWILIGHT_DOCUMENTS))
@@ -330,7 +324,7 @@ class spell_sc_twilight_documents : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHit += SpellEffectFn(spell_sc_twilight_documents_SpellScript::SpawnGameObject, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHit.Register(&spell_sc_twilight_documents_SpellScript::SpawnGameObject, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -362,8 +356,6 @@ class spell_sc_quake : public SpellScriptLoader
 
         class spell_sc_quake_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_sc_quake_SpellScript);
-
             void FilterTargets(std::list<WorldObject*>& unitList)
             {
                 unitList.remove_if(JumpCheck());
@@ -371,7 +363,7 @@ class spell_sc_quake : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sc_quake_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect.Register(&spell_sc_quake_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
@@ -383,8 +375,6 @@ class spell_sc_quake : public SpellScriptLoader
 
 class spell_sc_ring_wyrm_knockback : public SpellScript
 {
-    PrepareSpellScript(spell_sc_ring_wyrm_knockback);
-
     void SetDest(SpellDestination& dest)
     {
         Unit* caster = GetCaster();
@@ -398,7 +388,7 @@ class spell_sc_ring_wyrm_knockback : public SpellScript
 
     void Register()
     {
-        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_sc_ring_wyrm_knockback::SetDest, EFFECT_0, TARGET_DEST_CASTER_RANDOM);
+        OnDestinationTargetSelect.Register(&spell_sc_ring_wyrm_knockback::SetDest, EFFECT_0, TARGET_DEST_CASTER_RANDOM);
     }
 };
 

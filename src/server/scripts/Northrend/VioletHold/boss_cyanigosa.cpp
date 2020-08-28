@@ -151,8 +151,6 @@ class spell_cyanigosa_arcane_vacuum : public SpellScriptLoader
 
         class spell_cyanigosa_arcane_vacuum_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_cyanigosa_arcane_vacuum_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_SUMMON_PLAYER });
@@ -165,7 +163,7 @@ class spell_cyanigosa_arcane_vacuum : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_cyanigosa_arcane_vacuum_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget.Register(&spell_cyanigosa_arcane_vacuum_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 

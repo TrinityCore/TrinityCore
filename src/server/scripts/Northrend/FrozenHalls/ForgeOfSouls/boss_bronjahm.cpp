@@ -267,8 +267,6 @@ class spell_bronjahm_magic_bane : public SpellScriptLoader
 
         class spell_bronjahm_magic_bane_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_bronjahm_magic_bane_SpellScript);
-
             void RecalculateDamage()
             {
                 if (GetHitUnit()->GetPowerType() != POWER_MANA)
@@ -282,7 +280,7 @@ class spell_bronjahm_magic_bane : public SpellScriptLoader
 
             void Register() override
             {
-                OnHit += SpellHitFn(spell_bronjahm_magic_bane_SpellScript::RecalculateDamage);
+                OnHit.Register(&spell_bronjahm_magic_bane_SpellScript::RecalculateDamage);
             }
         };
 
@@ -299,8 +297,6 @@ class spell_bronjahm_consume_soul : public SpellScriptLoader
 
         class spell_bronjahm_consume_soul_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_bronjahm_consume_soul_SpellScript);
-
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
@@ -309,7 +305,7 @@ class spell_bronjahm_consume_soul : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_bronjahm_consume_soul_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_bronjahm_consume_soul_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -338,8 +334,6 @@ class spell_bronjahm_soulstorm_visual : public SpellScriptLoader
 
         class spell_bronjahm_soulstorm_visual_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_bronjahm_soulstorm_visual_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo(SoulstormVisualSpells);
@@ -353,7 +347,7 @@ class spell_bronjahm_soulstorm_visual : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_bronjahm_soulstorm_visual_AuraScript::HandlePeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectPeriodic.Register(&spell_bronjahm_soulstorm_visual_AuraScript::HandlePeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
@@ -370,8 +364,6 @@ class spell_bronjahm_soulstorm_targeting : public SpellScriptLoader
 
         class spell_bronjahm_soulstorm_targeting_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_bronjahm_soulstorm_targeting_SpellScript);
-
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 Unit* caster = GetCaster();
@@ -383,7 +375,7 @@ class spell_bronjahm_soulstorm_targeting : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_bronjahm_soulstorm_targeting_SpellScript::FilterTargets, EFFECT_ALL, TARGET_UNIT_DEST_AREA_ENEMY);
+                OnObjectAreaTargetSelect.Register(&spell_bronjahm_soulstorm_targeting_SpellScript::FilterTargets, EFFECT_ALL, TARGET_UNIT_DEST_AREA_ENEMY);
             }
         };
 

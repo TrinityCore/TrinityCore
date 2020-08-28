@@ -499,8 +499,6 @@ public:
 
     class spell_setesh_chaos_blast_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_setesh_chaos_blast_SpellScript);
-
         void FilterTargets(std::list<WorldObject*>& unitList)
         {
             if (unitList.empty())
@@ -513,7 +511,7 @@ public:
 
         void Register() override
         {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_setesh_chaos_blast_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+            OnObjectAreaTargetSelect.Register(&spell_setesh_chaos_blast_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
         }
     };
 

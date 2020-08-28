@@ -232,8 +232,6 @@ class spell_heigan_eruption : public SpellScriptLoader
 
         class spell_heigan_eruption_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_heigan_eruption_SpellScript);
-
             void HandleScript(SpellEffIndex /*eff*/)
             {
                 Unit* caster = GetCaster();
@@ -248,7 +246,7 @@ class spell_heigan_eruption : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_heigan_eruption_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                OnEffectHitTarget.Register(&spell_heigan_eruption_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 

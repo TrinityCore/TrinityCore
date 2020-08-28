@@ -544,8 +544,6 @@ class spell_archimonde_drain_world_tree_dummy : public SpellScriptLoader
 
         class spell_archimonde_drain_world_tree_dummy_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_archimonde_drain_world_tree_dummy_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_DRAIN_WORLD_TREE_TRIGGERED });
@@ -559,7 +557,7 @@ class spell_archimonde_drain_world_tree_dummy : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_archimonde_drain_world_tree_dummy_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget.Register(&spell_archimonde_drain_world_tree_dummy_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 

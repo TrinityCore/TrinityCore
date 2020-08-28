@@ -146,8 +146,6 @@ class spell_ioc_gunship_portal : public SpellScriptLoader
 
         class spell_ioc_gunship_portal_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_ioc_gunship_portal_SpellScript);
-
             bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
@@ -169,7 +167,7 @@ class spell_ioc_gunship_portal : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_ioc_gunship_portal_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_ioc_gunship_portal_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -186,8 +184,6 @@ class spell_ioc_parachute_ic : public SpellScriptLoader
 
         class spell_ioc_parachute_ic_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_ioc_parachute_ic_AuraScript);
-
             void HandleTriggerSpell(AuraEffect const* /*aurEff*/)
             {
                 if (Player* target = GetTarget()->ToPlayer())
@@ -197,7 +193,7 @@ class spell_ioc_parachute_ic : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_ioc_parachute_ic_AuraScript::HandleTriggerSpell, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+                OnEffectPeriodic.Register(&spell_ioc_parachute_ic_AuraScript::HandleTriggerSpell, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
         };
 
@@ -239,8 +235,6 @@ class spell_ioc_launch : public SpellScriptLoader
 
         class spell_ioc_launch_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_ioc_launch_SpellScript);
-
             void Launch()
             {
                 if (!GetCaster()->ToCreature() || !GetExplTargetDest())
@@ -251,7 +245,7 @@ class spell_ioc_launch : public SpellScriptLoader
 
             void Register() override
             {
-                AfterHit += SpellHitFn(spell_ioc_launch_SpellScript::Launch);
+                AfterHit.Register(&spell_ioc_launch_SpellScript::Launch);
             }
         };
 
@@ -276,8 +270,6 @@ class spell_ioc_seaforium_blast_credit : public SpellScriptLoader
 
         class spell_ioc_seaforium_blast_credit_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_ioc_seaforium_blast_credit_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_A_BOMB_INABLE_CREDIT, SPELL_A_BOMB_INATION_CREDIT });
@@ -301,7 +293,7 @@ class spell_ioc_seaforium_blast_credit : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_ioc_seaforium_blast_credit_SpellScript::HandleAchievementCredit, EFFECT_1, SPELL_EFFECT_GAMEOBJECT_DAMAGE);
+                OnEffectHitTarget.Register(&spell_ioc_seaforium_blast_credit_SpellScript::HandleAchievementCredit, EFFECT_1, SPELL_EFFECT_GAMEOBJECT_DAMAGE);
             }
         };
 

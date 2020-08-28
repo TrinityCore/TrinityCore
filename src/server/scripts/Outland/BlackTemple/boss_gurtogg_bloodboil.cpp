@@ -344,8 +344,6 @@ class spell_gurtogg_bloodboil_bloodboil : public SpellScriptLoader
 
         class spell_gurtogg_bloodboil_bloodboil_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gurtogg_bloodboil_bloodboil_SpellScript);
-
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 if (targets.size() <= 5)
@@ -359,7 +357,7 @@ class spell_gurtogg_bloodboil_bloodboil : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_gurtogg_bloodboil_bloodboil_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect.Register(&spell_gurtogg_bloodboil_bloodboil_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
@@ -377,8 +375,6 @@ public:
 
     class spell_gurtogg_bloodboil_insignificance_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_gurtogg_bloodboil_insignificance_SpellScript);
-
         bool Validate(SpellInfo const* /*spell*/) override
         {
             return ValidateSpellInfo({ SPELL_FEL_RAGE_TARGET });
@@ -391,7 +387,7 @@ public:
 
         void Register() override
         {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_gurtogg_bloodboil_insignificance_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+            OnObjectAreaTargetSelect.Register(&spell_gurtogg_bloodboil_insignificance_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
         }
     };
 

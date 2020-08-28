@@ -333,8 +333,6 @@ class spell_ulduar_rubble_summon : public SpellScriptLoader
 
         class spell_ulduar_rubble_summonSpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_ulduar_rubble_summonSpellScript);
-
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 Unit* caster = GetCaster();
@@ -349,7 +347,7 @@ class spell_ulduar_rubble_summon : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_ulduar_rubble_summonSpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_ulduar_rubble_summonSpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -388,8 +386,6 @@ class spell_ulduar_stone_grip_cast_target : public SpellScriptLoader
 
         class spell_ulduar_stone_grip_cast_target_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_ulduar_stone_grip_cast_target_SpellScript);
-
             bool Load() override
             {
                 if (GetCaster()->GetTypeId() != TYPEID_UNIT)
@@ -425,9 +421,9 @@ class spell_ulduar_stone_grip_cast_target : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ulduar_stone_grip_cast_target_SpellScript::FilterTargetsInitial, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ulduar_stone_grip_cast_target_SpellScript::FillTargetsSubsequential, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ulduar_stone_grip_cast_target_SpellScript::FillTargetsSubsequential, EFFECT_2, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect.Register(&spell_ulduar_stone_grip_cast_target_SpellScript::FilterTargetsInitial, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect.Register(&spell_ulduar_stone_grip_cast_target_SpellScript::FillTargetsSubsequential, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect.Register(&spell_ulduar_stone_grip_cast_target_SpellScript::FillTargetsSubsequential, EFFECT_2, TARGET_UNIT_SRC_AREA_ENEMY);
             }
 
         private:
@@ -448,8 +444,6 @@ class spell_ulduar_cancel_stone_grip : public SpellScriptLoader
 
         class spell_ulduar_cancel_stone_gripSpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_ulduar_cancel_stone_gripSpellScript);
-
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 Unit* target = GetHitUnit();
@@ -471,7 +465,7 @@ class spell_ulduar_cancel_stone_grip : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_ulduar_cancel_stone_gripSpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_ulduar_cancel_stone_gripSpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -488,8 +482,6 @@ class spell_ulduar_squeezed_lifeless : public SpellScriptLoader
 
         class spell_ulduar_squeezed_lifeless_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_ulduar_squeezed_lifeless_SpellScript);
-
             void HandleInstaKill(SpellEffIndex /*effIndex*/)
             {
                 if (!GetHitPlayer() || !GetHitPlayer()->GetVehicle())
@@ -509,7 +501,7 @@ class spell_ulduar_squeezed_lifeless : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_ulduar_squeezed_lifeless_SpellScript::HandleInstaKill, EFFECT_1, SPELL_EFFECT_INSTAKILL);
+                OnEffectHitTarget.Register(&spell_ulduar_squeezed_lifeless_SpellScript::HandleInstaKill, EFFECT_1, SPELL_EFFECT_INSTAKILL);
             }
         };
 
@@ -526,8 +518,6 @@ class spell_ulduar_stone_grip_absorb : public SpellScriptLoader
 
         class spell_ulduar_stone_grip_absorb_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_ulduar_stone_grip_absorb_AuraScript);
-
             //! This will be called when Right Arm (vehicle) has sustained a specific amount of damage depending on instance mode
             //! What we do here is remove all harmful aura's related and teleport to safe spot.
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -546,7 +536,7 @@ class spell_ulduar_stone_grip_absorb : public SpellScriptLoader
 
             void Register() override
             {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_ulduar_stone_grip_absorb_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove.Register(&spell_ulduar_stone_grip_absorb_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -563,8 +553,6 @@ class spell_ulduar_stone_grip : public SpellScriptLoader
 
         class spell_ulduar_stone_grip_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_ulduar_stone_grip_AuraScript);
-
             void OnRemoveStun(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 if (Player* owner = GetOwner()->ToPlayer())
@@ -598,8 +586,8 @@ class spell_ulduar_stone_grip : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectRemove += AuraEffectRemoveFn(spell_ulduar_stone_grip_AuraScript::OnRemoveVehicle, EFFECT_0, SPELL_AURA_CONTROL_VEHICLE, AURA_EFFECT_HANDLE_REAL);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_ulduar_stone_grip_AuraScript::OnRemoveStun, EFFECT_2, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove.Register(&spell_ulduar_stone_grip_AuraScript::OnRemoveVehicle, EFFECT_0, SPELL_AURA_CONTROL_VEHICLE, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove.Register(&spell_ulduar_stone_grip_AuraScript::OnRemoveStun, EFFECT_2, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -616,8 +604,6 @@ class spell_kologarn_stone_shout : public SpellScriptLoader
 
         class spell_kologarn_stone_shout_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_kologarn_stone_shout_SpellScript);
-
             void FilterTargets(std::list<WorldObject*>& unitList)
             {
                 unitList.remove_if(PlayerOrPetCheck());
@@ -625,7 +611,7 @@ class spell_kologarn_stone_shout : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_kologarn_stone_shout_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect.Register(&spell_kologarn_stone_shout_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
@@ -642,8 +628,6 @@ class spell_kologarn_summon_focused_eyebeam : public SpellScriptLoader
 
         class spell_kologarn_summon_focused_eyebeam_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_kologarn_summon_focused_eyebeam_SpellScript);
-
             void HandleForceCast(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
@@ -652,8 +636,8 @@ class spell_kologarn_summon_focused_eyebeam : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_kologarn_summon_focused_eyebeam_SpellScript::HandleForceCast, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
-                OnEffectHitTarget += SpellEffectFn(spell_kologarn_summon_focused_eyebeam_SpellScript::HandleForceCast, EFFECT_1, SPELL_EFFECT_FORCE_CAST);
+                OnEffectHitTarget.Register(&spell_kologarn_summon_focused_eyebeam_SpellScript::HandleForceCast, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
+                OnEffectHitTarget.Register(&spell_kologarn_summon_focused_eyebeam_SpellScript::HandleForceCast, EFFECT_1, SPELL_EFFECT_FORCE_CAST);
             }
         };
 

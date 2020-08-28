@@ -501,8 +501,6 @@ class spell_alysrazor_cosmetic_egg_xplosion : public SpellScriptLoader
 
         class spell_alysrazor_cosmetic_egg_xplosion_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_alysrazor_cosmetic_egg_xplosion_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sCreatureDisplayInfoStore.LookupEntry(MODEL_INVISIBLE_STALKER))
@@ -520,7 +518,7 @@ class spell_alysrazor_cosmetic_egg_xplosion : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_alysrazor_cosmetic_egg_xplosion_SpellScript::HandleExplosion, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget.Register(&spell_alysrazor_cosmetic_egg_xplosion_SpellScript::HandleExplosion, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -537,8 +535,6 @@ class spell_alysrazor_turn_monstrosity : public SpellScriptLoader
 
         class spell_alysrazor_turn_monstrosity_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_alysrazor_turn_monstrosity_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_GENERIC_DUMMY_CAST, SPELL_KNOCKBACK_RIGHT, SPELL_KNOCKBACK_LEFT, SPELL_KNOCKBACK_FORWARD, SPELL_KNOCKBACK_BACK });
@@ -598,8 +594,8 @@ class spell_alysrazor_turn_monstrosity : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_alysrazor_turn_monstrosity_SpellScript::KnockBarrage, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-                OnEffectHitTarget += SpellEffectFn(spell_alysrazor_turn_monstrosity_SpellScript::TurnBird, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_alysrazor_turn_monstrosity_SpellScript::KnockBarrage, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_alysrazor_turn_monstrosity_SpellScript::TurnBird, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -616,8 +612,6 @@ class spell_alysrazor_aggro_closest : public SpellScriptLoader
 
         class spell_alysrazor_aggro_closest_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_alysrazor_aggro_closest_SpellScript);
-
             bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
@@ -638,8 +632,8 @@ class spell_alysrazor_aggro_closest : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_alysrazor_aggro_closest_SpellScript::HandleEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
-                AfterCast += SpellCastFn(spell_alysrazor_aggro_closest_SpellScript::UpdateThreat);
+                OnEffectHitTarget.Register(&spell_alysrazor_aggro_closest_SpellScript::HandleEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+                AfterCast.Register(&spell_alysrazor_aggro_closest_SpellScript::UpdateThreat);
             }
         };
 
@@ -656,8 +650,6 @@ class spell_alysrazor_fieroblast : public SpellScriptLoader
 
         class spell_alysrazor_fieroblast_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_alysrazor_fieroblast_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_FIRE_IT_UP });
@@ -670,7 +662,7 @@ class spell_alysrazor_fieroblast : public SpellScriptLoader
 
             void Register() override
             {
-                AfterCast += SpellCastFn(spell_alysrazor_fieroblast_SpellScript::FireItUp);
+                AfterCast.Register(&spell_alysrazor_fieroblast_SpellScript::FireItUp);
             }
         };
 

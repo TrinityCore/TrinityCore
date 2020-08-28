@@ -983,8 +983,6 @@ class spell_biting_cold : public SpellScriptLoader
 
         class spell_biting_cold_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_biting_cold_AuraScript);
-
             void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
             {
                 Unit* target = GetTarget();
@@ -1018,7 +1016,7 @@ class spell_biting_cold : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_biting_cold_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectPeriodic.Register(&spell_biting_cold_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
 
         private:
@@ -1039,8 +1037,6 @@ public:
 
     class spell_biting_cold_dot_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_biting_cold_dot_AuraScript);
-
         void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
         {
             Unit* caster = GetCaster();
@@ -1056,7 +1052,7 @@ public:
 
         void Register() override
         {
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_biting_cold_dot_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            OnEffectPeriodic.Register(&spell_biting_cold_dot_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
         }
     };
 

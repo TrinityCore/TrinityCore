@@ -510,8 +510,6 @@ class spell_astromancer_wrath_of_the_astromancer : public SpellScriptLoader
 
         class spell_astromancer_wrath_of_the_astromancer_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_astromancer_wrath_of_the_astromancer_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_WRATH_OF_THE_ASTROMANCER_DOT });
@@ -529,7 +527,7 @@ class spell_astromancer_wrath_of_the_astromancer : public SpellScriptLoader
 
             void Register() override
             {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_astromancer_wrath_of_the_astromancer_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove.Register(&spell_astromancer_wrath_of_the_astromancer_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
             }
         };
 

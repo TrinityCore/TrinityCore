@@ -268,8 +268,6 @@ class spell_anetheron_vampiric_aura : public SpellScriptLoader
 
         class spell_anetheron_vampiric_aura_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_anetheron_vampiric_aura_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_VAMPIRIC_AURA_HEAL });
@@ -288,7 +286,7 @@ class spell_anetheron_vampiric_aura : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectProc += AuraEffectProcFn(spell_anetheron_vampiric_aura_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+                OnEffectProc.Register(&spell_anetheron_vampiric_aura_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 

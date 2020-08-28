@@ -178,8 +178,6 @@ class spell_totfw_jet_stream : public SpellScriptLoader
 
         class spell_totfw_jet_stream_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_totfw_jet_stream_SpellScript);
-
             void HandleForcecast(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
@@ -188,7 +186,7 @@ class spell_totfw_jet_stream : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_totfw_jet_stream_SpellScript::HandleForcecast, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
+                OnEffectHitTarget.Register(&spell_totfw_jet_stream_SpellScript::HandleForcecast, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
             }
         };
 
@@ -205,8 +203,6 @@ class spell_totfw_catch_fall_summon : public SpellScriptLoader
 
         class spell_totfw_catch_fall_summon_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_totfw_catch_fall_summon_SpellScript);
-
             void SetDestPosition(SpellEffIndex /*effIndex*/)
             {
                 float x = GetExplTargetDest()->GetPositionX();
@@ -219,7 +215,7 @@ class spell_totfw_catch_fall_summon : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectLaunch += SpellEffectFn(spell_totfw_catch_fall_summon_SpellScript::SetDestPosition, EFFECT_0, SPELL_EFFECT_SUMMON);
+                OnEffectLaunch.Register(&spell_totfw_catch_fall_summon_SpellScript::SetDestPosition, EFFECT_0, SPELL_EFFECT_SUMMON);
             }
         };
 

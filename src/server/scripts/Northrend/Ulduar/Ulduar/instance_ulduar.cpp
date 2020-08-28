@@ -1121,8 +1121,6 @@ class spell_ulduar_teleporter : public SpellScriptLoader
 
         class spell_ulduar_teleporter_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_ulduar_teleporter_SpellScript);
-
             SpellCastResult CheckRequirement()
             {
                 if (GetExplTargetUnit()->GetTypeId() != TYPEID_PLAYER)
@@ -1139,7 +1137,7 @@ class spell_ulduar_teleporter : public SpellScriptLoader
 
             void Register() override
             {
-                OnCheckCast += SpellCheckCastFn(spell_ulduar_teleporter_SpellScript::CheckRequirement);
+                OnCheckCast.Register(&spell_ulduar_teleporter_SpellScript::CheckRequirement);
             }
         };
 

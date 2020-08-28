@@ -1039,8 +1039,6 @@ enum GiftOfTheHarvester
 
 class spell_gift_of_the_harvester : public SpellScript
 {
-    PrepareSpellScript(spell_gift_of_the_harvester);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo(
@@ -1061,7 +1059,7 @@ class spell_gift_of_the_harvester : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_gift_of_the_harvester::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_gift_of_the_harvester::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 

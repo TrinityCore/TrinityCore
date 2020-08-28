@@ -1668,8 +1668,6 @@ struct npc_stratholme_rp_dummy : NullCreatureAI
 
 class spell_stratholme_crusader_strike : public SpellScript
 {
-    PrepareSpellScript(spell_stratholme_crusader_strike);
-
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         if (Unit* target = GetHitUnit())
@@ -1679,7 +1677,7 @@ class spell_stratholme_crusader_strike : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_stratholme_crusader_strike::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget.Register(&spell_stratholme_crusader_strike::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 

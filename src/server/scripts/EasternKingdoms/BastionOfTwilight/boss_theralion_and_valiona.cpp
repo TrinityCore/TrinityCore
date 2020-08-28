@@ -927,8 +927,6 @@ class spell_theralion_dazzling_destruction_dummy : public SpellScriptLoader
 
         class spell_theralion_dazzling_destruction_dummy_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_theralion_dazzling_destruction_dummy_SpellScript);
-
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 if (targets.empty())
@@ -945,8 +943,8 @@ class spell_theralion_dazzling_destruction_dummy : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_theralion_dazzling_destruction_dummy_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
-                OnEffectHitTarget += SpellEffectFn(spell_theralion_dazzling_destruction_dummy_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnObjectAreaTargetSelect.Register(&spell_theralion_dazzling_destruction_dummy_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+                OnEffectHitTarget.Register(&spell_theralion_dazzling_destruction_dummy_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -989,8 +987,6 @@ class spell_theralion_dazzling_destruction : public SpellScriptLoader
 
         class spell_theralion_dazzling_destruction_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_theralion_dazzling_destruction_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo(
@@ -1033,11 +1029,11 @@ class spell_theralion_dazzling_destruction : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_theralion_dazzling_destruction_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_theralion_dazzling_destruction_SpellScript::FilterTargets, EFFECT_2, TARGET_UNIT_DEST_AREA_ENEMY);
-                OnEffectHitTarget += SpellEffectFn(spell_theralion_dazzling_destruction_SpellScript::HandleActionEffect, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-                OnEffectHitTarget += SpellEffectFn(spell_theralion_dazzling_destruction_SpellScript::HandleScriptEffectTrigger, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
-                OnEffectHitTarget += SpellEffectFn(spell_theralion_dazzling_destruction_SpellScript::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnObjectAreaTargetSelect.Register(&spell_theralion_dazzling_destruction_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+                OnObjectAreaTargetSelect.Register(&spell_theralion_dazzling_destruction_SpellScript::FilterTargets, EFFECT_2, TARGET_UNIT_DEST_AREA_ENEMY);
+                OnEffectHitTarget.Register(&spell_theralion_dazzling_destruction_SpellScript::HandleActionEffect, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                OnEffectHitTarget.Register(&spell_theralion_dazzling_destruction_SpellScript::HandleScriptEffectTrigger, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_theralion_dazzling_destruction_SpellScript::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -1065,8 +1061,6 @@ class spell_theralion_dazzling_destruction_twilight_realm: public SpellScriptLoa
 
         class spell_theralion_dazzling_destruction_twilight_realm_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_theralion_dazzling_destruction_twilight_realm_SpellScript);
-
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 if (targets.empty())
@@ -1077,7 +1071,7 @@ class spell_theralion_dazzling_destruction_twilight_realm: public SpellScriptLoa
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_theralion_dazzling_destruction_twilight_realm_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+                OnObjectAreaTargetSelect.Register(&spell_theralion_dazzling_destruction_twilight_realm_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
             }
         };
 
@@ -1094,8 +1088,6 @@ class spell_theralion_fabulous_flames_targeting : public SpellScriptLoader
 
         class spell_theralion_fabulous_flames_targeting_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_theralion_fabulous_flames_targeting_SpellScript);
-
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 if (targets.size() <= 1)
@@ -1117,8 +1109,8 @@ class spell_theralion_fabulous_flames_targeting : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_theralion_fabulous_flames_targeting_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_theralion_fabulous_flames_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnEffectHitTarget.Register(&spell_theralion_fabulous_flames_targeting_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnObjectAreaTargetSelect.Register(&spell_theralion_fabulous_flames_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
@@ -1152,8 +1144,6 @@ class spell_theralion_engulfing_magic_targeting : public SpellScriptLoader
 
         class spell_theralion_engulfing_magic_targeting_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_theralion_engulfing_magic_targeting_SpellScript);
-
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 if (targets.size() <= 1)
@@ -1175,7 +1165,7 @@ class spell_theralion_engulfing_magic_targeting : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_theralion_engulfing_magic_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect.Register(&spell_theralion_engulfing_magic_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
@@ -1192,8 +1182,6 @@ class spell_theralion_engulfing_magic : public SpellScriptLoader
 
         class spell_theralion_engulfing_magic_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_theralion_engulfing_magic_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_ENGULFING_MAGIC_TRIGGERED });
@@ -1215,7 +1203,7 @@ class spell_theralion_engulfing_magic : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectProc += AuraEffectProcFn(spell_theralion_engulfing_magic_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
+                OnEffectProc.Register(&spell_theralion_engulfing_magic_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
             }
         };
 
@@ -1232,9 +1220,7 @@ class spell_valiona_blackout_dummy : public SpellScriptLoader
 
         class spell_valiona_blackout_dummy_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_valiona_blackout_dummy_SpellScript);
-
-            void FilterTargets(std::list<WorldObject*>& targets)
+        void FilterTargets(std::list<WorldObject*>& targets)
             {
                 Trinity::Containers::RandomResize(targets, 1);
             }
@@ -1247,8 +1233,8 @@ class spell_valiona_blackout_dummy : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_valiona_blackout_dummy_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_valiona_blackout_dummy_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnEffectHitTarget.Register(&spell_valiona_blackout_dummy_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnObjectAreaTargetSelect.Register(&spell_valiona_blackout_dummy_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
@@ -1265,8 +1251,6 @@ class spell_valiona_blackout: public SpellScriptLoader
 
         class spell_valiona_blackout_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_valiona_blackout_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_BLACKOUT_DAMAGE });
@@ -1281,7 +1265,7 @@ class spell_valiona_blackout: public SpellScriptLoader
 
             void Register() override
             {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_valiona_blackout_AuraScript::OnAuraRemoveHandler, EFFECT_0, SPELL_AURA_SCHOOL_HEAL_ABSORB, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove.Register(&spell_valiona_blackout_AuraScript::OnAuraRemoveHandler, EFFECT_0, SPELL_AURA_SCHOOL_HEAL_ABSORB, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -1298,8 +1282,6 @@ class spell_valiona_blackout_damage : public SpellScriptLoader
 
         class spell_valiona_blackout_damage_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_valiona_blackout_damage_SpellScript);
-
             bool Load() override
             {
                 _targetCount = 0;
@@ -1321,8 +1303,8 @@ class spell_valiona_blackout_damage : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_valiona_blackout_damage_SpellScript::CountTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
-                OnHit += SpellHitFn(spell_valiona_blackout_damage_SpellScript::SplitDamage);
+                OnObjectAreaTargetSelect.Register(&spell_valiona_blackout_damage_SpellScript::CountTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+                OnHit.Register(&spell_valiona_blackout_damage_SpellScript::SplitDamage);
             }
 
         private:
@@ -1342,8 +1324,6 @@ class spell_valiona_devouring_flames : public SpellScriptLoader
 
         class spell_valiona_devouring_flames_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_valiona_devouring_flames_SpellScript);
-
             void ChangeDamage()
             {
                 if (Unit* caster = GetCaster())
@@ -1355,7 +1335,7 @@ class spell_valiona_devouring_flames : public SpellScriptLoader
 
             void Register() override
             {
-                OnHit += SpellHitFn(spell_valiona_devouring_flames_SpellScript::ChangeDamage);
+                OnHit.Register(&spell_valiona_devouring_flames_SpellScript::ChangeDamage);
             }
         };
 
@@ -1372,8 +1352,6 @@ class spell_valiona_devouring_flames_targeting : public SpellScriptLoader
 
         class spell_valiona_devouring_flames_targeting_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_valiona_devouring_flames_targeting_SpellScript);
-
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 if (targets.empty())
@@ -1389,7 +1367,7 @@ class spell_valiona_devouring_flames_targeting : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_valiona_devouring_flames_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect.Register(&spell_valiona_devouring_flames_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
@@ -1430,8 +1408,6 @@ class spell_valiona_twilight_meteorite_targeting : public SpellScriptLoader
 
         class spell_valiona_twilight_meteorite_targeting_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_valiona_twilight_meteorite_targeting_SpellScript);
-
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 if (targets.empty())
@@ -1461,8 +1437,8 @@ class spell_valiona_twilight_meteorite_targeting : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_valiona_twilight_meteorite_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnEffectHitTarget += SpellEffectFn(spell_valiona_twilight_meteorite_targeting_SpellScript::HandleEffect, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+                OnObjectAreaTargetSelect.Register(&spell_valiona_twilight_meteorite_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnEffectHitTarget.Register(&spell_valiona_twilight_meteorite_targeting_SpellScript::HandleEffect, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
             }
         };
 
@@ -1479,8 +1455,6 @@ class spell_valiona_twilight_meteorite : public SpellScriptLoader
 
         class spell_valiona_twilight_meteorite_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_valiona_twilight_meteorite_SpellScript);
-
             bool Load() override
             {
                 _targetCount = 0;
@@ -1502,8 +1476,8 @@ class spell_valiona_twilight_meteorite : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_valiona_twilight_meteorite_SpellScript::CountTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
-                OnHit += SpellHitFn(spell_valiona_twilight_meteorite_SpellScript::SplitDamage);
+                OnObjectAreaTargetSelect.Register(&spell_valiona_twilight_meteorite_SpellScript::CountTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+                OnHit.Register(&spell_valiona_twilight_meteorite_SpellScript::SplitDamage);
             }
 
         private:
@@ -1555,8 +1529,6 @@ class spell_valiona_strafe : public SpellScriptLoader
 
         class spell_valiona_strafe_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_valiona_strafe_SpellScript);
-
             void SetTarget(WorldObject*& target)
             {
                 Unit* caster = GetCaster();
@@ -1575,14 +1547,12 @@ class spell_valiona_strafe : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_valiona_strafe_SpellScript::SetTarget, EFFECT_0, TARGET_UNIT_NEARBY_ENTRY);
+                OnObjectTargetSelect.Register(&spell_valiona_strafe_SpellScript::SetTarget, EFFECT_0, TARGET_UNIT_NEARBY_ENTRY);
             }
         };
 
         class spell_valiona_strafe_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_valiona_strafe_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo(
@@ -1607,8 +1577,8 @@ class spell_valiona_strafe : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectApply += AuraEffectApplyFn(spell_valiona_strafe_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_valiona_strafe_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectApply.Register(&spell_valiona_strafe_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove.Register(&spell_valiona_strafe_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -1630,8 +1600,6 @@ class spell_valiona_summon_twilight_portal : public SpellScriptLoader
 
         class spell_valiona_summon_twilight_portal_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_valiona_summon_twilight_portal_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_SUMMON_TWILIGHT_PORTAL });
@@ -1648,7 +1616,7 @@ class spell_valiona_summon_twilight_portal : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_valiona_summon_twilight_portal_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectPeriodic.Register(&spell_valiona_summon_twilight_portal_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
@@ -1665,8 +1633,6 @@ class spell_valiona_summon_twilight_sentry : public SpellScriptLoader
 
         class spell_valiona_summon_twilight_sentry_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_valiona_summon_twilight_sentry_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_SUMMON_TWILIGHT_SENTRY });
@@ -1682,7 +1648,7 @@ class spell_valiona_summon_twilight_sentry : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_valiona_summon_twilight_sentry_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectPeriodic.Register(&spell_valiona_summon_twilight_sentry_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
@@ -1699,8 +1665,6 @@ class spell_valiona_twilight_flames : public SpellScriptLoader
 
         class spell_valiona_twilight_flames_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_valiona_twilight_flames_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_TRIGGER_ACTION_THERALION });
@@ -1728,10 +1692,10 @@ class spell_valiona_twilight_flames : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_valiona_twilight_flames_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_valiona_twilight_flames_SpellScript::FilterTargets, EFFECT_2, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnEffectHitTarget += SpellEffectFn(spell_valiona_twilight_flames_SpellScript::HandleActionEffect, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-                OnEffectHitTarget += SpellEffectFn(spell_valiona_twilight_flames_SpellScript::HandleEffect, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnObjectAreaTargetSelect.Register(&spell_valiona_twilight_flames_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect.Register(&spell_valiona_twilight_flames_SpellScript::FilterTargets, EFFECT_2, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnEffectHitTarget.Register(&spell_valiona_twilight_flames_SpellScript::HandleActionEffect, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                OnEffectHitTarget.Register(&spell_valiona_twilight_flames_SpellScript::HandleEffect, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -1760,8 +1724,6 @@ class spell_valiona_twilight_flame_twilight_realm: public SpellScriptLoader
 
         class spell_valiona_twilight_flame_twilight_realm_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_valiona_twilight_flame_twilight_realm_SpellScript);
-
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 if (targets.empty())
@@ -1772,7 +1734,7 @@ class spell_valiona_twilight_flame_twilight_realm: public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_valiona_twilight_flame_twilight_realm_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect.Register(&spell_valiona_twilight_flame_twilight_realm_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
@@ -1789,8 +1751,6 @@ class spell_theralion_and_valiona_twilight_shift : public SpellScriptLoader
 
         class spell_theralion_and_valiona_twilight_shift_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_theralion_and_valiona_twilight_shift_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo(
@@ -1817,7 +1777,7 @@ class spell_theralion_and_valiona_twilight_shift : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_theralion_and_valiona_twilight_shift_SpellScript::HandleEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_theralion_and_valiona_twilight_shift_SpellScript::HandleEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -1834,8 +1794,6 @@ class spell_theralion_and_valiona_twilight_shift_phase: public SpellScriptLoader
 
         class spell_theralion_and_valiona_twilight_shift_phase_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_theralion_and_valiona_twilight_shift_phase_SpellScript);
-
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 if (targets.empty())
@@ -1846,7 +1804,7 @@ class spell_theralion_and_valiona_twilight_shift_phase: public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_theralion_and_valiona_twilight_shift_phase_SpellScript::FilterTargets, EFFECT_ALL, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect.Register(&spell_theralion_and_valiona_twilight_shift_phase_SpellScript::FilterTargets, EFFECT_ALL, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
@@ -1863,8 +1821,6 @@ class spell_theralion_and_valiona_twilight_shift_phase_ally: public SpellScriptL
 
         class spell_theralion_and_valiona_twilight_shift_phase_ally_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_theralion_and_valiona_twilight_shift_phase_ally_SpellScript);
-
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 if (targets.empty())
@@ -1875,7 +1831,7 @@ class spell_theralion_and_valiona_twilight_shift_phase_ally: public SpellScriptL
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_theralion_and_valiona_twilight_shift_phase_ally_SpellScript::FilterTargets, EFFECT_ALL, TARGET_UNIT_SRC_AREA_ALLY);
+                OnObjectAreaTargetSelect.Register(&spell_theralion_and_valiona_twilight_shift_phase_ally_SpellScript::FilterTargets, EFFECT_ALL, TARGET_UNIT_SRC_AREA_ALLY);
             }
         };
 
@@ -1892,8 +1848,6 @@ class spell_theralion_and_valiona_twilight_shift_spellclick : public SpellScript
 
         class spell_theralion_and_valiona_twilight_shift_spellclick_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_theralion_and_valiona_twilight_shift_spellclick_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_TWILIGHT_SHIFT_ALLY });
@@ -1911,8 +1865,8 @@ class spell_theralion_and_valiona_twilight_shift_spellclick : public SpellScript
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_theralion_and_valiona_twilight_shift_spellclick_SpellScript::HandleEffectScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-                OnEffectHitTarget += SpellEffectFn(spell_theralion_and_valiona_twilight_shift_spellclick_SpellScript::HandleEffectScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_theralion_and_valiona_twilight_shift_spellclick_SpellScript::HandleEffectScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_theralion_and_valiona_twilight_shift_spellclick_SpellScript::HandleEffectScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -1929,8 +1883,6 @@ class spell_theralion_and_valiona_shifting_reality : public SpellScriptLoader
 
         class spell_theralion_and_valiona_shifting_reality_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_theralion_and_valiona_shifting_reality_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo(
@@ -1951,7 +1903,7 @@ class spell_theralion_and_valiona_shifting_reality : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_theralion_and_valiona_shifting_reality_SpellScript::HandleEffect, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                OnEffectHitTarget.Register(&spell_theralion_and_valiona_shifting_reality_SpellScript::HandleEffect, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
@@ -1968,8 +1920,6 @@ class spell_theralion_and_valiona_collapsing_twilight_portal : public SpellScrip
 
         class spell_theralion_and_valiona_collapsing_twilight_portal_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_theralion_and_valiona_collapsing_twilight_portal_AuraScript);
-
             void HandlePeriodic(AuraEffect const* /*aurEff*/)
             {
                 if (Unit* target = GetTarget())
@@ -1990,8 +1940,8 @@ class spell_theralion_and_valiona_collapsing_twilight_portal : public SpellScrip
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_theralion_and_valiona_collapsing_twilight_portal_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-                AfterEffectApply += AuraEffectApplyFn(spell_theralion_and_valiona_collapsing_twilight_portal_AuraScript::Apply, EFFECT_1, SPELL_AURA_MOD_SCALE, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                OnEffectPeriodic.Register(&spell_theralion_and_valiona_collapsing_twilight_portal_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                AfterEffectApply.Register(&spell_theralion_and_valiona_collapsing_twilight_portal_AuraScript::Apply, EFFECT_1, SPELL_AURA_MOD_SCALE, AURA_EFFECT_HANDLE_REAL);
             }
         };
 

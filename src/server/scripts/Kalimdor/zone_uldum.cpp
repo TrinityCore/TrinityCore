@@ -60,8 +60,6 @@ enum UldumIntro
 // 86748 - Intialize Uldum Intro
 class spell_uldum_initialize_uldum_intro : public SpellScript
 {
-    PrepareSpellScript(spell_uldum_initialize_uldum_intro);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -97,15 +95,13 @@ class spell_uldum_initialize_uldum_intro : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_uldum_initialize_uldum_intro::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_uldum_initialize_uldum_intro::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 // 86848 - Master Ping all Actors
 class spell_uldum_master_ping_all_actors : public SpellScript
 {
-    PrepareSpellScript(spell_uldum_master_ping_all_actors);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PING_ALL_ACTORS_00 });
@@ -118,15 +114,13 @@ class spell_uldum_master_ping_all_actors : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_uldum_master_ping_all_actors::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_uldum_master_ping_all_actors::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 // 86960 - Master Summon Beam Target 02
 class spell_uldum_master_summon_beam_target_02 : public SpellScript
 {
-    PrepareSpellScript(spell_uldum_master_summon_beam_target_02);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SUMMON_BEAM_TARGET_BUNNY_02 });
@@ -139,15 +133,13 @@ class spell_uldum_master_summon_beam_target_02 : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_uldum_master_summon_beam_target_02::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_uldum_master_summon_beam_target_02::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 // 87010 - Master Summon Skarf
 class spell_uldum_master_summon_skarf : public SpellScript
 {
-    PrepareSpellScript(spell_uldum_master_summon_skarf);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SUMMON_SKARF });
@@ -160,15 +152,13 @@ class spell_uldum_master_summon_skarf : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_uldum_master_summon_skarf::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_uldum_master_summon_skarf::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 // 95747 - Player Summon Camera
 class spell_uldum_player_summon_camera : public SpellScript
 {
-    PrepareSpellScript(spell_uldum_player_summon_camera);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SUMMON_CAMERA_BUNNY });
@@ -181,7 +171,7 @@ class spell_uldum_player_summon_camera : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_uldum_player_summon_camera::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_uldum_player_summon_camera::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -429,8 +419,6 @@ enum SummonSchnottz
 // 88107 - Gobbles Initialize
 class spell_gobbles_initialize : public SpellScript
 {
-    PrepareSpellScript(spell_gobbles_initialize);
-
     void HandleScript(SpellEffIndex /*eff*/)
     {
         if (Player* player = GetHitUnit()->ToPlayer())
@@ -444,15 +432,13 @@ class spell_gobbles_initialize : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_gobbles_initialize::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_gobbles_initialize::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 // 88108 - Summon Schnottz
 class spell_summon_schnottz : public SpellScript
 {
-    PrepareSpellScript(spell_summon_schnottz);
-
     void SetDest(SpellDestination& dest)
     {
         if (Creature * Schnottz = GetCaster()->FindNearestCreature(NPC_SCHNOTTZ, 10.0f, true))
@@ -461,7 +447,7 @@ class spell_summon_schnottz : public SpellScript
 
     void Register() override
     {
-        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_summon_schnottz::SetDest, EFFECT_0, TARGET_DEST_NEARBY_ENTRY);
+        OnDestinationTargetSelect.Register(&spell_summon_schnottz::SetDest, EFFECT_0, TARGET_DEST_NEARBY_ENTRY);
     }
 };
 

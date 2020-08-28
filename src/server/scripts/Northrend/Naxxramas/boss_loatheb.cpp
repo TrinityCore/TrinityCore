@@ -169,8 +169,6 @@ class spell_loatheb_deathbloom : public SpellScriptLoader
 
         class spell_loatheb_deathbloom_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_loatheb_deathbloom_AuraScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_DEATHBLOOM_FINAL_DAMAGE });
@@ -186,7 +184,7 @@ class spell_loatheb_deathbloom : public SpellScriptLoader
 
             void Register() override
             {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_loatheb_deathbloom_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove.Register(&spell_loatheb_deathbloom_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
             }
         };
 

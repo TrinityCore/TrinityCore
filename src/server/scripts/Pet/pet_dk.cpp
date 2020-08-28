@@ -165,8 +165,6 @@ enum GhoulSpells
 
 class spell_pet_ghoul_dummy_ability : public SpellScript
 {
-    PrepareSpellScript(spell_pet_ghoul_dummy_ability);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -214,7 +212,7 @@ class spell_pet_ghoul_dummy_ability : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_pet_ghoul_dummy_ability::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget.Register(&spell_pet_ghoul_dummy_ability::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 

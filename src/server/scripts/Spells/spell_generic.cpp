@@ -50,8 +50,6 @@ class spell_gen_absorb0_hitlimit1 : public SpellScriptLoader
 
         class spell_gen_absorb0_hitlimit1_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_absorb0_hitlimit1_AuraScript);
-
         public:
             spell_gen_absorb0_hitlimit1_AuraScript()
             {
@@ -75,7 +73,7 @@ class spell_gen_absorb0_hitlimit1 : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectAbsorb += AuraEffectAbsorbFn(spell_gen_absorb0_hitlimit1_AuraScript::Absorb, EFFECT_0);
+                OnEffectAbsorb.Register(&spell_gen_absorb0_hitlimit1_AuraScript::Absorb, EFFECT_0);
             }
         };
 
@@ -102,8 +100,6 @@ class spell_gen_adaptive_warding : public SpellScriptLoader
 
         class spell_gen_adaptive_warding_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_adaptive_warding_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo(
@@ -167,8 +163,8 @@ class spell_gen_adaptive_warding : public SpellScriptLoader
 
             void Register() override
             {
-                DoCheckProc += AuraCheckProcFn(spell_gen_adaptive_warding_AuraScript::CheckProc);
-                OnEffectProc += AuraEffectProcFn(spell_gen_adaptive_warding_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+                DoCheckProc.Register(&spell_gen_adaptive_warding_AuraScript::CheckProc);
+                OnEffectProc.Register(&spell_gen_adaptive_warding_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 
@@ -192,8 +188,6 @@ class spell_gen_alchemist_stone : public SpellScriptLoader
 
         class spell_gen_alchemist_stone_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_alchemist_stone_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ ALCHEMIST_STONE_HEAL, ALCHEMIST_STONE_MANA });
@@ -225,8 +219,8 @@ class spell_gen_alchemist_stone : public SpellScriptLoader
 
             void Register() override
             {
-                DoCheckProc += AuraCheckProcFn(spell_gen_alchemist_stone_AuraScript::CheckProc);
-                OnEffectProc += AuraEffectProcFn(spell_gen_alchemist_stone_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+                DoCheckProc.Register(&spell_gen_alchemist_stone_AuraScript::CheckProc);
+                OnEffectProc.Register(&spell_gen_alchemist_stone_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 
@@ -243,8 +237,6 @@ class spell_gen_allow_cast_from_item_only : public SpellScriptLoader
 
         class spell_gen_allow_cast_from_item_only_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_allow_cast_from_item_only_SpellScript);
-
             SpellCastResult CheckRequirement()
             {
                 if (!GetCastItem())
@@ -254,7 +246,7 @@ class spell_gen_allow_cast_from_item_only : public SpellScriptLoader
 
             void Register() override
             {
-                OnCheckCast += SpellCheckCastFn(spell_gen_allow_cast_from_item_only_SpellScript::CheckRequirement);
+                OnCheckCast.Register(&spell_gen_allow_cast_from_item_only_SpellScript::CheckRequirement);
             }
         };
 
@@ -277,8 +269,6 @@ class spell_gen_animal_blood : public SpellScriptLoader
 
         class spell_gen_animal_blood_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_animal_blood_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_SPAWN_BLOOD_POOL });
@@ -300,8 +290,8 @@ class spell_gen_animal_blood : public SpellScriptLoader
 
             void Register() override
             {
-                AfterEffectApply += AuraEffectRemoveFn(spell_gen_animal_blood_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_gen_animal_blood_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectApply.Register(&spell_gen_animal_blood_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove.Register(&spell_gen_animal_blood_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -319,8 +309,6 @@ class spell_gen_aura_of_anger : public SpellScriptLoader
 
         class spell_gen_aura_of_anger_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_aura_of_anger_AuraScript);
-
             void HandleEffectPeriodicUpdate(AuraEffect* aurEff)
             {
                 if (AuraEffect* aurEff1 = aurEff->GetBase()->GetEffect(EFFECT_1))
@@ -330,7 +318,7 @@ class spell_gen_aura_of_anger : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_gen_aura_of_anger_AuraScript::HandleEffectPeriodicUpdate, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+                OnEffectUpdatePeriodic.Register(&spell_gen_aura_of_anger_AuraScript::HandleEffectPeriodicUpdate, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
             }
         };
 
@@ -357,8 +345,6 @@ class spell_gen_aura_service_uniform : public SpellScriptLoader
 
         class spell_gen_aura_service_uniform_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_aura_service_uniform_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_SERVICE_UNIFORM });
@@ -386,8 +372,8 @@ class spell_gen_aura_service_uniform : public SpellScriptLoader
 
             void Register() override
             {
-                AfterEffectApply += AuraEffectRemoveFn(spell_gen_aura_service_uniform_AuraScript::OnApply, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_gen_aura_service_uniform_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectApply.Register(&spell_gen_aura_service_uniform_AuraScript::OnApply, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove.Register(&spell_gen_aura_service_uniform_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -404,8 +390,6 @@ class spell_gen_av_drekthar_presence : public SpellScriptLoader
 
         class spell_gen_av_drekthar_presence_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_av_drekthar_presence_AuraScript);
-
             bool CheckAreaTarget(Unit* target)
             {
                 switch (target->GetEntry())
@@ -430,7 +414,7 @@ class spell_gen_av_drekthar_presence : public SpellScriptLoader
 
             void Register() override
             {
-                DoCheckAreaTarget += AuraCheckAreaTargetFn(spell_gen_av_drekthar_presence_AuraScript::CheckAreaTarget);
+                DoCheckAreaTarget.Register(&spell_gen_av_drekthar_presence_AuraScript::CheckAreaTarget);
             }
         };
 
@@ -452,8 +436,6 @@ class spell_gen_bandage : public SpellScriptLoader
 
         class spell_gen_bandage_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_bandage_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_RECENTLY_BANDAGED });
@@ -477,8 +459,8 @@ class spell_gen_bandage : public SpellScriptLoader
 
             void Register() override
             {
-                OnCheckCast += SpellCheckCastFn(spell_gen_bandage_SpellScript::CheckCast);
-                AfterHit += SpellHitFn(spell_gen_bandage_SpellScript::HandleScript);
+                OnCheckCast.Register(&spell_gen_bandage_SpellScript::CheckCast);
+                AfterHit.Register(&spell_gen_bandage_SpellScript::HandleScript);
             }
         };
 
@@ -502,8 +484,6 @@ class spell_gen_blood_reserve : public SpellScriptLoader
 
         class spell_gen_blood_reserve_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_blood_reserve_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_GEN_BLOOD_RESERVE_HEAL });
@@ -530,8 +510,8 @@ class spell_gen_blood_reserve : public SpellScriptLoader
 
             void Register() override
             {
-                DoCheckProc += AuraCheckProcFn(spell_gen_blood_reserve_AuraScript::CheckProc);
-                OnEffectProc += AuraEffectProcFn(spell_gen_blood_reserve_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+                DoCheckProc.Register(&spell_gen_blood_reserve_AuraScript::CheckProc);
+                OnEffectProc.Register(&spell_gen_blood_reserve_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
             }
         };
 
@@ -554,8 +534,6 @@ class spell_gen_blade_warding : public SpellScriptLoader
 
         class spell_gen_blade_warding_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_blade_warding_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_GEN_BLADE_WARDING_TRIGGERED });
@@ -579,7 +557,7 @@ class spell_gen_blade_warding : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectProc += AuraEffectProcFn(spell_gen_blade_warding_AuraScript::HandleProc, EFFECT_1, SPELL_AURA_PROC_TRIGGER_SPELL);
+                OnEffectProc.Register(&spell_gen_blade_warding_AuraScript::HandleProc, EFFECT_1, SPELL_AURA_PROC_TRIGGER_SPELL);
             }
         };
 
@@ -603,8 +581,6 @@ class spell_gen_bonked : public SpellScriptLoader
 
         class spell_gen_bonked_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_bonked_SpellScript);
-
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (Player* target = GetHitPlayer())
@@ -626,7 +602,7 @@ class spell_gen_bonked : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_gen_bonked_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_gen_bonked_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -676,8 +652,6 @@ class spell_gen_break_shield: public SpellScriptLoader
 
         class spell_gen_break_shield_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_break_shield_SpellScript);
-
             void HandleScriptEffect(SpellEffIndex effIndex)
             {
                 Unit* target = GetHitUnit();
@@ -735,7 +709,7 @@ class spell_gen_break_shield: public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_gen_break_shield_SpellScript::HandleScriptEffect, EFFECT_FIRST_FOUND, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_gen_break_shield_SpellScript::HandleScriptEffect, EFFECT_FIRST_FOUND, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -753,8 +727,6 @@ class spell_gen_burn_brutallus : public SpellScriptLoader
 
         class spell_gen_burn_brutallus_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_burn_brutallus_AuraScript);
-
             void HandleEffectPeriodicUpdate(AuraEffect* aurEff)
             {
                 if (aurEff->GetTickNumber() % 11 == 0)
@@ -763,7 +735,7 @@ class spell_gen_burn_brutallus : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_gen_burn_brutallus_AuraScript::HandleEffectPeriodicUpdate, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+                OnEffectUpdatePeriodic.Register(&spell_gen_burn_brutallus_AuraScript::HandleEffectPeriodicUpdate, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
             }
         };
 
@@ -781,8 +753,6 @@ class spell_gen_burning_depths_necrolyte_image : public SpellScriptLoader
 
         class spell_gen_burning_depths_necrolyte_image_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_burning_depths_necrolyte_image_AuraScript);
-
             bool Validate(SpellInfo const* spellInfo) override
             {
                 return ValidateSpellInfo({ uint32(spellInfo->Effects[EFFECT_2].CalcValue()) });
@@ -801,8 +771,8 @@ class spell_gen_burning_depths_necrolyte_image : public SpellScriptLoader
 
             void Register() override
             {
-                AfterEffectApply += AuraEffectApplyFn(spell_gen_burning_depths_necrolyte_image_AuraScript::HandleApply, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_gen_burning_depths_necrolyte_image_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectApply.Register(&spell_gen_burning_depths_necrolyte_image_AuraScript::HandleApply, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove.Register(&spell_gen_burning_depths_necrolyte_image_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -824,8 +794,6 @@ class spell_gen_cannibalize : public SpellScriptLoader
 
         class spell_gen_cannibalize_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_cannibalize_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_CANNIBALIZE_TRIGGERED });
@@ -854,8 +822,8 @@ class spell_gen_cannibalize : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHit += SpellEffectFn(spell_gen_cannibalize_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-                OnCheckCast += SpellCheckCastFn(spell_gen_cannibalize_SpellScript::CheckIfCorpseNear);
+                OnEffectHit.Register(&spell_gen_cannibalize_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnCheckCast.Register(&spell_gen_cannibalize_SpellScript::CheckIfCorpseNear);
             }
         };
 
@@ -877,8 +845,6 @@ class spell_gen_chaos_blast : public SpellScriptLoader
 
         class spell_gen_chaos_blast_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_chaos_blast_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_CHAOS_BLAST });
@@ -893,7 +859,7 @@ class spell_gen_chaos_blast : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_gen_chaos_blast_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget.Register(&spell_gen_chaos_blast_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -913,8 +879,6 @@ enum Clone
 // 8129 - Mana Burn
 class spell_gen_clear_fear_poly : public SpellScript
 {
-    PrepareSpellScript(spell_gen_clear_fear_poly);
-
     void HandleAfterHit()
     {
         if (Unit* unitTarget = GetHitUnit())
@@ -923,7 +887,7 @@ class spell_gen_clear_fear_poly : public SpellScript
 
     void Register() override
     {
-        AfterHit += SpellHitFn(spell_gen_clear_fear_poly::HandleAfterHit);
+        AfterHit.Register(&spell_gen_clear_fear_poly::HandleAfterHit);
     }
 };
 
@@ -934,8 +898,6 @@ class spell_gen_clone : public SpellScriptLoader
 
         class spell_gen_clone_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_clone_SpellScript);
-
             void HandleScriptEffect(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
@@ -947,15 +909,15 @@ class spell_gen_clone : public SpellScriptLoader
                 switch (m_scriptSpellId)
                 {
                     case SPELL_CLONE_ME:
-                        OnEffectHitTarget += SpellEffectFn(spell_gen_clone_SpellScript::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
+                        OnEffectHitTarget.Register(&spell_gen_clone_SpellScript::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
                         break;
                     case SPELL_NIGHTMARE_FIGMENT_MIRROR_IMAGE:
-                        OnEffectHitTarget += SpellEffectFn(spell_gen_clone_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_DUMMY);
-                        OnEffectHitTarget += SpellEffectFn(spell_gen_clone_SpellScript::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_DUMMY);
+                        OnEffectHitTarget.Register(&spell_gen_clone_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_DUMMY);
+                        OnEffectHitTarget.Register(&spell_gen_clone_SpellScript::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_DUMMY);
                         break;
                     default:
-                        OnEffectHitTarget += SpellEffectFn(spell_gen_clone_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
-                        OnEffectHitTarget += SpellEffectFn(spell_gen_clone_SpellScript::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
+                        OnEffectHitTarget.Register(&spell_gen_clone_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+                        OnEffectHitTarget.Register(&spell_gen_clone_SpellScript::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
                         break;
                 }
             }
@@ -986,8 +948,6 @@ class spell_gen_clone_weapon : public SpellScriptLoader
 
         class spell_gen_clone_weapon_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_clone_weapon_SpellScript);
-
             void HandleScriptEffect(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
@@ -996,7 +956,7 @@ class spell_gen_clone_weapon : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_gen_clone_weapon_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_gen_clone_weapon_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -1013,8 +973,6 @@ class spell_gen_clone_weapon_aura : public SpellScriptLoader
 
         class spell_gen_clone_weapon_auraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_clone_weapon_auraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo(
@@ -1109,8 +1067,8 @@ class spell_gen_clone_weapon_aura : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectApply += AuraEffectApplyFn(spell_gen_clone_weapon_auraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-                OnEffectRemove += AuraEffectRemoveFn(spell_gen_clone_weapon_auraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                OnEffectApply.Register(&spell_gen_clone_weapon_auraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                OnEffectRemove.Register(&spell_gen_clone_weapon_auraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
             }
 
             uint32 prevItem = 0;
@@ -1129,8 +1087,6 @@ class spell_gen_count_pct_from_max_hp : public SpellScriptLoader
 
         class spell_gen_count_pct_from_max_hp_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_count_pct_from_max_hp_SpellScript);
-
         public:
             spell_gen_count_pct_from_max_hp_SpellScript(int32 damagePct) : SpellScript(), _damagePct(damagePct) { }
 
@@ -1144,7 +1100,7 @@ class spell_gen_count_pct_from_max_hp : public SpellScriptLoader
 
             void Register() override
             {
-                OnHit += SpellHitFn(spell_gen_count_pct_from_max_hp_SpellScript::RecalculateDamage);
+                OnHit.Register(&spell_gen_count_pct_from_max_hp_SpellScript::RecalculateDamage);
             }
 
         private:
@@ -1174,8 +1130,6 @@ class spell_gen_create_lance : public SpellScriptLoader
 
         class spell_gen_create_lance_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_create_lance_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo(
@@ -1200,7 +1154,7 @@ class spell_gen_create_lance : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_gen_create_lance_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_gen_create_lance_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -1217,8 +1171,6 @@ class spell_gen_creature_permanent_feign_death : public SpellScriptLoader
 
         class spell_gen_creature_permanent_feign_death_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_creature_permanent_feign_death_AuraScript);
-
             void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* target = GetTarget();
@@ -1241,8 +1193,8 @@ class spell_gen_creature_permanent_feign_death : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectApply += AuraEffectApplyFn(spell_gen_creature_permanent_feign_death_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-                OnEffectRemove += AuraEffectRemoveFn(spell_gen_creature_permanent_feign_death_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectApply.Register(&spell_gen_creature_permanent_feign_death_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove.Register(&spell_gen_creature_permanent_feign_death_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -1270,8 +1222,6 @@ class spell_gen_dalaran_disguise : public SpellScriptLoader
 
         class spell_gen_dalaran_disguise_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_dalaran_disguise_SpellScript);
-
                         bool Validate(SpellInfo const* spellInfo) override
             {
                 switch (spellInfo->Id)
@@ -1321,7 +1271,7 @@ class spell_gen_dalaran_disguise : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_gen_dalaran_disguise_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_gen_dalaran_disguise_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -1344,8 +1294,6 @@ class spell_gen_decay_over_time : public SpellScriptLoader
     private:
         class spell_gen_decay_over_time_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_decay_over_time_SpellScript);
-
             void ModAuraStack()
             {
                 if (Aura* aur = GetHitAura())
@@ -1354,7 +1302,7 @@ class spell_gen_decay_over_time : public SpellScriptLoader
 
             void Register() override
             {
-                AfterHit += SpellHitFn(spell_gen_decay_over_time_SpellScript::ModAuraStack);
+                AfterHit.Register(&spell_gen_decay_over_time_SpellScript::ModAuraStack);
             }
         };
 
@@ -1362,8 +1310,6 @@ class spell_gen_decay_over_time : public SpellScriptLoader
         class spell_gen_decay_over_time_AuraScript : public AuraScript
         {
             protected:
-                PrepareAuraScript(spell_gen_decay_over_time_AuraScript);
-
                 bool CheckProc(ProcEventInfo& eventInfo)
                 {
                     return (eventInfo.GetSpellInfo() == GetSpellInfo());
@@ -1377,8 +1323,8 @@ class spell_gen_decay_over_time : public SpellScriptLoader
 
                 void Register() override
                 {
-                    DoCheckProc += AuraCheckProcFn(spell_gen_decay_over_time_AuraScript::CheckProc);
-                    OnProc += AuraProcFn(spell_gen_decay_over_time_AuraScript::Decay);
+                    DoCheckProc.Register(&spell_gen_decay_over_time_AuraScript::CheckProc);
+                    OnProc.Register(&spell_gen_decay_over_time_AuraScript::Decay);
                 }
 
                 ~spell_gen_decay_over_time_AuraScript() = default;
@@ -1401,8 +1347,6 @@ class spell_gen_decay_over_time_fungal_decay : public spell_gen_decay_over_time
 
         class spell_gen_decay_over_time_fungal_decay_AuraScript : public spell_gen_decay_over_time_AuraScript
         {
-            PrepareAuraScript(spell_gen_decay_over_time_fungal_decay_AuraScript);
-
             void ModDuration(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 // only on actual reapply, not on stack decay
@@ -1416,7 +1360,7 @@ class spell_gen_decay_over_time_fungal_decay : public spell_gen_decay_over_time
             void Register() override
             {
                 spell_gen_decay_over_time_AuraScript::Register();
-                OnEffectApply += AuraEffectApplyFn(spell_gen_decay_over_time_fungal_decay_AuraScript::ModDuration, EFFECT_0, SPELL_AURA_MOD_DECREASE_SPEED, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                OnEffectApply.Register(&spell_gen_decay_over_time_fungal_decay_AuraScript::ModDuration, EFFECT_0, SPELL_AURA_MOD_DECREASE_SPEED, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
             }
         };
 
@@ -1432,14 +1376,9 @@ class spell_gen_decay_over_time_tail_sting : public spell_gen_decay_over_time
     public:
         spell_gen_decay_over_time_tail_sting() : spell_gen_decay_over_time("spell_gen_decay_over_time_tail_sting") { }
 
-        class spell_gen_decay_over_time_tail_sting_AuraScript : public spell_gen_decay_over_time_AuraScript
-        {
-            PrepareAuraScript(spell_gen_decay_over_time_tail_sting_AuraScript);
-        };
-
         AuraScript* GetAuraScript() const override
         {
-            return new spell_gen_decay_over_time_tail_sting_AuraScript();
+            return new spell_gen_decay_over_time_AuraScript();
         }
 };
 
@@ -1457,8 +1396,6 @@ class spell_gen_defend : public SpellScriptLoader
 
         class spell_gen_defend_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_defend_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo(
@@ -1505,19 +1442,19 @@ class spell_gen_defend : public SpellScriptLoader
                 // Defend spells cast by NPCs (add visuals)
                 if (spell->Effects[EFFECT_0].ApplyAuraName == SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN)
                 {
-                    AfterEffectApply += AuraEffectApplyFn(spell_gen_defend_AuraScript::RefreshVisualShields, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-                    OnEffectRemove += AuraEffectRemoveFn(spell_gen_defend_AuraScript::RemoveVisualShields, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK);
+                    AfterEffectApply.Register(&spell_gen_defend_AuraScript::RefreshVisualShields, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                    OnEffectRemove.Register(&spell_gen_defend_AuraScript::RemoveVisualShields, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK);
                 }
 
                 // Remove Defend spell from player when he dismounts
                 if (spell->Effects[EFFECT_2].ApplyAuraName == SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN)
-                    OnEffectRemove += AuraEffectRemoveFn(spell_gen_defend_AuraScript::RemoveDummyFromDriver, EFFECT_2, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
+                    OnEffectRemove.Register(&spell_gen_defend_AuraScript::RemoveDummyFromDriver, EFFECT_2, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
 
                 // Defend spells cast by players (add/remove visuals)
                 if (spell->Effects[EFFECT_1].ApplyAuraName == SPELL_AURA_DUMMY)
                 {
-                    AfterEffectApply += AuraEffectApplyFn(spell_gen_defend_AuraScript::RefreshVisualShields, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-                    OnEffectRemove += AuraEffectRemoveFn(spell_gen_defend_AuraScript::RemoveVisualShields, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK);
+                    AfterEffectApply.Register(&spell_gen_defend_AuraScript::RefreshVisualShields, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                    OnEffectRemove.Register(&spell_gen_defend_AuraScript::RemoveVisualShields, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK);
                 }
             }
         };
@@ -1535,8 +1472,6 @@ class spell_gen_despawn_self : public SpellScriptLoader
 
         class spell_gen_despawn_self_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_despawn_self_SpellScript);
-
             bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
@@ -1550,7 +1485,7 @@ class spell_gen_despawn_self : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_gen_despawn_self_SpellScript::HandleDummy, EFFECT_ALL, SPELL_EFFECT_ANY);
+                OnEffectHitTarget.Register(&spell_gen_despawn_self_SpellScript::HandleDummy, EFFECT_ALL, SPELL_EFFECT_ANY);
             }
         };
 
@@ -1573,8 +1508,6 @@ class spell_gen_divine_storm_cd_reset : public SpellScriptLoader
 
         class spell_gen_divine_storm_cd_reset_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_divine_storm_cd_reset_SpellScript);
-
             bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
@@ -1594,7 +1527,7 @@ class spell_gen_divine_storm_cd_reset : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_gen_divine_storm_cd_reset_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget.Register(&spell_gen_divine_storm_cd_reset_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -1611,8 +1544,6 @@ class spell_gen_ds_flush_knockback : public SpellScriptLoader
 
         class spell_gen_ds_flush_knockback_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_ds_flush_knockback_SpellScript);
-
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 // Here the target is the water spout and determines the position where the player is knocked from
@@ -1631,7 +1562,7 @@ class spell_gen_ds_flush_knockback : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_gen_ds_flush_knockback_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget.Register(&spell_gen_ds_flush_knockback_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -1648,8 +1579,6 @@ class spell_gen_dungeon_credit : public SpellScriptLoader
 
         class spell_gen_dungeon_credit_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_dungeon_credit_SpellScript);
-
             bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
@@ -1669,7 +1598,7 @@ class spell_gen_dungeon_credit : public SpellScriptLoader
 
             void Register() override
             {
-                AfterHit += SpellHitFn(spell_gen_dungeon_credit_SpellScript::CreditEncounter);
+                AfterHit.Register(&spell_gen_dungeon_credit_SpellScript::CreditEncounter);
             }
 
             bool _handled = false;
@@ -1701,8 +1630,6 @@ class spell_gen_elune_candle : public SpellScriptLoader
 
         class spell_gen_elune_candle_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_elune_candle_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo(
@@ -1745,7 +1672,7 @@ class spell_gen_elune_candle : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_gen_elune_candle_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget.Register(&spell_gen_elune_candle_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -1772,8 +1699,6 @@ enum EtherealPet
 // 50051 - Ethereal Pet Aura
 class spell_ethereal_pet_aura : public AuraScript
 {
-    PrepareAuraScript(spell_ethereal_pet_aura);
-
     bool CheckProc(ProcEventInfo& eventInfo)
     {
         uint32 levelDiff = std::abs(GetTarget()->getLevel() - eventInfo.GetProcTarget()->getLevel());
@@ -1798,16 +1723,14 @@ class spell_ethereal_pet_aura : public AuraScript
 
     void Register() override
     {
-        DoCheckProc += AuraCheckProcFn(spell_ethereal_pet_aura::CheckProc);
-        OnEffectProc += AuraEffectProcFn(spell_ethereal_pet_aura::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        DoCheckProc.Register(&spell_ethereal_pet_aura::CheckProc);
+        OnEffectProc.Register(&spell_ethereal_pet_aura::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
     }
 };
 
 // 50052 - Ethereal Pet onSummon
 class spell_ethereal_pet_onsummon : public SpellScript
 {
-    PrepareSpellScript(spell_ethereal_pet_onsummon);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PROC_TRIGGER_ON_KILL_AURA });
@@ -1821,15 +1744,13 @@ class spell_ethereal_pet_onsummon : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_ethereal_pet_onsummon::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_ethereal_pet_onsummon::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 // 50055 - Ethereal Pet Aura Remove
 class spell_ethereal_pet_aura_remove : public SpellScript
 {
-    PrepareSpellScript(spell_ethereal_pet_aura_remove);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_ETHEREAL_PET_AURA });
@@ -1842,15 +1763,13 @@ class spell_ethereal_pet_aura_remove : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_ethereal_pet_aura_remove::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_ethereal_pet_aura_remove::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 // 50101 - Steal Essence Visual
 class spell_steal_essence_visual : public AuraScript
 {
-    PrepareAuraScript(spell_steal_essence_visual);
-
     void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Unit* caster = GetCaster())
@@ -1863,7 +1782,7 @@ class spell_steal_essence_visual : public AuraScript
 
     void Register() override
     {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_steal_essence_visual::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove.Register(&spell_steal_essence_visual::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -1881,8 +1800,6 @@ class spell_gen_gadgetzan_transporter_backfire : public SpellScriptLoader
 
         class spell_gen_gadgetzan_transporter_backfire_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_gadgetzan_transporter_backfire_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo(
@@ -1907,7 +1824,7 @@ class spell_gen_gadgetzan_transporter_backfire : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_gen_gadgetzan_transporter_backfire_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget.Register(&spell_gen_gadgetzan_transporter_backfire_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -1925,8 +1842,6 @@ class spell_gen_gift_of_naaru : public SpellScriptLoader
 
         class spell_gen_gift_of_naaru_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_gift_of_naaru_AuraScript);
-
             void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
             {
                 Unit* target = GetOwner()->ToUnit();
@@ -1942,7 +1857,7 @@ class spell_gen_gift_of_naaru : public SpellScriptLoader
 
             void Register() override
             {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_gift_of_naaru_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+                DoEffectCalcAmount.Register(&spell_gen_gift_of_naaru_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
             }
         };
 
@@ -1965,8 +1880,6 @@ class spell_gen_gnomish_transporter : public SpellScriptLoader
 
         class spell_gen_gnomish_transporter_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_gnomish_transporter_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo(
@@ -1983,7 +1896,7 @@ class spell_gen_gnomish_transporter : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_gen_gnomish_transporter_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget.Register(&spell_gen_gnomish_transporter_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -2008,8 +1921,6 @@ class spell_gen_interrupt : public SpellScriptLoader
 
         class spell_gen_interrupt_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_interrupt_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_GEN_THROW_INTERRUPT });
@@ -2023,7 +1934,7 @@ class spell_gen_interrupt : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectProc += AuraEffectProcFn(spell_gen_interrupt_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+                OnEffectProc.Register(&spell_gen_interrupt_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 
@@ -2040,8 +1951,6 @@ class spell_gen_increase_stats_buff : public SpellScriptLoader
 
         class spell_gen_increase_stats_buff_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_increase_stats_buff_SpellScript);
-
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 if (GetHitUnit()->IsInRaidWith(GetCaster()))
@@ -2052,7 +1961,7 @@ class spell_gen_increase_stats_buff : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_gen_increase_stats_buff_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget.Register(&spell_gen_increase_stats_buff_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -2078,8 +1987,6 @@ class spell_gen_lifebloom : public SpellScriptLoader
 
         class spell_gen_lifebloom_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_lifebloom_AuraScript);
-
         public:
             spell_gen_lifebloom_AuraScript(uint32 spellId) : AuraScript(), _spellId(spellId) { }
 
@@ -2100,7 +2007,7 @@ class spell_gen_lifebloom : public SpellScriptLoader
 
             void Register() override
             {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_gen_lifebloom_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove.Register(&spell_gen_lifebloom_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
             }
 
         private:
@@ -2173,8 +2080,6 @@ class spell_gen_mounted_charge: public SpellScriptLoader
 
         class spell_gen_mounted_charge_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_mounted_charge_SpellScript);
-
             void HandleScriptEffect(SpellEffIndex effIndex)
             {
                 Unit* target = GetHitUnit();
@@ -2264,10 +2169,10 @@ class spell_gen_mounted_charge: public SpellScriptLoader
                 SpellInfo const* spell = sSpellMgr->AssertSpellInfo(m_scriptSpellId);
 
                 if (spell->HasEffect(SPELL_EFFECT_SCRIPT_EFFECT))
-                    OnEffectHitTarget += SpellEffectFn(spell_gen_mounted_charge_SpellScript::HandleScriptEffect, EFFECT_FIRST_FOUND, SPELL_EFFECT_SCRIPT_EFFECT);
+                    OnEffectHitTarget.Register(&spell_gen_mounted_charge_SpellScript::HandleScriptEffect, EFFECT_FIRST_FOUND, SPELL_EFFECT_SCRIPT_EFFECT);
 
                 if (spell->Effects[EFFECT_0].Effect == SPELL_EFFECT_CHARGE)
-                    OnEffectHitTarget += SpellEffectFn(spell_gen_mounted_charge_SpellScript::HandleChargeEffect, EFFECT_0, SPELL_EFFECT_CHARGE);
+                    OnEffectHitTarget.Register(&spell_gen_mounted_charge_SpellScript::HandleChargeEffect, EFFECT_0, SPELL_EFFECT_CHARGE);
             }
         };
 
@@ -2291,8 +2196,6 @@ class spell_gen_moss_covered_feet : public SpellScriptLoader
 
         class spell_gen_moss_covered_feet_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_moss_covered_feet_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_FALL_DOWN });
@@ -2306,7 +2209,7 @@ class spell_gen_moss_covered_feet : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectProc += AuraEffectProcFn(spell_gen_moss_covered_feet_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+                OnEffectProc.Register(&spell_gen_moss_covered_feet_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 
@@ -2329,8 +2232,6 @@ class spell_gen_netherbloom : public SpellScriptLoader
 
         class spell_gen_netherbloom_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_netherbloom_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 for (uint8 i = 0; i < 5; ++i)
@@ -2365,7 +2266,7 @@ class spell_gen_netherbloom : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_gen_netherbloom_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_gen_netherbloom_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -2388,8 +2289,6 @@ class spell_gen_nightmare_vine : public SpellScriptLoader
 
         class spell_gen_nightmare_vine_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_nightmare_vine_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_NIGHTMARE_POLLEN });
@@ -2409,7 +2308,7 @@ class spell_gen_nightmare_vine : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_gen_nightmare_vine_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_gen_nightmare_vine_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -2437,8 +2336,6 @@ class spell_gen_obsidian_armor : public SpellScriptLoader
 
         class spell_gen_obsidian_armor_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_obsidian_armor_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo(
@@ -2497,8 +2394,8 @@ class spell_gen_obsidian_armor : public SpellScriptLoader
 
             void Register() override
             {
-                DoCheckProc += AuraCheckProcFn(spell_gen_obsidian_armor_AuraScript::CheckProc);
-                OnEffectProc += AuraEffectProcFn(spell_gen_obsidian_armor_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+                DoCheckProc.Register(&spell_gen_obsidian_armor_AuraScript::CheckProc);
+                OnEffectProc.Register(&spell_gen_obsidian_armor_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 
@@ -2515,8 +2412,6 @@ class spell_gen_oracle_wolvar_reputation : public SpellScriptLoader
 
         class spell_gen_oracle_wolvar_reputation_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_oracle_wolvar_reputation_SpellScript);
-
             bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
@@ -2542,7 +2437,7 @@ class spell_gen_oracle_wolvar_reputation : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHit += SpellEffectFn(spell_gen_oracle_wolvar_reputation_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHit.Register(&spell_gen_oracle_wolvar_reputation_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -2566,8 +2461,6 @@ class spell_gen_orc_disguise : public SpellScriptLoader
 
         class spell_gen_orc_disguise_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_orc_disguise_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo(
@@ -2593,7 +2486,7 @@ class spell_gen_orc_disguise : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_gen_orc_disguise_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_gen_orc_disguise_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -2616,8 +2509,6 @@ class spell_gen_paralytic_poison : public SpellScriptLoader
 
         class spell_gen_paralytic_poison_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_paralytic_poison_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_PARALYSIS });
@@ -2633,7 +2524,7 @@ class spell_gen_paralytic_poison : public SpellScriptLoader
 
             void Register() override
             {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_gen_paralytic_poison_AuraScript::HandleStun, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove.Register(&spell_gen_paralytic_poison_AuraScript::HandleStun, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -2650,8 +2541,6 @@ class spell_gen_proc_below_pct_damaged : public SpellScriptLoader
 
         class spell_gen_proc_below_pct_damaged_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_proc_below_pct_damaged_AuraScript);
-
             bool CheckProc(ProcEventInfo& eventInfo)
             {
                 DamageInfo* damageInfo = eventInfo.GetDamageInfo();
@@ -2668,7 +2557,7 @@ class spell_gen_proc_below_pct_damaged : public SpellScriptLoader
 
             void Register() override
             {
-                DoCheckProc += AuraCheckProcFn(spell_gen_proc_below_pct_damaged_AuraScript::CheckProc);
+                DoCheckProc.Register(&spell_gen_proc_below_pct_damaged_AuraScript::CheckProc);
             }
         };
 
@@ -2685,8 +2574,6 @@ class spell_gen_proc_charge_drop_only : public SpellScriptLoader
 
         class spell_gen_proc_charge_drop_only_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_proc_charge_drop_only_AuraScript);
-
             void HandleChargeDrop(ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
@@ -2694,7 +2581,7 @@ class spell_gen_proc_charge_drop_only : public SpellScriptLoader
 
             void Register() override
             {
-                OnProc += AuraProcFn(spell_gen_proc_charge_drop_only_AuraScript::HandleChargeDrop);
+                OnProc.Register(&spell_gen_proc_charge_drop_only_AuraScript::HandleChargeDrop);
             }
         };
 
@@ -2718,8 +2605,6 @@ class spell_gen_parachute : public SpellScriptLoader
 
         class spell_gen_parachute_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_parachute_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo(
@@ -2741,7 +2626,7 @@ class spell_gen_parachute : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_parachute_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectPeriodic.Register(&spell_gen_parachute_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
@@ -2765,8 +2650,6 @@ class spell_gen_pet_summoned : public SpellScriptLoader
 
         class spell_gen_pet_summoned_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_pet_summoned_SpellScript);
-
             bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
@@ -2805,7 +2688,7 @@ class spell_gen_pet_summoned : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_gen_pet_summoned_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_gen_pet_summoned_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -2822,8 +2705,6 @@ class spell_gen_profession_research : public SpellScriptLoader
 
         class spell_gen_profession_research_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_profession_research_SpellScript);
-
             bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
@@ -2854,8 +2735,8 @@ class spell_gen_profession_research : public SpellScriptLoader
 
             void Register() override
             {
-                OnCheckCast += SpellCheckCastFn(spell_gen_profession_research_SpellScript::CheckRequirement);
-                OnEffectHitTarget += SpellEffectFn(spell_gen_profession_research_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnCheckCast.Register(&spell_gen_profession_research_SpellScript::CheckRequirement);
+                OnEffectHitTarget.Register(&spell_gen_profession_research_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -2872,8 +2753,6 @@ class spell_gen_remove_flight_auras : public SpellScriptLoader
 
         class spell_gen_remove_flight_auras_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_remove_flight_auras_SpellScript);
-
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* target = GetHitUnit())
@@ -2885,7 +2764,7 @@ class spell_gen_remove_flight_auras : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_gen_remove_flight_auras_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_gen_remove_flight_auras_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -2920,8 +2799,6 @@ class spell_gen_replenishment : public SpellScriptLoader
 
         class spell_gen_replenishment_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_replenishment_SpellScript);
-
             void RemoveInvalidTargets(std::list<WorldObject*>& targets)
             {
                 // In arenas Replenishment may only affect the caster
@@ -2948,7 +2825,7 @@ class spell_gen_replenishment : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_gen_replenishment_SpellScript::RemoveInvalidTargets, EFFECT_ALL, TARGET_UNIT_CASTER_AREA_RAID);
+                OnObjectAreaTargetSelect.Register(&spell_gen_replenishment_SpellScript::RemoveInvalidTargets, EFFECT_ALL, TARGET_UNIT_CASTER_AREA_RAID);
             }
         };
 
@@ -2959,8 +2836,6 @@ class spell_gen_replenishment : public SpellScriptLoader
 
         class spell_gen_replenishment_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_replenishment_AuraScript);
-
             bool Load() override
             {
                 return GetUnitOwner()->GetPowerType() == POWER_MANA;
@@ -2981,7 +2856,7 @@ class spell_gen_replenishment : public SpellScriptLoader
 
             void Register() override
             {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_replenishment_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_ENERGIZE);
+                DoEffectCalcAmount.Register(&spell_gen_replenishment_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_ENERGIZE);
             }
         };
 
@@ -3006,8 +2881,6 @@ class spell_gen_running_wild : public SpellScriptLoader
 
         class spell_gen_running_wild_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_running_wild_AuraScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sCreatureDisplayInfoStore.LookupEntry(RUNNING_WILD_MODEL_MALE))
@@ -3031,14 +2904,12 @@ class spell_gen_running_wild : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectApply += AuraEffectApplyFn(spell_gen_running_wild_AuraScript::HandleMount, EFFECT_1, SPELL_AURA_MOUNTED, AURA_EFFECT_HANDLE_REAL);
+                OnEffectApply.Register(&spell_gen_running_wild_AuraScript::HandleMount, EFFECT_1, SPELL_AURA_MOUNTED, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
         class spell_gen_running_wild_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_running_wild_SpellScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_ALTERED_FORM });
@@ -3075,8 +2946,6 @@ class spell_gen_two_forms : public SpellScriptLoader
 
         class spell_gen_two_forms_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_two_forms_SpellScript);
-
             SpellCastResult CheckCast()
             {
                 if (GetCaster()->IsInCombat())
@@ -3107,8 +2976,8 @@ class spell_gen_two_forms : public SpellScriptLoader
 
             void Register() override
             {
-                OnCheckCast += SpellCheckCastFn(spell_gen_two_forms_SpellScript::CheckCast);
-                OnEffectHitTarget += SpellEffectFn(spell_gen_two_forms_SpellScript::HandleTransform, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnCheckCast.Register(&spell_gen_two_forms_SpellScript::CheckCast);
+                OnEffectHitTarget.Register(&spell_gen_two_forms_SpellScript::HandleTransform, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -3125,8 +2994,6 @@ class spell_gen_darkflight : public SpellScriptLoader
 
         class spell_gen_darkflight_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_darkflight_SpellScript);
-
             void TriggerTransform()
             {
                 GetCaster()->CastSpell(GetCaster(), SPELL_ALTERED_FORM, TRIGGERED_FULL_MASK);
@@ -3134,7 +3001,7 @@ class spell_gen_darkflight : public SpellScriptLoader
 
             void Register() override
             {
-                AfterCast += SpellCastFn(spell_gen_darkflight_SpellScript::TriggerTransform);
+                AfterCast.Register(&spell_gen_darkflight_SpellScript::TriggerTransform);
             }
         };
 
@@ -3155,8 +3022,6 @@ class spell_gen_seaforium_blast : public SpellScriptLoader
 
         class spell_gen_seaforium_blast_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_seaforium_blast_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_PLANT_CHARGES_CREDIT_ACHIEVEMENT });
@@ -3179,7 +3044,7 @@ class spell_gen_seaforium_blast : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_gen_seaforium_blast_SpellScript::AchievementCredit, EFFECT_1, SPELL_EFFECT_GAMEOBJECT_DAMAGE);
+                OnEffectHitTarget.Register(&spell_gen_seaforium_blast_SpellScript::AchievementCredit, EFFECT_1, SPELL_EFFECT_GAMEOBJECT_DAMAGE);
             }
         };
 
@@ -3205,8 +3070,6 @@ class spell_gen_spectator_cheer_trigger : public SpellScriptLoader
 
         class spell_gen_spectator_cheer_trigger_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_spectator_cheer_trigger_SpellScript);
-
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 GetCaster()->HandleEmoteCommand(EmoteArray[urand(0, 2)]);
@@ -3214,7 +3077,7 @@ class spell_gen_spectator_cheer_trigger : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_gen_spectator_cheer_trigger_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget.Register(&spell_gen_spectator_cheer_trigger_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -3231,8 +3094,6 @@ class spell_gen_spirit_healer_res : public SpellScriptLoader
 
         class spell_gen_spirit_healer_res_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_spirit_healer_res_SpellScript);
-
             bool Load() override
             {
                 return GetOriginalCaster() && GetOriginalCaster()->GetTypeId() == TYPEID_PLAYER;
@@ -3251,7 +3112,7 @@ class spell_gen_spirit_healer_res : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_gen_spirit_healer_res_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget.Register(&spell_gen_spirit_healer_res_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -3274,8 +3135,6 @@ class spell_gen_summon_elemental : public SpellScriptLoader
 
         class spell_gen_summon_elemental_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_summon_elemental_AuraScript);
-
         public:
             spell_gen_summon_elemental_AuraScript(uint32 spellId) : AuraScript(), _spellId(spellId) { }
 
@@ -3301,8 +3160,8 @@ class spell_gen_summon_elemental : public SpellScriptLoader
 
             void Register() override
             {
-                 AfterEffectApply += AuraEffectApplyFn(spell_gen_summon_elemental_AuraScript::AfterApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-                 AfterEffectRemove += AuraEffectRemoveFn(spell_gen_summon_elemental_AuraScript::AfterRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                 AfterEffectApply.Register(&spell_gen_summon_elemental_AuraScript::AfterApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                 AfterEffectRemove.Register(&spell_gen_summon_elemental_AuraScript::AfterRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
 
         private:
@@ -3330,8 +3189,6 @@ class spell_gen_summon_tournament_mount : public SpellScriptLoader
 
         class spell_gen_summon_tournament_mount_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_summon_tournament_mount_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_LANCE_EQUIPPED });
@@ -3353,7 +3210,7 @@ class spell_gen_summon_tournament_mount : public SpellScriptLoader
 
             void Register() override
             {
-                OnCheckCast += SpellCheckCastFn(spell_gen_summon_tournament_mount_SpellScript::CheckIfLanceEquiped);
+                OnCheckCast.Register(&spell_gen_summon_tournament_mount_SpellScript::CheckIfLanceEquiped);
             }
         };
 
@@ -3371,8 +3228,6 @@ class spell_gen_throw_shield : public SpellScriptLoader
 
         class spell_gen_throw_shield_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_throw_shield_SpellScript);
-
             void HandleScriptEffect(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
@@ -3381,7 +3236,7 @@ class spell_gen_throw_shield : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_gen_throw_shield_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_gen_throw_shield_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -3404,8 +3259,6 @@ class spell_gen_tournament_duel : public SpellScriptLoader
 
         class spell_gen_tournament_duel_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_tournament_duel_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo(
@@ -3434,7 +3287,7 @@ class spell_gen_tournament_duel : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_gen_tournament_duel_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_gen_tournament_duel_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -3451,8 +3304,6 @@ class spell_gen_tournament_pennant : public SpellScriptLoader
 
         class spell_gen_tournament_pennant_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_tournament_pennant_AuraScript);
-
             bool Load() override
             {
                 return GetCaster() && GetCaster()->GetTypeId() == TYPEID_PLAYER;
@@ -3467,7 +3318,7 @@ class spell_gen_tournament_pennant : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectApply += AuraEffectApplyFn(spell_gen_tournament_pennant_AuraScript::HandleApplyEffect, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                OnEffectApply.Register(&spell_gen_tournament_pennant_AuraScript::HandleApplyEffect, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
             }
         };
 
@@ -3489,8 +3340,6 @@ class spell_gen_turkey_marker : public SpellScriptLoader
 
         class spell_gen_turkey_marker_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_turkey_marker_AuraScript);
-
             void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 // store stack apply times, so we can pop them while they expire
@@ -3514,8 +3363,8 @@ class spell_gen_turkey_marker : public SpellScriptLoader
 
             void Register() override
             {
-                AfterEffectApply += AuraEffectApplyFn(spell_gen_turkey_marker_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_turkey_marker_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                AfterEffectApply.Register(&spell_gen_turkey_marker_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                OnEffectPeriodic.Register(&spell_gen_turkey_marker_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
 
             std::list<uint32> _applyTimes;
@@ -3543,8 +3392,6 @@ class spell_gen_upper_deck_create_foam_sword : public SpellScriptLoader
 
         class spell_gen_upper_deck_create_foam_sword_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_upper_deck_create_foam_sword_SpellScript);
-
             void HandleScript(SpellEffIndex effIndex)
             {
                 if (Player* player = GetHitPlayer())
@@ -3563,7 +3410,7 @@ class spell_gen_upper_deck_create_foam_sword : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_gen_upper_deck_create_foam_sword_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_gen_upper_deck_create_foam_sword_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -3587,8 +3434,6 @@ class spell_gen_vampiric_touch : public SpellScriptLoader
 
         class spell_gen_vampiric_touch_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_vampiric_touch_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_VAMPIRIC_TOUCH_HEAL });
@@ -3608,7 +3453,7 @@ class spell_gen_vampiric_touch : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectProc += AuraEffectProcFn(spell_gen_vampiric_touch_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+                OnEffectProc.Register(&spell_gen_vampiric_touch_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 
@@ -3620,8 +3465,6 @@ class spell_gen_vampiric_touch : public SpellScriptLoader
 
 class spell_gen_vehicle_scaling_trigger : public SpellScript
 {
-    PrepareSpellScript(spell_gen_vehicle_scaling_trigger);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo({ uint32(spellInfo->Effects[EFFECT_0].BasePoints) });
@@ -3635,7 +3478,7 @@ class spell_gen_vehicle_scaling_trigger : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_gen_vehicle_scaling_trigger::HandleEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_gen_vehicle_scaling_trigger::HandleEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -3649,8 +3492,6 @@ enum VehicleScaling
 
 class spell_gen_vehicle_scaling : public AuraScript
 {
-    PrepareAuraScript(spell_gen_vehicle_scaling);
-
     bool Load() override
     {
         return GetCaster() && GetCaster()->GetTypeId() == TYPEID_PLAYER;
@@ -3696,15 +3537,15 @@ class spell_gen_vehicle_scaling : public AuraScript
         {
             case SPELL_GEAR_SCALING_CATA_N:
             case SPELL_GEAR_SCALING_CATA_HC:
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_vehicle_scaling::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_HEALING_DONE_PERCENT);
+                DoEffectCalcAmount.Register(&spell_gen_vehicle_scaling::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_HEALING_DONE_PERCENT);
                 break;
             default:
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_vehicle_scaling::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_HEALING_PCT);
+                DoEffectCalcAmount.Register(&spell_gen_vehicle_scaling::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_HEALING_PCT);
                 break;
         }
 
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_vehicle_scaling::CalculateAmount, EFFECT_1, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_vehicle_scaling::CalculateAmount, EFFECT_2, SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT);
+        DoEffectCalcAmount.Register(&spell_gen_vehicle_scaling::CalculateAmount, EFFECT_1, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
+        DoEffectCalcAmount.Register(&spell_gen_vehicle_scaling::CalculateAmount, EFFECT_2, SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT);
     }
 };
 
@@ -3721,8 +3562,6 @@ class spell_gen_vendor_bark_trigger : public SpellScriptLoader
 
         class spell_gen_vendor_bark_trigger_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_vendor_bark_trigger_SpellScript);
-
             void HandleDummy(SpellEffIndex /* effIndex */)
             {
                 if (Creature* vendor = GetCaster()->ToCreature())
@@ -3732,7 +3571,7 @@ class spell_gen_vendor_bark_trigger : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_gen_vendor_bark_trigger_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget.Register(&spell_gen_vendor_bark_trigger_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -3750,8 +3589,6 @@ class spell_gen_wg_water : public SpellScriptLoader
 
         class spell_gen_wg_water_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_wg_water_SpellScript);
-
             SpellCastResult CheckCast()
             {
                 if (!GetSpellInfo()->CheckTargetCreatureType(GetCaster()))
@@ -3761,7 +3598,7 @@ class spell_gen_wg_water : public SpellScriptLoader
 
             void Register() override
             {
-                OnCheckCast += SpellCheckCastFn(spell_gen_wg_water_SpellScript::CheckCast);
+                OnCheckCast.Register(&spell_gen_wg_water_SpellScript::CheckCast);
             }
         };
 
@@ -3783,8 +3620,6 @@ class spell_gen_whisper_gulch_yogg_saron_whisper : public SpellScriptLoader
 
         class spell_gen_whisper_gulch_yogg_saron_whisper_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_whisper_gulch_yogg_saron_whisper_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_YOGG_SARON_WHISPER_DUMMY });
@@ -3798,7 +3633,7 @@ class spell_gen_whisper_gulch_yogg_saron_whisper : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_whisper_gulch_yogg_saron_whisper_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectPeriodic.Register(&spell_gen_whisper_gulch_yogg_saron_whisper_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
@@ -3815,8 +3650,6 @@ class spell_gen_eject_all_passengers : public SpellScriptLoader
 
         class spell_gen_eject_all_passengers_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_eject_all_passengers_SpellScript);
-
             void RemoveVehicleAuras()
             {
                 if (Vehicle* vehicle = GetHitUnit()->GetVehicleKit())
@@ -3825,7 +3658,7 @@ class spell_gen_eject_all_passengers : public SpellScriptLoader
 
             void Register() override
             {
-                AfterHit += SpellHitFn(spell_gen_eject_all_passengers_SpellScript::RemoveVehicleAuras);
+                AfterHit.Register(&spell_gen_eject_all_passengers_SpellScript::RemoveVehicleAuras);
             }
         };
 
@@ -3848,8 +3681,6 @@ class spell_gen_eject_passenger : public SpellScriptLoader
 
         class spell_gen_eject_passenger_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_eject_passenger_SpellScript);
-
             bool Validate(SpellInfo const* spellInfo) override
             {
                 if (spellInfo->Effects[EFFECT_0].CalcValue() < 1)
@@ -3892,7 +3723,7 @@ class spell_gen_eject_passenger : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_gen_eject_passenger_SpellScript::EjectPassenger, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_gen_eject_passenger_SpellScript::EjectPassenger, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -3914,8 +3745,6 @@ class spell_gen_gm_freeze : public SpellScriptLoader
 
         class spell_gen_gm_freeze_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_gm_freeze_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_GM_FREEZE });
@@ -3962,8 +3791,8 @@ class spell_gen_gm_freeze : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectApply += AuraEffectApplyFn(spell_gen_gm_freeze_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
-                OnEffectRemove += AuraEffectRemoveFn(spell_gen_gm_freeze_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+                OnEffectApply.Register(&spell_gen_gm_freeze_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove.Register(&spell_gen_gm_freeze_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -3980,9 +3809,7 @@ public:
 
     class spell_gen_stand_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_gen_stand_SpellScript);
-
-        void HandleScript(SpellEffIndex /*eff*/)
+             void HandleScript(SpellEffIndex /*eff*/)
         {
             Creature* target = GetHitCreature();
             if (!target)
@@ -3994,7 +3821,7 @@ public:
 
         void Register() override
         {
-            OnEffectHitTarget += SpellEffectFn(spell_gen_stand_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            OnEffectHitTarget.Register(&spell_gen_stand_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
         }
     };
 
@@ -4099,8 +3926,6 @@ public:
 
     class spell_gen_mixology_bonus_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_gen_mixology_bonus_AuraScript);
-
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             return ValidateSpellInfo({ SPELL_MIXOLOGY });
@@ -4293,7 +4118,7 @@ public:
 
         void Register() override
         {
-            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_mixology_bonus_AuraScript::CalculateAmount, EFFECT_ALL, SPELL_AURA_ANY);
+            DoEffectCalcAmount.Register(&spell_gen_mixology_bonus_AuraScript::CalculateAmount, EFFECT_ALL, SPELL_AURA_ANY);
         }
     };
 
@@ -4315,9 +4140,7 @@ public:
 
     class spell_gen_landmine_knockback_achievement_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_gen_landmine_knockback_achievement_SpellScript);
-
-        void HandleScript(SpellEffIndex /*effIndex*/)
+             void HandleScript(SpellEffIndex /*effIndex*/)
         {
             if (Player* target = GetHitPlayer())
             {
@@ -4331,7 +4154,7 @@ public:
 
         void Register() override
         {
-            OnEffectHitTarget += SpellEffectFn(spell_gen_landmine_knockback_achievement_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            OnEffectHitTarget.Register(&spell_gen_landmine_knockback_achievement_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
         }
     };
 
@@ -4349,8 +4172,6 @@ class spell_gen_clear_debuffs : public SpellScriptLoader
 
         class spell_gen_clear_debuffs_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_clear_debuffs_SpellScript);
-
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* target = GetHitUnit())
@@ -4365,7 +4186,7 @@ class spell_gen_clear_debuffs : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_gen_clear_debuffs_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_gen_clear_debuffs_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -4388,8 +4209,6 @@ class spell_gen_pony_mount_check : public SpellScriptLoader
 
         class spell_gen_pony_mount_check_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_pony_mount_check_AuraScript);
-
             void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
             {
                 Unit* caster = GetCaster();
@@ -4413,7 +4232,7 @@ class spell_gen_pony_mount_check : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_pony_mount_check_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectPeriodic.Register(&spell_gen_pony_mount_check_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
@@ -4465,8 +4284,6 @@ class spell_gen_armor_specialization : public SpellScriptLoader
 
         class spell_gen_armor_specialization_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_armor_specialization_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo(
@@ -4573,7 +4390,7 @@ class spell_gen_armor_specialization : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_gen_armor_specialization_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget.Register(&spell_gen_armor_specialization_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -4598,8 +4415,6 @@ class spell_gen_pvp_trinket : public SpellScriptLoader
 
         class spell_gen_pvp_trinket_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_pvp_trinket_SpellScript);
-
             void HandlePvPTrinketVisual()
             {
                 if (Unit* caster = GetCaster())
@@ -4613,7 +4428,7 @@ class spell_gen_pvp_trinket : public SpellScriptLoader
 
             void Register() override
             {
-                AfterHit += SpellHitFn(spell_gen_pvp_trinket_SpellScript::HandlePvPTrinketVisual);
+                AfterHit.Register(&spell_gen_pvp_trinket_SpellScript::HandlePvPTrinketVisual);
             }
         };
 
@@ -4635,8 +4450,6 @@ class spell_gen_blink : public SpellScriptLoader
 
         class spell_gen_blink_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_blink_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_BLINK_TARGET });
@@ -4671,8 +4484,8 @@ class spell_gen_blink : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_gen_blink_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnEffectHitTarget += SpellEffectFn(spell_gen_blink_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnObjectAreaTargetSelect.Register(&spell_gen_blink_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnEffectHitTarget.Register(&spell_gen_blink_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -4689,9 +4502,7 @@ public:
 
     class spell_gen_toxic_blow_dart_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_gen_toxic_blow_dart_SpellScript);
-
-        void FilterTargets(std::list<WorldObject*>& targets)
+             void FilterTargets(std::list<WorldObject*>& targets)
         {
             if (targets.empty())
                 return;
@@ -4701,7 +4512,7 @@ public:
 
         void Register() override
         {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_gen_toxic_blow_dart_SpellScript::FilterTargets, EFFECT_ALL, TARGET_UNIT_SRC_AREA_ENEMY);
+            OnObjectAreaTargetSelect.Register(&spell_gen_toxic_blow_dart_SpellScript::FilterTargets, EFFECT_ALL, TARGET_UNIT_SRC_AREA_ENEMY);
         }
     };
 
@@ -4726,8 +4537,6 @@ class spell_gen_projectile_goods : public SpellScriptLoader
 
         class spell_gen_projectile_goods_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_projectile_goods_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo(
@@ -4762,7 +4571,7 @@ class spell_gen_projectile_goods : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_gen_projectile_goods_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_gen_projectile_goods_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -4780,8 +4589,6 @@ enum Vengeance
 // 93098 - 93099 - 84839 - 84840 - Vengeance
 class spell_gen_vengeance : public AuraScript
 {
-    PrepareAuraScript(spell_gen_vengeance);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_VENGEANCE_TRIGGERED });
@@ -4809,8 +4616,8 @@ class spell_gen_vengeance : public AuraScript
 
     void Register() override
     {
-        DoCheckProc += AuraCheckProcFn(spell_gen_vengeance::CheckProc);
-        OnEffectProc += AuraEffectProcFn(spell_gen_vengeance::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+        DoCheckProc.Register(&spell_gen_vengeance::CheckProc);
+        OnEffectProc.Register(&spell_gen_vengeance::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
@@ -4825,8 +4632,6 @@ typedef std::vector<DamageTimeInfo> DamageInfoContainer;
 // 76691 - Vengeance
 class spell_gen_vengeance_triggered : public AuraScript
 {
-    PrepareAuraScript(spell_gen_vengeance_triggered);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_VENGEANCE_TRIGGERED });
@@ -4872,9 +4677,9 @@ class spell_gen_vengeance_triggered : public AuraScript
 
     void Register() override
     {
-        DoCheckProc += AuraCheckProcFn(spell_gen_vengeance_triggered::CheckProc);
-        OnEffectProc += AuraEffectProcFn(spell_gen_vengeance_triggered::HandleEffectProc, EFFECT_0, SPELL_AURA_MOD_ATTACK_POWER);
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_vengeance_triggered::HandleEffectPeriodic, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
+        DoCheckProc.Register(&spell_gen_vengeance_triggered::CheckProc);
+        OnEffectProc.Register(&spell_gen_vengeance_triggered::HandleEffectProc, EFFECT_0, SPELL_AURA_MOD_ATTACK_POWER);
+        OnEffectPeriodic.Register(&spell_gen_vengeance_triggered::HandleEffectPeriodic, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
     }
 private:
     DamageInfoContainer _damageInfo;
@@ -4917,8 +4722,6 @@ class spell_gen_gilneas_prison_periodic_dummy : public SpellScriptLoader
 
         class spell_gen_gilneas_prison_periodic_dummy_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_gilneas_prison_periodic_dummy_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo(
@@ -4956,7 +4759,7 @@ class spell_gen_gilneas_prison_periodic_dummy : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_gen_gilneas_prison_periodic_dummy_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget.Register(&spell_gen_gilneas_prison_periodic_dummy_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -4979,8 +4782,6 @@ class spell_gen_throw_torch : public SpellScriptLoader
 
         class spell_gen_throw_torch_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_throw_torch_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo( { SPELL_THROW_TORCH });
@@ -4995,7 +4796,7 @@ class spell_gen_throw_torch : public SpellScriptLoader
 
             void Register() override
             {
-                BeforeHit += SpellHitFn(spell_gen_throw_torch_SpellScript::HandleEffect);
+                BeforeHit.Register(&spell_gen_throw_torch_SpellScript::HandleEffect);
             }
         };
 
@@ -5007,8 +4808,6 @@ class spell_gen_throw_torch : public SpellScriptLoader
 
 class spell_gen_revserse_cast_mirror_image : public SpellScript
 {
-    PrepareSpellScript(spell_gen_revserse_cast_mirror_image);
-
     void HandleScript(SpellEffIndex effIndex)
     {
         if (Unit* caster = GetCaster())
@@ -5017,14 +4816,12 @@ class spell_gen_revserse_cast_mirror_image : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_gen_revserse_cast_mirror_image::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_gen_revserse_cast_mirror_image::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 class spell_gen_mirror_image_aura : public SpellScript
 {
-    PrepareSpellScript(spell_gen_mirror_image_aura);
-
     void HandleScript(SpellEffIndex effIndex)
     {
         if (Unit* caster = GetCaster())
@@ -5033,16 +4830,14 @@ class spell_gen_mirror_image_aura : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_gen_mirror_image_aura::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
-        OnEffectHitTarget += SpellEffectFn(spell_gen_mirror_image_aura::HandleScript, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_gen_mirror_image_aura::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_gen_mirror_image_aura::HandleScript, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 
 class spell_gen_reverse_cast_ride_vehicle : public SpellScript
 {
-    PrepareSpellScript(spell_gen_reverse_cast_ride_vehicle);
-
     void HandleScript(SpellEffIndex effIndex)
     {
         if (Unit* caster = GetCaster())
@@ -5051,7 +4846,7 @@ class spell_gen_reverse_cast_ride_vehicle : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_gen_reverse_cast_ride_vehicle::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_gen_reverse_cast_ride_vehicle::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -5073,8 +4868,6 @@ private:
 
 class spell_gen_launch_quest : public SpellScript
 {
-    PrepareSpellScript(spell_gen_launch_quest);
-
     bool Load() override
     {
         return GetCaster()->GetTypeId() == TYPEID_UNIT;
@@ -5089,15 +4882,13 @@ class spell_gen_launch_quest : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_gen_launch_quest::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+        OnObjectAreaTargetSelect.Register(&spell_gen_launch_quest::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
     }
 };
 
 // Used for some spells cast by vehicles or charmed creatures that do not send a cooldown event on their own
 class spell_gen_charmed_unit_spell_cooldown : public SpellScript
 {
-    PrepareSpellScript(spell_gen_charmed_unit_spell_cooldown);
-
     void HandleCast()
     {
         Unit* caster = GetCaster();
@@ -5111,14 +4902,12 @@ class spell_gen_charmed_unit_spell_cooldown : public SpellScript
 
     void Register() override
     {
-        OnCast += SpellCastFn(spell_gen_charmed_unit_spell_cooldown::HandleCast);
+        OnCast.Register(&spell_gen_charmed_unit_spell_cooldown::HandleCast);
     }
 };
 
 class spell_gen_flurry_of_claws : public AuraScript
 {
-    PrepareAuraScript(spell_gen_flurry_of_claws);
-
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
         PreventDefaultAction();
@@ -5129,7 +4918,7 @@ class spell_gen_flurry_of_claws : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_flurry_of_claws::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectPeriodic.Register(&spell_gen_flurry_of_claws::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
@@ -5141,8 +4930,6 @@ enum Sunflower
 // 93971 - Sunflower (DND)
 class spell_gen_sunflower_dnd : public AuraScript
 {
-    PrepareAuraScript(spell_gen_sunflower_dnd);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SINGING_SUNFLOWER_DND });
@@ -5155,7 +4942,7 @@ class spell_gen_sunflower_dnd : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_sunflower_dnd::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectPeriodic.Register(&spell_gen_sunflower_dnd::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
@@ -5177,8 +4964,6 @@ enum GuildBattleStandard
 // 89481 - Guild Battle Standard
 class spell_gen_guild_battle_standard : public AuraScript
 {
-    PrepareAuraScript(spell_gen_guild_battle_standard);
-
     bool Load() override
     {
         return GetCaster()->IsCreature();
@@ -5235,7 +5020,7 @@ class spell_gen_guild_battle_standard : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_guild_battle_standard::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+        OnEffectPeriodic.Register(&spell_gen_guild_battle_standard::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
     }
 };
 
@@ -5243,8 +5028,6 @@ class spell_gen_guild_battle_standard : public AuraScript
 // 90708 - Guild Battle Standard
 class spell_gen_guild_battle_standard_buff : public SpellScript
 {
-    PrepareSpellScript(spell_gen_guild_battle_standard_buff);
-
     bool Load() override
     {
         return GetCaster()->IsSummon();
@@ -5261,7 +5044,7 @@ class spell_gen_guild_battle_standard_buff : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_gen_guild_battle_standard_buff::FilterTargets, EFFECT_ALL, TARGET_UNIT_SRC_AREA_ALLY);
+        OnObjectAreaTargetSelect.Register(&spell_gen_guild_battle_standard_buff::FilterTargets, EFFECT_ALL, TARGET_UNIT_SRC_AREA_ALLY);
     }
 };
 
@@ -5274,8 +5057,6 @@ enum MobileBanking
 // 83958 - Mobile Banking
 class spell_gen_mobile_banking : public SpellScript
 {
-    PrepareSpellScript(spell_gen_mobile_banking);
-
     bool Load() override
     {
         return GetCaster()->IsPlayer();
@@ -5307,8 +5088,8 @@ class spell_gen_mobile_banking : public SpellScript
 
     void Register() override
     {
-        OnCheckCast += SpellCheckCastFn(spell_gen_mobile_banking::CheckRequirement);
-        OnEffectHitTarget += SpellEffectFn(spell_gen_mobile_banking::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnCheckCast.Register(&spell_gen_mobile_banking::CheckRequirement);
+        OnEffectHitTarget.Register(&spell_gen_mobile_banking::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -5316,8 +5097,6 @@ class spell_gen_mobile_banking : public SpellScript
 // 92712 - Big Cauldron of Battle
 class spell_gen_cauldron_of_battle : public SpellScript
 {
-    PrepareSpellScript(spell_gen_cauldron_of_battle);
-
     bool Load() override
     {
         return GetCaster()->IsPlayer();
@@ -5352,8 +5131,8 @@ class spell_gen_cauldron_of_battle : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_gen_cauldron_of_battle::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
-        OnEffectHitTarget += SpellEffectFn(spell_gen_cauldron_of_battle::HandleDummyEffect, EFFECT_1, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget.Register(&spell_gen_cauldron_of_battle::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget.Register(&spell_gen_cauldron_of_battle::HandleDummyEffect, EFFECT_1, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -5371,8 +5150,6 @@ enum FlaskOfBattle
 // 92679 - Flask of Battle
 class spell_gen_flask_of_battle : public SpellScript
 {
-    PrepareSpellScript(spell_gen_flask_of_battle);
-
     bool Load() override
     {
         return GetCaster()->IsPlayer();
@@ -5465,7 +5242,7 @@ class spell_gen_flask_of_battle : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_gen_flask_of_battle::HandleBuffEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget.Register(&spell_gen_flask_of_battle::HandleBuffEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -5478,8 +5255,6 @@ enum TheQuickAndTheDead
 // 8326 - Ghost
 class spell_gen_ghost : public AuraScript
 {
-    PrepareAuraScript(spell_gen_ghost);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -5505,15 +5280,13 @@ class spell_gen_ghost : public AuraScript
 
     void Register() override
     {
-        AfterEffectApply += AuraEffectRemoveFn(spell_gen_ghost::AfterApply, EFFECT_0, SPELL_AURA_GHOST, AURA_EFFECT_HANDLE_REAL);
-        AfterEffectRemove += AuraEffectRemoveFn(spell_gen_ghost::AfterRemove, EFFECT_0, SPELL_AURA_GHOST, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectApply.Register(&spell_gen_ghost::AfterApply, EFFECT_0, SPELL_AURA_GHOST, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove.Register(&spell_gen_ghost::AfterRemove, EFFECT_0, SPELL_AURA_GHOST, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
 class spell_gen_zero_energy_zero_regen : public AuraScript
 {
-    PrepareAuraScript(spell_gen_zero_energy_zero_regen);
-
     void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         GetTarget()->SetPower(POWER_ENERGY, 0);
@@ -5521,7 +5294,7 @@ class spell_gen_zero_energy_zero_regen : public AuraScript
 
     void Register() override
     {
-        AfterEffectApply += AuraEffectRemoveFn(spell_gen_zero_energy_zero_regen::AfterApply, EFFECT_0, SPELL_AURA_MOD_POWER_REGEN_PERCENT, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectApply.Register(&spell_gen_zero_energy_zero_regen::AfterApply, EFFECT_0, SPELL_AURA_MOD_POWER_REGEN_PERCENT, AURA_EFFECT_HANDLE_REAL);
     }
 };
 

@@ -367,8 +367,6 @@ class spell_destroy_karangs_banner : public SpellScriptLoader
 
         class spell_destroy_karangs_banner_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_destroy_karangs_banner_SpellScript);
-
             void HandleAfterCast()
             {
                 if (GameObject* banner = GetCaster()->FindNearestGameObject(GO_BANNER, GetSpellInfo()->GetMaxRange(true)))
@@ -377,7 +375,7 @@ class spell_destroy_karangs_banner : public SpellScriptLoader
 
             void Register() override
             {
-                AfterCast += SpellCastFn(spell_destroy_karangs_banner_SpellScript::HandleAfterCast);
+                AfterCast.Register(&spell_destroy_karangs_banner_SpellScript::HandleAfterCast);
             }
         };
 

@@ -391,8 +391,6 @@ class spell_teron_gorefiend_shadow_of_death : public SpellScriptLoader
 
         class spell_teron_gorefiend_shadow_of_death_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_teron_gorefiend_shadow_of_death_AuraScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo(
@@ -429,8 +427,8 @@ class spell_teron_gorefiend_shadow_of_death : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectAbsorb += AuraEffectAbsorbFn(spell_teron_gorefiend_shadow_of_death_AuraScript::Absorb, EFFECT_0);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_teron_gorefiend_shadow_of_death_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_OVERRIDE_CLASS_SCRIPTS, AURA_EFFECT_HANDLE_REAL);
+                OnEffectAbsorb.Register(&spell_teron_gorefiend_shadow_of_death_AuraScript::Absorb, EFFECT_0);
+                AfterEffectRemove.Register(&spell_teron_gorefiend_shadow_of_death_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_OVERRIDE_CLASS_SCRIPTS, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -448,8 +446,6 @@ class spell_teron_gorefiend_spiritual_vengeance : public SpellScriptLoader
 
         class spell_teron_gorefiend_spiritual_vengeance_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_teron_gorefiend_spiritual_vengeance_AuraScript);
-
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 GetTarget()->KillSelf();
@@ -457,8 +453,8 @@ class spell_teron_gorefiend_spiritual_vengeance : public SpellScriptLoader
 
             void Register() override
             {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_teron_gorefiend_spiritual_vengeance_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_POSSESS, AURA_EFFECT_HANDLE_REAL);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_teron_gorefiend_spiritual_vengeance_AuraScript::OnRemove, EFFECT_2, SPELL_AURA_MOD_PACIFY_SILENCE, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove.Register(&spell_teron_gorefiend_spiritual_vengeance_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_POSSESS, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove.Register(&spell_teron_gorefiend_spiritual_vengeance_AuraScript::OnRemove, EFFECT_2, SPELL_AURA_MOD_PACIFY_SILENCE, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -476,8 +472,6 @@ class spell_teron_gorefiend_shadow_of_death_remove : public SpellScriptLoader
 
         class spell_teron_gorefiend_shadow_of_death_remove_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_teron_gorefiend_shadow_of_death_remove_SpellScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_SHADOW_OF_DEATH, SPELL_POSSESS_SPIRIT_IMMUNE, SPELL_SPIRITUAL_VENGEANCE });
@@ -496,7 +490,7 @@ class spell_teron_gorefiend_shadow_of_death_remove : public SpellScriptLoader
 
             void Register() override
             {
-                OnHit += SpellHitFn(spell_teron_gorefiend_shadow_of_death_remove_SpellScript::RemoveAuras);
+                OnHit.Register(&spell_teron_gorefiend_shadow_of_death_remove_SpellScript::RemoveAuras);
             }
 
         };

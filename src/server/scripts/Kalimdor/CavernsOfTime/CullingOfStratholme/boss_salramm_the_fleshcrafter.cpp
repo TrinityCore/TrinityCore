@@ -141,8 +141,6 @@ class boss_salramm : public CreatureScript
 
 class spell_salramm_steal_flesh : public AuraScript
 {
-    PrepareAuraScript(spell_salramm_steal_flesh);
-
     void HandlePeriodic(AuraEffect const* /*eff*/)
     {
         GetCaster()->CastSpell(GetCaster(), SPELL_STEAL_FLESH_BUFF, true);
@@ -151,7 +149,7 @@ class spell_salramm_steal_flesh : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_salramm_steal_flesh::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectPeriodic.Register(&spell_salramm_steal_flesh::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 

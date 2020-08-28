@@ -167,8 +167,6 @@ class spell_capacitus_polarity_charge : public SpellScriptLoader
 
         class spell_capacitus_polarity_charge_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_capacitus_polarity_charge_SpellScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo(
@@ -215,8 +213,8 @@ class spell_capacitus_polarity_charge : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_capacitus_polarity_charge_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_capacitus_polarity_charge_SpellScript::HandleTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+                OnEffectHitTarget.Register(&spell_capacitus_polarity_charge_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                OnObjectAreaTargetSelect.Register(&spell_capacitus_polarity_charge_SpellScript::HandleTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
             }
         };
 
@@ -233,8 +231,6 @@ class spell_capacitus_polarity_shift : public SpellScriptLoader
 
         class spell_capacitus_polarity_shift_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_capacitus_polarity_shift_SpellScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_POSITIVE_POLARITY, SPELL_NEGATIVE_POLARITY });
@@ -250,7 +246,7 @@ class spell_capacitus_polarity_shift : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_capacitus_polarity_shift_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget.Register(&spell_capacitus_polarity_shift_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 

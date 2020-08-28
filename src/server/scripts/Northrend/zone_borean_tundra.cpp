@@ -710,8 +710,6 @@ public:
 
     class spell_red_dragonblood_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_red_dragonblood_AuraScript);
-
         void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             if (!GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::Expired) || !GetCaster())
@@ -731,7 +729,7 @@ public:
 
         void Register()
         {
-            AfterEffectRemove += AuraEffectRemoveFn(spell_red_dragonblood_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            AfterEffectRemove.Register(&spell_red_dragonblood_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
         }
     };
 
@@ -2351,8 +2349,6 @@ public:
 
     class spell_windsoul_totem_aura_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_windsoul_totem_aura_AuraScript);
-
         void OnRemove(AuraEffect const*, AuraEffectHandleModes)
         {
             if (GetTarget()->isDead())
@@ -2362,7 +2358,7 @@ public:
 
         void Register() override
         {
-            OnEffectRemove += AuraEffectRemoveFn(spell_windsoul_totem_aura_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            OnEffectRemove.Register(&spell_windsoul_totem_aura_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
         }
     };
 
@@ -2387,8 +2383,6 @@ public:
 
     class spell_q11719_bloodspore_ruination_45997_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_q11719_bloodspore_ruination_45997_SpellScript);
-
         void HandleEffect(SpellEffIndex /*effIndex*/)
         {
             if (Unit* caster = GetCaster())
@@ -2398,7 +2392,7 @@ public:
 
         void Register() override
         {
-            OnEffectHit += SpellEffectFn(spell_q11719_bloodspore_ruination_45997_SpellScript::HandleEffect, EFFECT_1, SPELL_EFFECT_SEND_EVENT);
+            OnEffectHit.Register(&spell_q11719_bloodspore_ruination_45997_SpellScript::HandleEffect, EFFECT_1, SPELL_EFFECT_SEND_EVENT);
         }
     };
 

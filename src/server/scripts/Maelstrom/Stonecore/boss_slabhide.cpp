@@ -348,8 +348,6 @@ private:
 
 class spell_slabhide_stalactite : public SpellScript
 {
-    PrepareSpellScript(spell_slabhide_stalactite);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_STALACTITE_SUMMON_TRIGGER });
@@ -363,14 +361,12 @@ class spell_slabhide_stalactite : public SpellScript
 
     void Register() override
     {
-        OnHit += SpellHitFn(spell_slabhide_stalactite::SummonStalactiteTrigger);
+        OnHit.Register(&spell_slabhide_stalactite::SummonStalactiteTrigger);
     }
 };
 
 class spell_slabhide_stalactite_summon : public SpellScript
 {
-    PrepareSpellScript(spell_slabhide_stalactite_summon);
-
     void SetDest(SpellDestination& dest)
     {
         dest.RelocateOffset({ 0.0f, 0.0f, 55.0f, 0.0f });
@@ -378,14 +374,12 @@ class spell_slabhide_stalactite_summon : public SpellScript
 
     void Register() override
     {
-        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_slabhide_stalactite_summon::SetDest, EFFECT_0, TARGET_DEST_CASTER_RANDOM);
+        OnDestinationTargetSelect.Register(&spell_slabhide_stalactite_summon::SetDest, EFFECT_0, TARGET_DEST_CASTER_RANDOM);
     }
 };
 
 class spell_slabhide_stalactite_dest_relocation : public SpellScript
 {
-    PrepareSpellScript(spell_slabhide_stalactite_dest_relocation);
-
     void SetDest(SpellDestination& dest)
     {
         if (Unit* caster = GetCaster())
@@ -401,14 +395,12 @@ class spell_slabhide_stalactite_dest_relocation : public SpellScript
 
     void Register()
     {
-        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_slabhide_stalactite_dest_relocation::SetDest, EFFECT_0, TARGET_DEST_CASTER);
+        OnDestinationTargetSelect.Register(&spell_slabhide_stalactite_dest_relocation::SetDest, EFFECT_0, TARGET_DEST_CASTER);
     }
 };
 
 class spell_slabhide_crystal_storm_periodic : public SpellScript
 {
-    PrepareSpellScript(spell_slabhide_crystal_storm_periodic);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_CRYSTAL_STORM });
@@ -422,7 +414,7 @@ class spell_slabhide_crystal_storm_periodic : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_slabhide_crystal_storm_periodic::HandleDummy, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+        OnEffectHitTarget.Register(&spell_slabhide_crystal_storm_periodic::HandleDummy, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
     }
 };
 

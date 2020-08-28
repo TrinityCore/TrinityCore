@@ -645,8 +645,6 @@ class spell_anubarak_pound : public SpellScriptLoader
 
         class spell_anubarak_pound_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_anubarak_pound_SpellScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_POUND_DAMAGE });
@@ -660,7 +658,7 @@ class spell_anubarak_pound : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_anubarak_pound_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+                OnEffectHitTarget.Register(&spell_anubarak_pound_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
             }
         };
 
@@ -678,8 +676,6 @@ class spell_anubarak_carrion_beetles : public SpellScriptLoader
         class spell_anubarak_carrion_beetles_AuraScript : public AuraScript
         {
             public:
-                PrepareAuraScript(spell_anubarak_carrion_beetles_AuraScript);
-
                 bool Validate(SpellInfo const* /*spell*/) override
                 {
                     return ValidateSpellInfo({ SPELL_CARRION_BEETLE });
@@ -693,7 +689,7 @@ class spell_anubarak_carrion_beetles : public SpellScriptLoader
 
                 void Register() override
                 {
-                    OnEffectPeriodic += AuraEffectPeriodicFn(spell_anubarak_carrion_beetles_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                    OnEffectPeriodic.Register(&spell_anubarak_carrion_beetles_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
                 }
         };
 

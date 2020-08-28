@@ -44,8 +44,6 @@ class spell_razelikh_teleport_group : public SpellScriptLoader
 
         class spell_razelikh_teleport_group_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_razelikh_teleport_group_SpellScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_TELEPORT_SINGLE, SPELL_TELEPORT_SINGLE_IN_GROUP });
@@ -69,7 +67,7 @@ class spell_razelikh_teleport_group : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_razelikh_teleport_group_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_razelikh_teleport_group_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 

@@ -147,8 +147,6 @@ class spell_grobbulus_mutating_injection : public SpellScriptLoader
 
         class spell_grobbulus_mutating_injection_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_grobbulus_mutating_injection_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_MUTATING_EXPLOSION, SPELL_POISON_CLOUD });
@@ -169,7 +167,7 @@ class spell_grobbulus_mutating_injection : public SpellScriptLoader
 
             void Register() override
             {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_grobbulus_mutating_injection_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove.Register(&spell_grobbulus_mutating_injection_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -187,8 +185,6 @@ class spell_grobbulus_poison_cloud : public SpellScriptLoader
 
         class spell_grobbulus_poison_cloud_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_grobbulus_poison_cloud_AuraScript);
-
             bool Validate(SpellInfo const* spellInfo) override
             {
                 return ValidateSpellInfo({ spellInfo->Effects[EFFECT_0].TriggerSpell });
@@ -205,7 +201,7 @@ class spell_grobbulus_poison_cloud : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_grobbulus_poison_cloud_AuraScript::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+                OnEffectPeriodic.Register(&spell_grobbulus_poison_cloud_AuraScript::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
         };
 

@@ -272,8 +272,6 @@ class spell_gruul_shatter : public SpellScriptLoader
 
         class spell_gruul_shatter_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gruul_shatter_SpellScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_STONED, SPELL_SHATTER_EFFECT });
@@ -290,7 +288,7 @@ class spell_gruul_shatter : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_gruul_shatter_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_gruul_shatter_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -307,8 +305,6 @@ class spell_gruul_shatter_effect : public SpellScriptLoader
 
         class spell_gruul_shatter_effect_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gruul_shatter_effect_SpellScript);
-
             void CalculateDamage()
             {
                 if (!GetHitUnit())
@@ -325,7 +321,7 @@ class spell_gruul_shatter_effect : public SpellScriptLoader
 
             void Register() override
             {
-                OnHit += SpellHitFn(spell_gruul_shatter_effect_SpellScript::CalculateDamage);
+                OnHit.Register(&spell_gruul_shatter_effect_SpellScript::CalculateDamage);
             }
         };
 

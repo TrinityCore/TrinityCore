@@ -129,8 +129,6 @@ class spell_ticking_time_bomb : public SpellScriptLoader
 
         class spell_ticking_time_bomb_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_ticking_time_bomb_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_TICKING_TIME_BOMB_EXPLODE });
@@ -144,7 +142,7 @@ class spell_ticking_time_bomb : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectRemove += AuraEffectRemoveFn(spell_ticking_time_bomb_AuraScript::HandleOnEffectRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove.Register(&spell_ticking_time_bomb_AuraScript::HandleOnEffectRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -166,8 +164,6 @@ class spell_fixate : public SpellScriptLoader
 
         class spell_fixate_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_fixate_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_FIXATE_TRIGGER });
@@ -180,7 +176,7 @@ class spell_fixate : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_fixate_SpellScript::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_fixate_SpellScript::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -203,8 +199,6 @@ class spell_uk_second_wind : public SpellScriptLoader
 
         class spell_uk_second_wind_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_uk_second_wind_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_SECOND_WIND_TRIGGER });
@@ -228,8 +222,8 @@ class spell_uk_second_wind : public SpellScriptLoader
 
             void Register() override
             {
-                DoCheckProc += AuraCheckProcFn(spell_uk_second_wind_AuraScript::CheckProc);
-                OnEffectProc += AuraEffectProcFn(spell_uk_second_wind_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+                DoCheckProc.Register(&spell_uk_second_wind_AuraScript::CheckProc);
+                OnEffectProc.Register(&spell_uk_second_wind_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 

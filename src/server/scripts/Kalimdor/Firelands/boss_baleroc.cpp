@@ -407,8 +407,6 @@ class spell_countdown_p1 : public SpellScriptLoader
 
         class spell_countdown_p1_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_countdown_p1_SpellScript);
-
             bool Load() override
             {
                 target1 = nullptr;
@@ -447,9 +445,9 @@ class spell_countdown_p1 : public SpellScriptLoader
 
             void Register() override
             {
-                AfterCast += SpellCastFn(spell_countdown_p1_SpellScript::CastSpellLink);
-                OnEffectHitTarget += SpellEffectFn(spell_countdown_p1_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_countdown_p1_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                AfterCast.Register(&spell_countdown_p1_SpellScript::CastSpellLink);
+                OnEffectHitTarget.Register(&spell_countdown_p1_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnObjectAreaTargetSelect.Register(&spell_countdown_p1_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
 
             WorldObject* target1;
@@ -469,8 +467,6 @@ class spell_countdown_p2 : public SpellScriptLoader
 
         class spell_countdown_p2_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_countdown_p2_AuraScript);
-
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::Expired))
@@ -480,7 +476,7 @@ class spell_countdown_p2 : public SpellScriptLoader
 
             void Register() override
             {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_countdown_p2_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove.Register(&spell_countdown_p2_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -497,8 +493,6 @@ class spell_countdown_p3 : public SpellScriptLoader
 
         class spell_countdown_p3_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_countdown_p3_SpellScript);
-
             bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
@@ -524,7 +518,7 @@ class spell_countdown_p3 : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_countdown_p3_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+                OnObjectAreaTargetSelect.Register(&spell_countdown_p3_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
             }
         };
 
@@ -541,8 +535,6 @@ class spell_decimating_strike : public SpellScriptLoader
 
         class spell_decimating_strike_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_decimating_strike_SpellScript);
-
             bool Load() override
             {
                 if (GetCaster()->GetTypeId() != TYPEID_UNIT)
@@ -571,7 +563,7 @@ class spell_decimating_strike : public SpellScriptLoader
 
             void Register() override
             {
-                OnHit += SpellHitFn(spell_decimating_strike_SpellScript::ChangeDamage);
+                OnHit.Register(&spell_decimating_strike_SpellScript::ChangeDamage);
             }
         };
 
@@ -588,8 +580,6 @@ class spell_shards_of_torment : public SpellScriptLoader
 
         class spell_shards_of_torment_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_shards_of_torment_SpellScript);
-
             bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
@@ -621,8 +611,8 @@ class spell_shards_of_torment : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_shards_of_torment_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_shards_of_torment_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnEffectHitTarget.Register(&spell_shards_of_torment_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnObjectAreaTargetSelect.Register(&spell_shards_of_torment_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
@@ -653,8 +643,6 @@ class spell_baleroc_torment : public SpellScriptLoader
 
         class spell_baleroc_torment_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_baleroc_torment_SpellScript);
-
             bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
@@ -692,7 +680,7 @@ class spell_baleroc_torment : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_baleroc_torment_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect.Register(&spell_baleroc_torment_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
@@ -709,8 +697,6 @@ class spell_baleroc_tormented : public SpellScriptLoader
 
         class spell_baleroc_tormented_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_baleroc_tormented_SpellScript);
-
             void ChangeDamage()
             {
                 //SetHitDamage(GetHitDamage()*GetHitUnit()->GetAuraCount(m_scriptSpellId));
@@ -731,15 +717,13 @@ class spell_baleroc_tormented : public SpellScriptLoader
 
             void Register() override
             {
-                OnHit += SpellHitFn(spell_baleroc_tormented_SpellScript::ChangeDamage);
+                OnHit.Register(&spell_baleroc_tormented_SpellScript::ChangeDamage);
             }
 
         };
 
         class spell_baleroc_tormented_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_baleroc_tormented_AuraScript);
-
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (!GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::ByDeath))
@@ -753,7 +737,7 @@ class spell_baleroc_tormented : public SpellScriptLoader
 
             void Register() override
             {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_baleroc_tormented_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove.Register(&spell_baleroc_tormented_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -775,8 +759,6 @@ class spell_baleroc_tormented_debuff : public SpellScriptLoader
 
         class spell_baleroc_tormented_debuff_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_baleroc_tormented_debuff_AuraScript);
-
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (InstanceScript* instance = GetTarget()->GetInstanceScript())
@@ -786,7 +768,7 @@ class spell_baleroc_tormented_debuff : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectApply += AuraEffectApplyFn(spell_baleroc_tormented_debuff_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
+                OnEffectApply.Register(&spell_baleroc_tormented_debuff_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -803,8 +785,6 @@ class spell_baleroc_tormented_heroic : public SpellScriptLoader
 
         class spell_baleroc_tormented_heroic_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_baleroc_tormented_heroic_SpellScript);
-
             bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
@@ -819,7 +799,7 @@ class spell_baleroc_tormented_heroic : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_baleroc_tormented_heroic_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_baleroc_tormented_heroic_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 

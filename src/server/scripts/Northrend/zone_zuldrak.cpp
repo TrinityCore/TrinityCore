@@ -645,8 +645,6 @@ class spell_random_ingredient_aura : public SpellScriptLoader
 
         class spell_random_ingredient_aura_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_random_ingredient_aura_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo(
@@ -675,7 +673,7 @@ class spell_random_ingredient_aura : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_random_ingredient_aura_AuraScript::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectPeriodic.Register(&spell_random_ingredient_aura_AuraScript::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
@@ -696,8 +694,6 @@ class spell_random_ingredient : public SpellScriptLoader
 
         class spell_random_ingredient_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_random_ingredient_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo(
@@ -755,7 +751,7 @@ class spell_random_ingredient : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_random_ingredient_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_random_ingredient_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -776,8 +772,6 @@ class spell_pot_check : public SpellScriptLoader
 
         class spell_pot_check_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_pot_check_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo(
@@ -857,7 +851,7 @@ class spell_pot_check : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_pot_check_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_pot_check_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -877,8 +871,6 @@ class spell_fetch_ingredient_aura : public SpellScriptLoader
 
         class spell_fetch_ingredient_aura_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_fetch_ingredient_aura_AuraScript);
-
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* target = GetTarget();
@@ -893,7 +885,7 @@ class spell_fetch_ingredient_aura : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectRemove += AuraEffectRemoveFn(spell_fetch_ingredient_aura_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove.Register(&spell_fetch_ingredient_aura_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 

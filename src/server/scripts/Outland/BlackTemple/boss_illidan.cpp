@@ -1853,8 +1853,6 @@ class spell_illidan_akama_teleport : public SpellScriptLoader
 
         class spell_illidan_akama_teleport_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_illidan_akama_teleport_SpellScript);
-
             void SetDest(SpellDestination& dest)
             {
                 if (Creature* caster = GetCaster()->ToCreature())
@@ -1866,7 +1864,7 @@ class spell_illidan_akama_teleport : public SpellScriptLoader
 
             void Register() override
             {
-                OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_illidan_akama_teleport_SpellScript::SetDest, EFFECT_0, TARGET_DEST_NEARBY_ENTRY);
+                OnDestinationTargetSelect.Register(&spell_illidan_akama_teleport_SpellScript::SetDest, EFFECT_0, TARGET_DEST_NEARBY_ENTRY);
             }
         };
 
@@ -1884,8 +1882,6 @@ class spell_illidan_akama_door_channel : public SpellScriptLoader
 
         class spell_illidan_akama_door_channel_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_illidan_akama_door_channel_AuraScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_ARCANE_EXPLOSION });
@@ -1903,7 +1899,7 @@ class spell_illidan_akama_door_channel : public SpellScriptLoader
 
             void Register() override
             {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_illidan_akama_door_channel_AuraScript::OnRemoveDummy, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove.Register(&spell_illidan_akama_door_channel_AuraScript::OnRemoveDummy, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -1921,8 +1917,6 @@ class spell_illidan_draw_soul : public SpellScriptLoader
 
         class spell_illidan_draw_soul_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_illidan_draw_soul_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_DRAW_SOUL_HEAL });
@@ -1936,7 +1930,7 @@ class spell_illidan_draw_soul : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_illidan_draw_soul_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_illidan_draw_soul_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -1955,8 +1949,6 @@ class spell_illidan_parasitic_shadowfiend : public SpellScriptLoader
 
         class spell_illidan_parasitic_shadowfiend_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_illidan_parasitic_shadowfiend_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_SUMMON_PARASITIC_SHADOWFIENDS });
@@ -1970,7 +1962,7 @@ class spell_illidan_parasitic_shadowfiend : public SpellScriptLoader
 
             void Register() override
             {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_illidan_parasitic_shadowfiend_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove.Register(&spell_illidan_parasitic_shadowfiend_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -1989,8 +1981,6 @@ class spell_illidan_throw_warglaive : public SpellScriptLoader
 
         class spell_illidan_throw_warglaive_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_illidan_throw_warglaive_SpellScript);
-
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 Unit* target = GetHitUnit();
@@ -1999,7 +1989,7 @@ class spell_illidan_throw_warglaive : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_illidan_throw_warglaive_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget.Register(&spell_illidan_throw_warglaive_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -2017,8 +2007,6 @@ class spell_illidan_tear_of_azzinoth_channel : public SpellScriptLoader
 
         class spell_illidan_tear_of_azzinoth_channel_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_illidan_tear_of_azzinoth_channel_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_UNCAGED_WRATH });
@@ -2040,7 +2028,7 @@ class spell_illidan_tear_of_azzinoth_channel : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_illidan_tear_of_azzinoth_channel_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+                OnEffectPeriodic.Register(&spell_illidan_tear_of_azzinoth_channel_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
         };
 
@@ -2058,8 +2046,6 @@ class spell_illidan_flame_blast : public SpellScriptLoader
 
         class spell_illidan_flame_blast_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_illidan_flame_blast_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_BLAZE_SUMMON });
@@ -2074,7 +2060,7 @@ class spell_illidan_flame_blast : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_illidan_flame_blast_SpellScript::HandleBlaze, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                OnEffectHitTarget.Register(&spell_illidan_flame_blast_SpellScript::HandleBlaze, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
@@ -2091,8 +2077,6 @@ class spell_illidan_return_glaives : public SpellScriptLoader
 
         class spell_illidan_return_glaives_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_illidan_return_glaives_SpellScript);
-
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
                 GetHitUnit()->SendPlaySpellVisualKit(SPELL_GLAIVE_VISUAL_KIT,0,0);
@@ -2102,7 +2086,7 @@ class spell_illidan_return_glaives : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_illidan_return_glaives_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_illidan_return_glaives_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -2120,8 +2104,6 @@ class spell_illidan_agonizing_flames : public SpellScriptLoader
 
         class spell_illidan_agonizing_flames_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_illidan_agonizing_flames_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_AGONIZING_FLAMES });
@@ -2144,8 +2126,8 @@ class spell_illidan_agonizing_flames : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_illidan_agonizing_flames_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnEffectHitTarget += SpellEffectFn(spell_illidan_agonizing_flames_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnObjectAreaTargetSelect.Register(&spell_illidan_agonizing_flames_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnEffectHitTarget.Register(&spell_illidan_agonizing_flames_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -2163,8 +2145,6 @@ class spell_illidan_demon_transform1 : public SpellScriptLoader
 
         class spell_illidan_demon_transform1_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_illidan_demon_transform1_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_DEMON_TRANSFORM_2 });
@@ -2179,7 +2159,7 @@ class spell_illidan_demon_transform1 : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_illidan_demon_transform1_AuraScript::OnPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+                OnEffectPeriodic.Register(&spell_illidan_demon_transform1_AuraScript::OnPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
         };
 
@@ -2197,8 +2177,6 @@ class spell_illidan_demon_transform2 : public SpellScriptLoader
 
         class spell_illidan_demon_transform2_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_illidan_demon_transform2_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_DEMON_FORM, SPELL_DEMON_TRANSFORM_3 });
@@ -2227,7 +2205,7 @@ class spell_illidan_demon_transform2 : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_illidan_demon_transform2_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+                OnEffectPeriodic.Register(&spell_illidan_demon_transform2_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
         };
 
@@ -2245,8 +2223,6 @@ class spell_illidan_flame_burst : public SpellScriptLoader
 
         class spell_illidan_flame_burst_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_illidan_flame_burst_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_FLAME_BURST_EFFECT });
@@ -2259,7 +2235,7 @@ class spell_illidan_flame_burst : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_illidan_flame_burst_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_illidan_flame_burst_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -2277,8 +2253,6 @@ class spell_illidan_find_target : public SpellScriptLoader
 
         class spell_illidan_find_target_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_illidan_find_target_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_PARALYZE });
@@ -2308,8 +2282,8 @@ class spell_illidan_find_target : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_illidan_find_target_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnEffectHitTarget += SpellEffectFn(spell_illidan_find_target_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnObjectAreaTargetSelect.Register(&spell_illidan_find_target_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnEffectHitTarget.Register(&spell_illidan_find_target_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -2327,8 +2301,6 @@ class spell_illidan_eye_blast : public SpellScriptLoader
 
         class spell_illidan_eye_blast_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_illidan_eye_blast_AuraScript);
-
             void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Creature* target = GetTarget()->ToCreature())
@@ -2337,7 +2309,7 @@ class spell_illidan_eye_blast : public SpellScriptLoader
 
             void Register() override
             {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_illidan_eye_blast_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove.Register(&spell_illidan_eye_blast_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -2355,8 +2327,6 @@ class spell_illidan_cage_trap : public SpellScriptLoader
 
         class spell_illidan_cage_trap_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_illidan_cage_trap_SpellScript);
-
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
                 Creature* target = GetHitCreature();
@@ -2376,7 +2346,7 @@ class spell_illidan_cage_trap : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_illidan_cage_trap_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_illidan_cage_trap_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -2394,8 +2364,6 @@ class spell_illidan_caged : public SpellScriptLoader
 
         class spell_illidan_caged_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_illidan_caged_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_CAGED_DEBUFF });
@@ -2411,7 +2379,7 @@ class spell_illidan_caged : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_illidan_caged_AuraScript::OnPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+                OnEffectPeriodic.Register(&spell_illidan_caged_AuraScript::OnPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
         };
 
@@ -2429,8 +2397,6 @@ public:
 
     class spell_maiev_down_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_maiev_down_AuraScript);
-
         bool Load() override
         {
             return GetUnitOwner()->GetTypeId() == TYPEID_UNIT;
@@ -2449,8 +2415,8 @@ public:
 
         void Register() override
         {
-            OnEffectApply += AuraEffectApplyFn(spell_maiev_down_AuraScript::HandleEffectApply, EFFECT_1, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
-            AfterEffectRemove += AuraEffectRemoveFn(spell_maiev_down_AuraScript::HandleEffectRemove, EFFECT_1, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+            OnEffectApply.Register(&spell_maiev_down_AuraScript::HandleEffectApply, EFFECT_1, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+            AfterEffectRemove.Register(&spell_maiev_down_AuraScript::HandleEffectRemove, EFFECT_1, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
         }
     };
 
@@ -2468,8 +2434,6 @@ class spell_illidan_cage_teleport : public SpellScriptLoader
 
         class spell_illidan_cage_teleport_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_illidan_cage_teleport_SpellScript);
-
             void SetDest(SpellDestination& dest)
             {
                 Position offset = { 0.0f, 0.0f, GetCaster()->GetPositionZ(), 0.0f };
@@ -2478,7 +2442,7 @@ class spell_illidan_cage_teleport : public SpellScriptLoader
 
             void Register() override
             {
-                OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_illidan_cage_teleport_SpellScript::SetDest, EFFECT_0, TARGET_DEST_CASTER_RADIUS);
+                OnDestinationTargetSelect.Register(&spell_illidan_cage_teleport_SpellScript::SetDest, EFFECT_0, TARGET_DEST_CASTER_RADIUS);
             }
         };
 
@@ -2496,8 +2460,6 @@ class spell_illidan_despawn_akama : public SpellScriptLoader
 
         class spell_illidan_despawn_akama_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_illidan_despawn_akama_SpellScript);
-
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 if (Creature* target = GetHitCreature())
@@ -2506,7 +2468,7 @@ class spell_illidan_despawn_akama : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_illidan_despawn_akama_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget.Register(&spell_illidan_despawn_akama_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 

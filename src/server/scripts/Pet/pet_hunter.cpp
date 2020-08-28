@@ -154,8 +154,6 @@ class spell_pet_guard_dog : public SpellScriptLoader
 
         class spell_pet_guard_dog_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_pet_guard_dog_AuraScript);
-
             bool CheckProc(ProcEventInfo& eventInfo)
             {
                 // Growl shares family flags with other spells
@@ -183,8 +181,8 @@ class spell_pet_guard_dog : public SpellScriptLoader
 
             void Register() override
             {
-                DoCheckProc += AuraCheckProcFn(spell_pet_guard_dog_AuraScript::CheckProc);
-                OnEffectProc += AuraEffectProcFn(spell_pet_guard_dog_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+                DoCheckProc.Register(&spell_pet_guard_dog_AuraScript::CheckProc);
+                OnEffectProc.Register(&spell_pet_guard_dog_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 
@@ -202,8 +200,6 @@ class spell_pet_silverback : public SpellScriptLoader
 
         class spell_pet_silverback_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_pet_silverback_AuraScript);
-
             bool CheckProc(ProcEventInfo& eventInfo)
             {
                 // Growl shares family flags with other spells
@@ -227,8 +223,8 @@ class spell_pet_silverback : public SpellScriptLoader
 
             void Register() override
             {
-                DoCheckProc += AuraCheckProcFn(spell_pet_silverback_AuraScript::CheckProc);
-                OnEffectProc += AuraEffectProcFn(spell_pet_silverback_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+                DoCheckProc.Register(&spell_pet_silverback_AuraScript::CheckProc);
+                OnEffectProc.Register(&spell_pet_silverback_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 
@@ -246,8 +242,6 @@ class spell_pet_culling_the_herd : public SpellScriptLoader
 
         class spell_pet_culling_the_herd_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_pet_culling_the_herd_AuraScript);
-
             bool CheckProc(ProcEventInfo& eventInfo)
             {
                 // Claw, Bite and Smack share FamilyFlags with other spells
@@ -271,7 +265,7 @@ class spell_pet_culling_the_herd : public SpellScriptLoader
 
             void Register() override
             {
-                DoCheckProc += AuraCheckProcFn(spell_pet_culling_the_herd_AuraScript::CheckProc);
+                DoCheckProc.Register(&spell_pet_culling_the_herd_AuraScript::CheckProc);
             }
         };
 

@@ -236,8 +236,6 @@ class spell_ahn_kahet_swarm : public SpellScriptLoader
 
         class spell_ahn_kahet_swarm_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_ahn_kahet_swarm_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_SWARM_BUFF });
@@ -266,8 +264,8 @@ class spell_ahn_kahet_swarm : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ahn_kahet_swarm_SpellScript::CountTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
-                OnEffectHit += SpellEffectFn(spell_ahn_kahet_swarm_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnObjectAreaTargetSelect.Register(&spell_ahn_kahet_swarm_SpellScript::CountTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+                OnEffectHit.Register(&spell_ahn_kahet_swarm_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
 
             uint32 _targetCount = 0;

@@ -336,8 +336,6 @@ struct go_anhuur_beacon_of_light : public GameObjectAI
 // 75592 - Divine Reckoning
 class spell_anhuur_divine_reckoning : public AuraScript
 {
-    PrepareAuraScript(spell_anhuur_divine_reckoning);
-
     void OnPeriodic(AuraEffect const* aurEff)
     {
         if (Unit* caster = GetCaster())
@@ -353,7 +351,7 @@ class spell_anhuur_divine_reckoning : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_anhuur_divine_reckoning::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectPeriodic.Register(&spell_anhuur_divine_reckoning::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
@@ -361,8 +359,6 @@ class spell_anhuur_divine_reckoning : public AuraScript
 // 76573 - Shield of Light (right)
 class spell_anhuur_shield_of_light : public SpellScript
 {
-    PrepareSpellScript(spell_anhuur_shield_of_light);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         if (targets.empty())
@@ -377,15 +373,13 @@ class spell_anhuur_shield_of_light : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_anhuur_shield_of_light::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENTRY);
+        OnObjectAreaTargetSelect.Register(&spell_anhuur_shield_of_light::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENTRY);
     }
 };
 
 // 75322 - Reverberating Hymn
 class spell_anhuur_reverberating_hymn : public AuraScript
 {
-    PrepareAuraScript(spell_anhuur_reverberating_hymn);
-
     void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::Expired))
@@ -396,7 +390,7 @@ class spell_anhuur_reverberating_hymn : public AuraScript
 
     void Register() override
     {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_anhuur_reverberating_hymn::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove.Register(&spell_anhuur_reverberating_hymn::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -404,8 +398,6 @@ class spell_anhuur_reverberating_hymn : public AuraScript
 // 76608 - Disable Beacon Beams R
 class spell_anhuur_disable_beacon_beams : public SpellScript
 {
-    PrepareSpellScript(spell_anhuur_disable_beacon_beams);
-
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         GetHitUnit()->InterruptNonMeleeSpells(true, GetEffectValue());
@@ -420,15 +412,13 @@ class spell_anhuur_disable_beacon_beams : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_anhuur_disable_beacon_beams::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-        OnEffectHit += SpellEffectFn(spell_anhuur_disable_beacon_beams::Notify, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_anhuur_disable_beacon_beams::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHit.Register(&spell_anhuur_disable_beacon_beams::Notify, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 class spell_anhuur_burning_light_forcecast : public SpellScript
 {
-    PrepareSpellScript(spell_anhuur_burning_light_forcecast);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         Unit* caster = GetCaster();
@@ -446,7 +436,7 @@ class spell_anhuur_burning_light_forcecast : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_anhuur_burning_light_forcecast::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnObjectAreaTargetSelect.Register(&spell_anhuur_burning_light_forcecast::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
     }
 };
 

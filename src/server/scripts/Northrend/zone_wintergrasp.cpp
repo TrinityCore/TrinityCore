@@ -432,8 +432,6 @@ class spell_wintergrasp_force_building : public SpellScriptLoader
 
         class spell_wintergrasp_force_building_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_wintergrasp_force_building_SpellScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo(
@@ -453,7 +451,7 @@ class spell_wintergrasp_force_building : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_wintergrasp_force_building_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_wintergrasp_force_building_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -470,8 +468,6 @@ class spell_wintergrasp_grab_passenger : public SpellScriptLoader
 
         class spell_wintergrasp_grab_passenger_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_wintergrasp_grab_passenger_SpellScript);
-
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (Player* target = GetHitPlayer())
@@ -480,7 +476,7 @@ class spell_wintergrasp_grab_passenger : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_wintergrasp_grab_passenger_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_wintergrasp_grab_passenger_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -526,8 +522,6 @@ class spell_wintergrasp_defender_teleport : public SpellScriptLoader
 
         class spell_wintergrasp_defender_teleport_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_wintergrasp_defender_teleport_SpellScript);
-
             SpellCastResult CheckCast()
             {
                 if (Battlefield* wg = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG))
@@ -540,7 +534,7 @@ class spell_wintergrasp_defender_teleport : public SpellScriptLoader
 
             void Register() override
             {
-                OnCheckCast += SpellCheckCastFn(spell_wintergrasp_defender_teleport_SpellScript::CheckCast);
+                OnCheckCast.Register(&spell_wintergrasp_defender_teleport_SpellScript::CheckCast);
             }
         };
 
@@ -557,8 +551,6 @@ class spell_wintergrasp_defender_teleport_trigger : public SpellScriptLoader
 
         class spell_wintergrasp_defender_teleport_trigger_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_wintergrasp_defender_teleport_trigger_SpellScript);
-
             void HandleDummy(SpellEffIndex /*effindex*/)
             {
                 if (Unit* target = GetHitUnit())
@@ -570,7 +562,7 @@ class spell_wintergrasp_defender_teleport_trigger : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_wintergrasp_defender_teleport_trigger_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget.Register(&spell_wintergrasp_defender_teleport_trigger_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 

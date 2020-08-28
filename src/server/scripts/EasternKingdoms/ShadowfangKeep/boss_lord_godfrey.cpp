@@ -247,8 +247,6 @@ private:
 
 class spell_godfrey_summon_bloodthirsty_ghouls : public AuraScript
 {
-    PrepareAuraScript(spell_godfrey_summon_bloodthirsty_ghouls);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -267,7 +265,7 @@ class spell_godfrey_summon_bloodthirsty_ghouls : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_godfrey_summon_bloodthirsty_ghouls::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectPeriodic.Register(&spell_godfrey_summon_bloodthirsty_ghouls::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 private:
     bool _useLeftGun = true;
@@ -275,8 +273,6 @@ private:
 
 class spell_godfrey_pistol_barrage : public AuraScript
 {
-    PrepareAuraScript(spell_godfrey_pistol_barrage);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -318,9 +314,9 @@ class spell_godfrey_pistol_barrage : public AuraScript
 
     void Register() override
     {
-        AfterEffectApply += AuraEffectApplyFn(spell_godfrey_pistol_barrage::AfterApply, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
-        AfterEffectRemove += AuraEffectRemoveFn(spell_godfrey_pistol_barrage::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_godfrey_pistol_barrage::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+        AfterEffectApply.Register(&spell_godfrey_pistol_barrage::AfterApply, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove.Register(&spell_godfrey_pistol_barrage::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+        OnEffectPeriodic.Register(&spell_godfrey_pistol_barrage::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
     }
 private:
     bool _useLeftGun = true;
@@ -328,8 +324,6 @@ private:
 
 class spell_godfrey_pistol_barrage_aoe : public SpellScript
 {
-    PrepareSpellScript(spell_godfrey_pistol_barrage_aoe);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         Trinity::Containers::RandomResize(targets, 1);
@@ -337,14 +331,12 @@ class spell_godfrey_pistol_barrage_aoe : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_godfrey_pistol_barrage_aoe::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnObjectAreaTargetSelect.Register(&spell_godfrey_pistol_barrage_aoe::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
     }
 };
 
 class spell_godfrey_cursed_bullets : public AuraScript
 {
-    PrepareAuraScript(spell_godfrey_cursed_bullets);
-
     void OnPeriodic(AuraEffect const* aurEff)
     {
         if (aurEff->GetTickNumber() == 1)
@@ -355,7 +347,7 @@ class spell_godfrey_cursed_bullets : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_godfrey_cursed_bullets::OnPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
+        OnEffectPeriodic.Register(&spell_godfrey_cursed_bullets::OnPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
     }
 private:
     uint32 _baseDamage = 0;

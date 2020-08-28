@@ -374,8 +374,6 @@ class spell_novos_summon_minions : public SpellScriptLoader
 
         class spell_novos_summon_minions_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_novos_summon_minions_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_SUMMON_COPY_OF_MINIONS });
@@ -389,7 +387,7 @@ class spell_novos_summon_minions : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_novos_summon_minions_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_novos_summon_minions_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 

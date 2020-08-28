@@ -1164,8 +1164,6 @@ struct npc_brazie_vehicle_notifier : public ScriptedAI
 
 class spell_brazie_summon_plant : public SpellScript
 {
-    PrepareSpellScript(spell_brazie_summon_plant);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -1210,16 +1208,14 @@ class spell_brazie_summon_plant : public SpellScript
 
     void Register() override
     {
-        OnCheckCast += SpellCheckCastFn(spell_brazie_summon_plant::CheckLocation);
-        OnEffectHitTarget += SpellEffectFn(spell_brazie_summon_plant::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
-        OnEffectHit += SpellEffectFn(spell_brazie_summon_plant::PreventEffect, EFFECT_0, SPELL_EFFECT_TRANS_DOOR);
+        OnCheckCast.Register(&spell_brazie_summon_plant::CheckLocation);
+        OnEffectHitTarget.Register(&spell_brazie_summon_plant::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+        OnEffectHit.Register(&spell_brazie_summon_plant::PreventEffect, EFFECT_0, SPELL_EFFECT_TRANS_DOOR);
     }
 };
 
 class spell_brazie_highlight : public SpellScript
 {
-    PrepareSpellScript(spell_brazie_highlight);
-
     void SetDest(SpellDestination& dest)
     {
         dest.Relocate(EmptySpotPositions[0]);
@@ -1227,14 +1223,12 @@ class spell_brazie_highlight : public SpellScript
 
     void Register() override
     {
-        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_brazie_highlight::SetDest, EFFECT_1, TARGET_DEST_NEARBY_ENTRY);
+        OnDestinationTargetSelect.Register(&spell_brazie_highlight::SetDest, EFFECT_1, TARGET_DEST_NEARBY_ENTRY);
     }
 };
 
 class spell_brazie_create_random_seed_sack : public SpellScript
 {
-    PrepareSpellScript(spell_brazie_create_random_seed_sack);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_CREATE_RANDOM_FREEZYA_SACK });
@@ -1248,14 +1242,12 @@ class spell_brazie_create_random_seed_sack : public SpellScript
 
     void Register() override
     {
-        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_brazie_create_random_seed_sack::SetDest, EFFECT_0, TARGET_DEST_NEARBY_ENTRY);
+        OnDestinationTargetSelect.Register(&spell_brazie_create_random_seed_sack::SetDest, EFFECT_0, TARGET_DEST_NEARBY_ENTRY);
     }
 };
 
 class spell_brazie_spit : public SpellScript
 {
-    PrepareSpellScript(spell_brazie_spit);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -1295,7 +1287,7 @@ class spell_brazie_spit : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_brazie_spit::FilterTargets, EFFECT_ALL, TARGET_UNIT_CONE_ENEMY_104);
+        OnObjectAreaTargetSelect.Register(&spell_brazie_spit::FilterTargets, EFFECT_ALL, TARGET_UNIT_CONE_ENEMY_104);
     }
 };
 

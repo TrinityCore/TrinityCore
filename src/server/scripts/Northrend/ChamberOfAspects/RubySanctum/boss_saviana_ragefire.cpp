@@ -225,8 +225,6 @@ class spell_saviana_conflagration_init : public SpellScriptLoader
 
         class spell_saviana_conflagration_init_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_saviana_conflagration_init_SpellScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_FLAME_BEACON, SPELL_CONFLAGRATION_2 });
@@ -249,8 +247,8 @@ class spell_saviana_conflagration_init : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_saviana_conflagration_init_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnEffectHitTarget += SpellEffectFn(spell_saviana_conflagration_init_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnObjectAreaTargetSelect.Register(&spell_saviana_conflagration_init_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnEffectHitTarget.Register(&spell_saviana_conflagration_init_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -268,8 +266,6 @@ class spell_saviana_conflagration_throwback : public SpellScriptLoader
 
         class spell_saviana_conflagration_throwback_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_saviana_conflagration_throwback_SpellScript);
-
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
@@ -279,7 +275,7 @@ class spell_saviana_conflagration_throwback : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_saviana_conflagration_throwback_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget.Register(&spell_saviana_conflagration_throwback_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 

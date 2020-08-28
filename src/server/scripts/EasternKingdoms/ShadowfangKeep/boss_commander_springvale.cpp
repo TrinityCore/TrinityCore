@@ -408,10 +408,6 @@ class spell_sfk_forsaken_ability : public SpellScriptLoader
 
         class spell_sfk_forsaken_ability_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_sfk_forsaken_ability_AuraScript);
-
-
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo(
@@ -451,7 +447,7 @@ class spell_sfk_forsaken_ability : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_sfk_forsaken_ability_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectPeriodic.Register(&spell_sfk_forsaken_ability_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
@@ -468,8 +464,6 @@ public:
 
     class spell_sfk_unholy_power_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_sfk_unholy_power_SpellScript);
-
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             return ValidateSpellInfo(
@@ -498,7 +492,7 @@ public:
         void Register() override
         {
             
-            AfterHit += SpellHitFn(spell_sfk_unholy_power_SpellScript::HandleStacks);
+            AfterHit.Register(&spell_sfk_unholy_power_SpellScript::HandleStacks);
         }
     };
 
@@ -515,8 +509,6 @@ public:
 
     class spell_sfk_unholy_empowerment_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_sfk_unholy_empowerment_SpellScript);
-
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             return ValidateSpellInfo(
@@ -549,7 +541,7 @@ public:
 
         void Register() override
         {
-            AfterHit += SpellHitFn(spell_sfk_unholy_empowerment_SpellScript::HandleStacks);
+            AfterHit.Register(&spell_sfk_unholy_empowerment_SpellScript::HandleStacks);
         }
     };
 

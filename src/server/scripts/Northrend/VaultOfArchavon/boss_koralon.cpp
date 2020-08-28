@@ -191,8 +191,6 @@ class spell_koralon_meteor_fists : public SpellScriptLoader
 
         class spell_koralon_meteor_fists_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_koralon_meteor_fists_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_METEOR_FISTS_DAMAGE });
@@ -206,7 +204,7 @@ class spell_koralon_meteor_fists : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectProc += AuraEffectProcFn(spell_koralon_meteor_fists_AuraScript::TriggerFists, EFFECT_0, SPELL_AURA_DUMMY);
+                OnEffectProc.Register(&spell_koralon_meteor_fists_AuraScript::TriggerFists, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 
@@ -223,8 +221,6 @@ class spell_koralon_meteor_fists_damage : public SpellScriptLoader
 
         class spell_koralon_meteor_fists_damage_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_koralon_meteor_fists_damage_SpellScript);
-
         public:
             spell_koralon_meteor_fists_damage_SpellScript()
             {
@@ -245,8 +241,8 @@ class spell_koralon_meteor_fists_damage : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_koralon_meteor_fists_damage_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_TARGET_ENEMY);
-                OnHit += SpellHitFn(spell_koralon_meteor_fists_damage_SpellScript::CalculateSplitDamage);
+                OnObjectAreaTargetSelect.Register(&spell_koralon_meteor_fists_damage_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_TARGET_ENEMY);
+                OnHit.Register(&spell_koralon_meteor_fists_damage_SpellScript::CalculateSplitDamage);
             }
 
         private:
@@ -266,8 +262,6 @@ class spell_flame_warder_meteor_fists : public SpellScriptLoader
 
         class spell_flame_warder_meteor_fists_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_flame_warder_meteor_fists_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_FW_METEOR_FISTS_DAMAGE });
@@ -281,7 +275,7 @@ class spell_flame_warder_meteor_fists : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectProc += AuraEffectProcFn(spell_flame_warder_meteor_fists_AuraScript::TriggerFists, EFFECT_0, SPELL_AURA_DUMMY);
+                OnEffectProc.Register(&spell_flame_warder_meteor_fists_AuraScript::TriggerFists, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 

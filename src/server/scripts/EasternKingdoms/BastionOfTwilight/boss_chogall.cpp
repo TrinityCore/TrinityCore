@@ -961,8 +961,6 @@ private:
 
 class spell_chogall_absorb_elemental_reverse_cast : public SpellScript
 {
-    PrepareSpellScript(spell_chogall_absorb_elemental_reverse_cast);
-
     void HandleScriptEffect(SpellEffIndex effIndex)
     {
         GetHitUnit()->CastSpell(GetHitUnit(), GetSpellInfo()->Effects[effIndex].BasePoints);
@@ -970,14 +968,12 @@ class spell_chogall_absorb_elemental_reverse_cast : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_chogall_absorb_elemental_reverse_cast::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_chogall_absorb_elemental_reverse_cast::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 class spell_chogall_absorb_elemental : public SpellScript
 {
-    PrepareSpellScript(spell_chogall_absorb_elemental);
-
     void HandleScriptEffect(SpellEffIndex effIndex)
     {
         if (Unit* caster = GetCaster())
@@ -986,14 +982,12 @@ class spell_chogall_absorb_elemental : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_chogall_absorb_elemental::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_chogall_absorb_elemental::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 class spell_chogall_absorb_elemental_heroic : public SpellScript
 {
-    PrepareSpellScript(spell_chogall_absorb_elemental_heroic);
-
     void HandleScriptEffect(SpellEffIndex effIndex)
     {
         if (Unit* caster = GetCaster())
@@ -1002,14 +996,12 @@ class spell_chogall_absorb_elemental_heroic : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_chogall_absorb_elemental_heroic::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_chogall_absorb_elemental_heroic::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 class spell_chogall_absorb_elemental_heroic_AuraScript : public AuraScript
 {
-    PrepareAuraScript(spell_chogall_absorb_elemental_heroic_AuraScript);
-
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
         Unit* target = GetTarget();
@@ -1024,14 +1016,12 @@ class spell_chogall_absorb_elemental_heroic_AuraScript : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_chogall_absorb_elemental_heroic_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectPeriodic.Register(&spell_chogall_absorb_elemental_heroic_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
 class spell_chogall_elemental_power : public AuraScript
 {
-    PrepareAuraScript(spell_chogall_elemental_power);
-
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
         if (uint8 stackAmount = std::ceil(GetTarget()->GetHealthPct() / 10))
@@ -1041,14 +1031,12 @@ class spell_chogall_elemental_power : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_chogall_elemental_power::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectPeriodic.Register(&spell_chogall_elemental_power::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
 class spell_chogall_flaming_destruction_heroic : public AuraScript
 {
-    PrepareAuraScript(spell_chogall_flaming_destruction_heroic);
-
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
@@ -1070,14 +1058,12 @@ class spell_chogall_flaming_destruction_heroic : public AuraScript
 
     void Register() override
     {
-        OnEffectProc += AuraEffectProcFn(spell_chogall_flaming_destruction_heroic::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        OnEffectProc.Register(&spell_chogall_flaming_destruction_heroic::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
     }
 };
 
 class spell_chogall_empowered_shadows_heroic : public AuraScript
 {
-    PrepareAuraScript(spell_chogall_empowered_shadows_heroic);
-
     void HandlePeriodic(AuraEffect const* aurEff)
     {
         PreventDefaultAction();
@@ -1095,14 +1081,12 @@ class spell_chogall_empowered_shadows_heroic : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_chogall_empowered_shadows_heroic::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+        OnEffectPeriodic.Register(&spell_chogall_empowered_shadows_heroic::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
     }
 };
 
 class spell_chogall_summon_corrupted_adherent : public SpellScript
 {
-    PrepareSpellScript(spell_chogall_summon_corrupted_adherent);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -1131,7 +1115,7 @@ class spell_chogall_summon_corrupted_adherent : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_chogall_summon_corrupted_adherent::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_chogall_summon_corrupted_adherent::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -1154,8 +1138,6 @@ class CorruptorDeathStateCheck
 
 class spell_chogall_fester_blood : public SpellScript
 {
-    PrepareSpellScript(spell_chogall_fester_blood);
-
     void FilterAliveTargets(std::list<WorldObject*>& targets)
     {
         if (targets.empty())
@@ -1174,15 +1156,13 @@ class spell_chogall_fester_blood : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_chogall_fester_blood::FilterAliveTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_chogall_fester_blood::FilterDeadTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENTRY);
+        OnObjectAreaTargetSelect.Register(&spell_chogall_fester_blood::FilterAliveTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+        OnObjectAreaTargetSelect.Register(&spell_chogall_fester_blood::FilterDeadTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENTRY);
     }
 };
 
 class spell_chogall_fester_blood_summon : public SpellScript
 {
-    PrepareSpellScript(spell_chogall_fester_blood_summon);
-
     void HandleScriptEffect(SpellEffIndex effIndex)
     {
         for (uint8 i = 0; i < 4; i++)
@@ -1191,14 +1171,12 @@ class spell_chogall_fester_blood_summon : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_chogall_fester_blood_summon::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_chogall_fester_blood_summon::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 class spell_chogall_conversion : public SpellScript
 {
-    PrepareSpellScript(spell_chogall_conversion);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_WORSHIPPING });
@@ -1227,15 +1205,13 @@ class spell_chogall_conversion : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_chogall_conversion::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-        OnEffectHitTarget += SpellEffectFn(spell_chogall_conversion::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnObjectAreaTargetSelect.Register(&spell_chogall_conversion::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnEffectHitTarget.Register(&spell_chogall_conversion::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 class spell_chogall_worshipping : public AuraScript
 {
-    PrepareAuraScript(spell_chogall_worshipping);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_WORSHIPPING });
@@ -1263,15 +1239,13 @@ class spell_chogall_worshipping : public AuraScript
 
     void Register() override
     {
-        AfterEffectApply += AuraEffectApplyFn(spell_chogall_worshipping::AfterApply, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
-        AfterEffectRemove += AuraEffectRemoveFn(spell_chogall_worshipping::AfterRemmove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectApply.Register(&spell_chogall_worshipping::AfterApply, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove.Register(&spell_chogall_worshipping::AfterRemmove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
 class spell_chogall_consume_blood_of_the_old_god : public AuraScript
 {
-    PrepareAuraScript(spell_chogall_consume_blood_of_the_old_god);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_CONSUME_BLOOD_OF_THE_OLD_GOD_TRIGGERED });
@@ -1294,15 +1268,13 @@ class spell_chogall_consume_blood_of_the_old_god : public AuraScript
 
     void Register() override
     {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_chogall_consume_blood_of_the_old_god::AfterRemmove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_chogall_consume_blood_of_the_old_god::HandlePeriodic, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+        AfterEffectRemove.Register(&spell_chogall_consume_blood_of_the_old_god::AfterRemmove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+        OnEffectPeriodic.Register(&spell_chogall_consume_blood_of_the_old_god::HandlePeriodic, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
     }
 };
 
 class spell_chogall_consume_blood_of_the_old_god_triggered : public SpellScript
 {
-    PrepareSpellScript(spell_chogall_consume_blood_of_the_old_god_triggered);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_CORRUPTED_CHOGALL });
@@ -1319,14 +1291,12 @@ class spell_chogall_consume_blood_of_the_old_god_triggered : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_chogall_consume_blood_of_the_old_god_triggered::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_chogall_consume_blood_of_the_old_god_triggered::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 class spell_chogall_corruption_significant : public SpellScript
 {
-    PrepareSpellScript(spell_chogall_corruption_significant);
-
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
         CorruptionHandler::AddCorruption(GetHitUnit(), CORRUPTION_SIGNIFICANT);
@@ -1334,14 +1304,12 @@ class spell_chogall_corruption_significant : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_chogall_corruption_significant::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_chogall_corruption_significant::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 class spell_chogall_corruption_normal : public SpellScript
 {
-    PrepareSpellScript(spell_chogall_corruption_normal);
-
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
         CorruptionHandler::AddCorruption(GetHitUnit(), CORRUPTION_NORMAL);
@@ -1349,14 +1317,12 @@ class spell_chogall_corruption_normal : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_chogall_corruption_normal::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_chogall_corruption_normal::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 class spell_chogall_corruption_normal_alternative : public SpellScript
 {
-    PrepareSpellScript(spell_chogall_corruption_normal_alternative);
-
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
         CorruptionHandler::AddCorruption(GetHitUnit(), CORRUPTION_NORMAL);
@@ -1364,14 +1330,12 @@ class spell_chogall_corruption_normal_alternative : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_chogall_corruption_normal_alternative::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_chogall_corruption_normal_alternative::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 class spell_chogall_corruption_of_the_old_god : public SpellScript
 {
-    PrepareSpellScript(spell_chogall_corruption_of_the_old_god);
-
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
         CorruptionHandler::AddCorruption(GetHitUnit(), CORRUPTION_NORMAL);
@@ -1379,14 +1343,12 @@ class spell_chogall_corruption_of_the_old_god : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_chogall_corruption_of_the_old_god::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_chogall_corruption_of_the_old_god::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 class spell_chogall_corruption_sickness : public AuraScript
 {
-    PrepareAuraScript(spell_chogall_corruption_sickness);
-
     void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Player* player = GetTarget()->ToPlayer())
@@ -1395,14 +1357,12 @@ class spell_chogall_corruption_sickness : public AuraScript
 
     void Register() override
     {
-        AfterEffectApply += AuraEffectApplyFn(spell_chogall_corruption_sickness::AfterApply, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectApply.Register(&spell_chogall_corruption_sickness::AfterApply, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
 class spell_chogall_corruption_malformation : public AuraScript
 {
-    PrepareAuraScript(spell_chogall_corruption_malformation);
-
     void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Unit* target = GetTarget();
@@ -1422,8 +1382,8 @@ class spell_chogall_corruption_malformation : public AuraScript
 
     void Register() override
     {
-        AfterEffectApply += AuraEffectApplyFn(spell_chogall_corruption_malformation::AfterApply, EFFECT_0, SPELL_AURA_SET_VEHICLE_ID, AURA_EFFECT_HANDLE_REAL);
-        OnEffectRemove += AuraEffectRemoveFn(spell_chogall_corruption_malformation::OnRemove, EFFECT_0, SPELL_AURA_SET_VEHICLE_ID, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectApply.Register(&spell_chogall_corruption_malformation::AfterApply, EFFECT_0, SPELL_AURA_SET_VEHICLE_ID, AURA_EFFECT_HANDLE_REAL);
+        OnEffectRemove.Register(&spell_chogall_corruption_malformation::OnRemove, EFFECT_0, SPELL_AURA_SET_VEHICLE_ID, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -1442,8 +1402,6 @@ class VehicleCheck
 
 class spell_chogall_shadow_bolt : public SpellScript
 {
-    PrepareSpellScript(spell_chogall_shadow_bolt);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         if (targets.empty())
@@ -1456,14 +1414,12 @@ class spell_chogall_shadow_bolt : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_chogall_shadow_bolt::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnObjectAreaTargetSelect.Register(&spell_chogall_shadow_bolt::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
     }
 };
 
 class spell_chogall_debilitating_beam : public AuraScript
 {
-    PrepareAuraScript(spell_chogall_debilitating_beam);
-
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
         CorruptionHandler::AddCorruption(GetTarget(), CORRUPTION_NORMAL);
@@ -1471,7 +1427,7 @@ class spell_chogall_debilitating_beam : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_chogall_debilitating_beam::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+        OnEffectPeriodic.Register(&spell_chogall_debilitating_beam::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
     }
 };
 

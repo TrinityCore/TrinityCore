@@ -839,8 +839,6 @@ class spell_impale : public SpellScriptLoader
 
         class spell_impale_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_impale_SpellScript);
-
             void HandleDamageCalc(SpellEffIndex /*effIndex*/)
             {
                 Unit* target = GetHitUnit();
@@ -853,7 +851,7 @@ class spell_impale : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_impale_SpellScript::HandleDamageCalc, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                OnEffectHitTarget.Register(&spell_impale_SpellScript::HandleDamageCalc, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
@@ -870,8 +868,6 @@ class spell_anubarak_leeching_swarm : public SpellScriptLoader
 
         class spell_anubarak_leeching_swarm_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_anubarak_leeching_swarm_AuraScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_LEECHING_SWARM_DMG, SPELL_LEECHING_SWARM_HEAL });
@@ -894,7 +890,7 @@ class spell_anubarak_leeching_swarm : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_anubarak_leeching_swarm_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectPeriodic.Register(&spell_anubarak_leeching_swarm_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 

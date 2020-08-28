@@ -440,8 +440,6 @@ class spell_prince_taldaram_conjure_flame_sphere : public SpellScriptLoader
 
         class spell_prince_taldaram_conjure_flame_sphere_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_prince_taldaram_conjure_flame_sphere_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_FLAME_SPHERE_SUMMON_1, SPELL_FLAME_SPHERE_SUMMON_2, SPELL_FLAME_SPHERE_SUMMON_3 });
@@ -461,7 +459,7 @@ class spell_prince_taldaram_conjure_flame_sphere : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_prince_taldaram_conjure_flame_sphere_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget.Register(&spell_prince_taldaram_conjure_flame_sphere_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -479,8 +477,6 @@ class spell_prince_taldaram_flame_sphere_summon : public SpellScriptLoader
 
         class spell_prince_taldaram_flame_sphere_summon_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_prince_taldaram_flame_sphere_summon_SpellScript);
-
             void SetDest(SpellDestination& dest)
             {
                 Position offset = { 0.0f, 0.0f, 5.5f, 0.0f };
@@ -489,7 +485,7 @@ class spell_prince_taldaram_flame_sphere_summon : public SpellScriptLoader
 
             void Register() override
             {
-                OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_prince_taldaram_flame_sphere_summon_SpellScript::SetDest, EFFECT_0, TARGET_DEST_CASTER);
+                OnDestinationTargetSelect.Register(&spell_prince_taldaram_flame_sphere_summon_SpellScript::SetDest, EFFECT_0, TARGET_DEST_CASTER);
             }
         };
 
