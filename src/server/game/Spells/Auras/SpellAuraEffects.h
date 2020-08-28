@@ -119,6 +119,8 @@ class TC_GAME_API AuraEffect
         bool m_canBeRecalculated;
         bool m_isPeriodic;
 
+        float GetCritChanceFor(Unit const* caster, Unit const* target) const;
+
     public:
         // aura effect apply/remove handlers
         void HandleNULL(AuraApplication const* /*aurApp*/, uint8 /*mode*/, bool /*apply*/) const
