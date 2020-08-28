@@ -1002,8 +1002,8 @@ void AuraEffect::UpdatePeriodic(Unit* caster)
 
 float AuraEffect::GetCritChanceFor(Unit const* caster, Unit const* target) const
 {
-    float crit = caster->SpellCritChanceDone(GetSpellInfo(), GetSpellInfo()->GetSchoolMask(), GetSpellInfo()->GetAttackType(), true);
-    return target->SpellCritChanceTaken(caster, GetSpellInfo(), GetSpellInfo()->GetSchoolMask(), crit, GetSpellInfo()->GetAttackType(), true);
+    float crit = caster->SpellCritChanceDone(GetSpellInfo(), GetSpellInfo()->GetSchoolMask(), GetSpellInfo()->GetAttackType());
+    return target->SpellCritChanceTaken(caster, GetSpellInfo(), GetSpellInfo()->GetSchoolMask(), crit, GetSpellInfo()->GetAttackType());
 }
 
 bool AuraEffect::IsAffectingSpell(SpellInfo const* spell) const

@@ -7015,7 +7015,7 @@ int32 Unit::SpellBaseDamageBonusTaken(SpellSchoolMask schoolMask) const
     return TakenAdvertisedBenefit;
 }
 
-float Unit::SpellCritChanceDone(SpellInfo const* spellInfo, SpellSchoolMask schoolMask, WeaponAttackType attackType /*= BASE_ATTACK*/, bool isPeriodic /*= false*/) const
+float Unit::SpellCritChanceDone(SpellInfo const* spellInfo, SpellSchoolMask schoolMask, WeaponAttackType attackType /*= BASE_ATTACK*/) const
 {
     //! Mobs can't crit with spells. (Except player controlled)
     if (GetTypeId() == TYPEID_UNIT && !GetSpellModOwner())
@@ -7061,7 +7061,7 @@ float Unit::SpellCritChanceDone(SpellInfo const* spellInfo, SpellSchoolMask scho
     return std::max(crit_chance, 0.0f);
 }
 
-float Unit::SpellCritChanceTaken(Unit const* caster, SpellInfo const* spellInfo, SpellSchoolMask schoolMask, float doneChance, WeaponAttackType attackType /*= BASE_ATTACK*/, bool isPeriodic /*= false*/) const
+float Unit::SpellCritChanceTaken(Unit const* caster, SpellInfo const* spellInfo, SpellSchoolMask schoolMask, float doneChance, WeaponAttackType attackType /*= BASE_ATTACK*/) const
 {
     // not critting spell
     if (spellInfo->HasAttribute(SPELL_ATTR2_CANT_CRIT))
