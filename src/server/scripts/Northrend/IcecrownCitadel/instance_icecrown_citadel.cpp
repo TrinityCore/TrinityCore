@@ -114,7 +114,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadBossBoundaries(boundaries);
                 LoadDoorData(doorData);
-                TeamInInstance = 0;
+                TeamInInstance = map->GetTeamInInstance();
                 IsBonedEligible = true;
                 IsOozeDanceEligible = true;
                 IsNauseaEligible = true;
@@ -143,9 +143,6 @@ class instance_icecrown_citadel : public InstanceMapScript
 
             void OnPlayerEnter(Player* player) override
             {
-                if (!TeamInInstance)
-                    TeamInInstance = player->GetTeam();
-
                 if (GetBossState(DATA_LADY_DEATHWHISPER) == DONE && GetBossState(DATA_ICECROWN_GUNSHIP_BATTLE) != DONE)
                     SpawnGunship();
             }
@@ -271,14 +268,6 @@ class instance_icecrown_citadel : public InstanceMapScript
             // Weekly quest spawn prevention
             uint32 GetCreatureEntry(ObjectGuid::LowType /*guidLow*/, CreatureData const* data) override
             {
-                if (!TeamInInstance)
-                {
-                    Map::PlayerList const& players = instance->GetPlayers();
-                    if (!players.isEmpty())
-                        if (Player* player = players.begin()->GetSource())
-                            TeamInInstance = player->GetTeam();
-                }
-
                 uint32 entry = data->id;
                 switch (entry)
                 {
@@ -1356,7 +1345,7 @@ class instance_icecrown_citadel : public InstanceMapScript
             ObjectGuid FrozenBolvarGUID;
             ObjectGuid PillarsChainedGUID;
             ObjectGuid PillarsUnchainedGUID;
-            uint32 TeamInInstance;
+            Team TeamInInstance;
             uint32 ColdflameJetsState;
             uint32 UpperSpireTeleporterActiveState;
             std::set<uint32> FrostwyrmGUIDs;
