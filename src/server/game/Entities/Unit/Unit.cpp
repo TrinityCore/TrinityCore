@@ -11392,6 +11392,10 @@ void Unit::SetFeared(bool apply)
             if (GetVictim())
                 SetTarget(EnsureVictim()->GetGUID());
         }
+        if (!(GetTypeId() == TYPEID_PLAYER) && !IsInCombat())
+        {
+            GetMotionMaster()->MoveTargetedHome();
+        }
     }
 
     // block / allow control to real player in control (eg charmer)
