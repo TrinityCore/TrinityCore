@@ -146,13 +146,24 @@ namespace Trinity::Impl::StringConvertImpl
     template <>
     struct For<bool, void>
     {
-        static Optional<bool> FromString(std::string_view str)
+        static Optional<bool> FromString(std::string_view str, int strict = 0) /* this is int to match the signature for "proper" integral types */
         {
-            if ((str == "1") || StringEqualI(str, "y") || StringEqualI(str, "on") || StringEqualI(str, "yes") || StringEqualI(str, "true"))
-                return true;
-            if ((str == "0") || StringEqualI(str, "n") || StringEqualI(str, "off") || StringEqualI(str, "no") || StringEqualI(str, "false"))
-                return false;
-            return std::nullopt;
+            if (strict)
+            {
+                if (str == "1")
+                    return true;
+                if (str == "0")
+                    return false;
+                return std::nullopt;
+            }
+            else
+            {
+                if ((str == "1") || StringEqualI(str, "y") || StringEqualI(str, "on") || StringEqualI(str, "yes") || StringEqualI(str, "true"))
+                    return true;
+                if ((str == "0") || StringEqualI(str, "n") || StringEqualI(str, "off") || StringEqualI(str, "no") || StringEqualI(str, "false"))
+                    return false;
+                return std::nullopt;
+            }
         }
 
         static std::string ToString(bool val)
