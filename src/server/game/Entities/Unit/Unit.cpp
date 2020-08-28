@@ -7092,15 +7092,14 @@ float Unit::SpellCritChanceTaken(Unit const* caster, SpellInfo const* spellInfo,
                     if (!aurEff->IsAffectingSpell(spellInfo))
                         continue;
 
-                    float modChance = 0.f;
                     switch (aurEff->GetMiscValue())
                     {
                         case 911: // Shatter
-                            if (HasAuraState(AURA_STATE_FROZEN, spellInfo, this))
-                                crit_chance *= 2;
+                            if (HasAuraState(AURA_STATE_FROZEN, spellInfo, caster))
+                                crit_chance *= (1 * aurEff->GetSpellInfo()->GetRank());
                             else if (spellInfo->SpellFamilyFlags[0] & 0x00020000 || spellInfo->SpellFamilyFlags[1] & 0x00100000)
-                                if (GetAuraEffect(SPELL_AURA_ABILITY_IGNORE_AURASTATE, SPELLFAMILY_MAGE, 0, 0, 0x0000000A, GetGUID()))
-                                    crit_chance *= 2;
+                                if (GetAuraEffect(SPELL_AURA_ABILITY_IGNORE_AURASTATE, SPELLFAMILY_MAGE, 0, 0, 0x0000000A, caster->GetGUID()))
+                                    crit_chance *= (1 * aurEff->GetSpellInfo()->GetRank());
                             break;
                         case 57470: // Renewed Hope
                         case 57472:
