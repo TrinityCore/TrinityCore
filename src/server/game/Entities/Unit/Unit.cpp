@@ -11391,10 +11391,8 @@ void Unit::SetFeared(bool apply)
             GetMotionMaster()->Remove(FLEEING_MOTION_TYPE);
             if (GetVictim())
                 SetTarget(EnsureVictim()->GetGUID());
-        }
-        if (!(GetTypeId() == TYPEID_PLAYER) && !IsInCombat())
-        {
-            GetMotionMaster()->MoveTargetedHome();
+            if (!IsPlayer() && !IsInCombat())
+                GetMotionMaster()->MoveTargetedHome();
         }
     }
 
