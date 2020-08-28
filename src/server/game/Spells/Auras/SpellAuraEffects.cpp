@@ -5629,7 +5629,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
 
     bool crit = roll_chance_f(GetCritChanceFor(caster, target));
     if (crit)
-        damage = Unit::SpellCriticalDamageBonus(caster, m_spellInfo, damage, target);
+        damage = Unit::SpellCriticalDamageBonus(caster, m_spellInfo, damage);
 
     // Calculate armor mitigation
     if (Unit::IsDamageReducedByArmor(GetSpellInfo()->GetSchoolMask(), GetSpellInfo(), GetEffIndex()))
@@ -5718,7 +5718,7 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
 
     bool crit = roll_chance_f(GetCritChanceFor(caster, target));
     if (crit)
-        damage = Unit::SpellCriticalDamageBonus(caster, m_spellInfo, damage, target);
+        damage = Unit::SpellCriticalDamageBonus(caster, m_spellInfo, damage);
 
     // Calculate armor mitigation
     if (Unit::IsDamageReducedByArmor(GetSpellInfo()->GetSchoolMask(), GetSpellInfo(), GetEffIndex()))
@@ -5887,7 +5887,7 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
 
     bool crit = roll_chance_f(GetCritChanceFor(caster, target));
     if (crit)
-        damage = Unit::SpellCriticalHealingBonus(caster, m_spellInfo, damage, target);
+        damage = Unit::SpellCriticalHealingBonus(caster, m_spellInfo, damage);
 
     TC_LOG_DEBUG("spells.periodic", "PeriodicTick: %s heal of %s for %u health inflicted by %u",
         GetCasterGUID().ToString().c_str(), target->GetGUID().ToString().c_str(), damage, GetId());

@@ -1282,7 +1282,7 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
                 if (crit)
                 {
                     damageInfo->HitInfo |= SPELL_HIT_TYPE_CRIT;
-                    damage = Unit::SpellCriticalDamageBonus(this, spellInfo, damage, victim);
+                    damage = Unit::SpellCriticalDamageBonus(this, spellInfo, damage);
                 }
 
                 ApplyResilience(victim, &damage);
@@ -7267,7 +7267,7 @@ float Unit::SpellCritChanceTaken(Unit const* caster, SpellInfo const* spellInfo,
     return std::max(crit_chance, 0.0f);
 }
 
-/*static*/ uint32 Unit::SpellCriticalDamageBonus(Unit const* caster, SpellInfo const* spellProto, uint32 damage, Unit* victim)
+/*static*/ uint32 Unit::SpellCriticalDamageBonus(Unit const* caster, SpellInfo const* spellProto, uint32 damage)
 {
     // Calculate critical bonus
     int32 crit_bonus = damage;
@@ -7307,7 +7307,7 @@ float Unit::SpellCritChanceTaken(Unit const* caster, SpellInfo const* spellInfo,
     return crit_bonus;
 }
 
-/*static*/ uint32 Unit::SpellCriticalHealingBonus(Unit const* caster, SpellInfo const* spellProto, uint32 damage, Unit* victim)
+/*static*/ uint32 Unit::SpellCriticalHealingBonus(Unit const* caster, SpellInfo const* spellProto, uint32 damage)
 {
     // Calculate critical bonus
     int32 crit_bonus;
