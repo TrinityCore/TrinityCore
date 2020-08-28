@@ -618,13 +618,13 @@ class TC_GAME_API Spell
         Unit* unitTarget;
         Item* itemTarget;
         GameObject* gameObjTarget;
-        Corpse* corpseTarget;
+        Corpse* m_corpseTarget;
         WorldLocation* destTarget;
         int32 damage;
         SpellMissInfo targetMissInfo;
         SpellEffectHandleMode effectHandleMode;
         // used in effects handlers
-        Unit* unitCaster;
+        Unit* GetUnitCasterForEffectHandlers() const;
         UnitAura* _spellAura;
         DynObjAura* _dynObjAura;
 
