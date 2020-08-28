@@ -31,6 +31,7 @@
 #include "SpellAuras.h"
 #include "SpellHistory.h"
 #include "SpellMgr.h"
+#include "SpellPackets.h"
 #include "Unit.h"
 #include "Util.h"
 #include "WorldPacket.h"
@@ -338,14 +339,13 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     /// @todo pets should be summoned from real cast instead of just faking it?
     if (petInfo->CreatedBySpellId)
     {
-        WorldPacket data(SMSG_SPELL_GO, (8+8+4+4+2));
-        data << owner->GetPackGUID();
-        data << owner->GetPackGUID();
-        data << uint8(0);
-        data << uint32(petInfo->CreatedBySpellId);
-        data << uint32(256); // CAST_FLAG_UNKNOWN3
-        data << uint32(0);
-        owner->SendMessageToSet(&data, true);
+        WorldPackets::Spells::SpellGo spellGo;
+        spellGo.Cast.CasterGUID = owner->GetGUID();
+        spellGo.Cast.CasterUnit = owner->GetGUID();
+        spellGo.Cast.SpellID = petInfo->CreatedBySpellId;
+        spellGo.Cast.CastFlags = CAST_FLAG_UNKNOWN_9;
+        spellGo.Cast.CastTime = GameTime::GetGameTimeMS();
+        owner->SendMessageToSet(spellGo.Write(), true);
     }
 
     owner->SetMinion(this, true);

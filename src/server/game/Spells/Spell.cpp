@@ -4431,9 +4431,6 @@ void Spell::UpdateSpellCastDataAmmo(WorldPackets::Spells::SpellAmmo& ammo)
 /// Writes miss and hit targets for a SMSG_SPELL_GO packet
 void Spell::UpdateSpellCastDataTargets(WorldPackets::Spells::SpellCastData& data)
 {
-    data.HitTargets.emplace();
-    data.MissStatus.emplace();
-
     // This function also fill data for channeled spells:
     // m_needAliveTargetMask req for stop channelig if one target die
     for (TargetInfo& targetInfo : m_UniqueTargetInfo)
