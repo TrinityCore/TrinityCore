@@ -295,7 +295,7 @@ struct CompareRespawnInfo
 typedef std::unordered_map<uint32 /*zoneId*/, ZoneDynamicInfo> ZoneDynamicInfoMap;
 typedef boost::heap::fibonacci_heap<RespawnInfo*, boost::heap::compare<CompareRespawnInfo>> RespawnListContainer;
 typedef RespawnListContainer::handle_type RespawnListHandle;
-typedef std::unordered_map<uint32, RespawnInfo*> RespawnInfoMap;
+typedef std::unordered_map<ObjectGuid::LowType, RespawnInfo*> RespawnInfoMap;
 struct RespawnInfo
 {
     SpawnObjectType type;
