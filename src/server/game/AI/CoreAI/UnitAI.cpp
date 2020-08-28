@@ -207,9 +207,7 @@ void UnitAI::FillAISpellInfo()
         if (AIInfo->cooldown < spellInfo->RecoveryTime)
             AIInfo->cooldown = spellInfo->RecoveryTime;
 
-        if (!spellInfo->GetMaxRange(false))
-            UPDATE_TARGET(AITARGET_SELF)
-        else
+        if (spellInfo->GetMaxRange(false))
         {
             for (SpellEffectInfo const& Effect : spellInfo->Effects)
             {
