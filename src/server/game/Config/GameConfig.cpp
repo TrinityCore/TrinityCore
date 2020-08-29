@@ -20,6 +20,7 @@
 #include "Log.h"
 #include "Timer.h"
 #include "Util.h"
+#include "StringConvert.h"
 
 GameConfig* GameConfig::instance()
 {
@@ -40,7 +41,7 @@ void GameConfig::AddBoolOption(std::string const& optionName, bool value /*= fal
     auto const& itr = _boolOptions.find(optionName);
     if (itr != _boolOptions.end())
     {
-        TC_LOG_FATAL("server.loading", "> Bool option (%s) is exist!", optionName.c_str());
+        TC_LOG_FATAL("server.loading", "> Bool option (%s) exists already!", optionName.c_str());
         return;
     }
 
@@ -52,7 +53,7 @@ void GameConfig::AddIntOption(std::string const& optionName, int32 value /*= 0*/
     auto const& itr = _intOptions.find(optionName);
     if (itr != _intOptions.end())
     {
-        TC_LOG_FATAL("server.loading", "> Int option (%s) is exist!", optionName.c_str());
+        TC_LOG_FATAL("server.loading", "> Int option (%s) exists already!", optionName.c_str());
         return;
     }
 
@@ -64,7 +65,7 @@ void GameConfig::AddFloatOption(std::string const& optionName, float value /*= 1
     auto const& itr = _floatOptions.find(optionName);
     if (itr != _floatOptions.end())
     {
-        TC_LOG_FATAL("server.loading", "> Float option (%s) is exist!", optionName.c_str());
+        TC_LOG_FATAL("server.loading", "> Float option (%s) exists already!", optionName.c_str());
         return;
     }
 
@@ -76,7 +77,7 @@ void GameConfig::AddStringOption(std::string const& optionName, std::string cons
     auto const& itr = _stringOptions.find(optionName);
     if (itr != _stringOptions.end())
     {
-        TC_LOG_FATAL("server.loading", "> Int option (%s) is exist!", optionName.c_str());
+        TC_LOG_FATAL("server.loading", "> Int option (%s) exists already!", optionName.c_str());
         return;
     }
 
@@ -88,19 +89,19 @@ void GameConfig::AddOption(std::string const& optionName, GameConfigType type, s
     switch (type)
     {
     case GameConfigType::GAME_CONFIG_TYPE_BOOL:
-        AddBoolOption(optionName, value.empty() ? StringToBool(defaultValue) : StringToBool(value));
+        AddBoolOption(optionName, value.empty() ? Trinity::StringTo<bool>(defaultValue).value() : Trinity::StringTo<bool>(value).value());
         break;
     case GameConfigType::GAME_CONFIG_TYPE_INT:
-        AddIntOption(optionName, value.empty() ? std::stoi(defaultValue) : std::stoi(value));
+        AddIntOption(optionName, value.empty() ? Trinity::StringTo<int32>(defaultValue).value() : Trinity::StringTo<int32>(value).value());
         break;
     case GameConfigType::GAME_CONFIG_TYPE_FLOAT:
-        AddFloatOption(optionName, value.empty() ? std::stof(defaultValue) : std::stof(value));
+        AddFloatOption(optionName, value.empty() ? Trinity::StringTo<float>(defaultValue).value() : Trinity::StringTo<float>(value).value());
         break;
     case GameConfigType::GAME_CONFIG_TYPE_STRING:
         AddStringOption(optionName, value.empty() ? defaultValue : value);
         break;
     default:
-        ABORT();
+        TC_LOG_FATAL("server.loading", "> Invalid option type (%u) for option name (%s)", static_cast<uint8>(type), optionName.c_str());
         break;
     }
 }
