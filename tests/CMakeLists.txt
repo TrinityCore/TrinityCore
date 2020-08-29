@@ -17,6 +17,7 @@ add_executable(tests-common ${COMMON_SOURCES})
 
 target_link_libraries(tests-common
   PRIVATE
+    trinity-core-interface
     common
     Catch2::Catch2)
 
