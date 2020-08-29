@@ -16,7 +16,7 @@
  */
 
 #define CATCH_CONFIG_ENABLE_CHRONO_STRINGMAKER
-#include "catch2/catch.hpp"
+#include "tc_catch2.h"
 
 #include "EventMap.h"
 
