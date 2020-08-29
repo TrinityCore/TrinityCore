@@ -28,6 +28,7 @@
 #include "Player.h"
 #include "ScenarioMgr.h"
 #include "VMapFactory.h"
+#include "VMapManager2.h"
 #include "World.h"
 
 MapInstanced::MapInstanced(uint32 id, time_t expiry) : Map(id, expiry, 0, DIFFICULTY_NORMAL)

@@ -55,6 +55,7 @@
 #include "Util.h"
 #include "VMapFactory.h"
 #include "Vehicle.h"
+#include "VMapManager2.h"
 #include "World.h"
 #include "WorldSession.h"
 #include <numeric>
