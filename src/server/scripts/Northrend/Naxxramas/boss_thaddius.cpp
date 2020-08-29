@@ -1224,20 +1224,19 @@ class spell_thaddius_magnetic_pull : public SpellScriptLoader
         }
 };
 
-class at_thaddius_entrance : public AreaTriggerScript
+class at_thaddius_entrance : public OnlyOnceAreaTriggerScript
 {
     public:
-        at_thaddius_entrance() : AreaTriggerScript("at_thaddius_entrance") { }
+        at_thaddius_entrance() : OnlyOnceAreaTriggerScript("at_thaddius_entrance") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
+        bool _OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
         {
             InstanceScript* instance = player->GetInstanceScript();
-            if (!instance || instance->GetData(DATA_HAD_THADDIUS_GREET) || instance->GetBossState(BOSS_THADDIUS) == DONE)
+            if (!instance || instance->GetBossState(BOSS_THADDIUS) == DONE)
                 return true;
 
             if (Creature* thaddius = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_THADDIUS)))
                 thaddius->AI()->Talk(SAY_GREET);
-            instance->SetData(DATA_HAD_THADDIUS_GREET, 1u);
 
             return true;
         }

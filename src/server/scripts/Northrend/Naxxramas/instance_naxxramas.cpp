@@ -123,9 +123,6 @@ class instance_naxxramas : public InstanceMapScript
                 LoadDoorData(doorData);
                 LoadObjectData(nullptr, objectData);
 
-                hadAnubRekhanGreet      = false;
-                hadFaerlinaGreet        = false;
-                hadThaddiusGreet        = false;
                 hadSapphironBirth       = false;
                 CurrentWingTaunt        = SAY_KELTHUZAD_FIRST_WING_TAUNT;
 
@@ -281,15 +278,6 @@ class instance_naxxramas : public InstanceMapScript
                         if (GameObject* gate = instance->GetGameObject(GothikGateGUID))
                             gate->SetGoState(GOState(value));
                         break;
-                    case DATA_HAD_ANUBREKHAN_GREET:
-                        hadAnubRekhanGreet = (value == 1u);
-                        break;
-                    case DATA_HAD_FAERLINA_GREET:
-                        hadFaerlinaGreet = (value == 1u);
-                        break;
-                    case DATA_HAD_THADDIUS_GREET:
-                        hadThaddiusGreet = (value == 1u);
-                        break;
                     case DATA_HAD_SAPPHIRON_BIRTH:
                         hadSapphironBirth = (value == 1u);
                         break;
@@ -302,12 +290,6 @@ class instance_naxxramas : public InstanceMapScript
             {
                 switch (id)
                 {
-                    case DATA_HAD_ANUBREKHAN_GREET:
-                        return hadAnubRekhanGreet ? 1u : 0u;
-                    case DATA_HAD_FAERLINA_GREET:
-                        return hadFaerlinaGreet ? 1u : 0u;
-                    case DATA_HAD_THADDIUS_GREET:
-                        return hadThaddiusGreet ? 1u : 0u;
                     case DATA_HAD_SAPPHIRON_BIRTH:
                         return hadSapphironBirth ? 1u : 0u;
                     default:
@@ -625,9 +607,6 @@ class instance_naxxramas : public InstanceMapScript
             ObjectGuid PortalsGUID[4];
             ObjectGuid KelthuzadDoorGUID;
             ObjectGuid LichKingGUID;
-            bool hadAnubRekhanGreet;
-            bool hadFaerlinaGreet;
-            bool hadThaddiusGreet;
             bool hadSapphironBirth;
             uint8 CurrentWingTaunt;
 
