@@ -2484,8 +2484,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spellInfo
     if (spellInfo->DmgClass == SPELL_DAMAGE_CLASS_RANGED)
         attType = RANGED_ATTACK;
 
-    uint32 roll = urand(0, 10000);
-
+    uint32 roll = urand(0, 9999);
     uint32 missChance = uint32(MeleeSpellMissChance(victim, attType, spellInfo->Id) * 100.0f);
 
     // Roll miss
@@ -2620,56 +2619,58 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit* victim, SpellInfo const* spellInfo
         return SPELL_MISS_NONE;
 
     SpellSchoolMask schoolMask = spellInfo->GetSchoolMask();
+
+    int32 highLevelMissChance = victim->IsPlayer() ? 7 : 11;
     int32 thisLevel = getLevel();
     if (IsCreature() && ToCreature()->IsTrigger())
         thisLevel = std::max<int32>(thisLevel, spellInfo->SpellLevel);
+    int32 const levelDiff = static_cast<int32>(victim->getLevelForTarget(this)) - thisLevel;
 
     // Base hit chance from attacker and victim levels
-    float modHitChance = 100.0f;
-    uint8 lchance = victim->GetTypeId() == TYPEID_PLAYER ? 7 : 11;
-
-    int8 levelDifference = victim->getLevel() - thisLevel;
-    if (levelDifference >= 0 && levelDifference <= 3)
-        modHitChance -= MissChanceSpell[levelDifference];
-    else if (levelDifference < 0)
-    {
+    int32 modHitChance = 100;
+    if (levelDiff < 0)
         modHitChance -= MissChanceSpell[0];
-        modHitChance += 1.0f * std::abs(levelDifference);
-    }
-    else if (levelDifference > 3)
-        modHitChance -= MissChanceSpell[3] + lchance * (levelDifference - 3);
-
-    // Normalize chance
-    modHitChance = std::max(0.0f, modHitChance);
-    modHitChance = std::min(modHitChance, 100.0f);
+    else if (levelDiff > 3)
+        modHitChance -= MissChanceSpell[3] + highLevelMissChance * (levelDiff - 3);
+    else
+        modHitChance -= MissChanceSpell[levelDiff];
 
     // Spellmod from SPELLMOD_RESIST_MISS_CHANCE
     if (Player* modOwner = GetSpellModOwner())
         modOwner->ApplySpellMod(spellInfo->Id, SPELLMOD_RESIST_MISS_CHANCE, modHitChance);
 
-    // Spells with SPELL_ATTR3_IGNORE_HIT_RESULT will ignore target's avoidance effects
-    if (!spellInfo->HasAttribute(SPELL_ATTR3_IGNORE_HIT_RESULT))
-    {
-        // Chance hit from victim SPELL_AURA_MOD_ATTACKER_SPELL_HIT_CHANCE auras
-        modHitChance += victim->GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_ATTACKER_SPELL_HIT_CHANCE, schoolMask);
-    }
+    // Chance hit from victim SPELL_AURA_MOD_ATTACKER_SPELL_HIT_CHANCE auras
+    modHitChance += victim->GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_ATTACKER_SPELL_HIT_CHANCE, schoolMask);
 
-    float HitChance = modHitChance + m_modSpellHitChance;
+    // Decrease hit chance from victim rating bonus
+    if (victim->IsPlayer())
+        modHitChance -= int32(victim->ToPlayer()->GetRatingBonusValue(CR_HIT_TAKEN_SPELL));
+
+    int32 hitChance = modHitChance * 100;
     // Increase hit chance from attacker SPELL_AURA_MOD_SPELL_HIT_CHANCE and attacker ratings
+        // Increase hit chance from attacker SPELL_AURA_MOD_SPELL_HIT_CHANCE and attacker ratings
+    if (Unit const* unit = ToUnit())
+        hitChance += int32(unit->m_modSpellHitChance * 100.0f);
 
-    if (!roll_chance_f(HitChance))
+    RoundToInterval(hitChance, 0, 10000);
+
+    int32 tmp = 10000 - hitChance;
+
+    int32 rand = irand(0, 9999);
+    if (tmp > 0 && rand < tmp)
         return SPELL_MISS_MISS;
 
     // Chance resist mechanic (select max value from every mechanic spell effect)
-    int32 resist_chance = victim->GetMechanicResistChance(spellInfo);
-    if (roll_chance_i(resist_chance))
+    int32 resist_chance = victim->GetMechanicResistChance(spellInfo) * 100;
+    // Roll chance
+    if (resist_chance > 0 && rand < (tmp += resist_chance))
         return SPELL_MISS_RESIST;
 
     // cast by caster in front of victim
-    if (victim->HasInArc(float(M_PI), this) || victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION))
+    if (!victim->HasUnitState(UNIT_STATE_CONTROLLED) && (victim->HasInArc(float(M_PI), this) || victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION)))
     {
-        int32 deflect_chance = victim->GetTotalAuraModifier(SPELL_AURA_DEFLECT_SPELLS);
-        if (roll_chance_i(deflect_chance))
+        int32 deflect_chance = victim->GetTotalAuraModifier(SPELL_AURA_DEFLECT_SPELLS) * 100;
+        if (deflect_chance > 0 && rand < (tmp += deflect_chance))
             return SPELL_MISS_DEFLECT;
     }
 
@@ -2686,6 +2687,15 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit* victim, SpellInfo const* spellInfo
 //   Resist
 SpellMissInfo Unit::SpellHitResult(Unit* victim, SpellInfo const* spellInfo, bool canReflect /*= false*/, Optional<uint8> effectMask /*= nullptr*/)
 {
+    // Check for immune
+    if (victim->IsImmunedToSpell(spellInfo, this, effectMask))
+        return SPELL_MISS_IMMUNE;
+
+    // Damage immunity is only checked if the spell has damage effects, this immunity must not prevent aura apply
+    // returns SPELL_MISS_IMMUNE in that case, for other spells, the SMSG_SPELL_GO must show hit
+    if (spellInfo->HasOnlyDamageEffects() && victim->IsImmunedToDamage(spellInfo))
+        return SPELL_MISS_IMMUNE;
+
     // All positive spells can`t miss
     /// @todo client not show miss log for this spells - so need find info for this in dbc and use it!
     if (spellInfo->IsPositive() && !IsHostileTo(victim)) // prevent from affecting enemy by "positive" spell
@@ -2702,10 +2712,7 @@ SpellMissInfo Unit::SpellHitResult(Unit* victim, SpellInfo const* spellInfo, boo
     if (canReflect)
     {
         int32 reflectchance = victim->GetTotalAuraModifier(SPELL_AURA_REFLECT_SPELLS);
-        Unit::AuraEffectList const& mReflectSpellsSchool = victim->GetAuraEffectsByType(SPELL_AURA_REFLECT_SPELLS_SCHOOL);
-        for (Unit::AuraEffectList::const_iterator i = mReflectSpellsSchool.begin(); i != mReflectSpellsSchool.end(); ++i)
-            if ((*i)->GetMiscValue() & spellInfo->GetSchoolMask())
-                reflectchance += (*i)->GetAmount();
+        reflectchance += victim->GetTotalAuraModifierByMiscMask(SPELL_AURA_REFLECT_SPELLS_SCHOOL, spellInfo->GetSchoolMask());
 
         if (reflectchance > 0 && roll_chance_i(reflectchance))
             return SPELL_MISS_REFLECT;
@@ -2713,15 +2720,6 @@ SpellMissInfo Unit::SpellHitResult(Unit* victim, SpellInfo const* spellInfo, boo
 
     if (spellInfo->HasAttribute(SPELL_ATTR3_IGNORE_HIT_RESULT))
         return SPELL_MISS_NONE;
-
-    // Check for immune
-    if (victim->IsImmunedToSpell(spellInfo, this, effectMask))
-        return SPELL_MISS_IMMUNE;
-
-    // Damage immunity is only checked if the spell has damage effects, this immunity must not prevent aura apply
-    // returns SPELL_MISS_IMMUNE in that case, for other spells, the SMSG_SPELL_GO must show hit
-    if (spellInfo->HasOnlyDamageEffects() && victim->IsImmunedToDamage(spellInfo))
-        return SPELL_MISS_IMMUNE;
 
     switch (spellInfo->DmgClass)
     {
@@ -2797,7 +2795,7 @@ float Unit::GetUnitParryChance(WeaponAttackType attType, Unit const* victim) con
         if (!victim->IsTotem() && (victim->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0) || victim->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1)) &&
             !(victim->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_PARRY))
         {
-            int8 levelDifference = victim->getLevel() - getLevel();
+            int32 levelDifference = victim->getLevelForTarget(this) - getLevel();
             if (levelDifference < 0)
                 levelDifference = 0;
             else if (levelDifference > 3)
@@ -2820,13 +2818,14 @@ float Unit::GetUnitMissChance(Unit const* victim) const
 {
     float chance = 0.0f;
 
-    int8 levelDifference = victim->getLevel() - getLevel();
-    if (levelDifference < 0)
+    int32 const levelDiff = static_cast<int32>(victim->getLevelForTarget(this)) - getLevel();
+
+    if (levelDiff < 0)
         chance += MissChancePhysical[0];
-    else if (levelDifference > 3)
-        chance += MissChancePhysical[3] + 2.0f * (levelDifference - 3);
+    else if (levelDiff > 3)
+        chance += MissChancePhysical[3] + 2.0f * (levelDiff - 3);
     else
-        chance += MissChancePhysical[levelDifference];
+        chance += MissChancePhysical[levelDiff];
 
     return chance;
 }
