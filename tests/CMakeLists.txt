@@ -9,21 +9,33 @@
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 CollectSourceFiles(
-  ${CMAKE_CURRENT_SOURCE_DIR}/common
-  COMMON_SOURCES
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  TEST_SOURCES
 )
 
-add_executable(tests-common ${COMMON_SOURCES})
+GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(tests-common
+add_executable(tests ${TEST_SOURCES})
+
+target_link_libraries(tests
   PRIVATE
     trinity-core-interface
-    common
+    game
     Catch2::Catch2)
 
-catch_discover_tests(tests-common)
+CollectIncludeDirectories(
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  TEST_INCLUDES)
 
-set_target_properties(tests-common
+target_include_directories(tests
+  PUBLIC
+    ${TEST_INCLUDES}
+  PRIVATE
+    ${CMAKE_CURRENT_BINARY_DIR})
+
+catch_discover_tests(tests)
+
+set_target_properties(tests
     PROPERTIES
       FOLDER
         "tests")
