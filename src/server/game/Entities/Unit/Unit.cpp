@@ -368,6 +368,7 @@ Unit::Unit(bool isWorldObject) :
         m_speed_rate[i] = 1.0f;
 
     m_charmInfo = nullptr;
+    _gameClientMovingMe = nullptr;
 
     // remove aurastates allowing special moves
     for (uint8 i = 0; i < MAX_REACTIVE; ++i)

@@ -71,6 +71,7 @@ class AuraApplication;
 class AuraEffect;
 class Creature;
 class DynamicObject;
+class GameClient;
 class GameObject;
 class Guardian;
 class Item;
@@ -1200,6 +1201,12 @@ class TC_GAME_API Unit : public WorldObject
         // returns the player that this unit is BEING CONTROLLED BY
         Player* GetPlayerMovingMe() const { return m_playerMovingMe; }
 
+        // real time client control status of this unit (possess effects, vehicles and similar). For example, if this unit is a player temporarly under fear, it will return false.
+        bool IsMovedByClient() const { return _gameClientMovingMe != nullptr; }
+        bool IsMovedByServer() const { return !IsMovedByClient(); }
+        GameClient* GetGameClientMovingMe() const { return _gameClientMovingMe; }
+        void SetGameClientMovingMe(GameClient* gameClientMovingMe) { _gameClientMovingMe = gameClientMovingMe; }
+
         SharedVisionList const& GetSharedVisionList() { return m_sharedVision; }
         void AddPlayerToVision(Player* player);
         void RemovePlayerFromVision(Player* player);
@@ -1757,6 +1764,7 @@ class TC_GAME_API Unit : public WorldObject
         Unit* m_charmed; // Unit that is being charmed BY ME
         CharmInfo* m_charmInfo;
         SharedVisionList m_sharedVision;
+        GameClient* _gameClientMovingMe;
 
         MotionMaster* i_motionMaster;
 

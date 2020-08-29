@@ -41,6 +41,7 @@
 #include "DatabaseEnv.h"
 #include "DisableMgr.h"
 #include "Formulas.h"
+#include "GameClient.h"
 #include "GameEventMgr.h"
 #include "GameObjectAI.h"
 #include "GameTime.h"
@@ -22722,6 +22723,8 @@ void Player::SendInitialPacketsBeforeAddToMap()
     ResyncRunes();
 
     SetMovedUnit(this);
+
+    GetSession()->GetGameClient()->AddAllowedMover(this);
 }
 
 void Player::SendInitialPacketsAfterAddToMap()
@@ -24040,6 +24043,12 @@ void Player::SetClientControl(Unit* target, bool allowMove)
     }
 
     SetMovedUnit(target);
+
+    GameClient* client = GetSession()->GetGameClient();
+    if (allowMove)
+        client->AddAllowedMover(target);
+    else
+        client->RemoveAllowedMover(target);
 }
 
 void Player::UpdateZoneDependentAuras(uint32 newZone)

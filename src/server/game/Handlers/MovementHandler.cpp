@@ -32,6 +32,7 @@
 #include "ObjectMgr.h"
 #include "Vehicle.h"
 #include "GameTime.h"
+#include "GameClient.h"
 #include <boost/accumulators/statistics/variance.hpp>
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics.hpp>
@@ -259,9 +260,37 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
 {
     uint16 opcode = recvData.GetOpcode();
 
-    Unit* mover = _player->GetUnitBeingMoved();
+    ObjectGuid guid;
+    recvData >> guid.ReadAsPacked();
 
-    ASSERT(mover != nullptr);                      // there must always be a mover
+    GameClient* client = GetGameClient();
+    Unit* mover = client->GetActiveMover();
+
+    ////ASSERT(mover != nullptr);                      // there must always be a mover
+
+    //// this can happen, in case a player gets CCed when it is moving at the same time. because of lag, by the time the player movement
+    //// reaches the server, in the eye of the server, the player shouldn't be able to move anymore.
+    if (mover == nullptr)
+    {
+        TC_LOG_WARN("entities.unit", "no mover for the client of player %s", _player->GetName());
+        recvData.rfinish();                     // prevent warnings spam
+        return;
+    }
+
+    // prevent tampered movement data
+    if (guid != mover->GetGUID())
+    {
+        TC_LOG_WARN("entities.unit", "guid != mover->GetGUID() for the client of player %s", _player->GetName());
+        recvData.rfinish();                     // prevent warnings spam
+        return;
+    }
+
+    //if (!client->IsAllowedToMove(guid))
+    //{
+    //    TC_LOG_WARN("entities.unit", "!client->IsAllowedToMove(guid) for the client of player %s", _player->GetName());
+    //    recvData.rfinish();                     // prevent warnings spam
+    //    return;
+    //}
 
     Player* plrMover = mover->ToPlayer();
 
@@ -273,19 +302,12 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
     }
 
     /* extract packet */
-    ObjectGuid guid;
-
-    recvData >> guid.ReadAsPacked();
 
     MovementInfo movementInfo;
     movementInfo.guid = guid;
     ReadMovementInfo(recvData, &movementInfo);
 
     recvData.rfinish();                         // prevent warnings spam
-
-    // prevent tampered movement data
-    if (guid != mover->GetGUID())
-        return;
 
     if (!movementInfo.pos.IsPositionValid())
     {
@@ -416,7 +438,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
 
         if (movementInfo.pos.GetPositionZ() < plrMover->GetMap()->GetMinHeight(movementInfo.pos.GetPositionX(), movementInfo.pos.GetPositionY()))
         {
-            if (!(plrMover->GetBattleground() && plrMover->GetBattleground()->HandlePlayerUnderMap(_player)))
+            if (!(plrMover->GetBattleground() && plrMover->GetBattleground()->HandlePlayerUnderMap(plrMover)))
             {
                 // NOTE: this is actually called many times while falling
                 // even after the player has been teleported away
@@ -522,9 +544,22 @@ void WorldSession::HandleSetActiveMoverOpcode(WorldPacket &recvData)
     ObjectGuid guid;
     recvData >> guid;
 
-    if (GetPlayer()->IsInWorld())
-        if (_player->GetUnitBeingMoved()->GetGUID() != guid)
-            TC_LOG_DEBUG("network", "HandleSetActiveMoverOpcode: incorrect mover guid: mover is %s and should be %s" , guid.ToString().c_str(), _player->GetUnitBeingMoved()->GetGUID().ToString().c_str());
+    GameClient* client = GetGameClient();
+
+    // step 1: look at the list of units that this client is allowed to move. check if the client is allowed to even move the
+    // unit that is mentioned in the packet. if not, either silently ignore, log this event or kick the client.
+    Unit* newActiveMover = ObjectAccessor::GetUnit(*_player, guid);
+    if (!client->IsAllowedToMove(newActiveMover))
+    {
+        // @todo log or kick or do nothing depending on configuration
+        TC_LOG_WARN("entities.unit", "set active mover FAILED for client of player %s. GUID %u.", _player->GetName(), guid.GetCounter());
+        TC_LOG_WARN("entities.unit", "%s %s", client->GetActiveMover() != nullptr ? "true" : "false", !client->IsAllowedToMove(newActiveMover) ? "true" : "false");
+        return;
+    }
+
+    // step 2:
+    TC_LOG_WARN("entities.unit", "set active mover OK for client of player %s. GUID %u.", _player->GetName(), guid.GetCounter());
+    client->SetActiveMover(newActiveMover);
 }
 
 void WorldSession::HandleMoveNotActiveMover(WorldPacket &recvData)
@@ -533,13 +568,19 @@ void WorldSession::HandleMoveNotActiveMover(WorldPacket &recvData)
 
     ObjectGuid old_mover_guid;
     recvData >> old_mover_guid.ReadAsPacked();
+    recvData.rfinish();                   // prevent warnings spam.
+    // the movement info in this kind of packet is ignored for now. It's unclear if it should be used.
 
-    MovementInfo mi;
-    ReadMovementInfo(recvData, &mi);
+    GameClient* client = GetGameClient();
 
-    mi.guid = old_mover_guid;
+    if (client->GetActiveMover() == nullptr || client->GetActiveMover()->GetGUID() != old_mover_guid)
+    {
+        TC_LOG_WARN("entities.unit", "unset active mover FAILED for client of player %s. GUID %u.", _player->GetName(), old_mover_guid.GetCounter());
+        return;
+    }
 
-    _player->m_movementInfo = mi;
+    TC_LOG_WARN("entities.unit", "unset active mover OK for client of player %s. GUID %u.", _player->GetName(), old_mover_guid.GetCounter());
+    client->SetActiveMover(nullptr);
 }
 
 void WorldSession::HandleMountSpecialAnimOpcode(WorldPacket& /*recvData*/)

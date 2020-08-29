@@ -28,6 +28,7 @@
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "DBCStructure.h"
+#include "GameClient.h"
 #include "GameTime.h"
 #include "Group.h"
 #include "Guild.h"
@@ -136,7 +137,8 @@ WorldSession::WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldS
     _pendingTimeSyncRequests(),
     _timeSyncNextCounter(0),
     _timeSyncTimer(0),
-    _calendarEventCreationCooldown(0)
+    _calendarEventCreationCooldown(0),
+    _gameClient(new GameClient(this))
 {
     memset(m_Tutorials, 0, sizeof(m_Tutorials));
 
@@ -164,6 +166,8 @@ WorldSession::~WorldSession()
     }
 
     delete _RBACData;
+
+    delete _gameClient;
 
     ///- empty incoming packet queue
     WorldPacket* packet = nullptr;
