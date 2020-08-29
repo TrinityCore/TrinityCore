@@ -39,6 +39,7 @@ EndScriptData */
 #include "UpdateTime.h"
 #include "Util.h"
 #include "VMapFactory.h"
+#include "VMapManager2.h"
 #include "World.h"
 #include "WorldSession.h"
 
