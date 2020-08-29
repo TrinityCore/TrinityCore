@@ -115,10 +115,16 @@ public:
 
     struct boss_teron_gorefiendAI : public BossAI
     {
-        boss_teron_gorefiendAI(Creature* creature) : BossAI(creature, DATA_TERON_GOREFIEND), _intro(false)
+        boss_teron_gorefiendAI(Creature* creature) : BossAI(creature, DATA_TERON_GOREFIEND) { }
+
+        void Reset() override
         {
-            creature->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
-            creature->SetReactState(REACT_PASSIVE);
+            _Reset();
+            if (instance->GetData(DATA_TERON_GOREFIEND_INTRO))
+            {
+                me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
+                me->SetReactState(REACT_PASSIVE);
+            }
         }
 
         void EnterCombat(Unit* /*who*/) override
@@ -142,9 +148,9 @@ public:
 
         void DoAction(int32 action) override
         {
-            if (action == ACTION_START_INTRO && !_intro && me->IsAlive())
+            if (action == ACTION_START_INTRO && me->IsAlive())
             {
-                _intro = true;
+                instance->SetData(DATA_TERON_GOREFIEND_INTRO, 0);
                 Talk(SAY_INTRO);
                 events.SetPhase(PHASE_INTRO);
                 events.ScheduleEvent(EVENT_FINISH_INTRO, Seconds(20));
@@ -216,9 +222,6 @@ public:
 
             DoMeleeAttackIfReady();
         }
-
-    private:
-        bool _intro;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -365,12 +368,12 @@ public:
     }
 };
 
-class at_teron_gorefiend_entrance : public AreaTriggerScript
+class at_teron_gorefiend_entrance : public OnlyOnceAreaTriggerScript
 {
 public:
-    at_teron_gorefiend_entrance() : AreaTriggerScript("at_teron_gorefiend_entrance") { }
+    at_teron_gorefiend_entrance() : OnlyOnceAreaTriggerScript("at_teron_gorefiend_entrance") { }
 
-    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool entered) override
+    bool _OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool entered) override
     {
         if (!entered)
             return true;
