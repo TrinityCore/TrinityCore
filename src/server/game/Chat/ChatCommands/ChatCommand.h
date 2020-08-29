@@ -128,7 +128,7 @@ namespace Trinity::Impl::ChatCommands
             return args;
     }
 
-    template <typename T> struct HandlerToTuple { static_assert(Trinity::dependant_false<T>, "Invalid command handler signature"); };
+    template <typename T> struct HandlerToTuple { static_assert(Trinity::dependant_false_v<T>, "Invalid command handler signature"); };
     template <typename... Ts> struct HandlerToTuple<bool(*)(ChatHandler*, Ts...)> { using type = std::tuple<ChatHandler*, advstd::remove_cvref_t<Ts>...>; };
     template <typename T> using TupleType = typename HandlerToTuple<T>::type;
 }
