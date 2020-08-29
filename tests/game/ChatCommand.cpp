@@ -27,7 +27,7 @@ static void TestChatCommand(char const* c, F f, Optional<bool> expected = true)
 {
     bool r = ChatCommand("", 0, false, +f, "")(nullptr, c);
     if (expected)
-        ASSERT(r == *expected);
+        REQUIRE(r == *expected);
 }
 
 TEST_CASE("Command return pass-through", "[ChatCommand]")
@@ -38,27 +38,51 @@ TEST_CASE("Command return pass-through", "[ChatCommand]")
 
 TEST_CASE("Command argument parsing", "[ChatCommand]")
 {
-    TestChatCommand("42", [](ChatHandler*, uint32 u)
+    SECTION("Single uint32 argument")
     {
-        REQUIRE(u == 42);
-        return true;
-    });
-
-    TestChatCommand("true", [](ChatHandler*, uint32) { return true; }, false);
-
-    TestChatCommand("1 2 3 4 5 6 7 8 9 10", [](ChatHandler*, std::vector<uint8> v)
-    {
-        REQUIRE(v.size() == 10);
-        for (size_t i = 0; i < 10; ++i)
-            REQUIRE(v[i] == (i + 1));
-        return true;
-    });
-
-    TestChatCommand("|cffff0000|Hplayer:Test|h[Test]|h|r",
-        [](ChatHandler*, Hyperlink<player> player)
+        TestChatCommand("42", [](ChatHandler*, uint32 u)
         {
-            REQUIRE("Test"sv == *player);
+            REQUIRE(u == 42);
             return true;
-        }
-    );
+        });
+        TestChatCommand("true", [](ChatHandler*, uint32) { return true; }, false);
+    }
+
+    SECTION("std::vector<uint8>")
+    {
+        TestChatCommand("1 2 3 4 5 6 7 8 9 10", [](ChatHandler*, std::vector<uint8> v)
+        {
+            REQUIRE(v.size() == 10);
+            for (size_t i = 0; i < 10; ++i)
+                REQUIRE(v[i] == (i + 1));
+            return true;
+        });
+    }
+
+    SECTION("Hyperlink<player>")
+    {
+        TestChatCommand("|cffff0000|Hplayer:Test|h[Test]|h|r",
+            [](ChatHandler*, Hyperlink<player> player)
+            {
+                REQUIRE("Test"sv == *player);
+                return true;
+            }
+        );
+    }
+
+    SECTION("Two strings")
+    {
+        TestChatCommand("two strings", [](ChatHandler*, std::string_view v1, std::string_view v2)
+        {
+            REQUIRE(v1 == "two");
+            REQUIRE(v2 == "strings");
+            return true;
+        });
+        TestChatCommand("two strings", [](ChatHandler*, std::string_view) { return true; }, false);
+        TestChatCommand("two strings", [](ChatHandler*, Tail t)
+        {
+            REQUIRE(t == "two strings");
+            return true;
+        });
+    }
 }

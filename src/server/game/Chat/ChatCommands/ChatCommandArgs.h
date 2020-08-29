@@ -239,6 +239,8 @@ struct ArgInfo<std::vector<T>, void>
 
         while (Optional<std::string_view> next2 = ArgInfo<T>::TryConsume(val.emplace_back(), *next))
             next = next2;
+
+        val.pop_back();
         return next;
     }
 };
