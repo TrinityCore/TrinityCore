@@ -1154,8 +1154,8 @@ void Spell::SelectImplicitNearbyTargets(SpellEffIndex effIndex, SpellImplicitTar
             }
             break;
         case TARGET_OBJECT_TYPE_CORPSE:
-            if (Corpse* corpseTarget = target->ToCorpse())
-                AddCorpseTarget(corpseTarget, effMask);
+            if (Corpse* corpse = target->ToCorpse())
+                AddCorpseTarget(corpse, effMask);
             else
             {
                 TC_LOG_DEBUG("spells", "Spell::SelectImplicitNearbyTargets: OnObjectTargetSelect script hook for spell Id %u set object of wrong type, expected corpse, got %s, effect %u", m_spellInfo->Id, target->GetGUID().GetTypeName(), effMask);
@@ -1849,8 +1849,8 @@ void Spell::SelectEffectTypeImplicitTargets(uint8 effIndex)
                     target = unit;
                 else if (targetMask & TARGET_FLAG_CORPSE_MASK)
                 {
-                    if (Corpse* corpseTarget = m_targets.GetCorpseTarget())
-                        target = corpseTarget;
+                    if (Corpse* corpse = m_targets.GetCorpseTarget())
+                        target = corpse;
                 }
                 else //if (targetMask & TARGET_FLAG_UNIT_MASK)
                     target = m_caster;
@@ -8274,10 +8274,10 @@ bool WorldObjectSpellTargetCheck::operator()(WorldObject* target)
     if (_spellInfo->CheckTarget(_caster, target, true) != SPELL_CAST_OK)
         return false;
     Unit* unitTarget = target->ToUnit();
-    if (Corpse* corpseTarget = target->ToCorpse())
+    if (Corpse* corpse = target->ToCorpse())
     {
         // use ofter for party/assistance checks
-        if (Player* owner = ObjectAccessor::FindPlayer(corpseTarget->GetOwnerGUID()))
+        if (Player* owner = ObjectAccessor::FindPlayer(corpse->GetOwnerGUID()))
             unitTarget = owner;
         else
             return false;
