@@ -20,7 +20,7 @@
 #include "SmartEnum.h"
 #include <stdexcept>
 
-namespace Trinity::Impl
+namespace Trinity::Impl::EnumUtilsImpl
 {
 
 /*************************************************************\

@@ -1564,6 +1564,15 @@ AllowTwoSide.Interaction.Guild = 0
 #
 #    AllowTwoSide.Interaction.Auction
 #        Description: Allow auctions between factions.
+#                     This results in all auctions being handled as if placed in the neutral
+#                     auction house and will intentionally lock acces to the Horde and Alliance AH.
+#                     Deposit fee and auction cut values will be taken from neutral auction house.
+#                     If used in combination with the AH-Bot, settings should be set for neutral
+#                     auction house only.
+#
+#                     Warning: changing this in production results in players loosing access to their
+#                     already placed auctions in the faction houses - these auctions will expire after
+#                     their regular timings.
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
@@ -3471,11 +3480,11 @@ AuctionHouseBot.ItemsPerCycle.Normal = 20
 
 #
 #    AuctionHouseBot.BuyPrice.Seller
-#       Description: Should the Seller use BuyPrice or SellPrice to determine Bid Prices
-#       Default:     1 - (use SellPrice)
-#                    0 - (use BuyPrice)
+#       Description: Should the Seller use the items BuyPrice or SellPrice to determine Bid Prices
+#       Default:     0 - (use BuyPrice - results in higher prices)
+#                    1 - (use SellPrice - results in lower prices)
 
-AuctionHouseBot.BuyPrice.Seller = 1
+AuctionHouseBot.BuyPrice.Seller = 0
 
 #
 #    AuctionHouseBot.BidPrice.*

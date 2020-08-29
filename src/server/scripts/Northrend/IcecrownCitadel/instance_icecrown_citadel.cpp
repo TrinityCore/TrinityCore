@@ -145,7 +145,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadBossBoundaries(boundaries);
                 LoadDoorData(doorData);
-                TeamInInstance = 0;
+                TeamInInstance = map->GetTeamInInstance();
                 HeroicAttempts = MaxHeroicAttempts;
                 ColdflameJetsState = NOT_STARTED;
                 UpperSpireTeleporterActiveState = NOT_STARTED;
@@ -186,9 +186,6 @@ class instance_icecrown_citadel : public InstanceMapScript
 
             void OnPlayerEnter(Player* player) override
             {
-                if (!TeamInInstance)
-                    TeamInInstance = player->GetTeam();
-
                 uint8 spawnGroupId = TeamInInstance == ALLIANCE ? SPAWN_GROUP_ALLIANCE_ROS : SPAWN_GROUP_HORDE_ROS;
                 if (!instance->IsSpawnGroupActive(spawnGroupId))
                     instance->SpawnGroupSpawn(spawnGroupId);
@@ -332,14 +329,6 @@ class instance_icecrown_citadel : public InstanceMapScript
             // Weekly quest spawn prevention
             uint32 GetCreatureEntry(ObjectGuid::LowType /*guidLow*/, CreatureData const* data) override
             {
-                if (!TeamInInstance)
-                {
-                    Map::PlayerList const& players = instance->GetPlayers();
-                    if (!players.isEmpty())
-                        if (Player* player = players.begin()->GetSource())
-                            TeamInInstance = player->GetTeam();
-                }
-
                 uint32 entry = data->id;
                 switch (entry)
                 {
@@ -1528,7 +1517,7 @@ class instance_icecrown_citadel : public InstanceMapScript
             ObjectGuid FrozenBolvarGUID;
             ObjectGuid PillarsChainedGUID;
             ObjectGuid PillarsUnchainedGUID;
-            uint32 TeamInInstance;
+            Team TeamInInstance;
             uint32 ColdflameJetsState;
             uint32 UpperSpireTeleporterActiveState;
             std::unordered_set<uint32> FrostwyrmGUIDs;
