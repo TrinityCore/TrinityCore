@@ -1955,6 +1955,39 @@ class spell_pal_divine_shield : public SpellScript
     }
 };
 
+// -20138 - Protector of the Innocent
+class spell_pal_protector_of_the_innocent : public AuraScript
+{
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        return eventInfo.GetHealInfo() && eventInfo.GetProcTarget() != GetTarget();
+    }
+
+    void Register() override
+    {
+        DoCheckProc.Register(&spell_pal_protector_of_the_innocent::CheckProc);
+    }
+};
+
+// -84800 - Tower of Radiance
+class spell_pal_tower_of_radiance : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PALADIN_BEACON_OF_LIGHT });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        return eventInfo.GetProcTarget() && eventInfo.GetProcTarget()->HasAura(SPELL_PALADIN_BEACON_OF_LIGHT, GetTarget()->GetGUID());
+    }
+
+    void Register() override
+    {
+        DoCheckProc.Register(&spell_pal_tower_of_radiance::CheckProc);
+    }
+};
+
 void AddSC_paladin_spell_scripts()
 {
     RegisterSpellScript(spell_pal_ardent_defender);
@@ -1995,6 +2028,7 @@ void AddSC_paladin_spell_scripts()
     RegisterSpellScript(spell_pal_lights_beacon);
     RegisterSpellScript(spell_pal_light_of_dawn);
     RegisterSpellScript(spell_pal_long_arm_of_the_law);
+    RegisterSpellScript(spell_pal_protector_of_the_innocent);
     new spell_pal_righteous_defense();
     RegisterSpellScript(spell_pal_sacred_shield);
     RegisterSpellScript(spell_pal_seal_of_righteousness);
@@ -2002,5 +2036,6 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_shield_of_the_righteous();
     RegisterSpellScript(spell_pal_selfless_healer);
     RegisterSpellScript(spell_pal_templar_s_verdict);
+    RegisterSpellScript(spell_pal_tower_of_radiance);
     RegisterSpellAndAuraScriptPair(spell_pal_word_of_glory, spell_pal_word_of_glory_AuraScript);
 }

@@ -103,6 +103,7 @@ enum DruidSpells
     SPELL_DRUID_STRENGTH_OF_THE_PANTHER     = 90166,
     SPELL_DRUID_SUNFIRE                     = 93402,
     SPELL_DRUID_SUNFIRE_TALENT              = 93401,
+    SPELL_DRUID_REJUVENATION_DIRECT_HEAL    = 64801,
     SPELL_DRUID_TIGER_S_FURY_ENERGIZE       = 51178,
     SPELL_DRUID_TREE_OF_LIFE                = 33891,
     SPELL_DRUID_TREE_OF_LIFE_PASSIVE_1      = 5420,
@@ -123,7 +124,8 @@ enum DruidSpellIconIds
     SPELL_ICON_ID_EUPHORIA                          = 4431,
     SPELL_ICON_ID_SAVAGE_DEFENDER                   = 146,
     SPELL_ICON_ID_GLYPH_OF_FEROCIOUS_BITE           = 1680,
-    SPELL_ICON_ID_GLYPH_OF_FRENZIED_REGENERATION    = 50
+    SPELL_ICON_ID_GLYPH_OF_FRENZIED_REGENERATION    = 50,
+    SPELL_ICON_ID_GIFT_OF_THE_EARTHMOTHER           = 3186
 };
 
 enum MiscSpells
@@ -1252,7 +1254,11 @@ class spell_dru_rejuvenation : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DRUID_NATURES_BOUNTY });
+        return ValidateSpellInfo(
+            {
+                SPELL_DRUID_NATURES_BOUNTY,
+                SPELL_DRUID_REJUVENATION_DIRECT_HEAL
+            });
     }
 
     void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1272,6 +1278,17 @@ class spell_dru_rejuvenation : public AuraScript
         }
     }
 
+    void HandleGiftOfTheEarthmother(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        if (Unit* caster = GetCaster())
+        {
+            if (AuraEffect const* giftEffect = caster->GetDummyAuraEffect(SPELLFAMILY_DRUID, SPELL_ICON_ID_GIFT_OF_THE_EARTHMOTHER, EFFECT_1))
+            {
+                int32 bp = CalculatePct(aurEff->GetAmount() * aurEff->GetTotalTicks(), giftEffect->GetAmount());
+                caster->CastCustomSpell(SPELL_DRUID_REJUVENATION_DIRECT_HEAL, SPELLVALUE_BASE_POINT0, bp, GetTarget(), true);
+            }
+        }
+    }
 
     void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
@@ -1289,6 +1306,7 @@ class spell_dru_rejuvenation : public AuraScript
     void Register() override
     {
         AfterEffectApply.Register(&spell_dru_rejuvenation::AfterApply, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectApply.Register(&spell_dru_rejuvenation::HandleGiftOfTheEarthmother, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
         AfterEffectRemove.Register(&spell_dru_rejuvenation::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
     }
 };

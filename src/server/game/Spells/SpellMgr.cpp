@@ -5741,6 +5741,16 @@ void SpellMgr::LoadSpellInfoCorrections()
        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(2); // 5 yards (combat range)
     });
 
+    // Gift of the Earthmother (Rank 2)
+    ApplySpellFix({ 51180 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_APPLY_AURA;
+        spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
+
+        spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_APPLY_AURA;
+        spellInfo->Effects[EFFECT_1].ApplyAuraName = SPELL_AURA_DUMMY;
+    });
+
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
     {
         SpellInfo* spellInfo = mSpellInfoMap[i];
