@@ -91,7 +91,9 @@ enum DruidSpells
     SPELL_DRUID_BARKSKIN_01                 = 63058,
     SPELL_DRUID_RESTORATION_T10_2P_BONUS    = 70658,
     SPELL_DRUID_FRENZIED_REGENERATION_HEAL  = 22845,
-    SPELL_DRUID_GLYPH_OF_NOURISH            = 62971
+    SPELL_DRUID_GLYPH_OF_NOURISH            = 62971,
+    SPELL_DRUID_NURTURING_INSTINCT_R1       = 47179,
+    SPELL_DRUID_NURTURING_INSTINCT_R2       = 47180
 };
 
 enum MiscSpells
@@ -1892,6 +1894,29 @@ class spell_dru_wild_growth_aura : public AuraScript
     float _baseReduction = 2.f;
 };
 
+class spell_dru_nurturing_instinct : public AuraScript
+{
+    PrepareAuraScript(spell_dru_nurturing_instinct);
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Player* player = GetTarget()->ToPlayer())
+            player->AddAura(GetSpellInfo()->GetRank() == 1 ? SPELL_DRUID_NURTURING_INSTINCT_R1 : SPELL_DRUID_NURTURING_INSTINCT_R2, player);
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Player* player = GetTarget()->ToPlayer())
+            player->RemoveAura(GetSpellInfo()->GetRank() == 1 ? SPELL_DRUID_NURTURING_INSTINCT_R1 : SPELL_DRUID_NURTURING_INSTINCT_R2);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_dru_nurturing_instinct::AfterApply, EFFECT_0, SPELL_AURA_MOD_SPELL_HEALING_OF_STAT_PERCENT, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_dru_nurturing_instinct::AfterRemove, EFFECT_0, SPELL_AURA_MOD_SPELL_HEALING_OF_STAT_PERCENT, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_druid_spell_scripts()
 {
     RegisterSpellScript(spell_dru_barkskin);
@@ -1943,4 +1968,5 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_t10_restoration_4p_bonus);
     RegisterSpellScript(spell_dru_t10_restoration_4p_bonus_dummy);
     RegisterSpellAndAuraScriptPair(spell_dru_wild_growth, spell_dru_wild_growth_aura);
+    RegisterSpellScript(spell_dru_nurturing_instinct);
 }
