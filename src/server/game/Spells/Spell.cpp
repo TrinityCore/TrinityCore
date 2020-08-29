@@ -573,7 +573,7 @@ m_spellValue(new SpellValue(m_spellInfo, caster)), _spellEvent(nullptr)
     unitTarget = nullptr;
     itemTarget = nullptr;
     gameObjTarget = nullptr;
-    corpseTarget = nullptr;
+    m_corpseTarget = nullptr;
     destTarget = nullptr;
     damage = 0;
     targetMissInfo = SPELL_MISS_NONE;
@@ -591,7 +591,6 @@ m_spellValue(new SpellValue(m_spellInfo, caster)), _spellEvent(nullptr)
     memset(m_misc.Raw.Data, 0, sizeof(m_misc.Raw.Data));
     m_SpellVisual.SpellXSpellVisualID = caster->GetCastSpellXSpellVisualId(m_spellInfo);
     m_triggeredByAuraSpell  = nullptr;
-    unitCaster = nullptr;
     _spellAura = nullptr;
     _dynObjAura = nullptr;
 
@@ -5267,10 +5266,9 @@ void Spell::HandleEffects(Unit* pUnitTarget, Item* pItemTarget, GameObject* pGoT
     unitTarget = pUnitTarget;
     itemTarget = pItemTarget;
     gameObjTarget = pGoTarget;
-    corpseTarget = pCorpseTarget;
+    m_corpseTarget = pCorpseTarget;
     destTarget = &m_destTargets[spellEffectInfo.EffectIndex]._position;
     effectInfo = &spellEffectInfo;
-    unitCaster = m_originalCaster ? m_originalCaster : m_caster->ToUnit();
 
     damage = CalculateDamage(spellEffectInfo, unitTarget, &variance);
 
@@ -7827,6 +7825,11 @@ bool Spell::IsNeedSendToClient() const
 {
     return m_SpellVisual.SpellXSpellVisualID || m_SpellVisual.ScriptVisualID || m_spellInfo->IsChanneled() ||
         (m_spellInfo->HasAttribute(SPELL_ATTR8_AURA_SEND_AMOUNT)) || m_spellInfo->HasHitDelay() || (!m_triggeredByAuraSpell && !IsTriggered());
+}
+
+Unit* Spell::GetUnitCasterForEffectHandlers() const
+{
+    return m_originalCaster ? m_originalCaster : m_caster->ToUnit();
 }
 
 SpellEvent::SpellEvent(Spell* spell) : BasicEvent()
