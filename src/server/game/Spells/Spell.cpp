@@ -579,7 +579,7 @@ m_caster((info->HasAttribute(SPELL_ATTR6_CAST_BY_CHARMER) && caster->GetCharmerO
     unitTarget = nullptr;
     itemTarget = nullptr;
     gameObjTarget = nullptr;
-    corpseTarget = nullptr;
+    m_corpseTarget = nullptr;
     destTarget = nullptr;
     damage = 0;
     targetMissInfo = SPELL_MISS_NONE;
@@ -593,7 +593,6 @@ m_caster((info->HasAttribute(SPELL_ATTR6_CAST_BY_CHARMER) && caster->GetCharmerO
     m_cast_count = 0;
     m_glyphIndex = 0;
     m_triggeredByAuraSpell  = nullptr;
-    unitCaster = nullptr;
     _spellAura = nullptr;
     _dynObjAura = nullptr;
 
@@ -5074,9 +5073,8 @@ void Spell::HandleEffects(Unit* pUnitTarget, Item* pItemTarget, GameObject* pGoT
     unitTarget = pUnitTarget;
     itemTarget = pItemTarget;
     gameObjTarget = pGoTarget;
-    corpseTarget = pCorpseTarget;
+    m_corpseTarget = pCorpseTarget;
     destTarget = &m_destTargets[i]._position;
-    unitCaster = m_originalCaster ? m_originalCaster : m_caster->ToUnit();
 
     uint8 effect = m_spellInfo->Effects[i].Effect;
     ASSERT(effect < TOTAL_SPELL_EFFECTS); // checked at startup
@@ -7431,6 +7429,11 @@ bool Spell::IsNeedSendToClient() const
 {
     return m_spellInfo->SpellVisual[0] || m_spellInfo->SpellVisual[1] || m_spellInfo->IsChanneled() ||
         m_spellInfo->Speed > 0.0f || (!m_triggeredByAuraSpell && !IsTriggered());
+}
+
+Unit* Spell::GetUnitCasterForEffectHandlers() const
+{
+    return m_originalCaster ? m_originalCaster : m_caster->ToUnit();
 }
 
 SpellEvent::SpellEvent(Spell* spell) : BasicEvent()
