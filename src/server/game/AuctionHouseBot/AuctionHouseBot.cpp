@@ -174,7 +174,7 @@ void AuctionBotConfig::GetConfigFromFile()
     SetConfig(CONFIG_AHBOT_BIND_QUEST, "AuctionHouseBot.Bind.Quest", false);
     SetConfig(CONFIG_AHBOT_LOCKBOX_ENABLED, "AuctionHouseBot.LockBox.Enabled", false);
 
-    SetConfig(CONFIG_AHBOT_BUYPRICE_SELLER, "AuctionHouseBot.BuyPrice.Seller", true);
+    SetConfig(CONFIG_AHBOT_BUYPRICE_SELLER, "AuctionHouseBot.BuyPrice.Seller", false);
 
     SetConfig(CONFIG_AHBOT_ITEMS_PER_CYCLE_BOOST, "AuctionHouseBot.ItemsPerCycle.Boost", 1000);
     SetConfig(CONFIG_AHBOT_ITEMS_PER_CYCLE_NORMAL, "AuctionHouseBot.ItemsPerCycle.Normal", 20);
