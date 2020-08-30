@@ -737,7 +737,7 @@ struct npc_magmaw_blazing_bone_construct : public ScriptedAI
         {
             summon->m_Events.AddEventAtOffset([summon]()
             {
-                summon->GetMotionMaster()->MoveCirclePath(summon->GetPositionX(), summon->GetPositionY(), summon->GetPositionZ(), 2.5f, bool(urand(0, 1)), 8);
+                summon->GetMotionMaster()->MoveCirclePath(summon->GetPositionX(), summon->GetPositionY(), summon->GetPositionZ(), 4.f, bool(urand(0, 1)), 7);
             }, 4s + 500ms);
         }
     }
@@ -1133,7 +1133,7 @@ class spell_magmaw_shadow_breath_targeting : public SpellScript
     void HandleDummyEffect(SpellEffIndex /*effIndex*/)
     {
         if (Unit* caster = GetCaster())
-            caster->CastSpell(GetHitUnit(), SPELL_SHADOW_BREATH, true);
+            caster->CastSpell(GetHitUnit(), SPELL_SHADOW_BREATH);
     }
 
     void Register() override
