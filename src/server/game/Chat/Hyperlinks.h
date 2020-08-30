@@ -20,6 +20,7 @@
 
 #include "ObjectGuid.h"
 #include "StringConvert.h"
+#include <array>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -41,10 +42,10 @@ namespace Trinity::Hyperlinks
         AchievementEntry const* Achievement;
         ObjectGuid::LowType CharacterId;
         bool IsFinished;
-        uint16 Year;
+        uint8 Year;
         uint8 Month;
         uint8 Day;
-        uint32 Criteria[4];
+        std::array<uint32, 4> Criteria;
     };
 
     struct GlyphLinkData
@@ -57,7 +58,7 @@ namespace Trinity::Hyperlinks
     {
         ItemTemplate const* Item;
         uint32 EnchantId;
-        uint32 GemEnchantId[3];
+        std::array<uint32, 3> GemEnchantId;
         int32 RandomPropertyId;
         int32 RandomPropertySeed;
         uint8 RenderLevel;

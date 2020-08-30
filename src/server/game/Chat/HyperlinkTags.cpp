@@ -62,9 +62,23 @@ bool Trinity::Hyperlinks::LinkTags::achievement::StoreTo(AchievementLinkData& va
     if (!t.TryConsumeTo(achievementId))
         return false;
     val.Achievement = sAchievementMgr->GetAchievement(achievementId);
-    return val.Achievement && t.TryConsumeTo(val.CharacterId) && t.TryConsumeTo(val.IsFinished) &&
-        t.TryConsumeTo(val.Month) && t.TryConsumeTo(val.Day) && t.TryConsumeTo(val.Year) && t.TryConsumeTo(val.Criteria[0]) &&
-        t.TryConsumeTo(val.Criteria[1]) && t.TryConsumeTo(val.Criteria[2]) && t.TryConsumeTo(val.Criteria[3]) && t.IsEmpty();
+    if (!(val.Achievement && t.TryConsumeTo(val.CharacterId) && t.TryConsumeTo(val.IsFinished) &&
+        t.TryConsumeTo(val.Month) && t.TryConsumeTo(val.Day)))
+        return false;
+    int8 year;
+    if (!t.TryConsumeTo(year))
+        return false;
+    if (val.IsFinished) // if finished, year must be >= 0
+    {
+        if (year < 0)
+            return false;
+        val.Year = static_cast<uint8>(year);
+    }
+    else
+        val.Year = 0;
+
+    return (t.TryConsumeTo(val.Criteria[0]) &&
+        t.TryConsumeTo(val.Criteria[1]) && t.TryConsumeTo(val.Criteria[2]) && t.TryConsumeTo(val.Criteria[3]) && t.IsEmpty());
 }
 
 bool Trinity::Hyperlinks::LinkTags::enchant::StoreTo(SpellInfo const*& val, std::string_view text)
