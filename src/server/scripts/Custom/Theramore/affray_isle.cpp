@@ -167,17 +167,17 @@ class KlannocBurning : public BasicEvent
             case 0:
                 owner->SetWalk(false);
                 owner->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                return NextEvent(eventTime, 500);
+                return NextEvent(Milliseconds(eventTime), 500ms);
             case 1:
                 jaina->CastSpell(owner, SPELL_PYROBLAST);
-                return NextEvent(eventTime, 1890);
+                return NextEvent(Milliseconds(eventTime), 1890ms);
             case 2:
                 owner->RemoveAllAuras();
                 owner->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 owner->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_COWER);
                 owner->AddAura(SPELL_IMMOLATE, owner);
                 owner->GetMotionMaster()->MoveConfused();
-                return NextEvent(eventTime, 6000);
+                return NextEvent(Milliseconds(eventTime), 6s);
             case 3:
                 owner->KillSelf();
                 return true;
@@ -193,7 +193,7 @@ class KlannocBurning : public BasicEvent
     uint8 stage;
     Position posToLift;
 
-    bool NextEvent(uint64 eventTime, uint64 time)
+    bool NextEvent(Milliseconds eventTime, Milliseconds time)
     {
         stage++;
         owner->m_Events.AddEvent(this, eventTime + time);
@@ -231,7 +231,7 @@ class WaveGrowing : public BasicEvent
             return true;
 
         owner->SetObjectScale(currentScale + 0.3f);
-        owner->m_Events.AddEvent(this, eventTime + 2000);
+        owner->m_Events.AddEvent(this, Milliseconds(eventTime) + 2s);
         return false;
     }
 
@@ -378,7 +378,7 @@ class jaina_affray_isle : public CreatureScript
                         break;
 
                     case 8:
-                        klannoc->m_Events.AddEvent(new KlannocBurning(klannoc, me), klannoc->m_Events.CalculateTime(100));
+                        klannoc->m_Events.AddEvent(new KlannocBurning(klannoc, me), klannoc->m_Events.CalculateTime(1ms));
                         context.Repeat(3s);
                         break;
 
@@ -418,11 +418,11 @@ class jaina_affray_isle : public CreatureScript
                         for (Creature* spectator : spectators)
                         {
                             spectator->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                            spectator->m_Events.AddEvent(new SpectatorDeath(spectator), spectator->m_Events.CalculateTime(2000));
+                            spectator->m_Events.AddEvent(new SpectatorDeath(spectator), spectator->m_Events.CalculateTime(2s));
                         }
 
                         playerSpectator->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                        playerSpectator->m_Events.AddEvent(new SpectatorDeath(playerSpectator), playerSpectator->m_Events.CalculateTime(2000));
+                        playerSpectator->m_Events.AddEvent(new SpectatorDeath(playerSpectator), playerSpectator->m_Events.CalculateTime(2s));
 
                         player->Lock(false);
 
@@ -453,13 +453,13 @@ class jaina_affray_isle : public CreatureScript
                         if (focusingIrisFx = me->SummonCreature(NPC_FOCUSING_IRIS, -1654.17f, -4246.51f, 3.51f, 3.08f, TEMPSUMMON_MANUAL_DESPAWN))
                         {
                             waveFx = me->SummonCreature(NPC_INVISIBLE_STALKER, -1553.19f, -4251.73f, -1.91f, 6.27f);
-                            waveFx->m_Events.AddEvent(new WaveGrowing(waveFx), waveFx->m_Events.CalculateTime(3000));
+                            waveFx->m_Events.AddEvent(new WaveGrowing(waveFx), waveFx->m_Events.CalculateTime(3s));
 
                             DoCast(SPELL_ARCANE_CANALISATION);
 
                             me->SetFacingToObject(focusingIrisFx);
                             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_SPELL_CHANNEL_DIRECTED);
-                            me->SummonGameObject(GOB_ANTONIDAS_BOOK, -1653.03f, -4243.82f, 3.11f, 3.99f, QuaternionData(0.f, 0.f, -0.9101f, 0.4143f), 0);
+                            me->SummonGameObject(GOB_ANTONIDAS_BOOK, -1653.03f, -4243.82f, 3.11f, 3.99f, QuaternionData(0.f, 0.f, -0.9101f, 0.4143f), 0s);
                         }
                         break;
                     }

@@ -17,7 +17,7 @@ class TC_GAME_API CustomAI : public ScriptedAI
 {
     public:
         CustomAI(Creature* creature, AI_Type type = AI_Type::Distance);
-        virtual ~CustomAI() { };
+        virtual ~CustomAI() { }
 
         virtual void Initialize();
 

@@ -75,7 +75,7 @@ class npc_felcaster : public CreatureScript
 
         void JustEngagedWith(Unit* who) override
         {
-            if (Creature* pet = DoSummon(NPC_PET, me, 10.0f, 8000, TEMPSUMMON_CORPSE_TIMED_DESPAWN))
+            if (Creature* pet = DoSummon(NPC_PET, me, 10.0f, 8s, TEMPSUMMON_CORPSE_TIMED_DESPAWN))
             {
                 DoCast(SPELL_SUMMON_PET);
 

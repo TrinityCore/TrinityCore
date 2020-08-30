@@ -292,7 +292,7 @@ class npc_jaina_theramore : public CreatureScript
                     SearchOrRespawn(NPC_KINNDY_SPARKSHINE, kinndy);
                     SearchOrRespawn(NPC_KALECGOS, kalecgos);
                     SearchOrRespawn(NPC_LIEUTENANT_ADEN, aden);
-                    events.ScheduleEvent(EVENT_EVACUATION_1, value ? value : 60000, 0, PHASE_CONVO);
+                    events.ScheduleEvent(EVENT_EVACUATION_1, Milliseconds(value ? value : 60000), 0, PHASE_CONVO);
                     break;
 
                 case EVENT_START_WARN:
@@ -330,7 +330,7 @@ class npc_jaina_theramore : public CreatureScript
                     else
                     {
                         me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-                        events.ScheduleEvent(EVENT_EVACUATION_1, 0, PHASE_PRE_BATTLE);
+                        events.ScheduleEvent(EVENT_EVACUATION_1, 0s, PHASE_PRE_BATTLE);
                         events.ScheduleEvent(EVENT_PRE_BATTLE_6, 5s, 0, PHASE_PRE_BATTLE);
                     }
 
@@ -887,7 +887,7 @@ class npc_jaina_theramore : public CreatureScript
 
                         uint32 sound = RAND(14340, 14341, 14338);
                         me->PlayDirectSound(sound);
-                        events.ScheduleEvent(EVENT_SHAKER, urand(500, 1000), 0, PHASE_CONVO);
+                        events.ScheduleEvent(EVENT_SHAKER, 5ms, 1s, 0, PHASE_CONVO);
                         break;
                     }
 
@@ -895,8 +895,8 @@ class npc_jaina_theramore : public CreatureScript
                     {
                         for (int i = 0; i < 35; ++i)
                         {
-                            me->SummonGameObject(GOB_FIRE_THERAMORE, FireLocation[i][0], FireLocation[i][1], FireLocation[i][2], FireLocation[i][3], QuaternionData(), 0);
-                            if (Creature* fx = me->SummonCreature(NPC_INVISIBLE_STALKER, FireLocation[i][0], FireLocation[i][1], FireLocation[i][2], 0.f, TEMPSUMMON_TIMED_DESPAWN, 5000))
+                            me->SummonGameObject(GOB_FIRE_THERAMORE, FireLocation[i][0], FireLocation[i][1], FireLocation[i][2], FireLocation[i][3], QuaternionData(), 0s);
+                            if (Creature* fx = me->SummonCreature(NPC_INVISIBLE_STALKER, FireLocation[i][0], FireLocation[i][1], FireLocation[i][2], 0.f, TEMPSUMMON_TIMED_DESPAWN, 5s))
                                 fx->CastSpell(fx, 70444);
                         }
 
@@ -1017,12 +1017,12 @@ class npc_jaina_theramore : public CreatureScript
                     {
                         aden->SetWalk(true);
                         aden->GetMotionMaster()->MovePoint(0, -3721.23f, -4549.68f, 25.82f, true, 1.32f);
-                        if (GameObject* portal = me->SummonGameObject(201797, PortalPosition, QuaternionData(), 13))
+                        if (GameObject* portal = me->SummonGameObject(201797, PortalPosition, QuaternionData(), 13s))
                         {
                             me->SetFacingToObject(portal);
                             portal->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                         }
-                        events.ScheduleEvent(EVENT_PRE_BATTLE_6, 800, 0, PHASE_PRE_BATTLE);
+                        events.ScheduleEvent(EVENT_PRE_BATTLE_6, 8ms, 0, PHASE_PRE_BATTLE);
                         break;
                     }
 
@@ -1144,7 +1144,7 @@ class npc_jaina_theramore : public CreatureScript
                         vereesa->SetFaction(35);
                         vereesa->SetVisible(false);
                         DoCast(SPELL_SIMPLE_TELEPORT);
-                        events.ScheduleEvent(EVENT_PRE_BATTLE_18, 1300, 0, PHASE_PRE_BATTLE);
+                        events.ScheduleEvent(EVENT_PRE_BATTLE_18, 1300ms, 0, PHASE_PRE_BATTLE);
                         break;
 
                     case EVENT_PRE_BATTLE_18:
@@ -1164,7 +1164,7 @@ class npc_jaina_theramore : public CreatureScript
 
                         playerForQuest->CastSpell(playerForQuest, SPELL_TELEPORT);
 
-                        events.ScheduleEvent(EVENT_PRE_BATTLE_19, 1500, 0, PHASE_PRE_BATTLE);
+                        events.ScheduleEvent(EVENT_PRE_BATTLE_19, 1500ms, 0, PHASE_PRE_BATTLE);
                         break;
                     }
 
@@ -1175,7 +1175,7 @@ class npc_jaina_theramore : public CreatureScript
                         kalecgos->SetVisible(false);
                         kalecgos = me->SummonCreature(NPC_KALECGOS_DRAGON, -3717.96f, -4356.52f, 90.82f, 0.f);
                         kalecgos->SetDisableGravity(true);
-                        events.ScheduleEvent(EVENT_PRE_BATTLE_22, 1, 0, PHASE_PRE_BATTLE);
+                        events.ScheduleEvent(EVENT_PRE_BATTLE_22, 1s, 0, PHASE_PRE_BATTLE);
 
                         Relocate(aden, -3669.01f, -4381.60f, 9.56f, 0.69f);
                         Relocate(me, -3658.39f, -4372.87f, 9.35f, 0.69f);
@@ -1453,6 +1453,7 @@ class npc_jaina_theramore : public CreatureScript
 
                     case EVENT_END_9:
                         Talk(SAY_END_10);
+                        playerForQuest->CastSpell(playerForQuest, 100093);
                         events.ScheduleEvent(EVENT_END_10, 6s, 0, PHASE_END);
                         break;
 
@@ -1555,7 +1556,7 @@ class npc_jaina_theramore : public CreatureScript
         {
             float perimeter = 2.f * float(M_PI) * radius;
             float time = (perimeter / kalecgos->GetSpeed(MOVE_FLIGHT)) * IN_MILLISECONDS;
-            events.RescheduleEvent(EVENT_PRE_BATTLE_22, time, 0, PHASE_PRE_BATTLE);
+            events.RescheduleEvent(EVENT_PRE_BATTLE_22, Milliseconds((uint64)time), 0, PHASE_PRE_BATTLE);
         }
     };
 

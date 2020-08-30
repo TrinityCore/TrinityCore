@@ -313,7 +313,7 @@ class npc_magister_brasael : public CreatureScript
                     meteors++;
 
                     const Position spellDestination = SelectTarget(SelectTargetMethod::Random, 0)->GetPosition();
-                    if (Creature* fx = DoSummon(NPC_INVISIBLE_STALKER, spellDestination, 7000, TEMPSUMMON_TIMED_DESPAWN))
+                    if (Creature* fx = DoSummon(NPC_INVISIBLE_STALKER, spellDestination, 7s, TEMPSUMMON_TIMED_DESPAWN))
                         fx->CastSpell(fx, SPELL_DUMMY_METEOR);
 
                     me->CastSpell(spellDestination, SPELL_METEOR);

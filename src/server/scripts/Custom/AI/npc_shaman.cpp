@@ -65,7 +65,7 @@ class npc_shaman : public CreatureScript
                 })
                 .Schedule(6s, [this](TaskContext healing_totem)
                 {
-                    if (Creature* healingTotem = DoSummon(NPC_HEALING_TOTEM, me->GetRandomNearPosition(2.f), 15000, TEMPSUMMON_TIMED_DESPAWN))
+                    if (Creature* healingTotem = DoSummon(NPC_HEALING_TOTEM, me->GetRandomNearPosition(2.f), 15s, TEMPSUMMON_TIMED_DESPAWN))
                     {
                         healingTotem->SetFaction(me->GetFaction());
                         healingTotem->CastSpell(healingTotem, SPELL_HEALING);

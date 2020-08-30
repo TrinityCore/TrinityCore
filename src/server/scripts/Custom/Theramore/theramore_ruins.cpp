@@ -30,17 +30,17 @@ public:
                 owner->AI()->Talk(SAY_IRIS_1);
                 owner->SetWalk(true);
                 stage++;
-                owner->m_Events.AddEvent(this, eventTime + 3000);
+                owner->m_Events.AddEvent(this, Milliseconds(eventTime + 3000));
                 return false;
             case 1:
                 owner->SetStandState(UNIT_STAND_STATE_STAND);
                 stage++;
-                owner->m_Events.AddEvent(this, eventTime + 2000);
+                owner->m_Events.AddEvent(this, Milliseconds(eventTime + 2000));
                 return false;
             case 2:
                 kinndy->SetVisible(false);
                 stage++;
-                owner->m_Events.AddEvent(this, eventTime + 2000);
+                owner->m_Events.AddEvent(this, Milliseconds(eventTime + 2000));
                 return false;
             case 3:
                 owner->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
@@ -129,7 +129,7 @@ class npc_jaina_ruins : public CreatureScript
                         {
                             playerForQuest = player;
 
-                            me->m_Events.AddEvent(new JainaStandEvent(me, player), me->m_Events.CalculateTime(1000));
+                            me->m_Events.AddEvent(new JainaStandEvent(me, player), me->m_Events.CalculateTime(1s));
                             canSayIntro = true;
                         }
 
@@ -229,7 +229,7 @@ class npc_jaina_ruins : public CreatureScript
                             break;
 
                         case EVENT_RETURN_2:
-                            if (Creature * portal = me->SummonCreature(NPC_INVISIBLE_STALKER, -2678.14f, -4774.18f, 14.16f, 2.55f, TEMPSUMMON_TIMED_DESPAWN, 20000))
+                            if (Creature * portal = me->SummonCreature(NPC_INVISIBLE_STALKER, -2678.14f, -4774.18f, 14.16f, 2.55f, TEMPSUMMON_TIMED_DESPAWN, 20s))
                             {
                                 portal->AddAura(SPELL_OPENED_PORTAL, portal);
                                 if (kalecgos = portal->SummonCreature(NPC_KALECGOS, -2678.14f, -4774.18f, 14.16f, 2.55f, TEMPSUMMON_MANUAL_DESPAWN))
@@ -377,7 +377,7 @@ class npc_jaina_ruins : public CreatureScript
                             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_SPELL_CAST_OMNI);
                             me->CastSpell(me, 62849, true);
                             for (uint8 i = 0; i < 2; ++i)
-                                elementals[i] = me->SummonCreature(NPC_WATER_ELEMENTAL, ElementalsPos[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
+                                elementals[i] = me->SummonCreature(NPC_WATER_ELEMENTAL, ElementalsPos[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3s);
                             events.ScheduleEvent(EVENT_IRIS_6, 1s);
                             break;
 
@@ -567,7 +567,7 @@ class npc_jaina_ruins : public CreatureScript
 
                             me->GetMotionMaster()->MovePoint(0, destx, desty, warlord->GetPositionZ());
 
-                            events.ScheduleEvent(EVENT_IRIS_21, ((distanceToTravel / me->GetSpeed(MOVE_WALK)) + 2) * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_IRIS_21, Milliseconds((uint64)((distanceToTravel / me->GetSpeed(MOVE_WALK)) + 2) * IN_MILLISECONDS));
                             break;
                         }
 
@@ -600,13 +600,13 @@ class npc_jaina_ruins : public CreatureScript
                             if (elementals[1] && elementals[1]->IsAlive()) elementals[1]->DespawnOrUnsummon();
                             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_SPELL_CAST_OMNI);
                             me->CastSpell(me, SPELL_POWER_BALL_VISUAL);
-                            events.ScheduleEvent(EVENT_IRIS_25, 1830);
+                            events.ScheduleEvent(EVENT_IRIS_25, 1830ms);
                             break;
 
                         case EVENT_IRIS_25:
                             SendMailToPlayer(playerForQuest);
                             me->SetVisible(false);
-                            me->SummonGameObject(500015, me->GetPosition(), QuaternionData(), 0);
+                            me->SummonGameObject(500015, me->GetPosition(), QuaternionData(), 0s);
                             break;
 
                         #pragma endregion
@@ -627,7 +627,7 @@ class npc_jaina_ruins : public CreatureScript
                     {
                         case CASTING_FIREBALL:
                             DoCastVictim(SPELL_FIREBALL);
-                            events.RescheduleEvent(CASTING_FIREBALL, 1542);
+                            events.RescheduleEvent(CASTING_FIREBALL, 1542ms);
                             break;
 
                         case CASTING_FROSTBOLT:

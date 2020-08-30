@@ -735,14 +735,14 @@ class SilverCovenantGuardian : public BasicEvent
             case 0:
                 owner->SetHomePosition(finalPos);
                 owner->GetMotionMaster()->MoveCloserAndStop(0, uovril, 6.f);
-                owner->m_Events.AddEvent(this, eventTime + 1000);
+                owner->m_Events.AddEvent(this, Milliseconds(eventTime + 1000));
                 break;
 
             case 1:
             {
                 if (!owner->IsWithinDist2d(uovril, 8.f))
                 {
-                    owner->m_Events.AddEvent(this, eventTime + 500);
+                    owner->m_Events.AddEvent(this, Milliseconds(eventTime + 500));
                     return false;
                 }
 
@@ -806,7 +806,7 @@ class npc_arcanist_uovril : public CreatureScript
                         {
                             guardian->SetReactState(REACT_PASSIVE);
                             guardian->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                            guardian->m_Events.AddEvent(new SilverCovenantGuardian(guardian, me, GetRandomPosition(frand(4.f, 9.f))), guardian->m_Events.CalculateTime(500));
+                            guardian->m_Events.AddEvent(new SilverCovenantGuardian(guardian, me, GetRandomPosition(frand(4.f, 9.f))), guardian->m_Events.CalculateTime(5ms));
                         }
                         events.Repeat(10s, 20s);
                         break;
@@ -982,7 +982,7 @@ class npc_vereesa_windrunner : public CreatureScript
                 case QUEST_NOWHERE_TO_HIDE:
                 {
                     const Position pos = player->GetPositionWithOffset({ 2.0f, 2.0f, 0.0f, 0.0f });
-                    player->SummonPet(100071, pos.GetPositionX(), pos.GetPositionY(), player->GetPositionZ(), PET_FOLLOW_ANGLE, SUMMON_PET, 0U, true);
+                    player->SummonPet(100071, pos.GetPositionX(), pos.GetPositionY(), player->GetPositionZ(), PET_FOLLOW_ANGLE, SUMMON_PET, 0);
                     break;
                 }
 

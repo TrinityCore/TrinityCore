@@ -8,9 +8,9 @@
 #include "MotionMaster.h"
 #include "theramore.h"
 
-constexpr int AMARA_PATH_SIZE = 24;
-constexpr int AMARA_REVERSE_PATH_SIZE = 6;
-constexpr int JAINA_OUTRO_PATH_SIZE = 19;
+#define AMARA_PATH_SIZE 24
+#define AMARA_REVERSE_PATH_SIZE 6
+#define JAINA_OUTRO_PATH_SIZE 19
 
 enum Wounded
 {
@@ -207,7 +207,7 @@ class theramore_wounded_event : public CreatureScript
                         {
                             currentSoldier = soldier;
                             jaina->GetMotionMaster()->MoveCloserAndStop(0, soldier, 1.5f);
-                            events.ScheduleEvent(EVENT_TELEPORT_2, jaina->GetMotionMaster()->GetTime() + 500);
+                            events.ScheduleEvent(EVENT_TELEPORT_2, Milliseconds((uint64)jaina->GetMotionMaster()->GetTime() + 500));
                         }
                         else
                             events.ScheduleEvent(EVENT_TELEPORT_5, 1s);
@@ -217,12 +217,12 @@ class theramore_wounded_event : public CreatureScript
 
                     case EVENT_TELEPORT_2:
                         jaina->CastSpell(jaina, SPELL_SIMPLE_TELEPORT);
-                        events.ScheduleEvent(EVENT_TELEPORT_3, 1300);
+                        events.ScheduleEvent(EVENT_TELEPORT_3, 1300ms);
                         break;
 
                     case EVENT_TELEPORT_3:
                         currentSoldier->CastSpell(currentSoldier, SPELL_TELEPORT);
-                        events.ScheduleEvent(EVENT_TELEPORT_4, 1500);
+                        events.ScheduleEvent(EVENT_TELEPORT_4, 1500ms);
                         break;
 
                     case EVENT_TELEPORT_4:
@@ -237,12 +237,12 @@ class theramore_wounded_event : public CreatureScript
                         break;
 
                     case EVENT_TELEPORT_6:
-                        if (Creature* p = DoSummon(NPC_INVISIBLE_STALKER, { -3679.66f, -4481.86f, 11.20f, 5.30f }, 0, TEMPSUMMON_MANUAL_DESPAWN))
+                        if (Creature* p = DoSummon(NPC_INVISIBLE_STALKER, { -3679.66f, -4481.86f, 11.20f, 5.30f }, 0s, TEMPSUMMON_MANUAL_DESPAWN))
                         {
                             portal = p;
                             p->SetObjectScale(1.5f);
                             p->AddAura(SPELL_PORTAL, p);
-                            kalecgos = DoSummon(NPC_KALECGOS, { -3679.84f, -4481.61f, 16.64f, 5.27f }, 0, TEMPSUMMON_MANUAL_DESPAWN);
+                            kalecgos = DoSummon(NPC_KALECGOS, { -3679.84f, -4481.61f, 16.64f, 5.27f }, 0s, TEMPSUMMON_MANUAL_DESPAWN);
                             kalecgos->GetMotionMaster()->MoveJump(-3676.04f, -4487.67f, 10.88f, 5.27f, 10.4f, 6.5f);
                             events.ScheduleEvent(EVENT_TELEPORT_7, 3s);
                             events.ScheduleEvent(EVENT_TELEPORT_8, 3s);
@@ -336,7 +336,7 @@ class theramore_wounded_event : public CreatureScript
                         amara->GetMotionMaster()->MoveIdle();
                         amara->NearTeleportTo(AmaraReversePath[0]);
                         amara->GetMotionMaster()->MoveSmoothPath(0, AmaraReversePath, AMARA_REVERSE_PATH_SIZE, false);
-                        events.ScheduleEvent(EVENT_TELEPORT_22, 8s);
+                        events.ScheduleEvent(EVENT_TELEPORT_22, 6s);
                         break;
 
                     case EVENT_TELEPORT_22:
@@ -383,7 +383,7 @@ class theramore_wounded_event : public CreatureScript
                         break;
 
                     case EVENT_TELEPORT_30:
-                        if (GameObject * portal = me->SummonGameObject(201797, -3749.90f, -4448.93f, 64.90f, 3.34f, QuaternionData(), 0))
+                        if (GameObject * portal = me->SummonGameObject(201797, -3749.90f, -4448.93f, 64.90f, 3.34f, QuaternionData(), 0s))
                         {
                             portal->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                             rhonin->CastSpell(rhonin, 54219);

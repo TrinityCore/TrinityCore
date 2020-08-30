@@ -94,7 +94,7 @@ class KalecgosFlightEvent : public BasicEvent
 
         owner->CastSpell(owner, SPELL_FROST_BREEZE, spellArgs);
         owner->GetThreatManager().RemoveMeFromThreatLists();
-        owner->m_Events.AddEvent(this, eventTime + 5000);
+        owner->m_Events.AddEvent(this, Milliseconds(eventTime + 5000));
         return false;
     }
 
@@ -115,7 +115,7 @@ class CannonDoorsEvent : public BasicEvent
         playerForQuest->PlayDirectSound(RAND(11564, 11565, 11566, 11567));
         playerForQuest->CastSpell(playerForQuest, 12816);
         owner->CastSpell(owner, 71495);
-        owner->m_Events.AddEvent(this, eventTime + urand(300, 800));
+        owner->m_Events.AddEvent(this, Milliseconds(eventTime + urand(300, 800)));
         return false;
     }
 
@@ -182,11 +182,11 @@ class theramore_waves_invoker : public CreatureScript
                 {
                     // Event - Battle
                     case EVENT_BATTLE_1:
-                        if (Creature* cannon = DoSummon(NPC_INVISIBLE_STALKER, { -3646.48f, -4362.23f, 9.57f, 0.70f }, 9000, TEMPSUMMON_TIMED_DESPAWN))
+                        if (Creature* cannon = DoSummon(NPC_INVISIBLE_STALKER, { -3646.48f, -4362.23f, 9.57f, 0.70f }, 9s, TEMPSUMMON_TIMED_DESPAWN))
                         {
                             jaina->AI()->Talk(JAINA_SAY_02);
                             jaina->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY2HL);
-                            cannon->m_Events.AddEvent(new CannonDoorsEvent(cannon, playerForQuest), cannon->m_Events.CalculateTime(500));
+                            cannon->m_Events.AddEvent(new CannonDoorsEvent(cannon, playerForQuest), cannon->m_Events.CalculateTime(5ms));
                         }
                         events.ScheduleEvent(EVENT_BATTLE_2, 8s);
                         break;
@@ -245,7 +245,7 @@ class theramore_waves_invoker : public CreatureScript
 
                     case EVENT_BATTLE_4:
                         jaina->AI()->Talk(JAINA_SAY_04);
-                        if (Creature* fx = DoSummon(NPC_INVISIBLE_STALKER, jaina->GetPosition(), 5000, TEMPSUMMON_TIMED_DESPAWN))
+                        if (Creature* fx = DoSummon(NPC_INVISIBLE_STALKER, jaina->GetPosition(), 5s, TEMPSUMMON_TIMED_DESPAWN))
                             fx->CastSpell(fx, SPELL_TELEPORT, true);
                         jaina->NearTeleportTo(-3612.43f, -4335.63f, 9.29f, 0.72f);
                         events.ScheduleEvent(EVENT_BATTLE_5, 1s);
@@ -278,12 +278,12 @@ class theramore_waves_invoker : public CreatureScript
 
                     case EVENT_BATTLE_9:
                         thalen->RemoveAllAuras();
-                        if (Creature* medic = DoSummon(NPC_THERAMORE_MEDIC, { -3736.40f, -4553.58f, 4.74f, 5.99f }, 0, TEMPSUMMON_MANUAL_DESPAWN))
+                        if (Creature* medic = DoSummon(NPC_THERAMORE_MEDIC, { -3736.40f, -4553.58f, 4.74f, 5.99f }, 0s, TEMPSUMMON_MANUAL_DESPAWN))
                             medic->CastSpell(thalen, SPELL_CHAINS);
                         thalen->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STRANGULATE);
                         jaina->CastSpell(jaina, SPELL_TELEPORT, true);
                         jaina->NearTeleportTo(-3658.39f, -4372.87f, 9.35f, 0.69f);
-                        kalecgos->m_Events.AddEvent(new KalecgosFlightEvent(kalecgos), kalecgos->m_Events.CalculateTime(3000));
+                        kalecgos->m_Events.AddEvent(new KalecgosFlightEvent(kalecgos), kalecgos->m_Events.CalculateTime(3s));
                         events.ScheduleEvent(WAVE_01, 5s);
                         break;
 
@@ -393,7 +393,7 @@ class theramore_waves_invoker : public CreatureScript
                         break;
                 }
 
-                if (Creature* temp = DoSummon(entry, pos, 900000, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN))
+                if (Creature* temp = DoSummon(entry, pos, 15min, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN))
                 {
                     if (waveId == WAVE_DOORS)
                     {

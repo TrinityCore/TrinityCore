@@ -378,12 +378,12 @@ public:
 			case 0:
 				owner->AI()->Talk(SAY_JAINA_DARNASSUS_1);
 				stage++;
-				owner->m_Events.AddEvent(this, eventTime + 3000);
+				owner->m_Events.AddEvent(this, Milliseconds(eventTime + 3000));
 				return false;
 			case 1:
 				owner->SetFacingToObject(player);
 				stage++;
-				owner->m_Events.AddEvent(this, eventTime + 2000);
+				owner->m_Events.AddEvent(this, Milliseconds(eventTime + 2000));
 				return false;
 			case 2:
 				owner->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
@@ -416,19 +416,19 @@ public:
 			case 0:
 				owner->GetMotionMaster()->MovePoint(0, portal->GetPosition());
 				stage++;
-				owner->m_Events.AddEvent(this, eventTime + 9000);
+				owner->m_Events.AddEvent(this, Milliseconds(eventTime + 9000));
 				return false;
 			case 1:
 				owner->CastSpell(owner, SPELL_TELEPORT);
 				stage++;
-				owner->m_Events.AddEvent(this, eventTime + 2000);
+				owner->m_Events.AddEvent(this, Milliseconds(eventTime + 2000));
 				return false;
 			case 2:
 				owner->SetVisible(false);
 				player->SetPhaseMask(1, true);
 				portal->SetPhaseMask(1, true);
 				stage++;
-				owner->m_Events.AddEvent(this, eventTime + 1000);
+				owner->m_Events.AddEvent(this, Milliseconds(eventTime + 1000));
 				return false;
 			case 3:
 				portal->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
@@ -577,7 +577,7 @@ class dalaran_jaina_anduin : public CreatureScript
 					{
 						phase = PHASE_NOT_STARTED;
 						me->PlayDirectMusic(SOUND_JAINA_DARNA_MUSIC);
-						me->m_Events.AddEvent(new JainaArrivesEvent(me, player), me->m_Events.CalculateTime(3000));
+						me->m_Events.AddEvent(new JainaArrivesEvent(me, player), me->m_Events.CalculateTime(3s));
 					}
 					break;
 				}
@@ -836,7 +836,7 @@ class dalaran_jaina_anduin : public CreatureScript
 							me->GetMotionMaster()->MovePoint(0, destx, desty, portal->GetPositionZ(), true, 5.51f);
 
 							events.CancelEvent(EVENT_CHECK_SPEED);
-							events.ScheduleEvent(EVENT_DARNASSUS_7, time + 500);
+                            events.ScheduleEvent(EVENT_DARNASSUS_7, Milliseconds((uint64)time + 500));
 
 							break;
 						}
@@ -912,7 +912,7 @@ class dalaran_jaina_anduin : public CreatureScript
 
                     case 2:
                     {
-                        GameObject* o = me->SummonGameObject(Scenes[sceneIndex][i].Entry, Scenes[sceneIndex][i].Spawn, Scenes[sceneIndex][i].Rotation, 0);
+                        GameObject* o = me->SummonGameObject(Scenes[sceneIndex][i].Entry, Scenes[sceneIndex][i].Spawn, Scenes[sceneIndex][i].Rotation, 0s);
                         o->EnableCollision(false);
                         guid = o->GetGUID();
                         break;
@@ -1076,10 +1076,10 @@ struct dalaran_anduin_wrynnAI : public ScriptedAI
         {
             case QUEST_THE_FATE_OF_DALARAN:
                 SendMailToPlayer(player);
-                if (GameObject* portal = me->SummonGameObject(190960, 5858.08f, 858.45f, 843.80f, 3.64f, QuaternionData(), 0))
+                if (GameObject* portal = me->SummonGameObject(190960, 5858.08f, 858.45f, 843.80f, 3.64f, QuaternionData(), 0s))
                 {
                     portal->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-                    me->m_Events.AddEvent(new AnduinLeavesEvent(me, player, portal), me->m_Events.CalculateTime(3000));
+                    me->m_Events.AddEvent(new AnduinLeavesEvent(me, player, portal), me->m_Events.CalculateTime(3s));
                 }
                 break;
         }
