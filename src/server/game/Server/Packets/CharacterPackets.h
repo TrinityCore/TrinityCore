@@ -156,6 +156,68 @@ namespace WorldPackets
             int32 MapID = -1;
             TaggedPosition<Position::XYZO> Pos;
         };
+
+        class GenerateRandomCharacterName final : public ClientPacket
+        {
+        public:
+            GenerateRandomCharacterName(WorldPacket&& packet) : ClientPacket(CMSG_GENERATE_RANDOM_CHARACTER_NAME, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 Sex = 0;
+            uint8 Race = 0;
+        };
+
+        class GenerateRandomCharacterNameResult final : public ServerPacket
+        {
+        public:
+            GenerateRandomCharacterNameResult() : ServerPacket(SMSG_GENERATE_RANDOM_CHARACTER_NAME_RESULT, 10) { }
+
+            WorldPacket const* Write() override;
+
+            std::string Name;
+            bool Success = false;
+        };
+
+        class CreateChar final : public ServerPacket
+        {
+        public:
+            CreateChar() : ServerPacket(SMSG_CREATE_CHAR, 1) { }
+
+            WorldPacket const* Write() override;
+
+            uint8 Code = 0; ///< Result code @see enum ResponseCodes
+        };
+
+        class CharDelete final : public ClientPacket
+        {
+        public:
+            CharDelete(WorldPacket&& packet) : ClientPacket(CMSG_CHAR_DELETE, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Guid; ///< Guid of the character to delete
+        };
+
+        class DeleteChar final : public ServerPacket
+        {
+        public:
+            DeleteChar() : ServerPacket(SMSG_DELETE_CHAR, 1) { }
+
+            WorldPacket const* Write() override;
+
+            uint8 Code = 0; ///< Result code @see enum ResponseCodes
+        };
+
+        class PlayerLogin final : public ClientPacket
+        {
+        public:
+            PlayerLogin(WorldPacket&& packet) : ClientPacket(CMSG_PLAYER_LOGIN, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Guid;      ///< Guid of the player that is logging in
+        };
     }
 }
 

@@ -82,7 +82,10 @@ namespace WorldPackets
 
     namespace Character
     {
+        class CharDelete;
         class EnumCharacters;
+        class GenerateRandomCharacterName;
+        class PlayerLogin;
         class ShowingCloak;
         class ShowingHelm;
 
@@ -592,9 +595,9 @@ class TC_GAME_API WorldSession
 
         void HandleCharEnum(PreparedQueryResult result);
         void HandleCharEnumOpcode(WorldPackets::Character::EnumCharacters& /*enumCharacters*/);
-        void HandleCharDeleteOpcode(WorldPacket& recvPacket);
+        void HandleCharDeleteOpcode(WorldPackets::Character::CharDelete& packet);
         void HandleCharCreateOpcode(WorldPacket& recvPacket);
-        void HandlePlayerLoginOpcode(WorldPacket& recvPacket);
+        void HandlePlayerLoginOpcode(WorldPackets::Character::PlayerLogin& packet);
 
         void SendConnectToInstance(WorldPackets::Auth::ConnectToSerial serial);
         void HandleContinuePlayerLogin();
@@ -611,7 +614,7 @@ class TC_GAME_API WorldSession
         void HandleCharCustomizeCallback(std::shared_ptr<CharacterCustomizeInfo> customizeInfo, PreparedQueryResult result);
         void HandleOpeningCinematic(WorldPackets::Misc::OpeningCinematic& packet);
 
-        void HandleRandomizeCharNameOpcode(WorldPacket& recvData);
+        void HandleRandomizeCharNameOpcode(WorldPackets::Character::GenerateRandomCharacterName& packet);
         void HandleReorderCharacters(WorldPacket& recvData);
         void SendCharCreate(ResponseCodes result);
         void SendCharDelete(ResponseCodes result);
