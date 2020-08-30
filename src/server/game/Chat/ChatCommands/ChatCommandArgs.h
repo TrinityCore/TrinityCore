@@ -45,9 +45,9 @@ namespace Trinity::Impl::ChatCommands
 template <typename T, typename = void>
 struct ArgInfo { static_assert(!std::is_same_v<T,T>, "Invalid command parameter type - see ChatCommandArgs.h for possible types"); };
 
-// catch-all for integral types
+// catch-all for number types
 template <typename T>
-struct ArgInfo<T, std::enable_if_t<std::is_integral_v<T>>>
+struct ArgInfo<T, std::enable_if_t<std::is_integral_v<T> || std::is_floating_point_v<T>>>
 {
     static Optional<std::string_view> TryConsume(T& val, std::string_view args)
     {
@@ -59,34 +59,14 @@ struct ArgInfo<T, std::enable_if_t<std::is_integral_v<T>>>
             val = *v;
         else
             return std::nullopt;
-        return tail;
-    }
-};
 
-// catch-all for floating point types
-template <typename T>
-struct ArgInfo<T, std::enable_if_t<std::is_floating_point_v<T>>>
-{
-    static Optional<std::string_view> TryConsume(T& val, std::string_view args)
-    {
-        auto [token, tail] = tokenize(args);
-        if (token.empty())
-            return std::nullopt;
-
-        try
+        if constexpr (std::is_floating_point_v<T>)
         {
-            // @todo replace this once libc++ supports double args to from_chars for required minimum
-            size_t processedChars = 0;
-            val = std::stold(std::string(token), &processedChars);
-            if (processedChars != token.length())
+            if (!std::isfinite(val))
                 return std::nullopt;
         }
-        catch (...) { return std::nullopt; }
 
-        if (std::isfinite(val))
-            return tail;
-        else
-            return std::nullopt;
+        return tail;
     }
 };
 
