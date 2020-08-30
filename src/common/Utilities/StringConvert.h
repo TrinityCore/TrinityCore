@@ -234,7 +234,7 @@ namespace Trinity::Impl::StringConvertImpl
 
                 if ((base == 10) && StringEqualI(str.substr(0, 2), "0x"))
                     return std::nullopt;
-                
+
                 std::string tmp;
                 if (base == 16)
                     tmp.append("0x");
