@@ -140,8 +140,12 @@ TEST_CASE("String to double", "[StringConvert]")
     REQUIRE(Trinity::StringTo<double>("1e+3+5") == std::nullopt);
     REQUIRE(Trinity::StringTo<double>("a1.5") == std::nullopt);
     REQUIRE(Trinity::StringTo<double>("1.5tail") == std::nullopt);
+    REQUIRE(Trinity::StringTo<double>("0x0") == 0.0);
+    REQUIRE(Trinity::StringTo<double>("0x0", 16) == std::nullopt);
+    REQUIRE(Trinity::StringTo<double>("0", 16) == 0.0);
     REQUIRE(Trinity::StringTo<double>("0x1.BC70A3D70A3D7p+6") == 0x1.BC70A3D70A3D7p+6);
     REQUIRE(Trinity::StringTo<double>("0x1.BC70A3D70A3D7p+6", 10) == std::nullopt);
+    REQUIRE(Trinity::StringTo<double>("0x1.BC70A3D70A3D7p+6", 16) == std::nullopt);
     REQUIRE(Trinity::StringTo<double>("1.BC70A3D70A3D7p+6", 16) == 0x1.BC70A3D70A3D7p+6);
     REQUIRE(Trinity::StringTo<double>("0x1.2.3") == std::nullopt);
     REQUIRE(Trinity::StringTo<double>("0x1.AAAp+1-3") == std::nullopt);
