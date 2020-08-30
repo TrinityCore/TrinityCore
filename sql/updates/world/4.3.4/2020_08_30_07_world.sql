@@ -1,0 +1,5 @@
+UPDATE `npc_text` SET `text0_0`='Deathwing has returned. He\'s seized Grim Batol and much of the highlands, and I feel near powerless to stop him.$B$BSoon, our queen shall arrive, and together we shall put the once Earthwarder in his place.', `VerifiedBuild`=14333 WHERE `ID`=16938; -- 16938
+UPDATE `npc_text` SET `BroadcastTextID0`=48088, `EmoteDelay0_0`=0, `Emote0_0`=1, `Emote0_1`=25, `VerifiedBuild`=14333 WHERE `ID`=17344; -- 17344
+
+UPDATE `npc_text` SET `VerifiedBuild`=14480 WHERE `ID` IN (8672, 8961, 14206, 8672, 9632, 9631);
+UPDATE `npc_text` SET `VerifiedBuild` = 14333 WHERE `ID` IN (17821, 17686, 17637, 17636, 17635, 17634, 17633, 17632, 17631, 17630, 17559, 17512, 17503, 17500, 17496, 17369, 17347, 17342, 17332, 17321, 17293, 17174, 17173, 17007, 17005, 16973, 16967, 16942, 16941, 16847, 16846, 16737, 16714, 16635, 16579, 16511, 16443, 16433, 16422, 16297, 15643, 15260, 15028, 14566, 14565, 14555, 14553, 14546, 12279, 6104, 5354, 5190, 4781, 3559, 2287, 2286, 2154, 2153, 1225, 1220, 1207, 1205);
