@@ -19,7 +19,7 @@ addons:
       - libreadline6-dev
       - zlib1g-dev
       - libbz2-dev
-      - g++-6
+      - g++-8
 
 services:
   - mysql

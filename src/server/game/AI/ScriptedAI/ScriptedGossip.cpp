@@ -19,6 +19,11 @@
 #include "Creature.h"
 #include "Player.h"
 
+uint32 GetGossipSenderFor(Player* player, uint32 menuId)
+{
+    return player->PlayerTalkClass->GetGossipOptionSender(menuId);
+}
+
 uint32 GetGossipActionFor(Player* player, uint32 gossipListId)
 {
     return player->PlayerTalkClass->GetGossipOptionAction(gossipListId);

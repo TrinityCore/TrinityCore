@@ -3333,7 +3333,7 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
             if (!me || !me->IsEngaged())
                 return;
 
-            ObjectVector targets;
+            Unit* unitTarget = nullptr;
             switch (e.GetTargetType())
             {
                 case SMART_TARGET_CREATURE_RANGE:
@@ -3343,24 +3343,29 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
                 case SMART_TARGET_CLOSEST_PLAYER:
                 case SMART_TARGET_PLAYER_RANGE:
                 case SMART_TARGET_PLAYER_DISTANCE:
+                {
+                    ObjectVector targets;
                     GetTargets(targets, e);
+
+                    for (WorldObject* target : targets)
+                    {
+                        if (IsUnit(target) && me->IsFriendlyTo(target->ToUnit()) && target->ToUnit()->IsAlive() && target->ToUnit()->IsInCombat())
+                        {
+                            uint32 healthPct = uint32(target->ToUnit()->GetHealthPct());
+                            if (healthPct > e.event.friendlyHealthPct.maxHpPct || healthPct < e.event.friendlyHealthPct.minHpPct)
+                                continue;
+
+                            unitTarget = target->ToUnit();
+                            break;
+                        }
+                    }
+                    break;
+                }
+                case SMART_TARGET_ACTION_INVOKER:
+                    unitTarget = DoSelectLowestHpPercentFriendly((float)e.event.friendlyHealthPct.radius, e.event.friendlyHealthPct.minHpPct, e.event.friendlyHealthPct.maxHpPct);
                     break;
                 default:
                     return;
-            }
-
-            Unit* unitTarget = nullptr;
-            for (WorldObject* target : targets)
-            {
-                if (IsUnit(target) && me->IsFriendlyTo(target->ToUnit()) && target->ToUnit()->IsAlive() && target->ToUnit()->IsInCombat())
-                {
-                    uint32 healthPct = uint32(target->ToUnit()->GetHealthPct());
-                    if (healthPct > e.event.friendlyHealthPct.maxHpPct || healthPct < e.event.friendlyHealthPct.minHpPct)
-                        continue;
-
-                    unitTarget = target->ToUnit();
-                    break;
-                }
             }
 
             if (!unitTarget)
@@ -3650,8 +3655,26 @@ void SmartScript::OnUpdate(uint32 const diff)
     if ((mScriptType == SMART_SCRIPT_TYPE_CREATURE || mScriptType == SMART_SCRIPT_TYPE_GAMEOBJECT) && !GetBaseObject())
         return;
 
+    // Don't run any action while evading
     if (me && me->IsInEvadeMode())
+    {
+        // Check if the timed action list finished and clear it if so.
+        // This is required by SMART_ACTION_CALL_TIMED_ACTIONLIST failing if mTimedActionList is not empty.
+        if (!mTimedActionList.empty())
+        {
+            bool needCleanup = true;
+            for (SmartScriptHolder& scriptholder : mTimedActionList)
+            {
+                if (scriptholder.enableTimed)
+                    needCleanup = false;
+            }
+
+            if (needCleanup)
+                mTimedActionList.clear();
+        }
+
         return;
+    }
 
     InstallEvents();//before UpdateTimers
 
@@ -3853,6 +3876,18 @@ Unit* SmartScript::DoSelectLowestHpFriendly(float range, uint32 MinHPDiff) const
     Unit* unit = nullptr;
     Trinity::MostHPMissingInRange u_check(me, range, MinHPDiff);
     Trinity::UnitLastSearcher<Trinity::MostHPMissingInRange> searcher(me, unit, u_check);
+    Cell::VisitGridObjects(me, searcher, range);
+    return unit;
+}
+
+Unit* SmartScript::DoSelectLowestHpPercentFriendly(float range, uint32 minHpPct, uint32 maxHpPct) const
+{
+    if (!me)
+        return nullptr;
+
+    Unit* unit = nullptr;
+    Trinity::MostHPPercentMissingInRange u_check(me, range, minHpPct, maxHpPct);
+    Trinity::UnitLastSearcher<Trinity::MostHPPercentMissingInRange> searcher(me, unit, u_check);
     Cell::VisitGridObjects(me, searcher, range);
     return unit;
 }
