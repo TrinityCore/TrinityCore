@@ -2,14 +2,17 @@
 #include "ScriptedCreature.h"
 #include "CustomAI.h"
 
-enum Spells
+enum Constants
 {
     SPELL_CLEAVE                = 100029,
     SPELL_PROCOCATION           = 100038,
     SPELL_CHARGE                = 100083,
     SPELL_EXECUTE               = 100084,
     SPELL_INCAPACITATING_SHOUT  = 61578,
-    SPELL_BATTLE_SHOUT          = 24438
+    SPELL_BATTLE_SHOUT          = 24438,
+
+    // Aden ignores death
+    NPC_LIEUTENANT_ADEN         = 100004
 };
 
 class npc_warrior : public CreatureScript
@@ -20,6 +23,19 @@ class npc_warrior : public CreatureScript
     struct npc_warriorAI : public CustomAI
     {
         npc_warriorAI(Creature* creature) : CustomAI(creature, AI_Type::Melee) {}
+
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        {
+            // Que pour la bataille de Theramore et pour Aden
+            if (me->GetEntry() == NPC_LIEUTENANT_ADEN && me->GetMapId() == 726)
+            {
+                if (damage >= me->GetMaxHealth())
+                    damage = 0;
+
+                if (HealthBelowPct(20))
+                    damage = 0;
+            }
+        }
 
         void JustEngagedWith(Unit* /*who*/) override
         {

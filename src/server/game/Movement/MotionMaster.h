@@ -179,7 +179,7 @@ class TC_GAME_API MotionMaster
         void MoveJump(Position const& pos, float speedXY, float speedZ, uint32 id = EVENT_JUMP, bool hasOrientation = false);
         void MoveJump(float x, float y, float z, float o, float speedXY, float speedZ, uint32 id = EVENT_JUMP, bool hasOrientation = false);
         void MoveCirclePath(float x, float y, float z, float radius, bool clockwise, uint8 stepCount);
-        void MoveSmoothPath(uint32 pointId, Position const* pathPoints, size_t pathSize, bool walk);
+        void MoveSmoothPath(uint32 pointId, Position const* pathPoints, size_t pathSize, bool walk, Optional<float> finalOrient = {});
         // Walk along spline chain stored in DB (script_spline_chain_meta and script_spline_chain_waypoints)
         void MoveAlongSplineChain(uint32 pointId, uint16 dbChainId, bool walk);
         void MoveAlongSplineChain(uint32 pointId, std::vector<SplineChainLink> const& chain, bool walk);

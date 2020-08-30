@@ -144,7 +144,11 @@ class npc_jaina_theramore : public CreatureScript
 
     struct npc_jaina_theramoreAI : public ScriptedAI
     {
-        npc_jaina_theramoreAI(Creature* creature) : ScriptedAI(creature)
+        npc_jaina_theramoreAI(Creature* creature) : ScriptedAI(creature),
+            kalecgos(nullptr), tervosh(nullptr), kinndy(nullptr), aden(nullptr),
+            thalen(nullptr), rhonin(nullptr), vereesa(nullptr), pained(nullptr),
+            perith(nullptr), zealous(nullptr), guard(nullptr), amara(nullptr), playerForQuest(nullptr),
+            playerShaker(false), firesCount(0), npcCount(0), canBeginEnd(false), debug(false)
         {
             Initialize();
         }
@@ -152,12 +156,6 @@ class npc_jaina_theramore : public CreatureScript
         void Initialize()
         {
             SetCombatMovement(false);
-
-            playerShaker = false;
-            firesCount = 0;
-            npcCount = 0;
-            canBeginEnd = false;
-            debug = false;
 
             scheduler.SetValidator([this]
             {
@@ -239,9 +237,9 @@ class npc_jaina_theramore : public CreatureScript
                 {
                     playerForQuest->Lock(true);
 
-                    SearchOrRespawn(NPC_KALECGOS, kalecgos);
-                    SearchOrRespawn(NPC_ARCHMAGE_TERVOSH, tervosh);
-                    SearchOrRespawn(NPC_KINNDY_SPARKSHINE, kinndy);
+                    kalecgos = GetClosestCreatureWithEntry(me, NPC_KALECGOS, 2000.f);
+                    tervosh = GetClosestCreatureWithEntry(me, NPC_ARCHMAGE_TERVOSH, 2000.f);
+                    kinndy = GetClosestCreatureWithEntry(me, NPC_KINNDY_SPARKSHINE, 2000.f);
 
                     kinndy->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
 
@@ -260,17 +258,19 @@ class npc_jaina_theramore : public CreatureScript
                 {
                     playerForQuest->SetPhaseMask(3, true);
 
-                    SearchOrRespawn(NPC_KALECGOS, kalecgos);
-                    SearchOrRespawn(NPC_ARCHMAGE_TERVOSH, tervosh);
-                    SearchOrRespawn(NPC_KINNDY_SPARKSHINE, kinndy);
-                    SearchOrRespawn(NPC_LIEUTENANT_ADEN, aden);
-                    SearchOrRespawn(NPC_RHONIN, rhonin);
+                    kalecgos = GetClosestCreatureWithEntry(me, NPC_KALECGOS, 2000.f);
+                    tervosh = GetClosestCreatureWithEntry(me, NPC_ARCHMAGE_TERVOSH, 2000.f);
+                    kinndy = GetClosestCreatureWithEntry(me, NPC_KINNDY_SPARKSHINE, 2000.f);
+                    aden = GetClosestCreatureWithEntry(me, NPC_LIEUTENANT_ADEN, 2000.f);
+                    rhonin = GetClosestCreatureWithEntry(me, NPC_RHONIN, 2000.f);
+                    amara = GetClosestCreatureWithEntry(me, NPC_AMARA_LEESON, 2000.f);
 
                     me->SetPhaseMask(3, true);
                     tervosh->SetPhaseMask(3, true);
                     kinndy->SetPhaseMask(3, true);
                     kalecgos->SetPhaseMask(3, true);
                     aden->SetPhaseMask(3, true);
+                    amara->SetPhaseMask(3, true);
                     kinndy->NearTeleportTo(-3637.63f, -4408.91f, 9.79f, 4.84f);
                     kinndy->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_CRY);
                     kinndy->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
@@ -288,16 +288,16 @@ class npc_jaina_theramore : public CreatureScript
                 }
 
                 case EVENT_START_EVACUATION:
-                    SearchOrRespawn(NPC_ARCHMAGE_TERVOSH, tervosh);
-                    SearchOrRespawn(NPC_KINNDY_SPARKSHINE, kinndy);
-                    SearchOrRespawn(NPC_KALECGOS, kalecgos);
-                    SearchOrRespawn(NPC_LIEUTENANT_ADEN, aden);
+                    kalecgos = GetClosestCreatureWithEntry(me, NPC_KALECGOS, 2000.f);
+                    tervosh = GetClosestCreatureWithEntry(me, NPC_ARCHMAGE_TERVOSH, 2000.f);
+                    kinndy = GetClosestCreatureWithEntry(me, NPC_KINNDY_SPARKSHINE, 2000.f);
+                    aden = GetClosestCreatureWithEntry(me, NPC_LIEUTENANT_ADEN, 2000.f);
                     events.ScheduleEvent(EVENT_EVACUATION_1, Milliseconds(value ? value : 60000), 0, PHASE_CONVO);
                     break;
 
                 case EVENT_START_WARN:
-                    SearchOrRespawn(NPC_ARCHMAGE_TERVOSH, tervosh);
-                    SearchOrRespawn(NPC_KINNDY_SPARKSHINE, kinndy);
+                    tervosh = GetClosestCreatureWithEntry(me, NPC_ARCHMAGE_TERVOSH, 2000.f);
+                    kinndy = GetClosestCreatureWithEntry(me, NPC_KINNDY_SPARKSHINE, 2000.f);
                     kinndy->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                     events.SetPhase(PHASE_WARN);
                     events.ScheduleEvent(EVENT_WARN_1, 2s, 0, PHASE_WARN);
@@ -307,10 +307,10 @@ class npc_jaina_theramore : public CreatureScript
                 {
                     debug = value == 2 ? true : false;
 
-                    SearchOrRespawn(NPC_ARCHMAGE_TERVOSH, tervosh);
-                    SearchOrRespawn(NPC_KINNDY_SPARKSHINE, kinndy);
-                    SearchOrRespawn(NPC_KALECGOS, kalecgos);
-                    SearchOrRespawn(NPC_LIEUTENANT_ADEN, aden);
+                    kalecgos = GetClosestCreatureWithEntry(me, NPC_KALECGOS, 2000.f);
+                    tervosh = GetClosestCreatureWithEntry(me, NPC_ARCHMAGE_TERVOSH, 2000.f);
+                    kinndy = GetClosestCreatureWithEntry(me, NPC_KINNDY_SPARKSHINE, 2000.f);
+                    aden = GetClosestCreatureWithEntry(me, NPC_LIEUTENANT_ADEN, 2000.f);
 
                     kinndy->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
 
@@ -346,7 +346,7 @@ class npc_jaina_theramore : public CreatureScript
                     break;
 
                 case EVENT_START_END:
-                    SearchOrRespawn(NPC_RHONIN, rhonin);
+                    rhonin = GetClosestCreatureWithEntry(me, NPC_RHONIN, 2000.f);
                     events.SetPhase(PHASE_END);
                     events.ScheduleEvent(EVENT_END_1, 2s, 0, PHASE_END);
                     break;
@@ -1301,26 +1301,18 @@ class npc_jaina_theramore : public CreatureScript
 
                     case EVENT_POST_BATTLE_5:
                         aden->SetWalk(true);
-                        aden->GetMotionMaster()->MoveFollow(me, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
                         me->GetMotionMaster()->MoveSmoothPath(0, JainaPostBattlePath, JAINA_PATH_SIZE, true);
+                        aden->GetMotionMaster()->MoveSmoothPath(0, JainaPostBattlePath, JAINA_PATH_SIZE, true);
                         events.ScheduleEvent(EVENT_POST_BATTLE_6, 26s, 0, PHASE_POST_BATTLE);
                         break;
 
                     case EVENT_POST_BATTLE_6:
-                    {
-                        SearchOrRespawn(NPC_AMARA_LEESON, amara);
-                        if (amara)
-                        {
-                            amara->SetPhaseMask(3, true);
-                            amara->NearTeleportTo(-3658.80f, -4520.89f, 9.71f, 2.52f);
-                        }
-
+                        amara->NearTeleportTo(-3658.80f, -4520.89f, 9.71f, 2.52f);
                         me->GetMotionMaster()->MovePoint(0, -3634.95f, -4412.57f, 9.81f, true, 2.17f);
                         aden->GetMotionMaster()->Clear();
                         aden->GetMotionMaster()->MovePoint(0, -3615.46f, -4437.43f, 13.68f, true, 1.57f);
                         events.ScheduleEvent(EVENT_POST_BATTLE_7, 3s, 0, PHASE_POST_BATTLE);
                         break;
-                    }
 
                     case EVENT_POST_BATTLE_7:
                         kinndy->AI()->Talk(SAY_POST_BATTLE_4);
@@ -1387,7 +1379,7 @@ class npc_jaina_theramore : public CreatureScript
                     case EVENT_POST_BATTLE_19:
                         Talk(SAY_POST_BATTLE_16);
                         kinndy->SetWalk(false);
-                        kinndy->GetMotionMaster()->MoveFollow(me, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+                        kinndy->GetMotionMaster()->MoveSmoothPath(0, JainaWoundedPath, JAINA_PATH_1_SIZE, false);
                         me->SetWalk(false);
                         me->GetMotionMaster()->MoveSmoothPath(0, JainaWoundedPath, JAINA_PATH_1_SIZE, false);
                         events.ScheduleEvent(EVENT_POST_BATTLE_20, 23s, 0, PHASE_POST_BATTLE);
@@ -1493,27 +1485,22 @@ class npc_jaina_theramore : public CreatureScript
         }
 
         private:
-        Creature* kalecgos;
-        Creature* tervosh;
-        Creature* kinndy;
-        Creature* aden;
-        Creature* thalen;
-        Creature* rhonin;
-        Creature* vereesa;
-        Creature* pained;
-        Creature* perith;
-        Creature* zealous;
-        Creature* guard;
-        Creature* amara;
-        ObjectGuid archmagesGUID[6];
-        EventMap events;
-        std::vector<GameObject*> fires;
-        Player* playerForQuest;
-        std::list<Creature*> civils;
+
+        #pragma region VARIABLES
         bool playerShaker, canBeginEnd, debug;
         uint8 firesCount;
         uint8 npcCount;
+        EventMap events;
+        Creature *kalecgos, *tervosh, *kinndy;
+        Creature *aden, *thalen, *rhonin;
+        Creature *vereesa, *pained, *perith;
+        Creature *zealous, *guard, *amara;
+        Player* playerForQuest;
+        ObjectGuid archmagesGUID[6];
+        std::vector<GameObject*> fires;
+        std::list<Creature*> civils;
         TaskScheduler scheduler;
+        #pragma endregion
 
         void Relocate(Creature* c, float x, float y, float z, float orientation)
         {
@@ -1534,21 +1521,6 @@ class npc_jaina_theramore : public CreatureScript
             {
                 array[index++] = stack.top();
                 stack.pop();
-            }
-        }
-
-        void SearchOrRespawn(uint32 entry, Creature*& creature)
-        {
-            if (creature && creature->IsAlive())
-                return;
-
-            creature = GetClosestCreatureWithEntry(me, entry, 2000.f);
-            if (!creature)
-            {
-                if (Creature* temp = GetClosestCreatureWithEntry(me, entry, 2000.f, false))
-                {
-                    creature = temp->SummonCreature(entry, temp->GetPosition(), TEMPSUMMON_CORPSE_DESPAWN, 5s);
-                }
             }
         }
 

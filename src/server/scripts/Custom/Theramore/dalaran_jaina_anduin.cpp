@@ -647,12 +647,12 @@ class dalaran_jaina_anduin : public CreatureScript
 
 					case EVENT_REUNION_2:
 						Talk(SAY_JAINA_3);
-						me->GetMotionMaster()->MoveSmoothPath(0, pathInsideJaina, INSIDE_PATH_SIZE, true);
+						me->GetMotionMaster()->MoveSmoothPath(0, pathInsideJaina, INSIDE_PATH_SIZE, true, 0.006674f);
 						events.ScheduleEvent(EVENT_REUNION_3, 3s);
 						break;
 
 					case EVENT_REUNION_3:
-						anduin->GetMotionMaster()->MoveSmoothPath(0, pathInsideAnduin, INSIDE_PATH_SIZE, true);
+						anduin->GetMotionMaster()->MoveSmoothPath(0, pathInsideAnduin, INSIDE_PATH_SIZE, true, 0.182533f);
 						events.ScheduleEvent(EVENT_REUNION_4, 3s);
 						break;
 
@@ -663,8 +663,6 @@ class dalaran_jaina_anduin : public CreatureScript
 
 					case EVENT_REUNION_5:
 						anduin->AI()->Talk(SAY_ANDUIN_5);
-						me->SetFacingToObject(anduin);
-						anduin->SetFacingToObject(me);
 						events.ScheduleEvent(EVENT_REUNION_6, 1s);
 						break;
 
@@ -672,8 +670,6 @@ class dalaran_jaina_anduin : public CreatureScript
 						me->PlayDirectMusic(SOUND_REUNION_MUSIC);
 						center->AddAura(SPELL_SPOT_SCALED, center);
 						player->AddAura(SPELL_REMEMBER_SHADOW, player);
-						me->SetFacingToObject(center);
-						anduin->SetFacingToObject(center);
 						events.ScheduleEvent(EVENT_TALK_SCENE, 60ms);
 						break;
 
