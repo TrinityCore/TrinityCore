@@ -162,49 +162,49 @@ void CustomConfig::Load()
     TC_LOG_INFO("server.loading", ">> Loaded %u game config option in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-bool CustomConfig::GetBoolConfig(std::string const& optionName)
+bool CustomConfig::GetBoolConfig(std::string const& optionName, bool defaultValue /*= false*/)
 {
     auto const& itr = _boolOptions.find(optionName);
     if (itr == _boolOptions.end())
     {
         TC_LOG_FATAL("server.loading", "> Bool option (%s) not found!", optionName.c_str());
-        return false;
+        return defaultValue;
     }
 
     return _boolOptions[optionName];
 }
 
-int32 CustomConfig::GetIntConfig(std::string const& optionName)
+int32 CustomConfig::GetIntConfig(std::string const& optionName, int32 defaultValue /*= 0*/)
 {
     auto const& itr = _intOptions.find(optionName);
     if (itr == _intOptions.end())
     {
         TC_LOG_FATAL("server.loading", "> Int option (%s) not found!", optionName.c_str());
-        return 0;
+        return defaultValue;
     }
 
     return _intOptions[optionName];
 }
 
-float CustomConfig::GetFloatConfig(std::string const& optionName)
+float CustomConfig::GetFloatConfig(std::string const& optionName, float defaultValue /*= 1.0f*/)
 {
     auto const& itr = _floatOptions.find(optionName);
     if (itr == _floatOptions.end())
     {
         TC_LOG_FATAL("server.loading", "> Float option (%s) not found!", optionName.c_str());
-        return 1.0f;
+        return defaultValue;
     }
 
     return _floatOptions[optionName];
 }
 
-std::string CustomConfig::GetStringConfig(std::string const& optionName)
+std::string CustomConfig::GetStringConfig(std::string const& optionName, std::string const& defaultValue /*= ""*/)
 {
     auto const& itr = _stringOptions.find(optionName);
     if (itr == _stringOptions.end())
     {
         TC_LOG_FATAL("server.loading", "> String option (%s) not found!", optionName.c_str());
-        return "";
+        return defaultValue;
     }
 
     return _stringOptions[optionName];

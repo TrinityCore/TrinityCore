@@ -39,10 +39,10 @@ public:
     void Load();
 
     // Get config options
-    bool GetBoolConfig(std::string const& optionName);
-    int32 GetIntConfig(std::string const& optionName);
-    float GetFloatConfig(std::string const& optionName);
-    std::string GetStringConfig(std::string const& optionName);
+    bool GetBoolConfig(std::string const& optionName, bool defaultValue = false);
+    int32 GetIntConfig(std::string const& optionName, int32 defaultValue = 0);
+    float GetFloatConfig(std::string const& optionName, float defaultValue = 1.0f);
+    std::string GetStringConfig(std::string const& optionName, std::string const& defaultValue = "");
 
 private:
     // Add config options
