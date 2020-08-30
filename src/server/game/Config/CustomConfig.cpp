@@ -16,19 +16,19 @@
  */
 
 #include "DatabaseEnv.h"
-#include "GameConfig.h"
+#include "CustomConfig.h"
 #include "Log.h"
 #include "Timer.h"
 #include "Util.h"
 #include "StringConvert.h"
 
-GameConfig* GameConfig::instance()
+CustomConfig* CustomConfig::instance()
 {
-    static GameConfig instance;
+    static CustomConfig instance;
     return &instance;
 }
 
-void GameConfig::CleanAll()
+void CustomConfig::CleanAll()
 {
     _boolOptions.clear();
     _intOptions.clear();
@@ -36,7 +36,7 @@ void GameConfig::CleanAll()
     _stringOptions.clear();
 }
 
-void GameConfig::AddBoolOption(std::string const& optionName, bool value /*= false*/)
+void CustomConfig::AddBoolOption(std::string const& optionName, bool value /*= false*/)
 {
     auto const& itr = _boolOptions.find(optionName);
     if (itr != _boolOptions.end())
@@ -48,7 +48,7 @@ void GameConfig::AddBoolOption(std::string const& optionName, bool value /*= fal
     _boolOptions.insert(std::make_pair(optionName, value));
 }
 
-void GameConfig::AddIntOption(std::string const& optionName, int32 value /*= 0*/)
+void CustomConfig::AddIntOption(std::string const& optionName, int32 value /*= 0*/)
 {
     auto const& itr = _intOptions.find(optionName);
     if (itr != _intOptions.end())
@@ -60,7 +60,7 @@ void GameConfig::AddIntOption(std::string const& optionName, int32 value /*= 0*/
     _intOptions.insert(std::make_pair(optionName, value));
 }
 
-void GameConfig::AddFloatOption(std::string const& optionName, float value /*= 1.0f*/)
+void CustomConfig::AddFloatOption(std::string const& optionName, float value /*= 1.0f*/)
 {
     auto const& itr = _floatOptions.find(optionName);
     if (itr != _floatOptions.end())
@@ -72,7 +72,7 @@ void GameConfig::AddFloatOption(std::string const& optionName, float value /*= 1
     _floatOptions.insert(std::make_pair(optionName, value));
 }
 
-void GameConfig::AddStringOption(std::string const& optionName, std::string const& value /*= ""*/)
+void CustomConfig::AddStringOption(std::string const& optionName, std::string const& value /*= ""*/)
 {
     auto const& itr = _stringOptions.find(optionName);
     if (itr != _stringOptions.end())
@@ -84,7 +84,7 @@ void GameConfig::AddStringOption(std::string const& optionName, std::string cons
     _stringOptions.insert(std::make_pair(optionName, value));
 }
 
-void GameConfig::AddOption(std::string const& optionName, GameConfigType type, std::string const& value, std::string const& defaultValue)
+void CustomConfig::AddOption(std::string const& optionName, GameConfigType type, std::string const& value, std::string const& defaultValue)
 {
     switch (type)
     {
@@ -95,7 +95,7 @@ void GameConfig::AddOption(std::string const& optionName, GameConfigType type, s
         AddIntOption(optionName, value.empty() ? Trinity::StringTo<int32>(defaultValue).value() : Trinity::StringTo<int32>(value).value());
         break;
     case GameConfigType::GAME_CONFIG_TYPE_FLOAT:
-        AddFloatOption(optionName, value.empty() ? Trinity::StringTo<float>(defaultValue).value() : Trinity::StringTo<float>(value).value());
+        AddFloatOption(optionName, value.empty() ? std::stof(defaultValue) : std::stof(value));
         break;
     case GameConfigType::GAME_CONFIG_TYPE_STRING:
         AddStringOption(optionName, value.empty() ? defaultValue : value);
@@ -106,7 +106,7 @@ void GameConfig::AddOption(std::string const& optionName, GameConfigType type, s
     }
 }
 
-void GameConfig::Load()
+void CustomConfig::Load()
 {
     CleanAll();
 
@@ -162,7 +162,7 @@ void GameConfig::Load()
     TC_LOG_INFO("server.loading", ">> Loaded %u game config option in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-bool GameConfig::GetBoolConfig(std::string const& optionName)
+bool CustomConfig::GetBoolConfig(std::string const& optionName)
 {
     auto const& itr = _boolOptions.find(optionName);
     if (itr == _boolOptions.end())
@@ -174,7 +174,7 @@ bool GameConfig::GetBoolConfig(std::string const& optionName)
     return _boolOptions[optionName];
 }
 
-int32 GameConfig::GetIntConfig(std::string const& optionName)
+int32 CustomConfig::GetIntConfig(std::string const& optionName)
 {
     auto const& itr = _intOptions.find(optionName);
     if (itr == _intOptions.end())
@@ -186,7 +186,7 @@ int32 GameConfig::GetIntConfig(std::string const& optionName)
     return _intOptions[optionName];
 }
 
-float GameConfig::GetFloatConfig(std::string const& optionName)
+float CustomConfig::GetFloatConfig(std::string const& optionName)
 {
     auto const& itr = _floatOptions.find(optionName);
     if (itr == _floatOptions.end())
@@ -198,7 +198,7 @@ float GameConfig::GetFloatConfig(std::string const& optionName)
     return _floatOptions[optionName];
 }
 
-std::string GameConfig::GetStringConfig(std::string const& optionName)
+std::string CustomConfig::GetStringConfig(std::string const& optionName)
 {
     auto const& itr = _stringOptions.find(optionName);
     if (itr == _stringOptions.end())

@@ -1,8 +1,8 @@
 -- ----------------------------
--- Table structure for game_config
+-- Table structure for custom_config
 -- ----------------------------
-DROP TABLE IF EXISTS `game_config`;
-CREATE TABLE `game_config`  (
+DROP TABLE IF EXISTS `custom_config`;
+CREATE TABLE `custom_config`  (
   `OptionName` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `Type` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'Support types - bool, int, float, string',
   `DefaultValue` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
@@ -12,9 +12,9 @@ CREATE TABLE `game_config`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of game_config
+-- Records of custom_config
 -- ----------------------------
-INSERT INTO `game_config` VALUES ('TestOption.Bool', 'bool', '1', NULL, 'Test option bool');
-INSERT INTO `game_config` VALUES ('TestOption.Float', 'float', '1.5232', NULL, 'Test option float');
-INSERT INTO `game_config` VALUES ('TestOption.Int', 'int', '100', NULL, 'Test option int');
-INSERT INTO `game_config` VALUES ('TestOption.String', 'string', 'test string', NULL, 'Test option string');
+INSERT INTO `custom_config` VALUES ('TestOption.Bool', 'bool', '1', NULL, 'Test option bool');
+INSERT INTO `custom_config` VALUES ('TestOption.Float', 'float', '1.5232', NULL, 'Test option float');
+INSERT INTO `custom_config` VALUES ('TestOption.Int', 'int', '100', NULL, 'Test option int');
+INSERT INTO `custom_config` VALUES ('TestOption.String', 'string', 'test string', NULL, 'Test option string');

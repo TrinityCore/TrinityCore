@@ -39,7 +39,7 @@
 #include "CreatureTextMgr.h"
 #include "DatabaseEnv.h"
 #include "DisableMgr.h"
-#include "GameConfig.h"
+#include "CustomConfig.h"
 #include "GameEventMgr.h"
 #include "GameObjectModel.h"
 #include "GameTime.h"

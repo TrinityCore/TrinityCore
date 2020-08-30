@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _GAME_CONFIG_H
-#define _GAME_CONFIG_H
+#ifndef _CUSTOM_CONFIG_H_
+#define _CUSTOM_CONFIG_H_
 
 #include "Common.h"
 #include <unordered_map>
@@ -31,10 +31,10 @@ enum class GameConfigType : uint8
     GAME_CONFIG_TYPE_UNKNOWN
 };
 
-class TC_GAME_API GameConfig
+class TC_GAME_API CustomConfig
 {
 public:
-    static GameConfig* instance();
+    static CustomConfig* instance();
 
     void Load();
 
@@ -61,6 +61,6 @@ private:
     std::unordered_map<std::string, std::string> _stringOptions;
 };
 
-#define sGameConfig GameConfig::instance()
+#define sGameConfig CustomConfig::instance()
 
-#endif // _GAME_CONFIG_H
+#endif // _CUSTOM_CONFIG_H_
