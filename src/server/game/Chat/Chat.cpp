@@ -154,7 +154,7 @@ bool ChatHandler::hasStringAbbr(char const* name, char const* part)
 
         while (true)
         {
-            if (!*part)
+            if (!*part || *part == ' ')
                 return true;
             else if (!*name)
                 return false;
@@ -456,6 +456,10 @@ bool ChatHandler::ShowHelpForCommand(std::vector<ChatCommand> const& table, char
 {
     if (*cmd)
     {
+        std::string subcmd;
+        if (size_t n = std::string_view(cmd).find(' '); n != std::string_view::npos)
+            subcmd.assign(cmd+n+1);
+
         for (uint32 i = 0; i < table.size(); ++i)
         {
             // must be available (ignore handler existence to show command with possible available subcommands)
@@ -466,11 +470,9 @@ bool ChatHandler::ShowHelpForCommand(std::vector<ChatCommand> const& table, char
                 continue;
 
             // have subcommand
-            char const* subcmd = (*cmd) ? strtok(nullptr, " ") : "";
-
-            if (!table[i].ChildCommands.empty() && subcmd && *subcmd)
+            if (!table[i].ChildCommands.empty() && !subcmd.empty())
             {
-                if (ShowHelpForCommand(table[i].ChildCommands, subcmd))
+                if (ShowHelpForCommand(table[i].ChildCommands, subcmd.c_str()))
                     return true;
             }
 
@@ -478,7 +480,7 @@ bool ChatHandler::ShowHelpForCommand(std::vector<ChatCommand> const& table, char
                 SendSysMessage(table[i].Help.c_str());
 
             if (!table[i].ChildCommands.empty())
-                if (ShowHelpForSubCommands(table[i].ChildCommands, table[i].Name, subcmd ? subcmd : ""))
+                if (ShowHelpForSubCommands(table[i].ChildCommands, table[i].Name, subcmd.c_str()))
                     return true;
 
             return !table[i].Help.empty();

@@ -689,16 +689,16 @@ public:
         return true;
     }
 
-    static bool HandleHelpCommand(ChatHandler* handler, Optional<std::string> cmdArg)
+    static bool HandleHelpCommand(ChatHandler* handler, Tail cmdArg)
     {
-        if (!cmdArg)
+        if (cmdArg.empty())
         {
             handler->ShowHelpForCommand(ChatHandler::getCommandTable(), "help");
             handler->ShowHelpForCommand(ChatHandler::getCommandTable(), "");
         }
         else
         {
-            if (!handler->ShowHelpForCommand(ChatHandler::getCommandTable(), cmdArg->c_str()))
+            if (!handler->ShowHelpForCommand(ChatHandler::getCommandTable(), std::string(cmdArg).c_str()))
                 handler->SendSysMessage(LANG_NO_HELP_CMD);
         }
 
