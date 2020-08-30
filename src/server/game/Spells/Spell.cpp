@@ -8375,7 +8375,7 @@ bool WorldObjectSpellAreaTargetCheck::operator()(WorldObject* target)
     }
     else if (target->ToUnit())
     {
-        float hitboxSum = _spellInfo->HasAttribute(SPELL_ATTR5_INCLUDE_MELEE_RANGE) ? target->ToUnit()->GetMeleeRange(_caster) : 0.f;
+        float hitboxSum = _spellInfo->SpellFamilyName != SPELLFAMILY_GENERIC ? target->ToUnit()->GetMeleeRange(_caster) : 0.f;
         bool isInsideCylinder = target->IsWithinDist2d(_position, _range + hitboxSum) && std::abs(target->GetPositionZ() - _position->GetPositionZ()) <= (_range + hitboxSum);
         if (!isInsideCylinder)
             return false;
