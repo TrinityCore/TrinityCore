@@ -309,7 +309,7 @@ public:
         void Initialize()
         {
             me->SetReactState(REACT_PASSIVE);
-            me->setRegeneratingHealth(false);
+            me->SetRegenerateHealth(false);
             DoCast(me, SPELL_FROZEN_CORE_GETS_HIT);
             DoCast(me, SPELL_ICE_SPEAR_AURA);
         }

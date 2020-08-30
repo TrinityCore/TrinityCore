@@ -93,9 +93,9 @@ public:
         return GetGnomereganAI<npc_blastmaster_emi_shortfuseAI>(creature);
     }
 
-    struct npc_blastmaster_emi_shortfuseAI : public npc_escortAI
+    struct npc_blastmaster_emi_shortfuseAI : public EscortAI
     {
-        npc_blastmaster_emi_shortfuseAI(Creature* creature) : npc_escortAI(creature)
+        npc_blastmaster_emi_shortfuseAI(Creature* creature) : EscortAI(creature)
         {
             instance = creature->GetInstanceScript();
             creature->RestoreFaction();
@@ -218,7 +218,7 @@ public:
             }
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             //just in case
             if (GetPlayerForEscort())

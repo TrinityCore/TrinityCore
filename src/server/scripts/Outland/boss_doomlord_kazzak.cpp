@@ -81,7 +81,7 @@ class boss_doomlord_kazzak : public CreatureScript
                 _events.ScheduleEvent(EVENT_BERSERK, 180000);
             }
 
-            void JustRespawned() override
+            void JustAppeared() override
             {
                 Talk(SAY_INTRO);
             }

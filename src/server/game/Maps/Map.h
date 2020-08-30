@@ -280,6 +280,7 @@ struct ZoneDynamicInfo
 #define MAX_FALL_DISTANCE     250000.0f                     // "unlimited fall" to find VMap ground if it is available, just larger than MAX_HEIGHT - INVALID_HEIGHT
 #define DEFAULT_HEIGHT_SEARCH     50.0f                     // default search distance to find height at nearby locations
 #define MIN_UNLOAD_DELAY      1                             // immediate unload
+#define MAP_INVALID_ZONE      0xFFFFFFFF
 
 typedef std::map<ObjectGuid::LowType/*leaderDBGUID*/, CreatureGroup*> CreatureGroupHolderType;
 
@@ -823,6 +824,12 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
                 RemoveRespawnTime(info, doRespawn, dbTrans);
         }
 
+        SpawnGroupTemplateData const* GetSpawnGroupData(uint32 groupId) const;
+        bool SpawnGroupSpawn(uint32 groupId, bool ignoreRespawn = false, bool force = false, std::vector<WorldObject*>* spawnedObjects = nullptr);
+        bool SpawnGroupDespawn(uint32 groupId, bool deleteRespawnTimes = false);
+        void SetSpawnGroupActive(uint32 groupId, bool state);
+        bool IsSpawnGroupActive(uint32 groupId) const;
+
     private:
         // Type specific code for add/remove to/from grid
         template<class T>
@@ -857,6 +864,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         RespawnInfoMap       _gameObjectRespawnTimesBySpawnId;
         RespawnInfoMap& GetRespawnMapForType(SpawnObjectType type) { return (type == SPAWN_TYPE_GAMEOBJECT) ? _gameObjectRespawnTimesBySpawnId : _creatureRespawnTimesBySpawnId; }
         RespawnInfoMap const& GetRespawnMapForType(SpawnObjectType type) const { return (type == SPAWN_TYPE_GAMEOBJECT) ? _gameObjectRespawnTimesBySpawnId : _creatureRespawnTimesBySpawnId; }
+        std::unordered_set<uint32> _toggledSpawnGroupIds;
 
         uint32 _respawnCheckTimer;
         std::unordered_map<uint32, uint32> _zonePlayerCountMap;

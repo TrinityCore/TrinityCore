@@ -237,7 +237,7 @@ class TC_GAME_API InstanceScript : public ZoneScript
 
         virtual bool SetBossState(uint32 id, EncounterState state);
         EncounterState GetBossState(uint32 id) const { return id < bosses.size() ? bosses[id].state : TO_BE_DECIDED; }
-        static std::string GetBossStateName(uint8 state);
+        static char const* GetBossStateName(uint8 state);
         CreatureBoundary const* GetBossBoundary(uint32 id) const { return id < bosses.size() ? &bosses[id].boundary : nullptr; }
 
         // Achievement criteria additional requirements check
@@ -265,6 +265,11 @@ class TC_GAME_API InstanceScript : public ZoneScript
 
         // Get's the current entrance id
         uint32 GetEntranceLocation() const { return _temporaryEntranceId ? _temporaryEntranceId : _entranceId; }
+
+        // Only used by areatriggers that inherit from OnlyOnceAreaTriggerScript
+        void MarkAreaTriggerDone(uint32 id) { _activatedAreaTriggers.insert(id); }
+        void ResetAreaTriggerDone(uint32 id) { _activatedAreaTriggers.erase(id); }
+        bool IsAreaTriggerDone(uint32 id) const { return _activatedAreaTriggers.find(id) != _activatedAreaTriggers.end(); }
 
         void SendEncounterUnit(uint32 type, Unit* unit = nullptr, uint8 priority = 0);
         void SendEncounterStart(uint32 inCombatResCount = 0, uint32 maxInCombatResCount = 0, uint32 inCombatResChargeRecovery = 0, uint32 nextCombatResChargeTime = 0);
@@ -333,6 +338,7 @@ class TC_GAME_API InstanceScript : public ZoneScript
         ObjectGuidMap _objectGuids;
         uint32 completedEncounters; // completed encounter mask, bit indexes are DungeonEncounter.dbc boss numbers, used for packets
         std::vector<InstanceSpawnGroupInfo> const* const _instanceSpawnGroups;
+        std::unordered_set<uint32> _activatedAreaTriggers;
         uint32 _entranceId;
         uint32 _temporaryEntranceId;
         uint32 _combatResurrectionTimer;

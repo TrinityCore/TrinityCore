@@ -488,9 +488,9 @@ class npc_bessy : public CreatureScript
 public:
     npc_bessy() : CreatureScript("npc_bessy") { }
 
-    struct npc_bessyAI : public npc_escortAI
+    struct npc_bessyAI : public EscortAI
     {
-        npc_bessyAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_bessyAI(Creature* creature) : EscortAI(creature) { }
 
         void JustDied(Unit* /*killer*/) override
         {
@@ -498,7 +498,7 @@ public:
                 player->FailQuest(Q_ALMABTRIEB);
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -569,9 +569,9 @@ class npc_maxx_a_million_escort : public CreatureScript
 public:
     npc_maxx_a_million_escort() : CreatureScript("npc_maxx_a_million_escort") { }
 
-    struct npc_maxx_a_million_escortAI : public npc_escortAI
+    struct npc_maxx_a_million_escortAI : public EscortAI
     {
-        npc_maxx_a_million_escortAI(Creature* creature) : npc_escortAI(creature)
+        npc_maxx_a_million_escortAI(Creature* creature) : EscortAI(creature)
         {
             Initialize();
         }
@@ -590,7 +590,7 @@ public:
             Initialize();
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -624,7 +624,7 @@ public:
 
         void UpdateAI(uint32 uiDiff) override
         {
-            npc_escortAI::UpdateAI(uiDiff);
+            EscortAI::UpdateAI(uiDiff);
 
             if (bTake)
             {

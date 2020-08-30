@@ -38,6 +38,7 @@ class Quest;
 class Player;
 class SpellInfo;
 class WorldSession;
+
 enum MovementGeneratorType : uint8;
 
 struct VendorItemCount
@@ -280,8 +281,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool hasQuest(uint32 quest_id) const override;
         bool hasInvolvedQuest(uint32 quest_id)  const override;
 
-        bool isRegeneratingHealth() { return m_regenHealth; }
-        void setRegeneratingHealth(bool regenHealth) { m_regenHealth = regenHealth; }
+        bool CanRegenerateHealth() { return !_regenerateHealthLock && _regenerateHealth; }
+        void SetRegenerateHealth(bool value) { _regenerateHealthLock = !value; }
         virtual uint8 GetPetAutoSpellSize() const { return MAX_SPELL_CHARM; }
         virtual uint32 GetPetAutoSpellOnPos(uint8 pos) const;
         float GetPetChaseDistance() const;
@@ -305,9 +306,14 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         uint32 GetCurrentWaypointID() const { return m_waypointID; }
         void UpdateWaypointID(uint32 wpID) { m_waypointID = wpID; }
 
+        bool IsReturningHome() const;
+
         void SearchFormation();
         CreatureGroup* GetFormation() { return m_formation; }
         void SetFormation(CreatureGroup* formation) { m_formation = formation; }
+        bool IsFormationLeader() const;
+        void SignalFormationMovement(Position const& destination, uint32 id = 0, uint32 moveType = 0, bool orientation = false);
+        bool IsFormationLeaderMoveAllowed() const;
 
         Unit* SelectVictim();
 
@@ -385,7 +391,6 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         bool m_AlreadyCallAssistance;
         bool m_AlreadySearchedAssistance;
-        bool m_regenHealth;
         bool m_cannotReachTarget;
         uint32 m_cannotReachTimer;
         bool m_AI_locked;
@@ -416,7 +421,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         //Formation var
         CreatureGroup* m_formation;
-        bool m_TriggerJustRespawned;
+        bool m_triggerJustAppeared;
         bool m_respawnCompatibilityMode;
 
         /* Spell focus system */
@@ -430,6 +435,10 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         time_t _lastDamagedTime; // Part of Evade mechanics
         CreatureTextRepeatGroup m_textRepeat;
+
+        // Regenerate health
+        bool _regenerateHealth; // Set on creation
+        bool _regenerateHealthLock; // Dynamically set
 };
 
 class TC_GAME_API AssistDelayEvent : public BasicEvent

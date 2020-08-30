@@ -354,18 +354,16 @@ class npc_black_knight_skeletal_gryphon : public CreatureScript
 public:
     npc_black_knight_skeletal_gryphon() : CreatureScript("npc_black_knight_skeletal_gryphon") { }
 
-    struct npc_black_knight_skeletal_gryphonAI : public npc_escortAI
+    struct npc_black_knight_skeletal_gryphonAI : public EscortAI
     {
-        npc_black_knight_skeletal_gryphonAI(Creature* creature) : npc_escortAI(creature)
+        npc_black_knight_skeletal_gryphonAI(Creature* creature) : EscortAI(creature)
         {
             Start(false, true);
         }
 
-        void WaypointReached(uint32 /*waypointId*/) override { }
-
         void UpdateAI(uint32 uiDiff) override
         {
-            npc_escortAI::UpdateAI(uiDiff);
+            EscortAI::UpdateAI(uiDiff);
 
             UpdateVictim();
         }

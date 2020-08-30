@@ -451,6 +451,19 @@ class TC_GAME_API AreaTriggerScript : public ScriptObject
         virtual bool OnTrigger(Player* /*player*/, AreaTriggerEntry const* /*trigger*/, bool /*entered*/) { return false; }
 };
 
+class TC_GAME_API OnlyOnceAreaTriggerScript : public AreaTriggerScript
+{
+    using AreaTriggerScript::AreaTriggerScript;
+
+    public:
+        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger, bool entered) override;
+
+    protected:
+        virtual bool _OnTrigger(Player* player, AreaTriggerEntry const* trigger, bool entered) = 0;
+        void ResetAreaTriggerDone(InstanceScript* instance, uint32 triggerId);
+        void ResetAreaTriggerDone(Player const* player, AreaTriggerEntry const* trigger);
+};
+
 class TC_GAME_API BattlegroundScript : public ScriptObject
 {
     protected:

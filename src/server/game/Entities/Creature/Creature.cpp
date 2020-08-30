@@ -282,14 +282,12 @@ bool ForcedDespawnDelayEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
     return true;
 }
 
-Creature::Creature(bool isWorldObject): Unit(isWorldObject), MapObject(),
-m_groupLootTimer(0), m_PlayerDamageReq(0),
-_pickpocketLootRestore(0), m_corpseRemoveTime(0), m_respawnTime(0),
-m_respawnDelay(300), m_corpseDelay(60), m_respawnradius(0.0f), m_boundaryCheckTime(2500), m_combatPulseTime(0), m_combatPulseDelay(0), m_reactState(REACT_AGGRESSIVE),
-m_defaultMovementType(IDLE_MOTION_TYPE), m_spawnId(UI64LIT(0)), m_equipmentId(0), m_originalEquipmentId(0), m_AlreadyCallAssistance(false),
-m_AlreadySearchedAssistance(false), m_regenHealth(true), m_cannotReachTarget(false), m_cannotReachTimer(0), m_AI_locked(false), m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL),
-m_originalEntry(0), m_homePosition(), m_transportHomePosition(), m_creatureInfo(nullptr), m_creatureData(nullptr), m_waypointID(0), m_path_id(0), m_formation(nullptr), m_respawnCompatibilityMode(false), m_focusSpell(nullptr), m_focusDelay(0), m_shouldReacquireTarget(false), m_suppressedOrientation(0.0f),
-_lastDamagedTime(0)
+Creature::Creature(bool isWorldObject): Unit(isWorldObject), MapObject(), m_groupLootTimer(0), m_PlayerDamageReq(0), _pickpocketLootRestore(0),
+    m_corpseRemoveTime(0), m_respawnTime(0), m_respawnDelay(300), m_corpseDelay(60), m_respawnradius(0.0f), m_boundaryCheckTime(2500), m_combatPulseTime(0), m_combatPulseDelay(0), m_reactState(REACT_AGGRESSIVE),
+    m_defaultMovementType(IDLE_MOTION_TYPE), m_spawnId(UI64LIT(0)), m_equipmentId(0), m_originalEquipmentId(0), m_AlreadyCallAssistance(false), m_AlreadySearchedAssistance(false), m_cannotReachTarget(false), m_cannotReachTimer(0),
+    m_AI_locked(false), m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL), m_originalEntry(0), m_homePosition(), m_transportHomePosition(), m_creatureInfo(nullptr), m_creatureData(nullptr), m_waypointID(0), m_path_id(0),
+    m_formation(nullptr), m_triggerJustAppeared(true), m_respawnCompatibilityMode(false), m_focusSpell(nullptr), m_focusDelay(0), m_shouldReacquireTarget(false), m_suppressedOrientation(0.0f), _lastDamagedTime(0),
+    _regenerateHealth(true), _regenerateHealthLock(false)
 {
     m_regenTimer = CREATURE_REGEN_INTERVAL;
 
@@ -302,7 +300,6 @@ _lastDamagedTime(0)
     m_CombatDistance = 0;//MELEE_RANGE;
 
     ResetLootMode(); // restore default loot mode
-    m_TriggerJustRespawned = false;
     m_isTempWorldObject = false;
 }
 
@@ -401,6 +398,14 @@ void Creature::DisappearAndDie()
     ForcedDespawn(0);
 }
 
+bool Creature::IsReturningHome() const
+{
+    if (GetMotionMaster()->GetMotionSlotType(MOTION_SLOT_ACTIVE) == HOME_MOTION_TYPE)
+        return true;
+
+    return false;
+}
+
 void Creature::SearchFormation()
 {
     if (IsSummon())
@@ -413,6 +418,33 @@ void Creature::SearchFormation()
     CreatureGroupInfoType::iterator frmdata = sFormationMgr->CreatureGroupMap.find(lowguid);
     if (frmdata != sFormationMgr->CreatureGroupMap.end())
         sFormationMgr->AddCreatureToGroup(frmdata->second->leaderGUID, this);
+}
+
+bool Creature::IsFormationLeader() const
+{
+    if (!m_formation)
+        return false;
+
+    return m_formation->IsLeader(this);
+}
+
+void Creature::SignalFormationMovement(Position const& destination, uint32 id/* = 0*/, uint32 moveType/* = 0*/, bool orientation/* = false*/)
+{
+    if (!m_formation)
+        return;
+
+    if (!m_formation->IsLeader(this))
+        return;
+
+    m_formation->LeaderMoveTo(destination, id, moveType, orientation);
+}
+
+bool Creature::IsFormationLeaderMoveAllowed() const
+{
+    if (!m_formation)
+        return false;
+
+    return m_formation->CanLeaderStartMoving();
 }
 
 void Creature::RemoveCorpse(bool setSpawnTime, bool destroyForNearbyPlayers)
@@ -472,7 +504,11 @@ void Creature::RemoveCorpse(bool setSpawnTime, bool destroyForNearbyPlayers)
 
             SaveRespawnTime(0, false);
         }
-        AddObjectToRemoveList();
+
+        if (TempSummon* summon = ToTempSummon())
+            summon->UnSummon();
+        else
+            AddObjectToRemoveList();
     }
 }
 
@@ -589,7 +625,7 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
 
     CreatureTemplate const* cInfo = GetCreatureTemplate();
 
-    m_regenHealth = cInfo->RegenHealth;
+    _regenerateHealth = cInfo->RegenHealth;
 
     // creatures always have melee weapon ready if any unless specified otherwise
     if (!GetCreatureAddon())
@@ -694,12 +730,12 @@ void Creature::Update(uint32 diff)
         SetDisplayId(m_outfit->GetDisplayId());
     }
 
-    if (IsAIEnabled && m_TriggerJustRespawned)
+    if (IsAIEnabled && m_triggerJustAppeared && m_deathState == ALIVE)
     {
-        m_TriggerJustRespawned = false;
-        AI()->JustRespawned();
-        if (m_vehicleKit)
+        if (m_respawnCompatibilityMode && m_vehicleKit)
             m_vehicleKit->Reset();
+        m_triggerJustAppeared = false;
+        AI()->JustAppeared();
     }
 
     UpdateMovementFlags();
@@ -879,7 +915,7 @@ void Creature::Update(uint32 diff)
 
             if (m_regenTimer == 0)
             {
-                bool bInCombat = IsInCombat() && (!GetVictim() ||                                        // if IsInCombat() is true and this has no victim
+                bool bInCombat = IsInCombat() && (!GetVictim() ||                                                            // if IsInCombat() is true and this has no victim
                                                   !EnsureVictim()->GetCharmerOrOwnerPlayerOrPlayerItself() ||                // or the victim/owner/charmer is not a player
                                                   !EnsureVictim()->GetCharmerOrOwnerPlayerOrPlayerItself()->IsGameMaster()); // or the victim/owner/charmer is not a GameMaster
 
@@ -963,7 +999,7 @@ void Creature::Regenerate(Powers power)
 
 void Creature::RegenerateHealth()
 {
-    if (!isRegeneratingHealth())
+    if (!CanRegenerateHealth())
         return;
 
     uint32 curValue = GetHealth();
@@ -1775,8 +1811,11 @@ void Creature::LoadEquipment(int8 id, bool force /*= true*/)
 
 void Creature::SetSpawnHealth()
 {
+    if (_regenerateHealthLock)
+        return;
+
     uint32 curhealth;
-    if (m_creatureData && !m_regenHealth)
+    if (m_creatureData && !_regenerateHealth)
     {
         curhealth = m_creatureData->curhealth;
         if (curhealth)
@@ -1859,8 +1898,8 @@ void Creature::DeleteFromDB()
     WorldDatabase.CommitTransaction(trans);
 
     // then delete any active instances of the creature
-    auto const& range = GetMap()->GetCreatureBySpawnIdStore().equal_range(m_spawnId);
-    for (auto it = range.first; it != range.second; ++it)
+    auto const& spawnMap = GetMap()->GetCreatureBySpawnIdStore();
+    for (auto it = spawnMap.find(m_spawnId); it != spawnMap.end(); it = spawnMap.find(m_spawnId))
         it->second->AddObjectToRemoveList();
 }
 
@@ -2136,13 +2175,10 @@ void Creature::Respawn(bool force)
             //Re-initialize reactstate that could be altered by movementgenerators
             InitializeReactState();
 
-            //Call AI respawn virtual function//Call AI respawn virtual function
-            if (IsAIEnabled)
-            {
-                //reset the AI to be sure no dirty or uninitialized values will be used till next tick
+            if (IsAIEnabled) // reset the AI to be sure no dirty or uninitialized values will be used till next tick
                 AI()->Reset();
-                m_TriggerJustRespawned = true;//delay event to next tick so all creatures are created on the map before processing
-            }
+
+            m_triggerJustAppeared = true;
 
             uint32 poolid = GetSpawnId() ? sPoolMgr->IsPartOfAPool<Creature>(GetSpawnId()) : 0;
             if (poolid)

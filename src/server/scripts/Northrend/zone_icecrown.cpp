@@ -432,7 +432,7 @@ public:
 
         void Reset() override
         {
-            me->setRegeneratingHealth(false);
+            me->SetRegenerateHealth(false);
             DoCast(SPELL_THREAT_PULSE);
             Talk(BANNER_SAY);
             events.ScheduleEvent(EVENT_SPAWN, 3000);

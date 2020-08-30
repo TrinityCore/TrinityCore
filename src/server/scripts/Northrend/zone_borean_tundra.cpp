@@ -568,9 +568,9 @@ class npc_lurgglbr : public CreatureScript
 public:
     npc_lurgglbr() : CreatureScript("npc_lurgglbr") { }
 
-    struct npc_lurgglbrAI : public npc_escortAI
+    struct npc_lurgglbrAI : public EscortAI
     {
-        npc_lurgglbrAI(Creature* creature) : npc_escortAI(creature)
+        npc_lurgglbrAI(Creature* creature) : EscortAI(creature)
         {
             Initialize();
         }
@@ -590,7 +590,7 @@ public:
                 Initialize();
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             switch (waypointId)
             {
@@ -656,7 +656,7 @@ public:
                     }
                 } else IntroTimer -= diff;
             }
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
 
             if (!UpdateVictim())
                 return;
@@ -791,9 +791,9 @@ class npc_thassarian : public CreatureScript
 public:
     npc_thassarian() : CreatureScript("npc_thassarian") { }
 
-    struct npc_thassarianAI : public npc_escortAI
+    struct npc_thassarianAI : public EscortAI
     {
-        npc_thassarianAI(Creature* creature) : npc_escortAI(creature)
+        npc_thassarianAI(Creature* creature) : EscortAI(creature)
         {
             Initialize();
         }
@@ -835,7 +835,7 @@ public:
             Initialize();
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -870,7 +870,7 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
 
             if (arthasInPosition && talbotInPosition)
             {
@@ -1635,9 +1635,9 @@ class npc_mootoo_the_younger : public CreatureScript
 public:
     npc_mootoo_the_younger() : CreatureScript("npc_mootoo_the_younger") { }
 
-    struct npc_mootoo_the_youngerAI : public npc_escortAI
+    struct npc_mootoo_the_youngerAI : public EscortAI
     {
-        npc_mootoo_the_youngerAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_mootoo_the_youngerAI(Creature* creature) : EscortAI(creature) { }
 
         void Reset() override
         {
@@ -1650,7 +1650,7 @@ public:
                 player->FailQuest(QUEST_ESCAPING_THE_MIST);
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -1724,9 +1724,9 @@ class npc_bonker_togglevolt : public CreatureScript
 public:
     npc_bonker_togglevolt() : CreatureScript("npc_bonker_togglevolt") { }
 
-    struct npc_bonker_togglevoltAI : public npc_escortAI
+    struct npc_bonker_togglevoltAI : public EscortAI
     {
-        npc_bonker_togglevoltAI(Creature* creature) : npc_escortAI(creature)
+        npc_bonker_togglevoltAI(Creature* creature) : EscortAI(creature)
         {
             Initialize();
         }
@@ -1764,7 +1764,7 @@ public:
             else Bonker_agro=0;
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)

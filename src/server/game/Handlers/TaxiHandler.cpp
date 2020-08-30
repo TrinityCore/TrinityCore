@@ -19,10 +19,12 @@
 #include "Common.h"
 #include "ConditionMgr.h"
 #include "Containers.h"
+#include "Creature.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "Log.h"
 #include "Map.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -134,8 +136,7 @@ void WorldSession::SendDoFlight(uint32 mountDisplayId, uint32 path, uint32 pathN
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    while (GetPlayer()->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE)
-        GetPlayer()->GetMotionMaster()->MovementExpired(false);
+    GetPlayer()->GetMotionMaster()->Clear(MOTION_SLOT_CONTROLLED);
 
     if (mountDisplayId)
         GetPlayer()->Mount(mountDisplayId);
