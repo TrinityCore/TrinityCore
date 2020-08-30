@@ -161,11 +161,6 @@ UPDATE `points_of_interest` SET `VerifiedBuild`=14545 WHERE `ID`=471;
 UPDATE `points_of_interest` SET `VerifiedBuild`=14545 WHERE `ID`=470;
 UPDATE `points_of_interest` SET `VerifiedBuild`=14545 WHERE `ID`=469;
 UPDATE `points_of_interest` SET `PositionX`=-8425.3701171875, `Flags`=103, `VerifiedBuild`=14545 WHERE `ID`=25;
-
-UPDATE `gossip_menu_option` SET `VerifiedBuild`='0' WHERE  `MenuId`=1291 AND `OptionIndex`=1;
-UPDATE `gossip_menu_option` SET `VerifiedBuild`='0' WHERE  `MenuId`=1291 AND `OptionIndex`=2;
-UPDATE `gossip_menu_option` SET `VerifiedBuild`='0' WHERE  `MenuId`=1291 AND `OptionIndex`=3;
-
 UPDATE `gossip_menu_option` SET `OptionText`='Send me back to Razaan\'s Landing.', `OptionBroadcastTextId`=19731, `VerifiedBuild`=14545 WHERE (`MenuId`=8455 AND `OptionIndex`=2);
 UPDATE `gossip_menu_option` SET `OptionText`='Send me back to the Singing Ridge.', `OptionBroadcastTextId`=19730, `VerifiedBuild`=14545 WHERE (`MenuId`=8455 AND `OptionIndex`=1);
 UPDATE `gossip_menu_option` SET `OptionText`='Take me to Ruuan.', `VerifiedBuild`=14545 WHERE (`MenuId`=8304 AND `OptionIndex`=3);
