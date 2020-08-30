@@ -159,7 +159,8 @@ enum Events
     EVENT_ENCASING_SHADOWS,
     EVENT_TALK_ROOT_PLAYER,
     EVENT_OVERCHARGE,
-    EVENT_TALK_OVERCHARGE_POWER_GENERATOR
+    EVENT_TALK_OVERCHARGE_POWER_GENERATOR,
+    EVENT_CLEAR_ABILITY_COOLDOWN
 };
 
 enum Actions
@@ -1009,7 +1010,7 @@ private:
 
 struct npc_lord_victor_nefarius_omnotron : public PassiveAI
 {
-    npc_lord_victor_nefarius_omnotron(Creature* creature) : PassiveAI(creature), _instance(me->GetInstanceScript()) { }
+    npc_lord_victor_nefarius_omnotron(Creature* creature) : PassiveAI(creature), _instance(me->GetInstanceScript()), _abilitiesOnCooldown(false) { }
 
     void IsSummonedBy(Unit* /*summoner*/) override
     {
@@ -1026,15 +1027,19 @@ struct npc_lord_victor_nefarius_omnotron : public PassiveAI
             return;
 
         // Lord Victor Nefarius only manipulates the abilities of longest active golem at a time
-        if (IsPreferedGolem(summoned->GetSummonerGUID()))
+        if (!_abilitiesOnCooldown)
         {
             switch (summon->GetEntry())
             {
                 case NPC_CHEMICAL_CLOUD:
                     _events.ScheduleEvent(EVENT_TELEPORT_INTO_CHEMICAL_CLOUD, 2s);
+                    _abilitiesOnCooldown = true;
+                    _events.ScheduleEvent(EVENT_CLEAR_ABILITY_COOLDOWN, 30s);
                     break;
                 case NPC_POWER_GENERATOR:
                     _events.ScheduleEvent(EVENT_OVERCHARGE, 10s);
+                    _abilitiesOnCooldown = true;
+                    _events.ScheduleEvent(EVENT_CLEAR_ABILITY_COOLDOWN, 30s);
                     break;
                 default:
                     break;
@@ -1049,17 +1054,25 @@ struct npc_lord_victor_nefarius_omnotron : public PassiveAI
             case ACTION_CAST_SHADOW_INFUSION:
                 if (Creature* electron = _instance->GetCreature(DATA_ELECTRON))
                 {
-                    if (IsPreferedGolem(electron->GetGUID()))
+                    if (!_abilitiesOnCooldown)
                     {
                         DoCastAOE(SPELL_SHADOW_INFUSION);
                         _events.ScheduleEvent(EVENT_TALK_MANIPULATE_LIGHTNING_CONDUCTOR, 6s);
+                        _abilitiesOnCooldown = true;
+                        _events.ScheduleEvent(EVENT_CLEAR_ABILITY_COOLDOWN, 30s);
                     }
                 }
                 break;
             case ACTION_CAST_ENCASING_SHADOWS:
                 if (Creature* magmatron = _instance->GetCreature(DATA_MAGMATRON))
-                    if (IsPreferedGolem(magmatron->GetGUID()))
+                {
+                    if (!_abilitiesOnCooldown)
+                    {
                         _events.ScheduleEvent(EVENT_ENCASING_SHADOWS, 300ms);
+                        _abilitiesOnCooldown = true;
+                        _events.ScheduleEvent(EVENT_CLEAR_ABILITY_COOLDOWN, 30s);
+                    }
+                }
                 break;
             default:
                 break;
@@ -1109,9 +1122,11 @@ struct npc_lord_victor_nefarius_omnotron : public PassiveAI
                 case EVENT_TALK_OVERCHARGE_POWER_GENERATOR:
                     Talk(SAY_OVERCHARGE_POWER_GENERATOR);
                     break;
+                case EVENT_CLEAR_ABILITY_COOLDOWN:
+                    _abilitiesOnCooldown = false;
+                    break;
                 default:
                     break;
-
             }
         }
     }
@@ -1119,23 +1134,7 @@ struct npc_lord_victor_nefarius_omnotron : public PassiveAI
 private:
     EventMap _events;
     InstanceScript* _instance;
-
-    bool IsPreferedGolem(ObjectGuid guid) const
-    {
-        Unit* preferedGolem = nullptr;
-        for (uint8 i = DATA_ELECTRON; i < DATA_ELECTRON + 4; i++)
-        {
-            if (Creature* golem = _instance->GetCreature(i))
-                if (!golem->HasAura(SPELL_INACTIVE))
-                    if (!preferedGolem || (golem->GetPower(POWER_ENERGY) && golem->GetPower(POWER_ENERGY) <= preferedGolem->GetPower(POWER_ENERGY)))
-                        preferedGolem = golem;
-        }
-
-        if (preferedGolem && preferedGolem->GetGUID() == guid)
-            return true;
-
-        return false;
-    }
+    bool _abilitiesOnCooldown;
 };
 
 class DistanceCheck
